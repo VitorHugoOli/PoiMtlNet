@@ -3,7 +3,7 @@
 > **STATUS: DRAFT, NOT FINAL.** This is the P1b inventory reconciled with the B1–B5 baseline triage. The
 > *real* RUN_MATRIX is signed off by the user at the **P2 freeze** (PLAN §P2 / §Remaining sign-off). Do not
 > treat any disposition here as committed. Authoritative inputs:
-> [`PHASE1_VERDICT.md`](PHASE1_VERDICT.md) §3 (P1a dispositions, honored row-for-row),
+> [`PHASE1_VERDICT.md`](archive/verdicts/PHASE1_VERDICT.md) §3 (P1a dispositions, honored row-for-row),
 > [`PLAN.md`](PLAN.md) §P1b/§P2/§P3, [`PRE_FREEZE_PROGRAM.md`](../PRE_FREEZE_PROGRAM.md) gate ledger,
 > [`TABLES_FIGURES.md`](../../../articles/[BRACIS]_Beyond_Cross_Task/TABLES_FIGURES.md) T1–T5/F1–F2/F-arch,
 > [`RESULTS_TABLE.md`](../../results/RESULTS_TABLE.md) §0.1–§0.9,

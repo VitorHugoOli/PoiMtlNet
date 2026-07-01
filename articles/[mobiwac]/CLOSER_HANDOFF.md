@@ -1,9 +1,17 @@
 # CLOSER_HANDOFF — MobiWac 2026: what's left to close the paper
 
+> 🔀 **v17 SWITCH (2026-07-01).** The paper's headline is now **v17** (= v16 + bs8192 + per-head cat-lr 1e-3;
+> `DEFAULT_CANON`). The remaining runs to make the whole board v17 are organized by machine in the new track
+> **[`../../docs/studies/closing_data/v17_completion/`](../../docs/studies/closing_data/v17_completion/README.md)**
+> (H100 = n=20 · A40 = the rest fast→slow · M2 Pro = simple analysis). This doc is the paper-facing close-out; the
+> per-machine run specs live in that track. **v17 status:** MTL n=20 DONE at AL/AZ/FL, seed-0 5f DONE at CA/TX
+> (cat is a state-size trade: wins small, −0.28 at CA/TX, reg-neutral+); **open = CA/TX n=20 + the STL-cat-ceiling
+> re-tune (n=20, all states) + the Istanbul dk_ovl rebuild.**
+
 > **Bottom line.** The **9-page draft is submittable today** (submission sweep 2026-07-01: 0 undefined refs, 0 bibtex
-> warnings, 0 overfull boxes, glossary-clean). **Exactly one data gap — P1 (n=20 multi-seed) — changes a reviewer's
-> verdict; everything else is coverage/robustness.** Submission is 3 small mechanical steps. This doc is the ordered,
-> executable close-out list. Numbers/paths trace to `docs/studies/closing_data/RESULTS_BOARD.md §3`.
+> warnings, 0 overfull boxes, glossary-clean). **Exactly one data gap — P1 (n=20 multi-seed, now on the v17 recipe) —
+> changes a reviewer's verdict; everything else is coverage/robustness.** Submission is 3 small mechanical steps. This
+> doc is the ordered, executable close-out list. Numbers/paths trace to `docs/studies/closing_data/RESULTS_BOARD.md §3`.
 
 ## 0 · Status at a glance
 - **Paper:** compiling 9-page IEEE two-column draft; abstract + §1–§8 + Tbl 1–3 + Fig 1–4; **26 cited refs**, all resolve.
@@ -25,10 +33,15 @@
 
 ## 2 · Data gaps to close (ordered by priority)
 
-### ⭐ P1 — n=20 multi-seed top-up {1,7,100}: MTL champion-G + STL category ceiling, 5 Gowalla states  **[VERDICT-CHANGER]**
-- **What.** Take Part-2 (Table 3) for AL/AZ/FL/CA/TX from **n=5 (seed 0 × 5f)** to **n=20 (seeds {0,1,7,100} × 5f)**.
-  Only the **MTL champion-G** cell and the **STL category ceiling** are missing at each state. **Do NOT re-run the STL
-  region ceiling — it is already n=20 at all 6 states.** (Istanbul is already n=20.)
+### ⭐ P1 — n=20 multi-seed top-up {1,7,100} on the **v17** recipe: MTL + STL category ceiling, 5 Gowalla states  **[VERDICT-CHANGER]**
+> **Run specs live in the machine track** — [`v17_completion/`](../../docs/studies/closing_data/v17_completion/README.md)
+> (H1 CA/TX n=20 · H2 STL-cat re-tune · M1 re-score/stats). This is the paper-facing summary.
+- **What.** Take Part-2 (Table 3) for AL/AZ/FL/CA/TX from **n=5 (seed 0 × 5f)** to **n=20** on the **v17** recipe.
+  **v17 MTL n=20 is DONE at AL/AZ/FL** (`perhead_lr_n20.md`); **CA/TX v17 seed-0 5f is DONE** (`catx_v17_seed0_5f/`) →
+  only CA/TX seeds {1,7,100} remain (**H1, H100**). The **STL category ceiling must be re-tuned to v17** (bs8192 +
+  cat-lr 1e-3) and taken to n=20 at **all 5 states** — it exists only at seed-0 on the old recipe, so no cell can be
+  paired yet (**H2**, the pairing blocker). **Do NOT re-run the STL region ceiling — already n=20 at all 6 states**
+  (reg is v17-flat). Istanbul → **rebuild on `dk_ovl` + v17** (**H3, H100**; see the Istanbul item below).
 - **Why it matters (the ONLY verdict-changer).** At n=5 every cell sits at the Wilcoxon floor p=0.0312 and per-cell
   Holm cannot clear 0.05. At n=20, real effects reach sub-1e-4, **per-cell Holm clears**, "provisional" becomes
   paper-grade, the pooled-fold pseudoreplication workaround is retired, and the seed-0 development-bias caveat (worst
@@ -66,7 +79,11 @@
 - **Caveats to state.** The seed-0 board is fp32 (AL/AZ/FL/TX) + clean bf16 (CA); the {1,7,100} top-up is pinned bf16,
   so the pool mixes precisions — acceptable per the board's own verdict (bf16≈fp32, Δ≤0.12 pp, eval fp32-matched,
   `RESULTS_BOARD §2`) but disclose it. `RUN_MATRIX §0` still lists 6 states incl. GE — **GE is out of paper scope.**
-- **Status: BLOCKED / not-started** (H100 lane). **Non-blocking for submission** (§6.2 already labels cells n=5 provisional).
+- **Status (v17): PARTIAL.** MTL n=20 DONE at AL/AZ/FL; CA/TX seed-0 5f DONE; **open = CA/TX n=20 (H1) + STL-cat
+  re-tune n=20 all states (H2) + Istanbul rebuild (H3)**, all on the H100. The A40 is a slow-but-feasible fallback for
+  H1 (~1.5 d serial; the old "A40 infeasible" was a tqdm misread — `CATX_V17_N20_H100_HANDOFF.md`). The `p3_board.sh`
+  commands above are the **v16** recipe — for v17 use the track's H2/H1 recipes. **Non-blocking for submission** (§6.2
+  labels cells n=5 provisional).
 
 ### P2 — Extend the transductive-leak audit (A4) to CA / TX / Istanbul  **[coverage, not a verdict]**
 - **What.** The train-users-only rebuild audit (rebuild the representation per fold on train users only, re-run both
@@ -109,15 +126,31 @@
   not in this checkout** — needs the run-machine artifacts (H100/A40/Mac SSD), not just the repo.
 - **Status: not-started; deferred.**
 
-### (Decision, not a ranked gap) Istanbul on the `check2hgi_dk_ovl` substrate?
-- Istanbul's Part-2 cells are on the **earlier GCN / stride-1** substrate, not the design_k `dk_ovl` substrate the 5
-  Gowalla states use. The paper already handles this honestly (reported as **gap-to-ceiling / lift, never absolute
-  Acc@10**; the beats-cat / matches-reg pattern replicates regardless of substrate). Rebuilding on dk_ovl would remove
-  the "cross-substrate" caveat and make both parts fully six-state on one windowing, but it is **net-new work (a full
-  Istanbul board regeneration, H100), on no ranked backlog item**. **Recommendation: keep the honest cross-substrate
-  caveat; do NOT rebuild unless the reviewers specifically ask.** (Author decision, not a to-do.)
+### P3 — Istanbul rebuild on `check2hgi_dk_ovl` + v17  **[H3, H100 — user decision 2026-07-01: REBUILD]**
+- Istanbul's Part-2 cells are on the **earlier GCN / stride-1** substrate, not the `dk_ovl` substrate the 5 Gowalla
+  states use → a "cross-substrate" caveat. **Decision (reversed 2026-07-01): rebuild Istanbul on `dk_ovl` + v17** so
+  both parts are fully six-state on one windowing and the caveat drops. This is net-new full-board regeneration (H100).
+- **What.** Build the `dk_ovl` substrate for Istanbul (mahalle) → v17 MTL n=20 + STL cat/region ceilings n=20 →
+  re-foot the substrate-bound baselines (HGI Tbl-2, CTLE-SC); region externals (HMT-GRN/STAN) are substrate-independent.
+- **Machine: H100** (H3 in [`v17_completion/H100.md`](../../docs/studies/closing_data/v17_completion/H100.md)).
+- **Acceptance.** Istanbul §1 on `dk_ovl`+v17; drop the cross-substrate prose in §5/§6 + the RESULTS_BOARD "stride-1 GCN"
+  note. **Sanity: the beats-cat / matches-reg pattern MUST replicate** (it did across substrates) — if it flips, STOP + report.
+- **Status: not-started (H100).**
+
+### S1 — STAN: precision-mix disclosure + v4-collapse guard  **[doc hygiene — the STAN track]**
+- **STAN needs no run** — faithful STAN is DONE + citable (AL 60.72 / AZ 49.86 / FL 72.99 / Istanbul 61.86, all verified
+  exact to Table 3; CA/TX stay footnote-infeasible, an O(R) matching-layer wall). **But two doc items are owed:**
+  1. **Disclose the precision/version mix** (one sentence in `docs/baselines/next_region/stan.md` + the Table 3 STAN
+     footnote if room): AL/AZ = **v5_compiled fp32**, FL = **v6_opt bf16**, Istanbul = **v5_bf16c bf16** — same faithful
+     recipe (v6 = v5 + bit-identical perf opts; bf16 A/B quality-neutral ≤0.07 pp; matches the board precision policy).
+  2. **Guard the v4 collapse**: the old v4/seed-42 STAN (AL 34.46 / AZ 38.96, **below the Markov floor**) is a
+     **superseded under-trained collapse — never cite** (it still sits in `faithful_stan_*_v4.json` on disk).
+- **Machine: M2 Pro** (M4 in [`v17_completion/M2PRO.md`](../../docs/studies/closing_data/v17_completion/M2PRO.md)). **Status: open (doc-only).**
 
 ## 3 · Already CLOSED — do NOT redo
+**v17 MTL n=20 at AL/AZ/FL** (`perhead_lr_n20.md`: AL 64.54/69.80, AZ 65.84/59.56, FL 79.85/77.42);
+**v17 MTL seed-0 5f at CA/TX** (`catx_v17_seed0_5f/`: CA 77.04/65.69, TX 77.23/67.07 — cat is a state-size trade,
+kept board-wide); **DEFAULT_CANON flipped to v17**;
 Faithful **STAN FL** (Acc@10 **72.99**±0.34, `faithful_stan_florida_5f_200ep_v6_opt.json`; CA/TX optional→footnoted);
 HGI-Istanbul → Tbl 2 (+26.64); Tbl 2 substrate contrast, all 5 Gowalla on one windowing; W6 encoder-isolation probe;
 CSLSL cascade tie; FL CTLE-E2E + CTLE-SC (AL/AZ/Istanbul); HMT-GRN (6 states); feature-concat control (FL); §5.2 leak-Δ
@@ -130,8 +163,10 @@ sourcing (A4 AL/AZ/FL); reviewer-clarity + bib hygiene.
 3. The backlog's single `p3_board.sh` command runs the **MTL cell only** — the STL category ceiling at {1,7,100} is a
    **separate** `train.py --task next … --model next_gru` run.
 
-## 5 · Priority ledger
-**P1 (H100, n=20 MTL + STL-cat, VERDICT-CHANGER, blocked)** ≫ P2 (A4 leak CA/TX/Istanbul, coverage, needs a shapefile
-code-add) > P5 (ReHDM CA/TX/Istanbul, coverage, ~75–120 h/state + Istanbul adapter) > P4 (3 bridging re-score cells,
-cheap but needs gitignored logits). **STAN-FL is done; Istanbul-on-dk_ovl is not a gap. Only P1 changes a verdict — the
-draft is submittable today.**
+## 5 · Priority ledger (v17)
+**P1 (H100, VERDICT-CHANGER)** = H1 CA/TX v17 n=20 + H2 STL-cat re-tune n=20 + M1 re-score/stats ≫ **P3/H3** (Istanbul
+dk_ovl+v17 rebuild, H100, removes the last caveat) > **S1** (STAN precision-mix disclosure, M2 Pro, doc) > P2 (A4 leak
+CA/TX/Istanbul, M2 Pro/CPU, coverage) > P5 (ReHDM CA/TX/Istanbul, A40, ~75–120 h/state, footnote-OK) > P4 (bridging
+re-score, needs gitignored logits). **v17 AL/AZ/FL n=20 + CA/TX seed-0 are done; STAN-FL is done. Only P1 changes a
+verdict — the draft is submittable today (cells labeled n=5 provisional).** Full run specs + machine split:
+[`v17_completion/`](../../docs/studies/closing_data/v17_completion/README.md).
