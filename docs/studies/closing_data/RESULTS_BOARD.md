@@ -13,18 +13,24 @@
 
 ## 1 · Part-2 headline — MTL champion-G vs dedicated STL ceilings (Δ in pp)
 
-> 🏆 **NEW CHAMPION — `--canon v17` (now `DEFAULT_CANON`; AL/AZ/FL done, CA/TX RUNNING at n=20):** **bs=8192 + cat-lr 1e-3**
-> via `--onecycle-per-head-lr` **beats every §1 cell** at n=20 (`perhead_lr_n20.md`):
+> 🏆 **CHAMPION — `--canon v17` (`DEFAULT_CANON`):** **bs=8192 + cat-lr 1e-3** via `--onecycle-per-head-lr`. The
+> per-head cat-LR is a **STATE-SIZE trade** (not a strict board-wide cat win — kept board-wide by user decision
+> 2026-07-01 for the small-state gains + single-champion simplicity; reg is neutral+ everywhere):
 >
-> | state | v17 cat | §1 champion cat | Δ | reg |
-> |---|---|---|---|---|
-> | AL | **64.54** | 63.56 | **+0.99** | 69.80 |
-> | AZ | **65.84** | 63.39 | **+2.45** | 59.56 |
-> | FL | **79.85** | 79.82 (n=20 base 79.68) | **+0.17 / +0.20 reg, ~7% faster** | 77.42 |
+> | state (regions) | v17 cat | comparand cat | Δcat | v17 reg | reg Δ | source |
+> |---|---|---|---|---|---|---|
+> | AL (1109) | **64.54** | 63.56 | **+0.99** | 69.80 | ≈ | n=20 `perhead_lr_n20.md` |
+> | AZ (1547) | **65.84** | 63.39 | **+2.45** | 59.56 | ≈ | n=20 `perhead_lr_n20.md` |
+> | FL (4703) | **79.85** | 79.68 (n=20 base) | **+0.17** | 77.42 | **+0.20** | n=20 `perhead_lr_n20.md` |
+> | CA (8501) | 77.04±0.20 | 77.33 (bf16 board) | **−0.29** | 65.69±0.30 | **+0.03** | s0-5f `catx_v17_seed0_5f/RESULTS.md` |
+> | TX (6553) | 77.23±0.12 | 77.51 (**fp32** board) | **−0.28** | 67.07±0.45 | **+0.05** | s0-5f `catx_v17_seed0_5f/RESULTS.md` |
 >
-> §1 below stays the **board of record** (n=5 seed-0, all 5 states + Istanbul) until CA/TX land at matched n; v17 is
-> not in the §1 headline yet. The §1 champion's per-head LRs are inert under onecycle (effective uniform 3e-3) —
-> activating cat-lr 1e-3 is the lever (`CANONICAL_VERSIONS §v17`). v17 is the default champion; §1 headline updates once CA/TX land at matched n + the flag-OFF parity test.
+> **Honest read:** v17's cat lever **wins at small/mid states (+0.2…+2.5)** but **costs ~0.28 pp cat at the two
+> largest states (CA/TX)**, while **reg ties/beats everywhere**. The large-state dip is **real, not a bf16 artifact**
+> — TX's board is fp32 (clean same-precision) and still −0.28 (~2σ), matching CA's −0.29. §1 below stays the **board
+> of record** (n=5 seed-0) until CA/TX land at **n=20 on the H100** ({1,7,100}; `run_catx_v17_n20_h100.sh`), which
+> firms the large-state Δcat significance. v17 remains `DEFAULT_CANON`; §1 headline updates after the H100 n=20 +
+> the flag-OFF parity test.
 
 Champion-G = `mtlnet_crossattn_dualtower` + `next_stan_flow_dualtower` (reg) + `next_gru` (cat); unweighted CE,
 static_weight cw=0.75, onecycle max-lr 3e-3, geom_simple selector; fp32-matched (`r0_matched_rescore.py`).
