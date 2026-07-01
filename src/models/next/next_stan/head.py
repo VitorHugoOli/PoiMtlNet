@@ -56,8 +56,10 @@ from models.registry import register_model
 # Perf P1 (train_perf_multifold) replaced the data-dependent ``.any()`` mask guards with
 # vectorised, unconditional equivalents — byte-identical in eager, but under ``torch.compile``
 # removing the graph break lets inductor fuse differently (≤0.3pp/fold FP drift, within fold-std).
-# Set MTL_STAN_LEGACY_MASK=1 to restore the original guarded path for BIT-EXACT --compile
-# reproduction of a pre-P1 frozen cell (eager is bit-exact either way). Default off → fast path.
+# Set MTL_STAN_LEGACY_MASK=1 to restore the original guarded (graph-break) path. NOTE (Phase-5c
+# correction): this does NOT give bit-exact --compile reproduction — the compiled number is governed
+# by the inductor-cache session, not this gate (with a fresh cache, mask-on == mask-off). Eager is
+# bit-exact either way and is the ground truth; the flag is only the slower guarded path. Default off.
 _LEGACY_STAN_MASK = os.environ.get("MTL_STAN_LEGACY_MASK") == "1"
 
 # MTL_STAN_FP32_ATTN=1 runs the masked-softmax attention (QK^T → +bias → mask → softmax → AV)

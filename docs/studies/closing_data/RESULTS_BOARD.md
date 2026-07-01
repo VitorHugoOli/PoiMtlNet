@@ -122,6 +122,23 @@ all states; 0 nan). **n=5 provisional.** Full cell: `W6_ENCODER_ISOLATION.md`; J
 - **100-epoch schedule = NULL** (AL cat +0.21/reg −0.39; FL cat −0.53/reg −0.18; OneCycle best-val rides the
   anneal tail at any length) → **frozen 50ep cells stand.** (`EP100_ABLATION_AND_TX_RAM.md`.)
 
+### 2a · Execution modes & default-flips (PR #56, `train_perf_multifold`, merged 2026-07-01)
+Perf/tooling PR — **the champion (v16) default training path is byte-identical** (7-dimension adversarial review:
+0 blocker/high; check2hgi engine + MTLnet + category heads untouched; the 3 STAN reg-head edits are identity-
+equivalent mask refactors / opt-in fp32-attn). Full env/flag reference: [`../../SYSTEM_REFERENCE.md §3`](../../SYSTEM_REFERENCE.md);
+guard contract: [`../pre_freeze_gates/DEFAULTS_AND_GUARDS.md`](../pre_freeze_gates/DEFAULTS_AND_GUARDS.md). For reproducing board cells:
+- ⚠ **DEFAULT-FLIP — `auto-fp32` for large-C MTL.** A bare `FL/CA/TX` (reg C>2000) MTL run on Ampere+ now defaults
+  to **fp32** (was fp16). This only replaces the old fp16 large-C path, which was the ep30 NaN-collapse **bug**
+  (`CA_MTL_DIVERGENCE.md`) — never a valid frozen number. **Frozen board cells are unaffected** (every driver sets
+  `MTL_DISABLE_AMP=1`/`MTL_AUTOCAST_BF16=1` explicitly → auto-fp32 is inert). Small states (AL/AZ, C<2000) keep fp16.
+- ✅ **DEFAULT-ON — `MTL_SKIP_INERT_LOGT`.** The champion no longer loads per-fold log_T (byte-identical; alpha=0
+  folds it out). `=0` restores the legacy load+leak-guard.
+- **Opt-in modes (default-OFF, byte-identical when off):** `--canon v17` (= v16 + bs8192 + `--onecycle-per-head-lr`;
+  the §1 candidate) · fold fan-out (`--only-folds/--run-id/--per-fold-seed` + `run_folds_fanout.sh` + `aggregate_folds.py`)
+  · `--profile` · `MTL_STAN_FP32_ATTN` / `MTL_STAN_LEGACY_MASK`.
+- ⚠ **Fan-out RNG caveat:** `--per-fold-seed`/`--run-id` reseed `seed+fold_id` → an order-independent baseline,
+  **NOT bit-identical to a frozen sequential cell**; never use fan-out to regenerate/extend a §1 frozen cell.
+
 ## 3 · File map — where every result lives (the de-spread index)
 **MTL + STL matched-score JSONs:** `docs/results/closing_data/`
 - `h100/{alabama,arizona}_s0_mtl_fp32_matched_score.json` · `florida_s0_mtl_fp32_5f_matched_score.json` — MTL (main)

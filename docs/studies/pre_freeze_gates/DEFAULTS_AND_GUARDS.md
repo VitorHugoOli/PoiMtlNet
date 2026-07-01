@@ -25,6 +25,8 @@
 | num_workers | 0 | hard-0 (`folds.py`) | CODE-DEFAULT | ✅ enforced (workers rejected) |
 | batch-size / n_splits / window | 2048 / 5 / 9 | bundle + `InputsConfig` | CODE-DEFAULT | ✅ enforced |
 | loss-scale-norm | OFF | `False` | CODE-DEFAULT | ✅ enforced (excluded) |
+| **auto-fp32 (large-C MTL)** | fp32 for reg C>2000 | fp16 → **fp32** on Ampere+ when no precision env set (`mtl_cv.py` `_auto_fp32_for_large_c`) | **CODE-DEFAULT (PR #56, 2026-06-30)** | ✅ byte-identical on board cells (all drivers set precision explicitly); small states C<2000 keep fp16; explicit `MTL_DISABLE_AMP`/`MTL_AUTOCAST_BF16` always wins |
+| **MTL_SKIP_INERT_LOGT** | ON | **default-on** (`mtl_cv.py`); skips per-fold log_T load when the prior is provably inert (the champion) | **CODE-DEFAULT (PR #56, 2026-06-26)** | ✅ byte-identical (alpha=0 folds log_T out of the loss); `=0` restores legacy always-load+guard; frees the champion from needing log_T files |
 | **MIN_SEQUENCE_LENGTH** | **10** (P3 rebuild) | **5** (`core.py:17`) | **P3-BOARD-RECIPE** | ⚠ NOT global — flip only at the P3 rebuild |
 | **stride / overlap** | **1** (P3 board) | **9 / non-overlap** (`core.py:26,56`) | **P3-BOARD-RECIPE** (or `check2hgi_dk_ovl` engine) | ⚠ NOT global — Lane-2-gated |
 | **compile + tf32** | **ON** (P3 board) | **OFF** (`train.py`), not in canon | **P3-BOARD-RECIPE** | ⚠ board driver passes uniformly; NEVER in canon |
@@ -98,3 +100,9 @@ uses strict `>`). **Pinned by `tests/test_scripts/test_p1_val_chunk_guard.py`** 
     STL reg-ceiling OOMing at TX/CA overlap scale; CPU≡GPU at reporting precision). `tests/test_scripts/
     test_p1_val_chunk_guard.py` pins it. (Mirror lesson: a memory fix here was once silently reverted by a merge —
     `33fe18da`→`dade24ad`, OOM_MEMORY_FIX.md.) Don't "optimise" it back to a GPU `torch.cat` of the full val logit.
+11. Never assume a **bare large-state MTL run** (`FL/CA/TX`, reg C>2000) reproduces an **fp16** baseline — since PR #56
+    it **auto-defaults to fp32** on Ampere+ (`_auto_fp32_for_large_c`); the old fp16 large-C path was the ep30
+    NaN-collapse bug (`CA_MTL_DIVERGENCE.md`), never a valid frozen number. Pin precision explicitly
+    (`MTL_DISABLE_AMP=1` or `MTL_AUTOCAST_BF16=1`) for any freeze-grade run — all frozen board cells already do, so
+    auto-fp32 is inert there. `tests/test_training/test_auto_fp32.py` pins the routing (threshold 2000, Ampere gate,
+    explicit-env-wins).
