@@ -2,7 +2,7 @@
 
 The ``mtl_improvement`` study repeatedly flipped train.py's effective recipe (v11 paper
 canon → v12 log_T-KD → v15 C25-unweighted → v16 champion **G**). Each version is a *bundle*
-of CLI flags. ``--canon vXX`` (default **v16**, the champion) injects that bundle BEFORE the
+of CLI flags. ``--canon vXX`` (default **v17**, the champion; v16 via ``--canon v16``) injects that bundle BEFORE the
 user's own flags so that **explicit flags always override the bundle** (argparse "last value
 wins" for store actions). This makes the champion the default while keeping every prior
 version reproducible forever with a single ``--canon vNN``.
@@ -23,7 +23,8 @@ from __future__ import annotations
 
 from typing import List
 
-DEFAULT_CANON = "v16"
+DEFAULT_CANON = "v17"   # champion (2026-07-01): v16 + bs8192 + per-head cat-lr 1e-3. v16 still via `--canon v16`.
+                        # §0.1 (v11) is a separate frozen bundle → unaffected. bare `train.py` now runs bs8192.
 
 # The shared cross-attn "B9" recipe underlying v11/v12/v15 (NORTH_STAR §Champion / CANONICAL_VERSIONS §v12).
 _CROSSATTN_B9: List[str] = [
@@ -88,7 +89,7 @@ CANON_BUNDLES: dict[str, List[str]] = {
     # cat-lr 1e-3 actually applied (--onecycle-per-head-lr → MTL_ONECYCLE_PER_HEAD_LR). The v16
     # --cat-lr 1e-3 is INERT under onecycle without the flag; the flag is what makes it effective.
     # Beats v16 board-wide (AL +1.0/AZ +2.3 cat; FL +0.17cat/+0.20reg, ~7% faster). Opt-in:
-    # DEFAULT_CANON stays v16 + the env stays default-OFF until CA/TX confirm. CANONICAL_VERSIONS §v17.
+    # v17 is now DEFAULT_CANON (2026-07-01); the env stays default-OFF (v17 sets --onecycle-per-head-lr). CANONICAL_VERSIONS §v17.
     "v17": _V16 + ["--batch-size", "8192", "--onecycle-per-head-lr"],
 }
 

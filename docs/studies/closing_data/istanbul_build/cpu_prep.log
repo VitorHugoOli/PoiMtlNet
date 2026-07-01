@@ -1,0 +1,172 @@
+[23:18:31] === Step 1: parse_city (regenerate corrected corpus) ===
+{
+  "city": "istanbul",
+  "out_path": "/home/vitor.oliveira/PoiMtlNet/data/checkins/Istanbul.parquet",
+  "n_rows": 544471,
+  "n_rows_raw_input": 544471,
+  "n_users": 23700,
+  "n_pois": 42795,
+  "n_trails": 216411,
+  "n_categories_7root": 7,
+  "n_fsq_fine": 580,
+  "n_null_coord_rows": 62621,
+  "n_dup_user_poi_time": 0,
+  "split_rows": {
+    "train": 380986,
+    "test": 108885,
+    "val": 54600
+  },
+  "datetime_range_local": [
+    "2012-04-03 18:00:00",
+    "2018-10-19 20:52:00"
+  ],
+  "category_dist": {
+    "Food": 147157,
+    "Outdoors": 145689,
+    "Community": 115584,
+    "Travel": 44553,
+    "Shopping": 41888,
+    "Nightlife": 26140,
+    "Entertainment": 23460
+  }
+}
+[23:18:32] step1 rc=0
+[23:18:32] === Step 2: build_graph (mahalle graph; expect 29945 POIs / 520 regions) ===
+Loading check-in data...
+Loaded 544471 check-ins, 42795 POIs
+Loading boroughs data...
+Assigning regions...
+Assigned to 520 regions, 29945 POIs
+Building user sequence edges...
+Built 881336 user sequence edges
+Building node features...
+Node features shape: (464362, 11)
+Computing region features...
+Saved: /home/vitor.oliveira/PoiMtlNet/output/check2hgi/istanbul/temp/checkin_graph.pt
+Check-ins: 464362, POIs: 29945, Regions: 520, Edges: 881336
+{
+  "city": "istanbul",
+  "region_mode": "admin",
+  "graph_path": "/home/vitor.oliveira/PoiMtlNet/output/check2hgi/istanbul/temp/checkin_graph.pt",
+  "num_checkins_in_graph": 464362,
+  "num_pois_in_graph": 29945,
+  "num_regions": 520,
+  "n_checkins_dropped": 80109,
+  "pois_per_region": {
+    "min": 1,
+    "median": 16.5,
+    "mean": 57.58653846153846,
+    "max": 1364
+  },
+  "num_edges": 881336,
+  "graph_keys": [
+    "checkin_to_poi",
+    "coarse_region_similarity",
+    "edge_index",
+    "edge_type",
+    "edge_weight",
+    "metadata",
+    "node_features",
+    "num_checkins",
+    "num_pois",
+    "num_regions",
+    "placeid_to_idx",
+    "poi_to_region",
+    "region_adjacency",
+    "region_area",
+    "region_to_idx"
+  ]
+}
+[23:18:39] step2 rc=0
+[verify] graph POIs=29945 regions=520 checkins=464362
+[verify] cardinality OK (29945/520)
+[23:18:39] === Step 3: build_inputs (sequences, labels, folds, priors) ===
+2026-06-26 23:18:47,527 - INFO - [istanbul] Built transition matrix (per-fold): n_regions=520, n_train_users=18381, n_train_rows=46638, n_observed_transitions=30158
+2026-06-26 23:18:47,529 - INFO - [istanbul] Saved /home/vitor.oliveira/PoiMtlNet/output/check2hgi/istanbul/region_transition_log_seed0_fold1.pt (shape=(520, 520), n_splits=5, seed=0)
+2026-06-26 23:18:47,575 - INFO - [istanbul] Built transition matrix (per-fold): n_regions=520, n_train_users=18402, n_train_rows=46639, n_observed_transitions=30114
+2026-06-26 23:18:47,576 - INFO - [istanbul] Saved /home/vitor.oliveira/PoiMtlNet/output/check2hgi/istanbul/region_transition_log_seed0_fold2.pt (shape=(520, 520), n_splits=5, seed=0)
+2026-06-26 23:18:47,624 - INFO - [istanbul] Built transition matrix (per-fold): n_regions=520, n_train_users=18372, n_train_rows=46632, n_observed_transitions=30160
+2026-06-26 23:18:47,626 - INFO - [istanbul] Saved /home/vitor.oliveira/PoiMtlNet/output/check2hgi/istanbul/region_transition_log_seed0_fold3.pt (shape=(520, 520), n_splits=5, seed=0)
+2026-06-26 23:18:47,675 - INFO - [istanbul] Built transition matrix (per-fold): n_regions=520, n_train_users=18397, n_train_rows=46639, n_observed_transitions=30180
+2026-06-26 23:18:47,677 - INFO - [istanbul] Saved /home/vitor.oliveira/PoiMtlNet/output/check2hgi/istanbul/region_transition_log_seed0_fold4.pt (shape=(520, 520), n_splits=5, seed=0)
+2026-06-26 23:18:47,725 - INFO - [istanbul] Built transition matrix (per-fold): n_regions=520, n_train_users=18400, n_train_rows=46640, n_observed_transitions=30116
+2026-06-26 23:18:47,726 - INFO - [istanbul] Saved /home/vitor.oliveira/PoiMtlNet/output/check2hgi/istanbul/region_transition_log_seed0_fold5.pt (shape=(520, 520), n_splits=5, seed=0)
+2026-06-26 23:18:49,613 - INFO - [istanbul] Built transition matrix (per-fold): n_regions=520, n_train_users=18397, n_train_rows=46639, n_observed_transitions=30129
+2026-06-26 23:18:49,615 - INFO - [istanbul] Saved /home/vitor.oliveira/PoiMtlNet/output/check2hgi/istanbul/region_transition_log_seed1_fold1.pt (shape=(520, 520), n_splits=5, seed=1)
+2026-06-26 23:18:49,667 - INFO - [istanbul] Built transition matrix (per-fold): n_regions=520, n_train_users=18386, n_train_rows=46639, n_observed_transitions=30169
+2026-06-26 23:18:49,669 - INFO - [istanbul] Saved /home/vitor.oliveira/PoiMtlNet/output/check2hgi/istanbul/region_transition_log_seed1_fold2.pt (shape=(520, 520), n_splits=5, seed=1)
+2026-06-26 23:18:49,718 - INFO - [istanbul] Built transition matrix (per-fold): n_regions=520, n_train_users=18382, n_train_rows=46639, n_observed_transitions=30160
+2026-06-26 23:18:49,719 - INFO - [istanbul] Saved /home/vitor.oliveira/PoiMtlNet/output/check2hgi/istanbul/region_transition_log_seed1_fold3.pt (shape=(520, 520), n_splits=5, seed=1)
+2026-06-26 23:18:49,768 - INFO - [istanbul] Built transition matrix (per-fold): n_regions=520, n_train_users=18390, n_train_rows=46632, n_observed_transitions=30131
+2026-06-26 23:18:49,769 - INFO - [istanbul] Saved /home/vitor.oliveira/PoiMtlNet/output/check2hgi/istanbul/region_transition_log_seed1_fold4.pt (shape=(520, 520), n_splits=5, seed=1)
+2026-06-26 23:18:49,819 - INFO - [istanbul] Built transition matrix (per-fold): n_regions=520, n_train_users=18397, n_train_rows=46639, n_observed_transitions=30139
+2026-06-26 23:18:49,820 - INFO - [istanbul] Saved /home/vitor.oliveira/PoiMtlNet/output/check2hgi/istanbul/region_transition_log_seed1_fold5.pt (shape=(520, 520), n_splits=5, seed=1)
+2026-06-26 23:18:51,601 - INFO - [istanbul] Built transition matrix (per-fold): n_regions=520, n_train_users=18387, n_train_rows=46639, n_observed_transitions=30136
+2026-06-26 23:18:51,602 - INFO - [istanbul] Saved /home/vitor.oliveira/PoiMtlNet/output/check2hgi/istanbul/region_transition_log_seed7_fold1.pt (shape=(520, 520), n_splits=5, seed=7)
+2026-06-26 23:18:51,652 - INFO - [istanbul] Built transition matrix (per-fold): n_regions=520, n_train_users=18379, n_train_rows=46639, n_observed_transitions=30120
+2026-06-26 23:18:51,653 - INFO - [istanbul] Saved /home/vitor.oliveira/PoiMtlNet/output/check2hgi/istanbul/region_transition_log_seed7_fold2.pt (shape=(520, 520), n_splits=5, seed=7)
+2026-06-26 23:18:51,702 - INFO - [istanbul] Built transition matrix (per-fold): n_regions=520, n_train_users=18389, n_train_rows=46639, n_observed_transitions=30167
+2026-06-26 23:18:51,703 - INFO - [istanbul] Saved /home/vitor.oliveira/PoiMtlNet/output/check2hgi/istanbul/region_transition_log_seed7_fold3.pt (shape=(520, 520), n_splits=5, seed=7)
+2026-06-26 23:18:51,752 - INFO - [istanbul] Built transition matrix (per-fold): n_regions=520, n_train_users=18409, n_train_rows=46639, n_observed_transitions=30126
+2026-06-26 23:18:51,753 - INFO - [istanbul] Saved /home/vitor.oliveira/PoiMtlNet/output/check2hgi/istanbul/region_transition_log_seed7_fold4.pt (shape=(520, 520), n_splits=5, seed=7)
+2026-06-26 23:18:51,802 - INFO - [istanbul] Built transition matrix (per-fold): n_regions=520, n_train_users=18388, n_train_rows=46632, n_observed_transitions=30179
+2026-06-26 23:18:51,803 - INFO - [istanbul] Saved /home/vitor.oliveira/PoiMtlNet/output/check2hgi/istanbul/region_transition_log_seed7_fold5.pt (shape=(520, 520), n_splits=5, seed=7)
+2026-06-26 23:18:53,592 - INFO - [istanbul] Built transition matrix (per-fold): n_regions=520, n_train_users=18393, n_train_rows=46639, n_observed_transitions=30128
+2026-06-26 23:18:53,593 - INFO - [istanbul] Saved /home/vitor.oliveira/PoiMtlNet/output/check2hgi/istanbul/region_transition_log_seed100_fold1.pt (shape=(520, 520), n_splits=5, seed=100)
+2026-06-26 23:18:53,643 - INFO - [istanbul] Built transition matrix (per-fold): n_regions=520, n_train_users=18387, n_train_rows=46638, n_observed_transitions=30164
+2026-06-26 23:18:53,645 - INFO - [istanbul] Saved /home/vitor.oliveira/PoiMtlNet/output/check2hgi/istanbul/region_transition_log_seed100_fold2.pt (shape=(520, 520), n_splits=5, seed=100)
+2026-06-26 23:18:53,695 - INFO - [istanbul] Built transition matrix (per-fold): n_regions=520, n_train_users=18390, n_train_rows=46639, n_observed_transitions=30123
+2026-06-26 23:18:53,696 - INFO - [istanbul] Saved /home/vitor.oliveira/PoiMtlNet/output/check2hgi/istanbul/region_transition_log_seed100_fold3.pt (shape=(520, 520), n_splits=5, seed=100)
+2026-06-26 23:18:53,745 - INFO - [istanbul] Built transition matrix (per-fold): n_regions=520, n_train_users=18375, n_train_rows=46639, n_observed_transitions=30207
+2026-06-26 23:18:53,746 - INFO - [istanbul] Saved /home/vitor.oliveira/PoiMtlNet/output/check2hgi/istanbul/region_transition_log_seed100_fold4.pt (shape=(520, 520), n_splits=5, seed=100)
+2026-06-26 23:18:53,795 - INFO - [istanbul] Built transition matrix (per-fold): n_regions=520, n_train_users=18407, n_train_rows=46633, n_observed_transitions=30106
+2026-06-26 23:18:53,797 - INFO - [istanbul] Saved /home/vitor.oliveira/PoiMtlNet/output/check2hgi/istanbul/region_transition_log_seed100_fold5.pt (shape=(520, 520), n_splits=5, seed=100)
+2026-06-26 23:18:55,652 - INFO - [istanbul] Built transition matrix (per-fold): n_regions=520, n_train_users=18393, n_train_rows=46639, n_observed_transitions=30139
+2026-06-26 23:18:55,654 - INFO - [istanbul] Saved /home/vitor.oliveira/PoiMtlNet/output/check2hgi/istanbul/region_transition_log_seed42_fold1.pt (shape=(520, 520), n_splits=5, seed=42)
+2026-06-26 23:18:55,702 - INFO - [istanbul] Built transition matrix (per-fold): n_regions=520, n_train_users=18392, n_train_rows=46638, n_observed_transitions=30136
+2026-06-26 23:18:55,703 - INFO - [istanbul] Saved /home/vitor.oliveira/PoiMtlNet/output/check2hgi/istanbul/region_transition_log_seed42_fold2.pt (shape=(520, 520), n_splits=5, seed=42)
+2026-06-26 23:18:55,755 - INFO - [istanbul] Built transition matrix (per-fold): n_regions=520, n_train_users=18392, n_train_rows=46639, n_observed_transitions=30152
+2026-06-26 23:18:55,756 - INFO - [istanbul] Saved /home/vitor.oliveira/PoiMtlNet/output/check2hgi/istanbul/region_transition_log_seed42_fold3.pt (shape=(520, 520), n_splits=5, seed=42)
+2026-06-26 23:18:55,804 - INFO - [istanbul] Built transition matrix (per-fold): n_regions=520, n_train_users=18392, n_train_rows=46639, n_observed_transitions=30174
+2026-06-26 23:18:55,805 - INFO - [istanbul] Saved /home/vitor.oliveira/PoiMtlNet/output/check2hgi/istanbul/region_transition_log_seed42_fold4.pt (shape=(520, 520), n_splits=5, seed=42)
+2026-06-26 23:18:55,852 - INFO - [istanbul] Built transition matrix (per-fold): n_regions=520, n_train_users=18383, n_train_rows=46633, n_observed_transitions=30127
+2026-06-26 23:18:55,853 - INFO - [istanbul] Saved /home/vitor.oliveira/PoiMtlNet/output/check2hgi/istanbul/region_transition_log_seed42_fold5.pt (shape=(520, 520), n_splits=5, seed=42)
+{
+  "city": "istanbul",
+  "set_a_gowalla_parity": {
+    "n_sequences": 58297,
+    "n_regions": 520,
+    "seeds": [
+      0,
+      1,
+      7,
+      100,
+      42
+    ],
+    "n_prior_files": 25
+  },
+  "set_b_native_trail": {
+    "n_sequences": 6495,
+    "split_rows": {
+      "train": 4522,
+      "test": 1292,
+      "val": 681
+    },
+    "n_regions": 520
+  }
+}
+[23:18:58] step3 rc=0
+[23:18:58] === ISTANBUL CPU PREP DONE (steps 1-3) — GPU step 4 (phase_v_substrate) next ===
+output/check2hgi/istanbul/input/:
+total 344
+drwxr-xr-x 2 vitor.oliveira users   4096 Jun 26 23:18 .
+drwxr-xr-x 6 vitor.oliveira users   4096 Jun 26 23:18 ..
+-rw-r--r-- 1 vitor.oliveira users 343920 Jun 26 23:18 next_region_labels.parquet
+
+output/check2hgi/istanbul/temp/:
+total 66032
+drwxr-xr-x 2 vitor.oliveira users     4096 Jun 26 23:18 .
+drwxr-xr-x 6 vitor.oliveira users     4096 Jun 26 23:18 ..
+-rw-r--r-- 1 vitor.oliveira users  3453539 Jun 26 23:18 boroughs_area.csv
+-rw-r--r-- 1 vitor.oliveira users 62451658 Jun 26 23:18 checkin_graph.pt
+-rw-r--r-- 1 vitor.oliveira users  1696141 Jun 26 23:18 sequences_next.parquet

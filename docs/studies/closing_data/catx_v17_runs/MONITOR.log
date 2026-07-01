@@ -1,0 +1,5 @@
+[2026-07-01 02:03:36] catx monitor START — RAM 128577MiB, GPU 46068MiB, cpus 32
+[2026-07-01 02:03:36] RAM used 7864/128577 avail 120712 | swap 0 | train.py RSS 0.0GB x0
+0 | GPU 0/46068 free 45489 | load 1.09 | peaks ram 7864 gpu 0 swap 0
+[2026-07-01 02:06:37] RAM used 7890/128577 avail 120687 | swap 0 | train.py RSS 0.0GB x0
+0 | GPU 0/46068 free 45489 | load 1.19 | peaks ram 8627 gpu 0 swap 0

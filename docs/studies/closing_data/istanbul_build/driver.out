@@ -1,0 +1,22 @@
+[23:18:31] === Step 1: parse_city (regenerate corrected corpus) ===
+[23:18:32] step1 rc=0
+[23:18:32] === Step 2: build_graph (mahalle graph; expect 29945 POIs / 520 regions) ===
+[23:18:39] step2 rc=0
+[verify] graph POIs=29945 regions=520 checkins=464362
+[verify] cardinality OK (29945/520)
+[23:18:39] === Step 3: build_inputs (sequences, labels, folds, priors) ===
+[23:18:58] step3 rc=0
+[23:18:58] === ISTANBUL CPU PREP DONE (steps 1-3) — GPU step 4 (phase_v_substrate) next ===
+output/check2hgi/istanbul/input/:
+total 344
+drwxr-xr-x 2 vitor.oliveira users   4096 Jun 26 23:18 .
+drwxr-xr-x 6 vitor.oliveira users   4096 Jun 26 23:18 ..
+-rw-r--r-- 1 vitor.oliveira users 343920 Jun 26 23:18 next_region_labels.parquet
+
+output/check2hgi/istanbul/temp/:
+total 66032
+drwxr-xr-x 2 vitor.oliveira users     4096 Jun 26 23:18 .
+drwxr-xr-x 6 vitor.oliveira users     4096 Jun 26 23:18 ..
+-rw-r--r-- 1 vitor.oliveira users  3453539 Jun 26 23:18 boroughs_area.csv
+-rw-r--r-- 1 vitor.oliveira users 62451658 Jun 26 23:18 checkin_graph.pt
+-rw-r--r-- 1 vitor.oliveira users  1696141 Jun 26 23:18 sequences_next.parquet

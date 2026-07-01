@@ -1,0 +1,9 @@
+[06:02:48] START arizona bf16+island (5 folds x 50 ep, eng=check2hgi_dk_ovl)
+[06:17:00] END arizona bf16 rc=0 wall=852s
+==== non-finite skips (MTL_STRICT would abort on one; 0 = clean) ====
+skip-related log lines: 1
+==== non-finite skips (MTL_STRICT would abort on one; 0 = clean) ====
+rundir=results/check2hgi_dk_ovl/arizona/mtlnet_lr1.0e-04_bs2048_ep50_20260627_060252_133462
+  cat macro-F1 (diag-best)      = 63.4402 ± 1.3231  (n=5)  per-fold=[65.3788, 62.1594, 64.6455, 62.7971, 62.2202]  epochs=[23, 24, 21, 18, 23]
+  reg FULL top10_acc (indist-best) = 59.4007 ± 1.7188  (n=5)  per-fold=[62.6671, 59.0483, 59.3021, 57.9432, 58.0428]  epochs=[37, 32, 26, 23, 26]
+[06:17:00] DONE arizona bf16+island

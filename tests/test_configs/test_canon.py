@@ -71,12 +71,14 @@ def test_canon_bundle_resolves_to_documented_recipe(train, ver):
     assert getattr(args, "_canon_active") is True
 
 
-def test_default_canon_is_v16(train):
-    """No --canon flag → the champion G recipe (v16) is the default."""
+def test_default_canon_is_v17(train):
+    """No --canon flag → the champion recipe (v17 = v16 + bs8192 + per-head cat-lr) is the default."""
     args = train._parse_args(["--task", "mtl", "--state", "florida", "--seed", "42"])
-    assert args.canon == "v16"
+    assert args.canon == "v17"
     assert args.model_name == "mtlnet_crossattn_dualtower"
     assert args.scheduler == "onecycle"
+    assert args.batch_size == 8192
+    assert args.onecycle_per_head_lr is True
 
 
 def test_explicit_flag_overrides_bundle(train):

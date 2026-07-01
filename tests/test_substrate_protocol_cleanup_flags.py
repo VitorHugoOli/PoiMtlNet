@@ -794,7 +794,7 @@ class TestLogTKDCLIDefault:
         return train_cli._apply_cli_overrides(config, args)
 
     def test_default_canon_v16_kd_off(self):
-        """The DEFAULT canon (v16 / champion G) sets KD OFF for a bare MTL
+        """The DEFAULT canon (v17, champion) sets KD OFF for a bare MTL
         check2hgi_next_region run — KD is null on the dual-tower."""
         cfg = self._apply([
             "--task", "mtl", "--task-set", "check2hgi_next_region",
