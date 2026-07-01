@@ -2,10 +2,12 @@
 
 **Why this exists.** v17 (champion = v16 + bs8192 + per-head cat-lr 1e-3) is n=20-confirmed at
 AL/AZ/FL (`perhead_lr_n20.md`) and is now `DEFAULT_CANON`. The board's CA/TX cells still need the
-n=20 top-up (seeds {1,7,100} on top of the existing seed-0 board cells). **The A40 cannot do this
-in feasible time:** measured **~52 min/epoch** for CA overlap-MTL at bs8192 fp32 (2026-07-01)
-→ ~9 days/cell, ~72 days for 8 cells. This matches the standing "overlap-MTL board is H100-only"
-finding (`ref_a40_overlap_mtl_board_infeasible.md`, `CLAUDE.local.md`). So the full n=20 runs on the H100.
+n=20 top-up (seeds {1,7,100} on top of the existing seed-0 board cells). This is the **H100 driver**
+— the faster/parallel option. **NB (2026-07-01 correction):** an earlier claim that the A40 "cannot do
+this in feasible time (~72 days)" was a **tqdm misread** — the real cost is **~53 min per FOLD**
+(4.53 batch/s; 14300 batches = all 50 epochs, NOT per-epoch) → ~4.4 h/cell, **~35 h (~1.5 days) for
+8 cells SERIAL, which IS feasible on the A40** (serial only — 2-wide trips the host-RAM fold-construction
+guard + pins VRAM 45/46). So the H100 is the *fast* path (parallel, ~hours), not the *only* path.
 
 **A40 in the meantime:** a **fold-0 audit** of CA + TX (`run_catx_v17_audit_1fold.sh`,
 `catx_v17_audit/`) confirms the v17 recipe runs end-to-end at the big states + gives a real fold-0
