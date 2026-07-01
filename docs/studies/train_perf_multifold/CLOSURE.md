@@ -43,7 +43,13 @@ Enabled by fixing the latent "per-head LR inert under onecycle" bug.
       (v16 + bs8192 + new `--onecycle-per-head-lr` CLI flag; `_V16` extracted so v16 stays byte-identical) + the CANONICAL_VERSIONS §v17 /
       NORTH_STAR / RESULTS_BOARD records. **§0.1 (v11) confirmed UNAFFECTED** (separate frozen cosine bundle; per-head fix is
       onecycle-only). **SETTLED 2026-07-01: `DEFAULT_CANON` flipped to v17** (v16 via `--canon v16`; env stays default-OFF, v17 sets the flag). Remaining before §1-headline:
-- [~] **CA/TX n=20 for v17 — RUNNING** (2026-07-01, `../closing_data/run_catx_v17_n20.sh`, bs8192 fp32, 1 CA + 1 TX concurrent + RAM/VRAM watchdog). + land the **flag-OFF eager-parity test**; then update the §1 headline.
+- [~] **CA/TX n=20 for v17 → H100** (2026-07-01). Measured **~52 min/epoch** for CA overlap-MTL at bs8192 fp32
+      on the A40 → ~9 days/cell, ~72 days for 8 cells: **infeasible on the A40** (confirms the standing
+      "overlap-MTL board is H100-only" finding). Full n=20 packaged for the H100:
+      [`../closing_data/CATX_V17_N20_H100_HANDOFF.md`](../closing_data/CATX_V17_N20_H100_HANDOFF.md) +
+      `run_catx_v17_n20_h100.sh`. A40 runs a **fold-0 audit** of CA+TX in the meantime
+      (`run_catx_v17_audit_1fold.sh`, `catx_v17_audit/`) — confirms the recipe runs end-to-end at the big states.
+      + land the **flag-OFF eager-parity test**; then update the §1 headline.
 - [ ] **CA/TX** — the only states not covered by the n=20 per-head confirmation (large-C; auto-fp32 path).
 - [ ] **Per-head-LR parity test** — eager byte-identical with `MTL_ONECYCLE_PER_HEAD_LR` OFF (in `future_works/per_head_lr_onecycle_fix.md` checklist).
 

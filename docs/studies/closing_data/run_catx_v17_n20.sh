@@ -36,7 +36,9 @@ run_job() {
   export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"
   export MTL_RAM_HEADROOM_GB=24            # host-RAM guard headroom (2 big CPU-resident datasets)
   export TORCHINDUCTOR_CACHE_DIR="$HOME/.inductor_cache_catxv17_${st}_s${sd}"
+  export MTL_PROFILE_JSON="$cd_/profile.json"   # transient per-fold profiler report (--profile)
   python scripts/train.py --task mtl --canon none --task-set check2hgi_next_region --engine "$OVL" \
+    --profile \
     --state "$st" --seed "$sd" --epochs 50 --folds 5 --batch-size 8192 \
     --mtl-loss static_weight --category-weight 0.75 --no-reg-class-weights --no-cat-class-weights \
     --cat-head next_gru --reg-head next_stan_flow_dualtower \
