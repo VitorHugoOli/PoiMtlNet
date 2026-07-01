@@ -117,6 +117,10 @@ tasks are **next-category / next-region** (never activity/area); keep next-categ
 
 ## 5 · What is open / next
 
+> **⭐ Full close-out list:** [`CLOSER_HANDOFF.md`](CLOSER_HANDOFF.md) — the ordered, executable remaining-experiments
+> + submission-mechanics doc (P1 is the only verdict-changer; the 9-page draft is submittable today). The items below
+> are the summary.
+
 1. **P1 — n=20 multi-seed top-up (seeds {1,7,100}, MTL + STL).** The ONE lever that changes a reviewer's verdict
    (breaks the single-seed-n=5 attack, lets per-cell Holm clear 0.05). Blocked on the A40 (fp32 too slow, bf16
    grad-NaN); needs the H100 lane. Full spec in [`IMPROVEMENTS_BACKLOG.md`](IMPROVEMENTS_BACKLOG.md) §P1.
