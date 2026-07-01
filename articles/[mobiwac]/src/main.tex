@@ -123,10 +123,9 @@ window, to predict next-region. One model, one forward pass, two predictions.}
 % References. Keys live in references.bib (already de-anonymized and
 % audited; see PAPER_PLAN section 8). Choose a final IEEE bst at write-time.
 % ---------------------------------------------------------------------
-% NOTE (QA): IEEEtran.bst is not present in this TeX install; using the
-% built-in IEEE numeric style `ieeetr` so the build resolves everywhere.
-% For final submission on full TeX Live / Overleaf you may restore IEEEtran.
-\bibliographystyle{ieeetr}
+% IEEEtran.bst is bundled in this folder (src/IEEEtran.bst, from CTAN) next to
+% IEEEtran.cls, so the official IEEE bibliography style builds locally and on Overleaf.
+\bibliographystyle{IEEEtran}
 \bibliography{references}
 
 \end{document}

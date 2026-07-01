@@ -16,8 +16,9 @@
   variant** (do NOT trim to 8). See [`EDAS_SUBMISSION.md`](EDAS_SUBMISSION.md).
 - **Authors (names stay, single-blind):** Vitor H. O. Silva, Germano B. dos Santos, Fabrício A. Silva — NESPeD-LAB,
   Universidade Federal de Viçosa, Florestal, MG; `{vitor.h.oliveira, germano.santos, fabricio.asilva}@ufv.br`.
-- **Bibliography:** 26 cited references, **all web-verified real and current**. `\bibliographystyle{ieeetr}` is a
-  LOCAL fallback (IEEEtran.bst is absent on this machine); **restore `IEEEtran.bst` at submission** (Overleaf has it).
+- **Bibliography:** 26 cited references, **all web-verified real and current**. `\bibliographystyle{IEEEtran}` with
+  **`src/IEEEtran.bst` bundled from CTAN** (v1.14, 2026-07-01) next to the bundled `IEEEtran.cls`; the official IEEE
+  style now builds locally and on Overleaf (bibtex clean, 26 rendered, 0 undefined).
 
 ## 2 · The science (the thesis + headline; canonical numbers live in the board)
 
@@ -129,7 +130,8 @@ tasks are **next-category / next-region** (never activity/area); keep next-categ
 3. **Reconfirm the deadline.** The notes say ~25 June 2026 (now past); verify the actual cycle on MobiWac/EDAS
    before investing further. If missed, the poster cut ([`archive/PAPER_PLAN_POSTER.md`](archive/PAPER_PLAN_POSTER.md))
    is the fallback.
-4. **At submission:** restore `IEEEtran.bst`; final em-dash/codename sweep; de-anonymize check (authors already named).
+4. **At submission:** `IEEEtran.bst` restored + bundled (2026-07-01); em-dash/codename sweep DONE (2026-07-01
+   checklist); de-anonymize check (authors already named).
 5. **Deferred (non-blocking, post-deadline coverage adds):** the A4 leak-audit extension to CA/TX/Istanbul (P2; AZ is
    done), ReHDM at CA/TX/Istanbul (P5), and the 3 bridging-metrics re-score cells (P4). None change a verdict — P1 is
    the only one that does.

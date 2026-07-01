@@ -13,9 +13,9 @@
 - **The one verdict-changer:** **P1** (n=20 top-up), **blocked on the H100 lane**.
 
 ## 1 · Submission mechanics (before the EDAS upload — not data)
-1. **Restore `IEEEtran.bst`.** Currently `\bibliographystyle{ieeetr}` (local fallback; `IEEEtran.bst` absent on this
-   machine, `kpsewhich` confirms). On Overleaf / full TeX Live: switch to `\bibliographystyle{IEEEtran}`, rebuild,
-   re-verify 0 undefined + reference formatting. (`% NOTE (QA)` in `src/main.tex` documents this.)
+1. **~~Restore `IEEEtran.bst`~~ — ✅ DONE (2026-07-01).** `IEEEtran.bst` v1.14 is now bundled at `src/IEEEtran.bst`
+   (from CTAN, next to `IEEEtran.cls`) and `main.tex` uses `\bibliographystyle{IEEEtran}`. Verified: bibtex clean,
+   26 refs rendered, 0 undefined, 9 pages. Overleaf also provides it natively.
 2. **EDAS Step 3 manuscript upload.** Paper **#1571313639** is registered (regular track, single-blind); only the PDF
    upload remains. Select the **10-page fee variant** (draft is at 9).
 3. **Reconfirm the deadline.** Notes say ~25 Jun 2026 (may be past); verify the live MobiWac/EDAS cycle. Poster cut
