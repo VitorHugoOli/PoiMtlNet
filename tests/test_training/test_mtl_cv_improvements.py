@@ -438,3 +438,84 @@ def test_f63_silent_when_no_alpha():
     )
 
     assert "head_alpha" not in fold_history.diagnostics
+
+
+@pytest.mark.skipif(
+    DEVICE.type == "mps",
+    reason="MPS corrupts tiny integer tensors in unit-test-sized batches",
+)
+def test_ga2_first_step_gradient_is_mean_of_group(monkeypatch):
+    """pipeline_audit 2026-07-01 — pins gradient CONTENT under ga=2.
+
+    The pre-fix loop ran ``optimizer.zero_grad`` on EVERY batch, wiping the
+    first micro-batch's gradients, so each boundary step applied only the LAST
+    micro-batch scaled 1/ga. The step-count test above cannot detect that (it
+    passes either way). This test asserts the FIRST optimizer step's gradient
+    equals the accumulated (g0+g1)/ga closed form computed from the initial
+    weights — it FAILS on the pre-fix code.
+    """
+    monkeypatch.setenv("MTL_DISABLE_AMP", "1")  # fp32 forward → exact reference
+    torch.manual_seed(42)
+    batch_size = 2
+    num_samples = 10
+    num_classes = 3
+
+    category_x = torch.randn(num_samples, 1, 4)
+    next_x = torch.randn(num_samples, 3, 4)
+    targets = torch.arange(num_samples) % num_classes
+
+    category_data = _task_data(category_x, targets, batch_size)
+    next_data = _task_data(next_x, targets, batch_size)
+
+    model = _TinyMTL(num_classes=num_classes).to(DEVICE)
+    init_state = {k: v.detach().clone() for k, v in model.state_dict().items()}
+
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
+    captured = []
+    original_step = optimizer.step
+
+    def capture_step(*args, **kwargs):
+        captured.append(model.shared.weight.grad.detach().clone())
+        return original_step(*args, **kwargs)
+
+    optimizer.step = capture_step
+
+    fold_history = FoldHistory.standalone({"next", "category"})
+    criterion = nn.CrossEntropyLoss()
+    mtl_criterion = create_loss("equal_weight", n_tasks=2, device=DEVICE)
+
+    train_model(
+        model=model,
+        optimizer=optimizer,
+        scheduler=_CountingScheduler(),
+        dataloader_next=next_data,
+        dataloader_category=category_data,
+        next_criterion=criterion,
+        category_criterion=criterion,
+        mtl_criterion=mtl_criterion,
+        num_epochs=1,
+        num_classes=num_classes,
+        fold_history=fold_history,
+        gradient_accumulation_steps=2,
+        max_grad_norm=0.0,  # disable clipping so the closed form is exact
+    )
+
+    # Reference: g0+g1 of (CE_next + CE_cat)/ga from the INITIAL weights
+    # (equal_weight = plain sum; loaders are unshuffled so batches are 0,1).
+    ref = _TinyMTL(num_classes=num_classes).to(DEVICE)
+    ref.load_state_dict(init_state)
+    expected = None
+    for k in (0, 1):
+        ref.zero_grad(set_to_none=True)
+        sl = slice(2 * k, 2 * k + 2)
+        cat_b = category_x[sl].to(DEVICE)
+        next_b = next_x[sl].to(DEVICE)
+        t = targets[sl].to(DEVICE)
+        out_cat, out_next = ref((cat_b, next_b))
+        loss = criterion(out_next, t) + criterion(out_cat, t)
+        (loss / 2).backward()
+        g = ref.shared.weight.grad.detach().clone()
+        expected = g if expected is None else expected + g
+
+    assert captured, "optimizer.step never fired"
+    torch.testing.assert_close(captured[0], expected, rtol=1e-5, atol=1e-6)

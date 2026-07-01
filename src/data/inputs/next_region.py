@@ -2,8 +2,11 @@
 
 Builds ``output/check2hgi/<state>/input/next_region.parquet`` from:
 
-1. ``sequences_next.parquet`` produced by ``Check2HGIPreprocess`` — has
-   per-row ``target_poi`` (POI index into ``poi_to_region``).
+1. ``sequences_next.parquet`` produced by ``builders.generate_next_input_from_checkins``
+   (written in the SAME pass as ``next.parquet`` — row-aligned by construction;
+   pipeline_audit 2026-07-01: the old attribution to ``Check2HGIPreprocess``
+   was stale, no such writer exists) — has per-row ``target_poi`` (POI index
+   into ``poi_to_region``).
 2. ``checkin_graph.pt`` produced by the same preprocessing — pickled
    dict with ``poi_to_region: np.ndarray[n_pois]`` mapping POI index →
    region index.

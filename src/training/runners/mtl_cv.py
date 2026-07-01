@@ -440,13 +440,18 @@ def _build_mtl_optimizer(model, config, extra_params):
 
 
 def _build_scheduler(optimizer, config, dataloader_next, dataloader_category):
-    """Build the LR scheduler. ``steps_per_epoch`` must match ``zip_longest_cycle()`` —
-    the LONGER of the two train loaders ÷ grad-accum — or OneCycle's step budget desyncs
-    from the actual optimizer steps and the LR curve ends mid-cycle."""
-    batches_per_epoch = max(
+    """Build the LR scheduler. ``steps_per_epoch`` must match the actual joint
+    batches per epoch ÷ grad-accum — the LONGER of the two train loaders under
+    ``max_size_cycle`` (the default), the SHORTER under ``min_size_truncate`` —
+    or OneCycle's step budget desyncs from the actual optimizer steps and the
+    LR curve ends mid-cycle (pipeline_audit 2026-07-01, V9: the min strategy
+    previously used max() here and over-budgeted OneCycle)."""
+    _lens = (
         len(dataloader_next.train.dataloader),
         len(dataloader_category.train.dataloader),
     )
+    _strategy = getattr(config, "joint_loader_strategy", "max_size_cycle")
+    batches_per_epoch = min(_lens) if _strategy == "min_size_truncate" else max(_lens)
     steps_per_epoch = math.ceil(
         batches_per_epoch / max(1, int(config.gradient_accumulation_steps))
     )
@@ -652,6 +657,26 @@ def _resolve_per_fold_priors(config, i_fold):
                         f"scripts/compute_region_transition.py --state "
                         f"{config.state} --per-fold --seed {seed}"
                     )
+            elif not _log_t_is_inert(config, ts):
+                # pipeline_audit 2026-07-01 (V8) — the staleness guard above is
+                # reference-less when the transition dir has no
+                # input/next_region.parquet (e.g. a flat copied log_T dir): an
+                # ACTIVE prior would consume an unverifiable, possibly-stale
+                # log_T (the +8..+12 pp leak class). WARN by default, hard-fail
+                # under MTL_STRICT=1. Unreachable for the inert champion (the
+                # MTL_SKIP_INERT_LOGT default returns before this block).
+                _msg = (
+                    f"[stale-log_T guard BYPASSED] {parquet_path} does not exist "
+                    f"next to {pf_path}; cannot verify the per-fold log_T is fresh "
+                    f"for an ACTIVE prior (stale log_T inflates reg Acc@10 "
+                    f"+8..+12pp). Point --per-fold-transition-dir at the engine "
+                    f"dir containing input/next_region.parquet, or rebuild: "
+                    f"python scripts/compute_region_transition.py --state "
+                    f"{config.state} --per-fold --seed {seed}"
+                )
+                if _os.environ.get("MTL_STRICT") == "1":
+                    raise ValueError(_msg)
+                logger.warning(_msg)
             # Hard-fail when the per-fold log_T's ``n_splits`` does not match
             # the trainer's ``config.k_folds``. The ``--folds N`` flag
             # overrides ``config.k_folds`` to ``max(2, N)``, so a 1-fold smoke
@@ -1101,6 +1126,8 @@ def train_model(model: torch.nn.Module,
                 checkpoint_selector: str = "geom_simple",
                 joint_min_epoch: int = 0,
                 joint_train_loader=None,
+                freeze_cat_stream: bool = False,
+                freeze_reg_stream: bool = False,
                 ):
     """
     Train the model with multi-task learning.
@@ -1191,10 +1218,20 @@ def train_model(model: torch.nn.Module,
     _auto_fp32 = _auto_fp32_for_large_c(task_b_num_classes, DEVICE.type, _cap_major, _os.environ)
     _disable_amp = (_os.environ.get("MTL_DISABLE_AMP") == "1") or _auto_fp32
     if _auto_fp32:
+        # pipeline_audit 2026-07-01 (V6) — propagate the auto-fp32 decision to
+        # EVAL too. eval_autocast_ctx reads env at call time; without this a
+        # bare large-C run trained fp32 but scored val under fp16 autocast,
+        # where wide fp32-trained logits can quantize/saturate into exact ties
+        # that _rank_of_target scores optimistically (rank 1 on any tie). Every
+        # citable large-C protocol evaluates fp32; setdefault respects an
+        # explicit user MTL_DISABLE_AMP_EVAL, and this branch only fires when
+        # NO precision env was set — board runs (MTL_DISABLE_AMP=1) unaffected.
+        _os.environ.setdefault("MTL_DISABLE_AMP_EVAL", "1")
         logger.warning(
             "[auto-fp32] large-C MTL (reg C=%d) on Ampere+ (sm_%dx) with no explicit precision "
-            "env → defaulting to fp32 (bf16 grad-NaN / fp16 overflow at large C). Override with "
-            "MTL_AUTOCAST_BF16=1 (bf16) or MTL_DISABLE_AMP=0 (force fp16).",
+            "env → defaulting to fp32 for TRAIN and EVAL (bf16 grad-NaN / fp16 overflow at "
+            "large C; fp16-eval rank-tie optimism). Override with "
+            "MTL_AUTOCAST_BF16=1 (bf16) or MTL_DISABLE_AMP=0 (force fp16) + MTL_DISABLE_AMP_EVAL=0.",
             task_b_num_classes, _cap_major,
         )
     # MTL_AUTOCAST_BF16=1 → bfloat16 autocast (fp32 exponent range, no 65504 overflow,
@@ -1268,6 +1305,25 @@ def train_model(model: torch.nn.Module,
     _mtl_strict = _os_ng.environ.get("MTL_STRICT") == "1"
     for epoch_idx in progress:
         model.train()
+        # pipeline_audit 2026-07-01 (V13) — re-assert eval() on frozen streams:
+        # model.train() above flips the WHOLE model back to train mode, which
+        # re-enabled dropout in submodules the freeze flags had set to .eval()
+        # in a previous epoch (weights stayed frozen; the forward silently
+        # became stochastic again — contrary to the freeze flags' documented
+        # intent). Gated on the freeze flags → no-op for the champion and every
+        # non-freeze run. NOTE: historical freeze-flag runs (F50 P3, C2, W6,
+        # F49 λ0) predate this fix — see W6_ENCODER_ISOLATION.md audit note.
+        if _cat_frozen_post_warmup:
+            model.category_encoder.eval()
+        if _reg_frozen_post_peak:
+            for _attr in ("next_encoder", "next_poi"):
+                _sub = getattr(model, _attr, None)
+                if _sub is not None and hasattr(_sub, "eval"):
+                    _sub.eval()
+        if freeze_cat_stream and hasattr(model, "category_encoder"):
+            model.category_encoder.eval()
+        if freeze_reg_stream and hasattr(model, "next_encoder"):
+            model.next_encoder.eval()
         # F50 B4 — at the boundary epoch, unfreeze α so it can grow.
         if (alpha_frozen_until_epoch is not None
                 and not _alpha_unfrozen
@@ -1369,6 +1425,15 @@ def train_model(model: torch.nn.Module,
 
         # Per-epoch diagnostics — recomputed once per epoch on batch 0
         # (see Phase 0 §60 of plan/MTL_IMPROVEMENT_PLAN.md).
+        # P4 (pipeline_audit) — MTL_NO_TRAIN_DIAGNOSTICS=1 skips the batch-0
+        # grad-cosine (2 extra full backwards/epoch with retain_graph + 3 host
+        # syncs); the logged diagnostic stays NaN, exactly as when
+        # shared_parameters is empty. Training numerics are untouched
+        # (autograd.grad consumes no RNG and writes no .grad) → parity-provable
+        # byte-identical in eager. Default OFF.
+        _no_train_diag = (
+            _os_s1.environ.get("MTL_NO_TRAIN_DIAGNOSTICS", "0").strip() == "1"
+        )
         epoch_grad_cosine: float = float("nan")
         epoch_task_b_grad_norm: float = 0.0
         epoch_task_a_grad_norm: float = 0.0
@@ -1395,7 +1460,15 @@ def train_model(model: torch.nn.Module,
                     y_task_a = y_task_a.to(DEVICE, non_blocking=True)
             _prof.mark(samples=x_task_a.shape[0])
 
-            optimizer.zero_grad(set_to_none=True)
+            # pipeline_audit 2026-07-01 — the per-batch optimizer.zero_grad that
+            # used to live here silently broke gradient accumulation for ga>1
+            # (it wiped the prior micro-batch's grads before each backward, so
+            # every boundary step applied only the LAST micro-batch scaled 1/ga).
+            # Grads are cleared at every accumulation boundary inside
+            # _optimizer_micro_step (unconditionally, even on a guard-skipped
+            # step), and the last batch of an epoch always force-steps, so each
+            # epoch starts clean. At ga=1 every batch is a boundary → removal is
+            # byte-identical (verified: eager fold-0 parity + all loss paths).
 
             with _autocast_ctx:
                 with _prof.section("forward"):
@@ -1468,7 +1541,7 @@ def train_model(model: torch.nn.Module,
             # not populate .grad, so it leaves the subsequent backward path
             # untouched — but it requires retain_graph=True, which the helper
             # already sets.
-            if batch_idx == 0 and shared_parameters:
+            if batch_idx == 0 and shared_parameters and not _no_train_diag:
                 (
                     epoch_grad_cosine,
                     epoch_task_b_grad_norm,
@@ -1559,9 +1632,11 @@ def train_model(model: torch.nn.Module,
                     # (~67 MB/batch at C=8501) then ran argmax/rank/topk single-threaded on the
                     # CPU — the dominant sink that pegged the CPU and starved the GPU on the
                     # wide-reg-head states (CA/TX 8501; FL/AL/AZ unaffected because narrow).
-                    # argmax/topk/_rank_of_target are per-row, deterministic, and device-
-                    # independent (lowest-index tie-break on both), so the accumulated [N]/[C]
-                    # vectors — and the reconstructed metric dict below — are byte-identical.
+                    # argmax/_rank_of_target are per-row and deterministic; topk hit
+                    # vectors verified hit-equal for k∈{3,5} (k=10 tie-boundary
+                    # membership can differ CPU↔CUDA under exact ties — train-metric
+                    # is diagnostic-only, so within-device the accumulated [N]/[C]
+                    # vectors and the reconstructed metric dict stay byte-identical).
                     _lb = pred_task_b.detach()
                     _tb = truth_task_b
                     s1_preds_b.append(_lb.argmax(dim=-1).cpu())
@@ -2062,6 +2137,8 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             checkpoint_selector=str(getattr(config, "checkpoint_selector", "geom_simple")),
             joint_min_epoch=int(getattr(config, "min_best_epoch", 0) or 0),
             joint_train_loader=getattr(dataloader, "joint_train_loader", None),
+            freeze_cat_stream=bool(getattr(config, "freeze_cat_stream", False)),
+            freeze_reg_stream=bool(getattr(config, "freeze_reg_stream", False)),
         )
 
         # substrate-protocol-cleanup Tier C1 — write the three best
