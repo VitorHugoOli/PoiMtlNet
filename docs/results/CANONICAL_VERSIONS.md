@@ -373,9 +373,26 @@ benefit), it beats v16 at every tested state. Mechanism = the v16 cat head was *
 (cat-LR overshoot, exposed by the bigger batch at FL); reg-capture refuted by an isolation decomposition.
 
 **Config:** v16 recipe **+ `--batch-size 8192 --onecycle-per-head-lr`** (engine `check2hgi_dk_ovl` on the board).
-Invocation: `train.py --task mtl --canon v17 --state <state> --seed <S> --engine check2hgi_dk_ovl --canon none …`
-(or `--canon v17` directly for the v14-substrate engine). The `--onecycle-per-head-lr` flag is **required** — a v17
-bundle without it would silently reproduce v16-uniform-3e-3.
+Invocation — two routes:
+- **v14-substrate engine (what the bundle pins):** `train.py --task mtl --state <state> --seed <S>` — v17 IS `DEFAULT_CANON`, a bare run injects it (`--canon v17` explicit in scripts, per the pin-the-canon contract above).
+- **Board engine `check2hgi_dk_ovl` (freeze-grade):** `--canon v17 --engine check2hgi_dk_ovl` trips the wrong-substrate canon-guard (WARN; **hard-fail under `MTL_STRICT=1`**, which the board sets) — board drivers therefore pass **`--canon none` + the FULL explicit recipe** (working driver: `docs/studies/closing_data/run_catx_v17_audit_1fold.sh`):
+```bash
+export PYTHONPATH=src MTL_STRICT=1 MTL_COMPILE_DYNAMIC=1 MTL_DISABLE_AMP=1 MTL_CHUNK_VAL_METRIC=1
+export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" TORCHINDUCTOR_CACHE_DIR=$HOME/.inductor_cache_<state>
+# CA/TX also: export MTL_RAM_HEADROOM_GB=24
+.venv/bin/python scripts/train.py --task mtl --canon none --task-set check2hgi_next_region \
+    --engine check2hgi_dk_ovl --state <state> --seed <S> --epochs 50 --folds 5 --batch-size 8192 \
+    --onecycle-per-head-lr \
+    --mtl-loss static_weight --category-weight 0.75 --no-reg-class-weights --no-cat-class-weights \
+    --cat-head next_gru --reg-head next_stan_flow_dualtower \
+    --reg-head-param raw_embed_dim=64 --reg-head-param fusion_mode=aux \
+    --reg-head-param freeze_alpha=True --reg-head-param alpha_init=0.0 \
+    --task-a-input-type checkin --task-b-input-type region --log-t-kd-weight 0.0 \
+    --scheduler onecycle --max-lr 3e-3 --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3 \
+    --model mtlnet_crossattn_dualtower --checkpoint-selector geom_simple --compile --tf32 \
+    --per-fold-transition-dir output/check2hgi_design_k_resln_mae_l0_1/<state> --no-checkpoints
+```
+The `--onecycle-per-head-lr` flag (≡ `MTL_ONECYCLE_PER_HEAD_LR=1`, which the audit driver exports instead) is **required** — a v17 recipe without it silently reproduces v16-uniform-3e-3.
 
 **Numbers — n=20 {0,1,7,100} (`../studies/closing_data/perhead_lr_n20.md`):**
 | state | v17 cat | v16/champion cat | Δ cat | reg |

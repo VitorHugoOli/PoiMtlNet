@@ -1,0 +1,1 @@
+results/check2hgi_dk_ovl/alabama/mtlnet_lr1.0e-04_bs8192_ep50_20260701_204838_1627584

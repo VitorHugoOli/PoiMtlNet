@@ -1,0 +1,64 @@
+{
+  "meta": {
+    "state": "alabama",
+    "engine": "check2hgi_dk_ovl",
+    "task": "mtl",
+    "seed": 0,
+    "folds": 1,
+    "per_fold_seed": false
+  },
+  "run_wall_s": 29.96,
+  "compile": {},
+  "folds": [
+    {
+      "fold": 0,
+      "wall_s": 29.82,
+      "batches": 80,
+      "samples": 616488,
+      "batches_per_s": 2.68,
+      "samples_per_s": 20673.7,
+      "gpu_mem": {
+        "peak_alloc_mb": 12773.3,
+        "peak_reserved_mb": 12853.4
+      },
+      "gpu_util": {
+        "mean": 97.0,
+        "p50": 99.0,
+        "max": 100.0,
+        "n": 148
+      },
+      "sections": {
+        "eval": {
+          "total_s": 2.003,
+          "count": 8,
+          "tag": "compute"
+        },
+        "backward": {
+          "total_s": 0.617,
+          "count": 80,
+          "tag": "compute"
+        },
+        "forward": {
+          "total_s": 0.577,
+          "count": 80,
+          "tag": "compute"
+        },
+        "train_metric": {
+          "total_s": 0.217,
+          "count": 80,
+          "tag": "sync"
+        },
+        "data": {
+          "total_s": 0.001,
+          "count": 80,
+          "tag": "data"
+        }
+      },
+      "quality": {
+        "next_category": 0.4226049780845642,
+        "next_region": 0.6590885519981384
+      }
+    }
+  ],
+  "pain_points": []
+}

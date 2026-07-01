@@ -145,9 +145,9 @@ export MTL_DISABLE_AMP=1            # fp32. REQUIRED for large states (CA/TX); a
 ```
 Score: `scripts/closing_data/a40_score_matched.py <rundir> --seed <S>` (cat macro-F1 diag-best + reg Acc@10).
 
-> **Promoted candidate — `--canon v17`** (opt-in): adds `--batch-size 8192` + `--onecycle-per-head-lr`
+> **Champion — `--canon v17`** (now `DEFAULT_CANON`, 2026-07-01): adds `--batch-size 8192` + `--onecycle-per-head-lr`
 > (→ `MTL_ONECYCLE_PER_HEAD_LR=1`, so `--cat-lr 1e-3` actually applies; without it = inert v16-uniform-3e-3).
-> Beats v16 at every tested state (AL/AZ/FL n=20). `DEFAULT_CANON` stays v16; CA/TX pending. See `CANONICAL_VERSIONS §v17`.
+> Beats v16 at every tested state (AL/AZ/FL n=20; CA/TX n=20 running). v16 stays reproducible via `--canon v16`. See `CANONICAL_VERSIONS §v17`.
 
 ### (C2) STL ceilings (the board's Δcat/Δreg denominators)
 RESULTS_BOARD §1 reports MTL gains vs the single-task ceilings. To produce them:
@@ -228,8 +228,9 @@ by the **PID suffix** of the rundir, not `ls -dt | head` (mis-maps).
 | `MTL_DISABLE_AMP_EVAL=1` | off | force fp32 at **eval/val only** (train precision unchanged) — used by bf16-train cells to keep eval fp32-clean. |
 | `MTL_AUTOCAST_BF16=1` | off | use **bf16** (not fp16) for autocast — the precision behind the CA §1 H100 bf16 headline cell. An explicit value wins over auto-fp32. |
 | `MTL_NAN_GUARD` / `MTL_DIVERGENCE` | on / — | skip the optimizer step on non-finite grad/loss; under `MTL_STRICT=1` turns into a fail-loud abort (prevents a NaN-poisoned shared backbone at large C). |
-| `MTL_STAN_LEGACY_MASK=1` | off | restores the pre-P1 guarded STAN mask path for **bit-exact `--compile` repro** of frozen cells (eager is bit-exact either way; the default fast path drifts ≤0.3 pp under compile). |
+| `MTL_STAN_LEGACY_MASK=1` | off | restores the pre-P1 guarded `.any()` STAN mask path (graph breaks 2→10, SLOWER). ⚠ Does **NOT** give bit-exact `--compile` repro — Phase-5c proved fresh-cache mask on==off (the compiled number is governed by the inductor cache/compile session, drift ≤0.3 pp within fold-std); eager is bit-exact either way (the ground truth). Leave OFF. |
 | `MTL_STAN_FP32_ATTN=1` | off | fp32 masked-softmax attention under autocast — an **UNVALIDATED** candidate A40-bf16 grad-NaN mitigation; no-op under fp32. |
+| `MTL_NO_TRAIN_DIAGNOSTICS=1` | off | P4 (pipeline_audit 2026-07-01): skip the batch-0 grad-cosine diagnostic (2 extra backwards/epoch + host syncs) and, for `static_weight` runs under `--compile`, keep inductor donated buffers enabled. ~9% wall at AL warm-cache; **byte-identical in eager** (parity-verified). `grad_cosine_shared` logs NaN. Use for sweeps that don't read the diagnostic. |
 | `DATA_ROOT` | `data/` | relocates the data root (`src/configs/paths.py`); set on machines where check-ins aren't at the default path. |
 | `TORCHINDUCTOR_CACHE_DIR` | — | per-run inductor cache (avoid cross-run compile-cache variance) |
 
@@ -272,3 +273,4 @@ by the **PID suffix** of the rundir, not `ls -dt | head` (mis-maps).
   MTL_DATASET_GPU, version map / C22 / v11-repro / baselines / C25-C21 pointers). Canon = champion-G/v16 on
   `check2hgi_dk_ovl` (v14 substrate), bs=2048 fp32. Promoted candidate `--canon v17` (opt-in; AL/AZ/FL n=20; CA/TX pending). Documented
   the per-head-LR candidate (bs=8192 + cat-lr 1e-3 via `MTL_ONECYCLE_PER_HEAD_LR`, n=20-confirmed, pending promotion).
+- **2026-07-01** — **v17 PROMOTED to `DEFAULT_CANON`** (`src/configs/canon.py`; bs=8192 + `--onecycle-per-head-lr`). Bare `train.py --task mtl` now runs v17; v16 via `--canon v16`. AL/AZ/FL n=20 done, CA/TX n=20 running.

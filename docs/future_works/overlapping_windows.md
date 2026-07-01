@@ -1,5 +1,7 @@
 # Future work — Overlapping windows (a validated, head-independent ceiling cap)
 
+> ⚠ **STATUS SUPERSEDED — overlap WAS ADOPTED (2026-06-19/21).** The `closing_data` pre-freeze gates validated overlap (PR #28 ADOPT verdict: training-length confound refuted, leak clean — `docs/studies/log.md` 2026-06-19) and gated stride-1 overlap was **adopted unconditionally** (log.md 2026-06-21). The champion/board engine is now `check2hgi_dk_ovl` (stride-1, tail-gated, MIN_SEQ=10); every `RESULTS_BOARD §1` number is overlap-based. The "keeps the non-overlapping canon" decision below described the pre-closing_data state — only the frozen v11 §0.1 paper canon remains non-overlapping. Kept for the finding + validation record.
+
 **Status:** validated end-to-end (isolated harness + real STL + real MTL) at AL, 2026-06-03.
 **Decision:** documented as a key finding + future-work; the study **keeps the non-overlapping canon**
 for internal consistency (frozen (c)/(d), MTL board, per-fold log_T, and the v11 paper canon are all
