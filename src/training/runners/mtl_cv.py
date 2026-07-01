@@ -1425,14 +1425,18 @@ def train_model(model: torch.nn.Module,
 
         # Per-epoch diagnostics — recomputed once per epoch on batch 0
         # (see Phase 0 §60 of plan/MTL_IMPROVEMENT_PLAN.md).
-        # P4 (pipeline_audit) — MTL_NO_TRAIN_DIAGNOSTICS=1 skips the batch-0
-        # grad-cosine (2 extra full backwards/epoch with retain_graph + 3 host
-        # syncs); the logged diagnostic stays NaN, exactly as when
-        # shared_parameters is empty. Training numerics are untouched
-        # (autograd.grad consumes no RNG and writes no .grad) → parity-provable
-        # byte-identical in eager. Default OFF.
-        _no_train_diag = (
-            _os_s1.environ.get("MTL_NO_TRAIN_DIAGNOSTICS", "0").strip() == "1"
+        # P4 (pipeline_audit 2026-07-01) — the batch-0 grad-cosine costs 2
+        # extra full backwards/epoch with retain_graph + 3 host syncs. Default
+        # FLIPPED same day (user decision): diagnostics run only when
+        # MTL_TRAIN_DIAGNOSTICS=1 (train.py sets it for --profile/MTL_PROFILE
+        # runs; explicit env wins). Legacy MTL_NO_TRAIN_DIAGNOSTICS=1 forces
+        # OFF. When off, the logged diagnostic stays NaN, exactly as when
+        # shared_parameters is empty. Training numerics are untouched either
+        # way (autograd.grad consumes no RNG and writes no .grad) —
+        # parity-proven byte-identical in eager (runs/al_parity_eager_*).
+        _train_diag = (
+            _os_s1.environ.get("MTL_TRAIN_DIAGNOSTICS", "0").strip() == "1"
+            and _os_s1.environ.get("MTL_NO_TRAIN_DIAGNOSTICS", "0").strip() != "1"
         )
         epoch_grad_cosine: float = float("nan")
         epoch_task_b_grad_norm: float = 0.0
@@ -1541,7 +1545,7 @@ def train_model(model: torch.nn.Module,
             # not populate .grad, so it leaves the subsequent backward path
             # untouched — but it requires retain_graph=True, which the helper
             # already sets.
-            if batch_idx == 0 and shared_parameters and not _no_train_diag:
+            if batch_idx == 0 and shared_parameters and _train_diag:
                 (
                     epoch_grad_cosine,
                     epoch_task_b_grad_norm,

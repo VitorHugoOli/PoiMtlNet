@@ -2065,6 +2065,24 @@ def main(argv=None) -> None:
         from training.profiling import enable_profiler
         enable_profiler(True)
 
+    # Train diagnostics (batch-0 grad-cosine) default flip (user decision
+    # 2026-07-01): OFF for bare runs (they cost 2 extra full backwards/epoch +
+    # host syncs, and force donated_buffer=False under --compile — ~9% AL wall),
+    # ON when profiling (--profile / MTL_PROFILE=1). Explicit
+    # MTL_TRAIN_DIAGNOSTICS=1/0 always wins (grad-cosine is a science
+    # diagnostic — mechanism studies can enable it without the profiler, and a
+    # profiled run can disable it to measure production-exact timing). Legacy
+    # MTL_NO_TRAIN_DIAGNOSTICS=1 still forces OFF (handled in mtl_cv).
+    import os as _os_diag
+    if _os_diag.environ.get("MTL_TRAIN_DIAGNOSTICS") is None:
+        _prof_on = bool(getattr(args, "profile_run", False)) or (
+            _os_diag.environ.get("MTL_PROFILE") == "1")
+        _os_diag.environ["MTL_TRAIN_DIAGNOSTICS"] = "1" if _prof_on else "0"
+        if _prof_on:
+            logger.info("train diagnostics ON (profiling run) — grad-cosine adds "
+                        "2 backwards/epoch; set MTL_TRAIN_DIAGNOSTICS=0 for "
+                        "production-exact profiled timing")
+
     # Optional CUDA perf knobs — both default-off so paper runs match
     # NORTH_STAR exactly. They live here (post-seed) because the seed
     # path also touches torch globals.
@@ -2083,17 +2101,19 @@ def main(argv=None) -> None:
         # gradient-cosine diagnostic (mtl_cv._compute_gradient_cosine). Inductor's
         # default donated-buffer optimization is incompatible — must be disabled
         # before any compiled fn is built.
-        # P4 (pipeline_audit 2026-07-01): MTL_NO_TRAIN_DIAGNOSTICS=1 skips that
-        # diagnostic, so donated buffers can stay enabled — but ONLY for MTL
-        # losses that never call retain_graph in their own backward
-        # (static_weight; nash_mtl/pcgrad/gradnorm/cagrad/aligned_mtl all do).
+        # P4 (pipeline_audit 2026-07-01, default flipped same day): diagnostics
+        # are OFF by default (ON when profiling / MTL_TRAIN_DIAGNOSTICS=1), so
+        # donated buffers stay enabled for bare runs — but ONLY for MTL losses
+        # that never call retain_graph in their own backward (static_weight;
+        # nash_mtl/pcgrad/gradnorm/cagrad/aligned_mtl all do).
         import os as _os_p4
-        _no_diag = _os_p4.environ.get("MTL_NO_TRAIN_DIAGNOSTICS", "0") == "1"
+        _diag_on = _os_p4.environ.get("MTL_TRAIN_DIAGNOSTICS", "0") == "1" and (
+            _os_p4.environ.get("MTL_NO_TRAIN_DIAGNOSTICS", "0") != "1")
         _loss_retains_graph = getattr(config, "mtl_loss", None) not in ("static_weight",)
-        if _no_diag and not _loss_retains_graph:
+        if not _diag_on and not _loss_retains_graph:
             logger.info(
                 "torch.compile enabled (use_torch_compile=True, donated_buffer "
-                "left at inductor default — MTL_NO_TRAIN_DIAGNOSTICS=1 and "
+                "left at inductor default — train diagnostics off and "
                 "static_weight loss: no retain_graph users)"
             )
         else:

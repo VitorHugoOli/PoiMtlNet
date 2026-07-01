@@ -135,6 +135,12 @@ with `retain_graph` + 3 host syncs) and — for `static_weight` runs only — le
   identical across warm-base / P4-cold / P4-warm).
 - Default **OFF** (bare runs byte-identical, repo convention). Recommended ON for drivers
   that don't consume `grad_cosine_shared` (n=20 sweeps, the A40.md H2/H3 cells).
+- **Default FLIPPED same day (user decision)**: diagnostics now ride with the profiler —
+  bare runs skip them (`MTL_TRAIN_DIAGNOSTICS` auto-set to `1` on `--profile`/`MTL_PROFILE=1`,
+  else `0`; explicit env wins; legacy `MTL_NO_TRAIN_DIAGNOSTICS=1` forces off). Bare runs get
+  the ~9% for free; profiled runs keep the diagnostic (opt out with
+  `MTL_TRAIN_DIAGNOSTICS=0` for production-exact profiled timing). Training numerics
+  byte-identical either way (the parity pair proved diagnostics-on == diagnostics-off).
 
 **Measured/assessed and NOT worth it** (do not re-propose): `validation_best_model` dedup
 (landed anyway as trivial byte-identical cleanup, but it is ~5 s/fold at TX, ~0.1% — the
