@@ -64,6 +64,8 @@ One line per study per closure or major direction shift. **Outcomes only.** Proc
 
 | 2026-07-01 | `pipeline_audit` | **CLOSED (one-day audit, branch `audit/pipeline-correctness-perf`)** — champion-v17 pipeline verified LEAK-CLEAN (2 fresh-eyes hunts null; metrics exact); pairing question ANSWERED (train batches randomly paired / val aligned — mechanically real but G0.1-null, not the transfer wall; `--aligned-pairing` crash FIXED → binding G0.1 unblocked); FIXED latent ga>1 zero_grad bug + canon-guard bypass + eager fold-subset OOM path + auto-fp32 train/eval asymmetry (+`p3_board.sh` precision env) + 5 guard gaps + freeze-mode dropout + 11 doc contradictions; P4 `MTL_NO_TRAIN_DIAGNOSTICS` ADOPTED (−9% AL wall, byte-identical eager). Read `pipeline_audit/README.md`. |
 
+| 2026-07-02 | `pipeline_audit` pairing battery | **RESOLVED the G0.1 aligned-pairing anomaly + de-confounded R-CC** (AL, 5 arms × seeds {0,1,7,100} × 5f, v17/dk_ovl, paired): aligned −3.03 cat/−0.60 reg (4/4 seeds) is **100% self-pairing semantics** — the exactly-matched DERANGED control (same machinery/perms/inits, task-b rolled by 1) ≡ base, refuting the diversity/machinery hypotheses; cond_coupling alone ≡ base (historical R-CC null reproduced); cond×aligned lifts reg +0.47 over aligned (4/4 — conditioning only usable when semantically paired) but never beats base → R-CC closure survives de-confounding; champion random pairing VALIDATED as the correct default; aligned REFUTED at binding grade at AL. Read `pipeline_audit/PAIRING_BATTERY.md`. |
+
 ## How to append
 
 One row per closure or major direction shift. Format:

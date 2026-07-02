@@ -564,16 +564,34 @@ class AlignedJointLoader:
         self._has_aux = has_aux
         self.batch_size = getattr(dataloader, "batch_size", None)
         self.dataset = getattr(dataloader, "dataset", None)
+        # pipeline_audit pairing decomposition (2026-07-01) — DERANGED control:
+        # keep the joint-loader machinery + shared permutation IDENTICAL to the
+        # aligned arm, but roll the task-b (reg) triple by 1 within each batch
+        # so row i pairs with row i-1 (a different window of the same batch).
+        # Separates the two confounded axes of the aligned-vs-default A/B:
+        #   aligned vs deranged  → pure per-sample pairing SEMANTICS
+        #   deranged vs default  → loader structure / per-step sample diversity
+        #     (a joint batch feeds bs distinct windows to BOTH losses; the
+        #     default independent loaders feed 2×bs distinct windows per step).
+        # The rolled (x_b, y_b, aux) stays a valid reg sample set — only the
+        # cross-task pairing changes. Opt-in via MTL_ALIGNED_DERANGE=1.
+        import os as _os_d
+        self._derange = _os_d.environ.get("MTL_ALIGNED_DERANGE", "0") == "1"
 
     def __iter__(self):
         from data.aux_side_channel import _publish_aux, _clear_aux
         for batch in self._loader:
             if self._has_aux:
                 x_b, y_b, x_a, y_a, aux = batch
-                _publish_aux(aux)
             else:
                 x_b, y_b, x_a, y_a = batch
-                _publish_aux(None)
+                aux = None
+            if self._derange and x_b.shape[0] > 1:
+                x_b = torch.roll(x_b, 1, 0)
+                y_b = torch.roll(y_b, 1, 0)
+                if aux is not None:
+                    aux = torch.roll(aux, 1, 0)
+            _publish_aux(aux if self._has_aux else None)
             yield (x_b, y_b), (x_a, y_a)
         _clear_aux()
 

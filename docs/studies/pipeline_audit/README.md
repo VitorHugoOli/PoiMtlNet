@@ -66,8 +66,19 @@ driven toward 0 by gradient), so the misalignment-tainted pathway is nearly seve
 
 **Conclusion**: the orthogonal transfer is real but is a *regime* property, not a pairing
 artifact — forcing pairing does not unlock cross-task transfer. Reported numbers ARE
-representative of the customer scenario (validation is aligned). Three follow-ups are genuinely
-open (→ `docs/future_works/pipeline_audit_quality_followups.md`):
+representative of the customer scenario (validation is aligned).
+
+> **RESOLVED 2026-07-02 — [`PAIRING_BATTERY.md`](PAIRING_BATTERY.md)** (user follow-up: "why
+> does aligned get WORSE at AL? this is weird"): a 5-arm × 4-seed decomposition battery with a
+> new exactly-matched **deranged control** proved the aligned deficit (−3.03 cat / −0.60 reg
+> under v17/overlap, 4/4 seeds) is **100% pairing semantics** — cross-reading your OWN
+> window is an overfit shortcut, cross-reading a random other window is beneficial noise;
+> the per-step-diversity and machinery hypotheses are REFUTED (derange ≡ base). The
+> cond_coupling × aligned cell was tested: conditioning is only usable when semantically
+> paired (reg +0.47 over aligned, 4/4 seeds) but never beats the champion — the R-CC closure
+> survives de-confounding. Champion random pairing validated as the correct default;
+> aligned pairing REFUTED at binding grade at AL. The three follow-ups below are updated
+> accordingly in the memo:
 - **Binding G0.1** (frozen base, seeds {0,1,7,100}) — pre-registered, still pending; the
   `--aligned-pairing` CLI crash that forced the advisory onto `lane1_run.sh` is **fixed** here.
 - **cond_coupling × aligned-pairing** — the ONE mechanism that provably requires pairing

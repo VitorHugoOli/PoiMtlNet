@@ -1,5 +1,18 @@
 # pipeline_audit quality follow-ups (2026-07-01)
 
+> **UPDATE 2026-07-02 — items 1–3 RESOLVED/DEMOTED by the pairing battery**
+> ([`../studies/pipeline_audit/PAIRING_BATTERY.md`](../studies/pipeline_audit/PAIRING_BATTERY.md),
+> 5 arms × 4 seeds × 5 folds at AL on the v17 base):
+> **#1 cond_coupling × aligned — TESTED, verdict de-confounded null vs champion**
+> (conditioning IS only usable when semantically paired: reg +0.47 over the aligned arm,
+> 4/4 seeds — a real mechanism finding — but it never beats base on either head; the R-CC
+> closure stands). **#2 binding G0.1 — effectively ANSWERED at AL** (aligned −3.03 cat /
+> −0.60 reg, 4/4 seeds, paired; REFUTED as champion candidate; the deficit is pure
+> self-pairing semantics — the deranged control recovers base exactly; FL remains
+> advisory-null, mechanism-consistent). **#3 batch-level pairing — DEMOTIVATED** (any
+> random-other partner ≡ base; no cat gap for a smarter partner to close). Items 4–6 remain
+> open; #4's β-trajectory read is now best piggy-backed on any future aligned-arm run.
+
 **Date drafted**: 2026-07-01, from the `pipeline_audit` study
 ([`docs/studies/pipeline_audit/README.md`](../studies/pipeline_audit/README.md)).
 **What's deferred and why**: model-quality experiment candidates surfaced by the full
