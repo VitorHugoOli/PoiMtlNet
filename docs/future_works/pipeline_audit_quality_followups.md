@@ -12,6 +12,15 @@
 > advisory-null, mechanism-consistent). **#3 batch-level pairing — DEMOTIVATED** (any
 > random-other partner ≡ base; no cat gap for a smarter partner to close). Items 4–6 remain
 > open; #4's β-trajectory read is now best piggy-backed on any future aligned-arm run.
+>
+> **2026-07-02 (later): "aligned needs its own hyperparameters" — REFUTED** (6-arm × 2-seed
+> re-tune sweep + 3-agent advisor panel, PAIRING_BATTERY.md addendum): schedule-matched
+> ep25, wd 0.10, cat-lr 5e-4, combo all null-or-harmful; the two shortcut-medium attacks
+> (shared-lr 5e-4, shared_dropout 0.30) recover only +0.7-0.8 of the 3.0 deficit. The
+> trajectory analysis proved the deficit is a CEILING (base's un-annealed ep25 value already
+> beats aligned's all-time peak; aligned train-F1 79.5 vs base 69.4 at −7 val =
+> memorization). The alcond "prize" arm was NOT run per pre-registration (cat leg
+> unreachable; reg capped at base parity). Do not re-open without a new mechanism.
 
 **Date drafted**: 2026-07-01, from the `pipeline_audit` study
 ([`docs/studies/pipeline_audit/README.md`](../studies/pipeline_audit/README.md)).

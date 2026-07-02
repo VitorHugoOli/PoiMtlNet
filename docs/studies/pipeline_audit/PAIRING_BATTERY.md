@@ -86,3 +86,63 @@ fold inits, same per-step batch structure — only the pairing semantics differ)
 - Wall-clock note: the joint (aligned/derange/alcond) arms are ~33% slower per run than the
   independent-loader arms (TensorDataset per-sample collate vs `POIDataset.__getitems__`
   batched index_select) — perf-only, but worth fixing if aligned arms are ever revisited.
+
+---
+
+# Addendum 2026-07-02 — the "fair re-tune for aligned" sweep (REFUTED) + advisor panel
+
+**User hypothesis**: maybe aligned just needs its own hyperparameters (LR/epochs) — the recipe
+was tuned for random pairing. **Advisor panel** (3 agents: methodology critic, trajectory
+analyst, snapshot verifier) + a 6-arm × 2-seed sweep (`run_aligned_retune.sh` +
+`run_aligned_retune_pass1b.sh`, `aligned_retune/summary.tsv`).
+
+## Snapshot verification (user question: "are we scoring the pre-overfit peak?")
+
+**YES — verified independently**: the scorer takes an unconditional argmax over all 50
+per-epoch val rows per task (`a40_score_matched.py:28-38`), reproduced the battery numbers
+digit-for-digit from raw CSVs; val runs every epoch; no min-epoch gate applies; discretization
+loss is ≤~0.1-0.3 pp and symmetric. The −3.03 is peak-vs-peak, not a decayed checkpoint.
+
+## Trajectory analysis (all 40 battery val curves)
+
+- Aligned rises at the SAME slope as base (~2.95 pp/ep), is **above base at epochs 2–12**
+  (up to +4.9 pp, 10/10 folds — the self-read shortcut genuinely helps early), crosses below
+  permanently by ep 14–18, peaks at ep ~23 at a **3.1 pp lower ceiling**, then decays −0.17
+  pp/ep (base: −0.002).
+- **Ceiling, not timing**: base's un-annealed mid-schedule value at ep25 (63.26) already
+  exceeds aligned's all-time peak (61.49); aligned extracts **+0.02 pp** from everything
+  after ep25 (base tail: +1.26).
+- **Memorization**: aligned train-F1 at ep50 = 79.5 vs base 69.4 while val is 7 pp lower —
+  the own-window cross-read is memorized. derange ≡ base already showed the free fix is
+  "don't self-pair".
+
+## Sweep results (AL, seeds {0,1}, 5 folds; battery base mean 64.57, gate = cat ≥ 64.07)
+
+| arm | cat mean | Δ vs base | Δ vs aligned (61.49) |
+|---|---|---|---|
+| ep25 (schedule-matched anneal) | 61.26 | −3.31 | −0.22 |
+| wd 0.10 | 61.52 | −3.05 | +0.04 |
+| cat-lr 5e-4 | 59.69 | −4.88 | **−1.79** (harmful) |
+| combo (ep25+wd10+lr5e4) | 58.19 | −6.38 | −3.29 |
+| **shared-lr 5e-4** (targets the cross-attn group — advisor-added) | 62.26 | −2.31 | **+0.78** |
+| **shared_dropout 0.30** (advisor-added) | 62.16 | −2.41 | **+0.67** |
+
+Every arm replicated across both seeds (max seed spread 0.17). **Verdict: REFUTED** — the
+pre-registered win condition (cat ≥ base−0.5) is missed by ≥1.8 pp by every arm. The only
+positive movers are the two arms attacking the shortcut's medium (the shared cross-attn
+group), and they recover only ~0.7–0.8 of the 3.0 deficit — consistent with the trajectory
+verdict that the deficit is a ceiling created by the self-pairing shortcut itself. Per the
+pre-registration: **no seed extension, no alcond "prize" arm** (its cat leg is
+trajectory-proven unreachable and its reg is capped at base parity — the +0.47 lift exists
+only relative to aligned, which derange recovers for free). Champion random pairing stands;
+mark "aligned + tuned schedule" REFUTED so future agents do not re-open it.
+
+## Concurrency evaluation (user request: parallel cells on the A40)
+
+Measured by running pass-1b concurrent with pass-1 (2-wide, ~23 GB/46 GB VRAM): joint-arm
+wall 740 s serial → ~1250 s concurrent (+69%) ⇒ **2-wide throughput ≈ 1.18×**. Steady-state
+GPU util is already ~98% at AL/bs8192/compiled, so lanes mostly contend. Verdict: marginal —
+usable for bulk null-screening batteries when wall-clock matters, NOT worth it generally,
+and never for precision-sensitive (<0.3 pp) paired cells (adds compiled-session jitter) or
+for CA/TX (host-RAM serial-only constraint). Matches the perf-study's earlier 5-wide-slower
+finding.

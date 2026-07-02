@@ -66,6 +66,8 @@ One line per study per closure or major direction shift. **Outcomes only.** Proc
 
 | 2026-07-02 | `pipeline_audit` pairing battery | **RESOLVED the G0.1 aligned-pairing anomaly + de-confounded R-CC** (AL, 5 arms × seeds {0,1,7,100} × 5f, v17/dk_ovl, paired): aligned −3.03 cat/−0.60 reg (4/4 seeds) is **100% self-pairing semantics** — the exactly-matched DERANGED control (same machinery/perms/inits, task-b rolled by 1) ≡ base, refuting the diversity/machinery hypotheses; cond_coupling alone ≡ base (historical R-CC null reproduced); cond×aligned lifts reg +0.47 over aligned (4/4 — conditioning only usable when semantically paired) but never beats base → R-CC closure survives de-confounding; champion random pairing VALIDATED as the correct default; aligned REFUTED at binding grade at AL. Read `pipeline_audit/PAIRING_BATTERY.md`. |
 
+| 2026-07-02 | `pipeline_audit` re-tune sweep | **REFUTED "aligned pairing just needs its own hyperparameters"** (6 arms × 2 seeds + 3-agent advisor panel): ep25/wd10/cat-lr-5e-4/combo null-or-harmful; shortcut-medium attacks (shared-lr 5e-4, shared_dropout 0.30) recover only +0.7–0.8 of the −3.0; trajectory analysis proved a CEILING (base's un-annealed ep25 value > aligned's all-time peak; aligned extracts +0.02 after ep25; train-F1 79.5-vs-69.4 memorization); snapshot-verifier confirmed all numbers are peak-vs-peak (argmax over per-epoch val, digit-reproduced). alcond prize arm NOT run per pre-registration. Also measured: 2-wide GPU concurrency at AL = only ~1.18× throughput (marginal; null-screens only). Champion random pairing FINAL. `pipeline_audit/PAIRING_BATTERY.md` addendum. |
+
 ## How to append
 
 One row per closure or major direction shift. Format:
