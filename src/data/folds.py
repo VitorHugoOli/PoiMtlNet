@@ -173,6 +173,51 @@ class _LazyFoldMapping:
             yield self._build(i)
 
 
+class _RestrictedFoldMapping:
+    """Lazy, id-preserving subset view over a fold mapping (same dict surface
+    as ``_LazyFoldMapping``).
+
+    pipeline_audit 2026-07-01 (V5): ``--only-folds a,b`` / ``--folds N`` used
+    plain dict subsetting (``dict(list(items())[:N])`` / a dict comprehension),
+    which EAGERLY materialized every selected fold's loaders + slices at once —
+    exactly the all-folds-resident pattern ``_LazyFoldMapping`` was built to
+    remove (at TX overlap ≥3 selected folds OOM-kills the host past the
+    single-fold-peak RAM-guard model). This view keeps the REAL fold ids (the
+    per-fold log_T naming + fan-out artifact naming depend on them) and defers
+    each build to first access, one fold resident at a time.
+    """
+
+    def __init__(self, base, keys):
+        self._base = base
+        self._keys = [int(k) for k in keys]
+        self.n_regions = getattr(base, "n_regions", None)
+
+    def __len__(self):
+        return len(self._keys)
+
+    def __iter__(self):
+        return iter(self._keys)
+
+    def __contains__(self, k):
+        return k in self._keys
+
+    def keys(self):
+        return list(self._keys)
+
+    def __getitem__(self, k):
+        if k not in self._keys:
+            raise KeyError(k)
+        return self._base[k]
+
+    def items(self):
+        for k in self._keys:
+            yield k, self._base[k]
+
+    def values(self):
+        for k in self._keys:
+            yield self._base[k]
+
+
 # ============================================================
 # DATASET
 # ============================================================
@@ -519,16 +564,34 @@ class AlignedJointLoader:
         self._has_aux = has_aux
         self.batch_size = getattr(dataloader, "batch_size", None)
         self.dataset = getattr(dataloader, "dataset", None)
+        # pipeline_audit pairing decomposition (2026-07-01) — DERANGED control:
+        # keep the joint-loader machinery + shared permutation IDENTICAL to the
+        # aligned arm, but roll the task-b (reg) triple by 1 within each batch
+        # so row i pairs with row i-1 (a different window of the same batch).
+        # Separates the two confounded axes of the aligned-vs-default A/B:
+        #   aligned vs deranged  → pure per-sample pairing SEMANTICS
+        #   deranged vs default  → loader structure / per-step sample diversity
+        #     (a joint batch feeds bs distinct windows to BOTH losses; the
+        #     default independent loaders feed 2×bs distinct windows per step).
+        # The rolled (x_b, y_b, aux) stays a valid reg sample set — only the
+        # cross-task pairing changes. Opt-in via MTL_ALIGNED_DERANGE=1.
+        import os as _os_d
+        self._derange = _os_d.environ.get("MTL_ALIGNED_DERANGE", "0") == "1"
 
     def __iter__(self):
         from data.aux_side_channel import _publish_aux, _clear_aux
         for batch in self._loader:
             if self._has_aux:
                 x_b, y_b, x_a, y_a, aux = batch
-                _publish_aux(aux)
             else:
                 x_b, y_b, x_a, y_a = batch
-                _publish_aux(None)
+                aux = None
+            if self._derange and x_b.shape[0] > 1:
+                x_b = torch.roll(x_b, 1, 0)
+                y_b = torch.roll(y_b, 1, 0)
+                if aux is not None:
+                    aux = torch.roll(aux, 1, 0)
+            _publish_aux(aux if self._has_aux else None)
             yield (x_b, y_b), (x_a, y_a)
         _clear_aux()
 
@@ -885,14 +948,17 @@ def _classify_pois(poi_users, train_users, val_users):
     return train_exclusive, val_exclusive, ambiguous
 
 
-def _resolve_task_input(input_type, state, embedding_engine, x_checkin):
+def _resolve_task_input(input_type, state, embedding_engine, x_checkin,
+                        expect_userids=None):
     """Pick a task slot's input tensor for the check2hgi-MTL fold creator.
 
     ``checkin`` → the shared ``x_checkin`` (no region-sequence build → bit-equivalent to the
     legacy checkin-only path when both slots are checkin); ``region`` → the region-embedding
     sequence (``REGION_EMB_ENGINE`` env overrides the region engine while ``embedding_engine``
     drives the windowing); ``concat`` → checkin ⊕ region. Lazy region-sequence import so
-    non-region engines don't pay the cost.
+    non-region engines don't pay the cost. ``expect_userids`` (pipeline_audit
+    2026-07-01, V2) threads next.parquet's userids into the region-sequence
+    builder for a per-row alignment guard against a stale sequences_next.parquet.
     """
     if input_type == "checkin":
         return x_checkin
@@ -905,9 +971,12 @@ def _resolve_task_input(input_type, state, embedding_engine, x_checkin):
         _re = _os.environ.get("REGION_EMB_ENGINE")
         _reg_eng = EmbeddingEngine(_re) if _re else embedding_engine
         return build_region_sequence_tensor(state, region_engine=_reg_eng,
-                                            seq_engine=embedding_engine)
+                                            seq_engine=embedding_engine,
+                                            expect_userids=expect_userids)
     if input_type == "concat":
-        return build_concat_sequence_tensor(state, x_checkin)
+        return build_concat_sequence_tensor(state, x_checkin,
+                                            seq_engine=embedding_engine,
+                                            expect_userids=expect_userids)
     raise ValueError(f"Unknown input_type: {input_type}")
 
 
@@ -930,16 +999,27 @@ def _load_and_validate_check2hgi_data(state, embedding_engine, task_set):
             f"next_region.parquet rows ({len(region_df)}) disagree with "
             f"next.parquet rows ({len(X)}) for {state}. Regenerate both."
         )
-    if "userid" in region_df.columns:
-        region_uids = region_df["userid"].astype(int).to_numpy()
-        if not np.array_equal(region_uids, userids):
-            raise ValueError(
-                f"next_region.parquet userid column is not row-aligned with "
-                f"next.parquet for {state} (same row count but different "
-                f"per-row userids — a stale/cross-windowing region file). "
-                f"Regenerate both from the SAME sequences via "
-                f"`python scripts/regenerate_next_region.py --state {state}`."
-            )
+    if "userid" not in region_df.columns:
+        # pipeline_audit 2026-07-01 (V7) — hard-fail instead of silently
+        # degrading to row-count-only parity: a stale next_region.parquet
+        # lacking userid but matching the row count would mis-pair every
+        # (X, region-label) row — the exact failure this guard exists for.
+        # Every current on-disk artifact carries userid (verified 18/18).
+        raise ValueError(
+            f"next_region.parquet for {state} has no 'userid' column — cannot "
+            f"verify row alignment with next.parquet (row-count parity alone "
+            f"is NOT sufficient). Regenerate via "
+            f"`python scripts/regenerate_next_region.py --state {state}`."
+        )
+    region_uids = region_df["userid"].astype(int).to_numpy()
+    if not np.array_equal(region_uids, userids):
+        raise ValueError(
+            f"next_region.parquet userid column is not row-aligned with "
+            f"next.parquet for {state} (same row count but different "
+            f"per-row userids — a stale/cross-windowing region file). "
+            f"Regenerate both from the SAME sequences via "
+            f"`python scripts/regenerate_next_region.py --state {state}`."
+        )
     y_region = region_df["region_idx"].to_numpy(dtype=np.int64)
 
     task_b_head = (
@@ -1348,8 +1428,10 @@ class FoldCreator:
         # (NEXT slot). Each slot picks its own X (checkin / region / concat); when both are
         # "checkin" (the default) x_checkin is shared and no region-sequence build runs
         # (bit-equivalent to the legacy checkin-only path). See _resolve_task_input.
-        x_task_a = _resolve_task_input(self.task_a_input_type, state, embedding_engine, x_checkin)
-        x_task_b = _resolve_task_input(self.task_b_input_type, state, embedding_engine, x_checkin)
+        x_task_a = _resolve_task_input(self.task_a_input_type, state, embedding_engine, x_checkin,
+                                       expect_userids=userids)
+        x_task_b = _resolve_task_input(self.task_b_input_type, state, embedding_engine, x_checkin,
+                                       expect_userids=userids)
         logger.info(
             "MTL_CHECK2HGI input modality: task_a=%s (%s), task_b=%s (%s)",
             self.task_a_input_type, tuple(x_task_a.shape),

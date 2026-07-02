@@ -44,7 +44,11 @@ class ExperimentConfig:
     learning_rate: float = 1e-4
     max_lr: float = 1e-3
     weight_decay: float = 0.05
-    gradient_accumulation_steps: int = 2
+    # pipeline_audit 2026-07-01 — field default aligned with every factory /
+    # driver (all pin 1). The old field default 2 was reachable only by direct
+    # dataclass construction and, pre-fix, hit the broken ga>1 path (per-batch
+    # zero_grad wiped accumulated grads — fixed in mtl_cv.py the same day).
+    gradient_accumulation_steps: int = 1
     max_grad_norm: float = 1.0
     optimizer_eps: float = 1e-8
     # AdamW beta2 (2nd-moment decay). 0.999 is the default; lowering to ~0.95
@@ -169,6 +173,18 @@ class ExperimentConfig:
     # {category,next} preset) geom_simple falls back to that head's
     # ``f1`` → sqrt(cat_f1 * task_b_f1), a sane scale-coherent default.
     checkpoint_selector: str = "geom_simple"
+
+    # G0.1 (pre_freeze_gates) — aligned cross-task batch pairing. When True,
+    # FoldCreator builds ONE joint TRAIN loader (shared permutation, seeded
+    # seed+fold_idx) so cat-window k trains paired with reg-window k (same
+    # user/window; val loaders are already aligned). Default False = the
+    # champion behaviour: the two task train loaders shuffle independently,
+    # so cross-attention trains on randomly-paired rows. Advisory G0.1
+    # verdict: NULL at FL, cat −4.77 at AL (random pairing = beneficial
+    # augmentation) — see docs/studies/pre_freeze_gates/LANE1_G01_VERDICT.md.
+    # Field added 2026-07-01: --aligned-pairing previously crashed in
+    # dataclasses.replace (the binding G0.1 gate used lane1_run.sh instead).
+    aligned_pairing: bool = False
 
     # F50 B9 — exempt the learnable α scalar (in next_getnext_hard*
     # heads) from AdamW weight decay. WD=0.05 applies a constant pull-

@@ -3,7 +3,7 @@
 > Practical operator map: the champion config, the substrates/engines, every train-time
 > env var, the main code parts, and the one-command board recipe. Complements `CLAUDE.md`
 > (the agent guide) and `docs/results/CANONICAL_VERSIONS.md` (the version pins).
-> Last updated 2026-06-26.
+> Last updated 2026-07-01.
 
 ## 1 · The current best model — champion-G
 
@@ -41,7 +41,7 @@ Pins live in `docs/results/CANONICAL_VERSIONS.md`. Quick map:
 - **v11** = BRACIS paper canon (frozen GCN substrate `check2hgi`, log_T-KD OFF). `RESULTS_TABLE.md §0.1` IS v11.
 - **v12** = code default = v11 + log_T-KD W=0.2 (MTL reg only) + ResLN encoder for future builds.
 - **v13 / v14** = opt-in STL / forward-MTL bases (`check2hgi_resln_design_b` / `check2hgi_design_k_resln_mae_l0_1`).
-- **v16** = `DEFAULT_CANON` (`src/configs/canon.py`) — the champion-G recipe bundle a bare `train.py --task mtl` auto-injects via `--canon`.
+- **v17** = `DEFAULT_CANON` (`src/configs/canon.py`) — v16 + bs8192 + `--onecycle-per-head-lr`; the bundle a bare `train.py --task mtl` auto-injects via `--canon`. The **v16** champion-G base (bs2048, uniform-LR) stays reproducible via `--canon v16`.
 
 **Engines** (`EmbeddingEngine`, `src/configs/paths.py`): DGI, HGI, HMRM, TIME2VEC, SPACE2VEC,
 SPHERE2VEC, CHECK2HGI, POI2HGI, FUSION. The board champion runs on **`check2hgi_dk_ovl`** (the
@@ -86,7 +86,7 @@ Set before `python scripts/train.py …`. **Default = unset** unless noted.
 
 ```
 scripts/train.py            CLI entrypoint (--task/--state/--engine/--canon); _run_single_task (STL), MTL via cv runner
-src/configs/canon.py        DEFAULT_CANON (v16) — the champion recipe bundle auto-injected by --canon
+src/configs/canon.py        DEFAULT_CANON (v17) — the champion recipe bundle auto-injected by --canon (v16 base via --canon v16)
 src/data/folds.py           FoldCreator; _create_check2hgi_mtl_folds (the champion fold builder, user-disjoint SGKF);
                             _resolve_task_input, _load_and_validate_check2hgi_data, _classify_pois, _resolve_per_fold_priors
 src/training/runners/

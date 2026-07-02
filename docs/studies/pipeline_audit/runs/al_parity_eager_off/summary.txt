@@ -1,0 +1,1 @@
+[ab] al_parity_eager_off rc=0 wall=35s rundir=results/check2hgi_dk_ovl/alabama/mtlnet_lr1.0e-04_bs8192_ep8_20260701_205514_1631739
