@@ -90,6 +90,19 @@ HMT-GRN + faithful STAN already carry the region-external story.
 join the representation comparison, making Part 1 six-state like Part 2.
 **Cost:** one HGI build at Istanbul (CPU) + one HGI-overlap cat-STL cell. Moderate. Optional (the footnote is honest).
 
+### P7. Cross-task pairing design-justification (lift the paragraph) — NEW 2026-07-02, no compute
+**Buys:** a defensible, *finding-grade* answer to the natural design/reviewer question "why not feed the two task
+streams sample-aligned (the inference condition)?" — we tested it: aligned pairing opens an **instance-memorization
+shortcut** (AL cat −3.0, 4 seeds; train +10.1 / val −7.2; shortcut-first trajectory; absent at 13× data; a deranged
+control isolates pairing *semantics*), while the champion's random pairing acts as **implicit input-noise
+regularization**. So the orthogonal transfer is a **regime property, not a pairing artifact**, and — crucially —
+**preempts the "your numbers are misaligned-training artifacts" attack** (validation/deployment inputs are aligned in
+all variants; the random-trained model wins under that aligned eval). Good architecture/design-justification material.
+**Cost:** none — the write-up + **paper-ready paragraph** + verified 6-citation set are done at
+[`../../docs/research/pairing_science.md`](../../docs/research/pairing_science.md) (evidence in `docs/studies/pipeline_audit/`).
+**Acceptance:** lift the paragraph into the design-justification / ablation section (optionally a small aligned-vs-random
+row at AL); keep the "validation is aligned in all variants" honesty note.
+
 ---
 
 ## TIER C — text / presentation (no new runs; do any time)

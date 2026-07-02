@@ -74,6 +74,7 @@
 
 - [`context/`](context/) — task, datasets, splits, metrics, embeddings, fusion, MTL architectures, optimizers, task heads, and the Check2HGI architecture figure (`check2hgi_overview.tex`)
 - [`baselines/`](baselines/) — external baselines (overview + per-task audits)
+- [`research/`](research/) — critical research assessment (positioning, literature, MTL frontier) — incl. ⭐ [`research/pairing_science.md`](research/pairing_science.md), the **cross-task pairing finding** (aligned = memorization shortcut, random = augmentation; a MobiWac article candidate)
 - [`reports/`](reports/) — status reports
 
 ### "Where are open issues?"

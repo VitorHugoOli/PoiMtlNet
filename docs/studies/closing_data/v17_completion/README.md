@@ -52,5 +52,14 @@ for H1 + H2 to land** (it consumes their JSONs). So: M2 Pro is *mostly* last, bu
 > ⚠ **Recipe discipline (all cells):** engine `check2hgi_dk_ovl` (gated stride-1 overlap, MIN_SEQ=10), heads
 > `next_gru`(cat) + `next_stan_flow_dualtower`(reg, prior-OFF), `geom_simple` selector, matched scorer. v17 = add
 > `--batch-size 8192` + `--onecycle-per-head-lr` (cat/reg/shared 1e-3/3e-3/1e-3). Use `--canon none` + explicit recipe
-> under `MTL_STRICT=1`. Large-C: **fp32** (`MTL_DISABLE_AMP=1`) or clean bf16; never bare-fp16. **No-fold-collapse
-> check:** reg best-epoch must land late (not ≤~5), 0 skipped-step storms.
+> under `MTL_STRICT=1`. **No-fold-collapse check:** reg best-epoch must land late (not ≤~5), 0 skipped-step storms.
+>
+> 🔧 **PR #57 (pipeline_audit) param updates — apply to all cells:**
+> - **Precision = fp32 board-wide** (`MTL_DISABLE_AMP=1`, the board invariant — bf16 costs ~1 pp at large C, fp16
+>   NaN-collapses CA/TX). `p3_board.sh` now exports it; **auto-fp32 now also covers eval**, so a separate
+>   `MTL_DISABLE_AMP_EVAL` is no longer needed (a bare large-C run previously scored val in fp16 → rank-tie optimism).
+> - **Perf:** add `MTL_NO_TRAIN_DIAGNOSTICS=1` (P4 lever, ~9 % wall at AL, byte-identical eager) to any run.
+> - `--only-fold` / `--only-folds` now work **under `--canon`** (the bundle's `--folds 5` no longer trips the mutual
+>   exclusion) — fan-out can use `--canon v17` directly.
+> - Champion path re-verified **leak-clean + default-preserving** (ga=1, fp32, no-freeze) — the committed board cells
+>   stand; no re-execution.

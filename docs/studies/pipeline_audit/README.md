@@ -78,7 +78,9 @@ representative of the customer scenario (validation is aligned).
 > paired (reg +0.47 over aligned, 4/4 seeds) but never beats the champion — the R-CC closure
 > survives de-confounding. Champion random pairing validated as the correct default;
 > aligned pairing REFUTED at binding grade at AL. The three follow-ups below are updated
-> accordingly in the memo:
+> accordingly in the memo. **The scientific write-up (mechanism + paper-ready paragraph + verified citations) is
+> elevated to [`docs/research/pairing_science.md`](../../research/pairing_science.md)** as a MobiWac article candidate;
+> this study keeps the evidence base (`PAIRING_BATTERY.md` + the raw `pairing_battery/` / `aligned_retune/` runs).
 - **Binding G0.1** (frozen base, seeds {0,1,7,100}) — pre-registered, still pending; the
   `--aligned-pairing` CLI crash that forced the advisory onto `lane1_run.sh` is **fixed** here.
 - **cond_coupling × aligned-pairing** — the ONE mechanism that provably requires pairing

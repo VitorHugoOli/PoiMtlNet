@@ -1,9 +1,15 @@
-# Scientific explanation of the pairing result — article-ready framing
+# The cross-task pairing result — scientific explanation (article-ready)
+
+> ⭐ **Elevated to `docs/research/` (2026-07-02) as an article candidate** — a first-class finding for the MobiWac
+> paper (design-justification / ablation). Authoritative source moved here from `docs/studies/pipeline_audit/`; the
+> **evidence base + raw battery data** stay there ([`PAIRING_BATTERY.md`](../studies/pipeline_audit/PAIRING_BATTERY.md)
+> + `pipeline_audit/pairing_battery/`, `aligned_retune/`, `arch_pairing_screen/`). See also the audit context in
+> [`pipeline_audit/README.md §2`](../studies/pipeline_audit/README.md).
 
 **Purpose**: the mechanistic explanation of why sample-aligned cross-task pairing HURTS
 (AL cat −3.0) while random pairing (the champion default) wins, grounded in established
 literature, with a paper-ready paragraph + citation set. Evidence base:
-[`PAIRING_BATTERY.md`](PAIRING_BATTERY.md) (battery + re-tune sweep + advisor panel).
+[`PAIRING_BATTERY.md`](../studies/pipeline_audit/PAIRING_BATTERY.md) (battery + re-tune sweep + advisor panel).
 **Fact-checked 2026-07-02**: every empirical number below re-verified against the raw
 per-epoch logs by an adversarial fact-checker; citations audited (all real, none
 mis-attributed); reviewer-lens pass applied. Remaining pre-submission hardening items in §6.
@@ -235,5 +241,5 @@ A 4-cell arch × pairing screen tested the capacity corollary of §2: `mtlnet_cr
 seed 0 only), while the stitch→cross-attention hybrid (full-capacity read retained)
 reproduces the full harm (cat −3.68) — the positive control. Consistent with the
 channel-capacity mechanism; promoted to
-[`../../future_works/pipeline_audit_quality_followups.md §7`](../../future_works/pipeline_audit_quality_followups.md)
+[`../future_works/pipeline_audit_quality_followups.md §7`](../future_works/pipeline_audit_quality_followups.md)
 with the powered follow-up design. Not citable until multi-seed + champion-grade comparator.
