@@ -45,7 +45,13 @@ if _src not in sys.path:
 from configs.experiment import DatasetSignature, ExperimentConfig
 from configs.globals import CATEGORIES_MAP
 from configs.paths import EmbeddingEngine, IoPaths, MTL_CHECK2HGI_ALLOWED_ENGINES
-from data.folds import FoldCreator, TaskType, load_folds, rebuild_dataloaders
+from data.folds import (
+    FoldCreator,
+    TaskType,
+    _RestrictedFoldMapping,
+    load_folds,
+    rebuild_dataloaders,
+)
 from tasks import (
     CHECK2HGI_NEXT_REGION,
     LEGACY_CATEGORY_NEXT,
@@ -195,7 +201,7 @@ def _run_mtl_check2hgi(
       (``next_category`` / ``next_region`` instead of ``category`` / ``next``).
     * ``DatasetHistory`` points at ``next.parquet`` + ``next_region.parquet``
       (there is no separate category.parquet on this track).
-    * ``ModelCheckpoint`` watches ``val_joint_acc1`` — the metric emitted
+    * ``ModelCheckpoint`` watches ``val_joint_geom_lift`` — the metric emitted
       by ``mtl_cv.py`` alongside ``val_joint_score`` specifically for
       high-cardinality-head setups where macro-F1 is a weak summary.
     * ``train_with_cross_validation`` receives the resolved ``task_set``.
@@ -368,9 +374,10 @@ def _parse_args(argv=None) -> argparse.Namespace:
         default=DEFAULT_CANON,
         choices=CANON_CHOICES,
         help=(
-            "Canonical version recipe bundle to inject for --task mtl (default v16 = champion G). "
-            "Explicit flags override the bundle. Use --canon v11/v12/v15 to reproduce a prior "
-            "version, or --canon none for bare smoke defaults. See docs/results/CANONICAL_VERSIONS.md."
+            "Canonical version recipe bundle to inject for --task mtl (default v17 = champion; "
+            "v16 = champion-G base). Explicit flags override the bundle. Use --canon "
+            "v11/v12/v15/v16 to reproduce a prior version, or --canon none for bare smoke "
+            "defaults. See docs/results/CANONICAL_VERSIONS.md."
         ),
     )
     parser.add_argument(
@@ -1921,7 +1928,7 @@ def _preflight_canon_guards(args) -> None:
     ``MTL_STRICT=1`` to hard-fail (freeze-grade runs). Covers the three silent stumbles the
     pre-freeze defaults-audit surfaced (2026-06-19): development-seed 42, champion-recipe-on-
     the-wrong-substrate, and torch ≠ 2.11.0+cu128. The recipe itself is already enforced by
-    ``--canon`` (default v16); these only catch the values canon deliberately does NOT pin.
+    ``--canon`` (default v17); these only catch the values canon deliberately does NOT pin.
     """
     import os as _os
     from configs.canon import CANON_BUNDLES
@@ -1934,9 +1941,19 @@ def _preflight_canon_guards(args) -> None:
         logger.warning(msg)
 
     canon = getattr(args, "canon", None)
-    canon_active = (getattr(args, "task", None) == "mtl"
-                    and getattr(args, "config", None) is None
-                    and canon not in (None, "none"))
+    # pipeline_audit 2026-07-01 (V4) — read the injection decision recorded at
+    # parse time (args._canon_active) instead of recomputing it with a stricter
+    # predicate: injection treats a missing --task as mtl (`_known.task or
+    # "mtl"`), so recomputing with `task == "mtl"` let a bare
+    # `train.py --state X` inject the full v17 recipe yet SKIP guards 1-2
+    # (dev-seed 42 + wrong-substrate) even under MTL_STRICT=1. The getattr
+    # fallback mirrors the injection resolution for hand-built namespaces.
+    canon_active = getattr(
+        args, "_canon_active",
+        (getattr(args, "task", None) or "mtl") == "mtl"
+        and getattr(args, "config", None) is None
+        and canon not in (None, "none"),
+    )
 
     if canon_active:
         # (1) development-seed 42 is NOT paper-grade (overshoots §0.1 at large states).
@@ -2020,14 +2037,17 @@ def main(argv=None) -> None:
 
     if getattr(args, "only_fold", None) is not None:
         # [ONLY-FOLD] force the canonical 5-split so fold k matches the per-fold substrate
-        # + the n_splits=5 seeded log_T. Mutually exclusive with --folds. Inert by default.
-        if max_folds is not None or only_folds_list is not None:
-            raise SystemExit("--only-fold, --only-folds and --folds are mutually exclusive; pass one.")
+        # + the n_splits=5 seeded log_T. Mutually exclusive with --folds — EXCEPT
+        # --folds 5, which is what every --canon bundle injects and is semantically
+        # identical to the forced canonical 5-split (pre-2026-07-01 this made
+        # --only-fold unusable under ANY active canon). Inert by default.
+        if only_folds_list is not None or (max_folds is not None and max_folds != 5):
+            raise SystemExit("--only-fold, --only-folds and --folds are mutually exclusive; pass one (--folds 5 is tolerated: it equals the forced canonical 5-split).")
         config = dataclasses.replace(config, k_folds=5)
     elif only_folds_list is not None:
         # [MULTI-FOLD] same as --only-fold but for a subset; force the canonical 5-split.
-        if max_folds is not None:
-            raise SystemExit("--only-folds and --folds are mutually exclusive; pass one.")
+        if max_folds is not None and max_folds != 5:
+            raise SystemExit("--only-folds and --folds are mutually exclusive; pass one (--folds 5 is tolerated: it equals the forced canonical 5-split).")
         config = dataclasses.replace(config, k_folds=5)
     elif max_folds is not None:
         n_splits = max(2, max_folds)
@@ -2044,6 +2064,24 @@ def main(argv=None) -> None:
     if getattr(args, "profile_run", False):
         from training.profiling import enable_profiler
         enable_profiler(True)
+
+    # Train diagnostics (batch-0 grad-cosine) default flip (user decision
+    # 2026-07-01): OFF for bare runs (they cost 2 extra full backwards/epoch +
+    # host syncs, and force donated_buffer=False under --compile — ~9% AL wall),
+    # ON when profiling (--profile / MTL_PROFILE=1). Explicit
+    # MTL_TRAIN_DIAGNOSTICS=1/0 always wins (grad-cosine is a science
+    # diagnostic — mechanism studies can enable it without the profiler, and a
+    # profiled run can disable it to measure production-exact timing). Legacy
+    # MTL_NO_TRAIN_DIAGNOSTICS=1 still forces OFF (handled in mtl_cv).
+    import os as _os_diag
+    if _os_diag.environ.get("MTL_TRAIN_DIAGNOSTICS") is None:
+        _prof_on = bool(getattr(args, "profile_run", False)) or (
+            _os_diag.environ.get("MTL_PROFILE") == "1")
+        _os_diag.environ["MTL_TRAIN_DIAGNOSTICS"] = "1" if _prof_on else "0"
+        if _prof_on:
+            logger.info("train diagnostics ON (profiling run) — grad-cosine adds "
+                        "2 backwards/epoch; set MTL_TRAIN_DIAGNOSTICS=0 for "
+                        "production-exact profiled timing")
 
     # Optional CUDA perf knobs — both default-off so paper runs match
     # NORTH_STAR exactly. They live here (post-seed) because the seed
@@ -2063,12 +2101,28 @@ def main(argv=None) -> None:
         # gradient-cosine diagnostic (mtl_cv._compute_gradient_cosine). Inductor's
         # default donated-buffer optimization is incompatible — must be disabled
         # before any compiled fn is built.
-        import torch._functorch.config as _ft_config
-        _ft_config.donated_buffer = False
-        logger.info(
-            "torch.compile enabled (use_torch_compile=True, "
-            "donated_buffer=False for retain_graph=True compatibility)"
-        )
+        # P4 (pipeline_audit 2026-07-01, default flipped same day): diagnostics
+        # are OFF by default (ON when profiling / MTL_TRAIN_DIAGNOSTICS=1), so
+        # donated buffers stay enabled for bare runs — but ONLY for MTL losses
+        # that never call retain_graph in their own backward (static_weight;
+        # nash_mtl/pcgrad/gradnorm/cagrad/aligned_mtl all do).
+        import os as _os_p4
+        _diag_on = _os_p4.environ.get("MTL_TRAIN_DIAGNOSTICS", "0") == "1" and (
+            _os_p4.environ.get("MTL_NO_TRAIN_DIAGNOSTICS", "0") != "1")
+        _loss_retains_graph = getattr(config, "mtl_loss", None) not in ("static_weight",)
+        if not _diag_on and not _loss_retains_graph:
+            logger.info(
+                "torch.compile enabled (use_torch_compile=True, donated_buffer "
+                "left at inductor default — train diagnostics off and "
+                "static_weight loss: no retain_graph users)"
+            )
+        else:
+            import torch._functorch.config as _ft_config
+            _ft_config.donated_buffer = False
+            logger.info(
+                "torch.compile enabled (use_torch_compile=True, "
+                "donated_buffer=False for retain_graph=True compatibility)"
+            )
 
     engine = EmbeddingEngine(config.embedding_engine)
     task_key = config.task_type if config.task_type in _RUNNERS else "mtl"
@@ -2193,6 +2247,29 @@ def main(argv=None) -> None:
         updated_params["task_set"] = task_set
         config = dataclasses.replace(config, model_params=updated_params)
 
+        # pipeline_audit 2026-07-01 (V3) — cond_coupling ≠ none feeds the CAT
+        # batch row i's posterior as conditioning for the REG batch row i in
+        # the same forward. Under the DEFAULT independent train shuffles those
+        # rows are unrelated samples: the conditioning signal is semantically
+        # garbage at train time while val is row-aligned. Any cond_coupling
+        # experiment without --aligned-pairing is mechanistically confounded
+        # (this bit the mtl_frontier R-CC arms and b4_cascade.py). WARN by
+        # default; hard-fail under MTL_STRICT=1.
+        _cc = str((task_set.task_b.head_params or {}).get("cond_coupling", "none"))
+        if _cc != "none" and not getattr(config, "aligned_pairing", False):
+            _cc_msg = (
+                f"[cond-guard] reg-head cond_coupling={_cc!r} is active but "
+                f"--aligned-pairing is OFF: the two MTL train loaders shuffle "
+                f"independently, so the cat posterior of row i conditions an "
+                f"UNRELATED reg row i at train time while validation is "
+                f"row-aligned. Pass --aligned-pairing for a semantically "
+                f"paired conditioning signal."
+            )
+            import os as _os_cc
+            if _os_cc.environ.get("MTL_STRICT") == "1":
+                raise SystemExit("MTL_STRICT=1 → " + _cc_msg)
+            logger.warning(_cc_msg)
+
     # Apply --only-fold / --folds limit (run only the requested fold(s)).
     # config.k_folds stays as the split structure count (>= 2);
     # runners use len(fold_results) to determine actual execution count.
@@ -2207,7 +2284,7 @@ def main(argv=None) -> None:
         if args.only_fold not in fold_results:
             raise SystemExit(
                 f"--only-fold {args.only_fold} not in available folds {sorted(fold_results)}")
-        fold_results = {args.only_fold: fold_results[args.only_fold]}
+        fold_results = _RestrictedFoldMapping(fold_results, [args.only_fold])
     elif getattr(args, "_only_folds_list", None) is not None:
         # [MULTI-FOLD] keep the requested subset, PRESERVING dict keys so each fold
         # loads its own region_transition_log_seed{seed}_fold{k+1}.pt and is named by
@@ -2221,9 +2298,16 @@ def main(argv=None) -> None:
         if missing:
             raise SystemExit(
                 f"--only-folds {missing} not in available folds {sorted(fold_results)}")
-        fold_results = {k: fold_results[k] for k in args._only_folds_list}
+        # pipeline_audit 2026-07-01 (V5) — lazy subset view: the old dict
+        # comprehension eagerly built EVERY selected fold's loaders + slices at
+        # once, defeating _LazyFoldMapping and its single-fold-peak RAM-guard
+        # model (≥3 selected folds at TX overlap OOM-kill the host).
+        fold_results = _RestrictedFoldMapping(fold_results, args._only_folds_list)
     elif max_folds is not None and max_folds < len(fold_results):
-        fold_results = dict(list(fold_results.items())[:max_folds])
+        # Same lazy-view treatment; for _LazyFoldMapping keys() is range(n) so
+        # first-max_folds selection matches the old list(items())[:max_folds].
+        fold_results = _RestrictedFoldMapping(
+            fold_results, list(fold_results.keys())[:max_folds])
 
     results_path = IoPaths.get_results_dir(config.state, engine)
     results_path.mkdir(parents=True, exist_ok=True)

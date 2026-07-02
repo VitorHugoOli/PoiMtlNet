@@ -59,3 +59,6 @@ Expected result obtained: the cat win is architecture, not transfer. Use as the 
 initialization, the shared encoder alone recovers the full multi-task category gain (+4.6…+7.6 pp over the
 dedicated single-task ceiling) — the category benefit is a stronger shared representation, not cross-task
 (region→category) transfer."
+
+---
+> **2026-07-01 pipeline_audit note (mode-vs-weights caveat):** the frozen-stream probes in this study froze WEIGHTS correctly (`requires_grad=False`; optimizer groups filtered), but `model.train()` at each epoch start re-enabled dropout in the frozen stream for all epochs after the freeze — the 'frozen-at-init' stream was dropout-stochastic during training. Directional conclusions stand (dropout adds noise, not learned signal; deltas were ≪ fold-std or large), but any n=20 seed-extension must not mix regimes with these seed-0 rows: rerun seed 0 under the fixed mode-assert (mtl_cv.py re-asserts `.eval()` after `model.train()` since 2026-07-01) or run the extension with the same legacy behavior.

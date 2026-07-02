@@ -272,3 +272,25 @@ class TestRunManifest:
             dataset_paths={"missing": Path("/nonexistent/file.parquet")},
         )
         assert "missing" not in manifest.dataset_signatures
+
+
+class TestAlignedPairingField:
+    """pipeline_audit 2026-07-01 — regression for the --aligned-pairing crash.
+
+    train.py:_apply_cli_overrides does ``dataclasses.replace(config,
+    aligned_pairing=True)``; before the field existed this raised TypeError
+    (docs/studies/log.md 2026-06-19 known bug), and the FoldCreator wiring
+    silently read False via getattr. The field must exist, default False.
+    """
+
+    def test_field_exists_default_false(self):
+        config = ExperimentConfig.default_mtl("test", "alabama", "check2hgi")
+        assert config.aligned_pairing is False
+
+    def test_dataclasses_replace_accepts_it(self):
+        import dataclasses as _dc
+        config = ExperimentConfig.default_mtl("test", "alabama", "check2hgi")
+        replaced = _dc.replace(config, aligned_pairing=True)
+        assert replaced.aligned_pairing is True
+        # original untouched (frozen-recipe safety)
+        assert config.aligned_pairing is False

@@ -76,7 +76,7 @@ Enabled by fixing the latent "per-head LR inert under onecycle" bug.
 - [ ] **bf16/A40 fp32-attn island** (`_STANAttention`) — DEFERRED A40-bf16 mitigation; validate on the A40 (the grad-NaN only reproduces on Ampere at CA/TX C 6.5–8.5k), NOT H100. Driver `../closing_data/run_bf16_island.sh`.
 - [ ] **MED cleanup** — unify `_run_category`/`_run_next` + `category_cv`/`next_cv`; one `build_autocast_ctx`; the `helpers` warmup-builder extraction (log.md:406).
 - [ ] **Single-task fan-out** (`--run-id`/`--per-fold-seed` for `next_cv`/`category_cv`) — infra is generic; wire it.
-- [ ] **n_regions pass-through** so a fan-out process doesn't transiently build all 5 folds for the region-count scan.
+- [x] **n_regions pass-through** so a fan-out process doesn't transiently build all 5 folds for the region-count scan — **DONE** (precomputed on `_LazyFoldMapping.n_regions`, `folds.py`; parity golden==nreg; see `AUDIT_FINDINGS.md`).
 - [ ] **Unit tests for the new flags** — `MTL_ONECYCLE_PER_HEAD_LR` (per-group max_lr) + `--adam-beta2` are functionally verified but not pinned by CI (added in this closeout).
 
 **Decided / declined (NOT open)**

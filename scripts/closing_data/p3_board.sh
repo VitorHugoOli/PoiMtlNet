@@ -97,6 +97,12 @@ export MTL_STRICT=1                                # enforce the overlap GATE gu
 export MTL_COMPILE_DYNAMIC=1                        # dynamic-shape inductor (overlap row counts vary)
 export TORCHINDUCTOR_CACHE_DIR="${TORCHINDUCTOR_CACHE_DIR:-$HOME/.inductor_cache_board}"
 export MTL_CHUNK_VAL_METRIC=1                       # chunk the val-metric logits (large states)
+# pipeline_audit 2026-07-01 (V6) — the board precision invariant is fp32 for
+# ALL states (bf16 costs ~1pp at large C; fp16 NaN-collapses CA/TX; the fp32
+# STL ceilings must be compared at matched precision). This script previously
+# set NO precision env: small states silently ran fp16-autocast and large
+# states ran auto-fp32-train + fp16-eval (mixed regime). Overridable.
+export MTL_DISABLE_AMP="${MTL_DISABLE_AMP:-1}"
 export PYTORCH_CUDA_ALLOC_CONF="${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True}"
 export OMP_NUM_THREADS="${OMP_NUM_THREADS:-24}"
 # NEVER set MTL_DATASET_GPU=1 here: CA/TX region-MTL OOMs with redundant GPU copies;

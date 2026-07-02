@@ -50,3 +50,21 @@ Driver: `scripts/pre_freeze_gates/lane1_run.sh`. Implementation: `--aligned-pair
 `FoldResult.joint_train_loader` → `mtl_cv.train_model(joint_train_loader=)`. Alignment validated by an
 in-session A/B + a 5-fold smoke (both pass); a **landed regression test is P3** (the flag is default-inert,
 so champion numbers are unaffected). No folds-cache path needed (champion G builds folds on the fly).
+
+---
+
+## Addendum 2026-07-02 — binding-grade resolution + mechanism (pipeline_audit)
+
+The pre-registered binding run is **superseded** by the `pipeline_audit` pairing battery
+([`../pipeline_audit/PAIRING_BATTERY.md`](../pipeline_audit/PAIRING_BATTERY.md)): AL, seeds
+{0,1,7,100} × 5 folds, paired, on the **v17 board base** (`check2hgi_dk_ovl`, bs8192,
+per-head LR, compiled) — the base any adoption decision would target today. Verdict:
+**aligned − base = cat −3.025 ± 0.079 / reg −0.597 ± 0.075 (4/4 seeds negative both heads)
+→ aligned pairing REFUTED as a champion candidate at AL**; the advisory's stride-1
+interaction caveat is cleared (the deficit replicates ON the overlap base). Mechanism
+resolved by an exactly-matched **deranged control** (same joint machinery/permutations/inits,
+task-b rolled by 1): derange ≡ base (cat −0.04, reg +0.04) → the deficit is 100%
+self-pairing SEMANTICS (own-window cross-read = overfit shortcut; random-other = beneficial
+noise), 0% loader machinery / per-step diversity. Prior-session notes: the
+`--aligned-pairing` CLI crash (missing `ExperimentConfig` field, this doc's P3 concern) was
+fixed 2026-07-01 (branch `audit/pipeline-correctness-perf`, PR #57) with a regression test.

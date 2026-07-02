@@ -154,7 +154,7 @@ Key files: `src/training/runners/mtl_cv.py`, `scripts/train.py`
 - Per fold: initialize MTLnet, optimizer, scheduler, criteria
 - **Optimizer**: AdamW (lr=1e-4, weight_decay=0.05, eps=1e-8)
 - **Scheduler**: OneCycleLR (max_lr=1e-3, 50 epochs)
-- **Gradient accumulation**: 2 steps
+- **Gradient accumulation**: 1 (the `default_mtl` factory + every driver pin `--gradient-accumulation-steps 1`; ga>1 was silently broken by a per-batch `zero_grad` until the 2026-07-01 pipeline_audit fix)
 - **MTL balancing**: NashMTL (n_tasks=2, max_norm=2.2, update_weights_every=4, optim_niter=30)
 - **Early stopping**: By validation F1; optional timeout and target F1 cutoffs
 - Mixed batch iteration cycles the shorter dataloader to match the longer one
@@ -246,7 +246,7 @@ Three opt-in dev tools added 2026-06-26 (all default-off → bare runs are byte-
 >
 > The per-fold log_T at `--per-fold-transition-dir` MUST be the **seed-tagged** files `region_transition_log_seed{S}_fold{N}.pt`. Build them via `python scripts/compute_region_transition.py --state {state} --per-fold --seed {S}` for every seed you train at — otherwise transitions leak across the train/val split at any seed ≠ 42.
 >
-> ✅ **`MTL_SKIP_INERT_LOGT=1` — the champion does NOT need per-fold log_T files (opt-in, 2026-06-26).** The champion runs the reg head α-prior OFF (`freeze_alpha=True`, `alpha_init=0.0`) **and KD off**, so the per-fold log_T is **inert** (`α·log_T = 0`; with no file the head builds `log_T=zeros` — both give `logits+0`). Setting `MTL_SKIP_INERT_LOGT=1` makes `train.py` **skip the per-fold log_T load + all its leak-guards** for any provably-inert config → you can run the champion with NO `region_transition_log_*.pt` present (no regeneration needed). **Byte-identical** to loading the file (verified AL multi-seed; `docs/studies/train_perf_multifold/log.md §Phase 4b`). Default OFF; an ACTIVE prior (learnable α, α_init≠0, or ANY `--log-t/c-kd-weight`/`--cat-kd-weight`>0) is **never** skipped — the guards still fire. Use the per-fold files only when the prior is actually live.
+> ✅ **`MTL_SKIP_INERT_LOGT=1` — the champion does NOT need per-fold log_T files (DEFAULT-ON since 2026-06-26).** The champion runs the reg head α-prior OFF (`freeze_alpha=True`, `alpha_init=0.0`) **and KD off**, so the per-fold log_T is **inert** (`α·log_T = 0`; with no file the head builds `log_T=zeros` — both give `logits+0`). `MTL_SKIP_INERT_LOGT=1` (the default) makes `train.py` **skip the per-fold log_T load + all its leak-guards** for any provably-inert config → you can run the champion with NO `region_transition_log_*.pt` present (no regeneration needed). **Byte-identical** to loading the file (verified AL multi-seed; `docs/studies/train_perf_multifold/log.md §Phase 4b`). Default ON — set `MTL_SKIP_INERT_LOGT=0` to restore the legacy always-load+guard path; an ACTIVE prior (learnable α, α_init≠0, or ANY `--log-t/c-kd-weight`/`--cat-kd-weight`>0) is **never** skipped — the guards still fire. Use the per-fold files only when the prior is actually live.
 >
 > ⚠ **STALE log_T preflight (2026-05-20 lesson — mtl_protocol_fix Phase 2 P5)**: `regen_emb_t3.py` does NOT rebuild the per-fold log_T files, and `scripts/train.py` does NOT validate their freshness. **An old log_T silently survives across regens** and can inflate reg-Acc@10 by **+8 pp at STL** / **+12 pp at MTL disjoint** (FL seed=42 stale May-6 log_T case). Before any MTL/STL run that uses `--per-fold-transition-dir`, MUST verify:
 >

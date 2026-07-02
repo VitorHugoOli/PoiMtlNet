@@ -55,7 +55,8 @@ def _load_graph_maps(state: str) -> Tuple[dict, np.ndarray]:
 
 
 def build_region_sequence_tensor(state: str, region_engine: EmbeddingEngine = EmbeddingEngine.CHECK2HGI,
-                                 seq_engine: EmbeddingEngine = EmbeddingEngine.CHECK2HGI) -> torch.Tensor:
+                                 seq_engine: EmbeddingEngine = EmbeddingEngine.CHECK2HGI,
+                                 expect_userids=None) -> torch.Tensor:
     """Build the [N, 9, D] region-embedding sequence for Check2HGI MTL.
 
     Row i position k holds the region embedding of the region the user
@@ -80,6 +81,24 @@ def build_region_sequence_tensor(state: str, region_engine: EmbeddingEngine = Em
             f"Run pipelines/embedding/check2hgi.pipe.py for {state} first."
         )
     seq_df = pd.read_parquet(seq_path)
+
+    # pipeline_audit 2026-07-01 (V2) — row-alignment guard against a STALE
+    # sequences_next.parquet. The docstring's "produced in one pass" contract
+    # holds for a clean build, but a partial regen (next.parquet rebuilt,
+    # temp/sequences_next.parquet left behind) could pass silently with equal
+    # length and mis-pair every task-b window with its label. Mirrors the
+    # load-bearing userid guard in folds._load_and_validate_check2hgi_data.
+    if expect_userids is not None:
+        seq_uids = seq_df["userid"].astype(int).to_numpy()
+        if len(seq_uids) != len(expect_userids) or not np.array_equal(
+                seq_uids, np.asarray(expect_userids, dtype=seq_uids.dtype)):
+            raise ValueError(
+                f"sequences_next.parquet is not row-aligned with next.parquet "
+                f"for {state} (rows {len(seq_uids)} vs {len(expect_userids)}, "
+                f"or per-row userid mismatch) — stale sequences file; "
+                f"regenerate next.parquet + sequences_next.parquet + "
+                f"next_region.parquet in one pass."
+            )
 
     placeid_to_idx, poi_to_region = _load_graph_maps(state)
     region_emb = _load_region_embeddings(state, region_engine)
@@ -114,14 +133,24 @@ def build_region_sequence_tensor(state: str, region_engine: EmbeddingEngine = Em
 def build_concat_sequence_tensor(
     state: str,
     checkin_tensor: torch.Tensor,
+    region_engine: EmbeddingEngine = EmbeddingEngine.CHECK2HGI,
+    seq_engine: EmbeddingEngine = EmbeddingEngine.CHECK2HGI,
+    expect_userids=None,
 ) -> torch.Tensor:
     """Build [N, 9, 2D] by concatenating check-in + region along feature dim.
 
     ``checkin_tensor`` must be the [N, 9, D] tensor already produced by
     ``_convert_to_tensors`` for ``next.parquet``. We load the region
     sequence separately and concatenate on ``dim=-1``.
+
+    pipeline_audit 2026-07-01 (V2): previously this always used the CHECK2HGI
+    windowing (``build_region_sequence_tensor(state)`` with defaults), which is
+    wrong-but-length-guarded on overlap engines; the engines now thread
+    through, and ``expect_userids`` adds the per-row alignment guard.
     """
-    region_tensor = build_region_sequence_tensor(state)
+    region_tensor = build_region_sequence_tensor(
+        state, region_engine=region_engine, seq_engine=seq_engine,
+        expect_userids=expect_userids)
     if region_tensor.shape[0] != checkin_tensor.shape[0]:
         raise RuntimeError(
             f"Region tensor has {region_tensor.shape[0]} rows, check-in "

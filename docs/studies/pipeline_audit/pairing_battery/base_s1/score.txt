@@ -1,0 +1,5 @@
+=== A40 matched-metric score: mtlnet_lr1.0e-04_bs8192_ep50_20260701_232322_1675214 ===
+  seed=1  tag=pairing_base_s1
+  cat macro-F1 (diag-best)      = 64.6108 ± 1.7101  (n=5)  per-fold=[64.9352, 65.3914, 65.9069, 65.572, 61.2486]  epochs=[45, 42, 43, 35, 50]
+  reg FULL top10_acc (indist-best) = 69.8067 ± 3.4251  (n=5)  per-fold=[71.5235, 68.5453, 73.4531, 71.7816, 63.7303]  epochs=[41, 42, 42, 38, 36]
+  wrote /home/vitor.oliveira/PoiMtlNet/results/check2hgi_dk_ovl/alabama/mtlnet_lr1.0e-04_bs8192_ep50_20260701_232322_1675214/a40_matched_score.json

@@ -38,6 +38,16 @@ def build_next_region_for(state: str, engine: EmbeddingEngine):
     next_df = IoPaths.load_next(state, engine)
     seq_df = pd.read_parquet(IoPaths.get_seq_next(state, engine))
     assert len(next_df) == len(seq_df), (len(next_df), len(seq_df))
+    # pipeline_audit 2026-07-01 (V7) — row-count parity is NOT sufficient: a
+    # stale seq file with equal per-user counts would silently mis-pair every
+    # (X, region-label) row. Mirror the canonical per-row userid content guard
+    # (next_region.py:87-103 / folds._load_and_validate_check2hgi_data).
+    _next_uids = next_df["userid"].astype(str).to_numpy()
+    _seq_uids = seq_df["userid"].astype(str).to_numpy()
+    assert (_next_uids == _seq_uids).all(), (
+        f"next.parquet and sequences_next.parquet userids are not row-aligned "
+        f"for {state}/{engine.value} — stale/mixed build; rebuild both in one pass."
+    )
     placeid_to_idx, poi_to_region = _load_graph_maps(state)
     n_regions = int(poi_to_region.max()) + 1
     tgt = seq_df["target_poi"].astype(np.int64).to_numpy()

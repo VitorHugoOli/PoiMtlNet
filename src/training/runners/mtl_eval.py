@@ -210,6 +210,22 @@ def evaluate_model(
     # (reg metric is meaningless under the roll — read cat-F1 only.) Gate MTL_ROLL_TASKB_EVAL=1.
     _roll_taskb = os.environ.get("MTL_ROLL_TASKB_EVAL") == "1"
 
+    # pipeline_audit 2026-07-01 (V9) — when the two VAL loaders differ in
+    # length (legacy task pairs only; never the check2hgi track, where both
+    # tasks share val_idx → equal lengths), zip_longest_cycle re-feeds the
+    # shorter loader's leading batches and their outputs are counted AGAIN in
+    # the scored metrics, over-weighting a deterministic subset of that task's
+    # val samples. WARN loudly rather than silently over-count.
+    _len_next, _len_cat = len(dataloaders[0]), len(dataloaders[1])
+    if _len_next != _len_cat:
+        logger.warning(
+            "[val-cycle] val loaders differ in length (next=%d, cat=%d): "
+            "zip_longest_cycle double-counts the shorter task's leading val "
+            "samples in the scored metrics (legacy-pair behavior; the "
+            "check2hgi track is immune). Interpret that task's val F1/Acc "
+            "with caution.", _len_next, _len_cat,
+        )
+
     for data_next, data_cat in zip_longest_cycle(*dataloaders):
         x_next, y_next = data_next
         if x_next.device != device:

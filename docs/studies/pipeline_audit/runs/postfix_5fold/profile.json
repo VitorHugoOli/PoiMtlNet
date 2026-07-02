@@ -1,0 +1,265 @@
+{
+  "meta": {
+    "state": "alabama",
+    "engine": "check2hgi_dk_ovl",
+    "task": "mtl",
+    "seed": 0,
+    "folds": 5,
+    "per_fold_seed": false
+  },
+  "run_wall_s": 603.37,
+  "compile": {
+    "frames": 14,
+    "graph_break": 2
+  },
+  "folds": [
+    {
+      "fold": 0,
+      "wall_s": 129.82,
+      "batches": 500,
+      "samples": 3853050,
+      "batches_per_s": 3.85,
+      "samples_per_s": 29680.3,
+      "gpu_mem": {
+        "peak_alloc_mb": 12401.6,
+        "peak_reserved_mb": 12620.7
+      },
+      "gpu_util": {
+        "mean": 87.2,
+        "p50": 98.0,
+        "max": 100.0,
+        "n": 646
+      },
+      "sections": {
+        "eval": {
+          "total_s": 12.651,
+          "count": 50,
+          "tag": "compute"
+        },
+        "forward": {
+          "total_s": 9.989,
+          "count": 500,
+          "tag": "compute"
+        },
+        "backward": {
+          "total_s": 2.363,
+          "count": 500,
+          "tag": "compute"
+        },
+        "train_metric": {
+          "total_s": 1.213,
+          "count": 500,
+          "tag": "sync"
+        },
+        "data": {
+          "total_s": 0.003,
+          "count": 500,
+          "tag": "data"
+        }
+      },
+      "quality": {
+        "next_category": 0.6440293788909912,
+        "next_region": 0.7215428352355957
+      }
+    },
+    {
+      "fold": 1,
+      "wall_s": 117.21,
+      "batches": 500,
+      "samples": 3853100,
+      "batches_per_s": 4.27,
+      "samples_per_s": 32873.9,
+      "gpu_mem": {
+        "peak_alloc_mb": 12423.4,
+        "peak_reserved_mb": 12631.1
+      },
+      "gpu_util": {
+        "mean": 96.8,
+        "p50": 98.0,
+        "max": 100.0,
+        "n": 586
+      },
+      "sections": {
+        "eval": {
+          "total_s": 7.699,
+          "count": 50,
+          "tag": "compute"
+        },
+        "backward": {
+          "total_s": 2.247,
+          "count": 500,
+          "tag": "compute"
+        },
+        "forward": {
+          "total_s": 1.435,
+          "count": 500,
+          "tag": "compute"
+        },
+        "train_metric": {
+          "total_s": 1.189,
+          "count": 500,
+          "tag": "sync"
+        },
+        "data": {
+          "total_s": 0.003,
+          "count": 500,
+          "tag": "data"
+        }
+      },
+      "quality": {
+        "next_category": 0.6604998111724854,
+        "next_region": 0.6861937642097473
+      }
+    },
+    {
+      "fold": 2,
+      "wall_s": 118.21,
+      "batches": 500,
+      "samples": 3853050,
+      "batches_per_s": 4.23,
+      "samples_per_s": 32593.6,
+      "gpu_mem": {
+        "peak_alloc_mb": 12423.4,
+        "peak_reserved_mb": 12631.1
+      },
+      "gpu_util": {
+        "mean": 97.1,
+        "p50": 99.0,
+        "max": 100.0,
+        "n": 591
+      },
+      "sections": {
+        "eval": {
+          "total_s": 7.723,
+          "count": 50,
+          "tag": "compute"
+        },
+        "backward": {
+          "total_s": 2.1,
+          "count": 500,
+          "tag": "compute"
+        },
+        "forward": {
+          "total_s": 1.387,
+          "count": 500,
+          "tag": "compute"
+        },
+        "train_metric": {
+          "total_s": 1.19,
+          "count": 500,
+          "tag": "sync"
+        },
+        "data": {
+          "total_s": 0.003,
+          "count": 500,
+          "tag": "data"
+        }
+      },
+      "quality": {
+        "next_category": 0.6571366190910339,
+        "next_region": 0.7342372536659241
+      }
+    },
+    {
+      "fold": 3,
+      "wall_s": 118.28,
+      "batches": 500,
+      "samples": 3852950,
+      "batches_per_s": 4.23,
+      "samples_per_s": 32574.5,
+      "gpu_mem": {
+        "peak_alloc_mb": 12423.4,
+        "peak_reserved_mb": 12631.1
+      },
+      "gpu_util": {
+        "mean": 97.2,
+        "p50": 99.0,
+        "max": 100.0,
+        "n": 591
+      },
+      "sections": {
+        "eval": {
+          "total_s": 7.766,
+          "count": 50,
+          "tag": "compute"
+        },
+        "backward": {
+          "total_s": 2.141,
+          "count": 500,
+          "tag": "compute"
+        },
+        "forward": {
+          "total_s": 1.358,
+          "count": 500,
+          "tag": "compute"
+        },
+        "train_metric": {
+          "total_s": 1.19,
+          "count": 500,
+          "tag": "sync"
+        },
+        "data": {
+          "total_s": 0.003,
+          "count": 500,
+          "tag": "data"
+        }
+      },
+      "quality": {
+        "next_category": 0.6553536653518677,
+        "next_region": 0.7158229947090149
+      }
+    },
+    {
+      "fold": 4,
+      "wall_s": 118.36,
+      "batches": 500,
+      "samples": 3853050,
+      "batches_per_s": 4.22,
+      "samples_per_s": 32552.5,
+      "gpu_mem": {
+        "peak_alloc_mb": 12423.4,
+        "peak_reserved_mb": 12631.1
+      },
+      "gpu_util": {
+        "mean": 97.1,
+        "p50": 99.0,
+        "max": 100.0,
+        "n": 593
+      },
+      "sections": {
+        "eval": {
+          "total_s": 7.68,
+          "count": 50,
+          "tag": "compute"
+        },
+        "backward": {
+          "total_s": 2.172,
+          "count": 500,
+          "tag": "compute"
+        },
+        "forward": {
+          "total_s": 1.342,
+          "count": 500,
+          "tag": "compute"
+        },
+        "train_metric": {
+          "total_s": 1.192,
+          "count": 500,
+          "tag": "sync"
+        },
+        "data": {
+          "total_s": 0.003,
+          "count": 500,
+          "tag": "data"
+        }
+      },
+      "quality": {
+        "next_category": 0.6096386909484863,
+        "next_region": 0.6459811925888062
+      }
+    }
+  ],
+  "pain_points": [
+    "GRAPH BREAKS: 2 torch.compile graph break(s) \u2014 data-dependent .any()/.item() in the model forward fragment the compiled graph."
+  ]
+}
