@@ -105,16 +105,19 @@ loss is ≤~0.1-0.3 pp and symmetric. The −3.03 is peak-vs-peak, not a decayed
 
 ## Trajectory analysis (all 40 battery val curves)
 
-- Aligned rises at the SAME slope as base (~2.95 pp/ep), is **above base at epochs 2–12**
-  (up to +4.9 pp, 10/10 folds — the self-read shortcut genuinely helps early), crosses below
-  permanently by ep 14–18, peaks at ep ~23 at a **3.1 pp lower ceiling**, then decays −0.17
-  pp/ep (base: −0.002).
+- Aligned rises at the SAME slope as base (~2.95 pp/ep), starts **above base** (20/20
+  folds ahead at epoch 2, per-fold leads up to +5.2 pp, mean +2.7 at ep2 — the self-read
+  shortcut genuinely helps early), hovers near parity through ~ep 14, crosses below
+  permanently at ep ~15 on the mean curve (per-fold final crossovers ep 8–22, median 16),
+  peaks ~18 epochs earlier (ep ~23 vs ~41) at a **3.0 pp lower ceiling**, then decays −0.17
+  pp/ep (base: −0.002). *(Numbers re-verified 2026-07-02 by the fact-check pass — an
+  earlier phrasing "above base at ep 2–12, 10/10 folds" overstated the lead's duration.)*
 - **Ceiling, not timing**: base's un-annealed mid-schedule value at ep25 (63.26) already
   exceeds aligned's all-time peak (61.49); aligned extracts **+0.02 pp** from everything
   after ep25 (base tail: +1.26).
-- **Memorization**: aligned train-F1 at ep50 = 79.5 vs base 69.4 while val is 7 pp lower —
-  the own-window cross-read is memorized. derange ≡ base already showed the free fix is
-  "don't self-pair".
+- **Memorization**: aligned train-F1 at ep50 = 79.6 vs base 69.5 (+10.1) while val is
+  7.2 pp lower — the own-window cross-read is memorized. derange ≈ base (statistical null)
+  already showed the free fix is "don't self-pair".
 
 ## Sweep results (AL, seeds {0,1}, 5 folds; battery base mean 64.57, gate = cat ≥ 64.07)
 
