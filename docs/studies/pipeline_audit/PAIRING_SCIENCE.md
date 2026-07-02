@@ -172,3 +172,57 @@ ep ~15, and the ceiling gap; trajectories in
 3. **FL 2-seed v17 aligned arm** (hardens the "null at 13× data" claim beyond the
    single-seed v16 advisory). ~2×2.5 h (FL is slow on the A40).
 4. **AZ base-vs-aligned** (second small state; replicates the small-N harm). ~1 h.
+
+## 7 · "Is it still valid MTL?" — the validity argument (user question, 2026-07-02)
+
+**The concern**: if the trained model ignores per-sample cross-stream content and the reg
+head is dominated by a private tower, is this genuinely one multi-task model where tasks
+benefit from each other — or two separate models sharing a file?
+
+**The test that decides it**: MTL is *invalid* (mere parameter bookkeeping) iff the jointly
+trained model is no better than dedicated single-task models trained on the same substrate.
+That comparison is exactly what the board measures, and it comes out in MTL's favor:
+
+- **Category: the joint model BEATS the dedicated STL category ceiling at every state**
+  (+3…+7.7 pp across the six-state board) — the definitional evidence of positive transfer.
+- **Region: the joint model BEATS the dedicated STL region ceiling at the largest states**
+  (CA +2.2, TX +2.1) and is non-inferior within the cardinality-dependent margin at the
+  smaller ones (the Decision-C scoping) — while spending ONE training run and deploying ONE
+  model for both predictions.
+
+**What kind of MTL benefit is it?** The pairing program lets the paper say something most
+MTL papers cannot — *which* transfer channel carries the benefit:
+
+- **Per-sample content-level exchange: null.** The trained model is insensitive to
+  cross-stream content (probe); forcing semantic pairing helps nothing (G0.1 battery);
+  per-sample conditioning cannot beat the champion even de-confounded.
+- **Parameter/representation-level transfer: alive and measured.** The shared blocks are
+  optimized under BOTH task losses (gradients measured near-orthogonal — the tasks do not
+  fight, no balancer needed), the second stream shapes the shared representation as an
+  inductive bias, and its stochastic content regularizes the category pathway. This is
+  Caruana's original mechanism — the auxiliary task as an inductive bias on a shared
+  representation — not an exotic loophole: MTL's standard definition is joint optimization
+  of multiple objectives over shared parameters (Caruana 1997; Ruder 2017), and it does NOT
+  require per-sample information exchange. Regularization-style benefit from a co-trained
+  task is a canonical, respected MTL mode (auxiliary-task learning: Jaderberg et al. 2017;
+  Liebel & Körner 2018).
+
+**The calibrated claim for the article** (this is what the evidence licenses):
+"one jointly-trained model serves both tasks at-or-above the dedicated single-task
+ceilings; the benefit arrives through shared-representation dynamics (inductive-bias +
+regularization), not through per-sample cross-task content — which we demonstrate by
+direct intervention on the pairing distribution." Do NOT claim per-sample knowledge
+exchange ("the model uses task B's prediction to inform task A's") — that channel is
+measured dead in this regime. The architecture's drift toward task-privacy (dual reg
+tower) is not an embarrassment to hide but the regime finding itself: for this task pair,
+light parameter sharing + joint optimization captures all the available synergy — hard
+content coupling adds nothing and self-paired content actively hurts. This is precisely
+the "beyond cross-task" thesis.
+
+**Additional citations for this section** (verified real): Caruana, "Multitask Learning",
+*Machine Learning* 28, 41–75 (1997); Ruder, "An Overview of Multi-Task Learning in Deep
+Neural Networks", arXiv:1706.05098 (2017); Standley et al., "Which Tasks Should Be Learned
+Together in Multi-task Learning?", ICML 2020 (task synergy is an empirical property of the
+pair, not a given); Jaderberg et al., "Reinforcement Learning with Unsupervised Auxiliary
+Tasks", ICLR 2017; Liebel & Körner, "Auxiliary Tasks in Multi-task Learning",
+arXiv:1805.06334 (2018).
