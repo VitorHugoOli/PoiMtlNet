@@ -1,0 +1,5 @@
+arch	pairing	seed	cat	reg	wall	rc	rundir
+mtlnet_crossstitch	base	0	64.7220	70.0361	354	0	mtlnet_lr1.0e-04_bs8192_ep50_20260702_132842_1983871
+mtlnet_crossstitch	aligned	0	63.1086	70.6351	521	0	mtlnet_lr1.0e-04_bs8192_ep50_20260702_133435_1984962
+mtlnet_crossattn_xstitch	base	0	64.8759	69.9479	559	0	mtlnet_lr1.0e-04_bs8192_ep50_20260702_134317_1986010
+mtlnet_crossattn_xstitch	aligned	0	61.2000	70.0351	723	0	mtlnet_lr1.0e-04_bs8192_ep50_20260702_135236_1987422

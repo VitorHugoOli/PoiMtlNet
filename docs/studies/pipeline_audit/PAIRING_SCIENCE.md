@@ -226,3 +226,14 @@ Together in Multi-task Learning?", ICML 2020 (task synergy is an empirical prope
 pair, not a given); Jaderberg et al., "Reinforcement Learning with Unsupervised Auxiliary
 Tasks", ICLR 2017; Liebel & Körner, "Auxiliary Tasks in Multi-task Learning",
 arXiv:1805.06334 (2018).
+
+## 8 · Post-closure screen pointer (2026-07-02, screening-grade — NOT a result)
+
+A 4-cell arch × pairing screen tested the capacity corollary of §2: `mtlnet_crossstitch`
+(scalar α-mix channel) under aligned pairing HALVES the cat harm (−1.61 vs cross-attention's
+−3.0/−3.7) and shows the program's first positive aligned effect (reg +0.60 within-arch,
+seed 0 only), while the stitch→cross-attention hybrid (full-capacity read retained)
+reproduces the full harm (cat −3.68) — the positive control. Consistent with the
+channel-capacity mechanism; promoted to
+[`../../future_works/pipeline_audit_quality_followups.md §7`](../../future_works/pipeline_audit_quality_followups.md)
+with the powered follow-up design. Not citable until multi-seed + champion-grade comparator.

@@ -91,6 +91,35 @@ already catalogued (QUALITY_IMPROVEMENTS C4, future-works-only, redraws the froz
 this entry just records the audit's confirmation that region labels are entirely
 unstratified today.
 
+## 7 · Aligned pairing × low-capacity sharing architectures (PROMISING screen, 2026-07-02)
+
+**Hypothesis** (user, after the pairing closure): the aligned-pairing harm needs channel
+*capacity/adaptivity* to memorize instance detail — an architecture with a narrower sharing
+channel might harvest semantic pairing without the shortcut. **Screen** (AL, seed 0 × 5
+folds ONLY — screening-grade, NOT a result; reg head = `next_stan_flow` prior-off, so
+absolute numbers are NOT board-comparable; readout = within-arch Δ(aligned − base)):
+
+| arch | Δcat | Δreg |
+|---|---|---|
+| `mtlnet_crossstitch` (Misra α-matrix scalar mixing) | −1.61 | **+0.60** |
+| `mtlnet_crossattn_xstitch` (stitch → FULL cross-attn; positive control) | −3.68 | +0.09 |
+
+The control reproduces the full cross-attention harm; pure cross-stitch HALVES the cat harm
+and is the **first arm in the whole program with a positive aligned effect** (its aligned
+reg 70.64 is nominally the best AL reg observed, any config). Consistent with the capacity
+story: the α-mix passes a scalar-weighted copy of the partner representation (no attention
+selection over it), leaving less room for instance-specific memorization while still
+transmitting the semantically-paired signal the reg head can use.
+
+**Follow-up design (before any claim):** (a) multi-seed {0,1,7,100} cstitch base/aligned at
+AL (+ AZ); (b) a champion-grade comparator in the same battery (the dualtower champion
+recipe) since the screen's head differs; (c) if the reg lift holds at n=4, test
+cstitch-aligned × cond_coupling (the conditioning-needs-pairing finding, §1) and a
+dualtower+stitch-channel hybrid (keep the private reg tower, replace the cross-attn
+cross-read with the α-mix); (d) MMoE/PLE/CGC are NOT candidates for the pairing axis (they
+share experts, not per-sample content across streams — pairing is forward-irrelevant).
+Data: `docs/studies/pipeline_audit/arch_pairing_screen/` (driver + summary.tsv + scores).
+
 ## Pointers
 
 `docs/studies/pipeline_audit/README.md` (findings + file:line index),
