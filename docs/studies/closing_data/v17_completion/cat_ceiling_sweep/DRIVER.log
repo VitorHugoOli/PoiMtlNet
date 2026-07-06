@@ -1,0 +1,155 @@
+[15:21:59] SWEEP START states=[alabama arizona] seeds=[0 1] arms=[8192:0.01 8192:0.02 8192:0.04 8192:0.08 2048:0.005 2048:0.01 2048:0.02]
+[15:21:59] RUN  alabama bs8192 lr0.01 s0
+[15:23:28] DONE alabama bs8192 lr0.01 s0 f1=56.2128
+[15:23:28] RUN  alabama bs8192 lr0.01 s1
+[15:24:57] DONE alabama bs8192 lr0.01 s1 f1=56.2338
+[15:24:57] RUN  arizona bs8192 lr0.01 s0
+[15:27:53] DONE arizona bs8192 lr0.01 s0 f1=55.9334
+[15:27:53] RUN  arizona bs8192 lr0.01 s1
+[15:30:50] DONE arizona bs8192 lr0.01 s1 f1=56.1191
+[15:30:50] RUN  alabama bs8192 lr0.02 s0
+[15:32:19] DONE alabama bs8192 lr0.02 s0 f1=54.0379
+[15:32:19] RUN  alabama bs8192 lr0.02 s1
+[15:33:48] DONE alabama bs8192 lr0.02 s1 f1=53.9125
+[15:33:48] RUN  arizona bs8192 lr0.02 s0
+[15:36:45] DONE arizona bs8192 lr0.02 s0 f1=56.3514
+[15:36:45] RUN  arizona bs8192 lr0.02 s1
+[15:39:41] DONE arizona bs8192 lr0.02 s1 f1=56.365
+[15:39:41] RUN  alabama bs8192 lr0.04 s0
+[15:41:10] DONE alabama bs8192 lr0.04 s0 f1=52.0077
+[15:41:10] RUN  alabama bs8192 lr0.04 s1
+[15:42:39] DONE alabama bs8192 lr0.04 s1 f1=52.8204
+[15:42:39] RUN  arizona bs8192 lr0.04 s0
+[15:45:35] DONE arizona bs8192 lr0.04 s0 f1=54.3551
+[15:45:35] RUN  arizona bs8192 lr0.04 s1
+[15:48:31] DONE arizona bs8192 lr0.04 s1 f1=55.2828
+[15:48:31] RUN  alabama bs8192 lr0.08 s0
+[15:50:00] DONE alabama bs8192 lr0.08 s0 f1=49.309
+[15:50:00] RUN  alabama bs8192 lr0.08 s1
+[15:51:28] DONE alabama bs8192 lr0.08 s1 f1=50.3514
+[15:51:28] RUN  arizona bs8192 lr0.08 s0
+[15:54:24] DONE arizona bs8192 lr0.08 s0 f1=51.4631
+[15:54:24] RUN  arizona bs8192 lr0.08 s1
+[15:57:20] DONE arizona bs8192 lr0.08 s1 f1=52.2352
+[15:57:20] RUN  alabama bs2048 lr0.005 s0
+[15:58:56] DONE alabama bs2048 lr0.005 s0 f1=56.8582
+[15:58:56] RUN  alabama bs2048 lr0.005 s1
+[16:00:32] DONE alabama bs2048 lr0.005 s1 f1=56.7893
+[16:00:32] RUN  arizona bs2048 lr0.005 s0
+[16:03:42] DONE arizona bs2048 lr0.005 s0 f1=55.9965
+[16:03:42] RUN  arizona bs2048 lr0.005 s1
+[16:06:52] DONE arizona bs2048 lr0.005 s1 f1=56.2515
+[16:06:52] RUN  alabama bs2048 lr0.01 s0
+[16:08:27] DONE alabama bs2048 lr0.01 s0 f1=55.0254
+[16:08:27] RUN  alabama bs2048 lr0.01 s1
+[16:10:03] DONE alabama bs2048 lr0.01 s1 f1=55.5355
+[16:10:03] RUN  arizona bs2048 lr0.01 s0
+[16:13:13] DONE arizona bs2048 lr0.01 s0 f1=56.4854
+[16:13:13] RUN  arizona bs2048 lr0.01 s1
+[16:16:23] DONE arizona bs2048 lr0.01 s1 f1=56.4693
+[16:16:23] RUN  alabama bs2048 lr0.02 s0
+[16:17:58] DONE alabama bs2048 lr0.02 s0 f1=54.383
+[16:17:58] RUN  alabama bs2048 lr0.02 s1
+[16:19:33] DONE alabama bs2048 lr0.02 s1 f1=54.3097
+[16:19:33] RUN  arizona bs2048 lr0.02 s0
+[16:22:43] DONE arizona bs2048 lr0.02 s0 f1=56.012
+[16:22:43] RUN  arizona bs2048 lr0.02 s1
+[16:25:53] DONE arizona bs2048 lr0.02 s1 f1=55.1958
+[16:25:53] SWEEP COMPLETE
+[16:27:15] SWEEP START states=[alabama arizona] seeds=[0 1] arms=[2048:0.0025 2048:0.0075]
+[16:27:15] RUN  alabama bs2048 lr0.0025 s0
+[16:28:51] DONE alabama bs2048 lr0.0025 s0 f1=55.7573
+[16:28:51] RUN  alabama bs2048 lr0.0025 s1
+[16:30:26] DONE alabama bs2048 lr0.0025 s1 f1=55.8779
+[16:30:26] RUN  arizona bs2048 lr0.0025 s0
+[16:33:36] DONE arizona bs2048 lr0.0025 s0 f1=57.0682
+[16:33:36] RUN  arizona bs2048 lr0.0025 s1
+[16:36:46] DONE arizona bs2048 lr0.0025 s1 f1=57.0147
+[16:36:46] RUN  alabama bs2048 lr0.0075 s0
+[16:38:22] DONE alabama bs2048 lr0.0075 s0 f1=54.4795
+[16:38:22] RUN  alabama bs2048 lr0.0075 s1
+[16:39:57] DONE alabama bs2048 lr0.0075 s1 f1=54.6277
+[16:39:57] RUN  arizona bs2048 lr0.0075 s0
+[16:43:07] DONE arizona bs2048 lr0.0075 s0 f1=56.9142
+[16:43:07] RUN  arizona bs2048 lr0.0075 s1
+[16:46:17] DONE arizona bs2048 lr0.0075 s1 f1=56.9497
+[16:46:17] SWEEP COMPLETE
+[16:47:02] SWEEP START states=[alabama arizona florida california texas] seeds=[0 1 7 100] arms=[2048:0.005]
+[16:47:02] SKIP alabama bs2048 lr0.005 s0 (exists)
+[16:47:02] SKIP alabama bs2048 lr0.005 s1 (exists)
+[16:47:02] RUN  alabama bs2048 lr0.005 s7
+[16:48:37] DONE alabama bs2048 lr0.005 s7 f1=56.8002
+[16:48:37] RUN  alabama bs2048 lr0.005 s100
+[16:50:12] DONE alabama bs2048 lr0.005 s100 f1=56.8127
+[16:50:12] SKIP arizona bs2048 lr0.005 s0 (exists)
+[16:50:12] SKIP arizona bs2048 lr0.005 s1 (exists)
+[16:50:12] RUN  arizona bs2048 lr0.005 s7
+[16:53:22] DONE arizona bs2048 lr0.005 s7 f1=56.3245
+[16:53:22] RUN  arizona bs2048 lr0.005 s100
+[16:56:32] DONE arizona bs2048 lr0.005 s100 f1=56.3777
+[16:56:32] RUN  florida bs2048 lr0.005 s0
+[17:15:58] DONE florida bs2048 lr0.005 s0 f1=72.9812
+[17:15:58] RUN  florida bs2048 lr0.005 s1
+[17:35:24] DONE florida bs2048 lr0.005 s1 f1=72.874
+[17:35:24] RUN  florida bs2048 lr0.005 s7
+[17:54:52] DONE florida bs2048 lr0.005 s7 f1=72.8104
+[17:54:52] RUN  florida bs2048 lr0.005 s100
+[18:15:49] DONE florida bs2048 lr0.005 s100 f1=72.7949
+[18:15:49] RUN  california bs2048 lr0.005 s0
+[19:07:05] DONE california bs2048 lr0.005 s0 f1=68.2235
+[19:07:05] RUN  california bs2048 lr0.005 s1
+[19:58:06] DONE california bs2048 lr0.005 s1 f1=68.0556
+[19:58:06] RUN  california bs2048 lr0.005 s7
+[20:50:10] DONE california bs2048 lr0.005 s7 f1=67.9204
+[20:50:10] RUN  california bs2048 lr0.005 s100
+[21:42:21] DONE california bs2048 lr0.005 s100 f1=67.9794
+[21:42:21] RUN  texas bs2048 lr0.005 s0
+[21:52:45] SWEEP START states=[alabama arizona florida] seeds=[0 1 7 100] arms=[8192:0.005 8192:0.01 8192:0.02]
+[21:52:45] RUN  alabama bs8192 lr0.005 s0
+[21:54:32] DONE alabama bs8192 lr0.005 s0 f1=55.8721
+[21:54:32] RUN  alabama bs8192 lr0.005 s1
+[21:56:19] DONE alabama bs8192 lr0.005 s1 f1=55.6368
+[21:56:19] RUN  alabama bs8192 lr0.005 s7
+[21:58:01] DONE alabama bs8192 lr0.005 s7 f1=55.756
+[21:58:01] RUN  alabama bs8192 lr0.005 s100
+[21:59:47] DONE alabama bs8192 lr0.005 s100 f1=55.6063
+[21:59:47] RUN  arizona bs8192 lr0.005 s0
+[22:03:17] DONE arizona bs8192 lr0.005 s0 f1=56.4304
+[22:03:17] RUN  arizona bs8192 lr0.005 s1
+[22:06:47] DONE arizona bs8192 lr0.005 s1 f1=56.3952
+[22:06:47] RUN  arizona bs8192 lr0.005 s7
+[22:10:17] DONE arizona bs8192 lr0.005 s7 f1=56.5883
+[22:10:17] RUN  arizona bs8192 lr0.005 s100
+[22:13:49] DONE arizona bs8192 lr0.005 s100 f1=56.3258
+[22:13:49] RUN  florida bs8192 lr0.005 s0
+[22:35:04] DONE florida bs8192 lr0.005 s0 f1=74.5225
+[22:35:04] RUN  florida bs8192 lr0.005 s1
+[22:56:21] DONE florida bs8192 lr0.005 s1 f1=74.4627
+[22:56:21] RUN  florida bs8192 lr0.005 s7
+[23:17:35] DONE florida bs8192 lr0.005 s7 f1=74.5531
+[23:17:35] RUN  florida bs8192 lr0.005 s100
+[23:35:08] SWEEP START states=[florida california texas] seeds=[0 1 7 100] arms=[8192:0.005]
+[23:35:08] SKIP florida bs8192 lr0.005 s0 (exists)
+[23:35:08] SKIP florida bs8192 lr0.005 s1 (exists)
+[23:35:08] SKIP florida bs8192 lr0.005 s7 (exists)
+[23:35:08] RUN  florida bs8192 lr0.005 s100
+[23:56:10] DONE florida bs8192 lr0.005 s100 f1=74.4966
+[23:56:10] RUN  california bs8192 lr0.005 s0
+[23:58:17] SWEEP START states=[california texas] seeds=[0 1 7 100] arms=[8192:0.005]
+[23:58:17] RUN  california bs8192 lr0.005 s0
+[00:45:17] DONE california bs8192 lr0.005 s0 f1=70.7273
+[00:45:17] RUN  california bs8192 lr0.005 s1
+[01:27:24] DONE california bs8192 lr0.005 s1 f1=70.5435
+[01:27:24] RUN  california bs8192 lr0.005 s7
+[02:09:03] DONE california bs8192 lr0.005 s7 f1=70.5663
+[02:09:03] RUN  california bs8192 lr0.005 s100
+[02:51:03] DONE california bs8192 lr0.005 s100 f1=70.5794
+[02:51:03] RUN  texas bs8192 lr0.005 s0
+[03:45:25] DONE texas bs8192 lr0.005 s0 f1=69.9142
+[03:45:25] RUN  texas bs8192 lr0.005 s1
+[04:39:47] DONE texas bs8192 lr0.005 s1 f1=69.7273
+[04:39:47] RUN  texas bs8192 lr0.005 s7
+[05:34:10] DONE texas bs8192 lr0.005 s7 f1=69.7935
+[05:34:10] RUN  texas bs8192 lr0.005 s100
+[06:28:30] DONE texas bs8192 lr0.005 s100 f1=69.7335
+[06:28:30] SWEEP COMPLETE
