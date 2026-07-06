@@ -13,9 +13,16 @@
 | FL | 74.51 ±0.03 | 79.85 | **+5.34** ✅beats | 76.70 | 77.42 | **+0.72** ✅beats |
 | CA | 70.60 ±0.07 | 77.04 | **+6.44** ✅beats | 63.49 | 65.69 | **+2.20** ✅beats |
 | TX | 69.79 ±0.08 | 77.23 | **+7.44** ✅beats | 64.95 | 67.07 | **+2.12** ✅beats |
+| Istanbul | 54.74 ±0.09 | 63.33 | **+8.59** ✅beats | 75.16 | 75.44 | **+0.28** ✅beats |
 
 **Story:** MTL beats the dedicated **category** ceiling at every state (+5.3 … +9.6 pp); **matches** the region ceiling at
-the small states (AL −0.31, AZ +0.10, within δ=2 pp) and **beats** it at the larger ones (FL +0.72, CA +2.20, TX +2.12).
+the small US states (AL −0.31, AZ +0.10, within δ=2 pp) and **beats** it at the larger ones (FL +0.72, CA +2.20, TX +2.12)
+**and at Istanbul** (+0.28, non-US corpus, 520 mahalle — H3 dk_ovl+v17 rebuild; see `h3_istanbul/RESULTS.md`).
+
+> **Istanbul (added 2026-07-06, H3)** is v17 n=20 on the **rebuilt `dk_ovl` substrate** (v14/design_k re-windowed at
+> stride-1), so it is now on the SAME substrate identity as the 5 Gowalla states — the old "stride-1 GCN base check2hgi"
+> cross-substrate caveat is retired. Cat ceiling = small-state recipe bs2048@0.005; the rebuild lifted both heads vs the
+> old base (cat +6.69→+8.59, reg −0.52→+0.28).
 
 > ⚠ MTL cat/reg are n=20 at AL/AZ/FL (`perhead_lr_n20.md`) but **seed-0 (n=5) at CA/TX** (`catx_v17_seed0_5f`, fp32) —
 > the H1/H100 top-up ({1,7,100}) firms the large-state Δ significance. The **ceilings** here ARE n=20 at all 5 states.

@@ -42,17 +42,20 @@ static_weight cw=0.75, onecycle max-lr 3e-3, geom_simple selector; fp32-matched 
 | **FL** | 4703 | 75.15 | **79.82** | **+4.68** ✅beats | 76.71 | 77.28 | **+0.57** ✅**beats** | fp32 | ✅ main |
 | **CA** | 8501 | 70.26 | **77.33** | **+7.07** ✅beats | 63.48 | 65.66 | **+2.18** ✅**beats** | bf16 | ✅ main (5f) |
 | **TX** | 6553 | 69.95 | **77.51** | **+7.56** ✅beats | 64.96 | **67.02** | **+2.06** ✅**beats** | fp32 | ✅ main (5f) |
-| **Istanbul** | 520 (mahalle) | 53.20 | **59.89** | **+6.69** ✅beats | 74.80 | 74.28 | **−0.52** ≈matches | fp32 (**n=20**, 4 seeds) | ✅ main, stride-1 GCN |
+| **Istanbul** | 520 (mahalle) | 54.74 | **63.33** | **+8.59** ✅beats | 75.16 | **75.44** | **+0.28** ✅**beats** | fp32 (**n=20**, 4 seeds) | ✅ main, **dk_ovl+v17** (H3) |
 
 **Reading (the story, on real data):** MTL **beats the dedicated category ceiling at every state** (+4.7 … +7.7 pp)
 AND **beats the region ceiling at the LARGE region counts** (FL 4.7k **+0.57**, CA 8.5k **+2.18** — both 5f;
-TX 6.6k **+2.06** — all 5f), while **matching within δ=2 pp at the small counts** (AL −0.18, AZ −0.06,
-Istanbul −0.52). **CA, the largest region state, is 5f-complete and beats** — that single cell retires the old
+TX 6.6k **+2.06** — all 5f), while **matching within δ=2 pp at the small counts** (AL −0.18, AZ −0.06).
+**Istanbul** (520 mahalle), now rebuilt on the matched `dk_ovl`+v17 substrate (H3, n=20), **beats reg +0.28** too
+(was −0.52 on the old stride-1-GCN base — the substrate rebuild flipped it positive). **CA, the largest region
+state, is 5f-complete and beats** — that single cell retires the old
 "region cost grows with cardinality" (Decision-C) narrative. The earlier fp16-autocast collapse
 (`CA_MTL_DIVERGENCE.md`) + the A40-Ampere bf16 grad-NaN were **masking a genuine region win**.
 
-> **Honest framing:** "beats on **category** everywhere; beats on **region** at the large states, matches at the
-> small." Do NOT write "beats region everywhere" (AL/AZ/Istanbul are matches-within-margin, slightly negative).
+> **Honest framing:** "beats on **category** everywhere; beats on **region** at the large states + Istanbul, matches
+> at the small US states." Do NOT write "beats region everywhere" (AL/AZ are matches-within-margin, slightly negative;
+> Istanbul beats only after the H3 dk_ovl+v17 rebuild — +0.28, previously −0.52 on base check2hgi).
 >
 > **Caveats that MUST travel with these numbers:**
 > 1. **TX is SETTLED 5f** —
