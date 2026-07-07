@@ -19,9 +19,11 @@
   > "already n=20" claim conflated it with the v14 substrate (~9 pp different). Now genuinely n=20 on `dk_ovl`; reg is
   > seed-invariant (n=20 vs seed-0 diff < 0.13 pp), so the seed-0 verdict was correct — the top-up just makes the paired
   > test rigorous. (MTL cat/reg at CA/TX are still seed-0 pending H1 — the ceilings are n=20.)
-- **Faithful STAN** — DONE + citable (AL 60.72 / AZ 49.86 / FL 72.99 / Istanbul 61.86); **CA/TX now queued as an
-  attempt** (A3, the last A40 task — `FAITHFUL_STAN_FINDINGS.md` estimates ~1.5–2 h/state bf16+compile; the earlier
-  "infeasible" footnote was over-conservative). HMT-GRN (6 states), ReHDM (AL/AZ/FL), CTLE (FL), CSLSL tie, floors — all in.
+- **Faithful STAN** — DONE + citable (AL 60.72 / AZ 49.86 / FL 72.99 / Istanbul 61.86); **CA/TX IN PROGRESS, clears
+  the floor at both → footnote will drop** (→ [`stan_catx/STATUS.md`](stan_catx/STATUS.md)): partial TX 4/5 = **61.67**
+  (floor 54.9 ✅) / CA 2/5 = **58.52** (floor 52.1 ✅), v6 patience-10, resumable. Real cost ~2.6 h/fold on the A40
+  (bf16 stable, no NaN wall) — ~10× the old "1.5-2 h" guess, but feasible; needs the `--streaming` ETL (`06c24757`).
+  HMT-GRN (6 states), ReHDM (AL/AZ/FL), CTLE (FL), CSLSL tie, floors — all in.
 - **DEFAULT_CANON = v17**; v16 still via `--canon v16`; §0.1/v11 frozen bundle unaffected.
 
 ## What's LEFT (the run inventory → the 3 handoffs)
