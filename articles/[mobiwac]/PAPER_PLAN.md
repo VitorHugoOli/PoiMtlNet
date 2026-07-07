@@ -196,6 +196,10 @@ TX is now closed at 5 clean folds (fp32 single-device, region +2.06); never cite
   above it. The substrate-bound variant is at most a future-headroom signal, never a beat.
 - "we beat the cascade (CSLSL)". It is a **dead tie at equal cost** (Δjoint ≤ 0.02). Frame it as a defense (a
   cheaper cascade would not have matched our lift either), never a win.
+- "we ran / benchmarked CSLSL" (2026-07-06 reframe). The cell is a **cascade variant of OUR OWN model** in the
+  CSLSL/CatDM pattern (a coupling-topology comparison), never a re-implementation of those systems; the paper says
+  so explicitly (§5.4, §6.2, Tbl 3 footnote), and §6.2 carries the two qualifications (parallel-tuned recipe,
+  coupling pinned in advance; matured cascade = future work).
 
 **The single-model property is the primary thesis:** one model, one forward pass, two predictions.
 
@@ -481,8 +485,10 @@ prior from raw, graph module + hierarchical beam search dropped; *not* a strict 
 region-native comparison; **STAN (faithful, from raw) and ReHDM (own protocol) are secondary references, each labeled.** STAN, though built for fine next-POI, is a competitive coarse-region baseline once trained properly (it clears the Markov floor), and the joint model beats it at every state. (2) **representation** (FL only): **CTLE**, the closest prior contextual
 embedding, presented fairly (its end-to-end form alongside the frozen one), plus a **feature-concat control**
 (HGI ⊕ raw per-visit features), so the category gain is attributed to the hierarchy, not to any contextualization
-nor to feature injection. (3) **multi-task comparator**: the **CSLSL cascade** (the dominant published
-alternative to parallel joint training) is the dedicated MTL-design comparator (parallel vs cascade). HMT-GRN is
+nor to feature injection. (3) **coupling-topology comparison** (reframed 2026-07-06): a **cascade variant of our
+own model** in the CSLSL/CatDM pattern, explicitly NOT a re-implementation of those systems; the cascade lineage is
+cited (Ye2013, LBPR, CatDM, CSLSL) and CSLSL's own ablation (chain outperforms shared-bottom parallel) is the
+stated motivation for testing the coupling at all. HMT-GRN is
 *also* multi-task, but its comparison is already captured as the **primary region-native external** (role 1), so we
 do not re-cast it here. The **dedicated single-task ceilings** are the comparison anchors for the joint model, and the HGI representation is the
 per-visit ablation (Part 1).
@@ -519,9 +525,11 @@ so the joint model helps the spatial task more, not less, as the region space gr
 (prose, not only the table):** the joint region head is above the primary region-native baseline (HMT-GRN) at all
 six states, above a faithful STAN (AL, AZ, Istanbul) and a ReHDM reference, and clears the Markov-1 floor by a wide
 margin; on category it is far above POI-RGNN and the Markov-9-cat floor. (Never list the substrate-bound STAN, which
-is above us at AL and is not a baseline.) Also report the cascade result honestly: our parallel model **ties** the
-published cascade (CSLSL) at **equal cost** (Δjoint about 0), which rules out that a cheaper cascade would have
-matched our lift, a defense, not a "we beat the cascade" claim. Read: one model beats the dedicated category model
+is above us at AL and is not a baseline.) Also report the cascade result honestly: rewired as a cascade (the
+CSLSL/CatDM pattern inside our own model, not a re-implementation), our model **ties** its parallel form at
+**equal cost** (Δjoint about 0), which rules out that a cheaper cascade would have
+matched our lift, a defense, not a "we beat the cascade" claim; carry the two §6.2 qualifications (parallel-tuned
+recipe, coupling pinned in advance; matured cascade = future work). Read: one model beats the dedicated category model
 at every state, beats the dedicated region model where the region space is large and is non-inferior (TOST) where
 it is small, and beats the external baselines on both tasks; the region win grows with scale. Mark Gowalla cells
 n=5 (seed 0) provisional, Istanbul n=20.
@@ -634,9 +642,10 @@ Three roles, kept separate in the writing (see the handoff §1):
   Check2HGI-SC under matched head.
 - [ ] **feature-concat control** (HGI ⊕ raw per-visit features → same head): closes "is it just feature injection?".
 
-**Role 3: multi-task comparator:**
-- [ ] **CSLSL cascade** (`b4_cascade.py`) is the dedicated MTL-design comparator (parallel vs cascade, the §1b tie).
-  HMT-GRN (multi-task) is already the **primary region-native external** (role 1), not re-listed here.
+**Role 3: coupling-topology comparison (reframed 2026-07-06):**
+- [ ] **Cascade variant of our own model** (`b4_cascade.py`, the CSLSL/CatDM pattern, NOT a re-implementation) is
+  the dedicated MTL-design comparator (parallel vs cascade, the §1b tie), presented as a coupling-topology
+  comparison. HMT-GRN (multi-task) is already the **primary region-native external** (role 1), not re-listed here.
 
 **Dropped:** CTLE as a SOTA row / full SC ladder; MHA+PE; STAN-faithful as a headline; SC-region (quarantined).
 Tables stay slim (one category table, one region table, one small FL validation block).

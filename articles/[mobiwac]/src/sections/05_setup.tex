@@ -4,7 +4,8 @@
 %       no-leakage argument; per-fold train-only region-transition prior).
 %   5.3 Metrics, superiority vs non-inferiority (macro-F1 category; Acc@10 region; paired Wilcoxon for beats;
 %       TOST at a two-point margin for matches, justified a-priori with a deployment-grounded rationale + TOST power).
-%   5.4 Baselines (POI-RGNN + Markov-9-cat; ReHDM + STAN-on-our-representation; CTLE + feature-concat (FL); CSLSL cascade + HMT-GRN).
+%   5.4 Baselines (POI-RGNN + Markov-9-cat; ReHDM + STAN faithful; CTLE + feature-concat (FL); HMT-GRN;
+%       role 3 = cascade variant of OUR model (CSLSL/CatDM pattern, NOT a re-implementation) -- coupling-topology comparison).
 \section{Experimental Setup}
 \label{sec:setup}
 
@@ -71,7 +72,7 @@ comparison anchor is the dedicated single-task model.
 We make two kinds of comparison and test each one appropriately. Where the joint model is meant to outperform, we test
 \emph{superiority} with a paired Wilcoxon signed-rank test over the folds. Where the joint model is meant only to
 stay even, we test \emph{non-inferiority}, that it is no worse than the dedicated model by more than a two-point
-margin, with a two-one-sided-tests procedure. We fix the two-point margin in advance and on deployment
+margin, with a two-one-sided-tests (TOST) procedure. We fix the two-point margin in advance and on deployment
 grounds, before looking at whether any claim survives it. A mobility-aware service acts on which region will be
 busy, not on a single rank position: it anticipates regional demand, stages content for the right region, or plans
 capacity at the census-tract level. A two-point shift in Acc@10 is therefore below the granularity at which such a
@@ -79,27 +80,33 @@ service would behave differently. The margin is also large relative to the task:
 eight thousand five hundred regions, a random top-ten guess lands the true region under one percent of the time,
 so two points span a wide band of the achievable range. Finally, the equivalence is well powered. The standard deviation of the paired
 per-fold difference is small (0.16 to 0.37 points), which gives a power near 1.0 to reject a true two-point
-gap, so a non-inferiority verdict reflects a real match rather than a noisy test. Which cells the joint model
-outperforms and which it matches is a result, reported in Section~\ref{sec:results}, not here.
+gap, so a non-inferiority verdict reflects a real match rather than a noisy test. Where the joint model
+outperforms and where it matches is a result, reported in Section~\ref{sec:results}, not here.
 
 \subsection{Baselines}
 \label{sec:setup-baselines}
-We compare against baselines in three roles, kept separate so each answers its own question. The first role is the
-state of the art for each task, on our data and folds. For next-category this is POI-RGNN \cite{capanema2023poirgnn},
+We organize the comparisons into three roles, kept separate so each answers its own question. The first role is the
+state of the art for each task, on our data and folds. For the next-category task this is POI-RGNN \cite{capanema2023poirgnn},
 run as a faithful author implementation, and a simple "what usually follows what" Markov baseline over the nine
-recent categories (Markov-9). For next-region this is HMT-GRN \cite{lim2022hmtgrn}, our primary region-native
+recent categories (Markov-9). For the next-region task this is HMT-GRN \cite{lim2022hmtgrn}, our primary region-native
 comparison, predicting the region from its own end-to-end recurrent model on the same data, seed, and folds; we run
 the HMT-GRN-style trunk and its region-transition prior, and drop its graph module and hierarchical beam search,
 which exist to prune a next-place head we do not predict. The HMT-GRN comparison is therefore a region-native model,
 not a component-complete reproduction. Alongside it we run a faithful STAN \cite{luo2021stan}, trained from raw with its
 own embeddings (not ours) and its own sequence construction, and a ReHDM \cite{li2025rehdm} reference reported under that
-method's own published protocol rather than as a matched cell. The
+method's own published protocol rather than re-run under our matched protocol. The
 second role is a representation control, run on Florida, to attribute the category gain to our specific design and
 not to contextualization in general or to extra features: CTLE \cite{lin2021ctle}, the closest prior contextual
 check-in embedding, presented fairly in both its end-to-end and frozen forms, and a feature-concatenation control that
-appends raw per-visit features to a standard place embedding under the same model. The third role is a multi-task
-comparator: the CSLSL cascade \cite{huang2024cslsl}, which predicts in a chain rather than in parallel, so we can
-contrast our one-forward-pass joint model against the dominant alternative multi-task design at equal cost. The
+appends raw per-visit features to a standard place embedding under the same model. The third role is a design comparison
+between the two ways of coupling the tasks. The dominant published coupling is the directed cascade, which predicts
+the category first and conditions the place prediction on it \cite{ye2013nextmove, he2017lbpr, yu2020catdm};
+CSLSL \cite{huang2024cslsl}, its current form, even reports the chain outperforming a parallel variant that shares
+one trunk, so the choice of coupling is not settled in advance. We test the cascade inside our own model rather
+than through a re-implementation of those systems: we remove the layer where the two streams exchange information
+and instead feed the predicted category forward into the region pathway, keeping the representation, the outputs,
+and the training recipe unchanged. This isolates what we actually choose, the coupling topology (chain versus
+parallel), at equal parameter and compute cost. The
 dedicated single-task models are the comparison anchors for the joint model throughout, and the standard
 place-level embedding \cite{huang2023hgi} is the place-level comparison that isolates what the per-visit
 representation adds.

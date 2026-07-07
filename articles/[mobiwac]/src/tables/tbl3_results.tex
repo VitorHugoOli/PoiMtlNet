@@ -18,10 +18,10 @@
 \providecommand{\sd}[1]{\,{\scriptsize$\pm$#1}}
 \begin{table*}[t]
 \caption{One model, two tasks. A single joint model outperforms the dedicated next-category ceiling
-at every state, and on next-region it outperforms the dedicated ceiling where there are many
+at every state, and on the next-region task it outperforms the dedicated ceiling where there are many
 regions (FL, TX, CA) and is statistically non-inferior within a two-point margin (TOST) where there
 are few (AL, AZ, Istanbul). Category is macro-F1, region is Acc@10; our cells show the mean and
-standard deviation over five folds. Bold marks an improvement over the dedicated ceiling; $\uparrow$ marks that the joint
+fold standard deviation (five folds; the Istanbul cells average four seeds, see the note). Bold marks an improvement over the dedicated ceiling; $\uparrow$ marks that the joint
 model outperforms it (paired Wilcoxon); $\approx$ marks a non-inferior match (TOST). States are ordered by region count.}
 \label{tab:results}
 \centering
@@ -37,6 +37,6 @@ FL       & 4{,}703 & 29.74 & 34.49 & 75.15\sd{0.5} & \textbf{79.82}\sd{0.5} & 63
 TX       & 6{,}553 & 28.67 & 33.03 & 69.95\sd{0.2} & \textbf{77.51}\sd{0.1} & 53.85 & --$^{\dagger}$ & --$^{\dagger}$ & 64.96\sd{0.5} & \textbf{67.02}\sd{0.5}$^{\uparrow}$ \\
 CA       & 8{,}501 & 27.58 & 31.78 & 70.26\sd{0.3} & \textbf{77.33}\sd{0.2} & 49.61 & --$^{\dagger}$ & --$^{\dagger}$ & 63.48\sd{0.3} & \textbf{65.66}\sd{0.3}$^{\uparrow}$ \\
 \hline
-\multicolumn{11}{@{}p{\dimexpr\textwidth-2\tabcolsep\relax}@{}}{\footnotesize Region externals by comparability: HMT-GRN$^{\S}$ (region-native, on our footing) is the primary comparison; STAN (faithful, from raw) and ReHDM (its own protocol) are secondary references. The joint model is above all three at every state, and every region model clears a Markov-1 floor by a wide margin. $^{\dagger}$Faithful STAN and ReHDM are infeasible at the CA/TX region scale; STAN reports AL, AZ, FL, and Istanbul. $^{\S}$HMT-GRN-style: its own recurrent trunk and a train-only region-transition prior, with the graph module and hierarchical search dropped. Baseline cells are 5-fold means. Gowalla joint-model cells are $n{=}5$ (seed 0) provisional; Istanbul cells are four-seed means ($n{=}20$) against a single-seed ceiling. A cascade comparator (CSLSL) matches our parallel model at equal cost (see text).} \\
+\multicolumn{11}{@{}p{\dimexpr\textwidth-2\tabcolsep\relax}@{}}{\footnotesize Region externals by comparability: HMT-GRN$^{\S}$ (region-native, on our footing) is the primary comparison; STAN (faithful, from raw) and ReHDM (its own protocol) are secondary references. The joint model is above all three at every state where each is reported, and every region model clears a simple first-order Markov transition floor by a wide margin. $^{\dagger}$Faithful STAN and ReHDM are infeasible at the CA/TX region scale; STAN reports AL, AZ, FL, and Istanbul. $^{\S}$HMT-GRN-style: its own recurrent trunk and a train-only region-transition prior, with the graph module and hierarchical search dropped. Baseline cells are 5-fold means. Gowalla joint-model cells are $n{=}5$ (seed 0) provisional; Istanbul cells are four-seed means ($n{=}20$) against a single-seed ceiling. A cascade variant of our own model (the pattern of CSLSL, not a re-implementation) matches the parallel design at equal cost (see text).} \\
 \end{tabular}
 \end{table*}

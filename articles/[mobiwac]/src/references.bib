@@ -304,6 +304,33 @@
   doi       = {10.1145/3592789},
 }
 
+% verified: SDM 2013, pages 171-179, DOI 10.1137/1.9781611972832.19 (Ye/Zhu/Cheng
+% --- the founding category-first cascade: mixed HMM predicts the next activity
+% category, then the location given the category. Verified against the
+% author-hosted PDF, 2026-07-06; author order Ye-Zhu-Cheng per the title page
+% and Crossref, not dblp's Cheng-Ye-Zhu.)
+@inproceedings{ye2013nextmove,
+  author    = {Jihang Ye and Zhe Zhu and Hong Cheng},
+  title     = {What's Your Next Move: User Activity Prediction in Location-based Social Networks},
+  booktitle = {Proceedings of the 2013 {SIAM} International Conference on Data Mining ({SDM})},
+  pages     = {171--179},
+  year      = {2013},
+  doi       = {10.1137/1.9781611972832.19},
+}
+
+% verified: IJCAI 2017, pages 1837-1843, DOI 10.24963/ijcai.2017/255 (LBPR ---
+% listwise category-then-place cascade: predicts category-level preference first,
+% then ranks POI candidates filtered by the predicted category. Verified against
+% the IJCAI-17 proceedings PDF, 2026-07-06.)
+@inproceedings{he2017lbpr,
+  author    = {Jing He and Xin Li and Lejian Liao},
+  title     = {Category-aware Next Point-of-Interest Recommendation via Listwise {B}ayesian Personalized Ranking},
+  booktitle = {Proceedings of the Twenty-Sixth International Joint Conference on Artificial Intelligence (IJCAI-17)},
+  pages     = {1837--1843},
+  year      = {2017},
+  doi       = {10.24963/ijcai.2017/255},
+}
+
 % verified: WWW 2020, pages 1264-1274, DOI 10.1145/3366423.3380202 (CatDM ---
 % category-aware deep model that uses category to filter candidate places).
 % CORRECTION (MobiWac audit): page numbers fixed 2768-2774 -> 1264-1274 (DBLP /
@@ -330,6 +357,56 @@
   pages     = {22},
   year      = {2024},
   doi       = {10.1140/epjds/s13688-024-00460-7},
+}
+
+% verified: TKDD 16(6), article 116, 2022, DOI 10.1145/3529091 (DRRGNN ---
+% predicts a person's next activity region + mobility intention, no next-place
+% head; regions are person-specific discovered activity regions. Verified via
+% Crossref-deposited abstract + ACM page text, 2026-07-06; full text paywalled,
+% so cite only the task structure, not experiment details. Author 2 is Jian Cao
+% per DBLP/ACM; Semantic Scholar's "Jiangxia Cao" is an S2 error.)
+@article{zhu2022drrgnn,
+  author    = {Nengjun Zhu and Jian Cao and Xinjiang Lu and Chuanren Liu and Hao Liu and Yanyan Li and Xiangfeng Luo and Hui Xiong},
+  title     = {Predicting a Person's Next Activity Region with a Dynamic Region-Relation-Aware Graph Neural Network},
+  journal   = {ACM Transactions on Knowledge Discovery from Data},
+  volume    = {16},
+  number    = {6},
+  articleno = {116},
+  pages     = {1--23},
+  year      = {2022},
+  doi       = {10.1145/3529091},
+}
+
+% verified: arXiv:2509.12350 [cs.IR], 2025 (KGTB --- generative next-POI with
+% next-category and next-region as explicitly auxiliary tasks: "one main task
+% for predicting next POI and two auxiliary tasks for predicting next category
+% and region". Verified against arXiv HTML v1, 2026-07-06; preprint only, DBLP
+% lists CoRR only as of 2026-07-06.)
+@misc{sun2025kgtb,
+  author        = {Ke Sun and Mayi Xu},
+  title         = {Knowledge Graph Tokenization for Behavior-Aware Generative Next {POI} Recommendation},
+  howpublished  = {arXiv:2509.12350},
+  note          = {arXiv preprint},
+  year          = {2025},
+  eprint        = {2509.12350},
+  archiveprefix = {arXiv},
+  primaryclass  = {cs.IR},
+  doi           = {10.48550/arXiv.2509.12350},
+}
+
+% verified: The Journal of Supercomputing 81, article 1196, 2025,
+% DOI 10.1007/s11227-025-07643-7 (HAMTL --- jointly predicts the next location
+% and its category, hierarchy-aware decoder; location (venue-level) remains the
+% headline. Verified against the Springer article page, 2026-07-06.)
+@article{wang2025hamtl,
+  author    = {Yahui Wang and Hongchang Chen and Shuxin Liu and Junjie Zhang and Lan Wu and Xiaoyan Cui and Yuxiang Hu},
+  title     = {Hierarchy Aware-based Multi-task Learning for User Location Prediction},
+  journal   = {The Journal of Supercomputing},
+  volume    = {81},
+  number    = {11},
+  articleno = {1196},
+  year      = {2025},
+  doi       = {10.1007/s11227-025-07643-7},
 }
 
 % =====================================================================

@@ -2,7 +2,8 @@
 %   6.1 The representation makes the category task learnable (Part 1) -> Table~\ref{tab:substrate}, Fig.~\ref{fig:embquality}.
 %   6.2 One model, two tasks (Part 2) -> Table~\ref{tab:results}, Fig.~\ref{fig:deltas}.
 %       Category beats everywhere (+4.68..+7.69); region beats at large states (FL/TX/CA), matches at small (AL/AZ/Istanbul).
-%       CSLSL cascade ties at equal cost (a defense). All cells n=5 (seed 0) provisional.
+%       Cascade variant of OUR model (CSLSL pattern) ties at equal cost (a defense; recipe-parity caveat + matured
+%       cascade = future work). Gowalla cells n=5 (seed 0) provisional; Istanbul cells four-seed n=20.
 %   6.3 External validity (Istanbul): replicates (category beats ~+6.7; region matches ~-0.5); report as gap-to-ceiling / lift.
 \section{Results}
 \label{sec:results}
@@ -87,9 +88,11 @@ $-0.46$ to $+0.09$), Arizona ($-0.06$; $-0.41$ to $+0.29$), and Istanbul
 These intervals are tight because they rest on the \emph{paired} per-fold
 difference (the per-arm fold standard deviations in Table~\ref{tab:results} are
 larger because the two models are highly correlated across folds); the test is
-well powered against a two-point gap (Section~\ref{sec:setup-metrics}). We do not claim per-cell family-wise-corrected significance at $n{=}5$
-(a Holm correction across the six cells does not clear $0.05$ at this sample
-size), and we leave a multi-seed confirmation ($n{=}20$) to future work.
+well powered against a two-point gap (Section~\ref{sec:setup-metrics}). We do not claim per-dataset family-wise-corrected significance at $n{=}5$
+(a Holm correction across the six datasets does not clear $0.05$ at this sample
+size), and we leave a multi-seed confirmation ($n{=}20$) at the Gowalla states
+to future work. The Gowalla cells are seed-0 results over five folds ($n{=}5$,
+provisional); the Istanbul cells average four seeds ($n{=}20$).
 
 A reader used to multi-task learning~\cite{caruana1997multitask} expects the
 harder task to pay for the easier one, so it is worth saying where the category
@@ -100,21 +103,34 @@ Florida (within $0.3$ of the joint model and far above the dedicated single-task
 model). We therefore read the category gain as a stronger shared trunk, obtained
 at no extra deployment cost (one model, one forward pass), rather than the region
 task teaching the category one; we report this as a finding, not a hypothesis.
-The joint model also stands above every external baseline on both tasks at every
-state (Table~\ref{tab:results}): the primary region-native comparison,
+
+The joint model also stands above every external baseline on both tasks, at
+every state where each is reported (Table~\ref{tab:results}): the primary region-native comparison,
 HMT-GRN~\cite{lim2022hmtgrn} (for example California $49.61$ versus our $65.66$),
 a from-raw STAN~\cite{luo2021stan} and a ReHDM reference~\cite{li2025rehdm} on
 region, and POI-RGNN~\cite{capanema2023poirgnn} and a Markov floor on category,
 all trail it. Every region model clears a simple Markov transition floor by a
-wide margin. Against the
-closest published multi-task alternative, a cascade that predicts in a chain
-(when, then what, then where)~\cite{huang2024cslsl}, our parallel model reaches
-the same combined accuracy at the same parameter and compute cost. The difference
-on the joint score is about zero. We read this as a defense of the parallel
-design, not a claim that we outperform the cascade: the simpler parallel
-structure loses nothing. The Gowalla cells
-are seed-0 results over five folds ($n{=}5$, provisional); the Istanbul cells
-average four seeds ($n{=}20$).
+wide margin.
+
+We also test our choice of coupling the tasks in parallel rather
+than in a chain. We prefer the parallel form on principle: the two targets are
+co-equal, so a chain would have to pick one to predict first and pass its
+errors to the other. The empirical record still had to be checked, because the
+cascade dominates published practice, and CSLSL reports its chain
+outperforming a parallel variant that shares one trunk on its own
+benchmarks~\cite{huang2024cslsl}. Rewired as a cascade
+(Section~\ref{sec:setup-baselines}), our model reaches the same combined
+accuracy as its parallel form at the same parameter and compute cost (a
+joint-score difference of about zero at Alabama, Arizona, and Florida, the
+three states where we ran the comparison, spanning 1{,}109 to 4{,}703
+regions). We read this as a defense of the
+parallel design, not a claim that we outperform the cascade: on this
+representation the coupling topology makes no measurable difference in either
+direction, and the simpler parallel structure loses nothing. Two qualifications
+bound this reading. The cascade variant runs under the training recipe tuned
+for the parallel model, and its coupling form was fixed in advance rather than
+searched, so a cascade tuned as carefully as the parallel design remains
+future work.
 
 \subsection{External validity (Istanbul)}
 \label{sec:results-external}
@@ -126,9 +142,10 @@ headline is the four-seed mean against a single-seed ceiling; the clean seed-0
 fold-paired gain is $+6.5$ with all five folds positive, so the result does not
 rest on the seed averaging. We report Istanbul as a lift over the dedicated
 ceiling, not as an absolute Acc@10, because its region count (520 mahalle) differs
-from the Gowalla states. The overlapping-window protocol, the fp32 setup, and the
-multi-seed run (four seeds, $n{=}20$) match the Gowalla board, so within Istanbul
-the multi-task versus dedicated comparison is like-for-like. The external baselines line
+from the Gowalla states. The overlapping-window protocol and the training setup
+match those used for the Gowalla states, so within Istanbul the multi-task versus
+dedicated comparison is like-for-like; the Istanbul cells additionally average
+four seeds ($n{=}20$). The external baselines line
 up the same way as on the Gowalla states: on category the joint model is far
 above a nine-step Markov floor ($24.55$) and POI-RGNN~\cite{capanema2023poirgnn}
 ($30.12$), and on region it is above a faithful STAN~\cite{luo2021stan} ($61.86$)

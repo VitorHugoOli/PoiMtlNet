@@ -1,7 +1,8 @@
 % Section 2: Background and Related Work (about 1.0 page). Plan: PAPER_PLAN 4 / §2.
 %   2.1 From place embeddings to per-visit embeddings (DGI -> HGI -> Check2HGI; CTLE contrast). Fig. \ref{fig:dataflow}.
 %   2.2 Predicting the next category and the next region (next-place recommenders; why coarser; region over tracts has little precedent).
-%   2.3 Multi-task learning for mobility (MCARNN, iMTL, HMT-GRN; the CSLSL cascade; we predict in parallel, drop next-place).
+%   2.3 Multi-task learning for mobility (MCARNN, iMTL, HAMTL; cascade lineage Ye2013 -> LBPR -> CatDM -> CSLSL;
+%       parallel-over-chain rationale (co-equal targets admit no natural order); we predict in parallel, drop next-place).
 % Honesty: novelty is the specific combination (check-in level + hierarchical graph + infomax), not a per-visit vector per se.
 \section{Background and Related Work}
 \label{sec:related}
@@ -54,22 +55,35 @@ category and region are auxiliary signals that help a headline next-place task
 We study the pair as the object itself. To our knowledge, fine-grained region as a
 co-equal end target, rather than an auxiliary coarse cell, is underexplored:
 HMT-GRN, for instance, predicts a coarse geohash cell only as an aid to its
-next-place search. We therefore define our region unit carefully when we state the
-tasks.
+next-place search. The nearest exceptions stop short of our pairing in one way or
+another: DRRGNN~\cite{zhu2022drrgnn} forecasts a person's next activity region
+jointly with a mobility-intention label, but over regions discovered per person
+rather than a fixed citywide partition. A recent generative
+recommender~\cite{sun2025kgtb} predicts category and region jointly, but only as
+auxiliary steps toward its next-place ranking. We therefore define our region unit
+carefully when we state the tasks.
 
 \subsection{Multi-task learning for mobility}
 \label{sec:related-mtl}
 Multi-task models for mobility have paired location prediction with related
 signals for some time. MCARNN \cite{Liao2018} jointly predicts activity and
-location, and iMTL \cite{Zhang2020} couples them in a shared, interactive
-framework built for sparse check-ins. The closest alternative to our setting is
-the cascade. CSLSL \cite{huang2024cslsl} predicts in a chain (when, then what,
+location, iMTL \cite{Zhang2020} couples them in a shared, interactive
+framework built for sparse check-ins, and a recent hierarchy-aware model
+continues the pattern \cite{wang2025hamtl}; in all three the location target is
+the exact place. The closest alternative to our setting is
+the cascade, a pattern with a long lineage: predict the category first, then
+predict the place given the category \cite{ye2013nextmove, he2017lbpr}. CSLSL
+\cite{huang2024cslsl} is its current form, predicting in a chain (when, then what,
 then where), with location as the headline output and category as an
 instrumental step along the way; CatDM \cite{yu2020catdm} likewise uses category
 instrumentally, to filter candidate places. We differ in two ways. We predict
 category and region in parallel, as co-equal end targets in one model with a
-single forward pass, and we drop next-place entirely, so neither task is
-instrumental to a third. On the optimization side we are deliberately
+single forward pass, and we drop the next-place target entirely, so neither task
+is instrumental to a third. The parallel form also follows from the task pair
+itself: with two co-equal targets, a chain would have to promote one of them to
+an upstream stage whose errors the other inherits, an order nothing in the tasks
+dictates. Since the cascade is the pattern the field actually uses, we also test
+the choice directly (Section~\ref{sec:results-part2}). On the optimization side we are deliberately
 conservative: hard parameter sharing, one shared stack of layers for both tasks, is standard practice
 \cite{caruana1997multitask}, and our use of it is not itself the contribution.
 Rather than propose yet another gradient-balancing method (PCGrad \cite{yu2020pcgrad},

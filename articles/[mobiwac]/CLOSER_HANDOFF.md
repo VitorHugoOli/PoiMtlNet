@@ -8,16 +8,18 @@
 > (cat is a state-size trade: wins small, −0.28 at CA/TX, reg-neutral+); **open = CA/TX n=20 + the STL-cat-ceiling
 > re-tune (n=20, all states) + the Istanbul dk_ovl rebuild.**
 
-> **Bottom line.** The **9-page draft is submittable today** (submission sweep 2026-07-01: 0 undefined refs, 0 bibtex
-> warnings, 0 overfull boxes, glossary-clean). **Exactly one data gap — P1 (n=20 multi-seed, now on the v17 recipe) —
+> **Bottom line.** The **10-page draft is submittable today** (submission sweep 2026-07-01, re-verified after the
+> 2026-07-06 cascade-reframe edits: 0 undefined refs, 0 bibtex warnings, 0 overfull boxes, glossary-clean). **Exactly one data gap — P1 (n=20 multi-seed, now on the v17 recipe) —
 > changes a reviewer's verdict; everything else is coverage/robustness.** Submission is 3 small mechanical steps. This
 > doc is the ordered, executable close-out list. Numbers/paths trace to `docs/studies/closing_data/RESULTS_BOARD.md §3`.
 
 ## 0 · Status at a glance
-- **Paper:** compiling 9-page IEEE two-column draft; abstract + §1–§8 + Tbl 1–3 + Fig 1–4; **26 cited refs**, all resolve.
+- **Paper:** compiling **10-page** IEEE two-column draft (2026-07-06 cascade reframe + novelty defusals); abstract +
+  §1–§8 + Tbl 1–3 + Fig 1–4; **31 cited refs**, all resolve.
 - **Data:** Part-2 cells are **seed-0 × 5-fold (n=5)** for the 5 Gowalla states; **Istanbul is n=20**; STL **region**
   ceiling is already **n=20 at all 6 states**; all baselines in (HMT-GRN 6 states, faithful STAN AL/AZ/FL/Istanbul,
-  ReHDM AL/AZ/FL, CTLE FL, feature-concat FL, CSLSL tie, Markov/POI-RGNN floors).
+  ReHDM AL/AZ/FL, CTLE FL, feature-concat FL, cascade-variant tie at AL/AZ/FL (Istanbul + CA/TX open → P6),
+  Markov/POI-RGNN floors).
 - **The one verdict-changer:** **P1** (n=20 top-up), **blocked on the H100 lane**.
 
 ## 1 · Submission mechanics (before the EDAS upload — not data)
@@ -25,7 +27,7 @@
    (from CTAN, next to `IEEEtran.cls`) and `main.tex` uses `\bibliographystyle{IEEEtran}`. Verified: bibtex clean,
    26 refs rendered, 0 undefined, 9 pages. Overleaf also provides it natively.
 2. **EDAS Step 3 manuscript upload.** Paper **#1571313639** is registered (regular track, single-blind); only the PDF
-   upload remains. Select the **10-page fee variant** (draft is at 9).
+   upload remains. Select the **10-page fee variant** (draft is at 10).
 3. **Reconfirm the deadline.** Notes say ~25 Jun 2026 (may be past); verify the live MobiWac/EDAS cycle. Poster cut
    (`archive/PAPER_PLAN_POSTER.md`) is the fallback.
 - *(Optional, cosmetic)* standardize the Table 3 `--` "not available" markers (mixed bare `--` for ReHDM-Istanbul vs
@@ -139,6 +141,35 @@
   note. **Sanity: the beats-cat / matches-reg pattern MUST replicate** (it did across substrates) — if it flips, STOP + report.
 - **Status: not-started (H100).**
 
+### P6 — Cascade-variant coverage: Istanbul **[HIGH]** + CA/TX; n=20 if time  **[coverage, not a verdict — added 2026-07-06]**
+- **What.** Extend the cascade-vs-parallel coupling-topology comparison (`scripts/baselines/b4_cascade.py`, the
+  CSLSL/CatDM pattern inside our own model — see the 2026-07-06 paper reframe in `CLAUDE.md §3`) beyond AL/AZ/FL
+  (`RESULTS_BOARD §1b`, ties Δjoint ≤ 0.02): run **Istanbul (HIGH)** and **CA/TX**, seed 0 × 5f, cascade + parallel
+  comparand on the SAME recipe/substrate/device.
+- **Why.** Closes the cascade claim's coverage gap at the two ends the paper cares about: the non-U.S. dataset and
+  the largest region count (CA, 8,501). §6.2 currently scopes the tie honestly to "Alabama, Arizona, and Florida";
+  these runs either widen that scope or, if the tie breaks, surface a finding to report, not hide. Changes no
+  verdict — the tie is a defense with no statistical test attached.
+- **Sequencing / machine.**
+  - **Istanbul depends on P3/H3** (the `dk_ovl` + v17 rebuild): run the cascade on the NEW `dk_ovl` substrate against
+    the H3 v17 comparand — do NOT run it on the outgoing GCN substrate (it would test a base the board is dropping).
+    A40-feasible (520 mahalle, small).
+  - **CA/TX:** pair against the DONE v17 seed-0 champions (`catx_v17_seed0_5f/`), same device + precision policy as
+    the comparand cell (bf16-train + fp32-eval acceptable per `RESULTS_BOARD §2`; the no-fold-collapse check applies).
+    A40 lane; cost ≈ one champion run per state.
+  - The b4 pins are recipe-orthogonal (`cond_coupling=posterior cond_signal=softmax cond_inject=add cond_detach=True`
+    + `disable_cross_attn=True` on top of the auto-canon); comparand = the same command minus the 5 pins.
+- **n=20 stretch (only if time remains AFTER P1).** Top up the cascade cells with seeds {1,7,100}, pairing against
+  the P1/H1 + H3 n=20 champions once those exist. Strictly below P1 in the queue: the cascade carries no tested
+  claim, so extra seeds tighten a number the paper reports only as "about zero" (robustness, never a verdict).
+- **Acceptance.** JSONs under `docs/results/closing_data/`, scored by the matched scorer; rows added to
+  `RESULTS_BOARD §1b` + `CSLSL_CASCADE.md`; if the tie holds, widen the §6.2 scope sentence ("at Alabama, Arizona,
+  and Florida, the three states where we ran the comparison") and the Table 3 footnote wording. **If the tie breaks
+  at scale or on Istanbul, STOP + report — that is a result, not a bug** (the anti-overclaim rule still bans any
+  "we beat the cascade" reading, and a cascade win must first be re-examined against the recipe-parity caveat:
+  the cascade runs under the parallel model's tuned recipe).
+- **Status: not-started (added 2026-07-06, author decision: Istanbul HIGH, CA/TX normal, n=20 time-permitting).**
+
 ### S1 — STAN: precision-mix disclosure + v4-collapse guard  **[doc hygiene — the STAN track]**
 - Faithful STAN is DONE + citable (AL 60.72 / AZ 49.86 / FL 72.99 / Istanbul 61.86, all verified exact to Table 3).
   **CA/TX are now being ATTEMPTED** (A40 task A3, ~1.5–2 h/state bf16+compile per `FAITHFUL_STAN_FINDINGS.md`; the old
@@ -157,7 +188,8 @@
 kept board-wide); **DEFAULT_CANON flipped to v17**;
 Faithful **STAN FL** (Acc@10 **72.99**±0.34, `faithful_stan_florida_5f_200ep_v6_opt.json`; CA/TX optional→footnoted);
 HGI-Istanbul → Tbl 2 (+26.64); Tbl 2 substrate contrast, all 5 Gowalla on one windowing; W6 encoder-isolation probe;
-CSLSL cascade tie; FL CTLE-E2E + CTLE-SC (AL/AZ/Istanbul); HMT-GRN (6 states); feature-concat control (FL); §5.2 leak-Δ
+Cascade-variant tie (AL/AZ/FL — extension to Istanbul/CA/TX is P6, NOT closed); FL CTLE-E2E + CTLE-SC (AL/AZ/Istanbul);
+HMT-GRN (6 states); feature-concat control (FL); §5.2 leak-Δ
 sourcing (A4 AL/AZ/FL); reviewer-clarity + bib hygiene.
 
 ## 4 · Stale docs to fix (found by the close-out scrape)
@@ -169,8 +201,10 @@ sourcing (A4 AL/AZ/FL); reviewer-clarity + bib hygiene.
 
 ## 5 · Priority ledger (v17)
 **P1 (H100, VERDICT-CHANGER)** = H1 CA/TX v17 n=20 + H2 STL-cat re-tune n=20 + M1 re-score/stats ≫ **P3/H3** (Istanbul
-dk_ovl+v17 rebuild, H100, removes the last caveat) > **S1** (STAN precision-mix disclosure, M2 Pro, doc) > P2 (A4 leak
+dk_ovl+v17 rebuild, H100, removes the last caveat) > **P6-Istanbul** (cascade coverage, HIGH per author 2026-07-06;
+depends on H3 for the substrate + comparand) > **S1** (STAN precision-mix disclosure, M2 Pro, doc) > **P6-CA/TX**
+(cascade coverage, A40) > P2 (A4 leak
 CA/TX/Istanbul, M2 Pro/CPU, coverage) > P5 (ReHDM CA/TX/Istanbul, A40, ~75–120 h/state, footnote-OK) > P4 (bridging
-re-score, needs gitignored logits). **v17 AL/AZ/FL n=20 + CA/TX seed-0 are done; STAN-FL is done. Only P1 changes a
+re-score, needs gitignored logits). P6's n=20 stretch is time-permitting only, strictly after P1. **v17 AL/AZ/FL n=20 + CA/TX seed-0 are done; STAN-FL is done. Only P1 changes a
 verdict — the draft is submittable today (cells labeled n=5 provisional).** Full run specs + machine split:
 [`v17_completion/`](../../docs/studies/closing_data/v17_completion/README.md).
