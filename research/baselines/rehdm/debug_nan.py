@@ -50,14 +50,15 @@ def chk(name, t):
 
 for bi, batch in enumerate(loader):
     print(f"\n=== batch {bi} ===")
-    t_ids, t_mask, c_ids, c_mask, adj, et, y = batch
+    t_ids, t_mask, c_ids, c_mask, adj, et, tb, db, y = batch
     t_ids = _move(t_ids, device); t_mask = t_mask.to(device); y = y.to(device)
     if c_ids is not None:
         c_ids = _move(c_ids, device); c_mask = c_mask.to(device)
         adj = adj.to(device); et = et.to(device)
+        tb = tb.to(device); db = db.to(device)
         chk("c_mask", c_mask); chk("adj", adj)
 
-    logits = model(t_ids, t_mask, c_ids, c_mask, adj, et)
+    logits = model(t_ids, t_mask, c_ids, c_mask, adj, et, tb, db)
     if torch.isnan(logits).any():
         print(f"!!! batch {bi}: logits NaN — adj sum<0?={int((adj.sum(1)==0).sum().item()) if adj is not None else 'na'}")
         chk("logits", logits)
