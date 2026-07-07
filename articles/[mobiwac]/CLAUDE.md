@@ -17,9 +17,11 @@
   variant** (do NOT trim to 8). See [`EDAS_SUBMISSION.md`](EDAS_SUBMISSION.md).
 - **Authors (names stay, single-blind):** Vitor H. O. Silva, Germano B. dos Santos, Fabrício A. Silva — NESPeD-LAB,
   Universidade Federal de Viçosa, Florestal, MG; `{vitor.h.oliveira, germano.santos, fabricio.asilva}@ufv.br`.
-- **Bibliography:** 31 cited references, **all web-verified real and current** (+5 on 2026-07-06: ye2013nextmove,
+- **Bibliography:** 33 cited references, **all web-verified real and current** (+5 on 2026-07-06: ye2013nextmove,
   he2017lbpr cascade lineage; zhu2022drrgnn, sun2025kgtb, wang2025hamtl novelty defusals — each primary-source
-  verified, quotes in the bib comments). `\bibliographystyle{IEEEtran}` with
+  verified, quotes in the bib comments; +2 later that day: vielhaus2022handover venue-local anticipatory-services
+  cite closing intro ¶1, luca2021mobilitysurvey grounding the §2.2 region-formulation sentence — see
+  `MOBILITY_PLAN.md` §2 and `RELATED_WORK_TRIAGE.md` §4.1/§7). `\bibliographystyle{IEEEtran}` with
   **`src/IEEEtran.bst` bundled from CTAN** (v1.14, 2026-07-01) next to the bundled `IEEEtran.cls`; the official IEEE
   style now builds locally and on Overleaf (bibtex clean, 31 rendered, 0 undefined).
 
@@ -151,7 +153,12 @@ tasks are **next-category / next-region** (never activity/area); keep next-categ
 - [`REVIEW_GERMANO.md`](REVIEW_GERMANO.md) — co-author review, 70 comments answered (open edit worklist).
 - [`IMPROVEMENTS_BACKLOG.md`](IMPROVEMENTS_BACKLOG.md) — ranked forward work; P1 is the only verdict-changing item.
 - [`BRIDGING_METRICS.md`](BRIDGING_METRICS.md) — the metrics-ladder + floors supplementary record (backs §6.2).
-- [`analysis/`](analysis/) — `tost_region.{md,py}`, the reproducible TOST computation behind §5.3/§6.2.
+- [`MOBILITY_SCIENCE_BRIDGE_PLAN.md`](MOBILITY_SCIENCE_BRIDGE_PLAN.md) — grounding the paper in mobility/
+  urban-computing science (Moura et al. MSWiM 2025 co-visitation-network paper); companion to
+  `MOBILITY_PLAN.md`'s networking-management axis, not a replacement.
+- [`analysis/`](analysis/) — `tost_region.{md,py}` (the reproducible TOST computation behind §5.3/§6.2) and
+  `covisitation_network.{py,md,json}` (the co-visitation-network light experiment backing the mobility-
+  science bridge plan above).
 - [`docs/`](docs/) — the venue dossier (`MOBIWAC_CONFERENCE_GUIDE.md`, `SUBMISSION_CHECKLIST.md`, `BEST_PAPERS_ANALYSIS.md`, `SOURCES.md`, `exemples/`).
 - [`src/`](src/) — the paper (`main.tex` + sections/tables/figs + `references.bib` + `README.md`).
 

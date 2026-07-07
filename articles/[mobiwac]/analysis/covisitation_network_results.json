@@ -1,0 +1,908 @@
+{
+  "datasets": {
+    "Alabama": {
+      "label": "Alabama",
+      "n_nodes": 11848,
+      "n_edges": 4706242,
+      "density": 0.06705803404845496,
+      "top5_by_degree": [
+        {
+          "placeid": 9593,
+          "degree": 6070,
+          "category": "Travel"
+        },
+        {
+          "placeid": 34482,
+          "degree": 5409,
+          "category": "Shopping"
+        },
+        {
+          "placeid": 61238,
+          "degree": 5136,
+          "category": "Shopping"
+        },
+        {
+          "placeid": 274130,
+          "degree": 5126,
+          "category": "Shopping"
+        },
+        {
+          "placeid": 468883,
+          "degree": 4733,
+          "category": "Entertainment"
+        }
+      ],
+      "elapsed_sec": 4.907756090164185,
+      "mean_degree": 794.4365293720459,
+      "max_degree": 6070,
+      "median_degree": 353.0,
+      "max_over_mean": 7.640635564426988,
+      "share_nodes_below_median_degree": 0.4939230249831195,
+      "loglog_rank_slope_approx": -1.3739501908186469,
+      "loglog_rank_r2_approx": 0.6348230750854547,
+      "clustering_wedge_sampling": {
+        "estimate": 0.7332,
+        "se": 0.0031274411265441917,
+        "n_wedges_sampled": 20000,
+        "total_wedges": 9208840872.0
+      },
+      "n_components": 55,
+      "giant_component_fraction": 0.9946826468602296,
+      "bfs_sample_size": 300,
+      "bfs_method": "scipy_dijkstra_unweighted",
+      "approx_diameter_sampled": 6,
+      "approx_avg_shortest_path_sampled": 2.2050575590439823
+    },
+    "Arizona": {
+      "label": "Arizona",
+      "n_nodes": 20666,
+      "n_edges": 18264224,
+      "density": 0.08553411887415457,
+      "top5_by_degree": [
+        {
+          "placeid": 23524,
+          "degree": 17621,
+          "category": "Travel"
+        },
+        {
+          "placeid": 38870,
+          "degree": 12973,
+          "category": "Entertainment"
+        },
+        {
+          "placeid": 18200,
+          "degree": 12612,
+          "category": "Travel"
+        },
+        {
+          "placeid": 53860,
+          "degree": 12076,
+          "category": "Shopping"
+        },
+        {
+          "placeid": 39461,
+          "degree": 12066,
+          "category": "Entertainment"
+        }
+      ],
+      "elapsed_sec": 19.246654987335205,
+      "mean_degree": 1767.5625665344044,
+      "max_degree": 17621,
+      "median_degree": 841.0,
+      "max_over_mean": 9.969095484155254,
+      "share_nodes_below_median_degree": 0.49980644536920543,
+      "loglog_rank_slope_approx": -1.389319540566402,
+      "loglog_rank_r2_approx": 0.5916541624503173,
+      "clustering_wedge_sampling": {
+        "estimate": 0.6079,
+        "se": 0.0034522281935005397,
+        "n_wedges_sampled": 20000,
+        "total_wedges": 71812020515.0
+      },
+      "n_components": 38,
+      "giant_component_fraction": 0.9980160650343559,
+      "bfs_sample_size": 300,
+      "bfs_method": "scipy_dijkstra_unweighted",
+      "approx_diameter_sampled": 5,
+      "approx_avg_shortest_path_sampled": 2.0415151515151515
+    },
+    "Florida": {
+      "label": "Florida",
+      "n_nodes": 76544,
+      "n_edges": 215002446,
+      "density": 0.0733933587322351,
+      "top5_by_degree": [
+        {
+          "placeid": 28301,
+          "degree": 56392,
+          "category": "Travel"
+        },
+        {
+          "placeid": 32596,
+          "degree": 51804,
+          "category": "Travel"
+        },
+        {
+          "placeid": 758476,
+          "degree": 51477,
+          "category": "Travel"
+        },
+        {
+          "placeid": 11810,
+          "degree": 50397,
+          "category": "Travel"
+        },
+        {
+          "placeid": 14616,
+          "degree": 48196,
+          "category": "Travel"
+        }
+      ],
+      "elapsed_sec": 59.190269947052,
+      "mean_degree": 5617.747857441472,
+      "max_degree": 56392,
+      "median_degree": 3527.5,
+      "max_over_mean": 10.038186374865708,
+      "share_nodes_below_median_degree": 0.5,
+      "loglog_rank_slope_approx": -1.3821517323053083,
+      "loglog_rank_r2_approx": 0.5417498090104584,
+      "clustering_wedge_sampling": {
+        "estimate": 0.56385,
+        "se": 0.0035065879248922308,
+        "n_wedges_sampled": 20000,
+        "total_wedges": 2574414447537.0
+      },
+      "n_components": 75,
+      "giant_component_fraction": 0.9988895275919732,
+      "bfs_sample_size": 60,
+      "bfs_method": "scipy_dijkstra_unweighted",
+      "approx_diameter_sampled": 5,
+      "approx_avg_shortest_path_sampled": 2.023540939152574
+    },
+    "California": {
+      "label": "California",
+      "n_nodes": 169145,
+      "n_edges": 708091591,
+      "density": 0.04949982589709727,
+      "top5_by_degree": [
+        {
+          "placeid": 9724,
+          "degree": 130474,
+          "category": "Travel"
+        },
+        {
+          "placeid": 10190,
+          "degree": 125989,
+          "category": "Travel"
+        },
+        {
+          "placeid": 99630,
+          "degree": 124784,
+          "category": "Travel"
+        },
+        {
+          "placeid": 11404,
+          "degree": 120777,
+          "category": "Travel"
+        },
+        {
+          "placeid": 31092,
+          "degree": 116975,
+          "category": "Travel"
+        }
+      ],
+      "elapsed_sec": 332.00506806373596,
+      "mean_degree": 8372.59855153862,
+      "max_degree": 130474,
+      "median_degree": 5335.0,
+      "max_over_mean": 15.583453475865385,
+      "share_nodes_below_median_degree": 0.4999911318691064,
+      "loglog_rank_slope_approx": -1.3955205420702526,
+      "loglog_rank_r2_approx": 0.5512711281500136,
+      "clustering_wedge_sampling": {
+        "estimate": 0.4381,
+        "se": 0.0035083357165470925,
+        "n_wedges_sampled": 20000,
+        "total_wedges": 13433509779073.0
+      },
+      "n_components": 110,
+      "giant_component_fraction": 0.9993082857902983,
+      "bfs_sample_size": 5,
+      "bfs_method": "hand_rolled_bfs_tiny_sample",
+      "approx_diameter_sampled": 4,
+      "approx_avg_shortest_path_sampled": 2.034401400951322
+    },
+    "Texas": {
+      "label": "Texas",
+      "skipped": true,
+      "reason": "Raw co-occurrence matrix (M^T @ M) crashed the machine during construction (killed after ~124s, /usr/bin/time -l reported maximum resident set size ~7.7GB and peak memory footprint ~79GB -- i.e. it was thrashing/OOM, not just slow). Driven by extreme per-user place-count skew (see max_unique_places_single_user).",
+      "n_checkins": 4089892,
+      "n_users": 38644,
+      "n_places": 160938,
+      "n_unique_user_place_pairs": 2334858,
+      "max_unique_places_single_user": 27153,
+      "sum_pairwise_combinations_per_user": 2418834331.0
+    },
+    "Istanbul": {
+      "label": "Istanbul",
+      "n_nodes": 42795,
+      "n_edges": 2303581,
+      "density": 0.002515692589200049,
+      "top5_by_degree": [
+        {
+          "placeid": 4777,
+          "degree": 18994,
+          "category": "Outdoors"
+        },
+        {
+          "placeid": 107,
+          "degree": 15091,
+          "category": "Outdoors"
+        },
+        {
+          "placeid": 0,
+          "degree": 12768,
+          "category": "Travel"
+        },
+        {
+          "placeid": 2005,
+          "degree": 10930,
+          "category": "Outdoors"
+        },
+        {
+          "placeid": 3982,
+          "degree": 10600,
+          "category": "Outdoors"
+        }
+      ],
+      "elapsed_sec": 3.515367031097412,
+      "mean_degree": 107.6565486622269,
+      "max_degree": 18994,
+      "median_degree": 32.0,
+      "max_over_mean": 176.4314408740131,
+      "share_nodes_below_median_degree": 0.497347821007127,
+      "loglog_rank_slope_approx": -1.2096495789416166,
+      "loglog_rank_r2_approx": 0.9273847443467836,
+      "clustering_wedge_sampling": {
+        "estimate": 0.10505,
+        "se": 0.002168115512374744,
+        "n_wedges_sampled": 20000,
+        "total_wedges": 3338478909.0
+      },
+      "n_components": 2,
+      "giant_component_fraction": 0.9999298983526113,
+      "bfs_sample_size": 300,
+      "bfs_method": "scipy_dijkstra_unweighted",
+      "approx_diameter_sampled": 4,
+      "approx_avg_shortest_path_sampled": 2.4333019411728047
+    }
+  },
+  "segmentation": {
+    "Alabama": {
+      "percentiles": {
+        "n_users": 3858,
+        "n_single_checkin_users": 1088,
+        "total_checkins_percentiles": {
+          "p10": 1.0,
+          "p25": 1.0,
+          "p50": 3.0,
+          "p75": 12.0,
+          "p90": 55.0,
+          "p99": 465.4599999999964
+        },
+        "span_days_percentiles": {
+          "p10": 0.0,
+          "p25": 0.0,
+          "p50": 2.4067476851851852,
+          "p75": 80.92377314814814,
+          "p90": 260.3663946759261,
+          "p99": 544.5408952546295
+        },
+        "distinct_active_days_percentiles": {
+          "p10": 1.0,
+          "p25": 1.0,
+          "p50": 2.0,
+          "p75": 5.0,
+          "p90": 26.0,
+          "p99": 186.0
+        }
+      },
+      "k_high": 386,
+      "k_low": 386,
+      "high_checkins_range": [
+        55,
+        3835
+      ],
+      "low_checkins_range": [
+        2,
+        2
+      ],
+      "high_activity": {
+        "label": "Alabama/high_activity",
+        "n_nodes": 10361,
+        "n_edges": 4645370,
+        "density": 0.08655434565095795,
+        "top5_by_degree": [
+          {
+            "placeid": 9593,
+            "degree": 5762,
+            "category": "Travel"
+          },
+          {
+            "placeid": 34482,
+            "degree": 5314,
+            "category": "Shopping"
+          },
+          {
+            "placeid": 61238,
+            "degree": 5043,
+            "category": "Shopping"
+          },
+          {
+            "placeid": 274130,
+            "degree": 5041,
+            "category": "Shopping"
+          },
+          {
+            "placeid": 468883,
+            "degree": 4641,
+            "category": "Entertainment"
+          }
+        ],
+        "elapsed_sec": 4.730158805847168,
+        "mean_degree": 896.7030209439243,
+        "max_degree": 5762,
+        "median_degree": 450.0,
+        "max_over_mean": 6.425761780008912,
+        "share_nodes_below_median_degree": 0.4979249107229032,
+        "loglog_rank_slope_approx": -1.1079363873502834,
+        "loglog_rank_r2_approx": 0.7090576859920711,
+        "clustering_wedge_sampling": {
+          "estimate": 0.7345,
+          "se": 0.003122577060698422,
+          "n_wedges_sampled": 20000,
+          "total_wedges": 9101669036.0
+        },
+        "n_components": 1,
+        "giant_component_fraction": 1.0,
+        "bfs_sample_size": 300,
+        "bfs_method": "scipy_dijkstra_unweighted",
+        "approx_diameter_sampled": 4,
+        "approx_avg_shortest_path_sampled": 2.078119550879902
+      },
+      "low_activity_multi_checkin": {
+        "label": "Alabama/low_activity_multi_checkin",
+        "n_nodes": 521,
+        "n_edges": 336,
+        "density": 0.0024804370293813674,
+        "top5_by_degree": [
+          {
+            "placeid": 9593,
+            "degree": 16,
+            "category": "Travel"
+          },
+          {
+            "placeid": 147641,
+            "degree": 11,
+            "category": "Travel"
+          },
+          {
+            "placeid": 1256041,
+            "degree": 9,
+            "category": "Travel"
+          },
+          {
+            "placeid": 566032,
+            "degree": 9,
+            "category": "Travel"
+          },
+          {
+            "placeid": 18219,
+            "degree": 7,
+            "category": "Entertainment"
+          }
+        ],
+        "elapsed_sec": 0.15660429000854492,
+        "mean_degree": 1.289827255278311,
+        "max_degree": 16,
+        "median_degree": 1.0,
+        "max_over_mean": 12.404761904761905,
+        "share_nodes_below_median_degree": 0.02495201535508637,
+        "loglog_rank_slope_approx": -0.3602465749583791,
+        "loglog_rank_r2_approx": 0.7783034087904633,
+        "clustering_wedge_sampling": {
+          "estimate": 0.00535,
+          "se": 0.0005158186454559393,
+          "n_wedges_sampled": 20000,
+          "total_wedges": 444.0
+        },
+        "n_components": 190,
+        "giant_component_fraction": 0.12092130518234165,
+        "bfs_sample_size": 63,
+        "bfs_method": "scipy_dijkstra_unweighted",
+        "approx_diameter_sampled": 11,
+        "approx_avg_shortest_path_sampled": 4.930713025951121
+      }
+    },
+    "Arizona": {
+      "percentiles": {
+        "n_users": 7869,
+        "n_single_checkin_users": 2229,
+        "total_checkins_percentiles": {
+          "p10": 1.0,
+          "p25": 1.0,
+          "p50": 3.0,
+          "p75": 11.0,
+          "p90": 47.0,
+          "p99": 538.9199999999983
+        },
+        "span_days_percentiles": {
+          "p10": 0.0,
+          "p25": 0.0,
+          "p50": 1.9668287037037038,
+          "p75": 56.44054398148148,
+          "p90": 252.9168125,
+          "p99": 525.6714393518517
+        },
+        "distinct_active_days_percentiles": {
+          "p10": 1.0,
+          "p25": 1.0,
+          "p50": 2.0,
+          "p75": 5.0,
+          "p90": 21.0,
+          "p99": 203.95999999999913
+        }
+      },
+      "k_high": 787,
+      "k_low": 787,
+      "high_checkins_range": [
+        47,
+        5589
+      ],
+      "low_checkins_range": [
+        2,
+        2
+      ],
+      "high_activity": {
+        "label": "Arizona/high_activity",
+        "n_nodes": 19144,
+        "n_edges": 18164061,
+        "density": 0.09912889439520652,
+        "top5_by_degree": [
+          {
+            "placeid": 23524,
+            "degree": 16903,
+            "category": "Travel"
+          },
+          {
+            "placeid": 38870,
+            "degree": 12733,
+            "category": "Entertainment"
+          },
+          {
+            "placeid": 18200,
+            "degree": 12442,
+            "category": "Travel"
+          },
+          {
+            "placeid": 53860,
+            "degree": 11923,
+            "category": "Shopping"
+          },
+          {
+            "placeid": 39461,
+            "degree": 11909,
+            "category": "Entertainment"
+          }
+        ],
+        "elapsed_sec": 18.737154006958008,
+        "mean_degree": 1897.6244254074384,
+        "max_degree": 16903,
+        "median_degree": 984.0,
+        "max_over_mean": 8.907452799239113,
+        "share_nodes_below_median_degree": 0.4997910572503134,
+        "loglog_rank_slope_approx": -1.186041746832255,
+        "loglog_rank_r2_approx": 0.6497425869904547,
+        "clustering_wedge_sampling": {
+          "estimate": 0.60185,
+          "se": 0.0034614056212758423,
+          "n_wedges_sampled": 20000,
+          "total_wedges": 71389698691.0
+        },
+        "n_components": 1,
+        "giant_component_fraction": 1.0,
+        "bfs_sample_size": 300,
+        "bfs_method": "scipy_dijkstra_unweighted",
+        "approx_diameter_sampled": 4,
+        "approx_avg_shortest_path_sampled": 1.9628821911129684
+      },
+      "low_activity_multi_checkin": {
+        "label": "Arizona/low_activity_multi_checkin",
+        "n_nodes": 718,
+        "n_edges": 557,
+        "density": 0.002163921943411693,
+        "top5_by_degree": [
+          {
+            "placeid": 23524,
+            "degree": 147,
+            "category": "Travel"
+          },
+          {
+            "placeid": 52741,
+            "degree": 26,
+            "category": "Outdoors"
+          },
+          {
+            "placeid": 24482,
+            "degree": 21,
+            "category": "Outdoors"
+          },
+          {
+            "placeid": 18200,
+            "degree": 17,
+            "category": "Travel"
+          },
+          {
+            "placeid": 34263,
+            "degree": 14,
+            "category": "Travel"
+          }
+        ],
+        "elapsed_sec": 0.15962576866149902,
+        "mean_degree": 1.551532033426184,
+        "max_degree": 147,
+        "median_degree": 1.0,
+        "max_over_mean": 94.74506283662477,
+        "share_nodes_below_median_degree": 0.018105849582172703,
+        "loglog_rank_slope_approx": -0.4014962575922511,
+        "loglog_rank_r2_approx": 0.7702616076045845,
+        "clustering_wedge_sampling": {
+          "estimate": 0.00545,
+          "se": 0.0005205908902391589,
+          "n_wedges_sampled": 20000,
+          "total_wedges": 11800.0
+        },
+        "n_components": 191,
+        "giant_component_fraction": 0.4428969359331476,
+        "bfs_sample_size": 300,
+        "bfs_method": "scipy_dijkstra_unweighted",
+        "approx_diameter_sampled": 12,
+        "approx_avg_shortest_path_sampled": 3.6457651991614255
+      }
+    },
+    "Florida": {
+      "percentiles": {
+        "n_users": 21052,
+        "n_single_checkin_users": 2880,
+        "total_checkins_percentiles": {
+          "p10": 1.0,
+          "p25": 3.0,
+          "p50": 10.0,
+          "p75": 40.0,
+          "p90": 131.0,
+          "p99": 966.4900000000016
+        },
+        "span_days_percentiles": {
+          "p10": 0.0,
+          "p25": 1.73140625,
+          "p50": 6.949114583333333,
+          "p75": 111.8684375,
+          "p90": 297.01755671296297,
+          "p99": 552.8972844907407
+        },
+        "distinct_active_days_percentiles": {
+          "p10": 1.0,
+          "p25": 2.0,
+          "p50": 4.0,
+          "p75": 11.0,
+          "p90": 42.0,
+          "p99": 241.4900000000016
+        }
+      },
+      "k_high": 2105,
+      "k_low": 2105,
+      "high_checkins_range": [
+        132,
+        16679
+      ],
+      "low_checkins_range": [
+        2,
+        3
+      ],
+      "high_activity": {
+        "label": "Florida/high_activity",
+        "n_nodes": 70675,
+        "n_edges": 213820688,
+        "density": 0.08561586108204554,
+        "top5_by_degree": [
+          {
+            "placeid": 28301,
+            "degree": 54875,
+            "category": "Travel"
+          },
+          {
+            "placeid": 32596,
+            "degree": 50489,
+            "category": "Travel"
+          },
+          {
+            "placeid": 758476,
+            "degree": 49246,
+            "category": "Travel"
+          },
+          {
+            "placeid": 11810,
+            "degree": 48790,
+            "category": "Travel"
+          },
+          {
+            "placeid": 14616,
+            "degree": 47365,
+            "category": "Travel"
+          }
+        ],
+        "elapsed_sec": 56.01126790046692,
+        "mean_degree": 6050.815366112487,
+        "max_degree": 54875,
+        "median_degree": 4121.0,
+        "max_over_mean": 9.069025689880858,
+        "share_nodes_below_median_degree": 0.4999787760877255,
+        "loglog_rank_slope_approx": -1.1374259194390641,
+        "loglog_rank_r2_approx": 0.6089871191260021,
+        "clustering_wedge_sampling": {
+          "estimate": 0.56925,
+          "se": 0.0035014599633581417,
+          "n_wedges_sampled": 20000,
+          "total_wedges": 2555383155543.0
+        },
+        "n_components": 1,
+        "giant_component_fraction": 1.0,
+        "bfs_sample_size": 60,
+        "bfs_method": "scipy_dijkstra_unweighted",
+        "approx_diameter_sampled": 4,
+        "approx_avg_shortest_path_sampled": 1.96768848013206
+      },
+      "low_activity_multi_checkin": {
+        "label": "Florida/low_activity_multi_checkin",
+        "n_nodes": 2720,
+        "n_edges": 2147,
+        "density": 0.000580609220517924,
+        "top5_by_degree": [
+          {
+            "placeid": 758476,
+            "degree": 121,
+            "category": "Travel"
+          },
+          {
+            "placeid": 631060,
+            "degree": 117,
+            "category": "Travel"
+          },
+          {
+            "placeid": 12840,
+            "degree": 90,
+            "category": "Travel"
+          },
+          {
+            "placeid": 31707,
+            "degree": 75,
+            "category": "Travel"
+          },
+          {
+            "placeid": 14698,
+            "degree": 38,
+            "category": "Travel"
+          }
+        ],
+        "elapsed_sec": 0.18145203590393066,
+        "mean_degree": 1.5786764705882352,
+        "max_degree": 121,
+        "median_degree": 1.0,
+        "max_over_mean": 76.64648346530042,
+        "share_nodes_below_median_degree": 0.021691176470588235,
+        "loglog_rank_slope_approx": -0.440109846537562,
+        "loglog_rank_r2_approx": 0.8548053929147293,
+        "clustering_wedge_sampling": {
+          "estimate": 0.02625,
+          "se": 0.0011305073529172642,
+          "n_wedges_sampled": 20000,
+          "total_wedges": 25060.0
+        },
+        "n_components": 831,
+        "giant_component_fraction": 0.3154411764705882,
+        "bfs_sample_size": 300,
+        "bfs_method": "scipy_dijkstra_unweighted",
+        "approx_diameter_sampled": 12,
+        "approx_avg_shortest_path_sampled": 4.1108508158508155
+      }
+    },
+    "California": {
+      "percentiles": {
+        "n_users": 37090,
+        "n_single_checkin_users": 4458,
+        "total_checkins_percentiles": {
+          "p10": 1.0,
+          "p25": 4.0,
+          "p50": 13.0,
+          "p75": 50.0,
+          "p90": 171.0,
+          "p99": 1167.1100000000006
+        },
+        "span_days_percentiles": {
+          "p10": 0.0,
+          "p25": 2.6810619212962963,
+          "p50": 38.406979166666666,
+          "p75": 198.12530960648147,
+          "p90": 392.8920069444444,
+          "p99": 588.9164384259259
+        },
+        "distinct_active_days_percentiles": {
+          "p10": 1.0,
+          "p25": 2.0,
+          "p50": 6.0,
+          "p75": 22.0,
+          "p90": 79.0,
+          "p99": 316.0
+        }
+      },
+      "k_high": 3709,
+      "k_low": 3709,
+      "high_checkins_range": [
+        171,
+        14855
+      ],
+      "low_checkins_range": [
+        2,
+        3
+      ],
+      "skipped": true,
+      "reason": "Full-state graph already at the edge of the light time budget (matmul + connected components ~1-2 min, diameter only sampleable at n=5 via a hand-rolled BFS); the high-activity segment would be comparably dense (same super-active users dominate both), so we did not additionally build California segment subgraphs. AL/AZ/FL/Istanbul already give a clear, consistent segmentation result."
+    },
+    "Istanbul": {
+      "percentiles": {
+        "n_users": 23700,
+        "n_single_checkin_users": 0,
+        "total_checkins_percentiles": {
+          "p10": 6.0,
+          "p25": 8.0,
+          "p50": 13.0,
+          "p75": 25.0,
+          "p90": 47.0,
+          "p99": 148.0
+        },
+        "span_days_percentiles": {
+          "p10": 37.23930555555555,
+          "p25": 92.3109375,
+          "p50": 186.7045138888889,
+          "p75": 309.1111111111111,
+          "p90": 462.035763888889,
+          "p99": 2171.2515069444444
+        },
+        "distinct_active_days_percentiles": {
+          "p10": 3.0,
+          "p25": 4.0,
+          "p50": 6.0,
+          "p75": 11.0,
+          "p90": 20.0,
+          "p99": 56.0
+        }
+      },
+      "k_high": 2370,
+      "k_low": 2370,
+      "high_checkins_range": [
+        47,
+        839
+      ],
+      "low_checkins_range": [
+        6,
+        6
+      ],
+      "high_activity": {
+        "label": "Istanbul/high_activity",
+        "n_nodes": 21486,
+        "n_edges": 1476815,
+        "density": 0.006398308278132346,
+        "top5_by_degree": [
+          {
+            "placeid": 4777,
+            "degree": 12053,
+            "category": "Outdoors"
+          },
+          {
+            "placeid": 107,
+            "degree": 9771,
+            "category": "Outdoors"
+          },
+          {
+            "placeid": 0,
+            "degree": 7816,
+            "category": "Travel"
+          },
+          {
+            "placeid": 103,
+            "degree": 7414,
+            "category": "Shopping"
+          },
+          {
+            "placeid": 2005,
+            "degree": 7341,
+            "category": "Outdoors"
+          }
+        ],
+        "elapsed_sec": 1.9364209175109863,
+        "mean_degree": 137.46765335567346,
+        "max_degree": 12053,
+        "median_degree": 56.0,
+        "max_over_mean": 87.67880811069769,
+        "share_nodes_below_median_degree": 0.4927394582518849,
+        "loglog_rank_slope_approx": -0.9366706896814939,
+        "loglog_rank_r2_approx": 0.9687616449339745,
+        "clustering_wedge_sampling": {
+          "estimate": 0.1246,
+          "se": 0.002335324816808146,
+          "n_wedges_sampled": 20000,
+          "total_wedges": 1487608617.0
+        },
+        "n_components": 1,
+        "giant_component_fraction": 1.0,
+        "bfs_sample_size": 300,
+        "bfs_method": "scipy_dijkstra_unweighted",
+        "approx_diameter_sampled": 4,
+        "approx_avg_shortest_path_sampled": 2.2290174997672905
+      },
+      "low_activity_multi_checkin": {
+        "label": "Istanbul/low_activity_multi_checkin",
+        "n_nodes": 4370,
+        "n_edges": 25779,
+        "density": 0.002700427863672337,
+        "top5_by_degree": [
+          {
+            "placeid": 4777,
+            "degree": 888,
+            "category": "Outdoors"
+          },
+          {
+            "placeid": 0,
+            "degree": 625,
+            "category": "Travel"
+          },
+          {
+            "placeid": 107,
+            "degree": 446,
+            "category": "Outdoors"
+          },
+          {
+            "placeid": 3982,
+            "degree": 411,
+            "category": "Outdoors"
+          },
+          {
+            "placeid": 100,
+            "degree": 286,
+            "category": "Outdoors"
+          }
+        ],
+        "elapsed_sec": 0.24983692169189453,
+        "mean_degree": 11.79816933638444,
+        "max_degree": 888,
+        "median_degree": 5.0,
+        "max_over_mean": 75.26591411614105,
+        "share_nodes_below_median_degree": 0.2437070938215103,
+        "loglog_rank_slope_approx": -0.7833533237709287,
+        "loglog_rank_r2_approx": 0.9563470395734028,
+        "clustering_wedge_sampling": {
+          "estimate": 0.09245,
+          "se": 0.002048206502040261,
+          "n_wedges_sampled": 20000,
+          "total_wedges": 2043947.0
+        },
+        "n_components": 19,
+        "giant_component_fraction": 0.9844393592677345,
+        "bfs_sample_size": 300,
+        "bfs_method": "scipy_dijkstra_unweighted",
+        "approx_diameter_sampled": 6,
+        "approx_avg_shortest_path_sampled": 3.099107391910739
+      }
+    }
+  }
+}

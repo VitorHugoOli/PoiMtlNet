@@ -64,3 +64,34 @@ serialized (and the HMT-GRN raw per-fold JSONs are gitignored / not in this chec
 > Status: the **floors** and the **STL-reg + faithful-STAN ladders** are paper-ready (above). The three
 > re-score items are deferred (need the gitignored logits); they are nice-to-have anchors, not blockers —
 > the §6.2 calibration clause already gives the reader the random/Markov/majority reference scales.
+> A **fourth deferred metric (geographic near-miss)** is registered below; unlike items 1–3 it is NOT
+> computable from any saved artifact and must ride the P1 re-runs.
+
+## Geographic near-miss — deferred item 4 (registered 2026-07-06, NOT yet computed)
+
+**Definition.** For each test visit whose **top predicted region is wrong**: the distance in kilometers
+between the centroid of the predicted census tract (mahalle for Istanbul) and the centroid of the true
+one; report per-state **P50/P90** and the full distribution, per fold (seed 0 at minimum). Visits whose
+true region is absent from training (the OOD share the Acc@10 discount removes) are reported
+**separately** — they have no in-vocabulary correct answer.
+
+**Why.** The prepared answer to "Acc@10 over thousands of regions says nothing about how bad the misses
+are": it interprets region error at tract granularity for the mobility motivation **without measuring any
+service**. Venue-bridge guardrails (settled ruling, motivation-only): bare percentiles or a bare CDF
+only — **no service-radius/threshold overlay** (that would be the banned coverage curve in disguise);
+keep the measurement verb on the prediction, service value as explicitly untested interpretation.
+
+**Source plan (why it can't be computed today).** Per-sample predictions are never serialized (the eval
+path computes top-k per sample and discards it) and no checkpoints are written — there is nothing to
+re-score from. Plan: an env-gated dump flag (e.g. `MTL_DUMP_VAL_PREDS=1`) in `mtl_eval.py`/`mtl_cv.py`
+writes `<rundir>/metrics/fold{N}_reg_val_preds.parquet` (true + top-10 predicted region idx, int32+zstd,
+~10–20 MB/fold at TX/CA) at each **reg diagnostic-best** improvement (⚠ align the trigger to
+`top10_acc_indist`, the matched scorer's selection metric), riding the **P1 n=20 top-up** on the H100 at
+<1 % overhead. Geometry is already local: `output/check2hgi/<state>/temp/boroughs_area.csv` (GEOID + WKT
+polygons; ⚠ GEOID int64 drops the leading zero — zero-pad to 11 chars) + `region_to_idx` in
+`temp/checkin_graph.pt`. Offline join + haversine is CPU-minutes. Full pipeline, placement verdict, and
+ready-to-paste (placeholder-gated) prose: [`MOBILITY_PLAN.md §3`](MOBILITY_PLAN.md).
+
+**Status.** Registered; **blocked on the P1 launch carrying the dump flag** (merge the flag first or the
+metric costs its own ~1–2 H100-day re-run; A40 infeasible at FL/CA/TX). Target use: rebuttal first;
+camera-ready at most ONE sentence in §6.2 (or §7's usage sketch), never a fig4 panel.

@@ -843,6 +843,56 @@ def _flatten_encoder(encoder):
     return torch.cat(params).clone()
 
 
+def _write_val_preds_dump(payload: dict, dump_dir: Path, fold_label: int | None) -> None:
+    """Write/overwrite ``<dump_dir>/fold{N}_reg_val_preds.parquet`` (MTL_DUMP_VAL_PREDS=1).
+
+    ``payload`` is the dict ``evaluate_model`` stashes under
+    ``val_metrics_task_b['_dump_val_preds']`` when the env var is set: CPU int32 tensors
+    ``true_region_idx`` [N], ``top10_pred_region_idx`` [N, k<=10], and a bool ``is_ood`` [N]
+    (target region absent from the training vocabulary — the same OOD definition the scored
+    ``top10_acc_indist`` already uses; see ``mtl_eval._ood_restricted_topk`` /
+    ``_ood_from_streamed``). One row per validation sample; called only on a reg
+    diagnostic-best improvement (see ``_run_validation_epoch``), and OVERWRITES the file each
+    time so it always reflects the CURRENT best epoch, never appends. zstd-compressed. This is
+    the geographic near-miss metric's data source
+    (articles/[mobiwac]/MOBILITY_PLAN.md §3, analysis/near_miss_distance.py).
+
+    Best-effort: any failure is logged and swallowed so this opt-in diagnostic can never abort
+    an otherwise-healthy training run.
+    """
+    try:
+        import pandas as pd
+
+        true_idx = payload['true_region_idx'].numpy()
+        top10 = payload['top10_pred_region_idx'].numpy()
+        is_ood = payload['is_ood'].numpy()
+        n = true_idx.shape[0]
+        k = top10.shape[1] if top10.ndim == 2 else 0
+        data = {'true_region_idx': true_idx, 'is_ood': is_ood}
+        for j in range(k):
+            data[f'pred_region_idx_top{j + 1}'] = top10[:, j]
+        # Pad to a stable 10-column schema even when the reg head has < 10
+        # classes (topk clamps k to num_classes — e.g. a tiny smoke run), so
+        # every dumped file has the same columns regardless of state/scale.
+        for j in range(k, 10):
+            data[f'pred_region_idx_top{j + 1}'] = np.full(n, -1, dtype=np.int32)
+        df = pd.DataFrame(data)
+        label = fold_label if fold_label is not None else 0
+        out_path = Path(dump_dir) / f'fold{label}_reg_val_preds.parquet'
+        df.to_parquet(out_path, index=False, compression='zstd')
+        logger.info(
+            "[MTL_DUMP_VAL_PREDS] fold %s: wrote %d val rows -> %s "
+            "(reg diagnostic-best improved).", label, n, out_path,
+        )
+    except Exception:
+        logger.exception(
+            "[MTL_DUMP_VAL_PREDS] failed to write the val-preds dump for fold %s; "
+            "continuing training (best-effort, opt-in diagnostic, no data lost — "
+            "the previous dump for this fold, if any, is left in place).",
+            fold_label,
+        )
+
+
 # Training Function
 
 
@@ -850,7 +900,8 @@ def _run_validation_epoch(model, dataloader_next, dataloader_category,
                           next_criterion, category_criterion, mtl_criterion, *,
                           fold_history, num_classes, task_a_num_classes, task_b_num_classes,
                           task_a_name, task_b_name, checkpoint_selector, joint_min_epoch,
-                          epoch_idx, pareto_points, task_best_tracker):
+                          epoch_idx, pareto_points, task_best_tracker,
+                          dump_dir: Optional[Path] = None, fold_label: Optional[int] = None):
     """Run one validation epoch: evaluate, score the joint selectors, update the
     pareto front, decide per-task / joint improvement, write fold_history (model_task +
     both task slots) and the side-channel MultiTaskBestTracker, and RETURN the 10 scalars
@@ -889,6 +940,16 @@ def _run_validation_epoch(model, dataloader_next, dataloader_category,
         train_labels_b=_tl_b,
         train_labels_a=_tl_a,
     )
+
+    # Opt-in per-sample val-prediction dump (MTL_DUMP_VAL_PREDS=1; see
+    # mtl_eval.evaluate_model). Pop it out of the metrics dict BEFORE any of
+    # val_metrics_task_b's keys are forwarded (via **val_metrics_task_b, below)
+    # into fold_history.log_val, which writes straight into a scalar
+    # MetricStore/CSV — a raw tensor entry would corrupt it. `.pop(..., None)`
+    # is a no-op returning None when the key is absent, which is ALWAYS true
+    # when the env var is unset (evaluate_model never adds the key), so this
+    # line changes nothing about val_metrics_task_b's contents in that case.
+    _dump_payload = val_metrics_task_b.pop('_dump_val_preds', None)
 
     f1_val_task_b = val_metrics_task_b['f1']
     f1_val_task_a = val_metrics_task_a['f1']
@@ -939,6 +1000,20 @@ def _run_validation_epoch(model, dataloader_next, dataloader_category,
     _val_b_mon = val_metrics_task_b.get(_mon_b, f1_val_task_b)
     _val_a_mon = val_metrics_task_a.get(_mon_a, f1_val_task_a)
     task_b_improved = _val_b_mon > fold_history.task(task_b_name).best.best_value
+
+    # Fire the opt-in val-preds dump exactly when the reg/task_b diagnostic-best
+    # improves — the SAME event (same monitor key `_mon_b`, same comparison
+    # above) the BestModelTracker uses, so for the check2HGI next_region preset
+    # (_mon_b == "top10_acc_indist", see tasks/presets.py CHECK2HGI_NEXT_REGION)
+    # this aligns exactly with the matched scorer's selection metric
+    # (MOBILITY_PLAN.md §3's "align the dump trigger to top10_acc_indist"
+    # requirement), rather than a separately invented hook. Overwrites the file
+    # every time so it always holds the CURRENT best epoch's predictions.
+    # No-op unless MTL_DUMP_VAL_PREDS=1 produced a payload AND a dump_dir was
+    # resolved (both threaded from train_with_cross_validation; see there).
+    if task_b_improved and _dump_payload is not None and dump_dir is not None:
+        _write_val_preds_dump(_dump_payload, dump_dir, fold_label)
+
     task_a_improved = _val_a_mon > fold_history.task(task_a_name).best.best_value
     prev_joint_best = fold_history.model_task.best.best_value if fold_history.model_task.best.best_epoch >= 0 else -1.0
     # C21: gate the joint checkpoint on the configured selector
@@ -1128,6 +1203,8 @@ def train_model(model: torch.nn.Module,
                 joint_train_loader=None,
                 freeze_cat_stream: bool = False,
                 freeze_reg_stream: bool = False,
+                dump_val_preds_dir: Optional[Path] = None,
+                fold_label: Optional[int] = None,
                 ):
     """
     Train the model with multi-task learning.
@@ -1821,6 +1898,7 @@ def train_model(model: torch.nn.Module,
                 checkpoint_selector=checkpoint_selector, joint_min_epoch=joint_min_epoch,
                 epoch_idx=epoch_idx, pareto_points=pareto_points,
                 task_best_tracker=task_best_tracker,
+                dump_dir=dump_val_preds_dir, fold_label=fold_label,
             )
         # Update compact F1-only metrics on progress bar.
         best_task_b = fold_history.task(task_b_name).best.best_value
@@ -2096,6 +2174,24 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
                 )
                 task_best_save_dir.mkdir(parents=True, exist_ok=True)
 
+        # Opt-in per-sample val-prediction dump (MTL_DUMP_VAL_PREDS=1). Resolves the
+        # SAME rundir HistoryStorage will eventually use (results_path / _folder_name())
+        # so the dump lands in the existing <rundir>/metrics/ sidecar directory,
+        # alongside fold{N}_{task}_val.csv (aggregate_folds.py already globs that
+        # directory by real fold id). history.model_parms is set above via
+        # history.set_model_parms(...), so _folder_name() is well-defined here.
+        # Geographic near-miss metric's data source — see
+        # articles/[mobiwac]/MOBILITY_PLAN.md §3 + analysis/near_miss_distance.py.
+        # No-op (None) unless the env var is set AND a results_path was given (e.g.
+        # --no-checkpoints smoke runs have no results_path and skip this entirely).
+        import os as _os_dump
+        dump_val_preds_dir = None
+        if _os_dump.environ.get("MTL_DUMP_VAL_PREDS") == "1" and results_path is not None:
+            dump_val_preds_dir = (
+                Path(results_path) / history.storage._folder_name() / "metrics"
+            )
+            dump_val_preds_dir.mkdir(parents=True, exist_ok=True)
+
         # Train the model
         train_model(
             model, optimizer, scheduler,
@@ -2143,6 +2239,8 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             joint_train_loader=getattr(dataloader, "joint_train_loader", None),
             freeze_cat_stream=bool(getattr(config, "freeze_cat_stream", False)),
             freeze_reg_stream=bool(getattr(config, "freeze_reg_stream", False)),
+            dump_val_preds_dir=dump_val_preds_dir,
+            fold_label=history.fold_label(fold_idx),
         )
 
         # substrate-protocol-cleanup Tier C1 — write the three best

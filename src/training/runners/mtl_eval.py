@@ -196,6 +196,17 @@ def evaluate_model(
     sv_preds, sv_tgts, sv_rank = [], [], []
     sv_hit = {k: [] for k in _S2_KS}
 
+    # Opt-in per-sample val-prediction dump (MTL_DUMP_VAL_PREDS=1). Feeds the
+    # geographic near-miss metric (articles/[mobiwac]/MOBILITY_PLAN.md §3,
+    # analysis/near_miss_distance.py); mtl_cv.py writes the actual parquet file
+    # on a reg diagnostic-best improvement. Strict no-op when unset: the extra
+    # top-10-index accumulator below is only ever appended to under this gate,
+    # and the dict key this function adds to metrics_next (see the end of this
+    # function) is only added under this gate — no shape/value change to any
+    # existing computation when MTL_DUMP_VAL_PREDS is unset.
+    _dump_env = os.environ.get("MTL_DUMP_VAL_PREDS") == "1"
+    _dump_top10_list: list[torch.Tensor] = []
+
     # Eval-precision escape hatch. MTL eval autocasts fp16 on CUDA unconditionally, but the
     # STL ceiling harness evaluates in fp32; over ~5-9k region logits fp16 quantisation creates
     # more exact ties → _rank_of_target scores MTL ranks tie-optimistically vs the fp32 ceiling.
@@ -261,6 +272,12 @@ def evaluate_model(
             for _k in _S2_KS:
                 _ke = min(_k, _no.shape[-1])
                 sv_hit[_k].append((_no.topk(_ke, dim=-1).indices == y_next.unsqueeze(-1)).any(dim=-1))
+            if _dump_env:
+                # Real top-10 predicted indices (not just the hit boolean
+                # above) — only materialized under the opt-in dump flag; the
+                # scored metrics above never read this.
+                _ke10 = min(10, _no.shape[-1])
+                _dump_top10_list.append(_no.topk(_ke10, dim=-1).indices.cpu())
             del _no
         else:
             logits_next_list.append(next_out.detach())
@@ -329,5 +346,40 @@ def evaluate_model(
     if train_labels_a is not None:
         ood_a = _ood_restricted_topk(all_logits_category, all_truths_category, train_labels_a)
         metrics_category.update(ood_a)
+
+    # Opt-in per-sample val-prediction dump (MTL_DUMP_VAL_PREDS=1) — stash the
+    # payload under a leading-underscore key so it rides evaluate_model's
+    # existing 3-tuple return without changing its arity; mtl_cv.py pops this
+    # key BEFORE forwarding **metrics_next to fold_history.log_val (which
+    # forwards straight into a scalar MetricStore/CSV writer — a raw tensor
+    # entry would corrupt it). Absent entirely when the env var is unset, so
+    # every existing consumer of metrics_next (incl. tests/test_training/
+    # test_mtl_eval.py, which checks an exact key allowlist) is untouched.
+    if _dump_env:
+        if _chunk_val:
+            _dump_true = _T
+            _dump_top10 = (
+                torch.cat(_dump_top10_list) if _dump_top10_list
+                else _T.new_empty((0, 0))
+            )
+        else:
+            _dump_true = all_truths_next
+            _k10 = min(10, all_logits_next.shape[-1])
+            _dump_top10 = all_logits_next.topk(_k10, dim=-1).indices
+        if train_labels_b:
+            _train_t = torch.as_tensor(
+                sorted(train_labels_b), dtype=_dump_true.dtype, device=_dump_true.device,
+            )
+            _dump_is_ood = ~torch.isin(_dump_true, _train_t)
+        else:
+            # No train-label set available (e.g. a low-cardinality legacy
+            # task_b) — OOD can't be determined; treat every sample as
+            # in-distribution rather than silently mis-flagging it.
+            _dump_is_ood = torch.zeros_like(_dump_true, dtype=torch.bool)
+        metrics_next['_dump_val_preds'] = {
+            'true_region_idx': _dump_true.detach().to('cpu', torch.int32),
+            'top10_pred_region_idx': _dump_top10.detach().to('cpu', torch.int32),
+            'is_ood': _dump_is_ood.detach().cpu(),
+        }
 
     return metrics_next, metrics_category, loss_combined

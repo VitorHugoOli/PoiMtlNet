@@ -46,7 +46,11 @@ DeepMove \cite{feng2018deepmove}, Flashback \cite{yang2020flashback}, STAN
 \cite{luo2021stan}, and GETNext \cite{yang2022getnext}. In contrast, we target two properties of the next visit, its category and its
 region, rather than the exact place. These targets are not trivial: the region
 alone spans hundreds to several thousand classes. We choose them because they are
-what a mobility-aware service can act on, not to make the task easier. The category
+what a mobility-aware service can act on, not to make the task easier. Predicting
+over a partition of the map is also the standard formulation in the human-mobility
+literature, where the target is a grid cell rather than an exact
+place~\cite{luca2021mobilitysurvey}; our next-region task follows this
+formulation, with administrative units in place of grid cells. The category
 task itself follows our earlier line of work \cite{silva2025mtlnet}. The field
 increasingly models several granularities at once, predicting category-level and
 region-level sequences alongside the place sequence; in that work, however,
