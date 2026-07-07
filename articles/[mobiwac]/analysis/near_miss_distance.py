@@ -69,13 +69,13 @@ Data sources (both read-only; this script never writes into either):
 Run (one state + one training rundir per invocation -- no training-time
 dependency, does not need to run on the training machine):
 
-  /Users/vitor/Desktop/mestrado/ingred/.venv/bin/python \\
+  PYTHONPATH=src python \\
       "articles/[mobiwac]/analysis/near_miss_distance.py" \\
-      --state alabama --rundir /path/to/results/check2hgi/alabama/<run_folder>
+      --state alabama --rundir /path/to/results/check2hgi_dk_ovl/alabama/<run_folder>
 
   Loop over states/seeds from the shell as needed, e.g.:
       for s in alabama arizona florida california texas istanbul; do
-          .venv/bin/python analysis/near_miss_distance.py --state "$s" --rundir "$RUNDIR_FOR_$s"
+          python "articles/[mobiwac]/analysis/near_miss_distance.py" --state "$s" --rundir "$RUNDIR_FOR_$s"
       done
 
 Writes (next to this script, one pair per --state):
