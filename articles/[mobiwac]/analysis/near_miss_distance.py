@@ -100,8 +100,14 @@ import numpy as np
 import pandas as pd
 from shapely import wkt
 
-REPO = "/Users/vitor/Desktop/mestrado/ingred"
 HERE = os.path.dirname(os.path.abspath(__file__))
+# Repo root that holds output/check2hgi/<state>/temp/. Derived from this file's
+# location (articles/[mobiwac]/analysis/ -> three levels up == repo root) so it
+# resolves on any checkout, worktree, or machine (Mac or the A40 box); override
+# with POIMTLNET_REPO if the layout ever differs.
+REPO = os.environ.get("POIMTLNET_REPO") or os.path.dirname(
+    os.path.dirname(os.path.dirname(HERE))
+)
 
 EARTH_RADIUS_KM = 6371.0088  # IUGG mean radius -- matches common haversine/geopy defaults
 
