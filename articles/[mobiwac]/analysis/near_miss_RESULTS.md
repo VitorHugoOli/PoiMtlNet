@@ -31,7 +31,7 @@
 | Alabama  | 1,109 | 69.8 | **8.13** | 38.47 | 20.38 | 22.48 / 156.14 |
 | Arizona  | 1,547 | 59.7 | **8.05** | 30.71 | 17.35 | 17.74 / 128.87 |
 | Istanbul |   520 | 75.4 | **3.16** | 14.91 |  5.75 | 11.58 /  28.59 |
-| Florida  | 4,703 | (running) | -- | -- | -- | -- |
+| Florida  | 4,703 | 77.4 | **7.04** | 37.58 | 20.56 | 17.01 /  53.37 |
 
 _reg Acc@10 = mean over 5 folds of `top10_acc_indist` at the reg diagnostic-best
 epoch (matches the board cell within run-to-run variation)._
@@ -52,11 +52,12 @@ figure.
 
 Per-fold reg diagnostic-best epochs land late at every state (no early-epoch
 precision collapse): Alabama 27/31/37/43/35, Arizona 36/38/33/25/30, Istanbul
-42/33/36/35/39. The per-fold `top10_acc_indist` tracks the board region cell at
-each state.
+42/33/36/35/39, Florida 45/34/44/44/49. The per-fold `top10_acc_indist` tracks the
+board region cell at each state (e.g. Florida mean 77.4 vs board 77.28).
 
 ## Status
 
-Alabama, Arizona, Istanbul complete (2026-07-07). Florida is running (the
-stride-1 overlap large state, ~1.3M rows; runs alone for host-RAM + throughput)
-and will be appended here when its 5 folds land.
+All four states complete (2026-07-07, A40). Florida (the stride-1 overlap large
+state, ~1.3M rows, 4,703 regions) ran alone in fp32 and held convergence with no
+collapsed fold, its ~7 km median in-distribution miss matching the smaller states'
+~3-8 km range.
