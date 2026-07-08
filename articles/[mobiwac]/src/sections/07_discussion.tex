@@ -25,13 +25,13 @@ points to a practical option: one model, one forward pass, can anticipate both w
 user will do next and where, without a second model and without a task
 trade-off.
 
-A short usage sketch makes the motivation concrete, with numbers rather than
-adjectives. A service could treat the model's top-ranked next regions as an
+A short usage sketch makes the motivation concrete. A service could treat the model's top-ranked next regions as an
 anticipatory set: at California, a shortlist of ten regions out of 8{,}501
 candidates, about a tenth of a percent of the space, contains the true next
 region 65.69 percent of the time, more than five hundred times better than
 picking ten at random; at Alabama, ten out of 1{,}109 capture it 69.80 percent
-of the time. The predictions are also geographically concentrated. On the four
+of the time. In networking terms this is the hit rate of an anticipatory
+placement set, the quantity a prefetch or pre-allocation policy would act on. The predictions are also geographically concentrated. On the four
 datasets where we measured it (Alabama, Arizona, Florida, and Istanbul; a
 single seed over five folds), the ten shortlisted regions sit, on average,
 about 3 to 8 kilometers from the shortlist's own geographic center (the median

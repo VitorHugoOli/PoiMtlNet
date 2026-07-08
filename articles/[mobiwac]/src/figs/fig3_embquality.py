@@ -72,7 +72,7 @@ def main() -> None:
     width = 0.36
 
     # ~3.3 in wide single-column IEEE figure.
-    fig, ax = plt.subplots(figsize=(3.3, 2.05))
+    fig, ax = plt.subplots(figsize=(3.3, 1.85))
 
     b1 = ax.bar(
         x - width / 2,

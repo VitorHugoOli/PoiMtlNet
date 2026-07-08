@@ -63,8 +63,7 @@ another: DRRGNN~\cite{zhu2022drrgnn} forecasts a person's next activity region
 jointly with a mobility-intention label, but over regions discovered per person
 rather than a fixed citywide partition. A recent generative
 recommender~\cite{sun2025kgtb} predicts category and region jointly, but only as
-auxiliary steps toward its next-place ranking. We therefore define our region unit
-carefully when we state the tasks.
+auxiliary steps toward its next-place ranking.
 
 \subsection{Multi-task learning for mobility}
 \label{sec:related-mtl}
@@ -89,7 +88,8 @@ dictates. Since the cascade is the pattern the field actually uses, we also test
 the choice directly (Section~\ref{sec:results-part2}). On the optimization side we are deliberately
 conservative: training one model jointly on several tasks with a fixed loss weighting is standard practice
 \cite{caruana1997multitask}, and our use of it is not itself the contribution.
-Rather than propose yet another gradient-balancing method (PCGrad \cite{yu2020pcgrad},
+Rather than propose yet another gradient-balancing method, a training scheme
+that re-weights the tasks' updates on the fly (PCGrad \cite{yu2020pcgrad},
 GradNorm \cite{chen2018gradnorm}, Nash-MTL \cite{navon2022nashmtl}), we ask
 where sharing helps and where it costs, and we give a clear, measured account,
 consistent with reports that such methods rarely improve on a well-tuned fixed
@@ -100,9 +100,7 @@ The reason is visible in the gradients themselves: the next-category and
 next-region updates barely correlate on the shared layers (a near-zero
 correlation, about $0.001$, throughout training), so the two tasks neither pull
 against each other nor reinforce each other there, and a balancer has no conflict
-to resolve. This is consistent with the mechanism we report in
-Section~\ref{sec:results-part2}: because the tasks do not compete on the shared
-layers, the category gain comes from a stronger shared trunk rather than from the
-region task teaching the category one. We report this as our finding for this
+to resolve. This is consistent with the mechanism test we report in
+Section~\ref{sec:results-part2}. We report this as our finding for this
 pair of tasks, not as a general rule. The novelty here is empirical, not
 architectural.

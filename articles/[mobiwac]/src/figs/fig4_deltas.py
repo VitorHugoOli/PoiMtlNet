@@ -85,7 +85,7 @@ GRID_COLOR = "#dddddd"
 x = list(range(len(STATES)))
 bar_w = 0.40
 
-fig, ax = plt.subplots(figsize=(3.3, 2.45))
+fig, ax = plt.subplots(figsize=(3.3, 2.15))
 
 # --- non-inferiority band and zero line (region reference frame) ----------
 ax.axhspan(

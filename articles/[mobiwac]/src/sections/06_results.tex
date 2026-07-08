@@ -53,7 +53,7 @@ places and masked hours, so the category vocabulary never enters its training,
 whereas our graph reads each visit's category and time of day as input features
 (and even the place embedding builds its place vectors from category-derived
 features). Fine-tuned end to end at Florida at its authors' defaults, scaled to
-the shared 64-dimension budget under the same windowing,
+the same 64 dimensions as our representation and under the same windowing,
 CTLE reaches $33.45$ macro-F1 at its best epoch ($29.69$ at its final one),
 about two points below the place embedding under the same best-epoch
 rule and far below our $75.15$; frozen and fed to the same single-task model as
@@ -107,7 +107,9 @@ corrected $p<10^{-6}$ everywhere). On region, all four are tested equivalences
 two points: Alabama ($-0.31$; $-0.48$ to $-0.14$), Arizona ($+0.10$; $+0.00$ to
 $+0.21$), Florida ($+0.72$; $+0.67$ to $+0.78$), and Istanbul ($+0.28$; $+0.24$
 to $+0.32$). At Florida and Istanbul the whole interval sits above zero, so the
-joint model outperforms there as well; at Arizona the interval touches zero, so
+joint model outperforms there as well, though those two gains sit inside the
+two-point materiality band of Section~\ref{sec:setup-metrics}; the above-band
+region gains are at Texas and California. At Arizona the interval touches zero, so
 we report a match, not a gain. California and Texas remain provisional: their
 dedicated ceilings are $n{=}20$, but the joint cells are a single seed over
 five folds. On those folds, all five favor the joint model on both tasks
@@ -123,15 +125,19 @@ pathway at the start of training so it cannot learn, and therefore cannot teach
 the category task, yet the full category lift survives at Alabama, Arizona, and
 Florida (within $0.3$ of the joint model and far above the dedicated single-task
 model). We therefore read the category gain as a stronger shared trunk, obtained
-at no extra deployment cost (one model, one forward pass), rather than the region
+without a second model to serve (one model, one forward pass), rather than the region
 task teaching the category one; we report this as a finding, not a hypothesis.
 
-The joint model also stands above every external baseline on both tasks, at
-every dataset where each is reported (Table~\ref{tab:results}): the primary region-native comparison,
+The joint model is also above every external baseline reported, on both tasks,
+at every dataset (Table~\ref{tab:results}): the primary region-native comparison,
 HMT-GRN~\cite{lim2022hmtgrn} (for example California $49.61$ versus our $65.69$),
 a from-raw STAN~\cite{luo2021stan} and a ReHDM reference~\cite{li2025rehdm} on
 region, and POI-RGNN~\cite{capanema2023poirgnn} and a Markov floor on category,
-all trail it.
+all trail it. These externals run on their own embeddings, so this comparison
+folds in the representation advantage of Section~\ref{sec:results-part1}; the
+like-for-like anchor remains the dedicated column. A simple Markov region floor
+reaches $43$ to $65$ Acc@10 across the datasets (under the earlier windowing of
+the same data); the joint model clears it by $12$ to $23$ points everywhere.
 
 We also test our choice of coupling the tasks in parallel rather
 than in a chain. We prefer the parallel form on principle: the two targets are
@@ -165,7 +171,7 @@ confidence interval of the paired difference lies entirely above zero; it also
 passes the non-inferiority test, TOST, $\pm2$~pp); both arms average four seeds
 ($n{=}20$). We report Istanbul as a lift over the dedicated ceiling, not as an
 absolute Acc@10, because its region count (520 mahalle) differs from the
-Gowalla states. The representation, the overlapping-window protocol, and the
+Gowalla states, so the absolute scores are not comparable across datasets. The representation, the overlapping-window protocol, and the
 training setup are identical to those used for the Gowalla states, so the
 comparison is like-for-like. The external baselines line up the same way as on
 the U.S. states: on category the joint model is far above the Markov

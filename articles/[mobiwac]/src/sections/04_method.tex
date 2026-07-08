@@ -32,18 +32,19 @@ place-to-region-to-city geography of a
 hierarchical graph and adds the check-in as a new bottom level. We train the
 graph mainly with an infomax objective, which contrasts real neighborhoods against
 shuffled ones, so each vector learns to match its true neighborhood and reject a
-fake one~\cite{velickovic2019dgi,huang2023hgi}, plus two small auxiliary terms
-that reconstruct quantities computed from the inputs themselves. The training
+fake one~\cite{velickovic2019dgi,huang2023hgi}, plus two small label-free
+auxiliary terms: a masked reconstruction of each place's aggregated category
+features and an anchor to a pre-trained, label-free place table (weights 0.3
+and 0.1). The training
 uses no task label: it
 never sees the next category or the next region. From the trained graph we read
-out one vector per check-in, and a model then sees a sequence of these per-visit
+out one 64-dimensional vector per check-in, and a model then sees a sequence of these per-visit
 vectors rather than a sequence of repeated per-place ones.
 
 Each ingredient is individually standard: per-visit context, hierarchical place
-graphs, and the infomax objective all appear in prior work. The novelty is their
-combination, producing a vector per check-in from inside a
-hierarchical-graph-infomax representation, which earlier contextual embeddings
-built from sequence models (CTLE) do not provide. We show later that this
+graphs, and the infomax objective all appear in prior work; as
+Section~\ref{sec:related-embeddings} argued, the contribution is their
+combination. We show later that this
 combination, not extra supervision, is what makes the category task far easier to
 learn.
 
@@ -52,30 +53,28 @@ learn.
 
 We then train one model that reads a window of recent per-visit vectors and
 predicts two properties of the next visit at once: its category and its region.
-Figure~\ref{fig:model} shows the design. Two input streams pass through private
+Figure~\ref{fig:model} shows the design. Two input streams, a semantic stream
+with the window of per-visit vectors and a spatial stream with region-level
+vectors of the same visits from the same representation, pass through private
 per-task encoders (a small input network dedicated to each task, with no weights
 shared between them) into a shared cross-attention stack of two blocks,
 where the two streams exchange information: in each block, attention lets each
 stream read the other's features, while each stream keeps its own feed-forward
-weights. The stack then feeds two outputs, one for the
+weights. The tasks therefore share by exchanging information between per-task
+streams, not by owning hidden layers in common. The stack then feeds two
+outputs, one for the
 category and one for the region. The region
 output keeps a private spatial path of its own, a small branch that the category
 task does not touch.
 
 The private spatial path is a task-specific branch inside the one model, not a
-second model, not a second representation, and not a route that swaps models per
-task. The whole system is a single model: one set of shared parameters and one
-forward pass produce both predictions. This is the deployment property we care
-about, since a service that wants both answers runs a single model once, instead
-of two separate dedicated single-task models.
+second model or a per-task route. The whole system is a single model: one
+forward pass produces both predictions, the deployment property we care about.
 
 The training loss is a fixed-weight sum of the two outputs, and both outputs use
-plain unweighted cross-entropy. The two tasks pull in opposite directions on this
-choice: the region metric counts every test visit once, so an unweighted
-loss matches it, whereas the category metric, macro-F1, counts every class
-equally, so one might expect a class-weighted loss to help. We tested
-class-weighting on both heads and it did not help: it lowered region accuracy and
-category macro-F1 rather than raising it. We therefore keep plain unweighted
+plain unweighted cross-entropy. One might expect the class-balanced category metric to favor a class-weighted
+loss; we tested class-weighting on both heads and it lowered both region
+accuracy and category macro-F1. We therefore keep plain unweighted
 cross-entropy on both and balance the two tasks with a fixed-weight sum, the
 category output weighted 0.75 and the region output 0.25. This is ordinary fixed-weight joint training~\cite{caruana1997multitask}, kept
 deliberately plain. Any improvement of the joint model over the dedicated
@@ -86,6 +85,8 @@ The cost of serving both tasks this way is not free, and we state it plainly.
 The joint model carries the cross-attention stack and both task heads, so it is
 larger than either dedicated single-task model of
 Table~\ref{tab:results}, and a forward pass costs more compute than running the
-two small dedicated models. What the single model buys is operational rather
+two small dedicated models: about 4.2 million parameters at Alabama against 1.1
+million for the two combined (5.2 against 2.0 at
+California). What the single model buys is operational rather
 than arithmetic: one artifact to train, version, and deploy, and one forward
 pass whose one set of inputs produces both answers at once.
