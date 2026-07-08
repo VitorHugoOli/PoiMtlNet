@@ -32,10 +32,19 @@ Generated from `results/<state>.json`. To refresh, regenerate the JSONs (see `..
 | Baseline | Variant | AL | AZ | FL | CA | TX | GA |
 |---|---|---:|---:|---:|---:|---:|---:|
 | Markov-1-region (floor) | — | 47.01 ± 3.55 | 42.96 ± 2.05 | 65.05 ± 0.93 | 52.09 ± 0.80 | 54.94 ± 0.46 | 48.19 ± 2.18 |
-| **STAN** | `faithful` (converged ✓) | 60.72 ± 5.20 | 49.86 ± 11.52 | 72.99 ± 0.34 | ⚪† | ⚪† | —‡ |
+| **STAN** | `faithful` (converged ✓) | 60.72 ± 5.20 | 49.86 ± 11.52 | 72.99 ± 0.34 | **58.52** (2/5 folds)★ | **61.67** (4/5 folds)★ | —‡ |
 | **STAN** | `stl_check2hgi` | 59.20 ± 3.62 | 52.24 ± 2.38 | 72.62 ± 0.52 | 58.82 ± 1.04 | 61.35 ± 0.36 | 56.35 ± 2.40 |
 | **STAN** | `stl_hgi` | **62.88 ± 3.90** | **54.86 ± 2.84** | **73.58 ± 0.43** | **60.45 ± 0.97** | **62.70 ± 0.37** | **58.58 ± 1.86** |
 | **ReHDM** † | `faithful` **(v2 code — see ⚠v4 note)** | **66.06 ± 0.98** | **54.65 ± 0.77** | 65.68 ± 0.26 | ⚪ | ⚪ | 55.82 ± 0.76 |
+| **ReHDM** ‡ | `stl_check2hgi` | 26.22 ± 1.58 | 23.24 ± 1.27 | 38.74 ± 0.49 | ⚪ | ⚪ | 22.31 ± 1.31 |
+| **ReHDM** ‡ | `stl_hgi` | 42.78 ± 2.82 | 34.00 ± 3.02 | **54.49 ± 0.32** | ⚪ | ⚪ | 35.07 ± 1.98 |
+
+> ★ **STAN CA/TX = partial-fold FINAL (user decision 2026-07-08, deadline).** The 5-fold run will not complete in
+> time; the partials are the citable numbers **with the fold count disclosed** (TX = folds 0–3, CA = folds 0–1;
+> v6 patience-10, bf16+compile, seed 0). Defensible because the supported claim is coverage-grade only — "clears the
+> best-simple floor (TX 54.94 / CA 52.09) and stays below our joint reg (67.02 / 65.66)" — and the cross-fold spread
+> is tiny (TX ±0.2 over 4 folds, CA ±0.1 over 2), so the missing folds cannot plausibly flip either side of that
+> sandwich. Remaining folds = optional post-deadline robustness (`v17_completion/stan_catx/STATUS.md`).
 
 > ⚠ **ReHDM version caveat (2026-07-08, PR #58):** the AL/AZ/FL `faithful` row above is **v2-code**. The corrected
 > **v4** code (faithfulness audit: Eq.9 t_ij/s_ij restored + zero-init, target-only POI attention, seeded eval —
@@ -43,8 +52,6 @@ Generated from `results/<state>.json`. To refresh, regenerate the JSONs (see `..
 > `REHDM_al_v4_faithful_5seeds_50ep_summary.json`); CA/TX are running on v4. **The paper row must be version-uniform:
 > AZ/FL v4 re-runs are queued** (`v17_completion/A40.md §A2-azfl`, ~25–60 min/state). Until then, do NOT mix v2 and v4
 > cells in one row without this caveat.
-| **ReHDM** ‡ | `stl_check2hgi` | 26.22 ± 1.58 | 23.24 ± 1.27 | 38.74 ± 0.49 | ⚪ | ⚪ | 22.31 ± 1.31 |
-| **ReHDM** ‡ | `stl_hgi` | 42.78 ± 2.82 | 34.00 ± 3.02 | **54.49 ± 0.32** | ⚪ | ⚪ | 35.07 ± 1.98 |
 
 Bold = best variant per state-baseline. ⚪ = intentionally out of scope (STAN/REHDM faithful CA/TX shown infeasible at scale; substrate-axis covered at 5 states via STAN-STL — see `GAP_A_CLOSURE_20260430.md`). 🟡 = partial; ✅ = 5-fold/seed complete.
 

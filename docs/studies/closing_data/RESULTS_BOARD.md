@@ -243,10 +243,12 @@ Per the baselines README, the paper's baseline tables read from [`../../baseline
   **AL 60.72 / AZ 49.86 / FL 72.99 / Istanbul 61.86** (reg Acc@10, seed 0 × 5f; best-epochs 5–12, genuinely
   converged). **FL now COMPLETE** (5-fold v6 converged, Acc@10 **72.99 ± 0.34**, < our joint reg 77.28; PR #54
   committed the real 5-fold JSON, superseding the fold-0-only 0.7307 checkpoint). **CA/TX: the old "footnoted
-  infeasible-at-scale" is RETIRED — faithful STAN runs at both (PR #58, 🔄 IN PROGRESS on the A40): partial
-  TX 4/5 = 61.67 (floor 54.9 ✅) / CA 2/5 = 58.52 (floor 52.1 ✅), v6 patience-10, ~2.6 h/fold, resumable
-  (`v17_completion/stan_catx/STATUS.md`); both clear the best-simple floor and stay below our MTL reg → at 5/5 the
-  Table-3 cells fill and the footnote drops.** STAN sits in the comparability hierarchy as **SECONDARY** (HMT-GRN-style primary;
+  infeasible-at-scale" is RETIRED — and the partials are the CITABLE-FINAL numbers (user decision 2026-07-08,
+  deadline): TX 61.67 (folds 0–3) / CA 58.52 (folds 0–1), v6 patience-10, disclosed fold counts. Both clear the
+  best-simple floor (54.9 / 52.1 ✅) and stay below our MTL reg (67.02 / 65.66) — a coverage-grade sandwich the
+  missing folds can't plausibly flip (cross-fold spread ±0.2/±0.1). The Table-3 cells fill NOW with an n-folds
+  footnote; the remaining 4 folds are optional post-deadline robustness (`v17_completion/stan_catx/STATUS.md`).**
+  STAN sits in the comparability hierarchy as **SECONDARY** (HMT-GRN-style primary;
   ReHDM tertiary). JSONs `docs/results/baselines/faithful_stan_{al,az,istanbul}_5f_200ep_v5_*.json` +
   `faithful_stan_florida_5f_200ep_v6_opt.json`; finding `FAITHFUL_STAN_FINDINGS.md`.
 - 🔭 **STAN-`stl_hgi` (STAN on OUR HGI region-embedding substrate, overlap footing) — NOT a paper baseline; FUTURE-

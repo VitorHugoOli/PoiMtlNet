@@ -382,3 +382,12 @@ in prose (artifact overwritten in place).
 **Machine re-allocation: the H100 lane is GONE → H1 migrated to the A40 as A1** (CA/TX v17 MTL n=20, fp32 serial
 ~1.5 d, top priority after the running STAN/ReHDM). H100.md decommissioned. **M1-partial unblocked NOW** at
 AL/AZ/FL/Istanbul (fully n=20 both sides).
+
+## 2026-07-08 (later) — STAN CA/TX CLOSED-AS-PARTIAL (user decision, deadline)
+
+The 5-fold completion will not land in time → **the partials are the citable-final numbers: TX 61.67 (folds 0–3) /
+CA 58.52 (folds 0–1)**, fold counts disclosed wherever cited. Defensible: the supported claim is coverage-grade only
+(clears the best-simple floor 54.9/52.1, below our joint reg 67.02/65.66) and cross-fold spread is tiny (±0.2/±0.1) —
+the missing folds can't flip the sandwich. The "STAN infeasible at CA/TX" footnote is DROPPED (n-folds disclosure
+replaces it). Remaining 4 folds = optional post-deadline robustness. Docs flipped: `stan.md` + `comparison.md`
+(cells filled), RESULTS_BOARD §4, stan_catx/STATUS.md, v17_completion README + A40 queue (~10 h freed for A1).

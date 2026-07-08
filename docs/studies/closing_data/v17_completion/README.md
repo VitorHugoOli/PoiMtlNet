@@ -31,10 +31,11 @@
   `research/baselines/rehdm/REHDM_AUDIT_CHANGES.md`); **CA/TX 🔄 RUNNING on the A40** (~22 h, interleaved, resumable).
   ⚠ The old cited AL/AZ/FL row (66.06/54.65/65.68) is **v2-code** — AZ/FL need the cheap v4 re-run so the paper row
   is version-uniform (see A2 in the queue).
-- **Faithful STAN** — DONE + citable (AL 60.72 / AZ 49.86 / FL 72.99 / Istanbul 61.86); **CA/TX IN PROGRESS, clears
-  the floor at both → footnote will drop** (→ [`stan_catx/STATUS.md`](stan_catx/STATUS.md)): partial TX 4/5 = **61.67**
-  (floor 54.9 ✅) / CA 2/5 = **58.52** (floor 52.1 ✅), v6 patience-10, resumable. Real cost ~2.6 h/fold on the A40
-  (bf16 stable, no NaN wall) — ~10× the old "1.5-2 h" guess, but feasible; needs the `--streaming` ETL (`06c24757`).
+- **Faithful STAN — DONE at ALL 6 (CA/TX closed-as-partial, user decision 2026-07-08):** AL 60.72 / AZ 49.86 /
+  FL 72.99 / Istanbul 61.86 (full 5f) + **TX 61.67 (folds 0–3) / CA 58.52 (folds 0–1) — the citable-final numbers,
+  fold counts disclosed** (deadline; both clear the best-simple floor 54.9/52.1 ✅ and sit below our MTL reg; the
+  "infeasible" footnote is DROPPED, replaced by the n-folds disclosure). Remaining 4 folds = optional post-deadline
+  robustness (→ [`stan_catx/STATUS.md`](stan_catx/STATUS.md), resumable, ~2.6 h/fold).
   HMT-GRN (6 states), ReHDM (AL/AZ/FL), CTLE (FL), CSLSL tie, floors — all in.
 - **DEFAULT_CANON = v17**; v16 still via `--canon v16`; §0.1/v11 frozen bundle unaffected.
 
@@ -45,7 +46,7 @@
 | **A1 (ex-H1)** | **CA/TX v17 MTL n=20, seeds {1,7,100}** — MIGRATED from the H100 (lane gone) | **A40** | open, **top priority** | fp32 serial ~4.4–6.3 h/cell → ~1.5 d for 6 cells (proven by the seed-0 run) | large-state Δcat significance → M1 |
 | **A1-az** | AZ cat-ceiling screen top-up: `bs2048@{0.0025,0.0075}` × seeds {7,100} | A40 | open (cheap) | ~4 runs × ~100 s | firms the AZ ceiling (may move Δcat +9.40 → ≈ +8.8) |
 | **A2** | ReHDM v4: **CA/TX 🔄 RUNNING** (~22 h, resumable) + **AZ/FL v4 re-run** (version-uniform row; AL done 65.38) | A40 | running / open | AZ/FL ≈ ~25–60 min/state | ReHDM paper row (v4-uniform) |
-| **A3** | **Faithful STAN CA/TX** — finish the last 4 folds (TX f4; CA f2,3,4) | A40 | 🔄 partial (paused) | ~10 h, resumable (`stan_catx/run_stan_interleaved.sh`) | Table-3 CA/TX STAN cells + footnote drop |
+| **A3** | Faithful STAN CA/TX | A40 | ✅ **CLOSED-AS-PARTIAL** (user 2026-07-08): TX 61.67 (4/5) / CA 58.52 (2/5) = citable-final, fold counts disclosed | 0 h (remaining folds optional post-deadline) | Table-3 cells FILL NOW with the n-folds footnote |
 | **A4** | CA/TX cascade coverage (P6) | A40 | open (optional) | ~2 × seed-0 5f | nothing (coverage) |
 | **M1** | v17 stats: Wilcoxon + TOST + per-cell Holm — **partial NOW at AL/AZ/FL/Istanbul** (fully n=20 both sides); CA/TX join after A1 | **M2 Pro** | **partially unblocked** | hours, no GPU | drops "provisional" where n=20 is complete |
 | **M2** | A4 transductive-leak audit → CA/TX/Istanbul | M2 Pro (CPU) | open | ~3 h/fold | nothing (coverage) |

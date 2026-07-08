@@ -40,7 +40,9 @@ Audited-faithful, converged, optimized (A+C+D+compile; see [`FAITHFUL_STAN_FINDI
 
 > **Version/precision mix of the citable cells (disclosure).** The Table-3 STAN cells mix code
 > versions and precisions — **AL/AZ = `v5_compiled` fp32, FL = `v6_opt` bf16, Istanbul = `v5_bf16c`
-> bf16, CA/TX (in progress, PR #58) = v6 patience-10 bf16+compile** — but all run the SAME
+> bf16, CA/TX = v6 patience-10 bf16+compile at PARTIAL fold counts (TX 4/5, CA 2/5 — the CITABLE-FINAL
+> numbers per user decision 2026-07-08, deadline; disclose the fold count wherever cited; the remaining folds are
+> optional post-deadline robustness, not a gate)** — but all run the SAME
 > audited-faithful recipe (fixes #1–#6, seed 0, 200-epoch cap, constant LR + early-stop, d_model 128,
 > bs 2048): **v6 = v5 + the bit-identical perf opts** (val-once "C" + distinct-POI "D", both A/B'd
 > exact — `FAITHFUL_STAN_FINDINGS §3.1`); **bf16 is A/B quality-neutral (≤0.07 pp vs fp32**, AL

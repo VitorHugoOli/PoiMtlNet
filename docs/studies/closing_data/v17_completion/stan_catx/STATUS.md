@@ -1,8 +1,16 @@
-# A40-4 — Faithful STAN CA/TX — STATUS (2026-07-07)
+# A40-4 — Faithful STAN CA/TX — STATUS (2026-07-07; CLOSED-AS-PARTIAL 2026-07-08)
 
-> **Verdict so far: STAN clears the Markov/simple floor at BOTH large states → it IS citable → the "STAN infeasible"
-> footnote will drop.** Run is **paused at a partial** (user request) — TX 4/5, CA 2/5 — all folds banked as durable
-> JSONs; resumable. The earlier "infeasible / days-per-state" footnote was over-conservative: STAN runs on the A40 at
+> ✅ **CLOSED-AS-PARTIAL (user decision 2026-07-08, deadline): the partials ARE the citable-final numbers — TX 61.67
+> (folds 0–3) / CA 58.52 (folds 0–1), fold counts disclosed wherever cited.** The 5-fold completion will not happen
+> before the deadline; the remaining 4 folds are **optional post-deadline robustness, not a gate**. This is
+> defensible because the supported claim is coverage-grade only (clears the best-simple floor 54.9/52.1, stays below
+> our joint reg 67.02/65.66) and the cross-fold spread is tiny (TX ±0.2, CA ±0.1) — the missing folds cannot
+> plausibly flip either side of that sandwich. Citable rows: `docs/baselines/next_region/{stan,comparison}.md` +
+> `RESULTS_BOARD §4`; the "STAN infeasible at CA/TX" footnote is DROPPED (replaced by the n-folds disclosure).
+>
+> *(Original framing, kept for the record:)* STAN clears the floor at BOTH large states. Run **paused at a partial**
+> — all folds banked as durable JSONs; **still resumable** (`run_stan_interleaved.sh`, ~10 h) if time ever allows.
+> The earlier "infeasible / days-per-state" footnote was over-conservative: STAN runs on the A40 at
 > large C (bf16 stable, no NaN wall) — it's just **slow (~2.6 h/fold)**, ~10× the handoff's "1.5-2 h/state" guess.
 
 ## Partial results (v6 recipe, patience-10, seed 0)
