@@ -63,7 +63,7 @@ _V16: List[str] = [
 ]
 
 CANON_BUNDLES: dict[str, List[str]] = {
-    # v11 — BRACIS paper canon: GCN substrate, log_T-KD OFF, CLASS-WEIGHTED (pre-C25),
+    # v11 — earlier paper canon: GCN substrate, log_T-KD OFF, CLASS-WEIGHTED (pre-C25),
     # old joint selector (0.5*(cat+reg)). CANONICAL_VERSIONS §v11 + §v12 reproduction map.
     "v11": _CROSSATTN_B9 + [
         "--log-t-kd-weight", "0.0",

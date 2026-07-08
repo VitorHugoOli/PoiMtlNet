@@ -78,7 +78,7 @@ def run(*, force: bool = False, skip_localise: bool = False) -> pd.DataFrame:
     skip_localise
         Skip stage 2 (timezone-based local_datetime). Set to True when the
         timezone shapefile is unavailable; downstream training does not need
-        ``local_datetime`` for the BRACIS pipeline.
+        ``local_datetime`` for the earlier pipeline.
     """
     _check_raw_inputs()
 
