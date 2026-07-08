@@ -144,9 +144,11 @@ all states; 0 nan). **n=5 provisional.** Full cell: `W6_ENCODER_ISOLATION.md`; J
 `a40/{al,az,fl}_w6_freezereg_s0.json`.
 
 ## 2 · Precision verdict (settled) & schedule ablation (NULL)
+> Full operative rules + the three merged forensic lessons (CA fp16 collapse, TX Ampere-bf16 NaN, 100-ep NULL):
+> [`PRECISION_LESSONS.md`](PRECISION_LESSONS.md) (compact; archives in `archive/lessons/`).
 - **bf16 ≈ fp32** on quality (Δ≤0.12 pp) and ~0 wall-clock (overlap is data-bound, GPU util 8-25%) →
   small/mid states fp32; large-state bf16 is **not cross-GPU portable** (A40-Ampere grad-NaNs where H100 stays
-  finite) → **use fp32 for large-state cells on Ampere**. (`BOARD_CELLS.md` AL/FL gates, `TX_A40_BF16_NAN.md`.)
+  finite) → **use fp32 for large-state cells on Ampere**. (`archive/BOARD_CELLS.md` AL/FL gates, `TX_A40_BF16_NAN.md`.)
 - **100-epoch schedule = NULL** (AL cat +0.21/reg −0.39; FL cat −0.53/reg −0.18; OneCycle best-val rides the
   anneal tail at any length) → **frozen 50ep cells stand.** (`EP100_ABLATION_AND_TX_RAM.md`.)
 
@@ -181,7 +183,7 @@ guard contract: [`../pre_freeze_gates/DEFAULTS_AND_GUARDS.md`](../pre_freeze_gat
   (same-device champion-G comparand) — all A40 true-fp32, dk_ovl, seed 0 × 5f ✅main
 
 **Narrative / per-cell docs:** `docs/studies/closing_data/`
-- `BOARD_CELLS.md` (per-state MTL cells + AL/FL precision gates, consolidated) · `BOARD_H100_FINDINGS.md`
+- `archive/BOARD_CELLS.md` (per-state MTL cells + AL/FL precision gates, consolidated) · `archive/BOARD_H100_FINDINGS.md`
   (session consolidation) · `EP100_ABLATION_AND_TX_RAM.md` · `TX_A40_BF16_NAN.md` · `CA_MTL_DIVERGENCE.md`
   (the fp16 root cause) · `FAITHFUL_STAN_FINDINGS.md` (PR #53) · `MACS_BOARD_RESULTS.md` (baselines, **PR #36**)
 

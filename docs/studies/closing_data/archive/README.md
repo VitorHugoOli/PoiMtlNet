@@ -15,3 +15,11 @@
 **Do not treat anything here as current.** If a number is needed, trace it via `RESULTS_BOARD.md §3`.
 
 **Added 2026-07-08 (post-PR #58):** `HANDOFF_A40.md` (the old root A40 worklist — superseded by `../v17_completion/A40.md`), `CATX_V17_N20_H100_HANDOFF.md` + `run_logs/run_catx_v17_n20_h100.sh` (the H100 lane is gone; the A40 driver `../run_catx_v17_n20.sh` + `../v17_completion/A40.md §A1` supersede).
+
+**Added 2026-07-08 (compaction pass):** `lessons/{CA_MTL_DIVERGENCE,TX_A40_BF16_NAN,EP100_ABLATION_AND_TX_RAM}.md`
+(the 3 precision/schedule forensics — merged into the compact `../PRECISION_LESSONS.md`; 1-line breadcrumbs left at
+the old paths so inbound links keep resolving), `BOARD_CELLS.md` + `BOARD_H100_FINDINGS.md` (board-production
+per-cell/per-session provenance — the board is settled, `../RESULTS_BOARD.md §3` repointed),
+`run_logs/run_catx_v17_seed0_5f.sh` (produced the committed seed-0 CA/TX cells; the live n=20 driver is
+`../run_catx_v17_n20.sh`), `run_logs/{h2_runs,a40_5_cascade}/` + `run_logs/finalize_all.sh` (spent v17_completion
+run dirs/drivers — results graduated into CEILINGS_N20_FINAL / RESULTS_BOARD §1b).

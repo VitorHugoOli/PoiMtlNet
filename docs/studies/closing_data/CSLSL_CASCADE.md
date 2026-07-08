@@ -43,7 +43,7 @@ its own recommendation was "run FL CSLSL on CUDA/A40").
 
 **FL same-device champ-G comparand — SETTLED (2026-07-08; run STOPPED at 4/5, never to finish).** Interim fold-1
 cross-check (A40 champ-G FL, same v16 recipe + per-head optimizers, true fp32): cat **79.45** (ep48) / reg **77.71** (ep47).
-- vs cataloged **board champ-G FL** (H100, `BOARD_CELLS.md` fp32 per-fold[0] 79.38/77.68): Δ **+0.07 / +0.03**
+- vs cataloged **board champ-G FL** (H100, `archive/BOARD_CELLS.md` fp32 per-fold[0] 79.38/77.68): Δ **+0.07 / +0.03**
   → reproduces the catalog to well within the cross-GPU ±0.3 pp tolerance (re-run is faithful).
 - vs **A40 cascade FL** fold1 (79.43/77.57): Δ **+0.02 / +0.15** → same-card tie holds at fold level (per-fold
   wobble that averages toward the ±0.01 5-fold tie). Best-epochs late (47–48), matching board (47–49) + cascade (45–49).
@@ -99,7 +99,7 @@ CSLSL-style cascade are **performance-equivalent on this substrate** (1.1k→4.7
   --engine check2hgi_dk_ovl --per-fold --seed 0 --n-splits 5` → in the dk_ovl dir; verified fresher than
   `next_region.parquet`. n_regions AL 1109 / AZ 1547.
 - **Precision**: `MTL_DISABLE_AMP=1` (true fp32, both train+eval autocast off; matches the AL/AZ board fp32
-  decision, `BOARD_CELLS.md`). `MTL_NAN_GUARD=1` → **0 non-finite skips** all 4 runs.
+  decision, `archive/BOARD_CELLS.md`). `MTL_NAN_GUARD=1` → **0 non-finite skips** all 4 runs.
 - **NOT set**: `MTL_STRICT` (the cascade runs auto-canon v16 → the v16-pins-v14-substrate guard would HARD-FAIL
   under STRICT on the dk_ovl engine; without STRICT it WARNs and is numerically inert). `--compile`/`--tf32`
   off on BOTH sides (true fp32, cleanest internal Δ).
