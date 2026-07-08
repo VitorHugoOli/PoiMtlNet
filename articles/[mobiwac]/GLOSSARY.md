@@ -33,17 +33,20 @@
 > **Keep three targets distinct:** *next category*, *next region*, and *next place* (the exact POI). The last
 > submission blurred them. We predict the first two and not the exact next place; say so once, early.
 
-> **Honesty rule (region wording, updated 2026-06-26; verb updated 2026-06-28 per CC3):** the region result is
-> **mixed**: the joint model **outperforms** (superiority, paired Wilcoxon) at the large region counts, and
-> **matches** (non-inferior, TOST) at the small. **The superiority verb is "outperforms"** (never "beats" / "wins");
+> **Honesty rule (region wording, renumbered 2026-07-08 to the v17 board):** the region result is
+> **mixed**: the joint model **outperforms** at **Istanbul, Florida, Texas, and California** (the 90% CI of the
+> paired difference lies entirely above zero; CA/TX on the provisional seed-0 fold footing) and
+> **matches** (non-inferior, TOST) at **Alabama and Arizona**. **NEVER upgrade Arizona to a gain** (+0.10, CI
+> grazes zero, supplementary p=0.049 — the stats doc forbids it). CA/TX joint cells are single-seed
+> provisional until A1 lands. The scaling claim ("region gain rises with region count") is scoped to the
+> **five U.S. states**; Istanbul (fewest regions) is positive and sits off that trend line — never state the
+> monotone claim across all six. **The superiority verb is "outperforms"** (never "beats" / "wins");
 > "matches" / "non-inferior (TOST)" is the equivalence verb. Keep each verb bound to its test. The full form **"statistically
-> non-inferior within a two-point margin (TOST)"** must appear **at least once in the paper** as a formal claim
-> (it currently lives in the §1 contribution and §5.3/§6.2). Elsewhere — including the **abstract** and repeated
+> non-inferior within a two-point margin (TOST)"** must appear **at least once in the paper** as a formal claim.
+> Elsewhere — including the **abstract** and repeated
 > instances — the **short forms are fine and preferred for readability**: "matches it (statistically, within two
-> points)" in prose, or "(TOST, $\pm2$ pp)" after the term is defined. (This relaxes the earlier "every formal
-> claim sentence must carry the full phrase" rule, per the 2026-06-26 decision and the clarity-reviewer trim;
-> the goal is one rigorous statement plus clean prose, not ten repetitions.) Never "ties" or "Pareto-dominates",
-> and never "outperforms region everywhere" (the small states are matches, slightly negative).
+> points)" in prose, or "(TOST, $\pm2$ pp)" after the term is defined. Never "ties" or "Pareto-dominates",
+> and never "outperforms region everywhere".
 
 > **Hyphenation:** hyphenate the compound adjective before a noun ("next-category prediction"); leave the bare
 > task name open ("the next category"). Same for next-region and next-place.
@@ -131,9 +134,10 @@ v11–v16, champion-G, H3-alt; write "our model"), `log_T` (write "region-transi
 - [ ] Every acronym expanded on first use; acronym count as low as possible.
 - [ ] **category / region** used throughout; never "activity" / "area".
 - [ ] **next category / next region / next place** kept distinct; "we do not predict the exact next place" stated once.
-- [ ] Region wording: "outperforms" at the large counts (superiority) and "matches / non-inferior within two
-  points" at the small; every formal claim sentence carries "statistically non-inferior within a two-point margin
-  (TOST)" at least once; never "ties", "Pareto", or "outperforms region everywhere". The superiority verb is
+- [ ] Region wording (v17 board): "outperforms" at Istanbul/FL/TX/CA (CA/TX provisional) and "matches /
+  non-inferior within two points" at AL/AZ — never upgrade AZ; the scaling claim scoped to the five U.S.
+  states; the formal "statistically non-inferior within a two-point margin (TOST)" appears at least once;
+  never "ties", "Pareto", or "outperforms region everywhere". The superiority verb is
   "outperforms", never "beats" / "wins".
 - [ ] No recipe or version codenames anywhere.
 - [ ] No bare "substrate / engine / head / cross-attention"; replaced or glossed.

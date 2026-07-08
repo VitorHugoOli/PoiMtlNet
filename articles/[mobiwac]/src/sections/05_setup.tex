@@ -52,10 +52,12 @@ representation cannot score a place never seen in training.
 % NOTE: numbers from the A4 train-users-only transductivity audit (docs/studies/pre_freeze_gates/A4_RESULTS.md):
 % reg AL -0.33 / AZ +0.01 / FL -0.12 (5 folds); cat POI-proxy on in-coverage subset AL +0.29 (66.8%) / AZ +0.27 (71.9%) / FL +0.00 (86.9%).
 % Author TODO: extend to CA/TX/Istanbul to widen coverage further (non-blocking; the gate is on null at AL+AZ+FL).
-Third, the one component that really passes visit-to-visit information is the region-transition prior used by the
-spatial path: a table, built from training data, of how often visits move from one region to the next, used to bias
-the region scores. We build it per fold from training data only, seed by seed. An earlier version that used the whole
-dataset inflated region accuracy by 13 to 27 points across states, which is why we now build it per fold. Every learned baseline
+Third, the one component that could pass visit-to-visit information is a region-transition prior: a table, built
+from training data, of how often visits move from one region to the next, used to bias region scores. An earlier
+version that used the whole dataset inflated region accuracy by 13 to 27 points across states, which is why any
+such table is built per fold, from training data only, seed by seed. The joint and dedicated models reported here
+run with this prior disabled entirely; it survives only in the HMT-GRN baseline
+(Section~\ref{sec:setup-baselines}), with the per-fold training-only build. Every learned baseline
 representation is pre-trained the same way, so all inputs are held to the same standard. The one residual we cannot
 fully measure is visits to places never seen in training: the representation is trained on all places, so it cannot
 score a place that is absent from training. On the visits we can measure, which are the large majority, the audit
@@ -70,16 +72,18 @@ macro-F1 of always predicting the single most common category. For the region ta
 comparison anchor is the dedicated single-task model.
 
 We make two kinds of comparison and test each one appropriately. Where the joint model is meant to outperform, we test
-\emph{superiority} with a paired Wilcoxon signed-rank test over the folds. Where the joint model is meant only to
+\emph{superiority} with paired tests over matched runs: at the four datasets measured at four seeds, a paired test
+over the per-seed means with a Holm correction across the cells; at the two single-seed states, a paired Wilcoxon
+signed-rank test over the folds. Where the joint model is meant only to
 stay even, we test \emph{non-inferiority}, that it is no worse than the dedicated model by more than a two-point
 margin, with a two-one-sided-tests (TOST) procedure. We fix the two-point margin in advance and on deployment
-grounds, before looking at whether any claim survives it. A mobility-aware service acts on which region will be
-busy, not on a single rank position: it anticipates regional demand, stages content for the right region, or plans
-capacity at the census-tract level. A two-point shift in Acc@10 is therefore below the granularity at which such a
-service would behave differently. The margin is also large relative to the task: with one thousand to
-eight thousand five hundred regions, a random top-ten guess lands the true region under one percent of the time,
-so two points span a wide band of the achievable range. Finally, the equivalence is well powered. The standard deviation of the paired
-per-fold difference is small (0.16 to 0.37 points), which gives a power near 1.0 to reject a true two-point
+grounds, before looking at whether any claim survives it. As in Section~\ref{sec:problem}, a mobility-aware
+service acts on which region will be busy, not on a single rank position. A two-point shift in Acc@10 is therefore below the granularity at which such a
+service would behave differently. The margin is also large relative to the task: with five hundred twenty to
+eight thousand five hundred regions, a random top-ten guess lands the true region at most about two percent of the
+time, so two points span a wide band of the achievable range. Finally, the equivalence is well powered. The standard deviation of the paired
+difference is small (0.04 to 0.15 points at the four multi-seed datasets, 0.07 at the two
+single-seed ones), which gives a power near 1.0 to reject a true two-point
 gap, so a non-inferiority verdict reflects a real match rather than a noisy test. Where the joint model
 outperforms and where it matches is a result, reported in Section~\ref{sec:results}, not here.
 
@@ -93,9 +97,12 @@ comparison, predicting the region from its own end-to-end recurrent model on the
 the HMT-GRN-style trunk and its region-transition prior, and drop its graph module and hierarchical beam search,
 which exist to prune a next-place head we do not predict. The HMT-GRN comparison is therefore a region-native model,
 not a component-complete reproduction. Alongside it we run a faithful STAN \cite{luo2021stan}, trained from raw with its
-own embeddings (not ours) and its own sequence construction, and a ReHDM \cite{li2025rehdm} reference reported under that
+own embeddings (not ours) and its own sequence construction, under one audited recipe whose
+per-dataset precision and early-stopping variants are quality-neutral within a tenth of a point,
+and a ReHDM \cite{li2025rehdm} reference reported under that
 method's own published protocol rather than re-run under our matched protocol. The
-second role is a representation control, run on Florida, to attribute the category gain to our specific design and
+second role is a representation control, run end to end on Florida and repeated in frozen form at Alabama,
+Arizona, and Istanbul, to attribute the category gain to our specific design and
 not to contextualization in general or to extra features: CTLE \cite{lin2021ctle}, the closest prior contextual
 check-in embedding, presented fairly in both its end-to-end and frozen forms, and a feature-concatenation control that
 appends raw per-visit features to a standard place embedding under the same model. The third role is a design comparison

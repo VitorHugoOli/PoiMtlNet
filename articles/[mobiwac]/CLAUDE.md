@@ -28,30 +28,36 @@
 ## 2 · The science (the thesis + headline; canonical numbers live in the board)
 
 Two parts, one model. **Part 1:** a check-in-level representation makes next-category prediction far more learnable
-than a place embedding. **Part 2:** a single joint model predicting next-category and next-region together
-**outperforms** the dedicated single-task category model at **every** state (about **+4.7 to +7.7** macro-F1) and,
-on next-region, **outperforms** at the large region counts (FL/TX/CA) while being **statistically non-inferior within a two-point margin
-(TOST)** at the small (AL/AZ/Istanbul). The region gain rises with the number of regions.
+than a place embedding. **Part 2 (v17 board, renumbered 2026-07-08):** a single joint model predicting next-category
+and next-region together **outperforms** the dedicated single-task category model at **every** dataset (about
+**+5.3 to +9.4** macro-F1, vs per-dataset-tuned n=20 best-vs-best ceilings) and, on next-region, **outperforms** at
+Istanbul/FL/TX/CA (90% CI of the paired difference above zero) while being **statistically non-inferior within a
+two-point margin (TOST)** at AL/AZ. The region gain rises with the number of regions **across the five U.S. states**;
+Istanbul (fewest regions) is also positive.
 
 - **Headline snapshot (verify exact cells against the board — this is a memory aid, not the source of truth):**
-  category Δ (MTL − single-task) = AL +7.69 / AZ +6.26 / FL +4.68 / CA +7.07 / TX +7.56 / Istanbul +6.69;
-  region Δ = FL +0.57 / TX +2.06 / CA +2.18 (**outperforms**), AL −0.18 / AZ −0.06 / Istanbul −0.52 (**matches**, TOST);
-  Table 2 substrate margin (Check2HGI − HGI cat) ≈ +26.6 to +39.6 across the 6 datasets.
-- **Scope:** five Gowalla states (AL/AZ/FL/CA/TX) + Istanbul (Massive-STEPS, non-U.S. external check).
-- **Significance:** n=5 (seed 0) provisional for Gowalla, n=20 for Istanbul. At n=5 the one-sided Wilcoxon is
-  **floored at p=0.0312** — "5/5 folds, p=0.031" is **at-ceiling for n=5, NOT "barely significant"** (do not soften
-  the claim on this basis). Per-cell Holm cannot clear 0.05 at n=5, so we report a **state-level** 6/6 sign test
-  (p≈0.016) as the backbone and TOST for the matches; **no per-cell Holm at n=5**. The **n=20 multi-seed top-up (P1)
-  is the one thing that breaks this ceiling** and is the top open item (§5).
+  category Δ = AL +7.72 / AZ +9.40 (⚠ pending AZ-ceiling top-up may cut to ≈+8.8) / FL +5.34 / CA +6.44* / TX +7.44* /
+  Istanbul +8.59; region Δ = Istanbul +0.28 / FL +0.72 / TX +2.12* / CA +2.20* (**outperforms**),
+  AL −0.31 / AZ +0.10 (**matches**, TOST; NEVER upgrade AZ). *CA/TX joint = seed-0 n=5 provisional (A1 pending).
+  Table 2 substrate margin (Check2HGI − HGI cat, matched-recipe seed-0 pair — deliberately NOT Table 3's tuned
+  ceilings) ≈ +27.6 to +39.6; Istanbul re-footed on dk_ovl = +28.09.
+- **Scope:** five Gowalla states (AL/AZ/FL/CA/TX) + Istanbul (Massive-STEPS, non-U.S., now on the same dk_ovl
+  substrate + v17 recipe as the states — cross-substrate caveat retired).
+- **Significance (stats_n20/RESULTS.md):** AL/AZ/FL/Istanbul are n=20 on both arms, seed-level paired; category
+  clears **per-cell Holm** (paired t, corrected p<1e-6); region TOST passes at all four (FL + Istanbul CIs entirely
+  above zero → outperforms). CA/TX provisional: seed-0 fold-paired, 5/5 folds, reg 90% CIs entirely above +2 pp.
+  The old n=5 sign-test backbone is retired.
 - **Leak rebuttal (the BRACIS-reject answer):** the A4 train-users-only transductivity audit is **null on both axes**
   at AL/AZ/FL (region ≤0.33 pp, category ≤0.29 pp), sourced in §5.2. Caveat: category is a POI-proxy on the
   in-coverage subset (the transductive substrate can't measure cold-POI visits) — state it, don't hide it.
-- **Baselines:** HMT-GRN (primary region-native, 6 states), faithful STAN (AL 60.72 / AZ 49.86 / FL **72.99** /
-  Istanbul 61.86; CA/TX infeasible; the old AL 34.46 / AZ 38.96 below-Markov numbers are a **superseded under-trained
-  collapse — never cite**), ReHDM (own-protocol reference), POI-RGNN + Markov-9 (category), CTLE + feature-concat
-  (FL representation control), and a **cascade variant of our own model** in the CSLSL/CatDM pattern (a **tie at
-  equal cost**, framed as a defense — never "we beat the cascade", and **never presented as a CSLSL
-  re-implementation**; reframed 2026-07-06, see the decisions ledger).
+- **Baselines (2026-07-08 refresh):** HMT-GRN (primary region-native, 6 datasets, unchanged), faithful STAN
+  (AL 60.72 / AZ 49.86 / FL **72.99** / Istanbul 61.86 + **TX 61.67 (4/5 folds) / CA 58.52 (2/5 folds)** — partials
+  closed-as-final with fold-count disclosure; "infeasible" RETIRED; the old AL 34.46 / AZ 38.96 v4-collapse numbers
+  are **never-cite**), ReHDM **v4 version-uniform row** (Ist 69.33 / AL 65.38 / AZ 53.00 / FL 64.49 + TX 48.81 /
+  CA 50.26 single-seed coverage; the old v2 row 66.06/54.65/65.68 is superseded — never cite), POI-RGNN + Markov-9
+  (category, unchanged), CTLE + feature-concat (FL representation control), and a **cascade variant of our own
+  model** in the CSLSL/CatDM pattern (a **tie at equal cost** at AL/AZ/FL **+ Istanbul (v17, dk_ovl)** — never "we
+  beat the cascade", never a CSLSL re-implementation).
 
 > ⭐ **Canonical numbers are NOT duplicated here.** The single source of truth for every cell is
 > [`docs/studies/closing_data/RESULTS_BOARD.md §1`](../../docs/studies/closing_data/RESULTS_BOARD.md), and the

@@ -2,18 +2,18 @@
 """
 Figure 4 (MobiWac 2026): headline signed-deltas plot.
 
-Per state, ordered by region count, plot:
+Per dataset, ordered by region count, plot:
   - the next-category delta (MTL - dedicated STL category ceiling), always positive;
-  - the next-region   delta (MTL - dedicated STL region   ceiling), negative at the
-    small region counts and positive at the large.
+  - the next-region   delta (MTL - dedicated STL region   ceiling), rising with
+    region count across the five U.S. states and also positive at Istanbul.
 
 A shaded +/- 2-point non-inferiority band and a zero line sit on the region axis
-so the reader sees the region delta crossing from within-the-band (small region
-counts) to clearly positive (large region counts), while the category delta is up
-everywhere.
+so the reader sees the AL/AZ deltas inside the band and the Istanbul/FL/TX/CA
+deltas positive, while the category delta is up everywhere.
 
-Numbers are the authoritative board deltas (RESULTS_BOARD.md, Delta = MTL - STL
-ceiling, in percentage points). n=5 (seed 0) provisional.
+Numbers are the authoritative v17 board deltas (2026-07-08: Joint(v17) minus the
+n=20 best-vs-best dedicated ceilings, CEILINGS_N20_FINAL.md). AL/AZ/FL/Istanbul
+are n=20 on both arms; CA/TX joint cells are seed-0 provisional (A1 pending).
 
 Run with the repo venv:
     /Users/vitor/Desktop/mestrado/ingred/.venv/bin/python fig4_deltas.py
@@ -35,12 +35,15 @@ from matplotlib.lines import Line2D
 # ---------------------------------------------------------------------------
 STATES = [
     # label,      region count, category delta, region delta
-    ("Istanbul", 520, 6.69, -0.52),
-    ("AL", 1109, 7.69, -0.18),
-    ("AZ", 1547, 6.26, -0.06),
-    ("FL", 4703, 4.68, 0.57),
-    ("TX", 6553, 7.56, 2.06),
-    ("CA", 8501, 7.07, 2.18),
+    # v17 board deltas (2026-07-08 renumbering): Joint(v17) minus the n=20
+    # best-vs-best dedicated ceilings (CEILINGS_N20_FINAL.md + stats_n20/RESULTS.md).
+    # CA/TX joint cells are seed-0 provisional (A1 n=20 pending).
+    ("Istanbul", 520, 8.59, 0.28),
+    ("AL", 1109, 7.72, -0.31),
+    ("AZ", 1547, 9.40, 0.10),
+    ("FL", 4703, 5.34, 0.72),
+    ("TX", 6553, 7.44, 2.12),
+    ("CA", 8501, 6.44, 2.20),
 ]
 
 labels = [s[0] for s in STATES]
@@ -147,14 +150,13 @@ for xi, v in zip(xs_reg, reg_delta):
         color=REG_COLOR,
     )
 
-# NOTE: TX is now CLOSED at 5 folds (fp32 single-device, +2.06 region); the old
-# "TX 2/5 folds" annotation was removed (stale, and it overlapped the CA bar).
-# The whole board is n=5 (seed 0) provisional, stated once in the caption.
+# NOTE (2026-07-08): v17 renumbering -- AL/AZ/FL/Istanbul are n=20 on both arms;
+# CA/TX joint cells remain seed-0 provisional (disclosed in prose/Table 3, not here).
 
 # --- axes cosmetics -------------------------------------------------------
 ax.set_xticks(x)
 ax.set_xticklabels(xticklabels)
-ax.set_xlabel("state  (region count, low to high)", labelpad=2)
+ax.set_xlabel("dataset  (region count, low to high)", labelpad=2)
 ax.set_ylabel("delta vs dedicated ceiling (pp)", labelpad=2)
 
 ymax = max(cat_delta) + 2.2

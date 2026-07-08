@@ -1,10 +1,12 @@
 % Section 6: Results (about 1.5 pages). Plan: PAPER_PLAN 4 / §6. Each result gets a "read this as" lead.
 %   6.1 The representation makes the category task learnable (Part 1) -> Table~\ref{tab:substrate}, Fig.~\ref{fig:embquality}.
 %   6.2 One model, two tasks (Part 2) -> Table~\ref{tab:results}, Fig.~\ref{fig:deltas}.
-%       Category beats everywhere (+4.68..+7.69); region beats at large states (FL/TX/CA), matches at small (AL/AZ/Istanbul).
-%       Cascade variant of OUR model (CSLSL pattern) ties at equal cost (a defense; recipe-parity caveat + matured
-%       cascade = future work). Gowalla cells n=5 (seed 0) provisional; Istanbul cells four-seed n=20.
-%   6.3 External validity (Istanbul): replicates (category beats ~+6.7; region matches ~-0.5); report as gap-to-ceiling / lift.
+%       v17 board (2026-07-08): category beats everywhere (+5.34..+9.40 vs n=20 best-vs-best ceilings);
+%       region beats at Ist/FL/TX/CA (CI>0), matches at AL/AZ (TOST). n=20 both arms at AL/AZ/FL/Ist
+%       (Holm clears, paired t); CA/TX joint = seed-0 n=5 provisional (reg CIs entirely above +2).
+%       Cascade variant of OUR model (CSLSL pattern) ties at equal cost at AL/AZ/FL/Istanbul.
+%   6.3 External validity (Istanbul): dk_ovl+v17 rebuild (H3) -- category +8.59; region +0.28 (CI>0),
+%       both arms n=20, same substrate identity as Gowalla (cross-substrate caveat retired).
 \section{Results}
 \label{sec:results}
 
@@ -15,15 +17,19 @@ place once, is what makes the next-category task learnable. Table~\ref{tab:subst
 compares our check-in-level representation against a standard place embedding
 (HGI~\cite{huang2023hgi}) on next-category macro-F1, both fed to the
 same dedicated model under the windowing used throughout the paper. This is a
-controlled, like-for-like comparison: the target, the single-task head, and the
+controlled, like-for-like comparison: the target, the single-task head, the
+training recipe, and the
 folds are identical across the two columns, and only the input representation
 changes (a vector per visit versus a vector per place), so the margin isolates the
-representation, not a difference in task or model. The check-in-level
+representation, not a difference in task or model. (For this reason the
+check-in-level column keeps one fixed recipe and is intentionally not the
+per-dataset-tuned dedicated ceiling of Table~\ref{tab:results}.) The check-in-level
 representation outperforms the place embedding by a wide and consistent margin at every
 state: $+29.31$ at Alabama, $+27.63$ at Arizona, $+39.62$ at Florida, $+37.95$
-at California, and $+37.47$ at Texas. The same holds on Istanbul ($+26.64$).
-The gains fall in two bands, about $+27$ to $+29$ points at the smaller datasets
-(Istanbul, Alabama, Arizona) and about $+37$ to $+40$ at the three large states. In absolute terms the place embedding recovers only about half of
+at California, and $+37.47$ at Texas. The same holds on Istanbul ($+28.09$).
+The gains fall in two bands, about $+28$ to $+29$ points at the smaller datasets
+(Istanbul, Alabama, Arizona) and about $+37$ to $+40$ at the three large states.
+% (band endpoints: AZ +27.63 rounds to +28, AL +29.31; Istanbul +28.09 -- "about" carries the rounding) In absolute terms the place embedding recovers only about half of
 what the per-visit representation reaches. A controlled test attributes most of that gain
 to the per-visit context itself: replacing each visit's vector with a
 per-place-averaged version of the same representation gives back only part of
@@ -33,17 +39,26 @@ the context each visit carries, not to extra training signal.
 Figure~\ref{fig:embquality} shows why the representation helps this task in
 particular. By category, the per-visit vectors are cleanly grouped. Their
 silhouette score by category, a separation measure from $-1$ to $1$ where
-higher means the seven labeled groups are tighter and better separated, is about $0.56$, against about
+higher means the seven labeled groups are tighter and better separated, is about $0.57$, against about
 $0.00$ for the place embedding. Their nearest-neighbor category purity, the share of a vector's nearest
-neighbors that carry its own category, is about $0.98$, against about $0.78$. The same geometry does not separate regions, which is exactly the
+neighbors that carry its own category, is about $0.98$, against about $0.78$
+(both averaged over the five U.S. states). The same geometry does not separate regions, which is exactly the
 point: the representation improves category separability but carries no spatial
 structure, so its benefit is category-only and sets up the joint study in
 Section~\ref{sec:results-part2}. A direct comparison with the closest prior
-contextual embedding makes the source of the gain concrete. CTLE~\cite{lin2021ctle},
-which also describes each visit but learns it with a sequence model rather than a
-hierarchical graph, reaches only $29.69$ to $33.45$ macro-F1 at Florida across its
-trained variants, under the same windowing and the same single-task head; this is far
-below our $75.15$. A feature-concat control,
+contextual embedding makes the source of the gain concrete.
+CTLE~\cite{lin2021ctle} also gives each visit its own vector, but it learns
+from place identifiers and timestamps alone: its pretraining recovers masked
+places and masked hours, so the category vocabulary never enters its training,
+whereas our graph reads each visit's category and time of day as input features
+(and even the place embedding builds its place vectors from category-derived
+features). Fine-tuned end to end at Florida, at its authors' architecture
+defaults scaled to the shared 64-dimension budget and under the same windowing,
+CTLE reaches $33.45$ macro-F1 at its best epoch ($29.69$ at its final epoch),
+about two points below the place embedding scored under the same best-epoch
+rule and far below our $75.15$; frozen and fed to the same single-task model as
+ours, the same control at Alabama, Arizona, and Istanbul repeats the ordering,
+with margins of $+37.8$, $+37.0$, and $+28.7$ macro-F1. A feature-concat control,
 the place embedding joined with raw per-visit features and fed to the same model,
 does not close the gap either, so the category gain comes from the hierarchical
 per-visit representation, not from contextualization alone and not from feature
@@ -52,8 +67,8 @@ injection.
 \subsection{One model, two tasks}
 \label{sec:results-part2}
 Read this as: one model outperforms a dedicated next-category model at every
-state and either outperforms or matches a dedicated next-region model, and its
-gain on region grows as the number of regions grows.
+dataset and outperforms or matches a dedicated next-region model, with the
+region gain rising with the number of regions across the U.S. states.
 To calibrate the two scales: category macro-F1 is taken over seven classes (a
 majority-class floor of about $7\%$), and region Acc@10 is taken over hundreds to
 thousands of regions, where a random top-ten guess is right at most about two
@@ -61,38 +76,45 @@ percent of the time (and well under one percent at the larger region counts).
 Table~\ref{tab:results} reports the single joint model against the dedicated
 single-task ceilings (we call them ceilings because a jointly trained head is
 usually expected to match or fall short of a head trained for that task alone).
-Figure~\ref{fig:deltas} plots the signed gains ordered by region count. On category the joint model outperforms the dedicated ceiling at
-every state, by $+4.68$ to $+7.69$ macro-F1 (smallest at Florida, largest at
-Alabama, and $+6.69$ at Istanbul). On region, measured by Acc@10, the joint model outperforms the dedicated ceiling where there are many
-regions: Florida $+0.57$ (4{,}703 regions), Texas $+2.06$ (6{,}553), and
-California $+2.18$ (8{,}501), each with all five folds in the joint model's favor.
-It stays a non-inferior match (TOST, $\pm2$~pp) where there are few: Alabama
-$-0.18$, Arizona $-0.06$, and Istanbul $-0.52$. The region gain increases with the number of regions, rising from
-$-0.52$ to $+2.18$ across the six settings, so the joint model helps the spatial
-task more, not less, as the number of regions grows. The state with the most
-regions has the largest region gain, the opposite of a cost that grows with the
-size of the spatial problem. We order by region count because that is the axis of
-interest; region count and corpus size co-vary across these datasets, so we read
-the trend across the six points rather than as a precise law.
+Each dedicated category ceiling is tuned per dataset over batch size and
+learning rate (the region ceilings use the strongest fixed recipe), so the
+joint model is compared against the strongest dedicated setting, not a
+convenient one.
+Figure~\ref{fig:deltas} plots the signed gains ordered by region count. On
+category the joint model outperforms the dedicated ceiling at
+every dataset, by $+5.34$ to $+9.40$ macro-F1 (smallest at Florida, largest at
+Arizona, and $+8.59$ at Istanbul). On region, measured by Acc@10, the joint
+model outperforms the dedicated ceiling at Florida $+0.72$ (4{,}703 regions),
+Texas $+2.12$ (6{,}553), California $+2.20$ (8{,}501), and Istanbul $+0.28$
+(520), and stays a non-inferior match (TOST, $\pm2$~pp) at Alabama ($-0.31$)
+and Arizona ($+0.10$). Across the five U.S. states the region gain rises with
+the number of regions, from $-0.31$ at the smallest to $+2.20$ at the largest,
+so the joint model helps the spatial task more, not less, as the number of
+regions grows; the state with the most regions has the largest region gain, the
+opposite of a cost that grows with the size of the spatial problem. We order by
+region count because that is the axis of interest; region count and corpus size
+co-vary across these datasets, so we read the trend across the points rather
+than as a precise law.
 
-The direction is unanimous: at every state all
-five folds favor the joint model on category, a one-sided paired Wilcoxon
-signed-rank test at its $n{=}5$ floor ($p{=}0.031$ per state), and the sign is
-consistent across all six datasets (a 6 of 6 state-level sign test, one-sided
-$p \approx 0.016$). At the three large states the region result likewise favors the
-joint model on all five folds each. We treat the state, not the fold, as the unit of replication, since
-folds within a state share data and the same trained models. The three
-small-state region results are tested equivalences (TOST, $\pm2$~pp): Alabama ($-0.18$; 90\% confidence interval
-$-0.46$ to $+0.09$), Arizona ($-0.06$; $-0.41$ to $+0.29$), and Istanbul
-($-0.52$; $-0.65$ to $-0.35$); all three intervals sit well inside two points.
-These intervals are tight because they rest on the \emph{paired} per-fold
-difference (the per-arm fold standard deviations in Table~\ref{tab:results} are
-larger because the two models are highly correlated across folds); the test is
-well powered against a two-point gap (Section~\ref{sec:setup-metrics}). We do not claim per-dataset family-wise-corrected significance at $n{=}5$
-(a Holm correction across the six datasets does not clear $0.05$ at this sample
-size), and we leave a multi-seed confirmation ($n{=}20$) at the Gowalla states
-to future work. The Gowalla cells are seed-0 results over five folds ($n{=}5$,
-provisional); the Istanbul cells average four seeds ($n{=}20$).
+Four of the six datasets are measured at $n{=}20$ on both arms: Alabama,
+Arizona, Florida, and Istanbul average four seeds over the same five frozen
+folds, and the tests pair the per-seed means (four paired observations per
+dataset). On category, all four seeds favor
+the joint model at every one of these datasets, and each per-dataset gain is
+significant after a Holm correction across the four cells (paired $t$,
+corrected $p<10^{-6}$ everywhere). On region, all four are tested equivalences
+(TOST, $\pm2$~pp), and all four pass with 90\% confidence intervals well inside
+two points: Alabama ($-0.31$; $-0.48$ to $-0.14$), Arizona ($+0.10$; $+0.00$ to
+$+0.21$), Florida ($+0.72$; $+0.67$ to $+0.78$), and Istanbul ($+0.28$; $+0.24$
+to $+0.32$). At Florida and Istanbul the whole interval sits above zero, so the
+joint model outperforms there as well; at Arizona the interval touches zero, so
+we report a match, not a gain. California and Texas remain provisional: their
+dedicated ceilings are $n{=}20$, but the joint cells are a single seed over
+five folds. On those folds, all five favor the joint model on both tasks
+(one-sided paired Wilcoxon at its $n{=}5$ floor, $p{=}0.031$), and the region
+gains carry 90\% intervals entirely above the two-point margin ($+2.14$ to
+$+2.28$ at California, $+2.04$ to $+2.18$ at Texas). A multi-seed run at these
+two states is the remaining confirmation.
 
 A reader used to multi-task learning~\cite{caruana1997multitask} expects the
 harder task to pay for the easier one, so it is worth saying where the category
@@ -105,12 +127,11 @@ at no extra deployment cost (one model, one forward pass), rather than the regio
 task teaching the category one; we report this as a finding, not a hypothesis.
 
 The joint model also stands above every external baseline on both tasks, at
-every state where each is reported (Table~\ref{tab:results}): the primary region-native comparison,
-HMT-GRN~\cite{lim2022hmtgrn} (for example California $49.61$ versus our $65.66$),
+every dataset where each is reported (Table~\ref{tab:results}): the primary region-native comparison,
+HMT-GRN~\cite{lim2022hmtgrn} (for example California $49.61$ versus our $65.69$),
 a from-raw STAN~\cite{luo2021stan} and a ReHDM reference~\cite{li2025rehdm} on
 region, and POI-RGNN~\cite{capanema2023poirgnn} and a Markov floor on category,
-all trail it. Every region model clears a simple Markov transition floor by a
-wide margin.
+all trail it.
 
 We also test our choice of coupling the tasks in parallel rather
 than in a chain. We prefer the parallel form on principle: the two targets are
@@ -121,9 +142,9 @@ outperforming a parallel variant that shares one trunk on its own
 benchmarks~\cite{huang2024cslsl}. Rewired as a cascade
 (Section~\ref{sec:setup-baselines}), our model reaches the same combined
 accuracy as its parallel form at the same parameter and compute cost (a
-joint-score difference of about zero at Alabama, Arizona, and Florida, the
-three states where we ran the comparison, spanning 1{,}109 to 4{,}703
-regions). We read this as a defense of the
+joint-score difference of about zero at Alabama, Arizona, Florida, and
+Istanbul, the four datasets where we ran the comparison, spanning 520 to
+4{,}703 regions and including the non-U.S. city). We read this as a defense of the
 parallel design, not a claim that we outperform the cascade: on this
 representation the coupling topology makes no measurable difference in either
 direction, and the simpler parallel structure loses nothing. Two qualifications
@@ -134,21 +155,22 @@ future work.
 
 \subsection{External validity (Istanbul)}
 \label{sec:results-external}
-Read this as: the finding holds on a non-U.S. city, read as a lift over the
-dedicated ceiling rather than as an absolute score. On Istanbul the joint model
-outperforms the dedicated category ceiling by $+6.69$ macro-F1 ($53.20$ to $59.89$)
-and matches the dedicated region ceiling (TOST, $\pm2$~pp), at $-0.52$ Acc@10 ($74.80$ to $74.28$). The category
-headline is the four-seed mean against a single-seed ceiling; the clean seed-0
-fold-paired gain is $+6.5$ with all five folds positive, so the result does not
-rest on the seed averaging. We report Istanbul as a lift over the dedicated
-ceiling, not as an absolute Acc@10, because its region count (520 mahalle) differs
-from the Gowalla states. The overlapping-window protocol and the training setup
-match those used for the Gowalla states, so within Istanbul the multi-task versus
-dedicated comparison is like-for-like; the Istanbul cells additionally average
-four seeds ($n{=}20$). The external baselines line
-up the same way as on the Gowalla states: on category the joint model is far
-above a nine-step Markov floor ($24.55$) and POI-RGNN~\cite{capanema2023poirgnn}
-($30.12$), and on region it is above a faithful STAN~\cite{luo2021stan} ($61.86$)
-and HMT-GRN~\cite{lim2022hmtgrn} ($60.4$). The picture from the U.S. states
-repeats on a different continent and a different region unit: the joint model
-outperforms on category and stays within two points on region.
+Read this as: the finding holds on a non-U.S. city, measured on the same
+representation, protocol, and sample size as the U.S. states. On Istanbul the
+joint model outperforms the dedicated category ceiling by $+8.59$ macro-F1
+($54.74$ to $63.33$) and edges past the dedicated region ceiling at $+0.28$
+Acc@10 ($75.16$ to $75.44$), a statistically supported gain (the 90\%
+confidence interval of the paired difference lies entirely above zero; it also
+passes the non-inferiority test, TOST, $\pm2$~pp); both arms average four seeds
+($n{=}20$). We report Istanbul as a lift over the dedicated ceiling, not as an
+absolute Acc@10, because its region count (520 mahalle) differs from the
+Gowalla states. The representation, the overlapping-window protocol, and the
+training setup are identical to those used for the Gowalla states, so the
+comparison is like-for-like. The external baselines line up the same way as on
+the U.S. states: on category the joint model is far above a nine-step Markov
+floor ($24.55$) and POI-RGNN~\cite{capanema2023poirgnn} ($30.12$), and on
+region it is above ReHDM~\cite{li2025rehdm} ($69.33$), a faithful
+STAN~\cite{luo2021stan} ($61.86$), and HMT-GRN~\cite{lim2022hmtgrn} ($60.4$).
+The picture from the U.S. states repeats on a different continent and a
+different region unit, and on region Istanbul comes out slightly ahead rather
+than merely close.

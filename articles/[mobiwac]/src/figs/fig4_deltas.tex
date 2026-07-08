@@ -3,13 +3,9 @@
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figs/fig4_deltas.pdf}
-\caption{Signed category and region gains of the single joint model over the dedicated
-single-task models, across states ordered by number of regions. The category gain (macro-F1
-points) is positive at every state; the region gain (Acc@10 points) rises with region count,
-from within a two-point margin at the small states (AL, AZ, Istanbul) to a clear gain at the
-large ones (FL, TX, CA). The largest state (CA, 8{,}501 regions) has the largest gain.
-The two metrics are on different scales and are not directly comparable; the two-point band
-applies to the region metric. Gowalla cells are $n{=}5$ (seed 0) provisional; Istanbul is four-seed
-($n{=}20$).}
+\caption{Signed gains of the joint model over the dedicated single-task models, ordered by
+region count. The category gain (macro-F1) is positive at every dataset; the region gain
+(Acc@10) rises with region count across the five U.S. states and is also positive at Istanbul.
+The two metrics are on different scales; the $\pm2$-point band applies to region.}
 \label{fig:deltas}
 \end{figure}

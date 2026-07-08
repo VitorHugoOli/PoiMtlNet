@@ -891,3 +891,38 @@ verify before any citation.
   study, which the near-miss dump infrastructure has already de-risked as a **follow-up paper / thesis
   chapter**, where it can be done properly with its own baselines. The ruling stays closed unless the
   author explicitly reopens it.
+
+## 14 · APPLIED + post-apply review (2026-07-08) — the venue-fit verdict trajectory completes
+
+**The edit set is in the paper.** PR #60 (shortlist compactness, A40-6) was audited and merged the same day;
+its result (in-dist shortlist spread P50 2.86-7.53 km, ~7-32x tighter than the random-pair map scale) was
+folded into C4 alongside the near-miss + floor numbers. All blocks applied (C1+C1b+C7 intro, C2b+C2 §3, C3
+§5.3, C4-adapted+C5+C6 §7) + 4 bib entries. **Compile: 10 pages, 0 undefined, 0 bibtex warnings, 0
+overfull, 37 rendered refs** — the refs-end slack absorbed the growth exactly as §12.5 measured.
+
+**Post-apply review (3 independent lenses on the applied text):**
+
+- **Venue-fit re-review** (the original Reject persona): **"Weak Reject, now genuinely at the borderline —
+  no longer a relevance reject I would argue for in committee."** Trajectory: plan = Reject → draft =
+  "toward Weak Reject" → applied = borderline. Its remaining sharpest attack (per-user prediction vs.
+  aggregate-demand uses) was answered same-day with the §3 "aggregated over users those predictions point
+  to..." clause; its RecSys-hook complaint (the intro's "recommendation and urban analysis" aside) was cut.
+  What would move it further is only L3 (closed this cycle, §13.3).
+- **Claim/number audit:** every number digit-verified (PASS across the board); all §13 named fixes confirmed
+  applied; **one FAIL found and fixed** — the post-certification C4 compactness clause ("cluster within a
+  median spread") read as containment when the statistic is mean-distance-to-center (actual bbox extent
+  10.9-32.1 km); reworded to the exact statistic ("sit, on average, about 3 to 8 kilometers from the
+  shortlist's own geographic center (the median across visits, computed from region centroids)").
+- **Flow cold read:** two must-fixes (both applied): the abstract's "that model" antecedent bug (the region
+  claim read as beating the *category* model — pre-existing, now "the dedicated region model") and the C4
+  double "about 3 to 8 kilometers" mis-parse (now split into two labeled sentences, "The miss distance is
+  similar:" marking the echo deliberate, "while" replacing the garden-path "where"). High-value polish also
+  applied: Song sentence split (restores the ¶1 hook beat), the triple before/after echo cut, Moura tagged
+  "read from past traces" (descriptive), "Such preparation has support..." antecedent fix, the silva
+  sentence fused into a general-to-specific ladder, "would give such a service", the ";. not cell
+  association" disambiguation. Verified-fine items left alone (cross-section escalation, disclaimer
+  placement, the single-seed parenthetical).
+
+**Recompiled after fixes: 10 pages, 0 undefined, 0 warnings, 37 refs — unchanged.** Remaining open:
+the L3 fork (author-only, §13.3), the Istanbul dk_ovl/n=20 top-up path for the two geometry metrics
+(rides A40-2/H3 or P1), and P1 itself (the science verdict-changer, unaffected by all of this).

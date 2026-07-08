@@ -19,9 +19,11 @@ from the raw check-in trail to the two outputs.
 
 We build a graph with four levels: the check-in, the place it records, the
 region (a census tract) the place sits in, and the city. Edges tie these levels
-together and tie check-ins to one another, encoding category similarity (visits
-to similar kinds of place), time (visits close in time), and distance (visits
-close in space). This keeps the place-to-region-to-city geography of a
+together and tie check-ins to one another: consecutive visits by the same user,
+weighted by how close in time they fall, and visits to the same place; nearby
+places are also linked at the place level. Each visit's category and time of
+day enter as input features of its node rather than as edges. This keeps the
+place-to-region-to-city geography of a
 hierarchical graph and adds the check-in as a new bottom level. We train the
 graph with an infomax objective, which contrasts real neighborhoods against
 shuffled ones, so each vector learns to match its true neighborhood and reject a
@@ -66,12 +68,16 @@ loss matches it, whereas the category metric, macro-F1, counts every class
 equally, so one might expect a class-weighted loss to help. We tested
 class-weighting on both heads and it did not help: it lowered region accuracy and
 category macro-F1 rather than raising it. We therefore keep plain unweighted
-cross-entropy on both and let the equal-weight sum balance the two tasks. This is ordinary hard parameter sharing~\cite{caruana1997multitask}, kept
+cross-entropy on both and balance the two tasks with a fixed-weight sum, the
+category output weighted 0.75 and the region output 0.25. This is ordinary hard parameter sharing~\cite{caruana1997multitask}, kept
 deliberately plain. Any improvement of the joint model over the dedicated
-single-task models then comes from the shared representation, not from a tuned
-weighting scheme.
+single-task models then comes from the shared representation, not from an
+adaptive weighting scheme.
 
 The cost of serving both tasks this way is modest. The joint model carries both
 task heads, so it is larger than a single dedicated model. It is still
 substantially cheaper to serve than the two separate dedicated models the usual
-setup would deploy, so two answers come at well under the price of two.
+setup would deploy: measured on our architecture, it needs about 17 to 20
+percent fewer parameters and about 28 percent fewer operations per pair of
+predictions than the two dedicated models combined, so two answers come at well
+under the price of two.

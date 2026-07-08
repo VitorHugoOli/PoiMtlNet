@@ -60,16 +60,18 @@ visit are usually enough: its category (the kind of place) and its region (which
 part of the city). These are normally handled by separate models. We therefore ask whether one
 model can learn both, and what sharing a single representation costs. We first
 build a check-in-level representation that describes each visit in its own
-context, instead of giving every place one fixed vector. Across five U.S.
-states, this lifts next-category prediction by a wide margin over a standard
+context, instead of giving every place one fixed vector. Across six datasets,
+five U.S. states and one non-U.S. city (Istanbul), this lifts next-category
+prediction by a wide margin over a standard
 place embedding \cite{huang2023hgi} (about $+28$ to $+40$ macro-averaged F1),
 and most of the gain comes from the per-visit context. We then train one
-multi-task model for both tasks. At every state it outperforms a dedicated
-category model (about $+4.7$ to $+7.7$ macro-F1), and on region it outperforms that model where
-regions are many, while matching it (statistically, within two points)
-where regions are few. The gain on region grows with the number of regions. On a
-non-U.S. city (Istanbul) the result holds: the joint model outperforms on category and stays
-within two points on region.
+multi-task model for both tasks. At every dataset it outperforms a dedicated
+category model (about $+5$ to $+9$ macro-F1), and on region it outperforms the dedicated region model
+at four of the six datasets, while matching it (statistically, within two points)
+at the other two. Across the five U.S. states the gain on region grows with the
+number of regions, with the two largest states still single-seed. On the
+non-U.S. city the result holds: the joint model outperforms on
+category and comes out slightly ahead on region.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -86,9 +88,9 @@ check-in-level representation, location-based social networks, mobility data
 \input{sections/02_related}
 \begin{figure*}[t]\centering
 \input{figs/fig1_dataflow}
-\caption{From a user's check-in trail to two predictions. Each visit is placed in a
-four-level graph (check-in, place, region, city) and described in its own context; overlapping
-nine-visit windows then feed the model, which outputs the next category and the next region.}
+\caption{From a check-in trail to two predictions: each visit is embedded in a four-level graph
+(check-in, place, region, city) and described in its own context; overlapping nine-visit windows
+feed a single model that outputs the next category and the next region.}
 \label{fig:dataflow}
 \end{figure*}     % Fig 1: input-graph data flow (cited in section 2.1 / 4.1)
 
@@ -97,12 +99,10 @@ nine-visit windows then feed the model, which outputs the next category and the 
 \input{sections/04_method}
 \begin{figure*}[t]\centering
 \input{figs/fig2_model}
-\caption{The single multi-task model. Two input streams, a check-in (semantic)
-window and a region (spatial) window, pass through private per-task encoders into a shared
-cross-attention stack where each stream reads the other stream's features (the only shared
-parameters). A small sequence-model head reads the shared output to predict next-category; the region
-head combines that shared output with a private spatial path, which runs on the region
-window, to predict next-region. One model, one forward pass, two predictions.}
+\caption{The single multi-task model. A check-in (semantic) window and a region (spatial) window
+pass through private encoders into a shared cross-attention trunk, the only shared parameters; a
+sequence head predicts the next category, and the region head combines the shared output with a
+private spatial path. One model, one forward pass, two predictions.}
 \label{fig:model}
 \end{figure*}        % Fig 2: the single model, dual-tower + cross-attention (section 4.2)
 

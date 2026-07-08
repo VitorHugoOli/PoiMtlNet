@@ -4,9 +4,11 @@
 > `DEFAULT_CANON`). The remaining runs to make the whole board v17 are organized by machine in the new track
 > **[`../../docs/studies/closing_data/v17_completion/`](../../docs/studies/closing_data/v17_completion/README.md)**
 > (H100 = n=20 · A40 = the rest fast→slow · M2 Pro = simple analysis). This doc is the paper-facing close-out; the
-> per-machine run specs live in that track. **v17 status:** MTL n=20 DONE at AL/AZ/FL, seed-0 5f DONE at CA/TX
-> (cat is a state-size trade: wins small, −0.28 at CA/TX, reg-neutral+); **open = CA/TX n=20 + the STL-cat-ceiling
-> re-tune (n=20, all states) + the Istanbul dk_ovl rebuild.**
+> per-machine run specs live in that track. **v17 status (2026-07-08):** MTL n=20 DONE at AL/AZ/FL + Istanbul
+> (H3 dk_ovl rebuild DONE); STL cat+reg ceilings n=20 best-vs-best DONE (H2/`CEILINGS_N20_FINAL.md`); n=20
+> pre-registered stats DONE (M1-partial, Holm clears at the 4 full datasets); STAN CA/TX closed-as-partial;
+> ReHDM v4 row version-uniform + Istanbul. **The paper was RENUMBERED to the v17 board 2026-07-08** (Table 3,
+> §6, abstract/§1/§7/§8, figs 3-4 re-rendered; digit-audited). **Open = CA/TX MTL n=20 only (A1, A40).**
 
 > **Bottom line.** The **10-page draft is submittable today** (submission sweep 2026-07-01, re-verified after the
 > 2026-07-06 cascade-reframe edits: 0 undefined refs, 0 bibtex warnings, 0 overfull boxes, glossary-clean). **Exactly one data gap — P1 (n=20 multi-seed, now on the v17 recipe) —
@@ -14,12 +16,14 @@
 > doc is the ordered, executable close-out list. Numbers/paths trace to `docs/studies/closing_data/RESULTS_BOARD.md §3`.
 
 ## 0 · Status at a glance
-- **Paper:** compiling **10-page** IEEE two-column draft (2026-07-06 cascade reframe + novelty defusals); abstract +
-  §1–§8 + Tbl 1–3 + Fig 1–4; **31 cited refs**, all resolve.
-- **Data:** Part-2 cells are **seed-0 × 5-fold (n=5)** for the 5 Gowalla states; **Istanbul is n=20**; STL **region**
-  ceiling is already **n=20 at all 6 states**; all baselines in (HMT-GRN 6 states, faithful STAN AL/AZ/FL/Istanbul,
-  ReHDM AL/AZ/FL, CTLE FL, feature-concat FL, cascade-variant tie at AL/AZ/FL (Istanbul + CA/TX open → P6),
-  Markov/POI-RGNN floors).
+- **Paper:** compiling **10-page** IEEE two-column draft (2026-07-06 cascade reframe + novelty defusals;
+  2026-07-08 P7 venue-bridge edit set applied); abstract + §1–§8 + Tbl 1–3 + Fig 1–4; **37 rendered refs**,
+  all resolve, 0 bibtex warnings, 0 overfull.
+- **Data (v17 board, 2026-07-08):** Part-2 cells are **n=20 on both arms** at AL/AZ/FL/Istanbul (Holm clears
+  per-cell); **CA/TX joint = seed-0 × 5f provisional** (A1 pending); ceilings are the n=20 best-vs-best set.
+  All baselines in (HMT-GRN 6 datasets, faithful STAN AL/AZ/FL/Istanbul + TX 4/5f + CA 2/5f partials,
+  ReHDM v4 row incl. Istanbul + CA/TX seed-42 coverage, CTLE FL-E2E + frozen SC at AL/AZ/Istanbul,
+  feature-concat FL, cascade tie at AL/AZ/FL/Istanbul (CA/TX open → P6), Markov/POI-RGNN floors).
 - **Mobility venue-bridge (2026-07-08):** the geographic near-miss metric is **DONE** (PR #59: AL/AZ/FL/Istanbul,
   v17 `dk_ovl` seed-0 5f on the A40, healthy late best-epochs, reg Acc@10 tracking the board cells; median
   in-distribution miss 3.16–8.13 km) + the random-pair floor (`analysis/near_miss_floor.py`: 20–241 km → misses
@@ -115,7 +119,14 @@
   C2b trim present; §13's named fixes all applied; the **Istanbul seed-rigor caveat travels with C4**
   (near-miss Istanbul is seed-0 vs. the paper's four-seed Istanbul bar elsewhere — note it or top it up when
   the P1/H lane runs); GLOSSARY sweep on the inserted text.
-- **Status: prose ready-to-apply on author go; compactness DONE (A40-6, 2026-07-08 — `analysis/shortlist_compactness_RESULTS.md`, all four states, spread P50 2.86–7.53 km, ≈7–32× tighter than the random-pair map scale).**
+- **Status: ✅ APPLIED (2026-07-08).** The full edit set is in the `.tex` (C1+C1b+C7 intro, C2+C2b §3, C3 §5.3,
+  C4 §7 sketch — adapted to fold in the A40-6 compactness result alongside the near-miss + floor, with the
+  single-seed four-dataset tag inline — C5 limitations, C6 succession clause) + 4 bib entries
+  (`moura2025mobilityaware` with the v3-framing comment, `silva2019urbancomputing`, `bastug2014edge`,
+  `song2010limits`). **Compile verified: 10 pages, 0 undefined refs, 0 bibtex warnings, 0 overfull, 37
+  rendered refs** (was 33). Compactness DONE (A40-6, 2026-07-08 — `analysis/shortlist_compactness_RESULTS.md`,
+  all four states, spread P50 2.86–7.53 km, ≈7–32× tighter than the random-pair map scale). Post-apply
+  multi-aspect review: see the session record / `MOBILITY_SCIENCE_BRIDGE_PLAN.md`.
 
 ### P2 — Extend the transductive-leak audit (A4) to CA / TX / Istanbul  **[coverage, not a verdict]**
 - **What.** The train-users-only rebuild audit (rebuild the representation per fold on train users only, re-run both

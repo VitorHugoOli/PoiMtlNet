@@ -3,43 +3,66 @@
 % (matches at small region counts, outperforms at large). Limitations: single seed over five folds (provisional);
 % small-state region is non-inferior within two points (a match, not a beat); transductive representation
 % (planned training-only variant); the mobility-aware service is motivation, not evaluated.
+% 2026-07-08 (P7/C4-C6): the usage sketch is now quantified (shortlist enrichment from Tbl 3 + shortlist
+% compactness + near-miss distance vs the random-pair floor, all from analysis/{near_miss,shortlist_compactness}_
+% RESULTS.md; four datasets, single-seed tag inline) and the closing paragraph carries the moura2025 succession
+% clause. Still motivation-only: bare prediction properties, no service metric.
 \section{Discussion and Limitations}
 \label{sec:discussion}
 
 The clearest reading of our results is a design one: one model is enough.
-A single model does both jobs at once. It pairs a shared trunk
+It pairs a shared trunk
 that carries the semantic context with a private spatial path that keeps
 next-region accuracy from degrading. The shared context lifts the next-category task
-sharply over a dedicated model at every state, and the private path keeps the
-next-region task competitive: a non-inferior match (TOST, $\pm2$~pp) where there
-are few regions, and a clear superiority (paired Wilcoxon) where there are many. The region gain is not flat: it rises with the number of regions
-(Figure~\ref{fig:deltas}). The benefit from sharing grows as regions
-multiply, rather than fading. Overall, the joint model matches or
+sharply over a dedicated model at every dataset, and the private path keeps the
+next-region task competitive: a non-inferior match (TOST, $\pm2$~pp) at the two
+small U.S. states, and a tested gain at the other four datasets. Across the
+U.S. states the region gain rises with the number of regions, growing rather
+than fading (Figure~\ref{fig:deltas}). Overall, the joint model matches or
 outperforms the dedicated single-task model on both tasks at once
 (Table~\ref{tab:results}). For a mobility-aware service, this
 points to a practical option: one model, one forward pass, can anticipate both what a
-user will do next and where, without paying for a second model and without
-trading one task off against the other.
+user will do next and where, without a second model and without a task
+trade-off.
 
-A short usage sketch makes the motivation concrete. It remains motivation only,
-since we measure no service here. A service could treat the model's top-ranked
-next regions as an anticipatory set: a small list of areas worth preparing in
-advance. The next category then hints at what to prepare in them.
-Turning that sketch into a measured result, with its own service baselines and
-costs, is future work, not a claim we make.
+A short usage sketch makes the motivation concrete, with numbers rather than
+adjectives. A service could treat the model's top-ranked next regions as an
+anticipatory set: at California, a shortlist of ten regions out of 8{,}501
+candidates, about a tenth of a percent of the space, contains the true next
+region 65.69 percent of the time, more than five hundred times better than
+picking ten at random; at Alabama, ten out of 1{,}109 capture it 69.80 percent
+of the time. The predictions are also geographically concentrated. On the four
+datasets where we measured it (Alabama, Arizona, Florida, and Istanbul; a
+single seed over five folds), the ten shortlisted regions sit, on average,
+about 3 to 8 kilometers from the shortlist's own geographic center (the median
+across visits, computed from region centroids). The miss distance is similar:
+when the top guess is wrong and the true region was seen in training, the
+predicted region's centroid sits a median of about 3 to 8 kilometers from the
+true region's, while two randomly drawn regions from the same map sit a median
+of 20 to 241 kilometers apart; visits to regions never seen in training
+are rarer and miss by more. The next category then hints at what to prepare
+there. This remains motivation, not a measured service result: we report
+properties of the model's own predictions, not a system's cost or a service's
+outcome.
 
-Three limits qualify these results. First, the joint numbers come from a single
-seed over five folds, so they are provisional. A multi-seed run is the obvious
-next step and the precondition for any per-cell significance claim
-stronger than the ones we report. Second, our representation is trained once over all places. One
+Three limits qualify these results. First, the joint numbers at California and
+Texas come from a single seed over five folds, so those two cells are
+provisional; the other four datasets average four seeds on both arms. A
+multi-seed run at the two largest states is the remaining step. Second, our representation is trained once over all places. One
 slice of its behavior, visits to places never seen during training, is the single
-effect we cannot fully isolate. A planned variant that trains on each fold's
-training places only is meant to close that gap. Third, although a mobility-aware service is
-our motivation throughout, we do not build or evaluate one; tying these
-predictions to a concrete service is the natural next study.
+effect we cannot fully isolate. The same property sets the deployment path: the
+representation is a precomputed artifact, so a served system would embed new
+check-ins by refreshing it on a schedule, as embedding infrastructures commonly
+do, rather than per visit; an encoder that embeds unseen visits directly is the
+same machinery as the planned variant that trains on each fold's
+training places only, and both are one study. Third, although a mobility-aware service is
+our motivation throughout, we do not build or evaluate one; a concrete service
+evaluation, with its own baselines and costs, remains the natural next study.
 
-Finally, because our representation is a fixed per-visit vector that is computed
-once and left unchanged, it is not tied to this particular model: any downstream
+Finally, our representation is a fixed per-visit vector, computed once and left
+unchanged; any downstream
 model can consume it. Plugging it into other sequence models, and applying it to
 mobility tasks beyond next-category and next-region, are natural directions to
-explore.
+explore. Structural analysis of check-in networks has itself named machine
+learning as a next step~\cite{moura2025mobilityaware}; learning over check-in
+structure, as this study does, moves in that direction.

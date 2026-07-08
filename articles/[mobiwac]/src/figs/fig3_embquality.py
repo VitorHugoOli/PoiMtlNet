@@ -19,10 +19,12 @@ floor and HGI scores spuriously higher, which would mislead. The story here is
 strictly that the check-in-level substrate separates by category; its
 region-neutral behavior is carried in the caption, not in this panel.
 
-Source: docs/studies/closing_data/PART1_QUALITY/summary.md (L0 geometry, next-cat;
-5-fold CV, mean +/- SD over folds). Plots the BOARD substrate row
-check2hgi_design_k_resln_mae_l0_1 (the design_k overlap engine the paper runs on),
-NOT the plain check2hgi (v11 / canonical GCN) row.
+Source: docs/studies/closing_data/archive/run_logs/PART1_QUALITY/metrics_long.csv
+(task=cat, level=L0, metrics silhouette + knn10_acc), aggregated over the
+PAPER'S FIVE Gowalla states x 5 folds (n=25 values; Georgia EXCLUDED -- it is
+out of paper scope; the pre-2026-07-08 constants averaged 6 states including
+Georgia). Plots the BOARD substrate row check2hgi_design_k_resln_mae_l0_1 (the
+design_k overlap engine the paper runs on), NOT the plain check2hgi row.
 
 Run:
   /Users/vitor/Desktop/mestrado/ingred/.venv/bin/python fig3_embquality.py
@@ -38,14 +40,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # ---------------------------------------------------------------------------
-# Authoritative numbers (PART1_QUALITY/summary.md, L0 geometry -- next-cat).
-# Board substrate row = check2hgi_design_k_resln_mae_l0_1 (design_k), NOT plain
-# check2hgi (v11 GCN). mean +/- SD over folds. CATEGORY metrics only; region omitted.
+# Authoritative numbers (metrics_long.csv, L0 geometry -- next-cat; five paper
+# states x 5 folds, Georgia excluded). Board substrate row = design_k. mean +/-
+# SD over the 25 state-fold values. CATEGORY metrics only; region omitted.
 # ---------------------------------------------------------------------------
 METRICS = ["Silhouette\n(by category)", "kNN purity\n(by category, k=10)"]
 
-CHECK2HGI = {"mean": [0.5566, 0.9820], "sd": [0.0360, 0.0039]}
-HGI = {"mean": [0.0000, 0.7780], "sd": [0.0042, 0.0292]}
+CHECK2HGI = {"mean": [0.5668, 0.9827], "sd": [0.0302, 0.0039]}
+HGI = {"mean": [0.0003, 0.7750], "sd": [0.0046, 0.0311]}
 
 # Colors: a saturated accent for the contributed substrate, a muted gray for
 # the place-embedding baseline so the contrast reads at IEEE column size.
