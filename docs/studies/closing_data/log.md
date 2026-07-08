@@ -332,3 +332,28 @@ STAN-`stl_hgi` board cells cited result JSONs that were gitignored/untracked. No
 **Net**: every §5.2 / board-cell number now traces to a committed JSON; the reproducibility gap flagged in the #54
 audit is fully closed. Docs: `A4_RESULTS.md` (recovery + run-variance note); artifacts under `docs/results/pre_freeze_gates/a4/`
 + `docs/results/P1/*STAN_HGI_OVL*`.
+
+## 2026-07-08 — A40-6 shortlist compactness (P7/C4 support) done
+
+**Phase**: v17_completion A40-6 (`v17_completion/A40.md`), the CPU-only P7-support leg. Converts P7's "~78–547×
+enrichment over chance" from a relative-lift claim into a spatial-actionability claim: is the top-10 region
+shortlist also geographically compact?
+
+**Done**
+- New `articles/[mobiwac]/analysis/shortlist_compactness.py` (reuses `near_miss_distance.py`'s loaders). Per
+  validation visit, over the top-10 predicted regions' centroids: centroid spread (mean/max haversine to their
+  spherical geographic mean) + bounding-box diagonal; per-fold P50/P90, in-dist vs OOD strictly separate, bare
+  percentiles only (venue-bridge guardrail). Ran the four A40-feasible states over the existing PR #59
+  `MTL_DUMP_VAL_PREDS=1` dumps (no retraining; CPU-seconds/state).
+- **In-distribution shortlist spread P50**: Istanbul 2.86 / Alabama 6.24 / Arizona 6.09 / Florida 7.53 km;
+  bbox-diagonal P50 10.9 / 23.7 / 23.6 / 32.1 km. Reference point (`near_miss_floor.py` random-pair P50):
+  ≈ 7× / 27× / 20× / 32× tighter than the map's characteristic region-pair scale → the shortlist concentrates
+  on a small neighborhood, not scattered across the state. 0 dropped centroids; OOD (180/527/523/1172) kept separate.
+- Deliverables: `shortlist_compactness_{alabama,arizona,istanbul,florida}.{json,md}` + consolidated
+  `shortlist_compactness_RESULTS.md`. JSON stores a dense bare percentile grid (P1..P99), not raw per-visit
+  arrays (~100 MB at FL) — documented deviation from the spec's "full distributions", guardrail-safe.
+- CA/TX out of scope by the A40-6 spec (their `catx_v17_seed0_5f/` runs carry no dump); C4 scopes to the four
+  measured datasets.
+
+**Net**: A40-6 complete; changes no verdict, strengthens P7's C4 (the "shortlist is compact" counter-to-the-counter).
+Paper placement (§6.2 / supplementary) is the deferred author decision.
