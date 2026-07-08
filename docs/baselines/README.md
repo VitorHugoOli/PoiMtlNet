@@ -167,10 +167,10 @@ Top-level summary table:
 | MHA+PE — `faithful` (5f×11ep) | next_category | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | POI-RGNN — `faithful` (5f×35ep) | next_category | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Markov-1-region floor | next_region | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| STAN — `faithful` (5f×50ep) | next_region | ✅ | ✅ | ✅ | ⚪ | ⚪ | ✅ |
+| STAN — `faithful` (5f×50ep) | next_region | ✅ | ✅ | ✅ | 🟡 2/5 folds (citable-final) | 🟡 4/5 folds (citable-final) | ✅ |
 | STAN — `stl_check2hgi` (5f×50ep) | next_region | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | STAN — `stl_hgi` (5f×50ep) | next_region | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| ReHDM — `faithful` (5 seeds × 50ep, paper proto) | next_region | ✅ | ✅ | ✅ § | ⚪ | ⚪ | ✅ § |
+| ReHDM — `faithful-v4` (5 seeds × 50ep, paper proto; + Istanbul ✅) | next_region | ✅ | ✅ | ✅ § | 🟡 s42 | 🟡 s42 | ✅ § (v2 only) |
 | ReHDM — `stl_check2hgi` (5f×50ep, study proto) | next_region | ✅ | ✅ | ✅ | ⚪ | ⚪ | ✅ |
 | ReHDM — `stl_hgi` (5f×50ep, study proto) | next_region | ✅ | ✅ | ✅ | ⚪ | ⚪ | ✅ |
 
@@ -201,32 +201,38 @@ Sign-flips at all 5 states once the `α·log_T` leak is removed (substrate-asymm
 
 ### `next_region/` — Acc@10 (mean ± σ); ★ = best per state
 
-| Baseline | AL | AZ | FL | CA | TX | GA |
-|---|---:|---:|---:|---:|---:|---:|
-| Markov-1-region (floor)            | 47.01 ± 3.55 | 42.96 ± 2.05 | 65.05 ± 0.93 | 52.09 ± 0.80 | 54.94 ± 0.46 | 48.19 ± 2.18 |
-| STAN — `faithful`                  | 34.46 ± 3.88 | 38.96 ± 3.41 | 65.36 ± 0.69 | ⚪ skip | ⚪ skip | 40.68 ± 1.10 |
-| STAN — `stl_check2hgi`             | 59.20 ± 3.62 | 52.24 ± 2.38 | 72.62 ± 0.52 | 58.82 ± 1.04 | 61.35 ± 0.36 | 56.35 ± 2.40 |
-| **STAN — `stl_hgi`**               | 62.88 ± 3.90 | 54.86 ± 2.84 | **★ 73.58 ± 0.43** | **★ 60.45 ± 0.97** | **★ 62.70 ± 0.37** | **★ 58.58 ± 1.86** |
-| **ReHDM — `faithful` (paper-proto; ⚠ v2 code — v4 gives AL 65.38±1.08; AZ/FL v4 re-run queued, see `next_region/comparison.md` caveat)** § | **★ 66.06 ± 0.98** | **★ 54.65 ± 0.77** | 65.68 ± 0.26 | ⚪ skip | ⚪ skip | 55.82 ± 0.76 |
-| ReHDM — `stl_check2hgi` ‡          | 26.22 ± 1.58 | 23.24 ± 1.27 | 38.74 ± 0.49 | ⚪ skip | ⚪ skip | 22.31 ± 1.31 |
-| ReHDM — `stl_hgi` ‡                | 42.78 ± 2.82 | 34.00 ± 3.02 | 54.49 ± 0.32 | ⚪ skip | ⚪ skip | 35.07 ± 1.98 |
-| **STAN-Flow** `_pf` — `stl_check2hgi` (leak-free) | 59.15 ± 3.48 | 50.24 ± 2.51 | 69.22 ± 0.52 | 55.92 ± 1.20 | 58.89 ± 1.28 | 54.07 ± 2.44 |
-| **STAN-Flow** `_pf` — `stl_hgi` (leak-free)       | 61.86 ± 3.29 | 53.37 ± 2.55 | 71.34 ± 0.64 | 57.77 ± 1.12 | 60.47 ± 1.26 | 57.09 ± 2.08 |
+| Baseline | AL | AZ | FL | CA | TX | GA | Istanbul |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Markov-1-region (floor)            | 47.01 ± 3.55 | 42.96 ± 2.05 | 65.05 ± 0.93 | 52.09 ± 0.80 | 54.94 ± 0.46 | 48.19 ± 2.18 | 52.5 |
+| STAN — `faithful` (v5/v6 converged — the old v4 collapse row 34.46/38.96 is superseded, NEVER cite) | 60.72 ± 5.20 | 49.86 ± 11.53 | 72.99 ± 0.34 | 58.52 (2/5 folds) | 61.67 (4/5 folds) | ⚪ skip | 61.86 ± 0.61 |
+| STAN — `stl_check2hgi`             | 59.20 ± 3.62 | 52.24 ± 2.38 | 72.62 ± 0.52 | 58.82 ± 1.04 | 61.35 ± 0.36 | 56.35 ± 2.40 | 70.39 (set-a) |
+| **STAN — `stl_hgi`**               | 62.88 ± 3.90 | 54.86 ± 2.84 | **★ 73.58 ± 0.43** | **★ 60.45 ± 0.97** | **★ 62.70 ± 0.37** | **★ 58.58 ± 1.86** | 71.13 ± 0.68 (set-a) |
+| **ReHDM — `faithful-v4`** (paper-proto; THE citable version-uniform row, PR #61) § | **★ 65.38 ± 1.08** | **★ 53.00 ± 1.28** | 64.49 ± 0.14 | 50.26 (s42) | 48.81 (s42) | ⚪ skip | **69.33 ± 0.81** |
+| ReHDM — `stl_check2hgi` ‡          | 26.22 ± 1.58 | 23.24 ± 1.27 | 38.74 ± 0.49 | ⚪ skip | ⚪ skip | 22.31 ± 1.31 | ⚪ skip |
+| ReHDM — `stl_hgi` ‡                | 42.78 ± 2.82 | 34.00 ± 3.02 | 54.49 ± 0.32 | ⚪ skip | ⚪ skip | 35.07 ± 1.98 | ⚪ skip |
+| **STAN-Flow** `_pf` — `stl_check2hgi` (leak-free) | 59.15 ± 3.48 | 50.24 ± 2.51 | 69.22 ± 0.52 | 55.92 ± 1.20 | 58.89 ± 1.28 | 54.07 ± 2.44 | ⚪ skip |
+| **STAN-Flow** `_pf` — `stl_hgi` (leak-free)       | 61.86 ± 3.29 | 53.37 ± 2.55 | 71.34 ± 0.64 | 57.77 ± 1.12 | 60.47 ± 1.26 | 57.09 ± 2.08 | ⚪ skip |
+
+> Istanbul notes: STAN faithful 61.86 (v5_bf16c) + ReHDM v4 **69.33** (the strongest Istanbul region external, via
+> the FSQ→mahalle adapter) — both below our MTL reg 75.44. The `stl_*` Istanbul cells are **set-a footing** (pre-H3,
+> not board-comparable; `stl_hgi` 71.13 = the future-headroom signal, not a baseline). STAN CA/TX = partial-fold
+> citable-final (user decision 2026-07-08, fold counts disclosed); ReHDM CA/TX seed-42 partials sit BELOW their
+> simple floors — coverage-only.
 
 > § ReHDM `faithful` uses the paper's protocol (chronological 80/10/10 + 24h sessions, 5 seeds). σ is inter-seed; not cell-for-cell σ-comparable to StratifiedGroupKFold rows. AL/AZ at paper b=64; FL+GA at b=128 + 4× lr scaling (validated within 1σ on AL/AZ — see `rehdm.md`).
 > ‡ ReHDM `stl_*`: a target_mask bug (hardcoded all-ones over padded positions) was patched 2026-05-01 in `train_stl_study.py`. Definitive 5f×50ep mask-fix re-run on GA c2hgi: Acc@10 = 21.22 ± 1.27 vs broken 22.31 ± 1.31 (Δ = −1.09 pp, within fold σ). Mask was a real latent bug but not the cause of underperformance — the architectural mismatch (theta-query pooling on 9-step frozen substrate) dominates. Cross-state re-run not warranted; published numbers stand. See `REHDM_STL_MASKFIX_GA_check2hgi_5f50ep_summary.json`.
 
 ### `next_category/` — macro-F1 (mean ± σ); ★ = best per state
 
-| Baseline | AL | AZ | FL | CA | TX | GA |
-|---|---:|---:|---:|---:|---:|---:|
-| Majority class (floor)             |  7.28 ± 0.00 |  7.25 ± 0.00 |  5.66 ± 0.00 |  7.04 ± 0.00 |  6.76 ± 0.00 |  6.69 ± 0.00 |
-| Markov-1-POI (floor)               | 16.81 ± 1.06 | 19.48 ± 0.63 | 27.60 ± 0.32 | 24.95 ± 1.18 | 25.85 ± 0.55 | 21.36 ± 0.36 |
-| best Markov-K-cat (floor)          | 20.50 ± 0.67 (k=5) | 23.92 ± 2.26 (k=5) | 29.74 ± 1.19 (k=3) | 27.59 ± 0.61 (k=5) | 28.67 ± 0.66 (k=5) | 27.01 ± 1.10 (k=3) |
-| MHA+PE — `faithful`                | 18.95 ± 0.71 | 24.99 ± 0.85 | 32.06 ± 0.23 | 29.13 ± 0.71 | 29.91 ± 0.43 | 27.62 ± 0.97 |
-| **POI-RGNN — `faithful`**          | **★ 23.80 ± 1.12** | **★ 27.64 ± 2.34** | **★ 33.35 ± 1.14** | **★ 30.71 ± 0.82** | **★ 32.08 ± 0.70** | **★ 30.24 ± 0.87** |
-| C2HGI cat — matched-head `next_gru` (substrate axis) | 40.76 ± 1.68 | 43.21 ± 0.87 | 63.43 ± 0.98 | 59.94 ± 0.59 | 60.24 ± 1.84 | 50.96 ± 0.38 |
-| HGI cat — matched-head `next_gru` (substrate axis)   | 25.26 ± 1.18 | 28.69 ± 0.79 | 34.41 ± 1.05 | 31.13 ± 1.04 | 31.89 ± 0.55 | 29.54 ± 0.77 |
+| Baseline | AL | AZ | FL | CA | TX | GA | Istanbul |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Majority class (floor)             |  7.28 ± 0.00 |  7.25 ± 0.00 |  5.66 ± 0.00 |  7.04 ± 0.00 |  6.76 ± 0.00 |  6.69 ± 0.00 | 7.14 |
+| Markov-1-POI (floor)               | 16.81 ± 1.06 | 19.48 ± 0.63 | 27.60 ± 0.32 | 24.95 ± 1.18 | 25.85 ± 0.55 | 21.36 ± 0.36 | 17.55 ± 0.44 |
+| best Markov-K-cat (floor)          | 20.50 ± 0.67 (k=5) | 23.92 ± 2.26 (k=5) | 29.74 ± 1.19 (k=3) | 27.59 ± 0.61 (k=5) | 28.67 ± 0.66 (k=5) | 27.01 ± 1.10 (k=3) | 24.55 ± 0.30 (k=5) |
+| MHA+PE — `faithful`                | 18.95 ± 0.71 | 24.99 ± 0.85 | 32.06 ± 0.23 | 29.13 ± 0.71 | 29.91 ± 0.43 | 27.62 ± 0.97 | ⚪ |
+| **POI-RGNN — `faithful`**          | **★ 23.80 ± 1.12** | **★ 27.64 ± 2.34** | **★ 33.35 ± 1.14** | **★ 30.71 ± 0.82** | **★ 32.08 ± 0.70** | **★ 30.24 ± 0.87** | **★ 30.12 ± 0.84** |
+| C2HGI cat — matched-head `next_gru` (substrate axis) | 40.76 ± 1.68 | 43.21 ± 0.87 | 63.43 ± 0.98 | 59.94 ± 0.59 | 60.24 ± 1.84 | 50.96 ± 0.38 | 54.65 (dk_ovl re-foot) |
+| HGI cat — matched-head `next_gru` (substrate axis)   | 25.26 ± 1.18 | 28.69 ± 0.79 | 34.41 ± 1.05 | 31.13 ± 1.04 | 31.89 ± 0.55 | 29.54 ± 0.77 | 26.56 (hgi_dk_ovl) |
 | Δ matched-head (Wilcoxon p_greater)                  | +15.50 (p=0.0312) | +14.52 (p=0.0312) | +29.02 (p=0.0312) | +28.81 (p=0.0312) | +28.34 (p=0.0312) | **+21.42** |
 | Substrate linear probe — C2HGI F1                    | 30.84 ± 2.26 | 34.12 ± 1.36 | 40.77 ± 1.24 | 37.45 ± 0.29 | 38.38 ± 0.28 | 36.86 ± 0.88 |
 | Substrate linear probe — HGI F1                      | 18.70 ± 1.54 | 22.54 ± 0.50 | 25.74 ± 0.29 | 21.32 ± 0.16 | 22.33 ± 0.25 | 23.81 ± 0.58 |

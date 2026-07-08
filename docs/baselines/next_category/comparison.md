@@ -29,13 +29,13 @@ Generated from `results/<state>.json`. To refresh, regenerate the JSONs (see `..
 
 ## Cross-baseline summary — macro-F1 (mean ± σ)
 
-| Baseline | Variant | AL | AZ | FL | CA | TX | GA |
-|---|---|---:|---:|---:|---:|---:|---:|
-| Majority class (floor) | — | 7.28 ± 0.00 | 7.25 ± 0.00 | 5.66 ± 0.00 | 7.04 ± 0.00 | 6.76 ± 0.00 | 6.69 ± 0.00 |
-| Markov-1-POI (floor) | last POI | 16.81 ± 1.06 | 19.48 ± 0.63 | 27.60 ± 0.32 | 24.95 ± 1.18 | 25.85 ± 0.55 | 21.36 ± 0.36 |
-| Markov-9-cat (floor) | 9-cat seq, backoff | best K=5: **20.50 ± 0.67** | best K=5: **23.92 ± 2.26** | best K=3: **29.74 ± 1.19** | best K=5: **27.59 ± 0.61** | best K=5: **28.67 ± 0.66** | best K=3: **27.01 ± 1.10** |
-| **MHA+PE** (Zeng 2019) | `faithful` (8-step window) | 18.95 ± 0.71 | 24.99 ± 0.85 | 32.06 ± 0.23 | 29.13 ± 0.71 | 29.91 ± 0.43 | 27.62 ± 0.97 |
-| **POI-RGNN** | `faithful` (9-step window) | **23.80 ± 1.12** | **27.64 ± 2.34** | **33.35 ± 1.14** | **30.71 ± 0.82** | **32.08 ± 0.70** | **30.24 ± 0.87** |
+| Baseline | Variant | AL | AZ | FL | CA | TX | GA | Istanbul |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| Majority class (floor) | — | 7.28 ± 0.00 | 7.25 ± 0.00 | 5.66 ± 0.00 | 7.04 ± 0.00 | 6.76 ± 0.00 | 6.69 ± 0.00 | 7.14 |
+| Markov-1-POI (floor) | last POI | 16.81 ± 1.06 | 19.48 ± 0.63 | 27.60 ± 0.32 | 24.95 ± 1.18 | 25.85 ± 0.55 | 21.36 ± 0.36 | 17.55 ± 0.44 |
+| Markov-9-cat (floor) | 9-cat seq, backoff | best K=5: **20.50 ± 0.67** | best K=5: **23.92 ± 2.26** | best K=3: **29.74 ± 1.19** | best K=5: **27.59 ± 0.61** | best K=5: **28.67 ± 0.66** | best K=3: **27.01 ± 1.10** | best K=5: **24.55 ± 0.30** |
+| **MHA+PE** (Zeng 2019) | `faithful` (8-step window) | 18.95 ± 0.71 | 24.99 ± 0.85 | 32.06 ± 0.23 | 29.13 ± 0.71 | 29.91 ± 0.43 | 27.62 ± 0.97 | ⚪ |
+| **POI-RGNN** | `faithful` (9-step window) | **23.80 ± 1.12** | **27.64 ± 2.34** | **33.35 ± 1.14** | **30.71 ± 0.82** | **32.08 ± 0.70** | **30.24 ± 0.87** | **30.12 ± 0.84** |
 
 The Markov-1-POI line conditions on the last POI ID only (paper-style 1-step floor). **Markov-K-cat is the apples-to-apples sequence floor for POI-RGNN**: both methods see the same 9-step category window, the Markov side conditioning on the last K categories with stupid backoff (K → K-1 → … → 1 → unigram). See `scripts/compute_markov_kstep_cat.py` and `next_category_markov_kstep.json` per state.
 

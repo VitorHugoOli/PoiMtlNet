@@ -1,5 +1,15 @@
 # ReHDM
 
+> ⭐ **THE CITABLE ROW IS `faithful-v4` (version-uniform, PR #61, 2026-07-08):** **AL 65.38 ± 1.08 / AZ 53.00 ± 1.28 /
+> FL 64.49 ± 0.14 / Istanbul 69.33 ± 0.81** (5 seeds each, own chronological protocol; JSONs
+> `docs/results/baselines/REHDM_*_v4_*`). v4 = the faithfulness-audit code (Eq.9 restored + **zero-init** — the
+> "−6 pp Eq.9 scare" was a random-init bug; target-only POI attention; seeded eval — see
+> `research/baselines/rehdm/REHDM_AUDIT_CHANGES.md`). **Any v2 numbers below (66.06/54.65/65.68) are SUPERSEDED —
+> provenance only, never cite.** Istanbul (NEW) runs via the FSQ→mahalle ETL adapter (`etl.py`, `@id`→GEOID,
+> US path byte-identical) and is the strongest Istanbul region external (> STAN 61.86 > HMT-GRN 60.4), still below
+> our MTL reg 75.44. CA/TX v4 = seed-42 partials (50.26/48.81, both BELOW their best-simple floors 52.09/54.94 —
+> coverage-only; remaining seeds on the A40).
+
 ## Source
 - **Paper:** Li, Gu, Yao, Zhou, Zhu, Zhao, Du. *Beyond Individual and Point: Next POI Recommendation via Region-aware Dynamic Hypergraph with Dual-level Modeling.* IJCAI 2025. [pdf](https://www.ijcai.org/proceedings/2025/0343.pdf).
 - **Reference impl:** none publicly available (verified via web search 2026-04-25; closest cousins are STHGCN [`alipay/Spatio-Temporal-Hypergraph-Model`](https://github.com/alipay/Spatio-Temporal-Hypergraph-Model) and DCHL [`icmpnorequest/SIGIR2024_DCHL`](https://github.com/icmpnorequest/SIGIR2024_DCHL), neither architecturally identical).
@@ -107,10 +117,14 @@ $ENV "$PY" -u -m research.baselines.rehdm.train_stl_study \
 
 | Variant | State | JSON |
 |---|---|---|
-| `faithful` | AL | `docs/results/baselines/REHDM_al_v2_5seeds_50ep_run{0..4}.json` |
-| `faithful` | AZ | `docs/results/baselines/REHDM_az_v2_5seeds_50ep_run{0..4}.json` |
-| `faithful` | FL § | `docs/results/baselines/REHDM_BS128_fl_5seeds_50ep_run{0..4}.json` |
-| `faithful` | CA/TX | ⚪ out of scope (see `GAP_A_CLOSURE_20260430.md`) |
+| **`faithful-v4`** (citable) | AL | `docs/results/baselines/REHDM_al_v4_faithful_5seeds_50ep_*.json` |
+| **`faithful-v4`** (citable) | AZ | `docs/results/baselines/REHDM_arizona_v4_5seeds_50ep_*.json` |
+| **`faithful-v4`** (citable) | FL | `docs/results/baselines/REHDM_florida_v4_5seeds_50ep_*.json` |
+| **`faithful-v4`** (citable) | Istanbul | `docs/results/baselines/REHDM_istanbul_v4_*.json` (FSQ→mahalle adapter) |
+| `faithful-v4` | CA/TX | `docs/results/baselines/REHDM_{california,texas}_catx_s42_*.json` (seed-42 partial; seeds 43-46 on the A40) |
+| `faithful` v2 (superseded — provenance only) | AL | `docs/results/baselines/REHDM_al_v2_5seeds_50ep_run{0..4}.json` |
+| `faithful` v2 (superseded) | AZ | `docs/results/baselines/REHDM_az_v2_5seeds_50ep_run{0..4}.json` |
+| `faithful` v2 (superseded) | FL § | `docs/results/baselines/REHDM_BS128_fl_5seeds_50ep_run{0..4}.json` |
 | `stl_check2hgi` | AL | `docs/results/baselines/REHDM_STL_STUDY_v3_al_check2hgi_5f50ep_fold{0..4}.json` |
 | `stl_check2hgi` | AZ | `docs/results/baselines/REHDM_STL_STUDY_v3_az_check2hgi_5f50ep_fold{0..4}.json` |
 | `stl_check2hgi` | FL | `docs/results/baselines/REHDM_STL_STUDY_v3_fl_check2hgi_5f50ep_fold{0..4}.json` |

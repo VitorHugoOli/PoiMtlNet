@@ -7,8 +7,8 @@
 > | Baseline | AL | AZ | FL | CA | Istanbul | TX |
 > |---|---:|---:|---:|---:|---:|---:|
 > | Markov-1-region (floor) | 47.01 | 42.96 | 65.05 | 52.09 | 52.5 | 54.94 |
-> | **HMT-GRN** (region-native E2E) | 57.05 | 43.70 | 63.74 | 49.61 | 56.56 | _in-flight_ |
-> | **Check2HGI — MTL champion (ours)** | **~69.8** | **59.34** | **77.28** | **65.66** | **~69.8** | **67.13** ²ᐟ⁵ |
+> | **HMT-GRN** (region-native E2E) | 57.05 | 43.70 | 63.74 | 49.61 | **60.4** (stride-1; supersedes set-a 56.56) | **53.85** |
+> | **Check2HGI — MTL champion (ours)** | **69.81** | **59.34** | **77.28** | **65.66** | **75.44** (H3 dk_ovl+v17, n=20) | **67.02** (A40 fp32; H100 bf16 67.13 corroborates) |
 >
 > **Read:** our joint model beats the region-native SOTA by **≈ +13–16 pp** at every measured state. HMT-GRN clears
 > the Markov floor (learns) but trails our representation+MTL widely. (PR #38: Mac numbers validated == CPU within
@@ -29,15 +29,21 @@ Generated from `results/<state>.json`. To refresh, regenerate the JSONs (see `..
 > (Phase-1 section below) is OVERTURNED** — converged STAN clears the Markov floor at every reported state,
 > while still landing below our joint reg.
 
-| Baseline | Variant | AL | AZ | FL | CA | TX | GA |
-|---|---|---:|---:|---:|---:|---:|---:|
-| Markov-1-region (floor) | — | 47.01 ± 3.55 | 42.96 ± 2.05 | 65.05 ± 0.93 | 52.09 ± 0.80 | 54.94 ± 0.46 | 48.19 ± 2.18 |
-| **STAN** | `faithful` (converged ✓) | 60.72 ± 5.20 | 49.86 ± 11.52 | 72.99 ± 0.34 | **58.52** (2/5 folds)★ | **61.67** (4/5 folds)★ | —‡ |
-| **STAN** | `stl_check2hgi` | 59.20 ± 3.62 | 52.24 ± 2.38 | 72.62 ± 0.52 | 58.82 ± 1.04 | 61.35 ± 0.36 | 56.35 ± 2.40 |
-| **STAN** | `stl_hgi` | **62.88 ± 3.90** | **54.86 ± 2.84** | **73.58 ± 0.43** | **60.45 ± 0.97** | **62.70 ± 0.37** | **58.58 ± 1.86** |
-| **ReHDM** † | `faithful` **(v2 code — see ⚠v4 note)** | **66.06 ± 0.98** | **54.65 ± 0.77** | 65.68 ± 0.26 | ⚪ | ⚪ | 55.82 ± 0.76 |
-| **ReHDM** ‡ | `stl_check2hgi` | 26.22 ± 1.58 | 23.24 ± 1.27 | 38.74 ± 0.49 | ⚪ | ⚪ | 22.31 ± 1.31 |
-| **ReHDM** ‡ | `stl_hgi` | 42.78 ± 2.82 | 34.00 ± 3.02 | **54.49 ± 0.32** | ⚪ | ⚪ | 35.07 ± 1.98 |
+| Baseline | Variant | AL | AZ | FL | CA | TX | GA | Istanbul |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| Markov-1-region (floor) | — | 47.01 ± 3.55 | 42.96 ± 2.05 | 65.05 ± 0.93 | 52.09 ± 0.80 | 54.94 ± 0.46 | 48.19 ± 2.18 | 52.5 |
+| **STAN** | `faithful` (converged ✓) | 60.72 ± 5.20 | 49.86 ± 11.52 | 72.99 ± 0.34 | **58.52** (2/5 folds)★ | **61.67** (4/5 folds)★ | —‡ | 61.86 ± 0.61 |
+| **STAN** | `stl_check2hgi` | 59.20 ± 3.62 | 52.24 ± 2.38 | 72.62 ± 0.52 | 58.82 ± 1.04 | 61.35 ± 0.36 | 56.35 ± 2.40 | 70.39 (set-a)∞ |
+| **STAN** | `stl_hgi` | **62.88 ± 3.90** | **54.86 ± 2.84** | **73.58 ± 0.43** | **60.45 ± 0.97** | **62.70 ± 0.37** | **58.58 ± 1.86** | 71.13 ± 0.68 (set-a)∞ |
+| **ReHDM** † | **`faithful-v4` (THE citable row, version-uniform — PR #61)** | **65.38 ± 1.08** | **53.00 ± 1.28** | **64.49 ± 0.14** | 50.26 (s42)¶ | 48.81 (s42)¶ | ⚪ | **69.33 ± 0.81** |
+| ReHDM † | `faithful` v2 (superseded — see ⚠v4 note) | 66.06 ± 0.98 | 54.65 ± 0.77 | 65.68 ± 0.26 | ⚪ | ⚪ | 55.82 ± 0.76 | ⚪ |
+| **ReHDM** ‡ | `stl_check2hgi` | 26.22 ± 1.58 | 23.24 ± 1.27 | 38.74 ± 0.49 | ⚪ | ⚪ | 22.31 ± 1.31 | ⚪ |
+| **ReHDM** ‡ | `stl_hgi` | 42.78 ± 2.82 | 34.00 ± 3.02 | **54.49 ± 0.32** | ⚪ | ⚪ | 35.07 ± 1.98 | ⚪ |
+
+> ∞ **Istanbul `stl_*` cells are set-a footing** (non-overlap, pre-H3; PR #51) — not board-comparable with the H3
+> `dk_ovl`+v17 cells; the `stl_hgi` 71.13 is the future-headroom signal (`ISTANBUL_BASELINES_RESULTS.md`), not a
+> baseline. The citable Istanbul region externals are **STAN faithful 61.86** and **ReHDM v4 69.33** (the strongest
+> there; > STAN > HMT-GRN 60.4 — all below our MTL reg 75.44).
 
 > ★ **STAN CA/TX = partial-fold FINAL (user decision 2026-07-08, deadline).** The 5-fold run will not complete in
 > time; the partials are the citable numbers **with the fold count disclosed** (TX = folds 0–3, CA = folds 0–1;
@@ -46,12 +52,16 @@ Generated from `results/<state>.json`. To refresh, regenerate the JSONs (see `..
 > is tiny (TX ±0.2 over 4 folds, CA ±0.1 over 2), so the missing folds cannot plausibly flip either side of that
 > sandwich. Remaining folds = optional post-deadline robustness (`v17_completion/stan_catx/STATUS.md`).
 
-> ⚠ **ReHDM version caveat (2026-07-08, PR #58):** the AL/AZ/FL `faithful` row above is **v2-code**. The corrected
-> **v4** code (faithfulness audit: Eq.9 t_ij/s_ij restored + zero-init, target-only POI attention, seeded eval —
-> `research/baselines/rehdm/REHDM_AUDIT_CHANGES.md`) gives **AL 65.38 ± 1.08** (−0.68 pp systematic,
-> `REHDM_al_v4_faithful_5seeds_50ep_summary.json`); CA/TX are running on v4. **The paper row must be version-uniform:
-> AZ/FL v4 re-runs are queued** (`v17_completion/A40.md §A2-azfl`, ~25–60 min/state). Until then, do NOT mix v2 and v4
-> cells in one row without this caveat.
+> ⚠ **ReHDM version note (RESOLVED 2026-07-08, PR #61 — the citable row is now `faithful-v4`, version-uniform).**
+> v4 = the faithfulness-audit code (Eq.9 t_ij/s_ij restored + **zero-init** — the "−6 pp Eq.9 scare" was a
+> random-init bug, not "Eq.9 hurts"; target-only POI attention; seeded eval — `research/baselines/rehdm/REHDM_AUDIT_CHANGES.md`).
+> All-v4: **AL 65.38 / AZ 53.00 / FL 64.49 / Istanbul 69.33** (5 seeds each; systematic ~−1…−1.6 pp vs v2, the
+> legitimate A3/A6 fixes). The v2 row is kept above for provenance only — never cite it in the paper.
+> ¶ **CA/TX v4 = seed-42 single-seed partials** (50.26 / 48.81, remaining seeds running on the A40; coverage-only —
+> both far below our MTL reg 65.66/67.02, floors 52.09/54.94: note CA sits ~1.8 below its best-simple floor and TX
+> ~6 below — ReHDM does not carry the large-state region story; HMT-GRN + STAN do).
+> **Istanbul 69.33 is the STRONGEST region external there** (> STAN 61.86 > HMT-GRN 60.4) — still below our
+> MTL reg 75.44. Protocol reminder (†): ReHDM runs its OWN chronological split — reference row, never a paired cell.
 
 Bold = best variant per state-baseline. ⚪ = intentionally out of scope (STAN/REHDM faithful CA/TX shown infeasible at scale; substrate-axis covered at 5 states via STAN-STL — see `GAP_A_CLOSURE_20260430.md`). 🟡 = partial; ✅ = 5-fold/seed complete.
 
