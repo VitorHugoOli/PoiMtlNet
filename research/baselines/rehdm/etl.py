@@ -47,6 +47,15 @@ STATE_TIGER_PREFIX = {
     "texas": "tl_2022_48_tract_TX",
 }
 
+# Istanbul (Massive-STEPS / Foursquare): region taxonomy = OSM admin_level=8
+# mahalle polygons — the TIGER-tract equivalent. Distributed as a GeoJSON whose
+# region-id column is '@id' (OSM relation id), NOT 'GEOID'. Mirrors the same
+# source of truth that STAN's ETL (research/baselines/stan/etl.py) and the
+# check2hgi substrate use, so the ReHDM Istanbul regions match STAN's taxonomy.
+ISTANBUL_MAHALLE_GEOJSON = (
+    Path("miscellaneous") / "istanbul_mahalle" / "istanbul_mahalle.geojson"
+)
+
 
 def latlon_to_quadkey(lat: float, lon: float, level: int = 10) -> str:
     """Microsoft Tile Map quadkey (base-4 string) at a given zoom level.
@@ -95,6 +104,20 @@ def _load_boroughs(boroughs_csv: Path) -> gpd.GeoDataFrame:
     return gpd.GeoDataFrame(b, geometry="geometry", crs="EPSG:4326")
 
 
+def _load_regions_geojson(geojson_path: Path) -> gpd.GeoDataFrame:
+    """Load a GeoJSON region layer (Istanbul mahalle) as a GEOID/geometry frame.
+
+    Mirrors STAN's ETL id-col handling: TIGER tracts key on 'GEOID', the mahalle
+    GeoJSON keys on '@id' (OSM relation id). Normalize the id column to 'GEOID'
+    so the downstream sjoin / region_to_idx logic (`_assign_regions`) is shared
+    verbatim with the US-state path.
+    """
+    g = gpd.read_file(geojson_path).to_crs("EPSG:4326")
+    rid = "GEOID" if "GEOID" in g.columns else ("@id" if "@id" in g.columns else "name")
+    g = g[[rid, "geometry"]].rename(columns={rid: "GEOID"})
+    return gpd.GeoDataFrame(g, geometry="geometry", crs="EPSG:4326")
+
+
 def _assign_regions(checkins: pd.DataFrame, boroughs: gpd.GeoDataFrame):
     pois = (
         checkins.groupby("placeid")
@@ -130,13 +153,25 @@ def build_inputs(
     state_title = state.title()
 
     checkins_file = data_root / "checkins" / f"{state_title}.parquet"
-    boroughs_csv = output_root / "check2hgi" / state_lc / "temp" / "boroughs_area.csv"
-    if not boroughs_csv.exists():
-        boroughs_csv = output_root / "hgi" / state_lc / "temp" / "boroughs_area.csv"
-    if not boroughs_csv.exists():
-        raise FileNotFoundError(
-            f"boroughs_area.csv not found under output/{{check2hgi,hgi}}/{state_lc}/temp/."
-        )
+
+    # Region source: US states use the TIGER-tract WKT CSV; Istanbul uses the
+    # OSM mahalle GeoJSON (see ISTANBUL_MAHALLE_GEOJSON). Both resolve to a
+    # GeoDataFrame with a 'GEOID' id column consumed by `_assign_regions`.
+    is_istanbul = state_lc == "istanbul"
+    if is_istanbul:
+        istanbul_geojson = data_root / ISTANBUL_MAHALLE_GEOJSON
+        if not istanbul_geojson.exists():
+            raise FileNotFoundError(
+                f"Istanbul mahalle geojson not found at {istanbul_geojson}."
+            )
+    else:
+        boroughs_csv = output_root / "check2hgi" / state_lc / "temp" / "boroughs_area.csv"
+        if not boroughs_csv.exists():
+            boroughs_csv = output_root / "hgi" / state_lc / "temp" / "boroughs_area.csv"
+        if not boroughs_csv.exists():
+            raise FileNotFoundError(
+                f"boroughs_area.csv not found under output/{{check2hgi,hgi}}/{state_lc}/temp/."
+            )
 
     print(f"[etl] state={state_lc} checkins={checkins_file}")
     df = pd.read_parquet(checkins_file)
@@ -149,8 +184,12 @@ def build_inputs(
     df = _filter_min_checkins(df, min_count=min_checkins)
     print(f"[etl] after min{min_checkins} filter rows={len(df)}")
 
-    print("[etl] spatial-join → tract regions")
-    boroughs = _load_boroughs(boroughs_csv)
+    if is_istanbul:
+        print("[etl] spatial-join → mahalle regions")
+        boroughs = _load_regions_geojson(istanbul_geojson)
+    else:
+        print("[etl] spatial-join → tract regions")
+        boroughs = _load_boroughs(boroughs_csv)
     poi_region, region_to_idx = _assign_regions(df, boroughs)
     df = df.merge(poi_region[["placeid", "region_idx"]], on="placeid", how="inner")
     df = df.sort_values(["userid", "datetime"]).reset_index(drop=True)
