@@ -50,12 +50,11 @@ Texas come from a single seed over five folds, so those two cells are
 provisional; the other four datasets average four seeds on both arms. A
 multi-seed run at the two largest states is the remaining step. Second, our representation is trained once over all places. One
 slice of its behavior, visits to places never seen during training, is the single
-effect we cannot fully isolate. The same property sets the deployment path: the
-representation is a precomputed artifact, so a served system would embed new
-check-ins by refreshing it on a schedule, as embedding infrastructures commonly
-do, rather than per visit; an encoder that embeds unseen visits directly is the
-same machinery as the planned variant that trains on each fold's
-training places only, and both are one study. Third, although a mobility-aware service is
+effect we cannot fully isolate. The same property sets the deployment path: a
+served system would refresh the precomputed representation on a schedule, as
+embedding infrastructures commonly do; an encoder that embeds unseen visits
+directly is the same machinery as a variant trained on each fold's training
+places only, and both are one planned study. Third, although a mobility-aware service is
 our motivation throughout, we do not build or evaluate one; a concrete service
 evaluation, with its own baselines and costs, remains the natural next study.
 

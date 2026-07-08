@@ -11,8 +11,7 @@
 \label{sec:related-embeddings}
 A place embedding turns a POI into a vector, so that a model can reason about
 places by their learned geometry, where similar or nearby places sit close
-together. This replaces treating each place as a bare, unrelated index, an
-arbitrary ID number that says nothing about what the place is or where it sits.
+together. This replaces treating each place as a bare, arbitrary index.
 Deep Graph Infomax (DGI) \cite{velickovic2019dgi} is a general self-supervised
 method for learning node representations on graphs. Applied here to a network
 of places, it learns such vectors by training them to tell the real place
@@ -88,7 +87,7 @@ itself: with two co-equal targets, a chain would have to promote one of them to
 an upstream stage whose errors the other inherits, an order nothing in the tasks
 dictates. Since the cascade is the pattern the field actually uses, we also test
 the choice directly (Section~\ref{sec:results-part2}). On the optimization side we are deliberately
-conservative: hard parameter sharing, one shared stack of layers for both tasks, is standard practice
+conservative: training one model jointly on several tasks with a fixed loss weighting is standard practice
 \cite{caruana1997multitask}, and our use of it is not itself the contribution.
 Rather than propose yet another gradient-balancing method (PCGrad \cite{yu2020pcgrad},
 GradNorm \cite{chen2018gradnorm}, Nash-MTL \cite{navon2022nashmtl}), we ask

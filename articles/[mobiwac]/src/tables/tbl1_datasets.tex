@@ -16,8 +16,12 @@ international city (Istanbul, from Massive-STEPS). All datasets share the same s
 categories; the region unit is a census tract (a mahalle for Istanbul). Windows are the
 overlapping nine-visit inputs plus the next visit as target; sequence lengths are per-user
 check-in counts; density is the check-in-matrix fill,
-$100\times\text{check-ins}/(\text{users}\times\text{POIs})$; Majority is the share of visits
-in the most common category (Food in every dataset).}
+$100\times\text{check-ins}/(\text{users}\times\text{POIs})$; Majority is the share of next-visit
+labels in the most common category (Food in every dataset).}
+% Majority provenance (hidden): computed on the next-visit target labels of the task inputs
+% (CATEGORY_DISTRIBUTION.md); Gowalla values match the overlap windows to <=0.5 pp (AL 34.18 at
+% overlap); the Istanbul 33.4 is from the earlier windowing of the same visits (raw visit share
+% 27.0; recompute on the dk_ovl inputs at the next A40 session if exactness is wanted).
 \label{tab:datasets}
 \centering
 \begin{tabular}{l l r r r r r r r r r}

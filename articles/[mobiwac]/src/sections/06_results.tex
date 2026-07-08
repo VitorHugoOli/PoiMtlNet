@@ -52,12 +52,12 @@ from place identifiers and timestamps alone: its pretraining recovers masked
 places and masked hours, so the category vocabulary never enters its training,
 whereas our graph reads each visit's category and time of day as input features
 (and even the place embedding builds its place vectors from category-derived
-features). Fine-tuned end to end at Florida, at its authors' architecture
-defaults scaled to the shared 64-dimension budget and under the same windowing,
-CTLE reaches $33.45$ macro-F1 at its best epoch ($29.69$ at its final epoch),
-about two points below the place embedding scored under the same best-epoch
+features). Fine-tuned end to end at Florida at its authors' defaults, scaled to
+the shared 64-dimension budget under the same windowing,
+CTLE reaches $33.45$ macro-F1 at its best epoch ($29.69$ at its final one),
+about two points below the place embedding under the same best-epoch
 rule and far below our $75.15$; frozen and fed to the same single-task model as
-ours, the same control at Alabama, Arizona, and Istanbul repeats the ordering,
+ours, the control at Alabama, Arizona, and Istanbul repeats the ordering,
 with margins of $+37.8$, $+37.0$, and $+28.7$ macro-F1. A feature-concat control,
 the place embedding joined with raw per-visit features and fed to the same model,
 does not close the gap either, so the category gain comes from the hierarchical
@@ -141,9 +141,10 @@ cascade dominates published practice, and CSLSL reports its chain
 outperforming a parallel variant that shares one trunk on its own
 benchmarks~\cite{huang2024cslsl}. Rewired as a cascade
 (Section~\ref{sec:setup-baselines}), our model reaches the same combined
-accuracy as its parallel form at the same parameter and compute cost (a
+accuracy as its parallel form at no additional parameter or compute cost (a
 joint-score difference of about zero at Alabama, Arizona, Florida, and
-Istanbul, the four datasets where we ran the comparison, spanning 520 to
+Istanbul, the four datasets where we ran the comparison, each pair trained
+under one shared configuration and seed, spanning 520 to
 4{,}703 regions and including the non-U.S. city). We read this as a defense of the
 parallel design, not a claim that we outperform the cascade: on this
 representation the coupling topology makes no measurable difference in either
@@ -167,7 +168,7 @@ absolute Acc@10, because its region count (520 mahalle) differs from the
 Gowalla states. The representation, the overlapping-window protocol, and the
 training setup are identical to those used for the Gowalla states, so the
 comparison is like-for-like. The external baselines line up the same way as on
-the U.S. states: on category the joint model is far above a nine-step Markov
+the U.S. states: on category the joint model is far above the Markov
 floor ($24.55$) and POI-RGNN~\cite{capanema2023poirgnn} ($30.12$), and on
 region it is above ReHDM~\cite{li2025rehdm} ($69.33$), a faithful
 STAN~\cite{luo2021stan} ($61.86$), and HMT-GRN~\cite{lim2022hmtgrn} ($60.4$).

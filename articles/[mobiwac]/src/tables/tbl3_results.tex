@@ -36,7 +36,7 @@ the region columns, $\uparrow$ marks that supported improvement and $\approx$ a 
 \begin{tabular}{l r | r r r r | r r r r r}
 \hline
 & & \multicolumn{4}{c|}{\textbf{Next-category (macro-F1)}} & \multicolumn{5}{c}{\textbf{Next-region (Acc@10)}} \\
-\textbf{Dataset} & \textbf{Regions} & \textbf{Markov-9} & \textbf{POI-RGNN} & \textbf{Dedicated} & \textbf{Joint (ours)} & \textbf{HMT-GRN} & \textbf{ReHDM} & \textbf{STAN} & \textbf{Dedicated} & \textbf{Joint (ours)} \\
+\textbf{Dataset} & \textbf{Regions} & \textbf{Markov-K} & \textbf{POI-RGNN} & \textbf{Dedicated} & \textbf{Joint (ours)} & \textbf{HMT-GRN} & \textbf{ReHDM} & \textbf{STAN} & \textbf{Dedicated} & \textbf{Joint (ours)} \\
 \hline
 Istanbul & 520     & 24.55 & 30.12 & 54.74\sd{0.09} & \textbf{63.33}\sd{0.02} & 60.4  & 69.33 & 61.86 & 75.16\sd{0.01} & \textbf{75.44}\sd{0.04}$^{\uparrow}$ \\
 AL       & 1{,}109 & 20.50 & 23.80 & 56.82\sd{0.03} & \textbf{64.54}\sd{0.10} & 57.05 & 65.38 & 60.72 & 70.11\sd{0.10} & 69.80\sd{0.05}$^{\approx}$ \\
@@ -46,8 +46,10 @@ TX       & 6{,}553 & 28.67 & 33.03 & 69.79\sd{0.08} & \textbf{77.23}\sd{0.12} & 
 CA       & 8{,}501 & 27.58 & 31.78 & 70.60\sd{0.07} & \textbf{77.04}\sd{0.20} & 49.61 & 50.26$^{\ddagger}$ & 58.52$^{\dagger}$ & 63.49\sd{0.02} & \textbf{65.69}\sd{0.30}$^{\uparrow}$ \\
 \hline
 \multicolumn{11}{@{}p{\dimexpr\textwidth-2\tabcolsep\relax}@{}}{\footnotesize HMT-GRN (region-native, on
-our folds) is the primary external comparison; STAN (faithful, from raw) and ReHDM (its own protocol) are
-references. $^{\dagger}$STAN partial-fold cells: Texas four of five folds, California two of five (seed 0).
+our folds, scored on the visits whose region appears in training) is the primary external comparison; STAN
+(faithful, from raw) and ReHDM (its own protocol) are
+references. Markov-K reports the strongest order per dataset (up to the nine-visit window).
+$^{\dagger}$STAN partial-fold cells: Texas four of five folds, California two of five (seed 0).
 $^{\ddagger}$ReHDM at Texas and California is a single seed. The joint cells at California and Texas are a
 single seed over five folds (provisional); every other cell in our columns averages four seeds. Standard
 deviations are across seeds for four-seed cells and across folds for single-seed cells.} \\
