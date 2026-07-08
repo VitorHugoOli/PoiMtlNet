@@ -103,9 +103,29 @@ The per-fold log_T is inert for this config (`freeze_alpha=True`, `alpha_init=0.
 KD off), so `MTL_SKIP_INERT_LOGT=1` (default) skips it -- no `region_transition_log_*.pt`
 files are needed (byte-identical).
 
+## Floor: random-pair inter-centroid distance (the reference point, added 2026-07-08)
+
+The miss distances above need a reference scale (the paper's own rule: never a
+number without its reference point). `near_miss_floor.py` computes it: the
+haversine distance between the centroids of two randomly drawn, distinct
+candidate regions, restricted to the model's exact region vocabulary
+(`region_to_idx`; all vocabulary GEOIDs matched a polygon at every state).
+200,000 pairs, seed 0, CPU-seconds. This is a bare geometric scale anchor, not
+a simulated random predictor (the true-region distribution is not uniform).
+
+| State | vocab regions | random-pair P50 (km) | P90 (km) | mean (km) | model in-dist miss P50 | model is |
+|---|---:|---:|---:|---:|---:|---:|
+| Alabama  | 1,109 | 170.67 | 377.39 | 198.46 | 8.13 | ~21x closer |
+| Arizona  | 1,547 | 120.32 | 286.93 | 134.74 | 8.05 | ~15x closer |
+| Florida  | 4,703 | 241.22 | 507.89 | 262.28 | 7.04 | ~34x closer |
+| Istanbul |   520 |  20.45 |  59.45 |  26.38 | 3.16 | ~6x closer |
+
+Reading: a wrong top-1 prediction lands an order of magnitude closer to the
+true region than a random candidate region would, on every measured dataset.
+
 ## Status
 
 All four states complete (2026-07-07, A40). Florida (the stride-1 overlap large
 state, ~1.3M rows, 4,703 regions) ran alone in fp32 and held convergence with no
 collapsed fold, its ~7 km median in-distribution miss matching the smaller states'
-~3-8 km range.
+~3-8 km range. Floor reference added 2026-07-08 (`near_miss_floor.py`, above).

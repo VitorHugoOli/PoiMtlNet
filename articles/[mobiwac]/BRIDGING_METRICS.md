@@ -92,6 +92,12 @@ polygons; ⚠ GEOID int64 drops the leading zero — zero-pad to 11 chars) + `re
 `temp/checkin_graph.pt`. Offline join + haversine is CPU-minutes. Full pipeline, placement verdict, and
 ready-to-paste (placeholder-gated) prose: [`MOBILITY_PLAN.md §3`](MOBILITY_PLAN.md).
 
-**Status.** Registered; **blocked on the P1 launch carrying the dump flag** (merge the flag first or the
-metric costs its own ~1–2 H100-day re-run; A40 infeasible at FL/CA/TX). Target use: rebuttal first;
-camera-ready at most ONE sentence in §6.2 (or §7's usage sketch), never a fig4 panel.
+**Status (updated 2026-07-08). COMPUTED — decoupled from P1.** Ran standalone on the A40 (PR #59,
+2026-07-07: AL/AZ/FL/Istanbul, v17 `dk_ovl` seed-0 5f with the dump flag; the old "A40 infeasible at
+FL/CA/TX" was wrong for FL, which completed run-alone in fp32; CA/TX remain unmeasured, author-triggered
+only). Median in-distribution miss 3.16–8.13 km vs. a 20–241 km random-pair floor
+(`analysis/near_miss_floor.py`, 2026-07-08) — misses ~6–34× closer than chance. Record:
+[`analysis/near_miss_RESULTS.md`](analysis/near_miss_RESULTS.md). Paper placement graduated from "at most
+one sentence" to the certified §7 usage-sketch rewrite (C4 in
+[`MOBILITY_SCIENCE_BRIDGE_PLAN.md §12.3/§13`](MOBILITY_SCIENCE_BRIDGE_PLAN.md); tracking
+`CLOSER_HANDOFF.md §P7`) — still bare percentiles, still no fig4 panel, still no service-radius overlay.

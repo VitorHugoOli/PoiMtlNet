@@ -20,6 +20,10 @@
   ceiling is already **n=20 at all 6 states**; all baselines in (HMT-GRN 6 states, faithful STAN AL/AZ/FL/Istanbul,
   ReHDM AL/AZ/FL, CTLE FL, feature-concat FL, cascade-variant tie at AL/AZ/FL (Istanbul + CA/TX open → P6),
   Markov/POI-RGNN floors).
+- **Mobility venue-bridge (2026-07-08):** the geographic near-miss metric is **DONE** (PR #59: AL/AZ/FL/Istanbul,
+  v17 `dk_ovl` seed-0 5f on the A40, healthy late best-epochs, reg Acc@10 tracking the board cells; median
+  in-distribution miss 3.16–8.13 km) + the random-pair floor (`analysis/near_miss_floor.py`: 20–241 km → misses
+  ~6–34× closer than chance). The venue-fit prose fix is packaged as **P7** below (prose ready on author go).
 - **The one verdict-changer:** **P1** (n=20 top-up), **blocked on the H100 lane**.
 
 ## 1 · Submission mechanics (before the EDAS upload — not data)
@@ -87,6 +91,31 @@
   misread — `CATX_V17_N20_H100_HANDOFF.md`). The `p3_board.sh`
   commands above are the **v16** recipe — for v17 use the track's H2/H1 recipes. **Non-blocking for submission** (§6.2
   labels cells n=5 provisional).
+
+### P7 — Mobility venue-bridge v3: apply the certified edit set + shortlist compactness  **[venue-fit W4, the panel's #1 reject risk — prose, no GPU lane contention; added 2026-07-08]**
+- **What.** Apply the adversarially certified v3 edit set (spec + exact prose:
+  [`MOBILITY_SCIENCE_BRIDGE_PLAN.md §12.3`](MOBILITY_SCIENCE_BRIDGE_PLAN.md) + the **§13 named apply-time
+  fixes**, which are mandatory): the certified core (**C2+C2b** §3 tail + trim — the trim is a mandatory pair,
+  it guards the Table III float anchor — **C3** §5.3, **C4** §7 usage sketch with the shortlist-enrichment +
+  near-miss + floor numbers, **C5** limitations clause — pin the exact anchor per §13.3 — **C6** §7 append),
+  plus the recommended **C1** (intro Moura clause), the zero-cost **C1b** (`bastug2014edge` on the intro's
+  staging example — **closes INV6 / Germano #57**) and the recommended **C7** (`song2010limits` feasibility
+  clause, §13.1). Bib adds 3–4 entries in the same commit (`moura2025mobilityaware` — rewrite the stale §7.4
+  comment to the v3 framing first — `silva2019urbancomputing`, `bastug2014edge`, optional `song2010limits`).
+- **Why.** Venue-fit (the archived panel's **W4**) is "the dominant reason a hard-networking TPC votes reject";
+  this edit set is the only fix available **inside** the settled motivation-only ruling, and the simulated
+  re-review with these fixes moves the venue-fit verdict **from Reject toward Weak Reject** (Accept would need
+  a measured service result — L3, banned; author ruled 2026-07-08: stays closed this cycle, follow-up-paper
+  material). Every number traces: Table 3 + `analysis/near_miss_RESULTS.md` (incl. the Floors section) +
+  `analysis/near_miss_floor.py`.
+- **Machine.** Mac (prose + recompile; no GPU). The one data leg — **shortlist compactness** (converts the
+  "500× over chance" enrichment claim into a spatial-actionability claim, the sharpest residual reviewer
+  counter) — is **A40-6** in the machine track (CPU-minutes over the existing near-miss dump parquets).
+- **Acceptance.** Recompile: **10 pages**, 0 undefined refs (§0's cited-refs count 31→34, or 35 with C7);
+  C2b trim present; §13's named fixes all applied; the **Istanbul seed-rigor caveat travels with C4**
+  (near-miss Istanbul is seed-0 vs. the paper's four-seed Istanbul bar elsewhere — note it or top it up when
+  the P1/H lane runs); GLOSSARY sweep on the inserted text.
+- **Status: prose ready-to-apply on author go; compactness not-run (A40-6).**
 
 ### P2 — Extend the transductive-leak audit (A4) to CA / TX / Istanbul  **[coverage, not a verdict]**
 - **What.** The train-users-only rebuild audit (rebuild the representation per fold on train users only, re-run both
@@ -186,6 +215,9 @@
 **v17 MTL n=20 at AL/AZ/FL** (`perhead_lr_n20.md`: AL 64.54/69.80, AZ 65.84/59.56, FL 79.85/77.42);
 **v17 MTL seed-0 5f at CA/TX** (`catx_v17_seed0_5f/`: CA 77.04/65.69, TX 77.23/67.07 — cat is a state-size trade,
 kept board-wide); **DEFAULT_CANON flipped to v17**;
+**Geographic near-miss metric + random-pair floor** (PR #59 2026-07-07 + `near_miss_floor.py` 2026-07-08:
+AL/AZ/FL/Istanbul, v17 dk_ovl seed-0 5f, healthy, board-tracking; record = `analysis/near_miss_RESULTS.md`;
+paper text = P7/C4 — do NOT re-run the four states);
 Faithful **STAN FL** (Acc@10 **72.99**±0.34, `faithful_stan_florida_5f_200ep_v6_opt.json`; CA/TX optional→footnoted);
 HGI-Istanbul → Tbl 2 (+26.64); Tbl 2 substrate contrast, all 5 Gowalla on one windowing; W6 encoder-isolation probe;
 Cascade-variant tie (AL/AZ/FL — extension to Istanbul/CA/TX is P6, NOT closed); FL CTLE-E2E + CTLE-SC (AL/AZ/Istanbul);
@@ -200,11 +232,13 @@ sourcing (A4 AL/AZ/FL); reviewer-clarity + bib hygiene.
    **separate** `train.py --task next … --model next_gru` run.
 
 ## 5 · Priority ledger (v17)
-**P1 (H100, VERDICT-CHANGER)** = H1 CA/TX v17 n=20 + H2 STL-cat re-tune n=20 + M1 re-score/stats ≫ **P3/H3** (Istanbul
+**P1 (H100, VERDICT-CHANGER)** = H1 CA/TX v17 n=20 + H2 STL-cat re-tune n=20 + M1 re-score/stats
+**∥ P7 (Mac prose + A40-6 compactness — venue-fit W4, runs in PARALLEL, contends with no GPU lane; prose on
+author go)** ≫ **P3/H3** (Istanbul
 dk_ovl+v17 rebuild, H100, removes the last caveat) > **P6-Istanbul** (cascade coverage, HIGH per author 2026-07-06;
 depends on H3 for the substrate + comparand) > **S1** (STAN precision-mix disclosure, M2 Pro, doc) > **P6-CA/TX**
 (cascade coverage, A40) > P2 (A4 leak
 CA/TX/Istanbul, M2 Pro/CPU, coverage) > P5 (ReHDM CA/TX/Istanbul, A40, ~75–120 h/state, footnote-OK) > P4 (bridging
-re-score, needs gitignored logits). P6's n=20 stretch is time-permitting only, strictly after P1. **v17 AL/AZ/FL n=20 + CA/TX seed-0 are done; STAN-FL is done. Only P1 changes a
-verdict — the draft is submittable today (cells labeled n=5 provisional).** Full run specs + machine split:
+re-score, needs gitignored logits). P6's n=20 stretch is time-permitting only, strictly after P1. **v17 AL/AZ/FL n=20 + CA/TX seed-0 are done; STAN-FL is done; the near-miss metric + floor are done (P7's data legs). Only P1 changes a
+verdict — the draft is submittable today (cells labeled n=5 provisional); P7 is the venue-fit de-risker.** Full run specs + machine split:
 [`v17_completion/`](../../docs/studies/closing_data/v17_completion/README.md).

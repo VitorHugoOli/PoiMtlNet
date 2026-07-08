@@ -77,6 +77,14 @@ warnings, 33 rendered refs. L0 (and the §2.2 half of L1) of the ladder is there
 
 ## 3 · Geographic near-miss metric — full evaluation (verdict: NOT in the submission; register + piggyback P1)
 
+> **STATUS UPDATE 2026-07-08: COMPUTED — decoupled from P1.** The metric ran standalone on the A40 (PR #59,
+> 2026-07-07: AL/AZ/FL/Istanbul, v17 `dk_ovl` seed-0 5f, `MTL_DUMP_VAL_PREDS=1`; median in-distribution miss
+> 3.16–8.13 km) and the random-pair floor was added 2026-07-08 (`analysis/near_miss_floor.py`: 20–241 km).
+> Record: [`analysis/near_miss_RESULTS.md`](analysis/near_miss_RESULTS.md). The §3.4 placeholder-gated drafts
+> below are **superseded** by the certified C4 text in
+> [`MOBILITY_SCIENCE_BRIDGE_PLAN.md §12.3/§13`](MOBILITY_SCIENCE_BRIDGE_PLAN.md); execution tracking is
+> `CLOSER_HANDOFF.md §P7`. The section below is kept as the original registration record.
+
 **Definition.** For each test visit whose top predicted region is wrong: the distance (km) between the
 centroid of the predicted tract (mahalle for Istanbul) and the centroid of the true one; report per-state
 P50/P90 and the distribution, per fold. Visits whose true region is absent from training (the OOD share
