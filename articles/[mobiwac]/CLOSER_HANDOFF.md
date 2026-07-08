@@ -115,7 +115,7 @@
   C2b trim present; §13's named fixes all applied; the **Istanbul seed-rigor caveat travels with C4**
   (near-miss Istanbul is seed-0 vs. the paper's four-seed Istanbul bar elsewhere — note it or top it up when
   the P1/H lane runs); GLOSSARY sweep on the inserted text.
-- **Status: prose ready-to-apply on author go; compactness not-run (A40-6).**
+- **Status: prose ready-to-apply on author go; compactness DONE (A40-6, 2026-07-08 — `analysis/shortlist_compactness_RESULTS.md`, all four states, spread P50 2.86–7.53 km, ≈7–32× tighter than the random-pair map scale).**
 
 ### P2 — Extend the transductive-leak audit (A4) to CA / TX / Istanbul  **[coverage, not a verdict]**
 - **What.** The train-users-only rebuild audit (rebuild the representation per fold on train users only, re-run both
