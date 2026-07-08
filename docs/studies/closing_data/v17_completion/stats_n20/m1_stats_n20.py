@@ -20,9 +20,18 @@ RESULTS.md LIMITS):
 NOTE the n=4 exact one-sided Wilcoxon floor = 1/2^4 = 0.0625 > 0.05 — Wilcoxon cannot clear
 alpha at this footing regardless of effect size; the paired t (df=3) is reported alongside as
 the powered seed-level test (deviation logged per protocol §8).
+
+rev 3 adds CA/TX **PROVISIONAL** cells at the per-fold seed-0 footing (n=5; exact one-sided
+Wilcoxon floor 1/2^5 = 0.0312; superseded by A1's n=20): MTL side = catx_v17_seed0_5f — the
+per-fold matched-scorer arrays are parsed from that RESULTS.md (no committed JSON carries the
+matched reg vectors; profile.json `quality.next_category` cross-checks cat exactly at 2dp,
+but its `next_region` is a different, non-ood-corrected capture, ~+0.01..0.04 off). STL sides
+= the SEED-0 fold vectors of the same runs whose n=20 means are the cited ceilings. These
+cells are NOT in the m=4 Holm family; the pre-registered 6-dataset family Holm waits for A1.
 """
 import csv
 import json
+import re
 import statistics as st
 import sys
 from pathlib import Path
@@ -112,6 +121,42 @@ def reg_ceiling_perfold(key):
 def ist_perseed(prefix):
     """Istanbul step3 per-seed 5-fold means (mtl_cat / mtl_reg / cat_ceil / reg_ceil)."""
     return {s: float(open(IST_RUNS / f"{prefix}_s{s}.txt").read().strip()) for s in SEEDS}
+
+
+# CA/TX v17 MTL seed-0 sources (rev 3, PROVISIONAL n=5) ------------------------------------
+CATX_MD = REPO / "docs/studies/closing_data/catx_v17_seed0_5f/RESULTS.md"
+CATX_TSV = REPO / "docs/studies/closing_data/catx_v17_seed0_5f/summary.tsv"
+CATX_PROFILE = {"CA": "california_s0/profile.json", "TX": "texas_s0/profile.json"}
+CATX_STL_CAT_S0 = {"CA": "california_bs8192_lr0.005_s0.json", "TX": "texas_bs8192_lr0.005_s0.json"}
+CATX_STL_REG_S0 = {"CA": "region_head_california_region_5f_50ep_ca_ovl_stl_reg_s0.json",
+                   "TX": "region_head_texas_region_5f_50ep_tx_ovl_stl_reg_s0.json"}
+
+
+def catx_mtl_perfold():
+    """{'CA'/'TX': {'cat': [5], 'reg': [5]}} — parsed from catx_v17_seed0_5f/RESULTS.md.
+
+    The .md is the only committed carrier of the MATCHED-scorer per-fold vectors (2dp): the
+    summary.tsv has fold-means only, and profile.json's `quality.next_region` is a different
+    capture (not the ood-corrected FULL top10). Cross-checks applied here:
+      - cat per-fold == profile.json `quality.next_category` (exact at 2dp);
+      - fold-means reproduce the summary.tsv means to <= 0.01 (2dp rounding).
+    """
+    txt = open(CATX_MD).read()
+    out = {}
+    for state, head, arr in re.findall(r"\*\*(CA|TX) (cat|reg)\*\* \[([^\]]+)\]", txt):
+        out.setdefault(state, {})[head] = [float(x) for x in arr.split(",")]
+    for k in ("CA", "TX"):
+        assert set(out.get(k, {})) == {"cat", "reg"} and all(len(v) == 5 for v in out[k].values()), \
+            f"could not parse CA/TX per-fold arrays from {CATX_MD}"
+        prof = json.load(open(CATX_MD.parent / CATX_PROFILE[k]))
+        prof_cat = [round(f["quality"]["next_category"] * 100, 2) for f in prof["folds"]]
+        assert prof_cat == out[k]["cat"], f"{k}: .md cat != profile.json quality ({prof_cat})"
+    tsv = {r["state"]: (float(r["cat"]), float(r["reg"]))
+           for r in csv.DictReader(open(CATX_TSV), delimiter="\t") if r["state"] in ("california", "texas")}
+    for k, stt in (("CA", "california"), ("TX", "texas")):
+        assert abs(st.mean(out[k]["cat"]) - tsv[stt][0]) <= 0.01, f"{k} cat mean vs tsv"
+        assert abs(st.mean(out[k]["reg"]) - tsv[stt][1]) <= 0.01, f"{k} reg mean vs tsv"
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -256,3 +301,35 @@ print("\n  ⚠ M1-PARTIAL: the paper's headline family is 6 datasets (protocol �
 print("    6-dataset Holm re-runs after A1 lands CA/TX v17 MTL n=20 on the A40; the per-fold")
 print("    (n=20) upgrade of ALL cells additionally needs the matched-score sidecars pulled")
 print("    (see RESULTS.md LIMITS).")
+
+# --- 3 · CA/TX — PROVISIONAL per-fold seed-0 cells (n=5; superseded by A1's n=20) ----------
+print("\n--- 3 · CA/TX — PROVISIONAL, per-fold PAIRED at seed 0 (n=5; Wilcoxon floor 0.0312) ---")
+print("  MTL = catx_v17_seed0_5f (matched-scorer per-fold, parsed from its RESULTS.md — the")
+print("  only committed carrier; cat cross-checked vs profile.json, means vs summary.tsv).")
+print("  STL = the SEED-0 fold vectors of the same runs whose n=20 means are the cited")
+print("  ceilings (CEILINGS_N20_FINAL: CA cat 70.60 / reg 63.49; TX cat 69.79 / reg 64.95) —")
+print("  the CITED ceiling stays n=20; only the paired test is at the seed-0 footing.")
+print("  NOT in the m=4 Holm family; the 6-dataset family Holm waits for A1.")
+catx = catx_mtl_perfold()
+for k in ["CA", "TX"]:
+    stl_cat_s0 = json.load(open(SWEEP / CATX_STL_CAT_S0[k]))["cat_per_fold"]
+    d = json.load(open(P1 / CATX_STL_REG_S0[k]))
+    stl_reg_s0 = [x["top10_acc"] * 100 for x in d["heads"]["next_stan_flow"]["per_fold"]]
+    sup = paired_superiority(catx[k]["cat"], stl_cat_s0, "n=5 folds (seed 0)")
+    tost = paired_tost(catx[k]["reg"], stl_reg_s0, "n=5 folds (seed 0)")
+    supr = paired_superiority(catx[k]["reg"], stl_reg_s0, "n=5 folds (seed 0)")
+    print(f"\n  {k} (PROVISIONAL, seed-0)")
+    print(f"    CAT superiority: Δ={sup['mean_d']:+.3f} ± {sup['sd_d']:.3f} pp, folds+={sup['pos']}, "
+          f"per-fold Δ={sup['d']}")
+    print(f"      exact one-sided Wilcoxon p = {sup['p_wilcoxon']:.4f} (n=5 floor = 0.0312 — "
+          f"at-ceiling if 5/5); paired t(4) p = {sup['p_t']:.2e}")
+    print(f"    REG (δ_reg = {DELTA_REG:.0f} pp): Δ={tost['mean_d']:+.3f} ± {tost['sd_d']:.3f} pp, "
+          f"per-fold Δ={tost['d']}")
+    print(f"      TOST non-inferiority side p = {tost['p_noninf']:.2e}; 90% CI = "
+          f"({tost['ci90'][0]:+.3f}, {tost['ci90'][1]:+.3f}) pp")
+    if tost["ci90"][0] > DELTA_REG:
+        print(f"      -> CI entirely ABOVE +δ: exceeds the margin in the FAVORABLE direction "
+              f"(two-sided equivalence n/a — better than the margin); non-inferiority trivially holds.")
+    print(f"      superiority (the pre-registered reg-'beats' family, superiority_wilcoxon.py): "
+          f"Wilcoxon p = {supr['p_wilcoxon']:.4f}, folds+={supr['pos']}, paired t(4) p = {supr['p_t']:.2e}")
+print("\n  [provisional] These n=5 seed-0 verdicts are superseded by A1's n=20 the moment it lands.")

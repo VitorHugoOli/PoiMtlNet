@@ -1,15 +1,19 @@
-# M1-PARTIAL — v17 pre-registered stats vs the n=20 best-vs-best ceilings (2026-07-08, rev 2)
+# M1-PARTIAL — v17 pre-registered stats vs the n=20 best-vs-best ceilings (2026-07-08, rev 3)
 
-> ⚠ **This is M1-PARTIAL.** It covers the 4 datasets that are fully n=20 on both sides today
-> (**AL, AZ, FL, Istanbul** — ceilings per [`../CEILINGS_N20_FINAL.md`](../CEILINGS_N20_FINAL.md),
-> **AZ ceiling = 56.43, the corrected bs8192@0.005 arm**). **CA/TX are pending A1** (v17 MTL n=20
-> on the A40). The paper's headline family is 6 datasets (protocol §5.2) — **the full 6-dataset
-> family Holm re-runs after A1**; everything here is the pre-registered analysis of the committed
-> subset, not the final family verdict.
+> ⚠ **This is M1-PARTIAL.** The fully-n=20 family covers **AL, AZ, FL, Istanbul** (ceilings per
+> [`../CEILINGS_N20_FINAL.md`](../CEILINGS_N20_FINAL.md), **AZ ceiling = 56.43, the corrected
+> bs8192@0.005 arm**). **CA/TX MTL n=20 is pending A1** (A40); rev 3 adds CA/TX **PROVISIONAL**
+> verdicts at the per-fold **seed-0 (n=5)** footing (§1b) — their **STL ceilings ARE n=20**; only
+> the MTL side is seed-0. The paper's headline family is 6 datasets (protocol §5.2) — **the full
+> 6-dataset family Holm re-runs after A1**; everything here is the pre-registered analysis of the
+> committed artifacts, not the final family verdict.
 >
 > **rev 2 (2026-07-08):** A0 (`c51b1183`) committed the AL/AZ/FL v17 MTL per-seed values
 > (`train_perf_multifold/n20_perhead_runs/summary.tsv`) → the AL/AZ/FL cells flip from PENDING to
 > tested at the **seed-level (n=4)** footing, same as Istanbul. All four datasets now carry verdicts.
+> **rev 3 (2026-07-08):** CA/TX added as **PROVISIONAL n=5** (seed-0, per-fold paired; exact
+> Wilcoxon floor 0.0312) — both sides have committed per-fold seed-0 vectors. Superseded by A1's
+> n=20; NOT folded into the m=4 Holm family (§1b).
 >
 > Pre-registration: [`../../STATISTICAL_PROTOCOL.md`](../../STATISTICAL_PROTOCOL.md) (§2 cat
 > superiority → paired one-sided Wilcoxon; §3 reg → TOST non-inferiority at **δ_reg = 2 pp**;
@@ -30,12 +34,13 @@ AL 64.540/69.801, AZ 65.835/59.563, FL 79.848/77.421 (the A0 `summary.tsv` per-s
 Istanbul MTL 63.329/75.440 + cat ceiling 54.738 (`../h3_istanbul/step3_runs/*.txt`). All match
 `CEILINGS_N20_FINAL.md` / `perhead_lr_n20.md` to rounding.
 
-## 1 · Per-dataset results
+## 1 · Per-dataset results — the fully-n=20 family (AL/AZ/FL/Istanbul)
 
 Δ orientation = **MTL − STL ceiling** (positive = MTL better). δ_reg = 2 pp (pre-registered, §3.2).
-**Pairing level for every cell: SEED-LEVEL paired, n=4** — each observation is a per-seed 5-fold
-mean, paired by seed {0,1,7,100} across arms sharing the frozen fold construction (§4). Per-fold
-(n=20) pairing is not yet possible from the committed tree (LIMITS #2).
+**Pairing level for every cell in THIS section: SEED-LEVEL paired, n=4** — each observation is a
+per-seed 5-fold mean, paired by seed {0,1,7,100} across arms sharing the frozen fold construction
+(§4). Per-fold (n=20) pairing is not yet possible from the committed tree (LIMITS #2). CA/TX are in
+§1b (different footing — keep them separate).
 
 ### Category — superiority (MTL > dedicated STL cat ceiling)
 
@@ -81,12 +86,43 @@ cannot clear α until the per-fold n=20 vectors land).
    correction is reported on the t p-values; all four reject at FWER 0.05 (smallest margin: adj
    p = 5.3e-07).
 
+## 1b · CA / TX — **PROVISIONAL n=5 (seed-0, per-fold paired; superseded by A1's n=20)**
+
+**Footing (state it precisely):** the **cited ceiling means stay the n=20 values** (CA cat 70.60 /
+reg 63.49; TX cat 69.79 / reg 64.95 — `CEILINGS_N20_FINAL.md`); the **paired tests below use the
+seed-0 fold vectors of those same ceiling runs** (cat: `../cat_ceiling_sweep/sweep_results/
+{california,texas}_bs8192_lr0.005_s0.json`; reg: `docs/results/P1/region_head_{california…ca,texas…tx}
+_ovl_stl_reg_s0.json`), fold-k paired with fold-k at seed 0 (same frozen fold construction, §4).
+MTL side = `../../catx_v17_seed0_5f/` — the matched-scorer per-fold arrays are **parsed from that
+RESULTS.md** (the only committed carrier: `summary.tsv` has fold-means only, and `profile.json`'s
+`quality.next_region` is a different, non-ood-corrected capture; its `quality.next_category` DOES
+reproduce the cat arrays exactly and is used as an in-script cross-check). Exact one-sided Wilcoxon
+floor at n=5 = **0.0312** (5/5 positive = at-ceiling, per §2's single-seed note). **These two cells
+are NOT in the §1 Holm family** — the pre-registered 6-dataset family Holm runs after A1.
+
+| Dataset | Cell | Δ (pp, seed-0 footing) | folds+ | Wilcoxon p (exact) | paired t(4) p | Verdict (PROVISIONAL) |
+|---|---|---:|---|---|---|---|
+| **CA** | cat | **+6.31 ± 0.17** | 5/5 | 0.0312 (= n=5 floor) | 5.9e-08 | **outperforms** (provisional) |
+| **CA** | reg | **+2.21 ± 0.07** | 5/5 | 0.0312 (= n=5 floor) | 1.5e-07 | **beats** (provisional) — 90 % CI (+2.14, +2.28) entirely ABOVE +δ: exceeds the 2-pp margin in the favorable direction; TOST non-inferiority trivially holds (p = 1.1e-08); two-sided equivalence n/a (better than the margin) |
+| **TX** | cat | **+7.31 ± 0.40** | 5/5 | 0.0312 (= n=5 floor) | 1.0e-06 | **outperforms** (provisional) |
+| **TX** | reg | **+2.11 ± 0.07** | 5/5 | 0.0312 (= n=5 floor) | 1.4e-07 | **beats** (provisional) — 90 % CI (+2.04, +2.18) entirely ABOVE +δ; TOST non-inferiority trivially holds (p = 9.6e-09); two-sided equivalence n/a |
+
+Per-fold Δs (seed 0, folds 0–4) — CA cat [+6.48, +6.46, +6.24, +6.31, +6.08], CA reg [+2.15, +2.11,
++2.27, +2.24, +2.26]; TX cat [+7.31, +7.50, +6.63, +7.59, +7.52], TX reg [+2.14, +2.18, +2.13,
++2.00, +2.10]. Note the reg cells land in the pre-registered reg-**superiority** family
+(`superiority_wilcoxon.py` pins FL/CA/TX as "the beats"), which is why the superiority test — not
+just TOST — is the apt primary there; both are reported. The seed-0-footing Δcat (+6.31/+7.31)
+differs from the board Δ (+6.44/+7.44) exactly because the board Δ subtracts the **n=20** ceiling
+mean while the paired vectors are seed-0 (seed-0 ceiling ≈ +0.12/+0.13 above the n=20 mean).
+
 ## 2 · LIMITS (honest gaps — read before citing)
 
-1. **CA/TX are absent entirely** — v17 MTL is seed-0 (n=5) there; the n=20 top-up is **A1** on the
-   A40 (`../A40.md`). The 6-dataset family Holm (protocol §5.2) re-runs after A1. Until then every
-   verdict here carries the M1-PARTIAL banner.
-2. **All cells are seed-level (n=4), not per-fold (n=20).** Still missing from the committed tree
+1. **CA/TX are PROVISIONAL (n=5, seed-0 MTL side)** — the v17 MTL n=20 top-up is **A1** on the A40
+   (`../A40.md`); seed 0 is a single-seed footing (development-seed caveats apply; the CA/TX STL
+   **ceilings** are n=20 and seed-invariant, so the provisional risk sits on the MTL side only).
+   The 6-dataset family Holm (protocol §5.2) re-runs after A1. Until then every verdict here
+   carries the M1-PARTIAL banner and the §1b cells carry PROVISIONAL.
+2. **All §1 cells are seed-level (n=4), not per-fold (n=20).** Still missing from the committed tree
    (A40 gitignored rundirs):
    - AL/AZ/FL: the per-PID `a40_score_matched.py` sidecar JSONs (tags `n20ph_{state}_{recipe}_s{seed}`,
      `cat_per_fold`/`reg_per_fold` arrays) inside
@@ -111,6 +147,9 @@ cannot clear α until the per-fold n=20 vectors land).
   non-inferior on region at δ_reg = 2 pp (every 90 % CI within ±2; AL the only negative point
   estimate at −0.31, bounded above −0.5).** FL and Istanbul additionally beat the region ceiling
   descriptively (CIs entirely positive); AZ grazes zero — keep it "matches."
+- **CA/TX (PROVISIONAL, seed-0 n=5): the same signature, stronger on reg** — cat outperforms
+  (+6.31/+7.31, 5/5 folds, Wilcoxon at the n=5 ceiling 0.0312, t p ≤ 1e-06) and reg **beats by more
+  than the 2-pp margin** (90 % CIs entirely above +2). Superseded by A1's n=20.
 - **The pre-registered per-fold n=20 tests remain the citation-grade target** — pending the A40
   sidecar pull (LIMITS #2) and A1 for CA/TX; then the full 6-dataset Holm family replaces this
   partial.
