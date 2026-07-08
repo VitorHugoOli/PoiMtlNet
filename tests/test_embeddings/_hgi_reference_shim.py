@@ -18,9 +18,10 @@ import sys
 from pathlib import Path
 
 REFERENCE_REPO = Path(
-    "/Users/vitor/Desktop/mestrado/temp/tarik-new/"
-    "region-embedding-benchmark-main/region-embedding-benchmark-main/"
-    "region-embedding/baselines/HGI/model"
+    os.environ.get(
+        "HGI_REFERENCE_DIR",
+        "third_party/region-embedding-benchmark/region-embedding/baselines/HGI/model",
+    )
 )
 
 

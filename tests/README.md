@@ -252,7 +252,7 @@ If you see `ModuleNotFoundError`:
 
 ```bash
 # Make sure you're in the project root
-cd /Users/vitor/Desktop/mestrado/ingred
+cd <repo-root>
 
 # Verify pytest.ini exists
 ls pytest.ini

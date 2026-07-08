@@ -1,9 +1,0 @@
-{
-  "tag": "REHDM_california_catx_s42",
-  "state": "california",
-  "n_runs": 1,
-  "test_acc@10_mean": 0.5025586995785671,
-  "test_acc@10_std": null,
-  "test_mrr_mean": 0.31035235327528876,
-  "test_mrr_std": null
-}

@@ -5,7 +5,7 @@
 # constant — see PHASE_V_ISTANBUL_S0.md line 27; the '...' flags weren't persisted, filled with
 # standard LR/fold/epoch flags). set-a seed-0 target was cat 60.15 / reg 69.79 (different windowing).
 set -uo pipefail
-cd /teamspace/studios/this_studio/PoiMtlNet
+cd "$(dirname "$0")/.."   # repo root
 export PYTHONPATH=src MTL_DISABLE_AMP=1 MTL_CHUNK_VAL_METRIC=1 MTL_STRICT=1 MTL_RAM_HEADROOM_GB=4
 export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" TORCHINDUCTOR_CACHE_DIR=$HOME/.inductor_cache_board
 

@@ -3,7 +3,7 @@ End-to-end equivalence tests against the ACTUAL original HGI source code
 imported live from region-embedding-benchmark-main.
 
 These tests are skipped automatically if the reference repo is not present
-(e.g. on CI machines without /Users/vitor/...). They are the strongest
+(e.g. on CI machines without the reference checkout). They are the strongest
 form of validation: they prove that, given identical weights, identical
 inputs, and identical RNG state, the migrated forward+loss produces
 the same loss VALUE and the same GRADIENTS as the original code.
@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import math
 import random
+import os
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -26,9 +27,10 @@ from embeddings.hgi.model.POIEncoder import POIEncoder as MigPOIEncoder
 from embeddings.hgi.model.RegionEncoder import POI2Region as MigPOI2Region
 
 REFERENCE_REPO = Path(
-    "/Users/vitor/Desktop/mestrado/temp/tarik-new/"
-    "region-embedding-benchmark-main/region-embedding-benchmark-main/"
-    "region-embedding/baselines/HGI/model"
+    os.environ.get(
+        "HGI_REFERENCE_DIR",
+        "third_party/region-embedding-benchmark/region-embedding/baselines/HGI/model",
+    )
 )
 # Deliberately skipped after plans/hgi_paper_alignment.md fixes #2-4:
 # our migration now diverges from the third-party region-embedding-benchmark

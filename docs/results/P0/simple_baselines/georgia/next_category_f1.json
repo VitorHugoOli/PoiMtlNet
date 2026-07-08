@@ -1,8 +1,0 @@
-{
-  "majority_f1_mean": 6.687944573119492,
-  "majority_f1_std": 0.0009422871802893987,
-  "top_k_popular_top1_f1_mean": 6.687944573119492,
-  "top_k_popular_top1_f1_std": 0.0009422871802893987,
-  "markov_1step_f1_mean": 21.355468260540487,
-  "markov_1step_f1_std": 0.35649761251528295
-}

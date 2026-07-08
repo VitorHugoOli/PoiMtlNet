@@ -1,8 +1,0 @@
-[study] ========== STAGE 4: Cross-State Validation (Florida) ==========
-[study] Stage 3 winner: s3_s1_dsk42_al -> validating on florida
-[ablation] running s4_florida_s1_dsk42_al (5 fold(s), 50 epochs)
-[ablation] finished s4_florida_s1_dsk42_al: status=ok joint=0.5751807212829589 next=0.36774662733078 category=0.782614815235138
-[study] wrote summary: /Volumes/Vitor's SSD/ingred/results/ablations/full_fusion_study/s4_florida_5f_50ep/summary.csv
-
-[study] === S4_FLORIDA_5F_50EP RANKING ===
-   1. s4_florida_s1_dsk42_al          joint=0.5752  next=0.3677  cat=0.7826  time=14502s

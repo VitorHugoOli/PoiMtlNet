@@ -9,7 +9,7 @@ description = "Multi-task learning framework for POI prediction using hierarchic
 requires-python = ">=3.12,<3.13"
 
 # Pinned from .venv (Python 3.12.11) — 2026-03-26
-# Local package not listed: graphgps @ file:///Users/vitor/Desktop/mestrado/packages/GraphGPS
+# Local package not listed: graphgps (local package, only needed for optional GraphGPS encoders)
 #   Install manually: pip install -e /path/to/GraphGPS
 dependencies = [
     # Core ML

@@ -45,9 +45,9 @@ docs/results/baselines/<tag>_summary.json
 ## CLI
 
 ```bash
-PY=/Volumes/Vitor's\ SSD/ingred/.venv/bin/python
-DATA_ROOT=/Volumes/Vitor's\ SSD/ingred/data
-OUTPUT=/Volumes/Vitor's\ SSD/ingred/output
+PY=.venv/bin/python
+DATA_ROOT=data
+OUTPUT=output
 
 PYTHONPATH=. DATA_ROOT="$DATA_ROOT" OUTPUT_DIR="$OUTPUT" \
   "$PY" -m research.baselines.rehdm.etl --state alabama

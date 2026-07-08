@@ -1,4 +1,4 @@
-"""External-baseline trainers for the PoiMtlNet board.
+"""External-baseline trainers for the baselines board.
 
 Each baseline is a standalone, NON-CONFLICTING module (one file per baseline)
 that REUSES the frozen fold split + leak protocol + scored metrics of the

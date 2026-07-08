@@ -1,9 +1,0 @@
-{
-  "tag": "REHDM_istanbul_v4_5seeds_50ep",
-  "state": "istanbul",
-  "n_runs": 5,
-  "test_acc@10_mean": 0.693343949044586,
-  "test_acc@10_std": 0.008079856966803321,
-  "test_mrr_mean": 0.44443003681814597,
-  "test_mrr_std": 0.009435307981589817
-}

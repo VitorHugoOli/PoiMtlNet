@@ -1,9 +1,0 @@
-{
-  "tag": "REHDM_BS128_ga_5seeds_50ep",
-  "state": "georgia",
-  "n_runs": 5,
-  "test_acc@10_mean": 0.5582368874661413,
-  "test_acc@10_std": 0.007591770504539746,
-  "test_mrr_mean": 0.3417640881419798,
-  "test_mrr_std": 0.004513451773175017
-}
