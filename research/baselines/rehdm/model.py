@@ -23,6 +23,7 @@ sub-hypergraph is built per batch by `train.build_subhypergraph` (see train.py).
 from __future__ import annotations
 
 from dataclasses import dataclass
+import os
 
 import torch
 import torch.nn as nn
@@ -136,6 +137,17 @@ class HGTransformerLayer(nn.Module):
         if self.use_st:
             self.time_emb = nn.Embedding(n_time_buckets, d_model)
             self.dist_emb = nn.Embedding(n_dist_buckets, d_model)
+            # A2 init FIX (2026-07-08 investigation, docs REHDM_AUDIT_CHANGES.md §A2-init):
+            # zero-init the Eq.9 st-embeddings by DEFAULT so the message starts as
+            # h_j+r_ij (identity) and t_ij/s_ij are LEARNED from 0. The default random
+            # N(0,1) init injected two 192-d noise vectors into every message from step 1
+            # and cost ~4.8pp at AL (60.16 → 64.41, ≈ the A2-off 64.97 → Eq.9 done right is
+            # NEUTRAL, not harmful; the standard additive-residual pattern, cf. the
+            # cascade's zero-init cond_proj). REHDM_ST_RANDOM_INIT=1 restores the old
+            # (buggy) random init for reproduction only.
+            if os.environ.get("REHDM_ST_RANDOM_INIT") != "1":
+                nn.init.zeros_(self.time_emb.weight)
+                nn.init.zeros_(self.dist_emb.weight)
         self.drop = nn.Dropout(dropout)
 
     def forward(

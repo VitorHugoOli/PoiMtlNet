@@ -63,6 +63,26 @@ Legend: **F** = faithfulness fix, **P** = perf (quality-neutral), **D** = doc/cl
   and is unchanged — Eq. 9's t_ij/s_ij is the hyperedge-propagation message (§4.4).
 - **Citation**: audit A2 (paper Eq. 9; STHGCN open-code).
 
+### A2-init (F, correctness — 2026-07-08 AL investigation) — zero-init the Eq.9 st-embeddings
+- **File**: `model.py` `HGTransformerLayer.__init__`.
+- **What**: `time_emb`/`dist_emb` are now **zero-initialized by default** (was default
+  random `nn.Embedding` N(0,1)). `REHDM_ST_RANDOM_INIT=1` restores the old init for
+  reproduction. (The A2-off isolation used a temporary `REHDM_ST_BUCKETS` toggle in
+  train.py; it was investigation-only and reverted once the finding was established.)
+- **Why**: the A2 message is `m_ij = h_j + r_ij + t_ij + s_ij`. With random init, `t_ij`
+  and `s_ij` inject two 192-d N(0,1) vectors into **every** message from step 1 — the
+  pre-A2 message was just `h_j + r_ij`. This noise cost **~4.8 pp at AL**. Zero-init makes
+  the terms **learned from identity** (the standard additive-residual pattern — exactly the
+  cascade's zero-init `cond_proj`, `CSLSL_CASCADE.md`).
+- **Evidence (AL, test acc@10)**: A2-on random-init **60.16** (bug) → A2-on **zero-init 64.41**
+  ≈ A2-off **64.97** (Eq.9 done right is NEUTRAL, not harmful) ≈ old-code **66.06** minus the
+  ~1 pp legitimate A3/A6 eval-seeding correction. So the −6 pp was **an init bug + a real eval
+  fix**, NOT "Eq.9 hurts". The faithful AL number is **~64.4** (Eq.9 included, correctly).
+- **verify-needed (unchanged)**: the encoder family + bucket widths are still the paper's
+  ambiguity #4 — but now the term is numerically well-behaved (neutral at AL), lowering the
+  risk. Confirm against the authors' code if released.
+- **Citation**: this investigation; audit A2.
+
 ### A4 (F, minor–moderate; e2e verify-needed) — L2 at V→E, documented LN at e2e
 - **File**: `model.py` (removed `self.v2e_post = LayerNorm`; `initial_trajectory_rep`
   now `F.normalize(F.relu(v2e_mlp(h)), dim=-1)`), `README.md`.
@@ -146,12 +166,34 @@ Legend: **F** = faithfulness fix, **P** = perf (quality-neutral), **D** = doc/cl
 
 ---
 
+## Optimization eval (2026-07-08 — B0 done; the bottleneck is the box, not the code)
+
+**Profiled.** ReHDM is **CPU-bound**: GPU sits at ~45 % even though the loader already
+runs **12 workers + persistent + prefetch=4**. The wall is the per-batch sub-hypergraph
+build in `make_collate`. Per-epoch (clean box): AL ~5.5 s, CA ~123 s, TX ~206 s
+(→ CA ~8.5 h / TX ~14 h for 5 seeds × 50 ep) — batched per-**trajectory** (CA ~378 k /
+TX ~514 k trajectories), NOT per-row, so ~10× under the handoff's 75-120 h guess.
+
+**Collate precompute attempt — bit-exact but NOT shipped.** Tried precomputing the Eq.9
+edge features `(tb, db)` once (they're deterministic) + sampling collaborator **indices**
+instead of values (`random.sample(range(n),k)` is RNG-identical to `sample(pool,k)` —
+proven: selection + post-state match over 200 trials). **Reverted** because: (a) at AL
+(the only state measurable) it was **neutral-to-slower** (~6 s vs 5.5 s — small states are
+np-overhead-bound, not haversine-bound), and (b) the CA measurement — where the ~3 M
+haversine/epoch it removes would actually matter — was **impossible to validate**: a
+neighbor's 30 GB / 93 % Jupyter kernel swamped the shared GPU (inflated AL to 22 s/epoch).
+Shipping an unvalidated "speedup" that measured slower on the one clean state is not sound.
+It stays a **documented bit-exact candidate** for a clean-box re-test.
+
+**The real bottleneck is shared-box contention, which no code change fixes.** Best approach
+to run ReHDM: the validated v4 code (zero-init Eq.9), fp32 for CA/TX (A1 auto-gate, avoids
+the bf16 grad-NaN wall), **fold/seed-by-seed + resumable, launched when the box is quiet**.
+bf16 for CA/TX would NOT help while CPU/contention-bound (GPU already idle 55 %).
+
 ## Deferred
 
-- **B0 (profile first)** — deferred: requires a GPU run, and a concurrent session
-  holds the GPU. Run one AL epoch under a section timer before adopting any further
-  perf lever (candidate hotspots: Python `make_collate` edge-building, full-vocab
-  softmax over `n_regions`, H2D copies).
+- **B0 (profile first)** — **DONE** (above): CPU-bound, collate is the hotspot; the
+  precompute lever was bit-exact but unvalidatable due to neighbor GPU contention.
 - **B3 (torch.compile(dynamic=True) + warm shared inductor cache)** — deferred
   (audit: low priority, default-off, A/B-gated). Collaborator count `Bn` and seq
   length vary per batch → dynamic shapes likely trigger recompiles/graph-breaks that
