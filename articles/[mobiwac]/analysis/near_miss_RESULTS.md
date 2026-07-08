@@ -24,6 +24,24 @@
   (region_idx -> GEOID -> WKT-polygon centroid; GEOID zero-pad handled; 0 dropped
   centroids at every state).
 
+## Caveat — Istanbul is a single-seed point estimate
+
+Istanbul's numbers here come from ONE **seed-0 x 5-fold** v17 `check2hgi_dk_ovl`
+run. The paper reports Istanbul at **n=20 (4 seeds {0,1,7,100})** for its
+headline region cell, and that cell is still on the older **stride-1 GCN**
+substrate (the `dk_ovl` Istanbul rebuild is the pending A40-2/H3 task) -- so the
+Istanbul near-miss differs from the paper standard on BOTH seed count and
+substrate. This is acceptable for a motivation-only metric, but it is a
+single-seed point estimate, not the multi-seed standard. AL/AZ/FL do NOT carry
+this caveat: their paper cells are themselves n=5 seed-0 provisional (P1
+pending), so seed-0 near-miss matches their current headline standard; only
+Istanbul's paper standard is already n=20.
+
+**Top-up:** when the n=20 `dk_ovl` Istanbul dumps exist (A40-2/H3 rebuild, or
+the P1/H100 lane, re-running v17 Istanbul at seeds 1/7/100 with
+`MTL_DUMP_VAL_PREDS=1`), regenerate this metric from them and pool. Istanbul is
+small (520 regions), so the top-up is A40-feasible, not strictly H100-only.
+
 ## Summary (pooled over the 5 folds, per state)
 
 | State | regions | reg Acc@10 (this run) | in-dist miss P50 (km) | P90 (km) | mean (km) | OOD miss P50 / P90 (km) |
