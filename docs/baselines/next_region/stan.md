@@ -29,13 +29,28 @@
 Audited-faithful, converged, optimized (A+C+D+compile; see [`FAITHFUL_STAN_FINDINGS`](../../studies/closing_data/FAITHFUL_STAN_FINDINGS.md)).
 **These supersede v4 — strike v4 from all artifacts.** STAN clears the region floor but lands **below our MTL reg** at every state (it ranks the coarse-region task it wasn't built for):
 
-| State | regions | Acc@10 (5f) | our MTL reg | verdict | precision |
+| State | regions | Acc@10 (5f) | our MTL reg | verdict | version / precision |
 |---|---:|---:|---:|---|---|
-| AL | 1109 | **60.72 ±5.20** | 69.81 | we beat | fp32+compile |
-| AZ | 1547 | **49.86 ±11.52** | 59.34 | we beat | fp32+compile |
-| Istanbul | 520 (mahalle) | **61.86 ±0.61** | 74.28 | we beat | bf16+compile |
-| FL | 4703 | **72.99 ±0.34** | 77.28 | we beat | bf16+compile |
-| CA / TX | 8501 / 6553 | pending (~1.5–2 h/state on A40, opt) | 65.66 / 67.02 | pending | bf16+compile |
+| AL | 1109 | **60.72 ±5.20** | 69.81 | we beat | v5_compiled, fp32+compile |
+| AZ | 1547 | **49.86 ±11.53** | 59.34 | we beat | v5_compiled, fp32+compile |
+| Istanbul | 520 (mahalle) | **61.86 ±0.61** | 74.28 | we beat | v5_bf16c, bf16+compile |
+| FL | 4703 | **72.99 ±0.34** | 77.28 | we beat | v6_opt, bf16+compile |
+| TX | 6553 | **61.67** (partial 4/5 folds) | 67.02 | clears best-simple floor (54.9); below our MTL reg | v6 patience-10, bf16+compile |
+| CA | 8501 | **58.52** (partial 2/5 folds) | 65.66 | clears best-simple floor (52.1); below our MTL reg | v6 patience-10, bf16+compile |
+
+> **Version/precision mix of the citable cells (disclosure).** The Table-3 STAN cells mix code
+> versions and precisions — **AL/AZ = `v5_compiled` fp32, FL = `v6_opt` bf16, Istanbul = `v5_bf16c`
+> bf16, CA/TX (in progress, PR #58) = v6 patience-10 bf16+compile** — but all run the SAME
+> audited-faithful recipe (fixes #1–#6, seed 0, 200-epoch cap, constant LR + early-stop, d_model 128,
+> bs 2048): **v6 = v5 + the bit-identical perf opts** (val-once "C" + distinct-POI "D", both A/B'd
+> exact — `FAITHFUL_STAN_FINDINGS §3.1`); **bf16 is A/B quality-neutral (≤0.07 pp vs fp32**, AL
+> fold-0); **patience-10 is quality-neutral** because STAN converges at best-epoch ≤3 (verified
+> `best_epoch=2` in every committed CA/TX fold JSON), so the best-epoch checkpoint is identical to
+> patience-20. The CA/TX partials — **TX 4/5 = 61.67, CA 2/5 = 58.52** (fold means of the committed
+> `faithful_stan_{texas,california}_5f_200ep_v6_p10_fold*.json`) — both clear the best-simple floor
+> (TX 54.94 / CA 52.09, `docs/results/P0/simple_baselines/`) with tiny cross-fold variance (±0.2 /
+> ±0.1); the remaining 4 folds are resumable on the A40. Source:
+> [`docs/studies/closing_data/v17_completion/stan_catx/STATUS.md`](../../studies/closing_data/v17_completion/stan_catx/STATUS.md).
 
 ## Why this is a baseline (not our model)
 External published-method reference for the next-region task. We use it to:
@@ -114,9 +129,14 @@ headline STAN cell.
 | AZ | `docs/results/baselines/faithful_stan_arizona_5f_200ep_v5_compiled.json` |
 | Istanbul | `docs/results/baselines/faithful_stan_istanbul_5f_200ep_v5_bf16c.json` |
 | FL | `docs/results/baselines/faithful_stan_florida_5f_200ep_v6_opt.json` |
-| CA / TX | pending |
+| TX (partial 4/5) | `docs/results/baselines/faithful_stan_texas_5f_200ep_v6_p10_fold{0,1,2,3}.json` |
+| CA (partial 2/5) | `docs/results/baselines/faithful_stan_california_5f_200ep_v6_p10_fold{0,1}.json` |
 
-> ⚠ **The v4 JSONs (`*_5f_50ep_FAITHFUL_STAN_*_v4.json`) are the SUPERSEDED collapse artifacts — do NOT cite.**
+> ⚠ **GUARD — the old v4/seed-42 numbers (AL 34.46 / AZ 38.96, below the Markov floor) are a
+> superseded under-trained collapse. NEVER cite them**, in any table, footnote, or comparison —
+> they measure the pre-audit broken code (additive matching layer + 9× data starvation +
+> never-converged OneCycle; see the audit table above), not STAN. The
+> `faithful_stan_*_v4.json` files remain on disk **for the audit trail only**.
 
 **Substrate-bound ablations (`stl_check2hgi`, `stl_hgi`):** `docs/results/P1/region_head_{state}_region_5f_50ep_STAN_*.json`.
 
