@@ -1,0 +1,48 @@
+{
+  "tag": "REHDM_istanbul_v4_5seeds_50ep",
+  "state": "istanbul",
+  "run": 4,
+  "seed": 46,
+  "config": {
+    "n_users": 12879,
+    "n_pois": 4780,
+    "n_categories": 7,
+    "n_quadkeys": 8,
+    "n_regions": 290,
+    "n_hours": 24,
+    "n_days": 7,
+    "d_id": 32,
+    "n_heads": 4,
+    "d_ff": 256,
+    "n_hg_layers": 2,
+    "dropout": 0.2,
+    "beta": 0.5,
+    "n_time_buckets": 32,
+    "n_dist_buckets": 32
+  },
+  "best_val_acc@10": 0.710003526507582,
+  "test": {
+    "acc@1": 0.3267515923566879,
+    "acc@5": 0.5920382165605096,
+    "acc@10": 0.6957006369426751,
+    "mrr": 0.45097217787602906,
+    "n": 6280
+  },
+  "vocab": {
+    "n_users": 12879,
+    "n_pois": 4780,
+    "n_categories": 7,
+    "n_hours": 24,
+    "n_days": 7,
+    "n_quadkeys": 8,
+    "n_regions": 290,
+    "quadkey_level": 10,
+    "session_hours": 24,
+    "min_checkins": 10
+  },
+  "amp_bf16": true,
+  "skipped_batches": {
+    "loss": 0,
+    "grad": 0
+  }
+}
