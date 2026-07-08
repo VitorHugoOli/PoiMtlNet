@@ -7,17 +7,21 @@ Conventions mirror scripts/closing_data/superiority_wilcoxon.py + region_match_t
 
 Reads ONLY committed artifacts (run from repo root: `.venv/bin/python
 docs/studies/closing_data/v17_completion/stats_n20/m1_stats_n20.py`). It does NOT read any
-gitignored rundir — where the committed tree lacks the MTL-side per-seed/per-fold values
-(AL/AZ/FL v17 MTL: A40-only, see RESULTS.md LIMITS) the cell is reported as PENDING with a
-descriptive delta only; nothing is approximated or fabricated.
+gitignored rundir.
 
-Pairing levels actually used (per RESULTS.md):
-  - Istanbul: SEED-LEVEL paired, n=4 (MTL side committed only as per-seed 5-fold means).
-    NOTE the n=4 exact one-sided Wilcoxon floor = 1/2^4 = 0.0625 > 0.05 — Wilcoxon cannot
-    clear alpha at this footing regardless of effect size; the paired t (df=3) is reported
-    alongside as the powered seed-level test (deviation logged per protocol §8).
-  - AL/AZ/FL: PENDING (no committed MTL-side values at any granularity).
+Pairing level actually used — SEED-LEVEL paired, n=4, at ALL FOUR datasets (each observation
+is a per-seed 5-fold mean; the per-fold matched-score sidecars are still A40-only, see
+RESULTS.md LIMITS):
+  - AL/AZ/FL MTL side: docs/studies/train_perf_multifold/n20_perhead_runs/summary.tsv
+    (committed by A0, c51b1183) — the `recipe=new` rows = the v17 arm (bs8192 +
+    MTL_ONECYCLE_PER_HEAD_LR, cat/reg/shared 1e-3/3e-3/3e-3). The `recipe=base` FL rows are
+    the bs2048 comparand anchor, NOT used here.
+  - Istanbul MTL side: h3_istanbul/step3_runs per-seed means.
+NOTE the n=4 exact one-sided Wilcoxon floor = 1/2^4 = 0.0625 > 0.05 — Wilcoxon cannot clear
+alpha at this footing regardless of effect size; the paired t (df=3) is reported alongside as
+the powered seed-level test (deviation logged per protocol §8).
 """
+import csv
 import json
 import statistics as st
 import sys
@@ -35,7 +39,9 @@ ALPHA = 0.05
 SWEEP = REPO / "docs/studies/closing_data/v17_completion/cat_ceiling_sweep/sweep_results"
 P1 = REPO / "docs/results/P1"
 IST_RUNS = REPO / "docs/studies/closing_data/v17_completion/h3_istanbul/step3_runs"
+TSV = REPO / "docs/studies/train_perf_multifold/n20_perhead_runs/summary.tsv"
 SEEDS = [0, 1, 7, 100]
+STATE_KEY = {"alabama": "AL", "arizona": "AZ", "florida": "FL"}
 
 # STL cat ceiling arms (best-vs-best, CEILINGS_N20_FINAL.md; AZ = bs8192@0.005 per the
 # 2026-07-08 correction — NOT bs2048@0.005):
@@ -61,9 +67,27 @@ REG_CEIL_JSON = {
                  for s in SEEDS},
 }
 
-# v17 MTL committed aggregates (perhead_lr_n20.md — n=20 mean +/- cross-seed pstdev). The
-# underlying per-seed/per-fold values are NOT committed (A40 gitignored rundirs) -> PENDING.
+# v17 MTL committed aggregates (perhead_lr_n20.md) — used as the summary.tsv reproduction gate:
 MTL_AGG = {"AL": (64.540, 69.801), "AZ": (65.835, 59.563), "FL": (79.848, 77.421)}
+
+
+def mtl_perseed_from_tsv():
+    """{state_key: {seed: (cat, reg)}} from the A0-committed summary.tsv — v17 arm only.
+
+    The v17 arm = recipe 'new' (bs8192, perhead=1, cat/reg/shared LR 1e-3/3e-3/3e-3). The FL
+    'base' rows (bs2048 champion anchor) are deliberately excluded. The tsv carries driver
+    line-wrap artifacts ('0\\t0' continuation rows) — filtered by requiring a known state.
+    """
+    out = {}
+    for r in csv.DictReader(open(TSV), delimiter="\t"):
+        if r["state"] not in STATE_KEY or r["recipe"] != "new":
+            continue
+        assert (r["bs"], r["perhead"], r["catlr"], r["reglr"], r["sharedlr"]) == \
+               ("8192", "1", "1e-3", "3e-3", "3e-3"), f"unexpected v17 arm row: {r}"
+        out.setdefault(STATE_KEY[r["state"]], {})[int(r["seed"])] = (float(r["cat"]), float(r["reg"]))
+    for k, v in out.items():
+        assert sorted(v) == sorted(SEEDS), f"{k}: seeds {sorted(v)} != {SEEDS}"
+    return out
 
 
 def cat_ceiling_perfold(key):
@@ -122,6 +146,22 @@ def paired_tost(mtl, ceil, n_label, delta=DELTA_REG, alpha=ALPHA):
                 non_inferior=(ci[0] > -delta and ci[1] < delta))
 
 
+def holm(items, alpha=ALPHA):
+    """items: [(key, p)] -> {key: (p_adj, reject)} under Holm-Bonferroni (monotone adj p)."""
+    m = len(items)
+    order = sorted(items, key=lambda kv: kv[1])
+    adj, running = {}, 0.0
+    for i, (k, p) in enumerate(order):
+        running = max(running, min((m - i) * p, 1.0))
+        adj[k] = running
+    rej, cont = {}, True
+    for i, (k, p) in enumerate(order):
+        ok = cont and p <= alpha / (m - i)
+        rej[k] = ok
+        cont = ok
+    return {k: (adj[k], rej[k]) for k, _ in items}
+
+
 def check(label, got, want, tol=0.006):
     ok = abs(got - want) <= tol
     print(f"  [{'OK' if ok else 'MISMATCH'}] {label}: recomputed {got:.4f} vs board {want}")
@@ -134,7 +174,7 @@ print("=" * 88)
 print("M1-PARTIAL — v17 vs n=20 best-vs-best ceilings (AL/AZ/FL/Istanbul); CA/TX await A1")
 print("=" * 88)
 
-# --- 0 · reproduce the CEILINGS_N20_FINAL board numbers from the committed artifacts ------
+# --- 0 · reproduce the board numbers from the committed artifacts ------------------------
 print("\n--- 0 · artifact -> board reproduction gate ---")
 cat_ceil = {k: cat_ceiling_perfold(k) for k in CAT_CEIL_ARM}
 reg_ceil = {k: reg_ceiling_perfold(k) for k in REG_CEIL_JSON}
@@ -146,62 +186,73 @@ for k in ["AL", "AZ", "FL"]:
 for k in ["AL", "AZ", "FL", "Istanbul"]:
     seed_means = [st.mean(reg_ceil[k][s]) for s in SEEDS]
     check(f"{k} STL reg ceiling (n=20)", st.mean(seed_means), board_reg[k])
+
+# v17 MTL per-seed values (A0 summary.tsv) must reproduce the perhead_lr_n20.md aggregates:
+mtl = mtl_perseed_from_tsv()
+for k in ["AL", "AZ", "FL"]:
+    cats = [mtl[k][s][0] for s in SEEDS]
+    regs = [mtl[k][s][1] for s in SEEDS]
+    check(f"{k} MTL v17 cat (n=20, tsv)", st.mean(cats), MTL_AGG[k][0])
+    check(f"{k} MTL v17 reg (n=20, tsv)", st.mean(regs), MTL_AGG[k][1])
+
 ist = {p: ist_perseed(p) for p in ["mtl_cat", "mtl_reg", "cat_ceil", "reg_ceil"]}
 check("Istanbul MTL cat (n=20)", st.mean(ist["mtl_cat"].values()), 63.33)
 check("Istanbul MTL reg (n=20)", st.mean(ist["mtl_reg"].values()), 75.44)
 check("Istanbul STL cat ceiling (n=20)", st.mean(ist["cat_ceil"].values()), 54.74)
-# Istanbul reg-ceiling txt == P1 JSON fold-means (same runs, two committed encodings)
-for s in SEEDS:
+for s in SEEDS:  # Istanbul reg-ceiling txt == P1 JSON fold-means (same runs, two encodings)
     assert abs(ist["reg_ceil"][s] - st.mean(reg_ceil["Istanbul"][s])) < 0.001, s
 
-# --- 1 · Istanbul — the one dataset with a committed MTL side (per-seed, n=4) -------------
-print("\n--- 1 · Istanbul (dk_ovl+v17, H3) — SEED-LEVEL paired, n=4 ---")
-mtl_cat = [ist["mtl_cat"][s] for s in SEEDS]
-stl_cat = [ist["cat_ceil"][s] for s in SEEDS]
-mtl_reg = [ist["mtl_reg"][s] for s in SEEDS]
-stl_reg = [st.mean(reg_ceil["Istanbul"][s]) for s in SEEDS]
-
-sup = paired_superiority(mtl_cat, stl_cat, "n=4 seeds (each a 5-fold mean)")
-print(f"  CAT superiority (MTL > ceiling): Δ={sup['mean_d']:+.3f} ± {sup['sd_d']:.3f} pp, "
-      f"pairs+={sup['pos']}, per-seed Δ={sup['d']}")
-print(f"    exact one-sided Wilcoxon p = {sup['p_wilcoxon']:.4f}  "
-      f"(= the n=4 floor 1/16 — cannot clear 0.05 at this n; power-limited, not evidence-limited)")
-print(f"    paired t (df=3), one-sided p = {sup['p_t']:.2e}   "
-      f"(effect ≈ {sup['mean_d']/sup['sd_d']:.0f}× the cross-seed σ_d)")
-ist_cat_p = sup["p_t"]
-
-tost = paired_tost(mtl_reg, stl_reg, "n=4 seeds (each a 5-fold mean)")
-print(f"  REG TOST non-inferiority (δ_reg = {DELTA_REG:.0f} pp): Δ={tost['mean_d']:+.3f} ± "
-      f"{tost['sd_d']:.3f} pp, per-seed Δ={tost['d']}")
-print(f"    TOST p = {tost['p_tost']:.2e}; 90% CI = ({tost['ci90'][0]:+.3f}, {tost['ci90'][1]:+.3f}) "
-      f"pp -> {'NON-INFERIOR (CI within ±2)' if tost['non_inferior'] else 'fails'}")
-sup_reg = paired_superiority(mtl_reg, stl_reg, "n=4")
-print(f"    (supplementary, Δ>0 'beats': Wilcoxon p = {sup_reg['p_wilcoxon']:.4f} [n=4 floor]; "
-      f"paired t p = {sup_reg['p_t']:.2e}; CI already entirely > 0)")
-
-# --- 2 · AL/AZ/FL — MTL side not committed -> PENDING (descriptive Δ only) ----------------
-print("\n--- 2 · AL / AZ / FL — pre-registered tests PENDING (v17 MTL per-seed/per-fold values")
-print("        are A40-only, gitignored; see RESULTS.md LIMITS). Descriptive Δ from committed")
-print("        aggregates (perhead_lr_n20.md MTL vs artifact-recomputed ceilings):")
+# assemble the per-seed arms (seed order 0,1,7,100 everywhere -> valid seed-level pairing)
+ARMS = {}
 for k in ["AL", "AZ", "FL"]:
-    cat_c = st.mean([v for s in SEEDS for v in cat_ceil[k][s]])
-    reg_c = st.mean([st.mean(reg_ceil[k][s]) for s in SEEDS])
-    dcat = MTL_AGG[k][0] - cat_c
-    dreg = MTL_AGG[k][1] - reg_c
-    ceil_sd_cat = st.pstdev([st.mean(cat_ceil[k][s]) for s in SEEDS])
-    ceil_sd_reg = st.pstdev([st.mean(reg_ceil[k][s]) for s in SEEDS])
-    print(f"  {k}: Δcat = {dcat:+.3f} pp (ceiling cross-seed σ {ceil_sd_cat:.3f}); "
-          f"Δreg = {dreg:+.3f} pp (ceiling cross-seed σ {ceil_sd_reg:.3f})  -> PENDING")
+    ARMS[k] = dict(mtl_cat=[mtl[k][s][0] for s in SEEDS],
+                   stl_cat=[st.mean(cat_ceil[k][s]) for s in SEEDS],
+                   mtl_reg=[mtl[k][s][1] for s in SEEDS],
+                   stl_reg=[st.mean(reg_ceil[k][s]) for s in SEEDS])
+ARMS["Istanbul"] = dict(mtl_cat=[ist["mtl_cat"][s] for s in SEEDS],
+                        stl_cat=[ist["cat_ceil"][s] for s in SEEDS],
+                        mtl_reg=[ist["mtl_reg"][s] for s in SEEDS],
+                        stl_reg=[st.mean(reg_ceil["Istanbul"][s]) for s in SEEDS])
 
-# --- 3 · family correction (protocol §5.2, scoped to the M1-partial 4-dataset family) -----
-print("\n--- 3 · Holm across the 4-dataset cat-superiority family (M1-PARTIAL) ---")
-print("  Family = {AL, AZ, FL, Istanbul} cat superiority (m=4). Only Istanbul has a runnable")
-print("  test today -> full Holm CANNOT be computed; we report the conservative bound:")
-print(f"    Istanbul Bonferroni-bounded p_adj <= m * p = 4 x {ist_cat_p:.2e} = {4*ist_cat_p:.2e}"
-      f"  ({'<' if 4*ist_cat_p < ALPHA else '>='} {ALPHA})")
-print("    (Holm adj p <= Bonferroni adj p, so Istanbul survives ANY completion of the family.)")
+# --- 1 · per-dataset seed-level tests (n=4, paired by seed) -------------------------------
+print("\n--- 1 · per-dataset tests — SEED-LEVEL paired, n=4 (per-seed 5-fold means) ---")
+cat_res, reg_res = {}, {}
+for k in ["AL", "AZ", "FL", "Istanbul"]:
+    a = ARMS[k]
+    sup = paired_superiority(a["mtl_cat"], a["stl_cat"], "n=4 seeds")
+    tost = paired_tost(a["mtl_reg"], a["stl_reg"], "n=4 seeds")
+    cat_res[k], reg_res[k] = sup, tost
+    print(f"\n  {k}")
+    print(f"    CAT superiority (MTL > ceiling): Δ={sup['mean_d']:+.3f} ± {sup['sd_d']:.3f} pp, "
+          f"pairs+={sup['pos']}, per-seed Δ={sup['d']}")
+    print(f"      exact one-sided Wilcoxon p = {sup['p_wilcoxon']:.4f} (n=4 floor = 0.0625); "
+          f"paired t(3) one-sided p = {sup['p_t']:.2e} (Δ ≈ {sup['mean_d']/sup['sd_d']:.0f}σ_d)")
+    print(f"    REG TOST (δ_reg = {DELTA_REG:.0f} pp): Δ={tost['mean_d']:+.3f} ± {tost['sd_d']:.3f} pp, "
+          f"per-seed Δ={tost['d']}")
+    print(f"      TOST p = {tost['p_tost']:.2e}; 90% CI = ({tost['ci90'][0]:+.3f}, "
+          f"{tost['ci90'][1]:+.3f}) pp -> "
+          f"{'NON-INFERIOR (CI within ±2)' if tost['non_inferior'] else 'FAILS non-inferiority'}")
+    if tost["ci90"][0] > 0:
+        supr = paired_superiority(a["mtl_reg"], a["stl_reg"], "n=4")
+        print(f"      (CI entirely > 0 -> descriptively beats; supplementary Wilcoxon p = "
+              f"{supr['p_wilcoxon']:.4f} [n=4 floor], paired t p = {supr['p_t']:.2e})")
+
+# --- 2 · Holm across the 4-dataset cat-superiority family (M1-PARTIAL) --------------------
+print("\n--- 2 · Holm across the 4-dataset cat-superiority family (M1-PARTIAL, m=4) ---")
+print("  Pre-registered test (Wilcoxon): every cell sits AT the n=4 exact floor 0.0625 with 4/4")
+print("  positive -> Holm-adjusted 0.25 at best; the family CANNOT clear α=0.05 on Wilcoxon at")
+print("  seed-level n=4 (a power ceiling, not evidence against — §2's n=5-ceiling analogue).")
+print("  Powered seed-level analysis (paired t(3), deviation-logged per §8):")
+t_family = [(k, cat_res[k]["p_t"]) for k in ["AL", "AZ", "FL", "Istanbul"]]
+t_holm = holm(t_family)
+for k, p in t_family:
+    padj, rej = t_holm[k]
+    print(f"    {k:9s} Δcat={cat_res[k]['mean_d']:+6.2f}  t-p={p:.2e}  Holm_adj={padj:.2e}  "
+          f"reject@.05={rej}")
 print("  Reg TOST cells are equivalence tests with their own δ_reg verdict — NOT pooled into")
 print("  the cat Holm family (protocol §5.2).")
+
 print("\n  ⚠ M1-PARTIAL: the paper's headline family is 6 datasets (protocol §5.2). The full")
-print("    6-dataset Holm re-runs after A1 lands CA/TX n=20 + the AL/AZ/FL MTL per-seed/per-fold")
-print("    artifacts are committed from the A40.")
+print("    6-dataset Holm re-runs after A1 lands CA/TX v17 MTL n=20 on the A40; the per-fold")
+print("    (n=20) upgrade of ALL cells additionally needs the matched-score sidecars pulled")
+print("    (see RESULTS.md LIMITS).")
