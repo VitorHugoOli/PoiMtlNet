@@ -1,21 +1,29 @@
 # v17 STL ceilings — FINAL, n=20, best-vs-best (dk_ovl, 5 Gowalla states)
 
-> **Closed 2026-07-03.** Supersedes the seed-0 provisional ceilings in `RESULTS_BOARD §1` and the (rejected) matched-knob
-> H2 attempt. Category ceiling re-tuned **best-vs-best** (each arm at its own optimum); region ceiling topped up to n=20.
-> Istanbul is NOT here — it is gated on the H3 `dk_ovl` substrate build (both tasks seed-0 on stride-1 GCN today).
+> **Closed 2026-07-03; AZ ceiling corrected 2026-07-08 (post-merge audit of PR #58).** Supersedes the seed-0
+> provisional ceilings in `RESULTS_BOARD §1` and the (rejected) matched-knob H2 attempt. Category ceiling re-tuned
+> **best-vs-best** (each arm at its own optimum); region ceiling topped up to n=20. Istanbul was added 2026-07-06 once
+> the H3 `dk_ovl` substrate landed (the original close predates it — see the Istanbul note below).
+>
+> ⚠ **AZ correction (2026-07-08):** the originally-published AZ ceiling **56.24** (bs2048@0.005) violated this doc's
+> own "per-state max over the tried recipes" rule — the committed full-n=20 arm **bs8192@0.005 = 56.43 ±0.10** is
+> higher (`sweep_results/arizona_bs8192_lr0.005_s{0,1,7,100}.json`). AZ ceiling = **56.43**, **Δcat AZ = +9.40** (not
+> +9.60). Two n=10 screens sit higher still (bs2048@0.0025 = 57.04, @0.0075 = 56.93, seeds {0,1} only) — **pending a
+> 2-seed top-up** (A40 queue; ~4 runs × ~100 s). If 57.04 holds at n=20 the AZ ceiling becomes ~57.0 → Δcat ≈ +8.8.
+> Until then +9.40 is the citable value and the AZ Δ carries this note. AL/FL/CA/TX verified max-rule-clean.
 
 ## Final board (n=20 = 4 seeds {0,1,7,100} × 5 folds)
 
 | State | STL cat | MTL cat (v17) | **Δcat** | STL reg | MTL reg (v17) | **Δreg** |
 |---|---:|---:|---:|---:|---:|---:|
 | AL | 56.82 ±0.03 | 64.54 | **+7.72** ✅beats | 70.11 | 69.80 | **−0.31** ≈matches |
-| AZ | 56.24 ±0.15 | 65.83 | **+9.60** ✅beats | 59.46 | 59.56 | **+0.10** ≈matches |
+| AZ | 56.43 ±0.10 † | 65.83 | **+9.40** ✅beats † | 59.46 | 59.56 | **+0.10** ≈matches |
 | FL | 74.51 ±0.03 | 79.85 | **+5.34** ✅beats | 76.70 | 77.42 | **+0.72** ✅beats |
 | CA | 70.60 ±0.07 | 77.04 | **+6.44** ✅beats | 63.49 | 65.69 | **+2.20** ✅beats |
 | TX | 69.79 ±0.08 | 77.23 | **+7.44** ✅beats | 64.95 | 67.07 | **+2.12** ✅beats |
 | Istanbul | 54.74 ±0.09 | 63.33 | **+8.59** ✅beats | 75.16 | 75.44 | **+0.28** ✅beats |
 
-**Story:** MTL beats the dedicated **category** ceiling at every state (+5.3 … +9.6 pp); **matches** the region ceiling at
+**Story:** MTL beats the dedicated **category** ceiling at every state (+5.3 … +9.4 pp); **matches** the region ceiling at
 the small US states (AL −0.31, AZ +0.10, within δ=2 pp) and **beats** it at the larger ones (FL +0.72, CA +2.20, TX +2.12)
 **and at Istanbul** (+0.28, non-US corpus, 520 mahalle — H3 dk_ovl+v17 rebuild; see `h3_istanbul/RESULTS.md`).
 
@@ -33,7 +41,8 @@ The STL cat optimum depends on state size (proven by the sweep, `cat_ceiling_swe
 
 | tier | states | recipe | why |
 |---|---|---|---|
-| small | AL, AZ | **bs2048 @ max_lr 0.005** | small batch + low LR peaks highest; bs8192 loses ~0.35 pp |
+| small | AL | **bs2048 @ max_lr 0.005** | small batch + low LR peaks highest; bs8192 loses ~0.35 pp |
+| small† | AZ | **bs8192 @ max_lr 0.005** (corrected 2026-07-08) | at AZ the n=20 max is the bs8192 arm (56.43 > bs2048@0.005's 56.24); the "small = bs2048" generalization held at AL only. Two n=10 bs2048 screens (0.0025/0.0075 = 57.04/56.93) pending top-up. |
 | large | FL, CA, TX | **bs8192 @ max_lr 0.005** | +1.7 pp over bs2048 (healthy late best-epochs vs bs2048's early-peak overfit) |
 
 Single-task `next_gru`, `--engine check2hgi_dk_ovl`, 50 ep, 5f, OneCycle. Scored by `score_stl_cat_ceiling.py`

@@ -25,7 +25,8 @@ floors are lower still: TX 35.6 / CA 31.5; A40.md's "~55/~52" bar is the *best-s
   reported STAN *below* Markov, pre-`F.embedding`-fix).
 
 ## Prerequisite (done): memory-bounded ETL
-CA/TX STAN inputs were regenerated with the new `--streaming` ETL (commit `06c24757`): TX 4.04M / CA 3.12M windows,
+CA/TX STAN inputs were regenerated with the new `--streaming` ETL (commit `a92d8b16`; the earlier-cited `06c24757` was
+a pre-rebase hash unreachable from main — same content): TX 4.04M / CA 3.12M windows,
 content-identical to the in-memory path (parity-verified on AL). **Do NOT** run the ETL without `--streaming` at CA/TX
 (the in-memory build OOMs at ~112 GB). Inputs live at `output/baselines/stan/{california,texas}/inputs.parquet`.
 

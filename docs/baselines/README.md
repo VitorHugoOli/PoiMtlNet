@@ -207,7 +207,7 @@ Sign-flips at all 5 states once the `α·log_T` leak is removed (substrate-asymm
 | STAN — `faithful`                  | 34.46 ± 3.88 | 38.96 ± 3.41 | 65.36 ± 0.69 | ⚪ skip | ⚪ skip | 40.68 ± 1.10 |
 | STAN — `stl_check2hgi`             | 59.20 ± 3.62 | 52.24 ± 2.38 | 72.62 ± 0.52 | 58.82 ± 1.04 | 61.35 ± 0.36 | 56.35 ± 2.40 |
 | **STAN — `stl_hgi`**               | 62.88 ± 3.90 | 54.86 ± 2.84 | **★ 73.58 ± 0.43** | **★ 60.45 ± 0.97** | **★ 62.70 ± 0.37** | **★ 58.58 ± 1.86** |
-| **ReHDM — `faithful` (paper-proto)** § | **★ 66.06 ± 0.98** | **★ 54.65 ± 0.77** | 65.68 ± 0.26 | ⚪ skip | ⚪ skip | 55.82 ± 0.76 |
+| **ReHDM — `faithful` (paper-proto; ⚠ v2 code — v4 gives AL 65.38±1.08; AZ/FL v4 re-run queued, see `next_region/comparison.md` caveat)** § | **★ 66.06 ± 0.98** | **★ 54.65 ± 0.77** | 65.68 ± 0.26 | ⚪ skip | ⚪ skip | 55.82 ± 0.76 |
 | ReHDM — `stl_check2hgi` ‡          | 26.22 ± 1.58 | 23.24 ± 1.27 | 38.74 ± 0.49 | ⚪ skip | ⚪ skip | 22.31 ± 1.31 |
 | ReHDM — `stl_hgi` ‡                | 42.78 ± 2.82 | 34.00 ± 3.02 | 54.49 ± 0.32 | ⚪ skip | ⚪ skip | 35.07 ± 1.98 |
 | **STAN-Flow** `_pf` — `stl_check2hgi` (leak-free) | 59.15 ± 3.48 | 50.24 ± 2.51 | 69.22 ± 0.52 | 55.92 ± 1.20 | 58.89 ± 1.28 | 54.07 ± 2.44 |

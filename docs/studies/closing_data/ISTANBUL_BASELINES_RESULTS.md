@@ -36,6 +36,12 @@ Champion-G MTL (set-a, 4 seeds) cat 60.16 / reg 69.79 · STL cat ceiling (`next_
 (`next_stan_flow`) 70.37 · CTLE-SC 25.92 ± 0.31 · Check2HGI-SC ceiling 54.53 ± 0.69 · Markov-1 region floor 52.5 ·
 HMT-GRN region SOTA **60.4** (stride-1, see §2).
 
+> ⚠ **2026-07-08 (post-H3):** the Check2HGI-SC 54.53 above was the **old-base** value; the H3 `dk_ovl` re-footing
+> gives **54.65 / reg 66.22** (`v17_completion/h3_istanbul/RESULTS.md §re-footing`) — barely moves, both citable with
+> their substrate label. NOTE: `baseline_compare/istanbul_check2hgi_sc.json` was **overwritten in place** by the H3
+> re-foot (the old-base artifact no longer exists at HEAD; its value survives only here + in git history). The
+> board-facing Istanbul cells are now the H3 dk_ovl+v17 ones (`RESULTS_BOARD §1`), not this doc's set-a references.
+
 **Sanity:** STAN stl_hgi Acc@10 = 71.13 sits on the STL reg ceiling (70.37) — i.e. NOT inflated by a stale log_T
 (a stale prior would push it ~+8–12 pp; see §4.3). POI-RGNN (30.12) > Markov-K-cat (24.55) and < STL cat ceiling
 (52.10) — the expected ordering.

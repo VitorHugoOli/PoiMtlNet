@@ -35,7 +35,14 @@ Generated from `results/<state>.json`. To refresh, regenerate the JSONs (see `..
 | **STAN** | `faithful` (converged ✓) | 60.72 ± 5.20 | 49.86 ± 11.52 | 72.99 ± 0.34 | ⚪† | ⚪† | —‡ |
 | **STAN** | `stl_check2hgi` | 59.20 ± 3.62 | 52.24 ± 2.38 | 72.62 ± 0.52 | 58.82 ± 1.04 | 61.35 ± 0.36 | 56.35 ± 2.40 |
 | **STAN** | `stl_hgi` | **62.88 ± 3.90** | **54.86 ± 2.84** | **73.58 ± 0.43** | **60.45 ± 0.97** | **62.70 ± 0.37** | **58.58 ± 1.86** |
-| **ReHDM** † | `faithful` | **66.06 ± 0.98** | **54.65 ± 0.77** | 65.68 ± 0.26 | ⚪ | ⚪ | 55.82 ± 0.76 |
+| **ReHDM** † | `faithful` **(v2 code — see ⚠v4 note)** | **66.06 ± 0.98** | **54.65 ± 0.77** | 65.68 ± 0.26 | ⚪ | ⚪ | 55.82 ± 0.76 |
+
+> ⚠ **ReHDM version caveat (2026-07-08, PR #58):** the AL/AZ/FL `faithful` row above is **v2-code**. The corrected
+> **v4** code (faithfulness audit: Eq.9 t_ij/s_ij restored + zero-init, target-only POI attention, seeded eval —
+> `research/baselines/rehdm/REHDM_AUDIT_CHANGES.md`) gives **AL 65.38 ± 1.08** (−0.68 pp systematic,
+> `REHDM_al_v4_faithful_5seeds_50ep_summary.json`); CA/TX are running on v4. **The paper row must be version-uniform:
+> AZ/FL v4 re-runs are queued** (`v17_completion/A40.md §A2-azfl`, ~25–60 min/state). Until then, do NOT mix v2 and v4
+> cells in one row without this caveat.
 | **ReHDM** ‡ | `stl_check2hgi` | 26.22 ± 1.58 | 23.24 ± 1.27 | 38.74 ± 0.49 | ⚪ | ⚪ | 22.31 ± 1.31 |
 | **ReHDM** ‡ | `stl_hgi` | 42.78 ± 2.82 | 34.00 ± 3.02 | **54.49 ± 0.32** | ⚪ | ⚪ | 35.07 ± 1.98 |
 

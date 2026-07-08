@@ -1,9 +1,9 @@
 # v17_completion — the track to finish the MobiWac paper board at v17
 
-> **New track (2026-07-01).** The paper switched its headline to **v17** (= v16 + bs8192 + per-head cat-lr 1e-3;
-> `DEFAULT_CANON`, `f54a04de`). This track holds the remaining runs + analysis to make the **whole board v17**, split
-> across the three machines (user allocation 2026-07-01): **H100 = only H1 (the heavy CA/TX n=20) · A40 = everything
-> else GPU (H2 + H3 + ReHDM), fast→slow · M2 Pro = simple no-GPU analysis.**
+> **New track (2026-07-01; re-allocated 2026-07-08).** The paper switched its headline to **v17** (= v16 + bs8192 +
+> per-head cat-lr 1e-3; `DEFAULT_CANON`, `f54a04de`). This track holds the remaining runs + analysis to make the
+> **whole board v17**. ⚠ **The H100 lane is GONE (no access, 2026-07-08)** — machine split is now:
+> **A40 = ALL GPU work (incl. the former-H100 H1) · M2 Pro = no-GPU analysis.**
 > Board SSOT: [`../RESULTS_BOARD.md §1`](../RESULTS_BOARD.md). Paper close-out: [`../../../articles/[mobiwac]/CLOSER_HANDOFF.md`](../../../articles/%5Bmobiwac%5D/CLOSER_HANDOFF.md).
 
 ## Where v17 stands (what's DONE)
@@ -11,14 +11,26 @@
 - **v17 MTL seed-0 5f at CA / TX** — DONE (`../catx_v17_seed0_5f/RESULTS.md`, fp32): CA 77.04 / 65.69, TX 77.23 / 67.07.
   **Finding: v17's cat lever is a STATE-SIZE trade** — wins small/mid (+0.2…+2.5), costs ~0.28 cat at CA/TX (real, not
   a bf16 artifact — TX board is fp32), reg-neutral+ everywhere. Kept board-wide.
-- **STL cat + reg ceilings (n=20, best-vs-best)** — ✅ **DONE 2026-07-03, 5 Gowalla states → [`CEILINGS_N20_FINAL.md`](CEILINGS_N20_FINAL.md).**
-  Cat re-tuned best-vs-best (state-size recipe: small `bs2048@0.005`, large `bs8192@0.005`); reg topped up to n=20.
-  Δcat = AL +7.72 / AZ +9.60 / FL +5.34 / CA +6.44 / TX +7.44 (MTL beats cat ceiling everywhere).
-  Δreg = AL −0.31 / AZ +0.10 / FL +0.72 / CA +2.20 / TX +2.12 (matches small, beats large). **Istanbul pending H3.**
+- **STL cat + reg ceilings (n=20, best-vs-best)** — ✅ **DONE 2026-07-03 (AZ corrected 2026-07-08), 5 Gowalla states →
+  [`CEILINGS_N20_FINAL.md`](CEILINGS_N20_FINAL.md).**
+  Cat re-tuned best-vs-best (per-state max: AL `bs2048@0.005`; AZ/FL/CA/TX `bs8192@0.005`); reg topped up to n=20.
+  Δcat = AL +7.72 / **AZ +9.40** / FL +5.34 / CA +6.44 / TX +7.44 (MTL beats cat ceiling everywhere).
+  Δreg = AL −0.31 / AZ +0.10 / FL +0.72 / CA +2.20 / TX +2.12 (matches small, beats large).
+  ⚠ AZ correction: the published 56.24 wasn't the per-state max — the n=20 `bs8192@0.005` arm is 56.43 (Δ +9.40, not
+  +9.60); two higher n=10 screens (57.04/56.93) pending a cheap top-up (see A1-az in the A40 queue). **Istanbul: done via H3 (below).**
   > Prior audit note (kept for the record): the *old* `dk_ovl` board reg ceiling was seed-0 (n=5), not n=20 — the
   > "already n=20" claim conflated it with the v14 substrate (~9 pp different). Now genuinely n=20 on `dk_ovl`; reg is
   > seed-invariant (n=20 vs seed-0 diff < 0.13 pp), so the seed-0 verdict was correct — the top-up just makes the paired
   > test rigorous. (MTL cat/reg at CA/TX are still seed-0 pending H1 — the ceilings are n=20.)
+- **H3 · Istanbul rebuilt on `dk_ovl` + v17 (n=20)** — ✅ **DONE 2026-07-06 → [`h3_istanbul/RESULTS.md`](h3_istanbul/RESULTS.md).**
+  Same substrate identity as the 5 Gowalla states (cross-substrate caveat RETIRED). **Δcat +8.59 / Δreg +0.28 — beats
+  BOTH** (reg flips positive vs the old stride-1-GCN base's −0.52). Baselines re-footed: CTLE-SC +28.73 / HGI +28.09 hold.
+- **P6 · Istanbul cascade** — ✅ DONE 2026-07-07 (v17): Δjoint −0.22 ≈ tie, parallel ≥ cascade on both heads
+  (`RESULTS_BOARD §1b`). CA/TX cascade still open.
+- **ReHDM (corrected v4 code)** — **AL ✅ re-run on v4: 65.38 ± 1.08** (the −6 pp scare was an init bug; audit
+  `research/baselines/rehdm/REHDM_AUDIT_CHANGES.md`); **CA/TX 🔄 RUNNING on the A40** (~22 h, interleaved, resumable).
+  ⚠ The old cited AL/AZ/FL row (66.06/54.65/65.68) is **v2-code** — AZ/FL need the cheap v4 re-run so the paper row
+  is version-uniform (see A2 in the queue).
 - **Faithful STAN** — DONE + citable (AL 60.72 / AZ 49.86 / FL 72.99 / Istanbul 61.86); **CA/TX IN PROGRESS, clears
   the floor at both → footnote will drop** (→ [`stan_catx/STATUS.md`](stan_catx/STATUS.md)): partial TX 4/5 = **61.67**
   (floor 54.9 ✅) / CA 2/5 = **58.52** (floor 52.1 ✅), v6 patience-10, resumable. Real cost ~2.6 h/fold on the A40
@@ -26,37 +38,31 @@
   HMT-GRN (6 states), ReHDM (AL/AZ/FL), CTLE (FL), CSLSL tie, floors — all in.
 - **DEFAULT_CANON = v17**; v16 still via `--canon v16`; §0.1/v11 frozen bundle unaffected.
 
-## What's LEFT (the run inventory → the 3 handoffs)
+## What's LEFT (the run inventory — updated 2026-07-08, post-PR #58; A40 = all GPU)
 
-| ID | Run / analysis | Machine | n | Cost | Blocks |
+| ID | Run / analysis | Machine | Status | Cost | Blocks |
 |----|---|---|---|---|---|
-| **H1** | CA/TX v17 MTL n=20, seeds {1,7,100} | **H100** (only job) | n=20 | fast (~10–15 min/seed) | large-state Δcat significance |
-| **H2** | **STL cat ceiling re-tuned to v17** (bs8192 + cat-lr 1e-3), all 5 states + Istanbul × {0,1,7,100} | **A40** | n=20 | trivial (~100 s/run) | the **pairing** — Δcat = MTL − this ceiling |
-| **H3** | **Istanbul rebuild on `check2hgi_dk_ovl` + v17** (substrate build → MTL + ceilings, n=20; re-foot substrate-bound baselines) | **A40** | n=20 | moderate (small state, 520 regions) | removes the cross-substrate caveat |
-| **A2** | ReHDM-faithful CA/TX/Istanbul | A40 | own | ~75–120 h/state | nothing (footnote-OK) |
-| **A3** | **Faithful STAN CA/TX** (the last A40 task) | A40 | n=5 | ~1.5–2 h/state (bf16+compile) | nothing (coverage; drops the STAN-infeasible footnote if it clears Markov) |
-| **M1** | n=20 re-score + Wilcoxon + region TOST + per-cell Holm + drop "provisional" prose | **M2 Pro** | — | hours, no GPU | lifts the n=5 label once H1+H2 land |
-| **M2** | A4 transductive-leak audit → CA/TX/Istanbul | M2 Pro (CPU) | — | ~3 h/fold | nothing (coverage) |
-| **M3** | Bridging-metrics re-score (reg Acc@1/@5/MRR; cat Acc@1) | M2 Pro | — | short (needs saved logits) | nothing (coverage) |
-| **M4** | STAN precision-mix disclosure (S1) + v4-collapse guard | M2 Pro | — | doc | STAN hygiene |
-| **M5** | Stale-doc fixes + submission mechanics (EDAS upload, deadline, Germano edits) | M2 Pro | — | doc | submission |
+| **A1 (ex-H1)** | **CA/TX v17 MTL n=20, seeds {1,7,100}** — MIGRATED from the H100 (lane gone) | **A40** | open, **top priority** | fp32 serial ~4.4–6.3 h/cell → ~1.5 d for 6 cells (proven by the seed-0 run) | large-state Δcat significance → M1 |
+| **A1-az** | AZ cat-ceiling screen top-up: `bs2048@{0.0025,0.0075}` × seeds {7,100} | A40 | open (cheap) | ~4 runs × ~100 s | firms the AZ ceiling (may move Δcat +9.40 → ≈ +8.8) |
+| **A2** | ReHDM v4: **CA/TX 🔄 RUNNING** (~22 h, resumable) + **AZ/FL v4 re-run** (version-uniform row; AL done 65.38) | A40 | running / open | AZ/FL ≈ ~25–60 min/state | ReHDM paper row (v4-uniform) |
+| **A3** | **Faithful STAN CA/TX** — finish the last 4 folds (TX f4; CA f2,3,4) | A40 | 🔄 partial (paused) | ~10 h, resumable (`stan_catx/run_stan_interleaved.sh`) | Table-3 CA/TX STAN cells + footnote drop |
+| **A4** | CA/TX cascade coverage (P6) | A40 | open (optional) | ~2 × seed-0 5f | nothing (coverage) |
+| **M1** | v17 stats: Wilcoxon + TOST + per-cell Holm — **partial NOW at AL/AZ/FL/Istanbul** (fully n=20 both sides); CA/TX join after A1 | **M2 Pro** | **partially unblocked** | hours, no GPU | drops "provisional" where n=20 is complete |
+| **M2** | A4 transductive-leak audit → CA/TX/Istanbul | M2 Pro (CPU) | open | ~3 h/fold | nothing (coverage) |
+| **M3** | Bridging-metrics re-score (reg Acc@1/@5/MRR; cat Acc@1) | M2 Pro | open | short (needs saved logits) | nothing (coverage) |
+| **M4** | STAN precision-mix disclosure + v4-collapse guard (now incl. the CA/TX v6-p10 partials) | M2 Pro | open (doc) | doc | STAN hygiene |
+| **M5** | Stale-doc fixes + submission mechanics | M2 Pro | open (doc) | doc | submission |
 
-> **STAN** — faithful STAN is done at AL/AZ/FL/Istanbul; **CA/TX are now an attempt** (A3, last A40 task, ~1.5–2 h/state
-> bf16+compile — worth trying per user; coverage, changes no verdict). Plus the **M4** doc disclosure (precision/version
-> mix + v4-collapse guard). If A3 clears the Markov floor it fills the Table 3 CA/TX STAN cells; else the footnote stands.
+**The critical path to a paper-grade v17 board:** **A1 (CA/TX MTL n=20, A40)** → **M1 full** (all 6 datasets n=20,
+drop "provisional" everywhere). The ceilings + Istanbul are already done; **M1-partial can run NOW** on
+AL/AZ/FL/Istanbul. A2/A3 fill the two baseline rows (ReHDM v4-uniform, STAN CA/TX); everything else is coverage.
 
-**The critical path to a paper-grade board:** **H1 (H100) ∥ H2 (A40)** both land → **M1 (M2 Pro)** re-runs the two
-pre-registered tests and drops "n=5 provisional". **H3 (A40)** removes the last (cross-substrate) caveat. Everything in
-the A2 / M2–M3 tier is coverage that changes no verdict.
+**A40 queue order (one card, serialize):** finish **A3 STAN** (~10 h, already partial) and **A2 ReHDM CA/TX** (running)
+→ **A1 CA/TX MTL n=20** (~1.5 d, the verdict-changer) → A1-az + A2-az/fl (cheap) → A4 (optional).
 
-**Sequencing across machines:** H1 (H100) and H2/H3 (A40) run **in parallel**. On the M2 Pro, **M4/M5 (doc, submission)
-and M2/M3 (coverage) are independent — do them anytime, now included** — but **M1 (the re-score/stats payoff) must wait
-for H1 + H2 to land** (it consumes their JSONs). So: M2 Pro is *mostly* last, but not idle until then.
-
-## The three handoffs
-- **[`H100.md`](H100.md)** — **only H1** (CA/TX v17 MTL n=20). The H100 is reserved for the one heavy large-C job.
-- **[`A40.md`](A40.md)** — **H2 (STL-cat re-tune) → H3 (Istanbul rebuild) → ReHDM**, fast→slow; + H1 fallback.
-- **[`M2PRO.md`](M2PRO.md)** — simple analysis (M1 stats after H1+H2; M2–M5 anytime).
+## The two handoffs (H100.md is decommissioned — kept as a pointer)
+- **[`A40.md`](A40.md)** — ALL GPU work, queue order above.
+- **[`M2PRO.md`](M2PRO.md)** — no-GPU analysis (M1-partial NOW; M2–M5 anytime; M1-full after A1).
 
 > ⚠ **Recipe discipline (all cells):** engine `check2hgi_dk_ovl` (gated stride-1 overlap, MIN_SEQ=10), heads
 > `next_gru`(cat) + `next_stan_flow_dualtower`(reg, prior-OFF), `geom_simple` selector, matched scorer. v17 = add

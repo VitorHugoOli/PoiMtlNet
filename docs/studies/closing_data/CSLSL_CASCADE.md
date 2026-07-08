@@ -7,7 +7,7 @@
 > at the small/mid (AL/AZ) AND the large (FL, 4703 regions) states → our parallel bidirectional cross-attention
 > matches the dominant published multi-task alternative **at equal cost**. (FL same-device champ-G comparand
 > in-flight as of 2026-06-25; FL cascade ties the §1 board champ-G FL to ±0.01.) CA/TX deferred (deadline;
-> "only if cheap" per `HANDOFF_A40.md`).
+> "only if cheap" per `archive/HANDOFF_A40.md`).
 > Headline + board: [`RESULTS_BOARD.md §1b`](RESULTS_BOARD.md) and
 > [`../../results/closing_data/MACS_BOARD_RESULTS.md`](../../results/closing_data/MACS_BOARD_RESULTS.md).
 
@@ -26,7 +26,7 @@ geom_simple selector, checkin/region modality, log_T-KD off. Comparand = **champ
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | AL | 63.45 ±2.00 | 63.25 ±2.02 | +0.20 | 69.48 ±3.03 | 69.65 ±3.32 | −0.17 | 66.39 | 66.37 | **+0.02** |
 | AZ | 63.63 ±1.34 | 63.44 ±1.33 | +0.20 | 59.18 ±1.83 | 59.36 ±1.79 | −0.18 | 61.37 | 61.36 | **+0.00** |
-| FL | 79.83 ±0.49 | ⏳ A40 in-flight | — | 77.27 ±0.95 | ⏳ A40 in-flight | — | 78.54 | — | ⏳ |
+| FL | 79.83 ±0.49 | 79.82 (§1 board, H100) | +0.01 | 77.27 ±0.95 | 77.28 (§1 board) | −0.01 | 78.54 | 78.55 | **−0.01** ≈tie |
 | Istanbul (**v17**, P6) | 63.12 ±0.57 | 63.32 (H3) | −0.20 | 75.16 ±0.69 | 75.41 (H3) | −0.25 | 68.88 | 69.10 | **−0.22** ≈tie |
 
 cat = macro-F1; reg = FULL top10_acc = `top10_acc_indist·(1−ood_fraction)` at the diagnostic-best epoch;
@@ -34,18 +34,21 @@ joint = √(cat·reg); fold-mean ±pstd, matched scorer `scripts/closing_data/a4
 
 **FL (large state, 4703 regions, 1.27M rows, dk_ovl/MIN_SEQ=10, true fp32, 0 skips):** cascade cat **79.83**
 / reg **77.27** — vs the §1 board champ-G FL (H100, 79.82/77.28) → **Δcat +0.01 / Δreg −0.01**, essentially
-identical (cross-device). The A40 same-device champ-G FL is **in-flight** (~1.8h); its row + Δ fill on
-completion. FL canonical (`dk_ovl`, 5f, with comparand) **supersedes the M4 set-a partial**
+identical (cross-device). *(Comparand settled 2026-07-08: the A40 same-device champ-G FL was **stopped at 4/5** and
+re-tasked to W6 after its 4-fold mean reproduced the board to ±0.006 cat / ±0.16 reg — the FL tie rests on the §1
+board comparand, cross-device ±0.01; nothing is in-flight. See RESULTS_BOARD §1b.)* FL canonical (`dk_ovl`, 5f, with
+comparand) **supersedes the M4 set-a partial**
 (`baseline_compare/florida_cslsl_cascade.json`: stride-9/min_seq=5, 4-fold MPS-OOM, no comparand →
 its own recommendation was "run FL CSLSL on CUDA/A40").
 
-**FL same-device champ-G comparand — IN-FLIGHT (fold 1/5 done, 2026-06-25).** Interim fold-1 cross-check
-(A40 champ-G FL, same v16 recipe + per-head optimizers, true fp32): cat **79.45** (ep48) / reg **77.71** (ep47).
+**FL same-device champ-G comparand — SETTLED (2026-07-08; run STOPPED at 4/5, never to finish).** Interim fold-1
+cross-check (A40 champ-G FL, same v16 recipe + per-head optimizers, true fp32): cat **79.45** (ep48) / reg **77.71** (ep47).
 - vs cataloged **board champ-G FL** (H100, `BOARD_CELLS.md` fp32 per-fold[0] 79.38/77.68): Δ **+0.07 / +0.03**
   → reproduces the catalog to well within the cross-GPU ±0.3 pp tolerance (re-run is faithful).
 - vs **A40 cascade FL** fold1 (79.43/77.57): Δ **+0.02 / +0.15** → same-card tie holds at fold level (per-fold
   wobble that averages toward the ±0.01 5-fold tie). Best-epochs late (47–48), matching board (47–49) + cascade (45–49).
-The full 5-fold same-device Δ + the §1b FL row's A40 champ-G cells fill on completion (~2.5 h remaining).
+The run was stopped at 4/5 (re-tasked to W6) after the 4-fold mean reproduced the board to ±0.006 cat / ±0.16 reg —
+the FL tie officially rests on the §1 board comparand (see the table + RESULTS_BOARD §1b).
 
 **Reading:** cascade ≈ parallel champion-G — Δjoint ≤ 0.02 pp, far below fold-std (~1.3–3.3 pp). The cascade
 trades a hair of category (+0.20) for a hair of region (−0.17/−0.18), netting ~0. The cascade did **not** beat

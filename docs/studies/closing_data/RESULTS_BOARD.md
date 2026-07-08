@@ -28,9 +28,18 @@
 > **Honest read:** v17's cat lever **wins at small/mid states (+0.2…+2.5)** but **costs ~0.28 pp cat at the two
 > largest states (CA/TX)**, while **reg ties/beats everywhere**. The large-state dip is **real, not a bf16 artifact**
 > — TX's board is fp32 (clean same-precision) and still −0.28 (~2σ), matching CA's −0.29. §1 below stays the **board
-> of record** (n=5 seed-0) until CA/TX land at **n=20 on the H100** ({1,7,100}; `run_catx_v17_n20_h100.sh`), which
-> firms the large-state Δcat significance. v17 remains `DEFAULT_CANON`; §1 headline updates after the H100 n=20 +
-> the flag-OFF parity test.
+> of record** (n=5 seed-0) until CA/TX land at **n=20 on the A40** ({1,7,100}; the H100 lane is gone — see
+> `v17_completion/A40.md`), which firms the large-state Δcat significance. v17 remains `DEFAULT_CANON`;
+> §1 headline updates after the CA/TX n=20 + the flag-OFF parity test.
+>
+> 📐 **Which ceiling table is which (reconciliation, 2026-07-08 — do not mix):** the Gowalla **§1 table below uses the
+> OLD ceilings** (v16-era recipe `max_lr 3e-3`, **seed-0 n=5**) against the v16 MTL — it is the frozen v16
+> board-of-record. The **v17 board's ceilings are [`v17_completion/CEILINGS_N20_FINAL.md`](v17_completion/CEILINGS_N20_FINAL.md)**
+> — re-tuned **best-vs-best** (per-state max over a bs×LR sweep) at **n=20**. The two ceiling sets differ by up to
+> ~1 pp in either direction (AL 55.87→56.82, AZ 57.13→56.43, FL 75.15→74.51): the old cells were single-recipe
+> seed-0 values (never re-measured at n=20), so seed-0 luck and the recipe change both move them; the n=20
+> best-vs-best set is the rigorous one and is what the paper's v17 Δs pair against. Do NOT compute a Δ across the
+> two sets. (AZ ceiling corrected 2026-07-08: 56.43, Δcat +9.40 — see the CEILINGS banner.)
 
 Champion-G = `mtlnet_crossattn_dualtower` + `next_stan_flow_dualtower` (reg) + `next_gru` (cat); unweighted CE,
 static_weight cw=0.75, onecycle max-lr 3e-3, geom_simple selector; fp32-matched (`r0_matched_rescore.py`).
@@ -176,7 +185,9 @@ guard contract: [`../pre_freeze_gates/DEFAULTS_AND_GUARDS.md`](../pre_freeze_gat
   (session consolidation) · `EP100_ABLATION_AND_TX_RAM.md` · `TX_A40_BF16_NAN.md` · `CA_MTL_DIVERGENCE.md`
   (the fp16 root cause) · `FAITHFUL_STAN_FINDINGS.md` (PR #53) · `MACS_BOARD_RESULTS.md` (baselines, **PR #36**)
 
-**Floors:** `docs/results/P0/simple_baselines/<state>/` (Markov-1 region Acc@10: AL .470 AZ .430 FL .650 CA .521 TX .549).
+**Floors:** `docs/results/P0/simple_baselines/<state>/` (**best-simple** region Acc@10 — the max over the simple
+baselines, NOT Markov-1: AL .470 AZ .430 FL .650 CA .521 TX .549; Markov-1 proper is lower, e.g. CA .315 / TX .356 —
+label corrected 2026-07-08, cf. `v17_completion/stan_catx/STATUS.md`).
 
 ## 4 · Baselines → `docs/baselines/` (separate home, established schema)
 Per the baselines README, the paper's baseline tables read from [`../../baselines/`](../../baselines/)
@@ -231,8 +242,11 @@ Per the baselines README, the paper's baseline tables read from [`../../baseline
   audit≈compiled within 0.1 pp) **clears the Markov floor AND stays below our MTL** at every measured state:
   **AL 60.72 / AZ 49.86 / FL 72.99 / Istanbul 61.86** (reg Acc@10, seed 0 × 5f; best-epochs 5–12, genuinely
   converged). **FL now COMPLETE** (5-fold v6 converged, Acc@10 **72.99 ± 0.34**, < our joint reg 77.28; PR #54
-  committed the real 5-fold JSON, superseding the fold-0-only 0.7307 checkpoint); **CA/TX footnoted infeasible-at-scale**
-  (HMT-GRN + Markov carry CA/TX). STAN sits in the comparability hierarchy as **SECONDARY** (HMT-GRN-style primary;
+  committed the real 5-fold JSON, superseding the fold-0-only 0.7307 checkpoint). **CA/TX: the old "footnoted
+  infeasible-at-scale" is RETIRED — faithful STAN runs at both (PR #58, 🔄 IN PROGRESS on the A40): partial
+  TX 4/5 = 61.67 (floor 54.9 ✅) / CA 2/5 = 58.52 (floor 52.1 ✅), v6 patience-10, ~2.6 h/fold, resumable
+  (`v17_completion/stan_catx/STATUS.md`); both clear the best-simple floor and stay below our MTL reg → at 5/5 the
+  Table-3 cells fill and the footnote drops.** STAN sits in the comparability hierarchy as **SECONDARY** (HMT-GRN-style primary;
   ReHDM tertiary). JSONs `docs/results/baselines/faithful_stan_{al,az,istanbul}_5f_200ep_v5_*.json` +
   `faithful_stan_florida_5f_200ep_v6_opt.json`; finding `FAITHFUL_STAN_FINDINGS.md`.
 - 🔭 **STAN-`stl_hgi` (STAN on OUR HGI region-embedding substrate, overlap footing) — NOT a paper baseline; FUTURE-
@@ -266,4 +280,5 @@ Per the baselines README, the paper's baseline tables read from [`../../baseline
 ✅ main = source JSON on main, verified-readable ·
 ⚠ VOID = fp16/bf16-collapse artifact, never cite. All numbers audited against `wsftdemmg` (collate-trust verdict +
 adversarial source-verification). Honest headline: **beats on category everywhere; beats on region at the large
-states (FL/CA/TX, all 5f), matches at the small (AL/AZ/Istanbul within δ=2 pp).**
+states (FL/CA/TX, all 5f) + Istanbul (+0.28, post-H3 dk_ovl+v17 rebuild), matches at the small US states
+(AL/AZ within δ=2 pp).** (Istanbul updated 2026-07-08 to match §1 — it beat only after H3; the pre-H3 base was −0.52.)

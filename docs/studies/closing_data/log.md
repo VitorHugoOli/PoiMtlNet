@@ -360,3 +360,25 @@ shortlist also geographically compact?
 
 **Net**: A40-6 complete; changes no verdict, strengthens P7's C4 (the "shortlist is compact" counter-to-the-counter).
 Paper placement (§6.2 / supplementary) is the deferred author decision.
+
+## 2026-07-08 — PR #58 merged (v17-completion data batch) + post-merge audit fixes
+
+**Landed (PR #58, A40 lane):** (1) **STL cat+reg ceilings n=20 best-vs-best** (5 Gowalla; matched-knob REJECTED as
+baseline sabotage) → `v17_completion/CEILINGS_N20_FINAL.md`; (2) **H3 Istanbul rebuilt on dk_ovl+v17 n=20** — Δcat
++8.59 / **Δreg +0.28 flips positive** (cross-substrate caveat retired) → `h3_istanbul/RESULTS.md`; (3) **P6 Istanbul
+cascade tie** (Δjoint −0.22) → RESULTS_BOARD §1b; (4) **faithful STAN CA/TX partials clear floors** (TX 4/5=61.67,
+CA 2/5=58.52; 🔄 4 folds remain, resumable) → `stan_catx/STATUS.md`; (5) **STAN ETL --streaming** (OOM fix,
+parity-verified); (6) **ReHDM v4 corrected code** + AL v4 re-run 65.38±1.08 (the −6 pp scare = init bug) + CA/TX 🔄
+running (~22 h) → `REHDM_AUDIT_CHANGES.md`.
+
+**Post-merge audit (5-dim adversarial, 7 upheld findings — all fixed forward on main):** **AZ cat ceiling corrected
+56.24→56.43 (per-state-max rule; Δcat +9.60→+9.40; two n=10 screens pending top-up A1-az)**; §1-vs-CEILINGS
+reconciliation banner (two ceiling sets, do not mix); §4 STAN CA/TX "infeasible" retired (in-progress partials);
+§5 legend Istanbul beats post-H3; §3 floors relabeled best-simple (not Markov-1); matched-knob dir VOID-marked
+(`h2_v17_cat_ceiling/_README_VOID.md`); ReHDM v2/v4 version caveat (comparison.md + baselines README; AZ/FL v4
+re-run queued A2-azfl); CSLSL FL comparand settled (§1b, nothing in-flight); Istanbul SC old-base value preserved
+in prose (artifact overwritten in place).
+
+**Machine re-allocation: the H100 lane is GONE → H1 migrated to the A40 as A1** (CA/TX v17 MTL n=20, fp32 serial
+~1.5 d, top priority after the running STAN/ReHDM). H100.md decommissioned. **M1-partial unblocked NOW** at
+AL/AZ/FL/Istanbul (fully n=20 both sides).

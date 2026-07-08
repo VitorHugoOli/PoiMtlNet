@@ -13,3 +13,5 @@
 | `HANDOFF.md` | the old closing_data index | superseded as the index by `RESULTS_BOARD.md` + `v17_completion/` + `HANDOFF_A40.md`; its own banner declares the board/substrate/baseline phase done. |
 
 **Do not treat anything here as current.** If a number is needed, trace it via `RESULTS_BOARD.md §3`.
+
+**Added 2026-07-08 (post-PR #58):** `HANDOFF_A40.md` (the old root A40 worklist — superseded by `../v17_completion/A40.md`), `CATX_V17_N20_H100_HANDOFF.md` + `run_logs/run_catx_v17_n20_h100.sh` (the H100 lane is gone; the A40 driver `../run_catx_v17_n20.sh` + `../v17_completion/A40.md §A1` supersede).
