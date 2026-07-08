@@ -111,20 +111,9 @@ def _assign_regions(checkins: pd.DataFrame, boroughs: gpd.GeoDataFrame):
     return pois[["placeid", "GEOID", "region_idx"]], region_to_idx
 
 
-def _sessionize_24h(g: pd.DataFrame, session_hours: int = 24) -> pd.Series:
-    """Return a per-row trajectory id; each new 24h window opens a new traj."""
-    times = g["datetime"].astype("int64").to_numpy() // 10**9  # seconds
-    if len(times) == 0:
-        return pd.Series([], dtype=np.int64)
-    sess = np.zeros(len(times), dtype=np.int64)
-    start = times[0]
-    cur = 0
-    for i, t in enumerate(times):
-        if (t - start) >= session_hours * 3600:
-            cur += 1
-            start = t
-        sess[i] = cur
-    return pd.Series(sess, index=g.index)
+# A9 (cleanup): the former `_sessionize_24h` helper was dead code — never called;
+# `build_inputs` implements the identical 24h-window sessionization inline (single
+# source of truth, see the "sessionize 24h trajectories" block below).
 
 
 def build_inputs(
@@ -249,6 +238,10 @@ def build_inputs(
         "traj_idx", "pos_in_traj", "is_target", "split",
         "user_idx", "poi_idx", "category_idx", "hour_idx", "day_idx", "quadkey_idx",
         "region_idx", "datetime",
+        # A2 (faithfulness): persist coordinates so the trainer can compute the
+        # inter-trajectory Δd (s_ij) message term (paper Eq. 9). Legacy parquets
+        # without these columns degrade gracefully (TrajectoryStore.has_geo=False).
+        "latitude", "longitude",
     ]
     df[cols].to_parquet(out_dir / "inputs.parquet", index=False)
 

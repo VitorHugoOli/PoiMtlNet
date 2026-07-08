@@ -42,17 +42,20 @@ static_weight cw=0.75, onecycle max-lr 3e-3, geom_simple selector; fp32-matched 
 | **FL** | 4703 | 75.15 | **79.82** | **+4.68** ✅beats | 76.71 | 77.28 | **+0.57** ✅**beats** | fp32 | ✅ main |
 | **CA** | 8501 | 70.26 | **77.33** | **+7.07** ✅beats | 63.48 | 65.66 | **+2.18** ✅**beats** | bf16 | ✅ main (5f) |
 | **TX** | 6553 | 69.95 | **77.51** | **+7.56** ✅beats | 64.96 | **67.02** | **+2.06** ✅**beats** | fp32 | ✅ main (5f) |
-| **Istanbul** | 520 (mahalle) | 53.20 | **59.89** | **+6.69** ✅beats | 74.80 | 74.28 | **−0.52** ≈matches | fp32 (**n=20**, 4 seeds) | ✅ main, stride-1 GCN |
+| **Istanbul** | 520 (mahalle) | 54.74 | **63.33** | **+8.59** ✅beats | 75.16 | **75.44** | **+0.28** ✅**beats** | fp32 (**n=20**, 4 seeds) | ✅ main, **dk_ovl+v17** (H3) |
 
 **Reading (the story, on real data):** MTL **beats the dedicated category ceiling at every state** (+4.7 … +7.7 pp)
 AND **beats the region ceiling at the LARGE region counts** (FL 4.7k **+0.57**, CA 8.5k **+2.18** — both 5f;
-TX 6.6k **+2.06** — all 5f), while **matching within δ=2 pp at the small counts** (AL −0.18, AZ −0.06,
-Istanbul −0.52). **CA, the largest region state, is 5f-complete and beats** — that single cell retires the old
+TX 6.6k **+2.06** — all 5f), while **matching within δ=2 pp at the small counts** (AL −0.18, AZ −0.06).
+**Istanbul** (520 mahalle), now rebuilt on the matched `dk_ovl`+v17 substrate (H3, n=20), **beats reg +0.28** too
+(was −0.52 on the old stride-1-GCN base — the substrate rebuild flipped it positive). **CA, the largest region
+state, is 5f-complete and beats** — that single cell retires the old
 "region cost grows with cardinality" (Decision-C) narrative. The earlier fp16-autocast collapse
 (`CA_MTL_DIVERGENCE.md`) + the A40-Ampere bf16 grad-NaN were **masking a genuine region win**.
 
-> **Honest framing:** "beats on **category** everywhere; beats on **region** at the large states, matches at the
-> small." Do NOT write "beats region everywhere" (AL/AZ/Istanbul are matches-within-margin, slightly negative).
+> **Honest framing:** "beats on **category** everywhere; beats on **region** at the large states + Istanbul, matches
+> at the small US states." Do NOT write "beats region everywhere" (AL/AZ are matches-within-margin, slightly negative;
+> Istanbul beats only after the H3 dk_ovl+v17 rebuild — +0.28, previously −0.52 on base check2hgi).
 >
 > **Caveats that MUST travel with these numbers:**
 > 1. **TX is SETTLED 5f** —
@@ -79,6 +82,7 @@ gated stride-1 overlap (MIN_SEQ=10), **true fp32** (`MTL_DISABLE_AMP=1`, 0 non-f
 | **AL** | 63.45 ±2.00 | 63.25 ±2.02 | **+0.20** | 69.48 ±3.03 | 69.65 ±3.32 | **−0.17** | 66.39 | 66.37 | **+0.02** ≈tie |
 | **AZ** | 63.63 ±1.34 | 63.44 ±1.33 | **+0.20** | 59.18 ±1.83 | 59.36 ±1.79 | **−0.18** | 61.37 | 61.36 | **+0.00** ≈tie |
 | **FL** | 79.83 ±0.49 | 79.82 (H100§1) | **+0.01** | 77.27 ±0.95 | 77.28 (H100§1) | **−0.01** | 78.54 | 78.55 | **−0.01** ≈tie |
+| **Istanbul**† | 63.12 ±0.57 | 63.32 (H3 **v17**) | **−0.20** | 75.16 ±0.69 | 75.41 (H3 v17) | **−0.25** | 68.88 | 69.10 | **−0.22** ≈tie |
 
 *(cat = macro-F1; reg = FULL top10_acc = indist·(1−ood) at diagnostic-best epoch; joint = √(cat·reg);
 fold-mean ±pstd, matched scorer `a40_score_matched.py`. JSONs:
@@ -90,6 +94,16 @@ cross-device ±0.01.)*
 **FL (large state, 4703 regions): cascade is again a tie.** vs the §1 board champ-G FL (H100, 79.82/77.28):
 **Δcat +0.01 / Δreg −0.01** — essentially identical. FL canonical (`dk_ovl`, 5f, fp32) —
 **supersedes the M4 set-a partial** (`baseline_compare/florida_cslsl_cascade.json`, 4-fold MPS-OOM, no comparand).
+
+**† Istanbul (non-U.S., 520 mahalle — P6 coverage, 2026-07-07): cascade ties too.** Run on the **v17** recipe
+(per-head cat-lr, matching the H3 dk_ovl+v17 champion — vs AL/AZ/FL which are **v16**; both isolate the same
+cascade-vs-parallel topology, so the tie claim is version-robust). Comparand = the H3 v17 Istanbul MTL (`h3_istanbul/RESULTS.md`,
+seed-0 5f). **Δjoint −0.22** (|Δ| ≈ 0.4σ of the cat fold-std 0.57, well within noise) — and the sign is **parallel ≥
+cascade** (the cascade loses a hair on BOTH heads: −0.20 cat / −0.25 reg), so the anti-overclaim rule is doubly safe
+(no "we beat the cascade", and the cascade did not beat us). The tie now spans **US small→large (AL/AZ/FL) + non-US
+(Istanbul)**. JSON `docs/results/closing_data/a40/istanbul_cascade_v17_s0.json`; recipe = the H3 command + the 5 b4
+pins, `MTL_STRICT` off (its cond-guard hard-fails on the unaligned cond_coupling — the standard cascade protocol; see
+CSLSL_CASCADE.md). *CA/TX cascade coverage remains open (P6).*
 
 **Reading:** the cascade is a **dead tie** with our parallel champion-G on the joint objective
 (Δjoint ≤ 0.02 pp ≪ fold-std). It trades a hair of category (+0.20) for a hair of region (−0.17/−0.18),

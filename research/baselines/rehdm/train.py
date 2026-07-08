@@ -11,6 +11,7 @@ Result JSON is written to
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 import math
 import os
@@ -26,6 +27,35 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader, Dataset
 
 from research.baselines.rehdm.model import ReHDM, ReHDMConfig
+
+
+# --- A2 (faithfulness): spatio-temporal message bucketization (paper Eq. 9) ---
+# Log-width buckets for the inter-trajectory time gap Δt (target.start −
+# collab.end, seconds ≥ 0 by the precedence filter) and the haversine distance
+# Δd (km) between trajectory centroids. Must match ReHDMConfig.n_{time,dist}_buckets.
+# TODO(verify): ReHDM does not specify the encoder family or bucket widths
+# (paper ambiguity #4). log2 widths are a defensible STHGCN-style default;
+# confirm against the authors' released code before treating as canonical.
+N_TIME_BUCKETS = 32
+N_DIST_BUCKETS = 32
+
+
+def _time_bucket(dt_seconds: float) -> int:
+    hours = max(0.0, dt_seconds) / 3600.0
+    return min(int(math.log2(hours + 1.0)), N_TIME_BUCKETS - 1)
+
+
+def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    r = 6371.0088
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    dphi = math.radians(lat2 - lat1)
+    dlmb = math.radians(lon2 - lon1)
+    a = math.sin(dphi / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dlmb / 2) ** 2
+    return 2 * r * math.asin(math.sqrt(a))
+
+
+def _dist_bucket(km: float) -> int:
+    return min(int(math.log2(max(0.0, km) + 1.0)), N_DIST_BUCKETS - 1)
 
 
 def set_seed(seed: int):
@@ -60,6 +90,13 @@ class TrajectoryStore:
         self.end_t: dict[int, np.int64] = {}
         self.poi_set: dict[int, set] = {}
         self.split: dict[int, str] = {}
+        # A2 (faithfulness): per-trajectory centroid for the Δd message term.
+        # Only available if the ETL persisted lat/lon (updated etl.py cols);
+        # for legacy parquets without them, `self.has_geo` stays False and the
+        # s_ij term degrades to a single bucket (see make_collate).
+        self.lat: dict[int, float] = {}
+        self.lon: dict[int, float] = {}
+        self.has_geo = "latitude" in df.columns and "longitude" in df.columns
 
         ts = df["datetime"].astype("int64").to_numpy() // 10**9
         for tid, g in df.groupby("traj_idx", sort=False):
@@ -79,6 +116,9 @@ class TrajectoryStore:
             self.end_t[int(tid)] = int(ts[ix[input_len - 1]])
             self.poi_set[int(tid)] = set(g["poi_idx"].to_numpy()[:input_len].tolist())
             self.split[int(tid)] = g["split"].iloc[0]
+            if self.has_geo:
+                self.lat[int(tid)] = float(g["latitude"].to_numpy()[:input_len].mean())
+                self.lon[int(tid)] = float(g["longitude"].to_numpy()[:input_len].mean())
 
         self.traj_ids = [t for t in self.traj_ids if t in self.split]
         self.train_ids = [t for t in self.traj_ids if self.split[t] == "train"]
@@ -154,10 +194,14 @@ class TrajectoryStore:
         """O(1) lookup of cached pools, then truncate (and optionally shuffle)."""
         intra = self._intra_pool[target_tid][-max_intra:]
         pool = self._inter_pool[target_tid]
-        if (rng or random).random() < 1.0 and len(pool) > max_inter:
+        # A7 (faithfulness/cleanup): the old `(rng or random).random() < 1.0`
+        # guard was a tautology (random() ∈ [0,1) is always < 1.0), so the
+        # `else` branch was dead and one RNG draw was wasted (perturbing the
+        # stream). Sample only when the pool actually exceeds the cap.
+        if len(pool) > max_inter:
             inter = (rng or random).sample(pool, max_inter)
         else:
-            inter = pool[:max_inter]
+            inter = pool[:max_inter]  # already ≤ cap; == pool
         return intra, inter
 
 
@@ -173,49 +217,69 @@ class ReHDMDataset(Dataset):
         return self.ids[i]
 
 
-def make_collate(store: TrajectoryStore, max_intra: int, max_inter: int, training: bool):
-    rng = None if training else random.Random(0)
+def make_collate(
+    store: TrajectoryStore, max_intra: int, max_inter: int, training: bool,
+    seeded: bool = False,
+):
+    # A6 (reproducibility): decouple "build collaborators" from "seeded rng".
+    # Training uses a stochastic rng (None → global `random`) as data
+    # augmentation; evaluation passes `training=True` (so the sub-hypergraph IS
+    # built per §4.2) *and* `seeded=True` so inter-user sampling is deterministic
+    # across runs (README "verified-fixed bug #3"). The old code keyed the seed
+    # off `training`, so the eval path (training=True) silently used the global
+    # rng and was NOT actually seeded.
+    rng = random.Random(0) if (seeded or not training) else None
 
     def collate(batch_tids: list[int]):
         target_ids, target_mask = store.stack(batch_tids)
         targets = torch.tensor([store.targets[t] for t in batch_tids], dtype=torch.long)
 
         if not training or (max_intra + max_inter) == 0:
-            return target_ids, target_mask, None, None, None, None, targets
+            return (target_ids, target_mask, None, None, None, None, None, None,
+                    targets)
 
         all_collab: list[int] = []
-        edges: list[tuple[int, int, int]] = []  # (target_row, collab_row, edge_type)
+        # (target_row, collab_row, edge_type, time_bucket, dist_bucket)
+        edges: list[tuple[int, int, int, int, int]] = []
         seen_to_idx: dict[int, int] = {}
         for ti, tid in enumerate(batch_tids):
             intra, inter = store.collaborators(tid, max_intra, max_inter, rng=rng)
-            for c in intra:
+            t_start = store.start_t[tid]
+            for c, rtype in [(c, 0) for c in intra] + [(c, 1) for c in inter]:
                 if c not in seen_to_idx:
                     seen_to_idx[c] = len(all_collab)
                     all_collab.append(c)
-                edges.append((ti, seen_to_idx[c], 0))
-            for c in inter:
-                if c not in seen_to_idx:
-                    seen_to_idx[c] = len(all_collab)
-                    all_collab.append(c)
-                edges.append((ti, seen_to_idx[c], 1))
+                # A2: Δt / Δd message buckets for this (target, collaborator) edge.
+                tb = _time_bucket(t_start - store.end_t[c])
+                if store.has_geo:
+                    db = _dist_bucket(_haversine_km(
+                        store.lat[tid], store.lon[tid], store.lat[c], store.lon[c]))
+                else:
+                    db = 0
+                edges.append((ti, seen_to_idx[c], rtype, tb, db))
 
         if not all_collab:
-            return target_ids, target_mask, None, None, None, None, targets
+            return (target_ids, target_mask, None, None, None, None, None, None,
+                    targets)
 
         collab_ids, collab_mask = store.stack(all_collab)
         adjacency = torch.zeros(len(batch_tids), len(all_collab), dtype=torch.float32)
         edge_types = torch.zeros(len(batch_tids), len(all_collab), dtype=torch.long)
-        # Vectorised scatter from the `edges` list (data-movement optimisation,
-        # byte-identical to the per-edge Python loop). Each (ti, ci) pair is
+        time_buckets = torch.zeros(len(batch_tids), len(all_collab), dtype=torch.long)
+        dist_buckets = torch.zeros(len(batch_tids), len(all_collab), dtype=torch.long)
+        # Vectorised scatter from the `edges` list. Each (ti, ci) pair is
         # unique: intra (same-user) and inter (different-user, see :122) pools
         # are user-disjoint and `seen_to_idx` dedups, so no (ti, ci) is written
         # twice — index-assignment has no duplicate-index ambiguity here.
         if edges:
-            e = torch.tensor(edges, dtype=torch.long)  # [E, 3]: (ti, ci, rtype)
-            ti_idx, ci_idx, rt = e[:, 0], e[:, 1], e[:, 2]
+            e = torch.tensor(edges, dtype=torch.long)  # [E, 5]
+            ti_idx, ci_idx = e[:, 0], e[:, 1]
             adjacency[ti_idx, ci_idx] = 1.0
-            edge_types[ti_idx, ci_idx] = rt
-        return target_ids, target_mask, collab_ids, collab_mask, adjacency, edge_types, targets
+            edge_types[ti_idx, ci_idx] = e[:, 2]
+            time_buckets[ti_idx, ci_idx] = e[:, 3]
+            dist_buckets[ti_idx, ci_idx] = e[:, 4]
+        return (target_ids, target_mask, collab_ids, collab_mask, adjacency,
+                edge_types, time_buckets, dist_buckets, targets)
 
     return collate
 
@@ -225,7 +289,8 @@ def _move(ids: dict, device):
 
 
 @torch.no_grad()
-def evaluate(model, store, ids, batch_size, device, max_intra=4, max_inter=4):
+def evaluate(model, store, ids, batch_size, device, max_intra=4, max_inter=4,
+             amp_enabled: bool = False):
     """Evaluate with the same sub-hypergraph protocol as training (paper §4.2)."""
     model.eval()
     # macOS spawn can't pickle the closure returned by make_collate; use fork there.
@@ -235,19 +300,21 @@ def evaluate(model, store, ids, batch_size, device, max_intra=4, max_inter=4):
         num_workers=2, persistent_workers=True,
         pin_memory=torch.cuda.is_available(),
         multiprocessing_context=_mp_ctx,
-        collate_fn=make_collate(store, max_intra, max_inter, training=True),
+        # A6: seeded=True → deterministic inter-user sampling at eval time.
+        collate_fn=make_collate(store, max_intra, max_inter, training=True, seeded=True),
     )
     n = 0
     correct1 = correct5 = correct10 = 0
     mrr = 0.0
     for batch in loader:
-        t_ids, t_mask, c_ids, c_mask, adj, et, y = batch
+        t_ids, t_mask, c_ids, c_mask, adj, et, tb, db, y = batch
         t_ids = _move(t_ids, device); t_mask = t_mask.to(device); y = y.to(device)
         if c_ids is not None:
             c_ids = _move(c_ids, device); c_mask = c_mask.to(device)
             adj = adj.to(device); et = et.to(device)
-        with torch.autocast(device_type="cuda", dtype=torch.bfloat16, enabled=torch.cuda.is_available()):
-            logits = model(t_ids, t_mask, c_ids, c_mask, adj, et)
+            tb = tb.to(device); db = db.to(device)
+        with torch.autocast(device_type="cuda", dtype=torch.bfloat16, enabled=amp_enabled):
+            logits = model(t_ids, t_mask, c_ids, c_mask, adj, et, tb, db)
         logits = logits.float()
         ranks = (-logits).argsort(dim=-1)
         pos = (ranks == y.unsqueeze(1)).nonzero()[:, 1] + 1
@@ -289,14 +356,35 @@ def train_one_run(
         n_users=vocab["n_users"], n_pois=vocab["n_pois"],
         n_categories=vocab["n_categories"], n_quadkeys=vocab["n_quadkeys"],
         n_regions=vocab["n_regions"],
+        n_time_buckets=N_TIME_BUCKETS, n_dist_buckets=N_DIST_BUCKETS,
     )
     model = ReHDM(cfg).to(device)
     print(f"[train] params={sum(p.numel() for p in model.parameters())/1e6:.2f}M")
 
+    # A1 (correctness): bf16 autocast escape hatch. The A40 grad-NaNs on bf16
+    # backward at large region domains (C≈4.7k–8.5k for FL/CA/TX) — the NaN
+    # guards below would then silently skip most batches. Gate:
+    #   REHDM_DISABLE_AMP=1 → force fp32; =0 → force bf16 (CUDA only);
+    #   unset → auto: fp32 when n_regions > REHDM_AMP_REGION_CAP (default 3000),
+    #   bf16 otherwise. Doubles as the B1 perf lever (bf16 speedup at small states).
+    _amp_env = os.environ.get("REHDM_DISABLE_AMP")
+    _region_cap = int(os.environ.get("REHDM_AMP_REGION_CAP", "3000"))
+    if _amp_env == "1":
+        amp_enabled = False
+    elif _amp_env == "0":
+        amp_enabled = torch.cuda.is_available()
+    else:
+        amp_enabled = torch.cuda.is_available() and vocab["n_regions"] <= _region_cap
+    print(f"[train] amp(bf16)={amp_enabled} n_regions={vocab['n_regions']}")
+
     if torch.cuda.is_available():
-        torch.backends.cuda.matmul.allow_tf32 = True
-        torch.backends.cudnn.allow_tf32 = True
-        torch.set_float32_matmul_precision("high")
+        # B4 (numerics consistency): only enable TF32 under the bf16 path (where
+        # matmuls are bf16 anyway). Under the fp32-faithful path (amp disabled),
+        # leave TF32 OFF so "fp32" means true fp32 (matches the board protocol).
+        _tf32 = amp_enabled
+        torch.backends.cuda.matmul.allow_tf32 = _tf32
+        torch.backends.cudnn.allow_tf32 = _tf32
+        torch.set_float32_matmul_precision("high" if _tf32 else "highest")
     # On non-CUDA (macOS MPS/CPU), spawn can't pickle make_collate's closure → use fork
     # and reduce worker count (CUDA path keeps the validated 12-worker recipe).
     _mp_ctx = "fork" if not torch.cuda.is_available() else None
@@ -314,23 +402,28 @@ def train_one_run(
 
     best_val = -1.0
     best_test_metrics: dict | None = None
+    best_state: dict | None = None            # B2: snapshot of best-val weights
+    n_skipped_loss = 0                        # A1: surface NaN-storm visibility
+    n_skipped_grad = 0
     for ep in range(epochs):
         model.train()
         t0 = time.time()
         loss_sum = 0.0
         for batch in train_loader:
-            t_ids, t_mask, c_ids, c_mask, adj, et, y = batch
+            t_ids, t_mask, c_ids, c_mask, adj, et, tb, db, y = batch
             t_ids = _move(t_ids, device); t_mask = t_mask.to(device)
             if c_ids is not None:
                 c_ids = _move(c_ids, device); c_mask = c_mask.to(device)
                 adj = adj.to(device); et = et.to(device)
+                tb = tb.to(device); db = db.to(device)
             y = y.to(device)
             optim.zero_grad()
-            with torch.autocast(device_type="cuda", dtype=torch.bfloat16, enabled=torch.cuda.is_available()):
-                logits = model(t_ids, t_mask, c_ids, c_mask, adj, et)
+            with torch.autocast(device_type="cuda", dtype=torch.bfloat16, enabled=amp_enabled):
+                logits = model(t_ids, t_mask, c_ids, c_mask, adj, et, tb, db)
                 loss = F.cross_entropy(logits, y)
             if not torch.isfinite(loss):
                 print(f"[train] non-finite loss at ep={ep+1}; skipping batch")
+                n_skipped_loss += 1
                 continue
             loss.backward()
             bad_grad = False
@@ -339,26 +432,43 @@ def train_one_run(
                     bad_grad = True; break
             if bad_grad:
                 print(f"[train] non-finite grad at ep={ep+1}; skipping step")
+                n_skipped_grad += 1
                 optim.zero_grad(); continue
             torch.nn.utils.clip_grad_norm_(model.parameters(), 0.5)
             optim.step(); sched.step()
             loss_sum += loss.item() * y.size(0)
 
-        val = evaluate(model, store, store.val_ids, batch_size, device, max_intra, max_inter)
+        val = evaluate(model, store, store.val_ids, batch_size, device,
+                       max_intra, max_inter, amp_enabled=amp_enabled)
         print(
             f"[train] ep={ep+1}/{epochs} loss={loss_sum/max(1,len(store.train_ids)):.4f} "
             f"val_acc@10={val['acc@10']:.4f} mrr={val['mrr']:.4f} dt={time.time()-t0:.1f}s"
         )
         if val["acc@10"] > best_val:
             best_val = val["acc@10"]
-            best_test_metrics = evaluate(
-                model, store, store.test_ids, batch_size, device, max_intra, max_inter
-            )
+            # B2 (perf): snapshot best-val weights instead of running a full test
+            # eval every time val improves; the single test eval happens once
+            # after the loop. Bit-exact vs the old per-improvement test eval given
+            # A6's seeded eval RNG (model.eval() + deterministic collaborators).
+            best_state = copy.deepcopy(model.state_dict())
+
+    if best_state is not None:
+        model.load_state_dict(best_state)
+        best_test_metrics = evaluate(
+            model, store, store.test_ids, batch_size, device,
+            max_intra, max_inter, amp_enabled=amp_enabled,
+        )
+
+    if n_skipped_loss or n_skipped_grad:
+        print(f"[train] WARNING skipped batches: loss={n_skipped_loss} grad={n_skipped_grad} "
+              f"(bf16 NaN storm? try REHDM_DISABLE_AMP=1)")
 
     out = {
         "tag": tag, "state": state, "run": run_idx, "seed": seed,
         "config": cfg.__dict__, "best_val_acc@10": best_val,
         "test": best_test_metrics, "vocab": vocab,
+        "amp_bf16": amp_enabled,
+        "skipped_batches": {"loss": n_skipped_loss, "grad": n_skipped_grad},
     }
     results_dir.mkdir(parents=True, exist_ok=True)
     out_path = results_dir / f"{tag}_run{run_idx}.json"

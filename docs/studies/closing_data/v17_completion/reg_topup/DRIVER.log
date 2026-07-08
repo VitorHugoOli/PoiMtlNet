@@ -1,0 +1,42 @@
+[06:33:06] REG top-up START (inert-omit mode; parity gate on AL s0 vs board 69.99)
+[06:34:31] PARITY alabama s0 (no dir) top10=70.0039  (board 69.99)
+[06:34:31] PARITY OK — proceeding with {1,7,100} × 5 states (no dir, inert).
+[06:34:31] RUN  alabama s1
+[06:35:55] DONE alabama s1 top10=70.1794
+[06:35:55] RUN  alabama s7
+[06:37:20] DONE alabama s7 top10=70.2022
+[06:37:20] RUN  alabama s100
+[06:38:45] DONE alabama s100 top10=70.0706
+[06:38:45] RUN  arizona s1
+[06:41:53] DONE arizona s1 top10=59.5022
+[06:41:53] RUN  arizona s7
+[06:44:57] DONE arizona s7 top10=59.5515
+[06:44:57] RUN  arizona s100
+[06:48:01] DONE arizona s100 top10=59.3882
+[06:48:01] RUN  florida s1
+[07:16:11] DONE florida s1 top10=76.7072
+[07:16:11] RUN  florida s7
+[07:44:11] DONE florida s7 top10=76.6947
+[07:44:11] RUN  florida s100
+[08:12:19] DONE florida s100 top10=76.6751
+[08:12:19] RUN  california s1
+[09:37:56] DONE california s1 top10=63.4684
+[09:37:56] RUN  california s7
+[11:03:19] DONE california s7 top10=63.5032
+[11:03:19] RUN  california s100
+[12:28:53] DONE california s100 top10=63.4986
+[12:28:53] RUN  texas s1
+[14:08:03] DONE texas s1 top10=64.9539
+[14:08:03] RUN  texas s7
+[15:46:25] DONE texas s7 top10=64.9435
+[15:46:25] RUN  texas s100
+[17:25:14] DONE texas s100 top10=64.929
+[17:25:14] REG top-up COMPLETE
+
+=== REG ceiling n=20 (dk_ovl) ===
+state       s0(board)      s1      s7    s100  n=20 mean
+alabama       69.99   70.18   70.20   70.07     70.111  (n_seed=4)
+arizona       59.40   59.50   59.55   59.39     59.460  (n_seed=4)
+florida       76.71   76.71   76.69   76.68     76.697  (n_seed=4)
+california    63.48   63.47   63.50   63.50     63.488  (n_seed=4)
+texas         64.96   64.95   64.94   64.93     64.947  (n_seed=4)

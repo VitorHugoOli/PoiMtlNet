@@ -23,6 +23,7 @@ sub-hypergraph is built per batch by `train.build_subhypergraph` (see train.py).
 from __future__ import annotations
 
 from dataclasses import dataclass
+import os
 
 import torch
 import torch.nn as nn
@@ -44,6 +45,12 @@ class ReHDMConfig:
     n_hg_layers: int = 2    # L (number of HG-Transformer layers)
     dropout: float = 0.2
     beta: float = 0.5       # gated-residual mix between layer ℓ and ℓ+1
+    # Spatio-temporal message buckets (paper Eq. 9 t_ij / s_ij, see A2 in
+    # REHDM_AUDIT_CHANGES.md). Bucketized log-Δt and log-Δd → learned embeddings
+    # added into the hyperedge message. 0 disables the term (used by the v2e
+    # aggregation layer, which has no inter-trajectory Δt/Δd).
+    n_time_buckets: int = 32
+    n_dist_buckets: int = 32
 
 
 class EmbeddingLayer(nn.Module):
@@ -104,7 +111,14 @@ class HGTransformerLayer(nn.Module):
     incidence/adjacency tensor that the caller supplies determines the mode.
     """
 
-    def __init__(self, d_model: int, n_heads: int, dropout: float):
+    def __init__(
+        self,
+        d_model: int,
+        n_heads: int,
+        dropout: float,
+        n_time_buckets: int = 0,
+        n_dist_buckets: int = 0,
+    ):
         super().__init__()
         self.d_model = d_model
         self.n_heads = n_heads
@@ -115,6 +129,25 @@ class HGTransformerLayer(nn.Module):
         self.v = nn.Linear(d_model, d_model)
         self.o = nn.Linear(d_model, d_model)
         self.edge_type = nn.Embedding(2, d_model)  # r ∈ {intra=0, inter=1}
+        # A2 (faithfulness): spatio-temporal message terms t_ij, s_ij (paper
+        # Eq. 9). Present only when this layer carries inter-trajectory edges
+        # (the e2e propagation layers); the v2e aggregation layer instantiates
+        # with 0 buckets and behaves exactly as before.
+        self.use_st = n_time_buckets > 0 and n_dist_buckets > 0
+        if self.use_st:
+            self.time_emb = nn.Embedding(n_time_buckets, d_model)
+            self.dist_emb = nn.Embedding(n_dist_buckets, d_model)
+            # A2 init FIX (2026-07-08 investigation, docs REHDM_AUDIT_CHANGES.md §A2-init):
+            # zero-init the Eq.9 st-embeddings by DEFAULT so the message starts as
+            # h_j+r_ij (identity) and t_ij/s_ij are LEARNED from 0. The default random
+            # N(0,1) init injected two 192-d noise vectors into every message from step 1
+            # and cost ~4.8pp at AL (60.16 → 64.41, ≈ the A2-off 64.97 → Eq.9 done right is
+            # NEUTRAL, not harmful; the standard additive-residual pattern, cf. the
+            # cascade's zero-init cond_proj). REHDM_ST_RANDOM_INIT=1 restores the old
+            # (buggy) random init for reproduction only.
+            if os.environ.get("REHDM_ST_RANDOM_INIT") != "1":
+                nn.init.zeros_(self.time_emb.weight)
+                nn.init.zeros_(self.dist_emb.weight)
         self.drop = nn.Dropout(dropout)
 
     def forward(
@@ -123,17 +156,32 @@ class HGTransformerLayer(nn.Module):
         h_neigh: torch.Tensor,            # [Bn, d]    — collaborator reps
         adjacency: torch.Tensor,          # [Bt, Bn]   — 0/1 mask
         edge_types: torch.Tensor,         # [Bt, Bn]   — long, ∈ {0,1}
+        time_buckets: torch.Tensor | None = None,   # [Bt, Bn] long, log-Δt bucket
+        dist_buckets: torch.Tensor | None = None,   # [Bt, Bn] long, log-Δd bucket
     ) -> torch.Tensor:
         Bt, d = h_target.shape
         Bn, _ = h_neigh.shape
-        # Message m_ij = h_j + r_ij  (paper Eq. 9; we drop ΔT and Δd, which are
-        # not defined for hyperedge-level messages in the original)
+        # A2 (faithfulness): message m_ij = h_j + r_ij + t_ij + s_ij (paper Eq. 9).
+        # The prior implementation dropped t_ij/s_ij claiming they were "not
+        # defined for hyperedge messages"; the cited STHGCN ancestor (open-code
+        # layer/st_encoder.py, DistanceEncoderSimple + TimeEncoder) DOES define
+        # them as bucketed time-diff / distance → nn.Embedding. We restore that.
+        # TODO(verify): ReHDM itself does not fix the encoder family (paper
+        # ambiguity #4) nor the exact bucketization; we use log-width buckets on
+        # inter-trajectory Δt (target.start − collab.end) and haversine Δd of the
+        # trajectory centroids (see train._time_bucket / _dist_bucket). Confirm
+        # against the authors' released code before treating as canonical.
         msg = h_neigh.unsqueeze(0).expand(Bt, Bn, d) + self.edge_type(edge_types)
+        if self.use_st and time_buckets is not None and dist_buckets is not None:
+            msg = msg + self.time_emb(time_buckets) + self.dist_emb(dist_buckets)
 
         q = self.q(h_target).view(Bt, self.n_heads, self.d_head)
         k = self.k(msg).view(Bt, Bn, self.n_heads, self.d_head)
         v = self.v(msg).view(Bt, Bn, self.n_heads, self.d_head)
 
+        # A5 (faithfulness note): paper Eq. 5 literally writes the denominator as
+        # √d (full model dim), but that is flagged as a likely typo; the STHGCN
+        # open-code and standard MHA convention use √d_head, which we follow.
         scores = torch.einsum("bhd,bnhd->bhn", q, k) / (self.d_head ** 0.5)
         # -1e9 (not -inf) so rows with zero neighbors get uniform soft weights
         # over zero-valued v positions — output is 0, no NaN gradient.
@@ -219,11 +267,15 @@ class ReHDM(nn.Module):
             nn.Linear(self.d_model, self.d_model),
         )
         self.v2e_ln = nn.LayerNorm(self.d_model)
-        self.v2e_post = nn.LayerNorm(self.d_model)
+        # A4 (faithfulness): the V→E output uses an explicit L2 step (paper
+        # Eq. 13, `h = L2(ReLU(...))`) applied inline in `initial_trajectory_rep`
+        # — not a LayerNorm. The old `self.v2e_post = LayerNorm` was removed.
 
         L_e2e = max(0, cfg.n_hg_layers - 1)
         self.e2e_layers = nn.ModuleList(
-            [HGTransformerLayer(self.d_model, cfg.n_heads, cfg.dropout) for _ in range(L_e2e)]
+            [HGTransformerLayer(self.d_model, cfg.n_heads, cfg.dropout,
+                                cfg.n_time_buckets, cfg.n_dist_buckets)
+             for _ in range(L_e2e)]
         )
         self.e2e_mlp = nn.ModuleList(
             [nn.Sequential(nn.Linear(self.d_model, self.d_model), nn.ReLU(),
@@ -233,6 +285,10 @@ class ReHDM(nn.Module):
         self.e2e_align = nn.ModuleList(
             [nn.Linear(self.d_model, self.d_model) for _ in range(L_e2e)]
         )
+        # A4 note: Eq. 14's `Norm` is genuinely ambiguous (LN or L2) in the paper.
+        # We keep LayerNorm here for training stability at large region domains.
+        # TODO(verify): if the authors' code uses L2 at the e2e stage, swap this
+        # for `F.normalize(..., dim=-1)` and A/B; kept as LN pending confirmation.
         self.e2e_post = nn.ModuleList([nn.LayerNorm(self.d_model) for _ in range(L_e2e)])
 
         self.classifier = nn.Linear(self.d_model, cfg.n_regions)
@@ -254,7 +310,8 @@ class ReHDM(nn.Module):
         targets = self.theta.unsqueeze(0).expand(B, d)
         h = self.v2e.attn_local(self.theta, vertex_reps, vertex_mask, edge_types)
         h = self.v2e_ln(targets + h)
-        h = self.v2e_post(F.relu(self.v2e_mlp(h)))
+        # A4 (faithfulness): Eq. 13 L2-normalises the V→E hidden state.
+        h = F.normalize(F.relu(self.v2e_mlp(h)), dim=-1)
         return h
 
     def forward(
@@ -265,6 +322,8 @@ class ReHDM(nn.Module):
         collab_mask: torch.Tensor | None = None,  # [Bn, Tn]
         adjacency: torch.Tensor | None = None,    # [B, Bn]
         edge_types: torch.Tensor | None = None,   # [B, Bn]
+        time_buckets: torch.Tensor | None = None,  # [B, Bn] long (A2)
+        dist_buckets: torch.Tensor | None = None,  # [B, Bn] long (A2)
     ) -> torch.Tensor:
         kpm = target_mask == 0
         target_rep = self.encode_pois(target_ids, kpm)
@@ -273,15 +332,19 @@ class ReHDM(nn.Module):
         if collab_ids is None or adjacency is None or adjacency.numel() == 0:
             h_final = h_target
         else:
-            kpm_c = collab_mask == 0
-            collab_rep = self.encode_pois(collab_ids, kpm_c)
+            # A3 (faithfulness): the POI-level self-attention refinement is applied
+            # ONLY to the target trajectory (paper §4.3, trap #2). Collaborators
+            # keep their raw E(q) embeddings until the V→E stage — do NOT run them
+            # through `poi_block` (`encode_pois`).
+            collab_rep = self.embed(collab_ids)
             h_collab = self.initial_trajectory_rep(collab_rep, collab_mask)
 
             h_l = h_target
             for layer, mlp, align, post in zip(
                 self.e2e_layers, self.e2e_mlp, self.e2e_align, self.e2e_post
             ):
-                g = layer(h_l, h_collab, adjacency, edge_types)
+                g = layer(h_l, h_collab, adjacency, edge_types,
+                          time_buckets, dist_buckets)
                 gated = self.cfg.beta * align(h_l) + (1 - self.cfg.beta) * g
                 h_l = post(F.relu(mlp(gated)))
             h_final = h_l

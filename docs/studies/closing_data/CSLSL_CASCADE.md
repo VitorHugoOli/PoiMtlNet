@@ -1,6 +1,8 @@
 # CSLSL cascade cell (role-3 baseline) — A40, 2026-06-24/25
 
-> **Status: AL + AZ + FL DONE (n=5 provisional, seed 0).** The CSLSL/CatDM **cascade** (directed cat→region,
+> **Status: AL + AZ + FL + Istanbul DONE (n=5 provisional, seed 0).** (Istanbul = P6 coverage, 2026-07-07, on the
+> H3 `dk_ovl`+**v17** substrate — non-U.S. check; ties too, Δjoint −0.22, parallel ≥ cascade. CA/TX cascade still open.)
+> The CSLSL/CatDM **cascade** (directed cat→region,
 > symmetric cross-attention severed) is a **dead tie** with our parallel champion-G on the joint objective
 > at the small/mid (AL/AZ) AND the large (FL, 4703 regions) states → our parallel bidirectional cross-attention
 > matches the dominant published multi-task alternative **at equal cost**. (FL same-device champ-G comparand
@@ -25,6 +27,7 @@ geom_simple selector, checkin/region modality, log_T-KD off. Comparand = **champ
 | AL | 63.45 ±2.00 | 63.25 ±2.02 | +0.20 | 69.48 ±3.03 | 69.65 ±3.32 | −0.17 | 66.39 | 66.37 | **+0.02** |
 | AZ | 63.63 ±1.34 | 63.44 ±1.33 | +0.20 | 59.18 ±1.83 | 59.36 ±1.79 | −0.18 | 61.37 | 61.36 | **+0.00** |
 | FL | 79.83 ±0.49 | ⏳ A40 in-flight | — | 77.27 ±0.95 | ⏳ A40 in-flight | — | 78.54 | — | ⏳ |
+| Istanbul (**v17**, P6) | 63.12 ±0.57 | 63.32 (H3) | −0.20 | 75.16 ±0.69 | 75.41 (H3) | −0.25 | 68.88 | 69.10 | **−0.22** ≈tie |
 
 cat = macro-F1; reg = FULL top10_acc = `top10_acc_indist·(1−ood_fraction)` at the diagnostic-best epoch;
 joint = √(cat·reg); fold-mean ±pstd, matched scorer `scripts/closing_data/a40_score_matched.py`.

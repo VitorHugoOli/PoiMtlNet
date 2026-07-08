@@ -301,8 +301,11 @@ The handoff's "faithful STAN/ReHDM blocked / ~30 h ETL" was **overstated** (ReHD
 - **P4** `BRIDGING_METRICS.md` (ladders + floors); **P7** reviewer clarity; **P8** bib hygiene.
 
 **P1 (n=20 multi-seed) — ATTEMPTED, INFEASIBLE on this A40; needs the H100 lane.**
-Coverage truth: board STL **region** ceiling is already n=20 at all 6 states; the real gap is **MTL champion-G +
-STL category ceiling at seeds {1,7,100}** for the 5 Gowalla states (Istanbul already n=20). ("AL/AZ/GE/FL complete"
+Coverage truth: ~~board STL **region** ceiling is already n=20 at all 6 states~~ ⚠ **CORRECTED 2026-07-02:** on the
+`dk_ovl` board the STL **region** ceiling is **seed-0 (n=5), NOT n=20** at every state incl Istanbul (only
+`*_ovl_stl_reg_s0.json` exist; the n=20 `paper_close_*` reg files are on the *v14* substrate, ~9 pp different, not
+transferable). The real gap is **MTL champion-G + STL category ceiling AND the STL region ceiling at seeds {1,7,100}**
+for all 6 states (Istanbul reg ceiling also seed-0, on stride-1 GCN — needs `dk_ovl` build). ("AL/AZ/GE/FL complete"
 = the *archived mtl_improvement* study, NOT the board.) Three walls on the A40: **(1)** FL fp32 overlap MTL
 ~24 min/epoch → days/seed (the fast estimates were the H100); **(2)** A40 bf16 backward grad-NaNs at large C
 (`TX_A40_BF16_NAN.md`) + fp16 overflow (`CA_MTL_DIVERGENCE.md`) → fp32 only safe + slow; **(3)** CA/TX OVL engines
