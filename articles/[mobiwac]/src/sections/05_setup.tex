@@ -11,10 +11,14 @@
 
 \subsection{Data}
 \label{sec:setup-data}
-We evaluate on six datasets, summarized in Table~\ref{tab:datasets}. Five come from Gowalla, a location-based
-social network (collected 2009 to 2010), and cover the U.S. states of Alabama, Arizona, Florida, Texas, and California
+We evaluate on six datasets, summarized in Table~\ref{tab:datasets}. Five come from Gowalla, a location-based social network (collected 2009 to 2011), and cover the U.S. states of Alabama, Arizona, Florida, Texas, and California
 \cite{cho2011gowalla}; the sixth is the city of Istanbul, drawn from the Massive-STEPS collection
-\cite{wongso2025massivesteps}, which gives us a non-U.S. check on the findings. We chose this spread on purpose.
+\cite{wongso2025massivesteps}, which gives us a non-U.S. check on the findings.
+% Data provenance (hidden): the Gowalla source is the public CC0 category-annotated dump,
+% figshare.com/articles/dataset/gowalla_data/22126586 (gowalla_checkins + gowalla_spots_subset1/2,
+% the exact files the ETL consumes; 36,001,959 check-ins). Date range MEASURED on the parquet
+% 2026-07-09: 2009-01-21 .. 2011-08-16 -> "collected 2009 to 2011". The SNAP/cho2011 dump
+% (Feb 2009-Oct 2010) is NOT the data source; cho2011gowalla is cited as the LBSN reference only. We chose this spread on purpose.
 The states run from small to large, from about 114 thousand check-ins and 1,109 regions in Alabama to several
 million check-ins and 8,501 regions in California, so we can see whether a result holds as the number of regions
 grows. Every dataset uses the same seven place categories: Community, Entertainment, Food, Nightlife, Outdoors,
@@ -42,9 +46,8 @@ task label: its objective is label-free, contrasting real graph neighborhoods ag
 auxiliary terms that reconstruct quantities computed from the inputs themselves, and it never sees the
 next-category or next-region target, so no label can travel from test to train through it. Second, the only thing
 it could carry from the test side is graph structure (which places sit near which),
-because the graph is built over all places. We measured that exposure directly, rebuilding the representation per
-fold from only that fold's training users, re-running both tasks, and comparing against the full-corpus
-representation on the same folds. The effect is within fold noise, with no systematic
+because the graph is built over all places. We measured that exposure directly, rebuilding the representation per fold from that fold's training
+users only and re-running both tasks against the full-corpus version on the same folds. The effect is within fold noise, with no systematic
 gain: on region the change is $-0.33$ points at Alabama, $+0.01$ at Arizona, and $-0.12$ at Florida. On category
 it is $+0.29$ at Alabama, $+0.27$ at Arizona, and $+0.00$ at Florida, measured on the in-coverage visits whose places
 appear in training (about 67 percent at Alabama to 87 percent at Florida); this is a place-level proxy, since the
@@ -69,7 +72,8 @@ score a place that is absent from training. On the visits we can measure, which 
 For the category task we report macro-averaged F1 (macro-F1), which averages the per-class F1 so that each of the
 seven categories counts equally, including the rare ones; its reference point is the majority-class floor, the
 macro-F1 of always predicting the single most common category. For the region task we report accuracy at ten
-(Acc@10), the fraction of test visits whose true region appears among the model's ten highest-scoring guesses; its
+(Acc@10), the fraction of test visits whose true region appears among the model's ten highest-scoring guesses
+(a visit whose true region is absent from that fold's training data counts as an error); its
 comparison anchor is the dedicated single-task model.
 
 We make two kinds of comparison and test each one appropriately. Where the joint model is meant to outperform, we test
@@ -119,4 +123,5 @@ without the exchange stack, and the added conditioning
 projection is about a thousand parameters. The
 dedicated single-task models are the comparison anchors for the joint model throughout, and the standard
 place-level embedding \cite{huang2023hgi} is the place-level comparison that isolates what the per-visit
-representation adds.
+representation adds. The full training recipe for every model here (optimizer, learning rates, schedule, epochs, batch
+sizes, seeds, hardware) ships with the released code (Section~\ref{sec:conclusion}).

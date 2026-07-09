@@ -13,12 +13,12 @@ per place, makes the next-category task far more learnable than the standard
 place-level representation does. Second, on top of that representation, a single
 multi-task model outperforms a dedicated category model at every dataset, and on
 region it does so at four of the six datasets while remaining non-inferior
-(TOST, $\pm2$~pp) at the other two. In summary, one model that shares a
-semantic context across both tasks while keeping a private spatial path for region
-can anticipate both what a user will do next and where, without giving up the
-next-region task. Across the U.S. states the gain on region grows with the
+(TOST, $\pm2$~pp) at the other two. In summary, one model with a shared semantic context and a private spatial
+path for region anticipates both what a user will do next and where, without
+giving up the next-region task. Across the U.S. states the gain on region grows with the
 number of regions. The code for the model, representation,
 baselines, and statistical tests is available at
-\url{https://github.com/VitorHugoOli/PoiMtlNet/tree/mobiwac}; both data sources,
-Gowalla~\cite{cho2011gowalla} and
-Massive-STEPS~\cite{wongso2025massivesteps}, are already public.
+\url{https://github.com/VitorHugoOli/PoiMtlNet/tree/mobiwac}; both data sources are already public: the
+category-annotated Gowalla dump
+(\url{https://figshare.com/articles/dataset/gowalla_data/22126586}) and the
+Massive-STEPS collection~\cite{wongso2025massivesteps}.

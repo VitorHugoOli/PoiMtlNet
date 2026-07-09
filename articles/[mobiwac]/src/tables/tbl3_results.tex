@@ -27,8 +27,7 @@
 \providecommand{\sd}[1]{\,{\scriptsize$\pm$#1}}
 \begin{table*}[t]
 \caption{One model, two tasks: the single joint model against the dedicated single-task models and the
-external baselines, ordered by region count. Category is macro-F1, region is Acc@10 (mean and standard
-deviation across runs). Bold marks a statistically supported improvement over the dedicated model; in
+external baselines, ordered by region count. Category is macro-F1, region is Acc@10. Bold marks a statistically supported improvement over the dedicated model; in
 the region columns, $\uparrow$ marks that supported improvement and $\approx$ a non-inferior match
 (TOST, $\pm2$~pp; Section~\ref{sec:results-part2}).}
 \label{tab:results}
@@ -51,8 +50,6 @@ our folds, scored on the visits whose region appears in training) is the primary
 references. Markov-K reports the strongest order per dataset (up to the nine-visit window).
 $^{\dagger}$STAN partial-fold cells, truncated by training cost: Texas four of five folds, California two of five (seed 0).
 $^{\ddagger}$ReHDM at Texas and California is a single seed. The joint cells at California and Texas are a
-single seed over five folds (provisional); every other cell in our columns averages four seeds.} \\
-% Hidden sd-semantics note (available on request): standard deviations are across seeds for four-seed
-% cells and across folds for single-seed cells.
+single seed over five folds (provisional); every other cell in our columns averages four seeds. $\pm$ is the sd across seeds for four-seed cells, across folds for single-seed cells.} \\
 \end{tabular}
 \end{table*}

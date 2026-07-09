@@ -21,9 +21,8 @@ controlled, like-for-like comparison: the target, the single-task head, the
 training recipe, and the
 folds are identical across the two columns, and only the input representation
 changes (a vector per visit versus a vector per place), so the margin isolates the
-representation, not a difference in task or model. (For this reason the
-check-in-level column keeps one fixed recipe and is intentionally not the
-per-dataset-tuned dedicated ceiling of Table~\ref{tab:results}.) The check-in-level
+representation, not a difference in task or model. (The check-in-level column therefore keeps one fixed recipe; it is
+intentionally not the per-dataset-tuned ceiling of Table~\ref{tab:results}.) The check-in-level
 representation outperforms the place embedding by a wide and consistent margin at every
 state: $+29.31$ at Alabama, $+27.63$ at Arizona, $+39.62$ at Florida, $+37.95$
 at California, and $+37.47$ at Texas. The same holds on Istanbul ($+28.09$).
@@ -81,9 +80,11 @@ usually expected to match or fall short of a head trained for that task alone).
 Each dedicated category ceiling is tuned per dataset over batch size and
 learning rate (the region ceilings use the strongest fixed recipe), so the
 joint model is compared against the strongest dedicated setting, not a
-convenient one. Throughout, each task is scored at its own validation-best
-epoch, under the same rule for the joint and dedicated models, so every
-comparison is best against best.
+convenient one.
+% AUTHOR DECISION 2026-07-09: the rendered best-vs-best epoch disclosure ("each task is scored at
+% its own validation-best epoch...") was REMOVED from the text -- the diag-best-vs-joint-best matter
+% will be handled after notification (J1 lane, see ../J1_JOINT_SCORE_RUNBOOK.md). The response-letter
+% note below stays.
 % Response-letter note (hidden): if a reviewer asks whether ONE served checkpoint can deliver both
 % numbers -- the training run also saves a single joint checkpoint per fold, selected by
 % sqrt(cat macro-F1 x reg Acc@10) on validation (the geom_simple selector, mtl_cv.py; a
@@ -107,8 +108,8 @@ Texas $+2.12$ (6{,}553), California $+2.20$ (8{,}501), and Istanbul $+0.28$
 and Arizona ($+0.10$). Across the five U.S. states the region gain rises with
 the number of regions, from $-0.31$ at the smallest to $+2.20$ at the largest,
 so the joint model helps the spatial task more, not less, as the number of
-regions grows; the state with the most regions has the largest region gain, the
-opposite of a cost that grows with the size of the spatial problem. We order by
+regions grows, the opposite of a cost that grows with the size of the spatial
+problem. We order by
 region count because that is the axis of interest; region count and corpus size
 co-vary across these datasets, so we read the trend across the points rather
 than as a precise law.
@@ -119,7 +120,7 @@ folds, and the tests pair the per-seed means (four paired observations per
 dataset). On category, all four seeds favor
 the joint model at every one of these datasets, and each per-dataset gain is
 significant after a Holm correction across the four cells (paired $t$,
-corrected $p<10^{-6}$ everywhere). On region, all four are tested equivalences
+corrected $p<0.001$ everywhere). On region, all four are tested equivalences
 (TOST, $\pm2$~pp), and all four pass with 90\% confidence intervals well inside
 two points: Alabama ($-0.31$; $-0.48$ to $-0.14$), Arizona ($+0.10$; $+0.00$ to
 $+0.21$), Florida ($+0.72$; $+0.67$ to $+0.78$), and Istanbul ($+0.28$; $+0.24$
@@ -127,7 +128,8 @@ to $+0.32$). At Florida and Istanbul the whole interval sits above zero, so the
 joint model outperforms there as well, though those two gains are smaller than the
 two-point margin of Section~\ref{sec:setup-metrics}; the region gains above
 that margin are at Texas and California. At Arizona the interval touches zero, so
-we report a match, not a gain. California and Texas remain provisional: their
+we report a match, not a gain. At Alabama the interval sits entirely below zero, a small but
+statistically significant deficit, still well within the two-point margin. California and Texas remain provisional: their
 dedicated ceilings are $n{=}20$, but the joint cells are a single seed over
 five folds. On those folds, all five favor the joint model on both tasks
 (one-sided paired Wilcoxon, $p{=}0.031$, the smallest value five folds
@@ -154,7 +156,9 @@ region, and POI-RGNN~\cite{capanema2023poirgnn} and a Markov floor on category,
 all trail it. These externals run on their own embeddings, so this comparison
 folds in the representation advantage of Section~\ref{sec:results-part1}; the
 like-for-like anchor remains the dedicated column. A simple Markov region floor
-reaches $43$ to $65$ Acc@10 across the datasets (computed under a non-overlapping windowing of the same data); the joint model clears it by $12$ to $23$ points everywhere.
+reaches $43$ to $65$ Acc@10 across the datasets (computed under a
+non-overlapping windowing of the same data, indicative rather than
+protocol-matched); the joint model clears it by $12$ to $23$ points everywhere.
 
 We also test our choice of coupling the tasks in parallel rather
 than in a chain. We prefer the parallel form on principle: the two targets are
@@ -171,11 +175,10 @@ with both forms trained under the same configuration and single seed, and
 neither task moving by more than a quarter of a point. We read this as a defense of the
 parallel design, not a claim that we outperform the cascade: on this
 representation the coupling topology makes no measurable difference in either
-direction, and the simpler parallel structure loses nothing. Two qualifications
-bound this reading. The cascade variant runs under the training recipe tuned
-for the parallel model, and its coupling form was fixed in advance rather than
-searched, so a cascade tuned as carefully as the parallel design remains
-future work.
+direction, and the simpler parallel structure loses nothing. Two qualifications bound this
+reading: the cascade runs under the recipe tuned for the parallel model, and
+its form was fixed in advance, so a cascade tuned as carefully as the parallel
+design remains future work.
 
 \subsection{External validity (Istanbul)}
 \label{sec:results-external}
@@ -188,9 +191,8 @@ confidence interval of the paired difference lies entirely above zero; it also
 passes the non-inferiority test, TOST, $\pm2$~pp); both arms average four seeds
 ($n{=}20$). As with every dataset, the comparable quantity is the lift over the dedicated
 ceiling, not the absolute Acc@10: region counts differ across datasets (520
-mahalle here), so absolute scores are not comparable between them. The representation, the overlapping-window protocol, and the
-training setup are identical to those used for the Gowalla states, so the
-comparison is like-for-like. The external baselines line up the same way as on
+mahalle here), so absolute scores are not comparable between them. The representation, the overlapping-window protocol, and the training setup
+are identical to the Gowalla states', so the comparison is like-for-like. The external baselines line up the same way as on
 the U.S. states: on category the joint model is far above the Markov
 floor ($24.55$) and POI-RGNN~\cite{capanema2023poirgnn} ($30.12$), and on
 region it is above ReHDM~\cite{li2025rehdm} ($69.33$), a faithful
