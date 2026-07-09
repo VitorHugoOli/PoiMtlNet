@@ -14,7 +14,8 @@
 \subsection{The check-in-level representation}
 \label{sec:method-rep}
 
-We want each visit, not each place, to carry its own vector. A standard place embedding gives every point of interest one fixed vector, so two visits to the same caf\'e look identical whatever their time of day, company, or preceding trip. Figure~\ref{fig:dataflow} shows the full data flow, from check-ins to the two outputs.
+We want each visit, not each place, to carry its own vector.
+Figure~\ref{fig:dataflow} shows the full data flow, from check-ins to the two outputs.
 
 We build a graph with four levels: the check-in, its place, the place's region (a census tract), and the city. Edges tie the levels together and link a user's consecutive check-ins, weighted by closeness in time; same-place visits connect through their shared place node one level up, and nearby places are linked at the place level. Each visit's category, time of day, and day of week enter as input features of its node, not as edges. This keeps a hierarchical graph's place-to-region-to-city geography and adds the check-in as a bottom level. We train the graph mainly with an infomax objective, under which each vector learns to match its real neighborhood and reject a shuffled one~\cite{velickovic2019dgi,huang2023hgi}, plus two small label-free auxiliary terms: a masked reconstruction of each place's aggregated category
 features and an anchor to a place embedding pre-trained, label-free,
@@ -36,9 +37,8 @@ stream read the other's features, while each stream keeps its own feed-forward
 weights. The tasks therefore share by exchanging information between per-task
 streams, not by owning hidden layers in common. The stack then feeds a category output and a region output; the region output keeps a private spatial path, a small branch inside the one model (not a second model) that the category task does not touch.
 
-The whole system is a single model: one forward pass produces both predictions, the deployment property we care about.
-
-The training loss is a fixed-weight sum of the two outputs, the category output weighted 0.75 and the region output 0.25, and both outputs use plain unweighted cross-entropy. One might expect the class-balanced category metric to favor class-weighting; we tested it on both outputs and it lowered both region accuracy and category macro-F1. This is ordinary fixed-weight joint training~\cite{caruana1997multitask}, kept deliberately plain so that any improvement over the dedicated single-task models comes from the shared representation, not from an adaptive weighting scheme.
+The training loss is a fixed-weight sum of the two outputs, the category output weighted 0.75 and the region output 0.25, and both outputs use plain unweighted cross-entropy. Class-weighting, tested on both outputs, lowered both region accuracy and
+category macro-F1. This is ordinary fixed-weight joint training~\cite{caruana1997multitask}, kept deliberately plain so that any improvement over the dedicated single-task models comes from the shared representation, not from an adaptive weighting scheme.
 
 The cost of serving both tasks this way is not free, and we state it plainly.
 The joint model carries the cross-attention stack and both task heads, so it is
