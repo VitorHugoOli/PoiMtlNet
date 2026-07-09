@@ -13,6 +13,11 @@
 
 ## 1 · Part-2 headline — MTL champion-G vs dedicated STL ceilings (Δ in pp)
 
+> ⚠ **Scoring convention:** all MTL cells below are **per-task diagnostic-best** (cat and reg each at their OWN
+> best epoch — the matched-scorer method, disclosed in the paper §6.2). The single-checkpoint **joint-best** lane
+> is task **J1** (CPU-only re-score via `scripts/closing_data/score_joint_best.py`) — see
+> [`JOINT_BEST_SCORING.md`](JOINT_BEST_SCORING.md).
+
 > 🏆 **CHAMPION — `--canon v17` (`DEFAULT_CANON`):** **bs=8192 + cat-lr 1e-3** via `--onecycle-per-head-lr`. The
 > per-head cat-LR is a **STATE-SIZE trade** (not a strict board-wide cat win — kept board-wide by user decision
 > 2026-07-01 for the small-state gains + single-champion simplicity; reg is neutral+ everywhere):

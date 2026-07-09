@@ -53,6 +53,7 @@
 | **M3** | Bridging-metrics re-score (reg Acc@1/@5/MRR; cat Acc@1) | M2 Pro | open | short (needs saved logits) | nothing (coverage) |
 | **M4** | STAN precision-mix disclosure + v4-collapse guard (now incl. the CA/TX v6-p10 partials) | M2 Pro | open (doc) | doc | STAN hygiene |
 | **M5** | Stale-doc fixes + submission mechanics | M2 Pro | open (doc) | doc | submission |
+| **J1** | **Joint-best re-score of the board rundirs** via `scripts/closing_data/score_joint_best.py` (Table 3 = per-task diag-best, disclosed §6.2; joint-best = the single-checkpoint lane — see [`../JOINT_BEST_SCORING.md`](../JOINT_BEST_SCORING.md)): perhead_lr_n20 AL/AZ/FL, catx_v17_seed0_5f (+ CA/TX n=20 after A1), h3_istanbul | whichever machine holds each rundir (A40; CPU-only) | open | minutes | camera-ready / response letter — NOT the submission |
 
 **The critical path to a paper-grade v17 board:** **A1 (CA/TX MTL n=20, A40)** → **M1 full** (all 6 datasets n=20,
 drop "provisional" everywhere). The ceilings + Istanbul are already done; **M1-partial can run NOW** on

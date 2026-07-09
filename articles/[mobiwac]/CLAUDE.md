@@ -109,6 +109,13 @@ reproducible: `scripts/closing_data/superiority_wilcoxon.py` (per-state Wilcoxon
 `scripts/closing_data/region_match_tost.py` (small-state TOST + power); the leak audit is
 `scripts/pre_freeze_gates/a4_{build,eval,cat_eval}.py`; the paper's TOST prose/CSV is [`analysis/tost_region.{md,py}`](analysis/).
 
+**Epoch-selection convention (do not mix):** Table 3's MTL cells are **per-task diagnostic-best** (cat and reg each
+at their OWN best epoch — two epochs per fold), **disclosed in §6.2**. The single-checkpoint **joint-best** numbers
+(both heads at the `geom_simple`-selected epoch the training run actually saved) are the **J1 lane** — camera-ready /
+response-letter intent, produced CPU-only by `scripts/closing_data/score_joint_best.py` on each board rundir. Never
+cite a number without naming its convention; full definitions + the `standard_scores.json` contract:
+[`docs/studies/closing_data/JOINT_BEST_SCORING.md`](../../docs/studies/closing_data/JOINT_BEST_SCORING.md).
+
 ## 3 · Decisions ledger (settled; do not silently reopen)
 
 | Decision | Ruling |

@@ -339,7 +339,48 @@ class HistoryStorage:
             # Partial save is best-effort; never raise from a fold-end hook.
             logger.warning("save_fold_partial(%d) failed: %s", fold_idx, exc)
 
+        # Standard-scores export (self-guarded; never raises).
+        self._save_fold_standard_scores(dirs['metrics'], fold_idx)
+
         return base
+
+    def _save_fold_standard_scores(self, path: Path, fold_idx: int) -> None:
+        """Write ``fold{i}_standard_scores.json`` — BOTH epoch-selection conventions
+        (per-task diag-best + single-checkpoint joint-best) for one MTL fold.
+
+        Write-only artifact (scoring-standardization fix, 2026-07): zero effect on
+        metrics, checkpoints, or selector behavior; any exception is swallowed so it
+        can never crash a run. Skipped silently for runs where a (cat, reg) task pair
+        cannot be identified (single-task runs). Named by REAL fold id (fan-out safe).
+        Contract + schema: ``tracking/scoring.py`` docstring and
+        ``docs/studies/closing_data/JOINT_BEST_SCORING.md``.
+        """
+        try:
+            from tracking.scoring import fold_standard_scores, identify_cat_reg_tasks
+            history = self.history
+            fold = history.folds[fold_idx]
+            pair = getattr(history, 'scoring_task_names', None)  # (cat, reg), set by mtl_cv
+            if pair is None:
+                pair = identify_cat_reg_tasks(fold, list(history.tasks))
+            if pair is None:
+                return
+            cat_task, reg_task = pair
+            payload = fold_standard_scores(
+                fold,
+                cat_task=cat_task,
+                reg_task=reg_task,
+                selector_name=str(getattr(history, 'checkpoint_selector', None) or 'geom_simple'),
+                min_best_epoch=int(getattr(history, 'min_epoch', 0) or 0),
+            )
+            if payload is None:
+                return
+            i = history.fold_label(fold_idx)
+            payload['fold'] = i
+            payload['cat_task'] = cat_task
+            payload['reg_task'] = reg_task
+            save_json(payload, path / f'fold{i}_standard_scores.json')
+        except Exception as exc:
+            logger.warning("standard-scores export failed for fold %d: %s", fold_idx, exc)
 
     def _save_fold_metrics(self, path: Path, fold_idx: int) -> None:
         """Save train/val metrics CSVs for a single fold only."""
@@ -521,6 +562,9 @@ class HistoryStorage:
                 if th.val.num_epochs() > 0:
                     df = th.val.to_dataframe()
                     save_csv(df, path / f'fold{i}_{task}_val.csv')
+
+            # Standard-scores export (idempotent rewrite; self-guarded, never raises).
+            self._save_fold_standard_scores(path, _pos)
 
     def _save_reports(self, path: Path) -> None:
         for _pos, fold in enumerate(self.history.folds):

@@ -1019,6 +1019,13 @@ def _run_validation_epoch(model, dataloader_next, dataloader_category,
     # C21: gate the joint checkpoint on the configured selector
     # (default geom_simple), respecting min_best_epoch (skip the
     # init-artifact window, as the per-task trackers do).
+    # ⚠ SCORING CONVENTION: this gate picks the SINGLE saved joint checkpoint
+    # (joint-best), but the paper's Table-3 numbers were historically scored
+    # per-task DIAGNOSTIC-BEST (two different epochs per fold). Every fold now
+    # also exports metrics/fold{N}_standard_scores.json carrying BOTH
+    # conventions (tracking/scoring.py — the single source of truth for this
+    # selection logic). Never report a number without naming its convention:
+    # docs/studies/closing_data/JOINT_BEST_SCORING.md.
     joint_eligible = epoch_idx >= joint_min_epoch
     joint_improved = joint_eligible and (joint_selector_value > prev_joint_best)
     state = model.state_dict() if (joint_improved or task_b_improved or task_a_improved) else None
@@ -1981,6 +1988,16 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
     # For a normal full run this is [0,1,2,3,4] → naming is unchanged.
     fold_keys = list(dataloaders.keys())
     history.fold_ids = fold_keys
+
+    # Standard-scores export (scoring-standardization fix, 2026-07): annotate the
+    # history with the (cat, reg) slot names + the configured joint selector so
+    # HistoryStorage can emit metrics/fold{N}_standard_scores.json at fold end (BOTH
+    # epoch-selection conventions: per-task diag-best + joint-best). Write-only
+    # annotations — no effect on training. See tracking/scoring.py +
+    # docs/studies/closing_data/JOINT_BEST_SCORING.md.
+    history.scoring_task_names = (task_a_name, task_b_name)
+    history.checkpoint_selector = str(getattr(config, "checkpoint_selector", "geom_simple"))
+    history.min_epoch = int(getattr(config, "min_best_epoch", 0) or 0)
 
     _prof = get_profiler()
     _prof.run_start(meta={
