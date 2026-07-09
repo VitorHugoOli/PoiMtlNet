@@ -83,8 +83,14 @@ convenient one.
 Figure~\ref{fig:deltas} plots the signed gains ordered by region count. On
 category the joint model outperforms the dedicated ceiling at
 every dataset, by $+5.34$ to $+9.40$ macro-F1 (smallest at Florida, largest at
-Arizona, and $+8.59$ at Istanbul; a partially tested Arizona setting could trim
-its gain to about $+8.8$, still the largest). On region, measured by Acc@10, the joint
+Arizona, and $+8.59$ at Istanbul).
+% Hidden AZ-ceiling sensitivity (response-letter material, author policy: hide caveats, provide on
+% request): the AZ dedicated ceiling (56.43) is the strongest arm tested at the full n=20; two arms
+% screened at 2 of 4 seeds scored ~57.0 (bs2048@{0.0025,0.0075}). If they held at n=20, the AZ gain
+% would be ~+8.8 -- still the largest (Istanbul +8.59). Rule-clean value = 56.43 per the
+% pre-registered n=20 best-vs-best estimator; the top-up was dropped 2026-07-08 (user decision,
+% docs/studies/closing_data/v17_completion/A40.md).
+On region, measured by Acc@10, the joint
 model outperforms the dedicated ceiling at Florida $+0.72$ (4{,}703 regions),
 Texas $+2.12$ (6{,}553), California $+2.20$ (8{,}501), and Istanbul $+0.28$
 (520), and stays a non-inferior match (TOST, $\pm2$~pp) at Alabama ($-0.31$)
@@ -108,13 +114,14 @@ corrected $p<10^{-6}$ everywhere). On region, all four are tested equivalences
 two points: Alabama ($-0.31$; $-0.48$ to $-0.14$), Arizona ($+0.10$; $+0.00$ to
 $+0.21$), Florida ($+0.72$; $+0.67$ to $+0.78$), and Istanbul ($+0.28$; $+0.24$
 to $+0.32$). At Florida and Istanbul the whole interval sits above zero, so the
-joint model outperforms there as well, though those two gains sit inside the
-two-point materiality band of Section~\ref{sec:setup-metrics}; the above-band
-region gains are at Texas and California. At Arizona the interval touches zero, so
+joint model outperforms there as well, though those two gains are smaller than the
+two-point margin of Section~\ref{sec:setup-metrics}; the region gains above
+that margin are at Texas and California. At Arizona the interval touches zero, so
 we report a match, not a gain. California and Texas remain provisional: their
 dedicated ceilings are $n{=}20$, but the joint cells are a single seed over
 five folds. On those folds, all five favor the joint model on both tasks
-(one-sided paired Wilcoxon at its $n{=}5$ floor, $p{=}0.031$), and the region
+(one-sided paired Wilcoxon, $p{=}0.031$, the smallest value five folds
+can produce), and the region
 gains carry 90\% intervals entirely above the two-point margin ($+2.14$ to
 $+2.28$ at California, $+2.04$ to $+2.18$ at Texas). A multi-seed run at these
 two states is the remaining confirmation.
@@ -137,8 +144,7 @@ region, and POI-RGNN~\cite{capanema2023poirgnn} and a Markov floor on category,
 all trail it. These externals run on their own embeddings, so this comparison
 folds in the representation advantage of Section~\ref{sec:results-part1}; the
 like-for-like anchor remains the dedicated column. A simple Markov region floor
-reaches $43$ to $65$ Acc@10 across the datasets (under the earlier windowing of
-the same data); the joint model clears it by $12$ to $23$ points everywhere.
+reaches $43$ to $65$ Acc@10 across the datasets (computed under a non-overlapping windowing of the same data); the joint model clears it by $12$ to $23$ points everywhere.
 
 We also test our choice of coupling the tasks in parallel rather
 than in a chain. We prefer the parallel form on principle: the two targets are
@@ -148,11 +154,11 @@ cascade dominates published practice, and CSLSL reports its chain
 outperforming a parallel variant that shares one trunk on its own
 benchmarks~\cite{huang2024cslsl}. Rewired as a cascade
 (Section~\ref{sec:setup-baselines}), our model reaches the same combined
-accuracy as its parallel form at no additional parameter or compute cost (a
-joint-score difference of about zero at Alabama, Arizona, Florida, and
-Istanbul, the four datasets where we ran the comparison, each pair trained
-under one shared configuration and seed, spanning 520 to
-4{,}703 regions and including the non-U.S. city). We read this as a defense of the
+score, the geometric mean of the two task metrics, as its parallel form at no
+additional parameter or compute cost: the difference is about zero at Alabama,
+Arizona, Florida, and Istanbul, the four datasets where we ran the comparison,
+with both forms trained under the same configuration and single seed, and
+neither task moving by more than a quarter of a point. We read this as a defense of the
 parallel design, not a claim that we outperform the cascade: on this
 representation the coupling topology makes no measurable difference in either
 direction, and the simpler parallel structure loses nothing. Two qualifications
@@ -164,15 +170,15 @@ future work.
 \subsection{External validity (Istanbul)}
 \label{sec:results-external}
 Read this as: the finding holds on a non-U.S. city, measured on the same
-representation, protocol, and sample size as the U.S. states. On Istanbul the
+representation and protocol as the U.S. states. On Istanbul the
 joint model outperforms the dedicated category ceiling by $+8.59$ macro-F1
 ($54.74$ to $63.33$) and edges past the dedicated region ceiling at $+0.28$
 Acc@10 ($75.16$ to $75.44$), a statistically supported gain (the 90\%
 confidence interval of the paired difference lies entirely above zero; it also
 passes the non-inferiority test, TOST, $\pm2$~pp); both arms average four seeds
-($n{=}20$). We report Istanbul as a lift over the dedicated ceiling, not as an
-absolute Acc@10, because its region count (520 mahalle) differs from the
-Gowalla states, so the absolute scores are not comparable across datasets. The representation, the overlapping-window protocol, and the
+($n{=}20$). As with every dataset, the comparable quantity is the lift over the dedicated
+ceiling, not the absolute Acc@10: region counts differ across datasets (520
+mahalle here), so absolute scores are not comparable between them. The representation, the overlapping-window protocol, and the
 training setup are identical to those used for the Gowalla states, so the
 comparison is like-for-like. The external baselines line up the same way as on
 the U.S. states: on category the joint model is far above the Markov

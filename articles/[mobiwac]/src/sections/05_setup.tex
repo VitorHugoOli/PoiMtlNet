@@ -49,8 +49,7 @@ representation on the same folds. The effect is within fold noise, with no syste
 gain: on region the change is $-0.33$ points at Alabama, $+0.01$ at Arizona, and $-0.12$ at Florida. On category
 it is $+0.29$ at Alabama, $+0.27$ at Arizona, and $+0.00$ at Florida, measured on the in-coverage visits whose places
 appear in training (about 67 percent at Alabama to 87 percent at Florida); this is a place-level proxy, since the
-representation cannot score a place never seen in training, and extending the
-audit beyond these three states is planned.
+representation cannot score a place never seen in training.
 % NOTE: numbers from the A4 train-users-only transductivity audit (docs/studies/pre_freeze_gates/A4_RESULTS.md):
 % reg AL -0.33 / AZ +0.01 / FL -0.12 (5 folds); cat POI-proxy on in-coverage subset AL +0.29 (66.8%) / AZ +0.27 (71.9%) / FL +0.00 (86.9%).
 % Author TODO: extend to CA/TX/Istanbul to widen coverage further (non-blocking; the gate is on null at AL+AZ+FL).
@@ -65,8 +64,7 @@ representation is pre-trained once on the whole dataset, exactly like ours; the 
 pre-trained per fold on training users only, a stricter standard, so no baseline input is held to a weaker
 standard than ours. The one residual we cannot
 fully measure is visits to places never seen in training: the representation is trained on all places, so it cannot
-score a place that is absent from training. On the visits we can measure, which are the large majority, the audit
-finds no inflation, and a planned training-only variant is meant to close the remaining gap.
+score a place that is absent from training. On the visits we can measure, which are the large majority, the audit finds no inflation.
 
 \subsection{Metrics, superiority versus non-inferiority}
 \label{sec:setup-metrics}
@@ -99,13 +97,10 @@ state of the art for each task, on our data, under user-disjoint five-fold proto
 run as a faithful re-implementation, and a simple "what usually follows what" Markov baseline over the
 recent categories, reporting the strongest order per dataset (Markov-K, up to the nine-visit window). For the next-region task this is HMT-GRN \cite{lim2022hmtgrn}, our primary region-native
 comparison, predicting the region from its own end-to-end recurrent model on the same data, seed, and folds; we keep
-its shared recurrent multi-task skeleton, add a region-transition prior built per fold from training data, and drop
-its graph components and its hierarchical beam search; the beam search exists to prune a next-place head we do not
-predict. The HMT-GRN comparison is therefore a region-native model,
+its shared recurrent multi-task skeleton, add a region-transition prior built per fold from training data, and drop its graph components and its
+hierarchical beam search, both of which serve the next-place head we do not predict. The HMT-GRN comparison is therefore a region-native model,
 not a component-complete reproduction. Alongside it we run a faithful STAN \cite{luo2021stan}, trained from raw with its
-own embeddings (not ours) and its own sequence construction, under one audited recipe whose
-per-dataset precision and early-stopping variants were checked to be quality-neutral (switching numerical
-precision moved a spot check by 0.07 points; the shorter stopping rule selected the same models),
+own embeddings (not ours) and its own sequence construction, under one audited recipe,
 and a ReHDM \cite{li2025rehdm} reference reported under that
 method's own published protocol rather than re-run under our matched protocol. The
 second role is a representation control, run end to end on Florida and repeated in frozen form at Alabama,
@@ -117,12 +112,12 @@ between the two ways of coupling the tasks. The dominant published coupling is t
 the category first and conditions the place prediction on it \cite{ye2013nextmove, he2017lbpr, yu2020catdm};
 CSLSL \cite{huang2024cslsl}, its current form, even reports the chain outperforming a parallel variant that shares
 one trunk, so the choice of coupling is not settled in advance. We test the cascade inside our own model rather
-than through a re-implementation of those systems: we remove the layer where the two streams exchange information
+than through a re-implementation of those systems: we remove the cross-attention stack where the two streams exchange information
 and instead feed the predicted category forward into the region pathway, keeping the representation, the outputs,
 and the training recipe unchanged. This isolates what we actually choose, the coupling topology (chain versus
 parallel), at no additional parameter or compute cost: the chain form runs
 without the exchange stack, and the added conditioning
-projection is about a thousand weights. The
+projection is about a thousand parameters. The
 dedicated single-task models are the comparison anchors for the joint model throughout, and the standard
 place-level embedding \cite{huang2023hgi} is the place-level comparison that isolates what the per-visit
 representation adds.

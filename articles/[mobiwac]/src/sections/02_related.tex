@@ -97,8 +97,7 @@ weighting at two tasks \cite{xin2022domtl, kurin2022defense}. We confirm this on
 our own two tasks: across the gradient-balancing methods we tried, including the
 three named above, none improved on a tuned fixed task weighting in our model.
 The reason is visible in the gradients themselves: the next-category and
-next-region updates barely correlate on the shared layers (a near-zero
-correlation, about $0.001$, throughout training), so the two tasks neither pull
+next-region updates barely correlate on the shared layers (near zero throughout training), so the two tasks neither pull
 against each other nor reinforce each other there, and a balancer has no conflict
 to resolve. This is consistent with the mechanism test we report in
 Section~\ref{sec:results-part2}. We report this as our finding for this
