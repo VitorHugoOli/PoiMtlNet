@@ -83,6 +83,12 @@ joint model is compared against the strongest dedicated setting, not a
 convenient one. Throughout, each task is scored at its own validation-best
 epoch, under the same rule for the joint and dedicated models, so every
 comparison is best against best.
+% Response-letter note (hidden): if a reviewer asks whether ONE served checkpoint can deliver both
+% numbers -- the training run also saves a single joint checkpoint per fold, selected by
+% sqrt(cat macro-F1 x reg Acc@10) on validation (the geom_simple selector, mtl_cv.py; a
+% model-SELECTION scalar only -- it never enters the loss or touches weights; training uses the fixed
+% 0.75/0.25 sum stated in S4.2). Its numbers were not re-scored for the paper and can be provided on
+% request; do NOT claim they match the per-task diagnostic-best cells.
 Figure~\ref{fig:deltas} plots the signed gains ordered by region count. On
 category the joint model outperforms the dedicated ceiling at
 every dataset, by $+5.34$ to $+9.40$ macro-F1 (smallest at Florida, largest at
