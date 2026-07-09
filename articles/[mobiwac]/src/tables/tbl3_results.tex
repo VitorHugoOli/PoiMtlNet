@@ -41,15 +41,15 @@ Istanbul & 520     & 24.55 & 30.12 & 54.74\sd{0.09} & \textbf{63.33}\sd{0.02} & 
 AL       & 1{,}109 & 20.50 & 23.80 & 56.82\sd{0.03} & \textbf{64.54}\sd{0.10} & 57.05 & 65.38 & 60.72 & 70.11\sd{0.10} & 69.80\sd{0.05}$^{\approx}$ \\
 AZ       & 1{,}547 & 23.92 & 27.64 & 56.43\sd{0.10} & \textbf{65.84}\sd{0.02} & 43.70 & 53.00 & 49.86 & 59.46\sd{0.08} & 59.56\sd{0.05}$^{\approx}$ \\
 FL       & 4{,}703 & 29.74 & 34.49 & 74.51\sd{0.03} & \textbf{79.85}\sd{0.03} & 63.74 & 64.49 & 72.99 & 76.70\sd{0.02} & \textbf{77.42}\sd{0.03}$^{\uparrow}$ \\
-TX       & 6{,}553 & 28.67 & 33.03 & 69.79\sd{0.08} & \textbf{77.23}\sd{0.12} & 53.85 & 48.81$^{\ddagger}$ & 61.67$^{\dagger}$ & 64.95\sd{0.01} & \textbf{67.07}\sd{0.45}$^{\uparrow}$ \\
-CA       & 8{,}501 & 27.58 & 31.78 & 70.60\sd{0.07} & \textbf{77.04}\sd{0.20} & 49.61 & 50.26$^{\ddagger}$ & 58.52$^{\dagger}$ & 63.49\sd{0.02} & \textbf{65.69}\sd{0.30}$^{\uparrow}$ \\
+TX       & 6{,}553 & 28.67 & 33.03 & 69.79\sd{0.08} & \textbf{77.23}$^{\circ}$\sd{0.12} & 53.85 & 48.81$^{\ddagger}$ & 61.67$^{\dagger}$ & 64.95\sd{0.01} & \textbf{67.07}$^{\circ}$\sd{0.45}$^{\uparrow}$ \\
+CA       & 8{,}501 & 27.58 & 31.78 & 70.60\sd{0.07} & \textbf{77.04}$^{\circ}$\sd{0.20} & 49.61 & 50.26$^{\ddagger}$ & 58.52$^{\dagger}$ & 63.49\sd{0.02} & \textbf{65.69}$^{\circ}$\sd{0.30}$^{\uparrow}$ \\
 \hline
 \multicolumn{11}{@{}p{\dimexpr\textwidth-2\tabcolsep\relax}@{}}{\footnotesize HMT-GRN (region-native, on
 our folds, scored on the visits whose region appears in training) is the primary external comparison; STAN
 (faithful, from raw) and ReHDM (its own protocol) are
 references. Markov-K reports the strongest order per dataset (up to the nine-visit window).
 $^{\dagger}$STAN partial-fold cells, truncated by training cost: Texas four of five folds, California two of five (seed 0).
-$^{\ddagger}$ReHDM at Texas and California is a single seed. The joint cells at California and Texas are a
+$^{\ddagger}$ReHDM at Texas and California is a single seed. $^{\circ}$The joint cells at California and Texas are a
 single seed over five folds (provisional); every other cell in our columns averages four seeds. $\pm$ is the sd across seeds for four-seed cells, across folds for single-seed cells.} \\
 \end{tabular}
 \end{table*}

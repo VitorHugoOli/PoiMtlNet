@@ -86,7 +86,7 @@
   \draw[flow] (encb.south) -- (encb.south |- cross.north);
   % bidirectional K/V coupling, drawn in the LOWER half of the box (below the title)
   \draw[kv] ([xshift=-19mm,yshift=-2.8mm]cross.center) -- ([xshift=19mm,yshift=-2.8mm]cross.center)
-       node[pos=0.5, fill=blue!8, inner sep=1pt, font=\tiny, align=center]
+       node[pos=0.5, fill=blue!8, inner sep=1pt, font=\scriptsize, align=center]
        {streams exchange\\information};
   % shared -> heads
   \draw[flow] (cross.south) -- (cath.north);
@@ -97,7 +97,7 @@
   % private spatial path: the RAW region window feeds the region head's private
   % tower directly, bypassing the encoder + shared cross-attention.
   \draw[skip] (inr.east) -- ++(11mm,0) |- (regh.east)
-       node[pos=0.27, right, font=\tiny, text=teal!55!black, align=left]
+       node[pos=0.27, right, font=\scriptsize, text=teal!55!black, align=left]
        {raw region\\(private\\spatial path)};
 
   % ---------- dashed boundary: one model ----------
