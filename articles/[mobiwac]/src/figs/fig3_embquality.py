@@ -72,7 +72,7 @@ def main() -> None:
     width = 0.36
 
     # ~3.3 in wide single-column IEEE figure.
-    fig, ax = plt.subplots(figsize=(3.3, 1.85))
+    fig, ax = plt.subplots(figsize=(3.3, 1.5))
 
     b1 = ax.bar(
         x - width / 2,
@@ -108,14 +108,14 @@ def main() -> None:
                 f"{m:.2f}",
                 ha="center",
                 va="bottom",
-                fontsize=7,
+                fontsize=6.5,
             )
 
     annotate(b1, CHECK2HGI["mean"], CHECK2HGI["sd"])
     annotate(b2, HGI["mean"], HGI["sd"])
 
-    ax.set_ylim(0, 1.12)
-    ax.set_yticks([0.0, 0.25, 0.5, 0.75, 1.0])
+    ax.set_ylim(0, 1.14)
+    ax.set_yticks([0.0, 0.5, 1.0])
     ax.set_ylabel("Score (0–1)")
     ax.set_xticks(x)
     ax.set_xticklabels(METRICS)
@@ -129,10 +129,10 @@ def main() -> None:
 
     ax.legend(
         loc="upper center",
-        bbox_to_anchor=(0.5, 1.16),
+        bbox_to_anchor=(0.5, 1.18),
         ncol=2,
         frameon=False,
-        fontsize=6.8,
+        fontsize=6.5,
         handlelength=1.2,
         columnspacing=1.0,
         handletextpad=0.5,

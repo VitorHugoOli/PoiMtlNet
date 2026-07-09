@@ -10,55 +10,18 @@
 \section{Discussion and Limitations}
 \label{sec:discussion}
 
-The clearest reading of our results is a design one: one model is enough.
-It pairs a shared trunk
-that carries the semantic context with a private spatial path that keeps
-next-region accuracy from degrading. The shared context lifts the next-category task
-sharply over a dedicated model at every dataset, and the private path keeps the
-next-region task competitive: a non-inferior match (TOST, $\pm2$~pp) at the two
-small U.S. states, and a tested gain at the other four datasets. Across the
-U.S. states the region gain rises with the number of regions, growing rather
-than fading (Figure~\ref{fig:deltas}). Overall, the joint model matches or
-outperforms the dedicated single-task model on both tasks at once
-(Table~\ref{tab:results}). For a mobility-aware service, this
-points to a practical option: one model, one forward pass, can anticipate both what a
-user will do next and where, without a second model and without a task
-trade-off.
+The clearest reading of our results is a design one: one model is enough. A shared trunk carries the semantic context that lifts the next-category task sharply over a dedicated model at every dataset, and a private spatial path keeps the next-region task competitive: a non-inferior match (TOST, $\pm2$~pp) at the two small U.S. states, and a tested gain at the other four datasets. Across the U.S. states the region gain rises with the number of regions (Figure~\ref{fig:deltas}). Overall, the joint model matches or outperforms the dedicated single-task model on both tasks at once (Table~\ref{tab:results}): for a mobility-aware service, one model, one forward pass, anticipates both what a user will do next and where, with no task trade-off.
 
-A short usage sketch makes the motivation concrete. A service could treat the model's top-ranked next regions as an
-anticipatory set: at California, a shortlist of ten regions out of 8{,}501
-candidates, about a tenth of a percent of the space, contains the true next
-region 65.69 percent of the time, more than five hundred times better than
+As a usage sketch, a service could treat the model's top-ranked next regions as an anticipatory set: at California, a shortlist of ten regions out of 8{,}501 contains the true next region 65.69 percent of the time, more than five hundred times better than
 picking ten at random; at Alabama, ten out of 1{,}109 capture it 69.80 percent
-of the time.  The predictions are also geographically concentrated. On the four
-datasets where we measured it (Alabama, Arizona, Florida, and Istanbul; a
-single seed over five folds), the ten shortlisted regions sit, on average,
-about 3 to 8 kilometers from the shortlist's own geographic center (the median
-across visits, computed from region centroids). The miss distance is similar:
-when the top guess is wrong and the true region was seen in training, the
-predicted region's centroid sits a median of about 3 to 8 kilometers from the
-true region's, while two randomly drawn regions from the same map sit a median
-of 20 to 241 kilometers apart; visits to regions never seen in training
-are rarer and miss by more. The next category then hints at what to prepare
-there. This remains motivation, not a measured service result: we report
+of the time.  On the four datasets we measured (Alabama, Arizona, Florida, and Istanbul; a single seed over five folds), the ten shortlisted regions sit, on average, about 3 to 8 kilometers from the shortlist's own center (median across visits, from region centroids). When the top guess is wrong and the true region was seen in training, the predicted region's centroid sits a similar median of about 3 to 8 kilometers from the true region's, while two randomly drawn regions from the same map sit a median
+of 20 to 241 kilometers apart. This remains motivation, not a measured service result: we report
 properties of the model's own predictions, not a system's cost or a service's
 outcome.
 
-Three limits qualify these results. First, the joint numbers at California and
-Texas come from a single seed over five folds, so those two cells are
-provisional; the other four datasets average four seeds on both arms. A
-multi-seed run at the two largest states is the remaining step. Second, our representation is trained once over all places; visits to places
-never seen during training are the single effect we cannot fully isolate. A
-planned follow-up study trains the representation on each fold's training
-places only and extends it to embed unseen visits directly, closing the
-remaining gap. Third, although a mobility-aware service is
-our motivation throughout, we do not build or evaluate one; a concrete service
-evaluation, with its own baselines and costs, remains the natural next study.
+Three limits qualify these results. First, the joint numbers at California and Texas come from a single seed over five folds, so those two cells are provisional; the other four datasets average four seeds on both arms. Second, our representation is trained once over all places; visits to places
+never seen during training are the single effect we cannot fully isolate. A planned follow-up trains it on each fold's training places only and embeds unseen visits directly. Third, although a mobility-aware service motivates this work, we do not build or evaluate one; a service evaluation remains the natural next study.
 
-Finally, our representation is a fixed per-visit vector, computed once and left
-unchanged; any downstream
-model can consume it. Plugging it into other sequence models, and applying it to
-mobility tasks beyond next-category and next-region, are natural directions to
-explore. Structural analysis of check-in networks has itself named machine
+Finally, our representation is a fixed per-visit vector that any downstream model can consume, whether in other sequence models or in mobility tasks beyond next-category and next-region. Structural analysis of check-in networks has itself named machine
 learning as a next step~\cite{moura2025mobilityaware}; learning over check-in
 structure, as this study does, moves in that direction.

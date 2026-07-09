@@ -18,7 +18,7 @@ We evaluate on six datasets, summarized in Table~\ref{tab:datasets}. Five come f
 % figshare.com/articles/dataset/gowalla_data/22126586 (gowalla_checkins + gowalla_spots_subset1/2,
 % the exact files the ETL consumes; 36,001,959 check-ins). Date range MEASURED on the parquet
 % 2026-07-09: 2009-01-21 .. 2011-08-16 -> "collected 2009 to 2011". The SNAP/cho2011 dump
-% (Feb 2009-Oct 2010) is NOT the data source; cho2011gowalla is cited as the LBSN reference only. We chose this spread on purpose.
+% (Feb 2009-Oct 2010) is NOT the data source; cho2011gowalla is cited as the LBSN reference only.
 The states run from small to large, from about 114 thousand check-ins and 1,109 regions in Alabama to several
 million check-ins and 8,501 regions in California, so we can see whether a result holds as the number of regions
 grows. Every dataset uses the same seven place categories: Community, Entertainment, Food, Nightlife, Outdoors,
@@ -81,47 +81,12 @@ We make two kinds of comparison and test each one appropriately. Where the joint
 over the per-seed means with a Holm correction across the cells; at the two single-seed states, a paired Wilcoxon
 signed-rank test over the folds. Where the joint model is meant only to
 stay even, we test \emph{non-inferiority}, that it is no worse than the dedicated model by more than a two-point
-margin, with a two-one-sided-tests (TOST) procedure. We fix the two-point margin in advance and on deployment
-grounds, before looking at whether any claim survives it: as
-Section~\ref{sec:problem} argued, a mobility-aware service acts on which region
-will be busy, not on a single rank position, so a two-point shift in Acc@10 is
-below the granularity at which such a service would behave differently. The margin is also large relative to the task: with five hundred twenty to
-eight thousand five hundred regions, a random top-ten guess lands the true region at most about two percent of the
-time, so two points span a wide band of the achievable range. Finally, the equivalence is well powered. The standard deviation of the paired
-difference is small (0.04 to 0.15 points at the four multi-seed datasets, 0.07 at the two
-single-seed ones), which gives a power near 1.0 to reject a true two-point
-gap, so a non-inferiority verdict reflects a real match rather than a noisy test. Where the joint model
-outperforms and where it matches is a result, reported in Section~\ref{sec:results}, not here.
+margin, with a two-one-sided-tests (TOST) procedure. We fix the two-point margin in advance, on deployment grounds, before looking at whether any claim survives it: a mobility-aware service acts on which region will be busy, not on a single rank position (Section~\ref{sec:problem}), so a two-point shift in Acc@10 is below the granularity at which it would behave differently. The margin is also large relative to the task: with five hundred twenty to eight thousand five hundred regions, a random top-ten guess lands the true region at most about two percent of the time. Finally, the equivalence is well powered: the paired difference has a small standard deviation (0.04 to 0.15 points at the four multi-seed datasets, 0.07 at the two single-seed ones), giving a power near 1.0 to reject a true two-point gap, so a non-inferiority verdict reflects a real match. Where the joint model outperforms and where it matches is reported in Section~\ref{sec:results}.
 
 \subsection{Baselines}
 \label{sec:setup-baselines}
-We organize the comparisons into three roles, kept separate so each answers its own question. The first role is the
-state of the art for each task, on our data, under user-disjoint five-fold protocols. For the next-category task this is POI-RGNN \cite{capanema2023poirgnn},
-run as a faithful re-implementation, and a simple "what usually follows what" Markov baseline over the
-recent categories, reporting the strongest order per dataset (Markov-K, up to the nine-visit window). For the next-region task this is HMT-GRN \cite{lim2022hmtgrn}, our primary region-native
-comparison, predicting the region from its own end-to-end recurrent model on the same data, seed, and folds; we keep
-its shared recurrent multi-task skeleton, add a region-transition prior built per fold from training data, and drop its graph components and its
-hierarchical beam search, both of which serve the next-place head we do not predict. The HMT-GRN comparison is therefore a region-native
-model, not a reproduction of the complete published system. Alongside it we run a faithful STAN \cite{luo2021stan}, trained from raw with its
-own embeddings (not ours) and its own sequence construction, under one audited recipe,
-and a ReHDM \cite{li2025rehdm} reference reported under that
-method's own published protocol rather than re-run under our matched protocol. The second role is a pair of representation controls that attribute the
-category gain to our specific design, not to contextualization in general or
-to extra features: CTLE \cite{lin2021ctle}, the closest prior contextual
-check-in embedding, run end to end at Florida and, in frozen form, at Alabama,
-Arizona, and Istanbul; and a feature-concatenation control that appends raw
-per-visit features to a standard place embedding under the same model. The third role is a design comparison
-between the two ways of coupling the tasks. The dominant published coupling is the directed cascade, which predicts
-the category first and conditions the place prediction on it \cite{ye2013nextmove, he2017lbpr, yu2020catdm};
-CSLSL \cite{huang2024cslsl}, its current form, even reports the chain outperforming a parallel variant that shares
-one trunk, so the choice of coupling is not settled in advance. We test the cascade inside our own model rather
-than through a re-implementation of those systems: we remove the cross-attention stack where the two streams exchange information
-and instead feed the predicted category forward into the region pathway, keeping the representation, the outputs,
-and the training recipe unchanged. This isolates what we actually choose, the coupling topology (chain versus
+We organize the comparisons into three roles, each answering its own question. The first is the state of the art for each task, on our data, under user-disjoint five-fold protocols. For next-category this is a faithful re-implementation of POI-RGNN \cite{capanema2023poirgnn} and a simple "what usually follows what" Markov baseline over recent categories, reporting the strongest order per dataset (Markov-K, up to the nine-visit window). For next-region this is HMT-GRN \cite{lim2022hmtgrn}, our primary region-native comparison, an end-to-end recurrent model run on the same data, seed, and folds; we keep its shared recurrent multi-task skeleton, add a region-transition prior built per fold from training data, and drop its graph components and hierarchical beam search, which serve the next-place head we do not predict. It is therefore a region-native model, not a reproduction of the complete published system. Alongside it we run a faithful STAN \cite{luo2021stan}, trained from raw with its own embeddings (not ours) and its own sequence construction under one audited recipe, and a ReHDM \cite{li2025rehdm} reference reported under its own published protocol rather than re-run under ours. The second role is two representation controls that attribute the category gain to our specific design, not to contextualization in general or extra features: CTLE \cite{lin2021ctle}, the closest prior contextual check-in embedding, run end to end at Florida and in frozen form at Alabama, Arizona, and Istanbul; and a feature-concatenation control appending raw per-visit features to a standard place embedding under the same model. The third role compares the two ways of coupling the tasks. The dominant published coupling is the directed cascade, predicting the category first and conditioning the place prediction on it \cite{ye2013nextmove, yu2020catdm}; CSLSL \cite{huang2024cslsl}, its current form, even reports the chain outperforming a parallel variant sharing one trunk, so the choice is not settled in advance. We test the cascade inside our own model rather than re-implementing those systems: we remove the cross-attention stack where the two streams exchange information and instead feed the predicted category forward into the region pathway, keeping the representation, outputs, and training recipe unchanged. This isolates what we actually choose, the coupling topology (chain versus
 parallel), at no additional parameter or compute cost: the chain form runs
 without the exchange stack, and the added conditioning
-projection is about a thousand parameters. The
-dedicated single-task models are the comparison anchors for the joint model throughout, and the standard
-place-level embedding \cite{huang2023hgi} is the place-level comparison that isolates what the per-visit
-representation adds. The full training recipe for every model here (optimizer, learning rates, schedule, epochs, batch
+projection is about a thousand parameters. The dedicated single-task models anchor the comparisons throughout, and the standard place-level embedding \cite{huang2023hgi} isolates what the per-visit representation adds. The full training recipe for every model here (optimizer, learning rates, schedule, epochs, batch
 sizes, seeds, hardware) ships with the released code (Section~\ref{sec:conclusion}).

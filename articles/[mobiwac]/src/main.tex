@@ -32,6 +32,11 @@
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 
+\renewcommand{\dbltopfraction}{0.9}
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\textfraction}{0.07}
+\setcounter{dbltopnumber}{3}
+
 \begin{document}
 
 % ---------------------------------------------------------------------
@@ -87,7 +92,7 @@ check-in-level representation, location-based social networks, mobility data
 \input{sections/01_introduction}
 
 \input{sections/02_related}
-\begin{figure*}[t]\centering
+\begin{figure*}[!t]\centering
 \input{figs/fig1_dataflow}
 \caption{From a check-in trail to two predictions: each visit is embedded in a four-level graph
 (check-in, place, region, city) and described in its own context; overlapping nine-visit windows
@@ -98,14 +103,14 @@ feed a single model that outputs the next category and the next region.}
 \input{sections/03_problem}
 
 \input{sections/04_method}
-\begin{figure*}[t]\centering
-\input{figs/fig2_model}
+\begin{figure}[!t]\centering
+\resizebox{\columnwidth}{!}{\input{figs/fig2_model}}
 \caption{The single multi-task model. A check-in (semantic) window and a region (spatial) window
 pass through private encoders into a shared cross-attention stack, the only place the two tasks
 interact; the category head predicts the next category, and the region head combines the shared output with a
 private spatial path. One model, one forward pass, two predictions.}
 \label{fig:model}
-\end{figure*}        % Fig 2: the single model, dual-tower + cross-attention (section 4.2)
+\end{figure}        % Fig 2: the single model, dual-tower + cross-attention (section 4.2)
 
 \input{sections/05_setup}
 \input{tables/tbl1_datasets}   % Table 1: dataset statistics (section 5.1)

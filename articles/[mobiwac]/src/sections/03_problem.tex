@@ -9,33 +9,16 @@
 \section{Problem and Tasks}
 \label{sec:problem}
 
-We work with check-in sequences. For each user we order their check-ins in
-time and form short windows of nine consecutive visits. From each window we
-predict two properties of the next visit. The first is its \emph{category},
-the kind of place, one of seven fixed labels: Community, Entertainment, Food,
-Nightlife, Outdoors, Shopping, and Travel. Istanbul's places are mapped onto
-the same seven labels by its source collection
-(Section~\ref{sec:setup-data}). The second is its \emph{region}, the census
-tract the place falls in (the \emph{mahalle} for Istanbul). We do not predict the
-exact next place; these two properties are easier to learn and, for most uses,
-enough. Category is a small, fixed label set. Region is a large one: we frame
-next-region as classification, where each candidate census tract is one class,
-from about five hundred (Istanbul) to about eight thousand five hundred
-(California).
+We order each user's check-ins in time, form windows of nine consecutive visits, and from each window predict two properties of the next visit. The first is its \emph{category}, one of seven fixed labels: Community, Entertainment, Food,
+Nightlife, Outdoors, Shopping, and Travel. Istanbul's source collection maps its places onto the same seven labels (Section~\ref{sec:setup-data}). The second is its \emph{region}, the place's census tract (the \emph{mahalle} for Istanbul). We do not predict the exact next place; these are easier to learn and, for most uses, enough. Region, unlike category, is a large label set: we frame next-region as classification over candidate census tracts, from about five hundred classes (Istanbul) to about eight thousand five hundred (California).
 
-The motivation is practical: the category says what kind of place comes next,
-which indicates what a user will want; the region says where, which indicates
-where to prepare. Such preparation has support in the mobility literature,
-which has long built city services on location-based social network
-traces~\cite{silva2019urbancomputing}. A recent analysis of tourist check-in
-mobility finds that visits concentrate on a few hub places, argues that crowds
-and demand therefore concentrate as well, and ties this structure to
+The motivation is practical: the category says what kind of place comes next, hence what a user will want; the region says where, hence where to prepare. The mobility literature supports such preparation, having long built city services on location-based social network traces~\cite{silva2019urbancomputing}. A recent analysis of tourist check-in
+mobility finds that visits concentrate on a few hub places, argues that crowds and demand therefore concentrate, and ties this structure to
 infrastructure planning and adaptive strategies~\cite{moura2025mobilityaware}.
-That analysis reads the structure of past visits; we predict two properties of
+That analysis reads past visits; we predict two properties of
 the next one, and aggregated over users those predictions point to where
 demand is heading before it lands. A census
-tract is a neighborhood, not a radio cell (the small coverage area a single
-base station serves), so we scope our claims to neighborhood-level preparation:
+tract is a neighborhood, not a radio cell, so we scope our claims to neighborhood-level preparation:
 demand and load anticipation, content staging, and capacity planning; not cell
 association or handover. We build and evaluate no such service here;
 Section~\ref{sec:discussion} quantifies what these predictions would give such

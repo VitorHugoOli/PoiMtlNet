@@ -40,8 +40,7 @@ the gain.
 \subsection{Predicting the next category and the next region}
 \label{sec:related-tasks}
 A large body of work predicts the next place a user will visit, the exact POI,
-with recurrent and attention models such as ST-RNN \cite{liu2016strnn},
-DeepMove \cite{feng2018deepmove}, Flashback \cite{yang2020flashback}, STAN
+with recurrent and attention models such as DeepMove \cite{feng2018deepmove}, STAN
 \cite{luo2021stan}, and GETNext \cite{yang2022getnext}. In contrast, we target two properties of the next visit, its category and its
 region, rather than the exact place. These targets are not trivial: the region
 alone spans hundreds to several thousand classes. We choose them because they are
@@ -54,7 +53,7 @@ task itself follows our earlier line of work \cite{silva2025mtlnet}. The field
 increasingly models several granularities at once, predicting category-level and
 region-level sequences alongside the place sequence; in that work, however,
 category and region are auxiliary signals that help a headline next-place task
-(SGRec \cite{li2021sgrec}, MCMG \cite{sun2024mcmg}, HMT-GRN \cite{lim2022hmtgrn}).
+(MCMG \cite{sun2024mcmg}, HMT-GRN \cite{lim2022hmtgrn}).
 We study the pair as the object itself. To our knowledge, fine-grained region as a
 co-equal end target, rather than an auxiliary coarse cell, is underexplored:
 HMT-GRN, for instance, predicts a coarse geohash cell only as an aid to its
@@ -74,32 +73,26 @@ framework built for sparse check-ins, and a recent hierarchy-aware model
 continues the pattern \cite{wang2025hamtl}; in all three the location target is
 the exact place. The closest alternative to our setting is
 the cascade, a pattern with a long lineage: predict the category first, then
-predict the place given the category \cite{ye2013nextmove, he2017lbpr}. CSLSL
+predict the place given the category \cite{ye2013nextmove}. CSLSL
 \cite{huang2024cslsl} is its current form, predicting in a chain (when, then what,
 then where), with location as the headline output and category as an
 instrumental step along the way; CatDM \cite{yu2020catdm} likewise uses category
-instrumentally, to filter candidate places. We differ in two ways. We predict
+instrumentally, to filter candidate places. We instead predict
 category and region in parallel, as co-equal end targets in one model with a
 single forward pass, and we drop the next-place target entirely, so neither task
-is instrumental to a third. The parallel form also follows from the task pair
-itself: with two co-equal targets, a chain would have to promote one of them to
+is instrumental to a third; a chain would have to promote one co-equal target to
 an upstream stage whose errors the other inherits, an order nothing in the tasks
-dictates. Since the cascade is the pattern the field actually uses, we also test
-the choice directly (Section~\ref{sec:results-part2}). On the optimization side we are deliberately
-conservative: training one model jointly on several tasks with a fixed loss weighting is standard practice
-\cite{caruana1997multitask}, and our use of it is not itself the contribution.
-Rather than propose yet another gradient-balancing method, a training scheme
-that re-weights the tasks' updates on the fly (PCGrad \cite{yu2020pcgrad},
-GradNorm \cite{chen2018gradnorm}, Nash-MTL \cite{navon2022nashmtl}), we ask
-where sharing helps and where it costs, and we give a clear, measured account,
-consistent with reports that such methods rarely improve on a well-tuned fixed
-weighting at two tasks \cite{xin2022domtl, kurin2022defense}. We confirm this on
-our own two tasks: across the gradient-balancing methods we tried, including the
-three named above, none improved on a tuned fixed task weighting in our model.
+dictates. Since the cascade is the pattern the field actually uses, we test the
+choice directly (Section~\ref{sec:results-part2}). On the optimization side we are deliberately
+conservative: training several tasks jointly with a fixed loss weighting is
+standard practice \cite{caruana1997multitask} and not itself our contribution.
+Reports find that gradient-balancing methods, training schemes that re-weight
+the tasks' updates on the fly (PCGrad \cite{yu2020pcgrad}, Nash-MTL \cite{navon2022nashmtl}), rarely improve on a
+well-tuned fixed weighting at two tasks \cite{xin2022domtl}.
+We confirm this: none of the balancers we tried, including the two named
+above, improved on a tuned fixed task weighting in our model.
 The reason is visible in the gradients themselves: the next-category and
-next-region updates barely correlate on the shared layers (near zero throughout training), so the two tasks neither pull
-against each other nor reinforce each other there, and a balancer has no conflict
-to resolve. This is consistent with the mechanism test we report in
-Section~\ref{sec:results-part2}. We report this as our finding for this
-pair of tasks, not as a general rule. The novelty here is empirical, not
-architectural.
+next-region updates barely correlate on the shared layers (near zero throughout
+training), so a balancer has no conflict to resolve, consistent with the
+mechanism test in Section~\ref{sec:results-part2}. We report this as our finding
+for this pair of tasks, not as a general rule.

@@ -10,12 +10,11 @@
 % fill, the metric POI-prediction papers report (it varies 0.05-0.25%); it replaces the old
 % "sparsity = 1 - density" column, which was trivially ~0.999 for every state. The fixed
 % 7-category space is stated in the caption rather than as a constant column.
-\begin{table*}[t]
-\caption{Dataset statistics, ordered by number of regions: five Gowalla states and one
-international city (Istanbul, from Massive-STEPS). All datasets share the same seven root
-categories; the region unit is a census tract (a mahalle for Istanbul). Windows are the
-overlapping nine-visit inputs plus the next visit as target; sequence lengths are per-user
-check-in counts; density is the check-in-matrix fill,
+\begin{table*}[!t]
+\caption{Dataset statistics, ordered by region count: five Gowalla states and one
+international city (Istanbul, Massive-STEPS). All share the same seven root
+categories; the region unit is a census tract (a mahalle for Istanbul). Windows are the overlapping nine-visit
+inputs plus the next-visit target; lengths are per-user check-in counts; density is the check-in-matrix fill,
 $100\times\text{check-ins}/(\text{users}\times\text{POIs})$; Majority is the share of next-visit
 labels in the most common category (Food in every dataset).}
 % Majority provenance (hidden): computed on the next-visit target labels of the task inputs

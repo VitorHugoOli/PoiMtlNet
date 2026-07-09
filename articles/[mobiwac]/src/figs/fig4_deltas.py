@@ -85,7 +85,7 @@ GRID_COLOR = "#dddddd"
 x = list(range(len(STATES)))
 bar_w = 0.40
 
-fig, ax = plt.subplots(figsize=(3.3, 2.15))
+fig, ax = plt.subplots(figsize=(3.3, 1.7))
 
 # --- non-inferiority band and zero line (region reference frame) ----------
 ax.axhspan(
@@ -157,7 +157,7 @@ for xi, v in zip(xs_reg, reg_delta):
 ax.set_xticks(x)
 ax.set_xticklabels(xticklabels)
 ax.set_xlabel("dataset  (region count, low to high)", labelpad=2)
-ax.set_ylabel("delta vs dedicated ceiling (pp)", labelpad=2)
+ax.set_ylabel("$\\Delta$ vs dedicated (pp)", labelpad=2)
 
 ymax = max(cat_delta) + 2.2
 ymin = min(min(reg_delta) - 1.6, -NI_MARGIN - 2.0)
@@ -174,7 +174,7 @@ ax.annotate(
     "non-inferiority band (±2 pp)",
     (-0.5, -NI_MARGIN),
     textcoords="offset points",
-    xytext=(0, -8.5),
+    xytext=(0, -3.5),
     ha="left",
     va="top",
     fontsize=5.6,

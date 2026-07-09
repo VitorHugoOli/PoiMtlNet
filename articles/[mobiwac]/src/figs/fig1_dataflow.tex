@@ -28,14 +28,14 @@
 
 \begin{tikzpicture}[
     >={Stealth[length=2.2mm]},
-    font=\footnotesize,
-    stage/.style={draw, rounded corners=2pt, align=center, inner sep=3.5pt,
-                  minimum height=9mm, line width=0.5pt, fill=gray!4},
+    font=\scriptsize,
+    stage/.style={draw, rounded corners=2pt, align=center, inner sep=3pt,
+                  minimum height=7.5mm, line width=0.5pt, fill=gray!4},
     glabel/.style={align=center, font=\scriptsize\itshape, text=black!65},
     flow/.style={->, line width=0.7pt, draw=black!70},
     dot/.style={circle, draw=black!70, fill=white, inner sep=0pt, minimum size=2.0mm},
     lvl/.style={draw, rounded corners=1.5pt, align=center, inner sep=2pt,
-                font=\scriptsize, minimum height=4.4mm, minimum width=15mm},
+                font=\scriptsize, minimum height=4.0mm, minimum width=15mm},
   ]
 
   % ---------- Stage 1: raw check-in trail ----------
@@ -50,17 +50,17 @@
   \node[glabel, below=1.0mm of c2] {visits ordered in time};
 
   % ---------- Stage 2: four-level graph ----------
-  \node[stage, right=12mm of trail, minimum width=30mm, minimum height=26mm,
+  \node[stage, right=12mm of trail, minimum width=30mm, minimum height=23mm,
         fill=gray!3, label={[font=\scriptsize\itshape, text=black!65]north:four-level graph}]
         (graph) {};
-  \node[lvl, fill=blue!6]   (Lcity)   at ($(graph.north)+(0,-6.5mm)$) {city};
-  \node[lvl, fill=teal!8,   below=1.6mm of Lcity]   (Lregion) {region};
-  \node[lvl, fill=green!8,  below=1.6mm of Lregion] (Lpoi)    {POI};
-  \node[lvl, fill=orange!10,below=1.6mm of Lpoi]    (Lcheck)  {check-in};
+  \node[lvl, fill=blue!6]   (Lcity)   at ($(graph.north)+(0,-5.5mm)$) {city};
+  \node[lvl, fill=teal!8,   below=1.2mm of Lcity]   (Lregion) {region};
+  \node[lvl, fill=green!8,  below=1.2mm of Lregion] (Lpoi)    {POI};
+  \node[lvl, fill=orange!10,below=1.2mm of Lpoi]    (Lcheck)  {check-in};
   \draw[-, line width=0.5pt, draw=black!50] (Lcheck)--(Lpoi);
   \draw[-, line width=0.5pt, draw=black!50] (Lpoi)--(Lregion);
   \draw[-, line width=0.5pt, draw=black!50] (Lregion)--(Lcity);
-  \node[glabel, below=1.0mm of graph.south, text width=40mm]
+  \node[glabel, below=1.0mm of graph.south]
        {edges: consecutive visits by a user\\ features: category, hour, weekday\\ trained with no task labels (infomax)};
 
   % ---------- Stage 3: per-visit vector ----------
@@ -73,7 +73,7 @@
   \node[glabel, below=0.8mm of vecglyph] {a vector per check-in};
 
   % ---------- Stage 4: sliding windows ----------
-  \node[stage, below=19mm of vec, minimum width=24mm] (win)
+  \node[stage, below=14mm of vec, minimum width=24mm] (win)
        {sliding windows\\of 9 visits};
   \foreach \i in {1,...,9}{%
      \node[draw, line width=0.4pt, fill=orange!8, minimum width=2.0mm,
@@ -81,13 +81,13 @@
            (w\i) at ($(win.south)+({(\i-5)*2.4mm},-4.2mm)$) {};}
   \node[draw, line width=0.5pt, fill=blue!10, minimum width=2.6mm,
         minimum height=3.2mm, inner sep=0pt, right=1.4mm of w9] (wt) {};
-  \node[glabel, below=1.0mm of w5, text width=33mm]
+  \node[glabel, below=0.6mm of w5, text width=33mm]
        {9 past visits \;$\rightarrow$\; next visit (target)};
 
   % ---------- Stage 5: two task outputs (to the RIGHT of the windows, so the flow
   % stays left-to-right and the eye never jumps backward) ----------
   \node[stage, right=14mm of win, minimum width=24mm, fill=green!5] (outc) {next-category};
-  \node[stage, below=5mm of outc, minimum width=24mm, fill=teal!7] (outr) {next-region};
+  \node[stage, below=4mm of outc, minimum width=24mm, fill=teal!7] (outr) {next-region};
 
   % ---------- flow arrows ----------
   \draw[flow] (trail) -- (graph);

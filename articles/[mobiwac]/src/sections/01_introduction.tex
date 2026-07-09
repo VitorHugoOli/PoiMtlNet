@@ -9,77 +9,34 @@
 \section{Introduction}
 \label{sec:intro}
 
-Location-based social networks, such as Gowalla~\cite{cho2011gowalla},
-let people share the places they visit. Each check-in is a small record of human
-movement, and together these records show how people move through a city. A
-natural and useful question is what a person will do next. Individual mobility
-is highly predictable in principle~\cite{song2010limits}, and a service that
-can anticipate the next move can prepare ahead of time instead of reacting
-after the fact. For a mobility-aware service this can mean staging the right
-content in the area a user is heading to~\cite{bastug2014edge}, or planning
-capacity there before demand arrives. The same logic is
-already established at the network level, where predicted handovers let
-cellular services adapt in advance~\cite{vielhaus2022handover}; at the city
-scale, check-in mobility analysis is likewise read from past traces and
-treated as a design input for
-mobility-aware services~\cite{moura2025mobilityaware}. We ask the predictive,
-city-scale version of the question.
+Location-based social networks, such as Gowalla~\cite{cho2011gowalla}, let people share the places they visit as check-ins, which together record how people move through a city. Individual mobility is highly predictable in principle~\cite{song2010limits}, so a service that anticipates the next move can prepare ahead of time, staging content where a user is heading~\cite{bastug2014edge} or planning capacity there before demand arrives. Predicted handovers already let cellular services adapt in advance at the network level~\cite{vielhaus2022handover}; at the city scale, check-in mobility analysis is likewise a design input for mobility-aware services~\cite{moura2025mobilityaware}.
 
-Predicting the next place exactly, a single point of interest (POI), is hard, and
-it is often more than a service needs. Two coarser (less detailed) questions are
-easier to answer and usually enough: the next category, the kind of place such as
-food or shopping, and the next region, the part of the city a user is heading to
-(a neighborhood-scale unit, the census tract in the U.S. and the \emph{mahalle}
-in Istanbul). These two questions pair naturally, one for intent and one for
-geography. The question we study is whether one model should learn both
-at once.
+Predicting the next place exactly, a single point of interest (POI), is hard and often more than a service needs. Two coarser questions are usually enough: the next category, the kind of place such as food or shopping, and the next region, the part of the city a user is heading to (a neighborhood-scale unit such as the U.S. census tract). One captures intent, the other geography; we study whether one model should learn both at once.
 
-Sharing one representation across tasks is not free. Joint training can help one
-task while hurting the other, a well-known trade-off in multi-task learning
-(MTL): one model does several jobs at once by sharing most of its parts, and as a
-result the shared parameters settle on a compromise that suits neither task
-perfectly~\cite{caruana1997multitask}. Our earlier work~\cite{silva2025mtlnet}
-observed exactly this for next-category and next-region. So the useful question is
-not whether MTL is good in general, but where sharing helps, where it costs, and
-how to share so the gains hold and the cost stays small.
+Sharing one representation across tasks is not free: in multi-task learning (MTL), one model does several jobs at once by sharing most of its parts, so the shared parameters can settle on a compromise that suits neither task perfectly, helping one task while hurting the other~\cite{caruana1997multitask}. Our earlier work~\cite{silva2025mtlnet}
+observed exactly this for next-category and next-region; the useful question is where sharing helps, where it costs, and how to share so the gains hold and the cost stays small.
 
-We introduce two changes and measure each one carefully. First, we build a
-check-in-level representation: instead of one fixed vector per place, where two
-visits to the same coffee shop look identical, each check-in gets its own vector
-that carries its context (the time, the nearby places, and the recent trail).
-This extends hierarchical graph representations of places~\cite{huang2023hgi},
-and the infomax idea behind them (training each vector to recognize its true
-graph neighborhood)~\cite{velickovic2019dgi}, by adding a fourth,
-check-in level beneath the place, region, and city levels
-(Fig.~\ref{fig:dataflow}). Per-visit context is not new on its own; what is new
+We introduce two changes. First, we build a check-in-level representation: instead of one fixed vector per place, each check-in gets its own vector carrying its context (the time, nearby places, and recent trail).
+This adds a fourth, check-in level beneath the place, region, and city levels of hierarchical graph infomax~\cite{huang2023hgi,velickovic2019dgi} (Fig.~\ref{fig:dataflow}). Per-visit context is not new on its own; what is new
 is obtaining it from inside this hierarchical graph representation, a choice we
 test directly (Section~\ref{sec:results-part1}). Second, we train one model that
 predicts the next category and the next region in a single forward pass, with a shared trunk (a cross-attention stack where the two tasks exchange
-semantic context) and a private spatial path for the region task (Fig.~\ref{fig:model}). We deliberately evaluate on two very different
-settings: five U.S. states of different sizes (Gowalla) and one international city
-(Istanbul). This lets us see whether the findings hold across small and large, U.S.
-and non-U.S. data.
+semantic context) and a private spatial path for the region task (Fig.~\ref{fig:model}). We evaluate on two deliberately different settings: five U.S. states of different sizes (Gowalla) and one international city (Istanbul).
 
 Our contributions are the following.
 \begin{itemize}
-  \item A check-in-level representation that extends hierarchical graph infomax
-    from the place to the individual visit. It improves next-category
-    prediction by a large and consistent margin over a standard place embedding,
-    about $+28$ to $+40$ points of macro-F1 (a balanced score that counts every
+  \item A check-in-level representation that extends hierarchical graph infomax from the place to the individual visit, improving next-category prediction over a standard place embedding by about $+28$ to $+40$ points of macro-F1 (a balanced score that counts every
     category equally) across all six datasets (Table~\ref{tab:substrate}). A controlled test attributes most of the gain to the per-visit
     context, not to extra training signal. The margin is large because a single fixed vector
     per place cannot separate places that host several kinds of activity, which
     per-visit context recovers.
-  \item A single model for joint next-category and next-region prediction that
-    shares a semantic context across the two tasks while keeping a private path
-    for the spatial one. In one forward pass it outperforms a dedicated
+  \item A single model for joint next-category and next-region prediction, sharing semantic context across tasks while keeping a private path for the spatial one. In one forward pass it outperforms a dedicated
     single-task category model at every dataset (by about $+5$ to $+9$ points of
-    macro-F1), even though each dedicated category model is tuned per dataset. On region,
+    macro-F1), even though each dedicated model is tuned per dataset. On region,
     it outperforms at four of the six datasets and stays
     statistically non-inferior within a two-point margin (TOST, a test of
     equivalence) at the remaining two (Table~\ref{tab:results}).
-  \item An empirical account, across five states of different sizes and one
-    international city, of how the joint gain scales with the number of regions.
+  \item An empirical account, across five states and one international city, of how the joint gain scales with the number of regions.
     The category gain holds everywhere, and across the U.S. states the region
     result moves monotonically, from a non-inferior match (TOST, $\pm2$
     percentage points, or pp) at the small region counts to outperforming the
@@ -90,9 +47,4 @@ Our contributions are the following.
     the dedicated one); California and Texas are single-seed and provisional.
 \end{itemize}
 
-The rest of the paper reviews background and related work
-(Section~\ref{sec:related}), defines the problem and the two tasks
-(Section~\ref{sec:problem}), presents our method (Section~\ref{sec:method}) and
-experimental setup (Section~\ref{sec:setup}), reports results
-(Section~\ref{sec:results}), discusses findings and limitations
-(Section~\ref{sec:discussion}), and concludes (Section~\ref{sec:conclusion}).
+The rest of the paper presents related work (Section~\ref{sec:related}), the problem (Section~\ref{sec:problem}), the method and setup (Sections~\ref{sec:method} and~\ref{sec:setup}), results (Section~\ref{sec:results}), and discussion and conclusions (Sections~\ref{sec:discussion} and~\ref{sec:conclusion}).
