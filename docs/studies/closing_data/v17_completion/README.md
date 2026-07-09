@@ -44,7 +44,7 @@
 | ID | Run / analysis | Machine | Status | Cost | Blocks |
 |----|---|---|---|---|---|
 | **A1 (ex-H1)** | **CA/TX v17 MTL n=20, seeds {1,7,100}** — MIGRATED from the H100 (lane gone) | **A40** | open, **top priority** | fp32 serial ~4.4–6.3 h/cell → ~1.5 d for 6 cells (proven by the seed-0 run) | large-state Δcat significance → M1 |
-| **A1-az** | AZ cat-ceiling screen top-up: `bs2048@{0.0025,0.0075}` × seeds {7,100} | A40 | open (cheap) | ~4 runs × ~100 s | firms the AZ ceiling (may move Δcat +9.40 → ≈ +8.8) |
+| **A1-az** | AZ cat-ceiling screen top-up: `bs2048@{0.0025,0.0075}` × seeds {7,100} | A40 | **DROPPED (user 2026-07-08; see A40.md)** — AZ ceiling stays 56.43/Δ+9.40; the paper carries a visible sensitivity clause (§6.2) | — | — |
 | **A2** | ReHDM v4: **CA/TX 🔄 RUNNING** (~22 h, resumable) + **AZ/FL v4 re-run** (version-uniform row; AL done 65.38) | A40 | running / open | AZ/FL ≈ ~25–60 min/state | ReHDM paper row (v4-uniform) |
 | **A3** | Faithful STAN CA/TX | A40 | ✅ **CLOSED-AS-PARTIAL** (user 2026-07-08): TX 61.67 (4/5) / CA 58.52 (2/5) = citable-final, fold counts disclosed | 0 h (remaining folds optional post-deadline) | Table-3 cells FILL NOW with the n-folds footnote |
 | **A4** | CA/TX cascade coverage (P6) | A40 | open (optional) | ~2 × seed-0 5f | nothing (coverage) |
@@ -59,7 +59,7 @@ drop "provisional" everywhere). The ceilings + Istanbul are already done; **M1-p
 AL/AZ/FL/Istanbul. A2/A3 fill the two baseline rows (ReHDM v4-uniform, STAN CA/TX); everything else is coverage.
 
 **A40 queue order (one card, serialize):** finish **A3 STAN** (~10 h, already partial) and **A2 ReHDM CA/TX** (running)
-→ **A1 CA/TX MTL n=20** (~1.5 d, the verdict-changer) → A1-az + A2-az/fl (cheap) → A4 (optional).
+→ **A1 CA/TX MTL n=20** (~1.5 d, the verdict-changer) → A2-az/fl (cheap) → A4 (optional). (A1-az DROPPED, user 2026-07-08.)
 
 ## The two handoffs (H100.md is decommissioned — kept as a pointer)
 - **[`A40.md`](A40.md)** — ALL GPU work, queue order above.

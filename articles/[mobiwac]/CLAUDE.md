@@ -17,7 +17,7 @@
   variant** (do NOT trim to 8). See [`EDAS_SUBMISSION.md`](EDAS_SUBMISSION.md).
 - **Authors (names stay, single-blind):** Vitor H. O. Silva, Germano B. dos Santos, Fabrício A. Silva — NESPeD-LAB,
   Universidade Federal de Viçosa, Florestal, MG; `{vitor.h.oliveira, germano.santos, fabricio.asilva}@ufv.br`.
-- **Bibliography:** 33 cited references, **all web-verified real and current** (+5 on 2026-07-06: ye2013nextmove,
+- **Bibliography (2026-07-08):** **37 rendered references**, all web-verified real and current (venue names IEEE-abbreviated; +4 on 2026-07-08: moura2025mobilityaware, silva2019urbancomputing, bastug2014edge, song2010limits) (+5 on 2026-07-06: ye2013nextmove,
   he2017lbpr cascade lineage; zhu2022drrgnn, sun2025kgtb, wang2025hamtl novelty defusals — each primary-source
   verified, quotes in the bib comments; +2 later that day: vielhaus2022handover venue-local anticipatory-services
   cite closing intro ¶1, luca2021mobilitysurvey grounding the §2.2 region-formulation sentence — see
@@ -139,11 +139,8 @@ tasks are **next-category / next-region** (never activity/area); keep next-categ
 1. **P1 — n=20 multi-seed top-up (seeds {1,7,100}, MTL + STL).** The ONE lever that changes a reviewer's verdict
    (breaks the single-seed-n=5 attack, lets per-cell Holm clear 0.05). Blocked on the A40 (fp32 too slow, bf16
    grad-NaN); needs the H100 lane. Full spec in [`IMPROVEMENTS_BACKLOG.md`](IMPROVEMENTS_BACKLOG.md) §P1.
-2. **Apply the accepted Germano edits.** [`REVIEW_GERMANO.md`](REVIEW_GERMANO.md) has all 70 comments answered
-   (Accept 29 / Partial 29 / Reject 12), each with a concrete "Edit:". Implementing them is an open prose pass.
-3. **Reconfirm the deadline.** The notes say ~25 June 2026 (now past); verify the actual cycle on MobiWac/EDAS
-   before investing further. If missed, the poster cut ([`archive/PAPER_PLAN_POSTER.md`](archive/PAPER_PLAN_POSTER.md))
-   is the fallback.
+2. ~~Apply the accepted Germano edits~~ — ✅ DONE (applied 2026-06-30; re-verified by the 2026-07-08 closing audit: ~15 FINAL decisions spot-checked against the current tex all hold).
+3. ~~Reconfirm the deadline~~ — ✅ CONFIRMED (author, 2026-07-08): **2026-07-11**. Remaining mechanics: EDAS PDF upload + replace the registered Step-1 abstract (see `EDAS_SUBMISSION.md` — the registered one is the old pre-review text).
 4. **At submission:** `IEEEtran.bst` restored + bundled (2026-07-01); em-dash/codename sweep DONE (2026-07-01
    checklist); de-anonymize check (authors already named).
 5. **Deferred (non-blocking, post-deadline coverage adds):** the A4 leak-audit extension to CA/TX/Istanbul (P2; AZ is

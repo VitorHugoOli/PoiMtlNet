@@ -36,9 +36,11 @@
    26 refs rendered, 0 undefined, 9 pages. Overleaf also provides it natively.
 2. **EDAS Step 3 manuscript upload.** Paper **#1571313639** is registered (regular track, single-blind); only the PDF
    upload remains. Select the **10-page fee variant** (draft is at 10).
-3. **Reconfirm the deadline.** Notes say ~25 Jun 2026 (may be past); verify the live MobiWac/EDAS cycle. Poster cut
-   (`archive/PAPER_PLAN_POSTER.md`) is the fallback.
-- *(Optional, cosmetic)* standardize the Table 3 `--` "not available" markers (mixed bare `--` for ReHDM-Istanbul vs
+3. ~~Reconfirm the deadline~~ — ✅ **CONFIRMED (author, 2026-07-08): the deadline is 2026-07-11.** Three days
+   from confirmation. Author decisions taken with it: CA/TX n=20 (A1) will NOT be waited for (no paper
+   comment; end review only if accepted); the code link is the public repo's curated branch
+   (`github.com/VitorHugoOli/PoiMtlNet/tree/mobiwac`), replacing the anonymous mirror.
+- ~~(Optional, cosmetic) standardize the Table 3 `--` markers~~ — **MOOT (2026-07-08 renumbering: every Table 3 cell is now filled;** old text kept below for provenance) (mixed bare `--` for ReHDM-Istanbul vs
   `--`$^{\dagger}$ for CA/TX-infeasible; both read fine).
 
 ## 2 · Data gaps to close (ordered by priority)
