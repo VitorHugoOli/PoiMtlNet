@@ -38,7 +38,8 @@ features and an anchor to a place embedding pre-trained, label-free,
 on the same data (weights 0.3 and 0.1). The training
 uses no task label: it
 never sees the next category or the next region. From the trained graph we read
-out one 64-dimensional vector per check-in, and a model then sees a sequence of these per-visit
+out one 64-dimensional vector per check-in (its region nodes carry trained
+vectors as well), and a model then sees a sequence of these per-visit
 vectors rather than a sequence of repeated per-place ones.
 
 Each ingredient is individually standard: per-visit context, hierarchical place

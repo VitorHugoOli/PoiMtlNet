@@ -42,10 +42,11 @@ silhouette score by category, a separation measure from $-1$ to $1$ where
 higher means the seven labeled groups are tighter and better separated, is about $0.57$, against about
 $0.00$ for the place embedding. Their nearest-neighbor category purity, the share of a vector's nearest
 neighbors that carry its own category, is about $0.98$, against about $0.78$
-(both averaged over the five U.S. states). The same geometry does not separate regions, which is exactly the
-point: the representation improves category separability but carries no spatial
-structure, so its benefit is category-only and sets up the joint study in
-Section~\ref{sec:results-part2}. A direct comparison with the closest prior
+(both averaged over the five U.S. states). The same geometry does not separate regions, which is exactly the point: the
+per-visit vectors improve category separability without grouping by region, so
+their benefit is category-only (the joint model's spatial stream instead reads
+the region-level vectors of the same graph, Section~\ref{sec:method-model}),
+and this sets up the joint study in Section~\ref{sec:results-part2}. A direct comparison with the closest prior
 contextual embedding makes the source of the gain concrete.
 CTLE~\cite{lin2021ctle} also gives each visit its own vector, but it learns
 from place identifiers and timestamps alone: its pretraining recovers masked
@@ -79,7 +80,9 @@ usually expected to match or fall short of a head trained for that task alone).
 Each dedicated category ceiling is tuned per dataset over batch size and
 learning rate (the region ceilings use the strongest fixed recipe), so the
 joint model is compared against the strongest dedicated setting, not a
-convenient one.
+convenient one. Throughout, each task is scored at its own validation-best
+epoch, under the same rule for the joint and dedicated models, so every
+comparison is best against best.
 Figure~\ref{fig:deltas} plots the signed gains ordered by region count. On
 category the joint model outperforms the dedicated ceiling at
 every dataset, by $+5.34$ to $+9.40$ macro-F1 (smallest at Florida, largest at

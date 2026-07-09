@@ -25,8 +25,7 @@ hundred.
 \subsection{Windows, splitting, and the integrity of the representation}
 \label{sec:setup-windows}
 \emph{Windows.} For each user with at least ten visits we sort the check-ins in time and form overlapping windows
-of nine visits, one starting at each visit, with the next visit as the target. Overlapping windows give the category
-task more examples to learn from. Because overlapping windows would end many of a user's windows on the same final
+of nine visits, one starting at each visit, with the next visit as the target. Overlapping windows give both tasks more examples to learn from. Because overlapping windows would end many of a user's windows on the same final
 visit, we keep a single full-context window ending on each user's last visit and drop the padded duplicates.
 
 \emph{Splitting.} We split by user with stratified five-fold cross-validation, so all of a user's windows
@@ -56,10 +55,9 @@ representation cannot score a place never seen in training.
 Third, the one component that could pass visit-to-visit information is a region-transition prior: a table of
 how often visits move from one region to the next, used to bias region scores. An earlier
 version that used the whole dataset inflated region accuracy by 13 to 27 points across states, which is why any
-such table is built per fold, from training data only, seed by seed. The joint and dedicated models reported here
-run with this prior disabled entirely; it survives only in the HMT-GRN baseline
-(Section~\ref{sec:setup-baselines}), with the per-fold training-only build. The place-level baseline
-representation is pre-trained once on the whole dataset, exactly like ours; the contextual baseline
+such table is built per fold, from training data only, seed by seed. The joint and dedicated models reported here do not use this prior;
+it survives only in the HMT-GRN baseline
+(Section~\ref{sec:setup-baselines}), with the per-fold training-only build. The place-level baseline representation (HGI) is pre-trained once on the whole dataset, exactly like ours; the contextual baseline
 (CTLE, Section~\ref{sec:setup-baselines}) is
 pre-trained per fold on training users only, a stricter standard, so no baseline input is held to a weaker
 standard than ours. The one residual we cannot
@@ -80,9 +78,10 @@ over the per-seed means with a Holm correction across the cells; at the two sing
 signed-rank test over the folds. Where the joint model is meant only to
 stay even, we test \emph{non-inferiority}, that it is no worse than the dedicated model by more than a two-point
 margin, with a two-one-sided-tests (TOST) procedure. We fix the two-point margin in advance and on deployment
-grounds, before looking at whether any claim survives it. As in Section~\ref{sec:problem}, a mobility-aware
-service acts on which region will be busy, not on a single rank position. A two-point shift in Acc@10 is therefore below the granularity at which such a
-service would behave differently. The margin is also large relative to the task: with five hundred twenty to
+grounds, before looking at whether any claim survives it: as
+Section~\ref{sec:problem} argued, a mobility-aware service acts on which region
+will be busy, not on a single rank position, so a two-point shift in Acc@10 is
+below the granularity at which such a service would behave differently. The margin is also large relative to the task: with five hundred twenty to
 eight thousand five hundred regions, a random top-ten guess lands the true region at most about two percent of the
 time, so two points span a wide band of the achievable range. Finally, the equivalence is well powered. The standard deviation of the paired
 difference is small (0.04 to 0.15 points at the four multi-seed datasets, 0.07 at the two
@@ -98,16 +97,16 @@ run as a faithful re-implementation, and a simple "what usually follows what" Ma
 recent categories, reporting the strongest order per dataset (Markov-K, up to the nine-visit window). For the next-region task this is HMT-GRN \cite{lim2022hmtgrn}, our primary region-native
 comparison, predicting the region from its own end-to-end recurrent model on the same data, seed, and folds; we keep
 its shared recurrent multi-task skeleton, add a region-transition prior built per fold from training data, and drop its graph components and its
-hierarchical beam search, both of which serve the next-place head we do not predict. The HMT-GRN comparison is therefore a region-native model,
-not a component-complete reproduction. Alongside it we run a faithful STAN \cite{luo2021stan}, trained from raw with its
+hierarchical beam search, both of which serve the next-place head we do not predict. The HMT-GRN comparison is therefore a region-native
+model, not a reproduction of the complete published system. Alongside it we run a faithful STAN \cite{luo2021stan}, trained from raw with its
 own embeddings (not ours) and its own sequence construction, under one audited recipe,
 and a ReHDM \cite{li2025rehdm} reference reported under that
-method's own published protocol rather than re-run under our matched protocol. The
-second role is a representation control, run end to end on Florida and repeated in frozen form at Alabama,
-Arizona, and Istanbul, to attribute the category gain to our specific design and
-not to contextualization in general or to extra features: CTLE \cite{lin2021ctle}, the closest prior contextual
-check-in embedding, in both its end-to-end and frozen forms, and a feature-concatenation control that
-appends raw per-visit features to a standard place embedding under the same model. The third role is a design comparison
+method's own published protocol rather than re-run under our matched protocol. The second role is a pair of representation controls that attribute the
+category gain to our specific design, not to contextualization in general or
+to extra features: CTLE \cite{lin2021ctle}, the closest prior contextual
+check-in embedding, run end to end at Florida and, in frozen form, at Alabama,
+Arizona, and Istanbul; and a feature-concatenation control that appends raw
+per-visit features to a standard place embedding under the same model. The third role is a design comparison
 between the two ways of coupling the tasks. The dominant published coupling is the directed cascade, which predicts
 the category first and conditions the place prediction on it \cite{ye2013nextmove, he2017lbpr, yu2020catdm};
 CSLSL \cite{huang2024cslsl}, its current form, even reports the chain outperforming a parallel variant that shares
