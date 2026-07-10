@@ -21,7 +21,7 @@ We build a graph with four levels: the check-in, its place, the place's region (
 features and an anchor to a place embedding pre-trained, label-free,
 on the same data (weights 0.3 and 0.1). The training
 uses no task label: it
-never sees the next category or the next region. From the trained graph, we read out one 64-dimensional vector per check-in (its region nodes have trained vectors as well), so a model sees a sequence of per-visit vectors rather than repeated per-place ones.
+never sees the next category or the next region. From the trained graph, we extract one 64-dimensional vector per check-in (its region nodes have trained vectors as well), so a model sees a sequence of per-visit vectors rather than repeated per-place ones.
 
 \subsection{The single multi-task model}
 \label{sec:method-model}

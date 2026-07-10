@@ -14,7 +14,7 @@ places sit close together in the vector space.
 Deep Graph Infomax (DGI)~\cite{velickovic2019dgi}, a general self-supervised
 method for graphs, learns such vectors on a place network linked by
 similarity, time, and distance, training them to tell the real network from a
-shuffled copy.
+copy with shuffled node features.
 Hierarchical Graph Infomax (HGI) \cite{huang2023hgi} adds geographic structure,
 organizing the network as place, then region, then city. Both produce one vector per place, so two visits to the same coffee shop look
 identical to the model.
@@ -41,7 +41,7 @@ what a mobility-aware service can act on, not to make the task easier; the regio
 alone spans hundreds to several thousand classes. Predicting
 over a partition of the map is also the standard formulation in the human-mobility
 literature, with a grid cell as the target~\cite{luca2021mobilitysurvey}; our
-next-region task substitutes administrative units for grid cells. Our earlier
+next-region task substitutes official neighborhood-scale units for grid cells. Our earlier
 work~\cite{silva2025mtlnet} established this two-task setup and observed
 negative transfer (sharing hurt one task); this paper adds the check-in-level
 representation, on which the transfer reverses (Section~\ref{sec:results-part2}). The field

@@ -72,8 +72,8 @@ corpus size co-vary here, so we read the trend across the points rather than
 as a precise law.
 
 Four of the six datasets, Alabama, Arizona, Florida, and Istanbul, are
-measured at four seeds for both models ($n{=}20$), and the tests pair the
-per-seed means. On category, all four seeds favor the joint model at each dataset, and each gain is
+measured at four seeds for both models (20 measurements each), and the tests
+pair the per-seed means ($n{=}4$). On category, all four seeds favor the joint model at each dataset, and each gain is
 significant after a Holm correction across the four datasets (paired $t$,
 corrected $p<0.001$). On region, all four are tested for equivalence
 (TOST, $\pm2$~pp), and all four pass with 90\% confidence intervals well inside
@@ -84,7 +84,7 @@ joint model outperforms there as well, though both gains are smaller than the tw
 California exceed that margin. At Arizona, the interval touches zero, so
 we report a match, not a gain. At Alabama, the whole interval lies below zero, a small but
 statistically significant deficit, still well within the two-point margin. California and Texas remain provisional: their
-dedicated ceilings are $n{=}20$, but the joint results are from a single seed over
+dedicated ceilings average four seeds, but the joint results are from a single seed over
 five folds. On those folds, all five favor the joint model on both tasks
 (one-sided paired Wilcoxon, $p{=}0.031$, the smallest value that five folds
 can produce), and the region
@@ -125,7 +125,7 @@ joint model outperforms the dedicated category ceiling by $+8.59$ macro-F1
 ($54.74$ to $63.33$) and is slightly above the dedicated region ceiling at $+0.28$
 Acc@10 ($75.16$ to $75.44$), a gain with statistical support (the whole 90\% confidence interval of the paired
 difference lies above zero, and TOST, $\pm2$~pp, also passes); both
-models average four seeds ($n{=}20$). The comparable quantity is the gain over the ceiling, not the absolute
+models average four seeds over five folds. The comparable quantity is the gain over the ceiling, not the absolute
 Acc@10, since region counts differ across datasets (520 mahalle here). The external baselines show the same ordering: on category, the joint model is above the Markov
 floor ($24.55$) and POI-RGNN~\cite{capanema2023poirgnn} ($30.12$), and on
 region, it is above ReHDM~\cite{li2025rehdm} ($69.33$), STAN~\cite{luo2021stan}
