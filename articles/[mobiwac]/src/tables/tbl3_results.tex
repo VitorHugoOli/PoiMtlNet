@@ -45,11 +45,11 @@ TX       & 6{,}553 & 28.67 & 33.03 & 69.79\sd{0.08} & \textbf{77.23}$^{\circ}$\s
 CA       & 8{,}501 & 27.58 & 31.78 & 70.60\sd{0.07} & \textbf{77.04}$^{\circ}$\sd{0.20} & 49.61 & 50.26$^{\ddagger}$ & 58.52$^{\dagger}$ & 63.49\sd{0.02} & \textbf{65.69}$^{\circ}$\sd{0.30}$^{\uparrow}$ \\
 \hline
 \multicolumn{11}{@{}p{\dimexpr\textwidth-2\tabcolsep\relax}@{}}{\footnotesize HMT-GRN (region-native, on
-our folds, scored on the visits whose region appears in training) is the primary external comparison; STAN
-(our re-implementation, trained from the raw check-ins) and ReHDM (its own protocol) are
+our folds, scored on visits whose region appears in training) is the primary external comparison; STAN
+(our re-implementation, from the raw check-ins) and ReHDM (its own protocol) are
 references. Markov-K reports the strongest order per dataset.
-$^{\dagger}$STAN partial-fold entries, truncated by training cost: Texas four of five folds, California two of five (seed 0).
-$^{\ddagger}$ReHDM at Texas and California is a single seed. $^{\circ}$The joint entries at California and Texas are a
-single seed over five folds (provisional); every other entry in our columns averages four seeds. $\pm$ is the sd across seeds for four-seed entries, across folds for single-seed entries.} \\
+$^{\dagger}$STAN partial folds: Texas four of five, California two of five (seed 0).
+$^{\ddagger}$ReHDM at Texas and California is a single seed. $^{\circ}$Joint entries at California and Texas are a
+single seed over five folds (provisional); all other entries in our columns average four seeds. $\pm$: sd across seeds (four-seed entries) or folds (single-seed).} \\
 \end{tabular}
 \end{table*}

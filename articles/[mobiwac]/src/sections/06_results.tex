@@ -14,7 +14,7 @@
 \label{sec:results-part1}
 Table~\ref{tab:substrate}
 compares our check-in-level representation against a standard place embedding
-(HGI~\cite{huang2023hgi}) on next-category macro-F1. The comparison is like-for-like: target, single-task model, training configuration, windowing, and folds are identical; only the input representation changes (a vector per visit versus a vector per place), so the difference isolates the representation. (The check-in-level column keeps one fixed configuration, intentionally not the per-dataset-tuned ceiling of Table~\ref{tab:results}.) The check-in-level
+(HGI~\cite{huang2023hgi}) on next-category macro-F1. The comparison is like-for-like: target, single-task model, training configuration, windowing, and folds are identical; only the input representation changes (a vector per visit versus a vector per place), so the difference isolates the representation. The check-in-level column keeps one fixed configuration, not the per-dataset-tuned ceiling of Table~\ref{tab:results}. The check-in-level
 representation outperforms the place embedding by a wide gap at every
 state: $+29.31$ at Alabama, $+27.63$ at Arizona, $+39.62$ at Florida, $+37.95$
 at California, and $+37.47$ at Texas. The same holds on Istanbul ($+28.09$).
@@ -35,6 +35,7 @@ One model outperforms or matches the dedicated single-task
 models on both tasks.
 To calibrate the two scales: category macro-F1 spans seven classes (a majority-class floor of about $7\%$); region Acc@10 spans 520 to 8{,}501 regions, where a random top-ten
 guess is right at most about two percent of the time.
+
 Table~\ref{tab:results} reports the single joint model against the dedicated
 single-task ceilings (the level a joint model is usually expected at
 best to match). The dedicated category model is tuned per dataset over batch size and learning rate (the dedicated region models use the strongest fixed configuration).
@@ -52,6 +53,7 @@ $0.11$ (region) points, so no reported claim depends on reading two epochs.
 % 0.75/0.25 sum of S4.2). If a reviewer asks for the joint-checkpoint numbers: cite
 % closing_data_v2/JOINT_BEST_RESULTS.md (category +5.33..+9.35 vs ceilings; region Ist +0.19 /
 % AL -0.41 / AZ -0.00 / FL +0.71 / TX +2.12 / CA +2.20).
+
 Figure~\ref{fig:deltas} plots the signed gains ordered by region count. On
 category, the joint model outperforms the dedicated ceiling at
 every dataset, by $+5.34$ to $+9.40$ macro-F1 (smallest at Florida, largest at
@@ -73,15 +75,15 @@ as a precise law.
 Four of the six datasets are measured at $n{=}20$ for both models: Alabama,
 Arizona, Florida, and Istanbul average four seeds over the same five fixed
 folds, and the tests pair the per-seed means (four paired observations per
-dataset). On category, all four seeds favor the joint model at each dataset, and each per-dataset gain is
+dataset). On category, all four seeds favor the joint model at each dataset, and each gain is
 significant after a Holm correction across the four datasets (paired $t$,
-corrected $p<0.001$ at all four). On region, all four are tested equivalences
+corrected $p<0.001$). On region, all four are tested for equivalence
 (TOST, $\pm2$~pp), and all four pass with 90\% confidence intervals well inside
 two points: Alabama ($-0.31$; $-0.48$ to $-0.14$), Arizona ($+0.10$; $+0.00$ to
 $+0.21$), Florida ($+0.72$; $+0.67$ to $+0.78$), and Istanbul ($+0.28$; $+0.24$
 to $+0.32$). At Florida and Istanbul, the whole interval lies above zero, so the
-joint model outperforms there as well, though both gains are smaller than the two-point margin of Section~\ref{sec:setup-metrics}; the region gains above
-that margin are at Texas and California. At Arizona, the interval touches zero, so
+joint model outperforms there as well, though both gains are smaller than the two-point margin of Section~\ref{sec:setup-metrics}; only Texas and
+California exceed that margin. At Arizona, the interval touches zero, so
 we report a match, not a gain. At Alabama, the interval lies entirely below zero, a small but
 statistically significant deficit, still well within the two-point margin. California and Texas remain provisional: their
 dedicated ceilings are $n{=}20$, but the joint results are from a single seed over
@@ -126,8 +128,8 @@ joint model outperforms the dedicated category ceiling by $+8.59$ macro-F1
 Acc@10 ($75.16$ to $75.44$), a statistically supported gain (the 90\% confidence interval of the paired
 difference lies entirely above zero, and TOST, $\pm2$~pp, also passes); both
 models average four seeds ($n{=}20$). The comparable quantity is the gain over the ceiling, not the absolute
-Acc@10, since region counts differ across datasets (520 mahalle here). The external baselines show the same ordering: on category the joint model is above the Markov
+Acc@10, since region counts differ across datasets (520 mahalle here). The external baselines show the same ordering: on category, the joint model is above the Markov
 floor ($24.55$) and POI-RGNN~\cite{capanema2023poirgnn} ($30.12$), and on
-region it is above ReHDM~\cite{li2025rehdm} ($69.33$), STAN~\cite{luo2021stan}
+region, it is above ReHDM~\cite{li2025rehdm} ($69.33$), STAN~\cite{luo2021stan}
 ($61.86$), and HMT-GRN~\cite{lim2022hmtgrn} ($60.4$).
 The U.S. result repeats on a different continent and region unit.
