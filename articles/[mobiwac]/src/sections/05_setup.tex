@@ -24,7 +24,7 @@ Shopping, and Travel. The region unit is a census tract for the Gowalla states a
 
 \subsection{Windows, splitting, and the integrity of the representation}
 \label{sec:setup-windows}
-\emph{Windows.} For each user with at least ten visits, we build time-ordered overlapping nine-visit windows, one starting at each visit, with the next visit as the target, giving both tasks more examples. Because many of a user's windows would end on the same final visit, we keep one full-context window ending on that visit and drop the padded duplicates.
+\emph{Windows.} For each user with at least ten visits, we build time-ordered overlapping sliding windows of nine visits, one starting at each visit, with the next visit as the target, giving both tasks more examples. Because many of a user's windows would end on the same final visit, we keep one full-context window ending on that visit and drop the padded duplicates.
 
 \emph{Splitting.} We split by user with stratified five-fold cross-validation, so all of a user's windows fall in the same fold and overlap cannot leak: a test user's visits never appear in training. The held-out fold is the validation data; we reserve no third split. The split is stratified on the next-category label because the seven-class task is imbalanced: Food is the majority class in every dataset, from about 25 percent of visits in Florida to 34 percent in Alabama (Table~\ref{tab:datasets}).
 
