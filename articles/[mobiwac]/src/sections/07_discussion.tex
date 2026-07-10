@@ -17,12 +17,10 @@ A service could treat the model's top-ranked next regions as an anticipatory
 set: at California, ten regions of 8{,}501 contain the true next region 65.69
 percent of the time, over 500 times better than picking ten at
 random. On the four datasets that we measured (Alabama, Arizona, Florida, and Istanbul; a single seed over five folds), the ten shortlisted regions are about 3 to 8 kilometers from the shortlist's
-center (medians from region centroids). When the top guess is wrong and the true region was seen in training, the predicted centroid lies a similar median distance from the true one (visits to never-seen regions are rarer and miss by more), while two
-randomly drawn regions from the same map lie 20 to 241
-kilometers apart (median). This remains motivation, not a measured service result.
+center (medians from region centroids), against 20 to 241 kilometers between two regions drawn at random from the same map. This remains motivation, not a measured service result.
 
 Three limits qualify these results. First, the joint numbers at California and Texas use a single seed over five folds, so those two results are provisional; the other four average four seeds for both models. Second, our representation is trained once over all places; visits to places
-never seen during training are the single effect that we cannot fully isolate. A planned follow-up trains it on each fold's training places only and embeds unseen visits directly. Third, although a mobility-aware service motivates this work, we do not build or evaluate one.
+never seen during training are the single effect that we cannot fully isolate. A planned follow-up trains it on each fold's training places only and embeds unseen visits. Third, although a mobility-aware service motivates this work, we do not build or evaluate one.
 
 Our representation is a fixed per-visit vector that any downstream model
 can consume; structural check-in analysis has named machine learning as

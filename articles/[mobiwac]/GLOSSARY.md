@@ -107,7 +107,7 @@ v11–v16, champion-G, H3-alt; write "our model"), `log_T` (write "region-transi
 | overlapping (stride-1) windows | **overlapping windows of recent visits** | gloss once (nine visits plus the next as target) |
 | transductive | **the representation was trained seeing all places** | gloss only where the leak discussion needs it |
 | ablation | **a controlled test that removes one piece** | keep, gloss once |
-| seed | **a repetition of the full experiment, differing only in random initialization** | gloss once in §5; then "seed" is fine in the stats. In the **abstract and intro** say **"random initialization"**, never bare "seed" ("training run" would be false: one seed = five fold-runs) |
+| seed | **one complete repetition of the five-fold experiment, over the same folds, with a different random initialization** | "seed" IS the term (author ruling 2026-07-10: NOT "run" — a run reads as one fold's training and is worse). §5.3 carries the definition naming folds and seeds as **the two axes of repetition** + the $4\times5=20$ arithmetic; after it, "seed" is fine. Banned compounds: "multi-seed run", "single-seed states", "seed by seed" (write "a single seed", "four seeds", "in every repetition"). In the **abstract and intro** say **"random initialization"**, never bare "seed" |
 | fold | **one of the five data splits** | covered by the "5-fold cross-validation" gloss (§2); then "fold" is fine |
 | arm (joint vs. dedicated) | **both models / the joint and the dedicated model** | never; clinical-trial word, foreign to this audience |
 | cell (a table result) | **result / entry** | never in prose; this audience reads "cell" as a radio cell. When the grid sense is meant, write **"grid cell"** in full (§2.2 "auxiliary coarse cell" today) |

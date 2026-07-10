@@ -169,17 +169,8 @@ ax.set_axisbelow(True)
 for spine in ("top", "right"):
     ax.spines[spine].set_visible(False)
 
-# annotate the band once, on the left, so its meaning is clear
-ax.annotate(
-    "non-inferiority band (±2 pp)",
-    (-0.5, -NI_MARGIN),
-    textcoords="offset points",
-    xytext=(0, -3.5),
-    ha="left",
-    va="top",
-    fontsize=5.6,
-    color="#555555",
-)
+# The band is explained by the legend's "±2 pp band" entry alone; the earlier
+# in-plot annotation overlapped the band edge and axis (removed 2026-07-10).
 
 # --- legend ---------------------------------------------------------------
 legend_handles = [

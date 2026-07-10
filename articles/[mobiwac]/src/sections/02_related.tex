@@ -43,8 +43,8 @@ over a partition of the map is also the standard formulation in the human-mobili
 literature, with a grid cell as the target~\cite{luca2021mobilitysurvey}; our
 next-region task substitutes administrative units for grid cells. Our earlier
 work~\cite{silva2025mtlnet} established this two-task setup and observed
-negative transfer; this paper adds the check-in-level representation, on
-which the transfer reverses (Section~\ref{sec:results-part2}). The field
+negative transfer (sharing hurt one task); this paper adds the check-in-level
+representation, on which the transfer reverses (Section~\ref{sec:results-part2}). The field
 increasingly models several granularities at once; in those systems, category and
 region are auxiliary signals that help a primary next-place task
 (MCMG \cite{sun2024mcmg}, HMT-GRN \cite{lim2022hmtgrn}).
@@ -55,7 +55,7 @@ The nearest exceptions do not study our exact pairing:
 DRRGNN~\cite{zhu2022drrgnn} forecasts a person's next activity region jointly
 with a mobility-intention label, but over regions discovered per person rather
 than a fixed citywide partition; a generative recommender~\cite{sun2025kgtb}
-predicts category and region jointly, but only as auxiliary steps toward its
+predicts category and region together, but only as auxiliary steps toward its
 next-place ranking.
 
 \subsection{Multi-task learning for mobility}

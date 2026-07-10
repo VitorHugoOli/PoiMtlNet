@@ -28,7 +28,7 @@ Our contributions are as follows.
     context, not to extra training signal. The gap is large because a single fixed vector
     per place cannot separate places that serve several purposes, which
     per-visit context recovers.
-  \item A single model for joint next-category and next-region prediction, sharing semantic context across tasks while keeping a private spatial path for the region task. In one forward pass, it outperforms a dedicated
+  \item A single model for joint next-category and next-region prediction, sharing semantic context across tasks while keeping a private spatial path for the region task; to our knowledge, the first to treat fine-grained region as an end target of equal standing (Section~\ref{sec:related-tasks}). In one forward pass, it outperforms a dedicated
     single-task category model at every dataset (by about $+5$ to $+9$ points of
     macro-F1), even though each dedicated model is tuned per dataset. On region,
     it outperforms at four of the six datasets and stays
@@ -39,12 +39,12 @@ Our contributions are as follows.
     region result moves monotonically with the region count: the joint model
     matches the dedicated model (TOST, $\pm2$ percentage points, or pp) at the
     small region counts and outperforms it at the large region counts, with
-    the largest state (California) showing the largest region gain
-    (Fig.~\ref{fig:deltas}). Istanbul, the smallest
-    dataset, is also ahead on region. Four of the six datasets are
-    measured at four random initializations over five folds for both the
-    joint and the dedicated models; California and Texas use a single
-    initialization and are provisional.
+    the state with the most regions (California) showing the largest region
+    gain (Fig.~\ref{fig:deltas}). Istanbul, the dataset with the fewest
+    regions, is also ahead on region. Four of the six datasets are
+    measured at four random initializations over five cross-validation folds
+    for both the joint and the dedicated models; California and Texas use a
+    single initialization and are provisional.
 \end{itemize}
 
 The rest of the paper presents related work (Section~\ref{sec:related}), the problem (Section~\ref{sec:problem}), the method and setup (Sections~\ref{sec:method} and~\ref{sec:setup}), results (Section~\ref{sec:results}), and discussion and conclusions (Sections~\ref{sec:discussion} and~\ref{sec:conclusion}).

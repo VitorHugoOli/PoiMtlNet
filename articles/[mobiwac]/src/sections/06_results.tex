@@ -14,7 +14,7 @@
 \label{sec:results-part1}
 Table~\ref{tab:substrate}
 compares our check-in-level representation against a standard place embedding
-(HGI~\cite{huang2023hgi}) on next-category macro-F1. The comparison is like-for-like: target, single-task model, training configuration, windowing, and folds are identical; only the input representation changes (a vector per visit versus a vector per place), so the difference isolates the representation. The check-in-level column keeps one fixed configuration, not the per-dataset-tuned ceiling of Table~\ref{tab:results}. The check-in-level
+(HGI~\cite{huang2023hgi}) on next-category macro-F1. The comparison is like-for-like: target, single-task model, training configuration, windowing, and folds are identical; only the input representation changes (a vector per visit versus a vector per place), so the difference isolates the representation. The check-in-level column keeps one fixed configuration, not the per-dataset-tuned dedicated model of Table~\ref{tab:results}. The check-in-level
 representation outperforms the place embedding by a wide gap at every
 state: $+29.31$ at Alabama, $+27.63$ at Arizona, $+39.62$ at Florida, $+37.95$
 at California, and $+37.47$ at Texas. The same holds on Istanbul ($+28.09$).
@@ -24,7 +24,7 @@ The gains fall in two bands, about $+28$ to $+29$ points at the smaller datasets
 A controlled test attributes most of that gain to the per-visit context itself: a per-place-averaged version of the same representation leaves roughly 64 to 90 percent of the gain (state-dependent) to the context that each visit carries, not to extra training signal.
 
 The geometry of the vectors shows why the representation helps this task in
-particular: the per-visit vectors' silhouette score by category, a $-1$ to $1$ measure of how tight and well separated the seven labeled groups are, is about $0.57$, against about $0.00$ for the place embedding. Their nearest-neighbor category purity, the share of nearest neighbors with the vector's own category, is about $0.98$, against about $0.78$ (both averaged over the five U.S. states). The same geometry does not separate regions, so the benefit is category-only (the joint model's spatial stream instead reads the region-level vectors of the same graph, Section~\ref{sec:method-model}). CTLE~\cite{lin2021ctle}, the closest prior contextual embedding, also gives each visit its own vector, but it pretrains on place identifiers and timestamps alone, so the category vocabulary never enters its training, whereas our graph reads each visit's category and time of day as input features. Fine-tuned together with the task model at Florida at its authors' defaults, at the same 64 dimensions and windowing as ours, CTLE reaches $33.45$ macro-F1 at its best epoch ($29.69$ at its final one), about two points below the place embedding under the same best-epoch rule and below our $75.15$; frozen and fed to the same single-task model, it repeats the ordering at Alabama, Arizona, and Istanbul, with gaps of $+37.8$, $+37.0$, and $+28.7$ macro-F1. A feature-concat control (the place embedding joined with raw per-visit
+particular: the per-visit vectors' silhouette score by category, a $-1$ to $1$ measure of how tight and well separated the seven labeled groups are, is about $0.57$, against about $0.00$ for the place embedding. Their nearest-neighbor category purity, the share of nearest neighbors with the vector's own category, is about $0.98$, against about $0.78$ (both averaged over the five U.S. states). The same geometry does not separate regions, so the benefit is category-only (the joint model's spatial stream instead reads the region-level vectors of the same graph, Section~\ref{sec:method-model}). CTLE~\cite{lin2021ctle}, the closest prior contextual embedding, also gives each visit its own vector, but it pretrains on place identifiers and timestamps alone, so the category vocabulary never enters its training, whereas our graph reads each visit's category and time of day as input features. Fine-tuned together with the task model at Florida at its authors' defaults, at the same 64 dimensions and windowing as ours, CTLE reaches $33.45$ macro-F1 at its best epoch, one pass over the training data ($29.69$ at its final one), about two points below the place embedding under the same best-epoch rule and below our $75.15$; frozen and fed to the same single-task model, it repeats the ordering at Alabama, Arizona, and Istanbul, with gaps of $+37.8$, $+37.0$, and $+28.7$ macro-F1. A feature-concat control (the place embedding joined with raw per-visit
 features, same model) does not close the gap either, so the gain comes from
 the hierarchical per-visit representation, not from contextualization alone or
 feature injection.
@@ -39,8 +39,7 @@ guess is right at most about two percent of the time.
 Table~\ref{tab:results} reports the single joint model against the dedicated
 single-task ceilings (the level a joint model is usually expected at
 best to match). The dedicated category model is tuned per dataset over batch size and learning rate (the dedicated region models use the strongest fixed configuration).
-Throughout, each task is scored at its own validation-best epoch (one pass
-over the training data), under the
+Throughout, each task is scored at its own validation-best epoch, under the
 same rule for the joint and dedicated models; a single jointly selected
 saved model per fold reproduces every joint result within $0.06$ (category) and
 $0.11$ (region) points, so no reported claim depends on reading two epochs.
@@ -72,10 +71,9 @@ from $-0.31$ at the smallest region count to $+2.20$ at the largest; region coun
 corpus size co-vary here, so we read the trend across the points rather than
 as a precise law.
 
-Four of the six datasets are measured at $n{=}20$ for both models: Alabama,
-Arizona, Florida, and Istanbul average four seeds over the same five fixed
-folds, and the tests pair the per-seed means (four paired observations per
-dataset). On category, all four seeds favor the joint model at each dataset, and each gain is
+Four of the six datasets, Alabama, Arizona, Florida, and Istanbul, are
+measured at four seeds for both models ($n{=}20$), and the tests pair the
+per-seed means. On category, all four seeds favor the joint model at each dataset, and each gain is
 significant after a Holm correction across the four datasets (paired $t$,
 corrected $p<0.001$). On region, all four are tested for equivalence
 (TOST, $\pm2$~pp), and all four pass with 90\% confidence intervals well inside
@@ -84,21 +82,21 @@ $+0.21$), Florida ($+0.72$; $+0.67$ to $+0.78$), and Istanbul ($+0.28$; $+0.24$
 to $+0.32$). At Florida and Istanbul, the whole interval lies above zero, so the
 joint model outperforms there as well, though both gains are smaller than the two-point margin of Section~\ref{sec:setup-metrics}; only Texas and
 California exceed that margin. At Arizona, the interval touches zero, so
-we report a match, not a gain. At Alabama, the interval lies entirely below zero, a small but
+we report a match, not a gain. At Alabama, the whole interval lies below zero, a small but
 statistically significant deficit, still well within the two-point margin. California and Texas remain provisional: their
 dedicated ceilings are $n{=}20$, but the joint results are from a single seed over
 five folds. On those folds, all five favor the joint model on both tasks
 (one-sided paired Wilcoxon, $p{=}0.031$, the smallest value that five folds
 can produce), and the region
 gains have 90\% intervals entirely above the two-point margin ($+2.14$ to
-$+2.28$ at California, $+2.04$ to $+2.18$ at Texas). A multi-seed run at these
-two states is the remaining confirmation.
+$+2.28$ at California, $+2.04$ to $+2.18$ at Texas). More seeds at these
+two states are the remaining confirmation.
 
 A reader used to multi-task learning~\cite{caruana1997multitask} expects the
 harder task's training signal to drive the easier one's gain. As a control, we freeze the region pathway at the start of training so it can neither learn nor teach the category task, yet the full category gain survives at Alabama, Arizona, and
 Florida (within $0.3$ of the joint model and far above the dedicated single-task
-model). We therefore read the category gain as a stronger shared trunk, obtained
-without a second model to serve (one model, one forward pass), not the region task teaching the category one; we report this as a finding, not a hypothesis.
+model). We therefore attribute the category gain to a stronger shared trunk, obtained
+without a second model to serve (one model, one forward pass), not to the region task teaching the category one; we report this as a finding, not a hypothesis.
 
 The joint model is also above every external baseline reported, on both tasks,
 at every dataset (Table~\ref{tab:results}): the primary region-native comparison,
@@ -106,7 +104,7 @@ HMT-GRN~\cite{lim2022hmtgrn} (for example California $49.61$ versus our $65.69$)
 a STAN~\cite{luo2021stan} trained from the raw check-ins and a ReHDM reference~\cite{li2025rehdm} on
 region, and POI-RGNN~\cite{capanema2023poirgnn} and a Markov floor on category. These externals run on their own embeddings, so this comparison
 also includes the representation advantage of Section~\ref{sec:results-part1}; the
-like-for-like anchor remains the dedicated column. A simple Markov region floor
+like-for-like anchor remains the dedicated column. A simple first-order Markov region floor
 reaches $43$ to $65$ Acc@10 across the datasets (computed under a
 non-overlapping windowing of the same data, indicative rather than
 protocol-matched); the joint model exceeds it by $12$ to $23$ points at all six datasets.
@@ -114,7 +112,7 @@ protocol-matched); the joint model exceeds it by $12$ to $23$ points at all six 
 On principle, we prefer coupling the tasks in parallel rather than in a chain: neither target is
 subordinate to the other, so a chain must pick one to predict first and pass its errors to the other. The choice still had to be checked, because CSLSL reports its chain outperforming a shared-trunk parallel variant on its own benchmarks~\cite{huang2024cslsl}. Rewired as a cascade
 (Section~\ref{sec:setup-baselines}), our model reaches the same combined
-score, the geometric mean of the two task metrics, as its parallel form at no additional parameter or compute cost: at Alabama, Arizona, Florida, and Istanbul, with both forms trained under the same configuration and single seed, the difference is about zero and neither task moves by more than a quarter of a point. We read this as a defense of the
+score, the geometric mean of the two task metrics, as its parallel form at no additional parameter or compute cost: at Alabama, Arizona, Florida, and Istanbul, with both forms trained under the same configuration and initialization, the difference is about zero and neither task moves by more than a quarter of a point. We read this as a defense of the
 parallel design, not a claim that we outperform the cascade: on this
 representation the coupling topology makes no measurable difference, and the simpler parallel structure loses nothing. Two qualifications bound this
 reading: the cascade runs under the configuration tuned for the parallel model, and
@@ -125,8 +123,8 @@ its form was fixed in advance, so tuning the cascade itself remains future work.
 The finding holds on a non-U.S. city under the same representation, overlapping-window protocol, and training setup as the U.S. states. On Istanbul, the
 joint model outperforms the dedicated category ceiling by $+8.59$ macro-F1
 ($54.74$ to $63.33$) and is slightly above the dedicated region ceiling at $+0.28$
-Acc@10 ($75.16$ to $75.44$), a statistically supported gain (the 90\% confidence interval of the paired
-difference lies entirely above zero, and TOST, $\pm2$~pp, also passes); both
+Acc@10 ($75.16$ to $75.44$), a gain with statistical support (the whole 90\% confidence interval of the paired
+difference lies above zero, and TOST, $\pm2$~pp, also passes); both
 models average four seeds ($n{=}20$). The comparable quantity is the gain over the ceiling, not the absolute
 Acc@10, since region counts differ across datasets (520 mahalle here). The external baselines show the same ordering: on category, the joint model is above the Markov
 floor ($24.55$) and POI-RGNN~\cite{capanema2023poirgnn} ($30.12$), and on
