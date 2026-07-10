@@ -10,11 +10,13 @@
 \section{Discussion and Limitations}
 \label{sec:discussion}
 
-One model is enough. A shared trunk carries the semantic context that lifts the next-category task sharply over a dedicated model at every dataset, and a private spatial path keeps the next-region task competitive: a non-inferior match (TOST, $\pm2$~pp) at the two small U.S. states, and a tested gain at the other four datasets. Across the U.S. states the region gain rises with the number of regions (Figure~\ref{fig:deltas}). The joint model matches or outperforms the dedicated single-task model on both tasks at once (Table~\ref{tab:results}): one model, one forward pass, anticipates both what a user will do next and where.
+One model is enough. A shared trunk carries the semantic context that lifts the next-category task sharply over a dedicated model at every dataset, and a private spatial path keeps the next-region task competitive: a non-inferior match (TOST, $\pm2$~pp) at the two small U.S. states, and a tested gain at the other four datasets. Across the U.S. states the region gain rises with the number of regions (Figure~\ref{fig:deltas}). The joint model matches or outperforms the dedicated single-task model on
+both tasks at once (Table~\ref{tab:results}).
 
-As a usage sketch, a service could treat the model's top-ranked next regions as an anticipatory set: at California, a shortlist of ten regions out of 8{,}501 contains the true next region 65.69 percent of the time, more than five hundred times better than
-picking ten at random; at Alabama, ten out of 1{,}109 capture it 69.80 percent
-of the time. On the four datasets we measured (Alabama, Arizona, Florida, and Istanbul; a single seed over five folds), the ten shortlisted regions sit about 3 to 8 kilometers from the shortlist's
+A service could treat the model's top-ranked next regions as an anticipatory
+set: at California, ten regions of 8{,}501 contain the true next region 65.69
+percent of the time, over five hundred times better than picking ten at
+random; at Alabama, ten of 1{,}109 capture it 69.80 percent of the time. On the four datasets we measured (Alabama, Arizona, Florida, and Istanbul; a single seed over five folds), the ten shortlisted regions sit about 3 to 8 kilometers from the shortlist's
 own center (medians from region centroids). When the top guess is wrong and the true region was seen in training, the predicted region's centroid sits a similar median of about 3 to 8 kilometers from the true region's (visits to regions never
 seen in training are rarer and miss by more), while two
 randomly drawn regions from the same map sit a median
@@ -24,6 +26,6 @@ Three limits qualify these results. First, the joint numbers at California and T
 never seen during training are the single effect we cannot fully isolate. A planned follow-up trains it on each fold's training places only and embeds unseen visits directly. Third, although a mobility-aware service motivates this work, we do not build or evaluate one.
 
 Finally, our representation is a fixed per-visit vector any downstream model
-can consume; structural analysis of check-in networks has itself named machine
-learning as a next step~\cite{moura2025mobilityaware}, and learning over
-check-in structure moves in that direction.
+can consume; structural check-in analysis has itself named machine learning as
+a next step~\cite{moura2025mobilityaware}, and this study moves in that
+direction.

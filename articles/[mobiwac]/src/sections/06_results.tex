@@ -31,8 +31,8 @@ feature injection.
 
 \subsection{One model, two tasks}
 \label{sec:results-part2}
-Read this as: one model outperforms a dedicated next-category model at every
-dataset and outperforms or matches a dedicated next-region model.
+Read this as: one model outperforms or matches the dedicated single-task
+models on both tasks.
 To calibrate the two scales: category macro-F1 spans seven classes (a majority-class floor of about $7\%$); region Acc@10 spans hundreds to thousands of regions, where a random top-ten
 guess is right at most about two percent of the time.
 Table~\ref{tab:results} reports the single joint model against the dedicated
@@ -122,10 +122,9 @@ its form was fixed in advance, so a carefully tuned cascade remains future work.
 Read this as: the finding holds on a non-U.S. city under the same representation, overlapping-window protocol, and training setup as the U.S. states. On Istanbul the
 joint model outperforms the dedicated category ceiling by $+8.59$ macro-F1
 ($54.74$ to $63.33$) and edges past the dedicated region ceiling at $+0.28$
-Acc@10 ($75.16$ to $75.44$), a statistically supported gain (the 90\%
-confidence interval of the paired difference lies entirely above zero; it also
-passes the non-inferiority test, TOST, $\pm2$~pp); both arms average four seeds
-($n{=}20$). The comparable quantity is the lift over the ceiling, not the absolute
+Acc@10 ($75.16$ to $75.44$), a statistically supported gain (the 90\% confidence interval of the paired
+difference lies entirely above zero, and TOST, $\pm2$~pp, also passes); both
+arms average four seeds ($n{=}20$). The comparable quantity is the lift over the ceiling, not the absolute
 Acc@10, since region counts differ across datasets (520 mahalle here). The external baselines line up the same way: on category the joint model is far above the Markov
 floor ($24.55$) and POI-RGNN~\cite{capanema2023poirgnn} ($30.12$), and on
 region it is above ReHDM~\cite{li2025rehdm} ($69.33$), a faithful

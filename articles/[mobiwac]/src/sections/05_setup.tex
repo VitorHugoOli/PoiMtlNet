@@ -13,7 +13,7 @@
 \label{sec:setup-data}
 Table~\ref{tab:datasets} summarizes our six datasets. Five come from Gowalla, a location-based social network (collected 2009 to 2011), covering the U.S. states of Alabama, Arizona, Florida, Texas, and California
 \cite{cho2011gowalla}; the sixth is Istanbul, from the Massive-STEPS collection
-\cite{wongso2025massivesteps}, a non-U.S. check.
+\cite{wongso2025massivesteps}, a non-U.S. check on the findings.
 % Data provenance (hidden): the Gowalla source is the public CC0 category-annotated dump,
 % figshare.com/articles/dataset/gowalla_data/22126586 (gowalla_checkins + gowalla_spots_subset1/2,
 % the exact files the ETL consumes; 36,001,959 check-ins). Date range MEASURED on the parquet
@@ -43,7 +43,8 @@ For the category task we report macro-averaged F1 (macro-F1), which averages the
 (a visit whose true region is absent from that fold's training data counts as an error); its
 comparison anchor is the dedicated single-task model.
 
-Where the joint model is meant to outperform, we test \emph{superiority}: at the four datasets with four seeds, a paired test over the per-seed means with a Holm correction across the cells; at the two single-seed states, a paired Wilcoxon signed-rank test over the folds. Where it is meant only to stay even, we test \emph{non-inferiority}, that it is no worse than the dedicated model by more than a two-point margin, with a two-one-sided-tests (TOST) procedure. We fix the two-point margin in advance, on deployment grounds: a mobility-aware service acts on which region will be busy, not on a single rank position (Section~\ref{sec:problem}), so a two-point shift in Acc@10 is below the granularity at which it would behave differently (for scale, with five hundred twenty to eight thousand five hundred regions, a random top-ten guess lands the true region at most about two percent of the time). The equivalence is well powered: the paired difference has a small standard deviation (0.04 to 0.15 points at the four multi-seed datasets, 0.07 at the two single-seed ones), giving power near 1.0 to reject a true two-point gap, so a non-inferiority verdict reflects a real match.
+Where the joint model is meant to outperform, we test \emph{superiority}: at the four datasets with four seeds, a paired test over the per-seed means with a Holm correction across the cells; at the two single-seed states, a paired Wilcoxon signed-rank test over the folds. Where it is meant only to stay even, we test \emph{non-inferiority}, that it is no worse than the dedicated model by more than a two-point margin, with a two-one-sided-tests (TOST) procedure. We fix the two-point margin in advance, on deployment grounds: a mobility-aware service acts on which region will be busy, not on a single rank position (Section~\ref{sec:problem}), so a two-point shift in Acc@10 is below the granularity at which it would behave differently (for scale, with five hundred twenty to eight thousand five hundred regions, a random top-ten guess lands the true region at most about two percent of the time). The equivalence is well powered: the paired difference has a small standard deviation (0.04 to 0.15 points at the four multi-seed
+datasets), giving power near 1.0 to reject a true two-point gap, so a non-inferiority verdict reflects a real match.
 
 \subsection{Baselines}
 \label{sec:setup-baselines}

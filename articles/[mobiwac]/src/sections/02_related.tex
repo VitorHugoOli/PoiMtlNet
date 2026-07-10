@@ -27,9 +27,8 @@ down to individual check-ins (Fig.~\ref{fig:dataflow}), rather than switching to
 a sequence model as CTLE does.
 
 The novelty is this specific combination: per-visit context inside a
-hierarchical graph-infomax representation. We compare against CTLE directly
-to show that the combination, not per-visit context on its own, is the source of
-the gain.
+hierarchical graph-infomax representation. We compare against CTLE and a feature-concatenation control to separate the
+combination from contextualization alone and from feature injection.
 
 \subsection{Predicting the next category and the next region}
 \label{sec:related-tasks}
@@ -43,7 +42,7 @@ over a partition of the map is also the standard formulation in the human-mobili
 literature, with a grid cell as the target~\cite{luca2021mobilitysurvey}; our
 next-region task substitutes administrative units for grid cells. The category
 task itself follows our earlier line of work \cite{silva2025mtlnet}. The field
-increasingly models several granularities at once; in that work, category and
+increasingly models several granularities at once; in those systems, category and
 region are auxiliary signals that help a headline next-place task
 (MCMG \cite{sun2024mcmg}, HMT-GRN \cite{lim2022hmtgrn}).
 We study the pair as the object itself. To our knowledge, fine-grained region as a
