@@ -9,7 +9,7 @@
 
 \subsection{From place embeddings to per-visit embeddings}
 \label{sec:related-embeddings}
-A place embedding turns a POI into a vector so that similar or nearby places
+A place embedding transforms a POI into a vector so that similar or nearby places
 sit close together, rather than each being a bare, arbitrary index.
 Deep Graph Infomax (DGI) \cite{velickovic2019dgi} learns such vectors
 self-supervised, training them to tell the real place network, linked by
@@ -20,8 +20,8 @@ identical to the model.
 Contextual check-in representations instead give each visit its own vector: CTLE
 \cite{lin2021ctle}, the closest example, learns a vector per visit by masking and
 reconstructing parts of a user's check-in sequence. Our
-representation, Check2HGI, also works at the check-in level but gets there
-differently: it keeps the hierarchical place-to-region-to-city network and the
+representation, Check2HGI, also works at the check-in level but through a
+different construction: it keeps the hierarchical place-to-region-to-city network and the
 same infomax objective, now extended one level deeper, from individual places
 down to individual check-ins (Fig.~\ref{fig:dataflow}), rather than switching to
 a sequence model as CTLE does.
@@ -32,7 +32,7 @@ combination from contextualization alone and from feature injection.
 
 \subsection{Predicting the next category and the next region}
 \label{sec:related-tasks}
-A large body of work predicts the next place a user will visit, the exact POI,
+A large body of work predicts the next place that a user will visit, the exact POI,
 with recurrent and attention models such as DeepMove \cite{feng2018deepmove}, STAN
 \cite{luo2021stan}, and GETNext \cite{yang2022getnext}. In contrast, we target two properties of the next visit, its category and its
 region, rather than the exact place. We choose them because they are
@@ -45,9 +45,10 @@ task itself follows our earlier line of work \cite{silva2025mtlnet}. The field
 increasingly models several granularities at once; in those systems, category and
 region are auxiliary signals that help a headline next-place task
 (MCMG \cite{sun2024mcmg}, HMT-GRN \cite{lim2022hmtgrn}).
-We study the pair as the object itself. To our knowledge, fine-grained region as a
-co-equal end target, rather than an auxiliary coarse cell, is underexplored.
-The nearest exceptions stop short of our pairing:
+We study the pair as the object itself. To our knowledge, fine-grained region as an
+end target of equal standing, rather than an auxiliary coarse grid cell, is
+underexplored.
+The nearest exceptions do not study our exact pairing:
 DRRGNN~\cite{zhu2022drrgnn} forecasts a person's next activity region jointly
 with a mobility-intention label, but over regions discovered per person rather
 than a fixed citywide partition; a generative recommender~\cite{sun2025kgtb}
@@ -58,7 +59,7 @@ next-place ranking.
 \label{sec:related-mtl}
 MCARNN \cite{Liao2018} jointly predicts activity and
 location, and a recent hierarchy-aware model continues the
-pattern \cite{wang2025hamtl}; in both the location target is
+pattern \cite{wang2025hamtl}; in both, the location target is
 the exact place. The closest alternative to our setting is
 the cascade: predict the category first, then the place given the
 category \cite{ye2013nextmove}. CSLSL
@@ -66,21 +67,21 @@ category \cite{ye2013nextmove}. CSLSL
 then where), with location as the headline output and category as an
 instrumental step; CatDM \cite{yu2020catdm} likewise uses category
 instrumentally, to filter candidate places. We instead predict
-category and region in parallel, as co-equal end targets in one model with a
-single forward pass, and we drop the next-place target entirely, so neither task
-is instrumental to a third; a chain would have to promote one co-equal target to
-an upstream stage whose errors the other inherits, an order nothing in the tasks
-dictates. Since the cascade is the pattern the field actually uses, we test the
-choice directly (Section~\ref{sec:results-part2}). On optimization we are deliberately conservative: joint
+category and region in parallel, as end targets of equal standing in one model
+with a single forward pass, and we drop the next-place target entirely, so
+neither task is instrumental to a third; a chain would have to promote one of
+the two targets to an upstream stage whose errors the other inherits, an order
+the tasks do not define. Since the cascade is the pattern that the field uses, we test the
+choice directly (Section~\ref{sec:results-part2}). On optimization, we are conservative by design: joint
 training with a fixed loss weighting is standard practice
 \cite{caruana1997multitask}, not itself our contribution.
 Reports find that gradient-balancing methods, which re-weight
-the tasks' updates on the fly (PCGrad \cite{yu2020pcgrad}, Nash-MTL \cite{navon2022nashmtl}), rarely improve on a
+the tasks' updates during training (PCGrad \cite{yu2020pcgrad}, Nash-MTL \cite{navon2022nashmtl}), rarely improve on a
 well-tuned fixed weighting at two tasks \cite{xin2022domtl}.
-We confirm this: none of the balancers we tried, including the two named
+We confirm this: none of the balancers that we tried, including the two named
 above, improved on a tuned fixed task weighting in our model.
 The reason is visible in the gradients: the next-category and next-region
-updates on the shared layers are near zero-correlated throughout training, so a
+updates on the shared trunk are near zero-correlated throughout training, so a
 balancer has no conflict to resolve, consistent with the mechanism test in
 Section~\ref{sec:results-part2}; this is a finding for this pair of tasks, not a
 general rule.

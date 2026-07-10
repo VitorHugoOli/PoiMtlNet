@@ -6,12 +6,12 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
-We asked whether one model can predict both the category and region of a user's next visit. First, a check-in-level
+We tested whether one model can predict both the category and region of a user's next visit. First, a check-in-level
 representation, one vector per visit rather than one per place, makes the next-category task far more learnable than the standard
-place-level representation does. Second, on that representation, a single multi-task model outperforms a dedicated category model at every dataset and a dedicated region model at four of the six datasets, remaining non-inferior
+place-level representation. Second, on that representation, a single multi-task model outperforms a dedicated category model at every dataset and a dedicated region model at four of the six datasets, remaining non-inferior
 (TOST, $\pm2$~pp) at the other two. One model with a shared semantic context and a private spatial path anticipates both what a user will do next and where. The code for the model, representation,
-baselines, and statistical tests is available at
-\url{https://github.com/VitorHugoOli/PoiMtlNet/tree/mobiwac}; both data sources are already public: the
+baselines, and statistical tests is at
+\url{https://github.com/VitorHugoOli/PoiMtlNet/tree/mobiwac}; both data sources are public: the
 category-annotated Gowalla dump
-(\url{https://figshare.com/articles/dataset/gowalla_data/22126586}) and the
-Massive-STEPS collection~\cite{wongso2025massivesteps}.
+(\url{https://figshare.com/articles/dataset/gowalla_data/22126586}) and
+Massive-STEPS~\cite{wongso2025massivesteps}.
