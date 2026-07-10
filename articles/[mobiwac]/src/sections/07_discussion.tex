@@ -14,13 +14,16 @@ One model is enough. A shared trunk carries the semantic context that lifts the 
 
 As a usage sketch, a service could treat the model's top-ranked next regions as an anticipatory set: at California, a shortlist of ten regions out of 8{,}501 contains the true next region 65.69 percent of the time, more than five hundred times better than
 picking ten at random; at Alabama, ten out of 1{,}109 capture it 69.80 percent
-of the time. On the four datasets we measured (Alabama, Arizona, Florida, and Istanbul; a single seed over five folds), the ten shortlisted regions sit about 3 to 8 kilometers from the shortlist's own center (median across visits, from region centroids). When the top guess is wrong and the true region was seen in training, the predicted region's centroid sits a similar median of about 3 to 8 kilometers from the true region's, (visits to regions never seen in training are rarer and miss by more), while two
+of the time. On the four datasets we measured (Alabama, Arizona, Florida, and Istanbul; a single seed over five folds), the ten shortlisted regions sit about 3 to 8 kilometers from the shortlist's
+own center (medians from region centroids). When the top guess is wrong and the true region was seen in training, the predicted region's centroid sits a similar median of about 3 to 8 kilometers from the true region's (visits to regions never
+seen in training are rarer and miss by more), while two
 randomly drawn regions from the same map sit a median
 of 20 to 241 kilometers apart. This remains motivation, not a measured service result.
 
 Three limits qualify these results. First, the joint numbers at California and Texas come from a single seed over five folds, so those two cells are provisional; the other four datasets average four seeds on both arms. Second, our representation is trained once over all places; visits to places
 never seen during training are the single effect we cannot fully isolate. A planned follow-up trains it on each fold's training places only and embeds unseen visits directly. Third, although a mobility-aware service motivates this work, we do not build or evaluate one.
 
-Finally, our representation is a fixed per-visit vector that any downstream model can consume. Structural analysis of check-in networks has itself named machine
-learning as a next step~\cite{moura2025mobilityaware}; learning over check-in
-structure, as this study does, moves in that direction.
+Finally, our representation is a fixed per-visit vector any downstream model
+can consume; structural analysis of check-in networks has itself named machine
+learning as a next step~\cite{moura2025mobilityaware}, and learning over
+check-in structure moves in that direction.

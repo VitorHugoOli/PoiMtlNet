@@ -24,27 +24,33 @@ The gains fall in two bands, about $+28$ to $+29$ points at the smaller datasets
 A controlled test attributes most of that gain to the per-visit context itself: a per-place-averaged version of the same representation leaves roughly 64 to 90 percent of the gain (state-dependent) to the context each visit carries, not to extra training signal.
 
 The geometry of the vectors shows why the representation helps this task in
-particular: the per-visit vectors' silhouette score by category, a $-1$ to $1$ measure of how tight and well separated the seven labeled groups are, is about $0.57$, against about $0.00$ for the place embedding. Their nearest-neighbor category purity, the share of nearest neighbors carrying the vector's own category, is about $0.98$, against about $0.78$ (both averaged over the five U.S. states). The same geometry does not separate regions, so the benefit is category-only (the joint model's spatial stream instead reads the region-level vectors of the same graph, Section~\ref{sec:method-model}). CTLE~\cite{lin2021ctle}, the closest prior contextual embedding, also gives each visit its own vector, but it pretrains on place identifiers and timestamps alone, so the category vocabulary never enters its training, whereas our graph reads each visit's category and time of day as input features. Fine-tuned end to end at Florida at its authors' defaults, at the same 64 dimensions and windowing as ours, CTLE reaches $33.45$ macro-F1 at its best epoch ($29.69$ at its final one), about two points below the place embedding under the same best-epoch rule and far below our $75.15$; frozen and fed to the same single-task model, it repeats the ordering at Alabama, Arizona, and Istanbul, with margins of $+37.8$, $+37.0$, and $+28.7$ macro-F1. A feature-concat control,
-the place embedding joined with raw per-visit features and fed to the same model,
-does not close the gap either, so the category gain comes from the hierarchical per-visit representation, not from contextualization alone or feature injection.
+particular: the per-visit vectors' silhouette score by category, a $-1$ to $1$ measure of how tight and well separated the seven labeled groups are, is about $0.57$, against about $0.00$ for the place embedding. Their nearest-neighbor category purity, the share of nearest neighbors carrying the vector's own category, is about $0.98$, against about $0.78$ (both averaged over the five U.S. states). The same geometry does not separate regions, so the benefit is category-only (the joint model's spatial stream instead reads the region-level vectors of the same graph, Section~\ref{sec:method-model}). CTLE~\cite{lin2021ctle}, the closest prior contextual embedding, also gives each visit its own vector, but it pretrains on place identifiers and timestamps alone, so the category vocabulary never enters its training, whereas our graph reads each visit's category and time of day as input features. Fine-tuned end to end at Florida at its authors' defaults, at the same 64 dimensions and windowing as ours, CTLE reaches $33.45$ macro-F1 at its best epoch ($29.69$ at its final one), about two points below the place embedding under the same best-epoch rule and far below our $75.15$; frozen and fed to the same single-task model, it repeats the ordering at Alabama, Arizona, and Istanbul, with margins of $+37.8$, $+37.0$, and $+28.7$ macro-F1. A feature-concat control (the place embedding joined with raw per-visit
+features, same model) does not close the gap either, so the gain comes from
+the hierarchical per-visit representation, not from contextualization alone or
+feature injection.
 
 \subsection{One model, two tasks}
 \label{sec:results-part2}
 Read this as: one model outperforms a dedicated next-category model at every
 dataset and outperforms or matches a dedicated next-region model.
-To calibrate the two scales: category macro-F1 spans seven classes (a majority-class floor of about $7\%$); region Acc@10 spans hundreds to thousands of regions, where a random top-ten guess is right at most about two percent of the time (well under one percent at the larger region counts).
+To calibrate the two scales: category macro-F1 spans seven classes (a majority-class floor of about $7\%$); region Acc@10 spans hundreds to thousands of regions, where a random top-ten
+guess is right at most about two percent of the time.
 Table~\ref{tab:results} reports the single joint model against the dedicated
-single-task ceilings, so called because a jointly trained head is usually expected at best to match its dedicated counterpart. Each dedicated category ceiling is tuned per dataset over batch size and learning rate (the region ceilings use the strongest fixed recipe).
-% AUTHOR DECISION 2026-07-09: the rendered best-vs-best epoch disclosure ("each task is scored at
-% its own validation-best epoch...") was REMOVED from the text -- the diag-best-vs-joint-best matter
-% will be handled after notification (J1 lane, see ../J1_JOINT_SCORE_RUNBOOK.md). The response-letter
-% note below stays.
-% Response-letter note (hidden): if a reviewer asks whether ONE served checkpoint can deliver both
-% numbers -- the training run also saves a single joint checkpoint per fold, selected by
-% sqrt(cat macro-F1 x reg Acc@10) on validation (the geom_simple selector, mtl_cv.py; a
-% model-SELECTION scalar only -- it never enters the loss or touches weights; training uses the fixed
-% 0.75/0.25 sum stated in S4.2). Its numbers were not re-scored for the paper and can be provided on
-% request; do NOT claim they match the per-task diagnostic-best cells.
+single-task ceilings (a jointly trained head is usually expected at best to
+match its dedicated counterpart). Each dedicated category ceiling is tuned per dataset over batch size and learning rate (the region ceilings use the strongest fixed recipe).
+Throughout, each task is scored at its own validation-best epoch, under the
+same rule for the joint and dedicated models; a single jointly selected
+checkpoint per fold reproduces every joint cell within $0.06$ (category) and
+$0.11$ (region) points, so no reported verdict depends on reading two epochs.
+% AUTHOR DECISION 2026-07-09 (v2, supersedes the removal earlier the same day): with the J1
+% joint-checkpoint re-score in hand (PR #62, docs/studies/closing_data_v2/ -- served checkpoint
+% reproduces Table 3 within <=0.06 cat / <=0.11 reg, no verdict changes, AL tail risk dead at -0.41,
+% Istanbul thins to +0.19 but wins 20/20 folds), the disclosure went BACK IN as the fused sentence
+% above -- both panels' #1 ask, now a strength. The selector: geom_simple = sqrt(cat F1 x reg
+% Acc@10-indist) on validation, model-SELECTION only (never enters the loss; training uses the fixed
+% 0.75/0.25 sum of S4.2). If a reviewer asks for the joint-checkpoint numbers: cite
+% closing_data_v2/JOINT_BEST_RESULTS.md (category +5.33..+9.35 vs ceilings; region Ist +0.19 /
+% AL -0.41 / AZ -0.00 / FL +0.71 / TX +2.12 / CA +2.20).
 Figure~\ref{fig:deltas} plots the signed gains ordered by region count. On
 category the joint model outperforms the dedicated ceiling at
 every dataset, by $+5.34$ to $+9.40$ macro-F1 (smallest at Florida, largest at
@@ -58,7 +64,10 @@ Arizona, and $+8.59$ at Istanbul).
 On region (Acc@10) the joint model outperforms the dedicated ceiling at Florida $+0.72$ (4{,}703 regions),
 Texas $+2.12$ (6{,}553), California $+2.20$ (8{,}501), and Istanbul $+0.28$
 (520), and stays a non-inferior match (TOST, $\pm2$~pp) at Alabama ($-0.31$)
-and Arizona ($+0.10$). Across the five U.S. states the region gain rises with the number of regions, from $-0.31$ at the smallest to $+2.20$ at the largest. Region count and corpus size co-vary across these datasets, so we read the trend across the points rather than as a precise law.
+and Arizona ($+0.10$). Across the five U.S. states the region gain rises with the number of regions,
+from $-0.31$ at the smallest to $+2.20$ at the largest; region count and
+corpus size co-vary here, so we read the trend across the points rather than
+as a precise law.
 
 Four of the six datasets are measured at $n{=}20$ on both arms: Alabama,
 Arizona, Florida, and Istanbul average four seeds over the same five frozen
@@ -116,7 +125,8 @@ joint model outperforms the dedicated category ceiling by $+8.59$ macro-F1
 Acc@10 ($75.16$ to $75.44$), a statistically supported gain (the 90\%
 confidence interval of the paired difference lies entirely above zero; it also
 passes the non-inferiority test, TOST, $\pm2$~pp); both arms average four seeds
-($n{=}20$). The comparable quantity is the lift over the dedicated ceiling, not the absolute Acc@10, since region counts differ across datasets (520 mahalle here). The external baselines line up the same way: on category the joint model is far above the Markov
+($n{=}20$). The comparable quantity is the lift over the ceiling, not the absolute
+Acc@10, since region counts differ across datasets (520 mahalle here). The external baselines line up the same way: on category the joint model is far above the Markov
 floor ($24.55$) and POI-RGNN~\cite{capanema2023poirgnn} ($30.12$), and on
 region it is above ReHDM~\cite{li2025rehdm} ($69.33$), a faithful
 STAN~\cite{luo2021stan} ($61.86$), and HMT-GRN~\cite{lim2022hmtgrn} ($60.4$).
