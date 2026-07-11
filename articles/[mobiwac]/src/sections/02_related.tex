@@ -44,7 +44,7 @@ literature, with a grid cell as the target~\cite{luca2021mobilitysurvey}; our
 next-region task substitutes official neighborhood-scale units for grid cells. Our earlier
 work~\cite{silva2025mtlnet} established this two-task setup and observed
 negative transfer (sharing hurt one task); this paper adds the check-in-level
-representation, on which the transfer reverses (Section~\ref{sec:results-part2}). The field
+representation, on which sharing helps instead of hurting (Section~\ref{sec:results-part2}). The field
 increasingly models several granularities at once; in those systems, category and
 region are auxiliary signals that help a primary next-place task
 (MCMG \cite{sun2024mcmg}, HMT-GRN \cite{lim2022hmtgrn}).
@@ -83,7 +83,7 @@ the tasks' updates during training (PCGrad \cite{yu2020pcgrad}, Nash-MTL \cite{n
 well-tuned fixed weighting at two tasks \cite{xin2022domtl}.
 We confirm this: none of the balancers that we tried, including the two named
 above, improved on a tuned fixed task weighting in our model.
-The reason is visible in the gradients: the next-category and next-region
+The reason is visible in the gradients (measured during development, not shown): the next-category and next-region
 updates on the shared trunk are near zero-correlated throughout training, so a
 balancer has no conflict to resolve, consistent with the mechanism test in
 Section~\ref{sec:results-part2}; this is a finding for this pair of tasks, not a

@@ -8,5 +8,5 @@
 
 We tested whether one model can predict both the category and region of a user's next visit. First, a check-in-level
 representation, one vector per visit rather than one per place, makes the next-category task far more learnable than the standard
-place-level one. Second, on that representation, a single multi-task model outperforms a dedicated category model at every dataset and a dedicated region model at four of the six datasets, remaining non-inferior
+place-level one. Second, on that representation, a single multi-task model outperforms a dedicated category model at every dataset and a dedicated region model at four of the six datasets, its gain rising with region count, remaining non-inferior
 (TOST, $\pm2$~pp) at the other two. One model with a shared semantic context and a private spatial path anticipates both what a user will do next and where.

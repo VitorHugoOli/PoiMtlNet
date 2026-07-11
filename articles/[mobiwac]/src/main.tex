@@ -71,12 +71,12 @@ context, instead of giving every place one fixed vector. Across six datasets,
 five U.S. states and one non-U.S. city (Istanbul), this lifts next-category
 prediction over a standard
 place embedding (about $+28$ to $+40$ macro-averaged F1),
-and most of the gain comes from the per-visit context. We then train one
+and most of the gain comes from the per-visit context, not from extra training signal. We then train one
 multi-task model for both tasks. At every dataset, it outperforms a dedicated
 category model (about $+5$ to $+9$ macro-F1), and on the next-region task it outperforms the dedicated region model
 at four of the six datasets, while matching it (statistically, within two points)
 at the other two. Across the five U.S. states, the gain on region grows with
-the number of regions. On the non-U.S. city, the result holds: the joint model
+the number of regions. On the non-U.S. city too, the joint model
 outperforms on category and is slightly ahead on region.
 \end{abstract}
 
@@ -107,7 +107,7 @@ feed a single model that outputs the next category and the next region.}
 \resizebox{\columnwidth}{!}{\input{figs/fig2_model}}
 \caption{The single multi-task model. A check-in (semantic) window and a region (spatial) window
 pass through private encoders into the shared trunk, the only place where the two tasks
-interact. The category output uses the shared output alone; the region output
+interact. The category output uses the trunk's output alone; the region output
 combines it with a private spatial path. One model, one forward pass, two predictions.}
 \label{fig:model}
 \end{figure}        % Fig 2: the single model, dual-tower + cross-attention (section 4.2)
