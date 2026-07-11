@@ -46,8 +46,11 @@
 > **mixed**: the joint model **outperforms** at **Istanbul, Florida, Texas, and California** (the 90% CI of the
 > paired difference lies entirely above zero; CA/TX on the provisional seed-0 fold footing) and
 > **matches** (non-inferior, TOST) at **Alabama and Arizona**. **NEVER upgrade Arizona to a gain** (+0.10, CI
-> grazes zero, supplementary p=0.049 — the stats doc forbids it). CA/TX joint cells are single-seed
-> provisional until A1 lands. The scaling claim ("region gain rises with region count") is scoped to the
+> grazes zero, supplementary p=0.049 — the stats doc forbids it). CA/TX joint cells are a **single seed over
+> five folds** — say exactly that in the paper; **the word "provisional" is NOT used in the paper** (author
+> ruling 2026-07-10: it over-hedges a clean, pre-registered 5-fold result and invites confusion; the
+> single-seed disclosure + Table III's $^{\circ}$ marker + §6.2's "more seeds … remaining confirmation"
+> sentence carry the honesty; "provisional" stays internal-only until A1/P1 lands). The scaling claim ("region gain rises with region count") is scoped to the
 > **five U.S. states**; Istanbul (fewest regions) is positive and sits off that trend line — never state the
 > monotone claim across all six. **The superiority verb is "outperforms"** (never "beats" / "wins");
 > "matches" / "non-inferior (TOST)" is the equivalence verb. Keep each verb bound to its test. The full form **"statistically
@@ -164,11 +167,11 @@ v11–v16, champion-G, H3-alt; write "our model"), `log_T` (write "region-transi
 - [ ] Every acronym expanded on first use; acronym count as low as possible.
 - [ ] **category / region** used throughout; never "activity" / "area".
 - [ ] **next category / next region / next place** kept distinct; "we do not predict the exact next place" stated once.
-- [ ] Region wording (v17 board): "outperforms" at Istanbul/FL/TX/CA (CA/TX provisional) and "matches /
-  non-inferior within two points" at AL/AZ — never upgrade AZ; the scaling claim scoped to the five U.S.
-  states; the formal "statistically non-inferior within a two-point margin (TOST)" appears at least once;
-  never "ties", "Pareto", or "outperforms region everywhere". The superiority verb is
-  "outperforms", never "beats" / "wins".
+- [ ] Region wording (v17 board): "outperforms" at Istanbul/FL/TX/CA (CA/TX disclosed as a single seed over
+  five folds; the word "provisional" at zero in the paper) and "matches / non-inferior within two points" at
+  AL/AZ — never upgrade AZ; the scaling claim scoped to the five U.S. states; the formal "statistically
+  non-inferior within a two-point margin (TOST)" appears at least once; never "ties", "Pareto", or
+  "outperforms region everywhere". The superiority verb is "outperforms", never "beats" / "wins".
 - [ ] No recipe or version codenames anywhere.
 - [ ] No bare "substrate / engine / head / cross-attention"; replaced or glossed.
 - [ ] Every table has a lead takeaway sentence (a normal sentence; the literal "Read this as:" tag at zero).
