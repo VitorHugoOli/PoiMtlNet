@@ -391,3 +391,15 @@ CA 58.52 (folds 0–1)**, fold counts disclosed wherever cited. Defensible: the 
 the missing folds can't flip the sandwich. The "STAN infeasible at CA/TX" footnote is DROPPED (n-folds disclosure
 replaces it). Remaining 4 folds = optional post-deadline robustness. Docs flipped: `stan.md` + `comparison.md`
 (cells filled), RESULTS_BOARD §4, stan_catx/STATUS.md, v17_completion README + A40 queue (~10 h freed for A1).
+
+## 2026-07-11 — A1 DONE (CA/TX v17 MTL n=20) → v17 board COMPLETE
+
+**A1 (ex-H1) finished on the A40** (the H100 lane was retired) — CA/TX v17 MTL n=20, seeds {1,7,100} × 5f, 1-wide
+fp32, resumable. 6/6 cells: **CA cat 77.052 ±0.006 / reg 65.693 ±0.017 · TX cat 77.239 ±0.014 / reg 67.062 ±0.007**
+(`docs/results/closing_data/catx_v17_n20/`). The n=20 **CONFIRMS** the seed-0 values within <0.13 pp (cross-seed
+σ ≤ 0.017) — the "MTL beats both STL ceilings at CA/TX" verdict now holds at full n=20 (Δcat +6.45/+7.45,
+Δreg +2.20/+2.11 vs the n=20 ceilings). **Every v17 board cell is now n=20 — the board is complete.** Folded into
+`CEILINGS_N20_FINAL.md`, `RESULTS_BOARD §1`, `catx_v17_seed0_5f/RESULTS.md`, `v17_completion/A40.md` (commits
+`8bf2a55`, `b766a3d`). M1-full is now unblocked at all 6 (remaining: re-run `m1_stats_n20.py` on the CA/TX n=20
+per-fold; verdicts not expected to move). The still-pending CPU item is the CA/TX *joint-best* n=20 re-score
+(closing_data_v2 task T6).

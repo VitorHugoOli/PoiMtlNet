@@ -20,7 +20,10 @@ numerically negligible for these well-converged v17 runs (every joint epoch land
 
 Category = macro-F1, region = Acc@10 (FULL = top10_acc_indist·(1−ood_frac)). "Dedicated" = the n=20 best-vs-best
 single-task ceiling (`CEILINGS_N20_FINAL.md`, unchanged). n=20 = 4 seeds {0,1,7,100}×5f (± cross-seed sd);
-CA/TX = seed-0 ×5f provisional (± fold sd).
+CA/TX = seed-0 ×5f (± fold sd) for this joint-best re-score — the n=20 *joint-best* pass is task T6 (CPU, now
+unblocked: **A1, the CA/TX v17 MTL n=20 GPU top-up, completed 2026-07-11 on the A40**; the n=20 diag-best confirms
+these seed-0 values within <0.13 pp — CA cat 77.052 / reg 65.693, TX cat 77.239 / reg 67.062,
+`docs/results/closing_data/catx_v17_n20/`).
 
 ### Next-category (macro-F1)
 | Dataset | Regions | Dedicated | Joint **diag-best** | Joint **joint-best (deploy)** | Δdeploy−diag |
@@ -96,9 +99,10 @@ see [`AUDIT.md`](AUDIT.md).
 - **Recommended camera-ready action** (author's call): either (a) keep Table 3 as diag-best and add one sentence
   in §6.2 — "the single served checkpoint reproduces these cells within 0.1 pp (deployable joint-best,
   `geom_simple` selector)"; or (b) add a joint-best row/column. Numbers for both are here.
-- **What must travel with these numbers:** always name the convention; the CA/TX cells are seed-0 provisional
-  (T6, blocked on A1 n=20); the Istanbul region superiority stat wants a joint-best re-run (T7); AL/AZ region are
-  *matches*, never beats.
+- **What must travel with these numbers:** always name the convention; the CA/TX cells here are the seed-0
+  ×5f joint-best re-score (the n=20 *joint-best* pass is T6, CPU-only and still pending — but A1, the GPU top-up,
+  is done 2026-07-11 and the n=20 diag-best confirms these seed-0 values within <0.13 pp); the Istanbul region
+  superiority stat wants a joint-best re-run (T7); AL/AZ region are *matches*, never beats.
 
 ## Files
 - `data/j1_results.json` — per-run + per-cell machine-readable results (incl. per-fold arrays, epochs, audits).
