@@ -10,14 +10,13 @@
 \section{Discussion and Limitations}
 \label{sec:discussion}
 
-One model serves both tasks: a shared trunk carries the semantic context that lifts the next-category task over a dedicated model at every dataset, and a private spatial path keeps the next-region task competitive, a non-inferior match (TOST, $\pm2$~pp) at the two small U.S. states and a tested gain at the other four datasets. Across the five U.S. states, the region gain rises with the number of regions (Figure~\ref{fig:deltas}). The joint model matches or outperforms the dedicated single-task model on
-both tasks (Table~\ref{tab:results}).
+One model serves both tasks: a shared trunk carries the semantic context that lifts the next-category task over a dedicated model at every dataset, and a private spatial path keeps the next-region task competitive, a non-inferior match (TOST, $\pm2$~pp) at the two small U.S. states and a tested gain at the other four datasets (Table~\ref{tab:results}). Across the five U.S. states, the region gain rises with the number of regions (Figure~\ref{fig:deltas}).
 
 A service could treat the model's top-ranked next regions as an anticipatory
 set: at California, ten regions of 8{,}501 contain the true next region 65.69
 percent of the time, over 500 times better than picking ten at
-random. On four datasets (Alabama, Arizona, Florida, and Istanbul; this analysis uses a single seed over five folds), the ten shortlisted regions sit a median 3 to 8 kilometers from the shortlist's
-center, against 20 to 241 kilometers for two regions drawn at random. This remains motivation, not a measured service result.
+random. On four datasets (Alabama, Arizona, Florida, and Istanbul; this analysis uses a single seed over five folds), the ten shortlisted regions lie a median of 3 to 8 kilometers from the shortlist's
+center (region centroids), against 20 to 241 kilometers for two regions drawn at random. This remains motivation, not a measured service result.
 
 Three limits qualify these results. First, the joint numbers at California and Texas use a single seed over five folds, while the other four datasets average four seeds for both models. Second, our representation is trained once over all places; visits to places
 never seen during training are the single effect that we cannot fully isolate. A planned follow-up trains it on each fold's training places only and embeds unseen visits. Third, although a mobility-aware service motivates this work, we do not build or evaluate one.

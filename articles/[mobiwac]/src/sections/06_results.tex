@@ -21,7 +21,7 @@ at California, and $+37.47$ at Texas. The same holds on Istanbul ($+28.09$),
 so the gains fall in two bands: about $+28$ to $+29$ points at the smaller datasets
 and about $+37$ to $+40$ at the three large states.
 % (band endpoints: AZ +27.63 rounds to +28, AL +29.31; Istanbul +28.09 -- "about" carries the rounding)
-A controlled test isolates this: averaging the per-visit vectors into one vector per place removes roughly 64 to 90 percent of the gain (state-dependent), so most comes from the context each visit carries, not from extra training signal.
+A controlled test isolates this: averaging the per-visit vectors into one vector per place removes roughly 64 to 90 percent of the gain (state-dependent), so most comes from the context that each visit carries, not from extra training signal.
 
 The geometry of the vectors shows why the representation helps this task in
 particular: the per-visit vectors' silhouette score by category, a $-1$ to $1$ measure of how tight and well separated the seven labeled groups are, is about $0.57$, against about $0.00$ for the place embedding. Their nearest-neighbor category purity, the share of nearest neighbors with the vector's own category, is about $0.98$, against about $0.78$ (both averaged over the five U.S. states). The same geometry does not separate regions, so the benefit is category-only (the joint model's spatial stream instead reads the region-level vectors of the same graph, Section~\ref{sec:method-model}). CTLE~\cite{lin2021ctle}, the closest prior contextual embedding, also gives each visit its own vector, but it pretrains on place identifiers and timestamps alone, so the category vocabulary never enters its training, whereas our graph reads each visit's category and time of day as input features. Fine-tuned together with the task model at Florida at its authors' defaults, at the same 64 dimensions and windowing as ours, CTLE reaches $33.45$ macro-F1 at its best epoch and $29.69$ at its final one (an epoch is one pass over the training data), about two points below the place embedding under the same best-epoch rule and below our $75.15$; frozen and fed to the same single-task model, it repeats the ordering at Alabama, Arizona, and Istanbul, with gaps of $+37.8$, $+37.0$, and $+28.7$ macro-F1. A feature-concat control (the place embedding joined with raw per-visit
@@ -121,8 +121,8 @@ its form was fixed in advance, so tuning the cascade itself remains future work.
 \label{sec:results-external}
 The finding holds on a non-U.S. city under the same representation, sliding-window protocol, and training setup as the U.S. states. On Istanbul, the
 joint model outperforms the dedicated category ceiling by $+8.59$ macro-F1
-($54.74$ vs $63.33$) and is slightly above the dedicated region ceiling at $+0.28$
-Acc@10 ($75.16$ vs $75.44$), a gain with statistical support (the whole 90\% confidence interval of the paired
+($54.74$ versus $63.33$) and is slightly above the dedicated region ceiling at $+0.28$
+Acc@10 ($75.16$ versus $75.44$), a gain with statistical support (the whole 90\% confidence interval of the paired
 difference lies above zero, and TOST, $\pm2$~pp, also passes); both
 models average four seeds over five folds. The comparable quantity is the gain over the ceiling, not the absolute
 Acc@10, since region counts differ across datasets (520 mahalle here). The external baselines show the same ordering: on category, the joint model is above the Markov
