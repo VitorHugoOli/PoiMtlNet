@@ -1,4 +1,29 @@
-# M1-PARTIAL — v17 pre-registered stats vs the n=20 best-vs-best ceilings (2026-07-08, rev 3)
+# M1-FULL — v17 pre-registered stats vs the n=20 best-vs-best ceilings (rev 4, 2026-07-13)
+
+> ✅ **M1-FULL (rev 4, 2026-07-13) — A1 landed CA/TX v17 MTL n=20 (2026-07-11); the pre-registered
+> 6-dataset family Holm now runs.** Re-run `m1_stats_n20.py` (§5 appended; full log `m1_full_output.txt`).
+> All artifact→board reproduction gates pass, incl. the new CA/TX n=20 (CA cat 77.052/reg 65.693,
+> TX cat 77.239/reg 67.062). **Result — the 6-dataset cat-superiority family Holm ALL REJECT @ α=0.05:**
+>
+> | dataset | Δcat (pp) | paired t(3) p | Holm-adj (m=6) | reject |
+> |---|---:|---:|---:|:--:|
+> | AL | +7.73 | 4.5e-07 | 8.9e-07 | ✅ |
+> | AZ | +9.40 | 2.1e-07 | 8.9e-07 | ✅ |
+> | FL | +5.34 | 4.2e-09 | 2.5e-08 | ✅ |
+> | Istanbul | +8.59 | 1.8e-07 | 8.9e-07 | ✅ |
+> | **CA** | **+6.45** (4/4) | 3.8e-07 | 8.9e-07 | ✅ |
+> | **TX** | **+7.45** (4/4) | 2.5e-07 | 8.9e-07 | ✅ |
+>
+> **MTL beats the dedicated category ceiling at every dataset** (Holm-adj ≤ 8.9e-07). Reg (per-axis δ=2 pp):
+> matches at AL/AZ, **beats** at FL/CA/TX/Istanbul — CA reg Δ+2.20 (90% CI +2.193…+2.215, entirely above +δ;
+> superiority t(3) p=1.0e-08), TX reg Δ+2.11 (superiority t(3) p=1.4e-07). The n=20 **CONFIRMS** the seed-0
+> provisional verdicts (§3) — **no verdict changed.** The seed-level test is n=4-paired (per protocol §8's
+> powered-t deviation; the exact-Wilcoxon floor is 0.0625 at n=4). The PROVISIONAL/M1-PARTIAL material below is
+> retained for the record.
+
+---
+
+## (superseded) M1-PARTIAL — rev 3, 2026-07-08
 
 > ⚠ **This is M1-PARTIAL.** The fully-n=20 family covers **AL, AZ, FL, Istanbul** (ceilings per
 > [`../CEILINGS_N20_FINAL.md`](../CEILINGS_N20_FINAL.md), **AZ ceiling = 56.43, the corrected
