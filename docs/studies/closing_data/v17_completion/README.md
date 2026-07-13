@@ -8,20 +8,20 @@
 
 ## Where v17 stands (what's DONE)
 - **v17 MTL n=20 at AL / AZ / FL** — DONE (`../perhead_lr_n20.md`): AL 64.54 / 69.80, AZ 65.84 / 59.56, FL 79.85 / 77.42.
-- **v17 MTL seed-0 5f at CA / TX** — DONE (`../catx_v17_seed0_5f/RESULTS.md`, fp32): CA 77.04 / 65.69, TX 77.23 / 67.07.
+- **v17 MTL n=20 at CA / TX** — ✅ **DONE 2026-07-11 (A1)** (`catx_v17_seed0_5f/RESULTS.md` + `docs/results/closing_data/catx_v17_n20/`, fp32): CA 77.052±0.006 / 65.693±0.017, TX 77.239±0.014 / 67.062±0.007 — n=20 confirms seed-0.
   **Finding: v17's cat lever is a STATE-SIZE trade** — wins small/mid (+0.2…+2.5), costs ~0.28 cat at CA/TX (real, not
   a bf16 artifact — TX board is fp32), reg-neutral+ everywhere. Kept board-wide.
 - **STL cat + reg ceilings (n=20, best-vs-best)** — ✅ **DONE 2026-07-03 (AZ corrected 2026-07-08), 5 Gowalla states →
   [`CEILINGS_N20_FINAL.md`](CEILINGS_N20_FINAL.md).**
   Cat re-tuned best-vs-best (per-state max: AL `bs2048@0.005`; AZ/FL/CA/TX `bs8192@0.005`); reg topped up to n=20.
-  Δcat = AL +7.72 / **AZ +9.40** / FL +5.34 / CA +6.44 / TX +7.44 (MTL beats cat ceiling everywhere).
-  Δreg = AL −0.31 / AZ +0.10 / FL +0.72 / CA +2.20 / TX +2.12 (matches small, beats large).
+  Δcat = AL +7.72 / **AZ +9.40** / FL +5.34 / CA +6.45 / TX +7.45 (MTL beats cat ceiling everywhere; CA/TX now n=20).
+  Δreg = AL −0.31 / AZ +0.10 / FL +0.72 / CA +2.20 / TX +2.11 (matches small, beats large; CA/TX now n=20).
   ⚠ AZ correction: the published 56.24 wasn't the per-state max — the n=20 `bs8192@0.005` arm is 56.43 (Δ +9.40, not
   +9.60); two higher n=10 screens (57.04/56.93) pending a cheap top-up (see A1-az in the A40 queue). **Istanbul: done via H3 (below).**
   > Prior audit note (kept for the record): the *old* `dk_ovl` board reg ceiling was seed-0 (n=5), not n=20 — the
   > "already n=20" claim conflated it with the v14 substrate (~9 pp different). Now genuinely n=20 on `dk_ovl`; reg is
   > seed-invariant (n=20 vs seed-0 diff < 0.13 pp), so the seed-0 verdict was correct — the top-up just makes the paired
-  > test rigorous. (MTL cat/reg at CA/TX are still seed-0 pending H1 — the ceilings are n=20.)
+  > test rigorous. (MTL cat/reg at CA/TX are now **n=20** too — A1 done 2026-07-11; the ceilings were already n=20.)
 - **H3 · Istanbul rebuilt on `dk_ovl` + v17 (n=20)** — ✅ **DONE 2026-07-06 → [`h3_istanbul/RESULTS.md`](h3_istanbul/RESULTS.md).**
   Same substrate identity as the 5 Gowalla states (cross-substrate caveat RETIRED). **Δcat +8.59 / Δreg +0.28 — beats
   BOTH** (reg flips positive vs the old stride-1-GCN base's −0.52). Baselines re-footed: CTLE-SC +28.73 / HGI +28.09 hold.
@@ -43,7 +43,7 @@
 
 | ID | Run / analysis | Machine | Status | Cost | Blocks |
 |----|---|---|---|---|---|
-| **A1 (ex-H1)** | **CA/TX v17 MTL n=20, seeds {1,7,100}** — MIGRATED from the H100 (lane gone) | **A40** | open, **top priority** | fp32 serial ~4.4–6.3 h/cell → ~1.5 d for 6 cells (proven by the seed-0 run) | large-state Δcat significance → M1 |
+| **A1 (ex-H1)** | **CA/TX v17 MTL n=20, seeds {1,7,100}** — MIGRATED from the H100 (lane gone) | **A40** | ✅ **DONE 2026-07-11** (`catx_v17_n20/`: CA 77.052/65.693, TX 77.239/67.062; n=20 confirms seed-0) | fp32 serial ~4.9/6.3 h/cell, 6 cells | firmed the large-state Δ → **M1-full** unblocked (re-run `m1_stats_n20.py`) |
 | **A1-az** | AZ cat-ceiling screen top-up: `bs2048@{0.0025,0.0075}` × seeds {7,100} | A40 | **DROPPED (user 2026-07-08; see A40.md)** — AZ ceiling stays 56.43/Δ+9.40; the paper carries a visible sensitivity clause (§6.2) | — | — |
 | **A2** | ReHDM v4: **CA/TX 🔄 RUNNING** (~22 h, resumable) + **AZ/FL v4 re-run** (version-uniform row; AL done 65.38) | A40 | running / open | AZ/FL ≈ ~25–60 min/state | ReHDM paper row (v4-uniform) |
 | **A3** | Faithful STAN CA/TX | A40 | ✅ **CLOSED-AS-PARTIAL** (user 2026-07-08): TX 61.67 (4/5) / CA 58.52 (2/5) = citable-final, fold counts disclosed | 0 h (remaining folds optional post-deadline) | Table-3 cells FILL NOW with the n-folds footnote |
