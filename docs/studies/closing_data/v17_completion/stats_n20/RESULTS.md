@@ -86,7 +86,15 @@ cannot clear α until the per-fold n=20 vectors land).
    correction is reported on the t p-values; all four reject at FWER 0.05 (smallest margin: adj
    p = 5.3e-07).
 
-## 1b · CA / TX — **PROVISIONAL n=5 (seed-0, per-fold paired; superseded by A1's n=20)**
+## 1b · CA / TX — seed-0 paired analysis (✅ **A1 n=20 now COMPLETE — supersede via M1-full re-run**)
+
+> ✅ **A1 DONE 2026-07-11** — CA/TX v17 MTL is now **n=20** (`docs/results/closing_data/catx_v17_n20/`; means
+> CA cat 77.052 ±0.006 / reg 65.693 ±0.017, TX cat 77.239 ±0.014 / reg 67.062 ±0.007). The n=20 **confirms** the
+> provisional seed-0 verdicts below with tight cross-seed variance (all four cells still beat their n=20 ceilings:
+> CA +6.45/+2.20, TX +7.45/+2.11). **The seed-0 paired tests below are retained as the provisional footing; the
+> M1-FULL step is to re-run `m1_stats_n20.py` on the CA/TX n=20 per-fold vectors** (now extractable from the A1
+> rundirs) so the 6-dataset family Holm runs at full n=20 and the PROVISIONAL/M1-PARTIAL banners lift. The verdicts
+> are not expected to move (the n=20 means match seed-0 to <0.13 pp).
 
 **Footing (state it precisely):** the **cited ceiling means stay the n=20 values** (CA cat 70.60 /
 reg 63.49; TX cat 69.79 / reg 64.95 — `CEILINGS_N20_FINAL.md`); the **paired tests below use the
@@ -117,11 +125,11 @@ mean while the paired vectors are seed-0 (seed-0 ceiling ≈ +0.12/+0.13 above t
 
 ## 2 · LIMITS (honest gaps — read before citing)
 
-1. **CA/TX are PROVISIONAL (n=5, seed-0 MTL side)** — the v17 MTL n=20 top-up is **A1** on the A40
-   (`../A40.md`); seed 0 is a single-seed footing (development-seed caveats apply; the CA/TX STL
-   **ceilings** are n=20 and seed-invariant, so the provisional risk sits on the MTL side only).
-   The 6-dataset family Holm (protocol §5.2) re-runs after A1. Until then every verdict here
-   carries the M1-PARTIAL banner and the §1b cells carry PROVISIONAL.
+1. **CA/TX MTL n=20 is now DONE (A1, 2026-07-11)** — the provisional risk that sat on the seed-0 MTL
+   side is resolved: n=20 means confirm seed-0 to <0.13 pp (CA cat 77.052/reg 65.693, TX cat 77.239/
+   reg 67.062). ⏳ **Remaining (M1-full compute, not a doc edit):** re-run `m1_stats_n20.py` on the CA/TX
+   n=20 per-fold vectors (extract from the A1 rundirs) → the 6-dataset family Holm at full n=20, which
+   **lifts the M1-PARTIAL banner + the §1b PROVISIONAL labels**. Verdicts not expected to move.
 2. **All §1 cells are seed-level (n=4), not per-fold (n=20).** Still missing from the committed tree
    (A40 gitignored rundirs):
    - AL/AZ/FL: the per-PID `a40_score_matched.py` sidecar JSONs (tags `n20ph_{state}_{recipe}_s{seed}`,

@@ -19,12 +19,12 @@
 | AL | 56.82 ±0.03 | 64.54 | **+7.72** ✅beats | 70.11 | 69.80 | **−0.31** ≈matches |
 | AZ | 56.43 ±0.10 † | 65.83 | **+9.40** ✅beats † | 59.46 | 59.56 | **+0.10** ≈matches |
 | FL | 74.51 ±0.03 | 79.85 | **+5.34** ✅beats | 76.70 | 77.42 | **+0.72** ✅beats |
-| CA | 70.60 ±0.07 | 77.04 | **+6.44** ✅beats | 63.49 | 65.69 | **+2.20** ✅beats |
-| TX | 69.79 ±0.08 | 77.23 | **+7.44** ✅beats | 64.95 | 67.07 | **+2.12** ✅beats |
+| CA | 70.60 ±0.07 | 77.05 | **+6.45** ✅beats | 63.49 | 65.69 | **+2.20** ✅beats |
+| TX | 69.79 ±0.08 | 77.24 | **+7.45** ✅beats | 64.95 | 67.06 | **+2.11** ✅beats |
 | Istanbul | 54.74 ±0.09 | 63.33 | **+8.59** ✅beats | 75.16 | 75.44 | **+0.28** ✅beats |
 
 **Story:** MTL beats the dedicated **category** ceiling at every state (+5.3 … +9.4 pp); **matches** the region ceiling at
-the small US states (AL −0.31, AZ +0.10, within δ=2 pp) and **beats** it at the larger ones (FL +0.72, CA +2.20, TX +2.12)
+the small US states (AL −0.31, AZ +0.10, within δ=2 pp) and **beats** it at the larger ones (FL +0.72, CA +2.20, TX +2.11)
 **and at Istanbul** (+0.28, non-US corpus, 520 mahalle — H3 dk_ovl+v17 rebuild; see `h3_istanbul/RESULTS.md`).
 
 > **Istanbul (added 2026-07-06, H3)** is v17 n=20 on the **rebuilt `dk_ovl` substrate** (v14/design_k re-windowed at
@@ -32,8 +32,11 @@ the small US states (AL −0.31, AZ +0.10, within δ=2 pp) and **beats** it at t
 > cross-substrate caveat is retired. Cat ceiling = small-state recipe bs2048@0.005; the rebuild lifted both heads vs the
 > old base (cat +6.69→+8.59, reg −0.52→+0.28).
 
-> ⚠ MTL cat/reg are n=20 at AL/AZ/FL (`perhead_lr_n20.md`) but **seed-0 (n=5) at CA/TX** (`catx_v17_seed0_5f`, fp32) —
-> the H1/H100 top-up ({1,7,100}) firms the large-state Δ significance. The **ceilings** here ARE n=20 at all 5 states.
+> ✅ **MTL cat/reg are now n=20 at ALL states** — CA/TX completed 2026-07-11 (A1 on the A40, `{1,7,100}` top-up;
+> per-cell scores `docs/results/closing_data/catx_v17_n20/`). The n=20 **confirms** the seed-0 values with tight
+> variance (CA cat 77.052 ±0.006 / reg 65.693 ±0.017; TX cat 77.239 ±0.014 / reg 67.062 ±0.007), so the CA/TX Δs
+> are now n=20-vs-n=20 (the seed-0 asterisks are dropped). Ceilings were already n=20 at all states. **The v17 board
+> is complete.**
 
 ## Category ceiling — recipe (best-vs-best, state-size-dependent)
 
@@ -65,4 +68,4 @@ verdict was correct; this makes the paired test rigorous.
 ## Provenance
 - cat: `cat_ceiling_sweep/{sweep.sh,aggregate.py,sweep_results/}` · driver logs `cat_ceiling_sweep/DRIVER.log`
 - reg: `reg_topup/{finalize_reg.sh,DRIVER.log}` · values `docs/results/closing_data/reg_ceiling_n20/`
-- MTL cat/reg: `perhead_lr_n20.md` (AL/AZ/FL n=20) · `catx_v17_seed0_5f/RESULTS.md` (CA/TX seed-0)
+- MTL cat/reg: `perhead_lr_n20.md` (AL/AZ/FL n=20) · `catx_v17_seed0_5f/RESULTS.md` + `docs/results/closing_data/catx_v17_n20/` (CA/TX n=20, A1 complete 2026-07-11)
