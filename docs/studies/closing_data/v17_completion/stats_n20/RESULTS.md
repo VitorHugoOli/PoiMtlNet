@@ -40,7 +40,7 @@
 > Wilcoxon floor 0.0312) — both sides have committed per-fold seed-0 vectors. Superseded by A1's
 > n=20; NOT folded into the m=4 Holm family (§1b).
 >
-> Pre-registration: [`../../STATISTICAL_PROTOCOL.md`](../../STATISTICAL_PROTOCOL.md) (§2 cat
+> Pre-registration: [`../../v17_completion/STATISTICAL_PROTOCOL.md`](../../v17_completion/STATISTICAL_PROTOCOL.md) (§2 cat
 > superiority → paired one-sided Wilcoxon; §3 reg → TOST non-inferiority at **δ_reg = 2 pp**;
 > §4 pairing discipline; §5.2 Holm on the cat family only; §8 deviation log). Test conventions
 > mirror `scripts/closing_data/superiority_wilcoxon.py` + `region_match_tost.py`.

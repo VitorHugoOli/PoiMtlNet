@@ -46,7 +46,7 @@ This catalogues the candidate **quality** improvements surfaced — and delibera
 ### A1 — Make true-fp32 the MTL default board-wide *(real_quality_lever — ADOPT)*
 - **Change:** Extend `_auto_fp32_for_large_c` (currently C>2000, `mtl_cv.py:1044-1057`) to small states too, or set `MTL_DISABLE_AMP=1` for all MTL board cells. No new code (env var exists).
 - **Why:** MTL trains under **fp16 autocast with NO GradScaler** (`mtl_cv.py:1178-1208`; only NashMTL backward is fp32). The STL reg ceiling (`p1_region_head_ablation.py:83`) was **always true-fp32** → the original "MTL sacrifices reg" Δreg was an **fp16-MTL-vs-fp32-ceiling mismatch**, a correctness artifact, not a real gap.
-- **Evidence:** Measured on champion-G (dk_ovl, seed0, 5f gated overlap): `CA_MTL_DIVERGENCE.md:128-166` (AL 69.60→69.80, FL fold-1 77.71 > ceiling 76.71, cat unchanged 63.44→63.48); `BOARD_H100_FINDINGS.md:86-94` (AL/AZ/FL fp32 cells beat both FL ceilings); `RESULTS_BOARD.md:104-107` (bf16≈fp32). Cat is precision-insensitive.
+- **Evidence:** Measured on champion-G (dk_ovl, seed0, 5f gated overlap): `../closing_data/archive/lessons/CA_MTL_DIVERGENCE.md:128-166` (AL 69.60→69.80, FL fold-1 77.71 > ceiling 76.71, cat unchanged 63.44→63.48); `BOARD_H100_FINDINGS.md:86-94` (AL/AZ/FL fp32 cells beat both FL ceilings); `RESULTS_BOARD.md:104-107` (bf16≈fp32). Cat is precision-insensitive.
 - **Gate:** Full-5f **multi-seed {0,1,7,100} A/B** at FL + CA (the reversal is currently single-fold seed-0) before claiming gap-reversal; AL retains a real −0.18 residual (closes, not erases). Re-baseline scope = **MTL cells only** (STL ceilings already fp32 and stand).
 - **Effort:** medium (re-gate MTL cells × states × seeds; A40-feasible per-state).
 
@@ -69,7 +69,7 @@ These genuinely helped a *different* regime (single-pathway / small states) and 
 - **Effort:** medium.
 
 ### B3 — Faithful-STAN geometric matching layer in the MTL reg head *(contested)*
-- **Change:** Bring STAN's faithful geometric matching layer into the reg tower. **Do NOT** touch sequence construction (prefix-expansion decouples reg seqs from shared windowing → breaks the W6 +4.6…+7.6 pp cat lift, `W6_ENCODER_ISOLATION.md`).
+- **Change:** Bring STAN's faithful geometric matching layer into the reg tower. **Do NOT** touch sequence construction (prefix-expansion decouples reg seqs from shared windowing → breaks the W6 +4.6…+7.6 pp cat lift, `../closing_data/archive/findings/W6_ENCODER_ISOLATION.md`).
 - **Why:** Champion reg head already wraps full-STAN (`next_stan_flow_dualtower`). The `STAN-stl_hgi` headroom is largely a **precision artifact** — fp32 MTL FL 77.71 > STAN-stl_hgi 76.82 (reverses) — and a **substrate confound** (HGI wins STL next-reg; champion runs dk_ovl). Geometric matching needs raw coords absent from `next_region.parquet`.
 - **Gate:** First complete A1 (fp32 re-baseline). Only if a residual fp32 gap persists, pilot the **matching layer alone** at AL/AZ n=20.
 - **Effort:** high.

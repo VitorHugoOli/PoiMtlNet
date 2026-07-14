@@ -60,7 +60,7 @@ re-run on the SAME A40 for a strict same-device Δ.
 **Read:** cascade ≈ parallel champion-G — a **dead tie** on the joint objective (Δjoint ≤ 0.02 pp ≪ fold-std).
 Our parallel bidirectional cross-attention matches the dominant published multi-task alternative at equal cost.
 n=5 provisional. JSONs: `a40/{al,az}_{cascade,champG_a40}_s0.json`. CA/TX cascade deferred (deadline). Full
-cell: `../../studies/closing_data/CSLSL_CASCADE.md`. (Cross-device: A40 champ-G reproduces the board H100
+cell: `../../studies/closing_data/archive/findings/CSLSL_CASCADE.md`. (Cross-device: A40 champ-G reproduces the board H100
 champ-G within ±0.05 pp at AZ; AL within fold-std.)
 
 ## CTLE-SC → CUDA (FL/CA/TX only); Istanbul CTLE-SC → MAC

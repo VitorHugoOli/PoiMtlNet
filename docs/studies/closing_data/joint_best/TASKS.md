@@ -1,6 +1,6 @@
-# closing_data_v2 — Task list & objective
+# joint_best (ex-closing_data_v2) — Task list & objective
 
-> **Read this first.** This is the charter for `closing_data_v2`. It exists so the work does not drift.
+> **Read this first.** This is the charter for `closing_data/joint_best` (formerly `closing_data_v2`). It exists so the work does not drift.
 > Everything here is scoped to the **v17** model on the **`check2hgi_dk_ovl`** (overlap-gated, stride-1,
 > MIN_SEQ=10) substrate — the exact configuration behind the MobiWac Table 3. **We report nothing on a
 > different model version, substrate, or ceiling set.** The runs live on the `closing-data/v17-ceilings-n20`

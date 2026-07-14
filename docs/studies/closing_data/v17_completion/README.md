@@ -3,7 +3,7 @@
 > ## ✅ TRACK COMPLETE (2026-07-13, PR #63) — the v17 board is n=20 at ALL six datasets
 > A1 (CA/TX v17 MTL n=20) landed 2026-07-11; **M1-full** (6-dataset pre-registered Holm: **ALL REJECT @ α=0.05**,
 > `stats_n20/m1_full_output.txt`) and **T6** (joint-best n=20 ≈ diag-best, Δ ≤ 0.006 pp aggregate,
-> `../../closing_data_v2/JOINT_BEST_RESULTS.md`) are done. **No verdict changed.** The per-machine handoffs
+> `../joint_best/JOINT_BEST_RESULTS.md`) are done. **No verdict changed.** The per-machine handoffs
 > (`A40.md` / `M2PRO.md` / `H100.md`) are archived → [`../archive/handoffs/`](../archive/handoffs/) (stubs remain).
 > **Still open (non-verdict-bearing):** **A2** ReHDM CA/TX (🔄 running on the A40, resumable) + the optional
 > coverage/doc chores (A4 CA/TX cascade · M2 leak-audit CA/TX/Ist · M3 bridging re-score · M4/M5 doc hygiene) —
@@ -62,7 +62,7 @@
 | **M3** | Bridging-metrics re-score (reg Acc@1/@5/MRR; cat Acc@1) | M2 Pro | open | short (needs saved logits) | nothing (coverage) |
 | **M4** | STAN precision-mix disclosure + v4-collapse guard (now incl. the CA/TX v6-p10 partials) | M2 Pro | open (doc) | doc | STAN hygiene |
 | **M5** | Stale-doc fixes + submission mechanics | M2 Pro | open (doc) | doc | submission |
-| **J1** | **Joint-best re-score of the board rundirs** via `scripts/closing_data/score_joint_best.py` (Table 3 = per-task diag-best, disclosed §6.2; joint-best = the single-checkpoint lane — see [`../JOINT_BEST_SCORING.md`](../JOINT_BEST_SCORING.md)): perhead_lr_n20 AL/AZ/FL, catx_v17_seed0_5f (+ CA/TX n=20 after A1), h3_istanbul | A40 (CPU-only) | ✅ **DONE 2026-07-09** → [`../../closing_data_v2/`](../../closing_data_v2/) (served checkpoint reproduces Table 3 within ≤0.11 pp; no verdict changes; CA/TX still seed-0 pending A1) | minutes | camera-ready / response letter — NOT the submission |
+| **J1** | **Joint-best re-score of the board rundirs** via `scripts/closing_data/score_joint_best.py` (Table 3 = per-task diag-best, disclosed §6.2; joint-best = the single-checkpoint lane — see [`../joint_best/JOINT_BEST_SCORING.md`](../joint_best/JOINT_BEST_SCORING.md)): perhead_lr_n20 AL/AZ/FL, catx_v17_seed0_5f (+ CA/TX n=20 after A1), h3_istanbul | A40 (CPU-only) | ✅ **DONE 2026-07-09** → [`../joint_best/`](../joint_best/) (served checkpoint reproduces Table 3 within ≤0.11 pp; no verdict changes; CA/TX still seed-0 pending A1) | minutes | camera-ready / response letter — NOT the submission |
 
 **The critical path to a paper-grade v17 board:** **A1 (CA/TX MTL n=20, A40)** → **M1 full** (all 6 datasets n=20,
 drop "provisional" everywhere). The ceilings + Istanbul are already done; **M1-partial can run NOW** on

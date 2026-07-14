@@ -220,7 +220,7 @@ seeded per-fold log_T for both. **Env note**: `MTL_STRICT` deliberately OFF (aut
 v16-pins-v14 substrate guard hard-fails under STRICT on dk_ovl; WARN-only without it, numerically inert).
 
 **Outputs**: `RESULTS_BOARD.md §1b`, `../../results/closing_data/MACS_BOARD_RESULTS.md`, cell
-`CSLSL_CASCADE.md`; JSONs `../../results/closing_data/a40/{al,az}_{cascade,champG_a40}_s0.json`.
+`archive/findings/CSLSL_CASCADE.md`; JSONs `../../results/closing_data/a40/{al,az}_{cascade,champG_a40}_s0.json`.
 **Deferred** (deadline; "only if cheap" per handoff): CA/TX cascade.
 
 ---
@@ -249,15 +249,15 @@ region-side). Fixed a real bug in the shipped runner (`run_freeze_reg_probe.sh` 
 `--canon none` + the full explicit recipe (auto-canon v16 pins the v14 substrate → wrong-substrate guard
 hard-fails). All board dk_ovl drivers do this; the W6 runner forgot it.
 
-**Outputs**: `W6_ENCODER_ISOLATION.md`, `RESULTS_BOARD.md §1c` (W6) + §1b FL row resolved; JSONs
+**Outputs**: `archive/findings/W6_ENCODER_ISOLATION.md`, `RESULTS_BOARD.md §1c` (W6) + §1b FL row resolved; JSONs
 `a40/{al,az,fl}_w6_freezereg_s0.json` + `a40/fl_champG_a40_4f_partial_s0.json`. **PR #48** (W6, open).
 **Deferred** (post-deadline): {1,7,100}→n=20; CA/TX cascade.
 
 ## 2026-06-25 — Istanbul §6.3 external-validity baselines (M4 Pro, MPS, fp32)
 
 **Phase**: full-table completeness for the Istanbul row (seed 0 × 5f, n=5 provisional). Full record:
-[`ISTANBUL_BASELINES_RESULTS.md`](ISTANBUL_BASELINES_RESULTS.md); handoff:
-[`ISTANBUL_BASELINES_HANDOFF.md`](ISTANBUL_BASELINES_RESULTS.md).
+[`archive/findings/ISTANBUL_BASELINES_RESULTS.md`](archive/findings/ISTANBUL_BASELINES_RESULTS.md); handoff:
+[`ISTANBUL_BASELINES_HANDOFF.md`](archive/findings/ISTANBUL_BASELINES_RESULTS.md).
 
 **Variant alignment (user)**: STAN = **stl_hgi** everywhere (incl. Istanbul); ReHDM = **faithful** everywhere.
 
@@ -284,7 +284,7 @@ The handoff's "faithful STAN/ReHDM blocked / ~30 h ETL" was **overstated** (ReHD
 
 **Superseded / removed (wrong variant)**: STAN stl_check2hgi (70.39) + from-scratch faithful STAN (57.60).
 
-**Outputs**: `ISTANBUL_BASELINES_RESULTS.md` (rewritten); JSONs `P0/simple_baselines/istanbul/next_category*.json`,
+**Outputs**: `archive/findings/ISTANBUL_BASELINES_RESULTS.md` (rewritten); JSONs `P0/simple_baselines/istanbul/next_category*.json`,
 `baselines/faithful_poi_rgnn_istanbul_5f_35ep_*.json`, `P1/region_head_istanbul_..._STAN_HGI_*.json`. **PR #51**.
 **Deferred**: ReHDM faithful (5 seeds) on CUDA; tabulation into `docs/baselines/` + `RESULTS_BOARD.md §1`.
 
@@ -297,7 +297,7 @@ The handoff's "faithful STAN/ReHDM blocked / ~30 h ETL" was **overstated** (ReHD
   cat +0.27 pp (in-cov 71.9%, full 31.09 / train-only 30.83); matches AL/FL. Gate ON NULL across AL/AZ/FL.
   → `A4_RESULTS.md` + paper §5.2 (`a4_{,cat_}result_arizona_s0.json`).
 - **P3** faithful STAN FL converged **72.99 ±0.34** (< joint reg 77.28) → Table 3 cell + `comparison.md`
-  (the converged result data + baseline doc are in **PR #53** / `FAITHFUL_STAN_FINDINGS.md`).
+  (the converged result data + baseline doc are in **PR #53** / `archive/findings/FAITHFUL_STAN_FINDINGS.md`).
 - **P4** `BRIDGING_METRICS.md` (ladders + floors); **P7** reviewer clarity; **P8** bib hygiene.
 
 **P1 (n=20 multi-seed) — ATTEMPTED, INFEASIBLE on this A40; needs the H100 lane.**
@@ -308,7 +308,7 @@ transferable). The real gap is **MTL champion-G + STL category ceiling AND the S
 for all 6 states (Istanbul reg ceiling also seed-0, on stride-1 GCN — needs `dk_ovl` build). ("AL/AZ/GE/FL complete"
 = the *archived mtl_improvement* study, NOT the board.) Three walls on the A40: **(1)** FL fp32 overlap MTL
 ~24 min/epoch → days/seed (the fast estimates were the H100); **(2)** A40 bf16 backward grad-NaNs at large C
-(`TX_A40_BF16_NAN.md`) + fp16 overflow (`CA_MTL_DIVERGENCE.md`) → fp32 only safe + slow; **(3)** CA/TX OVL engines
+(`archive/lessons/TX_A40_BF16_NAN.md`) + fp16 overflow (`archive/lessons/CA_MTL_DIVERGENCE.md`) → fp32 only safe + slow; **(3)** CA/TX OVL engines
 9–21 GB vs ~16 GB free (CA build → `No space left on device`). ⚠ Gotcha: `p3_board.sh run_cell` does NOT set the
 precision env → a bare run defaults to the **forbidden fp16**; on the H100 pass `MTL_AUTOCAST_BF16=1
 MTL_DISABLE_AMP_EVAL=1` (RUN_MATRIX §0). **Run P1 on the H100**:
@@ -402,7 +402,7 @@ fp32, resumable. 6/6 cells: **CA cat 77.052 ±0.006 / reg 65.693 ±0.017 · TX c
 `CEILINGS_N20_FINAL.md`, `RESULTS_BOARD §1`, `catx_v17_seed0_5f/RESULTS.md`, `v17_completion/A40.md` (commits
 `8bf2a55`, `b766a3d`). M1-full is now unblocked at all 6 (remaining: re-run `m1_stats_n20.py` on the CA/TX n=20
 per-fold; verdicts not expected to move). The still-pending CPU item is the CA/TX *joint-best* n=20 re-score
-(closing_data_v2 task T6).
+(joint_best task T6).
 
 ## 2026-07-13 — PR #63 MERGED (audited) + M1-FULL & T6 closed + handoff compaction
 
@@ -420,6 +420,19 @@ single-checkpoint too. **No verdict changed anywhere.**
 **Compaction (this entry):** the three per-machine v17-completion handoffs (`A40.md`/`M2PRO.md`/`H100.md`, all
 queues done or decommissioned) moved to `archive/handoffs/` (1-line stubs remain, same convention as the 07-08
 lessons pass); `v17_completion/README.md` is the single live board carrying the residual queue. Stale "pending
-A1/T6" spots fixed (`closing_data_v2/JOINT_BEST_RESULTS.md`, studies `README.md` row). **Residual non-verdict
+A1/T6" spots fixed (`joint_best/JOINT_BEST_RESULTS.md`, studies `README.md` row). **Residual non-verdict
 work:** A2 ReHDM CA/TX (🔄 running, resumable) · optional A4 cascade CA/TX · M2 leak-audit coverage · M3 bridging
 re-score · M4/M5 doc hygiene. The paper board itself needs nothing further.
+
+## 2026-07-13 (later) — Essentials-only compaction + closing_data_v2 folded in
+
+**What moved (user directive: "just the essential; merge/archive the rest; merge v2 into closing_data"):**
+top level reduced 14 → 5 files (`README.md` [new index] · `RESULTS_BOARD.md` · `log.md` · `RUN_MATRIX.md` ·
+`perhead_lr_n20.md` — the last two stay for their 22/18 live inbound references). Moves: the four closed findings
+(W6 / CSLSL / Istanbul-baselines / faithful-STAN) → `archive/findings/`; `STATISTICAL_PROTOCOL.md` +
+`PRECISION_LESSONS.md` → `v17_completion/`; the three 1-line lesson stubs DELETED (every inbound link retargeted to
+`archive/lessons/` directly); the spent drivers `run_catx_v17_{n20,audit_1fold}.sh` → `archive/run_logs/`;
+**`closing_data_v2/` folded in as `joint_best/`** (+ `JOINT_BEST_SCORING.md` moved beside its results; the
+functional path in `joint_best/score_all.py` updated). ~40 files link-fixed repo-wide (docs/, articles/ handoff
+docs, scripts/ docstrings); both archives' internals left as-is per convention. No git-history rewrite — every
+removed/moved file is recoverable.

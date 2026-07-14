@@ -1,4 +1,4 @@
-# STATISTICAL_PROTOCOL.md — pre-registered analysis plan for the closing_data board
+# ../v17_completion/STATISTICAL_PROTOCOL.md — pre-registered analysis plan for the closing_data board
 
 > **STATUS: PRE-REGISTERED. Commit this BEFORE the board unblinds.** This is the analysis plan for the
 > regenerated base (the `closing_data` board): which test runs on which cell, which margins are pinned, and

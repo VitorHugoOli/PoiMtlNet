@@ -60,7 +60,7 @@
   claim, grounded in OUR experiments** — full balancer registry (PCGrad/GradNorm/Nash-MTL/CAGrad/FAMO/… ~18 methods)
   none beat tuned static cw=0.75; task-gradient cosine ≈ 0.001 across measured states/seeds (intrinsic, holds even
   in a fully-shared model); ties to §6.2 "stronger trunk, not transfer". Sources: `WHY_ORTHOGONAL_AND_NO_MODERN_OPTIMIZERS.md`,
-  `T4_audit_and_verdict.md`, `orthogonality_intrinsic_test.md`, `T1-5_v2_cosine.json`, `W6_ENCODER_ISOLATION.md`.
+  `T4_audit_and_verdict.md`, `orthogonality_intrinsic_test.md`, `T1-5_v2_cosine.json`, `../../../docs/studies/closing_data/archive/findings/W6_ENCODER_ISOLATION.md`.
   Advisor: agree, with wording fixes (don't re-expand PCGrad/GradNorm; drop the "four datasets" scope — measured set
   includes Georgia, excludes CA/TX). **OP2/OP3/OP4 reducers** returned the full-paper matrices. **No `src/` edits
   yet** — the edit list is presented for sign-off; Phase 4 (`WF-ENGLISH`) still to run.

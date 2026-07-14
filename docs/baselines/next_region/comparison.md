@@ -23,7 +23,7 @@ Generated from `results/<state>.json`. To refresh, regenerate the JSONs (see `..
 > ⚠ **STAN `faithful` row updated 2026-06-26 to the CONVERGED, audited numbers** (AL 60.72 / AZ 49.86 /
 > FL 72.99; Istanbul 61.86 on the separate Massive-STEPS dataset). These **supersede the old v4 collapse
 > artifacts** (AL 34.46 / AZ 38.96 / FL 65.36 / GA 40.68 — a mis-implemented matching layer + under-training;
-> never cite). Source: [`docs/studies/closing_data/FAITHFUL_STAN_FINDINGS.md`](../../studies/closing_data/FAITHFUL_STAN_FINDINGS.md)
+> never cite). Source: [`docs/studies/closing_data/archive/findings/FAITHFUL_STAN_FINDINGS.md`](../../studies/closing_data/archive/findings/FAITHFUL_STAN_FINDINGS.md)
 > + the converged JSONs `docs/results/baselines/faithful_stan_*_v5_*.json` / `_v6_opt.json`. `—‡` = GA not
 > re-converged (out of the AL/AZ/FL scope). **The old "faithful STAN sits below Markov-1 at AL/AZ" reading
 > (Phase-1 section below) is OVERTURNED** — converged STAN clears the Markov floor at every reported state,
@@ -41,7 +41,7 @@ Generated from `results/<state>.json`. To refresh, regenerate the JSONs (see `..
 | **ReHDM** ‡ | `stl_hgi` | 42.78 ± 2.82 | 34.00 ± 3.02 | **54.49 ± 0.32** | ⚪ | ⚪ | 35.07 ± 1.98 | ⚪ |
 
 > ∞ **Istanbul `stl_*` cells are set-a footing** (non-overlap, pre-H3; PR #51) — not board-comparable with the H3
-> `dk_ovl`+v17 cells; the `stl_hgi` 71.13 is the future-headroom signal (`ISTANBUL_BASELINES_RESULTS.md`), not a
+> `dk_ovl`+v17 cells; the `stl_hgi` 71.13 is the future-headroom signal (`../../studies/closing_data/archive/findings/ISTANBUL_BASELINES_RESULTS.md`), not a
 > baseline. The citable Istanbul region externals are **STAN faithful 61.86** and **ReHDM v4 69.33** (the strongest
 > there; > STAN > HMT-GRN 60.4 — all below our MTL reg 75.44).
 

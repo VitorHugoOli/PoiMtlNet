@@ -26,7 +26,7 @@ matching selector + min-best-epoch, those are read instead of re-deriving from C
 
 Prints both conventions to 4dp (percent, like a40) and writes a committable JSON
 sidecar `joint_best_score.json` into the rundir (C28: commit result JSONs).
-Full doc: docs/studies/closing_data/JOINT_BEST_SCORING.md.
+Full doc: docs/studies/closing_data/joint_best/JOINT_BEST_SCORING.md.
 
 Usage: .venv/bin/python scripts/closing_data/score_joint_best.py <rundir> \
            [--seed N] [--tag T] [--min-best-epoch 0] [--selector geom_simple] \

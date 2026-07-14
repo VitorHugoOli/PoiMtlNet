@@ -26,7 +26,7 @@
 
 ## ✅ Converged faithful-STAN results (2026-06-26, seed 0, user-disjoint 5-fold)
 
-Audited-faithful, converged, optimized (A+C+D+compile; see [`FAITHFUL_STAN_FINDINGS`](../../studies/closing_data/FAITHFUL_STAN_FINDINGS.md)).
+Audited-faithful, converged, optimized (A+C+D+compile; see [`FAITHFUL_STAN_FINDINGS`](../../studies/closing_data/archive/findings/FAITHFUL_STAN_FINDINGS.md)).
 **These supersede v4 — strike v4 from all artifacts.** STAN clears the region floor but lands **below our MTL reg** at every state (it ranks the coarse-region task it wasn't built for):
 
 | State | regions | Acc@10 (5f) | our MTL reg | verdict | version / precision |
@@ -94,7 +94,7 @@ The substrate-bound vs faithful gap quantifies how much our pre-trained Check2HG
 The faithful path is **self-contained** (`research/baselines/stan/`): ETL once per state, then train.
 Recipe = audit fixes #1–#6 (prefix-expansion, multiplicative matching, constant-LR + early-stop, fp32
 seed 0) + the validated optimization stack **A(bf16, big states)+C+D+compile** (quality bit-identical;
-see [`FAITHFUL_STAN_FINDINGS §3`](../../studies/closing_data/FAITHFUL_STAN_FINDINGS.md)). Full run guide:
+see [`FAITHFUL_STAN_FINDINGS §3`](../../studies/closing_data/archive/findings/FAITHFUL_STAN_FINDINGS.md)). Full run guide:
 [`research/baselines/stan/README_FAITHFUL_STAN.md`](../../../research/baselines/stan/README_FAITHFUL_STAN.md).
 
 ```bash
@@ -144,6 +144,6 @@ headline STAN cell.
 
 ## Cross-references
 
-- **Findings + data + optimization knowledge:** [`docs/studies/closing_data/FAITHFUL_STAN_FINDINGS.md`](../../studies/closing_data/FAITHFUL_STAN_FINDINGS.md) (the source of truth).
+- **Findings + data + optimization knowledge:** [`docs/studies/closing_data/archive/findings/FAITHFUL_STAN_FINDINGS.md`](../../studies/closing_data/archive/findings/FAITHFUL_STAN_FINDINGS.md) (the source of truth).
 - **Run guide:** [`research/baselines/stan/README_FAITHFUL_STAN.md`](../../../research/baselines/stan/README_FAITHFUL_STAN.md).
 - Region-baseline plan: [`articles/[mobiwac]/archive/STAN_REFOOTING_HANDOFF.md`](../../../articles/%5Bmobiwac%5D/archive/STAN_REFOOTING_HANDOFF.md).

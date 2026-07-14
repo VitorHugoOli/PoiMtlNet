@@ -1,8 +1,8 @@
 # PRECISION_LESSONS — the board's numeric-stability + schedule rules (compact)
 
 > **One doc, three merged lessons (2026-07-08 compaction).** Full forensic writeups live in
-> [`archive/lessons/`](archive/lessons/) — `CA_MTL_DIVERGENCE.md` (fp16 root cause), `TX_A40_BF16_NAN.md`
-> (Ampere-bf16 root cause), `EP100_ABLATION_AND_TX_RAM.md` (schedule ablation + host-RAM mechanics). This page
+> [`archive/lessons/`](archive/lessons/) — `../archive/lessons/CA_MTL_DIVERGENCE.md` (fp16 root cause), `../archive/lessons/TX_A40_BF16_NAN.md`
+> (Ampere-bf16 root cause), `../archive/lessons/EP100_ABLATION_AND_TX_RAM.md` (schedule ablation + host-RAM mechanics). This page
 > carries every **operative rule**; read the archives only for the evidence trail.
 
 ## The rules (what you must actually do)

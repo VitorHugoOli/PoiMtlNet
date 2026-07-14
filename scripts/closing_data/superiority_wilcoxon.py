@@ -1,4 +1,4 @@
-"""Pre-registered superiority tests (STATISTICAL_PROTOCOL.md §2, §5.2): paired
+"""Pre-registered superiority tests (docs/studies/closing_data/v17_completion/STATISTICAL_PROTOCOL.md §2, §5.2): paired
 one-sided Wilcoxon signed-rank + Holm-Bonferroni for the headline family-(A) cells.
 
 - Category (all 6 states): superiority MTL champion-G cat > STL dedicated cat ceiling.

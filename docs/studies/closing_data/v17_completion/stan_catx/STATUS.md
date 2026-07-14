@@ -29,7 +29,7 @@ floors are lower still: TX 35.6 / CA 31.5; A40.md's "~55/~52" bar is the *best-s
 - **patience 10 (not 20) is quality-neutral**: STAN converges at best_epoch ~1-2, so the best-epoch checkpoint (the
   reported metric) is identical to patience-20 at ~half the wall-time. Verified across all TX/CA folds (best_ep ≤ 3).
 - **v6 = the corrected/audited STAN** (matching layer + scalar `[K]` tables + `F.embedding` backward — commits
-  `1b83c1c1/1eeb43fd/abcd7a06/507a5f22`). NOT the stale v4 in `docs/findings/FAITHFUL_STAN_FINDINGS.md` (which
+  `1b83c1c1/1eeb43fd/abcd7a06/507a5f22`). NOT the stale v4 in `../../archive/findings/FAITHFUL_STAN_FINDINGS.md` (which
   reported STAN *below* Markov, pre-`F.embedding`-fix).
 
 ## Prerequisite (done): memory-bounded ETL

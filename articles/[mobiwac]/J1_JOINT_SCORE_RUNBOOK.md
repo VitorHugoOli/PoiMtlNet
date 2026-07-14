@@ -1,12 +1,12 @@
 # J1 — Joint-checkpoint scoring runbook (A40)
 
-> ✅ **EXECUTED 2026-07-09 → [`../../docs/studies/closing_data_v2/`](../../docs/studies/closing_data_v2/).**
+> ✅ **EXECUTED 2026-07-09 → [`../../docs/studies/closing_data/joint_best/`](../../docs/studies/closing_data/joint_best/).**
 > All 18 v17/`dk_ovl` MTL rundirs scored (CPU-only). **Finding: the served single checkpoint reproduces
 > Table 3 within ≤ 0.06 pp cat / ≤ 0.11 pp reg on every dataset (largest 0.051 / 0.107, both at AZ) — no verdict changes.** Category still beats
 > everywhere; region still beats at Istanbul/FL/TX/CA (Istanbul margin +0.28→+0.19, still positive, 20/20 folds)
 > and matches at AL/AZ (the AL tail risk did not materialize: −0.31→−0.41, far from the −2 pp bound). Three
 > self-audits (diag-parity 18/18, joint-epoch 90/90, paper-parity 6/6) + a 4-agent independent audit all pass.
-> The corrected side-by-side table + decision memo: [`../../docs/studies/closing_data_v2/JOINT_BEST_RESULTS.md`](../../docs/studies/closing_data_v2/JOINT_BEST_RESULTS.md).
+> The corrected side-by-side table + decision memo: [`../../docs/studies/closing_data/joint_best/JOINT_BEST_RESULTS.md`](../../docs/studies/closing_data/joint_best/JOINT_BEST_RESULTS.md).
 > CA/TX stay seed-0 provisional (n=20 blocked on the A1 GPU top-up, not on J1).
 
 > **Why this doc exists.** The paper's Table 3 MTL cells are **per-task diagnostic-best** (category at
@@ -16,7 +16,7 @@
 > validation), but nobody ever scored it. **Author decision (2026-07-09):** the submission carries NO
 > rendered mention of this (the §6.2 disclosure sentence was removed); the joint-best numbers are
 > produced on the A40 for the **response letter and camera-ready**, where the fix lands if the paper
-> passes. Full background: [`../../docs/studies/closing_data/JOINT_BEST_SCORING.md`](../../docs/studies/closing_data/JOINT_BEST_SCORING.md).
+> passes. Full background: [`../../docs/studies/closing_data/joint_best/JOINT_BEST_SCORING.md`](../../docs/studies/closing_data/joint_best/JOINT_BEST_SCORING.md).
 
 ## What to run (CPU-only, minutes total — no retraining)
 
@@ -52,9 +52,9 @@ PYTHONPATH=src .venv/bin/python scripts/closing_data/score_joint_best.py <rundir
 
 - Sidecars: `joint_best_score.json` written into all 18 rundirs' result trees. **Note:** those live under
   `results/check2hgi_dk_ovl/` which is **gitignored** here, so the committable record is the aggregate
-  `docs/studies/closing_data_v2/data/j1_results.json` (+ the reproducer `score_all.py`), not the per-rundir sidecars.
-- Aggregate + decision memo: **[`../../docs/studies/closing_data_v2/JOINT_BEST_RESULTS.md`](../../docs/studies/closing_data_v2/JOINT_BEST_RESULTS.md)**
-  (the corrected table lives in the new `closing_data_v2` study; a §Results pointer was also added to
+  `docs/studies/closing_data/joint_best/data/j1_results.json` (+ the reproducer `score_all.py`), not the per-rundir sidecars.
+- Aggregate + decision memo: **[`../../docs/studies/closing_data/joint_best/JOINT_BEST_RESULTS.md`](../../docs/studies/closing_data/joint_best/JOINT_BEST_RESULTS.md)**
+  (the corrected table lives in the `closing_data/joint_best` lane (ex-`closing_data_v2`); a §Results pointer was also added to
   `JOINT_BEST_SCORING.md`).
 - **Response letter:** the honest line is on record in a hidden comment at
   `src/sections/06_results.tex` (search "Response-letter note"): a single joint checkpoint per fold

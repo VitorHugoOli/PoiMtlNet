@@ -102,7 +102,7 @@ uses strict `>`). **Pinned by `tests/test_scripts/test_p1_val_chunk_guard.py`** 
     `33fe18da`→`dade24ad`, OOM_MEMORY_FIX.md.) Don't "optimise" it back to a GPU `torch.cat` of the full val logit.
 11. Never assume a **bare large-state MTL run** (`FL/CA/TX`, reg C>2000) reproduces an **fp16** baseline — since PR #56
     it **auto-defaults to fp32** on Ampere+ (`_auto_fp32_for_large_c`); the old fp16 large-C path was the ep30
-    NaN-collapse bug (`CA_MTL_DIVERGENCE.md`), never a valid frozen number. Pin precision explicitly
+    NaN-collapse bug (`../closing_data/archive/lessons/CA_MTL_DIVERGENCE.md`), never a valid frozen number. Pin precision explicitly
     (`MTL_DISABLE_AMP=1` or `MTL_AUTOCAST_BF16=1`) for any freeze-grade run — all frozen board cells already do, so
     auto-fp32 is inert there. `tests/test_training/test_auto_fp32.py` pins the routing (threshold 2000, Ampere gate,
     explicit-env-wins).

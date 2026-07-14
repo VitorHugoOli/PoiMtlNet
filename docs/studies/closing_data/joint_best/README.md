@@ -1,4 +1,4 @@
-# closing_data_v2 — the deployable joint-checkpoint lane (J1)
+# joint_best (ex-closing_data_v2) — the deployable joint-checkpoint lane (J1)
 
 > **What this study is.** A CPU-only, no-retraining follow-up to `closing_data` that answers one question the
 > MobiWac author flagged: *what does the single served checkpoint actually deliver, vs the per-task
@@ -32,6 +32,6 @@ selector, `min_best_epoch=0` — **the exact Table-3 configuration**. Same rundi
 
 ## Relationship to `closing_data`
 `closing_data` (the parent study, `closing-data/v17-ceilings-n20` branch) produced Table 3 as **diag-best**.
-`closing_data_v2` adds the **joint-best / deployable** reading of the identical runs. The convention contract
-both studies share is [`../closing_data/JOINT_BEST_SCORING.md`](../closing_data/JOINT_BEST_SCORING.md). Nothing
+`joint_best` (formerly `closing_data_v2`) adds the **joint-best / deployable** reading of the identical runs. The convention contract
+both studies share is [`JOINT_BEST_SCORING.md`](JOINT_BEST_SCORING.md). Nothing
 here supersedes a `closing_data` number — it annotates the six MTL cells with their served-checkpoint value.

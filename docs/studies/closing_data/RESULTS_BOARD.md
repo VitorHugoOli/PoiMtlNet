@@ -16,7 +16,7 @@
 > ⚠ **Scoring convention:** all MTL cells below are **per-task diagnostic-best** (cat and reg each at their OWN
 > best epoch — the matched-scorer method, disclosed in the paper §6.2). The single-checkpoint **joint-best** lane
 > is task **J1** (CPU-only re-score via `scripts/closing_data/score_joint_best.py`) — see
-> [`JOINT_BEST_SCORING.md`](JOINT_BEST_SCORING.md).
+> [`joint_best/JOINT_BEST_SCORING.md`](joint_best/JOINT_BEST_SCORING.md).
 
 > 🏆 **CHAMPION — `--canon v17` (`DEFAULT_CANON`):** **bs=8192 + cat-lr 1e-3** via `--onecycle-per-head-lr`. The
 > per-head cat-LR is a **STATE-SIZE trade** (not a strict board-wide cat win — kept board-wide by user decision
@@ -68,7 +68,7 @@ TX 6.6k **+2.06** — all 5f), while **matching within δ=2 pp at the small coun
 (was −0.52 on the old stride-1-GCN base — the substrate rebuild flipped it positive). **CA, the largest region
 state, is 5f-complete and beats** — that single cell retires the old
 "region cost grows with cardinality" (Decision-C) narrative. The earlier fp16-autocast collapse
-(`CA_MTL_DIVERGENCE.md`) + the A40-Ampere bf16 grad-NaN were **masking a genuine region win**.
+(`archive/lessons/CA_MTL_DIVERGENCE.md`) + the A40-Ampere bf16 grad-NaN were **masking a genuine region win**.
 
 > **Honest framing:** "beats on **category** everywhere; beats on **region** at the large states + Istanbul, matches
 > at the small US states." Do NOT write "beats region everywhere" (AL/AZ are matches-within-margin, slightly negative;
@@ -120,7 +120,7 @@ cascade** (the cascade loses a hair on BOTH heads: −0.20 cat / −0.25 reg), s
 (no "we beat the cascade", and the cascade did not beat us). The tie now spans **US small→large (AL/AZ/FL) + non-US
 (Istanbul)**. JSON `docs/results/closing_data/a40/istanbul_cascade_v17_s0.json`; recipe = the H3 command + the 5 b4
 pins, `MTL_STRICT` off (its cond-guard hard-fails on the unaligned cond_coupling — the standard cascade protocol; see
-CSLSL_CASCADE.md). *CA/TX cascade coverage remains open (P6).*
+archive/findings/CSLSL_CASCADE.md). *CA/TX cascade coverage remains open (P6).*
 
 **Reading:** the cascade is a **dead tie** with our parallel champion-G on the joint objective
 (Δjoint ≤ 0.02 pp ≪ fold-std). It trades a hair of category (+0.20) for a hair of region (−0.17/−0.18),
@@ -148,17 +148,17 @@ vs F49 (which freezes the cat stream).
 cross-attn K/V), the category head keeps the **entire** joint lift — probe cat ≈ full-MTL cat (±0.3 pp) and
 **≫ STL ceiling (+4.6…+7.6 pp)** at all three states. → the category benefit is the **shared trunk
 (architecture/capacity), NOT cross-task transfer**. Freeze verified (reg optimizer group = 0 trainable params,
-all states; 0 nan). **n=5 provisional.** Full cell: `W6_ENCODER_ISOLATION.md`; JSONs
+all states; 0 nan). **n=5 provisional.** Full cell: `archive/findings/W6_ENCODER_ISOLATION.md`; JSONs
 `a40/{al,az,fl}_w6_freezereg_s0.json`.
 
 ## 2 · Precision verdict (settled) & schedule ablation (NULL)
 > Full operative rules + the three merged forensic lessons (CA fp16 collapse, TX Ampere-bf16 NaN, 100-ep NULL):
-> [`PRECISION_LESSONS.md`](PRECISION_LESSONS.md) (compact; archives in `archive/lessons/`).
+> [`v17_completion/PRECISION_LESSONS.md`](v17_completion/PRECISION_LESSONS.md) (compact; archives in `archive/lessons/`).
 - **bf16 ≈ fp32** on quality (Δ≤0.12 pp) and ~0 wall-clock (overlap is data-bound, GPU util 8-25%) →
   small/mid states fp32; large-state bf16 is **not cross-GPU portable** (A40-Ampere grad-NaNs where H100 stays
-  finite) → **use fp32 for large-state cells on Ampere**. (`archive/BOARD_CELLS.md` AL/FL gates, `TX_A40_BF16_NAN.md`.)
+  finite) → **use fp32 for large-state cells on Ampere**. (`archive/BOARD_CELLS.md` AL/FL gates, `archive/lessons/TX_A40_BF16_NAN.md`.)
 - **100-epoch schedule = NULL** (AL cat +0.21/reg −0.39; FL cat −0.53/reg −0.18; OneCycle best-val rides the
-  anneal tail at any length) → **frozen 50ep cells stand.** (`EP100_ABLATION_AND_TX_RAM.md`.)
+  anneal tail at any length) → **frozen 50ep cells stand.** (`archive/lessons/EP100_ABLATION_AND_TX_RAM.md`.)
 
 ### 2a · Execution modes & default-flips (PR #56, `train_perf_multifold`, merged 2026-07-01)
 Perf/tooling PR — **the champion (v16) default training path is byte-identical** (7-dimension adversarial review:
@@ -167,7 +167,7 @@ equivalent mask refactors / opt-in fp32-attn). Full env/flag reference: [`../../
 guard contract: [`../pre_freeze_gates/DEFAULTS_AND_GUARDS.md`](../pre_freeze_gates/DEFAULTS_AND_GUARDS.md). For reproducing board cells:
 - ⚠ **DEFAULT-FLIP — `auto-fp32` for large-C MTL.** A bare `FL/CA/TX` (reg C>2000) MTL run on Ampere+ now defaults
   to **fp32** (was fp16). This only replaces the old fp16 large-C path, which was the ep30 NaN-collapse **bug**
-  (`CA_MTL_DIVERGENCE.md`) — never a valid frozen number. **Frozen board cells are unaffected** (every driver sets
+  (`archive/lessons/CA_MTL_DIVERGENCE.md`) — never a valid frozen number. **Frozen board cells are unaffected** (every driver sets
   `MTL_DISABLE_AMP=1`/`MTL_AUTOCAST_BF16=1` explicitly → auto-fp32 is inert). Small states (AL/AZ, C<2000) keep fp16.
 - ✅ **DEFAULT-ON — `MTL_SKIP_INERT_LOGT`.** The champion no longer loads per-fold log_T (byte-identical; alpha=0
   folds it out). `=0` restores the legacy load+leak-guard.
@@ -192,8 +192,8 @@ guard contract: [`../pre_freeze_gates/DEFAULTS_AND_GUARDS.md`](../pre_freeze_gat
 
 **Narrative / per-cell docs:** `docs/studies/closing_data/`
 - `archive/BOARD_CELLS.md` (per-state MTL cells + AL/FL precision gates, consolidated) · `archive/BOARD_H100_FINDINGS.md`
-  (session consolidation) · `EP100_ABLATION_AND_TX_RAM.md` · `TX_A40_BF16_NAN.md` · `CA_MTL_DIVERGENCE.md`
-  (the fp16 root cause) · `FAITHFUL_STAN_FINDINGS.md` (PR #53) · `MACS_BOARD_RESULTS.md` (baselines, **PR #36**)
+  (session consolidation) · `archive/lessons/EP100_ABLATION_AND_TX_RAM.md` · `archive/lessons/TX_A40_BF16_NAN.md` · `archive/lessons/CA_MTL_DIVERGENCE.md`
+  (the fp16 root cause) · `archive/findings/FAITHFUL_STAN_FINDINGS.md` (PR #53) · `MACS_BOARD_RESULTS.md` (baselines, **PR #36**)
 
 **Floors:** `docs/results/P0/simple_baselines/<state>/` (**best-simple** region Acc@10 — the max over the simple
 baselines, NOT Markov-1: AL .470 AZ .430 FL .650 CA .521 TX .549; Markov-1 proper is lower, e.g. CA .315 / TX .356 —
@@ -260,7 +260,7 @@ Per the baselines README, the paper's baseline tables read from [`../../baseline
   footnote; the remaining 4 folds are optional post-deadline robustness (`v17_completion/stan_catx/STATUS.md`).**
   STAN sits in the comparability hierarchy as **SECONDARY** (HMT-GRN-style primary;
   ReHDM tertiary). JSONs `docs/results/baselines/faithful_stan_{al,az,istanbul}_5f_200ep_v5_*.json` +
-  `faithful_stan_florida_5f_200ep_v6_opt.json`; finding `FAITHFUL_STAN_FINDINGS.md`.
+  `faithful_stan_florida_5f_200ep_v6_opt.json`; finding `archive/findings/FAITHFUL_STAN_FINDINGS.md`.
 - 🔭 **STAN-`stl_hgi` (STAN on OUR HGI region-embedding substrate, overlap footing) — NOT a paper baseline; FUTURE-
   HEADROOM signal (user steer, 2026-06-26).** At the board overlap footing: AL 70.35 / AZ 59.66 / FL 76.82 (reg Acc@10,
   PR #52) — at AL it **exceeds our MTL champion reg (69.81)**. That is precisely why it is NOT a region baseline we
@@ -277,7 +277,7 @@ Per the baselines README, the paper's baseline tables read from [`../../baseline
     cascade (Δcat +5.04 AL / +1.62 AZ) — *same direction*, but it **CONTRADICTS the canonical dk_ovl tie if cited as
     headline** (the gap is regime-fragile: coupling helps when data is thin, washes out on the board). Cite ONLY as
     "same-direction corroboration (parallel ≥ cascade, never worse)". MPS==CPU within 0.63pp = the device-trust gate.
-    FL set-a OOM'd on MPS (4/5, no comparand — VOID). Docs: `../../baselines/cslsl_cascade.md` (set-a) + `CSLSL_CASCADE.md` (dk_ovl, canonical).
+    FL set-a OOM'd on MPS (4/5, no comparand — VOID). Docs: `../../baselines/cslsl_cascade.md` (set-a) + `archive/findings/CSLSL_CASCADE.md` (dk_ovl, canonical).
 - ✅ **Feature-concat control (role-2, FL) — DONE on disk, no new run.** The A2 `--add-visit-features` (`hgifeat`)
   arm: **HGI⊕raw-features ≈ HGI-alone** (features add only ~+0.8 pp), both **far below Check2HGI** → the category
   gain is the **hierarchy, not feature injection**. (`docs/results/P1/region_head_florida_checkin_5f_30ep_A2_hgifeat_category_s0.json`;

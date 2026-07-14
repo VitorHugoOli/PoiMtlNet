@@ -60,7 +60,7 @@
   at FL/CA/TX, +3..+8 pp) is removed. Defends the panel's #1 attack (single-seed n=5). Affects the whole §6.2
   category-superiority family and the FL/CA/TX region beats (esp. **FL +0.57**, the cell that most needs it).
 - **Machine: H100 (required).** A40 verified INFEASIBLE on three walls: FL fp32 overlap MTL ~24 min/epoch (days/seed);
-  A40 bf16 backward grad-NaN at large C + fp16 overflow (`TX_A40_BF16_NAN.md`, `CA_MTL_DIVERGENCE.md`); disk (CA/TX OVL
+  A40 bf16 backward grad-NaN at large C + fp16 overflow (`../../docs/studies/closing_data/archive/lessons/TX_A40_BF16_NAN.md`, `../../docs/studies/closing_data/archive/lessons/CA_MTL_DIVERGENCE.md`); disk (CA/TX OVL
   engines 9–21 GB vs ~16 GB free).
 - **Execution.**
   - MTL cells (bare driver defaults to FORBIDDEN fp16 — you MUST export the bf16 env, and pass explicit states because
@@ -205,7 +205,7 @@
   the P1/H1 + H3 n=20 champions once those exist. Strictly below P1 in the queue: the cascade carries no tested
   claim, so extra seeds tighten a number the paper reports only as "about zero" (robustness, never a verdict).
 - **Acceptance.** JSONs under `docs/results/closing_data/`, scored by the matched scorer; rows added to
-  `RESULTS_BOARD §1b` + `CSLSL_CASCADE.md`; if the tie holds, widen the §6.2 scope sentence ("at Alabama, Arizona,
+  `RESULTS_BOARD §1b` + `../../docs/studies/closing_data/archive/findings/CSLSL_CASCADE.md`; if the tie holds, widen the §6.2 scope sentence ("at Alabama, Arizona,
   and Florida, the three states where we ran the comparison") and the Table 3 footnote wording. **If the tie breaks
   at scale or on Istanbul, STOP + report — that is a result, not a bug** (the anti-overclaim rule still bans any
   "we beat the cascade" reading, and a cascade win must first be re-examined against the recipe-parity caveat:
@@ -214,7 +214,7 @@
 
 ### S1 — STAN: precision-mix disclosure + v4-collapse guard  **[doc hygiene — the STAN track]**
 - Faithful STAN is DONE + citable (AL 60.72 / AZ 49.86 / FL 72.99 / Istanbul 61.86, all verified exact to Table 3).
-  **CA/TX are now being ATTEMPTED** (A40 task A3, ~1.5–2 h/state bf16+compile per `FAITHFUL_STAN_FINDINGS.md`; the old
+  **CA/TX are now being ATTEMPTED** (A40 task A3, ~1.5–2 h/state bf16+compile per `../../docs/studies/closing_data/archive/findings/FAITHFUL_STAN_FINDINGS.md`; the old
   "infeasible" footnote was over-conservative) — if they clear the Markov floor the Table 3 CA/TX STAN cells fill and the
   infeasible clause drops, else the footnote stands. **Two doc items are owed regardless:**
   1. **Disclose the precision/version mix** (one sentence in `docs/baselines/next_region/stan.md` + the Table 3 STAN

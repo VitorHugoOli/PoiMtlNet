@@ -104,7 +104,7 @@ All 9 cells share:
 - Best-epoch selection on val Acc@10.
 - Window=9, non-overlapping stride.
 
-**Faithful STAN** (`research/baselines/stan/`): self-contained from `data/checkins/<State>.parquet` + TIGER tract shapefile. Multi-modal input (POI emb + hour-of-week emb), single-head bare attention with scalar Δt/Δd pairwise bias, matching layer with TIGER-centroid Δd bias. See `FAITHFUL_STAN_FINDINGS.md` §"Phase 2" for audit-driven architecture details.
+**Faithful STAN** (`research/baselines/stan/`): self-contained from `data/checkins/<State>.parquet` + TIGER tract shapefile. Multi-modal input (POI emb + hour-of-week emb), single-head bare attention with scalar Δt/Δd pairwise bias, matching layer with TIGER-centroid Δd bias. See `../studies/closing_data/archive/findings/FAITHFUL_STAN_FINDINGS.md` §"Phase 2" for audit-driven architecture details.
 
 **STL STAN on Check2HGI/HGI** (`scripts/p1_region_head_ablation.py --heads next_stan --region-emb-source <engine>`): consumes pre-trained region embeddings as the input sequence; bi-layer self-attention (in-house implementation `src/models/next/next_stan/`) with relative-position-only pairwise bias (no ΔT/ΔD because the substrate already absorbs space/time signal); linear classifier to n_regions.
 

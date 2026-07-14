@@ -51,7 +51,7 @@ findings/
 | **Methodological side-findings** (PCGrad vs static, REHDM STL diagnosis, MTL with STAN head, MTL flaws and fixes) | `ATTRIBUTION_PCGRAD_VS_STATIC.md`, `REHDM_STL_DIAGNOSIS_20260501.md`, `MTL_WITH_STAN_HEAD.md`, `MTL_FLAWS_AND_FIXES.md` |
 | **Wilcoxon JSONs** (paper-supporting paired tests) | `*_WILCOXON.json` files |
 | **Design-D heterograph** | `DESIGN_D_HETEROGRAPH.md` |
-| **STAN three-way** | `STAN_THREE_WAY_COMPARISON.md`, `FAITHFUL_STAN_FINDINGS.md` |
+| **STAN three-way** | `STAN_THREE_WAY_COMPARISON.md`, `../studies/closing_data/archive/findings/FAITHFUL_STAN_FINDINGS.md` |
 | **Positioning vs HMT-GRN** | `POSITIONING_VS_HMT_GRN.md` |
 
 (Some filenames in the list above may be slightly inexact — read the actual `.md` to confirm before citing.)

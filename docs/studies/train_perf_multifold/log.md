@@ -15,7 +15,7 @@ See `PLAN.md` for the design + findings. This file is the chronological work log
 
 ### Session start — orientation
 - Branched `study/train-perf-multifold` off `main`. GPU free (A40, 45 GB).
-- Read `RESULTS_BOARD.md` + `TX_A40_BF16_NAN.md` + `HANDOFF_A40.md`. Board protocol = seed 0 × 5 folds,
+- Read `RESULTS_BOARD.md` + `../closing_data/archive/lessons/TX_A40_BF16_NAN.md` + `HANDOFF_A40.md`. Board protocol = seed 0 × 5 folds,
   engine `check2hgi_dk_ovl`, MIN_SEQ=10, **fp32 on A40** (`MTL_DISABLE_AMP=1`; Ampere bf16 backward grad-NaN).
 - **AL targets** (RESULTS_BOARD §1 board/H100): STL cat 55.87 · MTL cat 63.56 (+7.69) · STL reg 69.99 ·
   MTL reg 69.81 (−0.18). **§1b A40 same-device champion-G** (the right comparand for this box):

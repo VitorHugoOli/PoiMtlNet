@@ -8,7 +8,7 @@
 # AL -> -0.18; CA §4 bf16 BEATS both ceilings). See docs/studies/closing_data/{CA_MTL_DIVERGENCE,FL_PRECISION_GATE}.md.
 #
 # SCOPE: re-run ONLY the MTL (Cell B). The STL reg ceiling is p1/TRUE-fp32 and CLEAN (64.96, no collapse) ->
-# NOT re-run (CA_MTL_DIVERGENCE.md "reg ceiling stands"). Scores bf16 MTL vs that existing fp32 ceiling.
+# NOT re-run (docs/studies/closing_data/archive/lessons/CA_MTL_DIVERGENCE.md "reg ceiling stands"). Scores bf16 MTL vs that existing fp32 ceiling.
 #
 # This is the A40's device-class-clean B-A2 pair (A40 ceiling + A40 MTL); an intentional cross-GPU duplicate
 # of the H100 TX bf16 cell (user-directed), strengthening confidence the same way FL Task 1 A/B did.
@@ -23,7 +23,7 @@ export OMP_NUM_THREADS=24
 # MTL_STRICT is deliberately OFF (was =1 in the first attempt, which ABORTED at fold1 ep36 b69 on a
 # backward-pass NaN GRADIENT — finite loss=1.79, NOT an fp16 overflow). With strict OFF the non-finite
 # guard does its designed job: SKIP that one batch (no NaN-poison of the shared backbone) and CONTINUE
-# (CA_MTL_DIVERGENCE.md fix option 1). bf16 avoids the fp16-OVERFLOW collapse but not this rare grad-NaN.
+# (docs/studies/closing_data/archive/lessons/CA_MTL_DIVERGENCE.md fix option 1). bf16 avoids the fp16-OVERFLOW collapse but not this rare grad-NaN.
 # MTL_NAN_GUARD=1 logs grad-norm trajectory + every skip so we can judge skip frequency / result quality.
 # The GATE guard's fail-loud (lost with MTL_STRICT off) is replaced by the inline provenance assert below.
 export MTL_NAN_GUARD=1
@@ -32,7 +32,7 @@ export TORCHINDUCTOR_CACHE_DIR=/home/vitor.oliveira/.inductor_cache_board
 export MTL_AUTOCAST_BF16=1                     # bf16 train autocast (the fp16-overflow fix)
 export MTL_DISABLE_AMP_EVAL=1                  # fp32 eval (bf16 arm convention)
 # auto-fit: NEVER MTL_DATASET_GPU=1 for TX (forces ~31GB redundant copies -> OOM). Leave unset.
-# TX host-RAM guard DOUBLE-COUNTS (PR #35 / EP100_ABLATION_AND_TX_RAM.md §2): it fires after ~25GB is already
+# TX host-RAM guard DOUBLE-COUNTS (PR #35 / docs/studies/closing_data/archive/lessons/EP100_ABLATION_AND_TX_RAM.md §2): it fires after ~25GB is already
 # resident but compares the FULL ~66GB peak vs (avail - 16GB headroom), so it false-raises a run that fits.
 # Verified fit on this 125GB box: other-user ~17GB + TX peak ~66GB = ~83GB << 125GB (avail ~105GB). Lower the
 # headroom so the guard clears the false positive while still protecting the box (blocks if avail < ~56GB).

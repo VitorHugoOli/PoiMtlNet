@@ -59,6 +59,6 @@ MTL_DISABLE_AMP=1 (fp32), MTL_ONECYCLE_PER_HEAD_LR=1, MTL_STRICT=1, --no-checkpo
 ## Reproduce
 ```bash
 # from the joint-result worktree (has the standardized src/tracking/scoring.py + score_joint_best.py):
-/home/vitor.oliveira/.venv/bin/python docs/studies/closing_data_v2/score_all.py
+/home/vitor.oliveira/.venv/bin/python docs/studies/closing_data/joint_best/score_all.py
 # -> writes joint_best_score.json into each rundir + data/j1_results.json here, and prints all parity gates.
 ```

@@ -28,7 +28,7 @@ n=20 at all 6 states; the genuine gap is **MTL champion-G + STL category ceiling
 Gowalla states (Istanbul already n=20). The "AL/AZ/GE/FL complete" lore is the *archived mtl_improvement* study,
 NOT the board. Attempted on the A40 and hit three walls: **(1) speed** — FL fp32 overlap MTL ~24 min/epoch ⇒ days/seed
 (the ~10–15 min/seed estimate was the H100); **(2) no fast path** — A40 bf16 backward grad-NaNs at large C
-(`TX_A40_BF16_NAN.md`), fp16 overflows (`CA_MTL_DIVERGENCE.md`), so fp32 (`MTL_DISABLE_AMP=1`) is the only safe,
+(`../../docs/studies/closing_data/archive/lessons/TX_A40_BF16_NAN.md`), fp16 overflows (`../../docs/studies/closing_data/archive/lessons/CA_MTL_DIVERGENCE.md`), so fp32 (`MTL_DISABLE_AMP=1`) is the only safe,
 slow option; **(3) disk** — CA/TX OVL engines are 9–21 GB vs ~16 GB free (CA build crashed with `No space left on
 device`). ⚠ `p3_board.sh run_cell` does NOT set the precision env, so a bare run defaults to the **forbidden fp16**
 (set `MTL_AUTOCAST_BF16=1 MTL_DISABLE_AMP_EVAL=1` per RUN_MATRIX §0). **Run P1 on the H100**:

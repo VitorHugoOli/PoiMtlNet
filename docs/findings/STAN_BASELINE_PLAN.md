@@ -68,7 +68,7 @@ Same as current `next_stan`: `d_model=128, num_heads=4, dropout=0.3, seq_length=
 
 - `results/P1/region_head_alabama_region_5f_50ep_FAITHFUL_STAN.json`
 - `results/P1/region_head_arizona_region_5f_50ep_FAITHFUL_STAN.json`
-- New research note: `research/FAITHFUL_STAN_FINDINGS.md` reporting Acc@10 / Acc@1 / MRR vs:
+- New research note: `../studies/closing_data/archive/findings/FAITHFUL_STAN_FINDINGS.md` reporting Acc@10 / Acc@1 / MRR vs:
   - STL STAN on Check2HGI (substrate-equivalent published-architecture ceiling)
   - STL `next_gru` on Check2HGI (recurrent ceiling)
   - Markov-1-region (classical floor)

@@ -21,6 +21,14 @@ handoffs `A40.md` / `M2PRO.md` / `H100.md` (A1/M1-full/T6 all DONE; H100 was dec
 live board is now [`../v17_completion/README.md`](../v17_completion/README.md); the only still-running item (A2
 ReHDM CA/TX) + the optional coverage/doc chores are tracked in its task table.
 
+**Added 2026-07-13 (essentials-only compaction):** `findings/` = the four closed per-result findings
+(`W6_ENCODER_ISOLATION.md`, `CSLSL_CASCADE.md`, `ISTANBUL_BASELINES_RESULTS.md`, `FAITHFUL_STAN_FINDINGS.md` — their
+headline reads live in `RESULTS_BOARD §1b/§1c/§4`); the three 1-line lesson stubs were deleted (inbound links now
+point straight at `lessons/`); `STATISTICAL_PROTOCOL.md` + `PRECISION_LESSONS.md` moved to `../v17_completion/`;
+`run_logs/` gains the spent drivers `run_catx_v17_n20.sh` + `run_catx_v17_audit_1fold.sh`; the sibling study
+`closing_data_v2/` was folded in as [`../joint_best/`](../joint_best/README.md) (with `JOINT_BEST_SCORING.md`).
+Top level is now README + RESULTS_BOARD + log + RUN_MATRIX + perhead_lr_n20 only.
+
 **Added 2026-07-08 (compaction pass):** `lessons/{CA_MTL_DIVERGENCE,TX_A40_BF16_NAN,EP100_ABLATION_AND_TX_RAM}.md`
 (the 3 precision/schedule forensics — merged into the compact `../PRECISION_LESSONS.md`; 1-line breadcrumbs left at
 the old paths so inbound links keep resolving), `BOARD_CELLS.md` + `BOARD_H100_FINDINGS.md` (board-production

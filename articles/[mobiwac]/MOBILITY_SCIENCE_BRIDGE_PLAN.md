@@ -355,7 +355,7 @@ sections of `REVIEW_GERMANO.md` + `review/review_v2.md` + `review/README.md`, pl
 code (the `MTL_DUMP_VAL_PREDS` dump + `analysis/near_miss_distance.py`) was implemented as a background
 agent the same session, independently verified (diff read line by line, `tests/test_training/` re-run
 myself), and merged to main. The real A40 run landed as PR #59 (four states, 2026-07-07): recipe
-independently cross-checked against `docs/studies/closing_data/run_catx_v17_{n20,seed0_5f}.sh` (flag-set
+independently cross-checked against `docs/studies/closing_data/archive/run_logs/run_catx_v17_n20.sh + archive/run_logs/run_catx_v17_seed0_5f.sh` (flag-set
 diff empty), numbers cross-checked against the frozen board cells and internal consistency checks (OOD
 count vs. OOD-miss count, top-1 rate vs. the known Acc@1 ceiling), audited and merged to main the same day.
 

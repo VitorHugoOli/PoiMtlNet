@@ -140,7 +140,7 @@ def main():
         }
 
     out = {"per_run": per_run, "cells": cells, "order": ORDER}
-    outp = WORKTREE / "docs/studies/closing_data_v2/data/j1_results.json"
+    outp = WORKTREE / "docs/studies/closing_data/joint_best/data/j1_results.json"
     outp.write_text(json.dumps(out, indent=2))
 
     # ---------- report ----------

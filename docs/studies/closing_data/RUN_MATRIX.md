@@ -28,7 +28,7 @@ dataset (auto-fit) — ~15% faster, empirically result-neutral (cat +0.046 / reg
 byte-identical anchor, ≪ noise; `pre_freeze_gates/SPEED_LEVERS.md`). Run the WHOLE board compiled (never mix
 compiled/non-compiled cells); reviewers reproduce *with* them. torch **2.11** (no upgrade); `num_workers=0`.
 
-**Precision (PINNED 2026-06-23 — supersedes the implicit fp16 autocast; root cause `CA_MTL_DIVERGENCE.md`).**
+**Precision (PINNED 2026-06-23 — supersedes the implicit fp16 autocast; root cause `archive/lessons/CA_MTL_DIVERGENCE.md`).**
 Every MTL training cell runs **bf16 autocast** (`MTL_AUTOCAST_BF16=1`, `mtl_cv.py:321-326`) — NOT the trainer
 default fp16. fp16 autocast (no GradScaler) overflows the 65504 ceiling at CA/TX's wide reg logits → a
 deterministic ep30 NaN that poisons the shared backbone → both heads collapse (CA −5.23 / TX −2.41 reg were
@@ -128,7 +128,7 @@ decision and (b) the P2 freeze** — they fold into P3/M1+M3 and budget ONE re-r
 
 > Defines WHAT each baseline run answers and the non-negotiable rule that keeps every run comparable. The
 > statistical tests for these comparisons are pre-registered in
-> [`STATISTICAL_PROTOCOL.md`](STATISTICAL_PROTOCOL.md) (family B = baselines-vs-STL / baselines-vs-MTL; paired
+> [`v17_completion/STATISTICAL_PROTOCOL.md`](v17_completion/STATISTICAL_PROTOCOL.md) (family B = baselines-vs-STL / baselines-vs-MTL; paired
 > Wilcoxon for "we beat X", Holm-Bonferroni across the baseline × state × task grid; pairing per the SC/E2E
 > split). Grounding: [`../baseline_gap/TRIAGE.md`](../baseline_gap/TRIAGE.md) (B1–B5 + comparability classes),
 > `PAPER_BASELINES_STRATEGY.md`, §2 above (the row inventory).
@@ -149,7 +149,7 @@ Run 3 is a **substrate-column (SC)** form: it inherits the frozen base through t
 is **paired** vs runs 1 and 2 by construction (same folds/seeds/windowing/labels — only the embedding slot
 swaps). Run 4 is an **end-to-end (E2E)** form: it builds its own sequences and must be re-windowed onto the
 adopted base; it is paired vs ours only if it ran on the same user-disjoint splits + same windowing, else
-unpaired (see `STATISTICAL_PROTOCOL.md §4`).
+unpaired (see `v17_completion/STATISTICAL_PROTOCOL.md §4`).
 
 ### The non-negotiable rule — "original way" = original ARCH/EMBEDDING, NOT original DATA-PROTOCOL
 
@@ -192,7 +192,7 @@ POI2Vec / skip-gram / one-hot are the floor). Run 4 (end-to-end native) isolates
 whether the proposed model, embedding and heads together beat the published SOTA-equivalent method as a unit.
 A baseline can lose at run 3 (our embedding wins at matched capacity) yet be a different story at run 4 (its
 native architecture closes part of the gap), or vice-versa; reporting only one would let a reviewer dissolve
-or inflate the contribution. Both are carried, each tested per `STATISTICAL_PROTOCOL.md` (paired Wilcoxon vs
+or inflate the contribution. Both are carried, each tested per `v17_completion/STATISTICAL_PROTOCOL.md` (paired Wilcoxon vs
 our STL/MTL where folds match; Holm-corrected across the baseline × state × task grid).
 
 ## 3 · Counts

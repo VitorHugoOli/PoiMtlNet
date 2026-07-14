@@ -92,7 +92,7 @@ artifacts when present (and matching selector + min-best-epoch) and prints **per
   flagging the convention mismatch — diag-best is an upper bound on the deployable single checkpoint.
 - **Check `min_best_epoch` per run family** before scoring: v17 board = 0; B9-recipe (v11/v12/v15) = 5.
 
-## 6 · Results (J1 executed 2026-07-09) → `docs/studies/closing_data_v2/`
+## 6 · Results (J1 executed 2026-07-09) → `docs/studies/closing_data/joint_best/`
 
 All 18 v17/`dk_ovl` MTL rundirs were joint-best-scored (AL/AZ/FL/Istanbul n=20, CA/TX seed-0 5f). **The served
 single checkpoint reproduces the diag-best Table 3 within ≤ 0.06 pp (category) / ≤ 0.11 pp (region) on every
@@ -100,5 +100,5 @@ dataset (largest deviations 0.051 / 0.107, both at AZ); no verdict changes.** ca
 positive and 20/20 folds) and matches at AL/AZ (AL −0.31→−0.41, far inside the ±2 pp bound — the flagged AL tail
 risk did not materialize). Validated by three parity gates (diag-best 18/18, joint-epoch 90/90, paper 6/6) + a
 4-agent independent audit (from-scratch re-derivation bit-identical to 4 dp). Full corrected table, Δ-vs-ceiling
-analysis, decision memo, provenance, and audit: **[`../closing_data_v2/`](../closing_data_v2/)**
+analysis, decision memo, provenance, and audit: **this folder** (`joint_best/`)
 (`JOINT_BEST_RESULTS.md` is the table; `data/j1_results.json` + `score_all.py` reproduce it).

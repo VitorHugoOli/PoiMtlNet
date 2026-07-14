@@ -118,7 +118,7 @@ and FL (within 0.3 of the joint model, far above the dedicated ceiling), so the 
 not region-to-category transfer. On **region** the joint model **beats** the dedicated ceiling
 where the region space is large (FL +0.57, CA +2.18, TX +2.06, all 5 folds) and **matches** it
 within a two-point margin where the region space is small (AL −0.18, AZ −0.06, Istanbul −0.52; each a **tested
-equivalence**: paired TOST non-inferior at δ=2 pp, all three 90% CIs within ±0.7 pp — `STATISTICAL_PROTOCOL.md §3.4`). The cost we once
+equivalence**: paired TOST non-inferior at δ=2 pp, all three 90% CIs within ±0.7 pp — `../../docs/studies/closing_data/v17_completion/STATISTICAL_PROTOCOL.md §3.4`). The cost we once
 expected at scale does not appear: the largest region space (CA, 8,501 regions) is exactly where the joint model
 wins most. We report the region win as an empirical finding ordered by region count, and we control for the
 region-count versus data-density confound rather than claim a law.
@@ -167,7 +167,7 @@ The single joint model versus the dedicated single-task ceilings, under the adop
 - **Region: beats at the large region counts, matches at the small.** The beat rests on **FL +0.57 (4,703
   regions), CA +2.18 (8,501 regions), and TX +2.06 (6,553 regions), all 5 folds**. Matches within two points: AL −0.18, AZ −0.06, Istanbul −0.52 (board, n=20; paired-TOST arm at s0 Δ=−0.50),
   **each a tested equivalence** — paired TOST non-inferior at δ=2 pp (AL p=7e-5, 90% CI (−0.46,+0.09); AZ p=1.5e-4,
-  CI (−0.41,+0.29); Istanbul p=2e-5, CI (−0.65,−0.35)); all CIs sit well inside ±2 pp (`STATISTICAL_PROTOCOL.md §3.4`).
+  CI (−0.41,+0.29); Istanbul p=2e-5, CI (−0.65,−0.35)); all CIs sit well inside ±2 pp (`../../docs/studies/closing_data/v17_completion/STATISTICAL_PROTOCOL.md §3.4`).
 - **CA, the largest region state, is measured and beats**, and that single cell retires the earlier "cost grows with
   region count" reading. The earlier large region cost (and the TX −2.4 figure) was a precision artifact (fp16
   autocast / Ampere bf16), not a real trade-off.

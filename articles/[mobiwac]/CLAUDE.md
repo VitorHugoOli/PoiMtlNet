@@ -114,7 +114,7 @@ at their OWN best epoch — two epochs per fold), **disclosed in §6.2**. The si
 (both heads at the `geom_simple`-selected epoch the training run actually saved) are the **J1 lane** — camera-ready /
 response-letter intent, produced CPU-only by `scripts/closing_data/score_joint_best.py` on each board rundir. Never
 cite a number without naming its convention; full definitions + the `standard_scores.json` contract:
-[`docs/studies/closing_data/JOINT_BEST_SCORING.md`](../../docs/studies/closing_data/JOINT_BEST_SCORING.md).
+[`docs/studies/closing_data/joint_best/JOINT_BEST_SCORING.md`](../../docs/studies/closing_data/joint_best/JOINT_BEST_SCORING.md).
 
 ## 3 · Decisions ledger (settled; do not silently reopen)
 
@@ -174,8 +174,8 @@ tasks are **next-category / next-region** (never activity/area); keep next-categ
 
 **Archived ([`archive/`](archive/)) — work done, kept for provenance; do not treat as live state:**
 - `CLOSE_BLOCKERS_HANDOFF.md` — the 3 submission blockers (all closed: Tbl1/Tbl2/FL-CTLE/W6/TOST).
-- `STAN_REFOOTING_HANDOFF.md` — faithful-STAN re-footing (done AL/AZ/FL/Istanbul; the audit graduated to `closing_data/FAITHFUL_STAN_FINDINGS.md`).
-- `ISTANBUL_BASELINES_HANDOFF.md` — Istanbul baseline run-spec (results folded into `closing_data/ISTANBUL_BASELINES_RESULTS.md`).
+- `STAN_REFOOTING_HANDOFF.md` — faithful-STAN re-footing (done AL/AZ/FL/Istanbul; the audit graduated to `closing_data/archive/findings/FAITHFUL_STAN_FINDINGS.md`).
+- `ISTANBUL_BASELINES_HANDOFF.md` — Istanbul baseline run-spec (results folded into `closing_data/archive/findings/ISTANBUL_BASELINES_RESULTS.md`).
 - `LEAK_AUDIT_EXTEND_HANDOFF.md` — A4 leak-audit extension recipe (deferred; source of truth `pre_freeze_gates/A4_RESULTS.md`).
 - `BASELINE_HANDOFF.md` — the locked baseline plan (D1–D4 decisions, now mirrored in PAPER_PLAN §5.4/§7).
 - `BASELINE_AUDIT.md` — the adversarial audit that produced the baseline set (decision provenance).
@@ -191,8 +191,8 @@ and recorded.**
 - ⭐ **[`docs/studies/closing_data/`](../../docs/studies/closing_data/) — THE most important folder for this paper.**
   The study that produced every Part-2 number. Read in this order:
   - `RESULTS_BOARD.md` — the board (headline §1, file-map §3, baselines §4). The one source of truth for numbers.
-  - `STATISTICAL_PROTOCOL.md` — the pre-registered tests (Wilcoxon superiority + TOST non-inferiority + the n=20 plan).
-  - `FAITHFUL_STAN_FINDINGS.md`, `CSLSL_CASCADE.md`, `W6_ENCODER_ISOLATION.md`, `ISTANBUL_BASELINES_RESULTS.md` —
+  - `../../docs/studies/closing_data/v17_completion/STATISTICAL_PROTOCOL.md` — the pre-registered tests (Wilcoxon superiority + TOST non-inferiority + the n=20 plan).
+  - `../../docs/studies/closing_data/archive/findings/FAITHFUL_STAN_FINDINGS.md`, `../../docs/studies/closing_data/archive/findings/CSLSL_CASCADE.md`, `../../docs/studies/closing_data/archive/findings/W6_ENCODER_ISOLATION.md`, `../../docs/studies/closing_data/archive/findings/ISTANBUL_BASELINES_RESULTS.md` —
     the per-result findings (STAN, cascade tie, trunk-not-transfer probe, Istanbul baselines). The leak-audit
     finding is `../pre_freeze_gates/A4_RESULTS.md` (a sibling study, not under closing_data).
   - `HANDOFF_A40.md` — the live worklist for the remaining GPU runs; `log.md` — the outcomes log (what happened when).

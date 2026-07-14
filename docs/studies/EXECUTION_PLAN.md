@@ -325,7 +325,7 @@ Under gated overlap, FL reg MTL 75.52 vs STL 76.64 = **−1.12 (s42) / −1.21 (
 non-overlap; mechanism: overlap lifts the STL reg ceiling MORE than MTL reg). Cat strengthens (+3.12, beats).
 The reg "matches" claim moves from "−0.3 visibly ties" to "non-inferior within a TOST margin." **Audit fix
 (F3-2):** the δ=2 pp TOST in `STATISTICAL_AUDIT §0.3` is the **SUBSTRATE-axis** margin — the **MTL-vs-STL**
-reg-parity claim needs its OWN pinned margin (see [`closing_data/STATISTICAL_PROTOCOL.md §3`](closing_data/STATISTICAL_PROTOCOL.md);
+reg-parity claim needs its OWN pinned margin (see [`closing_data/v17_completion/STATISTICAL_PROTOCOL.md §3`](closing_data/v17_completion/STATISTICAL_PROTOCOL.md);
 recommend δ_reg=2 pp justified for THIS axis, user-confirm at P2). **F3-3:** the MTL headline JSONs are not
 committed → the P3 board MUST commit the MTL artifacts (C28).
 
@@ -336,7 +336,7 @@ committed → the P3 board MUST commit the MTL artifacts (C28).
   config can differ by ~fp-noise, confounding paired Δ). **Before parallelizing, run a cross-GPU equivalence
   A/B** (one FL cell on A40 vs A100, compiled+tf32) — confirm |Δ| ≤ fp-noise (~±0.05 pp); if it exceeds,
   by-state partition is mandatory and cross-GPU absolutes carry a caveat.
-- **Pinned methodology:** [`closing_data/STATISTICAL_PROTOCOL.md`](closing_data/STATISTICAL_PROTOCOL.md) (paired
+- **Pinned methodology:** [`closing_data/v17_completion/STATISTICAL_PROTOCOL.md`](closing_data/v17_completion/STATISTICAL_PROTOCOL.md) (paired
   Wilcoxon for superiority; TOST per-axis for equivalence; pairing discipline; Holm-Bonferroni) +
   [`RUN_MATRIX §2.5`](closing_data/RUN_MATRIX.md) baseline comparison design (substrate-column = embedding
   isolation; end-to-end native = system; both on OUR protocol, only emb/arch varies).
@@ -354,7 +354,7 @@ CA/TX (4703–8501 regions) could be worse than FL's −1.2; this single cell de
    gated-overlap reg EARLY (before the full multi-day board) so the **reg-claim framing is known up front**
    (non-inferior within δ_reg, or — if CA/TX exceed 2 pp — an honest re-scope / the composite-reg fallback). We
    adopt overlap regardless; the early cell only fixes how we WRITE the reg claim, not whether to freeze.
-2. **δ_reg = 2 pp → CONFIRMED** for the MTL-vs-STL reg-parity TOST (its own axis; `STATISTICAL_PROTOCOL.md §3`).
+2. **δ_reg = 2 pp → CONFIRMED** for the MTL-vs-STL reg-parity TOST (its own axis; `closing_data/v17_completion/STATISTICAL_PROTOCOL.md §3`).
 3. **A100 equivalence A/B + by-state partition → CONFIRMED.**
 
 ## 13 · Board launch sequence + device allocation (2026-06-21)
@@ -409,7 +409,7 @@ claim is therefore **NOT flat parity** — it is:
 > pp everywhere, in a single model.*
 The cat win is the robust headline; the reg side is a **cardinality-binned non-inferiority + an honest
 large-state cost** (mechanism: dense-data overlap lifts the STL reg ceiling more than MTL at high region
-counts). ⇒ update `STATISTICAL_PROTOCOL.md §3` (the reg TOST is **per-state / cardinality-binned**, not pooled)
+counts). ⇒ update `closing_data/v17_completion/STATISTICAL_PROTOCOL.md §3` (the reg TOST is **per-state / cardinality-binned**, not pooled)
 + the netcore C2 reg prose (provisional → finalized at M4). (Note: the non-overlap base would have given a flat
 clean Pareto −0.09…−0.31; the user chose overlap for methodological cleanliness + the dense-data argument,
 accepting the cardinality-binned reg framing.)

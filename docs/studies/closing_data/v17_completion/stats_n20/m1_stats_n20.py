@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """M1-PARTIAL — v17 pre-registered stats at the 4 fully-n=20 datasets (AL, AZ, FL, Istanbul).
 
-Pre-registration: docs/studies/closing_data/STATISTICAL_PROTOCOL.md (§2 paired Wilcoxon cat
+Pre-registration: docs/studies/closing_data/v17_completion/STATISTICAL_PROTOCOL.md (§2 paired Wilcoxon cat
 superiority; §3 TOST reg non-inferiority, delta_reg = 2 pp; §4 pairing discipline; §5 Holm).
 Conventions mirror scripts/closing_data/superiority_wilcoxon.py + region_match_tost.py.
 
