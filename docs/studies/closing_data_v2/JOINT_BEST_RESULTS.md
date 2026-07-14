@@ -19,8 +19,11 @@ numerically negligible for these well-converged v17 runs (every joint epoch land
 ## The corrected table (diag-best vs joint-best, side by side)
 
 Category = macro-F1, region = Acc@10 (FULL = top10_acc_indist·(1−ood_frac)). "Dedicated" = the n=20 best-vs-best
-single-task ceiling (`CEILINGS_N20_FINAL.md`, unchanged). n=20 = 4 seeds {0,1,7,100}×5f (± cross-seed sd);
-CA/TX = seed-0 ×5f provisional (± fold sd).
+single-task ceiling (`CEILINGS_N20_FINAL.md`, unchanged). n=20 = 4 seeds {0,1,7,100}×5f (± cross-seed sd).
+✅ **CA/TX are now n=20 joint-best too — task T6 DONE 2026-07-13** (`score_joint_best.py` on the 8 A1/seed-0
+rundirs → `joint_best_score.json` sidecars). The joint-best ≈ diag-best (Δ joint−diag ≤ 0.006 pp: CA cat −0.006 /
+reg −0.003, TX cat −0.000 / reg −0.003), so **no cell moved** and every CA/TX verdict (beats cat + reg) holds at
+the single-checkpoint joint-best. A1 (the GPU n=20 top-up) completed 2026-07-11 on the A40.
 
 ### Next-category (macro-F1)
 | Dataset | Regions | Dedicated | Joint **diag-best** | Joint **joint-best (deploy)** | Δdeploy−diag |
@@ -29,8 +32,8 @@ CA/TX = seed-0 ×5f provisional (± fold sd).
 | AL | 1,109 | 56.82 | 64.54 ±0.10 | **64.51 ±0.09** | −0.04 |
 | AZ | 1,547 | 56.43 | 65.84 ±0.02 | **65.79 ±0.02** | −0.05 |
 | FL | 4,703 | 74.51 | 79.85 ±0.03 | **79.84 ±0.02** | −0.01 |
-| TX | 6,553 | 69.79 | 77.23 ±0.12 | **77.23 ±0.12** | −0.00 |
-| CA | 8,501 | 70.60 | 77.04 ±0.20 | **77.04 ±0.20** | −0.00 |
+| TX | 6,553 | 69.79 | 77.239 ±0.014 | **77.239 ±0.013** | −0.00 |
+| CA | 8,501 | 70.60 | 77.052 ±0.006 | **77.046 ±0.005** | −0.01 |
 
 ### Next-region (Acc@10)
 | Dataset | Regions | Dedicated | Joint **diag-best** | Joint **joint-best (deploy)** | Δdeploy−diag |
@@ -39,8 +42,8 @@ CA/TX = seed-0 ×5f provisional (± fold sd).
 | AL | 1,109 | 70.11 | 69.80 ±0.05 | **69.70 ±0.09** | −0.11 |
 | AZ | 1,547 | 59.46 | 59.56 ±0.05 | **59.46 ±0.04** | −0.11 |
 | FL | 4,703 | 76.70 | 77.42 ±0.03 | **77.41 ±0.02** | −0.01 |
-| TX | 6,553 | 64.95 | 67.07 ±0.45 | **67.07 ±0.45** | −0.00 |
-| CA | 8,501 | 63.49 | 65.69 ±0.30 | **65.69 ±0.30** | −0.01 |
+| TX | 6,553 | 64.95 | 67.062 ±0.007 | **67.059 ±0.008** | −0.00 |
+| CA | 8,501 | 63.49 | 65.693 ±0.017 | **65.690 ±0.019** | −0.00 |
 
 ## Δ vs the dedicated ceiling — does the verdict change?
 
@@ -50,8 +53,8 @@ CA/TX = seed-0 ×5f provisional (± fold sd).
 | AL | +7.72 | **+7.69** | beats | −0.31 | **−0.41** | matches (≪2 pp) |
 | AZ | +9.40 † | **+9.35** | beats | +0.10 | **−0.00** | matches |
 | FL | +5.34 | **+5.33** | beats | +0.72 | **+0.71** | beats |
-| TX | +7.44 | **+7.44** | beats | +2.12 | **+2.12** | beats |
-| CA | +6.44 | **+6.44** | beats | +2.20 | **+2.20** | beats |
+| TX | +7.45 | **+7.45** | beats | +2.11 | **+2.11** | beats |
+| CA | +6.45 | **+6.45** | beats | +2.20 | **+2.20** | beats |
 
 † AZ diag Δcat: **+9.40** is the paper/board value (from the rounded 65.83 MTL cell, `CEILINGS_N20_FINAL.md`);
 the full-precision Δ from these cells (65.835 − 56.43) is **+9.41**, which is what `score_all.py` / `j1_results.json`
@@ -96,9 +99,10 @@ see [`AUDIT.md`](AUDIT.md).
 - **Recommended camera-ready action** (author's call): either (a) keep Table 3 as diag-best and add one sentence
   in §6.2 — "the single served checkpoint reproduces these cells within 0.1 pp (deployable joint-best,
   `geom_simple` selector)"; or (b) add a joint-best row/column. Numbers for both are here.
-- **What must travel with these numbers:** always name the convention; the CA/TX cells are seed-0 provisional
-  (T6, blocked on A1 n=20); the Istanbul region superiority stat wants a joint-best re-run (T7); AL/AZ region are
-  *matches*, never beats.
+- **What must travel with these numbers:** always name the convention; the CA/TX cells here are the seed-0
+  ×5f joint-best re-score (the n=20 *joint-best* pass is T6, CPU-only and still pending — but A1, the GPU top-up,
+  is done 2026-07-11 and the n=20 diag-best confirms these seed-0 values within <0.13 pp); the Istanbul region
+  superiority stat wants a joint-best re-run (T7); AL/AZ region are *matches*, never beats.
 
 ## Files
 - `data/j1_results.json` — per-run + per-cell machine-readable results (incl. per-fold arrays, epochs, audits).

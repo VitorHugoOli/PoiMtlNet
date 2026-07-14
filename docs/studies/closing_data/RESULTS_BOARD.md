@@ -27,15 +27,18 @@
 > | AL (1109) | **64.54** | 63.56 | **+0.99** | 69.80 | ≈ | n=20 `perhead_lr_n20.md` |
 > | AZ (1547) | **65.84** | 63.39 | **+2.45** | 59.56 | ≈ | n=20 `perhead_lr_n20.md` |
 > | FL (4703) | **79.85** | 79.68 (n=20 base) | **+0.17** | 77.42 | **+0.20** | n=20 `perhead_lr_n20.md` |
-> | CA (8501) | 77.04±0.20 | 77.33 (bf16 board) | **−0.29** | 65.69±0.30 | **+0.03** | s0-5f `catx_v17_seed0_5f/RESULTS.md` |
-> | TX (6553) | 77.23±0.12 | 77.51 (**fp32** board) | **−0.28** | 67.07±0.45 | **+0.05** | s0-5f `catx_v17_seed0_5f/RESULTS.md` |
+> | CA (8501) | 77.05±0.01 | 77.33 (bf16 board) | **−0.28** | 65.69±0.02 | **+0.03** | **n=20** `catx_v17_n20/` |
+> | TX (6553) | 77.24±0.01 | 77.51 (**fp32** board) | **−0.27** | 67.06±0.01 | **+0.04** | **n=20** `catx_v17_n20/` |
 >
 > **Honest read:** v17's cat lever **wins at small/mid states (+0.2…+2.5)** but **costs ~0.28 pp cat at the two
 > largest states (CA/TX)**, while **reg ties/beats everywhere**. The large-state dip is **real, not a bf16 artifact**
-> — TX's board is fp32 (clean same-precision) and still −0.28 (~2σ), matching CA's −0.29. §1 below stays the **board
-> of record** (n=5 seed-0) until CA/TX land at **n=20 on the A40** ({1,7,100}; the H100 lane is gone — see
-> `v17_completion/A40.md`), which firms the large-state Δcat significance. v17 remains `DEFAULT_CANON`;
-> §1 headline updates after the CA/TX n=20 + the flag-OFF parity test.
+> — TX's board is fp32 (clean same-precision) and still −0.27 (~2σ), matching CA's −0.28. ✅ **CA/TX landed at n=20 on
+> the A40** (A1, {1,7,100}, complete **2026-07-11** — `docs/results/closing_data/catx_v17_n20/`): the top-up
+> **confirms** the seed-0 values with very tight cross-seed variance (CA cat 77.052 ±0.006 / reg 65.693 ±0.017;
+> TX cat 77.239 ±0.014 / reg 67.062 ±0.007), so the large-state −0.28 cat trade and the +0.03/+0.04 reg gain are now
+> firm at n=20. **Every v17 board cell is now n=20 — the board is complete.** v17 remains `DEFAULT_CANON`.
+> (The frozen v16 §1 table below is unchanged — it is the v16 board-of-record, a separate lineage; the v17 Δs-vs-ceiling
+> live in [`v17_completion/CEILINGS_N20_FINAL.md`](v17_completion/CEILINGS_N20_FINAL.md), now n=20 at all states.)
 >
 > 📐 **Which ceiling table is which (reconciliation, 2026-07-08 — do not mix):** the Gowalla **§1 table below uses the
 > OLD ceilings** (v16-era recipe `max_lr 3e-3`, **seed-0 n=5**) against the v16 MTL — it is the frozen v16

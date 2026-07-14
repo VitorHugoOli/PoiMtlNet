@@ -4,7 +4,20 @@ Champion **v17** (= v16 + bs8192 + per-head cat-lr 1e-3 via `MTL_ONECYCLE_PER_HE
 engine `check2hgi_dk_ovl` (gated stride-1 overlap), **fp32** (`MTL_DISABLE_AMP=1`), matched scorer
 `a40_score_matched.py`. Serial on the A40 (2-wide infeasible: 2×~27 GB VRAM > 46; fold-construction RAM guard).
 
-## Cells
+> ✅ **n=20 COMPLETE (A1 on the A40, 2026-07-11).** Seeds `{1,7,100}` added to seed-0 → full n=20 (4 seeds × 5 folds).
+> Per-cell scores: `docs/results/closing_data/catx_v17_n20/{california,texas}_s{1,7,100}.json`. Driver
+> `v17_completion/a1_catx/run_a1_catx_n20.sh` (1-wide fp32, RAM-gated, resumable — TX s100 auto-recovered a transient
+> rc=132 crash via the 2× retry). The n=20 **CONFIRMS** the seed-0 values below with tight cross-seed variance:
+>
+> | state | v17 cat (n=20) | v17 reg (n=20) | Δcat vs ceiling | Δreg vs ceiling |
+> |---|---|---|---|---|
+> | **CA** | **77.052 ± 0.006** | **65.693 ± 0.017** | **+6.45** ✅beats | **+2.20** ✅beats |
+> | **TX** | **77.239 ± 0.014** | **67.062 ± 0.007** | **+7.45** ✅beats | **+2.11** ✅beats |
+>
+> (Δ vs the n=20 STL ceilings in `CEILINGS_N20_FINAL.md`: CA cat 70.60/reg 63.49, TX cat 69.79/reg 64.95.) The
+> seed-0 table below is retained for provenance; **the n=20 above is the number of record.**
+
+## Cells (seed-0, original — superseded by the n=20 banner above)
 
 | state (regions) | v17 cat macro-F1 | board cat | Δcat | v17 reg top10 | board reg | Δreg | board prec |
 |---|---|---|---|---|---|---|---|
@@ -34,6 +47,8 @@ Accept the small large-state cat cost (~0.28 pp, reg-neutral) for the large smal
 simplicity. **v17 stays `DEFAULT_CANON`.** The large-state cat trade is documented here + in the board callout so
 it travels with the numbers.
 
-## Next
-Seeds **{1,7,100} → H100** (`run_catx_v17_n20_h100.sh` + `CATX_V17_N20_H100_HANDOFF.md`) to complete CA/TX at
-n=20. The H100 fp32 n=20 will firm up the large-state Δcat significance (paired vs the v16 board).
+## Next — ✅ DONE
+Seeds **{1,7,100}** completed on the **A40** (2026-07-11, A1; the H100 lane was retired) → CA/TX at **n=20**. The
+fp32 n=20 firmed the large-state Δ significance: the v17-vs-v16-board cat trade holds (CA −0.28 / TX −0.27) and
+reg ties+ (CA +0.03 / TX +0.04), now at n=20 with cross-seed σ ≤ 0.017. **The v17 board is complete** — folded into
+`CEILINGS_N20_FINAL.md`, `RESULTS_BOARD §1`, and `stats_n20/RESULTS.md` (M1-full unblocked).

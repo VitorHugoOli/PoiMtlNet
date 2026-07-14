@@ -4,18 +4,21 @@
 > logits/JSONs, the pre-registered stats, the CPU-only leak audit, and the doc/LaTeX/submission work. Everything here
 > is CPU-bound and hours-scale. Recipe discipline (for any re-score): track [`README.md`](README.md).
 
-> **Sequencing (updated 2026-07-08, post-PR #58 — M1 is now PARTIALLY UNBLOCKED).** The ceilings are n=20 at all 6
-> datasets and the v17 MTL is n=20 at **AL/AZ/FL/Istanbul** → **M1-partial can run NOW at those 4** (fully n=20 on
-> both sides). Only the **CA/TX** cells wait on **A1 (ex-H1, now on the A40)**. M2–M5 are independent — anytime.
+> **Sequencing (updated 2026-07-11 — M1 is now FULLY UNBLOCKED).** The ceilings are n=20 at all 6 datasets and the
+> v17 MTL is now n=20 at **all 6** — the **CA/TX** cells landed with **A1 done 2026-07-11 on the A40** (`docs/results/closing_data/catx_v17_n20/`;
+> CA cat 77.052 ±0.006 / reg 65.693 ±0.017, TX cat 77.239 ±0.014 / reg 67.062 ±0.007 — confirms seed-0 within
+> <0.13 pp). → **M1-full can run NOW at all 6.** (Prior state: M1-partial at AL/AZ/FL/Istanbul while CA/TX waited on
+> A1, ex-H1.) M2–M5 are independent — anytime.
 
 ## Queue
 
-### M1 · v17 stats: Wilcoxon + TOST + per-cell Holm — **M1-partial NOW (AL/AZ/FL/Istanbul); CA/TX after A1**
-**NOW (M1-partial):** on the committed n=20 artifacts (no GPU, no waiting): pair the v17 MTL (AL/AZ/FL
-`perhead_lr_n20.md`; Istanbul `h3_istanbul/`) against the n=20 best-vs-best ceilings (`CEILINGS_N20_FINAL.md`,
-**AZ = 56.43 corrected**) → per-cell Wilcoxon (cat superiority) + TOST (reg matches) + Holm across the 4-dataset
-family; write the verdicts to a new `v17_completion/stats_n20/` record. **After A1 (CA/TX n=20, A40):** extend to
-all 6 → the full family Holm → drop "provisional" everywhere.
+### M1 · v17 stats: Wilcoxon + TOST + per-cell Holm — **M1-full NOW at all 6 (A1 done 2026-07-11)**
+**NOW (M1-full):** on the committed n=20 artifacts (no GPU, no waiting): pair the v17 MTL (AL/AZ/FL
+`perhead_lr_n20.md`; Istanbul `h3_istanbul/`; **CA/TX `docs/results/closing_data/catx_v17_n20/` — A1 done 2026-07-11
+on the A40**) against the n=20 best-vs-best ceilings (`CEILINGS_N20_FINAL.md`,
+**AZ = 56.43 corrected**) → per-cell Wilcoxon (cat superiority) + TOST (reg matches) + Holm across the full 6-dataset
+family; write the verdicts to a new `v17_completion/stats_n20/` record. The remaining step is to re-run
+`m1_stats_n20.py` on the CA/TX n=20 per-fold (verdicts not expected to move — the n=20 confirms seed-0 within <0.13 pp).
 Original spec (kept):
 - Re-score every §6.2 cell at n=20 via the matched scorer (`scripts/closing_data/h100_score_matched.py` /
   `r0_matched_rescore.py` read saved logits — no re-training).

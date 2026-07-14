@@ -48,8 +48,10 @@ checkpoint "was not re-scored … can be provided on request; do NOT claim they 
   AL region tail-risk, Istanbul/FL region-margin sensitivity, completeness critic. → `AUDIT.md`.
 - [x] **T5 — Corrected table + decision memo.** Side-by-side diag-best vs joint-best, Δ vs ceilings under both
   conventions, does any verdict change? → `JOINT_BEST_RESULTS.md`.
-- [ ] **T6 (deferred, GPU) — CA/TX joint-best at n=20.** Blocked on **A1** (CA/TX v17 MTL n=20, seeds {1,7,100});
-  the top-up is incomplete on disk. When A1 lands, re-run T2 on the CA/TX n=20 rundirs and drop "provisional".
+- [x] **T6 — CA/TX joint-best at n=20. ✅ DONE 2026-07-13.** A1 (the GPU n=20 top-up) completed 2026-07-11;
+  ran `score_joint_best.py` on the 8 CA/TX {0,1,7,100} rundirs → `joint_best_score.json` sidecars, aggregated to
+  n=20. **Joint-best ≈ diag-best (Δ ≤ 0.006 pp)** → JOINT_BEST_RESULTS.md cat/reg/Δ cells refreshed to n=20; no
+  cell moved, every CA/TX beats-verdict holds at the single-checkpoint joint-best. "provisional" dropped.
 - [ ] **T7 (deferred, CPU) — camera-ready stats on joint-best per-fold pairs.** The paper's region-superiority
   (Wilcoxon 90% CI) + AL/AZ non-inferiority (TOST) were run on diag-best per-fold pairs. For the camera-ready
   joint-best row, re-run `superiority_wilcoxon.py` / `region_match_tost.py` on the joint-best per-fold series.

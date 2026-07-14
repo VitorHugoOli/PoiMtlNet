@@ -43,9 +43,12 @@ The joint-best point estimate is lower, so the up-arrow cells were stress-tested
 - **FL uses the `new` bs8192 per-head runs** (diag cat 79.848 = paper 79.85), not the bs2048 `base`.
 - **Recipe verified v17** from `model_params.json`: bs 8192, OneCycle per-head max_lr cat 1e-3 / reg 3e-3 / shared
   3e-3 (per-head LR APPLIED, not uniform), static_weight 0.75/0.25, AdamW wd 0.05.
-- **CA/TX A1 (n=20) genuinely incomplete on disk:** only a dead CA seed-1 attempt (rundir 742357, 4/5 folds, no
-  sidecar) exists; no CA s7/s100, no TX seeds. `a1_DRIVER.log` shows A1 launched only CA s1 (2026-07-08 19:14) then
-  stopped. → CA/TX correctly stay **seed-0 5f provisional** (task T6 remains blocked on A1).
+- **CA/TX A1 (n=20) genuinely incomplete on disk *at audit time*:** only a dead CA seed-1 attempt (rundir 742357,
+  4/5 folds, no sidecar) existed; no CA s7/s100, no TX seeds. `a1_DRIVER.log` showed A1 launched only CA s1
+  (2026-07-08 19:14) then stopped. → CA/TX correctly stayed **seed-0 5f provisional** for this joint-best re-score.
+  **UPDATE: A1 has since completed 2026-07-11 on the A40** (CA/TX v17 MTL n=20, `docs/results/closing_data/catx_v17_n20/`);
+  the n=20 diag-best confirms the seed-0 values within <0.13 pp. The *joint-best* n=20 re-score (task T6) is now
+  unblocked (CPU-only) but not yet run, so the seed-0 joint-best cells above stand until it is.
 - **STL "Dedicated" ceilings need no joint-best re-score** — a single-task checkpoint is picked on that task's own
   metric = its diag-best (joint-best == diag-best by construction; `score_joint_best.py` can't even run on an STL
   rundir, it requires paired cat+reg CSVs).
@@ -58,4 +61,6 @@ The joint-best point estimate is lower, so the up-arrow cells were stress-tested
    update the note to cite the actual joint-best numbers (they *confirm* the reported cells, within 0.1 pp).
 2. **If joint-best is ever RENDERED in place of a diag-best cell**, re-verify TOST/CI on the three thin reg cells
    only (AL −0.42, Istanbul +0.19, AZ −0.00); every cat beat and the FL/TX/CA reg ↑ are safe (task T7).
-3. **CA/TX at n=20** (task T6) is the only genuinely open item, and it is blocked on the A1 GPU top-up, not on J1.
+3. **CA/TX at n=20** (task T6) is the only genuinely open item. The A1 GPU top-up it depended on is **done
+   (2026-07-11, A40)** — so T6 is now a CPU-only re-score (re-run T2 `score_joint_best.py` on the CA/TX n=20 rundirs),
+   no longer GPU-blocked. The n=20 diag-best already confirms the seed-0 cells within <0.13 pp.

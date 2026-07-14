@@ -57,7 +57,8 @@ Rundir families to cover (see [`v17_completion/README.md`](v17_completion/README
 
 - **perhead_lr_n20** — AL / AZ / FL, n=20 {0,1,7,100}×5f (`perhead_lr_n20.md`; driver `run_n20_perhead.sh`,
   per-PID rundirs — see `train_perf_multifold/BATCH_SIZE_SWEEP.md` for the rundir→seed mapping caveat).
-- **catx_v17_seed0_5f** — CA / TX seed-0 5f (`catx_v17_seed0_5f/RESULTS.md`) + the CA/TX n=20 rundirs once A1 lands.
+- **catx_v17_seed0_5f** — CA / TX seed-0 5f (`catx_v17_seed0_5f/RESULTS.md`) + the CA/TX n=20 rundirs (A1 done
+  2026-07-11 on the A40 — `docs/results/closing_data/catx_v17_n20/`; the n=20 *joint-best* re-score is the still-pending CPU task T6).
 - **h3_istanbul** — Istanbul dk_ovl+v17 n=20 (`v17_completion/h3_istanbul/RESULTS.md`, `step3_runs`).
 
 Legacy rundirs (pre-fix) have no `standard_scores.json`; the scorer falls back to the CSVs automatically.
