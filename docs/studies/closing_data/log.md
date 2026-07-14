@@ -403,3 +403,23 @@ fp32, resumable. 6/6 cells: **CA cat 77.052 ±0.006 / reg 65.693 ±0.017 · TX c
 `8bf2a55`, `b766a3d`). M1-full is now unblocked at all 6 (remaining: re-run `m1_stats_n20.py` on the CA/TX n=20
 per-fold; verdicts not expected to move). The still-pending CPU item is the CA/TX *joint-best* n=20 re-score
 (closing_data_v2 task T6).
+
+## 2026-07-13 — PR #63 MERGED (audited) + M1-FULL & T6 closed + handoff compaction
+
+**Audit (orchestrator):** every PR #63 number independently recomputed from the committed JSONs before merge —
+the 6 diag-best n=20 cells (CA 77.052/65.693, TX 77.239/67.062 = exact seed-mean of the 4 per-seed JSONs +
+`catx_v17_seed0_5f/summary.tsv`), the Δs vs `CEILINGS_N20_FINAL` (CA +6.45/+2.20, TX +7.45/+2.11, arithmetic-exact),
+the 8 joint-best sidecars (CA 77.046/65.690, TX 77.239/67.059, ≈ diag-best ≤ 0.006 pp aggregate), and the M1-FULL
+artifact→board gates (all `[OK]`). **CLEAN — merged to main** (`d15d2398`).
+
+**Closed with it:** **M1-FULL** — the pre-registered 6-dataset cat-superiority family **Holm ALL REJECT @ α=0.05**
+(every adj-p ≤ 8.9e-07; reg: beats at FL/CA/TX/Istanbul, TOST-matches at AL/AZ; n=4 Wilcoxon floor 0.0625 disclosed,
+powered paired-t per protocol). **T6** — CA/TX joint-best at n=20 ≈ diag-best; every beats-verdict holds at the
+single-checkpoint too. **No verdict changed anywhere.**
+
+**Compaction (this entry):** the three per-machine v17-completion handoffs (`A40.md`/`M2PRO.md`/`H100.md`, all
+queues done or decommissioned) moved to `archive/handoffs/` (1-line stubs remain, same convention as the 07-08
+lessons pass); `v17_completion/README.md` is the single live board carrying the residual queue. Stale "pending
+A1/T6" spots fixed (`closing_data_v2/JOINT_BEST_RESULTS.md`, studies `README.md` row). **Residual non-verdict
+work:** A2 ReHDM CA/TX (🔄 running, resumable) · optional A4 cascade CA/TX · M2 leak-audit coverage · M3 bridging
+re-score · M4/M5 doc hygiene. The paper board itself needs nothing further.

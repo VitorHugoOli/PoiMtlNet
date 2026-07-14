@@ -1,6 +1,15 @@
 # v17_completion — the track to finish the MobiWac paper board at v17
 
-> **New track (2026-07-01; re-allocated 2026-07-08).** The paper switched its headline to **v17** (= v16 + bs8192 +
+> ## ✅ TRACK COMPLETE (2026-07-13, PR #63) — the v17 board is n=20 at ALL six datasets
+> A1 (CA/TX v17 MTL n=20) landed 2026-07-11; **M1-full** (6-dataset pre-registered Holm: **ALL REJECT @ α=0.05**,
+> `stats_n20/m1_full_output.txt`) and **T6** (joint-best n=20 ≈ diag-best, Δ ≤ 0.006 pp aggregate,
+> `../../closing_data_v2/JOINT_BEST_RESULTS.md`) are done. **No verdict changed.** The per-machine handoffs
+> (`A40.md` / `M2PRO.md` / `H100.md`) are archived → [`../archive/handoffs/`](../archive/handoffs/) (stubs remain).
+> **Still open (non-verdict-bearing):** **A2** ReHDM CA/TX (🔄 running on the A40, resumable) + the optional
+> coverage/doc chores (A4 CA/TX cascade · M2 leak-audit CA/TX/Ist · M3 bridging re-score · M4/M5 doc hygiene) —
+> see the task table below.
+>
+> **Original track brief (2026-07-01; re-allocated 2026-07-08).** The paper switched its headline to **v17** (= v16 + bs8192 +
 > per-head cat-lr 1e-3; `DEFAULT_CANON`, `f54a04de`). This track holds the remaining runs + analysis to make the
 > **whole board v17**. ⚠ **The H100 lane is GONE (no access, 2026-07-08)** — machine split is now:
 > **A40 = ALL GPU work (incl. the former-H100 H1) · M2 Pro = no-GPU analysis.**

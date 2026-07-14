@@ -99,9 +99,9 @@ see [`AUDIT.md`](AUDIT.md).
 - **Recommended camera-ready action** (author's call): either (a) keep Table 3 as diag-best and add one sentence
   in §6.2 — "the single served checkpoint reproduces these cells within 0.1 pp (deployable joint-best,
   `geom_simple` selector)"; or (b) add a joint-best row/column. Numbers for both are here.
-- **What must travel with these numbers:** always name the convention; the CA/TX cells here are the seed-0
-  ×5f joint-best re-score (the n=20 *joint-best* pass is T6, CPU-only and still pending — but A1, the GPU top-up,
-  is done 2026-07-11 and the n=20 diag-best confirms these seed-0 values within <0.13 pp); the Istanbul region
+- **What must travel with these numbers:** always name the convention; the CA/TX joint-best is now **n=20**
+  (T6 ✅ DONE 2026-07-13 on the A1 rundirs — sidecars `docs/results/closing_data/catx_v17_n20/joint_best/`:
+  CA 77.046/65.690, TX 77.239/67.059, ≈ diag-best within ≤ 0.006 pp at the aggregate); the Istanbul region
   superiority stat wants a joint-best re-run (T7); AL/AZ region are *matches*, never beats.
 
 ## Files

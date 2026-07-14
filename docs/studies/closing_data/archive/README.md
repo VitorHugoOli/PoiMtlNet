@@ -16,6 +16,11 @@
 
 **Added 2026-07-08 (post-PR #58):** `HANDOFF_A40.md` (the old root A40 worklist — superseded by `../v17_completion/A40.md`), `CATX_V17_N20_H100_HANDOFF.md` + `run_logs/run_catx_v17_n20_h100.sh` (the H100 lane is gone; the A40 driver `../run_catx_v17_n20.sh` + `../v17_completion/A40.md §A1` supersede).
 
+**Added 2026-07-13 (post-PR #63 — the v17 board is COMPLETE):** `handoffs/` = the three per-machine v17-completion
+handoffs `A40.md` / `M2PRO.md` / `H100.md` (A1/M1-full/T6 all DONE; H100 was decommissioned 2026-07-08). The single
+live board is now [`../v17_completion/README.md`](../v17_completion/README.md); the only still-running item (A2
+ReHDM CA/TX) + the optional coverage/doc chores are tracked in its task table.
+
 **Added 2026-07-08 (compaction pass):** `lessons/{CA_MTL_DIVERGENCE,TX_A40_BF16_NAN,EP100_ABLATION_AND_TX_RAM}.md`
 (the 3 precision/schedule forensics — merged into the compact `../PRECISION_LESSONS.md`; 1-line breadcrumbs left at
 the old paths so inbound links keep resolving), `BOARD_CELLS.md` + `BOARD_H100_FINDINGS.md` (board-production
