@@ -10,15 +10,15 @@
 \section{Discussion and Limitations}
 \label{sec:discussion}
 
-One model serves both tasks: a shared trunk carries the semantic context that lifts the next-category task over a dedicated model on every dataset, and a private spatial path keeps the next-region task competitive, a non-inferior match (TOST, $\pm2$~pp) at the two small U.S. states and a tested gain at the other four datasets (Table~\ref{tab:results}). Across the five U.S. states, the region gain rises with region count (Fig.~\ref{fig:deltas}).
+One model serves both tasks: the shared trunk carries the semantic context that lifts the next-category task, and the private spatial path keeps the next-region task competitive (Table~\ref{tab:results}; Fig.~\ref{fig:deltas}).
 
 A service could treat the model's top-ranked next regions as an anticipatory
 set: at California, ten regions out of 8{,}501 contain the true next region 65.69
 percent of the time, over 500 times better than picking ten at
-random. On four datasets (Alabama, Arizona, Florida, and Istanbul; a single seed over five folds), the ten shortlisted regions lie a median of 3 to 8 kilometers from the shortlist's centroid, against 20 to 241 kilometers for two regions drawn at random. This remains motivation, not a measured service result.
+random. On four datasets (Alabama, Arizona, Florida, and Istanbul; a single seed over five folds), the ten shortlisted regions lie a median of 3 to 8 kilometers from the shortlist's centroid, against 17 to 176 kilometers for ten regions drawn at random from the same candidate set (median over 10,000 draws). This remains motivation, not a measured service result.
 
 Two limits qualify these results. First, our representation is trained once over all places; visits to places
-never seen during training are the single effect that we cannot fully isolate. A planned follow-up trains it on each fold's training places only and embeds unseen visits. Second, a mobility-aware service is the background motivation of this work rather than its subject; we do not build or evaluate one, and the paper's claims are the prediction results themselves.
+never seen during training are the single effect that we cannot fully isolate. A planned follow-up trains it on each fold's training places only and embeds unseen visits. Second, we do not build or evaluate a mobility-aware service; it is background motivation, and the paper's claims are the prediction results themselves.
 
 Our representation is a fixed per-visit vector that any downstream model
 can consume. Moura et al.~\cite{moura2025mobilityaware}, whose structural

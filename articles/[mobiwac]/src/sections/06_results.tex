@@ -14,23 +14,22 @@
 \label{sec:results-part1}
 The check-in-level representation outperforms a standard place embedding
 (HGI~\cite{huang2023hgi}) on next-category macro-F1 by a wide gap on every
-dataset (Table~\ref{tab:substrate}). The comparison is controlled: target, single-task model, training configuration, windowing, and folds are identical; only the input representation changes (a vector per visit versus a vector per place), so the difference isolates the representation. The check-in-level column keeps one fixed configuration, not the per-dataset-tuned dedicated model of Table~\ref{tab:results}. The gaps are $+29.31$ at Alabama, $+27.63$ at Arizona, $+39.62$ at Florida, $+37.95$
-at California, and $+37.47$ at Texas. The same holds at Istanbul ($+28.09$).
-A controlled test isolates this: averaging the per-visit vectors into one vector per place removes roughly 64 to 90 percent of the gain (state-dependent), so most of the gain is the context that each visit carries, not extra training signal.
+dataset (Table~\ref{tab:substrate}). The comparison is controlled: target, single-task model, training configuration, windowing, and folds are identical; only the input representation changes (a vector per visit versus a vector per place), so the difference isolates the representation. The check-in-level column keeps one fixed configuration, not the per-dataset-tuned dedicated model of Table~\ref{tab:results}. The gaps range from $+27.63$ (Arizona) to $+39.62$ (Florida), with Istanbul at $+28.09$.
+A controlled test isolates this: averaging the per-visit vectors into one vector per place removes roughly 64 to 90 percent of the gain (state-dependent), so most of the gain is the context that each visit carries, not extra training signal (more training vectors per place).
 
 The geometry of the vectors shows why the representation helps this task in
-particular: the per-visit vectors' silhouette score by category (how tight and well separated the seven labeled groups are, on a $-1$ to $1$ scale) is about $0.57$ against about $0.00$ for the place embedding, and their nearest-neighbor category purity (the share of nearest neighbors with the vector's own category) is about $0.98$ against about $0.78$ (both averaged over the five U.S. states). The same geometry does not separate regions, so the benefit is category-only (the joint model's spatial stream instead reads the region-level vectors of the same graph, Section~\ref{sec:method-model}). CTLE~\cite{lin2021ctle}, the closest prior contextual embedding, also gives each visit its own vector, but it pretrains on place identifiers and timestamps alone, so the category vocabulary never enters its training, whereas our graph reads each visit's category and time of day as input features. At Florida, we fine-tune CTLE together with the task model, using its authors' defaults and the same 64 dimensions and windowing as ours. It reaches $33.45$ macro-F1 at its best epoch and $29.69$ at its final one (an epoch is one pass over the training data), about two points below the place embedding under the same best-epoch rule, and far below the check-in-level representation's $75.15$. With frozen weights, fed to the same single-task model, CTLE repeats the ordering at Alabama, Arizona, and Istanbul, with our representation ahead by $+37.8$, $+37.0$, and $+28.7$ macro-F1. A feature-concatenation control, the place embedding joined with the same raw
+particular: the per-visit vectors' silhouette score by category (how tight and well separated the seven labeled groups are, on a $-1$ to $1$ scale) is about $0.57$ against about $0.00$ for the place embedding, and their nearest-neighbor category purity (the share of nearest neighbors with the vector's own category) is about $0.98$ against about $0.78$ (both averaged over the five U.S. states). The same geometry does not separate regions, so the benefit is category-only (the joint model's spatial stream instead reads the region-level vectors of the same graph, Section~\ref{sec:method-model}). CTLE~\cite{lin2021ctle}, the closest prior contextual embedding, also gives each visit its own vector, but it pretrains on place identifiers and timestamps alone, so the category vocabulary never enters its training, whereas our graph reads each visit's category and time of day as input features. At Florida, we fine-tune CTLE together with the task model, using its authors' defaults and the same 64 dimensions and windowing as ours. It reaches $33.45$ macro-F1 at its best epoch and $29.69$ at its final one (an epoch is one pass over the training data), about two points below the place embedding under the same best-epoch rule, and far below the check-in-level representation's $75.15$. With frozen weights, fed to the same single-task model, CTLE repeats the ordering at Alabama, Arizona, and Istanbul, with our representation ahead by $+37.8$, $+37.0$, and $+28.7$ macro-F1. A feature-concatenation control joins the place embedding with the same raw
 per-visit features that our graph reads (the category one-hot plus hour and
-day-of-week encodings), fed to the same single-task model, does not close the
-gap either: at Alabama, Arizona, and Florida it raises the place embedding by
-only $+2.0$, $+1.7$, and $+0.8$ macro-F1, under a tenth of the
-place-to-check-in gap at each state, so the gain comes from
+day-of-week encodings) and feeds the result to the same single-task model. It
+does not close the gap either: at Alabama, Arizona, and Florida it raises the
+place embedding by only $+2.0$, $+1.7$, and $+0.8$ macro-F1, under a tenth of
+the place-to-check-in gap at each state. The gain therefore comes from
 the hierarchical per-visit representation, not from contextualization alone or
 feature injection.
 
 \subsection{One model, two tasks}
 \label{sec:results-part2}
-One model outperforms or matches the dedicated single-task
+One model outperforms or matches the dedicated
 models on both tasks.
 For scale: always predicting the most common category reaches only about 7
 percent macro-F1 (the majority-class floor), and a random region top-ten guess
@@ -77,9 +76,9 @@ pair the per-seed means ($n{=}4$). On category, all four
 seeds favor the joint model on every dataset, and each gain is significant
 after a Holm correction across the six datasets (paired $t$, corrected
 $p<0.001$). On region, Alabama and Arizona are tested for equivalence (TOST,
-$\pm2$~pp) and pass with 90\% confidence intervals well inside two points:
-Alabama ($-0.41$; $-0.63$ to $-0.20$) and Arizona ($0.00$; $-0.08$ to
-$+0.07$). At Arizona, the interval is centered on zero, so we report a match,
+$\pm2$~pp) and pass with 90\% confidence intervals well inside two points
+(each entry: point estimate; interval): Alabama ($-0.41$; $-0.63$ to $-0.20$)
+and Arizona ($0.00$; $-0.08$ to $+0.07$). At Arizona, the interval is centered on zero, so we report a match,
 not a gain. At Alabama, the whole interval lies below zero, a small but
 statistically significant deficit, still well within the two-point margin. At
 Florida and Istanbul, the 90\% intervals lie entirely above zero (Florida
@@ -90,13 +89,13 @@ exceed that margin: their 90\% intervals lie entirely above it ($+2.10$ to
 $+2.13$ at Texas, $+2.19$ to $+2.21$ at California).
 
 A reader used to multi-task learning~\cite{caruana1997multitask} expects the
-harder task's training signal to drive the easier one's gain; a control shows otherwise. We freeze the region pathway at the start of training so it can neither learn nor teach the category task, yet the full category gain survives at Alabama, Arizona, and
-Florida (within $0.3$ of the joint model and far above the dedicated single-task
-model). We therefore attribute the category gain to a stronger shared trunk, not to the region task teaching the category one; and the gain requires no second model at serving time (one model, one forward pass). We report this as a finding, not a hypothesis.
+harder task, here next-region with its hundreds to several thousand classes, to teach the easier one; a control shows otherwise. We freeze the region pathway at the start of training so it can neither learn nor teach the category task, yet the full category gain survives at Alabama, Arizona, and
+Florida (within $0.3$ of the joint model and far above the dedicated
+model). We therefore attribute the category gain to a stronger shared trunk, not to the region task teaching the category one; and the gain requires no second model at serving time (one model, one forward pass). We report this attribution as a finding, not a hypothesis.
 
 The joint model is also above every external baseline reported, on both tasks,
 across all six datasets (Table~\ref{tab:results}): on region, the primary
-region-native comparison HMT-GRN~\cite{lim2022hmtgrn}, a STAN~\cite{luo2021stan}
+region-native comparison HMT-GRN~\cite{lim2022hmtgrn}, STAN~\cite{luo2021stan}
 trained from the raw check-ins, and a ReHDM reference~\cite{li2025rehdm}; on
 category, POI-RGNN~\cite{capanema2023poirgnn} and the Markov-K floor. These externals run on their own embeddings, so this comparison
 also includes the representation advantage of Section~\ref{sec:results-part1}; the

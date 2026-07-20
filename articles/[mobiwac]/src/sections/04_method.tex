@@ -39,9 +39,8 @@ L = 0.75\,L_{\mathrm{cat}} + 0.25\,L_{\mathrm{reg}},
 where $L_{\mathrm{cat}}$ and $L_{\mathrm{reg}}$ are plain unweighted cross-entropy losses. The weights were tuned once on validation during development and held fixed across all six datasets. Class-weighting, tested on both outputs, lowered both region accuracy and
 category macro-F1. This is standard fixed-weight joint training~\cite{caruana1997multitask}, kept simple by design so that any improvement over the dedicated single-task models comes from the shared representation, not from an adaptive weighting scheme.
 
-Serving both tasks this way has a cost.
 The joint model includes the shared trunk and both task outputs, so it is
-larger than either dedicated single-task model, and a forward pass costs more compute than running the
+larger than either dedicated model, and a forward pass costs more compute than running the
 two small dedicated models: the joint model has about 4.2 million parameters at
 Alabama against 1.1 million for the two dedicated models combined (5.2 against
 2.0 at California). What the single model provides is operational rather

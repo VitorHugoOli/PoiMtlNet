@@ -644,6 +644,39 @@ Fig. 2/Fig. 3 shrinks, title shortening. **Final build: 8 pages, 0 warnings, 0 u
 prose-unrecoverable number from the cuts is TX's region delta point estimate (+2.11), bracketed
 by its printed CI (+2.10 to +2.13), Fig. 3's label, and Table III.
 
+## Readability round (2026-07-20) — ✅ APPLIED, advisor-gated, 8 pages held
+
+Fresh-eyes copy-editor review (grades: ease B+ / coherence A− / sentence sense B+ /
+non-repetition C+; full report in this folder's session record). Author rulings: Group A
+approved; B1 halve the §7 recap (not delete); B2 merge the duplicated service disclaimers;
+B3 keep all TOST tags; B4 recompute the shortlist comparator (meticulous); B5 attach the
+finding sentence to its object. A pre-application advisor reviewed the rulings: NO vetoes,
+amendments adopted (B1 keeps the Germano-settled "carries the semantic context"; B2 keeps the
+E13 act verb "we do not build or evaluate"; B5 = "this attribution"; A4 cost-neutral split;
+A7d = §5.4 loses its CSLSL half, II-C/VI-B ledger-mandated tellings stay; §4.2 "has a cost"
+opener deleted rather than varied).
+
+**B4 recompute (reproduce-first gate PASSED):** pair floor re-ran bit-exact
+(20.45/120.32/170.67/241.22); shortlist side matched its artifact of record. Matched
+comparator (ten distinct regions, uniform over the model's candidate vocabulary, same
+haversine/spherical-centroid statistic, seed 0, 10,000 draws/state, deterministic):
+Ist 16.64 / AZ 87.79 / AL 135.97 / FL 176.16 km. §7 now says "17 to 176 kilometers for ten
+regions drawn at random from the same candidate set (median over 10,000 draws)" — honestly
+weaker than the old asymmetric 20–241, story intact (shortlist 6–23× tighter). Artifacts:
+`analysis/shortlist_compactness_matched.{py,json}` + dated RESULTS section.
+
+Applied: headline recap de-duplicated (§7 ¶1 halved); page-1 "ahead on region" referent fixed
+(abstract + contribution 3 name the joint model); the four overpacked sentences split
+(feature-concat, HMT-GRN, STAN, conclusion); freeze paragraph names region as the harder task;
+"dedicated single-task model" shortened after first use (Tbl 3 caption keeps full form); §5.1
+duplicate category list and mahalle gloss removed (§3 carries both); §5.4 CSLSL telling
+collapsed to the lineage cites; §6.1 six-delta recitation → range + Istanbul; §2.2 wall split;
+CI format announced once; "extra training signal" glossed; "a STAN"→"STAN". Net ≈ −7 lines.
+**Build: 8 pages, 0 warnings, 0 undefined, 0 overfull; refs end on page 8.**
+
+Pre-round state committed as `158de7d1` — ⚠ on branch `courb/en-translation` (HEAD at commit
+time), not main; cherry-pick to main pending author call.
+
 ## Work items in flight
 
 - **Stride-1 Markov floor recompute — ✅ DONE (2026-07-18, ~40 s CPU-only).** Window-count gate

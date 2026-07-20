@@ -145,3 +145,57 @@ out of scope by the A40-6 spec (their `catx_v17_seed0_5f/` runs did not carry
 the dump flag; C4 scopes honestly to "the four datasets where we measured it").
 The paper placement (whether this enters §6.2 / a supplementary) is an author
 decision the plan defers.
+
+## Matched random comparator — TEN regions drawn at random (added 2026-07-20)
+
+A readability reviewer flagged that the section-7 sentence compared asymmetric
+quantities: the TEN-region shortlist's spread vs the TWO-region random-pair
+inter-centroid floor (`near_miss_floor.py`, 20.45-241.22 km P50). Author
+ruling: recompute the comparator as TEN regions drawn at random, so both sides
+are the same quantity — the spread of a ten-region set around its own centroid.
+`shortlist_compactness_matched.py` does that (results in
+`shortlist_compactness_matched.json`); the shortlist side is untouched.
+
+**Matched quantity** (identical to the shortlist side, reusing
+`_shortlist_stats` / `_grid_summary` verbatim): per draw of 10 regions, the
+MEAN haversine km from each of the 10 centroids to their spherical unit-vector
+geographic mean; median (P50) + IQR over 10,000 draws, fixed seed 0.
+**Pool** (identical to the pair floor): the model's candidate-region vocabulary
+(`checkin_graph.pt` `region_to_idx` joined to `boroughs_area.csv` polygon
+centroids), uniform draw, 10 distinct regions per draw (without replacement,
+matching the shortlist's 10 distinct predicted indices; the pair floor's
+ordered-pairs-with-replacement scheme has no 10-region verbatim analog).
+
+**Reproduce-first gate (passed 2026-07-20, built into the script):** the
+two-region pair floor recomputes bit-exactly from the local
+`output/check2hgi/<state>/temp/` inputs (P50/P90/mean all match the published
+table above to the printed rounding), and the shortlist-side pooled in-dist
+spread P50s verify against the recorded `shortlist_compactness_<state>.json`
+grids (2.8583 / 6.2368 / 6.0927 / 7.5289; the raw `fold{N}_reg_val_preds.parquet`
+dumps are A40-only, so the shortlist side is verified against its artifact of
+record, not recomputed from raw dumps).
+
+| State | pool regions | matched 10-random P50 (km) | IQR (P25-P75) | shortlist P50 (km) | shortlist is | old 2-random P50 |
+|---|---:|---:|---:|---:|---:|---:|
+| Istanbul |   520 |  16.64 | 13.14-20.45  | 2.86 | ~5.8x tighter  |  20.45 |
+| Arizona  | 1,547 |  87.79 | 69.15-107.28 | 6.09 | ~14.4x tighter | 120.32 |
+| Alabama  | 1,109 | 135.97 | 115.12-156.48| 6.24 | ~21.8x tighter | 170.67 |
+| Florida  | 4,703 | 176.16 | 152.36-204.59| 7.53 | ~23.4x tighter | 241.22 |
+
+Reading: the matched comparator is, as expected, SMALLER than the pair floor
+(a ten-point set's mean spread around its own centroid is tighter than a
+random pair's separation), so the contrast is somewhat weaker than the old
+"20 to 241 km" (now "17 to 176 km"), but the story is unchanged: the model's
+shortlist is roughly 6x (Istanbul) to 23x (Florida) tighter than ten random
+candidate regions of the same map. Sensitivity: using the per-draw MEDIAN
+distance to the centroid instead of the pipeline's per-draw MEAN gives P50s of
+12.64 / 55.04 / 124.34 / 156.48 km (Istanbul/AZ/AL/FL) — same order, same
+conclusion; the headline stays on the pipeline statistic (mean), matching the
+shortlist side exactly.
+
+Section-7 replacement sentence this feeds (author to apply in
+`src/sections/07_discussion.tex`): "On four datasets (Alabama, Arizona,
+Florida, and Istanbul; a single seed over five folds), the ten shortlisted
+regions lie a median of 3 to 8 kilometers from the shortlist's centroid,
+against 17 to 176 kilometers for ten regions drawn at random from the same
+candidate pool (median over 10,000 draws)."
