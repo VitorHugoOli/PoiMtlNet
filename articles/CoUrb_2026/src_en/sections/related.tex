@@ -1,0 +1,32 @@
+POI prediction and classification are fundamental challenges in location-based recommendation systems and in urban mobility analysis. This section organizes the related work into four axes: graph-based representations, spatial encoders, temporal representations, and multi-task learning applied to POIs.
+
+\subsection{Graph-Based POI Representations}
+
+Modeling POIs through graphs allows capturing spatial and semantic neighborhood relationships between places. The POI2Vec model \cite{feng2017poi2vec} adapts the Word2Vec architecture to generate POI \textit{embeddings} that incorporate the geographic influence between places through a geographic binary tree structure. CATAPE (\textit{Category-Aware Location Embedding}) \cite{rahmani2019category} extends this idea by incorporating categorical and sequential information, capturing the geographic influence between POIs based on the temporal sequence of user visits.
+
+In a self-supervised approach, \textit{Deep Graph Infomax} (DGI) \cite{velickovic2019deep} maximizes the mutual information between local (node) and global (graph) representations to generate \textit{embeddings} without explicit supervision. HGI (\textit{Hierarchical Graph Infomax}) \cite{huang2023learning} advances this line by operating at multiple hierarchical levels (POI, region, and city), producing representations enriched with regional information through graph convolutions and multi-attention mechanisms.
+% O HAVANA \cite{dos2024havana} combina \textit{Graph Attention Networks} (GAT) \cite{velivckovic2017graph} com filtros ARMA para anotação semântica de locais, mostrando a eficácia de modelos híbridos de grafos para a tarefa de classificação categórica.
+
+However, these approaches encode spatial information implicitly through the graph topology, without directly using the geographic coordinates as an input signal for the representation.
+
+\subsection{Spatial Representations}
+
+The direct use of geographic coordinates to generate latent spatial features is an approach distinct from graph-based representations. The TorchSpatial \textit{framework} \cite{wu2024torchspatial} establishes a unified \textit{benchmark} for evaluating spatial representation strategies, allowing systematic comparison between different architectures.
+
+% O Space2Vec \cite{mai2020multiscalerepresentationlearningspatial} propõe uma codificação posicional multi-escala inspirada em \textit{grid cells} do sistema nervoso, utilizando funções senoidais com frequências logaritmicamente espaçadas para transformar coordenadas em representações vetoriais. A abordagem
+The SIREN methodology (\textit{Sinusoidal Representation Networks}) \cite{sitzmann2020implicit}, applied to the geographic context \cite{rußwurm2024geographiclocationencodingspherical}, models continuous functions through sinusoidal activations, being able to represent high-frequency signals in spatial data. Sphere2Vec \cite{mai2023sphere2vecgeneralpurposelocationrepresentation} operates directly on spherical coordinates with multiple resolution scales, preserving geodesic distance properties that are lost in planar projections.
+
+Although these strategies have been evaluated on geospatial tasks such as species prediction and population estimation, their application can be extended to POI prediction and classification models as proposed in this work.
+
+\subsection{Temporal Representations}
+
+The temporal dimension is central to POI prediction tasks, since user visitation patterns present regularities (e.g., meal times, weekly movements). The LSTPM model (\textit{Long- and Short-Term Preference Modeling}) \cite{sun2020go} captures short- and long-term preferences using a Geo-Dilated RNN that relates non-consecutive POIs through temporal sequences of visits and geographic information. TransTARec \cite{sun2024transtarec} proposes an adaptive temporal translation model that unites representations of the POI, the \textit{timestamp}, and user preferences for Next-POI Prediction.
+
+These models incorporate the temporal dimension mainly in the context of the user's visit sequence. In this sense, Time2Vec \cite{kazemi2019time2vec} proposes a temporal representation that combines linear terms with sinusoidal functions of learnable frequency and phase, capturing periodic and non-periodic patterns from continuous temporal values.
+
+\subsection{Multi-Task Learning for POI Tasks}
+
+Multi-task learning (MTL) \cite{caruana1997multitask} has been explored in POI tasks mainly to combine Next-POI Prediction with temporal, behavioral, or regional signals. MCARNN \cite{Liao2018} integrates sequential dependencies and temporal regularities to simultaneously predict future activities and places. MTPR \cite{Xia2020} jointly models location and temporal context through geographic LSTMs and adversarial learning. In a more recent line, Halder et al. \cite{Halder2022} propose a multi-task model based on \textit{Transformers} to recommend the next POI and simultaneously predict the waiting time.
+
+In categorical classification, TME \cite{Xu2023} explores a hierarchical category structure for semantic annotation of POIs, while HMT-GRN \cite{Lim2022} combines Next-POI Prediction and prediction of its geographic region in a recurrent model with hierarchical graphs. Together, these works indicate that MTL is promising in POI problems, but there is still little exploration of architectures that jointly address \textit{POI Category Classification} and \textit{Next-POI Prediction} with continuous spatial and explicit temporal representations. This gap motivates the investigation proposed in this work.
+
