@@ -86,15 +86,13 @@ the evaluation split is stratified by sample, not user-disjoint; no external bas
 "works" assumption predates the repo's NashMTL solver-bug history. These are time-indexed framing
 points for the dissertation, orthogonal to the translation.
 
-## 5 · Build / asset caveats (inherited from `src/`, identical in both)
+## 5 · Assets (updated 2026-07-20)
 
-- **Figure 2 image missing from the repo.** `results.tex` references
-  `imagens/subáreas/distribuicao_estados.png`, which is **not committed** (only `arquitetura_modelo.png`
-  and `densidade_pois.png` exist). The path is preserved faithfully; the same gap exists in `src/`.
-  Add the image before a camera-ready build. Not a translation defect.
-- **In-figure text not translated.** The two PNGs are binary and out of scope. `arquitetura_modelo.png`
-  appears to use English labels (Category Output / Next POI Output per the caption); if
-  `distribuicao_estados.png` contains Portuguese legends, regenerate it in English for the chapter.
+- **Figure 2 image supplied.** `imagens/subáreas/distribuicao_estados.png` (plus `florida/california/
+  texas.png`) was added to `src/` by the author and copied into `src_en/`; Figure 2 now renders in the
+  build. The figure is already in English (axis labels Latitude/Longitude, legend Food/Shopping, state
+  titles), so there is no in-figure Portuguese to fix.
+- **Figure 1** (`arquitetura_modelo.png`) uses English labels (Category Output / Next POI Output).
 
 ## 6 · How this was produced (provenance)
 
@@ -135,3 +133,17 @@ bibtex main ; pdflatex ... ; pdflatex ...
 or once with `sudo tlmgr install helvetic courier` to get the real fonts. Figure 2 is blank until
 its image (§5) is supplied. The committed `main.pdf` was built with the font substitution above
 (headings/URLs in Times, not Helvetica/Courier); it is a reading proof, not the camera-ready look.
+
+## 9 · Revision sync (2026-07-20)
+
+The author revised `src/` after the initial translation; the deltas were spotted via `git diff` and
+ported to `src_en/`, then verified by a fresh-eyes fidelity pass (PASS, no defects):
+
+- `references.bib`: the uncited MTL/optimizer/head/benchmark entries were removed in `src/`; `src_en`
+  synced to be identical.
+- Figure 2 images added (see §5); Figure 2 now renders.
+- New content translated faithfully: `\section*{Acknowledgments}` (MCTI, Manna Team, Araucária
+  Foundation, Softex, CNPq project 421548/2022-3, FAPEMIG, CAPES); a Gowalla-vintage limitation
+  paragraph (2009–2010 collection window, caution on generalization to current mobility); a
+  dimensionality-confound caveat in Embedding Integration; and a Travel/complementarity paragraph in
+  Results. A new commented-out alternative future-work block is kept byte-identical in Portuguese.

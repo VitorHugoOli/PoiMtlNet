@@ -1,0 +1,15 @@
+# LaTeX build artifacts (rebuild from source with pdflatex + bibtex)
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+# compiled reading proofs (not source)
+src/main.pdf
+src_en/main.pdf
