@@ -1,0 +1,130 @@
+{
+  "state": "california",
+  "task": "next_region",
+  "baseline": "markov_1step_region",
+  "windowing": {
+    "window_size": 9,
+    "stride": 1,
+    "min_sequence_length": 10,
+    "emit_tail": false,
+    "note": "board check2hgi_dk_ovl protocol (gated stride-1 overlap); every window has 9 real visits, target = genuine next visit"
+  },
+  "fold_protocol": {
+    "splitter": "StratifiedGroupKFold",
+    "n_splits": 5,
+    "shuffle": true,
+    "seed": 42,
+    "groups": "str(userid)",
+    "stratify": "next_category -> int via inverse CATEGORIES_MAP",
+    "mirrors": "scripts/compute_simple_baselines.py"
+  },
+  "source": {
+    "checkin_stream": "/Users/vitor/Desktop/mestrado/ingred/output/check2hgi/california/temp/checkin_graph.pt graph['metadata'] (substrate stream)",
+    "poi_region_mapping": "/Users/vitor/Desktop/mestrado/ingred/output/check2hgi/california/temp/checkin_graph.pt",
+    "checkins_dropped_unmapped_poi": 0
+  },
+  "n_checkins": 3171380,
+  "n_users": 37090,
+  "n_regions_partition": 8501,
+  "n_classes_observed": 8501,
+  "n_windows": 2925466,
+  "window_count_gate": {
+    "computed": 2925466,
+    "table1_expected": 2925466,
+    "ratio": 1.0,
+    "within_1pct": true,
+    "table1_source": "articles/[mobiwac]/src/tables/tbl1_datasets.tex"
+  },
+  "generate_sequences_verify": {
+    "generate_sequences_total": 2925466,
+    "mismatched_users": 0,
+    "pass": true
+  },
+  "per_fold": [
+    {
+      "fold": 0,
+      "n_train": 2340374,
+      "n_val": 585092,
+      "markov_1step_region": {
+        "acc1": 0.3523804803347166,
+        "acc5": 0.5198737976249889,
+        "acc10": 0.5862650660067135,
+        "mrr": 0.42405438287333785,
+        "n_val_fallback_global": 421
+      }
+    },
+    {
+      "fold": 1,
+      "n_train": 2340375,
+      "n_val": 585091,
+      "markov_1step_region": {
+        "acc1": 0.3476895047095238,
+        "acc5": 0.518329627357112,
+        "acc10": 0.5877701075559186,
+        "mrr": 0.4210866723675843,
+        "n_val_fallback_global": 212
+      }
+    },
+    {
+      "fold": 2,
+      "n_train": 2340372,
+      "n_val": 585094,
+      "markov_1step_region": {
+        "acc1": 0.3591012726160241,
+        "acc5": 0.525141259353198,
+        "acc10": 0.5918689988275389,
+        "mrr": 0.4303669147234027,
+        "n_val_fallback_global": 208
+      }
+    },
+    {
+      "fold": 3,
+      "n_train": 2340375,
+      "n_val": 585091,
+      "markov_1step_region": {
+        "acc1": 0.3604140210668084,
+        "acc5": 0.5250174759140032,
+        "acc10": 0.5905611263888865,
+        "mrr": 0.43092468345651186,
+        "n_val_fallback_global": 392
+      }
+    },
+    {
+      "fold": 4,
+      "n_train": 2340368,
+      "n_val": 585098,
+      "markov_1step_region": {
+        "acc1": 0.36309131119914956,
+        "acc5": 0.5297864631224171,
+        "acc10": 0.5980912599256877,
+        "mrr": 0.43503988234341096,
+        "n_val_fallback_global": 205
+      }
+    }
+  ],
+  "aggregate": {
+    "markov_1step_region": {
+      "acc1_mean": 0.3565353179852445,
+      "acc1_std": 0.005658985707599598,
+      "acc5_mean": 0.5236297246743438,
+      "acc5_std": 0.004106434913127023,
+      "acc10_mean": 0.590911311740949,
+      "acc10_std": 0.0040999076435233655,
+      "mrr_mean": 0.42829450715284956,
+      "mrr_std": 0.005032779017315554
+    }
+  },
+  "markov_1step_region_acc10_mean": 0.590911311740949,
+  "markov_1step_region_acc10_std": 0.0040999076435233655,
+  "old_floor_nonoverlap": {
+    "path": "docs/results/P0/simple_baselines/california/next_region.json",
+    "windowing": "non-overlap (stride-9, MIN_SEQ=5, emit_tail=True) frozen substrate",
+    "best_simple_baseline": "markov_1step_region",
+    "best_simple_acc10_mean": 0.5208956360464413,
+    "markov_1step_region_acc10_mean": 0.5208956360464413
+  },
+  "delta_acc10_new_minus_old": 0.07001567569450773,
+  "script": "scripts/closing_data/compute_markov_floor_stride1.py",
+  "generated_utc": "2026-07-18T19:56:08+00:00",
+  "runtime_sec": 12.5
+}

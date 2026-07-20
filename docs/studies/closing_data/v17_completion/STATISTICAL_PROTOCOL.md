@@ -280,3 +280,14 @@ Any analysis that departs from this pre-registration (a different test, a differ
 decision, a cell promoted from descriptive to inferential) is logged in
 [`log.md`](log.md) with: the cell, the pre-registered rule, the deviation, and the reason. Pre-registration
 means the default is *this doc*; deviations are allowed but must be visible.
+
+**2026-07-18 — paper reporting convention switched to joint-best (author ruling).** The MobiWac paper's
+Table III joint cells now report the **joint-best** convention (one saved model per fold, the `geom_simple`
+validation selector, both tasks read at that epoch) instead of the per-task diagnostic-best convention, per the
+author ruling in `articles/[mobiwac]/review/considerations_v3.md` #10. All pre-registered tests were re-run on
+the joint-best arrays before the switch: category superiority + Holm m=6 all reject (worst adjusted
+p = 1.0e-06); region TOST passes at AL (Δ −0.41, 90% CI −0.63..−0.20) and AZ (0.00, CI −0.08..+0.07); region
+superiority holds at Istanbul (+0.19, CI +0.15..+0.23, 20/20 folds), FL (+0.71, CI +0.67..+0.76), TX (+2.11,
+CI +2.10..+2.13), and CA (+2.20, CI +2.19..+2.21). **No verdict changed.** Sources:
+[`../joint_best/JOINT_BEST_RESULTS.md`](../joint_best/JOINT_BEST_RESULTS.md) + the joint-best score JSONs at
+`docs/results/closing_data/catx_v17_n20/joint_best/`.

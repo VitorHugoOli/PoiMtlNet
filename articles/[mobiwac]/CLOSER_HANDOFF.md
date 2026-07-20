@@ -10,13 +10,17 @@
 > ReHDM v4 row version-uniform + Istanbul. **The paper was RENUMBERED to the v17 board 2026-07-08** (Table 3,
 > §6, abstract/§1/§7/§8, figs 3-4 re-rendered; digit-audited). **Open = CA/TX MTL n=20 only (A1, A40).**
 
-> **Bottom line.** The **10-page draft is submittable today** (submission sweep 2026-07-01, re-verified after the
+> **Bottom line.** The **draft is submittable today** at the **8-page EDAS no-fee budget** (re-ruled 2026-07-19;
+> supersedes the earlier 10-page fee-variant ruling; the 2026-07-20 trim campaign returned the build to 8 pages.
+> Submission sweep 2026-07-01, re-verified after the
 > 2026-07-06 cascade-reframe edits: 0 undefined refs, 0 bibtex warnings, 0 overfull boxes, glossary-clean). **Exactly one data gap — P1 (n=20 multi-seed, now on the v17 recipe) —
 > changes a reviewer's verdict; everything else is coverage/robustness.** Submission is 3 small mechanical steps. This
 > doc is the ordered, executable close-out list. Numbers/paths trace to `docs/studies/closing_data/RESULTS_BOARD.md §3`.
 
 ## 0 · Status at a glance
-- **Paper:** compiling **10-page** IEEE two-column draft (2026-07-06 cascade reframe + novelty defusals;
+- **Paper:** compiling **8-page** IEEE two-column draft (the 8-page EDAS no-fee budget, re-ruled 2026-07-19 —
+  supersedes the earlier 10-page fee-variant ruling; the 2026-07-20 trim campaign returned the build to 8 pages;
+  2026-07-06 cascade reframe + novelty defusals;
   2026-07-08 P7 venue-bridge edit set applied); abstract + §1–§8 + Tbl 1–3 + Fig 1–4; **37 rendered refs**,
   all resolve, 0 bibtex warnings, 0 overfull.
 - **Data (v17 board, 2026-07-08):** Part-2 cells are **n=20 on both arms** at AL/AZ/FL/Istanbul (Holm clears
@@ -35,7 +39,9 @@
    (from CTAN, next to `IEEEtran.cls`) and `main.tex` uses `\bibliographystyle{IEEEtran}`. Verified: bibtex clean,
    26 refs rendered, 0 undefined, 9 pages. Overleaf also provides it natively.
 2. **EDAS Step 3 manuscript upload.** Paper **#1571313639** is registered (regular track, single-blind); only the PDF
-   upload remains. Select the **10-page fee variant** (draft is at 10).
+   upload remains. Select the **8-page EDAS no-fee budget** (re-ruled 2026-07-19; supersedes the earlier
+   10-page fee-variant instruction; the 2026-07-20 trim campaign returned the draft to 8 pages —
+   `EDAS_SUBMISSION.md` Step-3 record is the authority).
 3. ~~Reconfirm the deadline~~ — ✅ **CONFIRMED (author, 2026-07-08): the deadline is 2026-07-11.** Three days
    from confirmation. Author decisions taken with it: CA/TX n=20 (A1) will NOT be waited for (no paper
    comment; end review only if accepted); the code link is the public repo's curated branch
@@ -117,7 +123,7 @@
 - **Machine.** Mac (prose + recompile; no GPU). The one data leg — **shortlist compactness** (converts the
   "500× over chance" enrichment claim into a spatial-actionability claim, the sharpest residual reviewer
   counter) — is **A40-6** in the machine track (CPU-minutes over the existing near-miss dump parquets).
-- **Acceptance.** Recompile: **10 pages**, 0 undefined refs (§0's cited-refs count 31→34, or 35 with C7);
+- **Acceptance.** Recompile: **10 pages** [superseded 2026-07-19: 8-page EDAS budget, no fee], 0 undefined refs (§0's cited-refs count 31→34, or 35 with C7);
   C2b trim present; §13's named fixes all applied; the **Istanbul seed-rigor caveat travels with C4**
   (near-miss Istanbul is seed-0 vs. the paper's four-seed Istanbul bar elsewhere — note it or top it up when
   the P1/H lane runs); GLOSSARY sweep on the inserted text.
@@ -126,7 +132,7 @@
   single-seed four-dataset tag inline — C5 limitations, C6 succession clause) + 4 bib entries
   (`moura2025mobilityaware` with the v3-framing comment, `silva2019urbancomputing`, `bastug2014edge`,
   `song2010limits`). **Compile verified: 10 pages, 0 undefined refs, 0 bibtex warnings, 0 overfull, 37
-  rendered refs** (was 33). Compactness DONE (A40-6, 2026-07-08 — `analysis/shortlist_compactness_RESULTS.md`,
+  rendered refs** (was 33) [superseded 2026-07-19: 8-page EDAS budget, no fee]. Compactness DONE (A40-6, 2026-07-08 — `analysis/shortlist_compactness_RESULTS.md`,
   all four states, spread P50 2.86–7.53 km, ≈7–32× tighter than the random-pair map scale). Post-apply
   multi-aspect review: see the session record / `MOBILITY_SCIENCE_BRIDGE_PLAN.md`.
 

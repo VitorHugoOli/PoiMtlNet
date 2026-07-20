@@ -2,7 +2,7 @@
 
 > **What this is.** A citation triage of (a) the four PDFs shared at `~/Desktop/mestrado/artigos/refs/` and
 > (b) the 24-entry `new_references.bib` in the same folder, judged against the near-final MobiWac draft
-> (`src/main.tex`, 10-page budget FULL, 38 bib keys / 31 rendered). Method: one deep-read agent per PDF
+> (`src/main.tex`, 10-page budget FULL [superseded 2026-07-19: 8-page EDAS budget, no fee], 38 bib keys / 31 rendered). Method: one deep-read agent per PDF
 > (full text + web venue verification), each verdict then adversarially re-checked against the text by an
 > independent verifier; 4 cluster audits over the bib; plus a web gap scan (12+ searches, full 2024+
 > citation sweeps of CTLE / HMT-GRN / CSLSL on Semantic Scholar) hunting for closer competitors than the

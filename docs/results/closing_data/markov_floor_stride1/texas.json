@@ -1,0 +1,130 @@
+{
+  "state": "texas",
+  "task": "next_region",
+  "baseline": "markov_1step_region",
+  "windowing": {
+    "window_size": 9,
+    "stride": 1,
+    "min_sequence_length": 10,
+    "emit_tail": false,
+    "note": "board check2hgi_dk_ovl protocol (gated stride-1 overlap); every window has 9 real visits, target = genuine next visit"
+  },
+  "fold_protocol": {
+    "splitter": "StratifiedGroupKFold",
+    "n_splits": 5,
+    "shuffle": true,
+    "seed": 42,
+    "groups": "str(userid)",
+    "stratify": "next_category -> int via inverse CATEGORIES_MAP",
+    "mirrors": "scripts/compute_simple_baselines.py"
+  },
+  "source": {
+    "checkin_stream": "/Users/vitor/Desktop/mestrado/ingred/data/checkins/Texas.parquet (raw; sorted (userid,datetime) mergesort; 0 check-ins dropped at unmapped POIs)",
+    "poi_region_mapping": "REBUILT: /Users/vitor/Desktop/mestrado/ingred/data/checkins/Texas.parquet lat/lon + /Users/vitor/Desktop/mestrado/ingred/data/miscellaneous/tl_2022_48_tract_TX/tl_2022_48_tract.shp (preprocess._assign_regions replica; 0 POIs unmapped/dropped)",
+    "checkins_dropped_unmapped_poi": 0
+  },
+  "n_checkins": 4089892,
+  "n_users": 38644,
+  "n_regions_partition": 6553,
+  "n_classes_observed": 6553,
+  "n_windows": 3830414,
+  "window_count_gate": {
+    "computed": 3830414,
+    "table1_expected": 3830414,
+    "ratio": 1.0,
+    "within_1pct": true,
+    "table1_source": "articles/[mobiwac]/src/tables/tbl1_datasets.tex"
+  },
+  "generate_sequences_verify": {
+    "generate_sequences_total": 3830414,
+    "mismatched_users": 0,
+    "pass": true
+  },
+  "per_fold": [
+    {
+      "fold": 0,
+      "n_train": 3064331,
+      "n_val": 766083,
+      "markov_1step_region": {
+        "acc1": 0.3221543879710162,
+        "acc5": 0.5194972346338451,
+        "acc10": 0.601887785005019,
+        "mrr": 0.4064155814149939,
+        "n_val_fallback_global": 69
+      }
+    },
+    {
+      "fold": 1,
+      "n_train": 3064331,
+      "n_val": 766083,
+      "markov_1step_region": {
+        "acc1": 0.32140642724091256,
+        "acc5": 0.5191591511624719,
+        "acc10": 0.6010027634081425,
+        "mrr": 0.4060006096981203,
+        "n_val_fallback_global": 127
+      }
+    },
+    {
+      "fold": 2,
+      "n_train": 3064331,
+      "n_val": 766083,
+      "markov_1step_region": {
+        "acc1": 0.31473352104145375,
+        "acc5": 0.5091732880118733,
+        "acc10": 0.5915103193779264,
+        "mrr": 0.3978579924687593,
+        "n_val_fallback_global": 190
+      }
+    },
+    {
+      "fold": 3,
+      "n_train": 3064332,
+      "n_val": 766082,
+      "markov_1step_region": {
+        "acc1": 0.325206701110325,
+        "acc5": 0.5238603700387164,
+        "acc10": 0.6049770129046238,
+        "mrr": 0.4101879640469505,
+        "n_val_fallback_global": 80
+      }
+    },
+    {
+      "fold": 4,
+      "n_train": 3064331,
+      "n_val": 766083,
+      "markov_1step_region": {
+        "acc1": 0.3244818120229792,
+        "acc5": 0.5221274979342969,
+        "acc10": 0.6058142525026662,
+        "mrr": 0.40893149627431685,
+        "n_val_fallback_global": 154
+      }
+    }
+  ],
+  "aggregate": {
+    "markov_1step_region": {
+      "acc1_mean": 0.3215965698773373,
+      "acc1_std": 0.003709620582483509,
+      "acc5_mean": 0.5187635083562407,
+      "acc5_std": 0.005098267129636258,
+      "acc10_mean": 0.6010384266396755,
+      "acc10_std": 0.005095654696509726,
+      "mrr_mean": 0.40587872878062814,
+      "mrr_std": 0.004301724645875057
+    }
+  },
+  "markov_1step_region_acc10_mean": 0.6010384266396755,
+  "markov_1step_region_acc10_std": 0.005095654696509726,
+  "old_floor_nonoverlap": {
+    "path": "docs/results/P0/simple_baselines/texas/next_region.json",
+    "windowing": "non-overlap (stride-9, MIN_SEQ=5, emit_tail=True) frozen substrate",
+    "best_simple_baseline": "markov_1step_region",
+    "best_simple_acc10_mean": 0.5493518046159132,
+    "markov_1step_region_acc10_mean": 0.5493518046159132
+  },
+  "delta_acc10_new_minus_old": 0.051686622023762396,
+  "script": "scripts/closing_data/compute_markov_floor_stride1.py",
+  "generated_utc": "2026-07-18T19:56:35+00:00",
+  "runtime_sec": 19.0
+}

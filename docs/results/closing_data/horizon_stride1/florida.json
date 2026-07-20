@@ -1,0 +1,56 @@
+{
+  "state": "florida",
+  "quantity": "prediction_horizon_hours",
+  "definition": "timestamp(target) - timestamp(last of the 9 window visits), per gated stride-1 window, over ALL windows (no fold split; data property)",
+  "windowing": {
+    "window_size": 9,
+    "stride": 1,
+    "min_sequence_length": 10,
+    "emit_tail": false,
+    "note": "board check2hgi_dk_ovl protocol (gated stride-1 overlap)"
+  },
+  "source": {
+    "checkin_stream": "/Users/vitor/Desktop/mestrado/ingred/output/check2hgi/florida/temp/checkin_graph.pt graph['metadata'] (substrate stream)",
+    "checkins_dropped_unmapped_poi": 0,
+    "timestamp_column": "datetime",
+    "machinery": "loaders reused from scripts/closing_data/compute_markov_floor_stride1.py"
+  },
+  "n_checkins": 1407034,
+  "n_users": 21052,
+  "n_windows": 1274418,
+  "window_count_gate": {
+    "computed": 1274418,
+    "table1_expected": 1274418,
+    "ratio": 1.0,
+    "within_1pct": true,
+    "table1_source": "articles/[mobiwac]/src/tables/tbl1_datasets.tex"
+  },
+  "markov_floor_crosscheck": {
+    "markov_floor_json": "docs/results/closing_data/markov_floor_stride1/florida.json",
+    "markov_n_windows": 1274418,
+    "exact_match": true
+  },
+  "horizon_hours": {
+    "median": 0.4375,
+    "mean": 23.13682180545681,
+    "p10": 0.003611111111111111,
+    "p25": 0.008333333333333333,
+    "p75": 8.928819444444445,
+    "p90": 29.777305555555568,
+    "p95": 71.31869444444439,
+    "p99": 309.70621944444514,
+    "min": 0.0,
+    "max": 16343.128055555555
+  },
+  "share_gap_within": {
+    "1h": 0.571365909772147,
+    "6h": 0.7246343036586113,
+    "24h": 0.874284575390492,
+    "48h": 0.9295811892173526,
+    "72h": 0.950923480365155,
+    "168h": 0.9809952464575987
+  },
+  "script": "scripts/closing_data/compute_horizon_stride1.py",
+  "generated_utc": "2026-07-18T22:32:30+00:00",
+  "runtime_sec": 0.5
+}

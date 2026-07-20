@@ -40,6 +40,8 @@
 > (The frozen v16 §1 table below is unchanged — it is the v16 board-of-record, a separate lineage; the v17 Δs-vs-ceiling
 > live in [`v17_completion/CEILINGS_N20_FINAL.md`](v17_completion/CEILINGS_N20_FINAL.md), now n=20 at all states.)
 >
+> 📰 **The PAPER (MobiWac) reports the JOINT-BEST lane as of 2026-07-18** — see [`joint_best/JOINT_BEST_RESULTS.md`](joint_best/JOINT_BEST_RESULTS.md); the board's diag-best cells remain the board of record.
+>
 > 📐 **Which ceiling table is which (reconciliation, 2026-07-08 — do not mix):** the Gowalla **§1 table below uses the
 > OLD ceilings** (v16-era recipe `max_lr 3e-3`, **seed-0 n=5**) against the v16 MTL — it is the frozen v16
 > board-of-record. The **v17 board's ceilings are [`v17_completion/CEILINGS_N20_FINAL.md`](v17_completion/CEILINGS_N20_FINAL.md)**

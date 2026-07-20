@@ -36,6 +36,11 @@
 \renewcommand{\topfraction}{0.9}
 \renewcommand{\textfraction}{0.07}
 \setcounter{dbltopnumber}{3}
+\setlength{\textfloatsep}{6pt plus 2pt minus 2pt}
+\setlength{\dbltextfloatsep}{6pt plus 2pt minus 2pt}
+\setlength{\floatsep}{4pt plus 2pt minus 1pt}
+\setlength{\dblfloatsep}{4pt plus 2pt minus 1pt}
+\renewcommand{\arraystretch}{0.95}
 
 \begin{document}
 
@@ -59,7 +64,7 @@ E-mail: \{vitor.h.oliveira, germano.santos, fabricio.asilva\}@ufv.br}
 % Motivation first; no model name in the first sentence; no system number.
 % ---------------------------------------------------------------------
 \begin{abstract}
-Location-based social networks (LBSNs) record where people go and what they
+Location-based social networks record where people go and what they
 do, one check-in at a time. If we can anticipate the next visit, mobile and
 urban services can cache content or reserve capacity ahead of demand. Two coarse questions about the next
 visit are usually enough: its category (the type of place) and its region (which
@@ -67,17 +72,17 @@ part of the city). These are normally handled by separate models. We therefore
 test whether one model can learn both tasks, and what sharing a single model costs
 in per-task accuracy. We first
 build a check-in-level representation that describes each visit in its own
-context, instead of giving every place one fixed vector. Across six datasets,
-five U.S. states and one non-U.S. city (Istanbul), this lifts next-category
-prediction over a standard
-place embedding (about $+28$ to $+40$ macro-averaged F1),
+context, instead of giving every place one fixed vector. Across six datasets
+(five U.S. states and one non-U.S. city, Istanbul), this improves next-category
+prediction over a standard place embedding by about $28$ to $40$ points of
+macro-averaged F1,
 and most of the gain comes from the per-visit context, not from extra training signal. We then train one
-multi-task model for both tasks. At every dataset, it outperforms a dedicated
-category model (about $+5$ to $+9$ macro-F1), and on the next-region task it outperforms the dedicated region model
-at four of the six datasets, while matching it (statistically, within two points)
-at the other two. Across the five U.S. states, the gain on region grows with
-the number of regions. On the non-U.S. city too, the joint model
-outperforms on category and is slightly ahead on region.
+multi-task model for both tasks. It outperforms a dedicated category model on
+every dataset (about $+5$ to $+9$ macro-F1) and outperforms the dedicated
+region model on four of the six, matching it (statistically, within two points)
+on the other two. Across the five U.S. states, the region gain grows with the
+number of regions. Istanbul, the city with the fewest regions, is nevertheless
+slightly ahead on region.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -93,10 +98,11 @@ learning, check-in-level representation, location-based social networks
 
 \input{sections/02_related}
 \begin{figure*}[!t]\centering
-\input{figs/fig1_dataflow}
+\resizebox{0.66\textwidth}{!}{\input{figs/fig1_dataflow}}
 \caption{From a check-in sequence to two predictions: each visit is embedded in a four-level graph
-(check-in, place, region, city) and described in its own context; sliding nine-visit windows
-feed a single model that outputs the next category and the next region.}
+(check-in, place, region, city) trained without task labels. The graph yields two sets of
+vectors, one per visit and one per region; sliding nine-visit windows of each feed a single
+model that outputs the next category and the next region.}
 \label{fig:dataflow}
 \end{figure*}     % Fig 1: input-graph data flow (cited in section 2.1 / 4.1)
 
@@ -115,12 +121,14 @@ combines it with a private spatial path. One model, one forward pass, two predic
 \input{sections/05_setup}
 \input{tables/tbl1_datasets}   % Table 1: dataset statistics (section 5.1)
 
+\input{tables/tbl3_results}    % Table 3: one model, two tasks, the main result (section 6.2);
+                               % input BEFORE 06_results so the table* float lands with the prose
+                               % that reads it, not after the references (V1 panel edit 3, 2026-07-18)
 \input{sections/06_results}
 \input{tables/tbl2_substrate}  % Table 2: representation, Check2HGI vs HGI category (section 6.1)
 % Fig 3 (category embedding-quality bars) CUT for the 8-page variant (author decision 2026-07-09):
 % its four numbers (silhouette 0.57/0.00, kNN purity 0.98/0.78) are fully stated in section 6.1 prose.
 % The asset stays at figs/fig3_embquality.{py,tex,pdf}; src_v1 still includes it.
-\input{tables/tbl3_results}    % Table 3: one model, two tasks, the main result (section 6.2)
 \input{figs/fig4_deltas}       % Fig 4: signed deltas across states, the headline figure (section 6.2)
 
 \input{sections/07_discussion}

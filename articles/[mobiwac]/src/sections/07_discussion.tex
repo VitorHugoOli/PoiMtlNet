@@ -1,8 +1,8 @@
 % Section 7: Discussion and Limitations (about 0.5 page). Plan: PAPER_PLAN 4 / §7.
 % One model serves both tasks; shared semantic context lifts category, private spatial path keeps region competitive
-% (matches at small region counts, outperforms at large). Limitations: single seed over five folds (provisional);
-% small-state region is non-inferior within two points (a match, not a beat); transductive representation
-% (planned training-only variant); the mobility-aware service is motivation, not evaluated.
+% (matches at small region counts, outperforms at large). Limitations (2 since 2026-07-18, CA/TX n=20):
+% transductive representation (planned training-only variant); the mobility-aware service is background
+% motivation, not evaluated. Small-state region is non-inferior within two points (a match, not a beat).
 % 2026-07-08 (P7/C4-C6): the usage sketch is now quantified (shortlist enrichment from Tbl 3 + shortlist
 % compactness + near-miss distance vs the random-pair floor, all from analysis/{near_miss,shortlist_compactness}_
 % RESULTS.md; four datasets, single-seed tag inline) and the closing paragraph carries the moura2025 succession
@@ -10,18 +10,17 @@
 \section{Discussion and Limitations}
 \label{sec:discussion}
 
-One model serves both tasks: a shared trunk carries the semantic context that lifts the next-category task over a dedicated model at every dataset, and a private spatial path keeps the next-region task competitive, a non-inferior match (TOST, $\pm2$~pp) at the two small U.S. states and a tested gain at the other four datasets (Table~\ref{tab:results}). Across the five U.S. states, the region gain rises with the number of regions (Figure~\ref{fig:deltas}).
+One model serves both tasks: a shared trunk carries the semantic context that lifts the next-category task over a dedicated model on every dataset, and a private spatial path keeps the next-region task competitive, a non-inferior match (TOST, $\pm2$~pp) at the two small U.S. states and a tested gain at the other four datasets (Table~\ref{tab:results}). Across the five U.S. states, the region gain rises with region count (Fig.~\ref{fig:deltas}).
 
 A service could treat the model's top-ranked next regions as an anticipatory
-set: at California, ten regions of 8{,}501 contain the true next region 65.69
+set: at California, ten regions out of 8{,}501 contain the true next region 65.69
 percent of the time, over 500 times better than picking ten at
-random. On four datasets (Alabama, Arizona, Florida, and Istanbul; this analysis uses a single seed over five folds), the ten shortlisted regions lie a median of 3 to 8 kilometers from the shortlist's
-center (region centroids), against 20 to 241 kilometers for two regions drawn at random. This remains motivation, not a measured service result.
+random. On four datasets (Alabama, Arizona, Florida, and Istanbul; a single seed over five folds), the ten shortlisted regions lie a median of 3 to 8 kilometers from the shortlist's centroid, against 20 to 241 kilometers for two regions drawn at random. This remains motivation, not a measured service result.
 
-Three limits qualify these results. First, the joint numbers at California and Texas use a single seed over five folds, while the other four datasets average four seeds for both models. Second, our representation is trained once over all places; visits to places
-never seen during training are the single effect that we cannot fully isolate. A planned follow-up trains it on each fold's training places only and embeds unseen visits. Third, although a mobility-aware service motivates this work, we do not build or evaluate one.
+Two limits qualify these results. First, our representation is trained once over all places; visits to places
+never seen during training are the single effect that we cannot fully isolate. A planned follow-up trains it on each fold's training places only and embeds unseen visits. Second, a mobility-aware service is the background motivation of this work rather than its subject; we do not build or evaluate one, and the paper's claims are the prediction results themselves.
 
 Our representation is a fixed per-visit vector that any downstream model
-can consume; structural check-in analysis has named machine learning as
-a next step~\cite{moura2025mobilityaware}, and this study moves in that
-direction.
+can consume. Moura et al.~\cite{moura2025mobilityaware}, whose structural
+analysis of tourist check-ins reads past visits only, name machine learning
+as a next step; this study moves in that direction.

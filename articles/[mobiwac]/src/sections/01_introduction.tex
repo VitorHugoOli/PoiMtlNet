@@ -17,9 +17,9 @@ Sharing one representation across tasks has a cost: in multi-task learning (MTL)
 observed exactly this for next-category and next-region~\cite{silva2025mtlnet}; the useful question is where sharing helps, what it costs, and how to share so the gains hold and the cost stays small.
 
 We propose two enhancements. First, we build a check-in-level representation: instead of one fixed vector per place, each check-in gets its own vector that holds its context (the time, nearby places, and recent visits).
-This adds a fourth, check-in level beneath the place, region, and city levels of hierarchical graph infomax~\cite{huang2023hgi,velickovic2019dgi} (Fig.~\ref{fig:dataflow}). Second, we train one model that
+This adds a fourth level, the check-in, beneath the place, region, and city levels of hierarchical graph infomax~\cite{huang2023hgi,velickovic2019dgi} (Fig.~\ref{fig:dataflow}). Second, we train one model that
 predicts the next category and the next region in a single forward pass, with a shared trunk (a cross-attention stack where the two tasks exchange
-semantic context) and a private spatial path for the region task (Fig.~\ref{fig:model}). We evaluate on two settings chosen to differ: five U.S. states of different sizes (Gowalla) and one international city (Istanbul).\footnote{\label{fn:code}Code (model, representation, baselines, statistical tests): \url{https://github.com/VitorHugoOli/PoiMtlNet/tree/mobiwac}. Both data sources are public: the category-annotated Gowalla dump (\url{https://figshare.com/articles/dataset/gowalla_data/22126586}) and Massive-STEPS~\cite{wongso2025massivesteps}.}
+semantic context) and a private spatial path for the region task (Fig.~\ref{fig:model}). We evaluate on two settings chosen to differ: five U.S. states of different sizes (Gowalla) and one non-U.S. city (Istanbul).\footnote{\label{fn:code}Code (model, representation, baselines, statistical tests): \url{https://github.com/VitorHugoOli/PoiMtlNet/tree/mobiwac}. Both data sources are public: the category-annotated Gowalla dump (\url{https://figshare.com/articles/dataset/gowalla_data/22126586}) and Massive-STEPS~\cite{wongso2025massivesteps}.}
 
 Our contributions are as follows.
 \begin{itemize}
@@ -28,22 +28,21 @@ Our contributions are as follows.
     context, not to extra training signal. The gap is large because a single fixed vector
     per place cannot separate places that serve several purposes, which
     per-visit context recovers.
-  \item A single model for joint next-category and next-region prediction, sharing semantic context across tasks while keeping a private spatial path for the region task; to our knowledge, the first to treat fine-grained region as an end target of equal standing (Section~\ref{sec:related-tasks}). In one forward pass, it outperforms a dedicated
-    single-task category model at every dataset (by about $+5$ to $+9$ points of
+  \item A single model for joint next-category and next-region prediction, sharing semantic context across tasks while keeping a private spatial path for the region task; to our knowledge, the first work to treat fine-grained region as an end target of equal standing (Section~\ref{sec:related-tasks}). In one forward pass, it outperforms a dedicated
+    single-task category model on every dataset (by about $+5$ to $+9$ points of
     macro-F1), even though each dedicated model is tuned per dataset. On region,
     it outperforms at four of the six datasets and stays
     statistically non-inferior within a two-point margin (TOST, a test of
     equivalence) at the remaining two (Table~\ref{tab:results}).
-  \item An empirical account, across five U.S. states and one international city, of how the joint gain scales with the number of regions.
-    The category gain holds at all six datasets. Across the U.S. states, the
+  \item An empirical account, across five U.S. states and one non-U.S. city, of how the joint gain scales with the number of regions.
+    The category gain holds on all six datasets. Across the U.S. states, the
     region result moves monotonically with the region count: the joint model
     matches the dedicated model (TOST, $\pm2$ percentage points, or pp) at the
     small region counts and outperforms it at the large region counts, with
     the state with the most regions (California) showing the largest region
     gain (Fig.~\ref{fig:deltas}). Istanbul, the dataset with the fewest
-    regions, is also ahead on region. The California and Texas joint results
-    use a single random initialization; the other four datasets use four for
-    both models (Section~\ref{sec:results-part2}).
+    regions, is also ahead on region. All joint and dedicated results average
+    four random initializations (Section~\ref{sec:results-part2}).
 \end{itemize}
 
 The rest of the paper presents related work (Section~\ref{sec:related}), the problem (Section~\ref{sec:problem}), the method and setup (Sections~\ref{sec:method} and~\ref{sec:setup}), results (Section~\ref{sec:results}), and discussion and conclusions (Sections~\ref{sec:discussion} and~\ref{sec:conclusion}).

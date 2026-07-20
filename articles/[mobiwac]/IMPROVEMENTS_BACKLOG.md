@@ -124,7 +124,12 @@ row at AL); keep the "validation is aligned in all variants" honesty note.
 - `references.bib`: `lin2021ctle` has both `volume` and `number` (cosmetic bibtex warning); drop one.
 - De-anonymize check (single-blind, names already in) + a final em-dash / codename sweep over all rendered text.
 
-### P9. Page budget (only if you leave the 10-page fee variant)
+### P9. Page budget — MOOT (condition resolved 2026-07-19: 8-page EDAS budget, no fee)
+> Resolved 2026-07-19: the author re-ruled the budget to the **8-page EDAS no-fee budget** (supersedes the
+> 10-page fee-variant choice this item assumed), and the 2026-07-20 trim campaign returned the build to
+> 8 pages — so the condition ("only if you leave the 10-page fee variant") no longer holds. Kept below as
+> the trim-lever record.
+
 Currently 9 pages (fine for the fee variant you chose). If you later want 8: `\small` the bibliography (page 9 is
 only the last ~7 refs), trim the densest §2/§6 passages, or shrink one full-width figure. ~1 page is reclaimable
 without cutting content.

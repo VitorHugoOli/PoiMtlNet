@@ -1,0 +1,56 @@
+{
+  "state": "texas",
+  "quantity": "prediction_horizon_hours",
+  "definition": "timestamp(target) - timestamp(last of the 9 window visits), per gated stride-1 window, over ALL windows (no fold split; data property)",
+  "windowing": {
+    "window_size": 9,
+    "stride": 1,
+    "min_sequence_length": 10,
+    "emit_tail": false,
+    "note": "board check2hgi_dk_ovl protocol (gated stride-1 overlap)"
+  },
+  "source": {
+    "checkin_stream": "/Users/vitor/Desktop/mestrado/ingred/data/checkins/Texas.parquet (raw; sorted (userid,datetime) mergesort; 0 check-ins dropped at unmapped POIs; POI filter: REBUILT: /Users/vitor/Desktop/mestrado/ingred/data/checkins/Texas.parquet lat/lon + /Users/vitor/Desktop/mestrado/ingred/data/miscellaneous/tl_2022_48_tract_TX/tl_2022_48_tract.shp (preprocess._assign_regions replica; 0 POIs unmapped/dropped))",
+    "checkins_dropped_unmapped_poi": 0,
+    "timestamp_column": "datetime",
+    "machinery": "loaders reused from scripts/closing_data/compute_markov_floor_stride1.py"
+  },
+  "n_checkins": 4089892,
+  "n_users": 38644,
+  "n_windows": 3830414,
+  "window_count_gate": {
+    "computed": 3830414,
+    "table1_expected": 3830414,
+    "ratio": 1.0,
+    "within_1pct": true,
+    "table1_source": "articles/[mobiwac]/src/tables/tbl1_datasets.tex"
+  },
+  "markov_floor_crosscheck": {
+    "markov_floor_json": "docs/results/closing_data/markov_floor_stride1/texas.json",
+    "markov_n_windows": 3830414,
+    "exact_match": true
+  },
+  "horizon_hours": {
+    "median": 1.6119444444444444,
+    "mean": 26.83347420460148,
+    "p10": 0.0038888888888888888,
+    "p25": 0.013055555555555556,
+    "p75": 16.96388888888889,
+    "p90": 46.48416666666667,
+    "p95": 93.4682499999998,
+    "p99": 336.0435388888889,
+    "min": 0.0,
+    "max": 15264.573611111111
+  },
+  "share_gap_within": {
+    "1h": 0.4558160031787687,
+    "6h": 0.6353796221505038,
+    "24h": 0.8288660181379872,
+    "48h": 0.9056744257931388,
+    "72h": 0.9358873479472454,
+    "168h": 0.9765918253222758
+  },
+  "script": "scripts/closing_data/compute_horizon_stride1.py",
+  "generated_utc": "2026-07-18T22:32:34+00:00",
+  "runtime_sec": 3.7
+}

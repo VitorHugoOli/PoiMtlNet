@@ -1,0 +1,56 @@
+{
+  "state": "arizona",
+  "quantity": "prediction_horizon_hours",
+  "definition": "timestamp(target) - timestamp(last of the 9 window visits), per gated stride-1 window, over ALL windows (no fold split; data property)",
+  "windowing": {
+    "window_size": 9,
+    "stride": 1,
+    "min_sequence_length": 10,
+    "emit_tail": false,
+    "note": "board check2hgi_dk_ovl protocol (gated stride-1 overlap)"
+  },
+  "source": {
+    "checkin_stream": "/Users/vitor/Desktop/mestrado/ingred/output/check2hgi/arizona/temp/checkin_graph.pt graph['metadata'] (substrate stream)",
+    "checkins_dropped_unmapped_poi": 0,
+    "timestamp_column": "datetime",
+    "machinery": "loaders reused from scripts/closing_data/compute_markov_floor_stride1.py"
+  },
+  "n_checkins": 236450,
+  "n_users": 7869,
+  "n_windows": 200895,
+  "window_count_gate": {
+    "computed": 200895,
+    "table1_expected": 200895,
+    "ratio": 1.0,
+    "within_1pct": true,
+    "table1_source": "articles/[mobiwac]/src/tables/tbl1_datasets.tex"
+  },
+  "markov_floor_crosscheck": {
+    "markov_floor_json": "docs/results/closing_data/markov_floor_stride1/arizona.json",
+    "markov_n_windows": 200895,
+    "exact_match": true
+  },
+  "horizon_hours": {
+    "median": 3.1886111111111113,
+    "mean": 35.284498880011945,
+    "p10": 0.005555555555555556,
+    "p25": 0.10861111111111112,
+    "p75": 20.290694444444444,
+    "p90": 50.92661111111114,
+    "p95": 106.86283333333323,
+    "p99": 458.0703444444444,
+    "min": 0.0,
+    "max": 11862.058888888889
+  },
+  "share_gap_within": {
+    "1h": 0.3791433335822196,
+    "6h": 0.573876900868613,
+    "24h": 0.8000846213195948,
+    "48h": 0.8900918390203838,
+    "72h": 0.9252146643769134,
+    "168h": 0.9710296423504816
+  },
+  "script": "scripts/closing_data/compute_horizon_stride1.py",
+  "generated_utc": "2026-07-18T22:32:29+00:00",
+  "runtime_sec": 0.2
+}

@@ -1,0 +1,56 @@
+{
+  "state": "california",
+  "quantity": "prediction_horizon_hours",
+  "definition": "timestamp(target) - timestamp(last of the 9 window visits), per gated stride-1 window, over ALL windows (no fold split; data property)",
+  "windowing": {
+    "window_size": 9,
+    "stride": 1,
+    "min_sequence_length": 10,
+    "emit_tail": false,
+    "note": "board check2hgi_dk_ovl protocol (gated stride-1 overlap)"
+  },
+  "source": {
+    "checkin_stream": "/Users/vitor/Desktop/mestrado/ingred/output/check2hgi/california/temp/checkin_graph.pt graph['metadata'] (substrate stream)",
+    "checkins_dropped_unmapped_poi": 0,
+    "timestamp_column": "datetime",
+    "machinery": "loaders reused from scripts/closing_data/compute_markov_floor_stride1.py"
+  },
+  "n_checkins": 3171380,
+  "n_users": 37090,
+  "n_windows": 2925466,
+  "window_count_gate": {
+    "computed": 2925466,
+    "table1_expected": 2925466,
+    "ratio": 1.0,
+    "within_1pct": true,
+    "table1_source": "articles/[mobiwac]/src/tables/tbl1_datasets.tex"
+  },
+  "markov_floor_crosscheck": {
+    "markov_floor_json": "docs/results/closing_data/markov_floor_stride1/california.json",
+    "markov_n_windows": 2925466,
+    "exact_match": true
+  },
+  "horizon_hours": {
+    "median": 1.3333333333333333,
+    "mean": 28.040086194529923,
+    "p10": 0.004166666666666667,
+    "p25": 0.015,
+    "p75": 16.360833333333332,
+    "p90": 45.28263888888889,
+    "p95": 92.11791666666667,
+    "p99": 376.29250000000104,
+    "min": 0.0,
+    "max": 15569.861666666666
+  },
+  "share_gap_within": {
+    "1h": 0.4739634642822716,
+    "6h": 0.6478889175263018,
+    "24h": 0.8352877797930313,
+    "48h": 0.9089693744517967,
+    "72h": 0.9375945575850138,
+    "168h": 0.9756637062266319
+  },
+  "script": "scripts/closing_data/compute_horizon_stride1.py",
+  "generated_utc": "2026-07-18T22:32:30+00:00",
+  "runtime_sec": 0.8
+}

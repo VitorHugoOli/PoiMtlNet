@@ -11,10 +11,10 @@
 % "sparsity = 1 - density" column, which was trivially ~0.999 for every state. The fixed
 % 7-category space is stated in the caption rather than as a constant column.
 \begin{table*}[!t]
-\caption{Dataset statistics, ordered by region count: five Gowalla states and one
-international city (Istanbul, Massive-STEPS). All share the same seven root
-categories; the region unit is a census tract (a mahalle for Istanbul). Windows are the sliding nine-visit
-inputs plus the next-visit target; lengths are per-user check-in counts; density is $100\times\text{check-ins}/(\text{users}\times\text{POIs})$; Majority is the share of next-visit
+\caption{Dataset statistics, ordered by region count: five Gowalla states and Istanbul
+(Massive-STEPS). All share the same seven root categories; the region unit is a census
+tract (a mahalle for Istanbul). Windows: sliding nine-visit inputs plus the next-visit
+target; lengths: per-user check-in counts; density: $100\times\text{check-ins}/(\text{users}\times\text{POIs})$; Majority: share of next-visit
 labels in the most common category (Food in every dataset).}
 % Majority provenance (hidden): computed on the next-visit target labels of the task inputs
 % (CATEGORY_DISTRIBUTION.md); Gowalla values match the overlap windows to <=0.5 pp (AL 34.18 at

@@ -42,15 +42,15 @@
 > **Keep three targets distinct:** *next category*, *next region*, and *next place* (the exact POI). The last
 > submission blurred them. We predict the first two and not the exact next place; say so once, early.
 
-> **Honesty rule (region wording, renumbered 2026-07-08 to the v17 board):** the region result is
-> **mixed**: the joint model **outperforms** at **Istanbul, Florida, Texas, and California** (the 90% CI of the
-> paired difference lies entirely above zero; CA/TX on the provisional seed-0 fold footing) and
-> **matches** (non-inferior, TOST) at **Alabama and Arizona**. **NEVER upgrade Arizona to a gain** (+0.10, CI
-> grazes zero, supplementary p=0.049 — the stats doc forbids it). CA/TX joint cells are a **single seed over
-> five folds** — say exactly that in the paper; **the word "provisional" is NOT used in the paper** (author
-> ruling 2026-07-10: it over-hedges a clean, pre-registered 5-fold result and invites confusion; the
-> single-seed disclosure + Table III's $^{\circ}$ marker + §6.2's "more seeds … remaining confirmation"
-> sentence carry the honesty; "provisional" stays internal-only until A1/P1 lands). The scaling claim ("region gain rises with region count") is scoped to the
+> **Honesty rule (region wording, re-footed 2026-07-18 to joint-best n=20):** all six datasets are **n=20**
+> (four seeds × five folds; the CA/TX A1 top-up landed 2026-07-11), and the reported convention is
+> **joint-best** (one saved model per fold, both tasks read there). The region result is **mixed**: the joint
+> model **outperforms** at **Istanbul (+0.19, 90% CI +0.15..+0.23), Florida (+0.71, CI +0.67..+0.76), Texas
+> (+2.11, CI +2.10..+2.13), and California (+2.20, CI +2.19..+2.21)** (each 90% CI of the paired difference
+> lies entirely above zero) and **matches** (non-inferior, TOST) at **Alabama (−0.41, 90% CI −0.63..−0.20) and
+> Arizona (0.00, CI −0.08..+0.07)**. **NEVER upgrade Arizona to a gain** (its CI straddles zero — the stats doc
+> forbids it). The single-seed CA/TX disclosure is retired: those cells are full n=20, so neither "single seed"
+> nor "provisional" appears anywhere in the paper. The scaling claim ("region gain rises with region count") is scoped to the
 > **five U.S. states**; Istanbul (fewest regions) is positive and sits off that trend line — never state the
 > monotone claim across all six. **The superiority verb is "outperforms"** (never "beats" / "wins");
 > "matches" / "non-inferior (TOST)" is the equivalence verb. Keep each verb bound to its test. The full form **"statistically
@@ -167,11 +167,11 @@ v11–v16, champion-G, H3-alt; write "our model"), `log_T` (write "region-transi
 - [ ] Every acronym expanded on first use; acronym count as low as possible.
 - [ ] **category / region** used throughout; never "activity" / "area".
 - [ ] **next category / next region / next place** kept distinct; "we do not predict the exact next place" stated once.
-- [ ] Region wording (v17 board): "outperforms" at Istanbul/FL/TX/CA (CA/TX disclosed as a single seed over
-  five folds; the word "provisional" at zero in the paper) and "matches / non-inferior within two points" at
-  AL/AZ — never upgrade AZ; the scaling claim scoped to the five U.S. states; the formal "statistically
-  non-inferior within a two-point margin (TOST)" appears at least once; never "ties", "Pareto", or
-  "outperforms region everywhere". The superiority verb is "outperforms", never "beats" / "wins".
+- [ ] Region wording (joint-best, n=20): "outperforms" at Istanbul/FL/TX/CA (all six datasets n=20, four
+  seeds × five folds; "single seed" and "provisional" both at zero in the paper) and "matches / non-inferior
+  within two points" at AL/AZ — never upgrade AZ; the scaling claim scoped to the five U.S. states; the formal
+  "statistically non-inferior within a two-point margin (TOST)" appears at least once; never "ties", "Pareto",
+  or "outperforms region everywhere". The superiority verb is "outperforms", never "beats" / "wins".
 - [ ] No recipe or version codenames anywhere.
 - [ ] No bare "substrate / engine / head / cross-attention"; replaced or glossed.
 - [ ] Every table has a lead takeaway sentence (a normal sentence; the literal "Read this as:" tag at zero).
@@ -201,7 +201,9 @@ v11–v16, champion-G, H3-alt; write "our model"), `log_T` (write "region-transi
 > LLM-modified by 2024). One hit is noise; **density convicts**. (Sources: WikiProject AI Cleanup; Kobak et
 > al. 2025; Liang et al. 2024; Juzek & Ward 2024; Sage editor guidance.)
 >
-> **Audit 2026-07-10: the draft has ZERO hits on the word/template lists and zero em-dashes.** The live risks
+> **Audit 2026-07-18 (post review-pass edits): ZERO hits on the word/template lists including the 2025-2026
+> additions below; zero em-dashes; -ly density ~0.44%; "far" ×2; "X, not Y" ~22 with the five ledger-mandated
+> keeps intact.** The live risks
 > are the density patterns below. All counts in this file are a dated snapshot: a re-audit replaces the
 > numbers, never the rules. Re-run after every edit pass; these words creep in through AI-assisted rewrites.
 
@@ -224,6 +226,10 @@ v11–v16, champion-G, H3-alt; write "our model"), `log_T` (write "region-transi
 | it is important / worth noting that | "Note that", or just state it |
 | in conclusion | delete (the heading already says it) |
 | valuable insights, advancements, surpasses | findings, advances, exceeds / outperforms |
+| enhance / enhancement(s) (beyond the single C2-mandated "we propose two enhancements" lead-in), emphasize / emphasizing | improve, show; never a second "enhance*" |
+| align with / aligns with | matches, agrees with |
+| key (decorative: "key insight", "plays a key role") | central (sparingly), or name the mechanism |
+| bolstered, vibrant, enduring, commendable, exceptional, invaluable, noteworthy, adept, versatile | delete the praise; give the number |
 
 **Banned templates:** "not only X but also Y" (split it); "this paper delves into / embarks on" (studies,
 presents); "plays a crucial role in" (name the mechanism); "in today's ... world" (open with the problem);

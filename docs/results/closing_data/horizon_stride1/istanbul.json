@@ -1,0 +1,56 @@
+{
+  "state": "istanbul",
+  "quantity": "prediction_horizon_hours",
+  "definition": "timestamp(target) - timestamp(last of the 9 window visits), per gated stride-1 window, over ALL windows (no fold split; data property)",
+  "windowing": {
+    "window_size": 9,
+    "stride": 1,
+    "min_sequence_length": 10,
+    "emit_tail": false,
+    "note": "board check2hgi_dk_ovl protocol (gated stride-1 overlap)"
+  },
+  "source": {
+    "checkin_stream": "/Users/vitor/Desktop/mestrado/ingred/output/check2hgi/istanbul/temp/checkin_graph.pt graph['metadata'] (substrate stream)",
+    "checkins_dropped_unmapped_poi": 0,
+    "timestamp_column": "datetime",
+    "machinery": "loaders reused from scripts/closing_data/compute_markov_floor_stride1.py"
+  },
+  "n_checkins": 462615,
+  "n_users": 23694,
+  "n_windows": 270217,
+  "window_count_gate": {
+    "computed": 270217,
+    "table1_expected": 271666,
+    "ratio": 0.9946662445797413,
+    "within_1pct": true,
+    "table1_source": "articles/[mobiwac]/src/tables/tbl1_datasets.tex"
+  },
+  "markov_floor_crosscheck": {
+    "markov_floor_json": "docs/results/closing_data/markov_floor_stride1/istanbul.json",
+    "markov_n_windows": 270217,
+    "exact_match": true
+  },
+  "horizon_hours": {
+    "median": 5.5,
+    "mean": 287.65318349079934,
+    "p10": 0.45,
+    "p25": 1.4166666666666667,
+    "p75": 92.1,
+    "p90": 430.46666666666664,
+    "p95": 953.9699999999997,
+    "p99": 3235.6320000000055,
+    "min": 0.016666666666666666,
+    "max": 53831.11666666667
+  },
+  "share_gap_within": {
+    "1h": 0.1945510460111688,
+    "6h": 0.5135687243955783,
+    "24h": 0.637258203591928,
+    "48h": 0.6926951302101644,
+    "72h": 0.7296617163242876,
+    "168h": 0.8204406088440032
+  },
+  "script": "scripts/closing_data/compute_horizon_stride1.py",
+  "generated_utc": "2026-07-18T22:32:29+00:00",
+  "runtime_sec": 0.4
+}

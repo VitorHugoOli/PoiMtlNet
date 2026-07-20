@@ -1,0 +1,56 @@
+{
+  "state": "alabama",
+  "quantity": "prediction_horizon_hours",
+  "definition": "timestamp(target) - timestamp(last of the 9 window visits), per gated stride-1 window, over ALL windows (no fold split; data property)",
+  "windowing": {
+    "window_size": 9,
+    "stride": 1,
+    "min_sequence_length": 10,
+    "emit_tail": false,
+    "note": "board check2hgi_dk_ovl protocol (gated stride-1 overlap)"
+  },
+  "source": {
+    "checkin_stream": "/Users/vitor/Desktop/mestrado/ingred/output/check2hgi/alabama/temp/checkin_graph.pt graph['metadata'] (substrate stream)",
+    "checkins_dropped_unmapped_poi": 0,
+    "timestamp_column": "datetime",
+    "machinery": "loaders reused from scripts/closing_data/compute_markov_floor_stride1.py"
+  },
+  "n_checkins": 113846,
+  "n_users": 3858,
+  "n_windows": 96326,
+  "window_count_gate": {
+    "computed": 96326,
+    "table1_expected": 96326,
+    "ratio": 1.0,
+    "within_1pct": true,
+    "table1_source": "articles/[mobiwac]/src/tables/tbl1_datasets.tex"
+  },
+  "markov_floor_crosscheck": {
+    "markov_floor_json": "docs/results/closing_data/markov_floor_stride1/alabama.json",
+    "markov_n_windows": 96326,
+    "exact_match": true
+  },
+  "horizon_hours": {
+    "median": 3.044722222222222,
+    "mean": 38.7023638967903,
+    "p10": 0.003611111111111111,
+    "p25": 0.03111111111111111,
+    "p75": 22.134305555555557,
+    "p90": 66.83847222222222,
+    "p95": 128.88791666666668,
+    "p99": 549.2313194444445,
+    "min": 0.0002777777777777778,
+    "max": 10278.044722222223
+  },
+  "share_gap_within": {
+    "1h": 0.40115856570396363,
+    "6h": 0.5703755995266075,
+    "24h": 0.7782737786267466,
+    "48h": 0.87063721113718,
+    "72h": 0.9101696322903473,
+    "168h": 0.9629175923426697
+  },
+  "script": "scripts/closing_data/compute_horizon_stride1.py",
+  "generated_utc": "2026-07-18T22:32:28+00:00",
+  "runtime_sec": 0.2
+}

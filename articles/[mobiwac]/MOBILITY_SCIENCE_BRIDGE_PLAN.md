@@ -461,7 +461,7 @@ limits plainly), but this is exactly the kind of line-drawing worth a second opi
 Rough word counts: §3 nets **+20 words** (~+1 line) with the Moura citation added; §5.3 nets **-13 words**;
 §7's usage sketch nets **+75 words** (~+3-4 lines) for the shortlist + near-miss numbers; §7's limitations
 instance is unchanged. **Net: roughly +4 lines**, not free, not a blank check either. The paper compiled at
-exactly 10 pages with no observed slack (§0). This is an open cost, not a hidden saving — flagged for the
+exactly 10 pages with no observed slack (§0) [superseded 2026-07-19: 8-page EDAS budget, no fee]. This is an open cost, not a hidden saving — flagged for the
 review pass and for your decision, not resolved here.
 
 ### 10.5 · What is deliberately NOT touched, and why
@@ -578,7 +578,8 @@ independent problems, either one sufficient to sink the claim:
 5. **Re-verify the page-budget cost by actually inserting and recompiling**, not by word-count estimate.
    The advisor independently measured the real compiled PDF's body-text density at 8-11 words/line (not the
    ~20 words/line this plan's §10.4 assumed) and recomputed the net cost at **roughly 10 lines, not 4** —
-   given the paper is at exactly 10 pages with no observed slack, this needs a real compile check before any
+   given the paper is at exactly 10 pages with no observed slack [superseded 2026-07-19: 8-page EDAS
+   budget, no fee], this needs a real compile check before any
    claim about "the room this frees up," not an assumption in either direction.
 
 ### 11.4 · Two structural fixes to the §3/§7 disclaimer split
@@ -898,7 +899,7 @@ verify before any citation.
 its result (in-dist shortlist spread P50 2.86-7.53 km, ~7-32x tighter than the random-pair map scale) was
 folded into C4 alongside the near-miss + floor numbers. All blocks applied (C1+C1b+C7 intro, C2b+C2 §3, C3
 §5.3, C4-adapted+C5+C6 §7) + 4 bib entries. **Compile: 10 pages, 0 undefined, 0 bibtex warnings, 0
-overfull, 37 rendered refs** — the refs-end slack absorbed the growth exactly as §12.5 measured.
+overfull, 37 rendered refs** [superseded 2026-07-19: 8-page EDAS budget, no fee] — the refs-end slack absorbed the growth exactly as §12.5 measured.
 
 **Post-apply review (3 independent lenses on the applied text):**
 
@@ -923,6 +924,6 @@ overfull, 37 rendered refs** — the refs-end slack absorbed the growth exactly 
   association" disambiguation. Verified-fine items left alone (cross-section escalation, disclaimer
   placement, the single-seed parenthetical).
 
-**Recompiled after fixes: 10 pages, 0 undefined, 0 warnings, 37 refs — unchanged.** Remaining open:
+**Recompiled after fixes: 10 pages, 0 undefined, 0 warnings, 37 refs — unchanged.** [superseded 2026-07-19: 8-page EDAS budget, no fee] Remaining open:
 the L3 fork (author-only, §13.3), the Istanbul dk_ovl/n=20 top-up path for the two geometry metrics
 (rides A40-2/H3 or P1), and P1 itself (the science verdict-changer, unaffected by all of this).

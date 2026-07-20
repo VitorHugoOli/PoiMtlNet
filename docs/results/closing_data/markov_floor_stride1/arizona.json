@@ -1,0 +1,130 @@
+{
+  "state": "arizona",
+  "task": "next_region",
+  "baseline": "markov_1step_region",
+  "windowing": {
+    "window_size": 9,
+    "stride": 1,
+    "min_sequence_length": 10,
+    "emit_tail": false,
+    "note": "board check2hgi_dk_ovl protocol (gated stride-1 overlap); every window has 9 real visits, target = genuine next visit"
+  },
+  "fold_protocol": {
+    "splitter": "StratifiedGroupKFold",
+    "n_splits": 5,
+    "shuffle": true,
+    "seed": 42,
+    "groups": "str(userid)",
+    "stratify": "next_category -> int via inverse CATEGORIES_MAP",
+    "mirrors": "scripts/compute_simple_baselines.py"
+  },
+  "source": {
+    "checkin_stream": "/Users/vitor/Desktop/mestrado/ingred/output/check2hgi/arizona/temp/checkin_graph.pt graph['metadata'] (substrate stream)",
+    "poi_region_mapping": "/Users/vitor/Desktop/mestrado/ingred/output/check2hgi/arizona/temp/checkin_graph.pt",
+    "checkins_dropped_unmapped_poi": 0
+  },
+  "n_checkins": 236450,
+  "n_users": 7869,
+  "n_regions_partition": 1547,
+  "n_classes_observed": 1547,
+  "n_windows": 200895,
+  "window_count_gate": {
+    "computed": 200895,
+    "table1_expected": 200895,
+    "ratio": 1.0,
+    "within_1pct": true,
+    "table1_source": "articles/[mobiwac]/src/tables/tbl1_datasets.tex"
+  },
+  "generate_sequences_verify": {
+    "generate_sequences_total": 200895,
+    "mismatched_users": 0,
+    "pass": true
+  },
+  "per_fold": [
+    {
+      "fold": 0,
+      "n_train": 160715,
+      "n_val": 40180,
+      "markov_1step_region": {
+        "acc1": 0.2953957192633151,
+        "acc5": 0.44940268790443005,
+        "acc10": 0.5218267794922847,
+        "mrr": 0.3623814856953234,
+        "n_val_fallback_global": 43
+      }
+    },
+    {
+      "fold": 1,
+      "n_train": 160715,
+      "n_val": 40180,
+      "markov_1step_region": {
+        "acc1": 0.2914883026381284,
+        "acc5": 0.4515181682429069,
+        "acc10": 0.5234196117471379,
+        "mrr": 0.3609508007616519,
+        "n_val_fallback_global": 49
+      }
+    },
+    {
+      "fold": 2,
+      "n_train": 160716,
+      "n_val": 40179,
+      "markov_1step_region": {
+        "acc1": 0.30140122949799647,
+        "acc5": 0.45247517359814826,
+        "acc10": 0.5244281838771497,
+        "mrr": 0.366870229927424,
+        "n_val_fallback_global": 192
+      }
+    },
+    {
+      "fold": 3,
+      "n_train": 160717,
+      "n_val": 40178,
+      "markov_1step_region": {
+        "acc1": 0.2845338244810593,
+        "acc5": 0.42120065707601173,
+        "acc10": 0.4904674199810842,
+        "mrr": 0.3449349501859582,
+        "n_val_fallback_global": 182
+      }
+    },
+    {
+      "fold": 4,
+      "n_train": 160717,
+      "n_val": 40178,
+      "markov_1step_region": {
+        "acc1": 0.2745532380904973,
+        "acc5": 0.42533227139230423,
+        "acc10": 0.5014933545721539,
+        "mrr": 0.340411429061312,
+        "n_val_fallback_global": 188
+      }
+    }
+  ],
+  "aggregate": {
+    "markov_1step_region": {
+      "acc1_mean": 0.2894744627941993,
+      "acc1_std": 0.009256537653966307,
+      "acc5_mean": 0.4399857916427602,
+      "acc5_std": 0.013749656310610876,
+      "acc10_mean": 0.5123270699339622,
+      "acc10_std": 0.013819837979068961,
+      "mrr_mean": 0.3551097791263339,
+      "mrr_std": 0.010439081298796707
+    }
+  },
+  "markov_1step_region_acc10_mean": 0.5123270699339622,
+  "markov_1step_region_acc10_std": 0.013819837979068961,
+  "old_floor_nonoverlap": {
+    "path": "docs/results/P0/simple_baselines/arizona/next_region.json",
+    "windowing": "non-overlap (stride-9, MIN_SEQ=5, emit_tail=True) frozen substrate",
+    "best_simple_baseline": "markov_1step_region",
+    "best_simple_acc10_mean": 0.4296118267348613,
+    "markov_1step_region_acc10_mean": 0.4296118267348613
+  },
+  "delta_acc10_new_minus_old": 0.08271524319910084,
+  "script": "scripts/closing_data/compute_markov_floor_stride1.py",
+  "generated_utc": "2026-07-18T19:54:43+00:00",
+  "runtime_sec": 1.0
+}

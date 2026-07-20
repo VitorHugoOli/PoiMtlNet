@@ -8,13 +8,15 @@
 
 ## 1 · Current state (settled as of 2026-06-28)
 
-- **Paper:** complete, compiling **10-page** IEEE draft (grew from 9 with the 2026-07-06 cascade reframe + novelty
-  defusals; still within the 10-page fee budget). Root: [`src/main.tex`](src/main.tex) (renamed from
+- **Paper:** complete, compiling **8-page** IEEE draft (the 2026-07-18 review pass E1–E18 + the
+  2026-07-20 advisor-gated trim campaign back to the 8-page EDAS budget; record in
+  `review/considerations_v3.md`). Root: [`src/main.tex`](src/main.tex) (renamed from
   `paper_skeleton.tex`). Build: `pdflatex main → bibtex main → pdflatex main ×2` (see [`src/README.md`](src/README.md)).
-  All 8 sections written, 3 tables + 4 figures wired, **0 undefined refs/citations, 0 bibtex warnings**.
+  All 8 sections written, 3 tables + 3 figures wired, **0 undefined refs/citations, 0 bibtex warnings**.
 - **Submission:** EDAS paper **#1571313639** is **already registered** (regular track, single-blind); only the
-  **manuscript upload (EDAS Step 3)** is left. The current build is **10 pages**; the budget is the **10-page (fee)
-  variant** (do NOT trim to 8). See [`EDAS_SUBMISSION.md`](EDAS_SUBMISSION.md).
+  **manuscript upload (EDAS Step 3)** is left. The current build is **8 pages**, matching the EDAS
+  **8-page free budget (no extra-page fee)** — the Step-3 record in
+  [`EDAS_SUBMISSION.md`](EDAS_SUBMISSION.md) is the authority on the budget.
 - **Authors (names stay, single-blind):** Vitor H. O. Silva, Germano B. dos Santos, Fabrício A. Silva — NESPeD-LAB,
   Universidade Federal de Viçosa, Florestal, MG; `{vitor.h.oliveira, germano.santos, fabricio.asilva}@ufv.br`.
 - **Bibliography (2026-07-08):** **37 rendered references**, all web-verified real and current (venue names IEEE-abbreviated; +4 on 2026-07-08: moura2025mobilityaware, silva2019urbancomputing, bastug2014edge, song2010limits) (+5 on 2026-07-06: ye2013nextmove,
@@ -35,18 +37,22 @@ Istanbul/FL/TX/CA (90% CI of the paired difference above zero) while being **sta
 two-point margin (TOST)** at AL/AZ. The region gain rises with the number of regions **across the five U.S. states**;
 Istanbul (fewest regions) is also positive.
 
-- **Headline snapshot (verify exact cells against the board — this is a memory aid, not the source of truth):**
-  category Δ = AL +7.72 / AZ +9.40 (⚠ pending AZ-ceiling top-up may cut to ≈+8.8) / FL +5.34 / CA +6.44* / TX +7.44* /
-  Istanbul +8.59; region Δ = Istanbul +0.28 / FL +0.72 / TX +2.12* / CA +2.20* (**outperforms**),
-  AL −0.31 / AZ +0.10 (**matches**, TOST; NEVER upgrade AZ). *CA/TX joint = seed-0 n=5 provisional (A1 pending).
+- **Headline snapshot (verify exact cells against the board — this is a memory aid, not the source of truth;
+  joint-best convention, n=20, cross-seed sd, since 2026-07-18):**
+  category Δ = AL +7.69 / AZ +9.35 / FL +5.33 / CA +6.45 / TX +7.45 / Istanbul +8.58 (vs the n=20 best-vs-best
+  ceilings); region Δ = Istanbul +0.19 / FL +0.71 / TX +2.11 / CA +2.20 (**outperforms**),
+  AL −0.41 / AZ 0.00 (**matches**, TOST; NEVER upgrade AZ). All six joint cells are n=20 (four seeds × five
+  folds; the CA/TX A1 top-up landed 2026-07-11 — no provisional cells remain).
   Table 2 substrate margin (Check2HGI − HGI cat, matched-recipe seed-0 pair — deliberately NOT Table 3's tuned
   ceilings) ≈ +27.6 to +39.6; Istanbul re-footed on dk_ovl = +28.09.
 - **Scope:** five Gowalla states (AL/AZ/FL/CA/TX) + Istanbul (Massive-STEPS, non-U.S., now on the same dk_ovl
   substrate + v17 recipe as the states — cross-substrate caveat retired).
-- **Significance (stats_n20/RESULTS.md):** AL/AZ/FL/Istanbul are n=20 on both arms, seed-level paired; category
-  clears **per-cell Holm** (paired t, corrected p<1e-6); region TOST passes at all four (FL + Istanbul CIs entirely
-  above zero → outperforms). CA/TX provisional: seed-0 fold-paired, 5/5 folds, reg 90% CIs entirely above +2 pp.
-  The old n=5 sign-test backbone is retired.
+- **Significance (stats_n20/RESULTS.md, M1-FULL rev 4, + the 2026-07-18 joint-best verification run):** all six
+  datasets are n=20 on both arms, seed-level paired — CA/TX are no longer provisional (the A1 top-up landed
+  2026-07-11; all reproduction gates pass). Category clears **per-cell Holm** m=6 (paired t, worst adjusted
+  p=1.0e-06); region TOST passes at AL (−0.41) and AZ (0.00); region superiority holds at Istanbul/FL/TX/CA
+  (90% CIs entirely above zero). All pre-registered tests were re-verified on the joint-best arrays before the
+  convention switch — no verdict changed. The old n=5 sign-test backbone is retired.
 - **Leak rebuttal (the BRACIS-reject answer):** the A4 train-users-only transductivity audit is **null on both axes**
   at AL/AZ/FL (region ≤0.33 pp, category ≤0.29 pp), sourced in §5.2. Caveat: category is a POI-proxy on the
   in-coverage subset (the transductive substrate can't measure cold-POI visits) — state it, don't hide it.
@@ -96,9 +102,11 @@ indexed by the board. To trust or change any number, trace it to its JSON — do
 JSON (the filenames vary by state — let §3 tell you, don't pattern-match). (3) Read the per-fold arrays and means:
 category is `cat_macro_f1_mean` (from `cat_per_fold`); region is `reg_full_top10_mean` (the OOD-discounted "full"
 metric `top10_acc_indist*(1-ood_frac)`, from `reg_per_fold`). (Key names vary by producer: the TX cell
-`a40/tx_ba2_fp32_s0.json` uses `mtl_cat_macro_f1` / `mtl_reg_full_top10` instead — read the JSON's keys, don't assume.) The cell is the **per-task diagnostic-best** fold-mean
+`a40/tx_ba2_fp32_s0.json` uses `mtl_cat_macro_f1` / `mtl_reg_full_top10` instead — read the JSON's keys, don't assume.) The board cell is the **per-task diagnostic-best** fold-mean
 (cat at its f1-best epoch, reg at its indist-best epoch), NOT the joint `geom_simple` checkpoint — see the JSON's
-`method` field. Confirm the mean matches the paper and **no fold collapsed**: the tell of an fp16/bf16 precision
+`method` field; **the paper's Table 3 joint cells are the joint-best sidecars** (`joint_best_score.json` per rundir /
+`docs/results/closing_data/catx_v17_n20/joint_best/` — see the convention paragraph below). Confirm the mean matches
+its convention's source and **no fold collapsed**: the tell of an fp16/bf16 precision
 collapse is a reg best-epoch ≤ ~5 and/or tens of thousands of skipped steps (the board flags these VOID — e.g. the
 TX `*_bf16` and CA `*_partial` JSONs; never cite them). Large-state cells are **fp32 where available**; **clean bf16
 is accepted as corroboration** (TX's fp32 cell is cross-checked by an H100 bf16 run to 0.03 pp; CA's main cell is
@@ -109,10 +117,13 @@ reproducible: `scripts/closing_data/superiority_wilcoxon.py` (per-state Wilcoxon
 `scripts/closing_data/region_match_tost.py` (small-state TOST + power); the leak audit is
 `scripts/pre_freeze_gates/a4_{build,eval,cat_eval}.py`; the paper's TOST prose/CSV is [`analysis/tost_region.{md,py}`](analysis/).
 
-**Epoch-selection convention (do not mix):** Table 3's MTL cells are **per-task diagnostic-best** (cat and reg each
-at their OWN best epoch — two epochs per fold), **disclosed in §6.2**. The single-checkpoint **joint-best** numbers
-(both heads at the `geom_simple`-selected epoch the training run actually saved) are the **J1 lane** — camera-ready /
-response-letter intent, produced CPU-only by `scripts/closing_data/score_joint_best.py` on each board rundir. Never
+**Epoch-selection convention (do not mix):** the REPORTED convention (Table 3's MTL cells, since 2026-07-18) is
+**joint-best** — one saved model per fold (both heads at the `geom_simple`-selected validation epoch the training
+run actually saved), per the author ruling in `review/considerations_v3.md` #10. This is the **J1 lane**, graduated
+from camera-ready intent to **in the paper**; produced CPU-only by `scripts/closing_data/score_joint_best.py` on
+each board rundir. The **per-task diagnostic-best** numbers (cat and reg each at their OWN best epoch — two epochs
+per fold) are now the robustness check (joint-best reproduces diag-best to within ≤0.06 pp cat / ≤0.11 pp reg) and
+remain the board-of-record cells in `RESULTS_BOARD §1`. Never
 cite a number without naming its convention; full definitions + the `standard_scores.json` contract:
 [`docs/studies/closing_data/joint_best/JOINT_BEST_SCORING.md`](../../docs/studies/closing_data/joint_best/JOINT_BEST_SCORING.md).
 
@@ -125,7 +136,7 @@ cite a number without naming its convention; full definitions + the `standard_sc
 | **"Dedicated" wording** | Keep "dedicated"; expand to **"dedicated single-task model"** on first use (Table III's column header is literally "Dedicated"). Do not rename to bare "single-task model". |
 | **FL region cell** | FL +0.57 stays a **beat** (5/5 folds, Wilcoxon) with no materiality caveat (user decision). |
 | **Venue bridge** | Mobility-management is **motivation only**; no measured network result, no prefetch/coverage curve. Right-size examples to tract-level (a census tract is not a radio cell). |
-| **Page budget** | **10-page fee variant.** Do not trim to 8. |
+| **Page budget** | **8-page EDAS budget, no extra-page fee** (re-ruled by the author 2026-07-19; the EDAS Step-3 record is the authority; SUPERSEDES the earlier "10-page fee variant" ruling). The 2026-07-20 advisor-gated trim campaign returned the working build to 8 pages. Stale 10-page mentions may survive in CLOSER_HANDOFF/MOBILITY_PLAN/bridge plans/RELATED_WORK_TRIAGE — this row wins. |
 | **Dataset years** | Left out of the prose (BRACIS never raised vintage; this is a methods paper; the reference years 2011/2025 are visible). |
 | **Region externals** | HMT-GRN = PRIMARY (faithful, board-matched, multi-task). STAN (faithful, from raw) + ReHDM = secondary references. STAN-on-our-representation (`stl_hgi`) is **NOT a baseline** (it sits above us at AL). |
 | **Cascade framing (2026-07-06)** | The cascade cell is presented as a **coupling-topology comparison inside our own model** (the CSLSL/CatDM pattern; lineage cited Ye2013 → LBPR → CatDM → CSLSL), **explicitly NOT a re-implementation of CSLSL** — §5.4/§6.2/Tbl 3 all say so. §6.2 carries the principled parallel-over-chain rationale (co-equal targets admit no natural order), cites CSLSL's own chain-beats-shared-parallel ablation as the motivation to test, and states the two qualifications (parallel-tuned recipe; coupling pinned in advance) + matured-cascade-as-future-work. Novelty defusals added to §2.2/§2.3: DRRGNN (zhu2022drrgnn), KGTB (sun2025kgtb), HAMTL (wang2025hamtl). |
@@ -143,9 +154,10 @@ tasks are **next-category / next-region** (never activity/area); keep next-categ
 > + submission-mechanics doc (P1 is the only verdict-changer; the 9-page draft is submittable today). The items below
 > are the summary.
 
-1. **P1 — n=20 multi-seed top-up (seeds {1,7,100}, MTL + STL).** The ONE lever that changes a reviewer's verdict
-   (breaks the single-seed-n=5 attack, lets per-cell Holm clear 0.05). Blocked on the A40 (fp32 too slow, bf16
-   grad-NaN); needs the H100 lane. Full spec in [`IMPROVEMENTS_BACKLOG.md`](IMPROVEMENTS_BACKLOG.md) §P1.
+1. ~~**P1 — n=20 multi-seed top-up (seeds {1,7,100}, MTL + STL)**~~ — ✅ DONE via **A1 on the A40** (landed
+   2026-07-11, `docs/results/closing_data/catx_v17_n20/`; the fp32-too-slow blocker was overcome). The
+   single-seed-n=5 attack is dead: all six datasets are n=20, per-cell Holm clears (M1-FULL rev 4), and the
+   paper was re-footed 2026-07-18 (see §2). Original spec: [`IMPROVEMENTS_BACKLOG.md`](IMPROVEMENTS_BACKLOG.md) §P1.
 2. ~~Apply the accepted Germano edits~~ — ✅ DONE (applied 2026-06-30; re-verified by the 2026-07-08 closing audit: ~15 FINAL decisions spot-checked against the current tex all hold).
 3. ~~Reconfirm the deadline~~ — ✅ CONFIRMED (author, 2026-07-08): **2026-07-11**. Remaining mechanics: EDAS PDF upload + replace the registered Step-1 abstract (see `EDAS_SUBMISSION.md` — the registered one is the old pre-review text).
 4. **At submission:** `IEEEtran.bst` restored + bundled (2026-07-01); em-dash/codename sweep DONE (2026-07-01

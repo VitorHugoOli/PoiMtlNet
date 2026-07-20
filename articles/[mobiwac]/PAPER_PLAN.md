@@ -152,36 +152,46 @@ This is the section that keeps every number in the paper honest and defensible.
   per-visit context, measured against a per-place-averaged version of the same embedding.
 - On next-region the two representations are within about 1.6 to 3.1 points (HGI slightly ahead), so the
   representation's benefit is category-only.
-- (Optional, text only.) Our models clear a simple Markov-1 transition floor by a wide margin on region. We
-  **dropped Markov-1 from the region table** (we already sit above HMT-GRN, a faithful STAN, and a ReHDM reference,
-  the stronger comparison), but a one-clause mention of the floor is available if a reviewer wants it. Do not attach
+- (Text only, §6.2.) The joint model exceeds the **stride-1 protocol-matched** Markov-1 region floor (Acc@10
+  **51 to 72** across the six datasets) by **4.9 to 10.3** points (source
+  `docs/studies/closing_data/MARKOV_FLOOR_STRIDE1.md`; JSONs `docs/results/closing_data/markov_floor_stride1/`).
+  Markov-1 stays out of the region table (we already sit above HMT-GRN, a faithful STAN, and a ReHDM reference,
+  the stronger comparison). The old non-overlap **43 to 65** floor and its windowing caveat are **retired from the
+  paper** (the P0 JSONs stay untouched as the historical record). Do not attach
   the +28 to +40 figure here; that is the category-representation margin, a different axis.
 
-**We CAN say, but must mark PROVISIONAL (reduced board: seed 0 × 5 folds, n=5; the {1,7,100} top-up to n=20 is
-post-deadline):**
+**We CAN say (paper-grade; joint-best convention, n=20 at all six datasets — the CA/TX {1,7,100} A1 top-up landed
+2026-07-11; re-footed 2026-07-18):**
 
 The single joint model versus the dedicated single-task ceilings, under the adopted overlapping-window board
-(fp32-matched scorer):
-- **Category: beats the ceiling at every state**, Δ = AL +7.69 / AZ +6.26 / FL +4.68 / CA +7.07 / TX +7.56 /
-  Istanbul +6.69.
-- **Region: beats at the large region counts, matches at the small.** The beat rests on **FL +0.57 (4,703
-  regions), CA +2.18 (8,501 regions), and TX +2.06 (6,553 regions), all 5 folds**. Matches within two points: AL −0.18, AZ −0.06, Istanbul −0.52 (board, n=20; paired-TOST arm at s0 Δ=−0.50),
-  **each a tested equivalence** — paired TOST non-inferior at δ=2 pp (AL p=7e-5, 90% CI (−0.46,+0.09); AZ p=1.5e-4,
-  CI (−0.41,+0.29); Istanbul p=2e-5, CI (−0.65,−0.35)); all CIs sit well inside ±2 pp (`../../docs/studies/closing_data/v17_completion/STATISTICAL_PROTOCOL.md §3.4`).
-- **CA, the largest region state, is measured and beats**, and that single cell retires the earlier "cost grows with
+(fp32-matched scorer; Table III reports the **joint-best** convention — one saved model per fold, the geom_simple
+validation selector, both tasks read there):
+- **Category: beats the ceiling at every dataset**, Δ = AL +7.69 / AZ +9.35 / FL +5.33 / CA +6.45 / TX +7.45 /
+  Istanbul +8.58 (vs the n=20 best-vs-best ceilings; per-cell Holm m=6 all reject, worst adjusted p=1.0e-06).
+  Joint cat cells: Ist 63.32 / AL 64.51 / AZ 65.79 / FL 79.84 / TX 77.24 / CA 77.05.
+- **Region: beats at Istanbul and the large region counts, matches at the small U.S. states.** The beat rests on
+  **Istanbul +0.19 (90% CI +0.15..+0.23, 20/20 folds), FL +0.71 (CI +0.67..+0.76, 4,703 regions), TX +2.11
+  (CI +2.10..+2.13, 6,553 regions), and CA +2.20 (CI +2.19..+2.21, 8,501 regions)**. Matches within two points:
+  AL −0.41 (90% CI −0.63..−0.20), AZ 0.00 (CI −0.08..+0.07),
+  **each a tested equivalence** — paired TOST non-inferior at δ=2 pp; both CIs lie well inside ±2 pp
+  (`../../docs/studies/closing_data/v17_completion/stats_n20/RESULTS.md`, M1-FULL rev 4, verified on the
+  joint-best arrays 2026-07-18). Joint reg cells: Ist 75.35 / AL 69.70 / AZ 59.46 / FL 77.41 / TX 67.06 / CA 65.69.
+- **CA, the largest region state, is measured at n=20 and beats**, and that cell retires the earlier "cost grows with
   region count" reading. The earlier large region cost (and the TX −2.4 figure) was a precision artifact (fp16
   autocast / Ampere bf16), not a real trade-off.
 
-**Caveats that travel with these numbers:** n=5 (seed 0 only); the small-state region matches are now backed by a
-**paired TOST** (δ=2 pp, §3.4) rather than only an "n=5 provisional" label — the per-fold region σ is small
-(0.16–0.37 pp) so the equivalence is well-powered (≈1.0 to declare a true match; ≥95% to reject a true 2-pp gap).
-TX is now closed at 5 clean folds (fp32 single-device, region +2.06); never cite the void fp16/bf16 collapse JSONs.
+**Caveats that travel with these numbers:** all six joint cells are **n=20** (four seeds × five folds, cross-seed
+sd) — no "single seed" or "provisional" marker remains anywhere in the paper. All pre-registered tests were
+re-verified on the joint-best arrays before the convention switch (2026-07-18,
+`docs/studies/closing_data/joint_best/JOINT_BEST_RESULTS.md`); **no verdict changed**.
+Never cite the void fp16/bf16 collapse JSONs for TX/CA.
 
 **We must NOT say:**
 
-- "beats region everywhere" or "Pareto-dominates everywhere". At the small region counts (AL, AZ, Istanbul) the
-  region result is a **match** (slightly negative), not a beat. The honest claim is: **beats category everywhere;
-  beats region at the large states; matches region within a two-point margin at the small.**
+- "beats region everywhere" or "Pareto-dominates everywhere". At the small U.S. region counts (AL, AZ) the
+  region result is a **match** (AL slightly negative, AZ zero), not a beat — NEVER upgrade AZ (its CI straddles
+  zero). The honest claim is: **beats category everywhere;
+  beats region at Istanbul and the large states; matches region within a two-point margin at AL/AZ.**
 - "ties" on region. Say "statistically non-inferior within a two-point margin" (TOST) for the small-state region
   cells, and "beats" (superiority, paired Wilcoxon) only for the large-state region cells that clear the ceiling.
 - "cost grows with region count" / the cardinality-cost framing / the TX −2.4 figure. These are superseded; the

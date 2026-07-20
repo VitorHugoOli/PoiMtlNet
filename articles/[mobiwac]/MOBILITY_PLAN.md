@@ -23,7 +23,9 @@
    added must compose with that disclaimer, not contradict it.
 2. **Writing law** ([`GLOSSARY.md`](GLOSSARY.md)): no em-dash, plain words for the networking audience,
    verbs bound to tests, no repo codenames.
-3. **Page budget**: 10-page fee variant, **FULL**. Every added line must name what it displaces.
+3. **Page budget**: the **8-page EDAS no-fee budget** (re-ruled 2026-07-19; supersedes the earlier 10-page
+   fee-variant ruling; the 2026-07-20 trim campaign returned the build to 8 pages), **FULL**. Every added
+   line must name what it displaces.
 4. **Claim discipline**: numbers only from the board ([`RESULTS_BOARD.md §1/§3`](../../docs/studies/closing_data/RESULTS_BOARD.md));
    no placeholders in shipped prose (folder convention).
 
@@ -73,7 +75,8 @@ convention, add a primary-source verification quote as a bib comment at add time
 **Cost:** ~2 lines. **Status: APPLIED ✅ 2026-07-06** (author go): the primary-variant sentence closes
 intro ¶1, `vielhaus2022handover` + `luca2021mobilitysurvey` added to `references.bib` (new venue-bridge
 section), plus the Luca formulation sentence in §2.2. Compile verified: 10 pages, 0 undefined, 0 bibtex
-warnings, 33 rendered refs. L0 (and the §2.2 half of L1) of the ladder is therefore DONE.
+warnings, 33 rendered refs [superseded 2026-07-19: 8-page EDAS budget, no fee]. L0 (and the §2.2 half of
+L1) of the ladder is therefore DONE.
 
 ## 3 · Geographic near-miss metric — full evaluation (verdict: NOT in the submission; register + piggyback P1)
 
@@ -142,7 +145,7 @@ true region") and service value as explicitly untested interpretation, mirroring
 ### 3.3 Placement verdict (the "is it worth it" answer)
 
 - **Submission build: NO.** The numbers do not exist; the folder's discipline forbids placeholders; the
-  10 pages are full; and a fig4 CDF panel was **assessed and rejected** (the current single-column axes
+  10 pages are full [superseded 2026-07-19: 8-page EDAS budget, no fee]; and a fig4 CDF panel was **assessed and rejected** (the current single-column axes
   cannot honestly host a second panel, and a thresholded CDF edges toward the banned coverage curve).
 - **Registered ✅ (2026-07-06, zero page cost):** now in [`BRIDGING_METRICS.md`](BRIDGING_METRICS.md) as
   **deferred item 4** (definition, OOD handling, guardrails, and the P1-piggyback source plan), keeping

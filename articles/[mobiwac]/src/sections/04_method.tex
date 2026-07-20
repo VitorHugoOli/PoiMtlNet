@@ -14,23 +14,23 @@
 \subsection{The check-in-level representation}
 \label{sec:method-rep}
 
-We want each visit, not each place, to have its own vector.
+We want each visit, not each place, to have its own vector; we call the resulting representation Check2HGI (Section~\ref{sec:related-embeddings}).
 Figure~\ref{fig:dataflow} shows the full data flow, from check-ins to the two outputs.
 
-We build a graph with four levels: the check-in, its place, the place's region (a census tract), and the city. Edges connect each level to the one above it and link a user's consecutive check-ins with a weight that decays as the time gap between the visits grows; same-place visits connect through their shared place node one level up, and nearby places are linked at the place level. Each visit's category, time of day, and day of week enter as input features of its node, not as edges. This keeps a hierarchical graph's place-to-region-to-city geography and adds the check-in as a bottom level. We train the graph mainly with an infomax objective, under which each vector learns to match its real neighborhood and reject a shuffled one~\cite{velickovic2019dgi,huang2023hgi}. Two small label-free auxiliary terms are added: a masked reconstruction of each place's aggregated category
-features and an anchor to a place embedding pre-trained, label-free,
-on the same data (weights 0.3 and 0.1). The training
+We build a graph with four levels: the check-in, its place, the place's region (a census tract), and the city. Edges connect each level to the one above it and link a user's consecutive check-ins with a weight that decays as the time gap between the visits grows; same-place visits connect through their shared place node one level up, and nearby places are linked at the place level. Each visit's category, time of day, and day of week enter as input features of its node, not as edges. This keeps a hierarchical graph's place-to-region-to-city geography and adds the check-in as a bottom level. We train the graph mainly with an infomax objective, under which each vector learns to match its real neighborhood and reject a shuffled one~\cite{velickovic2019dgi,huang2023hgi}. Two small label-free auxiliary terms are added (weights 0.3 and 0.1): a masked reconstruction of each place's aggregated category
+features, and an anchor to a place embedding pre-trained, label-free,
+on the same data. The training
 uses no task label: it
 never sees the next category or the next region. From the trained graph, we extract one 64-dimensional vector per check-in (its region nodes have trained vectors as well), so a model sees a sequence of per-visit vectors rather than repeated per-place ones.
 
 \subsection{The single multi-task model}
 \label{sec:method-model}
 
-We then train one model that reads a window of recent per-visit vectors and predicts the next visit's category and region at once. Figure~\ref{fig:model} shows the design. Two input streams feed the model: a semantic one carrying the window of per-visit vectors, and a spatial one in which each visit is represented by the trained vector of its region node from the same graph. Both pass through private
-per-task encoders (a small input network per task, with no shared weights) into the shared trunk, a cross-attention stack of two blocks. In each block, attention lets each
+We then train one model that reads a window of recent per-visit vectors and predicts the next visit's category and region at once. Figure~\ref{fig:model} shows the design. Each task has its own input. The category task reads the window of per-visit vectors (the semantic stream); the region task reads the same window of visits, each visit now represented by the trained vector of its region node from the same graph (the spatial stream). Both pass through private
+per-task encoders (a small input network per task, with no shared weights) into the shared trunk, a cross-attention stack of two blocks, so each prediction still uses both inputs. In each block, attention lets each
 stream read the other's features, while each keeps its own feed-forward
 weights. The tasks therefore share by exchanging information between per-task
-streams, not by owning hidden layers in common. The trunk then feeds a category output and a region output; the region output keeps a private spatial path, a small branch inside the one model (not a second model) that the category task does not touch.
+streams, not by owning hidden layers in common. The trunk then feeds a category output and a region output; the region output also keeps a private spatial path: a small branch inside the one model (not a second model) that reads the spatial input window, bypassing the shared trunk. The category task does not touch this branch. Together, the region task's encoder, its output, and this private path form the region pathway.
 
 The training loss is a fixed-weight sum of the two outputs,
 \begin{equation}\label{eq:loss}
