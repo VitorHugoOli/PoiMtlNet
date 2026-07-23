@@ -1,0 +1,244 @@
+%%==============================================================
+%% Master's dissertation -- Vitor H. O. Silva, UFV / PPGCC (Campus Florestal)
+%% Skeleton derived from the Germano tree (exemples/germano/, defended 2024, same
+%% advisor; TEMPLATE.md §0 decision), machinery kept, content stripped.
+%% KEPT: abntex2 class + abntex2-UFV.sty + abntex2-num.bst, memoir options,
+%%       hyperref setup, babel plumbing (brazil loaded, english main), booktabs/
+%%       subcaption/amsmath float stack, frenchspacing.
+%% STRIPPED: Germano's chapters, \modelname macro, color palette, listings/algorithm2e/
+%%       lipsum/svg/pdfpages/dsfont/lscape (unused here; re-add per need), his
+%%       Abstract text and title metadata.
+%% CHANGED: lmodern -> newtxtext/newtxmath (Times; manual §8);
+%%       abntex2cite [alf] -> [num] (settled decision #5, Viegas-style numeric global);
+%%       two build modes via \ifdefensebuild (TEMPLATE.md §2 item 4);
+%%       chapterpreface environment (time-capsule device, NORTH_STAR §3);
+%%       \OnehalfSpacing enforced (manual §7: 1.5 line spacing).
+%% Compile with pdflatex via main_defense.tex or main_final.tex, never this file.
+%%==============================================================
+
+\documentclass[
+	12pt,				    % manual §7: size 12
+	openright,
+	oneside,
+	a4paper,
+	sumario=tradicional,
+	brazil,				    % PT available for Resumo and the folha de rosto boilerplate
+	english,			    % last = main document language
+	]{abntex2}
+
+% -- Machinery (Germano tree, kept) --
+\usepackage{abntex2-UFV}        % UFV front matter + 3/2 cm margins (checked vs manual §7)
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{newtxtext,newtxmath} % Times New Roman equivalent (manual §8); replaces lmodern
+\usepackage{indentfirst}
+\usepackage{graphicx}
+\usepackage{adjustbox}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{amsmath} % amssymb/amsfonts dropped: newtxmath provides the AMS symbols (clash on \Bbbk)
+\usepackage{mathtools}
+\usepackage{subcaption}
+\usepackage{caption}
+\usepackage{xurl}
+\DisemulatePackage{setspace}
+\usepackage{setspace}
+\usepackage{bm}
+\usepackage{longtable}
+
+% -- Citations: single global NUMERIC scheme (decision #5; Viegas-style) --
+\usepackage[num,abnt-emphasize=bf]{abntex2cite}
+
+% -- Babel caption plumbing (Germano tree, kept: brazil loaded via class option,
+%    caption names anglicized, then english selected as the running language) --
+\addto\captionsbrazil{%
+\def\bibname{References}%
+\renewcommand{\figurename}{Figure}
+\renewcommand{\tablename}{Table}
+\renewcommand{\listfigurename}{List of Figures}
+\renewcommand{\listtablename}{List of Tables}
+\renewcommand{\contentsname}{Contents}
+\renewcommand\chaptername{Chapter}
+}
+\selectlanguage{english}
+
+% Headings in Times bold (manual §8: Arial or Times everywhere). Without this,
+% abnTeX2 requests TeX Gyre Heros (qhv) and falls back to Computer Modern.
+\renewcommand{\ABNTEXchapterfont}{\rmfamily\bfseries}
+\renewcommand{\ABNTEXsectionfont}{\rmfamily\bfseries}
+\renewcommand{\ABNTEXsubsectionfont}{\rmfamily\bfseries}
+\renewcommand{\ABNTEXsubsubsectionfont}{\rmfamily\bfseries}
+
+\hyphenation{fe-de-ral}
+\hyphenation{scientiae}
+
+% ---------------------------------------------------------------
+% Chapter preface: the time-capsule device (NORTH_STAR §3). One italic paragraph
+% before §N.1 stating venue, status, contribution note, and what later chapters revise.
+% ---------------------------------------------------------------
+\newenvironment{chapterpreface}%
+  {\begin{quotation}\itshape\noindent}%
+  {\end{quotation}\vspace{0.5\baselineskip}}
+
+% ---------------------------------------------------------------
+% Cover / folha de rosto metadata
+% ---------------------------------------------------------------
+% TITLE IS AN OPEN DECISION (NORTH_STAR §5.8): placeholder below; the Resumo/Abstract
+% header must match the folha de rosto exactly once the author decides.
+% Candidates (author shortlist):
+%   1. From Representations to a Single Joint Model: Multi-Task Learning for
+%      Point-of-Interest Category and Region Prediction   [working choice 2026-07-23]
+%   2. Check-in-Level Representations for Multi-Task Point-of-Interest Prediction
+%   3. One Model, Two Tasks: Representation-Driven Multi-Task Learning for
+%      Next-Category and Next-Region Prediction on Mobility Data
+\titulo{\normalsize{\textbf{[TITLE --- open decision NORTH\_STAR §5.8]}}}
+\autor{\normalsize{\textbf{Vitor Hugo Oliveira Silva}}}
+\local{\normalsize{\textbf{Florestal - Minas Gerais}}}
+\data{\normalsize{\textbf{2026}}}
+\orientador{Fabrício Aguiar Silva}
+\instituicao{Universidade Federal de Viçosa}
+\curso{Pós-graduação em Ciência da Computação}
+\membrobancaA{[Banca member 1 --- pending advisor conversation]}
+\membrobancaB{[Banca member 2 --- pending advisor conversation]}
+\databanca{[defense date --- pending]}
+
+\preambulo{Dissertation submitted to the Computer Science Graduate Program of the
+Universidade Federal de Viçosa in partial fulfillment of the requirements for the
+degree of \textit{Magister Scientiae}.}
+
+\makeatletter
+\hypersetup{
+		pdftitle={\@title},
+		pdfauthor={\@author},
+    	pdfsubject={\imprimirpreambulo},
+	    pdfcreator={LaTeX with abnTeX2},
+		colorlinks=true,
+    	linkcolor=black,
+    	citecolor=blue,
+    	filecolor=magenta,
+		urlcolor=blue,
+		bookmarksdepth=4
+}
+\makeatother
+
+\begin{document}
+\frenchspacing
+\OnehalfSpacing % manual §7: 1.5 line spacing for the body
+
+% ----------------------------------------------------------
+% PRE-TEXTUAL
+% ----------------------------------------------------------
+\pretextual
+
+\ifdefensebuild
+  % ---------- DEFENSE BUILD: full front matter ----------
+  {
+    \singlespacing
+    \imprimirfolhaderosto
+    \clearpage
+  }
+  % Approval sheet placeholder (signed at the defense; PPG model pages)
+  \begin{center}
+    \vspace*{2cm}
+    {\large\bfseries [Approval sheet placeholder --- PPG signature-page model is\\
+    inserted here for the defense; signed version replaces it afterward]}
+    \vspace*{\fill}
+  \end{center}
+  \clearpage
+
+  % Resumo (PT) -- claim-parity pair with the Abstract (WRITING_LAW §6)
+  \begin{resumo}[Resumo]
+    \singlespacing
+    SILVA, Vitor Hugo Oliveira, M.Sc., Universidade Federal de Viçosa, agosto de 2026.
+    \textbf{[TITLE --- open decision NORTH\_STAR §5.8]}. Orientador: Fabrício Aguiar Silva.
+    \vspace{\onelineskip}
+
+    \noindent [Resumo placeholder --- drafted in Phase 5 as a claim-parity pair with the
+    Abstract, from Chapter 1 and Chapter 6 content only.]
+
+    \vspace{\onelineskip}
+    \noindent
+    \textbf{Palavras-chave}: aprendizado multitarefa. ponto de interesse. previsão da
+    próxima categoria. previsão da próxima região.
+  \end{resumo}
+
+  % Abstract (EN)
+  \begin{resumo}[Abstract]
+   \begin{otherlanguage*}{english}
+    \singlespacing
+    SILVA, Vitor Hugo Oliveira, M.Sc., Universidade Federal de Viçosa, August 2026.
+    \textbf{[TITLE --- open decision NORTH\_STAR §5.8]}. Advisor: Fabrício Aguiar Silva.
+    \vspace{\onelineskip}
+
+    \noindent [Abstract placeholder --- drafted in Phase 5 as a claim-parity pair with
+    the Resumo, from Chapter 1 and Chapter 6 content only.]
+
+    \vspace{\onelineskip}
+    \noindent
+    \textbf{Keywords}: multi-task learning. point of interest. next-category
+    prediction. next-region prediction.
+   \end{otherlanguage*}
+  \end{resumo}
+\else
+  % ---------- FINAL AcademicoPG BUILD: starts at the lists ----------
+  % Pre-body pages: counted but NOT numbered (empty pagestyle); the system's
+  % RASCUNHO PDF is the authoritative numbering reference.
+  \pagestyle{empty}
+\fi
+
+% Lists (both builds; optional-but-present per UFV_COMPLIANCE §1)
+\pdfbookmark[0]{\listfigurename}{lof}
+\listoffigures*
+\cleardoublepage
+
+\pdfbookmark[0]{\listtablename}{lot}
+\listoftables*
+\cleardoublepage
+
+% List of abbreviations (seeded from GLOSSARY §5 in Phase 5)
+\begin{siglas}
+  \item[LBSN] Location-Based Social Network
+  \item[POI] Point of Interest
+  \item[MTL] Multi-Task Learning
+  \item[STL] Single-Task Learning
+\end{siglas}
+\cleardoublepage
+
+\pdfbookmark[0]{\contentsname}{toc}
+\tableofcontents*
+\cleardoublepage
+
+% ----------------------------------------------------------
+% TEXTUAL
+% ----------------------------------------------------------
+\textual
+\ifdefensebuild\else
+  % Final build: body pages resume arabic numbering at the tuned offset
+  \pagestyle{abntheadings}
+  \setcounter{page}{\finalbuildfirstpage}
+\fi
+
+\include{chapters/1_introduction}
+\include{chapters/2_fundamentals}
+\include{chapters/3_cbic}
+\include{chapters/4_courb}
+\include{chapters/5_mobiwac}
+\include{chapters/6_conclusion}
+
+% ----------------------------------------------------------
+% POST-TEXTUAL
+% ----------------------------------------------------------
+\postextual
+
+{\footnotesize
+\bibliography{references}}
+
+\begin{apendicesenv}
+\partapendices
+\include{chapters/apx_a_contributions}
+\include{chapters/apx_b_errata}
+\include{chapters/apx_c_ai_disclosure}
+\end{apendicesenv}
+
+\end{document}
