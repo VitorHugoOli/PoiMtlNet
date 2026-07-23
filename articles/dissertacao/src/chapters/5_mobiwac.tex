@@ -1,4 +1,625 @@
-% STUB -- replaced in Phases 2-3
-\chapter{Article 3: Predicting the Next Category and Region of a Visit\: A Check-in-Level Multi-Task Study on Mobility Data}
+% =====================================================================
+% Chapter 5 -- Article 3 (MobiWac 2026): re-typeset of the version of record
+% articles/[mobiwac]/src/ (author decision NORTH_STAR section 5.4: "the last one in
+% the src"; re-sync before the final gate pass). Status: submitted, under review
+% (EDAS #1571313639) -- never "published/accepted".
+% Adaptation ledger: chapters/5_mobiwac_ADAPTATION_LEDGER.md (feeds Appendix B).
+% Figure assets: figures/mobiwac/ (TikZ figures recompiled standalone with
+% newtxtext/newtxmath at natural single-column width; fig3/fig4 regenerated from
+% the paper's own scripts at 5.2 in width, numbers untouched).
+% Claim discipline: inherited verbatim from articles/[mobiwac]/ (PAPER_PLAN
+% section 3 whitelist; ERRATA.md constraints). Region verbs bound to tests; never
+% upgrade Arizona; scaling claim scoped to the five U.S. states.
+% =====================================================================
+\chapter{Article 3: Predicting the Next Category and Region of a Visit: A Check-in-Level Multi-Task Study on Mobility Data}
 \label{ch:mobiwac}
-[Stub: content lands in Phase 2/3. This paragraph exists so both build modes compile. \cite{silva2025mtlnet}]
+
+\begin{chapterpreface}
+% [NEEDS SIGN-OFF: new-to-chapter frame text (the time-capsule preface mandated by
+% NORTH_STAR section 3/section 4 Ch.5); claims drawn from the approved spine and the paper's claim
+% whitelist (PAPER_PLAN section 3).]
+This chapter reproduces the article ``Predicting the Next Category and Region of a
+Visit: A Check-in-Level Multi-Task Study on Mobility Data,'' submitted to MobiWac
+2026, under review at the time of writing (EDAS \#1571313639). It closes the
+investigation that Chapters~\ref{ch:cbic} and~\ref{ch:courb} open: with a
+check-in-level representation and a redesigned sharing topology, a single joint
+model outperforms the dedicated single-task category model at all six datasets
+studied (five U.S. states and Istanbul) and the dedicated region model at four of
+the six, and it matches the dedicated region model (statistically, within two
+points) at the other two. The article was
+reformatted from its two-column original into the dissertation layout: sections,
+figures, and tables were renumbered, and the figures were regenerated at
+single-column width. No result, claim, or conclusion was altered; every departure
+from the submitted text is recorded in the errata appendix.
+\end{chapterpreface}
+
+\section{Introduction}
+\label{sec:mobiwac:intro}
+
+Location-based social networks, such as Gowalla~\cite{cho2011gowalla}, let people share the places that they visit as check-ins, which together record how people move through a city. Individual mobility is highly predictable in principle~\cite{song2010limits}, so a service that anticipates the next move can prepare ahead of time, caching content where a user is heading~\cite{bastug2014edge} or provisioning capacity at the destination before demand arrives. Handover predictions already let cellular services adapt in advance at the network level~\cite{vielhaus2022handover}; at the city scale, check-in mobility analysis is likewise a design input for mobility-aware services~\cite{moura2025mobilityaware}.
+
+Predicting the next place exactly, a single point of interest (POI), is hard and often more than a service needs. Two coarser questions are usually enough: the next category, the type of place such as food or shopping, and the next region, the part of the city that a user is heading to (a neighborhood-scale unit such as the U.S. census tract). The first captures intent, the second captures geography; we study whether one model should learn both at once.
+
+Sharing one representation across tasks has a cost: in multi-task learning (MTL), one model does several jobs at once by sharing most of its parts, so the shared parameters can converge to a compromise optimal for neither task, helping one while hurting the other~\cite{caruana1997multitask}. Prior work
+observed exactly this for next-category and next-region~\cite{silva2025mtlnet}; the useful question is where sharing helps, what it costs, and how to share so the gains hold and the cost stays small.
+
+We propose two enhancements. First, we build a check-in-level representation: instead of one fixed vector per place, each check-in gets its own vector that holds its context (the time, nearby places, and recent visits).
+This adds a fourth level, the check-in, beneath the place, region, and city levels of hierarchical graph infomax~\cite{huang2023hgi,velickovic2019dgi} (Figure~\ref{fig:mobiwac:dataflow}). Second, we train one model that
+predicts the next category and the next region in a single forward pass, with a shared trunk (a cross-attention stack where the two tasks exchange
+semantic context) and a private spatial path for the region task (Figure~\ref{fig:mobiwac:model}). We evaluate on two settings chosen to differ: five U.S. states of different sizes (Gowalla) and one non-U.S. city (Istanbul).\footnote{\label{fn:mobiwac:code}Code (model, representation, baselines, statistical tests): \url{https://github.com/VitorHugoOli/PoiMtlNet/tree/mobiwac}. Both data sources are public: the category-annotated Gowalla dump (\url{https://figshare.com/articles/dataset/gowalla_data/22126586}) and Massive-STEPS~\cite{wongso2025massivesteps}.}
+
+Our contributions are as follows.
+\begin{itemize}
+  \item A check-in-level representation that extends hierarchical graph infomax from the place to the individual visit, improving next-category prediction over a standard place embedding by about $+28$ to $+40$ points of macro-F1 (a balanced score that counts every
+    category equally) across all six datasets (Table~\ref{tab:mobiwac:representation}). A controlled test attributes most of the gain to the per-visit
+    context, not to extra training signal. The gap is large because a single fixed vector
+    per place cannot separate places that serve several purposes, which
+    per-visit context recovers.
+  \item A single model for joint next-category and next-region prediction, sharing semantic context across tasks while keeping a private spatial path for the region task; to our knowledge, the first work to treat fine-grained region as an end target of equal standing (Section~\ref{sec:mobiwac:related-tasks}). In one forward pass, it outperforms a dedicated
+    single-task category model on every dataset (by about $+5$ to $+9$ points of
+    macro-F1), even though each dedicated model is tuned per dataset. On region,
+    it outperforms at four of the six datasets and stays
+    statistically non-inferior within a two-point margin (TOST, a test of
+    equivalence) at the remaining two (Table~\ref{tab:mobiwac:results}).
+  \item An empirical account, across five U.S. states and one non-U.S. city, of how the joint gain scales with the number of regions.
+    The category gain holds on all six datasets. Across the U.S. states, the
+    region result moves monotonically with the region count: the joint model
+    matches the dedicated model (TOST, $\pm2$ percentage points, or pp) at the
+    small region counts and outperforms it at the large region counts, with
+    the state with the most regions (California) showing the largest region
+    gain (Figure~\ref{fig:mobiwac:deltas}). At Istanbul, the dataset with the fewest
+    regions, the joint model is also ahead on region ($+0.19$ Acc@10). All joint and dedicated results average
+    four random initializations (Section~\ref{sec:mobiwac:results-part2}).
+\end{itemize}
+
+The remainder of this chapter presents related work (Section~\ref{sec:mobiwac:related}), the problem (Section~\ref{sec:mobiwac:problem}), the method and setup (Sections~\ref{sec:mobiwac:method} and~\ref{sec:mobiwac:setup}), results (Section~\ref{sec:mobiwac:results}), and discussion and conclusions (Sections~\ref{sec:mobiwac:discussion} and~\ref{sec:mobiwac:conclusion}).
+
+\section{Background and Related Work}
+\label{sec:mobiwac:related}
+
+\subsection{The MTLnet framework and the representation diagnosis}
+\label{sec:mobiwac:related-recap}
+% [NEEDS SIGN-OFF: new-to-chapter recap subsection (the bridging device mandated by
+% NORTH_STAR section 3: Ch.5 recaps BOTH the Ch.3 artifact and the Ch.4 finding). Content
+% from the approved spine (NORTH_STAR sections 2 and 6) and the GLOSSARY model-lineage table;
+% no numbers are quoted.]
+Two chapters of this dissertation precede this study, and this chapter answers the
+question that they leave open. Chapter~\ref{ch:cbic} introduced MTLnet, the first
+joint model for this task pair: task-specific encoders feed shared layers
+conditioned on task identity, and a gradient-balancing method weights the two tasks
+during training~\cite{silva2025mtlnet}. On a place-level embedding with hard
+parameter sharing, that joint model did not outperform the dedicated single-task
+models, the conclusion of the time for that configuration.
+Chapter~\ref{ch:courb} kept the MTLnet architecture unchanged and replaced its
+single 64-dimensional place-level input with decomposed spatial, temporal, and
+categorical encoders (ST-MTLNet); the category score rose at each of the three
+states studied, so the input representation, not the sharing architecture, was
+identified as the bottleneck~\cite{paiva2026courb}. This chapter carries that diagnosis one step
+further: the representation moves from the place level to the check-in level, the
+sharing topology is redesigned around it, and the earlier negative conclusion is
+revisited under this new configuration.
+
+\subsection{From place embeddings to per-visit embeddings}
+\label{sec:mobiwac:related-embeddings}
+A place embedding transforms a POI into a vector so that similar or nearby
+places sit close together in the vector space.
+Deep Graph Infomax (DGI)~\cite{velickovic2019dgi}, a general self-supervised
+method for graphs, learns such vectors on a place network linked by
+similarity, time, and distance, training them to tell the real network from a
+copy with shuffled node features.
+Hierarchical Graph Infomax (HGI) \cite{huang2023hgi} adds geographic structure,
+organizing the network as place, then region, then city. Both produce one vector per place, so two visits to the same coffee shop look
+identical to the model.
+Contextual check-in representations instead give each visit its own vector: CTLE
+\cite{lin2021ctle}, the closest example, learns a vector per visit by masking and
+reconstructing parts of a user's check-in sequence. Our
+representation, Check2HGI, also works at the check-in level but through a
+different construction. CTLE is a sequence model, a Transformer that reads the
+check-in sequence itself; Check2HGI remains a network model, keeping the
+hierarchical place-to-region-to-city network and the same infomax objective,
+now extended one level deeper, from individual places down to individual
+check-ins (Figure~\ref{fig:mobiwac:dataflow}). The order of a user's visits still enters
+the network, as links between consecutive check-ins
+(Section~\ref{sec:mobiwac:method-rep}).
+
+The novelty is this specific combination: per-visit context inside a
+hierarchical graph-infomax representation. We compare against CTLE and a feature-concatenation control to separate the
+combination from contextualization alone and from feature injection.
+
+\subsection{Predicting the next category and the next region}
+\label{sec:mobiwac:related-tasks}
+A large body of work predicts the next place that a user will visit, the exact POI,
+with recurrent and attention models such as DeepMove \cite{feng2018deepmove}, STAN
+\cite{luo2021stan}, and GETNext \cite{yang2022getnext}. In contrast, we target two properties of the next visit, its category and its
+region, rather than the exact place. We choose them because they are
+what a mobility-aware service can act on, not to make the task easier; the region
+alone spans hundreds to several thousand classes. Predicting
+over a partition of the map is also the standard formulation in the human-mobility
+literature, with a grid cell as the target~\cite{luca2021mobilitysurvey}; our
+next-region task substitutes official neighborhood-scale units for grid cells. Our earlier
+work~\cite{silva2025mtlnet} established this two-task setup and observed
+negative transfer (sharing hurt one task); this chapter adds the check-in-level
+representation, on which sharing helps instead of hurting (Section~\ref{sec:mobiwac:results-part2}).
+
+The field
+increasingly models several granularities at once; in those systems, category and
+region are auxiliary signals that help a primary next-place task
+(MCMG \cite{sun2024mcmg}, HMT-GRN \cite{lim2022hmtgrn}).
+We study the pair as the object itself. To our knowledge, fine-grained region as an
+end target of equal standing, rather than an auxiliary coarse grid cell, is
+underexplored.
+The nearest exceptions do not study our exact pairing:
+DRRGNN~\cite{zhu2022drrgnn} forecasts a person's next activity region jointly
+with a mobility-intention label, but over regions discovered per person rather
+than a fixed citywide partition; a generative recommender~\cite{sun2025kgtb}
+predicts category and region together, but only as auxiliary steps toward its
+next-place ranking.
+
+\subsection{Multi-task learning for mobility}
+\label{sec:mobiwac:related-mtl}
+MCARNN \cite{Liao2018} jointly predicts activity and
+location, and a recent hierarchy-aware model continues the
+pattern \cite{wang2025hamtl}; in both, the location target is
+the exact place. The closest alternative to our setting is
+the cascade: predict the category first, then the place given the
+category \cite{ye2013nextmove}. CSLSL
+\cite{huang2024cslsl} is its current form, predicting in a chain (when, then what,
+then where), with location as the primary output and category as an
+intermediate step; CatDM \cite{yu2020catdm} likewise uses the predicted
+category only to filter candidate places. We instead predict
+category and region in parallel, as end targets of equal standing in one model
+with a single forward pass, and we drop the next-place target entirely, so
+neither task is an intermediate step toward a third. Since the cascade is the pattern that the field uses, we test the
+choice directly (Section~\ref{sec:mobiwac:results-part2}). On optimization, we are conservative by design: joint
+training with a fixed loss weighting is standard practice
+\cite{caruana1997multitask}, not itself our contribution.
+Reports find that gradient-balancing methods, which re-weight
+the tasks' updates during training (PCGrad \cite{yu2020pcgrad}, Nash-MTL \cite{navon2022nashmtl}), rarely improve on a
+well-tuned fixed weighting with two tasks \cite{xin2022domtl}.
+We confirm this: none of the balancers that we tried, including the two named
+above, improved on a tuned fixed task weighting in our model.
+The reason is visible in the gradients. Measured during development on the same
+joint architecture (on an earlier preparation of the data), the cosine
+similarity between the next-category and next-region updates on the shared
+trunk averages $+0.001$ across training (four seeds each on three of our six
+datasets, per-dataset means within $\pm0.003$). A balancer therefore has no
+conflict to resolve, consistent with the mechanism test in
+Section~\ref{sec:mobiwac:results-part2}; this is a finding for this pair of tasks, not a
+general rule.
+
+
+\begin{figure}[!t]
+\centering
+\includegraphics{figures/mobiwac/fig1_dataflow.pdf}
+\caption{From a check-in sequence to two predictions: each visit is embedded in a four-level graph
+(check-in, place, region, city) trained without task labels. The graph yields two sets of
+vectors, one per visit and one per region; sliding nine-visit windows of each feed a single
+model that outputs the next category and the next region.}
+\label{fig:mobiwac:dataflow}
+\end{figure}
+
+\section{Problem and Tasks}
+\label{sec:mobiwac:problem}
+
+Given a user's time-ordered check-in history, we predict two properties of the next visit. The first is its \emph{category}, one of seven fixed labels: Community, Entertainment, Food,
+Nightlife, Outdoors, Shopping, and Travel. Istanbul's source collection maps its places onto the same seven labels. The second is its \emph{region}, the place's census tract (for Istanbul, the \emph{mahalle}, a municipal neighborhood). We do not predict the exact next place; both properties are easier to learn and, for most uses, enough. Region, unlike category, is a large label set: we frame next-region as classification over candidate regions, from 520 classes (Istanbul) to 8,501 (California; Table~\ref{tab:mobiwac:datasets}).
+
+The motivation is practical: the category says what type of place comes next, hence what a user will want; the region says where, hence where to prepare. The mobility literature supports such preparation: city services have long been built on location-based social network traces~\cite{silva2019urbancomputing}. A recent analysis of tourist check-in
+mobility finds that visits concentrate on a few hub places, argues that crowds and demand therefore concentrate, and ties this structure to
+infrastructure planning and adaptive strategies~\cite{moura2025mobilityaware}.
+That analysis reads past visits; we predict two properties of
+the next one, and aggregated over users, those predictions point to where
+demand is heading before it arrives. A census
+tract is a neighborhood, not a radio cell. We therefore scope our claims to
+neighborhood-level preparation: demand and load anticipation, caching content
+ahead of time, and capacity planning. Cell association and handover are
+radio-level decisions and remain out of scope. We build and evaluate no such
+service here; Section~\ref{sec:mobiwac:discussion} quantifies what these predictions
+would give such a service.
+
+\section{Method}
+\label{sec:mobiwac:method}
+
+\subsection{The check-in-level representation}
+\label{sec:mobiwac:method-rep}
+
+We want each visit, not each place, to have its own vector; we call the resulting representation Check2HGI (Section~\ref{sec:mobiwac:related-embeddings}).
+Figure~\ref{fig:mobiwac:dataflow} shows the full data flow, from check-ins to the two outputs.
+
+We build a graph with four levels: the check-in, its place, the place's region (a census tract), and the city. Edges connect each level to the one above it and link a user's consecutive check-ins with a weight that decays as the time gap between the visits grows; same-place visits connect through their shared place node one level up, and nearby places are linked at the place level. Each visit's category, time of day, and day of week enter as input features of its node, not as edges. This keeps a hierarchical graph's place-to-region-to-city geography and adds the check-in as a bottom level. We train the graph mainly with an infomax objective, under which each vector learns to match its real neighborhood and reject a shuffled one~\cite{velickovic2019dgi,huang2023hgi}. Two small label-free auxiliary terms are added (weights 0.3 and 0.1): a masked reconstruction of each place's aggregated category
+features, and an anchor to a place embedding pre-trained, label-free,
+on the same data. The training
+uses no task label: it
+never sees the next category or the next region. From the trained graph, we extract one 64-dimensional vector per check-in (its region nodes have trained vectors as well), so a model sees a sequence of per-visit vectors rather than repeated per-place ones.
+
+\subsection{The single multi-task model}
+\label{sec:mobiwac:method-model}
+
+We then train one model that reads a window of recent per-visit vectors and predicts the next visit's category and region at once. Figure~\ref{fig:mobiwac:model} shows the design. Each task has its own input. The category task reads the window of per-visit vectors (the semantic stream); the region task reads the same window of visits, each visit now represented by the trained vector of its region node from the same graph (the spatial stream). Both pass through private
+per-task encoders (a small input network per task, with no shared weights) into the shared trunk, a cross-attention stack of two blocks, so each prediction still uses both inputs. In each block, attention lets each
+stream read the other's features, while each keeps its own feed-forward
+weights. The tasks therefore share by exchanging information between per-task
+streams, not by owning hidden layers in common. The trunk then feeds a category output and a region output; the region output also keeps a private spatial path: a small branch inside the one model (not a second model) that reads the spatial input window, bypassing the shared trunk. The category task does not touch this branch. Together, the region task's encoder, its output, and this private path form the region pathway.
+
+The training loss is a fixed-weight sum of the two outputs,
+\begin{equation}\label{eq:mobiwac:loss}
+L = 0.75\,L_{\mathrm{cat}} + 0.25\,L_{\mathrm{reg}},
+\end{equation}
+where $L_{\mathrm{cat}}$ and $L_{\mathrm{reg}}$ are plain unweighted cross-entropy losses. The weights were tuned once on validation during development and held fixed across all six datasets. Class-weighting, tested on both outputs, lowered both region accuracy and
+category macro-F1. This is standard fixed-weight joint training~\cite{caruana1997multitask}, kept simple by design so that any improvement over the dedicated single-task models comes from the shared representation, not from an adaptive weighting scheme.
+
+The joint model includes the shared trunk and both task outputs, so it is
+larger than either dedicated model, and a forward pass costs more compute than running the
+two small dedicated models: the joint model has about 4.2 million parameters at
+Alabama against 1.1 million for the two dedicated models combined (5.2 against
+2.0 at California). What the single model provides is operational rather
+than arithmetic: one artifact to train, version, and deploy, and one forward
+pass whose one set of inputs produces both answers at once.
+
+
+\begin{figure}[!t]
+\centering
+\includegraphics{figures/mobiwac/fig2_model.pdf}
+\caption{The single multi-task model. A check-in (semantic) window and a region (spatial) window
+pass through private encoders into the shared trunk, the only place where the two tasks
+interact. The category output uses the trunk's output alone; the region output
+combines it with a private spatial path. One model, one forward pass, two predictions.}
+\label{fig:mobiwac:model}
+\end{figure}
+
+\section{Experimental Setup}
+\label{sec:mobiwac:setup}
+
+\subsection{Data}
+\label{sec:mobiwac:setup-data}
+Table~\ref{tab:mobiwac:datasets} summarizes our six datasets. Five come from Gowalla, a location-based social network, covering the U.S. states of Alabama, Arizona, Florida, Texas, and California
+\cite{cho2011gowalla}; the sixth is Istanbul, from the Massive-STEPS collection
+\cite{wongso2025massivesteps}, a non-U.S. check on the findings.
+% Data provenance (hidden): the Gowalla source is the public CC0 category-annotated dump,
+% figshare.com/articles/dataset/gowalla_data/22126586 (gowalla_checkins + gowalla_spots_subset1/2,
+% the exact files the ETL consumes; 36,001,959 check-ins). Date range MEASURED on the parquet
+% 2026-07-09: 2009-01-21 .. 2011-08-16 -> "collected 2009 to 2011". The SNAP/cho2011 dump
+% (Feb 2009-Oct 2010) is NOT the data source; cho2011gowalla is cited as the LBSN reference only.
+The states range from about 114,000 check-ins and 1,109 regions in Alabama to about 3.2 million check-ins and 8,501 regions in California. Every dataset uses the seven place categories of Section~\ref{sec:mobiwac:problem}; Istanbul's source collection maps its own labels onto them. The region unit is a census tract for the Gowalla states and a mahalle for Istanbul.
+
+% Table 1: Dataset statistics.
+% Ordered by region count (small to large), matching the result tables.
+% STATUS: FILLED 2026-06-25 from PAPER_PLAN section 5 / STATS_T1.md (overlap board:
+% gated stride-1, MIN_SEQ=10, emit_tail=False; windows validated against the on-disk
+% check2hgi_dk_ovl parquet, AL = 96,326 exact). Gowalla raw == substrate; the Istanbul
+% row is the mahalle substrate (post null-coord drop), raw corpus 544,471 ck / 23,700 users.
+%
+% Columns follow the LBSN / next-POI convention (users, POIs, check-ins, density) plus our
+% region + window stats. Density (%) = 100 * check-ins / (users * POIs) -- the check-in-matrix
+% fill, the metric POI-prediction papers report (it varies 0.05-0.25%); it replaces the old
+% "sparsity = 1 - density" column, which was trivially ~0.999 for every state. The fixed
+% 7-category space is stated in the caption rather than as a constant column.
+\begin{table}[!t]
+\caption{Dataset statistics, ordered by region count: five Gowalla states and Istanbul
+(Massive-STEPS). All share the same seven root categories; the region unit is a census
+tract (a mahalle for Istanbul). Windows: sliding nine-visit inputs plus the next-visit
+target; lengths: per-user check-in counts; density: $100\times\text{check-ins}/(\text{users}\times\text{POIs})$; Majority: share of next-visit
+labels in the most common category (Food in every dataset).}
+% Majority provenance (hidden): computed on the next-visit target labels of the task inputs
+% (CATEGORY_DISTRIBUTION.md); Gowalla values match the overlap windows to <=0.5 pp (AL 34.18 at
+% overlap); the Istanbul 33.4 is from the earlier windowing of the same visits (raw visit share
+% 27.0; recompute on the dk_ovl inputs at the next A40 session if exactness is wanted).
+\label{tab:mobiwac:datasets}
+\centering
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{l l r r r r r r r r r}
+\toprule
+\textbf{Dataset} & \textbf{Source} & \textbf{Check-ins} & \textbf{Users} & \textbf{POIs} &
+\textbf{Regions} & \textbf{Windows} & \textbf{Max len} & \textbf{Avg len} & \textbf{Density (\%)} & \textbf{Majority (\%)} \\
+\midrule
+Istanbul & Massive-STEPS &   462{,}615 & 23{,}694 &  29{,}816 &     520 &   271{,}666 &     817 &  19.5 & 0.065 & 33.4 \\
+AL       & Gowalla       &   113{,}846 &  3{,}858 &  11{,}848 & 1{,}109 &    96{,}326 & 3{,}835 &  29.5 & 0.249 & 34.2 \\
+AZ       & Gowalla       &   236{,}450 &  7{,}869 &  20{,}666 & 1{,}547 &   200{,}895 & 5{,}589 &  30.1 & 0.145 & 34.0 \\
+FL       & Gowalla       & 1{,}407{,}034 & 21{,}052 &  76{,}544 & 4{,}703 & 1{,}274{,}418 & 16{,}679 &  66.8 & 0.087 & 24.7 \\
+TX       & Gowalla       & 4{,}089{,}892 & 38{,}644 & 160{,}938 & 6{,}553 & 3{,}830{,}414 & 42{,}300 & 105.8 & 0.066 & 31.0 \\
+CA       & Gowalla       & 3{,}171{,}380 & 37{,}090 & 169{,}145 & 8{,}501 & 2{,}925{,}466 & 14{,}855 &  85.5 & 0.051 & 32.7 \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+% Hidden caveat (available on request, not rendered): the Istanbul row uses the mahalle-level data
+% after dropping null-coordinate visits; the raw corpus is 544,471 check-ins over 23,700 users.
+% Windows updated 2026-07-08 to the rebuilt dk_ovl substrate count (271,666; was 270,217 on the
+% old stride-1 base -- h3_istanbul/RESULTS.md).
+\end{table}
+
+
+\subsection{Windows, splitting, and the integrity of the representation}
+\label{sec:mobiwac:setup-windows}
+\emph{Windows.} For each user with at least ten visits, we build time-ordered overlapping sliding windows of nine visits, one starting at each visit, with the next visit as the target, giving both tasks more examples. Near the end of a user's history, every start position within the last nine visits yields a shorter, padded window whose target is the same final visit; we keep only the full-length window ending there and drop these padded duplicates. The resulting prediction horizon is short but heavy-tailed: the median time from the last visit in a window to its target ranges from 0.4 hours in Florida to 5.5 hours in Istanbul, while 5 to 27 percent of targets lie over 3 days ahead.
+
+\emph{Splitting.} We split by user with stratified five-fold cross-validation, so all of a user's windows fall in the same fold and overlap cannot leak: a test user's visits never appear in training. The held-out fold is the validation data; we reserve no third split. The split is stratified on the next-category label because the seven-class task is imbalanced: Food is the majority class in every dataset, from about 25 percent of visits in Florida to 34 percent in Alabama (Table~\ref{tab:mobiwac:datasets}).
+
+\emph{Integrity of the representation.} We train the representation once on the whole dataset and feed it to every model, dedicated and joint. We verify that it passes no usable information about the test visits, on three grounds. First, its training objective is label-free: it contrasts real graph neighborhoods against shuffled ones and never sees a next-category or next-region target. Second, we measured what the whole-dataset graph could pass to the test side. Rebuilding the representation per fold, from that fold's training users only, moves both tasks by at most a third of a point (region $-0.33$ to $+0.01$; category $0.00$ to $+0.29$, at Alabama, Arizona, and Florida), within fold noise. This measurement covers the visits whose places appear in training (67 to 87 percent); visits to places unseen in training are the one part it cannot reach. Third, the one component that could pass information between visits, a region-transition prior (a table of how often one region follows another), is built per fold from training data only, after an earlier whole-dataset version inflated region accuracy by 13 to 27 points. Our joint and dedicated models do not use this prior; it appears only in the HMT-GRN baseline (Section~\ref{sec:mobiwac:setup-baselines}). The baseline representations meet the same standard: HGI is pre-trained once on the whole dataset, like ours, and CTLE per fold on training users only.
+% NOTE: numbers from the A4 train-users-only transductivity audit (docs/studies/pre_freeze_gates/A4_RESULTS.md):
+% reg AL -0.33 / AZ +0.01 / FL -0.12 (5 folds); cat POI-proxy on in-coverage subset AL +0.29 (66.8%) / AZ +0.27 (71.9%) / FL +0.00 (86.9%).
+% Author TODO: extend to CA/TX/Istanbul to widen coverage further (non-blocking; the gate is on null at AL+AZ+FL).
+
+\subsection{Metrics and statistical tests}
+\label{sec:mobiwac:setup-metrics}
+For the category task, we report macro-averaged F1 (macro-F1), which averages the per-class F1 so each of the seven categories counts equally; its reference point is the majority-class floor, the macro-F1 of always predicting the most common category. For the region task, we report accuracy at ten
+(Acc@10), the fraction of test visits whose true region appears among the model's ten highest-scoring guesses
+(a visit whose true region is absent from that fold's training data counts as an error); its
+reference point is the dedicated model.
+
+A claimed gain and a claimed match require different tests, because a difference that fails to reach significance is not by itself evidence of a match. We fix the assignment in advance, before reading any results: where the joint model was expected to outperform, we test \emph{superiority}; where it was expected only to match the dedicated model, we test \emph{non-inferiority}. The assignment and the margin were fixed in an analysis plan during development and are released with the code; superiority is tested with a paired $t$ on the per-seed means and reported with the 90\% confidence interval of the paired difference. A \emph{seed} is one complete repetition of the five-fold experiment, over the same folds, with a different random initialization; folds and seeds are the two axes of repetition. On every dataset, we use four seeds for both models ($4\times5=20$ measurements) and pair the per-seed means ($n{=}4$ per dataset), with a Holm correction~\cite{holm1979} across the comparisons. The \emph{non-inferiority} claim is that the joint model is no worse than the dedicated model by more than a two-point margin; we test it with the two one-sided tests (TOST) procedure~\cite{lakens2017tost}. The two-point margin is fixed in advance as well: a mobility-aware service acts on which region will be busy, not on a single rank position (Section~\ref{sec:mobiwac:problem}), so a two-point shift in Acc@10 is below the granularity at which such a service would behave differently. For scale, with 520 to 8,501 regions, a random top-ten guess includes the true region at most about two percent of the time. The equivalence is well powered: the paired difference's standard deviation is 0.01 to 0.18 points across the datasets, giving power near 1.0 to declare equivalence when the true difference is near zero; the intervals pass a margin as small as one point at Alabama and Arizona (Section~\ref{sec:mobiwac:results-part2}).
+
+\subsection{Baselines}
+\label{sec:mobiwac:setup-baselines}
+The comparisons play three roles. The first role is played by the per-task state of the art, on our data, under user-disjoint five-fold protocols. For next-category, this is POI-RGNN \cite{capanema2023poirgnn}, re-implemented from its published architecture and hyperparameters, and a Markov baseline that predicts the category that most often follows the recent ones (Markov-K, best order per dataset); for region, we also compute a first-order Markov floor over region transitions, under the same sliding-window protocol and fold splits as our models. For next-region, the primary comparison is HMT-GRN \cite{lim2022hmtgrn}, an end-to-end recurrent model (trained as one piece from the raw check-ins) evaluated on the same data, folds, and initialization. We keep its shared multi-task skeleton and add a region-transition prior built per fold from training data. We drop its graph components and hierarchical beam search, which exist to serve its next-place target, a target that we do not predict. The result is a region-native model (region is one of its own prediction targets), not a reproduction of the complete published system. We also run STAN \cite{luo2021stan}, re-implemented from its published architecture and trained from the raw check-ins with its own embeddings and sequence construction under one fixed configuration. We adapt its output layer to rank region candidates, spatial objects that still support its candidate-distance matching; we do not adapt it to category, where distance matching has no meaning. A ReHDM \cite{li2025rehdm} reference is reported under its own published protocol.
+
+The second role is played by two representation controls that attribute the category gain to our specific design, not to contextualization in general or to extra features: CTLE \cite{lin2021ctle}, the closest prior contextual check-in embedding, run end to end at Florida and with frozen weights (no fine-tuning) at Alabama, Arizona, and Istanbul; and a feature-concatenation control appending raw per-visit features to a standard place embedding under the same model.
+
+The third role is a comparison between the two ways of coupling the tasks. The dominant published coupling is the directed cascade, predicting the category first and conditioning the place prediction on it \cite{ye2013nextmove, yu2020catdm, huang2024cslsl}. We test the cascade inside our own model rather than re-implementing those systems: we remove the shared trunk, where the two streams exchange information, and feed the predicted category forward into the region pathway, keeping the representation, outputs, and training configuration unchanged. This isolates the coupling topology (chain versus parallel) at no additional parameter or compute cost: the chain form drops the shared trunk and adds a conditioning projection of about 1,000 parameters. A final control, the standard place-level embedding \cite{huang2023hgi}, isolates what the per-visit representation adds. All other choices, including the nine-visit window, were fixed during development; the full training configuration for every model is in the released code (footnote~\ref{fn:mobiwac:code}).
+
+\section{Results}
+\label{sec:mobiwac:results}
+
+\subsection{The representation makes the category task learnable}
+\label{sec:mobiwac:results-part1}
+The check-in-level representation outperforms a standard place embedding
+(HGI~\cite{huang2023hgi}) on next-category macro-F1 by a wide gap on every
+dataset (Table~\ref{tab:mobiwac:representation}). The comparison is controlled: target, single-task model, training configuration, windowing, and folds are identical; only the input representation changes (a vector per visit versus a vector per place), so the difference isolates the representation. The check-in-level column keeps one fixed configuration, not the per-dataset-tuned dedicated model of Table~\ref{tab:mobiwac:results}. The gaps range from $+27.63$ (Arizona) to $+39.62$ (Florida), with Istanbul at $+28.09$.
+A controlled test isolates this: averaging the per-visit vectors into one vector per place removes roughly 64 to 90 percent of the gain (state-dependent), so most of the gain is the context that each visit carries, not extra training signal (more training vectors per place).
+
+The geometry of the vectors shows why the representation helps this task in
+particular: the per-visit vectors' silhouette score by category (how tight and well separated the seven labeled groups are, on a $-1$ to $1$ scale) is about $0.57$ against about $0.00$ for the place embedding, and their nearest-neighbor category purity (the share of nearest neighbors with the vector's own category) is about $0.98$ against about $0.78$ (both averaged over the five U.S. states). The same geometry does not separate regions, so the benefit is category-only (the joint model's spatial stream instead reads the region-level vectors of the same graph, Section~\ref{sec:mobiwac:method-model}). CTLE~\cite{lin2021ctle}, the closest prior contextual embedding, also gives each visit its own vector, but it pretrains on place identifiers and timestamps alone, so the category vocabulary never enters its training, whereas our graph reads each visit's category and time of day as input features. At Florida, we fine-tune CTLE together with the task model, using its authors' defaults and the same 64 dimensions and windowing as ours. It reaches $33.45$ macro-F1 at its best epoch and $29.69$ at its final one (an epoch is one pass over the training data), about two points below the place embedding under the same best-epoch rule, and far below the check-in-level representation's $75.15$. With frozen weights, fed to the same single-task model, CTLE repeats the ordering at Alabama, Arizona, and Istanbul, with our representation ahead by $+37.8$, $+37.0$, and $+28.7$ macro-F1. A feature-concatenation control joins the place embedding with the same raw
+per-visit features that our graph reads (the category one-hot plus hour and
+day-of-week encodings) and feeds the result to the same single-task model. It
+does not close the gap either: at Alabama, Arizona, and Florida it raises the
+place embedding by only $+2.0$, $+1.7$, and $+0.8$ macro-F1, under a tenth of
+the place-to-check-in gap at each state. The gain therefore comes from
+the hierarchical per-visit representation, not from contextualization alone or
+feature injection.
+
+% Table 2: The representation makes the category task learnable (Part 1).
+% Check-in-level (Check2HGI) vs place-level (HGI) next-category macro-F1, matched single-task
+% head + recipe + folds (seed 0 x 5 folds), overlapping-window protocol throughout.
+% NOTE (2026-07-08): this is the MATCHED-recipe pair -- it is deliberately NOT Table 3's dedicated
+% ceiling anymore (Table 3's ceilings are the n=20 per-state-tuned best-vs-best set; re-tuning the
+% HGI arm per state was not done, so the controlled A/B here keeps the original single recipe on
+% both arms). Istanbul re-footed on the rebuilt dk_ovl substrate (H3): Check2HGI-SC 54.65+-0.56
+% (docs/results/closing_data/baseline_compare/istanbul_check2hgi_sc.json), HGI arm unchanged
+% 26.56+-0.5 (istanbul_hgi_ovl_cat.json) -> margin +28.09 (was +26.64 on the old GCN base).
+% Gowalla arms unchanged: PR #50 AL/AZ/FL + PR #52 CA/TX.
+% Check2HGI std: Ist 0.6 / AL 2.4 / AZ 1.3 / FL 0.5 / TX 0.2 / CA 0.3 ; HGI std: Ist 0.5 / AL 1.0 /
+% AZ 1.0 / FL 0.3 / TX 0.6 / CA 0.4.
+\providecommand{\sd}[1]{\,{\scriptsize$\pm$#1}}
+\begin{table}[!t]
+\caption{Next-category macro-F1: the check-in-level representation against a standard place
+embedding (HGI), same single-task model, training configuration, and folds (mean and fold sd,
+seed 0).}
+\label{tab:mobiwac:representation}
+\centering
+\begin{tabular}{l r r r}
+\toprule
+\textbf{Dataset} & \textbf{Check-in level} & \textbf{Place level} & \textbf{$\Delta$} \\
+\midrule
+Istanbul & \textbf{54.65}\sd{0.6} & 26.56\sd{0.5} & $+28.09$ \\
+AL & \textbf{55.87}\sd{2.4} & 26.56\sd{1.0} & $+29.31$ \\
+AZ & \textbf{57.13}\sd{1.3} & 29.50\sd{1.0} & $+27.63$ \\
+FL & \textbf{75.15}\sd{0.5} & 35.53\sd{0.3} & $+39.62$ \\
+TX & \textbf{69.95}\sd{0.2} & 32.48\sd{0.6} & $+37.47$ \\
+CA & \textbf{70.26}\sd{0.3} & 32.31\sd{0.4} & $+37.95$ \\
+\bottomrule
+\end{tabular}
+
+\vspace{2pt}
+{\footnotesize The matching place-level value at Alabama and Istanbul ($26.56$) is a coincidence of
+two independent runs; their per-fold values differ.}
+\end{table}
+
+
+% [NEEDS SIGN-OFF: restored element. This figure was cut from the 8-page MobiWac build
+% (author decision 2026-07-09); its four numbers are fully stated in the prose above.
+% Restored here because the dissertation is not page-limited; caption verbatim from
+% articles/[mobiwac]/src/figs/fig3_embquality.tex. Remove this block to match the
+% submitted article exactly.]
+\begin{figure}[!t]
+\centering
+\includegraphics{figures/mobiwac/fig3_embquality.pdf}
+\caption{Class separability of the representations, grouping each vector by its ground-truth
+category label
+(cosine silhouette; leave-one-out nearest-neighbor (kNN) purity, $k{=}10$), averaged over the
+five U.S. states. The check-in-level representation separates the seven categories; the place
+embedding does not.}
+\label{fig:mobiwac:embquality}
+\end{figure}
+
+\subsection{One model, two tasks}
+\label{sec:mobiwac:results-part2}
+% Table 3: One model, two tasks (Part 2) -- the main result table. v17 board (2026-07-08 renumbering).
+% Joint single model (v17) vs the dedicated single-task ceilings (n=20 best-vs-best, per-dataset
+% bs x LR tuned -- CEILINGS_N20_FINAL.md), plus next-region externals (HMT-GRN primary; STAN faithful +
+% ReHDM v4 references) and next-category references (POI-RGNN + Markov-9-cat floor).
+%
+% Provenance (single source: docs/studies/closing_data/RESULTS_BOARD.md + v17_completion/):
+%   Joint (MTL v17): ALL SIX = n=20 (4 seeds x 5 folds), JOINT-BEST convention (one saved model per
+%     fold, geom_simple validation selector, both tasks read there) -- switched from diag-best
+%     2026-07-18 per author ruling (considerations_v3 #10); source joint_best/JOINT_BEST_RESULTS.md +
+%     catx_v17_n20/joint_best/. +- is cross-seed sd of per-seed means. All fp32.
+%   Dedicated ceilings: n=20 best-vs-best (CEILINGS_N20_FINAL.md; cat swept over bs x LR per state,
+%     reg = prior-off next_stan_flow topped to n=20). AZ cat ceiling 56.43 carries a pending 2-seed
+%     top-up that could raise it to ~57.0 (Delta_cat AZ +9.35 -> ~+8.7) -- board banner.
+%   cat Ded/Joint(jb): Ist 54.74+-0.09/63.32+-0.02; AL 56.82+-0.03/64.51+-0.09; AZ 56.43+-0.10/65.79+-0.02;
+%     FL 74.51+-0.03/79.84+-0.02; TX 69.79+-0.08/77.24+-0.01; CA 70.60+-0.07/77.05+-0.01.
+%   reg Ded/Joint(jb): Ist 75.16+-0.01/75.35+-0.04; AL 70.11+-0.10/69.70+-0.09; AZ 59.46+-0.08/59.46+-0.04;
+%     FL 76.70+-0.02/77.41+-0.02; TX 64.95+-0.01/67.06+-0.01; CA 63.49+-0.02/65.69+-0.02.
+%   Externals: HMT-GRN 60.4/57.05/43.70/63.74/53.85/49.61 (unchanged); ReHDM v4 row (version-uniform,
+%     rehdm.md): Ist 69.33 / AL 65.38 / AZ 53.00 / FL 64.49 / TX 48.81 (seed-42 only) / CA 50.26 (seed-42
+%     only); STAN faithful 61.86/60.72/49.86/72.99 + TX 61.67 (4/5 folds) + CA 58.52 (2/5 folds) --
+%     partials closed-as-final with fold-count disclosure (stan_catx/STATUS.md; "infeasible" RETIRED).
+%     Markov-9-cat 24.55/20.50/23.92/29.74/28.67/27.58; POI-RGNN 30.12/23.80/27.64/34.49/33.03/31.78.
+% Honesty rules (do NOT relax): cat BEATS at every dataset; reg BEATS at Ist/FL/TX/CA (90% CI of the
+%   paired difference above zero; all n=20 seed-level since 2026-07-18) and is non-inferior (TOST, <=2pp)
+%   at AL/AZ -- AZ's CI grazes zero, NEVER upgrade AZ to a beat. The two matched reg cells are NOT bolded.
+%   Never cite: STAN v4 collapse (AL 34.46/AZ 38.96), HMT-GRN AL 62.37 outlier, fp16/bf16 VOID JSONs,
+%   ReHDM v2 row (66.06/54.65/65.68).
+\providecommand{\sd}[1]{\,{\scriptsize$\pm$#1}}
+\begin{table}[!t]
+\caption{One model, two tasks: the single joint model against the dedicated single-task models and the
+external baselines, ordered by region count. Category is macro-F1; region is Acc@10. Bold marks a statistically supported improvement over the dedicated model; in
+the region columns, $\uparrow$ marks that supported improvement and $\approx$ a non-inferior match
+(TOST, $\pm2$~pp; Section~\ref{sec:mobiwac:results-part2}).}
+\label{tab:mobiwac:results}
+\centering
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{l r r r r r r r r r r}
+\toprule
+& & \multicolumn{4}{c}{\textbf{Next-category (macro-F1)}} & \multicolumn{5}{c}{\textbf{Next-region (Acc@10)}} \\ \cmidrule(lr){3-6}\cmidrule(lr){7-11}
+\textbf{Dataset} & \textbf{Regions} & \textbf{Markov-K} & \textbf{POI-RGNN} & \textbf{Dedicated} & \textbf{Joint (ours)} & \textbf{HMT-GRN} & \textbf{ReHDM} & \textbf{STAN} & \textbf{Dedicated} & \textbf{Joint (ours)} \\
+\midrule
+Istanbul & 520     & 24.55 & 30.12 & 54.74\sd{0.09} & \textbf{63.32}\sd{0.02} & 60.4  & 69.33 & 61.86 & 75.16\sd{0.01} & \textbf{75.35}\sd{0.04}$^{\uparrow}$ \\
+AL       & 1{,}109 & 20.50 & 23.80 & 56.82\sd{0.03} & \textbf{64.51}\sd{0.09} & 57.05 & 65.38 & 60.72 & 70.11\sd{0.10} & 69.70\sd{0.09}$^{\approx}$ \\
+AZ       & 1{,}547 & 23.92 & 27.64 & 56.43\sd{0.10} & \textbf{65.79}\sd{0.02} & 43.70 & 53.00 & 49.86 & 59.46\sd{0.08} & 59.46\sd{0.04}$^{\approx}$ \\
+FL       & 4{,}703 & 29.74 & 34.49 & 74.51\sd{0.03} & \textbf{79.84}\sd{0.02} & 63.74 & 64.49 & 72.99 & 76.70\sd{0.02} & \textbf{77.41}\sd{0.02}$^{\uparrow}$ \\
+TX       & 6{,}553 & 28.67 & 33.03 & 69.79\sd{0.08} & \textbf{77.24}\sd{0.01} & 53.85 & 48.81$^{\ddagger}$ & 61.67$^{\dagger}$ & 64.95\sd{0.01} & \textbf{67.06}\sd{0.01}$^{\uparrow}$ \\
+CA       & 8{,}501 & 27.58 & 31.78 & 70.60\sd{0.07} & \textbf{77.05}\sd{0.01} & 49.61 & 50.26$^{\ddagger}$ & 58.52$^{\dagger}$ & 63.49\sd{0.02} & \textbf{65.69}\sd{0.02}$^{\uparrow}$ \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+
+\vspace{2pt}
+{\footnotesize HMT-GRN (region-native, on
+our folds, scored on visits whose region appears in training, $>$99\% of test visits in every dataset
+and fold) is the primary external comparison; STAN (our re-implementation) and ReHDM (its own protocol)
+are references. Markov-K: strongest order per dataset. $^{\dagger}$STAN partial folds: TX 4/5, CA 2/5
+(seed 0). $^{\ddagger}$ReHDM at TX and CA: a single seed. Joint and dedicated entries: four seeds
+$\times$ five folds; $\pm$: sd across seeds.}
+\end{table}
+
+\begin{figure}[!t]
+\centering
+\includegraphics{figures/mobiwac/fig4_deltas.pdf}
+\caption{Signed gains of the joint model over the dedicated single-task models, ordered by
+region count. The category gain (macro-F1) is positive at every dataset; the region gain (Acc@10) rises across the five U.S. states and is also positive at Istanbul.
+The $\pm2$-point band applies to region only.}
+\label{fig:mobiwac:deltas}
+\end{figure}
+
+One model outperforms or matches the dedicated
+models on both tasks.
+For scale: always predicting the most common category reaches only about 7
+percent macro-F1 (the majority-class floor), and a random region top-ten guess
+is right at most about two percent of the time (Section~\ref{sec:mobiwac:setup-metrics}).
+
+Table~\ref{tab:mobiwac:results} reports the single joint model against the dedicated
+single-task ceilings (the level a joint model is usually expected, at
+best, to match). The dedicated category model is tuned per dataset over batch size and learning rate (the dedicated region models use the strongest fixed configuration).
+Throughout, every reported model is one saved artifact per fold, read at its
+validation-selected epoch: each dedicated model at its task's best epoch, and
+the joint model at the epoch selected by its joint validation score (the
+geometric mean of the two task metrics), with both tasks read from that one
+model. Reading each joint task at its own best epoch
+instead would change every joint result by at most $0.06$ (category) and
+$0.11$ (region) points, so no claim depends on this choice.
+% AUTHOR DECISION 2026-07-18 (supersedes 2026-07-09): the REPORTED convention is now JOINT-BEST
+% (author ruling, considerations_v3 #10) -- Table 3's joint cells are the one saved model per fold
+% (geom_simple = sqrt(cat F1 x reg Acc@10-indist) on validation, model-SELECTION only; never enters
+% the loss; training uses the fixed 0.75/0.25 sum of S4.2), both tasks read there. All pre-registered
+% tests re-verified on the joint-best arrays (n=20 all six; Istanbul reg CI +0.15..+0.23 > 0, 20/20
+% folds; AL/AZ TOST pass) -- see joint_best/JOINT_BEST_RESULTS.md. The sentence above discloses the
+% convention and keeps diag-best as the <=0.06/<=0.11 robustness check (the inverted form of the old
+% disclosure).
+
+Figure~\ref{fig:mobiwac:deltas} plots the signed gains ordered by region count. On
+category, the joint model outperforms the dedicated ceiling on
+every dataset, by $+5.33$ to $+9.35$ macro-F1 (smallest at Florida, largest at
+Arizona, and $+8.58$ at Istanbul).
+% Hidden AZ-ceiling sensitivity (response-letter material, author policy: hide caveats, provide on
+% request): the AZ dedicated ceiling (56.43) is the strongest arm tested at the full n=20; two arms
+% screened at 2 of 4 seeds scored ~57.0 (bs2048@{0.0025,0.0075}). If they held at n=20, the AZ gain
+% would be ~+8.8 -- still the largest (Istanbul +8.58). Rule-clean value = 56.43 per the
+% pre-registered n=20 best-vs-best estimator; the top-up was dropped 2026-07-08 (user decision,
+% docs/studies/closing_data/v17_completion/A40.md).
+On region (Acc@10), the joint model outperforms the dedicated ceiling at
+Florida, Texas, California, and Istanbul, and stays a non-inferior match
+(TOST, $\pm2$~pp) at Alabama and Arizona. Across the five U.S. states, the region gain rises with region count,
+from $-0.41$ at the smallest count to $+2.20$ at the largest; region count and
+corpus size co-vary here, so we read the trend across the points rather than
+as a precise law.
+
+All six datasets are measured with four seeds for both models, and the tests
+pair the per-seed means ($n{=}4$). On category, all four
+seeds favor the joint model on every dataset, and each gain is significant
+after a Holm correction across the six datasets (paired $t$, corrected
+$p<0.001$). On region, Alabama and Arizona are tested for equivalence (TOST,
+$\pm2$~pp) and pass with 90\% confidence intervals well inside two points
+(each entry: point estimate; interval): Alabama ($-0.41$; $-0.63$ to $-0.20$)
+and Arizona ($0.00$; $-0.08$ to $+0.07$). At Arizona, the interval is centered on zero, so we report a match,
+not a gain. At Alabama, the whole interval lies below zero, a small but
+statistically significant deficit, still well within the two-point margin. At
+Florida and Istanbul, the 90\% intervals lie entirely above zero (Florida
+$+0.71$; $+0.67$ to $+0.76$; Istanbul $+0.19$; $+0.15$ to $+0.23$), so the
+joint model outperforms there, though both gains are smaller than the
+two-point margin of Section~\ref{sec:mobiwac:setup-metrics}. Texas and California
+exceed that margin: their 90\% intervals lie entirely above it ($+2.10$ to
+$+2.13$ at Texas, $+2.19$ to $+2.21$ at California).
+
+A reader used to multi-task learning~\cite{caruana1997multitask} expects the
+harder task, here next-region with its hundreds to several thousand classes, to teach the easier one; a control shows otherwise. We freeze the region pathway at the start of training so it can neither learn nor teach the category task, yet the full category gain survives at Alabama, Arizona, and
+Florida (within $0.3$ of the joint model and far above the dedicated
+model). We therefore attribute the category gain to a stronger shared trunk, not to the region task teaching the category one; and the gain requires no second model at serving time (one model, one forward pass). We report this attribution as a finding, not a hypothesis.
+
+The joint model is also above every external baseline reported, on both tasks,
+across all six datasets (Table~\ref{tab:mobiwac:results}): on region, the primary
+region-native comparison HMT-GRN~\cite{lim2022hmtgrn}, STAN~\cite{luo2021stan}
+trained from the raw check-ins, and a ReHDM reference~\cite{li2025rehdm}; on
+category, POI-RGNN~\cite{capanema2023poirgnn} and the Markov-K floor. These externals run on their own embeddings, so this comparison
+also includes the representation advantage of Section~\ref{sec:mobiwac:results-part1}; the
+controlled comparison for the joint model remains the Dedicated column of
+Table~\ref{tab:mobiwac:results}, which uses the same representation, windows, and
+folds. The first-order Markov region floor of Section~\ref{sec:mobiwac:setup-baselines},
+computed under our windows and folds, reaches $51$ to $72$ Acc@10 across the
+datasets; the joint model exceeds it by $4.9$ to $10.3$ points on all six
+datasets.
+
+We prefer coupling the tasks in parallel rather than in a chain: neither target is
+subordinate to the other, so a chain must pick one to predict first and pass its errors to the other. The choice still had to be checked, because CSLSL reports its chain outperforming a shared-trunk parallel variant on its own benchmarks~\cite{huang2024cslsl}. Rewired as a cascade
+(Section~\ref{sec:mobiwac:setup-baselines}), our model reaches the same combined
+score, the geometric mean of the two task metrics, as its parallel form: at Alabama, Arizona, Florida, and Istanbul, with both forms trained under the same configuration and initialization, the difference is about zero and neither task moves by more than a quarter of a point. We read this as a defense of the
+parallel design, not a claim that we outperform the cascade: on this
+representation the coupling topology makes no measurable difference, and the simpler parallel structure loses nothing. Two qualifications bound this
+reading: the cascade runs under the configuration tuned for the parallel model, and
+its form was fixed in advance, so tuning the cascade itself remains future work.
+
+\subsection{External validity (Istanbul)}
+\label{sec:mobiwac:results-external}
+The joint-model results hold for a non-U.S. city under the same representation, sliding-window protocol, and training setup as the U.S. states. At Istanbul, the
+joint model outperforms the dedicated category ceiling by $+8.58$ macro-F1
+(dedicated $54.74$, joint $63.32$) and is slightly above the dedicated region ceiling at $+0.19$
+Acc@10 (dedicated $75.16$, joint $75.35$), a gain with statistical support (the whole 90\% confidence interval of the paired
+difference lies above zero, and TOST, $\pm2$~pp, also passes); both
+models average four seeds over five folds. The comparable quantity is the gain over the ceiling, not the absolute
+Acc@10, since region counts differ across datasets (520 mahalle here). The external baselines show the same ordering on both tasks
+(Table~\ref{tab:mobiwac:results}).
+The U.S. result repeats on a different continent and region unit.
+
+\section{Discussion and Limitations}
+\label{sec:mobiwac:discussion}
+
+One model serves both tasks: the shared trunk carries the semantic context that lifts the next-category task, and the private spatial path keeps the next-region task competitive (Table~\ref{tab:mobiwac:results}; Figure~\ref{fig:mobiwac:deltas}).
+
+A service could treat the model's top-ranked next regions as an anticipatory
+set: at California, ten regions out of 8{,}501 contain the true next region 65.69
+percent of the time, over 500 times better than picking ten at
+random. On four datasets (Alabama, Arizona, Florida, and Istanbul; a single seed over five folds), the ten shortlisted regions lie a median of 3 to 8 kilometers from the shortlist's centroid, against 17 to 176 kilometers for ten regions drawn at random from the same candidate set (median over 10,000 draws). This remains motivation, not a measured service result.
+
+Two limits qualify these results. First, our representation is trained once over all places; visits to places
+never seen during training are the single effect that we cannot fully isolate. A planned follow-up trains it on each fold's training places only and embeds unseen visits. Second, we do not build or evaluate a mobility-aware service; it is background motivation, and this chapter's claims are the prediction results themselves.
+
+Our representation is a fixed per-visit vector that any downstream model
+can consume. Moura et al.~\cite{moura2025mobilityaware}, whose structural
+analysis of tourist check-ins reads past visits only, name machine learning
+as a next step; this study moves in that direction.
+
+\section{Conclusion}
+\label{sec:mobiwac:conclusion}
+
+We tested whether one model can predict both the category and region of a user's next visit. A check-in-level
+representation, one vector per visit rather than one per place, makes the next-category task far more learnable than the standard
+place-level representation does. On that representation, a single multi-task model outperforms a dedicated category model on every dataset. On region, it outperforms the dedicated model on four of the six datasets and remains non-inferior (TOST, $\pm2$~pp) on the other two. The gains at Texas and California exceed the two-point margin; those at Florida and Istanbul are statistically supported but smaller. Across the U.S. states, the region gain rises with region count. The joint model also remains above every external baseline in Table~\ref{tab:mobiwac:results} on all six datasets, by at least 4 Acc@10 points over the strongest region reference (HMT-GRN, STAN, or ReHDM; the first two on our folds, ReHDM under its own protocol) and by at least 33 macro-F1 points over POI-RGNN on category. One model with a shared semantic context and a private spatial path anticipates both what a user will do next and where.
