@@ -86,12 +86,21 @@
 % ---------------------------------------------------------------
 % TITLE IS AN OPEN DECISION (NORTH_STAR §5.8): placeholder below; the Resumo/Abstract
 % header must match the folha de rosto exactly once the author decides.
-% Candidates (author shortlist):
-%   1. From Representations to a Single Joint Model: Multi-Task Learning for
-%      Point-of-Interest Category and Region Prediction   [working choice 2026-07-23]
-%   2. Check-in-Level Representations for Multi-Task Point-of-Interest Prediction
-%   3. One Model, Two Tasks: Representation-Driven Multi-Task Learning for
-%      Next-Category and Next-Region Prediction on Mobility Data
+% Echo locations of the placeholder (update ALL when deciding): \titulo below (folha de
+% rosto), Resumo catalog header, Abstract catalog header; hyperref pdftitle inherits \titulo.
+% Candidates -- reconciled 2026-07-23 to the newer decision block in
+% chapters/1_introduction.tex (which supersedes the NORTH_STAR §5.8 shortlist):
+%   WORKING TITLE (author 2026-07-23; final call with the advisor):
+%     From Representations to a Single Joint Model: Multi-Task Learning for
+%     Point-of-Interest Category and Region Prediction
+%   ALTERNATES (all pass the two-factor rule -- name both the representation and the
+%   sharing/architecture factor, or neither; storyline/AVAL_NECESSARIA_3_ptBR.md D2):
+%   1. Representation Drives, Sharing Delivers: A Check-in-Level Multi-Task
+%      Study of Next Category and Region Prediction
+%   2. The Visit, Not the Place: Check-in-Level Representations and a Joint
+%      Model for Next Category and Region Prediction
+%   3. One Visit, One Vector: From a Published Null to a Joint Model for
+%      Next Category and Region Prediction
 \titulo{\normalsize{\textbf{[TITLE --- open decision NORTH\_STAR §5.8]}}}
 \autor{\normalsize{\textbf{Vitor Hugo Oliveira Silva}}}
 \local{\normalsize{\textbf{Florestal - Minas Gerais}}}
@@ -154,13 +163,58 @@ degree of \textit{Magister Scientiae}.}
     \textbf{[TITLE --- open decision NORTH\_STAR §5.8]}. Orientador: Fabrício Aguiar Silva.
     \vspace{\onelineskip}
 
-    \noindent [Resumo placeholder --- drafted in Phase 5 as a claim-parity pair with the
-    Abstract, from Chapter 1 and Chapter 6 content only.]
+    % [NEEDS SIGN-OFF] Resumo draft (2026-07-23): claim-parity pair with the Abstract
+    % below; drafted from chapters/1_introduction.tex + 6_conclusion.tex ONLY (no new
+    % claims, no new numbers). Structure per WRITING_LAW §5; PT terms per GLOSSARY §6;
+    % verbs bound to tests (supera / equipara-se). Headline number 5,3--9,4 macro-F1 =
+    % Ch.6 §6.1 (source: MobiWac results board via the chapter). Audit as a PAIR.
+    \noindent Redes sociais baseadas em localização registram \emph{check-ins}: visitas
+    de um usuário a um ponto de interesse (POI) em um dado instante. Antecipar duas
+    propriedades da próxima visita, a categoria do próximo lugar visitado e a região
+    onde a visita ocorrerá, permite que um serviço sensível à mobilidade aja antes que
+    a visita aconteça, e as duas tarefas de previsão leem o mesmo histórico de visitas,
+    de modo que um único modelo poderia aprendê-las em conjunto por meio de aprendizado
+    multitarefa (MTL). A promessa, contudo, não é automática: compartilhar parâmetros
+    entre tarefas pode prejudicar uma delas, um modo de falha conhecido como
+    transferência negativa, e se o treinamento conjunto ajuda esse par de tarefas de
+    previsão sobre POIs, e do que a resposta depende, era uma questão em aberto quando
+    esta pesquisa começou. Esta dissertação responde a essa pergunta ao longo de três
+    estudos, apresentados como uma coletânea de artigos na ordem em que aconteceram: um
+    resultado negativo, seu diagnóstico e sua resolução. O primeiro estudo construiu o
+    MTLnet, um modelo conjunto com uma representação (\emph{embedding}) em nível de POI
+    como entrada e compartilhamento rígido de parâmetros; o modelo conjunto não superou
+    de forma consistente os dois modelos dedicados (tarefa única) e custou mais para
+    treinar, um resultado nulo relatado como um achado. O segundo estudo manteve a
+    arquitetura fixa e substituiu apenas a entrada por codificadores espaciais,
+    temporais e categóricos decompostos; o desempenho na tarefa de categoria subiu de
+    forma acentuada em todos os estados testados, de modo que a representação de
+    entrada, e não a arquitetura de compartilhamento, era o gargalo naquele estágio da
+    pesquisa. O terceiro estudo moveu a representação para o nível do check-in, dando a
+    cada visita seu próprio vetor em vez de atribuir o mesmo vetor a todas as visitas a
+    um mesmo lugar, e redesenhou a topologia de compartilhamento em torno de um tronco
+    de atenção cruzada entre dois fluxos específicos por tarefa. Sob validação cruzada
+    com usuários disjuntos entre treino e teste, com vinte repetições por configuração
+    (quatro inicializações aleatórias, cinco partições), testes de significância
+    pareados, teste de não-inferioridade e uma auditoria de vazamento, esse modelo
+    conjunto supera os modelos dedicados na tarefa da próxima categoria nos seis
+    conjuntos de dados estudados, cinco estados dos Estados Unidos e Istambul, por 5,3
+    a 9,4 pontos de macro-F1, e, na tarefa da próxima região, supera em quatro dos seis
+    conjuntos e equipara-se estatisticamente, com não-inferioridade dentro de uma
+    margem de dois pontos (TOST), nos outros dois. A resposta é, portanto, condicional,
+    e a condição é o achado: a representação de entrada, junto com a topologia de
+    compartilhamento construída sobre ela, determina se o aprendizado multitarefa ajuda
+    a previsão sobre pontos de interesse.
 
     \vspace{\onelineskip}
     \noindent
-    \textbf{Palavras-chave}: aprendizado multitarefa. ponto de interesse. previsão da
-    próxima categoria. previsão da próxima região.
+    % Keywords one per line (UFV_COMPLIANCE §2 system rules: one per line, lowercase
+    % except proper nouns, no punctuation); PT mirrors EN.
+    \textbf{Palavras-chave}:\\
+    aprendizado multitarefa\\
+    ponto de interesse\\
+    previsão da próxima categoria\\
+    previsão da próxima região\\
+    representação em nível de check-in
   \end{resumo}
 
   % Abstract (EN)
@@ -171,13 +225,52 @@ degree of \textit{Magister Scientiae}.}
     \textbf{[TITLE --- open decision NORTH\_STAR §5.8]}. Advisor: Fabrício Aguiar Silva.
     \vspace{\onelineskip}
 
-    \noindent [Abstract placeholder --- drafted in Phase 5 as a claim-parity pair with
-    the Resumo, from Chapter 1 and Chapter 6 content only.]
+    % [NEEDS SIGN-OFF] Abstract draft (2026-07-23): claim-parity pair with the Resumo
+    % above; drafted from chapters/1_introduction.tex + 6_conclusion.tex ONLY (no new
+    % claims, no new numbers). Same claims, same numbers, same hedges as the Resumo;
+    % verbs bound to tests (outperforms / matches). Audit as a PAIR.
+    \noindent Location-based social networks record \emph{check-ins}: visits by a user
+    to a point of interest (POI) at a given time. Anticipating two properties of the
+    next visit, the category of the next visited place and the region where the visit
+    will happen, lets a mobility-aware service act before the visit occurs, and the two
+    prediction tasks read the same trace of visits, so one model could learn them
+    together through multi-task learning (MTL). The promise, however, is not automatic:
+    sharing parameters between tasks can hurt one of them, a failure mode known as
+    negative transfer, and whether joint training helps this pair of POI prediction
+    tasks, and what the answer depends on, was unresolved when this research started.
+    This dissertation answers that question across three studies, presented as a
+    collection of articles in the order they happened: a negative result, its
+    diagnosis, and its resolution. The first study built MTLnet, a joint model with a
+    place-level embedding as input and hard parameter sharing; the joint model did not
+    consistently outperform the two dedicated single-task models and cost more to
+    train, a null result reported as a finding. The second study kept the architecture
+    fixed and replaced only the input with decomposed spatial, temporal, and
+    categorical encoders; category performance rose sharply at every state tested, so
+    the input representation, not the sharing architecture, was the bottleneck at that
+    stage of the research. The third study moved the representation to the check-in
+    level, giving each visit its own vector instead of assigning the same vector to
+    every visit to a place, and redesigned the sharing topology around a
+    cross-attention trunk between two task-specific streams. Under cross-validation
+    with users disjoint between training and test, with twenty repetitions per
+    configuration (four random initializations, five folds), paired significance
+    tests, non-inferiority testing, and a leakage audit, this joint model outperforms
+    the dedicated models on the next-category task at all six datasets studied, five
+    states of the United States and Istanbul, by 5.3 to 9.4 macro-F1 points, and, on
+    the next-region task, outperforms at four of six datasets and statistically
+    matches, with non-inferiority within a two-point margin (TOST), at the other two.
+    The answer is therefore conditional, and the condition is the finding: the input
+    representation, together with the sharing topology built on it, determines whether
+    multi-task learning helps point-of-interest prediction.
 
     \vspace{\onelineskip}
     \noindent
-    \textbf{Keywords}: multi-task learning. point of interest. next-category
-    prediction. next-region prediction.
+    % Keywords one per line (UFV_COMPLIANCE §2 system rules); EN mirrors PT.
+    \textbf{Keywords}:\\
+    multi-task learning\\
+    point of interest\\
+    next-category prediction\\
+    next-region prediction\\
+    check-in-level representation
    \end{otherlanguage*}
   \end{resumo}
 \else
@@ -196,12 +289,26 @@ degree of \textit{Magister Scientiae}.}
 \listoftables*
 \cleardoublepage
 
-% List of abbreviations (seeded from GLOSSARY §5 in Phase 5)
+% List of abbreviations -- completed 2026-07-23 from GLOSSARY §5, filtered by the
+% expand-at-first-use / minimal-count rule: each entry below was grep-verified to
+% appear in the assembled chapters' prose (comments excluded). Dropped from the §5
+% seed list because they never appear in prose: STL, CV, GRU, OOD, CI, SGKF, UFV,
+% PPGCC. BRACIS appears in Appendix A only (GLOSSARY §5: "appendix only").
+% Alphabetical order.
 \begin{siglas}
+  \item[BRACIS] Brazilian Conference on Intelligent Systems
+  \item[CBIC] Congresso Brasileiro de Intelig\^encia Computacional
+  \item[Check2HGI] Check-in-level representation extending Hierarchical Graph Infomax
+  \item[CoUrb] Workshop de Computa\c{c}\~ao Urbana
+  \item[DGI] Deep Graph Infomax
+  \item[FiLM] Feature-wise Linear Modulation
+  \item[HGI] Hierarchical Graph Infomax
   \item[LBSN] Location-Based Social Network
-  \item[POI] Point of Interest
+  \item[MobiWac] ACM International Symposium on Mobility Management and Wireless Access
   \item[MTL] Multi-Task Learning
-  \item[STL] Single-Task Learning
+  \item[POI] Point of Interest
+  \item[SBRC] Simp\'osio Brasileiro de Redes de Computadores e Sistemas Distribu\'idos
+  \item[TOST] Two One-Sided Tests
 \end{siglas}
 \cleardoublepage
 

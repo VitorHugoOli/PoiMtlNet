@@ -1,3 +1,56 @@
-%% STUB -- replaced in Phase 5
+% !TeX root = ../main_defense.tex
+% Appendix C -- AI-use disclosure
+% Drafted 2026-07-23 per AGENT_GUARDRAILS §6 D1/D2 (drafted from the git provenance
+% trail, not from recollection). Provenance basis (git log, this repository):
+%   draft(ai) commits: phase 0b-4 dissertation assembly (2026-07-23, 5 commits),
+%   CoUrb EN translation + sync (2026-07-20, 2 commits).
+%   edit(author) commits: e.g. 2f333e2b (CoUrb src revision).
+%   Model-family evidence in commit subjects: "Opus readability pass" (MobiWac,
+%   review/editing); no version strings are derivable for the drafting commits, so
+%   none are stated (per the do-not-invent rule).
+% ONE PAGE MAX. [NEEDS SIGN-OFF: whole appendix -- the author must confirm scope,
+% tool naming, and whether to name specific model versions he can source.]
+
 \chapter{AI-Use Disclosure}
-[Stub: Appendix C content lands in Phase 5.]
+\label{apx:ai}
+
+This dissertation was written with the assistance of a generative artificial
+intelligence tool, Claude (Anthropic), used as a research and writing assistant under
+the author's direction. This appendix discloses the scope of that use and the
+verification process applied, in line with the disclosure recommendations of UFV/DPE
+(2026) and the CNPq integrity policy (Portaria n\textsuperscript{o} 2.664/2026). The
+record below is reconstructed from the version-control history of the research
+repository, where AI-drafted and author-authored changes are committed under
+distinguishable labels, rather than from recollection.
+
+The scope of use, per part of the work, was the following.
+
+\begin{description}
+  \item[Drafting.] The frame chapters (Chapters~\ref{ch:intro}, \ref{ch:fundamentals},
+        and~\ref{ch:conclusion}), the appendices, and the front matter were drafted by
+        the assistant from author-approved outlines, source documents, and decision
+        records, section by section. The three article chapters
+        (Chapters~\ref{ch:cbic} to~\ref{ch:mobiwac}) are re-typeset reproductions of
+        the articles' own texts; the assistant performed the re-typesetting and the
+        English translation of the Chapter~\ref{ch:courb} article, which passed a
+        separate sentence-level fidelity check against the published Portuguese text.
+  \item[Editing and review.] Assistant-run review passes checked citations, numbers,
+        claims, cross-references, and style; for the Chapter~\ref{ch:mobiwac} article,
+        a readability review pass used a model of the Claude Opus family, followed by
+        an independent audit of its edits. Review passes are run by an agent that did
+        not write the text under review.
+  \item[Formatting.] The LaTeX structure, the two build modes, the bibliography
+        consolidation, and figure and table re-setting were produced by the assistant.
+  \item[Code.] Analysis and experiment code was written by the author with assistant
+        support; the assistant also wrote verification scripts used in the review
+        gates.
+\end{description}
+
+Every AI-drafted passage passed a fail-closed verification pipeline before reaching
+the advisor: an author-approved outline; a fact gate covering citation integrity
+(every reference checked against its source of record, with the citing claim located
+in the source), number integrity (every numeral traced to its source file, with no
+value computed by the assistant), and a claim registry binding verdict verbs to
+statistical tests; a separate style gate; and the author's own reading and approval,
+recorded in version control. No content entered the document from model memory, and
+the author reviewed and takes responsibility for every word of the final text.

@@ -1,3 +1,46 @@
-%% STUB -- replaced in Phase 5
+% !TeX root = ../main_defense.tex
+% Appendix A -- Other scientific contributions
+% Drafted 2026-07-23 per NORTH_STAR §3 (appendix scope: BRACIS submission as
+% intermediate iteration; report_orientador is internal, out) + AGENT_GUARDRAILS C4
+% (BRACIS containment: cited only as an earlier unpublished iteration; its region-cost
+% claim appears only as corrected history, never as a live claim; its rejected-paper
+% numbers are NOT quoted).
+% Title verified against the submission source, articles/[BRACIS]_Beyond_Cross_Task/
+% src/samplepaper.tex (\title{...}): "Substrate Carries, Architecture Pays: Check-In-
+% Level Embeddings for Multi-Task POI Prediction". The word "substrate" appears below
+% ONLY inside that verbatim title (WRITING_LAW §2 bans it as running prose; a quoted
+% title is a proper name, not prose).
+% CoUrb presentation role: NOT listed here. NORTH_STAR §5.2 assigns it as a
+% contribution note ON the Chapter 4 record (stated in Section 1.5 and in the Chapter 4
+% preface), not as an "other contribution" item; NORTH_STAR §3 names only the BRACIS
+% submission for this appendix. Do not invent items.
+% [NEEDS SIGN-OFF: whole appendix -- new frame prose.]
+
 \chapter{Other Scientific Contributions}
-[Stub: Appendix A content lands in Phase 5.]
+\label{apx:contributions}
+
+Besides the three articles that form Chapters~\ref{ch:cbic} to~\ref{ch:mobiwac}, one
+additional manuscript was produced during this research. In the first half of 2026,
+between the study of Chapter~\ref{ch:courb} and the consolidated study of
+Chapter~\ref{ch:mobiwac}, an earlier iteration of the check-in-level line of work was
+submitted to the Brazilian Conference on Intelligent Systems (BRACIS 2026) under the
+title \emph{Substrate Carries, Architecture Pays: Check-In-Level Embeddings for
+Multi-Task POI Prediction}. The submission was rejected, with notification on June 8,
+2026, and remains unpublished.
+
+The manuscript is an earlier unpublished iteration of the study presented in
+Chapter~\ref{ch:mobiwac}. It introduced a first version of the check-in-level
+representation, evaluated under an older protocol and an earlier training
+configuration, and its central claim, that multi-task learning imposes a cost on
+region prediction, was later corrected by the MobiWac study: the observed cost traced
+back to a numerical-precision artifact of that training configuration and to the older
+evaluation protocol. For this reason, no result of the manuscript is cited as evidence
+anywhere in this dissertation, and its conclusions are superseded in full by
+Chapter~\ref{ch:mobiwac}.
+
+The material of the submission was absorbed into the study of
+Chapter~\ref{ch:mobiwac}, which redesigned the evaluation before any claim was
+reissued. The reviewers' principal objection to the manuscript, the possibility of
+label leakage through the transductive representation, is answered there by a
+dedicated leakage audit under the user-disjoint protocol
+(Chapter~\ref{ch:mobiwac}).
