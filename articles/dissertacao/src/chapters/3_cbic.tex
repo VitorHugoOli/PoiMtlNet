@@ -27,7 +27,7 @@ implementation, and the following chapters do not rely on it.
 \section{Introduction}
 \label{sec:cbic:intro}
 
-Multi-Task Learning (MTL) is a machine learning paradigm where multiple related tasks are learned jointly, sharing representations and inductive biases to improve generalization performance \cite{caruana1997multitask}. By using shared information, MTL can potentially mitigate overfitting and yield more robust feature extractors compared to single-task approaches. Its success in domains like computer vision \cite{kokkinos2016ubernet}, natural language processing \cite{wei2022finetuned} and recommendation systems \cite{zhang2020interactive} motivates its application to Location-Based Social Networks (LBSNs), where understanding user interactions with Points-of-Interest (POIs), specific physical locations that someone might find useful or interesting, such as restaurants, shops, or landmarks, is fundamental.
+Multi-Task Learning (MTL) is a machine learning paradigm where multiple related tasks are learned jointly, sharing representations and inductive biases to improve generalization performance \cite{caruana1997multitask}. By using shared information, MTL can potentially mitigate overfitting and yield more robust feature extractors compared to single-task approaches. Its success in domains like computer vision \cite{kokkinos2016ubernet}, natural language processing \cite{wei2022finetuned} and recommendation systems \cite{Zhang2020} motivates its application to Location-Based Social Networks (LBSNs), where understanding user interactions with Points-of-Interest (POIs), specific physical locations that someone might find useful or interesting, such as restaurants, shops, or landmarks, is fundamental.
 
 In this chapter, we investigate the application of MTL to two critical POI-related tasks:
 \begin{enumerate}
@@ -41,7 +41,7 @@ This dichotomy raises a critical question: can a single, shared representation e
 
 Therefore, the central hypothesis of this study is that a standard hard parameter-sharing MTL architecture will face significant limitations when applied to this specific task pairing, failing to achieve substantial and consistent improvements over well-tuned, specialized single-task models. Our work is thus framed as an empirical investigation into the boundary conditions of MTL's effectiveness, exploring whether the presumed task relatedness is sufficient to overcome their inherent structural differences.
 
-To test this hypothesis, we conducted experiments on the Gowalla LBSN dataset \cite{Cho2011, SNAP2014}, comparing our MTL model against strong single-task baselines (HMRM \cite{chen2020modeling} and MHA+PE \cite{zeng2019next}). Our results lend weight to our hypothesis. While the proposed models perform well, particularly in POI category classification, the MTL framework does not deliver the consistent, significant gains often expected. The performance differences between the MTL and single-task models were frequently marginal and fell within standard deviations, suggesting their statistical performance was largely comparable. This outcome indicates that, for this problem, the architectural constraints and task dissimilarities may have offset the potential benefits of joint learning.
+To test this hypothesis, we conducted experiments on the Gowalla LBSN dataset \cite{cho2011gowalla,jure2014snap}, comparing our MTL model against strong single-task baselines (HMRM \cite{chen2020modeling} and MHA+PE \cite{zeng2019next}). Our results lend weight to our hypothesis. While the proposed models perform well, particularly in POI category classification, the MTL framework does not deliver the consistent, significant gains often expected. The performance differences between the MTL and single-task models were frequently marginal and fell within standard deviations, suggesting their statistical performance was largely comparable. This outcome indicates that, for this problem, the architectural constraints and task dissimilarities may have offset the potential benefits of joint learning.
 
 The main contributions of this chapter are as follows:
 \begin{itemize}
@@ -80,7 +80,7 @@ A single encoder is shared by all tasks, followed by task-specific heads. This r
 \paragraph*{Soft Parameter Sharing}
 Each task has its own encoder, but networks exchange information through learned cross-connections, such as Cross-Stitch units \cite{misra2016cross} or Sluice networks \cite{ruder2017sluice}.
 \paragraph*{Mixture-of-Experts (MoE)}
-Multi-Gate Mixture-of-Experts (MMoE) architectures maintain a pool of shared expert subnetworks; each task learns a gating function to combine experts, outperforming monolithic sharing in large-scale recommendation settings \cite{ma2018mmoe,yu2019mmoe}.
+Multi-Gate Mixture-of-Experts (MMoE) architectures maintain a pool of shared expert subnetworks; each task learns a gating function to combine experts, outperforming monolithic sharing in large-scale recommendation settings \cite{ma2018mmoe}.
 
 To mitigate task interference and loss imbalance, several optimization techniques have been proposed: GradNorm equalizes gradient magnitudes across tasks \cite{chen2018gradnorm}; MGDA finds Pareto-optimal descent directions \cite{sener2018mgda}; PCGrad removes conflicting gradient components \cite{yu2020pcgrad}; and Dynamic Weight Averaging (DWA) reweights losses based on their relative learning speeds \cite{liu2019dwa}.
 
@@ -121,7 +121,7 @@ A point of interest is defined as a tuple $\langle id, lat, long, cat \rangle$, 
 
 To capture the spatial locality and capture neighborhood information, we model the weighted graph $G(V, E)$ as a Delaunay Triangulation, where each vertex $v \in V$ represents a POI and edge $e_{ij} \in E$ defines the connection between POI $p_i$ and a POI $p_j$. Besides that, following \cite{huang2022estimating} the weight of an edge $e_{ij}$ is defined as $w_{ij} = \log((1+D^{1.5}/1+d_{ij}^{1.5}))$, where D is the diagonal length of bounding box that encloses the coordinates of POIs, and $d_{ij}$ is the geodesic distance between $p_{i}$ and $p_{j}$. The node feature matrix is based on category one-hot encoding of each POI, represented by $X \in \mathbb{R}^{n_c}$, where $n_c$ is the number of possible categories.
 
-Therefore, to encode the Delaunay graph we apply a graph attention convolution layer \cite{velivckovic2017graph}, yielding an embedding $h_i \in \mathbb{R}^{d}$, where $d$ is the dimension of the output. In addition, we utilize a Deep Graph Infomax (DGI) \cite{velivckovic2018deep} as a contrastive learning method to maximize the mutual information between local representations (node embeddings) and the global graph embedding compared to a corrupted version of a graph, which is guided by the Equation~\ref{eq:cbic:loss}.
+Therefore, to encode the Delaunay graph we apply a graph attention convolution layer \cite{velivckovic2017graph}, yielding an embedding $h_i \in \mathbb{R}^{d}$, where $d$ is the dimension of the output. In addition, we utilize a Deep Graph Infomax (DGI) \cite{velickovic2019deep} as a contrastive learning method to maximize the mutual information between local representations (node embeddings) and the global graph embedding compared to a corrupted version of a graph, which is guided by the Equation~\ref{eq:cbic:loss}.
 %
 \begin{equation}
   \mathcal{L}
@@ -161,7 +161,7 @@ This format allows the model to infer the category of the next POI solely from t
 \subsection{Multi-Task Learning Architecture}
 \label{sec:cbic:mtlarch}
 
-Our proposed Multi-Task Learning (MTL) architecture, depicted in Figure~\ref{fig:cbic:arch}, is built upon a hard parameter-sharing scheme for the joint training of POI Category Classification and Next-POI Prediction. This design integrates Feature-wise Linear Modulation (FiLM) layers to condition the shared representations, a technique aimed at modulating task interactions and mitigating negative transfer \cite{perez2018film, standley2020tasks}.
+Our proposed Multi-Task Learning (MTL) architecture, depicted in Figure~\ref{fig:cbic:arch}, is built upon a hard parameter-sharing scheme for the joint training of POI Category Classification and Next-POI Prediction. This design integrates Feature-wise Linear Modulation (FiLM) layers to condition the shared representations, a technique aimed at modulating task interactions and mitigating negative transfer \cite{perez2018film,standley2020tasks}.
 
 \paragraph*{Architecture Overview}
 Input features for POI Category Classification ($\mathbf{x}^{(c)}$) and Next-POI Prediction ($\mathbf{x}^{(n)}$) are first processed by separate, task-specific encoders. These encoders, implemented as MLPs, map the raw input features into a shared latent space of dimension $d_{\mathrm{shared}}$.
@@ -232,7 +232,7 @@ The Nash-MTL optimizer was employed for its ability to aggregate tasks gradients
 \subsection{Dataset and Evaluation Metrics}
 \label{sec:cbic:dataset}
 
-To evaluate our model, we use a subset of the public \emph{Gowalla} check-in dataset, originally collected by Cho \textit{et al.}\,\cite{Cho2011}. We focus our analysis on the data from the U.S. state of Florida, which is one of the most active regions in the original dataset. This subset comprises a total of [$N_{\text{users}}$; VERIFY: recompute per ERRATA.md] users, [$N_{\text{poi}}$; VERIFY: recompute per ERRATA.md] unique Points-of-Interest (POIs), and [$N_{\text{checkins}}$; VERIFY: recompute per ERRATA.md] check-ins.
+To evaluate our model, we use a subset of the public \emph{Gowalla} check-in dataset, originally collected by Cho \textit{et al.}\,\cite{cho2011gowalla}. We focus our analysis on the data from the U.S. state of Florida, which is one of the most active regions in the original dataset. This subset comprises a total of [$N_{\text{users}}$; VERIFY: recompute per ERRATA.md] users, [$N_{\text{poi}}$; VERIFY: recompute per ERRATA.md] unique Points-of-Interest (POIs), and [$N_{\text{checkins}}$; VERIFY: recompute per ERRATA.md] check-ins.
 % [VERIFY] The three dataset statistics above were never filled in the published paper
 % (ERRATA.md, non-citation erratum #1). Sanctioned path: a repo-committed script over the
 % CBIC-era Florida pipeline (Gowalla FL, users with <5 visits dropped), author-approved

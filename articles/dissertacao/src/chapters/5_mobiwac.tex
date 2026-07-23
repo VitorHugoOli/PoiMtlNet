@@ -44,7 +44,7 @@ Sharing one representation across tasks has a cost: in multi-task learning (MTL)
 observed exactly this for next-category and next-region~\cite{silva2025mtlnet}; the useful question is where sharing helps, what it costs, and how to share so the gains hold and the cost stays small.
 
 We propose two enhancements. First, we build a check-in-level representation: instead of one fixed vector per place, each check-in gets its own vector that holds its context (the time, nearby places, and recent visits).
-This adds a fourth level, the check-in, beneath the place, region, and city levels of hierarchical graph infomax~\cite{huang2023hgi,velickovic2019dgi} (Figure~\ref{fig:mobiwac:dataflow}). Second, we train one model that
+This adds a fourth level, the check-in, beneath the place, region, and city levels of hierarchical graph infomax~\cite{huang2023hgi,velickovic2019deep} (Figure~\ref{fig:mobiwac:dataflow}). Second, we train one model that
 predicts the next category and the next region in a single forward pass, with a shared trunk (a cross-attention stack where the two tasks exchange
 semantic context) and a private spatial path for the region task (Figure~\ref{fig:mobiwac:model}). We evaluate on two settings chosen to differ: five U.S. states of different sizes (Gowalla) and one non-U.S. city (Istanbul).\footnote{\label{fn:mobiwac:code}Code (model, representation, baselines, statistical tests): \url{https://github.com/VitorHugoOli/PoiMtlNet/tree/mobiwac}. Both data sources are public: the category-annotated Gowalla dump (\url{https://figshare.com/articles/dataset/gowalla_data/22126586}) and Massive-STEPS~\cite{wongso2025massivesteps}.}
 
@@ -94,7 +94,7 @@ Chapter~\ref{ch:courb} kept the MTLnet architecture unchanged and replaced its
 single 64-dimensional place-level input with decomposed spatial, temporal, and
 categorical encoders (ST-MTLNet); the category score rose at each of the three
 states studied, so the input representation, not the sharing architecture, was
-identified as the bottleneck~\cite{paiva2026courb}. This chapter carries that diagnosis one step
+identified as the bottleneck~\cite{paiva2026stmtlnet}. This chapter carries that diagnosis one step
 further: the representation moves from the place level to the check-in level, the
 sharing topology is redesigned around it, and the earlier negative conclusion is
 revisited under this new configuration.
@@ -103,7 +103,7 @@ revisited under this new configuration.
 \label{sec:mobiwac:related-embeddings}
 A place embedding transforms a POI into a vector so that similar or nearby
 places sit close together in the vector space.
-Deep Graph Infomax (DGI)~\cite{velickovic2019dgi}, a general self-supervised
+Deep Graph Infomax (DGI)~\cite{velickovic2019deep}, a general self-supervised
 method for graphs, learns such vectors on a place network linked by
 similarity, time, and distance, training them to tell the real network from a
 copy with shuffled node features.
@@ -144,7 +144,7 @@ representation, on which sharing helps instead of hurting (Section~\ref{sec:mobi
 The field
 increasingly models several granularities at once; in those systems, category and
 region are auxiliary signals that help a primary next-place task
-(MCMG \cite{sun2024mcmg}, HMT-GRN \cite{lim2022hmtgrn}).
+(MCMG \cite{sun2024mcmg}, HMT-GRN \cite{Lim2022}).
 We study the pair as the object itself. To our knowledge, fine-grained region as an
 end target of equal standing, rather than an auxiliary coarse grid cell, is
 underexplored.
@@ -174,7 +174,7 @@ choice directly (Section~\ref{sec:mobiwac:results-part2}). On optimization, we a
 training with a fixed loss weighting is standard practice
 \cite{caruana1997multitask}, not itself our contribution.
 Reports find that gradient-balancing methods, which re-weight
-the tasks' updates during training (PCGrad \cite{yu2020pcgrad}, Nash-MTL \cite{navon2022nashmtl}), rarely improve on a
+the tasks' updates during training (PCGrad \cite{yu2020pcgrad}, Nash-MTL \cite{nash}), rarely improve on a
 well-tuned fixed weighting with two tasks \cite{xin2022domtl}.
 We confirm this: none of the balancers that we tried, including the two named
 above, improved on a tuned fixed task weighting in our model.
@@ -226,7 +226,7 @@ would give such a service.
 We want each visit, not each place, to have its own vector; we call the resulting representation Check2HGI (Section~\ref{sec:mobiwac:related-embeddings}).
 Figure~\ref{fig:mobiwac:dataflow} shows the full data flow, from check-ins to the two outputs.
 
-We build a graph with four levels: the check-in, its place, the place's region (a census tract), and the city. Edges connect each level to the one above it and link a user's consecutive check-ins with a weight that decays as the time gap between the visits grows; same-place visits connect through their shared place node one level up, and nearby places are linked at the place level. Each visit's category, time of day, and day of week enter as input features of its node, not as edges. This keeps a hierarchical graph's place-to-region-to-city geography and adds the check-in as a bottom level. We train the graph mainly with an infomax objective, under which each vector learns to match its real neighborhood and reject a shuffled one~\cite{velickovic2019dgi,huang2023hgi}. Two small label-free auxiliary terms are added (weights 0.3 and 0.1): a masked reconstruction of each place's aggregated category
+We build a graph with four levels: the check-in, its place, the place's region (a census tract), and the city. Edges connect each level to the one above it and link a user's consecutive check-ins with a weight that decays as the time gap between the visits grows; same-place visits connect through their shared place node one level up, and nearby places are linked at the place level. Each visit's category, time of day, and day of week enter as input features of its node, not as edges. This keeps a hierarchical graph's place-to-region-to-city geography and adds the check-in as a bottom level. We train the graph mainly with an infomax objective, under which each vector learns to match its real neighborhood and reject a shuffled one~\cite{velickovic2019deep,huang2023hgi}. Two small label-free auxiliary terms are added (weights 0.3 and 0.1): a masked reconstruction of each place's aggregated category
 features, and an anchor to a place embedding pre-trained, label-free,
 on the same data. The training
 uses no task label: it
@@ -350,11 +350,11 @@ A claimed gain and a claimed match require different tests, because a difference
 
 \subsection{Baselines}
 \label{sec:mobiwac:setup-baselines}
-The comparisons play three roles. The first role is played by the per-task state of the art, on our data, under user-disjoint five-fold protocols. For next-category, this is POI-RGNN \cite{capanema2023poirgnn}, re-implemented from its published architecture and hyperparameters, and a Markov baseline that predicts the category that most often follows the recent ones (Markov-K, best order per dataset); for region, we also compute a first-order Markov floor over region transitions, under the same sliding-window protocol and fold splits as our models. For next-region, the primary comparison is HMT-GRN \cite{lim2022hmtgrn}, an end-to-end recurrent model (trained as one piece from the raw check-ins) evaluated on the same data, folds, and initialization. We keep its shared multi-task skeleton and add a region-transition prior built per fold from training data. We drop its graph components and hierarchical beam search, which exist to serve its next-place target, a target that we do not predict. The result is a region-native model (region is one of its own prediction targets), not a reproduction of the complete published system. We also run STAN \cite{luo2021stan}, re-implemented from its published architecture and trained from the raw check-ins with its own embeddings and sequence construction under one fixed configuration. We adapt its output layer to rank region candidates, spatial objects that still support its candidate-distance matching; we do not adapt it to category, where distance matching has no meaning. A ReHDM \cite{li2025rehdm} reference is reported under its own published protocol.
+The comparisons play three roles. The first role is played by the per-task state of the art, on our data, under user-disjoint five-fold protocols. For next-category, this is POI-RGNN \cite{capanema2023poirgnn}, re-implemented from its published architecture and hyperparameters, and a Markov baseline that predicts the category that most often follows the recent ones (Markov-K, best order per dataset); for region, we also compute a first-order Markov floor over region transitions, under the same sliding-window protocol and fold splits as our models. For next-region, the primary comparison is HMT-GRN \cite{Lim2022}, an end-to-end recurrent model (trained as one piece from the raw check-ins) evaluated on the same data, folds, and initialization. We keep its shared multi-task skeleton and add a region-transition prior built per fold from training data. We drop its graph components and hierarchical beam search, which exist to serve its next-place target, a target that we do not predict. The result is a region-native model (region is one of its own prediction targets), not a reproduction of the complete published system. We also run STAN \cite{luo2021stan}, re-implemented from its published architecture and trained from the raw check-ins with its own embeddings and sequence construction under one fixed configuration. We adapt its output layer to rank region candidates, spatial objects that still support its candidate-distance matching; we do not adapt it to category, where distance matching has no meaning. A ReHDM \cite{li2025rehdm} reference is reported under its own published protocol.
 
 The second role is played by two representation controls that attribute the category gain to our specific design, not to contextualization in general or to extra features: CTLE \cite{lin2021ctle}, the closest prior contextual check-in embedding, run end to end at Florida and with frozen weights (no fine-tuning) at Alabama, Arizona, and Istanbul; and a feature-concatenation control appending raw per-visit features to a standard place embedding under the same model.
 
-The third role is a comparison between the two ways of coupling the tasks. The dominant published coupling is the directed cascade, predicting the category first and conditioning the place prediction on it \cite{ye2013nextmove, yu2020catdm, huang2024cslsl}. We test the cascade inside our own model rather than re-implementing those systems: we remove the shared trunk, where the two streams exchange information, and feed the predicted category forward into the region pathway, keeping the representation, outputs, and training configuration unchanged. This isolates the coupling topology (chain versus parallel) at no additional parameter or compute cost: the chain form drops the shared trunk and adds a conditioning projection of about 1,000 parameters. A final control, the standard place-level embedding \cite{huang2023hgi}, isolates what the per-visit representation adds. All other choices, including the nine-visit window, were fixed during development; the full training configuration for every model is in the released code (footnote~\ref{fn:mobiwac:code}).
+The third role is a comparison between the two ways of coupling the tasks. The dominant published coupling is the directed cascade, predicting the category first and conditioning the place prediction on it \cite{ye2013nextmove,yu2020catdm,huang2024cslsl}. We test the cascade inside our own model rather than re-implementing those systems: we remove the shared trunk, where the two streams exchange information, and feed the predicted category forward into the region pathway, keeping the representation, outputs, and training configuration unchanged. This isolates the coupling topology (chain versus parallel) at no additional parameter or compute cost: the chain form drops the shared trunk and adds a conditioning projection of about 1,000 parameters. A final control, the standard place-level embedding \cite{huang2023hgi}, isolates what the per-visit representation adds. All other choices, including the nine-visit window, were fixed during development; the full training configuration for every model is in the released code (footnote~\ref{fn:mobiwac:code}).
 
 \section{Results}
 \label{sec:mobiwac:results}
@@ -567,7 +567,7 @@ model). We therefore attribute the category gain to a stronger shared trunk, not
 
 The joint model is also above every external baseline reported, on both tasks,
 across all six datasets (Table~\ref{tab:mobiwac:results}): on region, the primary
-region-native comparison HMT-GRN~\cite{lim2022hmtgrn}, STAN~\cite{luo2021stan}
+region-native comparison HMT-GRN~\cite{Lim2022}, STAN~\cite{luo2021stan}
 trained from the raw check-ins, and a ReHDM reference~\cite{li2025rehdm}; on
 category, POI-RGNN~\cite{capanema2023poirgnn} and the Markov-K floor. These externals run on their own embeddings, so this comparison
 also includes the representation advantage of Section~\ref{sec:mobiwac:results-part1}; the
