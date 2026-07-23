@@ -500,9 +500,13 @@ end targets is the stance this work takes. That stance only pays off if the mode
 represent a visit well enough to serve both. Here the representation is the lever. The
 field moved from one-hot identifiers to place embeddings, and hierarchical graph
 infomax gives a strong place-level vector, but any place embedding assigns a place the
-same vector on every visit. A representation that cannot tell a weekday lunch from a
-Saturday night out is working against both tasks at once, and the check-in level is the
+same vector on every visit. A vector that stays the same across visits carries nothing
+about the visit being predicted, and the check-in level is the
 response to that limit.
+% [NEEDS SIGN-OFF: gate L3 fix A-2. The "weekday lunch / Saturday night out" image now
+% appears only in Ch.1 (the signed-off mechanism beat); this hinge sentence was reworded
+% to state the same static-vector limit without duplicating the image. Revert if you
+% prefer the repetition as a deliberate motif.]
 
 Multi-task learning is the mechanism that would let the two tasks share what they have
 in common, but it is not a free gain. Naive hard sharing can leave a task worse than

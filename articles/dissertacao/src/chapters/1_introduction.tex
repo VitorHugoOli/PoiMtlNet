@@ -73,9 +73,13 @@ once~\cite{kokkinos2016ubernet}, recurrent models that diagnose over a hundred
 clinical conditions simultaneously~\cite{lipton2015learning}, and language models
 fine-tuned across dozens of tasks described by
 instructions~\cite{wei2022finetuned}. The operational appeal is
-concrete: one artifact to train, version, and deploy, and one forward pass whose
-single set of inputs produces both answers at once, instead of two dedicated
-single-task models running side by side. The promise, however, is not automatic.
+concrete: a single model to maintain, and a single forward pass that returns both
+predictions together, instead of two dedicated single-task models running side by
+side. The promise, however, is not automatic.
+% [NEEDS SIGN-OFF: gate L3 fix A-1. Original sentence was near-verbatim with Ch.5
+% ("one artifact to train, version, and deploy, and one forward pass whose single set
+% of inputs produces both answers at once"); reworded here so the paper chapter keeps
+% the original wording. Claim unchanged. Revert if you prefer the duplication.]
 Sharing parameters between tasks can hurt one of them, a failure mode known as
 negative transfer. Whether joint training helps for this pair of POI prediction
 tasks, and what the answer depends on, was unresolved when this research started.

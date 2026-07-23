@@ -28,6 +28,14 @@
 
 % -- Machinery (Germano tree, kept) --
 \usepackage{abntex2-UFV}        % UFV front matter + 3/2 cm margins (checked vs manual §7)
+% Gate D-1 fix: abntex2-UFV runs \checkandfixthelayout under single spacing, leaving a
+% text block ~11pt taller than the 3cm/2cm margins dictate (bottom margin measured
+% 1.5-1.6 cm vs the 2 cm spec). Re-derive the block from the margins under the 1.5 line
+% spacing the manual mandates, then fix WITHOUT line-rounding.
+\OnehalfSpacing
+\setlrmarginsandblock{3cm}{2cm}{*}
+\setulmarginsandblock{3cm}{2cm}{*}
+\checkandfixthelayout[fixed]
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{newtxtext,newtxmath} % Times New Roman equivalent (manual §8); replaces lmodern

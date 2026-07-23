@@ -5,7 +5,8 @@ FAIL=0
 CH=chapters/*.tex
 
 echo "== em-dashes (WRITING_LAW §1: none anywhere in prose) =="
-if grep -n $'\u2014' $CH 0_main.tex 2>/dev/null | grep -v '^\s*%'; then FAIL=1; else echo OK; fi
+EMDASH=$(printf '\xe2\x80\x94')
+if grep -n "$EMDASH" $CH 0_main.tex 2>/dev/null | grep -v '^[^:]*:[0-9]*: *%'; then FAIL=1; else echo OK; fi
 
 echo "== 'this paper' / 'this article' inside chapters =="
 if grep -niE 'this (paper|article)' $CH | grep -v '^[^:]*:[0-9]*: *%'; then FAIL=1; else echo OK; fi
@@ -13,8 +14,8 @@ if grep -niE 'this (paper|article)' $CH | grep -v '^[^:]*:[0-9]*: *%'; then FAIL
 echo "== contractions =="
 if grep -nE "\b(don't|doesn't|isn't|aren't|won't|can't|couldn't|wouldn't|shouldn't|it's|we're|they're|there's|hasn't|haven't|didn't|wasn't|weren't)\b" $CH | grep -v '^[^:]*:[0-9]*: *%'; then FAIL=1; else echo OK; fi
 
-echo "== WRITING_LAW §4 banned words (prose lines only) =="
-if grep -nwiE 'delve|delves|intricate|showcase|showcases|underscores?|pivotal|leverages?|leveraging|seamless|seamlessly|testament|moreover|furthermore' $CH | grep -v '^[^:]*:[0-9]*: *%'; then FAIL=1; else echo OK; fi
+echo "== WRITING_LAW §4 banned words (prose lines only; apx_b quotes published text and is exempt) =="
+if grep -nwiE 'delve|delves|intricate|showcase|showcases|underscores?|pivotal|leverages?|leveraging|seamless|seamlessly|testament|moreover|furthermore' $CH | grep -v '^[^:]*:[0-9]*: *%' | grep -v '^chapters/apx_b_errata'; then FAIL=1; else echo OK; fi
 
 echo "== banned verdict verbs (beats/wins/ties as result verbs; crude sweep, review hits) =="
 grep -nwiE 'beats?|wins?|Pareto' $CH | grep -v '^[^:]*:[0-9]*: *%' || echo OK

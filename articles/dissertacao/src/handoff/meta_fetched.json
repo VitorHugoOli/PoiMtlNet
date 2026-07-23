@@ -1,0 +1,776 @@
+{
+ "Halder2021": [
+  "crossref",
+  {
+   "title": "Transformer-Based Multi-task Learning for Queuing Time Aware Next POI Recommendation",
+   "container": "Lecture Notes in Computer Science",
+   "year": 2021,
+   "authors": [
+    "Halder",
+    "Lim",
+    "Chan",
+    "Zhang"
+   ],
+   "abstract": ""
+  }
+ ],
+ "Halder2022": [
+  "crossref",
+  {
+   "title": "POI recommendation with queuing time and user interest awareness",
+   "container": "Data Mining and Knowledge Discovery",
+   "year": 2022,
+   "authors": [
+    "Halder",
+    "Lim",
+    "Chan",
+    "Zhang"
+   ],
+   "abstract": " Abstract  Point-of-interest (POI) recommendation is a challenging problem due to different contextual information and a wide variety of human mobility patterns. Prior studies focus on recommendation that considers user travel spatiotemporal and sequential patterns behaviours. These studies do not pay attention to user personal interests, which is a significant factor for POI recommendation. Besides user interests, queuing time also plays a significant role in affecting user mobility behaviour, e.g., having to queue a long time to enter a POI might reduce visitor\u2019s enjoyment. Recently, attention-based recurrent neural networks-based approaches show promising performance in the next POI recommendation task. However, they are limited to single head attention, which can have difficulty in finding the appropriate user mobility behaviours considering complex relationships among POI spatial distances, POI check-in time, user interests and POI queuing times. In this research work, we are the first to consider queuing time and user interest awareness factors for next POI recommendation. We demonstrate how it is non-trivial to recommend a next POI and simultaneously predict its queuing time. To solve this problem, we propose a multi-task, multi-head attention transformer model called TLR-M_UI. The model recommends the next POIs to the target users and predicts queuing time to access the POIs simultaneously by considering user mobility behaviours. The proposed model utilises POIs descr"
+  }
+ ],
+ "Xia2020": [
+  "doi",
+  {
+   "title": "MTPR: A Multi-Task Learning Based POI Recommendation Considering Temporal Check-Ins and Geographical Locations",
+   "container": "Applied Sciences",
+   "year": 2020,
+   "authors": [
+    "Xia",
+    "Bai",
+    "Yin",
+    "Li",
+    "Xu"
+   ],
+   "abstract": " The rapid development of location-based social networks (LBSNs) produces the increasing number of check-in records and corresponding heterogeneous information which bring big challenges of points-of-interest (POIs) recommendation in our daily lives. The emergence of various recommender techniques bridges the gap between the numerous heterogeneous check-ins and the personalized POI recommendation. However, due to the differences between LBSNs and conventional recommendation tasks, besides the user feedback, the spatio-temporal information is also significant to precisely capture the user preferences. In this paper, we propose a multi-task learning model based POI recommender system which exploits a structure of generative adversarial networks (GAN) simultaneously considering temporal check-ins and geographical locations. The GAN-based model is capable of relieving the sparsity of check-in data in POI recommender systems. The temporal check-ins not only present the preference but also show the lifestyle of an individual while the geographical locations describe the active region of users which further filters POIs far from the feasible region. The multi-task learning strategy is capable of combining the information of temporal check-ins and geographical locations to improve the performance of personalized POI recommendation. We conduct the experiments on two real-world LBSNs datasets and the experimental results show the effectiveness of our proposed approach. "
+  }
+ ],
+ "Xu2023": [
+  "crossref",
+  {
+   "title": "TME: Tree-guided Multi-task Embedding Learning towards Semantic Venue Annotation",
+   "container": "ACM Transactions on Information Systems",
+   "year": 2023,
+   "authors": [
+    "Xu",
+    "Chen",
+    "Gong",
+    "Liu",
+    "Yu",
+    "Nie"
+   ],
+   "abstract": " \n            The prevalence of location-based services has generated a deluge of check-ins, enabling the task of human mobility understanding. Among the various types of information associated with the check-in venues, categories (e.g.,\n             Bar \n            and\n             Museum \n            ) are vital to the task, as they often serve as excellent semantic characterization of the venues. Despite its significance and importance, a large portion of venues in the check-in services do not have even a single category label, such as up to 30% of venues in the Foursquare system lacking category labels. We, therefore, address the problem of semantic venue annotation, i.e., labeling the venue with a semantic category. Existing methods either fail to fully exploit the contextual information in the check-in sequences, or do not consider the semantic correlations across related categories. As such, we devise a Tree-guided Multi-task Embedding model (TME for short) to learn effective representations of venues and categories for the semantic annotation. TME jointly learns a common feature space by modeling multi-contexts of check-ins and utilizes the predefined category hierarchy to regularize the relatedness among categories. We evaluate TME over the task of semantic venue annotation on two check-in datasets. Experimental results show the superiority of TME over several state-of-the-art baselines.\n           "
+  }
+ ],
+ "baxter2000model": [
+  "crossref",
+  {
+   "title": "A Model of Inductive Bias Learning",
+   "container": "Journal of Artificial Intelligence Research",
+   "year": 2000,
+   "authors": [
+    "Baxter"
+   ],
+   "abstract": " A major problem in machine learning is that of inductive    bias: how to choose a learner's hypothesis space so that it is large    enough to contain a solution to the problem being learnt, yet small    enough to ensure reliable generalization from reasonably-sized    training sets.  Typically such bias is supplied by hand through the    skill and insights of experts. In this paper a model for automatically    learning bias is investigated. The central assumption of the model is    that the learner is embedded within an environment of related learning    tasks. Within such an environment the learner can sample from multiple    tasks, and hence it can search for a hypothesis space that contains    good solutions to many of the problems in the environment. Under    certain restrictions on the set of all hypothesis spaces available to    the learner, we show that a hypothesis space that performs well on a    sufficiently large number of training tasks will also perform well    when learning novel tasks in the same environment.  Explicit bounds    are also derived demonstrating that learning multiple tasks within an    environment of related tasks can potentially give much better    generalization than learning a single task. "
+  }
+ ],
+ "belghazi2018mine": [
+  "arxiv",
+  {
+   "title": "MINE: Mutual Information Neural Estimation",
+   "abstract": "We argue that the estimation of mutual information between high dimensional continuous random variables can be achieved by gradient descent over neural networks. We present a Mutual Information Neural Estimator (MINE) that is linearly scalable in dimensionality as well as in sample size, trainable through back-prop, and strongly consistent. We present a handful of applications on which MINE can be used to minimize or maximize mutual information. We apply MINE to improve adversarially trained generative models. We also use MINE to implement Information Bottleneck, applying it to supervised classification; our results demonstrate substantial improvement in flexibility and performance in these settings."
+  }
+ ],
+ "belkin2003laplacian": [
+  "crossref",
+  {
+   "title": "Laplacian Eigenmaps for Dimensionality Reduction and Data Representation",
+   "container": "Neural Computation",
+   "year": 2003,
+   "authors": [
+    "Belkin",
+    "Niyogi"
+   ],
+   "abstract": "  One of the central problems in machine learning and pattern recognition is to develop appropriate representations for complex data. We consider the problem of constructing a representation for data lying on a low-dimensional manifold embedded in a high-dimensional space. Drawing on the correspondence between the graph Laplacian, the Laplace Beltrami operator on the manifold, and the connections to the heat equation, we propose a geometrically motivated algorithm for representing the high-dimensional data. The algorithm provides a computationally efficient approach to nonlinear dimensionality reduction that has locality-preserving properties and a natural connection to clustering. Some potential applications and illustrative examples are discussed.  "
+  }
+ ],
+ "capanema2023poirgnn": [
+  "crossref",
+  {
+   "title": "Combining recurrent and Graph Neural Networks to predict the next place\u2019s category",
+   "container": "Ad Hoc Networks",
+   "year": 2023,
+   "authors": [
+    "Capanema",
+    "de Oliveira",
+    "Silva",
+    "Silva",
+    "Loureiro"
+   ],
+   "abstract": ""
+  }
+ ],
+ "chen2018gradnorm": [
+  "arxiv",
+  {
+   "title": "GradNorm: Gradient Normalization for Adaptive Loss Balancing in Deep Multitask Networks",
+   "abstract": "Deep multitask networks, in which one neural network produces multiple predictive outputs, can offer better speed and performance than their single-task counterparts but are challenging to train properly. We present a gradient normalization (GradNorm) algorithm that automatically balances training in deep multitask models by dynamically tuning gradient magnitudes. We show that for various network architectures, for both regression and classification tasks, and on both synthetic and real datasets, GradNorm improves accuracy and reduces overfitting across multiple tasks when compared to single-task networks, static baselines, and other adaptive multitask loss balancing techniques. GradNorm also matches or surpasses the performance of exhaustive grid search methods, despite only involving a single asymmetry hyperparameter $\u03b1$. Thus, what was once a tedious search process that incurred exponentially more compute for each task added can now be accomplished within a few training runs, irrespective of the number of tasks. Ultimately, we will demonstrate that gradient manipulation affords us great control over the training dynamics of multitask networks and may be one of the keys to unlocking the potential of multitask learning."
+  }
+ ],
+ "chen2020modeling": [
+  "crossref",
+  {
+   "title": "Modeling Spatial Trajectories With Attribute Representation Learning",
+   "container": "IEEE Transactions on Knowledge and Data Engineering",
+   "year": 2022,
+   "authors": [
+    "Chen",
+    "Zhao",
+    "Liu",
+    "Yu",
+    "Zheng"
+   ],
+   "abstract": "The widespread use of positioning devices has given rise to many trajectories, with each having three explicit attributes: <italic xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">user ID</i> , <italic xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">location ID</i> , and <italic xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">time-stamp</i> and an implicit attribute: <italic xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">activity type</i> (akin to \u201ctopic\u201d in text mining). To model these trajectories, existing works learn different attribute representations by either introducing latent activity types based on topic models or transforming the location and time context into a low-dimensional space via embedding techniques. In this paper, we propose a holistic approach named Human Mobility Representation Model (HMRM) to simultaneously produce the vector representations of all four (explicit and implicit) attributes. The merits of HMRM lie in that: (1) it models the latent activity types and learns trajectory attribute embeddings in an integrated manner, and (2) it connects the activity-related distributions and these attributes embeddings by adding a newly designed collaborative learning component, and makes them mutually exchanged to take the best of both worlds. We apply HMRM to both unsupervised and supervised t"
+  }
+ ],
+ "du2019beyond": [
+  "crossref",
+  {
+   "title": "Beyond Geo-First Law: Learning Spatial Representations via Integrated Autocorrelations and Complementarity",
+   "container": "2019 IEEE International Conference on Data Mining (ICDM)",
+   "year": 2019,
+   "authors": [
+    "Du",
+    "Zhang",
+    "Wang",
+    "Leopold",
+    "Fu"
+   ],
+   "abstract": "Spatial representation learning (SRL) is to automatically learn feature representations that characterize spatial entities. In this paper, we study the problem of improving spatial representation learning using spatial structure knowledge. We consider two types of structure knowledge: (1) spatial autocorrelations refer to the pattern that similar spatial entities are more likely to share similar roles and configurations. (2) spatial complementarity refers to the effect that the role of a spatial entity can be complemented and augmented by other different yet compatible spatial entities. Along this line, we develop a step-by-step SRL framework to integrate spatial autocorrelations and complementarity. This framework includes four testable steps. First, we construct multi-view POI-POI(Point of Interest) graphs to characterize the static and dynamic patterns of each spatial region. We then use the graphs as inputs to train an adversarial autoencoder (AAE) that can preserve the spatial autocorrelation property and learn representations of spatial entities. Later, with the learned representations extracted from AAE inputs, a Graph Convolutional Network (GCN) is trained in an unsupervised fashion in order to overcome label sparsity and capture the spatial complementarity effect. In this way, we significantly improve the quality of spatial representations. In addition, we apply the proposed method to characterize residential communities for predicting real estate prices. Finally, we"
+  }
+ ],
+ "feng2017poi2vec": [
+  "crossref",
+  {
+   "title": "POI2Vec: Geographical Latent Representation for Predicting Future Visitors",
+   "container": "Proceedings of the AAAI Conference on Artificial Intelligence",
+   "year": 2017,
+   "authors": [
+    "Feng",
+    "Cong",
+    "An",
+    "Chee"
+   ],
+   "abstract": " \n      \n        With the increasing popularity of location-aware social media applications, Point-of-Interest (POI) recommendation has recently been extensively studied. However, most of the existing studies explore from the users' perspective, namely recommending POIs for users. In contrast, we consider a new research problem of predicting users who will visit a given POI in a given future period. The challenge of the problem lies in the difficulty to effectively learn POI sequential transition and user preference, and integrate them for prediction. In this work, we propose a new latent representation model POI2Vec that is able to incorporate the geographical influence, which has been shown to be very important in modeling user mobility behavior. Note that existing representation models fail to incorporate the geographical influence. We further propose a method to jointly model the user preference and POI sequential transition influence for predicting potential visitors for a given POI. We conduct experiments on 2 real-world datasets to demonstrate the superiority of our proposed approach over the state-of-the-art algorithms for both next POI prediction and future user prediction.\n      \n     "
+  }
+ ],
+ "gambs2012mmc": [
+  "crossref",
+  {
+   "title": "Next place prediction using mobility Markov chains",
+   "container": "Proceedings of the First Workshop on Measurement, Privacy, and Mobility",
+   "year": 2012,
+   "authors": [
+    "Gambs",
+    "Killijian",
+    "del Prado Cortez"
+   ],
+   "abstract": "In this paper, we address the issue of predicting the next location of an individual based on the observations of his mobility behavior over some period of time and the recent locations that he has visited. This work has several potential applications such as the evaluation of geo-privacy mechanisms, the development of location-based services anticipating the next movement of a user and the design of location-aware proactive resource migration. In a nutshell, we extend a mobility model called Mobility Markov Chain (MMC) in order to incorporate the n previous visited locations and we develop a novel algorithm for next location prediction based on this mobility model that we coined as n-MMC. The evaluation of the efficiency of our algorithm on three different datasets demonstrates an accuracy for the prediction of the next location in the range of 70% to 95% as soon as n = 2."
+  }
+ ],
+ "grover2016node2vec": [
+  "crossref",
+  {
+   "title": "node2vec",
+   "container": "Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining",
+   "year": 2016,
+   "authors": [
+    "Grover",
+    "Leskovec"
+   ],
+   "abstract": "Prediction tasks over nodes and edges in networks require careful effort in engineering features used by learning algorithms. Recent research in the broader field of representation learning has led to significant progress in automating prediction by learning the features themselves. However, present feature learning approaches are not expressive enough to capture the diversity of connectivity patterns observed in networks. Here we propose node2vec, an algorithmic framework for learning continuous feature representations for nodes in networks. In node2vec, we learn a mapping of nodes to a low-dimensional space of features that maximizes the likelihood of preserving network neighborhoods of nodes. We define a flexible notion of a node's network neighborhood and design a biased random walk procedure, which efficiently explores diverse neighborhoods. Our algorithm generalizes prior work which is based on rigid notions of network neighborhoods, and we argue that the added flexibility in exploring neighborhoods is the key to learning richer representations."
+  }
+ ],
+ "hamilton2017graphsage": [
+  "arxiv",
+  {
+   "title": "Inductive Representation Learning on Large Graphs",
+   "abstract": "Low-dimensional embeddings of nodes in large graphs have proved extremely useful in a variety of prediction tasks, from content recommendation to identifying protein functions. However, most existing approaches require that all nodes in the graph are present during training of the embeddings; these previous approaches are inherently transductive and do not naturally generalize to unseen nodes. Here we present GraphSAGE, a general, inductive framework that leverages node feature information (e.g., text attributes) to efficiently generate node embeddings for previously unseen data. Instead of training individual embeddings for each node, we learn a function that generates embeddings by sampling and aggregating features from a node's local neighborhood. Our algorithm outperforms strong baselines on three inductive node-classification benchmarks: we classify the category of unseen nodes in evolving information graphs based on citation and Reddit post data, and we show that our algorithm generalizes to completely unseen graphs using a multi-graph dataset of protein-protein interactions."
+  }
+ ],
+ "hazimeh2021dselectk": [
+  "arxiv",
+  {
+   "title": "DSelect-k: Differentiable Selection in the Mixture of Experts with Applications to Multi-Task Learning",
+   "abstract": "The Mixture-of-Experts (MoE) architecture is showing promising results in improving parameter sharing in multi-task learning (MTL) and in scaling high-capacity neural networks. State-of-the-art MoE models use a trainable sparse gate to select a subset of the experts for each input example. While conceptually appealing, existing sparse gates, such as Top-k, are not smooth. The lack of smoothness can lead to convergence and statistical performance issues when training with gradient-based methods. In this paper, we develop DSelect-k: a continuously differentiable and sparse gate for MoE, based on a novel binary encoding formulation. The gate can be trained using first-order methods, such as stochastic gradient descent, and offers explicit control over the number of experts to select. We demonstrate the effectiveness of DSelect-k on both synthetic and real MTL datasets with up to $128$ tasks. Our experiments indicate that DSelect-k can achieve statistically significant improvements in prediction and expert selection over popular MoE gates. Notably, on a real-world, large-scale recommender system, DSelect-k achieves over $22\\%$ improvement in predictive performance compared to Top-k. We provide an open-source implementation of DSelect-k."
+  }
+ ],
+ "hjelm2019dim": [
+  "arxiv",
+  {
+   "title": "Learning deep representations by mutual information estimation and maximization",
+   "abstract": "In this work, we perform unsupervised learning of representations by maximizing mutual information between an input and the output of a deep neural network encoder. Importantly, we show that structure matters: incorporating knowledge about locality of the input to the objective can greatly influence a representation's suitability for downstream tasks. We further control characteristics of the representation by matching to a prior distribution adversarially. Our method, which we call Deep InfoMax (DIM), outperforms a number of popular unsupervised learning methods and competes with fully-supervised learning on several classification tasks. DIM opens new avenues for unsupervised learning of representations and is an important step towards flexible formulations of representation-learning objectives for specific end-goals."
+  }
+ ],
+ "huang2022estimating": [
+  "crossref",
+  {
+   "title": "Estimating urban functional distributions with semantics preserved POI embedding",
+   "container": "International Journal of Geographical Information Science",
+   "year": 2022,
+   "authors": [
+    "Huang",
+    "Cui",
+    "Chen",
+    "Zhang",
+    "Yao"
+   ],
+   "abstract": "We present a novel approach for estimating the proportional distributions of function types (i.e. functional distributions) in an urban area through learning semantics preserved embeddings of points-of-interest (POIs). Specifically, we represent POIs as low-dimensional vectors to capture (1) the spatial co-occurrence patterns of POIs and (2) the semantics conveyed by the POI hierarchical categories (i.e. categorical semantics). The proposed approach utilizes spatially explicit random walks in a POI network to learn spatial co-occurrence patterns, and a manifold learning algorithm to capture categorical semantics. The learned POI vector embeddings are then aggregated to generate regional embeddings with long short-term memory (LSTM) and attention mechanisms, to take account of the different levels of importance among the POIs in a region. Finally, a multilayer perceptron (MLP) maps regional embeddings to functional distributions. A case study in Xiamen Island, China implements and evaluates the proposed approach. The results indicate that our approach outperforms several competitive baseline models in all evaluation measures, and yields a relatively high consistency between the estimation and ground truth. In addition, a comprehensive error analysis unveils several intrinsic limitations of POI data for this task, e.g. ambiguous linkage between POIs and functions."
+  }
+ ],
+ "huang2023hgi": [
+  "crossref",
+  {
+   "title": "Learning urban region representations with POIs and hierarchical graph infomax",
+   "container": "ISPRS Journal of Photogrammetry and Remote Sensing",
+   "year": 2023,
+   "authors": [
+    "Huang",
+    "Zhang",
+    "Mai",
+    "Guo",
+    "Cui"
+   ],
+   "abstract": ""
+  }
+ ],
+ "jure2014snap": [
+  "web",
+  {
+   "title": "SNAP Datasets: Stanford Large Network Dataset Collection",
+   "note": "dataset website; snap.stanford.edu not fetched (allowlist); @misc URL entry"
+  }
+ ],
+ "kazemi2019time2vec": [
+  "arxiv",
+  {
+   "title": "Time2Vec: Learning a Vector Representation of Time",
+   "abstract": "Time is an important feature in many applications involving events that occur synchronously and/or asynchronously. To effectively consume time information, recent studies have focused on designing new architectures. In this paper, we take an orthogonal but complementary approach by providing a model-agnostic vector representation for time, called Time2Vec, that can be easily imported into many existing and future architectures and improve their performances. We show on a range of models and problems that replacing the notion of time with its Time2Vec representation improves the performance of the final model."
+  }
+ ],
+ "kendall2018uncertainty": [
+  "crossref",
+  {
+   "title": "Multi-task Learning Using Uncertainty to Weigh Losses for Scene Geometry and Semantics",
+   "container": "2018 IEEE/CVF Conference on Computer Vision and Pattern Recognition",
+   "year": 2018,
+   "authors": [
+    "Cipolla",
+    "Gal",
+    "Kendall"
+   ],
+   "abstract": "Numerous deep learning applications benefit from multitask learning with multiple regression and classification objectives. In this paper we make the observation that the performance of such systems is strongly dependent on the relative weighting between each task's loss. Tuning these weights by hand is a difficult and expensive process, making multi-task learning prohibitive in practice. We propose a principled approach to multi-task deep learning which weighs multiple loss functions by considering the homoscedastic uncertainty of each task. This allows us to simultaneously learn various quantities with different units or scales in both classification and regression settings. We demonstrate our model learning per-pixel depth regression, semantic and instance segmentation from a monocular input image. Perhaps surprisingly, we show our model can learn multi-task weightings and outperform separate models trained individually on each task."
+  }
+ ],
+ "kipf2017gcn": [
+  "arxiv",
+  {
+   "title": "Semi-Supervised Classification with Graph Convolutional Networks",
+   "abstract": "We present a scalable approach for semi-supervised learning on graph-structured data that is based on an efficient variant of convolutional neural networks which operate directly on graphs. We motivate the choice of our convolutional architecture via a localized first-order approximation of spectral graph convolutions. Our model scales linearly in the number of graph edges and learns hidden layer representations that encode both local graph structure and features of nodes. In a number of experiments on citation networks and on a knowledge graph dataset we demonstrate that our approach outperforms related methods by a significant margin."
+  }
+ ],
+ "kohavi1995crossval": [
+  "openalex",
+  {
+   "title": "A Study of Cross-Validation and Bootstrap for Accuracy Estimation and Model Selection",
+   "venue": null,
+   "year": 1995,
+   "authors": [
+    "Ron Kohavi"
+   ],
+   "abstract": "We review accuracy estimation methods and compare the two most common methods: crossvalidation and bootstrap. Recent experimental results on arti cial data and theoretical results in restricted settings have shown that for selecting a good classi er from a set of classiers (model selection), ten-fold cross-validation may be better than the more expensive leaveone-out cross-validation. We report on a largescale experiment| over half a million runs of C4. 5 and a Naive-Bayes algorithm| to estimate the e ects of di erent parameters on these algorithms on real-world datasets. For crossvalidation, we vary the number of folds and whether the folds are strati ed or not; for bootstrap, we vary the number of bootstrap samples. Our results indicate that for real-word datasets similar to ours, the best method to use for model selection is ten-fold strati ed cross validation, even if computation power allows using more folds."
+  }
+ ],
+ "kokkinos2016ubernet": [
+  "arxiv",
+  {
+   "title": "UberNet: Training a `Universal' Convolutional Neural Network for Low-, Mid-, and High-Level Vision using Diverse Datasets and Limited Memory",
+   "abstract": "In this work we introduce a convolutional neural network (CNN) that jointly handles low-, mid-, and high-level vision tasks in a unified architecture that is trained end-to-end. Such a universal network can act like a `swiss knife' for vision tasks; we call this architecture an UberNet to indicate its overarching nature. We address two main technical challenges that emerge when broadening up the range of tasks handled by a single CNN: (i) training a deep architecture while relying on diverse training sets and (ii) training many (potentially unlimited) tasks with a limited memory budget. Properly addressing these two problems allows us to train accurate predictors for a host of tasks, without compromising accuracy. Through these advances we train in an end-to-end manner a CNN that simultaneously addresses (a) boundary detection (b) normal estimation (c) saliency estimation (d) semantic segmentation (e) human part segmentation (f) semantic boundary detection, (g) region proposal generation and object detection. We obtain competitive performance while jointly addressing all of these tasks in 0.7 seconds per frame on a single GPU. A demonstration of this system can be found at http://cvn.ecp.fr/ubernet/."
+  }
+ ],
+ "kong2018hstlstm": [
+  "doi",
+  {
+   "title": "HST-LSTM: A Hierarchical Spatial-Temporal Long-Short Term Memory Network for Location Prediction",
+   "container": "Proceedings of the Twenty-Seventh International Joint Conference on Artificial Intelligence",
+   "year": 2018,
+   "authors": [
+    "Kong",
+    "Wu"
+   ],
+   "abstract": " The widely use of positioning technology has made mining the movements of people feasible and plenty of trajectory data have been accumulated. How to efficiently leverage these data for location prediction has become an increasingly popular research topic as it is fundamental to location-based services (LBS). The existing methods often focus either on long time (days or months) visit prediction (i.e., the recommendation of point of interest) or on real time location prediction (i.e., trajectory prediction). In this paper, we are interested in the location prediction problem in a weak real time condition and aim to predict users' movement in next minutes or hours. We propose a Spatial-Temporal Long-Short Term Memory (ST-LSTM) model which naturally combines spatial-temporal influence into LSTM to mitigate the problem of data sparsity. Further, we employ a hierarchical extension of the proposed ST-LSTM (HST-LSTM) in an encoder-decoder manner which models the contextual historic visit information in order to boost the prediction performance. The proposed HST-LSTM is evaluated on a real world trajectory data set and the experimental results demonstrate the effectiveness of the proposed model. "
+  }
+ ],
+ "lakens2017tost": [
+  "crossref",
+  {
+   "title": "Equivalence Tests",
+   "container": "Social Psychological and Personality Science",
+   "year": 2017,
+   "authors": [
+    "Lakens"
+   ],
+   "abstract": " Scientists should be able to provide support for the absence of a meaningful effect. Currently, researchers often incorrectly conclude an effect is absent based a nonsignificant result. A widely recommended approach within a frequentist framework is to test for equivalence. In equivalence tests, such as the two one-sided tests (TOST) procedure discussed in this article, an upper and lower equivalence bound is specified based on the smallest effect size of interest. The TOST procedure can be used to statistically reject the presence of effects large enough to be considered worthwhile. This practical primer with accompanying spreadsheet and R package enables psychologists to easily perform equivalence tests (and power analyses) by setting equivalence bounds based on standardized effect sizes and provides recommendations to prespecify equivalence bounds. Extending your statistical tool kit with equivalence tests is an easy way to improve your statistical and theoretical inferences. "
+  }
+ ],
+ "lian2020geosan": [
+  "crossref",
+  {
+   "title": "Geography-Aware Sequential Location Recommendation",
+   "container": "Proceedings of the 26th ACM SIGKDD International Conference on Knowledge Discovery &amp; Data Mining",
+   "year": 2020,
+   "authors": [
+    "Lian",
+    "Wu",
+    "Ge",
+    "Xie",
+    "Chen"
+   ],
+   "abstract": "Sequential location recommendation plays an important role in many applications such as mobility prediction, route planning and location-based advertisements. In spite of evolving from tensor factorization to RNN-based neural networks, existing methods did not make effective use of geographical information and suffered from the sparsity issue. To this end, we propose a Geography-aware sequential recommender based on the Self-Attention Network (GeoSAN for short) for location recommendation. On the one hand, we propose a new loss function based on importance sampling for optimization, to address the sparsity issue by emphasizing the use of informative negative samples. On the other hand, to make better use of geographical information, GeoSAN represents the hierarchical gridding of each GPS point with a self-attention based geography encoder. Moreover, we put forward geography-aware negative samplers to promote the informativeness of negative samples. We evaluate the proposed algorithm with three real-world LBSN datasets, and show that GeoSAN outperforms the state-of-the-art sequential location recommenders by 34.9%. The experimental results further verify significant effectiveness of the new loss function, geography encoder, and geography-aware negative samplers."
+  }
+ ],
+ "lin2021ctle": [
+  "crossref",
+  {
+   "title": "Pre-training Context and Time Aware Location Embeddings from Spatial-Temporal Trajectories for User Next Location Prediction",
+   "container": "Proceedings of the AAAI Conference on Artificial Intelligence",
+   "year": 2021,
+   "authors": [
+    "Lin",
+    "Wan",
+    "Guo",
+    "Lin"
+   ],
+   "abstract": " Pre-training location embeddings from spatial-temporal trajectories is a fundamental procedure and very beneficial for user next location prediction. In the real world, a location usually has variable functionalities under different contextual environments. If the exact functions of a location in the trajectory can be reflected in its embedding, the accuracy of user next location prediction should be improved. Yet, existing location embeddings pre-trained on trajectories are mostly based on distributed word representations, which mix a location's various functionalities into one latent representation vector. To address this problem, we propose a Context and Time aware Location Embedding (CTLE) model, which calculates a location's representation vector with consideration of its specific contextual neighbors in trajectories. In this way, the multi-functional properties of locations can be properly tackled. Furthermore, in order to incorporate temporal information in trajectories into location embeddings, we propose a subtle temporal encoding module and a novel pre-training objective, which further improve the quality of location embeddings. We evaluate our proposed model on two real-world mobile user trajectory datasets. The experimental results demonstrate that, compared with the existing embedding methods, our CTLE model can pre-train higher quality location embeddings and significantly improve the performance of downstream user location prediction models. "
+  }
+ ],
+ "lin2022rlw": [
+  "arxiv",
+  {
+   "title": "Reasonable Effectiveness of Random Weighting: A Litmus Test for Multi-Task Learning",
+   "abstract": "Multi-Task Learning (MTL) has achieved success in various fields. However, how to balance different tasks to achieve good performance is a key problem. To achieve the task balancing, there are many works to carefully design dynamical loss/gradient weighting strategies but the basic random experiments are ignored to examine their effectiveness. In this paper, we propose the Random Weighting (RW) methods, including Random Loss Weighting (RLW) and Random Gradient Weighting (RGW), where an MTL model is trained with random loss/gradient weights sampled from a distribution. To show the effectiveness and necessity of RW methods, theoretically we analyze the convergence of RW and reveal that RW has a higher probability to escape local minima, resulting in better generalization ability. Empirically, we extensively evaluate the proposed RW methods to compare with twelve state-of-the-art methods on five image datasets and two multilingual problems from the XTREME benchmark to show RW methods can achieve comparable performance with state-of-the-art baselines. Therefore, we think that the RW methods are important baselines for MTL and should attract more attentions."
+  }
+ ],
+ "lipton2015learning": [
+  "arxiv",
+  {
+   "title": "Learning to Diagnose with LSTM Recurrent Neural Networks",
+   "abstract": "Clinical medical data, especially in the intensive care unit (ICU), consist of multivariate time series of observations. For each patient visit (or episode), sensor data and lab test results are recorded in the patient's Electronic Health Record (EHR). While potentially containing a wealth of insights, the data is difficult to mine effectively, owing to varying length, irregular sampling and missing data. Recurrent Neural Networks (RNNs), particularly those using Long Short-Term Memory (LSTM) hidden units, are powerful and increasingly popular models for learning from sequence data. They effectively model varying length sequences and capture long range dependencies. We present the first study to empirically evaluate the ability of LSTMs to recognize patterns in multivariate time series of clinical measurements. Specifically, we consider multilabel classification of diagnoses, training a model to classify 128 diagnoses given 13 frequently but irregularly sampled clinical measurements. First, we establish the effectiveness of a simple LSTM network for modeling clinical data. Then we demonstrate a straightforward and effective training strategy in which we replicate targets at each sequence step. Trained only on raw time series, our models outperform several strong baselines, including a multilayer perceptron trained on hand-engineered features."
+  }
+ ],
+ "liu2014geographical": [
+  "doi",
+  {
+   "title": "Exploiting Geographical Neighborhood Characteristics for Location Recommendation",
+   "container": "Proceedings of the 23rd ACM International Conference on Conference on Information and Knowledge Management",
+   "year": 2014,
+   "authors": [
+    "Liu",
+    "Wei",
+    "Sun",
+    "Miao"
+   ],
+   "abstract": "Geographical characteristics derived from the historical check-in data have been reported effective in improving location recommendation accuracy. However, previous studies mainly exploit geographical characteristics from a user's perspective, via modeling the geographical distribution of each individual user's check-ins. In this paper, we are interested in exploiting geographical characteristics from a location perspective, by modeling the geographical neighborhood of a location. The neighborhood is modeled at two levels: the instance-level neighborhood defined by a few nearest neighbors of the location, and the region-level neighborhood for the geographical region where the location exists. We propose a novel recommendation approach, namely Instance-Region Neighborhood Matrix Factorization (IRenMF), which exploits two levels of geographical neighborhood characteristics: a) instance-level characteristics, i.e., nearest neighboring locations tend to share more similar user preferences; and b) region-level characteristics, i.e., locations in the same geographical region may share similar user preferences. In IRenMF, the two levels of geographical characteristics are naturally incorporated into the learning of latent features of users and locations, so that IRenMF predicts users' preferences on locations more accurately. Extensive experiments on the real data collected from Gowalla, a popular LBSN, demonstrate the effectiveness and advantages of our approach."
+  }
+ ],
+ "liu2016strnn": [
+  "crossref",
+  {
+   "title": "Predicting the Next Location: A Recurrent Model with Spatial and Temporal Contexts",
+   "container": "Proceedings of the AAAI Conference on Artificial Intelligence",
+   "year": 2016,
+   "authors": [
+    "Liu",
+    "Wu",
+    "Wang",
+    "Tan"
+   ],
+   "abstract": " \n      \n        Spatial and temporal contextual information plays a key role for analyzing user behaviors, and is helpful for predicting where he or she will go next. With the growing ability of collecting information, more and more temporal and spatial contextual information is collected in systems, and the location prediction problem becomes crucial and feasible. Some works have been proposed to address this problem, but they all have their limitations. Factorizing Personalized Markov Chain (FPMC) is constructed based on a strong independence assumption among different factors, which limits its performance. Tensor Factorization (TF) faces the cold start problem in predicting future actions. Recurrent Neural Networks (RNN) model shows promising performance comparing with PFMC and TF, but all these methods have problem in modeling continuous time interval and geographical distance. In this paper, we extend RNN and propose a novel method called Spatial Temporal Recurrent Neural Networks (ST-RNN). ST-RNN can model local temporal and spatial contexts in each layer with time-specific transition matrices for different time intervals and distance-specific transition matrices for different geographical distances. Experimental results show that the proposed ST-RNN model yields significant improvements over the competitive compared methods on two typical datasets, i.e., Global Terrorism Database (GTD) and Gowalla dataset.\n      \n     "
+  }
+ ],
+ "liu2019dwa": [
+  "crossref",
+  {
+   "title": "End-To-End Multi-Task Learning With Attention",
+   "container": "2019 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)",
+   "year": 2019,
+   "authors": [
+    "Liu",
+    "Johns",
+    "Davison"
+   ],
+   "abstract": "We propose a novel multi-task learning architecture, which allows learning of task-specific feature-level attention. Our design, the Multi-Task Attention Network (MTAN), consists of a single shared network containing a global feature pool, together with a soft-attention module for each task. These modules allow for learning of task-specific features from the global features, whilst simultaneously allowing for features to be shared across different tasks. The architecture can be trained end-to-end and can be built upon any feed-forward neural network, is simple to implement, and is parameter efficient. We evaluate our approach on a variety of datasets, across both image-to-image predictions and image classification tasks. We show that our architecture is state-of-the-art in multi-task learning compared to existing methods, and is also less sensitive to various weighting schemes in the multi-task loss function. Code is available at https://github.com/lorenmt/mtan."
+  }
+ ],
+ "liu2021cagrad": [
+  "arxiv",
+  {
+   "title": "Conflict-Averse Gradient Descent for Multi-task Learning",
+   "abstract": "The goal of multi-task learning is to enable more efficient learning than single task learning by sharing model structures for a diverse set of tasks. A standard multi-task learning objective is to minimize the average loss across all tasks. While straightforward, using this objective often results in much worse final performance for each task than learning them independently. A major challenge in optimizing a multi-task model is the conflicting gradients, where gradients of different task objectives are not well aligned so that following the average gradient direction can be detrimental to specific tasks' performance. Previous work has proposed several heuristics to manipulate the task gradients for mitigating this problem. But most of them lack convergence guarantee and/or could converge to any Pareto-stationary point. In this paper, we introduce Conflict-Averse Gradient descent (CAGrad) which minimizes the average loss function, while leveraging the worst local improvement of individual tasks to regularize the algorithm trajectory. CAGrad balances the objectives automatically and still provably converges to a minimum over the average loss. It includes the regular gradient descent (GD) and the multiple gradient descent algorithm (MGDA) in the multi-objective optimization (MOO) literature as special cases. On a series of challenging multi-task supervised learning and reinforcement learning tasks, CAGrad achieves improved performance over prior state-of-the-art multi-objective gradient manipulation methods."
+  }
+ ],
+ "ma2018mmoe": [
+  "crossref",
+  {
+   "title": "Modeling Task Relationships in Multi-task Learning with Multi-gate Mixture-of-Experts",
+   "container": "Proceedings of the 24th ACM SIGKDD International Conference on Knowledge Discovery &amp; Data Mining",
+   "year": 2018,
+   "authors": [
+    "Ma",
+    "Zhao",
+    "Yi",
+    "Chen",
+    "Hong",
+    "Chi"
+   ],
+   "abstract": "Neural-based multi-task learning has been successfully used in many real-world large-scale applications such as recommendation systems. For example, in movie recommendations, beyond providing users movies which they tend to purchase and watch, the system might also optimize for users liking the movies afterwards. With multi-task learning, we aim to build a single model that learns these multiple goals and tasks simultaneously. However, the prediction quality of commonly used multi-task models is often sensitive to the relationships between tasks. It is therefore important to study the modeling tradeo s between task-speci c objectives and inter-task relationships."
+  }
+ ],
+ "mai2020multiscalerepresentationlearningspatial": [
+  "arxiv",
+  {
+   "title": "Multi-Scale Representation Learning for Spatial Feature Distributions using Grid Cells",
+   "abstract": "Unsupervised text encoding models have recently fueled substantial progress in NLP. The key idea is to use neural networks to convert words in texts to vector space representations based on word positions in a sentence and their contexts, which are suitable for end-to-end training of downstream tasks. We see a strikingly similar situation in spatial analysis, which focuses on incorporating both absolute positions and spatial contexts of geographic objects such as POIs into models. A general-purpose representation model for space is valuable for a multitude of tasks. However, no such general model exists to date beyond simply applying discretization or feed-forward nets to coordinates, and little effort has been put into jointly modeling distributions with vastly different characteristics, which commonly emerges from GIS data. Meanwhile, Nobel Prize-winning Neuroscience research shows that grid cells in mammals provide a multi-scale periodic representation that functions as a metric for location encoding and is critical for recognizing places and for path-integration. Therefore, we propose a representation learning model called Space2Vec to encode the absolute positions and spatial relationships of places. We conduct experiments on two real-world geographic data for two different tasks: 1) predicting types of POIs given their positions and context, 2) image classification leveraging their geo-locations. Results show that because of its multi-scale representations, Space2Vec outperforms well-established ML approaches such as RBF kernels, multi-layer feed-forward nets, and tile embedding approaches for location modeling and image classification tasks. Detailed analysis shows that all baselines can at most well handle distribution at one scale but show poor performances in other scales. In contrast, Space2Vec's multi-scale representation can handle distributions at different scales."
+  }
+ ],
+ "mai2023sphere2vecgeneralpurposelocationrepresentation": [
+  "arxiv",
+  {
+   "title": "Sphere2Vec: A General-Purpose Location Representation Learning over a Spherical Surface for Large-Scale Geospatial Predictions",
+   "abstract": "Generating learning-friendly representations for points in space is a fundamental and long-standing problem in ML. Recently, multi-scale encoding schemes (such as Space2Vec and NeRF) were proposed to directly encode any point in 2D/3D Euclidean space as a high-dimensional vector, and has been successfully applied to various geospatial prediction and generative tasks. However, all current 2D and 3D location encoders are designed to model point distances in Euclidean space. So when applied to large-scale real-world GPS coordinate datasets, which require distance metric learning on the spherical surface, both types of models can fail due to the map projection distortion problem (2D) and the spherical-to-Euclidean distance approximation error (3D). To solve these problems, we propose a multi-scale location encoder called Sphere2Vec which can preserve spherical distances when encoding point coordinates on a spherical surface. We developed a unified view of distance-reserving encoding on spheres based on the DFS. We also provide theoretical proof that the Sphere2Vec preserves the spherical surface distance between any two points, while existing encoding schemes do not. Experiments on 20 synthetic datasets show that Sphere2Vec can outperform all baseline models on all these datasets with up to 30.8% error rate reduction. We then apply Sphere2Vec to three geo-aware image classification tasks - fine-grained species recognition, Flickr image recognition, and remote sensing image classification. Results on 7 real-world datasets show the superiority of Sphere2Vec over multiple location encoders on all three tasks. Further analysis shows that Sphere2Vec outperforms other location encoder models, especially in the polar regions and data-sparse areas because of its nature for spherical surface distance preservation. Code and data are available at https://gengchenmai.github.io/sphere2vec-website/."
+  }
+ ],
+ "maninis2019attentive": [
+  "crossref",
+  {
+   "title": "Attentive Single-Tasking of Multiple Tasks",
+   "container": "2019 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)",
+   "year": 2019,
+   "authors": [
+    "Maninis",
+    "Radosavovic",
+    "Kokkinos"
+   ],
+   "abstract": "In this work we address task interference in universal networks by considering that a network is trained on multiple tasks, but performs one task at a time, an approach we refer to as \u201csingle-tasking multiple tasks\u201d. The network thus modifies its behaviour through task-dependent feature adaptation, or task attention. This gives the network the ability to accentuate the features that are adapted to a task, while shunning irrelevant ones. We further reduce task interference by forcing the task gradients to be statistically indistinguishable through adversarial training, ensuring that the common backbone architecture serving all tasks is not dominated by any of the task-specific gradients. Results in three multi-task dense labelling problems consistently show: (i) a large reduction in the number of parameters while preserving, or even improving performance and (ii) a smooth trade-off between computation and multi-task accuracy. We provide our system's code and pre-trained models at https://github. com/facebookresearch/astmt."
+  }
+ ],
+ "mikolov2013word2vec": [
+  "arxiv",
+  {
+   "title": "Efficient Estimation of Word Representations in Vector Space",
+   "abstract": "We propose two novel model architectures for computing continuous vector representations of words from very large data sets. The quality of these representations is measured in a word similarity task, and the results are compared to the previously best performing techniques based on different types of neural networks. We observe large improvements in accuracy at much lower computational cost, i.e. it takes less than a day to learn high quality word vectors from a 1.6 billion words data set. Furthermore, we show that these vectors provide state-of-the-art performance on our test set for measuring syntactic and semantic word similarities."
+  }
+ ],
+ "misra2016cross": [
+  "crossref",
+  {
+   "title": "Cross-Stitch Networks for Multi-task Learning",
+   "container": "2016 IEEE Conference on Computer Vision and Pattern Recognition (CVPR)",
+   "year": 2016,
+   "authors": [
+    "Misra",
+    "Shrivastava",
+    "Gupta",
+    "Hebert"
+   ],
+   "abstract": "Multi-task learning in Convolutional Networks has displayed remarkable success in the field of recognition. This success can be largely attributed to learning shared representations from multiple supervisory tasks. However, existing multi-task approaches rely on enumerating multiple network architectures specific to the tasks at hand, that do not generalize. In this paper, we propose a principled approach to learn shared representations in ConvNets using multitask learning. Specifically, we propose a new sharing unit: \"cross-stitch\" unit. These units combine the activations from multiple networks and can be trained end-to-end. A network with cross-stitch units can learn an optimal combination of shared and task-specific representations. Our proposed method generalizes across multiple tasks and shows dramatically improved performance over baseline methods for categories with few training examples."
+  }
+ ],
+ "paiva2026stmtlnet": [
+  "crossref",
+  {
+   "title": "ST-MTLNet: Representa\u00e7\u00f5es Espa\u00e7o-Temporais de Pontos de Interesse para Aprendizado Multitarefa",
+   "container": "Anais do X Workshop de Computa\u00e7\u00e3o Urbana (CoUrb 2026)",
+   "year": 2026,
+   "authors": [
+    "Paiva",
+    "Silva",
+    "Santos",
+    "Silva"
+   ],
+   "abstract": " Este trabalho prop\u00f5e o ST-MTLNet, uma arquitetura multitarefa para classifica\u00e7\u00e3o de categoria de POI e predi\u00e7\u00e3o do pr\u00f3ximo POI baseada em representa\u00e7\u00f5es desacopladas. O modelo combina uma representa\u00e7\u00e3o espacial cont\u00ednua para coordenadas geogr\u00e1ficas, uma representa\u00e7\u00e3o temporal (Time2Vec) para padr\u00f5es de visita\u00e7\u00e3o e uma representa\u00e7\u00e3o categ\u00f3rica hier\u00e1rquica (HGI) para contexto estrutural e regional dos POIs. Duas arquiteturas de codifica\u00e7\u00e3o espacial, SIREN e Sphere2Vec-M, originalmente propostas para sensoriamento remoto e ecologia, s\u00e3o avaliadas no contexto de tarefas multitarefa de POIs em LBSNs. Experimentos com o dataset Gowalla nos estados da Fl\u00f3rida, Calif\u00f3rnia e Texas demonstram que a abordagem proposta supera o baseline em todas as 21 combina\u00e7\u00f5es de categoria e estado para classifica\u00e7\u00e3o, com ganhos m\u00e9dios de 20 a 24 pontos percentuais, e em 76% das combina\u00e7\u00f5es para predi\u00e7\u00e3o do pr\u00f3ximo POI. A compara\u00e7\u00e3o entre as arquiteturas espaciais revela ainda perfis complementares de desempenho associados \u00e0 distribui\u00e7\u00e3o geogr\u00e1fica dos POIs em cada territ\u00f3rio. "
+  }
+ ],
+ "pedregosa2011sklearn": [
+  "openalex",
+  {
+   "title": "Scikit-learn: Machine Learning in Python",
+   "venue": "Journal of Machine Learning Research",
+   "year": 2011,
+   "authors": [
+    "PedregosaFabian",
+    "VaroquauxGa\u00ebl",
+    "GramfortAlexandre",
+    "MichelVincent",
+    "ThirionBertrand",
+    "GriselOlivier",
+    "BlondelMathieu",
+    "PrettenhoferPeter"
+   ],
+   "abstract": "Scikit-learn is a Python module integrating a wide range of state-of-the-art machine learning algorithms for medium-scale supervised and unsupervised problems. This package focuses on bringing mach..."
+  }
+ ],
+ "perez2018film": [
+  "crossref",
+  {
+   "title": "FiLM: Visual Reasoning with a General Conditioning Layer",
+   "container": "Proceedings of the AAAI Conference on Artificial Intelligence",
+   "year": 2018,
+   "authors": [
+    "Perez",
+    "Strub",
+    "De Vries",
+    "Dumoulin",
+    "Courville"
+   ],
+   "abstract": " \n      \n        We introduce a general-purpose conditioning method for neural networks called FiLM: Feature-wise Linear Modulation. FiLM layers influence neural network computation via a simple, feature-wise affine transformation based on conditioning information. We show that FiLM layers are highly effective for visual reasoning - answering image-related questions which require a multi-step, high-level process - a task which has proven difficult for standard deep learning methods that do not explicitly model reasoning. Specifically, we show on visual reasoning tasks that FiLM layers 1) halve state-of-the-art error for the CLEVR benchmark, 2) modulate features in a coherent manner, 3) are robust to ablations and architectural modifications, and 4) generalize well to challenging, new data from few examples or even zero-shot.\n      \n     "
+  }
+ ],
+ "perozzi2014deepwalk": [
+  "crossref",
+  {
+   "title": "DeepWalk",
+   "container": "Proceedings of the 20th ACM SIGKDD international conference on Knowledge discovery and data mining",
+   "year": 2014,
+   "authors": [
+    "Perozzi",
+    "Al-Rfou",
+    "Skiena"
+   ],
+   "abstract": "We present DeepWalk, a novel approach for learning latent representations of vertices in a network. These latent representations encode social relations in a continuous vector space, which is easily exploited by statistical models. DeepWalk generalizes recent advancements in language modeling and unsupervised feature learning (or deep learning) from sequences of words to graphs."
+  }
+ ],
+ "rahmani2019category": [
+  "crossref",
+  {
+   "title": "Category-Aware Location Embedding for Point-of-Interest Recommendation",
+   "container": "Proceedings of the 2019 ACM SIGIR International Conference on Theory of Information Retrieval",
+   "year": 2019,
+   "authors": [
+    "Rahmani",
+    "Aliannejadi",
+    "Mirzaei Zadeh",
+    "Baratchi",
+    "Afsharchi",
+    "Crestani"
+   ],
+   "abstract": "Recently, Point of interest (POI) recommendation has gained ever-increasing importance in various Location-Based Social Networks (LBSNs). With the recent advances of neural models, much work has sought to leverage neural networks to learn neural embeddings in a pre-training phase that achieve an improved representation of POIs and consequently a better recommendation. However, previous studies fail to capture crucial information about POIs such as categorical information."
+  }
+ ],
+ "ruder2017mtloverview": [
+  "arxiv",
+  {
+   "title": "An Overview of Multi-Task Learning in Deep Neural Networks",
+   "abstract": "Multi-task learning (MTL) has led to successes in many applications of machine learning, from natural language processing and speech recognition to computer vision and drug discovery. This article aims to give a general overview of MTL, particularly in deep neural networks. It introduces the two most common methods for MTL in Deep Learning, gives an overview of the literature, and discusses recent advances. In particular, it seeks to help ML practitioners apply MTL by shedding light on how MTL works and providing guidelines for choosing appropriate auxiliary tasks."
+  }
+ ],
+ "ruder2017sluice": [
+  "arxiv",
+  {
+   "title": "Latent Multi-task Architecture Learning",
+   "abstract": "Multi-task learning (MTL) allows deep neural networks to learn from related tasks by sharing parameters with other networks. In practice, however, MTL involves searching an enormous space of possible parameter sharing architectures to find (a) the layers or subspaces that benefit from sharing, (b) the appropriate amount of sharing, and (c) the appropriate relative weights of the different task losses. Recent work has addressed each of the above problems in isolation. In this work we present an approach that learns a latent multi-task architecture that jointly addresses (a)--(c). We present experiments on synthetic data and data from OntoNotes 5.0, including four different tasks and seven different domains. Our extension consistently outperforms previous approaches to learning latent architectures for multi-task problems and achieves up to 15% average error reductions over common approaches to MTL."
+  }
+ ],
+ "ru\u00dfwurm2024geographiclocationencodingspherical": [
+  "arxiv",
+  {
+   "title": "Geographic Location Encoding with Spherical Harmonics and Sinusoidal Representation Networks",
+   "abstract": "Learning representations of geographical space is vital for any machine learning model that integrates geolocated data, spanning application domains such as remote sensing, ecology, or epidemiology. Recent work embeds coordinates using sine and cosine projections based on Double Fourier Sphere (DFS) features. These embeddings assume a rectangular data domain even on global data, which can lead to artifacts, especially at the poles. At the same time, little attention has been paid to the exact design of the neural network architectures with which these functional embeddings are combined. This work proposes a novel location encoder for globally distributed geographic data that combines spherical harmonic basis functions, natively defined on spherical surfaces, with sinusoidal representation networks (SirenNets) that can be interpreted as learned Double Fourier Sphere embedding. We systematically evaluate positional embeddings and neural network architectures across various benchmarks and synthetic evaluation datasets. In contrast to previous approaches that require the combination of both positional encoding and neural networks to learn meaningful representations, we show that both spherical harmonics and sinusoidal representation networks are competitive on their own but set state-of-the-art performances across tasks when combined. The model code and experiments are available at https://github.com/marccoru/locationencoder."
+  }
+ ],
+ "sener2018mgda": [
+  "arxiv",
+  {
+   "title": "Multi-Task Learning as Multi-Objective Optimization",
+   "abstract": "In multi-task learning, multiple tasks are solved jointly, sharing inductive bias between them. Multi-task learning is inherently a multi-objective problem because different tasks may conflict, necessitating a trade-off. A common compromise is to optimize a proxy objective that minimizes a weighted linear combination of per-task losses. However, this workaround is only valid when the tasks do not compete, which is rarely the case. In this paper, we explicitly cast multi-task learning as multi-objective optimization, with the overall objective of finding a Pareto optimal solution. To this end, we use algorithms developed in the gradient-based multi-objective optimization literature. These algorithms are not directly applicable to large-scale learning problems since they scale poorly with the dimensionality of the gradients and the number of tasks. We therefore propose an upper bound for the multi-objective loss and show that it can be optimized efficiently. We further prove that optimizing this upper bound yields a Pareto optimal solution under realistic assumptions. We apply our method to a variety of multi-task deep learning problems including digit classification, scene understanding (joint semantic segmentation, instance segmentation, and depth estimation), and multi-label classification. Our method produces higher-performing models than recent multi-task learning formulations or per-task training."
+  }
+ ],
+ "senushkin2023aligned": [
+  "doi",
+  {
+   "title": "Independent Component Alignment for Multi-Task Learning",
+   "container": "2023 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)",
+   "year": 2023,
+   "authors": [
+    "Senushkin",
+    "Patakin",
+    "Kuznetsov",
+    "Konushin"
+   ],
+   "abstract": "In a multi-task learning (MTL) setting, a single model is trained to tackle a diverse set of tasks Jointly. Despite rapid progress in the field, MTL remains challenging due to optimization issues such as conflicting and dominating gradients. In this work, we propose using a condition number of a linear system of gradients as a stability criterion of an MTL optimization. We theoretically demonstrate that a condition number reflects the afore-mentioned optimization issues. Accordingly, we present Aligned-MTL, a novel MTL optimization approach based on the proposed criterion, that eliminates instability in the training process by aligning the orthogonal components of the linear system of gradients. While many recent MTL approaches guaran-tee convergence to a minimum, task trade-offs cannot be specified in advance. In contrast, Aligned-MTL provably converges to an optimal point with pre-defined task-specific weights, which provides more control over the optimization result. Through experiments, we show that the proposed approach consistently improves performance on a diverse set of MTL benchmarks, including semantic and instance segmentation, depth estimation, surface normal estimation, and reinforcement learning. The source code is publicly available at https://github.com/SamsungLabs/MTL."
+  }
+ ],
+ "sitzmann2020implicit": [
+  "arxiv",
+  {
+   "title": "Implicit Neural Representations with Periodic Activation Functions",
+   "abstract": "Implicitly defined, continuous, differentiable signal representations parameterized by neural networks have emerged as a powerful paradigm, offering many possible benefits over conventional representations. However, current network architectures for such implicit neural representations are incapable of modeling signals with fine detail, and fail to represent a signal's spatial and temporal derivatives, despite the fact that these are essential to many physical signals defined implicitly as the solution to partial differential equations. We propose to leverage periodic activation functions for implicit neural representations and demonstrate that these networks, dubbed sinusoidal representation networks or Sirens, are ideally suited for representing complex natural signals and their derivatives. We analyze Siren activation statistics to propose a principled initialization scheme and demonstrate the representation of images, wavefields, video, sound, and their derivatives. Further, we show how Sirens can be leveraged to solve challenging boundary value problems, such as particular Eikonal equations (yielding signed distance functions), the Poisson equation, and the Helmholtz and wave equations. Lastly, we combine Sirens with hypernetworks to learn priors over the space of Siren functions."
+  }
+ ],
+ "sokolova2009measures": [
+  "crossref",
+  {
+   "title": "A systematic analysis of performance measures for classification tasks",
+   "container": "Information Processing &amp; Management",
+   "year": 2009,
+   "authors": [
+    "Sokolova",
+    "Lapalme"
+   ],
+   "abstract": ""
+  }
+ ],
+ "standley2020tasks": [
+  "arxiv",
+  {
+   "title": "Which Tasks Should Be Learned Together in Multi-task Learning?",
+   "abstract": "Many computer vision applications require solving multiple tasks in real-time. A neural network can be trained to solve multiple tasks simultaneously using multi-task learning. This can save computation at inference time as only a single network needs to be evaluated. Unfortunately, this often leads to inferior overall performance as task objectives can compete, which consequently poses the question: which tasks should and should not be learned together in one network when employing multi-task learning? We study task cooperation and competition in several different learning settings and propose a framework for assigning tasks to a few neural networks such that cooperating tasks are computed by the same neural network, while competing tasks are computed by different networks. Our framework offers a time-accuracy trade-off and can produce better accuracy using less inference time than not only a single large multi-task neural network but also many single-task networks."
+  }
+ ],
+ "sun2020go": [
+  "crossref",
+  {
+   "title": "Where to Go Next: Modeling Long- and Short-Term User Preferences for Point-of-Interest Recommendation",
+   "container": "Proceedings of the AAAI Conference on Artificial Intelligence",
+   "year": 2020,
+   "authors": [
+    "Sun",
+    "Qian",
+    "Chen",
+    "Liang",
+    "Nguyen",
+    "Yin"
+   ],
+   "abstract": " Point-of-Interest (POI) recommendation has been a trending research topic as it generates personalized suggestions on facilities for users from a large number of candidate venues. Since users' check-in records can be viewed as a long sequence, methods based on recurrent neural networks (RNNs) have recently shown promising applicability for this task. However, existing RNN-based methods either neglect users' long-term preferences or overlook the geographical relations among recently visited POIs when modeling users' short-term preferences, thus making the recommendation results unreliable. To address the above limitations, we propose a novel method named Long- and Short-Term Preference Modeling (LSTPM) for next-POI recommendation. In particular, the proposed model consists of a nonlocal network for long-term preference modeling and a geo-dilated RNN for short-term preference learning. Extensive experiments on two real-world datasets demonstrate that our model yields significant improvements over the state-of-the-art methods. "
+  }
+ ],
+ "sun2024transtarec": [
+  "crossref",
+  {
+   "title": "TransTARec: Time-Adaptive Translating Embedding Model for Next POI Recommendation",
+   "container": "2024 5th International Conference on Computer Engineering and Application (ICCEA)",
+   "year": 2024,
+   "authors": [
+    "Sun"
+   ],
+   "abstract": "The rapid growth of location acquisition technologies makes Point-of-Interest (POI) recommendation possible due to redundant user check-in records. In this paper, we focus on next POI recommendation in which next POI is based on previous POI. We observe that time plays an important role in next POI recommendation but is neglected in the recent proposed translating embedding methods. To tackle this shortage, we propose a time-adaptive translating embedding model (TransTARec) for next POI recommendation that naturally incorporates temporal influence, sequential dynamics, and user preference within a single component. Methodologically, we treat a (previous timestamp, user, next timestamp) triplet as a union translation vector and develop a neural-based fusion operation to fuse user preference and temporal influence. The superiority of TransTARec, which is confirmed by extensive experiments on real-world datasets, comes from not only the introduction of temporal influence but also the direct unification with user preference and sequential dynamics."
+  }
+ ],
+ "tang2020ple": [
+  "doi",
+  {
+   "title": "Progressive Layered Extraction (PLE): A Novel Multi-Task Learning (MTL) Model for Personalized Recommendations",
+   "container": "Fourteenth ACM Conference on Recommender Systems",
+   "year": 2020,
+   "authors": [
+    "Tang",
+    "Liu",
+    "Zhao",
+    "Gong"
+   ],
+   "abstract": "Multi-task learning (MTL) has been successfully applied to many recommendation applications. However, MTL models often suffer from performance degeneration with negative transfer due to the complex and competing task correlation in real-world recommender systems. Moreover, through extensive experiments across SOTA MTL models, we have observed an interesting seesaw phenomenon that performance of one task is often improved by hurting the performance of some other tasks. To address these issues, we propose a Progressive Layered Extraction (PLE) model with a novel sharing structure design. PLE separates shared components and task-specific components explicitly and adopts a progressive routing mechanism to extract and separate deeper semantic knowledge gradually, improving efficiency of joint representation learning and information routing across tasks in a general setup. We apply PLE to both complicatedly correlated and normally correlated tasks, ranging from two-task cases to multi-task cases on a real-world Tencent video recommendation dataset with 1 billion samples, and results show that PLE outperforms state-of-the-art MTL models significantly under different task correlations and task-group size. Furthermore, online evaluation of PLE on a large-scale content recommendation platform at Tencent manifests 2.23% increase in view-count and 1.84% increase in watch time compared to SOTA MTL models, which is a significant improvement and demonstrates the effectiveness of PLE. Finall"
+  }
+ ],
+ "vaswani2017attention": [
+  "arxiv",
+  {
+   "title": "Attention Is All You Need",
+   "abstract": "The dominant sequence transduction models are based on complex recurrent or convolutional neural networks in an encoder-decoder configuration. The best performing models also connect the encoder and decoder through an attention mechanism. We propose a new simple network architecture, the Transformer, based solely on attention mechanisms, dispensing with recurrence and convolutions entirely. Experiments on two machine translation tasks show these models to be superior in quality while being more parallelizable and requiring significantly less time to train. Our model achieves 28.4 BLEU on the WMT 2014 English-to-German translation task, improving over the existing best results, including ensembles by over 2 BLEU. On the WMT 2014 English-to-French translation task, our model establishes a new single-model state-of-the-art BLEU score of 41.8 after training for 3.5 days on eight GPUs, a small fraction of the training costs of the best models from the literature. We show that the Transformer generalizes well to other tasks by applying it successfully to English constituency parsing both with large and limited training data."
+  }
+ ],
+ "velivckovic2017graph": [
+  "arxiv",
+  {
+   "title": "Graph Attention Networks",
+   "abstract": "We present graph attention networks (GATs), novel neural network architectures that operate on graph-structured data, leveraging masked self-attentional layers to address the shortcomings of prior methods based on graph convolutions or their approximations. By stacking layers in which nodes are able to attend over their neighborhoods' features, we enable (implicitly) specifying different weights to different nodes in a neighborhood, without requiring any kind of costly matrix operation (such as inversion) or depending on knowing the graph structure upfront. In this way, we address several key challenges of spectral-based graph neural networks simultaneously, and make our model readily applicable to inductive as well as transductive problems. Our GAT models have achieved or matched state-of-the-art results across four established transductive and inductive graph benchmarks: the Cora, Citeseer and Pubmed citation network datasets, as well as a protein-protein interaction dataset (wherein test graphs remain unseen during training)."
+  }
+ ],
+ "wei2022finetuned": [
+  "arxiv",
+  {
+   "title": "Finetuned Language Models Are Zero-Shot Learners",
+   "abstract": "This paper explores a simple method for improving the zero-shot learning abilities of language models. We show that instruction tuning -- finetuning language models on a collection of tasks described via instructions -- substantially improves zero-shot performance on unseen tasks. We take a 137B parameter pretrained language model and instruction-tune it on over 60 NLP tasks verbalized via natural language instruction templates. We evaluate this instruction-tuned model, which we call FLAN, on unseen task types. FLAN substantially improves the performance of its unmodified counterpart and surpasses zero-shot 175B GPT-3 on 20 of 25 tasks that we evaluate. FLAN even outperforms few-shot GPT-3 by a large margin on ANLI, RTE, BoolQ, AI2-ARC, OpenbookQA, and StoryCloze. Ablation studies reveal that number of finetuning datasets, model scale, and natural language instructions are key to the success of instruction tuning."
+  }
+ ],
+ "wilcoxon1945": [
+  "crossref",
+  {
+   "title": "Individual Comparisons by Ranking Methods",
+   "container": "Biometrics Bulletin",
+   "year": 1945,
+   "authors": [
+    "Wilcoxon"
+   ],
+   "abstract": ""
+  }
+ ],
+ "wu2024torchspatial": [
+  "arxiv",
+  {
+   "title": "TorchSpatial: A Location Encoding Framework and Benchmark for Spatial Representation Learning",
+   "abstract": "Spatial representation learning (SRL) aims at learning general-purpose neural network representations from various types of spatial data (e.g., points, polylines, polygons, networks, images, etc.) in their native formats. Learning good spatial representations is a fundamental problem for various downstream applications such as species distribution modeling, weather forecasting, trajectory generation, geographic question answering, etc. Even though SRL has become the foundation of almost all geospatial artificial intelligence (GeoAI) research, we have not yet seen significant efforts to develop an extensive deep learning framework and benchmark to support SRL model development and evaluation. To fill this gap, we propose TorchSpatial, a learning framework and benchmark for location (point) encoding, which is one of the most fundamental data types of spatial representation learning. TorchSpatial contains three key components: 1) a unified location encoding framework that consolidates 15 commonly recognized location encoders, ensuring scalability and reproducibility of the implementations; 2) the LocBench benchmark tasks encompassing 7 geo-aware image classification and 10 geo-aware image regression datasets; 3) a comprehensive suite of evaluation metrics to quantify geo-aware model's overall performance as well as their geographic bias, with a novel Geo-Bias Score metric. Finally, we provide a detailed analysis and insights into the model performance and geographic bias of different location encoders. We believe TorchSpatial will foster future advancement of spatial representation learning and spatial fairness in GeoAI research. The TorchSpatial model framework and LocBench benchmark are available at https://github.com/seai-lab/TorchSpatial, and the Geo-Bias Score evaluation framework is available at https://github.com/seai-lab/PyGBS."
+  }
+ ],
+ "yang2015tsmc": [
+  "crossref",
+  {
+   "title": "Modeling User Activity Preference by Leveraging User Spatial Temporal Characteristics in LBSNs",
+   "container": "IEEE Transactions on Systems, Man, and Cybernetics: Systems",
+   "year": 2015,
+   "authors": [
+    "Dingqi Yang",
+    "Daqing Zhang",
+    "Zheng",
+    "Zhiyong Yu"
+   ],
+   "abstract": "With the recent surge of location based social networks (LBSNs), activity data of millions of users has become attainable. This data contains not only spatial and temporal stamps of user activity, but also its semantic information. LBSNs can help to understand mobile users' spatial temporal activity preference (STAP), which can enable a wide range of ubiquitous applications, such as personalized context-aware location recommendation and group-oriented advertisement. However, modeling such user-specific STAP needs to tackle high-dimensional data, i.e., user-location-time-activity quadruples, which is complicated and usually suffers from a data sparsity problem. In order to address this problem, we propose a STAP model. It first models the spatial and temporal activity preference separately, and then uses a principle way to combine them for preference inference. In order to characterize the impact of spatial features on user activity preference, we propose the notion of personal functional region and related parameters to model and infer user spatial activity preference. In order to model the user temporal activity preference with sparse user activity data in LBSNs, we propose to exploit the temporal activity similarity among different users and apply nonnegative tensor factorization to collaboratively infer temporal activity preference. Finally, we put forward a context-aware fusion framework to combine the spatial and temporal activity preference models for preference inferen"
+  }
+ ],
+ "yu2020catdm": [
+  "crossref",
+  {
+   "title": "A Category-Aware Deep Model for Successive POI Recommendation on Sparse Check-in Data",
+   "container": "Proceedings of The Web Conference 2020",
+   "year": 2020,
+   "authors": [
+    "Yu",
+    "Cui",
+    "Guo",
+    "Lu",
+    "Li",
+    "Lu"
+   ],
+   "abstract": "As considerable amounts of POI check-in data have been accumulated, successive point-of-interest (POI) recommendation is increasingly popular. Existing successive POI recommendation methods only predict where user will go next, ignoring when this behavior will occur. In this work, we focus on predicting POIs that will be visited by users in the next 24 hours. As check-in data is very sparse, it is challenging to accurately capture user preferences in temporal patterns. To this end, we propose a category-aware deep model CatDM that incorporates POI category and geographical influence to reduce search space to overcome data sparsity. We design two deep encoders based on LSTM to model the time series data. The first encoder captures user preferences in POI categories, whereas the second exploits user preferences in POIs. Considering clock influence in the second encoder, we divide each user\u2019s check-in history into several different time windows and develop a personalized attention mechanism for each window to facilitate CatDM to exploit temporal patterns. Moreover, to sort the candidate set, we consider four specific dependencies: user-POI, user-category, POI-time and POI-user current preferences. Extensive experiments are conducted on two large real datasets. The experimental results demonstrate that our CatDM outperforms the state-of-the-art models for successive POI recommendation on sparse check-in data."
+  }
+ ],
+ "yu2024survey": [
+  "arxiv",
+  {
+   "title": "Unleashing the Power of Multi-Task Learning: A Comprehensive Survey Spanning Traditional, Deep, and Pretrained Foundation Model Eras",
+   "abstract": "MTL is a learning paradigm that effectively leverages both task-specific and shared information to address multiple related tasks simultaneously. In contrast to STL, MTL offers a suite of benefits that enhance both the training process and the inference efficiency. MTL's key advantages encompass streamlined model architecture, performance enhancement, and cross-domain generalizability. Over the past twenty years, MTL has become widely recognized as a flexible and effective approach in various fields, including CV, NLP, recommendation systems, disease prognosis and diagnosis, and robotics. This survey provides a comprehensive overview of the evolution of MTL, encompassing the technical aspects of cutting-edge methods from traditional approaches to deep learning and the latest trend of pretrained foundation models. Our survey methodically categorizes MTL techniques into five key areas: regularization, relationship learning, feature propagation, optimization, and pre-training. This categorization not only chronologically outlines the development of MTL but also dives into various specialized strategies within each category. Furthermore, the survey reveals how the MTL evolves from handling a fixed set of tasks to embracing a more flexible approach free from task or modality constraints. It explores the concepts of task-promptable and -agnostic training, along with the capacity for ZSL, which unleashes the untapped potential of this historically coveted learning paradigm. Overall, we hope this survey provides the research community with a comprehensive overview of the advancements in MTL from its inception in 1997 to the present in 2023. We address present challenges and look ahead to future possibilities, shedding light on the opportunities and potential avenues for MTL research in a broad manner. This project is publicly available at https://github.com/junfish/Awesome-Multitask-Learning."
+  }
+ ],
+ "zhang2021survey": [
+  "doi",
+  {
+   "title": "A Survey on Multi-Task Learning",
+   "container": "IEEE Transactions on Knowledge and Data Engineering",
+   "year": 2022,
+   "authors": [
+    "Zhang",
+    "Yang"
+   ],
+   "abstract": "Multi-Task Learning (MTL) is a learning paradigm in machine learning and its aim is to leverage useful information contained in multiple related tasks to help improve the generalization performance of all the tasks. In this paper, we give a survey for MTL from the perspective of algorithmic modeling, applications and theoretical analyses. For algorithmic modeling, we give a definition of MTL and then classify different MTL algorithms into five categories, including feature learning approach, low-rank approach, task clustering approach, task relation learning approach and decomposition approach as well as discussing the characteristics of each approach. In order to improve the performance of learning tasks further, MTL can be combined with other learning paradigms including semi-supervised learning, active learning, unsupervised learning, reinforcement learning, multi-view learning and graphical models. When the number of tasks is large or the data dimensionality is high, we review online, parallel and distributed MTL models as well as dimensionality reduction and feature hashing to reveal their computational and storage advantages. Many real-world applications use MTL to boost their performance and we review representative works in this paper. Finally, we present theoretical analyses and discuss several future directions for MTL."
+  }
+ ]
+}
