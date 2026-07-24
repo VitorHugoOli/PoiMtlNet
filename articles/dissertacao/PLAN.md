@@ -1,59 +1,83 @@
-# PLAN.md — compressed schedule to the August 2026 defense (rev. 3, 2026-07-24)
+# PLAN.md — schedule to the August 2026 defense (rev. 4, 2026-07-24)
 
-> **Rev. 3 status (2026-07-24, v1 assembled).** The full v1 was assembled under
-> `src/` in a single extended automated build session, not across the planned six drafting days.
-> **It landed ON the Jul 24 v1 deadline, not slipped past it** — the day-by-day below is
-> reconciled to what actually happened (all eight phases ran in one session on Jul 23–24), per
-> this file's own rule (log honestly, never absorb silently).
->
-> **What is GREEN:** skeleton + both build modes (defense 87 pp / final 83 pp, 0 errors, 0
-> undefined refs/cites, lint 0); Chapters 1–6 assembled; single global `references.bib` (99
-> entries, 0 dangling); front/back matter + three appendices; full-document gates (N4 numeral,
-> R3 citation, L3/L4, WRITING_LAW §7, two-build) run and fixed; the **18-persona review suite**
-> run (on `claude-opus-4-8`, see the deviation note) with a consolidated report + fix loop.
->
-> **What is NOT green — author actions before the advisor build (ranked in the handoff note):**
-> (1) the **title** is still a placeholder; (2) the **CBIC dataset counts** are visible
-> `[VERIFY]` placeholders needing the sanctioned Florida recompute; (3) **B.1** (Ch.5 CBIC
-> misattribution) needs the ERRATA-route sign-off; (4) the queued `[NEEDS SIGN-OFF]` items
-> (Resumo/Abstract, AI-disclosure, several claim-scope rewordings). Full list: the handoff note.
->
-> **⚠ ADVISOR MUST BE TOLD (author action, top of the handoff):** the plan assumed six human
-> drafting days (Jul 19–24); the build was instead done by the assistant in one session and
-> lands as a *machine-assembled v1 for the author to read and own*, not a human-drafted one. The
-> reading map + the AI-use disclosure (Appendix C) must accompany the PDF to the advisor, and the
-> model deviation (Opus 4.8 for the review suite, Fable tokens exhausted) is disclosed there.
->
-> **Re-plan backwards from the defense window (unchanged hard wall):** v1 → advisor now
-> (Jul 24); advisor comments Jul 27–31; to banca ≈ Aug 1; Art. 22 ≥20 days → defense from
-> ≈ Aug 21, early-September fallback at zero downstream cost (risk table). The critical path is
-> intact *provided the author clears the four not-green items promptly* — the title and the CBIC
-> recompute are the two that block the banca build.
+> **This file reads current top-to-bottom.** §0–§3 are the live state (rev. 4). The full rev-2
+> six-day drafting schedule that this replaced is preserved verbatim in the **Appendix
+> (§H, "Historical — superseded rev-2 schedule")** at the very bottom, for provenance only — do
+> not read it as the current plan.
 
----
+## 0 · Current state (rev. 4, 2026-07-24 — v1 assembled + corrections round 2 applied)
 
-## PLAN.md — compressed schedule to the August 2026 defense (rev. 2, 2026-07-18 evening)
+The full v1 was assembled under `src/` in one extended automated build session (all eight phases
+on Jul 23–24), **on the Jul 24 v1 deadline, not slipped past it**. A second corrections round
+(this session) then applied the author's review of that v1. Logged honestly per this file's own
+rule (never absorb silently).
 
-> **Rev. 2 (author ruling):** complete **v1 to the advisor on Thu 2026-07-24**; advisor's final
-> comments **Jul 27–31**; then the document goes to the **banca ≈ Aug 1** (with the Art. 22
-> 20-day rule, defense from **≈ Aug 21**). Today (Jul 18) closed the bases + the story spine
-> (NORTH_STAR §6); **tomorrow (Jul 19) the drafting fleet launches**. This supersedes rev. 1's
-> three-week ramp — six drafting days remain, which the coletânea makes feasible: three
-> chapters are re-typeset published/submitted material; the new prose is the frame.
+**GREEN (done, committed):**
 
-## 0 · Critical-path facts
+- Skeleton + **both build modes** from a single `main.tex` (defense 87 pp → `src/dissertacao.pdf`;
+  final AcademicoPG 83 pp → `build/main_final.pdf`); 0 errors, 0 undefined refs/cites, lint 0.
+- Chapters 1–6 assembled; single global `references.bib` (99 entries, 0 dangling); front/back
+  matter + three appendices.
+- Full-document gates (N4 numeral, R3 citation, L3/L4, WRITING\_LAW §7, two-build) run + fixed.
+- **18-persona review suite** run (on `claude-opus-4-8` — deviation logged in §H and Appendix C;
+  Fable tokens exhausted) + consolidated report + fix loop.
+- **Round 2 (this session):** title set to the working option (alternates commented); Ch.3/4/5
+  chapter headings shortened (fixes the header-padding + TOC-wrap defect); **B.1 CBIC
+  misattribution corrected in BOTH the dissertation Ch.5 AND the version-of-record
+  `[mobiwac]/src/`** (author-authorized cross-boundary edit; logged in the MobiWac ERRATA +
+  Appendix B); `src/` restructured (`src_utils/` for non-LaTeX, `build/` for output, one main,
+  one root PDF); three Locus exemplar dissertations fetched into `exemples/` + calibration note
+  deepened; the three configured specialist profiles re-run on the corrected v1.
+
+**NOT green — author actions before the advisor build (ranked; full list in the handoff note):**
+
+1. **Title** — now set to a working option (*From Representations to a Single Joint Model: …*);
+   still needs the **final call with the advisor** (three alternates are commented in `0_main.tex`).
+2. **CBIC dataset counts** — recomputed this round via the sanctioned Gowalla ETL (Florida
+   subset); the result is in `src/src_utils/cbic_recompute_result.md` for the author to confirm
+   and wire into Ch.3 (still `[VERIFY]` until confirmed).
+3. Queued `[NEEDS SIGN-OFF]` items: Resumo/Abstract, AI-disclosure, several claim-scope rewordings.
+4. Author's remaining tier decisions — collected in `src/src_utils/DECISOES_PENDENTES_ptBR.md`.
+
+> **⚠ ADVISOR MUST BE TOLD (author action, top of the handoff).** The plan assumed six human
+> drafting days (Jul 19–24); the build was done by the assistant in one session and lands as a
+> *machine-assembled v1 for the author to read and own*, not a human-drafted one. The reading map
+> + the AI-use disclosure (Appendix C) must accompany the PDF, and the model deviation (Opus 4.8
+> for the review suite) is disclosed there.
+
+**Re-plan backwards from the defense window (unchanged hard wall):** v1 → advisor now (Jul 24);
+advisor comments Jul 27–31; to banca ≈ Aug 1; Art. 22 ≥20 days → defense from ≈ Aug 21,
+early-September fallback at zero downstream cost (§2 risks). The critical path is intact *provided
+the author clears the not-green items promptly* — the title (final call) and the CBIC-number
+confirmation are the two that gate the banca build.
+
+## 0b · Critical-path facts (current)
 
 | Fact | State / consequence |
 |---|---|
-| v1 deadline | **Jul 24** (author ruling) — six days |
+| v1 | ✅ **assembled + corrections round 2 applied** (Jul 24); at `src/`, both builds clean |
 | Advisor window | Jul 27–31 (final comments; fixes land same-day) |
 | To banca + secretariat | ≈ Aug 1 → defense from ≈ Aug 21 (Art. 22: ≥20 days) |
-| Art. 21 proof | ✅ substance covered: CBIC DOI `10.21528/CBIC2025-1191324` verified. ACTION: file comprovante with secretariat (Day 0–1) |
-| Banca formed in AcademicoPG + members available late August | Advisor conversation Day 0–1 (bundle: EN frame, CoUrb inclusion, date, names, title shortlist) |
-| Anti-plagiarism certificate | Required before defense approval — run once v1 stabilizes (Jul 25–31) |
-| MobiWac chapter source | `articles/[mobiwac]/src/` is being refined by the author in parallel — **re-sync Ch.5 before the final gate pass (Jul 23–24)** |
+| Art. 21 proof | ✅ substance covered: CBIC DOI `10.21528/CBIC2025-1191324` verified. ACTION: file comprovante with secretariat |
+| Banca formed in AcademicoPG + members available late August | Author↔advisor conversation (bundle: EN frame, CoUrb inclusion, date, names, the now-set title) |
+| Anti-plagiarism certificate | Required before defense approval — run once v1 stabilizes |
+| MobiWac chapter source | ✅ re-synced (Phase 8): no drift; **B.1 now also fixed in `[mobiwac]/src/`** this round, to accompany the next MobiWac review submission |
 
-## 1 · Day-by-day
+---
+
+# §H · Historical — superseded rev-2 schedule (2026-07-18, provenance only)
+
+> **Everything below this line is the ORIGINAL rev-2 six-day drafting plan (author ruling
+> 2026-07-18): v1 to advisor Thu 2026-07-24, advisor comments Jul 27–31, banca ≈ Aug 1, defense
+> from ≈ Aug 21 (Art. 22). It is kept verbatim for provenance. It is NOT the current plan — §0
+> above is. The day-by-day was executed by the assistant in one automated session on Jul 23–24
+> rather than spread across Jul 19–24; every Day 1–5 deliverable landed (skeleton, chapters
+> 3/4/5, frame 1/2/6, global bib, front/back matter, appendices, gates), and the one Day-5
+> author decision (title) was correctly not self-decided (it was set to a working option in
+> round 2, still pending the advisor). The §2 risk table remains a useful reference and the §3
+> standing rhythm still holds.**
+
+## H.1 · Day-by-day (rev-2, as originally planned)
 
 ### Day 0 — Fri Jul 18 (DONE by end of day)
 - [x] Base docs established, doubly audited (fact + coherence).
@@ -107,7 +131,7 @@
 
 ### Day 6 — Thu Jul 24 (**v1 to advisor**)
 - [x] Final compile of the defense build; gates green or author-waived. **DONE 2026-07-24:**
-      both builds compile clean; the handoff note (`src/HANDOFF_v1.md`) is the reading map + the
+      both builds compile clean; the handoff note (`src/src_utils/HANDOFF_v1.md`) is the reading map + the
       ranked author to-do list. Title + CBIC recompute remain author actions before the advisor
       build ships (see the rev-3 status block).
 

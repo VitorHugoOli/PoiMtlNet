@@ -165,13 +165,17 @@ superseded number or claim read as the project's current state.
 
 ## 5 · Decision record (status per item; settled rulings mirrored in CLAUDE.md §2 ledger)
 
-> **v1-assembly status (2026-07-24):** every settled decision below was realized in the assembled
-> `src/` tree (order, CoUrb full EN chapter, numeric bib, thin fundamentals, errata policy, AI
-> disclosure). Two items have live status changes: **#4 (MobiWac re-sync)** — the single re-sync
-> point runs as the last assembly step (2026-07-24); **#8 (title)** — still OPEN and now the #1
-> handoff blocker, but a **working title + three alternates are reconciled in the source**
-> (`src/0_main.tex` header + `src/chapters/1_introduction.tex`, from the author's 2026-07-23
-> decision block, which supersedes the §5.8 shortlist). Nothing here was reopened.
+> **v1-assembly status (2026-07-24, updated after corrections round 2):** every settled decision
+> below was realized in the assembled `src/` tree (order, CoUrb full EN chapter, numeric bib, thin
+> fundamentals, errata policy, AI disclosure). Live status after round 2:
+> **#4 (MobiWac re-sync)** — ✅ done (no drift at the Phase-8 re-sync); additionally, the B.1 CBIC
+> misattribution was corrected in BOTH Ch.5 and the version-of-record `[mobiwac]/src/` this round
+> (author-authorized, logged in the MobiWac ERRATA + Appendix B). **#8 (title)** — now SET to the
+> working option (*From Representations to a Single Joint Model: …*) live at all echo points, with
+> the three alternates commented in `src/0_main.tex`; the final call rests with the advisor, so it
+> is "decided for now," not closed. **CBIC dataset counts** — recomputed this round via the
+> sanctioned Gowalla ETL (`src/src_utils/cbic_recompute_result.md`), pending author confirmation.
+> Nothing here was reopened.
 
 1. **Order** — ✅ SETTLED (author, 2026-07-18): CBIC → CoUrb → MobiWac (§2 above).
 2. **CoUrb inclusion** — ✅ SETTLED (author, 2026-07-18): full chapter. Norms check: nothing in
@@ -204,14 +208,13 @@ superseded number or claim read as the project's current state.
      `zhang2021survey` DOI corrections, `church2017word2vec` -> `mikolov2013word2vec`,
      `yu2019mmoe` confirm-or-drop, and the DGI/Nash key consolidations); CoUrb includes the
      audited win-count / pp-gain numbers and the `silva2025mtlnet` venue fix.
-8. **Title of the dissertation** — ⏳ OPEN (author: decide after the text firms up; needed by the
-   defense-build front matter, ≈ Jul 23). Candidates (Resumo/Abstract header must match the
-   folha de rosto exactly):
-   - *From Representations to a Single Joint Model: Multi-Task Learning for Point-of-Interest
-     Category and Region Prediction*
-   - *Check-in-Level Representations for Multi-Task Point-of-Interest Prediction*
-   - *One Model, Two Tasks: Representation-Driven Multi-Task Learning for Next-Category and
-     Next-Region Prediction on Mobility Data*
+8. **Title of the dissertation** — 🔵 SET FOR NOW (round 2, 2026-07-24), pending the advisor's
+   final call. Live at all echo points (folha de rosto, Resumo + Abstract headers, pdftitle):
+   - **SELECTED:** *From Representations to a Single Joint Model: Multi-Task Learning for
+     Point-of-Interest Category and Region Prediction*
+   - Alternates kept commented in `src/0_main.tex` for the advisor conversation (the newer
+     2026-07-23 author decision block in `src/chapters/1_introduction.tex` supersedes the earlier
+     §5.8 shortlist; the commented set is the current candidate list).
 9. **AI-use disclosure** — ✅ SETTLED (author, 2026-07-18): proceed. Recommended placement: a
    short appendix ("AI-use disclosure"), which survives both build modes; drafted from git
    provenance (AGENT_GUARDRAILS §6).

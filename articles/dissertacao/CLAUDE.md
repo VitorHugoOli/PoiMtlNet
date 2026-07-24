@@ -20,25 +20,40 @@
 (citation protocol, number protocol, claim registry, review gates) apply to every edit in this
 folder. No chapter text goes to the author or advisor without passing its gates.
 
-## 1 · Current state (2026-07-24 — v1 ASSEMBLED)
+## 1 · Current state (2026-07-24 — v1 ASSEMBLED + corrections round 2)
 
-- **v1 is assembled and lives in [`src/`](src/)** — this is now the single working copy; the
-  draft folders (`storyline/`, `fundamentals/`) are **frozen** (see the freeze pointers in each).
-  Both build modes compile clean: `make defense` → `main_defense.pdf` (87 pp, full front matter),
-  `make final` → `main_final.pdf` (83 pp, AcademicoPG layout). 0 errors, 0 undefined refs/cites,
-  lint exits 0. Build recipe: [`src/README_SRC.md`](src/README_SRC.md).
-- **What was built:** skeleton from the Germano tree (Times, numeric cites, two build modes);
-  Chapters 3/4/5 re-typeset from the papers (errata applied silently + ledgered → Appendix B);
-  frame Chapters 1/2/6 imported; one global [`src/references.bib`](src/references.bib) (99
-  entries, 0 dangling); front/back matter + Appendices A/B/C. Full-document gates + the
-  **18-persona review suite** ran (reports in [`src/_review_v1/`](src/_review_v1/); consolidated
-  at `src/_review_v1/CONSOLIDATED_REVIEW_REPORT.md`).
-- **Author actions before the advisor build** (full ranked list: [`src/HANDOFF_v1.md`](src/HANDOFF_v1.md)):
-  (1) decide the **title** (placeholder everywhere); (2) run the sanctioned CBIC **dataset-count
-  recompute** (Ch.3 shows visible `[VERIFY]` placeholders); (3) sign off the **B.1** Ch.5 CBIC
-  misattribution fix (ERRATA route); (4) approve the queued `[NEEDS SIGN-OFF]` items
-  (Resumo/Abstract, AI-disclosure, claim-scope rewordings). **Tell the advisor** the v1 was
-  machine-assembled (reading map + Appendix C disclosure accompany the PDF).
+- **v1 lives in [`src/`](src/)** — the single working copy; the draft folders (`storyline/`,
+  `fundamentals/`) are **frozen** (freeze pointers in each). **One source, two builds** from a
+  single `main.tex`: `make defense` → `build/main.pdf`, copied to
+  [`src/dissertacao.pdf`](src/dissertacao.pdf) (87 pp, full front matter, the banca PDF);
+  `make final` → `build/main_final.pdf` (83 pp, AcademicoPG body-only). 0 errors, 0 undefined
+  refs/cites, `make check` lint 0. Build recipe: [`src/src_utils/README_SRC.md`](src/src_utils/README_SRC.md).
+- **`src/` layout (restructured round 2):** LaTeX source + `chapters/` + `figures/` + `tables/`
+  + the one `dissertacao.pdf` at the root; **`src_utils/`** holds all non-LaTeX (README, lint,
+  reports, the review outputs `_review_v1/`, gate reports `_gates/`, the CBIC recompute result,
+  and the pt_BR decisions doc); **`build/`** holds all compile output (gitignored).
+- **What was built:** skeleton from the Germano tree (Times, numeric cites); Chapters 3/4/5
+  re-typeset (errata applied + ledgered → Appendix B); frame Chapters 1/2/6 imported; one global
+  [`src/references.bib`](src/references.bib) (99 entries, 0 dangling); front/back matter +
+  Appendices A/B/C. Full-document gates + the **18-persona review suite** ran (reports in
+  `src/src_utils/_review_v1/`; consolidated at `.../CONSOLIDATED_REVIEW_REPORT.md`).
+- **Corrections round 2 (this session, all committed):** title set to the working option
+  *From Representations to a Single Joint Model: …* (alternates commented in `0_main.tex`;
+  final call still with the advisor); Ch.3/4/5 headings shortened (fixes the header-padding +
+  TOC-wrap defect, Germano precedent); **B.1 CBIC misattribution corrected in BOTH the
+  dissertation Ch.5 AND the version-of-record [`articles/[mobiwac]/src/`]** (author-authorized
+  cross-boundary edit; logged in the MobiWac ERRATA + Appendix B + Ch.5 ledger); `src/`
+  restructured; three Locus exemplar dissertations added under `exemples/` + calibration note
+  deepened; the three configured specialist profiles (BANCA\_SIMULATOR, DISSERTATION\_FACT\_GATE,
+  DISSERTATION\_REVIEWER) re-run on the corrected v1.
+- **Author actions before the advisor build** (full ranked list:
+  [`src/src_utils/HANDOFF_v1.md`](src/src_utils/HANDOFF_v1.md); PT decisions doc:
+  `src/src_utils/DECISOES_PENDENTES_ptBR.md`): (1) **title** — confirm/replace with the advisor;
+  (2) **CBIC dataset counts** — recomputed via the Gowalla ETL this round
+  (`src/src_utils/cbic_recompute_result.md`), confirm + wire into Ch.3 (still `[VERIFY]`);
+  (3) approve the queued `[NEEDS SIGN-OFF]` items (Resumo/Abstract, AI-disclosure, claim-scope
+  rewordings). **Tell the advisor** the v1 was machine-assembled (reading map + Appendix C
+  disclosure accompany the PDF).
 - **Review-suite model deviation:** the plan mandated the Fable model for every reviewer persona;
   Fable tokens were exhausted mid-run, so on the author's call the suite ran on `claude-opus-4-8`.
   Logged here, in the handoff, and in the AI-use disclosure (Appendix C).
