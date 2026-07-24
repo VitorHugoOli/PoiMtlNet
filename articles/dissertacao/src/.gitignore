@@ -1,10 +1,8 @@
-*.aux
-*.log
-*.lof
-*.lot
-*.toc
-*.out
-*.bbl
-*.blg
-*.idx
-*.pdf
+# Compile output all lands in build/ (see Makefile -output-directory)
+build/
+# macOS + tool cruft
+.DS_Store
+.cache/
+missfont.log
+# The one tracked PDF at the src root is dissertacao.pdf (the current defense build);
+# everything else PDF-shaped is build output.

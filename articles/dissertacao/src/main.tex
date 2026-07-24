@@ -1,0 +1,34 @@
+% ============================================================================
+% main.tex -- single entry point for the dissertation (Vitor H. O. Silva, UFV/PPGCC).
+%
+% ONE source, TWO build modes (UFV_COMPLIANCE §1). The mode is chosen by the
+% \ifdefensebuild switch, defined HERE by default as the DEFENSE build:
+%
+%   DEFENSE build (default): full front matter (cover/folha de rosto, approval
+%     placeholder, Resumo/Abstract, lists, sumario) -- the PDF the banca reads.
+%     Just compile main.tex normally (this is what `make` / `make defense` does).
+%
+%   FINAL AcademicoPG build: body only (lists -> sumario -> body); the AcademicoPG
+%     system generates cover/ficha/resumo/abstract from web forms. Produced WITHOUT
+%     a second main file, by pre-setting the switch to false on the command line:
+%       pdflatex "\newif\ifdefensebuild\defensebuildfalse\input{main.tex}"
+%     `make final` does exactly this. The body page counter for that build is
+%     \finalbuildfirstpage below (tune against the AcademicoPG RASCUNHO PDF).
+%
+% Build recipe + TeX tree notes: src_utils/README_SRC.md. Output goes to build/;
+% the current defense PDF is copied to ./dissertacao.pdf at the src root by `make`.
+% ============================================================================
+
+% Default mode = DEFENSE. `make final` sets \FINALBUILD on the command line
+% (\def\FINALBUILD{}) before reading this file; absent that macro, this is the
+% defense build. This avoids a nested-\if scanning problem that \ifdefined has
+% when the switch is pre-set on the command line.
+\newif\ifdefensebuild
+\ifdefined\FINALBUILD \defensebuildfalse \else \defensebuildtrue \fi
+
+% Page number of the FIRST BODY PAGE in the final build (pre-textual pages are counted
+% but not numbered; e.g. 10 pre-textual pages -> first body page is 11). Tune against
+% the AcademicoPG RASCUNHO PDF after the post-defense upload (UFV_COMPLIANCE §4.4).
+\newcommand{\finalbuildfirstpage}{11} % [VERIFY: tune against the RASCUNHO PDF]
+
+\input{0_main.tex}

@@ -1,7 +1,11 @@
 #!/bin/bash
 # Lint hook (TEMPLATE.md §2 item 10): the cheap half of gates G2/G3.
-# Usage: ./check.sh   (run from src/; exits nonzero on any finding)
+# Usage: make check  (or src_utils/check.sh from the src root). Resolves paths
+# relative to the src root (this script's parent dir), so it works from anywhere.
+# Exits nonzero on any finding.
 FAIL=0
+SRCROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$SRCROOT"
 CH=chapters/*.tex
 
 echo "== em-dashes (WRITING_LAW §1: none anywhere in prose) =="
@@ -24,7 +28,7 @@ echo "== repo codenames =="
 if grep -nwE 'B9|v1[1-7]|champion-G|H3-alt|dk_ovl|log_T|substrate' $CH | grep -v '^[^:]*:[0-9]*: *%'; then FAIL=1; else echo OK; fi
 
 echo "== unresolved \\ref/\\cite (needs a compiled .log) =="
-LOG=main_defense.log
+LOG=build/main.log
 if [ -f "$LOG" ]; then
   if grep -E 'Reference .* undefined|Citation .* undefined' "$LOG"; then FAIL=1; else echo OK; fi
 else echo "SKIP: no $LOG"; fi
