@@ -13,8 +13,8 @@ Location-based social networks, such as Gowalla~\cite{cho2011gowalla}, let peopl
 
 Predicting the next place exactly, a single point of interest (POI), is hard and often more than a service needs. Two coarser questions are usually enough: the next category, the type of place such as food or shopping, and the next region, the part of the city that a user is heading to (a neighborhood-scale unit such as the U.S. census tract). The first captures intent, the second captures geography; we study whether one model should learn both at once.
 
-Sharing one representation across tasks has a cost: in multi-task learning (MTL), one model does several jobs at once by sharing most of its parts, so the shared parameters can converge to a compromise optimal for neither task, helping one while hurting the other~\cite{caruana1997multitask}. Prior work
-observed exactly this for next-category and next-region~\cite{silva2025mtlnet}; the useful question is where sharing helps, what it costs, and how to share so the gains hold and the cost stays small.
+Sharing one representation across tasks has a cost: in multi-task learning (MTL), one model does several jobs at once by sharing most of its parts, so the shared parameters can converge to a compromise optimal for neither task, helping one while hurting the other~\cite{caruana1997multitask}. Our earlier
+work reported no consistent multi-task advantage for the paired category tasks and attributed it, in part, to this effect~\cite{silva2025mtlnet}; the useful question is where sharing helps, what it costs, and how to share so the gains hold and the cost stays small.
 
 We propose two enhancements. First, we build a check-in-level representation: instead of one fixed vector per place, each check-in gets its own vector that holds its context (the time, nearby places, and recent visits).
 This adds a fourth level, the check-in, beneath the place, region, and city levels of hierarchical graph infomax~\cite{huang2023hgi,velickovic2019dgi} (Fig.~\ref{fig:dataflow}). Second, we train one model that

@@ -113,3 +113,25 @@ is a claim-level fix on an under-review paper, routed to the author via the ERRA
 text in `_review_v1/14_adversarial_advisor_report.md` §B.1). It is NOT a re-sync drift item; it
 is a correction the author must approve, and it should also be reflected back into
 `[mobiwac]/src/` if the author agrees.
+
+## B.1 CBIC-misattribution correction (2026-07-24, author-approved; round 2)
+
+**Departure from the version of record (claim-level, author-ruled):** the submitted MobiWac text
+mislabelled the prior CBIC work (`silva2025mtlnet`) on two counts — it said CBIC studied
+"next-category and next-region" and "observed" negative transfer. Neither holds against the CBIC
+record (Ch.3): CBIC paired STATIC category classification with next-category (no region task), and
+it HYPOTHESIZED negative transfer on a parity null. Two sentences corrected:
+- L44 (intro): "Prior work observed exactly this for next-category and next-region" -> "Our earlier
+  work reported no consistent multi-task advantage for the paired category tasks and attributed it,
+  in part, to this effect".
+- L140 (related): "established this two-task setup and observed negative transfer (sharing hurt one
+  task); this chapter adds..." -> "paired static category classification with next-category
+  prediction and found no consistent multi-task gain; this chapter introduces the next-region task
+  and adds...".
+
+Repair text is persona-14 B.1 (approved by the author this round). Unlike the silent errata of the
+first build, this is a CLAIM-LEVEL fix on an under-review paper, so per author ruling it was applied
+in BOTH places: the dissertation Ch.5 AND the version of record `articles/[mobiwac]/src/`
+(sections 01_introduction.tex, 02_related.tex), logged in `articles/[mobiwac]/ERRATA.md`, and
+carried into Appendix B (Article 3 section). The correction strengthens the paper's novelty claim
+(it is the first to add region) and alters no experimental result.

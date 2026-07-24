@@ -41,8 +41,13 @@ Location-based social networks, such as Gowalla~\cite{cho2011gowalla}, let peopl
 
 Predicting the next place exactly, a single point of interest (POI), is hard and often more than a service needs. Two coarser questions are usually enough: the next category, the type of place such as food or shopping, and the next region, the part of the city that a user is heading to (a neighborhood-scale unit such as the U.S. census tract). The first captures intent, the second captures geography; we study whether one model should learn both at once.
 
-Sharing one representation across tasks has a cost: in multi-task learning (MTL), one model does several jobs at once by sharing most of its parts, so the shared parameters can converge to a compromise optimal for neither task, helping one while hurting the other~\cite{caruana1997multitask}. Prior work
-observed exactly this for next-category and next-region~\cite{silva2025mtlnet}; the useful question is where sharing helps, what it costs, and how to share so the gains hold and the cost stays small.
+Sharing one representation across tasks has a cost: in multi-task learning (MTL), one model does several jobs at once by sharing most of its parts, so the shared parameters can converge to a compromise optimal for neither task, helping one while hurting the other~\cite{caruana1997multitask}. Our earlier
+work reported no consistent multi-task advantage for the paired category tasks and attributed it, in part, to this effect~\cite{silva2025mtlnet}; the useful question is where sharing helps, what it costs, and how to share so the gains hold and the cost stays small.
+% [B.1 FIX 2026-07-24, author-approved] Was "Prior work observed exactly this for next-category
+% and next-region": two errors vs the CBIC record (Ch.3) -- CBIC paired STATIC category
+% classification with next-category (no region task), and it HYPOTHESIZED negative transfer on a
+% parity null, it did not OBSERVE it. Repaired per persona-14 B.1. Mirrored in [mobiwac]/src/ and
+% logged in [mobiwac]/ERRATA.md + Appendix B.
 
 We propose two enhancements. First, we build a check-in-level representation: instead of one fixed vector per place, each check-in gets its own vector that holds its context (the time, nearby places, and recent visits).
 This adds a fourth level, the check-in, beneath the place, region, and city levels of hierarchical graph infomax~\cite{huang2023hgi,velickovic2019deep} (Figure~\ref{fig:mobiwac:dataflow}). Second, we train one model that
@@ -138,8 +143,8 @@ alone spans hundreds to several thousand classes. Predicting
 over a partition of the map is also the standard formulation in the human-mobility
 literature, with a grid cell as the target~\cite{luca2021mobilitysurvey}; our
 next-region task substitutes official neighborhood-scale units for grid cells. Our earlier
-work~\cite{silva2025mtlnet} established this two-task setup and observed
-negative transfer (sharing hurt one task); this chapter adds the check-in-level
+work~\cite{silva2025mtlnet} paired static category classification with next-category prediction
+and found no consistent multi-task gain; this chapter introduces the next-region task and adds the check-in-level
 representation, on which sharing helps instead of hurting (Section~\ref{sec:mobiwac:results-part2}).
 
 The field

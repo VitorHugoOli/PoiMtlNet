@@ -45,8 +45,8 @@ alone spans hundreds to several thousand classes. Predicting
 over a partition of the map is also the standard formulation in the human-mobility
 literature, with a grid cell as the target~\cite{luca2021mobilitysurvey}; our
 next-region task substitutes official neighborhood-scale units for grid cells. Our earlier
-work~\cite{silva2025mtlnet} established this two-task setup and observed
-negative transfer (sharing hurt one task); this paper adds the check-in-level
+work~\cite{silva2025mtlnet} paired static category classification with next-category prediction
+and found no consistent multi-task gain; this paper introduces the next-region task and adds the check-in-level
 representation, on which sharing helps instead of hurting (Section~\ref{sec:results-part2}).
 
 The field
