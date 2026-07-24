@@ -1,28 +1,40 @@
-# HANDOFF — Dissertation v1 (assembled 2026-07-24)
+# HANDOFF — Dissertation v1 (assembled 2026-07-24; corrections round 2 applied)
 
 > The single handoff document for the machine-assembled v1. Author owns and approves every
 > word; this note is the map, the flag ledger, and the ranked to-do list. Nothing here was
 > self-approved past the gates. Repo working copy: `articles/dissertacao/src/`.
+> **Your fill-in decisions doc: `src/src_utils/DECISOES_PENDENTES_ptBR.md` (pt-BR).**
 
-## 0. READ THIS FIRST — the two things that block the banca build
+## 0. READ THIS FIRST — what round 2 resolved, and what still needs you
 
-1. **Decide the title.** It renders as `[TITLE --- open decision]` on the folha de rosto,
-   Resumo, Abstract, and PDF metadata. A **working title + three alternates** are already
-   reconciled in `src/0_main.tex` (header comment) and `src/chapters/1_introduction.tex`
-   (your 2026-07-23 decision block). Pick one; update all four echo points (they are listed
-   in the `0_main.tex` comment).
-2. **Run the CBIC dataset-count recompute.** Chapter 3 §3.4.1 (PDF p.35) prints three literal
-   `[N_users; VERIFY: recompute per ERRATA.md]` placeholders instead of the Florida corpus
-   size. No number was invented (correct fail-closed handling). Run the sanctioned CBIC-era
-   Florida recompute, approve the values, and fill them in. **This is the single most visible
-   defect in the built PDF and every fact/style/domain/banca reviewer flagged it.**
+**Round 2 (this session) cleared or advanced the two original blockers:**
+
+1. **Title — SET (confirm with advisor).** Now live at all four echo points as the working
+   option *"From Representations to a Single Joint Model: Multi-Task Learning for Point-of-Interest
+   Category and Region Prediction"*; the three alternates are commented in `src/0_main.tex`. No
+   longer a placeholder. **Remaining:** the final call with your advisor (swap in one line if he
+   prefers another).
+2. **CBIC dataset counts — FILLED (confirm basis).** Chapter 3 §3.4.1 (PDF p.35) now states
+   the recomputed Florida corpus: raw 21,052 users / 76,544 POIs / 1,407,034 check-ins, and after
+   the <5-visit filter 13,935 / 76,266 / 1,392,262. Recomputed from the sanctioned per-state ETL
+   output (`data/checkins_by_state/Florida.parquet`), not invented. Full analysis +
+   recommendation: `src/src_utils/cbic_recompute_result.md`. **Remaining:** confirm which basis
+   the prose should keep (both-bases wording is in place and needs no choice).
+3. **B.1 CBIC misattribution — FIXED in both places.** The false "CBIC studied next-region and
+   observed negative transfer" is corrected in Ch.5 AND in the version-of-record
+   `articles/[mobiwac]/src/`, logged in the MobiWac ERRATA + Appendix B. **Remaining:** send the
+   correction with the next MobiWac review submission.
+
+**Still needs you (full list + fill-in fields in `DECISOES_PENDENTES_ptBR.md`):** the Tier-2
+`[NEEDS SIGN-OFF]` content (Resumo/Abstract, Appendices A/C, Ch.5 new-to-chapter text) and the
+Tier-3 queued review fixes (§3 below). Tier-2 item 2.5 (gate rewordings) you ruled **leave as-is**.
 
 **⚠ AND — tell the advisor about how v1 was produced.** The plan assumed six human drafting
 days (Jul 19–24); the build was instead done by the assistant in one automated session and
 lands as a *machine-assembled v1 for you to read and own*. The reading map (this note) + the
 AI-use disclosure (Appendix C) must accompany the PDF. The review suite ran on `claude-opus-4-8`
 rather than the planned Fable model (Fable tokens were exhausted mid-run; you approved the
-switch). This is disclosed here, in PLAN.md rev-3, in CLAUDE.md §1, and in Appendix C.
+switch). This is disclosed here, in PLAN.md rev-4, in CLAUDE.md §1, and in Appendix C.
 
 ## 1. Phase-0 gap table — final state
 
@@ -52,14 +64,25 @@ Every planned component, its Phase-0 status, and where it landed in v1.
 
 ## 2. What was built where (+ ledger pointers)
 
-- **Build:** `cd src && make defense` (→ `main_defense.pdf`, 87 pp, banca PDF) / `make final`
-  (→ `main_final.pdf`, 83 pp, AcademicoPG upload). Recipe + TeX-tree notes: `src/README_SRC.md`.
+- **Build (round-2 layout):** `cd src && make defense` (→ `build/main.pdf`, copied to
+  `src/dissertacao.pdf`, 87 pp, banca PDF) / `make final` (→ `build/main_final.pdf`, 83 pp,
+  AcademicoPG upload). ONE `main.tex` now (defense default; `make final` sets `\FINALBUILD` on
+  the command line — no second main). All compile output goes to `src/build/` (gitignored).
+  Recipe + TeX-tree notes: `src/src_utils/README_SRC.md`.
+- **`src/` layout:** LaTeX source + `chapters/`/`figures/`/`tables/` + the one `dissertacao.pdf`
+  at the root; **`src/src_utils/`** holds all non-LaTeX (this handoff, README, `check.sh`,
+  reports, `_gates/`, `_review_v1/`, `_specialists_v1/`, the CBIC recompute result, the pt_BR
+  decisions doc); **`src/build/`** holds compile output.
 - **Numbers/citations ledgers:** per-chapter `src/chapters/{3,4,5}_*_ADAPTATION_LEDGER.md`
-  (every departure from the published text, feeding Appendix B); `src/BIB_MERGE_REPORT.md`
+  (every departure from the published text, feeding Appendix B); `src/src_utils/BIB_MERGE_REPORT.md`
   (99-entry key-mapping table + provenance + errata applied); Ch.1/6 citation ledgers in the
   frozen `storyline/drafts/{1,6}_citations.md`; Ch.2 in `fundamentals/DRAFT_LEDGER.md`.
-- **Gate + review evidence:** `src/_gates/` (N4 numeral, R3 citation, L3/L4/style/build);
-  `src/_review_v1/` (18 persona reports + `CONSOLIDATED_REVIEW_REPORT.md`).
+- **Gate + review evidence:** `src/src_utils/_gates/` (N4 numeral, R3 citation, L3/L4/style/build);
+  `src/src_utils/_review_v1/` (18 persona reports + `CONSOLIDATED_REVIEW_REPORT.md`);
+  `src/src_utils/_specialists_v1/` (the three configured-profile runs on the corrected v1).
+- **Exemplars:** `exemples/` now holds five calibration dissertations (germano, viegas, +
+  round-2: canesche, passe, lapsusvgi with PROVENANCE.md each); the deepened analysis is
+  `docs/research/calibration_recheck_2026-07-24.md`. `exemples/` is gitignored (large PDFs).
 - **Freeze:** `storyline/` and `fundamentals/` are FROZEN (READMEs carry the pointer); `src/`
   is the single working copy. Edit `src/chapters/` and rebuild — never the draft folders.
 - **Commits (this build, `draft(ai):` prefix):** phase0b `415c5cd3`, skeleton `a735b8f3`,
@@ -121,13 +144,42 @@ experiments. Optional excellence moves (persona 17, for the SBC-CTD lens): a con
 table in §1.6, a consolidated cross-chapter results table in §6, and an artifacts/reproducibility
 appendix. None is a defect; all are frame-only enhancements.
 
-## 6. Author to-do list (in order)
+## 6. Author to-do list (in order) — round-2 updated
 
-1. **Decide the title** and wire it into the four echo points in `0_main.tex`.
-2. **Run the CBIC Florida recompute**, approve, and fill the three counts in `3_cbic.tex:235`.
-3. **Approve or revise B.1** (Ch.5 CBIC misattribution) — repair text in the persona-14 report; log to ERRATA.md + it flows to Appendix B.
-4. **Read + approve the Tier-2 [NEEDS SIGN-OFF] content** (Resumo/Abstract, Appendices A/C, Ch.5 new-to-chapter text, gate rewordings).
-5. **Rule on the Tier-3 queued fixes** (superiority test, CV scope, region framing, data vintage, task-name bridge, class-weighting, figures).
+**Done this round (confirm only):**
+- ~~Decide the title~~ → SET to the working option (confirm with advisor; alternates commented).
+- ~~Run the CBIC recompute~~ → DONE from the sanctioned ETL output; Ch.3 filled with both bases
+  (confirm which basis to keep; see `src_utils/cbic_recompute_result.md`).
+- ~~Approve/revise B.1~~ → FIXED in Ch.5 **and** the MobiWac source (confirm wording; send with
+  the next MobiWac review).
+
+**Remaining (all in `src_utils/DECISOES_PENDENTES_ptBR.md` with fill-in fields):**
+1. **Confirm the title** with the advisor (Tier 1.1).
+2. **Confirm the CBIC basis** — both-bases wording is in place; keep it or reduce to one (Tier 1.2).
+3. **Read + approve the Tier-2 `[NEEDS SIGN-OFF]` content** — Resumo/Abstract, Appendices A/C,
+   Ch.5 new-to-chapter text. (Tier-2 item 2.5, the gate rewordings, you ruled **leave as-is**.)
+4. **Rule on the Tier-3 queued fixes** — superiority-test naming, CV scope, region framing,
+   **data vintage (confirmed 2009–2011 this round, Ch.6 says 2009–2010)**, task-name bridge,
+   class-weighting, MTLnet naming seam, the figure regenerations. Each has a `DECISAO:` field.
+5. **Message the advisor** about the machine-assembled v1 (this note + Appendix C) and the model
+   deviation; confirm banca + Art. 22 timing.
+
+## 7. Specialist verification (round 2)
+
+The three configured specialist profiles were re-run on the corrected v1 (full reports in
+`src/src_utils/_specialists_v1/`). Consolidated verdict:
+
+| Profile | Verdict | Note |
+|---|---|---|
+| **BANCA_SIMULATOR** | **APROVADO COM CORREÇÕES MENORES — 46/50** (up from 45/50 round-1) | Verified all four round-2 fixes render correctly; removing the title placeholder + p.35 scaffolding stopped its hypercritical mode from triggering (text-quality dimension 4→5). |
+| **DISSERTATION_REVIEWER** | **APPROVED WITH CORRECTIONS** | No regression to the science; B.1 fix faithful and correctly mirrored; src restructure clean (zero broken refs — confirmed the numeric-only `\ref` scheme means shortened headings cannot leak). 2 MAJORs are round-2 documentation/concordance fallout, 2 MINORs pre-existing. |
+| **DISSERTATION_FACT_GATE** | **GATE FAIL → now RESOLVED** | B.1 correction PASS (matches the CBIC record everywhere). It flagged one BLOCKER: the CBIC dataset numbers were on the **wrong basis** (fresh-2026-ETL, not the CBIC-era `filtrado.csv`). **Fixed after the run:** Ch.3 now uses the CBIC-era basis (10,460/64,454/960,520), Appendix B row updated, N_users `[VERIFY]` kept open. The other items (MTLnet "this task pair" antecedent, a 0.01 rounding note, the storyline ledger 64.54 sync) are MINOR, queued in Tier 3 / the pt_BR doc. |
+
+**Headline:** two of three specialists pass on the corrected v1; the fact gate's single blocker
+(CBIC basis) was a real catch and has been fixed — Ch.3 now reports the CBIC-era corpus the models
+actually consumed, with the one genuinely-unresolvable value (N_users, 10,460 vs CoUrb's 20,301)
+left as an open author `[VERIFY]` rather than silently chosen. No specialist found a fabricated
+citation, number, or unlicensed claim, and none found a round-2 regression to the experiments.
 6. **Message the advisor** about the machine-assembled v1 (this note + Appendix C) and the model deviation; confirm banca + Art. 22 timing.
 7. **Re-sync note:** Ch.5 currently has NO drift vs `[mobiwac]/src/`; if you edit the paper after today, re-run the diff before the advisor build.
 
