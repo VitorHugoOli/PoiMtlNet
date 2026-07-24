@@ -92,6 +92,7 @@ Every planned component, its Phase-0 status, and where it landed in v1.
 14. **MJ-17 class-weighting** — Ch.2 says class-weighted CE; Ch.5 unweighted + reports weighting hurt. **MJ-18 'MTLnet' naming seam** (persona 04).
 15. **Visual:** Fig 2 Portuguese labels (regen EN); Fig 3 color-only Food/Shopping (regen grayscale-safe); chapter-title line-breaks; Table 1 overflow (~1cm).
 16. **VETOED — do NOT run mechanically:** the 'at [dataset]' preposition sweep (persona 14 VETO — collides with the frozen verdict scopes; fix only non-verdict instances).
+17. **Guard on persona-recommended NEW citations.** Some domain reports (e.g. persona 10) suggest ADDING an external work not currently cited (it names `arXiv:2311.04698`). No such citation was added to the dissertation or the bibliography — these are recommendations only. Per the fail-closed protocol (AGENT_GUARDRAILS §1), verify any such identifier against its source of record BEFORE adding it; do not add on the reviewer's word alone.
 
 ## 4. Gate statuses (after the fix loop)
 
