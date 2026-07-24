@@ -24,7 +24,15 @@ consistently improve on the dedicated single-task models. Chapters~\ref{ch:courb
 and~\ref{ch:mobiwac} revise that verdict by changing the input representation rather
 than the architecture. The chapter's preference for the Nash-MTL optimizer is likewise
 a conclusion of the time, weakened by a later finding about the optimizer
-implementation, and the following chapters do not rely on it.
+implementation, and the following chapters do not rely on it. A note on terminology:
+the term ``Next-POI Prediction'' as used in the reproduced article denotes the frame's
+\emph{next category} task, that is, predicting the category of the next visited place,
+not the exact place itself; the dissertation reserves \emph{next place} for the
+exact-POI task, which is not studied here.
+% [round3, author 3.5/MJ-8] terminology bridge: the article reuses "Next-POI" for what
+% the frame names "next category" (and internally the published text even shades it toward
+% exact-location on p.27); this sentence fixes the mapping so a reader who trusts the
+% abstract's "exact place is not predicted" is not tripped.
 \end{chapterpreface}
 
 \section{Introduction}
