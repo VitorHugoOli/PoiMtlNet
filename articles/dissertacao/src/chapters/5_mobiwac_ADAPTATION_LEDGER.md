@@ -95,3 +95,21 @@ Lead takeaway sentences before each table are the paper's own sentences (§5.1 f
 - **Re-sync before final gate:** `[mobiwac]/src/` is being refined in parallel (NORTH_STAR
   §5.4); diff and re-run this re-typeset before the final gate pass.
 - No [VERIFY] flags on content: no unsourced number or claim was introduced.
+
+## Re-sync check (2026-07-24, Phase 8 — the single re-sync point, NORTH_STAR §5.4)
+
+**Result: NO DRIFT — Ch.5 is in sync with the MobiWac version of record.** Verified two ways:
+(1) `articles/[mobiwac]/src/` has had **no commits** since the Ch.5 re-typeset (last MobiWac
+commit `f66f8a73` predates the phase-2 build commit `1a29b545`, 2026-07-23 15:18); (2) the
+MobiWac source has **no uncommitted working-tree changes** (`git status --porcelain` clean).
+The author did not refine the paper in the window between the re-typeset and this re-sync, so
+there is nothing mechanical to apply and nothing substantive to queue. If the author edits
+`[mobiwac]/src/` after this date, re-run this diff before the advisor build.
+
+**One substantive item from the review suite still sits against Ch.5 (persona 10/14 BLOCKER B.1),
+independent of drift:** Ch.5 L44 and L140 (inherited verbatim from the version of record)
+misattribute a next-region task and an *observed* negative transfer to the CBIC prior work. This
+is a claim-level fix on an under-review paper, routed to the author via the ERRATA path (repair
+text in `_review_v1/14_adversarial_advisor_report.md` §B.1). It is NOT a re-sync drift item; it
+is a correction the author must approve, and it should also be reflected back into
+`[mobiwac]/src/` if the author agrees.
