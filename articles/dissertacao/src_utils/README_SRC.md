@@ -4,27 +4,41 @@ Single-source LaTeX for Vitor H. O. Silva's UFV/PPGCC dissertation. Skeleton der
 Germano tree (`../exemples/germano/`, same advisor) per TEMPLATE.md §0; the kept-vs-stripped
 ledger is the header comment of `0_main.tex`.
 
-## Layout (restructured 2026-07-24)
+## Layout (restructured 2026-07-24; src_utils/ externalized 2026-07-24)
+
+`src/` is kept as clean as possible so it can be pasted straight into Overleaf: it contains ONLY
+what compiles. All support material lives in `src_utils/`, a SIBLING of `src/` (one level up),
+never inside it.
 
 ```
-src/
-  main.tex            single entry point (defense build by default; see the header comment)
-  0_main.tex          the document body (preamble + front matter + \include list)
-  abntex2-UFV.sty     UFV machinery (Germano tree)
-  abntex2-num.bst     numeric bibliography style
-  references.bib      single global bibliography
-  chapters/           the six chapters + three appendices + adaptation ledgers
-  figures/ tables/    chapter assets
-  dissertacao.pdf     the current DEFENSE build (the only PDF at the root; copied from build/)
-  Makefile            build + lint targets
-  build/              ALL compile output lands here (gitignored)
-  src_utils/          non-LaTeX: this README, check.sh, reports, review outputs, handoff JSON
+articles/dissertacao/
+  src/                        <-- paste THIS into Overleaf; compiles standalone
+    main.tex                  single entry point (defense build by default; see header comment)
+    0_main.tex                the document body (preamble + front matter + \include list)
+    abntex2-UFV.sty           UFV machinery (Germano tree)
+    abntex2-num.bst           numeric bibliography style
+    references.bib            single global bibliography
+    chapters/                 the six chapters + three appendices (.tex ONLY)
+    figures/ tables/          chapter assets
+    dissertacao.pdf           current DEFENSE build (only PDF at the root; copied from build/)
+    Makefile                  build + lint targets
+    build/                    ALL compile output lands here (gitignored)
+  src_utils/                  <-- SIBLING of src/; NOT pasted into Overleaf
+    README_SRC.md             this file
+    check.sh                  lint hook (linted target is ../src)
+    BIB_MERGE_REPORT.md       bibliography merge/key-mapping record
+    HANDOFF_v1.md             author handoff note
+    DECISOES_PENDENTES_ptBR.md  author decisions (pt-BR)
+    cbic_recompute_result.md  + cbic_recompute_handoff.json  (CBIC dataset counts)
+    adaptation_ledgers/       3_cbic / 4_courb / 5_mobiwac ADAPTATION_LEDGER.md (feed Appendix B)
+    FRAME_INTEGRATION_REPORT.md
+    _gates/ _review_v1/ _specialists_v1/  gate + review + specialist reports
+    handoff/                  working JSON
 ```
 
-`src_utils/` holds everything that is not part of the compiled document: `README_SRC.md`,
-`check.sh` (lint), `BIB_MERGE_REPORT.md`, `HANDOFF_v1.md`, the `_gates/` and `_review_v1/` review
-reports, the `handoff/` working JSON, and `cbic_recompute_result.md`. The pt_BR author-decisions
-document also lives here.
+Nothing in `src/` `\input`s or references anything in `src_utils/` (the ledger/report references
+in the chapter sources are provenance comments only), so pasting `src/` alone into Overleaf
+compiles with no missing files.
 
 ## Build (two modes, one source; UFV_COMPLIANCE §1)
 

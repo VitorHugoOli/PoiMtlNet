@@ -29,7 +29,7 @@ final:
 	@echo "Final AcademicoPG PDF -> build/main_final.pdf"
 
 check:
-	@src_utils/check.sh
+	@../src_utils/check.sh
 
 clean:
 	rm -rf build/*

@@ -1,10 +1,10 @@
 #!/bin/bash
 # Lint hook (TEMPLATE.md §2 item 10): the cheap half of gates G2/G3.
-# Usage: make check  (or src_utils/check.sh from the src root). Resolves paths
-# relative to the src root (this script's parent dir), so it works from anywhere.
-# Exits nonzero on any finding.
+# Usage: make check  (or ../src_utils/check.sh from the src root). This script lives in
+# src_utils/ (a SIBLING of src/); the LaTeX source it lints is in the sibling src/. Resolves
+# that path from this script's location, so it works from any cwd. Exits nonzero on any finding.
 FAIL=0
-SRCROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SRCROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../src" && pwd)"
 cd "$SRCROOT"
 CH=chapters/*.tex
 

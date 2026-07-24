@@ -3,7 +3,7 @@
 > The single handoff document for the machine-assembled v1. Author owns and approves every
 > word; this note is the map, the flag ledger, and the ranked to-do list. Nothing here was
 > self-approved past the gates. Repo working copy: `articles/dissertacao/src/`.
-> **Your fill-in decisions doc: `src/src_utils/DECISOES_PENDENTES_ptBR.md` (pt-BR).**
+> **Your fill-in decisions doc: `src_utils/DECISOES_PENDENTES_ptBR.md` (pt-BR).**
 
 ## 0. READ THIS FIRST — what round 2 resolved, and what still needs you
 
@@ -18,7 +18,7 @@
    the recomputed Florida corpus: raw 21,052 users / 76,544 POIs / 1,407,034 check-ins, and after
    the <5-visit filter 13,935 / 76,266 / 1,392,262. Recomputed from the sanctioned per-state ETL
    output (`data/checkins_by_state/Florida.parquet`), not invented. Full analysis +
-   recommendation: `src/src_utils/cbic_recompute_result.md`. **Remaining:** confirm which basis
+   recommendation: `src_utils/cbic_recompute_result.md`. **Remaining:** confirm which basis
    the prose should keep (both-bases wording is in place and needs no choice).
 3. **B.1 CBIC misattribution — FIXED in both places.** The false "CBIC studied next-region and
    observed negative transfer" is corrected in Ch.5 AND in the version-of-record
@@ -68,18 +68,21 @@ Every planned component, its Phase-0 status, and where it landed in v1.
   `src/dissertacao.pdf`, 87 pp, banca PDF) / `make final` (→ `build/main_final.pdf`, 83 pp,
   AcademicoPG upload). ONE `main.tex` now (defense default; `make final` sets `\FINALBUILD` on
   the command line — no second main). All compile output goes to `src/build/` (gitignored).
-  Recipe + TeX-tree notes: `src/src_utils/README_SRC.md`.
-- **`src/` layout:** LaTeX source + `chapters/`/`figures/`/`tables/` + the one `dissertacao.pdf`
-  at the root; **`src/src_utils/`** holds all non-LaTeX (this handoff, README, `check.sh`,
-  reports, `_gates/`, `_review_v1/`, `_specialists_v1/`, the CBIC recompute result, the pt_BR
+  Recipe + TeX-tree notes: `src_utils/README_SRC.md`.
+- **`src/` layout (Overleaf-clean):** `src/` contains ONLY what compiles — LaTeX source +
+  `chapters/` (`.tex` only) + `figures/`/`tables/` + the one `dissertacao.pdf` at the root +
+  `build/` (gitignored output). Paste `src/` straight into Overleaf. **`src_utils/`** is a
+  SIBLING of `src/` (one level up, `articles/dissertacao/src_utils/`) and holds all non-LaTeX
+  (this handoff, README, `check.sh`, reports, `_gates/`, `_review_v1/`, `_specialists_v1/`,
+  `adaptation_ledgers/`, the CBIC recompute result, the pt_BR
   decisions doc); **`src/build/`** holds compile output.
 - **Numbers/citations ledgers:** per-chapter `src/chapters/{3,4,5}_*_ADAPTATION_LEDGER.md`
-  (every departure from the published text, feeding Appendix B); `src/src_utils/BIB_MERGE_REPORT.md`
+  (every departure from the published text, feeding Appendix B); `src_utils/BIB_MERGE_REPORT.md`
   (99-entry key-mapping table + provenance + errata applied); Ch.1/6 citation ledgers in the
   frozen `storyline/drafts/{1,6}_citations.md`; Ch.2 in `fundamentals/DRAFT_LEDGER.md`.
-- **Gate + review evidence:** `src/src_utils/_gates/` (N4 numeral, R3 citation, L3/L4/style/build);
-  `src/src_utils/_review_v1/` (18 persona reports + `CONSOLIDATED_REVIEW_REPORT.md`);
-  `src/src_utils/_specialists_v1/` (the three configured-profile runs on the corrected v1).
+- **Gate + review evidence:** `src_utils/_gates/` (N4 numeral, R3 citation, L3/L4/style/build);
+  `src_utils/_review_v1/` (18 persona reports + `CONSOLIDATED_REVIEW_REPORT.md`);
+  `src_utils/_specialists_v1/` (the three configured-profile runs on the corrected v1).
 - **Exemplars:** `exemples/` now holds five calibration dissertations (germano, viegas, +
   round-2: canesche, passe, lapsusvgi with PROVENANCE.md each); the deepened analysis is
   `docs/research/calibration_recheck_2026-07-24.md`. `exemples/` is gitignored (large PDFs).
@@ -167,7 +170,7 @@ appendix. None is a defect; all are frame-only enhancements.
 ## 7. Specialist verification (round 2)
 
 The three configured specialist profiles were re-run on the corrected v1 (full reports in
-`src/src_utils/_specialists_v1/`). Consolidated verdict:
+`src_utils/_specialists_v1/`). Consolidated verdict:
 
 | Profile | Verdict | Note |
 |---|---|---|
