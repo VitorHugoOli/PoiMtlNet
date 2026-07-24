@@ -235,7 +235,16 @@ The Nash-MTL optimizer was employed for its ability to aggregate tasks gradients
 \subsection{Dataset and Evaluation Metrics}
 \label{sec:cbic:dataset}
 
-To evaluate our model, we use a subset of the public \emph{Gowalla} check-in dataset, originally collected by Cho \textit{et al.}\,\cite{cho2011gowalla}. We focus our analysis on the data from the U.S. state of Florida, which is one of the most active regions in the original dataset. This subset comprises a total of [$N_{\text{users}}$; VERIFY: recompute per ERRATA.md] users, [$N_{\text{poi}}$; VERIFY: recompute per ERRATA.md] unique Points-of-Interest (POIs), and [$N_{\text{checkins}}$; VERIFY: recompute per ERRATA.md] check-ins.
+To evaluate our model, we use a subset of the public \emph{Gowalla} check-in dataset, originally collected by Cho \textit{et al.}\,\cite{cho2011gowalla}. We focus our analysis on the data from the U.S. state of Florida, which is one of the most active regions in the original dataset. This subset comprises 21{,}052 users and 76{,}544 unique Points-of-Interest (POIs) across 1{,}407{,}034 check-ins; after discarding users with fewer than five visits, as done for the next-POI task, 13{,}935 users and 76{,}266 POIs across 1{,}392{,}262 check-ins remain.
+% [VERIFY -- author confirm basis before the advisor build] Recomputed 2026-07-24 from the
+% sanctioned per-state ETL output data/checkins_by_state/Florida.parquet (the data/checkins
+% symlink target the author pointed to), NOT a fresh spatial join. Both bases are stated so no
+% basis choice is forced: raw Florida = 21052/76544/1407034; after the <5-visit-per-user filter
+% (the modelling basis, same convention CoUrb uses) = 13935/76266/1392262. Cross-check (NOT a
+% source, per CBIC ERRATA): CoUrb's published FL row is 990518/65009/20301 -- lower because its
+% task-specific filter is stricter than the plain <5-visit rule; directionally consistent.
+% Full analysis + recommendation: src_utils/cbic_recompute_result.md. If you prefer a single
+% number, keep only the filtered clause (the data actually fed to the model).
 % [VERIFY] The three dataset statistics above were never filled in the published paper
 % (ERRATA.md, non-citation erratum #1). Sanctioned path: a repo-committed script over the
 % CBIC-era Florida pipeline (Gowalla FL, users with <5 visits dropped), author-approved
