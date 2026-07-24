@@ -32,10 +32,16 @@ and they have turned the study of cities into a data-driven discipline
 return to a small set of places on a daily rhythm and travel farther only
 occasionally \cite{cho2011gowalla}, and the regularity has a measurable limit: an
 entropy analysis of movement traces places a potential predictability of about
-93\% on where an individual goes next \cite{song2010limits}. That ceiling is the
-reference point against which any predictive model should be read. A learned model
-that trails it by a wide margin has room to improve; one that approaches it is near
-the limit the data allows.
+93 percent on where an individual goes next \cite{song2010limits}. This bound is
+specific to next-location prediction at coarse spatial resolution; it shows that
+mobility is far from random and is learnable at all, and Section~\ref{sec:fund:eval}
+states the reference points that actually bound the category and region tasks studied
+here.
+% [NEEDS SIGN-OFF: gate fix B-5, 2026-07-24] The §2.1 "93% is the ceiling any model
+% should be read against" was an unscoped universal contradicted by §2.4 (Song's bound
+% is next-location at coarse resolution, not category-F1/region-ranking). Rescoped to
+% next-location + forward-ref to §2.4; figure and "learnable at all" role kept. Persona
+% 14 APPROVE-WITH-EDIT text. Revert to the prior wording if you prefer the original.
 
 Deep-learning methods for human mobility address several distinct problems, from
 crowd-flow estimation to next-location prediction \cite{luca2021mobilitysurvey}, so
@@ -426,7 +432,7 @@ predicts the most frequent category, is the level a learned category model must 
 A first-order transition model, a mobility Markov chain over the training partition,
 is the corresponding non-learned floor for the sequential targets \cite{gambs2012mmc}.
 The entropy analysis of human movement that reports a potential predictability of about
-93\% sets a bound for predicting the next location at coarse resolution, and it frames
+93 percent sets a bound for predicting the next location at coarse resolution, and it frames
 why mobility is learnable at all \cite{song2010limits}; it is not, however, a ceiling on
 seven-class category macro-F1 or on region ranking, which are different label spaces. The
 operative ceiling for the two tasks studied here is the dedicated single-task model,
@@ -529,7 +535,9 @@ learning helps at all, given a place-level embedding and hard parameter sharing,
 reports an honest answer for that configuration. It then asks whether the
 representation, rather than the architecture, is the lever, by decomposing and
 enriching the input the same model receives. It finally asks what a representation
-built for check-ins unlocks for a redesigned joint model, one that, by paired
+built for check-ins enables in a redesigned joint model, one that, by paired
+% [GATE FIX B-3, 2026-07-24] "unlocks for" -> "enables in": "unlock" is on the inherited
+% WRITING_LAW/GLOSSARY §4 ban list; claim unchanged (persona 14 APPROVE-WITH-EDIT). Author may reword.
 superiority tests, outperforms the dedicated single-task models on the next category
 everywhere it is tested and on the next region at four of six datasets, and matches the
 dedicated single-task model within a two-point margin, by non-inferiority testing, at

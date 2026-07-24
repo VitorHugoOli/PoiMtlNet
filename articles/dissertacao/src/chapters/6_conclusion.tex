@@ -75,7 +75,12 @@ dedicated category model widened to the joint model's parameter budget, about 4.
 million parameters at Alabama against 0.6 million at its published width, does not
 recover the joint gain. At Alabama, across three training recipes and the full twenty
 repetitions, its best configuration reaches 56.16 macro-F1, against 56.82 for the
-dedicated model at its own tuned width and 64.54 for the joint model. A partial
+dedicated model at its own tuned width and 64.51 for the joint model. A partial
+% [NEEDS SIGN-OFF: gate fix B-2, 2026-07-24] 64.54 -> 64.51 to match Ch.5 Table 3, the
+% dissertation's reported joint-best convention (JOINT_BEST_RESULTS.md: AL 64.54 diag-best
+% / 64.51 joint-best). AGENT_GUARDRAILS N5 forbids blurring joint-best vs diagnostic-best;
+% verdict-neutral (capacity gap +7.72 or +8.35, no conclusion moves). Persona 14
+% APPROVE-WITH-EDIT. If you prefer 64.54, name it as the diagnostic-best value in prose.
 California run, fifteen of twenty repetitions at the time of writing, shows the same
 direction. Parameter count alone, without the second task's training signal, yields
 nothing here; the two experiments together license the sentence Chapter~\ref{ch:mobiwac} already
