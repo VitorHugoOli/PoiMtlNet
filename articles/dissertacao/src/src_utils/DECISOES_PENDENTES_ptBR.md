@@ -26,17 +26,24 @@ do `\titulo`), para a conversa com o orientador.
 ### 1.2 Numeros do dataset do CBIC (Cap. 3)
 **Contexto.** A frase do dataset do CBIC ("This subset comprises ... users ... POIs ...
 check-ins") estava com placeholders [VERIFY] nunca preenchidos no paper publicado.
-**Feito nesta rodada.** Recalculei a partir da saida oficial do ETL por estado
-(`data/checkins_by_state/Florida.parquet`, o alvo do symlink `data/checkins` que voce indicou --
-sem refazer o spatial join). Preenchi o Cap. 3 com **as duas bases**, para nao forcar escolha:
-- **Bruto (Florida cru):** 21.052 usuarios / 76.544 POIs / 1.407.034 check-ins
-- **Apos filtro <5 visitas/usuario (base de modelagem, mesma convencao do CoUrb):**
-  13.935 usuarios / 76.266 POIs / 1.392.262 check-ins
-Cross-check (NAO e fonte, so sanidade -- regra do ERRATA do CBIC): a linha FL publicada do CoUrb
-e 990.518 / 65.009 / 20.301, menor porque o filtro do CoUrb e mais estrito. Analise completa em
-`src_utils/cbic_recompute_result.md`.
-**DECISAO:** manter as duas bases (recomendado, e fiel e nao exige escolha), OU deixar so a base
-filtrada (o que o modelo de fato usa), OU so a base bruta. Confirmar antes da versao do orientador.
+**Feito nesta rodada (com correcao apos o fact-gate).** Os numeros vem do artefato CBIC-era
+committado que os modelos de fato consumiram -- `data/output/florida_dgi.zip::filtrado.csv` --
+recontado de forma independente: **10.460 usuarios / 64.454 POIs / 960.520 check-ins**. E esse o
+registro fiel da epoca do CBIC. Preenchi o Cap. 3 com esses valores.
+> IMPORTANTE: o codigo atual do ETL NAO reproduz esses numeros. Os arquivos de mapeamento de
+> categoria foram expandidos em 2026-04-14 (~11 meses depois da extracao CBIC-era), entao rodar o
+> ETL hoje super-conta (bruto 21.052/76.544/1.407.034; filtrado-<5 13.935/76.266/1.392.262) sobre
+> o mapeamento de 2026, nao o da epoca. Por isso o `filtrado.csv` committado e a fonte correta,
+> nao uma rodada nova de codigo. (Eu tinha inicialmente preenchido com os numeros do parquet
+> fresco -- base errada; o fact-gate pegou, corrigido.)
+Cross-check (NAO e fonte, regra do ERRATA do CBIC): a linha FL publicada do CoUrb e
+990.518 / 65.009 / 20.301. POIs (64.454 vs 65.009) e check-ins (960.520 vs 990.518) batem a poucos
+%. Analise completa: `src_utils/cbic_recompute_result.md`.
+**DECISAO ABERTA (fail-closed -- por isso continua [VERIFY]):** o **N_users** tem um gap de ~2x
+que os artefatos committados nao resolvem: `filtrado.csv` diz 10.460, o CoUrb diz 20.301. E uma
+diferenca de convencao/mapeamento entre 2025 (CBIC) e 2026 (CoUrb) que nao da para reconstruir do
+repo. Voce precisa: (a) confirmar a base 10.460 (CBIC-era, recomendada), OU (b) escolher outra
+convencao e deixar consistente/time-indexed entre os capitulos. POIs e check-ins ficam como estao.
 > DECISAO: __________________________________________________
 
 ### 1.3 Erro de atribuicao do CBIC no Cap. 5 (item B.1)  --  JA CORRIGIDO nesta rodada

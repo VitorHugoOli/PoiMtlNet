@@ -235,16 +235,20 @@ The Nash-MTL optimizer was employed for its ability to aggregate tasks gradients
 \subsection{Dataset and Evaluation Metrics}
 \label{sec:cbic:dataset}
 
-To evaluate our model, we use a subset of the public \emph{Gowalla} check-in dataset, originally collected by Cho \textit{et al.}\,\cite{cho2011gowalla}. We focus our analysis on the data from the U.S. state of Florida, which is one of the most active regions in the original dataset. This subset comprises 21{,}052 users and 76{,}544 unique Points-of-Interest (POIs) across 1{,}407{,}034 check-ins; after discarding users with fewer than five visits, as done for the next-POI task, 13{,}935 users and 76{,}266 POIs across 1{,}392{,}262 check-ins remain.
-% [VERIFY -- author confirm basis before the advisor build] Recomputed 2026-07-24 from the
-% sanctioned per-state ETL output data/checkins_by_state/Florida.parquet (the data/checkins
-% symlink target the author pointed to), NOT a fresh spatial join. Both bases are stated so no
-% basis choice is forced: raw Florida = 21052/76544/1407034; after the <5-visit-per-user filter
-% (the modelling basis, same convention CoUrb uses) = 13935/76266/1392262. Cross-check (NOT a
-% source, per CBIC ERRATA): CoUrb's published FL row is 990518/65009/20301 -- lower because its
-% task-specific filter is stricter than the plain <5-visit rule; directionally consistent.
-% Full analysis + recommendation: src_utils/cbic_recompute_result.md. If you prefer a single
-% number, keep only the filtered clause (the data actually fed to the model).
+To evaluate our model, we use a subset of the public \emph{Gowalla} check-in dataset, originally collected by Cho \textit{et al.}\,\cite{cho2011gowalla}. We focus our analysis on the data from the U.S. state of Florida, which is one of the most active regions in the original dataset. This subset comprises 10{,}460 users, 64{,}454 unique Points-of-Interest (POIs), and 960{,}520 check-ins.
+% [VERIFY -- N_users basis, author sign-off before the advisor build]
+% Numbers recomputed 2026-07-24 from the COMMITTED CBIC-era artifact
+% data/output/florida_dgi.zip::florida_test/filtrado.csv -- the exact Florida DGI input the CBIC
+% models consumed (independently re-counted this session: 960,520 rows / 10,460 users / 64,454
+% POIs). This is the FAITHFUL CBIC-era record. NOTE: the current ETL code CANNOT reproduce these
+% counts -- the category-mapping files were expanded 2026-04-14 (~11 months after the CBIC-era
+% extraction), so a fresh run over-counts (raw 21052/76544/1407034; <5-filtered 13935/76266/
+% 1392262) on the 2026 mapping, not CBIC-era. POI (64,454) and check-ins (960,520) are
+% corroborated by CoUrb's published FL row (65,009 / 990,518, cross-check only per CBIC ERRATA,
+% within a few %). OPEN [VERIFY]: N_users 10,460 (filtrado) vs CoUrb 20,301 -- a ~2x gap the
+% committed artifacts cannot resolve (a 2025-vs-2026 convention/mapping difference); the author
+% must confirm the basis or time-index it per chapter before the advisor build.
+% Full analysis: src_utils/cbic_recompute_result.md (the authoritative one, from the ETL worker).
 % [VERIFY] The three dataset statistics above were never filled in the published paper
 % (ERRATA.md, non-citation erratum #1). Sanctioned path: a repo-committed script over the
 % CBIC-era Florida pipeline (Gowalla FL, users with <5 visits dropped), author-approved
