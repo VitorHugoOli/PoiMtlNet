@@ -203,18 +203,26 @@ degree of \textit{Magister Scientiae}.}
     pesquisa. O terceiro estudo moveu a representação para o nível do check-in, dando a
     cada visita seu próprio vetor em vez de atribuir o mesmo vetor a todas as visitas a
     um mesmo lugar, e redesenhou a topologia de compartilhamento em torno de um tronco
-    de atenção cruzada entre dois fluxos específicos por tarefa. Sob validação cruzada
+    de atenção cruzada entre dois fluxos específicos por tarefa. Foi também o estudo que
+    introduziu a tarefa da próxima região; os dois primeiros pareavam a classificação de
+    categoria com a previsão da próxima categoria, de modo que o próprio par de tarefas
+    mudou ao longo da coletânea. Sob validação cruzada
     com usuários disjuntos entre treino e teste, com vinte repetições por configuração
     (quatro inicializações aleatórias, cinco partições), testes de significância
     pareados, teste de não-inferioridade e uma auditoria de vazamento, esse modelo
     conjunto supera os modelos dedicados na tarefa da próxima categoria nos seis
     conjuntos de dados estudados, cinco estados dos Estados Unidos e Istambul, por 5,3
-    a 9,4 pontos de macro-F1, e, na tarefa da próxima região, supera em quatro dos seis
+    a 9,4 pontos de macro-F1 sob uma seleção \emph{joint-best} (um único \emph{checkpoint}
+    por partição, escolhido na validação, com as duas tarefas avaliadas nesse
+    \emph{checkpoint}), e, na tarefa da próxima região, supera em quatro dos seis
     conjuntos e equipara-se estatisticamente, com não-inferioridade dentro de uma
-    margem de dois pontos (TOST), nos outros dois. A resposta é, portanto, condicional,
-    e a condição é o achado: a representação de entrada, junto com a topologia de
-    compartilhamento construída sobre ela, determina se o aprendizado multitarefa ajuda
-    a previsão sobre pontos de interesse.
+    margem de dois pontos de Acc@10 (TOST), nos outros dois. A resposta é, portanto,
+    condicional, e a condição é o achado: se o aprendizado multitarefa ajuda a previsão
+    sobre pontos de interesse depende da representação de entrada e da topologia de
+    compartilhamento construída sobre ela.
+    % [NEEDS SIGN-OFF: par com o Abstract EN; caveats 2.1/3-4-5 do autor, 2026-07-24]
+    % 3: nomeada a metrica da margem (Acc@10). 4: nomeada a convencao joint-best do
+    % intervalo 5,3-9,4. 5: "determina se" -> "depende de" (o confundimento da Sec. 6.2).
 
     \vspace{\onelineskip}
     \noindent
@@ -242,7 +250,7 @@ degree of \textit{Magister Scientiae}.}
     % verbs bound to tests (outperforms / matches). Audit as a PAIR.
     \noindent Location-based social networks record \emph{check-ins}: visits by a user
     to a point of interest (POI) at a given time. Anticipating two properties of the
-    next visit, the category of the next visited place and the region where the visit
+    next visit, the category of the next place visited and the region where the visit
     will happen, lets a mobility-aware service act before the visit occurs, and the two
     prediction tasks read the same trace of visits, so one model could learn them
     together through multi-task learning (MTL). The promise, however, is not automatic:
@@ -250,28 +258,37 @@ degree of \textit{Magister Scientiae}.}
     negative transfer, and whether joint training helps this pair of POI prediction
     tasks, and what the answer depends on, was unresolved when this research started.
     This dissertation answers that question across three studies, presented as a
-    collection of articles in the order they happened: a negative result, its
+    collection of articles in chronological order: a negative result, its
     diagnosis, and its resolution. The first study built MTLnet, a joint model with a
     place-level embedding as input and hard parameter sharing; the joint model did not
     consistently outperform the two dedicated single-task models and cost more to
     train, a null result reported as a finding. The second study kept the architecture
     fixed and replaced only the input with decomposed spatial, temporal, and
-    categorical encoders; category performance rose sharply at every state tested, so
+    categorical encoders; category performance rose sharply in every state tested, so
     the input representation, not the sharing architecture, was the bottleneck at that
     stage of the research. The third study moved the representation to the check-in
     level, giving each visit its own vector instead of assigning the same vector to
     every visit to a place, and redesigned the sharing topology around a
-    cross-attention trunk between two task-specific streams. Under cross-validation
+    cross-attention trunk between two task-specific streams. It is also the study that
+    introduced the next-region task; the first two paired category classification with
+    next-category prediction, so the task pair itself changed across the collection.
+    Under cross-validation
     with users disjoint between training and test, with twenty repetitions per
     configuration (four random initializations, five folds), paired significance
     tests, non-inferiority testing, and a leakage audit, this joint model outperforms
     the dedicated models on the next-category task at all six datasets studied, five
-    states of the United States and Istanbul, by 5.3 to 9.4 macro-F1 points, and, on
-    the next-region task, outperforms at four of six datasets and statistically
-    matches, with non-inferiority within a two-point margin (TOST), at the other two.
-    The answer is therefore conditional, and the condition is the finding: the input
-    representation, together with the sharing topology built on it, determines whether
-    multi-task learning helps point-of-interest prediction.
+    states of the United States and Istanbul, by 5.3 to 9.4 macro-F1 points under a
+    joint-best selection (a single checkpoint per fold, chosen on validation, with both
+    tasks scored at that checkpoint), and, on the next-region task, outperforms at four
+    of six datasets and statistically matches, with non-inferiority within a two-point
+    Acc@10 margin (TOST), at the other two. The answer is therefore conditional, and the
+    condition is the finding: whether multi-task learning helps point-of-interest
+    prediction depends on the input representation and the sharing topology built on it.
+    % [NEEDS SIGN-OFF: abstract wording, author caveats 2.1/3-4-5, 2026-07-24]
+    % 3: named the non-inferiority margin metric (Acc@10). 4: named the joint-best
+    % convention behind the 5.3-9.4 range. 5: "determines whether" -> "depends on" (the
+    % confound in Sec. 6.2 -- representation, topology, task-pair moved together -- makes
+    % a hard causal verb overclaim). Claims/numbers unchanged. Adjust wording freely.
 
     \vspace{\onelineskip}
     \noindent

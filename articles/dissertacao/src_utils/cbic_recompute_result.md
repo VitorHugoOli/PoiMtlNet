@@ -1,3 +1,16 @@
+> **RESOLVED — author ruling 2026-07-24 (supersedes the recommendation below).**
+> Ch.3 now reports the Florida figures of record from the CoUrb dataset table:
+> **20,301 users / 65,009 POIs / 990,518 check-ins**. The author confirmed that the
+> `data/output/florida_dgi.zip::filtrado.csv` artifact analysed below (10,460 / 64,454 / 960,520)
+> is from a PRIOR ETL that is no longer in use, so it must not be the source. Since the CBIC
+> paper never published these three statistics, no published value is overridden, and using the
+> current-pipeline Florida figures keeps Ch.3 consistent with the same corpus in Ch.4. The
+> `[VERIFY]` flag is cleared. The analysis below is retained for provenance — it records the
+> alternatives that were weighed (fresh-ETL raw, fresh-ETL <5-filtered, and the abandoned
+> `filtrado.csv`) and why the N_users question could not be settled from committed artifacts alone.
+
+---
+
 # CBIC Florida dataset recompute — `3_cbic.tex:235` [VERIFY] placeholders
 
 **Task:** produce `N_users`, `N_poi`, `N_checkins` for the CBIC-era Florida subset of Gowalla,
