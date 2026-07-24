@@ -98,14 +98,45 @@ Uma pagina, a partir do historico git. Ja inclui a linha do desvio de modelo (su
 os tokens do Fable acabaram). **DECISAO:** confirmar o escopo e aprovar.
 > DECISAO: Não altere mais nada no apendice C
 
-### 2.3 Apendice A (BRACIS) + Apendice B (errata)
+### 2.3 Apendice A -- contribuicao de tooling/ETL vs contencao do BRACIS  ⚠ PRECISA DA SUA DECISAO
 
-Apendice A trata o BRACIS como iteracao intermediaria nao publicada (regra de contencao C4). Apendice B lista as erratas
-aplicadas (inclui agora a correcao 1.3). **DECISAO:** ler e aprovar.
-> DECISAO: Algum outro trablho dos exemples fazm isso? Ser sinecero acho estranho citarmos um trablho que não foi
-> publicado e foi incorporado em outro, logo não vejo ncessecidade. No APPENDIX, podemos citar o refinamento do ETL para
-> o dataset gowalla, essa codebase que possui um sutie de ferramentas apra se esturar e rablahar com MTL e POI (Use um
-> agent para fazer o scrpay e formalizar esse argmuento de forma mais concreta com evidencias mais solidas)
+**O que voce pediu.** (i) Achou estranho citar um trabalho nao publicado e absorvido (BRACIS) --
+nao ve necessidade; (ii) em vez disso, citar o refinamento do ETL do Gowalla + a codebase/suite de
+ferramentas de MTL+POI como contribuicao, com um agente fazendo o scrape e formalizando o argumento
+com evidencias solidas.
+
+**FEITO nesta rodada.** Rodei um agente de levantamento (read-only) sobre a codebase. Evidencia
+completa (cada numero rastreavel a um comando) em `src_utils/etl_tooling_contribution_evidence.md`
++ `handoff_tooling.json`. Numeros verificados: **192 modulos / 28.644 linhas** no `src/`; suite de
+embeddings separada; camada de testes de tamanho comparavel; ~1.700 commits; **3 familias de
+dataset** (Gowalla, Massive-STEPS, Foursquare), **8 engines de embedding** (DGI, HGI, Check2HGI...),
+**21 otimizadores/balanceadores de MTL**, **13 backbones de MTL**; ETL do Gowalla que particiona em
+**56 datasets estaduais dos EUA** (3 estagios, resumivel); protocolo de CV usuario-disjunta +
+significancia padronizando todas as comparacoes. **Reescrevi o Apendice A** (`apx_a_contributions.tex`)
+para LIDERAR com essa contribuicao de software (§A.1), sem nenhuma alegacao de desempenho/novidade
+(essas ficam nos capitulos de resultado).
+
+**O trade-off que preciso que voce decida (por isso NAO deletei o BRACIS sozinho).** Concordo em
+foregroundar o tooling. Mas manter o paragrafo do BRACIS tem uma funcao que a sua pergunta talvez
+nao esteja pesando: ele e o **dispositivo de contencao** (AGENT_GUARDRAILS C4, NORTH_STAR §3). A
+dissertacao **precisa** revelar que existiu uma iteracao anterior cuja alegacao central (custo de
+regiao no MTL) estava **errada** -- justamente para que, se um membro da banca achar a submissao
+rejeitada, o documento ja tenha tratado disso honestamente, em vez de parecer que escondeu um
+fracasso. Remover o BRACIS por completo pode **ler como ocultacao**. Por isso deixei o Apendice A
+com DUAS secoes: §A.1 tooling (novo, o que voce quer em primeiro plano) e §A.2 "An earlier
+unpublished iteration" (o BRACIS, curto, so a funcao de contencao -- sem citar numeros do paper
+rejeitado).
+
+**Sobre "algum exemplar faz isso?":** dos 3 exemplares do Locus que baixei, nenhum tem um apendice
+"outras contribuicoes" diretamente comparavel -- a contencao do BRACIS e especifica desta
+dissertacao (voce tem um trabalho rejeitado-e-absorvido no historico; eles nao). Ou seja, nao ha
+precedente que obrigue nem que proiba; a decisao e de risco.
+
+**DECISAO:** (a) **manter as duas secoes** (recomendado -- tooling em primeiro plano + contencao
+preservada), OU (b) **remover a §A.2 (BRACIS)** e aceitar o risco de contencao (a banca pode achar
+a submissao rejeitada sem que o documento a enderece). Se (b), eu removo a §A.2 e ajusto o
+NORTH_STAR §3 para registrar a mudanca de politica.
+> DECISAO: __________________________________________________
 
 ### 2.4 Cap. 5 -- prefacio + recap duplo + figura embquality restaurada
 

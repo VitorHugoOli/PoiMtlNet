@@ -15,12 +15,59 @@
 % preface), not as an "other contribution" item; NORTH_STAR §3 names only the BRACIS
 % submission for this appendix. Do not invent items.
 % [NEEDS SIGN-OFF: whole appendix -- new frame prose.]
+%
+% [ROUND 3, 2026-07-24 -- author request 2.3] The author asked to foreground the RESEARCH
+% TOOLING / ETL codebase as a contribution instead of leading with the rejected BRACIS
+% submission. This version does that: §A.1 is the software/infrastructure contribution (drafted
+% from a read-only repo survey; every count traces to ../../src_utils/etl_tooling_contribution_evidence.md
+% + ../../handoff_tooling.json, and to handoff_tooling.json's commands). §A.2 KEEPS the BRACIS
+% paragraph, deliberately: it is the C4 CONTAINMENT device (AGENT_GUARDRAILS C4, NORTH_STAR §3) --
+% the dissertation must disclose that an earlier iteration existed and that its region-cost claim
+% was wrong, so that if a banca member finds the rejected submission the document has already
+% addressed it honestly rather than appearing to hide a failure. Removing it entirely would read
+% as concealment, which is why I did NOT delete it on the author's "drop BRACIS" instinct without
+% flagging the trade-off (see DECISOES_PENDENTES_ptBR §2.3). DECISION for the author: keep both
+% (recommended), OR drop §A.2 and accept the containment risk.
+% ETL Stage-3 accuracy note: stage_3.py writes per-state CSV (the .to_parquet line is commented,
+% stage_3.py:98); the 56 on-disk files are .parquet. The safe claim is "56-way state split", which
+% is what the text below says -- it does NOT claim the stage writes parquet.
 
 \chapter{Other Scientific Contributions}
 \label{apx:contributions}
 
-Besides the three articles that form Chapters~\ref{ch:cbic} to~\ref{ch:mobiwac}, one
-additional manuscript was produced during this research. In the first half of 2026,
+\section{A research platform for multi-task POI prediction}
+\label{apx:contributions:tooling}
+
+Beyond the three published studies, this research produced a reusable software
+platform that supported every experiment in the dissertation and is released with the
+code. It is organized as a registry-driven experimental framework rather than a
+collection of one-off scripts: name-keyed registries expose interchangeable
+implementations across each axis the dissertation studies. The core comprises a
+192-module, 28{,}644-line source tree, a separate embedding-engine suite, and a test
+layer of comparable size, developed across roughly 1{,}700 commits. The platform
+provides implementations of three dataset families (Gowalla, Massive-STEPS, and
+Foursquare), eight point-of-interest and check-in embedding engines (including the
+place embedding of Deep Graph Infomax, its hierarchical variant, and the
+check-in-level Check2HGI of Chapter~\ref{ch:mobiwac}), twenty-one multi-task loss and
+gradient-balancing methods, and thirteen multi-task backbone architectures spanning
+the hard-to-soft parameter-sharing spectrum.
+
+A refined extract-transform-load pipeline for the Gowalla check-in dump is a
+distinct part of this contribution. It geospatially partitions the public check-in
+record into fifty-six United States state-level datasets through a three-stage,
+resumable process: category mapping over a several-hundred-entry hierarchy, optional
+timezone localization, and a state spatial join against Census boundary data. The same
+codebase standardizes evaluation across the dissertation through a user-disjoint
+cross-validation and significance protocol, so that every single-task-versus-multi-task
+comparison reported in Chapters~\ref{ch:cbic} to~\ref{ch:mobiwac} rests on a common,
+leakage-controlled measurement procedure rather than on per-study ad hoc splits. No
+performance or novelty claim is made here; those belong to the results chapters, under
+the evidence protocol the frame follows.
+
+\section{An earlier unpublished iteration}
+\label{apx:contributions:bracis}
+
+One additional manuscript was produced during this research. In the first half of 2026,
 between the study of Chapter~\ref{ch:courb} and the consolidated study of
 Chapter~\ref{ch:mobiwac}, an earlier iteration of the check-in-level line of work was
 submitted to the Brazilian Conference on Intelligent Systems (BRACIS 2026) under the
