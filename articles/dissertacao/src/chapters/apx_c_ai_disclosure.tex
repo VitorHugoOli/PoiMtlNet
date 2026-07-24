@@ -35,14 +35,11 @@ The scope of use, per part of the work, was the following.
         English translation of the Chapter~\ref{ch:courb} article, which passed a
         separate sentence-level fidelity check against the published Portuguese text.
   \item[Editing and review.] Assistant-run review passes checked citations, numbers,
-        claims, cross-references, and style; for the Chapter~\ref{ch:mobiwac} article,
-        a readability review pass used a model of the Claude Opus family, followed by
-        an independent audit of its edits. The complete first version was additionally
-        subjected to an eighteen-reviewer panel, each reviewer a separate agent
-        instance running a model of the Claude Opus family and confined to a single
-        role (fact-checking, style, statistics, domain expertise, compliance, and a
-        simulated defense committee, among others). Review passes are run by an agent
-        that did not write the text under review.
+        claims, cross-references, and style. The complete first version passed an
+        eighteen-reviewer panel, each reviewer a separate agent (Claude Opus family)
+        confined to one role: fact-checking, style, statistics, domain expertise,
+        compliance, and a simulated defense committee, among others. Review passes are
+        run by an agent that did not write the text under review.
   \item[Formatting.] The LaTeX structure, the two build modes, the bibliography
         consolidation, and figure and table re-setting were produced by the assistant.
   \item[Code.] Analysis and experiment code was written by the author with assistant
