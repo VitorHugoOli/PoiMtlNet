@@ -52,7 +52,7 @@ from pathlib import Path
 
 FORCE = False         # Recompute every stage from scratch.
 SKIP_LOCALISE = True  # Skip the timezone-based local_datetime step
-                      # (BRACIS pipeline doesn't need it).
+                      # (this pipeline doesn't need it).
 
 # ---------------------------------------------------------------------------
 # Run
