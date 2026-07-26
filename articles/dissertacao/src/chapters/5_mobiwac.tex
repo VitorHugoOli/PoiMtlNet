@@ -649,7 +649,11 @@ $+2.13$ at Texas, $+2.19$ to $+2.21$ at California).
 % between them filled it, leaving page 71 without body prose and splitting the subsection's
 % argument across three pages. Declaring it after the statistics paragraph gives the page text
 % to set; declaration order relative to the results table is unchanged, so Figure 7 keeps its
-% number. Verified on rebuild: p.71 now carries prose, and no float precedes its own heading.
+% number. Measured after the rebuild that followed this edit: p.71 carries 360 word-tokens of body
+% prose (263 before, table only), and of the 22 floats, 21 render at or after the page of their
+% first prose reference. The exception is Chapter 4's Figure 3, which renders one page ahead of its
+% reference; its placement directive is unchanged by this round and a float landing one page early
+% is ordinary LaTeX behavior, not the heading-precedence defect this edit addressed.
 \begin{figure}[htbp]
 \centering
 \includegraphics{figures/mobiwac/fig4_deltas.pdf}

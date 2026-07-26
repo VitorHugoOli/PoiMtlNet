@@ -52,14 +52,37 @@ substanciais*.
 data-ethics statement, which a committee will ask about and which cannot be written without three
 facts the author holds, and the unscoped Chapter 4 static task. Both are in `PENDENCIAS.md`.
 
-### A verification failure in this round, disclosed
+### Verification failures in this round, disclosed
 
-My own build check reported "0 undefined citations" while four citations were rendering as `(??)`
-in both delivered PDFs. The check grepped line-anchored patterns; LaTeX wraps warnings across
-lines, so every wrapped warning was invisible to it. Three independent reviewers caught what I had
-certified as clean. The checker now flattens the log, reads the BibTeX log as well, and fails
-loudly on BibTeX errors. This is recorded because the v1 review's own weakest passages came from
-trusting a check instead of running one, and the same failure mode caught me.
+Four defects in my own checking, all found by review rather than by me, and all corrected. They are
+recorded here because the v1 review's weakest passages came from trusting a check instead of
+running one, and the same failure mode caught me.
+
+1. **The undefined-citation check was blind.** It reported "0 undefined citations" while four
+   citations rendered as `(??)` in both delivered PDFs. The check matched line-anchored patterns;
+   LaTeX wraps warnings across lines, so every wrapped warning was invisible. Three independent
+   reviewers caught what I had certified as clean. The checker now flattens the log before matching
+   and reads the BibTeX log as well, where the decisive error actually lived.
+2. **The floats-only-page check was insensitive.** It relied on the log line "Text page N contains
+   only floats", which LaTeX does not emit for every such page. It reported "none" for a build whose
+   page 71 was in fact floats-only. Floats-only pages are now measured from the PDF text layer, not
+   inferred from the log.
+3. **A commit message recorded "no floats-only page" as verified when it was not.** That commit is
+   `875ec5b7`. The claim came from the insensitive check above, and page 71 was floats-only at the
+   time it was written; the condition was genuinely fixed two commits later in `e84b37c0`. The
+   commit record is left as written, since rewriting history would hide the error, and the
+   correction is recorded here instead.
+4. **Two build reports presented an un-rebuilt variant as fresh.** The build script printed a line
+   for every log file present, including the final-build log, even when only the defense build had
+   been run, so two commit messages quoted final-build numbers that a later genuine build happened
+   to reproduce but that had not been measured at the time. The script now reports only the variants
+   the invocation actually built.
+
+A fifth, smaller overstatement: the numeral audit said "all Chapter 6 numerals trace to the
+committed README or summary JSON" after probing eight of the ten new numerals. The two unprobed
+values were `64` and `192`, the width-asymmetry figures; both have since been traced to
+`4_courb.tex:221` (which prints the concatenated representation as an element of R^192) and `:119`
+(the monolithic 64-dimensional baseline).
 
 ---
 
@@ -94,7 +117,7 @@ author holds; **DEFERRED** deliberately postponed with a reason.
 | REV-022 | Moderate | **PART CLOSED; AUTHOR for the rest** | Axis label corrected and figure regenerated. The Portuguese labels in the Ch.4 figure are blocked on missing source art. |
 | REV-023 | Major | **PART CLOSED; AUTHOR for the rest** | "Three published studies" corrected; page counts synchronized; the approval-sheet macro that hardcoded a prior student's name defused. Committee, date, and cover remain the author's. |
 | REV-024 | Major | **AUTHOR** | A real deviation with a same-advisor precedent that passed. The edit is one deletion; the consequence is roughly two pages, which interacts with pagination. |
-| REV-025 | Major | **AUTHOR RULED** | The author ruled Appendix C stays as written. The 14 sign-off markers are inventoried in `PENDENCIAS.md`. |
+| REV-025 | Major | **AUTHOR RULED** | The author ruled Appendix C stays as written. The 24 sign-off markers are inventoried in `PENDENCIAS.md`. |
 | REV-026 | Moderate | **AUTHOR, and it is the most exposed open item** | Zero rendered sentences on ethics, privacy, licensing, or consent. The licence research is done; the missing inputs are three facts. |
 | REV-027 | Major | **CLOSED for Ch.3; refuted for Ch.4** | Four substitutions where the word attaches to this study's own comparisons. The hypothesis and cited-work uses were deliberately left. Ch.4 has zero occurrences. |
 | REV-028 | Moderate | **CLOSED** | The ledger was complete; the reader-facing record was not. Counts corrected, B4 reclassified, omissions disclosed. |
@@ -362,7 +385,7 @@ input required. Ranked by exposure at the defense:
    blocker independent of the science.
 4. **The advisor bundle**: English frame, CoUrb inclusion, final title, errata policy, and the
    bibliography font question (REV-024).
-5. **The 14 sign-off markers**, including the Resumo and Abstract parity pair, which cannot be
+5. **The 24 sign-off markers**, including the Resumo and Abstract parity pair, which cannot be
    signed off separately.
 6. **The Nash instruction conflict (REV-005)** between the author's ruling and `NORTH_STAR.md:146`.
 

@@ -303,12 +303,19 @@ porque estao dentro de registros de resultado:
   texto de moldura → capitulos publicados sob errata → layout → build → revisao. A ordem importa: o
   layout depende das quebras de pagina que o texto move, e o Apendice B so fica correto se escrito
   **depois** das correcoes que ele declara.
-- **Um defeito meu, declarado.** Meu verificador de build reportou "0 citacoes indefinidas" enquanto
-  quatro citacoes renderizavam como `(??)` nos dois PDFs. O grep era ancorado por linha e o LaTeX
-  quebra os avisos em varias linhas. Tres revisores independentes pegaram o que eu tinha certificado
-  como limpo. O verificador agora achata o log, le o `.blg` e falha alto em erro de BibTeX. A causa
-  raiz eram arquivos `.aux` velhos **commitados** na raiz do `src/`, que o BibTeX le antes do
-  `build/`; foram removidos e entraram no `.gitignore` com o motivo registrado.
+- **Defeitos meus, declarados.** Quatro falhas na minha propria verificacao, todas encontradas pela
+  revisao e nao por mim, todas corrigidas: (i) o teste de citacao indefinida reportou "0" enquanto
+  quatro citacoes renderizavam como `(??)` nos dois PDFs, porque o grep era ancorado por linha e o
+  LaTeX quebra avisos em varias linhas; (ii) o teste de pagina so-com-floats dependia de uma linha
+  de log que o LaTeX nem sempre emite, e reportou "nenhuma" para um build cuja p. 71 era so floats;
+  (iii) o commit `875ec5b7` registrou "no floats-only page" como verificado quando nao estava (a
+  condicao foi de fato corrigida dois commits depois, em `e84b37c0`; deixei o commit como esta,
+  porque reescrever historico esconderia o erro); (iv) o script imprimia uma linha para o build
+  final mesmo quando so o de defesa tinha rodado, entao duas mensagens de commit citaram numeros do
+  final que ainda nao tinham sido medidos. O verificador agora achata o log, le o `.blg`, mede
+  paginas so-com-floats a partir do PDF e reporta so as variantes que aquela execucao construiu.
+  A causa raiz das citacoes `(??)` eram arquivos `.aux` velhos **commitados** na raiz do `src/`, que
+  o BibTeX le antes do `build/`; foram removidos e entraram no `.gitignore` com o motivo registrado.
 - **O que nao esta pendente, embora pareca:** a discrepancia 87/83 x 89/84 de paginas era real e
   esta corrigida (agora 94/89 apos as correcoes, medido). As duas violacoes de margem foram
   eliminadas. As tabelas do Cap. 5 que estavam em 8 pt agora renderizam em 11,96 pt, tamanho de
