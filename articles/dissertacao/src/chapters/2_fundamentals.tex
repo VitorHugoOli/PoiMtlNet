@@ -13,8 +13,8 @@ that three papers of different shape read as one document. It defines the predic
 tasks and keeps them distinct (Section~\ref{sec:fund:tasks}); follows the line of
 representations for mobility from one-hot identifiers to the check-in level
 (Section~\ref{sec:fund:repr}); reviews multi-task learning and the conditions under
-which it helps or hurts (Section~\ref{sec:fund:mtl}); states the datasets, metrics,
-and validation protocol used throughout (Section~\ref{sec:fund:eval}); and closes by
+which it helps or hurts (Section~\ref{sec:fund:mtl}); states the datasets and metrics,
+and the validation protocol of the final study (Section~\ref{sec:fund:eval}); and closes by
 drawing these together into the question the following chapters answer
 (Section~\ref{sec:fund:relevance}).
 
@@ -162,7 +162,26 @@ directly on it. HGI extends the infomax objective across a hierarchy and is trai
 maximizing the mutual information among the POI, region, and city levels, yielding
 region-aware place embeddings \cite{huang2023hgi}. HGI is the place-level baseline
 representation the later chapters measure against, and it is the direct base of the
-representation the dissertation contributes.
+representation the dissertation contributes. Two qualifications belong with that use.
+Huang et al.\ present HGI as a method for urban region representation and evaluate it on
+region-level estimation tasks, so the work reported here repurposes its POI-level output
+as a place embedding for a sequential prediction task their paper does not address. The
+baseline was also tuned rather than taken as published: the cross-region edge weight of
+their Equation 2, set to 0.4 for the dense Chinese cities they study, was raised to 0.7
+for the sparser United States state datasets used here, a change under which the category
+F1 on Alabama, over five folds, rose monotonically from 0.74 to 0.82 across the swept
+values.
+% [VERIFY: averaging convention of the swept "Cat F1"] Provenance of this clause:
+% research/embeddings/hgi/CLAUDE.md:117 ("The paper uses 0.4 but that's tuned for dense
+% Chinese cities; on Alabama Cat F1 rises monotonically 0.74 -> 0.82 as w_r goes
+% 0.4 -> 0.7"), mirrored at research/embeddings/hgi/preprocess.py:35-39 and tabulated at
+% research/embeddings/hgi/README.md:544-551 (5 folds x 50 epochs; 0.4 -> 0.7388 +/- 0.0205,
+% 0.7 -> 0.8186 +/- 0.0123). w_r = 0.4 verified firsthand in the HGI PDF, Eq. 2 ("wr is a
+% factor to differentiate intra- (wr = 1) and cross-region (wr = 0.4) edges"), and the
+% region-representation goal in its abstract. The sources record "Cat F1" without naming
+% the averaging convention (macro vs weighted), so the sentence says "category F1" and not
+% "macro-F1"; author to confirm the convention, or drop the two values and keep the clause
+% qualitative.
 
 A place embedding, however it is trained, shares one property: it assigns each place a
 single fixed vector. That vector is the same whether the place is visited on a weekday
@@ -189,7 +208,7 @@ geometry rather than a flat approximation
 \cite{mai2023sphere2vecgeneralpurposelocationrepresentation}. A related encoder uses
 spherical harmonics together with sinusoidal representation networks, again to honor
 the spherical domain that flat sine-and-cosine features distort
-\cite{rußwurm2024geographiclocationencodingspherical}. Feature-wise linear modulation
+\cite{russwurm2024geographiclocationencodingspherical}. Feature-wise linear modulation
 (FiLM) is a general conditioning mechanism that scales and shifts a layer's features
 according to a side input \cite{perez2018film}. In the models of Chapters~\ref{ch:cbic} and~\ref{ch:courb} it
 conditions the shared network on a per-task identity, so that one trunk can serve both
@@ -217,24 +236,33 @@ check-in level and the joint model that uses it.
   model built on it. Status of the Check2HGI representation and the joint model is
   \emph{submitted, under review}.}
   \label{tab:fund:lineage}
-  \begin{tabular}{@{}lll@{}}
+  % REDESIGNED 2026-07-26 (REV-021). The previous @{}lll@{} tabular hand-wrapped the middle
+  % column across two rows per model and overran the text block by 29.76pt
+  % (build/main.log:1604, "lines 220--238"), bringing the rendered page to 0.97cm from the
+  % paper edge against the 2cm right margin of UFV_COMPLIANCE.md:34. The description column is
+  % now an X column, so LaTeX wraps it and one row carries one model; tabularx sizes X to make
+  % the table exactly \textwidth, which is why this construction cannot overrun the margin.
+  % Both packages are already loaded by memoir -- array (memoir.cls:5453, log line 140) supplies
+  % >{} and \arraybackslash, tabularx (memoir.cls:5469, log line 156) supplies X -- so nothing is
+  % added to 0_main.tex. booktabs rules only, caption above, six rows in lineage order, and every
+  % citation, chapter reference, and description kept as it was.
+  \begin{tabularx}{\textwidth}{@{}l>{\raggedright\arraybackslash}Xl@{}}
     \toprule
     Model / method & What it added & Reference \\
     \midrule
-    DGI        & Unsupervised place embeddings by maximizing mutual information       & \cite{velickovic2019deep} \\
-               & between local patches and a global graph summary.                    &                           \\
-    HGI        & Extends graph infomax over the POI, region, and city hierarchy       & \cite{huang2023hgi} \\
-               & to yield region-aware place embeddings.                              &                     \\
-    MTLnet     & First joint model: place embedding, FiLM conditioning, and hard      & \cite{silva2025mtlnet} \\
-               & parameter sharing. Null result for that configuration.              &                        \\
-    ST-MTLNet  & Keeps MTLnet, replaces the place-embedding input with decomposed      & Chapter~\ref{ch:courb} \\
-               & spatial, temporal, and categorical encoders.                        &                        \\
-    Check2HGI  & Check-in-level representation: graph infomax extended to the          & Chapter~\ref{ch:mobiwac} \\
-               & check-in, so each visit carries its own vector.                     &                          \\
-    Joint model & Cross-attention model on Check2HGI: one model for both tasks,        & Chapter~\ref{ch:mobiwac} \\
-               & next category and next region.                                       &                          \\
+    DGI & Unsupervised place embeddings by maximizing mutual information between local patches and a global graph summary. & \cite{velickovic2019deep} \\
+    \addlinespace
+    HGI & Extends graph infomax over the POI, region, and city hierarchy to yield region-aware place embeddings. & \cite{huang2023hgi} \\
+    \addlinespace
+    MTLnet & First joint model: place embedding, FiLM conditioning, and hard parameter sharing. Null result for that configuration. & \cite{silva2025mtlnet} \\
+    \addlinespace
+    ST-MTLNet & Keeps MTLnet, replaces the place-embedding input with decomposed spatial, temporal, and categorical encoders. & Chapter~\ref{ch:courb} \\
+    \addlinespace
+    Check2HGI & Check-in-level representation: graph infomax extended to the check-in, so each visit carries its own vector. & Chapter~\ref{ch:mobiwac} \\
+    \addlinespace
+    Joint model & Cross-attention model on Check2HGI: one model for both tasks, next category and next region. & Chapter~\ref{ch:mobiwac} \\
     \bottomrule
-  \end{tabular}
+  \end{tabularx}
 \end{table}
 
 % ---------------------------------------------------------------------------
@@ -250,11 +278,22 @@ check-in level and the joint model that uses it.
 %  velickovic2019deep    DGI: node reps by local-patch/global-summary MI (base of lineage) [ERRATA: consolidate DGI triple-key]
 %  feng2017poi2vec       POI2Vec: geographical influence in POI embedding (early mobility place-embedding)
 %  huang2023hgi          HGI: MI across POI-region-city hierarchy (VERIFIED firsthand, PDF). Direct base.
+%                        REV-019 (2026-07-26): the "region-aware place embeddings" wording is CORRECT and was kept
+%                        (the implementation exports both a POI-level and a region-level embedding,
+%                        research/embeddings/hgi/hgi.py:101-110 + :176-199). Added instead the two qualifications a
+%                        domain examiner asks for: (a) Huang et al.'s stated goal is urban REGION representation
+%                        (abstract, VERIFIED firsthand in the repo PDF at articles/dissertacao/science/articles/:
+%                        "learning urban region representations ... evaluated on estimating urban functional
+%                        distributions, population density, and housing price"), so the POI-level intermediate is
+%                        REPURPOSED here for a sequential task the source never addresses; (b) the baseline was
+%                        retuned, w_r 0.4 -> 0.7. Sources for (b) in the [VERIFY] block at the clause itself.
 %  kazemi2019time2vec    Time2Vec: linear+periodic time encoding (general, cited at origin) [new bib]
 %  sitzmann2020implicit  SIREN: sinusoidal implicit neural reps (general)
 %  mai2020...spatial     Space2Vec: multi-scale position encoder (general)
 %  mai2023sphere2vec...  Sphere2Vec: spherical location encoder (general)
-%  rußwurm2024...spherical spherical harmonics + SIREN location encoder (general; already in CoUrb bib -- existing key)
+%  russwurm2024...spherical spherical harmonics + SIREN location encoder (general; already in CoUrb bib --
+%                        existing key, ASCII-renamed 2026-07-25 from the former non-ASCII spelling
+%                        and re-typed from arXiv preprint to the ICLR 2024 record)
 %  perez2018film         FiLM: feature-wise linear modulation. FIX (domain F3): in Ch.3/4 FiLM conditions on
 %                        TASK IDENTITY (per-task gamma/beta); context enters by concatenation, NOT via FiLM.
 %  lin2021ctle           CTLE: context/time-aware per-visit embedding = the static->contextual hinge
@@ -412,8 +451,10 @@ inflated by the majority class and must not be the headline for next category.
 Macro-averaged F1 is the primary category metric instead: it is the unweighted mean of
 the per-class F1 scores, so it reads as average per-class quality with every class
 counting equally, and it does not reward a model that serves only the frequent classes
-\cite{sokolova2009measures}. The training pipeline counters the same imbalance with
-class-weighted cross-entropy. For next region, the primary metric is accuracy at 10
+\cite{sokolova2009measures}. That choice of metric, rather than a reweighted loss, is how
+the imbalance is answered here. The joint model of Chapter~\ref{ch:mobiwac} trains on
+plain unweighted cross-entropy; class weighting, tested there on both outputs, lowered
+both region accuracy and category macro-F1. For next region, the primary metric is accuracy at 10
 (Acc@10), the fraction of cases where the true region appears in the model's ten
 highest-ranked predictions; it is a ranking metric and says nothing about the
 probability mass placed on the true region, which is why mean reciprocal rank
@@ -444,18 +485,29 @@ whose check-ins appear in both training and test. Estimates use stratified k-fol
 cross-validation \cite{kohavi1995crossval}, and the folds are formed so that no user
 spans a split: a grouped, stratified splitter keeps all of a user's check-ins on one
 side of every fold, so that measured accuracy reflects generalization to new users
-rather than memorization of familiar ones \cite{pedregosa2011sklearn}. Comparisons
-are then made across the folds and repetitions with paired tests. The paired Wilcoxon
+rather than memorization of familiar ones \cite{pedregosa2011sklearn}. That protocol is
+the one Chapter~\ref{ch:mobiwac} uses, and it strengthened from one study to the next:
+Chapter~\ref{ch:cbic} reports five-fold cross-validation without identifying the split
+axis, Chapter~\ref{ch:courb} states that its split is stratified by sample rather than by
+user, so that the check-ins of one user may appear in both training and validation, and
+only Chapter~\ref{ch:mobiwac} splits by user. The statistical treatment is scoped the
+same way: Chapters~\ref{ch:cbic} and~\ref{ch:courb} report fold means and standard
+deviations and run no significance test, so the tests set out below license verbs in
+Chapter~\ref{ch:mobiwac} alone. Comparisons there are made across the folds and
+repetitions with paired tests. The paired Wilcoxon
 signed-rank test compares two models across the paired results without assuming
-normality, and it is the test that licenses the verb ``outperforms''
-\cite{wilcoxon1945}; the Holm step-down procedure controls the family-wise error when
-several datasets are tested at once \cite{holm1979}. A superiority test cannot, by
+normality \cite{wilcoxon1945}. Its exact one-sided $p$ has a floor set by the number of
+pairs, so a superiority claim tested on four repetitions is reported with a paired $t$ on
+the per-repetition means and the Wilcoxon test alongside it, on the individual folds
+(Chapter~\ref{ch:mobiwac}); either test licenses the verb ``outperforms'', and the
+Holm step-down procedure controls the family-wise error when several datasets are
+tested at once \cite{holm1979}. A superiority test cannot, by
 itself, support a claim of equivalence, so where the dissertation states that one
 model matches another it uses two one-sided tests to establish statistical
-non-inferiority within a two-point margin \cite{lakens2017tost}. The verbs and the
-tests are bound together throughout the document: ``outperforms'' follows only from a
-paired superiority test, and ``matches'' only from a non-inferiority test within the
-stated margin.
+non-inferiority within a two-point margin \cite{lakens2017tost}. Wherever this
+dissertation reports a test, the verb and the test are bound together: ``outperforms''
+follows only from a paired superiority test, and ``matches'' only from a non-inferiority
+test within the stated margin.
 
 % ---------------------------------------------------------------------------
 % CITATION / NUMBER LEDGER -- 2.4 (numbers quoted, not computed; conventions named)
@@ -471,6 +523,31 @@ stated margin.
 %                        as a ceiling on category macro-F1 or region Acc@10; the dedicated single-task model is the operative ceiling.
 %  kohavi1995crossval    stratified k-fold CV (VERIFIED by author). [new bib; Zenodo DOI 10.5281/zenodo.19712698 for a resolvable id]
 %  pedregosa2011sklearn  scikit-learn + StratifiedGroupKFold user-disjoint splitter. SINGLE cite (author ruling); splitter behavior stated defensively (v1.0/2021 addition). [new bib]
+%  REV-006 SCOPING (2026-07-26, fixed in the common text per the author's instruction, NOT in the errata).
+%    The protocol paragraph and the chapter roadmap (:16-17) presented user-disjoint splitting and the inferential
+%    tests as governing the whole document. They govern Chapter 5 only. Verified firsthand this session:
+%      - Ch.5 splits by user            -> 5_mobiwac.tex:341 ("We split by user with stratified five-fold
+%                                          cross-validation ... a test user's visits never appear in training").
+%      - Ch.4 explicitly does NOT       -> 4_courb.tex:226 ("The split is stratified by sample, not by user, so the
+%                                          check-ins of one user may appear in both training and validation"),
+%                                          repeated in the chapter preface at 4_courb.tex:13.
+%      - Ch.3 does not name the axis    -> 3_cbic.tex:261 ("all experiments were conducted using a 5-fold
+%                                          cross-validation methodology"), no split axis stated.
+%      - Significance testing is Ch.5-only. grep -nE "p-value|Wilcoxon|t-test|Holm|TOST" returns NOTHING in either
+%        3_cbic.tex or 4_courb.tex (exit 1 on both). The single adjacent line, 3_cbic.tex:344, appeals to
+%        "statistically ... largely comparable" from overlapping standard deviations and reports no test.
+%    Both halves are therefore scoped: the split axis AND the tests. Final sentence changed from "throughout the
+%    document" to "wherever this dissertation reports a test" so it no longer implies tests everywhere.
+%  CLASS-WEIGHTING CONTRADICTION (author pending item 3.6, 2026-07-26). The prose said "The training pipeline
+%    counters the same imbalance with class-weighted cross-entropy", contradicting 5_mobiwac.tex:254 (Eq. 5.1
+%    context): "$L_{cat}$ and $L_{reg}$ are plain unweighted cross-entropy losses ... Class-weighting, tested on
+%    both outputs, lowered both region accuracy and category macro-F1" (identical in the version of record,
+%    articles/[mobiwac]/src/sections/04_method.tex:39). Fixed in Ch.2, not Ch.5. NOT scoped to an earlier study:
+%    neither 3_cbic.tex nor 4_courb.tex describes a class-weighted training loss anywhere (the only class weighting
+%    found in the codebase is research/embeddings/dgi/model/GCNEncoder.py:41-48, inside the DGI EMBEDDING
+%    pre-training, which is not the prediction training pipeline this sentence is about), so scoping it to Ch.3/Ch.4
+%    would have asserted a fact no committed chapter states. The sentence now names the real remedy (macro-F1 as
+%    the reporting metric) and reports the Ch.5 finding.
 %  wilcoxon1945          paired signed-rank test ("outperforms" bound to it) (VERIFIED PDF). [new bib]
 %  holm1979              Holm step-down family-wise correction
 %  lakens2017tost        TOST equivalence within a margin ("matches" bound to it, two-point margin) [new bib]
