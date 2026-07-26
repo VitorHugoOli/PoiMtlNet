@@ -92,8 +92,17 @@ sharing topology built on it, is what the answer depends on.
 Two controls separate this claim from wishful attribution. First, the freeze control
 reported in Chapter~\ref{ch:mobiwac}: with the region pathway frozen, the category gain survives, at
 the three datasets where the control was run (Alabama, Arizona, Florida), so the gain
-does not come from the region task teaching the category task; it comes from a
-stronger shared trunk. Second, a capacity-matched dedicated baseline, run after the
+does not come from the region task teaching the category task; it comes from something
+in the joint architecture that the dedicated model does not have. The control does not
+say which part, and a development ablation at Florida that removed the cross-attention
+stack alone moved next-category macro-F1 by $-0.04 \pm 0.13$, so we do not name the
+shared trunk as the source. Second,
+% [v2 review F-01, 2026-07-26] Synced with the Ch.5 correction (persona 10). The frame said the
+% gain "comes from a stronger shared trunk"; the freeze control cannot locate the component, and
+% docs/findings/archive/F50/F50_T1_5_CROSSATTN_ABSORPTION.md:19-20 tests the trunk directly at FL
+% and finds delta -0.04 +- 0.13 (statistically indistinguishable, :37). Both figures quoted. The
+% capacity-matched control in the SECOND leg is untouched and is the stronger of the two: it rules
+% out plain parameter count, which the trunk ablation does not bear on. a capacity-matched dedicated baseline, run after the
 Chapter~\ref{ch:mobiwac} manuscript was submitted and reported here as a frame-level analysis: a
 dedicated category model widened to the joint model's parameter budget, about 4.2
 million parameters at Alabama against 0.6 million at its published width, does not
@@ -138,7 +147,7 @@ model's.
 % comparison runs on the joint-best basis (AGENT_GUARDRAILS N5).
 Parameter count alone, without the second task's training signal, yields
 nothing here; the two experiments together license the sentence Chapter~\ref{ch:mobiwac} already
-states as its finding, that the gain resides in the shared trunk.
+states as its finding, that the gain is not cross-task transfer.
 % [GATE FIX C-1, 2026-07-23] "buys nothing" -> "yields nothing"; "the win lives in" ->
 % "the gain resides in" (WRITING_LAW §4 idiom law; claim strength unchanged; author may reword).
 

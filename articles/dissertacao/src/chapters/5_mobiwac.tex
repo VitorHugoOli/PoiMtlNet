@@ -693,7 +693,40 @@ one to read. The control predates the results of
 Table~\ref{tab:mobiwac:results} and was measured at one random initialization
 over five folds, so its second comparison is to the joint scores of the
 development configuration current at the time ($63.56$, $63.39$, $79.82$), which
-it matched to within $0.3$, and not to the joint cells reported here. We therefore attribute the category gain to a stronger shared trunk, not to the region task teaching the category one; and the gain requires no second model at serving time (one model, one forward pass). We report this attribution as a finding, not a hypothesis.
+it matched to within $0.3$, and not to the joint cells reported here. The control therefore rules out one reading and narrows the rest. It rules out the region task
+teaching the category one, since the gain survives with the region pathway untrained. What it leaves
+is the joint architecture itself, and the control does not say which part of it: freezing the region
+stream removes region training, not the category stream's own encoder, the per-stream feed-forward
+blocks, or the added depth. We therefore report the negative result, that the gain is not cross-task
+transfer, as a finding, and we attribute the gain to the joint architecture rather than to any named
+component of it. A separate ablation in our own development record, at Florida only, removed the
+cross-attention stack while holding the rest fixed and moved next-category macro-F1 by
+$-0.04 \pm 0.13$, which a paired test cannot separate from zero; that result is consistent with the
+category stream, rather than the cross-stream mixing, carrying most of the effect at that dataset,
+and it is why we do not name the shared trunk as the source. Either way the gain requires no second
+model at serving time (one model, one forward pass).
+% [v2 review F-01, 2026-07-26] CLAIM-STRENGTH CORRECTION, found by persona 10 (MTL expert),
+% src_utils/_review_v2/10_mtl_expert_report.md. The prior sentence attributed the gain to "a
+% stronger shared trunk" and closed hedging with "a finding, not a hypothesis". The freeze control
+% (W6_ENCODER_ISOLATION.md:20-24) is a disjunction eliminator, not a locator: it removes region
+% TRAINING, so it cannot separate the trunk from the category stream's private encoder, the
+% per-stream FFNs, or the extra depth. And the repository holds an arm that tests the trunk
+% directly and disagrees: docs/findings/archive/F50/F50_T1_5_CROSSATTN_ABSORPTION.md:19-20 reports
+% FL 5-fold x 50 epoch cat macro-F1 68.36 +- 0.74 with cross-attention ON against 68.32 +- 0.67
+% OFF, delta -0.04 +- 0.13, and :37 states the two are statistically indistinguishable (paired
+% Wilcoxon cat W+=5 p=0.6250); :80 calls the "shared" framing a misnomer at FL, 95 percent cat-only
+% by gradient mass. Both figures QUOTED, not recomputed. The negative result (not cross-task
+% transfer) is retained as a finding because the control does establish it. The positive
+% attribution is downgraded to the joint architecture, and the disconfirming ablation is now
+% disclosed in the chapter with its one-dataset scope stated.
+% [NEEDS SIGN-OFF: AUTHOR. Two things only you can settle. (1) Ch.5 is PUBLISHED-adjacent text under
+% the errata regime; this rewrites an interpretation sentence, so it needs an Appendix B row, which
+% I have NOT written pending your ruling on wording. (2) The F50 arm is a development record at FL
+% only, and persona 10 also flags CSLSL_CASCADE.md:19 (cascade severs the symmetric channel and
+% still ties within 0.02 pp) as pointing the same way. If you would rather cite the cascade tie
+% instead, or run the cross-attention ablation at the other datasets before disclosing it, say so
+% and I will restructure. What I will NOT do is leave "a stronger shared trunk" asserted as settled
+% while the repo holds a direct test of that component with a null result.]
 % [NEW-2, 2026-07-26] Source: docs/studies/closing_data/archive/findings/W6_ENCODER_ISOLATION.md.
 % Every number above is QUOTED from its section 2 table (:20-24), not computed here:
 %   probe cat (freeze-reg)  AL 63.50 / AZ 63.67 / FL 79.79   (column "probe cat")
