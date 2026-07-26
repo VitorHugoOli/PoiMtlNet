@@ -7,16 +7,70 @@
 % chapters + global bib; list every departure here).
 %
 % RECONCILIATION (fixes applied == fixes listed), cross-checked line by line:
-%   CBIC ledger  B1-B7 -> rows 1-5 of Table B.1 (B1 = pending row) + the two
+%   CBIC ledger  B1-B7 -> rows 1-6 of Table B.1 (B1 = the dataset-counts row; row 6 is the
+%                round-4 Nash scale-invariance correction, REV-020a) + the two
 %                preservation notes after it (B6 Nash-MTL, B7 bolding convention);
-%                C1-C8 -> the 8 rows of Table B.2 (C7 marked subsumed by row 2 of B.1).
+%                C1-C8 -> the first 8 rows of Table B.2 (C7 marked subsumed by row 2 of
+%                B.1); round-4 adds 5 more rows to B.2 (four REV-027 inferential-verb
+%                substitutions + the REV-010 footnote).
 %   CoUrb ledger A1-A4 -> rows 1-3 of Table B.3 + the preservation note (A4);
-%                C1-C3 (frame additions) -> covering sentence, marked as additions.
-%   MobiWac ledger: zero errata (ERRATA.md records none); additions A1-A3 -> covering
-%                sentence. B/C/D items are mechanical re-typeset, declared in §1.5.
-%   BIB_MERGE_REPORT §3 items 1-11 -> the 11 rows of Table B.4; §1 key consolidations
-%                -> covering sentence.
-%   Itemized rows: 5 + 8 + 3 + 11 = 27; every ledger line is accounted for.
+%                B4 (table lead sentences + the Figure 4.2 reading instruction, reclassified
+%                to C4-C7) and C1-C3, C8 (frame additions) -> the additions paragraph, which
+%                enumerates all eight; REV-021 (inline-math re-typeset) -> the mechanical
+%                paragraph before it.
+%   MobiWac ledger: one content correction (B.1 CBIC misattribution, round 2); additions
+%                A1-A3 -> covering sentence. B/C/D items are mechanical re-typeset, declared
+%                in §1.5.
+%   Front matter (CBIC ledger A1 + CoUrb B7 + MobiWac E1-E2) -> ONE paragraph in the appendix
+%                opening, covering all three chapters, rather than repeated per section.
+%   BIB_MERGE_REPORT §3 items 1-11 -> 11 of the 12 rows of Table B.4; §1 key
+%                consolidations -> covering sentence. The 12th row (the CoUrb Gowalla
+%                mis-source, liu2014geographical) traces to the §1 key-rename table of the
+%                same report, not to §3; the header previously said "11 rows", which
+%                undercounted the table by one. That row belongs to the references track.
+%                Table B.4 gained 2 further rows in the references pass of 2026-07-25
+%                (Kohavi DOI dropped; Rußwurm re-typed to ICLR 2024), for 14 total.
+%   Itemized rows: 6 + 13 + 3 + 14 = 36; every ledger line is accounted for.
+%
+% ROUND 4 (this pass) -- what changed and why:
+%   Table B.1 gained the Nash scale-invariance row (REV-020a) and its dataset-counts row
+%   was corrected: it had claimed the CBIC figures come "from the current data pipeline",
+%   which is false (the current pipeline yields the Chapter 5 counts). New Section
+%   "Two extractions of the same Gowalla corpus" (apx:errata:corpus) explains the two
+%   figure sets to the reader (REV-016), with the mechanism quoted from
+%   src_utils/cbic_recompute_result.md section 3 (category-mapping drift; the earlier
+%   check-in set is a strict subset of the current one). Table B.2 gained 5 rows.
+%   The Chapter 4 "three marked additions" claim was an undercount: eight exist, all
+%   verified present in 4_courb.tex and absent from articles/CoUrb_2026/src_en/ this
+%   session (preface :13; recap subsection :81; split sentence :238; seed sentence :238;
+%   dataset-table lead :258; Figure 4.2 reading instruction :278; category-table lead
+%   :284; next-POI-table lead :327). Chapter 5's "three marked additions" claim was
+%   re-checked against 5_mobiwac_ADAPTATION_LEDGER.md A1-A3 and against the chapter, by
+%   8-gram diff against articles/[mobiwac]/src/: it is CORRECT, the chapter writes no
+%   table lead sentences of its own. Chapter 3's ledger (A4 = preface, A7 = convergence
+%   lead sentence) was checked for the same pattern: Appendix B makes no count claim for
+%   Chapter 3, so there is nothing to correct there; A7 is a mechanical lead sentence of
+%   the same class as Chapter 4's three, and A4 is the preface.
+%
+% REFERENCES TRACK (2026-07-25) -- three changes to Table B.4, all verified this session:
+%   (1) The row that printed a raw bibliography key for the CoUrb Gowalla mis-source now
+%       names the work instead (Liu et al. 2014, "Exploiting Geographical Neighborhood
+%       Characteristics for Location Recommendation", ACM CIKM), because that key is the
+%       one bib entry with no \cite in the document, so the printed bibliography drops it
+%       and the raw key resolved to nothing for the reader. Authors, title, venue and year
+%       copied from Crossref, DOI 10.1145/2661829.2662002. The entry stays in
+%       references.bib; only the way the table names the work changed.
+%   (2) New row: Kohavi (1995) carried doi = 10.5281/zenodo.19712698, a 2026 third-party
+%       Zenodo re-deposit (DataCite: publisher "Zenodo", registered 2026-04-23), not the
+%       IJCAI-95 record. DOI dropped; attributes confirmed against the IJCAI proceedings
+%       PDF (www.ijcai.org/Proceedings/95-2/Papers/016.pdf).
+%   (3) New row: the Rußwurm et al. spherical-harmonics encoder was typed @misc/arXiv with
+%       year=2024; re-typed to the ICLR 2024 record (arXiv journal_ref "Published as a
+%       conference paper at ICLR 2024"; OpenReview submission 3806, venue "ICLR 2024
+%       spotlight"). Same class as the GAT erratum already in the table. The citation key
+%       was also ASCII-renamed and its four citing sites updated; a key rename alters no
+%       reference content and is covered by the existing key-consolidation sentence, so it
+%       is not itemized as a defect row.
 % [NEEDS SIGN-OFF: whole appendix -- new frame prose around quoted ledger content.]
 
 \chapter{Errata to the Reproduced Articles}
@@ -34,6 +88,13 @@ wording substitutions required by the dissertation's writing rules, and the
 corrections applied in the global bibliography. Each article folder in the research
 repository keeps the corresponding errata registry; the published records themselves
 are not edited.
+
+None of the three chapters reproduces the front matter of its article. The abstract and
+the keyword list are omitted in all three, the Portuguese resumo of the CoUrb article is
+omitted with them, and the acknowledgments sections of the CBIC and CoUrb articles are
+omitted as well; the MobiWac manuscript carries none. Venue, pages, identifier, status,
+and authorship are stated in each chapter's preface instead, and the acknowledgments
+belong to the article records rather than to the chapter bodies.
 
 \section{Article 1 (Chapter~\ref{ch:cbic}, CBIC 2025)}
 \label{apx:errata:cbic}
@@ -77,9 +138,21 @@ Unfilled dataset placeholders ($N_{\text{users}}$, $N_{\text{poi}}$,
 $N_{\text{checkins}}$) in the results section. &
 Filled with the Florida figures of record for the same Gowalla data, as published in the
 CoUrb dataset table: 20{,}301 users, 65{,}009 POIs, and 990{,}518 check-ins. The published
-CBIC paper left these three statistics as placeholders; they are supplied here from the
-current data pipeline for consistency with the same corpus reported in
-Chapter~\ref{ch:courb}. \\
+CBIC paper left these three statistics as placeholders; they are taken from the published
+CoUrb table so that one corpus figure serves both chapters, and they are the counts that the
+extraction pipeline of that time produced, not the counts the current pipeline produces
+(Section~\ref{apx:errata:corpus}). \\
+\addlinespace
+The optimizer subsection states that Nash-MTL's ``reliance on gradient signs rather than
+scales inherently balances heterogeneous tasks''. Nash-MTL does not read gradient signs,
+and the same subsection states the correct property four paragraphs earlier, listing
+scale invariance among the optimizer's axioms. &
+Corrected to name the property the method has: its invariance to the scale of the
+individual task gradients, the axiom already listed in the same subsection, balances
+heterogeneous tasks without manual re-weighting. Checked against the optimizer's own
+paper and against the implementation released with the two studies, neither of which
+uses gradient signs. The claim is weaker than the published one, and no result depends
+on it. \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -94,12 +167,20 @@ baseline, is also preserved exactly; the new caption states the convention so th
 bolding is not misread as ``best per row''.
 
 Table~\ref{tab:apx:cbic-wording} lists the wording substitutions applied to the
-preserved prose under the dissertation's writing rules; none changes the strength or
-scope of a claim.
+preserved prose under the dissertation's writing rules. The first eight change neither
+the strength nor the scope of a claim. The next four remove the words
+\emph{significant}, \emph{significantly}, and \emph{statistically} from four statements
+about the chapter's own measured comparisons: the chapter reports no inferential test of
+any kind, so these words claimed more than the study established, and the replacements
+state the same findings descriptively. Four further uses of the word were left in place
+because they do not attribute significance to a measured comparison of this study: two
+report claims of cited work, one states the study's own hypothesis, and one names a
+chosen target level. The final row records a footnote added to a definition rather than
+a substitution. No edit in this table raises the strength of a claim.
 
 \begin{table}[htb]
 \caption{Wording substitutions in the reproduced CBIC 2025 prose (writing-rule
-conformance; claim strength unchanged).}
+conformance; claim strength unchanged or reduced, never raised).}
 \label{tab:apx:cbic-wording}
 \centering
 \small
@@ -124,6 +205,27 @@ conformance; claim strength unchanged).}
 Subsumed by the MFLOPs correction in Table~\ref{tab:apx:cbic-errata}. \\
 ``where different sequential patterns might be leveraged'' &
 ``might be exploited'' \\
+\addlinespace
+``the MTL framework does not deliver the consistent, significant gains often
+expected'' &
+``does not deliver the consistent gains often expected'' (the chapter reports no
+inferential test, so the word carries no verdict here). \\
+``both our MTL and Single models significantly outperform HMRM across all POI
+categories'' &
+``outperform HMRM in every POI category'' (the comparison is stated by scope instead of
+by significance). \\
+``significantly surpassing MHA+PE in these categories'' &
+``surpassing MHA+PE in these two categories''. \\
+``suggesting that, statistically, the performance of the MTL and Single models is
+largely comparable, without a clear, consistent, and significant advantage'' &
+``suggesting that the performance of the MTL and Single models is largely comparable,
+without a clear or consistent advantage''. \\
+\addlinespace
+``Next-POI Prediction, in contrast, aims to predict which specific location a user is
+likely to visit next'' (the related-work definition of the research area) &
+Reproduced verbatim, with a footnote added stating that this is the general formulation
+of the literature and that the variant studied in the chapter predicts the category of
+the next visited place. \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -166,11 +268,32 @@ strength unchanged). \\
 
 One element was preserved rather than corrected: the published bolding of the Florida
 \emph{Outdoors} baseline cell in the sequential-task table is kept exactly as
-published; the technical-tie reading lives in the prose only. The chapter also
-carries three marked additions that are not part of the published text, declared as
-additions in the chapter source: the italic preface, a recap subsection on the MTLnet
-framework of Chapter~\ref{ch:cbic}, and one protocol-clarification sentence stating
-that the split is stratified by sample rather than by user.
+published; the technical-tie reading lives in the prose only.
+
+One sentence of the methodology was re-typeset without a change of content. The
+published sentence introducing the category embedding of the POI Encoder placed a long
+inline expression at the end of its first line, where the one-column measure of this
+format cannot break it and the line runs past the margin. The clause order is reversed
+so that the expression falls earlier in the sentence. Every content word of the
+published sentence is kept and no quantity, symbol, or claim changes, so this is
+recorded among the mechanical changes of the re-typeset rather than as a content
+departure.
+
+The chapter carries eight marked additions that are not part of the published text, each
+declared as an addition in the chapter source. Three are frame devices required by the
+dissertation: the italic preface, a recap subsection on the MTLnet framework of
+Chapter~\ref{ch:cbic}, and the reading instruction appended to the caption of
+Figure~\ref{fig:courb:distribuicao}, which names the axes and the pattern the panels show
+so that the figure can be read on its own. Two state protocol facts the published paper
+left implicit: that the split is stratified by sample rather than by user, and that the
+released code of record pins a single random seed, so the five folds are one repetition of
+the experiment and the reported standard deviations are the spread across folds at that
+seed. Both are recovered from the code released with the article and neither is a claim
+about a result. The remaining three are the lead sentences that introduce the three tables,
+one each for Tables~\ref{tab:courb:dataset},~\ref{tab:courb:category},
+and~\ref{tab:courb:next}, written because the dissertation's presentation rules require a
+table to be introduced by a takeaway sentence. Each of the three reads its table and states
+no quantity that the table does not already show.
 
 \section{Article 3 (Chapter~\ref{ch:mobiwac}, MobiWac 2026)}
 \label{apx:errata:mobiwac}
@@ -191,7 +314,104 @@ Chapter~\ref{ch:mobiwac} reproduces the submitted text. The chapter also carries
 marked additions declared in the chapter source: the italic preface, a recap subsection
 covering the artifacts of Chapters~\ref{ch:cbic} and~\ref{ch:courb}, and the restoration
 of one figure that the submitted eight-page build had cut for space, whose four values
-are stated in the reproduced prose in both versions.
+are stated in the reproduced prose in both versions. This chapter writes no new lead
+sentences for its tables, since the submitted text already introduces each of them.
+
+Table~\ref{tab:apx:mobiwac-scope} lists four further corrections to the reproduced prose.
+None alters an experimental result. Each either narrows a claim to what its evidence
+covers or names the basis on which a reported comparison was measured.
+% [round4] Claim-scope corrections from the Ch.5 track. Source ledger with every quoted
+% value and its file:line: src_utils/handoff/ch5_errata_rows.md. Banner deliberately
+% differs from Table B.2's ("writing-rule conformance"): three of these change claim
+% SCOPE and one changes a comparison BASIS, so they are not wording substitutions.
+
+\begin{table}[htb]
+\caption{Claim-scope corrections in the reproduced MobiWac 2026 prose (claim-scope
+narrowing and comparison-basis disclosure; no experimental result altered).}
+\label{tab:apx:mobiwac-scope}
+\centering
+\small
+\begin{tabular}{@{}p{0.30\textwidth}p{0.62\textwidth}@{}}
+\toprule
+\textbf{Submitted claim} & \textbf{Correction in the chapter} \\
+\midrule
+The representation ``passes no usable information about the test visits, on three
+grounds.'' &
+The universal negative is replaced by a bounded statement over named channels. The first
+ground is scoped to the training objective, with the note that each visit's category is a
+node input feature; a fourth ground is added, reporting the development audit that probes
+the forward-edge channel between consecutive visits, with its three limits stated: a
+linear probe, Florida at one random initialization, and earlier builds of the
+representation. Every number already in the paragraph is unchanged. \\
+\addlinespace
+``none of the balancers that we tried, including the two named above, improved on a tuned
+fixed task weighting'' &
+The same sentence, with ``at their default configurations'' added. The internal audit
+records that only one of the two named methods was validly wired under this architecture,
+so the claim is narrowed to the configurations actually screened. \\
+\addlinespace
+The region-pathway control lands ``within $0.3$ of the joint model.'' &
+The control is restated against the single-task category score it was measured on, and the
+``within $0.3$'' figure is kept with its basis named: the joint scores of the development
+configuration current when the control was run, not the joint cells of
+Table~\ref{tab:mobiwac:results}. The control's single random initialization over five
+folds is disclosed. The finding is unchanged. \\
+\addlinespace
+Limitations name two limits. &
+A third limit is added, naming the consequence of the two-way split that the chapter
+already discloses twice: epoch selection consults the fold the score is read on, so the
+absolute scores are optimistic. The comparison between the joint and dedicated models is
+affected far less, since the rule is applied identically to both arms on the same folds
+and the dedicated arm receives the wider search, which makes the reported difference
+conservative. Exact cancellation is not claimed. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Two extractions of the same Gowalla corpus}
+\label{apx:errata:corpus}
+
+Chapters~\ref{ch:cbic} and~\ref{ch:courb} report the Florida subset of Gowalla as
+20{,}301 users, 65{,}009 POIs, and 990{,}518 check-ins, while Chapter~\ref{ch:mobiwac}
+reports 21{,}052 users, 76{,}544 POIs, and 1{,}407{,}034 check-ins for the same state
+of the same public dataset. The two are different extractions of that state, not
+different datasets and not a discrepancy between them: the first two chapters report the
+corpus as the extraction pipeline of their time produced it, and
+Chapter~\ref{ch:mobiwac} reports the current extraction.
+
+The mechanism is the category mapping, not the raw data and not a different filtering
+rule. The extraction assigns a category to each check-in from a mapping table and
+discards the rows whose category does not map, so widening that table keeps rows that an
+earlier run had dropped. The mapping files were extended about eleven months after the
+earlier Florida extraction, and the places they added fall mostly in
+\emph{Entertainment}, \emph{Outdoors}, and \emph{Travel}. A controlled comparison against
+the working extraction of the earlier period confirms the direction: each of its POIs,
+users, and check-ins reappears in the current extraction, which adds further ones. The
+current pipeline therefore cannot reproduce the earlier counts, and the two sets of
+figures are kept as each chapter reported them rather than retrofitted to one another.
+The comparison is recorded in the research repository, in
+\texttt{src\_utils/cbic\_recompute\_result.md}.
+% [round4, REV-016] Reader-facing explanation of the two Florida figure sets. Mechanism
+% quoted from src_utils/cbic_recompute_result.md section 3 ("Root cause: category-mapping
+% drift"; mapping files data/gowalla/callback_categories.json and extra_categories.json
+% last modified 2026-04-14, ~11 months after the CBIC-era extraction of 2025-05-06;
+% stage_1 drops rows whose category does not map; the extra POIs skew to Entertainment
+% 21.1% vs 5.2%, Outdoors, and Travel). Numbers: Ch.3/Ch.4 triple from 4_courb.tex:238
+% (the published CoUrb dataset table); Ch.5 triple from 5_mobiwac.tex:324. No number here
+% was computed by an agent.
+% PRECISION NOTE, deliberate: the strict-subset result in section 3 of that document was
+% measured for the CBIC-era WORKING extraction (filtrado.csv: 10,460 / 64,454 / 960,520)
+% against the fresh ETL, NOT for the published CoUrb triple that Chapters 3 and 4 actually
+% report. The prose above therefore says "the working extraction of the earlier period"
+% and claims direction, not identity. It does not assert that the mapping drift accounts
+% for the whole of the specific gap between the two reported triples.
+% [VERIFY, open and inherited] Section 5 of the same document records one unresolved
+% question: the CBIC-era working extraction counts 10,460 Florida users against the
+% published CoUrb row's 20,301, a factor of about two that could not be reconstructed from
+% committed artifacts, and the author's 2026-07-24 ruling (NORTH_STAR section 4, Ch.3)
+% settled which figure the chapters report without settling why the two differ. The
+% paragraph above is written so that it stays true either way, but if the author ever
+% resolves that question the sentence about the controlled comparison should be revisited.
 
 \section{Bibliography errata}
 \label{apx:errata:bib}
@@ -229,11 +449,21 @@ Five authors restored per the Crossref record; type corrected to journal article
 Graph Attention Networks cited as an arXiv preprint. &
 Cited as the ICLR 2018 version of record; arXiv identifier kept as a note. \\
 \addlinespace
+The spherical-harmonics location encoder of Ru\ss{}wurm et al.\ was typed as an arXiv
+preprint, although the entry already recorded the year of the conference version. &
+Cited as the ICLR 2024 version of record, confirmed against the arXiv journal reference
+and the OpenReview submission record; arXiv identifier kept as a note. \\
+\addlinespace
 Cross-Stitch entry (\texttt{misra2016cross}): DOI resolves to a different paper. &
 DOI corrected to 10.1109/CVPR.2016.433 (verified). \\
 \addlinespace
 MTL-survey entry (\texttt{zhang2021survey}): DOI does not resolve. &
 DOI corrected to 10.1109/TKDE.2021.3070203 (verified). \\
+\addlinespace
+Kohavi (1995), the cross-validation and bootstrap study: the entry carried a DOI that
+resolves to a re-deposit of the paper made in 2026, not to the conference record. &
+DOI dropped, since the IJCAI-95 proceedings predate DOI registration. Author, title,
+volume and pages 1137--1143 confirmed against the proceedings PDF published by IJCAI. \\
 \addlinespace
 \texttt{church2017word2vec} resolves to a commentary column, not the skip-gram
 method. &
@@ -263,12 +493,12 @@ Author restored per the Crossref record of DOI 10.5753/courb.2026.22960; pages
 Venue corrected to ICML 2020 per OpenAlex; arXiv:1905.07553 noted; the unverifiable
 page range dropped. \\
 \addlinespace
-CoUrb chapter (\ref{ch:courb}): the Gowalla dataset was cited via
-\texttt{liu2014geographical}, a location-recommendation method paper, not the dataset
-source. &
+CoUrb chapter (\ref{ch:courb}): the Gowalla dataset was cited via Liu et al.\ (2014),
+``Exploiting Geographical Neighborhood Characteristics for Location Recommendation''
+(ACM CIKM), a location-recommendation method paper, not the dataset source. &
 Citation corrected to the dataset sources (\texttt{cho2011gowalla},
 \texttt{jure2014snap}), which the same chapter already cites for the dataset
-elsewhere; the mis-source key was removed where it no longer applies. \\
+elsewhere; the location-recommendation reference was dropped from the chapter. \\
 \bottomrule
 \end{tabular}
 \end{table}

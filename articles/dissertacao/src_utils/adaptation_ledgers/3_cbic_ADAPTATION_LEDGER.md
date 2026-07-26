@@ -11,7 +11,7 @@
 
 | # | Change | Where |
 |---|---|---|
-| A1 | Abstract and IEEEkeywords dropped (coletânea chapters carry no abstract; NORTH_STAR §3). | whole chapter |
+| A1 | Abstract and IEEEkeywords dropped (coletânea chapters carry no abstract; NORTH_STAR §3). The Acknowledgment section is also not carried (see A10). **Round 4 (REV-028):** the omission was recorded but never told to the reader; Appendix B's opening now states it for all three chapters at once. Verified 2026-07-26 in `articles/CBIC___MTL/main.tex`: abstract :43-45, IEEEkeywords :47-49, `\section*{Acknowledgment}` :77-78. | whole chapter |
 | A2 | Paper `\section` levels became `\section` under the `\chapter`; labels renumbered to the chapter-prefixed scheme: `sec:related → sec:cbic:related`, `sec:methodology → sec:cbic:methodology`, `sec:mtl → sec:cbic:mtl`, `sec:method:mtl → sec:cbic:mtlarch`, `sec:nash_mtl → sec:cbic:nash`, `sec:experiments → sec:cbic:experiments`, `sec:conclusion → sec:cbic:conclusion`, `fig:arch → fig:cbic:arch`, `eq:loss → eq:cbic:loss`, `eq:nbs_objective → eq:cbic:nbs`, `table:cat → tab:cbic:category`, `table:next → tab:cbic:next`, `table:convergence_comparison → tab:cbic:convergence`. | whole chapter |
 | A3 | "this paper" → "this chapter" (4 instances: §Intro "In this work, we investigate" → "In this chapter"; "contributions of this paper" → "of this chapter"; "The rest of this paper is organized" → "of this chapter"; §Method "This work computes" → "This chapter computes"; §Conclusion "In this paper, we introduced" → "In this chapter"). | intro, method, conclusion |
 | A4 | Italic time-capsule preface added before §3.1 (`chapterpreface` environment): venue in full, DOI, first author, of-the-time framing, pointer to Chapters 4–5, one clause on the later Nash-MTL implementation finding (sanctioned by NORTH_STAR §4 Ch.3 claim-discipline note). Not part of the published text. | chapter opening |
@@ -33,6 +33,7 @@
 | B5 | Typo "spatio-tegm\nmporal" in basis.tex. | → "spatio-temporal". |
 | B6 | Nash-MTL claim discipline (NORTH_STAR §4). | The paper's own §Method sentence ("Nash-MTL consistently yielded a better overall performance") is preserved verbatim as published text; NOT amplified anywhere; the preface carries the one-clause of-the-time caution. |
 | B7 | (Noted, not an ERRATA.md item) The published category table bolds the better of MTL/Single per row and never bolds HMRM, even where HMRM is numerically highest (Recall/Nightlife: HMRM 42.13 > Single 36.77 bold). Emphasis preserved exactly as published; the new caption states the convention explicitly so the bolding is not misread as "best per row". | tab:cbic:category |
+| B8 | **NEW round 4 (REV-020a).** Factual correction in §3.3.4 Nash-MTL Optimizer, "Practical Aspects" paragraph (3_cbic.tex:237). Published (`sections/method.tex`): "Its reliance on gradient signs rather than scales inherently balances heterogeneous tasks without manual re-weighting." Nash-MTL does not read gradient signs; it is scale-invariant, which the SAME subsection states earlier at :224 ("scale-invariant to arbitrary loss re-weightings"), so the published text contradicted itself. | Chapter: "Its invariance to the scale of the individual task gradients, the second of the axioms listed above, balances heterogeneous tasks without manual re-weighting." Claim strength REDUCED (a mechanism claim is replaced by the property the source proves). Verified three ways 2026-07-26: (a) Navon et al., *Multi-Task Learning as a Bargaining Game*, arXiv:2202.01017 (PDF opened this session): Axiom 2.4 "Invariance to affine transformation" and the Fig. 1 discussion ("Our method, Nash-MTL, is invariant to changes in loss scale"); the token "sign" occurs in that paper **only** inside a bibliography entry for an unrelated method (gradient sign dropout, Chen et al. 2020). (b) `/Users/vitor/Desktop/mestrado/temp/tarik-new/PoiMtlNet_Novo/src/criterion/nash_mtl.py`: **zero** occurrences of `sign`/`abs`; `get_weighted_loss` (:176-232) stacks per-task gradients into G, forms `GTG = torch.mm(G, G.t())` (:222), divides by the Frobenius norm (:224-227) and solves for alpha (:228). (c) This repo's `src/losses/nash_mtl/loss.py`: same structure at :291-299, also **zero** `sign`. Declared as row 6 of Appendix B Table B.1 |
 
 ## C. Writing-law substitutions in preserved prose (minimal, lint-gate-driven; WRITING_LAW §4 banned words)
 
@@ -46,6 +47,37 @@
 | C6 | "Furthermore, investigating advanced multi-task optimizers..." (conclusion) | "In addition, investigating..." |
 | C7 | "Furthermore, the computational cost ... was roughly double" (results) | superseded by erratum B3 rewrite |
 | C8 | "where different sequential patterns might be leveraged" (results) | "might be exploited" |
+| C9 | **NEW round 4 (REV-027).** "the MTL framework does not deliver the consistent, significant gains often expected" (intro, 3_cbic.tex:62) | "does not deliver the consistent gains often expected" |
+| C10 | **NEW round 4 (REV-027).** "both our MTL and Single models significantly outperform HMRM ... across all POI categories" (results, :302) | "both our MTL and Single models outperform HMRM ... in every POI category" |
+| C11 | **NEW round 4 (REV-027).** "significantly surpassing MHA+PE in these categories" (results, :340) | "surpassing MHA+PE in these two categories" |
+| C12 | **NEW round 4 (REV-027).** "suggesting that, statistically, the performance of the MTL and Single models is largely comparable, without a clear, consistent, and significant advantage" (results, :377) | "suggesting that the performance of the MTL and Single models is largely comparable, without a clear or consistent advantage" |
+| C13 | **NEW round 4 (REV-010).** "Next-POI Prediction, in contrast, aims to predict which specific location a user is likely to visit next, given their past movement history." (related work, :81; published `sections/basis.tex`:23) | Sentence reproduced VERBATIM; a footnote was appended: "This states the general formulation of the task as the literature poses it. The variant studied in this chapter predicts the *category* of the next visited place rather than the place itself, as defined in Section 3.1 and in the chapter preface." |
+
+**REV-027 scope note (round 4).** The chapter uses "significant/significantly" twelve times and
+reports no inferential test anywhere: a grep for `p-value|p value|Wilcoxon|t-test|Holm|TOST|
+confidence interval|statistical` over `3_cbic.tex` returned only :62 and :377, both of which
+appealed to the word without naming a test and both of which are now corrected. Four uses were
+substituted (C9-C12), all attaching significance to THIS study's own measured comparisons.
+Untouched, with reasons: :90 and :209 attribute claims to cited work (Xu/Lim et al.; Caruana);
+:60 states the study's own *hypothesis* ("will face significant limitations"), which is a
+prediction about the outcome rather than a claim that a measured difference was tested, so
+lowering it would misreport what the paper hypothesized; :68 makes a claim about task
+dissimilarity, not about a measured comparison; :237 states a property of Nash-MTL attributed to
+`\cite{nash}`; :395 names a chosen target F1 level ("a comparable and significant level of
+predictive performance"), not a comparison. Two further uses are borderline and were LEFT AS
+PUBLISHED pending the author's call, since neither was in the approved set of four: :414 ("a
+significantly higher overhead in wall time", a magnitude reading of the chapter's own 80.88 s
+against 34.97 s) and :423 ("the lack of significant improvement", restating the null result).
+**Chapter 4 contains ZERO occurrences of "signific*" (confirmed 2026-07-26) and needed nothing.**
+
+**Preface pointer fix (round 4, NEW-4).** 3_cbic.tex:25-27 said the chapter's preference for
+Nash-MTL is "a conclusion of the time ... and the following chapters do not rely on it". False
+for Chapter 4, which trains with the Nash-MTL balancer (`4_courb.tex`:115, and :84 for the
+MTLnet baseline). Corrected to name Chapter 5, which reports a fixed loss weighting and states
+that no balancer, Nash-MTL included, improved on it (`5_mobiwac.tex`:180-186). This sentence is
+dissertation-authored preface prose (ledger row A4), NOT reproduced published text, so it takes
+**no** Appendix B errata row. Per the author's ruling this round, no Nash caveat was added to
+Chapter 3 or Chapter 4 beyond this pointer fix.
 
 ## D. [VERIFY] / [NEEDS SIGN-OFF] items
 
@@ -61,7 +93,28 @@
 4. **[FLAG]** A8: `cbic_mtlnet_arch.png` is a 1200×336 px bitmap (~200 dpi at text width).
    Legible, but a higher-resolution re-export from the .drawio sources would be better for the
    final build.
-5. **[NOTE]** Citation errata #1–#9 (ERRATA.md) untouched here; keys `velivckovic2017graph`,
+5. **[RECOMMENDATION, round 4 — author's call, NOT applied]** The same sentence corrected in B8
+   also claims Nash-MTL "requires only two matrix-vector products per iteration" (3_cbic.tex:237).
+   The phrase does not occur in Navon et al. (arXiv:2202.01017, full text searched this session),
+   and the claim understates the per-step cost: both implementations run an iterative
+   concave-convex procedure with `optim_niter = 20` by default, each pass a cvxpy/ECOS solve
+   (`temp/tarik-new/PoiMtlNet_Novo/src/criterion/nash_mtl.py`:99 and :126-141; this repo's
+   `src/losses/nash_mtl/loss.py`:105 and :158-200). The paper itself reports that raising the CCP
+   sequence to 20 iterations lifts the share of optimal solutions from 91.5% to 93.5%, and it
+   devotes §3.3 ("Practical Speedup") to the cost of the step. Whether to correct a published
+   cost claim is a judgment call, so it was left as published and raised in the handoff instead.
+6. **[BIBLIOGRAPHY-ADJACENT FINDING, round 4 — reported, not acted on; references.bib is another
+   track's file]** 3_cbic.tex:108 cites `\cite{nash,standley2020tasks}` for the "Data
+   Heterogeneity" challenge ("Variations in modality, label granularity, and dataset size
+   complicate sampling strategies and minibatch construction"). Navon et al. do **not** establish
+   that: the tokens "modalit", "minibatch", "heterogen", "dataset size", "label granular", and
+   "sampling" return **zero** hits in the full text of arXiv:2202.01017 (checked this session).
+   That paper is about gradient conflict and the bargaining solution, not about data
+   heterogeneity. The co-cite `standley2020tasks` (*Which Tasks Should Be Learned Together in
+   Multi-Task Learning?*) is the plausible support for a task-grouping claim, though it was not
+   opened this session. Recommendation for the references track: either drop `nash` from this
+   particular co-cite, or re-source the sentence. No bib entry was added or changed here.
+7. **[NOTE]** Citation errata #1–#9 (ERRATA.md) untouched here; keys `velivckovic2017graph`,
    `velivckovic2018deep`, `nash`, `yu2019mmoe`, `chen2020modeling`, `misra2016cross`,
    `zhang2021survey` etc. appear in this chapter exactly as in the paper and await the Phase-4
    global bib merge.
