@@ -828,9 +828,11 @@ year      = {2017}
 }
 
 % PROVENANCE: articles/CoUrb_2026/src_en/references.bib. ERRATUM applied 2026-07-25
-% (same class as the GAT erratum above, Appendix B): the donor entry was typed @misc as an
-% arXiv preprint while already carrying year=2024; cite the ICLR 2024 version of record
-% instead. arXiv identifier kept as a note, per the GAT precedent.
+% (same class as the GAT erratum above, Appendix B): the donor entry was typed as a misc
+% preprint entry (BibTeX reads a bare at-sign even inside a comment, so the entry type is
+% spelled out here rather than written with its sigil) while it already carried year=2024;
+% cite the ICLR 2024 version of record instead. The arXiv identifier is kept as a note, per
+% the GAT precedent.
 % verified 2026-07-25, two independent sources of record:
 %   (1) arXiv API, id 2310.06743 -- <arxiv:journal_ref> reads "Published as a conference
 %       paper at ICLR 2024"; <arxiv:comment> "Camera-ready version"; v2 dated 2024-04-15;
