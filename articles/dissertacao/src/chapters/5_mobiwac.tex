@@ -382,7 +382,9 @@ CA       & Gowalla       & 3{,}171{,}380 & 37{,}090 & 169{,}145 & 8{,}501 & 2{,}
 % gate was always control-relative (+0.0886 over control, margin 0.03).
 % Texas is absent from the ceiling table: output/check2hgi/texas/temp/ has no checkin_graph.pt
 % (only the design-engine embeddings exist), so the ceiling cannot be computed there without
-% re-running preprocessing. Stated as five datasets, not six. The measurement bounds this channel rather than closing it, and three limits set how far it reaches: the probe is linear, it was run at Florida alone at one random initialization over five user-grouped folds, and it was run on those ancestor builds of the representation rather than on the one that produced the results reported here. The same record shows why the linear form is a screen and not a proof, since one encoder that passed it leaked under a downstream sequence model. The baseline representations meet the same standard: HGI is pre-trained once on the whole dataset, like ours, and CTLE per fold on training users only.
+% re-running preprocessing. Stated as five datasets, not six.
+
+The measurement bounds this channel rather than closing it, and three limits set how far it reaches: the probe is linear, it was run at Florida alone at one random initialization over five user-grouped folds, and it was run on those ancestor builds of the representation rather than on the one that produced the results reported here. The same record shows why the linear form is a screen and not a proof, since one encoder that passed it leaked under a downstream sequence model. The baseline representations meet the same standard: HGI is pre-trained once on the whole dataset, like ours, and CTLE per fold on training users only.
 % NOTE: numbers from the A4 train-users-only transductivity audit (docs/studies/pre_freeze_gates/A4_RESULTS.md):
 % reg AL -0.33 / AZ +0.01 / FL -0.12 (5 folds); cat POI-proxy on in-coverage subset AL +0.29 (66.8%) / AZ +0.27 (71.9%) / FL +0.00 (86.9%).
 % Author TODO: extend to CA/TX/Istanbul to widen coverage further (non-blocking; the gate is on null at AL+AZ+FL).
