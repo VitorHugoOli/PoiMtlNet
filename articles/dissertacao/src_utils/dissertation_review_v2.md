@@ -68,8 +68,8 @@ running one, and the same failure mode caught me.
    page 71 was in fact floats-only. Floats-only pages are now measured from the PDF text layer, not
    inferred from the log.
 3. **A commit message recorded "no floats-only page" as verified when it was not.** That commit is
-   `875ec5b7`. The claim came from the insensitive check above, and page 71 was floats-only at the
-   time it was written; the condition was genuinely fixed two commits later in `e84b37c0`. The
+   `2f1cd5b3`. The claim came from the insensitive check above, and page 71 was floats-only at the
+   time it was written; the condition was genuinely fixed in the next commit, `e84b37c0`. The
    commit record is left as written, since rewriting history would hide the error, and the
    correction is recorded here instead.
 4. **Two build reports presented an un-rebuilt variant as fresh.** The build script printed a line

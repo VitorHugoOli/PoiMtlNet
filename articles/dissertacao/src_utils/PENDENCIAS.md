@@ -315,8 +315,8 @@ porque estao dentro de registros de resultado:
   quatro citacoes renderizavam como `(??)` nos dois PDFs, porque o grep era ancorado por linha e o
   LaTeX quebra avisos em varias linhas; (ii) o teste de pagina so-com-floats dependia de uma linha
   de log que o LaTeX nem sempre emite, e reportou "nenhuma" para um build cuja p. 71 era so floats;
-  (iii) o commit `875ec5b7` registrou "no floats-only page" como verificado quando nao estava (a
-  condicao foi de fato corrigida dois commits depois, em `e84b37c0`; deixei o commit como esta,
+  (iii) o commit `2f1cd5b3` registrou "no floats-only page" como verificado quando nao estava (a
+  condicao foi de fato corrigida no commit seguinte, `e84b37c0`; deixei o commit como esta,
   porque reescrever historico esconderia o erro); (iv) o script imprimia uma linha para o build
   final mesmo quando so o de defesa tinha rodado, entao duas mensagens de commit citaram numeros do
   final que ainda nao tinham sido medidos. O verificador agora achata o log, le o `.blg`, mede
