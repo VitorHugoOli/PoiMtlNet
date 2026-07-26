@@ -25,9 +25,11 @@ folder. No chapter text goes to the author or advisor without passing its gates.
 - **v1 lives in [`src/`](src/)** — the single working copy; the draft folders (`storyline/`,
   `fundamentals/`) are **frozen** (freeze pointers in each). **One source, two builds** from a
   single `main.tex`: `make defense` → `build/main.pdf`, copied to
-  [`src/dissertacao.pdf`](src/dissertacao.pdf) (87 pp, full front matter, the banca PDF);
-  `make final` → `build/main_final.pdf` (83 pp, AcademicoPG body-only). 0 errors, 0 undefined
-  refs/cites, `make check` lint 0. Build recipe: [`src/src_utils/README_SRC.md`](src/src_utils/README_SRC.md).
+  [`src/dissertacao.pdf`](src/dissertacao.pdf) (**89 pp**, full front matter, the banca PDF);
+  `make final` → `build/main_final.pdf` (**84 pp**, AcademicoPG body-only). 0 errors, 0 undefined
+  refs/cites, 2 overfull hboxes, `make check` lint 0. (Page counts measured 2026-07-25 on a full
+  three-pass build of the current source; the 87/83 figures that appear in older notes predate the
+  round-2 corrections.) Build recipe: [`src/src_utils/README_SRC.md`](src/src_utils/README_SRC.md).
 - **`src/` layout (restructured round 2):** LaTeX source + `chapters/` + `figures/` + `tables/`
   + the one `dissertacao.pdf` at the root; **`src_utils/`** holds all non-LaTeX (README, lint,
   reports, the review outputs `_review_v1/`, gate reports `_gates/`, the CBIC recompute result,

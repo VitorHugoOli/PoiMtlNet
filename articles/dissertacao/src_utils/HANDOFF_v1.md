@@ -14,12 +14,15 @@
    Category and Region Prediction"*; the three alternates are commented in `src/0_main.tex`. No
    longer a placeholder. **Remaining:** the final call with your advisor (swap in one line if he
    prefers another).
-2. **CBIC dataset counts — FILLED (confirm basis).** Chapter 3 §3.4.1 (PDF p.35) now states
-   the recomputed Florida corpus: raw 21,052 users / 76,544 POIs / 1,407,034 check-ins, and after
-   the <5-visit filter 13,935 / 76,266 / 1,392,262. Recomputed from the sanctioned per-state ETL
-   output (`data/checkins_by_state/Florida.parquet`), not invented. Full analysis +
-   recommendation: `src_utils/cbic_recompute_result.md`. **Remaining:** confirm which basis
-   the prose should keep (both-bases wording is in place and needs no choice).
+2. **CBIC dataset counts: SETTLED (author ruling 2026-07-24).** Chapter 3 §3.4.1 states the
+   Florida figures of record, the same ones Chapter 4 publishes: **20,301 users / 65,009 POIs /
+   990,518 check-ins** (`src/chapters/3_cbic.tex`:246; `src/chapters/4_courb.tex`:238). Ruling and
+   rationale: `src_utils/cbic_recompute_result.md`:1-10. No basis question remains and the
+   `[VERIFY]` flag is cleared.
+   *Superseded, kept for the trail:* this entry previously reported the fresh-2026-ETL recompute
+   (raw 21,052 / 76,544 / 1,407,034; after the <5-visit filter 13,935 / 76,266 / 1,392,262) as the
+   filled values with the basis still to confirm, and an interim fix then moved Ch.3 to the
+   CBIC-era `filtrado.csv` basis (10,460 / 64,454 / 960,520). Neither is current.
 3. **B.1 CBIC misattribution — FIXED in both places.** The false "CBIC studied next-region and
    observed negative transfer" is corrected in Ch.5 AND in the version-of-record
    `articles/[mobiwac]/src/`, logged in the MobiWac ERRATA + Appendix B. **Remaining:** send the
@@ -65,7 +68,7 @@ Every planned component, its Phase-0 status, and where it landed in v1.
 ## 2. What was built where (+ ledger pointers)
 
 - **Build (round-2 layout):** `cd src && make defense` (→ `build/main.pdf`, copied to
-  `src/dissertacao.pdf`, 87 pp, banca PDF) / `make final` (→ `build/main_final.pdf`, 83 pp,
+  `src/dissertacao.pdf`, **89 pp**, banca PDF) / `make final` (→ `build/main_final.pdf`, **84 pp**,
   AcademicoPG upload). ONE `main.tex` now (defense default; `make final` sets `\FINALBUILD` on
   the command line — no second main). All compile output goes to `src/build/` (gitignored).
   Recipe + TeX-tree notes: `src_utils/README_SRC.md`.
@@ -124,7 +127,7 @@ Every planned component, its Phase-0 status, and where it landed in v1.
 
 | Gate | Status |
 |---|---|
-| Build both modes | **PASS** — 87/83 pp, 0 errors, 0 undefined refs/cites |
+| Build both modes | **PASS** — **89/84 pp** (measured 2026-07-25, full three-pass build of the current source; the 87/83 recorded at assembly predates the round-2 corrections), 0 errors, 0 undefined refs/cites, 2 overfull hboxes |
 | Lint (check.sh) | **PASS** — exits 0 (em-dash 0, contractions 0, banned words 0, codenames 0) |
 | N4 numeral (06) | **CONDITIONAL** — 0 fabrications, 0 mismatch; blocks only on CBIC placeholders |
 | R3 citation (05) | **PASS** — 99/99 real, 0 fabrications, Gowalla mis-source fixed |
@@ -137,6 +140,11 @@ Every planned component, its Phase-0 status, and where it landed in v1.
 | Two-build (UFV 13) | defense non-compliant ONLY on the title placeholder; final compliant with conditions; all measured rules pass |
 
 ## 5. Review-suite verdicts (18 personas, on claude-opus-4-8)
+
+⚠ **Page references in these reports are stale.** The 18 reports in `src_utils/_review_v1/` were
+run against the older 87 pp defense build, so every physical-page pointer they carry (for example
+"p.35") can be off by up to two pages against the current 89 pp build. The findings themselves
+stand; only the pagination moved.
 
 Full per-persona detail: `src/_review_v1/CONSOLIDATED_REVIEW_REPORT.md`. Headline: **no
 fabricated citation, number, or unlicensed claim anywhere.** GATE PASS from 05 (citation), 07
@@ -176,12 +184,15 @@ The three configured specialist profiles were re-run on the corrected v1 (full r
 |---|---|---|
 | **BANCA_SIMULATOR** | **APROVADO COM CORREÇÕES MENORES — 46/50** (up from 45/50 round-1) | Verified all four round-2 fixes render correctly; removing the title placeholder + p.35 scaffolding stopped its hypercritical mode from triggering (text-quality dimension 4→5). |
 | **DISSERTATION_REVIEWER** | **APPROVED WITH CORRECTIONS** | No regression to the science; B.1 fix faithful and correctly mirrored; src restructure clean (zero broken refs — confirmed the numeric-only `\ref` scheme means shortened headings cannot leak). 2 MAJORs are round-2 documentation/concordance fallout, 2 MINORs pre-existing. |
-| **DISSERTATION_FACT_GATE** | **GATE FAIL → now RESOLVED** | B.1 correction PASS (matches the CBIC record everywhere). It flagged one BLOCKER: the CBIC dataset numbers were on the **wrong basis** (fresh-2026-ETL, not the CBIC-era `filtrado.csv`). **Fixed after the run:** Ch.3 now uses the CBIC-era basis (10,460/64,454/960,520), Appendix B row updated, N_users `[VERIFY]` kept open. The other items (MTLnet "this task pair" antecedent, a 0.01 rounding note, the storyline ledger 64.54 sync) are MINOR, queued in Tier 3 / the pt_BR doc. |
+| **DISSERTATION_FACT_GATE** | **GATE FAIL → now RESOLVED** | B.1 correction PASS (matches the CBIC record everywhere). It flagged one BLOCKER: the CBIC dataset numbers were on the **wrong basis** (fresh-2026-ETL, not the CBIC-era `filtrado.csv`). Fixed after the run by switching Ch.3 to the CBIC-era basis (10,460/64,454/960,520), with the N_users `[VERIFY]` kept open. **⚠ SUPERSEDED by the author ruling of 2026-07-24** (`src_utils/cbic_recompute_result.md`:1-10; NORTH_STAR §4 Ch.3): the CBIC-era `filtrado.csv` basis was retired as a prior-ETL artifact, and Ch.3 now reports the CoUrb figures of record, 20,301 users / 65,009 POIs / 990,518 check-ins, matching Ch.4. The `[VERIFY]` flag is cleared. The other items (MTLnet "this task pair" antecedent, a 0.01 rounding note, the storyline ledger 64.54 sync) are MINOR, queued in Tier 3 / the pt_BR doc. |
 
 **Headline:** two of three specialists pass on the corrected v1; the fact gate's single blocker
-(CBIC basis) was a real catch and has been fixed — Ch.3 now reports the CBIC-era corpus the models
-actually consumed, with the one genuinely-unresolvable value (N_users, 10,460 vs CoUrb's 20,301)
-left as an open author `[VERIFY]` rather than silently chosen. No specialist found a fabricated
+(CBIC basis) was a real catch and has been fixed. **⚠ The resolution recorded here is superseded**
+(author ruling 2026-07-24, `src_utils/cbic_recompute_result.md`:1-10): the sentence below described
+the interim state, in which Ch.3 reported the CBIC-era corpus and the N_users disagreement
+(10,460 versus CoUrb's 20,301) was left as an open author `[VERIFY]`. That disagreement is now
+settled the other way. Ch.3 reports the CoUrb figures of record (20,301 / 65,009 / 990,518), the
+same corpus figures as Ch.4, and no `[VERIFY]` remains on them. No specialist found a fabricated
 citation, number, or unlicensed claim, and none found a round-2 regression to the experiments.
 6. **Message the advisor** about the machine-assembled v1 (this note + Appendix C) and the model deviation; confirm banca + Art. 22 timing.
 7. **Re-sync note:** Ch.5 currently has NO drift vs `[mobiwac]/src/`; if you edit the paper after today, re-run the diff before the advisor build.

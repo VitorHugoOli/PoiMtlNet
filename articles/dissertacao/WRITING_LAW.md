@@ -1,0 +1,193 @@
+# WRITING_LAW.md — the writing law for the dissertation (v1, 2026-07-18)
+
+> **Scope.** Every sentence written in this dissertation — by the author or by an agent — obeys
+> this file. It inherits the MobiWac [`GLOSSARY.md`](../%5Bmobiwac%5D/GLOSSARY.md) (the paper's
+> writing law, battle-tested through two review cycles) and adapts it to a **dissertation**:
+> different audience (a computing banca, not networking reviewers), different length (didactic
+> register allowed), same honesty discipline. Where the two files conflict for dissertation
+> prose, THIS file wins; for the MobiWac chapter's re-typeset prose, the paper GLOSSARY wins.
+> Process rules (how agents verify citations/numbers) are in
+> [`AGENT_GUARDRAILS.md`](AGENT_GUARDRAILS.md) — this file is about the words on the page.
+
+---
+
+## 1 · Register: dissertation ≠ paper
+
+- **Audience:** a CS/ML banca + future students. Unlike MobiWac's networking audience, standard
+  ML vocabulary (embedding, transformer, cross-attention, macro-F1) is fine **once defined**.
+  The MobiWac plain-word substitutions (§3 of the paper GLOSSARY) are therefore relaxed for the
+  frame chapters — but every term still gets ONE definition at first use (Fundamentals is where
+  most of them live) and is then used consistently.
+- **Didactic room:** the dissertation may explain (worked examples, notation tables, "Relevance"
+  subsections) where the paper had to compress. Viegas patterns to use: definition → citation →
+  concrete example rhythm; sections open with a 1–3 sentence purpose statement; background always
+  tied to its downstream use ("this assumption matters for Chapter 5's protocol because…").
+- **Register bar (inherited, unchanged):** standard academic English a Brazilian author would
+  defend aloud. Both failure poles are banned: AI-inflated vocabulary AND native-literary idiom
+  (phrasal-verb metaphors, money/motion metaphors). The test: *would the author say it at the
+  defense, and would the community write it?* Safe verbs: use, cost, show, obtain, reach, remain,
+  include, provide, predict, measure, train, keep.
+- American English throughout. No contractions; "cannot" is correct. Digits for data quantities
+  ("8,501 regions"); words for small counts ("two tasks, seven categories"). Comma after
+  sentence-initial adverbial phrases. Write relative pronouns ("the head **that** we do not
+  predict").
+- **No em-dash anywhere.** Use commas, parentheses, semicolons, or two sentences. (Also an AI
+  tell; also the MobiWac rule.)
+
+## 2 · Canonical names (repo-wide; unchanged from the paper GLOSSARY §1)
+
+> This section is the core rules only — the FULL expanded registry (model lineage, protocol
+> terms, metrics, acronyms, PT equivalents, per-paper task mapping) is
+> [`GLOSSARY.md`](GLOSSARY.md), and its fail-closed maintenance rule governs new terms.
+
+| Concept | Use | Never |
+|---|---|---|
+| The "what" task | **next category** / category prediction | activity, POI classification |
+| The "where" task | **next region** / region prediction | area, "next-POI" for region |
+| The exact-place task | **next place** (we do NOT predict it; say so once, early) | conflating it with the other two |
+| A place | place / point of interest (POI) | venue |
+| One visit | check-in | event |
+| Our representation | **check-in-level representation (Check2HGI)** | "substrate" (repo word) |
+| Place-level baseline | place embedding (HGI) | "the baseline" alone |
+| One model, both tasks | the joint model / single multi-task model | bare "MTLnet" before it is introduced |
+| One task, one model | dedicated single-task model | "baseline" alone |
+| Repetition unit | **seed** = one complete repetition of the five-fold experiment with a different random initialization (define once, then "seed") | "run", "multi-seed run", bare "seed" in the abstract (say "random initialization") |
+
+- Hyphenate the compound adjective ("next-category prediction"), leave the bare task name open
+  ("the next category").
+- **No repo codenames in dissertation prose**: B9, v11–v17, champion-G, H3-alt, dk_ovl, log_T
+  (write "region-transition prior"), C25/CH16/F-numbers, "engine", "board", "recipe" (write
+  "training configuration"), "frozen" (write "fixed", except frozen weights, glossed).
+- One name per concept for the whole document; synonym-cycling is both imprecise and an AI tell.
+  If a paragraph repeats a term 4+ times, restructure the sentences, never rotate synonyms.
+- Model names across chapters: **MTLnet** (CBIC/CoUrb architecture), **ST-MTLNet** (CoUrb input
+  variant), **Check2HGI** (representation), and the MobiWac joint model described per its paper.
+  The Fundamentals chapter carries a small lineage table so the names never blur.
+
+## 3 · Honesty rules (non-negotiable; violations are bugs, not style)
+
+- **Every number carries its reference point** (majority-class floor, Markov floor, dedicated
+  ceiling) and its convention (which metric, which selection rule, n=how many). Never a naked
+  percentage.
+- **Verbs bound to tests** (MobiWac law, applies wherever those results appear): "outperforms"
+  only with paired superiority (Istanbul/FL/TX/CA region; category everywhere); "matches" /
+  "statistically non-inferior within a two-point margin (TOST)" at AL/AZ; **never upgrade AZ
+  (0.00)**; never "ties", "Pareto", "outperforms region everywhere", never "beats"/"wins".
+- **Time-indexed claims** (this arc's rule): CBIC's "MTL does not help" and CoUrb's protocol
+  are presented as conclusions *of the time, for that configuration*. Superseded numbers never
+  read as current. Corrections are stated as corrections ("later shown to be
+  configuration-specific"), with the correcting chapter named.
+- **Uncertainty is stated, not implied**: fold-std or CI wherever a mean appears in a claim;
+  "significant" only with the test named.
+- Scope every universal: "at all six datasets" only right after the six are enumerated; the
+  region-count scaling claim is scoped to the five U.S. states; bare "everywhere" never.
+- Limitations are concrete ("3,150 rows", "2009–2010 Gowalla") and split Viegas-style:
+  design-time scope/assumptions in §1.4 vs. evaluation-time limitations in §6.2.
+- Failures and negative results are findings, not embarrassments — the CBIC null result is the
+  arc's foundation; write it with the same care as the wins.
+
+## 4 · AI-tell law (2026 state; inherits GLOSSARY §7 wholesale, plus the updates below)
+
+**Inherited bans (see the paper GLOSSARY §7 for the full tables — they apply verbatim):** the
+banned-word list (delve, intricate, showcase, underscore, pivotal, leverage, seamless, testament,
+moreover-family openers, "it is worth noting", …), banned templates ("not only X but also Y",
+"plays a crucial role", "in today's world", Firstly/Secondly scaffolds, participial significance
+tails), and the density rules (≤1 intensifier per claim; -ly adverb density ≈0.8% max, never two
+in one sentence; no semicolon braids; no rule-of-three cascades; vary paragraph openings; never
+end a section by restating it).
+
+**2025–2026 updates (from the current detection literature; sources in
+[`AGENT_GUARDRAILS.md`](AGENT_GUARDRAILS.md) §8). The numbered items below are cited elsewhere
+as §4.1–§4.6:**
+
+1. **The list is versioned and rotting.** Word lists decay as models and authors adapt (the
+   classic tells are already declining in 2024–25 corpora). Re-audit with fresh eyes per pass;
+   do not treat the ban table as complete protection.
+2. **Distributional tells matter more than tokens.** Watch for: nominal style (noun/determiner
+   density creeping up, adjectives/adverbs vanishing), uniformly formal impersonal register, and
+   shrinking vocabulary. Spot-check: read one page aloud; if every sentence has the same weight,
+   rewrite.
+3. **Variance compression is the deepest tell.** LLM revision homogenizes sentence and paragraph
+   statistics (measured: Claude-family revision reduced variance in ~78% of stylometric
+   features). The law: **preserve burstiness** — keep short sentences next to long ones, let some
+   paragraphs open with a result, keep the author's own phrasings when editing; an editing pass
+   that only smooths is a regression.
+4. **Discourse-skeleton reuse.** Models recycle the same section shapes (identical opening move,
+   same transition sentences, same wrap-up) — across a 100-page document this is glaring. Chapter
+   openers must not follow one template; results discussions must vary their move order; the
+   per-section "purpose statement" rule (§1) is about content, not a fixed sentence shape.
+5. **Model-specific tics ("aidiolects").** For Claude-family drafting specifically: watch
+   "genuine/genuinely", "comprehensive", "robust" (decorative), "crucially", "notably", and
+   over-hedging stacks ("it is important to note, however, that…"). One decorative instance is
+   noise; density convicts.
+6. **Do not over-ban:** robust, novel, framework, comprehensive, baseline are normal CS words
+   when load-bearing. The offense is decoration and stacking.
+
+**Idiom rule (inherited GLOSSARY §8):** no phrasal-metaphor idioms ("edges past", "buys",
+"ships", "lands", "folds in", "clears it by"); metaphor budget for "carry/carries" ≤3 per
+chapter; "deliberately X" → "X by design"; "sits above" → "lies above" (one verb everywhere).
+
+## 5 · Structure and presentation rules (Viegas-derived; details in `exemples/viegas/VIEGAS_ANALYSIS.md`)
+
+- **Abstract formula:** problem → barrier → named contribution → concrete capabilities →
+  validation design → ONE headline number → closing thesis-verb restatement. UFV catalog header;
+  keywords per system rules (one per line, lowercase except proper nouns).
+- **Introduction devices:** funnel (3 paragraphs max to the gap); the research question bold
+  inline, once; objectives 1:1 with chapters; the coletânea "magic sentence" in the organization
+  section with per-chapter venue+status bullets; contributions taxonomy (Theoretical / Software /
+  Empirical / Practical) with section cross-refs.
+- **Every chapter Introduction ends with a roadmap paragraph**; every section opens with a
+  purpose statement (varying shape, per §4.4).
+- **Tables:** booktabs only (no vertical rules); captions **above** tables (ABNT; fix Viegas's
+  inconsistency); mean ± std with per-block bolded best values; every results table introduced by
+  a lead takeaway sentence (a normal sentence, never a literal "Read this as:" tag).
+- **Figures:** captions below, 2–4 self-contained interpretive sentences (name every element,
+  include reading instructions and color/symbol legends); a notation/legend figure before any
+  figure that uses custom notation; color + hatch dual encoding (grayscale-safe); in-figure text
+  near body size.
+- **Metrics defined defensively:** formula + one-sentence plain reading + boundary/degenerate
+  behavior (the Viegas KIS pattern) — apply to macro-F1, Acc@10, the OOD-discounted region
+  metric, and the checkpoint-selection rule.
+- **Reproducibility blocks:** each experimental section opens with hardware, seeds, folds,
+  versions; the code repository footnoted at first mention of each artifact; infrastructure
+  software (PyTorch etc.) cited formally in the bibliography.
+- **Hygiene sentences:** one explicit in-line sentence per leakage-sensitive step ("X was
+  computed on the training folds only…") — the pattern MobiWac §5.2 and the A4 audit already use.
+- **Anti-patterns from the example (do NOT imitate):** leftover "this paper"/"the article is
+  organized as" inside chapters; "Dataset N" instead of names in results prose; unresolved
+  citation keys; inconsistent caption placement; cross-ref typos; 3-line stretched chapter
+  titles.
+
+## 6 · Language mechanics per part
+
+- **Frame chapters (1, 2, 6):** English, this file in full force.
+- **Paper chapters (3–5):** the source paper's prose is the base; edits obey this file; the
+  MobiWac chapter additionally obeys the paper GLOSSARY (it is stricter about plain words —
+  do not "re-technicalize" its prose when re-typesetting).
+- **Portuguese surfaces** (Resumo; AcademicoPG fields; folha de rosto boilerplate): formal
+  PT-BR, no anglicisms where a standard PT term exists (aprendizado multitarefa, ponto de
+  interesse, representação em nível de check-in); the Resumo mirrors the Abstract content
+  exactly (same claims, same numbers, same hedges — audit them as a pair).
+- **The CoUrb chapter** follows open decision #3 (NORTH_STAR §5): if kept PT, this file's
+  honesty and structure rules still apply; if translated, translation is a *faithful* re-typeset
+  (asserted claims may not drift in strength — see AGENT_GUARDRAILS §4 gate).
+
+## 7 · Consistency checklist (run before every advisor handoff; the gates in AGENT_GUARDRAILS automate part)
+
+- [ ] Canonical names only (§2); zero repo codenames; zero synonym-cycling.
+- [ ] Every acronym expanded at first use; acronym count minimal; List of Abbreviations complete.
+- [ ] next category / next region / next place kept distinct; "we do not predict the exact next
+      place" stated once, early.
+- [ ] Region wording law intact (outperforms 4 / matches AL–AZ / never upgrade AZ); scaling claim
+      scoped; every verdict verb bound to its test.
+- [ ] Time-index framing on CBIC/CoUrb conclusions; no superseded number reads as current.
+- [ ] Every number has reference point + convention; every mean has its spread; "significant"
+      only with a test.
+- [ ] AI-tell sweep: banned words/templates at zero; intensifiers ≤1 per claim; -ly density in
+      band; no semicolon braids; paragraph shapes vary; chapter openers not templated.
+- [ ] Idiom sweep: no phrasal metaphors; em-dash count = 0; contractions = 0.
+- [ ] Tables captioned above with lead sentences; figures self-contained; metrics defined with
+      boundary behavior; hygiene sentences present at every leakage-sensitive step.
+- [ ] Resumo ↔ Abstract claim-parity audit passed.
+- [ ] "this paper"→"this chapter" sweep in re-typeset chapters; no "Dataset N" prose; no
+      unresolved \ref/\cite.

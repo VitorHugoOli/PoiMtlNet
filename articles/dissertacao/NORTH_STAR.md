@@ -114,11 +114,18 @@ superseded number or claim read as the project's current state.
 - Re-typeset from `articles/CBIC___MTL/` (IEEE 2-col → dissertation 1-col), "this paper" → "this
   chapter", renumber sections/figures.
 - **Errata to handle (open decision #7):** (a) unfilled dataset placeholders in results.tex
-  (`N_users`, `N_poi`, `N_checkins` never inserted). **Sanctioned source (fail-closed path):**
-  recompute with a small repo-committed script over the CBIC-era Florida pipeline (Gowalla FL,
-  users with <5 visits dropped, per the paper's own §Dataset), author-approved before insertion;
-  CoUrb's published FL row (990,518 / 65,009 / 20,301, `tabela_dataset.tex`) is a **cross-check
-  only**, not a source (its filtering may differ);
+  (`N_users`, `N_poi`, `N_checkins` never inserted). **RESOLVED (author ruling 2026-07-24):** the
+  CoUrb published Florida row is now the **source of record** for Ch.3 as well as Ch.4:
+  **20,301 users / 65,009 POIs / 990,518 check-ins** (`tabela_dataset.tex`). Rationale recorded in
+  `src_utils/cbic_recompute_result.md`:1-10. The `filtrado.csv` artifact behind the earlier
+  recompute (10,460 / 64,454 / 960,520) comes from a prior ETL no longer in use; the CBIC paper
+  never published these three statistics, so no published value is overridden, and one corpus
+  figure now serves both chapters. The `[VERIFY]` flag is cleared, and the shipped text carries the
+  ruling (`src/chapters/3_cbic.tex`:246, `src/chapters/4_courb.tex`:238).
+  *Superseded history (kept for the trail, do not act on it):* until 2026-07-24 the sanctioned
+  fail-closed path was a repo-committed recompute over the CBIC-era Florida pipeline, with the
+  CoUrb row admitted as a **cross-check only, not a source**, on the grounds that its filtering
+  might differ;
   (b) prose says "almost four times more wall time", table says 80.88 s vs 34.97 s = 2.3×;
   (c) prose says MFLOPs "roughly double", table contradicts; (d) three documented citation errors
   (POI-RGNN wrong paper: use capanema2023poirgnn; HMRM author names; GAT cite the ICLR version);
