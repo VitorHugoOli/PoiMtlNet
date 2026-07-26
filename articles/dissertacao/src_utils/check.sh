@@ -28,9 +28,30 @@ echo "== repo codenames =="
 if grep -nwE 'B9|v1[1-7]|champion-G|H3-alt|dk_ovl|log_T|substrate' $CH | grep -v '^[^:]*:[0-9]*: *%'; then FAIL=1; else echo OK; fi
 
 echo "== unresolved \\ref/\\cite (needs a compiled .log) =="
+# NOTE 2026-07-26: this check used a line-anchored grep. LaTeX WRAPS its warnings at 79 columns, so
+# a wrapped "Citation `key' on page N undefined" was invisible to it and four undefined citations
+# shipped in both PDFs. The log is flattened before matching, and the .blg is read too, because a
+# BibTeX error (e.g. a bare at-sign inside a % comment in references.bib) never reaches the .log.
 LOG=build/main.log
+BLG=build/main.blg
 if [ -f "$LOG" ]; then
-  if grep -E 'Reference .* undefined|Citation .* undefined' "$LOG"; then FAIL=1; else echo OK; fi
+  if tr -d '\n' < "$LOG" | grep -oE "(Reference|Citation) \`[^']+' on page [0-9]+ undefined"; then FAIL=1; else echo OK; fi
 else echo "SKIP: no $LOG"; fi
+if [ -f "$BLG" ]; then
+  if grep -iE "error|didn't find|I was expecting" "$BLG"; then FAIL=1; else echo "OK (bibtex)"; fi
+else echo "SKIP: no $BLG"; fi
+
+echo "== prose trapped inside a % comment (silent: builds clean, reader sees a broken sentence) =="
+# Has happened twice: apx_a_contributions.tex, and 4_courb.tex:187 where half a PUBLISHED
+# methodology sentence was appended to a comment tail and three method facts stopped rendering.
+DETECTOR=""
+for cand in "src_utils/check_trapped_prose.py" "../src_utils/check_trapped_prose.py"; do
+  if [ -f "$cand" ]; then DETECTOR="$cand"; break; fi
+done
+if [ -z "$DETECTOR" ]; then
+  echo "SKIP: check_trapped_prose.py not found"
+elif ! python3 "$DETECTOR"; then
+  FAIL=1
+fi
 
 exit $FAIL
