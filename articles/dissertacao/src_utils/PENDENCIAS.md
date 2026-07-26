@@ -341,13 +341,14 @@ manter o Apendice C como esta, o que torna esta lista o caminho para tornar a af
 |---|---|---|
 | `0_main.tex` | 6 | Resumo e Abstract: **par de paridade**, incluindo as mudancas de unidade inferencial desta rodada |
 | `chapters/6_conclusion.tex` | 5 | Escopos de alegacao: joint model qualificado, largura 64→192, California completa, parametro escopado, convencao 64,51 |
+| `chapters/5_mobiwac.tex` | 4 | Prefacio, recap, figura restaurada, **mais a atribuicao do trunk rebaixada (item 1b.1)** |
 | `chapters/apx_a_contributions.tex` | 4 | Apendice inteiro, mais as tres correcoes desta rodada |
-| `chapters/5_mobiwac.tex` | 3 | Prefacio, recap, figura restaurada |
 | `chapters/1_introduction.tex` | 2 | Correcao de gate L3, unidade inferencial |
 | `chapters/2_fundamentals.tex` | 2 | Escopo dos 93% do Song, de-duplicacao L3 |
-| `chapters/apx_b_errata.tex` | 1 | Apendice inteiro |
+| `chapters/apx_b_errata.tex` | 2 | Apendice inteiro, **mais a preservacao do custo do Nash declarada (item 1b.3)** |
 | `chapters/apx_c_ai_disclosure.tex` | 1 | Apendice inteiro |
 | `chapters/apx_d_ceiling.tex` | 1 | Apendice novo (o teto de autocorrelacao, item 3.4) |
+| **TOTAL** | **27** | contagem medida em 9 arquivos, 2026-07-26 |
 
 **Regra que nao da para contornar:** os 6 do `0_main.tex` sao **um par**. Resumo e Abstract carregam
 as mesmas alegacoes, e aprovar um sem o outro quebra a paridade. Leia os dois lado a lado.
