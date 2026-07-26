@@ -24,11 +24,18 @@ consistently improve on the dedicated single-task models. Chapters~\ref{ch:courb
 and~\ref{ch:mobiwac} revise that verdict by changing the input representation rather
 than the architecture. The chapter's preference for the Nash-MTL optimizer is likewise
 a conclusion of the time, weakened by a later finding about the optimizer
-implementation, and the following chapters do not rely on it. A note on terminology:
+implementation, and Chapter~\ref{ch:mobiwac} does not rely on it. A note on terminology:
 the term ``Next-POI Prediction'' as used in the reproduced article denotes the frame's
 \emph{next category} task, that is, predicting the category of the next visited place,
 not the exact place itself; the dissertation reserves \emph{next place} for the
 exact-POI task, which is not studied here.
+% [round4, NEW-4] Pointer corrected: the earlier wording said "the following chapters do
+% not rely on it", which is false for Chapter 4 -- 4_courb.tex:115 trains with the Nash-MTL
+% balancer ("Multi-task training uses the Nash-MTL regularizer"), and 4_courb.tex:84 states
+% the same for the MTLnet baseline. Chapter 5 is the chapter that does not use it: it reports
+% a fixed loss weighting and states that no balancer, Nash-MTL included, improved on it
+% (5_mobiwac.tex:180-186). This sentence is dissertation-authored preface prose, not
+% reproduced published text, so it carries no Appendix B errata row.
 % [round3, author 3.5/MJ-8] terminology bridge: the article reuses "Next-POI" for what
 % the frame names "next category" (and internally the published text even shades it toward
 % exact-location on p.27); this sentence fixes the mapping so a reader who trusts the
@@ -52,7 +59,7 @@ This dichotomy raises a critical question: can a single, shared representation e
 
 Therefore, the central hypothesis of this study is that a standard hard parameter-sharing MTL architecture will face significant limitations when applied to this specific task pairing, failing to achieve substantial and consistent improvements over well-tuned, specialized single-task models. Our work is thus framed as an empirical investigation into the boundary conditions of MTL's effectiveness, exploring whether the presumed task relatedness is sufficient to overcome their inherent structural differences.
 
-To test this hypothesis, we conducted experiments on the Gowalla LBSN dataset \cite{cho2011gowalla,jure2014snap}, comparing our MTL model against strong single-task baselines (HMRM \cite{chen2020modeling} and MHA+PE \cite{zeng2019next}). Our results lend weight to our hypothesis. While the proposed models perform well, particularly in POI category classification, the MTL framework does not deliver the consistent, significant gains often expected. The performance differences between the MTL and single-task models were frequently marginal and fell within standard deviations, suggesting their statistical performance was largely comparable. This outcome indicates that, for this problem, the architectural constraints and task dissimilarities may have offset the potential benefits of joint learning.
+To test this hypothesis, we conducted experiments on the Gowalla LBSN dataset \cite{cho2011gowalla,jure2014snap}, comparing our MTL model against strong single-task baselines (HMRM \cite{chen2020modeling} and MHA+PE \cite{zeng2019next}). Our results lend weight to our hypothesis. While the proposed models perform well, particularly in POI category classification, the MTL framework does not deliver the consistent gains often expected. The performance differences between the MTL and single-task models were frequently marginal and fell within standard deviations, suggesting their statistical performance was largely comparable. This outcome indicates that, for this problem, the architectural constraints and task dissimilarities may have offset the potential benefits of joint learning.
 
 The main contributions of this chapter are as follows:
 \begin{itemize}
@@ -69,7 +76,12 @@ The rest of this chapter is organized as follows. In Section~\ref{sec:cbic:relat
 \subsection{POI Classification and Next-POI Prediction}
 POI Category Classification refers to the task of inferring the semantic category of a location based on contextual information such as geographic coordinates, visit frequency, or user behavior.
 
-Next-POI Prediction, in contrast, aims to predict which specific location a user is likely to visit next, given their past movement history. It is a sequential task that requires modeling temporal and spatial patterns within user trajectories.
+Next-POI Prediction, in contrast, aims to predict which specific location a user is likely to visit next, given their past movement history.\footnote{This states the general formulation of the task as the literature poses it. The variant studied in this chapter predicts the \emph{category} of the next visited place rather than the place itself, as defined in Section~\ref{sec:cbic:intro} and in the chapter preface.} It is a sequential task that requires modeling temporal and spatial patterns within user trajectories.
+% [round4, REV-010] Footnote added to preserved published prose (basis.tex:23, reproduced
+% verbatim; the published sentence is complete, not truncated -- byte-compared this session).
+% The sentence defines the research AREA as the literature names it; the chapter's own
+% instantiation is the category variant (:53, :169, :182, :318). The footnote marks the scope
+% without altering the published wording. Declared in Appendix B, Table B.2.
 
 The prediction and classification of POIs are fundamental challenges in applications such as recommendation systems and urban planning. Xu et al.~\cite{Xu2023} propose the Tree-guided Multi-task Embedding (TME) model, which aims to improve the semantic annotation of POIs using a hierarchical structure of categories and mobility-based representation learning.
 
@@ -222,7 +234,28 @@ Given task-specific objectives $\{\mathcal{L}_k(\boldsymbol{\theta})\}_{k=1}^{K}
 By setting $\Delta\boldsymbol{\theta}=\sum_{k}\alpha_k\mathbf{g}_k$ with positive weights $\boldsymbol{\alpha}$, the solution simplifies to solving the nonlinear system $\bigl(\mathbf{G}^{\!\top}\mathbf{G}\bigr)\boldsymbol{\alpha} \;=\; \boldsymbol{\alpha}^{-1}$ \cite{nash}, where $\mathbf{G}=\bigl[\mathbf{g}_1\,\ldots\,\mathbf{g}_K\bigr]$ \cite{nash}. The parameter update is then $\boldsymbol{\theta}^{(t+1)} =\boldsymbol{\theta}^{(t)}-\eta\,\mathbf{G}\boldsymbol{\alpha}$, with $\eta$ chosen to ensure monotonic loss decrease and convergence to a Pareto-stationary point \cite{nash}.
 
 \paragraph*{Practical Aspects.}
-Nash-MTL is architecture-agnostic and requires only two matrix-vector products per iteration. Its reliance on gradient signs rather than scales inherently balances heterogeneous tasks without manual re-weighting. For efficiency, task weights can be updated less frequently, significantly reducing runtime while maintaining performance~\cite{nash}.
+Nash-MTL is architecture-agnostic and requires only two matrix-vector products per iteration. Its invariance to the scale of the individual task gradients, the second of the axioms listed above, balances heterogeneous tasks without manual re-weighting. For efficiency, task weights can be updated less frequently, significantly reducing runtime while maintaining performance~\cite{nash}.
+% [round4, REV-020a] Factual correction to reproduced prose. The published sentence read
+% "Its reliance on gradient signs rather than scales inherently balances heterogeneous tasks".
+% Nash-MTL does not read gradient signs: it is scale-invariant, which is what this same
+% chapter states earlier in the same subsection, at :224 ("scale-invariant to arbitrary loss
+% re-weightings"). Verified three ways this session: (1) Navon et al., arXiv:2202.01017,
+% Axiom 2.4 "Invariance to affine transformation" and Fig. 1 discussion ("Nash-MTL, is
+% invariant to changes in loss scale"); the string "sign" appears in that paper only inside a
+% bibliography entry for an unrelated method. (2) The CoUrb-era implementation the author
+% provided, /Users/vitor/Desktop/mestrado/temp/tarik-new/PoiMtlNet_Novo/src/criterion/
+% nash_mtl.py: zero occurrences of sign/abs; get_weighted_loss (:176-232) forms G, computes
+% GTG = G G^T (:222), normalizes by its Frobenius norm (:224-227) and solves for alpha
+% (:228). (3) This repository's src/losses/nash_mtl/loss.py: same structure at :291-299,
+% also zero occurrences of "sign". Claim strength is reduced, not increased: a mechanism
+% claim is replaced by the weaker property the paper actually proves. Declared in Table B.1.
+% [REPORTED, NOT CORRECTED] The same sentence's "requires only two matrix-vector products per
+% iteration" is not supported by the paper (the phrase does not occur in it) and understates
+% the cost: both implementations run an iterative concave-convex procedure, optim_niter = 20
+% by default, each pass a cvxpy/ECOS solve (tarik-new nash_mtl.py:99, :126-141; this repo's
+% loss.py:105, :158-200). Navon et al. report that raising the CCP sequence to 20 iterations
+% lifts the share of optimal solutions from 91.5 to 93.5 percent. Left as published: whether
+% to correct a cost claim is the author's judgment, and it is raised in the handoff report.
 
 \paragraph*{Parameter Partition.}
 In our model (Figure~\ref{fig:cbic:arch}), we explicitly expose two disjoint parameter sets:
@@ -266,7 +299,7 @@ In this section, we discuss the performance of our proposed MTL model and its si
 For the task of next POI category prediction, we compare our models against MHA+PE, a solution proposed by Zeng et al. (2019) \cite{zeng2019next}. This model enhances a recurrent neural network with a Multi-Head Attention (MHA) mechanism, originally developed for machine translation by Vaswani et al. (2017) \cite{vaswani2017attention}, and incorporates Positional Encoding (PE). The MHA mechanism allows the model to extract correlations from different parts of a sequence, effectively capturing the relevance of various elements within a user's trajectory, while positional encoding helps to propagate the order of records in a sequence.
 
 \subsubsection{POI Category Classification}
-As shown in Table~\ref{tab:cbic:category}, both our MTL and Single models significantly outperform HMRM \cite{chen2020modeling} across all POI categories in terms of F1-score, precision, and recall. For instance, in the `Shopping' category, our MTL model achieves an F1-score of $62.51 \pm 0.94$ compared to HMRM's $46.69 \pm 0.81$. Similarly, for `Food', the MTL model scores $57.43 \pm 1.46$ against HMRM's $28.44 \pm 0.42$. While both MTL and Single models are competitive, the Single model shows marginally better F1-scores in several categories like `Community' ($53.11 \pm 0.58$) and `Outdoors' ($47.75 \pm 0.89$), whereas the MTL model excels in `Food' and `Shopping'. Overall, our approaches demonstrate a substantial improvement over the HMRM baseline for this task.
+As shown in Table~\ref{tab:cbic:category}, both our MTL and Single models outperform HMRM \cite{chen2020modeling} in every POI category in terms of F1-score, precision, and recall. For instance, in the `Shopping' category, our MTL model achieves an F1-score of $62.51 \pm 0.94$ compared to HMRM's $46.69 \pm 0.81$. Similarly, for `Food', the MTL model scores $57.43 \pm 1.46$ against HMRM's $28.44 \pm 0.42$. While both MTL and Single models are competitive, the Single model shows marginally better F1-scores in several categories like `Community' ($53.11 \pm 0.58$) and `Outdoors' ($47.75 \pm 0.89$), whereas the MTL model excels in `Food' and `Shopping'. Overall, our approaches demonstrate a substantial improvement over the HMRM baseline for this task.
 
 \begin{table}[htbp]
 \caption{POI category classification results for Florida (per-category F1-score, precision, and recall, mean $\pm$ standard deviation over the 5 folds; the better of the MTL and Single values per row in bold, as in the published table).}
@@ -304,7 +337,7 @@ As shown in Table~\ref{tab:cbic:category}, both our MTL and Single models signif
 \end{table}
 
 \subsubsection{Next POI Category Prediction}
-The results for next POI category prediction, detailed in Table~\ref{tab:cbic:next}, indicate a competitive performance landscape. The MHA+PE model \cite{zeng2019next} shows strong F1-scores in several categories, notably `Food' ($43.47 \pm 0.50$) and `Shopping' ($43.53 \pm 1.66$), outperforming our MTL and Single models in these instances. However, our MTL model achieves the best F1-score in `Travel' ($64.61 \pm 1.11$) and `Nightlife' ($22.07 \pm 0.52$), significantly surpassing MHA+PE in these categories. The Single model also shows competitive results, leading in `Entertainment' ($26.06 \pm 1.01$) and `Outdoors' ($22.45 \pm 0.81$). This suggests that while MHA+PE is highly effective for certain POI categories, our MTL and Single models offer superior or comparable performance in others, particularly where different sequential patterns might be exploited. Also, it is important to notice that since we have an unbalanced result for the MTL and single, this could lead to the worse of other results.
+The results for next POI category prediction, detailed in Table~\ref{tab:cbic:next}, indicate a competitive performance landscape. The MHA+PE model \cite{zeng2019next} shows strong F1-scores in several categories, notably `Food' ($43.47 \pm 0.50$) and `Shopping' ($43.53 \pm 1.66$), outperforming our MTL and Single models in these instances. However, our MTL model achieves the best F1-score in `Travel' ($64.61 \pm 1.11$) and `Nightlife' ($22.07 \pm 0.52$), surpassing MHA+PE in these two categories. The Single model also shows competitive results, leading in `Entertainment' ($26.06 \pm 1.01$) and `Outdoors' ($22.45 \pm 0.81$). This suggests that while MHA+PE is highly effective for certain POI categories, our MTL and Single models offer superior or comparable performance in others, particularly where different sequential patterns might be exploited. Also, it is important to notice that since we have an unbalanced result for the MTL and single, this could lead to the worse of other results.
 
 \begin{table}[htbp]
 \caption{Next POI category prediction results for Florida (per-category F1-score, precision, and recall, mean $\pm$ standard deviation over the 5 folds; best value per row in bold, second-best underlined).}
@@ -341,7 +374,22 @@ The results for next POI category prediction, detailed in Table~\ref{tab:cbic:ne
 \end{tabular}
 \end{table}
 
-Overall, while our proposed models show strong performance in POI category classification against HMRM \cite{chen2020modeling}, the next POI category prediction task presents a more competitive landscape when compared against a sophisticated sequential model like MHA+PE \cite{zeng2019next}. Comparing the MTL and Single models directly reveals that the multi-task learning approach did not yield the anticipated substantial improvements over the single-task baseline across both tasks. Crucially, many of these observed differences in F1-scores are minor and often fall within the reported standard deviations, suggesting that, statistically, the performance of the MTL and Single models is largely comparable, without a clear, consistent, and significant advantage for the multi-task learning setup in these experiments.
+Overall, while our proposed models show strong performance in POI category classification against HMRM \cite{chen2020modeling}, the next POI category prediction task presents a more competitive landscape when compared against a sophisticated sequential model like MHA+PE \cite{zeng2019next}. Comparing the MTL and Single models directly reveals that the multi-task learning approach did not yield the anticipated substantial improvements over the single-task baseline across both tasks. Crucially, many of these observed differences in F1-scores are minor and often fall within the reported standard deviations, suggesting that the performance of the MTL and Single models is largely comparable, without a clear or consistent advantage for the multi-task learning setup in these experiments.
+% [round4, REV-027] Four substitutions in reproduced prose removing inferential vocabulary
+% the chapter never supports with a test (no p-value, Wilcoxon, t-test, Holm, TOST, or
+% confidence interval appears anywhere in the chapter): :62 "consistent, significant gains"
+% -> "consistent gains"; :302 "significantly outperform ... across all POI categories" ->
+% "outperform ... in every POI category"; :340 "significantly surpassing" -> "surpassing";
+% and this sentence, where "statistically" and "significant advantage" become a descriptive
+% comparison. Each reduces claim strength; none changes a finding. Declared in Table B.2.
+% Untouched by design: :90 and :209 (claims attributed to cited work), :60 (the study's own
+% hypothesis, not a result claim), :68 (a claim about task dissimilarity, not a measured
+% comparison), :237 (a property of Nash-MTL attributed to \cite{nash}), :395 (a chosen target
+% level, not a comparison). Two further uses are borderline and were left as published pending
+% the author's call, since neither was in the approved set of four: :414 ("a significantly
+% higher overhead in wall time", reading the 80.88 s against 34.97 s of the chapter's own
+% convergence table) and :423 ("the lack of significant improvement", restating the null
+% result). Both read as ordinary-language magnitude rather than as an inferential verdict.
 
 \subsection{Convergence Comparison}
 To further evaluate the practical implications of the MTL approach compared to single-task models, we conducted a convergence experiment. We measured the wall time, number of epochs, and Mega Floating Point Operations (MFLOPs) required for the MTL model and the individual single-task models (SingleClass and SinglePred) to reach predefined target average F1-scores. The target F1-score for the \textit{Category} prediction task was set to 47, and for the \textit{Next} POI category classification task, it was set to 32.2. These specific F1 values were chosen because they are close to the best-achieved results for each respective task, thereby representing a comparable and significant level of predictive performance for the models to attain. To ensure robust measurements for this experiment, all models were evaluated through a 5-fold cross-validation process. The specific metrics are detailed in Table~\ref{tab:cbic:convergence}.
