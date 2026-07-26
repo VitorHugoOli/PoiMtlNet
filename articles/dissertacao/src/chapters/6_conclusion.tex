@@ -17,7 +17,14 @@ answer depends on, and answered it across three studies: a joint model that did 
 outperform its dedicated counterparts (Chapter~\ref{ch:cbic}), the diagnosis that located the
 bottleneck in the input representation (Chapter~\ref{ch:courb}), and a check-in-level
 representation with a redesigned sharing topology under which one joint model finally
-outperforms both dedicated models (Chapter~\ref{ch:mobiwac}).
+outperforms the dedicated single-task models on the category task at all six datasets
+and on the region task at four of the six, and is statistically non-inferior to them,
+within a two-point margin (TOST), at the other two (Chapter~\ref{ch:mobiwac}).
+% [NEEDS SIGN-OFF: REV-015, 2026-07-26] The unqualified "outperforms both dedicated
+% models" was the one locus in the document carrying no scope. Scope copied from
+% 5_mobiwac.tex:26-30 and from Section 6.1 below (:49-53): category at all six,
+% region at four (Istanbul, Florida, California, Texas), TOST non-inferiority within
+% two points at Alabama and Arizona. Arizona is NOT upgraded.
 
 \section{Contributions by chapter}
 \label{sec:conc:contributions}
@@ -37,16 +44,33 @@ Chapter~\ref{ch:courb} contributed the controlled test of the representation exp
 the MTLnet architecture fixed and replacing only the input, the monolithic
 64-dimensional place embedding, with decomposed spatial, temporal, and categorical
 encoders, raised category macro-F1 by 20.2 to 22.0 percentage points across the three
-states tested. A change of input, with no change of architecture, moved the needle
-farther than any architectural variation tried before it. The diagnosis of the arc
+states tested. A change of input, with no change of architecture, produced a larger
+gain than any architectural variation tried before it. The comparison is not
+width-matched, however: the decomposed input is wider than the place embedding it
+replaces, 192 dimensions against 64, and Chapter~\ref{ch:courb} states
+that an equal-dimension control would be needed to separate the semantic
+specialization of the encoders from the increase in input dimensionality alone. The
+diagnosis of the arc
 follows from this chapter: the input representation, not the sharing scheme, was the
 binding constraint at that stage of the research.
+% [NEEDS SIGN-OFF: REV-009 + idiom law, 2026-07-26] Two changes in one sentence pair.
+% (1) "moved the needle farther than" -> "produced a larger gain than" (WRITING_LAW §4
+% idiom rule: no phrasal metaphors; claim strength unchanged). (2) The 64-to-192 width
+% asymmetry, previously invisible in the frame chapters, is now named and attributed.
+% Sources (quoted, not computed): 4_courb.tex:209 (E_input in R^192), :215 ("The input
+% dimensionality of ST-MTLNet (R^192) is higher than that of the baseline (R^64)" and
+% "an additional experimental control equalizing the dimensionality of the
+% representations would allow validating more precisely whether the gains occur mainly
+% from the semantic specialization of the encoders, and not only from the increase in
+% input dimensionality"); GLOSSARY §2 ST-MTLNet row (64-d each -> 192-d). Chapter 4 was
+% NOT edited.
 
 Chapter~\ref{ch:mobiwac} contributed the resolution: the check-in-level representation, which gives
 each visit its own vector instead of assigning every visit to a place the same one,
 and a joint model that shares through a cross-attention trunk between two
 task-specific streams, with a private spatial path for the region task. Under
-user-disjoint cross-validation with twenty repetitions per configuration, the joint
+user-disjoint cross-validation with twenty fitted models per configuration, four seeds
+over one fixed set of five folds, and paired tests on the four per-seed means, the joint
 model outperforms the dedicated single-task models on the category task at all six
 datasets, by 5.3 to 9.4 macro-F1 points, and on the region task at four of six,
 Istanbul, Florida, California, and Texas, while remaining statistically non-inferior
@@ -73,17 +97,46 @@ stronger shared trunk. Second, a capacity-matched dedicated baseline, run after 
 Chapter~\ref{ch:mobiwac} manuscript was submitted and reported here as a frame-level analysis: a
 dedicated category model widened to the joint model's parameter budget, about 4.2
 million parameters at Alabama against 0.6 million at its published width, does not
-recover the joint gain. At Alabama, across three training recipes and the full twenty
-repetitions, its best configuration reaches 56.16 macro-F1, against 56.82 for the
-dedicated model at its own tuned width and 64.51 for the joint model. A partial
+recover the joint gain. At Alabama, across three training configurations and all
+twenty fitted models, the best of them reaches 56.16 macro-F1, against 56.82 for the
+dedicated model at its own tuned width and 64.51 for the joint model. The
 % [NEEDS SIGN-OFF: gate fix B-2, 2026-07-24] 64.54 -> 64.51 to match Ch.5 Table 3, the
 % dissertation's reported joint-best convention (JOINT_BEST_RESULTS.md: AL 64.54 diag-best
 % / 64.51 joint-best). AGENT_GUARDRAILS N5 forbids blurring joint-best vs diagnostic-best;
 % verdict-neutral: at the 64.51 basis the joint model leads the capacity arm (56.16) by
 % +8.35 and the dedicated ceiling (56.82) by +7.69; no conclusion moves. Persona 14
 % APPROVE-WITH-EDIT. If you prefer 64.54, name it as the diagnostic-best value in prose.
-California run, fifteen of twenty repetitions at the time of writing, shows the same
-direction. Parameter count alone, without the second task's training signal, yields
+California run, completed since, repeats the pattern. At the matching width, a hidden
+dimension of 752 and 101.9 percent of the joint model's parameter count, the widened
+model's better training configuration reaches 69.88 macro-F1, standard deviation 0.26
+over its twenty fitted models, against 70.60, standard deviation 0.07, for the same
+model at its own tuned narrow width. At both datasets, then, widening leaves the
+dedicated model at or slightly below its narrow-width optimum, 0.72 points below at
+California and 0.66 at Alabama, and recovers none of the joint model's margin. One
+detail supports the fairness of the comparison: at both datasets the widened model's
+best training configuration uses a lower learning rate than the narrow width's, so
+the sweep found the wide model's own better setting rather than rerunning the narrow
+model's.
+% [NEEDS SIGN-OFF: REV-013, 2026-07-26] The interim sentence ("A partial California run,
+% fifteen of twenty repetitions at the time of writing, shows the same direction") is
+% replaced by the completed run, committed at
+% docs/results/closing_data/capacity_matched_stl_cat/ (commit 58232dd2). Every figure is
+% QUOTED from that folder's README.md + capacity_matched_summary.json: matched width
+% hidden_dim=752 / 5,249,719 params = 101.9% of the joint model's 5,151,189 (param-audit
+% table); best arm bs8192 @ lr 0.0025, n = 20, mean 69.88, std 0.26 (results table);
+% California's own narrow-width ceiling 70.60 +/- 0.07 (reference-points table);
+% shortfalls -0.72 CA and -0.66 AL, "essentially the same as Alabama's ... not larger"
+% (README "Correction to an interim reading"); the lower-learning-rate observation
+% (README "Methodological observation": AL 0.0025 vs 0.005; CA 0.0025 vs 0.005). The
+% interim characterization "larger magnitude" is refuted by the completed sweep and does
+% not appear anywhere in the document. The direction claim is unchanged.
+% NOTE for the author: the Alabama value 56.16 above still carries no spread; the same
+% README gives std 1.89 for that arm. Adding it would satisfy WRITING_LAW §3 for the
+% whole paragraph, but that sentence is outside this correction's scope, so it is left
+% as approved. The CA/AL joint-model margins (-7.17 CA, -8.38 AL) are stated in the
+% README on the DIAGNOSTIC-BEST basis and are therefore NOT quoted here, where the AL
+% comparison runs on the joint-best basis (AGENT_GUARDRAILS N5).
+Parameter count alone, without the second task's training signal, yields
 nothing here; the two experiments together license the sentence Chapter~\ref{ch:mobiwac} already
 states as its finding, that the gain resides in the shared trunk.
 % [GATE FIX C-1, 2026-07-23] "buys nothing" -> "yields nothing"; "the win lives in" ->
@@ -130,9 +183,17 @@ Six limitations bound the scope of these conclusions.
         ablation separates the representation-and-topology change from the
         task-pair change in the final result. Chapter~\ref{ch:courb} is the fixed-pair control
         for the diagnosis, and the capacity-matched baseline above closes the
-        parameter-count explanation, but the homogeneity of the final pair remains a
+        parameter-count explanation in the setting it tested, the category task at
+        two of the six datasets, one width point per dataset, and width scaling
+        rather than depth, but the homogeneity of the final pair remains a
         possible contributor to the size of the improvement.
         % [GATE FIX C-1] "the size of the win" -> "the size of the improvement" (idiom law).
+        % [NEEDS SIGN-OFF: REV-013, 2026-07-26] "closes the parameter-count explanation"
+        % was unqualified inside a limitations list. Scope QUOTED from
+        % docs/results/closing_data/capacity_matched_stl_cat/README.md, "Reading":
+        % "Parameter count alone, without the second task's training signal, does not
+        % reproduce the gain in this setting -- category task, two of six datasets, one
+        % width point per dataset, width scaling rather than depth." No claim added.
 \end{enumerate}
 
 \section{Future work}

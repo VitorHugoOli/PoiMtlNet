@@ -240,8 +240,16 @@ The contributions of this dissertation fall into four groups.
         chapters.
   \item[Empirical.] A six-dataset benchmark of joint versus dedicated models for next
         category and next region prediction under user-disjoint cross-validation,
-        with twenty repetitions per configuration (four seeds, five folds), paired
-        significance tests, non-inferiority margins, and a leakage audit.
+        with twenty fitted models per configuration (four seeds over one fixed set of
+        five folds), paired significance tests on the four per-seed means, that is,
+        four paired observations, non-inferiority margins, and a leakage audit. All
+        four seeds reuse the same fold partition, so the reported intervals do not
+        cover uncertainty over resampled user splits.
+        % [NEEDS SIGN-OFF: REV-014, 2026-07-26] "twenty repetitions per configuration
+        % (four seeds, five folds)" -> the 20 fits kept, the inferential unit (n = 4)
+        % named, plus the fixed-partition clause. Sources: GLOSSARY rows "paired
+        % superiority test" + "n = 20 (fitted models) and n = 4 (inferential unit)";
+        % stats_n20/RESULTS.md:65-67; STATISTICAL_PROTOCOL.md:187-190.
   \item[Practical.] Evidence that one deployable model can serve both prediction
         services at once, outperforming the dedicated models on the category task and
         outperforming or remaining non-inferior to them on the region task, with the
