@@ -624,17 +624,6 @@ from $-0.41$ at the smallest count to $+2.20$ at the largest; region count and
 corpus size co-vary here, so we read the trend across the points rather than
 as a precise law.
 
-% [REV-029, 2026-07-26] Moved here from the head of this subsection (it was declared before any
-% prose, above Table 3's declaration). This is the paragraph boundary that closes the figure's
-% first reference; declaration order relative to Table 3 is unchanged, so Figure 7 keeps its number.
-\begin{figure}[htbp]
-\centering
-\includegraphics{figures/mobiwac/fig4_deltas.pdf}
-\caption{Signed gains of the joint model over the dedicated single-task models, ordered by
-region count. The category gain (macro-F1) is positive at every dataset; the region gain (Acc@10) rises across the five U.S. states and is also positive at Istanbul.
-The $\pm2$-point band applies to region only.}
-\label{fig:mobiwac:deltas}
-\end{figure}
 
 On category, all four
 seeds favor the joint model on every dataset, and each gain is significant
@@ -654,6 +643,21 @@ joint model outperforms there, though both gains are smaller than the
 two-point margin of Section~\ref{sec:mobiwac:setup-metrics}. Texas and California
 exceed that margin: their 90\% intervals lie entirely above it ($+2.10$ to
 $+2.13$ at Texas, $+2.19$ to $+2.21$ at California).
+
+% [REV-029 round 2, 2026-07-26] Moved once more, one paragraph further down. At the previous
+% position this figure and the (now two-block) results table competed for the same page and
+% between them filled it, leaving page 71 without body prose and splitting the subsection's
+% argument across three pages. Declaring it after the statistics paragraph gives the page text
+% to set; declaration order relative to the results table is unchanged, so Figure 7 keeps its
+% number. Verified on rebuild: p.71 now carries prose, and no float precedes its own heading.
+\begin{figure}[htbp]
+\centering
+\includegraphics{figures/mobiwac/fig4_deltas.pdf}
+\caption{Signed gains of the joint model over the dedicated single-task models, ordered by
+region count. The category gain (macro-F1) is positive at every dataset; the region gain (Acc@10) rises across the five U.S. states and is also positive at Istanbul.
+The $\pm2$-point band applies to region only.}
+\label{fig:mobiwac:deltas}
+\end{figure}
 
 A reader used to multi-task learning~\cite{caruana1997multitask} expects the
 harder task, here next-region with its hundreds to several thousand classes, to teach the easier one; a control shows otherwise. We fix the region pathway at its initial values at the start of training so it can neither learn nor teach the category task, yet the full category gain survives at Alabama, Arizona, and
