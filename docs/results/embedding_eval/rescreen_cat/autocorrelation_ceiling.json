@@ -1,0 +1,171 @@
+{
+  "what": "label-only autocorrelation ceiling for next-category (no embeddings read)",
+  "definition_source": "docs/results/embedding_eval/rescreen_cat/RESCREEN.md:57",
+  "protocol": "GroupKFold(5) by userid; macro-F1; mean over folds; ceiling = best of {persistence, last_cat, window_counts, window_positional}; balanced logistic because the metric is macro-F1",
+  "results": [
+    {
+      "state": "alabama",
+      "strict": false,
+      "rows_used": 12709,
+      "rows_total": 12709,
+      "places": 11848,
+      "places_multi_category": 0,
+      "n_classes": 7,
+      "ceiling_macro_f1": 0.28,
+      "ceiling_predictor": "persistence",
+      "ceiling_sd": 0.0138,
+      "per_predictor": {
+        "persistence": 0.28,
+        "last_cat": 0.28,
+        "window_counts": 0.2783,
+        "window_positional": 0.2791
+      },
+      "majority_floor_macro_f1": 0.0727,
+      "per_fold_ceiling": [
+        0.2922,
+        0.2973,
+        0.2699,
+        0.2732,
+        0.2673
+      ]
+    },
+    {
+      "state": "arizona",
+      "strict": false,
+      "rows_used": 26396,
+      "rows_total": 26396,
+      "places": 20666,
+      "places_multi_category": 0,
+      "n_classes": 7,
+      "ceiling_macro_f1": 0.3232,
+      "ceiling_predictor": "window_positional",
+      "ceiling_sd": 0.0163,
+      "per_predictor": {
+        "persistence": 0.308,
+        "last_cat": 0.308,
+        "window_counts": 0.3191,
+        "window_positional": 0.3232
+      },
+      "majority_floor_macro_f1": 0.0725,
+      "per_fold_ceiling": [
+        0.32,
+        0.2969,
+        0.3312,
+        0.3399,
+        0.3278
+      ]
+    },
+    {
+      "state": "florida",
+      "strict": false,
+      "rows_used": 159175,
+      "rows_total": 159175,
+      "places": 76544,
+      "places_multi_category": 0,
+      "n_classes": 7,
+      "ceiling_macro_f1": 0.3617,
+      "ceiling_predictor": "window_positional",
+      "ceiling_sd": 0.0069,
+      "per_predictor": {
+        "persistence": 0.3417,
+        "last_cat": 0.3417,
+        "window_counts": 0.3503,
+        "window_positional": 0.3617
+      },
+      "majority_floor_macro_f1": 0.0566,
+      "per_fold_ceiling": [
+        0.3665,
+        0.3632,
+        0.3639,
+        0.3654,
+        0.3495
+      ]
+    },
+    {
+      "state": "california",
+      "strict": false,
+      "rows_used": 358302,
+      "rows_total": 358302,
+      "places": 169145,
+      "places_multi_category": 0,
+      "n_classes": 7,
+      "ceiling_macro_f1": 0.3242,
+      "ceiling_predictor": "window_positional",
+      "ceiling_sd": 0.0057,
+      "per_predictor": {
+        "persistence": 0.316,
+        "last_cat": 0.316,
+        "window_counts": 0.3148,
+        "window_positional": 0.3242
+      },
+      "majority_floor_macro_f1": 0.0704,
+      "per_fold_ceiling": [
+        0.3157,
+        0.3307,
+        0.3222,
+        0.3278,
+        0.3248
+      ]
+    },
+    {
+      "state": "istanbul",
+      "strict": false,
+      "rows_used": 58075,
+      "rows_total": 58075,
+      "places": 29816,
+      "places_multi_category": 196,
+      "n_classes": 7,
+      "ceiling_macro_f1": 0.3016,
+      "ceiling_predictor": "window_positional",
+      "ceiling_sd": 0.0058,
+      "per_predictor": {
+        "persistence": 0.2588,
+        "last_cat": 0.2588,
+        "window_counts": 0.2947,
+        "window_positional": 0.3016
+      },
+      "majority_floor_macro_f1": 0.0715,
+      "per_fold_ceiling": [
+        0.2989,
+        0.3119,
+        0.2993,
+        0.2994,
+        0.2984
+      ]
+    }
+  ],
+  "sensitivity_strict_drop_ambiguous_last_place": [
+    {
+      "state": "istanbul",
+      "strict": true,
+      "rows_used": 55946,
+      "rows_total": 58075,
+      "places": 29816,
+      "places_multi_category": 196,
+      "n_classes": 7,
+      "ceiling_macro_f1": 0.3009,
+      "ceiling_predictor": "window_positional",
+      "ceiling_sd": 0.0065,
+      "per_predictor": {
+        "persistence": 0.2597,
+        "last_cat": 0.2597,
+        "window_counts": 0.2934,
+        "window_positional": 0.3009
+      },
+      "majority_floor_macro_f1": 0.0718,
+      "per_fold_ceiling": [
+        0.296,
+        0.3011,
+        0.3114,
+        0.3011,
+        0.295
+      ]
+    }
+  ],
+  "skipped": [
+    {
+      "state": "texas",
+      "error": "FileNotFoundError: texas: missing output/check2hgi/texas/temp/checkin_graph.pt"
+    }
+  ]
+}

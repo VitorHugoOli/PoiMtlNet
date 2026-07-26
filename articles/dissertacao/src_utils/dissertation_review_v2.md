@@ -93,7 +93,7 @@ author holds; **DEFERRED** deliberately postponed with a reason.
 
 | ID | v1 severity | Disposition | What actually happened |
 |---|---|---|---|
-| REV-001 | Critical | **CLOSED as a disclosure defect; AUTHOR for the optional rebuild** | Mechanism confirmed. The audit existed and was never cited. Ch.5 now reports it as a fourth ground with its three limits. Severity was always Major, not Critical. |
+| REV-001 | Critical | **CLOSED, and the reference level rebuilt** | Mechanism confirmed. The audit existed and was never cited; Ch.5 now reports it with its three limits. This round also rebuilt the label-only ceiling the audit reads against, which found the chapter's absolute claim overstated and replaced it with the relative one it can support (Section 5.6 below, new Appendix D). |
 | REV-002 | Critical | **Ch.3 REFUTED; Ch.4 AUTHOR** | Ch.3 is spatial homophily, not leakage. Ch.4 is confirmed and now measured (Section 3.1). |
 | REV-003 | Critical | **CLOSED** | Confirmed, already disclosed twice; the missing consequence sentence is now the second of three limits, without claiming exact cancellation. |
 | REV-004 | Major | **CLOSED before this round** | The text already says the opposite of the alleged overclaim. |
@@ -117,7 +117,7 @@ author holds; **DEFERRED** deliberately postponed with a reason.
 | REV-022 | Moderate | **PART CLOSED; AUTHOR for the rest** | Axis label corrected and figure regenerated. The Portuguese labels in the Ch.4 figure are blocked on missing source art. |
 | REV-023 | Major | **PART CLOSED; AUTHOR for the rest** | "Three published studies" corrected; page counts synchronized; the approval-sheet macro that hardcoded a prior student's name defused. Committee, date, and cover remain the author's. |
 | REV-024 | Major | **AUTHOR** | A real deviation with a same-advisor precedent that passed. The edit is one deletion; the consequence is roughly two pages, which interacts with pagination. |
-| REV-025 | Major | **AUTHOR RULED** | The author ruled Appendix C stays as written. The 24 sign-off markers are inventoried in `PENDENCIAS.md`. |
+| REV-025 | Major | **AUTHOR RULED** | The author ruled Appendix C stays as written. The 25 sign-off markers are inventoried in `PENDENCIAS.md`. |
 | REV-026 | Moderate | **AUTHOR, and it is the most exposed open item** | Zero rendered sentences on ethics, privacy, licensing, or consent. The licence research is done; the missing inputs are three facts. |
 | REV-027 | Major | **CLOSED for Ch.3; refuted for Ch.4** | Four substitutions where the word attaches to this study's own comparisons. The hypothesis and cited-work uses were deliberately left. Ch.4 has zero occurrences. |
 | REV-028 | Moderate | **CLOSED** | The ledger was complete; the reader-facing record was not. Counts corrected, B4 reclassified, omissions disclosed. |
@@ -251,8 +251,23 @@ strongest work (REV-006, REV-021, REV-023, REV-029) is where it read the rendere
 
 ## 5. The independent re-review of the corrected build
 
-Nine personas, the fact gate, and the committee simulator, all fresh-eyes and read-only, on the
-rebuilt document. Reports in `src_utils/_review_v2/` and `src_utils/_specialists_v2/`.
+Eleven of the eighteen personas ran, plus the fact gate and the committee simulator, all fresh-eyes
+and read-only on the rebuilt document. Reports in `src_utils/_review_v2/` and
+`src_utils/_specialists_v2/`.
+
+**Coverage is partial, and here is exactly what did and did not run.** Nine text/fact/domain
+personas plus the two specialists ran on the corrected build (01, 03, 04, 05, 06, 07, 09, 15, 18,
+the fact gate, and 12 the committee simulator). Seven did not, for two different reasons. Four are
+genuinely not applicable to this round or are superseded: 02 (line editor) is subsumed by 15 on the
+same text; 14 (adversarial advisor) gates proposed edit batches before they are applied, and this
+round applied its edits under the author's standing rulings rather than proposing a batch; 16
+(AI-credibility) runs after 03 passes, and 03 passed only at the end of this round; 13 (UFV
+compliance) is a pre-submission gate whose two open inputs, the committee facts and the bibliography
+font call, are author decisions still pending. Three are real gaps that should run before the
+advisor handoff: **08 (translation fidelity)** on the Portuguese-to-English CoUrb chapter, which is
+mandatory under the reviewer suite's own L5 rule and has never run on the current text; **10 (MTL
+expert)** and **11 (POI/mobility expert)**, the two domain readers, neither of which has seen the
+corrected chapters.
 
 ### 5.1 Verdicts
 
@@ -328,13 +343,72 @@ comparison does not get that protection.
 
 ---
 
+## 5.6 The autocorrelation ceiling, rebuilt
+
+Requested by the author after the first pass of this review recommended against running the probe
+extension. Reconstructing the reference level turned out to be the more valuable half of that work,
+and it changed a claim in Chapter 5.
+
+**The conflation.** The internal record uses "autocorrelation ceiling" for two different
+quantities. `RESCREEN.md:57` applies it to a level of about 0.45; `RESCREEN.md:87` applies it to the
+clean control at about 0.41. They are not the same thing:
+
+- the **clean reference encoder** is what `leak_sniff.py` compares against in code
+  (`:63`, `:87`: flag when `perstep > control + margin`, margin 0.03). At Florida, 0.4090.
+- the **label-only ceiling** is what the genuine category history permits on its own. It is a
+  property of the label sequence, not of any encoder, and it had never been measured.
+
+Chapter 5 inherited the conflation, stating that a clean reference encoder "sets" the ceiling at
+about 0.41.
+
+**The measurement.** `scripts/embedding_eval/autocorrelation_ceiling.py` reads no embeddings. It
+derives the last-visited category by the same rule the training inputs use
+(`src/data/inputs/next_region.py:132-146`) and evaluates four label-only predictors under the
+probe's own protocol, five folds grouped by user, macro-F1 averaged over folds. The ceiling is the
+best of the four:
+
+| Dataset | Label-only ceiling | Majority floor |
+|---|---|---|
+| Alabama | 0.2800 | 0.0727 |
+| Arizona | 0.3232 | 0.0725 |
+| Florida | 0.3617 | 0.0566 |
+| California | 0.3242 | 0.0704 |
+| Istanbul | 0.3016 | 0.0715 |
+
+**Two readings, pointing in different directions.** The screen's own verdicts are unaffected,
+because they were always relative: the disqualified attention encoder clears the reference by 8.9
+points against a three-point margin, so the decision does not depend on where the ceiling sits. The
+absolute reading is weaker than the chapter claimed: every encoder screened at Florida, the clean
+references included, scores four to six points above the label-only ceiling. That is not evidence of
+a leak, since a per-visit vector legitimately carries the place, its neighborhood, and the hour of
+the visit, any of which predicts the next category without information flowing backward in time.
+What it means is that the screen bounds encoders against each other and not against an absolute
+standard.
+
+**Applied.** The four-grounds paragraph now makes the relative claim and cites the measured ceiling;
+Appendix D carries the table and both readings; two terms entered the GLOSSARY specifically so they
+cannot be swapped again. No encoder number changed, and every one still traces to
+`leak_sniff_fl.csv` and `leak_sniff_resln_fl.csv`.
+
+**Coverage limits, stated in the appendix.** Texas is absent because
+`output/check2hgi/texas/temp/` retains no check-in graph or window file, only the design-engine
+embeddings, so the ceiling there needs preprocessing re-run. For Istanbul, 196 of 29,816 places
+carry more than one category across the record; the modal category is used, and dropping every
+ambiguous place moves the result by less than a thousandth.
+
+**What this does not close.** Two of the three limits Chapter 5 declares stand: the probe is linear,
+and the record documents an encoder that passed the linear screen and leaked under a sequence model;
+and it measures ancestor builds rather than the shipped lineage. Running the probe at the four
+datasets that now have a ceiling became possible, and is offered to the author as a decision, but
+the comparison that matters most needs the shipped lineage re-exported.
+
 ## 6. Build state
 
 Measured this session on the corrected source, three-pass with two BibTeX runs, both variants:
 
 | | Defense | Final |
 |---|---|---|
-| Pages | 94 | 89 |
+| Pages | 96 | 91 |
 | Overfull hboxes | 0 | 0 |
 | Overfull vboxes | 0 | 0 |
 | Undefined citations | 0 | 0 |
@@ -343,9 +417,9 @@ Measured this session on the corrected source, three-pass with two BibTeX runs, 
 | Floats-only pages | none | none |
 | Repository lint | exit 0 | exit 0 |
 
-The page counts grew from 89 and 84 because the corrections add text and because two tables that had
-been scaled down to 8 pt now render at body size. The v1 review's documented 87 and 83 were stale by
-two pages before this round began.
+The page counts grew from 89 and 84 because the corrections add text, because two tables that had
+been scaled down to 8 pt now render at body size, and because Appendix D was added. The v1 review's
+documented 87 and 83 were stale by two pages before this round began.
 
 ---
 
@@ -385,7 +459,7 @@ input required. Ranked by exposure at the defense:
    blocker independent of the science.
 4. **The advisor bundle**: English frame, CoUrb inclusion, final title, errata policy, and the
    bibliography font question (REV-024).
-5. **The 24 sign-off markers**, including the Resumo and Abstract parity pair, which cannot be
+5. **The 25 sign-off markers**, including the Resumo and Abstract parity pair, which cannot be
    signed off separately.
 6. **The Nash instruction conflict (REV-005)** between the author's ruling and `NORTH_STAR.md:146`.
 

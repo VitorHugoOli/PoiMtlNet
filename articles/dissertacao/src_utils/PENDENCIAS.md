@@ -10,7 +10,7 @@
 > Formato de cada item: **(A) o que falta**, **(B) por que importa**, **(C) o que eu preciso de
 > voce**. Onde ja existe texto pronto ou pesquisa feita, o caminho esta indicado.
 >
-> **Estado do build agora:** defesa 94 pp, final 89 pp, 0 caixas estouradas, 0 citacoes indefinidas,
+> **Estado do build agora:** defesa 96 pp, final 91 pp, 0 caixas estouradas, 0 citacoes indefinidas,
 > 0 referencias indefinidas, 0 erros de BibTeX, lint exit 0.
 
 ---
@@ -182,11 +182,78 @@ fica ate voce decidir.
 
 ---
 
+## BLOCO 2b — decisoes herdadas do `DECISOES_PENDENTES_ptBR.md` que continuam abertas
+
+> Auditei os 12 itens daquele documento contra o fonte de hoje. **Tres continuam abertos** e estao
+> abaixo. **Seis foram resolvidos** nas rodadas seguintes e estao registrados no fim desta secao,
+> para voce nao reabrir a esmo. Os outros tres ja aparecem nos Blocos 1 e 3 deste documento
+> (titulo, Resumo/Abstract, folha de aprovacao, figuras).
+
+### 2b.1 Apendice A — manter ou remover a secao do BRACIS (era 2.3, e o item mais consequente)
+
+**Estado:** aberto, e nao mexi. `apx_a_contributions.tex:111` ainda tem
+`\section{An earlier unpublished iteration}`.
+
+**O trade-off, que continua valendo.** A §A.1 (tooling) ja lidera, que e o que voce pediu. Mas a
+§A.2 e o **dispositivo de contencao** (AGENT_GUARDRAILS C4, NORTH_STAR §3): o documento revela que
+houve uma iteracao anterior cuja alegacao central estava errada. Se um membro da banca descobrir a
+submissao rejeitada e o documento nao a tratar, **le como ocultacao**. Remover e uma decisao de
+risco, nao de estilo, e por isso nao removi.
+
+**Uma coisa nova desde entao, que reforca manter.** O simulador de banca desta rodada faz exatamente
+a pergunta que a §A.2 antecipa. Com ela, a resposta ja esta no documento.
+
+**DECISAO:** (a) manter as duas secoes (recomendo), ou (b) remover a §A.2 e eu ajusto o
+NORTH_STAR §3 registrando a mudanca de politica.
+> DECISAO: __________________________________________________
+
+### 2b.2 O nome "MTLnet" e a grafia (era 3.7)
+
+**Estado:** parcialmente resolvido, com um resto real. O Cap. 3 hoje tem **1** ocorrencia de
+"MTLnet" (o prefacio ja nomeia o modelo, entao a costura que voce apontou esta fechada). O que
+**nao** esta resolvido e a grafia: o Cap. 4 escreve **MTLNet 46 vezes** contra 4 de "MTLnet",
+enquanto o frame e o Cap. 5 usam "MTLnet".
+
+**Por que nao padronizei sozinho.** O Cap. 4 e **texto publicado**. Trocar 46 ocorrencias e uma
+alteracao de texto publicado que exige linha de errata, e o proprio artigo CoUrb usa "MTLNet". A
+regra do repo (`4_courb.tex:84`) ja declara que o capitulo preserva a grafia do publicado.
+
+**DECISAO:** (a) deixar como esta — o Cap. 4 preserva a grafia publicada, e a nota em `:84` ja
+explica ao leitor (recomendo); ou (b) padronizar para "MTLnet" no Cap. 4 e eu abro a linha de
+errata no Apendice B. Qual e a canonica para o GLOSSARY?
+> DECISAO: __________________________________________________
+
+### 2b.3 Movimentos opcionais de excelencia (era 3.10)
+
+**Estado:** nenhum dos tres existe. Verifiquei: nao ha tabela contribuicoes→alegacoes no §1.6, nao
+ha tabela consolidada de resultados no Cap. 6, nao ha apendice de artefatos.
+
+Sao adicoes de **frame** (nao tocam resultado), na lente de premio SBC-CTD: (a) tabela
+contribuicao→alegacao no §1.6; (b) tabela consolidada cross-chapter no Cap. 6; (c) apendice de
+reprodutibilidade (codigo, seeds, configs). **Observacao:** o (c) ficou mais facil agora, porque o
+Apendice D novo ja estabelece o padrao de citar script + arquivo de saida para cada numero.
+
+**DECISAO:** quer algum dos tres? (cada um e ~1 pagina)
+> DECISAO: __________________________________________________
+
+### Resolvidos desde aquele documento (registrado para nao reabrir)
+
+| Item de la | Estado hoje |
+|---|---|
+| 3.1 Wilcoxon x t pareado | **RESOLVIDO.** Cap. 2 (`:497-503`) e Cap. 5 (`:412`) agora concordam: t pareado nas medias por repeticao **mais** Wilcoxon nos folds individuais, ambos reportados, com o piso do p exato do Wilcoxon explicado. O desvio do pre-registro esta declarado. |
+| 3.2 CV usuario-disjunta: documento todo ou so Cap. 5? | **RESOLVIDO** (REV-006). O Cap. 2 agora escopa explicitamente: os testes "license verbs in Chapter 5 alone" (`:495-496`). |
+| 3.3 Pre-registro da nao-inferioridade explicito | **RESOLVIDO e reforcado.** `5_mobiwac.tex:412` declara o plano escrito, fixado antes de ler resultado, a margem de dois pontos, **e** que ele nao cobria superioridade de regiao (os 4 ganhos sao secundarios). Mais honesto que o pedido original. |
+| 3.4 Vintage 2009-2011 | **APLICADO** na rodada 3. |
+| 3.5 Ponte "next-POI" | **APLICADO** na rodada 3, e o Cap. 3 recebeu nota de rodape adicional nesta rodada (REV-010). |
+| 3.6 Contradicao class-weighted CE | **RESOLVIDO** nesta rodada. `2_fundamentals.tex:456` agora diz "plain unweighted cross-entropy; class weighting, tested there on both outputs, lowered..." — concorda com o Cap. 5. |
+
+---
+
 ## BLOCO 3 — assinaturas e itens adiados
 
-### 3.1 Os 24 marcadores `[NEEDS SIGN-OFF]`
+### 3.1 Os 25 marcadores `[NEEDS SIGN-OFF]`
 
-Voce pediu a lista. Sao 24 marcadores em 8 arquivos, todos comentarios LaTeX (**nenhum renderiza**,
+Voce pediu a lista. Sao 25 marcadores em 9 arquivos, todos comentarios LaTeX (**nenhum renderiza**,
 entao nao ha sujeira no PDF). O risco nao e visual: e que o **Apendice C afirma** que o autor leu e
 aprovou cada palavra, enquanto o proprio apendice esta marcado como nao aprovado. Voce ja decidiu
 manter o Apendice C como esta, o que torna esta lista o caminho para tornar a afirmacao verdadeira.
@@ -201,6 +268,7 @@ manter o Apendice C como esta, o que torna esta lista o caminho para tornar a af
 | `chapters/2_fundamentals.tex` | 2 | Escopo dos 93% do Song, de-duplicacao L3 |
 | `chapters/apx_b_errata.tex` | 1 | Apendice inteiro |
 | `chapters/apx_c_ai_disclosure.tex` | 1 | Apendice inteiro |
+| `chapters/apx_d_ceiling.tex` | 1 | Apendice novo (o teto de autocorrelacao, item 3.4) |
 
 **Regra que nao da para contornar:** os 6 do `0_main.tex` sao **um par**. Resumo e Abstract carregam
 as mesmas alegacoes, e aprovar um sem o outro quebra a paridade. Leia os dois lado a lado.
@@ -247,46 +315,70 @@ visual e adiar o resto.
 
 > DECISAO: __________________________________________________
 
-### 3.4 A auditoria de vazamento nos outros cinco datasets (REV-001) — opcional, e escopada
+### 3.4 O teto de autocorrelacao — **RECONSTRUIDO nesta rodada** (REV-001)
 
-**(A)** O Cap. 5 agora **cita** a auditoria de aresta-futura, com os tres limites declarados: a
-sonda e **linear**, rodou **so na Florida** numa inicializacao, e rodou em **builds ancestrais** da
-representacao, nao na que produziu os resultados.
+**FEITO.** Voce pediu para reconstruir o teto, e ele esta reconstruido. O resultado mudou o texto do
+Cap. 5, e para pior no sentido honesto: a alegacao anterior era mais forte do que a evidencia.
 
-**(B)** Voce perguntou se da para extrapolar da Florida para os outros estados. **Nao da, e quem
-proibe e o registro do proprio repositorio:** (i) o gate e **por encoder** e ja desqualificou dois
-encoders, entao um teste cuja funcao e separar encoders nao pode ser assumido transferivel; (ii) a
-sonda e linear e o `RESCREEN.md:94` **documenta um caso em que ela falhou** (um encoder passou no
-gate linear e vazou sob o modelo sequencial); (iii) a linhagem entregue nunca foi medida.
+**O que estava errado.** O registro interno usa "teto de autocorrelacao" para duas coisas
+diferentes, e o Cap. 5 herdou a confusao:
 
-**(C)** O que eu levantei sobre a execucao, para a decisao ser informada:
+- **(a) o encoder de referencia limpo** — o que o `leak_sniff.py` de fato compara em codigo
+  (`:63,:87`: sinaliza se `perstep > controle + margem`, margem 0,03). Na Florida: **0,4090**.
+- **(b) o teto de autocorrelacao propriamente** — o que a categoria da ultima visita permite,
+  sozinha. E propriedade da **sequencia de rotulos**, nao de encoder nenhum. Nunca foi medido.
 
-- Os inputs da sonda (`output/check2hgi/<estado>/input/next.parquet`) estao **na sua maquina local**,
-  seis estados disponiveis, nao no nespedgpu. O `nespedgpu` esta acessivel (confirmei) mas o
-  `PoiMtlNet` de la nao tem os parquets, so o script.
-- A sonda e barata: regressao linear sobre 64 dimensoes, sem retreino.
-- **O que ela fecharia:** a coberturas de datasets, um dos tres limites declarados.
-- **O que ela NAO fecharia:** os outros dois. Continua linear (o limite documentado como falho), e
-  continua medindo os mesmos builds a menos que a linhagem entregue seja re-exportada.
-- **Ressalva importante que descobri e que muda o valor do exercicio:** tentei derivar o teto de
-  autocorrelacao (a referencia contra a qual a sonda e lida) a partir dos proprios parquets e **nao
-  consegui**. A hipotese de janela stride-1 nao se sustenta nos dados (checando
-  `last_region_idx` contra o `shift(1)` do `region_idx` por usuario, so **18%** concordam). Ou seja:
-  rodar a sonda nos outros estados produz numeros, mas o **teto** contra o qual eles se leem teria
-  que ser reconstruido primeiro, e eu nao vou inventa-lo.
+O `RESCREEN.md:57` chama ~0,45 de "the autocorrelation ceiling"; o `:87` chama o controle limpo de
+"the ceiling (~0,41)". Sao quantidades distintas, e o Cap. 5 dizia que um encoder limpo "define" o
+teto em 0,41.
 
-**Minha recomendacao:** nao rodar agora. O texto ja e honesto sobre a cobertura, e um numero novo
-sem o teto correto e pior do que a declaracao de limite que ja esta la. Vale como resposta de
-arguicao ("temos a auditoria na Florida, e o gate esta implementado; estender e trabalho de sonda,
-nao de retreino"). Se quiser rodar mesmo assim, o caminho e reconstruir o teto primeiro.
+**O que eu medi.** Script novo: `scripts/embedding_eval/autocorrelation_ceiling.py`. Nao le nenhum
+embedding. Le so a historia de categorias da janela de 9 visitas, com a mesma regra de derivacao do
+input de treino (`src/data/inputs/next_region.py:132-146`) e o mesmo protocolo do probe
+(GroupKFold(5) por usuario, macro-F1, media dos folds). Quatro preditores so-de-rotulo: persistencia,
+one-hot da ultima categoria, contagens da janela, one-hots posicionais. O teto e o melhor deles.
 
-**Se voce decidir rodar, o ambiente ja esta pronto.** Deixei um ambiente `leakprobe` criado
-(python 3.12 com numpy, pandas, pyarrow, scikit-learn e pytorch), que e tudo que a
-`scripts/embedding_eval/leak_sniff.py` importa. Os seis parquets de entrada estao em
-`output/check2hgi/<estado>/input/next.parquet` na sua maquina. Falta so o teto: a ordem correta e
-(1) reconstruir a referencia de autocorrelacao com a definicao de janela real, (2) so entao rodar a
-sonda nos cinco estados restantes. Rodar na ordem inversa produz numeros sem referencia.
+| Dataset | Teto (rotulo so) | Piso (classe majoritaria) |
+|---|---|---|
+| Alabama | 0.2800 | 0,0727 |
+| Arizona | 0.3232 | 0,0725 |
+| Florida | 0.3617 | 0,0566 |
+| California | 0.3242 | 0,0704 |
+| Istanbul | 0.3016 | 0,0715 |
 
+**As duas leituras, e elas apontam para lados diferentes:**
+
+1. **A triagem em si nao muda.** Os vereditos dela sao relativos: desqualifica quem passa o
+   encoder de referencia por mais que a margem de 3 pontos. O encoder de atencao desqualificado na
+   Florida passa por **8,9 pontos**. A decisao nao depende de onde o teto esta.
+2. **A leitura absoluta fica mais fraca do que o texto dizia.** Todos os encoders triados na
+   Florida, **inclusive os limpos**, ficam acima do teto so-de-rotulo: 0,4090 e 0,4197 contra
+   0,3617, uma folga de 4 a 6 pontos. **Isso nao e prova de vazamento** — um vetor por visita
+   carrega legitimamente mais que a categoria anterior (o lugar, a vizinhanca no grafo, a hora), e
+   qualquer um desses preve a proxima categoria sem informacao andando para tras no tempo. Mas
+   significa que a triagem limita encoders **entre si**, nao contra um padrao absoluto.
+
+**Aplicado:** o paragrafo dos quatro fundamentos do Cap. 5 agora faz a alegacao mais fraca e
+correta (a triagem e relativa), cita o teto medido, e o **Apendice D** novo carrega a tabela e as
+duas leituras. Nenhum numero de encoder mudou; todos continuam vindo do `leak_sniff_fl.csv` e do
+`leak_sniff_resln_fl.csv`. Dois termos novos entraram no GLOSSARY (**label-only ceiling** e **clean
+reference encoder**) exatamente para que nao voltem a ser trocados um pelo outro.
+
+**Limites de cobertura, declarados no apendice:** (i) **Texas nao entra** — o
+`output/check2hgi/texas/temp/` nao tem `checkin_graph.pt` nem `sequences_next.parquet` (so as
+saidas de embedding do engine de design), entao o teto la exigiria re-rodar o pre-processamento;
+(ii) **Istanbul** tem 196 de 29.816 lugares com mais de uma categoria (venues recategorizados ao
+longo do tempo); usei a categoria modal, e descartar os ambiguos move o teto em menos de um
+milesimo (0,3009 contra 0,3016).
+
+**O que ainda NAO fecha, e por que eu nao rodei a sonda nos outros datasets.** Os outros dois
+limites declarados no Cap. 5 continuam de pe e a sonda nao os resolve: ela e **linear** (e o
+`RESCREEN.md:94` documenta um encoder que passou no gate linear e vazou sob modelo sequencial), e
+mediria os **mesmos builds ancestrais**, nao a linhagem entregue. Rodar a sonda em AL/AZ/CA/IST
+agora produziria numeros comparaveis ao teto — isso ficou possivel — mas a comparacao interessante
+(a linhagem que gerou os resultados do Cap. 5) exige re-exportar aquela linhagem.
+**DECISAO:** quer que eu rode a sonda nos quatro datasets que agora tem teto, aceitando que ela
+mede os builds ancestrais? (o ambiente `leakprobe` esta pronto; e barato)
 > DECISAO: __________________________________________________
 
 ### 3.5 Higiene do repositorio, herdada (REV-007)

@@ -1,0 +1,6 @@
+state,strict,rows_used,rows_total,places,places_multi_category,n_classes,ceiling_macro_f1,ceiling_predictor,ceiling_sd,majority_floor_macro_f1
+alabama,False,12709,12709,11848,0,7,0.28,persistence,0.0138,0.0727
+arizona,False,26396,26396,20666,0,7,0.3232,window_positional,0.0163,0.0725
+florida,False,159175,159175,76544,0,7,0.3617,window_positional,0.0069,0.0566
+california,False,358302,358302,169145,0,7,0.3242,window_positional,0.0057,0.0704
+istanbul,False,58075,58075,29816,196,7,0.3016,window_positional,0.0058,0.0715

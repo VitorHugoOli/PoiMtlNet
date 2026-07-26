@@ -1,0 +1,80 @@
+
+\chapter{The label-only ceiling for the next-category task}
+\label{apx:ceiling}
+
+Chapter~\ref{ch:mobiwac} screens each candidate representation with a per-visit probe: it predicts
+the next category from the last window slot alone. A vector that carries only the past cannot beat
+what the past itself allows, so the screen needs a reference level. The screening record uses a
+clean reference encoder for that role and, in places, describes that encoder's score as the
+autocorrelation ceiling. The two are not the same quantity, and this appendix separates them.
+
+The ceiling is a property of the label sequence, not of any encoder. It is the best macro-F1
+obtainable when the only information available is the genuine category history of the input window.
+No embedding is read. Table~\ref{tab:apx:ceiling} reports it under four label-only predictors: the
+persistence rule, which repeats the last visited category; a balanced multinomial logistic model on
+a one-hot of that category; the same model on category counts over the nine-visit window; and the
+same model on positional one-hots of all nine slots. The ceiling is the best of the four, since a
+ceiling is the most that the restricted information permits. The protocol is the one the screen
+itself uses: five folds grouped by user, macro-F1, averaged over folds. Class weights are balanced
+because the reported metric is macro-F1, which weights the rare categories equally.
+
+\begin{table}[htbp]
+\caption{The label-only ceiling for next-category prediction, by dataset. Each column is a
+predictor that sees only the genuine category history of the input window; no representation is
+read. The ceiling column is the best of the four. The floor predicts the training fold's majority
+class. Values are macro-F1 on a zero-to-one scale, averaged over five user-grouped folds.}
+\label{tab:apx:ceiling}
+\centering
+\footnotesize
+\begin{tabular}{lrrrrrrr}
+\toprule
+ & & & \multicolumn{3}{c}{Label-only predictors} & & \\
+\cmidrule(lr){4-6}
+Dataset & Windows & Classes & Persistence & Counts & Positional & Ceiling & Floor \\
+\midrule
+Alabama & 12,709 & 7 & 0.2800 & 0.2783 & 0.2791 & \textbf{0.2800} & 0.0727 \\
+Arizona & 26,396 & 7 & 0.3080 & 0.3191 & 0.3232 & \textbf{0.3232} & 0.0725 \\
+Florida & 159,175 & 7 & 0.3417 & 0.3503 & 0.3617 & \textbf{0.3617} & 0.0566 \\
+California & 358,302 & 7 & 0.3160 & 0.3148 & 0.3242 & \textbf{0.3242} & 0.0704 \\
+Istanbul & 58,075 & 7 & 0.2588 & 0.2947 & 0.3016 & \textbf{0.3016} & 0.0715 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Two readings follow, and they point in different directions.
+
+The screen's own comparison is unaffected. Its verdicts are relative: an encoder is disqualified
+when it clears the clean reference by more than the screen's margin of three points. The
+attention-based encoder that was disqualified at Florida clears that reference by 8.9 points, so
+the decision does not depend on where the label-only ceiling sits.
+
+The absolute reading is weaker than the screening record suggests. Every encoder screened at
+Florida, the clean references included, scores above the label-only ceiling: 0.4090 and 0.4197
+against 0.3617, a gap of four to six points. That gap is not by itself evidence of a leak. A
+per-visit vector legitimately carries more than the previous category, including the place itself,
+its graph neighborhood, and the hour of the visit, and any of those can predict the next category
+without any information flowing backward in time. What it does mean is that the screen bounds
+encoders against each other rather than against an absolute standard, which is the weaker of the
+two claims and the one Chapter~\ref{ch:mobiwac} now makes.
+
+Two coverage limits apply. Texas is absent because the artifacts the computation needs, the
+check-in graph and the window file, were not retained for that dataset under the shipped
+representation; only its embedding outputs remain, and recomputing the ceiling there would require
+re-running preprocessing. For Istanbul, 196 of 29,816 places carry more than one category across
+the record, since venues were re-categorized over time; the table uses each place's modal category,
+and dropping every ambiguous place instead moves the Istanbul ceiling by less than a thousandth
+(0.3009 against 0.3016).
+
+The computation is released with the code, as
+\path{scripts/embedding_eval/autocorrelation_ceiling.py}; its outputs are the file
+\path{autocorrelation_ceiling.json} and two accompanying comma-separated files, all three under
+\path{docs/results/embedding_eval/rescreen_cat/}.
+% [v2 round, 2026-07-26] New appendix. Every number in the table is READ from
+% autocorrelation_ceiling.json, written by the script named above; nothing here is retyped or
+% computed in prose. The encoder numbers (0.4090 / 0.4197 / 0.4976) are quoted from
+% docs/results/embedding_eval/rescreen_cat/leak_sniff_fl.csv and leak_sniff_resln_fl.csv, unchanged
+% from Chapter 5. The 8.9-point figure is 0.4976 - 0.4090 as printed in those files.
+% [NEEDS SIGN-OFF: whole appendix -- new frame prose. AUTHOR: this appendix makes a WEAKER absolute
+% claim than the prior Chapter 5 wording did, and it is the honest one. If you prefer not to add an
+% appendix, the alternative is to keep the corrected Chapter 5 paragraph and drop this chapter; the
+% Chapter 5 correction stands on its own and its cross-reference would need removing.]

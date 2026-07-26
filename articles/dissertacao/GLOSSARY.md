@@ -48,6 +48,8 @@
 | **the joint model** (MobiWac) | One multi-task model, one forward pass, two predictions: private per-task encoders → shared cross-attention trunk → category output (trunk) + region output (trunk + private spatial path). | MobiWac | Ch.5. In prose: "the joint model"; repo id `mtlnet_crossattn_dualtower` NEVER appears in text |
 | **dedicated single-task model** | The comparison arm: one model trained for one task (the "ceiling" the joint model is measured against). | all papers | everywhere; never bare "baseline" |
 | **the shared trunk** | The shared middle of the joint model, introduced once as "a shared cross-attention stack (the trunk)". | MobiWac GLOSSARY ruling | Ch.5 + frame |
+| **label-only ceiling** (next category) | The best macro-F1 obtainable from the genuine category history of the input window alone, with no representation read. A property of the label sequence, NOT of any encoder. Measured: FL 0.3617, AL 0.2800, AZ 0.3232, CA 0.3242, IST 0.3016 (Appendix D). | this document, 2026-07-26 | Ch.5 + Appendix D. Two terms that must NOT be swapped: this is the ceiling; the **clean reference encoder** below is what the screen actually gates on |
+| **clean reference encoder** | The encoder a screened candidate is compared against in the leak-sniff screen (at Florida, our own graph encoder at 0.4090 standardized / 0.4074 raw). The screen's verdicts are relative to it, with a three-point margin. It scores ABOVE the label-only ceiling and is not the same quantity. | MobiWac screening record | Ch.5 + Appendix D; never call this "the ceiling" |
 
 ## 3 · Data and protocol terms
 
