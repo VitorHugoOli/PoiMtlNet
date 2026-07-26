@@ -182,8 +182,23 @@ training with a fixed loss weighting is standard practice
 Reports find that gradient-balancing methods, which re-weight
 the tasks' updates during training (PCGrad \cite{yu2020pcgrad}, Nash-MTL \cite{nash}), rarely improve on a
 well-tuned fixed weighting with two tasks \cite{xin2022domtl}.
-We confirm this: none of the balancers that we tried, including the two named
-above, improved on a tuned fixed task weighting in our model.
+We confirm this: none of the balancers that we tried at their default
+configurations, including the two named above, improved on a tuned fixed task
+weighting in our model.
+% [REV-011, author ruling 2026-07-24: "use the 'at their default configurations'"]
+% Applied as written. Evidence check against docs/results/mtl_improvement/T4_audit_and_verdict.md:
+%  - Nash-MTL (named): correctly wired and adapting, a VALID test (T4:37-39). Sound.
+%  - PCGrad (named): one of three gradient-surgery methods that "never validly tested individually"
+%    under the dual tower -- the private region tower sits outside shared_parameters(), so the
+%    surgical gradient never reaches >80% of the region pathway and the method collapses to
+%    approximately equal weighting (T4:26-31).
+% RECOMMENDATION (agent, NOT applied -- the author's instruction governs): the new qualifier does
+% not in fact cover PCGrad. Its exclusion is a WIRING result, invariant to configuration, so
+% "at their default configurations" answers the DWA/FairGrad/GradNorm objection but not this one.
+% The minimal repair that keeps the author's phrase is to drop the two words "PCGrad
+% \cite{yu2020pcgrad}, " from the citing sentence above and let Nash-MTL carry the named evidence
+% (the \cite{xin2022domtl} sentence already reports the literature claim in general terms).
+% Also unstated: the screen is seed 0 at two states (AL+FL) -- see T4:8-17.
 The reason is visible in the gradients. Measured during development on the same
 joint architecture (on an earlier preparation of the data), the cosine
 similarity between the next-category and next-region updates on the shared
@@ -194,7 +209,7 @@ Section~\ref{sec:mobiwac:results-part2}; this is a finding for this pair of task
 general rule.
 
 
-\begin{figure}[!t]
+\begin{figure}[htbp]
 \centering
 \includegraphics{figures/mobiwac/fig1_dataflow.pdf}
 \caption{From a check-in sequence to two predictions: each visit is embedded in a four-level graph
@@ -263,7 +278,7 @@ than arithmetic: one artifact to train, version, and deploy, and one forward
 pass whose one set of inputs produces both answers at once.
 
 
-\begin{figure}[!t]
+\begin{figure}[htbp]
 \centering
 \includegraphics{figures/mobiwac/fig2_model.pdf}
 \caption{The single multi-task model. A check-in (semantic) window and a region (spatial) window
@@ -300,7 +315,7 @@ The states range from about 114,000 check-ins and 1,109 regions in Alabama to ab
 % fill, the metric POI-prediction papers report (it varies 0.05-0.25%); it replaces the old
 % "sparsity = 1 - density" column, which was trivially ~0.999 for every state. The fixed
 % 7-category space is stated in the caption rather than as a constant column.
-\begin{table}[!t]
+\begin{table}[htbp]
 \caption{Dataset statistics, ordered by region count: five Gowalla states and Istanbul
 (Massive-STEPS). All share the same seven root categories; the region unit is a census
 tract (a mahalle for Istanbul). Windows: sliding nine-visit inputs plus the next-visit
@@ -312,11 +327,20 @@ labels in the most common category (Food in every dataset).}
 % 27.0; recompute on the dk_ovl inputs at the next A40 session if exactness is wanted).
 \label{tab:mobiwac:datasets}
 \centering
+% [NEW-7, 2026-07-26] Was the same tabular under {adjustbox}{max width=\textwidth} with the
+% default 6 pt \tabcolsep, which shrank the body to a measured 8.13 pt against 11.96 pt body text.
+% Two changes reduce what the table has to fit instead of scaling it harder: the four two-word
+% headers are stacked onto two lines (they were the widest cells in their columns, each far wider
+% than the digits beneath it), and \tabcolsep drops to 3 pt inside this float only. Estimated
+% natural width falls from about 667 pt to about 538 pt against a 455 pt text block, so the
+% adjustbox still scales but to roughly 10.1 pt rather than 8.13 pt. No column was removed, no
+% value or header word was changed, and the column order is untouched.
+\setlength{\tabcolsep}{3pt}
 \begin{adjustbox}{max width=\textwidth}
 \begin{tabular}{l l r r r r r r r r r}
 \toprule
-\textbf{Dataset} & \textbf{Source} & \textbf{Check-ins} & \textbf{Users} & \textbf{POIs} &
-\textbf{Regions} & \textbf{Windows} & \textbf{Max len} & \textbf{Avg len} & \textbf{Density (\%)} & \textbf{Majority (\%)} \\
+\textbf{Dataset} & \textbf{Source} & \shortstack[r]{\textbf{Check-}\\\textbf{ins}} & \textbf{Users} & \textbf{POIs} &
+\textbf{Regions} & \textbf{Windows} & \shortstack[r]{\textbf{Max}\\\textbf{len}} & \shortstack[r]{\textbf{Avg}\\\textbf{len}} & \shortstack[r]{\textbf{Density}\\\textbf{(\%)}} & \shortstack[r]{\textbf{Majority}\\\textbf{(\%)}} \\
 \midrule
 Istanbul & Massive-STEPS &   462{,}615 & 23{,}694 &  29{,}816 &     520 &   271{,}666 &     817 &  19.5 & 0.065 & 33.4 \\
 AL       & Gowalla       &   113{,}846 &  3{,}858 &  11{,}848 & 1{,}109 &    96{,}326 & 3{,}835 &  29.5 & 0.249 & 34.2 \\
@@ -340,10 +364,25 @@ CA       & Gowalla       & 3{,}171{,}380 & 37{,}090 & 169{,}145 & 8{,}501 & 2{,}
 
 \emph{Splitting.} We split by user with stratified five-fold cross-validation, so all of a user's windows fall in the same fold and overlap cannot leak: a test user's visits never appear in training. The held-out fold is the validation data; we reserve no third split. The split is stratified on the next-category label because the seven-class task is imbalanced: Food is the majority class in every dataset, from about 25 percent of visits in Florida to 34 percent in Alabama (Table~\ref{tab:mobiwac:datasets}).
 
-\emph{Integrity of the representation.} We train the representation once on the whole dataset and feed it to every model, dedicated and joint. We verify that it passes no usable information about the test visits, on three grounds. First, its training objective is label-free: it contrasts real graph neighborhoods against shuffled ones and never sees a next-category or next-region target. Second, we measured what the whole-dataset graph could pass to the test side. Rebuilding the representation per fold, from that fold's training users only, moves both tasks by at most a third of a point (region $-0.33$ to $+0.01$; category $0.00$ to $+0.29$, at Alabama, Arizona, and Florida), within fold noise. This measurement covers the visits whose places appear in training (67 to 87 percent); visits to places unseen in training are the one part it cannot reach. Third, the one component that could pass information between visits, a region-transition prior (a table of how often one region follows another), is built per fold from training data only, after an earlier whole-dataset version inflated region accuracy by 13 to 27 points. Our joint and dedicated models do not use this prior; it appears only in the HMT-GRN baseline (Section~\ref{sec:mobiwac:setup-baselines}). The baseline representations meet the same standard: HGI is pre-trained once on the whole dataset, like ours, and CTLE per fold on training users only.
+\emph{Integrity of the representation.} We train the representation once on the whole dataset and feed it to every model, dedicated and joint. A representation built this way could pass information about a test visit along more than one channel. We therefore bound the channels that we can measure, and state for each what the measurement covers, on four grounds. First, its training objective is label-free: it contrasts real graph neighborhoods against shuffled ones and never sees a next-category or next-region target. That bounds the training signal and not the inputs, since each visit's own category enters as a node feature (Section~\ref{sec:mobiwac:method-rep}); the fourth ground below measures what that feature can carry between visits. Second, we measured the transductive channel, what a graph fitted over all users passes to the test side that a graph fitted over training users alone would not. Rebuilding the representation per fold, from that fold's training users only, moves both tasks by at most a third of a point (region $-0.33$ to $+0.01$; category $0.00$ to $+0.29$, at Alabama, Arizona, and Florida), within fold noise. This measurement covers the visits whose places appear in training (67 to 87 percent); visits to places unseen in training are the one part it cannot reach. Third, the one component that could pass information between visits, a region-transition prior (a table of how often one region follows another), is built per fold from training data only, after an earlier whole-dataset version inflated region accuracy by 13 to 27 points. Our joint and dedicated models do not use this prior; it appears only in the HMT-GRN baseline (Section~\ref{sec:mobiwac:setup-baselines}). Fourth, we probe the channel that the graph's own links between consecutive visits open. A visit's node is linked to the visit that follows it, and category is a node input feature, so a per-visit vector could in principle absorb the category of the next visit. A screening audit run during development tests exactly this: it predicts the next category from the last window slot alone, which a vector carrying only the past can do no better than the last visited category itself allows. That level is the ceiling the audit reads against, and a clean reference encoder sets it at about $0.41$ macro-F1 on a zero-to-one scale. At Florida the graph encoder of our own lineage is that reference, at $0.4090$ on standardized features and $0.4074$ on raw ones, and the residual variant that the encoder we ship descends from sits at the same level, $0.4197$ and $0.4182$; an attention-based encoder screened beside them reached $0.4976$ and $0.4863$, above the ceiling, and was disqualified on that evidence. The measurement bounds this channel rather than closing it, and three limits set how far it reaches: the probe is linear, it was run at Florida alone at one random initialization over five user-grouped folds, and it was run on those ancestor builds of the representation rather than on the one that produced the results reported here. The same record shows why the linear form is a screen and not a proof, since one encoder that passed it leaked under a downstream sequence model. The baseline representations meet the same standard: HGI is pre-trained once on the whole dataset, like ours, and CTLE per fold on training users only.
 % NOTE: numbers from the A4 train-users-only transductivity audit (docs/studies/pre_freeze_gates/A4_RESULTS.md):
 % reg AL -0.33 / AZ +0.01 / FL -0.12 (5 folds); cat POI-proxy on in-coverage subset AL +0.29 (66.8%) / AZ +0.27 (71.9%) / FL +0.00 (86.9%).
 % Author TODO: extend to CA/TX/Istanbul to widen coverage further (non-blocking; the gate is on null at AL+AZ+FL).
+% NOTE (fourth ground, added 2026-07-26 per REV-008): the forward-edge (leak-sniff) audit,
+% docs/results/embedding_eval/rescreen_cat/. Channel named at RESCREEN.md:56 ("forward-temporal
+% neighbor-category bleed"); the per-step gate and its "clean control ceiling (~0.41)" at
+% RESCREEN.md:86-87 (the ~0.45 at RESCREEN.md:57 is the earlier auditor's protocol, NOT this gate --
+% do not mix them). Probe: scripts/embedding_eval/leak_sniff.py (next-cat macro-F1 from the LAST
+% window slot only, GroupKFold-by-user, 5 folds, standardized AND raw, Florida).
+% The four-decimal values on the page are quoted verbatim from the committed table at
+% src_utils/dissertation_review.md:221-223, which rounds the CSVs:
+%   leak_sniff_fl.csv       check2hgi_gcn_ctrl 0.4089797540123382 / 0.40744232906432776  clean
+%   leak_sniff_resln_fl.csv check2hgi_resln    0.4196859144977155 / 0.41815720719390814  clean
+%   leak_sniff_fl.csv       check2hgi_gat      0.49761650037538024 / 0.48631035868799294 LEAK
+% Nothing was computed or re-rounded here. The three stated limits are the audit's own residuals:
+% linear probe (RESCREEN.md:94-95 -- R-GCN passed per-step at 0.414 and leaked 0.754 under the GRU
+% at L2), Florida + seed 0 only, and the sniffed rows are the GCN/ResLN ancestor lineage, NOT
+% check2hgi_dk_ovl as shipped. Hence: no coverage claim beyond Florida, and "ancestor builds".
 
 \subsection{Metrics and statistical tests}
 \label{sec:mobiwac:setup-metrics}
@@ -352,7 +391,7 @@ For the category task, we report macro-averaged F1 (macro-F1), which averages th
 (a visit whose true region is absent from that fold's training data counts as an error); its
 reference point is the dedicated model.
 
-A claimed gain and a claimed match require different tests, because a difference that fails to reach significance is not by itself evidence of a match. We fix the assignment in advance, before reading any results: where the joint model was expected to outperform, we test \emph{superiority}; where it was expected only to match the dedicated model, we test \emph{non-inferiority}. The assignment and the margin were fixed in an analysis plan during development and are released with the code; superiority is tested with a paired $t$ on the per-seed means and reported with the 90\% confidence interval of the paired difference. A \emph{seed} is one complete repetition of the five-fold experiment, over the same folds, with a different random initialization; folds and seeds are the two axes of repetition. On every dataset, we use four seeds for both models ($4\times5=20$ measurements) and pair the per-seed means ($n{=}4$ per dataset), with a Holm correction~\cite{holm1979} across the comparisons. The \emph{non-inferiority} claim is that the joint model is no worse than the dedicated model by more than a two-point margin; we test it with the two one-sided tests (TOST) procedure~\cite{lakens2017tost}. The two-point margin is fixed in advance as well: a mobility-aware service acts on which region will be busy, not on a single rank position (Section~\ref{sec:mobiwac:problem}), so a two-point shift in Acc@10 is below the granularity at which such a service would behave differently. For scale, with 520 to 8,501 regions, a random top-ten guess includes the true region at most about two percent of the time. The equivalence is well powered: the paired difference's standard deviation is 0.01 to 0.18 points across the datasets, giving power near 1.0 to declare equivalence when the true difference is near zero; the intervals pass a margin as small as one point at Alabama and Arizona (Section~\ref{sec:mobiwac:results-part2}).
+A claimed gain and a claimed match require different tests, because a difference that fails to reach significance is not by itself evidence of a match. A written analysis plan, fixed during development and before any result was read, assigned one test to each task, with the two-point margin pinned there: \emph{superiority} for next-category, \emph{non-inferiority} for next-region. It assigned the tests per task, not per dataset, and did not cover next-region superiority, so the four next-region gains of Section~\ref{sec:mobiwac:results-part2} are secondary results outside it. The plan registered a paired Wilcoxon signed-rank test; at four seeds its exact one-sided $p$ cannot fall below $0.0625$, so we report a paired $t$ on the per-seed means, with the 90\% confidence interval of the paired difference, and the registered test alongside it. Both, and this departure, are released with the code. A \emph{seed} is one complete repetition of the five-fold experiment, over the same folds, with a different random initialization; folds and seeds are the two axes of repetition. On every dataset, both models use four seeds ($4\times5=20$ measurements) and the tests pair the per-seed means ($n{=}4$), with a Holm correction~\cite{holm1979} across the six next-category comparisons and, separately, across the four next-region ones. The \emph{non-inferiority} claim is that the joint model is no worse than the dedicated model by more than a two-point margin; we test it with the two one-sided tests (TOST) procedure~\cite{lakens2017tost}. The two-point margin is fixed in advance as well: a mobility-aware service acts on which region will be busy, not on a single rank position (Section~\ref{sec:mobiwac:problem}), so a two-point shift in Acc@10 is below the granularity at which such a service would behave differently. The equivalence is well powered: the paired difference's standard deviation is 0.01 to 0.18 points across the datasets, and the intervals pass a margin as small as one point at Alabama and Arizona (Section~\ref{sec:mobiwac:results-part2}).
 
 \subsection{Baselines}
 \label{sec:mobiwac:setup-baselines}
@@ -395,7 +434,7 @@ feature injection.
 % Check2HGI std: Ist 0.6 / AL 2.4 / AZ 1.3 / FL 0.5 / TX 0.2 / CA 0.3 ; HGI std: Ist 0.5 / AL 1.0 /
 % AZ 1.0 / FL 0.3 / TX 0.6 / CA 0.4.
 \providecommand{\sd}[1]{\,{\scriptsize$\pm$#1}}
-\begin{table}[!t]
+\begin{table}[htbp]
 \caption{Next-category macro-F1: the check-in-level representation against a standard place
 embedding (HGI), same single-task model, training configuration, and folds (mean and fold sd,
 seed 0).}
@@ -427,7 +466,10 @@ two independent runs; their per-fold values differ.}
 % submitted article exactly. The pointer sentence below is part of the same restored
 % block (gate L4 fix: a float must be referenced in prose) and leaves with it.]
 Figure~\ref{fig:mobiwac:embquality} shows the same separability contrast graphically.
-\begin{figure}[!t]
+
+% [REV-029, 2026-07-26] Declaration moved to the paragraph boundary: it previously sat inside the
+% pointer paragraph above, with no blank line, so the float was declared mid paragraph.
+\begin{figure}[htbp]
 \centering
 \includegraphics{figures/mobiwac/fig3_embquality.pdf}
 \caption{Class separability of the representations, grouping each vector by its ground-truth
@@ -440,6 +482,39 @@ embedding does not.}
 
 \subsection{One model, two tasks}
 \label{sec:mobiwac:results-part2}
+% [REV-029, 2026-07-26] Table 3 and Figure 7 were both declared HERE, before any prose of this
+% subsection, which is why the rendered build put them ahead of the heading that introduces them
+% (and made p.68 floats-only). Both declarations were moved down to the paragraph boundary that
+% follows their first reference; no prose was reordered and declaration order (table before
+% figure) is preserved, so the float numbers are unchanged.
+One model outperforms or matches the dedicated
+models on both tasks.
+For scale: always predicting the most common category reaches only about 7
+percent macro-F1 (the majority-class floor), and a random region top-ten guess
+is right at most about two percent of the time (Section~\ref{sec:mobiwac:setup-metrics}).
+
+Table~\ref{tab:mobiwac:results} reports the single joint model against the dedicated
+single-task ceilings (the level a joint model is usually expected, at
+best, to match). The dedicated category model is tuned per dataset over batch size and learning rate (the dedicated region models use the strongest fixed configuration).
+Throughout, every reported model is one saved artifact per fold, read at its
+validation-selected epoch: each dedicated model at its task's best epoch, and
+the joint model at the epoch selected by its joint validation score (the
+geometric mean of the two task metrics), with both tasks read from that one
+model. Reading each joint task at its own best epoch instead would change every
+joint result by at most $0.06$ (category) and $0.11$ (region) points.
+% AUTHOR DECISION 2026-07-18 (supersedes 2026-07-09): the REPORTED convention is now JOINT-BEST
+% (author ruling, considerations_v3 #10) -- Table 3's joint cells are the one saved model per fold
+% (geom_simple = sqrt(cat F1 x reg Acc@10-indist) on validation, model-SELECTION only; never enters
+% the loss; training uses the fixed 0.75/0.25 sum of S4.2), both tasks read there. All pre-registered
+% tests re-verified on the joint-best arrays (n=20 all six; Istanbul reg CI +0.15..+0.23 > 0, 20/20
+% folds; AL/AZ TOST pass) -- see joint_best/JOINT_BEST_RESULTS.md. The sentence above discloses the
+% convention and keeps diag-best as the <=0.06/<=0.11 robustness check (the inverted form of the old
+% disclosure).
+
+% [REV-029, 2026-07-26] Moved here from the head of this subsection, where it was declared
+% before any prose of Section 5.6.2 (the rendered build put it a full page ahead of that
+% heading). This is the paragraph boundary closing the table's first reference. It still
+% precedes Figure 7's declaration and follows Table 2's, so both float numbers are unchanged.
 % Table 3: One model, two tasks (Part 2) -- the main result table. v17 board (2026-07-08 renumbering).
 % Joint single model (v17) vs the dedicated single-task ceilings (n=20 best-vs-best, per-dataset
 % bs x LR tuned -- CEILINGS_N20_FINAL.md), plus next-region externals (HMT-GRN primary; STAN faithful +
@@ -468,25 +543,57 @@ embedding does not.}
 %   Never cite: STAN v4 collapse (AL 34.46/AZ 38.96), HMT-GRN AL 62.37 outlier, fp16/bf16 VOID JSONs,
 %   ReHDM v2 row (66.06/54.65/65.68).
 \providecommand{\sd}[1]{\,{\scriptsize$\pm$#1}}
-\begin{table}[!t]
+\begin{table}[htbp]
 \caption{One model, two tasks: the single joint model against the dedicated single-task models and the
-external baselines, ordered by region count. Category is macro-F1; region is Acc@10. Bold marks a statistically supported improvement over the dedicated model; in
-the region columns, $\uparrow$ marks that supported improvement and $\approx$ a non-inferior match
+external baselines, ordered by region count. The upper block reports next-category (macro-F1) and the
+lower block next-region (Acc@10); the two share the dataset and region-count columns, and the same
+six datasets appear in the same order in both. Bold marks a statistically supported improvement over the dedicated model; in
+the region block, $\uparrow$ marks that supported improvement and $\approx$ a non-inferior match
 (TOST, $\pm2$~pp; Section~\ref{sec:mobiwac:results-part2}).}
 \label{tab:mobiwac:results}
 \centering
+% [NEW-7, 2026-07-26] Was ONE eleven-column tabular inside {adjustbox}{max width=\textwidth},
+% which shrank the body to a measured 8.00 pt (fold sd 6.00 pt) against 11.96 pt body text.
+% Split at the cmidrule the two task blocks already carried, into two tabulars inside this one
+% float: one caption, one \label{tab:mobiwac:results} (all nine \ref sites unchanged), one
+% footnote block. Both halves fit \textwidth at their natural size (category 377 pt, region
+% 408 pt against a 455 pt text block: 3 cm + 2 cm margins on A4), so neither is scaled and the
+% body renders at full 11.96 pt. Each half keeps a {max width=\textwidth} adjustbox purely as a
+% guard: at these widths it is a no-op, and if the estimate is off it clips the overshoot instead
+% of producing an overfull box. If the rebuild confirms the fit, both wrappers can be dropped.
+% Every value, bold mark, \sd{}, $^{\uparrow}$, $^{\approx}$, $^{\dagger}$, $^{\ddagger}$, and
+% the Dataset/Regions key columns are carried over character for character; the Dataset and
+% Regions columns repeat in the second half so each block reads on its own.
 \begin{adjustbox}{max width=\textwidth}
-\begin{tabular}{l r r r r r r r r r r}
+\begin{tabular}{l r r r r r}
 \toprule
-& & \multicolumn{4}{c}{\textbf{Next-category (macro-F1)}} & \multicolumn{5}{c}{\textbf{Next-region (Acc@10)}} \\ \cmidrule(lr){3-6}\cmidrule(lr){7-11}
-\textbf{Dataset} & \textbf{Regions} & \textbf{Markov-K} & \textbf{POI-RGNN} & \textbf{Dedicated} & \textbf{Joint (ours)} & \textbf{HMT-GRN} & \textbf{ReHDM} & \textbf{STAN} & \textbf{Dedicated} & \textbf{Joint (ours)} \\
+& & \multicolumn{4}{c}{\textbf{Next-category (macro-F1)}} \\ \cmidrule(lr){3-6}
+\textbf{Dataset} & \textbf{Regions} & \textbf{Markov-K} & \textbf{POI-RGNN} & \textbf{Dedicated} & \textbf{Joint (ours)} \\
 \midrule
-Istanbul & 520     & 24.55 & 30.12 & 54.74\sd{0.09} & \textbf{63.32}\sd{0.02} & 60.4  & 69.33 & 61.86 & 75.16\sd{0.01} & \textbf{75.35}\sd{0.04}$^{\uparrow}$ \\
-AL       & 1{,}109 & 20.50 & 23.80 & 56.82\sd{0.03} & \textbf{64.51}\sd{0.09} & 57.05 & 65.38 & 60.72 & 70.11\sd{0.10} & 69.70\sd{0.09}$^{\approx}$ \\
-AZ       & 1{,}547 & 23.92 & 27.64 & 56.43\sd{0.10} & \textbf{65.79}\sd{0.02} & 43.70 & 53.00 & 49.86 & 59.46\sd{0.08} & 59.46\sd{0.04}$^{\approx}$ \\
-FL       & 4{,}703 & 29.74 & 34.49 & 74.51\sd{0.03} & \textbf{79.84}\sd{0.02} & 63.74 & 64.49 & 72.99 & 76.70\sd{0.02} & \textbf{77.41}\sd{0.02}$^{\uparrow}$ \\
-TX       & 6{,}553 & 28.67 & 33.03 & 69.79\sd{0.08} & \textbf{77.24}\sd{0.01} & 53.85 & 48.81$^{\ddagger}$ & 61.67$^{\dagger}$ & 64.95\sd{0.01} & \textbf{67.06}\sd{0.01}$^{\uparrow}$ \\
-CA       & 8{,}501 & 27.58 & 31.78 & 70.60\sd{0.07} & \textbf{77.05}\sd{0.01} & 49.61 & 50.26$^{\ddagger}$ & 58.52$^{\dagger}$ & 63.49\sd{0.02} & \textbf{65.69}\sd{0.02}$^{\uparrow}$ \\
+Istanbul & 520     & 24.55 & 30.12 & 54.74\sd{0.09} & \textbf{63.32}\sd{0.02} \\
+AL       & 1{,}109 & 20.50 & 23.80 & 56.82\sd{0.03} & \textbf{64.51}\sd{0.09} \\
+AZ       & 1{,}547 & 23.92 & 27.64 & 56.43\sd{0.10} & \textbf{65.79}\sd{0.02} \\
+FL       & 4{,}703 & 29.74 & 34.49 & 74.51\sd{0.03} & \textbf{79.84}\sd{0.02} \\
+TX       & 6{,}553 & 28.67 & 33.03 & 69.79\sd{0.08} & \textbf{77.24}\sd{0.01} \\
+CA       & 8{,}501 & 27.58 & 31.78 & 70.60\sd{0.07} & \textbf{77.05}\sd{0.01} \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+
+\vspace{6pt}
+
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{l r r r r r r}
+\toprule
+& & \multicolumn{5}{c}{\textbf{Next-region (Acc@10)}} \\ \cmidrule(lr){3-7}
+\textbf{Dataset} & \textbf{Regions} & \textbf{HMT-GRN} & \textbf{ReHDM} & \textbf{STAN} & \textbf{Dedicated} & \textbf{Joint (ours)} \\
+\midrule
+Istanbul & 520     & 60.4  & 69.33 & 61.86 & 75.16\sd{0.01} & \textbf{75.35}\sd{0.04}$^{\uparrow}$ \\
+AL       & 1{,}109 & 57.05 & 65.38 & 60.72 & 70.11\sd{0.10} & 69.70\sd{0.09}$^{\approx}$ \\
+AZ       & 1{,}547 & 43.70 & 53.00 & 49.86 & 59.46\sd{0.08} & 59.46\sd{0.04}$^{\approx}$ \\
+FL       & 4{,}703 & 63.74 & 64.49 & 72.99 & 76.70\sd{0.02} & \textbf{77.41}\sd{0.02}$^{\uparrow}$ \\
+TX       & 6{,}553 & 53.85 & 48.81$^{\ddagger}$ & 61.67$^{\dagger}$ & 64.95\sd{0.01} & \textbf{67.06}\sd{0.01}$^{\uparrow}$ \\
+CA       & 8{,}501 & 49.61 & 50.26$^{\ddagger}$ & 58.52$^{\dagger}$ & 63.49\sd{0.02} & \textbf{65.69}\sd{0.02}$^{\uparrow}$ \\
 \bottomrule
 \end{tabular}
 \end{adjustbox}
@@ -499,40 +606,6 @@ are references. Markov-K: strongest order per dataset. $^{\dagger}$STAN partial 
 (seed 0). $^{\ddagger}$ReHDM at TX and CA: a single seed. Joint and dedicated entries: four seeds
 $\times$ five folds; $\pm$: sd across seeds.}
 \end{table}
-
-\begin{figure}[!t]
-\centering
-\includegraphics{figures/mobiwac/fig4_deltas.pdf}
-\caption{Signed gains of the joint model over the dedicated single-task models, ordered by
-region count. The category gain (macro-F1) is positive at every dataset; the region gain (Acc@10) rises across the five U.S. states and is also positive at Istanbul.
-The $\pm2$-point band applies to region only.}
-\label{fig:mobiwac:deltas}
-\end{figure}
-
-One model outperforms or matches the dedicated
-models on both tasks.
-For scale: always predicting the most common category reaches only about 7
-percent macro-F1 (the majority-class floor), and a random region top-ten guess
-is right at most about two percent of the time (Section~\ref{sec:mobiwac:setup-metrics}).
-
-Table~\ref{tab:mobiwac:results} reports the single joint model against the dedicated
-single-task ceilings (the level a joint model is usually expected, at
-best, to match). The dedicated category model is tuned per dataset over batch size and learning rate (the dedicated region models use the strongest fixed configuration).
-Throughout, every reported model is one saved artifact per fold, read at its
-validation-selected epoch: each dedicated model at its task's best epoch, and
-the joint model at the epoch selected by its joint validation score (the
-geometric mean of the two task metrics), with both tasks read from that one
-model. Reading each joint task at its own best epoch
-instead would change every joint result by at most $0.06$ (category) and
-$0.11$ (region) points, so no claim depends on this choice.
-% AUTHOR DECISION 2026-07-18 (supersedes 2026-07-09): the REPORTED convention is now JOINT-BEST
-% (author ruling, considerations_v3 #10) -- Table 3's joint cells are the one saved model per fold
-% (geom_simple = sqrt(cat F1 x reg Acc@10-indist) on validation, model-SELECTION only; never enters
-% the loss; training uses the fixed 0.75/0.25 sum of S4.2), both tasks read there. All pre-registered
-% tests re-verified on the joint-best arrays (n=20 all six; Istanbul reg CI +0.15..+0.23 > 0, 20/20
-% folds; AL/AZ TOST pass) -- see joint_best/JOINT_BEST_RESULTS.md. The sentence above discloses the
-% convention and keeps diag-best as the <=0.06/<=0.11 robustness check (the inverted form of the old
-% disclosure).
 
 Figure~\ref{fig:mobiwac:deltas} plots the signed gains ordered by region count. On
 category, the joint model outperforms the dedicated ceiling on
@@ -551,11 +624,25 @@ from $-0.41$ at the smallest count to $+2.20$ at the largest; region count and
 corpus size co-vary here, so we read the trend across the points rather than
 as a precise law.
 
-All six datasets are measured with four seeds for both models, and the tests
-pair the per-seed means ($n{=}4$). On category, all four
+% [REV-029, 2026-07-26] Moved here from the head of this subsection (it was declared before any
+% prose, above Table 3's declaration). This is the paragraph boundary that closes the figure's
+% first reference; declaration order relative to Table 3 is unchanged, so Figure 7 keeps its number.
+\begin{figure}[htbp]
+\centering
+\includegraphics{figures/mobiwac/fig4_deltas.pdf}
+\caption{Signed gains of the joint model over the dedicated single-task models, ordered by
+region count. The category gain (macro-F1) is positive at every dataset; the region gain (Acc@10) rises across the five U.S. states and is also positive at Istanbul.
+The $\pm2$-point band applies to region only.}
+\label{fig:mobiwac:deltas}
+\end{figure}
+
+On category, all four
 seeds favor the joint model on every dataset, and each gain is significant
 after a Holm correction across the six datasets (paired $t$, corrected
-$p<0.001$). On region, Alabama and Arizona are tested for equivalence (TOST,
+$p<0.001$); the four next-region gains hold under their own Holm correction as
+well (corrected $p<0.001$). The registered Wilcoxon test on the individual fold
+differences agrees at every dataset, with all 20 folds favoring the joint model
+(corrected $p<0.001$). On region, Alabama and Arizona are tested for equivalence (TOST,
 $\pm2$~pp) and pass with 90\% confidence intervals well inside two points
 (each entry: point estimate; interval): Alabama ($-0.41$; $-0.63$ to $-0.20$)
 and Arizona ($0.00$; $-0.08$ to $+0.07$). At Arizona, the interval is centered on zero, so we report a match,
@@ -569,9 +656,38 @@ exceed that margin: their 90\% intervals lie entirely above it ($+2.10$ to
 $+2.13$ at Texas, $+2.19$ to $+2.21$ at California).
 
 A reader used to multi-task learning~\cite{caruana1997multitask} expects the
-harder task, here next-region with its hundreds to several thousand classes, to teach the easier one; a control shows otherwise. We freeze the region pathway at the start of training so it can neither learn nor teach the category task, yet the full category gain survives at Alabama, Arizona, and
-Florida (within $0.3$ of the joint model and far above the dedicated
-model). We therefore attribute the category gain to a stronger shared trunk, not to the region task teaching the category one; and the gain requires no second model at serving time (one model, one forward pass). We report this attribution as a finding, not a hypothesis.
+harder task, here next-region with its hundreds to several thousand classes, to teach the easier one; a control shows otherwise. We fix the region pathway at its initial values at the start of training so it can neither learn nor teach the category task, yet the full category gain survives at Alabama, Arizona, and
+Florida: the control reaches $63.50$, $63.67$, and $79.79$ macro-F1, above the
+single-task category score of the one fixed configuration
+(Table~\ref{tab:mobiwac:representation}) by $+7.63$, $+6.54$, and $+4.64$
+points. That comparison is the one the control was built to make, and it is the
+one to read. The control predates the results of
+Table~\ref{tab:mobiwac:results} and was measured at one random initialization
+over five folds, so its second comparison is to the joint scores of the
+development configuration current at the time ($63.56$, $63.39$, $79.82$), which
+it matched to within $0.3$, and not to the joint cells reported here. We therefore attribute the category gain to a stronger shared trunk, not to the region task teaching the category one; and the gain requires no second model at serving time (one model, one forward pass). We report this attribution as a finding, not a hypothesis.
+% [NEW-2, 2026-07-26] Source: docs/studies/closing_data/archive/findings/W6_ENCODER_ISOLATION.md.
+% Every number above is QUOTED from its section 2 table (:20-24), not computed here:
+%   probe cat (freeze-reg)  AL 63.50 / AZ 63.67 / FL 79.79   (column "probe cat")
+%   delta vs dedicated      AL +7.63 / AZ +6.54 / FL +4.64   (column "Delta vs ceiling")
+%   full-MTL cat comparand  AL 63.56 / AZ 63.39 / FL 79.82   (column "full-MTL cat (S1)")
+% CRITICAL comparand note: the cells W6 measures those deltas against (column "STL cat ceiling":
+% AL 55.87 / AZ 57.13 / FL 75.15) are the seed-0 single-task values that this chapter prints as
+% the CHECK-IN-LEVEL column of Table 2 -- they are NOT the per-dataset-tuned n=20 Dedicated cells
+% of Table 3 (56.82 / 56.43 / 74.51). The prose therefore points the +7.63/+6.54/+4.64 deltas at
+% Table 2 by name, so an examiner subtracting on the page gets the printed value. Pointing them at
+% Table 3 would reintroduce the very mismatch NEW-2 reports (63.50 - 56.82 is not 7.63).
+% Why the rewrite: "within 0.3 of the joint model" was measured against the full-MTL comparand
+% above, which is the DIAGNOSTIC-BEST convention of the development configuration; Table 3 prints
+% the JOINT-BEST cells (AL 64.51 / AZ 65.79 / FL 79.84). Reading 0.3 against Table 3 fails, and
+% AGENT_GUARDRAILS N5 forbids blurring the two conventions inside one comparison. No new delta was
+% computed; the 0.3 is kept but its basis is now named and time-indexed.
+% Footing: W6 section 4 records the control as "n=5 provisional (seed 0; {1,7,100} -> n=20
+% post-deadline)" -- hence "one random initialization over five folds", against the n=20 of the
+% rest of the chapter. Also at W6 section 4: a 2026-07-01 note that dropout stayed active in the
+% fixed stream; W6 records the directional conclusions as standing. Not surfaced in prose.
+% "freeze" -> "fix ... at its initial values" per WRITING_LAW section 2 (repo-codename/plain-word
+% rule: "frozen" -> "fixed", except frozen weights, glossed).
 
 The joint model is also above every external baseline reported, on both tasks,
 across all six datasets (Table~\ref{tab:mobiwac:results}): on region, the primary
@@ -601,8 +717,7 @@ The joint-model results hold for a non-U.S. city under the same representation, 
 joint model outperforms the dedicated category ceiling by $+8.58$ macro-F1
 (dedicated $54.74$, joint $63.32$) and is slightly above the dedicated region ceiling at $+0.19$
 Acc@10 (dedicated $75.16$, joint $75.35$), a gain with statistical support (the whole 90\% confidence interval of the paired
-difference lies above zero, and TOST, $\pm2$~pp, also passes); both
-models average four seeds over five folds. The comparable quantity is the gain over the ceiling, not the absolute
+difference lies above zero, and TOST, $\pm2$~pp, also passes). The comparable quantity is the gain over the ceiling, not the absolute
 Acc@10, since region counts differ across datasets (520 mahalle here). The external baselines show the same ordering on both tasks
 (Table~\ref{tab:mobiwac:results}).
 The U.S. result repeats on a different continent and region unit.
@@ -617,8 +732,21 @@ set: at California, ten regions out of 8{,}501 contain the true next region 65.6
 percent of the time, over 500 times better than picking ten at
 random. On four datasets (Alabama, Arizona, Florida, and Istanbul; a single seed over five folds), the ten shortlisted regions lie a median of 3 to 8 kilometers from the shortlist's centroid, against 17 to 176 kilometers for ten regions drawn at random from the same candidate set (median over 10,000 draws). This remains motivation, not a measured service result.
 
-Two limits qualify these results. First, our representation is trained once over all places; visits to places
-never seen during training are the single effect that we cannot fully isolate. A planned follow-up trains it on each fold's training places only and embeds unseen visits. Second, we do not build or evaluate a mobility-aware service; it is background motivation, and this chapter's claims are the prediction results themselves.
+Three limits qualify these results. First, our representation is trained once over all places; visits to places
+never seen during training are the single effect that we cannot fully isolate. A planned follow-up trains it on each fold's training places only and embeds unseen visits. Second, epoch selection consults the fold that the score is then read on (Section~\ref{sec:mobiwac:setup-windows}), so every absolute score reported here is optimistic. The comparison between the joint model and the dedicated models is affected far less, for two reasons that we can state rather than assume: the selection rule is applied identically to both arms on the same folds, and the dedicated arm receives the wider search, a per-dataset sweep over batch size and learning rate against one configuration held fixed across all six datasets for the joint model. The residual therefore favors the comparator, which makes the reported difference conservative. It does not follow that the bias cancels exactly. Third, we do not build or evaluate a mobility-aware service; it is background motivation, and this chapter's claims are the prediction results themselves.
+% [REV-003, 2026-07-26] Adapted from the drafted sentence at
+% src_utils/_review_v1/09_stats_leakage_skeptic_report.md:294-307 (finding B4). Two deliberate
+% departures from that draft, both weakening it:
+%  (a) the draft says the comparison "is unaffected ... and the bias cancels in the difference".
+%      Exact cancellation is not demonstrated anywhere in the record, so the text says the
+%      comparison carries far less of the bias and adds an explicit non-cancellation sentence.
+%  (b) the two supporting facts are the ones that ARE verifiable. Identical rule across arms:
+%      src/training/runners/category_cv.py:97 and next_cv.py:195 both evaluate on val_loader at
+%      that task's own best_state, matching the joint runner's val-selected checkpoint
+%      (mtl_cv.py:_compute_joint_selectors, geom_simple). Wider dedicated search: the per-dataset
+%      batch-size x learning-rate sweep of docs/studies/closing_data/v17_completion/
+%      CEILINGS_N20_FINAL.md:41-53, already disclosed in this chapter at the Table 3 lead-in.
+% No number is introduced. "Two limits" -> "Three limits" is the only other change.
 
 Our representation is a fixed per-visit vector that any downstream model
 can consume. Moura et al.~\cite{moura2025mobilityaware}, whose structural

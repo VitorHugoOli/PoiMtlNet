@@ -116,7 +116,12 @@ def main() -> None:
 
     ax.set_ylim(0, 1.14)
     ax.set_yticks([0.0, 0.5, 1.0])
-    ax.set_ylabel("Score (0–1)")
+    # REV-022 (2026-07-26): was "Score (0–1)". The left bar group is a cosine silhouette, which is
+    # defined on [-1, 1], not [0, 1] (the chapter's own prose says so at section 5.6.1). The
+    # plotted values are all non-negative, so nothing was misdrawn, but the label asserted a range
+    # that is wrong for one of the two metrics. Each metric's own range is stated in the caption
+    # and in the prose, so the axis carries the bare quantity name.
+    ax.set_ylabel("Score")
     ax.set_xticks(x)
     ax.set_xticklabels(METRICS)
     ax.tick_params(axis="x", length=0)

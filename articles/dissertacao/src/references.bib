@@ -365,10 +365,23 @@
 
 % PROVENANCE: articles/dissertacao/fundamentals/_bib/new_references_ch2.bib (identifier-
 % verified donor), carried verbatim.
-% [kohavi1995crossval] IJCAI 1995 (predates DOIs); resolvable re-deposit DOI 10.5281/zenodo.19712698
+% [kohavi1995crossval] IJCAI 1995; no DOI (the paper predates DOI registration).
 %   Theme D (Datasets, metrics & evaluation)
 %   Claim: Cross-validation and bootstrap are compared for accuracy estimation and model selection; stratified k-fold is recommended.
-%   [VERIFY] Original IJCAI'95 record has no DOI; the DOI below is a Zenodo re-deposit of the same paper (author/title/year confirmed). The "stratified k-fold recommended" conclusion is well known but was not confirmed against an opened abstract this session.
+%   verified 2026-07-25 against the official IJCAI proceedings: PDF opened at
+%   https://www.ijcai.org/Proceedings/95-2/Papers/016.pdf -- title page reads "A Study of
+%   Cross-Validation and Bootstrap for Accuracy Estimation and Model Selection", sole author
+%   Ron Kohavi (Computer Science Department, Stanford University); running footers read
+%   "KOHAVI 1137" (p.1) through "KOHAVI 1143" (p.7), confirming pages 1137--1143. The volume
+%   index https://www.ijcai.org/Proceedings/95-2/ is "Proceedings of the Fourteenth
+%   International Joint Conference on Artificial Intelligence (II)" (14th IJCAI, Montreal,
+%   1995), confirming volume 14. Claim located in Section 6 (Summary), p.1143: "We
+%   recommend using stratified ten fold cross-validation for model selection".
+%   ERRATUM applied 2026-07-25: the former doi = {10.5281/zenodo.19712698} was DROPPED. That
+%   DOI is a third-party Zenodo re-deposit, not the IJCAI-95 record: DataCite
+%   (https://api.datacite.org/dois/10.5281/zenodo.19712698) gives publisher "Zenodo",
+%   registered 2026-04-23, CC-BY-4.0, with no relatedIdentifier to any original record.
+%   IJCAI-95 genuinely predates DOIs, so the entry carries none.
 @inproceedings{kohavi1995crossval,
   author      = {Ron Kohavi},
   title       = {A Study of Cross-Validation and Bootstrap for Accuracy Estimation and Model Selection},
@@ -376,7 +389,6 @@
   year        = {1995},
   volume      = {14},
   pages       = {1137--1143},
-  doi         = {10.5281/zenodo.19712698},
 }
 
 % PROVENANCE: articles/CBIC___MTL/references.bib, carried verbatim.
@@ -815,15 +827,32 @@ journal   = {arXiv preprint arXiv:1705.08142},
 year      = {2017}
 }
 
-% PROVENANCE: articles/CoUrb_2026/src_en/references.bib, carried verbatim.
-@misc{rußwurm2024geographiclocationencodingspherical,
-      title={Geographic Location Encoding with Spherical Harmonics and Sinusoidal Representation Networks}, 
-      author={Marc Rußwurm and Konstantin Klemmer and Esther Rolf and Robin Zbinden and Devis Tuia},
-      year={2024},
-      eprint={2310.06743},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG},
-      url={https://arxiv.org/abs/2310.06743}, 
+% PROVENANCE: articles/CoUrb_2026/src_en/references.bib. ERRATUM applied 2026-07-25
+% (same class as the GAT erratum above, Appendix B): the donor entry was typed @misc as an
+% arXiv preprint while already carrying year=2024; cite the ICLR 2024 version of record
+% instead. arXiv identifier kept as a note, per the GAT precedent.
+% verified 2026-07-25, two independent sources of record:
+%   (1) arXiv API, id 2310.06743 -- <arxiv:journal_ref> reads "Published as a conference
+%       paper at ICLR 2024"; <arxiv:comment> "Camera-ready version"; v2 dated 2024-04-15;
+%       five authors as listed below.
+%   (2) OpenReview (the venue's own record), submission ICLR.cc/2024/Conference/Submission3806,
+%       note id PudduufFLa: venue field "ICLR 2024 spotlight", venueid
+%       "ICLR.cc/2024/Conference", invitations include Camera_Ready_Revision; its exported
+%       BibTeX gives booktitle "The Twelfth International Conference on Learning
+%       Representations", year 2024. Landing page https://openreview.net/forum?id=PudduufFLa
+%       (HTML served behind a bot challenge; record read through api2.openreview.net).
+% KEY RENAMED 2026-07-25: ruß... -> russ... (ASCII). The former key carried U+00DF in the
+% citation key itself, which BibTeX/pdflatex accept only by byte pass-through. Content
+% unchanged; the four citing sites were updated in the same pass.
+% NOTE: the author field keeps the literal "ß" (renders today as RUßWURM in the reference
+% list); only the key was ASCII-ized, so no rendering changes.
+@inproceedings{russwurm2024geographiclocationencodingspherical,
+  author    = {Marc Rußwurm and Konstantin Klemmer and Esther Rolf and Robin Zbinden and Devis Tuia},
+  title     = {Geographic Location Encoding with Spherical Harmonics and Sinusoidal Representation Networks},
+  booktitle = {Proc. ICLR},
+  year      = {2024},
+  note      = {arXiv:2310.06743},
+  url       = {https://openreview.net/forum?id=PudduufFLa},
 }
 
 % PROVENANCE: CBIC donor; arXiv id added this session (arXiv API: title/authors confirmed; NeurIPS 2018).
