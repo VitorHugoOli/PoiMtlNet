@@ -117,7 +117,7 @@ author holds; **DEFERRED** deliberately postponed with a reason.
 | REV-022 | Moderate | **PART CLOSED; AUTHOR for the rest** | Axis label corrected and figure regenerated. The Portuguese labels in the Ch.4 figure are blocked on missing source art. |
 | REV-023 | Major | **PART CLOSED; AUTHOR for the rest** | "Three published studies" corrected; page counts synchronized; the approval-sheet macro that hardcoded a prior student's name defused. Committee, date, and cover remain the author's. |
 | REV-024 | Major | **AUTHOR** | A real deviation with a same-advisor precedent that passed. The edit is one deletion; the consequence is roughly two pages, which interacts with pagination. |
-| REV-025 | Major | **AUTHOR RULED** | The author ruled Appendix C stays as written. The 25 sign-off markers are inventoried in `PENDENCIAS.md`. |
+| REV-025 | Major | **AUTHOR RULED** | The author ruled Appendix C stays as written. The 27 sign-off markers are inventoried in `PENDENCIAS.md`. |
 | REV-026 | Moderate | **AUTHOR, and it is the most exposed open item** | Zero rendered sentences on ethics, privacy, licensing, or consent. The licence research is done; the missing inputs are three facts. |
 | REV-027 | Major | **CLOSED for Ch.3; refuted for Ch.4** | Four substitutions where the word attaches to this study's own comparisons. The hypothesis and cited-work uses were deliberately left. Ch.4 has zero occurrences. |
 | REV-028 | Moderate | **CLOSED** | The ledger was complete; the reader-facing record was not. Counts corrected, B4 reclassified, omissions disclosed. |
@@ -255,19 +255,20 @@ Eleven of the eighteen personas ran, plus the fact gate and the committee simula
 and read-only on the rebuilt document. Reports in `src_utils/_review_v2/` and
 `src_utils/_specialists_v2/`.
 
-**Coverage is partial, and here is exactly what did and did not run.** Nine text/fact/domain
-personas plus the two specialists ran on the corrected build (01, 03, 04, 05, 06, 07, 09, 15, 18,
-the fact gate, and 12 the committee simulator). Seven did not, for two different reasons. Four are
-genuinely not applicable to this round or are superseded: 02 (line editor) is subsumed by 15 on the
-same text; 14 (adversarial advisor) gates proposed edit batches before they are applied, and this
-round applied its edits under the author's standing rulings rather than proposing a batch; 16
-(AI-credibility) runs after 03 passes, and 03 passed only at the end of this round; 13 (UFV
-compliance) is a pre-submission gate whose two open inputs, the committee facts and the bibliography
-font call, are author decisions still pending. Three are real gaps that should run before the
-advisor handoff: **08 (translation fidelity)** on the Portuguese-to-English CoUrb chapter, which is
-mandatory under the reviewer suite's own L5 rule and has never run on the current text; **10 (MTL
-expert)** and **11 (POI/mobility expert)**, the two domain readers, neither of which has seen the
-corrected chapters.
+**Coverage: fourteen of the eighteen personas ran, plus both specialists.** Nine text/fact/domain
+personas and the two specialists ran first (01, 03, 04, 05, 06, 07, 09, 15, 18, the fact gate, and 12
+the committee simulator). The three that the first pass identified as real gaps were then run on the
+author's instruction, and they turned out to be the highest-yield of the round: **08 (translation
+fidelity)**, mandatory under the suite's own L5 rule and never previously run; **10 (MTL expert)**;
+and **11 (POI/mobility expert)**. Between them they returned four blockers, every one of which was a
+real defect in the delivered document, and each is now fixed (Section 5.7).
+
+Four personas did not run, and none is a gap: 02 (line editor) is subsumed by 15 on the same text;
+14 (adversarial advisor) gates proposed edit batches before application, and this round applied its
+edits under the author's standing rulings rather than proposing a batch; 16 (AI-credibility) runs
+after 03 passes, which happened only at the end of the round; and 13 (UFV compliance) is a
+pre-submission gate whose two inputs, the committee facts and the bibliography font call, are author
+decisions still pending.
 
 ### 5.1 Verdicts
 
@@ -402,13 +403,61 @@ and it measures ancestor builds rather than the shipped lineage. Running the pro
 datasets that now have a ceiling became possible, and is offered to the author as a decision, but
 the comparison that matters most needs the shipped lineage re-exported.
 
+## 5.7 The three domain and fidelity passes, and what they caught
+
+Run after the first pass flagged them as gaps. They found four blockers that fourteen other readings,
+two build gates, and this review's own author had all missed. Each is fixed and committed.
+
+**The L5 translation gate (persona 08) found published text missing from the document.** A round-4
+overfull-box fix in Chapter 4 had appended the second half of a published sentence to the end of its
+own comment line, so three method facts, that the POI graph is built by Delaunay triangulation over
+geographic coordinates, that edges are weighted by logarithmic decay of the Haversine distance, and
+that connections between distinct counties are penalized, silently did not render, and the chapter
+printed a sentence ending mid-clause. Verified before repair: the words "Haversine" and "GEOIDs" each
+occurred zero times in the delivered PDF. The gate otherwise reported zero number mismatches and zero
+claim-strength drifts against the published Portuguese record, which it obtained rather than assuming
+the repository copy was authoritative.
+
+**The MTL expert (persona 10) found the central mechanism claim overstated.** Chapter 5 attributed
+the category gain to "a stronger shared trunk" and foreclosed hedging with "we report this
+attribution as a finding, not a hypothesis". The freeze control that backs it removes region
+training, so it can establish that the gain is not cross-task transfer but cannot locate which part
+of the joint architecture produces it. The repository holds an arm that tests the trunk directly and
+disagrees: with the entire cross-attention stack removed at Florida, next-category macro-F1 moves by
+$-0.04 \pm 0.13$, which a paired test cannot separate from zero. Asserting a named mechanism as
+settled while holding a null result for that exact mechanism is the sharpest thing a referee can
+find, and the released code makes it one flag away. The negative result is retained as a finding; the
+positive attribution is downgraded to the joint architecture and the disconfirming ablation is now
+disclosed in the chapter.
+
+**The POI expert (persona 11) found the external comparison unreconciled with the study's own
+floor.** Chapter 5 called the external systems the per-task state of the art on our data, and twenty
+pages later printed a non-learned first-order Markov floor that is above HMT-GRN at all six datasets,
+above the ReHDM reference at three, and above STAN at four. Both sets of numbers were correct and
+traceable; nothing connected them. The chapter now states the comparison directly and explains it as
+a property of the sliding-window protocol rather than a verdict on those systems, and treats the
+floor as the reference the region task must clear.
+
+The same reviewer also re-derived the category determinism at five states rather than the one this
+review had measured, and found it holds everywhere: 284 to 365 distinct fine-grained values per
+state, none of them mapping to more than one of the seven target classes. That strengthens the
+finding in Section 3.1 and removes any question of it being a single-dataset artifact.
+
+Three further findings were verified and applied: the gradient-cosine measurement is pooled over four
+Gowalla states including Georgia, which the dissertation does not otherwise report, so the scope
+sentence "three of our six datasets" was wrong in both directions; CAGrad was described as bounding
+conflict when its objective is a maximin over worst per-task improvement; and the Nash-MTL cost claim
+that the errata table left uncorrected beside a clause it did correct is now named in the appendix's
+deliberately-preserved section rather than passed over in silence.
+
+
 ## 6. Build state
 
 Measured this session on the corrected source, three-pass with two BibTeX runs, both variants:
 
 | | Defense | Final |
 |---|---|---|
-| Pages | 96 | 91 |
+| Pages | 97 | 92 |
 | Overfull hboxes | 0 | 0 |
 | Overfull vboxes | 0 | 0 |
 | Undefined citations | 0 | 0 |
@@ -459,7 +508,7 @@ input required. Ranked by exposure at the defense:
    blocker independent of the science.
 4. **The advisor bundle**: English frame, CoUrb inclusion, final title, errata policy, and the
    bibliography font question (REV-024).
-5. **The 25 sign-off markers**, including the Resumo and Abstract parity pair, which cannot be
+5. **The 27 sign-off markers**, including the Resumo and Abstract parity pair, which cannot be
    signed off separately.
 6. **The Nash instruction conflict (REV-005)** between the author's ruling and `NORTH_STAR.md:146`.
 

@@ -182,6 +182,85 @@ fica ate voce decidir.
 
 ---
 
+## BLOCO 1b — decisoes NOVAS, abertas pelas tres revisoes de dominio
+
+> Rodei as tres personas que faltavam (08 fidelidade de traducao, 10 MTL, 11 POI/mobilidade). Elas
+> acharam **quatro blockers**, todos defeitos reais no PDF entregue, e todos ja corrigidos. Tres das
+> correcoes precisam de uma decisao sua, porque mexem em texto publicado ou em uma alegacao central.
+
+### 1b.1 A atribuicao do ganho: "shared trunk" nao se sustenta (persona 10, BLOCKER)
+
+**O achado.** O Cap. 5 dizia que o ganho de categoria vem de "a stronger shared trunk" e fechava com
+"We report this attribution as a finding, not a hypothesis". O controle de congelamento
+(`W6_ENCODER_ISOLATION.md:20-24`) remove o **treino** da regiao, entao ele elimina a hipotese
+"regiao ensina categoria", mas **nao localiza** o componente: nao remove o encoder proprio da
+categoria, os FFNs por fluxo, nem a profundidade extra. E o repo tem o braco que testa o trunk
+direto, com resposta oposta: `F50_T1_5_CROSSATTN_ABSORPTION.md:19-20` mede, na Florida, cat F1
+68,36 ± 0,74 com cross-attention LIGADA contra 68,32 ± 0,67 DESLIGADA, delta **-0,04 ± 0,13**,
+estatisticamente indistinguivel (:37); a :80 chama o rotulo "shared" de impropio na FL, 95% cat-only
+por massa de gradiente. Verifiquei as duas citacoes nos arquivos.
+
+**O que fiz.** Mantive o resultado **negativo** como achado (o ganho nao e transferencia entre
+tarefas: isso o controle estabelece). Rebaixei a atribuicao **positiva** de "o trunk" para "a
+arquitetura conjunta", declarei que o controle nao localiza o componente, e **divulguei a ablacao
+discordante** no proprio capitulo, com o escopo de um dataset dito. Sincronizei os dois pontos do
+Cap. 6.
+
+**(C) O que preciso de voce.** Duas coisas: (i) o Cap. 5 esta sob o regime de errata e isto reescreve
+uma frase de **interpretacao**, entao precisa de linha no Apendice B, que **nao escrevi** esperando
+sua decisao de redacao; (ii) se preferir citar o empate do cascade (`CSLSL_CASCADE.md:19`, que corta
+o canal simetrico e empata dentro de 0,02 pp) em vez da ablacao F50, ou rodar a ablacao nos outros
+datasets antes de divulgar, eu reestruturo. O que **nao** deixei foi a alegacao de pe como
+estabelecida com o repo guardando um teste nulo daquele exato mecanismo.
+> DECISAO: __________________________________________________
+
+### 1b.2 O piso de Markov esta acima dos baselines externos (persona 11, BLOCKER)
+
+**O achado.** O Cap. 5 chama os sistemas externos de "the per-task state of the art, on our data" e,
+vinte paginas depois, imprime um piso de Markov de primeira ordem **acima** do HMT-GRN nos seis
+datasets, acima do ReHDM em tres e do STAN em quatro. Os dois conjuntos de numeros estavam certos e
+rastreaveis; nada os ligava. Um parecerista le o par como sinal de que as reimplementacoes estao
+mal treinadas e **desconta a comparacao externa inteira**, inclusive as partes que favorecem voce.
+
+**O que fiz.** Adicionei um paragrafo que declara a comparacao e a explica como propriedade do
+**protocolo**, nao veredito sobre aqueles sistemas: nossas janelas andam uma visita por vez, entao a
+persistencia de regiao e forte e uma tabela de transicao a consome direto, enquanto os externos
+preveem **lugar** e chegam a regiao pelo mapa lugar-regiao, descartando esse sinal. O capitulo agora
+trata o **piso** como a referencia a bater. Contagens 6/3/4 recalculadas por mim da tabela do proprio
+capitulo e dos JSONs de piso.
+
+**(C) Preciso de voce:** so a leitura. Se discordar do enquadramento (protocolo, nao qualidade dos
+sistemas), me diga e eu reescrevo. **E um item herdado para corrigir a parte:**
+`docs/results/closing_data/MACS_BOARD_RESULTS.md:47` ainda afirma "HMT reg clears the Markov floor",
+verdadeiro contra o piso antigo nao-sobreposto (AL 0,4701) e nunca revisitado quando o piso foi
+recalculado sob a janela stride-1 (AL 0,6226). O capitulo herdou a inconsistencia; o registro interno
+deveria ser corrigido.
+> DECISAO: __________________________________________________
+
+### 1b.3 O custo do Nash-MTL: corrigir ou so declarar? (persona 10, MAJOR)
+
+**O achado.** A frase publicada "requires only two matrix-vector products per iteration" nao tem
+apoio no artigo (a expressao nao ocorre nele) e **subestima** o custo: as duas implementacoes rodam
+um procedimento concavo-convexo iterativo, 20 passos por padrao, cada um uma resolucao convexa, alem
+de um backward por tarefa. Voce ja tinha decidido REPORTED, NOT CORRECTED, e **mantive** sua decisao.
+O ponto novo da persona e a **assimetria**: o Apendice B corrige a clausula **vizinha da mesma
+frase** (sinais de gradiente), entao o silencio sobre esta metade convida a pergunta.
+
+**O que fiz.** A secao "deliberadamente preservados" do Apendice B agora **nomeia** a preservacao,
+passando de dois para tres elementos, e diz que a correcao correria **a seu favor**.
+
+**(C)** Manter assim (recomendo), ou mover para a tabela de errata e corrigir de fato?
+> DECISAO: __________________________________________________
+
+### 1b.4 O determinismo da categoria agora esta medido nos CINCO estados (persona 11)
+
+Nao e decisao, e reforco: a persona 11 refez a medicao do item 2.4 em todos os estados, nao so no
+Alabama. **284 a 365 valores `fclass` distintos por estado, nenhum mapeando para mais de uma das 7
+classes-alvo, em Alabama, Arizona, Florida, California e Texas.** Ou seja: nao e artefato de um
+dataset. A frase de escopo do Cap. 4 continua sendo a pendencia (aviso ao co-autor primeiro).
+
+---
+
 ## BLOCO 2b — decisoes herdadas do `DECISOES_PENDENTES_ptBR.md` que continuam abertas
 
 > Auditei os 12 itens daquele documento contra o fonte de hoje. **Tres continuam abertos** e estao
@@ -251,9 +330,9 @@ Apendice D novo ja estabelece o padrao de citar script + arquivo de saida para c
 
 ## BLOCO 3 — assinaturas e itens adiados
 
-### 3.1 Os 25 marcadores `[NEEDS SIGN-OFF]`
+### 3.1 Os 27 marcadores `[NEEDS SIGN-OFF]`
 
-Voce pediu a lista. Sao 25 marcadores em 9 arquivos, todos comentarios LaTeX (**nenhum renderiza**,
+Voce pediu a lista. Sao 27 marcadores em 9 arquivos, todos comentarios LaTeX (**nenhum renderiza**,
 entao nao ha sujeira no PDF). O risco nao e visual: e que o **Apendice C afirma** que o autor leu e
 aprovou cada palavra, enquanto o proprio apendice esta marcado como nao aprovado. Voce ja decidiu
 manter o Apendice C como esta, o que torna esta lista o caminho para tornar a afirmacao verdadeira.
