@@ -157,11 +157,35 @@ on it. \\
 \end{tabular}
 \end{table}
 
-Two elements of the published article were deliberately preserved rather than
+Three elements of the published article were deliberately preserved rather than
 corrected. The sentence stating that Nash-MTL ``consistently yielded a better
 overall performance'' is reproduced verbatim; it predates a later finding about the
 optimizer implementation, and the chapter preface carries the of-the-time caution
-instead of an edit. The emphasis convention of the published category table, which
+instead of an edit. A cost claim in the same subsection, that Nash-MTL ``requires only
+two matrix-vector products per iteration'', is also preserved, and it is not supported by
+the method's own paper: the phrase does not appear there, and both implementations we
+examined run an iterative concave-convex procedure whose default is twenty passes, each a
+convex solve, on top of one backward pass per task. The claim therefore understates the
+optimizer's cost. It is named here rather than corrected because the correction would run
+in this dissertation's own favour, and because the clause sits in the same sentence as the
+gradient-scale correction in Table~\ref{tab:apx:cbic-errata}; recording both makes the
+asymmetry visible instead of leaving a reader to wonder why one half of a sentence was
+audited and the other was not.
+% [v2 review F-06, 2026-07-26] Added on persona 10's finding (10_mtl_expert_report.md). The
+% reviewer extracted arXiv:2202.01017 and confirmed "matrix-vector" does not occur in it, while
+% "agnostic to the architecture used" does, so only the cost half is defective. The chapter's own
+% comment at 3_cbic.tex:252-258 had already REPORTED it and left it as the author's call; the
+% reviewer's added point is the ASYMMETRY -- Appendix B corrects the neighbouring clause of the very
+% same sentence, so silence on this half invites the question. Implementation evidence quoted from
+% that comment, itself sourced to tarik-new nash_mtl.py:99,:126-141 and src/losses/nash_mtl/
+% loss.py:105,:158-200 (optim_niter = 20 default, each pass a cvxpy/ECOS solve). No published text
+% is edited; this is a disclosure in dissertation-authored appendix prose, which the errata policy
+% permits without an errata row.
+% [NEEDS SIGN-OFF: AUTHOR. You previously ruled this REPORTED, NOT CORRECTED. I have NOT changed
+% that ruling -- the published sentence stands. What changed is that the appendix now names the
+% preservation instead of staying silent. If you would rather correct the clause outright (it is a
+% factual defect in a published article, and the errata mechanism exists), say so and I will move it
+% into the errata table.] The emphasis convention of the published category table, which
 bolds the better of the joint and single-task models per row and never bolds the HMRM
 baseline, is also preserved exactly; the new caption states the convention so the
 bolding is not misread as ``best per row''.

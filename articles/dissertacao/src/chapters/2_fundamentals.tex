@@ -353,8 +353,17 @@ rescales per-task gradient magnitudes so that tasks train at comparable rates
 \cite{chen2018gradnorm}, and dynamic weight averaging sets the weights from the recent
 rate of change of each loss \cite{liu2019dwa}. Other methods act on the gradient
 directions: PCGrad projects a task's gradient off any conflicting task's gradient
-\cite{yu2020pcgrad}, CAGrad seeks an update close to the average gradient while
-bounding conflict, with convergence guarantees \cite{liu2021cagrad}, Nash-MTL treats
+\cite{yu2020pcgrad}, CAGrad maximizes the worst per-task
+improvement among updates that stay within a ball around the average gradient, with
+convergence guarantees \cite{liu2021cagrad}
+% [v2 review F-08, 2026-07-26] CAGrad description corrected (persona 10, who read arXiv:2110.14048).
+% The prior clause said CAGrad "seeks an update close to the average gradient while bounding
+% conflict". The constraint half was right; the objective half was not. The paper's problem is a
+% MAXIMIN, max_d min_i <g_i, d> subject to ||d - g_0|| <= c||g_0||: it maximizes the worst per-task
+% local improvement inside a ball around the average gradient, rather than bounding conflict. The
+% method's own authors describe it that way. No claim of this dissertation depends on the wording;
+% the correction is to describe a cited system as its own authors describe it (AGENT_GUARDRAILS
+% citation protocol)., Nash-MTL treats
 the combination of task gradients as a bargaining game and takes the Nash solution as
 the joint direction \cite{nash}, and Aligned-MTL aligns the principal
 components of the gradient system and uses its condition number as a stability
