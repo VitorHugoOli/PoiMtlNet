@@ -202,11 +202,20 @@ weighting in our model.
 The reason is visible in the gradients. Measured during development on the same
 joint architecture (on an earlier preparation of the data), the cosine
 similarity between the next-category and next-region updates on the shared
-trunk averages $+0.001$ across training (four seeds each on three of our six
-datasets, per-dataset means within $\pm0.003$). A balancer therefore has no
+trunk averages $+0.001$ across training (four seeds each on four Gowalla
+states: Alabama, Arizona and Florida, which are three of the five United States datasets reported
+here, and Georgia, which this dissertation does not otherwise use, per-dataset means within $\pm0.003$). A balancer therefore has no
 conflict to resolve, consistent with the mechanism test in
 Section~\ref{sec:mobiwac:results-part2}; this is a finding for this pair of tasks, not a
 general rule.
+% [v2 review F-03, 2026-07-26] SCOPE CORRECTION (persona 10). The sentence said "three of our six
+% datasets". The measurement pools FOUR Gowalla states -- alabama, arizona, georgia, florida --
+% per docs/results/mtl_improvement/R0_matched_metric_bar.json (its "states" object has exactly those
+% four keys, each with the four seeds 0/1/7/100) and scripts/.../plot_grad_cosine.py:19-24, whose
+% STATE_STYLE map names the same four. Georgia is NOT one of the six datasets this dissertation
+% reports, so "three of our six" both undercounted the pool and implied every state in it is one we
+% report. Read from the JSON, not recomputed. The correction is in the author's favour: the finding
+% replicates on a state the dissertation never reports.
 
 
 \begin{figure}[htbp]
