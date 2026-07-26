@@ -280,6 +280,13 @@ sem o teto correto e pior do que a declaracao de limite que ja esta la. Vale com
 arguicao ("temos a auditoria na Florida, e o gate esta implementado; estender e trabalho de sonda,
 nao de retreino"). Se quiser rodar mesmo assim, o caminho e reconstruir o teto primeiro.
 
+**Se voce decidir rodar, o ambiente ja esta pronto.** Deixei um ambiente `leakprobe` criado
+(python 3.12 com numpy, pandas, pyarrow, scikit-learn e pytorch), que e tudo que a
+`scripts/embedding_eval/leak_sniff.py` importa. Os seis parquets de entrada estao em
+`output/check2hgi/<estado>/input/next.parquet` na sua maquina. Falta so o teto: a ordem correta e
+(1) reconstruir a referencia de autocorrelacao com a definicao de janela real, (2) so entao rodar a
+sonda nos cinco estados restantes. Rodar na ordem inversa produz numeros sem referencia.
+
 > DECISAO: __________________________________________________
 
 ### 3.5 Higiene do repositorio, herdada (REV-007)
