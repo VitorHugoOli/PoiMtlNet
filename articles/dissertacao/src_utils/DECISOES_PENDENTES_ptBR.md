@@ -22,42 +22,6 @@ o orientador. **DECISAO (com o orientador):** confirmar a opcao 1, ou trocar por
 nova). Se trocar, e so editar o `\titulo` e os dois cabecalhos-catalogo no `0_main.tex`.
 > DECISAO: __________________________________________________
 
-### 1.2 Numeros do dataset do CBIC (Cap. 3)  -- RESOLVIDO nesta rodada (sua decisao)
-
-**Contexto.** A frase do dataset do CBIC ("This subset comprises ... users ... POIs ... check-ins") estava com
-placeholders [VERIFY] nunca preenchidos no paper publicado.
-
-**Sua decisao (registrada no box 1.3 abaixo) e o que auditei:** usar os numeros de record do
-Florida publicados na tabela do CoUrb -- **20.301 usuarios / 65.009 POIs / 990.518 check-ins** --
-porque o artefato `data/output/florida_dgi.zip::filtrado.csv` (que eu tinha usado: 10.460/64.454/
-960.520) e de um **ETL anterior que voce nao usa mais**. **APLIQUEI isso:** o Cap. 3 agora reporta
-20.301/65.009/990.518 e o `[VERIFY]` foi **fechado**.
-
-> Por que concordo (auditoria): (i) o paper CBIC **nunca publicou** essas tres estatisticas (eram
-> placeholders), entao nenhum numero publicado do CBIC e contrariado; (ii) o "vinculo" entre
-> `filtrado.csv` e o CBIC era uma **inferencia** minha a partir do layout do repo, nao um link no
-> codigo do paper -- voce tem o conhecimento de primeira mao de que aquele ETL foi abandonado;
-> (iii) os numeros do CoUrb sao a **fonte rastreavel e atual** para a mesma corpus Gowalla-Florida,
-> e usa-los deixa o Cap. 3 consistente com o mesmo corpus reportado no Cap. 4. Registrado no
-> Apendice B e no topo de `src_utils/cbic_recompute_result.md` (a analise das alternativas fica la).
-> DECISAO: RESOLVIDO -> CoUrb basis (20.301 / 65.009 / 990.518). Aplicado.
-
-### 1.3 Erro de atribuicao do CBIC no Cap. 5 (item B.1)  -- JA CORRIGIDO nesta rodada
-
-**Contexto.** O Cap. 5 (herdado do paper MobiWac) dizia que o trabalho anterior (CBIC) estudou
-"next-category e next-region" e "observou" transferencia negativa -- ambos falsos: o CBIC pareou classificacao estatica
-de categoria com next-category (sem tarefa de regiao) e *hipotetizou* a transferencia negativa sobre um resultado nulo
-de paridade. **Feito nesta rodada (com sua autorizacao para editar o paper).** Corrigi nos DOIS lugares: no Cap. 5 da
-dissertacao E no paper (fonte de referencia) `articles/[mobiwac]/src/`
-(01_introduction.tex, 02_related.tex). Registrado no `articles/[mobiwac]/ERRATA.md`, no Apendice B e no ledger do Cap.
-
-5. O texto de reparo e o da persona 14 (aprovado por voce). Reforca a novidade do paper (e o primeiro a adicionar
-   regiao) e nao altera nenhum resultado. **DECISAO:** confirmar que o texto de reparo esta bom e **enviar essa correcao
-   junto da proxima submissao do MobiWac** (ainda da tempo na revisao). Se quiser reformular alguma frase, o texto esta
-   nos dois arquivos-fonte.
-
-> DECISAO: Use the same numbers as in the courb: Florida 990.518 Check-ins 65.009 POI 20.301 Users, this dgi zip was
-> some older data that I am not using anymore, form a previus etl.
 
 ---
 
@@ -194,7 +158,7 @@ metodo -- eu nao troco teste nem recalculo significancia sem sua ordem.
 
 **(A) A lacuna.** O Cap. 2 (frame) apresenta a **validacao cruzada com usuarios disjuntos**
 (nenhum usuario aparece em treino e teste ao mesmo tempo) como se fosse o protocolo do documento
-inteiro. Mas so o **Cap. 5** de fato usa isso. O **Cap. 4 (CoUrb)** usa um split estratificado
+inteiro. Mas so o **Cap. 5** de fato usa isso. O **Cap. 4 (CoUrb)** usa um split estratificado—
 **por amostra** (o `userid` e descartado antes de dividir, entao janelas de um mesmo usuario podem
 cair em treino e teste) -- um protocolo **mais fraco**, ja declarado honestamente no prefacio do
 Cap. 4. O Cap. 3 (CBIC) usa o protocolo da epoca (5-fold simples).

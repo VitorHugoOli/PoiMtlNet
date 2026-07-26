@@ -1,0 +1,102 @@
+% !TeX root = ../fundamentals.tex
+% Section 2.4 -- Datasets and evaluation
+% Draft 1 (2026-07-21). Obeys WRITING_LAW.md + GLOSSARY.md. Citation/number ledger at the section end.
+
+\section{Datasets and evaluation}
+\label{sec:fund:eval}
+
+A claim about mobility prediction is only as trustworthy as the data it is measured on
+and the protocol that measures it. This section fixes both: the datasets the
+dissertation uses, the metrics and reference points each result is read against, the
+validation protocol that keeps the estimate honest, and the tests that license the
+verbs used to report a comparison.
+
+Two check-in datasets serve as the ground. Gowalla is the dataset of record,
+introduced with the study of periodic and socially driven movement in LBSNs, and this
+work uses five United States states from it \cite{cho2011gowalla}. For a
+non-United-States setting, the Massive-STEPS benchmark supplies Istanbul check-ins and
+argues that the field has leaned too long on decade-old datasets, which is part of the
+reason for evaluating across more than one city \cite{wongso2025massivesteps}. The
+Foursquare check-in dataset from New York and Tokyo is a further widely used benchmark
+\cite{yang2015tsmc}; it is named here for context, as the dissertation evaluates on
+Gowalla and the Istanbul data rather than on it.
+
+The category label distribution is imbalanced. The Food class alone accounts for
+roughly a third of the check-ins in a representative state, so plain accuracy is
+inflated by the majority class and must not be the headline for next category.
+Macro-averaged F1 is the primary category metric instead: it is the unweighted mean of
+the per-class F1 scores, so it reads as average per-class quality with every class
+counting equally, and it does not reward a model that serves only the frequent classes
+\cite{sokolova2009measures}. The training pipeline counters the same imbalance with
+class-weighted cross-entropy. For next region, the primary metric is accuracy at 10
+(Acc@10), the fraction of cases where the true region appears in the model's ten
+highest-ranked predictions; it is a ranking metric and says nothing about the
+probability mass placed on the true region, which is why mean reciprocal rank
+accompanies it where the joint comparison needs a rank-sensitive figure. In the
+reported region results a region never seen in training counts as a miss, so the
+figure is not inflated by unpredictable new regions; Chapter~5 gives the full
+definition. When one model must be scored against its single-task
+references across both tasks at once, the aggregate is the relative multi-task
+performance change, the average per-task percentage by which the joint model leads or
+trails the dedicated single-task models \cite{maninis2019attentive}. It is a relative
+figure against a named baseline, and a positive value is a lead only when each
+per-task change is itself established.
+
+Every metric is read against reference points. The majority-class floor, which always
+predicts the most frequent category, is the level a learned category model must clear.
+A first-order transition model, a mobility Markov chain over the training partition,
+is the corresponding non-learned floor for the sequential targets \cite{gambs2012mmc}.
+The entropy analysis of human movement that reports a potential predictability of about
+93\% sets a bound for predicting the next location at coarse resolution, and it frames
+why mobility is learnable at all \cite{song2010limits}; it is not, however, a ceiling on
+seven-class category macro-F1 or on region ranking, which are different label spaces. The
+operative ceiling for the two tasks studied here is the dedicated single-task model,
+since the question throughout is whether one joint model can match or outperform the
+models built for each task alone.
+
+The validation protocol guards against the most damaging error in this setting, a user
+whose check-ins appear in both training and test. Estimates use stratified k-fold
+cross-validation \cite{kohavi1995crossval}, and the folds are formed so that no user
+spans a split: a grouped, stratified splitter keeps all of a user's check-ins on one
+side of every fold, so that measured accuracy reflects generalization to new users
+rather than memorization of familiar ones \cite{pedregosa2011sklearn}. Comparisons
+are then made across the folds and repetitions with paired tests. The paired Wilcoxon
+signed-rank test compares two models across the paired results without assuming
+normality, and it is the test that licenses the verb ``outperforms''
+\cite{wilcoxon1945}; the Holm step-down procedure controls the family-wise error when
+several datasets are tested at once \cite{holm1979}. A superiority test cannot, by
+itself, support a claim of equivalence, so where the dissertation states that one
+model matches another it uses two one-sided tests to establish statistical
+non-inferiority within a two-point margin \cite{lakens2017tost}. The verbs and the
+tests are bound together throughout the document: ``outperforms'' follows only from a
+paired superiority test, and ``matches'' only from a non-inferiority test within the
+stated margin.
+
+% ---------------------------------------------------------------------------
+% CITATION / NUMBER LEDGER -- 2.4 (numbers quoted, not computed; conventions named)
+%  DATASETS FIX (fact F4): "two ... serve as the ground" = Gowalla + Massive-STEPS/Istanbul (the two USED).
+%                        Foursquare (yang2015tsmc) is named as CONTEXT ONLY, explicitly not evaluated on (was mis-counted as a 3rd "ground").
+%  cho2011gowalla        Gowalla origin, 5 US states used (KDD 2011)
+%  wongso2025massivesteps Massive-STEPS Istanbul benchmark; over-reliance on old datasets [preprint arXiv:2505.11239]
+%  yang2015tsmc          Foursquare NYC/Tokyo (TSMC2014), most-cited (815), covers both cities. CONTEXT ONLY (not used). [new bib]
+%  sokolova2009measures  macro-F1 = mean of per-class F1 (VERIFIED PDF). Primary category metric. [new bib]
+%  maninis2019attentive  Delta_m = avg relative per-task change vs single-task (VERIFIED PDF, Sec.4 + Table 3). Sign convention defined in addendum. [new bib]
+%  gambs2012mmc          mobility Markov chain = non-learned floor (targets next PLACE) [new bib]
+%  song2010limits        93% = next-LOCATION predictability bound (VERIFIED firsthand PDF). FIX (both gates F5): NOT presented
+%                        as a ceiling on category macro-F1 or region Acc@10; the dedicated single-task model is the operative ceiling.
+%  kohavi1995crossval    stratified k-fold CV (VERIFIED by author). [new bib; Zenodo DOI 10.5281/zenodo.19712698 for a resolvable id]
+%  pedregosa2011sklearn  scikit-learn + StratifiedGroupKFold user-disjoint splitter. SINGLE cite (author ruling); splitter behavior stated defensively (v1.0/2021 addition). [new bib]
+%  wilcoxon1945          paired signed-rank test ("outperforms" bound to it) (VERIFIED PDF). [new bib]
+%  holm1979              Holm step-down family-wise correction
+%  lakens2017tost        TOST equivalence within a margin ("matches" bound to it, two-point margin) [new bib]
+%  NUMBERS: 93% (song2010limits, verified, scope-corrected); "roughly a third" Food = a REPRESENTATIVE STATE (Alabama
+%           Next-Category CHECK-IN distribution, Food 34.2% per docs/context/TASKS.md; qualitative, NOT recomputed;
+%           fact F9: addendum provenance pointer to be corrected to the check-in table, not the 32.5% POI-count table);
+%           "10" in Acc@10 (metric definition); "two-point margin" (TOST convention, GLOSSARY).
+%  OOD FORESHADOW (domain F8): region metric foreshadowed as "unseen region counts as a miss"; full OOD-Acc@10 definition in Ch.5.
+%  Acc@10, MRR, majority-class floor: conventions with no origin DOI -- defined defensively, cited conventionally.
+%  pedregosa2011sklearn: StratifiedGroupKFold is a scikit-learn v1.0/2021 feature; single-cite ruling (author) -- 2011 paper for the
+%           library, splitter behavior stated defensively in prose. kohavi1995crossval: claim PLAUSIBLE (Zenodo re-deposit id), author to confirm original IJCAI-95 text.
+%  Delta_m written in prose as "relative multi-task performance change"; formula lives in the metrics addendum, not inline here.
+%  four-of-six + two-point margin (referenced in 2.5): confirm against Ch.5 RESULTS_BOARD.md / PAPER_PLAN §3 at adaptation (fact NOTE 10).
+% ---------------------------------------------------------------------------

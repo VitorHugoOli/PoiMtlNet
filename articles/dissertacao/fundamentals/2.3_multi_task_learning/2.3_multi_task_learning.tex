@@ -1,0 +1,116 @@
+% !TeX root = ../fundamentals.tex
+% Section 2.3 -- Multi-task learning
+% Draft 1 (2026-07-21). Obeys WRITING_LAW.md + GLOSSARY.md. Citation/number ledger at the section end.
+
+\section{Multi-task learning}
+\label{sec:fund:mtl}
+
+Multi-task learning (MTL) trains one model on several related tasks at once, in the
+expectation that a representation shared among them generalizes better than one
+learned for a single task in isolation \cite{caruana1997multitask}. The appeal for
+the present work is direct: predicting the next category and the next region from the
+same check-in history may let each task inform the other. Whether it does is the
+question the dissertation opens with, and the answer turns out to depend on choices
+this section lays out.
+
+Deep MTL is organized around how much the tasks share. The two poles are hard
+parameter sharing, where the tasks use a common trunk and split only at the output
+heads, and soft parameter sharing, where each task keeps its own parameters and the
+tasks are coupled by a weaker constraint \cite{ruder2017mtloverview}. Between the
+poles lie architectures that learn what to share. Cross-stitch units place a learned
+linear combination of two task networks' activations at each layer, letting the model
+decide how much to mix them \cite{misra2016cross}. The multi-gate mixture-of-experts
+shares a pool of expert subnetworks but gives each task its own gate over them, so
+that routing, not a fixed trunk, determines sharing \cite{ma2018mmoe}. Progressive
+layered extraction sharpens this by separating shared experts from task-specific ones
+in layered gates \cite{tang2020ple}, and DSelect-k makes the expert selection itself
+differentiable and sparse \cite{hazimeh2021dselectk}. The principle these architectures
+share, keeping shared and task-specific components side by side rather than forcing one
+common trunk, is the one the joint model of Chapter~5 adopts, though it realizes it with
+cross-attention rather than expert gating.
+
+Sharing is not free. When tasks pull the shared parameters in different directions,
+joint training can leave a task worse off than its single-task model, a failure
+known as negative transfer. Which tasks help each other and which interfere cannot be
+assumed away, and joint training can hurt as easily as it helps depending on the
+pairing \cite{standley2020tasks}. The effect is not incidental: because the tasks can
+conflict, minimizing a weighted sum of their losses is only valid when they do not,
+and multi-task learning is more honestly cast as a multi-objective problem with no
+single optimum \cite{sener2018mgda}.
+
+A family of methods tries to manage the conflict at the level of the gradients or the
+losses. Uncertainty weighting sets each task's loss weight from its homoscedastic
+uncertainty, learned jointly with the model \cite{kendall2018uncertainty}. GradNorm
+rescales per-task gradient magnitudes so that tasks train at comparable rates
+\cite{chen2018gradnorm}, and dynamic weight averaging sets the weights from the recent
+rate of change of each loss \cite{liu2019dwa}. Other methods act on the gradient
+directions: PCGrad projects a task's gradient off any conflicting task's gradient
+\cite{yu2020pcgrad}, CAGrad seeks an update close to the average gradient while
+bounding conflict, with convergence guarantees \cite{liu2021cagrad}, Nash-MTL treats
+the combination of task gradients as a bargaining game and takes the Nash solution as
+the joint direction \cite{navon2022nashmtl}, and Aligned-MTL aligns the principal
+components of the gradient system and uses its condition number as a stability
+criterion \cite{senushkin2023aligned}. FAMO reduces the cost of balancing by tracking
+loss decreases in constant time and space rather than reading every task gradient at
+each step \cite{liu2023famo}. A recurring result tempers the family. Random loss
+weighting is a competitive baseline \cite{lin2022rlw}; a controlled study finds that
+current MTL optimizers often do not outperform a well-tuned fixed-weight baseline
+\cite{xin2022domtl}; and a direct defense of plain loss summation shows that a unitary
+scalarization with standard regularization matches or improves upon the specialized
+optimizers \cite{kurin2022scalarization}. A recent survey and a dense-prediction survey
+both consolidate the architectures and the balancing methods and set out when sharing
+helps \cite{vandenhende2022mtl,yu2024survey}. The dissertation takes the cautious
+position these results support: a fixed-weight baseline is a serious competitor, and a
+balancer earns its place only by outperforming it.
+
+In mobility, MTL has been used almost entirely in the service of next place. MCARNN
+predicts activity and next place together with a context-aware recurrent unit, pairing
+the two in parallel \cite{Liao2018}. A cascade line runs the other way: CSLSL imposes
+a causal chain, time then activity then location, so that the activity or category is
+an intermediate step toward the place \cite{huang2024cslsl}. Across these systems the
+region and the category appear as auxiliary signals or as stages on the path to a
+place; no multi-task model among them predicts the next region as a co-equal end
+target alongside the next category. Single-task work on region prediction exists,
+as Section~\ref{sec:fund:tasks} notes, but the joint setting is open. That absence
+is the opening the dissertation addresses. Its own starting model, MTLnet, applies
+hard parameter sharing on a place-level embedding and does not outperform the dedicated
+single-task models, a result that holds for that configuration and motivates the
+representation argument the next chapters develop \cite{silva2025mtlnet}.
+
+% ---------------------------------------------------------------------------
+% CITATION / NUMBER LEDGER -- 2.3 (verbs bound to tests; no result upgraded)
+%  caruana1997multitask   MTL = inductive transfer via shared representation (defines MTL)
+%  ruder2017mtloverview   hard vs soft parameter sharing (frames design space) [new bib, @misc arXiv:1706.05098]
+%  misra2016cross         cross-stitch soft sharing [ERRATA DOI -> 10.1109/CVPR.2016.433]
+%  ma2018mmoe             MMoE: per-task gates over shared experts (routing)
+%  tang2020ple            PLE/CGC: shared vs task-specific experts (structured sharing) [new bib]
+%  hazimeh2021dselectk    DSelect-k: differentiable sparse expert selection [new bib]
+%  PLE lineage FIX (domain F6): joint model adopts the structured-sharing PRINCIPLE (shared+task-specific),
+%                        realized with cross-attention, NOT a PLE/MoE descendant. Reworded, no "descends from".
+%  standley2020tasks      negative transfer / which tasks to learn together; joint can hurt (VERIFIED arXiv abstract; existing CBIC key).
+%                        FIX (both gates F2): negative transfer DEFINED here, folded onto standley -- Zhang2020 REMOVED
+%                        (Zhang2020 = iMTL next-POI recommender, NOT negative-transfer literature; reserved for mobility use if needed).
+%  sener2018mgda          MTL as multi-objective optimization; weighted sum valid only if no conflict (VERIFIED arXiv abstract; existing CBIC key)
+%  kendall2018uncertainty homoscedastic-uncertainty loss weighting [new bib; DOI 10.1109/CVPR.2018.00781 verified + arXiv:1705.07115]
+%  chen2018gradnorm       GradNorm: gradient-magnitude balancing
+%  liu2019dwa             DWA: loss-rate schedule weights
+%  yu2020pcgrad           PCGrad: gradient projection off conflict
+%  liu2021cagrad          CAGrad: conflict-averse update w/ convergence [new bib]
+%  navon2022nashmtl       Nash-MTL: bargaining-game gradient combination [ERRATA: consolidate nash double-key/slash]
+%  senushkin2023aligned   Aligned-MTL: principal-component alignment, condition number
+%  liu2023famo            FAMO: O(1) loss-decrease balancing
+%  lin2022rlw             RLW: random weighting is competitive [new bib]
+%  xin2022domtl           controlled study: MTL optimizers often do not outperform tuned fixed weights
+%  kurin2022scalarization Kurin et al. NeurIPS 2022 "In Defense of the Unitary Scalarization": plain loss-sum + std
+%                        regularization matches/improves specialized optimizers (VERIFIED firsthand arXiv 2201.04122 abstract
+%                        + NeurIPS 2022 venue). Added per domain F4 (canonical scalarization-skeptic anchor). [new bib]
+%  vandenhende2022mtl     dense-prediction MTL survey (anchor)
+%  yu2024survey           recent comprehensive MTL survey (existing CBIC key)
+%  Liao2018               MCARNN: activity + next place (parallel MTL, mobility)
+%  huang2024cslsl         CSLSL: causal cascade time->activity->location (category intermediate)
+%  silva2025mtlnet        MTLnet null result: hard sharing on place embedding ~ single-task (TIME-INDEXED, "for that configuration")
+%  NUMBERS: none quoted. MTLnet null stated as configuration-specific ("does not outperform ... for that configuration"), no metric upgraded.
+%  HONESTY: banned "beat" REMOVED (domain/fact F7): all four instances -> "outperform"/reworded. Region-as-end-target claim
+%           SCOPED to the multi-task co-equal setting (domain/fact F3): single-task region prediction (zhu2022drrgnn, 2.1) exists.
+%           Null result written plainly and time-indexed; no result verb upgraded.
+% ---------------------------------------------------------------------------

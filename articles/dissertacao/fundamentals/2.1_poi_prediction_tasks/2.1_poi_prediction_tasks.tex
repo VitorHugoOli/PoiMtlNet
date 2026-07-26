@@ -1,0 +1,96 @@
+% !TeX root = ../fundamentals.tex
+% Section 2.1 -- POI-prediction tasks
+% Draft 1 (2026-07-21). Obeys WRITING_LAW.md + GLOSSARY.md. Citation/number ledger at the section end.
+
+\section{Point-of-interest prediction tasks}
+\label{sec:fund:tasks}
+
+Location-based social networks (LBSNs) record where people go. Each record is a
+\emph{check-in}: a user, a point of interest (POI), and a timestamp. These traces
+carry geographic and temporal detail at a resolution earlier mobility data lacked,
+and they have turned the study of cities into a data-driven discipline
+\cite{silva2019urbancomputing}. The behavior they capture is far from random. People
+return to a small set of places on a daily rhythm and travel farther only
+occasionally \cite{cho2011gowalla}, and the regularity has a measurable limit: an
+entropy analysis of movement traces places a potential predictability of about
+93\% on where an individual goes next \cite{song2010limits}. That ceiling is the
+reference point against which any predictive model should be read. A learned model
+that trails it by a wide margin has room to improve; one that approaches it is near
+the limit the data allows.
+
+Deep-learning methods for human mobility address several distinct problems, from
+crowd-flow estimation to next-location prediction \cite{luca2021mobilitysurvey}, so
+the target of a model must be stated precisely before results can be compared. This
+dissertation separates three prediction targets and keeps them apart throughout.
+\emph{Next-place prediction} asks for the exact next POI a user will visit.
+\emph{Next-category prediction} asks only for the semantic class of that next POI,
+one of seven top-level categories (Community, Entertainment, Food, Nightlife,
+Outdoors, Shopping, Travel). \emph{Next-region prediction} asks for the map
+partition the next POI falls in, a census tract in the United States datasets and a
+\emph{mahalle} in Istanbul. A fourth, non-sequential task, \emph{category
+classification}, labels a POI with its semantic category from static features rather
+than from a sequence \cite{Xu2023}. The distinction between these targets is not
+cosmetic. The number of candidate places runs to tens of thousands, whereas there
+are seven categories and, depending on the dataset, from a few hundred to several
+thousand regions, so the tasks differ in difficulty, in the baselines that apply,
+and in what a correct answer means. The work reported here predicts the next
+category and the next region. It does not predict the exact next place; that target
+is named only to hold it apart from the two the dissertation studies.
+
+Most of the field has pursued next place. The sequential framing began with
+recurrent models: ST-RNN augments a recurrent network with time-specific and
+distance-specific transition matrices so that the interval and the displacement
+between visits shape the prediction \cite{liu2016strnn}. DeepMove adds an attention
+mechanism over long and sparse histories, recovering the periodic structure of a
+user's movement \cite{feng2018deepmove}. HST-LSTM folds spatial-temporal transition
+context into a hierarchical recurrent cell \cite{kong2018hstlstm}, and Flashback
+attends back over past hidden states to cope with the gaps that sparse trajectories
+leave \cite{yang2020flashback}. Attention then became the backbone rather than an
+add-on. STAN models spatio-temporal correlations between non-adjacent visits and
+shows that visits far apart in a sequence still carry signal \cite{luo2021stan};
+GeoSAN encodes geography through a hierarchical grid and a self-attention layer
+\cite{lian2020geosan}; and GETNext brings a global trajectory-flow map into a
+transformer so that collaborative signal from many users informs a single
+prediction \cite{yang2022getnext}. This lineage is background for the present work,
+not its target: every model named in this paragraph predicts the exact next place.
+
+Two observations from that line matter downstream. First, a place is not a fixed
+object across visits. CTLE learns context- and time-aware location embeddings in
+which the same POI takes different vectors under different circumstances, the closest
+prior work to a per-visit view of a place \cite{lin2021ctle}. Section~\ref{sec:fund:repr}
+returns to this point, because it is the hinge of the representation argument.
+Second, the region and the category have appeared in next-place systems, but as
+means rather than ends. HMT-GRN predicts place and region in a hierarchy and uses the
+region prediction to constrain a beam search over places, so the region is auxiliary
+to place \cite{Lim2022}. Category-aware recommenders such as CatDM predict a category
+to prune the place candidate set \cite{yu2020catdm}. Both treat the category or the
+region as an intermediate signal on the way to a place. A smaller body of work makes
+one of them the end target directly: activity-region prediction studies the region
+level in its own right \cite{zhu2022drrgnn}, and POI-RGNN predicts the category of the
+next place as its output \cite{capanema2023poirgnn}. The dissertation takes this
+second stance for both targets at once, predicting next category and next region as
+co-equal ends, which is the setting the following sections build the tools for.
+
+% ---------------------------------------------------------------------------
+% CITATION / NUMBER LEDGER -- 2.1 (every claim traceable; verbs bound to tests)
+%  silva2019urbancomputing  LBSN traces at high geo/temporal resolution; urban computing (S2 abstract, opened)
+%  cho2011gowalla           periodic short-range + social long-range movement (Gowalla origin; KDD 2011)
+%  song2010limits           93% potential predictability (VERIFIED firsthand, PDF Science 327:1018). "80%" is
+%                           a low-predictability EXAMPLE, not a population figure -- not quoted.
+%  luca2021mobilitysurvey   DL-for-mobility spans several distinct tasks (survey)
+%  Xu2023                   static category classification (semantic annotation) is non-sequential
+%  liu2016strnn             ST-RNN: time/distance-specific transition matrices (next PLACE)
+%  feng2018deepmove         DeepMove: attentional recurrent over periodic mobility (next PLACE)
+%  kong2018hstlstm          HST-LSTM: hierarchical LSTM w/ ST transitions (next PLACE) [new bib]
+%  yang2020flashback        Flashback: attends past hidden states, sparsity (next PLACE)
+%  luo2021stan              STAN: spatio-temporal attention, non-adjacent visits (next PLACE)
+%  lian2020geosan           GeoSAN: geography-aware self-attention, grid (next PLACE) [new bib]
+%  yang2022getnext          GETNext: global trajectory-flow map + transformer (next PLACE)
+%  lin2021ctle              CTLE: context/time-aware per-visit location embedding (bridge to 2.2)
+%  Lim2022                  HMT-GRN: region auxiliary to place (beam-search constraint)
+%  yu2020catdm              CatDM: category auxiliary (candidate pruning)
+%  zhu2022drrgnn            next-region as an end target (region granularity)
+%  capanema2023poirgnn      POI-RGNN: next category as end target [ERRATA: CBIC cites wrong paper -> this key]
+%  NUMBERS: only 93% (song2010limits), "seven categories", region counts ("a few hundred to several thousand")
+%           -- region counts stated qualitatively here; exact per-dataset counts belong to Ch.5, not Ch.2.
+% ---------------------------------------------------------------------------

@@ -1,0 +1,120 @@
+% !TeX root = ../fundamentals.tex
+% Section 2.2 -- Representations for mobility (the chapter's spine)
+% Draft 1 (2026-07-21). Obeys WRITING_LAW.md + GLOSSARY.md. Citation/number ledger at the section end.
+
+\section{Representations for mobility}
+\label{sec:fund:repr}
+
+How a place is represented determines what a model can learn from it. This section
+follows one line of development, from symbolic identifiers to the check-in-level
+representation this dissertation adopts, because the central argument of the work is
+that the representation, more than the architecture, decides whether multi-task
+learning helps.
+
+The starting point is the one-hot identifier, a sparse vector that marks a place or a
+category by position and encodes no relationship between them. Distributed
+representations replace it. The skip-gram model learns dense vectors in which
+proximity reflects co-occurrence, so that related symbols sit close together in a
+continuous space \cite{mikolov2013word2vec}. Carrying that idea to graphs, DeepWalk
+samples random walks and treats them as sentences, learning node embeddings from
+local neighborhoods \cite{perozzi2014deepwalk}, and node2vec generalizes the walk so
+that a single objective can favor either homophily or structural role
+\cite{grover2016node2vec}. Graph neural networks then made the aggregation explicit.
+The graph convolutional network combines a node's features with those of its
+neighbors through a localized spectral rule \cite{kipf2017gcn}; graph attention
+networks weight each neighbor by learned attention rather than by fixed degree
+\cite{velivckovic2017graph}; and GraphSAGE learns aggregator functions that
+generalize to nodes unseen during training, making the embedding inductive
+\cite{hamilton2017graphsage}.
+
+These methods still need a training signal. For places, labels are scarce, so the
+representation is learned without them, by an information objective. Mutual
+information between two high-dimensional variables can be estimated and maximized by
+gradient descent \cite{belghazi2018mine}, and Deep InfoMax turns this into a
+representation learner by maximizing the mutual information between a local feature
+and a global summary of the input \cite{hjelm2019dim}. Deep Graph Infomax (DGI)
+applies the principle to graphs: it learns node representations, unsupervised, by
+maximizing the mutual information between local patch representations and a global
+graph summary \cite{velickovic2019deep}. In this project DGI produces the place
+embeddings used as input to the first models. Hierarchical Graph Infomax (HGI) builds
+directly on it. HGI extends the infomax objective across a hierarchy and is trained by
+maximizing the mutual information among the POI, region, and city levels, yielding
+region-aware place embeddings \cite{huang2023hgi}. HGI is the place-level baseline
+representation the later chapters measure against, and it is the direct base of the
+representation the dissertation contributes.
+
+A place embedding, however it is trained, shares one property: it assigns each place a
+single fixed vector. That vector is the same whether the place is visited on a weekday
+morning or a Saturday night, by a commuter or a tourist. Yet a place serves different
+functions in different contexts, and a representation that cannot express this cannot
+distinguish two visits to the same place that mean different things. CTLE makes the
+point concrete by learning location embeddings that are context- and time-aware, so
+that the vector for a place depends on the visit \cite{lin2021ctle}. This is the
+limitation the rest of the dissertation responds to: a per-place vector is static
+across visits, and moving below the place level, to the check-in itself, is the way
+to make the representation reflect the visit.
+
+Before that step, several general encoders supply the context a static place vector
+omits. They are worth naming at their own origin, because they were developed outside
+mobility and are imported as components. Time2Vec is a model-agnostic encoding of
+time that combines a linear term with periodic terms, so that hour-of-day and
+day-of-week enter a model as continuous features \cite{kazemi2019time2vec}. SIREN
+shows that networks with sinusoidal activations represent continuous signals and their
+derivatives well, which is the general basis for periodic coordinate encoders
+\cite{sitzmann2020implicit}. Space2Vec encodes absolute position and spatial context
+at multiple scales \cite{mai2020multiscalerepresentationlearningspatial}, and
+Sphere2Vec encodes points on a sphere so that the encoding respects spherical
+geometry rather than a flat approximation
+\cite{mai2023sphere2vecgeneralpurposelocationrepresentation}. A related encoder uses
+spherical harmonics together with sinusoidal representation networks, again to honor
+the spherical domain that flat sine-and-cosine features distort
+\cite{rußwurm2024geographiclocationencodingspherical}. Feature-wise linear modulation
+(FiLM) is a general conditioning mechanism that scales and shifts a layer's features
+according to a side input \cite{perez2018film}. In the models of Chapters~3 and~4 it
+conditions the shared network on a per-task identity, so that one trunk can serve both
+tasks. The context these encoders carry enters the model separately, and how it enters
+is the turning point of this dissertation. Chapter~3 feeds a single place-level
+embedding and adds only the per-task conditioning. Chapter~4 keeps that model but
+decomposes the input, replacing the single embedding with separate spatial, temporal,
+and categorical components combined at the input, and it is this change to the
+representation, rather than any change to the architecture, that moves the results.
+
+The check-in-level representation, Check2HGI, completes the line. It extends the
+graph-infomax hierarchy with a fourth level below the place, the check-in, and is
+trained without task labels in the same infomax spirit, so that each visit, rather
+than each place, carries its own vector. Where a place embedding answers ``what is
+this place,'' a check-in-level representation answers ``what is this visit,'' and
+Chapter~5 develops this representation and the joint model built on it.
+Table~\ref{tab:fund:lineage} traces the full progression, from DGI through HGI to the
+check-in level and the joint model that uses it.
+
+% ---------------------------------------------------------------------------
+% CITATION / NUMBER LEDGER -- 2.2 (the spine; DGI -> HGI -> check-in level explicit)
+%  mikolov2013word2vec   skip-gram distributed embeddings (one-hot -> dense) [new bib; ERRATA: CBIC church2017word2vec -> this]
+%  perozzi2014deepwalk   DeepWalk: skip-gram on graph random walks [new bib]
+%  grover2016node2vec    node2vec: biased-walk neighborhood objective
+%  kipf2017gcn           GCN: localized spectral neighbor aggregation [new bib]
+%  velivckovic2017graph  GAT: learned attention over neighbors [ERRATA: cite ICLR 2018 version]
+%  hamilton2017graphsage GraphSAGE: inductive aggregators [new bib]
+%  belghazi2018mine      MINE: MI estimable/maximizable by gradient descent [new bib]
+%  hjelm2019dim          Deep InfoMax: local-global MI representation [new bib]
+%  velickovic2019deep    DGI: node reps by local-patch/global-summary MI (base of lineage) [ERRATA: consolidate DGI triple-key]
+%  feng2017poi2vec       POI2Vec: geographical influence in POI embedding (early mobility place-embedding)
+%  huang2023hgi          HGI: MI across POI-region-city hierarchy (VERIFIED firsthand, PDF). Direct base.
+%  kazemi2019time2vec    Time2Vec: linear+periodic time encoding (general, cited at origin) [new bib]
+%  sitzmann2020implicit  SIREN: sinusoidal implicit neural reps (general)
+%  mai2020...spatial     Space2Vec: multi-scale position encoder (general)
+%  mai2023sphere2vec...  Sphere2Vec: spherical location encoder (general)
+%  rußwurm2024...spherical spherical harmonics + SIREN location encoder (general; already in CoUrb bib -- existing key)
+%  perez2018film         FiLM: feature-wise linear modulation. FIX (domain F3): in Ch.3/4 FiLM conditions on
+%                        TASK IDENTITY (per-task gamma/beta); context enters by concatenation, NOT via FiLM.
+%  lin2021ctle           CTLE: context/time-aware per-visit embedding = the static->contextual hinge
+%  ENCODER ATTRIBUTION (domain F1 BLOCKER, FIXED): MTLnet (Ch.3) uses ONLY the place embedding + per-task FiLM;
+%                        the decomposed spatial/temporal/categorical encoders are CoUrb's (Ch.4) contribution.
+%                        Space2Vec (mai2020...) is named as background but adopted in NEITHER chapter.
+%  Check2HGI / check-in-level representation: the MobiWac work (submitted, under review). NO bib cite here --
+%                        silva2025mtlnet is the CBIC/MTLnet paper, NOT Check2HGI (fact-gate F1 BLOCKER, FIXED).
+%                        Deferred to \ref{ch:mobiwac} + the lineage table, as the lineage table already does.
+%  NUMBERS: none quoted in 2.2 (no dataset statistics). "fourth level", "seven"/counts not used here.
+%  CROSS-REF: Table~\ref{tab:fund:lineage} = the model-lineage table.
+% ---------------------------------------------------------------------------

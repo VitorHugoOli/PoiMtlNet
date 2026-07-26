@@ -612,7 +612,8 @@ deviations and post-hoc tests explicitly.
 
 **Author response**
 
->
+> So with the takes of the claude science we already solve good part, about what is missing: let's add the manifest and
+> versioned it, and fix the docstrings.
 
 **Claude take (2026-07-24) — CONFIRMED, with one defect worse than the reviewer states and one path correction.**
 
@@ -655,99 +656,97 @@ whether to label region superiority post-hoc-confirmed.
 
 > _Record the manifest, command, checksums/commit, and corrected wording here._
 
-**Audit + remedy pass (2026-07-25, author-approved). RESOLVED in the source; two items remain open.**
+**[CLAUDE SCIENCE]Audit + remedy pass (2026-07-25, author-approved). RESOLVED in the source; two items remain open.**
 
-Independent re-derivation of every claim in this entry against the committed tree, plus the paper and
-Chapter 5 edits it called for. Full report: `articles/[mobiwac]/science/AUDIT_statistical_protocol.md`
+Independent re-derivation of every claim in this entry against the committed tree, plus the paper and Chapter 5 edits it
+called for. Full report: `articles/[mobiwac]/science/AUDIT_statistical_protocol.md`
 (English, with the 19-claim reconciliation table) and its pt-BR summary
 `RELATORIO_protocolo_estatistico_ptbr.md`.
 
-**What the audit confirmed.** Items (i), (ii) and (iii) of the Claude take above all hold. The protocol
-registers next-region as **non-inferiority only** (`STATISTICAL_PROTOCOL.md` §1 family table, §5.2 family
-enumeration), and the original 2026-06-21 text (`git show c96c67e3:...`) is identical on both points, so
-this is not a later deletion. The `RESULTS.md:20` forward reference to "protocol §8's powered-t deviation"
+**What the audit confirmed.** Items (i), (ii) and (iii) of the Claude take above all hold. The protocol registers
+next-region as **non-inferiority only** (`STATISTICAL_PROTOCOL.md` §1 family table, §5.2 family enumeration), and the
+original 2026-06-21 text (`git show c96c67e3:...`) is identical on both points, so this is not a later deletion. The
+`RESULTS.md:20` forward reference to "protocol §8's powered-t deviation"
 is dangling: §8 carries only the 2026-07-18 joint-best switch, and the location §8 itself mandates
 (`docs/studies/closing_data/log.md`) never received the entry.
 
 **Three findings this entry did not have.**
 
 1. **A fourth defect, more serious than (i) to (iv): the released bundle did not contain the record.**
-   The paper's footnote 1 points at `github.com/VitorHugoOli/PoiMtlNet/tree/mobiwac`. That branch shipped
-   **zero files under `docs/`** — no protocol, no deviation log, no `joint_best/`. So "released with the
-   code" was false as written, and the deviation was unreachable for any reviewer. Worse, the branch's
-   `README.md` §6 announced the bundled `superiority_wilcoxon.py` as implementing "the pre-registered
-   tests" including "region superiority (FL/CA/TX)", repeating the unregistered claim in the one artifact
-   the reader could actually reach. **Fixed:** the protocol, the deviation log, the joint-best record and
-   the new generator are now on the `mobiwac` branch, and the `README.md` line is corrected.
+   The paper's footnote 1 points at `github.com/VitorHugoOli/PoiMtlNet/tree/mobiwac`. That branch shipped **zero files
+   under `docs/`** — no protocol, no deviation log, no `joint_best/`. So "released with the code" was false as written,
+   and the deviation was unreachable for any reviewer. Worse, the branch's
+   `README.md` §6 announced the bundled `superiority_wilcoxon.py` as implementing "the pre-registered tests" including
+   "region superiority (FL/CA/TX)", repeating the unregistered claim in the one artifact the reader could actually
+   reach. **Fixed:** the protocol, the deviation log, the joint-best record and the new generator are now on the
+   `mobiwac` branch, and the `README.md` line is corrected.
 
 2. **Hard evidence that region superiority is post-hoc, stronger than the argument from silence.**
    `scripts/closing_data/superiority_wilcoxon.py`, which names FL/CA/TX as "the beats", was first committed
-   `1e3449e6` on **2026-06-25**. The FL and CA dedicated region ceilings landed **2026-06-22** and TX
-   **2026-06-24**. The dataset selection was therefore made after those cells were readable. The same
-   unregistered assertion also appears in `m1_stats_n20.py:333` (reaching the committed output at
-   `m1_full_output.txt:83,91`) and in `stats_n20/RESULTS.md` §1b, which treats the script as the
-   registration authority.
+   `1e3449e6` on **2026-06-25**. The FL and CA dedicated region ceilings landed **2026-06-22** and TX **2026-06-24**.
+   The dataset selection was therefore made after those cells were readable. The same unregistered assertion also
+   appears in `m1_stats_n20.py:333` (reaching the committed output at
+   `m1_full_output.txt:83,91`) and in `stats_n20/RESULTS.md` §1b, which treats the script as the registration authority.
 
-3. **The reason recorded for the deviation is the power floor, not conservatism.** `RESULTS.md` entry #2
-   records that at n=4 the exact one-sided Wilcoxon cannot fall below 0.0625 for any effect size. The
-   pseudo-replication argument (five folds are one fixed partition shared across seeds) is a defensible
-   post-hoc justification and is worth making in a response letter, but it is not what the artifact
-   records, and the chapters do not attribute it to the plan.
+3. **The reason recorded for the deviation is the power floor, not conservatism.** `RESULTS.md` entry #2 records that at
+   n=4 the exact one-sided Wilcoxon cannot fall below 0.0625 for any effect size. The pseudo-replication argument (five
+   folds are one fixed partition shared across seeds) is a defensible post-hoc justification and is worth making in a
+   response letter, but it is not what the artifact records, and the chapters do not attribute it to the plan.
 
-**REV-007's premise is now obsolete: the pre-registered test has been run, at full n=20, on all six
-datasets.** The blocker was Istanbul's dedicated category ceiling, committed only as four per-seed scalars
-(`h3_istanbul/step3_runs/cat_ceil_s*.txt`) with the per-fold arrays in gitignored A40 rundirs
-(`RESULTS.md` LIMITS #2). Those four sidecars were **recovered from the A40 on 2026-07-25**; their per-seed
-means reproduce the committed scalars exactly (54.7063 / 54.8632 / 54.7705 / 54.6101, tags
+**REV-007's premise is now obsolete: the pre-registered test has been run, at full n=20, on all six datasets.** The
+blocker was Istanbul's dedicated category ceiling, committed only as four per-seed scalars
+(`h3_istanbul/step3_runs/cat_ceil_s*.txt`) with the per-fold arrays in gitignored A40 rundirs (`RESULTS.md` LIMITS #2).
+Those four sidecars were **recovered from the A40 on 2026-07-25**; their per-seed means reproduce the committed scalars
+exactly (54.7063 / 54.8632 / 54.7705 / 54.6101, tags
 `h3ist_cat_s{0,1,7,100}`), so no retraining was needed. They are committed at
 `h3_istanbul/step3_runs/cat_ceiling_perfold/`, and **LIMITS #2 is closed.**
 
-The registered test, at its registered footing (per-fold n=20 paired one-sided Wilcoxon, protocol §2; Holm
-m=6 within the six-dataset next-category set, protocol §5.2), on the joint-best arrays:
+The registered test, at its registered footing (per-fold n=20 paired one-sided Wilcoxon, protocol §2; Holm m=6 within
+the six-dataset next-category set, protocol §5.2), on the joint-best arrays:
 
-| Dataset | Δcat (pp) | folds positive | exact one-sided p | Holm-adj (m=6) |
-|---|---:|---|---:|---:|
-| AL | +7.690 | 20/20 | 9.54e-07 | 5.72e-06 |
-| AZ | +9.350 | 20/20 | 9.54e-07 | 5.72e-06 |
-| FL | +5.332 | 20/20 | 9.54e-07 | 5.72e-06 |
-| CA | +6.442 | 20/20 | 9.54e-07 | 5.72e-06 |
-| TX | +7.446 | 20/20 | 9.54e-07 | 5.72e-06 |
-| Istanbul | +8.584 | 20/20 | 9.54e-07 | 5.72e-06 |
+| Dataset  | Δcat (pp) | folds positive | exact one-sided p | Holm-adj (m=6) |
+|----------|----------:|----------------|------------------:|---------------:|
+| AL       |    +7.690 | 20/20          |          9.54e-07 |       5.72e-06 |
+| AZ       |    +9.350 | 20/20          |          9.54e-07 |       5.72e-06 |
+| FL       |    +5.332 | 20/20          |          9.54e-07 |       5.72e-06 |
+| CA       |    +6.442 | 20/20          |          9.54e-07 |       5.72e-06 |
+| TX       |    +7.446 | 20/20          |          9.54e-07 |       5.72e-06 |
+| Istanbul |    +8.584 | 20/20          |          9.54e-07 |       5.72e-06 |
 
-All six reject at α = 0.05; 9.54e-07 is the exact n=20 floor (1/2^20) and every cell sits at it. The four
-next-region superiority cells reject in their own m=4 family (Holm-adjusted 3.81e-06 each, 20/20 folds).
-**No verdict changed, and no reported estimate or interval changed.** Generator, with a 24/24
-artifact-to-board reproduction gate: `stats_n20/m2_prereg_perfold.py`; output `m2_prereg_output.txt`.
+All six reject at α = 0.05; 9.54e-07 is the exact n=20 floor (1/2^20) and every cell sits at it. The four next-region
+superiority cells reject in their own m=4 family (Holm-adjusted 3.81e-06 each, 20/20 folds). **No verdict changed, and
+no reported estimate or interval changed.** Generator, with a 24/24 artifact-to-board reproduction gate:
+`stats_n20/m2_prereg_perfold.py`; output `m2_prereg_output.txt`.
 
 **Answers to the three "needs from you" items.**
 
 1. **Ch.2 reconciled to Ch.5 (done).** `2_fundamentals.tex` no longer says the Wilcoxon alone licenses
-   "outperforms". It now states that the exact one-sided p has a floor set by the number of pairs, that a
-   superiority claim on four repetitions is reported with a paired t on the per-repetition means with the
-   Wilcoxon alongside it on the individual folds, and that either test licenses the verb.
-2. **Deviation clause added to Ch.5 (done).** §5.3's analysis-plan sentence now says what the plan actually
-   fixed (per task, not per dataset), discloses the Wilcoxon-to-t departure with the 0.0625 reason in one
-   clause, and states that the registered test is reported alongside.
+   "outperforms". It now states that the exact one-sided p has a floor set by the number of pairs, that a superiority
+   claim on four repetitions is reported with a paired t on the per-repetition means with the Wilcoxon alongside it on
+   the individual folds, and that either test licenses the verb.
+2. **Deviation clause added to Ch.5 (done).** §5.3's analysis-plan sentence now says what the plan actually fixed (per
+   task, not per dataset), discloses the Wilcoxon-to-t departure with the 0.0625 reason in one clause, and states that
+   the registered test is reported alongside.
 3. **Region superiority labeled (done).** Ch.5 calls the four next-region gains "secondary results outside"
-   the plan, and the Holm sentence now names both families explicitly instead of "across the comparisons",
-   which had implied a coverage the analysis did not have.
+   the plan, and the Holm sentence now names both families explicitly instead of "across the comparisons", which had
+   implied a coverage the analysis did not have.
 
-**Proportionality.** The audit agrees with the Claude take that "one immutable manifest, regenerate
-everything" is heavier than the defect: the parity gates already prove artifact-to-table fidelity (18/18,
-90/90, 6/6) and `m2_prereg_perfold.py` adds 24/24 on the joint-best arrays. A one-page `ANALYSIS_MANIFEST.md`
+**Proportionality.** The audit agrees with the Claude take that "one immutable manifest, regenerate everything" is
+heavier than the defect: the parity gates already prove artifact-to-table fidelity (18/18, 90/90, 6/6) and
+`m2_prereg_perfold.py` adds 24/24 on the joint-best arrays. A one-page `ANALYSIS_MANIFEST.md`
 naming inputs, tests, families and deviations still satisfies the substance and is the remaining work item.
 
 **Still open (2 items).**
 
-- **No single manifest, and one generator is missing from the tree.** The §8 entry of 2026-07-18 prints the
-  exact CIs the chapters carry, and all of them reproduce from the committed arrays, so the values are
-  sound. But no committed script emits that entry: `m1_stats_n20.py` reads the diag-best sources and
-  `score_joint_best.py` only scores cells. The generator of the joint-best statistics run is not in the
-  tree. `m2_prereg_perfold.py` now covers the registered per-fold family; the seed-level joint-best
-  generator and the one-page manifest are what remain.
-- **Docstring corrections.** `superiority_wilcoxon.py` and `m1_stats_n20.py` still assert a registration
-  the protocol does not contain, and `stats_n20/RESULTS.md` §1b repeats it. These are repository hygiene,
-  claim-neutral, and were left for a separate pass rather than edited inside a results record.
+- **No single manifest, and one generator is missing from the tree.** The §8 entry of 2026-07-18 prints the exact CIs
+  the chapters carry, and all of them reproduce from the committed arrays, so the values are sound. But no committed
+  script emits that entry: `m1_stats_n20.py` reads the diag-best sources and
+  `score_joint_best.py` only scores cells. The generator of the joint-best statistics run is not in the tree.
+  `m2_prereg_perfold.py` now covers the registered per-fold family; the seed-level joint-best generator and the one-page
+  manifest are what remain.
+- **Docstring corrections.** `superiority_wilcoxon.py` and `m1_stats_n20.py` still assert a registration the protocol
+  does not contain, and `stats_n20/RESULTS.md` §1b repeats it. These are repository hygiene, claim-neutral, and were
+  left for a separate pass rather than edited inside a results record.
 
 ### REV-008 — A4 audit is narrower than the “no usable information” claim 🔧
 
@@ -1162,63 +1161,57 @@ binds the §3.4 concession once run. Only prominence is your call.
 
 **Resolution notes**
 
-**Claude take, round 2 (2026-07-24) — the two mechanical halves are CLOSED; one claim is now
-*more* overstated than when the reviewer wrote this, and the completed run refutes a sentence the
-chapter currently prints.**
+**Claude take, round 2 (2026-07-24) — the two mechanical halves are CLOSED; one claim is now *more* overstated than when
+the reviewer wrote this, and the completed run refutes a sentence the chapter currently prints.**
 
-*What changed.* The California sweep finished on the A40 (job `4cff4b00`, exit 0, 8/8 cells). All
-raw results — California **and** the previously-uncommitted Alabama set recovered from the A40 work
-directories — are now committed at
-`docs/results/closing_data/capacity_matched_stl_cat/` (23 files, commit `58232dd2`), with a README
-carrying the protocol, the parameter audit, the reference points, and the scope. **No text was
-changed** in that commit.
+*What changed.* The California sweep finished on the A40 (job `4cff4b00`, exit 0, 8/8 cells). All raw results —
+California **and** the previously-uncommitted Alabama set recovered from the A40 work directories — are now committed at
+`docs/results/closing_data/capacity_matched_stl_cat/` (23 files, commit `58232dd2`), with a README carrying the
+protocol, the parameter audit, the reference points, and the scope. **No text was changed** in that commit.
 
-| Dataset | matched width | best arm | n | value | own narrow optimum | joint (diag-best) |
-|---|---|---|---|---|---|---|
-| Alabama | h=672 (~4.21M vs joint 4.20M) | bs2048 @ 0.0025 | 20 | **56.16 ±1.89** | 56.82 ±0.03 | 64.54 |
-| California | h=752 (~5.25M vs joint 5.15M) | bs8192 @ 0.0025 | 20 | **69.88 ±0.26** | 70.60 ±0.07 | 77.05 |
+| Dataset    | matched width                 | best arm        | n  | value           | own narrow optimum | joint (diag-best) |
+|------------|-------------------------------|-----------------|----|-----------------|--------------------|-------------------|
+| Alabama    | h=672 (~4.21M vs joint 4.20M) | bs2048 @ 0.0025 | 20 | **56.16 ±1.89** | 56.82 ±0.03        | 64.54             |
+| California | h=752 (~5.25M vs joint 5.15M) | bs8192 @ 0.0025 | 20 | **69.88 ±0.26** | 70.60 ±0.07        | 77.05             |
 
-*Sub-claims 1 and 2 (incompleteness, uncommitted artifact) — CLOSED.* Both datasets are at n=20
-per arm; the fact-gate failure (NEW-1) is resolved by committed raw JSONs plus a summary
-recomputed from those committed copies, not from session memory.
+*Sub-claims 1 and 2 (incompleteness, uncommitted artifact) — CLOSED.* Both datasets are at n=20 per arm; the fact-gate
+failure (NEW-1) is resolved by committed raw JSONs plus a summary recomputed from those committed copies, not from
+session memory.
 
-*Sub-claim 3 (convention mismatch) — still the author's, unchanged.* The record now states both
-bases explicitly and the README repeats the N5 prohibition: the verdict is identical at 64.51 and
-64.54, but the two must never be mixed inside one comparison.
+*Sub-claim 3 (convention mismatch) — still the author's, unchanged.* The record now states both bases explicitly and the
+README repeats the N5 prohibition: the verdict is identical at 64.51 and 64.54, but the two must never be mixed inside
+one comparison.
 
-**The new finding: the completed run refutes the chapter's California sentence.** `:86` currently
-reads "A partial California run, fifteen of twenty repetitions at the time of writing, shows the
-same direction." That was written from the *first arm only* (bs8192@0.005, seeds {0,1,7} = 68.35),
-and I characterized it in the experiment record as "the same direction, **larger magnitude**". The
-second arm refutes the magnitude half: California's best arm is 69.88, a shortfall of **−0.72**
-against its own ceiling, essentially identical to Alabama's **−0.66**. The direction never changed;
-the size claim did. The sentence must be replaced by the completed figure, and the interim
-"larger magnitude" phrasing must not survive anywhere. I have recorded the correction in the
-committed README rather than silently dropping it (`AGENT_GUARDRAILS` §7, silent correction).
+**The new finding: the completed run refutes the chapter's California sentence.** `:86` currently reads "A partial
+California run, fifteen of twenty repetitions at the time of writing, shows the same direction." That was written from
+the *first arm only* (bs8192@0.005, seeds {0,1,7} = 68.35), and I characterized it in the experiment record as "the same
+direction, **larger magnitude**". The second arm refutes the magnitude half: California's best arm is 69.88, a shortfall
+of **−0.72**
+against its own ceiling, essentially identical to Alabama's **−0.66**. The direction never changed; the size claim did.
+The sentence must be replaced by the completed figure, and the interim
+"larger magnitude" phrasing must not survive anywhere. I have recorded the correction in the committed README rather
+than silently dropping it (`AGENT_GUARDRAILS` §7, silent correction).
 
-**On the overstatement, sharpened.** I stand by the round-1 reading that `:86` ("yields nothing
-**here**") is adequately scoped and `:132` ("the capacity-matched baseline above **closes** the
-parameter-count explanation") is not — and the completed run does **not** license upgrading it.
-Two datasets instead of one-and-a-half is still two of six, category only, one width point each,
-width scaling rather than depth. The defensible form is the source's own: it closes the *cheap*
+**On the overstatement, sharpened.** I stand by the round-1 reading that `:86` ("yields nothing **here**") is adequately
+scoped and `:132` ("the capacity-matched baseline above **closes** the parameter-count explanation") is not — and the
+completed run does **not** license upgrading it. Two datasets instead of one-and-a-half is still two of six, category
+only, one width point each, width scaling rather than depth. The defensible form is the source's own: it closes the
+*cheap*
 parameter-count explanation *in the tested setting*. Recommended edit at `:132`, verdict-neutral:
-"…and the capacity-matched baseline above rules out a simple parameter-count explanation for the
-category task at the two datasets tested, but the homogeneity of the final pair remains…".
+"…and the capacity-matched baseline above rules out a simple parameter-count explanation for the category task at the
+two datasets tested, but the homogeneity of the final pair remains…".
 
-**One point in the experiment's favour that the chapter does not currently claim, and could.** At
-*both* datasets the widened arm's optimum sits at a **lower learning rate** than the narrow
-ceiling's winning recipe (0.0025 vs 0.005 at each). So the sweep did not merely re-run the ceiling
-recipe at a larger width and let it underperform for want of tuning: it found the wide model's own
-better setting, and the verdict holds *there*. That is a real strengthening of the fairness
-argument and it is now in the README. It does **not** erase the asymmetry the source flagged (the
-ceiling was tuned best-vs-best over a wider grid than these 3-recipe/2-recipe sweeps), which must
-still travel with the number.
+**One point in the experiment's favour that the chapter does not currently claim, and could.** At *both* datasets the
+widened arm's optimum sits at a **lower learning rate** than the narrow ceiling's winning recipe (0.0025 vs 0.005 at
+each). So the sweep did not merely re-run the ceiling recipe at a larger width and let it underperform for want of
+tuning: it found the wide model's own better setting, and the verdict holds *there*. That is a real strengthening of the
+fairness argument and it is now in the README. It does **not** erase the asymmetry the source flagged (the ceiling was
+tuned best-vs-best over a wider grid than these 3-recipe/2-recipe sweeps), which must still travel with the number.
 
-**Needs from you (revised).** (a) Replace the partial-California sentence at `:86` with the
-completed figure — this is now a factual correction, not a refresh. (b) Scope `:132` as above.
-(c) Confirm 64.51 vs 64.54 (already queued at `:79-84`). (d) Optional: adopt the lower-learning-rate
-fairness point. Prominence of the paragraph remains your call; suppression is not on the table
-(`capacity_baseline_experiment.md:47-54`). Sources for every number above:
+**Needs from you (revised).** (a) Replace the partial-California sentence at `:86` with the completed figure — this is
+now a factual correction, not a refresh. (b) Scope `:132` as above. (c) Confirm 64.51 vs 64.54 (already queued at
+`:79-84`). (d) Optional: adopt the lower-learning-rate fairness point. Prominence of the paragraph remains your call;
+suppression is not on the table (`capacity_baseline_experiment.md:47-54`). Sources for every number above:
 `docs/results/closing_data/capacity_matched_stl_cat/README.md` and
 `capacity_matched_summary.json`.
 
@@ -1251,7 +1244,10 @@ resulting uncertainty limitation.
 
 **Author response**
 
-> 
+> I am lean to stay as it is in the text, and create in the appendix an errata acknowledging that this is not the
+> perfect
+> world, and explain the problem. But the number of execution give us a security over the results. what do you think?
+>
 
 **Claude take (2026-07-24) — CONFIRMED. Six sentence edits, all in chapters you own outright, zero effect on any
 number.**
@@ -1374,14 +1370,7 @@ Synchronize or deprecate stale governance files after author confirmation.
 
 **Author response**
 
-> **Repository answer (24 July 2026):** Yes. The ruling in
-> `src_utils/cbic_recompute_result.md` and `DECISOES_PENDENTES_ptBR.md` is final:
-> Chapters 3/4 use the CoUrb figures of record (Florida 990,518 check-ins, 20,301
-> users, 65,009 POIs); the older `filtrado.csv` is a prior ETL product, not the source
-> of record. Chapter 5 uses a distinct public CC0 Figshare Gowalla dump and ETL
-> (1,407,034 check-ins, 21,052 users, 76,544 POIs in Florida; measured 2009-01-21 to
-> 2011-08-16). The issue is now explanatory/documentation debt, not an unresolved
-> author choice.
+> I agree with the claude take, and let's add a phrase explaining in the appendix B.
 
 **Claude take (2026-07-24) — the *decision* is already made and applied; what remains is documentation debt plus one
 inaccurate sentence.**
@@ -1450,10 +1439,7 @@ this evaluation.”
 
 **Author response**
 
-> **Repository answer (24 July 2026):** No historical inferential output was found for
-> Chapters 3 or 4. The source packages contain means and fold standard deviations but
-> no p-values, paired-test output, multiplicity plan, or fold-level inferential manifest.
-> The current “significantly” language is therefore unsupported by the committed record.
+> I agree with the claude take and let's make the changes in the ch. 3 and add this changes in the appendix errata.
 
 **Claude take (2026-07-24) — CONFIRMED for Chapter 3; REFUTED as literally stated for Chapter 4. The fix mechanism
 already exists.**
@@ -1519,13 +1505,10 @@ commentary rather than silently changing claims.
 
 **Author response**
 
-> **Repository answer (24 July 2026):** The adopted repository policy is to correct
-> sanctioned errata in the re-typeset chapters and global bibliography, list every
-> content departure once in Appendix B/per-article `ERRATA.md`, and leave the published
-> records untouched (`NORTH_STAR.md` §5.7; `AGENT_GUARDRAILS.md`). This permits a
-> professional language correction only when it is fully ledgered and approved; it does
-> not permit untracked normalization or silent claim changes. Advisor confirmation of
-> this adopted policy is still pending.
+> I agree with in most part of the claude take, but in my opinion we should be carreful and just change the phrases and
+> construction that really hurt the construction, or create inconsistance. We already doing many change in the text and
+> I don't know how this can be seend for the review, maybe with bad eyes, so let's be more creterius and to focus on
+> what is the main parts.
 
 **Claude take (2026-07-24) — the finding is real; the scope needs your ruling, and the mechanism already exists.**
 
@@ -1579,11 +1562,8 @@ limitation, and contribution. Verify the UFV/PPGCC word/page rule.
 
 **Author response**
 
-> **Repository answer (24 July 2026):** No approval was found. The current UFV
-> compliance record specifies the final system-field format (one text block, no header)
-> but records no hard word/page limit. The Resumo/Abstract pair remains marked
-> `[NEEDS SIGN-OFF]` in `0_main.tex` and in `DECISOES_PENDENTES_ptBR.md`. This is a
-> genuine author/advisor confirmation item.
+> We indeed need to focus on it and let's eval how long is the abstract of the exemples that we have and set the target
+> cound word of this. And indeed as claude sugest we should do this in last so after settle all the text we back on it.
 
 **Claude take (2026-07-24) — CONFIRMED, and the reviewer under-reported the Resumo. No norm is being violated.**
 
@@ -1638,13 +1618,7 @@ adaptation.
 
 **Author response**
 
-> **Repository answer (24 July 2026):** `research/embeddings/hgi/hgi.py` exports the
-> positive **POI encoder state** `pos_poi_emb` from `HGIModule.forward` at the
-> lowest-training-loss checkpoint as `output/hgi/<state>/embeddings.parquet`, keyed by
-> `placeid`. It separately exports the aggregated `region_emb` as
-> `region_embeddings.parquet`. The dissertation should therefore call the downstream
-> input an “HGI-derived POI-node representation,” not imply that this POI export is the
-> cited paper's sole standard output.
+> I agree with the claude take.
 
 **Claude take (2026-07-24) — the reviewer's premise is wrong; a smaller real improvement remains.**
 
@@ -1707,12 +1681,10 @@ stratification, narrow unsupported Nash and complexity claims, and remove unused
 
 **Author response**
 
-> **Repository answer (24 July 2026):** No repository rule freezes an incorrect citation
-> or unsupported wording merely because it appeared in an article. Bibliography metadata
-> is already corrected globally, and substantive article-text corrections may be made
-> only through the adopted ERRATA/adaptation-ledger policy. If prose is intentionally
-> preserved as a historical claim (as with Nash), the preface must time-index or qualify
-> it and Appendix B must record the treatment.
+> I agree with claude takes. About the `A`,We can eval the best approach but for now I am lean on add this in the
+> appendix+_b as an errata, also we need to check if the implementation in the cbic was indeed relies on "**gradient
+signs rather than scales**", besides not been the faithul one, if this case turns to be truth, we just need to address
+> in the errata this change, and also eval if we have fix for the mobiwac.
 
 **Claude take (2026-07-24) — 4 of 5 confirmed, 1 refuted and should not be reopened. One is sharper than the reviewer
 states.**
@@ -1775,7 +1747,8 @@ variants; and rerun a page-geometry check.
 
 **Author response**
 
-> _No author decision required unless the table content may be shortened._
+> I agree with claude takes. But takes this oportunit to eval the other assets, an exemple is the fig 2 or 3 or mobiwac
+> where some lables are over passing the margins is nothig huge, but is a care that can be good.
 
 **Claude take (2026-07-24) — CONFIRMED, and this is the complete list: there are exactly two overfull boxes in the whole
 document.**
@@ -1838,14 +1811,9 @@ size and in grayscale.
 
 **Author response**
 
-> **Repository answer (24 July 2026):** They do not exist for every figure. Chapter 5
-> is fully source-backed: Figures 1–2 are TikZ and Figures 3–4 have committed Python
-> generators; dissertation-specific copies of the two Python scripts also exist.
-> Chapter 3's architecture raster has editable `.drawio` sources. Chapter 4 preserves
-> the two supplied raster assets (plus separate Florida/California/Texas panels for the
-> distribution plot), but no diagram source, plotting script, or underlying plotting
-> dataset was found. Regenerating those Chapter 4 assets requires recovery from the
-> CoUrb authors or recreation from the stated data.
+> Let's fix what is in our control. About the figs that we don't have the source (I belive that may is in the commit you
+> cna try to check), let's keep them as is for now and
+> let's create a document od pendencies.md in the src_utils, and add this there.
 
 **Claude take (2026-07-24) — four of five sub-claims verified; one is understated; one item is genuinely blocked on
 external material.**
@@ -1907,13 +1875,7 @@ every substantive added sentence. Do not rewrite the faithful core merely to red
 
 **Author response**
 
-> **Repository answer (24 July 2026):** The intended scope is already documented in
-> `adaptation_ledgers/4_courb_ADAPTATION_LEDGER.md`: translation/reproduction of the
-> **article body**, with title/authors/abstract/resumo/acknowledgments omitted under the
-> common coletânea convention. The ledger identifies the added table lead sentences,
-> expanded Figure 4.2 reading instruction, chapter preface, MTLnet recap, and protocol
-> disclosure. These additions are traceable, but the chapter/appendix and several frame
-> additions still carry `[NEEDS SIGN-OFF]`; author approval is not yet recorded.
+> I agree with the claude take.
 
 **Claude take (2026-07-24) — the *ledger* is complete; the *reader-facing* record is not. That inverts the review's
 framing.**
@@ -1977,7 +1939,7 @@ paragraph appear before its table/figure. Recheck downstream page balance after 
 
 **Author response**
 
-> _No author input required unless float movement conflicts with the article-reproduction policy._
+> Let's follow the claude takes and audit after complete.
 
 **Claude take (2026-07-24) — CONFIRMED on all five sub-claims, and it is a one-line fix with a clear cause.**
 
@@ -2037,17 +1999,7 @@ the minimum scheduling interval, and regenerate the final variant only after the
 
 **Author response**
 
-> **Repository answer (24 July 2026):** The working title is *From Representations to
-> a Single Joint Model: Multi-Task Learning for Point-of-Interest Category and Region
-> Prediction*, selected “for now” on 24 July and still pending the advisor's final call.
-> `0_main.tex` retains placeholders for two committee members and the defense date.
-> The planning target is approximately 1 August delivery and a defense no earlier than
-> approximately 21 August (the 20-day minimum), not a booked date. The local compliance
-> basis is the UFV delivery manual 04/2026, general rules revised 11/10/2019, and the
-> PPGCC internal regulation approved 09 July 2026. The locally stored pre-textual and
-> defense checklists are from July/June 2024 and may be stale under the new regulation.
-> External confirmation is still required for the title, committee/date, English frame,
-> CoUrb inclusion, and the operative secretariat checklist/Article 21 quality bar.
+> I agree with the claude takes, and also let's eval the dissertation of exemple to eval if we are missing other points.
 
 **Claude take (2026-07-24) — all five sub-claims CONFIRMED, plus a booby-trap the review did not find.**
 
@@ -2101,11 +2053,8 @@ verify page count and line wrapping.
 
 **Author response**
 
-> **Repository answer (24 July 2026):** No such permission was found. The current local
-> compliance extraction of Manual 04/2026 §7–§8 requires Arial or Times New Roman,
-> size 12, and records no bibliography exception. The explicit `\footnotesize`
-> bibliography should therefore be treated as non-compliant unless the secretariat
-> supplies a newer authoritative exception.
+> I agree with claude takes, let's try to fix what is possible, and for those parts that need extra input like the name
+> of the banca, add in the pendencies.md file.
 
 **Claude take (2026-07-24) — CONFIRMED as a deviation, but there is a direct same-advisor precedent that passed, so this
 is an advisor question, not a compliance failure.**
@@ -2162,17 +2111,8 @@ the final manuscript.
 
 **Author response**
 
-> **Repository answer (24 July 2026):** The repository says the author has **not yet**
-> completed the required end-to-end read/sign-off: the plan and decision log leave the
-> Resumo/Abstract, AI appendix, and multiple passages marked `[NEEDS SIGN-OFF]`.
-> Claude (Anthropic) is documented for frame drafting, article re-typesetting, the
-> CoUrb English translation, editing/review, formatting, and code support. The exact
-> drafting/translation model versions are not recoverable from the commit record and
-> must not be invented. One exact review model is recoverable: the 18-persona suite ran
-> on `claude-opus-4-8` after Fable tokens were exhausted, by author decision. MobiWac
-> history mentions an “Opus readability pass” without a version. This present
-> dissertation review also used Codex/OpenAI and should be disclosed if it informs the
-> final text. No advisor approval of the disclosure was found.
+> I and to keep the AI section slim and direct as possible. Abou the missing [NEEDS SIGN-OFF], let's list them in the
+> pendences.md. My take is to keep the ai section as it is.
 
 **Claude take (2026-07-24) — CONFIRMED. The appendix asserting universal approval is itself flagged as unapproved.**
 
@@ -2228,15 +2168,7 @@ Do not invent an IRB/CEP approval or exemption.
 
 **Author response**
 
-> **Repository answer (24 July 2026):** No CEP/IRB submission, waiver, exemption, or
-> institutional ethics determination was found. The data provenance is partly
-> recoverable: Chapters 3/4 describe public Gowalla data associated with the
-> SNAP/Cho record; Chapter 5 instead uses the public CC0 category-annotated Figshare
-> Gowalla dump; Istanbul comes from the public Massive-STEPS collection, which the
-> repository catalog describes as open-source/academic research. The exact
-> Massive-STEPS licence terms and the institutional determination for processing
-> individual trajectories still require verification. Public availability alone does
-> not answer the privacy/ethics question.
+> I agree with the claude take, mainly in the new section about governance and data ethics.
 
 **Claude take (2026-07-24) — CONFIRMED, and the gap is total. It extends past the dissertation into the dataset
 registry.**
@@ -2361,17 +2293,23 @@ far more likely to ask why it is absent than to challenge it once present.
 1. Does any uncommitted causal/future-masked Check2HGI result or written rationale for bidirectional temporal edges
    exist outside the repository? If not, decide whether to run the causal rebuild or withdraw/suspend the affected
    claims.
+R: No, you cna try to run in the nespdgpu
 2. Can the original Chapter 3 split manifest/logs and the missing Chapter 3/4 selection/tuning records be recovered from
    the linked external repositories, old machines, or collaborators?
+R: Kind, but I already give any extra information in my above takes.
 3. Can `al_capmatch_summary.json` and the unfinished California capacity job
    `4cff4b00` be recovered from the A40 work directory, or should California remain explicitly partial?
+R: Yes, and we already make. but you have acess through the nespedgpu.
 4. Please obtain one bundled advisor/Comissão decision on the English frame, full translated CoUrb chapter, final title,
    two-page Resumo, and ERRATA policy.
+R: 
 5. Provide the booked defense date and committee, and ask the secretariat which checklist/Article 21 interpretation is
    operative under the 09 July 2026 regulation.
+R: 
 6. Has the author now read and approved every rendered passage and the added CoUrb framing/caption text? Which exact AI
    model versions can the author independently verify for drafting, translation, and editing, and does the advisor
    approve the disclosure?
+R: 
 7. Obtain or record the institutional CEP/IRB determination, verify the source terms for Massive-STEPS and the Chapters
    3/4 Gowalla snapshot, and state the actual privacy safeguards.
 

@@ -1,0 +1,183 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\citation{caruana1997multitask}
+\citation{kokkinos2016ubernet}
+\citation{wei2022finetuned}
+\citation{Zhang2020}
+\@writefile{toc}{\contentsline {chapter}{\chapternumberline {3}Multi-Task Learning for POI Category and Next-POI Prediction}{26}{chapter.3}\protected@file@percent }
+\newlabel{ch:cbic}{{3}{26}{Multi-Task Learning for POI Category and Next-POI Prediction}{chapter.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.1}Introduction}{26}{section.3.1}\protected@file@percent }
+\newlabel{sec:cbic:intro}{{3.1}{26}{Introduction}{section.3.1}{}}
+\citation{cho2011gowalla}
+\citation{jure2014snap}
+\citation{chen2020modeling}
+\citation{zeng2019next}
+\citation{Xu2023}
+\citation{Lim2022}
+\citation{caruana1997multitask}
+\@writefile{toc}{\contentsline {section}{\numberline {3.2}Theoretical Foundations and Related Work}{28}{section.3.2}\protected@file@percent }
+\newlabel{sec:cbic:related}{{3.2}{28}{Theoretical Foundations and Related Work}{section.3.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.1}POI Classification and Next-POI Prediction}{28}{subsection.3.2.1}\protected@file@percent }
+\citation{yu2024survey}
+\citation{zhang2021survey}
+\citation{caruana1997multitask}
+\citation{misra2016cross}
+\citation{ruder2017sluice}
+\citation{ma2018mmoe}
+\citation{chen2018gradnorm}
+\citation{sener2018mgda}
+\citation{yu2020pcgrad}
+\citation{liu2019dwa}
+\citation{ruder2017sluice}
+\citation{zhang2021survey}
+\citation{yu2020pcgrad}
+\citation{sener2018mgda}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.2}Multi-Task Learning}{29}{subsection.3.2.2}\protected@file@percent }
+\newlabel{sec:cbic:mtl}{{3.2.2}{29}{Multi-Task Learning}{subsection.3.2.2}{}}
+\citation{nash}
+\citation{standley2020tasks}
+\citation{zhang2021survey}
+\citation{yu2024survey}
+\citation{standley2020tasks}
+\citation{yu2024survey}
+\citation{Liao2018}
+\citation{Zhang2020}
+\citation{Halder2021}
+\citation{Xia2020}
+\citation{Xu2023}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.3}Multi-task learning applied in POI}{30}{subsection.3.2.3}\protected@file@percent }
+\citation{du2019beyond}
+\citation{huang2022estimating}
+\citation{velivckovic2017graph}
+\citation{velickovic2019deep}
+\@writefile{toc}{\contentsline {section}{\numberline {3.3}Methodology}{31}{section.3.3}\protected@file@percent }
+\newlabel{sec:cbic:methodology}{{3.3}{31}{Methodology}{section.3.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.1}POI Embeddings and Data Preparation}{31}{subsection.3.3.1}\protected@file@percent }
+\newlabel{sec:cbic:embeddings}{{3.3.1}{31}{POI Embeddings and Data Preparation}{subsection.3.3.1}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.3.1.1}POI Embeddings}{31}{subsubsection.3.3.1.1}\protected@file@percent }
+\citation{perez2018film}
+\citation{standley2020tasks}
+\newlabel{eq:cbic:loss}{{3.1}{32}{POI Embeddings}{equation.3.1}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.3.1.2}Data Processing for POI Category Classification}{32}{subsubsection.3.3.1.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.3.1.3}Data Processing for Next-POI Category Prediction}{32}{subsubsection.3.3.1.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.2}Multi-Task Learning Architecture}{32}{subsection.3.3.2}\protected@file@percent }
+\newlabel{sec:cbic:mtlarch}{{3.3.2}{32}{Multi-Task Learning Architecture}{subsection.3.3.2}{}}
+\citation{perez2018film}
+\citation{baxter2000model}
+\citation{ruder2017sluice}
+\citation{caruana1997multitask}
+\citation{standley2020tasks}
+\citation{nash}
+\citation{nash}
+\citation{nash}
+\citation{nash}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces The proposed Multi-Task Learning (MTL) architecture. Task-specific encoders process inputs for POI Category Classification and Next-POI Prediction. Feature-wise Linear Modulation (FiLM) layers adapt these features using learnable task embeddings. The modulated representations are then processed by a shared path of residual blocks. Finally, dedicated task-specific heads generate the respective outputs.}}{34}{figure.caption.19}\protected@file@percent }
+\newlabel{fig:cbic:arch}{{1}{34}{The proposed Multi-Task Learning (MTL) architecture. Task-specific encoders process inputs for POI Category Classification and Next-POI Prediction. Feature-wise Linear Modulation (FiLM) layers adapt these features using learnable task embeddings. The modulated representations are then processed by a shared path of residual blocks. Finally, dedicated task-specific heads generate the respective outputs}{figure.caption.19}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.3}Nash-MTL Optimizer}{34}{subsection.3.3.3}\protected@file@percent }
+\newlabel{sec:cbic:nash}{{3.3.3}{34}{Nash-MTL Optimizer}{subsection.3.3.3}{}}
+\citation{nash}
+\citation{nash}
+\citation{nash}
+\citation{nash}
+\citation{yu2020pcgrad}
+\citation{cho2011gowalla}
+\newlabel{eq:cbic:nbs}{{3.2}{35}{Formal Formulation}{equation.3.2}{}}
+\citation{chen2020modeling}
+\citation{zeng2019next}
+\citation{vaswani2017attention}
+\citation{chen2020modeling}
+\@writefile{toc}{\contentsline {section}{\numberline {3.4}Experimental Setup and Results}{36}{section.3.4}\protected@file@percent }
+\newlabel{sec:cbic:experiments}{{3.4}{36}{Experimental Setup and Results}{section.3.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4.1}Dataset and Evaluation Metrics}{36}{subsection.3.4.1}\protected@file@percent }
+\newlabel{sec:cbic:dataset}{{3.4.1}{36}{Dataset and Evaluation Metrics}{subsection.3.4.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4.2}Discussion and Comparison with Established Models}{36}{subsection.3.4.2}\protected@file@percent }
+\citation{zeng2019next}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.4.2.1}POI Category Classification}{37}{subsubsection.3.4.2.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces POI category classification results for Florida (per-category F1-score, precision, and recall, mean $\pm $ standard deviation over the 5 folds; the better of the MTL and Single values per row in bold, as in the published table).}}{37}{table.caption.24}\protected@file@percent }
+\newlabel{tab:cbic:category}{{2}{37}{POI category classification results for Florida (per-category F1-score, precision, and recall, mean $\pm $ standard deviation over the 5 folds; the better of the MTL and Single values per row in bold, as in the published table)}{table.caption.24}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.4.2.2}Next POI Category Prediction}{37}{subsubsection.3.4.2.2}\protected@file@percent }
+\citation{chen2020modeling}
+\citation{zeng2019next}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Next POI category prediction results for Florida (per-category F1-score, precision, and recall, mean $\pm $ standard deviation over the 5 folds; best value per row in bold, second-best underlined).}}{38}{table.caption.25}\protected@file@percent }
+\newlabel{tab:cbic:next}{{3}{38}{Next POI category prediction results for Florida (per-category F1-score, precision, and recall, mean $\pm $ standard deviation over the 5 folds; best value per row in bold, second-best underlined)}{table.caption.25}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4.3}Convergence Comparison}{39}{subsection.3.4.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Convergence metrics to reach the target F1-score for each model (wall time in seconds, number of epochs, and MFLOPs; 5-fold cross-validation).}}{39}{table.caption.26}\protected@file@percent }
+\newlabel{tab:cbic:convergence}{{4}{39}{Convergence metrics to reach the target F1-score for each model (wall time in seconds, number of epochs, and MFLOPs; 5-fold cross-validation)}{table.caption.26}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.5}Conclusion and Future Work}{40}{section.3.5}\protected@file@percent }
+\newlabel{sec:cbic:conclusion}{{3.5}{40}{Conclusion and Future Work}{section.3.5}{}}
+\@setckpt{chapters/3_cbic}{
+\setcounter{page}{42}
+\setcounter{equation}{2}
+\setcounter{enumi}{3}
+\setcounter{enumii}{0}
+\setcounter{enumiii}{0}
+\setcounter{enumiv}{0}
+\setcounter{footnote}{2}
+\setcounter{mpfootnote}{0}
+\setcounter{@memmarkcntra}{-1}
+\setcounter{storedpagenumber}{1}
+\setcounter{book}{0}
+\setcounter{part}{0}
+\setcounter{chapter}{3}
+\setcounter{section}{5}
+\setcounter{subsection}{0}
+\setcounter{subsubsection}{0}
+\setcounter{paragraph}{0}
+\setcounter{subparagraph}{0}
+\setcounter{@ppsavesec}{0}
+\setcounter{@ppsaveapp}{0}
+\setcounter{vslineno}{0}
+\setcounter{poemline}{0}
+\setcounter{modulo@vs}{0}
+\setcounter{memfvsline}{0}
+\setcounter{verse}{0}
+\setcounter{chrsinstr}{0}
+\setcounter{poem}{0}
+\setcounter{newflo@tctr}{4}
+\setcounter{@contsubnum}{0}
+\setcounter{section@level}{0}
+\setcounter{maxsecnumdepth}{4}
+\setcounter{sidefootnote}{0}
+\setcounter{pagenote}{0}
+\setcounter{pagenoteshadow}{0}
+\setcounter{memfbvline}{0}
+\setcounter{bvlinectr}{0}
+\setcounter{cp@cntr}{0}
+\setcounter{ism@mctr}{0}
+\setcounter{xsm@mctr}{0}
+\setcounter{csm@mctr}{0}
+\setcounter{ksm@mctr}{0}
+\setcounter{xksm@mctr}{0}
+\setcounter{cksm@mctr}{0}
+\setcounter{msm@mctr}{0}
+\setcounter{xmsm@mctr}{0}
+\setcounter{cmsm@mctr}{0}
+\setcounter{bsm@mctr}{0}
+\setcounter{workm@mctr}{0}
+\setcounter{sheetsequence}{42}
+\setcounter{lastsheet}{89}
+\setcounter{lastpage}{89}
+\setcounter{figure}{1}
+\setcounter{lofdepth}{1}
+\setcounter{table}{4}
+\setcounter{lotdepth}{1}
+\setcounter{Item}{9}
+\setcounter{Hfootnote}{2}
+\setcounter{bookmark@seq@number}{0}
+\setcounter{memhycontfloat}{0}
+\setcounter{mem@Hpagenote}{0}
+\setcounter{abntex@bookmarkcounter}{5}
+\setcounter{alineasi}{0}
+\setcounter{alineasii}{0}
+\setcounter{subalineasi}{0}
+\setcounter{incisosi}{0}
+\setcounter{parentequation}{0}
+\setcounter{caption@flags}{2}
+\setcounter{continuedfloat}{0}
+\setcounter{subfigure}{0}
+\setcounter{subtable}{0}
+\setcounter{LT@tables}{0}
+\setcounter{LT@chunks}{0}
+\setcounter{ABCIaux}{0}
+\setcounter{ABCImax}{0}
+}

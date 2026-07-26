@@ -1,0 +1,66 @@
+% !TeX root = ../fundamentals.tex
+% Section 2.5 -- Relevance (synthesis; NO fresh citations)
+% Draft 1 (2026-07-21). Obeys WRITING_LAW.md + GLOSSARY.md. Argument-only ledger at the section end.
+
+\section{Relevance}
+\label{sec:fund:relevance}
+
+The preceding sections are not a catalog; they are the parts of a single argument this
+dissertation makes, and this section draws them together before the paper chapters put
+them to work. No new literature enters here. The point is to show how the tasks, the
+representations, the multi-task machinery, and the evaluation protocol combine into one
+problem.
+
+The three prediction targets are different problems, and the field has
+mostly studied the hardest of them, the exact next place. Predicting the next category
+and the next region is not a lesser version of that task but a different one, with its
+own baselines and its own notion of a correct answer, and treating both as co-equal
+end targets is the stance this work takes. That stance only pays off if the model can
+represent a visit well enough to serve both. Here the representation is the lever. The
+field moved from one-hot identifiers to place embeddings, and hierarchical graph
+infomax gives a strong place-level vector, but any place embedding assigns a place the
+same vector on every visit. A representation that cannot tell a weekday lunch from a
+Saturday night out is working against both tasks at once, and the check-in level is the
+response to that limit.
+
+Multi-task learning is the mechanism that would let the two tasks share what they have
+in common, but it is not a free gain. Naive hard sharing can leave a task worse than
+its single-task model, and the elaborate gradient balancers proposed to prevent this
+frequently do not outperform a well-tuned fixed-weight baseline. Whether joint training
+helps therefore cannot be assumed; it has to be measured, against the dedicated
+single-task models, under a protocol that does not flatter it. That protocol is the
+last piece. User-disjoint cross-validation, macro-F1 and Acc@10 read against named
+floors and the single-task ceiling, and verbs bound to paired tests and to
+non-inferiority testing are what separate a real improvement from a hopeful one. The
+value of the fundamentals in this chapter is that they make the central question
+answerable on honest terms.
+
+That question presses because its parts have not been brought together. The field has
+a place-level representation but not a check-in-level one built for these targets; it
+has multi-task learning but almost no treatment of the next region as an end target;
+and it has strong evaluation practice that mobility studies do not always apply. The
+dissertation takes up the three in order. It first asks whether naive multi-task
+learning helps at all, given a place-level embedding and hard parameter sharing, and
+reports an honest answer for that configuration. It then asks whether the
+representation, rather than the architecture, is the lever, by decomposing and
+enriching the input the same model receives. It finally asks what a representation
+built for check-ins unlocks for a redesigned joint model, one that, by paired
+superiority tests, outperforms the dedicated single-task models on the next category
+everywhere it is tested and on the next region at four of six datasets, and matches the
+dedicated single-task model within a two-point margin, by non-inferiority testing, at
+the other two. Chapter~5 reports these tests in full. The chapters that follow answer
+these three questions in turn.
+
+% ---------------------------------------------------------------------------
+% ARGUMENT LEDGER -- 2.5 (SYNTHESIS: no new citations; all claims trace to 2.1-2.4)
+%  Clause 1 -> Ch.3 (CBIC): does naive MTL help, place embedding + hard sharing? (honest null)
+%  Clause 2 -> Ch.4 (CoUrb): is the representation the lever, not the architecture? (decompose/enrich input)
+%  Clause 3 -> Ch.5 (MobiWac, SUBMITTED/UNDER REVIEW): what does a check-in representation unlock?
+%  RESULT WORDING (bound to tests, from NORTH_STAR + GLOSSARY, NOT upgraded):
+%    FIX (fact F6): win verb now EXPLICITLY bound -- "by paired superiority tests, outperforms ... on the next category
+%    everywhere ... and on the next region at four of six datasets"; "matches ... by non-inferiority testing" at the other two.
+%    AZ/AL pair never upgraded to a win. Forward-points to Ch.5 ("Chapter 5 reports these tests in full").
+%    FIX (fact F7): banned "beat" -> "do not outperform" (was "fail to beat" in the MTL synthesis sentence).
+%  four-of-six + two-point margin: confirm against Ch.5 RESULTS_BOARD.md / PAPER_PLAN §3 at adaptation (fact NOTE 10).
+%  NO fresh literature; NO frontier material; NO repo codenames. Section does not restate 2.1-2.4 (no "in summary").
+% ---------------------------------------------------------------------------

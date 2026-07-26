@@ -1,0 +1,75 @@
+This is BibTeX, Version 0.99e (TeX Live 2026)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: main.aux
+A level-1 auxiliary file: chapters/1_introduction.aux
+A level-1 auxiliary file: chapters/2_fundamentals.aux
+A level-1 auxiliary file: chapters/3_cbic.aux
+A level-1 auxiliary file: chapters/4_courb.aux
+A level-1 auxiliary file: chapters/5_mobiwac.aux
+A level-1 auxiliary file: chapters/6_conclusion.aux
+A level-1 auxiliary file: chapters/apx_a_contributions.aux
+A level-1 auxiliary file: chapters/apx_b_errata.aux
+A level-1 auxiliary file: chapters/apx_c_ai_disclosure.aux
+The style file: abntex2-num.bst
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated wiz_functions (elt_size=4) to 9000 items from 6000.
+Reallocated field_info (elt_size=4) to 11900 items from 5000.
+Database file #1: abntex2-options.bib
+Database file #2: references.bib
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated glb_str_ptr (elt_size=4) to 20 items from 10.
+Reallocated global_strs (elt_size=200001) to 20 items from 10.
+Reallocated glb_str_end (elt_size=4) to 20 items from 10.
++---------------------------------------------------------+
+| Estilo bibliográfico abntex2-num.bst versão v<VERSION>           |
+| Em caso de dúvidas ou problemas com este estilo procure |
+| http://www.abntex.net.br/                               |
++---------------------------------------------------------+
+You've used 100 entries,
+            6714 wiz_defined-function locations,
+            1717 strings with 29444 characters,
+and the built_in function-call counts, 93645 in all, are:
+= -- 7752
+> -- 3182
+< -- 383
++ -- 1548
+- -- 932
+* -- 6906
+:= -- 11633
+add.period$ -- 421
+call.type$ -- 100
+change.case$ -- 1305
+chr.to.int$ -- 210
+cite$ -- 98
+duplicate$ -- 4915
+empty$ -- 6732
+format.name$ -- 5013
+if$ -- 22425
+int.to.chr$ -- 1
+int.to.str$ -- 0
+missing$ -- 1780
+newline$ -- 442
+num.names$ -- 392
+pop$ -- 2459
+preamble$ -- 1
+purify$ -- 468
+quote$ -- 0
+skip$ -- 5508
+stack$ -- 1
+substring$ -- 4318
+swap$ -- 2449
+text.length$ -- 134
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 56
+warning$ -- 0
+while$ -- 696
+width$ -- 0
+write$ -- 1385

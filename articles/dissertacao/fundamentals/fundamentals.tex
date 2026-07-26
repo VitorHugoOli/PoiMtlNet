@@ -1,0 +1,24 @@
+% !TeX root = ../main.tex
+% Chapter 2 -- Fundamentals (Fundamentacao Teorica). Frame chapter, English.
+% Draft 1 (2026-07-21). Assembled from the section drafts; each section carries its own ledger.
+% Bibliography: single global dissertation .bib. New keys are in fundamentals/_bib/new_references_ch2.bib;
+% all other keys are already in the project bibs (see COVERAGE_EVALUATION.md and _bib/BIB_NOTES.md).
+
+\chapter{Fundamentals}
+\label{ch:fundamentals}
+
+This chapter sets out the concepts the three studies in this dissertation share, so
+that three papers of different shape read as one document. It defines the prediction
+tasks and keeps them distinct (Section~\ref{sec:fund:tasks}); follows the line of
+representations for mobility from one-hot identifiers to the check-in level
+(Section~\ref{sec:fund:repr}); reviews multi-task learning and the conditions under
+which it helps or hurts (Section~\ref{sec:fund:mtl}); states the datasets, metrics,
+and validation protocol used throughout (Section~\ref{sec:fund:eval}); and closes by
+drawing these together into the question the following chapters answer
+(Section~\ref{sec:fund:relevance}).
+
+\input{fundamentals/2.1_poi_prediction_tasks/2.1_poi_prediction_tasks}
+\input{fundamentals/2.2_representations_for_mobility/2.2_representations_for_mobility}
+\input{fundamentals/2.3_multi_task_learning/2.3_multi_task_learning}
+\input{fundamentals/2.4_datasets_and_evaluation/2.4_datasets_and_evaluation}
+\input{fundamentals/2.5_relevance/2.5_relevance}

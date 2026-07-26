@@ -1,0 +1,593 @@
+\providecommand{\abntreprintinfo}[1]{%
+ \citeonline{#1}}
+\begin{thebibliography}{}
+\providecommand{\abntrefinfo}[3]{}
+\providecommand{\abntbstabout}[1]{}
+\abntbstabout{v<VERSION> }
+
+\bibitem{song2010limits}
+\abntrefinfo{Song et al.}{SONG et al.}{2010}
+{SONG, C. et al. Limits of predictability in human mobility.
+\textbf{Science}, v.~327, n.~5968, p. 1018--1021, 2010.}
+
+\bibitem{luca2021mobilitysurvey}
+\abntrefinfo{Luca et al.}{LUCA et al.}{2021}
+{LUCA, M. et al. A survey on deep learning for human mobility.
+\textbf{ACM Comput. Surv.}, v.~55, n.~1, p. 7:1--7:44, 2021.}
+
+\bibitem{Xu2023}
+\abntrefinfo{Xu et al.}{XU et al.}{2023}
+{XU, R. et al. Tme: Tree-guided multi-task embedding learning towards semantic
+  venue annotation.
+\textbf{ACM Trans. Inf. Syst.}, v.~41, n.~4, p.~112, 2023.
+ISSN 1046-8188.}
+
+\bibitem{mai2023sphere2vecgeneralpurposelocationrepresentation}
+\abntrefinfo{Mai et al.}{MAI et al.}{2023}
+{MAI, G. et al. \textbf{Sphere2Vec: A General-Purpose Location Representation
+  Learning over a Spherical Surface for Large-Scale Geospatial Predictions}.
+  2023.
+Dispon{\'\i}vel em: \url{https://arxiv.org/abs/2306.17624}.}
+
+\bibitem{wu2024torchspatial}
+\abntrefinfo{Wu et al.}{WU et al.}{2024}
+{WU, N. et al. Torchspatial: A location encoding framework and benchmark for
+  spatial representation learning.
+\textbf{Advances in Neural Information Processing Systems}, v.~37, p.
+  81437--81460, 2024.
+ArXiv:2406.15658.}
+
+\bibitem{caruana1997multitask}
+\abntrefinfo{Caruana}{CARUANA}{1997}
+{CARUANA, R. Multitask learning.
+\textbf{Mach. Learn.}, v.~28, n.~1, p. 41--75, 1997.}
+
+\bibitem{kokkinos2016ubernet}
+\abntrefinfo{Kokkinos}{KOKKINOS}{2016}
+{KOKKINOS, I. Ubernet: Training a `universal' convolutional neural network for
+  low-, mid-, and high-level vision using diverse datasets and limited memory.
+\textbf{arXiv preprint arXiv:1609.02132}, 2016.}
+
+\bibitem{lipton2015learning}
+\abntrefinfo{Lipton et al.}{LIPTON et al.}{2015}
+{LIPTON, Z.~C. et al. Learning to diagnose with lstm recurrent neural networks.
+\textbf{arXiv preprint arXiv:1511.03677}, 2015.}
+
+\bibitem{wei2022finetuned}
+\abntrefinfo{Wei et al.}{WEI et al.}{2022}
+{WEI, J. et al. Finetuned language models are zero-shot learners. In:
+  \textbf{Proceedings of the 10th International Conference on Learning
+  Representations (ICLR)}. [s.n.], 2022. Dispon{\'\i}vel em:
+  \url{https://openreview.net/forum?id=gEZrGCozdqR}.}
+
+\bibitem{silva2019urbancomputing}
+\abntrefinfo{Silva et al.}{SILVA et al.}{2019}
+{SILVA, T.~H. et al. Urban computing leveraging location-based social network
+  data: A survey.
+\textbf{ACM Comput. Surv.}, v.~52, n.~1, p. 17:1--17:39, 2019.}
+
+\bibitem{cho2011gowalla}
+\abntrefinfo{Cho, Myers e Leskovec}{CHO; MYERS; LESKOVEC}{2011}
+{CHO, E.; MYERS, S.~A.; LESKOVEC, J. Friendship and mobility: User movement in
+  location-based social networks. In:  \textbf{Proc. ACM SIGKDD (KDD)}. [S.l.]:
+  ACM, 2011. p. 1082--1090.}
+
+\bibitem{liu2016strnn}
+\abntrefinfo{Liu et al.}{LIU et al.}{2016}
+{LIU, Q. et al. Predicting the next location: A recurrent model with spatial
+  and temporal contexts. In:  \textbf{Proc. AAAI Conf. Artif. Intell.} [S.l.:
+  s.n.], 2016. p. 194--200.}
+
+\bibitem{feng2018deepmove}
+\abntrefinfo{Feng et al.}{FENG et al.}{2018}
+{FENG, J. et al. {DeepMove}: Predicting human mobility with attentional
+  recurrent networks. In:  \textbf{Proc. Web Conf. (WWW)}. [S.l.: s.n.], 2018.
+  p. 1459--1468.}
+
+\bibitem{kong2018hstlstm}
+\abntrefinfo{Kong e Wu}{KONG; WU}{2018}
+{KONG, D.; WU, F. {HST-LSTM}: A hierarchical spatial-temporal long-short term
+  memory network for location prediction. In:  \textbf{Proc. IJCAI}. [S.l.:
+  s.n.], 2018. p. 2341--2347.}
+
+\bibitem{yang2020flashback}
+\abntrefinfo{Yang et al.}{YANG et al.}{2020}
+{YANG, D. et al. Location prediction over sparse user mobility traces using
+  {RNNs}: Flashback in hidden states! In:  \textbf{Proc. IJCAI}. [S.l.: s.n.],
+  2020. p. 2184--2190.}
+
+\bibitem{luo2021stan}
+\abntrefinfo{Luo, Liu e Liu}{LUO; LIU; LIU}{2021}
+{LUO, Y.; LIU, Q.; LIU, Z. {STAN}: Spatio-temporal attention network for next
+  location recommendation. In:  \textbf{Proc. Web Conf. (WWW)}. [S.l.: s.n.],
+  2021. p. 2177--2185.}
+
+\bibitem{lian2020geosan}
+\abntrefinfo{Lian et al.}{LIAN et al.}{2020}
+{LIAN, D. et al. Geography-aware sequential location recommendation. In:
+  \textbf{Proc. KDD}. [S.l.: s.n.], 2020. p. 2009--2019.}
+
+\bibitem{yang2022getnext}
+\abntrefinfo{Yang, Liu e Zhao}{YANG; LIU; ZHAO}{2022}
+{YANG, S.; LIU, J.; ZHAO, K. {GETNext}: Trajectory flow map enhanced
+  transformer for next {POI} recommendation. In:  \textbf{Proc. ACM SIGIR}.
+  [S.l.: s.n.], 2022. p. 1144--1153.}
+
+\bibitem{lin2021ctle}
+\abntrefinfo{Lin et al.}{LIN et al.}{2021}
+{LIN, Y. et al. Pre-training context and time aware location embeddings from
+  spatial-temporal trajectories for user next location prediction. In:
+  \textbf{Proc. AAAI Conf. Artif. Intell.} [S.l.: s.n.], 2021. v.~35, p.
+  4241--4248.}
+
+\bibitem{Lim2022}
+\abntrefinfo{Lim et al.}{LIM et al.}{2022}
+{LIM, N. et al. Hierarchical multi-task graph recurrent network for next {POI}
+  recommendation. In:  \textbf{Proc. ACM SIGIR}. [S.l.: s.n.], 2022. p.
+  1133--1143.}
+
+\bibitem{yu2020catdm}
+\abntrefinfo{Yu et al.}{YU et al.}{2020}
+{YU, F. et al. A category-aware deep model for successive {POI} recommendation
+  on sparse check-in data. In:  \textbf{Proc. Web Conf. (WWW)}. [S.l.: s.n.],
+  2020. p. 1264--1274.}
+
+\bibitem{zhu2022drrgnn}
+\abntrefinfo{Zhu et al.}{ZHU et al.}{2022}
+{ZHU, N. et al. Predicting a person's next activity region with a dynamic
+  region-relation-aware graph neural network.
+\textbf{ACM Trans. Knowl. Discov. Data}, v.~16, n.~6, p. 1--23, 2022.}
+
+\bibitem{capanema2023poirgnn}
+\abntrefinfo{Capanema et al.}{CAPANEMA et al.}{2023}
+{CAPANEMA, C. G.~S. et al. Combining recurrent and graph neural networks to
+  predict the next place's category.
+\textbf{Ad Hoc Netw.}, v.~138, p. 103016, 2023.}
+
+\bibitem{mikolov2013word2vec}
+\abntrefinfo{Mikolov et al.}{MIKOLOV et al.}{2013}
+{MIKOLOV, T. et al. Efficient estimation of word representations in vector
+  space. In:  \textbf{Proc. ICLR (Workshop)}. [S.l.: s.n.], 2013.}
+
+\bibitem{perozzi2014deepwalk}
+\abntrefinfo{Perozzi, Al-Rfou e Skiena}{PEROZZI; AL-RFOU; SKIENA}{2014}
+{PEROZZI, B.; AL-RFOU, R.; SKIENA, S. {DeepWalk}: Online learning of social
+  representations. In:  \textbf{Proc. KDD}. [S.l.: s.n.], 2014. p. 701--710.}
+
+\bibitem{grover2016node2vec}
+\abntrefinfo{Grover e Leskovec}{GROVER; LESKOVEC}{2016}
+{GROVER, A.; LESKOVEC, J. node2vec: Scalable feature learning for networks. In:
+   \textbf{Proceedings of the 22nd ACM SIGKDD International Conference on
+  Knowledge Discovery and Data Mining}. [S.l.: s.n.], 2016. p. 855--864.}
+
+\bibitem{kipf2017gcn}
+\abntrefinfo{Kipf e Welling}{KIPF; WELLING}{2017}
+{KIPF, T.~N.; WELLING, M. Semi-supervised classification with graph
+  convolutional networks. In:  \textbf{Proc. ICLR}. [S.l.: s.n.], 2017.}
+
+\bibitem{velivckovic2017graph}
+\abntrefinfo{Veli{\v{c}}kovi{\'c} et al.}{VELI{\v{C}}KOVI{\'C} et al.}{2018}
+{VELI{\v{C}}KOVI{\'C}, P. et al. Graph attention networks. In:  \textbf{Proc.
+  ICLR}. [S.l.: s.n.], 2018. ArXiv:1710.10903.}
+
+\bibitem{hamilton2017graphsage}
+\abntrefinfo{Hamilton, Ying e Leskovec}{HAMILTON; YING; LESKOVEC}{2017}
+{HAMILTON, W.~L.; YING, R.; LESKOVEC, J. Inductive representation learning on
+  large graphs. In:  \textbf{Proc. NeurIPS}. [S.l.: s.n.], 2017.}
+
+\bibitem{belghazi2018mine}
+\abntrefinfo{Belghazi et al.}{BELGHAZI et al.}{2018}
+{BELGHAZI, M.~I. et al. Mutual information neural estimation. In:
+  \textbf{Proc. ICML}. [S.l.: s.n.], 2018. p. 531--540.}
+
+\bibitem{hjelm2019dim}
+\abntrefinfo{Hjelm et al.}{HJELM et al.}{2019}
+{HJELM, R.~D. et al. Learning deep representations by mutual information
+  estimation and maximization. In:  \textbf{Proc. ICLR}. [S.l.: s.n.], 2019.}
+
+\bibitem{velickovic2019deep}
+\abntrefinfo{Veli{\v{c}}kovi{\'c} et al.}{VELI{\v{C}}KOVI{\'C} et al.}{2019}
+{VELI{\v{C}}KOVI{\'C}, P. et al. Deep graph infomax. In:  \textbf{Proc. ICLR}.
+  [S.l.: s.n.], 2019.}
+
+\bibitem{huang2023hgi}
+\abntrefinfo{Huang et al.}{HUANG et al.}{2023}
+{HUANG, W. et al. Learning urban region representations with {POIs} and
+  hierarchical graph infomax.
+\textbf{ISPRS J. Photogramm. Remote Sens.}, v.~196, p. 134--145, 2023.}
+
+\bibitem{kazemi2019time2vec}
+\abntrefinfo{Kazemi et al.}{KAZEMI et al.}{2019}
+{KAZEMI, S.~M. et al. Time2vec: Learning a vector representation of time.
+\textbf{arXiv preprint arXiv:1907.05321}, 2019.}
+
+\bibitem{sitzmann2020implicit}
+\abntrefinfo{Sitzmann et al.}{SITZMANN et al.}{2020}
+{SITZMANN, V. et al. Implicit neural representations with periodic activation
+  functions. In:  \textbf{Advances in Neural Information Processing Systems}.
+  [S.l.: s.n.], 2020. v.~33, p. 7462--7473. ArXiv:2006.09661.}
+
+\bibitem{mai2020multiscalerepresentationlearningspatial}
+\abntrefinfo{Mai et al.}{MAI et al.}{2020}
+{MAI, G. et al. \textbf{Multi-Scale Representation Learning for Spatial Feature
+  Distributions using Grid Cells}. 2020.
+Dispon{\'\i}vel em: \url{https://arxiv.org/abs/2003.00824}.}
+
+\bibitem{rußwurm2024geographiclocationencodingspherical}
+\abntrefinfo{Rußwurm et al.}{RUßWURM et al.}{2024}
+{RUßWURM, M. et al. \textbf{Geographic Location Encoding with Spherical
+  Harmonics and Sinusoidal Representation Networks}. 2024.
+Dispon{\'\i}vel em: \url{https://arxiv.org/abs/2310.06743}.}
+
+\bibitem{perez2018film}
+\abntrefinfo{Perez et al.}{PEREZ et al.}{2018}
+{PEREZ, E. et al. {FiLM}: Visual reasoning with a general conditioning layer.
+  In:  \textbf{Proc.\ AAAI Conf.\ Artificial Intelligence}. [S.l.: s.n.], 2018.
+  p. 3942--3951.}
+
+\bibitem{silva2025mtlnet}
+\abntrefinfo{Silva et al.}{SILVA et al.}{2025}
+{SILVA, V. H.~O. et al. An investigation into multi-task learning for
+  point-of-interest category classification and next-{POI} prediction. In:
+  \textbf{Anais do XVII Congresso Brasileiro de Intelig{\^e}ncia Computacional
+  (CBIC 2025)}. [S.l.: s.n.], 2025. p.~1--8.}
+
+\bibitem{ruder2017mtloverview}
+\abntrefinfo{Ruder}{RUDER}{2017}
+{RUDER, S. \textbf{An Overview of Multi-Task Learning in Deep Neural Networks}.
+  2017. ArXiv:1706.05098.}
+
+\bibitem{misra2016cross}
+\abntrefinfo{Misra et al.}{MISRA et al.}{2016}
+{MISRA, I. et al. Cross-stitch networks for multi-task learning. In:
+  \textbf{Proceedings of the IEEE Conference on Computer Vision and Pattern
+  Recognition (CVPR)}. [S.l.: s.n.], 2016. p. 3994--4003.}
+
+\bibitem{ma2018mmoe}
+\abntrefinfo{Ma et al.}{MA et al.}{2018}
+{MA, J. et al. Modeling task relationships in multi-task learning with
+  multi-gate mixture-of-experts. In:  \textbf{Proceedings of the 24th ACM
+  SIGKDD International Conference on Knowledge Discovery \& Data Mining}.
+  [S.l.: s.n.], 2018. p. 1930--1939.}
+
+\bibitem{tang2020ple}
+\abntrefinfo{Tang et al.}{TANG et al.}{2020}
+{TANG, H. et al. Progressive layered extraction ({PLE}): A novel multi-task
+  learning ({MTL}) model for personalized recommendations. In:  \textbf{Proc.
+  RecSys}. [S.l.: s.n.], 2020. p. 269--278.}
+
+\bibitem{hazimeh2021dselectk}
+\abntrefinfo{Hazimeh et al.}{HAZIMEH et al.}{2021}
+{HAZIMEH, H. et al. {DSelect-k}: Differentiable selection in the mixture of
+  experts with applications to multi-task learning. In:  \textbf{Proc.
+  NeurIPS}. [S.l.: s.n.], 2021.}
+
+\bibitem{standley2020tasks}
+\abntrefinfo{Standley et al.}{STANDLEY et al.}{2020}
+{STANDLEY, T. et al. Which tasks should be learned together in multi-task
+  learning? In:  \textbf{Proc. Int. Conf. Machine Learning (ICML)}. [S.l.:
+  s.n.], 2020. ArXiv:1905.07553.}
+
+\bibitem{sener2018mgda}
+\abntrefinfo{Sener e Koltun}{SENER; KOLTUN}{2018}
+{SENER, O.; KOLTUN, V. Multi-task learning as multi-objective optimization. In:
+   \textbf{Advances in Neural Information Processing Systems (NeurIPS)}. [S.l.:
+  s.n.], 2018. v.~31, p. 527--538. ArXiv:1810.04650.}
+
+\bibitem{kendall2018uncertainty}
+\abntrefinfo{Kendall, Gal e Cipolla}{KENDALL; GAL; CIPOLLA}{2018}
+{KENDALL, A.; GAL, Y.; CIPOLLA, R. Multi-task learning using uncertainty to
+  weigh losses for scene geometry and semantics. In:  \textbf{Proc. IEEE/CVF
+  CVPR}. [S.l.: s.n.], 2018. p. 7482--7491.}
+
+\bibitem{chen2018gradnorm}
+\abntrefinfo{Chen et al.}{CHEN et al.}{2018}
+{CHEN, Z. et al. {GradNorm}: Gradient normalization for adaptive loss balancing
+  in deep multitask networks. In:  \textbf{Proc. ICML}. [S.l.: s.n.], 2018. p.
+  794--803.}
+
+\bibitem{liu2019dwa}
+\abntrefinfo{Liu, Johns e Davison}{LIU; JOHNS; DAVISON}{2019}
+{LIU, S.; JOHNS, E.; DAVISON, A.~J. End-to-end multi-task learning with
+  attention. In:  \textbf{Proceedings of the IEEE/CVF Conference on Computer
+  Vision and Pattern Recognition (CVPR)}. [S.l.: s.n.], 2019. Introduces
+  Dynamic Weight Averaging (DWA).}
+
+\bibitem{yu2020pcgrad}
+\abntrefinfo{Yu et al.}{YU et al.}{2020}
+{YU, T. et al. Gradient surgery for multi-task learning. In:  \textbf{Proc.
+  NeurIPS}. [S.l.: s.n.], 2020. v.~33.}
+
+\bibitem{liu2021cagrad}
+\abntrefinfo{Liu et al.}{LIU et al.}{2021}
+{LIU, B. et al. Conflict-averse gradient descent for multi-task learning. In:
+  \textbf{Proc. NeurIPS}. [S.l.: s.n.], 2021.}
+
+\bibitem{nash}
+\abntrefinfo{Navon et al.}{NAVON et al.}{2022}
+{NAVON, A. et al. Multi-task learning as a bargaining game. In:  \textbf{Proc.
+  ICML}. [S.l.: s.n.], 2022. p. 16428--16446.}
+
+\bibitem{senushkin2023aligned}
+\abntrefinfo{Senushkin et al.}{SENUSHKIN et al.}{2023}
+{SENUSHKIN, D. et al. Independent component alignment for multi-task learning.
+  In:  \textbf{Proc. IEEE/CVF CVPR}. [S.l.: s.n.], 2023. p. 20083--20093.}
+
+\bibitem{liu2023famo}
+\abntrefinfo{Liu et al.}{LIU et al.}{2023}
+{LIU, B. et al. {FAMO}: Fast adaptive multitask optimization. In:
+  \textbf{Proc. NeurIPS}. [S.l.: s.n.], 2023. v.~36.}
+
+\bibitem{lin2022rlw}
+\abntrefinfo{Lin et al.}{LIN et al.}{2022}
+{LIN, B. et al. Reasonable effectiveness of random weighting: A litmus test for
+  multi-task learning.
+\textbf{Transactions on Machine Learning Research}, 2022.}
+
+\bibitem{xin2022domtl}
+\abntrefinfo{Xin et al.}{XIN et al.}{2022}
+{XIN, D. et al. Do current multi-task optimization methods in deep learning
+  even help? In:  \textbf{Proc. NeurIPS}. [S.l.: s.n.], 2022. v.~35.}
+
+\bibitem{kurin2022scalarization}
+\abntrefinfo{Kurin et al.}{KURIN et al.}{2022}
+{KURIN, V. et al. In defense of the unitary scalarization for deep multi-task
+  learning. In:  \textbf{Proc. NeurIPS}. [S.l.: s.n.], 2022. v.~35.}
+
+\bibitem{vandenhende2022mtl}
+\abntrefinfo{Vandenhende et al.}{VANDENHENDE et al.}{2022}
+{VANDENHENDE, S. et al. Multi-task learning for dense prediction tasks: A
+  survey.
+\textbf{IEEE Transactions on Pattern Analysis and Machine Intelligence}, v.~44,
+  n.~7, p. 3614--3633, 2022.}
+
+\bibitem{yu2024survey}
+\abntrefinfo{Yu et al.}{YU et al.}{2024}
+{YU, J. et al. Unleashing the power of multi-task learning: A comprehensive
+  survey spanning traditional, deep, and pretrained foundation model eras.
+\textbf{arXiv preprint arXiv:2404.18961}, 2024.
+Dispon{\'\i}vel em: \url{https://arxiv.org/abs/2404.18961}.}
+
+\bibitem{Liao2018}
+\abntrefinfo{Liao et al.}{LIAO et al.}{2018}
+{LIAO, D. et al. Predicting activity and location with multi-task context aware
+  recurrent neural network. In:  \textbf{Proc. IJCAI}. [S.l.: s.n.], 2018. p.
+  3435--3441.}
+
+\bibitem{huang2024cslsl}
+\abntrefinfo{Huang et al.}{HUANG et al.}{2024}
+{HUANG, Z. et al. Human mobility prediction with causal and spatial-constrained
+  multi-task network.
+\textbf{EPJ Data Sci.}, v.~13, n.~1, p.~22, 2024.}
+
+\bibitem{wongso2025massivesteps}
+\abntrefinfo{Wongso, Xue e Salim}{WONGSO; XUE; SALIM}{2025}
+{WONGSO, W.; XUE, H.; SALIM, F.~D. \textbf{Massive-STEPS: Massive Semantic
+  Trajectories for Understanding {POI} Check-ins --- Dataset and Benchmarks}.
+  2025. ArXiv:2505.11239.}
+
+\bibitem{yang2015tsmc}
+\abntrefinfo{Yang et al.}{YANG et al.}{2015}
+{YANG, D. et al. Modeling user activity preference by leveraging user spatial
+  temporal characteristics in {LBSN}s.
+\textbf{IEEE Transactions on Systems, Man, and Cybernetics: Systems}, v.~45,
+  n.~1, p. 129--142, 2015.}
+
+\bibitem{sokolova2009measures}
+\abntrefinfo{Sokolova e Lapalme}{SOKOLOVA; LAPALME}{2009}
+{SOKOLOVA, M.; LAPALME, G. A systematic analysis of performance measures for
+  classification tasks.
+\textbf{Information Processing \& Management}, v.~45, n.~4, p. 427--437, 2009.}
+
+\bibitem{maninis2019attentive}
+\abntrefinfo{Maninis, Radosavovic e Kokkinos}{MANINIS; RADOSAVOVIC;
+  KOKKINOS}{2019}
+{MANINIS, K.-K.; RADOSAVOVIC, I.; KOKKINOS, I. Attentive single-tasking of
+  multiple tasks. In:  \textbf{Proc. IEEE/CVF CVPR}. [S.l.: s.n.], 2019. p.
+  1851--1860.}
+
+\bibitem{gambs2012mmc}
+\abntrefinfo{Gambs, Killijian e Cortez}{GAMBS; KILLIJIAN; CORTEZ}{2012}
+{GAMBS, S.; KILLIJIAN, M.-O.; CORTEZ, M.~N. del P. Next place prediction using
+  mobility markov chains. In:  \textbf{Proc. MPM (EuroSys Workshop)}. [S.l.:
+  s.n.], 2012. p.~1--6.}
+
+\bibitem{kohavi1995crossval}
+\abntrefinfo{Kohavi}{KOHAVI}{1995}
+{KOHAVI, R. A study of cross-validation and bootstrap for accuracy estimation
+  and model selection. In:  \textbf{Proc. IJCAI}. [S.l.: s.n.], 1995. v.~14, p.
+  1137--1143.}
+
+\bibitem{pedregosa2011sklearn}
+\abntrefinfo{Pedregosa et al.}{PEDREGOSA et al.}{2011}
+{PEDREGOSA, F. et al. Scikit-learn: Machine learning in {P}ython.
+\textbf{Journal of Machine Learning Research}, v.~12, p. 2825--2830, 2011.}
+
+\bibitem{wilcoxon1945}
+\abntrefinfo{Wilcoxon}{WILCOXON}{1945}
+{WILCOXON, F. Individual comparisons by ranking methods.
+\textbf{Biometrics Bulletin}, v.~1, n.~6, p. 80--83, 1945.}
+
+\bibitem{holm1979}
+\abntrefinfo{Holm}{HOLM}{1979}
+{HOLM, S. A simple sequentially rejective multiple test procedure.
+\textbf{Scand. J. Statist.}, v.~6, n.~2, p. 65--70, 1979.}
+
+\bibitem{lakens2017tost}
+\abntrefinfo{Lakens}{LAKENS}{2017}
+{LAKENS, D. Equivalence tests: A practical primer for t tests, correlations,
+  and meta-analyses.
+\textbf{Soc. Psychol. Personal. Sci.}, v.~8, n.~4, p. 355--362, 2017.}
+
+\bibitem{Zhang2020}
+\abntrefinfo{Zhang et al.}{ZHANG et al.}{2020}
+{ZHANG, L. et al. An interactive multi-task learning framework for next {POI}
+  recommendation with uncertain check-ins. In:  \textbf{Proc. IJCAI}. [S.l.:
+  s.n.], 2020. p. 3551--3557.}
+
+\bibitem{jure2014snap}
+\abntrefinfo{Leskovec e Krevl}{LESKOVEC; KREVL}{2014}
+{LESKOVEC, J.; KREVL, A. \textbf{{SNAP} Datasets: {Stanford} Large Network
+  Dataset Collection}. 2014.
+  \url{https://snap.stanford.edu/data/loc-gowalla.html}.
+Accessed: 2024-05-21.}
+
+\bibitem{chen2020modeling}
+\abntrefinfo{Chen et al.}{CHEN et al.}{2022}
+{CHEN, M. et al. Modeling spatial trajectories with attribute representation
+  learning.
+\textbf{IEEE Transactions on Knowledge and Data Engineering}, v.~34, n.~4, p.
+  1902--1914, 2022.}
+
+\bibitem{zeng2019next}
+\abntrefinfo{Zeng et al.}{ZENG et al.}{2019}
+{ZENG, J. et al. A next location predicting approach based on a recurrent
+  neural network and self-attention. In:  \textbf{Collaborative Computing:
+  Networking, Applications and Worksharing (CollaborateCom)}. [S.l.]: Springer,
+  2019. p. 309--322.}
+
+\bibitem{zhang2021survey}
+\abntrefinfo{Zhang e Yang}{ZHANG; YANG}{2022}
+{ZHANG, Y.; YANG, Q. A survey on multi-task learning.
+\textbf{IEEE Transactions on Knowledge and Data Engineering}, v.~34, n.~12, p.
+  5586--5609, 2022.}
+
+\bibitem{ruder2017sluice}
+\abntrefinfo{Ruder et al.}{RUDER et al.}{2017}
+{RUDER, S. et al. Sluice networks: Learning what to share between loosely
+  related tasks.
+\textbf{arXiv preprint arXiv:1705.08142}, 2017.}
+
+\bibitem{Halder2021}
+\abntrefinfo{Halder et al.}{HALDER et al.}{2021}
+{HALDER, S. et al. Transformer-based multi-task learning for queuing time aware
+  next poi recommendation. In:  \textbf{Advances in Knowledge Discovery and
+  Data Mining}. Cham: Springer International Publishing, 2021. p. 510--523.}
+
+\bibitem{Xia2020}
+\abntrefinfo{Xia et al.}{XIA et al.}{2020}
+{XIA, B. et al. Mtpr: A multi-task learning based poi recommendation
+  considering temporal check-ins and geographical locations.
+\textbf{Applied Sciences}, v.~10, n.~19, 2020.
+ISSN 2076-3417.
+Dispon{\'\i}vel em: \url{https://www.mdpi.com/2076-3417/10/19/6664}.}
+
+\bibitem{du2019beyond}
+\abntrefinfo{Du et al.}{DU et al.}{2019}
+{DU, J. et al. Beyond geo-first law: Learning spatial representations via
+  integrated autocorrelations and complementarity. In:  IEEE. \textbf{2019 IEEE
+  international conference on data mining (ICDM)}. [S.l.], 2019. p. 160--169.}
+
+\bibitem{huang2022estimating}
+\abntrefinfo{Huang et al.}{HUANG et al.}{2022}
+{HUANG, W. et al. Estimating urban functional distributions with semantics
+  preserved poi embedding.
+\textbf{International Journal of Geographical Information Science}, Taylor \&
+  Francis, v.~36, n.~10, p. 1905--1930, 2022.}
+
+\bibitem{baxter2000model}
+\abntrefinfo{Baxter}{BAXTER}{2000}
+{BAXTER, J. A model of inductive bias learning.
+\textbf{Journal of Artificial Intelligence Research}, v.~12, p. 149--198,
+  2000.}
+
+\bibitem{vaswani2017attention}
+\abntrefinfo{Vaswani et al.}{VASWANI et al.}{2017}
+{VASWANI, A. et al. Attention is all you need. In:  \textbf{Advances in Neural
+  Information Processing Systems}. [S.l.: s.n.], 2017. p. 5998--6008.
+  ArXiv:1706.03762.}
+
+\bibitem{paiva2026stmtlnet}
+\abntrefinfo{Paiva et al.}{PAIVA et al.}{2026}
+{PAIVA, T.~S. et al. {ST-MTLNet}: Representa{\c{c}}{\~o}es
+  espa{\c{c}}o-temporais de pontos de interesse para aprendizado multitarefa.
+  In:  \textbf{Anais do X Workshop de Computa{\c{c}}{\~a}o Urbana (CoUrb
+  2026)}. [S.l.]: Sociedade Brasileira de Computa{\c{c}}{\~a}o (SBC), 2026. p.
+  323--336.}
+
+\bibitem{feng2017poi2vec}
+\abntrefinfo{Feng et al.}{FENG et al.}{2017}
+{FENG, S. et al. {POI2Vec}: Geographical latent representation for predicting
+  future visitors. In:  \textbf{Proc. AAAI Conf. Artif. Intell.} [S.l.: s.n.],
+  2017. v.~31, n.~1, p. 102--108.}
+
+\bibitem{rahmani2019category}
+\abntrefinfo{Rahmani et al.}{RAHMANI et al.}{2019}
+{RAHMANI, H.~A. et al. Category-aware location embedding for point-of-interest
+  recommendation. In:  \textbf{Proceedings of the 2019 ACM SIGIR international
+  conference on theory of information retrieval}. [S.l.: s.n.], 2019. p.
+  173--176.}
+
+\bibitem{sun2020go}
+\abntrefinfo{Sun et al.}{SUN et al.}{2020}
+{SUN, K. et al. Where to go next: Modeling long-and short-term user preferences
+  for point-of-interest recommendation. In:  \textbf{Proceedings of the AAAI
+  conference on artificial intelligence}. [S.l.: s.n.], 2020. v.~34, n.~01, p.
+  214--221.}
+
+\bibitem{sun2024transtarec}
+\abntrefinfo{Sun}{SUN}{2024}
+{SUN, Y. Transtarec: Time-adaptive translating embedding model for next poi
+  recommendation. In:  IEEE. \textbf{2024 5th International Conference on
+  Computer Engineering and Application (ICCEA)}. [S.l.], 2024. p. 647--651.}
+
+\bibitem{Halder2022}
+\abntrefinfo{Halder et al.}{HALDER et al.}{2022}
+{HALDER, S. et al. Poi recommendation with queuing time and user interest
+  awareness.
+\textbf{Data Mining and Knowledge Discovery}, v.~36, p. 2379--2409, 2022.}
+
+\bibitem{belkin2003laplacian}
+\abntrefinfo{Belkin e Niyogi}{BELKIN; NIYOGI}{2003}
+{BELKIN, M.; NIYOGI, P. Laplacian eigenmaps for dimensionality reduction and
+  data representation.
+\textbf{Neural Computation}, v.~15, n.~6, p. 1373--1396, 2003.}
+
+\bibitem{bastug2014edge}
+\abntrefinfo{Bastug, Bennis e Debbah}{BASTUG; BENNIS; DEBBAH}{2014}
+{BASTUG, E.; BENNIS, M.; DEBBAH, M. Living on the edge: The role of proactive
+  caching in {5G} wireless networks.
+\textbf{IEEE Commun. Mag.}, v.~52, n.~8, p. 82--89, 2014.}
+
+\bibitem{vielhaus2022handover}
+\abntrefinfo{Vielhaus et al.}{VIELHAUS et al.}{2022}
+{VIELHAUS, C.~L. et al. Handover predictions as an enabler for anticipatory
+  service adaptations in next-generation cellular networks. In:  \textbf{Proc.
+  ACM MobiWac}. [S.l.]: ACM, 2022. p. 19--27.}
+
+\bibitem{moura2025mobilityaware}
+\abntrefinfo{Moura, Aquino e Loureiro}{MOURA; AQUINO; LOUREIRO}{2025}
+{MOURA, D. L.~L.; AQUINO, A. L.~L.; LOUREIRO, A. A.~F. On the design of
+  mobility-aware systems: A tourist's perspective. In:  \textbf{Proc. IEEE/ACM
+  MSWiM}. [S.l.: s.n.], 2025. p. 667--674.}
+
+\bibitem{sun2024mcmg}
+\abntrefinfo{Sun et al.}{SUN et al.}{2024}
+{SUN, Z. et al. A multi-channel next {POI} recommendation framework with
+  multi-granularity check-in signals.
+\textbf{ACM Trans. Inf. Syst.}, v.~42, n.~1, p. 1--28, 2024.}
+
+\bibitem{sun2025kgtb}
+\abntrefinfo{Sun e Xu}{SUN; XU}{2025}
+{SUN, K.; XU, M. \textbf{Knowledge Graph Tokenization for Behavior-Aware
+  Generative Next {POI} Recommendation}. 2025. ArXiv:2509.12350.}
+
+\bibitem{wang2025hamtl}
+\abntrefinfo{Wang et al.}{WANG et al.}{2025}
+{WANG, Y. et al. Hierarchy aware-based multi-task learning for user location
+  prediction.
+\textbf{The Journal of Supercomputing}, v.~81, n.~11, 2025.}
+
+\bibitem{ye2013nextmove}
+\abntrefinfo{Ye, Zhu e Cheng}{YE; ZHU; CHENG}{2013}
+{YE, J.; ZHU, Z.; CHENG, H. What's your next move: User activity prediction in
+  location-based social networks. In:  \textbf{Proc. SIAM SDM}. [S.l.: s.n.],
+  2013. p. 171--179.}
+
+\bibitem{li2025rehdm}
+\abntrefinfo{Li et al.}{LI et al.}{2025}
+{LI, X. et al. Beyond individual and point: Next {POI} recommendation via
+  region-aware dynamic hypergraph with dual-level modeling. In:  \textbf{Proc.
+  IJCAI}. [S.l.: s.n.], 2025. p. 3081--3089.}
+
+\end{thebibliography}
