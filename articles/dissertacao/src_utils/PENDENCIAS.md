@@ -155,13 +155,25 @@ pelo mecanismo do Apendice B, e ele so fica legitimo com o aval dele.
 
 > DECISAO: __________________________________________________
 
-### Outros pontos
+### ~~Outros pontos: erratas do MobiWac durante a revisao~~ — APLICADO 2026-07-27
 
-Sobre as erratas pricipalmente do mobiwac eu gostaria de reiteira que ainda estamos no periodo de revisão do artigo,
-então não precisa haver erratas, para ele a não ser que essa errada não cabe entrar na revisão se for algum conceito
-muito elaborado, como é o caso do appendix D, mas caso contratrio, podemos alterar aqui na dissertacao e no texto
-original, inclusive isso abre outro ponto: As alterações de texto que são menores como eu citei estamos também aplicando
-no texto original do mobiwac, faça um diff com o texto original se preciso, mas garanta e reflita sobre isso.
+Sua instrucao foi seguida: o artigo esta em revisao, entao correcao menor **nao vira errata** — aplico
+no texto original tambem e os dois ficam identicos. Classifiquei as quatro linhas da tabela de errata do
+Cap. 5 contra o `[mobiwac]/src/`:
+
+| Correcao | Destino | Por que |
+|---|---|---|
+| frase dos balanceadores | **os dois textos** (`02_related.tex`) | menor: troca uma alegacao vaga pelo numero real |
+| terceira limitacao | **os dois textos** (`07_discussion.tex`) | menor: declara uma consequencia que o artigo ja divulga |
+| paragrafo de integridade | **fica errata** | o quarto fundamento cita o Apendice D, que nao cabe no artigo |
+| controle de congelamento | **fica errata** | cita a tabela de resultados da dissertacao |
+
+Detalhes que exigiram cuidado: o rotulo `sec:mobiwac:setup-windows` da dissertacao **nao existe** no
+artigo, foi remapeado para o `sec:setup-windows` dele, e "this chapter's claims" virou "the paper's
+claims". Artigo reconstruido: **9 pp, 0 referencias indefinidas, 0 citacoes indefinidas, 0 erros**.
+Registrado no `[mobiwac]/ERRATA.md`. A frase de abertura do Apendice B foi corrigida de quatro para
+duas e agora **explica a politica ao leitor**. Seu trabalho nao commitado de 25/07 em `[mobiwac]/` foi
+preservado (conferi os mtimes antes de editar).
 
 ---
 
@@ -230,21 +242,15 @@ e verificados.
 > adicionar isso no appendix B, mas deixe isso facil de ser comentado, vide que eu ainda vou discutir com meu orientador
 > sobre se argumentamos ou não quanto a isso.
 
-### 1b.3 O custo do Nash-MTL: corrigir ou so declarar? (persona 10, MAJOR)
+### ~~1b.3 O custo do Nash-MTL~~ — CORRIGIDO 2026-07-27, um so padrao
 
-**O achado.** A frase publicada "requires only two matrix-vector products per iteration" nao tem apoio no artigo (a
-expressao nao ocorre nele) e **subestima** o custo: as duas implementacoes rodam um procedimento concavo-convexo
-iterativo, 20 passos por padrao, cada um uma resolucao convexa, alem de um backward por tarefa. Voce ja tinha decidido
-REPORTED, NOT CORRECTED, e **mantive** sua decisao. O ponto novo da persona e a **assimetria**: o Apendice B corrige a
-clausula **vizinha da mesma frase** (sinais de gradiente), entao o silencio sobre esta metade convida a pergunta.
-
-**O que fiz.** A secao "deliberadamente preservados" do Apendice B agora **nomeia** a preservacao, passando de dois para
-tres elementos, e diz que a correcao correria **a seu favor**.
-
-**(C)** Manter assim (recomendo), ou mover para a tabela de errata e corrigir de fato?
-
-> DECISAO: Vamos seguir um padrão, caso contrario algum revisor pode questionar o fato de alguns erros factuais eu
-> alterar o texto e outros não, assim eu tendo a seguir com a opção de corrigir de fato no texto e mover para tabela.
+Sua razao foi aceita e aplicada: um padrao unico para erro factual. A clausula publicada "requires only
+two matrix-vector products per iteration" saiu da frase reproduzida no Cap. 3, com nota de rodape
+explicando, e entrou na **tabela de errata do CBIC**, ao lado da correcao de escala de gradiente que fica
+na mesma frase publicada. A secao "deliberadamente preservados" caiu de tres para dois elementos.
+Isto **supera** a decisao anterior de so declarar. A correcao **aumenta** o custo de um metodo que o
+capitulo usou, ou seja, corre contra o interesse da propria dissertacao — e portanto conservadora alem de
+consistente. Commit `d1911c0a`.
 
 ### 1b.4 O determinismo da categoria agora esta medido nos CINCO estados (persona 11)
 
@@ -376,32 +382,26 @@ questao de fidelidade, porque a figura pertence a um artigo publicado co-autorad
 > imagem de distribuicao_estados.png, essa também tem palavras em portgues, e para gerar ela temos que investigar o
 > /Users/vitor/Desktop/mestrado/temp/tarik-new.
 
-### 3.3 Resumo e Abstract: tamanho (REV-018) — **rota (ii) aplicada e ESGOTADA; a (i) e sua**
+### ~~3.3 Resumo e Abstract: tamanho (REV-018)~~ — **A PAGINA FECHOU** 2026-07-27
 
-**Feito nesta rodada.** Voce escolheu a rota (ii), o ajuste mecanico. Apliquei: `\needspace{7\onelineskip}`
-antes dos dois blocos de palavras-chave (PT e EN), com o pacote `needspace` carregado no preambulo.
+Voce escolheu a rota (i), cortar 60 a 80 palavras. Cortei **36 em paridade** (Resumo 565 -> 529, Abstract
+485 -> 452): sairam as duas glosas parenteticas da selecao \emph{joint-best} e a frase de motivacao foi
+comprimida. Cada numero, nome de teste e token de alegacao foi verificado presente nos dois idiomas.
 
-**O que isso resolveu:** o bloco de palavras-chave agora quebra **inteiro**. Antes a p. 4 tinha 14 palavras, duas
-palavras-chave orfas separadas do rotulo; agora tem 21, o rotulo `Palavras-chave:` e as cinco entradas juntas. Um leitor
-ve um bloco deliberado, nao um resto.
+**E foi suficiente: a pagina quase em branco acabou.** 104 -> **103 pp**; o Resumo e suas palavras-chave
+dividem a p. 3, o Abstract fica com a p. 4, e a p. 4 saiu inteiramente da lista de paginas com pouco
+texto. Nao precisou dos 60 a 80 completos.
 
-**O que isso NAO resolveu, e nao ha como resolver mecanicamente:** a p. 4 continua quase em branco. O motivo, medido: o
-corpo do Resumo ocupa **496 palavras** e enche a p. 3 inteira. O bloco de palavras-chave nao cabe acima dele por nenhum
-ajuste de espacamento — nao ha espaco vertical para onde empurra-lo. `\clearpage`, `\vspace` negativo e reducao de
-`\onelineskip` foram considerados e descartados: os dois primeiros nao mudam o fato de a p. 3 estar cheia, e o terceiro
-mexeria no espacamento global do documento para consertar uma pagina.
+**Um defeito meu, descoberto no caminho.** O `\needspace` que eu adicionei na rodada anterior **nunca
+funcionou**: testei 3, 4, 5, 6, 7, 8, 9, 10 e removido, e as palavras-chave se separavam do rotulo em
+**todos** os casos, porque `needspace` reserva espaco para as linhas seguintes e nao consegue amarrar uma
+lista separada por `\\`. Pior: um regex meu havia deixado a chamada como `\needspace{7\\onelineskip}`,
+com barra dupla. Trocado por um `minipage`, que faz do rotulo e das cinco palavras **uma caixa
+indivisivel** — verificado. O pacote `needspace` nao e mais carregado.
 
-**Portanto a rota (i) e a unica que remove a pagina, e ela e sua**, porque comprimir o Resumo mexe em alegacao. Numeros
-para a decisao: Resumo **496 palavras** de prosa, Abstract **493**. Nenhuma norma e violada — reconfirmei que nem o
-`UFV_COMPLIANCE.md` nem o Manual 04/2026 impoem limite de palavras; a unica regra e "uma palavra por linha" nas
-palavras-chave, que esta cumprida. Para o bloco caber na p. 3 seria preciso cortar da ordem de **60 a 80 palavras** do
-Resumo, e o par PT/EN tem de andar junto.
+**O que ainda e seu:** voce pediu revisores sobre o Resumo e o Abstract para avaliar qualidade e
+excelencia contra os exemplares. Vale rodar a persona 15 com esse escopo especifico na proxima rodada,
+com os textos ja no tamanho final.
 
-Voce tambem pediu para avaliar se o Resumo e o Abstract cumprem bem seu proposito, e para comparar com as dissertacoes
-de exemplo. Isso e leitura de conteudo, nao medicao, e cai naturalmente para a persona 15 na proxima rodada de revisao —
-posso pedir a ela um parecer especifico sobre os dois textos, contra os exemplares de excelencia, e voce decide com o
-parecer na mao.
+> DECISAO (rodar a persona 15 sobre o par Resumo/Abstract?): __________________________________
 
-> DECISAO: Vamos então cortar de 60 a 80 palavras do Resumo, para tentar ficar dentro. Ao final vamos rodar alguns
-> revisores sobre o resume e abstract para avaliar a qualidade, excelencia em relação as dissertaçoes de exemplo e ao que
-> temos de conhciemtno da literatura.
