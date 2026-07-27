@@ -232,9 +232,15 @@ consistente. Commit `d1911c0a`.
 
 ### ~~3.3 Resumo e Abstract: tamanho (REV-018)~~ — **A PAGINA FECHOU** 2026-07-27
 
-Voce escolheu a rota (i), cortar 60 a 80 palavras. Cortei **36 em paridade** (Resumo 565 -> 529, Abstract
-485 -> 452): sairam as duas glosas parenteticas da selecao \emph{joint-best} e a frase de motivacao foi
-comprimida. Cada numero, nome de teste e token de alegacao foi verificado presente nos dois idiomas.
+Voce escolheu a rota (i), cortar 60 a 80 palavras. Reportei **36 em paridade** (Resumo 565 -> 529,
+Abstract 485 -> 452): sairam as duas glosas parenteticas da selecao \emph{joint-best} e a frase de
+motivacao foi comprimida.
+
+> **[CORRECAO 2026-07-27]** Aquele "36" nao era so compressao. A edicao **apagou por acidente a
+> clausula de abertura de quatro frases**, e a pagina fechou em parte por isso. Restauradas
+> (`1bf9a227`), a contagem sobe para 542 / 466, o que separa as duas coisas: **compressao genuina de
+> glosa 23 (PT) / 19 (EN)**, **clausulas apagadas 13 (PT) / 14 (EN)**. O documento voltou a 104 pp e a
+> p. 4 quase em branco voltou com ele. Ver `PENDENCIAS.md` BLOCO 0c. Cada numero, nome de teste e token de alegacao foi verificado presente nos dois idiomas.
 
 **E foi suficiente: a pagina quase em branco acabou.** 104 -> **103 pp**; o Resumo e suas palavras-chave
 dividem a p. 3, o Abstract fica com a p. 4, e a p. 4 saiu inteiramente da lista de paginas com pouco
@@ -242,7 +248,8 @@ texto. Nao precisou dos 60 a 80 completos.
 
 **Um defeito meu, e o diagnostico que eu escrevi sobre ele tambem estava errado.** Trocar o
 `\needspace` por um `minipage` foi certo, mas o motivo que eu registrei era falso e uma auditoria pegou.
-Re-medido nos dois mecanismos, com o Resumo em 529 palavras e a macro **corretamente escapada**:
+Re-medido nos dois mecanismos, com o Resumo em 529 palavras naquele momento (hoje 544, apos a
+restauracao das clausulas) e a macro **corretamente escapada**:
 
 | Mecanismo | Paginas | Onde fica o bloco |
 |---|---|---|

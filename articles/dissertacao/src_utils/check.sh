@@ -81,6 +81,14 @@ if ! python3 "$UTILS/sync_page_counts.py"; then
   FAIL=1
 fi
 
+echo "== word-count claims reconcile with their own recorded stages =="
+# THIRD arithmetic error in a WRITE-UP of correct work (2026-07-27): a register entry stated the
+# Resumo compression split backwards ("~13 words of gloss, the other ~30 deleted clauses") when its
+# own recorded stages give compression 23/19 and deletion 13/14. The measurement was right; the prose
+# about it was not. This recomputes the split from the endpoints and fails when prose disagrees.
+# Quoted admissions of the old figure are allowed, so the corrections themselves do not trip it.
+if ! python3 "$UTILS/check_wordcount_claims.py"; then FAIL=1; fi
+
 echo "== torn sentences (a body line opening mid-sentence: the clause before it is GONE) =="
 # A DIFFERENT defect from trapped prose: nothing is trapped, the opening clause is simply absent, and
 # the build is clean. Found 2026-07-27 by persona 03 in the Resumo and Abstract (rendered pp. 3-4,

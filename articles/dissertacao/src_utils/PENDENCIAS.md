@@ -228,12 +228,29 @@ nas p. 3 e 4:
 
 Restaurado **literalmente do git**, nao reconstruido. As quatro verificadas renderizando.
 
-**E o ponto mais grave que o erro de digitacao: eu relatei a pagina quase-branca como fechada por
-compressao.** Ela fechou porque **faltava texto**, nao porque o texto estava mais enxuto. A compressao
-real foi de ~13 palavras de glosa, nao as 36 que eu reportei — as outras ~30 eram as clausulas que eu
-apaguei sem perceber. O documento voltou a **104 pp**, que e o estado honesto. A paridade de alegacao
-tambem quebrou nos mesmos dois lugares, ou seja, o dano era simetrico e nenhum idioma podia denunciar o
-outro.
+**E o ponto mais grave que o erro em si: eu relatei a pagina quase-branca como fechada por
+compressao.** Ela fechou **em parte porque faltava texto**, nao so porque o texto estava mais enxuto.
+
+Os numeros, medidos e nao estimados (uma auditoria pegou que eu havia **trocado os dois** na primeira
+versao desta nota):
+
+| Estagio | Resumo | Abstract |
+|---|---:|---:|
+| antes da minha compressao | 565 | 485 |
+| depois (com as clausulas apagadas sem eu perceber) | 529 | 452 |
+| clausulas restauradas | 542 | 466 |
+
+- **compressao genuina de glosa: 23 palavras (PT) / 19 (EN)** — 565 para 542, e 485 para 466;
+- **clausulas apagadas por acidente: 13 (PT) / 14 (EN)** — o que a restauracao devolveu.
+
+Eu havia escrito "a compressao real foi de ~13 palavras, as outras ~30 eram clausulas apagadas". Esta
+**invertido**: 13 e o total apagado, nao o comprimido, e "~30" nao fecha com nenhum agrupamento (o
+apagado somando os dois idiomas da 27). A conclusao qualitativa sobrevive — parte do fechamento da
+pagina veio de texto ausente — mas o registro durvel subestimava a compressao real pela metade e
+exagerava o acidente em mais de duas vezes. O documento voltou a **104 pp**, que e o estado honesto.
+
+A paridade de alegacao tambem quebrou nos mesmos dois lugares, ou seja, o dano era simetrico e nenhum
+idioma podia denunciar o outro.
 
 **Nenhum gate pegou porque e uma classe nova:** o detector de prosa presa procura texto preso depois do
 ultimo `%`; aqui nao ha nada preso, a clausula simplesmente nao existe, e o build fica limpo. A persona

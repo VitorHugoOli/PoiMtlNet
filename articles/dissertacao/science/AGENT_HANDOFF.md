@@ -82,9 +82,15 @@ by persona 03 reading the front matter **as rendered prose**, not as source.
   preceding non-blank body line ends in a sentence terminator. Validated both ways: zero on the
   repaired tree, exactly the four real defects when reintroduced. In `check.sh`.
 - **The subtler lesson.** Those deletions had *closed a near-blank page*, and I reported the closure
-  as a compression success. The page had closed because text was **missing**, not because the text was
-  tighter. When a layout problem resolves after an edit, confirm the resolution came from the change
-  you intended.
+  as a compression success. The page had closed **partly because text was missing**, not only because
+  the text was tighter. When a layout problem resolves after an edit, confirm the resolution came from
+  the change you intended.
+- **And a second-order version of the same error.** Writing up that correction, I stated the split
+  backwards: "real compression was ~13 words, the other ~30 were deleted clauses". The measured
+  numbers are the reverse — genuine gloss compression 23 (PT) / 19 (EN), accidental deletion 13 / 14 —
+  and "~30" reconciles with no grouping of them. An audit caught it. **When you correct a number,
+  recompute both sides of the correction from the printed measurements rather than reasoning about
+  which way round they went.**
 
 ### 2.2 A no-op substitution read as a measurement (TWICE)
 
