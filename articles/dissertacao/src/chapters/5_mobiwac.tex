@@ -785,8 +785,15 @@ HMT-GRN falls below it at all six, the ReHDM reference at three, and STAN at fou
 facts about how these numbers were produced bear on that comparison. The first concerns
 the floor: it is computed under our own sliding-window protocol and fold splits. Those
 windows advance one visit at a time, so the region of the last visit is a strong predictor
-of the next one, and a first-order transition table reads exactly that signal. At Alabama,
-22.4 percent of windows contain their own target region as a genuine revisit. The second
+of the next one, and a first-order transition table reads exactly that signal. At Alabama the target region is the last visited region in $32.1$ percent of windows, which
+is what that table predicts when its first guess is right.
+% [round5, fact gate BLOCKER] Previous sentence: "At Alabama, 22.4 percent of windows contain their
+% own target region as a genuine revisit." WRONG QUANTITY -- 22.4 is a PLACE-level "target reappears
+% in its own 9-history" rate on NON-OVERLAPPING windows (PIPELINE_AUDIT_2026-06-03.md:24), while the
+% floor is region-level on stride-1 windows. Replaced with the first-order Markov Acc@1 from the same
+% artifact the floor comes from: markov_floor_stride1/alabama.json, aggregate acc1_mean 0.32064
+% (sd 0.01691), same 96,326 windows and folds as the 62.26 Acc@10 floor quoted above.
+The second
 fact concerns the three systems, which do not meet the floor on equal terms. HMT-GRN is
 evaluated on the same data, folds, and initialization as our models. STAN runs on the same
 folds, but builds its own embeddings and its own sequences from the raw check-ins. The
