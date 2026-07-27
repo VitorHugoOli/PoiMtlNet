@@ -1,15 +1,15 @@
 %%==============================================================
 %% Master's dissertation -- Vitor H. O. Silva, UFV / PPGCC (Campus Florestal)
-%% Skeleton derived from the Germano tree (exemples/germano/, defended 2024, same
-%% advisor; TEMPLATE.md §0 decision), machinery kept, content stripped.
+%% Skeleton derived from a prior UFV/PPGCC abnTeX2 dissertation tree (TEMPLATE.md §0
+%% decision), machinery kept, content stripped.
 %% KEPT: abntex2 class + abntex2-UFV.sty + abntex2-num.bst, memoir options,
 %%       hyperref setup, babel plumbing (brazil loaded, english main), booktabs/
 %%       subcaption/amsmath float stack, frenchspacing.
-%% STRIPPED: Germano's chapters, \modelname macro, color palette, listings/algorithm2e/
-%%       lipsum/svg/pdfpages/dsfont/lscape (unused here; re-add per need), his
-%%       Abstract text and title metadata.
+%% STRIPPED: the source tree's chapters, \modelname macro, color palette, listings/
+%%       algorithm2e/lipsum/svg/pdfpages/dsfont/lscape (unused here; re-add per need),
+%%       and its Abstract text and title metadata.
 %% CHANGED: lmodern -> newtxtext/newtxmath (Times; manual §8);
-%%       abntex2cite [alf] -> [num] (settled decision #5, Viegas-style numeric global);
+%%       abntex2cite [alf] -> [num] (settled decision #5, single numeric global list);
 %%       two build modes via \ifdefensebuild (TEMPLATE.md §2 item 4);
 %%       chapterpreface environment (time-capsule device, NORTH_STAR §3);
 %%       \OnehalfSpacing enforced (manual §7: 1.5 line spacing).
@@ -26,7 +26,7 @@
 	english,			    % last = main document language
 	]{abntex2}
 
-% -- Machinery (Germano tree, kept) --
+% -- Machinery (from the source tree, kept) --
 \usepackage{abntex2-UFV}        % UFV front matter + 3/2 cm margins (checked vs manual §7)
 % Gate D-1 fix: abntex2-UFV runs \checkandfixthelayout under single spacing, leaving a
 % text block ~11pt taller than the 3cm/2cm margins dictate (bottom margin measured
@@ -55,10 +55,10 @@
 \usepackage{bm}
 \usepackage{longtable}
 
-% -- Citations: single global NUMERIC scheme (decision #5; Viegas-style) --
+% -- Citations: single global NUMERIC scheme (decision #5) --
 \usepackage[num,abnt-emphasize=bf]{abntex2cite}
 
-% -- Babel caption plumbing (Germano tree, kept: brazil loaded via class option,
+% -- Babel caption plumbing (from the source tree, kept: brazil loaded via class option,
 %    caption names anglicized, then english selected as the running language) --
 \addto\captionsbrazil{%
 \def\bibname{References}%
@@ -118,6 +118,10 @@
 \data{\normalsize{\textbf{2026}}}
 \orientador{Fabrício Aguiar Silva}
 \instituicao{Universidade Federal de Viçosa}
+% \campus set 2026-07-27 (author: "o campus e o Florestal", src_utils/PENDENCIAS.md:37).
+% Consumed by \imprimircampus in abntex2-UFV.sty:49, inside \imprimircapa only; that macro
+% is not called by either build today, so this renders nothing until a cover page is added.
+\campus{Campus Florestal}
 \curso{Pós-graduação em Ciência da Computação}
 \membrobancaA{[Banca member 1 --- pending advisor conversation]}
 \membrobancaB{[Banca member 2 --- pending advisor conversation]}
@@ -343,7 +347,8 @@ degree of \textit{Magister Scientiae}.}
 % PPGCC. BRACIS appears in Appendix A only (GLOSSARY §5: "appendix only").
 % Alphabetical order.
 \begin{siglas}
-  \item[BRACIS] Brazilian Conference on Intelligent Systems
+% [round5] BRACIS entry removed: the only prose that named that venue was Appendix A.2, which the
+% author ruled out this round, leaving the acronym defined but never used.
   \item[CBIC] Congresso Brasileiro de Intelig\^encia Computacional
   \item[Check2HGI] Check-in-level representation extending Hierarchical Graph Infomax
   \item[CoUrb] Workshop de Computa\c{c}\~ao Urbana
@@ -385,8 +390,10 @@ degree of \textit{Magister Scientiae}.}
 % ----------------------------------------------------------
 \postextual
 
-{\footnotesize
-\bibliography{references}}
+% Bibliography at body size (12 pt). The inherited {\footnotesize ...} wrapper measured
+% 9.96 pt against 11.96 pt body; removed 2026-07-27 on the author's ruling (src_utils/
+% PENDENCIAS.md:84) per Manual 04_2026 §8 (UFV_COMPLIANCE.md:32). Adds about two pages.
+\bibliography{references}
 
 \begin{apendicesenv}
 \partapendices
@@ -394,6 +401,7 @@ degree of \textit{Magister Scientiae}.}
 \include{chapters/apx_b_errata}
 \include{chapters/apx_c_ai_disclosure}
 \include{chapters/apx_d_ceiling}
+\include{chapters/apx_e_ethics}
 \end{apendicesenv}
 
 \end{document}

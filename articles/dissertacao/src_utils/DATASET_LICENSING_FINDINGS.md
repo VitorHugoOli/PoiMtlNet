@@ -142,3 +142,100 @@ to speak to the Foursquare terms specifically, that check is still outstanding.
    in the frame), and how it should hedge the Gowalla case. No such prose was drafted.
 
 **Machine-readable evidence:** `src_utils/item4_licence_evidence.json` (same session, same URLs).
+
+---
+
+## 4 · Round 2 (2026-07-27): re-verification, provenance ruling, pipeline facts, prior-dissertation check
+
+**Scope of this round.** Appended when Appendix E (`src/chapters/apx_e_ethics.tex`) was drafted.
+Every line below was opened or read this session. Nothing in §1–§3 above was edited.
+
+### 4.1 Licences re-verified at source (all three still hold)
+
+| Record | Re-opened at | Result |
+|---|---|---|
+| Gowalla Figshare 22126586 | `https://api.figshare.com/v2/articles/22126586` | HTTP 200; `doi` = `10.6084/m9.figshare.22126586.v2`; `license` = `{"value": 2, "name": "CC0", "url": "https://creativecommons.org/publicdomain/zero/1.0/"}`; `published_date` = `2023-02-20T09:53:26Z`; `authors` = `["Yang"]`; six files, incl. the four the ETL declares |
+| Massive-STEPS Istanbul (HF) | `https://huggingface.co/api/datasets/CRUISEResearchGroup/Massive-STEPS-Istanbul` | HTTP 200; `cardData.license` = `apache-2.0`; tag `license:apache-2.0` |
+| Massive-STEPS (GitHub) | `https://api.github.com/repos/cruiseresearchgroup/Massive-STEPS/license` | HTTP 200; SPDX `Apache-2.0`, `LICENSE` at repo root |
+
+The dataset card was also read raw. It states the collection "is derived from the [Semantic
+Trails Dataset] and [Foursquare Open Source Places]", and its License block reproduces an
+Apache-2.0 notice headed "Copyright 2024 Foursquare Labs, Inc." The §2.3 gap is unchanged: the
+Foursquare **product terms** were still not opened, only the distribution's licence tag.
+
+### 4.2 NEW, and stronger than §1.3: the upstream address is gone, not merely blocked
+
+§1.3 records that `www.yongliu.org/datasets/` returned 403 on 2026-07-25. That is no longer the
+right description. Checked 2026-07-27, both `http://www.yongliu.org/datasets/` and the bare host
+return **HTTP 301 to `https://idnpokerasia.net/`**, an unrelated domain. The upstream terms are
+therefore not merely unread; the address the Figshare record cites no longer serves the dataset.
+This *strengthens* the §1.3 conclusion rather than weakening it: the only readable licence
+statement for the consumed copy is the depositor's CC0 label, and no upstream document is
+available to corroborate or contradict it. Appendix E says exactly this and no more.
+
+### 4.3 Author ruling recorded (PENDENCIAS.md:139, item 2.1)
+
+The author confirmed the Figshare deposit as the source of record for Gowalla, describing it as a
+version of the original release with the seven categories applied, and authorized recording that
+provenance in the datasets documentation. Two supporting facts were verified in code and data
+this session, and they are consistent with that description:
+
+- The seven top-level names in `data/gowalla/gowalla_category_structure.json` are exactly
+  `Community, Entertainment, Food, Nightlife, Outdoors, Shopping, Travel`, matching the taxonomy in
+  `src/configs/globals.py:27-30`. **The taxonomy comes with the deposit**, which is what the author
+  described. One precision the first draft of Appendix E got wrong and now states correctly: the
+  fine-to-top mapping is not purely the deposit's. `src/etl/gowalla/stage_1.py:100-108` merges the
+  structure file with two project-local files, `callback_categories.json` (31 entries) and
+  `extra_categories.json` (108 entries), for names the structure file does not cover. Appendix E
+  therefore says the taxonomy arrives with the deposit and the mapping plus a local supplement is
+  what the pipeline adds.
+- `src/etl/gowalla/main.py:22-25` declares the four deposit files the pipeline reads.
+
+The `docs/context/DATASETS.md` correction the author approved (item 3 of his answer) is **not in
+this track's edit scope** and was not made. It remains open: that file still records SNAP as the
+Gowalla source and carries no License row.
+
+### 4.4 Pipeline facts as stated in Appendix E (verified in code, not asserted)
+
+Appendix E claims only what the code does. Each claim and its check:
+
+| Appendix E claim | Verified at |
+|---|---|
+| No coordinate perturbation, rounding, masking, or formal privacy mechanism anywhere | repo-wide search of `src/` for `jitter\|add_noise\|perturb\|laplace\|differential_privacy\|anonym\|pseudonym\|deidentif\|obfusc\|mask` returned no hit in any ETL or data path (the three hits elsewhere are SimGCL embedding noise, GPU profiling, and fold ordering) |
+| Raw coordinates used at source precision | `src/etl/gowalla/stage_3.py:40-43` builds point geometry directly from `longitude`/`latitude` |
+| Friendship and profile files never read | `gowalla_friendship.csv` and `gowalla_userinfo.csv` are present in `data/gowalla/` and in the deposit, but are declared in neither `src/configs/paths.py` (no `FRIENDSHIP`/`USERINFO` Resource) nor `src/etl/gowalla/main.py:22-25`, and a repo-wide search finds no reader for either |
+| Non-numeric user ids replaced by a position index, mapping not persisted | `src/etl/massive_steps/stage_1.py:84-90` (`uid_index` is a local dict; only the venue index is saved) |
+| No cross-collection linkage | no code path joins the two collections on any user key; none exists |
+| Data not redistributed with the code | `.gitignore:5` excludes `/data/*` |
+
+### 4.5 The prior-dissertation ethics-board check (the author's question 1)
+
+The author asked whether the comparable prior dissertation (same advisor, same area, 2024) needed
+a research-ethics-committee determination. **Answer: no such determination appears in it, and its
+absence is all that the document can establish.**
+
+Method, so the negative is auditable. The full 96-page text layer of
+`exemples/germano/Dissertação_Mestrado___Germano.pdf` was extracted and searched for
+`comitê|comite|CAAE|Plataforma Brasil|CEP|IRB|institutional review|ethics committee|ethics board|
+ethics approval|approved by the|Resolução N`. **Zero hits.** The extraction is sound: the same text
+layer yields two hits for "Ethical Statement", so the search was reading real text.
+
+What the document does contain is a §2.6 "Ethical Statement" (PDF p. 23) that discusses location
+privacy, states that anonymized Gowalla user identifiers were used, and states plainly that
+latitude and longitude were left unmasked. So the precedent handled the question as a written
+ethics statement inside the text, with no committee involvement mentioned anywhere.
+
+**This is evidence, not a rule.** The absence of a mention in one dissertation does not establish
+what the program requires. Appendix E is worded accordingly: it records the author's own position
+that review was not required, reports this precedent as a precedent, and claims no approval and no
+exemption. If a formal determination is required for secondary analysis of public data, only the
+program or the committee can supply it, and it is not something an agent can settle.
+
+### 4.6 Still open after this round
+
+1. Foursquare Open Source Places **product terms** (carried over from §2.3, unchanged).
+2. Whether the depositor held the rights to apply CC0 (§1.3; now unresolvable from the upstream
+   address, per §4.2).
+3. `docs/context/DATASETS.md` correction, author-approved but outside this track's scope (§4.3).
+4. Whether UFV/PPGCC requires an ethics-committee determination here (§4.5). Author decision, or a
+   question for the program.
