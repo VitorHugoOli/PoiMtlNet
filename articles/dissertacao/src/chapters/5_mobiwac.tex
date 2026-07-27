@@ -373,25 +373,16 @@ CA       & Gowalla       & 3{,}171{,}380 & 37{,}090 & 169{,}145 & 8{,}501 & 2{,}
 
 \emph{Splitting.} We split by user with stratified five-fold cross-validation, so all of a user's windows fall in the same fold and overlap cannot leak: a test user's visits never appear in training. The held-out fold is the validation data; we reserve no third split. The split is stratified on the next-category label because the seven-class task is imbalanced: Food is the majority class in every dataset, from about 25 percent of visits in Florida to 34 percent in Alabama (Table~\ref{tab:mobiwac:datasets}).
 
-\emph{Integrity of the representation.} We train the representation once on the whole dataset and feed it to every model, dedicated and joint. A representation built this way could pass information about a test visit along more than one channel. We therefore bound the channels that we can measure, and state for each what the measurement covers, on four grounds. First, its training objective is label-free: it contrasts real graph neighborhoods against shuffled ones and never sees a next-category or next-region target. That bounds the training signal and not the inputs, since each visit's own category enters as a node feature (Section~\ref{sec:mobiwac:method-rep}); the fourth ground below measures what that feature can carry between visits. Second, we measured the transductive channel, what a graph fitted over all users passes to the test side that a graph fitted over training users alone would not. Rebuilding the representation per fold, from that fold's training users only, moves both tasks by at most a third of a point (region $-0.33$ to $+0.01$; category $0.00$ to $+0.29$, at Alabama, Arizona, and Florida), within fold noise. This measurement covers the visits whose places appear in training (67 to 87 percent); visits to places unseen in training are the one part it cannot reach. Third, the one component that could pass information between visits, a region-transition prior (a table of how often one region follows another), is built per fold from training data only, after an earlier whole-dataset version inflated region accuracy by 13 to 27 points. Our joint and dedicated models do not use this prior; it appears only in the HMT-GRN baseline (Section~\ref{sec:mobiwac:setup-baselines}). Fourth, we probe the channel that the graph's own links between consecutive visits open. A visit's node is linked to the visit that follows it, and category is a node input feature, so a per-visit vector could in principle absorb the category of the next visit. A screening audit run during development tests exactly this: it predicts the next category from the last window slot alone, which a vector carrying only the past can do no better than the last visited category itself allows. The audit reads each encoder against a clean reference encoder rather than against that level directly. At Florida the graph encoder of our own lineage is that reference, at $0.4090$ macro-F1 on standardized features and $0.4074$ on raw ones, on a zero-to-one scale, and the residual variant that the encoder we ship descends from sits at the same level, $0.4197$ and $0.4182$; an attention-based encoder screened beside them reached $0.4976$ and $0.4863$, clear of the reference by more than the screen's margin, and was disqualified on that evidence. The level that the past alone allows can also be computed directly from the category sequence, with no encoder involved, and it is lower than the reference: $0.3617$ at Florida, and $0.2800$ to $0.3617$ across the five datasets where the inputs are available (Appendix~\ref{apx:ceiling}). Every encoder screened, including the clean references, therefore sits above what the last visited category alone explains, by four to six points at Florida. We report this as a bound on the screen rather than as evidence of a leak in the shipped encoder, because a per-visit vector legitimately carries more than the previous category, including the place, its neighborhood, and the hour of the visit; what the screen establishes is a relative comparison among encoders built the same way, not an absolute innocence.
-% [v2 round, 2026-07-26] CEILING CORRECTION. The prior wording said a clean reference encoder
-% "sets" the autocorrelation ceiling at ~0.41. That conflated two different quantities, which the
-% internal record also conflates (RESCREEN.md:57 calls ~0.45 "the autocorrelation ceiling";
-% RESCREEN.md:87 calls the clean control "the ceiling (~0.41)"):
-%   (a) the CONTROL ENGINE's achieved per-step probe -- what leak_sniff.py actually gates on
-%       (scripts/embedding_eval/leak_sniff.py:63,87: flag if perstep > control + margin, margin 0.03);
-%   (b) the LABEL-ONLY autocorrelation ceiling -- what the last visited category alone allows.
-% (b) is now computed directly (scripts/embedding_eval/autocorrelation_ceiling.py, results in
-% docs/results/embedding_eval/rescreen_cat/autocorrelation_ceiling.{json,csv}): FL 0.3617,
-% AL 0.2800, AZ 0.3232, CA 0.3242, IST 0.3016 (best of persistence / last-category / window-count /
-% window-positional predictors, balanced logistic, GroupKFold(5) by user, macro-F1 -- the same
-% protocol leak_sniff.py uses). Every quoted encoder number is UNCHANGED and still traces to
-% leak_sniff_fl.csv and leak_sniff_resln_fl.csv. What changed is only the claim about what 0.41 IS:
-% it is the reference encoder, not the ceiling. The GAT disqualification is unaffected because that
-% gate was always control-relative (+0.0886 over control, margin 0.03).
-% Texas is absent from the ceiling table: output/check2hgi/texas/temp/ has no checkin_graph.pt
-% (only the design-engine embeddings exist), so the ceiling cannot be computed there without
-% re-running preprocessing. Stated as five datasets, not six.
+\emph{Integrity of the representation.} We train the representation once on the whole dataset and feed it to every model, dedicated and joint. A representation built this way could pass information about a test visit along more than one channel. We therefore bound the channels that we can measure, and state for each what the measurement covers, on four grounds. First, its training objective is label-free: it contrasts real graph neighborhoods against shuffled ones and never sees a next-category or next-region target. That bounds the training signal and not the inputs, since each visit's own category enters as a node feature (Section~\ref{sec:mobiwac:method-rep}); the fourth ground below measures what that feature can carry between visits. Second, we measured the transductive channel, what a graph fitted over all users passes to the test side that a graph fitted over training users alone would not. Rebuilding the representation per fold, from that fold's training users only, moves both tasks by at most a third of a point (region $-0.33$ to $+0.01$; category $0.00$ to $+0.29$, at Alabama, Arizona, and Florida), within fold noise. This measurement covers the visits whose places appear in training (67 to 87 percent); visits to places unseen in training are the one part it cannot reach. Third, the one component that could pass information between visits, a region-transition prior (a table of how often one region follows another), is built per fold from training data only, after an earlier whole-dataset version inflated region accuracy by 13 to 27 points. Our joint and dedicated models do not use this prior; it appears only in the HMT-GRN baseline (Section~\ref{sec:mobiwac:setup-baselines}). Fourth, we probe the channel that the graph's own links between consecutive visits open. A visit's node is linked to the visit that follows it, and category is a node input feature, so a per-visit vector could in principle absorb the category of the next visit. A screening audit run during development tests exactly this: it predicts the next category from the last window slot alone. The audit reads each encoder against a clean reference encoder rather than against the category labels directly. At Florida the graph encoder of our own lineage is that reference, at $0.4090$ macro-F1 on standardized features and $0.4074$ on raw ones, on a zero-to-one scale, and the residual variant that the encoder we ship descends from sits at the same level, $0.4197$ and $0.4182$; an attention-based encoder screened beside them reached $0.4976$ and $0.4863$, clear of the reference by more than the screen's margin, and was disqualified on that evidence. A second reference can be computed directly from the category sequence, with no encoder involved. We call it the label-history benchmark: the best macro-F1 reached by four specified predictors that read only the genuine category history of the input window (Appendix~\ref{apx:ceiling}). It is not an upper bound on what a model may score. The four predictors are a specified set, and a better predictor of the same restricted information could exceed them. The benchmark lies below the clean reference: $0.3617$ at Florida, and $0.2800$ to $0.3617$ across the five datasets where the inputs are available. Every encoder screened, including the clean references, therefore lies above the label-history benchmark, by four to six points at Florida. We report this as a bound on the screen rather than as evidence of a leak in the shipped encoder, because a per-visit vector legitimately carries more than the previous category, including the place, its neighborhood, and the hour of the visit; what the screen establishes is a relative comparison among encoders built the same way, not an absolute innocence.
+% [2026-07-26] Two distinct quantities, which the internal record conflates (RESCREEN.md:57,:87):
+% the clean reference encoder (~0.41, what leak_sniff.py gates on -- leak_sniff.py:63,87, margin
+% 0.03) and the label-history benchmark. The second is computed by
+% scripts/embedding_eval/autocorrelation_ceiling.py; values FL 0.3617 / AL 0.2800 / AZ 0.3232 /
+% CA 0.3242 / IST 0.3016 read from docs/results/embedding_eval/rescreen_cat/
+% autocorrelation_ceiling.{json,csv}. Encoder numbers unchanged (leak_sniff_fl.csv,
+% leak_sniff_resln_fl.csv). Texas absent: no checkin_graph.pt under output/check2hgi/texas/temp/.
+% [2026-07-27] Renamed "ceiling" -> "label-history benchmark" (author: it is the best of four
+% specified predictors, not an upper bound). Term registered in GLOSSARY.md section 2.
 
 The measurement bounds this channel rather than closing it, and three limits set how far it reaches: the probe is linear, it was run at Florida alone at one random initialization over five user-grouped folds, and it was run on those ancestor builds of the representation rather than on the one that produced the results reported here. The same record shows why the linear form is a screen and not a proof, since one encoder that passed it leaked under a downstream sequence model. The baseline representations meet the same standard: HGI is pre-trained once on the whole dataset, like ours, and CTLE per fold on training users only.
 % NOTE: numbers from the A4 train-users-only transductivity audit (docs/studies/pre_freeze_gates/A4_RESULTS.md):
@@ -774,17 +765,23 @@ datasets.
 
 That floor is also above the three external region systems at most datasets, and the
 comparison deserves a direct word rather than being left for the reader to assemble.
-HMT-GRN falls below it at all six, the ReHDM reference at three, and STAN at four. The
-reason is a property of the protocol rather than a verdict on those systems. Our windows
-advance one visit at a time, so the region of the last visit is an unusually strong
-predictor of the next one, and a first-order transition table exploits exactly that; at
-Alabama, 22.4 percent of windows contain their own target region as a genuine revisit. The
-three external systems predict a place and are read at the region level through the
-place-to-region map, which discards the persistence signal that the floor consumes
-directly. We therefore treat the floor, not the external systems, as the reference the
+HMT-GRN falls below it at all six, the ReHDM reference at three, and STAN at four. Two
+facts about how these numbers were produced bear on that comparison. The first concerns
+the floor: it is computed under our own sliding-window protocol and fold splits. Those
+windows advance one visit at a time, so the region of the last visit is a strong predictor
+of the next one, and a first-order transition table reads exactly that signal. At Alabama,
+22.4 percent of windows contain their own target region as a genuine revisit. The second
+fact concerns the three systems, which do not meet the floor on equal terms. HMT-GRN is
+evaluated on the same data, folds, and initialization as our models. STAN runs on the same
+folds, but builds its own embeddings and its own sequences from the raw check-ins. The
+ReHDM reference runs under its own published protocol, so its cell is not measured on our
+windows or folds at all.
+
+Neither fact establishes why the floor lies above the three systems, and we do not claim a
+single explanation. We treat the floor, not the external systems, as the reference the
 region task has to clear, and we read the external columns as a comparison against
-published designs on our data rather than as the standard for this task. The dedicated and
-joint models are above the floor at every dataset.
+published designs rather than as the standard for this task. The dedicated and joint
+models are above the floor at every dataset.
 % [v2 review B-2, 2026-07-26] RECONCILIATION added on persona 11's blocker
 % (src_utils/_review_v2/11_poi_mobility_expert_report.md). The chapter designated these systems "the
 % per-task state of the art, on our data" and printed a non-learned floor above all of them, without
@@ -800,6 +797,13 @@ joint models are above the floor at every dataset.
 % 4 of 6. No result of this study changes; what changes is that the chapter now names the floor
 % rather than the externals as the reference the region task must clear, which is the more
 % conservative reading and the one its own numbers support.
+% [2026-07-27] Causal explanation dropped. The prior wording said all three systems "predict a
+% place and are read at the region level through the place-to-region map", which contradicts this
+% chapter calling HMT-GRN region-native (region is one of its own targets) at :418, :622 and :755.
+% The paragraph now states the protocol asymmetry only, every clause quoted from the baselines
+% subsection at :418: HMT-GRN same data/folds/initialization; STAN same folds, own embeddings and
+% sequence construction; ReHDM its own published protocol (also :622 footnote, :873). Counts,
+% revisit share and the floor reading are unchanged.
 % NOTE for the author: docs/results/closing_data/MACS_BOARD_RESULTS.md:47 still asserts "HMT reg
 % clears the Markov floor". That held against the older non-overlapping floor (AL 0.4701, the
 % old_floor_nonoverlap block in the same JSON) and was never revisited when the floor was recomputed
