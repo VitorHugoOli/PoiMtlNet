@@ -512,6 +512,12 @@ DOI corrected to 10.1109/CVPR.2016.433 (verified). \\
 MTL-survey entry (\texttt{zhang2021survey}): DOI does not resolve. &
 DOI corrected to 10.1109/TKDE.2021.3070203 (verified). \\
 \addlinespace
+The node feature matrix is described as the category one-hot encoding of each POI. The
+released implementation feeds the mean of the one-hot vectors of a POI's graph
+neighbours, with the POI's own vector excluded. &
+Published sentence preserved; a footnote records what the code does and why the
+distinction matters. The embedding therefore describes a neighbourhood rather than a
+POI's own label, so the static task it supports is spatial homophily. \\
 Kohavi (1995), the cross-validation and bootstrap study: the entry carried a DOI that
 resolves to a re-deposit of the paper made in 2026, not to the conference record. &
 DOI dropped, since the IJCAI-95 proceedings predate DOI registration. Author, title,

@@ -29,8 +29,15 @@ the only file written.
 > item 4 of §6 is done. Every COD-010 and COD-008 verdict below describes the state at the
 > time of audit and is superseded on those two points only; line numbers throughout were
 > re-resolved against the live files after the change. Nothing else in the four files moved
-> a verdict — I re-checked each cited line. The PDFs are still the 07:47/07:56 builds, so
-> every page reference remains against those.
+> a verdict — I re-checked each cited line. **The PDFs were then rebuilt at 08:59 and are now
+> 103 and 98 pages.** Page references in this file were taken from the 07:47/07:56 pair at
+> 102/97 pages, so I re-located every load-bearing site in the new build and compared: the
+> Ch.5 trunk sentence (p74), the withheld attribution (pp. 73 and 77), the Ch.6 gradient
+> scope (p78), the capacity sentence (p77), the Ch.1 objective (p15), the Ch.5 integrity
+> limits (p66), the Markov figure (p73), the Appendix B float table (pp. 95–96) and the
+> label-history term (pp. 8, 12, 66, 98) are all on the same pages as before. The one added
+> page falls at the end of Appendix E, which now runs to p103. **Every page number in this
+> file is therefore still correct.**
 >
 > **The review was written against a superseded artifact.** It reviews a 97/92-page pair;
 > the current pair is 102/97 pages, rebuilt after the correction round of 2026-07-27. Six
@@ -1052,11 +1059,14 @@ strengthens a claim. Items marked `[sign-off]` are mechanically safe but touch a
 a protocol paragraph, or reproduced article prose, so under `AGENT_GUARDRAILS C2` they
 should land as proposals rather than silent edits.
 
-1. **COD-010 / NUM-1 / NUM-2 — the capacity-control sentence.** `6_conclusion.tex:116-118`.
-   "across three training configurations and all twenty fitted models, the best of them
-   reaches 56.16" → three configurations at twenty fits each, sixty in total; 56.16 is the
-   best configuration's mean, standard deviation 1.89. Source
-   `docs/results/closing_data/capacity_matched_stl_cat/README.md:19,:39`. No verdict moves.
+1. ~~**COD-010 / NUM-1 / NUM-2 — the capacity-control sentence.**~~ **DONE at 08:53 by
+   another hand**, while this audit was being written. `6_conclusion.tex:116-118` now reads
+   "the widened model was fitted under three training configurations, twenty models each and
+   sixty in total, and the strongest configuration averages 56.16 macro-F1, standard
+   deviation 1.89". That is the count, the statistic and the spread, all three, against
+   `docs/results/closing_data/capacity_matched_stl_cat/README.md:19,:39`. No verdict moved.
+   Verify the deferred-spread note at `6_conclusion.tex:155-158` is retired, since it now
+   describes a condition that no longer holds.
 2. **NUM-3 / COD-015(f) — the gradient scope in Ch.6.** `6_conclusion.tex:177`. "three of
    the six datasets" → four Gowalla states, three of the five United States datasets
    reported plus Georgia, which the dissertation does not otherwise use. Copy the scope
@@ -1068,11 +1078,12 @@ should land as proposals rather than silent edits.
    `mai2023sphere2vec...` → ISPRS J. Photogramm. Remote Sens. 202:439–462, DOI
    10.1016/j.isprsjprs.2023.06.016. Both verified against Crossref this session. Add
    Appendix B rows.
-4. **COD-008 — the Mikolov negative-sampling site.** `4_courb.tex:208`. Either add the
-   arXiv:1310.4546 entry and cite it for the negative-sampling clause, or drop the two
-   words. 1301.3781's abstract contains neither "negative sampling" nor "hierarchical
-   softmax" (arXiv API, this session). `[sign-off]` — the citing sentence is published
-   prose, so the choice between the two repairs is the author's.
+4. ~~**COD-008 — the Mikolov negative-sampling site.**~~ **DONE at 08:54 by another hand.**
+   `4_courb.tex:208` now cites `mikolov2013word2vec,mikolov2013negsampling`; the new entry
+   is at `references.bib:685`; `apx_b_errata.tex` carries a row stating that
+   arXiv:1301.3781 "introduces skip-gram but not negative sampling" and that
+   arXiv:1310.4546 was added alongside it. This is the first of the two repairs I named and
+   it is the better one, since the citing sentence claims both methods.
 5. **COD-017 — the two Ch.5 diagrams.** Regenerate pp. 62 and 64 with labels at 9 to 10 pt;
    they currently carry 389 and 351 glyphs at 6.97/7.27 pt against a 11.96 pt body.
 6. **COD-017 — the Appendix B float and the Resumo keywords.** Split the

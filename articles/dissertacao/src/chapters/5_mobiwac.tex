@@ -869,7 +869,13 @@ The U.S. result repeats on a different continent and region unit.
 \section{Discussion and Limitations}
 \label{sec:mobiwac:discussion}
 
-One model serves both tasks: the shared trunk carries the semantic context that lifts the next-category task, and the private spatial path keeps the next-region task competitive (Table~\ref{tab:mobiwac:results}; Figure~\ref{fig:mobiwac:deltas}).
+One model serves both tasks: the joint architecture lifts the next-category task, and the
+private spatial path keeps the next-region task competitive
+(Table~\\ref{tab:mobiwac:results}; Figure~\\ref{fig:mobiwac:deltas}).
+% [round5, cross-check] This sentence credited the SHARED TRUNK with the category lift, sixteen
+% lines after the paragraph at :713 refuses exactly that attribution. Rewritten to name the joint
+% architecture, which is what the freeze control and the capacity-matched control support. The
+% private spatial path claim is unchanged: it is architectural, not an attribution of the gain.
 
 A service could treat the model's top-ranked next regions as an anticipatory
 set: at California, ten regions out of 8{,}501 contain the true next region 65.69

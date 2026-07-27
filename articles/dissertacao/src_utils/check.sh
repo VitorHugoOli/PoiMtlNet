@@ -35,7 +35,24 @@ echo "== unresolved \\ref/\\cite (needs a compiled .log) =="
 LOG=build/main.log
 BLG=build/main.blg
 if [ -f "$LOG" ]; then
-  if tr -d '\n' < "$LOG" | grep -oE "(Reference|Citation) \`[^']+' on page [0-9]+ undefined"; then FAIL=1; else echo OK; fi
+  # Matching is done in Python with errors='replace', NOT with tr|grep. pdflatex writes raw bytes
+  # from font and PDF metadata into the log (there is an invalid UTF-8 continuation byte at offset
+  # ~75.6k in a normal build of this document), and `tr` aborts on it with "Illegal byte sequence"
+  # under any UTF-8 locale -- which is the default here. Everything after that byte was therefore
+  # never examined, and the abort went to stderr while the pipeline still reported success.
+  # Verified by injecting a synthetic undefined-citation warning after the bad byte: found under
+  # LC_ALL=C, silently missed under en_US.UTF-8. This is the very check that exists because four
+  # undefined citations shipped in both PDFs.
+  if python3 - "$LOG" <<'PYEOF'
+import re, sys
+raw = open(sys.argv[1], encoding='utf8', errors='replace').read()
+flat = raw.replace("\n", "")                      # LaTeX wraps warnings at 79 columns
+hits = sorted(set(re.findall(r"(?:Reference|Citation) `[^']+' on page \d+ undefined", flat)))
+for h in hits:
+    print(h)
+sys.exit(1 if hits else 0)
+PYEOF
+  then echo OK; else FAIL=1; fi
 else echo "SKIP: no $LOG"; fi
 if [ -f "$BLG" ]; then
   if grep -iE "error|didn't find|I was expecting" "$BLG"; then FAIL=1; else echo "OK (bibtex)"; fi
