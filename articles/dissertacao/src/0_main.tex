@@ -234,14 +234,21 @@ degree of \textit{Magister Scientiae}.}
 
     % [round5, author decision 3.3 option ii] Purely mechanical: keep the keyword block with the
     % Resumo it belongs to. It was breaking onto p.4 alone (14 words on an otherwise blank page).
-    % A minipage makes the label and the five keywords ONE unbreakable box, so they always travel
-    % together. [round5, measured] \needspace was tried first and does not work here at ANY value:
-    % swept 3,4,5,6,7,8,9,10 and removed, and the keywords split from their label in every case,
-    % because needspace reserves space for following LINES and cannot bind a \\-separated list.
-    % The residual near-blank p.4 is not a spacing problem either: with the Resumo at 529 words the
-    % foot of p.3 has 5.9pt of slack against an 82.9pt block, so no reservation can pull it up.
-    % Closing that page needs roughly 60 more words cut from the Resumo, with the Abstract following
-    % in parity, which is the author's call (PENDENCIAS 3.3 route i).
+    % A minipage makes the label and the five keywords ONE box, so TeX can fit the whole block into
+    % the space left at the foot of the Resumo page instead of carrying it to the next one.
+    %
+    % [round5, RE-MEASURED after an audit caught a false diagnosis here] \needspace{7\onelineskip}
+    % was tried first, and the record previously written in this comment was WRONG. Measured on the
+    % current 529-word Resumo, with the macro correctly escaped:
+    %   \needspace{7\onelineskip} -> 104 pp, the block lands WHOLE on p.4 (21 words, label included)
+    %   minipage                  -> 103 pp, the block sits on p.3 with the Resumo, page closed
+    % So needspace DOES hold the label and keywords together. What it does not do is pull them onto
+    % the previous page: it reserves space for the LINES that follow, so when the block does not fit
+    % it moves the block rather than fitting it. A minipage is a box, so it fits.
+    % The earlier claim that needspace "never worked at any value" came from my own escaping bug: a
+    % regex wrote \needspace{N\\onelineskip} with a doubled backslash, and the later sweep arms
+    % (8, 9, 10) used a single-backslash pattern that could not match the corrupted form, so those
+    % three arms never applied at all and returned byte-identical results I misread as evidence.
     \vspace{\onelineskip}
     \noindent
     % Keywords one per line (UFV_COMPLIANCE §2 system rules: one per line, lowercase

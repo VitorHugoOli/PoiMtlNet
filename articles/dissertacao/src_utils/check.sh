@@ -59,6 +59,18 @@ if [ -f "$BLG" ]; then
   if grep -iE "error|didn't find|I was expecting" "$BLG"; then FAIL=1; else echo "OK (bibtex)"; fi
 else echo "SKIP: no $BLG"; fi
 
+echo "== sweep-guard self-tests (a no-op substitution must not look like a result) =="
+# Twice this project drew a conclusion from a parameter sweep whose arms never applied: once a doubled
+# backslash made the target unmatchable, once a bad escape killed the substitution inside a heredoc.
+# Both printed identical results across arms, which read as evidence. These tests pin both cases.
+if ! python3 "$UTILS/sweep_guard.py" >/dev/null 2>&1; then
+  echo "  FAIL: sweep_guard self-tests do not pass -- the guard itself is broken"
+  python3 "$UTILS/sweep_guard.py" 2>&1 | tail -5
+  FAIL=1
+else
+  echo "OK (4 self-tests)"
+fi
+
 echo "== recorded page counts vs the measured build =="
 # These are PRESENT-TENSE claims about what is on disk (CLAUDE.md, PLAN.md, PENDENCIAS.md,
 # codex_reviewer.md). They have drifted three times, always caught by review rather than by the

@@ -392,12 +392,24 @@ comprimida. Cada numero, nome de teste e token de alegacao foi verificado presen
 dividem a p. 3, o Abstract fica com a p. 4, e a p. 4 saiu inteiramente da lista de paginas com pouco
 texto. Nao precisou dos 60 a 80 completos.
 
-**Um defeito meu, descoberto no caminho.** O `\needspace` que eu adicionei na rodada anterior **nunca
-funcionou**: testei 3, 4, 5, 6, 7, 8, 9, 10 e removido, e as palavras-chave se separavam do rotulo em
-**todos** os casos, porque `needspace` reserva espaco para as linhas seguintes e nao consegue amarrar uma
-lista separada por `\\`. Pior: um regex meu havia deixado a chamada como `\needspace{7\\onelineskip}`,
-com barra dupla. Trocado por um `minipage`, que faz do rotulo e das cinco palavras **uma caixa
-indivisivel** — verificado. O pacote `needspace` nao e mais carregado.
+**Um defeito meu, e o diagnostico que eu escrevi sobre ele tambem estava errado.** Trocar o
+`\needspace` por um `minipage` foi certo, mas o motivo que eu registrei era falso e uma auditoria pegou.
+Re-medido nos dois mecanismos, com o Resumo em 529 palavras e a macro **corretamente escapada**:
+
+| Mecanismo | Paginas | Onde fica o bloco |
+|---|---|---|
+| `\needspace{7\onelineskip}` | 104 | **inteiro** na p. 4 (21 palavras, rotulo incluido) |
+| `minipage` | **103** | na p. 3, junto do Resumo — a pagina fecha |
+
+Ou seja: o `needspace` **funciona** para manter rotulo e palavras-chave juntos. O que ele nao faz e
+**puxar** o bloco para a pagina anterior, porque reserva espaco para as *linhas* seguintes; quando o
+bloco nao cabe, ele move o bloco em vez de encaixa-lo. Um `minipage` e uma caixa, entao encaixa.
+
+A afirmacao anterior de que o `needspace` "nunca funcionou em nenhum valor" veio de **um bug meu de
+escape**: um regex escreveu `\needspace{N\\onelineskip}` com barra dupla, e as tentativas seguintes
+(8, 9, 10) usaram um padrao de barra simples que **nao casava** com a forma corrompida — entao aqueles
+tres testes nunca foram aplicados e devolveram resultados identicos byte a byte que eu li como
+evidencia. O `minipage` fica (mede melhor), mas por este motivo, nao pelo que eu havia escrito.
 
 **O que ainda e seu:** voce pediu revisores sobre o Resumo e o Abstract para avaliar qualidade e
 excelencia contra os exemplares. Vale rodar a persona 15 com esse escopo especifico na proxima rodada,
