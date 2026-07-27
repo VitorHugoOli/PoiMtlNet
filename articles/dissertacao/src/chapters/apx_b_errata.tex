@@ -103,22 +103,15 @@ Table~\ref{tab:apx:cbic-errata} lists the content corrections applied in the cha
 text.
 
 \input{tables/cbic/errata}
+% [round5, author decision 1b.3] The Nash-MTL cost claim moved OUT of this section and INTO the
+% errata table above: one standard for factual errors, per the author. "Three elements" -> "Two".
 
 
-Three elements of the published article were deliberately preserved rather than
+Two elements of the published article were deliberately preserved rather than
 corrected. The sentence stating that Nash-MTL ``consistently yielded a better
 overall performance'' is reproduced verbatim; it predates a later finding about the
 optimizer implementation, and the chapter preface carries the of-the-time caution
-instead of an edit. A cost claim in the same subsection, that Nash-MTL ``requires only
-two matrix-vector products per iteration'', is also preserved, and it is not supported by
-the method's own paper: the phrase does not appear there, and both implementations we
-examined run an iterative concave-convex procedure whose default is twenty passes, each a
-convex solve, on top of one backward pass per task. The claim therefore understates the
-optimizer's cost. It is named here rather than corrected because the correction would run
-in this dissertation's own favour, and because the clause sits in the same sentence as the
-gradient-scale correction in Table~\ref{tab:apx:cbic-errata}; recording both makes the
-asymmetry visible instead of leaving a reader to wonder why one half of a sentence was
-audited and the other was not.
+instead of an edit.
 The emphasis convention of the published category table, which
 bolds the better of the joint and single-task models per row and never bolds the HMRM
 baseline, is also preserved exactly; the new caption states the convention so the
@@ -242,9 +235,21 @@ of one figure that the submitted eight-page build had cut for space, whose four 
 are stated in the reproduced prose in both versions. This chapter writes no new lead
 sentences for its tables, since the submitted text already introduces each of them.
 
-Table~\ref{tab:apx:mobiwac-scope} lists four further corrections to the reproduced prose.
-None alters an experimental result. Each either narrows a claim to what its evidence
-covers or names the basis on which a reported comparison was measured.
+Table~\ref{tab:apx:mobiwac-scope} lists two further corrections to the reproduced prose.
+Neither alters an experimental result. Each narrows a claim to what its evidence covers, or
+names the basis on which a reported comparison was measured.
+
+This article differs from the other two in a way that changes what this section has to record.
+It is under review rather than published, so a correction to a minor factual or scope claim
+does not have to be declared here at all: it is applied to the submitted source as well, and
+the two texts stay identical. Two corrections were handled that way and are named in the
+article's own errata record rather than in this table. What remains here are the two that could
+not be folded into a paper under review, because each depends on material the article has no
+room for: one cites the benchmark of Appendix~\ref{apx:ceiling}, and the other cites this
+chapter's own results table.
+% [2026-07-27, author instruction] "estamos no periodo de revisao do artigo, entao nao precisa
+% haver erratas, para ele a nao ser que essa errata nao cabe entrar na revisao se for algum
+% conceito muito elaborado, como e o caso do appendix D". Count corrected from four to two.
 % [round4] Claim-scope corrections from the Ch.5 track. Source ledger with every quoted
 % value and its file:line: src_utils/handoff/ch5_errata_rows.md. Banner deliberately
 % differs from Table B.2's ("writing-rule conformance"): three of these change claim

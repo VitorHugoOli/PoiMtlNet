@@ -1,4 +1,15 @@
 % mobiwac/errata_scope.tex -- one table. Extraction provenance and verification: tables/README.md
+% [2026-07-27, author policy] The MobiWac paper is UNDER REVIEW, so a minor factual or
+% scope correction does not need an erratum: it is applied to the paper source as well, and the
+% dissertation and the paper stay identical. This table therefore keeps only the corrections too
+% elaborate to fold into a paper under review:
+%   - the integrity paragraph, whose fourth ground cites Appendix D, which the paper has no room for;
+%   - the freeze-control restatement, which cites this chapter's own results table.
+% TWO ROWS WERE REMOVED because the correction now lives in BOTH texts:
+%   - the balancer sentence -> [mobiwac]/src/sections/02_related.tex (19-balancer screen, both exceptions)
+%   - the third limitation  -> [mobiwac]/src/sections/07_discussion.tex (with sec:mobiwac: label prefix
+%     remapped to the paper's own sec:setup-windows, and "this chapter's" -> "the paper's")
+% Logged in [mobiwac]/ERRATA.md. Paper rebuilt: 9 pp, 0 undefined refs, 0 undefined cites.
 \begin{table}[htb]
 \caption{Claim-scope corrections in the reproduced MobiWac 2026 prose (claim-scope
 narrowing and comparison-basis disclosure; no experimental result altered).}
@@ -18,26 +29,12 @@ the forward-edge channel between consecutive visits, with its three limits state
 linear probe, Florida at one random initialization, and earlier builds of the
 representation. Every number already in the paragraph is unchanged. \\
 \addlinespace
-``none of the balancers that we tried, including the two named above, improved on a tuned
-fixed task weighting'' &
-The same sentence, with ``at their default configurations'' added. The internal audit
-records that only one of the two named methods was validly wired under this architecture,
-so the claim is narrowed to the configurations actually screened. \\
-\addlinespace
 The region-pathway control lands ``within $0.3$ of the joint model.'' &
 The control is restated against the single-task category score it was measured on, and the
 ``within $0.3$'' figure is kept with its basis named: the joint scores of the development
 configuration current when the control was run, not the joint cells of
 Table~\ref{tab:mobiwac:results}. The control's single random initialization over five
 folds is disclosed. The finding is unchanged. \\
-\addlinespace
-Limitations name two limits. &
-A third limit is added, naming the consequence of the two-way split that the chapter
-already discloses twice: epoch selection consults the fold the score is read on, so the
-absolute scores are optimistic. The comparison between the joint and dedicated models is
-affected far less, since the rule is applied identically to both arms on the same folds
-and the dedicated arm receives the wider search, which makes the reported difference
-conservative. Exact cancellation is not claimed. \\
 \bottomrule
 \end{tabular}
 \end{table}

@@ -57,7 +57,6 @@
 
 % -- Citations: single global NUMERIC scheme (decision #5) --
 \usepackage[num,abnt-emphasize=bf]{abntex2cite}
-\usepackage{needspace} % [round5, decision 3.3] reserve lines so a keyword block is not orphaned
 
 % -- Babel caption plumbing (from the source tree, kept: brazil loaded via class option,
 %    caption names anglicized, then english selected as the running language) --
@@ -185,12 +184,10 @@ degree of \textit{Magister Scientiae}.}
     % verbs bound to tests (supera / equipara-se). Headline number 5,3--9,4 macro-F1 =
     % Ch.6 §6.1 (source: MobiWac results board via the chapter). Audit as a PAIR.
     \noindent Redes sociais baseadas em localização registram \emph{check-ins}: visitas
-    de um usuário a um ponto de interesse (POI) em um dado instante. Antecipar duas
-    propriedades da próxima visita, a categoria do próximo lugar visitado e a região
-    onde a visita ocorrerá, permite que um serviço sensível à mobilidade aja antes que
-    a visita aconteça, e as duas tarefas de previsão leem o mesmo histórico de visitas,
-    de modo que um único modelo poderia aprendê-las em conjunto por meio de aprendizado
-    multitarefa (MTL). A promessa, contudo, não é automática: compartilhar parâmetros
+    de um usuário a um ponto de interesse (POI) em um dado instante. Antecipar duas propriedades da próxima visita, a categoria do
+    próximo lugar visitado e a região onde ela ocorrerá, permite que um serviço sensível à mobilidade
+    aja antes da visita, e as duas tarefas leem o mesmo histórico, de modo que um único modelo
+    poderia aprendê-las em conjunto por meio de aprendizado multitarefa (MTL).
     entre tarefas pode prejudicar uma delas, um modo de falha conhecido como
     transferência negativa, e se o treinamento conjunto ajuda esse par de tarefas de
     previsão sobre POIs, e do que a resposta depende, era uma questão em aberto quando
@@ -211,18 +208,15 @@ degree of \textit{Magister Scientiae}.}
     de atenção cruzada entre dois fluxos específicos por tarefa. Foi também o estudo que
     introduziu a tarefa da próxima região; os dois primeiros pareavam a classificação de
     categoria com a previsão da próxima categoria, de modo que o próprio par de tarefas
-    mudou ao longo da coletânea. Sob validação cruzada
-    com usuários disjuntos entre treino e teste, com vinte modelos ajustados por
-    configuração (quatro inicializações aleatórias sobre um único conjunto fixo de
-    cinco partições), testes de significância pareados sobre as quatro médias por
-    inicialização, teste de não-inferioridade e uma auditoria de vazamento, esse modelo
-    conjunto supera os modelos dedicados na tarefa da próxima categoria nos seis
-    conjuntos de dados estudados, cinco estados dos Estados Unidos e Istambul, por 5,3
-    a 9,4 pontos de macro-F1 sob uma seleção \emph{joint-best} (um único \emph{checkpoint}
-    por partição, escolhido na validação, com as duas tarefas avaliadas nesse
-    \emph{checkpoint}), e, na tarefa da próxima região, supera em quatro dos seis
-    conjuntos e equipara-se estatisticamente, com não-inferioridade dentro de uma
-    margem de dois pontos de Acc@10 (TOST), nos outros dois. A resposta é, portanto,
+    mudou ao longo da coletânea. Sob validação cruzada com usuários disjuntos entre treino e teste, com vinte modelos
+    ajustados por configuração (quatro inicializações aleatórias sobre um único conjunto fixo de
+    cinco partições), testes de significância pareados sobre as quatro médias por inicialização,
+    teste de não-inferioridade e uma auditoria de vazamento, esse modelo conjunto supera os modelos
+    dedicados na tarefa da próxima categoria nos seis conjuntos de dados estudados, cinco estados
+    dos Estados Unidos e Istambul, por 5,3 a 9,4 pontos de macro-F1 sob uma seleção
+    \emph{joint-best}, e, na tarefa da próxima região, supera em quatro dos seis conjuntos e
+    equipara-se estatisticamente, com não-inferioridade dentro de uma margem de dois pontos de
+    Acc@10 (TOST), nos outros dois.
     condicional, e a condição é o achado: se o aprendizado multitarefa ajuda a previsão
     sobre pontos de interesse depende da representação de entrada e da topologia de
     compartilhamento construída sobre ela.
@@ -240,19 +234,26 @@ degree of \textit{Magister Scientiae}.}
 
     % [round5, author decision 3.3 option ii] Purely mechanical: keep the keyword block with the
     % Resumo it belongs to. It was breaking onto p.4 alone (14 words on an otherwise blank page).
-    % \needspace reserves the lines so TeX breaks BEFORE the block rather than inside it; not a
-    % \clearpage, which would force a page break even when the block fits. No word is touched.
-    \needspace{7\onelineskip}
+    % A minipage makes the label and the five keywords ONE unbreakable box, so they always travel
+    % together. [round5, measured] \needspace was tried first and does not work here at ANY value:
+    % swept 3,4,5,6,7,8,9,10 and removed, and the keywords split from their label in every case,
+    % because needspace reserves space for following LINES and cannot bind a \\-separated list.
+    % The residual near-blank p.4 is not a spacing problem either: with the Resumo at 529 words the
+    % foot of p.3 has 5.9pt of slack against an 82.9pt block, so no reservation can pull it up.
+    % Closing that page needs roughly 60 more words cut from the Resumo, with the Abstract following
+    % in parity, which is the author's call (PENDENCIAS 3.3 route i).
     \vspace{\onelineskip}
     \noindent
     % Keywords one per line (UFV_COMPLIANCE §2 system rules: one per line, lowercase
     % except proper nouns, no punctuation); PT mirrors EN.
+    \begin{minipage}{\linewidth}
     \textbf{Palavras-chave}:\\
     aprendizado multitarefa\\
     ponto de interesse\\
     previsão da próxima categoria\\
     previsão da próxima região\\
     representação em nível de check-in
+    \end{minipage}
   \end{resumo}
 
   % Abstract (EN)
@@ -269,10 +270,9 @@ degree of \textit{Magister Scientiae}.}
     % verbs bound to tests (outperforms / matches). Audit as a PAIR.
     \noindent Location-based social networks record \emph{check-ins}: visits by a user
     to a point of interest (POI) at a given time. Anticipating two properties of the
-    next visit, the category of the next place visited and the region where the visit
-    will happen, lets a mobility-aware service act before the visit occurs, and the two
-    prediction tasks read the same trace of visits, so one model could learn them
-    together through multi-task learning (MTL). The promise, however, is not automatic:
+    next visit, the category of the next place visited and the region where it will happen, lets a
+    mobility-aware service act before the visit, and the two tasks read the same trace, so one model
+    could learn them together through multi-task learning (MTL).
     sharing parameters between tasks can hurt one of them, a failure mode known as
     negative transfer, and whether joint training helps this pair of POI prediction
     tasks, and what the answer depends on, was unresolved when this research started.
@@ -291,17 +291,14 @@ degree of \textit{Magister Scientiae}.}
     cross-attention trunk between two task-specific streams. It is also the study that
     introduced the next-region task; the first two paired category classification with
     next-category prediction, so the task pair itself changed across the collection.
-    Under cross-validation
-    with users disjoint between training and test, with twenty fitted models per
-    configuration (four random initializations over one fixed set of five folds),
-    paired significance tests on the four per-initialization means, non-inferiority
-    testing, and a leakage audit, this joint model outperforms
-    the dedicated models on the next-category task at all six datasets studied, five
-    states of the United States and Istanbul, by 5.3 to 9.4 macro-F1 points under a
-    joint-best selection (a single checkpoint per fold, chosen on validation, with both
-    tasks scored at that checkpoint), and, on the next-region task, outperforms at four
-    of six datasets and statistically matches, with non-inferiority within a two-point
-    Acc@10 margin (TOST), at the other two. The answer is therefore conditional, and the
+    Under cross-validation with users disjoint between training and test, with twenty
+    fitted models per configuration (four random initializations over one fixed set of five folds),
+    paired significance tests on the four per-initialization means, non-inferiority testing, and a
+    leakage audit, this joint model outperforms the dedicated models on the next-category task at
+    all six datasets studied, five states of the United States and Istanbul, by 5.3 to 9.4 macro-F1
+    points under a joint-best selection, and, on the next-region task, outperforms at four of six
+    datasets and statistically matches, with non-inferiority within a two-point Acc@10 margin
+    (TOST), at the other two.
     condition is the finding: whether multi-task learning helps point-of-interest
     prediction depends on the input representation and the sharing topology built on it.
     % [NEEDS SIGN-OFF: abstract wording, author caveats 2.1/3-4-5, 2026-07-24]
@@ -320,16 +317,17 @@ degree of \textit{Magister Scientiae}.}
     % paired, n=4); .../STATISTICAL_PROTOCOL.md:187-190 (one fixed fold partition).
 
     % [round5, decision 3.3 option ii] Same guard as the Resumo block, for parity.
-    \needspace{7\onelineskip}
     \vspace{\onelineskip}
     \noindent
     % Keywords one per line (UFV_COMPLIANCE §2 system rules); EN mirrors PT.
+    \begin{minipage}{\linewidth}
     \textbf{Keywords}:\\
     multi-task learning\\
     point of interest\\
     next-category prediction\\
     next-region prediction\\
     check-in-level representation
+    \end{minipage}
    \end{otherlanguage*}
   \end{resumo}
 \else

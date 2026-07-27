@@ -50,6 +50,14 @@ heterogeneous tasks without manual re-weighting. Checked against the optimizer's
 paper and against the implementation released with the two studies, neither of which
 uses gradient signs. The claim is weaker than the published one, and no result depends
 on it. \\
+\addlinespace
+Prose states that Nash-MTL ``requires only two matrix-vector products per iteration''. &
+The clause is removed from the reproduced sentence and its correction given in a footnote.
+The claim is not supported by the method's own paper, where the phrase does not occur, and
+it understates the cost: both implementations examined run an iterative concave-convex
+procedure, twenty passes by default, each a convex solve, on top of one backward pass per
+task. The correction raises the reported cost of a method this chapter used, so it runs
+against the chapter's own interest. \\
 \bottomrule
 \end{tabular}
 \end{table}

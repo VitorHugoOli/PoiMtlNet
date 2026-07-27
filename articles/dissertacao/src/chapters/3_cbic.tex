@@ -238,7 +238,10 @@ Given task-specific objectives $\{\mathcal{L}_k(\boldsymbol{\theta})\}_{k=1}^{K}
 By setting $\Delta\boldsymbol{\theta}=\sum_{k}\alpha_k\mathbf{g}_k$ with positive weights $\boldsymbol{\alpha}$, the solution simplifies to solving the nonlinear system $\bigl(\mathbf{G}^{\!\top}\mathbf{G}\bigr)\boldsymbol{\alpha} \;=\; \boldsymbol{\alpha}^{-1}$ \cite{nash}, where $\mathbf{G}=\bigl[\mathbf{g}_1\,\ldots\,\mathbf{g}_K\bigr]$ \cite{nash}. The parameter update is then $\boldsymbol{\theta}^{(t+1)} =\boldsymbol{\theta}^{(t)}-\eta\,\mathbf{G}\boldsymbol{\alpha}$, with $\eta$ chosen to ensure monotonic loss decrease and convergence to a Pareto-stationary point \cite{nash}.
 
 \paragraph*{Practical Aspects.}
-Nash-MTL is architecture-agnostic and requires only two matrix-vector products per iteration. Its invariance to the scale of the individual task gradients, the second of the axioms listed above, balances heterogeneous tasks without manual re-weighting. For efficiency, task weights can be updated less frequently, significantly reducing runtime while maintaining performance~\cite{nash}.
+Nash-MTL is architecture-agnostic.\footnote{The published sentence continued ``and requires only two
+matrix-vector products per iteration''. That cost claim is corrected here rather than reproduced: it
+is not supported by the method's own paper, and it understates the cost. See
+Table~\ref{tab:apx:cbic-errata}.} Its invariance to the scale of the individual task gradients, the second of the axioms listed above, balances heterogeneous tasks without manual re-weighting. For efficiency, task weights can be updated less frequently, significantly reducing runtime while maintaining performance~\cite{nash}.
 % [round4, REV-020a] Factual correction to reproduced prose. The published sentence read
 % "Its reliance on gradient signs rather than scales inherently balances heterogeneous tasks".
 % Nash-MTL does not read gradient signs: it is scale-invariant, which is what this same
@@ -253,13 +256,15 @@ Nash-MTL is architecture-agnostic and requires only two matrix-vector products p
 % (:228). (3) This repository's src/losses/nash_mtl/loss.py: same structure at :291-299,
 % also zero occurrences of "sign". Claim strength is reduced, not increased: a mechanism
 % claim is replaced by the weaker property the paper actually proves. Declared in Table B.1.
-% [REPORTED, NOT CORRECTED] The same sentence's "requires only two matrix-vector products per
-% iteration" is not supported by the paper (the phrase does not occur in it) and understates
-% the cost: both implementations run an iterative concave-convex procedure, optim_niter = 20
-% by default, each pass a cvxpy/ECOS solve (tarik-new nash_mtl.py:99, :126-141; this repo's
-% loss.py:105, :158-200). Navon et al. report that raising the CCP sequence to 20 iterations
-% lifts the share of optimal solutions from 91.5 to 93.5 percent. Left as published: whether
-% to correct a cost claim is the author's judgment, and it is raised in the handoff report.
+% [round5, author decision 1b.3 -- SUPERSEDES the earlier REPORTED-NOT-CORRECTED ruling] The author
+% asked for ONE standard: "caso contrario algum revisor pode questionar o fato de alguns erros
+% factuais eu alterar o texto e outros nao". The cost claim is now CORRECTED in a footnote and
+% recorded in Table~\ref{tab:apx:cbic-errata}, alongside the gradient-scale correction that sits in
+% the same published sentence. Evidence: arXiv:2202.01017 does not contain the phrase
+% "matrix-vector"; both implementations run an iterative concave-convex procedure, default twenty
+% passes, each a convex solve, plus one backward pass per task. The correction runs AGAINST this
+% dissertation's interest (it raises the cost of a method the chapter used), which is why applying it
+% is the conservative choice as well as the consistent one.
 
 \paragraph*{Parameter Partition.}
 In our model (Figure~\ref{fig:cbic:arch}), we explicitly expose two disjoint parameter sets:

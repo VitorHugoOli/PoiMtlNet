@@ -84,8 +84,12 @@ training with a fixed loss weighting is standard practice
 Reports find that gradient-balancing methods, which re-weight
 the tasks' updates during training (PCGrad \cite{yu2020pcgrad}, Nash-MTL \cite{navon2022nashmtl}), rarely improve on a
 well-tuned fixed weighting with two tasks \cite{xin2022domtl}.
-We confirm this: none of the balancers that we tried, including the two named
-above, improved on a tuned fixed task weighting in our model.
+We confirm this at scale: of nineteen loss and gradient balancers screened at their
+default configurations on two datasets, including the two named above, none improved on a tuned
+fixed task weighting across both tasks and both datasets. Two exceed equal weighting on
+next-category at Alabama, Nash-MTL by $0.68$ points and scale normalization by $0.19$, and neither
+holds that position elsewhere: Nash-MTL loses it on the second dataset, and scale normalization
+gains on next-category there while collapsing on next-region.
 The reason is visible in the gradients. Measured during development on the same
 joint architecture (on an earlier preparation of the data), the cosine
 similarity between the next-category and next-region updates on the shared

@@ -271,7 +271,9 @@ region output retaining a private spatial path." No number moves, no result chan
 committee will find in thirty seconds. Because it is interpretive prose in a re-typeset chapter, it belongs in Appendix
 B's departure list, which is why I flag it for approval rather than call it free.
 
-> DECISAO: Calma, não haviamos chegado a conlclusão que os experimentos que alegavam que o shared trunk não auxiliava estavam errados?
+> DECISAO: Calma, não haviamos chegado a conlclusão que os experimentos que alegavam que o shared trunk não auxiliava
+> estavam errados? De qualquer forma como não temos argumento a favor e nem contra eu proponho de fato suavisar o claim
+> no cap. 5. Remeber that this type of change we can reproduce in the original text and in the dissertacao.
 
 ### COD-005 — PCGrad and Nash-MTL evidence still misstated · **PARTLY**
 
@@ -307,6 +309,9 @@ recommendation to keep as is. **NEEDS-AUTHOR.**
 maximizes the product of the utilities of all tasks, which ensures that the update is beneficial for all tasks
 simultaneously". "Ensures" is unconditional; the guarantee holds under the method's assumptions. This is published
 co-authored prose, so it is an errata-policy question, not a free edit.
+
+> DECISAO: Sobre o 2 e o 3 pontos acredito já ter resolvido em pendencias.md. Quanto ao ponto 2, vamso deixar de fora.
+> No ponto 4 podemos fazer uma correção no texto e apontar no appendix B.
 
 ### COD-006 — statistical wording exceeds the design · **PARTLY**
 
@@ -346,6 +351,8 @@ result was read" → "before the final result board was read", and "The equivale
 observed interval precision, conditional on the fixed split, using the numbers already in the sentence. Both are
 `[NEEDS SIGN-OFF]`-class because they touch the statistical protocol paragraph that the whole Ch.5 verdict rests on.
 
+> DECISAO: Let's change only the second point about the: "The equivalence is well powered".
+
 ### COD-007 — Chapters 3–4 methodologically under-specified · **PARTLY / NEEDS-AUTHOR**
 
 **The missing records: CONFIRMED.** Ch.3 states 5-fold cross-validation at :294 and never identifies the split axis,
@@ -367,6 +374,8 @@ so removing them "would make the chapter's own conclusion sound stronger than it
 
 **The oracle-envelope half: PARTLY, see NUM-7.** Ch.4 states the per-cell convention at all three of its own sites; the
 frame does not.
+
+> DECISAO: 
 
 ### COD-008 — load-bearing citations do not support their claims · **PARTLY**
 
