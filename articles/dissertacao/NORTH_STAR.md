@@ -155,7 +155,14 @@ superseded number or claim read as the project's current state.
   splits with plain `StratifiedKFold(n_splits, shuffle=True)` on sample rows stratified by class
   (L225–228); `src/etl/next/fold.py` L19+L34 likewise; no group-aware splitter exists anywhere in
   the project code. A user's windows can therefore span train and test. UW-3 closed.];
-  Nash-MTL caveat as in Ch.3; no external baselines;
+  ~~Nash-MTL caveat as in Ch.3~~ **REVOKED by author ruling 2026-07-27** (PENDENCIAS 2.3, option A:
+  "vamos manter como estar, de fato e um erro, mas nao e algo que afeta o escopo do projeto de forma
+  critica"). No caveat and no errata for the optimizer-preference claim in Ch.3 or Ch.4. Scope of what
+  this gives up, so the decision stays auditable: only the optimizer-PREFERENCE claim. Ch.3's main
+  result (MTL at parity with single-task) does not depend on which balancer was active, and Ch.5 does
+  not use Nash at all. Verified 2026-07-27 that no frame chapter amplifies the preference: Ch.2's
+  mention is a neutral method description, and Ch.4's preface carries no Nash sentence.
+  No external baselines;
   update the `silva2025mtlnet` bib entry (venue name wrong: says "Brazilian Conference on
   Intelligent Systems (CBIC)"; note "Submetido" stale).
 - **Authorship note:** state Vitor's contribution (baseline model MTLnet is his 1st-author work;

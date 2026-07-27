@@ -1,0 +1,46 @@
+% apx_mobiwac-scope.tex -- extracted from chapters/apx_b_errata.tex (round5, author decision 1.1).
+% Included with \input{tables/apx_mobiwac-scope}. Float placement, caption and every value
+% are byte-identical to the version that was inline; the extraction was verified by
+% comparing the rendered PDF checksum before and after.
+\begin{table}[htb]
+\caption{Claim-scope corrections in the reproduced MobiWac 2026 prose (claim-scope
+narrowing and comparison-basis disclosure; no experimental result altered).}
+\label{tab:apx:mobiwac-scope}
+\centering
+\small
+\begin{tabular}{@{}p{0.30\textwidth}p{0.62\textwidth}@{}}
+\toprule
+\textbf{Submitted claim} & \textbf{Correction in the chapter} \\
+\midrule
+The representation ``passes no usable information about the test visits, on three
+grounds.'' &
+The universal negative is replaced by a bounded statement over named channels. The first
+ground is scoped to the training objective, with the note that each visit's category is a
+node input feature; a fourth ground is added, reporting the development audit that probes
+the forward-edge channel between consecutive visits, with its three limits stated: a
+linear probe, Florida at one random initialization, and earlier builds of the
+representation. Every number already in the paragraph is unchanged. \\
+\addlinespace
+``none of the balancers that we tried, including the two named above, improved on a tuned
+fixed task weighting'' &
+The same sentence, with ``at their default configurations'' added. The internal audit
+records that only one of the two named methods was validly wired under this architecture,
+so the claim is narrowed to the configurations actually screened. \\
+\addlinespace
+The region-pathway control lands ``within $0.3$ of the joint model.'' &
+The control is restated against the single-task category score it was measured on, and the
+``within $0.3$'' figure is kept with its basis named: the joint scores of the development
+configuration current when the control was run, not the joint cells of
+Table~\ref{tab:mobiwac:results}. The control's single random initialization over five
+folds is disclosed. The finding is unchanged. \\
+\addlinespace
+Limitations name two limits. &
+A third limit is added, naming the consequence of the two-way split that the chapter
+already discloses twice: epoch selection consults the fold the score is read on, so the
+absolute scores are optimistic. The comparison between the joint and dedicated models is
+affected far less, since the rule is applied identically to both arms on the same folds
+and the dedicated arm receives the wider search, which makes the reported difference
+conservative. Exact cancellation is not claimed. \\
+\bottomrule
+\end{tabular}
+\end{table}

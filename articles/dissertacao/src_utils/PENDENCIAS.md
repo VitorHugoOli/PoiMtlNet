@@ -17,30 +17,29 @@
 
 ## Estado apos a rodada de 2026-07-27
 
-**Build:** defesa 103 pp, final 98 pp, 0 caixas estouradas, 0 citacoes/referencias indefinidas,
-0 erros de BibTeX, lint 0, 10/10 fixtures do detector de prosa presa.
+**Build:** defesa 103 pp, final 98 pp, 0 caixas estouradas, 0 citacoes/referencias indefinidas, 0 erros de BibTeX, lint
+0, 10/10 fixtures do detector de prosa presa.
 
 **O que rodou nesta rodada, e o que cada um achou:**
 
-| Revisor | Estado antes | Veredicto |
-|---|---|---|
-| Persona 15 (leitura) | 1 dia desatualizado | Confirma que o Apendice D reescrito **se sustenta sozinho**; 3 costuras, todas aplicadas |
-| Persona 16 (credibilidade) | **nunca tinha rodado nesta versao** | Risco humano BAIXO; 2 BLOCKERs nos meus proprios textos, os dois corrigidos |
-| Fact gate (G2) | v2, build antigo | **GATE FAIL** em um numero (o 22,4 por cento); corrigido. 4 MAJOR + 3 MINOR, todos aplicados |
-| Banca (persona 12) | v2, build antigo | **APROVADO COM CORRECOES MENORES**, com 2 obrigatorias, as duas fechadas |
+| Revisor                    | Estado antes                        | Veredicto                                                                                    |
+|----------------------------|-------------------------------------|----------------------------------------------------------------------------------------------|
+| Persona 15 (leitura)       | 1 dia desatualizado                 | Confirma que o Apendice D reescrito **se sustenta sozinho**; 3 costuras, todas aplicadas     |
+| Persona 16 (credibilidade) | **nunca tinha rodado nesta versao** | Risco humano BAIXO; 2 BLOCKERs nos meus proprios textos, os dois corrigidos                  |
+| Fact gate (G2)             | v2, build antigo                    | **GATE FAIL** em um numero (o 22,4 por cento); corrigido. 4 MAJOR + 3 MINOR, todos aplicados |
+| Banca (persona 12)         | v2, build antigo                    | **APROVADO COM CORRECOES MENORES**, com 2 obrigatorias, as duas fechadas                     |
 
-**Sobre a sua pergunta dos guardrails:** as regras mecanicas foram respeitadas nesta rodada. Auditei
-1.725 palavras de prosa nova contra o `WRITING_LAW §4`: zero termos banidos, zero travessoes, zero
-contracoes, zero termos fora do registro. Mas isso nao pegava a sua reclamacao real. O Apendice D
-tinha as **frases mais curtas do documento**; o problema era colisao de conceitos e dependencia
-externa, nao tamanho de frase. Foi por isso que medi antes de reescrever.
+**Sobre a sua pergunta dos guardrails:** as regras mecanicas foram respeitadas nesta rodada. Auditei 1.725 palavras de
+prosa nova contra o `WRITING_LAW §4`: zero termos banidos, zero travessoes, zero contracoes, zero termos fora do
+registro. Mas isso nao pegava a sua reclamacao real. O Apendice D tinha as **frases mais curtas do documento**; o
+problema era colisao de conceitos e dependencia externa, nao tamanho de frase. Foi por isso que medi antes de
+reescrever.
 
-**O defeito que mais se repetiu, e o que fiz sobre ele:** prosa engolida por comentario LaTeX, agora
-**dez** ocorrencias no historico do documento. Tres foram encontradas pelo codex nesta rodada, duas
-pela persona 16 e pela banca, e **duas foram pegas pela ferramenta** enquanto eu editava, que e a
-primeira vez que a maquina pega antes do revisor. O detector foi reescrito em volta do teste que
-importa (o texto aparece no PDF ou nao), tem 10 fixtures no repositorio, e o `check.sh` roda os
-fixtures **antes** de confiar no detector.
+**O defeito que mais se repetiu, e o que fiz sobre ele:** prosa engolida por comentario LaTeX, agora **dez** ocorrencias
+no historico do documento. Tres foram encontradas pelo codex nesta rodada, duas pela persona 16 e pela banca, e **duas
+foram pegas pela ferramenta** enquanto eu editava, que e a primeira vez que a maquina pega antes do revisor. O detector
+foi reescrito em volta do teste que importa (o texto aparece no PDF ou nao), tem 10 fixtures no repositorio, e o
+`check.sh` roda os fixtures **antes** de confiar no detector.
 
 ---
 
@@ -50,53 +49,54 @@ Voce pediu para auditar antes de agir. Feito, achado por achado, contra a fonte.
 `codex_reviewer.md` agora carrega um **AUDIT VERDICT** em cada achado, e as evidencias estao em
 [`CODEX_AUDIT.md`](CODEX_AUDIT.md) e [`CODEX_VS_PERSONAS.md`](CODEX_VS_PERSONAS.md).
 
-**Contagem:** 5 RESOLVIDOS, 1 REFUTADO como enunciado, 1 CONFIRMADO e corrigido, o resto PARCIAL com
-o residuo vivo nomeado caso a caso. **Quatro alegacoes nao se sustentam** na evidencia, entre elas
-uma exigencia de citacao que contraria uma decisao sua ja registrada, e uma atribuicao de capitulo
-que le uma frase do apendice do MobiWac como se fosse do Cap. 4.
+**Contagem:** 5 RESOLVIDOS, 1 REFUTADO como enunciado, 1 CONFIRMADO e corrigido, o resto PARCIAL com o residuo vivo
+nomeado caso a caso. **Quatro alegacoes nao se sustentam** na evidencia, entre elas uma exigencia de citacao que
+contraria uma decisao sua ja registrada, e uma atribuicao de capitulo que le uma frase do apendice do MobiWac como se
+fosse do Cap. 4.
 
-**Um fato estrutural que governa a leitura:** o codex leu um par de 97/92 paginas. O que esta em
-disco e **103/98**. Todos os `file:line` dele deslizaram; a auditoria re-ancorou cada um pelo
-conteudo. Os achados sobrevivem, as coordenadas nao.
+**Um fato estrutural que governa a leitura:** o codex leu um par de 97/92 paginas. O que esta em disco e **103/98**.
+Todos os `file:line` dele deslizaram; a auditoria re-ancorou cada um pelo conteudo. Os achados sobrevivem, as
+coordenadas nao.
 
-**Os quatro achados de maior valor nao foram pegos por nenhum outro revisor**, e os quatro estao
-corrigidos: a contagem errada do controle de capacidade (tres bracos de vinte, sessenta ajustes, e
-56,16 e uma media e nao um maximo), o artigo errado do Mikolov para negative sampling, uma frase do
-Cap. 5 que reafirmava uma atribuicao que o proprio capitulo recusa, e uma frase do Cap. 3 que
-descreve uma feature de no que o codigo liberado nao constroi. Nove personas, o fact gate e o
-simulador de banca passaram por todos os quatro sem ver.
+**Os quatro achados de maior valor nao foram pegos por nenhum outro revisor**, e os quatro estao corrigidos: a contagem
+errada do controle de capacidade (tres bracos de vinte, sessenta ajustes, e 56,16 e uma media e nao um maximo), o artigo
+errado do Mikolov para negative sampling, uma frase do Cap. 5 que reafirmava uma atribuicao que o proprio capitulo
+recusa, e uma frase do Cap. 3 que descreve uma feature de no que o codigo liberado nao constroi. Nove personas, o fact
+gate e o simulador de banca passaram por todos os quatro sem ver.
 
 ### 0.2 Dois itens das personas 15 e 16 que dependem de voce
 
 Os dois BLOCKERs delas foram corrigidos. Sobram dois pontos que sao decisao sua:
 
-1. **A linha de divulgacao de IA no front matter** (persona 16, o achado de maior valor dela, aberto
-   desde a v1). O Apendice C esta na p. 97 do build de defesa, e a persona argumenta que uma linha
-   curta no front matter, antes do corpo, muda como um examinador desconfiado le o documento inteiro:
-   ele encontra a divulgacao antes de formar suspeita, e nao depois. Nao escrevi nada: e uma frase em
-   seu nome sobre o seu proprio processo.
+1. **A linha de divulgacao de IA no front matter** (persona 16, o achado de maior valor dela, aberto desde a v1). O
+   Apendice C esta na p. 97 do build de defesa, e a persona argumenta que uma linha curta no front matter, antes do
+   corpo, muda como um examinador desconfiado le o documento inteiro:
+   ele encontra a divulgacao antes de formar suspeita, e nao depois. Nao escrevi nada: e uma frase em seu nome sobre o
+   seu proprio processo.
 
-2. **O `\label{apx:ethics}` orfao** (persona 15). O Apendice E tem label e nada o referencia. E
-   inofensivo hoje, mas se voce quiser que algum capitulo aponte para a etica (o Cap. 1 seria o lugar
-   natural, junto da descricao dos dados), me diga onde e eu insiro a referencia.
+2. **O `\label{apx:ethics}` orfao** (persona 15). O Apendice E tem label e nada o referencia. E inofensivo hoje, mas se
+   voce quiser que algum capitulo aponte para a etica (o Cap. 1 seria o lugar natural, junto da descricao dos dados), me
+   diga onde e eu insiro a referencia.
 
-> DECISAO: __________________________________________________
+> DECISAO: 1. No `Contents` ele já está presente, mas de qualquer forma estamos seguindo as diretrizes do manual da UFV,
+> acredito que manter neese formato sejá o melhor, se algum revisor achar pertinente ele mandara eu mudar.; 2. Gostei da
+> ideia de referenciarmos de forma rapida no Cap. 1.
 
 ---
 
 ### 0.1 O que do codex ainda depende de voce
 
-| Item | O que falta |
-|---|---|
+| Item    | O que falta                                                                                                                                                                    |
+|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | COD-002 | A tarefa estatica do Cap. 4: o determinismo esta medido e confirmado, mas a **divulgacao** ainda nao existe no texto, e escrever isso exige aviso ao co-autor (ja no item 2.2) |
-| COD-003 | O teste nao-linear de aresta futura na linhagem exata entregue. O texto **nao** exagera (isso foi refutado), mas o teste em si e uma decisao de compute sua (item 3.4) |
-| COD-005 | Nash-MTL: voce ja decidiu sobre o PCGrad. Sobra a alegacao de custo, ja declarada no Apendice B como preservada deliberadamente (item 1b.3) |
-| COD-006 | "before any result was read" e "well powered": os dois excedem o desenho. Correcao de uma frase cada, mas em texto de moldura que voce assina |
-| COD-007 | Os registros de protocolo que faltam no Cap. 3. Sao registros historicos que so voce sabe se existem |
-| COD-013 | O Apendice C diz que voce leu e aprovou cada palavra. 31 marcadores abertos (item 3.1) |
-| COD-016 | O passe de linguagem: a frase de 114 palavras do resumo e o bloco de 546 palavras da integridade. Voce ja pediu para adiar (item 3.3) |
-| COD-017 | O float grande do Apendice B e os rotulos de 6,97 pt nos diagramas: bloqueado na arte-fonte (item 3.2) |
-| NUM-4 | O `[VERIFY]` do 0,74 -> 0,82 do HGI: a fonte da 0,7388 +- 0,0205 -> 0,8186 +- 0,0123 em 5 folds x 50 epocas, e a prosa nao diz a convencao |
+| COD-003 | O teste nao-linear de aresta futura na linhagem exata entregue. O texto **nao** exagera (isso foi refutado), mas o teste em si e uma decisao de compute sua (item 3.4)         |
+| COD-005 | Nash-MTL: voce ja decidiu sobre o PCGrad. Sobra a alegacao de custo, ja declarada no Apendice B como preservada deliberadamente (item 1b.3)                                    |
+| COD-006 | "before any result was read" e "well powered": os dois excedem o desenho. Correcao de uma frase cada, mas em texto de moldura que voce assina                                  |
+| COD-007 | Os registros de protocolo que faltam no Cap. 3. Sao registros historicos que so voce sabe se existem                                                                           |
+| COD-013 | O Apendice C diz que voce leu e aprovou cada palavra. 31 marcadores abertos (item 3.1)                                                                                         |
+| COD-016 | O passe de linguagem: a frase de 114 palavras do resumo e o bloco de 546 palavras da integridade. Voce ja pediu para adiar (item 3.3)                                          |
+| COD-017 | O float grande do Apendice B e os rotulos de 6,97 pt nos diagramas: bloqueado na arte-fonte (item 3.2)                                                                         |
+| NUM-4   | O `[VERIFY]` do 0,74 -> 0,82 do HGI: a fonte da 0,7388 +- 0,0205 -> 0,8186 +- 0,0123 em 5 folds x 50 epocas, e a prosa nao diz a convencao                                     |
 
 ---
 
@@ -152,13 +152,6 @@ pelo mecanismo do Apendice B, e ele so fica legitimo com o aval dele.
 
 > DECISAO: __________________________________________________
 
-### ~~1.3 Fonte da bibliografia: 12 pt ou `\footnotesize`? (REV-024)~~ — RESOLVIDO 2026-07-27
-
-Aplicado: o wrapper `{\footnotesize ...}` saiu do `0_main.tex` e a bibliografia agora compoe em
-12 pt, conforme sua decisao e o `UFV_COMPLIANCE.md:32`. O `\campus{Campus Florestal}` foi setado
-e **nao renderiza nada hoje**: a macro so e lida dentro de `\imprimircapa`, que nenhum build
-chama. Ela passa a aparecer quando a capa for decidida (item 1.1). Commit `9e2b5157`.
-
 ### Outros pontos
 
 Sobre as erratas pricipalmente do mobiwac eu gostaria de reiteira que ainda estamos no periodo de revisão do artigo,
@@ -174,29 +167,35 @@ no texto original do mobiwac, faça um diff com o texto original se preciso, mas
 ### ~~2.1 Etica e governanca de dados — **o item mais exposto da lista** (REV-026)~~ — RESOLVIDO 2026-07-27
 
 **Feito, mas precisa da sua leitura.** O Apendice E ("Data ethics and governance", ~790 palavras)
-esta escrito e no build. Todas as licencas foram reabertas na fonte nesta sessao, nao herdadas da
-nota: Figshare devolve **CC0** para o DOI `10.6084/m9.figshare.22126586.v2`, o Hugging Face devolve
-**apache-2.0**, e a API do GitHub devolve SPDX **Apache-2.0**.
+esta escrito e no build. Todas as licencas foram reabertas na fonte nesta sessao, nao herdadas da nota: Figshare devolve
+**CC0** para o DOI `10.6084/m9.figshare.22126586.v2`, o Hugging Face devolve **apache-2.0**, e a API do GitHub devolve
+SPDX **Apache-2.0**.
 
 Duas coisas que o apendice diz porque o codigo diz, e que voce deve querer conferir:
 
-1. Uma busca no repositorio inteiro por `jitter|perturb|laplace|anonym|deidentif|mask|obfusc` nao
-   retorna **nenhum** hit em nenhum caminho de ETL. O apendice afirma que **nao ha
-   de-identificacao aplicada**, em vez de sugerir uma protecao que nao existe.
-2. O endereco original do Gowalla nao da mais 403: hoje ele **redireciona (301) para um dominio
-   comercial sem relacao**. Os termos originais nao estao apenas nao lidos, sumiram.
+1. Uma busca no repositorio inteiro por `jitter|perturb|laplace|anonym|deidentif|mask|obfusc` nao retorna **nenhum** hit
+   em nenhum caminho de ETL. O apendice afirma que **nao ha de-identificacao aplicada**, em vez de sugerir uma protecao
+   que nao existe.
+2. O endereco original do Gowalla nao da mais 403: hoje ele **redireciona (301) para um dominio comercial sem relacao**.
+   Os termos originais nao estao apenas nao lidos, sumiram.
 
-Sobre o comite de etica, respondendo a sua pergunta 1: a dissertacao de 2024 do mesmo orientador
-foi extraida inteira (96 paginas) e buscada por `comite|CAAE|Plataforma Brasil|CEP|IRB|ethics
-approval|Resolucao N` — **zero hits**, contra dois hits em "Ethical Statement" que provam que a
-busca estava lendo texto real. Ela tem um §2.6 sobre privacidade de localizacao que diz que
-latitude e longitude ficaram sem mascara. O apendice registra isso como precedente, registra a sua
-posicao de que a revisao nao era exigida, e **nao afirma aprovacao nem isencao**.
+Sobre o comite de etica, respondendo a sua pergunta 1: a dissertacao de 2024 do mesmo orientador foi extraida inteira
+(96 paginas) e buscada por `comite|CAAE|Plataforma Brasil|CEP|IRB|ethics
+approval|Resolucao N` — **zero hits**, contra dois hits em "Ethical Statement" que provam que a busca estava lendo texto
+real. Ela tem um §2.6 sobre privacidade de localizacao que diz que latitude e longitude ficaram sem mascara. O apendice
+registra isso como precedente, registra a sua posicao de que a revisao nao era exigida, e **nao afirma aprovacao nem
+isencao**.
 
-**O que preciso de voce:** ler o Apendice E e assinar. Ele faz afirmacoes institucionais em seu
-nome. Esta marcado `[NEEDS SIGN-OFF: AUTHOR]`. Commit `9e2b5157`.
+**O que preciso de voce:** ler o Apendice E e assinar. Ele faz afirmacoes institucionais em seu nome. Esta marcado
+`[NEEDS SIGN-OFF: AUTHOR]`. Commit `9e2b5157`.
 
-> DECISAO: __________________________________________________
+> DECISAO: Ficou bem legal, é eu aprovo esse appendix com algumas alterações. Primeramente é mais critical: O gowalla
+> orignal, salvo engano é o: https://snap.stanford.edu/data/loc-gowalla.html, o link do figshare que não está
+> funcionando
+> é acesseivvel por: https://web.archive.org/web/20220709062539/http://www.yongliu.org/datasets.html. Assim, vamos
+> refazer o texto do gowalla e ser mais susinto e direto, não precisamos falar de coisas que são efemeras como o fato do
+> site não está funcionando. O segundo paragrafo desse appendix que tmb está relacionado ao gowalla, tmb está um pouco
+> confuso. Voce pode remover por completo o E.3, não precisamos dessa justificativa por hora.
 
 ### 2.2 Escopo da tarefa estatica do Cap. 4 (REV-002) — **medido nesta rodada, e o resultado nao ajuda**
 
@@ -280,43 +279,41 @@ deixar o Nash-MTL carregar a evidencia nomeada. Sua instrucao prevalece; o nome 
 
 **Aplicado nos dois capitulos, e a sua desconfianca sobre o experimento estava certa.**
 
-Voce pediu para auditar o F50 antes de cita-lo. Auditei, e ele nao sustenta o que a tese dizia,
-por dois motivos independentes que estao no proprio registro:
+Voce pediu para auditar o F50 antes de cita-lo. Auditei, e ele nao sustenta o que a tese dizia, por dois motivos
+independentes que estao no proprio registro:
 
-1. O `F50_T1_5_CROSSATTN_ABSORPTION.md:229` chama o **proprio** nulo de "misleading" e de "hidden
-   compensation effect, not a true null contribution". O F49 companheiro mede a contribuicao
-   arquitetural em **-16,16 pp**: o nulo aparece porque o encoder de categoria absorve o deficit.
-2. A configuracao ablacionada nao e a que foi entregue. O F50 rodou `check2hgi/florida` em bs2048
-   (abril); o board entregue roda `check2hgi_dk_ovl` em bs8192 (`catx_v17_n20/*.json`, campo
-   `rundir`). E o mecanismo depende do prior `alpha*log_T`, que o proprio Cap. 5 diz que **nossos
-   modelos nao usam**.
+1. O `F50_T1_5_CROSSATTN_ABSORPTION.md:229` chama o **proprio** nulo de "misleading" e de "hidden compensation effect,
+   not a true null contribution". O F49 companheiro mede a contribuicao arquitetural em **-16,16 pp**: o nulo aparece
+   porque o encoder de categoria absorve o deficit.
+2. A configuracao ablacionada nao e a que foi entregue. O F50 rodou `check2hgi/florida` em bs2048 (abril); o board
+   entregue roda `check2hgi_dk_ovl` em bs8192 (`catx_v17_n20/*.json`, campo
+   `rundir`). E o mecanismo depende do prior `alpha*log_T`, que o proprio Cap. 5 diz que **nossos modelos nao usam**.
 
-Os dois capitulos agora mantem o valor e **estreitam a inferencia**: a ablacao nao e oferecida como
-prova de que o trunk nao contribui. A atribuicao continua retida, e continua apoiada no controle de
-congelamento e no controle de capacidade, que este achado nao toca. Commit `06b64cab`.
+Os dois capitulos agora mantem o valor e **estreitam a inferencia**: a ablacao nao e oferecida como prova de que o trunk
+nao contribui. A atribuicao continua retida, e continua apoiada no controle de congelamento e no controle de capacidade,
+que este achado nao toca. Commit `06b64cab`.
 
-**Nao rodei de novo, de proposito.** Uma versao citavel exige o engine entregue, o batch entregue,
-sem o prior, e seeds suficientes: um treino por seed por fold por braco na GPU, nao uma sonda. Isso
-e uma pergunta de pesquisa, nao uma clausula de hedge.
+**Nao rodei de novo, de proposito.** Uma versao citavel exige o engine entregue, o batch entregue, sem o prior, e seeds
+suficientes: um treino por seed por fold por braco na GPU, nao uma sonda. Isso e uma pergunta de pesquisa, nao uma
+clausula de hedge.
 
-**O que preciso de voce:** (a) o texto reescrito entra como esta, ou (b) voce prefere remover a
-clausula inteira, ja que a atribuicao ja fica retida pelos outros dois controles? E: isso merece
-linha de errata no Apendice B? E texto de moldura, nao publicado, entao a minha leitura e que nao
-precisa — mas reescreve uma frase de interpretacao, e a decisao e sua.
+**O que preciso de voce:** (a) o texto reescrito entra como esta, ou (b) voce prefere remover a clausula inteira, ja que
+a atribuicao ja fica retida pelos outros dois controles? E: isso merece linha de errata no Apendice B? E texto de
+moldura, nao publicado, entao a minha leitura e que nao precisa — mas reescreve uma frase de interpretacao, e a decisao
+e sua.
 
-> DECISAO: __________________________________________________
+> DECISAO: 
 
 ### ~~1b.2 O piso de Markov esta acima dos baselines externos (persona 11, BLOCKER)~~ — RESOLVIDO 2026-07-27
 
-**Aplicado.** O paragrafo agora declara a assimetria de protocolo sistema por sistema em vez de
-oferecer uma explicacao causal unica, e diz explicitamente que nenhum dos fatos estabelece por que
-o piso fica acima. As contagens verificadas (piso acima do HMT-GRN em 6/6, do ReHDM em 3, do STAN
-em 4) e os 22,4 por cento de revisita no Alabama ficam como estao.
+**Aplicado.** O paragrafo agora declara a assimetria de protocolo sistema por sistema em vez de oferecer uma explicacao
+causal unica, e diz explicitamente que nenhum dos fatos estabelece por que o piso fica acima. As contagens verificadas
+(piso acima do HMT-GRN em 6/6, do ReHDM em 3, do STAN em 4) e os 22,4 por cento de revisita no Alabama ficam como estao.
 
-Corrigi tambem um erro **meu**, de ontem: eu tinha escrito que os tres sistemas externos preveem um
-lugar e sao lidos no nivel de regiao, enquanto o mesmo capitulo chama o HMT-GRN de *region-native*
-em `:418`, `:622` e `:755`. Commit `ff96dcaf`. O registro interno estava desatualizado no mesmo
-ponto e foi corrigido em `f978b16b`.
+Corrigi tambem um erro **meu**, de ontem: eu tinha escrito que os tres sistemas externos preveem um lugar e sao lidos no
+nivel de regiao, enquanto o mesmo capitulo chama o HMT-GRN de *region-native*
+em `:418`, `:622` e `:755`. Commit `ff96dcaf`. O registro interno estava desatualizado no mesmo ponto e foi corrigido em
+`f978b16b`.
 
 ### 1b.3 O custo do Nash-MTL: corrigir ou so declarar? (persona 10, MAJOR)
 
@@ -348,20 +345,21 @@ pendencia (aviso ao co-autor primeiro).
 > para voce nao reabrir a esmo. Os outros tres ja aparecem nos Blocos 1 e 3 deste documento
 > (titulo, Resumo/Abstract, folha de aprovacao, figuras).
 
-### ~~2b.1 Apendice A — manter ou remover a secao do BRACIS (era 2.3, e o item mais consequente)~~ — RESOLVIDO 2026-07-27
+### ~~2b.1 Apendice A — manter ou remover a secao do BRACIS (era 2.3, e o item mais
 
-Aplicado: a secao A.2 foi removida, e o sweep que voce pediu encontrou e reconciliou as alegacoes
-dependentes. O `NORTH_STAR §3`, que mandava manter o dispositivo de contencao, ficou marcado como
-superado pela sua decisao com a data, em vez de apagado. A sigla BRACIS saiu da lista de
-abreviaturas, porque A.2 era o unico texto que a usava. Commit `21124a8c`.
+consequente)~~ — RESOLVIDO 2026-07-27
+
+Aplicado: a secao A.2 foi removida, e o sweep que voce pediu encontrou e reconciliou as alegacoes dependentes. O
+`NORTH_STAR §3`, que mandava manter o dispositivo de contencao, ficou marcado como superado pela sua decisao com a data,
+em vez de apagado. A sigla BRACIS saiu da lista de abreviaturas, porque A.2 era o unico texto que a usava. Commit
+`21124a8c`.
 
 ### ~~2b.2 O nome "MTLnet" e a grafia (era 3.7)~~ — RESOLVIDO 2026-07-27
 
-Aplicado: 26 sites normalizados para `MTLnet` no Cap. 4, com a errata no Apendice B. A autoridade e
-o `GLOSSARY.md:41`, ja que o artigo do CBIC nunca nomeia o modelo em prosa (so um nome de arquivo
-de figura e a URL do repositorio). O `ST-MTLNet` mantem o N maiusculo: e um nome registrado a
-parte, e a expansao publicada *Spatial-Temporal MTLNet* tambem fica. A frase do `:84` que dizia
-que o capitulo preservava a grafia publicada virou falsa com a mudanca e foi removida.
+Aplicado: 26 sites normalizados para `MTLnet` no Cap. 4, com a errata no Apendice B. A autoridade e o `GLOSSARY.md:41`,
+ja que o artigo do CBIC nunca nomeia o modelo em prosa (so um nome de arquivo de figura e a URL do repositorio). O
+`ST-MTLNet` mantem o N maiusculo: e um nome registrado a parte, e a expansao publicada *Spatial-Temporal MTLNet* tambem
+fica. A frase do `:84` que dizia que o capitulo preservava a grafia publicada virou falsa com a mudanca e foi removida.
 Commit `ff96dcaf`.
 
 ### 2b.3 Movimentos opcionais de excelencia (era 3.10)
@@ -396,24 +394,24 @@ de saida para cada numero.
 
 ### 3.1 Os 31 marcadores `[NEEDS SIGN-OFF]`
 
-Voce pediu a lista. Sao 31 marcadores em 10 arquivos, todos comentarios LaTeX (**nenhum renderiza**, entao nao ha sujeira
-no PDF). O risco nao e visual: e que o **Apendice C afirma** que o autor leu e aprovou cada palavra, enquanto o proprio
-apendice esta marcado como nao aprovado. Voce ja decidiu manter o Apendice C como esta, o que torna esta lista o caminho
-para tornar a afirmacao verdadeira.
+Voce pediu a lista. Sao 31 marcadores em 10 arquivos, todos comentarios LaTeX (**nenhum renderiza**, entao nao ha
+sujeira no PDF). O risco nao e visual: e que o **Apendice C afirma** que o autor leu e aprovou cada palavra, enquanto o
+proprio apendice esta marcado como nao aprovado. Voce ja decidiu manter o Apendice C como esta, o que torna esta lista o
+caminho para tornar a afirmacao verdadeira.
 
-| Arquivo | Qtd | O que e |
-|---|---|---|
-| `0_main.tex` | 6 | Resumo e Abstract: **par de paridade** |
-| `chapters/6_conclusion.tex` | 6 | Escopos de alegacao, clausula do F50, contagem do controle de capacidade |
-| `chapters/5_mobiwac.tex` | 5 | Prefacio, recap, figura, atribuicao, clausula do F50, o piso de Markov |
-| `chapters/apx_a_contributions.tex` | 4 | Apendice inteiro; a §A.2 foi removida nesta rodada |
-| `chapters/apx_b_errata.tex` | 3 | Apendice inteiro, errata de grafia, errata do Mikolov, errata do DGI |
-| `chapters/1_introduction.tex` | 2 | Correcao de gate L3, unidade inferencial |
-| `chapters/2_fundamentals.tex` | 2 | Escopo dos 93% do Song, de-duplicacao L3, descricao do CAGrad |
-| `chapters/apx_c_ai_disclosure.tex` | 1 | Apendice inteiro (COD-013: ele afirma que voce leu cada palavra) |
-| `chapters/apx_d_ceiling.tex` | 1 | Apendice reescrito (label-history benchmark) |
-| `chapters/apx_e_ethics.tex` | 1 | **Apendice novo**: afirmacoes institucionais em seu nome |
-| **TOTAL** | **31** | contagem medida em 10 arquivos, 2026-07-27 |
+| Arquivo                            | Qtd    | O que e                                                                  |
+|------------------------------------|--------|--------------------------------------------------------------------------|
+| `0_main.tex`                       | 6      | Resumo e Abstract: **par de paridade**                                   |
+| `chapters/6_conclusion.tex`        | 6      | Escopos de alegacao, clausula do F50, contagem do controle de capacidade |
+| `chapters/5_mobiwac.tex`           | 5      | Prefacio, recap, figura, atribuicao, clausula do F50, o piso de Markov   |
+| `chapters/apx_a_contributions.tex` | 4      | Apendice inteiro; a §A.2 foi removida nesta rodada                       |
+| `chapters/apx_b_errata.tex`        | 3      | Apendice inteiro, errata de grafia, errata do Mikolov, errata do DGI     |
+| `chapters/1_introduction.tex`      | 2      | Correcao de gate L3, unidade inferencial                                 |
+| `chapters/2_fundamentals.tex`      | 2      | Escopo dos 93% do Song, de-duplicacao L3, descricao do CAGrad            |
+| `chapters/apx_c_ai_disclosure.tex` | 1      | Apendice inteiro (COD-013: ele afirma que voce leu cada palavra)         |
+| `chapters/apx_d_ceiling.tex`       | 1      | Apendice reescrito (label-history benchmark)                             |
+| `chapters/apx_e_ethics.tex`        | 1      | **Apendice novo**: afirmacoes institucionais em seu nome                 |
+| **TOTAL**                          | **31** | contagem medida em 10 arquivos, 2026-07-27                               |
 
 **Regra que nao da para contornar:** os 6 do `0_main.tex` sao **um par**. Resumo e Abstract carregam as mesmas
 alegacoes, e aprovar um sem o outro quebra a paridade. Leia os dois lado a lado.
@@ -465,38 +463,36 @@ em uma palavra. A (ii) da para fazer agora se quiser resolver o efeito visual e 
 
 ### ~~3.4 O teto de autocorrelacao — **RECONSTRUIDO nesta rodada** (REV-001)~~ — RESOLVIDO 2026-07-27
 
-**Aplicado, e o nome mudou.** A revisao do codex tem razao: chamar aquilo de "teto" afirma mais do
-que a analise mostra. Nao e um limite superior, e o **melhor de quatro preditores especificados**
+**Aplicado, e o nome mudou.** A revisao do codex tem razao: chamar aquilo de "teto" afirma mais do que a analise mostra.
+Nao e um limite superior, e o **melhor de quatro preditores especificados**
 sobre o historico de rotulos, e um modelo diferente pode supera-lo com o mesmo historico.
 
-O termo agora e **label-history benchmark** no Cap. 5, no Apendice D e no `GLOSSARY.md`, com as
-formulacoes antigas banidas no registro. A palavra "teto" continua correta para o *dedicated
-single-task ceiling*, que e o escore de um modelo treinado de verdade.
+O termo agora e **label-history benchmark** no Cap. 5, no Apendice D e no `GLOSSARY.md`, com as formulacoes antigas
+banidas no registro. A palavra "teto" continua correta para o *dedicated single-task ceiling*, que e o escore de um
+modelo treinado de verdade.
 
-O Apendice D foi reescrito por causa da sua objecao de leitura. Medi antes de reescrever: o texto
-tinha as **frases mais curtas do documento** (media 21,2 palavras contra 30,0 na conclusao), entao
-o tamanho nao era o defeito. Os defeitos medidos eram (i) colisao de conceitos, "ceiling" 8 vezes
-contra "reference" 5 em 508 palavras, para um apendice cuja funcao e justamente separar as duas
-coisas, e (ii) dependencia externa, "screen" 9 vezes mas definido so no Cap. 5. Commits `ff96dcaf`
+O Apendice D foi reescrito por causa da sua objecao de leitura. Medi antes de reescrever: o texto tinha as **frases mais
+curtas do documento** (media 21,2 palavras contra 30,0 na conclusao), entao o tamanho nao era o defeito. Os defeitos
+medidos eram (i) colisao de conceitos, "ceiling" 8 vezes contra "reference" 5 em 508 palavras, para um apendice cuja
+funcao e justamente separar as duas coisas, e (ii) dependencia externa, "screen" 9 vezes mas definido so no Cap. 5.
+Commits `ff96dcaf`
 e `21124a8c`.
 
-**O que preciso de voce:** ler o Apendice D novo e dizer se ele agora se sustenta sozinho. Se
-continuar confuso, a alternativa e dobra-lo em um paragrafo do Cap. 5, e eu faco.
+**O que preciso de voce:** ler o Apendice D novo e dizer se ele agora se sustenta sozinho. Se continuar confuso, a
+alternativa e dobra-lo em um paragrafo do Cap. 5, e eu faco.
 
 > DECISAO: __________________________________________________
 
 ### ~~3.5 Higiene do repositorio, herdada (REV-007)~~ — RESOLVIDO 2026-07-27
 
-Aplicado. (1) Os docstrings do `superiority_wilcoxon.py` e do `m1_stats_n20.py` afirmavam um
-registro que o `STATISTICAL_PROTOCOL.md` nao contem: o protocolo fixa a tarefa de regiao em
-**nao-inferioridade** (`:44`, `:213-215`), nunca em superioridade. Cada um agora separa o que e
-registrado (superioridade de categoria) do que e **post-hoc** (superioridade de regiao), citando
-as linhas do protocolo. As alegacoes continuam reportadas; so o footing foi corrigido. Isso ja
-estava no log como D-4 e nunca tinha sido feito. (2) O `MACS_BOARD_RESULTS.md:47` dizia que o
-HMT-GRN supera o piso de Markov. Verifiquei contra os dois pisos: no piso atual o piso esta acima
-do HMT-GRN em 5 de 5 estados americanos, e **no piso antigo ja estava acima em 3 de 5** (CA, TX,
-FL). Ou seja, a alegacao sem qualificacao nunca foi verdadeira. Os dois pisos agora aparecem
-tabelados com a janela e a fonte de cada um. Commit `f978b16b`.
+Aplicado. (1) Os docstrings do `superiority_wilcoxon.py` e do `m1_stats_n20.py` afirmavam um registro que o
+`STATISTICAL_PROTOCOL.md` nao contem: o protocolo fixa a tarefa de regiao em **nao-inferioridade** (`:44`, `:213-215`),
+nunca em superioridade. Cada um agora separa o que e registrado (superioridade de categoria) do que e **post-hoc**
+(superioridade de regiao), citando as linhas do protocolo. As alegacoes continuam reportadas; so o footing foi
+corrigido. Isso ja estava no log como D-4 e nunca tinha sido feito. (2) O `MACS_BOARD_RESULTS.md:47` dizia que o HMT-GRN
+supera o piso de Markov. Verifiquei contra os dois pisos: no piso atual o piso esta acima do HMT-GRN em 5 de 5 estados
+americanos, e **no piso antigo ja estava acima em 3 de 5** (CA, TX, FL). Ou seja, a alegacao sem qualificacao nunca foi
+verdadeira. Os dois pisos agora aparecem tabelados com a janela e a fonte de cada um. Commit `f978b16b`.
 
 ## Notas de rodape uteis
 

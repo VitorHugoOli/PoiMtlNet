@@ -1,0 +1,58 @@
+% apx_cbic-errata.tex -- extracted from chapters/apx_b_errata.tex (round5, author decision 1.1).
+% Included with \input{tables/apx_cbic-errata}. Float placement, caption and every value
+% are byte-identical to the version that was inline; the extraction was verified by
+% comparing the rendered PDF checksum before and after.
+\begin{table}[htb]
+\caption{Content errata of the CBIC 2025 article and the corrections applied in
+Chapter~\ref{ch:cbic}. Numeric values quoted in the corrections are the published
+table values.}
+\label{tab:apx:cbic-errata}
+\centering
+\small
+\begin{tabular}{@{}p{0.42\textwidth}p{0.52\textwidth}@{}}
+\toprule
+\textbf{Defect in the published article} & \textbf{Correction in the chapter} \\
+\midrule
+Prose states ``almost four times more wall time''; the convergence table gives
+80.88~s for the joint model against a cumulative 34.97~s for the single-task models,
+a factor of about 2.3. &
+Prose reconciled to the table: ``about 2.3 times the cumulative 34.97~s of the
+individual single-task models''. \\
+\addlinespace
+Prose states the MFLOPs cost of the joint model is ``roughly double''; the
+table gives 0.234 MFLOPs for the joint model against 2.315 and 0.012 for the two
+single-task models. &
+Prose reconciled to the table: the text now states that the table does not show a
+higher MFLOPs cost for the joint model and quotes the three cell values; four
+follow-on wording edits restrict the overhead claim to wall time. \\
+\addlinespace
+Broken cross-reference: the label intended for the single-task heads sits on the
+Dataset subsection, and the method section points to it as if it described the heads. &
+Dataset subsection relabeled; the dangling pointer sentence was removed, since no
+section describing the single-task heads exists in the published paper. \\
+\addlinespace
+Typo ``spatio-tegm mporal''. &
+``spatio-temporal''. \\
+\addlinespace
+Unfilled dataset placeholders ($N_{\text{users}}$, $N_{\text{poi}}$,
+$N_{\text{checkins}}$) in the results section. &
+Filled with the Florida figures of record for the same Gowalla data, as published in the
+CoUrb dataset table: 20{,}301 users, 65{,}009 POIs, and 990{,}518 check-ins. The published
+CBIC paper left these three statistics as placeholders; they are taken from the published
+CoUrb table so that one corpus figure serves both chapters, and they are the counts that the
+extraction pipeline of that time produced, not the counts the current pipeline produces
+(Section~\ref{apx:errata:corpus}). \\
+\addlinespace
+The optimizer subsection states that Nash-MTL's ``reliance on gradient signs rather than
+scales inherently balances heterogeneous tasks''. Nash-MTL does not read gradient signs,
+and the same subsection states the correct property four paragraphs earlier, listing
+scale invariance among the optimizer's axioms. &
+Corrected to name the property the method has: its invariance to the scale of the
+individual task gradients, the axiom already listed in the same subsection, balances
+heterogeneous tasks without manual re-weighting. Checked against the optimizer's own
+paper and against the implementation released with the two studies, neither of which
+uses gradient signs. The claim is weaker than the published one, and no result depends
+on it. \\
+\bottomrule
+\end{tabular}
+\end{table}

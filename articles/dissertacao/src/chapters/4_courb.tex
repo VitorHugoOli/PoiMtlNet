@@ -276,20 +276,8 @@ The performance of the models is evaluated using the Average F1-Score per catego
 
 The experiments were conducted with the Gowalla \textit{dataset} \cite{cho2011gowalla,jure2014snap} in the states of Florida, California, and Texas, whose statistics are presented in Table \ref{tab:courb:dataset}. Texas concentrates the largest volume of \textit{check-ins} of the three states, while Florida provides the smallest. The choice of these states is due to the high volume of \textit{check-ins} and the presence of distinct urban patterns and spatial distributions, which allows evaluating the behavior of the models in scenarios with different levels of density and geographic dispersion.
 
-\begin{table}[htbp]
-\centering
-\caption{Total number of \textit{check-ins}, POIs, and users for Florida, California, and Texas.}
-\label{tab:courb:dataset}
-\begin{tabular}{lccc}
-\toprule
-States & \textit{Check-ins} & Points of Interest & Users \\
-\midrule
-Florida & 990,518 & 65,009 & 20,301 \\
-California & 2,535,573 & 148,314 & 36,106 \\
-Texas & 3,355,419 & 135,570 & 37,522 \\
-\bottomrule
-\end{tabular}
-\end{table}
+\input{tables/courb_dataset}
+
 
 \begin{figure}[htbp]
     \centering
@@ -317,42 +305,8 @@ The results of the POI Category Classification task are presented in Table~\ref{
 
 In the three evaluated states, the two variants of ST-MTLNet outperform the original MTLnet in all 21 category-state combinations, showing that replacing the monolithic \textit{embedding} of DGI with decoupled representations consistently enriches the characterization of the POIs. The average gains per state are 20.2 to 22.0 percentage points, considering the better of the two spatial encoders in each combination. The gains are particularly substantial in categories such as \textit{Nightlife} and \textit{Travel}. In \textit{Nightlife}, for example, ST-MTLNet with Sphere2Vec-M reaches 62.44 $\pm$ 2.00 in Florida, 60.78 $\pm$ 1.63 in California, and 64.57 $\pm$ 1.03 in Texas, always well above the \textit{baseline}. In \textit{Travel}, the best results reach 64.89 $\pm$ 1.20 in Florida with SIREN, 63.59 $\pm$ 1.45 in California with SIREN, and 64.73 $\pm$ 0.72 in Texas with Sphere2Vec-M.
 
-\begin{table}[htbp]
-\centering
-\caption{Average F1-Score (\%) per model and state for the POI Category Classification task.}
-\label{tab:courb:category}
-\begin{adjustbox}{max width=\textwidth}
-\begin{tabular}{clccc}
-\toprule
- & & \textbf{MTLnet} & \textbf{ST-MTLNet$_{SIREN}$} & \textbf{ST-MTLNet$_{Sphere2Vec-M}$} \\
-\midrule
-\multirow{7}{*}{\textbf{Florida}} & Community & 51.86 $\pm$ 0.73 & \textbf{70.00 $\pm$ 0.81} & 69.84 $\pm$ 0.98 \\
- & Entertainment & 41.24 $\pm$ 1.83 & \textbf{64.45 $\pm$ 1.82} & 63.92 $\pm$ 1.61 \\
- & Food & 55.47 $\pm$ 1.55 & 72.92 $\pm$ 0.59 & \textbf{73.22 $\pm$ 0.66} \\
- & Nightlife & 32.59 $\pm$ 1.96 & \textbf{62.60 $\pm$ 1.96} & 62.44 $\pm$ 2.00 \\
- & Outdoors & 47.71 $\pm$ 1.60 & 65.64 $\pm$ 1.73 & \textbf{66.35 $\pm$ 1.51} \\
- & Shopping & 62.96 $\pm$ 0.62 & \textbf{77.48 $\pm$ 0.36} & 77.47 $\pm$ 0.72 \\
- & Travel & 45.49 $\pm$ 1.20 & \textbf{64.89 $\pm$ 1.20} & 64.77 $\pm$ 1.54 \\
-\midrule
-\multirow{7}{*}{\textbf{California}} & Community & 53.22 $\pm$ 0.37 & \textbf{70.21 $\pm$ 0.17} & 70.08 $\pm$ 0.44 \\
- & Entertainment & 40.89 $\pm$ 1.32 & \textbf{63.60 $\pm$ 0.83} & 63.21 $\pm$ 0.76 \\
- & Food & 60.68 $\pm$ 0.69 & \textbf{75.78 $\pm$ 0.39} & 75.74 $\pm$ 0.19 \\
- & Nightlife & 26.81 $\pm$ 1.71 & 60.59 $\pm$ 1.35 & \textbf{60.78 $\pm$ 1.63} \\
- & Outdoors & 51.59 $\pm$ 1.15 & \textbf{67.94 $\pm$ 1.52} & 67.37 $\pm$ 1.95 \\
- & Shopping & 60.43 $\pm$ 1.01 & 76.84 $\pm$ 0.29 & \textbf{77.00 $\pm$ 0.33} \\
- & Travel & 38.88 $\pm$ 1.32 & \textbf{63.59 $\pm$ 1.45} & 63.25 $\pm$ 0.99 \\
-\midrule
-\multirow{7}{*}{\textbf{Texas}} & Community & 57.37 $\pm$ 0.69 & 73.45 $\pm$ 0.34 & \textbf{76.20 $\pm$ 0.46} \\
- & Entertainment & 46.69 $\pm$ 0.46 & 64.09 $\pm$ 1.24 & \textbf{67.73 $\pm$ 1.43} \\
- & Food & 54.31 $\pm$ 0.42 & 69.80 $\pm$ 0.80 & \textbf{73.10 $\pm$ 0.17} \\
- & Nightlife & 34.44 $\pm$ 1.21 & 60.62 $\pm$ 1.32 & \textbf{64.57 $\pm$ 1.03} \\
- & Outdoors & 45.99 $\pm$ 1.70 & 64.21 $\pm$ 0.42 & \textbf{68.72 $\pm$ 0.70} \\
- & Shopping & 62.70 $\pm$ 0.29 & 76.40 $\pm$ 0.44 & \textbf{79.67 $\pm$ 0.14} \\
- & Travel & 39.37 $\pm$ 1.29 & 57.53 $\pm$ 1.08 & \textbf{64.73 $\pm$ 0.72} \\
-\bottomrule
-\end{tabular}
-\end{adjustbox}
-\end{table}
+\input{tables/courb_category}
+
 
 The improvements observed in \textit{Food} and \textit{Shopping} reinforce that the geographic location carries discriminative signals relevant to the semantic category of the POI. Figure \ref{fig:courb:distribuicao} shows that these categories tend to form dense clusters in the analyzed sub-regions, favoring the capture of spatial patterns by the continuous \textit{encoders}. Although the two proposed variants present close performance, a complementary behavior is observed: SIREN obtains more outstanding results in Florida and California, while Sphere2Vec-M stands out more frequently in Texas. Together, these results show that the modular approach consistently outperforms the monolithic paradigm of DGI in this task.
 
@@ -370,42 +324,8 @@ The results of the Next-POI Prediction task are presented in Table \ref{tab:cour
 
 Unlike classification, this task presents a more heterogeneous scenario, but still favorable to the proposed variants: counting the better of the two spatial encoders per combination, the spatio-temporal models outperform the original MTLnet in 15 of the 21 evaluated combinations, with one additional technical tie in \textit{Outdoors} in Florida, where the \textit{baseline} mean exceeds the best variant by 0.02 percentage points, a gap within one standard deviation. The largest gains occur in \textit{Food}, a category in which both variants outperform the \textit{baseline} in the three states. The best result is obtained by Sphere2Vec-M in Texas, with 48.67 $\pm$ 0.66, while in California the same model reaches 51.28 $\pm$ 0.57, outperforming DGI by a wide margin. Consistent improvements also appear in \textit{Shopping} and \textit{Community}, suggesting that the combination between continuous spatial information and temporal context favors the modeling of recurrent transitions between categories.
 
-\begin{table}[htbp]
-\centering
-\caption{Average F1-Score (\%) per model and state for the Next-POI Prediction task.}
-\label{tab:courb:next}
-\begin{adjustbox}{max width=\textwidth}
-\begin{tabular}{clccc}
-\toprule
- & & \textbf{MTLnet} & \textbf{ST-MTLNet$_{SIREN}$} & \textbf{ST-MTLNet$_{Sphere2Vec-M}$} \\
-\midrule
-\multirow{7}{*}{\textbf{Florida}} & Community & 34.33 $\pm$ 1.33 & \textbf{38.31 $\pm$ 0.90} & 37.98 $\pm$ 1.22 \\
- & Entertainment & 25.34 $\pm$ 1.07 & \textbf{31.38 $\pm$ 1.72} & 31.24 $\pm$ 2.41 \\
- & Food & 27.12 $\pm$ 2.79 & \textbf{41.91 $\pm$ 1.93} & 41.65 $\pm$ 3.15 \\
- & Nightlife & 21.33 $\pm$ 1.61 & 23.32 $\pm$ 2.74 & \textbf{23.98 $\pm$ 1.94} \\
- & Outdoors & \textbf{21.61 $\pm$ 0.99} & 21.29 $\pm$ 1.59 & 21.59 $\pm$ 1.91 \\
- & Shopping & 39.62 $\pm$ 3.40 & 44.00 $\pm$ 2.04 & \textbf{44.66 $\pm$ 2.38} \\
- & Travel & \textbf{64.47 $\pm$ 1.02} & 45.00 $\pm$ 1.10 & 44.93 $\pm$ 1.11 \\
-\midrule
-\multirow{7}{*}{\textbf{California}} & Community & 32.14 $\pm$ 0.89 & \textbf{37.86 $\pm$ 0.20} & 37.80 $\pm$ 1.11 \\
- & Entertainment & \textbf{19.38 $\pm$ 0.94} & 17.28 $\pm$ 1.73 & 17.01 $\pm$ 1.39 \\
- & Food & 29.26 $\pm$ 1.67 & 50.42 $\pm$ 1.15 & \textbf{51.28 $\pm$ 0.57} \\
- & Nightlife & \textbf{18.24 $\pm$ 0.53} & 16.34 $\pm$ 1.95 & 15.10 $\pm$ 2.70 \\
- & Outdoors & \textbf{25.01 $\pm$ 0.81} & 24.84 $\pm$ 1.70 & 24.07 $\pm$ 2.46 \\
- & Shopping & 38.41 $\pm$ 2.64 & \textbf{39.04 $\pm$ 1.72} & 37.82 $\pm$ 1.31 \\
- & Travel & \textbf{46.05 $\pm$ 0.84} & 36.94 $\pm$ 1.70 & 37.82 $\pm$ 1.04 \\
-\midrule
-\multirow{7}{*}{\textbf{Texas}} & Community & 34.22 $\pm$ 0.43 & 35.99 $\pm$ 0.93 & \textbf{36.97 $\pm$ 0.81} \\
- & Entertainment & 25.56 $\pm$ 1.56 & \textbf{28.30 $\pm$ 1.37} & 27.59 $\pm$ 1.64 \\
- & Food & 29.56 $\pm$ 4.10 & 47.48 $\pm$ 2.42 & \textbf{48.67 $\pm$ 0.66} \\
- & Nightlife & 25.46 $\pm$ 1.13 & 26.06 $\pm$ 1.36 & \textbf{26.14 $\pm$ 2.66} \\
- & Outdoors & 23.02 $\pm$ 1.03 & \textbf{24.62 $\pm$ 0.46} & 23.04 $\pm$ 1.44 \\
- & Shopping & 38.79 $\pm$ 4.12 & \textbf{45.40 $\pm$ 1.30} & 43.18 $\pm$ 2.19 \\
- & Travel & 29.71 $\pm$ 1.32 & \textbf{34.26 $\pm$ 0.90} & 33.05 $\pm$ 1.51 \\
-\bottomrule
-\end{tabular}
-\end{adjustbox}
-\end{table}
+\input{tables/courb_next}
+
 
 The co-location pattern shown in Figure \ref{fig:courb:distribuicao} helps to interpret this behavior, since the presence of dense clusters of categories such as \textit{Food} and \textit{Shopping} favors frequent local transitions along the user's trajectory. Even so, the \textit{baseline} maintains an advantage in some cases, especially in \textit{Travel} in Florida and California, in addition to specific categories in California, such as \textit{Entertainment}, \textit{Nightlife}, and \textit{Outdoors}.
 

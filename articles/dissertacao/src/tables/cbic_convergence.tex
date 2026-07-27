@@ -1,0 +1,18 @@
+% cbic_convergence.tex -- extracted from chapters/3_cbic.tex (round5, author decision 1.1).
+% Included with \input{tables/cbic_convergence}. Float placement, caption and every value
+% are byte-identical to the version that was inline; the extraction was verified by
+% comparing the rendered PDF checksum before and after.
+\begin{table}[htbp]
+\caption{Convergence metrics to reach the target F1-score for each model (wall time in seconds, number of epochs, and MFLOPs; 5-fold cross-validation).}
+\label{tab:cbic:convergence}
+\centering
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Model}    & \textbf{Time (s)} & \textbf{Epochs} & \textbf{MFLOPs} \\
+\midrule
+Category & 16.26 & 3.8 & 2.315 \\
+Next     & 18.71 & 3.2 & 0.012 \\
+MTL      & 80.88 & 3.2 & 0.234 \\
+\bottomrule
+\end{tabular}
+\end{table}

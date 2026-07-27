@@ -102,60 +102,8 @@ belong to the article records rather than to the chapter bodies.
 Table~\ref{tab:apx:cbic-errata} lists the content corrections applied in the chapter
 text.
 
-\begin{table}[htb]
-\caption{Content errata of the CBIC 2025 article and the corrections applied in
-Chapter~\ref{ch:cbic}. Numeric values quoted in the corrections are the published
-table values.}
-\label{tab:apx:cbic-errata}
-\centering
-\small
-\begin{tabular}{@{}p{0.42\textwidth}p{0.52\textwidth}@{}}
-\toprule
-\textbf{Defect in the published article} & \textbf{Correction in the chapter} \\
-\midrule
-Prose states ``almost four times more wall time''; the convergence table gives
-80.88~s for the joint model against a cumulative 34.97~s for the single-task models,
-a factor of about 2.3. &
-Prose reconciled to the table: ``about 2.3 times the cumulative 34.97~s of the
-individual single-task models''. \\
-\addlinespace
-Prose states the MFLOPs cost of the joint model is ``roughly double''; the
-table gives 0.234 MFLOPs for the joint model against 2.315 and 0.012 for the two
-single-task models. &
-Prose reconciled to the table: the text now states that the table does not show a
-higher MFLOPs cost for the joint model and quotes the three cell values; four
-follow-on wording edits restrict the overhead claim to wall time. \\
-\addlinespace
-Broken cross-reference: the label intended for the single-task heads sits on the
-Dataset subsection, and the method section points to it as if it described the heads. &
-Dataset subsection relabeled; the dangling pointer sentence was removed, since no
-section describing the single-task heads exists in the published paper. \\
-\addlinespace
-Typo ``spatio-tegm mporal''. &
-``spatio-temporal''. \\
-\addlinespace
-Unfilled dataset placeholders ($N_{\text{users}}$, $N_{\text{poi}}$,
-$N_{\text{checkins}}$) in the results section. &
-Filled with the Florida figures of record for the same Gowalla data, as published in the
-CoUrb dataset table: 20{,}301 users, 65{,}009 POIs, and 990{,}518 check-ins. The published
-CBIC paper left these three statistics as placeholders; they are taken from the published
-CoUrb table so that one corpus figure serves both chapters, and they are the counts that the
-extraction pipeline of that time produced, not the counts the current pipeline produces
-(Section~\ref{apx:errata:corpus}). \\
-\addlinespace
-The optimizer subsection states that Nash-MTL's ``reliance on gradient signs rather than
-scales inherently balances heterogeneous tasks''. Nash-MTL does not read gradient signs,
-and the same subsection states the correct property four paragraphs earlier, listing
-scale invariance among the optimizer's axioms. &
-Corrected to name the property the method has: its invariance to the scale of the
-individual task gradients, the axiom already listed in the same subsection, balances
-heterogeneous tasks without manual re-weighting. Checked against the optimizer's own
-paper and against the implementation released with the two studies, neither of which
-uses gradient signs. The claim is weaker than the published one, and no result depends
-on it. \\
-\bottomrule
-\end{tabular}
-\end{table}
+\input{tables/apx_cbic-errata}
+
 
 Three elements of the published article were deliberately preserved rather than
 corrected. The sentence stating that Nash-MTL ``consistently yielded a better
@@ -208,57 +156,8 @@ chapter's own conclusion sound stronger than it was. A reader should nevertheles
 them descriptively, since no inferential test supports either. The final row records a footnote added to a definition rather than
 a substitution. No edit in this table raises the strength of a claim.
 
-\begin{table}[htb]
-\caption{Wording substitutions in the reproduced CBIC 2025 prose (writing-rule
-conformance; claim strength unchanged or reduced, never raised).}
-\label{tab:apx:cbic-wording}
-\centering
-\small
-\begin{tabular}{@{}p{0.47\textwidth}p{0.47\textwidth}@{}}
-\toprule
-\textbf{Published wording} & \textbf{Chapter wording} \\
-\midrule
-``By leveraging shared information, MTL can potentially mitigate...'' &
-``By using shared information, ...'' \\
-``solutions that leverage shared representations across related POI tasks'' &
-``solutions that use shared representations...'' \\
-``by leveraging shared information across correlated tasks'' &
-``by sharing information across correlated tasks'' \\
-``Moreover, we utilize a Deep Graph Infomax...'' /
-``Moreover, $\mathcal{D}$ is a discriminator...'' &
-``In addition, ...'' (both instances) \\
-``These findings underscore that...'' &
-``These findings indicate that...'' \\
-``Furthermore, investigating advanced multi-task optimizers...'' &
-``In addition, investigating...'' \\
-``Furthermore, the computational cost ... was roughly double'' &
-Subsumed by the MFLOPs correction in Table~\ref{tab:apx:cbic-errata}. \\
-``where different sequential patterns might be leveraged'' &
-``might be exploited'' \\
-\addlinespace
-``the MTL framework does not deliver the consistent, significant gains often
-expected'' &
-``does not deliver the consistent gains often expected'' (the chapter reports no
-inferential test, so the word carries no verdict here). \\
-``both our MTL and Single models significantly outperform HMRM across all POI
-categories'' &
-``outperform HMRM in every POI category'' (the comparison is stated by scope instead of
-by significance). \\
-``significantly surpassing MHA+PE in these categories'' &
-``surpassing MHA+PE in these two categories''. \\
-``suggesting that, statistically, the performance of the MTL and Single models is
-largely comparable, without a clear, consistent, and significant advantage'' &
-``suggesting that the performance of the MTL and Single models is largely comparable,
-without a clear or consistent advantage''. \\
-\addlinespace
-``Next-POI Prediction, in contrast, aims to predict which specific location a user is
-likely to visit next'' (the related-work definition of the research area) &
-Reproduced verbatim, with a footnote added stating that this is the general formulation
-of the literature and that the variant studied in the chapter predicts the category of
-the next visited place. \\
-\bottomrule
-\end{tabular}
-\end{table}
+\input{tables/apx_cbic-wording}
+
 
 \section{Article 2 (Chapter~\ref{ch:courb}, CoUrb 2026)}
 \label{apx:errata:courb}
@@ -267,34 +166,8 @@ The corrections in Table~\ref{tab:apx:courb-errata} replace the published number
 the values of an internal audit of the same results, performed after publication; the
 audited values are the ones the chapter reports.
 
-\begin{table}[htb]
-\caption{Content errata of the CoUrb 2026 article and the corrections applied in
-Chapter~\ref{ch:courb} (English translation of the published text).}
-\label{tab:apx:courb-errata}
-\centering
-\small
-\begin{tabular}{@{}p{0.42\textwidth}p{0.52\textwidth}@{}}
-\toprule
-\textbf{Defect in the published article} & \textbf{Correction in the chapter} \\
-\midrule
-Results and conclusion state wins over the baseline in ``16 of the 21
-evaluated combinations''. &
-Audited count: 15 of the 21 combinations, with one additional technical tie
-(\emph{Outdoors} in Florida, where the baseline mean exceeds the best variant by
-0.02 percentage points, within one standard deviation). \\
-\addlinespace
-Introduction, results, and conclusion state ``average gains of 20 to 24
-percentage points'' on the category task. &
-Audited per-state means: gains of 20.2 to 22.0 percentage points, considering the
-better of the two spatial encoders in each combination (the disclosure the audit
-requires). \\
-\addlinespace
-Introduction states ``wins in most scenarios''. &
-``outperforms the baseline in most scenarios'' (verdict-verb rule; claim
-strength unchanged). \\
-\bottomrule
-\end{tabular}
-\end{table}
+\input{tables/apx_courb-errata}
+
 
 One element was preserved rather than corrected: the published bolding of the Florida
 \emph{Outdoors} baseline cell in the sequential-task table is kept exactly as
@@ -377,48 +250,8 @@ covers or names the basis on which a reported comparison was measured.
 % differs from Table B.2's ("writing-rule conformance"): three of these change claim
 % SCOPE and one changes a comparison BASIS, so they are not wording substitutions.
 
-\begin{table}[htb]
-\caption{Claim-scope corrections in the reproduced MobiWac 2026 prose (claim-scope
-narrowing and comparison-basis disclosure; no experimental result altered).}
-\label{tab:apx:mobiwac-scope}
-\centering
-\small
-\begin{tabular}{@{}p{0.30\textwidth}p{0.62\textwidth}@{}}
-\toprule
-\textbf{Submitted claim} & \textbf{Correction in the chapter} \\
-\midrule
-The representation ``passes no usable information about the test visits, on three
-grounds.'' &
-The universal negative is replaced by a bounded statement over named channels. The first
-ground is scoped to the training objective, with the note that each visit's category is a
-node input feature; a fourth ground is added, reporting the development audit that probes
-the forward-edge channel between consecutive visits, with its three limits stated: a
-linear probe, Florida at one random initialization, and earlier builds of the
-representation. Every number already in the paragraph is unchanged. \\
-\addlinespace
-``none of the balancers that we tried, including the two named above, improved on a tuned
-fixed task weighting'' &
-The same sentence, with ``at their default configurations'' added. The internal audit
-records that only one of the two named methods was validly wired under this architecture,
-so the claim is narrowed to the configurations actually screened. \\
-\addlinespace
-The region-pathway control lands ``within $0.3$ of the joint model.'' &
-The control is restated against the single-task category score it was measured on, and the
-``within $0.3$'' figure is kept with its basis named: the joint scores of the development
-configuration current when the control was run, not the joint cells of
-Table~\ref{tab:mobiwac:results}. The control's single random initialization over five
-folds is disclosed. The finding is unchanged. \\
-\addlinespace
-Limitations name two limits. &
-A third limit is added, naming the consequence of the two-way split that the chapter
-already discloses twice: epoch selection consults the fold the score is read on, so the
-absolute scores are optimistic. The comparison between the joint and dedicated models is
-affected far less, since the rule is applied identically to both arms on the same folds
-and the dedicated arm receives the wider search, which makes the reported difference
-conservative. Exact cancellation is not claimed. \\
-\bottomrule
-\end{tabular}
-\end{table}
+\input{tables/apx_mobiwac-scope}
+
 
 \section{Two extractions of the same Gowalla corpus}
 \label{apx:errata:corpus}
@@ -477,93 +310,5 @@ Infomax paper and two for the Nash-MTL paper and for the Gowalla reference) were
 consolidated to one entry each; key consolidation does not alter any reference's
 content and is not itemized.
 
-\begin{table}[htb]
-\caption{Bibliography errata: defects in entries inherited from the articles'
-reference lists and the corrections applied in the global bibliography. Keys in
-typewriter font.}
-\label{tab:apx:bib-errata}
-\centering
-\small
-\begin{tabular}{@{}p{0.42\textwidth}p{0.52\textwidth}@{}}
-\toprule
-\textbf{Defect in a donor reference list} & \textbf{Correction in the global
-bibliography} \\
-\midrule
-POI-RGNN cited the wrong paper for the Capanema et al.\ model. &
-Replaced by the correct record (\texttt{capanema2023poirgnn}: Ad Hoc Networks,
-v.~138, 103016, 2023), verified against Crossref. \\
-\addlinespace
-HMRM entry (\texttt{chen2020modeling}): garbled and incomplete author list, journal
-article typed as conference paper, DOI missing. &
-Five authors restored per the Crossref record; type corrected to journal article
-(IEEE TKDE, 34(4):1902--1914, 2022), DOI 10.1109/TKDE.2020.3001025. \\
-\addlinespace
-Graph Attention Networks cited as an arXiv preprint. &
-Cited as the ICLR 2018 version of record; arXiv identifier kept as a note. \\
-\addlinespace
-The spherical-harmonics location encoder of Ru\ss{}wurm et al.\ was typed as an arXiv
-preprint, although the entry already recorded the year of the conference version. &
-Cited as the ICLR 2024 version of record, confirmed against the arXiv journal reference
-and the OpenReview submission record; arXiv identifier kept as a note. \\
-\addlinespace
-Cross-Stitch entry (\texttt{misra2016cross}): DOI resolves to a different paper. &
-DOI corrected to 10.1109/CVPR.2016.433 (verified). \\
-\addlinespace
-MTL-survey entry (\texttt{zhang2021survey}): DOI does not resolve. &
-DOI corrected to 10.1109/TKDE.2021.3070203 (verified). \\
-\addlinespace
-The node feature matrix is described as the category one-hot encoding of each POI. The
-released implementation feeds the mean of the one-hot vectors of a POI's graph
-neighbours, with the POI's own vector excluded. &
-Published sentence preserved; a footnote records what the code does and why the
-distinction matters. The embedding therefore describes a neighbourhood rather than a
-POI's own label, so the static task it supports is spatial homophily. \\
-Kohavi (1995), the cross-validation and bootstrap study: the entry carried a DOI that
-resolves to a re-deposit of the paper made in 2026, not to the conference record. &
-DOI dropped, since the IJCAI-95 proceedings predate DOI registration. Author, title,
-volume and pages 1137--1143 confirmed against the proceedings PDF published by IJCAI. \\
-\addlinespace
-\texttt{church2017word2vec} resolves to a commentary column, not the skip-gram
-method. &
-Replaced by \texttt{mikolov2013word2vec} (arXiv:1301.3781) at the citing sentence. \\
-\addlinespace
-The sentence corrected in the row above attributes both skip-gram and negative sampling to
-\texttt{mikolov2013word2vec} (arXiv:1301.3781), which introduces skip-gram but not negative
-sampling. &
-\texttt{mikolov2013negsampling} (arXiv:1310.4546) added alongside it, which is where negative
-sampling is introduced. Both keys now appear at the citing sentence, since it claims both
-methods. \\
-\addlinespace
-\texttt{yu2019mmoe}: no distinct resolvable work; its claimed arXiv identifier
-resolves to an unrelated toolkit paper. &
-Dropped; the citing sentence describes MMoE and now cites \texttt{ma2018mmoe} alone. \\
-\addlinespace
-Deep Graph Infomax cited under three different key spellings across the donor
-lists. &
-Consolidated to a single entry (\texttt{velickovic2019deep}, ICLR 2019). \\
-\addlinespace
-\texttt{silva2025mtlnet} (the Chapter~\ref{ch:cbic} article, cited by the CoUrb
-paper): venue name conflated with another conference, stale ``Submetido''
-note, wrong author list. &
-Venue corrected to CBIC 2025 (Congresso Brasileiro de Intelig\^encia Computacional),
-DOI 10.21528/CBIC2025-1191324; note dropped; six authors restored per the Crossref
-record. \\
-\addlinespace
-\texttt{paiva2026stmtlnet} (the Chapter~\ref{ch:courb} article): third author
-missing in the seed entry. &
-Author restored per the Crossref record of DOI 10.5753/courb.2026.22960; pages
-323--336 confirmed. \\
-\addlinespace
-\texttt{standley2020tasks}: venue given as CVPR; page range unverifiable. &
-Venue corrected to ICML 2020 per OpenAlex; arXiv:1905.07553 noted; the unverifiable
-page range dropped. \\
-\addlinespace
-CoUrb chapter (\ref{ch:courb}): the Gowalla dataset was cited via Liu et al.\ (2014),
-``Exploiting Geographical Neighborhood Characteristics for Location Recommendation''
-(ACM CIKM), a location-recommendation method paper, not the dataset source. &
-Citation corrected to the dataset sources (\texttt{cho2011gowalla},
-\texttt{jure2014snap}), which the same chapter already cites for the dataset
-elsewhere; the location-recommendation reference was dropped from the chapter. \\
-\bottomrule
-\end{tabular}
-\end{table}
+\input{tables/apx_bib-errata}
+

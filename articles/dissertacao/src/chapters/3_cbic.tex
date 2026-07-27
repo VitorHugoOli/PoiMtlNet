@@ -305,78 +305,14 @@ For the task of next POI category prediction, we compare our models against MHA+
 \subsubsection{POI Category Classification}
 As shown in Table~\ref{tab:cbic:category}, both our MTL and Single models outperform HMRM \cite{chen2020modeling} in every POI category in terms of F1-score, precision, and recall. For instance, in the `Shopping' category, our MTL model achieves an F1-score of $62.51 \pm 0.94$ compared to HMRM's $46.69 \pm 0.81$. Similarly, for `Food', the MTL model scores $57.43 \pm 1.46$ against HMRM's $28.44 \pm 0.42$. While both MTL and Single models are competitive, the Single model shows marginally better F1-scores in several categories like `Community' ($53.11 \pm 0.58$) and `Outdoors' ($47.75 \pm 0.89$), whereas the MTL model excels in `Food' and `Shopping'. Overall, our approaches demonstrate a substantial improvement over the HMRM baseline for this task.
 
-\begin{table}[htbp]
-\caption{POI category classification results for Florida (per-category F1-score, precision, and recall, mean $\pm$ standard deviation over the 5 folds; the better of the MTL and Single values per row in bold, as in the published table).}
-\label{tab:cbic:category}
-\centering
-\begin{tabular}{llrrr}
-\toprule
- & & \multicolumn{1}{c}{\textbf{MTL}} & \multicolumn{1}{c}{\textbf{Single}} & \multicolumn{1}{c}{\textbf{HMRM}} \\
-\midrule
-\multirow{7}{*}{F1}        & Community     & 52.13 $\pm$ 0.90          & \textbf{53.11 $\pm$ 0.58} & 20.25 $\pm$ 0.52 \\
-                           & Entertainment & 41.44 $\pm$ 1.29          & \textbf{41.73 $\pm$ 1.65} & 13.07 $\pm$ 1.14 \\
-                           & Food          & \textbf{57.43 $\pm$ 1.46} & 56.70 $\pm$ 0.84          & 28.44 $\pm$ 0.42 \\
-                           & Nightlife     & 29.94 $\pm$ 2.27          & \textbf{34.22 $\pm$ 2.08} & 25.54 $\pm$ 1.73 \\
-                           & Outdoors      & 47.19 $\pm$ 1.01          & \textbf{47.75 $\pm$ 0.89} & 16.11 $\pm$ 0.68 \\
-                           & Shopping      & \textbf{62.51 $\pm$ 0.94} & 61.88 $\pm$ 1.01          & 46.69 $\pm$ 0.81 \\
-                           & Travel        & 43.16 $\pm$ 1.43          & \textbf{43.20 $\pm$ 1.94} & 15.25 $\pm$ 1.19 \\
-\midrule
-\multirow{7}{*}{Precision} & Community     & \textbf{51.39 $\pm$ 1.77} & 49.54 $\pm$ 1.70          & 21.13 $\pm$ 0.75 \\
-                           & Entertainment & 44.08 $\pm$ 1.46          & \textbf{44.47 $\pm$ 3.66} & 14.52 $\pm$ 1.34 \\
-                           & Food          & 58.05 $\pm$ 1.23          & \textbf{59.04 $\pm$ 1.12} & 48.94 $\pm$ 0.88 \\
-                           & Nightlife     & \textbf{36.07 $\pm$ 2.05} & 32.52 $\pm$ 1.83          & 18.34 $\pm$ 1.34 \\
-                           & Outdoors      & 46.39 $\pm$ 1.12          & \textbf{47.74 $\pm$ 1.09} & 13.00 $\pm$ 0.48 \\
-                           & Shopping      & 60.24 $\pm$ 1.21          & \textbf{61.59 $\pm$ 1.44} & 39.63 $\pm$ 0.82 \\
-                           & Travel        & \textbf{46.48 $\pm$ 1.12} & 44.69 $\pm$ 4.89          & 24.58 $\pm$ 1.91 \\
-\midrule
-\multirow{7}{*}{Recall}    & Community     & 52.93 $\pm$ 1.35          & \textbf{57.37 $\pm$ 2.46} & 19.48 $\pm$ 0.99 \\
-                           & Entertainment & 39.14 $\pm$ 1.69          & \textbf{39.88 $\pm$ 4.93} & 11.90 $\pm$ 1.08 \\
-                           & Food          & \textbf{56.99 $\pm$ 3.71} & 54.60 $\pm$ 2.01          & 20.05 $\pm$ 0.32 \\
-                           & Nightlife     & 25.80 $\pm$ 3.54          & \textbf{36.77 $\pm$ 5.86} & 42.13 $\pm$ 3.28 \\
-                           & Outdoors      & \textbf{48.09 $\pm$ 2.11} & 47.79 $\pm$ 1.51          & 21.27 $\pm$ 1.78 \\
-                           & Shopping      & \textbf{65.04 $\pm$ 2.69} & 62.28 $\pm$ 2.83          & 56.82 $\pm$ 0.98 \\
-                           & Travel        & 40.39 $\pm$ 2.73          & \textbf{43.08 $\pm$ 7.15} & 11.07 $\pm$ 0.95 \\
-\bottomrule
-\end{tabular}
-\end{table}
+\input{tables/cbic_category}
+
 
 \subsubsection{Next POI Category Prediction}
 The results for next POI category prediction, detailed in Table~\ref{tab:cbic:next}, indicate a competitive performance landscape. The MHA+PE model \cite{zeng2019next} shows strong F1-scores in several categories, notably `Food' ($43.47 \pm 0.50$) and `Shopping' ($43.53 \pm 1.66$), outperforming our MTL and Single models in these instances. However, our MTL model achieves the best F1-score in `Travel' ($64.61 \pm 1.11$) and `Nightlife' ($22.07 \pm 0.52$), surpassing MHA+PE in these two categories. The Single model also shows competitive results, leading in `Entertainment' ($26.06 \pm 1.01$) and `Outdoors' ($22.45 \pm 0.81$). This suggests that while MHA+PE is highly effective for certain POI categories, our MTL and Single models offer superior or comparable performance in others, particularly where different sequential patterns might be exploited. Also, it is important to notice that since we have an unbalanced result for the MTL and single, this could lead to the worse of other results.
 
-\begin{table}[htbp]
-\caption{Next POI category prediction results for Florida (per-category F1-score, precision, and recall, mean $\pm$ standard deviation over the 5 folds; best value per row in bold, second-best underlined).}
-\label{tab:cbic:next}
-\centering
-\begin{tabular}{llrrr}
-\toprule
- & & \multicolumn{1}{c}{\textbf{MTL}} & \multicolumn{1}{c}{\textbf{Single}} & \multicolumn{1}{c}{\textbf{MHA+PE}} \\
-\midrule
-\multirow{7}{*}{F1}        & Community     & 34.79 $\pm$ 1.05             & \underline{34.90 $\pm$ 0.61} & \textbf{35.83 $\pm$ 1.70} \\
-                           & Entertainment & 24.21 $\pm$ 1.75             & \textbf{26.06 $\pm$ 1.01}    & \underline{25.48 $\pm$ 0.86} \\
-                           & Food          & \underline{28.06 $\pm$ 3.55} & 26.35 $\pm$ 2.97             & \textbf{43.47 $\pm$ 0.50} \\
-                           & Nightlife     & \textbf{22.07 $\pm$ 0.52}    & \underline{21.79 $\pm$ 0.30} & 1.55 $\pm$ 1.50 \\
-                           & Outdoors      & \underline{21.61 $\pm$ 0.50} & \textbf{22.45 $\pm$ 0.81}    & 12.56 $\pm$ 1.94 \\
-                           & Shopping      & \underline{42.58 $\pm$ 2.06} & 42.18 $\pm$ 1.13             & \textbf{43.53 $\pm$ 1.66} \\
-                           & Travel        & \textbf{64.61 $\pm$ 1.11}    & \underline{64.32 $\pm$ 0.88} & 26.91 $\pm$ 0.97 \\
-\midrule
-\multirow{7}{*}{Precision} & Community     & \underline{30.22 $\pm$ 1.36} & 30.04 $\pm$ 1.08             & \textbf{42.59 $\pm$ 1.48} \\
-                           & Entertainment & \underline{32.64 $\pm$ 2.55} & 28.63 $\pm$ 2.85             & \textbf{38.72 $\pm$ 1.56} \\
-                           & Food          & 39.05 $\pm$ 0.70             & \textbf{39.87 $\pm$ 1.48}    & 35.91 $\pm$ 0.81 \\
-                           & Nightlife     & \underline{17.71 $\pm$ 2.40} & 15.27 $\pm$ 0.67             & \textbf{39.67 $\pm$ 23.94} \\
-                           & Outdoors      & \underline{19.63 $\pm$ 2.93} & 19.50 $\pm$ 2.08             & \textbf{46.83 $\pm$ 1.82} \\
-                           & Shopping      & \underline{42.57 $\pm$ 0.78} & \textbf{43.47 $\pm$ 1.08}    & 39.04 $\pm$ 1.06 \\
-                           & Travel        & \underline{60.64 $\pm$ 1.87} & \textbf{63.21 $\pm$ 0.67}    & 36.64 $\pm$ 1.74 \\
-\midrule
-\multirow{7}{*}{Recall}    & Community     & 41.54 $\pm$ 5.27             & \textbf{41.92 $\pm$ 3.49}    & 31.16 $\pm$ 3.20 \\
-                           & Entertainment & 19.52 $\pm$ 3.18             & \textbf{24.16 $\pm$ 2.16}    & 19.05 $\pm$ 1.25 \\
-                           & Food          & \underline{22.19 $\pm$ 4.32} & 19.94 $\pm$ 3.75             & \textbf{55.12 $\pm$ 1.46} \\
-                           & Nightlife     & 32.13 $\pm$ 9.47             & \textbf{38.35 $\pm$ 3.11}    & 0.80 $\pm$ 0.79 \\
-                           & Outdoors      & 25.06 $\pm$ 4.26             & \textbf{27.07 $\pm$ 3.40}    & 7.30 $\pm$ 1.32 \\
-                           & Shopping      & 42.87 $\pm$ 4.56             & 41.05 $\pm$ 2.33             & \textbf{49.37 $\pm$ 3.74} \\
-                           & Travel        & \textbf{69.36 $\pm$ 4.15}    & \underline{65.52 $\pm$ 2.25} & 21.30 $\pm$ 1.03 \\
-\bottomrule
-\end{tabular}
-\end{table}
+\input{tables/cbic_next}
+
 
 Overall, while our proposed models show strong performance in POI category classification against HMRM \cite{chen2020modeling}, the next POI category prediction task presents a more competitive landscape when compared against a sophisticated sequential model like MHA+PE \cite{zeng2019next}. Comparing the MTL and Single models directly reveals that the multi-task learning approach did not yield the anticipated substantial improvements over the single-task baseline across both tasks. Crucially, many of these observed differences in F1-scores are minor and often fall within the reported standard deviations, suggesting that the performance of the MTL and Single models is largely comparable, without a clear or consistent advantage for the multi-task learning setup in these experiments.
 % [round4, REV-027] Four substitutions in reproduced prose removing inferential vocabulary
@@ -400,20 +336,8 @@ To further evaluate the practical implications of the MTL approach compared to s
 
 The convergence measurements show a clear wall-time disadvantage for the joint model, while the MFLOPs column does not follow the same pattern. Table~\ref{tab:cbic:convergence} reports the three metrics for each model.
 
-\begin{table}[htbp]
-\caption{Convergence metrics to reach the target F1-score for each model (wall time in seconds, number of epochs, and MFLOPs; 5-fold cross-validation).}
-\label{tab:cbic:convergence}
-\centering
-\begin{tabular}{lrrr}
-\toprule
-\textbf{Model}    & \textbf{Time (s)} & \textbf{Epochs} & \textbf{MFLOPs} \\
-\midrule
-Category & 16.26 & 3.8 & 2.315 \\
-Next     & 18.71 & 3.2 & 0.012 \\
-MTL      & 80.88 & 3.2 & 0.234 \\
-\bottomrule
-\end{tabular}
-\end{table}
+\input{tables/cbic_convergence}
+
 
 The results from this experiment were contrary to the potential expectation that an MTL framework might offer training efficiencies. Our findings indicated that the MTL model took substantially longer to converge to the target F1-scores. Specifically, the MTL approach required 80.88~s of wall time, about 2.3 times the cumulative 34.97~s of the individual single-task models. In terms of MFLOPs, in contrast, the table does not show a higher cost for the MTL setup: the MTL model required 0.234 MFLOPs, against 2.315 MFLOPs for the Category model and 0.012 MFLOPs for the Next model. This suggests that while attempting to learn multiple tasks simultaneously, the MTL model, in this configuration, incurred a significantly higher overhead in wall time. Given these observations, for deployment scenarios where convergence speed is a critical factor, employing separate, optimized single-task models would likely be a more convenient strategy.\footnote{Experiments conducted on Apple M2 Pro (10-core CPU, 16-core GPU) with 32GB unified memory running macOS 15.5. Key software versions: Python 3.9.6, PyTorch 2.6.0.dev20241014+cpu, NumPy 1.26.4, scikit-learn 1.5.2, CVXPY 1.5.2. Training utilized PyTorch MPS backend for Apple Silicon acceleration.}
 

@@ -182,9 +182,11 @@ training with a fixed loss weighting is standard practice
 Reports find that gradient-balancing methods, which re-weight
 the tasks' updates during training (PCGrad \cite{yu2020pcgrad}, Nash-MTL \cite{nash}), rarely improve on a
 well-tuned fixed weighting with two tasks \cite{xin2022domtl}.
-We confirm this: none of the balancers that we tried at their default
-configurations, including the two named above, improved on a tuned fixed task
-weighting in our model.
+We confirm this at scale: of nineteen loss and gradient
+balancers screened at their default configurations on two datasets, including the two
+named above, none improved on a tuned fixed task weighting in our model on both tasks at
+once. Nash-MTL is the only one that exceeds equal weighting on next-category at Alabama,
+by $0.68$ points, and it does not carry that lead to the second dataset.
 % [REV-011, author ruling 2026-07-24: "use the 'at their default configurations'"]
 % Applied as written. Evidence check against docs/results/mtl_improvement/T4_audit_and_verdict.md:
 %  - Nash-MTL (named): correctly wired and adapting, a VALID test (T4:37-39). Sound.
@@ -216,6 +218,16 @@ general rule.
 % reports, so "three of our six" both undercounted the pool and implied every state in it is one we
 % report. Read from the JSON, not recomputed. The correction is in the author's favour: the finding
 % replicates on a state the dissertation never reports.
+% [round5, author decision 2.4] The text read as a two-optimizer test when the sweep was much
+% wider. Source of record: docs/results/mtl_improvement/T4_full_screen.json, 19 methods x 2 states:
+%   uncertainty_weighting, equal_weight, static_weight, scale_norm, scheduled_static, uw_so, dwa,
+%   famo, gradnorm, db_mtl, cagrad, nash_mtl, aligned_mtl, pcgrad, fairgrad, stch, go4align,
+%   bayesagg_mtl, excess_mtl.
+% AL next-category macro-F1 vs equal_weight 53.57: nash_mtl 54.25 (+0.68) is the ONLY one above it;
+% scale_norm 53.76 (+0.19) is above on category but collapses on region (35.47 vs 62.53), which is
+% why the sentence says "on both tasks at once". PCGrad 53.11 (-0.46) is kept by name at the
+% author's request so an MTL reviewer sees it was tried.
+% [NEEDS SIGN-OFF: AUTHOR -- "nineteen" and "+0.68" are new numbers in the chapter.]
 
 
 \begin{figure}[htbp]
@@ -312,59 +324,8 @@ Table~\ref{tab:mobiwac:datasets} summarizes our six datasets. Five come from Gow
 % (Feb 2009-Oct 2010) is NOT the data source; cho2011gowalla is cited as the LBSN reference only.
 The states range from about 114,000 check-ins and 1,109 regions in Alabama to about 3.2 million check-ins and 8,501 regions in California. Every dataset uses the seven place categories of Section~\ref{sec:mobiwac:problem}; Istanbul's source collection maps its own labels onto them. The region unit is a census tract for the Gowalla states and a mahalle for Istanbul.
 
-% Table 1: Dataset statistics.
-% Ordered by region count (small to large), matching the result tables.
-% STATUS: FILLED 2026-06-25 from PAPER_PLAN section 5 / STATS_T1.md (overlap board:
-% gated stride-1, MIN_SEQ=10, emit_tail=False; windows validated against the on-disk
-% check2hgi_dk_ovl parquet, AL = 96,326 exact). Gowalla raw == substrate; the Istanbul
-% row is the mahalle substrate (post null-coord drop), raw corpus 544,471 ck / 23,700 users.
-%
-% Columns follow the LBSN / next-POI convention (users, POIs, check-ins, density) plus our
-% region + window stats. Density (%) = 100 * check-ins / (users * POIs) -- the check-in-matrix
-% fill, the metric POI-prediction papers report (it varies 0.05-0.25%); it replaces the old
-% "sparsity = 1 - density" column, which was trivially ~0.999 for every state. The fixed
-% 7-category space is stated in the caption rather than as a constant column.
-\begin{table}[htbp]
-\caption{Dataset statistics, ordered by region count: five Gowalla states and Istanbul
-(Massive-STEPS). All share the same seven root categories; the region unit is a census
-tract (a mahalle for Istanbul). Windows: sliding nine-visit inputs plus the next-visit
-target; lengths: per-user check-in counts; density: $100\times\text{check-ins}/(\text{users}\times\text{POIs})$; Majority: share of next-visit
-labels in the most common category (Food in every dataset).}
-% Majority provenance (hidden): computed on the next-visit target labels of the task inputs
-% (CATEGORY_DISTRIBUTION.md); Gowalla values match the overlap windows to <=0.5 pp (AL 34.18 at
-% overlap); the Istanbul 33.4 is from the earlier windowing of the same visits (raw visit share
-% 27.0; recompute on the dk_ovl inputs at the next A40 session if exactness is wanted).
-\label{tab:mobiwac:datasets}
-\centering
-% [NEW-7, 2026-07-26] Was the same tabular under {adjustbox}{max width=\textwidth} with the
-% default 6 pt \tabcolsep, which shrank the body to a measured 8.13 pt against 11.96 pt body text.
-% Two changes reduce what the table has to fit instead of scaling it harder: the four two-word
-% headers are stacked onto two lines (they were the widest cells in their columns, each far wider
-% than the digits beneath it), and \tabcolsep drops to 3 pt inside this float only. Estimated
-% natural width falls from about 667 pt to about 538 pt against a 455 pt text block, so the
-% adjustbox still scales but to roughly 10.1 pt rather than 8.13 pt. No column was removed, no
-% value or header word was changed, and the column order is untouched.
-\setlength{\tabcolsep}{3pt}
-\begin{adjustbox}{max width=\textwidth}
-\begin{tabular}{l l r r r r r r r r r}
-\toprule
-\textbf{Dataset} & \textbf{Source} & \shortstack[r]{\textbf{Check-}\\\textbf{ins}} & \textbf{Users} & \textbf{POIs} &
-\textbf{Regions} & \textbf{Windows} & \shortstack[r]{\textbf{Max}\\\textbf{len}} & \shortstack[r]{\textbf{Avg}\\\textbf{len}} & \shortstack[r]{\textbf{Density}\\\textbf{(\%)}} & \shortstack[r]{\textbf{Majority}\\\textbf{(\%)}} \\
-\midrule
-Istanbul & Massive-STEPS &   462{,}615 & 23{,}694 &  29{,}816 &     520 &   271{,}666 &     817 &  19.5 & 0.065 & 33.4 \\
-AL       & Gowalla       &   113{,}846 &  3{,}858 &  11{,}848 & 1{,}109 &    96{,}326 & 3{,}835 &  29.5 & 0.249 & 34.2 \\
-AZ       & Gowalla       &   236{,}450 &  7{,}869 &  20{,}666 & 1{,}547 &   200{,}895 & 5{,}589 &  30.1 & 0.145 & 34.0 \\
-FL       & Gowalla       & 1{,}407{,}034 & 21{,}052 &  76{,}544 & 4{,}703 & 1{,}274{,}418 & 16{,}679 &  66.8 & 0.087 & 24.7 \\
-TX       & Gowalla       & 4{,}089{,}892 & 38{,}644 & 160{,}938 & 6{,}553 & 3{,}830{,}414 & 42{,}300 & 105.8 & 0.066 & 31.0 \\
-CA       & Gowalla       & 3{,}171{,}380 & 37{,}090 & 169{,}145 & 8{,}501 & 2{,}925{,}466 & 14{,}855 &  85.5 & 0.051 & 32.7 \\
-\bottomrule
-\end{tabular}
-\end{adjustbox}
-% Hidden caveat (available on request, not rendered): the Istanbul row uses the mahalle-level data
-% after dropping null-coordinate visits; the raw corpus is 544,471 check-ins over 23,700 users.
-% Windows updated 2026-07-08 to the rebuilt dk_ovl substrate count (271,666; was 270,217 on the
-% old stride-1 base -- h3_istanbul/RESULTS.md).
-\end{table}
+\input{tables/mobiwac_datasets}
+
 
 
 \subsection{Windows, splitting, and the integrity of the representation}
@@ -458,29 +419,8 @@ feature injection.
 % Check2HGI std: Ist 0.6 / AL 2.4 / AZ 1.3 / FL 0.5 / TX 0.2 / CA 0.3 ; HGI std: Ist 0.5 / AL 1.0 /
 % AZ 1.0 / FL 0.3 / TX 0.6 / CA 0.4.
 \providecommand{\sd}[1]{\,{\scriptsize$\pm$#1}}
-\begin{table}[htbp]
-\caption{Next-category macro-F1: the check-in-level representation against a standard place
-embedding (HGI), same single-task model, training configuration, and folds (mean and fold sd,
-seed 0).}
-\label{tab:mobiwac:representation}
-\centering
-\begin{tabular}{l r r r}
-\toprule
-\textbf{Dataset} & \textbf{Check-in level} & \textbf{Place level} & \textbf{$\Delta$} \\
-\midrule
-Istanbul & \textbf{54.65}\sd{0.6} & 26.56\sd{0.5} & $+28.09$ \\
-AL & \textbf{55.87}\sd{2.4} & 26.56\sd{1.0} & $+29.31$ \\
-AZ & \textbf{57.13}\sd{1.3} & 29.50\sd{1.0} & $+27.63$ \\
-FL & \textbf{75.15}\sd{0.5} & 35.53\sd{0.3} & $+39.62$ \\
-TX & \textbf{69.95}\sd{0.2} & 32.48\sd{0.6} & $+37.47$ \\
-CA & \textbf{70.26}\sd{0.3} & 32.31\sd{0.4} & $+37.95$ \\
-\bottomrule
-\end{tabular}
+\input{tables/mobiwac_representation}
 
-\vspace{2pt}
-{\footnotesize The matching place-level value at Alabama and Istanbul ($26.56$) is a coincidence of
-two independent runs; their per-fold values differ.}
-\end{table}
 
 
 % [NEEDS SIGN-OFF: restored element. This figure was cut from the 8-page MobiWac build
@@ -567,69 +507,8 @@ joint result by at most $0.06$ (category) and $0.11$ (region) points.
 %   Never cite: STAN v4 collapse (AL 34.46/AZ 38.96), HMT-GRN AL 62.37 outlier, fp16/bf16 VOID JSONs,
 %   ReHDM v2 row (66.06/54.65/65.68).
 \providecommand{\sd}[1]{\,{\scriptsize$\pm$#1}}
-\begin{table}[htbp]
-\caption{One model, two tasks: the single joint model against the dedicated single-task models and the
-external baselines, ordered by region count. The upper block reports next-category (macro-F1) and the
-lower block next-region (Acc@10); the two share the dataset and region-count columns, and the same
-six datasets appear in the same order in both. Bold marks a statistically supported improvement over the dedicated model; in
-the region block, $\uparrow$ marks that supported improvement and $\approx$ a non-inferior match
-(TOST, $\pm2$~pp; Section~\ref{sec:mobiwac:results-part2}).}
-\label{tab:mobiwac:results}
-\centering
-% [NEW-7, 2026-07-26] Was ONE eleven-column tabular inside {adjustbox}{max width=\textwidth},
-% which shrank the body to a measured 8.00 pt (fold sd 6.00 pt) against 11.96 pt body text.
-% Split at the cmidrule the two task blocks already carried, into two tabulars inside this one
-% float: one caption, one \label{tab:mobiwac:results} (all nine \ref sites unchanged), one
-% footnote block. Both halves fit \textwidth at their natural size (category 377 pt, region
-% 408 pt against a 455 pt text block: 3 cm + 2 cm margins on A4), so neither is scaled and the
-% body renders at full 11.96 pt. Each half keeps a {max width=\textwidth} adjustbox purely as a
-% guard: at these widths it is a no-op, and if the estimate is off it clips the overshoot instead
-% of producing an overfull box. If the rebuild confirms the fit, both wrappers can be dropped.
-% Every value, bold mark, \sd{}, $^{\uparrow}$, $^{\approx}$, $^{\dagger}$, $^{\ddagger}$, and
-% the Dataset/Regions key columns are carried over character for character; the Dataset and
-% Regions columns repeat in the second half so each block reads on its own.
-\begin{adjustbox}{max width=\textwidth}
-\begin{tabular}{l r r r r r}
-\toprule
-& & \multicolumn{4}{c}{\textbf{Next-category (macro-F1)}} \\ \cmidrule(lr){3-6}
-\textbf{Dataset} & \textbf{Regions} & \textbf{Markov-K} & \textbf{POI-RGNN} & \textbf{Dedicated} & \textbf{Joint (ours)} \\
-\midrule
-Istanbul & 520     & 24.55 & 30.12 & 54.74\sd{0.09} & \textbf{63.32}\sd{0.02} \\
-AL       & 1{,}109 & 20.50 & 23.80 & 56.82\sd{0.03} & \textbf{64.51}\sd{0.09} \\
-AZ       & 1{,}547 & 23.92 & 27.64 & 56.43\sd{0.10} & \textbf{65.79}\sd{0.02} \\
-FL       & 4{,}703 & 29.74 & 34.49 & 74.51\sd{0.03} & \textbf{79.84}\sd{0.02} \\
-TX       & 6{,}553 & 28.67 & 33.03 & 69.79\sd{0.08} & \textbf{77.24}\sd{0.01} \\
-CA       & 8{,}501 & 27.58 & 31.78 & 70.60\sd{0.07} & \textbf{77.05}\sd{0.01} \\
-\bottomrule
-\end{tabular}
-\end{adjustbox}
+\input{tables/mobiwac_results}
 
-\vspace{6pt}
-
-\begin{adjustbox}{max width=\textwidth}
-\begin{tabular}{l r r r r r r}
-\toprule
-& & \multicolumn{5}{c}{\textbf{Next-region (Acc@10)}} \\ \cmidrule(lr){3-7}
-\textbf{Dataset} & \textbf{Regions} & \textbf{HMT-GRN} & \textbf{ReHDM} & \textbf{STAN} & \textbf{Dedicated} & \textbf{Joint (ours)} \\
-\midrule
-Istanbul & 520     & 60.4  & 69.33 & 61.86 & 75.16\sd{0.01} & \textbf{75.35}\sd{0.04}$^{\uparrow}$ \\
-AL       & 1{,}109 & 57.05 & 65.38 & 60.72 & 70.11\sd{0.10} & 69.70\sd{0.09}$^{\approx}$ \\
-AZ       & 1{,}547 & 43.70 & 53.00 & 49.86 & 59.46\sd{0.08} & 59.46\sd{0.04}$^{\approx}$ \\
-FL       & 4{,}703 & 63.74 & 64.49 & 72.99 & 76.70\sd{0.02} & \textbf{77.41}\sd{0.02}$^{\uparrow}$ \\
-TX       & 6{,}553 & 53.85 & 48.81$^{\ddagger}$ & 61.67$^{\dagger}$ & 64.95\sd{0.01} & \textbf{67.06}\sd{0.01}$^{\uparrow}$ \\
-CA       & 8{,}501 & 49.61 & 50.26$^{\ddagger}$ & 58.52$^{\dagger}$ & 63.49\sd{0.02} & \textbf{65.69}\sd{0.02}$^{\uparrow}$ \\
-\bottomrule
-\end{tabular}
-\end{adjustbox}
-
-\vspace{2pt}
-{\footnotesize HMT-GRN (region-native, on
-our folds, scored on visits whose region appears in training, $>$99\% of test visits in every dataset
-and fold) is the primary external comparison; STAN (our re-implementation) and ReHDM (its own protocol)
-are references. Markov-K: strongest order per dataset. $^{\dagger}$STAN partial folds: TX 4/5, CA 2/5
-(seed 0). $^{\ddagger}$ReHDM at TX and CA: a single seed. Joint and dedicated entries: four seeds
-$\times$ five folds; $\pm$: sd across seeds.}
-\end{table}
 
 Figure~\ref{fig:mobiwac:deltas} plots the signed gains ordered by region count. On
 category, the joint model outperforms the dedicated ceiling on
