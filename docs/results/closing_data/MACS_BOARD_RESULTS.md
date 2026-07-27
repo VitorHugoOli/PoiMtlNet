@@ -44,7 +44,34 @@
 
 **All 5 Gowalla HMT-GRN done** (AL/AZ/FL/CA/TX) + Istanbul (stride-1, below). [M4/MPS; AL is CPU-validated — see HMT audit.]
 
-*(Comparand = full MTL champion, CUDA — cross-device; HMT reg clears the Markov floor, champion leads. Device-labeled.)*
+*(Comparand = full MTL champion, CUDA — cross-device; champion leads. Device-labeled.)*
+
+**Region floor: CORRECTED 2026-07-27 (claim-neutral; no number in the table above moved).** This line
+previously read "HMT reg clears the Markov floor, champion leads." **HMT-GRN does not clear the region
+floor this study now reports.** Two different floors exist, and every figure below names the one it
+belongs to so the two cannot be substituted for each other again:
+
+| Floor | Windowing | Source of record | Acc@10 (pp) AZ / CA / TX / AL / IST / FL |
+|---|---|---|---|
+| **Current (the shipped floor)** | board gated stride-1 (window 9, stride 1, MIN_SEQ 10, emit_tail False); same fold splits as our models | `docs/results/closing_data/markov_floor_stride1/<state>.json`, key `markov_1step_region_acc10_mean` | 51.23 / 59.09 / 60.10 / 62.26 / 65.06 / 72.47 |
+| **Superseded (the basis of the old claim)** | non-overlap (stride-9, MIN_SEQ 5, emit_tail True) frozen substrate | `docs/results/P0/simple_baselines/<state>/next_region.json`; mirrored per state in the `old_floor_nonoverlap` block of each current JSON | 42.96 / 52.09 / 54.94 / 47.01 / 52.52 / 65.05 |
+
+Against the **current** floor, the HMT-GRN column above (AZ 43.70 / CA 49.61 / TX 53.85 / AL 57.05 /
+IST 60.42 / FL 63.74) sits **below the floor at six of six datasets**. The same comparison for the two
+other region externals: the floor is above **ReHDM** (faithful-v4, `docs/baselines/next_region/rehdm.md`)
+at **three of six** (CA, TX, FL) and above **STAN** (our faithful re-implementation) at **four of six**
+(AZ, CA, AL, IST). Against the **superseded** floor, HMT-GRN was above it at AL, AZ and Istanbul and
+already below it at FL, CA and TX, so the unqualified "clears the Markov floor" was never true at all
+six on either floor. **Which AL HMT value is used decides the AL cell**, so name it: the superseded M2
+value 62.37 lies above the current AL floor 62.26, while the CPU-validated Mac value 57.05 lies below
+it. This file's own audit (device caveat above) rules that the Mac value is correct and 62.37 is the
+outlier, so the AL cell is below the floor. The "closest region competitor" framing is unaffected;
+what changes is that HMT-GRN no longer stands above the floor. Dissertation Ch.5 states the comparison
+from the current floor (`articles/dissertacao/src/chapters/5_mobiwac.tex:773-796`): it reaches 51 to 72 Acc@10,
+the joint model exceeds it by 4.9 to 10.3 points at all six, and "HMT-GRN falls below it at all six,
+the ReHDM reference at three, and STAN at four." Recompute:
+`scripts/closing_data/compute_markov_floor_stride1.py`; integration record
+`docs/studies/closing_data/MARKOV_FLOOR_STRIDE1.md`.
 
 ## CSLSL cascade (role-3 multi-task baseline) [A40 / CUDA — same-device Δ]
 Cascade pattern (CSLSL/CatDM): directed cat→region edge, symmetric cross-attn disabled (`b4_cascade.py`),

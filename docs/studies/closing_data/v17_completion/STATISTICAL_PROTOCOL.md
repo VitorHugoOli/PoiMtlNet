@@ -291,3 +291,20 @@ superiority holds at Istanbul (+0.19, CI +0.15..+0.23, 20/20 folds), FL (+0.71, 
 CI +2.10..+2.13), and CA (+2.20, CI +2.19..+2.21). **No verdict changed.** Sources:
 [`../joint_best/JOINT_BEST_RESULTS.md`](../joint_best/JOINT_BEST_RESULTS.md) + the joint-best score JSONs at
 `docs/results/closing_data/catx_v17_n20/joint_best/`.
+
+**2026-07-25 — the four executed deviations are now logged where this section mandates, and the registered
+test has been run at its registered footing.** Two departures (seed-level n=4 pairing; paired t reported for
+superiority) had been reasoned in [`stats_n20/RESULTS.md`](stats_n20/RESULTS.md) but never transcribed to
+[`log.md`](../log.md), and `RESULTS.md:20` cited "protocol §8's powered-t deviation" although this section
+carried no such entry. All four are now entries **D-1 to D-4** in [`log.md`](../log.md) (2026-07-25), including
+**D-4: next-region superiority was never registered here** (§1 and §5.2 pin next-region to non-inferiority
+only) and is reported as a secondary family with its own Holm correction, labeled as such in the paper and in
+dissertation Ch.5. **D-3 records that the registered test now runs at all six datasets**: Istanbul's dedicated
+per-fold category ceiling was recovered from the A40 and committed at
+[`h3_istanbul/step3_runs/cat_ceiling_perfold/`](h3_istanbul/step3_runs/cat_ceiling_perfold/), closing
+`RESULTS.md` LIMITS #2, so the §2 per-fold n=20 paired Wilcoxon with §5.2's m=6 Holm gives **ALL REJECT**,
+worst adjusted p = 5.72e-06, every cell at the exact n=20 floor 9.54e-07 with 20/20 folds positive (the four
+reg cells: own m=4 family, adjusted 3.81e-06). Reproduce:
+[`stats_n20/m2_prereg_perfold.py`](stats_n20/m2_prereg_perfold.py) (24/24 artifact→board gate), output
+[`stats_n20/m2_prereg_output.txt`](stats_n20/m2_prereg_output.txt). **No verdict changed; no reported estimate
+or interval moved.** Audit of record: `articles/[mobiwac]/science/AUDIT_statistical_protocol.md`.

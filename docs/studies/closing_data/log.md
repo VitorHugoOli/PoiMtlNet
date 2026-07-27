@@ -436,3 +436,62 @@ top level reduced 14 → 5 files (`README.md` [new index] · `RESULTS_BOARD.md` 
 functional path in `joint_best/score_all.py` updated). ~40 files link-fixed repo-wide (docs/, articles/ handoff
 docs, scripts/ docstrings); both archives' internals left as-is per convention. No git-history rewrite — every
 removed/moved file is recoverable.
+
+## 2026-07-25 — DEVIATION LOG entries (protocol §8's mandated location) + LIMITS #2 closed
+
+**Why this entry exists.** `STATISTICAL_PROTOCOL.md §8` mandates that every departure from the
+pre-registration be logged **here**, with the cell, the registered rule, the deviation, and the reason. Two
+departures were executed and reasoned in `v17_completion/stats_n20/RESULTS.md` ("Deviation log (protocol §8)")
+but were never transcribed to this file, and `RESULTS.md:20` cites "protocol §8's powered-t deviation" although
+§8 carried only the 2026-07-18 joint-best switch. Surfaced by the MobiWac statistical-protocol audit
+(2026-07-25, `articles/[mobiwac]/science/AUDIT_statistical_protocol.md`) and by REV-007 item (i) in
+`articles/dissertacao/src_utils/dissertation_review.md`. The dangling reference is now closed.
+
+**D-1 · Pairing level: seed-level n=4 instead of the registered per-fold n=20.**
+Cell: every family-(A) superiority cell. Registered rule: §2, paired Wilcoxon on the matched **per-fold** Δs,
+multi-seed pooled, n=20 = 4 seeds × 5 folds. Deviation: the reported tests pair **per-seed 5-fold means**
+(n=4). Reason at the time: the MTL per-fold matched-score sidecars were A40-only (gitignored rundirs), so only
+per-seed means were poolable; pairing stayed valid under §4 (same fixed folds, same seed set) and nothing was
+fabricated or pooled unpaired. **Status: no longer forced** (see D-3) — the seed-level footing is retained as
+the paper's reported convention because the region CIs are computed on it, and the registered test is now
+reported alongside.
+
+**D-2 · Test statistic: paired t reported for superiority alongside the registered Wilcoxon.**
+Cell: the six next-category superiority cells (and, secondarily, the four next-region ones). Registered rule:
+§2, paired one-sided Wilcoxon signed-rank. Deviation: a paired t (df=3) is the reported statistic; Holm is
+applied to the t family. Reason: at n=4 the **exact** one-sided Wilcoxon's minimum attainable p is
+1/2⁴ = 0.0625 > α, a hard power floor independent of effect size — all cells sit exactly at it with 4/4
+positive, so the registered test cannot clear α at that footing whatever the data. This is the n=4 analogue of
+§2's own n=5 ceiling note. Effects of 67–320 σ_d make the distributional fine print immaterial.
+
+**D-3 · Registered test now executed (the deviation is corroborated, not just explained).**
+Istanbul's dedicated per-fold category ceiling — the last committed-tree gap (`stats_n20/RESULTS.md` LIMITS #2)
+— was recovered from the A40 on 2026-07-25 and committed at
+`v17_completion/h3_istanbul/step3_runs/cat_ceiling_perfold/` (tags `h3ist_cat_s{0,1,7,100}`; per-seed means
+reproduce `step3_runs/cat_ceil_s*.txt` exactly, so board cell 54.74 is unchanged and no retraining was needed).
+The registered per-fold n=20 Wilcoxon therefore runs at **all six datasets** for the first time, on the
+joint-best arrays: cat family Holm (m=6) **ALL REJECT**, worst adjusted p = **5.72e-06**, every cell at the
+exact n=20 floor **9.54e-07** with **20/20 folds positive**; the four reg-superiority cells reject in their own
+m=4 family (adjusted **3.81e-06** each). Generator with a 24/24 artifact→board gate:
+`v17_completion/stats_n20/m2_prereg_perfold.py`; output `m2_prereg_output.txt`. **No verdict changed; no
+reported estimate or interval moved.**
+
+**D-4 · Next-region superiority is NOT pre-registered (post-hoc, now labeled as such).**
+Cell: the four next-region superiority claims (Istanbul/FL/TX/CA). Registered rule: §1's family-(A) row and
+§5.2's family enumeration pin next-region to **non-inferiority (TOST) only**; §5.2 explicitly excludes the TOST
+cells from the cat Holm family, and no region-superiority family exists anywhere in the protocol (the original
+2026-06-21 text, `c96c67e3`, is identical on both points). Deviation: superiority was tested and reported for
+those four cells. Evidence that it is post-hoc: `scripts/closing_data/superiority_wilcoxon.py`, which pins
+FL/CA/TX as "the beats", was first committed `1e3449e6` on **2026-06-25**, after the FL/CA region ceilings
+(2026-06-22) and TX (2026-06-24) were readable. Consequence, and the fix: the claims are sound on the evidence
+(20/20 folds positive, CIs far from zero) but were in **no** correction family; they are now reported in their
+own Holm family (m=4) and labeled in the paper and dissertation Ch.5 as secondary results outside the plan.
+⚠ Three committed artifacts still assert the unregistered registration and want a hygiene pass:
+`superiority_wilcoxon.py` docstring, `stats_n20/m1_stats_n20.py:333` (its text reaches `m1_full_output.txt`),
+and `stats_n20/RESULTS.md §1b`.
+
+**Released bundle (the audit's fourth finding).** The paper's footnote 1 points at the `mobiwac` branch, which
+shipped **no `docs/`** — so neither the protocol nor this log was reachable by a reviewer, while the branch's
+`README.md §6` announced the bundled `superiority_wilcoxon.py` as the "pre-registered tests" including "region
+superiority (FL/CA/TX)". The protocol, this log, the joint-best record and `m2_prereg_perfold.py` are now on
+the branch, and the README line is corrected.

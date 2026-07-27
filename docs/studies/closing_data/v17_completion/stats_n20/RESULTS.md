@@ -142,9 +142,21 @@ are NOT in the §1 Holm family** — the pre-registered 6-dataset family Holm ru
 
 Per-fold Δs (seed 0, folds 0–4) — CA cat [+6.48, +6.46, +6.24, +6.31, +6.08], CA reg [+2.15, +2.11,
 +2.27, +2.24, +2.26]; TX cat [+7.31, +7.50, +6.63, +7.59, +7.52], TX reg [+2.14, +2.18, +2.13,
-+2.00, +2.10]. Note the reg cells land in the pre-registered reg-**superiority** family
-(`superiority_wilcoxon.py` pins FL/CA/TX as "the beats"), which is why the superiority test — not
-just TOST — is the apt primary there; both are reported. The seed-0-footing Δcat (+6.31/+7.31)
++2.00, +2.10]. **Correction (2026-07-27, claim-neutral).** This paragraph previously said the reg
+cells "land in the pre-registered reg-**superiority** family (`superiority_wilcoxon.py` pins FL/CA/TX
+as 'the beats')" and inferred that superiority was "the apt primary there". **No such family is
+pre-registered.** The protocol pins next-region to non-inferiority only: §1's family-(A) row reads
+"reg: **non-inferiority** (MTL not worse than STL by more than δ_reg)" with "reg → **TOST** (§3)",
+and §5.2 fixes the headline family as "{6 states} × {cat superiority, reg non-inferiority}" with the
+TOST cells "not pooled into the cat Holm family". `superiority_wilcoxon.py` is a script, not the
+registration — and it was first committed (`1e3449e6`, 2026-06-25) **after** the FL/CA (2026-06-22)
+and TX (2026-06-24) region ceilings were readable. **The registered primary test for every reg cell,
+CA/TX included, is TOST non-inferiority at δ_reg = 2 pp.** The reg superiority statistics in the
+table above are **post-hoc** and reported as such (deviation of record:
+[`../../log.md`](../../log.md) entry **D-4**, 2026-07-25 — they now carry their own Holm family, m=4,
+and are labeled secondary results in the paper and in dissertation Ch.5). Both tests stay reported
+here; what changes is which one is registered. **No number in this file moved.** The seed-0-footing
+Δcat (+6.31/+7.31)
 differs from the board Δ (+6.44/+7.44) exactly because the board Δ subtracts the **n=20** ceiling
 mean while the paired vectors are seed-0 (seed-0 ceiling ≈ +0.12/+0.13 above the n=20 mean).
 
@@ -164,6 +176,19 @@ mean while the paired vectors are seed-0 (seed-0 ceiling ≈ +0.12/+0.13 above t
    Pulling those upgrades every cell to the pre-registered per-fold n=20 Wilcoxon/TOST (which breaks
    the Wilcoxon floor, §2). ~~Prior gap: AL/AZ/FL per-seed values not committed~~ — **closed by A0
    (`c51b1183`,** `n20_perhead_runs/summary.tsv`**)**.
+   ✅ **CLOSED 2026-07-25 on the joint-best convention.** The MTL per-fold arrays are committed for all six
+   datasets (`joint_best/data/j1_results.json` `per_run[].jb_{cat,reg}_folds`; CA/TX at
+   `docs/results/closing_data/catx_v17_n20/joint_best/`), and the last dedicated-side gap, **Istanbul's
+   per-fold category ceiling**, was recovered from the A40 and committed at
+   [`../h3_istanbul/step3_runs/cat_ceiling_perfold/`](../h3_istanbul/step3_runs/cat_ceiling_perfold/)
+   (tags `h3ist_cat_s{0,1,7,100}`; per-seed means reproduce `cat_ceil_s*.txt` exactly, so the board cell
+   54.74 is unchanged and no retraining was needed). **The pre-registered per-fold n=20 Wilcoxon now runs at
+   all six datasets** — see [`m2_prereg_perfold.py`](m2_prereg_perfold.py) /
+   [`m2_prereg_output.txt`](m2_prereg_output.txt): the six-dataset cat family Holm (m=6) **ALL REJECT**,
+   worst adjusted p = 5.72e-06, every cell at the exact n=20 floor 9.54e-07 with 20/20 folds positive; the
+   four reg-superiority cells reject in their own m=4 family (adjusted 3.81e-06). **No verdict changed and
+   no reported estimate moved.** The seed-level (n=4) tests below remain the paper's reported footing (the
+   region CIs are computed on it); the registered test is now reported alongside them.
 3. **The STL sides are fully committed at n=20 per-fold** (cat: sweep JSONs at AL/AZ/FL; reg: P1
    JSONs at all four) — but they are consumed here as per-seed means to match the MTL side's
    granularity (pairing must be at a common footing).

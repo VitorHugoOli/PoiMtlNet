@@ -28,6 +28,18 @@ matched reg vectors; profile.json `quality.next_category` cross-checks cat exact
 but its `next_region` is a different, non-ood-corrected capture, ~+0.01..0.04 off). STL sides
 = the SEED-0 fold vectors of the same runs whose n=20 means are the cited ceilings. These
 cells are NOT in the m=4 Holm family; the pre-registered 6-dataset family Holm waits for A1.
+
+WHICH CELLS THE PRE-REGISTRATION ACTUALLY COVERS (read before citing any reg cell). The
+protocol registers next-CATEGORY superiority (§2 paired Wilcoxon, §5.2 Holm within the
+six-state cat set) and next-REGION **non-inferiority only** (§1's family-(A) row: "reg:
+non-inferiority ... reg -> TOST (§3)"; §5.2's family is "{6 states} x {cat superiority, reg
+non-inferiority}", with the TOST cells "not pooled into the cat Holm family"). There is no
+region-superiority family anywhere in the protocol. The region superiority statistics this
+script prints for the CA/TX cells (and the FL/CA/TX cells in
+scripts/closing_data/superiority_wilcoxon.py) are therefore **post-hoc, outside the
+registered plan** — sound on the evidence, but not registered. Deviation of record:
+docs/studies/closing_data/log.md entry D-4 (2026-07-25); they now carry their own Holm
+family (m=4) and are labeled secondary results in the paper and in dissertation Ch.5.
 """
 import csv
 import json
@@ -330,7 +342,8 @@ for k in ["CA", "TX"]:
     if tost["ci90"][0] > DELTA_REG:
         print(f"      -> CI entirely ABOVE +δ: exceeds the margin in the FAVORABLE direction "
               f"(two-sided equivalence n/a — better than the margin); non-inferiority trivially holds.")
-    print(f"      superiority (the pre-registered reg-'beats' family, superiority_wilcoxon.py): "
+    print(f"      superiority (POST-HOC — reg superiority is NOT in the protocol, which pins reg to "
+          f"non-inferiority only; log.md D-4. Same cells as superiority_wilcoxon.py): "
           f"Wilcoxon p = {supr['p_wilcoxon']:.4f}, folds+={supr['pos']}, paired t(4) p = {supr['p_t']:.2e}")
 print("\n  [provisional] These n=5 seed-0 verdicts are superseded by A1's n=20 the moment it lands.")
 

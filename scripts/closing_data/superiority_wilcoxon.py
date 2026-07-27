@@ -1,13 +1,34 @@
-"""Pre-registered superiority tests (docs/studies/closing_data/v17_completion/STATISTICAL_PROTOCOL.md §2, §5.2): paired
-one-sided Wilcoxon signed-rank + Holm-Bonferroni for the headline family-(A) cells.
+"""Paired one-sided Wilcoxon signed-rank + Holm-Bonferroni on the headline family-(A)
+MTL-vs-STL cells. The two families below do NOT carry the same standing in the
+pre-registration; read the labels before citing either.
 
-- Category (all 6 states): superiority MTL champion-G cat > STL dedicated cat ceiling.
-- Region (FL/CA/TX, the "beats"): superiority MTL reg > STL dedicated reg ceiling.
-  (The small-state region "matches" AL/AZ/Istanbul are NON-inferiority -> region_match_tost.py, not here.)
+- Category (all 6 states): superiority, MTL champion-G cat > STL dedicated cat ceiling.
+  PRE-REGISTERED, in docs/studies/closing_data/v17_completion/STATISTICAL_PROTOCOL.md
+  §2 (paired one-sided Wilcoxon on the matched per-fold deltas) and §5.2 (Holm-Bonferroni
+  applied "within the cat-superiority set (6 states)").
 
-Paired per fold on the SAME frozen overlap folds (seed 0 x 5). Reads the committed
-matched-score JSONs + the P1 region-head STL ceilings. n=5 (seed 0) provisional;
-{1,7,100} -> n=20 is post-deadline.
+- Region (FL/CA/TX): superiority, MTL reg > STL dedicated reg ceiling.
+  NOT PRE-REGISTERED. The protocol pins next-region to non-inferiority only, and no
+  region-superiority family appears anywhere in it. §1's family-(A) row reads
+  "reg: non-inferiority (MTL not worse than STL by more than delta_reg)" with
+  "reg -> TOST (§3)"; §5.2 fixes the headline family as "{6 states} x {cat superiority,
+  reg non-inferiority}" and records that the TOST cells "are equivalence tests, not
+  superiority tests, and are not pooled into the cat Holm family". These three cells are
+  therefore post-hoc: they were tested and reported outside the plan. Deviation of
+  record: docs/studies/closing_data/log.md, entry D-4 (2026-07-25), which notes that this
+  script (first committed 1e3449e6, 2026-06-25) postdates the FL/CA (2026-06-22) and TX
+  (2026-06-24) region ceilings becoming readable. The claims themselves stand on the
+  evidence; they now carry their own Holm family (m=4) and are labeled secondary results
+  in the paper and in dissertation Ch.5.
+  (The region "matches" at AL/AZ/Istanbul ARE the pre-registered cells: TOST
+  non-inferiority at delta_reg = 2 pp, protocol §3.2 -> region_match_tost.py, not here.)
+
+Footing of THIS script: paired per fold on the same fixed overlap folds at seed 0 only
+(n=5). Reads the committed matched-score JSONs + the P1 region-head STL ceilings. The
+registered per-fold n=20 test (4 seeds x 5 folds, §2's own footing) is not run here; it
+runs at all six datasets in
+docs/studies/closing_data/v17_completion/stats_n20/m2_prereg_perfold.py (log.md D-3,
+2026-07-25).
 """
 import json
 from scipy import stats
