@@ -277,7 +277,7 @@ Re-derived against the current build (not echoed from the round-1 consolidated r
 | **B.1** CBIC misattribution in Ch.5 (persona 10 BLOCKER / 14) | **BETTER — resolved + mirrored + documented** | `5_mobiwac.tex:45,145`; `[mobiwac]/src` intro L17 + related L48; ERRATA L23; AppB §B.3. Faithful (§2.3). |
 | **N-2 / MJ-1** Alabama 64.51 vs 64.54 blur | **BETTER — reconciled to 64.51** | `5_mobiwac.tex:485` Table 3 AL Joint = 64.51; `6_conclusion.tex:78` = 64.51; dedicated 56.82 / capacity 56.16 consistent. |
 | **MJ-18** "MTLnet" named in frame, absent in Ch.3 | **UNCHANGED** | F3. Frame names it (`1_introduction.tex:102`, `5_mobiwac.tex:93`, `6_conclusion.tex:25`); `3_cbic.tex` = 0 occurrences. |
-| **MJ-5** data vintage "2009 and 2010" vs 2009-2011 | **UNCHANGED in prose; basis recorded** | `6_conclusion.tex:114` still "collected in 2009 and 2010"; `cbic_recompute_result.md` records the measured span 2009-2011. Author decision in `DECISOES_PENDENTES_ptBR.md`. |
+| **MJ-5** data vintage "2009 and 2010" vs 2009-2011 | **UNCHANGED in prose; basis recorded** | `6_conclusion.tex:114` still "collected in 2009 and 2010"; `cbic_recompute_result.md` records the measured span 2009-2011. Author decision in `_archive/reviews_v1/DECISOES_PENDENTES_ptBR.md`. |
 | Florida count divergence across chapters | **WORSE (now visible)** | F2. Was hidden while Ch.3 was a placeholder; the fill exposed 1,407,034 (Ch.3/Ch.5) vs 990,518 (Ch.4) with no reader-facing note. |
 
 Net: five queued items improved (two blockers cleared, three seams reconciled), two are unchanged

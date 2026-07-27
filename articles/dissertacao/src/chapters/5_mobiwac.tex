@@ -333,7 +333,7 @@ Table~\ref{tab:mobiwac:datasets} summarizes our six datasets. Five come from Gow
 % (Feb 2009-Oct 2010) is NOT the data source; cho2011gowalla is cited as the LBSN reference only.
 The states range from about 114,000 check-ins and 1,109 regions in Alabama to about 3.2 million check-ins and 8,501 regions in California. Every dataset uses the seven place categories of Section~\ref{sec:mobiwac:problem}; Istanbul's source collection maps its own labels onto them. The region unit is a census tract for the Gowalla states and a mahalle for Istanbul.
 
-\input{tables/mobiwac_datasets}
+\input{tables/mobiwac/datasets}
 
 
 
@@ -369,7 +369,7 @@ The measurement bounds this channel rather than closing it, and three limits set
 % do not mix them). Probe: scripts/embedding_eval/leak_sniff.py (next-cat macro-F1 from the LAST
 % window slot only, GroupKFold-by-user, 5 folds, standardized AND raw, Florida).
 % The four-decimal values on the page are quoted verbatim from the committed table at
-% src_utils/dissertation_review.md:221-223, which rounds the CSVs:
+% src_utils/_archive/reviews_v1/dissertation_review_v1.md:221-223, which rounds the CSVs:
 %   leak_sniff_fl.csv       check2hgi_gcn_ctrl 0.4089797540123382 / 0.40744232906432776  clean
 %   leak_sniff_resln_fl.csv check2hgi_resln    0.4196859144977155 / 0.41815720719390814  clean
 %   leak_sniff_fl.csv       check2hgi_gat      0.49761650037538024 / 0.48631035868799294 LEAK
@@ -428,7 +428,7 @@ feature injection.
 % Check2HGI std: Ist 0.6 / AL 2.4 / AZ 1.3 / FL 0.5 / TX 0.2 / CA 0.3 ; HGI std: Ist 0.5 / AL 1.0 /
 % AZ 1.0 / FL 0.3 / TX 0.6 / CA 0.4.
 \providecommand{\sd}[1]{\,{\scriptsize$\pm$#1}}
-\input{tables/mobiwac_representation}
+\input{tables/mobiwac/representation}
 
 
 
@@ -516,7 +516,7 @@ joint result by at most $0.06$ (category) and $0.11$ (region) points.
 %   Never cite: STAN v4 collapse (AL 34.46/AZ 38.96), HMT-GRN AL 62.37 outlier, fp16/bf16 VOID JSONs,
 %   ReHDM v2 row (66.06/54.65/65.68).
 \providecommand{\sd}[1]{\,{\scriptsize$\pm$#1}}
-\input{tables/mobiwac_results}
+\input{tables/mobiwac/results}
 
 
 Figure~\ref{fig:mobiwac:deltas} plots the signed gains ordered by region count. On

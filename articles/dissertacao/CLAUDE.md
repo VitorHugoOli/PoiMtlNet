@@ -49,8 +49,8 @@ folder. No chapter text goes to the author or advisor without passing its gates.
   deepened; the three configured specialist profiles (BANCA\_SIMULATOR, DISSERTATION\_FACT\_GATE,
   DISSERTATION\_REVIEWER) re-run on the corrected v1.
 - **Author actions before the advisor build** (full ranked list:
-  [`src/src_utils/HANDOFF_v1.md`](src/src_utils/HANDOFF_v1.md); PT decisions doc:
-  `src/src_utils/DECISOES_PENDENTES_ptBR.md`): (1) **title** — confirm/replace with the advisor;
+  [`src/src_utils/_archive/handoffs/HANDOFF_v1.md`](src/src_utils/_archive/handoffs/HANDOFF_v1.md); PT decisions doc:
+  `src/src_utils/_archive/reviews_v1/DECISOES_PENDENTES_ptBR.md`): (1) **title** — confirm/replace with the advisor;
   (2) **CBIC dataset counts** — recomputed via the Gowalla ETL this round
   (`src/src_utils/cbic_recompute_result.md`), confirm + wire into Ch.3 (still `[VERIFY]`);
   (3) approve the queued `[NEEDS SIGN-OFF]` items (Resumo/Abstract, AI-disclosure, claim-scope

@@ -305,13 +305,13 @@ For the task of next POI category prediction, we compare our models against MHA+
 \subsubsection{POI Category Classification}
 As shown in Table~\ref{tab:cbic:category}, both our MTL and Single models outperform HMRM \cite{chen2020modeling} in every POI category in terms of F1-score, precision, and recall. For instance, in the `Shopping' category, our MTL model achieves an F1-score of $62.51 \pm 0.94$ compared to HMRM's $46.69 \pm 0.81$. Similarly, for `Food', the MTL model scores $57.43 \pm 1.46$ against HMRM's $28.44 \pm 0.42$. While both MTL and Single models are competitive, the Single model shows marginally better F1-scores in several categories like `Community' ($53.11 \pm 0.58$) and `Outdoors' ($47.75 \pm 0.89$), whereas the MTL model excels in `Food' and `Shopping'. Overall, our approaches demonstrate a substantial improvement over the HMRM baseline for this task.
 
-\input{tables/cbic_category}
+\input{tables/cbic/category}
 
 
 \subsubsection{Next POI Category Prediction}
 The results for next POI category prediction, detailed in Table~\ref{tab:cbic:next}, indicate a competitive performance landscape. The MHA+PE model \cite{zeng2019next} shows strong F1-scores in several categories, notably `Food' ($43.47 \pm 0.50$) and `Shopping' ($43.53 \pm 1.66$), outperforming our MTL and Single models in these instances. However, our MTL model achieves the best F1-score in `Travel' ($64.61 \pm 1.11$) and `Nightlife' ($22.07 \pm 0.52$), surpassing MHA+PE in these two categories. The Single model also shows competitive results, leading in `Entertainment' ($26.06 \pm 1.01$) and `Outdoors' ($22.45 \pm 0.81$). This suggests that while MHA+PE is highly effective for certain POI categories, our MTL and Single models offer superior or comparable performance in others, particularly where different sequential patterns might be exploited. Also, it is important to notice that since we have an unbalanced result for the MTL and single, this could lead to the worse of other results.
 
-\input{tables/cbic_next}
+\input{tables/cbic/next}
 
 
 Overall, while our proposed models show strong performance in POI category classification against HMRM \cite{chen2020modeling}, the next POI category prediction task presents a more competitive landscape when compared against a sophisticated sequential model like MHA+PE \cite{zeng2019next}. Comparing the MTL and Single models directly reveals that the multi-task learning approach did not yield the anticipated substantial improvements over the single-task baseline across both tasks. Crucially, many of these observed differences in F1-scores are minor and often fall within the reported standard deviations, suggesting that the performance of the MTL and Single models is largely comparable, without a clear or consistent advantage for the multi-task learning setup in these experiments.
@@ -336,7 +336,7 @@ To further evaluate the practical implications of the MTL approach compared to s
 
 The convergence measurements show a clear wall-time disadvantage for the joint model, while the MFLOPs column does not follow the same pattern. Table~\ref{tab:cbic:convergence} reports the three metrics for each model.
 
-\input{tables/cbic_convergence}
+\input{tables/cbic/convergence}
 
 
 The results from this experiment were contrary to the potential expectation that an MTL framework might offer training efficiencies. Our findings indicated that the MTL model took substantially longer to converge to the target F1-scores. Specifically, the MTL approach required 80.88~s of wall time, about 2.3 times the cumulative 34.97~s of the individual single-task models. In terms of MFLOPs, in contrast, the table does not show a higher cost for the MTL setup: the MTL model required 0.234 MFLOPs, against 2.315 MFLOPs for the Category model and 0.012 MFLOPs for the Next model. This suggests that while attempting to learn multiple tasks simultaneously, the MTL model, in this configuration, incurred a significantly higher overhead in wall time. Given these observations, for deployment scenarios where convergence speed is a critical factor, employing separate, optimized single-task models would likely be a more convenient strategy.\footnote{Experiments conducted on Apple M2 Pro (10-core CPU, 16-core GPU) with 32GB unified memory running macOS 15.5. Key software versions: Python 3.9.6, PyTorch 2.6.0.dev20241014+cpu, NumPy 1.26.4, scikit-learn 1.5.2, CVXPY 1.5.2. Training utilized PyTorch MPS backend for Apple Silicon acceleration.}

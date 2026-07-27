@@ -39,7 +39,7 @@ rule (never absorb silently).
    subset); the result is in `src/src_utils/cbic_recompute_result.md` for the author to confirm
    and wire into Ch.3 (still `[VERIFY]` until confirmed).
 3. Queued `[NEEDS SIGN-OFF]` items: Resumo/Abstract, AI-disclosure, several claim-scope rewordings.
-4. Author's remaining tier decisions — collected in `src/src_utils/DECISOES_PENDENTES_ptBR.md`.
+4. Author's remaining tier decisions — collected in `src/src_utils/_archive/reviews_v1/DECISOES_PENDENTES_ptBR.md`.
 
 > **⚠ ADVISOR MUST BE TOLD (author action, top of the handoff).** The plan assumed six human
 > drafting days (Jul 19–24); the build was done by the assistant in one session and lands as a
@@ -133,7 +133,7 @@ confirmation are the two that gate the banca build.
 
 ### Day 6 — Thu Jul 24 (**v1 to advisor**)
 - [x] Final compile of the defense build; gates green or author-waived. **DONE 2026-07-24:**
-      both builds compile clean; the handoff note (`src/src_utils/HANDOFF_v1.md`) is the reading map + the
+      both builds compile clean; the handoff note (`src/src_utils/_archive/handoffs/HANDOFF_v1.md`) is the reading map + the
       ranked author to-do list. Title + CBIC recompute remain author actions before the advisor
       build ships (see the rev-3 status block).
 

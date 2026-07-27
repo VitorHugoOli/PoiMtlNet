@@ -182,6 +182,41 @@ superseded number or claim read as the project's current state.
   harness lesson if the advisor wants the fuller record (those two live under
   `docs/studies/closing_data/`).
 
+## 4b · Absorbed from `noth_star_consideration.md` (author notes, 2026-07-25)
+
+That file held three author notes. It is archived at
+`src_utils/_archive/reviews_v1/noth_star_consideration.md`; this section carries what had not yet
+landed, so nothing is lost by the archive. Checked point by point against the source on 2026-07-27.
+
+**Point 1a, the arc — ABSORBED.** The three-paper arc it describes (CBIC's first attempt, the
+representation diagnosed as the bottleneck, MobiWac's resolution) is the arc §2 already states, and
+Chapters 1 and 6 carry it.
+
+**Point 1b, dropping the MTL optimizers as a maturity signal — ABSORBED.** Chapter 5 states the
+conservative-by-design position (`5_mobiwac.tex:179`) and Chapter 6 names the orthogonal-gradient
+finding (`6_conclusion.tex:180`). Round 5 strengthened it: the chapter now reports the full
+nineteen-balancer screen rather than implying a two-optimizer test.
+
+**Point 1c, why embeddings and not raw inputs — NOT ABSORBED. This is a live open item.** Grep for
+"raw input", "raw feature", "one-hot input" and "learned end-to-end" across Chapters 1 and 2 returns
+nothing. The author's observation is correct and it is a question a committee can reasonably ask: in
+consolidated deep-learning practice the first layers of a raw-input model construct the latent space
+anyway, so a reader may ask why the representation is built separately here rather than learned
+inside the model. The answer this document can defend is on the record and does not need new
+experiments: the place-level and check-in-level representations are trained by an unsupervised
+objective over a graph the prediction model never sees, which is what makes the leak audits and the
+label-history benchmark of Appendix D meaningful at all. That is a paragraph in Section 2.2, next to
+the place-level-to-check-in-level move. **Not drafted, because the author asked for the literature to
+be searched and the point strengthened, which is a grounded-citation task rather than a rewrite.**
+
+**Point 2, mining the repository for the fundamentals — ABSORBED.** Done, including the prior
+Claude Science survey under `science/`. The known defects of that survey are recorded in this file.
+
+**Point 3, broadening the application examples beyond mobility — PARTLY ABSORBED.** The introduction
+carries one example outside pure mobility. The author's point stands that CBIC and CoUrb contain
+further examples the frame could use, and that MobiWac's mobility-only framing was a venue
+constraint rather than a scope limit. Cheap to extend, and it is frame prose, so no errata cost.
+
 ## 5 · Decision record (status per item; settled rulings mirrored in CLAUDE.md §2 ledger)
 
 > **v1-assembly status (2026-07-24, updated after corrections round 2):** every settled decision

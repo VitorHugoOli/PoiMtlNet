@@ -1,23 +1,4 @@
-% mobiwac_datasets.tex -- extracted from chapters/5_mobiwac.tex (round5, author decision 1.1).
-% Included with \input{tables/mobiwac_datasets}. Float placement, caption and every value
-% are byte-identical to the version that was inline. The extraction was verified by building the
-% pre-extraction tree with the same prose edits applied and comparing the RENDERED TEXT of both PDFs
-% (pypdfium2 text layer): 260,848 characters each, identical. [correction] These headers previously
-% claimed a 'rendered PDF checksum' comparison. No checksum comparison was ever run, and it would
-% not have matched: the PDF bytes changed (1,322,758 -> 1,323,852) because this commit also carries
-% a prose edit. Caught in review; the claim now names the check that was actually performed.
-% Table 1: Dataset statistics.
-% Ordered by region count (small to large), matching the result tables.
-% STATUS: FILLED 2026-06-25 from PAPER_PLAN section 5 / STATS_T1.md (overlap board:
-% gated stride-1, MIN_SEQ=10, emit_tail=False; windows validated against the on-disk
-% check2hgi_dk_ovl parquet, AL = 96,326 exact). Gowalla raw == substrate; the Istanbul
-% row is the mahalle substrate (post null-coord drop), raw corpus 544,471 ck / 23,700 users.
-%
-% Columns follow the LBSN / next-POI convention (users, POIs, check-ins, density) plus our
-% region + window stats. Density (%) = 100 * check-ins / (users * POIs) -- the check-in-matrix
-% fill, the metric POI-prediction papers report (it varies 0.05-0.25%); it replaces the old
-% "sparsity = 1 - density" column, which was trivially ~0.999 for every state. The fixed
-% 7-category space is stated in the caption rather than as a constant column.
+% mobiwac/datasets.tex -- one table. Extraction provenance and verification: tables/README.md
 \begin{table}[htbp]
 \caption{Dataset statistics, ordered by region count: five Gowalla states and Istanbul
 (Massive-STEPS). All share the same seven root categories; the region unit is a census

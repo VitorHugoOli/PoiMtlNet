@@ -141,7 +141,7 @@ to speak to the Foursquare terms specifically, that check is still outstanding.
 2. Where a licensing sentence should live (Chapter 5 setup, or a general ethics or data statement
    in the frame), and how it should hedge the Gowalla case. No such prose was drafted.
 
-**Machine-readable evidence:** `src_utils/item4_licence_evidence.json` (same session, same URLs).
+**Machine-readable evidence:** `src_utils/_archive/handoffs/item4_licence_evidence.json` (same session, same URLs).
 
 ---
 

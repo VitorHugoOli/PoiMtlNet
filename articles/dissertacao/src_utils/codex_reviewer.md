@@ -4,7 +4,7 @@
 **Repository state reviewed:** `70d3888d` (`main`)  
 **Defense artifact:** `src/build/main.pdf`, 97 A4 pages  
 **Final/AcademicoPG artifact:** `src/build/main_final.pdf`, 92 A4 pages  
-**Scope:** Current source, rendered artifacts, author responses in `dissertation_review.md`,
+**Scope:** Current source, rendered artifacts, author responses in `_archive/reviews_v1/dissertation_review_v1.md`,
 the v2 re-review, project laws and ledgers, documentation, result artifacts, relevant
 implementations, and one fresh independent pass for each of the 18 reviewer definitions.
 No dissertation source, result, numerical value, citation, or claim was changed in this pass.
@@ -888,13 +888,13 @@ pagination will move.
 
 ### COD-018 — Governance files and automated gates no longer describe the artifact reliably
 
-> **AUDIT VERDICT (2026-07-27): PARTLY.** Page counts in `CLAUDE.md`, `PLAN.md`, `HANDOFF_v1.md` are stale (89/84 against 102/97) and Appendix A lacks per-role CoUrb credit; the checker and `pypdfium2` sub-claims are RESOLVED
+> **AUDIT VERDICT (2026-07-27): PARTLY.** Page counts in `CLAUDE.md`, `PLAN.md`, `_archive/handoffs/HANDOFF_v1.md` are stale (89/84 against 102/97) and Appendix A lacks per-role CoUrb credit; the checker and `pypdfium2` sub-claims are RESOLVED
 >
-> **What was done:** Page counts synced to the measured 103/98 in CLAUDE.md, PLAN.md and HANDOFF_v1.md. The check.sh undefined-citation gate was found to pass silently under UTF-8 locales and was rebuilt (877b2109).
+> **What was done:** Page counts synced to the measured 103/98 in CLAUDE.md, PLAN.md and _archive/handoffs/HANDOFF_v1.md. The check.sh undefined-citation gate was found to pass silently under UTF-8 locales and was rebuilt (877b2109).
 
 - **Severity:** Moderate
 - **Status:** Open
-- **Files:** `CLAUDE.md`, `PLAN.md`, `src_utils/HANDOFF_v1.md`,
+- **Files:** `CLAUDE.md`, `PLAN.md`, `src_utils/_archive/handoffs/HANDOFF_v1.md`,
   `src_utils/PENDENCIAS.md`, adaptation ledgers, `src_utils/check.sh`,
   `src_utils/check_trapped_prose.py`
 - **Section:** Project governance and release checks
