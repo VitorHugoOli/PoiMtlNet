@@ -1,42 +1,15 @@
 % !TeX root = ../main_defense.tex
-% Appendix A -- Other scientific contributions
-% Drafted 2026-07-23 per NORTH_STAR §3 (appendix scope: BRACIS submission as
-% intermediate iteration; report_orientador is internal, out) + AGENT_GUARDRAILS C4
-% (BRACIS containment: cited only as an earlier unpublished iteration; its region-cost
-% claim appears only as corrected history, never as a live claim; its rejected-paper
-% numbers are NOT quoted).
-% Title verified against the submission source, articles/[BRACIS]_Beyond_Cross_Task/
-% src/samplepaper.tex (\title{...}): "Substrate Carries, Architecture Pays: Check-In-
-% Level Embeddings for Multi-Task POI Prediction". The word "substrate" appears below
-% ONLY inside that verbatim title (WRITING_LAW §2 bans it as running prose; a quoted
-% title is a proper name, not prose).
-% CoUrb presentation role: NOT listed here. NORTH_STAR §5.2 assigns it as a
-% contribution note ON the Chapter 4 record (stated in Section 1.5 and in the Chapter 4
-% preface), not as an "other contribution" item; NORTH_STAR §3 names only the BRACIS
-% submission for this appendix. Do not invent items.
+% Appendix A -- Other scientific contributions.
+% [2026-07-27] Section A.2 (the earlier unpublished BRACIS iteration) REMOVED on the author's
+% ruling; recorded in NORTH_STAR §4. AGENT_GUARDRAILS C4 still mandates the containment device
+% and needs the matching update (not my file). The lone A.1 heading went with it, so the
+% appendix is one unsectioned statement, as Appendix C already is.
+% Counts trace to ../../src_utils/etl_tooling_contribution_evidence.md + ../../handoff_tooling.json.
+% ETL note: stage_3.py writes per-state CSV (stage_3.py:98); the text claims only a 56-way split.
 % [NEEDS SIGN-OFF: whole appendix -- new frame prose.]
-%
-% [ROUND 3, 2026-07-24 -- author request 2.3] The author asked to foreground the RESEARCH
-% TOOLING / ETL codebase as a contribution instead of leading with the rejected BRACIS
-% submission. This version does that: §A.1 is the software/infrastructure contribution (drafted
-% from a read-only repo survey; every count traces to ../../src_utils/etl_tooling_contribution_evidence.md
-% + ../../handoff_tooling.json, and to handoff_tooling.json's commands). §A.2 KEEPS the BRACIS
-% paragraph, deliberately: it is the C4 CONTAINMENT device (AGENT_GUARDRAILS C4, NORTH_STAR §3) --
-% the dissertation must disclose that an earlier iteration existed and that its region-cost claim
-% was wrong, so that if a banca member finds the rejected submission the document has already
-% addressed it honestly rather than appearing to hide a failure. Removing it entirely would read
-% as concealment, which is why I did NOT delete it on the author's "drop BRACIS" instinct without
-% flagging the trade-off (see DECISOES_PENDENTES_ptBR §2.3). DECISION for the author: keep both
-% (recommended), OR drop §A.2 and accept the containment risk.
-% ETL Stage-3 accuracy note: stage_3.py writes per-state CSV (the .to_parquet line is commented,
-% stage_3.py:98); the 56 on-disk files are .parquet. The safe claim is "56-way state split", which
-% is what the text below says -- it does NOT claim the stage writes parquet.
 
 \chapter{Other Scientific Contributions}
 \label{apx:contributions}
-
-\section{A research platform for multi-task POI prediction}
-\label{apx:contributions:tooling}
 
 % [NEEDS SIGN-OFF: REV-023, 2026-07-26] "the three published studies" -> "the three
 % studies of this collection". Two of the three are published (CBIC 2025, DOI
@@ -107,31 +80,3 @@ stricter protocol became practical: the split, the fold-wise prior, and the test
 implemented once, in one place, rather than once per study. No
 performance or novelty claim is made here; those belong to the results chapters, under
 the evidence protocol the frame follows.
-
-\section{An earlier unpublished iteration}
-\label{apx:contributions:bracis}
-
-One additional manuscript was produced during this research. In the first half of 2026,
-between the study of Chapter~\ref{ch:courb} and the consolidated study of
-Chapter~\ref{ch:mobiwac}, an earlier iteration of the check-in-level line of work was
-submitted to the Brazilian Conference on Intelligent Systems (BRACIS 2026) under the
-title \emph{Substrate Carries, Architecture Pays: Check-In-Level Embeddings for
-Multi-Task POI Prediction}. The submission was rejected, with notification on June 8,
-2026, and remains unpublished.
-
-The manuscript is an earlier unpublished iteration of the study presented in
-Chapter~\ref{ch:mobiwac}. It introduced a first version of the check-in-level
-representation, evaluated under an older protocol and an earlier training
-configuration, and its central claim, that multi-task learning imposes a cost on
-region prediction, was later corrected by the MobiWac study: the observed cost traced
-back to a numerical-precision artifact of that training configuration and to the older
-evaluation protocol. For this reason, no result of the manuscript is cited as evidence
-anywhere in this dissertation, and its conclusions are superseded in full by
-Chapter~\ref{ch:mobiwac}.
-
-The material of the submission was absorbed into the study of
-Chapter~\ref{ch:mobiwac}, which redesigned the evaluation before any claim was
-reissued. The reviewers' principal objection to the manuscript, the possibility of
-label leakage through the transductive representation, is answered there by a
-dedicated leakage audit under the user-disjoint protocol
-(Chapter~\ref{ch:mobiwac}).

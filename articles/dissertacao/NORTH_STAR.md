@@ -90,8 +90,13 @@ PRE-TEXTUAL (defense build only; the final AcademicoPG upload starts at the list
    6.4 Final remarks
 BIBLIOGRAPHY                           [single global, renumbered — open decision #5]
 APPENDIX A — Other scientific contributions
-                                       [BRACIS submission as intermediate iteration;
-                                        report_orientador is internal — out]
+                                       [the research platform / ETL contribution ONLY.
+                                        The BRACIS-iteration section was REMOVED
+                                        2026-07-27 by author ruling — see §5.11;
+                                        the instruction below is superseded, kept for
+                                        the trail. Do not reinstate without a new ruling.
+                                        SUPERSEDED: "BRACIS submission as intermediate
+                                        iteration; report_orientador is internal — out"]
 APPENDIX B — Errata to the reproduced articles
                                        [only if errata policy #7 = "fix + note"; lists every
                                         departure from the published texts]
@@ -229,6 +234,31 @@ superseded number or claim read as the project's current state.
     2026-07-18 (event publication satisfies the new Art. 21 §1 under either reading). Remaining
     ACTION (PLAN Day 0): file the comprovante with the PPGCC secretariat + confirm the operative
     checklist. Details: [`UFV_COMPLIANCE.md`](UFV_COMPLIANCE.md) §3.
+11. **The BRACIS iteration is not disclosed in the dissertation** — ✅ SETTLED (author,
+    2026-07-27). Appendix A §A.2 ("An earlier unpublished iteration") is **removed**. The
+    author's grounds, in his words: less detail makes the reading less complex; the reader is
+    motivated by the final result, the methodology, and the conclusion, and the trail of errors
+    is not constructive for him; and this is not concealment from the banca, because the text
+    changed substantially after the rejection and reworking a manuscript after a reject is
+    common practice, with the conclusion unchanged.
+    - **What this supersedes.** §3's Appendix A scope line (annotated in place above) and
+      **AGENT_GUARDRAILS C4**, which mandates the containment device ("BRACIS material may
+      inform prose but is cited only as 'an earlier unpublished iteration'"). C4's *prohibition*
+      half survives and is now the whole rule: no BRACIS result, number, or claim appears
+      anywhere in the dissertation, and its region-cost claim is never reissued. C4's
+      *disclosure* half is void. **AGENT_GUARDRAILS.md still carries the old wording and needs
+      the matching edit** (not applied here; that file was outside the editing scope of the
+      session that made this change).
+    - **Consequence the author flagged himself**, and the sweep result: no prose anywhere in the
+      document asserts a correction relative to that manuscript. Every "earlier"/"corrected"
+      passage checked (`5_mobiwac.tex`:105, :145, :202-203; `6_conclusion.tex`:156;
+      `1_introduction.tex`:139; all of `apx_b_errata.tex` §B.3) refers to CBIC, to CoUrb, to the
+      submitted MobiWac manuscript, or to a development-time data preparation, and each names
+      its own antecedent. Nothing was left pointing at the deleted section.
+    - **One orphan remains, outside the editing scope:** the `BRACIS` entry in the List of
+      Abbreviations (`src/0_main.tex`:346) and its comment (:343, "BRACIS appears in Appendix A
+      only"). The acronym now appears nowhere in prose, so both lines should go; GLOSSARY §5
+      lists BRACIS as "(appendix only)" and needs the same treatment.
 
 ## 6 · Story spine (the settled narrative — G0 outline for the frame chapters)
 
