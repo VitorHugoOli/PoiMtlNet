@@ -1,0 +1,23 @@
+{
+ "what": "share of windows whose target region equals the region of the window's last visit",
+ "state": "alabama",
+ "n_windows": 96326,
+ "n_windows_expected_from_floor_artifact": 96326,
+ "window_count_gate_pass": true,
+ "target_equals_last_region": 31704,
+ "region_persistence_share": 0.329132,
+ "region_persistence_pct": 32.91,
+ "protocol": {
+  "source_stream": "output/check2hgi/alabama/temp/checkin_graph.pt -> metadata",
+  "region_map": "checkin_to_poi -> poi_to_region from the same file",
+  "ordering": "sorted by (userid, datetime), stable",
+  "window_size": 9,
+  "stride": 1,
+  "min_sequence_length": 10,
+  "emit_tail": false
+ },
+ "not_to_be_confused_with": {
+  "markov_1step_region_acc1_mean": 0.32064040033191976,
+  "explanation": "top-1 accuracy of a fitted first-order transition table, not a share of windows; numerically close, which is why the two were once swapped"
+ }
+}
