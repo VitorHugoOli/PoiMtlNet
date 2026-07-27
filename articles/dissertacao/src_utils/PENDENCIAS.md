@@ -66,6 +66,24 @@ Cap. 5 que reafirmava uma atribuicao que o proprio capitulo recusa, e uma frase 
 descreve uma feature de no que o codigo liberado nao constroi. Nove personas, o fact gate e o
 simulador de banca passaram por todos os quatro sem ver.
 
+### 0.2 Dois itens das personas 15 e 16 que dependem de voce
+
+Os dois BLOCKERs delas foram corrigidos. Sobram dois pontos que sao decisao sua:
+
+1. **A linha de divulgacao de IA no front matter** (persona 16, o achado de maior valor dela, aberto
+   desde a v1). O Apendice C esta na p. 97 do build de defesa, e a persona argumenta que uma linha
+   curta no front matter, antes do corpo, muda como um examinador desconfiado le o documento inteiro:
+   ele encontra a divulgacao antes de formar suspeita, e nao depois. Nao escrevi nada: e uma frase em
+   seu nome sobre o seu proprio processo.
+
+2. **O `\label{apx:ethics}` orfao** (persona 15). O Apendice E tem label e nada o referencia. E
+   inofensivo hoje, mas se voce quiser que algum capitulo aponte para a etica (o Cap. 1 seria o lugar
+   natural, junto da descricao dos dados), me diga onde e eu insiro a referencia.
+
+> DECISAO: __________________________________________________
+
+---
+
 ### 0.1 O que do codex ainda depende de voce
 
 | Item | O que falta |
