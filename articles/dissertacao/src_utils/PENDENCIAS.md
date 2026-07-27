@@ -67,21 +67,12 @@ pelo mecanismo do Apendice B, e ele so fica legitimo com o aval dele.
 
 > DECISAO: __________________________________________________
 
-### 1.3 Fonte da bibliografia: 12 pt ou `\footnotesize`? (REV-024)
+### ~~1.3 Fonte da bibliografia: 12 pt ou `\footnotesize`? (REV-024)~~ — RESOLVIDO 2026-07-27
 
-**(A)** `0_main.tex:369-370` envolve a bibliografia em `{\footnotesize ...}`. As paginas de referencia medem **9,96 pt**
-contra **11,96 pt** do corpo. A regra (`UFV_COMPLIANCE.md:32`, Manual §8) diz 12, sem excecao para bibliografia.
-
-**(B)** O que muda o quadro: o construto foi herdado do esqueleto do **Germano**, que defendeu em 2024 com o mesmo
-orientador e cujas paginas de referencia medem os mesmos 9,96 pt. O Viegas, ao contrario, usa 11,96. Ou seja: um
-exemplar fez e passou, outro nao fez, e a regra escrita diz 12. O seu proprio doc de compliance antecipa esse dilema e
-responde **"comply, don't gamble"**.
-
-**(C)** A edicao e uma delecao de uma linha. O motivo de precisar de voce e a consequencia: a secao de referencias
-cresce cerca de duas paginas, e isso interage com a paginacao do AcademicoPG, que so fecha depois do rascunho no portal.
-Vale levar junto com o item 1.2.
-
-> DECISAO: Vamos usar de acordo com o manual e com o viegas no caso 12pt
+Aplicado: o wrapper `{\footnotesize ...}` saiu do `0_main.tex` e a bibliografia agora compoe em
+12 pt, conforme sua decisao e o `UFV_COMPLIANCE.md:32`. O `\campus{Campus Florestal}` foi setado
+e **nao renderiza nada hoje**: a macro so e lida dentro de `\imprimircapa`, que nenhum build
+chama. Ela passa a aparecer quando a capa for decidida (item 1.1). Commit `9e2b5157`.
 
 ### Outros pontos
 
@@ -95,47 +86,32 @@ no texto original do mobiwac, faça um diff com o texto original se preciso, mas
 
 ## BLOCO 2 — exposicao cientifica real
 
-### 2.1 Etica e governanca de dados — **o item mais exposto da lista** (REV-026)
+### ~~2.1 Etica e governanca de dados — **o item mais exposto da lista** (REV-026)~~ — RESOLVIDO 2026-07-27
 
-**(A)** Uma varredura dos nove arquivos de capitulo por
-`ethic|privacy|re-identif|anonym|consent|GDPR|LGPD|IRB|licen[cs]e|terms of use` retorna quatro ocorrencias, e **todas as
-quatro sao o verbo "license"** em "the test that licenses the verb outperforms". Nao existe **uma unica frase
-renderizada** sobre etica, privacidade, re-identificacao, consentimento ou licenciamento, numa dissertacao cujo objeto
-sao trajetorias de movimento por usuario.
+**Feito, mas precisa da sua leitura.** O Apendice E ("Data ethics and governance", ~790 palavras)
+esta escrito e no build. Todas as licencas foram reabertas na fonte nesta sessao, nao herdadas da
+nota: Figshare devolve **CC0** para o DOI `10.6084/m9.figshare.22126586.v2`, o Hugging Face devolve
+**apache-2.0**, e a API do GitHub devolve SPDX **Apache-2.0**.
 
-**(B)** O simulador de banca desta rodada perguntou isso diretamente e classificou como *obrigatoria*. Disponibilidade
-publica nao elimina risco de re-identificacao, e a banca vai perguntar por que processar trajetorias individuais foi
-eticamente aceitavel. E muito mais provavel perguntarem pela ausencia do que contestarem o paragrafo depois de escrito.
+Duas coisas que o apendice diz porque o codigo diz, e que voce deve querer conferir:
 
-**(C)** A pesquisa de licenca **ja esta feita** e esta em
-[`DATASET_LICENSING_FINDINGS.md`](DATASET_LICENSING_FINDINGS.md). O que ficou verificado:
+1. Uma busca no repositorio inteiro por `jitter|perturb|laplace|anonym|deidentif|mask|obfusc` nao
+   retorna **nenhum** hit em nenhum caminho de ETL. O apendice afirma que **nao ha
+   de-identificacao aplicada**, em vez de sugerir uma protecao que nao existe.
+2. O endereco original do Gowalla nao da mais 403: hoje ele **redireciona (301) para um dominio
+   comercial sem relacao**. Os termos originais nao estao apenas nao lidos, sumiram.
 
-- **Gowalla (Cap. 5):** o ETL consome o dump do Figshare (registro 22126586, DOI
-  `10.6084/m9.figshare.22126586.v2`), rotulado **CC0**, e os tres arquivos batem com o que o
-  `src/etl/gowalla/main.py:22-24` le. **Ressalva que voce precisa saber:** o CC0 foi aplicado por um **depositante
-  terceiro**, e a origem que o registro cita (`yongliu.org/datasets/`) nao abriu. Nada prova que o depositante tinha o
-  direito de aplicar CC0.
-- **Discrepancia real:** `docs/context/DATASETS.md:187-199` documenta o **SNAP** como fonte do Gowalla e nao tem linha
-  de licenca nenhuma. Mas o SNAP e um artefato diferente: 6.442.890 check-ins sem categoria, contra 36.001.959 com a
-  anotacao de sete categorias no dump do Figshare. O registro documenta uma fonte que o pipeline nao le.
-- **Massive-STEPS (Istanbul):** o "Open-source; academic research" do repo pode ser substituido por uma licenca
-  identificada, **Apache-2.0**, no card do Hugging Face e no `LICENSE` do GitHub.
+Sobre o comite de etica, respondendo a sua pergunta 1: a dissertacao de 2024 do mesmo orientador
+foi extraida inteira (96 paginas) e buscada por `comite|CAAE|Plataforma Brasil|CEP|IRB|ethics
+approval|Resolucao N` — **zero hits**, contra dois hits em "Ethical Statement" que provam que a
+busca estava lendo texto real. Ela tem um §2.6 sobre privacidade de localizacao que diz que
+latitude e longitude ficaram sem mascara. O apendice registra isso como precedente, registra a sua
+posicao de que a revisao nao era exigida, e **nao afirma aprovacao nem isencao**.
 
-**Preciso de voce, tres fatos, e nenhum eu posso inventar:**
+**O que preciso de voce:** ler o Apendice E e assinar. Ele faz afirmacoes institucionais em seu
+nome. Esta marcado `[NEEDS SIGN-OFF: AUTHOR]`. Commit `9e2b5157`.
 
-1. A UFV/PPGCC exige determinacao de **CEP** para analise secundaria de dados publicos de-identificados? (Se exige, o
-   numero/parecer. Se dispensa, sob qual regra.) **Nao vou fabricar aprovacao nem dispensa de CEP.**
-2. Voce confirma o dump do Figshare como a fonte de registro do Gowalla, ciente da ressalva do depositante terceiro?
-3. Quer que eu corrija `docs/context/DATASETS.md` para registrar a fonte que o pipeline realmente le, com a linha de
-   licenca?
-
-Com esses tres, o paragrafo de governanca se escreve sozinho, curto e factual.
-
-> DECISAO: 1. Sobre o CEP, até onde eu tenho conhecimento não, verifique se no Germano foi necessario, pois ele trablhou
-> na mesma area. 2. Sim foi o figshare, mas ele mesmo aponta para a source original do gowalla ele é só um uma versão do
-> orignal com as 7 categorias. 3. Sim, pode registrar isso no datasets. Além desses pontos eu acredito que vale uma
-> appendix falando sobre etica e gevernança, comentando de forma breve os certificados de cada dataset e o que mais
-> precisar de ser comentado.
+> DECISAO: __________________________________________________
 
 ### 2.2 Escopo da tarefa estatica do Cap. 4 (REV-002) — **medido nesta rodada, e o resultado nao ajuda**
 
@@ -215,69 +191,47 @@ deixar o Nash-MTL carregar a evidencia nomeada. Sua instrucao prevalece; o nome 
 > acharam **quatro blockers**, todos defeitos reais no PDF entregue, e todos ja corrigidos. Tres das
 > correcoes precisam de uma decisao sua, porque mexem em texto publicado ou em uma alegacao central.
 
-### 1b.1 A atribuicao do ganho: "shared trunk" nao se sustenta (persona 10, BLOCKER)
+### ~~1b.1 A atribuicao do ganho: "shared trunk" nao se sustenta (persona 10, BLOCKER)~~ — RESOLVIDO 2026-07-27
 
-**O achado.** O Cap. 5 dizia que o ganho de categoria vem de "a stronger shared trunk" e fechava com
-"We report this attribution as a finding, not a hypothesis". O controle de congelamento
-(`W6_ENCODER_ISOLATION.md:20-24`) remove o **treino** da regiao, entao ele elimina a hipotese
-"regiao ensina categoria", mas **nao localiza** o componente: nao remove o encoder proprio da categoria, os FFNs por
-fluxo, nem a profundidade extra. E o repo tem o braco que testa o trunk direto, com resposta oposta:
-`F50_T1_5_CROSSATTN_ABSORPTION.md:19-20` mede, na Florida, cat F1 68,36 ± 0,74 com cross-attention LIGADA contra 68,32 ±
-0,67 DESLIGADA, delta **-0,04 ± 0,13**, estatisticamente indistinguivel (:37); a :80 chama o rotulo "shared" de impropio
-na FL, 95% cat-only por massa de gradiente. Verifiquei as duas citacoes nos arquivos.
+**Aplicado nos dois capitulos, e a sua desconfianca sobre o experimento estava certa.**
 
-**O que fiz.** Mantive o resultado **negativo** como achado (o ganho nao e transferencia entre tarefas: isso o controle
-estabelece). Rebaixei a atribuicao **positiva** de "o trunk" para "a arquitetura conjunta", declarei que o controle nao
-localiza o componente, e **divulguei a ablacao discordante** no proprio capitulo, com o escopo de um dataset dito.
-Sincronizei os dois pontos do Cap. 6.
+Voce pediu para auditar o F50 antes de cita-lo. Auditei, e ele nao sustenta o que a tese dizia,
+por dois motivos independentes que estao no proprio registro:
 
-**(C) O que preciso de voce.** Duas coisas: (i) o Cap. 5 esta sob o regime de errata e isto reescreve uma frase de
-**interpretacao**, entao precisa de linha no Apendice B, que **nao escrevi** esperando sua decisao de redacao; (ii) se
-preferir citar o empate do cascade (`CSLSL_CASCADE.md:19`, que corta o canal simetrico e empata dentro de 0,02 pp) em
-vez da ablacao F50, ou rodar a ablacao nos outros datasets antes de divulgar, eu reestruturo. O que **nao** deixei foi a
-alegacao de pe como estabelecida com o repo guardando um teste nulo daquele exato mecanismo.
+1. O `F50_T1_5_CROSSATTN_ABSORPTION.md:229` chama o **proprio** nulo de "misleading" e de "hidden
+   compensation effect, not a true null contribution". O F49 companheiro mede a contribuicao
+   arquitetural em **-16,16 pp**: o nulo aparece porque o encoder de categoria absorve o deficit.
+2. A configuracao ablacionada nao e a que foi entregue. O F50 rodou `check2hgi/florida` em bs2048
+   (abril); o board entregue roda `check2hgi_dk_ovl` em bs8192 (`catx_v17_n20/*.json`, campo
+   `rundir`). E o mecanismo depende do prior `alpha*log_T`, que o proprio Cap. 5 diz que **nossos
+   modelos nao usam**.
 
-> DECISAO: Vamos lá esse é um assunto que já 3 a terceira revisão que tocamos nele novamente, mas focar em tentar ser
-> assertivo e pragmatico para fechar esse assunto. Priemeiro, como já citei acima o cap. 5, não deveria estar sobre o
-> regime de errata, a não ser para erros logicos ou frases qeu mudam bruscamente, vide que ainda estamos a tempo de
-> amndar
-> revisão, logo podemos corrigir no texto original e fazer a correção na dissertacao. Agora sobre o problema em si,
-> temos que lidar com ele com bstante cautela, porque isso permetua direto na tese central do mobiwac e da dissertacao,
-> coisa que eu gostaira de re-ponderar que já discuti com voce em outras revisões, apesar de o shared-trunk, não ser o
-> motivo da melhora, já concluimos com o estudo: articles/dissertacao/storyline/audit/capacity_baseline_experiment.md,
-> que
-> de fato a arquitetura MTL tem vantagem agora o mecanimos dessa vantagem e que não está bem defino ainda, uma coisa e
-> certo que o gate no shared trunk e algo que e responsavel, além de outros motivos que podeoms explorar mais afundo.
-> Agora sobre como citar os experimentos, eu acho que o F50 e mais apropriado, mas temos que cita-lo com reslavas,
-> primeiro vale investiguar se ele foi feito correto, e se ncessario até fazermos novos experimentos via o nespegpu, eu
-> tenho um felling que estmaos perdendo algo nesses claims e que os expeirmentos e=podemos não estar 100% corretos em
-> suas
-> abordagems. Enfim, minhã decisão até então e tentarmos não se contradizer no texto, assim se já citamos e motramos no
-> texto hoje que o shared-trunk não ajuda, então não demovemos fazer esse claim, mas acima de tudo, se não estamos nos
-> contradizendo eu proonho em fazer os experiemtnos expandir esse assunto, vide sua criticalidade, mas tentar manter o
-> texto como ele está e criar uma doc externa para isso, pare se caso for alvo de debate tenhamos resutlados para
-> dicutir. O que acha ?
+Os dois capitulos agora mantem o valor e **estreitam a inferencia**: a ablacao nao e oferecida como
+prova de que o trunk nao contribui. A atribuicao continua retida, e continua apoiada no controle de
+congelamento e no controle de capacidade, que este achado nao toca. Commit `06b64cab`.
 
-### 1b.2 O piso de Markov esta acima dos baselines externos (persona 11, BLOCKER)
+**Nao rodei de novo, de proposito.** Uma versao citavel exige o engine entregue, o batch entregue,
+sem o prior, e seeds suficientes: um treino por seed por fold por braco na GPU, nao uma sonda. Isso
+e uma pergunta de pesquisa, nao uma clausula de hedge.
 
-**O achado.** O Cap. 5 chama os sistemas externos de "the per-task state of the art, on our data" e, vinte paginas
-depois, imprime um piso de Markov de primeira ordem **acima** do HMT-GRN nos seis datasets, acima do ReHDM em tres e do
-STAN em quatro. Os dois conjuntos de numeros estavam certos e rastreaveis; nada os ligava. Um parecerista le o par como
-sinal de que as reimplementacoes estao mal treinadas e **desconta a comparacao externa inteira**, inclusive as partes
-que favorecem voce.
+**O que preciso de voce:** (a) o texto reescrito entra como esta, ou (b) voce prefere remover a
+clausula inteira, ja que a atribuicao ja fica retida pelos outros dois controles? E: isso merece
+linha de errata no Apendice B? E texto de moldura, nao publicado, entao a minha leitura e que nao
+precisa — mas reescreve uma frase de interpretacao, e a decisao e sua.
 
-**O que fiz.** Adicionei um paragrafo que declara a comparacao e a explica como propriedade do **protocolo**, nao
-veredito sobre aqueles sistemas: nossas janelas andam uma visita por vez, entao a persistencia de regiao e forte e uma
-tabela de transicao a consome direto, enquanto os externos preveem **lugar** e chegam a regiao pelo mapa lugar-regiao,
-descartando esse sinal. O capitulo agora trata o **piso** como a referencia a bater. Contagens 6/3/4 recalculadas por
-mim da tabela do proprio capitulo e dos JSONs de piso.
-
-**(C) Preciso de voce:** so a leitura. Se discordar do enquadramento (protocolo, nao qualidade dos sistemas), me diga e
-eu reescrevo. **E um item herdado para corrigir a parte:**
-`docs/results/closing_data/MACS_BOARD_RESULTS.md:47` ainda afirma "HMT reg clears the Markov floor", verdadeiro contra o
-piso antigo nao-sobreposto (AL 0,4701) e nunca revisitado quando o piso foi recalculado sob a janela stride-1 (AL
-0,6226). O capitulo herdou a inconsistencia; o registro interno deveria ser corrigido.
 > DECISAO: __________________________________________________
+
+### ~~1b.2 O piso de Markov esta acima dos baselines externos (persona 11, BLOCKER)~~ — RESOLVIDO 2026-07-27
+
+**Aplicado.** O paragrafo agora declara a assimetria de protocolo sistema por sistema em vez de
+oferecer uma explicacao causal unica, e diz explicitamente que nenhum dos fatos estabelece por que
+o piso fica acima. As contagens verificadas (piso acima do HMT-GRN em 6/6, do ReHDM em 3, do STAN
+em 4) e os 22,4 por cento de revisita no Alabama ficam como estao.
+
+Corrigi tambem um erro **meu**, de ontem: eu tinha escrito que os tres sistemas externos preveem um
+lugar e sao lidos no nivel de regiao, enquanto o mesmo capitulo chama o HMT-GRN de *region-native*
+em `:418`, `:622` e `:755`. Commit `ff96dcaf`. O registro interno estava desatualizado no mesmo
+ponto e foi corrigido em `f978b16b`.
 
 ### 1b.3 O custo do Nash-MTL: corrigir ou so declarar? (persona 10, MAJOR)
 
@@ -309,47 +263,21 @@ pendencia (aviso ao co-autor primeiro).
 > para voce nao reabrir a esmo. Os outros tres ja aparecem nos Blocos 1 e 3 deste documento
 > (titulo, Resumo/Abstract, folha de aprovacao, figuras).
 
-### 2b.1 Apendice A — manter ou remover a secao do BRACIS (era 2.3, e o item mais consequente)
+### ~~2b.1 Apendice A — manter ou remover a secao do BRACIS (era 2.3, e o item mais consequente)~~ — RESOLVIDO 2026-07-27
 
-**Estado:** aberto, e nao mexi. `apx_a_contributions.tex:111` ainda tem
-`\section{An earlier unpublished iteration}`.
+Aplicado: a secao A.2 foi removida, e o sweep que voce pediu encontrou e reconciliou as alegacoes
+dependentes. O `NORTH_STAR §3`, que mandava manter o dispositivo de contencao, ficou marcado como
+superado pela sua decisao com a data, em vez de apagado. A sigla BRACIS saiu da lista de
+abreviaturas, porque A.2 era o unico texto que a usava. Commit `21124a8c`.
 
-**O trade-off, que continua valendo.** A §A.1 (tooling) ja lidera, que e o que voce pediu. Mas a §A.2 e o **dispositivo
-de contencao** (AGENT_GUARDRAILS C4, NORTH_STAR §3): o documento revela que houve uma iteracao anterior cuja alegacao
-central estava errada. Se um membro da banca descobrir a submissao rejeitada e o documento nao a tratar, **le como
-ocultacao**. Remover e uma decisao de risco, nao de estilo, e por isso nao removi.
+### ~~2b.2 O nome "MTLnet" e a grafia (era 3.7)~~ — RESOLVIDO 2026-07-27
 
-**Uma coisa nova desde entao, que reforca manter.** O simulador de banca desta rodada faz exatamente a pergunta que a
-§A.2 antecipa. Com ela, a resposta ja esta no documento.
-
-**DECISAO:** (a) manter as duas secoes (recomendo), ou (b) remover a §A.2 e eu ajusto o NORTH_STAR §3 registrando a
-mudanca de politica.
-
-> DECISAO: Eu ainda acredito que possa ser benefico remover essa parte, o A.2, primeiro que é menos detalhe no texto faz
-> a leitura ter menos complxidade. Mas, então removendo essa parte de fato temos que tomar cuidado com outras alegações
-> que fazemos no texto sobre correções no mobiwac em relação ao texto do bracis, isso pode ser omitido, até pq novamente
-> eu reiteiro, o nosso leito tá motivaod pelo resutlado final, metodologia e conclusão, a jornada de erros, não é algo
-> construtivo, a não ser que ela justifique algum erro que queremos embsar e não é o nosso caso. Outro, e não é uma
-> ocultação da banca, até pq o texto mudou basntante do BRACIS e é um pratica comum de apos um reject reiteira e mexer
-> no
-> texto, no final a conclusão do mesmo não muda.
-
-### 2b.2 O nome "MTLnet" e a grafia (era 3.7)
-
-**Estado:** parcialmente resolvido, com um resto real. O Cap. 3 hoje tem **1** ocorrencia de
-"MTLnet" (o prefacio ja nomeia o modelo, entao a costura que voce apontou esta fechada). O que **nao** esta resolvido e
-a grafia: o Cap. 4 escreve **MTLNet 46 vezes** contra 4 de "MTLnet", enquanto o frame e o Cap. 5 usam "MTLnet".
-
-**Por que nao padronizei sozinho.** O Cap. 4 e **texto publicado**. Trocar 46 ocorrencias e uma alteracao de texto
-publicado que exige linha de errata, e o proprio artigo CoUrb usa "MTLNet". A regra do repo (`4_courb.tex:84`) ja
-declara que o capitulo preserva a grafia do publicado.
-
-**DECISAO:** (a) deixar como esta — o Cap. 4 preserva a grafia publicada, e a nota em `:84` ja explica ao leitor
-(recomendo); ou (b) padronizar para "MTLnet" no Cap. 4 e eu abro a linha de errata no Apendice B. Qual e a canonica para
-o GLOSSARY?
-> DECISAO: Na minha visão padronizar tudo seria um avanço apesar de termos que mudar isso em varias referencias. E em
-> sequencia adicionamos uma errata para isso. Acho que tomarmos essa decição agora é melhor que no futuro algum revisor
-> notar e só depois na errata entender que haviamos optar por continuar com os erros. O que acha ?
+Aplicado: 26 sites normalizados para `MTLnet` no Cap. 4, com a errata no Apendice B. A autoridade e
+o `GLOSSARY.md:41`, ja que o artigo do CBIC nunca nomeia o modelo em prosa (so um nome de arquivo
+de figura e a URL do repositorio). O `ST-MTLNet` mantem o N maiusculo: e um nome registrado a
+parte, e a expansao publicada *Spatial-Temporal MTLNet* tambem fica. A frase do `:84` que dizia
+que o capitulo preservava a grafia publicada virou falsa com a mudanca e foi removida.
+Commit `ff96dcaf`.
 
 ### 2b.3 Movimentos opcionais de excelencia (era 3.10)
 
@@ -381,25 +309,26 @@ de saida para cada numero.
 
 ## BLOCO 3 — assinaturas e itens adiados
 
-### 3.1 Os 27 marcadores `[NEEDS SIGN-OFF]`
+### 3.1 Os 31 marcadores `[NEEDS SIGN-OFF]`
 
-Voce pediu a lista. Sao 27 marcadores em 9 arquivos, todos comentarios LaTeX (**nenhum renderiza**, entao nao ha sujeira
+Voce pediu a lista. Sao 31 marcadores em 10 arquivos, todos comentarios LaTeX (**nenhum renderiza**, entao nao ha sujeira
 no PDF). O risco nao e visual: e que o **Apendice C afirma** que o autor leu e aprovou cada palavra, enquanto o proprio
 apendice esta marcado como nao aprovado. Voce ja decidiu manter o Apendice C como esta, o que torna esta lista o caminho
 para tornar a afirmacao verdadeira.
 
-| Arquivo                            | Qtd    | O que e                                                                                                                |
-|------------------------------------|--------|------------------------------------------------------------------------------------------------------------------------|
-| `0_main.tex`                       | 6      | Resumo e Abstract: **par de paridade**, incluindo as mudancas de unidade inferencial desta rodada                      |
-| `chapters/6_conclusion.tex`        | 5      | Escopos de alegacao: joint model qualificado, largura 64→192, California completa, parametro escopado, convencao 64,51 |
-| `chapters/5_mobiwac.tex`           | 4      | Prefacio, recap, figura restaurada, **mais a atribuicao do trunk rebaixada (item 1b.1)**                               |
-| `chapters/apx_a_contributions.tex` | 4      | Apendice inteiro, mais as tres correcoes desta rodada                                                                  |
-| `chapters/1_introduction.tex`      | 2      | Correcao de gate L3, unidade inferencial                                                                               |
-| `chapters/2_fundamentals.tex`      | 2      | Escopo dos 93% do Song, de-duplicacao L3                                                                               |
-| `chapters/apx_b_errata.tex`        | 2      | Apendice inteiro, **mais a preservacao do custo do Nash declarada (item 1b.3)**                                        |
-| `chapters/apx_c_ai_disclosure.tex` | 1      | Apendice inteiro                                                                                                       |
-| `chapters/apx_d_ceiling.tex`       | 1      | Apendice novo (o teto de autocorrelacao, item 3.4)                                                                     |
-| **TOTAL**                          | **27** | contagem medida em 9 arquivos, 2026-07-26                                                                              |
+| Arquivo | Qtd | O que e |
+|---|---|---|
+| `0_main.tex` | 6 | Resumo e Abstract: **par de paridade**, incluindo as mudancas de unidade inferencial |
+| `chapters/6_conclusion.tex` | 6 | Escopos de alegacao, mais a clausula do F50 reescopada (item 1b.1) |
+| `chapters/5_mobiwac.tex` | 5 | Prefacio, recap, figura, atribuicao do trunk, clausula do F50 (item 1b.1) |
+| `chapters/apx_a_contributions.tex` | 4 | Apendice inteiro; a §A.2 foi removida nesta rodada |
+| `chapters/apx_b_errata.tex` | 3 | Apendice inteiro, mais a errata de grafia do MTLnet (item 2b.2) |
+| `chapters/1_introduction.tex` | 2 | Correcao de gate L3, unidade inferencial |
+| `chapters/2_fundamentals.tex` | 2 | Escopo dos 93% do Song, de-duplicacao L3, descricao do CAGrad |
+| `chapters/apx_c_ai_disclosure.tex` | 1 | Apendice inteiro |
+| `chapters/apx_d_ceiling.tex` | 1 | Apendice reescrito (label-history benchmark, item 3.4) |
+| `chapters/apx_e_ethics.tex` | 1 | **Apendice novo**: afirmacoes institucionais em seu nome (item 2.1) |
+| **TOTAL** | **31** | contagem medida em 10 arquivos, 2026-07-27 |
 
 **Regra que nao da para contornar:** os 6 do `0_main.tex` sao **um par**. Resumo e Abstract carregam as mesmas
 alegacoes, e aprovar um sem o outro quebra a paridade. Leia os dois lado a lado.
@@ -449,86 +378,40 @@ em uma palavra. A (ii) da para fazer agora se quiser resolver o efeito visual e 
 > ii agora seria interessante, mas alem disso também seria legal avalisarmos o resumo e abstract apra avaliar se eles
 > estão comprindo bem seus propositos e podemos melhorar-los com vies em comprimir.
 
-### 3.4 O teto de autocorrelacao — **RECONSTRUIDO nesta rodada** (REV-001)
+### ~~3.4 O teto de autocorrelacao — **RECONSTRUIDO nesta rodada** (REV-001)~~ — RESOLVIDO 2026-07-27
 
-**FEITO.** Voce pediu para reconstruir o teto, e ele esta reconstruido. O resultado mudou o texto do Cap. 5, e para pior
-no sentido honesto: a alegacao anterior era mais forte do que a evidencia.
+**Aplicado, e o nome mudou.** A revisao do codex tem razao: chamar aquilo de "teto" afirma mais do
+que a analise mostra. Nao e um limite superior, e o **melhor de quatro preditores especificados**
+sobre o historico de rotulos, e um modelo diferente pode supera-lo com o mesmo historico.
 
-**O que estava errado.** O registro interno usa "teto de autocorrelacao" para duas coisas diferentes, e o Cap. 5 herdou
-a confusao:
+O termo agora e **label-history benchmark** no Cap. 5, no Apendice D e no `GLOSSARY.md`, com as
+formulacoes antigas banidas no registro. A palavra "teto" continua correta para o *dedicated
+single-task ceiling*, que e o escore de um modelo treinado de verdade.
 
-- **(a) o encoder de referencia limpo** — o que o `leak_sniff.py` de fato compara em codigo (`:63,:87`: sinaliza se
-  `perstep > controle + margem`, margem 0,03). Na Florida: **0,4090**.
-- **(b) o teto de autocorrelacao propriamente** — o que a categoria da ultima visita permite, sozinha. E propriedade da
-  **sequencia de rotulos**, nao de encoder nenhum. Nunca foi medido.
+O Apendice D foi reescrito por causa da sua objecao de leitura. Medi antes de reescrever: o texto
+tinha as **frases mais curtas do documento** (media 21,2 palavras contra 30,0 na conclusao), entao
+o tamanho nao era o defeito. Os defeitos medidos eram (i) colisao de conceitos, "ceiling" 8 vezes
+contra "reference" 5 em 508 palavras, para um apendice cuja funcao e justamente separar as duas
+coisas, e (ii) dependencia externa, "screen" 9 vezes mas definido so no Cap. 5. Commits `ff96dcaf`
+e `21124a8c`.
 
-O `RESCREEN.md:57` chama ~0,45 de "the autocorrelation ceiling"; o `:87` chama o controle limpo de
-"the ceiling (~0,41)". Sao quantidades distintas, e o Cap. 5 dizia que um encoder limpo "define" o teto em 0,41.
+**O que preciso de voce:** ler o Apendice D novo e dizer se ele agora se sustenta sozinho. Se
+continuar confuso, a alternativa e dobra-lo em um paragrafo do Cap. 5, e eu faco.
 
-**O que eu medi.** Script novo: `scripts/embedding_eval/autocorrelation_ceiling.py`. Nao le nenhum embedding. Le so a
-historia de categorias da janela de 9 visitas, com a mesma regra de derivacao do input de treino
-(`src/data/inputs/next_region.py:132-146`) e o mesmo protocolo do probe (GroupKFold (5) por usuario, macro-F1, media dos
-folds). Quatro preditores so-de-rotulo: persistencia, one-hot da ultima categoria, contagens da janela, one-hots
-posicionais. O teto e o melhor deles.
+> DECISAO: __________________________________________________
 
-| Dataset    | Teto (rotulo so) | Piso (classe majoritaria) |
-|------------|------------------|---------------------------|
-| Alabama    | 0.2800           | 0,0727                    |
-| Arizona    | 0.3232           | 0,0725                    |
-| Florida    | 0.3617           | 0,0566                    |
-| California | 0.3242           | 0,0704                    |
-| Istanbul   | 0.3016           | 0,0715                    |
+### ~~3.5 Higiene do repositorio, herdada (REV-007)~~ — RESOLVIDO 2026-07-27
 
-**As duas leituras, e elas apontam para lados diferentes:**
-
-1. **A triagem em si nao muda.** Os vereditos dela sao relativos: desqualifica quem passa o encoder de referencia por
-   mais que a margem de 3 pontos. O encoder de atencao desqualificado na Florida passa por **8,9 pontos**. A decisao nao
-   depende de onde o teto esta.
-2. **A leitura absoluta fica mais fraca do que o texto dizia.** Todos os encoders triados na Florida, **inclusive os
-   limpos**, ficam acima do teto so-de-rotulo: 0,4090 e 0,4197 contra 0,3617, uma folga de 4 a 6 pontos. **Isso nao e
-   prova de vazamento** — um vetor por visita carrega legitimamente mais que a categoria anterior (o lugar, a vizinhanca
-   no grafo, a hora), e qualquer um desses preve a proxima categoria sem informacao andando para tras no tempo. Mas
-   significa que a triagem limita encoders **entre si**, nao contra um padrao absoluto.
-
-**Aplicado:** o paragrafo dos quatro fundamentos do Cap. 5 agora faz a alegacao mais fraca e correta (a triagem e
-relativa), cita o teto medido, e o **Apendice D** novo carrega a tabela e as duas leituras. Nenhum numero de encoder
-mudou; todos continuam vindo do `leak_sniff_fl.csv` e do
-`leak_sniff_resln_fl.csv`. Dois termos novos entraram no GLOSSARY (**label-only ceiling** e **clean reference encoder**)
-exatamente para que nao voltem a ser trocados um pelo outro.
-
-**Limites de cobertura, declarados no apendice:** (i) **Texas nao entra** — o
-`output/check2hgi/texas/temp/` nao tem `checkin_graph.pt` nem `sequences_next.parquet` (so as saidas de embedding do
-engine de design), entao o teto la exigiria re-rodar o pre-processamento; (ii) **Istanbul** tem 196 de 29.816 lugares
-com mais de uma categoria (venues recategorizados ao longo do tempo); usei a categoria modal, e descartar os ambiguos
-move o teto em menos de um milesimo (0,3009 contra 0,3016).
-
-**O que ainda NAO fecha, e por que eu nao rodei a sonda nos outros datasets.** Os outros dois limites declarados no Cap.
-5 continuam de pe e a sonda nao os resolve: ela e **linear** (e o
-`RESCREEN.md:94` documenta um encoder que passou no gate linear e vazou sob modelo sequencial), e mediria os **mesmos
-builds ancestrais**, nao a linhagem entregue. Rodar a sonda em AL/AZ/CA/IST agora produziria numeros comparaveis ao
-teto — isso ficou possivel — mas a comparacao interessante (a linhagem que gerou os resultados do Cap. 5) exige
-re-exportar aquela linhagem. **DECISAO:** quer que eu rode a sonda nos quatro datasets que agora tem teto, aceitando que
-ela mede os builds ancestrais? (o ambiente `leakprobe` esta pronto; e barato)
-> DECISAO: Vamos deixar esse ponto em aberto e por hora pode executar a sonda. Mas, eu terei uma discussão futura sobre
-> ter ou não ter o appendix D, apesar de seu intuito ser interessante da forma como ele tá escrito hoje está confuso; se
-> alguém pega para ler só o appendix D, ele por si só está bem confuso de ler e dificil de acompanhar e entender as
-> métodologias. Eu estou inclando em remover ele, e usar alguma errata ou frase para falar sobre esse potno de forma
-> mais breve. Mas, e algo que eu ainda vou refletir.
-
-### 3.5 Higiene do repositorio, herdada (REV-007)
-
-Dois itens claim-neutros que a auditoria estatistica anterior deixou abertos e que nao toquei porque estao dentro de
-registros de resultado:
-
-1. **Falta um gerador.** A entrada §8 de 2026-07-18 imprime os ICs exatos que os capitulos carregam, e todos reproduzem
-   a partir dos arrays commitados, entao os valores sao solidos. Mas nenhum script commitado emite aquela entrada: o
-   gerador da rodada joint-best nao esta na arvore.
-2. **Docstrings.** `superiority_wilcoxon.py` e `m1_stats_n20.py` ainda afirmam um registro que o protocolo nao contem, e
-   o `stats_n20/RESULTS.md` §1b repete. Higiene, sem efeito em alegacao.
-
-> DECISAO: Pode fazer essa correções entra como parte das melhorias de organizções que cite acima.
-
----
+Aplicado. (1) Os docstrings do `superiority_wilcoxon.py` e do `m1_stats_n20.py` afirmavam um
+registro que o `STATISTICAL_PROTOCOL.md` nao contem: o protocolo fixa a tarefa de regiao em
+**nao-inferioridade** (`:44`, `:213-215`), nunca em superioridade. Cada um agora separa o que e
+registrado (superioridade de categoria) do que e **post-hoc** (superioridade de regiao), citando
+as linhas do protocolo. As alegacoes continuam reportadas; so o footing foi corrigido. Isso ja
+estava no log como D-4 e nunca tinha sido feito. (2) O `MACS_BOARD_RESULTS.md:47` dizia que o
+HMT-GRN supera o piso de Markov. Verifiquei contra os dois pisos: no piso atual o piso esta acima
+do HMT-GRN em 5 de 5 estados americanos, e **no piso antigo ja estava acima em 3 de 5** (CA, TX,
+FL). Ou seja, a alegacao sem qualificacao nunca foi verdadeira. Os dois pisos agora aparecem
+tabelados com a janela e a fonte de cada um. Commit `f978b16b`.
 
 ## Notas de rodape uteis
 

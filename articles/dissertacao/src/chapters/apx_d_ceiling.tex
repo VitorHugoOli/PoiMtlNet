@@ -15,9 +15,7 @@
 
 This appendix answers one question. How much of the next category can be predicted from the
 category history of the input window alone, without reading any representation at all? The answer
-fixes how strong a screening argument in Chapter~\ref{ch:mobiwac} can honestly be, because two
-different quantities have both served as that argument's reference level and have both been called
-the ceiling.
+fixes how strong a screening argument in Chapter~\ref{ch:mobiwac} can honestly be.
 
 The screening procedure works as follows. For each candidate representation, a linear model is
 trained to predict the next category from the vector of the last visit in the window alone, and the
@@ -26,7 +24,12 @@ candidate scoring far above that reference encoder is suspected of carrying the 
 to predict, and is discarded. The probe is run twice, once on standardized features and
 once on raw ones, and either run can disqualify a candidate.
 
-Two quantities are involved in that comparison. Each is given one name here and keeps it.
+All scores in this appendix are macro-F1 on a zero-to-one scale, and differences between them are
+quoted in points, where one point is $0.01$ on that scale.
+
+Two quantities are involved in that comparison. Both have served as the screen's reference level
+at different times, and both have been called the ceiling, which is the confusion this appendix
+exists to remove. Each is given one name here and keeps it.
 
 \begin{description}
   \item[The label-history benchmark.] The best macro-F1 obtained from the recorded category
@@ -34,9 +37,11 @@ Two quantities are involved in that comparison. Each is given one name here and 
         so this is a property of the sequence of category labels. It is what this appendix
         measures.
   \item[The clean reference encoder.] The encoder that a screened candidate is actually compared
-        against, and the score the screening margin is applied to. At Florida it is a graph
-        encoder from the same lineage as the representation of Chapter~\ref{ch:mobiwac}, at
-        $0.4090$ macro-F1 on standardized features and $0.4074$ on raw ones.
+        against, and the score the screening margin is applied to. Two encoders play this role at
+        Florida, both from the lineage the representation of Chapter~\ref{ch:mobiwac} descends
+        from: one at $0.4090$ macro-F1 on standardized features and $0.4074$ on raw ones, and a
+        residual variant at $0.4197$ and $0.4182$. Where the two are discussed together below,
+        they are named in the plural for that reason.
 \end{description}
 
 The benchmark is measured under four predictors that see category labels and nothing else. The

@@ -12,6 +12,9 @@ EIGHT times, every one of them from an edit that inserted an audit comment:
   2_fundamentals.tex:366    ", Nash-MTL treats"                       (3 words)
   6_conclusion.tex:105      "a capacity-matched dedicated baseline..." (7 words)
   apx_b_errata.tex:188      "The emphasis convention of the..."        (9 words)
+  6_conclusion.tex:110      "Second,"                                  (ONE word, and the tool was
+                            already in place and still missed it: the word floor was 2, so a
+                            swallowed sentence-opener slipped under it)
 
 THE ROOT CAUSE IS ALWAYS THE SAME: a comment block written without a trailing newline, so the body
 line that followed got pulled onto the last comment line.
@@ -91,8 +94,15 @@ def suspects_in(path: Path, pdf: str) -> list[tuple[int, str, str]]:
         if not m:
             continue
         tail = m.group(1).strip().lstrip(",").strip()
-        if len(words(tail, 6)) < MIN_TAIL_WORDS:
-            continue
+        n_words = len(words(tail, 6))
+        if n_words < MIN_TAIL_WORDS:
+            # A ONE-WORD tail is still a real tear when the following line opens lowercase: that is
+            # a sentence whose first word was swallowed. This is how 'Second,' escaped at
+            # 6_conclusion.tex:110 while the floor was 2 -- the ninth instance of this bug, and the
+            # first the tool was in place for and still missed.
+            nxt_peek = lines[i + 1].strip() if i + 1 < len(lines) else ""
+            if not (n_words == 1 and re.match(r"[a-z]", nxt_peek)):
+                continue
         # CONTINUATION TEST: real trapped prose is a torn fragment, so the NEXT source line is body
         # text that continues the same sentence. Two things follow, and both are required:
         nxt = lines[i + 1].strip() if i + 1 < len(lines) else ""

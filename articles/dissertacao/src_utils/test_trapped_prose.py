@@ -57,6 +57,11 @@ CASES = [
         "bolds the better of the joint and single-task models per row and never bolds the HMRM",
     ], "audited and the other was not. bolds the better of the joint and single-task models", True),
 
+    ("6_conclusion:110: ONE-word tail, swallowed sentence-opener (found 2026-07-27 by persona 16)", [
+        "% rests on the freeze control and the capacity-matched control. [NEEDS SIGN-OFF: AUTHOR] Second,",
+        "a capacity-matched dedicated baseline, run after the Chapter 5 manuscript was submitted",
+    ], "we do not offer the ablation as evidence that the trunk contributes nothing. a capacity-matched dedicated baseline", True),
+
     # --- negatives: things that MUST NOT be flagged -------------------------------------------
     ("negative: ordinary multi-line comment block", [
         "% [round4, REV-021] Mechanical re-typeset, not a content departure. The published sentence",
