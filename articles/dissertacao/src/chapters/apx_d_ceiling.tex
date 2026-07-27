@@ -22,9 +22,8 @@ the ceiling.
 The screening procedure works as follows. For each candidate representation, a linear model is
 trained to predict the next category from the vector of the last visit in the window alone, and the
 macro-F1 it reaches is compared against the score a reference encoder reaches on the same task. A
-vector that encodes only the past cannot predict the next category better than the past itself
-allows, so a candidate scoring far above that reference encoder is suspected of carrying the label it is
-supposed to predict, and is discarded. The probe is run twice, once on standardized features and
+candidate scoring far above that reference encoder is suspected of carrying the label it is supposed
+to predict, and is discarded. The probe is run twice, once on standardized features and
 once on raw ones, and either run can disqualify a candidate.
 
 Two quantities are involved in that comparison. Each is given one name here and keeps it.
