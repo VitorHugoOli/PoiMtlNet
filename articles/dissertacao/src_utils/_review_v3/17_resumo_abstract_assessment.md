@@ -70,11 +70,15 @@ Three observations the table does not show on its own.
 1. **`UFV_COMPLIANCE.md` §2 imposes no word limit**, and I found none in the local norm
    extraction. So length is not a compliance question. It is a standards-against-peers question,
    and against peers we are the outlier.
-2. **Only two exemplars carry a Resumo at all.** Viegas (p. 5) and Germano (p. 2) render the
-   Abstract only; neither PDF contains the string `RESUMO` or `Palavras-chave` on any page. Both
-   are pre-deposit builds, and `exemples/viegas/VIEGAS_ANALYSIS.md:95-96` already records this and
-   warns against copying it. Our pair rendering both languages is correct and is a point over the
-   two closest structural precedents.
+2. **Three of the five exemplars carry a Resumo; two do not.** Canesche (p. 7), Passe (p. 7) and
+   Dorigueto (p. 6) render both languages, as the table above shows, so rendering the pair is the
+   majority precedent and ours follows it. The two that lack one are **Viegas (p. 5) and Germano
+   (p. 2)**, which render the Abstract only; neither PDF contains the string `RESUMO` or
+   `Palavras-chave` on any page. Both are pre-deposit builds, and
+   `exemples/viegas/VIEGAS_ANALYSIS.md:95-96` already records this and warns against copying it.
+   That matters here because those two are the closest precedents on other axes, Viegas
+   structurally and Germano by program and advisor, so our pair rendering both languages is a
+   point over them specifically rather than over the exemplar set as a whole.
 3. **The limitation column is "No" for all five exemplars.** Ours is "Partial": both blocks
    disclose the resampling scope in the protocol clause ("um único conjunto fixo de cinco
    partições" / "one fixed set of five folds"). That is a real honesty device none of the
@@ -227,7 +231,7 @@ place. Whichever is chosen, it must be applied to **both** blocks: right now the
 | Term | Resumo (PT) | Abstract (EN) | Assessment |
 |---|---|---|---|
 | `check-ins` | italic | italic | **Correct in PT, unearned in EN.** In Portuguese, italicizing a foreign loanword at first use is what a Brazilian committee expects. In English, `check-ins` is an English word inside English prose; the italic marks nothing. None of the four exemplar abstracts italicizes its own-language technical terms (Germano writes "Points of Interests (POIs)" roman; Canesche writes "(CGRAs)" roman). |
-| `embedding` | italic, inside a gloss | (term not used) | **Earned. Protect.** See below. |
+| `embedding` | italic, inside a gloss | **roman**, bare ("a place-level embedding as input") | **PT arrival earned, protect it** (see below). The EN side uses the same term unmarked, which is correct for English prose but makes this the second term whose emphasis differs across the pair. |
 | `joint-best` | italic | **roman** | Inconsistent across the pair. Same term, same claim, two conventions. |
 | `checkpoint` | absent | absent | Does not exist (§0a). |
 

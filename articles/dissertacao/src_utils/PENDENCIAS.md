@@ -103,6 +103,55 @@ Os dois BLOCKERs delas foram corrigidos. Sobram dois pontos que sao decisao sua:
 
 ---
 
+## BLOCO 0d — persona 17 sobre o Resumo e o Abstract (voce pediu esta avaliacao)
+
+**Voce perguntou se rodei a revisao do par contra os exemplares e as boas praticas. Rodei agora.**
+Parecer completo em [`_review_v3/17_resumo_abstract_assessment.md`](_review_v3/17_resumo_abstract_assessment.md).
+
+**Veredito dela:** *abaixo* do padrao dos exemplares como estava renderizado, *acima* em substancia — e
+os dois BLOCKERs que produziam esse "abaixo" eram os meus quatro trechos rasgados, ja corrigidos.
+
+**A medicao que responde a sua pergunta**, todos os dez textos extraidos dos PDFs e normalizados igual:
+
+| Texto | Palavras | Frases | Media | Mais longa | Fatos quantitativos |
+|---|---:|---:|---:|---:|---:|
+| **nosso Resumo** | **484** | 10 | **48,4** | **111** | **21** |
+| **nosso Abstract** | **407** | 10 | **40,7** | **99** | **20** |
+| Germano 2024 | 214 | 10 | 21,4 | 29 | 0 |
+| Viegas 2026 | 200 | 8 | 25,0 | 33 | 3 |
+| Canesche 2021 | 257 / 243 | 11 / 12 | 23,4 / 20,2 | 36 / 33 | 5 |
+| Passe 2020 | 229 / 193 | 10 / 10 | 22,9 / 19,3 | 35 / 36 | 1 |
+| Dorigueto 2021 | 282 / 225 | 8 / 6 | 35,2 / 37,5 | 68 / 61 | 3 |
+
+**Envelope dos exemplares:** 193 a 282 palavras (mediana 227). O nosso Resumo e **2,1x a mediana**, e a
+frase mais longa dele (111 palavras) e **1,6x** a maior frase de qualquer um dos dez textos. Nenhuma norma
+e violada — nao ha limite de palavras. E comparacao com os pares, e nesse eixo somos o ponto fora.
+
+**Um ponto a nosso favor que ela achou:** Viegas e Germano — justamente os dois precedentes mais proximos
+— **nao renderizam Resumo**, so Abstract. O nosso par bilingue esta acima deles nesse aspecto.
+
+**Ja corrigi um achado MAJOR dela, porque era lei quebrada e nao gosto:** o par dizia "proximo lugar
+visitado" / "next place visited", e **next place** e termo RESERVADO no `GLOSSARY.md` para a tarefa de POI
+exato que a dissertacao nao estuda. A colisao caia na p. 3, muito antes do desmentido do corpo chegar ao
+leitor na p. 14. Trocado pela frase que o proprio corpo usa ("proximo lugar a ser visitado" / "next
+visited place"): mesmo sentido, zero alegacao movida.
+
+**O que sobrou para voce decidir**, e agora com numero em maos:
+
+1. **Cortar mais ~250 palavras do Resumo** para entrar no envelope dos exemplares. Isso mexe em alegacao,
+   entao e seu. A persona aponta onde: o protocolo estatistico completo no abstract (MAJOR-4, "surplus")
+   e a frase de 111 palavras.
+2. **MAJOR-3, o que falta:** ela diz que o par **nunca nomeia o que a dissertacao construiu**. Um leitor
+   que le so o resumo nao sai sabendo o nome do artefato.
+3. **MAJOR-1:** `joint-best` aparece **so** no Resumo e no Abstract e em nenhum outro lugar do documento
+   — uma insercao que nao se paga, exatamente o tipo de coisa que o seu orientador apontou.
+4. **MINOR-1:** o Resumo italiciza tres termos ingleses e o Abstract um so; num par de paridade a
+   convencao devia ser a mesma.
+
+> DECISAO: __________________________________________________
+
+---
+
 ## BLOCO 0c — o que a persona 03 achou, e uma correcao minha grave
 
 ### Quatro frases rasgadas no Resumo e no Abstract — **CORRIGIDO**, e eu havia relatado errado
