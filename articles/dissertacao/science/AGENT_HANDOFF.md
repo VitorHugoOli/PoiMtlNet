@@ -66,6 +66,26 @@ including under edits whose whole purpose was to fix it.)
 - **When you edit:** end every comment block with a newline before the prose resumes. Then rebuild
   and run the gate. Do not assume.
 
+### 2.1b A torn sentence: the opening clause simply gone (FOUR instances, in the Abstract)
+
+A distinct defect from 2.1, and one the trapped-prose detector cannot see. Compressing a block, an
+assistant replaced a span that ENDED at a sentence terminator, and the replacement dropped the
+following sentence's opening clause. Nothing is trapped anywhere; the text is absent, the line above
+is ordinary body text, and the build is clean. It rendered on pages 3 and 4 as:
+
+> "... through multi-task learning (MTL). **sharing parameters** between tasks can hurt one of them ..."
+
+Four instances, all in the Resumo and Abstract, i.e. the first prose a committee member reads. Found
+by persona 03 reading the front matter **as rendered prose**, not as source.
+
+- **Gate:** `src_utils/check_torn_sentences.py` — a body line opening with a lowercase word whose
+  preceding non-blank body line ends in a sentence terminator. Validated both ways: zero on the
+  repaired tree, exactly the four real defects when reintroduced. In `check.sh`.
+- **The subtler lesson.** Those deletions had *closed a near-blank page*, and I reported the closure
+  as a compression success. The page had closed because text was **missing**, not because the text was
+  tighter. When a layout problem resolves after an edit, confirm the resolution came from the change
+  you intended.
+
 ### 2.2 A no-op substitution read as a measurement (TWICE)
 
 A parameter sweep whose arms never applied returns identical results across arms, and identical
@@ -213,7 +233,8 @@ saying so with evidence is part of the job.
 cd articles/dissertacao
 ./src_utils/build.sh src both      # defense + final; reports pages, overfull, undefined, oversized floats
 cp src/build/main.pdf src/dissertacao.pdf
-./src_utils/check.sh               # sweep-guard tests, page-count sync, trapped-prose fixtures, style lint
+./src_utils/check.sh               # sweep-guard tests, page-count sync, trapped-prose fixtures,
+                                   # torn-sentence check, style lint
 python3 src_utils/sync_page_counts.py --write   # if the page count moved
 ```
 

@@ -81,6 +81,15 @@ if ! python3 "$UTILS/sync_page_counts.py"; then
   FAIL=1
 fi
 
+echo "== torn sentences (a body line opening mid-sentence: the clause before it is GONE) =="
+# A DIFFERENT defect from trapped prose: nothing is trapped, the opening clause is simply absent, and
+# the build is clean. Found 2026-07-27 by persona 03 in the Resumo and Abstract (rendered pp. 3-4,
+# four instances), introduced by an assistant compressing those blocks. The trapped-prose detector
+# cannot see it, because there is no comment involved. Rule proposed by persona 03 and implemented
+# as specified. Validated both ways: 0 on the repaired tree, exactly the 4 real defects when
+# reintroduced.
+if ! python3 "$UTILS/check_torn_sentences.py"; then FAIL=1; fi
+
 echo "== prose trapped inside a % comment (silent: builds clean, reader sees a broken sentence) =="
 # Has happened twice: apx_a_contributions.tex, and 4_courb.tex:187 where half a PUBLISHED
 # methodology sentence was appended to a comment tail and three method facts stopped rendering.

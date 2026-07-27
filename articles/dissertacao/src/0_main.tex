@@ -205,8 +205,8 @@ degree of \textit{Magister Scientiae}.}
     de um usuário a um ponto de interesse (POI) em um dado instante. Antecipar duas propriedades da próxima visita, a categoria do
     próximo lugar visitado e a região onde ela ocorrerá, permite que um serviço sensível à mobilidade
     aja antes da visita, e as duas tarefas leem o mesmo histórico, de modo que um único modelo
-    poderia aprendê-las em conjunto por meio de aprendizado multitarefa (MTL).
-    entre tarefas pode prejudicar uma delas, um modo de falha conhecido como
+    poderia aprendê-las em conjunto por meio de aprendizado multitarefa (MTL). A promessa, contudo,
+    não é automática: compartilhar parâmetros entre tarefas pode prejudicar uma delas, um modo de falha conhecido como
     transferência negativa, e se o treinamento conjunto ajuda esse par de tarefas de
     previsão sobre POIs, e do que a resposta depende, era uma questão em aberto quando
     esta pesquisa começou. Esta dissertação responde a essa pergunta ao longo de três
@@ -234,7 +234,7 @@ degree of \textit{Magister Scientiae}.}
     dos Estados Unidos e Istambul, por 5,3 a 9,4 pontos de macro-F1 sob uma seleção
     \emph{joint-best}, e, na tarefa da próxima região, supera em quatro dos seis conjuntos e
     equipara-se estatisticamente, com não-inferioridade dentro de uma margem de dois pontos de
-    Acc@10 (TOST), nos outros dois.
+    Acc@10 (TOST), nos outros dois. A resposta é, portanto,
     condicional, e a condição é o achado: se o aprendizado multitarefa ajuda a previsão
     sobre pontos de interesse depende da representação de entrada e da topologia de
     compartilhamento construída sobre ela.
@@ -297,8 +297,8 @@ degree of \textit{Magister Scientiae}.}
     to a point of interest (POI) at a given time. Anticipating two properties of the
     next visit, the category of the next place visited and the region where it will happen, lets a
     mobility-aware service act before the visit, and the two tasks read the same trace, so one model
-    could learn them together through multi-task learning (MTL).
-    sharing parameters between tasks can hurt one of them, a failure mode known as
+    could learn them together through multi-task learning (MTL). The promise, however, is not
+    automatic: sharing parameters between tasks can hurt one of them, a failure mode known as
     negative transfer, and whether joint training helps this pair of POI prediction
     tasks, and what the answer depends on, was unresolved when this research started.
     This dissertation answers that question across three studies, presented as a
@@ -323,7 +323,7 @@ degree of \textit{Magister Scientiae}.}
     all six datasets studied, five states of the United States and Istanbul, by 5.3 to 9.4 macro-F1
     points under a joint-best selection, and, on the next-region task, outperforms at four of six
     datasets and statistically matches, with non-inferiority within a two-point Acc@10 margin
-    (TOST), at the other two.
+    (TOST), at the other two. The answer is therefore conditional, and the
     condition is the finding: whether multi-task learning helps point-of-interest
     prediction depends on the input representation and the sharing topology built on it.
     % [NEEDS SIGN-OFF: abstract wording, author caveats 2.1/3-4-5, 2026-07-24]
