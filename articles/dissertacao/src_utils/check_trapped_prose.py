@@ -33,11 +33,23 @@ candidate to look like a continuation of the surrounding document rather than a 
 the words must run on into the NEXT source line, which is what makes it a torn sentence rather
 than a self-contained remark.
 
-VALIDATION, both directions, against build-fresh PDFs:
-  repaired tree      -> 0 findings
-  /tmp/tp2 (rebuilt) -> catches 5_mobiwac:385, 4_courb:311, 4_courb:362
-  /tmp/tp4 (rebuilt) -> catches apx_a_contributions:57, 4_courb:198
-  the three short cases above -> caught (they are why this version exists)
+VALIDATION. Do not write a validation record here before running it. An earlier version of this
+docstring listed results for a detector version that had never been executed, and the first real run
+of it contradicted the record. The durable claim is therefore the FIXTURE SUITE, not prose:
+
+    python3 src_utils/test_trapped_prose.py
+
+That suite carries all six historical defects plus three negatives, it runs in the repository rather
+than in a scratch tree that gets swept, and check.sh runs it BEFORE this checker so a clean document
+is not reported as evidence when the checker itself is broken.
+
+Runs executed against THIS version, 2026-07-27:
+  fixtures (src_utils/test_trapped_prose.py)     -> 9/9 pass
+  repaired tree (this repository)                -> 0 suspects
+  the true pre-fix tree, reconstructed by
+  `git archive 70d3888d` into a scratch dir      -> exactly 3 suspects:
+       2_fundamentals.tex:366, 6_conclusion.tex:105, apx_b_errata.tex:188
+Reconstructing the defect state from the commit is the reproducible check; a /tmp copy is not.
 
 Exit 1 if any suspect is found, so this can gate a build.
 """

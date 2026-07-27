@@ -57,8 +57,16 @@ else
   # being tuned on the cases in front of it, so a green document means nothing unless the checker
   # still catches every defect that has actually shipped.
   if [ -f "$FIXTURES" ]; then
-    if ! python3 "$FIXTURES" | tail -1; then
+    # Capture the OUTPUT and the EXIT STATUS separately. Do NOT pipe into tail here: without
+    # `set -o pipefail` a pipeline reports the status of its LAST command, so `python3 ... | tail -1`
+    # always returns 0 and the failure branch below becomes unreachable. That defect shipped once,
+    # in a commit that advertised this very block as a gate.
+    FIXTURE_OUT="$(python3 "$FIXTURES" 2>&1)"
+    FIXTURE_RC=$?
+    echo "$FIXTURE_OUT" | tail -1
+    if [ "$FIXTURE_RC" -ne 0 ]; then
       echo "  ^ detector fixtures FAILED — the checker itself is broken, its result is not evidence"
+      echo "$FIXTURE_OUT" | grep '^FAIL' | sed 's/^/    /'
       FAIL=1
     fi
   fi
