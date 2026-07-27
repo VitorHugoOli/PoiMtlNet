@@ -127,9 +127,12 @@ the internal screening record does, would assert more than the measurement suppo
 
 Two coverage limits apply. Texas is absent because the check-in graph the computation reads was not
 retained for that dataset under the shipped representation. Only its embedding outputs remain, and
-measuring the benchmark there would require re-running the preprocessing. For Istanbul, 196 of the
-29,816 places carry more than one category across the record, because those places were
-re-categorized over time. The table maps each place to its most frequent category. A strict variant
+measuring the benchmark there would require re-running the preprocessing. For Istanbul, 196 of the 29,816 places carry more than one category across the
+record. The reason is not recorded in the data, so none is claimed here.
+% [round5, persona 16] The previous clause said "because those places were re-categorized over
+% time", asserting a mechanism the artifact does not contain: autocorrelation_ceiling.json records
+% places_multi_category 196 of places 29816 and nothing about why. Claim removed, count kept.
+ The table maps each place to its most frequent category. A strict variant
 that instead drops every window ending at one of those places keeps 55,946 of the 58,075 windows
 and gives $0.3009$, against the $0.3016$ of the table.
 
