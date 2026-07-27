@@ -240,8 +240,9 @@ The contributions of this dissertation fall into four groups.
         chapters.
   \item[Empirical.] A six-dataset benchmark of joint versus dedicated models for next
         category and next region prediction under user-disjoint cross-validation,
-        with twenty fitted models per configuration (four seeds over one fixed set of
-        five folds), paired significance tests on the four per-seed means, that is,
+        with twenty fitted models per configuration (four seeds, each a complete
+        repetition of the five-fold experiment with a different random initialization, over one
+        fixed set of five folds), paired significance tests on the four per-seed means, that is,
         four paired observations, non-inferiority margins, and a leakage audit. All
         four seeds reuse the same fold partition, so the reported intervals do not
         cover uncertainty over resampled user splits.
@@ -255,3 +256,9 @@ The contributions of this dissertation fall into four groups.
         outperforming or remaining non-inferior to them on the region task, with the
         operational simplicity of a single artifact and a single forward pass.
 \end{description}
+
+% [round5, persona 03 S3-05] "seed" first reached the reader here, on rendered p. 16, while its
+% definition sits at 5_mobiwac.tex:388 on p. 66 -- a fifty-page forward dependency in a frame
+% chapter, where WRITING_LAW's define-at-first-use rule is in full force. The gloss added here uses
+% the registry's own wording, so Ch.5's definition is unchanged and stays canonical. The Abstract and
+% Resumo already comply by writing "random initializations" instead of the bare term.

@@ -103,6 +103,69 @@ Os dois BLOCKERs delas foram corrigidos. Sobram dois pontos que sao decisao sua:
 
 ---
 
+## BLOCO 0e — o veredito da persona 03: **GATE FAIL**, e o que ela achou sobre o ponto do orientador
+
+Relatorio: [`_review_v3/03_style_auditor_report.md`](_review_v3/03_style_auditor_report.md).
+Ela aplicou o glossario do MobiWac linha por linha: **24 das 26 regras passam.** As duas violacoes
+`never` eram as de "cell" nas nossas proprias alegacoes, **ja corrigidas** (`7eec1766`).
+
+**A distincao que voce intuiu esta confirmada por medicao:** todos os nove usos de "activity" no
+documento descrevem alvos de **outros** sistemas (MCARNN, CSLSL, DRRGNN, iMTL, MTPR) e **zero**
+descrevem as nossas tarefas; os tres usos de "Pareto" nomeiam a propriedade do MGDA. `arm` esta em zero.
+
+### O ponto do orientador, localizado em dois capitulos por dois motivos diferentes
+
+Ela operacionalizou *"soa estranho o jeito que alguns termos sao inseridos"* em cinco testes mediveis, e
+o resultado nao e difuso — **localiza**:
+
+**Cap. 2 — nomes de metodo que aparecem uma vez e nunca mais.** Ele introduz **14 dos 25** nomes
+use-once do documento, com **nove balanceadores em vinte e uma linhas** (`:315-335`), dos quais **so o
+Nash-MTL volta a ser usado**. Um leitor recebe nove nomes proprios em sequencia e nao precisa de nenhum
+depois.
+
+**Cap. 5 — empilhamento de glosas.** Carrega **todas as seis** do documento; a pior em `:409` (tres
+definicoes parenteticas e quatro numeros numa frase) e `:206-211` (uma parentese de 40 palavras dentro
+de uma alegacao).
+
+### ~~`seed` usado quatro capitulos antes de ser definido~~ — CORRIGIDO
+
+Definido em `5_mobiwac.tex:388` (p. 66), mas a **primeira** aparicao era `1_introduction.tex:243`
+(**p. 16**) — cinquenta paginas de dependencia para frente, num capitulo de moldura onde o
+`WRITING_LAW` vale integralmente. Adicionei a glosa com a redacao do proprio registro; a definicao do
+Cap. 5 fica intacta e continua canonica. O Resumo e o Abstract ja cumpriam, escrevendo "random
+initializations".
+
+### Cap. 4 italiciza ingles corriqueiro **155 vezes** — e uma decisao sua, nao 155
+
+`\textit`/`\emph` por capitulo: Ch.1 6, Ch.2 6, Ch.3 23, **Ch.4 155**, Ch.5 10, Ch.6 0, Apx B 12.
+Nao e terminologia em primeiro uso, e vocabulario corrente: `embedding` x18, `baseline` x16,
+`encoders` x15, `encoder` x14, `embeddings` x12. **E inconsistente consigo mesmo:** `encoder` italico
+14 / romano 9, `baseline` italico 16 / romano 4 — e num **unico paragrafo da p. 43** aparecem
+"encoders" romano e "*encoder*" italico a 336 caracteres de distancia.
+
+**A causa e legitima e a consequencia nao:** isso vem do artigo em portugues, onde italicizar
+estrangeirismo e a pratica correta. Num capitulo **em ingles** a mesma marcacao nao marca mais
+estrangeirismo — le-se como enfase numa palavra que nao tem nenhuma. **E um candidato forte para o que
+o seu orientador marcou.**
+
+Nao toquei porque e uma decisao de politica sua, e e **uma** decisao:
+
+- **(a)** tirar o italico de tudo que e ingles corriqueiro num capitulo em ingles, mantendo so os sete
+  rotulos de categoria (`Food`, `Nightlife`...) e os nomes de metodo em primeiro uso;
+- **(b)** manter como esta, declarando no prefacio do Cap. 4 que a tipografia do artigo publicado foi
+  preservada — o que e defensavel sob o regime de errata, mas deixa a inconsistencia interna de pe;
+- **(c)** normalizar so os casos que aparecem nos dois formatos, o que resolve a inconsistencia sem
+  mexer no resto.
+
+Minha recomendacao e **(a)**, e o Apendice B declara como mudanca mecanica. Mas a nota de fidelidade de
+traducao (`08_translation_fidelity_report.md:443`) registra que o italico em `embedding` foi
+**preservado deliberadamente**, entao isto e revisitar uma decisao com motivo, nao consertar um
+descuido.
+
+> DECISAO (a / b / c): __________________________________________________
+
+---
+
 ## BLOCO 0d — persona 17 sobre o Resumo e o Abstract (voce pediu esta avaliacao)
 
 **Voce perguntou se rodei a revisao do par contra os exemplares e as boas praticas. Rodei agora.**
