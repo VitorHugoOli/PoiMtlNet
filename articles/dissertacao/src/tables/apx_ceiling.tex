@@ -1,7 +1,11 @@
 % apx_ceiling.tex -- extracted from chapters/apx_d_ceiling.tex (round5, author decision 1.1).
 % Included with \input{tables/apx_ceiling}. Float placement, caption and every value
-% are byte-identical to the version that was inline; the extraction was verified by
-% comparing the rendered PDF checksum before and after.
+% are byte-identical to the version that was inline. The extraction was verified by building the
+% pre-extraction tree with the same prose edits applied and comparing the RENDERED TEXT of both PDFs
+% (pypdfium2 text layer): 260,848 characters each, identical. [correction] These headers previously
+% claimed a 'rendered PDF checksum' comparison. No checksum comparison was ever run, and it would
+% not have matched: the PDF bytes changed (1,322,758 -> 1,323,852) because this commit also carries
+% a prose edit. Caught in review; the claim now names the check that was actually performed.
 \begin{table}[htbp]
 \caption{The label-history benchmark for next-category prediction, by dataset. Each predictor
 column sees only the recorded category history of the nine-visit input window; no representation is

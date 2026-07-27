@@ -234,33 +234,33 @@ e o lugar certo para a medicao acima. Autoriza?
 
 **MINHA RESPOSTA A SUA PERGUNTA ("o que acha?"), 2026-07-27.**
 
-**Concordo com o apendice, e a sua leitura tecnica esta correta em todos os tres pontos.** Confirmei
-cada um contra o codigo antes de responder:
+**Concordo com o apendice, e a sua leitura tecnica esta correta em todos os tres pontos.** Confirmei cada um contra o
+codigo antes de responder:
 
-1. **O DGI do CBIC nao tem o problema.** `research/embeddings/dgi/preprocess.py:112-133` monta a
-   feature de no como a **media dos one-hots dos vizinhos, excluindo o proprio no**. O rotulo do no
-   nao entra na sua propria representacao. Voce estava certo em separar os dois casos.
+1. **O DGI do CBIC nao tem o problema.** `research/embeddings/dgi/preprocess.py:112-133` monta a feature de no como a
+   **media dos one-hots dos vizinhos, excluindo o proprio no**. O rotulo do no nao entra na sua propria representacao.
+   Voce estava certo em separar os dois casos.
 2. **O HGI do CoUrb tem.** O `poi2vec` consome `fclass`, e eu medi: **275 valores distintos de
-   `fclass`, cada um mapeando para exatamente uma das 7 categorias, zero ambiguidade**. O `fclass` e
-   um refinamento estrito do rotulo-alvo, logo determina o alvo. O revisor de mobilidade re-derivou
-   isso independentemente **nos cinco estados**, o que e mais forte do que a minha medicao num.
+   `fclass`, cada um mapeando para exatamente uma das 7 categorias, zero ambiguidade**. O `fclass` e um refinamento
+   estrito do rotulo-alvo, logo determina o alvo. O revisor de mobilidade re-derivou isso independentemente **nos cinco
+   estados**, o que e mais forte do que a minha medicao num.
 3. **O MobiWac ja resolve.** Voce trocou a representacao, e por isso o Cap. 5 nao herda o problema.
 
-**Onde eu discordaria da forma, nao do conteudo:** um apendice novo so para isto seria o **sexto**, e
-o documento ja tem cinco. A minha recomendacao e **inserir a discussao no Apendice B**, que e
-exatamente o instrumento para "o que o texto publicado diz x o que sabemos hoje", e apontar do
-prefacio do Cap. 4 para lá — a estrutura que voce propos, num apendice que ja existe. Se preferir um
-apendice proprio eu faco; e a sua chamada de forma.
+**Onde eu discordaria da forma, nao do conteudo:** um apendice novo so para isto seria o **sexto**, e o documento ja tem
+cinco. A minha recomendacao e **inserir a discussao no Apendice B**, que e exatamente o instrumento para "o que o texto
+publicado diz x o que sabemos hoje", e apontar do prefacio do Cap. 4 para lá — a estrutura que voce propos, num apendice
+que ja existe. Se preferir um apendice proprio eu faco; e a sua chamada de forma.
 
-**Por que eu nao escrevi ainda:** isto e uma afirmacao publica de que um resultado publicado do
-CoUrb, com o **Tarik como primeiro autor**, tem um vazamento de rotulo. Isso pede um aviso de
-cortesia a ele antes de entrar no documento, e esse aviso e seu para dar. Diga quando ele estiver
-ciente e eu escrevo — a medicao, o codigo e os numeros estao prontos e verificados.
+**Por que eu nao escrevi ainda:** isto e uma afirmacao publica de que um resultado publicado do CoUrb, com o **Tarik
+como primeiro autor**, tem um vazamento de rotulo. Isso pede um aviso de cortesia a ele antes de entrar no documento, e
+esse aviso e seu para dar. Diga quando ele estiver ciente e eu escrevo — a medicao, o codigo e os numeros estao prontos
+e verificados.
 
-> DECISAO (aviso ao co-autor dado? forma: Apendice B ou apendice proprio?): _______________________
+> DECISAO (aviso ao co-autor dado? forma: Apendice B ou apendice proprio?): Isso já está de acrodo com ele, podemos
+> adicionar isso no appendix B, mas deixe isso facil de ser comentado, vide que eu ainda vou discutir com meu orientador
+> sobre se argumentamos ou não quanto a isso.
 
-
-### 2.3 Conflito: sua decisao sobre Nash x instrucao do NORTH_STAR (REV-005)
+### 2.3 Conflito: sua decisao sobre Nash x instrucao do NORTH_STAR (REV-005) [!]
 
 **(A)** Voce decidiu: *"vamos ignorar esse erro ... para o cap. 3 nao adicionamos caveat nem errata."* Aplicado
 exatamente. Mas o `NORTH_STAR.md:146` lista **"Nash-MTL caveat as in Ch.3"** como item de honestidade **do Cap. 4**,
@@ -278,7 +278,7 @@ ordens suas.
 > critica. Assim, analise se há menções sobre isso no texto se tiver remova, e quanto ao North_star, podemos adicionar
 > minha decissão.
 
-### 2.4 PCGrad continua nomeado (REV-011)
+### 2.4 PCGrad continua nomeado (REV-011) [!]
 
 **(A)** Apliquei sua redacao, "at their default configurations", em `5_mobiwac.tex:185`. Mas o qualificador **nao cobre
 o PCGrad**: pelo audit (`T4_audit_and_verdict.md:26-31`), a exclusao dele e um resultado de **fiacao**, nao de
@@ -410,38 +410,35 @@ de saida para cada numero.
 > que estamos fazendo. Eu acho que o A e o com menor ganho, o B e o C, são opcionais interessantes. Como isso está sendo
 > feito nas dissertações de exemplos de excleencias que captamos ?
 
-**RESPOSTA MEDIDA A SUA PERGUNTA, 2026-07-27.** Voce perguntou como isso e feito nas dissertacoes de
-excelencia que captamos. Fui olhar nos cinco exemplares em `exemples/`, procurando cada um dos tres
-padroes no texto extraido:
+**RESPOSTA MEDIDA A SUA PERGUNTA, 2026-07-27.** Voce perguntou como isso e feito nas dissertacoes de excelencia que
+captamos. Fui olhar nos cinco exemplares em `exemples/`, procurando cada um dos tres padroes no texto extraido:
 
-| Exemplar | Paginas | (a) contribuicao→alegacao | (b) resultados consolidados | (c) reprodutibilidade |
-|---|---|---|---|---|
-| `lapsusvgi.pdf` | 77 | nao | nao | **sim** |
-| `canesche_2021.pdf` | 108 | nao | nao | **sim** |
-| `dissertacao_viegas_2026-02-09.pdf` | 100 | nao | nao | **sim** |
-| `passe.pdf` | 68 | nao | nao | nao |
-| `Dissertação_Mestrado___Germano.pdf` | 96 | nao | **sim** | **sim** |
-| **nosso** | **103** | nao | nao | parcial (Apendice D cita script + saida por numero) |
+| Exemplar                             | Paginas | (a) contribuicao→alegacao | (b) resultados consolidados | (c) reprodutibilidade                               |
+|--------------------------------------|---------|---------------------------|-----------------------------|-----------------------------------------------------|
+| `lapsusvgi.pdf`                      | 77      | nao                       | nao                         | **sim**                                             |
+| `canesche_2021.pdf`                  | 108     | nao                       | nao                         | **sim**                                             |
+| `dissertacao_viegas_2026-02-09.pdf`  | 100     | nao                       | nao                         | **sim**                                             |
+| `passe.pdf`                          | 68      | nao                       | nao                         | nao                                                 |
+| `Dissertação_Mestrado___Germano.pdf` | 96      | nao                       | **sim**                     | **sim**                                             |
+| **nosso**                            | **103** | nao                       | nao                         | parcial (Apendice D cita script + saida por numero) |
 
 **A medicao muda a minha recomendacao, e ela coincide com o seu instinto.**
 
-- **(a) tabela contribuicao→alegacao: nao facamos.** **Zero de cinco** exemplares tem. Voce disse que
-  o A e o de menor ganho e a evidencia concorda: nao e convencao do programa, e num documento em
-  formato de coletanea o mapeamento contribuicao→capitulo ja e explicito por construcao.
-- **(c) reprodutibilidade: e o unico que tem apoio empirico forte** — **quatro de cinco**, incluindo o
-  precedente do Germano com o mesmo orientador. E o Apendice D novo ja estabeleceu o padrao (cada
-  numero cita script e arquivo de saida), entao seria uma consolidacao de ~1 pagina, nao um texto novo.
-  **Se voce fizer um dos tres, faca este.**
-- **(b) resultados consolidados: um de cinco.** O Germano tem. E defensavel mas nao e convencao, e no
-  nosso caso a Tabela do Cap. 5 ja e o resultado consolidado do trabalho.
+- **(a) tabela contribuicao→alegacao: nao facamos.** **Zero de cinco** exemplares tem. Voce disse que o A e o de menor
+  ganho e a evidencia concorda: nao e convencao do programa, e num documento em formato de coletanea o mapeamento
+  contribuicao→capitulo ja e explicito por construcao.
+- **(c) reprodutibilidade: e o unico que tem apoio empirico forte** — **quatro de cinco**, incluindo o precedente do
+  Germano com o mesmo orientador. E o Apendice D novo ja estabeleceu o padrao (cada numero cita script e arquivo de
+  saida), entao seria uma consolidacao de ~1 pagina, nao um texto novo. **Se voce fizer um dos tres, faca este.**
+- **(b) resultados consolidados: um de cinco.** O Germano tem. E defensavel mas nao e convencao, e no nosso caso a
+  Tabela do Cap. 5 ja e o resultado consolidado do trabalho.
 
-**Sobre o seu receio de paginas:** estamos em **103**, contra 68 a 108 nos exemplares. Nao estamos
-longos; estamos no meio da faixa, e o Canesche com 108 e mais longo. Uma pagina de reprodutibilidade
-nao muda esse quadro. **A minha recomendacao: so o (c), e so quando o texto assentar** — ele
-inventaria scripts e seeds, entao escrever antes das ultimas edicoes garante retrabalho.
+**Sobre o seu receio de paginas:** estamos em **103**, contra 68 a 108 nos exemplares. Nao estamos longos; estamos no
+meio da faixa, e o Canesche com 108 e mais longo. Uma pagina de reprodutibilidade nao muda esse quadro. **A minha
+recomendacao: so o (c), e so quando o texto assentar** — ele inventaria scripts e seeds, entao escrever antes das
+ultimas edicoes garante retrabalho.
 
-> DECISAO: __________________________________________________
-
+> DECISAO: Concordo, vamos com a opc: C). E faça isso em cima do apendice D que já existe.
 
 ### Resolvidos desde aquele documento (registrado para nao reabrir)
 
@@ -512,31 +509,28 @@ questao de fidelidade, porque a figura pertence a um artigo publicado co-autorad
 **Feito nesta rodada.** Voce escolheu a rota (ii), o ajuste mecanico. Apliquei: `\needspace{7\onelineskip}`
 antes dos dois blocos de palavras-chave (PT e EN), com o pacote `needspace` carregado no preambulo.
 
-**O que isso resolveu:** o bloco de palavras-chave agora quebra **inteiro**. Antes a p. 4 tinha 14
-palavras, duas palavras-chave orfas separadas do rotulo; agora tem 21, o rotulo `Palavras-chave:` e as
-cinco entradas juntas. Um leitor ve um bloco deliberado, nao um resto.
+**O que isso resolveu:** o bloco de palavras-chave agora quebra **inteiro**. Antes a p. 4 tinha 14 palavras, duas
+palavras-chave orfas separadas do rotulo; agora tem 21, o rotulo `Palavras-chave:` e as cinco entradas juntas. Um leitor
+ve um bloco deliberado, nao um resto.
 
-**O que isso NAO resolveu, e nao ha como resolver mecanicamente:** a p. 4 continua quase em branco. O
-motivo, medido: o corpo do Resumo ocupa **496 palavras** e enche a p. 3 inteira. O bloco de
-palavras-chave nao cabe acima dele por nenhum ajuste de espacamento — nao ha espaco vertical para
-onde empurra-lo. `\clearpage`, `\vspace` negativo e reducao de `\onelineskip` foram considerados e
-descartados: os dois primeiros nao mudam o fato de a p. 3 estar cheia, e o terceiro mexeria no
-espacamento global do documento para consertar uma pagina.
+**O que isso NAO resolveu, e nao ha como resolver mecanicamente:** a p. 4 continua quase em branco. O motivo, medido: o
+corpo do Resumo ocupa **496 palavras** e enche a p. 3 inteira. O bloco de palavras-chave nao cabe acima dele por nenhum
+ajuste de espacamento — nao ha espaco vertical para onde empurra-lo. `\clearpage`, `\vspace` negativo e reducao de
+`\onelineskip` foram considerados e descartados: os dois primeiros nao mudam o fato de a p. 3 estar cheia, e o terceiro
+mexeria no espacamento global do documento para consertar uma pagina.
 
-**Portanto a rota (i) e a unica que remove a pagina, e ela e sua**, porque comprimir o Resumo mexe em
-alegacao. Numeros para a decisao: Resumo **496 palavras** de prosa, Abstract **493**. Nenhuma norma e
-violada — reconfirmei que nem o `UFV_COMPLIANCE.md` nem o Manual 04/2026 impoem limite de palavras;
-a unica regra e "uma palavra por linha" nas palavras-chave, que esta cumprida. Para o bloco caber na
-p. 3 seria preciso cortar da ordem de **60 a 80 palavras** do Resumo, e o par PT/EN tem de andar
-junto.
+**Portanto a rota (i) e a unica que remove a pagina, e ela e sua**, porque comprimir o Resumo mexe em alegacao. Numeros
+para a decisao: Resumo **496 palavras** de prosa, Abstract **493**. Nenhuma norma e violada — reconfirmei que nem o
+`UFV_COMPLIANCE.md` nem o Manual 04/2026 impoem limite de palavras; a unica regra e "uma palavra por linha" nas
+palavras-chave, que esta cumprida. Para o bloco caber na p. 3 seria preciso cortar da ordem de **60 a 80 palavras** do
+Resumo, e o par PT/EN tem de andar junto.
 
-Voce tambem pediu para avaliar se o Resumo e o Abstract cumprem bem seu proposito, e para comparar
-com as dissertacoes de exemplo. Isso e leitura de conteudo, nao medicao, e cai naturalmente para a
-persona 15 na proxima rodada de revisao — posso pedir a ela um parecer especifico sobre os dois
-textos, contra os exemplares de excelencia, e voce decide com o parecer na mao.
+Voce tambem pediu para avaliar se o Resumo e o Abstract cumprem bem seu proposito, e para comparar com as dissertacoes
+de exemplo. Isso e leitura de conteudo, nao medicao, e cai naturalmente para a persona 15 na proxima rodada de revisao —
+posso pedir a ela um parecer especifico sobre os dois textos, contra os exemplares de excelencia, e voce decide com o
+parecer na mao.
 
 > DECISAO: __________________________________________________
-
 
 ### ~~3.4 O teto de autocorrelacao — **RECONSTRUIDO nesta rodada** (REV-001)~~ — RESOLVIDO 2026-07-27
 

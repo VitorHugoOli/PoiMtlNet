@@ -184,9 +184,11 @@ the tasks' updates during training (PCGrad \cite{yu2020pcgrad}, Nash-MTL \cite{n
 well-tuned fixed weighting with two tasks \cite{xin2022domtl}.
 We confirm this at scale: of nineteen loss and gradient
 balancers screened at their default configurations on two datasets, including the two
-named above, none improved on a tuned fixed task weighting in our model on both tasks at
-once. Nash-MTL is the only one that exceeds equal weighting on next-category at Alabama,
-by $0.68$ points, and it does not carry that lead to the second dataset.
+named above, none improved on a tuned fixed task weighting across both tasks and both
+datasets. Two exceed equal weighting on next-category at Alabama, Nash-MTL by $0.68$
+points and scale normalization by $0.19$, and neither holds that position elsewhere:
+Nash-MTL loses it on the second dataset, and scale normalization gains on next-category
+there while collapsing on next-region.
 % [REV-011, author ruling 2026-07-24: "use the 'at their default configurations'"]
 % Applied as written. Evidence check against docs/results/mtl_improvement/T4_audit_and_verdict.md:
 %  - Nash-MTL (named): correctly wired and adapting, a VALID test (T4:37-39). Sound.
@@ -223,11 +225,18 @@ general rule.
 %   uncertainty_weighting, equal_weight, static_weight, scale_norm, scheduled_static, uw_so, dwa,
 %   famo, gradnorm, db_mtl, cagrad, nash_mtl, aligned_mtl, pcgrad, fairgrad, stch, go4align,
 %   bayesagg_mtl, excess_mtl.
-% AL next-category macro-F1 vs equal_weight 53.57: nash_mtl 54.25 (+0.68) is the ONLY one above it;
-% scale_norm 53.76 (+0.19) is above on category but collapses on region (35.47 vs 62.53), which is
-% why the sentence says "on both tasks at once". PCGrad 53.11 (-0.46) is kept by name at the
+% AL next-category macro-F1 vs equal_weight 53.57: TWO methods are above it, nash_mtl 54.25 (+0.68)
+% and scale_norm 53.76 (+0.19). [correction] An earlier version of this line and of the sentence said
+% nash_mtl was the ONLY one, while this very comment listed scale_norm as also above -- a claim that
+% contradicted its own ledger. Caught in review. Full picture, all four cells:
+%   nash_mtl:   AL cat 54.25 (+0.68) reg 62.77 (+0.24) | FL cat 71.61 (-0.19) reg 73.04 (-0.02)
+%   scale_norm: AL cat 53.76 (+0.19) reg 61.96 (-0.57) | FL cat 72.12 (+0.33) reg 35.47 (-37.59)
+% nash_mtl is the only one above on BOTH tasks at AL; scale_norm is the only one above on category
+% at BOTH datasets, and its region score collapses. So no method wins everywhere, which is why
+% the sentence says "across both tasks and both datasets" and then names both exceptions with
+% what each one gives up. PCGrad 53.11 (-0.46) is kept by name at the
 % author's request so an MTL reviewer sees it was tried.
-% [NEEDS SIGN-OFF: AUTHOR -- "nineteen" and "+0.68" are new numbers in the chapter.]
+% [NEEDS SIGN-OFF: AUTHOR -- "nineteen", "+0.68" and "+0.19" are new numbers in the chapter.]
 
 
 \begin{figure}[htbp]
