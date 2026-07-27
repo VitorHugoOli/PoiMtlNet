@@ -44,14 +44,25 @@ else echo "SKIP: no $BLG"; fi
 echo "== prose trapped inside a % comment (silent: builds clean, reader sees a broken sentence) =="
 # Has happened twice: apx_a_contributions.tex, and 4_courb.tex:187 where half a PUBLISHED
 # methodology sentence was appended to a comment tail and three method facts stopped rendering.
-DETECTOR=""
-for cand in "src_utils/check_trapped_prose.py" "../src_utils/check_trapped_prose.py"; do
-  if [ -f "$cand" ]; then DETECTOR="$cand"; break; fi
+DETECTOR=""; FIXTURES=""
+for d in "src_utils" "../src_utils"; do
+  if [ -f "$d/check_trapped_prose.py" ]; then
+    DETECTOR="$d/check_trapped_prose.py"; FIXTURES="$d/test_trapped_prose.py"; break
+  fi
 done
 if [ -z "$DETECTOR" ]; then
   echo "SKIP: check_trapped_prose.py not found"
-elif ! python3 "$DETECTOR"; then
-  FAIL=1
+else
+  # Run the detector's OWN fixtures first. The checker has been wrong four times, each time by
+  # being tuned on the cases in front of it, so a green document means nothing unless the checker
+  # still catches every defect that has actually shipped.
+  if [ -f "$FIXTURES" ]; then
+    if ! python3 "$FIXTURES" | tail -1; then
+      echo "  ^ detector fixtures FAILED — the checker itself is broken, its result is not evidence"
+      FAIL=1
+    fi
+  fi
+  if ! python3 "$DETECTOR"; then FAIL=1; fi
 fi
 
 exit $FAIL

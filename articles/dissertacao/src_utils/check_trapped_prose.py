@@ -2,37 +2,42 @@
 """Detect prose accidentally trapped inside a LaTeX comment line.
 
 WHY: this failure is SILENT. The build succeeds, no warning is emitted, and the reader gets a
-sentence that stops mid-clause or a disclosure that never appears. It has bitten this document
-five times, three of them from edits that were themselves repairs:
+sentence that stops mid-clause or a disclosure that never appears. It has now bitten this document
+EIGHT times, every one of them from an edit that inserted an audit comment:
 
   apx_a_contributions.tex   a sentence FRAGMENT appended after a comment's terminal period
   4_courb.tex:187           half a PUBLISHED methodology sentence, dropping three method facts
   5_mobiwac.tex:385         four sentences including a required three-limits disclosure
   4_courb.tex:311 and :362  two PUBLISHED results passages, about 270 words
+  2_fundamentals.tex:366    ", Nash-MTL treats"                       (3 words)
+  6_conclusion.tex:105      "a capacity-matched dedicated baseline..." (7 words)
+  apx_b_errata.tex:188      "The emphasis convention of the..."        (9 words)
 
-THE DISCRIMINATOR IS LINE GEOMETRY, NOT CONTENT. Three content-based attempts all failed:
-vocabulary filters either flooded (40 false positives) or silenced a real case; requiring the tail
-to be a complete sentence missed the apx_a case, whose trapped text is a FRAGMENT continuing on the
-next body line; and treating parentheses as a ledger tell missed the 4_courb:187 case, whose tail
-ends "...distinct counties (GEOIDs)."
+THE ROOT CAUSE IS ALWAYS THE SAME: a comment block written without a trailing newline, so the body
+line that followed got pulled onto the last comment line.
 
-What every real case shares is geometry: a hand-written comment block wraps at a consistent width,
-so the line carrying appended body text is markedly longer than its neighbours in the same block.
-Confirmed across the five cases: damaged lines run 141 to 283 characters against block medians near
-90. That is the test, plus the only confirmation that matters, absence from the rendered PDF.
+WHAT DOES *NOT* WORK AS A DISCRIMINATOR, learned by shipping each one and being caught:
+  - vocabulary filters: ledger commentary and trapped prose are both English about the same
+    subject. Filters either flooded (40 false positives) or silenced a real case.
+  - "the tail must be a complete sentence": misses fragments (apx_a, and ", Nash-MTL treats").
+  - "the tail must not contain parentheses": misses "...distinct counties (GEOIDs)."
+  - LINE LENGTH / block-median overshoot: misses SHORT tails. The three cases above are 38, 124
+    and 88 characters, at or below their blocks' own median width. This is the trap: tuning a
+    length threshold on the long cases makes the checker blind to the short ones, and a
+    three-word tail breaks a sentence just as thoroughly as a 270-word one.
 
-Threshold rationale: OVERSHOOT is the block median plus 40 characters, and a block must hold at
-least three comment lines to have a measurable wrap width at all (a one- or two-line note is written
-to whatever length it needs, which produced six false positives on section-header ledger notes). Real cases overshoot by 50 to
-190. A hand-wrapped comment that merely runs a little long does not reach it, and the one line in
-this repository that did (2_fundamentals.tex, 141 characters) was reflowed at the source rather than
-tuned around.
+THE TEST THAT ACTUALLY WORKS is the definition of the bug, with no proxy in between: take the words
+that follow the LAST `%` on a comment line, and ask whether they appear in the rendered PDF. Body
+text reaches the PDF; a comment never does. To keep ledger commentary from firing, require the
+candidate to look like a continuation of the surrounding document rather than a note about it:
+the words must run on into the NEXT source line, which is what makes it a torn sentence rather
+than a self-contained remark.
 
-VALIDATION, exercised in both directions against build-fresh PDFs:
+VALIDATION, both directions, against build-fresh PDFs:
   repaired tree      -> 0 findings
-  /tmp/tp2 (rebuilt) -> catches 5_mobiwac.tex:385, 4_courb.tex:311, 4_courb.tex:362
-  /tmp/tp4 (rebuilt) -> catches apx_a_contributions.tex and 4_courb.tex:187
-Every one of the five historical cases is covered by a run recorded in this repository's history.
+  /tmp/tp2 (rebuilt) -> catches 5_mobiwac:385, 4_courb:311, 4_courb:362
+  /tmp/tp4 (rebuilt) -> catches apx_a_contributions:57, 4_courb:198
+  the three short cases above -> caught (they are why this version exists)
 
 Exit 1 if any suspect is found, so this can gate a build.
 """
@@ -44,8 +49,7 @@ from pathlib import Path
 
 SRC = Path(__file__).resolve().parent.parent / "src"
 PDF = SRC / "dissertacao.pdf"
-OVERSHOOT = 40          # characters beyond the block median that mark an appended tail
-MIN_TAIL_WORDS = 8
+MIN_TAIL_WORDS = 2          # ", Nash-MTL treats" is three; do not raise this
 
 
 def rendered_text() -> str:
@@ -56,45 +60,68 @@ def rendered_text() -> str:
     return re.sub(r"\s+", " ", re.sub(r"-\s*\n\s*", "", raw.replace("\r", " ")))
 
 
-def probe_of(text: str, n: int = 7) -> str:
-    words = re.findall(r"[A-Za-z][A-Za-z\-']*", text)
-    return " ".join(words[:n]) if len(words) >= n else ""
+def words(text: str, n: int) -> list[str]:
+    return re.findall(r"[A-Za-z][A-Za-z\-']*", text)[:n]
 
 
-def block_median(lines: list[str], i: int) -> int:
-    lo = i
-    while lo > 0 and lines[lo - 1].strip().startswith("%"):
-        lo -= 1
-    hi = i
-    while hi + 1 < len(lines) and lines[hi + 1].strip().startswith("%"):
-        hi += 1
-    others = sorted(len(lines[k].rstrip()) for k in range(lo, hi + 1) if k != i)
-    # A block of fewer than three comment lines has no reliable wrap width: a one- or two-line
-    # note is written to whatever length it needs, so "longer than its neighbours" is meaningless
-    # there and produced six false positives on section-header ledger notes. Require a real block.
-    if len(others) < 3:
-        return 0
-    return others[len(others) // 2]
-
-
-def suspects_in(path: Path, pdf: str) -> list[tuple[int, str, str, int, int]]:
+def suspects_in(path: Path, pdf: str) -> list[tuple[int, str, str]]:
     lines = path.read_text(encoding="utf8", errors="replace").split("\n")
     out = []
-    for i, line in enumerate(lines):
-        if not line.strip().startswith("%"):
+    for i, raw_line in enumerate(lines):
+        line = raw_line.strip()
+        if not line.startswith("%"):
             continue
-        width, median = len(line.rstrip()), block_median(lines, i)
-        if median == 0 or width < median + OVERSHOOT:
-            continue                                   # in line with its own block
-        m = re.search(r"[.!?]\s+([A-Za-z][^%]*)$", line.strip())
+        # The candidate is whatever follows the last sentence terminator or closing bracket. The
+        # separator may be whitespace OR nothing at all: the real 2_fundamentals case read
+        # "% citation protocol)., Nash-MTL treats", where the appended text begins with a comma
+        # directly against the period. Requiring whitespace here missed it.
+        m = re.search(r"[.!?\]]\s*([A-Za-z,][^%]*)$", line)
         if not m:
             continue
-        tail = m.group(1).strip()
-        if len(tail.split()) < MIN_TAIL_WORDS:
+        tail = m.group(1).strip().lstrip(",").strip()
+        if len(words(tail, 6)) < MIN_TAIL_WORDS:
             continue
-        probe = probe_of(tail)
-        if probe and probe not in pdf:                 # the reader never saw it
-            out.append((i + 1, tail[:110], probe, width, median))
+        # CONTINUATION TEST: real trapped prose is a torn fragment, so the NEXT source line is body
+        # text that continues the same sentence. Two things follow, and both are required:
+        nxt = lines[i + 1].strip() if i + 1 < len(lines) else ""
+        if not nxt or nxt.startswith("%") or nxt.startswith("\\") or nxt.startswith("}"):
+            continue
+        #  (a) if the tail closes its own sentence it MIGHT be a self-contained ledger remark --
+        #      but the real 4_courb:187 case also ended in a period ("...distinct counties
+        #      (GEOIDs)."), so a closed sentence cannot be rejected outright. What separates them
+        #      is whether the tail reads as an instruction to the author or as document prose:
+        #      ledger remarks address the reader of the source ("Revert if you prefer...",
+        #      "Author may reword", "see T4:8-17"), and cite files, line numbers, or finding ids.
+        if re.search(r"[.!?][\]\)\"']*$", tail):
+            LEDGER = re.compile(
+                r"[\w/]+\.(tex|py|md|bib|json|csv|log|pdf)"     # file names
+                r"|:\d+\b"                                      # line refs
+                r"|\b(REV|NEW|COD|MJ|F)-?\d+\b"                 # finding ids
+                r"|\b(author|revert|prefer|reword|persona|claim unchanged|see|source|verified"
+                r"|unchanged|left as|deliberately|note for)\b",  # author-directed vocabulary
+                re.I)
+            if LEDGER.search(tail):
+                continue
+        #  (b) the RENDER TEST: the tail's own words, joined to the line that follows, must be
+        #      ABSENT from the rendered PDF. This is the definition of the bug.
+        #      NOTE: do NOT try "skip if the next line renders on its own" as a shortcut. In a real
+        #      tear the rest of that line still renders perfectly well (only the torn fragment is
+        #      missing), so that test silently suppressed four of the six real fixtures.
+        joined = " ".join(words(tail + " " + nxt, 8))
+        if not joined or joined.lower() in pdf.lower():
+            continue
+        #  (c) LAST GUARD, for the one false-positive shape seen in practice: a comment that merely
+        #      PRECEDES a paragraph. There the tail is a complete ledger sentence and the following
+        #      paragraph opens a new sentence of its own, so the words of the next line appear in
+        #      the PDF immediately after a sentence boundary rather than continuing the tail.
+        #      A genuine tear has the tail and its continuation adjacent in the SOURCE sentence, so
+        #      the next line does not begin a new sentence -- it begins mid-clause, lowercase or
+        #      with a connective. (apx_a_contributions.tex:92 was this shape.)
+        if re.match(r"[A-Z]", nxt) and re.search(r"[.!?][\]\)\"']*$", tail):
+            first_words = " ".join(words(nxt, 8))
+            if first_words and first_words.lower() in pdf.lower():
+                continue
+        out.append((i + 1, tail[:100], joined))
     return out
 
 
@@ -105,12 +132,12 @@ def main() -> int:
     pdf = rendered_text()
     total = 0
     for tex in sorted(list((SRC / "chapters").glob("*.tex")) + [SRC / "0_main.tex"]):
-        for lineno, tail, probe, width, median in suspects_in(tex, pdf):
+        for lineno, tail, joined in suspects_in(tex, pdf):
             total += 1
             print(f"TRAPPED PROSE {tex.name}:{lineno}")
-            print(f"  line is {width} chars against a block median of {median}, "
-                  f"and its tail is absent from the PDF: '{probe}...'")
-            print(f"  tail: {tail}")
+            print(f"  runs on into the next line, and the joined text is absent from the PDF:")
+            print(f"    '{joined}...'")
+            print(f"  comment tail: {tail}")
     print(f"trapped-prose suspects: {total}")
     return 1 if total else 0
 
