@@ -701,9 +701,21 @@ blocks, or the added depth. We therefore report the negative result, that the ga
 transfer, as a finding, and we attribute the gain to the joint architecture rather than to any named
 component of it. A separate ablation in our own development record, at Florida only, removed the
 cross-attention stack while holding the rest fixed and moved next-category macro-F1 by
-$-0.04 \pm 0.13$, which a paired test cannot separate from zero; that result is consistent with the
-category stream, rather than the cross-stream mixing, carrying most of the effect at that dataset,
-and it is why we do not name the shared trunk as the source. Either way the gain requires no second
+$-0.04 \\pm 0.13$, which a paired test cannot separate from zero. Two limits keep us from
+reading that as an absence of contribution. The ablation ran on an earlier configuration
+whose region head was driven by a transition prior the models reported here do not use,
+and the development record that produced it reads the null as a compensation effect, in
+which the category stream absorbs what the shared stack would otherwise supply, rather
+than as a component that does nothing. We therefore do not name the shared trunk as the
+source, and we do not present the ablation as evidence against it either.
+% [round5, F50 audit] Rescoped on the author's request to check whether this experiment is sound
+% enough to cite. Sources: F50_T1_5_CROSSATTN_ABSORPTION.md:229 (its own null called "misleading",
+% a "hidden compensation effect"; F49 puts the architectural contribution at -16.16 pp) and :223
+% (run dir check2hgi/florida/...bs2048), against the shipped board's check2hgi_dk_ovl/...bs8192
+% (catx_v17_n20/*.json rundir). The prior mismatch is stated at this chapter's third integrity
+% ground. Value unchanged; only the inference is narrowed. [NEEDS SIGN-OFF: AUTHOR]
+
+Either way the gain requires no second
 model at serving time (one model, one forward pass).
 % [v2 review F-01, 2026-07-26] CLAIM-STRENGTH CORRECTION, found by persona 10 (MTL expert),
 % src_utils/_review_v2/10_mtl_expert_report.md. The prior sentence attributed the gain to "a

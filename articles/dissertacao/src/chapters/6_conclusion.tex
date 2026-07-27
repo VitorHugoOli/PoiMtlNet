@@ -94,9 +94,20 @@ reported in Chapter~\ref{ch:mobiwac}: with the region pathway frozen, the catego
 the three datasets where the control was run (Alabama, Arizona, Florida), so the gain
 does not come from the region task teaching the category task; it comes from something
 in the joint architecture that the dedicated model does not have. The control does not
-say which part, and a development ablation at Florida that removed the cross-attention
-stack alone moved next-category macro-F1 by $-0.04 \pm 0.13$, so we do not name the
-shared trunk as the source. Second,
+say which part. A development ablation at Florida removed the cross-attention stack
+alone and moved next-category macro-F1 by $-0.04 \pm 0.13$, but that measurement was
+taken on an earlier configuration whose region head was driven by a transition prior the
+models reported here do not use, and its own record reads the null as a compensation
+effect rather than an absence of contribution. We therefore do not name the shared trunk
+as the source, and we do not offer the ablation as evidence that the trunk contributes
+nothing.
+% [round5, F50 audit] The author asked whether this experiment is sound enough to cite. It is not,
+% as previously worded. F50_T1_5_CROSSATTN_ABSORPTION.md:229 calls its own null "misleading" and a
+% "hidden compensation effect"; F49 puts the architectural contribution at -16.16 pp. The run also
+% used a different engine and batch (check2hgi/bs2048, April) from the shipped board
+% (check2hgi_dk_ovl/bs8192, catx_v17_n20/*.json rundir), and its mechanism depends on the alpha*log_T
+% prior that 5_mobiwac.tex says our models do not use. The withheld attribution is unaffected: it
+% rests on the freeze control and the capacity-matched control. [NEEDS SIGN-OFF: AUTHOR] Second,
 a capacity-matched dedicated baseline, run after the
 Chapter~\ref{ch:mobiwac} manuscript was submitted and reported here as a frame-level analysis: a
 dedicated category model widened to the joint model's parameter budget, about 4.2
