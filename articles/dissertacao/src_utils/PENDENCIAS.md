@@ -15,6 +15,35 @@
 
 ---
 
+## Estado apos a rodada de 2026-07-27
+
+**Build:** defesa 103 pp, final 98 pp, 0 caixas estouradas, 0 citacoes/referencias indefinidas,
+0 erros de BibTeX, lint 0, 10/10 fixtures do detector de prosa presa.
+
+**O que rodou nesta rodada, e o que cada um achou:**
+
+| Revisor | Estado antes | Veredicto |
+|---|---|---|
+| Persona 15 (leitura) | 1 dia desatualizado | Confirma que o Apendice D reescrito **se sustenta sozinho**; 3 costuras, todas aplicadas |
+| Persona 16 (credibilidade) | **nunca tinha rodado nesta versao** | Risco humano BAIXO; 2 BLOCKERs nos meus proprios textos, os dois corrigidos |
+| Fact gate (G2) | v2, build antigo | **GATE FAIL** em um numero (o 22,4 por cento); corrigido. 4 MAJOR + 3 MINOR, todos aplicados |
+| Banca (persona 12) | v2, build antigo | **APROVADO COM CORRECOES MENORES**, com 2 obrigatorias, as duas fechadas |
+
+**Sobre a sua pergunta dos guardrails:** as regras mecanicas foram respeitadas nesta rodada. Auditei
+1.725 palavras de prosa nova contra o `WRITING_LAW §4`: zero termos banidos, zero travessoes, zero
+contracoes, zero termos fora do registro. Mas isso nao pegava a sua reclamacao real. O Apendice D
+tinha as **frases mais curtas do documento**; o problema era colisao de conceitos e dependencia
+externa, nao tamanho de frase. Foi por isso que medi antes de reescrever.
+
+**O defeito que mais se repetiu, e o que fiz sobre ele:** prosa engolida por comentario LaTeX, agora
+**dez** ocorrencias no historico do documento. Tres foram encontradas pelo codex nesta rodada, duas
+pela persona 16 e pela banca, e **duas foram pegas pela ferramenta** enquanto eu editava, que e a
+primeira vez que a maquina pega antes do revisor. O detector foi reescrito em volta do teste que
+importa (o texto aparece no PDF ou nao), tem 10 fixtures no repositorio, e o `check.sh` roda os
+fixtures **antes** de confiar no detector.
+
+---
+
 ## BLOCO 1 — bloqueiam a entrega, nao a ciencia
 
 ### 1.1 Banca, data, capa e folha de aprovacao (REV-023)

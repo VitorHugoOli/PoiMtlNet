@@ -205,7 +205,7 @@ counties (GEOIDs).
 % indents 37.0 pt, so the published run-up plus the expression up to the relation symbol
 % needed 468.2 pt; the reordered run-up puts the whole expression at about 227 pt.
 
-Over this graph, random walks (\textit{random walks}) are executed following the Node2Vec methodology \cite{grover2016node2vec}. Each walk is converted into a sequence of secondary categories (\textit{fclass}), resulting in local and global co-occurrences among categories. The model learns the \textit{embeddings} using the \textit{skip-gram} strategy with \textit{negative sampling} \cite{mikolov2013word2vec}:
+Over this graph, random walks (\textit{random walks}) are executed following the Node2Vec methodology \cite{grover2016node2vec}. Each walk is converted into a sequence of secondary categories (\textit{fclass}), resulting in local and global co-occurrences among categories. The model learns the \textit{embeddings} using the \textit{skip-gram} strategy with \textit{negative sampling} \cite{mikolov2013word2vec,mikolov2013negsampling}:
 
 \[
 \mathcal{L}_{\text{SGNS}}(i,j)

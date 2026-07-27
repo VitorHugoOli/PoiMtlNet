@@ -113,9 +113,16 @@ a capacity-matched dedicated baseline, run after the
 Chapter~\ref{ch:mobiwac} manuscript was submitted and reported here as a frame-level analysis: a
 dedicated category model widened to the joint model's parameter budget, about 4.2
 million parameters at Alabama against 0.6 million at its published width, does not
-recover the joint gain. At Alabama, across three training configurations and all
-twenty fitted models, the best of them reaches 56.16 macro-F1, against 56.82 for the
-dedicated model at its own tuned width and 64.51 for the joint model. The
+recover the joint gain. At Alabama the widened model was fitted under three
+training configurations, twenty models each and sixty in total, and the strongest
+configuration averages 56.16 macro-F1, standard deviation 1.89, against 56.82 for the
+dedicated model at its own tuned width and 64.51 for the joint model.
+% [round5, COD-010] The previous sentence said "across three training configurations and all twenty
+% fitted models, the best of them reaches 56.16", which miscounted and mislabelled: twenty is the
+% PER-ARM count, not the total, and 56.16 is the best arm's MEAN, not a maximum over fits. Verified
+% in capacity_matched_summary.json, results.alabama_h672: bs2048_lr0.0025 n=20 mean=56.1611
+% std=1.885; bs2048_lr0.005 n=20 mean=55.6098; bs8192_lr0.005 n=20 mean=55.7406. The std was also
+% missing (persona 10 F-14). No verdict moves: the joint model still leads by +8.35. The
 % [NEEDS SIGN-OFF: gate fix B-2, 2026-07-24] 64.54 -> 64.51 to match Ch.5 Table 3, the
 % dissertation's reported joint-best convention (JOINT_BEST_RESULTS.md: AL 64.54 diag-best
 % / 64.51 joint-best). AGENT_GUARDRAILS N5 forbids blurring joint-best vs diagnostic-best;

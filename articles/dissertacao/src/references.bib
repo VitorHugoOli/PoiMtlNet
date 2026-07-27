@@ -678,6 +678,19 @@ doi       = {10.1145/3219819.3220007}
   eprint      = {1301.3781},
 }
 
+% [round5, COD-008 item 2] Added. Negative sampling is introduced HERE (arXiv 1310.4546), not in
+% mikolov2013word2vec (arXiv 1301.3781, which introduces CBOW and skip-gram). Verified against the
+% arXiv API this session: this abstract contains "negative sampling"; 1301.3781's does not. The
+% citing sentence at 4_courb.tex:208 claims skip-gram WITH negative sampling, so it needs both.
+@inproceedings{mikolov2013negsampling,
+  author      = {Tomas Mikolov and Ilya Sutskever and Kai Chen and Greg Corrado and Jeffrey Dean},
+  title       = {Distributed Representations of Words and Phrases and their Compositionality},
+  booktitle   = {Advances in Neural Information Processing Systems (NIPS)},
+  year        = {2013},
+  archivePrefix= {arXiv},
+  eprint      = {1310.4546},
+}
+
 % PROVENANCE: CBIC donor. ERRATUM applied (CBIC ERRATA #4 / R4): DOI corrected to
 % 10.1109/CVPR.2016.433 (the donor's .434 resolves to a different paper --- re-checked
 % against Crossref this session: .433 = Cross-Stitch Networks, CVPR 2016, pp. 3994-4003).
