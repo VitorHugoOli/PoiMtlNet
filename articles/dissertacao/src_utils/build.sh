@@ -91,6 +91,12 @@ for stem in built:
     ofv = re.findall(r"Overfull \\vbox \(([\d.]+)pt too high\)", raw)
     undc = sorted(set(re.findall(r"Citation `([^']+)' on page \d+ undefined", flat)))
     undr = sorted(set(re.findall(r"Reference `([^']+)' on page \d+ undefined", flat)))
+    # Floats taller than the text block. LaTeX reports this as a WARNING, never as an overfull
+    # box, so the ofh/ofv counters miss it: a table can hang 160pt below the bottom margin while
+    # the build reports 0 overfull. Found 2026-07-27 by the AUTHOR'S EYE on p.96, after this
+    # checker had certified the build clean four times. The log carried "Float too large for page
+    # by 163.4335pt on input line 98" the whole time.
+    bigfloat = re.findall(r"Float too large for page by ([\d.]+)pt on input line (\d+)", flat)
     blg = os.path.join(src, "build", stem + ".blg")
     bibe = []
     if os.path.exists(blg):
@@ -106,13 +112,16 @@ for stem in built:
         low = f"unmeasured({exc.__class__.__name__})"
     print(f"{label[stem]}: pages={pages} overfull_hbox={len(ofh)} overfull_vbox={len(ofv)} "
           f"undef_cite={len(undc)} undef_ref={len(undr)} bibtex_problems={len(bibe)} "
+          f"oversized_floats={len(bigfloat)} "
           f"low_text_pages(<120 words, inspect)={low}")
+    for pt, ln in bigfloat:
+        print(f"    FLOAT TOO LARGE: {pt}pt past the text block, declared at input line {ln}")
     for u in undc: print(f"    UNDEFINED CITE: {u}")
     for u in undr: print(f"    UNDEFINED REF: {u}")
     for e in bibe[:5]: print(f"    BIBTEX: {e[:110]}")
     for m in re.finditer(r"Overfull \\hbox \(([\d.]+)pt too wide\)([^\n]*)", raw):
         print(f"    hbox {m.group(1)}pt:{m.group(2)[:80]}")
-    if undc or undr or bibe or ofh or ofv:
+    if undc or undr or bibe or ofh or ofv or bigfloat:
         rc = 1
 sys.exit(rc)
 PY

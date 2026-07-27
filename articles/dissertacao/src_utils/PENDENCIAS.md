@@ -360,7 +360,8 @@ clausula **vizinha da mesma frase** (sinais de gradiente), entao o silencio sobr
 tres elementos, e diz que a correcao correria **a seu favor**.
 
 **(C)** Manter assim (recomendo), ou mover para a tabela de errata e corrigir de fato?
-> DECISAO: __________________________________________________
+> DECISAO: Vamos seguir um padrão, caso contrario algum revisor pode questionar o fato de alguns erros factuais eu
+> alterar o texto e outros não, assim eu tendo a seguir com a opção de corrigir de fato no texto e mover para tabela.
 
 ### 1b.4 O determinismo da categoria agora esta medido nos CINCO estados (persona 11)
 
@@ -438,7 +439,9 @@ meio da faixa, e o Canesche com 108 e mais longo. Uma pagina de reprodutibilidad
 recomendacao: so o (c), e so quando o texto assentar** — ele inventaria scripts e seeds, entao escrever antes das
 ultimas edicoes garante retrabalho.
 
-> DECISAO: Concordo, vamos com a opc: C). E faça isso em cima do apendice D que já existe.
+> DECISAO: Concordo, vamos com a opc: C). E acredito que possamos usar o Appendix A para isso, o que acha ? Lá já
+> citamos a questão das contribuições no codigo. Se não um appendix novo mas bem enxuto e direto apontando para um
+> arquivo de entrada na codebase que faça explicações mais elaboradas.
 
 ### Resolvidos desde aquele documento (registrado para nao reabrir)
 
@@ -502,7 +505,10 @@ questao de fidelidade, porque a figura pertence a um artigo publicado co-autorad
 **Ja feito:** o rotulo do eixo da Figura 6 dizia "Score (0-1)" para uma silhueta definida em
 [-1, 1]; corrigido e a figura foi regerada (o resto do PDF e byte-identico).
 
-> DECISAO: __________________________________________________
+> DECISAO: Eu adicione os drawio: articles/dissertacao/src/figures/mtlnet_poi_new.drawio e o
+> articles/dissertacao/src/figures/courb/arquitetura_modelo.drawio, respecitvamente par ao cbic e o courb. Quanto a
+> imagem de distribuicao_estados.png, essa também tem palavras em portgues, e para gerar ela temos que investigar o
+> /Users/vitor/Desktop/mestrado/temp/tarik-new.
 
 ### 3.3 Resumo e Abstract: tamanho (REV-018) — **rota (ii) aplicada e ESGOTADA; a (i) e sua**
 
@@ -530,7 +536,9 @@ de exemplo. Isso e leitura de conteudo, nao medicao, e cai naturalmente para a p
 posso pedir a ela um parecer especifico sobre os dois textos, contra os exemplares de excelencia, e voce decide com o
 parecer na mao.
 
-> DECISAO: __________________________________________________
+> DECISAO: Vamos então cortar de 60 a 80 palavras do Resumo, para tentar ficar dentro. Ao final vamos rodar alguns
+> revisores sobre o resume e abstract para avaliar a qualidade, excelencia em relação as dissertaçoes de exemplo e ao que
+> temos de conhciemtno da literatura.
 
 ### ~~3.4 O teto de autocorrelacao — **RECONSTRUIDO nesta rodada** (REV-001)~~ — RESOLVIDO 2026-07-27
 

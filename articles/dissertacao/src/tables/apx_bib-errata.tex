@@ -6,18 +6,35 @@
 % claimed a 'rendered PDF checksum' comparison. No checksum comparison was ever run, and it would
 % not have matched: the PDF bytes changed (1,322,758 -> 1,323,852) because this commit also carries
 % a prose edit. Caught in review; the claim now names the check that was actually performed.
-\begin{table}[htb]
+% [round5, author-reported] CONVERTED table -> longtable. This table is TALLER THAN THE TEXT BLOCK
+% (16 rows of quoted prose), so as a float it hung 163.43pt below the bottom margin on p.96 -- the
+% author saw it; the build reported 0 overfull because LaTeX logs this as "Float too large for
+% page", a warning class the checker did not read. build.sh now reports and fails on it.
+% longtable breaks across pages with a repeated header and continuation notices. All 16 rows, the
+% caption and the label are preserved; only the container changed.
+{\small
+\begin{longtable}{@{}p{0.42\textwidth}p{0.52\textwidth}@{}}
 \caption{Bibliography errata: defects in entries inherited from the articles'
 reference lists and the corrections applied in the global bibliography. Keys in
 typewriter font.}
-\label{tab:apx:bib-errata}
-\centering
-\small
-\begin{tabular}{@{}p{0.42\textwidth}p{0.52\textwidth}@{}}
+\label{tab:apx:bib-errata} \\
 \toprule
 \textbf{Defect in a donor reference list} & \textbf{Correction in the global
 bibliography} \\
 \midrule
+\endfirsthead
+\multicolumn{2}{@{}l}{\footnotesize\itshape Table \thetable\ continued from the previous page.}\\
+\toprule
+\textbf{Defect in a donor reference list} & \textbf{Correction in the global
+bibliography} \\
+\midrule
+\endhead
+\midrule
+\multicolumn{2}{r@{}}{\footnotesize\itshape Continued on the next page.}\\
+\endfoot
+\bottomrule
+\endlastfoot
+
 POI-RGNN cited the wrong paper for the Capanema et al.\ model. &
 Replaced by the correct record (\texttt{capanema2023poirgnn}: Ad Hoc Networks,
 v.~138, 103016, 2023), verified against Crossref. \\
@@ -93,6 +110,5 @@ CoUrb chapter (\ref{ch:courb}): the Gowalla dataset was cited via Liu et al.\ (2
 Citation corrected to the dataset sources (\texttt{cho2011gowalla},
 \texttt{jure2014snap}), which the same chapter already cites for the dataset
 elsewhere; the location-recommendation reference was dropped from the chapter. \\
-\bottomrule
-\end{tabular}
-\end{table}
+\end{longtable}
+}
