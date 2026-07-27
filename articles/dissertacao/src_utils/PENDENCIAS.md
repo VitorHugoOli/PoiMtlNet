@@ -103,6 +103,39 @@ Os dois BLOCKERs delas foram corrigidos. Sobram dois pontos que sao decisao sua:
 
 ---
 
+## BLOCO 0c — o que a persona 03 achou, e uma correcao minha grave
+
+### Quatro frases rasgadas no Resumo e no Abstract — **CORRIGIDO**, e eu havia relatado errado
+
+A persona 03 achou, eu confirmei no PDF antes de agir. **Ao comprimir o par na rodada passada, eu
+apaguei a clausula de abertura de quatro frases**, simetricamente nos dois idiomas. Renderizava assim
+nas p. 3 e 4:
+
+> "... por meio de aprendizado multitarefa (MTL). **entre tarefas pode prejudicar uma delas** ..."
+> "... Acc@10 (TOST), nos outros dois. **condicional, e a condicao e o achado** ..."
+
+Restaurado **literalmente do git**, nao reconstruido. As quatro verificadas renderizando.
+
+**E o ponto mais grave que o erro de digitacao: eu relatei a pagina quase-branca como fechada por
+compressao.** Ela fechou porque **faltava texto**, nao porque o texto estava mais enxuto. A compressao
+real foi de ~13 palavras de glosa, nao as 36 que eu reportei — as outras ~30 eram as clausulas que eu
+apaguei sem perceber. O documento voltou a **104 pp**, que e o estado honesto. A paridade de alegacao
+tambem quebrou nos mesmos dois lugares, ou seja, o dano era simetrico e nenhum idioma podia denunciar o
+outro.
+
+**Nenhum gate pegou porque e uma classe nova:** o detector de prosa presa procura texto preso depois do
+ultimo `%`; aqui nao ha nada preso, a clausula simplesmente nao existe, e o build fica limpo. A persona
+03 achou porque leu o front matter **como prosa renderizada**, nao como fonte. Novo gate:
+`src_utils/check_torn_sentences.py`, com a regra que ela propos, validado nos dois sentidos.
+
+> **Sobre a p. 4 quase em branco:** ela voltou. Fechar de verdade exige cortar ~60 palavras do Resumo
+> com o Abstract em paridade, que e a rota (i) e continua sendo sua. A persona 17 esta avaliando o par
+> contra os exemplares; vale decidir com o parecer dela em maos.
+
+> DECISAO: __________________________________________________
+
+---
+
 ## BLOCO 0b — o que o orientador levantou (2026-07-27)
 
 ### ~~Notacao das citacoes: (N) -> [N]~~ — APLICADO 2026-07-27

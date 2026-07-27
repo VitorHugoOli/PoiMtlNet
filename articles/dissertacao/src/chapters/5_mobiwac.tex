@@ -585,7 +585,7 @@ one to read. The control predates the results of
 Table~\ref{tab:mobiwac:results} and was measured at one random initialization
 over five folds, so its second comparison is to the joint scores of the
 development configuration current at the time ($63.56$, $63.39$, $79.82$), which
-it matched to within $0.3$, and not to the joint cells reported here. The control therefore rules out one reading and narrows the rest. It rules out the region task
+it matched to within $0.3$, and not to the joint entries reported here. The control therefore rules out one reading and narrows the rest. It rules out the region task
 teaching the category one, since the gain survives with the region pathway untrained. What it leaves
 is the joint architecture itself, and the control does not say which part of it: freezing the region
 stream removes region training, not the category stream's own encoder, the per-stream feed-forward
@@ -606,6 +606,11 @@ source, and we do not present the ablation as evidence against it either.
 % (run dir check2hgi/florida/...bs2048), against the shipped board's check2hgi_dk_ovl/...bs8192
 % (catx_v17_n20/*.json rundir). The prior mismatch is stated at this chapter's third integrity
 % ground. Value unchanged; only the inference is narrowed. [NEEDS SIGN-OFF: AUTHOR]
+% [round5, persona 03 S3-02] "cell" for a table result is verdict *never* in
+% articles/[mobiwac]/GLOSSARY.md §3 ("this audience reads 'cell' as a radio cell"), and §5.1 of this
+% chapter makes that collision explicit. Two of our OWN claims used it; both replaced ("entries",
+% "result"). The "grid cell" and radio-cell uses elsewhere are correct and untouched: they write the
+% grid sense in full, and two of them describe other work's target rather than ours.
 
 Either way the gain requires no second
 model at serving time (one model, one forward pass).
@@ -686,7 +691,7 @@ The second
 fact concerns the three systems, which do not meet the floor on equal terms. HMT-GRN is
 evaluated on the same data, folds, and initialization as our models. STAN runs on the same
 folds, but builds its own embeddings and its own sequences from the raw check-ins. The
-ReHDM reference runs under its own published protocol, so its cell is not measured on our
+ReHDM reference runs under its own published protocol, so its result is not measured on our
 windows or folds at all.
 
 Neither fact establishes why the floor lies above the three systems, and we do not claim a
