@@ -57,6 +57,7 @@
 
 % -- Citations: single global NUMERIC scheme (decision #5) --
 \usepackage[num,abnt-emphasize=bf]{abntex2cite}
+\usepackage{needspace} % [round5, decision 3.3] reserve lines so a keyword block is not orphaned
 
 % -- Babel caption plumbing (from the source tree, kept: brazil loaded via class option,
 %    caption names anglicized, then english selected as the running language) --
@@ -237,6 +238,11 @@ degree of \textit{Magister Scientiae}.}
     % "fitted models" ("modelos ajustados") NAO consta do GLOSSARY §6: entrada proposta,
     % pendente de aprovacao do autor antes de valer como termo canonico.
 
+    % [round5, author decision 3.3 option ii] Purely mechanical: keep the keyword block with the
+    % Resumo it belongs to. It was breaking onto p.4 alone (14 words on an otherwise blank page).
+    % \needspace reserves the lines so TeX breaks BEFORE the block rather than inside it; not a
+    % \clearpage, which would force a page break even when the block fits. No word is touched.
+    \needspace{7\onelineskip}
     \vspace{\onelineskip}
     \noindent
     % Keywords one per line (UFV_COMPLIANCE §2 system rules: one per line, lowercase
@@ -313,6 +319,8 @@ degree of \textit{Magister Scientiae}.}
     % docs/studies/closing_data/v17_completion/stats_n20/RESULTS.md:65-67 (seed-level
     % paired, n=4); .../STATISTICAL_PROTOCOL.md:187-190 (one fixed fold partition).
 
+    % [round5, decision 3.3 option ii] Same guard as the Resumo block, for parity.
+    \needspace{7\onelineskip}
     \vspace{\onelineskip}
     \noindent
     % Keywords one per line (UFV_COMPLIANCE §2 system rules); EN mirrors PT.
