@@ -68,7 +68,7 @@ Every planned component, its Phase-0 status, and where it landed in v1.
 ## 2. What was built where (+ ledger pointers)
 
 - **Build (round-2 layout):** `cd src && make defense` (→ `build/main.pdf`, copied to
-  `src/dissertacao.pdf`, **89 pp**, banca PDF) / `make final` (→ `build/main_final.pdf`, **84 pp**,
+  `src/dissertacao.pdf`, **103 pp**, banca PDF) / `make final` (→ `build/main_final.pdf`, **98 pp**,
   AcademicoPG upload). ONE `main.tex` now (defense default; `make final` sets `\FINALBUILD` on
   the command line — no second main). All compile output goes to `src/build/` (gitignored).
   Recipe + TeX-tree notes: `src_utils/README_SRC.md`.
@@ -127,7 +127,7 @@ Every planned component, its Phase-0 status, and where it landed in v1.
 
 | Gate | Status |
 |---|---|
-| Build both modes | **PASS** — **89/84 pp** (measured 2026-07-25, full three-pass build of the current source; the 87/83 recorded at assembly predates the round-2 corrections), 0 errors, 0 undefined refs/cites, 2 overfull hboxes |
+| Build both modes | **PASS** — **103/98 pp** (measured 2026-07-27, full three-pass build of the current source; the 87/83 at assembly and 89/84 at round 2 predate the round-4 and round-5 corrections), 0 errors, 0 undefined refs/cites, 0 overfull hboxes |
 | Lint (check.sh) | **PASS** — exits 0 (em-dash 0, contractions 0, banned words 0, codenames 0) |
 | N4 numeral (06) | **CONDITIONAL** — 0 fabrications, 0 mismatch; blocks only on CBIC placeholders |
 | R3 citation (05) | **PASS** — 99/99 real, 0 fabrications, Gowalla mis-source fixed |
@@ -143,7 +143,7 @@ Every planned component, its Phase-0 status, and where it landed in v1.
 
 ⚠ **Page references in these reports are stale.** The 18 reports in `src_utils/_review_v1/` were
 run against the older 87 pp defense build, so every physical-page pointer they carry (for example
-"p.35") can be off by up to two pages against the current 89 pp build. The findings themselves
+"p.35") can be off by several pages against the current 103 pp build. The findings themselves
 stand; only the pagination moved.
 
 Full per-persona detail: `src/_review_v1/CONSOLIDATED_REVIEW_REPORT.md`. Headline: **no

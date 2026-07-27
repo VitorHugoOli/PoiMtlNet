@@ -44,6 +44,44 @@ fixtures **antes** de confiar no detector.
 
 ---
 
+## BLOCO 0 — a revisao do codex: auditada, e o que sobrou para voce
+
+Voce pediu para auditar antes de agir. Feito, achado por achado, contra a fonte. O documento
+`codex_reviewer.md` agora carrega um **AUDIT VERDICT** em cada achado, e as evidencias estao em
+[`CODEX_AUDIT.md`](CODEX_AUDIT.md) e [`CODEX_VS_PERSONAS.md`](CODEX_VS_PERSONAS.md).
+
+**Contagem:** 5 RESOLVIDOS, 1 REFUTADO como enunciado, 1 CONFIRMADO e corrigido, o resto PARCIAL com
+o residuo vivo nomeado caso a caso. **Quatro alegacoes nao se sustentam** na evidencia, entre elas
+uma exigencia de citacao que contraria uma decisao sua ja registrada, e uma atribuicao de capitulo
+que le uma frase do apendice do MobiWac como se fosse do Cap. 4.
+
+**Um fato estrutural que governa a leitura:** o codex leu um par de 97/92 paginas. O que esta em
+disco e **103/98**. Todos os `file:line` dele deslizaram; a auditoria re-ancorou cada um pelo
+conteudo. Os achados sobrevivem, as coordenadas nao.
+
+**Os quatro achados de maior valor nao foram pegos por nenhum outro revisor**, e os quatro estao
+corrigidos: a contagem errada do controle de capacidade (tres bracos de vinte, sessenta ajustes, e
+56,16 e uma media e nao um maximo), o artigo errado do Mikolov para negative sampling, uma frase do
+Cap. 5 que reafirmava uma atribuicao que o proprio capitulo recusa, e uma frase do Cap. 3 que
+descreve uma feature de no que o codigo liberado nao constroi. Nove personas, o fact gate e o
+simulador de banca passaram por todos os quatro sem ver.
+
+### 0.1 O que do codex ainda depende de voce
+
+| Item | O que falta |
+|---|---|
+| COD-002 | A tarefa estatica do Cap. 4: o determinismo esta medido e confirmado, mas a **divulgacao** ainda nao existe no texto, e escrever isso exige aviso ao co-autor (ja no item 2.2) |
+| COD-003 | O teste nao-linear de aresta futura na linhagem exata entregue. O texto **nao** exagera (isso foi refutado), mas o teste em si e uma decisao de compute sua (item 3.4) |
+| COD-005 | Nash-MTL: voce ja decidiu sobre o PCGrad. Sobra a alegacao de custo, ja declarada no Apendice B como preservada deliberadamente (item 1b.3) |
+| COD-006 | "before any result was read" e "well powered": os dois excedem o desenho. Correcao de uma frase cada, mas em texto de moldura que voce assina |
+| COD-007 | Os registros de protocolo que faltam no Cap. 3. Sao registros historicos que so voce sabe se existem |
+| COD-013 | O Apendice C diz que voce leu e aprovou cada palavra. 31 marcadores abertos (item 3.1) |
+| COD-016 | O passe de linguagem: a frase de 114 palavras do resumo e o bloco de 546 palavras da integridade. Voce ja pediu para adiar (item 3.3) |
+| COD-017 | O float grande do Apendice B e os rotulos de 6,97 pt nos diagramas: bloqueado na arte-fonte (item 3.2) |
+| NUM-4 | O `[VERIFY]` do 0,74 -> 0,82 do HGI: a fonte da 0,7388 +- 0,0205 -> 0,8186 +- 0,0123 em 5 folds x 50 epocas, e a prosa nao diz a convencao |
+
+---
+
 ## BLOCO 1 — bloqueiam a entrega, nao a ciencia
 
 ### 1.1 Banca, data, capa e folha de aprovacao (REV-023)
@@ -347,16 +385,16 @@ para tornar a afirmacao verdadeira.
 
 | Arquivo | Qtd | O que e |
 |---|---|---|
-| `0_main.tex` | 6 | Resumo e Abstract: **par de paridade**, incluindo as mudancas de unidade inferencial |
-| `chapters/6_conclusion.tex` | 6 | Escopos de alegacao, mais a clausula do F50 reescopada (item 1b.1) |
-| `chapters/5_mobiwac.tex` | 5 | Prefacio, recap, figura, atribuicao do trunk, clausula do F50 (item 1b.1) |
+| `0_main.tex` | 6 | Resumo e Abstract: **par de paridade** |
+| `chapters/6_conclusion.tex` | 6 | Escopos de alegacao, clausula do F50, contagem do controle de capacidade |
+| `chapters/5_mobiwac.tex` | 5 | Prefacio, recap, figura, atribuicao, clausula do F50, o piso de Markov |
 | `chapters/apx_a_contributions.tex` | 4 | Apendice inteiro; a §A.2 foi removida nesta rodada |
-| `chapters/apx_b_errata.tex` | 3 | Apendice inteiro, mais a errata de grafia do MTLnet (item 2b.2) |
+| `chapters/apx_b_errata.tex` | 3 | Apendice inteiro, errata de grafia, errata do Mikolov, errata do DGI |
 | `chapters/1_introduction.tex` | 2 | Correcao de gate L3, unidade inferencial |
 | `chapters/2_fundamentals.tex` | 2 | Escopo dos 93% do Song, de-duplicacao L3, descricao do CAGrad |
-| `chapters/apx_c_ai_disclosure.tex` | 1 | Apendice inteiro |
-| `chapters/apx_d_ceiling.tex` | 1 | Apendice reescrito (label-history benchmark, item 3.4) |
-| `chapters/apx_e_ethics.tex` | 1 | **Apendice novo**: afirmacoes institucionais em seu nome (item 2.1) |
+| `chapters/apx_c_ai_disclosure.tex` | 1 | Apendice inteiro (COD-013: ele afirma que voce leu cada palavra) |
+| `chapters/apx_d_ceiling.tex` | 1 | Apendice reescrito (label-history benchmark) |
+| `chapters/apx_e_ethics.tex` | 1 | **Apendice novo**: afirmacoes institucionais em seu nome |
 | **TOTAL** | **31** | contagem medida em 10 arquivos, 2026-07-27 |
 
 **Regra que nao da para contornar:** os 6 do `0_main.tex` sao **um par**. Resumo e Abstract carregam as mesmas

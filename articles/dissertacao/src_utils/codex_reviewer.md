@@ -9,6 +9,42 @@ the v2 re-review, project laws and ledgers, documentation, result artifacts, rel
 implementations, and one fresh independent pass for each of the 18 reviewer definitions.
 No dissertation source, result, numerical value, citation, or claim was changed in this pass.
 
+---
+
+> ## AUDIT AND DISPOSITION, 2026-07-27
+>
+> This document was audited finding by finding against the source before any of it was acted on,
+> at the author's instruction. Each finding below carries an **AUDIT VERDICT** line, and the ones
+> that were acted on carry a **What was done** line naming the commit.
+>
+> **Two things to know before reading it.**
+>
+> First, this review read a 97/92-page pair. The builds on disk are **103/98 pages**. Every
+> `file:line` in this document has drifted, and the audit re-pinned each locus by content. The
+> findings mostly survive; the coordinates do not.
+>
+> Second, the audit is in two companion files, and they carry the evidence this summary compresses:
+> [`CODEX_AUDIT.md`](CODEX_AUDIT.md) has the per-finding verdicts with file:line proof, and
+> [`CODEX_VS_PERSONAS.md`](CODEX_VS_PERSONAS.md) maps this review against the nine-persona suite,
+> the fact gate and the committee simulation, naming what is duplicate, what is contested, and what
+> only this review found.
+>
+> **Tally:** 5 RESOLVED, 1 REFUTED as stated, 1 CONFIRMED and fixed, the rest PARTLY, with the
+> live residue named in each case. Four claims do not hold on the evidence, including a citation
+> demand that runs against a recorded author ruling, and a chapter attribution that reads a MobiWac
+> appendix sentence as a Chapter 4 claim.
+>
+> **The four highest-value findings were ones no other reviewer caught**, and all four are fixed:
+> the capacity-control miscount (three arms of twenty, sixty fits, and 56.16 is a mean not a
+> maximum), the wrong Mikolov paper for negative sampling, a Chapter 5 sentence that reasserted an
+> attribution the same chapter refuses, and a Chapter 3 sentence describing a node feature the
+> released code does not build. A nine-persona suite, the fact gate and the committee simulator all
+> read past every one of them.
+>
+> **What still needs the author** is listed in [`PENDENCIAS.md`](PENDENCIAS.md), not here.
+
+---
+
 ## Executive Summary
 
 The revision is a substantial improvement over the first reviewed version. The central Chapter 5
@@ -86,6 +122,10 @@ statement, and production blockers are resolved before circulation.
 
 ### COD-001 — Three rendered sentences are broken by comment-swallowed prose
 
+> **AUDIT VERDICT (2026-07-27): RESOLVED.** All three render: "Nash-MTL treats" p23, "a capacity-matched dedicated baseline" p77, "The emphasis convention" p89; four more of the class were found and fixed; the checker now passes 10 fixtures before its own result is trusted
+>
+> **What was done:** Fixed 2026-07-27 (f62e33f8). All three sentences verified rendering. Four MORE of the same class were then found and fixed. The detector was rebuilt around a render test, carries 10 regression fixtures, and check.sh runs the fixtures before trusting it.
+
 - **Severity:** Critical
 - **Status:** Open
 - **Files:** `src/chapters/2_fundamentals.tex:356-368`;
@@ -126,6 +166,8 @@ for `check_trapped_prose.py`, rebuild both variants, and visually inspect the re
 > _Record the commit, rebuilt page checks, and checker regression test here._
 
 ### COD-002 — Chapter 4 static category result is target-derived but still drives the thesis arc
+
+> **AUDIT VERDICT (2026-07-27): PARTLY.** `spot`→`category` purity is 1.0 at all five states (measured); no rendered page states it; but Ch.4 is only one of two supports for the diagnosis and the width confound is now disclosed in Ch.6
 
 - **Severity:** Critical
 - **Status:** Needs author input
@@ -173,6 +215,8 @@ report it as new evidence rather than silently replacing the published record.
 
 ### COD-003 — The exact reported Check2HGI lineage has not closed the future-edge channel
 
+> **AUDIT VERDICT (2026-07-27): PARTLY.** Ch.5 :391 states the linear form, the Florida-only single-seed scope, the ancestor-build lineage, and the failed screen; the one global word left is "leakage-guarded" at `1_introduction.tex:158`
+
 - **Severity:** Major
 - **Status:** Needs author input
 - **Files:** `src/chapters/5_mobiwac.tex:259-263,370-396,839-845`;
@@ -219,6 +263,10 @@ undertaken here because this pass is review-only.
 > _Record the run manifest and result, or the approved conditional wording._
 
 ### COD-004 — Operational joint-model success is conflated with MTL transfer and a trunk mechanism
+
+> **AUDIT VERDICT (2026-07-27): PARTLY.** The withholding is stated twice (Ch.5 :713, Ch.6 :101) and the ablation is disclosed as unusable; the contrary attribution survives verbatim at `5_mobiwac.tex:872` (p74)
+>
+> **What was done:** Applied (06b64cab). Attribution downgraded in Ch.5 and Ch.6; the supporting ablation was audited and found measured on a different configuration, and that is disclosed. A residual reassertion at 5_mobiwac.tex:872 was then found by the cross-check and fixed (877b2109).
 
 - **Severity:** Major
 - **Status:** Open
@@ -270,6 +318,8 @@ largest observed lever in this experimental sequence” or an equally conditiona
 
 ### COD-005 — PCGrad and Nash-MTL evidence is still misstated
 
+> **AUDIT VERDICT (2026-07-27): PARTLY.** Wiring defect and unsupported cost claim CONFIRMED at source; the author has ruled on PCGrad and Nash separately; the screen's seed/state scope is still absent from prose
+
 - **Severity:** Major
 - **Status:** Open
 - **Files:** `src/chapters/5_mobiwac.tex:182-210`;
@@ -313,6 +363,8 @@ statement in the main chapter while retaining an Appendix B record.
 > _Record the final optimizer inventory and the historical-result interpretation._
 
 ### COD-006 — Statistical wording exceeds the design
+
+> **AUDIT VERDICT (2026-07-27): PARTLY.** "before any result was read" and "well powered" are CONFIRMED overstatements; "identically" is REFUTED as reported (the sentence names the asymmetry itself); n=4 and the fixed partition are already stated
 
 - **Severity:** Major
 - **Status:** Open
@@ -361,6 +413,8 @@ confirmatory.
 
 ### COD-007 — Historical Chapters 3–4 remain descriptively useful but methodologically under-specified
 
+> **AUDIT VERDICT (2026-07-27): PARTLY / NEEDS-AUTHOR.** The missing Ch.3 records and unspecified Ch.4 checkpoint rule are CONFIRMED; the "significant/outperforms survives" half is largely REFUTED (Appendix B documents four removals and accounts for all six surviving uses)
+
 - **Severity:** Major
 - **Status:** Needs author input
 - **Files:** `src/chapters/2_fundamentals.tex:499-506`;
@@ -400,6 +454,10 @@ CoUrb's sample-level estimand, and label the per-cell best-encoder summary as an
 > _Record recovered manifests or the final historical-scope wording._
 
 ### COD-008 — Several load-bearing citations do not support the claims attached to them
+
+> **AUDIT VERDICT (2026-07-27): PARTLY.** Mikolov negative-sampling mismatch CONFIRMED (1301.3781 has no negative sampling); Standley overreach CONFIRMED; UberNet/Sphere2Vec preprints CONFIRMED (versions of record exist); the scikit-learn claim is REFUTED as a support failure
+>
+> **What was done:** Mikolov half fixed (47ca2bd5): mikolov2013negsampling added and both cited, with an errata row recording that the earlier erratum installed the defect.
 
 - **Severity:** Major
 - **Status:** Open
@@ -443,6 +501,8 @@ their versions of record. Preserve the successful R4 repairs to the other sample
 
 ### COD-009 — CoUrb translation and adaptation records lag the actual dissertation
 
+> **AUDIT VERDICT (2026-07-27): PARTLY.** The single-seed sentence is already scoped to the released code (verified firsthand in `create_fold.py`); the stale inventory, English-donor source-of-record, and the "no claim altered" tension are CONFIRMED
+
 - **Severity:** Major
 - **Status:** Open
 - **Files:** `src/chapters/4_courb.tex:245-252,313,356,412-414`;
@@ -485,6 +545,10 @@ publication as the source of record; reconcile the universal “no claim altered
 
 ### COD-010 — Capacity-matched control is useful but miscounted and over-compressed
 
+> **AUDIT VERDICT (2026-07-27): CONFIRMED.** "across three training configurations and all twenty fitted models" still renders on p77; the artifact is 20 per arm, 60 total, and 56.16 is the best arm's mean (SD 1.89)
+>
+> **What was done:** Fixed (47ca2bd5). Verified in capacity_matched_summary.json: three arms at n=20 each, sixty fits, and 56.16 is the best arm's mean with sd 1.89. Both now stated.
+
 - **Severity:** Moderate
 - **Status:** Open
 - **File:** `src/chapters/6_conclusion.tex:105-148`
@@ -518,6 +582,10 @@ best configuration's mean with dispersion, and retain the narrower search/one-wi
 > _Record the corrected count/statistic and artifact path._
 
 ### COD-011 — Privacy, ethics, licensing, and data governance are absent from the PDF
+
+> **AUDIT VERDICT (2026-07-27): RESOLVED.** Appendix E "Data Ethics and Governance" is in the build (pp. 101–102), with licences re-verified at source and the CEP/IRB position recorded as a position, not an approval
+>
+> **What was done:** Resolved (9e2b5157). Appendix E, Data Ethics and Governance, is in the build. Every licence re-verified at its source of record; two claims later corrected on the fact gate's findings (6f97bf60).
 
 - **Severity:** Major
 - **Status:** Needs author input
@@ -554,6 +622,10 @@ individual deployment, and the actual CEP/IRB determination. Do not invent the l
 > _Record the approved statement and supporting institutional/source evidence._
 
 ### COD-012 — Both artifacts fail the current UFV submission gate
+
+> **AUDIT VERDICT (2026-07-27): PARTLY.** Bibliography now measures 11.96 pt, body size (measured p81), so that half is RESOLVED; cover, approval sheet, committee, date, font ruling and process documents remain NEEDS-AUTHOR
+>
+> **What was done:** Bibliography half resolved (9e2b5157): the footnotesize wrapper is gone and the bibliography sets at body size. Campus set, and flagged as inert until a cover exists. Cover, approval sheet, committee and date remain yours.
 
 - **Severity:** Critical
 - **Status:** Needs author input
@@ -595,6 +667,8 @@ listed process documents; and verify the final page offset against the portal-ge
 
 ### COD-013 — AI disclosure is ahead of the recorded author-approval state
 
+> **AUDIT VERDICT (2026-07-27): CONFIRMED.** Appendix C claims the author "takes responsibility for every word" while 31 `[NEEDS SIGN-OFF]` markers remain in `src/`, not 27
+
 - **Severity:** Major
 - **Status:** Needs author input
 - **Files:** `src/chapters/apx_c_ai_disclosure.tex:11-12,50-57`;
@@ -634,6 +708,10 @@ final checkpoints rather than creating retrospective author-approval commits.
 > _Record the signed disclosure text and approval evidence._
 
 ### COD-014 — New “ceiling” and Markov-floor explanations claim more than the analyses show
+
+> **AUDIT VERDICT (2026-07-27): RESOLVED.** "label-history benchmark" throughout with "not an upper bound" stated; the Markov paragraph now states protocol asymmetry system by system and disclaims a single cause
+>
+> **What was done:** Resolved (ff96dcaf). 'label-history benchmark' throughout, stated as not an upper bound; the Markov paragraph states a protocol asymmetry with no causal claim. A wrong-quantity number in that same paragraph was then found by the fact gate and fixed (9a861200).
 
 - **Severity:** Moderate
 - **Status:** Open
@@ -675,6 +753,8 @@ state the protocol asymmetry and treat external rows as contextual comparisons.
 > _Record glossary, appendix, Chapter 5, registry, and Appendix B synchronization._
 
 ### COD-015 — Cross-chapter task, data, and reference-point seams remain
+
+> **AUDIT VERDICT (2026-07-27): PARTLY.** Four of six sub-claims hold: Ch.6 still says "three of the six datasets" where the measurement pools four Gowalla states, the MRR and relative-multi-task promises are still unused, the frame and Ch.4 disagree on the Gowalla vintage, and the Ch.3 preface clause understates Ch.5's changes; the next-POI bridge and the cross-reference targets are REFUTED
 
 - **Severity:** Moderate
 - **Status:** Open
@@ -721,6 +801,8 @@ gradient scope.
 
 ### COD-016 — A targeted professional language and readability pass remains mandatory
 
+> **AUDIT VERDICT (2026-07-27): PARTLY.** The 114-word abstract result sentence and the 546-word integrity block are CONFIRMED burdens; the `3_cbic.tex:340` "unrecoverable" sentence is REFUTED (the quoted words are published prose and their meaning is recoverable)
+
 - **Severity:** Moderate
 - **Status:** Open
 - **Files:** Dissertation-wide, concentrated in Chapters 3–5 and Appendix B
@@ -763,6 +845,8 @@ sentence; then perform a bounded line edit that preserves published-text provena
 
 ### COD-017 — Visual and typographic inconsistencies need a final production pass
 
+> **AUDIT VERDICT (2026-07-27): PARTLY.** The oversized Appendix B float (21.55853 pt) and 6.97/7.27 pt diagram labels on pp. 62 and 64 are CONFIRMED by measurement; the Portuguese figure labels are RESOLVED; the "nearly blank p.4 with orphaned keywords" is CONFIRMED
+
 - **Severity:** Moderate
 - **Status:** Open
 - **Files:** Both PDFs and figure/table sources
@@ -803,6 +887,10 @@ pagination will move.
 > _Record the final page-by-page visual inspection._
 
 ### COD-018 — Governance files and automated gates no longer describe the artifact reliably
+
+> **AUDIT VERDICT (2026-07-27): PARTLY.** Page counts in `CLAUDE.md`, `PLAN.md`, `HANDOFF_v1.md` are stale (89/84 against 102/97) and Appendix A lacks per-role CoUrb credit; the checker and `pypdfium2` sub-claims are RESOLVED
+>
+> **What was done:** Page counts synced to the measured 103/98 in CLAUDE.md, PLAN.md and HANDOFF_v1.md. The check.sh undefined-citation gate was found to pass silently under UTF-8 locales and was rebuilt (877b2109).
 
 - **Severity:** Moderate
 - **Status:** Open

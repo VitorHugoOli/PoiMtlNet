@@ -174,11 +174,15 @@ states as its finding, that the gain is not cross-task transfer.
 The gradient-level picture is consistent with this reading, within its measurement
 scope. During development, on an earlier preparation of the data, the cosine
 similarity between the two tasks' gradients averaged $+0.001$ over four seeds on
-three of the six datasets, directional conflict only, a finding for this pair of
+four Gowalla states, three of which are among the five we report, directional conflict
+only, a finding for this pair of
 tasks rather than a general rule. Under the check-in-level representation the two
 sequential tasks coexist with essentially orthogonal gradients: sharing stopped
 hurting. This also explains why gradient-balancing optimizers had little to correct,
 in this configuration, and why a tuned fixed weighting sufficed.
+% [round5, NUM-3] Scope corrected. The pool is R0_matched_metric_bar.json: four Gowalla states
+% (AL, AZ, GA, FL), and GA is not one of the dissertation's six datasets. Ch.5 was corrected on this
+% point in round 4; this locus was missed then. No value changed.
 
 The negative result of Chapter~\ref{ch:cbic} and the positive result of Chapter~\ref{ch:mobiwac} do not
 contradict each other; read together, they bound the claim. Multi-task learning is

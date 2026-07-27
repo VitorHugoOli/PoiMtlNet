@@ -14,10 +14,10 @@ rule (never absorb silently).
 
 **GREEN (done, committed):**
 
-- Skeleton + **both build modes** from a single `main.tex` (defense **89 pp** → `src/dissertacao.pdf`;
-  final AcademicoPG **84 pp** → `build/main_final.pdf`); 0 errors, 0 undefined refs/cites, 2 overfull
+- Skeleton + **both build modes** from a single `main.tex` (defense **103 pp** → `src/dissertacao.pdf`;
+  final AcademicoPG **98 pp** → `build/main_final.pdf`); 0 errors, 0 undefined refs/cites, 0 overfull
   hboxes, lint 0. (Counts measured 2026-07-25 on a full three-pass build of the current source; older
-  notes say 87/83, which predates the round-2 corrections.)
+  notes say 87/83 or 89/84, which predate the round-4 and round-5 corrections.)
 - Chapters 1–6 assembled; single global `references.bib` (99 entries, 0 dangling); front/back
   matter + three appendices.
 - Full-document gates (N4 numeral, R3 citation, L3/L4, WRITING\_LAW §7, two-build) run + fixed.
