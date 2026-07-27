@@ -1,0 +1,297 @@
+# AGENT_HANDOFF.md — what a Claude Science agent needs before touching this repository
+
+**Written 2026-07-27**, at the author's request, after five correction rounds on the dissertation.
+**Audience:** the next Claude Science agent (or any AI assistant) asked to work on
+`articles/dissertacao/`. **Author:** Vitor H. O. Silva, UFV/PPGCC, defense August 2026.
+
+This file is not a summary of the dissertation and not a restatement of the law. Those exist:
+
+| Read this | For |
+|---|---|
+| [`CLAUDE.md`](../CLAUDE.md) | the landing page, current state, decisions ledger, doc map |
+| [`NORTH_STAR.md`](../NORTH_STAR.md) | the thesis, the arc, the chapter map, per-chapter errata |
+| [`WRITING_LAW.md`](../WRITING_LAW.md) | the word-level law (register, canonical names, AI-tell bans) |
+| [`GLOSSARY.md`](../GLOSSARY.md) | the fail-closed term registry |
+| [`AGENT_GUARDRAILS.md`](../AGENT_GUARDRAILS.md) | the process law: citation, number and claim protocols |
+| [`UFV_COMPLIANCE.md`](../UFV_COMPLIANCE.md) | the university's formatting requirements |
+| [`src_utils/PENDENCIAS.md`](../src_utils/PENDENCIAS.md) | what currently needs the author |
+| [`reviewers/README.md`](../reviewers/README.md) | the 19 review personas and when each is mandatory |
+
+**What this file adds is the part no other document holds: the mistakes an agent working here
+actually makes, and the mechanisms now in place to catch them.** Every entry below happened. Each
+was found by review, almost never by the agent that caused it. Read this before you write anything;
+it will save you from repeating a defect the author has already paid for once.
+
+---
+
+## 1 · The one rule that matters most
+
+**A claim about your own verification is a claim, and it is the claim you are most likely to get
+wrong.**
+
+Across these rounds the work itself was usually right. What kept failing was the *record of the
+checking*: source comments asserting a verification that had not run, commit messages recording
+conditions that were false when written, file headers describing a check that never happened. Five
+separate instances, all caught by review.
+
+The mechanism behind every one of them is the same, and it is worth naming so you can avoid it:
+**the cell that does the work is not the cell that should write the claim about it.** If you write
+"verified" in the same breath as the edit, you are writing a prediction, not an observation. Do the
+edit, run the check, read the result, *then* write what the result was.
+
+Corollary: when you find you were wrong about something you already recorded, **correct it forward**.
+The convention in this repo is a correction note attached to the commit (`git notes add`), not a
+rewrite of history. Two commits carry such notes today. Hiding an error is worse than the error.
+
+---
+
+## 2 · Failure modes that have actually bitten this repository
+
+### 2.1 Prose swallowed into a LaTeX comment (TEN instances)
+
+A comment block written without a trailing newline pulls the following body line onto the comment.
+The build succeeds. The sentence silently does not render. This has been the most persistent defect
+in the repository: the regression suite pins **ten fixture cases**, covering six distinct source loci
+across five files plus negative controls, and several of those were introduced *by edits fixing other
+instances of it*. (The exact lifetime total is not worth asserting — what matters is that it recurs,
+including under edits whose whole purpose was to fix it.)
+
+- **Gate:** `src_utils/check_trapped_prose.py`, with `src_utils/test_trapped_prose.py` pinning every
+  historical case. `check.sh` runs the fixtures **before** trusting the detector, because a green
+  document means nothing when the checker is broken.
+- **What defeated four earlier versions of that detector:** tuning it on the cases visible at the
+  time. Length thresholds, vocabulary filters, sentence-completeness rules and parenthesis rules
+  each missed the next instance. What works is the render test: extract the words after the last
+  comment marker and check whether they appear in the built PDF.
+- **When you edit:** end every comment block with a newline before the prose resumes. Then rebuild
+  and run the gate. Do not assume.
+
+### 2.2 A no-op substitution read as a measurement (TWICE)
+
+A parameter sweep whose arms never applied returns identical results across arms, and identical
+results look exactly like a converged null.
+
+- Once a regex wrote `\needspace{N\\onelineskip}` with a doubled backslash, and the later sweep arms
+  used a single-backslash pattern that could not match it. Three arms never ran. The conclusion drawn
+  from them was false, and it was written into a durable source comment and two commit messages.
+- Once a shell heredoc regex raised `bad escape \o` on every iteration, printing three identical
+  lines from one unchanged build.
+- **Gate:** `src_utils/sweep_guard.py`. `substitute()` raises when a pattern matches nothing, applies
+  the wrong number of times, or the replacement equals what was there; `assert_distinct()` raises
+  when every arm of a sweep returns the same value. Its self-tests pin both historical cases and run
+  in `check.sh`.
+- **The lesson beyond the tooling:** when a sweep gives you the same answer for every setting,
+  that is evidence about your harness before it is evidence about the world.
+
+### 2.3 Trusting the build log's silence
+
+`pdflatex` does not report every layout failure the same way, and two classes were invisible to a
+naive check:
+
+- **Wrapped warnings.** LaTeX breaks warnings at 79 columns, so a line-anchored grep misses them.
+  Four citations shipped as `(??)` in both delivered PDFs while the checker reported zero undefined.
+  **Always flatten the log before matching**, and read the `.blg` as a separate source of truth —
+  a BibTeX error does not appear in the `.log` at all.
+- **Floats taller than the text block.** Reported as `Float too large for page by Npt`, not as an
+  overfull box. A table hung 163pt below the bottom margin across four "clean" builds until the
+  author noticed by eye. `build.sh` now extracts and fails on that warning.
+- **Locale-dependent tooling.** `check.sh` once used `tr | grep` on the build log, which aborts on an
+  invalid UTF-8 byte present in every log — so under a UTF-8 locale everything past that byte went
+  unexamined. Match logs in Python with permissive decoding, never with `tr`.
+
+### 2.4 Stale committed build residue
+
+`chapters/*.aux` and `main.aux` had been committed at the source root. BibTeX resolves those paths
+relative to the source directory, so they shadowed `build/` and fed it a pre-rename citation key.
+That is what produced the four `(??)` citations. They are now gitignored with the reason recorded.
+**Never commit `.aux`, `.bbl`, `.blg`, `.log`, `.toc`, `.lof` or `.lot` at `src/`.**
+
+### 2.5 Build tooling living only in `/tmp`
+
+The build script lived in `/tmp` for a whole session and was swept mid-session, which silently turned
+"rebuild and check" into "check a stale PDF". That is the mechanism by which three broken sentences
+shipped. It is now committed at `src_utils/build.sh` and fails loudly when no PDF is produced.
+
+It also carried a path bug for a long time — it `cd`s into `$SRC` and then passed `$SRC` again to its
+own verifier — masked because it was always invoked from one directory. **Resolve script paths from
+`BASH_SOURCE` before any `cd`**, the way `check.sh` does for `SRCROOT` and `UTILS`.
+
+### 2.6 Records that drift from the thing they describe
+
+Page counts in the governance files drifted three times (87/83, 89/84, 103/98, 104/99), every time
+caught by review rather than by the edit that caused it. The page-drift note in `codex_reviewer.md`
+is load-bearing: it tells a reader how far every `file:line` in that review has moved.
+
+- **Gate:** `src_utils/sync_page_counts.py` reads the count from the build logs, checks all ten
+  recorded claims, exits 1 naming the stale file, and repairs with `--write`. `check.sh` runs it.
+- The same class of drift hit the `[NEEDS SIGN-OFF]` inventory twice. Regenerate that table from
+  measurement, never by hand, and give it a total row so the rows and the headline cannot disagree.
+
+### 2.7 Probes that lie
+
+Several conclusions were nearly published from broken probes. Each was caught by noticing a result
+that did not make sense:
+
+- `git` invoked from the analysis kernel returned **empty** because it could not read the user's
+  config, making a count meaningless. Route git through the shell.
+- A citation-usage check counted a **commented-out** `\cite` as a live citation.
+- A table parser grabbed the wrong column, then silently dropped every row wrapped in `\textbf{}`.
+- A margin check flagged 19 pages as overflowing; they were **descenders** (`g`, `p`) on lines
+  sitting legitimately on the margin.
+- An attempt to derive a reference ceiling assumed stride-1 windows; the data disagreed at 18%
+  agreement, and the assumption was wrong.
+
+**When a probe gives you a surprising number, suspect the probe first.** Verify it against a case
+whose answer you already know.
+
+---
+
+## 3 · How to work here
+
+### 3.1 The errata regime — the single most important thing to understand
+
+Chapters 3, 4 and 5 **reproduce published or submitted articles**. They are a time capsule.
+
+- **Published text (CBIC ch.3, CoUrb ch.4):** you may not silently edit it. A change is either a
+  footnote or an entry in Appendix B's errata tables, which now live in `src/tables/<article>/`.
+- **Submitted-and-under-review text (MobiWac ch.5):** the author's standing ruling as of 2026-07-27
+  is that a **minor** correction does **not** need an erratum — apply it to
+  `articles/[mobiwac]/src/` as well, keep the two texts identical, and log it in
+  `articles/[mobiwac]/ERRATA.md`. Only corrections too elaborate for a paper under review stay
+  errata (currently two: one cites Appendix D, one cites the dissertation's own results table).
+- **Frame text (ch.1, ch.2, ch.6, appendices):** freely editable, no errata cost.
+- **When you port a correction to the paper**, remember the two traps that caught me: dissertation
+  labels are prefixed (`sec:mobiwac:setup-windows`) and do not exist in the paper
+  (`sec:setup-windows`), and phrases like "this chapter's claims" must become "the paper's claims".
+
+### 3.2 The glossaries — and the one that is easy to miss
+
+`GLOSSARY.md` is fail-closed: a term not in the registry may not be used. But **for Chapter 5 there
+is a second, stricter glossary that wins**: `articles/[mobiwac]/GLOSSARY.md`, 393 lines, with a
+26-row jargon-to-plain substitution table carrying a verdict column (keep / gloss once / avoid /
+never) and a section of words to avoid or always explain.
+
+Persona 03's own brief names that file as authoritative for Chapter 5 — and its 2026-07-26 report
+contained zero references to it, so the law went unapplied for a full round. I then introduced a
+never-use word (`arm`, "clinical-trial word, foreign to this audience") into Chapter 5 myself, and
+my port carried it into the paper. **If you touch Chapter 5, lint against that file row by row.**
+
+Distinguish carefully: a banned word describing **another paper's** method is usually legitimate
+("activity" when reporting what MCARNN predicts); the same word in **our own** claims is not.
+
+### 3.3 Numbers
+
+`AGENT_GUARDRAILS.md` §2 is the law; three practical notes from experience:
+
+- **Quote, never compute.** Every number traces to a committed file. If it does not exist there,
+  flag `[VERIFY]` rather than deriving it.
+- **A number is not just a value, it is a quantity.** Twice a figure was replaced by a *different
+  quantity* that happened to be numerically close: a place-level share standing in for a
+  region-level one, and a model's top-1 accuracy standing in for a persistence share (32.06 against
+  the true 32.91). Both passed casual review precisely because the magnitudes looked right. State
+  what the number measures, on which windows, under which protocol.
+- **When you compute something new, commit a generator.** `scripts/embedding_eval/` has two examples
+  that gate themselves: `autocorrelation_ceiling.py` and `region_persistence.py`, which refuse to
+  emit a number when their window count disagrees with the artifact they are compared against.
+
+### 3.4 The review personas are not optional
+
+`reviewers/` holds 19 briefs; `reviewers/README.md` says when each is mandatory. Two are load-bearing
+and were both skipped for a full round:
+
+- **03 (style auditor)** is the G3 gate, required before *every* advisor handoff.
+- **16 (AI-credibility)** is required before advisor and committee builds. Its first run on the
+  current text found a doubled backslash rendering a macro name onto the page.
+
+Findings from these personas have been consistently better than my own self-checks. Treat a persona
+report as evidence and verify each finding against the source yourself — several have been wrong, and
+saying so with evidence is part of the job.
+
+### 3.5 Build and gate, every time
+
+```
+cd articles/dissertacao
+./src_utils/build.sh src both      # defense + final; reports pages, overfull, undefined, oversized floats
+cp src/build/main.pdf src/dissertacao.pdf
+./src_utils/check.sh               # sweep-guard tests, page-count sync, trapped-prose fixtures, style lint
+python3 src_utils/sync_page_counts.py --write   # if the page count moved
+```
+
+`check.sh` currently exits 1 on a **known false positive**: the word "Pareto" in `3_cbic.tex` trips
+the banned-verdict-verb sweep. It is the technical term (Pareto-optimal, Pareto-stationary) in
+published text and must stay. Read the output rather than the exit code, and do not "fix" those.
+
+### 3.6 Commit style
+
+`draft(ai):` for new prose, `fix:` for corrections, `refactor:` for structure, `docs:` for records.
+Write the message so the author can audit the change without opening the diff: what changed, what
+the evidence was, and what you verified afterwards. When a message turns out to have been wrong,
+attach a `git notes` correction rather than rewriting it.
+
+---
+
+## 4 · Repository geography
+
+```
+articles/dissertacao/
+  CLAUDE.md NORTH_STAR.md WRITING_LAW.md GLOSSARY.md      the law; read before writing
+  AGENT_GUARDRAILS.md UFV_COMPLIANCE.md PLAN.md TEMPLATE.md
+  src/                      LaTeX source
+    main.tex                34 lines: mode switch + one \input. ONE source, TWO build modes
+    0_main.tex              preamble + front matter + chapter includes
+    chapters/               one file per chapter
+    tables/<article>/       one file per table, \input from its chapter (cbic/ courb/ mobiwac/ frame/)
+    figures/<article>/       same convention
+    build/                  all output; gitignored
+  src_utils/                tooling + the live registers
+    build.sh check.sh       build and gate
+    check_trapped_prose.py test_trapped_prose.py sweep_guard.py sync_page_counts.py
+    PENDENCIAS.md           what needs the author
+    codex_reviewer.md CODEX_AUDIT.md CODEX_VS_PERSONAS.md   external review + its audit
+    _review_v2/ _review_v3/ _specialists_v2/                persona reports
+    _archive/               superseded working files, with a README index
+  reviewers/                the 19 persona briefs
+  science/                  this file, plus the science background prompts
+  exemples/                 five exemplar dissertations (PDF); Germano is the closest precedent
+articles/[mobiwac]/         the submitted paper: its own GLOSSARY.md and ERRATA.md are authoritative
+articles/CBIC___MTL/        the published CBIC article (version of record for ch.3)
+articles/CoUrb_2026/        the published CoUrb article (version of record for ch.4)
+docs/                       results, studies and protocol records; numbers trace here
+```
+
+---
+
+## 5 · Things about this author that will make you more useful
+
+- **He audits.** Every claim you make will be checked, and he has caught errors in five separate
+  rounds. Self-reported success is not trusted here, and should not be.
+- **He asks "what do you think?" and means it.** When he proposes something, an opinion with evidence
+  is worth more than compliance. Twice a measurement changed his mind, and twice it changed mine —
+  including one case where his hypothesis about a data leak was refuted by measuring the data.
+- **He objects to specifics, not vibes.** "Appendix D is confusing" turned out to be a concept
+  collision between two similarly-named quantities plus a term defined only in another chapter — not
+  sentence length, which measured *shortest in the document*. Measure before you rewrite.
+- **He owns every word.** You draft; he approves. When something needs his call — a co-author
+  courtesy notice, a claim about the program's practice, a sentence in his own name about his own
+  process — record it in `PENDENCIAS.md` and stop. Do not write it for him.
+- **Comment density is a live complaint.** Provenance comments earn their place; process narration
+  ("why I changed this in July") does not. When I measured, 1,254 of 1,324 comment lines were
+  provenance-bearing, so there was less fat than either of us assumed — but the 16 table files had
+  repeated the same 8-line paragraph 16 times, which was real and is now in one README.
+
+---
+
+## 6 · Open threads as of 2026-07-27
+
+Read `src_utils/PENDENCIAS.md` for the authoritative list. The shape of it:
+
+- **Administrative and blocking:** committee names and defense date, cover and approval sheet, the
+  advisor bundle (English frame, CoUrb inclusion, final title, errata policy), 32 `[NEEDS SIGN-OFF]`
+  markers.
+- **Scientific exposure:** the Chapter 4 static-task scope, which is measured and unfavourable and
+  needs a co-author courtesy notice before anything is written about it.
+- **Advisor's second point:** where his in-text markings of the odd term insertions are. Persona 03
+  is running against the MobiWac glossary, but his own list is the ground truth and has not arrived.
+- **Deliberately deferred:** the Chapter 4 figure relabelling (blocked on source art), the
+  reproducibility appendix (worth doing — four of five exemplars have one — but only once the text
+  settles).

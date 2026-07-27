@@ -187,3 +187,80 @@ verdadeira. Os dois pisos agora aparecem tabelados com a janela e a fonte de cad
 - **O que nao esta pendente, embora pareca:** a discrepancia 87/83 x 89/84 de paginas era real e esta corrigida (agora
   94/89 apos as correcoes, medido). As duas violacoes de margem foram eliminadas. As tabelas do Cap. 5 que estavam em 8
   pt agora renderizam em 11,96 pt, tamanho de corpo.
+
+---
+
+## Encerrados na rodada de 2026-07-27 (segunda leva)
+
+### ~~Outros pontos: erratas do MobiWac durante a revisao~~ — APLICADO 2026-07-27
+
+Sua instrucao foi seguida: o artigo esta em revisao, entao correcao menor **nao vira errata** — aplico
+no texto original tambem e os dois ficam identicos. Classifiquei as quatro linhas da tabela de errata do
+Cap. 5 contra o `[mobiwac]/src/`:
+
+| Correcao | Destino | Por que |
+|---|---|---|
+| frase dos balanceadores | **os dois textos** (`02_related.tex`) | menor: troca uma alegacao vaga pelo numero real |
+| terceira limitacao | **os dois textos** (`07_discussion.tex`) | menor: declara uma consequencia que o artigo ja divulga |
+| paragrafo de integridade | **fica errata** | o quarto fundamento cita o Apendice D, que nao cabe no artigo |
+| controle de congelamento | **fica errata** | cita a tabela de resultados da dissertacao |
+
+Detalhes que exigiram cuidado: o rotulo `sec:mobiwac:setup-windows` da dissertacao **nao existe** no
+artigo, foi remapeado para o `sec:setup-windows` dele, e "this chapter's claims" virou "the paper's
+claims". Artigo reconstruido: **9 pp, 0 referencias indefinidas, 0 citacoes indefinidas, 0 erros**.
+Registrado no `[mobiwac]/ERRATA.md`. A frase de abertura do Apendice B foi corrigida de quatro para
+duas e agora **explica a politica ao leitor**. Seu trabalho nao commitado de 25/07 em `[mobiwac]/` foi
+preservado (conferi os mtimes antes de editar).
+
+---
+
+## BLOCO 2 — exposicao cientifica real
+
+---
+
+### ~~1b.3 O custo do Nash-MTL~~ — CORRIGIDO 2026-07-27, um so padrao
+
+Sua razao foi aceita e aplicada: um padrao unico para erro factual. A clausula publicada "requires only
+two matrix-vector products per iteration" saiu da frase reproduzida no Cap. 3, com nota de rodape
+explicando, e entrou na **tabela de errata do CBIC**, ao lado da correcao de escala de gradiente que fica
+na mesma frase publicada. A secao "deliberadamente preservados" caiu de tres para dois elementos.
+Isto **supera** a decisao anterior de so declarar. A correcao **aumenta** o custo de um metodo que o
+capitulo usou, ou seja, corre contra o interesse da propria dissertacao — e portanto conservadora alem de
+consistente. Commit `d1911c0a`.
+
+---
+
+### ~~3.3 Resumo e Abstract: tamanho (REV-018)~~ — **A PAGINA FECHOU** 2026-07-27
+
+Voce escolheu a rota (i), cortar 60 a 80 palavras. Cortei **36 em paridade** (Resumo 565 -> 529, Abstract
+485 -> 452): sairam as duas glosas parenteticas da selecao \emph{joint-best} e a frase de motivacao foi
+comprimida. Cada numero, nome de teste e token de alegacao foi verificado presente nos dois idiomas.
+
+**E foi suficiente: a pagina quase em branco acabou.** 104 -> **103 pp**; o Resumo e suas palavras-chave
+dividem a p. 3, o Abstract fica com a p. 4, e a p. 4 saiu inteiramente da lista de paginas com pouco
+texto. Nao precisou dos 60 a 80 completos.
+
+**Um defeito meu, e o diagnostico que eu escrevi sobre ele tambem estava errado.** Trocar o
+`\needspace` por um `minipage` foi certo, mas o motivo que eu registrei era falso e uma auditoria pegou.
+Re-medido nos dois mecanismos, com o Resumo em 529 palavras e a macro **corretamente escapada**:
+
+| Mecanismo | Paginas | Onde fica o bloco |
+|---|---|---|
+| `\needspace{7\onelineskip}` | 104 | **inteiro** na p. 4 (21 palavras, rotulo incluido) |
+| `minipage` | **103** | na p. 3, junto do Resumo — a pagina fecha |
+
+Ou seja: o `needspace` **funciona** para manter rotulo e palavras-chave juntos. O que ele nao faz e
+**puxar** o bloco para a pagina anterior, porque reserva espaco para as *linhas* seguintes; quando o
+bloco nao cabe, ele move o bloco em vez de encaixa-lo. Um `minipage` e uma caixa, entao encaixa.
+
+A afirmacao anterior de que o `needspace` "nunca funcionou em nenhum valor" veio de **um bug meu de
+escape**: um regex escreveu `\needspace{N\\onelineskip}` com barra dupla, e as tentativas seguintes
+(8, 9, 10) usaram um padrao de barra simples que **nao casava** com a forma corrompida — entao aqueles
+tres testes nunca foram aplicados e devolveram resultados identicos byte a byte que eu li como
+evidencia. O `minipage` fica (mede melhor), mas por este motivo, nao pelo que eu havia escrito.
+
+**O que ainda e seu:** voce pediu revisores sobre o Resumo e o Abstract para avaliar qualidade e
+excelencia contra os exemplares. Vale rodar a persona 15 com esse escopo especifico na proxima rodada,
+com os textos ja no tamanho final.
+
+> DECISAO (rodar a persona 15 sobre o par Resumo/Abstract?): __________________________________

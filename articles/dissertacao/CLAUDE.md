@@ -20,6 +20,14 @@
 (citation protocol, number protocol, claim registry, review gates) apply to every edit in this
 folder. No chapter text goes to the author or advisor without passing its gates.
 
+> **If you are an AI agent working here for the first time, read**
+> [`science/AGENT_HANDOFF.md`](science/AGENT_HANDOFF.md) **first.** It holds what no other document
+> does: the failure modes agents actually hit in this repository (prose swallowed into LaTeX
+> comments, no-op substitutions read as measurements, build logs whose silence means nothing), the
+> gates now in place to catch each one, and how the errata regime differs between the published and
+> the under-review chapters. Written 2026-07-27 after five correction rounds; every claim in it was
+> verified against the repository before it was written down.
+
 ## 1 · Current state (2026-07-24 — v1 ASSEMBLED + corrections round 2)
 
 - **v1 lives in [`src/`](src/)** — the single working copy; the draft folders (`storyline/`,
@@ -132,7 +140,7 @@ silently reopen:**
 | [`PLAN.md`](PLAN.md) | Backwards-planned milestones to the August 2026 defense; risks and fallback. |
 | [`docs/`](docs/) | Official PDFs (submission manual 04_2026) + [`docs/research/`](docs/research/) (raw 2026-07-18 research records with all source URLs: AI-writing evidence, template survey, norms verification). |
 | [`exemples/`](exemples/) | [`viegas/`](exemples/viegas/): Viegas 2026 PDF + [`VIEGAS_ANALYSIS.md`](exemples/viegas/VIEGAS_ANALYSIS.md) (the quality bar). [`germano/`](exemples/germano/): Germano 2024 (same advisor, defended, EN) — full WORKING LaTeX source, the skeleton candidate ([`TEMPLATE.md`](TEMPLATE.md) §0). |
-| [`reviewers/`](reviewers/) | The reviewer persona suite (2026-07-20): **18 invocable review agents** — banca simulator, MTL + POI domain experts, stats/leakage skeptic, the G2 fact-gate trio (citations, numbers, claims), the G3 style gate, cold reader, concordance checker, line editor, L5 translation gate, UFV compliance, the pre-application adversarial advisor, plus (added later same day) the readability editor (15), AI-credibility reviewer (16), excellence assessor (17), and visual-presentation reviewer (18). Start at [`reviewers/README.md`](reviewers/README.md) (roster, pipeline, common protocol); research provenance in `docs/research/` (banca evaluation, MTL/POI criteria, AI-detection landscape, dissertation-excellence criteria). |
+| [`reviewers/`](reviewers/) | The reviewer persona suite (2026-07-20): **19 invocable review agents** — banca simulator, MTL + POI domain experts, stats/leakage skeptic, the G2 fact-gate trio (citations, numbers, claims), the G3 style gate, cold reader, concordance checker, line editor, L5 translation gate, UFV compliance, the pre-application adversarial advisor, plus (added later same day) the readability editor (15), AI-credibility reviewer (16), excellence assessor (17), and visual-presentation reviewer (18), plus (2026-07-27) the LaTeX source reviewer (19). Start at [`reviewers/README.md`](reviewers/README.md) (roster, pipeline, common protocol); research provenance in `docs/research/` (banca evaluation, MTL/POI criteria, AI-detection landscape, dissertation-excellence criteria). |
 
 ## 4 · Where the science lives (do not duplicate it here)
 

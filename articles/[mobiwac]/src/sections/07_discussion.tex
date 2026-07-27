@@ -21,13 +21,15 @@ Three limits qualify these results. First, our representation is trained once ov
 never seen during training are the single effect that we cannot fully isolate. A planned follow-up trains it on each fold's training places only and embeds unseen visits. Second, epoch selection consults the fold that the score is then read on
 (Section~\ref{sec:setup-windows}), so every absolute score reported here is optimistic. The
 comparison between the joint model and the dedicated models is affected far less, for two reasons
-that we can state rather than assume: the selection rule is applied identically to both arms on the
-same folds, and the dedicated arm receives the wider search, a per-dataset sweep over batch size and
+that we can state rather than assume: the selection rule is applied identically to both models on the
+same folds, and the dedicated model receives the wider search, a per-dataset sweep over batch size and
 learning rate against one configuration held fixed across all six datasets for the joint model. The
 residual therefore favors the comparator, which makes the reported difference conservative. It does
 not follow that the bias cancels exactly. The four seeds also reuse one fixed fold partition, so the
 reported intervals cover variation across random initializations and not across resampled user
 splits. Third, we do not build or evaluate a mobility-aware service; it is background motivation, and the paper's claims are the prediction results themselves.
+% [2026-07-27] "arm" replaced by "models" per this repo's own GLOSSARY.md §3, which lists it as
+% never-use ("clinical-trial word, foreign to this audience"). The dissertation carries the same fix.
 
 Our representation is a fixed per-visit vector that any downstream model
 can consume. Moura et al.~\cite{moura2025mobilityaware}, whose structural

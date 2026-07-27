@@ -57,6 +57,24 @@
 
 % -- Citations: single global NUMERIC scheme (decision #5) --
 \usepackage[num,abnt-emphasize=bf]{abntex2cite}
+% [round5, advisor request 2026-07-27] Citation brackets: square, not round.
+% His words: "sugiro mudar a notacao das citacoes tambem. Esta com (NUMERO) e na listagem esta com o
+% numero sem []. Acho melhor usar o [NUMERO] e quando necessario, colocar o nome dos autores com et al."
+% abntex2cite exposes \citebrackets{open}{close}; the num style calls \setcitebrackets which defaults
+% to (). Overriding it AFTER the package is loaded is the supported hook (abntex2cite.sty:212-213).
+% Precedent: the Viegas dissertation, whose structure this document follows, renders 193 [N] citations
+% against 15 (N); Germano, canesche, passe and lapsusvgi all use (N). So both are attested in the
+% program and this is a style choice, which the advisor has now made.
+\citebrackets{[}{]}
+% The reference LIST label is built separately, by \@biblabel via \citenumstyle
+% (abntex2cite.sty:834-848). \citenumstyle is a zero-argument FONT SWITCH, not a formatter, so
+% redefining it to take the number renders [0]; \@biblabel is the right hook. Redefined AFTER
+% \begin{document} would be too late, and the package sets it inside its own \AtBeginDocument, so
+% this hooks in at the same point and wins by ordering.
+\makeatletter
+\AtBeginDocument{\renewcommand{\@biblabel}[1]{%
+  \ifthenelse{\equal{#1}{}}{}{{\citenumstyle[#1]\hspace{\biblabelsep}}}}}
+\makeatother
 
 % -- Babel caption plumbing (from the source tree, kept: brazil loaded via class option,
 %    caption names anglicized, then english selected as the running language) --

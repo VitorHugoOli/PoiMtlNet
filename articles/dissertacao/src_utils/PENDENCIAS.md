@@ -103,6 +103,70 @@ Os dois BLOCKERs delas foram corrigidos. Sobram dois pontos que sao decisao sua:
 
 ---
 
+## BLOCO 0b — o que o orientador levantou (2026-07-27)
+
+### ~~Notacao das citacoes: (N) -> [N]~~ — APLICADO 2026-07-27
+
+Palavras dele: *"sugiro mudar a notacao das citacoes tambem. Esta com (NUMERO) e na listagem esta com o
+numero sem []. Acho melhor usar o [NUMERO] e quando necessario, colocar o nome dos autores com et al."*
+
+**Medido antes de mexer:** 236 citacoes no formato `(N)` no texto, zero em `[N]`, e a listagem com o
+numero pelado (`1 SILVA, V. H. O. et al. ...`). Ele estava certo nas duas metades, e as duas metades
+tinham causas diferentes:
+
+| Onde | Mecanismo | Correcao |
+|---|---|---|
+| no texto | `abntex2cite` chama `\setcitebrackets`, que no estilo `num` usa `()` | `\citebrackets{[}{]}` depois do pacote |
+| na listagem | `\@biblabel` monta o rotulo via `\citenumstyle`, que imprime o numero pelado | `\@biblabel` redefinido dentro de `\AtBeginDocument` |
+
+**Resultado:** 334 citacoes `[N]` no texto e a listagem em `[1] SILVA, V. H. O. et al. ...`, as duas na
+mesma forma. Paginas inalteradas (103/99), zero referencias indefinidas. As duas ocorrencias residuais
+de `(N)` sao legitimas: um numero de volume de revista e uma referencia a "capitulo (4)".
+
+**Precedente, porque isso e escolha de estilo e nao norma:** o Viegas — o exemplar cujo padrao este
+documento segue — usa `[N]` (193 ocorrencias contra 15 de `(N)`); Germano, canesche, passe e lapsusvgi
+usam `(N)`. Ou seja, os dois formatos passaram no programa. A decisao e dele e esta aplicada.
+
+**A segunda metade do pedido dele ainda e sua:** *"quando necessario, colocar o nome dos autores com et
+al."* Isso e caso a caso — trocar `\cite{}` por `\citeonline{}` onde o autor deve aparecer no corpo da
+frase ("Silva et al. mostram que...") em vez de so o numero. Nao fiz em lote porque **muda o sujeito
+gramatical de cada frase afetada**, e escolher onde o autor merece destaque e julgamento seu. Diga
+quais passagens e eu aplico.
+
+> DECISAO (quais passagens levam `\citeonline`?): _______________________________________
+
+### 3.4 O jeito como os termos entram (o segundo ponto dele) — **revisao rodando**
+
+Palavras dele: *"so tome cuidado com o uso de IA e os termos menos comuns que sao usados... soa um pouco
+estranho o jeito que alguns termos sao inseridos (marquei alguns la)"*.
+
+**Voce perguntou se rodamos o revisor disso. A resposta honesta e: rodei agora, e havia um buraco
+real.** A persona **03 (style auditor)** e o gate G3, obrigatorio antes de cada entrega ao orientador.
+O relatorio v2 dela e de **26/07 contra um build de 94 paginas** — o documento tem 103 hoje e levou
+umas trinta commits desde entao.
+
+**Pior, e este e o ponto que voce levantou sobre o glossario do MobiWac:** o brief dela, na linha 27,
+manda ler `articles/[mobiwac]/GLOSSARY.md` e diz que **ele vence para o Cap. 5**. O relatorio v2 tem
+**zero** referencias a esse arquivo. Aquele glossario tem 393 linhas, com uma tabela de 26 linhas de
+substituicao de jargao e uma secao de palavras a evitar. **Nao foi aplicado.**
+
+**Uma violacao eu ja achei e corrigi:** a palavra **"arm"** esta na lista never-use dele ("clinical-trial
+word, foreign to this audience") e **eu mesmo a inseri** na frase de limitacoes do Cap. 5 nesta rodada.
+Corrigida para "both models" / "the dedicated model" nos **dois** textos, porque o meu port tinha levado
+a violacao para o artigo tambem.
+
+A persona 03 esta rodando agora com o glossario do MobiWac como carga explicita, mais o pedido dele
+operacionalizado em cinco testes mediveis (termo usado antes de ser definido; definido duas vezes; glosa
+em registro que briga com a frase; termo usado uma unica vez no documento; empilhamento de glosas
+apositivas). Resultado em `_review_v3/03_style_auditor_report.md`.
+
+> **Falta voce:** ele disse *"marquei alguns la"*. Onde estao as marcacoes? Num PDF comentado, num
+> e-mail, no Word? Com a lista dele em maos eu cruzo com o que a persona achou e trato os dois.
+
+> DECISAO / ONDE ESTAO AS MARCACOES: ____________________________________________
+
+---
+
 ## BLOCO 1 — bloqueiam a entrega, nao a ciencia
 
 ### 1.1 Banca, data, capa e folha de aprovacao (REV-023)
@@ -154,30 +218,6 @@ pelo mecanismo do Apendice B, e ele so fica legitimo com o aval dele.
 **(C)** Uma conversa, quatro respostas.
 
 > DECISAO: __________________________________________________
-
-### ~~Outros pontos: erratas do MobiWac durante a revisao~~ — APLICADO 2026-07-27
-
-Sua instrucao foi seguida: o artigo esta em revisao, entao correcao menor **nao vira errata** — aplico
-no texto original tambem e os dois ficam identicos. Classifiquei as quatro linhas da tabela de errata do
-Cap. 5 contra o `[mobiwac]/src/`:
-
-| Correcao | Destino | Por que |
-|---|---|---|
-| frase dos balanceadores | **os dois textos** (`02_related.tex`) | menor: troca uma alegacao vaga pelo numero real |
-| terceira limitacao | **os dois textos** (`07_discussion.tex`) | menor: declara uma consequencia que o artigo ja divulga |
-| paragrafo de integridade | **fica errata** | o quarto fundamento cita o Apendice D, que nao cabe no artigo |
-| controle de congelamento | **fica errata** | cita a tabela de resultados da dissertacao |
-
-Detalhes que exigiram cuidado: o rotulo `sec:mobiwac:setup-windows` da dissertacao **nao existe** no
-artigo, foi remapeado para o `sec:setup-windows` dele, e "this chapter's claims" virou "the paper's
-claims". Artigo reconstruido: **9 pp, 0 referencias indefinidas, 0 citacoes indefinidas, 0 erros**.
-Registrado no `[mobiwac]/ERRATA.md`. A frase de abertura do Apendice B foi corrigida de quatro para
-duas e agora **explica a politica ao leitor**. Seu trabalho nao commitado de 25/07 em `[mobiwac]/` foi
-preservado (conferi os mtimes antes de editar).
-
----
-
-## BLOCO 2 — exposicao cientifica real
 
 ### 2.2 Escopo da tarefa estatica do Cap. 4 (REV-002) — **medido nesta rodada, e o resultado nao ajuda**
 
@@ -241,16 +281,6 @@ e verificados.
 > DECISAO (aviso ao co-autor dado? forma: Apendice B ou apendice proprio?): Isso já está de acrodo com ele, podemos
 > adicionar isso no appendix B, mas deixe isso facil de ser comentado, vide que eu ainda vou discutir com meu orientador
 > sobre se argumentamos ou não quanto a isso.
-
-### ~~1b.3 O custo do Nash-MTL~~ — CORRIGIDO 2026-07-27, um so padrao
-
-Sua razao foi aceita e aplicada: um padrao unico para erro factual. A clausula publicada "requires only
-two matrix-vector products per iteration" saiu da frase reproduzida no Cap. 3, com nota de rodape
-explicando, e entrou na **tabela de errata do CBIC**, ao lado da correcao de escala de gradiente que fica
-na mesma frase publicada. A secao "deliberadamente preservados" caiu de tres para dois elementos.
-Isto **supera** a decisao anterior de so declarar. A correcao **aumenta** o custo de um metodo que o
-capitulo usou, ou seja, corre contra o interesse da propria dissertacao — e portanto conservadora alem de
-consistente. Commit `d1911c0a`.
 
 ### 1b.4 O determinismo da categoria agora esta medido nos CINCO estados (persona 11)
 
@@ -381,39 +411,4 @@ questao de fidelidade, porque a figura pertence a um artigo publicado co-autorad
 > articles/dissertacao/src/figures/courb/arquitetura_modelo.drawio, respecitvamente par ao cbic e o courb. Quanto a
 > imagem de distribuicao_estados.png, essa também tem palavras em portgues, e para gerar ela temos que investigar o
 > /Users/vitor/Desktop/mestrado/temp/tarik-new.
-
-### ~~3.3 Resumo e Abstract: tamanho (REV-018)~~ — **A PAGINA FECHOU** 2026-07-27
-
-Voce escolheu a rota (i), cortar 60 a 80 palavras. Cortei **36 em paridade** (Resumo 565 -> 529, Abstract
-485 -> 452): sairam as duas glosas parenteticas da selecao \emph{joint-best} e a frase de motivacao foi
-comprimida. Cada numero, nome de teste e token de alegacao foi verificado presente nos dois idiomas.
-
-**E foi suficiente: a pagina quase em branco acabou.** 104 -> **103 pp**; o Resumo e suas palavras-chave
-dividem a p. 3, o Abstract fica com a p. 4, e a p. 4 saiu inteiramente da lista de paginas com pouco
-texto. Nao precisou dos 60 a 80 completos.
-
-**Um defeito meu, e o diagnostico que eu escrevi sobre ele tambem estava errado.** Trocar o
-`\needspace` por um `minipage` foi certo, mas o motivo que eu registrei era falso e uma auditoria pegou.
-Re-medido nos dois mecanismos, com o Resumo em 529 palavras e a macro **corretamente escapada**:
-
-| Mecanismo | Paginas | Onde fica o bloco |
-|---|---|---|
-| `\needspace{7\onelineskip}` | 104 | **inteiro** na p. 4 (21 palavras, rotulo incluido) |
-| `minipage` | **103** | na p. 3, junto do Resumo — a pagina fecha |
-
-Ou seja: o `needspace` **funciona** para manter rotulo e palavras-chave juntos. O que ele nao faz e
-**puxar** o bloco para a pagina anterior, porque reserva espaco para as *linhas* seguintes; quando o
-bloco nao cabe, ele move o bloco em vez de encaixa-lo. Um `minipage` e uma caixa, entao encaixa.
-
-A afirmacao anterior de que o `needspace` "nunca funcionou em nenhum valor" veio de **um bug meu de
-escape**: um regex escreveu `\needspace{N\\onelineskip}` com barra dupla, e as tentativas seguintes
-(8, 9, 10) usaram um padrao de barra simples que **nao casava** com a forma corrompida — entao aqueles
-tres testes nunca foram aplicados e devolveram resultados identicos byte a byte que eu li como
-evidencia. O `minipage` fica (mede melhor), mas por este motivo, nao pelo que eu havia escrito.
-
-**O que ainda e seu:** voce pediu revisores sobre o Resumo e o Abstract para avaliar qualidade e
-excelencia contra os exemplares. Vale rodar a persona 15 com esse escopo especifico na proxima rodada,
-com os textos ja no tamanho final.
-
-> DECISAO (rodar a persona 15 sobre o par Resumo/Abstract?): __________________________________
 

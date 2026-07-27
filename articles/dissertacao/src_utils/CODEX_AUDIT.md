@@ -375,7 +375,13 @@ so removing them "would make the chapter's own conclusion sound stronger than it
 **The oracle-envelope half: PARTLY, see NUM-7.** Ch.4 states the per-cell convention at all three of its own sites; the
 frame does not.
 
-> DECISAO: 
+> DECISAO: Sobre o primeiro item: De forma simples o cap. 3 e 4 usam a mesma métodologia de split. Para ambos foi usado
+> somente uma seed. E
+> quanto ao orçamento de tuning de hiperparâmetros, não lembro ao certo sei que para o cbic, testamos varias
+> configurações, mas para o courb como a ideia era testar os embedding e não o modelo MTL, não chegamos a mexer muito
+> nele. Sobre checkpoint temos que voltar nos commits para avaliar como era, mas tanto para o cbic e courb era a mesma,
+> inclusive tem o codigo do /Users/vitor/Desktop/mestrado/temp/tarik-new para verificar tmb e tirar outras duvidas.
+> Quanto aos outros pontos do review o item 2 não vamos fazer nada e o item 3 já enderessamos acima.
 
 ### COD-008 — load-bearing citations do not support their claims · **PARTLY**
 

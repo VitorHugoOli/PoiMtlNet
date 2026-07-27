@@ -1,6 +1,6 @@
 # reviewers/ — the dissertation reviewer suite
 
-> **What this folder is.** Eighteen reusable reviewer personas for the dissertation, each file a
+> **What this folder is.** Nineteen reusable reviewer personas for the dissertation, each file a
 > ready-to-invoke agent prompt: who the reviewer is, how they behave, what they read, how they
 > proceed, and what they deliver. Personas 01–14 are distilled from the MobiWac 2026 review
 > campaign (2026-07-18/20: three simulated PC reviewers, two veteran auditors, a three-member
@@ -10,7 +10,11 @@
 > shown" measurement, and a mismatched random-baseline comparator. Personas 15–18 were added
 > 2026-07-20 (author spec + fresh web research, records in
 > [`../docs/research/`](../docs/research/)): the readability editor, the AI-credibility
-> reviewer, the excellence assessor, and the visual-presentation reviewer. The suite is aimed
+> reviewer, the excellence assessor, and the visual-presentation reviewer. Persona 19 (the
+> LaTeX source reviewer) was added 2026-07-27 (author spec + fresh web research on LaTeX best
+> practice, abnTeX2, and federal-university thesis sources): the source and build-engineering
+> pass over the `.tex`/`.sty`/`.bst` and the compiler logs, the half of gates G2/G3 that
+> `src_utils/check.sh` cannot do. The suite is aimed
 > at the **MTL and POI/next-location areas** and the **coletânea de artigos** format — it is
 > not MobiWac-specific.
 >
@@ -44,12 +48,13 @@
 | 16 | [AI-credibility reviewer](16_ai_credibility.md) | perception | after 03 passes | full document before advisor + banca builds; after heavy AI edit waves |
 | 17 | [Excellence assessor](17_excellence_assessor.md) | strategy | on the complete v1 | complete v1 and the banca build; optionally the frame chapters early |
 | 18 | [Visual & presentation](18_visual_presentation.md) | format/text | rendered-pages pass | after chapter figures land; gate day; the banca build |
+| 19 | [LaTeX source reviewer](19_latex_source_reviewer.md) | engineering | source + build-log pass | after preamble/template/chapter changes; both build modes before handoff; gate day |
 
 **A typical chapter pipeline:** draft (G1) → 06+05+07 (+08 for Ch.4) fact gate → 03 style gate
 (01/02/04 as support) → 15 readability pass → author (G4) → 09/10/11 deep review → 14 gates the
 resulting edits → re-run touched gates → advisor (G5). **Full-document gate day** (PLAN.md
 Day 4): 04, 05 (sample), 06 (full numeral extraction), 07, 03, 01, 15, 16 (after 03), 18 (on
-the built PDF) — fresh-eyes agents only. **On the complete v1 (Day 5):** 12 (banca dry run) +
+the built PDF), 19 (on the source + both build logs) — fresh-eyes agents only. **On the complete v1 (Day 5):** 12 (banca dry run) +
 17 (excellence scorecard) — their outputs shape the author pass, not line edits.
 **Pre-defense:** 12 again on the final build (its arguição transcript doubles as defense
 preparation) + 17, 16, and 18 re-checks.
