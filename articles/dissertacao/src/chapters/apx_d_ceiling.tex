@@ -68,7 +68,10 @@ column sees only the recorded category history of the nine-visit input window; n
 read. The bold cell in a row marks the predictor that attains the benchmark, and the benchmark
 column carries its standard deviation over the five folds. The floor predicts the training portion
 of each fold's majority class. All values are macro-F1 on a zero-to-one scale over seven
-categories, averaged over five user-grouped folds.}
+categories, averaged over five user-grouped folds. The row counts are those of the harvested
+per-dataset input tables this audit reads, which are not the stride-one sliding-window counts
+reported for the experiments in Chapter~\ref{ch:mobiwac}; the benchmark is a property of the label
+sequence and is unaffected by that difference, but the two counts should not be compared.}
 \label{tab:apx:ceiling}
 \centering
 \footnotesize
@@ -76,7 +79,7 @@ categories, averaged over five user-grouped folds.}
 \toprule
  & & \multicolumn{4}{c}{Label-history predictors} & & \\
 \cmidrule(lr){3-6}
-Dataset & Windows & Persistence & One-hot & Counts & Positional & Benchmark & Floor \\
+Dataset & Rows & Persistence & One-hot & Counts & Positional & Benchmark & Floor \\
 \midrule
 Alabama & 12,709 & \textbf{0.2800} & 0.2800 & 0.2783 & 0.2791 & 0.2800 $\pm$ 0.0138 & 0.0727 \\
 Arizona & 26,396 & 0.3080 & 0.3080 & 0.3191 & \textbf{0.3232} & 0.3232 $\pm$ 0.0163 & 0.0725 \\
