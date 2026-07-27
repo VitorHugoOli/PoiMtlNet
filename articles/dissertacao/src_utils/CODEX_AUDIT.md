@@ -271,6 +271,8 @@ region output retaining a private spatial path." No number moves, no result chan
 committee will find in thirty seconds. Because it is interpretive prose in a re-typeset chapter, it belongs in Appendix
 B's departure list, which is why I flag it for approval rather than call it free.
 
+> DECISAO: Calma, não haviamos chegado a conlclusão que os experimentos que alegavam que o shared trunk não auxiliava estavam errados?
+
 ### COD-005 — PCGrad and Nash-MTL evidence still misstated · **PARTLY**
 
 Four sub-claims, all confirmed at source but with different owners: PCGrad's invalidity (already ruled on by the

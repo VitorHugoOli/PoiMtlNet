@@ -17,7 +17,7 @@
 
 ## Estado apos a rodada de 2026-07-27
 
-**Build:** defesa 103 pp, final 98 pp, 0 caixas estouradas, 0 citacoes/referencias indefinidas, 0 erros de BibTeX, lint
+**Build:** defesa 104 pp, final 99 pp, 0 caixas estouradas, 0 citacoes/referencias indefinidas, 0 erros de BibTeX, lint
 0, 10/10 fixtures do detector de prosa presa.
 
 **O que rodou nesta rodada, e o que cada um achou:**
@@ -57,7 +57,7 @@ nomeado caso a caso. **Quatro alegacoes nao se sustentam** na evidencia, entre e
 contraria uma decisao sua ja registrada, e uma atribuicao de capitulo que le uma frase do apendice do MobiWac como se
 fosse do Cap. 4.
 
-**Um fato estrutural que governa a leitura:** o codex leu um par de 97/92 paginas. O que esta em disco e **103/98**.
+**Um fato estrutural que governa a leitura:** o codex leu um par de 97/92 paginas. O que esta em disco e **104/99**.
 Todos os `file:line` dele deslizaram; a auditoria re-ancorou cada um pelo conteudo. Os achados sobrevivem, as
 coordenadas nao.
 
@@ -242,6 +242,7 @@ clausula **vizinha da mesma frase** (sinais de gradiente), entao o silencio sobr
 tres elementos, e diz que a correcao correria **a seu favor**.
 
 **(C)** Manter assim (recomendo), ou mover para a tabela de errata e corrigir de fato?
+
 > DECISAO: Vamos seguir um padrão, caso contrario algum revisor pode questionar o fato de alguns erros factuais eu
 > alterar o texto e outros não, assim eu tendo a seguir com a opção de corrigir de fato no texto e mover para tabela.
 
@@ -404,4 +405,3 @@ parecer na mao.
 > DECISAO: Vamos então cortar de 60 a 80 palavras do Resumo, para tentar ficar dentro. Ao final vamos rodar alguns
 > revisores sobre o resume e abstract para avaliar a qualidade, excelencia em relação as dissertaçoes de exemplo e ao que
 > temos de conhciemtno da literatura.
-

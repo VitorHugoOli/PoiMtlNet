@@ -107,6 +107,13 @@ NORTH_STAR §3 para registrar a mudanca de politica.
 Texto novo-no-capitulo, obrigatorio pelo desenho do coletanea. **DECISAO:** aprovar as insercoes.
 > DECISAO: Aprovado!
 
+<!-- [VERIFICADO 2026-07-27] Este item NAO carregava marca de aplicacao (so 3.4 e 3.5 carregam
+"✅ APLICADO nesta rodada"). Um relatorio anterior afirmou que 2.4 estava "marcado APLICADO no
+proprio arquivo": FALSO, era so a sua aprovacao. Verificado agora contra o `5_mobiwac.tex`: os tres
+elementos aprovados EXISTEM no capitulo -- prefacio de reproducao, recap, e a figura
+`figures/mobiwac/fig3_embquality.pdf` incluida na linha 447. Portanto o item esta de fato cumprido,
+mas por medicao feita nesta data, nao por um registro que existisse no arquivo. -->
+
 ### 2.5 Reformulacoes das correcoes de gate -- DEIXAR COMO ESTA (sua decisao)
 
 **Contexto.** Reformulacoes neutras em relacao a alegacao, aplicadas nos gates: escopo dos 93% do Song

@@ -5,6 +5,7 @@
 # that path from this script's location, so it works from any cwd. Exits nonzero on any finding.
 FAIL=0
 SRCROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../src" && pwd)"
+UTILS="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"   # absolute: this script cds into src/
 cd "$SRCROOT"
 CH=chapters/*.tex
 
@@ -57,6 +58,16 @@ else echo "SKIP: no $LOG"; fi
 if [ -f "$BLG" ]; then
   if grep -iE "error|didn't find|I was expecting" "$BLG"; then FAIL=1; else echo "OK (bibtex)"; fi
 else echo "SKIP: no $BLG"; fi
+
+echo "== recorded page counts vs the measured build =="
+# These are PRESENT-TENSE claims about what is on disk (CLAUDE.md, PLAN.md, PENDENCIAS.md,
+# codex_reviewer.md). They have drifted three times, always caught by review rather than by the
+# edit that caused it. The codex page-drift note is load-bearing: it tells a reader how far every
+# file:line in that review has moved.
+if ! python3 "$UTILS/sync_page_counts.py"; then
+  echo "  -> run: python3 src_utils/sync_page_counts.py --write"
+  FAIL=1
+fi
 
 echo "== prose trapped inside a % comment (silent: builds clean, reader sees a broken sentence) =="
 # Has happened twice: apx_a_contributions.tex, and 4_courb.tex:187 where half a PUBLISHED

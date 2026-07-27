@@ -19,7 +19,7 @@ No dissertation source, result, numerical value, citation, or claim was changed 
 >
 > **Two things to know before reading it.**
 >
-> First, this review read a 97/92-page pair. The builds on disk are **103/98 pages**. Every
+> First, this review read a 97/92-page pair. The builds on disk are **104/99 pages**. Every
 > `file:line` in this document has drifted, and the audit re-pinned each locus by content. The
 > findings mostly survive; the coordinates do not.
 >
@@ -890,7 +890,7 @@ pagination will move.
 
 > **AUDIT VERDICT (2026-07-27): PARTLY.** Page counts in `CLAUDE.md`, `PLAN.md`, `_archive/handoffs/HANDOFF_v1.md` are stale (89/84 against 102/97) and Appendix A lacks per-role CoUrb credit; the checker and `pypdfium2` sub-claims are RESOLVED
 >
-> **What was done:** Page counts synced to the measured 103/98 in CLAUDE.md, PLAN.md and _archive/handoffs/HANDOFF_v1.md. The check.sh undefined-citation gate was found to pass silently under UTF-8 locales and was rebuilt (877b2109).
+> **What was done:** Page counts synced to the measured 103/98 in CLAUDE.md, PLAN.md and _archive/handoffs/HANDOFF_v1.md. The check.sh undefined-citation gate was found to pass silently under UTF-8 locales and was rebuilt (877b2109). [Superseded 2026-07-27: the build is now 104/99 after the Table 15 longtable conversion; that sync was correct when made.]
 
 - **Severity:** Moderate
 - **Status:** Open
