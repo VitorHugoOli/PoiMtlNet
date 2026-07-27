@@ -815,7 +815,20 @@ models are above the floor at every dataset.
 %     markov_1step_region_acc10_mean -- AZ 0.5123 CA 0.5909 TX 0.6010 AL 0.6226 IST 0.6506 FL 0.7247
 %   externals: this chapter's own results table (HMT-GRN AZ 43.70 CA 49.61 TX 53.85 AL 57.05
 %     IST 60.40 FL 63.74; ReHDM below floor at AZ/TX/FL; STAN below at AZ/CA/AL/IST)
-%   revisit share: docs/studies/archive/mtl_improvement/PIPELINE_AUDIT_2026-06-03.md:24 (AL 22.4%)
+%   region persistence: docs/results/closing_data/markov_floor_stride1/alabama.json,
+%     aggregate.markov_1step_region.acc1_mean 0.32064040033191976 (sd 0.01690965826249736) -> 32.1%.
+%     Same artifact, same 96,326 stride-1 windows and same folds as the 62.26 acc10 floor above.
+%     [round5] REPLACES a mis-citation: PIPELINE_AUDIT_2026-06-03.md:24 (AL 22.4%) is a PLACE-level
+%     "target reappears in its own 9-history" rate on NON-OVERLAPPING windows, so it did not support
+%     the region-level sentence it was attached to. Fact gate B-1/M-3.
+%   margin range 4.9 to 10.3: DERIVED, not quoted -- joint column of Table~\ref{tab:mobiwac:results}
+%     minus markov_floor_stride1/<state>.json key markov_1step_region_acc10_mean, per dataset.
+%     Verified this session, all six: FL 77.41-72.47=4.94 (narrowest), CA 65.69-59.09=6.60,
+%     TX 67.06-60.10=6.96, AL 69.70-62.26=7.44, AZ 59.46-51.23=8.23,
+%     Istanbul 75.35-65.06=10.29 (widest). Rounds to the printed 4.9 to 10.3.
+%     Deliberately re-derived from the chapter's own printed cells
+%     rather than copied from MARKOV_FLOOR_STRIDE1.md, whose +4.95/+10.38 use pre-final joint values
+%     (Ist 75.44 / FL 77.42). Fact gate N-2.
 % Counts re-derived from those two sources this session: HMT-GRN 6 of 6 below, ReHDM 3 of 6, STAN
 % 4 of 6. No result of this study changes; what changes is that the chapter now names the floor
 % rather than the externals as the reference the region task must clear, which is the more
