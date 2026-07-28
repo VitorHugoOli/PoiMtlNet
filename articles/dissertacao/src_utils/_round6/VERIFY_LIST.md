@@ -116,6 +116,22 @@ only Chapter 5 splits by user"). It prints `True` today. `[VERIFY]` V-8.
 
 ---
 
+**6b. A printed count in the errata appendix does not sum.**
+Page 95 says the MTLnet spelling was normalized "at all 25 places where the name appears in the
+printed chapter: 21 in prose, one in a subsection heading, one in a figure caption, and two in table
+headings".
+```bash
+grep -rn 'subsection{.*MTLnet' src/chapters/4_courb/    # expect TWO hits
+```
+*If all is well:* the appendix says 26 with "two in subsection headings" — because there are two
+(`methodology.tex:87` "Baseline: MTLnet with DGI" and `related.tex:42` "The MTLnet framework"), and
+21 + 2 + 1 + 2 = 26. The chapter's own source comment (`4_courb.tex:7`) already says **26 sites**,
+and `12_figures.md` calls it the 26-site normalization, so three records give three counts and the
+wrong one is the one that prints. No result depends on it; it is in the appendix whose only job is to
+be exactly right about what changed. Ledger finding L-9.
+
+---
+
 ## Tier 2 — a pass verified its own work and no fresh eyes have looked (items 7-13)
 
 **7. The Appendix A protocol numbers, which describe your own conduct.**

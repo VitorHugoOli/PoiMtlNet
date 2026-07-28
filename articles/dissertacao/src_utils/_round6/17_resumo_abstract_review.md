@@ -237,6 +237,16 @@ used in their registered form; one is a fair composition; none is contradicted.*
 | 8 | compartilhamento rígido de parâmetros | identical | **exact** |
 | 9 | topologia de compartilhamento | identical | **exact** |
 
+**One qualification on rows 7 through 9, which the registry states about itself and a reader of the
+table above should know.** `GLOSSARY.md:129-136` records that six of the nine have a registered
+English counterpart elsewhere in the file (`n = 20 (fitted models)` §4, `user-disjoint split` §3,
+`fold` and `seed` §3, `joint-best convention` §4, `cross-attention trunk` and `the shared trunk` §2),
+and that three, **decomposed encoders, hard parameter sharing and sharing topology**, had no English
+row of their own and are registered "as translation pairs only". That is the honest form and it does
+not weaken the check I ran: the question the brief asks is whether the Resumo uses each in its
+registered PT form, and it does. Recorded so nobody reads my table as asserting nine full
+English-plus-PT registrations.
+
 **And the tenth-term question, which is the one the brief asked.** I swept 43 technical noun phrases
 actually rendered in the Resumo against every PT cell in §6. Most misses are ordinary Portuguese
 (`arquitetura`, `vetor`, `conjuntos de dados`), proper nouns (`Gowalla`, `Istambul`,
