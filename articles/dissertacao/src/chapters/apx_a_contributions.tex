@@ -107,14 +107,23 @@ and are supplied on request.
 % THE DEFECT: this paragraph said "every path is relative to the platform repository, which Ch.5
 % footnotes at first mention", which points the reader at
 % https://github.com/VitorHugoOli/PoiMtlNet/tree/mobiwac. Measured against that branch, path by path
-% (git cat-file -e mobiwac:<path>), EIGHT OF THE TWELVE \path{} entries in this section are ABSENT
+% (git cat-file -e mobiwac:<path>), NINE OF THE THIRTEEN \path{} entries in this section are ABSENT
 % from it:
 %   PRESENT  src/data/folds.py, scripts/closing_data/score_joint_best.py,
 %            scripts/closing_data/superiority_wilcoxon.py, scripts/closing_data/region_match_tost.py
 %   ABSENT   docs/.../STATISTICAL_PROTOCOL.md, scripts/build_phase3_per_fold_transitions.sh,
 %            docs/.../JOINT_BEST_RESULTS.md, m1_stats_n20.py, m2_prereg_perfold.py,
-%            m2_prereg_output.txt, docs/.../stats_n20/, scripts/embedding_eval/autocorrelation_ceiling.py
-% All twelve exist on this machine; the four bare filenames resolve inside the stats_n20 directory.
+%            m1_full_output.txt, m2_prereg_output.txt, docs/.../stats_n20/,
+%            scripts/embedding_eval/autocorrelation_ceiling.py
+%            (m1_full_output.txt was missing from this list in the first version of this comment,
+%            which is why the counts read 8-of-12 instead of 9-of-13.)
+% All thirteen exist on this machine; the FOUR bare filenames resolve inside the stats_n20 directory.
+% [corrected 2026-07-28, finding 6827bde0] An earlier version of this comment said "twelve" and
+% "the four bare filenames" over a set of twelve, which does not add up. Recounted by extracting
+% every \path{} from the PROSE of this file with comments stripped: THIRTEEN entries, FOUR of them
+% bare (m1_stats_n20.py, m2_prereg_perfold.py, m1_full_output.txt, m2_prereg_output.txt), all four
+% resolving inside stats_n20/. The first count came from a line-based grep that missed one entry
+% sharing a line with another.
 % So the code is real and the PROMISE was wrong: the document's most load-bearing reproducibility
 % sentence did not resolve for a reader who followed the chapter's own footnote.
 % The prose now claims only what is true. THE BETTER FIX IS THE AUTHOR'S: push the eight missing

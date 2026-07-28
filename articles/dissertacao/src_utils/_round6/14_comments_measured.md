@@ -37,9 +37,25 @@ of a 445-line preamble and front matter. Removing them would make that file hard
 leaner. Separately, **41 comment lines are purely decorative** (rows of dashes and equals signs
 forming banner rules), 15 of them in `0_main.tex`.
 
-The remaining 7 fact-free blocks are `[NEEDS SIGN-OFF]` markers whose text explains a rewrite in
-prose without citing a file. Those are the author's own decision queue and must stay until he clears
-them.
+The remaining fact-free blocks are the author's own `[NEEDS SIGN-OFF]` markers, whose text explains a
+rewrite in prose without citing a file. Those are his decision queue and must stay until he clears them.
+
+> **CORRECTION, 2026-07-28 (finding 751724c3).** This paragraph originally said "the remaining 7
+> fact-free blocks are `[NEEDS SIGN-OFF]` markers", which the listing above it contradicts: only some
+> are. Re-measured on the current tree with the same classifier, now covering `chapters/*/*.tex` as
+> well (the per-section split moved most of the prose there, and the original run could not see it):
+>
+> **27 fact-free blocks, of which 5 are `[NEEDS SIGN-OFF]` markers.** The other 22 are structural
+> banners and section labels in `0_main.tex` (19 of them: `% PRE-TEXTUAL`, `% Resumo (PT)`,
+> `% ---------- DEFENSE BUILD ----------`, and the two multi-line provenance notes this round added
+> about the hyperref option), one round-5 decision note in `apx_b_errata.tex`, and two blank comment
+> lines in `3_cbic/method.tex`.
+>
+> The paragraph's conclusion is unchanged and is in fact strengthened: the fact-free residue is
+> **navigation and sign-off queue**, not commentary, so there is still nothing here to compress. What
+> was wrong was the attribution of all of it to one cause. The lesson is the smaller one this round
+> kept relearning: a count and a classification are two different measurements, and quoting the first
+> as though it settled the second is how a report contradicts its own table.
 
 ## Why the big blocks cannot be compressed
 

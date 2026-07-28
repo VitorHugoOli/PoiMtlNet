@@ -267,9 +267,15 @@ both put the page number. The 3 cm rule governs the text block, whose top edge i
   numbered 11. The final build strips the folha de rosto, Resumo and Abstract, so it has 7
   pre-textual pages (LoF, LoT, LoT continuation, siglas, and three sumário pages), and its first
   body page should print **8**. It prints 11, because `\finalbuildfirstpage` is hardcoded to the
-  defense build's offset. Every subsequent page inherits the error: the printed numbers run
-  11 to 115 across a 105-page PDF, and the sumário's page references (Introduction 11,
-  References 80, Appendix E 106) match the defense build's numbering, not this PDF's own.
+  defense build's offset. Every subsequent page inherits the three-page error: the printed numbers
+  ran **11 to 108** across a 105-page PDF, where they should run 8 to 105, and the sumário's page
+  references (Introduction 11, References 80, Appendix E 106) match the defense build's numbering
+  rather than this PDF's own.
+  > **Arithmetic corrected 2026-07-28 (finding cd079279).** This read "11 to 115", which is
+  > incompatible with the same finding's own premise. With 7 pre-textual pages counted but not
+  > numbered, the first body page is physical 8; printing 11 there puts 11 + (105 − 8) = **108** on
+  > the last page. 115 would require 12 pre-textual pages. The defect and its size (three pages) are
+  > unchanged; only the endpoint was wrong.
 - **Conclusion.** The AcademicoPG deposit build is **NON-COMPLIANT** on the numbering rule. It is
   caught early and cheaply: it is one integer, and the `[VERIFY]` flag on it is the reason it has
   not shipped wrong. The compliance doc also says the system's RASCUNHO PDF is the authoritative
