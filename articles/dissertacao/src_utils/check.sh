@@ -7,7 +7,9 @@ FAIL=0
 SRCROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../src" && pwd)"
 UTILS="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"   # absolute: this script cds into src/
 cd "$SRCROOT"
-CH=chapters/*.tex
+# chapters/*/*.tex added 2026-07-28: the three paper chapters were split into per-section
+# files, and a pattern stopping at chapters/*.tex leaves 55% of the prose unswept.
+CH="chapters/*.tex chapters/*/*.tex"
 
 echo "== em-dashes (WRITING_LAW §1: none anywhere in prose) =="
 EMDASH=$(printf '\xe2\x80\x94')

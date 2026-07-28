@@ -1,0 +1,22 @@
+% !TeX root = ../../main.tex
+% chapters/4_courb/conclusion.tex -- one section of Chapter 4 (CoUrb 2026, published).
+% Split out of chapters/4_courb.tex on 2026-07-28 (author request: the paper
+% chapters were single long files, while the originals under articles/CoUrb_2026/src_en/sections/
+% are one file per section). The split is PURELY MECHANICAL: content was cut at
+% \section boundaries and not edited. The chapter file now \inputs these in order.
+% Editing rules are unchanged and still governed by the chapter's status above:
+% see NORTH_STAR section 4 before changing any sentence here.
+\section{Conclusion and Future Work}
+\label{sec:courb:conclusion}
+
+This chapter investigated whether replacing the monolithic \textit{embedding} of DGI with decoupled and specialized representations could produce a base more suitable for the tasks of POI Category Classification and Next-POI Prediction. The results obtained in the three evaluated states indicate that it can. By incorporating a continuous spatial \textit{encoder}, a temporal \textit{encoder} (Time2Vec), and a hierarchical categorical \textit{encoder} (HGI), ST-MTLNet consistently outperforms the \textit{baseline} based only on DGI.
+
+In the POI Category Classification task, the proposed variants outperform MTLnet in all 21 category-state combinations, with average gains per state of 20.2 to 22.0 percentage points, considering the better of the two spatial encoders in each combination. In the Next-POI Prediction task, the performance is also mostly favorable to ST-MTLNet, which outperforms the \textit{baseline} in 15 of the 21 evaluated combinations, with one additional technical tie, with emphasis on categories such as \textit{Food}. Taken together, these results show that decomposing the representation into spatial, temporal, and categorical components allows capturing patterns that DGI, by itself, does not model sufficiently.
+
+The comparison between SIREN and Sphere2Vec-M also shows that there is no single universally superior spatial \textit{encoder}. SIREN presents better performance more frequently in Florida and California, while Sphere2Vec-M stands out in Texas, suggesting that the suitability of the \textit{encoder} depends on the geographic distribution of the POIs in each territory. Thus, the main gain of this chapter lies not only in the choice of a specific spatial architecture, but in the very adoption of decoupled representations as an alternative to the monolithic paradigm of DGI.
+
+A relevant limitation remains in the \textit{Travel} category of the Next-POI Prediction task, in which the original MTLnet still obtains the best results in part of the scenarios. This suggests that long-distance movements and topological relationships between regions are still better captured by the graph structure used by DGI. In addition, since the three proposed components are used together, this chapter does not isolate the individual contribution of each \textit{encoder}, which restricts a more detailed analysis of the relative weight of each source of information.
+
+Another limitation is related to the exclusive use of Gowalla, a dataset commonly used in the literature but composed of mobility records collected between February 2009 and October 2010. Consequently, the results should be interpreted with caution regarding their generalization to current urban mobility patterns.
+
+As future work, we highlight the investigation of more flexible multi-task architectures, the exploration of more sophisticated fusion strategies between the \textit{encoders}, and the combination of graph-based representations and continuous coordinate encodings. These directions may broaden the observed gains and help reduce the limitations still present in categories such as \textit{Travel}.

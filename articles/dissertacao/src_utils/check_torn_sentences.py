@@ -84,7 +84,10 @@ def suspects(path: str):
 
 def main(paths: list[str]) -> int:
     if not paths:
+        # chapters/*/*.tex included since the 2026-07-28 per-section split: a glob that
+        # stops at chapters/*.tex misses 55 percent of the prose and still reports OK.
         paths = sorted(glob.glob(os.path.join(SRC, "chapters", "*.tex"))) \
+              + sorted(glob.glob(os.path.join(SRC, "chapters", "*", "*.tex"))) \
               + sorted(glob.glob(os.path.join(SRC, "tables", "*", "*.tex"))) \
               + [os.path.join(SRC, "0_main.tex")]
     total = 0

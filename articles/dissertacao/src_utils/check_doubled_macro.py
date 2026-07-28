@@ -78,8 +78,11 @@ def self_test() -> None:
 
 def main() -> int:
     self_test()
+    # chapters/*.tex AND chapters/*/*.tex: the three paper chapters were split into
+    # per-section files on 2026-07-28, and a glob that stops at chapters/*.tex misses 55
+    # percent of the document's prose while still reporting OK.
     files = sorted(SRC.glob("*.tex")) + sorted(SRC.glob("chapters/*.tex")) + \
-        sorted(SRC.glob("tables/*/*.tex"))
+        sorted(SRC.glob("chapters/*/*.tex")) + sorted(SRC.glob("tables/*/*.tex"))
     total = 0
     for path in files:
         for lineno, macro, snippet in scan(path.read_text(encoding="utf-8")):

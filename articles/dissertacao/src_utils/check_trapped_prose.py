@@ -153,7 +153,10 @@ def main() -> int:
         return 2
     pdf = rendered_text()
     total = 0
-    for tex in sorted(list((SRC / "chapters").glob("*.tex")) + [SRC / "0_main.tex"]):
+    # chapters/*/*.tex included since the 2026-07-28 per-section split (55 percent of the
+    # prose lives there now; a glob stopping at chapters/*.tex reports OK on a blind spot).
+    for tex in sorted(list((SRC / "chapters").glob("*.tex"))
+                      + list((SRC / "chapters").glob("*/*.tex")) + [SRC / "0_main.tex"]):
         for lineno, tail, joined in suspects_in(tex, pdf):
             total += 1
             print(f"TRAPPED PROSE {tex.name}:{lineno}")
