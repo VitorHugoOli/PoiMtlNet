@@ -1,0 +1,186 @@
+# LEFT_OUT.md — the register of findings deliberately not put in the text
+
+**Purpose.** Some things this project established are true, verified, and *deliberately absent* from
+the dissertation. Without a register, an absence is indistinguishable from an oversight: a later
+reader (a reviewer persona, an agent, the author in six months) finds the measurement in a report,
+does not find it in the text, and either re-does the work or "fixes" the omission. This file is the
+difference between "we did not notice" and "we decided."
+
+**Standing rule.** An entry belongs here when *all three* hold: (a) the finding is established, not
+merely suspected; (b) it is absent from the dissertation body, or present in a narrower form than
+the finding supports; and (c) the absence is a **decision** with a named decider and a date. A
+finding that is absent because nobody got to it belongs in `PENDENCIAS.md`, not here.
+
+**This file is not a hiding place.** Every entry names where the full finding lives, so nothing is
+lost by not printing it. If an entry ever needs to say "and we hope nobody asks," it does not belong
+in the register; it belongs in the text.
+
+---
+
+## LO-1 · The tuning budget for Chapters 3 and 4
+
+**Finding.** The number of hyperparameter configurations tried for the CBIC and CoUrb studies is
+**not recoverable**. No search harness has ever existed in either codebase, run outputs were
+gitignored, and only the hand-copied best runs survive.
+
+**What the text says instead.** Nothing. Neither chapter asserts a configuration count, and the
+protocol sentences added this round were written specifically so that they do not imply one.
+
+**Why it is out.** Because asserting a count would be a claim about conduct with no artifact behind
+it. The author's recollection ("we did not change much") is consistent with the code, but a
+recollection is not a record, and `AGENT_GUARDRAILS N1` forbids writing a number that cannot be
+traced to a source.
+
+**Where the full finding lives.** `src_utils/_round6/10_protocol_recovery.md` §1.4.
+
+**Decided by.** The protocol-recovery pass, 2026-07-28, under the existing number protocol. Not a
+discretionary call: writing the number was not available.
+
+---
+
+## LO-2 · The published CBIC joint-model next-category column is not reproducible from this repository
+
+**Finding.** Three of the four published CBIC result columns reproduce **exactly** against committed
+run artifacts, 21 of 21 cells each. The fourth, the joint model's next-category column, matches
+**no** artifact in this repository: 0 of 21 against the nearest committed run, and a best of 1 of 7
+F1 means when tested against every `summary_next_metrics_formatted.csv` ever committed, across both
+codebase commits and all six states. The run that produced that column was never committed.
+
+**What the text says instead.** Nothing. No sentence in the dissertation claims the CBIC results are
+reproducible from the released code.
+
+**Why it is out.** Because the honest form of this is a negative about one column of a published
+table, and it does not change any conclusion: the split code, seed values and checkpoint rule are
+identical across the entire window in which all the published runs fall, so the protocol records
+cover that run whether or not its outputs survive. Printing it would raise a question about the
+published article that the finding itself answers in the article's favor.
+
+**The constraint it imposes.** No future sentence may claim the CBIC numbers are reproducible from
+this repository without excluding that column. That constraint is the reason for this entry.
+
+**Where the full finding lives.** `src_utils/_round6/10_protocol_recovery.md` §1.5.
+
+**Decided by.** Recorded 2026-07-28. **Open for the author**: if he prefers to disclose it, the
+natural home is Appendix B's Article 1 section.
+
+---
+
+## LO-3 · The `\campus` field renders nowhere
+
+**Finding.** `\campus{Campus Florestal}` is set correctly, and is consumed only by
+`\imprimircampus` inside `\imprimircapa`, which **neither build calls**. The campus therefore
+appears in no output.
+
+**What the text says instead.** Nothing, in either build.
+
+**Why it is out.** Because there is no cover page. The field is correct as data and will start
+rendering the moment one is added. Removing it would be worse than leaving it.
+
+**Where the full finding lives.** `src_utils/_round6/15_frontmatter_names.md`; the mechanism is
+already commented at `src/0_main.tex:139-141`.
+
+**Decided by.** No decision needed; recorded so it is not "found" again.
+
+---
+
+## LO-4 · The contribution-to-claim table and the consolidated results table
+
+**Finding.** Two of the three "excellence moves" proposed for the SBC-CTD lens were measured against
+the five exemplar dissertations: **zero of five** carry a contribution-to-claim table, and **one of
+five** carries a consolidated cross-chapter results table.
+
+**What the text has instead.** Neither table. The third move, a reproducibility appendix, had **four
+of five** support and is the one being written.
+
+**Why they are out.** The author's words: *"Eu acho que o A e o com menor ganho"*, and the
+measurement agreed with his instinct. In a collection-format dissertation the
+contribution-to-chapter mapping is explicit by construction, and Chapter 5's results table already
+is the consolidated result.
+
+**Where the full finding lives.** `src_utils/PENDENCIAS.md` §2b.3, with the five-exemplar table.
+
+**Decided by.** The author, 2026-07-27: *"Concordo, vamos com a opc: C)."*
+
+---
+
+## LO-5 · The rotated placement of the Chapter 5 data-flow figure
+
+**Finding.** `fig1_dataflow` renders its labels at 7.93 pt against an 11.96 pt body, 66 percent.
+`WRITING_LAW §5` asks for in-figure text near body size. A rotated full-page placement was **built
+and measured** at 10.53 pt, 88 percent, building clean at `tex_errors=0` with zero overfull boxes.
+
+**What the text has instead.** The upright placement at 66 percent, with the item left flagged.
+
+**Why it is out.** The author chose the upright placement when asked directly, on the grounds that
+rotating the page turns the diagram's deliberate left-to-right data flow into a bottom-to-top one
+and costs the reader a page turn. The presentation cost was judged higher than the type-size gain.
+
+**Where the full finding lives.** `src_utils/_round6/12_figures.md` §3, with both measurements.
+
+**Decided by.** The author, 2026-07-28, answering a direct question with all three options measured.
+
+---
+
+## LO-6 · The Chapter 4 architecture figure's own label size
+
+**Finding.** The CoUrb architecture figure's labels print at about 5.37 pt, roughly **45 percent** of
+body size. That is *smaller* than the two Chapter 5 diagrams the audit flagged under COD-017.
+
+**What the text has instead.** The figure at its published label size, with the six Portuguese labels
+translated and nothing else changed.
+
+**Why it is out.** The sanctioned change to a published, co-authored figure was the *language* of six
+labels. Raising the type size is a presentation change to someone else's published artifact and was
+not authorized.
+
+**Where the full finding lives.** `src_utils/_round6/12_figures.md`, with the fix recipe (raise the
+drawio `fontSize` from 13 to about 20 and re-export at the same pixel width).
+
+**Decided by.** Deferred, not declined. **Open for the author.**
+
+---
+
+## LO-7 · The sub-area selection rule behind the state-distribution figure
+
+**Finding.** The published figure is not reproducible from the corpora, because the rule that
+selected each panel's sub-area is recorded nowhere in either tree. Each panel's window holds 531 to
+703 Food and Shopping POIs, the caption says about 100 per region, and marker counting suggests
+roughly 163 to 307 plotted.
+
+**What the text has instead.** The published figure, unchanged. It needed no change: its labels are
+already fully English, which was the reason it was examined.
+
+**Why it is out.** The pass failed closed rather than shipping a regenerated lookalike. A figure that
+resembles the published one but was produced by a different, invented rule would be worse than one
+that cannot be regenerated.
+
+**Where the full finding lives.** `src_utils/_round6/12_figures.md` §2.
+
+**Decided by.** The figures pass, 2026-07-28, under the fail-closed rule.
+
+---
+
+## LO-8 · The preamble that produced the two Chapter 5 figure PDFs
+
+**Finding.** The TikZ sources for both figures **do exist** in the MobiWac folder, contrary to the
+premise this round started from. But they compile 6 to 8 pt wider than the committed PDFs under
+every preamble variant tried, so the exact build that produced the committed bytes is not
+recoverable.
+
+**What the text has instead.** The committed PDFs, with only their placement changed.
+
+**Why it is out.** Regenerating at a larger type size would have changed the figures' geometry, and
+at 11 pt one annotation was measured crossing 2.18 pt into an adjacent box. Placement was the
+change available without redesigning a submitted paper's figure.
+
+**Where the full finding lives.** `src_utils/_round6/12_figures.md` §3.
+
+**Decided by.** The figures pass, 2026-07-28.
+
+---
+
+## How to add an entry
+
+Copy the shape above: the finding, what the text says instead, why it is out, where the full finding
+lives, and who decided with the date. If you cannot fill "decided by," the item is a pendency, not an
+omission, and it goes in `PENDENCIAS.md`.
