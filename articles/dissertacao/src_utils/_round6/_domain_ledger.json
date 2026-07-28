@@ -1,0 +1,139 @@
+{
+ "spot_to_category_determinism": {
+  "method": "POI-level table via groupby(placeid) mode_or_first, matching hgi/preprocess.py:75-80; nunique(category) per spot",
+  "Alabama": {
+   "pois": 11848,
+   "spot_values": 284,
+   "categories": 7,
+   "spot_spanning_gt1_cat": 0
+  },
+  "Arizona": {
+   "pois": 20666,
+   "spot_values": 305,
+   "categories": 7,
+   "spot_spanning_gt1_cat": 0
+  },
+  "Florida": {
+   "pois": 76544,
+   "spot_values": 324,
+   "categories": 7,
+   "spot_spanning_gt1_cat": 0
+  },
+  "Texas": {
+   "pois": 160938,
+   "spot_values": 365,
+   "categories": 7,
+   "spot_spanning_gt1_cat": 0
+  },
+  "California": {
+   "pois": 169145,
+   "spot_values": 333,
+   "categories": 7,
+   "spot_spanning_gt1_cat": 0
+  },
+  "Georgia": {
+   "pois": 29667,
+   "spot_values": 313,
+   "categories": 7,
+   "spot_spanning_gt1_cat": 0,
+   "note": "not a reported dataset; measured for completeness"
+  },
+  "Istanbul": {
+   "pois": 42795,
+   "spot_values_poi_level": 575,
+   "spot_values_checkin_level": 580,
+   "categories": 7,
+   "spot_spanning_gt1_cat_poi_level": 11,
+   "spot_spanning_gt1_cat_checkin_level": 0,
+   "note": "NOT determinism-clean at POI level after mode_or_first dedup; the appendix scopes its claim to the five Gowalla states, so this is consistent, but Istanbul is NOT a sixth clean case"
+  }
+ },
+ "cbic_dgi_neighbour_mean_probe": {
+  "feature": "X_i = mean of one-hot categories of Delaunay neighbours of i, self EXCLUDED (dgi/preprocess.py:121-130)",
+  "probe": "multinomial logistic regression, 5-fold stratified, random_state=0, POI-level",
+  "Alabama": {
+   "onehop_input_acc": 0.4012,
+   "onehop_input_macroF1": 0.2515,
+   "twohop_no_selfloop_acc": 0.6951,
+   "twohop_no_selfloop_macroF1": 0.6407,
+   "twohop_own_onehot_surgically_removed_acc": 0.3974,
+   "twohop_own_onehot_surgically_removed_macroF1": 0.25,
+   "own_label_weight_in_twohop_mean": 0.1662,
+   "majority_acc": 0.3214,
+   "majority_macroF1": 0.0695,
+   "chance_macroF1": 0.1429
+  },
+  "Florida": {
+   "onehop_input_acc": 0.4159,
+   "onehop_input_macroF1": 0.3082,
+   "twohop_no_selfloop_acc": 0.6899,
+   "twohop_no_selfloop_macroF1": 0.653,
+   "twohop_own_onehot_surgically_removed_acc": 0.4166,
+   "twohop_own_onehot_surgically_removed_macroF1": 0.3145,
+   "own_label_weight_in_twohop_mean": 0.1662,
+   "majority_acc": 0.3182,
+   "majority_macroF1": 0.069,
+   "chance_macroF1": 0.1429
+  },
+  "Arizona": {
+   "onehop_input_acc": 0.4192,
+   "onehop_input_macroF1": 0.2732,
+   "twohop_no_selfloop_acc": 0.6929,
+   "twohop_no_selfloop_macroF1": 0.6411
+  },
+  "twohop_with_selfloop_note": {
+   "Alabama_macroF1": 0.5577,
+   "Arizona_macroF1": 0.5622,
+   "Florida_macroF1": 0.5789,
+   "own_label_weight_mean": 0.1412,
+   "comment": "PyG GATConv default add_self_loops=True; the self-loop DILUTES the own-label channel here rather than adding it, since X_i itself excludes self"
+  },
+  "mean_delaunay_degree": 6.0,
+  "interpretation": "One graph-convolution hop over a self-excluding neighbour mean re-admits node i's own label into h_i, because i is a neighbour of its own neighbours. Analytic weight ~0.166 of the mixture at degree 6. Removing ONLY that channel and renormalizing drops macro-F1 from 0.641 to 0.250 at Alabama and 0.653 to 0.315 at Florida, i.e. back to the 1-hop level. The own-label channel, not neighbourhood homophily, carries the difference."
+ },
+ "published_cbic_static_task_florida_MTL_perclass_F1": [
+  52.13,
+  41.44,
+  57.43,
+  29.94,
+  47.19,
+  62.51,
+  43.16
+ ],
+ "check2hgi_loss_code_defaults": {
+  "alpha_c2p": 0.4,
+  "alpha_p2r": 0.3,
+  "alpha_r2c": 0.3,
+  "source": "research/embeddings/check2hgi/model/Check2HGIModule.py:51-53; pipelines/embedding/check2hgi.pipe.py:41-43",
+  "shipped_substrate": "v14 = check2hgi_design_k_resln_mae_l0_1, built with --reg-poi-mode delaunay_gcn --encoder resln --mae-poi-lambda 0.3 --anchor-lambda 0.1 (check2hgi.py:477-478); board trains on dk_ovl = v14 embeddings re-windowed (SUBSTRATE_VERSION_MAP.md:19-23)",
+  "p2r_use_infonce_default": false,
+  "note": "The three-term equation is the canonical objective. The SHIPPED representation adds the two auxiliaries; and mae_poi_lambda=0.3 reconstructs each POI's mean category one-hot (check2hgi/preprocess.py:461-491), while anchor_lambda=0.1 anchors the reg-path POI table to POI2Vec, which is the fclass-level table (reg_poi_aug.py:27-35)."
+ },
+ "gradient_cosine_source": {
+  "pooled_mean": 0.0008,
+  "n_epoch_fold_points": 3797,
+  "per_state": {
+   "FL": 0.0007,
+   "AL": 0.0032,
+   "AZ": -0.0005,
+   "GE": -0.0004
+  },
+  "source": "docs/results/mtl_improvement/T4_audit_and_verdict.md:47-49; WHY_ORTHOGONAL_AND_NO_MODERN_OPTIMIZERS.md:29-31",
+  "chapter_claim": "5_mobiwac/02_related.tex:159-161 says averages +0.001 with per-dataset means within +/-0.003",
+  "check": "AL +0.0032 is 0.0032-0.001=0.0022 from the stated average, inside +/-0.003. Consistent."
+ },
+ "build_verified": {
+  "defense_pages": 108,
+  "final_pages": 105,
+  "tex_errors_main": 0,
+  "tex_errors_final": 0,
+  "float_too_large": 0,
+  "static_scope_rendered_page": 99,
+  "check2hgi_equations_rendered_page": 19,
+  "equation_numbers": [
+   "2.1",
+   "2.2",
+   "2.3"
+  ]
+ }
+}
