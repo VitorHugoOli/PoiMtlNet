@@ -326,20 +326,45 @@ raster label is not in that inventory, so a reader comparing the two documents f
 `MTLnet` in the Figure 4.1 **caption** and `MTLNet` inside the **image the caption describes**,
 one line apart on p. 47, with the appendix accounting for the first and silent about the second.
 
-**Finding 5 (MINOR), same paragraph.** That inventory is also short by one. Measured across the
-printed chapter (wrapper + 5 sections + 3 tables), excluding `ST-MTLNet`: **30** sites total, of
-which 2 are the registered expansion "Spatial-Temporal MTLNet" (correctly kept with capital N per
-`GLOSSARY.md:44`, at `intro.tex:25` and `methodology.tex:213`) and 2 are in the preface, which is
-frame prose rather than reproduced article text. That leaves **26** normalized sites in the
-reproduced text, against the 25 claimed. The decomposition I measure is 23 prose (21 excluding the
-two registered expansions), **2** subsection headings (`related.tex:42` "The MTLnet framework" and
-`methodology.tex:87` "Baseline: MTLnet with DGI"), 1 caption, 2 table headings. The appendix counts
-**one** subsection heading; there are two.
+**Finding 5 (NIT), same paragraph — and a correction to my own first measurement of it.**
 
-*Closes when* the paragraph either adds the raster label to the inventory (or says explicitly that
-the figure image keeps the published spelling and why), and corrects "one in a subsection heading"
-to two with the total adjusted. Note that a previous round already re-measured this count once
-(24 → 25, after persona 12 caught the first tally); the subsection-heading row is what is still off.
+> **Corrected 2026-07-28, after an audit caught my own contradiction.** My first pass raised this as
+> a MINOR defect asserting "**2** subsection headings ... The appendix counts **one**; there are
+> two." **That was wrong, and Appendix B's "one in a subsection heading" is right.** I had counted
+> both `\subsection` lines that print the name without asking which of them was ever *published*.
+> Measured: `\subsection{Baseline: MTLnet with DGI}` (`methodology.tex:87`) **is** in
+> `src_en/sections/metodology.tex`, so it is reproduced text and was normalized;
+> `\subsection{The MTLnet framework}` (`related.tex:42`) is **not** in `src_en` — it is the
+> dissertation-authored recap subsection, ledger row C2 and addition #2 of §2 above, so it never
+> carried the published spelling and there was nothing there to normalize. A paragraph about "places
+> where the reproduced text departs from the published article" is correct to exclude it. The same
+> test also removes four prose sentences and both table headings from the normalized set, because
+> they are dissertation-authored or errata-rewritten rather than reproduced. My error was applying a
+> "does it print the name" filter where the paragraph's own subject requires a "was it published"
+> filter.
+
+What survives is a much smaller point about the total. The paragraph's four rows are not all
+counted under one convention, so `25` is not reproducible from any single reading:
+
+| Counting convention | prose | subsec. | caption | tables | total |
+|---|---|---|---|---|---|
+| every printed lowercase site | 23 | 2 | 1 | 2 | **28** |
+| every printed lowercase site, minus the preface | 21 | 2 | 1 | 2 | **26** |
+| only sites normalized from a published `MTLNet` | 18 | 1 | 1 | 2 | **22** |
+| **Appendix B prints** | **21** | **1** | **1** | **2** | **25** |
+
+The claimed `21 in prose` matches the middle convention exactly; the claimed `one in a subsection
+heading` matches the bottom one exactly. Each row is defensible on its own; the sum of rows counted
+under two different conventions is not a quantity. Nothing in the reproduced text is wrong, no
+reader is misled about a departure, and the count has already been re-measured once this project
+(24 → 25, after persona 12 caught the first tally) — which is why this is a NIT and not a defect.
+
+*Closes when* the paragraph states its counting convention in the same sentence (for example "at
+every place in the reproduced text where the published article printed the name: 18 in prose, one
+in a subsection heading, one in a figure caption, and two in table headings", noting separately
+that the preface and the recap subsection are dissertation-authored and so are not departures), or
+the author rules that the approximate total is adequate for the purpose and the row stands. The
+disclosure gap of Finding 4 is the item in this paragraph actually worth an edit.
 
 ---
 
@@ -455,7 +480,7 @@ the deliberate refusal to claim the published runs came from that exact worktree
 | L5-1 | — | "ensures that the update is beneficial" · `src/tables/courb/errata.tex:28` | The published PT reads "o que **garante** que a atualização seja benéfica" (galley p. 5); the EN "ensures" is a faithful translation. Overclaim is the ORIGINAL's. | **PASS** — no action. Appendix B row is correct. |
 | L5-2 | MINOR | "carries nine marked additions" · `src/chapters/apx_b_errata.tex:262`; "The remaining three are the lead sentences" · `:275` | 8 additions measured, not 9. The category-table lead at `4_courb/results.tex:77` is the published sentence verbatim; its dissertation clause was dropped in the v2 repair. | "eight", and "the remaining two ... Tables 4.1 and 4.3". Ledger section C's C5 row updated too. |
 | L5-3 | MINOR | "at all 25 places where the name" · `src/chapters/apx_b_errata.tex:234` | The Figure 4.1 raster label is `MTLNet` (IoU 0.530 Bold vs 0.442 for `MTLnet`; `.drawio` cell value `<b>MTLNet</b>`), one line from a caption printing `MTLnet`. Not in the appendix's inventory. | Inventory names the figure image, or states that it keeps the published spelling and why. |
-| L5-4 | MINOR | same line, `:234` | Measured 26 normalized sites in reproduced text (+2 registered expansions, +2 preface), and **2** subsection headings (`related.tex:42`, `methodology.tex:87`), not one. | Count corrected to 26 with two subsection headings. |
+| L5-4 | NIT (**downgraded from MINOR; my first measurement was wrong**) | same line, `:234` | **Appendix B's "one in a subsection heading" is CORRECT** — `\subsection{Baseline: MTLnet with DGI}` is in `src_en` and was normalized; `\subsection{The MTLnet framework}` is not, being the dissertation-authored recap (ledger C2). Residue: the four rows are counted under two different conventions, so `25` is reproducible under none (every printed site 28; minus preface 26; published-only 22). The `21 prose` row matches the second, the `1 subsection` row the third. | The paragraph names its counting convention in the same sentence, or the author rules the approximate total adequate. No reader is misled either way. |
 | L5-5 | MINOR | "This article differs from the other two" · `src/chapters/apx_b_errata.tex:307` | `make check` exits `Error 1` on the 'this paper'/'this article' gate. Present at `1ef83867` too, so it predates today's split; not a Chapter 4 defect. | Sentence reworded, or `apx_b_errata` excluded from that gate as it already is from the banned-words gate. |
 
 ---
