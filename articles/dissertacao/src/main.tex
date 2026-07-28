@@ -1,3 +1,4 @@
+% !TeX root = main.tex
 % ============================================================================
 % main.tex -- single entry point for the dissertation (Vitor H. O. Silva, UFV/PPGCC).
 %
@@ -47,9 +48,27 @@
 \newif\ifapprovalsheet
 \ifdefined\APPROVALSHEET \approvalsheettrue \else \approvalsheetfalse \fi
 
-% Page number of the FIRST BODY PAGE in the final build (pre-textual pages are counted
-% but not numbered; e.g. 10 pre-textual pages -> first body page is 11). Tune against
-% the AcademicoPG RASCUNHO PDF after the post-defense upload (UFV_COMPLIANCE §4.4).
-\newcommand{\finalbuildfirstpage}{11} % [VERIFY: tune against the RASCUNHO PDF]
+% Page number of the FIRST BODY PAGE in the final build. UFV_COMPLIANCE §4.4: pre-textual
+% pages are counted but not numbered, so the first body page prints
+% (number of pre-textual pages) + 1.
+%
+% [round6, C-1, UFV compliance persona 13] CORRECTED 11 -> 8, and the defect is worth
+% naming because the comment above it was right the whole time.
+% MEASURED, by finding the first page whose header carries a digit in each render and
+% reading the printed number:
+%   defense (main.pdf)      10 pre-textual pages, first body page is physical p.11, prints 11  OK
+%   ppgc    (main_ppgc.pdf) 11 pre-textual pages, physical p.12, prints 12                     OK
+%   final   (main_final.pdf) 7 pre-textual pages, physical p.8,  printed 11                    WRONG
+% The AcademicoPG deposit build has NO folha de rosto, approval sheet, Resumo or Abstract --
+% the system generates those from web forms -- so it has three fewer pre-textual pages than
+% the defense build. This counter was hardcoded to the DEFENSE build's offset, and every
+% subsequent page inherited the three-page error: the deposit PDF's printed numbers ran
+% three ahead of its physical pages throughout, which is a numbering non-compliance on the
+% one build that is actually deposited.
+% This is only reachable in the final build (0_main.tex:412 sets the counter inside the
+% \ifdefensebuild-false branch), which is why the defense and ppgc builds were correct and
+% nobody noticed. The [VERIFY] flag it carried asked for tuning against the RASCUNHO PDF and
+% was the right instinct; what it did not say is that the value was wrong on its own terms.
+\newcommand{\finalbuildfirstpage}{8}
 
 \input{0_main.tex}

@@ -1,3 +1,4 @@
+% !TeX root = main.tex
 %%==============================================================
 %% Master's dissertation -- Vitor H. O. Silva, UFV / PPGCC (Campus Florestal)
 %% Skeleton derived from a prior UFV/PPGCC abnTeX2 dissertation tree (TEMPLATE.md §0
@@ -13,8 +14,16 @@
 %%       two build modes via \ifdefensebuild (TEMPLATE.md §2 item 4);
 %%       chapterpreface environment (time-capsule device, NORTH_STAR §3);
 %%       \OnehalfSpacing enforced (manual §7: 1.5 line spacing).
-%% Compile with pdflatex via main_defense.tex or main_final.tex, never this file.
+%% Compile with pdflatex via main.tex (defense), main_ppgc.tex (defense + approval sheet),
+%% or `make final` (AcademicoPG deposit body). Never compile this file directly.
 %%==============================================================
+
+% [round6, E-5] hyperfootnotes=false must reach hyperref AT LOAD TIME. abntex2 loads hyperref
+% itself, and \hypersetup after the fact does not undo the footnote-anchor mechanism -- setting
+% it there left all ten "name{Hfootnote.N} has been referenced but does not exist" warnings in
+% place, measured. \PassOptionsToPackage before \documentclass is the only hook that reaches it.
+% See the fuller note at the \hypersetup block below for what the defect was.
+\PassOptionsToPackage{hyperfootnotes=false}{hyperref}
 
 \documentclass[
     12pt,                    % manual §7: size 12
@@ -161,7 +170,25 @@ degree of \textit{Magister Scientiae}.}
     citecolor=blue,
     filecolor=magenta,
     urlcolor=blue,
-    bookmarksdepth=4
+    bookmarksdepth=4,
+    % [round6, E-5, visual/presentation persona 18] hyperfootnotes DISABLED.
+    % THE DEFECT: every build logged ten "pdfTeX warning (dest): name{Hfootnote.N} has been
+    % referenced but does not exist" lines, and the persona measured where the links actually
+    % LAND rather than only whether the destinations resolve: all ten footnote marks jumped the
+    % reader to PHYSICAL PAGE 1 (the folha de rosto in the defense build, the List of Figures in
+    % the deposit build). Ten dead links in a PDF handed to a committee, and the counter that
+    % would have shown them is one no build claim in this project has ever carried.
+    % THE CAUSE: abntex2 loads hyperref itself, and this document's footnotes are set inside
+    % groups the footnote-anchor mechanism does not survive, so hyperref emits a reference to an
+    % anchor it never writes. The link then falls back to the start of the document.
+    % THE FIX: turn the footnote marks back into plain text. A footnote mark sits on the same
+    % page as its own note in this document, so the link was never carrying the reader anywhere
+    % useful even when it worked. Nothing else in hyperref changes: internal cross-references,
+    % citations and URLs stay live.
+    % NOTE: the option is NOT set here. Setting hyperfootnotes=false in \hypersetup after
+    % abntex2 has already loaded hyperref leaves all ten warnings in place (measured). It is
+    % passed at load time with \PassOptionsToPackage before \documentclass, at the top of this
+    % file. This comment stays here because this is where someone will look for it.
 }
 \makeatother
 

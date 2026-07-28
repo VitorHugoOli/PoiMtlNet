@@ -124,6 +124,14 @@ echo "== torn sentences (a body line opening mid-sentence: the clause before it 
 # reintroduced.
 if ! python3 "$UTILS/check_torn_sentences.py"; then FAIL=1; fi
 
+echo "== TeX root directives (invisible to make: only an editor build ever notices) =="
+# Two silent defects in one week, both found by review rather than by any gate: six files pointing
+# at a main_defense.tex that has never existed in this tree, and six others with no directive at
+# all, which after the per-section split included the three paper-chapter masters -- the files an
+# editor opens to navigate. `make` reads main.tex and never looks at a magic comment, so the cost
+# lands on whoever opens a file in an editor. Now checked.
+if ! python3 "$UTILS/check_tex_root.py"; then FAIL=1; fi
+
 echo "== negative-parallelism density (a standing guard that lived only in a review report) =="
 # The AI-credibility persona froze this count on 2026-07-20 and found it raised from 67 to 79 on
 # 2026-07-28, with its own verdict on why: "a guard that lives only in a previous round's review
