@@ -265,6 +265,101 @@ ultimo `%`; aqui nao ha nada preso, a clausula simplesmente nao existe, e o buil
 
 ---
 
+## BLOCO 0f — a sua pergunta: falta definir em detalhe o Check2HGI e o MTLnet?
+
+**Sua pergunta:** *"em nenhum momento do mobiwac ou de outro artigos nos definimos em detalhes como e
+o check2hgi ou ate mesmo o MTLnet, falamos da arquitetura ou mostramos codigo, sera que isso e algo que
+falta?"*
+
+Medi antes de opinar, e rodei a persona 12 (banca) so nisso. Parecer completo em
+[`_review_v3/12_banca_architecture_detail.md`](_review_v3/12_banca_architecture_detail.md).
+
+### A parte da sua intuicao que a medicao **confirma**
+
+O documento inteiro, 104 paginas, tem **sete equacoes**, **zero ambientes de algoritmo** e sete
+figuras. Por capitulo: Cap. 3 duas, Cap. 4 quatro, **Cap. 5 uma** (a perda 0,75/0,25). Caps. 1, 2, 6 e
+os cinco apendices: nenhuma.
+
+Contra os exemplares, estamos na ponta baixa nos dois eixos:
+
+| Dissertacao | pp. | equacoes numeradas | algoritmos | figuras |
+|---|---:|---:|---:|---:|
+| Germano 2024 (mesmo orientador) | 96 | **35** | 0 | 11 |
+| Viegas 2026 (aprovada, mesmo padrao) | 100 | 3 + 1 | **2** | 15 |
+| Canesche 2021 | 108 | 0 | 1 | 57 |
+| Passe 2020 | 68 | 1 | 0 | 33 |
+| Dorigueto | 77 | 0 | 0 | 11 |
+| **nossa** | **104** | **7** | **0** | **7** |
+
+### A parte que a medicao **corrige** — o MTLnet nao e o problema
+
+O MTLnet **esta** documentado: §3.3.2 tem **469 palavras**, a equacao do FiLM, a pilha camada por
+camada (encoders MLP, FiLM, blocos residuais compartilhados, cabecas) e **uma figura de arquitetura**.
+Somando, o Nash-MTL tem 439 palavras e o DGI 450.
+
+O ponto fino e o **Check2HGI**:
+
+| Componente | Palavras | Equacoes | Figura |
+|---|---:|---:|---:|
+| MTLnet, a **baseline** que nao inventamos | 469 | 1 | 1 |
+| Nash-MTL | 439 | 1 | 0 |
+| DGI | 450 | 1 | 0 |
+| **Check2HGI, a nossa contribuicao** | **244** | **0** | 1 |
+| o modelo conjunto, o nosso resultado | 442 | 1 | 1 |
+
+**A assimetria e o achado:** a baseline recebe mais espaco formal do que a contribuicao central. A
+pergunta que a banca abre com isso, nas palavras da persona 12: *"o senhor pode ir ao quadro e escrever
+a funcao de perda do Check2HGI? So a funcao de perda. E a contribuicao central da dissertacao."*
+Hoje o documento nao responde — §5.4.1 diz "treinamos **principalmente** com um objetivo infomax", e
+"principalmente" esconde exatamente o que a pergunta quer.
+
+### Sobre codigo: **nao falta, e nao adicione**
+
+Verifiquei os cinco exemplares e o `UFV_COMPLIANCE.md`. **Nenhum** exemplar tem apendice de codigo, e a
+norma **nao exige** nada disso. Nos ja temos tres links de codigo no texto (um deles fixado em branch
+para o Cap. 5) mais as fontes de dados. Nesse eixo estamos acima da pratica local. Apendice de codigo
+ou pseudocodigo seria over-correction.
+
+### ~~A duvida das ponderacoes da perda~~ — RESOLVIDA no codigo
+
+O parecer marcou `[VERIFY]`: o Cap. 5 diz "termos auxiliares com pesos **0,3 e 0,1**" e o explicador do
+repo diz **0,4 / 0,3 / 0,3**. Fui ao codigo (`research/embeddings/check2hgi/check2hgi.py`):
+
+- `--alpha_c2p 0.4`, `--alpha_p2r 0.3`, `--alpha_r2c 0.3` (linhas 1001-1003) — os tres termos infomax,
+  um por fronteira da hierarquia;
+- `--mae-poi-lambda 0.3`, `--anchor-lambda 0.1` (linhas 477-478) — os dois auxiliares.
+
+**Nao ha contradicao: sao duas decomposicoes diferentes, as duas corretas.** O Cap. 5 esta certo, mas
+reporta **so metade** da perda — os auxiliares, nao os principais. E precisamente por nao haver equacao
+que isso nao da para conferir no documento.
+
+### O que eu recomendo, e o que e seu para decidir
+
+A persona 12 propoe ~4 paginas, tudo em texto de moldura ou aditivo, sem tocar em resultado
+reproduzido. Ranqueado por risco removido por pagina:
+
+1. **A equacao da perda do Check2HGI em §5.4.1** (~1/3 de pagina). Como o MobiWac esta sob revisao, sua
+   regra vigente permite aplicar nos dois textos; a persona recomenda a rota mais segura, so na
+   dissertacao, como **quarta adicao marcada** do Cap. 5 — o Apendice B ja declara tres, entao e uma
+   clausula. O material ja existe em `docs/context/check2hgi_overview.tex:211-231`, **em portugues**:
+   traduzir, nao re-derivar.
+2. **Um apendice F, "The check-in-level representation in detail"** (~2 paginas): os quatro niveis com
+   o operador de cada um, a regra de propagacao da GCN, a agregacao por atencao, a codificacao ciclica
+   do tempo e o peso `w_ij = exp(-dt/tau)`, mais uma tabela nivel -> entrada -> operador -> saida. Tudo
+   isso ja esta escrito no mesmo arquivo.
+
+**Eu recomendo fazer (1) e (2).** Sao aditivos, saem de material que voce ja escreveu, e fecham a unica
+pergunta do parecer em que a falta de um objeto formal enfraquece um argumento que o documento faz.
+
+> DECISAO (fazer 1 e 2? so 1? nenhum?): __________________________________________________
+
+> **Se autorizar, eu preciso de voce em uma coisa:** o `check2hgi_overview.tex` descreve a arquitetura
+> com **atencao multi-head** no nivel 2 e a variante de **corrupcao de embeddings**. Confirme que a
+> versao usada nos resultados do MobiWac e essa, porque o codigo tem varias flags de variante
+> (`v13`, `v14`, `--encoder resln`) e eu nao vou escrever arquitetura de memoria nem inferir de flag.
+
+---
+
 ## BLOCO 0b — o que o orientador levantou (2026-07-27)
 
 ### ~~Notacao das citacoes: (N) -> [N]~~ — APLICADO 2026-07-27
