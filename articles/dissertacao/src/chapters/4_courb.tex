@@ -127,7 +127,56 @@ The modulated representations are processed by four shared residual blocks with 
 
 At the output, each task has a specialized \textit{head}. The category classification module uses a set of three parallel MLPs with varying depths (2, 3, and 4 layers), whose outputs are concatenated and projected to the 7 POI classes. The next-POI \textit{head} employs a \textit{Transformer encoder} with 8 attention \textit{heads} and 4 layers, a causal mask for autoregressive processing, and attention-weighted pooling using attention weights learned over the \textit{timesteps} of the input sequence.
 
-Multi-task training uses the Nash-MTL regularizer \cite{nash}, which formulates gradient balancing as a cooperative Nash bargaining game among $K$ tasks. Given the gradients of each task, Nash-MTL seeks the update direction that maximizes the product of the utilities of all tasks, which ensures that the update is beneficial for all tasks simultaneously, avoiding the dominance of one task over the other.
+Multi-task training uses the Nash-MTL regularizer \cite{nash}, which formulates gradient balancing as a cooperative Nash bargaining game among $K$ tasks. Given the gradients of each task, Nash-MTL seeks the update direction that maximizes the product of the utilities of all tasks. Away from a Pareto-stationary point, meaning a point at which some convex combination of the task gradients is zero, and under the method's assumption that the gradients are linearly independent there, that direction is a descent direction for every task, avoiding the dominance of one task over the other.
+% [round6, COD-005 sub-claim 4] CORRECTION of a published claim, listed in Appendix B
+% (tables/courb/errata.tex). The published clause read "which ensures that the update is beneficial
+% for all tasks simultaneously", which states the guarantee unconditionally. The method's guarantee is
+% real and conditional, so the correction narrows it without weakening it below what the paper states:
+% "aims to", "is intended to" or "seeks to make" would all be WEAKER than the source, since the
+% authors derive the property rather than aspire to it.
+% SOURCE OF RECORD: arXiv:2202.01017, "Multi-Task Learning as a Bargaining Game", Navon, Shamsian,
+% Achituve, Maron, Kawaguchi, Chechik, Fetaya. Venue ICML 2022 per the arXiv comment field. PDF
+% downloaded and read this session (19 pp.); every quotation below re-checked against the extracted
+% text by exact substring match after normalizing the extractor's hyphenation artifacts.
+%   p.1 abstract: "Under certain assumptions, the bargaining problem has a unique solution, known as
+%       the Nash Bargaining Solution" -- the guarantee is conditional in the authors' own first
+%       sentence about it.
+%   p.6: "Since our update rule is a descent direction for all tasks, we can reasonably assume that
+%       our algorithm avoids local maxima points" -- the property, in the authors' words. This is
+%       STRONGER and more precise than the published "beneficial", which was loose.
+%   p.3: "Our main assumption, besides the ones used by Nash, is that if theta is not Pareto
+%       stationary then the gradients are linearly independent" (formalized as Assumption 5.1, p.6) --
+%       condition one, and the reason the sentence above names linear independence.
+%   p.3, Claim 3.1, which characterizes the solution as sum_i alpha_i g_i with G^T G alpha = 1/alpha,
+%       is stated for the case "if theta is not on the Pareto front" -- condition two, and the reason
+%       the sentence above says "at points that are not Pareto stationary".
+%   p.3, on Axiom 2.4: "the solution can easily be dominated by a single direction" without the
+%       scale-invariance assumption -- this independently supports the retained published clause
+%       "avoiding the dominance of one task over the other", which is therefore kept, not cut.
+% DELIBERATELY NOT IMPORTED: p.4, "we limit the sequence of CCP to 20 in all experiments". The
+% approximation of the bargaining solution is an implementation fact rather than part of the stated
+% guarantee; it belongs in the Appendix B row, where the neighbouring Nash cost correction already
+% discusses the twenty-pass concave-convex procedure (tables/cbic/errata.tex, last row).
+% TERM GLOSSED, per WRITING_LAW section 1 ("define every term ONCE at first use") and the GLOSSARY
+% fail-closed rule. "Pareto stationary" is not in GLOSSARY.md. The document's first use is in
+% Chapter 3's Nash formal formulation, which is PUBLISHED prose and carries "convergence to a
+% Pareto-stationary point" with no gloss; expanding that sentence would be a further edit to a
+% published article for no reader gain, so the gloss is placed here instead, at the use that carries a
+% claim. The hyphenated form "Pareto-stationary point" is used deliberately, matching Chapter 3's
+% spelling, so the two chapters name one concept one way.
+% The plain reading is the source's own: arXiv:2202.01017 p.2, "a point is called Pareto stationary if
+% there exists a convex combination of the gradients at this point that equals zero", restated at p.6
+% as "a point where some convex combination of the gradients is zero". Read from the PDF this session.
+% The sentence was also split in two rather than carried on one semicolon, which keeps the definition
+% out of the clause that states the guarantee.
+% [PROPOSED GLOSSARY ENTRY, needs the author's approval before it is considered registered:
+%  "Pareto-stationary point -- a point at which some convex combination of the task gradients is zero;
+%   a necessary condition for Pareto optimality. Used in Chapters 3 and 4 in the Nash-MTL description."]
+% [NEEDS SIGN-OFF: AUTHOR -- a claim narrowing in published co-authored prose. The alternative device
+% this collection already uses, reproducing the sentence and externalizing the correction in a
+% footnote (3_cbic.tex, the Nash cost claim), was available and I did not choose it: Chapter 4 is a
+% translated chapter whose prose already carries many parentheticals, and one clause is cheaper for
+% the reader than a footnote. Say the word and I will convert it.]
 
 \subsection{Baseline: MTLnet with DGI}
 
@@ -264,7 +313,36 @@ All models share the same hyperparameters of the MTLnet architecture, differing 
 
 \subsection{Experimental Setup}
 
-The performance of the models is evaluated using the Average F1-Score per category, reported as mean and standard deviation over 5 \textit{folds} with a stratified split, using 80\% of the data for training and 20\% for validation, preserving the proportion between categories. The split is stratified by sample, not by user, so the \textit{check-ins} of one user may appear in both training and validation; Chapter~\ref{ch:mobiwac} adopts a stricter user-disjoint protocol. The released code of record pins a single random seed, so the five folds constitute one repetition of the experiment rather than several, and the reported standard deviations are the spread across folds at that seed; Chapter~\ref{ch:mobiwac} repeats its five-fold experiment at four random initializations.
+The performance of the models is evaluated using the Average F1-Score per category, reported as mean and standard deviation over 5 \textit{folds} with a stratified split, using 80\% of the data for training and 20\% for validation, preserving the proportion between categories. The split is stratified by sample, not by user, so the \textit{check-ins} of one user may appear in both training and validation; Chapter~\ref{ch:mobiwac} adopts a stricter user-disjoint protocol. The released code of record pins a single random seed, so the five folds constitute one repetition of the experiment rather than several, and the reported standard deviations are the spread across folds at that seed; Chapter~\ref{ch:mobiwac} repeats its five-fold experiment at four random initializations. Within a fold, training runs for the full number of epochs configured, without early stopping, and each task is read at the epoch of its own highest validation macro-F1, measured on the same fold the score is reported on.
+% [round6, COD-007] Second declared ADDITION at this site: the checkpoint rule, which the published
+% paper leaves implicit. Not a correction of any published claim. Appendix B, Article 2, additions
+% paragraph, whose count rises from eight to nine. The sentence is word-for-word the one added at
+% 3_cbic.tex ("Evaluation protocol"), deliberately: the two studies run the SAME checkpoint code, and
+% WRITING_LAW's one-name-per-concept rule argues for one phrasing rather than two paraphrases of one
+% mechanism.
+% EVIDENCE that it is the same code, diffed file by file this session. CBIC-era
+% 9b06053f:src/model/mtlnet/engine/mtl_train.py against CoUrb-era
+% /Users/vitor/Desktop/mestrado/temp/tarik-new/PoiMtlNet_Novo/src/train/mtlnet/mtl_train.py:
+%   - the checkpoint block is character-identical, CoUrb-era :226 state = model.state_dict() through
+%     the two :234-249 add_val(..., best_metric='val_f1', ...) calls, one per task;
+%   - utils/ml_history/metrics.py differs by five import lines and nothing else, so the >= comparison,
+%     the deepcopy and the best_epoch assignment are the same bytes;
+%   - validation.py:18 and :29 reload each task's own best state, unchanged;
+%   - the only two breaks in the epoch loop are the target-F1 cutoff (:260-269) and the wall-clock
+%     timeout (:272-274), and src/configs/model.py:6,9,10 set TIMEOUT_TEST, NEXT_TARGET and
+%     CATEGORY_TARGET to None, so nothing stops a fold early; the one "patience" occurrence in the
+%     file (:328) belongs to a learning-rate scheduler, and the early-stopping variant at :346 is
+%     commented out;
+%   - macro averaging: train/mtlnet/evaluate.py:58,:61 read report['macro avg']['f1-score'].
+%   - artifact confirmation: results/florida/mtlnet_lr1.0e-04_bs2048_ep50_20260226_1131/folds/
+%     fold1_info.json records category epoch 26 and next epoch 19 of "num_epochs": 50 in the sibling
+%     model/model_params.json -- two different epochs in one fold, one per task, no early stop.
+% CAUTION for whoever cites that worktree next: git status there reports create_fold.py,
+% src/configs/model.py and pipelines/mtlnet_trainer.py as modified relative to 58fd219b. The
+% modifications do not touch the seed, the splitters or the checkpoint block (an embedding-dimension
+% change and a sys.path shim), but the working tree is not the commit, and a citation should say which.
+% [NEEDS SIGN-OFF: AUTHOR -- one new sentence of protocol detail in a published chapter, recovered
+% from the released code. No number and no claim about a result is affected.]
 % [round4, REV-012] Declared addition, not part of the published text. Same class as the
 % split-axis sentence added above (Appendix B, Chapter 4 section). What the code shows,
 % verified this session in the author-provided CoUrb-era codebase

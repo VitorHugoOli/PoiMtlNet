@@ -91,7 +91,27 @@ $+2.13$ at Texas, $+2.19$ to $+2.21$ at California).
 A reader used to multi-task learning~\cite{caruana1997multitask} expects the
 harder task, here next-region with its hundreds to several thousand classes, to teach the easier one; a control shows otherwise. We freeze the region pathway at the start of training so it can neither learn nor teach the category task, yet the full category gain survives at Alabama, Arizona, and
 Florida (within $0.3$ of the joint model and far above the dedicated
-model). We therefore attribute the category gain to a stronger shared trunk, not to the region task teaching the category one; and the gain requires no second model at serving time (one model, one forward pass). We report this attribution as a finding, not a hypothesis.
+model). We therefore report the negative result, that the gain is not the region task teaching the category one, as a finding. The control fixes region training rather than any part of the category pathway, so it does not identify which part of the joint architecture produces the gain, and we do not name the shared trunk as the source. Either way the gain requires no second model at serving time (one model, one forward pass).
+% [round6, 2026-07-28] ATTRIBUTION SOFTENED here as well, so this section and Section 7 agree and so
+% that this text and the dissertation's Chapter 5 make claims of the same strength. Logged in
+% ../../ERRATA.md.
+% THE DEFECT: this paragraph asserted "a stronger shared trunk" and closed hedging with "a finding, not
+% a hypothesis", while the control it rests on is a disjunction eliminator, not a locator. Freezing the
+% region pathway removes region TRAINING; it leaves untouched the category stream's own encoder, the
+% per-stream feed-forward blocks, and the added depth, so it cannot separate the trunk from those. The
+% repository also holds a development arm that tests the trunk directly and disagrees, at Florida over
+% five folds and fifty epochs: category macro-F1 68.36 +- 0.74 with cross-attention on against
+% 68.32 +- 0.67 off, a difference of -0.04 +- 0.13 that a paired Wilcoxon cannot separate from zero
+% (W+ = 5, p = 0.6250), quoted from
+% docs/findings/archive/F50/F50_T1_5_CROSSATTN_ABSORPTION.md:19-20,:37. That arm ran on an earlier
+% configuration and its own record reads the null as a compensation effect, so it is not evidence
+% against the trunk either. The negative result IS established by the control and is kept as a finding;
+% only the component attribution is withdrawn.
+% A DECLARED DIVERGENCE, deliberate: the dissertation's Chapter 5 states the F50 ablation with its
+% numbers and its two limits, because it has the room. This paper does not, and the two texts are
+% therefore not word-identical at this paragraph. What is identical is the STRENGTH of the claim, which
+% is the property the parity rule exists to protect: neither text now names a component as the source.
+% Recorded in ../../ERRATA.md so the asymmetry is not read later as an oversight.
 
 The joint model is also above every external baseline reported, on both tasks,
 across all six datasets (Table~\ref{tab:results}): on region, the primary

@@ -1,15 +1,42 @@
 % cbic/errata.tex -- one table. Extraction provenance and verification: tables/README.md
-\begin{table}[htb]
+% [round6] CONVERTED table -> longtable, for the same reason and by the same precedent as
+% tables/frame/bib_errata.tex: with the Standley claim-narrowing row added, this table is TALLER THAN
+% THE TEXT BLOCK, and a float cannot break across pages. Measured before converting: pdflatex reported
+% "Float too large for page by 190.30908pt", the only oversized float in either build.
+% Measured after converting: oversized_floats=0 in both variants, at 109 pages defense and 105 final.
+% The page counts do NOT return to the 106/101 that HEAD produces. The conversion is not what moved
+% them, and that was isolated rather than assumed: in a scratch copy, this round's eight rows put back
+% into the original float container build to the same 109/105, with the "Float too large" warning
+% present in both variants. So the conversion costs zero pages and removes the warning; the growth
+% belongs to the round's prose additions in Chapters 3, 4 and 5 and in this appendix (defense 106 -> 109,
+% final 101 -> 105, measured by reverting only this round's files in a second scratch copy).
+% All eight rows, the caption, the label and \small are preserved; only the container changed.
+% The {\small ... } GROUP is load-bearing and must stay: longtable is not a float, so \small cannot be
+% set inside the environment the way a \begin{table} sets it. Dropping its opening brace is what stopped
+% every build for six commits in round 5 (see the note in frame/bib_errata.tex). Brace balance verified
+% after the change.
+% \centering is dropped, not lost: longtable centers itself through \LTleft/\LTright, and a \centering
+% inside it has no effect. Column widths, header text and row order are untouched.
+{\small
+\begin{longtable}{@{}p{0.42\textwidth}p{0.52\textwidth}@{}}
 \caption{Content errata of the CBIC 2025 article and the corrections applied in
 Chapter~\ref{ch:cbic}. Numeric values quoted in the corrections are the published
 table values.}
-\label{tab:apx:cbic-errata}
-\centering
-\small
-\begin{tabular}{@{}p{0.42\textwidth}p{0.52\textwidth}@{}}
+\label{tab:apx:cbic-errata} \\
 \toprule
 \textbf{Defect in the published article} & \textbf{Correction in the chapter} \\
 \midrule
+\endfirsthead
+\multicolumn{2}{@{}l}{\footnotesize\itshape Table \thetable\ continued from the previous page.}\\
+\toprule
+\textbf{Defect in the published article} & \textbf{Correction in the chapter} \\
+\midrule
+\endhead
+\midrule
+\multicolumn{2}{r@{}}{\footnotesize\itshape Continued on the next page.}\\
+\endfoot
+\bottomrule
+\endlastfoot
 Prose states ``almost four times more wall time''; the convergence table gives
 80.88~s for the joint model against a cumulative 34.97~s for the single-task models,
 a factor of about 2.3. &
@@ -58,6 +85,18 @@ it understates the cost: both implementations examined run an iterative concave-
 procedure, twenty passes by default, each a convex solve, on top of one backward pass per
 task. The correction raises the reported cost of a method this chapter used, so it runs
 against the chapter's own interest. \\
-\bottomrule
-\end{tabular}
-\end{table}
+\addlinespace
+The rationale for hard parameter sharing states that the approach ``frequently matches or
+exceeds the performance of more complex architectures on many benchmarks, while offering
+faster training and inference'', citing a work on task grouping. &
+Narrowed to the inference-cost claim the cited work supports, that a single network is
+evaluated rather than one network per task, with the correction recorded in a footnote. The
+cited work names improved accuracy and reduced training time among the benefits joint
+training may have in theory, then reports empirically that joint training often performs
+worse than separate networks, and its contribution is a framework for splitting tasks across
+networks, which it describes as costly at training time. Its one result favoring joint
+training is conditioned on a matched parameter budget and on three or more tasks, and it
+excludes the two-task case this chapter studies. The correction removes a stated advantage of
+the architecture this chapter adopts, so it runs against the chapter's own interest. \\
+\end{longtable}
+}

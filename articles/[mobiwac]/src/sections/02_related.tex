@@ -85,16 +85,42 @@ Reports find that gradient-balancing methods, which re-weight
 the tasks' updates during training (PCGrad \cite{yu2020pcgrad}, Nash-MTL \cite{navon2022nashmtl}), rarely improve on a
 well-tuned fixed weighting with two tasks \cite{xin2022domtl}.
 We confirm this at scale: of nineteen loss and gradient balancers screened at their
-default configurations on two datasets, including the two named above, none improved on a tuned
-fixed task weighting across both tasks and both datasets. Two exceed equal weighting on
+default configurations at a single seed on two datasets, Alabama and Florida, including the two
+methods named above, none improved on a tuned fixed task weighting across both tasks and both
+datasets. Two exceed equal weighting on
 next-category at Alabama, Nash-MTL by $0.68$ points and scale normalization by $0.19$, and neither
 holds that position elsewhere: Nash-MTL loses it on the second dataset, and scale normalization
 gains on next-category there while collapsing on next-region.
 The reason is visible in the gradients. Measured during development on the same
 joint architecture (on an earlier preparation of the data), the cosine
 similarity between the next-category and next-region updates on the shared
-trunk averages $+0.001$ across training (four seeds each on three of our six
-datasets, per-dataset means within $\pm0.003$). A balancer therefore has no
+trunk averages $+0.001$ across training (four seeds each on four Gowalla states: Alabama,
+Arizona and Florida, which are three of the five United States datasets reported here, and
+Georgia, which this study does not otherwise use, per-dataset means within $\pm0.003$). A
+balancer therefore has no
 conflict to resolve, consistent with the mechanism test in
 Section~\ref{sec:results-part2}; this is a finding for this pair of tasks, not a
 general rule.
+% [round6, 2026-07-28] TWO SCOPE CORRECTIONS in this paragraph, both applied here and in the
+% dissertation's Chapter 5 so the two texts stay identical (the paper is under review; author's
+% standing instruction). Logged in ../../ERRATA.md.
+% (1) The balancer sentence stated neither the repetition count nor which two datasets, and "the two
+%     named above" resolved to the two BALANCERS, not to a pair of datasets. Source of record
+%     docs/results/mtl_improvement/T4_audit_and_verdict.md:8-10 ("the full screen at registry
+%     DEFAULTS, seed 0, AL+FL") and :111-112 ("Single-seed (seed0) screen ... FL+AL"); the two states
+%     are confirmed as the only two top-level keys of T4_full_screen.json, each holding the nineteen
+%     arms this sentence counts. "seed 0" is kept out of the prose per ../../GLOSSARY.md:113, which
+%     gives "a single seed" as the phrasing.
+% (2) The gradient-cosine sentence read "three of our six datasets". It was a PARITY DIVERGENCE: the
+%     dissertation corrected this in dccf45d2 and the paper did not. Both were wrong in one direction
+%     and this one in two. The measurement pools FOUR Gowalla states, alabama / arizona / georgia /
+%     florida, which are the only four keys of the "states" object in
+%     docs/results/mtl_improvement/R0_matched_metric_bar.json (each carrying the four seeds 0, 1, 7,
+%     100), and scripts/mtl_improvement/plot_grad_cosine.py names the same four in its STATE_STYLE map
+%     and reads the run directories straight out of that JSON. Georgia is NOT one of the six datasets
+%     this study reports, so "three of our six" both undercounted the pool and implied every state in
+%     it is one we report. Read from the JSON, not recomputed. The correction is in the study's favor:
+%     the finding replicates on a state the paper never reports.
+%     "this dissertation does not otherwise use" is rendered here as "this study does not otherwise
+%     use", the same substitution class as the "this chapter's claims" to "the paper's claims" change
+%     already recorded for section 7.

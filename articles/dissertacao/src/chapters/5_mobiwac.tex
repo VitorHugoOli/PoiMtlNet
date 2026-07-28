@@ -183,9 +183,9 @@ Reports find that gradient-balancing methods, which re-weight
 the tasks' updates during training (PCGrad \cite{yu2020pcgrad}, Nash-MTL \cite{nash}), rarely improve on a
 well-tuned fixed weighting with two tasks \cite{xin2022domtl}.
 We confirm this at scale: of nineteen loss and gradient
-balancers screened at their default configurations on two datasets, including the two
-named above, none improved on a tuned fixed task weighting across both tasks and both
-datasets. Two exceed equal weighting on next-category at Alabama, Nash-MTL by $0.68$
+balancers screened at their default configurations at a single seed on two datasets,
+Alabama and Florida, including the two methods named above, none improved on a tuned fixed
+task weighting across both tasks and both datasets. Two exceed equal weighting on next-category at Alabama, Nash-MTL by $0.68$
 points and scale normalization by $0.19$, and neither holds that position elsewhere:
 Nash-MTL loses it on the second dataset, and scale normalization gains on next-category
 there while collapsing on next-region.
@@ -202,7 +202,31 @@ there while collapsing on next-region.
 % The minimal repair that keeps the author's phrase is to drop the two words "PCGrad
 % \cite{yu2020pcgrad}, " from the citing sentence above and let Nash-MTL carry the named evidence
 % (the \cite{xin2022domtl} sentence already reports the literature claim in general terms).
-% Also unstated: the screen is seed 0 at two states (AL+FL) -- see T4:8-17.
+% [round6, COD-005 residue] SCOPE ADDED, and this comment supersedes the "Also unstated" note that
+% stood here. The sentence stated neither the repetition count nor which two datasets. Source of
+% record, docs/results/mtl_improvement/T4_audit_and_verdict.md, opened this session: the
+% evidence-strength banner at :8-10 reads "What actually ran: the full screen at registry DEFAULTS,
+% seed 0, AL+FL", and the "Caveats / scope" section at :111-112 states it a second time,
+% "Single-seed (seed0) screen + corrected re-run, FL+AL". The AL+FL expansion is not inferred from the
+% abbreviation: T4_full_screen.json has exactly two top-level keys, alabama and florida, and each
+% holds exactly the nineteen arms this sentence counts (aligned_mtl, bayesagg_mtl, cagrad, db_mtl, dwa,
+% equal_weight, excess_mtl, fairgrad, famo, go4align, gradnorm, nash_mtl, pcgrad, scale_norm,
+% scheduled_static, static_weight, stch, uncertainty_weighting, uw_so). Counted from the JSON, not
+% from prose.
+% "including the two named above" was ALSO ambiguous and is now "the two methods named above": the
+% nearest antecedent is the pair of balancers PCGrad and Nash-MTL in the preceding sentence, not a pair
+% of datasets. Measured 2026-07-28: neither state was named anywhere before this sentence in this file
+% (the first "Alabama" was the next sentence, the first "Florida" was twenty-four lines below), so a
+% reader could not have resolved "the two" to the datasets even if that had been intended. An earlier
+% anchor table recorded this site as already naming the two datasets; that reading was wrong and is
+% corrected here.
+% The literal string "seed 0" stays out of the prose: it is a fact about the run configuration rather
+% than a reported parameter, the same treatment the fold seed gets in Chapter 4, and
+% articles/[mobiwac]/GLOSSARY.md:113 gives "a single seed" as the phrasing while banning the compound
+% "single-seed states". No number, count or verb changed.
+% PARITY: the same edit is applied in articles/[mobiwac]/src/sections/02_related.tex, since Chapter 5
+% is under review and the two texts stay identical; logged in articles/[mobiwac]/ERRATA.md rather than
+% in Appendix B.
 The reason is visible in the gradients. Measured during development on the same
 joint architecture (on an earlier preparation of the data), the cosine
 similarity between the next-category and next-region updates on the shared
@@ -220,6 +244,19 @@ general rule.
 % reports, so "three of our six" both undercounted the pool and implied every state in it is one we
 % report. Read from the JSON, not recomputed. The correction is in the author's favour: the finding
 % replicates on a state the dissertation never reports.
+% [round6, 2026-07-28] PARITY CLOSED. That F-03 correction had been applied on the dissertation side
+% only, so until now the submitted paper still read "three of our six datasets" two lines from the
+% sentence above, while this chapter named the four states. Under the Chapter 5 regime the two texts
+% must be identical, so the dissertation's wording was carried into
+% articles/[mobiwac]/src/sections/02_related.tex this round, with "this dissertation" rendered as
+% "this study" there. WHICH TEXT WAS RIGHT: this one. I re-read the source myself rather than trusting
+% the earlier correction. R0_matched_metric_bar.json has exactly four keys under "states" -- alabama,
+% arizona, georgia, florida -- and "seeds": [0, 1, 7, 100]; scripts/mtl_improvement/plot_grad_cosine.py
+% reads its per-state run directories out of that same JSON and its STATE_STYLE map names the same
+% four. So four Gowalla states at four seeds each, of which three are among the five United States
+% datasets this document reports. "Three of our six datasets" and "four Gowalla states" are different
+% claims about the same measurement, and only the second one matches the artifact. Logged in
+% articles/[mobiwac]/ERRATA.md.
 % [round5, author decision 2.4] The text read as a two-optimizer test when the sweep was much
 % wider. Source of record: docs/results/mtl_improvement/T4_full_screen.json, 19 methods x 2 states:
 %   uncertainty_weighting, equal_weight, static_weight, scale_norm, scheduled_static, uw_so, dwa,
@@ -784,13 +821,61 @@ The U.S. result repeats on a different continent and region unit.
 \section{Discussion and Limitations}
 \label{sec:mobiwac:discussion}
 
-One model serves both tasks: the joint architecture lifts the next-category task, and the
-private spatial path keeps the next-region task competitive
-(Table~\\ref{tab:mobiwac:results}; Figure~\\ref{fig:mobiwac:deltas}).
+One model serves both tasks. In one forward pass it outperforms the dedicated category
+model at all six datasets, and on region it outperforms the dedicated model at four of them
+and matches it within a two-point margin at the other two, with the region output keeping a
+private spatial path (Table~\ref{tab:mobiwac:results};
+Figure~\ref{fig:mobiwac:deltas}). Which part of the joint architecture produces the
+category gain is not settled by the controls reported here
+(Section~\ref{sec:mobiwac:results-part2}).
 % [round5, cross-check] This sentence credited the SHARED TRUNK with the category lift, sixteen
 % lines after the paragraph at :713 refuses exactly that attribution. Rewritten to name the joint
 % architecture, which is what the freeze control and the capacity-matched control support. The
 % private spatial path claim is unchanged: it is architectural, not an attribution of the gain.
+% [round6, COD-004, author decision: soften the attribution AND add the scope clauses] Three changes,
+% and one of them is a RENDER defect that no source-level review had caught.
+% (1) THE RENDER DEFECT. The two cross-references were written "\\ref{...}" with a doubled backslash,
+%     introduced in 877b2109. In LaTeX that is a line break followed by the literal text "ref{...}",
+%     so the defense PDF printed "reftab:mobiwac:results; Figure reffig:mobiwac:deltas)" on p.75, in
+%     the opening sentence of the Discussion, with two spurious line breaks. Measured, not inferred:
+%     read out of the text layer of src/build/main.pdf before the fix. It produced no warning and no
+%     undefined-reference count, because there was no \ref command left to be undefined, which is why
+%     undef_ref=0 in every build report since. Now single-backslash, so the two pointers resolve.
+% (2) THE ATTRIBUTION. The sentence said "the joint architecture lifts the next-category task". That
+%     is weaker than the "shared trunk" version it replaced, but it still asserts a locus, and this
+%     chapter refuses to name one: at the freeze-control paragraph above it says "we attribute the gain
+%     to the joint architecture rather than to any named component of it" and closes "We therefore do
+%     not name the shared trunk as the source, and we do not present the ablation as evidence against
+%     it either." The 44 lines of comment at that site record why: the freeze control removes region
+%     TRAINING, so it eliminates the region-teaches-category reading but cannot separate the trunk from
+%     the category stream's own encoder, the per-stream feed-forward blocks, or the added depth; and the
+%     repository holds a development arm that tests the trunk directly and disagrees, F50 at Florida,
+%     five folds by fifty epochs, category macro-F1 68.36 +- 0.74 with cross-attention on against
+%     68.32 +- 0.67 off, a difference of -0.04 +- 0.13 that a paired Wilcoxon cannot separate from zero
+%     (W+ = 5, p = 0.6250), whose own record calls the null "misleading" and a "hidden compensation
+%     effect". Both figures are quoted from
+%     docs/findings/archive/F50/F50_T1_5_CROSSATTN_ABSORPTION.md:19-20,:37,:229, not recomputed here.
+%     The opening sentence now states the RESULT, which the tests license, and says in one clause that
+%     the locus is unsettled, which is what the evidence supports. The private spatial path stays: it is
+%     a statement about how the model is built, not an attribution of the gain.
+% (3) THE SCOPE CLAUSES the author approved. The bare "lifts" and "keeps competitive" carried no scope
+%     and no verb-test binding, in the opening sentence of the section a committee reads first. Now:
+%     "outperforms ... at all six datasets" for category and "outperforms ... at four of them and
+%     matches it within a two-point margin at the other two" for region. Both verbs are bound to their
+%     tests per WRITING_LAW section 3 and both match the wording already used at the results sentences
+%     of this chapter and in its contribution list; the region split is four outperforms (Florida,
+%     Texas, California, Istanbul) and two TOST matches (Alabama, Arizona), and Arizona is NOT upgraded.
+%     No number is quoted here, so no new numeric claim enters the section; each is stated with its
+%     dataset count and its test, and the results table and the delta figure are named.
+% [NEEDS SIGN-OFF: AUTHOR. You approved softening the attribution and adding the scope clauses. Two
+% things to confirm. First, the sentence is now three sentences rather than one, which is a bigger
+% change to the section opener than a clause swap; if you prefer it shorter, the third sentence is the
+% one to cut, and the withholding paragraph above still carries the point. Second, this is prose in the
+% chapter reproduced from the submitted paper, so the same edit is applied in
+% articles/[mobiwac]/src/sections/07_discussion.tex and logged in that article's ERRATA.md, per the
+% under-review regime. The paper-side sentence still carried the ORIGINAL "the shared trunk carries the
+% semantic context that lifts" wording, so this round is the first time the softening reaches the
+% submitted text at all.]
 
 A service could treat the model's top-ranked next regions as an anticipatory
 set: at California, ten regions out of 8{,}501 contain the true next region 65.69
@@ -798,7 +883,29 @@ percent of the time, over 500 times better than picking ten at
 random. On four datasets (Alabama, Arizona, Florida, and Istanbul; a single seed over five folds), the ten shortlisted regions lie a median of 3 to 8 kilometers from the shortlist's centroid, against 17 to 176 kilometers for ten regions drawn at random from the same candidate set (median over 10,000 draws). This remains motivation, not a measured service result.
 
 Three limits qualify these results. First, our representation is trained once over all places; visits to places
-never seen during training are the single effect that we cannot fully isolate. A planned follow-up trains it on each fold's training places only and embeds unseen visits. Second, epoch selection consults the fold that the score is then read on (Section~\ref{sec:mobiwac:setup-windows}), so every absolute score reported here is optimistic. The comparison between the joint model and the dedicated models is affected far less, for two reasons that we can state rather than assume: the selection rule is applied identically to both models on the same folds, and the dedicated model receives the wider search, a per-dataset sweep over batch size and learning rate against one configuration held fixed across all six datasets for the joint model. The residual therefore favors the comparator, which makes the reported difference conservative. It does not follow that the bias cancels exactly. The four seeds also reuse one fixed fold partition, so the reported intervals cover variation across random initializations and not across resampled user splits. Third, we do not build or evaluate a mobility-aware service; it is background motivation, and this chapter's claims are the prediction results themselves.
+never seen during training are the single effect that we cannot fully isolate. A planned follow-up trains it on each fold's training places only and embeds unseen visits. Second, epoch selection consults the fold that the score is then read on (Section~\ref{sec:mobiwac:setup-windows}), so every absolute score reported here is optimistic. The comparison between the joint model and the dedicated models is affected far less, for two reasons that we can state rather than assume: the selection rule is the same for both models on the same folds, an epoch chosen on validation and read on that fold, with each model selected on its own validation objective (Section~\ref{sec:mobiwac:results-part2}), and the dedicated model receives the wider search, a per-dataset sweep over batch size and learning rate against one configuration held fixed across all six datasets for the joint model. The residual therefore favors the comparator, which makes the reported difference conservative. It does not follow that the bias cancels exactly. The four seeds also reuse one fixed fold partition, so the reported intervals cover variation across random initializations and not across resampled user splits. Third, we do not build or evaluate a mobility-aware service; it is background motivation, and this chapter's claims are the prediction results themselves.
+% [round6, COD-006 "identically"] RE-ANCHORED, READ, AND NARROWED. An earlier audit round recorded this
+% word as REFUTED, on the ground that the per-model selection objectives are disclosed elsewhere in the
+% chapter and the non-cancellation caveat is the next sentence. Both of those facts hold. The word still
+% overstates, for a reason that reading the sentence alone does not show: WHAT IT MODIFIES. It modifies
+% a mitigation, inside a limitations paragraph, whose job is to bound how far the optimistic-score bias
+% reaches into the joint-versus-dedicated comparison. A word that makes a mitigation sound stronger than
+% it is understates a limitation, and WRITING_LAW section 3 forbids that direction as firmly as it
+% forbids upgrading a result.
+% MEASURED, in this chapter: the two models are NOT selected identically. The selection rule stated in
+% the results section reads "each dedicated model at its task's best epoch, and the joint model at the
+% epoch selected by its joint validation score (the geometric mean of the two task metrics)". So the
+% PROCEDURE is shared (one saved model per fold, the epoch chosen on validation, the score read on that
+% same fold) and the OBJECTIVE differs by model. "Identically" asserted both. The replacement asserts
+% only the first, names the second, and points at the section that states it, so a reader meeting the
+% mitigation gets the asymmetry at the same time rather than eighteen pages earlier.
+% What is NOT changed: "on the same folds" is kept, since it is what makes the comparison paired; the
+% following sentence, "It does not follow that the bias cancels exactly", already carried the caveat and
+% is untouched; and the wider-search half of the mitigation is untouched. No number, no verb, no result.
+% Same edit in articles/[mobiwac]/src/sections/07_discussion.tex, with the paper's own sec:results-part2
+% label, per the under-review regime; logged in that article's ERRATA.md.
+% [NEEDS SIGN-OFF: AUTHOR -- a limitations sentence in the chapter reproduced from the submitted paper.
+% The change makes the paragraph slightly less favorable to the study, which is its point.]
 % [v2 review, 2026-07-26] Fixed-partition caveat added here. Personas 09 (statistical consequence)
 % and 04 (concordance seam) independently reported that 1_introduction.tex:246-247 carries this
 % caveat while Chapter 5, which reports the intervals, did not. Source: STATISTICAL_PROTOCOL.md

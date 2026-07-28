@@ -82,6 +82,74 @@ than declare an erratum, so the two stay identical. Two such corrections were ap
 Verified after applying: paper rebuilds at **9 pages**, 0 undefined references, 0 undefined citations,
 0 overfull boxes, 0 errors.
 
+### Corrections applied in the source during review (2026-07-28)
+
+Four more, under the same standing instruction: applied in both texts rather than declared as errata,
+so the paper and the dissertation's Chapter 5 stay identical.
+
+1. **The balancer screen's scope (`src/sections/02_related.tex`).** The sentence reporting the
+   nineteen-balancer screen stated neither the repetition count nor which two datasets, and its phrase
+   "including the two named above" resolved to the two **balancers** of the preceding sentence, PCGrad
+   and Nash-MTL, not to a pair of datasets, so no reader could recover the screen's pool. Measured
+   2026-07-28: neither state was named anywhere earlier in that file. The screen ran at registry
+   defaults, at **one seed**, on **Alabama and Florida**
+   (`docs/results/mtl_improvement/T4_audit_and_verdict.md`: "the full screen at registry DEFAULTS, seed
+   0, AL+FL", restated under "Caveats / scope" as "Single-seed (seed0) screen ... FL+AL"), and those two
+   states are the only two top-level keys of `T4_full_screen.json`, each holding the nineteen arms the
+   sentence counts. The sentence now reads "at their default configurations at a single seed on two
+   datasets, Alabama and Florida, including the two methods named above". The literal "seed 0" stays out
+   of the prose per `GLOSSARY.md` §3, which gives "a single seed" as the phrasing. No count, number, or
+   verb changed.
+2. **The gradient-cosine measurement pool (`src/sections/02_related.tex`), a parity divergence closed.**
+   The paper read "four seeds each on three of our six datasets"; the dissertation had been corrected in
+   `dccf45d2` and the paper had not, so the two texts disagreed two lines from the sentence in item 1.
+   The paper's wording was wrong in two ways at once. The measurement pools **four** Gowalla states, the
+   only four keys of the `states` object in
+   `docs/results/mtl_improvement/R0_matched_metric_bar.json` (alabama, arizona, georgia, florida, each
+   with seeds 0/1/7/100), and `scripts/mtl_improvement/plot_grad_cosine.py` reads its run directories
+   out of that same file and names the same four. **Georgia is not one of the six datasets this study
+   reports**, so "three of our six" both undercounted the pool and implied every state in it is one we
+   report. Read from the JSON, not recomputed. The correction is in the study's favor: the finding
+   replicates on a state the paper never reports. Rendered here as "which this study does not otherwise
+   use", the same substitution class as the earlier "this chapter's claims" to "the paper's claims".
+3. **The trunk attribution (`src/sections/06_results.tex` and `src/sections/07_discussion.tex`).**
+   Section 6 attributed the category gain to "a stronger shared trunk" and closed hedging with "We
+   report this attribution as a finding, not a hypothesis"; Section 7 opened with "the shared trunk
+   carries the semantic context that lifts the next-category task". The freeze control cannot support a
+   component attribution: it fixes the **region** pathway, so it eliminates the region-teaches-category
+   reading but leaves the category stream's own encoder, the per-stream feed-forward blocks, and the
+   added depth untouched. A development arm that tests the trunk directly disagrees, at Florida over
+   five folds and fifty epochs: category macro-F1 68.36 ± 0.74 with cross-attention on against
+   68.32 ± 0.67 off, a difference of −0.04 ± 0.13 that a paired Wilcoxon cannot separate from zero
+   (W+ = 5, p = 0.6250), quoted from
+   `docs/findings/archive/F50/F50_T1_5_CROSSATTN_ABSORPTION.md`. That arm ran on an earlier
+   configuration and its own record reads the null as a compensation effect, so it is not evidence
+   against the trunk either, and neither text presents it as such. **The negative result is kept as a
+   finding** (the gain is not the region task teaching the category one, which the control does
+   establish); only the component attribution is withdrawn. Section 7's opening sentence now states the
+   result with each verb bound to its test, "outperforms" the dedicated category model at all six
+   datasets and, on region, "outperforms" at four and "matches" within the two-point margin at the other
+   two, and says in one clause that the locus is unsettled. Arizona is not upgraded and no number is
+   added.
+   **One declared divergence between the two texts, deliberate.** The dissertation's Chapter 5 states
+   the disconfirming ablation with its numbers and its two limits, because it has the room; this paper
+   does not. What is identical is the **strength** of the claim, which is the property the parity rule
+   protects: neither text now names a component as the source. Recorded so the asymmetry is not read
+   later as an oversight.
+4. **"Applied identically" in the limitations paragraph (`src/sections/07_discussion.tex`).** The
+   mitigation of the epoch-selection bias said "the selection rule is applied identically to both
+   models on the same folds". Section 6 states otherwise: "each dedicated model at its task's best
+   epoch, and the joint model at the epoch selected by its joint validation score (the geometric mean of
+   the two task metrics)". The procedure is shared; the objective is not. Because the word modifies a
+   **mitigation**, overstating it understates a limitation, which is the same class of defect as
+   overstating a result. Now: "the selection rule is the same for both models on the same folds, an
+   epoch chosen on validation and read on that fold, with each model selected on its own validation
+   objective (Section~\ref{sec:results-part2})". "On the same folds" is kept, since it is what makes the
+   comparison paired, and the following sentence declining to claim exact cancellation is untouched.
+
+Verified after applying: paper rebuilds at **9 pages**, 0 undefined references, 0 undefined citations,
+0 overfull boxes, 0 LaTeX errors, measured in an isolated copy of the source tree.
+
 **What deliberately stayed an erratum in the dissertation** (Appendix B, Table on claim-scope
 corrections), because neither can be folded into a paper under review: the representation-integrity
 paragraph, whose added fourth ground cites the dissertation's label-history benchmark appendix, and the

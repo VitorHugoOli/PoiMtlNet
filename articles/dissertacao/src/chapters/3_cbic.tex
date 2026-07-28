@@ -211,8 +211,77 @@ The choice of hard parameter sharing is motivated by its efficiency and regulari
 \begin{itemize}
     \item \textbf{Computational Efficiency:} Unlike soft-sharing methods that often introduce task-specific parameters and increase computational overhead, hard sharing maintains a compact model. This is crucial for deployment on resource-constrained edge devices (e.g., NVIDIA Jetson platforms).
     \item \textbf{Implicit Regularization:} By constraining the hypothesis space, hard sharing acts as a regularizer, often leading to more generalizable models, especially when tasks are related \cite{ruder2017sluice}. Seminal work by Caruana demonstrated significant error reduction with this approach \cite{caruana1997multitask}.
-    \item \textbf{Empirical Performance:} In practice, hard parameter sharing frequently matches or exceeds the performance of more complex architectures on many benchmarks, while offering faster training and inference \cite{standley2020tasks}.
+    \item \textbf{Empirical Performance:} In practice, sharing one network across tasks reduces
+    inference cost, since a single network is evaluated rather than one network per
+    task \cite{standley2020tasks}.\footnote{The published sentence read ``hard parameter sharing
+    frequently matches or exceeds the performance of more complex architectures on many benchmarks,
+    while offering faster training and inference''. The accuracy and training-speed halves are
+    corrected here rather than reproduced. The cited work names improved accuracy and reduced
+    training time among the benefits joint training may have ``in theory'', and then argues the other
+    way empirically, reporting that joint training ``often leads to inferior overall performance as
+    task objectives can compete''; its contribution is a framework for assigning tasks to several
+    networks so that competing tasks are separated, and it describes that framework as costly at
+    training time. See Table~\ref{tab:apx:cbic-errata}.}
 \end{itemize}
+% [round6, COD-008 / COD-005] CORRECTION of a published claim, listed in Appendix B
+% (tables/cbic/errata.tex). The bullet cited the right paper for the reverse of its finding, which is
+% the claim-not-supported class that existence checking cannot catch. The bullet keeps its place in
+% the list and its function (why this chapter chose hard sharing); the label stays "Empirical
+% Performance" so no heading changes inside published prose, and the surviving claim is the one the
+% cited work actually supports.
+% SOURCE OF RECORD: arXiv:1905.07553, "Which Tasks Should Be Learned Together in Multi-task
+% Learning?", Standley, Zamir, Chen, Guibas, Malik, Savarese; arXiv comment field reads "Presented to
+% ICML 2020". PDF downloaded and read this session (13 pp.); every quotation re-checked against the
+% extracted text by exact substring match after normalizing hyphenation artifacts.
+%   SURVIVES -- p.1 abstract: "This can save computation at inference time as only a single network
+%     needs to be evaluated." That is the inference-cost half, and it is the only half supported.
+%   FAILS, first half -- p.1 abstract, the very next sentence: "Unfortunately, this often leads to
+%     inferior overall performance as task objectives can compete". p.2, on the paper's own
+%     hard-sharing exemplar UberNet: the author "focuses on reducing the computational cost of
+%     training for hard parameter sharing, but experiences a rapid degradation in performance as more
+%     tasks are added to the network". Also p.2: "they find that multi-task learning is often inferior
+%     to single task learning with multiple networks."
+%   FAILS, second half -- the string "faster training" does not occur in the paper (checked: 0 hits),
+%     but that absence is NOT the finding, and an earlier draft of this correction which asserted the
+%     paper "makes no claim about training speed" was FALSE and was retracted in commit 83d1d8c5.
+%     What the paper says, p.1 introduction: "In addition to reduced inference time, solving a set of
+%     tasks jointly rather than independently can, in theory, have other benefits such as improved
+%     prediction accuracy, increased data efficiency, and reduced training time." So reduced training
+%     time IS named, hedged "in theory", in the sentence that sets up the question the paper then
+%     answers empirically. The bullet reproduced two items from that hedged list under the opening "In
+%     practice", which is a sharper mischaracterization than a bare absence would have been. Every
+%     other training-time passage in the paper concerns the cost of its OWN task-grouping search
+%     (section 5.3 p.6 "Approximations for Reducing Training Time"; the 45-versus-95-percent
+%     comparison p.7), and the conclusion p.9 concedes of that framework that "it can be costly at
+%     training time". The footnote above therefore says "among the benefits joint training may have in
+%     theory", which is what the source says, and not that the paper is silent on training speed.
+%   ALSO NOT USED, though it would favor the bullet -- p.7 reports that at a matched parameter budget
+%     "multi-task networks with 3, 4, or 5 tasks outperform the single-task networks on average.
+%     Nevertheless, two-task networks still do not compare favorably." This chapter's model has
+%     exactly TWO tasks, so the one result leaning the bullet's way excludes this chapter's own case.
+%     Recorded in the Appendix B row rather than in the footnote, to keep the footnote short.
+% WAS A DIFFERENT REFERENCE EVER CITED HERE? NO, and the negative has a dated limit. Checked this
+% session: git log --all -S over both paths returns the same commits for "standley2020tasks", "matches
+% or exceeds" and "Empirical Performance" (223f5df7 and 643c686e, the 2025-10-21 import of the CBIC
+% article tree, and 1a29b545, the dissertation re-typeset). articles/CBIC___MTL/sections/method.tex
+% has been touched by exactly one commit in its history, and the bullet is present in its first
+% committed version at :85 with \cite{standley2020tasks} already attached and the wording
+% byte-identical to the published text. THE LIMIT: the CBIC LaTeX entered version control on
+% 2025-10-21, AFTER publication, so pre-submission drafts of this bullet are not in this repository at
+% all and the question cannot be answered from here in either direction. What is established is
+% narrower: no substitution happened after the LaTeX entered version control. Stated rather than
+% papered over.
+% The same key is cited at three other sites in this chapter and those three are sound (data
+% heterogeneity, task clustering, and FiLM with negative transfer); only this bullet reversed the
+% paper's direction.
+% [NEEDS SIGN-OFF: AUTHOR -- this is a claim change in published co-authored prose, and it REMOVES a
+% stated advantage of the architecture this chapter adopts, so it runs against the chapter's own
+% interest, the same property Appendix B already records for the Nash cost correction. You approved
+% this route in your own words in the audit. The alternative, preserving the bullet and naming the
+% defect in Appendix B's preservation paragraph, is available and cheaper; I did not choose it because
+% the two currently preserved elements are preserved for reasons that do not apply here (one is
+% time-indexed by the chapter preface, the other is a table convention), while this one is a
+% misattribution of a claim to a paper that argues the other way.]
 This architecture strategically balances model capacity with knowledge transfer, prioritizing efficiency for potential real-time recommendation scenarios.
 
 \begin{figure}[htbp]
@@ -300,7 +369,93 @@ To evaluate our model, we use a subset of the public \emph{Gowalla} check-in dat
 Following previous work, each POI is mapped to one of seven high-level categories: \emph{Community}, \emph{Entertainment}, \emph{Food}, \emph{Nightlife}, \emph{Outdoors}, \emph{Shopping}, and \emph{Travel}. These categories will be used for the POI category prediction task.
 
 \paragraph*{Evaluation protocol}
-To ensure a robust evaluation of our models, all experiments were conducted using a 5-fold cross-validation methodology. For every category, we report precision, recall, and $F_{1}$-score, and utilize the macro-average of these metrics to summarize overall performance. Class-wise metrics are crucial because category frequencies are highly skewed in real LBSN data.
+To ensure a robust evaluation of our models, all experiments were conducted using a 5-fold cross-validation methodology. The folds are formed by a stratified splitter over the samples rather than over the users, so the check-ins of one user may appear in both training and validation; Chapter~\ref{ch:mobiwac} adopts a stricter user-disjoint protocol. For the category task the sample unit is the place, so no place spans two folds. The code of record pins a single random seed, so the five folds constitute one repetition of the experiment rather than several, and the means and standard deviations reported below are the spread across those five folds at that seed; Chapter~\ref{ch:mobiwac} repeats its five-fold experiment at four random initializations. Within a fold, training runs for the full number of epochs configured, without early stopping, and each task is read at the epoch of its own highest validation macro-F1, measured on the same fold the score is reported on. For every category, we report precision, recall, and $F_{1}$-score, and utilize the macro-average of these metrics to summarize overall performance. Class-wise metrics are crucial because category frequencies are highly skewed in real LBSN data.
+% [round6, COD-007] Declared ADDITION of protocol detail, not part of the published text, and not a
+% correction of any published claim: the published paper states the fold count and nothing else about
+% the protocol. Appendix B, Article 1, carries it in the additions paragraph. Same class as the two
+% protocol sentences added to Chapter 4 (4_courb.tex, "stratified by sample" and "single random
+% seed"), and the last sentence is deliberately WORD-FOR-WORD the one added there: the two chapters
+% run the same checkpoint code, and WRITING_LAW's one-name-per-concept rule argues for one phrasing.
+%
+% EVIDENCE, verified firsthand this session in the CBIC-era codebase at commit 9b06053f
+% (message "VERSION PUBLISHED", 2025-07-24), repository VitorHugoOli/PoiMtlNet:
+%   SPLIT AXIS -- src/data/create_fold.py:217 next_skf  = StratifiedKFold(n_splits=k_splits,
+%                 shuffle=True, random_state=random_state)
+%                 :220 place_skf = StratifiedKFold(... same ...)
+%                 :231-233 both .split(x, y) calls carry NO groups= argument
+%                 :194 x_next drops 'userid' from the features
+%                 Single-task paths are the same shape and also ungrouped:
+%                 src/model/next/head/data/fold.py:34, src/model/category/head/data/fold.py:32.
+%                 Grepped all five files for groups= and GroupKFold: zero occurrences.
+%   SAMPLE UNIT -- :205 places_ids = df_category['placeid'].unique(); :209 df_category.set_index(
+%                 'placeid'), so the category task has one row per place and places cannot span
+%                 folds. That is a property of the unit, NOT a leakage guard on users.
+%   SEED       -- :159 random_state: int = 42 (the create_folds default, which
+%                 pipelines/mtlnet_trainer.py:32-37 takes by calling create_folds without the
+%                 argument); pipelines/next_head_trainer.py:46 and category_head_trainer.py:46 both
+%                 read seed=42; next_config.py:24 and category_config.py:22 both SEED = 42. Values
+%                 checked at every commit spanning the three published run dates (5bcc9c8b,
+%                 de0a23ca, 8a557aa3, ea18c2cb, 6976242a).
+%   CHECKPOINT -- src/model/mtlnet/engine/mtl_train.py:81 loops the configured num_epochs; :206
+%                 state = model.state_dict(); :214-229 two add_val calls, one per task, both
+%                 best_metric='val_f1'; utils/ml_history/metrics.py:107 comparison = lambda x,y: x>=y,
+%                 :119-122 deepcopy on improvement and best_epoch recorded; mtl_train.py:387-393 then
+%                 validation.py:18,:29 reload each task's own best state in two passes.
+%                 f1 is the macro average: engine/evaluate.py:58,:61 read
+%                 report['macro avg']['f1-score']; single-task trainer.py:93 f1_score(...,
+%                 average='macro'). Single-task paths: trainer.py:45 loop, :100-106 add_val taking
+%                 the 'val_f1' default, cross_validation.py:165 evaluates from best_model.
+%                 Artifact confirmation, committed with the paper:
+%                 results_save/florida_dgi_new/bests/mtlnet_lr1.0e-04_bs1024_ep50_20250523_1415/
+%                 folds/fold{1..5}_info.json record best_epochs per task, two different epochs per
+%                 fold (next 40/35/38/31/36, category 4/4/7/5/4 of 50), so no fold stopped early.
+%   NO EARLY STOPPING -- the only two break statements in the epoch loop are a target-F1 cutoff
+%                 (mtl_train.py:240-249) and a wall-clock timeout (:251-254), both guarded by "is
+%                 not None", and configs/model.py:6,9,10 set TIMEOUT_TEST, NEXT_TARGET and
+%                 CATEGORY_TARGET to None. At :7-8 the two target values sit commented out
+%                 (# NEXT_TARGET = 32.2, # CATEGORY_TARGET = 47.0), which is how the "Convergence
+%                 Comparison" subsection's experiment was run, so "without early stopping" is scoped
+%                 by placement to the main experiments and must NOT be read over that subsection,
+%                 which stops each model at a target score deliberately because stopping is the
+%                 quantity it measures. That subsection states its own mechanism, which is why no
+%                 exception clause was added to the sentence above.
+%
+% DELIBERATELY NOT CLAIMED, three things:
+%  (1) That these files produced the published runs. The honest form, and the one used above, is "the
+%      code of record", mirroring the Chapter 4 sentence the audit already accepted as correctly
+%      scoped. Three of the four published columns do reproduce exactly from the committed run
+%      summaries (21 of 21 cells each), but the joint model's next-category column does not
+%      reproduce from any artifact in the repository, and one sentence covers all four columns.
+%  (2) A tuning budget. NOT RECOVERABLE: no tuning harness ever existed in either codebase (git
+%      ls-tree at 9b06053f returns no sweep/tune/grid/optuna/hparam file; no search library in
+%      requirements_colab.txt) and .gitignore was /results/* so the losing configurations were never
+%      committed. No sentence here asserts a configuration count, and none may.
+%  (3) An epoch count. The committed configs/model.py and the committed run record disagree on batch
+%      size for the joint model's published run (model_params.json says 1024; the config at every
+%      commit from 13:22 that day reads 2**11), so a config-sourced integer is not a witness for what
+%      a run used. The literal seed value 42 is likewise kept out of the prose, following the
+%      Chapter 4 precedent recorded at 4_courb.tex:277-286: it is a fact about the code, not a
+%      reported parameter of the published paper.
+%
+% ONE QUALIFICATION, recorded here rather than in prose because the sentence above does not claim
+% otherwise: create_fold.py:176-177 seeds torch and numpy ONCE, inside create_folds, before the
+% five-fold loop builds any model, and the two single-task paths carry no torch.manual_seed or
+% np.random.seed call at all (the one seeded torch.Generator, next/head/data/fold.py:64, feeds a
+% WeightedRandomSampler that is commented out at :78). So "one repetition" is a statement about the
+% fold partition, which is what the sentence says, and not about weight initialization.
+%
+% CONSEQUENTIAL EDIT OWED IN ANOTHER FILE, outside this track's remit and reported across remits:
+% 2_fundamentals.tex says Chapter 3 "reports five-fold cross-validation without identifying the
+% split axis". That clause is FALSE the moment this addition lands. Minimal repair, drafted and not
+% applied here: "Chapters~\ref{ch:cbic} and~\ref{ch:courb} both stratify by sample rather than by
+% user, so the check-ins of one user may appear in both training and validation, and only
+% Chapter~\ref{ch:mobiwac} splits by user."
+% [NEEDS SIGN-OFF: AUTHOR -- four sentences of new protocol detail added to a published chapter.
+% Every fact is recovered from the released code and named above; nothing about a tuning budget is
+% asserted, per your instruction. If you want the gap named rather than left silent, the strongest
+% form the evidence supports is "No systematic hyperparameter search was performed; the reported
+% configuration of each model is a single configuration arrived at during development", which is a
+% claim about the study's conduct rather than a recovered record, and I did NOT add it.]
 
 \subsection{Discussion and Comparison with Established Models}
 In this section, we discuss the performance of our proposed MTL model and its single-task (Single) counterpart. For a comprehensive evaluation, we selected two state-of-the-art approaches as baselines. The Human Mobility Representation Model (HMRM), introduced by Chen et al. (2020) \cite{chen2020modeling}, is designed for POI category classification. HMRM calculates POI embeddings by considering users' temporal visiting patterns and the co-occurrence of locations within an individual's historical trajectory. To quantify the relationship between locations and visiting times, it employs Point-wise Mutual Information (PMI). The model then utilizes matrix factorization techniques to generate latent representations (embeddings) from various inputs, and these embeddings are subsequently used to train a Support Vector Machine (SVM) for predicting POI categories.

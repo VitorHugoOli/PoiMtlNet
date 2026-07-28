@@ -24,6 +24,16 @@ requires). \\
 Introduction states ``wins in most scenarios''. &
 ``outperforms the baseline in most scenarios'' (verdict-verb rule; claim
 strength unchanged). \\
+\addlinespace
+The methodology states that maximizing the product of the task utilities ``ensures that the
+update is beneficial for all tasks simultaneously''. The guarantee is unconditional as
+written. &
+Narrowed to the guarantee the method's own paper derives: at points that are not Pareto
+stationary, and under its assumption that the task gradients there are linearly independent,
+the update direction is a descent direction for every task. The paper states the property in
+those terms, and it approximates the bargaining solution by an iterative procedure rather than
+solving it exactly. The claim is weaker than the published one, and no result depends on
+it. \\
 \bottomrule
 \end{tabular}
 \end{table}

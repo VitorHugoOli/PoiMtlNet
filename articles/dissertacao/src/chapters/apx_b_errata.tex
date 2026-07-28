@@ -30,7 +30,25 @@
 %                undercounted the table by one. That row belongs to the references track.
 %                Table B.4 gained 2 further rows in the references pass of 2026-07-25
 %                (Kohavi DOI dropped; Rußwurm re-typed to ICLR 2024), for 14 total.
-%   Itemized rows: 6 + 13 + 3 + 14 = 36; every ledger line is accounted for.
+%   Itemized rows, RE-MEASURED 2026-07-28 (round 6) by parsing each table's own body rather than
+%                carrying the previous arithmetic forward: B.1 CBIC content 8, B.2 CBIC wording 13,
+%                B.3 CoUrb content 4, B.4 bibliography 18. Total 43. Table B.5 (MobiWac claim-scope)
+%                holds 2 and is counted separately, since the under-review regime puts most of that
+%                chapter's corrections in the article's own errata record instead.
+%                THE PREVIOUS CLAIM HERE WAS "6 + 13 + 3 + 14 = 36", and two of its four terms were
+%                already stale before this round, which is why the count is now measured and not
+%                incremented: B.1 went 6 -> 7 in round 5 when the Nash-MTL cost claim moved out of the
+%                preservation prose and into the table (author decision 1b.3), and B.4 went 14 -> 16 in
+%                the 6d780b58 table reorganization and 16 -> 18 in this round's citation pass (the
+%                UberNet and Sphere2Vec version-of-record upgrades). Neither movement was reflected
+%                here. Round 6 then added one row to B.1 (the Standley claim narrowing) and one to B.3
+%                (the Nash-MTL guarantee narrowing), which is what takes the two tables to 8 and 4.
+%                Measured by counting two-column data rows between \midrule and \bottomrule, and
+%                between \endlastfoot and \end{longtable} for B.4, with LaTeX comments stripped.
+%   Round 6 also gave Article 1 its first additions paragraph, the counterpart of the CoUrb section's
+%                eight-addition paragraph, covering the preface, the convergence lead sentence, and the
+%                four protocol facts recovered for COD-007. The CoUrb additions paragraph rises from
+%                eight to nine with the checkpoint sentence added at the same protocol site.
 %
 % ROUND 4 (this pass) -- what changed and why:
 %   Table B.1 gained the Nash scale-invariance row (REV-020a) and its dataset-counts row
@@ -132,6 +150,37 @@ bolding is not misread as ``best per row''.
 % factual defect in a published article, and the errata mechanism exists), say so and I will move it
 % into the errata table.]
 
+The chapter also carries marked additions that are not part of the published text, each
+declared as an addition in the chapter source. Two are frame devices required by the
+dissertation: the italic preface, which states the venue, the identifier, and the
+of-the-time framing, and the lead sentence that introduces the convergence table, written
+because the dissertation's presentation rules require a table to be introduced by a
+takeaway sentence. The others state protocol facts the published paper left implicit: that
+the folds are stratified by sample rather than by user, so the check-ins of one user may
+appear in both training and validation; that the sample unit of the category task is the
+place, so no place spans two folds; that the code of record pins a single random seed, so
+the five folds are one repetition of the experiment and the reported standard deviations
+are the spread across those folds at that seed; and that training runs for the full
+configured number of epochs without early stopping, with each task read at the epoch of
+its own highest validation macro-F1 on the fold the score is reported on. All four are
+recovered from the code released with the article, none is a claim about a result, and the
+last of them is worded exactly as in Chapter~\ref{ch:courb}, whose study runs the same
+code. The number of model configurations examined during the study is not recoverable from
+the released material, and no sentence of the chapter asserts one.
+% [round6, COD-007] NEW paragraph. Article 1 had no additions paragraph; this is the counterpart of
+% the eight-addition paragraph in the CoUrb section below, in the same register. The four protocol
+% facts are the COD-007 cells: split axis, sample unit, seed count, checkpoint rule. Evidence for
+% each, with file and line in the CBIC-era codebase at commit 9b06053f, is in the comment block at
+% the citing site (3_cbic.tex, "Evaluation protocol"); it is not repeated here.
+% The last sentence is deliberate and is the one thing this paragraph asserts about what the study did
+% NOT record: no tuning harness ever existed in either codebase and the losing configurations were
+% never committed (.gitignore was /results/*), so a configuration count cannot be recovered. Written
+% as a statement about the RECORD rather than about the conduct of the study, which is the strongest
+% form the evidence supports. Preface and convergence lead sentence: 3_cbic ledger A4 and A7,
+% re-verified this session (the lead sentence "The convergence measurements show a clear wall-time
+% disadvantage" is absent from articles/CBIC___MTL/sections/results.tex).
+% [NEEDS SIGN-OFF: AUTHOR -- new appendix prose describing additions to a published chapter.]
+
 Table~\ref{tab:apx:cbic-wording} lists the wording substitutions applied to the
 preserved prose under the dissertation's writing rules. The first eight change neither
 the strength nor the scope of a claim. The next four remove the words
@@ -155,9 +204,15 @@ a substitution. No edit in this table raises the strength of a claim.
 \section{Article 2 (Chapter~\ref{ch:courb}, CoUrb 2026)}
 \label{apx:errata:courb}
 
-The corrections in Table~\ref{tab:apx:courb-errata} replace the published numbers by
-the values of an internal audit of the same results, performed after publication; the
-audited values are the ones the chapter reports.
+The first three corrections in Table~\ref{tab:apx:courb-errata} replace the published
+numbers by the values of an internal audit of the same results, performed after
+publication; the audited values are the ones the chapter reports. The fourth narrows one
+claim about a cited method to the guarantee that method's own paper states.
+% [round6, COD-005 sub-claim 4] The banner said the table replaces "the published numbers", which
+% the fourth row is not: it is a wording narrowing of a claim about Nash-MTL, not a number. One
+% clause widened rather than giving the CoUrb section a second table as the CBIC section has, which
+% is more structure than one row justifies. Row and evidence: tables/courb/errata.tex, and the
+% source trail is in the comment at the citing site (4_courb.tex, the Nash-MTL paragraph).
 
 \input{tables/courb/errata}
 
@@ -197,17 +252,20 @@ published sentence is kept and no quantity, symbol, or claim changes, so this is
 recorded among the mechanical changes of the re-typeset rather than as a content
 departure.
 
-The chapter carries eight marked additions that are not part of the published text, each
+The chapter carries nine marked additions that are not part of the published text, each
 declared as an addition in the chapter source. Three are frame devices required by the
 dissertation: the italic preface, a recap subsection on the MTLnet framework of
 Chapter~\ref{ch:cbic}, and the reading instruction appended to the caption of
 Figure~\ref{fig:courb:distribuicao}, which names the axes and the pattern the panels show
-so that the figure can be read on its own. Two state protocol facts the published paper
-left implicit: that the split is stratified by sample rather than by user, and that the
+so that the figure can be read on its own. Three state protocol facts the published paper
+left implicit: that the split is stratified by sample rather than by user; that the
 released code of record pins a single random seed, so the five folds are one repetition of
 the experiment and the reported standard deviations are the spread across folds at that
-seed. Both are recovered from the code released with the article and neither is a claim
-about a result. The remaining three are the lead sentences that introduce the three tables,
+seed; and that training runs for the full configured number of epochs without early
+stopping, with each task read at the epoch of its own highest validation macro-F1 on the
+fold the score is reported on. All three are recovered from the code released with the
+article and none is a claim about a result. The last is worded exactly as in
+Chapter~\ref{ch:cbic}, whose study runs the same code. The remaining three are the lead sentences that introduce the three tables,
 one each for Tables~\ref{tab:courb:dataset},~\ref{tab:courb:category},
 and~\ref{tab:courb:next}, written because the dissertation's presentation rules require a
 table to be introduced by a takeaway sentence. Each of the three reads its table and states
