@@ -272,3 +272,60 @@ the passes that wrote them.
    with `git checkout` and confirmed the working tree is clean at the HEAD blob hash. Every
    measurement reported above comes from isolated `git archive` trees under `/tmp`, not from that
    build.
+
+---
+
+# Addendum: the eleven changes made AFTER this ledger was written
+
+**Appended 2026-07-28.** This ledger was written at `c5c6789d`, before the eight review tracks
+landed. Everything below happened after, and every row here is a change to the document that the
+tables above do not cover. Same rules: an identifier I did not resolve myself is marked as inherited,
+and a number I did not trace to a file is marked as untraced.
+
+## D. Numbers changed after `c5c6789d`
+
+| # | The number, as it now reads | Where | Source file and field | Convention | Quoted or recomputed | Who verified |
+|---|---|---|---|---|---|---|
+| D1 | "the largest per-dataset mean in absolute value is $+0.0032$" | `5_mobiwac/02_related.tex:161` **and** `articles/[mobiwac]/src/sections/02_related.tex:99` | `docs/studies/archive/mtl_improvement/WHY_ORTHOGONAL_AND_NO_MODERN_OPTIMIZERS.md:30`, restated `T4_audit_and_verdict.md:48`: FL +0.0007, AL +0.0032, AZ −0.0005, GE −0.0004 | pooled mean over the 16 champion runs, 4 states x 4 seeds {0,1,7,100}, n = 3,797 epoch-fold points | **quoted** | fact gate found it; **I read the source file myself** before editing. Replaces a false ±0.003 envelope |
+| D2 | "all 28 places ... 23 in prose, two in subsection headings, one in a figure caption, and two in table headings" | `apx_b_errata.tex:234` | Re-enumerated by occurrence over `chapters/4_courb.tex`, `chapters/4_courb/*.tex`, `tables/courb/*.tex`: `MTLnet` not preceded by `ST-`, non-comment lines only | count of printed occurrences in the chapter and its tables | **recomputed** (a count, not a measurement; the protocol permits counting) | ledger pass found the sum failed; **I re-enumerated myself**. Headings at `related.tex:42`, `methodology.tex:87` |
+| D3 | "nos três estados testados" / "in the three states tested" | `0_main.tex:241` and `:326` | Ch.6's own wording; CoUrb tested FL, CA, TX | scope of the CoUrb category result | **quoted** from Ch.6 | Resumo/Abstract pass (M-2) |
+| D4 | `\finalbuildfirstpage` = **8** | `main.tex:53` | Measured: the deposit build has 7 pre-textual pages; UFV_COMPLIANCE §4.4 requires first body page = pre-textual + 1 | printed page number of the first body page | **recomputed from the render** in all three builds | UFV persona (C-1); **I re-measured all three builds myself** |
+
+## E. Reference changes after `c5c6789d`
+
+**None.** No reference was added, removed, or re-keyed after this ledger was written. The six fix
+commits touched prose, one integer, one hyperref option, and 24 magic comments.
+
+## F. `[VERIFY]` flags: what changed
+
+| flag | State at `c5c6789d` | State now |
+|---|---|---|
+| V-8 (Ch.2 asserts a split-axis gap Ch.3 fills) | open, filed as `[VERIFY]` | **CLOSED.** The ledger was right that this is a defect and not a verification question. Repaired at `fecc7fb1` |
+| the ±0.003 cosine bound | flagged INHERITED, then corrected by the ledger pass itself to a live BLOCKER | **CLOSED** at `fecc7fb1`, in both files |
+| `\finalbuildfirstpage` "tune against the RASCUNHO PDF" | live `[VERIFY]` on the line | **PARTLY CLOSED.** The value was wrong on its own terms and is now derived (8). The flag's original request — confirm against the AcademicoPG RASCUNHO after upload — remains, and is `PENDENCIAS.md` §3 |
+| the CBIC joint-model next-category column | open, does not reproduce from any committed artifact | **still open**, `LEFT_OUT.md` LO-2, `PENDENCIAS.md` §2.5 |
+| the CoUrb sub-area selection rule | open, unrecorded | **still open**, `LEFT_OUT.md` LO-7 |
+| the tuning budget for Ch.3/Ch.4 | NOT RECOVERABLE | unchanged, `PENDENCIAS.md` §2.6 |
+| CA/TX "provisional" | raised, then **WITHDRAWN** | withdrawn stands. The flag read `stats_n20/RESULTS.md` §1b, which sits under a heading reading "(superseded)"; rev 4 is authoritative and its six-dataset Holm family rejects at all six. Recorded so it is not re-raised: **anchor on the revision header, not the first matching line** |
+
+## G. Claims of the round corrected after this ledger
+
+The ledger's own §"claims that do not reproduce" listed three. Five more were found and corrected
+after it:
+
+| claim | Corrected to | Who caught it |
+|---|---|---|
+| "make check: all gates pass", in six commit messages | The gate exited **2** for the whole round, on two false positives now exempted with their reasoning. Exits 0 as of `6ee23ca7` | source-ledger pass (L-1), independently confirmed by the LaTeX persona (E-1) |
+| "the three builds are byte-identical ... same SHA" (`4e84cf7a`) | The PDFs are **not** byte-identical and their SHAs differ — pdflatex writes a creation timestamp and a document ID. What is identical byte for byte is the **extracted text layer**, which is what was actually measured | style pass |
+| my Appendix B claim that a place's label "never enters its own representation" in Ch.3 | False. Reproduced on a 4-node graph: absent from the input feature (0.000), present in the embedding after one hop (0.667), because the graph is undirected and the convolution adds self-loops | domain panel (D-01) |
+| `LEFT_OUT.md` LO-6, recording only the Ch.4 figure's label size | Both rasters are about 45 percent of body and are the two **smallest** in the document; the two the audit tracked are the two largest | visual pass (V-1) |
+| my first test that the trapped-prose gate catches a reintroduced defect | **Invalid.** I copied the fixed PDF into the scratch tree, and the detector compares source against the rendered artifact, so it correctly found the sentence present and skipped. Rebuilt from the broken source, the gate fires exactly as designed | caught by me, recorded because the failure mode generalizes: a detector that compares source against a render must be tested against the render built **from that source** |
+
+## H. Provenance of this addendum
+
+Every row above rests on a check I ran in this session, not on another pass's report, **except** where
+the "Who verified" column names the pass that found it — and in each of those cases I re-ran the
+measurement myself before editing the document. The four numbers in table D were each read from their
+source file or re-derived from the render. The 26 commit hashes cited in `CODEX_AUDIT.md`'s outcome
+section were verified to resolve as commits in this repository. Where I could not verify something, it
+is in table F as still open, with its owner.

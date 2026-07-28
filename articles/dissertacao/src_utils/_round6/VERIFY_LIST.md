@@ -291,3 +291,111 @@ material sits under a heading that literally begins `## 1b · … (✅ A1 n=20 n
 re-verified this independently. **"At all six" is correct.** The lesson worth keeping: that record
 retains its superseded revisions inline, so anchor on the revision header, not on the first matching
 line.
+
+---
+
+# Addendum: the seven items added after this list was written
+
+**Appended 2026-07-28.** This list was written at `c5c6789d`, before the eight review tracks landed.
+These seven come from what they found and what was changed in response. Same ordering rule as above:
+by consequence, not by chapter order.
+
+### A1. The corrected Appendix B paragraph on Chapter 3 — highest consequence in the document
+
+**What to check.** That the paragraph says what you want said about Chapter 3, because it no longer
+says what your 2026-07-27 ruling assumed.
+
+**Where.** Defense PDF **p. 99**, section B.5, the paragraph beginning "The second is that the two
+chapters differ in how direct the channel is". Source `src/chapters/apx_b_static_scope.tex`.
+
+**How.** Read the paragraph. Then, if you want the mechanism checked rather than taken:
+
+```bash
+sed -n '114,131p' research/embeddings/dgi/preprocess.py    # the feature: neighbours' mean, self excluded
+sed -n '28,30p'  research/embeddings/hgi/model/POIEncoder.py  # a single GCNConv, self-loops on by default
+```
+
+**What the answer should be if all is well.** The paragraph should say the two chapters differ in
+**degree**: CoUrb's channel is an exact deterministic lookup, CBIC's is a neighbourhood average that
+returns diluted through one convolution. It should **not** say Chapter 3 is unaffected. Your ruling
+said "esse nao se aplica ao DGI que usamos no cbic"; the measurement says the channel there is
+indirect, not absent. If you want the stronger exculpation, it cannot be supported as written.
+
+### A2. The bounded Ch.4 number in the conclusion
+
+**What to check.** That the two added sentences say what you would say.
+
+**Where.** Defense PDF **p. 76**, from "Two qualifications bound what that number licenses".
+
+**What the answer should be.** The 20.2 to 22.0 point figure stays (it is the published chapter's own
+audited number), now labelled as the **static task's** and pointing at Appendix B; and the arc's
+diagnosis should rest on the sequential task, naming Chapter 5 as what tests it.
+
+### A3. The weakened reproducibility sentence
+
+**What to check.** Whether you would rather publish the eight files than weaken the sentence.
+
+**Where.** Defense PDF **p. 88**; source `src/chapters/apx_a_contributions.tex`.
+
+**How.**
+
+```bash
+cd /Users/vitor/Desktop/mestrado/ingred
+for p in docs/studies/closing_data/v17_completion/STATISTICAL_PROTOCOL.md \
+         scripts/build_phase3_per_fold_transitions.sh \
+         docs/studies/closing_data/joint_best/JOINT_BEST_RESULTS.md \
+         m1_stats_n20.py m2_prereg_perfold.py m2_prereg_output.txt \
+         docs/studies/closing_data/v17_completion/stats_n20 \
+         scripts/embedding_eval/autocorrelation_ceiling.py; do
+  printf "%-70s " "$p"; git cat-file -e "mobiwac:$p" 2>/dev/null && echo PRESENT || echo ABSENT
+done
+```
+
+**What the answer should be.** All eight ABSENT today. Push them and the strong sentence comes back;
+the instruction is in the `[round6, F-01]` comment at the site.
+
+### A4. The deposit build's page numbering
+
+**What to check.** That each build prints its own physical page number.
+
+**How.**
+
+```bash
+cd articles/dissertacao && source src_utils/texenv.sh && (cd src && make defense && make final && make ppgc)
+```
+
+then open each PDF and compare the first numbered page's printed number against its physical position.
+
+**What the answer should be.** defense physical 11 prints 11; final physical 8 prints **8**; ppgc
+physical 12 prints 12. Before this round the deposit build printed 11 on physical page 8.
+
+### A5. The footnote links
+
+**What to check.** That clicking a footnote mark no longer jumps to page 1.
+
+**How.** `grep -c Hfootnote src/build/main.log src/build/main_final.log src/build/main_ppgc.log`,
+then click a footnote mark in the PDF.
+
+**What the answer should be.** **0** in all three logs, and the mark should be plain text with no link.
+
+### A6. The gate suite, including the four new gates
+
+**How.**
+
+```bash
+cd articles/dissertacao && source src_utils/texenv.sh && (cd src && make check); echo "RC=$?"
+```
+
+**What the answer should be.** **RC=0** — for the first time this round; it exited 2 throughout while
+six commit messages said otherwise. You should see `OK: 49 .tex files, every root directive present and
+resolving`, `negative parallelism: ... 3.19 per 1k (ceiling 3.60)`, `OK: no doubled reference macros in
+49 files`, and `trapped-prose suspects: 0`. Each of the four new gates self-tests in both directions
+before it reports; if one prints only OK and no self-test line, distrust it.
+
+### A7. The 46 sign-off markers, three of them first
+
+**How.** `grep -rn "NEEDS SIGN-OFF" src/ | wc -l` should give 46. The by-file inventory is in
+`PENDENCIAS.md` §2.1.
+
+**What the answer should be.** Read A1, A3 and A2 above before the other 43. Those three are the ones
+where the round changed what the document claims rather than how it says it.
