@@ -10,18 +10,51 @@
 %   none are stated (per the do-not-invent rule).
 % ONE PAGE MAX. [NEEDS SIGN-OFF: whole appendix -- the author must confirm scope,
 % tool naming, and whether to name specific model versions he can source.]
+%
+% [round6, 2026-07-28] TRIMMED on the author's instruction: cut what overstated or padded,
+% keep the substance. Four cuts, and one of them removes a claim that was false.
+%  1. FALSE CLAIM REMOVED. "The complete first version passed an eighteen-reviewer panel" and
+%     its role list. The count is right (18 numbered reports in src_utils/_review_v1/) but
+%     "passed" is not: the panel's own consolidated verdict table records persona 03 as
+%     "GATE FAIL (document)" and persona 06 as "GATE FAIL (conditional)", with BLOCKER-class
+%     findings at 01, 03, 06, 09 and 10 (_review_v1/CONSOLIDATED_REVIEW_REPORT.md:13-22). A
+%     document does not pass a panel two of whose gates failed it. The kept sentence says what
+%     the passes DID -- checked, by an agent that did not write the text, findings offered as
+%     corrections -- which the reports evidence. "(Claude Opus family)" went with the sentence
+%     that carried it; the tool is already named in the opening paragraph, and this appendix has
+%     never been able to source a version string (see the note above), so the parenthesis added
+%     precision it could not support. That also closes the ANCHORS.md COD-013 row for this file
+%     ("name the model"): the model cannot be named more precisely than it already is.
+%  2. CEREMONY CUT. "This appendix discloses the scope of that use and the verification process
+%     applied, in line with the disclosure recommendations of ... and the CNPq integrity policy"
+%     announced what the appendix would do before doing it. Now one clause, and it distinguishes
+%     what the two sources actually are: CNPq Portaria 2.664/2026 MANDATES declaration,
+%     UFV/DPE 03/2026 RECOMMENDS (AGENT_GUARDRAILS.md:169-171; UFV_COMPLIANCE.md:103-104).
+%  3. CEREMONY CUT. "The record below is reconstructed from the version-control history ...
+%     rather than from recollection." That is a statement about the drafting process of this
+%     appendix, not about the AI use it discloses. The provenance stays in this comment block,
+%     where the author and an auditor can use it; the reader does not need it.
+%  4. PADDING CUT. "Every AI-drafted passage passed a fail-closed verification pipeline before
+%     reaching the advisor:" followed by a five-clause semicolon chain naming an outline, a fact
+%     gate, a style gate and the author's approval. It read as apparatus. The three rules that
+%     the chain amounted to are now three short sentences, plus the fail-closed rule itself
+%     (flag, do not smooth), which was the one substantive thing the chain named and was buried
+%     in it. "No content entered the document from model memory" was dropped as a claim about a
+%     process no reader can verify; what replaced it is the rule that produces it.
+% Substance kept in full: the tool and its role, the policy basis, all four scope items with
+% the drafting/re-typesetting split, the translation fidelity check, and the author's
+% responsibility. Nothing was added. Word count 374 -> 303, measured on this file with LaTeX
+% comments stripped and escaped percent signs preserved (my first draft of this line said
+% 469 -> 340, which I had not measured; corrected here rather than left standing).
 
 \chapter{AI-Use Disclosure}
 \label{apx:ai}
 
 This dissertation was written with the assistance of a generative artificial
 intelligence tool, Claude (Anthropic), used as a research and writing assistant under
-the author's direction. This appendix discloses the scope of that use and the
-verification process applied, in line with the disclosure recommendations of UFV/DPE
-(2026) and the CNPq integrity policy (Portaria n\textsuperscript{o} 2.664/2026). The
-record below is reconstructed from the version-control history of the research
-repository, where AI-drafted and author-authored changes are committed under
-distinguishable labels, rather than from recollection.
+the author's direction. This appendix discloses the scope of that use, as the CNPq
+integrity policy requires (Portaria n\textsuperscript{o} 2.664/2026) and the UFV/DPE
+disclosure guidelines of 2026 recommend.
 
 The scope of use, per part of the work, was the following.
 
@@ -35,11 +68,9 @@ The scope of use, per part of the work, was the following.
         English translation of the Chapter~\ref{ch:courb} article, which passed a
         separate sentence-level fidelity check against the published Portuguese text.
   \item[Editing and review.] Assistant-run review passes checked citations, numbers,
-        claims, cross-references, and style. The complete first version passed an
-        eighteen-reviewer panel, each reviewer a separate agent (Claude Opus family)
-        confined to one role: fact-checking, style, statistics, domain expertise,
-        compliance, and a simulated defense committee, among others. Review passes are
-        run by an agent that did not write the text under review.
+        claims, cross-references, and style, each pass run by an agent that did not
+        write the text under review. Their findings were corrections for the author to
+        accept or reject, not approvals.
   \item[Formatting.] The LaTeX structure, the two build modes, the bibliography
         consolidation, and figure and table re-setting were produced by the assistant.
   \item[Code.] Analysis and experiment code was written by the author with assistant
@@ -47,11 +78,9 @@ The scope of use, per part of the work, was the following.
         gates.
 \end{description}
 
-Every AI-drafted passage passed a fail-closed verification pipeline before reaching
-the advisor: an author-approved outline; a fact gate covering citation integrity
-(every reference checked against its source of record, with the citing claim located
-in the source), number integrity (every numeral traced to its source file, with no
-value computed by the assistant), and a claim registry binding verdict verbs to
-statistical tests; a separate style gate; and the author's own reading and approval,
-recorded in version control. No content entered the document from model memory, and
-the author reviewed and takes responsibility for every word of the final text.
+Three rules governed the drafting. Every reference was checked against its source of
+record, with the cited claim located in the source. Every number was traced to the file
+it came from and quoted rather than computed. Every verdict verb was bound to the
+statistical test that licenses it. Passages that could not be verified were flagged for
+the author instead of being smoothed over. The author read, corrected, and approved the
+final text, and is responsible for every word of it.

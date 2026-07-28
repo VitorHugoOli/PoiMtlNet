@@ -17,6 +17,12 @@
 % submitted and under review (5_mobiwac.tex:22-24, "submitted to MobiWac 2026, under
 % review at the time of writing"), which every other locus in the document states
 % correctly.
+\section{The experimental platform}
+\label{apx:contributions:platform}
+% [round6, 2026-07-28] Heading ADDED. The file header records that the lone A.1 heading was
+% dropped when the former A.2 was removed, leaving one unsectioned statement. The
+% reproducibility section below restores a second topic, so the appendix carries two headings
+% again rather than one section trailing an unheaded opening. The opening prose is unchanged.
 Beyond the three studies of this collection, this research produced a reusable software
 platform that supported the experiments of Chapters~\ref{ch:cbic}
 and~\ref{ch:mobiwac} and is released with the code.
@@ -80,3 +86,110 @@ stricter protocol became practical: the split, the fold-wise prior, and the test
 implemented once, in one place, rather than once per study. No
 performance or novelty claim is made here; those belong to the results chapters, under
 the evidence protocol the frame follows.
+
+\section{Reproducing the reported numbers}
+\label{apx:contributions:repro}
+
+% [NEEDS SIGN-OFF: whole section -- new frame prose. The author approved adding reproducibility
+% content, following the pattern of Appendix D, where each number names the script that produced
+% it and the output file it lives in. No number is quoted here that is not already in the
+% document; what this section adds is the path a reader follows to re-derive one.]
+This section names, for each part of the protocol, the code that implements it and the
+file its output lives in. Every path is relative to the platform repository, which
+Chapter~\ref{ch:mobiwac} footnotes at first mention. The protocol described is that
+chapter's, and Chapter~\ref{ch:fundamentals} scopes it there rather than to the whole
+collection.
+
+\begin{description}
+  \item[The fold partition.] Folds are built by
+        \path{src/data/folds.py}, which calls scikit-learn's
+        \texttt{StratifiedGroupKFold} with five splits, shuffling enabled, and a fixed
+        partition seed of 42, grouping by user identifier and stratifying on the task
+        label. Grouping by user is what makes the split user-disjoint: a user's
+        check-ins fall on one side of every fold. The same routine builds the paired
+        multi-task folds, where both tasks share one user partition so that a user
+        cannot reach one task's training data and the other task's validation data in
+        the same fold.
+  \item[The seeds.] Four random initializations, 0, 1, 7, and 100, each repeating the
+        five-fold experiment over that one fixed partition, which is the twenty fitted
+        models per configuration the chapter reports. The design is recorded in
+        \path{docs/studies/closing_data/v17_completion/STATISTICAL_PROTOCOL.md}. Only
+        the initialization varies across the four; the folds do not, which is why the
+        reported intervals cover variation across initializations and not across
+        resampled user splits, a limitation Chapter~\ref{ch:mobiwac} states.
+  \item[The region-transition prior.] Rebuilt for each fold from that fold's training
+        partition alone by
+        \path{scripts/build_phase3_per_fold_transitions.sh}, which writes one file per
+        fold. Only the external region baseline of Chapter~\ref{ch:mobiwac} consumes
+        it; the joint and dedicated models do not.
+  \item[The reported scores.] Read at one saved model per fold, the epoch selected on
+        validation, which is the joint-best convention: both tasks are read at the same
+        checkpoint rather than each at its own best epoch. The post-hoc scorer is
+        \path{scripts/closing_data/score_joint_best.py} and its results are collected in
+        \path{docs/studies/closing_data/joint_best/JOINT_BEST_RESULTS.md}.
+  \item[The significance tests.] The superiority and non-inferiority tests are
+        implemented in \path{scripts/closing_data/superiority_wilcoxon.py} and
+        \path{scripts/closing_data/region_match_tost.py}. The reported analysis was run
+        by \path{m1_stats_n20.py}, with the pre-registered per-fold variant in
+        \path{m2_prereg_perfold.py}; both scripts, their console output
+        (\path{m1_full_output.txt} and \path{m2_prereg_output.txt}), and the verdict
+        tables that Chapter~\ref{ch:mobiwac} quotes sit together in
+        \path{docs/studies/closing_data/v17_completion/stats_n20/}.
+  \item[The label-history benchmark.] Computed by
+        \path{scripts/embedding_eval/autocorrelation_ceiling.py}; outputs and the reading
+        of them are in Appendix~\ref{apx:ceiling}, which names the files.
+\end{description}
+
+Two qualifications belong with this list. The metric conventions it presupposes are
+defined where they are used, macro-F1 and accuracy at ten in
+Chapter~\ref{ch:fundamentals} and again in Chapter~\ref{ch:mobiwac}, and this section
+does not restate them. And the list covers the final study alone. The experiments of
+Chapters~\ref{ch:cbic} and~\ref{ch:courb} ran under the weaker protocol described
+earlier in this appendix, the second of them in a separate repository, so a reader
+reproducing those chapters is reproducing what they report and not what this section
+describes.
+% SOURCE LEDGER for this section. Every path was checked to exist on disk this session
+% (2026-07-28) and every protocol statement is quoted from a source file, not from the task brief.
+%  FOLDS. docs/context/DATA_SPLITS.md, "Configuration": StratifiedGroupKFold(n_splits=5,
+%   shuffle=True, random_state=42), "Stratification: by primary class", "Group: by userid".
+%   Confirmed in the implementation the doc names as source of truth: src/data/folds.py:1159 and
+%   :1247 both construct StratifiedGroupKFold(n_splits=self.n_splits, shuffle=True,
+%   random_state=self.seed) with the default seed at :1061 (seed: int = 42) and n_splits at
+%   :1059 (n_splits: int = 5). The paired-fold construction and its leak argument:
+%   DATA_SPLITS.md "MTL fold pairing on a shared user partition" steps 1-4, implemented from
+%   folds.py:1204-1208 and :1453-1455. The doc's own precedence rule is "if there's ever a
+%   discrepancy, the code wins"; there is no discrepancy here.
+%  SEEDS. DATA_SPLITS.md "Multi-seed pooling": "Same fold partition across seeds -- fold-id
+%   seed=42 always; only the model-init seed varies", "Seeds {0, 1, 7, 100} ... Combined with 5
+%   folds -> n=20". Matched by STATISTICAL_PROTOCOL.md (seeds {0,1,7,100} x 5 folds; one fixed
+%   fold partition across arms). The n=20 / n=4 distinction is GLOSSARY.md's registered pair and
+%   is NOT restated as a test footing here, since this section describes the design, not the test.
+%  TRANSITION PRIOR. DATA_SPLITS.md "Per-fold log_T": computed on the per-fold training
+%   partition only, "built by scripts/build_phase3_per_fold_transitions.sh"; the whole-dataset
+%   version is recorded there as leak-inflated. Written as "region-transition prior" per
+%   WRITING_LAW section 2 (log_T is a banned repo codename). That our models do not consume it
+%   and the external baseline does: 5_mobiwac.tex:361.
+%  JOINT-BEST. GLOSSARY.md "joint-best convention" ("Both tasks read at the one saved model per
+%   fold (the validation-selected epoch)"). Script header, scripts/closing_data/
+%   score_joint_best.py:2-6, contrasts it with per-task diagnostic-best; results file named at
+%   RESULTS_BOARD.md and present on disk.
+%  TESTS. Script paths from stats_n20/RESULTS.md:44-46 ("Test conventions mirror
+%   scripts/closing_data/superiority_wilcoxon.py + region_match_tost.py") and from the directory
+%   listing; the four stats_n20 files were listed on disk. Verdict tables at RESULTS.md:72-90.
+%  BENCHMARK. apx_d_ceiling.tex already names this script and its outputs; not duplicated.
+%  METRICS. Deliberately NOT restated: docs/context/METRICS.md is an internal document whose
+%   conventions differ in places from what the chapters report (it makes MRR primary for the
+%   joint scoreboard and describes an "F51 canonical extraction" of per-fold max over epochs >= 5,
+%   which is NOT the joint-best convention Chapter 5 reports). Pointing the reader at the
+%   chapters, which state the conventions actually used, avoids importing a superseded one.
+%   [VERIFY: whether the author wants METRICS.md's Delta-m variants and the F51 extraction rule
+%   disclosed anywhere in the document; I could not establish that either belongs to the reported
+%   configuration, so neither is named.]
+%  REPOSITORIES. Two, and the appendix above already distinguishes them: the platform of
+%   Chapters 3 and 5 (3_cbic.tex:66; 5_mobiwac.tex:55, the mobiwac branch) and the separate
+%   repository of Chapter 4 (4_courb.tex:58). This section cites the Chapter 5 footnote by \ref
+%   rather than reprinting the URL, so there is one URL of record per repository in the document.
+%  NOT INCLUDED, on purpose: hardware, package versions, and per-model training configurations.
+%   Chapter 5 states that the full training configuration for every model is in the released
+%   code, and I did not establish a committed version manifest this session.
+%   [VERIFY: a package-version manifest for the released code, if one exists, would belong here.]

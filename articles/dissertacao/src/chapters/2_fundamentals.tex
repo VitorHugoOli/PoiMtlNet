@@ -168,9 +168,23 @@ region-level estimation tasks, so the work reported here repurposes its POI-leve
 as a place embedding for a sequential prediction task their paper does not address. The
 baseline was also tuned rather than taken as published: the cross-region edge weight of
 their Equation 2, set to 0.4 for the dense Chinese cities they study, was raised to 0.7
-for the sparser United States state datasets used here, a change under which the category
-F1 on Alabama, over five folds, rose monotonically from 0.74 to 0.82 across the swept
-values.
+for the sparser United States state datasets used here. The sweep that fixed that value
+ran on Alabama over four settings of the weight, 0.4, 0.5, 0.6, and 0.7, each measured
+over five folds with a budget of 50 epochs, and the category F1 rose monotonically
+across them, from $0.7388 \pm 0.0205$ at the published setting to $0.8186 \pm 0.0123$ at
+the adopted one, on a zero-to-one scale, with the spread taken across the five folds.
+% [NEEDS SIGN-OFF: NUM-4, round6, 2026-07-28] Number RE-ANCHORED and its convention added.
+% The clause previously read "the category F1 on Alabama, over five folds, rose monotonically
+% from 0.74 to 0.82 across the swept values": two means with no spread, no swept range, and no
+% epoch budget. 0.74 and 0.82 were quoted from research/embeddings/hgi/CLAUDE.md:117, which
+% itself ROUNDS the sweep table; quoting the rounded restatement put a computed step between the
+% page and the source of record. Now quoted from the table itself,
+% research/embeddings/hgi/README.md:544 (header, "5 folds x 50 epochs") and :548-551 (rows):
+%   w_r 0.4 -> 0.7388 +/- 0.0205 | 0.5 -> 0.7678 +/- 0.0211
+%   w_r 0.6 -> 0.7944 +/- 0.0186 | 0.7 -> 0.8186 +/- 0.0123
+% Monotonicity is the source's own word (CLAUDE.md:117 "rises monotonically"; preprocess.py:38
+% "rose monotonically") and is readable off those four rows without computing anything.
+% The adopted 0.7 is the shipped default: preprocess.py:23 DEFAULT_CROSS_REGION_WEIGHT = 0.7.
 % [VERIFY: averaging convention of the swept "Cat F1"] Provenance of this clause:
 % research/embeddings/hgi/CLAUDE.md:117 ("The paper uses 0.4 but that's tuned for dense
 % Chinese cities; on Alabama Cat F1 rises monotonically 0.74 -> 0.82 as w_r goes
@@ -222,11 +236,131 @@ representation, rather than any change to the architecture, that moves the resul
 The check-in-level representation, Check2HGI, completes the line. It extends the
 graph-infomax hierarchy with a fourth level below the place, the check-in, and is
 trained without task labels in the same infomax spirit, so that each visit, rather
-than each place, carries its own vector. Where a place embedding answers ``what is
-this place,'' a check-in-level representation answers ``what is this visit,'' and
+than each place, carries its own vector.
+
+The training objective makes that extension concrete, and it is worth stating here
+because it is what the fourth level costs. The hierarchy has three boundaries between
+adjacent levels, check-in to place, place to region, and region to city, and the total
+objective is a fixed-weight sum of one term per boundary,
+\begin{equation}\label{eq:fund:check2hgi}
+  \mathcal{L} = 0.4\,\mathcal{L}_{c2p} + 0.3\,\mathcal{L}_{p2r} + 0.3\,\mathcal{L}_{r2c},
+\end{equation}
+where $\mathcal{L}_{c2p}$ is the check-in-to-place term, $\mathcal{L}_{p2r}$ the
+place-to-region term, and $\mathcal{L}_{r2c}$ the region-to-city term. Each term is
+built from a bilinear discriminator that scores how compatible two embeddings are,
+\begin{equation}\label{eq:fund:check2hgi-disc}
+  \mathcal{D}(\mathbf{e}_1, \mathbf{e}_2) = \sigma(\mathbf{e}_1^{\top}\mathbf{W}\mathbf{e}_2),
+\end{equation}
+in which $\mathbf{e}_1$ and $\mathbf{e}_2$ are the two embeddings being compared,
+$\mathbf{W}$ is a learned weight matrix, and $\sigma$ is the logistic function, so the
+score lies between 0 and 1. A boundary's term then rewards a high score on a true pair
+and a low score on a false one,
+\begin{equation}\label{eq:fund:check2hgi-term}
+  \mathcal{L}_{*} = -\log \mathcal{D}(\mathbf{e}^{+}, \mathbf{e}^{+})
+                    - \log\left(1 - \mathcal{D}(\mathbf{e}^{+}, \mathbf{e}^{-})\right),
+\end{equation}
+where $\mathbf{e}^{+}$ denotes an embedding from a true pair, a check-in with the place
+it actually occurred at, and $\mathbf{e}^{-}$ an embedding substituted from elsewhere in
+the batch to form a false pair. No target label appears in any of the three equations,
+which is the sense in which the representation is trained without task labels.
+% [NEEDS SIGN-OFF: COD-015, round6, 2026-07-28] New frame prose: the Check2HGI loss, which the
+% document did not carry anywhere. The author approved adding it.
+% WHY HERE AND NOT IN Ch.5, decided on the science: this paragraph is the point where the
+% dissertation builds the infomax line, DGI's local-global objective (:157-160) then HGI's
+% hierarchical one (:163-166), so the fourth boundary is a term added to an objective the reader
+% has just met. Section 5.4.1 of Chapter 5 states the same construction in words ("each vector
+% learns to match its real neighborhood and reject a shuffled one") for a paper audience and
+% under a page limit; Ch.5 is under review, so an equation there is a two-file change to the
+% submitted text, and the equation is not needed to follow that chapter's argument. Placing it in
+% the frame also puts it before both chapters that use the representation, which is what the
+% frame is for.
+% SOURCE, transcribed not invented: docs/context/check2hgi_overview.tex, section "Funcao de
+% Perda" (Portuguese). Its three display equations, in order, are the three above:
+%   L = 0.4 L_{c2p} + 0.3 L_{p2r} + 0.3 L_{r2c}   (with the underbraces naming each boundary)
+%   D(e_1, e_2) = sigma(e_1^T W e_2)              ("discriminador bilinear", W learned, sigma the
+%                                                  sigmoid, "saida entre 0 e 1")
+%   L_* = -log D(e^+, e^+) - log(1 - D(e^+, e^-)) (the per-boundary term)
+% Symbols, weights, subscripts and the star on L_* are the source's own. Kept: \mathcal{L},
+% \mathcal{D}, the c2p/p2r/r2c subscripts, e^+/e^-, W, sigma. Dropped: the source's \underbrace
+% annotations (their content is in the sentence instead) and its Portuguese labels.
+% The same three weights are the shipped defaults, verified in the running code this session:
+% research/embeddings/check2hgi/model/Check2HGIModule.py:51-53 (alpha_c2p=0.4, alpha_p2r=0.3,
+% alpha_r2c=0.3), assembled at :1192-1195 (total_loss = alpha_c2p*loss_c2p + alpha_p2r*loss_p2r
+% + alpha_r2c*loss_r2c); the same three values in the pipeline config at
+% pipelines/embedding/check2hgi.pipe.py:43-45. Per-boundary term at :1159, :1184, :1189
+% (-log(pos) - log(1 - neg), the source's form); discriminator at :1003-1018 (matmul(emb1,
+% weight), elementwise product summed, torch.sigmoid) and :246 "Bilinear transformation weights
+% for discrimination at each boundary".
+% ONE FAITHFULNESS NOTE the author should know: e^- is described above as "substituted from
+% elsewhere in the batch", which is the source's OPTIMIZED path (its section "Corrupcao de
+% Embeddings": negatives are formed by permuting already-computed embeddings rather than by
+% re-running the encoder on shuffled features). That is what the code does by default. The
+% equations themselves are indifferent to how e^- is produced, so nothing in them depends on
+% this note. The auxiliary terms Ch.5 mentions (a masked reconstruction and an anchor, weights
+% 0.3 and 0.1, 5_mobiwac.tex:290) are NOT in this equation: the source document does not carry
+% them, and their defaults in the code are 0.0 (Check2HGIModule.py:68, :178), enabled per run
+% rather than by the objective above. The equation is therefore the three-boundary objective, as
+% the source states it, and the sentence does not claim it is the complete training loss of
+% every run reported in Chapter 5. [VERIFY: whether Ch.5's two auxiliary terms should be named
+% here as well; that needs the run configuration of the shipped representation, which I did not
+% establish this session.]
+% GLOSSARY DEPENDENCY, fail-closed rule, unresolved: this passage uses two terms the registry
+% does not hold, "bilinear discriminator" and "logistic function". GLOSSARY.md is not mine to
+% edit, so the entries are PROPOSED in the round-6 report for the author to approve, and the rule
+% says the entry lands before the term does. Until they are registered this paragraph is
+% blocked on that approval, not merely awaiting sign-off on its wording. Precedent for the
+% narrower word: "discriminator" is already used in published Ch.3 prose (3_cbic.tex:166, "$D$ is
+% a discriminator that differentiates each positive example from its corrupted version"), so only
+% the modifier "bilinear" and the name of $\sigma$ are new to the document.
+
+Where a place embedding answers ``what is this place,'' a check-in-level representation
+answers ``what is this visit,'' and
 Chapter~\ref{ch:mobiwac} develops this representation and the joint model built on it.
 Table~\ref{tab:fund:lineage} traces the full progression, from DGI through HGI to the
 check-in level and the joint model that uses it.
+
+The last step of that chain deserves one clarification, because the joint model is a
+descendant of MTLnet and not a replacement written from nothing. In the released
+implementation the joint model is a specialization of the MTLnet class: it inherits the
+per-task input encoders, the task heads, and the partition of parameters into shared and
+task-specific groups, and it overrides exactly one component, the shared middle. Where
+MTLnet conditions a stack of shared residual layers on task identity through FiLM, the
+joint model puts a stack of cross-attention blocks in that position, each block letting
+one task stream read the other's features while each stream keeps its own feed-forward
+weights. A second specialization then adds the private spatial path, which hands the
+region output the region sequence directly, before the two streams mix. So the two
+models differ in how the tasks share and in what the region output may read, and they
+agree everywhere else. The architectural claim of Chapter~\ref{ch:mobiwac} is a change
+of sharing topology inside a lineage, which is why the negative result of
+Chapter~\ref{ch:cbic} and the positive result of Chapter~\ref{ch:mobiwac} can be read
+against each other at all.
+% [NEEDS SIGN-OFF: COD-013, round6, 2026-07-28] New frame prose. The author approved naming the
+% joint model's descent from MTLnet; it was carried only by the lineage table's row order.
+% Placed HERE and not in Ch.5 on the science: the fact is about the RELATION between two
+% chapters' artifacts, which is the frame's own subject, and it is what licenses reading Ch.3's
+% null against Ch.5's positive result. Ch.5 is under review, so a sentence there would be a
+% two-file change to the submitted paper, and the paper does not need it: within the paper the
+% joint model stands alone. Establishing the descent FROM THE CODE, read this session:
+%   src/models/mtl/mtlnet_crossattn_dualtower/model.py:42
+%       class MTLnetCrossAttnDualTower(MTLnetCrossAttn)
+%   src/models/mtl/mtlnet_crossattn/model.py:207
+%       class MTLnetCrossAttn(MTLnet)          <- so the chain is MTLnet -> CrossAttn -> DualTower
+%   src/models/mtl/mtlnet/model.py:39   class MTLnet(nn.Module)   (the base)
+% "overrides exactly one component": mtlnet_crossattn/model.py:362 def _build_shared_backbone,
+% whose docstring at :368 reads "Override MTLnet's FiLM + shared_layers with cross-attention
+% blocks"; its body registers crossattn_blocks and the two final LayerNorms and nothing else.
+% The FiLM + residual stack it replaces is mtlnet/model.py:193-197 (self.task_embedding,
+% self.film = FiLMLayer, self.shared_layers), built from mtlnet/model.py:179 in the base class.
+% "inherits encoders, heads, parameter partition": mtlnet_crossattn/model.py:208-214 class
+% docstring ("Construction mostly inherits from MTLnet (task encoders, heads, register of
+% task_set etc.)"); the accessors shared_parameters/task_specific_parameters/reg_specific_parameters
+% at :554,:563,:578. "Each block lets one stream read the other while each keeps its own FFN":
+% :55-66 (_CrossAttnBlock docstring, the four update lines) and :63 "Separate FFNs per task, no
+% parameter sharing". The second specialization and what it hands the region output:
+% mtlnet_crossattn_dualtower/model.py:1-9 module docstring ("The ONLY behavioral change is that
+% the reg head ... is handed the raw post-pad-mask region sequence") and :86-90. Registry id deliberately absent from prose per WRITING_LAW section 2.
+% No number is quoted here and no result is claimed; the two verdicts referenced are the ones
+% Ch.3 and Ch.5 already state.
 
 \input{tables/frame/lineage}
 
