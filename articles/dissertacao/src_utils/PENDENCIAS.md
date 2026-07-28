@@ -5,7 +5,8 @@
 > resolvido por um agente, e nenhum foi resolvido sozinho.
 >
 > A rodada de correcoes de 2026-07-26 fechou 26 dos 39 achados da revisao. O que sobrou esta
-> abaixo. Auditoria completa: [`_archive/reviews_v1/dissertation_review_v2.md`](_archive/reviews_v1/dissertation_review_v2.md).
+> abaixo. Auditoria completa: [
+`_archive/reviews_v1/dissertation_review_v2.md`](_archive/reviews_v1/dissertation_review_v2.md).
 >
 > Formato de cada item: **(A) o que falta**, **(B) por que importa**, **(C) o que eu preciso de
 > voce**. Onde ja existe texto pronto ou pesquisa feita, o caminho esta indicado.
@@ -17,7 +18,7 @@
 
 ## Estado apos a rodada de 2026-07-27
 
-**Build:** defesa 104 pp, final 99 pp, 0 caixas estouradas, 0 citacoes/referencias indefinidas, 0 erros de BibTeX, lint
+**Build:** defesa 108 pp, final 105 pp, 0 caixas estouradas, 0 citacoes/referencias indefinidas, 0 erros de BibTeX, lint
 0, 10/10 fixtures do detector de prosa presa.
 
 **O que rodou nesta rodada, e o que cada um achou:**
@@ -57,7 +58,7 @@ nomeado caso a caso. **Quatro alegacoes nao se sustentam** na evidencia, entre e
 contraria uma decisao sua ja registrada, e uma atribuicao de capitulo que le uma frase do apendice do MobiWac como se
 fosse do Cap. 4.
 
-**Um fato estrutural que governa a leitura:** o codex leu um par de 97/92 paginas. O que esta em disco e **104/99**.
+**Um fato estrutural que governa a leitura:** o codex leu um par de 97/92 paginas. O que esta em disco e **108/105**.
 Todos os `file:line` dele deslizaram; a auditoria re-ancorou cada um pelo conteudo. Os achados sobrevivem, as
 coordenadas nao.
 
@@ -105,64 +106,58 @@ Os dois BLOCKERs delas foram corrigidos. Sobram dois pontos que sao decisao sua:
 
 ## BLOCO 0e — o veredito da persona 03: **GATE FAIL**, e o que ela achou sobre o ponto do orientador
 
-Relatorio: [`_review_v3/03_style_auditor_report.md`](_review_v3/03_style_auditor_report.md).
-Ela aplicou o glossario do MobiWac linha por linha: **24 das 26 regras passam.** As duas violacoes
+Relatorio: [`_review_v3/03_style_auditor_report.md`](_review_v3/03_style_auditor_report.md). Ela aplicou o glossario do
+MobiWac linha por linha: **24 das 26 regras passam.** As duas violacoes
 `never` eram as de "cell" nas nossas proprias alegacoes, **ja corrigidas** (`7eec1766`).
 
-**A distincao que voce intuiu esta confirmada por medicao:** todos os nove usos de "activity" no
-documento descrevem alvos de **outros** sistemas (MCARNN, CSLSL, DRRGNN, iMTL, MTPR) e **zero**
+**A distincao que voce intuiu esta confirmada por medicao:** todos os nove usos de "activity" no documento descrevem
+alvos de **outros** sistemas (MCARNN, CSLSL, DRRGNN, iMTL, MTPR) e **zero**
 descrevem as nossas tarefas; os tres usos de "Pareto" nomeiam a propriedade do MGDA. `arm` esta em zero.
 
 ### O ponto do orientador, localizado em dois capitulos por dois motivos diferentes
 
-Ela operacionalizou *"soa estranho o jeito que alguns termos sao inseridos"* em cinco testes mediveis, e
-o resultado nao e difuso — **localiza**:
+Ela operacionalizou *"soa estranho o jeito que alguns termos sao inseridos"* em cinco testes mediveis, e o resultado nao
+e difuso — **localiza**:
 
-**Cap. 2 — nomes de metodo que aparecem uma vez e nunca mais.** Ele introduz **14 dos 25** nomes
-use-once do documento, com **nove balanceadores em vinte e uma linhas** (`:315-335`), dos quais **so o
-Nash-MTL volta a ser usado**. Um leitor recebe nove nomes proprios em sequencia e nao precisa de nenhum
-depois.
+**Cap. 2 — nomes de metodo que aparecem uma vez e nunca mais.** Ele introduz **14 dos 25** nomes use-once do documento,
+com **nove balanceadores em vinte e uma linhas** (`:315-335`), dos quais **so o Nash-MTL volta a ser usado**. Um leitor
+recebe nove nomes proprios em sequencia e nao precisa de nenhum depois.
 
-**Cap. 5 — empilhamento de glosas.** Carrega **todas as seis** do documento; a pior em `:409` (tres
-definicoes parenteticas e quatro numeros numa frase) e `:206-211` (uma parentese de 40 palavras dentro
-de uma alegacao).
+**Cap. 5 — empilhamento de glosas.** Carrega **todas as seis** do documento; a pior em `:409` (tres definicoes
+parenteticas e quatro numeros numa frase) e `:206-211` (uma parentese de 40 palavras dentro de uma alegacao).
 
 ### ~~`seed` usado quatro capitulos antes de ser definido~~ — CORRIGIDO
 
 Definido em `5_mobiwac.tex:388` (p. 66), mas a **primeira** aparicao era `1_introduction.tex:243`
 (**p. 16**) — cinquenta paginas de dependencia para frente, num capitulo de moldura onde o
-`WRITING_LAW` vale integralmente. Adicionei a glosa com a redacao do proprio registro; a definicao do
-Cap. 5 fica intacta e continua canonica. O Resumo e o Abstract ja cumpriam, escrevendo "random
-initializations".
+`WRITING_LAW` vale integralmente. Adicionei a glosa com a redacao do proprio registro; a definicao do Cap. 5 fica
+intacta e continua canonica. O Resumo e o Abstract ja cumpriam, escrevendo "random initializations".
 
 ### Cap. 4 italiciza ingles corriqueiro **155 vezes** — e uma decisao sua, nao 155
 
-`\textit`/`\emph` por capitulo: Ch.1 6, Ch.2 6, Ch.3 23, **Ch.4 155**, Ch.5 10, Ch.6 0, Apx B 12.
-Nao e terminologia em primeiro uso, e vocabulario corrente: `embedding` x18, `baseline` x16,
-`encoders` x15, `encoder` x14, `embeddings` x12. **E inconsistente consigo mesmo:** `encoder` italico
-14 / romano 9, `baseline` italico 16 / romano 4 — e num **unico paragrafo da p. 43** aparecem
+`\textit`/`\emph` por capitulo: Ch.1 6, Ch.2 6, Ch.3 23, **Ch.4 155**, Ch.5 10, Ch.6 0, Apx B 12. Nao e terminologia em
+primeiro uso, e vocabulario corrente: `embedding` x18, `baseline` x16,
+`encoders` x15, `encoder` x14, `embeddings` x12. **E inconsistente consigo mesmo:** `encoder` italico 14 / romano 9,
+`baseline` italico 16 / romano 4 — e num **unico paragrafo da p. 43** aparecem
 "encoders" romano e "*encoder*" italico a 336 caracteres de distancia.
 
-**A causa e legitima e a consequencia nao:** isso vem do artigo em portugues, onde italicizar
-estrangeirismo e a pratica correta. Num capitulo **em ingles** a mesma marcacao nao marca mais
-estrangeirismo — le-se como enfase numa palavra que nao tem nenhuma. **E um candidato forte para o que
-o seu orientador marcou.**
+**A causa e legitima e a consequencia nao:** isso vem do artigo em portugues, onde italicizar estrangeirismo e a pratica
+correta. Num capitulo **em ingles** a mesma marcacao nao marca mais estrangeirismo — le-se como enfase numa palavra que
+nao tem nenhuma. **E um candidato forte para o que o seu orientador marcou.**
 
 Nao toquei porque e uma decisao de politica sua, e e **uma** decisao:
 
-- **(a)** tirar o italico de tudo que e ingles corriqueiro num capitulo em ingles, mantendo so os sete
-  rotulos de categoria (`Food`, `Nightlife`...) e os nomes de metodo em primeiro uso;
-- **(b)** manter como esta, declarando no prefacio do Cap. 4 que a tipografia do artigo publicado foi
-  preservada — o que e defensavel sob o regime de errata, mas deixa a inconsistencia interna de pe;
-- **(c)** normalizar so os casos que aparecem nos dois formatos, o que resolve a inconsistencia sem
-  mexer no resto.
+- **(a)** tirar o italico de tudo que e ingles corriqueiro num capitulo em ingles, mantendo so os sete rotulos de
+  categoria (`Food`, `Nightlife`...) e os nomes de metodo em primeiro uso;
+- **(b)** manter como esta, declarando no prefacio do Cap. 4 que a tipografia do artigo publicado foi preservada — o que
+  e defensavel sob o regime de errata, mas deixa a inconsistencia interna de pe;
+- **(c)** normalizar so os casos que aparecem nos dois formatos, o que resolve a inconsistencia sem mexer no resto.
 
-Minha recomendacao e **(a)**, e o Apendice B declara como mudanca mecanica. Mas a nota de fidelidade de
-traducao (`08_translation_fidelity_report.md:443`) registra que o italico em `embedding` foi
-**preservado deliberadamente**, entao isto e revisitar uma decisao com motivo, nao consertar um
-descuido.
+Minha recomendacao e **(a)**, e o Apendice B declara como mudanca mecanica. Mas a nota de fidelidade de traducao
+(`08_translation_fidelity_report.md:443`) registra que o italico em `embedding` foi **preservado deliberadamente**,
+entao isto e revisitar uma decisao com motivo, nao consertar um descuido.
 
-> DECISAO (a / b / c): __________________________________________________
+> DECISAO (a / b / c): Vamos de A.
 
 ---
 
@@ -171,47 +166,47 @@ descuido.
 **Voce perguntou se rodei a revisao do par contra os exemplares e as boas praticas. Rodei agora.**
 Parecer completo em [`_review_v3/17_resumo_abstract_assessment.md`](_review_v3/17_resumo_abstract_assessment.md).
 
-**Veredito dela:** *abaixo* do padrao dos exemplares como estava renderizado, *acima* em substancia — e
-os dois BLOCKERs que produziam esse "abaixo" eram os meus quatro trechos rasgados, ja corrigidos.
+**Veredito dela:** *abaixo* do padrao dos exemplares como estava renderizado, *acima* em substancia — e os dois BLOCKERs
+que produziam esse "abaixo" eram os meus quatro trechos rasgados, ja corrigidos.
 
 **A medicao que responde a sua pergunta**, todos os dez textos extraidos dos PDFs e normalizados igual:
 
-| Texto | Palavras | Frases | Media | Mais longa | Fatos quantitativos |
-|---|---:|---:|---:|---:|---:|
-| **nosso Resumo** | **484** | 10 | **48,4** | **111** | **21** |
-| **nosso Abstract** | **407** | 10 | **40,7** | **99** | **20** |
-| Germano 2024 | 214 | 10 | 21,4 | 29 | 0 |
-| Viegas 2026 | 200 | 8 | 25,0 | 33 | 3 |
-| Canesche 2021 | 257 / 243 | 11 / 12 | 23,4 / 20,2 | 36 / 33 | 5 |
-| Passe 2020 | 229 / 193 | 10 / 10 | 22,9 / 19,3 | 35 / 36 | 1 |
-| Dorigueto 2021 | 282 / 225 | 8 / 6 | 35,2 / 37,5 | 68 / 61 | 3 |
+| Texto              |  Palavras |  Frases |       Media | Mais longa | Fatos quantitativos |
+|--------------------|----------:|--------:|------------:|-----------:|--------------------:|
+| **nosso Resumo**   |   **484** |      10 |    **48,4** |    **111** |              **21** |
+| **nosso Abstract** |   **407** |      10 |    **40,7** |     **99** |              **20** |
+| Germano 2024       |       214 |      10 |        21,4 |         29 |                   0 |
+| Viegas 2026        |       200 |       8 |        25,0 |         33 |                   3 |
+| Canesche 2021      | 257 / 243 | 11 / 12 | 23,4 / 20,2 |    36 / 33 |                   5 |
+| Passe 2020         | 229 / 193 | 10 / 10 | 22,9 / 19,3 |    35 / 36 |                   1 |
+| Dorigueto 2021     | 282 / 225 |   8 / 6 | 35,2 / 37,5 |    68 / 61 |                   3 |
 
-**Envelope dos exemplares:** 193 a 282 palavras (mediana 227). O nosso Resumo e **2,1x a mediana**, e a
-frase mais longa dele (111 palavras) e **1,6x** a maior frase de qualquer um dos dez textos. Nenhuma norma
-e violada — nao ha limite de palavras. E comparacao com os pares, e nesse eixo somos o ponto fora.
+**Envelope dos exemplares:** 193 a 282 palavras (mediana 227). O nosso Resumo e **2,1x a mediana**, e a frase mais longa
+dele (111 palavras) e **1,6x** a maior frase de qualquer um dos dez textos. Nenhuma norma e violada — nao ha limite de
+palavras. E comparacao com os pares, e nesse eixo somos o ponto fora.
 
-**Um ponto a nosso favor que ela achou:** Viegas e Germano — justamente os dois precedentes mais proximos
-— **nao renderizam Resumo**, so Abstract. O nosso par bilingue esta acima deles nesse aspecto.
+**Um ponto a nosso favor que ela achou:** Viegas e Germano — justamente os dois precedentes mais proximos — **nao
+renderizam Resumo**, so Abstract. O nosso par bilingue esta acima deles nesse aspecto.
 
-**Ja corrigi um achado MAJOR dela, porque era lei quebrada e nao gosto:** o par dizia "proximo lugar
-visitado" / "next place visited", e **next place** e termo RESERVADO no `GLOSSARY.md` para a tarefa de POI
-exato que a dissertacao nao estuda. A colisao caia na p. 3, muito antes do desmentido do corpo chegar ao
-leitor na p. 14. Trocado pela frase que o proprio corpo usa ("proximo lugar a ser visitado" / "next
-visited place"): mesmo sentido, zero alegacao movida.
+**Ja corrigi um achado MAJOR dela, porque era lei quebrada e nao gosto:** o par dizia "proximo lugar visitado" / "next
+place visited", e **next place** e termo RESERVADO no `GLOSSARY.md` para a tarefa de POI exato que a dissertacao nao
+estuda. A colisao caia na p. 3, muito antes do desmentido do corpo chegar ao leitor na p. 14. Trocado pela frase que o
+proprio corpo usa ("proximo lugar a ser visitado" / "next visited place"): mesmo sentido, zero alegacao movida.
 
 **O que sobrou para voce decidir**, e agora com numero em maos:
 
-1. **Cortar mais ~250 palavras do Resumo** para entrar no envelope dos exemplares. Isso mexe em alegacao,
-   entao e seu. A persona aponta onde: o protocolo estatistico completo no abstract (MAJOR-4, "surplus")
+1. **Cortar mais ~250 palavras do Resumo** para entrar no envelope dos exemplares. Isso mexe em alegacao, entao e seu. A
+   persona aponta onde: o protocolo estatistico completo no abstract (MAJOR-4, "surplus")
    e a frase de 111 palavras.
-2. **MAJOR-3, o que falta:** ela diz que o par **nunca nomeia o que a dissertacao construiu**. Um leitor
-   que le so o resumo nao sai sabendo o nome do artefato.
-3. **MAJOR-1:** `joint-best` aparece **so** no Resumo e no Abstract e em nenhum outro lugar do documento
-   — uma insercao que nao se paga, exatamente o tipo de coisa que o seu orientador apontou.
-4. **MINOR-1:** o Resumo italiciza tres termos ingleses e o Abstract um so; num par de paridade a
-   convencao devia ser a mesma.
+2. **MAJOR-3, o que falta:** ela diz que o par **nunca nomeia o que a dissertacao construiu**. Um leitor que le so o
+   resumo nao sai sabendo o nome do artefato.
+3. **MAJOR-1:** `joint-best` aparece **so** no Resumo e no Abstract e em nenhum outro lugar do documento — uma insercao
+   que nao se paga, exatamente o tipo de coisa que o seu orientador apontou.
+4. **MINOR-1:** o Resumo italiciza tres termos ingleses e o Abstract um so; num par de paridade a convencao devia ser a
+   mesma.
 
-> DECISAO: __________________________________________________
+> DECISAO: Vamos seguir com esses pontos de melhorias e ser bem critico e meticuloso quanto as mudanças e ao final rodar
+> alguns agent de review só para o resumo e abstract. Foque na excelencia e na consistencia.
 
 ---
 
@@ -219,181 +214,174 @@ visited place"): mesmo sentido, zero alegacao movida.
 
 ### Quatro frases rasgadas no Resumo e no Abstract — **CORRIGIDO**, e eu havia relatado errado
 
-A persona 03 achou, eu confirmei no PDF antes de agir. **Ao comprimir o par na rodada passada, eu
-apaguei a clausula de abertura de quatro frases**, simetricamente nos dois idiomas. Renderizava assim
-nas p. 3 e 4:
+A persona 03 achou, eu confirmei no PDF antes de agir. **Ao comprimir o par na rodada passada, eu apaguei a clausula de
+abertura de quatro frases**, simetricamente nos dois idiomas. Renderizava assim nas p. 3 e 4:
 
 > "... por meio de aprendizado multitarefa (MTL). **entre tarefas pode prejudicar uma delas** ..."
 > "... Acc@10 (TOST), nos outros dois. **condicional, e a condicao e o achado** ..."
 
 Restaurado **literalmente do git**, nao reconstruido. As quatro verificadas renderizando.
 
-**E o ponto mais grave que o erro em si: eu relatei a pagina quase-branca como fechada por
-compressao.** Ela fechou **em parte porque faltava texto**, nao so porque o texto estava mais enxuto.
+**E o ponto mais grave que o erro em si: eu relatei a pagina quase-branca como fechada por compressao.** Ela fechou **em
+parte porque faltava texto**, nao so porque o texto estava mais enxuto.
 
-Os numeros, medidos e nao estimados (uma auditoria pegou que eu havia **trocado os dois** na primeira
-versao desta nota):
+Os numeros, medidos e nao estimados (uma auditoria pegou que eu havia **trocado os dois** na primeira versao desta
+nota):
 
-| Estagio | Resumo | Abstract |
-|---|---:|---:|
-| antes da minha compressao | 565 | 485 |
-| depois (com as clausulas apagadas sem eu perceber) | 529 | 452 |
-| clausulas restauradas | 542 | 466 |
+| Estagio                                            | Resumo | Abstract |
+|----------------------------------------------------|-------:|---------:|
+| antes da minha compressao                          |    565 |      485 |
+| depois (com as clausulas apagadas sem eu perceber) |    529 |      452 |
+| clausulas restauradas                              |    542 |      466 |
 
 - **compressao genuina de glosa: 23 palavras (PT) / 19 (EN)** — 565 para 542, e 485 para 466;
 - **clausulas apagadas por acidente: 13 (PT) / 14 (EN)** — o que a restauracao devolveu.
 
-Eu havia escrito "a compressao real foi de ~13 palavras, as outras ~30 eram clausulas apagadas". Esta
-**invertido**: 13 e o total apagado, nao o comprimido, e "~30" nao fecha com nenhum agrupamento (o
-apagado somando os dois idiomas da 27). A conclusao qualitativa sobrevive — parte do fechamento da
-pagina veio de texto ausente — mas o registro durvel subestimava a compressao real pela metade e
-exagerava o acidente em mais de duas vezes. O documento voltou a **104 pp**, que e o estado honesto.
+Eu havia escrito "a compressao real foi de ~13 palavras, as outras ~30 eram clausulas apagadas". Esta **invertido**: 13
+e o total apagado, nao o comprimido, e "~30" nao fecha com nenhum agrupamento (o apagado somando os dois idiomas da 27).
+A conclusao qualitativa sobrevive — parte do fechamento da pagina veio de texto ausente — mas o registro durvel
+subestimava a compressao real pela metade e exagerava o acidente em mais de duas vezes. O documento voltou a **104 pp**,
+que e o estado honesto.
 
-A paridade de alegacao tambem quebrou nos mesmos dois lugares, ou seja, o dano era simetrico e nenhum
-idioma podia denunciar o outro.
+A paridade de alegacao tambem quebrou nos mesmos dois lugares, ou seja, o dano era simetrico e nenhum idioma podia
+denunciar o outro.
 
-**Nenhum gate pegou porque e uma classe nova:** o detector de prosa presa procura texto preso depois do
-ultimo `%`; aqui nao ha nada preso, a clausula simplesmente nao existe, e o build fica limpo. A persona
-03 achou porque leu o front matter **como prosa renderizada**, nao como fonte. Novo gate:
+**Nenhum gate pegou porque e uma classe nova:** o detector de prosa presa procura texto preso depois do ultimo `%`; aqui
+nao ha nada preso, a clausula simplesmente nao existe, e o build fica limpo. A persona 03 achou porque leu o front
+matter **como prosa renderizada**, nao como fonte. Novo gate:
 `src_utils/check_torn_sentences.py`, com a regra que ela propos, validado nos dois sentidos.
 
 > **Sobre a p. 4 quase em branco:** ela voltou. Fechar de verdade exige cortar ~60 palavras do Resumo
 > com o Abstract em paridade, que e a rota (i) e continua sendo sua. A persona 17 esta avaliando o par
 > contra os exemplares; vale decidir com o parecer dela em maos.
 
-> DECISAO: __________________________________________________
+> DECISAO: No review acima ei decidir por cotar e refazer boa parte do abstract/resumo.
 
 ---
 
 ## BLOCO 0f — a sua pergunta: falta definir em detalhe o Check2HGI e o MTLnet?
 
-**Sua pergunta:** *"em nenhum momento do mobiwac ou de outro artigos nos definimos em detalhes como e
-o check2hgi ou ate mesmo o MTLnet, falamos da arquitetura ou mostramos codigo, sera que isso e algo que
-falta?"*
+**Sua pergunta:** *"em nenhum momento do mobiwac ou de outro artigos nos definimos em detalhes como e o check2hgi ou ate
+mesmo o MTLnet, falamos da arquitetura ou mostramos codigo, sera que isso e algo que falta?"*
 
 Medi antes de opinar, e rodei a persona 12 (banca) so nisso. Parecer completo em
 [`_review_v3/12_banca_architecture_detail.md`](_review_v3/12_banca_architecture_detail.md).
 
 ### A parte da sua intuicao que a medicao **confirma**
 
-O documento inteiro, 104 paginas, tem **sete equacoes**, **zero ambientes de algoritmo** e sete
-figuras. Por capitulo: Cap. 3 duas, Cap. 4 quatro, **Cap. 5 uma** (a perda 0,75/0,25). Caps. 1, 2, 6 e
-os cinco apendices: nenhuma.
+O documento inteiro, 104 paginas, tem **sete equacoes**, **zero ambientes de algoritmo** e sete figuras. Por capitulo:
+Cap. 3 duas, Cap. 4 quatro, **Cap. 5 uma** (a perda 0,75/0,25). Caps. 1, 2, 6 e os cinco apendices: nenhuma.
 
 Contra os exemplares, estamos na ponta baixa nos dois eixos:
 
-| Dissertacao | pp. | equacoes numeradas | algoritmos | figuras |
-|---|---:|---:|---:|---:|
-| Germano 2024 (mesmo orientador) | 96 | **35** | 0 | 11 |
-| Viegas 2026 (aprovada, mesmo padrao) | 100 | 3 + 1 | **2** | 15 |
-| Canesche 2021 | 108 | 0 | 1 | 57 |
-| Passe 2020 | 68 | 1 | 0 | 33 |
-| Dorigueto | 77 | 0 | 0 | 11 |
-| **nossa** | **104** | **7** | **0** | **7** |
+| Dissertacao                          |     pp. | equacoes numeradas | algoritmos | figuras |
+|--------------------------------------|--------:|-------------------:|-----------:|--------:|
+| Germano 2024 (mesmo orientador)      |      96 |             **35** |          0 |      11 |
+| Viegas 2026 (aprovada, mesmo padrao) |     100 |              3 + 1 |      **2** |      15 |
+| Canesche 2021                        |     108 |                  0 |          1 |      57 |
+| Passe 2020                           |      68 |                  1 |          0 |      33 |
+| Dorigueto                            |      77 |                  0 |          0 |      11 |
+| **nossa**                            | **104** |              **7** |      **0** |   **7** |
 
 ### CORRECAO (2026-07-28): eu medi o MTLnet errado
 
-Voce esclareceu: o MTLnet a que voce se refere e a **arquitetura conjunta do MobiWac**, que voce chama
-assim porque e a **versao 2** do modelo do CoUrb — o modelo do CoUrb foi a base do atual. Eu medi o
-MTLnet do **Cap. 3** (CBIC). Refiz.
+Voce esclareceu: o MTLnet a que voce se refere e a **arquitetura conjunta do MobiWac**, que voce chama assim porque e a
+**versao 2** do modelo do CoUrb — o modelo do CoUrb foi a base do atual. Eu medi o MTLnet do **Cap. 3** (CBIC). Refiz.
 
 **Confirmei sua nomenclatura no codigo antes de reescrever isto.** Nao e informal: em
 `src/models/mtl/` **todas** as variantes sao irmas da mesma familia `mtlnet_*`
-(`mtlnet_crossattn`, `mtlnet_crossattn_dualtower`, `mtlnet_ple`, `mtlnet_mmoe`, ...), e o modelo que
-produziu os resultados do MobiWac e `mtlnet_crossattn_dualtower` — que aparece **6 vezes** em
-`docs/results/closing_data/`, mais que qualquer outra variante. O docstring dele descreve exatamente o
-que o Cap. 5 narra: torre privada para a regiao, pilha de cross-attention bidirecional, categoria usando
-so o tronco compartilhado. **O codigo chama de MTLnet, voce chama de MTLnet, e o texto nao.**
+(`mtlnet_crossattn`, `mtlnet_crossattn_dualtower`, `mtlnet_ple`, `mtlnet_mmoe`, ...), e o modelo que produziu os
+resultados do MobiWac e `mtlnet_crossattn_dualtower` — que aparece **6 vezes** em
+`docs/results/closing_data/`, mais que qualquer outra variante. O docstring dele descreve exatamente o que o Cap. 5
+narra: torre privada para a regiao, pilha de cross-attention bidirecional, categoria usando so o tronco compartilhado.
+**O codigo chama de MTLnet, voce chama de MTLnet, e o texto nao.**
 
 A medicao corrigida, com cada modelo no seu lugar:
 
-| Componente | Palavras | Equacoes | Figura |
-|---|---:|---:|---:|
-| MTLnet v1, o modelo do CBIC (Cap. 3, §3.3.2) | 469 | 1 | 1 |
-| ST-MTLNet, a metodologia do CoUrb (Cap. 4) | 2027 | 4 | 1 |
-| **o modelo conjunto = MTLnet v2 (Cap. 5, §5.4.2)** | **442** | **1** | **1** |
-| **Check2HGI, a representacao (Cap. 5, §5.4.1)** | **244** | **0** | **0** |
+| Componente                                         | Palavras | Equacoes | Figura |
+|----------------------------------------------------|---------:|---------:|-------:|
+| MTLnet v1, o modelo do CBIC (Cap. 3, §3.3.2)       |      469 |        1 |      1 |
+| ST-MTLNet, a metodologia do CoUrb (Cap. 4)         |     2027 |        4 |      1 |
+| **o modelo conjunto = MTLnet v2 (Cap. 5, §5.4.2)** |  **442** |    **1** |  **1** |
+| **Check2HGI, a representacao (Cap. 5, §5.4.1)**    |  **244** |    **0** |  **0** |
 
 **O que muda na conclusao, e o que nao muda.**
 
-O que **nao** muda: o Check2HGI segue sendo o ponto mais fino do documento — 244 palavras, zero
-equacoes, zero figura propria. A pergunta de banca que eu citei continua sendo a que eu abriria.
+O que **nao** muda: o Check2HGI segue sendo o ponto mais fino do documento — 244 palavras, zero equacoes, zero figura
+propria. A pergunta de banca que eu citei continua sendo a que eu abriria.
 
-O que **muda**: eu havia escrito "o MTLnet nao e o problema" apontando para as 469 palavras do Cap. 3.
-Isso estava fora de escopo. O modelo que **importa para a sua tese** — o conjunto, o resultado do
-documento — tem **442 palavras e uma equacao**, e essa equacao e a **perda** (0,75/0,25), nao a
-arquitetura. Ele descreve em prosa a cross-attention, os encoders privados, o caminho espacial privado e
-as contagens de parametros (4,2 M contra 1,1 M em Alabama), mas **nao formaliza nenhum deles**: nao ha
-equacao de atencao, nao ha as dimensoes por bloco, nao ha o numero de cabecas, e "duas blocos" e a unica
-informacao de profundidade.
+O que **muda**: eu havia escrito "o MTLnet nao e o problema" apontando para as 469 palavras do Cap. 3. Isso estava fora
+de escopo. O modelo que **importa para a sua tese** — o conjunto, o resultado do documento — tem **442 palavras e uma
+equacao**, e essa equacao e a **perda** (0,75/0,25), nao a arquitetura. Ele descreve em prosa a cross-attention, os
+encoders privados, o caminho espacial privado e as contagens de parametros (4,2 M contra 1,1 M em Alabama), mas **nao
+formaliza nenhum deles**: nao ha equacao de atencao, nao ha as dimensoes por bloco, nao ha o numero de cabecas, e "duas
+blocos" e a unica informacao de profundidade.
 
-**E ha uma lacuna de continuidade que eu nao tinha visto.** O Cap. 5 diz que o Cap. 4 "manteve a
-arquitetura do MTLnet inalterada" (§5.2.1), e depois apresenta o modelo conjunto **sem dizer que ele
-descende dela**. Procurei: nenhuma frase em nenhum capitulo liga o modelo conjunto ao MTLnet/ST-MTLNet
-como ancestral. A tabela de linhagem (`tab:fund:lineage`) lista os seis em sequencia — DGI, HGI, MTLnet,
-ST-MTLNet, Check2HGI, "Joint model" — mas descreve o ultimo apenas como "Cross-attention model on
-Check2HGI", sem parentesco. **Para um leitor, o modelo conjunto aparece do nada no Cap. 5.** Isso enfraquece
-justamente o arco que a dissertacao vende: tres artigos, uma progressao. Se ele e a versao 2, o texto
+**E ha uma lacuna de continuidade que eu nao tinha visto.** O Cap. 5 diz que o Cap. 4 "manteve a arquitetura do MTLnet
+inalterada" (§5.2.1), e depois apresenta o modelo conjunto **sem dizer que ele descende dela**. Procurei: nenhuma frase
+em nenhum capitulo liga o modelo conjunto ao MTLnet/ST-MTLNet como ancestral. A tabela de linhagem (`tab:fund:lineage`)
+lista os seis em sequencia — DGI, HGI, MTLnet, ST-MTLNet, Check2HGI, "Joint model" — mas descreve o ultimo apenas como
+"Cross-attention model on Check2HGI", sem parentesco. **Para um leitor, o modelo conjunto aparece do nada no Cap. 5.**
+Isso enfraquece justamente o arco que a dissertacao vende: tres artigos, uma progressao. Se ele e a versao 2, o texto
 deveria dizer.
 
 ### Sobre codigo: **nao falta, e nao adicione**
 
-Verifiquei os cinco exemplares e o `UFV_COMPLIANCE.md`. **Nenhum** exemplar tem apendice de codigo, e a
-norma **nao exige** nada disso. Nos ja temos tres links de codigo no texto (um deles fixado em branch
-para o Cap. 5) mais as fontes de dados. Nesse eixo estamos acima da pratica local. Apendice de codigo
-ou pseudocodigo seria over-correction.
+Verifiquei os cinco exemplares e o `UFV_COMPLIANCE.md`. **Nenhum** exemplar tem apendice de codigo, e a norma **nao
+exige** nada disso. Nos ja temos tres links de codigo no texto (um deles fixado em branch para o Cap. 5) mais as fontes
+de dados. Nesse eixo estamos acima da pratica local. Apendice de codigo ou pseudocodigo seria over-correction.
 
 ### ~~A duvida das ponderacoes da perda~~ — RESOLVIDA no codigo
 
-O parecer marcou `[VERIFY]`: o Cap. 5 diz "termos auxiliares com pesos **0,3 e 0,1**" e o explicador do
-repo diz **0,4 / 0,3 / 0,3**. Fui ao codigo (`research/embeddings/check2hgi/check2hgi.py`):
+O parecer marcou `[VERIFY]`: o Cap. 5 diz "termos auxiliares com pesos **0,3 e 0,1**" e o explicador do repo diz **0,4 /
+0,3 / 0,3**. Fui ao codigo (`research/embeddings/check2hgi/check2hgi.py`):
 
-- `--alpha_c2p 0.4`, `--alpha_p2r 0.3`, `--alpha_r2c 0.3` (linhas 1001-1003) — os tres termos infomax,
-  um por fronteira da hierarquia;
+- `--alpha_c2p 0.4`, `--alpha_p2r 0.3`, `--alpha_r2c 0.3` (linhas 1001-1003) — os tres termos infomax, um por fronteira
+  da hierarquia;
 - `--mae-poi-lambda 0.3`, `--anchor-lambda 0.1` (linhas 477-478) — os dois auxiliares.
 
-**Nao ha contradicao: sao duas decomposicoes diferentes, as duas corretas.** O Cap. 5 esta certo, mas
-reporta **so metade** da perda — os auxiliares, nao os principais. E precisamente por nao haver equacao
-que isso nao da para conferir no documento.
+**Nao ha contradicao: sao duas decomposicoes diferentes, as duas corretas.** O Cap. 5 esta certo, mas reporta **so
+metade** da perda — os auxiliares, nao os principais. E precisamente por nao haver equacao que isso nao da para conferir
+no documento.
 
 ### O que eu recomendo, revisado depois da sua correcao
 
-A persona 12 propos ~4 paginas contando so o Check2HGI. Com o modelo conjunto no escopo correto, sao
-tres itens, todos aditivos, nenhum tocando resultado reproduzido:
+A persona 12 propos ~4 paginas contando so o Check2HGI. Com o modelo conjunto no escopo correto, sao tres itens, todos
+aditivos, nenhum tocando resultado reproduzido:
 
-1. **Nomear a linhagem, em duas frases.** Se o modelo conjunto e a versao 2 do modelo do CoUrb, o texto
-   precisa dizer. Uma frase em §5.4.2 ("o modelo conjunto mantem os encoders por tarefa e o esqueleto do
-   MTLnet do Cap. 4, substituindo o compartilhamento duro por uma pilha de cross-attention") e uma coluna
-   ou clausula na tabela de linhagem. **Custo: duas frases.** E o item de maior retorno dos tres, porque
-   e o que faz os tres artigos lerem como progressao em vez de tres modelos soltos — e e exatamente o que
-   a banca vai perguntar quando vir "MTLnet" no Cap. 3 e "the joint model" no Cap. 5.
-2. **A equacao da perda do Check2HGI em §5.4.1** (~1/3 de pagina), como quarta adicao marcada do Cap. 5.
-   Material pronto em `docs/context/check2hgi_overview.tex:211-231`, em portugues.
-3. **Um apendice F** (~2 paginas) com os quatro niveis do Check2HGI e, agora tambem, a formalizacao do
-   bloco de cross-attention do modelo conjunto: dimensoes, numero de cabecas, profundidade. Hoje o texto
-   diz "dois blocos" e nada mais.
+1. **Nomear a linhagem, em duas frases.** Se o modelo conjunto e a versao 2 do modelo do CoUrb, o texto precisa dizer.
+   Uma frase em §5.4.2 ("o modelo conjunto mantem os encoders por tarefa e o esqueleto do MTLnet do Cap. 4, substituindo
+   o compartilhamento duro por uma pilha de cross-attention") e uma coluna ou clausula na tabela de linhagem. **Custo:
+   duas frases.** E o item de maior retorno dos tres, porque e o que faz os tres artigos lerem como progressao em vez de
+   tres modelos soltos — e e exatamente o que a banca vai perguntar quando vir "MTLnet" no Cap. 3 e "the joint model" no
+   Cap. 5.
+2. **A equacao da perda do Check2HGI em §5.4.1** (~1/3 de pagina), como quarta adicao marcada do Cap. 5. Material pronto
+   em `docs/context/check2hgi_overview.tex:211-231`, em portugues.
+3. **Um apendice F** (~2 paginas) com os quatro niveis do Check2HGI e, agora tambem, a formalizacao do bloco de
+   cross-attention do modelo conjunto: dimensoes, numero de cabecas, profundidade. Hoje o texto diz "dois blocos" e nada
+   mais.
 
-**Eu recomendo os tres, nessa ordem.** O (1) e quase gratuito e conserta o arco; o (2) responde a
-pergunta que eu abriria; o (3) e o que um leitor precisa para reimplementar.
+**Eu recomendo os tres, nessa ordem.** O (1) e quase gratuito e conserta o arco; o (2) responde a pergunta que eu
+abriria; o (3) e o que um leitor precisa para reimplementar.
 
 **UM CONFLITO DE REGRA QUE EU DEVIA TER LEVANTADO ANTES, e que e decisao sua.** O
-`AGENT_GUARDRAILS.md` §7, linha da "Padding", diz: *"every section must earn its pages; the Viegas
-example is ~100 pages total — that is the calibration, not a target to exceed."* **O build ja esta em
-104 paginas**, quatro acima da calibragem, e a regra nao abre excecao para material nao-redundante. Somar
-~4 paginas levaria a ~108 — exatamente o Canesche, o mais longo dos cinco exemplares, e acima dos outros
-quatro (Germano 96, Viegas 100, Dorigueto 77, Passe 68).
+`AGENT_GUARDRAILS.md` §7, linha da "Padding", diz: *"every section must earn its pages; the Viegas example is ~100 pages
+total — that is the calibration, not a target to exceed."* **O build ja esta em 104 paginas**, quatro acima da
+calibragem, e a regra nao abre excecao para material nao-redundante. Somar
+~4 paginas levaria a ~108 — exatamente o Canesche, o mais longo dos cinco exemplares, e acima dos outros quatro (Germano
+96, Viegas 100, Dorigueto 77, Passe 68).
 
 Nao me cabe reinterpretar a sua regra, entao registro a troca:
 
-- **Se voce mantem a calibragem como escrita:** os itens (1) e (2) somam **menos de meia pagina** e cabem
-  sem discussao. O (3) teria de encolher para uma pagina apertada, ou sair em troca de um corte
-  equivalente em outro lugar — a persona 17 ja indicou ~250 palavras cortaveis no Resumo.
-- **Se voce abre excecao:** o argumento a favor e que este e precisamente o material para o qual a
-  moldura de uma coletanea existe — o relato do autor sobre o proprio artefato, que nenhum capitulo
-  reproduzido tem permissao de fornecer.
+- **Se voce mantem a calibragem como escrita:** os itens (1) e (2) somam **menos de meia pagina** e cabem sem discussao.
+  O (3) teria de encolher para uma pagina apertada, ou sair em troca de um corte equivalente em outro lugar — a persona
+  17 ja indicou ~250 palavras cortaveis no Resumo.
+- **Se voce abre excecao:** o argumento a favor e que este e precisamente o material para o qual a moldura de uma
+  coletanea existe — o relato do autor sobre o proprio artefato, que nenhum capitulo reproduzido tem permissao de
+  fornecer.
 
-De qualquer forma, o gap nao fica sem resposta: (1) e (2) sozinhos respondem a pergunta de banca mais
-afiada e consertam o arco.
+De qualquer forma, o gap nao fica sem resposta: (1) e (2) sozinhos respondem a pergunta de banca mais afiada e consertam
+o arco.
 
 > DECISAO (1, 2, 3 / so 1 e 2 / nenhum): __________________________________________________
 
@@ -408,63 +396,58 @@ afiada e consertam o arco.
 >    (`_dualtower_catpriv`) marcada como ablacao. Confirme que `_dualtower` e a de record antes de eu
 >    escrever dimensoes ou profundidade — nao vou inferir arquitetura de nome de arquivo.
 
-
 ## BLOCO 0b — o que o orientador levantou (2026-07-27)
 
 ### ~~Notacao das citacoes: (N) -> [N]~~ — APLICADO 2026-07-27
 
-Palavras dele: *"sugiro mudar a notacao das citacoes tambem. Esta com (NUMERO) e na listagem esta com o
-numero sem []. Acho melhor usar o [NUMERO] e quando necessario, colocar o nome dos autores com et al."*
+Palavras dele: *"sugiro mudar a notacao das citacoes tambem. Esta com (NUMERO) e na listagem esta com o numero sem [].
+Acho melhor usar o [NUMERO] e quando necessario, colocar o nome dos autores com et al."*
 
-**Medido antes de mexer:** 236 citacoes no formato `(N)` no texto, zero em `[N]`, e a listagem com o
-numero pelado (`1 SILVA, V. H. O. et al. ...`). Ele estava certo nas duas metades, e as duas metades
-tinham causas diferentes:
+**Medido antes de mexer:** 236 citacoes no formato `(N)` no texto, zero em `[N]`, e a listagem com o numero pelado
+(`1 SILVA, V. H. O. et al. ...`). Ele estava certo nas duas metades, e as duas metades tinham causas diferentes:
 
-| Onde | Mecanismo | Correcao |
-|---|---|---|
-| no texto | `abntex2cite` chama `\setcitebrackets`, que no estilo `num` usa `()` | `\citebrackets{[}{]}` depois do pacote |
+| Onde        | Mecanismo                                                                    | Correcao                                             |
+|-------------|------------------------------------------------------------------------------|------------------------------------------------------|
+| no texto    | `abntex2cite` chama `\setcitebrackets`, que no estilo `num` usa `()`         | `\citebrackets{[}{]}` depois do pacote               |
 | na listagem | `\@biblabel` monta o rotulo via `\citenumstyle`, que imprime o numero pelado | `\@biblabel` redefinido dentro de `\AtBeginDocument` |
 
-**Resultado:** 334 citacoes `[N]` no texto e a listagem em `[1] SILVA, V. H. O. et al. ...`, as duas na
-mesma forma. Paginas inalteradas (103/99), zero referencias indefinidas. As duas ocorrencias residuais
-de `(N)` sao legitimas: um numero de volume de revista e uma referencia a "capitulo (4)".
+**Resultado:** 334 citacoes `[N]` no texto e a listagem em `[1] SILVA, V. H. O. et al. ...`, as duas na mesma forma.
+Paginas inalteradas (103/99), zero referencias indefinidas. As duas ocorrencias residuais de `(N)` sao legitimas: um
+numero de volume de revista e uma referencia a "capitulo (4)".
 
-**Precedente, porque isso e escolha de estilo e nao norma:** o Viegas — o exemplar cujo padrao este
-documento segue — usa `[N]` (193 ocorrencias contra 15 de `(N)`); Germano, canesche, passe e lapsusvgi
-usam `(N)`. Ou seja, os dois formatos passaram no programa. A decisao e dele e esta aplicada.
+**Precedente, porque isso e escolha de estilo e nao norma:** o Viegas — o exemplar cujo padrao este documento segue —
+usa `[N]` (193 ocorrencias contra 15 de `(N)`); Germano, canesche, passe e lapsusvgi usam `(N)`. Ou seja, os dois
+formatos passaram no programa. A decisao e dele e esta aplicada.
 
-**A segunda metade do pedido dele ainda e sua:** *"quando necessario, colocar o nome dos autores com et
-al."* Isso e caso a caso — trocar `\cite{}` por `\citeonline{}` onde o autor deve aparecer no corpo da
-frase ("Silva et al. mostram que...") em vez de so o numero. Nao fiz em lote porque **muda o sujeito
-gramatical de cada frase afetada**, e escolher onde o autor merece destaque e julgamento seu. Diga
-quais passagens e eu aplico.
+**A segunda metade do pedido dele ainda e sua:** *"quando necessario, colocar o nome dos autores com et al."* Isso e
+caso a caso — trocar `\cite{}` por `\citeonline{}` onde o autor deve aparecer no corpo da frase ("Silva et al. mostram
+que...") em vez de so o numero. Nao fiz em lote porque **muda o sujeito gramatical de cada frase afetada**, e escolher
+onde o autor merece destaque e julgamento seu. Diga quais passagens e eu aplico.
 
 > DECISAO (quais passagens levam `\citeonline`?): _______________________________________
 
 ### 3.4 O jeito como os termos entram (o segundo ponto dele) — **revisao rodando**
 
-Palavras dele: *"so tome cuidado com o uso de IA e os termos menos comuns que sao usados... soa um pouco
-estranho o jeito que alguns termos sao inseridos (marquei alguns la)"*.
+Palavras dele: *"so tome cuidado com o uso de IA e os termos menos comuns que sao usados... soa um pouco estranho o
+jeito que alguns termos sao inseridos (marquei alguns la)"*.
 
-**Voce perguntou se rodamos o revisor disso. A resposta honesta e: rodei agora, e havia um buraco
-real.** A persona **03 (style auditor)** e o gate G3, obrigatorio antes de cada entrega ao orientador.
-O relatorio v2 dela e de **26/07 contra um build de 94 paginas** — o documento tem 103 hoje e levou
-umas trinta commits desde entao.
+**Voce perguntou se rodamos o revisor disso. A resposta honesta e: rodei agora, e havia um buraco real.** A persona
+**03 (style auditor)** e o gate G3, obrigatorio antes de cada entrega ao orientador. O relatorio v2 dela e de **26/07
+contra um build de 94 paginas** — o documento tem 103 hoje e levou umas trinta commits desde entao.
 
-**Pior, e este e o ponto que voce levantou sobre o glossario do MobiWac:** o brief dela, na linha 27,
-manda ler `articles/[mobiwac]/GLOSSARY.md` e diz que **ele vence para o Cap. 5**. O relatorio v2 tem
-**zero** referencias a esse arquivo. Aquele glossario tem 393 linhas, com uma tabela de 26 linhas de
-substituicao de jargao e uma secao de palavras a evitar. **Nao foi aplicado.**
+**Pior, e este e o ponto que voce levantou sobre o glossario do MobiWac:** o brief dela, na linha 27, manda ler
+`articles/[mobiwac]/GLOSSARY.md` e diz que **ele vence para o Cap. 5**. O relatorio v2 tem **zero** referencias a esse
+arquivo. Aquele glossario tem 393 linhas, com uma tabela de 26 linhas de substituicao de jargao e uma secao de palavras
+a evitar. **Nao foi aplicado.**
 
-**Uma violacao eu ja achei e corrigi:** a palavra **"arm"** esta na lista never-use dele ("clinical-trial
-word, foreign to this audience") e **eu mesmo a inseri** na frase de limitacoes do Cap. 5 nesta rodada.
-Corrigida para "both models" / "the dedicated model" nos **dois** textos, porque o meu port tinha levado
-a violacao para o artigo tambem.
+**Uma violacao eu ja achei e corrigi:** a palavra **"arm"** esta na lista never-use dele ("clinical-trial word, foreign
+to this audience") e **eu mesmo a inseri** na frase de limitacoes do Cap. 5 nesta rodada. Corrigida para "both models" /
+"the dedicated model" nos **dois** textos, porque o meu port tinha levado a violacao para o artigo tambem.
 
-A persona 03 esta rodando agora com o glossario do MobiWac como carga explicita, mais o pedido dele
-operacionalizado em cinco testes mediveis (termo usado antes de ser definido; definido duas vezes; glosa
-em registro que briga com a frase; termo usado uma unica vez no documento; empilhamento de glosas
-apositivas). Resultado em `_review_v3/03_style_auditor_report.md`.
+A persona 03 esta rodando agora com o glossario do MobiWac como carga explicita, mais o pedido dele operacionalizado em
+cinco testes mediveis (termo usado antes de ser definido; definido duas vezes; glosa em registro que briga com a frase;
+termo usado uma unica vez no documento; empilhamento de glosas apositivas). Resultado em
+`_review_v3/03_style_auditor_report.md`.
 
 > **Falta voce:** ele disse *"marquei alguns la"*. Onde estao as marcacoes? Num PDF comentado, num
 > e-mail, no Word? Com a lista dele em maos eu cruzo com o que a persona achou e trato os dois.
@@ -587,6 +570,7 @@ e verificados.
 > DECISAO (aviso ao co-autor dado? forma: Apendice B ou apendice proprio?): Isso já está de acrodo com ele, podemos
 > adicionar isso no appendix B, mas deixe isso facil de ser comentado, vide que eu ainda vou discutir com meu orientador
 > sobre se argumentamos ou não quanto a isso.
+> 
 
 ### 1b.4 O determinismo da categoria agora esta medido nos CINCO estados (persona 11)
 
@@ -668,24 +652,24 @@ ultimas edicoes garante retrabalho.
 
 ### 3.1 Os 32 marcadores `[NEEDS SIGN-OFF]`
 
-Voce pediu a lista. Os 32 marcadores em 10 arquivos, todos comentarios LaTeX (**nenhum renderiza**, entao nao ha
-sujeira no PDF). O risco nao e visual: e que o **Apendice C afirma** que o autor leu e aprovou cada palavra, enquanto o
-proprio apendice esta marcado como nao aprovado. Voce ja decidiu manter o Apendice C como esta, o que torna esta lista o
-caminho para tornar a afirmacao verdadeira.
+Voce pediu a lista. Os 32 marcadores em 10 arquivos, todos comentarios LaTeX (**nenhum renderiza**, entao nao ha sujeira
+no PDF). O risco nao e visual: e que o **Apendice C afirma** que o autor leu e aprovou cada palavra, enquanto o proprio
+apendice esta marcado como nao aprovado. Voce ja decidiu manter o Apendice C como esta, o que torna esta lista o caminho
+para tornar a afirmacao verdadeira.
 
-| Arquivo | Marcadores | Nota |
-|---|---|---|
-| `0_main.tex` | 6 | Resumo e Abstract: **par de paridade** |
-| `chapters/5_mobiwac.tex` | 6 | Prefacio, recap, figura, atribuicao, clausula do F50, o piso de Markov |
-| `chapters/6_conclusion.tex` | 6 | Escopos de alegacao, clausula do F50, contagem do controle de capacidade |
-| `chapters/apx_a_contributions.tex` | 4 | Apendice inteiro; a §A.2 foi removida nesta rodada |
-| `chapters/apx_b_errata.tex` | 3 | Apendice inteiro, errata de grafia, errata do Mikolov, errata do DGI |
-| `chapters/1_introduction.tex` | 2 | Correcao de gate L3, unidade inferencial |
-| `chapters/2_fundamentals.tex` | 2 | Escopo dos 93% do Song, de-duplicacao L3, descricao do CAGrad |
-| `chapters/apx_c_ai_disclosure.tex` | 1 | Apendice inteiro (COD-013: ele afirma que voce leu cada palavra) |
-| `chapters/apx_d_ceiling.tex` | 1 | Apendice reescrito (label-history benchmark) |
-| `chapters/apx_e_ethics.tex` | 1 | **Apendice novo**: afirmacoes institucionais em seu nome |
-| **TOTAL** | **32** | medido em 2026-07-27 apos a extracao das tabelas |
+| Arquivo                            | Marcadores | Nota                                                                     |
+|------------------------------------|------------|--------------------------------------------------------------------------|
+| `0_main.tex`                       | 6          | Resumo e Abstract: **par de paridade**                                   |
+| `chapters/5_mobiwac.tex`           | 6          | Prefacio, recap, figura, atribuicao, clausula do F50, o piso de Markov   |
+| `chapters/6_conclusion.tex`        | 6          | Escopos de alegacao, clausula do F50, contagem do controle de capacidade |
+| `chapters/apx_a_contributions.tex` | 4          | Apendice inteiro; a §A.2 foi removida nesta rodada                       |
+| `chapters/apx_b_errata.tex`        | 3          | Apendice inteiro, errata de grafia, errata do Mikolov, errata do DGI     |
+| `chapters/1_introduction.tex`      | 2          | Correcao de gate L3, unidade inferencial                                 |
+| `chapters/2_fundamentals.tex`      | 2          | Escopo dos 93% do Song, de-duplicacao L3, descricao do CAGrad            |
+| `chapters/apx_c_ai_disclosure.tex` | 1          | Apendice inteiro (COD-013: ele afirma que voce leu cada palavra)         |
+| `chapters/apx_d_ceiling.tex`       | 1          | Apendice reescrito (label-history benchmark)                             |
+| `chapters/apx_e_ethics.tex`        | 1          | **Apendice novo**: afirmacoes institucionais em seu nome                 |
+| **TOTAL**                          | **32**     | medido em 2026-07-27 apos a extracao das tabelas                         |
 
 **Regra que nao da para contornar:** os 6 do `0_main.tex` sao **um par**. Resumo e Abstract carregam as mesmas
 alegacoes, e aprovar um sem o outro quebra a paridade. Leia os dois lado a lado.

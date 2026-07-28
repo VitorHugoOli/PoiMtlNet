@@ -33,8 +33,8 @@ folder. No chapter text goes to the author or advisor without passing its gates.
 - **v1 lives in [`src/`](src/)** — the single working copy; the draft folders (`storyline/`,
   `fundamentals/`) are **frozen** (freeze pointers in each). **One source, two builds** from a
   single `main.tex`: `make defense` → `build/main.pdf`, copied to
-  [`src/dissertacao.pdf`](src/dissertacao.pdf) (**104 pp**, full front matter, the banca PDF);
-  `make final` → `build/main_final.pdf` (**99 pp**, AcademicoPG body-only). 0 errors, 0 undefined
+  [`src/dissertacao.pdf`](src/dissertacao.pdf) (**108 pp**, full front matter, the banca PDF);
+  `make final` → `build/main_final.pdf` (**105 pp**, AcademicoPG body-only). 0 errors, 0 undefined
   refs/cites, 0 overfull hboxes, `make check` lint 0. (Page counts measured 2026-07-25 on a full
   three-pass build of the current source; the 87/83 and 89/84 figures in older notes predate the
   round-2 corrections.) Build recipe: [`src/src_utils/README_SRC.md`](src/src_utils/README_SRC.md).

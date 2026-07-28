@@ -19,7 +19,7 @@ No dissertation source, result, numerical value, citation, or claim was changed 
 >
 > **Two things to know before reading it.**
 >
-> First, this review read a 97/92-page pair. The builds on disk are **104/99 pages**. Every
+> First, this review read a 97/92-page pair. The builds on disk are **108/105 pages**. Every
 > `file:line` in this document has drifted, and the audit re-pinned each locus by content. The
 > findings mostly survive; the coordinates do not.
 >

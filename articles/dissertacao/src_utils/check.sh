@@ -98,6 +98,16 @@ echo "== torn sentences (a body line opening mid-sentence: the clause before it 
 # reintroduced.
 if ! python3 "$UTILS/check_torn_sentences.py"; then FAIL=1; fi
 
+echo "== doubled backslash before a reference macro (silent: no warning, undef_ref stays 0) =="
+# A THIRD silent class, found 2026-07-28 in 5_mobiwac.tex:789. Two cross-references written
+# "\\ref{...}" with a doubled backslash: LaTeX reads a line break followed by the literal text
+# "ref{tab:mobiwac:results}", so page 75 of the defense PDF printed the raw label to the reader.
+# INVISIBLE TO EVERY OTHER GATE: pdflatex raises nothing (both halves are legal), and undef_ref
+# stays at 0 because there is no reference to leave undefined -- every build report since the
+# defect landed said undef_ref=0, truthfully. Validated both ways against the real historical
+# file: 2 hits at 232befd5~1, 0 after the fix, and its own self-test runs before it reports.
+if ! python3 "$UTILS/check_doubled_macro.py"; then FAIL=1; fi
+
 echo "== prose trapped inside a % comment (silent: builds clean, reader sees a broken sentence) =="
 # Has happened twice: apx_a_contributions.tex, and 4_courb.tex:187 where half a PUBLISHED
 # methodology sentence was appended to a comment tail and three method facts stopped rendering.
