@@ -196,65 +196,65 @@ degree of \textit{Magister Scientiae}.}
     \textbf{From Representations to a Single Joint Model: Multi-Task Learning for Point-of-Interest Category and Region Prediction}. Orientador: Fabrício Aguiar Silva.
     \vspace{\onelineskip}
 
-    % [NEEDS SIGN-OFF] Resumo draft (2026-07-23): claim-parity pair with the Abstract
-    % below; drafted from chapters/1_introduction.tex + 6_conclusion.tex ONLY (no new
-    % claims, no new numbers). Structure per WRITING_LAW §5; PT terms per GLOSSARY §6;
-    % verbs bound to tests (supera / equipara-se). Headline number 5,3--9,4 macro-F1 =
-    % Ch.6 §6.1 (source: MobiWac results board via the chapter). Audit as a PAIR.
+    % [NEEDS SIGN-OFF: Resumo CUT, round 6, 2026-07-28] The pair was cut on the author's
+    % ruling that both blocks were too long. MEASURED on the rendered pages of the 105-page
+    % defense build, on one stated convention (catalog header and keyword block stripped;
+    % hyphenated compounds count as one word; sentence enders exclude decimals, initials and
+    % Sec./Fig./cf./e.g./i.e./et al.):
+    %   Resumo   p.3-4  500 words / 10 sentences / mean 50.0  ->  this text
+    %   Abstract p.5    423 words / 10 sentences / mean 42.3  ->  the block below
+    % The same instrument on the five defended dissertations in exemples/ gives the envelope
+    % this cut targets: 195-282 words, 6-12 sentences, mean 19.5-37.5 across all eight blocks
+    % (Resumos 233-282, Abstracts 195-250). Per-block numbers and the before/after are in
+    % src_utils/_round6/15_resumo_abstract.md, which also records which claim each cut
+    % sentence carried and where that claim still lives in the body.
+    % NOTHING ON THE CLAIM FLOOR WAS CUT: the question and its conditional answer, the
+    % three-study arc, both tasks, the next-place exclusion, the 5,3-9,4 range with its
+    % joint-best convention, four of six with TOST non-inferiority at the other two, and both
+    % data sources are all still here. Verbs stay bound to their tests (supera / equipara-se,
+    % GLOSSARY §4). Two claims were cut as NOT on the floor and are named in the report:
+    % the higher training cost of the first study (1_introduction.tex "cost more to train";
+    % 6_conclusion.tex, same phrase) and the task-pair evolution (1_introduction.tex "The task
+    % pair therefore evolved across the three studies"; 6_conclusion.tex "The task-pair
+    % confound"). "Transferencia negativa" as a named failure mode also leaves the Resumo; the
+    % mechanism survives as "compartilhar parametros pode prejudicar uma das tarefas", and the
+    % name is defined in 2_fundamentals.tex ("known as negative transfer").
+    % PT terms are GLOSSARY §6 entries only. "Modelos ajustados" for "fitted models" is still
+    % NOT in §6: proposed, pending the author's approval before it counts as canonical.
     \noindent Redes sociais baseadas em localização registram \emph{check-ins}: visitas
-    % [round5, persona 17 MAJOR-2] The pair read "proximo lugar visitado" / "next place visited",
-    % which collides with the RESERVED term "next place" that GLOSSARY.md keeps for the exact-POI task
-    % this dissertation does not study -- and the collision landed on p. 3, before the body's own
-    % disclaimer at 1_introduction.tex:57-59 reaches the reader on p. 14. Changed to the body's own
-    % safe phrasing (1_introduction.tex:53, "the category of the next visited place"): same meaning,
-    % no reserved term, no claim moved.
-    de um usuário a um ponto de interesse (POI) em um dado instante. Antecipar duas propriedades da próxima visita, a categoria do
-    próximo lugar a ser visitado e a região onde ela ocorrerá, permite que um serviço sensível à mobilidade
-    aja antes da visita, e as duas tarefas leem o mesmo histórico, de modo que um único modelo
-    poderia aprendê-las em conjunto por meio de aprendizado multitarefa (MTL). A promessa, contudo,
-    não é automática: compartilhar parâmetros entre tarefas pode prejudicar uma delas, um modo de falha conhecido como
-    transferência negativa, e se o treinamento conjunto ajuda esse par de tarefas de
-    previsão sobre POIs, e do que a resposta depende, era uma questão em aberto quando
-    esta pesquisa começou. Esta dissertação responde a essa pergunta ao longo de três
-    estudos, apresentados como uma coletânea de artigos na ordem em que aconteceram: um
-    resultado negativo, seu diagnóstico e sua resolução. O primeiro estudo construiu o
-    MTLnet, um modelo conjunto com uma representação (\emph{embedding}) em nível de POI
-    como entrada e compartilhamento rígido de parâmetros; o modelo conjunto não superou
-    de forma consistente os dois modelos dedicados (tarefa única) e custou mais para
-    treinar, um resultado nulo relatado como um achado. O segundo estudo manteve a
-    arquitetura fixa e substituiu apenas a entrada por codificadores espaciais,
-    temporais e categóricos decompostos; o desempenho na tarefa de categoria subiu de
-    forma acentuada em todos os estados testados, de modo que a representação de
-    entrada, e não a arquitetura de compartilhamento, era o gargalo naquele estágio da
-    pesquisa. O terceiro estudo moveu a representação para o nível do check-in, dando a
-    cada visita seu próprio vetor em vez de atribuir o mesmo vetor a todas as visitas a
-    um mesmo lugar, e redesenhou a topologia de compartilhamento em torno de um tronco
-    de atenção cruzada entre dois fluxos específicos por tarefa. Foi também o estudo que
-    introduziu a tarefa da próxima região; os dois primeiros pareavam a classificação de
-    categoria com a previsão da próxima categoria, de modo que o próprio par de tarefas
-    mudou ao longo da coletânea. Sob validação cruzada com usuários disjuntos entre treino e teste, com vinte modelos
-    ajustados por configuração (quatro inicializações aleatórias sobre um único conjunto fixo de
-    cinco partições), testes de significância pareados sobre as quatro médias por inicialização,
-    teste de não-inferioridade e uma auditoria de vazamento, esse modelo conjunto supera os modelos
-    dedicados na tarefa da próxima categoria nos seis conjuntos de dados estudados, cinco estados
-    dos Estados Unidos e Istambul, por 5,3 a 9,4 pontos de macro-F1 sob uma seleção
-    \emph{joint-best}, e, na tarefa da próxima região, supera em quatro dos seis conjuntos e
-    equipara-se estatisticamente, com não-inferioridade dentro de uma margem de dois pontos de
-    Acc@10 (TOST), nos outros dois. A resposta é, portanto,
-    condicional, e a condição é o achado: se o aprendizado multitarefa ajuda a previsão
-    sobre pontos de interesse depende da representação de entrada e da topologia de
+    de um usuário a um ponto de interesse (POI). Duas propriedades da próxima visita
+    merecem ser antecipadas, sua categoria e sua região, mas não o ponto de interesse
+    exato; as duas tarefas leem o mesmo histórico, portanto um único modelo poderia
+    aprendê-las em conjunto por aprendizado multitarefa (MTL). Compartilhar parâmetros
+    pode prejudicar uma das tarefas, e se o treinamento conjunto ajuda esse par, e do que
+    isso depende, permanecia em aberto quando esta pesquisa começou. Três estudos
+    respondem a essa pergunta. O primeiro construiu o MTLnet, um modelo conjunto com uma
+    representação (\emph{embedding}) em nível de POI e compartilhamento rígido de
+    parâmetros; ele não superou consistentemente os modelos dedicados (tarefa única). O
+    segundo substituiu apenas a entrada, por codificadores espaciais, temporais e
+    categóricos decompostos; o desempenho de categoria subiu acentuadamente em todos os
+    estados testados, logo o gargalo era a representação, e não a arquitetura. O terceiro
+    moveu a representação para o nível do check-in, dando a cada visita seu próprio
+    vetor, e redesenhou a topologia de compartilhamento em torno de um tronco de atenção
+    cruzada. Os seis conjuntos de dados são cinco estados dos Estados Unidos, do Gowalla,
+    e Istambul, do Massive-STEPS. Sob validação cruzada com usuários disjuntos entre
+    treino e teste, com vinte modelos ajustados por configuração, quatro inicializações
+    aleatórias sobre cinco partições fixas, e testes pareados sobre as quatro médias por
+    inicialização, esse modelo conjunto supera os modelos dedicados na previsão da próxima
+    categoria nos seis, por 5,3 a 9,4 pontos de macro-F1 sob uma seleção
+    \emph{joint-best}. Na previsão da próxima região, supera em quatro deles e
+    equipara-se estatisticamente, com não-inferioridade dentro de uma margem de dois
+    pontos de Acc@10 (TOST), nos outros dois. A resposta é, portanto, condicional: se o
+    aprendizado multitarefa ajuda depende da representação de entrada e da topologia de
     compartilhamento construída sobre ela.
-    % [NEEDS SIGN-OFF: par com o Abstract EN; caveats 2.1/3-4-5 do autor, 2026-07-24]
-    % 3: nomeada a metrica da margem (Acc@10). 4: nomeada a convencao joint-best do
-    % intervalo 5,3-9,4. 5: "determina se" -> "depende de" (o confundimento da Sec. 6.2).
-    % [NEEDS SIGN-OFF: REV-014, 2026-07-26] PAR DE PARIDADE Resumo <-> Abstract: "vinte
-    % repeticoes por configuracao (quatro inicializacoes aleatorias, cinco particoes)" ->
-    % "vinte modelos ajustados ... sobre um unico conjunto fixo de cinco particoes ...
-    % testes ... sobre as quatro medias por inicializacao". Fonte: GLOSSARY linhas
-    % "paired superiority test" e "n = 20 (fitted models) / n = 4 (inferential unit)";
-    % stats_n20/RESULTS.md:65-67; STATISTICAL_PROTOCOL.md:187-190. A traducao PT de
-    % "fitted models" ("modelos ajustados") NAO consta do GLOSSARY §6: entrada proposta,
-    % pendente de aprovacao do autor antes de valer como termo canonico.
+    % [round5, persona 17 MAJOR-2, still honored] "Proximo lugar visitado" is NOT used: it
+    % collides with the RESERVED term "next place" (GLOSSARY §1) for the exact-POI task this
+    % dissertation does not study. The exclusion is now stated positively in the second
+    % sentence ("mas nao o ponto de interesse exato"), which is the body's own claim
+    % (1_introduction.tex "The exact next place is not predicted anywhere in this work").
+    % [NEEDS SIGN-OFF: author caveats 2.1/3-4-5, 2026-07-24, carried through the cut]
+    % 3: the margin metric is named (Acc@10). 4: the joint-best convention behind 5,3-9,4 is
+    % named. 5: "determina se" stays "depende de" (the Sec. 6.2 confound forbids a causal verb).
 
     % [round5, author decision 3.3 option ii] Purely mechanical: keep the keyword block with the
     % Resumo it belongs to. It was breaking onto p.4 alone (14 words on an otherwise blank page).
@@ -295,57 +295,46 @@ degree of \textit{Magister Scientiae}.}
     \textbf{From Representations to a Single Joint Model: Multi-Task Learning for Point-of-Interest Category and Region Prediction}. Advisor: Fabrício Aguiar Silva.
     \vspace{\onelineskip}
 
-    % [NEEDS SIGN-OFF] Abstract draft (2026-07-23): claim-parity pair with the Resumo
-    % above; drafted from chapters/1_introduction.tex + 6_conclusion.tex ONLY (no new
-    % claims, no new numbers). Same claims, same numbers, same hedges as the Resumo;
-    % verbs bound to tests (outperforms / matches). Audit as a PAIR.
+    % [NEEDS SIGN-OFF: Abstract CUT, round 6, 2026-07-28] Cut as the claim-parity pair of the
+    % Resumo above (WRITING_LAW §6): same claims, same numbers, same hedges, sentence for
+    % sentence, and cut in the same pass so the two cannot drift. MEASURED on the rendered
+    % page, same convention as the Resumo comment: 423 words / 10 sentences / mean 42.3 before.
+    % Both blocks now carry eleven sentences that correspond one to one. Verbs stay bound to
+    % their tests: "outperforms" for the paired superiority test, "matches" only with TOST
+    % non-inferiority inside the two-point margin, and Arizona is not upgraded (GLOSSARY §4).
+    % Numbers quoted, not computed: 5.3 to 9.4 macro-F1 = the per-dataset category deltas of
+    % docs/studies/closing_data/v17_completion/stats_n20/RESULTS.md §1 (FL +5.34 the low end,
+    % AZ +9.40 the high end) as reported by 6_conclusion.tex; "four of them" = the four
+    % $^{\uparrow}$ rows of tables/mobiwac/results.tex (Istanbul, FL, TX, CA) against the two
+    % $^{\approx}$ rows (AL, AZ), which is the same count 6_conclusion.tex states.
     \noindent Location-based social networks record \emph{check-ins}: visits by a user
-    to a point of interest (POI) at a given time. Anticipating two properties of the
-    next visit, the category of the next visited place and the region where it will happen, lets a
-    mobility-aware service act before the visit, and the two tasks read the same trace, so one model
-    could learn them together through multi-task learning (MTL). The promise, however, is not
-    automatic: sharing parameters between tasks can hurt one of them, a failure mode known as
-    negative transfer, and whether joint training helps this pair of POI prediction
-    tasks, and what the answer depends on, was unresolved when this research started.
-    This dissertation answers that question across three studies, presented as a
-    collection of articles in chronological order: a negative result, its
-    diagnosis, and its resolution. The first study built MTLnet, a joint model with a
-    place-level embedding as input and hard parameter sharing; the joint model did not
-    consistently outperform the two dedicated single-task models and cost more to
-    train, a null result reported as a finding. The second study kept the architecture
-    fixed and replaced only the input with decomposed spatial, temporal, and
-    categorical encoders; category performance rose sharply in every state tested, so
-    the input representation, not the sharing architecture, was the bottleneck at that
-    stage of the research. The third study moved the representation to the check-in
-    level, giving each visit its own vector instead of assigning the same vector to
-    every visit to a place, and redesigned the sharing topology around a
-    cross-attention trunk between two task-specific streams. It is also the study that
-    introduced the next-region task; the first two paired category classification with
-    next-category prediction, so the task pair itself changed across the collection.
-    Under cross-validation with users disjoint between training and test, with twenty
-    fitted models per configuration (four random initializations over one fixed set of five folds),
-    paired significance tests on the four per-initialization means, non-inferiority testing, and a
-    leakage audit, this joint model outperforms the dedicated models on the next-category task at
-    all six datasets studied, five states of the United States and Istanbul, by 5.3 to 9.4 macro-F1
-    points under a joint-best selection, and, on the next-region task, outperforms at four of six
-    datasets and statistically matches, with non-inferiority within a two-point Acc@10 margin
-    (TOST), at the other two. The answer is therefore conditional, and the
-    condition is the finding: whether multi-task learning helps point-of-interest
-    prediction depends on the input representation and the sharing topology built on it.
-    % [NEEDS SIGN-OFF: abstract wording, author caveats 2.1/3-4-5, 2026-07-24]
-    % 3: named the non-inferiority margin metric (Acc@10). 4: named the joint-best
-    % convention behind the 5.3-9.4 range. 5: "determines whether" -> "depends on" (the
-    % confound in Sec. 6.2 -- representation, topology, task-pair moved together -- makes
-    % a hard causal verb overclaim). Claims/numbers unchanged. Adjust wording freely.
-    % [NEEDS SIGN-OFF: REV-014, 2026-07-26] CLAIM-PARITY PAIR Abstract <-> Resumo (both
-    % edited in the same pass): "twenty repetitions per configuration (four random
-    % initializations, five folds)" -> "twenty fitted models per configuration (four
-    % random initializations over one fixed set of five folds), paired significance tests
-    % on the four per-initialization means". The 20 fits stay visible; what is added is
-    % the inferential unit (n = 4). Sources: GLOSSARY rows "paired superiority test" and
-    % "n = 20 (fitted models) and n = 4 (inferential unit)";
-    % docs/studies/closing_data/v17_completion/stats_n20/RESULTS.md:65-67 (seed-level
-    % paired, n=4); .../STATISTICAL_PROTOCOL.md:187-190 (one fixed fold partition).
+    to a point of interest (POI). Two properties of the next visit are worth
+    anticipating, its category and its region, though not the exact next place; both
+    tasks read the same trace, so one model could learn them together through multi-task
+    learning (MTL). Sharing parameters can hurt one of the tasks, so whether joint
+    training helps this pair, and what that depends on, was unresolved when this research
+    started. Three studies answer that question. The first built MTLnet, a joint model
+    with a place-level embedding and hard parameter sharing; it did not consistently
+    outperform its dedicated single-task counterparts. The second replaced only the
+    input, with decomposed spatial, temporal, and categorical encoders; category
+    performance rose sharply in every state tested, so the bottleneck was the
+    representation, not the architecture. The third moved the representation to the
+    check-in level, giving each visit its own vector, and redesigned the sharing topology
+    around a cross-attention trunk. The six datasets are five states of the United States
+    from Gowalla and Istanbul from Massive-STEPS. Under user-disjoint cross-validation,
+    with twenty fitted models per configuration, four random initializations over five
+    fixed folds, and paired tests on the four initialization means, that joint model outperforms
+    the dedicated models on next category at all six, by 5.3 to 9.4 macro-F1 points under
+    a joint-best selection. On next region it outperforms at four of them and
+    statistically matches, with non-inferiority within a two-point Acc@10 margin (TOST),
+    at the other two. The answer is therefore conditional: whether multi-task learning
+    helps depends on the input representation and the sharing topology built on it.
+    % [NEEDS SIGN-OFF: author caveats 2.1/3-4-5, 2026-07-24, carried through the cut]
+    % 3: the non-inferiority margin metric is named (Acc@10). 4: the joint-best convention
+    % behind the 5.3-9.4 range is named. 5: "determines whether" stays "depends on", since the
+    % confound in Sec. 6.2 (representation, topology and task pair moved together) makes a hard
+    % causal verb an overclaim. What the cut dropped, and where each dropped claim still lives,
+    % is tabulated in src_utils/_round6/15_resumo_abstract.md; no floor claim was cut.
 
     % [round5, decision 3.3 option ii] Same guard as the Resumo block, for parity.
     \vspace{\onelineskip}
