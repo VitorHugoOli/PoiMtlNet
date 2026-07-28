@@ -1,6 +1,18 @@
 % frame/bib_errata.tex -- one table. Extraction provenance and verification: tables/README.md
 % [round5, author-reported] CONVERTED table -> longtable. This table is TALLER THAN THE TEXT BLOCK
 % longtable breaks across pages with a repeated header and continuation notices. All 16 rows, the
+% caption, the label and \small are preserved; only the container changed.
+% The {\small ... } GROUP is load-bearing and must stay: longtable is not a float, so \small cannot
+% be set inside the environment the way the sibling errata tables set it inside \begin{table}. The
+% opening brace was dropped by the tables/ reorganization (commit 6d780b58) while the closing brace
+% at the end of this file survived, leaving the file one brace short. From that commit to a880632b
+% every build raised "! Extra }, or forgotten \endgroup": `make` (-halt-on-error) produced no PDF at
+% all, while src_utils/build.sh (-interaction=nonstopmode) RECOVERED from the error and still wrote a
+% 104-page PDF, which is the PDF that was measured and committed. The two tools disagreed for six
+% commits and the one that was believed could not see the error; build.sh now reports tex_errors and
+% fails on them. The recovered PDF was not junk, which is why nothing looked wrong: its only defect
+% was this table rendering at the surrounding body size instead of \small. Restored 2026-07-28.
+{\small
 \begin{longtable}{@{}p{0.42\textwidth}p{0.52\textwidth}@{}}
 \caption{Bibliography errata: defects in entries inherited from the articles'
 reference lists and the corrections applied in the global bibliography. Keys in

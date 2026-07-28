@@ -20,15 +20,21 @@
 #     audited in place of the real one.
 #
 # The TeX font map must come from the user tree; without TEXMFVAR/TEXMFCONFIG set, pdflatex dies
-# with "Font t1xtt ... not found".
+# with "Font ntx-Regular-tlf-ot1r ... not found" (or t1xtt, depending on which face it reaches
+# first). That is NOT a missing font: the .tfm and .pfb are both in $TEXMFHOME. It is the font
+# MAP, which newtx writes into the usermode updmap output. The defaults below point at the
+# PERSISTENT tree under $TEXMFHOME rather than /tmp: a swept /tmp used to lose the map and
+# trigger a full updmap-user rebuild, and on this machine
+# `kpsewhich -var-value TEXMFVAR` reports an unreadable path, so it cannot be probed either.
+# Same values as src_utils/texenv.sh, which is what a human should source before `make`.
 set -u
 export PATH=/Library/TeX/texbin:$PATH
 export TEXMFHOME="${TEXMFHOME:-$HOME/Library/texmf}"
-export TEXMFVAR="${TEXMFVAR:-/tmp/texmfvar}"
-export TEXMFCONFIG="${TEXMFCONFIG:-/tmp/texmfconfig}"
+export TEXMFVAR="${TEXMFVAR:-$HOME/Library/texmf/.texmf-var}"
+export TEXMFCONFIG="${TEXMFCONFIG:-$HOME/Library/texmf/.texmf-config}"
 mkdir -p "$TEXMFVAR" "$TEXMFCONFIG"
-# Regenerate the user font map if it is missing (a swept /tmp loses it).
-if ! kpsewhich pdftex.map >/dev/null 2>&1 || ! grep -q "^t1xtt" "$TEXMFVAR/fonts/map/pdftex/updmap/pdftex.map" 2>/dev/null; then
+# Regenerate the user font map if it is missing.
+if ! kpsewhich pdftex.map >/dev/null 2>&1 || ! grep -q "^ntx-Regular" "$TEXMFVAR/fonts/map/pdftex/updmap/pdftex.map" 2>/dev/null; then
   updmap-user --quiet >/dev/null 2>&1 || true
 fi
 
@@ -97,6 +103,19 @@ for stem in built:
     # checker had certified the build clean four times. The log carried "Float too large for page
     # by 163.4335pt on input line 98" the whole time.
     bigfloat = re.findall(r"Float too large for page by ([\d.]+)pt on input line (\d+)", flat)
+    # TeX ERRORS, which this checker did not look for until 2026-07-28 and which is the worst
+    # miss in its history. Under -interaction=nonstopmode pdflatex RECOVERS from an error and
+    # still writes a PDF, so the "no PDF produced" branch above never fires. From commit
+    # 6d780b58 to a880632b the opening brace of the {\small ...} group in
+    # tables/frame/bib_errata.tex was missing; every build died with "! Extra }, or forgotten
+    # \endgroup", every build still emitted a 104-page PDF, and this script reported
+    # "pages=['104'] overfull_hbox=0 undef_cite=0 ... oversized_floats=0" for six consecutive
+    # commits. `make` catches it (it passes -halt-on-error and produces nothing), so the two
+    # tools disagreed and the one that was believed was the one that could not see the error.
+    # Errors are collected from BOTH the raw log (each "! ..." line) and the flattened log
+    # (the fatal notice wraps).
+    texerr = re.findall(r"^! .*", raw, re.M)
+    fatal = bool(re.search(r"Fatal error occurred", flat))
     blg = os.path.join(src, "build", stem + ".blg")
     bibe = []
     if os.path.exists(blg):
@@ -110,10 +129,18 @@ for stem in built:
                if len(re.findall(r"[A-Za-z]{2,}", doc[i].get_textpage().get_text_range())) < 120] or "none"
     except Exception as exc:
         low = f"unmeasured({exc.__class__.__name__})"
-    print(f"{label[stem]}: pages={pages} overfull_hbox={len(ofh)} overfull_vbox={len(ofv)} "
+    print(f"{label[stem]}: pages={pages} tex_errors={len(texerr)} overfull_hbox={len(ofh)} "
+          f"overfull_vbox={len(ofv)} "
           f"undef_cite={len(undc)} undef_ref={len(undr)} bibtex_problems={len(bibe)} "
           f"oversized_floats={len(bigfloat)} "
           f"low_text_pages(<120 words, inspect)={low}")
+    for e in texerr[:5]:
+        print(f"    TEX ERROR: {e.strip()[:110]}")
+    if texerr:
+        print("    ^ a PDF was still written because nonstopmode recovers; `make` (-halt-on-error) "
+              "produces NOTHING from this source. The PDF above is not the document.")
+    if fatal:
+        print("    FATAL: the log records a fatal error")
     for pt, ln in bigfloat:
         print(f"    FLOAT TOO LARGE: {pt}pt past the text block, declared at input line {ln}")
     for u in undc: print(f"    UNDEFINED CITE: {u}")
@@ -121,7 +148,7 @@ for stem in built:
     for e in bibe[:5]: print(f"    BIBTEX: {e[:110]}")
     for m in re.finditer(r"Overfull \\hbox \(([\d.]+)pt too wide\)([^\n]*)", raw):
         print(f"    hbox {m.group(1)}pt:{m.group(2)[:80]}")
-    if undc or undr or bibe or ofh or ofv or bigfloat:
+    if undc or undr or bibe or ofh or ofv or bigfloat or texerr or fatal:
         rc = 1
 sys.exit(rc)
 PY
