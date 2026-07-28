@@ -252,6 +252,26 @@ layer of `main_final.pdf` was hashed before and after: **100 pages and SHA-256
 `537bb752e238485e390ef9384c4d7c607141348661fdc30db5e8e04b3f0f30d5` in both builds, identical.** No
 FINAL pagination moved, because no FINAL content changed.
 
+### The build gate, validated in both directions on my own source
+
+The round brief says to trust `build.sh`'s `tex_errors` only because it was validated both ways, and
+an open reviewer finding against an earlier pass in this round notes that a validation run captured
+`tail`'s exit status through a pipeline instead of `build.sh`'s own. So I validated it against **my**
+file rather than inheriting the claim:
+
+| source state | `tex_errors` | `build.sh` exit | `make defense` exit |
+|---|---:|---:|---:|
+| my committed `0_main.tex` | 0 | **0** | **0** |
+| the same file with `\undefinedmacroXYZ` injected into the Resumo block | **1** | **1** | **2** |
+
+The broken run still wrote a 104-page PDF, exactly the trap that let six commits carry a clean build
+report off a source that would not compile, and `build.sh` printed its own warning that the PDF is
+not the document. My invocations capture the status directly (`bash build.sh . defense >/dev/null
+2>&1; echo $?`), not through a pipe, so the number reported is `build.sh`'s. Also checked explicitly:
+`(exit 7) | tail -1; echo $?` prints **0** while `(exit 7); echo $?` prints **7**, which is the
+mechanism behind that finding. The injected macro was reverted and the restored file hashes identical
+to the committed one, MD5 `e4dbcefeff6c6a2d32a21e3987ae214d`.
+
 `make check`: the substantive gates pass (em-dash 0, contractions 0, banned words 0, repo codenames
 0, undefined refs and cites 0, bibtex clean, torn sentences 0, trapped prose 0, sweep-guard
 self-tests 4/4). It still exits nonzero, for the same reason it exits nonzero on the untouched
