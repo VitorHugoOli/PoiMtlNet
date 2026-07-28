@@ -95,10 +95,33 @@ the evidence protocol the frame follows.
 % it and the output file it lives in. No number is quoted here that is not already in the
 % document; what this section adds is the path a reader follows to re-derive one.]
 This section names, for each part of the protocol, the code that implements it and the
-file its output lives in. Every path is relative to the platform repository, which
-Chapter~\ref{ch:mobiwac} footnotes at first mention. The protocol described is that
-chapter's, and Chapter~\ref{ch:fundamentals} scopes it there rather than to the whole
-collection.
+file its output lives in. Every path is relative to the working repository of this
+research. The protocol described is
+Chapter~\ref{ch:mobiwac}'s, and Chapter~\ref{ch:fundamentals} scopes it there rather than
+to the whole collection. The public snapshot that Chapter~\ref{ch:mobiwac} footnotes
+carries the model, the representation, the baselines and the fold construction; the
+statistical scripts and their output files listed below are part of the working repository
+and are supplied on request.
+% [round6, F-01, banca simulator persona 12] BLOCKER CLOSED BY SCOPING, and the author has a
+% publishing decision to make that this comment does NOT close.
+% THE DEFECT: this paragraph said "every path is relative to the platform repository, which Ch.5
+% footnotes at first mention", which points the reader at
+% https://github.com/VitorHugoOli/PoiMtlNet/tree/mobiwac. Measured against that branch, path by path
+% (git cat-file -e mobiwac:<path>), EIGHT OF THE TWELVE \path{} entries in this section are ABSENT
+% from it:
+%   PRESENT  src/data/folds.py, scripts/closing_data/score_joint_best.py,
+%            scripts/closing_data/superiority_wilcoxon.py, scripts/closing_data/region_match_tost.py
+%   ABSENT   docs/.../STATISTICAL_PROTOCOL.md, scripts/build_phase3_per_fold_transitions.sh,
+%            docs/.../JOINT_BEST_RESULTS.md, m1_stats_n20.py, m2_prereg_perfold.py,
+%            m2_prereg_output.txt, docs/.../stats_n20/, scripts/embedding_eval/autocorrelation_ceiling.py
+% All twelve exist on this machine; the four bare filenames resolve inside the stats_n20 directory.
+% So the code is real and the PROMISE was wrong: the document's most load-bearing reproducibility
+% sentence did not resolve for a reader who followed the chapter's own footnote.
+% The prose now claims only what is true. THE BETTER FIX IS THE AUTHOR'S: push the eight missing
+% files to the public branch, then restore the stronger sentence. Recorded in PENDENCIAS.
+% [NEEDS SIGN-OFF: "supplied on request" is a weaker commitment than the previous sentence implied,
+% and a banca may ask why. If the files are published before the defense, revert this paragraph to
+% the stronger claim and delete this comment.]
 
 \begin{description}
   \item[The fold partition.] Folds are built by

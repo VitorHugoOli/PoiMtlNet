@@ -147,7 +147,17 @@ dedicated model at its own tuned width and 64.51 for the joint model.
 % verdict-neutral: at the 64.51 basis the joint model leads the capacity arm (56.16) by
 % +8.35 and the dedicated ceiling (56.82) by +7.69; no conclusion moves. Persona 14
 % APPROVE-WITH-EDIT. If you prefer 64.54, name it as the diagnostic-best value in prose.
-California run, completed since, repeats the pattern. At the matching width, a hidden
+% [round6, F-02, banca simulator persona 12] SENTENCE REJOINED. It read "California run, completed
+% since, repeats the pattern", a sentence with no subject, on p.77 of the defense build -- inside
+% section 6.2, the consolidated answer, which is the highest-traffic prose after the abstract.
+% Cause, from 59de8280: the sentence was written as "... and 64.51 for the joint model. The" /
+% "California run, completed since, repeats the pattern", with its article "The" ending the previous
+% prose line. A later round inserted eleven lines of provenance comment BETWEEN "The" and
+% "California", and the article was absorbed into the comment tail. Same family as the trapped-prose
+% class, in its rarer form: nothing was swallowed mid-sentence, an ARTICLE was orphaned across an
+% inserted block, so the remaining fragment still parses as a line and no gate fires on it.
+% Recovered from the original commit rather than reinvented.
+The California run, completed since, repeats the pattern. At the matching width, a hidden
 dimension of 752 and 101.9 percent of the joint model's parameter count, the widened
 model's better training configuration reaches 69.88 macro-F1, standard deviation 0.26
 over its twenty fitted models, against 70.60, standard deviation 0.07, for the same
