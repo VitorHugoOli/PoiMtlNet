@@ -261,12 +261,21 @@ The choice of hard parameter sharing is motivated by its efficiency and regulari
 %     exactly TWO tasks, so the one result leaning the bullet's way excludes this chapter's own case.
 %     Recorded in the Appendix B row rather than in the footnote, to keep the footnote short.
 % WAS A DIFFERENT REFERENCE EVER CITED HERE? NO, and the negative has a dated limit. Checked this
-% session: git log --all -S over both paths returns the same commits for "standley2020tasks", "matches
-% or exceeds" and "Empirical Performance" (223f5df7 and 643c686e, the 2025-10-21 import of the CBIC
-% article tree, and 1a29b545, the dissertation re-typeset). articles/CBIC___MTL/sections/method.tex
-% has been touched by exactly one commit in its history, and the bullet is present in its first
-% committed version at :85 with \cite{standley2020tasks} already attached and the wording
-% byte-identical to the published text. THE LIMIT: the CBIC LaTeX entered version control on
+% session, and the roster below is the RE-RUN output, correcting an earlier version of this comment
+% that misstated it. `git log --all --oneline -S` over both the pre-reorganization path
+% (CBIC___MTL/sections/) and the current one (articles/CBIC___MTL/sections/), plus this chapter,
+% returns the SAME SET for all three probes ("standley2020tasks", "matches or exceeds", "Empirical
+% Performance"): 223f5df7, the 2025-10-21 import of the CBIC article tree; 1a29b545, the dissertation
+% re-typeset; 689b0d6e and 83e40091, the MobiWac and BRACIS release branches, which carry the article
+% tree unchanged; and 232befd5, this round. Note what is NOT in that list: 643c686e, which an earlier
+% version of this comment named. It is the import commit on the CURRENT path and shows up in the file
+% history, not in the -S searches, and conflating the two was the error.
+% The file history across all refs shows articles/CBIC___MTL/sections/method.tex touched by THREE
+% commits (643c686e, 689b0d6e, 83e40091), not one as this comment previously said; the two later ones
+% are release branches. What matters is unchanged and is stronger than a commit count: the bullet is
+% present at :85 of the earliest committed version with \cite{standley2020tasks} already attached, and
+% the bullet text is byte-identical across every committed blob of that file.
+% THE LIMIT: the CBIC LaTeX entered version control on
 % 2025-10-21, AFTER publication, so pre-submission drafts of this bullet are not in this repository at
 % all and the question cannot be answered from here in either direction. What is established is
 % narrower: no substitution happened after the LaTeX entered version control. Stated rather than

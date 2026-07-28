@@ -301,11 +301,34 @@ model has exactly two tasks**, so the one result leaning the bullet's way exclud
 
 ### The commit-history question, with its limit stated
 
-Re-run myself over both paths. `git log --all -S` for `standley2020tasks`, `matches or exceeds` and
-`Empirical Performance` returns the same commits: the 2025-10-21 import of the CBIC article tree and the
-dissertation re-typeset. `articles/CBIC___MTL/sections/method.tex` has been touched by **exactly one
-commit** in its history, and the bullet is present in its **first committed version at `:85`** with
-`\cite{standley2020tasks}` already attached, byte-identical to the published text.
+**The roster below is a re-run, and it corrects an earlier version of this section that misstated it.**
+`git log --all --oneline -S` over both the pre-reorganization path (`CBIC___MTL/sections/`) and the
+current one (`articles/CBIC___MTL/sections/`) plus this chapter, for all three probes
+(`standley2020tasks`, `matches or exceeds`, `Empirical Performance`), returns the same set:
+
+| Commit | What it is |
+|---|---|
+| `223f5df7` | the 2025-10-21 import of the CBIC article tree |
+| `1a29b545` | the dissertation re-typeset |
+| `689b0d6e` | the MobiWac release branch, carrying the article tree unchanged |
+| `83e40091` | the BRACIS release branch, likewise |
+| `232befd5` | this round |
+
+**Three corrections to what an earlier draft of this section claimed.** First, it named `643c686e` in
+that roster: `643c686e` is the import commit on the *current* path and appears in the **file history**,
+not in any `-S` result, and conflating the two was the error. Second, it said the searches return only
+"the import and the re-typeset", omitting the two release branches. Third, it said
+`articles/CBIC___MTL/sections/method.tex` was touched by **exactly one commit**; across all refs the
+file history shows **three** (`643c686e`, `689b0d6e`, `83e40091`), the two later ones being release
+branches. An earlier cell had also reported an `-S` result for `Empirical Performance` that was in fact
+obtained by `git show ... | grep`; the table above is from an actual `-S` run on that string.
+
+What is load-bearing is unchanged, and does not rest on a commit count: the bullet is present at `:85`
+of the earliest committed version with `\cite{standley2020tasks}` already attached, and the bullet text
+is **byte-identical across every committed blob** of that file. That last claim is measured, not
+asserted: walking `git rev-list --all` and extracting the bullet from every tree containing either path
+gives **1729 blobs carrying it and exactly one distinct bullet text** across all of them. The same
+correction was applied to the comment at the citing site in `3_cbic.tex`.
 
 **The limit, stated and not papered over:** the CBIC LaTeX entered version control on **2025-10-21, after
 publication**. Pre-submission drafts of this bullet are not in this repository at all, so the question
