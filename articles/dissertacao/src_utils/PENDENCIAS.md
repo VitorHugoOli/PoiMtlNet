@@ -226,6 +226,35 @@ caminho.
 
 ---
 
+### 2.7 `CONSIDERATIONS.md`: uma rodada NOVA que chegou durante esta, e que eu NAO executei
+
+**(A) O que falta.** `src_utils/CONSIDERATIONS.md` apareceu na arvore de trabalho **durante** esta
+rodada (modificado 19:04, nao commitado, 1.229 linhas). Ele contem material que nao estava no escopo
+que voce me deu:
+
+| Secao | O que e |
+|---|---|
+| `## Germano` (l. 3-58) | Feedback **verbal** do Germano sobre o Cap. 2, transcrito por voce |
+| `## Fabrício` (l. 59-309) | Feedback do **orientador** sobre o Cap. 2 |
+| `# Codex Audit — Chapter 2` (l. 310-994) | Auditoria dos dois feedbacks, comparacao contra `exemples/`, e uma lista de trabalho consolidada |
+| `# Addendum (2026-07-28)` (l. 995-1229) | O ponto de fluxo do Germano e o item G10 (o achado de conflito de tarefas) |
+
+**(B) Por que importa.** Isto e feedback do **orientador** e de um leitor externo sobre o capitulo de
+fundamentacao, com uma lista de trabalho ja consolidada. E a proxima rodada, e e mais importante que
+a maior parte do que sobrou aqui. Nao esta perdido: o arquivo esta no disco. Mas nao esta commitado,
+e nenhum item dele foi aplicado ao texto.
+
+**(C) O que eu preciso de voce.** Duas coisas. Primeiro, **commitar o arquivo** se ele estiver pronto
+(eu deliberadamente nao commitei prosa sua em andamento). Segundo, dizer se quer que eu execute a
+lista de trabalho consolidada dele — ela e uma rodada propria, com pesquisa e verificacao, e nao a
+comecei porque nao foi o que voce pediu nesta.
+
+**Por que eu nao agi nisso.** O escopo desta rodada foi `CODEX_AUDIT.md` mais as suas decisoes em
+`PENDENCIAS.md`. Aplicar 1.229 linhas de feedback novo no fim de uma rodada longa, sem voce ter
+pedido, seria exatamente o tipo de improviso que o `AGENT_GUARDRAILS` manda parar e sinalizar.
+
+---
+
 ## §3 · Aberto e bloqueado em terceiros
 
 | Item | Bloqueado em | Estado |
