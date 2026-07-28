@@ -52,7 +52,8 @@ the page-count gate that earlier reports flagged is now green.
 
 ## A · Every new or changed reference this round
 
-Twenty-three rows: the two bibliography entries re-typed to their versions of record, the three
+Twenty-seven rows in three tables, covering 30 key instances (two rows pair adjacent instances of
+the same defect): the two bibliography entries re-typed to their versions of record, the three
 citation instances whose sentence changed, and every reference a round-6 verdict turned on. **No
 reference was added to or removed from `references.bib` after `9893a2c1`**, and no citing site
 gained or lost a key, so the table is short by design.
