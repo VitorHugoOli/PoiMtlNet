@@ -45,14 +45,32 @@ the MTLnet architecture fixed and replacing only the input, the monolithic
 64-dimensional place embedding, with decomposed spatial, temporal, and categorical
 encoders, raised category macro-F1 by 20.2 to 22.0 percentage points across the three
 states tested. A change of input, with no change of architecture, produced a larger
-gain than any architectural variation tried before it. The comparison is not
-width-matched, however: the decomposed input is wider than the place embedding it
+gain than any architectural variation tried before it. Two qualifications bound what that
+number licenses. It is measured on the static task, which classifies a place from that
+place's own representation, and Appendix~\ref{apx:errata} records that this task's input
+determines its target by construction, so the figure is not evidence about the sequential
+task. The comparison is also not
+width-matched: the decomposed input is wider than the place embedding it
 replaces, 192 dimensions against 64, and Chapter~\ref{ch:courb} states
 that an equal-dimension control would be needed to separate the semantic
 specialization of the encoders from the increase in input dimensionality alone. The
 diagnosis of the arc
 follows from this chapter: the input representation, not the sharing scheme, was the
-binding constraint at that stage of the research.
+binding constraint at that stage of the research. What carries that diagnosis is the
+direction and the size of the effect on the sequential task, where no such identity
+between input and target exists, and Chapter~\ref{ch:mobiwac} is what tests it.
+% [round6, D-02, domain panel personas 09/10] BOUNDED. The paragraph quoted Ch.4's 20.2-22.0 point
+% gain unlabelled, as the diagnosis of the whole arc. Two things were wrong with that. First, the
+% number is the STATIC task's (4_courb/results.tex:92, "in all 21 category-state combinations",
+% the per-state means over the 7 categories x 3 states), and by this round's own Appendix B section
+% that task's input determines its target by construction -- so a large part of the gain measures the
+% introduction of a deterministic input-to-label channel, not a better mobility representation.
+% Second, the arc's claim needs the SEQUENTIAL task, which is clean in both published chapters
+% (3_cbic/method.tex, 4_courb/methodology.tex) and is what Ch.5 goes on to test.
+% The number stays, because it is the published chapter's own audited figure and this is the chapter
+% recap. What changed is that it now carries its task and its qualification, and the arc's diagnosis
+% now rests on the sequential result rather than on this figure alone.
+% [NEEDS SIGN-OFF: two added sentences in the author's own frame prose. No number changed.]
 % [NEEDS SIGN-OFF: REV-009 + idiom law, 2026-07-26] Two changes in one sentence pair.
 % (1) "moved the needle farther than" -> "produced a larger gain than" (WRITING_LAW §4
 % idiom rule: no phrasal metaphors; claim strength unchanged). (2) The 64-to-192 width
