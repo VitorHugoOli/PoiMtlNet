@@ -434,6 +434,12 @@ its bibliography, so both belong in the Appendix B trail; the bibliography half 
 list, which `AGENT_GUARDRAILS R4` already puts under the dissertation's control. **Standley is NEEDS-AUTHOR** (published
 prose, and the sentence is a claim, not a typo).
 
+> DECISAO: Vamos aplicar as correções propostas e para o cap. 3 com o standley vamos fazer uma avaliação mais profunda
+> de como isso afeta o texto e se é possivle corrigir o texto e adicionamos isso em uma errata no appendice B, vale
+> também comentar para checar o historico de mudança nos commits para ver se não estavamos usando outra ref. Ainda nessa
+> tarefa vale lançar outras agentes um por cap. para verificar os claims das citações com os paragrafos relacionados,
+> assim como foi feito aqui.
+
 ### COD-009 — CoUrb translation and adaptation records lag the dissertation · **PARTLY**
 
 **The single-seed overreach: REFUTED as it now stands.** The review says the dissertation presents a code inference as a
@@ -467,6 +473,9 @@ are listed in ...").
 mechanical. The source-of-record inversion should be fixed there. The Ch.5 universal is one clause and is
 `[NEEDS SIGN-OFF]`-class.
 
+> DECISAO: Vamos aplicar as correções citadas, porém a clausula no cap 5, não tem necessidade, vide que o cap 5, estamos
+> alterando o texto original também vide que vamos mandar essa revisão para o mobiwac no perido de revisão.
+
 ### COD-010 — capacity-matched control miscounted and over-compressed · **CONFIRMED**
 
 The brief lists this as "partly addressed; verify". Verified: the count and the statistic are both still wrong on the
@@ -495,6 +504,8 @@ computed: "At Alabama, across three training configurations at twenty fitted mod
 configuration averages 56.16 macro-F1, standard deviation 1.89, against 56.82 for the dedicated model at its own tuned
 width and 64.51 for the joint model." This changes no verdict — at 56.16 the joint model still leads the capacity arm by
 8.35 on the joint-best basis, as the chapter's own comment at :126-129 records.
+
+> DECISAO: Concordo.
 
 ### COD-011 — privacy, ethics, licensing and governance absent · **RESOLVED**
 
@@ -544,6 +555,9 @@ rule naming "Times New Roman or Arial" is an external determination and cannot b
 **Fixable without the author?** Only the bibliography half, and it is already done. The rest is his and the
 secretariat's.
 
+> DECISAO: Vamos ver como os artigos de exemplos fazem e adicionar o `\campus{Campus Florestal`. A font vamso usar essa,
+> ela já foi usada em outros artigos. Os noemes da banca e a folha de aprovação continua pendente.
+
 ### COD-013 — AI disclosure ahead of the recorded approval state · **CONFIRMED**
 
 The tension is real and the review's count is now low. `apx_c_ai_disclosure.tex:57-58`:
@@ -564,6 +578,10 @@ Naming what is verifiable is the review's correct recommendation.
 **Fixable without the author?** Structurally no: the whole finding is "the text claims an approval that has not
 happened", and only the author can either grant the approval or authorize the weaker wording. What *is* mechanical is
 producing the list — the 31 marker sites with file and line — so he can work through them. **NEEDS-AUTHOR.**
+
+> DECISAO: Eu de fato estou terminando de revisar os outros pontos, mas vamos deixar o texto como tá, fazendo somente a
+> alteração de adicionar o modelos esse que pode cirat o opus 4.8, inclusive não precisa de contar toda a historia que o
+> fable acbou e tivemos que usar o opus, só cite que usamos o opus e fim.
 
 ### COD-014 — "ceiling" and the Markov-floor explanation · **RESOLVED**
 
@@ -593,6 +611,8 @@ the same 96,326 stride-1 windows and the same folds as the 62.26 Acc@10 floor in
 22.4 percent figure was a place-level rate on non-overlapping windows and did not support the region-level sentence it
 was attached to. The review saw the wrong number and did not catch it; the fact gate did
 (`_specialists_v2/FACT_GATE_v3.md` B-1).
+
+> DECISAO:
 
 ### COD-015 — cross-chapter task, data and reference-point seams · **PARTLY**
 
@@ -650,6 +670,9 @@ and matching Ch.4's published range. (d) is either deleting two promises or repo
 honest cheap option since neither quantity exists in any result file I found. (a) is one preface clause and is
 `[NEEDS SIGN-OFF]`-class because it characterizes the arc.
 
+> DECISAO: SObre o A) vamos mudar o prefacio, pq o cap 4 defato não muda a arc mas o cap 5 muda. Quanto ao restante que
+> foi confirmado (a,c,d,f) vamos mudar tmb como sugerido.
+
 ### COD-016 — targeted language and readability pass · **PARTLY**
 
 **The `3_cbic.tex:340` "unrecoverable sentence": REFUTED as stated, and the review mislocated it.** The quoted words are
@@ -680,6 +703,10 @@ corrected).
 **Fixable without the author?** Break-insertion in the integrity paragraph is zero-word-change and safe. The abstract
 sentence split is a rewrite of the document's most load-bearing paragraph and is `[NEEDS SIGN-OFF]`-class.
 `3_cbic.tex:340` is **NEEDS-AUTHOR** (published prose).
+
+> DECISAO: Podemos aplicar as quebras de linha no cap 5. E quando a revisão já a reescrevemos, logo acredito que
+> tenhamos solucionado parte do problema, avalie. E quanto a frase no cap 3. Sim vamos refaze-la para ser mais
+> entendivel e facil de ser lida.
 
 ### COD-017 — visual and typographic inconsistencies · **PARTLY**
 
@@ -718,6 +745,10 @@ reduction, regenerating the two Ch.5 diagrams at larger label size, and keeping 
 review's own caution applies and is correct — do not do the float reflow until the prose stops moving, because
 pagination will shift.
 
+> DECISAO: Já corrigimos alguns dos pontos, mas eu acredito que o que estiver pendente já podemos corrgir agora. E
+> quanto ao fato de só mexer quanto o texto estabilizar, acho que não precisamos esperar, podemos ajustar agora e se
+> precisar no futuro ajustamos novamente.
+
 ### COD-018 — governance files and automated gates no longer describe the artifact · **PARTLY**
 
 **Stale page counts: CONFIRMED.** Current builds are 102 and 97 pages. `CLAUDE.md:28-29`
@@ -754,6 +785,9 @@ detail** rather than confirmed.
 
 **Fixable without the author?** The page counts and the ledger synchronization are, and they are outside `src/`.
 Appendix A's roles are not.
+
+> DECISAO: Meu papel no courb foi na implementação, auxilo ao meu aluno de graduação na sua pesquisa pelos modelos de
+> embedding, e escrita da parte do MTL e parte da conclusão.
 
 ---
 
@@ -1057,3 +1091,79 @@ source line and infer what the reader sees; where the correction round changed t
 copy, the finding is stale. Its own closing recommendation anticipates this — "A final reviewer pass should verify the
 rendered artifact, not only source diffs and logs" — and that is the right instruction. Every verdict in this file was
 checked against the 102-page and 97-page renders of 2026-07-27, not against the source alone.
+
+---
+
+# Round 6 outcome: what happened to each finding
+
+**Appended 2026-07-28**, after the round the author commissioned in response to this audit. Every
+`COD-` and `NUM-` id above is listed here exactly once, with what was **done**, the commit, and where
+the decision lives if it was not applied. Read this section as the answer sheet to the audit; read
+`src_utils/PENDENCIAS.md` §2 for what is still yours.
+
+**Two things to know before reading the table.**
+
+1. **About a third of the file:line coordinates above are stale.** This audit was written against a
+   97/92-page pair, re-anchored to 104/99, and annotated against a build that is now 108/105/109. Of
+   79 cited coordinates, 25 land on a comment line, a blank line, or past the end of a file, and the
+   three paper chapters have since been split into per-section files. Every coordinate was re-resolved
+   by phrase in `_round6/ANCHORS.md`; use that, not the line numbers here.
+2. **Four statements in this audit were re-measured and are wrong.** They are marked in the table.
+   The audit is a good document and this is not a complaint: it was written against a build that no
+   longer exists, and one of its verdicts rested on an instrument that cannot see what it was pointed
+   at.
+
+## The table
+
+| id | Audit verdict | Round-6 outcome | Where |
+|---|---|---|---|
+| COD-001 | RESOLVED | **Confirmed still resolved, and the class recurred twice more.** A twelfth instance was found on p.77 (`F-02`: an article orphaned across an inserted comment block, leaving a subjectless sentence in section 6.2) and a thirteenth was written **by me** while fixing something else, caught in the render. The detector was extended to the split layout. | `ec1cea0d`, `fecc7fb1` |
+| COD-002 | PARTLY | **APPLIED, as the author ruled.** He ruled the finding be recorded outside the text: `LEFT_OUT.md` created for exactly this, and a suppressible Appendix B section written with the co-author's agreement. Its central paragraph was then **refuted by the domain panel and rewritten** (D-01 below). | `e9370222`, `28097d93`, `4b609643` |
+| COD-003 | PARTLY | **APPLIED.** The Check2HGI loss is now three numbered equations in Ch.2 with every symbol defined at first use, transcribed from `docs/context/check2hgi_overview.tex` and verified against it by the fact gate. The joint model's descent from MTLnet is named. | `456eaa72` |
+| COD-004 | PARTLY | **APPLIED.** The trunk attribution softened; the disconfirming arm in the comment block read and weighed by the domain panel, which judged the softening right. | `519de348` |
+| COD-005 | PARTLY | **APPLIED.** The screen's scope is now stated: one seed, two named datasets, 19 arms. The fact gate recomputed all 19 from `T4_full_screen.json` and confirmed the empty winner set. | `519de348`, `09d48ac5` |
+| COD-006 | PARTLY | **APPLIED.** "before any result was read" and "well powered" removed; "identically" checked and kept where the design supports it. | `519de348` |
+| COD-007 | PARTLY / **NEEDS-AUTHOR** | **APPLIED, and the audit's premise was wrong.** It recorded the CBIC codebase as unavailable; it is in this repository at `9b06053f` with run artifacts committed. Split axis, seeds and checkpoint rule recovered from code plus artifacts for both chapters and added as declared additions with an Appendix B trail. The checkpoint block is character-identical across the two codebases. **The tuning budget is NOT RECOVERABLE** (no search harness ever existed, losing configurations not committed) — `PENDENCIAS.md` §2.6. | `519de348`, `a7ab2eaa` |
+| COD-008 | PARTLY | **APPLIED.** Every citation instance in the document audited at its source of record, not sampled. The Standley citation corrected (the source argues against the claim it carried), two preprint records upgraded to their versions of record, and the failures concentrate in the inherited related-work sections rather than in the frame. | `9893a2c1`, `6951fceb`, `f8919dd4` |
+| COD-009 | PARTLY | **APPLIED and gate-verified.** The L5 translation-fidelity gate ran against the published Portuguese as source of record and returned PASS WITH FINDINGS: no claim-strength drift, no number mismatch, no silent omission. It determined the Nash-MTL overclaim is **the published article's own**, which is what makes the Appendix B erratum row correct rather than a translation defect. | `cef4c990` |
+| COD-010 | CONFIRMED | **APPLIED** in round 5 and verified still correct here; the sentence carrying it is the one whose subject `F-02` restored. | `ec1cea0d` |
+| COD-011 | RESOLVED | Confirmed. Appendix E in both builds. | — |
+| COD-012 | PARTLY | **APPLIED, and one half of it was found to be a different defect than the audit thought.** The margins were re-derived by compiling a probe with the real preamble: 3/2/3/2 cm and 1.500x spacing, exact to the manual. The remaining half was the **deposit build's page numbering**, which printed 11 on physical page 8 — non-compliance on the one build that is deposited. | `2d117c7a`, `29c7629c` |
+| COD-013 | CONFIRMED | **APPLIED.** Appendix C's claim that the document "passed an eighteen-reviewer panel" was false against that panel's own recorded verdicts (two gate FAILs) and was removed. The disclosure was trimmed to the author's instruction. | `456eaa72` |
+| COD-014 | RESOLVED | Confirmed. Zero occurrences of the retired names. | — |
+| COD-015 | PARTLY | **APPLIED, and the audit's example was wrong.** It cited Ch.6 as still saying "three of the six datasets"; measured, every rendering locus already said four, and the two that differ are scoping narrower quantities. What *was* wrong is the **bound** on that same sentence, false for Alabama (N-1 below). | `456eaa72`, `fecc7fb1` |
+| COD-016 | PARTLY | **APPLIED.** The Resumo and Abstract cut from 500/423 words to 310/271 and rebuilt as an eleven-sentence claim-parity pair, 19 claims in both languages, reviewed by six personas afterward. The 546-word integrity block was trimmed. | `40ed8e7b`, `d4baeb8b` |
+| COD-017 | PARTLY | **PARTLY APPLIED, and the audit tracked the wrong two figures.** Its float warning was already gone (the longtable conversion fixed it). The two diagrams it flagged were rescaled to 93.2 and 66.3 percent of body. Then the visual pass measured all four: **the two the audit did not track are the two smallest**, both at about 45 percent. Registered in `LEFT_OUT.md` LO-6 as deferred, awaiting the author's authorization to alter published figures. Also here: the audit's diagram page numbers were off by one, and its own instrument (`FPDFText_GetFontSize`) is blind to `\includegraphics` scale and would have reported no improvement. | `1d0002af`, `2bf5f8ea` |
+| COD-018 | PARTLY | **APPLIED.** Page counts synced across four files; `CLAUDE.md`, `NORTH_STAR.md`, `GLOSSARY.md`, `AGENT_GUARDRAILS.md`, `README_SRC.md` and `AGENT_HANDOFF.md` all updated; a guardrails rule that contradicted the author's own ruling amended; four new gates added for silent defect classes. | `7343c8ad`, `1ef83867`, `a8865214`, `29c7629c` |
+| NUM-1, NUM-2 | CONFIRMED | Already applied in round 5; verified. | — |
+| NUM-3 | PARTLY | **NO EDIT NEEDED — the audit was wrong.** Every rendering locus already said four. | `de921786` |
+| NUM-4 | live `[VERIFY]` | **APPLIED.** Re-anchored to its source table with spreads. | `456eaa72` |
+| NUM-5 | REFUTED as stated | No action, correctly. | — |
+| NUM-6, NUM-8 | RESOLVED | Confirmed. | — |
+| NUM-7 | PARTLY | **APPLIED and then bounded further.** The convention was already stated at all three sites; the domain panel then found the number quoted **unlabelled** in Ch.6 as the arc's diagnosis, when it is the static task's and this round's own Appendix B disqualifies that task. It now carries its task and qualification. | `4b609643` |
+
+## Findings this round added that the audit did not have
+
+These came from the eight review tracks, none of which had seen the others' work. Full detail in
+`PENDENCIAS.md` §1.3.
+
+| id | Severity | What | Commit |
+|---|---|---|---|
+| the compile blocker | **Critical** | The source had not compiled for six commits while `build.sh` certified it clean, because `nonstopmode` recovers from the error and writes a full PDF that the script measured | `ba90aa6d` |
+| N-1 | BLOCKER | The gradient-cosine bound is false for Alabama, in both the dissertation and the manuscript under review. Created **by this round**: the sentence's scope was corrected without re-checking the quantity that depends on the scope | `fecc7fb1` |
+| N-2 | MAJOR | Ch.2 asserted a gap that this round's own Ch.3 addition had filled. The repair was **predicted in writing** and drafted, and fell between two tracks' remits | `fecc7fb1` |
+| D-01 | BLOCKER | My Appendix B exculpation of Ch.3 does not follow from its premise: the graph is undirected and the convolution aggregates the node with its neighborhood, so the label returns at the first hop | `4b609643` |
+| F-01 | BLOCKER | 8 of 12 reproducibility paths absent from the published branch. All exist locally: the promise was wrong, not the code | `ec1cea0d` |
+| C-1, E-5, E-2 | MAJOR | Deposit-build numbering; ten footnote marks hyperlinked to page 1 in every build; twelve files with a missing or dangling TeX root | `29c7629c` |
+| STY-01, AIC-01 | MAJOR | Seven unregistered terms, two of them missed by my own registration pass; and a density guard that had been frozen by a prior review and lived only in that review's report | `a8865214` |
+| C-6 | MAJOR | `make check` exited 2 for the whole round while six commit messages said it passed | `6ee23ca7` |
+
+## What this round got wrong about itself
+
+Eight claims of mine were corrected against measurement, each by a different pass rather than by me:
+a false bound carried across a scope correction; the Ch.3 exculpation; "all gates pass" with the gate
+exiting 2; "byte-identical, same SHA" when what matches is the extracted text layer; a font-size
+instrument blind to inclusion scaling; an anchor line I read wrong; a `[VERIFY]` flag raised against a
+correct claim by reading a section headed "(superseded)"; and a gate test that was invalid because I
+copied the fixed PDF into the broken tree. The pattern is consistent enough to name: **every one was
+a claim about the work rather than a result of it**, and every one was caught by fresh eyes.
