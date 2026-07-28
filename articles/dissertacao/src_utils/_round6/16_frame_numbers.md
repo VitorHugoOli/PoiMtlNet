@@ -439,3 +439,11 @@ region-representation goal.
 - **`5_mobiwac.tex` §5.4.1 still has zero figures and no equation**, which is now a deliberate
   choice rather than an oversight: the equation is in Ch.2 and cross-referable. If the author wants
   it in Ch.5 as well, that is the two-file change, and it is the Claim-scoping track's file.
+- **`14_comments_measured.md:40` overstates what its own seven blocks are**, and since two of those
+  seven sit in a file I could check, I verified it rather than passing the report along. It says
+  "The remaining 7 fact-free blocks are `[NEEDS SIGN-OFF]` markers ... the author's own decision
+  queue and must stay until he clears them." Two of the seven it enumerates, `3_cbic.tex:152` and
+  `:165`, are **bare one-character `%` lines** (confirmed by reading both). They are not a decision
+  queue and nothing is waiting on them. That report's recommendation (no compression pass) is
+  unaffected; the description of two of its lines is wrong, and it wrongly protects them. Not my
+  file, so not fixed. Flagged for the comment-volume track.
