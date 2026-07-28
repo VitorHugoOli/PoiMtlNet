@@ -90,7 +90,7 @@ The choice of hard parameter sharing is motivated by its efficiency and regulari
     \item \textbf{Computational Efficiency:} Unlike soft-sharing methods that often introduce task-specific parameters and increase computational overhead, hard sharing maintains a compact model. This is crucial for deployment on resource-constrained edge devices (e.g., NVIDIA Jetson platforms).
     \item \textbf{Implicit Regularization:} By constraining the hypothesis space, hard sharing acts as a regularizer, often leading to more generalizable models, especially when tasks are related \cite{ruder2017sluice}. Seminal work by Caruana demonstrated significant error reduction with this approach \cite{caruana1997multitask}.
     \item \textbf{Empirical Performance:} In practice, sharing one network across tasks reduces
-    inference cost, since a single network is evaluated rather than one network per
+    inference cost, since one network is evaluated instead of one per
     task \cite{standley2020tasks}.\footnote{The published sentence read ``hard parameter sharing
     frequently matches or exceeds the performance of more complex architectures on many benchmarks,
     while offering faster training and inference''. The accuracy and training-speed halves are

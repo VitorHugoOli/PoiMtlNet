@@ -68,6 +68,11 @@
 | **sliding windows** | Overlapping windows of the last 9 visits, one starting at each visit (stride 1) — Ch.5. | Ch.3/Ch.4 used non-overlapping windows; "sliding" is the ONE name (MobiWac ruling) |
 | **transductive** | The representation was trained seeing all places (not new-place-generalizing). | gloss only where the leak discussion needs it |
 | **leakage audit** | The controlled test (A4) verifying the transductive representation does not leak labels across the user-disjoint split (null: ≤0.33 pp region, ≤0.29 pp category). | Ch.5 §5.2 material |
+| **bilinear discriminator** | The scoring function inside an infomax objective: it maps a pair of embeddings to a compatibility score through a learned weight matrix, $\mathcal{D}(\mathbf{e}_1,\mathbf{e}_2)=\sigma(\mathbf{e}_1^{\top}\mathbf{W}\mathbf{e}_2)$. Bilinear because it is linear in each argument separately. | Ch.2's Check2HGI equations. Registered 2026-07-28 to clear the fail-closed block the drafting agent recorded at `2_fundamentals.tex:307-314`. Ch.3 already uses the bare word "discriminator" in published prose, so only the modifier is new |
+| **logistic function** | $\sigma(z)=1/(1+e^{-z})$, which maps a real score to the interval between 0 and 1. | Ch.2, naming $\sigma$ in the discriminator equation. Say "logistic function", never "sigmoid", in prose |
+| **fine class** | The fine-grained class label attached to each place by the source data, one level below the 7-category taxonomy (Airport, Coffee Shop, Seafood): 284 to 365 distinct values per state, each mapping to exactly one top-level category. | Appendix B §B.5 only, where the static-task scope needs it. In code this column is `spot`, renamed `fclass` at `hgi/preprocess.py:62`; NEVER write `fclass` in prose |
+| **early stopping** | Halting training when a validation metric stops improving, rather than running the configured epoch budget to the end. | Used only to say the published chapters did NOT use it: they run the full budget and read each task at its own best validation epoch. Gloss at first use |
+| **bottleneck** | The one factor limiting performance at a given stage: the input representation in Ch.4's diagnosis, not the sharing scheme. | Registered 2026-07-28 because the PT Resumo needs an anchor for *gargalo*. Never a metaphor for anything else |
 
 ## 4 · Metrics, statistics, conventions
 
@@ -121,6 +126,8 @@ are named once each in Ch.5's baseline list and the List of Abbreviations only i
 | decomposed encoders (spatial, temporal, categorical) | codificadores decompostos (espacial, temporal, categórico) |
 | hard parameter sharing | compartilhamento rígido de parâmetros |
 | sharing topology | topologia de compartilhamento |
+| bottleneck | gargalo |
+| paired superiority test | teste pareado; *plural* testes pareados |
 
 The Resumo mirrors the Abstract claim-for-claim (WRITING_LAW §6); this table keeps the pair
 translation-stable. "Embedding" may stay as a loanword in PT (standard in the BR community)

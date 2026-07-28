@@ -38,7 +38,7 @@ the place itself, so no place's own label appears in its own input. That exclusi
 not survive the graph convolution: the place graph is undirected, so a place appears in
 its neighbors' features, and one convolution aggregates over the neighborhood together
 with the place itself. A place's own label therefore returns to its own embedding at the
-first hop, diluted by the neighborhood rather than read directly. So the earlier chapter's
+first hop, averaged in with the neighborhood. So the earlier chapter's
 static task also has a path from label to representation. It is indirect and averaged,
 where Chapter~\ref{ch:courb}'s is an exact lookup, and that distinction is the whole of
 the difference between them.
@@ -63,10 +63,10 @@ the difference between them.
 
 The third is that Chapter~\ref{ch:mobiwac} does not inherit the problem, for the reason
 that chapter gives on its own terms: it replaces the place-level embedding with a
-check-in-level representation, whose input is a visit rather than a place, and the
-identity described above does not arise.
+check-in-level representation, whose input is a single visit, and the identity described
+above does not arise.
 
-We state this here rather than in the chapter because Chapter~\ref{ch:courb} is a
+This appendix, and not the chapter, is where the statement belongs, because Chapter~\ref{ch:courb} is a
 published, co-authored article and this appendix is the instrument this collection uses
 for the difference between what the published text says and what we know now. The
 measurement is recorded in the repository released with this work.

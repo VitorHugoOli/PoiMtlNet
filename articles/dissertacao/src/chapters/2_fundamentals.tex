@@ -304,14 +304,17 @@ which is the sense in which the representation is trained without task labels.
 % every run reported in Chapter 5. [VERIFY: whether Ch.5's two auxiliary terms should be named
 % here as well; that needs the run configuration of the shipped representation, which I did not
 % establish this session.]
-% GLOSSARY DEPENDENCY, fail-closed rule, unresolved: this passage uses two terms the registry
-% does not hold, "bilinear discriminator" and "logistic function". GLOSSARY.md is not mine to
-% edit, so the entries are PROPOSED in the round-6 report for the author to approve, and the rule
-% says the entry lands before the term does. Until they are registered this paragraph is
-% blocked on that approval, not merely awaiting sign-off on its wording. Precedent for the
-% narrower word: "discriminator" is already used in published Ch.3 prose (3_cbic.tex:166, "$D$ is
-% a discriminator that differentiates each positive example from its corrupted version"), so only
-% the modifier "bilinear" and the name of $\sigma$ are new to the document.
+% GLOSSARY DEPENDENCY, fail-closed rule: RESOLVED 2026-07-28. This passage uses two terms the
+% registry did not hold, "bilinear discriminator" and "logistic function". The drafting agent
+% correctly declined to self-authorize them and recorded the paragraph as BLOCKED rather than
+% merely awaiting wording sign-off, which is the behavior GLOSSARY §1 asks for. The style gate
+% (persona 03, STY-01) then measured seven such terms document-wide and made the same call.
+% Both are now registered in GLOSSARY §2 with the equation they name, so the block is cleared and
+% what remains is ordinary sign-off on the wording. Precedent that made the registration easy:
+% "discriminator" is already used in published Ch.3 prose (3_cbic/basis.tex, "$D$ is a
+% discriminator that differentiates each positive example from its corrupted version"), so only
+% the modifier "bilinear" and the name of $\sigma$ were new to the document.
+% Registry note: prose says "logistic function", never "sigmoid".
 
 Where a place embedding answers ``what is this place,'' a check-in-level representation
 answers ``what is this visit,'' and

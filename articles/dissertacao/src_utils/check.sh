@@ -100,6 +100,13 @@ echo "== torn sentences (a body line opening mid-sentence: the clause before it 
 # reintroduced.
 if ! python3 "$UTILS/check_torn_sentences.py"; then FAIL=1; fi
 
+echo "== negative-parallelism density (a standing guard that lived only in a review report) =="
+# The AI-credibility persona froze this count on 2026-07-20 and found it raised from 67 to 79 on
+# 2026-07-28, with its own verdict on why: "a guard that lives only in a previous round's review
+# report is a guard nobody is checking." So the instruction moved into the gate. Density per 1k
+# prose words, comments stripped (this repo's provenance comments quote the constructions).
+if ! python3 "$UTILS/check_negative_parallelism.py"; then FAIL=1; fi
+
 echo "== doubled backslash before a reference macro (silent: no warning, undef_ref stays 0) =="
 # A THIRD silent class, found 2026-07-28 in 5_mobiwac.tex:789. Two cross-references written
 # "\\ref{...}" with a doubled backslash: LaTeX reads a line break followed by the literal text
