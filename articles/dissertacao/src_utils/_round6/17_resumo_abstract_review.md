@@ -112,9 +112,10 @@ sentence, which is normal expansion:
 | 6 | 34 | 30 | 1.13 | study 2: input replaced, category rose, representation was the bottleneck |
 | 7 | 31 | 24 | 1.29 | study 3: check-in level, one vector per visit, cross-attention trunk |
 | 8 | 17 | 16 | 1.06 | the six datasets and their two sources |
-| 9 | 58 | 50 | 1.16 | the protocol and the category result with range and convention |
+| 9 | 58 | 48 | 1.21 | the protocol and the category result with range and convention |
 | 10 | 28 | 25 | 1.12 | the region result: four of six, TOST at the other two |
 | 11 | 23 | 21 | 1.10 | the answer is conditional, and on what |
+| **sum** | **310** | **271** | | matches the block totals above, exactly |
 
 **(b) Hedge and modal parity: 16 of 17 tokens match.** `poderia`/`could`, `pode`/`can`,
 `permanecia em aberto`/`was unresolved`, `consistentemente`/`consistently`,
@@ -680,8 +681,9 @@ with its tree, and the per-sentence table recomputed on the block convention (or
 
 **Persona 16, both channels LOW.** Screener risk LOW, with the standing caveat that hybrid-text
 detector scores are windowing artifacts and no local detector was run: the prose is neither
-flattened toward L2 simplicity nor inflated, sentence-length SD is 12.8 and 11.4 across eleven
-sentences, and the vocabulary is domain-specific rather than elevated. Expert-suspicion risk LOW:
+flattened toward L2 simplicity nor inflated, sentence-length SD is 12.9 (PT) and 10.9 (EN) across
+eleven sentences each, population basis as in §10 m-2, and the vocabulary is domain-specific rather
+than elevated. Expert-suspicion risk LOW:
 no outline shape, no bullet-itis, no wrap-up sentence, no significance trailer, no copula avoidance,
 no negative parallelism stack, and the one structural repetition (three sentences opening on "O
 primeiro / O segundo / O terceiro") is a promise being kept rather than a template. The concrete
@@ -718,6 +720,28 @@ representation level, six datasets by source, a resampling design, a named test 
   105.
 - `apx_b_static_scope.tex` renders (p.98, confirmed in the text layer), and nothing in the front
   matter points at it; the pair's sentence 6 is the claim it qualifies. Frame scope, not this track.
+
+---
+
+### I committed the m-5 item 4 defect myself, in this report, and it was caught by review
+
+When I corrected the §10 m-2 distribution table to the block convention (EN sentence 9: 48, not 50)
+and asserted that "each column sums to its block total exactly", **I left the §1(a) parity table on
+the old basis**: it still showed EN sentence 9 = 50, summing to 273 against the 271 stated three
+paragraphs above, and the §11 persona-16 paragraph still carried `SD 12.8 and 11.4`, a pair on two
+different bases in which 12.8 matches neither. Both are fixed above: §1(a) now shows 48 with ratio
+1.21 and prints its column sums, and §11 reads 12.9 (PT) and 10.9 (EN), population basis, named.
+
+**This is precisely the defect I charge against `15_resumo_abstract.md` as m-5 item 4**, in the same
+instrument and for the same reason: `_measure_abs.py` protects decimals with U+2024 inside its
+sentence splitter, so counting a returned sentence without restoring the character splits `5.3` and
+`9.4` into two tokens each. I found that mechanism, wrote it up, corrected one of my two tables, and
+shipped the other uncorrected. It is recorded rather than quietly repaired because a reviewer's
+finding against my own report is worth more to the next reader than a clean-looking file, and because
+m-5's credibility depends on my not having done the same thing silently.
+
+**The finding it does not touch:** the eleven-to-eleven correspondence, the claim §1(a) exists to
+make, is unaffected. Sentence 9 is one sentence in both languages on every basis.
 
 ---
 
