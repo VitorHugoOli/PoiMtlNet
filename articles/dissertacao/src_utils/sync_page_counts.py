@@ -27,14 +27,19 @@ ROOT = Path(__file__).resolve().parent.parent
 
 # (file, regex with ONE capture group for the number, which build the number refers to)
 CLAIMS = [
-    ("CLAUDE.md",                r"\(\*\*(\d+) pp\*\*, full front matter", "defense"),
-    ("CLAUDE.md",                r"\(\*\*(\d+) pp\*\*, AcademicoPG body-only", "final"),
+    # CLAUDE.md §1 was rewritten 2026-07-28 to describe three builds; these patterns follow it.
+    ("CLAUDE.md",                r"`build/main\.pdf` \(\*\*(\d+) pp\*\*\)", "defense"),
+    ("CLAUDE.md",                r"`build/main_final\.pdf` \(\*\*(\d+) pp\*\*", "final"),
+    ("CLAUDE.md",                r"`build/main_ppgc\.pdf` \(\*\*(\d+) pp\*\*", "ppgc"),
     ("PLAN.md",                  r"defense \*\*(\d+) pp\*\*", "defense"),
     ("PLAN.md",                  r"final AcademicoPG \*\*(\d+) pp\*\*", "final"),
-    ("src_utils/PENDENCIAS.md",  r"\*\*Build:\*\* defesa (\d+) pp", "defense"),
-    ("src_utils/PENDENCIAS.md",  r"\*\*Build:\*\* defesa \d+ pp, final (\d+) pp", "final"),
-    ("src_utils/PENDENCIAS.md",  r"O que esta em disco e \*\*(\d+)/\d+\*\*", "defense"),
-    ("src_utils/PENDENCIAS.md",  r"O que esta em disco e \*\*\d+/(\d+)\*\*", "final"),
+
+    # PENDENCIAS was rewritten as a three-part tracker on 2026-07-28 and its build state is now a
+    # table row per target, not a "X/Y" pair in prose. The old patterns SKIPped silently after that,
+    # which is the same failure this whole tool exists to prevent: a page-count claim nobody checks.
+    ("src_utils/PENDENCIAS.md",  r"`make defense` -> `main\.pdf` \| \*\*(\d+)\*\*", "defense"),
+    ("src_utils/PENDENCIAS.md",  r"`make final` -> `main_final\.pdf` \| \*\*(\d+)\*\*", "final"),
+    ("src_utils/PENDENCIAS.md",  r"`make ppgc` -> `main_ppgc\.pdf` \| \*\*(\d+)\*\*", "ppgc"),
     ("src_utils/codex_reviewer.md", r"The builds on disk are \*\*(\d+)/\d+ pages\*\*", "defense"),
     ("src_utils/codex_reviewer.md", r"The builds on disk are \*\*\d+/(\d+) pages\*\*", "final"),
 ]
@@ -42,7 +47,9 @@ CLAIMS = [
 
 def measured() -> dict[str, int]:
     out = {}
-    for stem, key in (("main", "defense"), ("main_final", "final")):
+    # ppgc added 2026-07-28: three targets now, and a claim about a target this tool does not
+    # measure would raise a KeyError rather than being silently skipped, which is the right failure.
+    for stem, key in (("main", "defense"), ("main_final", "final"), ("main_ppgc", "ppgc")):
         log = ROOT / "src" / "build" / f"{stem}.log"
         if not log.exists():
             sys.exit(f"no {log.relative_to(ROOT)} -- build first, this script reads the real log")
@@ -55,7 +62,8 @@ def measured() -> dict[str, int]:
 
 def main(write: bool) -> int:
     truth = measured()
-    print(f"measured from the build logs: defense {truth['defense']} pp, final {truth['final']} pp")
+    print("measured from the build logs: " +
+          ", ".join(f"{k} {v} pp" for k, v in truth.items()))
     stale = 0
     for rel, pattern, which in CLAIMS:
         path = ROOT / rel
@@ -65,7 +73,13 @@ def main(write: bool) -> int:
         text = path.read_text()
         m = re.search(pattern, text)
         if not m:
-            print(f"  SKIP  {rel}: pattern not found -- {pattern}")
+            # NOT a silent skip. A pattern that stops matching is a page-count claim that
+            # nobody is checking any more -- the exact thing this tool exists to prevent.
+            # PENDENCIAS.md drifted this way on 2026-07-28 when it was restructured.
+            print(f"  UNMATCHED {rel}: pattern no longer matches -- {pattern}")
+            print(f"            the claim it guarded is now unchecked. Fix the pattern or "
+                  f"drop the row from CLAIMS.")
+            stale += 1
             continue
         recorded = int(m.group(1))
         if recorded == truth[which]:

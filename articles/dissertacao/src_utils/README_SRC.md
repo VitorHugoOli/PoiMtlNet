@@ -13,13 +13,23 @@ never inside it.
 ```
 articles/dissertacao/
   src/                        <-- paste THIS into Overleaf; compiles standalone
-    main.tex                  single entry point (defense build by default; see header comment)
+    main.tex                  entry point for the DEFENSE build (and, with \FINALBUILD, the deposit)
+    main_ppgc.tex             entry point for defense + approval sheet; TWO lines of content
     0_main.tex                the document body (preamble + front matter + \include list)
     abntex2-UFV.sty           UFV machinery (Germano tree)
     abntex2-num.bst           numeric bibliography style
     references.bib            single global bibliography
-    chapters/                 the six chapters + three appendices (.tex ONLY)
-    figures/ tables/          chapter assets
+    chapters/                 six chapters + five appendices, PLUS three per-section directories:
+                                3_cbic/    intro basis method results conclusion
+                                4_courb/   intro related methodology results conclusion
+                                5_mobiwac/ 01_introduction .. 08_conclusion
+                              The three paper chapters were split on 2026-07-28 to match the
+                              one-file-per-section layout of the original paper sources; each
+                              chapter master now holds its preface and a list of \input lines.
+                              ANY TOOL THAT GLOBS chapters/*.tex MISSES 55 PERCENT OF THE PROSE.
+                              Four checkers had to be fixed for exactly this; use
+                              chapters/*.tex AND chapters/*/*.tex.
+    figures/ tables/          chapter assets (tables extracted one table per file)
     dissertacao.pdf           current DEFENSE build (only PDF at the root; copied from build/)
     Makefile                  build + lint targets
     build/                    ALL compile output lands here (gitignored)
@@ -43,17 +53,35 @@ compiles with no missing files.
 ## Build (two modes, one source; UFV_COMPLIANCE §1)
 
 ```
-make            # or `make defense` -> build/main.pdf, copied to ./dissertacao.pdf (banca PDF)
-make final      # -> build/main_final.pdf (AcademicoPG body-only upload)
-make check      # lint: em-dashes, "this paper", contractions, banned words, codenames, undefined refs
+make            # or `make defense` -> build/main.pdf (108 pp), copied to ./dissertacao.pdf
+make final      # -> build/main_final.pdf (105 pp; AcademicoPG body-only upload)
+make ppgc       # -> build/main_ppgc.pdf  (109 pp; the defense PDF plus the approval sheet)
+make check      # the lint gates; see below
 make clean      # empty build/
 ```
 
-The mode is one `\ifdefensebuild` switch in `main.tex` (default = defense). `make final` sets
-`\FINALBUILD` on the command line before reading `main.tex`, so the body-only build needs **no
-second main file**. UFV: two BUILDS are required (full-front-matter defense PDF + body-only
-AcademicoPG upload); the manual governs the submission and the final PDF, not the LaTeX source, so
-one main file is compliant.
+THREE targets, TWO entry files, ONE source. Two switches select among them, both following the same
+`\ifdefined` pattern so a command-line `\def` works without the nested-`\if` scanning problem:
+
+| target | entry file | switches | what it is |
+|---|---|---|---|
+| `defense` | `main.tex` | neither set | the reading copy and the banca PDF |
+| `final` | `main.tex` | `\FINALBUILD` set on the command line | the AcademicoPG deposit body: no folha de rosto, no approval sheet, no Resumo, no Abstract (the system generates those from web forms) |
+| `ppgc` | `main_ppgc.tex` | `\APPROVALSHEET` set inside the file | the defense document plus the approval-sheet placeholder |
+
+`main_ppgc.tex` is deliberately two lines of content: it sets one switch and `\input`s `main.tex`, so
+the two entry points cannot drift apart. Do not add content there. Anything belonging in both builds
+belongs in `0_main.tex`; anything belonging only in the ppgc build is gated on `\ifapprovalsheet`
+there.
+
+**The deposit build numbers from a different page than the other two.** It has 7 pre-textual pages
+against the defense build's 10, so `\finalbuildfirstpage` in `main.tex` is **8**, not 11. It was 11
+until 2026-07-28, which made every printed page number in the deposited PDF run three ahead of its
+physical page. If you change the front matter, re-derive it: count pre-textual pages in the render and
+add one (UFV_COMPLIANCE §4.4).
+
+UFV: two BUILDS are required (full-front-matter defense PDF + body-only AcademicoPG upload); the
+manual governs the submission and the final PDF, not the LaTeX source.
 
 Output goes to `build/` via `-output-directory=build`; input paths (`figures/`, `chapters/`)
 resolve relative to the src root regardless, so no `graphicspath` change is needed. The Makefile
@@ -93,6 +121,34 @@ writes a PDF. That is how commits `6d780b58` through `a880632b` shipped "104/99 
 `{\small ...}` group in `tables/frame/bib_errata.tex` during the tables reorganization). `make`
 produced nothing that whole time; nobody ran it. `build.sh` now reports `tex_errors=N` and fails on
 it. **A PDF existing is not evidence the source is correct.**
+
+## The gate suite, and why each gate exists
+
+`make check` runs `src_utils/check.sh`. It should exit **0**. It exited **2** for the whole of round 6
+on two false positives while six commit messages said "all gates pass" — read the exit code, not the
+output. The false positives are now exempted where the exemption is true (`apx_b_errata.tex` may say
+"this article", because it is discussing the articles; "Pareto" is the optimization term and was never
+a verdict verb) and each exemption carries its reasoning in `check.sh`.
+
+Beyond the word sweeps, five gates exist for **silent** defect classes: things that compile clean,
+raise no LaTeX warning, and still reach the reader wrong. Each self-tests in both directions before it
+reports; **if one prints only OK and no self-test line, distrust it.**
+
+| Gate | The class | Why nothing else sees it |
+|---|---|---|
+| `build.sh` `tex_errors` | The source does not compile | `nonstopmode` recovers and writes a full PDF, which the script measured and certified clean |
+| `check_trapped_prose.py` | A prose line swallowed by an unterminated comment | Builds clean; the reader sees a sentence with a piece missing. Twelve instances to date |
+| `check_torn_sentences.py` | A body line opening mid-sentence, its antecedent gone | Same: legal LaTeX, broken prose |
+| `check_doubled_macro.py` | `\\ref{...}` with a doubled backslash | pdflatex raises nothing (both halves are legal) and `undef_ref` stays truthfully at 0, because there is no reference to leave undefined |
+| `check_tex_root.py` | A `% !TeX root` directive missing, or naming a file that does not exist | Invisible to `make`, which reads `main.tex` and never looks at a magic comment. Two separate instances in one week |
+| `check_negative_parallelism.py` | Density of `rather than` / `X, not Y` / `instead of` above a ceiling | It was a standing instruction in a review report, and a guard that lives in a report is a guard nobody checks |
+
+**Adding a gate: validate it in BOTH directions before trusting it.** Run it against a tree where the
+defect is present and confirm it fails, then against the fixed tree and confirm it passes. Four of this
+repository's checkers were wrong at least once by being tuned only on the case in front of them. One
+specific trap, learned the hard way: a detector that compares source against a **rendered** artifact
+must be tested against the render built *from that source*. Copying a fixed PDF into a broken tree
+makes such a gate report OK, correctly, and look blind.
 
 ## Compliance decisions baked in
 

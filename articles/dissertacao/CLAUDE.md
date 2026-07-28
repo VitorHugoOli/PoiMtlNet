@@ -28,16 +28,34 @@ folder. No chapter text goes to the author or advisor without passing its gates.
 > the under-review chapters. Written 2026-07-27 after five correction rounds; every claim in it was
 > verified against the repository before it was written down.
 
-## 1 · Current state (2026-07-24 — v1 ASSEMBLED + corrections round 2)
+## 1 · Current state (2026-07-28 — v1 ASSEMBLED + corrections round 6)
 
 - **v1 lives in [`src/`](src/)** — the single working copy; the draft folders (`storyline/`,
-  `fundamentals/`) are **frozen** (freeze pointers in each). **One source, two builds** from a
-  single `main.tex`: `make defense` → `build/main.pdf`, copied to
-  [`src/dissertacao.pdf`](src/dissertacao.pdf) (**108 pp**, full front matter, the banca PDF);
-  `make final` → `build/main_final.pdf` (**105 pp**, AcademicoPG body-only). 0 errors, 0 undefined
-  refs/cites, 0 overfull hboxes, `make check` lint 0. (Page counts measured 2026-07-25 on a full
-  three-pass build of the current source; the 87/83 and 89/84 figures in older notes predate the
-  round-2 corrections.) Build recipe: [`src/src_utils/README_SRC.md`](src/src_utils/README_SRC.md).
+  `fundamentals/`) are **frozen** (freeze pointers in each). **One source, THREE builds**, two entry
+  files: `make defense` → `build/main.pdf` (**108 pp**), copied to
+  [`src/dissertacao.pdf`](src/dissertacao.pdf), the banca PDF; `make final` →
+  `build/main_final.pdf` (**105 pp**, the AcademicoPG deposit body); `make ppgc` →
+  `build/main_ppgc.pdf` (**109 pp**, the defense document plus the approval sheet, from a two-line
+  `main_ppgc.tex` that sets one switch and reads `main.tex`). All three: `tex_errors=0`, 0 overfull
+  hbox/vbox, 0 undefined refs/cites, 0 bibtex problems, 0 oversized floats, 0 `Hfootnote` dest
+  warnings. `make check` **exit 0**. Measured 2026-07-28 on full three-pass builds.
+  Build recipe and the gate suite: [`src_utils/README_SRC.md`](src_utils/README_SRC.md).
+- **Two things a new agent must know before touching the source.** First, the three paper chapters
+  are **split into per-section files** under `chapters/3_cbic/`, `chapters/4_courb/` and
+  `chapters/5_mobiwac/`; a tool that globs `chapters/*.tex` misses 55 percent of the prose, and four
+  checkers had to be fixed for exactly that. Second, `source src_utils/texenv.sh` before any build:
+  a wrong `TEXMFVAR` produces `Font ntx-Regular-tlf-ot1r not found`, which is a missing font **map**,
+  not a missing font, and cannot be probed on this machine.
+- **Round 6 (2026-07-28)** audited the codex findings, ran the research the author's decisions
+  required, applied them, and ran eight review tracks over the result. Its outcome per finding is
+  appended to [`src_utils/CODEX_AUDIT.md`](src_utils/CODEX_AUDIT.md); the author's live queue is
+  [`src_utils/PENDENCIAS.md`](src_utils/PENDENCIAS.md) §2; what was deliberately left out of the text
+  is [`src_utils/LEFT_OUT.md`](src_utils/LEFT_OUT.md); the audit trail is
+  `src_utils/_round6/` (`SOURCE_LEDGER.md`, `VERIFY_LIST.md`, `ANCHORS.md`, and the fifteen pass
+  reports). It opened by finding that **the source had not compiled for six commits** while the
+  build reporter certified it clean, and closed by finding that **`make check` had been exiting 2**
+  the whole round while six commit messages said otherwise. Both mechanisms are in
+  `science/AGENT_HANDOFF.md` §2.3b and `AGENT_GUARDRAILS.md` §7.
 - **`src/` layout (restructured round 2):** LaTeX source + `chapters/` + `figures/` + `tables/`
   + the one `dissertacao.pdf` at the root; **`src_utils/`** holds all non-LaTeX (README, lint,
   reports, the review outputs `_review_v1/`, gate reports `_gates/`, the CBIC recompute result,
