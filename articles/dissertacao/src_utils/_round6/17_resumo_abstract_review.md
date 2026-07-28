@@ -721,6 +721,30 @@ representation level, six datasets by source, a resampling design, a named test 
 
 ---
 
+### A defect in my own commit trail, recorded rather than rewritten
+
+This report landed in three commits instead of one, and the middle one is my error. The report was
+committed whole at **`d4baeb8b`**. I then added the ten-line registry qualification in §5 and ran
+`git commit --amend`, but HEAD had advanced to another track's commit in between, so the amend folded
+my ten lines into **`108eff23`** ("a printed count in the errata appendix does not sum"), under that
+track's message and author. The remaining note, this section, is committed on its own.
+
+**What I verified before deciding what to do.** `git diff 56faa021 108eff23` shows exactly one file
+changed, my report, ten insertions; that track's own `SOURCE_LEDGER.md` and `VERIFY_LIST.md` changes
+are **byte-identical across the amend**. Nothing of theirs was lost or altered, and the report's
+content in HEAD is the intended 750-line version.
+
+**Why I did not rewrite it.** Fixing the attribution boundary requires rewriting the shared tip while
+several tracks are committing to this repository concurrently, and a reset that races another agent's
+commit destroys real work. The cost of the defect is a wrong attribution boundary on ten lines of my
+own file; the cost of the repair is a chance of losing someone else's report. AGENT_GUARDRAILS §7
+names silent correction as a bias to counter, so the trail is recorded here instead of tidied away.
+
+**For anyone reading the history:** the ten lines of `17_resumo_abstract_review.md` inside `108eff23`
+are mine, not that track's, and its commit message does not describe them.
+
+---
+
 ### Method and traceability
 
 Text and images from the committed PDFs via pypdfium2; word and sentence counts from
