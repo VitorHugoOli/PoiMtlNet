@@ -1,4 +1,7 @@
-# Dissertation build (single source main.tex, two modes; UFV_COMPLIANCE §1).
+# Dissertation build. THREE targets, ONE source (UFV_COMPLIANCE §1):
+#   defense -> build/main.pdf       the reading copy, copied to ./dissertacao.pdf
+#   final   -> build/main_final.pdf the AcademicoPG deposit body
+#   ppgc    -> build/main_ppgc.pdf  the defense document plus the approval sheet
 # All LaTeX output goes to build/ (gitignored); the current DEFENSE PDF is copied to
 # ./dissertacao.pdf at the src root. Requires the usermode TeX tree on TEXMFHOME
 # (see src_utils/README_SRC.md). Input paths (figures/, chapters/) resolve relative
@@ -28,10 +31,21 @@ final:
 	pdflatex $(TEXOPTS) -jobname=main_final "\def\FINALBUILD{}\input{main.tex}"
 	@echo "Final AcademicoPG PDF -> build/main_final.pdf"
 
+# PPGC build: the defense document PLUS the approval sheet -> build/main_ppgc.pdf.
+# main_ppgc.tex is a four-line file that sets \APPROVALSHEET and reads main.tex, so this
+# is the same three-pass recipe with a different entry file and jobname.
+ppgc:
+	@mkdir -p build build/chapters
+	pdflatex $(TEXOPTS) main_ppgc.tex
+	$(BIBINPUT) bibtex build/main_ppgc || true
+	pdflatex $(TEXOPTS) main_ppgc.tex
+	pdflatex $(TEXOPTS) main_ppgc.tex
+	@echo "PPGC PDF (defense + approval sheet) -> build/main_ppgc.pdf"
+
 check:
 	@../src_utils/check.sh
 
 clean:
 	rm -rf build/*
 
-.PHONY: all defense final check clean
+.PHONY: all defense final ppgc check clean

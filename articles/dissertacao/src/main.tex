@@ -1,7 +1,22 @@
 % ============================================================================
 % main.tex -- single entry point for the dissertation (Vitor H. O. Silva, UFV/PPGCC).
 %
-% ONE source, TWO build modes (UFV_COMPLIANCE §1). The mode is chosen by the
+% THREE builds, ONE source. Two entry files, and this is the main one:
+%
+%   main.tex       -> the DEFENSE PDF. `make` / `make defense` -> build/main.pdf,
+%                     copied to ./dissertacao.pdf. This is the reading copy.
+%   main.tex+final -> the AcademicoPG deposit body. `make final` -> build/main_final.pdf.
+%   main_ppgc.tex  -> the SAME defense PDF plus the approval sheet. `make ppgc` ->
+%                     build/main_ppgc.pdf. That is its ONLY difference from main.tex
+%                     (author decision 2026-07-28); it is a four-line file that sets one
+%                     switch and reads this one, so the two cannot drift.
+%
+% Two switches, both defined below, both following the same \ifdefined pattern so a
+% command-line \def works without the nested-\if scanning problem:
+%   \ifdefensebuild   front matter on (defense) or off (AcademicoPG deposit)
+%   \ifapprovalsheet  approval-sheet placeholder on (ppgc) or off (everything else)
+%
+% ONE source, TWO front-matter modes (UFV_COMPLIANCE §1). The mode is chosen by the
 % \ifdefensebuild switch, defined HERE by default as the DEFENSE build:
 %
 %   DEFENSE build (default): full front matter (cover/folha de rosto, approval
@@ -25,6 +40,12 @@
 % when the switch is pre-set on the command line.
 \newif\ifdefensebuild
 \ifdefined\FINALBUILD \defensebuildfalse \else \defensebuildtrue \fi
+
+% Approval sheet: OFF here, ON in main_ppgc.tex (author decision 2026-07-28). See the
+% header comment above. main_ppgc.tex sets \APPROVALSHEET before reading this file, so
+% the same \ifdefined guard pattern applies.
+\newif\ifapprovalsheet
+\ifdefined\APPROVALSHEET \approvalsheettrue \else \approvalsheetfalse \fi
 
 % Page number of the FIRST BODY PAGE in the final build (pre-textual pages are counted
 % but not numbered; e.g. 10 pre-textual pages -> first body page is 11). Tune against

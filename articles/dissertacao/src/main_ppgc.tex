@@ -1,0 +1,18 @@
+% ============================================================================
+% main_ppgc.tex -- the defense PDF WITH the approval sheet (folha de aprovacao).
+%
+% Author decision, 2026-07-28: "o main deve gerar o build da defesa e o main_ppgc so
+% gerar o pdf da defesa com a folha de aceite."
+%
+% This file is deliberately four lines of content. It sets one switch and reads
+% main.tex, so main_ppgc.pdf is byte-for-byte the defense document plus the approval
+% sheet, and the two entry points CANNOT drift apart. Everything real -- the preamble,
+% the front matter, the chapters, the bibliography -- lives in main.tex and 0_main.tex.
+%
+% Build: `make ppgc` -> build/main_ppgc.pdf. Do not add content here. If something
+% belongs in both builds it belongs in 0_main.tex; if it belongs only in this one, gate
+% it on \ifapprovalsheet there.
+% ============================================================================
+
+\def\APPROVALSHEET{}
+\input{main.tex}

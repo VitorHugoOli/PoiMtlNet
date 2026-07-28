@@ -180,14 +180,19 @@ degree of \textit{Magister Scientiae}.}
     \imprimirfolhaderosto
     \clearpage
   }
-  % Approval sheet placeholder (signed at the defense; PPG model pages)
-  \begin{center}
-    \vspace*{2cm}
-    {\large\bfseries [Approval sheet placeholder --- PPG signature-page model is\\
-    inserted here for the defense; signed version replaces it afterward]}
-    \vspace*{\fill}
-  \end{center}
-  \clearpage
+  % Approval sheet. Present ONLY in the main_ppgc.tex build (author decision 2026-07-28:
+  % "o main deve gerar o build da defesa e o main_ppgc so gerar o pdf da defesa com a folha
+  % de aceite"). The two builds are otherwise the same document, so this is the one
+  % conditional that separates them; everything else stays shared.
+  \ifapprovalsheet
+    \begin{center}
+      \vspace*{2cm}
+      {\large\bfseries [Approval sheet placeholder --- PPG signature-page model is\\
+      inserted here for the defense; signed version replaces it afterward]}
+      \vspace*{\fill}
+    \end{center}
+    \clearpage
+  \fi
 
   % Resumo (PT) -- claim-parity pair with the Abstract (WRITING_LAW §6)
   \begin{resumo}[Resumo]
