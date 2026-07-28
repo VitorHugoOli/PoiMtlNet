@@ -1,0 +1,48 @@
+% !TeX root = ../main_defense.tex
+% apx_b_static_scope.tex -- one section of Appendix B, kept in its own file so that a SINGLE
+% commented \input line in apx_b_errata.tex suppresses it (author's condition, PENDENCIAS 2.2:
+% "deixe isso facil de ser comentado"). Provenance for every number is in the comment block
+% at that \input site. Do not inline this file back into the appendix.
+
+\section{The scope of the static task in Chapter~\ref{ch:courb}}
+\label{apx:errata:static-scope}
+
+Chapter~\ref{ch:courb} reports two tasks. One is sequential: predict the category of the
+next place a user visits, from the history of that user's check-ins. The other is static:
+classify the category of a place from that place's own representation. This section
+records what we established after publication about the second one, and it bears on how
+that chapter's category results should be read.
+
+The place embedding that Chapter~\ref{ch:courb} feeds to the static task is built from a
+fine-grained class label attached to each place, and that label determines the target
+category exactly. Measured over the five Gowalla state subsets the collection uses, the
+fine class takes between 284 and 365 distinct values per state, every one of them maps to
+exactly one of the seven top-level categories, and none maps to more than one. The
+embedding is a lookup on the fine class, and the fine class is a strict refinement of the
+label. So the static task's input determines its target by construction, and the reported
+accuracy on that task measures a deterministic mapping rather than a learned semantic
+inference.
+
+Three qualifications matter, and none of them is a softening.
+
+The first is that the sequential task is unaffected. Its input is a history of visits and
+its target is a category the model has not seen for that step, so no equivalent identity
+exists between input and label. Every claim Chapter~\ref{ch:courb} makes about the
+sequential task, including the improvement that the decomposed representation produces,
+stands as published.
+
+The second is that this is specific to Chapter~\ref{ch:courb}'s representation and does
+not carry to Chapter~\ref{ch:cbic}. The earlier chapter builds a node feature from the
+average of a place's neighbors' one-hot categories, excluding the place itself, so a
+place's own label never enters its own representation. The two chapters use different
+embeddings, and the property described here belongs to one of them.
+
+The third is that Chapter~\ref{ch:mobiwac} does not inherit the problem, for the reason
+that chapter gives on its own terms: it replaces the place-level embedding with a
+check-in-level representation, whose input is a visit rather than a place, and the
+identity described above does not arise.
+
+We state this here rather than in the chapter because Chapter~\ref{ch:courb} is a
+published, co-authored article and this appendix is the instrument this collection uses
+for the difference between what the published text says and what we know now. The
+measurement is recorded in the repository released with this work.

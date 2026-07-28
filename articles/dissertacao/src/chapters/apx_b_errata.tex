@@ -303,6 +303,44 @@ The comparison is recorded in the research repository, in
 % paragraph above is written so that it stays true either way, but if the author ever
 % resolves that question the sentence about the controlled comparison should be revisited.
 
+% =====================================================================================
+% [round6, author decision 2026-07-27, PENDENCIAS 2.2] The Ch.4 static-task scope section.
+% The author's ruling, verbatim: "Isso ja esta de acordo com ele, podemos adicionar isso no
+% appendix B, mas deixe isso facil de ser comentado, vide que eu ainda vou discutir com meu
+% orientador sobre se argumentamos ou nao quanto a isso."
+% So: (a) courtesy notice to the co-author is GIVEN, (b) Appendix B is the sanctioned place,
+% (c) THIS SECTION MUST BE EASY TO COMMENT OUT pending his conversation with the advisor.
+% TO SUPPRESS IT: comment the single \input line below. Nothing else references this section
+% except the Ch.4 preface pointer, which is written to degrade gracefully (it names the
+% appendix, not a \ref to this label), so commenting the input leaves no dangling reference.
+% The section body lives in chapters/apx_b_static_scope.tex for exactly that reason.
+%
+% EVERY NUMBER IN THAT FILE WAS MEASURED THIS ROUND, not quoted from a prior report:
+%   data/checkins_by_state/{Alabama,Arizona,Florida,California,Texas}.parquet, POI-level table
+%   (drop_duplicates on placeid, matching research/embeddings/hgi/preprocess.py:75-80 which
+%   dedups by placeid with mode_or_first), grouping the `spot` column -- which
+%   preprocess.py:62 renames to `fclass` -- by nunique of `category`:
+%     Alabama     11,848 POIs   284 spot values   7 categories   0 spanning >1 category
+%     Arizona     20,666        305               7              0
+%     Florida     76,544        324               7              0
+%     California 169,145        333               7              0
+%     Texas      160,938        365               7              0
+%   Agrees with persona 11's independent re-derivation (284 to 365, none ambiguous).
+% MECHANISM, read in code, not inferred:
+%   research/embeddings/hgi/poi2vec.py:487  poi_embeddings[valid] = fclass_embeddings[fclass_values[valid]]
+%     -> the place vector is a pure function of the fine class.
+%   research/embeddings/dgi/preprocess.py:114-130  the DGI node feature is the MEAN OF THE
+%     NEIGHBORS' one-hots, EXCLUDING the node itself (embedding_array.iloc[neighbors].mean),
+%     so the node's own label never enters its own representation. This is why the author was
+%     right to separate the two chapters: the defect is CoUrb's, not CBIC's.
+%   research/embeddings/hgi/preprocess.py:41-45 documents the ablation arm that permutes the
+%     encoded fclass column to break exactly this determinism, which is independent evidence
+%     that the team identified the mechanism before this round.
+% [NEEDS SIGN-OFF: whole section -- new frame prose making a public statement about a
+% published co-authored result. The author has the co-author's agreement; the ADVISOR
+% conversation is still pending, which is why it is one commented-out line from suppression.]
+\input{chapters/apx_b_static_scope}
+
 \section{Bibliography errata}
 \label{apx:errata:bib}
 
