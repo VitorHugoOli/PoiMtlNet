@@ -1,0 +1,28 @@
+
+===== PDF PAGE 102 =====
+102
+APPENDIX C – AI-Use Disclosure
+This dissertation was written with the assistance of a generative artificial intelligence
+tool, Claude (Anthropic), used as a research and writing assistant under the author’s direction.
+This appendix discloses the scope of that use, as the CNPq integrity policy requires (Portaria no
+2.664/2026) and the UFV/DPE disclosure guidelines of 2026 recommend.
+The scope of use, per part of the work, was the following.
+Drafting. The frame chapters (Chapters 1, 2, and 6), the appendices, and the front matter were
+drafted by the assistant from author-approved outlines, source documents, and decision
+records, section by section. The three article chapters (Chapters 3 to 5) are re-typeset
+reproductions of the articles’ own texts; the assistant performed the re-typesetting and the
+English translation of the Chapter 4 article, which passed a separate sentence-level fidelity
+check against the published Portuguese text.
+Editing and review. Assistant-run review passes checked citations, numbers, claims, cross-
+references, and style, each pass run by an agent that did not write the text under review.
+Their findings were corrections for the author to accept or reject, not approvals.
+Formatting. The LaTeX structure, the two build modes, the bibliography consolidation, and
+figure and table re-setting were produced by the assistant.
+Code. Analysis and experiment code was written by the author with assistant support; the
+assistant also wrote verification scripts used in the review gates.
+Three rules governed the drafting. Every reference was checked against its source of
+record, with the cited claim located in the source. Every number was traced to the file it came
+from and quoted rather than computed. Every verdict verb was bound to the statistical test that
+licenses it. Passages that could not be verified were flagged for the author instead of being
+smoothed over. The author read, corrected, and approved the final text, and is responsible for
+every word of it.

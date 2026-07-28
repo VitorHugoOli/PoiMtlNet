@@ -1,0 +1,947 @@
+
+===== PDF PAGE 57 =====
+57
+5 A Check-in-Level Multi-Task Study of
+Next Category and Region
+This chapter reproduces the article “Predicting the Next Category and Region
+of a Visit: A Check-in-Level Multi-Task Study on Mobility Data,” submitted to
+MobiWac 2026, under review at the time of writing (EDAS #1571313639). It closes
+the investigation that Chapters 3 and 4 open: with a check-in-level representation
+and a redesigned sharing topology, a single joint model outperforms the dedicated
+single-task category model at all six datasets studied (five U.S. states and Istanbul)
+and the dedicated region model at four of the six, and it matches the dedicated region
+model (statistically, within two points) at the other two. The article was reformatted
+from its two-column original into the dissertation layout: sections, figures, and
+tables were renumbered, and the figures were regenerated at single-column width.
+No result, claim, or conclusion was altered; every departure from the submitted text
+is recorded in the errata appendix.
+5.1
+Introduction
+Location-based social networks, such as Gowalla [12], let people share the places that
+they visit as check-ins, which together record how people move through a city. Individual
+mobility is highly predictable in principle [2], so a service that anticipates the next move can
+prepare ahead of time, caching content where a user is heading [92] or provisioning capacity at
+the destination before demand arrives. Handover predictions already let cellular services adapt
+in advance at the network level [93]; at the city scale, check-in mobility analysis is likewise a
+design input for mobility-aware services [94].
+Predicting the next place exactly, a single point of interest (POI), is hard and often more
+than a service needs. Two coarser questions are usually enough: the next category, the type of
+place such as food or shopping, and the next region, the part of the city that a user is heading to
+(a neighborhood-scale unit such as the U.S. census tract). The first captures intent, the second
+captures geography; we study whether one model should learn both at once.
+Sharing one representation across tasks has a cost: in multi-task learning (MTL), one
+model does several jobs at once by sharing most of its parts, so the shared parameters can
+converge to a compromise optimal for neither task, helping one while hurting the other [7].
+Our earlier work reported no consistent multi-task advantage for the paired category tasks and
+
+===== PDF PAGE 58 =====
+Chapter 5. A Check-in-Level Multi-Task Study of Next Category and Region
+58
+attributed it, in part, to this effect [1]; the useful question is where sharing helps, what it costs,
+and how to share so the gains hold and the cost stays small.
+We propose two enhancements. First, we build a check-in-level representation: instead
+of one fixed vector per place, each check-in gets its own vector that holds its context (the time,
+nearby places, and recent visits). This adds a fourth level, the check-in, beneath the place, region,
+and city levels of hierarchical graph infomax [34, 33] (Figure 4). Second, we train one model
+that predicts the next category and the next region in a single forward pass, with a shared trunk
+(a cross-attention stack where the two tasks exchange semantic context) and a private spatial
+path for the region task (Figure 5). We evaluate on two settings chosen to differ: five U.S. states
+of different sizes (Gowalla) and one non-U.S. city (Istanbul).1
+Our contributions are as follows.
+• A check-in-level representation that extends hierarchical graph infomax from the place to
+the individual visit, improving next-category prediction over a standard place embedding
+by about +28 to +40 points of macro-F1 (a balanced score that counts every category
+equally) across all six datasets (Table 9). A controlled test attributes most of the gain to
+the per-visit context, not to extra training signal. The gap is large because a single fixed
+vector per place cannot separate places that serve several purposes, which per-visit context
+recovers.
+• A single model for joint next-category and next-region prediction, sharing semantic context
+across tasks while keeping a private spatial path for the region task; to our knowledge, the
+first work to treat fine-grained region as an end target of equal standing (Section 5.2.3). In
+one forward pass, it outperforms a dedicated single-task category model on every dataset
+(by about +5 to +9 points of macro-F1), even though each dedicated model is tuned
+per dataset. On region, it outperforms at four of the six datasets and stays statistically
+non-inferior within a two-point margin (TOST, a test of equivalence) at the remaining two
+(Table 10).
+• An empirical account, across five U.S. states and one non-U.S. city, of how the joint gain
+scales with the number of regions. The category gain holds on all six datasets. Across the
+U.S. states, the region result moves monotonically with the region count: the joint model
+matches the dedicated model (TOST, ±2 percentage points, or pp) at the small region
+counts and outperforms it at the large region counts, with the state with the most regions
+(California) showing the largest region gain (Figure 7). At Istanbul, the dataset with the
+fewest regions, the joint model is also ahead on region (+0.19 Acc@10). All joint and
+dedicated results average four random initializations (Section 5.6.2).
+1
+Code (model, representation, baselines, statistical tests): <https://github.com/VitorHugoOli/PoiMtlNet/tree/m
+obiwac>. Both data sources are public: the category-annotated Gowalla dump (<https://figshare.com/articles/d
+ataset/gowalla_data/22126586>) and Massive-STEPS [62].
+
+===== PDF PAGE 59 =====
+Chapter 5. A Check-in-Level Multi-Task Study of Next Category and Region
+59
+The remainder of this chapter presents related work (Section 5.2), the problem (Sec-
+tion 5.3), the method and setup (Sections 5.4 and 5.5), results (Section 5.6), and discussion and
+conclusions (Sections 5.7 and 5.8).
+5.2
+Background and Related Work
+5.2.1
+The MTLnet framework and the representation diagnosis
+Two chapters of this dissertation precede this study, and this chapter answers the ques-
+tion that they leave open. Chapter 3 introduced MTLnet, the first joint model for this task pair:
+task-specific encoders feed shared layers conditioned on task identity, and a gradient-balancing
+method weights the two tasks during training [1]. On a place-level embedding with hard pa-
+rameter sharing, that joint model did not outperform the dedicated single-task models, the
+conclusion of the time for that configuration. Chapter 4 kept the MTLnet architecture unchanged
+and replaced its single 64-dimensional place-level input with decomposed spatial, temporal, and
+categorical encoders (ST-MTLNet); the category score rose at each of the three states studied,
+so the input representation, not the sharing architecture, was identified as the bottleneck [84].
+This chapter carries that diagnosis one step further: the representation moves from the place
+level to the check-in level, the sharing topology is redesigned around it, and the earlier negative
+conclusion is revisited under this new configuration.
+5.2.2
+From place embeddings to per-visit embeddings
+A place embedding transforms a POI into a vector so that similar or nearby places sit close
+together in the vector space. Deep Graph Infomax (DGI) [33], a general self-supervised method
+for graphs, learns such vectors on a place network linked by similarity, time, and distance,
+training them to tell the real network from a copy with shuffled node features. Hierarchical
+Graph Infomax (HGI) [34] adds geographic structure, organizing the network as place, then
+region, then city. Both produce one vector per place, so two visits to the same coffee shop
+look identical to the model. Contextual check-in representations instead give each visit its own
+vector: CTLE [20], the closest example, learns a vector per visit by masking and reconstructing
+parts of a user’s check-in sequence. Our representation, Check2HGI, also works at the check-in
+level but through a different construction. CTLE is a sequence model, a Transformer that reads
+the check-in sequence itself; Check2HGI remains a network model, keeping the hierarchical
+place-to-region-to-city network and the same infomax objective, now extended one level deeper,
+from individual places down to individual check-ins (Figure 4). The order of a user’s visits still
+enters the network, as links between consecutive check-ins (Section 5.4.1).
+The novelty is this specific combination: per-visit context inside a hierarchical graph-
+infomax representation. We compare against CTLE and a feature-concatenation control to se-
+
+===== PDF PAGE 60 =====
+Chapter 5. A Check-in-Level Multi-Task Study of Next Category and Region
+60
+parate the combination from contextualization alone and from feature injection.
+5.2.3
+Predicting the next category and the next region
+A large body of work predicts the next place that a user will visit, the exact POI, with
+recurrent and attention models such as DeepMove [14], STAN [17], and GETNext [19]. In
+contrast, we target two properties of the next visit, its category and its region, rather than the
+exact place. We choose them because they are what a mobility-aware service can act on, not to
+make the task easier; the region alone spans hundreds to several thousand classes. Predicting
+over a partition of the map is also the standard formulation in the human-mobility literature, with
+a grid cell as the target [3]; our next-region task substitutes official neighborhood-scale units for
+grid cells. Our earlier work [1] paired static category classification with next-category prediction
+and found no consistent multi-task gain; this chapter introduces the next-region task and adds
+the check-in-level representation, on which sharing helps instead of hurting (Section 5.6.2).
+The field increasingly models several granularities at once; in those systems, category
+and region are auxiliary signals that help a primary next-place task (MCMG [95], HMT-GRN
+[21]). We study the pair as the object itself. To our knowledge, fine-grained region as an end
+target of equal standing, rather than an auxiliary coarse grid cell, is underexplored. The nearest
+exceptions do not study our exact pairing: DRRGNN [23] forecasts a person’s next activity
+region jointly with a mobility-intention label, but over regions discovered per person rather than
+a fixed citywide partition; a generative recommender [96] predicts category and region together,
+but only as auxiliary steps toward its next-place ranking.
+5.2.4
+Multi-task learning for mobility
+MCARNN [60] jointly predicts activity and location, and a recent hierarchy-aware model
+continues the pattern [97]; in both, the location target is the exact place. The closest alternative
+to our setting is the cascade: predict the category first, then the place given the category [98].
+CSLSL [61] is its current form, predicting in a chain (when, then what, then where), with
+location as the primary output and category as an intermediate step; CatDM [22] likewise uses
+the predicted category only to filter candidate places. We instead predict category and region in
+parallel, as end targets of equal standing in one model with a single forward pass, and we drop the
+next-place target entirely, so neither task is an intermediate step toward a third. Since the cascade
+is the pattern that the field uses, we test the choice directly (Section 5.6.2). On optimization, we
+are conservative by design: joint training with a fixed loss weighting is standard practice [7],
+not itself our contribution. Reports find that gradient-balancing methods, which re-weight the
+tasks’ updates during training (PCGrad [50], Nash-MTL [52]), rarely improve on a well-tuned
+fixed weighting with two tasks [56]. We confirm this at scale: of nineteen loss and gradient
+balancers screened at their default configurations at a single seed on two datasets, Alabama
+
+===== PDF PAGE 61 =====
+Chapter 5. A Check-in-Level Multi-Task Study of Next Category and Region
+61
+and Florida, including the two methods named above, none improved on a tuned fixed task
+weighting across both tasks and both datasets. Two exceed equal weighting on next-category
+at Alabama, Nash-MTL by 0.68 points and scale normalization by 0.19, and neither holds that
+position elsewhere: Nash-MTL loses it on the second dataset, and scale normalization gains
+on next-category there while collapsing on next-region. The reason is visible in the gradients.
+Measured during development on the same joint architecture (on an earlier preparation of the
+data), the cosine similarity between the next-category and next-region updates on the shared
+trunk averages +0.001 across training (four seeds each on four Gowalla states: Alabama, Arizona
+and Florida, which are three of the five United States datasets reported here, and Georgia, which
+this dissertation does not otherwise use, per-dataset means within ±0.003). A balancer therefore
+has no conflict to resolve, consistent with the mechanism test in Section 5.6.2; this is a finding
+for this pair of tasks, not a general rule.
+raw check-in
+sequence
+visits ordered in time
+four-level graph
+city
+region
+place
+check-in
+edges: consecutive visits by a user
+features: category, hour, weekday
+trained with no task labels (infomax)
+per-visit vectors
+(one per check-in)
+region vectors
+(one per region)
+sliding windows
+of 9 visits
+9 past visits, each with its
+own vector and its region’s
+vector →next visit (target)
+next-category
+next-region
+extract
+Figure 4 – From a check-in sequence to two predictions: each visit is embedded in a four-level
+graph (check-in, place, region, city) trained without task labels. The graph yields two
+sets of vectors, one per visit and one per region; sliding nine-visit windows of each
+feed a single model that outputs the next category and the next region.
+5.3
+Problem and Tasks
+Given a user’s time-ordered check-in history, we predict two properties of the next visit.
+The first is its category, one of seven fixed labels: Community, Entertainment, Food, Nightlife,
+Outdoors, Shopping, and Travel. Istanbul’s source collection maps its places onto the same seven
+labels. The second is its region, the place’s census tract (for Istanbul, the mahalle, a municipal
+neighborhood). We do not predict the exact next place; both properties are easier to learn and,
+for most uses, enough. Region, unlike category, is a large label set: we frame next-region as
+classification over candidate regions, from 520 classes (Istanbul) to 8,501 (California; Table 8).
+
+===== PDF PAGE 62 =====
+Chapter 5. A Check-in-Level Multi-Task Study of Next Category and Region
+62
+The motivation is practical: the category says what type of place comes next, hence what
+a user will want; the region says where, hence where to prepare. The mobility literature supports
+such preparation: city services have long been built on location-based social network traces [11].
+A recent analysis of tourist check-in mobility finds that visits concentrate on a few hub places,
+argues that crowds and demand therefore concentrate, and ties this structure to infrastructure
+planning and adaptive strategies [94]. That analysis reads past visits; we predict two properties
+of the next one, and aggregated over users, those predictions point to where demand is heading
+before it arrives. A census tract is a neighborhood, not a radio cell. We therefore scope our
+claims to neighborhood-level preparation: demand and load anticipation, caching content ahead
+of time, and capacity planning. Cell association and handover are radio-level decisions and
+remain out of scope. We build and evaluate no such service here; Section 5.7 quantifies what
+these predictions would give such a service.
+5.4
+Method
+5.4.1
+The check-in-level representation
+We want each visit, not each place, to have its own vector; we call the resulting repre-
+sentation Check2HGI (Section 5.2.2). Figure 4 shows the full data flow, from check-ins to the
+two outputs.
+We build a graph with four levels: the check-in, its place, the place’s region (a census
+tract), and the city. Edges connect each level to the one above it and link a user’s consecutive
+check-ins with a weight that decays as the time gap between the visits grows; same-place visits
+connect through their shared place node one level up, and nearby places are linked at the place
+level. Each visit’s category, time of day, and day of week enter as input features of its node,
+not as edges. This keeps a hierarchical graph’s place-to-region-to-city geography and adds the
+check-in as a bottom level. We train the graph mainly with an infomax objective, under which
+each vector learns to match its real neighborhood and reject a shuffled one [33, 34]. Two small
+label-free auxiliary terms are added (weights 0.3 and 0.1): a masked reconstruction of each
+place’s aggregated category features, and an anchor to a place embedding pre-trained, label-
+free, on the same data. The training uses no task label: it never sees the next category or the next
+region. From the trained graph, we extract one 64-dimensional vector per check-in (its region
+nodes have trained vectors as well), so a model sees a sequence of per-visit vectors rather than
+repeated per-place ones.
+5.4.2
+The single multi-task model
+We then train one model that reads a window of recent per-visit vectors and predicts the
+next visit’s category and region at once. Figure 5 shows the design. Each task has its own input.
+
+===== PDF PAGE 63 =====
+Chapter 5. A Check-in-Level Multi-Task Study of Next Category and Region
+63
+The category task reads the window of per-visit vectors (the semantic stream); the region task
+reads the same window of visits, each visit now represented by the trained vector of its region
+node from the same graph (the spatial stream). Both pass through private per-task encoders (a
+small input network per task, with no shared weights) into the shared trunk, a cross-attention
+stack of two blocks, so each prediction still uses both inputs. In each block, attention lets each
+stream read the other’s features, while each keeps its own feed-forward weights. The tasks
+therefore share by exchanging information between per-task streams, not by owning hidden
+layers in common. The trunk then feeds a category output and a region output; the region output
+also keeps a private spatial path: a small branch inside the one model (not a second model) that
+reads the spatial input window, bypassing the shared trunk. The category task does not touch
+this branch. Together, the region task’s encoder, its output, and this private path form the region
+pathway.
+The training loss is a fixed-weight sum of the two outputs,
+𝐿= 0.75 𝐿cat + 0.25 𝐿reg,
+(5.1)
+where 𝐿cat and 𝐿reg are plain unweighted cross-entropy losses. The weights were tuned once on
+validation during development and held fixed across all six datasets. Class-weighting, tested on
+both outputs, lowered both region accuracy and category macro-F1. This is standard fixed-weight
+joint training [7], kept simple by design so that any improvement over the dedicated single-task
+models comes from the shared representation, not from an adaptive weighting scheme.
+The joint model includes the shared trunk and both task outputs, so it is larger than either
+dedicated model, and a forward pass costs more compute than running the two small dedicated
+models: the joint model has about 4.2 million parameters at Alabama against 1.1 million for the
+two dedicated models combined (5.2 against 2.0 at California). What the single model provides
+is operational rather than arithmetic: one artifact to train, version, and deploy, and one forward
+pass whose one set of inputs produces both answers at once.
+5.5
+Experimental Setup
+5.5.1
+Data
+Table 8 summarizes our six datasets. Five come from Gowalla, a location-based social
+network, covering the U.S. states of Alabama, Arizona, Florida, Texas, and California [12]; the
+sixth is Istanbul, from the Massive-STEPS collection [62], a non-U.S. check on the findings.
+The states range from about 114,000 check-ins and 1,109 regions in Alabama to about 3.2
+million check-ins and 8,501 regions in California. Every dataset uses the seven place categories
+of Section 5.3; Istanbul’s source collection maps its own labels onto them. The region unit is a
+census tract for the Gowalla states and a mahalle for Istanbul.
+
+===== PDF PAGE 64 =====
+Chapter 5. A Check-in-Level Multi-Task Study of Next Category and Region
+64
+check-in window
+(semantic stream)
+region window
+(spatial stream)
+semantic encoder
+(private)
+spatial encoder
+(private)
+shared trunk (bidirectional cross-attention ×2)
+category output
+region output
+shared + private spatial path
+→next-category
+→next-region
+streams exchange
+information
+raw region
+(private
+spatial path)
+one model, one forward pass, two predictions
+Figure 5 – The single multi-task model. A check-in (semantic) window and a region (spatial)
+window pass through private encoders into the shared trunk, the only place where
+the two tasks interact. The category output uses the trunk’s output alone; the region
+output combines it with a private spatial path. One model, one forward pass, two
+predictions.
+Table 8 – Dataset statistics, ordered by region count: five Gowalla states and Istanbul (Massive-
+STEPS). All share the same seven root categories; the region unit is a census tract
+(a mahalle for Istanbul). Windows: sliding nine-visit inputs plus the next-visit target;
+lengths: per-user check-in counts; density: 100 × check-ins/(users × POIs); Majority:
+share of next-visit labels in the most common category (Food in every dataset).
+Dataset Source
+Check-
+ins
+Users
+POIs Regions Windows
+Max
+len
+Avg
+len
+Density
+(%)
+Majority
+(%)
+Istanbul Massive-STEPS
+462,615 23,694
+29,816
+520
+271,666
+817
+19.5
+0.065
+33.4
+AL
+Gowalla
+113,846
+3,858
+11,848
+1,109
+96,326
+3,835
+29.5
+0.249
+34.2
+AZ
+Gowalla
+236,450
+7,869
+20,666
+1,547
+200,895
+5,589
+30.1
+0.145
+34.0
+FL
+Gowalla
+1,407,034 21,052
+76,544
+4,703 1,274,418 16,679
+66.8
+0.087
+24.7
+TX
+Gowalla
+4,089,892 38,644 160,938
+6,553 3,830,414 42,300 105.8
+0.066
+31.0
+CA
+Gowalla
+3,171,380 37,090 169,145
+8,501 2,925,466 14,855
+85.5
+0.051
+32.7
+
+===== PDF PAGE 65 =====
+Chapter 5. A Check-in-Level Multi-Task Study of Next Category and Region
+65
+5.5.2
+Windows, splitting, and the integrity of the representation
+Windows. For each user with at least ten visits, we build time-ordered overlapping sliding
+windows of nine visits, one starting at each visit, with the next visit as the target, giving both
+tasks more examples. Near the end of a user’s history, every start position within the last nine
+visits yields a shorter, padded window whose target is the same final visit; we keep only the
+full-length window ending there and drop these padded duplicates. The resulting prediction
+horizon is short but heavy-tailed: the median time from the last visit in a window to its target
+ranges from 0.4 hours in Florida to 5.5 hours in Istanbul, while 5 to 27 percent of targets lie over
+3 days ahead.
+Splitting. We split by user with stratified five-fold cross-validation, so all of a user’s
+windows fall in the same fold and overlap cannot leak: a test user’s visits never appear in
+training. The held-out fold is the validation data; we reserve no third split. The split is stratified
+on the next-category label because the seven-class task is imbalanced: Food is the majority class
+in every dataset, from about 25 percent of visits in Florida to 34 percent in Alabama (Table 8).
+Integrity of the representation. We train the representation once on the whole dataset
+and feed it to every model, dedicated and joint. A representation built this way could pass
+information about a test visit along more than one channel. We therefore bound the channels
+that we can measure, and state for each what the measurement covers, on four grounds. First,
+its training objective is label-free: it contrasts real graph neighborhoods against shuffled ones
+and never sees a next-category or next-region target. That bounds the training signal and not
+the inputs, since each visit’s own category enters as a node feature (Section 5.4.1); the fourth
+ground below measures what that feature can carry between visits. Second, we measured the
+transductive channel, what a graph fitted over all users passes to the test side that a graph fitted
+over training users alone would not. Rebuilding the representation per fold, from that fold’s
+training users only, moves both tasks by at most a third of a point (region −0.33 to +0.01;
+category 0.00 to +0.29, at Alabama, Arizona, and Florida), within fold noise. This measurement
+covers the visits whose places appear in training (67 to 87 percent); visits to places unseen in
+training are the one part it cannot reach. Third, the one component that could pass information
+between visits, a region-transition prior (a table of how often one region follows another), is built
+per fold from training data only, after an earlier whole-dataset version inflated region accuracy
+by 13 to 27 points. Our joint and dedicated models do not use this prior; it appears only in
+the HMT-GRN baseline (Section 5.5.4). Fourth, we probe the channel that the graph’s own
+links between consecutive visits open. A visit’s node is linked to the visit that follows it, and
+category is a node input feature, so a per-visit vector could in principle absorb the category
+of the next visit. A screening audit run during development tests exactly this: it predicts the
+next category from the last window slot alone. The audit reads each encoder against a clean
+reference encoder rather than against the category labels directly. At Florida the graph encoder
+of our own lineage is that reference, at 0.4090 macro-F1 on standardized features and 0.4074
+
+===== PDF PAGE 66 =====
+Chapter 5. A Check-in-Level Multi-Task Study of Next Category and Region
+66
+on raw ones, on a zero-to-one scale, and the residual variant that the encoder we ship descends
+from sits at the same level, 0.4197 and 0.4182; an attention-based encoder screened beside them
+reached 0.4976 and 0.4863, clear of the reference by more than the screen’s margin, and was
+disqualified on that evidence. A second reference can be computed directly from the category
+sequence, with no encoder involved. We call it the label-history benchmark: the best macro-F1
+reached by four specified predictors that read only the genuine category history of the input
+window (Appendix D). It is not an upper bound on what a model may score. The four predictors
+are a specified set, and a better predictor of the same restricted information could exceed them.
+The benchmark lies below the clean reference: 0.3617 at Florida, and 0.2800 to 0.3617 across
+the five datasets where the inputs are available. The clean references therefore lie above the
+label-history benchmark, by four to six points at Florida, and so does every other candidate
+screened beside them on the raw run of the probe. One candidate falls below the benchmark on
+the standardized run and above it on the raw one; Appendix D names it and explains why it is
+not a counter-example.
+The measurement bounds this channel rather than closing it, and three limits set how far
+it reaches: the probe is linear, it was run at Florida alone at one random initialization over five
+user-grouped folds, and it was run on those ancestor builds of the representation rather than on
+the one that produced the results reported here. The same record shows why the linear form is
+a screen and not a proof, since one encoder that passed it leaked under a downstream sequence
+model. The baseline representations meet the same standard: HGI is pre-trained once on the
+whole dataset, like ours, and CTLE per fold on training users only.
+5.5.3
+Metrics and statistical tests
+For the category task, we report macro-averaged F1 (macro-F1), which averages the per-
+class F1 so each of the seven categories counts equally; its reference point is the majority-class
+floor, the macro-F1 of always predicting the most common category. For the region task, we
+report accuracy at ten (Acc@10), the fraction of test visits whose true region appears among the
+model’s ten highest-scoring guesses (a visit whose true region is absent from that fold’s training
+data counts as an error); its reference point is the dedicated model.
+A claimed gain and a claimed match require different tests, because a difference that
+fails to reach significance is not by itself evidence of a match. A written analysis plan, fixed
+during development and before any result was read, assigned one test to each task, with the
+two-point margin pinned there: superiority for next-category, non-inferiority for next-region. It
+assigned the tests per task, not per dataset, and did not cover next-region superiority, so the
+four next-region gains of Section 5.6.2 are secondary results outside it. The plan registered a
+paired Wilcoxon signed-rank test; at four seeds its exact one-sided 𝑝cannot fall below 0.0625,
+so we report a paired 𝑡on the per-seed means, with the 90% confidence interval of the paired
+difference, and the registered test alongside it. Both, and this departure, are released with the
+
+===== PDF PAGE 67 =====
+Chapter 5. A Check-in-Level Multi-Task Study of Next Category and Region
+67
+code. A seed is one complete repetition of the five-fold experiment, over the same folds, with a
+different random initialization; folds and seeds are the two axes of repetition. On every dataset,
+both models use four seeds (4 × 5 = 20 measurements) and the tests pair the per-seed means
+(𝑛=4), with a Holm correction [70] across the six next-category comparisons and, separately,
+across the four next-region ones. The non-inferiority claim is that the joint model is no worse
+than the dedicated model by more than a two-point margin; we test it with the two one-sided
+tests (TOST) procedure [71]. The two-point margin is fixed in advance as well: a mobility-aware
+service acts on which region will be busy, not on a single rank position (Section 5.3), so a two-
+point shift in Acc@10 is below the granularity at which such a service would behave differently.
+The equivalence is well powered: the paired difference’s standard deviation is 0.01 to 0.18 points
+across the datasets, and the intervals pass a margin as small as one point at Alabama and Arizona
+(Section 5.6.2).
+5.5.4
+Baselines
+The comparisons play three roles. The first role is played by the per-task state of the art,
+on our data, under user-disjoint five-fold protocols. For next-category, this is POI-RGNN [24],
+re-implemented from its published architecture and hyperparameters, and a Markov baseline
+that predicts the category that most often follows the recent ones (Markov-K, best order per
+dataset); for region, we also compute a first-order Markov floor over region transitions, under
+the same sliding-window protocol and fold splits as our models. For next-region, the primary
+comparison is HMT-GRN [21], an end-to-end recurrent model (trained as one piece from the
+raw check-ins) evaluated on the same data, folds, and initialization. We keep its shared multi-task
+skeleton and add a region-transition prior built per fold from training data. We drop its graph
+components and hierarchical beam search, which exist to serve its next-place target, a target that
+we do not predict. The result is a region-native model (region is one of its own prediction targets),
+not a reproduction of the complete published system. We also run STAN [17], re-implemented
+from its published architecture and trained from the raw check-ins with its own embeddings and
+sequence construction under one fixed configuration. We adapt its output layer to rank region
+candidates, spatial objects that still support its candidate-distance matching; we do not adapt
+it to category, where distance matching has no meaning. A ReHDM [99] reference is reported
+under its own published protocol.
+The second role is played by two representation controls that attribute the category
+gain to our specific design, not to contextualization in general or to extra features: CTLE [20],
+the closest prior contextual check-in embedding, run end to end at Florida and with frozen
+weights (no fine-tuning) at Alabama, Arizona, and Istanbul; and a feature-concatenation control
+appending raw per-visit features to a standard place embedding under the same model.
+The third role is a comparison between the two ways of coupling the tasks. The domi-
+nant published coupling is the directed cascade, predicting the category first and conditioning
+
+===== PDF PAGE 68 =====
+Chapter 5. A Check-in-Level Multi-Task Study of Next Category and Region
+68
+the place prediction on it [98, 22, 61]. We test the cascade inside our own model rather than
+re-implementing those systems: we remove the shared trunk, where the two streams exchange
+information, and feed the predicted category forward into the region pathway, keeping the re-
+presentation, outputs, and training configuration unchanged. This isolates the coupling topology
+(chain versus parallel) at no additional parameter or compute cost: the chain form drops the
+shared trunk and adds a conditioning projection of about 1,000 parameters. A final control,
+the standard place-level embedding [34], isolates what the per-visit representation adds. All
+other choices, including the nine-visit window, were fixed during development; the full training
+configuration for every model is in the released code (footnote 1).
+5.6
+Results
+5.6.1
+The representation makes the category task learnable
+The check-in-level representation outperforms a standard place embedding (HGI [34]) on
+next-category macro-F1 by a wide gap on every dataset (Table 9). The comparison is controlled:
+target, single-task model, training configuration, windowing, and folds are identical; only the
+input representation changes (a vector per visit versus a vector per place), so the difference
+isolates the representation. The check-in-level column keeps one fixed configuration, not the
+per-dataset-tuned dedicated model of Table 10. The gaps range from +27.63 (Arizona) to
++39.62 (Florida), with Istanbul at +28.09. A controlled test isolates this: averaging the per-visit
+vectors into one vector per place removes roughly 64 to 90 percent of the gain (state-dependent),
+so most of the gain is the context that each visit carries, not extra training signal (more training
+vectors per place).
+The geometry of the vectors shows why the representation helps this task in particular:
+the per-visit vectors’ silhouette score by category (how tight and well separated the seven labeled
+groups are, on a −1 to 1 scale) is about 0.57 against about 0.00 for the place embedding, and
+their nearest-neighbor category purity (the share of nearest neighbors with the vector’s own
+category) is about 0.98 against about 0.78 (both averaged over the five U.S. states). The same
+geometry does not separate regions, so the benefit is category-only (the joint model’s spatial
+stream instead reads the region-level vectors of the same graph, Section 5.4.2). CTLE [20], the
+closest prior contextual embedding, also gives each visit its own vector, but it pretrains on place
+identifiers and timestamps alone, so the category vocabulary never enters its training, whereas
+our graph reads each visit’s category and time of day as input features. At Florida, we fine-tune
+CTLE together with the task model, using its authors’ defaults and the same 64 dimensions
+and windowing as ours. It reaches 33.45 macro-F1 at its best epoch and 29.69 at its final one
+(an epoch is one pass over the training data), about two points below the place embedding
+under the same best-epoch rule, and far below the check-in-level representation’s 75.15. With
+frozen weights, fed to the same single-task model, CTLE repeats the ordering at Alabama,
+
+===== PDF PAGE 69 =====
+Chapter 5. A Check-in-Level Multi-Task Study of Next Category and Region
+69
+Arizona, and Istanbul, with our representation ahead by +37.8, +37.0, and +28.7 macro-F1. A
+feature-concatenation control joins the place embedding with the same raw per-visit features
+that our graph reads (the category one-hot plus hour and day-of-week encodings) and feeds the
+result to the same single-task model. It does not close the gap either: at Alabama, Arizona, and
+Florida it raises the place embedding by only +2.0, +1.7, and +0.8 macro-F1, under a tenth of
+the place-to-check-in gap at each state. The gain therefore comes from the hierarchical per-visit
+representation, not from contextualization alone or feature injection.
+Table 9 – Next-category macro-F1: the check-in-level representation against a standard place
+embedding (HGI), same single-task model, training configuration, and folds (mean
+and fold sd, seed 0).
+Dataset
+Check-in level
+Place level
+Δ
+Istanbul
+54.65 ±0.6
+26.56 ±0.5
++28.09
+AL
+55.87 ±2.4
+26.56 ±1.0
++29.31
+AZ
+57.13 ±1.3
+29.50 ±1.0
++27.63
+FL
+75.15 ±0.5
+35.53 ±0.3
++39.62
+TX
+69.95 ±0.2
+32.48 ±0.6
++37.47
+CA
+70.26 ±0.3
+32.31 ±0.4
++37.95
+The matching place-level value at Alabama and Istanbul (26.56) is a coincidence of two independent runs; their
+per-fold values differ.
+Figure 6 shows the same separability contrast graphically.
+Silhouette
+(by category)
+kNN purity
+(by category, k=10)
+0.0
+0.5
+1.0
+Score
+0.57
+0.98
+0.00
+0.78
+Check2HGI (check-in level)
+HGI (place embedding)
+Figure 6 – Class separability of the representations, grouping each vector by its ground-truth ca-
+tegory label (cosine silhouette; leave-one-out nearest-neighbor (kNN) purity, 𝑘=10),
+averaged over the five U.S. states. The check-in-level representation separates the
+seven categories; the place embedding does not.
+5.6.2
+One model, two tasks
+One model outperforms or matches the dedicated models on both tasks. For scale:
+always predicting the most common category reaches only about 7 percent macro-F1 (the
+
+===== PDF PAGE 70 =====
+Chapter 5. A Check-in-Level Multi-Task Study of Next Category and Region
+70
+majority-class floor), and a random region top-ten guess is right at most about two percent of
+the time (Section 5.5.3).
+Table 10 reports the single joint model against the dedicated single-task ceilings (the
+level a joint model is usually expected, at best, to match). The dedicated category model is tuned
+per dataset over batch size and learning rate (the dedicated region models use the strongest
+fixed configuration). Throughout, every reported model is one saved artifact per fold, read at its
+validation-selected epoch: each dedicated model at its task’s best epoch, and the joint model at
+the epoch selected by its joint validation score (the geometric mean of the two task metrics),
+with both tasks read from that one model. Reading each joint task at its own best epoch instead
+would change every joint result by at most 0.06 (category) and 0.11 (region) points.
+Table 10 – One model, two tasks: the single joint model against the dedicated single-task models
+and the external baselines, ordered by region count. The upper block reports next-
+category (macro-F1) and the lower block next-region (Acc@10); the two share the
+dataset and region-count columns, and the same six datasets appear in the same order
+in both. Bold marks a statistically supported improvement over the dedicated model;
+in the region block, ↑marks that supported improvement and ≈a non-inferior match
+(TOST, ±2 pp; Section 5.6.2).
+Next-category (macro-F1)
+Dataset
+Regions
+Markov-K
+POI-RGNN
+Dedicated
+Joint (ours)
+Istanbul
+520
+24.55
+30.12
+54.74 ±0.09
+63.32 ±0.02
+AL
+1,109
+20.50
+23.80
+56.82 ±0.03
+64.51 ±0.09
+AZ
+1,547
+23.92
+27.64
+56.43 ±0.10
+65.79 ±0.02
+FL
+4,703
+29.74
+34.49
+74.51 ±0.03
+79.84 ±0.02
+TX
+6,553
+28.67
+33.03
+69.79 ±0.08
+77.24 ±0.01
+CA
+8,501
+27.58
+31.78
+70.60 ±0.07
+77.05 ±0.01
+Next-region (Acc@10)
+Dataset
+Regions
+HMT-GRN
+ReHDM
+STAN
+Dedicated
+Joint (ours)
+Istanbul
+520
+60.4
+69.33
+61.86
+75.16 ±0.01
+75.35 ±0.04↑
+AL
+1,109
+57.05
+65.38
+60.72
+70.11 ±0.10
+69.70 ±0.09≈
+AZ
+1,547
+43.70
+53.00
+49.86
+59.46 ±0.08
+59.46 ±0.04≈
+FL
+4,703
+63.74
+64.49
+72.99
+76.70 ±0.02
+77.41 ±0.02↑
+TX
+6,553
+53.85
+48.81‡
+61.67†
+64.95 ±0.01
+67.06 ±0.01↑
+CA
+8,501
+49.61
+50.26‡
+58.52†
+63.49 ±0.02
+65.69 ±0.02↑
+HMT-GRN (region-native, on our folds, scored on visits whose region appears in training, >99% of test visits in
+every dataset and fold) is the primary external comparison; STAN (our re-implementation) and ReHDM (its own
+protocol) are references. Markov-K: strongest order per dataset. †STAN partial folds: TX 4/5, CA 2/5 (seed 0).
+‡ReHDM at TX and CA: a single seed. Joint and dedicated entries: four seeds × five folds; ±: sd across seeds.
+Figure 7 plots the signed gains ordered by region count. On category, the joint model
+outperforms the dedicated ceiling on every dataset, by +5.33 to +9.35 macro-F1 (smallest
+at Florida, largest at Arizona, and +8.58 at Istanbul). On region (Acc@10), the joint model
+
+===== PDF PAGE 71 =====
+Chapter 5. A Check-in-Level Multi-Task Study of Next Category and Region
+71
+outperforms the dedicated ceiling at Florida, Texas, California, and Istanbul, and stays a non-
+inferior match (TOST, ±2 pp) at Alabama and Arizona. Across the five U.S. states, the region
+gain rises with region count, from −0.41 at the smallest count to +2.20 at the largest; region
+count and corpus size co-vary here, so we read the trend across the points rather than as a precise
+law.
+On category, all four seeds favor the joint model on every dataset, and each gain is
+significant after a Holm correction across the six datasets (paired 𝑡, corrected 𝑝< 0.001); the
+four next-region gains hold under their own Holm correction as well (corrected 𝑝< 0.001).
+The registered Wilcoxon test on the individual fold differences agrees at every dataset, with all
+20 folds favoring the joint model (corrected 𝑝< 0.001). On region, Alabama and Arizona are
+tested for equivalence (TOST, ±2 pp) and pass with 90% confidence intervals well inside two
+points (each entry: point estimate; interval): Alabama (−0.41; −0.63 to −0.20) and Arizona
+(0.00; −0.08 to +0.07). At Arizona, the interval is centered on zero, so we report a match, not a
+gain. At Alabama, the whole interval lies below zero, a small but statistically significant deficit,
+still well within the two-point margin. At Florida and Istanbul, the 90% intervals lie entirely
+above zero (Florida +0.71; +0.67 to +0.76; Istanbul +0.19; +0.15 to +0.23), so the joint model
+outperforms there, though both gains are smaller than the two-point margin of Section 5.5.3.
+Texas and California exceed that margin: their 90% intervals lie entirely above it (+2.10 to +2.13
+at Texas, +2.19 to +2.21 at California).
+Istanbul
+520
+AL
+1,109
+AZ
+1,547
+FL
+4,703
+TX
+6,553
+CA
+8,501
+dataset  (region count, low to high)
+0
+5
+10
+Δ vs dedicated (pp)
++8.6
++7.7
++9.3
++5.3
++7.5
++6.5
++0.2
+−0.4
++0.0
++0.7
++2.1
++2.2
+category Δ
+region Δ
+±2 pp band
+Figure 7 – Signed gains of the joint model over the dedicated single-task models, ordered by
+region count. The category gain (macro-F1) is positive at every dataset; the region
+gain (Acc@10) rises across the five U.S. states and is also positive at Istanbul. The
+±2-point band applies to region only.
+A reader used to multi-task learning [7] expects the harder task, here next-region with its
+hundreds to several thousand classes, to teach the easier one; a control shows otherwise. We fix
+the region pathway at its initial values at the start of training so it can neither learn nor teach the
+category task, yet the full category gain survives at Alabama, Arizona, and Florida: the control
+reaches 63.50, 63.67, and 79.79 macro-F1, above the single-task category score of the one fixed
+configuration (Table 9) by +7.63, +6.54, and +4.64 points. That comparison is the one the
+
+===== PDF PAGE 72 =====
+Chapter 5. A Check-in-Level Multi-Task Study of Next Category and Region
+72
+control was built to make, and it is the one to read. The control predates the results of Table 10
+and was measured at one random initialization over five folds, so its second comparison is to the
+joint scores of the development configuration current at the time (63.56, 63.39, 79.82), which it
+matched to within 0.3, and not to the joint entries reported here. The control therefore rules out
+one reading and narrows the rest. It rules out the region task teaching the category one, since the
+gain survives with the region pathway untrained. What it leaves is the joint architecture itself,
+and the control does not say which part of it: freezing the region stream removes region training,
+not the category stream’s own encoder, the per-stream feed-forward blocks, or the added depth.
+We therefore report the negative result, that the gain is not cross-task transfer, as a finding,
+and we attribute the gain to the joint architecture rather than to any named component of it. A
+separate ablation in our own development record, at Florida only, removed the cross-attention
+stack while holding the rest fixed and moved next-category macro-F1 by −0.04 ± 0.13, which
+a paired test cannot separate from zero. Two limits keep us from reading that as an absence of
+contribution. The ablation ran on an earlier configuration whose region head was driven by a
+transition prior the models reported here do not use, and the development record that produced
+it reads the null as a compensation effect, in which the category stream absorbs what the shared
+stack would otherwise supply, rather than as a component that does nothing. We therefore do
+not name the shared trunk as the source, and we do not present the ablation as evidence against
+it either.
+Either way the gain requires no second model at serving time (one model, one forward
+pass).
+The joint model is also above every external baseline reported, on both tasks, across
+all six datasets (Table 10): on region, the primary region-native comparison HMT-GRN [21],
+STAN [17] trained from the raw check-ins, and a ReHDM reference [99]; on category, POI-
+RGNN [24] and the Markov-K floor. These externals run on their own embeddings, so this
+comparison also includes the representation advantage of Section 5.6.1; the controlled com-
+parison for the joint model remains the Dedicated column of Table 10, which uses the same
+representation, windows, and folds. The first-order Markov region floor of Section 5.5.4, com-
+puted under our windows and folds, reaches 51 to 72 Acc@10 across the datasets; the joint
+model exceeds it by 4.9 to 10.3 points on all six datasets.
+That floor is also above the three external region systems at most datasets, and the
+comparison deserves a direct word rather than being left for the reader to assemble. HMT-GRN
+falls below it at all six, the ReHDM reference at three, and STAN at four. Two facts about
+how these numbers were produced bear on that comparison. The first concerns the floor: it is
+computed under our own sliding-window protocol and fold splits. Those windows advance one
+visit at a time, so the region of the last visit is a strong predictor of the next one, and a first-order
+transition table reads exactly that signal. At Alabama the target region is the last visited region
+in 32.9 percent of windows. The second fact concerns the three systems, which do not meet the
+
+===== PDF PAGE 73 =====
+Chapter 5. A Check-in-Level Multi-Task Study of Next Category and Region
+73
+floor on equal terms. HMT-GRN is evaluated on the same data, folds, and initialization as our
+models. STAN runs on the same folds, but builds its own embeddings and its own sequences
+from the raw check-ins. The ReHDM reference runs under its own published protocol, so its
+result is not measured on our windows or folds at all.
+Neither fact establishes why the floor lies above the three systems, and we do not claim
+a single explanation. We treat the floor, not the external systems, as the reference the region task
+has to clear, and we read the external columns as a comparison against published designs rather
+than as the standard for this task. The dedicated and joint models are above the floor at every
+dataset.
+We prefer coupling the tasks in parallel rather than in a chain: neither target is subordinate
+to the other, so a chain must pick one to predict first and pass its errors to the other. The choice
+still had to be checked, because CSLSL reports its chain outperforming a shared-trunk parallel
+variant on its own benchmarks [61]. Rewired as a cascade (Section 5.5.4), our model reaches
+the same combined score, the geometric mean of the two task metrics, as its parallel form: at
+Alabama, Arizona, Florida, and Istanbul, with both forms trained under the same configuration
+and initialization, the difference is about zero and neither task moves by more than a quarter
+of a point. We read this as a defense of the parallel design, not a claim that we outperform the
+cascade: on this representation the coupling topology makes no measurable difference, and the
+simpler parallel structure loses nothing. Two qualifications bound this reading: the cascade runs
+under the configuration tuned for the parallel model, and its form was fixed in advance, so tuning
+the cascade itself remains future work.
+5.6.3
+External validity (Istanbul)
+The joint-model results hold for a non-U.S. city under the same representation, sliding-
+window protocol, and training setup as the U.S. states. At Istanbul, the joint model outperforms
+the dedicated category ceiling by +8.58 macro-F1 (dedicated 54.74, joint 63.32) and is slightly
+above the dedicated region ceiling at +0.19 Acc@10 (dedicated 75.16, joint 75.35), a gain with
+statistical support (the whole 90% confidence interval of the paired difference lies above zero,
+and TOST, ±2 pp, also passes). The comparable quantity is the gain over the ceiling, not the
+absolute Acc@10, since region counts differ across datasets (520 mahalle here). The external
+baselines show the same ordering on both tasks (Table 10). The U.S. result repeats on a different
+continent and region unit.
+5.7
+Discussion and Limitations
+One model serves both tasks. In one forward pass it outperforms the dedicated category
+model at all six datasets, and on region it outperforms the dedicated model at four of them and
+matches it within a two-point margin at the other two, with the region output keeping a private
+
+===== PDF PAGE 74 =====
+Chapter 5. A Check-in-Level Multi-Task Study of Next Category and Region
+74
+spatial path (Table 10; Figure 7). Which part of the joint architecture produces the category gain
+is not settled by the controls reported here (Section 5.6.2).
+A service could treat the model’s top-ranked next regions as an anticipatory set: at
+California, ten regions out of 8,501 contain the true next region 65.69 percent of the time, over
+500 times better than picking ten at random. On four datasets (Alabama, Arizona, Florida, and
+Istanbul; a single seed over five folds), the ten shortlisted regions lie a median of 3 to 8 kilometers
+from the shortlist’s centroid, against 17 to 176 kilometers for ten regions drawn at random from
+the same candidate set (median over 10,000 draws). This remains motivation, not a measured
+service result.
+Three limits qualify these results. First, our representation is trained once over all places;
+visits to places never seen during training are the single effect that we cannot fully isolate. A
+planned follow-up trains it on each fold’s training places only and embeds unseen visits. Second,
+epoch selection consults the fold that the score is then read on (Section 5.5.2), so every absolute
+score reported here is optimistic. The comparison between the joint model and the dedicated
+models is affected far less, for two reasons that we can state rather than assume: the selection
+rule is the same for both models on the same folds, an epoch chosen on validation and read
+on that fold, with each model selected on its own validation objective (Section 5.6.2), and the
+dedicated model receives the wider search, a per-dataset sweep over batch size and learning
+rate against one configuration held fixed across all six datasets for the joint model. The residual
+therefore favors the comparator, which makes the reported difference conservative. It does not
+follow that the bias cancels exactly. The four seeds also reuse one fixed fold partition, so the
+reported intervals cover variation across random initializations and not across resampled user
+splits. Third, we do not build or evaluate a mobility-aware service; it is background motivation,
+and this chapter’s claims are the prediction results themselves.
+Our representation is a fixed per-visit vector that any downstream model can consume.
+Moura et al. [94], whose structural analysis of tourist check-ins reads past visits only, name
+machine learning as a next step; this study moves in that direction.
+5.8
+Conclusion
+We tested whether one model can predict both the category and region of a user’s next
+visit. A check-in-level representation, one vector per visit rather than one per place, makes the
+next-category task far more learnable than the standard place-level representation does. On that
+representation, a single multi-task model outperforms a dedicated category model on every
+dataset. On region, it outperforms the dedicated model on four of the six datasets and remains
+non-inferior (TOST, ±2 pp) on the other two. The gains at Texas and California exceed the
+two-point margin; those at Florida and Istanbul are statistically supported but smaller. Across
+the U.S. states, the region gain rises with region count. The joint model also remains above every
+
+===== PDF PAGE 75 =====
+Chapter 5. A Check-in-Level Multi-Task Study of Next Category and Region
+75
+external baseline in Table 10 on all six datasets, by at least 4 Acc@10 points over the strongest
+region reference (HMT-GRN, STAN, or ReHDM; the first two on our folds, ReHDM under its
+own protocol) and by at least 33 macro-F1 points over POI-RGNN on category. One model with
+a shared semantic context and a private spatial path anticipates both what a user will do next
+and where.

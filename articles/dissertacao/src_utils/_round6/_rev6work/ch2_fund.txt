@@ -1,0 +1,398 @@
+
+===== PDF PAGE 16 =====
+16
+2 Fundamentals
+This chapter sets out the concepts the three studies in this dissertation share, so that three
+papers of different shape read as one document. It defines the prediction tasks and keeps them
+distinct (Section 2.1); follows the line of representations for mobility from one-hot identifiers to
+the check-in level (Section 2.2); reviews multi-task learning and the conditions under which it
+helps or hurts (Section 2.3); states the datasets and metrics, and the validation protocol of the
+final study (Section 2.4); and closes by drawing these together into the question the following
+chapters answer (Section 2.5).
+2.1
+Point-of-interest prediction tasks
+Location-based social networks (LBSNs) record where people go. Each record is a
+check-in: a user, a point of interest (POI), and a timestamp. These traces carry geographic and
+temporal detail at a resolution earlier mobility data lacked, and they have turned the study of
+cities into a data-driven discipline [11]. The behavior they capture is far from random. People
+return to a small set of places on a daily rhythm and travel farther only occasionally [12], and
+the regularity has a measurable limit: an entropy analysis of movement traces places a potential
+predictability of about 93 percent on where an individual goes next [2]. This bound is specific
+to next-location prediction at coarse spatial resolution; it shows that mobility is far from random
+and is learnable at all, and Section 2.4 states the reference points that actually bound the category
+and region tasks studied here.
+Deep-learning methods for human mobility address several distinct problems, from
+crowd-flow estimation to next-location prediction [3], so the target of a model must be stated
+precisely before results can be compared. This dissertation separates three prediction targets
+and keeps them apart throughout. Next-place prediction asks for the exact next POI a user will
+visit. Next-category prediction asks only for the semantic class of that next POI, one of seven
+top-level categories (Community, Entertainment, Food, Nightlife, Outdoors, Shopping, Travel).
+Next-region prediction asks for the map partition the next POI falls in, a census tract in the United
+States datasets and a mahalle in Istanbul. A fourth, non-sequential task, category classification,
+labels a POI with its semantic category from static features rather than from a sequence [4].
+The distinction between these targets is not cosmetic. The number of candidate places runs to
+tens of thousands, whereas there are seven categories and, depending on the dataset, from a few
+hundred to several thousand regions, so the tasks differ in difficulty, in the baselines that apply,
+and in what a correct answer means. The work reported here predicts the next category and the
+next region. It does not predict the exact next place; that target is named only to hold it apart
+from the two the dissertation studies.
+
+===== PDF PAGE 17 =====
+Chapter 2. Fundamentals
+17
+Most of the field has pursued next place. The sequential framing began with recurrent
+models: ST-RNN augments a recurrent network with time-specific and distance-specific transi-
+tion matrices so that the interval and the displacement between visits shape the prediction [13].
+DeepMove adds an attention mechanism over long and sparse histories, recovering the periodic
+structure of a user’s movement [14]. HST-LSTM folds spatial-temporal transition context into
+a hierarchical recurrent cell [15], and Flashback attends back over past hidden states to cope
+with the gaps that sparse trajectories leave [16]. Attention then became the backbone rather than
+an add-on. STAN models spatio-temporal correlations between non-adjacent visits and shows
+that visits far apart in a sequence still carry signal [17]; GeoSAN encodes geography through
+a hierarchical grid and a self-attention layer [18]; and GETNext brings a global trajectory-flow
+map into a transformer so that collaborative signal from many users informs a single prediction
+[19]. This lineage is background for the present work, not its target: every model named in this
+paragraph predicts the exact next place.
+Two observations from that line matter downstream. First, a place is not a fixed object
+across visits. CTLE learns context- and time-aware location embeddings in which the same POI
+takes different vectors under different circumstances, the closest prior work to a per-visit view
+of a place [20]. Section 2.2 returns to this point, because it is the hinge of the representation
+argument. Second, the region and the category have appeared in next-place systems, but as
+means rather than ends. HMT-GRN predicts place and region in a hierarchy and uses the region
+prediction to constrain a beam search over places, so the region is auxiliary to place [21].
+Category-aware recommenders such as CatDM predict a category to prune the place candidate
+set [22]. Both treat the category or the region as an intermediate signal on the way to a place. A
+smaller body of work makes one of them the end target directly: activity-region prediction studies
+the region level in its own right [23], and POI-RGNN predicts the category of the next place as
+its output [24]. The dissertation takes this second stance for both targets at once, predicting next
+category and next region as co-equal ends, which is the setting the following sections build the
+tools for.
+2.2
+Representations for mobility
+How a place is represented determines what a model can learn from it. This section
+follows one line of development, from symbolic identifiers to the check-in-level representation
+this dissertation adopts, because the central argument of the work is that the representation,
+more than the architecture, decides whether multi-task learning helps.
+The starting point is the one-hot identifier, a sparse vector that marks a place or a category
+by position and encodes no relationship between them. Distributed representations replace it.
+The skip-gram model learns dense vectors in which proximity reflects co-occurrence, so that
+related symbols sit close together in a continuous space [25]. Carrying that idea to graphs,
+
+===== PDF PAGE 18 =====
+Chapter 2. Fundamentals
+18
+DeepWalk samples random walks and treats them as sentences, learning node embeddings from
+local neighborhoods [26], and node2vec generalizes the walk so that a single objective can
+favor either homophily or structural role [27]. Graph neural networks then made the aggregation
+explicit. The graph convolutional network combines a node’s features with those of its neighbors
+through a localized spectral rule [28]; graph attention networks weight each neighbor by learned
+attention rather than by fixed degree [29]; and GraphSAGE learns aggregator functions that
+generalize to nodes unseen during training, making the embedding inductive [30].
+These methods still need a training signal. For places, labels are scarce, so the repre-
+sentation is learned without them, by an information objective. Mutual information between
+two high-dimensional variables can be estimated and maximized by gradient descent [31], and
+Deep InfoMax turns this into a representation learner by maximizing the mutual information
+between a local feature and a global summary of the input [32]. Deep Graph Infomax (DGI)
+applies the principle to graphs: it learns node representations, unsupervised, by maximizing the
+mutual information between local patch representations and a global graph summary [33]. In
+this project DGI produces the place embeddings used as input to the first models. Hierarchical
+Graph Infomax (HGI) builds directly on it. HGI extends the infomax objective across a hierarchy
+and is trained by maximizing the mutual information among the POI, region, and city levels,
+yielding region-aware place embeddings [34]. HGI is the place-level baseline representation the
+later chapters measure against, and it is the direct base of the representation the dissertation
+contributes. Two qualifications belong with that use. Huang et al. present HGI as a method
+for urban region representation and evaluate it on region-level estimation tasks, so the work
+reported here repurposes its POI-level output as a place embedding for a sequential prediction
+task their paper does not address. The baseline was also tuned rather than taken as published: the
+cross-region edge weight of their Equation 2, set to 0.4 for the dense Chinese cities they study,
+was raised to 0.7 for the sparser United States state datasets used here. The sweep that fixed that
+value ran on Alabama over four settings of the weight, 0.4, 0.5, 0.6, and 0.7, each measured over
+five folds with a budget of 50 epochs, and the category F1 rose monotonically across them, from
+0.7388±0.0205 at the published setting to 0.8186±0.0123 at the adopted one, on a zero-to-one
+scale, with the spread taken across the five folds.
+A place embedding, however it is trained, shares one property: it assigns each place a
+single fixed vector. That vector is the same whether the place is visited on a weekday morning
+or a Saturday night, by a commuter or a tourist. Yet a place serves different functions in different
+contexts, and a representation that cannot express this cannot distinguish two visits to the same
+place that mean different things. CTLE makes the point concrete by learning location embeddings
+that are context- and time-aware, so that the vector for a place depends on the visit [20]. This
+is the limitation the rest of the dissertation responds to: a per-place vector is static across visits,
+and moving below the place level, to the check-in itself, is the way to make the representation
+reflect the visit.
+
+===== PDF PAGE 19 =====
+Chapter 2. Fundamentals
+19
+Before that step, several general encoders supply the context a static place vector omits.
+They are worth naming at their own origin, because they were developed outside mobility and are
+imported as components. Time2Vec is a model-agnostic encoding of time that combines a linear
+term with periodic terms, so that hour-of-day and day-of-week enter a model as continuous
+features [35]. SIREN shows that networks with sinusoidal activations represent continuous
+signals and their derivatives well, which is the general basis for periodic coordinate encoders
+[36]. Space2Vec encodes absolute position and spatial context at multiple scales [37], and
+Sphere2Vec encodes points on a sphere so that the encoding respects spherical geometry rather
+than a flat approximation [5]. A related encoder uses spherical harmonics together with sinusoidal
+representation networks, again to honor the spherical domain that flat sine-and-cosine features
+distort [38]. Feature-wise linear modulation (FiLM) is a general conditioning mechanism that
+scales and shifts a layer’s features according to a side input [39]. In the models of Chapters 3
+and 4 it conditions the shared network on a per-task identity, so that one trunk can serve both
+tasks. The context these encoders carry enters the model separately, and how it enters is the
+turning point of this dissertation. Chapter 3 feeds a single place-level embedding and adds only
+the per-task conditioning. Chapter 4 keeps that model but decomposes the input, replacing the
+single embedding with separate spatial, temporal, and categorical components combined at the
+input, and it is this change to the representation, rather than any change to the architecture, that
+moves the results.
+The check-in-level representation, Check2HGI, completes the line. It extends the graph-
+infomax hierarchy with a fourth level below the place, the check-in, and is trained without task
+labels in the same infomax spirit, so that each visit, rather than each place, carries its own vector.
+The training objective makes that extension concrete, and it is worth stating here because
+it is what the fourth level costs. The hierarchy has three boundaries between adjacent levels,
+check-in to place, place to region, and region to city, and the total objective is a fixed-weight
+sum of one term per boundary,
+L = 0.4 L𝑐2𝑝+ 0.3 L𝑝2𝑟+ 0.3 L𝑟2𝑐,
+(2.1)
+where L𝑐2𝑝is the check-in-to-place term, L𝑝2𝑟the place-to-region term, and L𝑟2𝑐the region-
+to-city term. Each term is built from a bilinear discriminator that scores how compatible two
+embeddings are,
+D(e1, e2) = 𝜎(e⊤
+1 We2),
+(2.2)
+in which e1 and e2 are the two embeddings being compared, W is a learned weight matrix, and
+𝜎is the logistic function, so the score lies between 0 and 1. A boundary’s term then rewards a
+high score on a true pair and a low score on a false one,
+L∗= −log D(e+, e+) −log  1 −D(e+, e−) ,
+(2.3)
+
+===== PDF PAGE 20 =====
+Chapter 2. Fundamentals
+20
+where e+ denotes an embedding from a true pair, a check-in with the place it actually occurred
+at, and e−an embedding substituted from elsewhere in the batch to form a false pair. No target
+label appears in any of the three equations, which is the sense in which the representation is
+trained without task labels.
+Where a place embedding answers “what is this place,” a check-in-level representation
+answers “what is this visit,” and Chapter 5 develops this representation and the joint model built
+on it. Table 1 traces the full progression, from DGI through HGI to the check-in level and the
+joint model that uses it.
+The last step of that chain deserves one clarification, because the joint model is a descen-
+dant of MTLnet and not a replacement written from nothing. In the released implementation the
+joint model is a specialization of the MTLnet class: it inherits the per-task input encoders, the
+task heads, and the partition of parameters into shared and task-specific groups, and it overrides
+exactly one component, the shared middle. Where MTLnet conditions a stack of shared residual
+layers on task identity through FiLM, the joint model puts a stack of cross-attention blocks in
+that position, each block letting one task stream read the other’s features while each stream keeps
+its own feed-forward weights. A second specialization then adds the private spatial path, which
+hands the region output the region sequence directly, before the two streams mix. So the two
+models differ in how the tasks share and in what the region output may read, and they agree
+everywhere else. The architectural claim of Chapter 5 is a change of sharing topology inside a
+lineage, which is why the negative result of Chapter 3 and the positive result of Chapter 5 can
+be read against each other at all.
+Table 1 – Representation and model lineage threaded through this dissertation, from the place-
+level graph-infomax embeddings to the check-in-level representation and the joint
+model built on it. Status of the Check2HGI representation and the joint model is
+submitted, under review.
+Model / method
+What it added
+Reference
+DGI
+Unsupervised place embeddings by maximizing mutual
+information between local patches and a global graph summary.
+[33]
+HGI
+Extends graph infomax over the POI, region, and city hierarchy
+to yield region-aware place embeddings.
+[34]
+MTLnet
+First joint model: place embedding, FiLM conditioning, and
+hard parameter sharing. Null result for that configuration.
+[1]
+ST-MTLNet
+Keeps MTLnet, replaces the place-embedding input with
+decomposed spatial, temporal, and categorical encoders.
+Chapter 4
+Check2HGI
+Check-in-level representation: graph infomax extended to the
+check-in, so each visit carries its own vector.
+Chapter 5
+Joint model
+Cross-attention model on Check2HGI: one model for both
+tasks, next category and next region.
+Chapter 5
+
+===== PDF PAGE 21 =====
+Chapter 2. Fundamentals
+21
+2.3
+Multi-task learning
+Multi-task learning (MTL) trains one model on several related tasks at once, in the
+expectation that a representation shared among them generalizes better than one learned for a
+single task in isolation [7]. The appeal for the present work is direct: predicting the next category
+and the next region from the same check-in history may let each task inform the other. Whether
+it does is the question the dissertation opens with, and the answer turns out to depend on choices
+this section lays out.
+Deep MTL is organized around how much the tasks share. The two poles are hard
+parameter sharing, where the tasks use a common trunk and split only at the output heads, and
+soft parameter sharing, where each task keeps its own parameters and the tasks are coupled by a
+weaker constraint [40]. Between the poles lie architectures that learn what to share. Cross-stitch
+units place a learned linear combination of two task networks’ activations at each layer, letting
+the model decide how much to mix them [41]. The multi-gate mixture-of-experts shares a pool
+of expert subnetworks but gives each task its own gate over them, so that routing, not a fixed
+trunk, determines sharing [42]. Progressive layered extraction sharpens this by separating shared
+experts from task-specific ones in layered gates [43], and DSelect-k makes the expert selection
+itself differentiable and sparse [44]. The principle these architectures share, keeping shared and
+task-specific components side by side rather than forcing one common trunk, is the one the joint
+model of Chapter 5 adopts, though it realizes it with cross-attention rather than expert gating.
+Sharing is not free. When tasks pull the shared parameters in different directions, joint
+training can leave a task worse off than its single-task model, a failure known as negative transfer.
+Which tasks help each other and which interfere cannot be assumed away, and joint training can
+hurt as easily as it helps depending on the pairing [45]. The effect is not incidental: because the
+tasks can conflict, minimizing a weighted sum of their losses is only valid when they do not, and
+multi-task learning is more honestly cast as a multi-objective problem with no single optimum
+[46].
+A family of methods tries to manage the conflict at the level of the gradients or the losses.
+Uncertainty weighting sets each task’s loss weight from its homoscedastic uncertainty, learned
+jointly with the model [47]. GradNorm rescales per-task gradient magnitudes so that tasks train
+at comparable rates [48], and dynamic weight averaging sets the weights from the recent rate
+of change of each loss [49]. Other methods act on the gradient directions: PCGrad projects a
+task’s gradient off any conflicting task’s gradient [50], CAGrad maximizes the worst per-task
+improvement among updates that stay within a ball around the average gradient, with convergence
+guarantees [51], Nash-MTL treats the combination of task gradients as a bargaining game and
+takes the Nash solution as the joint direction [52], and Aligned-MTL aligns the principal
+components of the gradient system and uses its condition number as a stability criterion [53].
+FAMO reduces the cost of balancing by tracking loss decreases in constant time and space
+
+===== PDF PAGE 22 =====
+Chapter 2. Fundamentals
+22
+rather than reading every task gradient at each step [54]. A recurring result tempers the family.
+Random loss weighting is a competitive baseline [55]; a controlled study finds that current MTL
+optimizers often do not outperform a well-tuned fixed-weight baseline [56]; and a direct defense
+of plain loss summation shows that a unitary scalarization with standard regularization matches
+or improves upon the specialized optimizers [57]. A recent survey and a dense-prediction survey
+both consolidate the architectures and the balancing methods and set out when sharing helps
+[58, 59]. The dissertation takes the cautious position these results support: a fixed-weight baseline
+is a serious competitor, and a balancer earns its place only by outperforming it.
+In mobility, MTL has been used almost entirely in the service of next place. MCARNN
+predicts activity and next place together with a context-aware recurrent unit, pairing the two
+in parallel [60]. A cascade line runs the other way: CSLSL imposes a causal chain, time then
+activity then location, so that the activity or category is an intermediate step toward the place
+[61]. Across these systems the region and the category appear as auxiliary signals or as stages on
+the path to a place; no multi-task model among them predicts the next region as a co-equal end
+target alongside the next category. Single-task work on region prediction exists, as Section 2.1
+notes, but the joint setting is open. That absence is the opening the dissertation addresses. Its
+own starting model, MTLnet, applies hard parameter sharing on a place-level embedding and
+does not outperform the dedicated single-task models, a result that holds for that configuration
+and motivates the representation argument the next chapters develop [1].
+2.4
+Datasets and evaluation
+A claim about mobility prediction is only as trustworthy as the data it is measured on
+and the protocol that measures it. This section fixes both: the datasets the dissertation uses, the
+metrics and reference points each result is read against, the validation protocol that keeps the
+estimate honest, and the tests that license the verbs used to report a comparison.
+Two check-in datasets serve as the ground. Gowalla is the dataset of record, introduced
+with the study of periodic and socially driven movement in LBSNs, and this work uses five
+United States states from it [12]. For a non-United-States setting, the Massive-STEPS benchmark
+supplies Istanbul check-ins and argues that the field has leaned too long on decade-old datasets,
+which is part of the reason for evaluating across more than one city [62]. The Foursquare check-in
+dataset from New York and Tokyo is a further widely used benchmark [63]; it is named here for
+context, as the dissertation evaluates on Gowalla and the Istanbul data rather than on it.
+The category label distribution is imbalanced. The Food class alone accounts for roughly
+a third of the check-ins in a representative state, so plain accuracy is inflated by the majority class
+and must not be the headline for next category. Macro-averaged F1 is the primary category metric
+instead: it is the unweighted mean of the per-class F1 scores, so it reads as average per-class
+quality with every class counting equally, and it does not reward a model that serves only the
+
+===== PDF PAGE 23 =====
+Chapter 2. Fundamentals
+23
+frequent classes [64]. That choice of metric, rather than a reweighted loss, is how the imbalance
+is answered here. The joint model of Chapter 5 trains on plain unweighted cross-entropy; class
+weighting, tested there on both outputs, lowered both region accuracy and category macro-F1.
+For next region, the primary metric is accuracy at 10 (Acc@10), the fraction of cases where
+the true region appears in the model’s ten highest-ranked predictions; it is a ranking metric and
+says nothing about the probability mass placed on the true region, which is why mean reciprocal
+rank accompanies it where the joint comparison needs a rank-sensitive figure. In the reported
+region results a region never seen in training counts as a miss, so the figure is not inflated by
+unpredictable new regions; Chapter 5 gives the full definition. When one model must be scored
+against its single-task references across both tasks at once, the aggregate is the relative multi-task
+performance change, the average per-task percentage by which the joint model leads or trails the
+dedicated single-task models [65]. It is a relative figure against a named baseline, and a positive
+value is a lead only when each per-task change is itself established.
+Every metric is read against reference points. The majority-class floor, which always
+predicts the most frequent category, is the level a learned category model must clear. A first-
+order transition model, a mobility Markov chain over the training partition, is the corresponding
+non-learned floor for the sequential targets [66]. The entropy analysis of human movement that
+reports a potential predictability of about 93 percent sets a bound for predicting the next location
+at coarse resolution, and it frames why mobility is learnable at all [2]; it is not, however, a ceiling
+on seven-class category macro-F1 or on region ranking, which are different label spaces. The
+operative ceiling for the two tasks studied here is the dedicated single-task model, since the
+question throughout is whether one joint model can match or outperform the models built for
+each task alone.
+The validation protocol guards against the most damaging error in this setting, a user
+whose check-ins appear in both training and test. Estimates use stratified k-fold cross-validation
+[67], and the folds are formed so that no user spans a split: a grouped, stratified splitter keeps all
+of a user’s check-ins on one side of every fold, so that measured accuracy reflects generalization
+to new users rather than memorization of familiar ones [68]. That protocol is the one Chapter 5
+uses, and it strengthened from one study to the next: Chapter 3 reports five-fold cross-validation
+without identifying the split axis, Chapter 4 states that its split is stratified by sample rather than
+by user, so that the check-ins of one user may appear in both training and validation, and only
+Chapter 5 splits by user. The statistical treatment is scoped the same way: Chapters 3 and 4
+report fold means and standard deviations and run no significance test, so the tests set out below
+license verbs in Chapter 5 alone. Comparisons there are made across the folds and repetitions
+with paired tests. The paired Wilcoxon signed-rank test compares two models across the paired
+results without assuming normality [69]. Its exact one-sided 𝑝has a floor set by the number
+of pairs, so a superiority claim tested on four repetitions is reported with a paired 𝑡on the per-
+repetition means and the Wilcoxon test alongside it, on the individual folds (Chapter 5); either
+
+===== PDF PAGE 24 =====
+Chapter 2. Fundamentals
+24
+test licenses the verb “outperforms”, and the Holm step-down procedure controls the family-wise
+error when several datasets are tested at once [70]. A superiority test cannot, by itself, support a
+claim of equivalence, so where the dissertation states that one model matches another it uses two
+one-sided tests to establish statistical non-inferiority within a two-point margin [71]. Wherever
+this dissertation reports a test, the verb and the test are bound together: “outperforms” follows
+only from a paired superiority test, and “matches” only from a non-inferiority test within the
+stated margin.
+2.5
+Relevance
+The preceding sections are not a catalog; they are the parts of a single argument this
+dissertation makes, and this section draws them together before the paper chapters put them to
+work. No new literature enters here. The point is to show how the tasks, the representations, the
+multi-task machinery, and the evaluation protocol combine into one problem.
+The three prediction targets are different problems, and the field has mostly studied the
+hardest of them, the exact next place. Predicting the next category and the next region is not
+a lesser version of that task but a different one, with its own baselines and its own notion of
+a correct answer, and treating both as co-equal end targets is the stance this work takes. That
+stance only pays off if the model can represent a visit well enough to serve both. Here the
+representation is the lever. The field moved from one-hot identifiers to place embeddings, and
+hierarchical graph infomax gives a strong place-level vector, but any place embedding assigns a
+place the same vector on every visit. A vector that stays the same across visits carries nothing
+about the visit being predicted, and the check-in level is the response to that limit.
+Multi-task learning is the mechanism that would let the two tasks share what they have
+in common, but it is not a free gain. Naive hard sharing can leave a task worse than its single-
+task model, and the elaborate gradient balancers proposed to prevent this frequently do not
+outperform a well-tuned fixed-weight baseline. Whether joint training helps therefore cannot be
+assumed; it has to be measured, against the dedicated single-task models, under a protocol that
+does not flatter it. That protocol is the last piece. User-disjoint cross-validation, macro-F1 and
+Acc@10 read against named floors and the single-task ceiling, and verbs bound to paired tests
+and to non-inferiority testing are what separate a real improvement from a hopeful one. The
+value of the fundamentals in this chapter is that they make the central question answerable on
+honest terms.
+That question presses because its parts have not been brought together. The field has a
+place-level representation but not a check-in-level one built for these targets; it has multi-task
+learning but almost no treatment of the next region as an end target; and it has strong evaluation
+practice that mobility studies do not always apply. The dissertation takes up the three in order.
+It first asks whether naive multi-task learning helps at all, given a place-level embedding and
+
+===== PDF PAGE 25 =====
+Chapter 2. Fundamentals
+25
+hard parameter sharing, and reports an honest answer for that configuration. It then asks whether
+the representation, rather than the architecture, is the lever, by decomposing and enriching the
+input the same model receives. It finally asks what a representation built for check-ins enables
+in a redesigned joint model, one that, by paired superiority tests, outperforms the dedicated
+single-task models on the next category everywhere it is tested and on the next region at four
+of six datasets, and matches the dedicated single-task model within a two-point margin, by
+non-inferiority testing, at the other two. Chapter 5 reports these tests in full. The chapters that
+follow answer these three questions in turn.

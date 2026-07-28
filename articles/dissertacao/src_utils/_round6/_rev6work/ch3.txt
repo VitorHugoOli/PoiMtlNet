@@ -1,0 +1,801 @@
+
+===== PDF PAGE 26 =====
+26
+3 Multi-Task Learning for POI Category
+and Next-POI Prediction
+This chapter reproduces the article “An Investigation into Multi-Task Learning
+for Point-of-Interest Category Classification and Next-POI Prediction”, published
+at the Congresso Brasileiro de Inteligência Computacional (CBIC 2025), DOI
+10.21528/CBIC2025-1191324, with Vitor H. O. Silva as first author. The text was
+reformatted from the two-column conference layout to the dissertation format; ty-
+pographical and tabulation errata were corrected and are listed in Appendix B. Its
+conclusions are the conclusions of the time, for the configuration studied here: with
+a place-level embedding and hard parameter sharing, multi-task learning did not
+consistently improve on the dedicated single-task models. Chapters 4 and 5 revise
+that verdict by changing the input representation rather than the architecture. The
+chapter’s preference for the Nash-MTL optimizer is likewise a conclusion of the time,
+weakened by a later finding about the optimizer implementation, and Chapter 5 does
+not rely on it. A note on terminology: the term “Next-POI Prediction” as used in
+the reproduced article denotes the frame’s next category task, that is, predicting the
+category of the next visited place, not the exact place itself; the dissertation reserves
+next place for the exact-POI task, which is not studied here.
+3.1
+Introduction
+Multi-Task Learning (MTL) is a machine learning paradigm where multiple related
+tasks are learned jointly, sharing representations and inductive biases to improve generalization
+performance [7]. By using shared information, MTL can potentially mitigate overfitting and
+yield more robust feature extractors compared to single-task approaches. Its success in domains
+like computer vision [8], natural language processing [10] and recommendation systems [72]
+motivates its application to Location-Based Social Networks (LBSNs), where understanding
+user interactions with Points-of-Interest (POIs), specific physical locations that someone might
+find useful or interesting, such as restaurants, shops, or landmarks, is fundamental.
+In this chapter, we investigate the application of MTL to two critical POI-related tasks:
+1. POI Category Classification: Classify the semantic category (e.g., shopping, travel) of
+a POI based on its features and context within a user’s trajectory.
+
+===== PDF PAGE 27 =====
+Chapter 3. Multi-Task Learning for POI Category and Next-POI Prediction
+27
+2. Next-POI Prediction: Predicting the category of the next POI a user will visit, given the
+sequence of their prior visits.
+These tasks are ostensibly related, as both draw upon the same underlying user mobi-
+lity data. Accurate POI category representations could inform next-location predictions, and
+conversely, sequential patterns could provide context for category classification. However, the
+tasks possess fundamentally different natures. POI Category Classification is primarily a static
+classification task that relies on the intrinsic, context-rich features of individual locations. In
+contrast, Next-POI Prediction is a dynamic, sequential task that depends on capturing temporal
+patterns and transitions.
+This dichotomy raises a critical question: can a single, shared representation effectively
+serve two tasks with such distinct underlying characteristics? The assumption that MTL will be
+beneficial is not guaranteed. It is possible that forcing a shared encoder to learn features for both
+a static and a sequential task could result in negative transfer, where the joint training process
+actually hinders performance by learning a “compromise” representation that is not specialized
+enough for either task.
+Therefore, the central hypothesis of this study is that a standard hard parameter-sharing
+MTL architecture will face significant limitations when applied to this specific task pairing,
+failing to achieve substantial and consistent improvements over well-tuned, specialized single-
+task models. Our work is thus framed as an empirical investigation into the boundary conditions
+of MTL’s effectiveness, exploring whether the presumed task relatedness is sufficient to overcome
+their inherent structural differences.
+To test this hypothesis, we conducted experiments on the Gowalla LBSN dataset [12, 73],
+comparing our MTL model against strong single-task baselines (HMRM [74] and MHA+PE
+[75]). Our results lend weight to our hypothesis. While the proposed models perform well,
+particularly in POI category classification, the MTL framework does not deliver the consistent
+gains often expected. The performance differences between the MTL and single-task models
+were frequently marginal and fell within standard deviations, suggesting their statistical perfor-
+mance was largely comparable. This outcome indicates that, for this problem, the architectural
+constraints and task dissimilarities may have offset the potential benefits of joint learning.
+The main contributions of this chapter are as follows:
+• We introduce an MTL framework to simultaneously address POI category classification
+and next-POI prediction.1
+• We design task-specific heads to capture category co-occurrence and sequential transition
+dynamics, respectively.
+1
+The complete source code is publicly available at <https://github.com/VitorHugoOli/PoiMtlNet> for full
+reproducibility.
+
+===== PDF PAGE 28 =====
+Chapter 3. Multi-Task Learning for POI Category and Next-POI Prediction
+28
+• We provide a critical analysis of the limitations of a hard parameter-sharing MTL approach
+for this task pairing. Our findings highlight that significant task dissimilarity can challenge
+the effectiveness of MTL, serving as a case study on the importance of task compatibility
+in model design.
+The rest of this chapter is organized as follows. In Section 3.2, we review the theoretical
+foundations ofMTL and prior workon POI modeling. Section 3.3describes our joint architecture,
+data preprocessing, and training protocol. Section 3.4 presents experimental results. Finally,
+Section 3.5 summarizes our findings and discusses future research directions.
+3.2
+Theoretical Foundations and Related Work
+3.2.1
+POI Classification and Next-POI Prediction
+POI Category Classification refers to the task of inferring the semantic category of a
+location based on contextual information such as geographic coordinates, visit frequency, or
+user behavior.
+Next-POI Prediction, in contrast, aims to predict which specific location a user is likely
+to visit next, given their past movement history.2 It is a sequential task that requires modeling
+temporal and spatial patterns within user trajectories.
+The prediction and classification of POIs are fundamental challenges in applications
+such as recommendation systems and urban planning. Xu et al. [4] propose the Tree-guided
+Multi-task Embedding (TME) model, which aims to improve the semantic annotation of POIs
+using a hierarchical structure of categories and mobility-based representation learning.
+POI Category Classification has been extensively addressed in location-based recom-
+mendation systems, with various techniques applied to capture patterns and improve prediction
+accuracy. In this context, Lim et al. [21] propose the Hierarchical Multi-Task Graph Recurrent
+Network (HMT-GRN), which uses multi-task learning to simultaneously predict the next POI
+and its geographic region.
+Although these approaches have made significant progress in the POI classification and
+next-location prediction fields, they tend to focus only on single-task objectives. None of the
+cited models propose a unified multi-task learning (MTL) framework that jointly optimizes both
+POI category classification and next-POI prediction tasks. This motivates the development of
+solutions that use shared representations across related POI tasks.
+2
+This states the general formulation of the task as the literature poses it. The variant studied in this chapter
+predicts the category of the next visited place rather than the place itself, as defined in Section 3.1 and in the
+chapter preface.
+
+===== PDF PAGE 29 =====
+Chapter 3. Multi-Task Learning for POI Category and Next-POI Prediction
+29
+3.2.2
+Multi-Task Learning
+MTL was formalized by Caruana [7] as an inductive transfer mechanism that enhances
+generalization by learning shared representations across related tasks. Early neural architectures
+employed hard parameter sharing, where a common set of hidden layers is used for all tasks,
+yielding strong regularization and reduced training time.
+Recent surveys [59, 76] organize contemporary MTL research along five methodological
+dimensions: (i) parameter sharing (hard vs. soft); (ii) relationship learning (discovering task af-
+finity or hierarchy); (iii) feature routing (e.g., cross-stitch, sluice networks, attention gating); (iv)
+optimization (conflict-aware gradient techniques); and (v) pre-training and instruction tuning.
+MTL has evolved from small, homogeneous task sets to dozens of heterogeneous objectives
+spanning computer vision, natural language processing, and recommender systems.
+A fundamental architectural challenge in MTL is deciding how much, where, and when
+to share parameters across tasks. Three canonical sharing schemes have emerged:
+Hard Parameter Sharing
+A single encoder is shared by all tasks, followed by task-specific heads. This remains the
+simplest and most popular baseline, providing effective regularization [7].
+Soft Parameter Sharing
+Each task has its own encoder, but networks exchange information through learned
+cross-connections, such as Cross-Stitch units [41] or Sluice networks [77].
+Mixture-of-Experts (MoE)
+Multi-Gate Mixture-of-Experts (MMoE) architectures maintain a pool of shared expert
+subnetworks; each task learns a gating function to combine experts, outperforming monolithic
+sharing in large-scale recommendation settings [42].
+To mitigate task interference and loss imbalance, several optimization techniques have
+been proposed: GradNorm equalizes gradient magnitudes across tasks [48]; MGDA finds Pareto-
+optimal descent directions [46]; PCGrad removes conflicting gradient components [50]; and
+Dynamic Weight Averaging (DWA) reweights losses based on their relative learning speeds
+[49].
+Despite these successes, MTL still faces several key challenges:
+• Negative Transfer: Unrelated or adversarial tasks can degrade shared representations,
+harming individual task performance [77, 76].
+
+===== PDF PAGE 30 =====
+Chapter 3. Multi-Task Learning for POI Category and Next-POI Prediction
+30
+• Gradient Conflict: Simultaneous optimization may produce opposing gradient directions,
+slowing or destabilizing convergence [50, 46].
+• Data Heterogeneity: Variations in modality, label granularity, and dataset size complicate
+sampling strategies and minibatch construction [52, 45].
+• Scalability: Routing complexity, memory footprint, and evaluation costs often grow super-
+linearly as the number of tasks increases [76, 59].
+Recent work addresses these issues via task clustering [45], dynamic curricula, conflict-
+aware optimizers, and parameter-efficient adapters [59]. Nevertheless, principled criteria for task
+grouping, theoretical guarantees of Pareto efficiency, and energy-efficient training of very large
+MTL foundation models remain open research directions.
+3.2.3
+Multi-task learning applied in POI
+MTL has been explored in problems related to Points of Interest (POIs), primarily due
+to its ability to improve generalization by sharing information across correlated tasks. In POI
+modeling scenarios, such as user trajectory prediction and recommendation, MTL allows the
+learning of complementary objectives simultaneously, allowing for more accuracy.
+Early MTL-based approaches such as MCARNN [60] employ recurrent neural networks
+with temporal attention mechanisms to jointly predict user activities and future visited locations.
+Similarly, the iMTL framework [72] uses an LSTM architecture to model next-activity prediction,
+incorporating temporal dynamics in user behavior modeling.
+More recent works have begun incorporating contextual and semantic signals. TLR-
+M [78], for example, applies Transformer-based architectures to simultaneously predict the next
+POI and queue waiting time, demonstrating the value of attention-based models in capturing
+spatio-temporal dependencies. MTPR [79] combines LSTMs and adversarial learning to address
+uncertainty in check-ins and improve multi-task POI recommendation both location and temporal
+context with a generative component.
+Despite these advances, existing MTL approaches often focus on joint modeling of next-
+POI prediction and temporal or behavioral signals, while the relationship between POI category
+classification and next-POI prediction remains underexplored. Some Models such as TME [4]
+address category annotation using graph-based encoders, but treat prediction and classification
+separately.
+This creates a gap in the literature regarding the joint modeling of semantic and sequential
+POI tasks. In contrast, our proposed model introduces a unified MTL framework that jointly
+performs POI category prediction and next-POI classification using a hard parameter-sharing
+architecture. By modeling both tasks simultaneously, our approach promotes knowledge transfer
+
+===== PDF PAGE 31 =====
+Chapter 3. Multi-Task Learning for POI Category and Next-POI Prediction
+31
+across shared spatio-temporal representations, enabling more robust predictions even in data-
+sparse environments.
+3.3
+Methodology
+This section details the proposed methodology for Point-of-Interest (POI) category
+classification and next-POI prediction using a MTL approach. We first describe the generation
+of POI embeddings and the preparation of data for both tasks. Subsequently, we present the
+architectures of the single-task baselines, which are also used as task-specific heads within our
+MTL framework. Finally, we elaborate on the proposed MTL architecture, including the hard
+parameter-sharing strategy and the Nash-MTL optimizer employed for gradient aggregation.
+3.3.1
+POI Embeddings and Data Preparation
+This chapter computes POI embeddings using graph attention convolution along with
+contrastive learning based on Deep Graph Infomax (DGI). These embeddings are the input for
+the MTL model discussed in Section 3.3.2.
+3.3.1.1
+POI Embeddings
+A point of interest is defined as a tuple ⟨𝑖𝑑, 𝑙𝑎𝑡, 𝑙𝑜𝑛𝑔, 𝑐𝑎𝑡⟩, where 𝑖𝑑serves as a unique
+identifier, 𝑙𝑎𝑡and 𝑙𝑜𝑛𝑔represent its coordinates, and 𝑐𝑎𝑡denotes its category, such as restaurant
+or pharmacy. A place suffers from complementarity effect [80], implying that a location is
+affected by its neighbors (e.g. leisure zones are often near residential districts). Hence, we
+propose a graph-based contrastive method to capture this spatial locality behavior, generating a
+POI embedding to serve as input to our MTL model.
+To capture the spatial locality and capture neighborhood information, we model the
+weighted graph 𝐺(𝑉, 𝐸) as a Delaunay Triangulation, where each vertex 𝑣∈𝑉represents a POI
+and edge 𝑒𝑖𝑗∈𝐸defines the connection between POI 𝑝𝑖and a POI 𝑝𝑗. Besides that, following
+[81] the weight of an edge 𝑒𝑖𝑗is defined as 𝑤𝑖𝑗= log((1 + 𝐷1.5/1 + 𝑑1.5
+𝑖𝑗)), where D is the
+diagonal length of bounding box that encloses the coordinates of POIs, and 𝑑𝑖𝑗is the geodesic
+distance between 𝑝𝑖and 𝑝𝑗. The node feature matrix is based on category one-hot encoding of
+each POI, represented by 𝑋∈R𝑛𝑐, where 𝑛𝑐is the number of possible categories.3
+Therefore, to encode the Delaunay graph we apply a graph attention convolution layer
+[29], yielding an embedding ℎ𝑖∈R𝑑, where 𝑑is the dimension of the output. In addition,
+3
+The
+released
+implementation
+feeds
+the
+network
+the
+mean
+of
+the
+one-hot
+vectors
+of
+a
+POI’s
+graph neighbours, with the POI’s own vector excluded, rather than the POI’s own one-hot vector
+(research/embeddings/dgi/preprocess.py). Appendix B records the departure. The distinction mat-
+ters for how the embedding should be read: the input describes a POI’s neighbourhood, so the static task the
+embedding supports is spatial homophily rather than recall of the POI’s own label.
+
+===== PDF PAGE 32 =====
+Chapter 3. Multi-Task Learning for POI Category and Next-POI Prediction
+32
+we utilize a Deep Graph Infomax (DGI) [33] as a contrastive learning method to maximize
+the mutual information between local representations (node embeddings) and the global graph
+embedding compared to a corrupted version of a graph, which is guided by the Equation 3.1.
+L =
+1
+2|𝑉|
+ |𝑉|
+∑︁
+𝑖=1
+E(𝑋,𝐺)[log D(®ℎ𝑖, ®𝑠)] +
+|𝑉|
+∑︁
+𝑗=1
+E( ˜𝑋,𝐺)[log(1 −D( ˜®ℎ𝑗, ®𝑠))]
+
+(3.1)
+where 𝑋and 𝐺denote the positive samples for the node feature matrix and graph adjacency,
+respectively, while ˜𝑋is the corrupted version of the feature matrix. To corrupt the features, we
+employ a random shuffling method. Additionally, ®𝑠is the global graph embedding derived by
+applying global mean pooling to the embedding matrix 𝐻= [ℎ𝑖, ℎ𝑖+1, . . . , ℎ𝑛] in our model. In
+addition, D is a discriminator that differentiates each positive example from its corrupted version,
+learning from their dissimilarities; in our POI Embedding, this discriminator is implemented as
+a linear model.
+3.3.1.2
+Data Processing for POI Category Classification
+Each POI is represented by its 64-dimensional DGI embedding e ∈R64. The dataset
+therefore consists of pairs (e, 𝑐), where 𝑐is the POI’s ground-truth category to be predicted.
+3.3.1.3
+Data Processing for Next-POI Category Prediction
+This task predicts the category of the next POI a user will visit from their recent check-in
+history.
+1. Trajectory building. Check-ins (user, POI, timestamp) are ordered chronologically per
+user; users with fewer than five visits are discarded.
+2. Sequence extraction. From each trajectory we draw non-overlapping windows of length
+𝐿ℎ=9: (𝑝1, . . . , 𝑝9) as context and 𝑝target as the next POI.
+3. Feature/label construction.
+• The input is the concatenation of the 64-dimensional embeddings of 𝑝1–𝑝9, yielding
+a 9×64 = 576-dim vector. Histories shorter than nine are padded by a special POI
+whose embedding is 0.
+• The label is the category of 𝑝target.
+This format allows the model to infer the category of the next POI solely from the
+embeddings of the previous visits.
+
+===== PDF PAGE 33 =====
+Chapter 3. Multi-Task Learning for POI Category and Next-POI Prediction
+33
+3.3.2
+Multi-Task Learning Architecture
+Our proposed Multi-Task Learning (MTL) architecture, depicted in Figure 1, is built
+upon a hard parameter-sharing scheme for the joint training of POI Category Classification
+and Next-POI Prediction. This design integrates Feature-wise Linear Modulation (FiLM) layers
+to condition the shared representations, a technique aimed at modulating task interactions and
+mitigating negative transfer [39, 45].
+Architecture Overview
+Input features for POI Category Classification (x(𝑐)) and Next-POI Prediction (x(𝑛)) are
+first processed by separate, task-specific encoders. These encoders, implemented as MLPs, map
+the raw input features into a shared latent space of dimension 𝑑shared.
+Feature-wise Linear Modulation (FiLM)
+To allow for task-specific adaptation within the shared pathway, we employ FiLM layers
+[39]. A unique, learnable task embedding e𝑡for each task 𝑡is used to generate a scaling vector 𝛾𝑡
+and a shifting vector 𝛽𝑡. These vectors modulate the encoded features h(𝑡)
+enc from each task-specific
+encoder:
+FiLM(h(𝑡)
+enc | e𝑡) = 𝛾𝑡⊙h(𝑡)
+enc + 𝛽𝑡
+This lightweight operation conditions the features before they enter the fully shared layers of the
+network.
+Shared Processing Layers
+The FiLM-modulated representations are processed by a sequence of shared layers. This
+module begins with a linear transformation followed by a LeakyReLU activation, LayerNorm,
+and dropout,and continuesthrough 𝐿shared residualblocks. Thishardparameter-sharing approach
+regularizes the model by forcing it to learn a common, robust feature representation for both
+tasks [82].
+Task-Specific Heads
+Finally, the processed shared representations are passed to dedicated, unshared task-
+specific heads. These heads generate the final predictions for each task, allowing for specialized
+output generation and isolated gradient computation during backpropagation.
+
+===== PDF PAGE 34 =====
+Chapter 3. Multi-Task Learning for POI Category and Next-POI Prediction
+34
+Rationale for Hard Parameter Sharing
+The choice of hard parameter sharing is motivated by its efficiency and regularization
+benefits, which are critical for our target application. This approach is supported by several
+factors:
+• Computational Efficiency: Unlike soft-sharing methods that often introduce task-specific
+parameters and increase computational overhead, hard sharing maintains a compact model.
+This is crucial for deployment on resource-constrained edge devices (e.g., NVIDIA Jetson
+platforms).
+• Implicit Regularization: By constraining the hypothesis space, hard sharing acts as a
+regularizer, often leading to more generalizable models, especially when tasks are related
+[77]. Seminal work by Caruana demonstrated significant error reduction with this approach
+[7].
+• Empirical Performance: In practice, sharing one network across tasks reduces inference
+cost, since a single network is evaluated rather than one network per task [45].4
+This architecture strategically balances model capacity with knowledge transfer, prioritizing
+efficiency for potential real-time recommendation scenarios.
+Figure 1 – The proposed Multi-Task Learning (MTL) architecture. Task-specific encoders pro-
+cess inputs for POI Category Classification and Next-POI Prediction. Feature-wise
+Linear Modulation (FiLM) layers adapt these features using learnable task embed-
+dings. The modulated representations are then processed by a shared path of residual
+blocks. Finally, dedicated task-specific heads generate the respective outputs.
+4
+The published sentence read “hard parameter sharing frequently matches or exceeds the performance of more
+complex architectures on many benchmarks, while offering faster training and inference”. The accuracy and
+training-speed halves are corrected here rather than reproduced. The cited work names improved accuracy and
+reduced training time among the benefits joint training may have “in theory”, and then argues the other way
+empirically, reporting that joint training “often leads to inferior overall performance as task objectives can
+compete”; its contribution is a framework for assigning tasks to several networks so that competing tasks are
+separated, and it describes that framework as costly at training time. See Table 11.
+
+===== PDF PAGE 35 =====
+Chapter 3. Multi-Task Learning for POI Category and Next-POI Prediction
+35
+3.3.3
+Nash-MTL Optimizer
+MTL necessitates a unified update direction that benefits all tasks, even when their
+gradients conflict. Nash-MTL formulates this as a cooperative 𝐾-player bargaining game [52],
+where each task acts as an “agent” seeking to maximize its utility (loss reduction). The optimizer
+selects a step that is (i) beneficial to all tasks, (ii) scale-invariant to arbitrary loss re-weightings,
+and (iii) proportionally fair, ensuring no alternative direction increases one task’s utility without
+decreasing the product of all utilities [52]. The unique solution satisfying these axioms is
+the Nash Bargaining Solution (NBS). This approach allows Nash-MTL to “negotiate” at each
+iteration, yielding a compromise descent direction that improves every loss while maximizing
+the joint progress of the entire system.
+Formal Formulation.
+Given task-specific objectives {L𝑘(𝜽)}𝐾
+𝑘=1 and their gradients g𝑘= ∇𝜽L𝑘at current
+parameters 𝜽, Nash-MTL frames gradient aggregation as a bargaining game to determine the
+common update direction [52]. The utility for each task 𝑘is its signed improvement, 𝑢𝑘(Δ𝜽) =
+g⊤
+𝑘Δ𝜽, where Δ𝜽is the parameter update within an 𝜀-ball [52]. The NBS is found by maximizing
+the weighted geometric mean of utilities:
+Δ𝜽∗= arg max
+Δ𝜽∈B𝜀
+𝐾
+∑︁
+𝑘=1
+log 𝑢𝑘(Δ𝜽)
+s.t. 𝑢𝑘(Δ𝜽) > 0, ∀𝑘.
+(3.2)
+By setting Δ𝜽= Í
+𝑘𝛼𝑘g𝑘with positive weights 𝜶, the solution simplifies to solving the nonlinear
+system  G⊤G𝜶
+=
+𝜶−1 [52], where G =
+
+g1 . . . g𝐾
+
+[52]. The parameter update is then
+𝜽(𝑡+1) = 𝜽(𝑡) −𝜂G𝜶, with 𝜂chosen to ensure monotonic loss decrease and convergence to a
+Pareto-stationary point [52].
+Practical Aspects.
+Nash-MTL is architecture-agnostic.5 Its invariance to the scale of the individual task
+gradients, the second of the axioms listed above, balances heterogeneous tasks without manual
+re-weighting. For efficiency, task weights can be updated less frequently, significantly reducing
+runtime while maintaining performance [52].
+5
+The published sentence continued “and requires only two matrix-vector products per iteration”. That cost claim
+is corrected here rather than reproduced: it is not supported by the method’s own paper, and it understates the
+cost. See Table 11.
+
+===== PDF PAGE 36 =====
+Chapter 3. Multi-Task Learning for POI Category and Next-POI Prediction
+36
+Parameter Partition.
+In our model (Figure 1), we explicitly expose two disjoint parameter sets:
+Θshared = {task_emb, film, shared_layers},
+Θspecific = {category_encoder, next_encoder,
+CategoryHead, NextHead}.
+This partition enables independent learning-rate scheduling or regularization if domain shifts
+between tasks emerge during fine-tuning.
+The Nash-MTL optimizer was employed for its ability to aggregate tasks gradients in a
+balanced and principled manner, formulating the optimization process as a bargaining problem
+and aiming for joint progress across all tasks. In our evaluation, Nash-MTL was compared with
+different strategies, including PCGrad [50] and an approach with no optimizer. Among these, it
+was found that Nash-MTL consistently yielded a better overall performance of the MTL model,
+with a lower combined multi-task loss, which supported our decision to adopt it as our choice
+of optimizer.
+3.4
+Experimental Setup and Results
+3.4.1
+Dataset and Evaluation Metrics
+To evaluate our model, we use a subset of the public Gowalla check-in dataset, originally
+collected by Cho et al. [12]. We focus our analysis on the data from the U.S. state of Florida,
+which is one of the most active regions in the original dataset. This subset comprises 20,301
+users, 65,009 unique Points-of-Interest (POIs), and 990,518 check-ins.
+Following previous work, each POI is mapped to one of seven high-level categories:
+Community, Entertainment, Food, Nightlife, Outdoors, Shopping, and Travel. These categories
+will be used for the POI category prediction task.
+Evaluation protocol
+To ensure a robust evaluation of our models, all experiments were conducted using
+a 5-fold cross-validation methodology. The folds are formed by a stratified splitter over the
+samples rather than over the users, so the check-ins of one user may appear in both training and
+validation; Chapter 5 adopts a stricter user-disjoint protocol. For the category task the sample
+unit is the place, so no place spans two folds. The code of record pins a single random seed, so
+the five folds constitute one repetition of the experiment rather than several, and the means and
+standard deviations reported below are the spread across those five folds at that seed; Chapter 5
+
+===== PDF PAGE 37 =====
+Chapter 3. Multi-Task Learning for POI Category and Next-POI Prediction
+37
+repeats its five-fold experiment at four random initializations. Within a fold, training runs for
+the full number of epochs configured, without early stopping, and each task is read at the epoch
+of its own highest validation macro-F1, measured on the same fold the score is reported on. For
+every category, we report precision, recall, and 𝐹1-score, and utilize the macro-average of these
+metrics to summarize overall performance. Class-wise metrics are crucial because category
+frequencies are highly skewed in real LBSN data.
+3.4.2
+Discussion and Comparison with Established Models
+In this section, we discuss the performance of our proposed MTL model and its single-
+task (Single) counterpart. For a comprehensive evaluation, we selected two state-of-the-art
+approaches as baselines. The Human Mobility Representation Model (HMRM), introduced by
+Chen et al. (2020) [74], is designed for POI category classification. HMRM calculates POI
+embeddings by considering users’ temporal visiting patterns and the co-occurrence of locations
+within an individual’s historical trajectory. To quantify the relationship between locations and
+visiting times, it employs Point-wise Mutual Information (PMI). The model then utilizes matrix
+factorization techniques to generate latent representations (embeddings) from various inputs,
+and these embeddings are subsequently used to train a Support Vector Machine (SVM) for
+predicting POI categories.
+For the task of next POI category prediction, we compare our models against MHA+PE,
+a solution proposed by Zeng et al. (2019) [75]. This model enhances a recurrent neural network
+with a Multi-Head Attention (MHA) mechanism, originally developed for machine translation
+by Vaswani et al. (2017) [83], and incorporates Positional Encoding (PE). The MHA mechanism
+allows the model to extract correlations from different parts of a sequence, effectively capturing
+the relevance of various elements within a user’s trajectory, while positional encoding helps to
+propagate the order of records in a sequence.
+3.4.2.1
+POI Category Classification
+As shown in Table 2, both our MTL and Single models outperform HMRM [74] in every
+POI category in terms of F1-score, precision, and recall. For instance, in the ‘Shopping’ category,
+our MTL model achieves an F1-score of 62.51 ± 0.94 compared to HMRM’s 46.69 ± 0.81.
+Similarly, for ‘Food’, the MTL model scores 57.43±1.46 against HMRM’s 28.44±0.42. While
+both MTL and Single models are competitive, the Single model shows marginally better F1-
+scores in several categories like ‘Community’ (53.11 ± 0.58) and ‘Outdoors’ (47.75 ± 0.89),
+whereas the MTL model excels in ‘Food’ and ‘Shopping’. Overall, our approaches demonstrate
+a substantial improvement over the HMRM baseline for this task.
+
+===== PDF PAGE 38 =====
+Chapter 3. Multi-Task Learning for POI Category and Next-POI Prediction
+38
+Table 2 – POI category classification results for Florida (per-category F1-score, precision, and
+recall, mean ± standard deviation over the 5 folds; the better of the MTL and Single
+values per row in bold, as in the published table).
+MTL
+Single
+HMRM
+F1
+Community
+52.13 ± 0.90
+53.11 ± 0.58
+20.25 ± 0.52
+Entertainment
+41.44 ± 1.29
+41.73 ± 1.65
+13.07 ± 1.14
+Food
+57.43 ± 1.46
+56.70 ± 0.84
+28.44 ± 0.42
+Nightlife
+29.94 ± 2.27
+34.22 ± 2.08
+25.54 ± 1.73
+Outdoors
+47.19 ± 1.01
+47.75 ± 0.89
+16.11 ± 0.68
+Shopping
+62.51 ± 0.94
+61.88 ± 1.01
+46.69 ± 0.81
+Travel
+43.16 ± 1.43
+43.20 ± 1.94
+15.25 ± 1.19
+Precision
+Community
+51.39 ± 1.77
+49.54 ± 1.70
+21.13 ± 0.75
+Entertainment
+44.08 ± 1.46
+44.47 ± 3.66
+14.52 ± 1.34
+Food
+58.05 ± 1.23
+59.04 ± 1.12
+48.94 ± 0.88
+Nightlife
+36.07 ± 2.05
+32.52 ± 1.83
+18.34 ± 1.34
+Outdoors
+46.39 ± 1.12
+47.74 ± 1.09
+13.00 ± 0.48
+Shopping
+60.24 ± 1.21
+61.59 ± 1.44
+39.63 ± 0.82
+Travel
+46.48 ± 1.12
+44.69 ± 4.89
+24.58 ± 1.91
+Recall
+Community
+52.93 ± 1.35
+57.37 ± 2.46
+19.48 ± 0.99
+Entertainment
+39.14 ± 1.69
+39.88 ± 4.93
+11.90 ± 1.08
+Food
+56.99 ± 3.71
+54.60 ± 2.01
+20.05 ± 0.32
+Nightlife
+25.80 ± 3.54
+36.77 ± 5.86
+42.13 ± 3.28
+Outdoors
+48.09 ± 2.11
+47.79 ± 1.51
+21.27 ± 1.78
+Shopping
+65.04 ± 2.69
+62.28 ± 2.83
+56.82 ± 0.98
+Travel
+40.39 ± 2.73
+43.08 ± 7.15
+11.07 ± 0.95
+3.4.2.2
+Next POI Category Prediction
+The results for next POI category prediction, detailed in Table 3, indicate a competitive
+performance landscape. The MHA+PE model [75] shows strong F1-scores in several categories,
+notably ‘Food’ (43.47±0.50) and ‘Shopping’ (43.53±1.66), outperforming our MTL and Single
+models in these instances. However, our MTL model achieves the best F1-score in ‘Travel’
+(64.61 ± 1.11) and ‘Nightlife’ (22.07 ± 0.52), surpassing MHA+PE in these two categories.
+The Single model also shows competitive results, leading in ‘Entertainment’ (26.06 ± 1.01) and
+‘Outdoors’ (22.45 ± 0.81). This suggests that while MHA+PE is highly effective for certain POI
+categories, our MTL and Single models offer superior or comparable performance in others,
+particularly where different sequential patterns might be exploited. Also, it is important to notice
+that since we have an unbalanced result for the MTL and single, this could lead to the worse of
+other results.
+Overall, while our proposed models show strong performance in POI category classifi-
+cation against HMRM [74], the next POI category prediction task presents a more competitive
+landscape when compared against a sophisticated sequential model like MHA+PE [75]. Com-
+
+===== PDF PAGE 39 =====
+Chapter 3. Multi-Task Learning for POI Category and Next-POI Prediction
+39
+Table 3 – Next POI category prediction results for Florida (per-category F1-score, precision,
+and recall, mean ± standard deviation over the 5 folds; best value per row in bold,
+second-best underlined).
+MTL
+Single
+MHA+PE
+F1
+Community
+34.79 ± 1.05
+34.90 ± 0.61
+35.83 ± 1.70
+Entertainment
+24.21 ± 1.75
+26.06 ± 1.01
+25.48 ± 0.86
+Food
+28.06 ± 3.55
+26.35 ± 2.97
+43.47 ± 0.50
+Nightlife
+22.07 ± 0.52
+21.79 ± 0.30
+1.55 ± 1.50
+Outdoors
+21.61 ± 0.50
+22.45 ± 0.81
+12.56 ± 1.94
+Shopping
+42.58 ± 2.06
+42.18 ± 1.13
+43.53 ± 1.66
+Travel
+64.61 ± 1.11
+64.32 ± 0.88
+26.91 ± 0.97
+Precision
+Community
+30.22 ± 1.36
+30.04 ± 1.08
+42.59 ± 1.48
+Entertainment
+32.64 ± 2.55
+28.63 ± 2.85
+38.72 ± 1.56
+Food
+39.05 ± 0.70
+39.87 ± 1.48
+35.91 ± 0.81
+Nightlife
+17.71 ± 2.40
+15.27 ± 0.67
+39.67 ± 23.94
+Outdoors
+19.63 ± 2.93
+19.50 ± 2.08
+46.83 ± 1.82
+Shopping
+42.57 ± 0.78
+43.47 ± 1.08
+39.04 ± 1.06
+Travel
+60.64 ± 1.87
+63.21 ± 0.67
+36.64 ± 1.74
+Recall
+Community
+41.54 ± 5.27
+41.92 ± 3.49
+31.16 ± 3.20
+Entertainment
+19.52 ± 3.18
+24.16 ± 2.16
+19.05 ± 1.25
+Food
+22.19 ± 4.32
+19.94 ± 3.75
+55.12 ± 1.46
+Nightlife
+32.13 ± 9.47
+38.35 ± 3.11
+0.80 ± 0.79
+Outdoors
+25.06 ± 4.26
+27.07 ± 3.40
+7.30 ± 1.32
+Shopping
+42.87 ± 4.56
+41.05 ± 2.33
+49.37 ± 3.74
+Travel
+69.36 ± 4.15
+65.52 ± 2.25
+21.30 ± 1.03
+paring the MTL and Single models directly reveals that the multi-task learning approach did not
+yield the anticipated substantial improvements over the single-task baseline across both tasks.
+Crucially, many of these observed differences in F1-scores are minor and often fall within the
+reported standard deviations, suggesting that the performance of the MTL and Single models is
+largely comparable, without a clear or consistent advantage for the multi-task learning setup in
+these experiments.
+3.4.3
+Convergence Comparison
+To further evaluate the practical implications of the MTL approach compared to single-
+task models, we conducted a convergence experiment. We measured the wall time, number of
+epochs, and Mega Floating Point Operations (MFLOPs) required for the MTL model and the
+individual single-task models (SingleClass and SinglePred) to reach predefined target average
+F1-scores. The target F1-score for the Category prediction task was set to 47, and for the
+Next POI category classification task, it was set to 32.2. These specific F1 values were chosen
+because they are close to the best-achieved results for each respective task, thereby representing
+
+===== PDF PAGE 40 =====
+Chapter 3. Multi-Task Learning for POI Category and Next-POI Prediction
+40
+a comparable and significant level of predictive performance for the models to attain. To ensure
+robust measurements for this experiment, all models were evaluated through a 5-fold cross-
+validation process. The specific metrics are detailed in Table 4.
+The convergence measurements show a clear wall-time disadvantage for the joint model,
+while the MFLOPs column does not follow the same pattern. Table 4 reports the three metrics
+for each model.
+Table 4 – Convergence metrics to reach the target F1-score for each model (wall time in seconds,
+number of epochs, and MFLOPs; 5-fold cross-validation).
+Model
+Time (s)
+Epochs
+MFLOPs
+Category
+16.26
+3.8
+2.315
+Next
+18.71
+3.2
+0.012
+MTL
+80.88
+3.2
+0.234
+The results from this experiment were contrary to the potential expectation that an MTL
+framework might offer training efficiencies. Our findings indicated that the MTL model took
+substantially longer to converge to the target F1-scores. Specifically, the MTL approach required
+80.88 s of wall time, about 2.3 times the cumulative 34.97 s of the individual single-task models.
+In terms of MFLOPs, in contrast, the table does not show a higher cost for the MTL setup:
+the MTL model required 0.234 MFLOPs, against 2.315 MFLOPs for the Category model and
+0.012 MFLOPs for the Next model. This suggests that while attempting to learn multiple tasks
+simultaneously, the MTL model, in this configuration, incurred a significantly higher overhead
+in wall time. Given these observations, for deployment scenarios where convergence speed
+is a critical factor, employing separate, optimized single-task models would likely be a more
+convenient strategy.6
+3.5
+Conclusion and Future Work
+In this chapter, we introduced a Multi-Task Learning (MTL) framework employing hard
+parameter-sharing, task-specific encoders, and FiLM layers to jointly address POI Category
+Classification and Next-POI Prediction using DGI-based POI embeddings.
+Essentially, the MTL approach did not consistently demonstrate superior performance
+over its single-task counterparts and exhibited higher computational demands in terms of conver-
+gence wall time. These findings indicate that the anticipated benefits of MTL are not universally
+guaranteed and are highly dependent on task compatibility and architectural design.
+6
+Experiments conducted on Apple M2 Pro (10-core CPU, 16-core GPU) with 32GB unified memory running
+macOS 15.5. Key software versions: Python 3.9.6, PyTorch 2.6.0.dev20241014+cpu, NumPy 1.26.4, scikit-learn
+1.5.2, CVXPY 1.5.2. Training utilized PyTorch MPS backend for Apple Silicon acceleration.
+
+===== PDF PAGE 41 =====
+Chapter 3. Multi-Task Learning for POI Category and Next-POI Prediction
+41
+The lack of significant improvement from the MTL model prompts an analysis of the
+potential underlying causes, especially since optimizers like Nash-MTL mitigated overt gradient
+conflicts. We hypothesize three primary factors contributed to this outcome:
+• Subtle Negative Transfer due to Task Dissimilarity: Although related, the two tasks
+possess fundamentally different natures. POI Category Classification is a static task that
+relies on the intrinsic, context-rich features of a single POI embedding. In contrast, Next-
+POI Prediction is a dynamic, sequential task that depends on capturing temporal patterns
+and transitions within a user’s trajectory. The shared encoder may have been forced to
+learn a “compromise” representation that was not specialized enough for either task, thus
+failing to outperform the focused single-task models.
+• Task Difficulty and Representation Mismatch: The performance gap between the two
+tasks (with category classification achieving higher F1-scores) suggests an imbalance
+in difficulty. The representation learned by the shared layers might have become bia-
+sed towards the features required for the simpler, static classification task, inadvertently
+hindering its effectiveness for the more complex sequential prediction task. The shared
+representation may not have been rich enough to simultaneously encode both semantic
+properties and sequential dynamics effectively.
+• Architectural Restrictiveness: Our choice of a hard parameter-sharing architecture, while
+efficient and strongly regularizing, may have been too restrictive for the tasks. The distinct
+nature of the tasks might require more flexible computational pathways. A single shared
+block may be insufficient to learn a representation that benefits both, suggesting that
+soft-sharing or expert-based models could be more appropriate.
+These insights contribute to the broader understanding of MTL’s practical challenges.
+Future research will proceed along several directions motivated by these hypotheses. We plan
+to explore alternative parameter-sharing mechanisms, such as soft sharing (e.g., Cross-Stitch
+Networks) or Mixture-of-Experts (MoE) models, to test the hypothesis that the hard-sharing
+architecture was overly restrictive. In addition, investigating advanced multi-task optimizers
+and loss-balancing schemes beyond gradient conflict mitigation could address the task difficulty
+imbalance. Finally, a deeper analysis of task relatedness, perhaps using techniques to measure
+feature representation overlap, could help quantify the degree of negative transfer and guide
+future architectural choices.

@@ -1,0 +1,151 @@
+
+===== PDF PAGE 76 =====
+76
+6 Conclusion
+This dissertation asked one question, whether multi-task learning helps point-of-interest
+prediction for the next category and next region tasks and what the answer depends on, and
+answered it across three studies: a joint model that did not outperform its dedicated counterparts
+(Chapter 3), the diagnosis that located the bottleneck in the input representation (Chapter 4), and
+a check-in-level representation with a redesigned sharing topology under which one joint model
+finally outperforms the dedicated single-task models on the category task at all six datasets and
+on the region task at four of the six, and is statistically non-inferior to them, within a two-point
+margin (TOST), at the other two (Chapter 5).
+6.1
+Contributions by chapter
+Chapter 3 contributed MTLnet, the first joint model of this research, and an honest
+negative result. Built from standard components, a place-level graph embedding and hard para-
+meter sharing beneath the two task heads, the joint model did not consistently outperform the
+dedicated single-task models on the two category tasks, and it cost more to train. The study’s
+contribution is not the architecture but the finding and its analysis: three candidate explanations,
+task dissimilarity, an input representation too poor for both tasks at once, and the restrictiveness
+of hard sharing, that the rest of the dissertation put to the test. That conclusion held for the
+configuration of its time, a place-level input under hard sharing, and the later chapters revised it.
+Chapter 4 contributed the controlled test of the representation explanation. Holding
+the MTLnet architecture fixed and replacing only the input, the monolithic 64-dimensional
+place embedding, with decomposed spatial, temporal, and categorical encoders, raised category
+macro-F1 by 20.2 to 22.0 percentage points across the three states tested. A change of input,
+with no change of architecture, produced a larger gain than any architectural variation tried
+before it. The comparison is not width-matched, however: the decomposed input is wider than
+the place embedding it replaces, 192 dimensions against 64, and Chapter 4 states that an equal-
+dimension control would be needed to separate the semantic specialization of the encoders from
+the increase in input dimensionality alone. The diagnosis of the arc follows from this chapter:
+the input representation, not the sharing scheme, was the binding constraint at that stage of the
+research.
+Chapter 5 contributed the resolution: the check-in-level representation, which gives each
+visit its own vector instead of assigning every visit to a place the same one, and a joint model
+that shares through a cross-attention trunk between two task-specific streams, with a private
+spatial path for the region task. Under user-disjoint cross-validation with twenty fitted models
+
+===== PDF PAGE 77 =====
+Chapter 6. Conclusion
+77
+per configuration, four seeds over one fixed set of five folds, and paired tests on the four per-seed
+means, the joint model outperforms the dedicated single-task models on the category task at
+all six datasets, by 5.3 to 9.4 macro-F1 points, and on the region task at four of six, Istanbul,
+Florida, California, and Texas, while remaining statistically non-inferior within a two-point
+margin (TOST) at Alabama and Arizona.
+6.2
+The consolidated answer
+Does multi-task learning help point-of-interest prediction? The dissertation’s answer
+is conditional, and the condition is the finding. With a place-level embedding and naive hard
+sharing, no: the joint model of Chapter 3 did not consistently outperform two dedicated models,
+and negative transfer between the static and the sequential task was among its candidate causes.
+With a check-in-level representation and a sharing topology built for it, yes: one model, one
+forward pass, both predictions, at quality that outperforms the dedicated models on the category
+task everywhere and outperforms or matches them on the region task. The representation,
+together with the sharing topology built on it, is what the answer depends on.
+Two controls separate this claim from wishful attribution. First, the freeze control re-
+ported in Chapter 5: with the region pathway frozen, the category gain survives, at the three
+datasets where the control was run (Alabama, Arizona, Florida), so the gain does not come from
+the region task teaching the category task; it comes from something in the joint architecture
+that the dedicated model does not have. The control does not say which part. A development
+ablation at Florida removed the cross-attention stack alone and moved next-category macro-F1
+by −0.04 ± 0.13, but that measurement was taken on an earlier configuration whose region head
+was driven by a transition prior the models reported here do not use, and its own record reads
+the null as a compensation effect rather than an absence of contribution. We therefore do not
+name the shared trunk as the source, and we do not offer the ablation as evidence that the trunk
+contributes nothing. Second, a capacity-matched dedicated baseline, run after the Chapter 5
+manuscript was submitted and reported here as a frame-level analysis: a dedicated category
+model widened to the joint model’s parameter budget, about 4.2 million parameters at Alabama
+against 0.6 million at its published width, does not recover the joint gain. At Alabama the
+widened model was fitted under three training configurations, twenty models each and sixty in
+total, and the strongest configuration averages 56.16 macro-F1, standard deviation 1.89, against
+56.82 for the dedicated model at its own tuned width and 64.51 for the joint model. California
+run, completed since, repeats the pattern. At the matching width, a hidden dimension of 752
+and 101.9 percent of the joint model’s parameter count, the widened model’s better training
+configuration reaches 69.88 macro-F1, standard deviation 0.26 over its twenty fitted models,
+against 70.60, standard deviation 0.07, for the same model at its own tuned narrow width. At
+both datasets, then, widening leaves the dedicated model at or slightly below its narrow-width
+
+===== PDF PAGE 78 =====
+Chapter 6. Conclusion
+78
+optimum, 0.72 points below at California and 0.66 at Alabama, and recovers none of the joint
+model’s margin. One detail supports the fairness of the comparison: at both datasets the widened
+model’s best training configuration uses a lower learning rate than the narrow width’s, so the
+sweep found the wide model’s own better setting rather than rerunning the narrow model’s.
+Parameter count alone, without the second task’s training signal, yields nothing here; the two
+experiments together license the sentence Chapter 5 already states as its finding, that the gain is
+not cross-task transfer.
+The gradient-level picture is consistent with this reading, within its measurement scope.
+During development, on an earlier preparation of the data, the cosine similarity between the
+two tasks’ gradients averaged +0.001 over four seeds on four Gowalla states, three of which
+are among the five we report, directional conflict only, a finding for this pair of tasks rather
+than a general rule. Under the check-in-level representation the two sequential tasks coexist
+with essentially orthogonal gradients: sharing stopped hurting. This also explains why gradient-
+balancing optimizers had little to correct, in this configuration, and why a tuned fixed weighting
+sufficed.
+The negative result of Chapter 3 and the positive result of Chapter 5 do not contradict
+each other; read together, they bound the claim. Multi-task learning is not a free gain that
+any architecture collects, and it is not a dead end that no representation can rescue. What this
+dissertation adds to the record is one worked path between those poles, with the decisive variable
+named and tested.
+6.3
+Limitations
+Six limitations bound the scope of these conclusions.
+1. Data vintage. The five state datasets come from Gowalla check-ins collected between
+2009 and 2011; mobility patterns, place inventories, and check-in behavior have changed
+since.
+2. Taxonomy coarseness. The category task uses seven top-level classes; finer-grained
+taxonomies may behave differently under joint training.
+3. Transductive representation. The check-in-level representation is trained on the check-in
+graph of each dataset; it does not embed unseen places or users without retraining.
+4. No next-place task. The exact next place is not predicted anywhere in this work; the
+conclusions concern the next category and next region targets only.
+5. Geographic coverage. Outside the United States the evidence rests on a single city,
+Istanbul.
+
+===== PDF PAGE 79 =====
+Chapter 6. Conclusion
+79
+6. The task-pair confound. The task pair changed together with the representation and
+the sharing topology: Chapters 3 and 4 paired static category classification with next
+category, while Chapter 5 pairs next category with next region, two sequential tasks. No
+single controlled ablation separates the representation-and-topology change from the task-
+pair change in the final result. Chapter 4 is the fixed-pair control for the diagnosis, and
+the capacity-matched baseline above closes the parameter-count explanation in the setting
+it tested, the category task at two of the six datasets, one width point per dataset, and
+width scaling rather than depth, but the homogeneity of the final pair remains a possible
+contributor to the size of the improvement.
+6.4
+Future work
+Each limitation names its own next step. Extending the pipeline to newer and denser
+traces would test the conclusions beyond the Gowalla vintage (limitation 1), and finer-grained
+taxonomies would test them below the seven-class ceiling (limitation 2). An inductive variant of
+the check-in-level representation, one that embeds unseen places and users without retraining,
+would remove the transductive constraint and open deployment to growing cities (limitation 3).
+Adding the exact next place as a third target, on top of the two properties this work predicts,
+would reconnect the joint model to the field’s hardest task, where the cascade architectures
+reviewed in Chapter 5 suggest category and region predictions can serve as structure rather than
+competition (limitation 4). Evaluation on further cities outside the United States would widen
+the geographic base (limitation 5). And the fixed-pair ablation, training the Chapter 5 joint model
+on the Chapter 3 task pair under the check-in-level representation, is the experiment that would
+close the task-pair confound (limitation 6).
+6.5
+Final remarks
+The practical output of this dissertation is one deployable model whose single forward
+pass answers two questions a mobility-aware service asks about the next visit, what kind of place
+and in which part of the city. The methodological output is an honest record: a published negative
+result, the diagnosis that turned it into a question about representations, and the resolution that
+answered the question. The negative result was not an obstacle on the way to the contribution;
+worked through, it was the contribution’s first half.
