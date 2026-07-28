@@ -1,0 +1,2256 @@
+{
+ "1_introduction": [
+  {
+   "file": "1_introduction.tex",
+   "line": 38,
+   "macro": "cite",
+   "keys": [
+    "song2010limits"
+   ],
+   "sentence": "Such records now exist at large scale, and they carry more regularity than their noise suggests; an analysis of large-scale human traces estimated the potential predictability of an individual's next location at about 93 percent~\\cite{song2010limits}."
+  },
+  {
+   "file": "1_introduction.tex",
+   "line": 45,
+   "macro": "cite",
+   "keys": [
+    "luca2021mobilitysurvey"
+   ],
+   "sentence": "The study of human mobility informs urban planning, disease spreading, and pollution analysis, among other societal concerns~\\cite{luca2021mobilitysurvey}, and place categories are the semantic characterization that location-based services rely on~\\cite{Xu2023}."
+  },
+  {
+   "file": "1_introduction.tex",
+   "line": 46,
+   "macro": "cite",
+   "keys": [
+    "Xu2023"
+   ],
+   "sentence": "The study of human mobility informs urban planning, disease spreading, and pollution analysis, among other societal concerns~\\cite{luca2021mobilitysurvey}, and place categories are the semantic characterization that location-based services rely on~\\cite{Xu2023}."
+  },
+  {
+   "file": "1_introduction.tex",
+   "line": 50,
+   "macro": "cite",
+   "keys": [
+    "mai2023sphere2vecgeneralpurposelocationrepresentation",
+    "wu2024torchspatial"
+   ],
+   "sentence": "The field also imports its tools: part of the representation machinery used in this research, the spatial location encoders of the second study, was first validated on geospatial tasks such as species recognition and remote sensing classification~\\cite{mai2023sphere2vecgeneralpurposelocationrepresentation,wu2024torchspatial}."
+  },
+  {
+   "file": "1_introduction.tex",
+   "line": 70,
+   "macro": "cite",
+   "keys": [
+    "caruana1997multitask"
+   ],
+   "sentence": "The two tasks read the same trace of visits, so one model could learn them together, sharing what they have in common; this is multi-task learning (MTL)~\\cite{caruana1997multitask}, and it has produced single networks that handle many vision tasks at once~\\cite{kokkinos2016ubernet}, recurrent models that diagnose over a hundred clinical conditions simultaneously~\\cite{lipton2015learning}, and language models fine-tuned across dozens of tasks described by instructions~\\cite{wei2022finetuned}."
+  },
+  {
+   "file": "1_introduction.tex",
+   "line": 72,
+   "macro": "cite",
+   "keys": [
+    "kokkinos2016ubernet"
+   ],
+   "sentence": "The two tasks read the same trace of visits, so one model could learn them together, sharing what they have in common; this is multi-task learning (MTL)~\\cite{caruana1997multitask}, and it has produced single networks that handle many vision tasks at once~\\cite{kokkinos2016ubernet}, recurrent models that diagnose over a hundred clinical conditions simultaneously~\\cite{lipton2015learning}, and language models fine-tuned across dozens of tasks described by instructions~\\cite{wei2022finetuned}."
+  },
+  {
+   "file": "1_introduction.tex",
+   "line": 73,
+   "macro": "cite",
+   "keys": [
+    "lipton2015learning"
+   ],
+   "sentence": "The two tasks read the same trace of visits, so one model could learn them together, sharing what they have in common; this is multi-task learning (MTL)~\\cite{caruana1997multitask}, and it has produced single networks that handle many vision tasks at once~\\cite{kokkinos2016ubernet}, recurrent models that diagnose over a hundred clinical conditions simultaneously~\\cite{lipton2015learning}, and language models fine-tuned across dozens of tasks described by instructions~\\cite{wei2022finetuned}."
+  },
+  {
+   "file": "1_introduction.tex",
+   "line": 75,
+   "macro": "cite",
+   "keys": [
+    "wei2022finetuned"
+   ],
+   "sentence": "The two tasks read the same trace of visits, so one model could learn them together, sharing what they have in common; this is multi-task learning (MTL)~\\cite{caruana1997multitask}, and it has produced single networks that handle many vision tasks at once~\\cite{kokkinos2016ubernet}, recurrent models that diagnose over a hundred clinical conditions simultaneously~\\cite{lipton2015learning}, and language models fine-tuned across dozens of tasks described by instructions~\\cite{wei2022finetuned}."
+  }
+ ],
+ "2_fundamentals": [
+  {
+   "file": "2_fundamentals.tex",
+   "line": 31,
+   "macro": "cite",
+   "keys": [
+    "silva2019urbancomputing"
+   ],
+   "sentence": "These traces carry geographic and temporal detail at a resolution earlier mobility data lacked, and they have turned the study of cities into a data-driven discipline \\cite{silva2019urbancomputing}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 33,
+   "macro": "cite",
+   "keys": [
+    "cho2011gowalla"
+   ],
+   "sentence": "People return to a small set of places on a daily rhythm and travel farther only occasionally \\cite{cho2011gowalla}, and the regularity has a measurable limit: an entropy analysis of movement traces places a potential predictability of about 93 percent on where an individual goes next \\cite{song2010limits}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 35,
+   "macro": "cite",
+   "keys": [
+    "song2010limits"
+   ],
+   "sentence": "People return to a small set of places on a daily rhythm and travel farther only occasionally \\cite{cho2011gowalla}, and the regularity has a measurable limit: an entropy analysis of movement traces places a potential predictability of about 93 percent on where an individual goes next \\cite{song2010limits}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 47,
+   "macro": "cite",
+   "keys": [
+    "luca2021mobilitysurvey"
+   ],
+   "sentence": "Deep-learning methods for human mobility address several distinct problems, from crowd-flow estimation to next-location prediction \\cite{luca2021mobilitysurvey}, so the target of a model must be stated precisely before results can be compared."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 57,
+   "macro": "cite",
+   "keys": [
+    "Xu2023"
+   ],
+   "sentence": "A fourth, non-sequential task, \\emph{category classification}, labels a POI with its semantic category from static features rather than from a sequence \\cite{Xu2023}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 68,
+   "macro": "cite",
+   "keys": [
+    "liu2016strnn"
+   ],
+   "sentence": "The sequential framing began with recurrent models: ST-RNN augments a recurrent network with time-specific and distance-specific transition matrices so that the interval and the displacement between visits shape the prediction \\cite{liu2016strnn}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 70,
+   "macro": "cite",
+   "keys": [
+    "feng2018deepmove"
+   ],
+   "sentence": "DeepMove adds an attention mechanism over long and sparse histories, recovering the periodic structure of a user's movement \\cite{feng2018deepmove}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 71,
+   "macro": "cite",
+   "keys": [
+    "kong2018hstlstm"
+   ],
+   "sentence": "HST-LSTM folds spatial-temporal transition context into a hierarchical recurrent cell \\cite{kong2018hstlstm}, and Flashback attends back over past hidden states to cope with the gaps that sparse trajectories leave \\cite{yang2020flashback}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 73,
+   "macro": "cite",
+   "keys": [
+    "yang2020flashback"
+   ],
+   "sentence": "HST-LSTM folds spatial-temporal transition context into a hierarchical recurrent cell \\cite{kong2018hstlstm}, and Flashback attends back over past hidden states to cope with the gaps that sparse trajectories leave \\cite{yang2020flashback}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 75,
+   "macro": "cite",
+   "keys": [
+    "luo2021stan"
+   ],
+   "sentence": "STAN models spatio-temporal correlations between non-adjacent visits and shows that visits far apart in a sequence still carry signal \\cite{luo2021stan}; GeoSAN encodes geography through a hierarchical grid and a self-attention layer \\cite{lian2020geosan}; and GETNext brings a global trajectory-flow map into a transformer so that collaborative signal from many users informs a single prediction \\cite{yang2022getnext}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 77,
+   "macro": "cite",
+   "keys": [
+    "lian2020geosan"
+   ],
+   "sentence": "STAN models spatio-temporal correlations between non-adjacent visits and shows that visits far apart in a sequence still carry signal \\cite{luo2021stan}; GeoSAN encodes geography through a hierarchical grid and a self-attention layer \\cite{lian2020geosan}; and GETNext brings a global trajectory-flow map into a transformer so that collaborative signal from many users informs a single prediction \\cite{yang2022getnext}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 79,
+   "macro": "cite",
+   "keys": [
+    "yang2022getnext"
+   ],
+   "sentence": "STAN models spatio-temporal correlations between non-adjacent visits and shows that visits far apart in a sequence still carry signal \\cite{luo2021stan}; GeoSAN encodes geography through a hierarchical grid and a self-attention layer \\cite{lian2020geosan}; and GETNext brings a global trajectory-flow map into a transformer so that collaborative signal from many users informs a single prediction \\cite{yang2022getnext}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 85,
+   "macro": "cite",
+   "keys": [
+    "lin2021ctle"
+   ],
+   "sentence": "CTLE learns context- and time-aware location embeddings in which the same POI takes different vectors under different circumstances, the closest prior work to a per-visit view of a place \\cite{lin2021ctle}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 90,
+   "macro": "cite",
+   "keys": [
+    "Lim2022"
+   ],
+   "sentence": "HMT-GRN predicts place and region in a hierarchy and uses the region prediction to constrain a beam search over places, so the region is auxiliary to place \\cite{Lim2022}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 91,
+   "macro": "cite",
+   "keys": [
+    "yu2020catdm"
+   ],
+   "sentence": "Category-aware recommenders such as CatDM predict a category to prune the place candidate set \\cite{yu2020catdm}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 94,
+   "macro": "cite",
+   "keys": [
+    "zhu2022drrgnn"
+   ],
+   "sentence": "A smaller body of work makes one of them the end target directly: activity-region prediction studies the region level in its own right \\cite{zhu2022drrgnn}, and POI-RGNN predicts the category of the next place as its output \\cite{capanema2023poirgnn}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 95,
+   "macro": "cite",
+   "keys": [
+    "capanema2023poirgnn"
+   ],
+   "sentence": "A smaller body of work makes one of them the end target directly: activity-region prediction studies the region level in its own right \\cite{zhu2022drrgnn}, and POI-RGNN predicts the category of the next place as its output \\cite{capanema2023poirgnn}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 139,
+   "macro": "cite",
+   "keys": [
+    "mikolov2013word2vec"
+   ],
+   "sentence": "The skip-gram model learns dense vectors in which proximity reflects co-occurrence, so that related symbols sit close together in a continuous space \\cite{mikolov2013word2vec}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 141,
+   "macro": "cite",
+   "keys": [
+    "perozzi2014deepwalk"
+   ],
+   "sentence": "Carrying that idea to graphs, DeepWalk samples random walks and treats them as sentences, learning node embeddings from local neighborhoods \\cite{perozzi2014deepwalk}, and node2vec generalizes the walk so that a single objective can favor either homophily or structural role \\cite{grover2016node2vec}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 143,
+   "macro": "cite",
+   "keys": [
+    "grover2016node2vec"
+   ],
+   "sentence": "Carrying that idea to graphs, DeepWalk samples random walks and treats them as sentences, learning node embeddings from local neighborhoods \\cite{perozzi2014deepwalk}, and node2vec generalizes the walk so that a single objective can favor either homophily or structural role \\cite{grover2016node2vec}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 145,
+   "macro": "cite",
+   "keys": [
+    "kipf2017gcn"
+   ],
+   "sentence": "The graph convolutional network combines a node's features with those of its neighbors through a localized spectral rule \\cite{kipf2017gcn}; graph attention networks weight each neighbor by learned attention rather than by fixed degree \\cite{velivckovic2017graph}; and GraphSAGE learns aggregator functions that generalize to nodes unseen during training, making the embedding inductive \\cite{hamilton2017graphsage}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 147,
+   "macro": "cite",
+   "keys": [
+    "velivckovic2017graph"
+   ],
+   "sentence": "The graph convolutional network combines a node's features with those of its neighbors through a localized spectral rule \\cite{kipf2017gcn}; graph attention networks weight each neighbor by learned attention rather than by fixed degree \\cite{velivckovic2017graph}; and GraphSAGE learns aggregator functions that generalize to nodes unseen during training, making the embedding inductive \\cite{hamilton2017graphsage}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 149,
+   "macro": "cite",
+   "keys": [
+    "hamilton2017graphsage"
+   ],
+   "sentence": "The graph convolutional network combines a node's features with those of its neighbors through a localized spectral rule \\cite{kipf2017gcn}; graph attention networks weight each neighbor by learned attention rather than by fixed degree \\cite{velivckovic2017graph}; and GraphSAGE learns aggregator functions that generalize to nodes unseen during training, making the embedding inductive \\cite{hamilton2017graphsage}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 154,
+   "macro": "cite",
+   "keys": [
+    "belghazi2018mine"
+   ],
+   "sentence": "Mutual information between two high-dimensional variables can be estimated and maximized by gradient descent \\cite{belghazi2018mine}, and Deep InfoMax turns this into a representation learner by maximizing the mutual information between a local feature and a global summary of the input \\cite{hjelm2019dim}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 156,
+   "macro": "cite",
+   "keys": [
+    "hjelm2019dim"
+   ],
+   "sentence": "Mutual information between two high-dimensional variables can be estimated and maximized by gradient descent \\cite{belghazi2018mine}, and Deep InfoMax turns this into a representation learner by maximizing the mutual information between a local feature and a global summary of the input \\cite{hjelm2019dim}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 159,
+   "macro": "cite",
+   "keys": [
+    "velickovic2019deep"
+   ],
+   "sentence": "Deep Graph Infomax (DGI) applies the principle to graphs: it learns node representations, unsupervised, by maximizing the mutual information between local patch representations and a global graph summary \\cite{velickovic2019deep}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 163,
+   "macro": "cite",
+   "keys": [
+    "huang2023hgi"
+   ],
+   "sentence": "HGI extends the infomax objective across a hierarchy and is trained by maximizing the mutual information among the POI, region, and city levels, yielding region-aware place embeddings \\cite{huang2023hgi}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 192,
+   "macro": "cite",
+   "keys": [
+    "lin2021ctle"
+   ],
+   "sentence": "CTLE makes the point concrete by learning location embeddings that are context- and time-aware, so that the vector for a place depends on the visit \\cite{lin2021ctle}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 201,
+   "macro": "cite",
+   "keys": [
+    "kazemi2019time2vec"
+   ],
+   "sentence": "Time2Vec is a model-agnostic encoding of time that combines a linear term with periodic terms, so that hour-of-day and day-of-week enter a model as continuous features \\cite{kazemi2019time2vec}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 204,
+   "macro": "cite",
+   "keys": [
+    "sitzmann2020implicit"
+   ],
+   "sentence": "SIREN shows that networks with sinusoidal activations represent continuous signals and their derivatives well, which is the general basis for periodic coordinate encoders \\cite{sitzmann2020implicit}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 205,
+   "macro": "cite",
+   "keys": [
+    "mai2020multiscalerepresentationlearningspatial"
+   ],
+   "sentence": "Space2Vec encodes absolute position and spatial context at multiple scales \\cite{mai2020multiscalerepresentationlearningspatial}, and Sphere2Vec encodes points on a sphere so that the encoding respects spherical geometry rather than a flat approximation \\cite{mai2023sphere2vecgeneralpurposelocationrepresentation}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 208,
+   "macro": "cite",
+   "keys": [
+    "mai2023sphere2vecgeneralpurposelocationrepresentation"
+   ],
+   "sentence": "Space2Vec encodes absolute position and spatial context at multiple scales \\cite{mai2020multiscalerepresentationlearningspatial}, and Sphere2Vec encodes points on a sphere so that the encoding respects spherical geometry rather than a flat approximation \\cite{mai2023sphere2vecgeneralpurposelocationrepresentation}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 211,
+   "macro": "cite",
+   "keys": [
+    "russwurm2024geographiclocationencodingspherical"
+   ],
+   "sentence": "A related encoder uses spherical harmonics together with sinusoidal representation networks, again to honor the spherical domain that flat sine-and-cosine features distort \\cite{russwurm2024geographiclocationencodingspherical}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 213,
+   "macro": "cite",
+   "keys": [
+    "perez2018film"
+   ],
+   "sentence": "Feature-wise linear modulation (FiLM) is a general conditioning mechanism that scales and shifts a layer's features according to a side input \\cite{perez2018film}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 284,
+   "macro": "cite",
+   "keys": [
+    "caruana1997multitask"
+   ],
+   "sentence": "Multi-task learning (MTL) trains one model on several related tasks at once, in the expectation that a representation shared among them generalizes better than one learned for a single task in isolation \\cite{caruana1997multitask}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 293,
+   "macro": "cite",
+   "keys": [
+    "ruder2017mtloverview"
+   ],
+   "sentence": "The two poles are hard parameter sharing, where the tasks use a common trunk and split only at the output heads, and soft parameter sharing, where each task keeps its own parameters and the tasks are coupled by a weaker constraint \\cite{ruder2017mtloverview}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 296,
+   "macro": "cite",
+   "keys": [
+    "misra2016cross"
+   ],
+   "sentence": "Cross-stitch units place a learned linear combination of two task networks' activations at each layer, letting the model decide how much to mix them \\cite{misra2016cross}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 298,
+   "macro": "cite",
+   "keys": [
+    "ma2018mmoe"
+   ],
+   "sentence": "The multi-gate mixture-of-experts shares a pool of expert subnetworks but gives each task its own gate over them, so that routing, not a fixed trunk, determines sharing \\cite{ma2018mmoe}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 300,
+   "macro": "cite",
+   "keys": [
+    "tang2020ple"
+   ],
+   "sentence": "Progressive layered extraction sharpens this by separating shared experts from task-specific ones in layered gates \\cite{tang2020ple}, and DSelect-k makes the expert selection itself differentiable and sparse \\cite{hazimeh2021dselectk}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 301,
+   "macro": "cite",
+   "keys": [
+    "hazimeh2021dselectk"
+   ],
+   "sentence": "Progressive layered extraction sharpens this by separating shared experts from task-specific ones in layered gates \\cite{tang2020ple}, and DSelect-k makes the expert selection itself differentiable and sparse \\cite{hazimeh2021dselectk}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 310,
+   "macro": "cite",
+   "keys": [
+    "standley2020tasks"
+   ],
+   "sentence": "Which tasks help each other and which interfere cannot be assumed away, and joint training can hurt as easily as it helps depending on the pairing \\cite{standley2020tasks}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 313,
+   "macro": "cite",
+   "keys": [
+    "sener2018mgda"
+   ],
+   "sentence": "The effect is not incidental: because the tasks can conflict, minimizing a weighted sum of their losses is only valid when they do not, and multi-task learning is more honestly cast as a multi-objective problem with no single optimum \\cite{sener2018mgda}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 317,
+   "macro": "cite",
+   "keys": [
+    "kendall2018uncertainty"
+   ],
+   "sentence": "Uncertainty weighting sets each task's loss weight from its homoscedastic uncertainty, learned jointly with the model \\cite{kendall2018uncertainty}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 319,
+   "macro": "cite",
+   "keys": [
+    "chen2018gradnorm"
+   ],
+   "sentence": "GradNorm rescales per-task gradient magnitudes so that tasks train at comparable rates \\cite{chen2018gradnorm}, and dynamic weight averaging sets the weights from the recent rate of change of each loss \\cite{liu2019dwa}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 320,
+   "macro": "cite",
+   "keys": [
+    "liu2019dwa"
+   ],
+   "sentence": "GradNorm rescales per-task gradient magnitudes so that tasks train at comparable rates \\cite{chen2018gradnorm}, and dynamic weight averaging sets the weights from the recent rate of change of each loss \\cite{liu2019dwa}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 322,
+   "macro": "cite",
+   "keys": [
+    "yu2020pcgrad"
+   ],
+   "sentence": "Other methods act on the gradient directions: PCGrad projects a task's gradient off any conflicting task's gradient \\cite{yu2020pcgrad}, CAGrad maximizes the worst per-task improvement among updates that stay within a ball around the average gradient, with convergence guarantees \\cite{liu2021cagrad}, Nash-MTL treats the combination of task gradients as a bargaining game and takes the Nash solution as the joint direction \\cite{nash}, and Aligned-MTL aligns the principal components of the gradient system and uses its condition number as a stability criterion \\cite{senushkin2023aligned}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 324,
+   "macro": "cite",
+   "keys": [
+    "liu2021cagrad"
+   ],
+   "sentence": "Other methods act on the gradient directions: PCGrad projects a task's gradient off any conflicting task's gradient \\cite{yu2020pcgrad}, CAGrad maximizes the worst per-task improvement among updates that stay within a ball around the average gradient, with convergence guarantees \\cite{liu2021cagrad}, Nash-MTL treats the combination of task gradients as a bargaining game and takes the Nash solution as the joint direction \\cite{nash}, and Aligned-MTL aligns the principal components of the gradient system and uses its condition number as a stability criterion \\cite{senushkin2023aligned}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 327,
+   "macro": "cite",
+   "keys": [
+    "nash"
+   ],
+   "sentence": "Other methods act on the gradient directions: PCGrad projects a task's gradient off any conflicting task's gradient \\cite{yu2020pcgrad}, CAGrad maximizes the worst per-task improvement among updates that stay within a ball around the average gradient, with convergence guarantees \\cite{liu2021cagrad}, Nash-MTL treats the combination of task gradients as a bargaining game and takes the Nash solution as the joint direction \\cite{nash}, and Aligned-MTL aligns the principal components of the gradient system and uses its condition number as a stability criterion \\cite{senushkin2023aligned}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 329,
+   "macro": "cite",
+   "keys": [
+    "senushkin2023aligned"
+   ],
+   "sentence": "Other methods act on the gradient directions: PCGrad projects a task's gradient off any conflicting task's gradient \\cite{yu2020pcgrad}, CAGrad maximizes the worst per-task improvement among updates that stay within a ball around the average gradient, with convergence guarantees \\cite{liu2021cagrad}, Nash-MTL treats the combination of task gradients as a bargaining game and takes the Nash solution as the joint direction \\cite{nash}, and Aligned-MTL aligns the principal components of the gradient system and uses its condition number as a stability criterion \\cite{senushkin2023aligned}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 331,
+   "macro": "cite",
+   "keys": [
+    "liu2023famo"
+   ],
+   "sentence": "FAMO reduces the cost of balancing by tracking loss decreases in constant time and space rather than reading every task gradient at each step \\cite{liu2023famo}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 332,
+   "macro": "cite",
+   "keys": [
+    "lin2022rlw"
+   ],
+   "sentence": "Random loss weighting is a competitive baseline \\cite{lin2022rlw}; a controlled study finds that current MTL optimizers often do not outperform a well-tuned fixed-weight baseline \\cite{xin2022domtl}; and a direct defense of plain loss summation shows that a unitary scalarization with standard regularization matches or improves upon the specialized optimizers \\cite{kurin2022scalarization}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 334,
+   "macro": "cite",
+   "keys": [
+    "xin2022domtl"
+   ],
+   "sentence": "Random loss weighting is a competitive baseline \\cite{lin2022rlw}; a controlled study finds that current MTL optimizers often do not outperform a well-tuned fixed-weight baseline \\cite{xin2022domtl}; and a direct defense of plain loss summation shows that a unitary scalarization with standard regularization matches or improves upon the specialized optimizers \\cite{kurin2022scalarization}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 336,
+   "macro": "cite",
+   "keys": [
+    "kurin2022scalarization"
+   ],
+   "sentence": "Random loss weighting is a competitive baseline \\cite{lin2022rlw}; a controlled study finds that current MTL optimizers often do not outperform a well-tuned fixed-weight baseline \\cite{xin2022domtl}; and a direct defense of plain loss summation shows that a unitary scalarization with standard regularization matches or improves upon the specialized optimizers \\cite{kurin2022scalarization}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 338,
+   "macro": "cite",
+   "keys": [
+    "vandenhende2022mtl",
+    "yu2024survey"
+   ],
+   "sentence": "A recent survey and a dense-prediction survey both consolidate the architectures and the balancing methods and set out when sharing helps \\cite{vandenhende2022mtl,yu2024survey}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 352,
+   "macro": "cite",
+   "keys": [
+    "Liao2018"
+   ],
+   "sentence": "MCARNN predicts activity and next place together with a context-aware recurrent unit, pairing the two in parallel \\cite{Liao2018}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 354,
+   "macro": "cite",
+   "keys": [
+    "huang2024cslsl"
+   ],
+   "sentence": "A cascade line runs the other way: CSLSL imposes a causal chain, time then activity then location, so that the activity or category is an intermediate step toward the place \\cite{huang2024cslsl}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 362,
+   "macro": "cite",
+   "keys": [
+    "silva2025mtlnet"
+   ],
+   "sentence": "Its own starting model, MTLnet, applies hard parameter sharing on a place-level embedding and does not outperform the dedicated single-task models, a result that holds for that configuration and motivates the representation argument the next chapters develop \\cite{silva2025mtlnet}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 417,
+   "macro": "cite",
+   "keys": [
+    "cho2011gowalla"
+   ],
+   "sentence": "Gowalla is the dataset of record, introduced with the study of periodic and socially driven movement in LBSNs, and this work uses five United States states from it \\cite{cho2011gowalla}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 420,
+   "macro": "cite",
+   "keys": [
+    "wongso2025massivesteps"
+   ],
+   "sentence": "For a non-United-States setting, the Massive-STEPS benchmark supplies Istanbul check-ins and argues that the field has leaned too long on decade-old datasets, which is part of the reason for evaluating across more than one city \\cite{wongso2025massivesteps}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 422,
+   "macro": "cite",
+   "keys": [
+    "yang2015tsmc"
+   ],
+   "sentence": "The Foursquare check-in dataset from New York and Tokyo is a further widely used benchmark \\cite{yang2015tsmc}; it is named here for context, as the dissertation evaluates on Gowalla and the Istanbul data rather than on it."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 431,
+   "macro": "cite",
+   "keys": [
+    "sokolova2009measures"
+   ],
+   "sentence": "Macro-averaged F1 is the primary category metric instead: it is the unweighted mean of the per-class F1 scores, so it reads as average per-class quality with every class counting equally, and it does not reward a model that serves only the frequent classes \\cite{sokolova2009measures}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 444,
+   "macro": "cite",
+   "keys": [
+    "maninis2019attentive"
+   ],
+   "sentence": "When one model must be scored against its single-task references across both tasks at once, the aggregate is the relative multi-task performance change, the average per-task percentage by which the joint model leads or trails the dedicated single-task models \\cite{maninis2019attentive}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 451,
+   "macro": "cite",
+   "keys": [
+    "gambs2012mmc"
+   ],
+   "sentence": "A first-order transition model, a mobility Markov chain over the training partition, is the corresponding non-learned floor for the sequential targets \\cite{gambs2012mmc}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 454,
+   "macro": "cite",
+   "keys": [
+    "song2010limits"
+   ],
+   "sentence": "The entropy analysis of human movement that reports a potential predictability of about 93 percent sets a bound for predicting the next location at coarse resolution, and it frames why mobility is learnable at all \\cite{song2010limits}; it is not, however, a ceiling on seven-class category macro-F1 or on region ranking, which are different label spaces."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 462,
+   "macro": "cite",
+   "keys": [
+    "kohavi1995crossval"
+   ],
+   "sentence": "Estimates use stratified k-fold cross-validation \\cite{kohavi1995crossval}, and the folds are formed so that no user spans a split: a grouped, stratified splitter keeps all of a user's check-ins on one side of every fold, so that measured accuracy reflects generalization to new users rather than memorization of familiar ones \\cite{pedregosa2011sklearn}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 465,
+   "macro": "cite",
+   "keys": [
+    "pedregosa2011sklearn"
+   ],
+   "sentence": "Estimates use stratified k-fold cross-validation \\cite{kohavi1995crossval}, and the folds are formed so that no user spans a split: a grouped, stratified splitter keeps all of a user's check-ins on one side of every fold, so that measured accuracy reflects generalization to new users rather than memorization of familiar ones \\cite{pedregosa2011sklearn}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 476,
+   "macro": "cite",
+   "keys": [
+    "wilcoxon1945"
+   ],
+   "sentence": "The paired Wilcoxon signed-rank test compares two models across the paired results without assuming normality \\cite{wilcoxon1945}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 481,
+   "macro": "cite",
+   "keys": [
+    "holm1979"
+   ],
+   "sentence": "Its exact one-sided $p$ has a floor set by the number of pairs, so a superiority claim tested on four repetitions is reported with a paired $t$ on the per-repetition means and the Wilcoxon test alongside it, on the individual folds (Chapter~\\ref{ch:mobiwac}); either test licenses the verb ``outperforms'', and the Holm step-down procedure controls the family-wise error when several datasets are tested at once \\cite{holm1979}."
+  },
+  {
+   "file": "2_fundamentals.tex",
+   "line": 484,
+   "macro": "cite",
+   "keys": [
+    "lakens2017tost"
+   ],
+   "sentence": "A superiority test cannot, by itself, support a claim of equivalence, so where the dissertation states that one model matches another it uses two one-sided tests to establish statistical non-inferiority within a two-point margin \\cite{lakens2017tost}."
+  }
+ ],
+ "3_cbic": [
+  {
+   "file": "3_cbic.tex",
+   "line": 48,
+   "macro": "cite",
+   "keys": [
+    "caruana1997multitask"
+   ],
+   "sentence": "Multi-Task Learning (MTL) is a machine learning paradigm where multiple related tasks are learned jointly, sharing representations and inductive biases to improve generalization performance \\cite{caruana1997multitask}."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 48,
+   "macro": "cite",
+   "keys": [
+    "kokkinos2016ubernet"
+   ],
+   "sentence": "Its success in domains like computer vision \\cite{kokkinos2016ubernet}, natural language processing \\cite{wei2022finetuned} and recommendation systems \\cite{Zhang2020} motivates its application to Location-Based Social Networks (LBSNs), where understanding user interactions with Points-of-Interest (POIs), specific physical locations that someone might find useful or interesting, such as restaurants, shops, or landmarks, is fundamental."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 48,
+   "macro": "cite",
+   "keys": [
+    "wei2022finetuned"
+   ],
+   "sentence": "Its success in domains like computer vision \\cite{kokkinos2016ubernet}, natural language processing \\cite{wei2022finetuned} and recommendation systems \\cite{Zhang2020} motivates its application to Location-Based Social Networks (LBSNs), where understanding user interactions with Points-of-Interest (POIs), specific physical locations that someone might find useful or interesting, such as restaurants, shops, or landmarks, is fundamental."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 48,
+   "macro": "cite",
+   "keys": [
+    "Zhang2020"
+   ],
+   "sentence": "Its success in domains like computer vision \\cite{kokkinos2016ubernet}, natural language processing \\cite{wei2022finetuned} and recommendation systems \\cite{Zhang2020} motivates its application to Location-Based Social Networks (LBSNs), where understanding user interactions with Points-of-Interest (POIs), specific physical locations that someone might find useful or interesting, such as restaurants, shops, or landmarks, is fundamental."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 62,
+   "macro": "cite",
+   "keys": [
+    "cho2011gowalla",
+    "jure2014snap"
+   ],
+   "sentence": "To test this hypothesis, we conducted experiments on the Gowalla LBSN dataset \\cite{cho2011gowalla,jure2014snap}, comparing our MTL model against strong single-task baselines (HMRM \\cite{chen2020modeling} and MHA+PE \\cite{zeng2019next})."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 62,
+   "macro": "cite",
+   "keys": [
+    "chen2020modeling"
+   ],
+   "sentence": "To test this hypothesis, we conducted experiments on the Gowalla LBSN dataset \\cite{cho2011gowalla,jure2014snap}, comparing our MTL model against strong single-task baselines (HMRM \\cite{chen2020modeling} and MHA+PE \\cite{zeng2019next})."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 62,
+   "macro": "cite",
+   "keys": [
+    "zeng2019next"
+   ],
+   "sentence": "To test this hypothesis, we conducted experiments on the Gowalla LBSN dataset \\cite{cho2011gowalla,jure2014snap}, comparing our MTL model against strong single-task baselines (HMRM \\cite{chen2020modeling} and MHA+PE \\cite{zeng2019next})."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 86,
+   "macro": "cite",
+   "keys": [
+    "Xu2023"
+   ],
+   "sentence": "Xu et al.~\\cite{Xu2023} propose the Tree-guided Multi-task Embedding (TME) model, which aims to improve the semantic annotation of POIs using a hierarchical structure of categories and mobility-based representation learning."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 88,
+   "macro": "cite",
+   "keys": [
+    "Lim2022"
+   ],
+   "sentence": "In this context, Lim et al.~\\cite{Lim2022} propose the Hierarchical Multi-Task Graph Recurrent Network (HMT-GRN), which uses multi-task learning to simultaneously predict the next POI and its geographic region."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 95,
+   "macro": "cite",
+   "keys": [
+    "caruana1997multitask"
+   ],
+   "sentence": "MTL was formalized by Caruana \\cite{caruana1997multitask} as an inductive transfer mechanism that enhances generalization by learning shared representations across related tasks."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 97,
+   "macro": "cite",
+   "keys": [
+    "yu2024survey",
+    "zhang2021survey"
+   ],
+   "sentence": "Recent surveys \\cite{yu2024survey,zhang2021survey} organize contemporary MTL research along five methodological dimensions: (i) \\textit{parameter sharing} (hard vs.\\ soft); (ii) \\textit{relationship learning} (discovering task affinity or hierarchy); (iii) \\textit{feature routing} (e.g., cross-stitch, sluice networks, attention gating); (iv) \\textit{optimization} (conflict-aware gradient techniques); and (v) \\textit{pre-training and instruction tuning}."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 102,
+   "macro": "cite",
+   "keys": [
+    "caruana1997multitask"
+   ],
+   "sentence": "This remains the simplest and most popular baseline, providing effective regularization \\cite{caruana1997multitask}."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 104,
+   "macro": "cite",
+   "keys": [
+    "misra2016cross"
+   ],
+   "sentence": "Soft Parameter Sharing} Each task has its own encoder, but networks exchange information through learned cross-connections, such as Cross-Stitch units \\cite{misra2016cross} or Sluice networks \\cite{ruder2017sluice}."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 104,
+   "macro": "cite",
+   "keys": [
+    "ruder2017sluice"
+   ],
+   "sentence": "Soft Parameter Sharing} Each task has its own encoder, but networks exchange information through learned cross-connections, such as Cross-Stitch units \\cite{misra2016cross} or Sluice networks \\cite{ruder2017sluice}."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 106,
+   "macro": "cite",
+   "keys": [
+    "ma2018mmoe"
+   ],
+   "sentence": "Mixture-of-Experts (MoE)} Multi-Gate Mixture-of-Experts (MMoE) architectures maintain a pool of shared expert subnetworks; each task learns a gating function to combine experts, outperforming monolithic sharing in large-scale recommendation settings \\cite{ma2018mmoe}."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 108,
+   "macro": "cite",
+   "keys": [
+    "chen2018gradnorm"
+   ],
+   "sentence": "To mitigate task interference and loss imbalance, several optimization techniques have been proposed: GradNorm equalizes gradient magnitudes across tasks \\cite{chen2018gradnorm}; MGDA finds Pareto-optimal descent directions \\cite{sener2018mgda}; PCGrad removes conflicting gradient components \\cite{yu2020pcgrad}; and Dynamic Weight Averaging (DWA) reweights losses based on their relative learning speeds \\cite{liu2019dwa}."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 108,
+   "macro": "cite",
+   "keys": [
+    "sener2018mgda"
+   ],
+   "sentence": "To mitigate task interference and loss imbalance, several optimization techniques have been proposed: GradNorm equalizes gradient magnitudes across tasks \\cite{chen2018gradnorm}; MGDA finds Pareto-optimal descent directions \\cite{sener2018mgda}; PCGrad removes conflicting gradient components \\cite{yu2020pcgrad}; and Dynamic Weight Averaging (DWA) reweights losses based on their relative learning speeds \\cite{liu2019dwa}."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 108,
+   "macro": "cite",
+   "keys": [
+    "yu2020pcgrad"
+   ],
+   "sentence": "To mitigate task interference and loss imbalance, several optimization techniques have been proposed: GradNorm equalizes gradient magnitudes across tasks \\cite{chen2018gradnorm}; MGDA finds Pareto-optimal descent directions \\cite{sener2018mgda}; PCGrad removes conflicting gradient components \\cite{yu2020pcgrad}; and Dynamic Weight Averaging (DWA) reweights losses based on their relative learning speeds \\cite{liu2019dwa}."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 108,
+   "macro": "cite",
+   "keys": [
+    "liu2019dwa"
+   ],
+   "sentence": "To mitigate task interference and loss imbalance, several optimization techniques have been proposed: GradNorm equalizes gradient magnitudes across tasks \\cite{chen2018gradnorm}; MGDA finds Pareto-optimal descent directions \\cite{sener2018mgda}; PCGrad removes conflicting gradient components \\cite{yu2020pcgrad}; and Dynamic Weight Averaging (DWA) reweights losses based on their relative learning speeds \\cite{liu2019dwa}."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 112,
+   "macro": "cite",
+   "keys": [
+    "ruder2017sluice",
+    "zhang2021survey"
+   ],
+   "sentence": "\\textbf{Negative Transfer}: Unrelated or adversarial tasks can degrade shared representations, harming individual task performance \\cite{ruder2017sluice,zhang2021survey}."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 113,
+   "macro": "cite",
+   "keys": [
+    "yu2020pcgrad",
+    "sener2018mgda"
+   ],
+   "sentence": "\\textbf{Gradient Conflict}: Simultaneous optimization may produce opposing gradient directions, slowing or destabilizing convergence \\cite{yu2020pcgrad,sener2018mgda}."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 114,
+   "macro": "cite",
+   "keys": [
+    "nash",
+    "standley2020tasks"
+   ],
+   "sentence": "\\textbf{Data Heterogeneity}: Variations in modality, label granularity, and dataset size complicate sampling strategies and minibatch construction \\cite{nash,standley2020tasks}."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 115,
+   "macro": "cite",
+   "keys": [
+    "zhang2021survey",
+    "yu2024survey"
+   ],
+   "sentence": "\\textbf{Scalability}: Routing complexity, memory footprint, and evaluation costs often grow super-linearly as the number of tasks increases \\cite{zhang2021survey,yu2024survey}."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 118,
+   "macro": "cite",
+   "keys": [
+    "standley2020tasks"
+   ],
+   "sentence": "Recent work addresses these issues via task clustering \\cite{standley2020tasks}, dynamic curricula, conflict-aware optimizers, and parameter-efficient adapters \\cite{yu2024survey}."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 118,
+   "macro": "cite",
+   "keys": [
+    "yu2024survey"
+   ],
+   "sentence": "Recent work addresses these issues via task clustering \\cite{standley2020tasks}, dynamic curricula, conflict-aware optimizers, and parameter-efficient adapters \\cite{yu2024survey}."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 123,
+   "macro": "cite",
+   "keys": [
+    "Liao2018"
+   ],
+   "sentence": "Early MTL-based approaches such as MCARNN~\\cite{Liao2018} employ recurrent neural networks with temporal attention mechanisms to jointly predict user activities and future visited locations."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 123,
+   "macro": "cite",
+   "keys": [
+    "Zhang2020"
+   ],
+   "sentence": "Similarly, the iMTL framework~\\cite{Zhang2020} uses an LSTM architecture to model next-activity prediction, incorporating temporal dynamics in user behavior modeling."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 125,
+   "macro": "cite",
+   "keys": [
+    "Halder2021"
+   ],
+   "sentence": "TLR-M~\\cite{Halder2021}, for example, applies Transformer-based architectures to simultaneously predict the next POI and queue waiting time, demonstrating the value of attention-based models in capturing spatio-temporal dependencies."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 125,
+   "macro": "cite",
+   "keys": [
+    "Xia2020"
+   ],
+   "sentence": "MTPR~\\cite{Xia2020} combines LSTMs and adversarial learning to address uncertainty in check-ins and improve multi-task POI recommendation both location and temporal context with a generative component."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 127,
+   "macro": "cite",
+   "keys": [
+    "Xu2023"
+   ],
+   "sentence": "Some Models such as TME~\\cite{Xu2023} address category annotation using graph-based encoders, but treat prediction and classification separately."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 143,
+   "macro": "cite",
+   "keys": [
+    "du2019beyond"
+   ],
+   "sentence": "A place suffers from complementarity effect \\cite{du2019beyond}, implying that a location is affected by its neighbors (e.g."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 145,
+   "macro": "cite",
+   "keys": [
+    "huang2022estimating"
+   ],
+   "sentence": "Besides that, following \\cite{huang2022estimating} the weight of an edge $e_{ij}$ is defined as $w_{ij} = \\log((1+D^{1.5}/1+d_{ij}^{1.5}))$, where D is the diagonal length of bounding box that encloses the coordinates of POIs, and $d_{ij}$ is the geodesic distance between $p_{i}$ and $p_{j}$."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 151,
+   "macro": "cite",
+   "keys": [
+    "velivckovic2017graph"
+   ],
+   "sentence": "Therefore, to encode the Delaunay graph we apply a graph attention convolution layer \\cite{velivckovic2017graph}, yielding an embedding $h_i \\in \\mathbb{R}^{d}$, where $d$ is the dimension of the output."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 151,
+   "macro": "cite",
+   "keys": [
+    "velickovic2019deep"
+   ],
+   "sentence": "In addition, we utilize a Deep Graph Infomax (DGI) \\cite{velickovic2019deep} as a contrastive learning method to maximize the mutual information between local representations (node embeddings) and the global graph embedding compared to a corrupted version of a graph, which is guided by the Equation~\\ref{eq:cbic:loss}."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 191,
+   "macro": "cite",
+   "keys": [
+    "perez2018film",
+    "standley2020tasks"
+   ],
+   "sentence": "This design integrates Feature-wise Linear Modulation (FiLM) layers to condition the shared representations, a technique aimed at modulating task interactions and mitigating negative transfer \\cite{perez2018film,standley2020tasks}."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 197,
+   "macro": "cite",
+   "keys": [
+    "perez2018film"
+   ],
+   "sentence": "Feature-wise Linear Modulation (FiLM)} To allow for task-specific adaptation within the shared pathway, we employ FiLM layers \\cite{perez2018film}."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 204,
+   "macro": "cite",
+   "keys": [
+    "baxter2000model"
+   ],
+   "sentence": "This hard parameter-sharing approach regularizes the model by forcing it to learn a common, robust feature representation for both tasks \\cite{baxter2000model}."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 213,
+   "macro": "cite",
+   "keys": [
+    "ruder2017sluice"
+   ],
+   "sentence": "\\textbf{Implicit Regularization:} By constraining the hypothesis space, hard sharing acts as a regularizer, often leading to more generalizable models, especially when tasks are related \\cite{ruder2017sluice}."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 213,
+   "macro": "cite",
+   "keys": [
+    "caruana1997multitask"
+   ],
+   "sentence": "Seminal work by Caruana demonstrated significant error reduction with this approach \\cite{caruana1997multitask}."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 214,
+   "macro": "cite",
+   "keys": [
+    "standley2020tasks"
+   ],
+   "sentence": "\\textbf{Empirical Performance:} In practice, hard parameter sharing frequently matches or exceeds the performance of more complex architectures on many benchmarks, while offering faster training and inference \\cite{standley2020tasks}."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 228,
+   "macro": "cite",
+   "keys": [
+    "nash"
+   ],
+   "sentence": "Nash-MTL formulates this as a cooperative $K$-player bargaining game \\cite{nash}, where each task acts as an ``agent'' seeking to maximize its utility (loss reduction)."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 228,
+   "macro": "cite",
+   "keys": [
+    "nash"
+   ],
+   "sentence": "The optimizer selects a step that is (i) beneficial to all tasks, (ii) scale-invariant to arbitrary loss re-weightings, and (iii) proportionally fair, ensuring no alternative direction increases one task's utility without decreasing the product of all utilities \\cite{nash}."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 231,
+   "macro": "cite",
+   "keys": [
+    "nash"
+   ],
+   "sentence": "Formal Formulation.} Given task-specific objectives $\\{\\mathcal{L}_k(\\boldsymbol{\\theta})\\}_{k=1}^{K}$ and their gradients $\\mathbf{g}_k=\\nabla_{\\!\\boldsymbol{\\theta}}\\mathcal{L}_k$ at current parameters $\\boldsymbol{\\theta}$, Nash-MTL frames gradient aggregation as a bargaining game to determine the common update direction \\cite{nash}."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 231,
+   "macro": "cite",
+   "keys": [
+    "nash"
+   ],
+   "sentence": "The utility for each task $k$ is its signed improvement, $u_k(\\Delta\\boldsymbol{\\theta})=\\mathbf{g}_k^{\\!\\top}\\!\\Delta\\boldsymbol{\\theta}$, where $\\Delta\\boldsymbol{\\theta}$ is the parameter update within an $\\varepsilon$-ball \\cite{nash}."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 238,
+   "macro": "cite",
+   "keys": [
+    "nash"
+   ],
+   "sentence": "\\label{eq:cbic:nbs} \\end{equation} By setting $\\Delta\\boldsymbol{\\theta}=\\sum_{k}\\alpha_k\\mathbf{g}_k$ with positive weights $\\boldsymbol{\\alpha}$, the solution simplifies to solving the nonlinear system $\\bigl(\\mathbf{G}^{\\!\\top}\\mathbf{G}\\bigr)\\boldsymbol{\\alpha} \\;=\\; \\boldsymbol{\\alpha}^{-1}$ \\cite{nash}, where $\\mathbf{G}=\\bigl[\\mathbf{g}_1\\,\\ldots\\,\\mathbf{g}_K\\bigr]$ \\cite{nash}."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 238,
+   "macro": "cite",
+   "keys": [
+    "nash"
+   ],
+   "sentence": "\\label{eq:cbic:nbs} \\end{equation} By setting $\\Delta\\boldsymbol{\\theta}=\\sum_{k}\\alpha_k\\mathbf{g}_k$ with positive weights $\\boldsymbol{\\alpha}$, the solution simplifies to solving the nonlinear system $\\bigl(\\mathbf{G}^{\\!\\top}\\mathbf{G}\\bigr)\\boldsymbol{\\alpha} \\;=\\; \\boldsymbol{\\alpha}^{-1}$ \\cite{nash}, where $\\mathbf{G}=\\bigl[\\mathbf{g}_1\\,\\ldots\\,\\mathbf{g}_K\\bigr]$ \\cite{nash}."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 238,
+   "macro": "cite",
+   "keys": [
+    "nash"
+   ],
+   "sentence": "The parameter update is then $\\boldsymbol{\\theta}^{(t+1)} =\\boldsymbol{\\theta}^{(t)}-\\eta\\,\\mathbf{G}\\boldsymbol{\\alpha}$, with $\\eta$ chosen to ensure monotonic loss decrease and convergence to a Pareto-stationary point \\cite{nash}."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 244,
+   "macro": "cite",
+   "keys": [
+    "nash"
+   ],
+   "sentence": "For efficiency, task weights can be updated less frequently, significantly reducing runtime while maintaining performance~\\cite{nash}."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 280,
+   "macro": "cite",
+   "keys": [
+    "yu2020pcgrad"
+   ],
+   "sentence": "In our evaluation, Nash-MTL was compared with different strategies, including PCGrad~\\cite{yu2020pcgrad} and an approach with no optimizer."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 288,
+   "macro": "cite",
+   "keys": [
+    "cho2011gowalla"
+   ],
+   "sentence": "To evaluate our model, we use a subset of the public \\emph{Gowalla} check-in dataset, originally collected by Cho \\textit{et al.}\\,\\cite{cho2011gowalla}."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 306,
+   "macro": "cite",
+   "keys": [
+    "chen2020modeling"
+   ],
+   "sentence": "The Human Mobility Representation Model (HMRM), introduced by Chen et al. (2020) \\cite{chen2020modeling}, is designed for POI category classification."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 308,
+   "macro": "cite",
+   "keys": [
+    "zeng2019next"
+   ],
+   "sentence": "For the task of next POI category prediction, we compare our models against MHA+PE, a solution proposed by Zeng et al. (2019) \\cite{zeng2019next}."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 308,
+   "macro": "cite",
+   "keys": [
+    "vaswani2017attention"
+   ],
+   "sentence": "This model enhances a recurrent neural network with a Multi-Head Attention (MHA) mechanism, originally developed for machine translation by Vaswani et al. (2017) \\cite{vaswani2017attention}, and incorporates Positional Encoding (PE)."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 311,
+   "macro": "cite",
+   "keys": [
+    "chen2020modeling"
+   ],
+   "sentence": "POI Category Classification} As shown in Table~\\ref{tab:cbic:category}, both our MTL and Single models outperform HMRM \\cite{chen2020modeling} in every POI category in terms of F1-score, precision, and recall."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 317,
+   "macro": "cite",
+   "keys": [
+    "zeng2019next"
+   ],
+   "sentence": "The MHA+PE model \\cite{zeng2019next} shows strong F1-scores in several categories, notably `Food' ($43.47 \\pm 0.50$) and `Shopping' ($43.53 \\pm 1.66$), outperforming our MTL and Single models in these instances."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 322,
+   "macro": "cite",
+   "keys": [
+    "chen2020modeling"
+   ],
+   "sentence": "Overall, while our proposed models show strong performance in POI category classification against HMRM \\cite{chen2020modeling}, the next POI category prediction task presents a more competitive landscape when compared against a sophisticated sequential model like MHA+PE \\cite{zeng2019next}."
+  },
+  {
+   "file": "3_cbic.tex",
+   "line": 322,
+   "macro": "cite",
+   "keys": [
+    "zeng2019next"
+   ],
+   "sentence": "Overall, while our proposed models show strong performance in POI category classification against HMRM \\cite{chen2020modeling}, the next POI category prediction task presents a more competitive landscape when compared against a sophisticated sequential model like MHA+PE \\cite{zeng2019next}."
+  }
+ ],
+ "4_courb": [
+  {
+   "file": "4_courb.tex",
+   "line": 18,
+   "macro": "cite",
+   "keys": [
+    "paiva2026stmtlnet"
+   ],
+   "sentence": "This chapter is a translated reproduction of the paper ``ST-MTLNet: Representa\u00e7\u00f5es Espa\u00e7o-Temporais de Pontos de Interesse para Aprendizado Multitarefa,'' published in Portuguese in the Anais do X Workshop de Computa\u00e7\u00e3o Urbana (CoUrb 2026, an SBRC workshop), pages 323 to 336, DOI 10.5753/courb.2026.22960 \\cite{paiva2026stmtlnet}."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 25,
+   "macro": "cite",
+   "keys": [
+    "cho2011gowalla",
+    "jure2014snap"
+   ],
+   "sentence": "Location-Based Social Networks (LBSNs), such as Gowalla \\cite{cho2011gowalla,jure2014snap}, record user \\textit{check-ins} with geographic location, visit time, and category of the visited place."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 32,
+   "macro": "cite",
+   "keys": [
+    "caruana1997multitask"
+   ],
+   "sentence": "In principle, these tasks may be treated as related, since they share the same mobility dataset and the same semantic space of categories, which makes multi-task learning (MTL) a promising strategy to exploit information shared between them \\cite{caruana1997multitask}."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 34,
+   "macro": "cite",
+   "keys": [
+    "silva2025mtlnet"
+   ],
+   "sentence": "MTLnet, proposed in \\cite{silva2025mtlnet}, exploits this potential by modeling the two tasks in a single multi-task architecture with hard parameter sharing."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 38,
+   "macro": "cite",
+   "keys": [
+    "wu2024torchspatial"
+   ],
+   "sentence": "In the spatial dimension, we evaluate two architectures with distinct assumptions, SIREN and Sphere2Vec-M, originally validated in geospatial tasks of remote sensing and ecology \\cite{wu2024torchspatial}, but still little explored in multi-task learning of POIs in LBSNs."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 40,
+   "macro": "cite",
+   "keys": [
+    "jure2014snap"
+   ],
+   "sentence": "The experiments were carried out with the public Gowalla dataset \\cite{jure2014snap} in the states of Florida, California, and Texas."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 60,
+   "macro": "cite",
+   "keys": [
+    "feng2017poi2vec"
+   ],
+   "sentence": "The POI2Vec model \\cite{feng2017poi2vec} adapts the Word2Vec architecture to generate POI \\textit{embeddings} that incorporate the geographic influence between places through a geographic binary tree structure."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 60,
+   "macro": "cite",
+   "keys": [
+    "rahmani2019category"
+   ],
+   "sentence": "CATAPE (\\textit{Category-Aware Location Embedding}) \\cite{rahmani2019category} extends this idea by incorporating categorical and sequential information, capturing the geographic influence between POIs based on the temporal sequence of user visits."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 62,
+   "macro": "cite",
+   "keys": [
+    "velickovic2019deep"
+   ],
+   "sentence": "In a self-supervised approach, \\textit{Deep Graph Infomax} (DGI) \\cite{velickovic2019deep} maximizes the mutual information between local (node) and global (graph) representations to generate \\textit{embeddings} without explicit supervision."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 62,
+   "macro": "cite",
+   "keys": [
+    "huang2023hgi"
+   ],
+   "sentence": "HGI (\\textit{Hierarchical Graph Infomax}) \\cite{huang2023hgi} advances this line by operating at multiple hierarchical levels (POI, region, and city), producing representations enriched with regional information through graph convolutions and multi-attention mechanisms."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 68,
+   "macro": "cite",
+   "keys": [
+    "wu2024torchspatial"
+   ],
+   "sentence": "The TorchSpatial \\textit{framework} \\cite{wu2024torchspatial} establishes a unified \\textit{benchmark} for evaluating spatial representation strategies, allowing systematic comparison between different architectures."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 70,
+   "macro": "cite",
+   "keys": [
+    "sitzmann2020implicit"
+   ],
+   "sentence": "The SIREN methodology (\\textit{Sinusoidal Representation Networks}) \\cite{sitzmann2020implicit}, applied to the geographic context \\cite{russwurm2024geographiclocationencodingspherical}, models continuous functions through sinusoidal activations, being able to represent high-frequency signals in spatial data."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 70,
+   "macro": "cite",
+   "keys": [
+    "russwurm2024geographiclocationencodingspherical"
+   ],
+   "sentence": "The SIREN methodology (\\textit{Sinusoidal Representation Networks}) \\cite{sitzmann2020implicit}, applied to the geographic context \\cite{russwurm2024geographiclocationencodingspherical}, models continuous functions through sinusoidal activations, being able to represent high-frequency signals in spatial data."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 70,
+   "macro": "cite",
+   "keys": [
+    "mai2023sphere2vecgeneralpurposelocationrepresentation"
+   ],
+   "sentence": "Sphere2Vec \\cite{mai2023sphere2vecgeneralpurposelocationrepresentation} operates directly on spherical coordinates with multiple resolution scales, preserving geodesic distance properties that are lost in planar projections."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 76,
+   "macro": "cite",
+   "keys": [
+    "sun2020go"
+   ],
+   "sentence": "The LSTPM model (\\textit{Long- and Short-Term Preference Modeling}) \\cite{sun2020go} captures short- and long-term preferences using a Geo-Dilated RNN that relates non-consecutive POIs through temporal sequences of visits and geographic information."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 76,
+   "macro": "cite",
+   "keys": [
+    "sun2024transtarec"
+   ],
+   "sentence": "TransTARec \\cite{sun2024transtarec} proposes an adaptive temporal translation model that unites representations of the POI, the \\textit{timestamp}, and user preferences for Next-POI Prediction."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 78,
+   "macro": "cite",
+   "keys": [
+    "kazemi2019time2vec"
+   ],
+   "sentence": "In this sense, Time2Vec \\cite{kazemi2019time2vec} proposes a temporal representation that combines linear terms with sinusoidal functions of learnable frequency and phase, capturing periodic and non-periodic patterns from continuous temporal values."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 82,
+   "macro": "cite",
+   "keys": [
+    "caruana1997multitask"
+   ],
+   "sentence": "Multi-task learning (MTL) \\cite{caruana1997multitask} has been explored in POI tasks mainly to combine Next-POI Prediction with temporal, behavioral, or regional signals."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 82,
+   "macro": "cite",
+   "keys": [
+    "Liao2018"
+   ],
+   "sentence": "MCARNN \\cite{Liao2018} integrates sequential dependencies and temporal regularities to simultaneously predict future activities and places."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 82,
+   "macro": "cite",
+   "keys": [
+    "Xia2020"
+   ],
+   "sentence": "MTPR \\cite{Xia2020} jointly models location and temporal context through geographic LSTMs and adversarial learning."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 82,
+   "macro": "cite",
+   "keys": [
+    "Halder2022"
+   ],
+   "sentence": "In a more recent line, Halder et al. \\cite{Halder2022} propose a multi-task model based on \\textit{Transformers} to recommend the next POI and simultaneously predict the waiting time."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 84,
+   "macro": "cite",
+   "keys": [
+    "Xu2023"
+   ],
+   "sentence": "In categorical classification, TME \\cite{Xu2023} explores a hierarchical category structure for semantic annotation of POIs, while HMT-GRN \\cite{Lim2022} combines Next-POI Prediction and prediction of its geographic region in a recurrent model with hierarchical graphs."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 84,
+   "macro": "cite",
+   "keys": [
+    "Lim2022"
+   ],
+   "sentence": "In categorical classification, TME \\cite{Xu2023} explores a hierarchical category structure for semantic annotation of POIs, while HMT-GRN \\cite{Lim2022} combines Next-POI Prediction and prediction of its geographic region in a recurrent model with hierarchical graphs."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 89,
+   "macro": "cite",
+   "keys": [
+    "silva2025mtlnet"
+   ],
+   "sentence": "The baseline of this study is MTLnet, the joint architecture introduced in Chapter~\\ref{ch:cbic} \\cite{silva2025mtlnet}."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 96,
+   "macro": "cite",
+   "keys": [
+    "silva2025mtlnet"
+   ],
+   "sentence": "As discussed in Section~\\ref{sec:courb:related}, MTLnet \\cite{silva2025mtlnet} uses a single vector $\\mathbf{E}_{DGI} \\in \\mathbb{R}^{64}$ as input for both tasks, jointly encoding spatial and categorical information through the graph topology."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 96,
+   "macro": "cite",
+   "keys": [
+    "wu2024torchspatial"
+   ],
+   "sentence": "One limitation of this monolithic approach is that it does not incorporate continuous geographic coordinates or temporal visitation patterns, factors that, as shown by works on spatial \\cite{wu2024torchspatial} and temporal \\cite{kazemi2019time2vec} encoding, carry information complementary to the topological relationships of the graph."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 96,
+   "macro": "cite",
+   "keys": [
+    "kazemi2019time2vec"
+   ],
+   "sentence": "One limitation of this monolithic approach is that it does not incorporate continuous geographic coordinates or temporal visitation patterns, factors that, as shown by works on spatial \\cite{wu2024torchspatial} and temporal \\cite{kazemi2019time2vec} encoding, carry information complementary to the topological relationships of the graph."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 105,
+   "macro": "cite",
+   "keys": [
+    "silva2025mtlnet"
+   ],
+   "sentence": "[htbp] \\centering \\includegraphics[width=\\textwidth]{figures/courb/arquitetura_modelo.png} \\caption{Architecture based on MTLnet \\cite{silva2025mtlnet}."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 109,
+   "macro": "cite",
+   "keys": [
+    "silva2025mtlnet"
+   ],
+   "sentence": "MTLnet \\cite{silva2025mtlnet} is a multi-task network built on hard parameter sharing \\cite{caruana1997multitask}, which simultaneously processes the POI Category Classification and Next-POI Prediction tasks."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 109,
+   "macro": "cite",
+   "keys": [
+    "caruana1997multitask"
+   ],
+   "sentence": "MTLnet \\cite{silva2025mtlnet} is a multi-task network built on hard parameter sharing \\cite{caruana1997multitask}, which simultaneously processes the POI Category Classification and Next-POI Prediction tasks."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 109,
+   "macro": "cite",
+   "keys": [
+    "perez2018film"
+   ],
+   "sentence": "Next, FiLM modulation (\\textit{Feature-wise Linear Modulation}) \\cite{perez2018film} is applied, conditioned by a task-identifier \\textit{embedding} $\\mathbf{e}_{t}$, which generates scale $\\gamma_{t}$ and shift $\\beta_{t}$ parameters to modulate the encoded representations:"
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 116,
+   "macro": "cite",
+   "keys": [
+    "baxter2000model"
+   ],
+   "sentence": "The modulated representations are processed by four shared residual blocks with LayerNorm, LeakyReLU, and Dropout, allowing the model to learn a common representation for both tasks \\cite{baxter2000model}."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 120,
+   "macro": "cite",
+   "keys": [
+    "nash"
+   ],
+   "sentence": "Multi-task training uses the Nash-MTL regularizer \\cite{nash}, which formulates gradient balancing as a cooperative Nash bargaining game among $K$ tasks."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 124,
+   "macro": "cite",
+   "keys": [
+    "silva2025mtlnet"
+   ],
+   "sentence": "The \\textit{baseline} model corresponds to the original MTLnet proposed in \\cite{silva2025mtlnet}, whose internal architecture is kept unchanged in this chapter."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 124,
+   "macro": "cite",
+   "keys": [
+    "velickovic2019deep"
+   ],
+   "sentence": "In this model, each POI is represented by a single monolithic \\textit{embedding} $\\mathbf{E}_{DGI} \\in \\mathbb{R}^{64}$, obtained via \\textit{Deep Graph Infomax} (DGI) \\cite{velickovic2019deep} over a spatial graph built by Delaunay triangulation and categorical node attributes, as described in detail in \\cite{silva2025mtlnet}."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 124,
+   "macro": "cite",
+   "keys": [
+    "silva2025mtlnet"
+   ],
+   "sentence": "In this model, each POI is represented by a single monolithic \\textit{embedding} $\\mathbf{E}_{DGI} \\in \\mathbb{R}^{64}$, obtained via \\textit{Deep Graph Infomax} (DGI) \\cite{velickovic2019deep} over a spatial graph built by Delaunay triangulation and categorical node attributes, as described in detail in \\cite{silva2025mtlnet}."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 134,
+   "macro": "cite",
+   "keys": [
+    "wu2024torchspatial"
+   ],
+   "sentence": "However, as discussed in Section~\\ref{sec:courb:related}, continuous spatial encoders have shown effectiveness in various geospatial tasks \\cite{wu2024torchspatial}, although their application in multi-task POI models remains little explored."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 134,
+   "macro": "cite",
+   "keys": [
+    "russwurm2024geographiclocationencodingspherical"
+   ],
+   "sentence": "This chapter selects two \\textit{encoders} that represent distinct spatial encoding paradigms: SIREN \\cite{russwurm2024geographiclocationencodingspherical}, which models continuous functions through sinusoidal activations with controllable frequencies, and Sphere2Vec-M \\cite{mai2023sphere2vecgeneralpurposelocationrepresentation}, which operates directly on spherical coordinates preserving geodesic distance properties."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 134,
+   "macro": "cite",
+   "keys": [
+    "mai2023sphere2vecgeneralpurposelocationrepresentation"
+   ],
+   "sentence": "This chapter selects two \\textit{encoders} that represent distinct spatial encoding paradigms: SIREN \\cite{russwurm2024geographiclocationencodingspherical}, which models continuous functions through sinusoidal activations with controllable frequencies, and Sphere2Vec-M \\cite{mai2023sphere2vecgeneralpurposelocationrepresentation}, which operates directly on spherical coordinates preserving geodesic distance properties."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 153,
+   "macro": "cite",
+   "keys": [
+    "russwurm2024geographiclocationencodingspherical"
+   ],
+   "sentence": "The SIREN model (\\textit{Sinusoidal Representation Networks}) \\cite{russwurm2024geographiclocationencodingspherical} models a continuous function $f_\\theta : \\mathbb{R}^2 \\rightarrow \\mathbb{R}^{64}$ that directly maps normalized geographic coordinates into a vector \\textit{embedding}."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 157,
+   "macro": "cite",
+   "keys": [
+    "mai2023sphere2vecgeneralpurposelocationrepresentation"
+   ],
+   "sentence": "Sphere2Vec-M \\cite{mai2023sphere2vecgeneralpurposelocationrepresentation} is a multi-scale encoder formulated to operate directly on spherical coordinates ($\\lambda$, $\\phi$), generating representations that preserve distance properties on the surface of the sphere."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 161,
+   "macro": "cite",
+   "keys": [
+    "sun2020go"
+   ],
+   "sentence": "Human mobility patterns exhibit cyclical regularities, such as meal times and weekly movements, which carry discriminative information about the functional nature of the visited POIs \\cite{sun2020go}."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 163,
+   "macro": "cite",
+   "keys": [
+    "kazemi2019time2vec"
+   ],
+   "sentence": "To fill this gap, Time2Vec \\cite{kazemi2019time2vec} is used, a generic and decoupled temporal representation capable of capturing periodic and non-periodic patterns without the need for manual feature engineering."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 176,
+   "macro": "cite",
+   "keys": [
+    "huang2023hgi"
+   ],
+   "sentence": "The POI Encoder learns vector representations that capture co-occurrences among categories from random walks on the spatial graph, and the HGI model \\cite{huang2023hgi} incorporates hierarchical information at multiple levels (POI, region, and city), producing representations that reflect both the local and the regional context."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 208,
+   "macro": "cite",
+   "keys": [
+    "grover2016node2vec"
+   ],
+   "sentence": "Over this graph, random walks (\\textit{random walks}) are executed following the Node2Vec methodology \\cite{grover2016node2vec}."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 208,
+   "macro": "cite",
+   "keys": [
+    "mikolov2013word2vec",
+    "mikolov2013negsampling"
+   ],
+   "sentence": "The model learns the \\textit{embeddings} using the \\textit{skip-gram} strategy with \\textit{negative sampling} \\cite{mikolov2013word2vec,mikolov2013negsampling}:"
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 219,
+   "macro": "cite",
+   "keys": [
+    "belkin2003laplacian"
+   ],
+   "sentence": "The implementation incorporates a hierarchical regularization term \\cite{belkin2003laplacian} between category and \\textit{fclass}: $\\mathcal{L}_{\\text{hier}} = \\sum_{(c,s) \\in \\mathcal{H}} \\left\\| \\mathbf{e}_s - \\mathbf{e}_c \\right\\|_2^2$, in which $\\mathcal{H}$ contains the (category, \\textit{fclass}) pairs."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 223,
+   "macro": "cite",
+   "keys": [
+    "huang2023hgi"
+   ],
+   "sentence": "After the generation of the \\textit{embeddings} $\\mathbf{E}_{\\text{POI\\_category}}$, they are used as input to the Hierarchical Graph Infomax (HGI) model \\cite{huang2023hgi}, which enriches the representation by incorporating regional geographic information."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 248,
+   "macro": "cite",
+   "keys": [
+    "silva2025mtlnet"
+   ],
+   "sentence": "The \\textit{baseline} MTLnet \\cite{silva2025mtlnet} uses only the monolithic \\textit{embedding} $\\mathbf{E}_{DGI} \\in \\mathbb{R}^{64}$ as input for both tasks."
+  },
+  {
+   "file": "4_courb.tex",
+   "line": 277,
+   "macro": "cite",
+   "keys": [
+    "cho2011gowalla",
+    "jure2014snap"
+   ],
+   "sentence": "The experiments were conducted with the Gowalla \\textit{dataset} \\cite{cho2011gowalla,jure2014snap} in the states of Florida, California, and Texas, whose statistics are presented in Table \\ref{tab:courb:dataset}."
+  }
+ ],
+ "5_mobiwac": [
+  {
+   "file": "5_mobiwac.tex",
+   "line": 40,
+   "macro": "cite",
+   "keys": [
+    "cho2011gowalla"
+   ],
+   "sentence": "Location-based social networks, such as Gowalla~\\cite{cho2011gowalla}, let people share the places that they visit as check-ins, which together record how people move through a city."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 40,
+   "macro": "cite",
+   "keys": [
+    "song2010limits"
+   ],
+   "sentence": "Individual mobility is highly predictable in principle~\\cite{song2010limits}, so a service that anticipates the next move can prepare ahead of time, caching content where a user is heading~\\cite{bastug2014edge} or provisioning capacity at the destination before demand arrives."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 40,
+   "macro": "cite",
+   "keys": [
+    "bastug2014edge"
+   ],
+   "sentence": "Individual mobility is highly predictable in principle~\\cite{song2010limits}, so a service that anticipates the next move can prepare ahead of time, caching content where a user is heading~\\cite{bastug2014edge} or provisioning capacity at the destination before demand arrives."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 40,
+   "macro": "cite",
+   "keys": [
+    "vielhaus2022handover"
+   ],
+   "sentence": "Handover predictions already let cellular services adapt in advance at the network level~\\cite{vielhaus2022handover}; at the city scale, check-in mobility analysis is likewise a design input for mobility-aware services~\\cite{moura2025mobilityaware}."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 40,
+   "macro": "cite",
+   "keys": [
+    "moura2025mobilityaware"
+   ],
+   "sentence": "Handover predictions already let cellular services adapt in advance at the network level~\\cite{vielhaus2022handover}; at the city scale, check-in mobility analysis is likewise a design input for mobility-aware services~\\cite{moura2025mobilityaware}."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 44,
+   "macro": "cite",
+   "keys": [
+    "caruana1997multitask"
+   ],
+   "sentence": "Sharing one representation across tasks has a cost: in multi-task learning (MTL), one model does several jobs at once by sharing most of its parts, so the shared parameters can converge to a compromise optimal for neither task, helping one while hurting the other~\\cite{caruana1997multitask}."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 45,
+   "macro": "cite",
+   "keys": [
+    "silva2025mtlnet"
+   ],
+   "sentence": "Our earlier work reported no consistent multi-task advantage for the paired category tasks and attributed it, in part, to this effect~\\cite{silva2025mtlnet}; the useful question is where sharing helps, what it costs, and how to share so the gains hold and the cost stays small."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 53,
+   "macro": "cite",
+   "keys": [
+    "huang2023hgi",
+    "velickovic2019deep"
+   ],
+   "sentence": "This adds a fourth level, the check-in, beneath the place, region, and city levels of hierarchical graph infomax~\\cite{huang2023hgi,velickovic2019deep} (Figure~\\ref{fig:mobiwac:dataflow})."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 55,
+   "macro": "cite",
+   "keys": [
+    "wongso2025massivesteps"
+   ],
+   "sentence": "Both data sources are public: the category-annotated Gowalla dump (\\url{https://figshare.com/articles/dataset/gowalla_data/22126586}) and Massive-STEPS~\\cite{wongso2025massivesteps}.}"
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 96,
+   "macro": "cite",
+   "keys": [
+    "silva2025mtlnet"
+   ],
+   "sentence": "Chapter~\\ref{ch:cbic} introduced MTLnet, the first joint model for this task pair: task-specific encoders feed shared layers conditioned on task identity, and a gradient-balancing method weights the two tasks during training~\\cite{silva2025mtlnet}."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 103,
+   "macro": "cite",
+   "keys": [
+    "paiva2026stmtlnet"
+   ],
+   "sentence": "Chapter~\\ref{ch:courb} kept the MTLnet architecture unchanged and replaced its single 64-dimensional place-level input with decomposed spatial, temporal, and categorical encoders (ST-MTLNet); the category score rose at each of the three states studied, so the input representation, not the sharing architecture, was identified as the bottleneck~\\cite{paiva2026stmtlnet}."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 112,
+   "macro": "cite",
+   "keys": [
+    "velickovic2019deep"
+   ],
+   "sentence": "Deep Graph Infomax (DGI)~\\cite{velickovic2019deep}, a general self-supervised method for graphs, learns such vectors on a place network linked by similarity, time, and distance, training them to tell the real network from a copy with shuffled node features."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 116,
+   "macro": "cite",
+   "keys": [
+    "huang2023hgi"
+   ],
+   "sentence": "Hierarchical Graph Infomax (HGI) \\cite{huang2023hgi} adds geographic structure, organizing the network as place, then region, then city."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 120,
+   "macro": "cite",
+   "keys": [
+    "lin2021ctle"
+   ],
+   "sentence": "Contextual check-in representations instead give each visit its own vector: CTLE \\cite{lin2021ctle}, the closest example, learns a vector per visit by masking and reconstructing parts of a user's check-in sequence."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 138,
+   "macro": "cite",
+   "keys": [
+    "feng2018deepmove"
+   ],
+   "sentence": "Predicting the next category and the next region} \\label{sec:mobiwac:related-tasks} A large body of work predicts the next place that a user will visit, the exact POI, with recurrent and attention models such as DeepMove \\cite{feng2018deepmove}, STAN \\cite{luo2021stan}, and GETNext \\cite{yang2022getnext}."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 139,
+   "macro": "cite",
+   "keys": [
+    "luo2021stan"
+   ],
+   "sentence": "Predicting the next category and the next region} \\label{sec:mobiwac:related-tasks} A large body of work predicts the next place that a user will visit, the exact POI, with recurrent and attention models such as DeepMove \\cite{feng2018deepmove}, STAN \\cite{luo2021stan}, and GETNext \\cite{yang2022getnext}."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 139,
+   "macro": "cite",
+   "keys": [
+    "yang2022getnext"
+   ],
+   "sentence": "Predicting the next category and the next region} \\label{sec:mobiwac:related-tasks} A large body of work predicts the next place that a user will visit, the exact POI, with recurrent and attention models such as DeepMove \\cite{feng2018deepmove}, STAN \\cite{luo2021stan}, and GETNext \\cite{yang2022getnext}."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 144,
+   "macro": "cite",
+   "keys": [
+    "luca2021mobilitysurvey"
+   ],
+   "sentence": "Predicting over a partition of the map is also the standard formulation in the human-mobility literature, with a grid cell as the target~\\cite{luca2021mobilitysurvey}; our next-region task substitutes official neighborhood-scale units for grid cells."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 146,
+   "macro": "cite",
+   "keys": [
+    "silva2025mtlnet"
+   ],
+   "sentence": "Our earlier work~\\cite{silva2025mtlnet} paired static category classification with next-category prediction and found no consistent multi-task gain; this chapter introduces the next-region task and adds the check-in-level representation, on which sharing helps instead of hurting (Section~\\ref{sec:mobiwac:results-part2})."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 153,
+   "macro": "cite",
+   "keys": [
+    "sun2024mcmg"
+   ],
+   "sentence": "The field increasingly models several granularities at once; in those systems, category and region are auxiliary signals that help a primary next-place task (MCMG \\cite{sun2024mcmg}, HMT-GRN \\cite{Lim2022})."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 153,
+   "macro": "cite",
+   "keys": [
+    "Lim2022"
+   ],
+   "sentence": "The field increasingly models several granularities at once; in those systems, category and region are auxiliary signals that help a primary next-place task (MCMG \\cite{sun2024mcmg}, HMT-GRN \\cite{Lim2022})."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 158,
+   "macro": "cite",
+   "keys": [
+    "zhu2022drrgnn"
+   ],
+   "sentence": "The nearest exceptions do not study our exact pairing: DRRGNN~\\cite{zhu2022drrgnn} forecasts a person's next activity region jointly with a mobility-intention label, but over regions discovered per person rather than a fixed citywide partition; a generative recommender~\\cite{sun2025kgtb} predicts category and region together, but only as auxiliary steps toward its next-place ranking."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 160,
+   "macro": "cite",
+   "keys": [
+    "sun2025kgtb"
+   ],
+   "sentence": "The nearest exceptions do not study our exact pairing: DRRGNN~\\cite{zhu2022drrgnn} forecasts a person's next activity region jointly with a mobility-intention label, but over regions discovered per person rather than a fixed citywide partition; a generative recommender~\\cite{sun2025kgtb} predicts category and region together, but only as auxiliary steps toward its next-place ranking."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 166,
+   "macro": "cite",
+   "keys": [
+    "Liao2018"
+   ],
+   "sentence": "Multi-task learning for mobility} \\label{sec:mobiwac:related-mtl} MCARNN \\cite{Liao2018} jointly predicts activity and location, and a recent hierarchy-aware model continues the pattern \\cite{wang2025hamtl}; in both, the location target is the exact place."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 168,
+   "macro": "cite",
+   "keys": [
+    "wang2025hamtl"
+   ],
+   "sentence": "Multi-task learning for mobility} \\label{sec:mobiwac:related-mtl} MCARNN \\cite{Liao2018} jointly predicts activity and location, and a recent hierarchy-aware model continues the pattern \\cite{wang2025hamtl}; in both, the location target is the exact place."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 171,
+   "macro": "cite",
+   "keys": [
+    "ye2013nextmove"
+   ],
+   "sentence": "The closest alternative to our setting is the cascade: predict the category first, then the place given the category \\cite{ye2013nextmove}."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 172,
+   "macro": "cite",
+   "keys": [
+    "huang2024cslsl"
+   ],
+   "sentence": "CSLSL \\cite{huang2024cslsl} is its current form, predicting in a chain (when, then what, then where), with location as the primary output and category as an intermediate step; CatDM \\cite{yu2020catdm} likewise uses the predicted category only to filter candidate places."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 174,
+   "macro": "cite",
+   "keys": [
+    "yu2020catdm"
+   ],
+   "sentence": "CSLSL \\cite{huang2024cslsl} is its current form, predicting in a chain (when, then what, then where), with location as the primary output and category as an intermediate step; CatDM \\cite{yu2020catdm} likewise uses the predicted category only to filter candidate places."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 181,
+   "macro": "cite",
+   "keys": [
+    "caruana1997multitask"
+   ],
+   "sentence": "On optimization, we are conservative by design: joint training with a fixed loss weighting is standard practice \\cite{caruana1997multitask}, not itself our contribution."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 183,
+   "macro": "cite",
+   "keys": [
+    "yu2020pcgrad"
+   ],
+   "sentence": "Reports find that gradient-balancing methods, which re-weight the tasks' updates during training (PCGrad \\cite{yu2020pcgrad}, Nash-MTL \\cite{nash}), rarely improve on a well-tuned fixed weighting with two tasks \\cite{xin2022domtl}."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 183,
+   "macro": "cite",
+   "keys": [
+    "nash"
+   ],
+   "sentence": "Reports find that gradient-balancing methods, which re-weight the tasks' updates during training (PCGrad \\cite{yu2020pcgrad}, Nash-MTL \\cite{nash}), rarely improve on a well-tuned fixed weighting with two tasks \\cite{xin2022domtl}."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 184,
+   "macro": "cite",
+   "keys": [
+    "xin2022domtl"
+   ],
+   "sentence": "Reports find that gradient-balancing methods, which re-weight the tasks' updates during training (PCGrad \\cite{yu2020pcgrad}, Nash-MTL \\cite{nash}), rarely improve on a well-tuned fixed weighting with two tasks \\cite{xin2022domtl}."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 258,
+   "macro": "cite",
+   "keys": [
+    "silva2019urbancomputing"
+   ],
+   "sentence": "The mobility literature supports such preparation: city services have long been built on location-based social network traces~\\cite{silva2019urbancomputing}."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 260,
+   "macro": "cite",
+   "keys": [
+    "moura2025mobilityaware"
+   ],
+   "sentence": "A recent analysis of tourist check-in mobility finds that visits concentrate on a few hub places, argues that crowds and demand therefore concentrate, and ties this structure to infrastructure planning and adaptive strategies~\\cite{moura2025mobilityaware}."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 280,
+   "macro": "cite",
+   "keys": [
+    "velickovic2019deep",
+    "huang2023hgi"
+   ],
+   "sentence": "We train the graph mainly with an infomax objective, under which each vector learns to match its real neighborhood and reject a shuffled one~\\cite{velickovic2019deep,huang2023hgi}."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 300,
+   "macro": "cite",
+   "keys": [
+    "caruana1997multitask"
+   ],
+   "sentence": "This is standard fixed-weight joint training~\\cite{caruana1997multitask}, kept simple by design so that any improvement over the dedicated single-task models comes from the shared representation, not from an adaptive weighting scheme."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 327,
+   "macro": "cite",
+   "keys": [
+    "cho2011gowalla"
+   ],
+   "sentence": "Five come from Gowalla, a location-based social network, covering the U.S. states of Alabama, Arizona, Florida, Texas, and California \\cite{cho2011gowalla}; the sixth is Istanbul, from the Massive-STEPS collection \\cite{wongso2025massivesteps}, a non-U.S."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 328,
+   "macro": "cite",
+   "keys": [
+    "wongso2025massivesteps"
+   ],
+   "sentence": "Five come from Gowalla, a location-based social network, covering the U.S. states of Alabama, Arizona, Florida, Texas, and California \\cite{cho2011gowalla}; the sixth is Istanbul, from the Massive-STEPS collection \\cite{wongso2025massivesteps}, a non-U.S."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 388,
+   "macro": "cite",
+   "keys": [
+    "holm1979"
+   ],
+   "sentence": "On every dataset, both models use four seeds ($4\\times5=20$ measurements) and the tests pair the per-seed means ($n{=}4$), with a Holm correction~\\cite{holm1979} across the six next-category comparisons and, separately, across the four next-region ones."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 388,
+   "macro": "cite",
+   "keys": [
+    "lakens2017tost"
+   ],
+   "sentence": "The \\emph{non-inferiority} claim is that the joint model is no worse than the dedicated model by more than a two-point margin; we test it with the two one-sided tests (TOST) procedure~\\cite{lakens2017tost}."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 392,
+   "macro": "cite",
+   "keys": [
+    "capanema2023poirgnn"
+   ],
+   "sentence": "For next-category, this is POI-RGNN \\cite{capanema2023poirgnn}, re-implemented from its published architecture and hyperparameters, and a Markov baseline that predicts the category that most often follows the recent ones (Markov-K, best order per dataset); for region, we also compute a first-order Markov floor over region transitions, under the same sliding-window protocol and fold splits as our models."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 392,
+   "macro": "cite",
+   "keys": [
+    "Lim2022"
+   ],
+   "sentence": "For next-region, the primary comparison is HMT-GRN \\cite{Lim2022}, an end-to-end recurrent model (trained as one piece from the raw check-ins) evaluated on the same data, folds, and initialization."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 392,
+   "macro": "cite",
+   "keys": [
+    "luo2021stan"
+   ],
+   "sentence": "We also run STAN \\cite{luo2021stan}, re-implemented from its published architecture and trained from the raw check-ins with its own embeddings and sequence construction under one fixed configuration."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 392,
+   "macro": "cite",
+   "keys": [
+    "li2025rehdm"
+   ],
+   "sentence": "A ReHDM \\cite{li2025rehdm} reference is reported under its own published protocol."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 394,
+   "macro": "cite",
+   "keys": [
+    "lin2021ctle"
+   ],
+   "sentence": "The second role is played by two representation controls that attribute the category gain to our specific design, not to contextualization in general or to extra features: CTLE \\cite{lin2021ctle}, the closest prior contextual check-in embedding, run end to end at Florida and with frozen weights (no fine-tuning) at Alabama, Arizona, and Istanbul; and a feature-concatenation control appending raw per-visit features to a standard place embedding under the same model."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 396,
+   "macro": "cite",
+   "keys": [
+    "ye2013nextmove",
+    "yu2020catdm",
+    "huang2024cslsl"
+   ],
+   "sentence": "The dominant published coupling is the directed cascade, predicting the category first and conditioning the place prediction on it \\cite{ye2013nextmove,yu2020catdm,huang2024cslsl}."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 396,
+   "macro": "cite",
+   "keys": [
+    "huang2023hgi"
+   ],
+   "sentence": "A final control, the standard place-level embedding \\cite{huang2023hgi}, isolates what the per-visit representation adds."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 404,
+   "macro": "cite",
+   "keys": [
+    "huang2023hgi"
+   ],
+   "sentence": "The representation makes the category task learnable} \\label{sec:mobiwac:results-part1} The check-in-level representation outperforms a standard place embedding (HGI~\\cite{huang2023hgi}) on next-category macro-F1 by a wide gap on every dataset (Table~\\ref{tab:mobiwac:representation})."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 409,
+   "macro": "cite",
+   "keys": [
+    "lin2021ctle"
+   ],
+   "sentence": "CTLE~\\cite{lin2021ctle}, the closest prior contextual embedding, also gives each visit its own vector, but it pretrains on place identifiers and timestamps alone, so the category vocabulary never enters its training, whereas our graph reads each visit's category and time of day as input features."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 578,
+   "macro": "cite",
+   "keys": [
+    "caruana1997multitask"
+   ],
+   "sentence": "A reader used to multi-task learning~\\cite{caruana1997multitask} expects the harder task, here next-region with its hundreds to several thousand classes, to teach the easier one; a control shows otherwise."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 664,
+   "macro": "cite",
+   "keys": [
+    "Lim2022"
+   ],
+   "sentence": "The joint model is also above every external baseline reported, on both tasks, across all six datasets (Table~\\ref{tab:mobiwac:results}): on region, the primary region-native comparison HMT-GRN~\\cite{Lim2022}, STAN~\\cite{luo2021stan} trained from the raw check-ins, and a ReHDM reference~\\cite{li2025rehdm}; on category, POI-RGNN~\\cite{capanema2023poirgnn} and the Markov-K floor."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 664,
+   "macro": "cite",
+   "keys": [
+    "luo2021stan"
+   ],
+   "sentence": "The joint model is also above every external baseline reported, on both tasks, across all six datasets (Table~\\ref{tab:mobiwac:results}): on region, the primary region-native comparison HMT-GRN~\\cite{Lim2022}, STAN~\\cite{luo2021stan} trained from the raw check-ins, and a ReHDM reference~\\cite{li2025rehdm}; on category, POI-RGNN~\\cite{capanema2023poirgnn} and the Markov-K floor."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 665,
+   "macro": "cite",
+   "keys": [
+    "li2025rehdm"
+   ],
+   "sentence": "The joint model is also above every external baseline reported, on both tasks, across all six datasets (Table~\\ref{tab:mobiwac:results}): on region, the primary region-native comparison HMT-GRN~\\cite{Lim2022}, STAN~\\cite{luo2021stan} trained from the raw check-ins, and a ReHDM reference~\\cite{li2025rehdm}; on category, POI-RGNN~\\cite{capanema2023poirgnn} and the Markov-K floor."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 666,
+   "macro": "cite",
+   "keys": [
+    "capanema2023poirgnn"
+   ],
+   "sentence": "The joint model is also above every external baseline reported, on both tasks, across all six datasets (Table~\\ref{tab:mobiwac:results}): on region, the primary region-native comparison HMT-GRN~\\cite{Lim2022}, STAN~\\cite{luo2021stan} trained from the raw check-ins, and a ReHDM reference~\\cite{li2025rehdm}; on category, POI-RGNN~\\cite{capanema2023poirgnn} and the Markov-K floor."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 750,
+   "macro": "cite",
+   "keys": [
+    "huang2024cslsl"
+   ],
+   "sentence": "The choice still had to be checked, because CSLSL reports its chain outperforming a shared-trunk parallel variant on its own benchmarks~\\cite{huang2024cslsl}."
+  },
+  {
+   "file": "5_mobiwac.tex",
+   "line": 810,
+   "macro": "cite",
+   "keys": [
+    "moura2025mobilityaware"
+   ],
+   "sentence": "Moura et al.~\\cite{moura2025mobilityaware}, whose structural analysis of tourist check-ins reads past visits only, name machine learning as a next step; this study moves in that direction."
+  }
+ ],
+ "6_conclusion": [],
+ "appendices": [
+  {
+   "file": "apx_b_errata.tex",
+   "line": 220,
+   "macro": "cite",
+   "keys": [
+    "silva2025mtlnet"
+   ],
+   "sentence": "The submitted manuscript describes the prior work of Chapter~\\ref{ch:cbic} (\\cite{silva2025mtlnet}) as having studied the next-category and next-region tasks and as having observed negative transfer between them."
+  },
+  {
+   "file": "apx_d_ceiling.tex",
+   "line": 55,
+   "macro": "cite",
+   "keys": [
+    "kohavi1995crossval",
+    "pedregosa2011sklearn"
+   ],
+   "sentence": "All of them run under the protocol the screen itself uses: five-fold cross-validation grouped by user, so that no user's windows fall on both sides of a split~\\cite{kohavi1995crossval,pedregosa2011sklearn}, with macro-F1 averaged over the five folds."
+  },
+  {
+   "file": "apx_d_ceiling.tex",
+   "line": 56,
+   "macro": "cite",
+   "keys": [
+    "sokolova2009measures"
+   ],
+   "sentence": "Macro-F1 counts the seven categories equally~\\cite{sokolova2009measures}, which is also why the three logistic models are fitted with balanced class weights: an unweighted fit optimizes a different objective and would understate the benchmark."
+  },
+  {
+   "file": "apx_e_ethics.tex",
+   "line": 36,
+   "macro": "cite",
+   "keys": [
+    "cho2011gowalla",
+    "jure2014snap"
+   ],
+   "sentence": "A second and older Gowalla release, hosted by the Stanford Large Network Dataset Collection and cited here as the collection reference \\cite{cho2011gowalla,jure2014snap}, is a different artifact: it carries no place categories, and its page states no license."
+  },
+  {
+   "file": "apx_e_ethics.tex",
+   "line": 40,
+   "macro": "cite",
+   "keys": [
+    "wongso2025massivesteps"
+   ],
+   "sentence": "The Istanbul check-ins come from the Massive-STEPS collection \\cite{wongso2025massivesteps}, distributed on Hugging Face under the Apache License 2.0.\\footnote{\\url{https://huggingface.co/datasets/CRUISEResearchGroup/Massive-STEPS-Istanbul}} The project repository carries the same license."
+  },
+  {
+   "file": "apx_e_ethics.tex",
+   "line": 61,
+   "macro": "cite",
+   "keys": [
+    "luca2021mobilitysurvey"
+   ],
+   "sentence": "The mobility literature treats the residual risk as open, and reports that models trained on mobility data raise privacy questions during training as well as at prediction time, because the portions of information a model absorbs cannot be controlled directly \\cite{luca2021mobilitysurvey}."
+  },
+  {
+   "file": "apx_e_ethics.tex",
+   "line": 91,
+   "macro": "cite",
+   "keys": [
+    "santos2024urban"
+   ],
+   "sentence": "A comparable dissertation defended in this program in 2024, on location-based social network data and under the same advisor \\cite{santos2024urban}, was consulted on the point."
+  }
+ ]
+}

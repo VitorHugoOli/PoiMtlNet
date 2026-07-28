@@ -12,6 +12,13 @@
 % commits and the one that was believed could not see the error; build.sh now reports tex_errors and
 % fails on them. The recovered PDF was not junk, which is why nothing looked wrong: its only defect
 % was this table rendering at the surrounding body size instead of \small. Restored 2026-07-28.
+% [round6] Two rows added for the UberNet and Sphere2Vec preprint-to-version-of-record upgrades.
+% A \texttt key does not line-break, so a key longer than the 0.42\textwidth column overflows it:
+% printing mai2023sphere2vecgeneralpurposelocationrepresentation (52 characters) in the left cell
+% produced "Overfull \hbox (113.58371pt too wide)", the only overfull box in either build. That row
+% therefore NAMES the work, which is what the Rußwurm row above it already does for the same
+% reason. Rebuilt after the change: 0 overfull boxes in both variants. Do not re-introduce a long
+% key in a cell here without re-measuring.
 {\small
 \begin{longtable}{@{}p{0.42\textwidth}p{0.52\textwidth}@{}}
 \caption{Bibliography errata: defects in entries inherited from the articles'
@@ -103,6 +110,18 @@ Author restored per the Crossref record of DOI 10.5753/courb.2026.22960; pages
 \texttt{standley2020tasks}: venue given as CVPR; page range unverifiable. &
 Venue corrected to ICML 2020 per OpenAlex; arXiv:1905.07553 noted; the unverifiable
 page range dropped. \\
+\addlinespace
+\texttt{kokkinos2016ubernet}: typed as an arXiv preprint, with the preprint identifier
+standing in for the journal field. &
+Cited as the CVPR 2017 version of record, DOI 10.1109/CVPR.2017.579, pages
+5454--5463, verified against Crossref; arXiv identifier kept as a note. \\
+\addlinespace
+The Sphere2Vec location encoder of Mai et al.\ was typed as an arXiv preprint, with no
+venue recorded at all. &
+Cited as the journal version of record (ISPRS Journal of Photogrammetry and Remote
+Sensing, v.~202, pages 439--462, 2023), DOI 10.1016/j.isprsjprs.2023.06.016, verified
+against Crossref and against the journal reference recorded on the preprint; arXiv
+identifier kept as a note. \\
 \addlinespace
 CoUrb chapter (\ref{ch:courb}): the Gowalla dataset was cited via Liu et al.\ (2014),
 ``Exploiting Geographical Neighborhood Characteristics for Location Recommendation''

@@ -1,0 +1,2122 @@
+[
+ {
+  "unit": "1_introduction",
+  "site": 0,
+  "key": "song2010limits",
+  "verdict": "SUPPORTED",
+  "quote": "there was 93% predictability across the whole user base",
+  "note": "Abstract confirms 93% potential predictability of individual mobility as attributed."
+ },
+ {
+  "unit": "1_introduction",
+  "site": 1,
+  "key": "luca2021mobilitysurvey",
+  "verdict": "SUPPORTED",
+  "quote": "its impact on several aspects of our society, such as disease spreading, urban planning, well-being, pollution",
+  "note": "Abstract explicitly lists these societal concerns matching the citing sentence."
+ },
+ {
+  "unit": "1_introduction",
+  "site": 2,
+  "key": "Xu2023",
+  "verdict": "SUPPORTED",
+  "quote": "categories (e.g., Bar and Museum ) are vital to the task, as they often serve as excellent semantic characterization of the venues",
+  "note": "Abstract confirms categories serve as semantic characterization for location-based service venues, matching the citation's use."
+ },
+ {
+  "unit": "1_introduction",
+  "site": 3,
+  "key": "mai2023sphere2vecgeneralpurposelocationrepresentation",
+  "verdict": "SUPPORTED",
+  "quote": "fine-grained species recognition, Flickr image recognition, and remote sensing image classification",
+  "note": "Abstract confirms Sphere2Vec validated on species recognition and remote sensing classification among other geospatial tasks."
+ },
+ {
+  "unit": "1_introduction",
+  "site": 3,
+  "key": "wu2024torchspatial",
+  "verdict": "PARTIAL",
+  "quote": "a learning framework and benchmark for location (point) encoding",
+  "note": "TorchSpatial is a benchmark/framework consolidating encoders, not itself the original validation of location encoders on species recognition/remote sensing tasks."
+ },
+ {
+  "unit": "1_introduction",
+  "site": 4,
+  "key": "caruana1997multitask",
+  "verdict": "SUPPORTED",
+  "quote": "improves generalization by using the domain information contained in the training signals of related tasks",
+  "note": "Citation correctly attributes the origin/definition of multi-task learning to this foundational paper."
+ },
+ {
+  "unit": "1_introduction",
+  "site": 5,
+  "key": "kokkinos2016ubernet",
+  "verdict": "SUPPORTED",
+  "quote": "jointly handles low-, mid-, and high-level vision tasks in a unified architecture",
+  "note": "Matches claim of a single network handling many vision tasks at once."
+ },
+ {
+  "unit": "1_introduction",
+  "site": 6,
+  "key": "lipton2015learning",
+  "verdict": "SUPPORTED",
+  "quote": "multilabel classification of diagnoses, training a model to classify 128 diagnoses given 13 frequently but irregularly sampled clinical measurements",
+  "note": "Single recurrent model diagnosing 128 conditions simultaneously matches 'recurrent models that diagnose over a hundred clinical conditions simultaneously'."
+ },
+ {
+  "unit": "1_introduction",
+  "site": 7,
+  "key": "wei2022finetuned",
+  "verdict": "SUPPORTED",
+  "quote": "finetuning language models on a collection of tasks described via instructions",
+  "note": "Matches sentence's claim of language models fine-tuned across many instruction-described tasks (60+)."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 0,
+  "key": "silva2019urbancomputing",
+  "verdict": "SUPPORTED",
+  "quote": "offers unprecedented geographic and temporal resolutions",
+  "note": "Abstract directly supports resolution claim and frames urban computing as data-driven study of cities via LBSN data."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 1,
+  "key": "cho2011gowalla",
+  "verdict": "SUPPORTED",
+  "quote": "Short-ranged travel is periodic both spatially and temporally...while long-distance travel is more influenced by social network ties",
+  "note": "Abstract confirms periodic short-range routine with occasional longer-range travel, matching the cited claim."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 2,
+  "key": "song2010limits",
+  "verdict": "SUPPORTED",
+  "quote": "there was 93% predictability across the whole user base",
+  "note": "Abstract confirms the 93% potential predictability figure for individual mobility."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 3,
+  "key": "luca2021mobilitysurvey",
+  "verdict": "SUPPORTED",
+  "quote": "leading deep learning solutions to next-location prediction, crowd flow prediction, trajectory generation, and flow generation",
+  "note": "Survey explicitly covers crowd-flow estimation and next-location prediction among distinct mobility tasks."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 4,
+  "key": "Xu2023",
+  "verdict": "PARTIAL",
+  "quote": "TME jointly learns a common feature space by modeling multi-contexts of check-ins",
+  "note": "Task (labeling venue with category) matches, but cited method uses check-in context/sequences, not purely static features."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 5,
+  "key": "liu2016strnn",
+  "verdict": "SUPPORTED",
+  "quote": "time-specific transition matrices for different time intervals and distance-specific transition matrices for different geographical distances",
+  "note": "Abstract directly confirms the described mechanism of ST-RNN."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 6,
+  "key": "feng2018deepmove",
+  "verdict": "SUPPORTED",
+  "quote": "historical attention model with two mechanisms to capture the multi-level periodicity",
+  "note": "Abstract confirms attention over lengthy/sparse trajectories capturing periodicity, matching sentence."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 7,
+  "key": "kong2018hstlstm",
+  "verdict": "SUPPORTED",
+  "quote": "hierarchical extension of the proposed ST-LSTM (HST-LSTM)...naturally combines spatial-temporal influence into LSTM",
+  "note": "Abstract confirms HST-LSTM is a hierarchical recurrent model incorporating spatial-temporal context."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 8,
+  "key": "yang2020flashback",
+  "verdict": "SUPPORTED",
+  "quote": "explicitly uses spatiotemporal contexts to search past hidden states with high predictive power",
+  "note": "Matches sentence's description of attending back over past hidden states to handle sparse trajectories."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 9,
+  "key": "luo2021stan",
+  "verdict": "SUPPORTED",
+  "quote": "point-to-point interaction between non-adjacent locations and non-consecutive check-ins with explicit spatio-temporal effect",
+  "note": "Abstract confirms STAN models spatio-temporal correlations across non-adjacent, non-consecutive visits as claimed."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 10,
+  "key": "lian2020geosan",
+  "verdict": "SUPPORTED",
+  "quote": "GeoSAN represents the hierarchical gridding of each GPS point with a self-attention based geography encoder",
+  "note": "Abstract confirms hierarchical grid encoding plus self-attention geography encoder as sentence claims."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 11,
+  "key": "yang2022getnext",
+  "verdict": "SUPPORTED",
+  "quote": "propose a user-agnostic global trajectory flow map and a novel Graph Enhanced Transformer model (GETNext) to better exploit the extensive collaborative signals",
+  "note": "Abstract confirms global trajectory-flow map integrated into transformer to leverage collaborative signals across users."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 12,
+  "key": "lin2021ctle",
+  "verdict": "SUPPORTED",
+  "quote": "calculates a location's representation vector with consideration of its specific contextual neighbors in trajectories",
+  "note": "Abstract confirms context- and time-aware embeddings where a location's vector varies by circumstance."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 13,
+  "key": "Lim2022",
+  "verdict": "SUPPORTED",
+  "quote": "perform a Hierarchical Beam Search (HBS) on the different region and POI distributions to hierarchically reduce the search space",
+  "note": "Abstract confirms joint region/POI prediction with region-guided beam search narrowing to place prediction."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 14,
+  "key": "yu2020catdm",
+  "verdict": "SUPPORTED",
+  "quote": "incorporates POI category and geographical influence to reduce search space to overcome data sparsity",
+  "note": "CatDM uses category prediction to prune/reduce the candidate POI search space, matching the sentence."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 15,
+  "key": "zhu2022drrgnn",
+  "verdict": "SUPPORTED",
+  "quote": "predicting the next activity region (AR)... studies... individual-level inter-regional mobility behavior",
+  "note": "Paper directly targets next activity-region prediction as an end goal, matching the sentence's attribution."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 16,
+  "key": "capanema2023poirgnn",
+  "verdict": "SUPPORTED",
+  "quote": "Combining recurrent and Graph Neural Networks to predict the next place's category",
+  "note": "Title alone confirms the work predicts next place category, matching the sentence's attribution."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 17,
+  "key": "mikolov2013word2vec",
+  "verdict": "SUPPORTED",
+  "quote": "continuous vector representations of words from very large data sets",
+  "note": "Paper proposes skip-gram-type architectures producing dense vectors capturing similarity, matching the claim."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 18,
+  "key": "perozzi2014deepwalk",
+  "verdict": "SUPPORTED",
+  "quote": "generalizes recent advancements in language modeling ... from sequences of words to graphs",
+  "note": "Abstract confirms DeepWalk uses language-model-style learning on graph walks to produce node embeddings."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 19,
+  "key": "grover2016node2vec",
+  "verdict": "SUPPORTED",
+  "quote": "design a biased random walk procedure, which efficiently explores diverse neighborhoods... generalizes prior work which is based on rigid notions",
+  "note": "Abstract confirms biased/generalized walk enabling flexible neighborhood definitions, matching homophily/structural-role framing."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 20,
+  "key": "kipf2017gcn",
+  "verdict": "SUPPORTED",
+  "quote": "localized first-order approximation of spectral graph convolutions",
+  "note": "Abstract confirms localized spectral convolution combining node and neighbor features."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 21,
+  "key": "velivckovic2017graph",
+  "verdict": "SUPPORTED",
+  "quote": "enable (implicitly) specifying different weights to different nodes in a neighborhood, without requiring any kind of costly matrix operation",
+  "note": "Abstract confirms GAT weights neighbors via learned attention rather than fixed graph structure/degree."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 22,
+  "key": "hamilton2017graphsage",
+  "verdict": "SUPPORTED",
+  "quote": "we learn a function that generates embeddings by sampling and aggregating features from a node's local neighborhood",
+  "note": "Abstract confirms GraphSAGE learns aggregator functions enabling inductive generalization to unseen nodes."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 23,
+  "key": "belghazi2018mine",
+  "verdict": "SUPPORTED",
+  "quote": "estimation of mutual information between high dimensional continuous random variables can be achieved by gradient descent",
+  "note": "Abstract directly confirms estimation and gradient-descent maximization/minimization of MI for high-dimensional variables."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 24,
+  "key": "hjelm2019dim",
+  "verdict": "SUPPORTED",
+  "quote": "maximizing mutual information between an input and the output of a deep neural network encoder... incorporating knowledge about locality",
+  "note": "Abstract confirms DIM maximizes MI using local structure, matching the local-global feature framing."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 25,
+  "key": "velickovic2019deep",
+  "verdict": "SUPPORTED",
+  "quote": "DGI relies on maximizing mutual information between patch representations and corresponding high-level summaries of graphs",
+  "note": "Abstract directly confirms unsupervised node representation learning via mutual information maximization between local and global summaries."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 26,
+  "key": "huang2023hgi",
+  "verdict": "UNVERIFIABLE",
+  "quote": "",
+  "note": "No abstract text shown, only metadata; title matches HGI method but claim details cannot be checked."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 27,
+  "key": "lin2021ctle",
+  "verdict": "SUPPORTED",
+  "quote": "calculates a location's representation vector with consideration of its specific contextual neighbors in trajectories",
+  "note": "Abstract confirms CTLE learns context- and time-aware location embeddings that vary by visit context."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 28,
+  "key": "kazemi2019time2vec",
+  "verdict": "SUPPORTED",
+  "quote": "model-agnostic vector representation for time, called Time2Vec, that can be easily imported into many existing",
+  "note": "Abstract confirms model-agnostic time encoding; specific linear+periodic decomposition and hour/day features are plausible standard Time2Vec details not contradicted."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 29,
+  "key": "sitzmann2020implicit",
+  "verdict": "SUPPORTED",
+  "quote": "demonstrate that these networks, dubbed sinusoidal representation networks or Sirens, are ideally suited for representing complex natural signals and their derivatives",
+  "note": "Abstract directly confirms SIREN's sinusoidal activations represent signals and derivatives well."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 30,
+  "key": "mai2020multiscalerepresentationlearningspatial",
+  "verdict": "SUPPORTED",
+  "quote": "propose a representation learning model called Space2Vec to encode the absolute positions and spatial relationships of places",
+  "note": "Abstract confirms Space2Vec encodes absolute position and multi-scale spatial context as stated."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 31,
+  "key": "mai2023sphere2vecgeneralpurposelocationrepresentation",
+  "verdict": "SUPPORTED",
+  "quote": "propose a multi-scale location encoder called Sphere2Vec which can preserve spherical distances when encoding point coordinates on a spherical surface",
+  "note": "Abstract confirms Sphere2Vec encodes points on a sphere preserving spherical geometry, matching the sentence."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 32,
+  "key": "russwurm2024geographiclocationencodingspherical",
+  "verdict": "SUPPORTED",
+  "quote": "combines spherical harmonic basis functions, natively defined on spherical surfaces, with sinusoidal representation networks",
+  "note": "Abstract confirms spherical harmonics + SirenNets used to address distortion in flat sine/cosine (DFS) embeddings."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 33,
+  "key": "perez2018film",
+  "verdict": "SUPPORTED",
+  "quote": "FiLM layers influence neural network computation via a simple, feature-wise affine transformation based on conditioning information",
+  "note": "Abstract confirms FiLM is a general feature-wise affine (scale/shift) conditioning mechanism."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 34,
+  "key": "caruana1997multitask",
+  "verdict": "SUPPORTED",
+  "quote": "improves generalization by using the domain information contained in the training signals of related tasks... learning tasks in parallel while using a shared representation",
+  "note": "Abstract directly states shared representation across related tasks improves generalization, matching the sentence."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 35,
+  "key": "ruder2017mtloverview",
+  "verdict": "SUPPORTED",
+  "quote": "introduces the two most common methods for MTL in Deep Learning",
+  "note": "Paper is the well-known overview introducing hard/soft parameter sharing as the two main MTL methods."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 36,
+  "key": "misra2016cross",
+  "verdict": "SUPPORTED",
+  "quote": "These units combine the activations from multiple networks and can be trained end-to-end",
+  "note": "Abstract confirms cross-stitch units learn a combination of activations from multiple task networks."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 37,
+  "key": "ma2018mmoe",
+  "verdict": "SUPPORTED",
+  "quote": "Modeling Task Relationships in Multi-task Learning with Multi-gate Mixture-of-Experts",
+  "note": "Title confirms MMoE uses per-task gates over shared expert pool, matching the sentence's description."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 38,
+  "key": "tang2020ple",
+  "verdict": "SUPPORTED",
+  "quote": "PLE separates shared components and task-specific components explicitly and adopts a progressive routing mechanism",
+  "note": "Abstract confirms separation of shared vs task-specific experts via layered/progressive routing."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 39,
+  "key": "hazimeh2021dselectk",
+  "verdict": "SUPPORTED",
+  "quote": "a continuously differentiable and sparse gate for MoE, based on a novel binary encoding formulation",
+  "note": "Abstract directly confirms DSelect-k makes expert selection differentiable and sparse."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 40,
+  "key": "standley2020tasks",
+  "verdict": "SUPPORTED",
+  "quote": "this often leads to inferior overall performance as task objectives can compete, which consequently poses the question: which tasks should and should not be learned together",
+  "note": "Abstract directly supports that task pairings matter and joint training can hurt performance."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 41,
+  "key": "sener2018mgda",
+  "verdict": "SUPPORTED",
+  "quote": "this workaround is only valid when the tasks do not compete, which is rarely the case",
+  "note": "Abstract directly matches the sentence's claim about weighted-sum validity and multi-objective framing."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 42,
+  "key": "kendall2018uncertainty",
+  "verdict": "SUPPORTED",
+  "quote": "weighs multiple loss functions by considering the homoscedastic uncertainty of each task",
+  "note": "Abstract directly confirms uncertainty-based loss weighting learned jointly with the model."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 43,
+  "key": "chen2018gradnorm",
+  "verdict": "SUPPORTED",
+  "quote": "gradient normalization (GradNorm) algorithm that automatically balances training in deep multitask models by dynamically tuning gradient magnitudes",
+  "note": "Matches sentence's description of rescaling per-task gradients for comparable training rates."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 44,
+  "key": "liu2019dwa",
+  "verdict": "UNVERIFIABLE",
+  "quote": "is also less sensitive to various weighting schemes in the multi-task loss function",
+  "note": "Abstract confirms a weighting-scheme contribution but doesn't describe the rate-of-change mechanism specifically."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 45,
+  "key": "yu2020pcgrad",
+  "verdict": "SUPPORTED",
+  "quote": "projects a task's gradient onto the normal plane of the gradient of any other task that has a conflicting gradient",
+  "note": "Abstract directly describes PCGrad's projection mechanism as stated in the sentence."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 46,
+  "key": "liu2021cagrad",
+  "verdict": "SUPPORTED",
+  "quote": "leveraging the worst local improvement of individual tasks to regularize the algorithm trajectory. CAGrad ... provably converges to a minimum",
+  "note": "Abstract confirms worst-case per-task improvement objective within convergence-guaranteed trajectory, matching the sentence."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 47,
+  "key": "nash",
+  "verdict": "SUPPORTED",
+  "quote": "viewing the gradients combination step as a bargaining game... known as the Nash Bargaining Solution",
+  "note": "Abstract confirms treating task gradients as bargaining game with Nash solution as joint direction."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 48,
+  "key": "senushkin2023aligned",
+  "verdict": "SUPPORTED",
+  "quote": "aligning the orthogonal components of the linear system of gradients... condition number as a stability criterion",
+  "note": "Abstract confirms aligning gradient components and using condition number as stability criterion, matching the sentence."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 49,
+  "key": "liu2023famo",
+  "verdict": "SUPPORTED",
+  "quote": "decreases task losses in a balanced way using $\\mathcal{O}(1)$ space and time",
+  "note": "Abstract directly confirms FAMO tracks balanced loss decrease with O(1) time/space, avoiding per-task gradient reads."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 50,
+  "key": "lin2022rlw",
+  "verdict": "SUPPORTED",
+  "quote": "RW methods can achieve comparable performance with state-of-the-art baselines",
+  "note": "Abstract confirms RLW/RGW are competitive baselines comparable to state-of-the-art MTL methods."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 51,
+  "key": "xin2022domtl",
+  "verdict": "SUPPORTED",
+  "quote": "MTO methods do not yield any performance improvements beyond what is achievable via traditional optimization approaches",
+  "note": "Matches claim that MTL optimizers often fail to beat a well-tuned fixed-weight baseline."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 52,
+  "key": "kurin2022scalarization",
+  "verdict": "SUPPORTED",
+  "quote": "unitary scalarization, coupled with standard regularization and stabilization techniques...matches or improves upon the performance of complex multi-task optimizers",
+  "note": "Abstract directly states unitary scalarization with standard regularization matches or improves specialized optimizers."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 53,
+  "key": "vandenhende2022mtl",
+  "verdict": "SUPPORTED",
+  "quote": "we consider MTL from a network architecture point-of-view... we examine various optimization methods to tackle the joint learning",
+  "note": "Survey covers architectures and balancing/optimization methods for dense prediction MTL, matching the citation's claim."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 53,
+  "key": "yu2024survey",
+  "verdict": "PARTIAL",
+  "quote": "categorizes MTL techniques into five key areas: regularization, relationship learning, feature propagation, optimization, and pre-training",
+  "note": "Survey consolidates architectures/methods broadly but abstract doesn't specifically address 'balancing methods' or 'when sharing helps'."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 54,
+  "key": "Liao2018",
+  "verdict": "SUPPORTED",
+  "quote": "novel Context Aware Recurrent Unit is designed to integrate the sequential dependency and temporal regularity",
+  "note": "Abstract confirms multi-task model with context-aware recurrent unit predicting activity and location jointly."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 55,
+  "key": "huang2024cslsl",
+  "verdict": "SUPPORTED",
+  "quote": "explicitly model the \u201c when \u2192 what \u2192 where \u201d, a.k.a. \u201c time \u2192 activity \u2192 location \u201d decision logic",
+  "note": "Abstract confirms the causal chain time-activity-location with activity as intermediate step toward location."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 56,
+  "key": "silva2025mtlnet",
+  "verdict": "SUPPORTED",
+  "quote": "did not consistently yield substantial improvements over the single-task baselines across both tasks",
+  "note": "Abstract confirms MTL model failed to outperform single-task baselines, matching the sentence's claim."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 57,
+  "key": "cho2011gowalla",
+  "verdict": "PARTIAL",
+  "quote": "using cell phone location data, as well as data from two online location-based social networks",
+  "note": "Paper studies periodic/social movement as claimed, but 'five United States states' subset detail is not verifiable from abstract."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 58,
+  "key": "wongso2025massivesteps",
+  "verdict": "PARTIAL",
+  "quote": "spans 15 geographically and culturally diverse cities",
+  "note": "Dataset covers 15 global cities, not specifically Istanbul, and over-reliance claim is about dataset age not US-vs-non-US framing."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 59,
+  "key": "yang2015tsmc",
+  "verdict": "SUPPORTED",
+  "quote": "real-world datasets collected from New York and Tokyo",
+  "note": "Abstract confirms the paper introduces/uses Foursquare check-in data from New York and Tokyo as evaluated benchmarks."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 60,
+  "key": "sokolova2009measures",
+  "verdict": "SUPPORTED",
+  "quote": "systematic analysis of twenty four performance measures used in the complete spectrum of Machine Learning classification tasks",
+  "note": "Paper systematically analyzes classification performance measures including macro-averaged F1's class-equality properties as a general reference."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 61,
+  "key": "maninis2019attentive",
+  "verdict": "UNVERIFIABLE",
+  "quote": "Results in three multi-task dense labelling problems consistently show",
+  "note": "Abstract discusses multi-task performance vs single-task but doesn't detail the specific averaging metric described."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 62,
+  "key": "gambs2012mmc",
+  "verdict": "SUPPORTED",
+  "quote": "extend a mobility model called Mobility Markov Chain (MMC)",
+  "note": "Work defines the mobility Markov chain model for next-location prediction, matching the citation's use as the baseline."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 63,
+  "key": "song2010limits",
+  "verdict": "SUPPORTED",
+  "quote": "there was 93% predictability across the whole user base",
+  "note": "Abstract confirms the 93% predictability finding used as a bound on next-location prediction, consistent with the sentence."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 64,
+  "key": "kohavi1995crossval",
+  "verdict": "SUPPORTED",
+  "quote": "the best method to use for model selection is ten-fold strati ed cross validation",
+  "note": "Paper is the origin of stratified k-fold cross-validation, matching the citation's use as method attribution."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 65,
+  "key": "pedregosa2011sklearn",
+  "verdict": "PARTIAL",
+  "quote": "Scikit-learn is a Python module integrating a wide range of state-of-the-art machine learning algorithms",
+  "note": "Abstract confirms scikit-learn as ML library but doesn't mention grouped/stratified splitting functionality attributed to it."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 66,
+  "key": "wilcoxon1945",
+  "verdict": "UNVERIFIABLE",
+  "quote": "",
+  "note": "Excerpt is only JSTOR boilerplate, not actual paper content, so the test's properties can't be verified, but attribution is plausible as this is the origin paper."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 67,
+  "key": "holm1979",
+  "verdict": "SUPPORTED",
+  "quote": "widely applicable multiple test procedure of the sequentially rejective type",
+  "note": "Paper is exactly Holm's step-down procedure controlling family-wise error, matching the citation's use."
+ },
+ {
+  "unit": "2_fundamentals",
+  "site": 68,
+  "key": "lakens2017tost",
+  "verdict": "SUPPORTED",
+  "quote": "the two one-sided tests (TOST) procedure discussed in this article, an upper and lower equivalence bound is specified",
+  "note": "Paper introduces TOST for equivalence testing with specified margins, matching the sentence's methodological attribution."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 0,
+  "key": "caruana1997multitask",
+  "verdict": "SUPPORTED",
+  "quote": "improves generalization by using the domain information contained in the training signals of related tasks as an inductive bias",
+  "note": "Abstract confirms joint learning, shared representation, and inductive bias improving generalization as stated."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 1,
+  "key": "kokkinos2016ubernet",
+  "verdict": "SUPPORTED",
+  "quote": "jointly handles low-, mid-, and high-level vision tasks in a unified architecture that is trained end-to-end",
+  "note": "UberNet is a multi-task CNN for computer vision, supporting the citation's use as a CV success example."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 2,
+  "key": "wei2022finetuned",
+  "verdict": "SUPPORTED",
+  "quote": "instruction tuning -- finetuning language models on a collection of tasks described via instructions -- substantially improves zero-shot performance",
+  "note": "Work is a genuine multi-task NLP success story, supporting the citation's use as an NLP example."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 3,
+  "key": "Zhang2020",
+  "verdict": "SUPPORTED",
+  "quote": "novel interactive multi-task learning (iMTL) framework to better exploit the interplay between activity and location preference",
+  "note": "Work is an MTL framework achieving strong results in POI recommendation, supporting the cited claim of MTL success in recommendation systems."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 4,
+  "key": "cho2011gowalla",
+  "verdict": "SUPPORTED",
+  "quote": "data from two online location-based social networks",
+  "note": "This is the paper introducing the Gowalla LBSN dataset used in the study."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 4,
+  "key": "jure2014snap",
+  "verdict": "SUPPORTED",
+  "quote": "A collection of more than 50 large network datasets",
+  "note": "Cited as dataset source/repository for Gowalla data, consistent with SNAP being a network dataset collection."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 5,
+  "key": "chen2020modeling",
+  "verdict": "SUPPORTED",
+  "quote": "propose a holistic approach named Human Mobility Representation Model (HMRM) to simultaneously produce the vector representations",
+  "note": "HMRM is indeed an existing single-task representation-learning model, consistent with its use as a baseline."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 6,
+  "key": "zeng2019next",
+  "verdict": "UNVERIFIABLE",
+  "quote": "",
+  "note": "No abstract available to confirm MHA+PE is a next-location baseline used as described; title plausibly matches."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 7,
+  "key": "Xu2023",
+  "verdict": "SUPPORTED",
+  "quote": "devise a Tree-guided Multi-task Embedding model (TME for short) to learn effective representations of venues and categories",
+  "note": "Abstract confirms TME uses category hierarchy and mobility check-in context for semantic venue annotation."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 8,
+  "key": "Lim2022",
+  "verdict": "SUPPORTED",
+  "quote": "learning different User-Region matrices of lower sparsities in a multi-task setting",
+  "note": "Abstract confirms multi-task learning across regions and POI prediction as claimed."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 9,
+  "key": "caruana1997multitask",
+  "verdict": "SUPPORTED",
+  "quote": "improves generalization by using the domain information contained in the training signals of related tasks",
+  "note": "Abstract directly matches the sentence's description of MTL as inductive transfer improving generalization via shared representations."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 10,
+  "key": "yu2024survey",
+  "verdict": "SUPPORTED",
+  "quote": "categorizes MTL techniques into five key areas: regularization, relationship learning, feature propagation, optimization, and pre-training",
+  "note": "Five categories closely match the sentence's five dimensions, with 'regularization' aligning to parameter sharing and 'feature propagation' to feature routing."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 10,
+  "key": "zhang2021survey",
+  "verdict": "NOT-SUPPORTED",
+  "quote": "feature learning approach, low-rank approach, task clustering approach, task relation learning approach and decomposition approach",
+  "note": "Survey's actual five categories differ substantially from the parameter-sharing/routing/optimization/pretraining taxonomy attributed to it."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 11,
+  "key": "caruana1997multitask",
+  "verdict": "PARTIAL",
+  "quote": "improves generalization by using the domain information contained in the training signals of related tasks as an inductive bias",
+  "note": "Abstract supports MTL as regularization/generalization aid, but gives no evidence it is 'the simplest and most popular baseline'."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 12,
+  "key": "misra2016cross",
+  "verdict": "SUPPORTED",
+  "quote": "we propose a new sharing unit: \"cross-stitch\" unit. These units combine the activations from multiple networks",
+  "note": "Matches the sentence's description of Cross-Stitch units as learned cross-connections for soft parameter sharing."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 13,
+  "key": "ruder2017sluice",
+  "verdict": "SUPPORTED",
+  "quote": "learns a latent multi-task architecture that jointly addresses (a)--(c)",
+  "note": "Abstract describes learned parameter-sharing architecture between task networks, matching the sluice-network cross-connection claim despite differing title version."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 14,
+  "key": "ma2018mmoe",
+  "verdict": "SUPPORTED",
+  "quote": "successfully used in many real-world large-scale applications such as recommendation systems",
+  "note": "Abstract confirms MMoE targets multi-task learning with shared experts and gating in large-scale recommendation settings."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 15,
+  "key": "chen2018gradnorm",
+  "verdict": "SUPPORTED",
+  "quote": "gradient normalization (GradNorm) algorithm that automatically balances training in deep multitask models by dynamically tuning gradient magnitudes",
+  "note": "Abstract confirms GradNorm equalizes/tunes gradient magnitudes across tasks as stated."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 16,
+  "key": "sener2018mgda",
+  "verdict": "SUPPORTED",
+  "quote": "we explicitly cast multi-task learning as multi-objective optimization, with the overall objective of finding a Pareto optimal solution",
+  "note": "Abstract confirms MGDA finds Pareto optimal solutions via gradient-based multi-objective optimization, matching the citing claim."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 17,
+  "key": "yu2020pcgrad",
+  "verdict": "SUPPORTED",
+  "quote": "projects a task's gradient onto the normal plane of the gradient of any other task that has a conflicting gradient",
+  "note": "PCGrad's gradient surgery removes conflicting gradient components, matching the sentence's description."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 18,
+  "key": "liu2019dwa",
+  "verdict": "PARTIAL",
+  "quote": "less sensitive to various weighting schemes in the multi-task loss function",
+  "note": "This paper introduces DWA as part of its contribution, but abstract emphasizes MTAN architecture, not DWA reweighting as the headline focus."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 19,
+  "key": "ruder2017sluice",
+  "verdict": "UNVERIFIABLE",
+  "quote": "learns a latent multi-task architecture that jointly addresses (a)--(c)",
+  "note": "Abstract describes learning what/how much to share, not explicit evidence that unrelated tasks degrade shared representations."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 19,
+  "key": "zhang2021survey",
+  "verdict": "UNVERIFIABLE",
+  "quote": "we review representative works in this paper",
+  "note": "Survey covers MTL broadly but abstract doesn't specifically mention negative transfer as a topic discussed."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 20,
+  "key": "yu2020pcgrad",
+  "verdict": "SUPPORTED",
+  "quote": "detrimental gradient interference, and develop a simple yet general approach for avoiding such interference between task gradients",
+  "note": "Paper directly identifies conflicting/opposing gradients as destabilizing multi-task optimization, matching the citation's claim."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 20,
+  "key": "sener2018mgda",
+  "verdict": "SUPPORTED",
+  "quote": "different tasks may conflict, necessitating a trade-off",
+  "note": "Paper explicitly addresses task gradient conflict as core motivation for its multi-objective optimization approach."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 21,
+  "key": "nash",
+  "verdict": "NOT-SUPPORTED",
+  "quote": "gradients of these different tasks may conflict, training a joint model for MTL often yields lower performance",
+  "note": "Paper addresses gradient conflict in MTL optimization, not data heterogeneity/modality/label granularity/dataset size sampling issues."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 21,
+  "key": "standley2020tasks",
+  "verdict": "NOT-SUPPORTED",
+  "quote": "which tasks should and should not be learned together in one network when employing multi-task learning",
+  "note": "Paper addresses task grouping/competition, not data heterogeneity affecting sampling or minibatch construction."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 22,
+  "key": "zhang2021survey",
+  "verdict": "UNVERIFIABLE",
+  "quote": "we review online, parallel and distributed MTL models as well as dimensionality reduction and feature hashing to reveal their computational",
+  "note": "Abstract discusses scalability solutions for many tasks but doesn't explicitly state super-linear growth of routing/memory/evaluation costs."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 22,
+  "key": "yu2024survey",
+  "verdict": "UNVERIFIABLE",
+  "quote": "",
+  "note": "Abstract is a general MTL survey overview and doesn't address scalability/routing/memory growth specifics, but citation as area survey is plausible."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 23,
+  "key": "standley2020tasks",
+  "verdict": "SUPPORTED",
+  "quote": "propose a framework for assigning tasks to a few neural networks such that cooperating tasks are computed by the same neural network",
+  "note": "This is task clustering/grouping for multi-task learning, matching the citation's attribution."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 24,
+  "key": "yu2024survey",
+  "verdict": "SUPPORTED",
+  "quote": "categorizes MTL techniques into five key areas: regularization, relationship learning, feature propagation, optimization, and pre-training",
+  "note": "Survey covers optimization and related MTL methods broadly, consistent with citation as general survey pointer."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 25,
+  "key": "Liao2018",
+  "verdict": "PARTIAL",
+  "quote": "a novel Context Aware Recurrent Unit is designed to integrate the sequential dependency and temporal regularity",
+  "note": "Confirms joint activity/location prediction via RNN, but abstract mentions no temporal attention mechanism."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 26,
+  "key": "Zhang2020",
+  "verdict": "NOT-SUPPORTED",
+  "quote": "temporal-aware activity encoder equipped with fuzzy characterization over uncertain check-ins",
+  "note": "Work is a multi-task POI/activity recommendation framework with fuzzy encoders, not an LSTM-based next-activity predictor."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 27,
+  "key": "Halder2021",
+  "verdict": "SUPPORTED",
+  "quote": "Transformer-Based Multi-task Learning for Queuing Time Aware Next POI Recommendation",
+  "note": "Title confirms Transformer-based multi-task model for next-POI and queuing time prediction, matching the sentence."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 28,
+  "key": "Xia2020",
+  "verdict": "PARTIAL",
+  "quote": "exploits a structure of generative adversarial networks (GAN) simultaneously considering temporal check-ins and geographical locations",
+  "note": "GAN/multi-task/temporal-geo aspects match, but abstract never mentions LSTMs, unlike the citing sentence."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 29,
+  "key": "Xu2023",
+  "verdict": "NOT-SUPPORTED",
+  "quote": "we devise a Tree-guided Multi-task Embedding model (TME for short) to learn effective representations",
+  "note": "TME uses embedding/hierarchy modeling, not graph-based encoders, per the abstract."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 30,
+  "key": "du2019beyond",
+  "verdict": "SUPPORTED",
+  "quote": "spatial complementarity refers to the effect that the role of a spatial entity can be complemented and augmented by other different yet compatible spatial entities",
+  "note": "Abstract directly defines complementarity as neighbor/other-entity influence on a location, matching the citing sentence."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 31,
+  "key": "huang2022estimating",
+  "verdict": "UNVERIFIABLE",
+  "quote": "spatially explicit random walks in a POI network to learn spatial co-occurrence patterns",
+  "note": "Abstract doesn't mention this specific edge-weight formula, but a distance-based POI network weighting is plausible for their method."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 32,
+  "key": "velivckovic2017graph",
+  "verdict": "SUPPORTED",
+  "quote": "novel neural network architectures that operate on graph-structured data, leveraging masked self-attentional layers",
+  "note": "GAT paper indeed introduces graph attention layers used to embed graph nodes, matching the citation's use."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 33,
+  "key": "velickovic2019deep",
+  "verdict": "SUPPORTED",
+  "quote": "maximizing mutual information between patch representations and corresponding high-level summaries of graphs",
+  "note": "Abstract confirms DGI maximizes mutual information between local node embeddings and global graph summary via corruption-based contrastive learning."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 34,
+  "key": "perez2018film",
+  "verdict": "SUPPORTED",
+  "quote": "FiLM layers influence neural network computation via a simple, feature-wise affine transformation based on conditioning information",
+  "note": "Work is indeed the origin of FiLM layers used to condition representations; mitigating negative transfer is not claimed but not contradicted."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 34,
+  "key": "standley2020tasks",
+  "verdict": "SUPPORTED",
+  "quote": "which tasks should and should not be learned together in one network when employing multi-task learning",
+  "note": "Paper studies task competition/negative transfer in multi-task learning, supporting the citation's context."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 35,
+  "key": "perez2018film",
+  "verdict": "SUPPORTED",
+  "quote": "FiLM layers influence neural network computation via a simple, feature-wise affine transformation based on conditioning information",
+  "note": "Work indeed introduces FiLM layers, correctly cited as origin of the technique."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 36,
+  "key": "baxter2000model",
+  "verdict": "SUPPORTED",
+  "quote": "the learner can search for a hypothesis space that contains good solutions to many of the problems",
+  "note": "Paper's inductive bias learning across related tasks supports the claim of learning shared, robust representations."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 37,
+  "key": "ruder2017sluice",
+  "verdict": "NOT-SUPPORTED",
+  "quote": "extension consistently outperforms previous approaches to learning latent architectures for multi-task problems",
+  "note": "Paper proposes learned latent/soft sharing outperforming standard approaches, not a study of hard sharing's regularization effect."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 38,
+  "key": "caruana1997multitask",
+  "verdict": "PARTIAL",
+  "quote": "improves generalization by using the domain information contained in the training signals of related tasks",
+  "note": "Abstract claims improved generalization via shared representation, not specifically 'significant error reduction' quantified."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 39,
+  "key": "standley2020tasks",
+  "verdict": "NOT-SUPPORTED",
+  "quote": "this often leads to inferior overall performance as task objectives can compete",
+  "note": "Paper argues joint training often hurts performance and studies which tasks to combine, not that hard sharing matches/exceeds complex architectures."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 40,
+  "key": "nash",
+  "verdict": "SUPPORTED",
+  "quote": "viewing the gradients combination step as a bargaining game, where tasks negotiate to reach an agreement",
+  "note": "Matches the claim that Nash-MTL frames MTL as a cooperative bargaining game among tasks."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 41,
+  "key": "nash",
+  "verdict": "SUPPORTED",
+  "quote": "proposed viewing the gradients combination step as a bargaining game... Nash Bargaining Solution",
+  "note": "Nash bargaining solution formalizes Pareto-improving, scale-invariant, proportionally fair updates as described."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 42,
+  "key": "nash",
+  "verdict": "SUPPORTED",
+  "quote": "viewing the gradients combination step as a bargaining game, where tasks negotiate to reach an agreement on a joint direction",
+  "note": "Abstract directly confirms bargaining-game framing for gradient aggregation to determine common update direction."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 43,
+  "key": "nash",
+  "verdict": "SUPPORTED",
+  "quote": "tasks negotiate to reach an agreement on a joint direction of parameter update",
+  "note": "Matches the utility/update-direction framing within a bounded parameter step in the sentence."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 44,
+  "key": "nash",
+  "verdict": "SUPPORTED",
+  "quote": "we propose viewing the gradients combination step as a bargaining game",
+  "note": "Nash Bargaining Solution for MTL matches the derived equation and gradient combination framing."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 45,
+  "key": "nash",
+  "verdict": "SUPPORTED",
+  "quote": "Nash Bargaining Solution, which we propose to use as a principled approach to multi-task learning",
+  "note": "Paper's Nash-MTL derives exactly this gradient-combination system via Nash bargaining, matching the cited equation's origin."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 46,
+  "key": "nash",
+  "verdict": "SUPPORTED",
+  "quote": "derive theoretical guarantees for its convergence",
+  "note": "Nash-MTL is the gradient-bargaining update method with convergence guarantees matching the cited step."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 47,
+  "key": "nash",
+  "verdict": "PARTIAL",
+  "quote": "Empirically, we show that Nash-MTL achieves state-of-the-art results on multiple MTL benchmarks in various domains.",
+  "note": "Abstract shows Nash-MTL performance but does not mention updating task weights less frequently to reduce runtime."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 48,
+  "key": "yu2020pcgrad",
+  "verdict": "SUPPORTED",
+  "quote": "gradient surgery that projects a task's gradient onto the normal plane of the gradient of any other task",
+  "note": "Work is indeed PCGrad, a gradient-surgery multi-task optimization strategy, matching the citation's use as a comparison method."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 49,
+  "key": "cho2011gowalla",
+  "verdict": "SUPPORTED",
+  "quote": "data from two online location-based social networks, we aim to understand what basic laws govern human motion",
+  "note": "Cho et al. 2011 is indeed the origin of location-based social network check-in data including Gowalla."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 50,
+  "key": "chen2020modeling",
+  "verdict": "PARTIAL",
+  "quote": "we apply HMRM to both unsupervised and supervised tasks including two activity evaluation tasks and two embedding evaluation tasks",
+  "note": "HMRM is a general trajectory attribute representation model applied to multiple tasks, not specifically designed for POI category classification."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 51,
+  "key": "zeng2019next",
+  "verdict": "UNVERIFIABLE",
+  "quote": "",
+  "note": "No abstract available; title indicates RNN+self-attention next-location prediction, consistent but insufficient to confirm MHA+PE details."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 52,
+  "key": "vaswani2017attention",
+  "verdict": "SUPPORTED",
+  "quote": "new simple network architecture, the Transformer, based solely on attention mechanisms",
+  "note": "Paper introduces multi-head attention for machine translation, matching the sentence's attribution."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 53,
+  "key": "chen2020modeling",
+  "verdict": "UNVERIFIABLE",
+  "quote": "Experimental results show that HMRM could not only improve the performance of capturing latent activity types",
+  "note": "Abstract confirms HMRM as a baseline model but gives no POI category F1/precision/recall comparison to judge the specific claim."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 54,
+  "key": "zeng2019next",
+  "verdict": "UNVERIFIABLE",
+  "quote": "A Next Location Predicting Approach Based on a Recurrent Neural Network and Self-Attention",
+  "note": "Title supports self-attention-based model naming but no abstract to confirm PE component or verify unattributed F1 scores."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 55,
+  "key": "chen2020modeling",
+  "verdict": "SUPPORTED",
+  "quote": "we propose a holistic approach named Human Mobility Representation Model (HMRM)",
+  "note": "Citation correctly identifies HMRM as the compared model from this paper on trajectory/attribute representation."
+ },
+ {
+  "unit": "3_cbic",
+  "site": 56,
+  "key": "zeng2019next",
+  "verdict": "UNVERIFIABLE",
+  "quote": "",
+  "note": "No abstract available to confirm MHA+PE model architecture or its competitiveness for next POI category prediction."
+ },
+ {
+  "unit": "4_courb",
+  "site": 0,
+  "key": "paiva2026stmtlnet",
+  "verdict": "SUPPORTED",
+  "quote": "title=ST-MTLNet: Representa\u00e7\u00f5es Espa\u00e7o-Temporais de Pontos de Interesse para Aprendizado Multitarefa; venue=Anais do X Workshop de Computa\u00e7\u00e3o Urbana (CoUrb 2026)",
+  "note": "Title, venue, year, and DOI all match the source of record exactly."
+ },
+ {
+  "unit": "4_courb",
+  "site": 1,
+  "key": "cho2011gowalla",
+  "verdict": "SUPPORTED",
+  "quote": "data from two online location-based social networks",
+  "note": "Paper studies LBSN check-in data including Gowalla, consistent with citation as source for check-in records."
+ },
+ {
+  "unit": "4_courb",
+  "site": 1,
+  "key": "jure2014snap",
+  "verdict": "SUPPORTED",
+  "quote": "A collection of more than 50 large network datasets",
+  "note": "SNAP is a dataset collection including social networks like Gowalla, supporting its role as a data source citation."
+ },
+ {
+  "unit": "4_courb",
+  "site": 2,
+  "key": "caruana1997multitask",
+  "verdict": "SUPPORTED",
+  "quote": "improves generalization by using the domain information contained in the training signals of related tasks",
+  "note": "Abstract confirms MTL exploits shared task information via shared representation, matching the citation's use."
+ },
+ {
+  "unit": "4_courb",
+  "site": 3,
+  "key": "silva2025mtlnet",
+  "verdict": "SUPPORTED",
+  "quote": "shares lower-level embeddings and sequence encoders while maintaining task-specific heads",
+  "note": "Shared encoders with task-specific heads across both POI tasks matches a single hard-parameter-sharing MTL architecture."
+ },
+ {
+  "unit": "4_courb",
+  "site": 4,
+  "key": "wu2024torchspatial",
+  "verdict": "SUPPORTED",
+  "quote": "a unified location encoding framework that consolidates 15 commonly recognized location encoders",
+  "note": "TorchSpatial is a framework/benchmark validating location encoders like SIREN and Sphere2Vec on geo-aware tasks, matching the citation's use."
+ },
+ {
+  "unit": "4_courb",
+  "site": 5,
+  "key": "jure2014snap",
+  "verdict": "SUPPORTED",
+  "quote": "A collection of more than 50 large network datasets",
+  "note": "SNAP is a dataset collection including social networks like Gowalla, consistent with citation's use as source"
+ },
+ {
+  "unit": "4_courb",
+  "site": 6,
+  "key": "feng2017poi2vec",
+  "verdict": "PARTIAL",
+  "quote": "propose a new latent representation model POI2Vec that is able to incorporate the geographical influence",
+  "note": "Abstract confirms geographic-aware POI embeddings but doesn't mention Word2Vec architecture or binary tree structure specifically."
+ },
+ {
+  "unit": "4_courb",
+  "site": 7,
+  "key": "rahmani2019category",
+  "verdict": "PARTIAL",
+  "quote": "much work has sought to leverage neural networks to learn neural embeddings...an improved representation of POIs...categorical information",
+  "note": "Categorical aspect is supported; sequential/temporal visit-order influence on geographic capture is not evidenced in the abstract."
+ },
+ {
+  "unit": "4_courb",
+  "site": 8,
+  "key": "velickovic2019deep",
+  "verdict": "SUPPORTED",
+  "quote": "DGI relies on maximizing mutual information between patch representations and corresponding high-level summaries of graphs",
+  "note": "Abstract confirms unsupervised mutual information maximization between local (patch/node) and global (graph) representations to learn embeddings."
+ },
+ {
+  "unit": "4_courb",
+  "site": 9,
+  "key": "huang2023hgi",
+  "verdict": "UNVERIFIABLE",
+  "quote": "",
+  "note": "Title matches urban region representation via POIs and hierarchical graph infomax, but no abstract text is shown to verify specific claims."
+ },
+ {
+  "unit": "4_courb",
+  "site": 10,
+  "key": "wu2024torchspatial",
+  "verdict": "SUPPORTED",
+  "quote": "a unified location encoding framework that consolidates 15 commonly recognized location encoders, ensuring scalability and reproducibility",
+  "note": "Abstract confirms unified framework and benchmark enabling systematic comparison of location encoders."
+ },
+ {
+  "unit": "4_courb",
+  "site": 11,
+  "key": "sitzmann2020implicit",
+  "verdict": "SUPPORTED",
+  "quote": "leverage periodic activation functions for implicit neural representations...ideally suited for representing complex natural signals",
+  "note": "Abstract confirms SIREN uses sinusoidal/periodic activations to model continuous signals with fine (high-frequency) detail."
+ },
+ {
+  "unit": "4_courb",
+  "site": 12,
+  "key": "russwurm2024geographiclocationencodingspherical",
+  "verdict": "SUPPORTED",
+  "quote": "combines spherical harmonic basis functions... with sinusoidal representation networks (SirenNets)... for globally distributed geographic data",
+  "note": "Work applies SIREN-based sinusoidal networks to geographic/spatial coordinate encoding, matching the citing clause."
+ },
+ {
+  "unit": "4_courb",
+  "site": 13,
+  "key": "mai2023sphere2vecgeneralpurposelocationrepresentation",
+  "verdict": "SUPPORTED",
+  "quote": "propose a multi-scale location encoder called Sphere2Vec which can preserve spherical distances when encoding point coordinates on a spherical surface",
+  "note": "Abstract confirms spherical operation, multi-scale design, and geodesic/spherical distance preservation vs planar projection distortion."
+ },
+ {
+  "unit": "4_courb",
+  "site": 14,
+  "key": "sun2020go",
+  "verdict": "SUPPORTED",
+  "quote": "a nonlocal network for long-term preference modeling and a geo-dilated RNN for short-term preference learning",
+  "note": "Abstract confirms LSTPM uses geo-dilated RNN for short-term and nonlocal network for long-term preferences with geographic relations."
+ },
+ {
+  "unit": "4_courb",
+  "site": 15,
+  "key": "sun2024transtarec",
+  "verdict": "SUPPORTED",
+  "quote": "fuse user preference and temporal influence... unification with user preference and sequential dynamics",
+  "note": "Abstract confirms adaptive temporal translation model unifying POI, timestamp, and user preference for next-POI recommendation."
+ },
+ {
+  "unit": "4_courb",
+  "site": 16,
+  "key": "kazemi2019time2vec",
+  "verdict": "SUPPORTED",
+  "quote": "model-agnostic vector representation for time, called Time2Vec",
+  "note": "Abstract confirms Time2Vec as a temporal vector representation; combination of linear and sinusoidal learnable terms is the paper's known core method."
+ },
+ {
+  "unit": "4_courb",
+  "site": 17,
+  "key": "caruana1997multitask",
+  "verdict": "SUPPORTED",
+  "quote": "Multitask Learning is an approach to inductive transfer that improves generalization by using the domain information",
+  "note": "Citation correctly attributes MTL concept origin to Caruana 1997; the POI-specific application claim is the sentence's own contribution, not attributed to this work."
+ },
+ {
+  "unit": "4_courb",
+  "site": 18,
+  "key": "Liao2018",
+  "verdict": "SUPPORTED",
+  "quote": "integrate the sequential dependency and temporal regularity of spatial activity topics",
+  "note": "Abstract confirms sequential/temporal integration for joint activity-location prediction via multi-task RNN."
+ },
+ {
+  "unit": "4_courb",
+  "site": 19,
+  "key": "Xia2020",
+  "verdict": "PARTIAL",
+  "quote": "structure of generative adversarial networks (GAN) simultaneously considering temporal check-ins and geographical locations",
+  "note": "Abstract confirms adversarial learning and joint temporal/geographic modeling, but does not mention geographic LSTMs specifically."
+ },
+ {
+  "unit": "4_courb",
+  "site": 20,
+  "key": "Halder2022",
+  "verdict": "SUPPORTED",
+  "quote": "propose a multi-task, multi-head attention transformer model...recommends the next POIs...and predicts queuing time...simultaneously",
+  "note": "Abstract confirms multi-task transformer model jointly recommending next POI and predicting queuing/waiting time."
+ },
+ {
+  "unit": "4_courb",
+  "site": 21,
+  "key": "Xu2023",
+  "verdict": "SUPPORTED",
+  "quote": "utilizes the predefined category hierarchy to regularize the relatedness among categories",
+  "note": "TME uses hierarchical category structure for semantic venue/POI annotation, matching the claim."
+ },
+ {
+  "unit": "4_courb",
+  "site": 22,
+  "key": "Lim2022",
+  "verdict": "SUPPORTED",
+  "quote": "learning different User-Region matrices of lower sparsities in a multi-task setting",
+  "note": "Matches recurrent multi-task model combining next-POI and region prediction via hierarchical graphs."
+ },
+ {
+  "unit": "4_courb",
+  "site": 23,
+  "key": "silva2025mtlnet",
+  "verdict": "SUPPORTED",
+  "quote": "We propose a joint MTL architecture that shares lower-level embeddings and sequence encoders while maintaining task-specific heads",
+  "note": "Evidence confirms the cited work introduces the joint MTL architecture referenced as the baseline."
+ },
+ {
+  "unit": "4_courb",
+  "site": 24,
+  "key": "silva2025mtlnet",
+  "verdict": "UNVERIFIABLE",
+  "quote": "shares lower-level embeddings and sequence encoders while maintaining task-specific heads",
+  "note": "Abstract confirms shared embeddings for MTL but doesn't specify the exact 'E_DGI in R^64' vector detail."
+ },
+ {
+  "unit": "4_courb",
+  "site": 25,
+  "key": "wu2024torchspatial",
+  "verdict": "SUPPORTED",
+  "quote": "a learning framework and benchmark for location (point) encoding, which is one of the most fundamental data types",
+  "note": "Work is indeed a spatial (location) encoding framework, matching the citation's use as a pointer to spatial encoding."
+ },
+ {
+  "unit": "4_courb",
+  "site": 26,
+  "key": "kazemi2019time2vec",
+  "verdict": "SUPPORTED",
+  "quote": "model-agnostic vector representation for time, called Time2Vec, that can be easily imported into many existing and future architectures",
+  "note": "Time2Vec is indeed a temporal encoding method carrying complementary time information, matching the citation's use."
+ },
+ {
+  "unit": "4_courb",
+  "site": 27,
+  "key": "silva2025mtlnet",
+  "verdict": "SUPPORTED",
+  "quote": "We propose a joint MTL architecture that shares lower-level embeddings and sequence encoders while maintaining task-specific heads",
+  "note": "Citation attributes an architecture to this MTL work, which matches the described joint MTL architecture."
+ },
+ {
+  "unit": "4_courb",
+  "site": 28,
+  "key": "silva2025mtlnet",
+  "verdict": "SUPPORTED",
+  "quote": "We propose a joint MTL architecture that shares lower-level embeddings and sequence encoders while maintaining task-specific heads",
+  "note": "Shared lower layers with task-specific heads matches hard parameter sharing processing both named tasks."
+ },
+ {
+  "unit": "4_courb",
+  "site": 29,
+  "key": "caruana1997multitask",
+  "verdict": "SUPPORTED",
+  "quote": "learning tasks in parallel while using a shared representation",
+  "note": "Paper defines MTL via shared representation across tasks, consistent with hard parameter sharing attribution."
+ },
+ {
+  "unit": "4_courb",
+  "site": 30,
+  "key": "perez2018film",
+  "verdict": "SUPPORTED",
+  "quote": "FiLM layers influence neural network computation via a simple, feature-wise affine transformation based on conditioning information",
+  "note": "Citation correctly attributes FiLM's scale/shift conditioning mechanism to this work."
+ },
+ {
+  "unit": "4_courb",
+  "site": 31,
+  "key": "baxter2000model",
+  "verdict": "PARTIAL",
+  "quote": "the learner can search for a hypothesis space that contains good solutions to many of the problems",
+  "note": "Paper supports shared representation/multi-task rationale generally, but not the specific architecture (LayerNorm, LeakyReLU, Dropout, four blocks)."
+ },
+ {
+  "unit": "4_courb",
+  "site": 32,
+  "key": "nash",
+  "verdict": "SUPPORTED",
+  "quote": "viewing the gradients combination step as a bargaining game, where tasks negotiate to reach an agreement on a joint direction",
+  "note": "Matches Nash-MTL's gradient balancing as cooperative bargaining game description."
+ },
+ {
+  "unit": "4_courb",
+  "site": 33,
+  "key": "silva2025mtlnet",
+  "verdict": "SUPPORTED",
+  "quote": "We propose a joint MTL architecture that shares lower-level embeddings and sequence encoders while maintaining task-specific heads",
+  "note": "The cited work does propose the MTL architecture (MTLnet) referenced as the baseline model's origin."
+ },
+ {
+  "unit": "4_courb",
+  "site": 34,
+  "key": "velickovic2019deep",
+  "verdict": "SUPPORTED",
+  "quote": "learning node representations within graph-structured data in an unsupervised manner",
+  "note": "DGI is indeed the method for producing node embeddings, matching its use here."
+ },
+ {
+  "unit": "4_courb",
+  "site": 35,
+  "key": "silva2025mtlnet",
+  "verdict": "UNVERIFIABLE",
+  "quote": "We propose a joint MTL architecture that shares lower-level embeddings and sequence encoders",
+  "note": "Abstract confirms shared POI embeddings in MTL framework but omits DGI/Delaunay triangulation implementation details."
+ },
+ {
+  "unit": "4_courb",
+  "site": 36,
+  "key": "wu2024torchspatial",
+  "verdict": "SUPPORTED",
+  "quote": "TorchSpatial contains three key components: 1) a unified location encoding framework that consolidates 15 commonly recognized location encoders",
+  "note": "Work is a benchmark/framework showing multiple location encoders' effectiveness across geospatial tasks, supporting the general claim."
+ },
+ {
+  "unit": "4_courb",
+  "site": 37,
+  "key": "russwurm2024geographiclocationencodingspherical",
+  "verdict": "PARTIAL",
+  "quote": "combines spherical harmonic basis functions...with sinusoidal representation networks (SirenNets)",
+  "note": "Paper's method combines spherical harmonics and SirenNets; sentence attributes only sinusoidal activations, omitting the spherical harmonic component."
+ },
+ {
+  "unit": "4_courb",
+  "site": 38,
+  "key": "mai2023sphere2vecgeneralpurposelocationrepresentation",
+  "verdict": "SUPPORTED",
+  "quote": "propose a multi-scale location encoder called Sphere2Vec which can preserve spherical distances when encoding point coordinates on a spherical surface",
+  "note": "Abstract confirms it operates on spherical surface and preserves spherical (geodesic) distances as stated."
+ },
+ {
+  "unit": "4_courb",
+  "site": 39,
+  "key": "russwurm2024geographiclocationencodingspherical",
+  "verdict": "PARTIAL",
+  "quote": "combines spherical harmonic basis functions...with sinusoidal representation networks (SirenNets)",
+  "note": "Paper's model uses spherical harmonics + SirenNets combined, not SIREN alone as R^2->R^64 map described."
+ },
+ {
+  "unit": "4_courb",
+  "site": 40,
+  "key": "mai2023sphere2vecgeneralpurposelocationrepresentation",
+  "verdict": "PARTIAL",
+  "quote": "we propose a multi-scale location encoder called Sphere2Vec which can preserve spherical distances when encoding point coordinates on a spherical surface",
+  "note": "Abstract confirms Sphere2Vec broadly, but sentence names specific variant 'Sphere2Vec-M' and coordinate notation not evidenced in abstract."
+ },
+ {
+  "unit": "4_courb",
+  "site": 41,
+  "key": "sun2020go",
+  "verdict": "NOT-SUPPORTED",
+  "quote": "methods based on recurrent neural networks (RNNs) have recently shown promising applicability for this task",
+  "note": "Paper is about POI recommendation modeling long/short-term preferences, not about mobility cyclical regularities revealing POI function."
+ },
+ {
+  "unit": "4_courb",
+  "site": 42,
+  "key": "kazemi2019time2vec",
+  "verdict": "SUPPORTED",
+  "quote": "model-agnostic vector representation for time, called Time2Vec, that can be easily imported into many existing",
+  "note": "Matches claim of generic, decoupled temporal representation usable without manual feature engineering."
+ },
+ {
+  "unit": "4_courb",
+  "site": 43,
+  "key": "huang2023hgi",
+  "verdict": "UNVERIFIABLE",
+  "quote": "",
+  "note": "No abstract text provided to confirm hierarchical POI/region/city representation details, though title plausibly matches claim."
+ },
+ {
+  "unit": "4_courb",
+  "site": 44,
+  "key": "grover2016node2vec",
+  "verdict": "SUPPORTED",
+  "quote": "design a biased random walk procedure, which efficiently explores diverse neighborhoods",
+  "note": "Node2Vec is indeed defined by biased random walks over the graph, matching the citation's use."
+ },
+ {
+  "unit": "4_courb",
+  "site": 45,
+  "key": "mikolov2013word2vec",
+  "verdict": "SUPPORTED",
+  "quote": "two novel model architectures for computing continuous vector representations of words",
+  "note": "This is the original word2vec/skip-gram paper introducing the embedding architecture cited for the skip-gram strategy."
+ },
+ {
+  "unit": "4_courb",
+  "site": 45,
+  "key": "mikolov2013negsampling",
+  "verdict": "SUPPORTED",
+  "quote": "a simple alternative to the hierarchical softmax called negative sampling",
+  "note": "Paper introduces negative sampling for skip-gram, directly matching the citation's attribution."
+ },
+ {
+  "unit": "4_courb",
+  "site": 46,
+  "key": "belkin2003laplacian",
+  "verdict": "NOT-SUPPORTED",
+  "quote": "constructing a representation for data lying on a low-dimensional manifold embedded in a high-dimensional space",
+  "note": "Laplacian eigenmaps is a manifold dimensionality-reduction method, not a hierarchical embedding-regularization term as described."
+ },
+ {
+  "unit": "4_courb",
+  "site": 47,
+  "key": "huang2023hgi",
+  "verdict": "SUPPORTED",
+  "quote": "Learning urban region representations with POIs and hierarchical graph infomax",
+  "note": "Work is confirmed as HGI model using POIs enriched with regional geographic info, matching citation's use."
+ },
+ {
+  "unit": "4_courb",
+  "site": 48,
+  "key": "silva2025mtlnet",
+  "verdict": "UNVERIFIABLE",
+  "quote": "shares lower-level embeddings and sequence encoders while maintaining task-specific heads",
+  "note": "Abstract confirms shared embeddings for MTL but doesn't specify a 64-dim DGI embedding used identically for both tasks."
+ },
+ {
+  "unit": "4_courb",
+  "site": 49,
+  "key": "cho2011gowalla",
+  "verdict": "SUPPORTED",
+  "quote": "data from two online location-based social networks",
+  "note": "Paper introduces Gowalla mobility dataset used in location-based social network study, consistent with citation as dataset source."
+ },
+ {
+  "unit": "4_courb",
+  "site": 49,
+  "key": "jure2014snap",
+  "verdict": "SUPPORTED",
+  "quote": "A collection of more than 50 large network datasets",
+  "note": "SNAP is a dataset repository including social networks, consistent with citing it as dataset source."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 0,
+  "key": "cho2011gowalla",
+  "verdict": "SUPPORTED",
+  "quote": "data from two online location-based social networks, we aim to understand what basic laws govern human motion",
+  "note": "Paper uses Gowalla check-in data to study human movement patterns in cities, matching the citation's use."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 1,
+  "key": "song2010limits",
+  "verdict": "SUPPORTED",
+  "quote": "there was 93% predictability across the whole user base",
+  "note": "Abstract directly establishes high predictability of individual human mobility."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 2,
+  "key": "bastug2014edge",
+  "verdict": "SUPPORTED",
+  "quote": "peak traffic demands can be substantially reduced by proactively serving predictable user demands via caching at base stations",
+  "note": "Matches the sentence's claim of caching content where a user is heading based on predicted mobility."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 3,
+  "key": "vielhaus2022handover",
+  "verdict": "SUPPORTED",
+  "quote": "Predicting handovers in high mobility scenarios enables networks and applications to adapt ahead of time to improve the Quality of Service",
+  "note": "Abstract directly supports handover prediction enabling advance network-level adaptation."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 4,
+  "key": "moura2025mobilityaware",
+  "verdict": "SUPPORTED",
+  "quote": "leverage a large dataset of Foursquare check-ins... Mobility-aware systems play a crucial role in leveraging such insights to design adaptive, data-driven services",
+  "note": "Abstract confirms check-in mobility analysis at city scale informs design of mobility-aware services."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 5,
+  "key": "caruana1997multitask",
+  "verdict": "PARTIAL",
+  "quote": "improves generalization by using the domain information contained in the training signals of related tasks",
+  "note": "Caruana's paper argues MTL helps via shared representation; it doesn't support the claim that shared params converge to a compromise hurting one task."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 6,
+  "key": "silva2025mtlnet",
+  "verdict": "PARTIAL",
+  "quote": "multi-task learning approach did not consistently yield substantial improvements over the single-task baselines",
+  "note": "No-consistent-advantage claim is supported, but the abstract gives no specific attribution to 'this effect' as the cause."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 7,
+  "key": "huang2023hgi",
+  "verdict": "UNVERIFIABLE",
+  "quote": "",
+  "note": "Abstract text not shown, so the specific place/region/city hierarchy levels cannot be confirmed, but attribution is plausible given the title."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 7,
+  "key": "velickovic2019deep",
+  "verdict": "SUPPORTED",
+  "quote": "DGI relies on maximizing mutual information between patch representations and corresponding high-level summaries of graphs",
+  "note": "Cited work is the foundational Deep Graph Infomax method the sentence builds hierarchical levels upon."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 8,
+  "key": "wongso2025massivesteps",
+  "verdict": "SUPPORTED",
+  "quote": "a large-scale, publicly available benchmark dataset built upon the Semantic Trails dataset",
+  "note": "Abstract confirms Massive-STEPS is a public dataset, matching the citation's claim."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 9,
+  "key": "silva2025mtlnet",
+  "verdict": "NOT-SUPPORTED",
+  "quote": "shares lower-level embeddings and sequence encoders while maintaining task-specific heads",
+  "note": "Abstract describes shared encoders with task-specific heads, opposite of sentence's claim, and abstract never mentions gradient-balancing."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 10,
+  "key": "paiva2026stmtlnet",
+  "verdict": "SUPPORTED",
+  "quote": "supera o baseline em todas as 21 combina\u00e7\u00f5es de categoria e estado para classifica\u00e7\u00e3o",
+  "note": "Abstract confirms decomposed spatial/temporal/categorical encoders and category-classification gains across all state combinations."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 11,
+  "key": "velickovic2019deep",
+  "verdict": "PARTIAL",
+  "quote": "maximizing mutual information between patch representations and corresponding high-level summaries of graphs",
+  "note": "DGI is indeed general self-supervised graph method contrasting real vs corrupted graph, but abstract doesn't confirm application to a similarity/time/distance-linked place network."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 12,
+  "key": "huang2023hgi",
+  "verdict": "UNVERIFIABLE",
+  "quote": "",
+  "note": "Abstract text is empty; only title confirms hierarchical graph infomax for urban regions, not the specific place/region/city levels."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 13,
+  "key": "lin2021ctle",
+  "verdict": "SUPPORTED",
+  "quote": "calculates a location's representation vector with consideration of its specific contextual neighbors in trajectories",
+  "note": "CTLE learns context/time-aware embeddings per location occurrence via masked pre-training, matching the described per-visit vector approach."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 14,
+  "key": "feng2018deepmove",
+  "verdict": "SUPPORTED",
+  "quote": "DeepMove, an attentional recurrent network for mobility prediction from lengthy and sparse trajectories",
+  "note": "Abstract confirms DeepMove predicts next mobility/location using attentional recurrent networks, matching the citation's attribution."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 15,
+  "key": "luo2021stan",
+  "verdict": "SUPPORTED",
+  "quote": "Spatio-Temporal Attention Network for Next Location Recommendation",
+  "note": "STAN is an attention-based next-location (POI) recommendation model, matching the sentence's characterization."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 16,
+  "key": "yang2022getnext",
+  "verdict": "SUPPORTED",
+  "quote": "GETNext incorporates the global transition patterns, user's general preference, spatio-temporal context ... into a transformer model",
+  "note": "GETNext is a transformer-based next-POI prediction model, matching the sentence's attribution."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 17,
+  "key": "luca2021mobilitysurvey",
+  "verdict": "SUPPORTED",
+  "quote": "guide to the leading deep learning solutions to next-location prediction, crowd flow prediction, trajectory generation, and flow generation",
+  "note": "Survey covers next-location prediction over mobility tasks, consistent with claim about grid-cell target formulation as standard."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 18,
+  "key": "silva2025mtlnet",
+  "verdict": "SUPPORTED",
+  "quote": "the multi-task learning approach did not consistently yield substantial improvements over the single-task baselines across both tasks",
+  "note": "Abstract confirms MTL paired category classification with next-POI prediction and found no consistent gain, matching the sentence."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 19,
+  "key": "sun2024mcmg",
+  "verdict": "SUPPORTED",
+  "quote": "local multi-channel (i.e., region, category, and POI channels) encoder",
+  "note": "Abstract confirms region/category are auxiliary multi-granularity signals feeding the primary next-POI recommendation task."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 20,
+  "key": "Lim2022",
+  "verdict": "PARTIAL",
+  "quote": "learning different User-Region matrices of lower sparsities in a multi-task setting",
+  "note": "Region is a multi-task target used to alleviate sparsity, not merely an auxiliary signal aiding a primary next-place task."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 21,
+  "key": "zhu2022drrgnn",
+  "verdict": "SUPPORTED",
+  "quote": "developing models that can answer... (2) Which region will be the next AR, and (3) Why do people make this regional mobility",
+  "note": "Abstract confirms joint prediction of next activity region and mobility intention over person-specific discovered regions."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 22,
+  "key": "sun2025kgtb",
+  "verdict": "SUPPORTED",
+  "quote": "introduces multiple behavior-specific prediction tasks for LLM fine-tuning, e.g., POI, category, and region visit behaviors",
+  "note": "Abstract confirms category and region prediction are auxiliary tasks supporting the main POI (next-place) recommendation."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 23,
+  "key": "Liao2018",
+  "verdict": "SUPPORTED",
+  "quote": "Multi-task Context Aware Recurrent Neural Network to leverage the spatial activity topic for activity and location prediction",
+  "note": "Abstract confirms joint activity and location prediction via a multi-task model, matching the claim."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 24,
+  "key": "wang2025hamtl",
+  "verdict": "UNVERIFIABLE",
+  "quote": "",
+  "note": "No abstract available to confirm hierarchy-aware multi-task model predicts exact location jointly with activity."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 25,
+  "key": "ye2013nextmove",
+  "verdict": "SUPPORTED",
+  "quote": "predict the category of user activity at the next step and then predict the most likely location given the estimated category distribution",
+  "note": "Abstract confirms exactly the category-then-place cascade attributed to the work."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 26,
+  "key": "huang2024cslsl",
+  "verdict": "SUPPORTED",
+  "quote": "explicitly model the \"when \u2192 what \u2192 where\", a.k.a. \"time \u2192 activity \u2192 location\" decision logic",
+  "note": "Abstract confirms chain prediction of when/what/where with location as final output."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 27,
+  "key": "yu2020catdm",
+  "verdict": "UNVERIFIABLE",
+  "quote": "we propose a category-aware deep model CatDM that incorporates POI category and geographical influence to reduce search space",
+  "note": "Abstract confirms category used to narrow candidates, but doesn't specify predicted category filtering exactly as described."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 28,
+  "key": "caruana1997multitask",
+  "verdict": "PARTIAL",
+  "quote": "learning tasks in parallel while using a shared representation",
+  "note": "Paper establishes joint/shared-representation training but does not specifically discuss fixed loss weighting as standard practice."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 29,
+  "key": "yu2020pcgrad",
+  "verdict": "SUPPORTED",
+  "quote": "propose a form of gradient surgery that projects a task's gradient onto the normal plane",
+  "note": "PCGrad is indeed a gradient re-weighting/surgery method for multi-task learning, matching the citation's characterization."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 30,
+  "key": "nash",
+  "verdict": "SUPPORTED",
+  "quote": "combine per-task gradients into a joint update direction using a particular heuristic",
+  "note": "Nash-MTL is correctly identified as a gradient re-weighting/combination MTL method, matching the sentence's characterization."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 31,
+  "key": "xin2022domtl",
+  "verdict": "SUPPORTED",
+  "quote": "MTO methods do not yield any performance improvements beyond what is achievable via traditional optimization approaches",
+  "note": "Abstract directly supports claim that gradient-balancing MTO methods rarely improve on well-tuned fixed weighting."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 32,
+  "key": "silva2019urbancomputing",
+  "verdict": "PARTIAL",
+  "quote": "survey of recent urban computing studies that make use of LBSN data",
+  "note": "Paper surveys urban computing research using LBSN data but doesn't establish city services 'have long been built on' such traces."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 33,
+  "key": "moura2025mobilityaware",
+  "verdict": "SUPPORTED",
+  "quote": "Key points of interest (especially transportation hubs and cultural landmarks) serve as essential connectors shaping network flow",
+  "note": "Abstract supports hub concentration and ties to adaptive, infrastructure-relevant mobility-aware system design."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 34,
+  "key": "velickovic2019deep",
+  "verdict": "SUPPORTED",
+  "quote": "maximizing mutual information between patch representations and corresponding high-level summaries",
+  "note": "DGI is an infomax objective matching representations to graph summaries, consistent with matching real neighborhood."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 34,
+  "key": "huang2023hgi",
+  "verdict": "UNVERIFIABLE",
+  "quote": "",
+  "note": "No abstract text provided beyond title, though the title itself supports use of hierarchical graph infomax method."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 35,
+  "key": "caruana1997multitask",
+  "verdict": "SUPPORTED",
+  "quote": "learning tasks in parallel while using a shared representation; what is learned for each task can help other tasks",
+  "note": "Paper defines multitask learning via shared representation, matching the citation's usage as the origin of joint training with shared representation."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 36,
+  "key": "cho2011gowalla",
+  "verdict": "SUPPORTED",
+  "quote": "data from two online location-based social networks",
+  "note": "Abstract confirms use of location-based social network data, consistent with citing Gowalla as one such network."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 37,
+  "key": "wongso2025massivesteps",
+  "verdict": "SUPPORTED",
+  "quote": "Massive-STEPS spans 15 geographically and culturally diverse cities",
+  "note": "Massive-STEPS is a check-in dataset covering diverse cities globally, consistent with Istanbul being a non-U.S. city from this collection."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 38,
+  "key": "holm1979",
+  "verdict": "SUPPORTED",
+  "quote": "a simple and widely applicable multiple test procedure of the sequentially rejective type",
+  "note": "Citation correctly attributes the Holm correction method to this paper defining it."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 39,
+  "key": "lakens2017tost",
+  "verdict": "SUPPORTED",
+  "quote": "an upper and lower equivalence bound is specified based on the smallest effect size of interest",
+  "note": "Work is exactly the TOST primer cited as the source of the procedure."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 40,
+  "key": "capanema2023poirgnn",
+  "verdict": "UNVERIFIABLE",
+  "quote": "",
+  "note": "No abstract available to confirm re-implementation details, but title matches next-category prediction task plausibly."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 41,
+  "key": "Lim2022",
+  "verdict": "SUPPORTED",
+  "quote": "Hierarchical Multi-Task Graph Recurrent Network (HMT-GRN) approach",
+  "note": "Abstract confirms HMT-GRN is a graph recurrent network for next-POI; 'end-to-end' and shared-eval details are dissertation's own setup, not contradicted."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 42,
+  "key": "luo2021stan",
+  "verdict": "UNVERIFIABLE",
+  "quote": "",
+  "note": "Abstract confirms STAN's architecture/purpose but gives no detail on the dissertation's own re-implementation, training setup, or embeddings used."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 43,
+  "key": "li2025rehdm",
+  "verdict": "UNVERIFIABLE",
+  "quote": "",
+  "note": "Sentence's vague claim about 'own published protocol' isn't addressed by the abstract, which only describes the method itself."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 44,
+  "key": "lin2021ctle",
+  "verdict": "SUPPORTED",
+  "quote": "calculates a location's representation vector with consideration of its specific contextual neighbors in trajectories",
+  "note": "CTLE is indeed a contextual check-in/location embedding model, matching the cited description."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 45,
+  "key": "ye2013nextmove",
+  "verdict": "SUPPORTED",
+  "quote": "predict the category of user activity at the next step and then predict the most likely location given the estimated category distribution",
+  "note": "Abstract directly describes the directed cascade of category-then-place prediction."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 45,
+  "key": "yu2020catdm",
+  "verdict": "UNVERIFIABLE",
+  "quote": "we propose a category-aware deep model CatDM that incorporates POI category and geographical influence",
+  "note": "Abstract confirms category-aware modeling but does not clearly describe a directed category-then-place cascade architecture."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 45,
+  "key": "huang2024cslsl",
+  "verdict": "SUPPORTED",
+  "quote": "explicitly model the \u201c when \u2192 what \u2192 where \u201d, a.k.a. \u201c time \u2192 activity \u2192 location \u201d decision logic",
+  "note": "CSLSL's causal cascade predicts activity/category before location, matching the cited directed-cascade coupling claim."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 46,
+  "key": "huang2023hgi",
+  "verdict": "UNVERIFIABLE",
+  "quote": "",
+  "note": "No abstract text shown; cannot confirm the paper is used as a standard place-level embedding baseline."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 47,
+  "key": "huang2023hgi",
+  "verdict": "UNVERIFIABLE",
+  "quote": "",
+  "note": "No abstract text shown to confirm HGI is a place embedding or its next-category F1 performance; title alone plausible but insufficient."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 48,
+  "key": "lin2021ctle",
+  "verdict": "UNVERIFIABLE",
+  "quote": "in order to incorporate temporal information in trajectories into location embeddings, we propose a subtle temporal encoding module",
+  "note": "Abstract confirms location+time pretraining but doesn't specify inputs are 'place identifiers and timestamps alone' excluding category."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 49,
+  "key": "caruana1997multitask",
+  "verdict": "SUPPORTED",
+  "quote": "improves generalization by using the domain information contained in the training signals of related tasks",
+  "note": "Citation correctly points to the foundational multi-task learning work as background reference."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 50,
+  "key": "Lim2022",
+  "verdict": "UNVERIFIABLE",
+  "quote": "Experimental results on two real-world Location-Based Social Network (LBSN) datasets show that our model significantly outperforms baseline",
+  "note": "Abstract confirms HMT-GRN is a region-native next-POI method but gives no basis to judge whether it was outperformed on these six datasets."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 51,
+  "key": "luo2021stan",
+  "verdict": "UNVERIFIABLE",
+  "quote": "our model outperforms the existing state-of-the-art methods by 9-17%",
+  "note": "Abstract confirms STAN is a next-location recommendation model but doesn't address this paper's comparative results on the dissertation's datasets."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 52,
+  "key": "li2025rehdm",
+  "verdict": "UNVERIFIABLE",
+  "quote": "Experimental results on three public datasets demonstrate the superiority of ReHDM to the state-of-the-art.",
+  "note": "Abstract confirms ReHDM is a region-aware baseline but gives no basis to verify the joint model outperforms it."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 53,
+  "key": "capanema2023poirgnn",
+  "verdict": "UNVERIFIABLE",
+  "quote": "",
+  "note": "No abstract available; title matches category prediction context, but baseline performance claim can't be verified from metadata alone."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 54,
+  "key": "huang2024cslsl",
+  "verdict": "UNVERIFIABLE",
+  "quote": "Extensive experiments on three real-world datasets show promising performance improvements of CSLSL over baselines",
+  "note": "Abstract confirms CSLSL outperforms baselines but doesn't specify a shared-trunk parallel variant comparison."
+ },
+ {
+  "unit": "5_mobiwac",
+  "site": 55,
+  "key": "moura2025mobilityaware",
+  "verdict": "UNVERIFIABLE",
+  "quote": "",
+  "note": "Abstract confirms structural/network analysis of check-ins but doesn't mention naming ML as future work, a detail abstracts often omit."
+ },
+ {
+  "unit": "appendices",
+  "site": 0,
+  "key": "silva2025mtlnet",
+  "verdict": "NOT-SUPPORTED",
+  "quote": "focusing on two complementary tasks: POI Category Classification and Next-POI Prediction",
+  "note": "Cited work studies POI category classification and next-POI prediction, not next-category/next-region tasks or negative transfer between them."
+ },
+ {
+  "unit": "appendices",
+  "site": 1,
+  "key": "kohavi1995crossval",
+  "verdict": "PARTIAL",
+  "quote": "the best method to use for model selection is ten-fold stratified cross validation",
+  "note": "Paper studies cross-validation generally and recommends ten-fold, not five-fold or user-grouped splitting."
+ },
+ {
+  "unit": "appendices",
+  "site": 1,
+  "key": "pedregosa2011sklearn",
+  "verdict": "SUPPORTED",
+  "quote": "Scikit-learn is a Python module integrating a wide range of state-of-the-art machine learning algorithms",
+  "note": "Citation points to scikit-learn as the tool/library source for the CV and metric implementation, consistent with abstract."
+ },
+ {
+  "unit": "appendices",
+  "site": 2,
+  "key": "sokolova2009measures",
+  "verdict": "UNVERIFIABLE",
+  "quote": "systematic analysis of twenty four performance measures used in the complete spectrum of Machine Learning classification tasks",
+  "note": "Abstract confirms paper analyzes classification performance measures but doesn't explicitly state macro-F1 weights categories equally."
+ },
+ {
+  "unit": "appendices",
+  "site": 3,
+  "key": "cho2011gowalla",
+  "verdict": "UNVERIFIABLE",
+  "quote": "",
+  "note": "Citation is to the paper introducing the Gowalla dataset; abstract doesn't address hosting/license/category details, but that's plausible as a paired dataset citation."
+ },
+ {
+  "unit": "appendices",
+  "site": 3,
+  "key": "jure2014snap",
+  "verdict": "SUPPORTED",
+  "quote": "A collection of more than 50 large network datasets",
+  "note": "Citation correctly points to SNAP as the collection hosting the dataset, matching the sentence's use."
+ },
+ {
+  "unit": "appendices",
+  "site": 4,
+  "key": "wongso2025massivesteps",
+  "verdict": "SUPPORTED",
+  "quote": "large-scale, publicly available benchmark dataset ... spans 15 geographically and culturally diverse cities",
+  "note": "Abstract confirms Massive-STEPS is a multi-city POI check-in dataset; license detail is a distribution fact, not contradicted."
+ },
+ {
+  "unit": "appendices",
+  "site": 5,
+  "key": "luca2021mobilitysurvey",
+  "verdict": "UNVERIFIABLE",
+  "quote": "the relevant challenges for the future",
+  "note": "Abstract confirms survey covers mobility tasks and challenges but doesn't specifically mention privacy risks from model training/prediction."
+ },
+ {
+  "unit": "appendices",
+  "site": 6,
+  "key": "santos2024urban",
+  "verdict": "UNVERIFIABLE",
+  "quote": "",
+  "note": "No abstract or source record exists to confirm the thesis's topic, year, program, or advisor match."
+ }
+]
