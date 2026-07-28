@@ -376,6 +376,25 @@ tres itens, todos aditivos, nenhum tocando resultado reproduzido:
 **Eu recomendo os tres, nessa ordem.** O (1) e quase gratuito e conserta o arco; o (2) responde a
 pergunta que eu abriria; o (3) e o que um leitor precisa para reimplementar.
 
+**UM CONFLITO DE REGRA QUE EU DEVIA TER LEVANTADO ANTES, e que e decisao sua.** O
+`AGENT_GUARDRAILS.md` §7, linha da "Padding", diz: *"every section must earn its pages; the Viegas
+example is ~100 pages total — that is the calibration, not a target to exceed."* **O build ja esta em
+104 paginas**, quatro acima da calibragem, e a regra nao abre excecao para material nao-redundante. Somar
+~4 paginas levaria a ~108 — exatamente o Canesche, o mais longo dos cinco exemplares, e acima dos outros
+quatro (Germano 96, Viegas 100, Dorigueto 77, Passe 68).
+
+Nao me cabe reinterpretar a sua regra, entao registro a troca:
+
+- **Se voce mantem a calibragem como escrita:** os itens (1) e (2) somam **menos de meia pagina** e cabem
+  sem discussao. O (3) teria de encolher para uma pagina apertada, ou sair em troca de um corte
+  equivalente em outro lugar — a persona 17 ja indicou ~250 palavras cortaveis no Resumo.
+- **Se voce abre excecao:** o argumento a favor e que este e precisamente o material para o qual a
+  moldura de uma coletanea existe — o relato do autor sobre o proprio artefato, que nenhum capitulo
+  reproduzido tem permissao de fornecer.
+
+De qualquer forma, o gap nao fica sem resposta: (1) e (2) sozinhos respondem a pergunta de banca mais
+afiada e consertam o arco.
+
 > DECISAO (1, 2, 3 / so 1 e 2 / nenhum): __________________________________________________
 
 > **Duas coisas que preciso de voce antes de escrever qualquer uma:**
