@@ -33,6 +33,12 @@ L6); what is kept is that no unit was sampled and every verdict traces to a sour
    open-access from Springer, plus Standley 2020 fetched from arXiv for ITEM 3.
 3. **Screened every citing sentence** against the retrieved record and abstract. This screen is
    a triage instrument only; per AGENT_GUARDRAILS R5, AI output is not a source.
+   **Two evidence strings fed to that screen were defective, and both are recorded in section 11.**
+   For `wilcoxon1945` the string was JSTOR front-matter boilerplate rather than paper content, and
+   for `huang2023hgi` it was empty (my text slice looked for a spaced `A B S T R A C T` header that
+   the PDF does not use). Neither changed a verdict — the screen returned UNVERIFIABLE for all nine
+   affected sites, naming the missing evidence, and the manual pass then read the actual PDF for HGI
+   and closed Wilcoxon at record level — but the stored data was wrong and has been corrected.
 4. **Verified by hand every site the screen did not clear**, plus every site whose verdict
    depended on a detail an abstract cannot carry. 38 sites were adjudicated against the sources
    directly; 15 more were closed by reading a paper body or a repository document. Six of the
@@ -715,6 +721,19 @@ locations and temporal information as inputs, but an abstract cannot prove an ab
 ## 11 · What I could not confirm
 
 Stated plainly, since a smoothed-over gap is the defect this repository keeps catching.
+
+0. **Two of my own evidence strings were defective and I did not catch them until a review pass
+   pointed at one.** The `abstract` field I stored for `wilcoxon1945` held the JSTOR terms-of-use
+   notice, labelled as though it were paper content; the field for `huang2023hgi` was a single space,
+   because my extraction looked for a spaced `A B S T R A C T` header this PDF does not use. Both are
+   fixed in `_sor_snapshot.json`: HGI now carries 1,674 characters read from the paper, and Wilcoxon
+   carries an empty abstract with an explicit note that no abstract or body text is obtainable. I then
+   swept the whole snapshot for the same class: **zero** remaining boilerplate-contaminated abstracts,
+   and six entries with an honestly empty one (`Halder2021`, `capanema2023poirgnn`, `santos2024urban`,
+   `wang2025hamtl`, `wilcoxon1945`, `zeng2019next`). No verdict in this report rested on either bad
+   string: the screen returned UNVERIFIABLE at all nine affected sites and said why, and the manual
+   pass read the HGI paper directly. What this cost is not accuracy but a clean audit trail, and it is
+   the reason the screen's output is never presented here as a verdict.
 
 1. **The fan-out the task specified did not happen.** `host.delegate` is unavailable in this frame
    (root-only; this frame is a leaf). I ran all seven units myself. The per-chapter reports exist and

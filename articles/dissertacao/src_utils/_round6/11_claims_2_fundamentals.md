@@ -187,6 +187,14 @@ from it and no full text is reachable at any allowlisted source. The citation is
 pointer and the record (Crossref, Biometrics Bulletin 1(6):80-83, 1945) supports it at that level.
 Recorded as a limit of the check, not a finding.
 
+**A defect in my own handling of that entry, recorded.** An earlier pass of this audit stored that
+JSTOR boilerplate in the entry's `abstract` field, labelled as though it were paper content, and fed
+it to the screen. The screen returned UNVERIFIABLE for the site and named the boilerplate explicitly,
+so no verdict rested on the bad string, and the verdict above was set at record level. The stored
+field is now empty with a note that no abstract or body text is obtainable. I swept the whole snapshot
+for the same class afterwards and found no other contaminated abstract. See section 11 item 0 of
+`11_citation_claims.md`.
+
 ## 6 · What I could not confirm in this chapter
 
 Nothing outstanding. All 70 key instances are SUPPORTED. The two entries above are closed at the

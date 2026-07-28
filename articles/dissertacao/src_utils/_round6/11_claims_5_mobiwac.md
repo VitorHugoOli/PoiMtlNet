@@ -181,7 +181,17 @@ with Nash-MTL aggregating gradients (`articles/CBIC___MTL/sections/method.tex`).
 **`apx_b_errata.tex:220`** (in the appendices unit) is the same class of false positive in the other
 direction: an errata row cites the source that contradicts the text being corrected. Recorded there.
 
-## 7 · What I could not confirm in this chapter
+## 7 · One correction to my own evidence handling
+
+The eight `huang2023hgi` sites in this chapter and Chapters 2 and 4 were screened against an **empty**
+evidence string: my text slice of the local PDF looked for a spaced `A B S T R A C T` header that this
+paper does not use, so the field held one space. The screen correctly returned UNVERIFIABLE for all of
+them and said the abstract text was missing. The manual pass then read the paper itself (12 pages,
+ISPRS 196:134-145, in `science/articles/`) and closed all eight against its abstract and its section 3,
+which is where the quoted passages in this report come from. The stored field now carries 1,674
+characters read from the paper. Recorded because the trail matters even when the verdict does not change.
+
+## 8 · What I could not confirm in this chapter
 
 - `capanema2023poirgnn` and `wang2025hamtl` return no abstract at Crossref, OpenAlex or Semantic
   Scholar, and their Elsevier and Springer landing pages are outside the network allowlist. Both are
