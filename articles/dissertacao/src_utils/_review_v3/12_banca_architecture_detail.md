@@ -511,8 +511,13 @@ chapters describe the same configuration.
 
 **Where:** Chapter 3 is *published* text, so this is an errata-regime item, not a free edit.
 `NORTH_STAR.md` §5.7 sets the policy: fixes applied in the re-typeset chapter, listed once in
-Appendix B. A specification value that the published paper left unbound is squarely within the
-existing pattern (`tables/cbic/errata.tex` already carries content corrections of this class).
+Appendix B. **There is an exact precedent already in the table** — `tables/cbic/errata.tex` carries
+a row reading "Unfilled dataset placeholders ($N_{\text{users}}$, $N_{\text{poi}}$,
+$N_{\text{checkins}}$) in the results section", corrected by filling them with the figures of
+record. That is the same class of defect: a published paper left a symbol unbound, and the
+dissertation binds it and declares the binding. R3 is an eighth row in a table that already has
+seven (counted from `tables/cbic/errata.tex` this session).
+
 Alternatively, and even cheaper: leave Chapter 3 untouched and bind both symbols **once in Chapter
 2's lineage discussion**, which is frame text with no errata cost at all.
 

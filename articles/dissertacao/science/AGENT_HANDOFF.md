@@ -132,6 +132,24 @@ relative to the source directory, so they shadowed `build/` and fed it a pre-ren
 That is what produced the four `(??)` citations. They are now gitignored with the reason recorded.
 **Never commit `.aux`, `.bbl`, `.blg`, `.log`, `.toc`, `.lof` or `.lot` at `src/`.**
 
+### 2.4b An artifact saved from a stale workspace copy (TWICE)
+
+The workspace and the repository are different directories. A deliverable is written in the repo, then
+copied to the workspace, then saved as an artifact from there. Twice the copy silently did not happen:
+a `cd` earlier in the same shell cell had moved the working directory, so a `cp <repo file> .` landed
+somewhere else, and the save promoted the PREVIOUS workspace file.
+
+**This failure is invisible at save time.** The artifact store deduplicates identical content, so the
+save echoes the old version's size and checksum and reports success. The second occurrence shipped a
+register artifact that did not contain the section the accompanying message promised.
+
+- **Gate:** `src_utils/sync_deliverables.py --workspace <abs path>` copies with absolute paths on both
+  sides, re-reads both files, compares sha256, and fails on mismatch. `--require FILE='substring'`
+  additionally asserts the new content is present in the copy, which is the check that catches this
+  class. Validated both ways: exits 1 on a stale copy, 0 when correct.
+- **The rule:** never `cd` and `cp` in the same cell when the destination is relative. Use absolute
+  paths for both sides, and verify by checksum rather than by the copy command's silence.
+
 ### 2.5 Build tooling living only in `/tmp`
 
 The build script lived in `/tmp` for a whole session and was swept mid-session, which silently turned
@@ -239,6 +257,7 @@ saying so with evidence is part of the job.
 cd articles/dissertacao
 ./src_utils/build.sh src both      # defense + final; reports pages, overfull, undefined, oversized floats
 cp src/build/main.pdf src/dissertacao.pdf
+python3 src_utils/sync_deliverables.py --workspace <abs>   # before ANY save_artifacts
 ./src_utils/check.sh               # sweep-guard tests, page-count sync, trapped-prose fixtures,
                                    # torn-sentence check, style lint
 python3 src_utils/sync_page_counts.py --write   # if the page count moved
