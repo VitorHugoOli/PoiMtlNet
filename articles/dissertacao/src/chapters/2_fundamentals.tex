@@ -598,10 +598,21 @@ spans a split: a grouped, stratified splitter keeps all of a user's check-ins on
 side of every fold, so that measured accuracy reflects generalization to new users
 rather than memorization of familiar ones \cite{pedregosa2011sklearn}. That protocol is
 the one Chapter~\ref{ch:mobiwac} uses, and it strengthened from one study to the next:
-Chapter~\ref{ch:cbic} reports five-fold cross-validation without identifying the split
-axis, Chapter~\ref{ch:courb} states that its split is stratified by sample rather than by
-user, so that the check-ins of one user may appear in both training and validation, and
-only Chapter~\ref{ch:mobiwac} splits by user. The statistical treatment is scoped the
+Chapters~\ref{ch:cbic} and~\ref{ch:courb} both stratify by sample rather than by user, so
+that the check-ins of one user may appear in both training and validation, and only
+Chapter~\ref{ch:mobiwac} splits by user.
+% [round6, N-2, fact gate persona 06/07] REPAIRED. This clause used to read "Chapter 3 reports
+% five-fold cross-validation without identifying the split axis", which was true of the PUBLISHED
+% paper and became FALSE earlier the same day: the COD-007 addition at 3_cbic/results.tex now states
+% "The folds are formed by a stratified splitter over the samples rather than over the users". The
+% frame was asserting an absence the chapter it describes no longer has. The protocol-recovery pass
+% predicted this exact contradiction in writing before it happened; the repair was drafted, and then
+% not applied because the two files sat in different tracks' remits. Recorded because a predicted,
+% drafted, unapplied repair is a process failure, not a writing one.
+% The paragraph's point is unchanged and now rests on the two facts that carry it: both published
+% studies split by sample, only Ch.5 splits by user. The split axis of Ch.3 is now stated in Ch.3,
+% so the frame does not need to characterize its absence.
+The statistical treatment is scoped the
 same way: Chapters~\ref{ch:cbic} and~\ref{ch:courb} report fold means and standard
 deviations and run no significance test, so the tests set out below license verbs in
 Chapter~\ref{ch:mobiwac} alone. Comparisons there are made across the folds and
