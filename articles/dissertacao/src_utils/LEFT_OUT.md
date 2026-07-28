@@ -121,22 +121,44 @@ and costs the reader a page turn. The presentation cost was judged higher than t
 
 ---
 
-## LO-6 · The Chapter 4 architecture figure's own label size
+## LO-6 · The label size of BOTH published architecture rasters (Ch.3 and Ch.4)
 
-**Finding.** The CoUrb architecture figure's labels print at about 5.37 pt, roughly **45 percent** of
-body size. That is *smaller* than the two Chapter 5 diagrams the audit flagged under COD-017.
+**Finding.** The two raster architecture figures carried over from the published papers print their
+labels at roughly **45 percent of body size**, and they are the two smallest in the document:
 
-**What the text has instead.** The figure at its published label size, with the six Portuguese labels
-translated and nothing else changed.
+| Figure | File | Raster | Estimated label type | Percent of 11.96 pt body |
+|---|---|---|---:|---:|
+| Ch.3, MTLnet architecture | `figures/cbic_mtlnet_arch.png` | 1200 x 336 | 5.42 pt | **45.3** |
+| Ch.4, ST-MTLNet architecture | `figures/courb/arquitetura_modelo.png` | 1102 x 348 | 5.31 pt | **44.4** |
+| Ch.5, `fig2_model` (rescaled this round) | `figures/mobiwac/fig2_model.pdf` | vector | 11.15 pt | 93.2 |
+| Ch.5, `fig1_dataflow` (rescaled this round) | `figures/mobiwac/fig1_dataflow.pdf` | vector | 7.93 pt | 66.3 |
 
-**Why it is out.** The sanctioned change to a published, co-authored figure was the *language* of six
-labels. Raising the type size is a presentation change to someone else's published artifact and was
-not authorized.
+**So the two figures the audit tracked under COD-017 are the two LARGEST of the four.** The two it did
+not track are half body size. Measured independently twice: the visual persona reported 44.2 percent
+for the Ch.3 figure from raster cap-ink at threshold 100, and a separate measurement here on modal
+glyph height gave 45.3 percent. Both instruments agree the figure is at about 45 percent; neither
+number is a font size the file declares, because a raster declares none.
 
-**Where the full finding lives.** `src_utils/_round6/12_figures.md`, with the fix recipe (raise the
-drawio `fontSize` from 13 to about 20 and re-export at the same pixel width).
+The Ch.3 figure is **byte-identical** to `articles/CBIC___MTL/imgs/mtlnet_poi.drawio.png` (sha256
+matches, 1200 x 336 both), so it is the published artifact exactly as published.
 
-**Decided by.** Deferred, not declined. **Open for the author.**
+**What the text has instead.** Both figures at their published label size. The Ch.4 one carries this
+round's six Portuguese-to-English label translations and nothing else; the Ch.3 one is untouched.
+
+**Why it is out.** The sanctioned change to a published figure was the *language* of six labels in one
+of them. Raising type size is a presentation change to a published artifact, and for Chapter 4 to a
+co-authored one. Neither was authorized. A `.drawio` source exists for both
+(`articles/CBIC___MTL/imgs/mtlnet_poi_{horizontal,vertical}.drawio` and the CoUrb source), so the fix
+is available and cheap: raise `fontSize` from 13 to about 20 and re-export at the same pixel width.
+What is missing is the decision, not the capability.
+
+**Where the full finding lives.** `src_utils/_round6/12_figures.md` for the Ch.4 figure and the fix
+recipe; `src_utils/_round6/18_visual_ufv_latex.md` finding V-1 for the Ch.3 figure and the
+measurement method.
+
+**Decided by.** Deferred, not declined. **Open for the author, and now covering both figures** --
+this entry originally recorded only Chapter 4, which left the smaller of the two unregistered.
+Extended 2026-07-28 after the visual pass measured it.
 
 ---
 

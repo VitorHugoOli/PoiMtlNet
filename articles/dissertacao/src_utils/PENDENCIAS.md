@@ -1,704 +1,260 @@
 # PENDENCIAS.md — o que depende de voce
 
-> **Registro de pendencias da dissertacao (v2, 2026-07-26).** Cada item aqui esta bloqueado em um
-> fato externo, uma decisao sua, ou uma aprovacao do orientador/Comissao. Nada aqui pode ser
-> resolvido por um agente, e nenhum foi resolvido sozinho.
+> **Registro de pendencias da dissertacao (v3, 2026-07-28).** Cada item aqui esta bloqueado em um
+> fato externo, em uma decisao sua, ou em uma aprovacao do orientador/Comissao. **Nada aqui pode ser
+> resolvido por um agente, e nenhum foi resolvido sozinho.**
 >
-> A rodada de correcoes de 2026-07-26 fechou 26 dos 39 achados da revisao. O que sobrou esta
-> abaixo. Auditoria completa: [
-`_archive/reviews_v1/dissertation_review_v2.md`](_archive/reviews_v1/dissertation_review_v2.md).
+> Formato de cada item: **(A) o que falta**, **(B) por que importa**, **(C) o que eu preciso de voce**.
+> Onde ja existe texto pronto ou medicao feita, o caminho esta indicado.
 >
-> Formato de cada item: **(A) o que falta**, **(B) por que importa**, **(C) o que eu preciso de
-> voce**. Onde ja existe texto pronto ou pesquisa feita, o caminho esta indicado.
+> **Estado do build agora** (medido em `29c7629c`, os tres alvos reconstruidos):
 >
-> **Estado do build agora:** defesa 96 pp, final 91 pp, 0 caixas estouradas, 0 citacoes indefinidas,
-> 0 referencias indefinidas, 0 erros de BibTeX, lint exit 0.
-
----
-
-## Estado apos a rodada de 2026-07-27
-
-**Build:** defesa 108 pp, final 105 pp, 0 caixas estouradas, 0 citacoes/referencias indefinidas, 0 erros de BibTeX, lint
-0, 10/10 fixtures do detector de prosa presa.
-
-**O que rodou nesta rodada, e o que cada um achou:**
-
-| Revisor                    | Estado antes                        | Veredicto                                                                                    |
-|----------------------------|-------------------------------------|----------------------------------------------------------------------------------------------|
-| Persona 15 (leitura)       | 1 dia desatualizado                 | Confirma que o Apendice D reescrito **se sustenta sozinho**; 3 costuras, todas aplicadas     |
-| Persona 16 (credibilidade) | **nunca tinha rodado nesta versao** | Risco humano BAIXO; 2 BLOCKERs nos meus proprios textos, os dois corrigidos                  |
-| Fact gate (G2)             | v2, build antigo                    | **GATE FAIL** em um numero (o 22,4 por cento); corrigido. 4 MAJOR + 3 MINOR, todos aplicados |
-| Banca (persona 12)         | v2, build antigo                    | **APROVADO COM CORRECOES MENORES**, com 2 obrigatorias, as duas fechadas                     |
-
-**Sobre a sua pergunta dos guardrails:** as regras mecanicas foram respeitadas nesta rodada. Auditei 1.725 palavras de
-prosa nova contra o `WRITING_LAW §4`: zero termos banidos, zero travessoes, zero contracoes, zero termos fora do
-registro. Mas isso nao pegava a sua reclamacao real. O Apendice D tinha as **frases mais curtas do documento**; o
-problema era colisao de conceitos e dependencia externa, nao tamanho de frase. Foi por isso que medi antes de
-reescrever.
-
-**O defeito que mais se repetiu, e o que fiz sobre ele:** prosa engolida por comentario LaTeX, agora **dez** ocorrencias
-no historico do documento. Tres foram encontradas pelo codex nesta rodada, duas pela persona 16 e pela banca, e **duas
-foram pegas pela ferramenta** enquanto eu editava, que e a primeira vez que a maquina pega antes do revisor. O detector
-foi reescrito em volta do teste que importa (o texto aparece no PDF ou nao), tem 10 fixtures no repositorio, e o
-`check.sh` roda os fixtures **antes** de confiar no detector.
-
----
-
-> **Itens ja encerrados** sairam deste arquivo em 2026-07-27 e vivem em
-> [`_archive/PENDENCIAS_RESOLVIDOS.md`](_archive/PENDENCIAS_RESOLVIDOS.md), com decisao e commit de cada um.
-
-## BLOCO 0 — a revisao do codex: auditada, e o que sobrou para voce
-
-Voce pediu para auditar antes de agir. Feito, achado por achado, contra a fonte. O documento
-`codex_reviewer.md` agora carrega um **AUDIT VERDICT** em cada achado, e as evidencias estao em
-[`CODEX_AUDIT.md`](CODEX_AUDIT.md) e [`CODEX_VS_PERSONAS.md`](CODEX_VS_PERSONAS.md).
-
-**Contagem:** 5 RESOLVIDOS, 1 REFUTADO como enunciado, 1 CONFIRMADO e corrigido, o resto PARCIAL com o residuo vivo
-nomeado caso a caso. **Quatro alegacoes nao se sustentam** na evidencia, entre elas uma exigencia de citacao que
-contraria uma decisao sua ja registrada, e uma atribuicao de capitulo que le uma frase do apendice do MobiWac como se
-fosse do Cap. 4.
-
-**Um fato estrutural que governa a leitura:** o codex leu um par de 97/92 paginas. O que esta em disco e **108/105**.
-Todos os `file:line` dele deslizaram; a auditoria re-ancorou cada um pelo conteudo. Os achados sobrevivem, as
-coordenadas nao.
-
-**Os quatro achados de maior valor nao foram pegos por nenhum outro revisor**, e os quatro estao corrigidos: a contagem
-errada do controle de capacidade (tres bracos de vinte, sessenta ajustes, e 56,16 e uma media e nao um maximo), o artigo
-errado do Mikolov para negative sampling, uma frase do Cap. 5 que reafirmava uma atribuicao que o proprio capitulo
-recusa, e uma frase do Cap. 3 que descreve uma feature de no que o codigo liberado nao constroi. Nove personas, o fact
-gate e o simulador de banca passaram por todos os quatro sem ver.
-
-### 0.2 Dois itens das personas 15 e 16 que dependem de voce
-
-Os dois BLOCKERs delas foram corrigidos. Sobram dois pontos que sao decisao sua:
-
-1. **A linha de divulgacao de IA no front matter** (persona 16, o achado de maior valor dela, aberto desde a v1). O
-   Apendice C esta na p. 97 do build de defesa, e a persona argumenta que uma linha curta no front matter, antes do
-   corpo, muda como um examinador desconfiado le o documento inteiro:
-   ele encontra a divulgacao antes de formar suspeita, e nao depois. Nao escrevi nada: e uma frase em seu nome sobre o
-   seu proprio processo.
-
-2. **O `\label{apx:ethics}` orfao** (persona 15). O Apendice E tem label e nada o referencia. E inofensivo hoje, mas se
-   voce quiser que algum capitulo aponte para a etica (o Cap. 1 seria o lugar natural, junto da descricao dos dados), me
-   diga onde e eu insiro a referencia.
-
-> DECISAO: 1. No `Contents` ele já está presente, mas de qualquer forma estamos seguindo as diretrizes do manual da UFV,
-> acredito que manter neese formato sejá o melhor, se algum revisor achar pertinente ele mandara eu mudar.; 2. Gostei da
-> ideia de referenciarmos de forma rapida no Cap. 1.
-
----
-
-### 0.1 O que do codex ainda depende de voce
-
-| Item    | O que falta                                                                                                                                                                    |
-|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| COD-002 | A tarefa estatica do Cap. 4: o determinismo esta medido e confirmado, mas a **divulgacao** ainda nao existe no texto, e escrever isso exige aviso ao co-autor (ja no item 2.2) |
-| COD-003 | O teste nao-linear de aresta futura na linhagem exata entregue. O texto **nao** exagera (isso foi refutado), mas o teste em si e uma decisao de compute sua (item 3.4)         |
-| COD-005 | Nash-MTL: voce ja decidiu sobre o PCGrad. Sobra a alegacao de custo, ja declarada no Apendice B como preservada deliberadamente (item 1b.3)                                    |
-| COD-006 | "before any result was read" e "well powered": os dois excedem o desenho. Correcao de uma frase cada, mas em texto de moldura que voce assina                                  |
-| COD-007 | Os registros de protocolo que faltam no Cap. 3. Sao registros historicos que so voce sabe se existem                                                                           |
-| COD-013 | O Apendice C diz que voce leu e aprovou cada palavra. 32 marcadores abertos (item 3.1)                                                                                         |
-| COD-016 | O passe de linguagem: a frase de 114 palavras do resumo e o bloco de 546 palavras da integridade. Voce ja pediu para adiar (item 3.3)                                          |
-| COD-017 | O float grande do Apendice B e os rotulos de 6,97 pt nos diagramas: bloqueado na arte-fonte (item 3.2)                                                                         |
-| NUM-4   | O `[VERIFY]` do 0,74 -> 0,82 do HGI: a fonte da 0,7388 +- 0,0205 -> 0,8186 +- 0,0123 em 5 folds x 50 epocas, e a prosa nao diz a convencao                                     |
-
----
-
-## BLOCO 0e — o veredito da persona 03: **GATE FAIL**, e o que ela achou sobre o ponto do orientador
-
-Relatorio: [`_review_v3/03_style_auditor_report.md`](_review_v3/03_style_auditor_report.md). Ela aplicou o glossario do
-MobiWac linha por linha: **24 das 26 regras passam.** As duas violacoes
-`never` eram as de "cell" nas nossas proprias alegacoes, **ja corrigidas** (`7eec1766`).
-
-**A distincao que voce intuiu esta confirmada por medicao:** todos os nove usos de "activity" no documento descrevem
-alvos de **outros** sistemas (MCARNN, CSLSL, DRRGNN, iMTL, MTPR) e **zero**
-descrevem as nossas tarefas; os tres usos de "Pareto" nomeiam a propriedade do MGDA. `arm` esta em zero.
-
-### O ponto do orientador, localizado em dois capitulos por dois motivos diferentes
-
-Ela operacionalizou *"soa estranho o jeito que alguns termos sao inseridos"* em cinco testes mediveis, e o resultado nao
-e difuso — **localiza**:
-
-**Cap. 2 — nomes de metodo que aparecem uma vez e nunca mais.** Ele introduz **14 dos 25** nomes use-once do documento,
-com **nove balanceadores em vinte e uma linhas** (`:315-335`), dos quais **so o Nash-MTL volta a ser usado**. Um leitor
-recebe nove nomes proprios em sequencia e nao precisa de nenhum depois.
-
-**Cap. 5 — empilhamento de glosas.** Carrega **todas as seis** do documento; a pior em `:409` (tres definicoes
-parenteticas e quatro numeros numa frase) e `:206-211` (uma parentese de 40 palavras dentro de uma alegacao).
-
-### ~~`seed` usado quatro capitulos antes de ser definido~~ — CORRIGIDO
-
-Definido em `5_mobiwac.tex:388` (p. 66), mas a **primeira** aparicao era `1_introduction.tex:243`
-(**p. 16**) — cinquenta paginas de dependencia para frente, num capitulo de moldura onde o
-`WRITING_LAW` vale integralmente. Adicionei a glosa com a redacao do proprio registro; a definicao do Cap. 5 fica
-intacta e continua canonica. O Resumo e o Abstract ja cumpriam, escrevendo "random initializations".
-
-### Cap. 4 italiciza ingles corriqueiro **155 vezes** — e uma decisao sua, nao 155
-
-`\textit`/`\emph` por capitulo: Ch.1 6, Ch.2 6, Ch.3 23, **Ch.4 155**, Ch.5 10, Ch.6 0, Apx B 12. Nao e terminologia em
-primeiro uso, e vocabulario corrente: `embedding` x18, `baseline` x16,
-`encoders` x15, `encoder` x14, `embeddings` x12. **E inconsistente consigo mesmo:** `encoder` italico 14 / romano 9,
-`baseline` italico 16 / romano 4 — e num **unico paragrafo da p. 43** aparecem
-"encoders" romano e "*encoder*" italico a 336 caracteres de distancia.
-
-**A causa e legitima e a consequencia nao:** isso vem do artigo em portugues, onde italicizar estrangeirismo e a pratica
-correta. Num capitulo **em ingles** a mesma marcacao nao marca mais estrangeirismo — le-se como enfase numa palavra que
-nao tem nenhuma. **E um candidato forte para o que o seu orientador marcou.**
-
-Nao toquei porque e uma decisao de politica sua, e e **uma** decisao:
-
-- **(a)** tirar o italico de tudo que e ingles corriqueiro num capitulo em ingles, mantendo so os sete rotulos de
-  categoria (`Food`, `Nightlife`...) e os nomes de metodo em primeiro uso;
-- **(b)** manter como esta, declarando no prefacio do Cap. 4 que a tipografia do artigo publicado foi preservada — o que
-  e defensavel sob o regime de errata, mas deixa a inconsistencia interna de pe;
-- **(c)** normalizar so os casos que aparecem nos dois formatos, o que resolve a inconsistencia sem mexer no resto.
-
-Minha recomendacao e **(a)**, e o Apendice B declara como mudanca mecanica. Mas a nota de fidelidade de traducao
-(`08_translation_fidelity_report.md:443`) registra que o italico em `embedding` foi **preservado deliberadamente**,
-entao isto e revisitar uma decisao com motivo, nao consertar um descuido.
-
-> DECISAO (a / b / c): Vamos de A.
-
----
-
-## BLOCO 0d — persona 17 sobre o Resumo e o Abstract (voce pediu esta avaliacao)
-
-**Voce perguntou se rodei a revisao do par contra os exemplares e as boas praticas. Rodei agora.**
-Parecer completo em [`_review_v3/17_resumo_abstract_assessment.md`](_review_v3/17_resumo_abstract_assessment.md).
-
-**Veredito dela:** *abaixo* do padrao dos exemplares como estava renderizado, *acima* em substancia — e os dois BLOCKERs
-que produziam esse "abaixo" eram os meus quatro trechos rasgados, ja corrigidos.
-
-**A medicao que responde a sua pergunta**, todos os dez textos extraidos dos PDFs e normalizados igual:
-
-| Texto              |  Palavras |  Frases |       Media | Mais longa | Fatos quantitativos |
-|--------------------|----------:|--------:|------------:|-----------:|--------------------:|
-| **nosso Resumo**   |   **484** |      10 |    **48,4** |    **111** |              **21** |
-| **nosso Abstract** |   **407** |      10 |    **40,7** |     **99** |              **20** |
-| Germano 2024       |       214 |      10 |        21,4 |         29 |                   0 |
-| Viegas 2026        |       200 |       8 |        25,0 |         33 |                   3 |
-| Canesche 2021      | 257 / 243 | 11 / 12 | 23,4 / 20,2 |    36 / 33 |                   5 |
-| Passe 2020         | 229 / 193 | 10 / 10 | 22,9 / 19,3 |    35 / 36 |                   1 |
-| Dorigueto 2021     | 282 / 225 |   8 / 6 | 35,2 / 37,5 |    68 / 61 |                   3 |
-
-**Envelope dos exemplares:** 193 a 282 palavras (mediana 227). O nosso Resumo e **2,1x a mediana**, e a frase mais longa
-dele (111 palavras) e **1,6x** a maior frase de qualquer um dos dez textos. Nenhuma norma e violada — nao ha limite de
-palavras. E comparacao com os pares, e nesse eixo somos o ponto fora.
-
-**Um ponto a nosso favor que ela achou:** Viegas e Germano — justamente os dois precedentes mais proximos — **nao
-renderizam Resumo**, so Abstract. O nosso par bilingue esta acima deles nesse aspecto.
-
-**Ja corrigi um achado MAJOR dela, porque era lei quebrada e nao gosto:** o par dizia "proximo lugar visitado" / "next
-place visited", e **next place** e termo RESERVADO no `GLOSSARY.md` para a tarefa de POI exato que a dissertacao nao
-estuda. A colisao caia na p. 3, muito antes do desmentido do corpo chegar ao leitor na p. 14. Trocado pela frase que o
-proprio corpo usa ("proximo lugar a ser visitado" / "next visited place"): mesmo sentido, zero alegacao movida.
-
-**O que sobrou para voce decidir**, e agora com numero em maos:
-
-1. **Cortar mais ~250 palavras do Resumo** para entrar no envelope dos exemplares. Isso mexe em alegacao, entao e seu. A
-   persona aponta onde: o protocolo estatistico completo no abstract (MAJOR-4, "surplus")
-   e a frase de 111 palavras.
-2. **MAJOR-3, o que falta:** ela diz que o par **nunca nomeia o que a dissertacao construiu**. Um leitor que le so o
-   resumo nao sai sabendo o nome do artefato.
-3. **MAJOR-1:** `joint-best` aparece **so** no Resumo e no Abstract e em nenhum outro lugar do documento — uma insercao
-   que nao se paga, exatamente o tipo de coisa que o seu orientador apontou.
-4. **MINOR-1:** o Resumo italiciza tres termos ingleses e o Abstract um so; num par de paridade a convencao devia ser a
-   mesma.
-
-> DECISAO: Vamos seguir com esses pontos de melhorias e ser bem critico e meticuloso quanto as mudanças e ao final rodar
-> alguns agent de review só para o resumo e abstract. Foque na excelencia e na consistencia.
-
----
-
-## BLOCO 0c — o que a persona 03 achou, e uma correcao minha grave
-
-### Quatro frases rasgadas no Resumo e no Abstract — **CORRIGIDO**, e eu havia relatado errado
-
-A persona 03 achou, eu confirmei no PDF antes de agir. **Ao comprimir o par na rodada passada, eu apaguei a clausula de
-abertura de quatro frases**, simetricamente nos dois idiomas. Renderizava assim nas p. 3 e 4:
-
-> "... por meio de aprendizado multitarefa (MTL). **entre tarefas pode prejudicar uma delas** ..."
-> "... Acc@10 (TOST), nos outros dois. **condicional, e a condicao e o achado** ..."
-
-Restaurado **literalmente do git**, nao reconstruido. As quatro verificadas renderizando.
-
-**E o ponto mais grave que o erro em si: eu relatei a pagina quase-branca como fechada por compressao.** Ela fechou **em
-parte porque faltava texto**, nao so porque o texto estava mais enxuto.
-
-Os numeros, medidos e nao estimados (uma auditoria pegou que eu havia **trocado os dois** na primeira versao desta
-nota):
-
-| Estagio                                            | Resumo | Abstract |
-|----------------------------------------------------|-------:|---------:|
-| antes da minha compressao                          |    565 |      485 |
-| depois (com as clausulas apagadas sem eu perceber) |    529 |      452 |
-| clausulas restauradas                              |    542 |      466 |
-
-- **compressao genuina de glosa: 23 palavras (PT) / 19 (EN)** — 565 para 542, e 485 para 466;
-- **clausulas apagadas por acidente: 13 (PT) / 14 (EN)** — o que a restauracao devolveu.
-
-Eu havia escrito "a compressao real foi de ~13 palavras, as outras ~30 eram clausulas apagadas". Esta **invertido**: 13
-e o total apagado, nao o comprimido, e "~30" nao fecha com nenhum agrupamento (o apagado somando os dois idiomas da 27).
-A conclusao qualitativa sobrevive — parte do fechamento da pagina veio de texto ausente — mas o registro durvel
-subestimava a compressao real pela metade e exagerava o acidente em mais de duas vezes. O documento voltou a **104 pp**,
-que e o estado honesto.
-
-A paridade de alegacao tambem quebrou nos mesmos dois lugares, ou seja, o dano era simetrico e nenhum idioma podia
-denunciar o outro.
-
-**Nenhum gate pegou porque e uma classe nova:** o detector de prosa presa procura texto preso depois do ultimo `%`; aqui
-nao ha nada preso, a clausula simplesmente nao existe, e o build fica limpo. A persona 03 achou porque leu o front
-matter **como prosa renderizada**, nao como fonte. Novo gate:
-`src_utils/check_torn_sentences.py`, com a regra que ela propos, validado nos dois sentidos.
-
-> **Sobre a p. 4 quase em branco:** ela voltou. Fechar de verdade exige cortar ~60 palavras do Resumo
-> com o Abstract em paridade, que e a rota (i) e continua sendo sua. A persona 17 esta avaliando o par
-> contra os exemplares; vale decidir com o parecer dela em maos.
-
-> DECISAO: No review acima ei decidir por cotar e refazer boa parte do abstract/resumo.
-
----
-
-## BLOCO 0f — a sua pergunta: falta definir em detalhe o Check2HGI e o MTLnet?
-
-**Sua pergunta:** *"em nenhum momento do mobiwac ou de outro artigos nos definimos em detalhes como e o check2hgi ou ate
-mesmo o MTLnet, falamos da arquitetura ou mostramos codigo, sera que isso e algo que falta?"*
-
-Medi antes de opinar, e rodei a persona 12 (banca) so nisso. Parecer completo em
-[`_review_v3/12_banca_architecture_detail.md`](_review_v3/12_banca_architecture_detail.md).
-
-### A parte da sua intuicao que a medicao **confirma**
-
-O documento inteiro, 104 paginas, tem **sete equacoes**, **zero ambientes de algoritmo** e sete figuras. Por capitulo:
-Cap. 3 duas, Cap. 4 quatro, **Cap. 5 uma** (a perda 0,75/0,25). Caps. 1, 2, 6 e os cinco apendices: nenhuma.
-
-Contra os exemplares, estamos na ponta baixa nos dois eixos:
-
-| Dissertacao                          |     pp. | equacoes numeradas | algoritmos | figuras |
-|--------------------------------------|--------:|-------------------:|-----------:|--------:|
-| Germano 2024 (mesmo orientador)      |      96 |             **35** |          0 |      11 |
-| Viegas 2026 (aprovada, mesmo padrao) |     100 |              3 + 1 |      **2** |      15 |
-| Canesche 2021                        |     108 |                  0 |          1 |      57 |
-| Passe 2020                           |      68 |                  1 |          0 |      33 |
-| Dorigueto                            |      77 |                  0 |          0 |      11 |
-| **nossa**                            | **104** |              **7** |      **0** |   **7** |
-
-### CORRECAO (2026-07-28): eu medi o MTLnet errado
-
-Voce esclareceu: o MTLnet a que voce se refere e a **arquitetura conjunta do MobiWac**, que voce chama assim porque e a
-**versao 2** do modelo do CoUrb — o modelo do CoUrb foi a base do atual. Eu medi o MTLnet do **Cap. 3** (CBIC). Refiz.
-
-**Confirmei sua nomenclatura no codigo antes de reescrever isto.** Nao e informal: em
-`src/models/mtl/` **todas** as variantes sao irmas da mesma familia `mtlnet_*`
-(`mtlnet_crossattn`, `mtlnet_crossattn_dualtower`, `mtlnet_ple`, `mtlnet_mmoe`, ...), e o modelo que produziu os
-resultados do MobiWac e `mtlnet_crossattn_dualtower` — que aparece **6 vezes** em
-`docs/results/closing_data/`, mais que qualquer outra variante. O docstring dele descreve exatamente o que o Cap. 5
-narra: torre privada para a regiao, pilha de cross-attention bidirecional, categoria usando so o tronco compartilhado.
-**O codigo chama de MTLnet, voce chama de MTLnet, e o texto nao.**
-
-A medicao corrigida, com cada modelo no seu lugar:
-
-| Componente                                         | Palavras | Equacoes | Figura |
-|----------------------------------------------------|---------:|---------:|-------:|
-| MTLnet v1, o modelo do CBIC (Cap. 3, §3.3.2)       |      469 |        1 |      1 |
-| ST-MTLNet, a metodologia do CoUrb (Cap. 4)         |     2027 |        4 |      1 |
-| **o modelo conjunto = MTLnet v2 (Cap. 5, §5.4.2)** |  **442** |    **1** |  **1** |
-| **Check2HGI, a representacao (Cap. 5, §5.4.1)**    |  **244** |    **0** |  **0** |
-
-**O que muda na conclusao, e o que nao muda.**
-
-O que **nao** muda: o Check2HGI segue sendo o ponto mais fino do documento — 244 palavras, zero equacoes, zero figura
-propria. A pergunta de banca que eu citei continua sendo a que eu abriria.
-
-O que **muda**: eu havia escrito "o MTLnet nao e o problema" apontando para as 469 palavras do Cap. 3. Isso estava fora
-de escopo. O modelo que **importa para a sua tese** — o conjunto, o resultado do documento — tem **442 palavras e uma
-equacao**, e essa equacao e a **perda** (0,75/0,25), nao a arquitetura. Ele descreve em prosa a cross-attention, os
-encoders privados, o caminho espacial privado e as contagens de parametros (4,2 M contra 1,1 M em Alabama), mas **nao
-formaliza nenhum deles**: nao ha equacao de atencao, nao ha as dimensoes por bloco, nao ha o numero de cabecas, e "duas
-blocos" e a unica informacao de profundidade.
-
-**E ha uma lacuna de continuidade que eu nao tinha visto.** O Cap. 5 diz que o Cap. 4 "manteve a arquitetura do MTLnet
-inalterada" (§5.2.1), e depois apresenta o modelo conjunto **sem dizer que ele descende dela**. Procurei: nenhuma frase
-em nenhum capitulo liga o modelo conjunto ao MTLnet/ST-MTLNet como ancestral. A tabela de linhagem (`tab:fund:lineage`)
-lista os seis em sequencia — DGI, HGI, MTLnet, ST-MTLNet, Check2HGI, "Joint model" — mas descreve o ultimo apenas como
-"Cross-attention model on Check2HGI", sem parentesco. **Para um leitor, o modelo conjunto aparece do nada no Cap. 5.**
-Isso enfraquece justamente o arco que a dissertacao vende: tres artigos, uma progressao. Se ele e a versao 2, o texto
-deveria dizer.
-
-### Sobre codigo: **nao falta, e nao adicione**
-
-Verifiquei os cinco exemplares e o `UFV_COMPLIANCE.md`. **Nenhum** exemplar tem apendice de codigo, e a norma **nao
-exige** nada disso. Nos ja temos tres links de codigo no texto (um deles fixado em branch para o Cap. 5) mais as fontes
-de dados. Nesse eixo estamos acima da pratica local. Apendice de codigo ou pseudocodigo seria over-correction.
-
-### ~~A duvida das ponderacoes da perda~~ — RESOLVIDA no codigo
-
-O parecer marcou `[VERIFY]`: o Cap. 5 diz "termos auxiliares com pesos **0,3 e 0,1**" e o explicador do repo diz **0,4 /
-0,3 / 0,3**. Fui ao codigo (`research/embeddings/check2hgi/check2hgi.py`):
-
-- `--alpha_c2p 0.4`, `--alpha_p2r 0.3`, `--alpha_r2c 0.3` (linhas 1001-1003) — os tres termos infomax, um por fronteira
-  da hierarquia;
-- `--mae-poi-lambda 0.3`, `--anchor-lambda 0.1` (linhas 477-478) — os dois auxiliares.
-
-**Nao ha contradicao: sao duas decomposicoes diferentes, as duas corretas.** O Cap. 5 esta certo, mas reporta **so
-metade** da perda — os auxiliares, nao os principais. E precisamente por nao haver equacao que isso nao da para conferir
-no documento.
-
-### O que eu recomendo, revisado depois da sua correcao
-
-A persona 12 propos ~4 paginas contando so o Check2HGI. Com o modelo conjunto no escopo correto, sao tres itens, todos
-aditivos, nenhum tocando resultado reproduzido:
-
-1. **Nomear a linhagem, em duas frases.** Se o modelo conjunto e a versao 2 do modelo do CoUrb, o texto precisa dizer.
-   Uma frase em §5.4.2 ("o modelo conjunto mantem os encoders por tarefa e o esqueleto do MTLnet do Cap. 4, substituindo
-   o compartilhamento duro por uma pilha de cross-attention") e uma coluna ou clausula na tabela de linhagem. **Custo:
-   duas frases.** E o item de maior retorno dos tres, porque e o que faz os tres artigos lerem como progressao em vez de
-   tres modelos soltos — e e exatamente o que a banca vai perguntar quando vir "MTLnet" no Cap. 3 e "the joint model" no
-   Cap. 5.
-2. **A equacao da perda do Check2HGI em §5.4.1** (~1/3 de pagina), como quarta adicao marcada do Cap. 5. Material pronto
-   em `docs/context/check2hgi_overview.tex:211-231`, em portugues.
-3. **Um apendice F** (~2 paginas) com os quatro niveis do Check2HGI e, agora tambem, a formalizacao do bloco de
-   cross-attention do modelo conjunto: dimensoes, numero de cabecas, profundidade. Hoje o texto diz "dois blocos" e nada
-   mais.
-
-**Eu recomendo os tres, nessa ordem.** O (1) e quase gratuito e conserta o arco; o (2) responde a pergunta que eu
-abriria; o (3) e o que um leitor precisa para reimplementar.
-
-**UM CONFLITO DE REGRA QUE EU DEVIA TER LEVANTADO ANTES, e que e decisao sua.** O
-`AGENT_GUARDRAILS.md` §7, linha da "Padding", diz: *"every section must earn its pages; the Viegas example is ~100 pages
-total — that is the calibration, not a target to exceed."* **O build ja esta em 104 paginas**, quatro acima da
-calibragem, e a regra nao abre excecao para material nao-redundante. Somar
-~4 paginas levaria a ~108 — exatamente o Canesche, o mais longo dos cinco exemplares, e acima dos outros quatro (Germano
-96, Viegas 100, Dorigueto 77, Passe 68).
-
-Nao me cabe reinterpretar a sua regra, entao registro a troca:
-
-- **Se voce mantem a calibragem como escrita:** os itens (1) e (2) somam **menos de meia pagina** e cabem sem discussao.
-  O (3) teria de encolher para uma pagina apertada, ou sair em troca de um corte equivalente em outro lugar — a persona
-  17 ja indicou ~250 palavras cortaveis no Resumo.
-- **Se voce abre excecao:** o argumento a favor e que este e precisamente o material para o qual a moldura de uma
-  coletanea existe — o relato do autor sobre o proprio artefato, que nenhum capitulo reproduzido tem permissao de
-  fornecer.
-
-De qualquer forma, o gap nao fica sem resposta: (1) e (2) sozinhos respondem a pergunta de banca mais afiada e consertam
-o arco.
-
-> DECISAO (1, 2, 3 / so 1 e 2 / nenhum): __________________________________________________
-
-> **Duas coisas que preciso de voce antes de escrever qualquer uma:**
+> | alvo | paginas | tex_errors | overfull hbox/vbox | undef cite/ref | bibtex | floats grandes | avisos Hfootnote |
+> |---|---:|---:|---:|---:|---:|---:|---:|
+> | `make defense` -> `main.pdf` | **108** | 0 | 0 / 0 | 0 / 0 | 0 | 0 | 0 |
+> | `make final` -> `main_final.pdf` | **105** | 0 | 0 / 0 | 0 / 0 | 0 | 0 | 0 |
+> | `make ppgc` -> `main_ppgc.pdf` | **109** | 0 | 0 / 0 | 0 / 0 | 0 | 0 | 0 |
 >
-> 1. **Qual e o nome oficial do modelo conjunto no texto?** Hoje ele e "the joint model" 18 vezes e nao
->    tem nome proprio. Se voce o chama de MTLnet v2, o `GLOSSARY.md` precisa da entrada, porque hoje
->    "MTLnet" no registro aponta so para o modelo do CBIC. Isso e decisao sua: dar nome proprio, ou
->    manter descritivo e so declarar o parentesco.
-> 2. **Confirme a variante.** Os resultados apontam `mtlnet_crossattn_dualtower`, e o docstring dele bate
->    com a prosa do Cap. 5. Mas existem sete variantes `mtlnet_crossattn*` no repo, uma delas
->    (`_dualtower_catpriv`) marcada como ablacao. Confirme que `_dualtower` e a de record antes de eu
->    escrever dimensoes ou profundidade — nao vou inferir arquitetura de nome de arquivo.
-
-## BLOCO 0b — o que o orientador levantou (2026-07-27)
-
-### ~~Notacao das citacoes: (N) -> [N]~~ — APLICADO 2026-07-27
-
-Palavras dele: *"sugiro mudar a notacao das citacoes tambem. Esta com (NUMERO) e na listagem esta com o numero sem [].
-Acho melhor usar o [NUMERO] e quando necessario, colocar o nome dos autores com et al."*
-
-**Medido antes de mexer:** 236 citacoes no formato `(N)` no texto, zero em `[N]`, e a listagem com o numero pelado
-(`1 SILVA, V. H. O. et al. ...`). Ele estava certo nas duas metades, e as duas metades tinham causas diferentes:
-
-| Onde        | Mecanismo                                                                    | Correcao                                             |
-|-------------|------------------------------------------------------------------------------|------------------------------------------------------|
-| no texto    | `abntex2cite` chama `\setcitebrackets`, que no estilo `num` usa `()`         | `\citebrackets{[}{]}` depois do pacote               |
-| na listagem | `\@biblabel` monta o rotulo via `\citenumstyle`, que imprime o numero pelado | `\@biblabel` redefinido dentro de `\AtBeginDocument` |
-
-**Resultado:** 334 citacoes `[N]` no texto e a listagem em `[1] SILVA, V. H. O. et al. ...`, as duas na mesma forma.
-Paginas inalteradas (103/99), zero referencias indefinidas. As duas ocorrencias residuais de `(N)` sao legitimas: um
-numero de volume de revista e uma referencia a "capitulo (4)".
-
-**Precedente, porque isso e escolha de estilo e nao norma:** o Viegas — o exemplar cujo padrao este documento segue —
-usa `[N]` (193 ocorrencias contra 15 de `(N)`); Germano, canesche, passe e lapsusvgi usam `(N)`. Ou seja, os dois
-formatos passaram no programa. A decisao e dele e esta aplicada.
-
-**A segunda metade do pedido dele ainda e sua:** *"quando necessario, colocar o nome dos autores com et al."* Isso e
-caso a caso — trocar `\cite{}` por `\citeonline{}` onde o autor deve aparecer no corpo da frase ("Silva et al. mostram
-que...") em vez de so o numero. Nao fiz em lote porque **muda o sujeito gramatical de cada frase afetada**, e escolher
-onde o autor merece destaque e julgamento seu. Diga quais passagens e eu aplico.
-
-> DECISAO (quais passagens levam `\citeonline`?): _______________________________________
-
-### 3.4 O jeito como os termos entram (o segundo ponto dele) — **revisao rodando**
-
-Palavras dele: *"so tome cuidado com o uso de IA e os termos menos comuns que sao usados... soa um pouco estranho o
-jeito que alguns termos sao inseridos (marquei alguns la)"*.
-
-**Voce perguntou se rodamos o revisor disso. A resposta honesta e: rodei agora, e havia um buraco real.** A persona
-**03 (style auditor)** e o gate G3, obrigatorio antes de cada entrega ao orientador. O relatorio v2 dela e de **26/07
-contra um build de 94 paginas** — o documento tem 103 hoje e levou umas trinta commits desde entao.
-
-**Pior, e este e o ponto que voce levantou sobre o glossario do MobiWac:** o brief dela, na linha 27, manda ler
-`articles/[mobiwac]/GLOSSARY.md` e diz que **ele vence para o Cap. 5**. O relatorio v2 tem **zero** referencias a esse
-arquivo. Aquele glossario tem 393 linhas, com uma tabela de 26 linhas de substituicao de jargao e uma secao de palavras
-a evitar. **Nao foi aplicado.**
-
-**Uma violacao eu ja achei e corrigi:** a palavra **"arm"** esta na lista never-use dele ("clinical-trial word, foreign
-to this audience") e **eu mesmo a inseri** na frase de limitacoes do Cap. 5 nesta rodada. Corrigida para "both models" /
-"the dedicated model" nos **dois** textos, porque o meu port tinha levado a violacao para o artigo tambem.
-
-A persona 03 esta rodando agora com o glossario do MobiWac como carga explicita, mais o pedido dele operacionalizado em
-cinco testes mediveis (termo usado antes de ser definido; definido duas vezes; glosa em registro que briga com a frase;
-termo usado uma unica vez no documento; empilhamento de glosas apositivas). Resultado em
-`_review_v3/03_style_auditor_report.md`.
-
-> **Falta voce:** ele disse *"marquei alguns la"*. Onde estao as marcacoes? Num PDF comentado, num
-> e-mail, no Word? Com a lista dele em maos eu cruzo com o que a persona achou e trato os dois.
-
-> DECISAO / ONDE ESTAO AS MARCACOES: ____________________________________________
+> `make check`: **exit 0**. Pela primeira vez nesta rodada. Ver o item fechado C-6 abaixo: durante
+> toda a rodada o gate saiu com codigo 2 enquanto seis mensagens de commit, minhas inclusive,
+> afirmavam "all gates pass".
 
 ---
 
-## BLOCO 1 — bloqueiam a entrega, nao a ciencia
+## Como ler este arquivo
 
-### 1.1 Banca, data, capa e folha de aprovacao (REV-023)
+Ele tem tres partes e apenas a segunda exige algo de voce:
 
-**(A)** `0_main.tex:122-124` tem tres placeholders entre colchetes (membros da banca e data). O build de defesa comeca
-na folha de rosto: nao ha capa (`\imprimircapa` existe no `.sty` mas nunca e chamado), `\campus{}` nunca e setado, e nao
-ha ficha catalografica. A folha de aprovacao e um placeholder literal.
+1. **§1 Fechado nesta rodada** — o que entrou, com o commit. Nada a fazer; esta aqui para voce
+   auditar.
+2. **§2 Aberto e bloqueado em voce** — decisoes, aprovacoes e um push de repositorio. **Esta e a
+   sua fila.**
+3. **§3 Aberto e bloqueado em terceiros** — orientador, Comissao, revisores do MobiWac. Fora do seu
+   controle e do meu.
 
-**(B)** Um documento cientificamente correto nao pode ser depositado com front matter incompleto. Isso independe de tudo
-o mais nesta lista.
-
-**(C)** Preciso de: nomes e afiliacoes dos membros da banca, a data marcada da defesa, e a decisao sobre a capa. Sobre a
-folha de aprovacao, a decisao 3.9 do doc anterior continua valendo e a minha recomendacao nao mudou: manter o
-placeholder honesto, que e o que o precedente do Germano de fato faz (ele deixou o `\includepdf` do modelo COMENTADO).
-
-**Ja feito nesta rodada:** a macro `\imprimirfolhadeaprovacao` no `abntex2-UFV.sty` tinha o nome de **outro aluno**
-(`Gabriel Vita Silva Franco`) hardcoded. Estava inofensivo porque a macro nao e chamada, mas quem trocasse o placeholder
-pela macro imprimiria o autor errado na folha de assinaturas. Corrigido para usar `\imprimirautor`.
-
-> DECISAO / DADOS: A) o campus é o Florestal, sobre a folha de rosto como e feito nos outras dissertacoes de exemplos,
-> quanto ao restante dos itens fica em aberto até meu orientador me retornar.
-> B) Vamos preenchendo de acordo com o que formos completando
-> Se possivel vamos tentar remover referencias aos exemplos que usamos como o do germano e do Gabriel
-> Algo que gostaria de discutir com voce ainda sobre o topico de organização do latext e sobre como está nosso main. Eu
-> acredito que poderiamos ter um main.tex, esse serai um arquivo limpo como 0_main.tex no qual terimos o confteudo da
-> dissertacão sem a folha de aprovacao, e para a folhar teriamos outro main_ppgc.tex com a folha de aprovacao. Com isso
-> mudariamos o makefile para ser mais simplificado hoje ele está bem complexo. Além desse ponto algo que está me
-> incomodando bastante e o execcso de comments, e algo bom e necessario para mantermos o track de varis inforamcoes
-> criticas, mas sera que não teria como cortar alguns comentarios ou ser mais direto. Outro ponto é esse e mais critico,
-> nos chapters os textos estão corridos, principalmente para os artigos courb, cbic e mobiwac, no latex original desses
-> o texto era divido e as tabelas separadas, assim dando mais facilidade de manutenção, até existem pasta mas elas estão
-> vazias. Outro ponto é sobre margem,
-> padding e outras formataçoes, estamos aplicando as melhores praticas ? (olhe no exemplo do germano e nos gits de
-> exemplos de tese e dissertacao que tinhamos pego), pergunto isso pq eu posso estar com um falso precentimento que
-> estmos aplicadnod algumas formataçoes de forma locais en quanto elas deveriam ser globais. Enfim, pf avalie esses
-> pontos com cuidado, sinta-se avontade para negar ou contra argumentar e vamos tomar as decissões que fazem mais
-> sentido para o texto e organizacão.
-
-### 1.2 Pacote de aprovacoes do orientador (uma conversa so)
-
-**(A)** Quatro decisoes que so o orientador (e possivelmente a Comissao) fecha, e que e melhor levar juntas: (i) o
-**frame em ingles**; (ii) a **inclusao do capitulo CoUrb** traduzido, em que voce e segundo autor; (iii) o **titulo
-final** (a opcao 1 esta ativa como titulo de trabalho, as alternativas estao comentadas no `0_main.tex`); (iv) a
-**politica de errata** adotada.
-
-**(B)** A politica de errata e a que mais trava trabalho: quase toda correcao em texto publicado desta rodada entrou
-pelo mecanismo do Apendice B, e ele so fica legitimo com o aval dele.
-
-**(C)** Uma conversa, quatro respostas.
-
-> DECISAO: __________________________________________________
-
-### 2.2 Escopo da tarefa estatica do Cap. 4 (REV-002) — **medido nesta rodada, e o resultado nao ajuda**
-
-**(A)** Voce escreveu: *"se nao me engano usou o fclass e nao a categoria ... vamos avaliar o tamanho do problema,
-porque os numeros ficaram bem proximos do DGI."* A premissa esta certa. **Eu medi, e ela nao ajuda.**
-
-Em `data/checkins_by_state/Alabama.parquet` (113.846 linhas): o corpus tem **275 valores distintos de `fclass`** (a
-categoria fina: Airport, Coffee Shop, Seafood) e **7 categorias de topo**, que sao o alvo. **Cada um dos 275 mapeia para
-exatamente uma categoria. Zero mapeiam para mais de uma.**
-
-A cadeia, cada elo verificado em codigo: `poi2vec.py:486-487` faz
-`poi_embeddings[valid] = fclass_embeddings[fclass_values[valid]]`, entao o vetor do lugar e funcao pura do `fclass`; o
-`fclass` determina a categoria deterministicamente; por composicao, **o embedding de lugar determina exatamente o rotulo
-alvo**. Usar `fclass` em vez de `category` deixa a entrada *mais* informativa sobre o alvo, nao menos. E os numeros
-"proximos do DGI" sao consistentes com isso, e nao um alivio: a entrada do DGI e a media one-hot dos vizinhos da mesma
-taxonomia.
-
-**Importante, e a favor do documento:** isso vale para a tarefa **estatica**. A tarefa **sequencial** dos dois capitulos
-e limpa (`3_cbic.tex:161-167`, `4_courb.tex:125`) e nao e afetada. A revisao v1 nao fez essa distincao, e ela e a
-diferenca entre uma frase de escopo e uma retratacao.
-
-**(B)** `apx_a_contributions.tex:91-93` conta a banca que uma submissao anterior foi atacada por vazamento de rotulo e
-que o Cap. 5 responde com uma auditoria dedicada. Quem ler isso e depois ler o Cap. 4 vai perguntar por que o Cap. 4 nao
-recebeu tratamento equivalente.
-
-**(C)** Duas coisas: (i) o Cap. 4 e artigo **publicado e co-autorado**, com o Tarik como primeiro autor, entao a frase
-de escopo precisa de **aviso de cortesia** a ele antes de entrar; (ii) voce sugeriu um apendice para o tema, e concordo,
-e o lugar certo para a medicao acima. Autoriza?
-
-> DECISAO: Ok, ótima revisão, mas vamos em partes. Eu entendi que vc audito e validamos o que tinhamos medo o poi2vec
-> usado junto ao hgi no courb possue vazamento de dados. Isso é um ponto, mas esse não se aplica ao DGI que usamos no
-> cbic, então a tarega estatica ela só possui problema no courb. E sendo bem honesto eu já suspeitava até por isso no
-> mobiwac eu tomei a decissão de alterar. Dito tudo isso, é levando em consideração todos os pontos, eu acredito que
-> valha um appendix para isso ou inserimos essa discução em um dos appendix, e no prefacio do courb apontamos para esse
-> apendix. O que acha ?
-
-**MINHA RESPOSTA A SUA PERGUNTA ("o que acha?"), 2026-07-27.**
-
-**Concordo com o apendice, e a sua leitura tecnica esta correta em todos os tres pontos.** Confirmei cada um contra o
-codigo antes de responder:
-
-1. **O DGI do CBIC nao tem o problema.** `research/embeddings/dgi/preprocess.py:112-133` monta a feature de no como a
-   **media dos one-hots dos vizinhos, excluindo o proprio no**. O rotulo do no nao entra na sua propria representacao.
-   Voce estava certo em separar os dois casos.
-2. **O HGI do CoUrb tem.** O `poi2vec` consome `fclass`, e eu medi: **275 valores distintos de
-   `fclass`, cada um mapeando para exatamente uma das 7 categorias, zero ambiguidade**. O `fclass` e um refinamento
-   estrito do rotulo-alvo, logo determina o alvo. O revisor de mobilidade re-derivou isso independentemente **nos cinco
-   estados**, o que e mais forte do que a minha medicao num.
-3. **O MobiWac ja resolve.** Voce trocou a representacao, e por isso o Cap. 5 nao herda o problema.
-
-**Onde eu discordaria da forma, nao do conteudo:** um apendice novo so para isto seria o **sexto**, e o documento ja tem
-cinco. A minha recomendacao e **inserir a discussao no Apendice B**, que e exatamente o instrumento para "o que o texto
-publicado diz x o que sabemos hoje", e apontar do prefacio do Cap. 4 para lá — a estrutura que voce propos, num apendice
-que ja existe. Se preferir um apendice proprio eu faco; e a sua chamada de forma.
-
-**Por que eu nao escrevi ainda:** isto e uma afirmacao publica de que um resultado publicado do CoUrb, com o **Tarik
-como primeiro autor**, tem um vazamento de rotulo. Isso pede um aviso de cortesia a ele antes de entrar no documento, e
-esse aviso e seu para dar. Diga quando ele estiver ciente e eu escrevo — a medicao, o codigo e os numeros estao prontos
-e verificados.
-
-> DECISAO (aviso ao co-autor dado? forma: Apendice B ou apendice proprio?): Isso já está de acrodo com ele, podemos
-> adicionar isso no appendix B, mas deixe isso facil de ser comentado, vide que eu ainda vou discutir com meu orientador
-> sobre se argumentamos ou não quanto a isso.
-> 
-
-### 1b.4 O determinismo da categoria agora esta medido nos CINCO estados (persona 11)
-
-Nao e decisao, e reforco: a persona 11 refez a medicao do item 2.4 em todos os estados, nao so no Alabama. **284 a 365
-valores `fclass` distintos por estado, nenhum mapeando para mais de uma das 7 classes-alvo, em Alabama, Arizona,
-Florida, California e Texas.** Ou seja: nao e artefato de um dataset. A frase de escopo do Cap. 4 continua sendo a
-pendencia (aviso ao co-autor primeiro).
+Um item que esta ausente do texto porque alguem **decidiu** que ficasse fora nao e pendencia: esta
+em [`LEFT_OUT.md`](LEFT_OUT.md), com quem decidiu e quando. Um item ausente porque ninguem chegou
+nele e pendencia e esta aqui.
 
 ---
 
-## BLOCO 2b — decisoes herdadas do `_archive/reviews_v1/DECISOES_PENDENTES_ptBR.md` que continuam abertas
+## §1 · Fechado nesta rodada (round 6)
 
-> Auditei os 12 itens daquele documento contra o fonte de hoje. **Tres continuam abertos** e estao
-> abaixo. **Seis foram resolvidos** nas rodadas seguintes e estao registrados no fim desta secao,
-> para voce nao reabrir a esmo. Os outros tres ja aparecem nos Blocos 1 e 3 deste documento
-> (titulo, Resumo/Abstract, folha de aprovacao, figuras).
+### 1.1 O bloqueador que ninguem viu: o fonte nao compilava
 
-### 2b.3 Movimentos opcionais de excelencia (era 3.10)
+**Fechado em `ba90aa6d`.** De `6d780b58` a `a880632b` a chave de abertura do grupo `{\small ...}` em
+`tables/frame/bib_errata.tex` estava ausente e a de fechamento sobreviveu. Todo build morria com
+`! Extra }, or forgotten \endgroup`. Seis mensagens de commit reportaram "104/99 pp, 0 overfull, 0
+undefined" nesse periodo.
 
-**Estado:** nenhum dos tres existe. Verifiquei: nao ha tabela contribuicoes→alegacoes no §1.6, nao ha tabela consolidada
-de resultados no Cap. 6, nao ha apendice de artefatos.
+**Por que passou:** os dois caminhos de build discordavam e o que foi acreditado era o cego. O
+`Makefile` usa `-halt-on-error` e nao produzia nada; `src_utils/build.sh` roda em
+`-interaction=nonstopmode`, onde o pdflatex se recupera do erro e **escreve um PDF completo**, que o
+script media e certificava limpo — porque nunca procurava por erros. Agora procura (`tex_errors`), e
+o gate foi validado nas duas direcoes antes de ser aceito.
 
-Sao adicoes de **frame** (nao tocam resultado), na lente de premio SBC-CTD: (a) tabela contribuicao→alegacao no §1.6;
-(b) tabela consolidada cross-chapter no Cap. 6; (c) apendice de reprodutibilidade (codigo, seeds, configs).
-**Observacao:** o (c) ficou mais facil agora, porque o Apendice D novo ja estabelece o padrao de citar script + arquivo
-de saida para cada numero.
+**Registrado em:** `science/AGENT_HANDOFF.md` §2.3b e `AGENT_GUARDRAILS.md` §7 (duas linhas novas de
+vies: desconfie da ferramenta que reporta sucesso quando duas discordam; valide todo gate novo contra
+uma arvore onde o defeito esta presente).
 
-**DECISAO:** quer algum dos tres? (cada um e ~1 pagina)
-> DECISAO: Eu gosto te todas as opções. Meu receio e ser muito vide a quantidade de pagina e as varias mudanças no texto
-> que estamos fazendo. Eu acho que o A e o com menor ganho, o B e o C, são opcionais interessantes. Como isso está sendo
-> feito nas dissertações de exemplos de excleencias que captamos ?
+### 1.2 As decisoes suas que foram aplicadas
 
-**RESPOSTA MEDIDA A SUA PERGUNTA, 2026-07-27.** Voce perguntou como isso e feito nas dissertacoes de excelencia que
-captamos. Fui olhar nos cinco exemplares em `exemples/`, procurando cada um dos tres padroes no texto extraido:
+| Sua decisao | O que foi feito | Commit |
+|---|---|---|
+| COD-007: recuperar protocolo de Ch.3/Ch.4 | Eixo de split, seeds e regra de checkpoint recuperados do codigo e dos artefatos de execucao, e adicionados como **adicoes declaradas** com trilha em Apendice B | `519de348`, `a7ab2eaa` |
+| COD-002: registrar o que fica fora do texto | [`LEFT_OUT.md`](LEFT_OUT.md) criado, 8 entradas, cada uma com achado, o que o texto diz em vez disso, por que esta fora, e **quem decidiu com data** | `e9370222` |
+| 2.2: a tarefa estatica do Ch.4 em Apendice B, "facil de ser comentado" | Secao nova em `chapters/apx_b_static_scope.tex`, incluida por **um** `\input`. Caminho de supressao **testado** em arvore copiada: compila limpo, sem referencia pendente | `28097d93` |
+| Split do `main.tex` | `main.tex` = build da defesa; `main_ppgc.tex` = o mesmo PDF **mais** a folha de aceite, em duas linhas de conteudo, para os dois nao divergirem. Terceiro alvo `make ppgc` | `7a91b720` |
+| Chapters "corridos": dividir como nos artigos originais | Os tres capitulos de artigo divididos em 18 arquivos por secao, espelhando os nomes de arquivo de cada artigo. Verificado mecanico: camada de texto dos tres builds **identica byte a byte** antes e depois | `4e84cf7a` |
+| Resumo/Abstract: cortar e refazer | 500 -> 310 palavras e 423 -> 271, refeitos como par de paridade de 11 sentencas, 19 claims em ambas as linguas | `40ed8e7b` |
+| Margens e formatacao local | **Medido, nada a mudar.** Sondei a geometria real compilando uma pagina com o preambulo do documento: 3/2/3/2 cm e entrelinha exatamente 1,500x, todos exatos ao manual §7 | `2d117c7a` |
+| Volume de comentarios | **Medido, recomendo nao comprimir.** 1.217 de 1.269 linhas de comentario (95%) carregam um fato rastreavel; as 52 restantes sao banners estruturais e a sua propria fila de sign-off | `2d117c7a` |
+| Nomes de exemplo no front matter | **Nao existem.** Todos os campos reais, exceto tres placeholders honestos entre colchetes (dois membros da banca e a data), que e o estado correto | `18b817d9` |
 
-| Exemplar                             | Paginas | (a) contribuicao→alegacao | (b) resultados consolidados | (c) reprodutibilidade                               |
-|--------------------------------------|---------|---------------------------|-----------------------------|-----------------------------------------------------|
-| `lapsusvgi.pdf`                      | 77      | nao                       | nao                         | **sim**                                             |
-| `canesche_2021.pdf`                  | 108     | nao                       | nao                         | **sim**                                             |
-| `dissertacao_viegas_2026-02-09.pdf`  | 100     | nao                       | nao                         | **sim**                                             |
-| `passe.pdf`                          | 68      | nao                       | nao                         | nao                                                 |
-| `Dissertação_Mestrado___Germano.pdf` | 96      | nao                       | **sim**                     | **sim**                                             |
-| **nosso**                            | **103** | nao                       | nao                         | parcial (Apendice D cita script + saida por numero) |
+### 1.3 Os defeitos que as revisoes acharam, e que foram corrigidos
 
-**A medicao muda a minha recomendacao, e ela coincide com o seu instinto.**
+Oito trilhas de revisao rodaram sobre o texto desta rodada. Nenhuma tinha visto o que a outra fez.
+O que elas acharam:
 
-- **(a) tabela contribuicao→alegacao: nao facamos.** **Zero de cinco** exemplares tem. Voce disse que o A e o de menor
-  ganho e a evidencia concorda: nao e convencao do programa, e num documento em formato de coletanea o mapeamento
-  contribuicao→capitulo ja e explicito por construcao.
-- **(c) reprodutibilidade: e o unico que tem apoio empirico forte** — **quatro de cinco**, incluindo o precedente do
-  Germano com o mesmo orientador. E o Apendice D novo ja estabeleceu o padrao (cada numero cita script e arquivo de
-  saida), entao seria uma consolidacao de ~1 pagina, nao um texto novo. **Se voce fizer um dos tres, faca este.**
-- **(b) resultados consolidados: um de cinco.** O Germano tem. E defensavel mas nao e convencao, e no nosso caso a
-  Tabela do Cap. 5 ja e o resultado consolidado do trabalho.
+| ID | Gravidade | O defeito | Commit |
+|---|---|---|---|
+| N-1 | BLOCKER | O limite "dentro de ±0,003" do cosseno de gradientes e **falso para Alabama** (+0,0032). Criado nesta rodada: o **escopo** da frase foi corrigido de tres para quatro datasets e o limite foi carregado sem reverificar a grandeza que depende do escopo. Corrigido na dissertacao **e** no manuscrito | `fecc7fb1` |
+| N-2 | MAJOR | Ch.2 afirmava que Ch.3 "nao identifica o eixo de split", o que a adicao COD-007 desta rodada tornou falso no mesmo dia. O reparo foi **previsto por escrito** e redigido pela trilha de protocolo, e caiu entre dois escopos | `fecc7fb1` |
+| D-01 | BLOCKER | Minha propria secao de Apendice B concluia que "o rotulo de um lugar nunca entra na sua propria representacao" no Ch.3. **A premissa e verdadeira e a conclusao nao segue:** o grafo e nao dirigido e a convolucao agrega o no com a vizinhanca, entao o rotulo volta no primeiro salto. Reproduzido em grafo de 4 nos: h_0[Food] = 0,667 contra x_0[Food] = 0,000 | `4b609643` |
+| D-02 | BLOCKER | Ch.6 citava o ganho de 20,2 a 22,0 pontos do Ch.4 **sem rotular a tarefa**, como o diagnostico do arco inteiro. O ganho e da tarefa **estatica**, que o Apendice B desta rodada desqualifica. O numero fica (e a figura auditada do capitulo publicado), agora com tarefa e qualificacao, e o diagnostico repousa na tarefa sequencial | `4b609643` |
+| F-01 | BLOCKER | **8 de 12** caminhos de reprodutibilidade do Apendice A **nao estao** no branch publico que o Ch.5 aponta em nota de rodape. Todos existem nesta maquina: a promessa estava errada, nao o codigo | `ec1cea0d` |
+| F-02 | MAJOR | A pagina 77, secao 6.2, tinha uma sentenca **sem sujeito**: "California run, completed since, repeats the pattern". O artigo "The" terminava a linha anterior e foi absorvido por um bloco de comentario inserido depois. Recuperado do commit original | `ec1cea0d` |
+| C-1 | MAJOR | O build de **deposito** (AcademicoPG) imprimia 11 na pagina fisica 8. `\finalbuildfirstpage` estava fixo no offset do build de defesa, e o deposito tem tres paginas pre-textuais menos. Nao conformidade de numeracao no unico build que e depositado | `29c7629c` |
+| E-5 | MAJOR | **Dez marcas de nota de rodape eram hyperlinks vivos para a pagina 1** em todos os tres builds. A persona mediu **onde os links caem**, nao apenas se os destinos resolvem. Corrigido com `hyperfootnotes=false` passado em tempo de carga (em `\hypersetup` **nao** funciona: o abntex2 ja carregou o hyperref) | `29c7629c` |
+| E-2 | MAJOR | Seis arquivos sem diretiva `% !TeX root`, e depois do split esses seis incluiam os tres masters de capitulo. Segunda instancia na semana. Gate novo `check_tex_root.py` achou **18 outros** | `29c7629c` |
+| STY-01 | MAJOR | Sete termos em uso que o registro fail-closed nao tinha, **dois deles em portugues no Resumo** que a minha propria passagem de registro seis horas antes nao cobriu | `a8865214` |
+| AIC-01 | MAJOR | A densidade de paralelismo negativo foi **congelada** por uma revisao anterior e esta rodada a levantou de 67 para 79. O diagnostico da persona e o que importa: *"um guard que vive so no relatorio de uma rodada anterior e um guard que ninguem esta checando."* Movido para `check_negative_parallelism.py` | `a8865214` |
+| C-6 | MAJOR | **`make check` saiu com codigo 2 durante toda a rodada** enquanto seis commits diziam "all gates pass". Dois falsos positivos ("this article" no apendice de errata, que e correto; "Pareto", que e o termo tecnico). Ambos isentos com a justificativa no lugar | `6ee23ca7` |
+| L-9 | MINOR | O Apendice B imprimia "todos os 25 lugares" com uma decomposicao que soma 25 apenas contando um cabecalho de subsecao onde ha dois. Reenumerado: 28 | `6ee23ca7` |
+| M-1, M-2 | MAJOR | O Resumo/Abstract perdeu o indice temporal do diagnostico do CoUrb e usava um universal sem escopo ("em todos os estados") cujo antecedente mais proximo e o numero errado de estados. Corrigidos **em paridade** nas duas linguas | `6ee23ca7` |
 
-**Sobre o seu receio de paginas:** estamos em **103**, contra 68 a 108 nos exemplares. Nao estamos longos; estamos no
-meio da faixa, e o Canesche com 108 e mais longo. Uma pagina de reprodutibilidade nao muda esse quadro. **A minha
-recomendacao: so o (c), e so quando o texto assentar** — ele inventaria scripts e seeds, entao escrever antes das
-ultimas edicoes garante retrabalho.
+### 1.4 Gates novos, todos validados nas duas direcoes antes de serem aceitos
 
-> DECISAO: Concordo, vamos com a opc: C). E acredito que possamos usar o Appendix A para isso, o que acha ? Lá já
-> citamos a questão das contribuições no codigo. Se não um appendix novo mas bem enxuto e direto apontando para um
-> arquivo de entrada na codebase que faça explicações mais elaboradas.
-
-### Resolvidos desde aquele documento (registrado para nao reabrir)
-
-| Item de la                                            | Estado hoje                                                                                                                                                                                                                                               |
-|-------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 3.1 Wilcoxon x t pareado                              | **RESOLVIDO.** Cap. 2 (`:497-503`) e Cap. 5 (`:412`) agora concordam: t pareado nas medias por repeticao **mais** Wilcoxon nos folds individuais, ambos reportados, com o piso do p exato do Wilcoxon explicado. O desvio do pre-registro esta declarado. |
-| 3.2 CV usuario-disjunta: documento todo ou so Cap. 5? | **RESOLVIDO** (REV-006). O Cap. 2 agora escopa explicitamente: os testes "license verbs in Chapter 5 alone" (`:495-496`).                                                                                                                                 |
-| 3.3 Pre-registro da nao-inferioridade explicito       | **RESOLVIDO e reforcado.** `5_mobiwac.tex:412` declara o plano escrito, fixado antes de ler resultado, a margem de dois pontos, **e** que ele nao cobria superioridade de regiao (os 4 ganhos sao secundarios). Mais honesto que o pedido original.       |
-| 3.4 Vintage 2009-2011                                 | **APLICADO** na rodada 3.                                                                                                                                                                                                                                 |
-| 3.5 Ponte "next-POI"                                  | **APLICADO** na rodada 3, e o Cap. 3 recebeu nota de rodape adicional nesta rodada (REV-010).                                                                                                                                                             |
-| 3.6 Contradicao class-weighted CE                     | **RESOLVIDO** nesta rodada. `2_fundamentals.tex:456` agora diz "plain unweighted cross-entropy; class weighting, tested there on both outputs, lowered..." — concorda com o Cap. 5.                                                                       |
+| Gate | A classe silenciosa que ele pega | Por que nenhum outro gate a via |
+|---|---|---|
+| `build.sh` `tex_errors` | O fonte nao compila | `nonstopmode` se recupera e escreve um PDF completo, que o script media |
+| `check_doubled_macro.py` | `\\ref{...}` com barra dobrada, que imprime o rotulo cru | O pdflatex nao avisa (as duas metades sao legais) e `undef_ref` fica em 0, corretamente |
+| `check_negative_parallelism.py` | Densidade de paralelismo negativo acima do teto | Vivia so num relatorio de revisao |
+| `check_tex_root.py` | Diretiva `% !TeX root` ausente ou apontando para arquivo inexistente | Invisivel para o `make`, que le o `main.tex` e nunca olha um comentario magico |
 
 ---
 
-## BLOCO 3 — assinaturas e itens adiados
+## §2 · Aberto e bloqueado em VOCE
 
-### 3.1 Os 32 marcadores `[NEEDS SIGN-OFF]`
+### 2.1 Os 46 marcadores `[NEEDS SIGN-OFF]` no fonte
 
-Voce pediu a lista. Os 32 marcadores em 10 arquivos, todos comentarios LaTeX (**nenhum renderiza**, entao nao ha sujeira
-no PDF). O risco nao e visual: e que o **Apendice C afirma** que o autor leu e aprovou cada palavra, enquanto o proprio
-apendice esta marcado como nao aprovado. Voce ja decidiu manter o Apendice C como esta, o que torna esta lista o caminho
-para tornar a afirmacao verdadeira.
+**(A) O que falta.** 46 marcadores, distribuidos assim:
 
-| Arquivo                            | Marcadores | Nota                                                                     |
-|------------------------------------|------------|--------------------------------------------------------------------------|
-| `0_main.tex`                       | 6          | Resumo e Abstract: **par de paridade**                                   |
-| `chapters/5_mobiwac.tex`           | 6          | Prefacio, recap, figura, atribuicao, clausula do F50, o piso de Markov   |
-| `chapters/6_conclusion.tex`        | 6          | Escopos de alegacao, clausula do F50, contagem do controle de capacidade |
-| `chapters/apx_a_contributions.tex` | 4          | Apendice inteiro; a §A.2 foi removida nesta rodada                       |
-| `chapters/apx_b_errata.tex`        | 3          | Apendice inteiro, errata de grafia, errata do Mikolov, errata do DGI     |
-| `chapters/1_introduction.tex`      | 2          | Correcao de gate L3, unidade inferencial                                 |
-| `chapters/2_fundamentals.tex`      | 2          | Escopo dos 93% do Song, de-duplicacao L3, descricao do CAGrad            |
-| `chapters/apx_c_ai_disclosure.tex` | 1          | Apendice inteiro (COD-013: ele afirma que voce leu cada palavra)         |
-| `chapters/apx_d_ceiling.tex`       | 1          | Apendice reescrito (label-history benchmark)                             |
-| `chapters/apx_e_ethics.tex`        | 1          | **Apendice novo**: afirmacoes institucionais em seu nome                 |
-| **TOTAL**                          | **32**     | medido em 2026-07-27 apos a extracao das tabelas                         |
+| Arquivo | n |
+|---|---:|
+| `chapters/6_conclusion.tex` | 7 |
+| `chapters/apx_a_contributions.tex` | 6 |
+| `chapters/2_fundamentals.tex` | 5 |
+| `chapters/apx_b_errata.tex` | 5 |
+| `0_main.tex` | 4 |
+| `chapters/5_mobiwac/06_results.tex` | 3 |
+| `chapters/1_introduction.tex`, `5_mobiwac/02_related.tex`, `5_mobiwac/07_discussion.tex` | 2 cada |
+| `3_cbic/method.tex`, `3_cbic/results.tex`, `4_courb.tex`, `4_courb/methodology.tex`, `4_courb/results.tex`, `5_mobiwac.tex`, `apx_b_static_scope.tex`, `apx_c_ai_disclosure.tex`, `apx_d_ceiling.tex`, `apx_e_ethics.tex` | 1 cada |
 
-**Regra que nao da para contornar:** os 6 do `0_main.tex` sao **um par**. Resumo e Abstract carregam as mesmas
-alegacoes, e aprovar um sem o outro quebra a paridade. Leia os dois lado a lado.
+Para listar: `grep -rn "NEEDS SIGN-OFF" src/ | grep -v Binary`.
 
-**Um termo novo precisa entrar no GLOSSARY antes de virar canonico:** usei **"modelos ajustados"**
-como equivalente PT de "fitted models" no Resumo. O GLOSSARY §6 nao tem essa entrada, e a regra e fail-closed (o termo
-entra no registro **antes** de entrar no texto). Confirma o termo?
+**(B) Por que importa.** Cada um e uma frase reescrita por um agente em prosa que e sua, ou uma
+mudanca de escopo num capitulo publicado. Nenhuma pode ir a banca sem voce ter lido.
 
-> DECISAO: Eu ainda vou ler o texto como um todo e passar por varios deles e tmb dependo da decisão do meu professor. No
-> momento, só aponte via esse documento os mais criticos a serem resolvidos.
+**(C) O que eu preciso de voce.** Ler e aprovar ou reescrever. **Tres tem prioridade sobre os
+outros 43:**
 
-### 3.2 Figura 2 do Cap. 4: rotulos em portugues (REV-022)
+1. **`apx_b_static_scope.tex`** — o paragrafo D-01 corrigido. Ele agora diz algo **mais fraco sobre o
+   Ch.3** do que a sua decisao de 2026-07-27 assumia. Voce decidiu que "esse nao se aplica ao DGI que
+   usamos no cbic"; a medicao diz que o canal do Ch.3 e **indireto**, nao ausente. A secao continua
+   concentrando o achado no Ch.4, onde esta a identidade exata. **Leia esse paragrafo especificamente.**
+2. **`apx_a_contributions.tex`** — a frase de reprodutibilidade foi **enfraquecida** para "supplied on
+   request" porque 8 de 12 caminhos nao estao no branco publico. Uma banca pode perguntar por que. Ver
+   2.2 abaixo: se voce publicar os arquivos, a frase forte volta.
+3. **`6_conclusion.tex`** — as duas sentencas D-02 adicionadas, que qualificam o numero do Ch.4.
 
-**(A)** A figura da arquitetura na p. 48 tem `Encoder Espacial`, `Encoder Temporal`, `Encoder
-Categorico`, `Coordenadas (lat, lon)`, `Timestamps (hora, dia)`, `Categorias (POI graph)` dentro de um capitulo em
-ingles, sob legenda em ingles.
+### 2.2 Publicar os 8 arquivos que faltam no branch publico
 
-**(B)** Duas personas classificaram como bloqueador visual.
+**(A) O que falta.** Estes existem nesta maquina e **nao** em
+`github.com/VitorHugoOli/PoiMtlNet/tree/mobiwac`:
 
-**(C)** **Bloqueado por falta do fonte.** As Figuras 1, 2 e 3 existem so como PNG achatado; nao ha
-`.drawio`, `.svg` nem `.py` em lugar nenhum sob `articles/dissertacao/`. Preciso de uma de duas coisas: o arquivo fonte
-(com os autores do CoUrb, provavelmente com o Tarik), ou autorizacao para **recriar** a figura do zero. Recriar levanta
-questao de fidelidade, porque a figura pertence a um artigo publicado co-autorado, entao nao faco sozinho.
+```
+docs/studies/closing_data/v17_completion/STATISTICAL_PROTOCOL.md
+scripts/build_phase3_per_fold_transitions.sh
+docs/studies/closing_data/joint_best/JOINT_BEST_RESULTS.md
+m1_stats_n20.py
+m2_prereg_perfold.py
+m2_prereg_output.txt
+docs/studies/closing_data/v17_completion/stats_n20/
+scripts/embedding_eval/autocorrelation_ceiling.py
+```
 
-**Ja feito:** o rotulo do eixo da Figura 6 dizia "Score (0-1)" para uma silhueta definida em
-[-1, 1]; corrigido e a figura foi regerada (o resto do PDF e byte-identico).
+Presentes: `src/data/folds.py`, `scripts/closing_data/score_joint_best.py`,
+`superiority_wilcoxon.py`, `region_match_tost.py`.
 
-> DECISAO: Eu adicione os drawio: articles/dissertacao/src/figures/mtlnet_poi_new.drawio e o
-> articles/dissertacao/src/figures/courb/arquitetura_modelo.drawio, respecitvamente par ao cbic e o courb. Quanto a
-> imagem de distribuicao_estados.png, essa também tem palavras em portgues, e para gerar ela temos que investigar o
-> /Users/vitor/Desktop/mestrado/temp/tarik-new.
+**(B) Por que importa.** A frase de reprodutibilidade mais carregada do documento nao resolvia para
+um leitor que seguisse a nota de rodape do proprio capitulo. Eu escopei a prosa para o que e
+verdadeiro, mas **a correcao melhor e publicar**, nao enfraquecer a frase.
 
+**(C) O que eu preciso de voce.** Um push desses oito para o branch publico. Feito isso, reverta o
+paragrafo de `apx_a_contributions.tex` para a versao forte e apague o comentario `[round6, F-01]`
+que esta la — ele contem a instrucao.
+
+### 2.3 A secao de escopo da tarefa estatica: manter ou suprimir
+
+**(A) O que falta.** Sua conversa com o orientador sobre argumentar ou nao publicamente quanto ao
+escopo da tarefa estatica do Ch.4.
+
+**(B) Por que importa.** E uma declaracao publica sobre um resultado publicado e co-autorado. Voce
+tem o acordo do co-autor (2026-07-27); falta o orientador.
+
+**(C) O que eu preciso de voce.** A decisao. **Para suprimir**, comente **uma** linha em
+`chapters/apx_b_errata.tex`:
+
+```latex
+%\input{chapters/apx_b_static_scope}
+```
+
+Testado: compila limpo, sem referencia pendente, porque o ponteiro no prefacio do Ch.4 referencia o
+**apendice**, nao o rotulo da secao. **Se suprimir, apague tambem a sentenca do prefacio do Ch.4**
+ou ela aponta para um apendice que nao discute mais o assunto.
+
+### 2.4 O tamanho de tipo das duas figuras de arquitetura
+
+**(A) O que falta.** Uma decisao sobre `figures/cbic_mtlnet_arch.png` (45,3% do corpo) e
+`figures/courb/arquitetura_modelo.png` (44,4%). Sao as duas menores do documento — **menores que as
+duas que a auditoria rastreava**, que estao em 93,2% e 66,3% depois do reescalonamento desta rodada.
+
+**(B) Por que importa.** `WRITING_LAW` §5 pede rotulos "proximos ao tamanho do corpo". Uma banca le
+essas figuras impressas.
+
+**(C) O que eu preciso de voce.** Autorizacao para mudar o tamanho de tipo de uma figura **publicada**
+(a do Ch.4 e co-autorada). Ha `.drawio` para as duas, e a receita esta em
+`_round6/12_figures.md`: subir `fontSize` de 13 para cerca de 20 e reexportar na mesma largura de
+pixels. Registrado em [`LEFT_OUT.md`](LEFT_OUT.md) LO-6 como **diferido, nao recusado**.
+
+### 2.5 A coluna do CBIC que nao reproduz
+
+**(A) O que falta.** Tres das quatro colunas de resultado publicadas do CBIC reproduzem exatamente
+contra as execucoes commitadas (21/21 celulas). A quarta, a de proxima-categoria do modelo conjunto,
+**nao reproduz de nenhum artefato commitado**.
+
+**(B) Por que importa.** E um numero publicado. Nao ha erro conhecido nele; o que falta e a execucao
+que o gerou.
+
+**(C) O que eu preciso de voce.** Dizer se existe um rundir dessa coluna fora deste repositorio. Se
+nao existir, isso e uma limitacao de proveniencia a registrar, nao um erro a corrigir. Registrado em
+[`LEFT_OUT.md`](LEFT_OUT.md) LO-2 como **aberto**.
+
+### 2.6 O orcamento de tuning de Ch.3 e Ch.4: NAO RECUPERAVEL
+
+**(A) O que falta.** O numero de configuracoes tentadas por estudo.
+
+**(B) Por que importa.** Uma banca pode perguntar quanta busca de hiperparametro ha por tras de cada
+resultado.
+
+**(C) O que eu preciso de voce.** Nada a recuperar: nunca existiu um harness de busca e as
+configuracoes perdedoras nao foram commitadas. Isso foi estabelecido lendo os dois codebases, nao
+presumido. A pendencia e apenas **como dizer isso** se perguntarem. Sugestao: dizer que o
+desenvolvimento foi manual e iterativo e que o repositorio preserva a configuracao final, nao o
+caminho.
+
+---
+
+## §3 · Aberto e bloqueado em terceiros
+
+| Item | Bloqueado em | Estado |
+|---|---|---|
+| Dois membros da banca e a data da defesa | Orientador / PPGCC | Placeholders honestos entre colchetes em `0_main.tex`; **os colchetes aparecem no PDF**, entao nada inventado e apresentado como fato |
+| Folha de aprovacao assinada | A defesa | `make ppgc` gera o PDF com o placeholder; a versao assinada o substitui depois |
+| Status do MobiWac | Revisores | A redacao e sempre "submitted, under review", em todo o documento. **Nao mudar** ate haver decisao |
+| `\finalbuildfirstpage` conferido contra o RASCUNHO | Upload pos-defesa ao AcademicoPG | Agora **8**, derivado das 7 paginas pre-textuais do build de deposito e verificado no render. Confira contra o RASCUNHO quando subir |
+
+---
+
+## §4 · O que auditar primeiro, se voce tiver uma hora
+
+A lista priorizada esta em [`_round6/VERIFY_LIST.md`](_round6/VERIFY_LIST.md), com o comando de
+verificacao de cada item. Os cinco de maior consequencia:
+
+1. **O paragrafo D-01 em `apx_b_static_scope.tex`** (p. 99 do build de defesa). E a unica prosa nova
+   que faz uma afirmacao publica sobre um resultado co-autorado, e eu errei nele uma vez.
+2. **O par Resumo/Abstract** (pp. 2-3). Mais lido que qualquer outra pagina.
+3. **As duas sentencas D-02 em `6_conclusion.tex`** (p. 76). Elas mudam o que o numero mais citado do
+   Ch.4 licencia.
+4. **A frase de reprodutibilidade em `apx_a_contributions.tex`** (p. 88), contra 2.2 acima.
+5. **`make check` e os tres builds.** `cd articles/dissertacao && source src_utils/texenv.sh &&
+   (cd src && make defense && make final && make ppgc && make check)`. Deve sair 0 e dar 108/105/109.
+
+> **Nao confie no sucesso auto-reportado, incluindo o meu.** Esta rodada corrigiu **oito** afirmacoes
+> minhas que nao se sustentaram na medicao: um limite falso que eu carreguei ao corrigir um escopo,
+> uma exculpacao do Ch.3 que nao segue da premissa, "all gates pass" com o gate saindo 2, "byte
+> identical ... same SHA" quando o que e identico e a camada de texto, um instrumento de tamanho de
+> fonte cego ao `\includegraphics`, uma linha de ancoragem que eu li errado, um flag levantado contra
+> uma afirmacao correta lendo uma revisao superada, e um teste de gate invalido porque eu copiei o PDF
+> corrigido para a arvore quebrada. Todas as oito foram achadas por outra passagem, nao por mim.
