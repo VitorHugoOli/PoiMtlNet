@@ -286,6 +286,30 @@ settles, and the FINAL count is 100.**
 
 ## 7 · `[VERIFY]` flags and what I could not confirm
 
+> ### CORRECTION to flag 1, added 2026-07-28 by the round supervisor, before this flag was acted on
+>
+> **Flag 1 below reads a superseded section of the record and its conclusion is wrong.** I checked
+> `stats_n20/RESULTS.md` directly. The file is at **rev 4, 2026-07-13**, and its header states that
+> A1 landed the CA and TX v17 MTL **n=20** runs on 2026-07-11, so the pre-registered six-dataset
+> family Holm now runs. Its table reports all six datasets rejecting at α = 0.05, CA at Δcat +6.45
+> with Holm-adjusted p = 8.9e-07 and TX at +7.45 with the same adjusted p, and it records that the
+> n=20 result **confirms** the seed-0 provisional verdicts with no verdict changed.
+>
+> The §1b material the flag quotes sits under a heading that reads **"(superseded) M1-PARTIAL — rev
+> 3, 2026-07-08"**, and rev 4 says in terms that the provisional material below is "retained for the
+> record."
+>
+> **So "at all six" is correct and carries no undisclosed provisional footing.** No frame text needs
+> a qualification, and none should be added on the strength of this flag. The flag is left in place
+> below rather than deleted, because the reading error is instructive: the record keeps its own
+> superseded revisions inline, and a search that lands inside one will find a real sentence that
+> stopped being true. **Anchor on the revision header, not on the first matching line.**
+>
+> This is also why the flag was worth raising. It was raised rather than acted on, which is the
+> correct behavior; the cost of checking it was five minutes and the cost of acting on it would have
+> been weakening a defensible claim in the pair, the conclusion and the paper.
+
+
 1. **[VERIFY] The CA and TX category cells are provisional in the statistical record, and no frame
    text says so.** `stats_n20/RESULTS.md` §1b labels both "outperforms (provisional)" on a seed-0
    footing, pairing fold-*k* with fold-*k* at a single seed, and states "These two cells are NOT in
