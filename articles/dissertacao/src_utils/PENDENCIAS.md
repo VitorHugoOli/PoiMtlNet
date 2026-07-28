@@ -291,27 +291,50 @@ Contra os exemplares, estamos na ponta baixa nos dois eixos:
 | Dorigueto | 77 | 0 | 0 | 11 |
 | **nossa** | **104** | **7** | **0** | **7** |
 
-### A parte que a medicao **corrige** — o MTLnet nao e o problema
+### CORRECAO (2026-07-28): eu medi o MTLnet errado
 
-O MTLnet **esta** documentado: §3.3.2 tem **469 palavras**, a equacao do FiLM, a pilha camada por
-camada (encoders MLP, FiLM, blocos residuais compartilhados, cabecas) e **uma figura de arquitetura**.
-Somando, o Nash-MTL tem 439 palavras e o DGI 450.
+Voce esclareceu: o MTLnet a que voce se refere e a **arquitetura conjunta do MobiWac**, que voce chama
+assim porque e a **versao 2** do modelo do CoUrb — o modelo do CoUrb foi a base do atual. Eu medi o
+MTLnet do **Cap. 3** (CBIC). Refiz.
 
-O ponto fino e o **Check2HGI**:
+**Confirmei sua nomenclatura no codigo antes de reescrever isto.** Nao e informal: em
+`src/models/mtl/` **todas** as variantes sao irmas da mesma familia `mtlnet_*`
+(`mtlnet_crossattn`, `mtlnet_crossattn_dualtower`, `mtlnet_ple`, `mtlnet_mmoe`, ...), e o modelo que
+produziu os resultados do MobiWac e `mtlnet_crossattn_dualtower` — que aparece **6 vezes** em
+`docs/results/closing_data/`, mais que qualquer outra variante. O docstring dele descreve exatamente o
+que o Cap. 5 narra: torre privada para a regiao, pilha de cross-attention bidirecional, categoria usando
+so o tronco compartilhado. **O codigo chama de MTLnet, voce chama de MTLnet, e o texto nao.**
+
+A medicao corrigida, com cada modelo no seu lugar:
 
 | Componente | Palavras | Equacoes | Figura |
 |---|---:|---:|---:|
-| MTLnet, a **baseline** que nao inventamos | 469 | 1 | 1 |
-| Nash-MTL | 439 | 1 | 0 |
-| DGI | 450 | 1 | 0 |
-| **Check2HGI, a nossa contribuicao** | **244** | **0** | 1 |
-| o modelo conjunto, o nosso resultado | 442 | 1 | 1 |
+| MTLnet v1, o modelo do CBIC (Cap. 3, §3.3.2) | 469 | 1 | 1 |
+| ST-MTLNet, a metodologia do CoUrb (Cap. 4) | 2027 | 4 | 1 |
+| **o modelo conjunto = MTLnet v2 (Cap. 5, §5.4.2)** | **442** | **1** | **1** |
+| **Check2HGI, a representacao (Cap. 5, §5.4.1)** | **244** | **0** | **0** |
 
-**A assimetria e o achado:** a baseline recebe mais espaco formal do que a contribuicao central. A
-pergunta que a banca abre com isso, nas palavras da persona 12: *"o senhor pode ir ao quadro e escrever
-a funcao de perda do Check2HGI? So a funcao de perda. E a contribuicao central da dissertacao."*
-Hoje o documento nao responde — §5.4.1 diz "treinamos **principalmente** com um objetivo infomax", e
-"principalmente" esconde exatamente o que a pergunta quer.
+**O que muda na conclusao, e o que nao muda.**
+
+O que **nao** muda: o Check2HGI segue sendo o ponto mais fino do documento — 244 palavras, zero
+equacoes, zero figura propria. A pergunta de banca que eu citei continua sendo a que eu abriria.
+
+O que **muda**: eu havia escrito "o MTLnet nao e o problema" apontando para as 469 palavras do Cap. 3.
+Isso estava fora de escopo. O modelo que **importa para a sua tese** — o conjunto, o resultado do
+documento — tem **442 palavras e uma equacao**, e essa equacao e a **perda** (0,75/0,25), nao a
+arquitetura. Ele descreve em prosa a cross-attention, os encoders privados, o caminho espacial privado e
+as contagens de parametros (4,2 M contra 1,1 M em Alabama), mas **nao formaliza nenhum deles**: nao ha
+equacao de atencao, nao ha as dimensoes por bloco, nao ha o numero de cabecas, e "duas blocos" e a unica
+informacao de profundidade.
+
+**E ha uma lacuna de continuidade que eu nao tinha visto.** O Cap. 5 diz que o Cap. 4 "manteve a
+arquitetura do MTLnet inalterada" (§5.2.1), e depois apresenta o modelo conjunto **sem dizer que ele
+descende dela**. Procurei: nenhuma frase em nenhum capitulo liga o modelo conjunto ao MTLnet/ST-MTLNet
+como ancestral. A tabela de linhagem (`tab:fund:lineage`) lista os seis em sequencia — DGI, HGI, MTLnet,
+ST-MTLNet, Check2HGI, "Joint model" — mas descreve o ultimo apenas como "Cross-attention model on
+Check2HGI", sem parentesco. **Para um leitor, o modelo conjunto aparece do nada no Cap. 5.** Isso enfraquece
+justamente o arco que a dissertacao vende: tres artigos, uma progressao. Se ele e a versao 2, o texto
+deveria dizer.
 
 ### Sobre codigo: **nao falta, e nao adicione**
 
@@ -333,32 +356,39 @@ repo diz **0,4 / 0,3 / 0,3**. Fui ao codigo (`research/embeddings/check2hgi/chec
 reporta **so metade** da perda — os auxiliares, nao os principais. E precisamente por nao haver equacao
 que isso nao da para conferir no documento.
 
-### O que eu recomendo, e o que e seu para decidir
+### O que eu recomendo, revisado depois da sua correcao
 
-A persona 12 propoe ~4 paginas, tudo em texto de moldura ou aditivo, sem tocar em resultado
-reproduzido. Ranqueado por risco removido por pagina:
+A persona 12 propos ~4 paginas contando so o Check2HGI. Com o modelo conjunto no escopo correto, sao
+tres itens, todos aditivos, nenhum tocando resultado reproduzido:
 
-1. **A equacao da perda do Check2HGI em §5.4.1** (~1/3 de pagina). Como o MobiWac esta sob revisao, sua
-   regra vigente permite aplicar nos dois textos; a persona recomenda a rota mais segura, so na
-   dissertacao, como **quarta adicao marcada** do Cap. 5 — o Apendice B ja declara tres, entao e uma
-   clausula. O material ja existe em `docs/context/check2hgi_overview.tex:211-231`, **em portugues**:
-   traduzir, nao re-derivar.
-2. **Um apendice F, "The check-in-level representation in detail"** (~2 paginas): os quatro niveis com
-   o operador de cada um, a regra de propagacao da GCN, a agregacao por atencao, a codificacao ciclica
-   do tempo e o peso `w_ij = exp(-dt/tau)`, mais uma tabela nivel -> entrada -> operador -> saida. Tudo
-   isso ja esta escrito no mesmo arquivo.
+1. **Nomear a linhagem, em duas frases.** Se o modelo conjunto e a versao 2 do modelo do CoUrb, o texto
+   precisa dizer. Uma frase em §5.4.2 ("o modelo conjunto mantem os encoders por tarefa e o esqueleto do
+   MTLnet do Cap. 4, substituindo o compartilhamento duro por uma pilha de cross-attention") e uma coluna
+   ou clausula na tabela de linhagem. **Custo: duas frases.** E o item de maior retorno dos tres, porque
+   e o que faz os tres artigos lerem como progressao em vez de tres modelos soltos — e e exatamente o que
+   a banca vai perguntar quando vir "MTLnet" no Cap. 3 e "the joint model" no Cap. 5.
+2. **A equacao da perda do Check2HGI em §5.4.1** (~1/3 de pagina), como quarta adicao marcada do Cap. 5.
+   Material pronto em `docs/context/check2hgi_overview.tex:211-231`, em portugues.
+3. **Um apendice F** (~2 paginas) com os quatro niveis do Check2HGI e, agora tambem, a formalizacao do
+   bloco de cross-attention do modelo conjunto: dimensoes, numero de cabecas, profundidade. Hoje o texto
+   diz "dois blocos" e nada mais.
 
-**Eu recomendo fazer (1) e (2).** Sao aditivos, saem de material que voce ja escreveu, e fecham a unica
-pergunta do parecer em que a falta de um objeto formal enfraquece um argumento que o documento faz.
+**Eu recomendo os tres, nessa ordem.** O (1) e quase gratuito e conserta o arco; o (2) responde a
+pergunta que eu abriria; o (3) e o que um leitor precisa para reimplementar.
 
-> DECISAO (fazer 1 e 2? so 1? nenhum?): __________________________________________________
+> DECISAO (1, 2, 3 / so 1 e 2 / nenhum): __________________________________________________
 
-> **Se autorizar, eu preciso de voce em uma coisa:** o `check2hgi_overview.tex` descreve a arquitetura
-> com **atencao multi-head** no nivel 2 e a variante de **corrupcao de embeddings**. Confirme que a
-> versao usada nos resultados do MobiWac e essa, porque o codigo tem varias flags de variante
-> (`v13`, `v14`, `--encoder resln`) e eu nao vou escrever arquitetura de memoria nem inferir de flag.
+> **Duas coisas que preciso de voce antes de escrever qualquer uma:**
+>
+> 1. **Qual e o nome oficial do modelo conjunto no texto?** Hoje ele e "the joint model" 18 vezes e nao
+>    tem nome proprio. Se voce o chama de MTLnet v2, o `GLOSSARY.md` precisa da entrada, porque hoje
+>    "MTLnet" no registro aponta so para o modelo do CBIC. Isso e decisao sua: dar nome proprio, ou
+>    manter descritivo e so declarar o parentesco.
+> 2. **Confirme a variante.** Os resultados apontam `mtlnet_crossattn_dualtower`, e o docstring dele bate
+>    com a prosa do Cap. 5. Mas existem sete variantes `mtlnet_crossattn*` no repo, uma delas
+>    (`_dualtower_catpriv`) marcada como ablacao. Confirme que `_dualtower` e a de record antes de eu
+>    escrever dimensoes ou profundidade — nao vou inferir arquitetura de nome de arquivo.
 
----
 
 ## BLOCO 0b — o que o orientador levantou (2026-07-27)
 

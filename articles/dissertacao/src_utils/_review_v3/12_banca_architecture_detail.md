@@ -562,10 +562,24 @@ uncoordinated edits to the same paragraph.**
 | R4 | Config table | ⅓ | inside R2 | none | Q6 |
 | R5 | Name it in Resumo/Abstract | ~0 | front matter | none | (persona 17's finding) |
 
-**Total ≈ 4 pages, taking the build from 104 to ≈ 108.** Every exemplar except Passe and Dorigueto is
-longer than 104; Canesche is 108. You are not near any limit, and `AGENT_GUARDRAILS.md` §7's padding
-caution is about *unearned* length — four pages of the candidate's own method is the opposite of
-padding.
+**Total ≈ 4 pages, taking the build from 104 to ≈ 108.** That lands on Canesche, the longest of the
+five exemplars at 108 pp, and above the other four (Germano 96, Viegas 100, Dorigueto 77, Passe 68;
+§4b). So this is not a "you have room to spare" argument — at 104 you are already the second-longest
+of the set, and four more pages makes you the longest.
+
+**And it runs against a standing rule of this project, which the author should decide with open
+eyes.** `AGENT_GUARDRAILS.md` §7, Padding row, states: "every section must earn its pages; the
+Viegas example is ~100 pages total — **that is the calibration, not a target to exceed**." That rule
+carries no exception for non-redundant material, and the build is already four pages past it. This
+report does not get to reinterpret it; only the author does. What I can offer is the trade the
+decision turns on: the rule guards against length as a proxy for quality, and the material here is
+the one thing a coletânea frame is *for* — the candidate's own account of his own artifact, which
+no reproduced chapter is permitted to supply. If the author holds the calibration as written, the
+honest consequence is that R1 and R3 (together well under half a page) ship and R2 is cut to a
+single tight page or traded against an existing cut, not that the gap goes unaddressed.
+
+Either way R2 must hold to 2–3 pages and not drift to four, and R5 should be skipped here and routed
+through persona 17.
 
 ---
 
