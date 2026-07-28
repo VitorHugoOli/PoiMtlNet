@@ -1,7 +1,9 @@
 # ANCHORS.md — every audit coordinate re-resolved against the live build (round 6)
 
 **Written 2026-07-28**, against `src/build/main.pdf` (**104 pp**) and `src/build/main_final.pdf`
-(**99 pp**), both rebuilt after `ba90aa6d` restored the brace that had stopped `make` from producing
+(**99 pp**). *Both moved to 105/100 later the same day when the two Chapter 5 diagrams were scaled
+to `\textwidth`; the page numbers in the tables below were taken at 104/99 and the three figure
+pages (48, 62, 65) were re-confirmed unmoved after the rescale.*, both rebuilt after `ba90aa6d` restored the brace that had stopped `make` from producing
 anything since `6d780b58`. `tex_errors=0` on both.
 
 ## Why this file exists
@@ -55,10 +57,26 @@ numbers below were measured on 2026-07-28 and will drift again; the phrase will 
    from a build of the source *before* the longtable conversion, and the conversion fixed it. The
    author's instruction to fix it now is therefore already satisfied; what remains is only to
    re-check after the Resumo rewrite moves pagination.
+   > **A different defect appeared in that same table during this round** and is not the float
+   > warning: an added bibliography-errata row prints a 52-character `\texttt` key that cannot be
+   > broken, giving an `Overfull \hbox` of **113.58371 pt** at `tables/frame/bib_errata.tex:112`.
+   > Caught by the figure pass, which had to revert it in an isolated tree to measure its own work.
+   > Fixed in this round; the row now names the work rather than printing the key, matching the row
+   > above it.
 2. **The Ch.5 diagram labels are confirmed, and one page number moved.** Measured font sizes, not
    glyph bounding boxes: body is **11.96 pt**; the two diagrams carry **6.97 and 7.27 pt**, that is
-   58 percent of body size, at **449 and 427 glyphs below 9 pt** on **pp. 62 and 65**. The audit said
-   pp. 62 and 64. Page 65 is the correct second page in this build.
+   58 percent of body size, on **pp. 62 and 65**. The audit said pp. 62 and 64. Page 65 is the
+   correct second page in this build.
+   > **Two corrections to this row, both from the figure pass** (`12_figures.md`). First, my glyph
+   > counts of "449 and 427 below 9 pt" include spaces and newlines; excluding them gives **350 and
+   > 312** with the same instrument on the same pages. Neither number is wrong, but they are not
+   > interchangeable, and the exclusion is the more meaningful count. Second, and more important:
+   > **`FPDFText_GetFontSize` reports the size declared inside the embedded XObject and is blind to
+   > the `\includegraphics` scale.** It still returns 6.97 pt after the figures were rescaled. The
+   > true on-page size has to come from glyph geometry calibrated against the body font on the same
+   > page. Measured that way after the fix: `fig2_model` 6.84 → **11.15 pt** (93.2 percent of body),
+   > `fig1_dataflow` 6.84 → **7.93 pt** (66.3 percent). So this row's original instrument would have
+   > reported no improvement at all.
 3. **The near-blank p. 4 is confirmed, precisely.** It carries the `Palavras-chave:` heading and five
    keyword lines, **21 words in total**, and nothing else.
 4. **The `[NEEDS SIGN-OFF]` count is 32, not 31.** Measured across `src/`: `0_main.tex` 6,
