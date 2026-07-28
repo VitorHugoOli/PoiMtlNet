@@ -17,14 +17,21 @@ coordinates below are **post-split, as of 2026-07-28**, and each is given with i
 
 | Persona | Scope | Verdict |
 |---|---|---|
-| **18** Visual and presentation | rendered pages of all three builds | **needs a visual pass** — one defect class, in-figure type size, is present in all four diagrams and is worse in the two the record does not track |
+| **18** Visual and presentation | rendered pages of all three builds | **needs a visual pass** — in-figure type size is a defect class in all four diagrams and is worse in the two the record does not track, and every footnote mark in every build is a hyperlink to page 1 |
 | **13** UFV compliance | defense, final, ppgc | **defense COMPLIANT · ppgc COMPLIANT · final NON-COMPLIANT** on one measurable rule (page-numbering offset) |
 | **19** LaTeX source and build engineering | source, preamble, `.sty`, Makefile, three logs, the gates | **needs an engineering pass** — the three-target structure is sound; `make check` does not pass, and two gate-coverage facts are worth recording |
 
-**Top three findings:** V-1 (Ch.3 figure labels at 44 percent of body, smaller than either figure
-the audit tracks, and not in `LEFT_OUT.md`), C-1 (the final build's first body page prints 11 on
-physical page 8), E-1 (`make check` exits nonzero at both commits, so "all gates pass" in the
-round's state description is not what the gate reports).
+**Top three findings:** E-5 (every footnote mark in all three builds is a live hyperlink to page 1,
+ten of them, and the fix is one line that changes no pixel), C-1 (the final build's first body page
+prints 11 on physical page 8), V-1 (Ch.3 figure labels at 44 percent of body, smaller than either
+figure the audit tracks, and not in `LEFT_OUT.md`). Then E-1: `make check` exits nonzero at both
+commits, so "all gates pass" in the round's state description is not what the gate reports.
+
+**One of these was nearly a miss, and the near-miss is worth reading.** I first filed E-5 as a MINOR
+log-hygiene note on the grounds that the ten footnote destinations exist and resolve. They do. They
+also all resolve to page 1, which is the question I had not asked. The instrument that says
+"resolves" and the instrument that says "resolves to the right place" are different instruments, and
+only the second one is a measurement.
 
 ---
 
@@ -56,7 +63,8 @@ The page counts match the state I was given exactly (108 / 105 / 109). `make` pa
 `-halt-on-error` and all three targets produced PDFs, so the source compiles for real and not
 under `nonstopmode` recovery. **Two columns the round's state description does not carry are
 nonzero**: 16 to 17 underfull horizontal boxes and 10 `dest` warnings per build. Both are
-assessed below (E-4, E-5); neither is a blocker.
+assessed in E-5, and the second one matters: those ten warnings are ten **live broken hyperlinks**,
+one per footnote, every one of them jumping the reader to page 1.
 
 ### 1.1 The split's render-parity claim, verified independently
 
@@ -456,24 +464,55 @@ flagged value is also wrong today.
 - **Closes when** both carry an explicit relative width (`width=\textwidth`, or
   `width=0.81\textwidth` to preserve today's appearance exactly).
 
-### E-5 · MINOR: 16 to 17 underfull hboxes and 10 `dest` warnings, both benign, both currently unreported
+### E-5 · MAJOR: every footnote mark in all three builds is a hyperlink to page 1
 
-- **Measured.** Underfull horizontal boxes: **17** defense, **16** final, **17** ppgc; worst
-  badness 10000, reached 7 times. Located from the flattened log: they are almost entirely
-  **narrow table cells in the errata tables** (`Replaced by the correct record`,
-  `Consolidated to a single entry`, `Citation corrected to the dataset sources`, and the
-  `\texttt` keys beside them), plus one in a long footnote. Underfull vboxes: 0. `dest` warnings:
-  **10 per build, all of the form `name{Hfootnote.N} has been referenced but does not exist`**,
-  one per footnote in the document (10 footnotes: 6 in Ch.3, 1 in Ch.4, 1 in Ch.5, 2 in
-  Appendix E).
-- **Conclusion, measured in both directions.** Neither hurts the reader. The underfulls are loose
-  inter-word spacing inside `p{}` columns of quoted-prose tables, which is what a narrow measure
-  costs; they are not margin bleeds (`Overfull` is 0 everywhere). For the `dest` warnings I
-  checked whether footnote hyperlinks are actually broken in the render, rather than assuming:
-  all 10 `Hfootnote.N` names **are** present in the PDF's name tree and **do** resolve, and **0 of
-  749** link annotations in the document fail to resolve to a page. The warning is pdfTeX
-  complaining during an intermediate pass about anchors that the final pass writes. Worth
-  recording only because a build claim of "clean" should say which counters are nonzero.
+**This finding replaces an earlier version of itself that got the verdict backwards, and the
+correction is the point.** I first tested whether the ten `Hfootnote.N` destinations *exist and
+resolve*, found that all ten do, and concluded from that the warnings were benign. That is the
+wrong test: a destination can resolve and still resolve to the wrong page. Measuring **where** they
+land inverts the conclusion.
+
+- **Anchor:** `pdfTeX warning (dest): name{Hfootnote.N} has been referenced but does not exist`,
+  10 occurrences in each of `build/main.log`, `build/main_final.log`, `build/main_ppgc.log`.
+- **Measured** (`src_utils/_round6/_fnlinks.py`, run on all three renders). All ten footnote
+  destinations resolve to **physical page 1** in every build. The pages that actually carry
+  footnote text are pp. 27, 28, 31, 34, 35, 40, 44, 50, 58, 70, 106 of the defense build. And the
+  broken destinations are not inert: **10 live link annotations**, on body pages 27, 28, 31, 34,
+  35, 40, 44, 58 and 106 (twice), point at page 1. Those are exactly the ten footnote marks the
+  source inventory predicts (6 in Ch.3, 1 in Ch.4, 1 in Ch.5, 2 in Appendix E); pp. 50 and 70 are
+  table notes set with `\footnotesize`, which correctly produce no link.
+- **Instrument validated against controls on the same document**, so a page-index of 0 is not an
+  artifact of how I read the dest: `chapter.5` resolves to p.57, `section.5.6` to p.68,
+  `cite.silva2025mtlnet` to p.82. Real anchors land correctly; only the footnote anchors collapse
+  to page 1.
+- **Conclusion.** A reader who clicks any footnote mark in the banca PDF is thrown to the folha de
+  rosto (the List of Figures, in the final build) and loses their place. The pdfTeX warning was
+  telling the truth the whole time, and "the name exists in the name tree" is not an answer to it.
+  Ten broken links in a document handed to a committee is a MAJOR presentation defect, not the
+  MINOR log-hygiene note I first filed. The underfull boxes in the same log **are** benign, and
+  are kept here with them: **17** defense, **16** final, **17** ppgc, worst badness 10000 reached
+  7 times, almost all loose inter-word spacing inside `p{}` columns of the quoted-prose errata
+  tables (`Replaced by the correct record`, `Consolidated to a single entry`, and the `\texttt`
+  keys beside them) plus one long footnote; `Overfull` is 0 everywhere, so nothing bleeds into a
+  margin.
+- **Cause and remedy, both tested.** The document sets `hyperfootnotes` nowhere, and abnTeX2 loads
+  `hyperref` itself, so the footnote-anchor machinery never gets initialized for this class's
+  footnote handling. `\hypersetup{hyperfootnotes=false}` in the preamble **does not work** and I
+  verified that rather than assuming: the log answers
+  `Package hyperref Warning: Option 'hyperfootnotes' has already been used`, and all 10 warnings
+  survive. The option is load-time only, so it has to precede the class:
+  `\PassOptionsToPackage{hyperfootnotes=false}{hyperref}` on the line above `\documentclass`.
+  Built with that one line added: **108 pages, tex_errors=0, dest warnings 0 (from 10), footnote
+  destinations 0 (from 10), footnote links to page 1 zero**, the control anchors still resolve
+  correctly, the full text layer is SHA-identical to the current build, every footnote's text is
+  still on its page, and `_pxdiff.py` reports **`pages differing: NONE`** across all 108 pages.
+  The alternative, if clickable footnotes are wanted rather than switched off, is loading
+  `hyperref` explicitly before the class machinery so its footnote anchors initialize; that is a
+  larger change to a preamble whose load order is deliberate, and it is not what I tested.
+- **Closes when** either that one line is added (measured above: no render change, no page-count
+  change, warnings and broken links both to zero), or the ten links are made to point at their
+  footnotes. Re-check with `_fnlinks.py`, which fails on the current build and passes on the
+  patched one.
 
 ### 4.2 The gate-coverage findings the split produced
 
@@ -500,7 +539,7 @@ time in one round that a directory change outran a glob. Worth one line of defen
 | Dimension | Score | Evidence |
 |---|---|---|
 | 1. Preamble hygiene | **GOOD** | Zero obsolete commands (no `\bf`/`\it`/`\rm`/`\sc`/`\tt`, no `epsfig`, no `a4wide`) — swept across all 47 files. Zero duplicate `\usepackage` lines. Settled font stack `newtxtext,newtxmath` confirmed, and the `amssymb` drop carries its `\Bbbk` clash reason. Load order correct. Every non-default choice carries a comment with its reason and often its measurement. **Three packages appear unused**: `multicol` (0 `multicols`), `mathtools` (0 of its distinctive macros), `bm` (0 `\bm{}`) — recommend dropping, cost zero, benefit one less thing to explain. `indentfirst` has no callable trace by construction (it patches `\@afterindentfalse`) and is correct to keep under ABNT. |
-| 2. Build health | **NEEDS-WORK** | 0 tex_errors, 0 overfull, 0 undefined refs/cites, 0 oversized floats, 0 bibtex problems, no rerun needed, on all three targets. Held back only by E-1: `make check` exits nonzero. |
+| 2. Build health | **AT-RISK** | 0 tex_errors, 0 overfull, 0 undefined refs/cites, 0 oversized floats, 0 bibtex problems, no rerun needed, on all three targets. But `make check` exits nonzero (E-1), and the 10 `dest` warnings per build are 10 live broken hyperlinks that ship to the reader (E-5) — a warning the log raised on every build and no build claim has ever reported. |
 | 3. Bibliography integrity (mechanical) | **GOOD** | `bibtex` + `abntex2cite[num]` + `abntex2-num.bst`, consistent with the settled decision; no biber, no `[alf]` residue. **100 entries, 100 unique keys, zero duplicates** — the known Wang_2023 / Liu_2023 / Lai_2024 collision set is **not** in this file. **Zero dangling keys and zero uncited entries** across 47 scanned files. The DGI triple-key fragmentation is resolved: one `velickovic2019deep` (`velivckovic2017graph` is the separate GAT paper). Four same-author-same-year clusters checked by title and all are genuinely distinct works. `.blg` clean on all three builds. |
 | 4. Cross-reference plumbing | **GOOD** | **Every** `\ref`-family call carries a non-breaking tie — zero untied hits across all files. Every `\label` follows its `\caption`. One `Equation 2` in prose is a reference to a *cited paper's* equation (`2_fundamentals.tex:170`), not an internal cross-reference, so it is correct. Label prefixes consistent (`fig:`/`tab:`/`sec:`/`eq:`/`ch:`/`apx:`). Zero doubled reference macros. |
 | 5. Graphics and floats (source) | **GOOD** | All relative widths, zero hardcoded dimensions, zero `[H]` placements, all floats `[htbp]` or `[htb]`, no `svg`/`--shell-escape` dependency, no absolute paths. Only E-4 (two missing width options) against it. |
@@ -596,6 +635,12 @@ were needed and none were added.
 | 175 / 1126 / 11 / 1 / 0 lint hits | 47 source files | `src_utils/_round6/_lint_subset.py` | comment-stripped; triage in 4.4 |
 | 49 unlisted acronym-shaped tokens; CoUrb 46, FiLM 21, MobiWac 24 | `chapters/*.tex` + `chapters/*/*.tex` | comment-stripped, math and macros removed, then a literal count for the three | the macro-stripping sweep cannot see mixed-case acronyms, hence the separate count |
 | combo builds 95 pages | `/tmp/swtest/src/build/{comboA,combo}.pdf` | `Output written on` + text-layer probe | `main_ppgc.tex` and `main.tex` each under `\FINALBUILD` |
+| 10 footnote dests → physical page 1, in all three builds | the three renders | `FPDF_GetNamedDest` + `FPDFDest_GetDestPageIndex`, 0-indexed then +1 | resolved page index, NOT mere existence in the name tree — existence was my first and wrong test |
+| footnote text on pp. 27, 28, 31, 34, 35, 40, 44, 50, 58, 70, 106 (defense) | defense render | count of glyphs below 10.5 pt nominal with box bottom < 260 bp, threshold 60 per page | the comparator that makes page 1 wrong; pp. 50 and 70 are `\footnotesize` table notes, not footnotes |
+| 10 live link annotations targeting p.1, on pp. 27, 28, 31, 34, 35, 40, 44, 58, 106 (x2) | defense render | `FPDFAnnot_GetLink` → `FPDFLink_GetDest` → target page index, excluding p.1 itself as a source | matches the source inventory exactly: 6 Ch.3 + 1 Ch.4 + 1 Ch.5 + 2 Appendix E |
+| control anchors `chapter.5`→57, `section.5.6`→68, `cite.silva2025mtlnet`→82 | defense render | same instrument | validates that a 0 index means a broken anchor, not a misread |
+| patched build: 108 pp, tex_errors=0, dest 0, footnote dests 0, footnote links to p.1 zero, text SHA identical, `pages differing: NONE` | `/tmp/fntest/dissertacao/src/build/main.pdf` | three-pass `make`-equivalent with `-halt-on-error`, then `_fnlinks.py` and `_pxdiff.py` | one added line: `\PassOptionsToPackage{hyperfootnotes=false}{hyperref}` before `\documentclass` |
+| `\hypersetup{hyperfootnotes=false}` does NOT work | `/tmp/fn_b3.log` | `Package hyperref Warning: Option 'hyperfootnotes' has already been used`; dest warnings still 10 | the option is load-time only; recorded because it is the obvious first attempt |
 
 ### 5.2 Repository documents consulted
 
@@ -645,6 +690,13 @@ were needed and none were added.
    `[VERIFY: locate a source for figures/cbic_mtlnet_arch.png before proposing a re-export.]`
 7. **Whether the four two-page float gaps (V-5) can be closed** without introducing worse
    placement. I measured the gaps; I did not test a `\FloatBarrier` or a re-order.
+8. **Whether clickable footnotes can be RESTORED rather than switched off** (E-5). I tested and
+   measured the switch-off route (`\PassOptionsToPackage{hyperfootnotes=false}{hyperref}`, no render
+   change, warnings and broken links to zero). The alternative is loading `hyperref` explicitly
+   ahead of the class machinery so its footnote anchors initialize; that reorders a preamble whose
+   load order is deliberate and commented, and I did not build it.
+   `[VERIFY: if the author wants working footnote links rather than none, the hyperref load-order
+   change needs its own build and its own margin re-measurement.]`
 
 ---
 
@@ -659,6 +711,7 @@ Four scripts written this session, all read-only, all committed beside this repo
 | `_bibaudit.py` (run from `src/`) | duplicate keys, same-author-year fragmentation with titles, dangling and uncited keys. |
 | `_lint_subset.py` (run from `src/`) | **nine** load-bearing ChkTeX/lacheck classes, since neither binary exists on this machine. Its header names the two classes it does NOT implement, so its silence is not mistaken for coverage. |
 | `_kwaudit.py <pdf> <resumo_pg> <abstract_pg>` | the keyword blocks against the UFV system-field rules, read off the render. |
+| `_fnlinks.py <pdf> ...` | where each footnote destination actually LANDS versus where its footnote text sits, plus the live link annotations that point there and control anchors on the same document. Existence of a destination is not the test; this is (E-5). Fails on the current build, passes on the one-line-patched build. |
 
 `_evidence/` holds four crops that are the visual basis of V-1 and the Ch.4 comparison:
 `p34_figband.png` (the Ch.3 figure at 12 px/pt), `cbic_lbl_residualblock.png` (the 10 px cap-height
