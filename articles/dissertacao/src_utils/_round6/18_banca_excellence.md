@@ -65,7 +65,8 @@ is 90 commits ahead of what a reader can fetch. That distinction produced the la
 **Sugestões** — F-04 (Gowalla date range differs between Ch.4 and Ch.6 with no reconciling note),
 F-05 (Ch.2 promises two metrics the document never uses), F-06 (no per-artifact role split in
 Appendix A), F-07 (two terms in the new Ch.2 equations are unregistered in the GLOSSARY),
-F-08 (Ch.2's characterization of Ch.3's split axis is weaker than what Ch.3 now states).
+F-08 (Ch.2's characterization of Ch.3's split axis is weaker than what Ch.3 now states),
+F-09 (Appendix B's MTLnet normalization tally does not match the printed chapter).
 
 ### I.3 The arguição transcript
 
@@ -609,9 +610,13 @@ this class of question, naming the two releases and their spans; or a parentheti
 
 ### F-05 · **MINOR** · Chapter 2 defines two metrics the document never uses
 
-**Anchor phrases:** "which is why mean reciprocal rank accompanies it where the joint comparison
-needs a rank-sensitive figure" — `src/chapters/2_fundamentals.tex:571`, renders **p.23**; and "the
-aggregate is the relative multi-task performance change" — `:576`, renders **p.23**.
+**Anchor phrases:** "which is why mean reciprocal rank" — `src/chapters/2_fundamentals.tex:571`,
+renders **p.23**; and "the aggregate is the relative multi-task" — `:576`, renders **p.23**.
+(Both anchors are deliberately clipped to text that lies on **one** source line: the full phrases
+"…accompanies it where the joint comparison needs a rank-sensitive figure" and "…relative
+multi-task performance change" each wrap across a line break, so a phrase-grep for the whole
+sentence at either coordinate returns nothing. The round-6 doctrine is to anchor by phrase; an
+anchor a reader cannot grep does not serve that.)
 
 **What I measured.** Grepped every chapter and appendix source (`chapters/*.tex` **and**
 `chapters/*/*.tex`, the post-split set) for "reciprocal", "MRR", "relative multi-task", "Delta_m":
@@ -707,6 +712,37 @@ does (both now disclosed as recovered from the released code, Appendix B), keepi
 Chapter 5 splits by user" contrast, which remains exactly true. Closing evidence: p.23 and p.36
 agree in the render.
 
+### F-09 · **MINOR** · Appendix B's MTLnet normalization tally does not match the printed chapter
+
+**Anchor phrase:** "was normalized to the second form at all 25 places where the name" —
+`src/chapters/apx_b_errata.tex:234` (2026-07-28); renders **p.95**. The full rendered sentence claims
+"21 in prose, one in a subsection heading, one in a figure caption, and two in table headings".
+
+**What I measured.** Counted every occurrence of the name in the **rendered** Chapter 4 (pp.42–56),
+excluding `ST-MTLNet` by lookbehind so only bare `MTLnet`/`MTLNet` sites count: **30 total, 28 in
+the chapter body** once the two preface occurrences are set aside as frame prose rather than
+reproduced article text. Classified the non-prose sites from the PDF outline and caption text rather
+than from source macros: the outline carries **two** level-3 headings with the name, "The MTLnet
+framework" (p.46) and "Baseline: MTLnet with DGI" (p.48), not one; one figure caption, "Figure 2 –
+Architecture based on MTLnet" (p.47); and table headings on pp.51–52. Independently checked whether
+one of the two headings is a dissertation addition rather than a published site: the published CoUrb
+`related.tex` (both `src/` and `src_en/`) has four subsections and none of them is "The MTLnet
+framework", so that heading was added by the re-typesetting and was never a published `MTLNet`
+occurrence available to normalize.
+
+**Conclusion.** Three numbers in one sentence disagree with the artifact the sentence describes: the
+total (25 against 28 body sites), the subsection-heading count (one against two), and — as a
+consequence — the prose count. The appendix is the document's own record of what was changed in the
+reproduced text, so an inaccurate tally there is a defect in exactly the instrument a reader would
+use to audit the normalization. Two directions are defensible and they give different totals: count
+only sites that existed in the published article (which excludes the added heading), or count every
+site in the printed chapter (which includes it). The sentence must state which rule it applies,
+because the rule is what makes the number checkable.
+
+**What would close it.** Recount under one stated rule, print the rule in the sentence, and make the
+per-category breakdown sum to the total. Closing evidence: a count over the rendered pp.42–56 that
+matches the sentence, with the preface and the added heading explicitly in or out.
+
 ---
 
 ## PART IV — WHAT I VERIFIED AS SOUND (so no one "fixes" it)
@@ -760,7 +796,9 @@ cost a measurement.
     "ST-MTLNet (Spatial-Temporal MTLNet)" that the GLOSSARY preserves, and the third is Appendix B
     stating that the published article typesets the baseline as `MTLNet`. The two `MtlNet` hits are
     both inside the repository URL `PoiMtlNet`, which Appendix B explicitly exempts as "a literal
-    address rather than the model name" (p.95). The errata note is accurate about its own scope.
+    address rather than the model name" (p.95). **Scope of this item:** it verifies the *casing* is
+    consistent and that the apparent violations are sanctioned. It does **not** endorse the errata
+    note's site tally, which I counted separately and found wrong — see F-09.
 
 ---
 
