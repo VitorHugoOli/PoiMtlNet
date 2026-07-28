@@ -112,10 +112,39 @@ are named once each in Ch.5's baseline list and the List of Abbreviations only i
 | outperforms / matches | supera / equipara-se (estatisticamente) |
 | leakage audit | auditoria de vazamento |
 | shared trunk | tronco compartilhado |
+| n = 20 (fitted models) | vinte modelos ajustados (por configuração) |
+| user-disjoint split | usuários disjuntos entre treino e teste |
+| fold (one of five) | partição (uma de cinco); *as cinco* partições fixas |
+| per-seed mean(s) | média por inicialização; *plural* médias por inicialização |
+| joint-best convention | seleção *joint-best* |
+| cross-attention trunk | tronco de atenção cruzada |
+| decomposed encoders (spatial, temporal, categorical) | codificadores decompostos (espacial, temporal, categórico) |
+| hard parameter sharing | compartilhamento rígido de parâmetros |
+| sharing topology | topologia de compartilhamento |
 
 The Resumo mirrors the Abstract claim-for-claim (WRITING_LAW §6); this table keeps the pair
 translation-stable. "Embedding" may stay as a loanword in PT (standard in the BR community)
 with "representação" as the running word.
+
+**The last nine rows were added 2026-07-28**, after the Resumo was cut and rebuilt. Each was already
+in use in the Resumo and none was registered, which the fail-closed rule (§1) does not permit. Before
+adding each row I confirmed its English counterpart is itself registered above: `n = 20 (fitted
+models)` §4, `user-disjoint split` §3, `fold` and `seed` §3, `joint-best convention` §4,
+`cross-attention trunk` in **the joint model** §2, `the shared trunk` §2. Three had no English row of
+their own and are ordinary MTL vocabulary rather than names this project coined, so they are
+registered here as translation pairs only: decomposed encoders, hard parameter sharing, sharing
+topology.
+
+Two notes on the choices, since a later translator will second-guess them:
+
+- **`seleção joint-best` keeps the English term of art.** It names a selection rule this document
+  defines (§4, "joint-best convention"), it appears in the results tables in English, and inventing a
+  Portuguese calque would make the Resumo and the tables disagree. The Resumo italicizes it, which is
+  the BR convention for a retained foreign term.
+- **`partição` for `fold`, and `as cinco partições fixas`.** The existing row translates "5-fold
+  cross-validation" as "validação cruzada (5 partições)", so `partição` was already the registered
+  word for the unit; these rows make the singular and the "fixed across seeds" sense explicit,
+  because the Resumo needs to say that the five are the *same* five at every seed.
 
 ## 7 · Banned and repo-internal words (pointer)
 
