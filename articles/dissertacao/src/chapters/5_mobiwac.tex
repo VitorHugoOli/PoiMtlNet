@@ -241,7 +241,17 @@ general rule.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics{figures/mobiwac/fig1_dataflow.pdf}
+% [round6, 2026-07-28] COD-017 in-figure text size. WRITING_LAW 5 requires in-figure text near
+% body size. Measured with FPDFText_GetFontSize (not glyph bounding boxes): body is 11.96 pt and
+% this diagram's labels were 6.97 pt, that is 58 percent of body, at 350 glyphs below 9 pt on
+% rendered page 62. The figure is a vector PDF whose natural size is 391.170 by 177.718 pt, so it
+% was being placed at natural size inside a 455.0 pt text block and left 63.8 pt of the block
+% unused. Scaling the placement to the full text block scales the type with it. Regenerating the
+% TikZ source at a larger base font was tried first and rejected: at 11pt the labels reach 7.97 pt
+% natural but the node text then overruns its own box borders (measured on the sibling figure, the
+% shared-trunk title protrudes 0.50 pt past the fill), which changes the figure rather than its
+% size. Nothing inside the figure is altered here; only its printed scale.
+\includegraphics[width=\textwidth]{figures/mobiwac/fig1_dataflow.pdf}
 \caption{From a check-in sequence to two predictions: each visit is embedded in a four-level graph
 (check-in, place, region, city) trained without task labels. The graph yields two sets of
 vectors, one per visit and one per region; sliding nine-visit windows of each feed a single
@@ -310,7 +320,12 @@ pass whose one set of inputs produces both answers at once.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics{figures/mobiwac/fig2_model.pdf}
+% [round6, 2026-07-28] COD-017 in-figure text size, same defect and same remedy as the data-flow
+% figure above. Measured labels 6.97 pt against an 11.96 pt body, 312 glyphs below 9 pt, on
+% rendered page 65. Natural size 283.636 by 196.499 pt inside a 455.0 pt text block: this figure
+% was printed at 62 percent of the available width. Scaled to the text block, the labels reach
+% body size. The figure content is unchanged.
+\includegraphics[width=\textwidth]{figures/mobiwac/fig2_model.pdf}
 \caption{The single multi-task model. A check-in (semantic) window and a region (spatial) window
 pass through private encoders into the shared trunk, the only place where the two tasks
 interact. The category output uses the trunk's output alone; the region output

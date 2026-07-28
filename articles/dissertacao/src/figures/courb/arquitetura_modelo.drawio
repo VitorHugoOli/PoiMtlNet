@@ -18,10 +18,10 @@
         <mxCell id="enc_spatial_group" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#E6994D;strokeWidth=2;dashed=1;dashPattern=8 4;verticalAlign=top;fontSize=13;fontStyle=1;" value="" vertex="1">
           <mxGeometry height="105" width="310" x="30" y="190" as="geometry" />
         </mxCell>
-        <mxCell id="enc_spatial_title" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=13;fontColor=#B35A00;" value="&lt;b&gt;Encoder Espacial&lt;/b&gt;" vertex="1">
+        <mxCell id="enc_spatial_title" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=13;fontColor=#B35A00;" value="&lt;b&gt;Spatial Encoder&lt;/b&gt;" vertex="1">
           <mxGeometry height="30" width="130" x="115" y="192" as="geometry" />
         </mxCell>
-        <mxCell id="input_coords" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=13;" value="Coordenadas&lt;br&gt;&lt;i&gt;(lat, lon)&lt;/i&gt;" vertex="1">
+        <mxCell id="input_coords" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=13;" value="Coordinates&lt;br&gt;&lt;i&gt;(lat, lon)&lt;/i&gt;" vertex="1">
           <mxGeometry height="50" width="100" x="50" y="225" as="geometry" />
         </mxCell>
         <mxCell id="loc_encoder_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#E6994D;fontSize=13;" value="Location Encoder" vertex="1">
@@ -45,10 +45,10 @@
         <mxCell id="enc_temporal_group" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#6C8EBF;strokeWidth=2;dashed=1;dashPattern=8 4;fontSize=13;" value="" vertex="1">
           <mxGeometry height="102.5" width="310" x="30" y="310" as="geometry" />
         </mxCell>
-        <mxCell id="enc_temporal_title" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=13;fontColor=#336699;" value="&lt;b&gt;Encoder Temporal&lt;/b&gt;" vertex="1">
+        <mxCell id="enc_temporal_title" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=13;fontColor=#336699;" value="&lt;b&gt;Temporal Encoder&lt;/b&gt;" vertex="1">
           <mxGeometry height="30" width="140" x="115" y="316.5" as="geometry" />
         </mxCell>
-        <mxCell id="input_time" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=13;" value="Timestamps&lt;br&gt;&lt;i&gt;(hora, dia)&lt;/i&gt;" vertex="1">
+        <mxCell id="input_time" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=13;" value="Timestamps&lt;br&gt;&lt;i&gt;(hour, day)&lt;/i&gt;" vertex="1">
           <mxGeometry height="50" width="100" x="50" y="347.5" as="geometry" />
         </mxCell>
         <mxCell id="time_encoder_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#6C8EBF;fontSize=13;fontStyle=0;" value="Time2Vec" vertex="1">
@@ -71,13 +71,13 @@
         <mxCell id="enc_categ_group" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#82B366;strokeWidth=2;dashed=1;dashPattern=8 4;fontSize=13;" value="" vertex="1">
           <mxGeometry height="97.5" width="310" x="30" y="428.5" as="geometry" />
         </mxCell>
-        <mxCell id="enc_categ_title" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=13;fontColor=#2D6A2D;" value="&lt;b&gt;Encoder Categórico&lt;/b&gt;" vertex="1">
+        <mxCell id="enc_categ_title" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=13;fontColor=#2D6A2D;" value="&lt;b&gt;Categorical Encoder&lt;/b&gt;" vertex="1">
           <mxGeometry height="30" width="150" x="110" y="431.5" as="geometry" />
         </mxCell>
         <mxCell id="FeI0cVF7S8BZOG4QJl98-25" edge="1" parent="1" source="input_cat_data" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=13;" target="hgi_box">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="input_cat_data" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=13;" value="Categorias&lt;br&gt;&lt;i&gt;(POI graph)&lt;/i&gt;" vertex="1">
+        <mxCell id="input_cat_data" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=13;" value="Categories&lt;br&gt;&lt;i&gt;(POI graph)&lt;/i&gt;" vertex="1">
           <mxGeometry height="50" width="100" x="50" y="463.5" as="geometry" />
         </mxCell>
         <mxCell id="hgi_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#82B366;fontSize=13;" value="PoiEncoder + HGI" vertex="1">
