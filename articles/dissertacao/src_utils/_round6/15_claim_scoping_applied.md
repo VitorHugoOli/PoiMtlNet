@@ -301,34 +301,55 @@ model has exactly two tasks**, so the one result leaning the bullet's way exclud
 
 ### The commit-history question, with its limit stated
 
-**The roster below is a re-run, and it corrects an earlier version of this section that misstated it.**
-`git log --all --oneline -S` over both the pre-reorganization path (`CBIC___MTL/sections/`) and the
-current one (`articles/CBIC___MTL/sections/`) plus this chapter, for all three probes
-(`standley2020tasks`, `matches or exceeds`, `Empirical Performance`), returns the same set:
+**The load-bearing negative, stated first because it is the part that does not move.** Walking
+`git rev-list --all` and extracting this bullet from every tree that contains either path yields **1729
+blobs carrying it and exactly one distinct bullet text**, with `\cite{standley2020tasks}` attached in all
+of them; the earliest is `223f5df7` at `:85`. No commit count is needed for that, and none of it depends
+on which probe string is used.
 
-| Commit | What it is |
+**A commit roster is the wrong instrument here, and I got it wrong twice before that became clear.**
+`git log --all -S<string>` counts *occurrence changes*, so its output moves as this round's own commits
+edit the bullet and its comment, and it moves **differently per probe**. Measured 2026-07-28, over both
+the pre-reorganization path (`CBIC___MTL/sections/`), the current one
+(`articles/CBIC___MTL/sections/`) and this chapter:
+
+| Probe | Roster returned |
 |---|---|
-| `223f5df7` | the 2025-10-21 import of the CBIC article tree |
-| `1a29b545` | the dissertation re-typeset |
-| `689b0d6e` | the MobiWac release branch, carrying the article tree unchanged |
-| `83e40091` | the BRACIS release branch, likewise |
-| `232befd5` | this round |
+| `standley2020tasks` | `223f5df7`, `83e40091`, `689b0d6e`, `1a29b545`, **`232befd5`** |
+| `matches or exceeds` | `223f5df7`, `83e40091`, `689b0d6e`, `1a29b545`, **`76d92f22`** — no `232befd5` |
+| `Empirical Performance` | `223f5df7`, `83e40091`, `689b0d6e`, `1a29b545`, **`232befd5`, `76d92f22`** |
 
-**Three corrections to what an earlier draft of this section claimed.** First, it named `643c686e` in
-that roster: `643c686e` is the import commit on the *current* path and appears in the **file history**,
-not in any `-S` result, and conflating the two was the error. Second, it said the searches return only
-"the import and the re-typeset", omitting the two release branches. Third, it said
-`articles/CBIC___MTL/sections/method.tex` was touched by **exactly one commit**; across all refs the
-file history shows **three** (`643c686e`, `689b0d6e`, `83e40091`), the two later ones being release
-branches. An earlier cell had also reported an `-S` result for `Empirical Performance` that was in fact
-obtained by `git show ... | grep`; the table above is from an actual `-S` run on that string.
+`232befd5` is absent from the second probe because **this round removed the "matches or exceeds" wording
+from the bullet**, so that commit changes the occurrence count of one string and not the others; `76d92f22`
+then entered two rosters when it rewrote this very comment. So reporting one merged five-commit list "for
+all three probes", which the previous version of this section did, was **false for at least one probe no
+matter which list was chosen** — the reviewer was right, and the defect is that a moving instrument was
+quoted as a fixed one.
 
-What is load-bearing is unchanged, and does not rest on a commit count: the bullet is present at `:85`
-of the earliest committed version with `\cite{standley2020tasks}` already attached, and the bullet text
-is **byte-identical across every committed blob** of that file. That last claim is measured, not
-asserted: walking `git rev-list --all` and extracting the bullet from every tree containing either path
-gives **1729 blobs carrying it and exactly one distinct bullet text** across all of them. The same
-correction was applied to the comment at the citing site in `3_cbic.tex`.
+Those three rows were re-verified against the live command, set for set, at the time of writing. **They
+will drift again**: any later commit touching one of the three strings enters that probe's roster and not
+the others, and the row for a probe whose wording this round changed will keep diverging from the rest.
+Read the table as a dated observation, not as a fact about the repository. The two claims below do not
+drift, and they are the ones to cite.
+
+**Exclude this round's own commits and the instability disappears.** All three probes then return the
+**same four**, and this is the roster to cite:
+
+| Commit | Date | What it is |
+|---|---|---|
+| `223f5df7` | 2025-10-21 | the import of the CBIC article tree |
+| `83e40091` | 2026-05-01 | BRACIS release branch, article tree unchanged |
+| `689b0d6e` | 2026-07-08 | MobiWac release branch, likewise |
+| `1a29b545` | 2026-07-23 | the dissertation re-typeset |
+
+Restricted to the article tree alone, all three probes return the same three, without the re-typeset.
+
+**Two further corrections to the first version of this section.** It named `643c686e` in the roster:
+that is the import commit on the *current* path and appears in the **file history**, not in any `-S`
+result, and conflating the two was the error. And it said
+`articles/CBIC___MTL/sections/method.tex` was touched by **exactly one commit**; across all refs the file
+history shows **three** (`643c686e`, `689b0d6e`, `83e40091`), the two later ones release branches. The
+same per-probe correction was applied to the comment at the citing site in `3_cbic.tex`.
 
 **The limit, stated and not papered over:** the CBIC LaTeX entered version control on **2025-10-21, after
 publication**. Pre-submission drafts of this bullet are not in this repository at all, so the question
