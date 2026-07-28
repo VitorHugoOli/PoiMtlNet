@@ -125,6 +125,43 @@ naive check:
   invalid UTF-8 byte present in every log — so under a UTF-8 locale everything past that byte went
   unexamined. Match logs in Python with permissive decoding, never with `tr`.
 
+### 2.3b The source did not compile for six commits, and the checker reported it clean
+
+**The worst instance of §2.3 to date, found 2026-07-28.** From commit `6d780b58` to `a880632b` the
+opening brace of the `{\small ...}` group in `tables/frame/bib_errata.tex` was missing (lost in the
+tables reorganization; the closing brace survived). Every build raised
+`! Extra }, or forgotten \endgroup`. Six consecutive commit messages nonetheless carried
+"104/99 pp, 0 overfull, 0 undefined".
+
+**The mechanism is the important part: the two build paths disagreed, and the one that was believed
+could not see the error.**
+
+| Path | Flag | Behaviour on this source |
+|---|---|---|
+| `make defense` | `-halt-on-error` | dies at the error, produces **no PDF** |
+| `build.sh` | `-interaction=nonstopmode` | pdflatex **recovers** and writes a 104-page PDF |
+
+`build.sh` then measured that PDF and reported `pages=['104'] overfull_hbox=0 undef_cite=0
+undef_ref=0 oversized_floats=0`, because it never looked for TeX errors at all. Its only
+"no PDF produced" branch could not fire, since a PDF *was* produced.
+
+Two things made this survive so long. The recovered PDF was **not junk**: its single visible defect
+was one appendix table rendering at body size instead of `\small`, which nobody would notice without
+comparing. And nobody ran `make`, which would have failed on the first pass.
+
+- **Gate:** `build.sh` now extracts every `! ...` line plus the fatal notice, reports `tex_errors=N`,
+  prints the first five, states that the nonstopmode PDF is not the document, and fails. Validated
+  in both directions against the `ac87e5d7` tree (reports 1) and the fixed tree (reports 0).
+- **The rules.** `tex_errors=0` is part of every build claim from now on. **A PDF existing is not
+  evidence the source is correct.** When two tools disagree about the same artifact, the one
+  reporting success is the one to distrust. And nonstopmode is for *reading* a log, never for
+  certifying a build: run `make` too, because `-halt-on-error` is the honest signal.
+- **Also:** `src_utils/texenv.sh` now holds the three environment variables this stack needs, each
+  with its failure mode written down. A wrong `TEXMFVAR` produces
+  `Font ntx-Regular-tlf-ot1r at 657 not found`, which looks like a missing font and is a missing
+  font *map*; `kpsewhich -var-value TEXMFVAR` reports an unreadable path here, so it cannot be
+  probed and must be set.
+
 ### 2.4 Stale committed build residue
 
 `chapters/*.aux` and `main.aux` had been committed at the source root. BibTeX resolves those paths
@@ -255,7 +292,9 @@ saying so with evidence is part of the job.
 
 ```
 cd articles/dissertacao
-./src_utils/build.sh src both      # defense + final; reports pages, overfull, undefined, oversized floats
+source src_utils/texenv.sh         # REQUIRED: PATH, TEXMFHOME, TEXMFVAR, TEXMFCONFIG. See below.
+(cd src && make defense && make final)   # -halt-on-error: the HONEST pass/fail signal
+./src_utils/build.sh src both      # the report: pages, tex_errors, overfull, undefined, oversized floats
 cp src/build/main.pdf src/dissertacao.pdf
 python3 src_utils/sync_deliverables.py --workspace <abs>   # before ANY save_artifacts
 ./src_utils/check.sh               # sweep-guard tests, page-count sync, trapped-prose fixtures,
@@ -263,9 +302,25 @@ python3 src_utils/sync_deliverables.py --workspace <abs>   # before ANY save_art
 python3 src_utils/sync_page_counts.py --write   # if the page count moved
 ```
 
-`check.sh` currently exits 1 on a **known false positive**: the word "Pareto" in `3_cbic.tex` trips
-the banned-verdict-verb sweep. It is the technical term (Pareto-optimal, Pareto-stationary) in
-published text and must stay. Read the output rather than the exit code, and do not "fix" those.
+**Run `make` as well as `build.sh`, and read `tex_errors`.** `build.sh` uses
+`-interaction=nonstopmode`, under which pdflatex recovers from an error and still writes a PDF; that
+is how a source tree with a LaTeX error passed six builds (§2.3b). `make` uses `-halt-on-error` and
+produces nothing when the source is broken, which is the signal you want. `build.sh` now reports
+`tex_errors=N` and fails on it, so either tool catches it today, but running both is cheap and the
+two disagreeing is the diagnostic.
+
+**Source `src_utils/texenv.sh` first**, or the build fails in one of two ways. Without `TEXMFHOME`:
+`abntex2.cls not found`, which is honest. With the wrong `TEXMFVAR`:
+`!pdfTeX error: Font ntx-Regular-tlf-ot1r at 657 not found ==> Fatal error`, which is misleading —
+the `.tfm` and `.pfb` are both present in the home tree, and what is missing is the font *map* that
+newtx writes into the usermode updmap output. `kpsewhich -var-value TEXMFVAR` reports an unreadable
+path on this machine, so the value cannot be probed and the script sets it explicitly.
+
+`check.sh` currently exits 1 on **two known false positives**, both of which must stay: the word
+"Pareto" in `3_cbic.tex` trips the banned-verdict-verb sweep (it is the technical term,
+Pareto-optimal and Pareto-stationary, in published text), and `apx_b_errata.tex:242` trips the
+"this article" sweep in a sentence that is deliberately about the MobiWac *article* rather than about
+the chapter. Read the output rather than the exit code, and do not "fix" those.
 
 ### 3.6 Commit style
 

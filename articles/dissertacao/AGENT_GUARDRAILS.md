@@ -98,9 +98,19 @@ failure mode a good-looking dissertation chapter invites.
 - **C3. Never-cite lists are absolute** (inherited from the MobiWac board): STAN v4-collapse
   numbers, ReHDM v2 row, VOID fp16/bf16 collapsed cells, pre-bugfix findings flagged in
   `docs/PAPER_FINDINGS.md`.
-- **C4. BRACIS containment.** BRACIS material may inform prose but is cited only as "an earlier
-  unpublished iteration"; its C2-era region-cost claim appears only as the corrected-history
-  narrative, never as a live claim.
+- **C4. BRACIS containment.** **No BRACIS result, number, or claim appears anywhere in the
+  dissertation**, and its C2-era region-cost claim is never reissued. The rejected manuscript is not
+  disclosed to the reader at all.
+  > **Amended 2026-07-27 by author decision** (NORTH_STAR §5 item 11; the matching edit was owed to
+  > this file and is applied here). C4 previously required the *opposite* of its current form: it
+  > mandated a containment device, citing BRACIS "only as an earlier unpublished iteration". Appendix
+  > A §A.2, which carried that disclosure, was removed on the author's grounds that the trail of a
+  > rejected-then-reworked manuscript adds reading complexity without serving the reader, and that
+  > reworking after a reject is common practice with the conclusion unchanged. The *prohibition* half
+  > of C4 survives and is now the whole rule; the *disclosure* half is void. Nothing in the document
+  > asserts a correction relative to that manuscript (swept 2026-07-27: every "earlier" or
+  > "corrected" passage names CBIC, CoUrb, the submitted MobiWac manuscript, or a development-time
+  > data preparation as its own antecedent).
 
 ## 4 · Long-form failure-mode countermeasures
 
@@ -189,6 +199,8 @@ policy; (d) every major publisher (ICMJE, Elsevier, Springer, IEEE, ACM) require
 | **Fake cohesion** (template transitions, uniform section shapes) | G3 skeleton-variety check; WRITING_LAW §4.4. |
 | **Variance compression in edit passes** (homogenizing the author's voice) | Edits preserve burstiness; a pass that only smooths is rejected (WRITING_LAW §4.3). |
 | **Self-certification** (agent declares its own output verified) | L6 fresh-eyes rule; author audits independently. |
+| **Trusting the tolerant tool** (two checks disagree; the one reporting success is believed) | The source did not compile for six commits while `build.sh` reported "104 pp, 0 overfull, 0 undefined": under `-interaction=nonstopmode` pdflatex recovers from an error and still writes a PDF, and the checker never looked for TeX errors. `make` (`-halt-on-error`) produced nothing the whole time. **Rule: `tex_errors=0` is part of every build claim; a PDF existing is not evidence the source is correct; when two tools disagree about one artifact, distrust the one reporting success.** (2026-07-28, §2.3b of `science/AGENT_HANDOFF.md`.) |
+| **A gate that has never fired** (a check whose passing carries no information) | Validate every new gate in BOTH directions before trusting it: run it against a tree where the defect is present and confirm it fails, then against the fixed tree and confirm it passes. Four of this repository's checkers were wrong at least once by being tuned only on the case in front of them. |
 | **Silent correction** (fixing a published number/claim without a trail) | Errata policy (NORTH_STAR §5.7): every departure from a published source is listed and approved. |
 
 ## 8 · Evidence base (why these rules; verified 2026-07-18)

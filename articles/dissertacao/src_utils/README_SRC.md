@@ -63,8 +63,36 @@ pre-creates `build/chapters/` because `\include` writes per-chapter `.aux` there
 
 Requires TeX Live with `abntex2`, `newtx`, `fontaxes`, `xstring`, `enumitem`, `multirow`,
 `adjustbox`, `collectbox`, `xkeyval`, `subfig`, `lastpage`, `textcase`, `xurl`, `kastrup`,
-`tex-gyre`, `txfonts`. On the build machine they live in a usermode tree in the agent workspace;
-export `TEXMFHOME`/`TEXMFVAR`/`TEXMFCONFIG` at it before `make` if TeX cannot find `abntex2.cls`.
+`tex-gyre`, `txfonts`. On this machine those live in a **usermode tree** at `$HOME/Library/texmf`,
+not in the system TeX Live tree, and `pdflatex` itself is at `/Library/TeX/texbin`, which is not on
+a non-interactive `PATH`.
+
+**`source src_utils/texenv.sh` before `make`.** It sets the four variables and records why each is
+needed. Two distinct failures if you skip it, and the second one misleads:
+
+| Missing | Symptom | What it actually is |
+|---|---|---|
+| `TEXMFHOME` | `LaTeX Error: File 'abntex2.cls' not found` | honest: the class is not on the path |
+| `TEXMFVAR` | `!pdfTeX error: Font ntx-Regular-tlf-ot1r at 657 not found ==> Fatal error occurred, no output PDF file produced!` | **not** a missing font. Both the `.tfm` and the `.pfb` are present in the home tree. What is missing is the font **map**: newtx registers its 36 `ntx-*` entries in the usermode updmap output at `$TEXMFHOME/.texmf-var/fonts/map/pdftex/updmap/pdftex.map`, and the system map has none. `kpsewhich -var-value TEXMFVAR` reports an unreadable path here, so the value cannot be probed and must be set. |
+
+`build.sh` carries the same defaults so it works when invoked directly.
+
+## Verifying a build
+
+Run **both** tools and read `tex_errors`:
+
+```
+source src_utils/texenv.sh
+(cd src && make defense && make final)   # -halt-on-error -> the honest pass/fail
+./src_utils/build.sh src both            # the report, including tex_errors
+```
+
+`build.sh` runs `-interaction=nonstopmode`, under which pdflatex **recovers** from an error and still
+writes a PDF. That is how commits `6d780b58` through `a880632b` shipped "104/99 pp, 0 overfull,
+0 undefined" out of a source tree carrying `! Extra }, or forgotten \endgroup` (a brace lost from the
+`{\small ...}` group in `tables/frame/bib_errata.tex` during the tables reorganization). `make`
+produced nothing that whole time; nobody ran it. `build.sh` now reports `tex_errors=N` and fails on
+it. **A PDF existing is not evidence the source is correct.**
 
 ## Compliance decisions baked in
 
