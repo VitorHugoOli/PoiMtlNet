@@ -7,18 +7,23 @@ machine's TeX Live 2026 *basic* tree (`which chktex lacheck` -> not found; nothi
 report silence, the subset of their warnings that is load-bearing for THIS document is
 implemented here and run against the real source.
 
-CHECKS (each maps to a named ChkTeX/lacheck warning class):
+CHECKS IMPLEMENTED HERE (nine; each maps to a named ChkTeX/lacheck warning class):
   1. missing tie before a reference macro   (ChkTeX 13: "You should use ~ ...")
   2. hardcoded float/section numbers in prose ("Figure 3.2", "Table 8", "Section 5.6")
   3. straight double quote " used instead of TeX `` '' (ChkTeX 38)
   4. inline math with $...$ rather than \\(...\\) (ChkTeX 1 / l2tabu, informational)
-  5. space after a macro swallowed: "\\LaTeX is" style (ChkTeX 11) -- restricted to text macros
-  6. \\label immediately BEFORE its \\caption inside a float (lacheck; wrong number silently)
-  7. italic-correction and small-caps obsolete forms: \\bf \\it \\rm \\sc \\tt (l2tabu)
-  8. ellipsis typed as ... rather than \\dots / \\ldots
-  9. footnote placed before the punctuation it belongs after
- 10. nested quotes / unbalanced $ count per line
+  5. italic-correction and small-caps obsolete forms: \\bf \\it \\rm \\sc \\tt (l2tabu)
+  6. ellipsis typed as ... rather than \\dots / \\ldots
+  7. footnote placed before the punctuation it belongs after
+  8. unbalanced $ count per line
+  9. \\label placed BEFORE its \\caption inside a float (lacheck; the label then silently
+     points at the enclosing section number rather than the float)
 
+NOT implemented, and therefore NOT covered by a green run of this script: ChkTeX 11
+(swallowed space after a text macro) and nested-quote direction. If either matters, run the
+real chktex on a machine with a full TeX Live.
+
+Checks 1-8 are per-line regex; check 9 is a small float-environment state machine.
 Comment-stripped source only. Run from src/.
 """
 import glob
@@ -67,9 +72,40 @@ CHECKS = {
 }
 
 
+FLOAT_BEGIN = re.compile(r"\\begin\{(figure|table|longtable)\*?\}")
+CAPTION = re.compile(r"\\caption")
+LABEL = re.compile(r"\\label\{")
+
+
+def label_before_caption(lines):
+    """Check 9 (lacheck): a \\label placed before its \\caption inside a float.
+
+    LaTeX resolves \\label against the most recently incremented counter, so a label that
+    precedes its caption points at the enclosing SECTION number, not at the float. The build
+    is clean and \\ref resolves, to the wrong number -- no warning is ever raised.
+    """
+    out = []
+    env = cap = lab = start = None
+    for i, line in enumerate(lines, 1):
+        m = FLOAT_BEGIN.search(line)
+        if m:
+            env, cap, lab, start = m.group(1), None, None, i
+        if env:
+            if cap is None and CAPTION.search(line):
+                cap = i
+            if lab is None and LABEL.search(line):
+                lab = i
+            if re.search(r"\\end\{" + env + r"\*?\}", line):
+                if lab and cap and lab < cap:
+                    out.append((start, f"{env}: \\label at :{lab} precedes \\caption at :{cap}"))
+                env = None
+    return out
+
+
 def main() -> int:
     hits = {k: [] for k in CHECKS}
     hits["unbalanced_dollar"] = []
+    hits["label_before_caption"] = []
     for f in files():
         try:
             lines = strip_comments(open(f, encoding="utf8").read())
@@ -81,7 +117,9 @@ def main() -> int:
                     hits[name].append((f, n, line.strip()[:110], m.group(0)))
             if line.count("$") % 2 and "$$" not in line:
                 hits["unbalanced_dollar"].append((f, n, line.strip()[:110], "$"))
-    for name in list(CHECKS) + ["unbalanced_dollar"]:
+        for start, why in label_before_caption(lines):
+            hits["label_before_caption"].append((f, start, why, "label/caption"))
+    for name in list(CHECKS) + ["unbalanced_dollar", "label_before_caption"]:
         rows = hits[name]
         print(f"\n== {name}: {len(rows)} hit(s) ==")
         for f, n, line, tok in rows[:14]:

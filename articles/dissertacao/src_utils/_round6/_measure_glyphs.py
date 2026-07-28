@@ -15,7 +15,11 @@ size), measured on the SAME PAGE, for the body font and for the in-figure text. 
     effective_size        = figure_o_box_height * nominal_pt_per_box_pt
 
 Usage:
-  python3 _measure_glyphs.py <pdf> --pages 62 65 [--glyph o] [--body-nominal auto]
+  python3 _measure_glyphs.py <pdf> --pages 62 65 [--glyph o]
+
+The body nominal size is not an option: it is always inferred as the MODAL nominal size on the
+page being measured, so the calibration comes from that page's own body text and never from a
+value carried over from another page.
 
 Prints, per page: body nominal size (modal), body reference-glyph box, per-nominal-size
 clusters of in-figure glyphs, and the effective on-page size of each cluster.

@@ -74,7 +74,12 @@ trust, and it holds, on three instruments:
 
 The PDF file hashes do differ, and that is not a defect: the only differing bytes are
 `/CreationDate` and the document `/ID`. Recording this because "byte-identical" was the claim, and
-the PDFs are not byte-identical while the *document* is.
+the PDFs are **not** byte-identical while the *document* is. Equal file **sizes** are not evidence
+of byte identity either, and I make that mistake explicit because I made it in passing before the
+hashes came back: the three post-split PDFs have exactly the pre-split byte counts (1339651 /
+1333480 / 1340420), and all three hashes still differ. Size equality is what you would expect from
+a timestamp-only delta; it does not establish it. The parity claim in this report rests on the
+text-layer SHA and the pixel diff, not on either the sizes or the file hashes.
 
 ---
 
@@ -363,17 +368,23 @@ and all five appendices, with page numbers matching the render.
 `\FINALBUILD` on the command line against the same root. Three targets, one body, two switches.
 
 I exercised the combination none of the three targets covers — **the ppgc root under
-`\FINALBUILD`** — because an untested switch path is how a two-build toggle ships the wrong PDF:
+`\FINALBUILD`** — because an untested switch path is how a two-build toggle ships the wrong PDF.
+Two runs, because the first thing I reached for tested the wrong root and I am recording both:
 
 ```
-pdflatex -halt-on-error -jobname=comboA "\def\FINALBUILD{}\input{main_ppgc.tex}"
-  -> exit 0, 95 pages, approval placeholder ABSENT, Resumo ABSENT, opens on "List of Figures"
+A. pdflatex -halt-on-error -jobname=comboA "\def\FINALBUILD{}\input{main_ppgc.tex}"
+     -> exit 0, 95 pages, approval placeholder ABSENT, Resumo ABSENT, opens on "List of Figures"
+B. pdflatex -halt-on-error -jobname=combo  "\def\FINALBUILD{}\def\APPROVALSHEET{}\input{main.tex}"
+     -> exit 0, 95 pages, 1293670 bytes -- identical, but this is the DEFENSE root with both
+        switches set on the command line, NOT the ppgc entry file
 ```
 
-It behaves correctly: `\FINALBUILD` wins, the approval sheet is suppressed with the rest of the
-front matter, and the result is the deposit body. Compiling `main.tex` with both switches set
-gives a byte-identical 95-page result, which confirms `main_ppgc.tex` adds nothing but the switch.
-95 rather than 105 pages because the front matter and the approval sheet are both gone, as
+Run **A** is the one that answers the question, and it behaves correctly: `\FINALBUILD` wins,
+the approval sheet is suppressed along with the rest of the front matter, and the result is the
+deposit body. Run **B** is the same output reached through the other root, which is worth having
+because it confirms `main_ppgc.tex` contributes nothing but the switch — but on its own it would
+have proved nothing about the ppgc root, and I initially labelled it as though it had. 95 rather
+than 105 pages in both cases because the front matter and the approval sheet are both gone, as
 intended. **The structure will not bite someone**; the one thing that will is C-1, and that is a
 value, not a structure.
 
@@ -502,8 +513,11 @@ time in one round that a directory change outran a glob. Worth one line of defen
 **`chktex` and `lacheck` are not installed on this machine.** `which chktex lacheck` returns
 nothing, nothing under `/usr/local/texlive` matches either name, and `kpsewhich chktexrc` returns
 nothing — this is TeX Live 2026 **basic**. Rather than report silence I implemented the
-load-bearing subset of their warning classes directly (`src_utils/_round6/_lint_subset.py`, ten
-checks, comment-stripped) and ran it on the real source:
+load-bearing subset of their warning classes directly (`src_utils/_round6/_lint_subset.py`, **nine**
+checks, comment-stripped) and ran it on the real source. **Two classes are deliberately NOT
+implemented and are therefore not covered by a green run**: ChkTeX 11 (swallowed space after a text
+macro) and nested-quote direction; the script's header says so, so a later reader cannot mistake
+its silence for coverage.
 
 | check (mapped warning) | hits | triage |
 |---|---:|---|
@@ -511,6 +525,7 @@ checks, comment-stripped) and ran it on the real source:
 | obsolete font commands (l2tabu) | **0** | clean |
 | footnote before its punctuation | **0** | clean |
 | unbalanced `$` per line | **0** | clean |
+| `\label` before its `\caption` inside a float (lacheck) | **0** | clean — validated in both directions before the zero was trusted: the check fires on a synthetic label-before-caption table and figure, stays silent on the corrected form, and ignores a `\label` inside a comment |
 | missing tie before a `\ref`-family macro (ChkTeX 13) | **0** | clean |
 | hardcoded float/section number in prose | 1 | **noise** — it is another paper's `Equation 2` |
 | missing tie before a `\cite` (ChkTeX 13) | 175 | **noise, by house style** — the citations are numeric `[N]` superscript-style labels; the document places them after a space throughout, consistently, and 2 of 175 fall at a line end |
@@ -639,10 +654,10 @@ Four scripts written this session, all read-only, all committed beside this repo
 
 | script | what it measures |
 |---|---|
-| `_measure_glyphs.py <pdf> --pages N ...` | on-page glyph size from **geometry**, calibrated against the body font on the same page. Use this for any in-figure type-size question; the nominal-size API is blind to `\includegraphics` scale. |
+| `_measure_glyphs.py <pdf> --pages N ...` | on-page glyph size from **geometry**, calibrated against the body font on the same page. Use this for any in-figure type-size question; the nominal-size API is blind to `\includegraphics` scale. The body size is always the modal nominal size on the page being measured, not an option, so the calibration can never be carried over from another page. |
 | `_pxdiff.py A.pdf B.pdf` | per-pixel page comparison of two PDFs, plus the `/CreationDate` and `/ID` that explain a hash difference with no render difference. |
 | `_bibaudit.py` (run from `src/`) | duplicate keys, same-author-year fragmentation with titles, dangling and uncited keys. |
-| `_lint_subset.py` (run from `src/`) | the ten load-bearing ChkTeX/lacheck classes, since neither binary exists on this machine. |
+| `_lint_subset.py` (run from `src/`) | **nine** load-bearing ChkTeX/lacheck classes, since neither binary exists on this machine. Its header names the two classes it does NOT implement, so its silence is not mistaken for coverage. |
 | `_kwaudit.py <pdf> <resumo_pg> <abstract_pg>` | the keyword blocks against the UFV system-field rules, read off the render. |
 
 `_evidence/` holds four crops that are the visual basis of V-1 and the Ch.4 comparison:
