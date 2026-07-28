@@ -10,9 +10,28 @@ fresh eyes have looked. Items 14-20 are traceability and hygiene. Every row give
 anchor on, the command or the page, and **what the answer should be if all is well** — so a check
 that comes back different is the finding.
 
-**If you only do two, do these:** item 6 (a frame sentence on p. 23 now contradicts a chapter
-sentence on p. 36, and the repair was drafted but never applied) and item 1 (a gate reported green
-across the whole round is red, and has been red since before the round started).
+**If you only do three, do these:** item 0 (a numeric bound in your submitted paper is false for the
+first state it names), item 6 (a frame sentence on p. 23 now contradicts a chapter sentence on
+p. 36, and the repair was drafted but never applied) and item 1 (a gate reported green across the
+whole round is red, and has been red since before the round started).
+
+---
+
+**0. The `±0.003` gradient-cosine bound is false, in the dissertation AND in the submitted paper.**
+`chapters/5_mobiwac/02_related.tex:161` and `articles/[mobiwac]/src/sections/02_related.tex:99`,
+both reading "per-dataset means within $\pm0.003$".
+```bash
+sed -n '29,31p' docs/studies/archive/mtl_improvement/WHY_ORTHOGONAL_AND_NO_MODERN_OPTIMIZERS.md
+```
+(from the repository root). *If all is well:* the per-state means read FL +0.0007, **AL +0.0032**,
+AZ −0.0005, GE −0.0004 — and `0.0032 > 0.003`, so the bound is false for **Alabama, the first state
+the sentence names**. The round rescoped this sentence's pool from three datasets to four and carried
+the bound over unchanged; the bound is right only against the superseded two-run figures (AL
++0.0026). The pooled `+0.001` is correct and the orthogonality conclusion is untouched — this is a
+false bound, not a false finding. It is first on the list because it is in a manuscript under review
+and it needs the two-file change plus the `ERRATA.md` line. Raised as N-1 by the number/claim pass;
+**I re-derived it at the source and confirm it**, and I note that my own ledger row is where it slipped
+past, because I recorded the cosine as inherited rather than re-deriving it. Ledger finding L-8.
 
 Before anything else, one command reproduces the build state every other row assumes:
 
