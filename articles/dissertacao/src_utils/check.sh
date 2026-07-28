@@ -15,8 +15,21 @@ echo "== em-dashes (WRITING_LAW §1: none anywhere in prose) =="
 EMDASH=$(printf '\xe2\x80\x94')
 if grep -n "$EMDASH" $CH 0_main.tex 2>/dev/null | grep -v '^[^:]*:[0-9]*: *%'; then FAIL=1; else echo OK; fi
 
-echo "== 'this paper' / 'this article' inside chapters =="
-if grep -niE 'this (paper|article)' $CH | grep -v '^[^:]*:[0-9]*: *%'; then FAIL=1; else echo OK; fi
+echo "== 'this paper' / 'this article' inside chapters (apx_b_errata exempt: see below) =="
+# THE EXEMPTION, added 2026-07-28. This sweep exists because a chapter of a coletanea must not call
+# itself "this paper" -- it is a chapter now. apx_b_errata.tex is the ONE file where the phrase is
+# correct: it is the errata appendix, and its whole subject is the three published/submitted ARTICLES
+# as distinct from the chapter bodies that re-typeset them. At :307 "This article differs from the
+# other two in a way that changes what this section has to record" refers to the MobiWac manuscript,
+# under review, whose errata are handled differently BECAUSE it is still an article.
+# The banned-words sweep two blocks below already exempts this same file for the same reason (it
+# quotes published text). This gate now says so too.
+# WHY THIS MATTERS BEYOND THE FALSE POSITIVE: `make check` exited 2 for this entire round while six
+# commit messages, including mine, said "make check: all gates pass". The source-ledger pass caught
+# it (finding L-1). A gate whose only hit is a known-good line trains everyone to read past its exit
+# code, which is how a real hit would have been missed. Exempt the known-good line so the exit code
+# means something again.
+if grep -niE 'this (paper|article)' $CH | grep -v '^[^:]*:[0-9]*: *%' | grep -v '^chapters/apx_b_errata'; then FAIL=1; else echo OK; fi
 
 echo "== contractions =="
 if grep -nE "\b(don't|doesn't|isn't|aren't|won't|can't|couldn't|wouldn't|shouldn't|it's|we're|they're|there's|hasn't|haven't|didn't|wasn't|weren't)\b" $CH | grep -v '^[^:]*:[0-9]*: *%'; then FAIL=1; else echo OK; fi
@@ -25,7 +38,18 @@ echo "== WRITING_LAW §4 banned words (prose lines only; apx_b quotes published 
 if grep -nwiE 'delve|delves|intricate|showcase|showcases|underscores?|pivotal|leverages?|leveraging|seamless|seamlessly|testament|moreover|furthermore' $CH | grep -v '^[^:]*:[0-9]*: *%' | grep -v '^chapters/apx_b_errata'; then FAIL=1; else echo OK; fi
 
 echo "== banned verdict verbs (beats/wins/ties as result verbs; crude sweep, review hits) =="
-grep -nwiE 'beats?|wins?|Pareto' $CH | grep -v '^[^:]*:[0-9]*: *%' || echo OK
+# "Pareto" was in this alternation and produced five hits, every one of them the TECHNICAL term
+# (Pareto-optimal descent directions, Pareto efficiency, a Pareto-stationary point) in optimization
+# prose, three of them inside published chapters where the word is the field's own and cannot change.
+# The banned thing is "beats"/"wins" as a RESULT verb; "Pareto" is not a verdict verb at all and was
+# never going to be a real hit here. It is separated out below so this sweep can be read.
+grep -nwiE 'beats?|wins?' $CH | grep -v '^[^:]*:[0-9]*: *%' || echo OK
+
+echo "== 'Pareto' occurrences (informational: the technical term is legal, a verdict use is not) =="
+# Informational, never FAIL. Read the hits: Pareto-optimal / Pareto-stationary / Pareto efficiency
+# are the optimization literature's own terms and are correct. What would be wrong is "Pareto" used
+# to mean "better", which no hit currently is.
+grep -nwiE 'Pareto' $CH | grep -v '^[^:]*:[0-9]*: *%' | sed 's/^/    /' | cut -c1-140 || true
 
 echo "== repo codenames =="
 if grep -nwE 'B9|v1[1-7]|champion-G|H3-alt|dk_ovl|log_T|substrate' $CH | grep -v '^[^:]*:[0-9]*: *%'; then FAIL=1; else echo OK; fi

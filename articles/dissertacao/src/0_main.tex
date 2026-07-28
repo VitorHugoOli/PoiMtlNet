@@ -17,14 +17,14 @@
 %%==============================================================
 
 \documentclass[
-	12pt,				    % manual §7: size 12
-	openright,
-	oneside,
-	a4paper,
-	sumario=tradicional,
-	brazil,				    % PT available for Resumo and the folha de rosto boilerplate
-	english,			    % last = main document language
-	]{abntex2}
+    12pt,                    % manual §7: size 12
+    openright,
+    oneside,
+    a4paper,
+    sumario=tradicional,
+    brazil,                    % PT available for Resumo and the folha de rosto boilerplate
+    english,                % last = main document language
+]{abntex2}
 
 % -- Machinery (from the source tree, kept) --
 \usepackage{abntex2-UFV}        % UFV front matter + 3/2 cm margins (checked vs manual §7)
@@ -73,19 +73,19 @@
 % this hooks in at the same point and wins by ordering.
 \makeatletter
 \AtBeginDocument{\renewcommand{\@biblabel}[1]{%
-  \ifthenelse{\equal{#1}{}}{}{{\citenumstyle[#1]\hspace{\biblabelsep}}}}}
+    \ifthenelse{\equal{#1}{}}{}{{\citenumstyle[#1]\hspace{\biblabelsep}}}}}
 \makeatother
 
 % -- Babel caption plumbing (from the source tree, kept: brazil loaded via class option,
 %    caption names anglicized, then english selected as the running language) --
 \addto\captionsbrazil{%
-\def\bibname{References}%
-\renewcommand{\figurename}{Figure}
-\renewcommand{\tablename}{Table}
-\renewcommand{\listfigurename}{List of Figures}
-\renewcommand{\listtablename}{List of Tables}
-\renewcommand{\contentsname}{Contents}
-\renewcommand\chaptername{Chapter}
+    \def\bibname{References}%
+    \renewcommand{\figurename}{Figure}
+    \renewcommand{\tablename}{Table}
+    \renewcommand{\listfigurename}{List of Figures}
+    \renewcommand{\listtablename}{List of Tables}
+    \renewcommand{\contentsname}{Contents}
+    \renewcommand\chaptername{Chapter}
 }
 \selectlanguage{english}
 
@@ -104,8 +104,8 @@
 % before §N.1 stating venue, status, contribution note, and what later chapters revise.
 % ---------------------------------------------------------------
 \newenvironment{chapterpreface}%
-  {\begin{quotation}\itshape\noindent}%
-  {\end{quotation}\vspace{0.5\baselineskip}}
+{\begin{quotation}\itshape\noindent}%
+{\end{quotation}\vspace{0.5\baselineskip}}
 
 % ---------------------------------------------------------------
 % Cover / folha de rosto metadata
@@ -124,11 +124,12 @@
 % ALTERNATES (kept for the advisor conversation; all pass the two-factor rule -- name
 % both the representation and the sharing/architecture factor, or neither;
 % storyline/AVAL_NECESSARIA_3_ptBR.md D2):
-%   1. Representation Drives, Sharing Delivers: A Check-in-Level Multi-Task
+%   1. From Representations to a Single Joint Model: Multi-Task Learning for Point-of-Interest Category and Region Prediction
+%   2. Representation Drives, Sharing Delivers: A Check-in-Level Multi-Task
 %      Study of Next Category and Region Prediction
-%   2. The Visit, Not the Place: Check-in-Level Representations and a Joint
+%   3. The Visit, Not the Place: Check-in-Level Representations and a Joint
 %      Model for Next Category and Region Prediction
-%   3. One Visit, One Vector: From a Published Null to a Joint Model for
+%   4. One Visit, One Vector: From a Published Null to a Joint Model for
 %      Next Category and Region Prediction
 \titulo{\normalsize{\textbf{From Representations to a Single Joint Model: Multi-Task Learning for Point-of-Interest Category and Region Prediction}}}
 \autor{\normalsize{\textbf{Vitor Hugo Oliveira Silva}}}
@@ -151,225 +152,227 @@ degree of \textit{Magister Scientiae}.}
 
 \makeatletter
 \hypersetup{
-		pdftitle={\@title},
-		pdfauthor={\@author},
-    	pdfsubject={\imprimirpreambulo},
-	    pdfcreator={LaTeX with abnTeX2},
-		colorlinks=true,
-    	linkcolor=black,
-    	citecolor=blue,
-    	filecolor=magenta,
-		urlcolor=blue,
-		bookmarksdepth=4
+    pdftitle={\@title},
+    pdfauthor={\@author},
+    pdfsubject={\imprimirpreambulo},
+    pdfcreator={LaTeX with abnTeX2},
+    colorlinks=true,
+    linkcolor=black,
+    citecolor=blue,
+    filecolor=magenta,
+    urlcolor=blue,
+    bookmarksdepth=4
 }
 \makeatother
 
 \begin{document}
-\frenchspacing
-\OnehalfSpacing % manual §7: 1.5 line spacing for the body
+    \frenchspacing
+    \OnehalfSpacing % manual §7: 1.5 line spacing for the body
 
 % ----------------------------------------------------------
 % PRE-TEXTUAL
 % ----------------------------------------------------------
-\pretextual
+    \pretextual
 
-\ifdefensebuild
-  % ---------- DEFENSE BUILD: full front matter ----------
-  {
-    \singlespacing
-    \imprimirfolhaderosto
-    \clearpage
-  }
-  % Approval sheet. Present ONLY in the main_ppgc.tex build (author decision 2026-07-28:
-  % "o main deve gerar o build da defesa e o main_ppgc so gerar o pdf da defesa com a folha
-  % de aceite"). The two builds are otherwise the same document, so this is the one
-  % conditional that separates them; everything else stays shared.
-  \ifapprovalsheet
+    \ifdefensebuild
+    % ---------- DEFENSE BUILD: full front matter ----------
+    {
+        \singlespacing
+        \imprimirfolhaderosto
+        \clearpage
+    }
+    % Approval sheet. Present ONLY in the main_ppgc.tex build (author decision 2026-07-28:
+    % "o main deve gerar o build da defesa e o main_ppgc so gerar o pdf da defesa com a folha
+    % de aceite"). The two builds are otherwise the same document, so this is the one
+    % conditional that separates them; everything else stays shared.
+    \ifapprovalsheet
     \begin{center}
-      \vspace*{2cm}
-      {\large\bfseries [Approval sheet placeholder --- PPG signature-page model is\\
-      inserted here for the defense; signed version replaces it afterward]}
-      \vspace*{\fill}
+        \vspace*{2cm}
+        {\large\bfseries [Approval sheet placeholder --- PPG signature-page model is\\
+        inserted here for the defense; signed version replaces it afterward]}
+        \vspace*{\fill}
     \end{center}
     \clearpage
-  \fi
+    \fi
 
-  % Resumo (PT) -- claim-parity pair with the Abstract (WRITING_LAW §6)
-  \begin{resumo}[Resumo]
-    \singlespacing
-    SILVA, Vitor Hugo Oliveira, M.Sc., Universidade Federal de Viçosa, agosto de 2026.
-    \textbf{From Representations to a Single Joint Model: Multi-Task Learning for Point-of-Interest Category and Region Prediction}. Orientador: Fabrício Aguiar Silva.
-    \vspace{\onelineskip}
+    % Resumo (PT) -- claim-parity pair with the Abstract (WRITING_LAW §6)
+    \begin{resumo}[Resumo]
+        \singlespacing
+        SILVA, Vitor Hugo Oliveira, M.Sc., Universidade Federal de Viçosa, agosto de 2026.
+        \textbf{From Representations to a Single Joint Model: Multi-Task Learning for Point-of-Interest Category and Region Prediction}. Orientador: Fabrício Aguiar Silva.
+        \vspace{\onelineskip}
 
-    % [NEEDS SIGN-OFF: Resumo CUT, round 6, 2026-07-28] The pair was cut on the author's
-    % ruling that both blocks were too long. MEASURED on the rendered pages of the 105-page
-    % defense build, on one stated convention (catalog header and keyword block stripped;
-    % hyphenated compounds count as one word; sentence enders exclude decimals, initials and
-    % Sec./Fig./cf./e.g./i.e./et al.):
-    %   Resumo   p.3-4  500 words / 10 sentences / mean 50.0  ->  this text
-    %   Abstract p.5    423 words / 10 sentences / mean 42.3  ->  the block below
-    % The same instrument on the five defended dissertations in exemples/ gives the envelope
-    % this cut targets: 195-282 words, 6-12 sentences, mean 19.5-37.5 across all eight blocks
-    % (Resumos 233-282, Abstracts 195-250). Per-block numbers and the before/after are in
-    % src_utils/_round6/15_resumo_abstract.md, which also records which claim each cut
-    % sentence carried and where that claim still lives in the body.
-    % NOTHING ON THE CLAIM FLOOR WAS CUT: the question and its conditional answer, the
-    % three-study arc, both tasks, the next-place exclusion, the 5,3-9,4 range with its
-    % joint-best convention, four of six with TOST non-inferiority at the other two, and both
-    % data sources are all still here. Verbs stay bound to their tests (supera / equipara-se,
-    % GLOSSARY §4). Two claims were cut as NOT on the floor and are named in the report:
-    % the higher training cost of the first study (1_introduction.tex "cost more to train";
-    % 6_conclusion.tex, same phrase) and the task-pair evolution (1_introduction.tex "The task
-    % pair therefore evolved across the three studies"; 6_conclusion.tex "The task-pair
-    % confound"). "Transferencia negativa" as a named failure mode also leaves the Resumo; the
-    % mechanism survives as "compartilhar parametros pode prejudicar uma das tarefas", and the
-    % name is defined in 2_fundamentals.tex ("known as negative transfer").
-    % PT terms are GLOSSARY §6 entries only. "Modelos ajustados" for "fitted models" is still
-    % NOT in §6: proposed, pending the author's approval before it counts as canonical.
-    \noindent Redes sociais baseadas em localização registram \emph{check-ins}: visitas
-    de um usuário a um ponto de interesse (POI). Duas propriedades da próxima visita
-    merecem ser antecipadas, sua categoria e sua região, mas não o ponto de interesse
-    exato; as duas tarefas leem o mesmo histórico, portanto um único modelo poderia
-    aprendê-las em conjunto por aprendizado multitarefa (MTL). Compartilhar parâmetros
-    pode prejudicar uma das tarefas, e se o treinamento conjunto ajuda esse par, e do que
-    isso depende, permanecia em aberto quando esta pesquisa começou. Três estudos
-    respondem a essa pergunta. O primeiro construiu o MTLnet, um modelo conjunto com uma
-    representação (\emph{embedding}) em nível de POI e compartilhamento rígido de
-    parâmetros; ele não superou consistentemente os modelos dedicados (tarefa única). O
-    segundo substituiu apenas a entrada, por codificadores espaciais, temporais e
-    categóricos decompostos; o desempenho de categoria subiu acentuadamente em todos os
-    estados testados, logo o gargalo era a representação, e não a arquitetura. O terceiro
-    moveu a representação para o nível do check-in, dando a cada visita seu próprio
-    vetor, e redesenhou a topologia de compartilhamento em torno de um tronco de atenção
-    cruzada. Os seis conjuntos de dados são cinco estados dos Estados Unidos, do Gowalla,
-    e Istambul, do Massive-STEPS. Sob validação cruzada com usuários disjuntos entre
-    treino e teste, com vinte modelos ajustados por configuração, quatro inicializações
-    aleatórias sobre cinco partições fixas, e testes pareados sobre as quatro médias por
-    inicialização, esse modelo conjunto supera os modelos dedicados na previsão da próxima
-    categoria nos seis, por 5,3 a 9,4 pontos de macro-F1 sob uma seleção
-    \emph{joint-best}. Na previsão da próxima região, supera em quatro deles e
-    equipara-se estatisticamente, com não-inferioridade dentro de uma margem de dois
-    pontos de Acc@10 (TOST), nos outros dois. A resposta é, portanto, condicional: se o
-    aprendizado multitarefa ajuda depende da representação de entrada e da topologia de
-    compartilhamento construída sobre ela.
-    % [round5, persona 17 MAJOR-2, still honored] "Proximo lugar visitado" is NOT used: it
-    % collides with the RESERVED term "next place" (GLOSSARY §1) for the exact-POI task this
-    % dissertation does not study. The exclusion is now stated positively in the second
-    % sentence ("mas nao o ponto de interesse exato"), which is the body's own claim
-    % (1_introduction.tex "The exact next place is not predicted anywhere in this work").
-    % [NEEDS SIGN-OFF: author caveats 2.1/3-4-5, 2026-07-24, carried through the cut]
-    % 3: the margin metric is named (Acc@10). 4: the joint-best convention behind 5,3-9,4 is
-    % named. 5: "determina se" stays "depende de" (the Sec. 6.2 confound forbids a causal verb).
+        % [NEEDS SIGN-OFF: Resumo CUT, round 6, 2026-07-28] The pair was cut on the author's
+        % ruling that both blocks were too long. MEASURED on the rendered pages of the 105-page
+        % defense build, on one stated convention (catalog header and keyword block stripped;
+        % hyphenated compounds count as one word; sentence enders exclude decimals, initials and
+        % Sec./Fig./cf./e.g./i.e./et al.):
+        %   Resumo   p.3-4  500 words / 10 sentences / mean 50.0  ->  this text
+        %   Abstract p.5    423 words / 10 sentences / mean 42.3  ->  the block below
+        % The same instrument on the five defended dissertations in exemples/ gives the envelope
+        % this cut targets: 195-282 words, 6-12 sentences, mean 19.5-37.5 across all eight blocks
+        % (Resumos 233-282, Abstracts 195-250). Per-block numbers and the before/after are in
+        % src_utils/_round6/15_resumo_abstract.md, which also records which claim each cut
+        % sentence carried and where that claim still lives in the body.
+        % NOTHING ON THE CLAIM FLOOR WAS CUT: the question and its conditional answer, the
+        % three-study arc, both tasks, the next-place exclusion, the 5,3-9,4 range with its
+        % joint-best convention, four of six with TOST non-inferiority at the other two, and both
+        % data sources are all still here. Verbs stay bound to their tests (supera / equipara-se,
+        % GLOSSARY §4). Two claims were cut as NOT on the floor and are named in the report:
+        % the higher training cost of the first study (1_introduction.tex "cost more to train";
+        % 6_conclusion.tex, same phrase) and the task-pair evolution (1_introduction.tex "The task
+        % pair therefore evolved across the three studies"; 6_conclusion.tex "The task-pair
+        % confound"). "Transferencia negativa" as a named failure mode also leaves the Resumo; the
+        % mechanism survives as "compartilhar parametros pode prejudicar uma das tarefas", and the
+        % name is defined in 2_fundamentals.tex ("known as negative transfer").
+        % PT terms are GLOSSARY §6 entries only. "Modelos ajustados" for "fitted models" is still
+        % NOT in §6: proposed, pending the author's approval before it counts as canonical.
+        \noindent Redes sociais baseadas em localização registram \emph{check-ins}: visitas
+        de um usuário a um ponto de interesse (POI). Duas propriedades da próxima visita
+        merecem ser antecipadas, sua categoria e sua região, mas não o ponto de interesse
+        exato; as duas tarefas leem o mesmo histórico, portanto um único modelo poderia
+        aprendê-las em conjunto por aprendizado multitarefa (MTL). Compartilhar parâmetros
+        pode prejudicar uma das tarefas, e se o treinamento conjunto ajuda esse par, e do que
+        isso depende, permanecia em aberto quando esta pesquisa começou. Três estudos
+        respondem a essa pergunta. O primeiro construiu o MTLnet, um modelo conjunto com uma
+        representação (\emph{embedding}) em nível de POI e compartilhamento rígido de
+        parâmetros; ele não superou consistentemente os modelos dedicados (tarefa única). O
+        segundo substituiu apenas a entrada, por codificadores espaciais, temporais e
+        categóricos decompostos; o desempenho de categoria subiu acentuadamente nos três
+        estados testados, indicando que, naquela configuração, o gargalo era a representação,
+        e não a arquitetura. O terceiro
+        moveu a representação para o nível do check-in, dando a cada visita seu próprio
+        vetor, e redesenhou a topologia de compartilhamento em torno de um tronco de atenção
+        cruzada. Os seis conjuntos de dados são cinco estados dos Estados Unidos, do Gowalla,
+        e Istambul, do Massive-STEPS. Sob validação cruzada com usuários disjuntos entre
+        treino e teste, com vinte modelos ajustados por configuração, quatro inicializações
+        aleatórias sobre cinco partições fixas, e testes pareados sobre as quatro médias por
+        inicialização, esse modelo conjunto supera os modelos dedicados na previsão da próxima
+        categoria nos seis, por 5,3 a 9,4 pontos de macro-F1 sob uma seleção
+        \emph{joint-best}. Na previsão da próxima região, supera em quatro deles e
+        equipara-se estatisticamente, com não-inferioridade dentro de uma margem de dois
+        pontos de Acc@10 (TOST), nos outros dois. A resposta é, portanto, condicional: se o
+        aprendizado multitarefa ajuda depende da representação de entrada e da topologia de
+        compartilhamento construída sobre ela.
+        % [round5, persona 17 MAJOR-2, still honored] "Proximo lugar visitado" is NOT used: it
+        % collides with the RESERVED term "next place" (GLOSSARY §1) for the exact-POI task this
+        % dissertation does not study. The exclusion is now stated positively in the second
+        % sentence ("mas nao o ponto de interesse exato"), which is the body's own claim
+        % (1_introduction.tex "The exact next place is not predicted anywhere in this work").
+        % [NEEDS SIGN-OFF: author caveats 2.1/3-4-5, 2026-07-24, carried through the cut]
+        % 3: the margin metric is named (Acc@10). 4: the joint-best convention behind 5,3-9,4 is
+        % named. 5: "determina se" stays "depende de" (the Sec. 6.2 confound forbids a causal verb).
 
-    % [round5, author decision 3.3 option ii] Purely mechanical: keep the keyword block with the
-    % Resumo it belongs to. It was breaking onto p.4 alone (14 words on an otherwise blank page).
-    % A minipage makes the label and the five keywords ONE box, so TeX can fit the whole block into
-    % the space left at the foot of the Resumo page instead of carrying it to the next one.
-    %
-    % [round5, RE-MEASURED after an audit caught a false diagnosis here] \needspace{7\onelineskip}
-    % was tried first, and the record previously written in this comment was WRONG. Measured on the
-    % current 529-word Resumo, with the macro correctly escaped:
-    %   \needspace{7\onelineskip} -> 104 pp, the block lands WHOLE on p.4 (21 words, label included)
-    %   minipage                  -> 103 pp, the block sits on p.3 with the Resumo, page closed
-    % So needspace DOES hold the label and keywords together. What it does not do is pull them onto
-    % the previous page: it reserves space for the LINES that follow, so when the block does not fit
-    % it moves the block rather than fitting it. A minipage is a box, so it fits.
-    % The earlier claim that needspace "never worked at any value" came from my own escaping bug: a
-    % regex wrote \needspace{N\\onelineskip} with a doubled backslash, and the later sweep arms
-    % (8, 9, 10) used a single-backslash pattern that could not match the corrupted form, so those
-    % three arms never applied at all and returned byte-identical results I misread as evidence.
-    \vspace{\onelineskip}
-    \noindent
-    % Keywords one per line (UFV_COMPLIANCE §2 system rules: one per line, lowercase
-    % except proper nouns, no punctuation); PT mirrors EN.
-    \begin{minipage}{\linewidth}
-    \textbf{Palavras-chave}:\\
-    aprendizado multitarefa\\
-    ponto de interesse\\
-    previsão da próxima categoria\\
-    previsão da próxima região\\
-    representação em nível de check-in
-    \end{minipage}
-  \end{resumo}
+        % [round5, author decision 3.3 option ii] Purely mechanical: keep the keyword block with the
+        % Resumo it belongs to. It was breaking onto p.4 alone (14 words on an otherwise blank page).
+        % A minipage makes the label and the five keywords ONE box, so TeX can fit the whole block into
+        % the space left at the foot of the Resumo page instead of carrying it to the next one.
+        %
+        % [round5, RE-MEASURED after an audit caught a false diagnosis here] \needspace{7\onelineskip}
+        % was tried first, and the record previously written in this comment was WRONG. Measured on the
+        % current 529-word Resumo, with the macro correctly escaped:
+        %   \needspace{7\onelineskip} -> 104 pp, the block lands WHOLE on p.4 (21 words, label included)
+        %   minipage                  -> 103 pp, the block sits on p.3 with the Resumo, page closed
+        % So needspace DOES hold the label and keywords together. What it does not do is pull them onto
+        % the previous page: it reserves space for the LINES that follow, so when the block does not fit
+        % it moves the block rather than fitting it. A minipage is a box, so it fits.
+        % The earlier claim that needspace "never worked at any value" came from my own escaping bug: a
+        % regex wrote \needspace{N\\onelineskip} with a doubled backslash, and the later sweep arms
+        % (8, 9, 10) used a single-backslash pattern that could not match the corrupted form, so those
+        % three arms never applied at all and returned byte-identical results I misread as evidence.
+        \vspace{\onelineskip}
+        \noindent
+        % Keywords one per line (UFV_COMPLIANCE §2 system rules: one per line, lowercase
+        % except proper nouns, no punctuation); PT mirrors EN.
+        \begin{minipage}{\linewidth}
+            \textbf{Palavras-chave}:\\
+            aprendizado multitarefa\\
+            ponto de interesse\\
+            previsão da próxima categoria\\
+            previsão da próxima região\\
+            representação em nível de check-in
+        \end{minipage}
+    \end{resumo}
 
-  % Abstract (EN)
-  \begin{resumo}[Abstract]
-   \begin{otherlanguage*}{english}
-    \singlespacing
-    SILVA, Vitor Hugo Oliveira, M.Sc., Universidade Federal de Viçosa, August 2026.
-    \textbf{From Representations to a Single Joint Model: Multi-Task Learning for Point-of-Interest Category and Region Prediction}. Advisor: Fabrício Aguiar Silva.
-    \vspace{\onelineskip}
+    % Abstract (EN)
+    \begin{resumo}[Abstract]
+        \begin{otherlanguage*}{english}
+            \singlespacing
+            SILVA, Vitor Hugo Oliveira, M.Sc., Universidade Federal de Viçosa, August 2026.
+            \textbf{From Representations to a Single Joint Model: Multi-Task Learning for Point-of-Interest Category and Region Prediction}. Advisor: Fabrício Aguiar Silva.
+            \vspace{\onelineskip}
 
-    % [NEEDS SIGN-OFF: Abstract CUT, round 6, 2026-07-28] Cut as the claim-parity pair of the
-    % Resumo above (WRITING_LAW §6): same claims, same numbers, same hedges, sentence for
-    % sentence, and cut in the same pass so the two cannot drift. MEASURED on the rendered
-    % page, same convention as the Resumo comment: 423 words / 10 sentences / mean 42.3 before.
-    % Both blocks now carry eleven sentences that correspond one to one. Verbs stay bound to
-    % their tests: "outperforms" for the paired superiority test, "matches" only with TOST
-    % non-inferiority inside the two-point margin, and Arizona is not upgraded (GLOSSARY §4).
-    % Numbers quoted, not computed: 5.3 to 9.4 macro-F1 = the per-dataset category deltas of
-    % docs/studies/closing_data/v17_completion/stats_n20/RESULTS.md §1 (FL +5.34 the low end,
-    % AZ +9.40 the high end) as reported by 6_conclusion.tex; "four of them" = the four
-    % $^{\uparrow}$ rows of tables/mobiwac/results.tex (Istanbul, FL, TX, CA) against the two
-    % $^{\approx}$ rows (AL, AZ), which is the same count 6_conclusion.tex states.
-    \noindent Location-based social networks record \emph{check-ins}: visits by a user
-    to a point of interest (POI). Two properties of the next visit are worth
-    anticipating, its category and its region, though not the exact next place; both
-    tasks read the same trace, so one model could learn them together through multi-task
-    learning (MTL). Sharing parameters can hurt one of the tasks, so whether joint
-    training helps this pair, and what that depends on, was unresolved when this research
-    started. Three studies answer that question. The first built MTLnet, a joint model
-    with a place-level embedding and hard parameter sharing; it did not consistently
-    outperform its dedicated single-task counterparts. The second replaced only the
-    input, with decomposed spatial, temporal, and categorical encoders; category
-    performance rose sharply in every state tested, so the bottleneck was the
-    representation, not the architecture. The third moved the representation to the
-    check-in level, giving each visit its own vector, and redesigned the sharing topology
-    around a cross-attention trunk. The six datasets are five states of the United States
-    from Gowalla and Istanbul from Massive-STEPS. Under user-disjoint cross-validation,
-    with twenty fitted models per configuration, four random initializations over five
-    fixed folds, and paired tests on the four initialization means, that joint model outperforms
-    the dedicated models on next category at all six, by 5.3 to 9.4 macro-F1 points under
-    a joint-best selection. On next region it outperforms at four of them and
-    statistically matches, with non-inferiority within a two-point Acc@10 margin (TOST),
-    at the other two. The answer is therefore conditional: whether multi-task learning
-    helps depends on the input representation and the sharing topology built on it.
-    % [NEEDS SIGN-OFF: author caveats 2.1/3-4-5, 2026-07-24, carried through the cut]
-    % 3: the non-inferiority margin metric is named (Acc@10). 4: the joint-best convention
-    % behind the 5.3-9.4 range is named. 5: "determines whether" stays "depends on", since the
-    % confound in Sec. 6.2 (representation, topology and task pair moved together) makes a hard
-    % causal verb an overclaim. What the cut dropped, and where each dropped claim still lives,
-    % is tabulated in src_utils/_round6/15_resumo_abstract.md; no floor claim was cut.
+            % [NEEDS SIGN-OFF: Abstract CUT, round 6, 2026-07-28] Cut as the claim-parity pair of the
+            % Resumo above (WRITING_LAW §6): same claims, same numbers, same hedges, sentence for
+            % sentence, and cut in the same pass so the two cannot drift. MEASURED on the rendered
+            % page, same convention as the Resumo comment: 423 words / 10 sentences / mean 42.3 before.
+            % Both blocks now carry eleven sentences that correspond one to one. Verbs stay bound to
+            % their tests: "outperforms" for the paired superiority test, "matches" only with TOST
+            % non-inferiority inside the two-point margin, and Arizona is not upgraded (GLOSSARY §4).
+            % Numbers quoted, not computed: 5.3 to 9.4 macro-F1 = the per-dataset category deltas of
+            % docs/studies/closing_data/v17_completion/stats_n20/RESULTS.md §1 (FL +5.34 the low end,
+            % AZ +9.40 the high end) as reported by 6_conclusion.tex; "four of them" = the four
+            % $^{\uparrow}$ rows of tables/mobiwac/results.tex (Istanbul, FL, TX, CA) against the two
+            % $^{\approx}$ rows (AL, AZ), which is the same count 6_conclusion.tex states.
+            \noindent Location-based social networks record \emph{check-ins}: visits by a user
+            to a point of interest (POI). Two properties of the next visit are worth
+            anticipating, its category and its region, though not the exact next place; both
+            tasks read the same trace, so one model could learn them together through multi-task
+            learning (MTL). Sharing parameters can hurt one of the tasks, so whether joint
+            training helps this pair, and what that depends on, was unresolved when this research
+            started. Three studies answer that question. The first built MTLnet, a joint model
+            with a place-level embedding and hard parameter sharing; it did not consistently
+            outperform its dedicated single-task counterparts. The second replaced only the
+            input, with decomposed spatial, temporal, and categorical encoders; category
+            performance rose sharply in the three states tested, indicating that in that
+            configuration the bottleneck was the representation, not the architecture. The
+            third moved the representation to the
+            check-in level, giving each visit its own vector, and redesigned the sharing topology
+            around a cross-attention trunk. The six datasets are five states of the United States
+            from Gowalla and Istanbul from Massive-STEPS. Under user-disjoint cross-validation,
+            with twenty fitted models per configuration, four random initializations over five
+            fixed folds, and paired tests on the four initialization means, that joint model outperforms
+            the dedicated models on next category at all six, by 5.3 to 9.4 macro-F1 points under
+            a joint-best selection. On next region it outperforms at four of them and
+            statistically matches, with non-inferiority within a two-point Acc@10 margin (TOST),
+            at the other two. The answer is therefore conditional: whether multi-task learning
+            helps depends on the input representation and the sharing topology built on it.
+            % [NEEDS SIGN-OFF: author caveats 2.1/3-4-5, 2026-07-24, carried through the cut]
+            % 3: the non-inferiority margin metric is named (Acc@10). 4: the joint-best convention
+            % behind the 5.3-9.4 range is named. 5: "determines whether" stays "depends on", since the
+            % confound in Sec. 6.2 (representation, topology and task pair moved together) makes a hard
+            % causal verb an overclaim. What the cut dropped, and where each dropped claim still lives,
+            % is tabulated in src_utils/_round6/15_resumo_abstract.md; no floor claim was cut.
 
-    % [round5, decision 3.3 option ii] Same guard as the Resumo block, for parity.
-    \vspace{\onelineskip}
-    \noindent
-    % Keywords one per line (UFV_COMPLIANCE §2 system rules); EN mirrors PT.
-    \begin{minipage}{\linewidth}
-    \textbf{Keywords}:\\
-    multi-task learning\\
-    point of interest\\
-    next-category prediction\\
-    next-region prediction\\
-    check-in-level representation
-    \end{minipage}
-   \end{otherlanguage*}
-  \end{resumo}
-\else
-  % ---------- FINAL AcademicoPG BUILD: starts at the lists ----------
-  % Pre-body pages: counted but NOT numbered (empty pagestyle); the system's
-  % RASCUNHO PDF is the authoritative numbering reference.
-  \pagestyle{empty}
-\fi
+            % [round5, decision 3.3 option ii] Same guard as the Resumo block, for parity.
+            \vspace{\onelineskip}
+            \noindent
+            % Keywords one per line (UFV_COMPLIANCE §2 system rules); EN mirrors PT.
+            \begin{minipage}{\linewidth}
+                \textbf{Keywords}:\\
+                multi-task learning\\
+                point of interest\\
+                next-category prediction\\
+                next-region prediction\\
+                check-in-level representation
+            \end{minipage}
+        \end{otherlanguage*}
+    \end{resumo}
+    \else
+    % ---------- FINAL AcademicoPG BUILD: starts at the lists ----------
+    % Pre-body pages: counted but NOT numbered (empty pagestyle); the system's
+    % RASCUNHO PDF is the authoritative numbering reference.
+    \pagestyle{empty}
+    \fi
 
 % Lists (both builds; optional-but-present per UFV_COMPLIANCE §1)
-\pdfbookmark[0]{\listfigurename}{lof}
-\listoffigures*
-\cleardoublepage
+    \pdfbookmark[0]{\listfigurename}{lof}
+    \listoffigures*
+    \cleardoublepage
 
-\pdfbookmark[0]{\listtablename}{lot}
-\listoftables*
-\cleardoublepage
+    \pdfbookmark[0]{\listtablename}{lot}
+    \listoftables*
+    \cleardoublepage
 
 % List of abbreviations -- completed 2026-07-23 from GLOSSARY §5, filtered by the
 % expand-at-first-use / minimal-count rule: each entry below was grep-verified to
@@ -377,62 +380,62 @@ degree of \textit{Magister Scientiae}.}
 % seed list because they never appear in prose: STL, CV, GRU, OOD, CI, SGKF, UFV,
 % PPGCC. BRACIS appears in Appendix A only (GLOSSARY §5: "appendix only").
 % Alphabetical order.
-\begin{siglas}
+    \begin{siglas}
 % [round5] BRACIS entry removed: the only prose that named that venue was Appendix A.2, which the
 % author ruled out this round, leaving the acronym defined but never used.
-  \item[CBIC] Congresso Brasileiro de Intelig\^encia Computacional
-  \item[Check2HGI] Check-in-level representation extending Hierarchical Graph Infomax
-  \item[CoUrb] Workshop de Computa\c{c}\~ao Urbana
-  \item[DGI] Deep Graph Infomax
-  \item[FiLM] Feature-wise Linear Modulation
-  \item[HGI] Hierarchical Graph Infomax
-  \item[LBSN] Location-Based Social Network
-  \item[MobiWac] ACM International Symposium on Mobility Management and Wireless Access
-  \item[MTL] Multi-Task Learning
-  \item[POI] Point of Interest
-  \item[SBRC] Simp\'osio Brasileiro de Redes de Computadores e Sistemas Distribu\'idos
-  \item[TOST] Two One-Sided Tests
-\end{siglas}
-\cleardoublepage
+        \item[CBIC] Congresso Brasileiro de Intelig\^encia Computacional
+        \item[Check2HGI] Check-in-level representation extending Hierarchical Graph Infomax
+        \item[CoUrb] Workshop de Computa\c{c}\~ao Urbana
+        \item[DGI] Deep Graph Infomax
+        \item[FiLM] Feature-wise Linear Modulation
+        \item[HGI] Hierarchical Graph Infomax
+        \item[LBSN] Location-Based Social Network
+        \item[MobiWac] ACM International Symposium on Mobility Management and Wireless Access
+        \item[MTL] Multi-Task Learning
+        \item[POI] Point of Interest
+        \item[SBRC] Simp\'osio Brasileiro de Redes de Computadores e Sistemas Distribu\'idos
+        \item[TOST] Two One-Sided Tests
+    \end{siglas}
+    \cleardoublepage
 
-\pdfbookmark[0]{\contentsname}{toc}
-\tableofcontents*
-\cleardoublepage
+    \pdfbookmark[0]{\contentsname}{toc}
+    \tableofcontents*
+    \cleardoublepage
 
 % ----------------------------------------------------------
 % TEXTUAL
 % ----------------------------------------------------------
-\textual
-\ifdefensebuild\else
-  % Final build: body pages resume arabic numbering at the tuned offset
-  \pagestyle{abntheadings}
-  \setcounter{page}{\finalbuildfirstpage}
-\fi
+    \textual
+    \ifdefensebuild\else
+    % Final build: body pages resume arabic numbering at the tuned offset
+    \pagestyle{abntheadings}
+    \setcounter{page}{\finalbuildfirstpage}
+    \fi
 
-\include{chapters/1_introduction}
-\include{chapters/2_fundamentals}
-\include{chapters/3_cbic}
-\include{chapters/4_courb}
-\include{chapters/5_mobiwac}
-\include{chapters/6_conclusion}
+    \include{chapters/1_introduction}
+    \include{chapters/2_fundamentals}
+    \include{chapters/3_cbic}
+    \include{chapters/4_courb}
+    \include{chapters/5_mobiwac}
+    \include{chapters/6_conclusion}
 
 % ----------------------------------------------------------
 % POST-TEXTUAL
 % ----------------------------------------------------------
-\postextual
+    \postextual
 
 % Bibliography at body size (12 pt). The inherited {\footnotesize ...} wrapper measured
 % 9.96 pt against 11.96 pt body; removed 2026-07-27 on the author's ruling (src_utils/
 % PENDENCIAS.md:84) per Manual 04_2026 §8 (UFV_COMPLIANCE.md:32). Adds about two pages.
-\bibliography{references}
+    \bibliography{references}
 
-\begin{apendicesenv}
-\partapendices
-\include{chapters/apx_a_contributions}
-\include{chapters/apx_b_errata}
-\include{chapters/apx_c_ai_disclosure}
-\include{chapters/apx_d_ceiling}
-\include{chapters/apx_e_ethics}
-\end{apendicesenv}
+    \begin{apendicesenv}
+        \partapendices
+        \include{chapters/apx_a_contributions}
+        \include{chapters/apx_b_errata}
+        \include{chapters/apx_c_ai_disclosure}
+        \include{chapters/apx_d_ceiling}
+        \include{chapters/apx_e_ethics}
+    \end{apendicesenv}
 
 \end{document}
