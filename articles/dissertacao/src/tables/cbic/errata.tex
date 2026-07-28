@@ -4,12 +4,16 @@
 % THE TEXT BLOCK, and a float cannot break across pages. Measured before converting: pdflatex reported
 % "Float too large for page by 190.30908pt", the only oversized float in either build.
 % Measured after converting: oversized_floats=0 in both variants, at 109 pages defense and 105 final.
-% The page counts do NOT return to the 106/101 that HEAD produces. The conversion is not what moved
-% them, and that was isolated rather than assumed: in a scratch copy, this round's eight rows put back
-% into the original float container build to the same 109/105, with the "Float too large" warning
-% present in both variants. So the conversion costs zero pages and removes the warning; the growth
-% belongs to the round's prose additions in Chapters 3, 4 and 5 and in this appendix (defense 106 -> 109,
-% final 101 -> 105, measured by reverting only this round's files in a second scratch copy).
+% The conversion itself costs ZERO pages, isolated rather than assumed: in a scratch copy, this round's
+% eight rows put back into the original float container build to the same 109/105, with the "Float too
+% large" warning present in both variants. So the conversion removes the warning and moves no page.
+% ATTRIBUTION OF THE PAGE GROWTH, measured and NOT what an earlier version of this note claimed. In a
+% second scratch copy, with only this track's six files reverted to HEAD and every other file left as it
+% currently stands, the build is 108/104 against the current 109/105. So this track's prose additions
+% across Chapters 3, 4 and 5 and this appendix cost about ONE page per variant. The rest of the distance
+% from the 106/101 that a pristine HEAD checkout produces belongs to other work landing in this tree in
+% parallel, not to this track. Do not read 106 -> 109 as this round's cost; the isolated figure is
+% 108 -> 109 defense and 104 -> 105 final.
 % All eight rows, the caption, the label and \small are preserved; only the container changed.
 % The {\small ... } GROUP is load-bearing and must stay: longtable is not a float, so \small cannot be
 % set inside the environment the way a \begin{table} sets it. Dropping its opening brace is what stopped
