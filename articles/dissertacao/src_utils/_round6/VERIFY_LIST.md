@@ -1,0 +1,258 @@
+# VERIFY_LIST.md — the twenty checks worth your own eyes, in order of consequence
+
+**Built 2026-07-28 by the ledger track**, against `4e84cf7a` (108 / 105 / 109 pp; the per-section
+chapter split, whose render is byte-identical to `01915ba7`). Companion to
+[`SOURCE_LEDGER.md`](SOURCE_LEDGER.md), which carries the full trail; this file is the short list.
+
+**How to read the ordering.** Consequence, not effort. Items 1-6 are things that would mislead the
+banca or the advisor if wrong. Items 7-13 are claims a pass verified about **its own work**, where no
+fresh eyes have looked. Items 14-20 are traceability and hygiene. Every row gives the phrase to
+anchor on, the command or the page, and **what the answer should be if all is well** — so a check
+that comes back different is the finding.
+
+**If you only do two, do these:** item 6 (a frame sentence on p. 23 now contradicts a chapter
+sentence on p. 36, and the repair was drafted but never applied) and item 1 (a gate reported green
+across the whole round is red, and has been red since before the round started).
+
+Before anything else, one command reproduces the build state every other row assumes:
+
+```bash
+cd ~/Desktop/mestrado/ingred/articles/dissertacao && source src_utils/texenv.sh \
+  && (cd src && make defense && make final && make ppgc)
+grep -h 'Output written' src/build/main.log src/build/main_final.log src/build/main_ppgc.log
+```
+Expect **108, 105, 109 pages**. (This rewrites the tracked `src/dissertacao.pdf`; `git checkout --
+articles/dissertacao/src/dissertacao.pdf` afterwards if you do not intend to commit it.)
+
+---
+
+## Tier 1 — would mislead a reader or the banca (items 1-6)
+
+**1. `make check` is red, and the round's build claim says it is green.**
+The round state and the split commit both assert "`make check` all gates pass". It exits 1, and it
+does so at `870f882c`, `01915ba7` and `4e84cf7a` alike, on the `'this paper' / 'this article'`
+gate.
+```bash
+cd src && bash ../src_utils/check.sh; echo "EXIT=$?"
+```
+*If all is well:* you see exactly one hit,
+`chapters/apx_b_errata.tex:307: This article differs from the other two…`, `EXIT=1`, and you decide
+whether that sentence (which refers to the MobiWac manuscript, not to the dissertation) earns the
+same documented exemption `apx_b_errata` already has in the banned-words gate. **What must not
+stand is a durable record claiming the gate passes while it does not** — that is the failure mode
+`AGENT_GUARDRAILS` §7 names, and it is the reason this item is first. Ledger finding L-1.
+
+**2. The Standley correction changes a published claim against the chapter's own interest.**
+Page 34 of the defense PDF, the `Empirical Performance` bullet plus its footnote.
+*Check:* read p. 34 and the footnote, then read the Appendix B row (p. 93). *If all is well:* the
+bullet claims **only** reduced inference cost; the footnote reproduces the published sentence, says
+the cited work names accuracy and reduced training time among benefits joint training may have "in
+theory", and quotes it arguing the other way. I re-read `arXiv:1905.07553` (v3 and v4) this session
+and confirm all nine quotations verbatim. **This is `[NEEDS SIGN-OFF]` and it removes a stated
+advantage of the architecture Chapter 3 adopts — it is your call, not the reviewer's.**
+
+**3. The Nash-MTL guarantee, narrowed in published co-authored prose.**
+`chapters/4_courb/methodology.tex:36`, rendered p. 47.
+*If all is well:* the sentence reads "Away from a Pareto-stationary point … and under the method's
+assumption that the gradients are linearly independent there, that direction is a descent direction
+for every task". Both conditions are in the paper: p.1 "Under certain as-sumptions", p.3 "if θ is
+not Pareto stationary then the gradients are linearly independent", p.6 "our update rule is a
+descent direction for all tasks". I verified all three in the 19-page PDF. Also `[NEEDS SIGN-OFF]`.
+
+**4. Two glossary terms are in the rendered document and not in the registry.**
+The registry is fail-closed, so this **blocks** the new Ch.2 paragraph rather than merely awaiting
+wording.
+```bash
+grep -c 'bilinear discriminator\|logistic function' GLOSSARY.md   # expect 0 today
+```
+*If all is well:* you approve (or reject) the two proposed entries in `16_frame_numbers.md` §4 and
+the entry lands **before** p. 19 ships. Same question for **Pareto-stationary point** at p. 47
+(`15_claim_scoping_applied.md` §9). Three entries, one decision.
+
+**5. Chapter 5 hedges the region result and the frame does not.**
+`chapters/5_mobiwac/05_setup.tex:76` (p. 66) states that the analysis plan "did not cover
+next-region superiority, so the four next-region gains … are secondary results outside it". The
+Resumo (p. 2), the Abstract (p. 3), Chapter 1 (p. 13) and Chapter 6 all say the joint model
+outperforms on region "at four of six" with no such qualifier.
+```bash
+grep -rn 'four of six\|four of the six' src/0_main.tex src/chapters/1_introduction.tex src/chapters/6_conclusion.tex
+```
+*If all is well:* you rule either that the frame adds "as a secondary result" once, or that the
+asymmetry is deliberate and goes in `LEFT_OUT.md`. The statistics record's own 2026-07-27 correction
+is unambiguous that the registered primary test for **every** region cell is TOST non-inferiority.
+No round-6 track owned this. Ledger finding L-5.
+
+**6. The Ch.2 sentence that the Ch.3 protocol addition just falsified.**
+Chapter 2 (`chapters/2_fundamentals.tex:601-602`, **rendered p. 23**) says Chapter 3 "reports
+five-fold cross-validation without identifying the split axis". The Ch.3 addition landed and does
+identify it (`chapters/3_cbic/results.tex:30`, rendered p. 36). I confirmed both in the PDF, so this
+is a live contradiction the reader can see, thirteen pages apart.
+```bash
+# the clause wraps across two source lines, so grep the file as one string:
+python3 -c "print('without identifying the split axis' in open('src/chapters/2_fundamentals.tex').read().replace(chr(10),' '))"
+```
+*If all is well:* that prints `False`, because the clause has been replaced by the repair drafted in
+the comment at the Ch.3 site ("Chapters 3 and 4 both stratify by sample rather than by user … and
+only Chapter 5 splits by user"). It prints `True` today. `[VERIFY]` V-8.
+
+---
+
+## Tier 2 — a pass verified its own work and no fresh eyes have looked (items 7-13)
+
+**7. The Appendix A protocol numbers, which describe your own conduct.**
+`chapters/apx_a_contributions.tex:107,113` (rendered p. 91): `StratifiedGroupKFold`, five splits,
+partition seed **42**, grouping by user, seeds **0, 1, 7, 100**.
+```bash
+grep -n 'random_state=42\|Seeds {0, 1, 7, 100}' ../../docs/context/DATA_SPLITS.md
+```
+*If all is well:* `DATA_SPLITS.md:16` and `:65` say exactly that. I reproduced both. The reason to
+look yourself is that this appendix is new this round and is a claim about how the experiments were
+run, which is the class of claim you personally answer for at the defense.
+
+**8. The Check2HGI loss equation (three numbered equations, new to Ch.2, p. 19).**
+The weights `0.4 / 0.3 / 0.3` appear in two independent places and agree:
+`docs/context/check2hgi_overview.tex:215` and
+`research/embeddings/check2hgi/model/Check2HGIModule.py:51-53`, summed at `:1192-1195`. I checked
+both. *If all is well:* they still agree, **and** you settle the open question the pass could not:
+the code carries two further auxiliary terms whose defaults are `0.0` and which the equation omits.
+`[VERIFY]` V-14's sibling; the pass says settling it needs the run configuration of the shipped
+representation.
+
+**9. The joint model's descent from MTLnet (new frame prose, p. 20).**
+The claim is that the joint model is a *specialization* of the MTLnet class overriding exactly one
+component.
+```bash
+sed -n '42p'  src/models/mtl/mtlnet_crossattn_dualtower/model.py   # class …DualTower(MTLnetCrossAttn)
+sed -n '207p' src/models/mtl/mtlnet_crossattn/model.py             # class MTLnetCrossAttn(MTLnet)
+sed -n '368p' src/models/mtl/mtlnet_crossattn/model.py             # "Override MTLnet's FiLM + shared_layers…"
+```
+(from the repository root). *If all is well:* all three lines read as above — I confirmed each of the
+six coordinates the comment cites. This one is worth your eyes because it is the sentence that
+licenses reading Chapter 3's null against Chapter 5's positive result, which is the arc of the
+dissertation.
+
+**10. The Resumo and Abstract word counts, on the rendered page.**
+Reported as 310 / 271. I measure **310 and 272** with the report's own instrument.
+```bash
+python3 src_utils/_round6/_measure_abs.py <(printf '[{"pdf":"src/build/main.pdf","pages":[2],"label":"Resumo"},{"pdf":"src/build/main.pdf","pages":[3],"label":"Abstract"}]')
+```
+*If all is well:* Resumo 310 words / 11 sentences / mean 28.2 exactly, Abstract 272 / 11 / 24.7. The
+one-word gap is two soft-hyphen breaks on p. 3; the instrument does not apply the hyphenation
+normalization its own documentation declares. Trivial in size, but it is a number in a durable
+record that does not reproduce. Ledger finding L-4.
+
+**11. The near-blank page the Resumo cut was meant to remove.**
+*Check:* open p. 2 of the defense PDF. *If all is well:* the `Palavras-chave` block is on **p. 2
+with the Resumo** (I confirmed: keywords appear on p. 2 only, and the old orphan page is gone; front
+matter word counts are p.1 = 54, p.2 = 363, p.3 = 317). Worth a glance because the pagination has
+moved three times since that fix.
+
+**12. The paper/dissertation parity divergence at the trunk attribution.**
+The round softened the attribution in **both** texts and declared one deliberate divergence:
+Chapter 5 states the disconfirming ablation with its numbers, the paper does not.
+```bash
+grep -n 'One model serves both tasks' src/chapters/5_mobiwac/07_discussion.tex \
+  '../[mobiwac]/src/sections/07_discussion.tex'
+```
+*If all is well:* the same sentence opens both (dissertation p. 73), neither names a component as
+the source of the category gain, and `articles/[mobiwac]/ERRATA.md` carries the four dated entries.
+The declared divergence is a judgment you should endorse or reject, since it is your submitted
+paper.
+
+**13. The `+0.001` gradient-cosine sentence, fixed for parity in both texts.**
+```bash
+grep -rn 'three of our six\|three of six' src/ '../[mobiwac]/src/'
+```
+*If all is well:* **zero prose hits** (only audit comments mention the old wording — I verified
+this), and both texts read "four Gowalla states … Alabama, Arizona and Florida, which are three of
+the five United States datasets reported here, and Georgia, which this study does not otherwise
+use". I did **not** re-derive the cosine value itself; that number remains on the protocol pass's
+authority.
+
+---
+
+## Tier 3 — traceability and hygiene (items 14-20)
+
+**14. The `nash` page range, the one identifier nobody could resolve.**
+`references.bib` gives `pages = {16428--16446}`. Crossref has no DOI for the ICML version, OpenAlex
+returns only the preprint with null pages, Semantic Scholar confirms ICML 2022 but no pages, and
+`proceedings.mlr.press` and `dblp.org` are both outside the sandbox allowlist. *One click closes
+it:* `proceedings.mlr.press/v162/navon22a.html`. *If all is well:* the range matches, or you drop
+the field — which is the precedent this same bibliography set for `standley2020tasks`. `[VERIFY]` V-5.
+
+**15. `ruder2017sluice` is the third preprint entry, and it was not upgraded.**
+The entry's title is the superseded preprint title ("Sluice Networks…"); the arXiv title of record
+is "Latent Multi-task Architecture Learning" and the version of record is AAAI 2019
+(`10.1609/aaai.v33i01.33014822`, v.33 pp. 4822-4829). I resolved both. *If all is well:* you take
+the metadata decision **together with** the claim decision at the same key (it carries the round's
+highest-load NOT-SUPPORTED verdict, `chapters/3_cbic/method.tex:91`) so the entry is touched once.
+Ledger finding L-3.
+
+**16. Three claim-support verdicts on published prose you have not yet ruled on.**
+`chapters/4_courb/methodology.tex:126` (`sun2020go` cited for temporal cycles revealing place
+*function*), `:184` (`belkin2003laplacian` cited for a hierarchical embedding regularizer), and
+`chapters/3_cbic/method.tex:91` (`ruder2017sluice` cited for hard-sharing regularization). All three
+are NOT-SUPPORTED at high load, all three are in reproduced published prose, so all three are
+errata decisions rather than free edits. *If all is well:* each gets a ruling and, if changed, an
+Appendix B row. The suggested swaps (`baxter2000model`, `Xu2023`) are already in the bibliography
+and already cited for those claims elsewhere.
+
+**17. The Appendix B reconciliation count.**
+The header now claims `8 + 13 + 4 + 18 = 43` itemized rows, replacing a stale `= 36`.
+```bash
+python3 - <<'PY'
+import re
+for f in ["src/tables/cbic/errata.tex","src/tables/cbic/errata_wording.tex",
+          "src/tables/courb/errata.tex","src/tables/frame/bib_errata.tex"]:
+    t="\n".join(l for l in open(f).read().splitlines() if not l.lstrip().startswith('%'))
+    m=re.search(r'\\endlastfoot(.*?)\\end\{longtable\}',t,re.S) or re.search(r'\\midrule(.*?)(?:\\bottomrule|\\end\{longtable\}|\\end\{tabular\})',t,re.S)
+    rows=[r for r in re.split(r'\\\\\s*',m.group(1)) if r.count('&')>=1 and r.strip() and 'multicolumn' not in r]
+    print(f, len(rows))
+PY
+```
+*If all is well:* 8, 13, 4, 18. I reproduced exactly this.
+
+**18. The two errata rows and the claim they carry, as the reader sees them.**
+Pages 93 (B.1, the Standley narrowing) and 96 (B.3, the Nash guarantee). *If all is well:* both rows
+name the cited work's own position; the B.4 Sphere2Vec row **names the work rather than printing the
+52-character key** (printing it produced the round's only overfull box, `113.58371pt`); and there
+are **0 overfull boxes and 0 oversized floats** in all three builds — which I confirmed.
+
+**19. The Appendix B static-scope section, which makes a public statement about a published
+co-authored result.**
+Rendered p. 99, and **suppressible by commenting one `\input` line** at
+`chapters/apx_b_errata.tex:407`, per your own condition. Its numbers reproduce: I recomputed the
+fine-class counts from `data/checkins_by_state/*.parquet` and get 284 / 305 / 324 / 333 / 365 across
+AL/AZ/FL/CA/TX with **zero** values spanning more than one category — exactly the range the section
+states. *If all is well:* the numbers are right and the only open question is the one you reserved,
+the advisor conversation. `[NEEDS SIGN-OFF]`.
+
+**20. Sixty-three percent of this round's report coordinates now point past the end of their file.**
+279 of 443 `file:line` references across the fifteen `_round6/*.md` reports land past EOF, because
+the split reduced `3_cbic.tex`, `4_courb.tex` and `5_mobiwac.tex` to 55, 42 and 50 lines.
+*If all is well:* you do not fix those reports. Use `SOURCE_LEDGER.md` tables A and B and this file
+as the current address book — every load-bearing coordinate there was re-resolved by phrase against
+the split tree on 2026-07-28 — and hold future reports to `ANCHORS.md` §5: cite the phrase, date the
+line number. Ledger finding L-6.
+
+---
+
+### Two things deliberately NOT on this list
+
+- **The 43 `[NEEDS SIGN-OFF]` markers as a set.** Six are this round's and are covered above (items
+  2, 3, 7, 12, 19, plus the "identically" narrowing at p. 74). Reading all 43 is a separate pass,
+  not a spot check.
+- **The 25-row citation failure table as a whole.** Ten of its rows are low-load PARTIALs in
+  reproduced prose, dispositioned "leave and record". Items 16 and 15 above pull out the four that
+  carry real weight. The full table, with every identifier resolved and every site re-anchored, is
+  `SOURCE_LEDGER.md` §A.3.
+
+### One flag you should not re-raise
+
+"The CA and TX category cells are provisional and the frame does not say so" was raised, checked,
+and **withdrawn** — correctly. `stats_n20/RESULTS.md` is at rev 4 (2026-07-13) and reports all six
+datasets rejecting at α = 0.05 (CA +6.45, TX +7.45, Holm-adjusted p = 8.9e-07); the provisional
+material sits under a heading that literally begins `## 1b · … (✅ A1 n=20 now COMPLETE`. I
+re-verified this independently. **"At all six" is correct.** The lesson worth keeping: that record
+retains its superseded revisions inline, so anchor on the revision header, not on the first matching
+line.
