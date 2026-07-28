@@ -31,9 +31,24 @@ Matches the state I was given. Per the guardrails' "trusting the tolerant tool" 
 `tex_errors=0` from the logs rather than inferring correctness from a PDF existing.
 
 **The mid-session split (`4e84cf7a`) — I verified the render-neutrality claim rather than accepting
-it.** Extracted the full text layer of both builds, before and after the split, and compared byte
-for byte: **identical** in all three targets (277,820 / 272,757 / 277,949 characters). The claim
-holds by my own measurement, so every page number below is valid; every source coordinate below was
+it, and one half of the claim as handed to me is false.** I was told the three builds are
+"byte-identical before and after … same SHA". Measured on my own pre-split and post-split builds:
+
+| build | PDF file size | PDF sha256 (16) pre → post | text-layer sha256 (16) pre → post |
+|---|---|---|---|
+| defense | 1,339,651 = 1,339,651 | `0d82fe5c…` → `cea2ae65…` **differ** | `bbc0d8b4…` → `bbc0d8b4…` **match** |
+| final | 1,333,480 = 1,333,480 | `36f2860b…` → `4355635d…` **differ** | `f1969684…` → `f1969684…` **match** |
+| ppgc | 1,340,420 = 1,340,420 | `b29755a8…` → `e911b305…` **differ** | `c6eb1e84…` → `c6eb1e84…` **match** |
+
+**The PDFs are not byte-identical and their SHAs do not match** (pdflatex writes a creation
+timestamp and a document ID, so two builds of identical source never hash equal). What *is* identical
+is the extracted text layer, byte for byte, in all three targets: 277,820 / 272,757 / 277,949
+characters, same hash. Equal file sizes are consistent with, but are not evidence of, identical
+content.
+
+So the conclusion I needed holds — the split changed nothing a reader sees, every page number below
+is valid, and this report's findings survive the refactor — but it holds on the text-layer
+measurement, not on a SHA comparison that in fact fails. Every source coordinate below was
 re-resolved against the post-split files today.
 
 **The audit corpus.** Baseline `9893a2c1` (the last commit before this round's prose landed).
@@ -496,6 +511,26 @@ suggestion: Ch.3 carries the full four facts (it comes first), Ch.4 carries the 
 seed in its own words plus "under the protocol described in Chapter 3 §3.4.1", and the Appendix B
 paragraphs point at both rather than re-listing. That removes ~90 duplicate words and the appearance
 of paste.
+
+### VER-01 · MINOR — the split's "same SHA" claim does not hold as stated; the render-parity conclusion it supports does
+
+**Anchor.** The structural-change notification for commit `4e84cf7a`: "all three builds' full text is
+byte-identical before and after (defense 108 pp, final 105 pp, ppgc 109 pp, **same SHA**)."
+
+**Measured.** Built the tree before and after the split and hashed both. The three PDF pairs have
+**identical file sizes** and **different sha256** (`0d82fe5c` → `cea2ae65`, `36f2860b` → `4355635d`,
+`b29755a8` → `e911b305`). This is expected: pdflatex embeds a creation timestamp and a document ID, so
+two builds of byte-identical source cannot hash equal. The **text layers** do match byte for byte and
+by hash (`bbc0d8b4`, `f1969684`, `c6eb1e84`, identical pre and post).
+
+**Conclusion.** The substantive claim is true and I relied on it: the split is render-neutral, so page
+numbers and findings carry across it. But "same SHA" is not the measurement that shows it, and equal
+file sizes are consistent with identical content without being evidence of it. Worth recording because
+this repository's standing failure mode is exactly this shape — a plausible self-claim resting on an
+instrument that cannot support it.
+
+**Closes when** the claim is restated as what was measured (identical extracted text layer, or
+identical page images), which is both true and stronger than a SHA comparison would have been.
 
 ### UNV-01 · MINOR (partially verified) — Appendix C's own word-count claim: the delta reproduces exactly, the absolute pair is off by a constant 5
 
