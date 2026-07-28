@@ -559,17 +559,44 @@ ICML 2020". PDF downloaded and read this session (13 pages).
 
 The published bullet makes three claims. Taking them one at a time against the paper:
 
+The paper's own framing has to be read first, because it is what makes the bullet's error precise
+rather than approximate. Its introduction, p.1, lists the potential benefits of joint training:
+"In addition to reduced inference time, solving a set of tasks jointly rather than independently
+can, **in theory**, have other benefits such as improved prediction accuracy, increased data
+efficiency, and reduced training time" (emphasis added). Accuracy and training time are therefore
+both named in the paper, hedged as theoretical possibilities, in the sentence that sets up the
+question the paper then answers empirically. The bullet reproduces two of those possibilities as
+established fact, opening "In practice".
+
 | Claim in the bullet | Verdict at source |
 |---|---|
-| hard parameter sharing "frequently matches or exceeds the performance of more complex architectures on many benchmarks" | **Contradicted.** Abstract, p.1: multi-task learning "often leads to inferior overall performance as task objectives can compete". Prior Work, p.2, on the paper's own hard-sharing exemplar UberNet: it "experiences a rapid degradation in performance as more tasks are added to the network". Also p.2: "Similarly to us, they find that multi-task learning is often inferior to single task learning with multiple networks." |
+| hard parameter sharing "frequently matches or exceeds the performance of more complex architectures on many benchmarks" | **Contradicted empirically, and its theoretical form is the paper's premise rather than its finding.** Named as a possible benefit "in theory" at p.1, then: abstract, p.1, multi-task learning "often leads to inferior overall performance as task objectives can compete"; Prior Work, p.2, on the paper's own hard-sharing exemplar UberNet, it "experiences a rapid degradation in performance as more tasks are added to the network"; also p.2, "Similarly to us, they find that multi-task learning is often inferior to single task learning with multiple networks." |
 | "while offering faster ... inference" | **Supported.** Abstract, p.1: "This can save computation at inference time as only a single network needs to be evaluated." |
-| "faster training" | **Not claimed by this paper.** Its training-time material (§5.3) is about reducing the cost of its own task-grouping search, not about hard sharing being cheaper to train than a more complex architecture. I searched the full text for `faster train` and related phrasings: zero hits. |
+| "faster training" | **Named as a theoretical possibility, never as a measured result, and the paper's own training-cost material runs the other way.** "reduced training time" appears at p.1 inside the "in theory" list above. Every other training-time passage concerns the cost of the paper's own task-grouping search: §5.3, p.6, "Approximations for Reducing Training Time" reduces the burden of training the candidate networks; p.7 compares 45 percent against 95 percent savings between two such approximations; and the conclusion, p.9, concedes of its framework that "it can be costly at training time". Nothing in the paper measures hard sharing as cheaper to train than a more complex architecture. |
 
 The paper's actual headline is neither pole: "Our framework offers a time-accuracy trade-off and can
 produce better accuracy using less inference time than not only a single large multi-task neural
 network but also many single-task networks" (abstract, p.1). The contribution is the **grouping**.
 
 So the sentence survives a narrowing to its inference-cost half, and only that half.
+
+**A correction to an earlier version of this section, recorded rather than silently fixed.** The
+first draft of the table above asserted that the paper "makes no claim about training speed" and
+that a full-text search returned zero hits. That was wrong, and the way it was wrong is instructive
+enough to leave on the record: I searched for the string `faster train`, got no hits, and promoted
+one surface form's absence into a claim about the paper's content. The paper does name reduced
+training time, at p.1, hedged as theoretical. Two consequences. First, the corrected reading is
+**stronger** against the bullet, not weaker: the bullet takes two items from a list the paper
+explicitly marks "in theory" and reproduces them under the opening "In practice", which is a
+sharper mischaracterization than a bare absence would have been. Second, the method that failed is
+the one to avoid in this repository: an absence claim needs the concept searched under several
+phrasings, not one string. Every quotation attributed to either paper in this report was then
+re-checked against the extracted text of the session's own PDF copies by exact substring match,
+after normalizing the extractor's hyphenation artifacts and curly quotation marks: **Standley 10 of
+10 verbatim, Nash-MTL 8 of 8 verbatim.** I also ran the inverse test on the Nash paper, since the
+same error class would show up there as an over-narrowing: it contains no instance of
+"unconditional" or "guarantees that", and neither of its two uses of "always" bears on the
+descent-direction property, so nothing in it contradicts the narrowing drafted in §3.2.
 
 ### 4.3 The drafted correction
 
@@ -581,11 +608,13 @@ so the two corrections in one chapter read consistently:
     inference cost, since a single network is evaluated rather than one network per
     task \cite{standley2020tasks}.\footnote{The published sentence read ``hard parameter sharing
     frequently matches or exceeds the performance of more complex architectures on many benchmarks,
-    while offering faster training and inference''. The accuracy half is corrected here rather than
-    reproduced. The cited work argues the other way, reporting that multi-task learning ``often
-    leads to inferior overall performance as task objectives can compete'', and its contribution is
-    a framework for assigning tasks to several networks so that competing tasks are separated. It
-    makes no claim about training speed. See Table~\ref{tab:apx:cbic-errata}.}
+    while offering faster training and inference''. The accuracy and training-speed halves are
+    corrected here rather than reproduced. The cited work names improved accuracy and reduced
+    training time as benefits joint training may have ``in theory'', and then argues the other way
+    empirically, reporting that multi-task learning ``often leads to inferior overall performance as
+    task objectives can compete''; its contribution is a framework for assigning tasks to several
+    networks so that competing tasks are separated, and it describes that framework as costly at
+    training time. See Table~\ref{tab:apx:cbic-errata}.}
 ```
 
 And the matching errata row for `src/tables/cbic/errata.tex`:
@@ -596,10 +625,11 @@ The rationale for hard parameter sharing states that it ``frequently matches or 
 performance of more complex architectures on many benchmarks, while offering faster training and
 inference'', citing a work on task grouping. &
 Narrowed to the inference-cost claim the cited work supports, with the accuracy and
-training-speed claims removed and the cited work's own finding stated in a footnote: it reports
-that joint training often performs worse than separate networks, and its contribution is a
-framework for splitting tasks across networks. The correction removes a stated advantage of the
-architecture this chapter adopts, so it runs against the chapter's own interest. \\
+training-speed claims removed and the cited work's own position stated in a footnote: it names
+both as benefits joint training may have in theory, then reports empirically that joint training
+often performs worse than separate networks, and its contribution is a framework for splitting
+tasks across networks. The correction removes a stated advantage of the architecture this chapter
+adopts, so it runs against the chapter's own interest. \\
 ```
 
 Note the direction: this narrowing **weakens the chapter's own rationale**, which is the same
@@ -622,7 +652,7 @@ MTL-literate examiner checks.
 | Reference | Identifier | Where I opened it | Claim it supports here |
 |---|---|---|---|
 | Navon et al., *Multi-Task Learning as a Bargaining Game* | arXiv:2202.01017v2; arXiv API record fetched 2026-07-28; PDF read, 19 pp.; OpenAlex `W4225981399` queried with the stored key | arXiv API + PDF text extraction, this session | The guarantee is conditional: abstract p.1 "Under certain assumptions"; utility and constraint p.3 Eq. 1; Assumption 5.1 p.6; "our update rule is a descent direction for all tasks" p.6; Claim 3.1 scoped to points off the Pareto front p.3; CCP limited to 20 p.4; Axiom 2.4 and the domination discussion p.3 |
-| Standley et al., *Which Tasks Should Be Learned Together in Multi-task Learning?* | arXiv:1905.07553v4, comment "Presented to ICML 2020"; PDF read, 13 pp. | arXiv API + PDF text extraction, this session | Abstract p.1 for the inference saving and for "often leads to inferior overall performance as task objectives can compete" and for the framework's time-accuracy claim; p.2 for UberNet's degradation and for "multi-task learning is often inferior to single task learning with multiple networks"; absence of any training-speed claim, searched full text |
+| Standley et al., *Which Tasks Should Be Learned Together in Multi-task Learning?* | arXiv:1905.07553v4, comment "Presented to ICML 2020"; PDF read, 13 pp. | arXiv API + PDF text extraction, this session | Abstract p.1 for the inference saving and for "often leads to inferior overall performance as task objectives can compete" and for the framework's time-accuracy claim; p.2 for UberNet's degradation and for "multi-task learning is often inferior to single task learning with multiple networks"; p.1 introduction for the "in theory" list naming improved accuracy and reduced training time as possible benefits; §5.3 p.6, p.7 and the conclusion p.9 for the training-cost material, all of which concerns the paper's own grouping search, with p.9 conceding the framework "can be costly at training time" |
 
 ### Numbers
 
