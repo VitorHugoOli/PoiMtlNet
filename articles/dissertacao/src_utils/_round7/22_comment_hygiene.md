@@ -271,8 +271,9 @@ silence, and because each is a live trap for whoever extends this gate.
 
 1. **The docstring asserted a validation that had not run.** I wrote "2 violations -- `main.tex` and
    `main_ppgc.tex`" from what I expected the check to do. The first real run found `main_ppgc.tex:8`
-   and `Makefile:35` and **missed `main.tex:12`**, because that copy names its subject three lines
-   above the count while the window reached one line back. The file the note credited as detected was
+   and `Makefile:35` and **missed `main.tex:12`**: at `0bfc9e5e` that copy names its subject on
+   line 10 and states the count on line 12, TWO lines below, while the original window reached one
+   line FORWARD and none backward. The file the note credited as detected was
    the one copy the checker could not see -- root cause R1/R2 of `AGENT_GUARDRAILS` §4b, committed
    inside the gate written to prevent it. The window is now the surrounding comment paragraph and all
    three copies are found; the docstring records the error rather than hiding it.
@@ -348,6 +349,36 @@ commit would be misled.
 - **Not measured: whether any of the 46 sign-off subjects is one the author has already settled
   verbally.** Liveness here means the marker's subject still exists in the tree and no later note
   supersedes it. Only he knows which he has already decided.
+
+## 8.1 - Three of my own comments were wrong, found by review after the first commits
+
+Landed as `01e1fbbc`. Each is a comment that compiles fine, breaks nothing, and misleads whoever
+believes it -- the exact class this round's gate exists for, which makes getting them wrong inside
+that gate's own provenance the sharper lesson.
+
+1. **`README_SRC.md` documented a target that no longer produces the file it names.** The build
+   block said `make final` -> `build/main_final.pdf`. After the rename that target forwards to
+   `academico` and writes `build/main_academico.pdf`; the recipe sent the author looking for a file
+   that is not produced. Fixed, with the forwarding behaviour stated, plus two further stale
+   references in the same file (the verification recipe, and a `build/main_final.log` path in the
+   aux-tree paragraph). **I had left these deliberately, on the stated grounds that
+   `sync_page_counts.py` anchors on those strings. It does not** --
+   `grep -n README_SRC src_utils/sync_page_counts.py` returns nothing. The text stayed wrong
+   because the justification for leaving it was never checked. The `PENDENCIAS.md` and `CLAUDE.md`
+   anchors that regexes DO use are untouched and remain theirs.
+2. **The checker blamed its own false positive on the wrong guard.** The `0_main.tex` case came
+   from the FORWARD half of the window -- the header's `1.5 line spacing` line is immediately
+   followed by one that genuinely names `main_ppgc.tex` -- so the fix that mattered was the decimal
+   exclusion in `COUNT_CLAIM`. The `rel in counted` restriction is an independent narrowing and did
+   not clear this case.
+3. **The post-mortem in §6.1 above, and in the checker's docstring, had the window backwards.**
+   It said `main.tex:12` escaped because the window "reached only one line back" and that its
+   subject sat "three lines" away. Measured at `0bfc9e5e`: the subject is on line 10 and the count
+   on line 12, so TWO lines above, and the original window reached one line FORWARD and none
+   backward. Both now stated from the file rather than from memory.
+
+Revalidated after the fixes, both directions on the reconstructed pre-fix tree: CLASS B 3 -> 0,
+CLASS A 1 -> 0, gate RC=0, `make final` still builds by forwarding.
 
 ## 9 - How to re-verify all of it
 
