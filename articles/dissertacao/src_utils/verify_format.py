@@ -182,13 +182,28 @@ def compare(a_path: str, b_path: str, label: str, want: set) -> tuple[bool, list
                 lines.append(f"{label}: {len(da)} pages, all media boxes equal")
 
     if "outline" in want:
+        # An UNREADABLE outline must NOT compare equal to another unreadable outline. Two
+        # sentinels match trivially, and the old code then printed "bookmark tree IDENTICAL
+        # (1 entries)" -- a pass carrying no information, which is the same tautology class as
+        # same_file() above. An empty outline gets the same treatment: nothing was compared, so
+        # nothing is proven, and it is reported as UNVERIFIED rather than as a match.
         def outline(doc):
             try:
-                return [(b.get_title(), b.get_count()) for b in doc.get_toc()]
+                return [(b.get_title(), b.get_count()) for b in doc.get_toc()], None
             except Exception as exc:                  # noqa: BLE001 - reported, never hidden
-                return [f"UNREADABLE:{exc.__class__.__name__}"]
-        oa, ob = outline(da), outline(db)
-        if oa == ob:
+                return None, exc.__class__.__name__
+        oa, ea = outline(da)
+        ob, eb = outline(db)
+        if ea or eb:
+            ok = False
+            lines.append(f"{label}: bookmark tree UNVERIFIED -- unreadable "
+                         f"(reference: {ea or 'ok'}, candidate: {eb or 'ok'}). "
+                         f"Two unreadable outlines are not a match.")
+        elif not oa and not ob:
+            ok = False
+            lines.append(f"{label}: bookmark tree UNVERIFIED -- both PDFs report an EMPTY "
+                         f"outline, so this surface compared nothing.")
+        elif oa == ob:
             lines.append(f"{label}: bookmark tree IDENTICAL ({len(oa)} entries)")
         else:
             ok = False
@@ -265,7 +280,34 @@ def selftest() -> int:
         if ok or not any("NOT AN INDEPENDENT BUILD" in l for l in lines):
             fails.append("compare() passed a file compared against its own copy")
 
-    total = 9
+    # The outline check must not call two UNREADABLE or two EMPTY outlines a match. Exercised on
+    # stand-ins for the two document objects, since building a real PDF here would be absurd.
+    class _Doc:
+        def __init__(self, toc): self._toc = toc
+        def get_toc(self):
+            if self._toc is None:
+                raise RuntimeError("unreadable")
+            return self._toc
+    def _outline_verdict(a, b):
+        def outline(doc):
+            try:
+                return [(x, 0) for x in doc.get_toc()], None
+            except Exception as exc:                  # noqa: BLE001
+                return None, exc.__class__.__name__
+        oa, ea = outline(a); ob, eb = outline(b)
+        if ea or eb: return "UNVERIFIED"
+        if not oa and not ob: return "UNVERIFIED"
+        return "IDENTICAL" if oa == ob else "DIFFERS"
+    if _outline_verdict(_Doc(None), _Doc(None)) != "UNVERIFIED":
+        fails.append("two UNREADABLE outlines compared as a match")
+    if _outline_verdict(_Doc([]), _Doc([])) != "UNVERIFIED":
+        fails.append("two EMPTY outlines compared as a match")
+    if _outline_verdict(_Doc(["a", "b"]), _Doc(["a", "b"])) != "IDENTICAL":
+        fails.append("two equal readable outlines did not compare as identical")
+    if _outline_verdict(_Doc(["a"]), _Doc(["b"])) != "DIFFERS":
+        fails.append("two different readable outlines did not compare as differing")
+
+    total = 13
     for f in fails:
         print("FAIL: " + f)
     print(f"verify_format selftest: {total - len(fails)}/{total} checks pass")

@@ -17,10 +17,16 @@ cd "$SRCROOT"
 # turns slow is visible on the run that made it slow, instead of being suspected months later.
 #
 # The clock is `perl -MTime::HiRes`, not $EPOCHREALTIME: this machine's /bin/bash is 3.2.57
-# (Apple ships that), and $EPOCHREALTIME arrived in bash 5. Measured cost of the probe itself:
-# 20 calls in 0.151 s, i.e. ~7.5 ms per boundary, so the 19 boundaries below add ~0.14 s of the
-# suite's own runtime. That overhead is REAL and is disclosed in the table's footer rather than
-# hidden -- a timing harness that lies about its own cost is worse than none.
+# (Apple ships that), and $EPOCHREALTIME arrived in bash 5.
+#
+# THE HARNESS'S OWN COST, measured as the boundary is actually spelled rather than as one clock
+# read. A `gate` call spawns THREE perl processes, not one: `$(_now)` inside the arithmetic, the
+# arithmetic itself, and the `$(_now)` that opens the next gate. Measured 20 full boundaries in
+# 0.348 s => ~17 ms each, against 0.126 s / 20 => ~6 ms for a bare clock read. My first version
+# of this comment disclosed the 6 ms figure, which understated the real overhead by about 3x --
+# a timing harness that is wrong about its own cost is worse than none, so the number below is
+# the boundary cost and the footer computes from it.
+SECS_PER_BOUNDARY=0.017
 # Set CHECK_TIMING=0 to suppress the table (the gates still run; only the report is skipped).
 CHECK_TIMING="${CHECK_TIMING:-1}"
 GATE_NAMES=(); GATE_TIMES=(); GATE_N=0; GATE_T0=""; GATE_CUR=""
@@ -54,12 +60,16 @@ gate_report() {
     sum="$(perl -e "printf '%.3f', $sum + ${GATE_TIMES[$i]}")"
     i=$((i + 1))
   done
-  printf '  %6ss  SUM OF GATES (the rest is this table plus ~%s s of clock probes)\n' \
-         "$sum" "$(perl -e "printf '%.2f', 0.0075 * ($GATE_N + 1)")"
-  echo "  Nothing here is parallelized. Round 7 measured every gate below 0.3 s except"
-  echo "  check_verify_list.py, and forking for a 0.1 s gate costs more than it saves; the"
-  echo "  measurement is in src_utils/_round7/20_build_speed.md. If a gate in this table grows"
-  echo "  past ~1 s, THAT is the one to parallelize, and this table is how you will know."
+  printf '  %6ss  SUM OF GATES (the rest is this table plus ~%s s of clock probes:\n' \
+         "$sum" "$(perl -e "printf '%.2f', $SECS_PER_BOUNDARY * ($GATE_N + 1)")"
+  printf '            %s boundaries x ~%s s, three perl spawns each)\n' \
+         "$((GATE_N + 1))" "$SECS_PER_BOUNDARY"
+  echo "  Nothing here is parallelized except the verification-commands gate. When round 7 timed"
+  echo "  this suite, that was the only gate above 0.3 s (0.927 s of a 1.811 s total) and every"
+  echo "  other one was under 0.24 s; forking for a 0.05 s gate costs more than it saves. Those"
+  echo "  figures are the run recorded in src_utils/_round7/20_build_speed.md §4, NOT this run --"
+  echo "  read the column above for what the gates cost today. If one grows past ~1 s, THAT is"
+  echo "  the one to parallelize, and this table is how you will find out."
 }
 # ----------------------------------------------------------------------------------------
 # chapters/*/*.tex added 2026-07-28: the three paper chapters were split into per-section

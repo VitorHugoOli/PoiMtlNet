@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
 """mkformat.py -- precompile this document's preamble into a pdflatex format dump.
 
-WHY. Measured on this machine (2026-07-29, src/ at 0bfc9e5e, see src_utils/_round7/
-20_build_speed.md for the table): one pdflatex pass over main.tex costs ~32 s, and the same
-preamble with an EMPTY body costs ~28 s. The preamble -- abntex2 + memoir + newtxmath +
-hyperref + abntex2cite -- is ~87% of every pass, and the document body is about four seconds
-of it. A pass that loads a mylatexformat dump of that preamble instead of re-reading it runs
-in ~4 s.
+WHY. The preamble -- abntex2 + memoir + newtxmath + hyperref + abntex2cite -- dominates every
+pdflatex pass, and a build runs three of them. MEASURED IN THIS SESSION, cold, per full
+three-pass build: 122.7 s plain against 15.4 s with the dump loaded (defense; the other two
+targets are in the table). The dump itself cost 33.7 s to build.
+
+Do NOT quote a per-pass split from this docstring. The "~32 s per pass, ~28 s of it preamble,
+~87%" figures were inherited from the round brief, not measured here, and this file previously
+presented them as its own measurement. What this session measured is the whole-build
+before/after above; the per-pass decomposition is consistent with it but unverified here.
+Every number, with the command that produced it and a contention caveat that matters (the same
+build spanned 105-128 s across four runs): src_utils/_round7/20_build_speed.md §3.
 
 WHAT THIS SCRIPT DOES. It derives THREE files into build/fmt/ and never asks a human to keep
 anything in sync:
@@ -103,12 +108,22 @@ def find_live(text: str, needle: str, start: int = 0) -> int:
 
         %       pdflatex "\\newif\\ifdefensebuild\\defensebuildfalse\\input{main.tex}"
 
-    A plain str.find() for the switch anchor lands THERE, 34 lines above the real
-    declaration, and slicing from the match offset drops the leading `%` -- so that quoted
-    command becomes LIVE code in the dump and recursively \\input{main.tex} inside the format.
-    Measured before the fix: the extracted switch region was 2,809 bytes for a region that is
-    130. 0_main.tex has the same trap for \\begin{document} ("... would be too late").
+    A plain str.find() for the switch anchor lands THERE, above the real declaration, and
+    slicing from the match offset drops the leading `%` -- so that quoted command becomes LIVE
+    code in the dump and recursively \\input{main.tex} inside the format. 0_main.tex has the same
+    trap for \\begin{document} ("... would be too late").
     AGENT_GUARDRAILS §4b V4, which is a rule because it caused three defects in one day.
+
+    MEASURED on this tree, and stated carefully because the first version of this comment gave
+    two figures that were both wrong. The region the fixed extractor returns is 2,293 bytes, of
+    which 229 bytes in 5 lines are LIVE code and the rest is the interleaved provenance commentary
+    that must be carried along (it sits between the \\newif blocks). A comment-blind find() from
+    the first match to the last spans 6,714 bytes and starts inside the quoted command. So the
+    number to compare is not "2,809 against 130" -- it is that the blind version starts in the
+    wrong place entirely. Re-derive rather than trusting these figures:
+        python3 -c "import importlib.util as u; s=u.spec_from_file_location('m','src_utils/mkformat.py'); \\
+                    m=u.module_from_spec(s); s.loader.exec_module(m); \\
+                    print(len(m.switch_region(open('src/main.tex').read())))"
     """
     pos = start
     while True:

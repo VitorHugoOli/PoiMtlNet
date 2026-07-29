@@ -3,10 +3,11 @@
 #
 #   usage: src_utils/fastbuild.sh <target> [srcdir]      target = defense | final | ppgc
 #
-# WHAT IT IS FOR. Measured on this machine (table in src_utils/_round7/20_build_speed.md):
-# the preamble is ~87% of every pdflatex pass, so a three-pass build spends most of its time
-# re-reading abntex2 + memoir + newtxmath + hyperref three times. This script loads the
-# format dump that src_utils/mkformat.py produces instead.
+# WHAT IT IS FOR. A three-pass build spends most of its time re-reading the same preamble
+# (abntex2 + memoir + newtxmath + hyperref + abntex2cite) three times. This script loads the
+# format dump that src_utils/mkformat.py produces instead. MEASURED cold, this session:
+# 122.7 s -> 15.4 s for the defense build. Full table, with the contention caveat:
+# src_utils/_round7/20_build_speed.md §3.
 #
 # WHAT IT IS NOT. It is an ACCELERATOR, never a requirement. `make defense`, `make final` and
 # `make ppgc` do not use it and keep working with no format present -- that matters because
@@ -17,8 +18,9 @@
 # when the preamble changes under it: the build succeeds, the PDF is stale, and nothing in the
 # log says so. That is the exact shape of science/AGENT_HANDOFF.md §2.3b (a PDF existing is
 # not evidence the source is correct). So this script REFUSES to run on a stale key rather
-# than warning about it; `make fast` calls mkformat.py --build first, which re-dumps in ~28 s
-# when the preamble moved and does nothing when it did not.
+# than warning about it; `make fast` calls mkformat.py --build first, which re-dumps when the
+# preamble moved (measured 33.7 s and 36.0 s in this session's two runs) and does nothing when
+# it did not.
 #
 # AUX ISOLATION. Each target writes into build/<stem>-aux/, its own output directory, and the
 # three result files are copied back into build/ afterwards -- the same arrangement the

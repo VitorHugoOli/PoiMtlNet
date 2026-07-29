@@ -60,7 +60,8 @@ Three consequences, all of which shaped this track:
 
 ## 1 · What was built
 
-Four things, in the order the brief asked for them.
+The brief asked for four things. They landed as seven files, because the equivalence proof and
+the standalone gate runner each needed a file of their own:
 
 | # | File | What it is |
 |---|---|---|
@@ -91,7 +92,14 @@ rather than merely wrong.** `main.tex`'s header quotes the switch pattern inside
 A comment-blind `str.find()` for the `\newif` anchor lands **there**, 34 lines above the real
 declaration, and slicing from the match offset drops the leading `%` — so that quoted command
 becomes **live code inside the format**, recursively `\input`ting `main.tex`. The tell was the
-size: the extracted switch region measured **2,809 bytes** for a region that is 130. `0_main.tex`
+size of the extracted region, and the honest version of that figure is worth stating because my
+first write-up of it was wrong twice. **Measured on this tree:** the fixed extractor returns
+**2,293 bytes**, of which **229 bytes in 5 lines** are live code and the rest is interleaved
+provenance commentary sitting *between* the two `\newif` blocks, which must be carried along. A
+comment-blind `find()` from first match to last spans **6,714 bytes** and *starts inside the
+quoted command*. So the diagnostic is not a ratio, it is that the blind version begins in the
+wrong place; I originally reported "2,809 bytes for a region that is 130", and neither number
+survives re-measurement. `0_main.tex`
 carries the same trap for `\begin{document}` ("would be too late"). Both anchors now go through
 `find_live()`, which skips matches preceded by an unescaped `%` on the same line. This is
 `AGENT_GUARDRAILS` §4b V4 arriving in a place nobody had thought to apply it — not a grep over
@@ -160,6 +168,19 @@ two 275,000-character fingerprints ran about **eleven minutes** on the first rea
 enough that the run looked hung rather than informative. Replaced with a common-prefix scan, which
 finds the same first divergence in milliseconds.
 
+**And a third, which is the same tautology wearing different clothes.** The bookmark-tree check
+caught an exception and returned `["UNREADABLE:<ExceptionName>"]` as the outline. Two *unreadable*
+outlines then compared **equal**, and the comparator printed `bookmark tree IDENTICAL (1 entries)`
+— a pass that means "I could not read either file". Two empty outlines had the same problem. Both
+now report `UNVERIFIED` and **fail** the comparison, with the exception name for each side. Four
+more self-test checks pin it (13 total now), and the real PDFs still report `IDENTICAL` at
+110/107/110 entries, so the fix did not simply break the check into always-failing.
+
+Worth naming the pattern, since it appeared three times in one comparator: **every "equal" branch
+needs to answer "equal to what, and did I actually look?"** A sentinel compared with itself, a file
+compared with its own copy, and an empty result compared with another empty result all satisfy
+`a == b` while establishing nothing.
+
 ---
 
 ## 2 · What changed, by phrase
@@ -182,12 +203,26 @@ Anchored by phrase, never by line number.
   get the serial time), `fast`/`fast3`/`format`/`format-status`/`verify-equiv`, twelve
   `check-*` targets, `check-scripts`, `sync-pages`, `help`.
 
-**`src_utils/check.sh`** — each `echo "== ... =="` gate header became `gate "== ... =="` (18 of them at the time; the count is COMPUTED at run time, not hardcoded, so a gate added by
-another track is picked up automatically -- the suite reported 19 within the hour),
-and `gate_report` runs before `exit $FAIL`. The clock is `perl -MTime::HiRes`, not
-`$EPOCHREALTIME`: this machine's `/bin/bash` is 3.2.57 and that variable arrived in bash 5.
-The harness's own cost is measured (20 probes in 0.151 s, ~7.5 ms each) and **disclosed in the
-table's footer** rather than hidden.
+**`src_utils/check.sh`** — each `echo "== ... =="` gate header became `gate "== ... =="` (18 of
+them at the time; the count is **computed at run time, not hardcoded**, so a gate added by another
+track is picked up automatically — the suite reported 19 within the hour), and `gate_report` runs
+before `exit $FAIL`. The clock is `perl -MTime::HiRes`, not `$EPOCHREALTIME`: this machine's
+`/bin/bash` is 3.2.57 and that variable arrived in bash 5.
+
+**The harness discloses its own cost, and my first disclosure of it understated the truth by
+about 3x.** I measured a bare clock read — 20 calls in 0.151 s, ~6 ms — and wrote that into the
+footer as the per-boundary cost. But a `gate` call spawns **three** perl processes, not one: the
+`$(_now)` inside the arithmetic, the arithmetic itself, and the `$(_now)` that opens the next
+gate. Measured as the boundary is actually spelled: **20 full boundaries in 0.348 s, ~17 ms
+each**, so the 20 boundaries cost ~0.34 s of the suite's runtime rather than the ~0.14 s I first
+claimed. The footer now computes from a named `SECS_PER_BOUNDARY=0.017` and says where the three
+spawns go. A timing harness that is wrong about its own cost is worse than none, and the way to
+get this right is to time *the thing as written*, not its cheapest component.
+
+The footer also no longer states the per-gate thresholds as if they were properties of the
+current run. It attributes them to the recorded round-7 measurement and points the reader at the
+column above for today's numbers — the previous wording ("Round 7 measured every gate below
+0.3 s") would go stale silently the moment a gate slowed down.
 
 **`src_utils/check_verify_list.py`** — the block loop split into `classify()` (one classifier,
 called twice, so the plan and the report cannot disagree about a block's kind) and a
@@ -342,8 +377,11 @@ it slow.
 `check_scripts.sh` gives the standalone gates names and runs them without a build:
 
 ```bash
-(cd src && make check-scripts)      # 13 gates, 1.855 s measured, all OK
+(cd src && make check-scripts)      # 13 gates, 0 skipped, all OK
 ```
+
+Measured 1.855 s on its first run and 1.182-1.256 s on four later ones; the first run pays the
+Python interpreter's cold start for thirteen separate processes.
 
 It does **not** stop at the first failure, so one run reports everything broken. It is not a
 replacement for `make check`, which also runs the inline shell sweeps and the compiled-log gates.
@@ -418,7 +456,7 @@ measurement of this run. `bl/exp7.sh`'s reporter requires the PDF *and* the log 
 `NO-BUILD` otherwise.
 
 **The generalizable lesson, since this round is collecting them:** every one of these was caught by
-a number that did not make sense (2,809 bytes for a 130-byte region; 0.04 s for a gate that runs 15
+a number that did not make sense (a 2,293-byte switch region where 229 bytes are live; 0.04 s for a gate that runs 15
 subprocesses; a perfect match from a build that refused; 0.9 s for a three-pass build). None was
 caught by reading my own code. `AGENT_GUARDRAILS` §4b V3 — *distrust a clean result from an
 unvalidated instrument* — is the rule that would have caught all five, and the corollary this round
@@ -469,7 +507,7 @@ source src_utils/texenv.sh
 
 (cd src && make help)                    # every target
 (cd src && make check)                   # THE gate, now with the per-gate timing table
-(cd src && make check-scripts)           # 13 standalone gates, ~1.9 s, no build needed
+(cd src && make check-scripts)           # 13 standalone gates, ~1.2 s warm, no build needed
 (cd src && make format-status)           # is the dump fresh? rc=0 fresh, rc=1 stale/absent
 (cd src && make fast)                    # defense, format-accelerated
 (cd src && make all3)                    # three targets, concurrent
