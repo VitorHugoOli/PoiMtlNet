@@ -675,14 +675,29 @@ doi       = {10.1145/3219819.3220007}
 %   Claim: multi-task performance is quantified as the average relative per-task performance drop (Delta-m %) with
 %   respect to single-task baselines: Delta_m = (1/T) sum_i (-1)^{l_i} (M_{m,i} - M_{b,i}) / M_{b,i}.
 %   Located firsthand in the opened PDF (Sec. 4, "Evaluation metric"; Table 3 caption "average relative performance drop (Delta-m %)").
-@inproceedings{maninis2019attentive,
-  author      = {Kevis-Kokitsi Maninis and Ilija Radosavovic and Iasonas Kokkinos},
-  title       = {Attentive Single-Tasking of Multiple Tasks},
-  booktitle   = {Proc. IEEE/CVF CVPR},
-  year        = {2019},
-  pages       = {1851--1860},
-  doi         = {10.1109/CVPR.2019.00195},
-}
+% [RETIRED 2026-07-30, COD-015d, round8] The (at)inproceedings entry that stood here is COMMENTED OUT,
+% not deleted, and this is the whole record of why. It was the only \cite for the Delta-m metric, and
+% Chapter 2's definition of that metric was removed because no chapter reported it. An entry with no
+% \cite is worse than no entry: BibTeX drops it silently from the printed bibliography, so the .bib
+% and the document disagree with nothing to signal it. The verified provenance above is kept exactly
+% as it was, because the verification (DOI, pages via OpenAlex, the claim located firsthand in the
+% opened PDF at Sec. 4 and the Table 3 caption) is real work that a future round should not repeat.
+% THE AT-SIGN IS DELIBERATELY WRITTEN AS (at) BELOW. A commented-out entry that keeps its literal at-sign
+% is NOT inert: BibTeX scans for that character regardless of the % and then chokes on the commented field lines.
+% Reproduced in an isolated scratch tree on 2026-07-30 before writing this: bibtex exits 2 with "You're
+% missing a field name---line 3 of file t.bib", and check.sh:196 greps the .blg for exactly that, so
+% leaving the at-sign here would have failed the build gate with an error that never reaches main.log. This
+% is the hazard check.sh:172 documents; it is cheaper to obey than to rediscover.
+% TO REINSTATE: restore the at-sign, uncomment the seven lines below, and re-add the \cite where the
+% metric is reported.
+% (at)inproceedings{maninis2019attentive,
+%   author      = {Kevis-Kokitsi Maninis and Ilija Radosavovic and Iasonas Kokkinos},
+%   title       = {Attentive Single-Tasking of Multiple Tasks},
+%   booktitle   = {Proc. IEEE/CVF CVPR},
+%   year        = {2019},
+%   pages       = {1851--1860},
+%   doi         = {10.1109/CVPR.2019.00195},
+% }
 
 % PROVENANCE: Ch.2 _bib donor (new_references_ch2.bib, identifier-verified). ERRATUM applied
 % (CBIC ERRATA #6 / R4): replaces church2017word2vec (a commentary column, not the skip-gram

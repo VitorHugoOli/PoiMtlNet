@@ -537,16 +537,61 @@ plain unweighted cross-entropy; class weighting, tested there on both outputs, l
 both region accuracy and category macro-F1. For next region, the primary metric is accuracy at 10
 (Acc@10), the fraction of cases where the true region appears in the model's ten
 highest-ranked predictions; it is a ranking metric and says nothing about the
-probability mass placed on the true region, which is why mean reciprocal rank
-accompanies it where the joint comparison needs a rank-sensitive figure. In the
+probability mass placed on the true region, so a model can rank the true region tenth
+as cheaply as first. In the
 reported region results a region never seen in training counts as a miss, so the
 figure is not inflated by unpredictable new regions; Chapter~\ref{ch:mobiwac} gives the full
-definition. When one model must be scored against its single-task
-references across both tasks at once, the aggregate is the relative multi-task
-performance change, the average per-task percentage by which the joint model leads or
-trails the dedicated single-task models \cite{maninis2019attentive}. It is a relative
-figure against a named baseline, and a positive value is a lead only when each
-per-task change is itself established.
+definition. The two tasks are scored separately throughout this dissertation, each
+against its own reference points, so the comparison a joint model has to win is made
+per task, against the dedicated single-task model for that task. Where the two scores
+are combined at all, it is to select a training checkpoint rather than to report a
+result: Chapter~\ref{ch:mobiwac} reads its joint model at the epoch of the best joint
+validation score, the geometric mean of the two task metrics.
+% [COD-015d, round8, 2026-07-30] TWO METRIC PROMISES REMOVED, because no chapter reported either one.
+% Author decision, PENDENCIAS 5.5: "Pode refazer por conta propria", on a choice he framed as delete the
+% two promises (his recommendation, and mine) or run an analysis round to report them.
+% MEASURED FIRST, not assumed, and the sweep used check_audit_claims.live_text so that provenance
+% comments quoting these very terms are not counted as prose (AGENT_GUARDRAILS 4b V4). Command, runnable
+% from articles/dissertacao, prints one row per chapter group:
+%   python3 - <<'PY'
+%   import re,sys; sys.path.insert(0,"src_utils")
+%   from check_audit_claims import live_text
+%   from pathlib import Path
+%   pats={"MRR":r"\bMRR\b|mean reciprocal rank|reciprocal rank",
+%         "Delta_m":r"relative multi-task performance|multi-task performance change"}
+%   for d in [Path("src"),Path("../[mobiwac]/src")]:
+%       for f in sorted(d.rglob("*.tex")):
+%           if "build" in str(f): continue
+%           t=live_text(f); h={k:len(re.findall(v,t,re.I)) for k,v in pats.items()}
+%           if any(h.values()): print(f,h)
+%   PY
+%   # EXPECT before this edit: ONE line, src/chapters/2_fundamentals.tex {'MRR': 1, 'Delta_m': 1}.
+%   # EXPECT after it: no output at all.
+% Scope of that sweep, stated because an unreported exclusion is how the round-6 table went wrong:
+% 59 .tex files under src/ (build/ excluded, it holds generated copies), all 17 files under
+% src/tables/, and the 16 files of the submitted manuscript at articles/[mobiwac]/src/. Neither term
+% occurs in any results table of any chapter, so the promises were not merely unmentioned in prose,
+% they were unreported everywhere.
+% WHAT REPLACED THEM. The Acc@10 sentence keeps its limitation and states it directly ("a model can
+% rank the true region tenth as cheaply as first") instead of naming a second metric to fix it, so the
+% honest point the MRR clause was carrying survives without promising a figure. The Delta_m sentence is
+% replaced by what the document actually does: per-task comparison against the dedicated single-task
+% model. The clause about the checkpoint is added rather than removed because WRITING_LAW section 5
+% requires the checkpoint-selection rule to be defined with the metrics, and it is measured, not
+% assumed: 5_mobiwac/06_results.tex:86 and :363 both name the joint validation score as the geometric
+% mean of the two task metrics. It is deliberately called a selection rule and not a reported score,
+% which is the distinction the earlier draft of this sentence got wrong by asserting that no aggregate
+% is reported anywhere.
+% CONSEQUENCE HANDLED, NOT LEFT: dropping the Delta_m sentence dropped the only \cite of
+% maninis2019attentive in the document, which would leave an entry that BibTeX silently omits from the
+% printed bibliography while it still sits in references.bib. The entry is removed from
+% src/references.bib in the same commit, its verified provenance comment kept there as a retired
+% record so the work of verifying it is not lost. Bibliography goes 100 entries to 99; measured with
+% grep -c '^@' src/references.bib and against the built main.bbl \bibitem count.
+% [NEEDS SIGN-OFF: COD-015d, round8, 2026-07-30 | AUTHOR -- this narrows the scope of the fundamentals
+% chapter by retiring two metric definitions, and it drops one reference from the bibliography with
+% them. Both metrics remain available if a later analysis round reports them; nothing else in the
+% chapter depends on either.]
 
 Every metric is read against reference points. The majority-class floor, which always
 predicts the most frequent category, is the level a learned category model must clear.
@@ -642,12 +687,15 @@ test within the stated margin.
 %           fact F9: addendum provenance pointer to be corrected to the check-in table, not the 32.5% POI-count table);
 %           "10" in Acc@10 (metric definition); "two-point margin" (TOST convention, GLOSSARY).
 %  OOD FORESHADOW (domain F8): region metric foreshadowed as "unseen region counts as a miss"; full OOD-Acc@10 definition in Ch.5.
-%  Acc@10, MRR, majority-class floor: conventions with no origin DOI -- defined defensively, cited conventionally.
+%  Acc@10 and the majority-class floor: conventions with no origin DOI -- defined defensively, cited
+%           conventionally. MRR was in this line too and its definition is REMOVED from the chapter
+%           (COD-015d, round 8): no chapter reported it. See the COD-015d block below.
 %  pedregosa2011sklearn: StratifiedGroupKFold is a scikit-learn v1.0/2021 feature; single-cite ruling (author) -- 2011 paper for the
 %           library, splitter behavior stated defensively in prose.
 %           kohavi1995crossval: claim PLAUSIBLE (Zenodo re-deposit id), author to
 %           confirm original IJCAI-95 text.
-%  Delta_m written in prose as "relative multi-task performance change"; formula lives in the metrics addendum, not inline here.
+%  Delta_m ("relative multi-task performance change", maninis2019attentive) is REMOVED from the chapter
+%           (COD-015d, round 8): no chapter reported it either. See the COD-015d block below.
 %  four-of-six + two-point margin (referenced in 2.5): confirm against Ch.5 RESULTS_BOARD.md / PAPER_PLAN §3 at adaptation (fact NOTE 10).
 % ---------------------------------------------------------------------------
 
