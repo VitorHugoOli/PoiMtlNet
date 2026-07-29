@@ -419,6 +419,56 @@ what established that the *PDFs* were fine and only the *reporting* was broken.
 `mkformat.py --status` correctly reports `no format dump present` with `rc=1`. The format is an
 accelerator; nothing requires it. That matters for Overleaf, which cannot load a local dump.
 
+### 5.1 · The decisive test, run after a stale cell reported the opposite
+
+A background cell that had been running across two source re-syncs landed reporting **`text
+DIFFERS` on all three targets**, with the divergence being a citation rendering `[##]` where the
+reference had `[#]` — a renumbered bibliography. That contradicts everything above, and two causes
+demanded opposite conclusions: either the format dump renumbers citations, in which case the
+accelerator must be **retracted**, or the two arms were not built from the same source.
+
+Circumstantial evidence favoured the second (that cell overlapped another of my own on the same
+tree, each re-`rsync`ed `src/` from a repository other tracks were committing to, and three commits
+touched `src/chapters/` and `src/tables/` between its reference and its candidate), but *almost
+certainly* is not a measurement. So `bl/exp8.sh` was built to discriminate: **one snapshot, taken
+once, never re-synced, both arms from those exact bytes, on a machine confirmed to have zero
+`pdflatex` processes running**, with the source hashed before and after so a mid-test change would
+void the result rather than corrupt it.
+
+```
+ARM 1  serial plain, cold:  defense 166.3 s | academico 151.3 s | ppgc 180.1 s
+                            108 / 105 / 109 pp, tex_errors=0, make errors=0
+ARM 2  make fast3, cold, SAME source:  55.0 s, make errors=0
+                            108 / 105 / 109 pp, tex_errors=0 on all three
+
+.bbl COMPARISON (the file that fixes citation numbering):
+  main            .bbl EQUAL  7b057adac6eb1fc5
+  main_academico  .bbl EQUAL  7b057adac6eb1fc5
+  main_ppgc       .bbl EQUAL  7b057adac6eb1fc5
+
+VERDICT: text IDENTICAL on all three (275465 / 270385 / 275594 chars), digit sequences
+IDENTICAL (4495 / 4480 / 4495 runs), all media boxes equal, bookmark trees IDENTICAL
+(110 / 107 / 110). 3 of 3 compared, 0 skipped, rc=0.
+```
+
+**The renumbering is not caused by the format dump.** The `.bbl` files are byte-equal, and the
+`.bbl` is what fixes the numbering, so the two arms could not have numbered differently. The
+earlier `DIFFERS` came from comparing PDFs built from two different source states.
+
+> **My own void-guard fired, and the guard was the defect.** `exp8.sh` ended with
+> `SOURCE CHANGED MID-TEST -- THE TEST IS VOID`. It was wrong: the hash globbed `*.tex` across the
+> whole tree including `build/fmt/`, which is where `mkformat.py` **generates** `_pre.tex`,
+> `_body.tex` and the three `_run_*.tex` drivers during arm 2 — five files that cannot exist during
+> arm 1. Confirmed by arithmetic rather than by argument: the hash is over **58** files, **53** of
+> them outside `build/`, and the source-only hash of those 53 is `9dcc7bfb…` — byte-identical to
+> the "before" value the script printed *and* to the live repository's `src/` right now. So the 53
+> real source files never moved, and the delta is exactly the 5 generated ones.
+>
+> Recorded rather than quietly corrected, because this is the *fourth* variant of one pattern in
+> this track: a check whose scope did not match the question it was asked. It is also the least
+> bad kind — it failed **closed**, refusing to certify a result it could not vouch for. A guard
+> that cries wolf costs a diagnosis; a guard that stays silent costs a shipped defect.
+
 **A separate, tighter check on the one target where a difference had appeared** (`bl/exp4.sh`):
 built defense both ways from a fully cold tree with the *same* Makefile, and compared the `.bbl`
 BibTeX produced in each — the `.bbl` is what fixes citation numbering, so if it agrees the
