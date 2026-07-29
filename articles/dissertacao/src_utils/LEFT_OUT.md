@@ -201,6 +201,67 @@ change available without redesigning a submitted paper's figure.
 
 ---
 
+## LO-9 · The conditions on the Nash-MTL guarantee, beyond the two the paper names
+
+**Finding.** `arXiv:2202.01017v2` was fetched and read this session (19 pages). Its guarantee is real
+and it is **conditional**, on more than the dissertation states:
+
+1. **Assumption 5.1, p.6** (informally p.3): "if $\theta$ is not Pareto stationary then the gradients
+   are linearly independent". Claim 3.1's characterization of the solution is stated only "if $\theta$
+   is not on the Pareto front".
+2. **The solution is approximated, not solved.** p.4: the $\alpha$ is obtained by a concave-convex
+   procedure limited to 20 iterations. The exact Nash bargaining solution is not computed.
+3. **The authors' own hedge, p.6:** "Since our update rule is a descent direction for all tasks, we
+   can reasonably assume that our algorithm avoids local maxima points." *Reasonably assume*, not
+   prove.
+
+**What the text says instead.** The dissertation names the **two conditions the paper itself
+foregrounds** and stops. It does not claim the guarantee is unconditional, and it does not import the
+CCP approximation cap or the authors' hedge.
+
+**Why it is out.** Because the two named conditions are what a reader needs in order not to
+over-read the method, and the remaining detail is a discussion of someone else's method that would
+not change any decision in this dissertation. Naming all three in the frame would give an
+external method more space than this document's own contribution.
+
+**A separate flag inside this entry.** `src/references.bib:741` carries `pages = {16428--16446}` for
+the ICML 2022 record. OpenAlex returns **only** the arXiv preprint (`W4225981399`, type `preprint`,
+no page range), so that page range is **not confirmed by any source of record reachable this
+session**. The venue itself is confirmed by the paper's own arXiv comment field. This is a
+`[VERIFY]`, not an error: the pages may well be right.
+
+**Where the full finding lives.** `src_utils/_round6/10_protocol_recovery.md` §3.1.
+
+**Decided by.** The protocol-recovery pass, 2026-07-28, applied at `1fa930e0`.
+**Open for the author** only on the page range.
+
+---
+
+## LO-10 · The provenance-relocation option for the comment volume
+
+**Finding.** Comment volume was measured by block: 1,217 of 1,269 comment lines (95%) carry a
+traceable fact, and the fact-free remainder is structural banners plus the author's own sign-off
+queue. Two reductions were identified that lose nothing: **41 purely decorative rule lines**, and
+**moving the provenance blocks** out of the `.tex` files into per-chapter files under `src_utils/`
+with a one-line pointer at each site. The second would remove far more volume than the first.
+
+**What the text says instead.** Neither was applied to the chapters. The decorative lines are being
+removed in round 7's comment pass; the relocation was **not** proposed for application.
+
+**Why it is out.** Because relocation trades away the property that makes the provenance work. A
+comment beside its value is read by whoever edits that value; a file one directory away is not. The
+number protocol (`AGENT_GUARDRAILS` N3) depends on that adjacency, and it is what caught the
+wrong-quantity defect recorded inside one of those very blocks. The `tables/` reorganization did the
+same move successfully, but there the hoisted text was **identical** across 16 files, so nothing was
+separated from anything.
+
+**Where the full finding lives.** `src_utils/_round6/14_comments_measured.md`.
+
+**Decided by.** Recorded 2026-07-28; recommended against. **Open for the author** if he wants the
+volume gone and accepts the trade.
+
+---
+
 ## How to add an entry
 
 Copy the shape above: the finding, what the text says instead, why it is out, where the full finding

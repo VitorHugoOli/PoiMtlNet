@@ -82,7 +82,7 @@ O que elas acharam:
 | N-2 | MAJOR | Ch.2 afirmava que Ch.3 "nao identifica o eixo de split", o que a adicao COD-007 desta rodada tornou falso no mesmo dia. O reparo foi **previsto por escrito** e redigido pela trilha de protocolo, e caiu entre dois escopos | `fecc7fb1` |
 | D-01 | BLOCKER | Minha propria secao de Apendice B concluia que "o rotulo de um lugar nunca entra na sua propria representacao" no Ch.3. **A premissa e verdadeira e a conclusao nao segue:** o grafo e nao dirigido e a convolucao agrega o no com a vizinhanca, entao o rotulo volta no primeiro salto. Reproduzido em grafo de 4 nos: h_0[Food] = 0,667 contra x_0[Food] = 0,000 | `4b609643` |
 | D-02 | BLOCKER | Ch.6 citava o ganho de 20,2 a 22,0 pontos do Ch.4 **sem rotular a tarefa**, como o diagnostico do arco inteiro. O ganho e da tarefa **estatica**, que o Apendice B desta rodada desqualifica. O numero fica (e a figura auditada do capitulo publicado), agora com tarefa e qualificacao, e o diagnostico repousa na tarefa sequencial | `4b609643` |
-| F-01 | BLOCKER | **9 de 13** caminhos de reprodutibilidade do Apendice A **nao estao** no branch publico que o Ch.5 aponta em nota de rodape. Todos os 13 existem nesta maquina: a promessa estava errada, nao o codigo. (A primeira contagem dizia 8 de 12; ver `c6e62c62` -- um `grep` por linha perdeu `m1_full_output.txt`, que divide a linha com outro caminho) | `ec1cea0d`, `c6e62c62` |
+| F-01 | BLOCKER | **5 de 13** caminhos de reprodutibilidade do Apendice A **nao estao** no branch publico (auditado por CONTEUDO 2026-07-29; a contagem anterior de 9 comparava caminhos, e tres arquivos ja estao publicos sob `analysis_protocol/`) que o Ch.5 aponta em nota de rodape. Todos os 13 existem nesta maquina: a promessa estava errada, nao o codigo. (A primeira contagem dizia 8 de 12; ver `c6e62c62` -- um `grep` por linha perdeu `m1_full_output.txt`, que divide a linha com outro caminho) | `ec1cea0d`, `c6e62c62` |
 | F-02 | MAJOR | A pagina 77, secao 6.2, tinha uma sentenca **sem sujeito**: "California run, completed since, repeats the pattern". O artigo "The" terminava a linha anterior e foi absorvido por um bloco de comentario inserido depois. Recuperado do commit original | `ec1cea0d` |
 | C-1 | MAJOR | O build de **deposito** (AcademicoPG) imprimia 11 na pagina fisica 8. `\finalbuildfirstpage` estava fixo no offset do build de defesa, e o deposito tem tres paginas pre-textuais menos. Nao conformidade de numeracao no unico build que e depositado | `29c7629c` |
 | E-5 | MAJOR | **Dez marcas de nota de rodape eram hyperlinks vivos para a pagina 1** em todos os tres builds. A persona mediu **onde os links caem**, nao apenas se os destinos resolvem. Corrigido com `hyperfootnotes=false` passado em tempo de carga (em `\hypersetup` **nao** funciona: o abntex2 ja carregou o hyperref) | `29c7629c` |
@@ -134,62 +134,100 @@ outros 43:**
    usamos no cbic"; a medicao diz que o canal do Ch.3 e **indireto**, nao ausente. A secao continua
    concentrando o achado no Ch.4, onde esta a identidade exata. **Leia esse paragrafo especificamente.**
 2. **`apx_a_contributions.tex`** — a frase de reprodutibilidade foi **enfraquecida** para "supplied on
-   request" porque 9 de 13 caminhos nao estao no branch publico. Uma banca pode perguntar por que. Ver
+   request" porque 5 de 13 caminhos nao estao no branch publico. Uma banca pode perguntar por que. Ver
    2.2 abaixo: se voce publicar os arquivos, a frase forte volta.
 3. **`6_conclusion.tex`** — as duas sentencas D-02 adicionadas, que qualificam o numero do Ch.4.
 
-### 2.2 Publicar os 9 arquivos que faltam no branch publico
+### 2.2 Publicar os arquivos que faltam no branch publico: sao CINCO, nao nove
 
-**(A) O que falta.** O Apendice A cita **13** caminhos. Estes **nove** existem nesta maquina e
-**nao** em `github.com/VitorHugoOli/PoiMtlNet/tree/mobiwac` (os quatro nomes sem barra resolvem
-dentro de `stats_n20/`, e o caminho completo esta dado aqui para o push):
+> **CORRECAO 2026-07-29.** Este item dizia **nove** arquivos. Auditei de novo, agora **por conteudo**
+> (`git hash-object` de cada arquivo local, procurado entre os 552 blobs do branch `mobiwac`) em vez
+> de por caminho, e **tres dos nove ja estao publicos** — com bytes identicos, em outro caminho:
+>
+> | arquivo | onde ja esta no `mobiwac` |
+> |---|---|
+> | `STATISTICAL_PROTOCOL.md` | `analysis_protocol/STATISTICAL_PROTOCOL.md` |
+> | `JOINT_BEST_RESULTS.md` | `analysis_protocol/JOINT_BEST_RESULTS.md` |
+> | `m2_prereg_output.txt` | `analysis_protocol/m2_prereg_output.txt` |
+>
+> A auditoria anterior comparou **caminhos**, e o `mobiwac` nao tem arvore `docs/` — usa
+> `analysis_protocol/`. Comparar caminho onde a pergunta e sobre conteudo e o mesmo defeito que esta
+> rodada corrigiu tres vezes: o instrumento respondia outra pergunta.
+>
+> O diretorio `stats_n20/` tambem nao precisa ser criado: o `mobiwac` achata esses arquivos em
+> `analysis_protocol/`, que e a convencao dele.
+
+**(A) O que realmente falta — cinco arquivos.** Verificado por conteudo:
 
 ```
-docs/studies/closing_data/v17_completion/STATISTICAL_PROTOCOL.md
 scripts/build_phase3_per_fold_transitions.sh
-docs/studies/closing_data/joint_best/JOINT_BEST_RESULTS.md
-docs/studies/closing_data/v17_completion/stats_n20/
+scripts/embedding_eval/autocorrelation_ceiling.py
 docs/studies/closing_data/v17_completion/stats_n20/m1_stats_n20.py
 docs/studies/closing_data/v17_completion/stats_n20/m2_prereg_perfold.py
 docs/studies/closing_data/v17_completion/stats_n20/m1_full_output.txt
-docs/studies/closing_data/v17_completion/stats_n20/m2_prereg_output.txt
-scripts/embedding_eval/autocorrelation_ceiling.py
 ```
 
-Ja presentes, **nao republicar**: `src/data/folds.py`,
-`scripts/closing_data/score_joint_best.py`, `scripts/closing_data/superiority_wilcoxon.py`,
-`scripts/closing_data/region_match_tost.py`.
+Confira voce mesmo, por conteudo e nao por caminho:
 
-> **Correcao 2026-07-28 (`c6e62c62`).** A primeira versao desta lista dizia **8 de 12** e omitia
-> `m1_full_output.txt`. A contagem veio de um `grep` linha a linha, e esse arquivo divide a linha com
-> outro `\path{}` no fonte. Recontado extraindo cada `\path{}` da **prosa** com comentarios
-> removidos: **13 entradas, 4 sem barra, 9 ausentes**. Confira com:
->
-> ```bash
-> cd /Users/vitor/Desktop/mestrado/ingred
-> F=articles/dissertacao/src/chapters/apx_a_contributions.tex
-> grep -v '^[[:space:]]*%' "$F" | grep -o 'path{[^}]*}' | wc -l          # 13 entradas na prosa
-> grep -v '^[[:space:]]*%' "$F" | grep -o 'path{[^}]*}' | grep -cv '/'   #  4 sem barra
-> 
-> # EXPECT: lines=2
+```bash
+cd /Users/vitor/Desktop/mestrado/ingred
+git ls-tree -r mobiwac > /tmp/tree.txt
+S=docs/studies/closing_data/v17_completion/stats_n20
+for p in docs/studies/closing_data/v17_completion/STATISTICAL_PROTOCOL.md \
+         scripts/build_phase3_per_fold_transitions.sh \
+         docs/studies/closing_data/joint_best/JOINT_BEST_RESULTS.md \
+         "$S/m1_stats_n20.py" "$S/m2_prereg_perfold.py" \
+         "$S/m1_full_output.txt" "$S/m2_prereg_output.txt" \
+         scripts/embedding_eval/autocorrelation_ceiling.py; do
+  oid=$(git hash-object "$p")
+  hit=$(grep -m1 " $oid	" /tmp/tree.txt | sed 's/.*\t//')
+  printf "%-40s %s\n" "$(basename $p)" "${hit:-ABSENT}"
+done
+# EXPECT: 3 com caminho analysis_protocol/..., 5 com ABSENT
 ```
->
-> **O `grep -v '%'` e obrigatorio.** Sem ele o comando retorna **15**, porque os proprios comentarios
-> de proveniencia deste apendice escrevem a palavra `\path{}` ao explicar a contagem, e o `grep` casa
-> com essas duas ocorrencias vazias tambem. Uma versao anterior desta nota trazia o comando sem o
-> filtro e anotava `# 13` ao lado — um comando que **parece** certo e devolve outro numero, que e
-> exatamente a classe de defeito que esta rodada passou o tempo todo corrigindo. Se voce rodar e vier
-> 15, o filtro caiu.
 
-**(B) Por que importa.** A frase de reprodutibilidade mais carregada do documento nao resolvia para
-um leitor que seguisse a nota de rodape do proprio capitulo. Eu escopei a prosa para o que e
-verdadeiro, mas **a correcao melhor e publicar**, nao enfraquecer a frase.
+**(B) Por que importa.** A frase de reprodutibilidade mais carregada do documento nao resolve para um
+leitor que siga a nota de rodape do Cap. 5. Eu escopei a prosa para o que e verdadeiro; **a correcao
+melhor e publicar**, nao enfraquecer a frase.
 
-**(C) O que eu preciso de voce.** Um push desses **nove** para o branch publico. Feito isso, reverta o
-paragrafo de `apx_a_contributions.tex` para a versao forte e apague o comentario `[round6, F-01]`
-que esta la — ele contem a instrucao.
+**(C) O que eu preciso de voce — e eu ja preparei.** Os cinco arquivos estao copiados em
+`/tmp/mobiwac_stage/`, ja na estrutura que o `mobiwac` usa (`analysis_protocol/` para os tres de
+estatistica, raiz `scripts/` para os dois scripts). **Nao commitei nada**: nao tenho credencial do
+GitHub nesta sessao, e o worktree do `mobiwac`
+(`.claude/worktrees/wf_9231ab26-2a8-4`) tem **delecoes staged** de `analysis_protocol/` que sao
+trabalho seu em andamento — mexer nele seria destrutivo. Quando quiser:
 
-### 2.3 A secao de escopo da tarefa estatica: manter ou suprimir
+```bash
+cd /Users/vitor/Desktop/mestrado/ingred/.claude/worktrees/wf_9231ab26-2a8-4   # ja em mobiwac
+# resolva primeiro as delecoes staged que ja estao ali
+cp /tmp/mobiwac_stage/analysis_protocol/* analysis_protocol/
+cp /tmp/mobiwac_stage/*.{sh,py} scripts/ 2>/dev/null || true
+git add -A && git commit -m "add the five missing reproducibility artifacts" && git push origin mobiwac
+```
+
+Feito isso, reverta o paragrafo de `apx_a_contributions.tex` para a versao forte e apague o
+comentario `[round6, F-01]` que esta la — ele contem a instrucao.
+
+### 2.3 A ficha catalografica: naturalidade Contagem, e a biblioteca que gera
+
+**Sua decisao 2026-07-29:** Contagem e o dado de naturalidade/residencia e vai na **ficha
+catalografica**, nao na folha de rosto. O `\local{Florestal - Minas Gerais}` fica como esta, que e o
+que a ABNT pede (local de publicacao = cidade da instituicao) e o que o exemplar do Germano usa.
+
+**O que eu apliquei.** Nada de cidade no LaTeX. Apenas o nome, em tres lugares:
+`\autor` e as duas linhas "SILVA, Vitor Hugo **De** Oliveira, M.Sc." do Resumo e do Abstract.
+Verificado no PDF: a folha de rosto renderiza `VITOR HUGO DE OLIVEIRA SILVA`.
+
+**O que depende de voce.** A ficha catalografica **nao e gerada por este LaTeX** — vem do formulario
+da Biblioteca Central da UFV, e a naturalidade e um campo daquele formulario. Quando preencher, use
+**Contagem, MG**. Se a biblioteca devolver a ficha como PDF para inserir, ela entra depois da folha de
+rosto e eu adiciono o `\includepdf` no lugar certo.
+
+**Se voce quiser Contagem na folha de rosto mesmo assim**, e uma linha em `0_main.tex:189` — mas
+divergiria da ABNT e do exemplar, e eu marcaria `[NEEDS SIGN-OFF]` registrando que foi escolha
+consciente sua e nao conformidade.
+
+### 2.4 A secao de escopo da tarefa estatica: manter ou suprimir
 
 **(A) O que falta.** Sua conversa com o orientador sobre argumentar ou nao publicamente quanto ao
 escopo da tarefa estatica do Ch.4.
@@ -208,7 +246,7 @@ Testado: compila limpo, sem referencia pendente, porque o ponteiro no prefacio d
 **apendice**, nao o rotulo da secao. **Se suprimir, apague tambem a sentenca do prefacio do Ch.4**
 ou ela aponta para um apendice que nao discute mais o assunto.
 
-### 2.4 O tamanho de tipo das duas figuras de arquitetura
+### 2.5 O tamanho de tipo das duas figuras de arquitetura
 
 **(A) O que falta.** Uma decisao sobre `figures/cbic_mtlnet_arch.png` (45,3% do corpo) e
 `figures/courb/arquitetura_modelo.png` (44,4%). Sao as duas menores do documento — **menores que as
@@ -222,7 +260,7 @@ essas figuras impressas.
 `_round6/12_figures.md`: subir `fontSize` de 13 para cerca de 20 e reexportar na mesma largura de
 pixels. Registrado em [`LEFT_OUT.md`](LEFT_OUT.md) LO-6 como **diferido, nao recusado**.
 
-### 2.5 A coluna do CBIC que nao reproduz
+### 2.6 A coluna do CBIC que nao reproduz
 
 **(A) O que falta.** Tres das quatro colunas de resultado publicadas do CBIC reproduzem exatamente
 contra as execucoes commitadas (21/21 celulas). A quarta, a de proxima-categoria do modelo conjunto,
@@ -235,7 +273,7 @@ que o gerou.
 nao existir, isso e uma limitacao de proveniencia a registrar, nao um erro a corrigir. Registrado em
 [`LEFT_OUT.md`](LEFT_OUT.md) LO-2 como **aberto**.
 
-### 2.6 O orcamento de tuning de Ch.3 e Ch.4: NAO RECUPERAVEL
+### 2.7 O orcamento de tuning de Ch.3 e Ch.4: NAO RECUPERAVEL
 
 **(A) O que falta.** O numero de configuracoes tentadas por estudo.
 
@@ -250,7 +288,7 @@ caminho.
 
 ---
 
-### 2.7 `CONSIDERATIONS.md`: uma rodada NOVA que chegou durante esta, e que eu NAO executei
+### 2.8 `CONSIDERATIONS.md`: uma rodada NOVA que chegou durante esta, e que eu NAO executei
 
 **(A) O que falta.** `src_utils/CONSIDERATIONS.md` apareceu na arvore de trabalho **durante** esta
 rodada (modificado 19:04, nao commitado, 1.229 linhas). Ele contem material que nao estava no escopo

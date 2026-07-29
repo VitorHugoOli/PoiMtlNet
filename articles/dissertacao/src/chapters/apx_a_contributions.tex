@@ -113,10 +113,24 @@ and are supplied on request.
 % THE DEFECT: this paragraph said "every path is relative to the platform repository, which Ch.5
 % footnotes at first mention", which points the reader at
 % https://github.com/VitorHugoOli/PoiMtlNet/tree/mobiwac. Measured against that branch, path by path
-% (git cat-file -e mobiwac:<path>), NINE OF THE THIRTEEN \path{} entries in this section are ABSENT
+% (git cat-file -e mobiwac:<path>), NINE OF THE THIRTEEN \path{} entries appeared ABSENT.
+% [round7, 2026-07-29] RE-AUDITED BY CONTENT AND THE COUNT IS FIVE, NOT NINE. `git cat-file -e
+% mobiwac:<path>` answers "is this PATH in the branch", and the question is "is this FILE in the
+% branch". The mobiwac branch has NO docs/ tree -- it keeps these artifacts under analysis_protocol/ --
+% so three files that are present with BYTE-IDENTICAL content read as absent:
+%     STATISTICAL_PROTOCOL.md -> analysis_protocol/STATISTICAL_PROTOCOL.md
+%     JOINT_BEST_RESULTS.md   -> analysis_protocol/JOINT_BEST_RESULTS.md
+%     m2_prereg_output.txt    -> analysis_protocol/m2_prereg_output.txt
+% Re-measured by hashing each local file and searching all 552 blobs of the branch:
+%     for p in <the thirteen>; do oid=$(git hash-object "$p"); grep " $oid<TAB>" <(git ls-tree -r mobiwac); done
+% That is the third count for this one item (8 of 12, then 9 of 13, now 5 of 13) and every earlier
+% error was an instrument answering a narrower question than the claim built on it -- guardrails
+% §4b V3. The prose below is scoped to what is true either way, so no sentence changes.
 % from it:
 %   PRESENT  src/data/folds.py, scripts/closing_data/score_joint_best.py,
-%            scripts/closing_data/superiority_wilcoxon.py, scripts/closing_data/region_match_tost.py
+%            scripts/closing_data/superiority_wilcoxon.py, scripts/closing_data/region_match_tost.py,
+%            and (as analysis_protocol/*) STATISTICAL_PROTOCOL.md, JOINT_BEST_RESULTS.md,
+%            m2_prereg_output.txt
 %   ABSENT   docs/.../STATISTICAL_PROTOCOL.md, scripts/build_phase3_per_fold_transitions.sh,
 %            docs/.../JOINT_BEST_RESULTS.md, m1_stats_n20.py, m2_prereg_perfold.py,
 %            m1_full_output.txt, m2_prereg_output.txt, docs/.../stats_n20/,
