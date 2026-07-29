@@ -9,20 +9,25 @@ plain output, a gate that rebuilt the whole document on every invocation and a m
 let seven of eight dangerous command shapes through. Both had been in place for weeks with the gate
 suite reporting RC=0.
 
-WHAT WAS ALREADY THERE, stated accurately because the first version of this docstring got it wrong
-and claimed no tool had ever been tested. That was false. Six checkers run their own self-tests
-BEFORE they report and print the result -- check_comment_hygiene (8 lines of it),
-check_extra_xrefs (5), check_doubled_macro, check_meta_claims, check_tracker_refs,
-check_negative_parallelism -- and check_trapped_prose has a separate regression suite,
-test_trapped_prose.py, carrying four must_flag reproductions of real shipped defects, which check.sh
-executes inside the trapped-prose gate. Those are real proof and this runner does not replace them.
+WHAT WAS ALREADY THERE, and this paragraph has now been wrong TWICE in opposite directions, so it is
+stated from measurement. First it claimed no tool had ever been tested (false). Then it moved
+sweep_guard into the untested column on the guess that check.sh's "OK (4 self-tests)" covered a
+substituter rather than the guard (also false -- those four tests exercise sweep_guard's own
+substitute() and assert_distinct(), one of them added after deliberately breaking the guard and
+watching the suite stay green, and sabotaging its `n == 0` branch makes them exit 1).
 
-WHAT WAS MISSING is narrower and still worth closing. (1) Five tools have NO self-test at all:
-check_torn_sentences, check_wordcount_claims, sweep_guard's own logic, sync_page_counts,
-sync_deliverables. (2) The tools that DO self-test each do it their own way, in-process, against
-fixtures they build internally -- so there is no single place that answers "which checkers are
-proven, and which are merely assumed". An unreported gap is how both big defects survived, so this
-runner exists to make the answer to that question a printed list rather than a reading exercise.
+SEVEN tools verify themselves before reporting, printing the result: check_comment_hygiene (8 lines
+of it), check_extra_xrefs (5), check_doubled_macro, check_meta_claims, check_tracker_refs,
+check_negative_parallelism, sweep_guard (4). check_trapped_prose has a separate regression suite,
+test_trapped_prose.py, carrying four must_flag reproductions of real shipped defects, which check.sh
+executes inside the trapped-prose gate. All of that is real proof and this runner replaces none of it.
+
+WHAT IS MISSING is narrower and still worth closing. (1) FOUR tools have no self-test of any kind:
+check_torn_sentences, check_wordcount_claims, sync_page_counts, sync_deliverables. (2) The tools that
+DO self-test each do it their own way, in-process, against fixtures they build internally -- so no
+single place answers "which checkers are proven, and which are merely assumed"; today that answer
+takes reading sixteen files. An unreported gap is how both big defects survived, so this runner makes
+the answer a printed list rather than a reading exercise.
 
 The contract is the useful part: a checker validated only against a clean tree proves nothing. It
 would pass identically if its regex matched nothing, if its file list were empty, or if it had been

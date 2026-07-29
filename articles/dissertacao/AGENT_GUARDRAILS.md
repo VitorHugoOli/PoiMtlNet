@@ -285,6 +285,19 @@ the work*, and that is where the time went. The four root causes, with the count
   built. **When a claim's function is to justify work you want to do, that is the claim to verify
   first, not last.** The real gap was narrower and still sufficient; stating it accurately cost
   nothing and would have been more persuasive.
+  THIRD INSTANCE, in the artifact written to fix the second. Correcting the "not one had ever been
+  tested" overstatement, I moved `sweep_guard` into the untested column on the reasoning that
+  check.sh's "OK (4 self-tests)" must cover a substituter rather than the guard. I never opened
+  sweep_guard.py. Those four tests exercise its own substitute() and assert_distinct(), one of them
+  written after deliberately breaking the guard and watching the suite stay green; sabotaging its
+  `n == 0` branch makes them exit 1. The evidence was in a grep I had run one cell earlier and read
+  past: check.sh's own text says "sweep_guard self-tests do not pass -- the guard itself is broken".
+  **So the rule is symmetric, and this is the part that generalizes: a coverage claim in EITHER
+  direction is a measurement of an artifact, and it comes from opening the artifact.** Counting
+  lines that match /self-?test/ in a tool's stdout cannot tell you whether tests exist or what they
+  cover -- it is a proxy, and I used it because it was cheap and because understating coverage feels
+  like the safe error. It is not safe: a tool wrongly listed as unproven gets re-tested at cost, and
+  a queue that misdescribes its own contents is the thing this file exists to prevent.
 ### Scope discipline for delegated work (the other 2.6 hours)
 
 Round 6 lost **2.6 hours (19%)** waiting on the slowest sub-agent in each of five waves. The worst

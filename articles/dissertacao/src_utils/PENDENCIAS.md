@@ -532,43 +532,45 @@ restantes como bloqueados por disco, nao como pendentes de fila.
 
 > DECISAO: Liberado
 
-### 2.10 Cinco dos catorze checkers nao tem nenhuma auto-verificacao
+### 2.10 Quatro dos catorze checkers nao tem nenhuma auto-verificacao
 
-> **CORRECAO, 2026-07-30.** A primeira versao deste item dizia que **onze** checkers estavam
-> "UNPROVEN (nenhuma fixture)" e listava `sweep_guard`, `check_comment_hygiene`, `check_extra_xrefs`,
-> `check_meta_claims`, `check_tracker_refs` e `check_negative_parallelism` entre eles. **Falso.** Esses
-> seis rodam auto-testes proprios ANTES de reportar e imprimem o resultado -- o
-> `check_comment_hygiene` sozinho imprime oito linhas disso, o `check_extra_xrefs` cinco -- e o
-> `check_trapped_prose` tem uma suite separada, `test_trapped_prose.py`, com quatro reproducoes
-> `must_flag` de defeitos reais, que o `check.sh` executa dentro do proprio gate. Eu escrevi que
-> "nenhuma das 21 ferramentas jamais foi testada", o que era comodo para justificar o runner novo e
-> nao era verdade. O `make selftest` nao substitui nada disso.
+> **CORRECAO DUPLA, 2026-07-30.** Este item errou nas DUAS direcoes antes de ser medido.
+> A primeira versao disse que **onze** checkers estavam sem prova nenhuma -- falso: sete rodam
+> auto-testes proprios antes de reportar e imprimem o resultado, e o `check_trapped_prose` tem uma
+> suite separada (`test_trapped_prose.py`) com quatro reproducoes de defeitos reais que o `check.sh`
+> executa. A segunda versao corrigiu isso mas colocou o `sweep_guard` na coluna "sem auto-teste",
+> afirmando que os "4 self-tests" que o `check.sh` roda cobriam o *substituidor* e nao o guard.
+> **Tambem falso, e eu nunca abri o arquivo antes de escrever isso.** Os quatro testes exercitam as
+> funcoes proprias do `sweep_guard` (`substitute` e `assert_distinct`); um deles foi escrito depois
+> de quebrar o guard de proposito e ver a suite continuar verde. Sabotando o ramo `n == 0`, eles
+> saem com rc=1; restaurado, rc=0.
 
-**A lacuna real, medida.** Cinco ferramentas nao tem auto-verificacao de nenhum tipo, e essas sim
-tem garantias que sao pura suposicao:
+**Medido, com o codigo aberto desta vez:**
 
 | ferramenta | estado |
 |---|---|
+| `check_comment_hygiene`, `check_extra_xrefs`, `check_doubled_macro`, `check_meta_claims`, `check_tracker_refs`, `check_negative_parallelism`, `sweep_guard` | **auto-testam antes de reportar**, e imprimem o resultado |
+| `check_trapped_prose` | suite externa `test_trapped_prose.py` (4 casos `must_flag`), rodada pelo `check.sh`; agora tambem par de fixtures |
 | `check_torn_sentences` | agora **PROVEN** por fixture externa (defeito historico real, `1bf9a227`) |
-| `check_trapped_prose` | ja tinha `test_trapped_prose.py`; agora tambem par de fixtures externas |
-| `check_wordcount_claims` | **sem auto-teste** |
-| `sweep_guard` | logica propria sem auto-teste (o `check.sh` roda 4 auto-testes do *substituidor*, nao do guard) |
-| `sync_page_counts` | **sem auto-teste**; o guard de descompasso .log/.pdf foi exercitado a mao (rc=1) |
-| `sync_deliverables` | **sem auto-teste**; o ramo de fonte ausente foi exercitado a mao (rc=1) |
+| `check_wordcount_claims`, `sync_page_counts`, `sync_deliverables` | **sem auto-teste de nenhum tipo** |
 
-**(A) O que falta.** Par de fixtures para `check_wordcount_claims`, `sweep_guard`, `sync_page_counts`
-e `sync_deliverables`, mais fixtures externas para os seis que hoje so se auto-testam por dentro --
-nao porque o auto-teste interno nao valha, mas porque **nao existe um lugar unico que responda quais
+Nos tres sem auto-teste, dois guards novos foram exercitados a mao e disparam (descompasso .log/.pdf
+no `sync_page_counts`, rc=1; fonte ausente no `sync_deliverables`, rc=1). O `check_wordcount_claims`
+nao foi exercitado em nenhuma direcao.
+
+**(A) O que falta.** Par de fixtures para `check_wordcount_claims`, `sync_page_counts` e
+`sync_deliverables`, e fixtures externas para os sete que hoje so se auto-testam por dentro -- nao
+porque o auto-teste interno nao valha, mas porque **nao existe um lugar unico que responda quais
 checkers estao provados e quais estao supostos**. Hoje a resposta exige ler dezesseis arquivos.
 
 **(B) Por que importa.** Duas vezes voce perguntou o que estava errado e as duas vezes apareceu um
 defeito grande em producao havia semanas, com `make check` dizendo RC=0. O `make selftest` transforma
-"quais checkers estao provados" de exercicio de leitura em lista impressa, e ele proprio foi validado
-sabotando um checker: rc=1 com a sabotagem, rc=0 sem.
+essa pergunta em lista impressa, e ele proprio foi validado sabotando um checker: rc=1 com a
+sabotagem, rc=0 sem.
 
-**(C) O que eu preciso de voce.** Nada. Esta registrado porque **uma lacuna nao registrada e como os
-dois defeitos grandes sobreviveram** -- e porque a primeira versao deste item exagerou a lacuna, o que
-e o mesmo erro na direcao oposta.
+**(C) O que eu preciso de voce.** Nada. Esta registrado porque uma lacuna nao registrada e como os
+dois defeitos grandes sobreviveram -- e porque este item, corrigindo um exagero, produziu outro na
+direcao oposta sem abrir o arquivo. `AGENT_GUARDRAILS` §4b V13.
 
 > `make selftest` NAO faz parte do `make check`, de proposito: uma suite de lint que roda a propria
 > suite de testes a cada invocacao e o mesmo erro de trabalho-dentro-de-trabalho que fez o `check`
