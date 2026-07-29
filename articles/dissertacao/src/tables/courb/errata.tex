@@ -1,5 +1,12 @@
 % !TeX root = ../../main.tex
 % courb/errata.tex -- one table. Extraction provenance and verification: tables/README.md
+% \small is set INSIDE \begin{table} here, and OUTSIDE the environment in the two longtable
+% errata files (tables/frame/bib_errata.tex, tables/cbic/errata.tex, each wrapped in an
+% explicit {\small ... } brace pair). Both forms are correct and they are not interchangeable:
+% \begin{table} is a float and opens a group, so a font change inside it ends with the table,
+% whereas longtable opens no group and needs the braces to stop \small leaking into the rest of
+% the document. Do not harmonize the two families. The full reasoning and the six commits the
+% missing brace cost are in the header of tables/frame/bib_errata.tex.
 \begin{table}[htb]
 \caption{Content errata of the CoUrb 2026 article and the corrections applied in
 Chapter~\ref{ch:courb} (English translation of the published text).}

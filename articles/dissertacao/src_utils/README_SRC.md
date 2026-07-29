@@ -60,19 +60,26 @@ make check      # the lint gates; see below
 make clean      # empty build/
 ```
 
-THREE targets, TWO entry files, ONE source. Two switches select among them, both following the same
-`\ifdefined` pattern so a command-line `\def` works without the nested-`\if` scanning problem:
+THREE targets, THREE entry files, ONE source, selected by two switches. `main.tex` is the real one;
+`main_academico.tex` and `main_ppgc.tex` are two-line shims that set a switch and read it, so every
+build is selectable as a compile root in Overleaf or a GUI editor.
 
-| target | entry file | switches | what it is |
-|---|---|---|---|
-| `defense` | `main.tex` | neither set | the reading copy and the banca PDF |
-| `final` | `main.tex` | `\FINALBUILD` set on the command line | the AcademicoPG deposit body: no folha de rosto, no approval sheet, no Resumo, no Abstract (the system generates those from web forms) |
-| `ppgc` | `main_ppgc.tex` | `\APPROVALSHEET` set inside the file | the defense document plus the approval-sheet placeholder |
+**The canonical explanation of the build shape lives in the `src/main.tex` header comment, not
+here.** What each build is, which switch selects it, why both switches use the `\ifdefined` guard
+pattern, and what the nested-`\if` scanning hazard actually is: read it there. That file is inside
+`src/`, so it travels with an Overleaf paste and is in front of whoever opens the source; this
+README is a sibling of `src/` and does not travel. Until 2026-07-29 the same story was told five
+times across the tree and three of the copies had drifted, one of them documenting a `make final`
+command that silently produced the defense document. One telling, in the file a reader already has
+open, is the fix.
 
-`main_ppgc.tex` is deliberately two lines of content: it sets one switch and `\input`s `main.tex`, so
-the two entry points cannot drift apart. Do not add content there. Anything belonging in both builds
-belongs in `0_main.tex`; anything belonging only in the ppgc build is gated on `\ifapprovalsheet`
-there.
+What this file keeps is the material that genuinely belongs outside the paste and is not in that
+header: the TeX tree and `texenv.sh`, the verification protocol, and the gate suite (all below).
+
+`main_ppgc.tex` holds two lines of content, and so does `main_academico.tex`: each sets one switch
+and `\input`s `main.tex`, so no build can drift from another except where a switch says it should.
+Do not add content to either. Anything belonging in every build belongs in `0_main.tex`; anything
+belonging only to one build is gated there on `\ifapprovalsheet` or `\ifdefensebuild`.
 
 **The deposit build numbers from a different page than the other two.** It has 7 pre-textual pages
 against the defense build's 10, so `\finalbuildfirstpage` in `main.tex` is **8**, not 11. It was 11
@@ -83,9 +90,13 @@ add one (UFV_COMPLIANCE §4.4).
 UFV: two BUILDS are required (full-front-matter defense PDF + body-only AcademicoPG upload); the
 manual governs the submission and the final PDF, not the LaTeX source.
 
-Output goes to `build/` via `-output-directory=build`; input paths (`figures/`, `chapters/`)
-resolve relative to the src root regardless, so no `graphicspath` change is needed. The Makefile
-pre-creates `build/chapters/` because `\include` writes per-chapter `.aux` there.
+Each target compiles into its OWN aux tree at `build/<stem>-aux/` and its `.pdf`, `.log` and `.blg`
+are copied back into `build/`, so every documented path (`build/main.pdf`, `build/main_final.log`,
+and the rest) stays true while the three targets can run concurrently — `make all3`. Before
+2026-07-29 they shared one `build/chapters/`, and two simultaneous builds corrupted each other's aux;
+the reasoning and the exact error message it produces are in the `\include` block of `0_main.tex`.
+Input paths (`figures/`, `chapters/`) resolve relative to the src root regardless of the output
+directory, so no `graphicspath` change is needed.
 
 ## TeX tree
 

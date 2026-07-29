@@ -2,18 +2,33 @@
 % ============================================================================
 % main.tex -- single entry point for the dissertation (Vitor H. O. Silva, UFV/PPGCC).
 %
-% THREE builds, ONE source. Two entry files, and this is the main one:
+% THIS HEADER IS THE CANONICAL "three builds, one source" EXPLANATION, and the only copy
+% guaranteed to be in front of whoever opens the source: src_utils/README_SRC.md lives
+% OUTSIDE src/ and does not travel with an Overleaf paste. Every other file that mentions
+% the build shape (the Makefile, README_SRC.md, CLAUDE.md) points here instead of retelling
+% it. If you change the build shape, change it HERE first, then check that the pointers
+% still describe it. The story was told in five places until 2026-07-29 and three of the
+% copies had drifted; that is why the rule exists.
 %
-%   main.tex       -> the DEFENSE PDF. `make` / `make defense` -> build/main.pdf,
-%                     copied to ./dissertacao.pdf. This is the reading copy.
-%   main.tex+final -> the AcademicoPG deposit body. `make final` -> build/main_final.pdf.
-%   main_ppgc.tex  -> the SAME defense PDF plus the approval sheet. `make ppgc` ->
-%                     build/main_ppgc.pdf. That is its ONLY difference from main.tex
-%                     (author decision 2026-07-28); it is a four-line file that sets one
-%                     switch and reads this one, so the two cannot drift.
+% THREE builds, ONE source, THREE entry files -- and this is the real one; the other two are
+% two-line shims that set a switch and read it:
+%
+%   main.tex           -> the DEFENSE PDF. `make` / `make defense` -> build/main.pdf,
+%                         copied to ./dissertacao.pdf. This is the reading copy.
+%   main_academico.tex -> the AcademicoPG deposit body. `make academico` ->
+%                         build/main_academico.pdf. Sets \ACADEMICOBUILD.
+%   main_ppgc.tex      -> the SAME defense PDF plus the approval sheet. `make ppgc` ->
+%                         build/main_ppgc.pdf. That is its ONLY difference from main.tex
+%                         (author decision 2026-07-28). Sets \APPROVALSHEET.
+%
+% Each shim holds TWO lines of content, sets one switch and reads this file, so no build can
+% drift from another except where a switch says it should. Every build is therefore selectable
+% as a compile ROOT in Overleaf or any GUI editor -- which the deposit build was not until
+% 2026-07-29, when it existed only as a Makefile command-line injection.
 %
 % Two switches, both defined below, both following the same \ifdefined pattern so a
-% command-line \def works without the nested-\if scanning problem:
+% command-line \def works without the nested-\if scanning problem (explained at the switch
+% definitions below, which is the one place that hazard is described in full):
 %   \ifdefensebuild   front matter on (defense) or off (AcademicoPG deposit)
 %   \ifapprovalsheet  approval-sheet placeholder on (ppgc) or off (everything else)
 %
@@ -24,31 +39,84 @@
 %     placeholder, Resumo/Abstract, lists, sumario) -- the PDF the banca reads.
 %     Just compile main.tex normally (this is what `make` / `make defense` does).
 %
-%   FINAL AcademicoPG build: body only (lists -> sumario -> body); the AcademicoPG
-%     system generates cover/ficha/resumo/abstract from web forms. Produced WITHOUT
-%     a second main file, by pre-setting the switch to false on the command line:
+%   ACADEMICO deposit build: body only (lists -> sumario -> body); the AcademicoPG
+%     system generates cover/ficha/resumo/abstract from web forms. Produced by compiling
+%     main_academico.tex, which sets \ACADEMICOBUILD and reads this file. `make academico`
+%     runs that; THE MAKEFILE'S `academico:` RECIPE IS THE ONE PLACE THE COMMAND IS WRITTEN
+%     DOWN -- read it there and do not retype it here. The body page counter for this build
+%     is \finalbuildfirstpage below, which keeps its old name deliberately: it is the anchor
+%     src_utils/mkformat.py extracts the switch region by (its SWITCH_LAST), the author's
+%     rename decision covers the switch macro and the external names and not this counter,
+%     and a name change here buys nothing the reader can see. Flagged, not applied.
+%     WHY THIS PARAGRAPH NO LONGER QUOTES A COMMAND: until 2026-07-29 it quoted
 %       pdflatex "\newif\ifdefensebuild\defensebuildfalse\input{main.tex}"
-%     `make final` does exactly this. The body page counter for that build is
-%     \finalbuildfirstpage below (tune against the AcademicoPG RASCUNHO PDF).
+%     and claimed `make final` did exactly that. It never did, and worse, the quoted
+%     command silently produces the DEFENSE document under a deposit-looking jobname:
+%     the command-line \newif\ifdefensebuild is undone when this file re-executes
+%     \newif\ifdefensebuild below, the \ifdefined test then finds no switch macro, and the
+%     run takes the defense branch. Measured 2026-07-29 by running it verbatim, three
+%     passes: 108 pages with the Abstract on rendered page 3, i.e. the defense document,
+%     against the deposit build's 105. An operator following that comment would have
+%     uploaded the full-front-matter document to AcademicoPG.
 %
-% Build recipe + TeX tree notes: ../src_utils/README_SRC.md. Output goes to build/;
-% the current defense PDF is copied to ./dissertacao.pdf at the src root by `make`.
+% NAMING: this build was called `final` until 2026-07-29 (target `make final`, output
+% build/main_final.pdf, switch \FINALBUILD, counter \finalbuildfirstpage). The author renamed
+% it `academico` -- src_utils/LATEX_UPGRADE.md §4 A-1/A-2/A-3 -- because "final" says nothing
+% next to `defense` and `ppgc`, while "academico" names the system the PDF is uploaded to.
+% If you rename it again, sweep the tools that hardcode the stem, because none of them derives
+% it: src_utils/build.sh (jobname, the two bibtex calls, the BUILT list, the label map),
+% src_utils/sync_page_counts.py (the measured() stem tuple AND its CLAIMS regexes),
+% src_utils/sync_deliverables.py (the output-name map), src_utils/mkformat.py and
+% src_utils/fastbuild.sh (their target/stem maps), src_utils/verify_format.py (STEMS),
+% src/Makefile, and this header. A missed one does not error: it reports the page count of a
+% file that is no longer written, or writes a PDF nobody reads.
+%
+% BEFORE YOUR FIRST BUILD ON THIS MACHINE: `source ../src_utils/texenv.sh`. It sets PATH plus
+% the three TEXMF variables and is not optional. The failure it prevents is worth naming here,
+% because it lies about its own cause and README_SRC.md does not travel with an Overleaf paste
+% of src/: with TEXMFVAR wrong, the class and every .tfm resolve, three passes run, and pdftex
+% then dies with
+%   !pdfTeX error: Font ntx-Regular-tlf-ot1r at 657 not found ==> Fatal error occurred,
+%   no output PDF file produced!
+% That is NOT a missing font. The .tfm and the .pfb are both present. What is missing is the
+% font MAP: newtx registers its ntx-* entries in the usermode updmap output under TEXMFVAR, and
+% the system-wide map has none of them. Do not go looking for the font, and do not try to probe
+% the variable either -- `kpsewhich -var-value TEXMFVAR` reports an unreadable path on this
+% machine, which is why texenv.sh sets it explicitly instead of asking.
+%
+% TeX tree, build verification protocol and the gate suite: ../src_utils/README_SRC.md.
+% Output goes to build/; the current defense PDF is copied to ./dissertacao.pdf by `make`.
 % ============================================================================
 
-% Default mode = DEFENSE. `make final` sets \FINALBUILD on the command line
-% (\def\FINALBUILD{}) before reading this file; absent that macro, this is the
-% defense build. This avoids a nested-\if scanning problem that \ifdefined has
-% when the switch is pre-set on the command line.
+% Default mode = DEFENSE. main_academico.tex sets \ACADEMICOBUILD (\def\ACADEMICOBUILD{})
+% before reading this file; absent that macro, this is the defense build. The macro was
+% called \FINALBUILD until 2026-07-29 and was set on the pdflatex command line rather than
+% in an entry file; both changed together (LATEX_UPGRADE.md §4).
+%
+% THE NESTED-\if SCANNING HAZARD, described here once because this is where the pattern
+% lives (the header above and README_SRC.md both point at this block rather than repeat it).
+% TeX skips the untaken branch of a conditional by SCANNING for the matching \fi, and while
+% skipping it still counts every \if... and \fi it passes. It does not evaluate them, so a
+% conditional built out of \newif on the command line can leave the scanner counting
+% \if tokens that were never meant as a conditional, and the \fi that should close the outer
+% test closes an inner one instead. The failure does not look like a switch problem: the
+% wrong branch runs, or a \fi is reported missing at a line that has nothing wrong with it.
+% \ifdefined\MACRO is a SINGLE conditional primitive with no \newif behind it, so nothing is
+% left for the scanner to miscount, which is why both switches below use it. This pattern is
+% the fix, NOT the hazard -- a comment here claimed the reverse until 2026-07-29 ("a problem
+% that \ifdefined has"), which invited exactly the rewrite that reintroduces the bug.
+% Do not "simplify" either line back to \newif manipulation on the command line.
 \newif\ifdefensebuild
-\ifdefined\FINALBUILD \defensebuildfalse \else \defensebuildtrue \fi
+\ifdefined\ACADEMICOBUILD \defensebuildfalse \else \defensebuildtrue \fi
 
 % Approval sheet: OFF here, ON in main_ppgc.tex (author decision 2026-07-28). See the
 % header comment above. main_ppgc.tex sets \APPROVALSHEET before reading this file, so
-% the same \ifdefined guard pattern applies.
+% the same \ifdefined guard pattern applies, for the reason given at the block above.
 \newif\ifapprovalsheet
 \ifdefined\APPROVALSHEET \approvalsheettrue \else \approvalsheetfalse \fi
 
-% Page number of the FIRST BODY PAGE in the final build. UFV_COMPLIANCE §4.4: pre-textual
+% Page number of the FIRST BODY PAGE in the academico deposit build (the macro keeps the name
+% \finalbuildfirstpage; see the NAMING note in the header). UFV_COMPLIANCE §4.4: pre-textual
 % pages are counted but not numbered, so the first body page prints
 % (number of pre-textual pages) + 1.
 %
@@ -58,14 +126,15 @@
 % reading the printed number:
 %   defense (main.pdf)      10 pre-textual pages, first body page is physical p.11, prints 11  OK
 %   ppgc    (main_ppgc.pdf) 11 pre-textual pages, physical p.12, prints 12                     OK
-%   final   (main_final.pdf) 7 pre-textual pages, physical p.8,  printed 11                    WRONG
+%   academico (then main_final.pdf, now main_academico.pdf) 7 pre-textual pages, physical
+%           p.8, printed 11                                                                   WRONG
 % The AcademicoPG deposit build has NO folha de rosto, approval sheet, Resumo or Abstract --
 % the system generates those from web forms -- so it has three fewer pre-textual pages than
 % the defense build. This counter was hardcoded to the DEFENSE build's offset, and every
 % subsequent page inherited the three-page error: the deposit PDF's printed numbers ran
 % three ahead of its physical pages throughout, which is a numbering non-compliance on the
 % one build that is actually deposited.
-% This is only reachable in the final build (0_main.tex:412 sets the counter inside the
+% This is only reachable in the academico build (0_main.tex sets the counter inside the
 % \ifdefensebuild-false branch), which is why the defense and ppgc builds were correct and
 % nobody noticed. The [VERIFY] flag it carried asked for tuning against the RASCUNHO PDF and
 % was the right instinct; what it did not say is that the value was wrong on its own terms.

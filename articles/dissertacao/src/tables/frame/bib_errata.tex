@@ -3,10 +3,23 @@
 % [round5, author-reported] CONVERTED table -> longtable. This table is TALLER THAN THE TEXT BLOCK
 % longtable breaks across pages with a repeated header and continuation notices. All 16 rows, the
 % caption, the label and \small are preserved; only the container changed.
-% The {\small ... } GROUP is load-bearing and must stay: longtable is not a float, so \small cannot
-% be set inside the environment the way the sibling errata tables set it inside \begin{table}. The
-% opening brace was dropped by the tables/ reorganization (commit 6d780b58) while the closing brace
-% at the end of this file survived, leaving the file one brace short. From that commit to a880632b
+% THE ASYMMETRY YOU ARE ABOUT TO "TIDY UP", AND WHY IT MUST STAY. In this file \small is set
+% OUTSIDE the environment, by the `{\small` line just below the comments and its lone closing
+% brace on the very last line of the file. In the sibling errata tables it is set INSIDE:
+% tables/courb/errata.tex, tables/mobiwac/errata_scope.tex and tables/cbic/errata_wording.tex
+% each carry a plain `\small` line a few lines after `\begin{table}[htb]`. That looks like an
+% inconsistency and is not one.
+% The reason is that a longtable IS NOT A FLOAT. \begin{table} opens a group of its own, so a
+% font change inside it is confined to the table and ends with it; \begin{longtable} opens no
+% such group, so a \small placed inside would leak out and shrink the rest of the document
+% after the table. The explicit { ... } braces are that missing group, which is why the two
+% families of table must be written differently. tables/cbic/errata.tex is the other longtable
+% here and carries the same outside-the-environment form for the same reason.
+% WHAT THE ASYMMETRY COST. Because the group is a bare brace pair spanning the whole table
+% rather than a named environment, dropping one half is invisible to a reader and fatal to the
+% build:
+% the opening brace was lost in the tables/ reorganization (commit 6d780b58) while the closing
+% brace on the last line survived, leaving the file one brace short. From that commit to a880632b
 % every build raised "! Extra }, or forgotten \endgroup": `make` (-halt-on-error) produced no PDF at
 % all, while src_utils/build.sh (-interaction=nonstopmode) RECOVERED from the error and still wrote a
 % 104-page PDF, which is the PDF that was measured and committed. The two tools disagreed for six
