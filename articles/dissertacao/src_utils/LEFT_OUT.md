@@ -262,6 +262,44 @@ volume gone and accepts the trade.
 
 ---
 
+## LO-11 · The author's per-role credit for the CoUrb paper
+
+**Finding.** The author holds three roles in the CoUrb paper that the dissertation does not state
+anywhere. In his own words, answering COD-018 (`PENDENCIAS.md` §5.8): *"Meu papel no courb foi na
+implementação, auxilo ao meu aluno de graduação na sua pesquisa pelos modelos de embedding, e escrita
+da parte do MTL e parte da conclusão."* That is implementation, supporting his undergraduate
+student's research on the embedding models, and writing the multi-task learning section plus part of
+the conclusion.
+
+**What the text says instead.** The Chapter 4 preface states the roles that are matters of public
+record: Tarik S. Paiva is first author, the author of this dissertation is second author, presented
+the paper at the workshop, and is the first author of the baseline model MTLnet
+(`chapters/4_courb.tex`:19). Appendix A describes the platform and the ETL and attributes no
+per-function role for CoUrb. So the credit is present in a narrower form than the finding supports.
+
+**Why it is out.** The author decided so, twice. His `PENDENCIAS.md` §5.8 answer is *"Não precisa
+mexer nisso, pode remover essa preocupação."* On 2026-07-30 a round-8 track was briefed to add it
+anyway; the track stopped and asked rather than writing it, and he chose to honor the recorded
+decision. Two reasons this is his call and not an agent's: authorship credit on a co-authored paper
+is a claim only he can make (`AGENT_GUARDRAILS` C2), and naming an undergraduate student in the
+dissertation is a decision about a third party.
+
+**Consequence for the round-8 gate, so nobody reads it as a silent narrowing.**
+`src_utils/check_audit_claims.py` carried a probe asserting this credit was PRESENT, which was
+written from the audit's expectation rather than from his decision. The probe is retired into that
+file's `RETIRED` table, which prints on every run with his quote as the reason, so the gate reports
+the withdrawal instead of dropping it. Measured after the change: 8 of 8 probes hold, 1 withdrawn,
+and a sabotage test (flipping one probe's expectation) still makes the gate exit 1.
+
+**Where the full finding lives.** `PENDENCIAS.md` §5.8, which quotes him verbatim, and the
+`RETIRED` entry in `src_utils/check_audit_claims.py`.
+
+**Decided by.** The author, in `PENDENCIAS.md` §5.8; reconfirmed 2026-07-30. **Reversible at any
+time:** the input is one sentence in Appendix A, matched to the register the Chapter 4 preface uses,
+and it would carry `[NEEDS SIGN-OFF: COD-018]`.
+
+---
+
 ## How to add an entry
 
 Copy the shape above: the finding, what the text says instead, why it is out, where the full finding

@@ -51,8 +51,14 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
      "chapters/1_introduction.tex", r"leakage-guarded", False),
     ("COD-006a", '"well powered" removed from the Ch.5 protocol paragraph',
      "chapters/5_mobiwac/05_setup.tex", r"well powered", False),
-    ("COD-006b", '"before any result was read" removed from the same paragraph',
-     "chapters/5_mobiwac/05_setup.tex", r"before any result was read", False),
+    # COD-006b IS DELIBERATELY EXPECTED TO BE PRESENT. The audit flagged both "well powered" and
+    # "before any result was read", but the author's decision was explicitly narrow: "Let's change
+    # only the second point about the: 'The equivalence is well powered'." The analysis plan
+    # genuinely WAS fixed before results were read, so the phrase is accurate and stays. The probe
+    # is kept, inverted, so that a later agent "tidying up" the other half of the audit finding is
+    # caught by the gate instead of silently overriding an author decision.
+    ("COD-006b", 'the author kept "before any result was read" -- it is accurate and he said so',
+     "chapters/5_mobiwac/05_setup.tex", r"before any result was read", True),
     ("COD-013",  "Appendix C names the model family in PROSE, not only in a comment",
      "chapters/apx_c_ai_disclosure.tex", r"Opus", True),
     ("COD-015a", "Ch.3 preface no longer says Ch.4 and Ch.5 both change the representation",
@@ -61,12 +67,28 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
      "chapters/2_fundamentals.tex", r"relative multi-task performance", False),
     ("COD-016a", "Ch.3 unbalanced-result sentence rewritten",
      "chapters/3_cbic/results.tex", r"important to notice that since we have an", False),
-    ("COD-018",  "Appendix A carries the author's per-role CoUrb credit",
-     "chapters/apx_a_contributions.tex",
-     r"undergraduate|implementation support|wrote the multi-task", True),
+    # COD-018 was HERE and is retired deliberately, not dropped. See RETIRED below.
     ("NUM-4",    "HGI sweep reports its spreads and its averaging convention",
      "chapters/2_fundamentals.tex", r"0\.8186", True),
 )
+
+# Probes retired because the AUTHOR withdrew the underlying instruction. These are NOT passes and
+# NOT failures: the finding no longer describes anything the document is supposed to contain.
+#
+# They are printed anyway, every run. A probe deleted in silence shrinks the gate's scope without
+# telling anyone, and this suite's prose scope has silently shrunk twice already (check.sh, the
+# chapters/*/*.tex and preamble.tex cases). The reason is quoted from the author verbatim so a later
+# reader can tell "he decided against it" from "somebody dropped it", which is the exact distinction
+# LEFT_OUT.md exists to preserve.
+RETIRED: dict[str, str] = {
+    "COD-018": (
+        "per-role CoUrb credit in Appendix A -- WITHDRAWN by the author in PENDENCIAS.md 5.8: "
+        '"Nao precisa mexer nisso, pode remover essa preocupacao." Reconfirmed in session '
+        "2026-07-30 when the round-8 brief asked for it anyway; a credit claim about a "
+        "co-authored paper is his alone to make (GUARDRAILS C2), so the probe goes rather than "
+        "the decision. Recorded in LEFT_OUT.md LO-11."
+    ),
+}
 
 # Claims whose subject is a PROCESS, not a string in the source. Listed by name so the report
 # covers them; asserting them mechanically would require re-running the process itself.
@@ -160,9 +182,12 @@ def main() -> int:
         print(f"  {'holds' if ok else 'NOT APPLIED':11s} {fid:9s} {what}")
     for fid, why in sorted(NOT_CHECKABLE.items()):
         print(f"  unprobed    {fid:9s} {why}")
+    for fid, why in sorted(RETIRED.items()):
+        print(f"  RETIRED     {fid:9s} {why}")
 
     print(f"\n  {len(PROBES) - len(bad) - len(missing_files)} of {len(PROBES)} probes hold; "
-          f"{len(bad)} claim(s) not applied; {len(NOT_CHECKABLE)} process claim(s) unprobed")
+          f"{len(bad)} claim(s) not applied; {len(NOT_CHECKABLE)} process claim(s) unprobed; "
+          f"{len(RETIRED)} withdrawn by the author")
     if missing_files:
         print("  A probe whose file is gone is NOT a pass. Re-point it or retire it deliberately.")
         return 2
