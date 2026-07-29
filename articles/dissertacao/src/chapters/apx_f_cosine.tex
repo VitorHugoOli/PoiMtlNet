@@ -77,8 +77,14 @@ A joint model that shares parameters between two tasks can end up worse at both 
 models are at one each. The usual reason is a disagreement, and it shows up in the gradients: if the
 update next-region asks for points against the update next-category asks for, one task improves at
 the other's expense. That has a direct measurement, and this appendix runs it on the joint model of
-Chapter~\ref{ch:mobiwac}. The two tasks turn out not to disagree, and the way they fail to disagree
-says more than the absence of conflict would.
+Chapter~\ref{ch:mobiwac}.
+
+The two tasks turn out not to disagree. Their gradients are statistically indistinguishable from
+orthogonal on every dataset measured, which is a stronger and stranger result than mere absence of
+conflict, and it carries a consequence for the whole investigation: a gradient balancer had nothing
+to balance. That is why replacing the sharing scheme changed so little in the first study, and why
+changing the representation changed so much in the second and third. The sections below give the
+measurement, the two findings that qualify it, and the boundary beyond which none of it is claimed.
 
 \section{What was measured, and on what unit}
 \label{apx:cosine:setup}
@@ -90,12 +96,11 @@ ignores how large they are, which differs between the tasks and drifts during tr
 $+1$ means the tasks ask for the same update, $-1$ for opposite ones, and $0$ that the requests are
 orthogonal, each leaving the other's objective unchanged to first order.
 
-The observations are 3,900 epoch-level cosines from four datasets. Florida contributes 3,150 of them
-across twelve configurations, which vary the loss weight, the schedule of the weighting coefficient,
-and the training procedure; Alabama, Arizona, and Georgia contribute 250 each at the canonical
-configuration. Every run is five-fold user-disjoint cross-validation over fifty epochs, so one
-configuration on one dataset is five series of fifty values, and two of Florida's configurations
-carry a partial re-run on top of theirs.
+The observations are 3,900 epoch-level cosines from four datasets. Florida contributes 3,150 across
+twelve configurations that vary the loss weight, the weighting schedule, and the training procedure;
+Alabama, Arizona, and Georgia contribute 250 each at the canonical configuration. Every run is
+five-fold user-disjoint cross-validation over fifty epochs, so one configuration on one dataset is
+five series of fifty values, and two of Florida's carry a partial re-run on top of theirs.
 % [round7, 2026-07-29] THE PARTIAL RE-RUN, previously undisclosed and now stated. "One
 % configuration on one dataset is five series of fifty values" is true of 65 of the 75 series;
 % T6_4_two_pass and T6_4_infonce_tau0_5 hold 65 rows per fold, because their epochs 1 to 15 each
@@ -112,14 +117,13 @@ carry a partial re-run on top of theirs.
 % it is computed over the rows as they stand. Understating a sentence's coverage silently is what
 % GUARDRAILS 4b V2 forbids: a filter, a skip or a duplicate must be named with its count.
 
-Three of those four datasets, Florida, Alabama, and Arizona, are among the six
-Chapter~\ref{ch:mobiwac} reports on. The fourth, Georgia, is a further Gowalla state the
-dissertation does not otherwise use; it enters because the diagnostic could be run on it cheaply,
-and it is reported because dropping a measured dataset would be a choice about the evidence. That
-chapter reaches the same conclusion from a smaller measurement made during development, on an
-earlier preparation of the data and over four seeds rather than per-epoch series. The two measure one
-quantity separately and their numbers are not interchangeable, so this appendix supersedes nothing
-there and repeats none of its figures.
+Three of the four, Florida, Alabama, and Arizona, are among the six Chapter~\ref{ch:mobiwac} reports
+on. The fourth, Georgia, is a further Gowalla state the dissertation does not otherwise use; it
+enters because the diagnostic ran on it cheaply and stays because dropping a measured dataset would
+be a choice about the evidence. That chapter reaches the same conclusion from a smaller
+development-time measurement, on an earlier data preparation and over four seeds rather than
+per-epoch series, so the two sets of numbers are not interchangeable and this appendix supersedes
+nothing there.
 % [round7] THE SCOPE CORRECTION THAT MATTERS MOST IN THIS FILE. An earlier draft of this appendix
 % called these "four datasets" without qualification, which would have told the reader that
 % Georgia is one of the dissertation's six. It is NOT. MEASURED, from src/:
@@ -138,23 +142,22 @@ there and repeats none of its figures.
 % Chapter 5's prose is NOT edited: it is under review and its own numbers remain its own.
 
 Those fifty values are not fifty independent measurements. They are consecutive states of one
-training run, so a statistic that treats them as independent draws reports more confidence than
-the data hold. The unit of independence is the fold, and for Florida, whose twelve configurations
-reuse the same five folds, the configuration. Every test below therefore runs on fold means for
-Alabama, Arizona, and Georgia, five per dataset, and on configuration means for Florida, twelve in
-all. Where a count of observations appears, it describes the data and is not a test's sample size.
+training run, so treating them as independent draws would report more confidence than the data hold.
+The unit of independence is the fold, and for Florida, whose twelve configurations reuse the same
+five folds, the configuration. Every test below therefore runs on five fold means for Alabama,
+Arizona, and Georgia and on twelve configuration means for Florida. Where a count of observations
+appears it describes the data, not a test's sample size.
 % [round7] "Alabama and Arizona" -> "Alabama, Arizona, and Georgia". Caught by READING THE
 % RENDERED PAGE, not the source: the sentence was written when there were three datasets and the
 % list was not revisited when Georgia landed, so the page named two datasets while the table below
 % it listed four. A count updated in one place and not the other is AGENT_GUARDRAILS §4b V6.
 
 Equivalence to zero is assessed by two one-sided tests against a margin of $\pm 0.05$
-\cite{lakens2017tost}. That margin is a judgment about relevance, and worth stating as one. At
-$|\cos| < 0.05$ the projection of one task's update onto the other's direction is under five percent
-of its length, smaller than the epoch-to-epoch variation in either gradient and smaller than any
-effect a gradient-balancing method could act on. The two-point margin Chapter~\ref{ch:mobiwac} uses
-for the region task is a different quantity on a different scale; the two should not be read against
-each other.
+\cite{lakens2017tost}. The margin is a judgment about relevance and should be read as one: at
+$|\cos| < 0.05$ one task's update projects less than five percent of its length onto the other's
+direction, below the epoch-to-epoch variation in either gradient and below anything a balancing
+method could act on. Chapter~\ref{ch:mobiwac}'s two-point margin for the region task measures a
+different quantity on a different scale and should not be read against this one.
 % [round7 review, 2026-07-29] THE MARGIN SENTENCES WERE MERGED INTO THIS PARAGRAPH. They used to be
 % a separate paragraph after the comment block below, which left the citation sentence standing as a
 % 13-word stub. Merging reads better and recovers a paragraph break's vertical space. The merge is
@@ -241,31 +244,23 @@ systematic pull to one side.
 % the caption still names every element and carries its reading instruction.
 \end{figure}
 
-Two departures from that flat picture are worth reporting rather than smoothing, and both appear on
-the smaller datasets. The first is a small positive tendency that recurs. All five of Alabama's fold
-means are positive,
-averaging $+0.0112$, and so are all five of Georgia's, averaging $+0.0039$; both have confidence
-intervals excluding zero, and both are equivalent to zero under the margin. Two datasets pointing
-the same way independently is a more interesting observation than either alone. It is still not a
-significant effect, and the reason is a property of the design rather than of the data. The exact
-sign test returns $0.0625$ for both, the smallest value it can return at five observations, so no
-distribution-free test could reach significance here however consistent the pattern. A $t$-test
-does reject at both ($p = 0.013$ and $p = 0.009$), but at five observations that rests entirely on
-assuming normality. The defensible reading is a consistent positive tendency, recurring across
-datasets, that five folds per dataset cannot establish. Its direction deserves a remark: a positive
-cosine is mild cooperation rather than conflict, so what the smaller datasets hint at points away
-from interference, not toward it.
+Two departures from that flat picture appear on the smaller datasets, and both are worth reporting
+rather than smoothing. The first is a positive tendency that recurs: all five of Alabama's fold means
+are positive, averaging $+0.0112$, and so are all five of Georgia's, averaging $+0.0039$. The second
+is a decline over training, on the same two datasets and with the same unanimity, all five per-fold
+slopes negative in each; Arizona is mixed at three of five, and Florida is flat.
 
-The second is a decline over training. On Alabama the mean cosine falls from about $+0.058$ across the
-first five epochs toward zero, with all five per-fold slopes negative; Georgia repeats the pattern,
-also five of five, while Arizona is mixed at three of five and Florida, on sixty series, is flat. A
-$t$-test on the five slopes would reject for Alabama and Georgia. That is the same $n = 5$ footing on
-which this appendix has just declined to call the positive mean significant, the exact sign test again
-returning $0.0625$, so the decline gets the same treatment: a consistent tendency, not an established
-effect, held to the standard used one paragraph earlier rather than a weaker one. Florida, with sixty
-independent units, is the only series able to settle the question, and it shows no trend. The decline
-stays inside the margin throughout and moves the cosine toward zero rather than away, and no
-mechanism is proposed for it.
+Neither is called significant here, and the reason is the design rather than the data. At five folds
+the exact sign test cannot return less than $0.0625$, so no distribution-free test could reach
+significance however consistent the pattern. A $t$-test does reject in all four cases, but at five
+observations that rests entirely on assuming normality, and this appendix will not accept for one
+claim a basis it rejects for another. Both are therefore consistent tendencies rather than
+established effects. Florida, whose sixty independent series are the only estimate in the set with
+the resolution to settle either question, shows neither.
+
+Both point away from trouble in any case. A positive cosine is mild cooperation, not conflict, and
+the decline stays inside the margin throughout while moving toward zero rather than away from it. No
+mechanism is proposed for either.
 % [round7] "Alabama and Georgia are the smallest datasets here" was CUT as unsourced. Alabama is
 % indeed the smallest of the dissertation's six (113,846 check-ins, tables/mobiwac/datasets.tex),
 % but Georgia is not in that table at all -- it is not one of the six -- so no committed artifact in
@@ -276,25 +271,22 @@ mechanism is proposed for it.
 \section{What orthogonality explains}
 \label{apx:cosine:mechanism}
 
-Orthogonal gradients mean the two tasks' updates neither reinforce nor cancel on the shared
-parameters. Each requested update has almost no component along the other's direction, so the trunk
-can serve both without either task's improvement being paid for by the other. Two consequences
-follow, and together they are why this measurement belongs in the dissertation rather than in a
-laboratory notebook.
+Orthogonal gradients mean neither task's update reinforces or cancels the other's on the shared
+parameters, so the trunk can serve both without either improvement being paid for by the other. Two
+consequences follow.
 
-The first concerns gradient-balancing methods. Nash-MTL, and the family of loss and gradient
-balancers around it, exist to resolve exactly the disagreement measured here: they reweight or
-reproject task gradients so a dominant task cannot overwrite a weaker one. Orthogonal gradients
-leave such a method nothing to resolve, which is why hard sharing costs nothing in this architecture
-and why Chapter~\ref{ch:mobiwac} reports that no balancer improved on a fixed loss weighting. The
-measurement explains the finding.
+The first is about gradient balancers. Nash-MTL and the family around it exist to resolve exactly
+the disagreement measured here, reweighting or reprojecting task gradients so a dominant task cannot
+overwrite a weaker one. Orthogonality leaves them nothing to resolve. That is why hard sharing costs
+nothing in this architecture, and why Chapter~\ref{ch:mobiwac} finds no balancer improving on a
+fixed loss weighting: the measurement explains the finding.
 
-The second concerns the arc of the three studies. The investigation opened on the hypothesis that the
-sharing scheme was what limited joint training, and the first study's null result was read that way at
-the time. Had the two tasks been in conflict, a better sharing scheme or a better balancer would have
+The second is about the arc of the three studies. The investigation opened on the hypothesis that
+the sharing scheme limited joint training, and the first study's null result was read that way at
+the time. Had the tasks been in conflict, a better sharing scheme or a better balancer would have
 been the remedy. They were not, so the limit lay elsewhere, and the second and third studies located
-it in the input representation. This appendix is the mechanism behind that claim: there was little
-interference to fix, and so little for a change of architecture to recover.
+it in the input representation. There was little interference to fix, and therefore little for a
+change of architecture to recover.
 
 \section{How far this extends, and how far it does not}
 \label{apx:cosine:extension}
@@ -316,23 +308,22 @@ check-in counts run from 113,846 at Alabama to 1,407,034 at Florida and the regi
 1,109 to 4,703, so this axis spans an order of magnitude in volume, and Georgia adds a fourth
 state under the same protocol. The result is not a quirk of Florida either.
 
-Taken together, the two axes suggest orthogonality belongs to this task pair rather than to the
-tuning. Next category asks which of seven kinds of place a user visits next; next region asks which
-tract or neighborhood. Both read the same trace, and each predicts a different projection of one
-event. Those projections look close to statistically independent given the shared representation,
-which would explain why the requested updates carry so little of each other.
+Together the two axes suggest orthogonality belongs to the task pair rather than to the tuning. Next
+category asks which of seven kinds of place a user visits next, next region asks which tract or
+neighborhood, and both read the same trace to predict a different projection of one event. Those
+projections appear close to statistically independent given the shared representation, which would
+explain why each task's update carries so little of the other's.
 
 That is where the evidence stops, and the boundary matters. Every run measured here uses one
 architecture family, the cross-attention joint model of Chapter~\ref{ch:mobiwac}. The architecture
-decides where the two tasks meet and how much of the network they share, so it is at once the factor
-most likely to change the answer and the one this appendix did not vary. Nothing here says the
-gradients would stay orthogonal in a model that shares more of its depth, couples the tasks in a
-cascade, or shares an output layer. Anyone who wants to know can run the same diagnostic and change
-nothing else: record the per-epoch cosine on the candidate's shared parameters, under a fixed loss
-weighting, across one dataset's folds, then test the fold means for equivalence against a margin
-chosen before looking. A cosine equivalent to zero there makes the property the task pair's;
-otherwise it is this architecture's, and Section~\ref{apx:cosine:mechanism} applies only to models
-shaped like this one.
+decides where the two tasks meet and how much they share, which makes it at once the factor most
+likely to change the answer and the one this appendix did not vary. Nothing here says the gradients
+stay orthogonal in a model that shares more of its depth, couples the tasks in a cascade, or shares
+an output layer. Settling that needs the same diagnostic and nothing else changed: the per-epoch
+cosine on the candidate's shared parameters, under a fixed loss weighting, across one dataset's
+folds, with the fold means tested for equivalence against a margin chosen in advance. Equivalence
+there makes orthogonality the task pair's property; otherwise it belongs to this architecture, and
+Section~\ref{apx:cosine:mechanism} applies only to models shaped like this one.
 
 California, Texas, and Istanbul, the other three datasets of Chapter~\ref{ch:mobiwac}, are missing
 above for reasons of computational resource rather than of principle. California and Texas are the
