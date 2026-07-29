@@ -131,6 +131,39 @@ ppgc: preflight
 	@cp build/main_ppgc-aux/main_ppgc.pdf build/main_ppgc-aux/main_ppgc.log build/main_ppgc-aux/main_ppgc.blg build/
 	@echo "PPGC PDF (defense + approval sheet) -> build/main_ppgc.pdf"
 
+# EXTRA build: the SUPPLEMENTARY VOLUME -> build/main_extra.pdf.
+# NOT a fourth variant of the dissertation. main_extra.tex is its own document with its own
+# preamble (0_extra.tex), its own front matter and its own bibliography; it does not read
+# main.tex and it is deliberately absent from `all3` and `fast3`, which build the three
+# variants of the dissertation. Read main_extra.tex's header for what it carries and why.
+#
+# Same three-pass shape as the targets above, and its own aux tree for the same reason. The
+# per-chapter aux names it writes (chapters/apx_b_errata.aux, chapters/apx_d_ceiling.aux)
+# COLLIDE with the ones the main document wrote while those appendices lived there, which is
+# why this one gets build/main_extra-aux/ like everybody else rather than sharing.
+#
+# THIS TARGET IS A CONVENIENCE, NOT A REQUIREMENT. The volume must build on Overleaf, so it
+# must build with no make at all. The bare sequence below was RUN on 2026-07-29 in a copy of
+# src/ with build/ excluded, and these are the numbers it printed, copied from its output:
+# rc=0 on each of the four commands, 19 pages, tex_errors 0, undefined references 0, undefined
+# citations 0, overfull boxes 0, 4 \bibitem in main_extra.bbl, 0 BibTeX warnings. The run's
+# transcript is in src_utils/_round7/24_extra_and_cosine.md. (An earlier version of this
+# comment claimed the run had happened before it had; that claim is the reason the numbers are
+# now quoted here rather than merely pointed at.)
+#   pdflatex main_extra && bibtex main_extra && pdflatex main_extra && pdflatex main_extra
+# The bibtex ARGUMENT differs between the two paths and the difference is not cosmetic:
+# `bibtex main_extra` with no -output-directory, `bibtex build/main_extra-aux/main_extra` in
+# this recipe. Measured: the wrong form exits 1 with "I couldn't open file name", which stops
+# an && chain and, in a GUI editor, silently leaves every citation unresolved.
+extra: preflight
+	@mkdir -p build build/main_extra-aux/chapters
+	pdflatex $(TEXFLAGS) -output-directory=build/main_extra-aux main_extra.tex
+	BIBINPUTS=.: TEXMFOUTPUT=build/main_extra-aux bibtex build/main_extra-aux/main_extra; test $$? -le 1
+	pdflatex $(TEXFLAGS) -output-directory=build/main_extra-aux main_extra.tex
+	pdflatex $(TEXFLAGS) -output-directory=build/main_extra-aux main_extra.tex
+	@cp build/main_extra-aux/main_extra.pdf build/main_extra-aux/main_extra.log build/main_extra-aux/main_extra.blg build/
+	@echo "Supplementary volume -> build/main_extra.pdf"
+
 # ---- all three at once -----------------------------------------------------------------
 # Timings for this target are in src_utils/_round7/20_build_speed.md, measured on this
 # machine; do not restate them here, because a number in two places drifts in one of them.
@@ -212,6 +245,7 @@ check-pages:     ; @python3 $(UTILS)/sync_page_counts.py
 check-sweepguard: ; @python3 $(UTILS)/sweep_guard.py
 check-format:    ; @python3 $(UTILS)/mkformat.py --selftest
 check-equiv:     ; @python3 $(UTILS)/verify_format.py --compare
+check-extraxrefs: ; @python3 $(UTILS)/check_extra_xrefs.py
 
 # Every checker that does not need a compiled build/*.log, run in one go. Reports each
 # gate's exit status and fails if any failed; it does NOT stop at the first failure, so one
@@ -226,6 +260,8 @@ help:
 	@echo "BUILD   make defense | academico | ppgc  one target, three passes"
 	@echo "        (make final is an alias of academico, renamed 2026-07-29)"
 	@echo "        make all3                        all three concurrently"
+	@echo "        make extra                       the SUPPLEMENTARY VOLUME (a separate"
+	@echo "                                         document, not a dissertation variant)"
 	@echo "        make fast                        defense with the precompiled preamble"
 	@echo "        make fast3                       all three, accelerated and concurrent"
 	@echo "        (timings: src_utils/_round7/20_build_speed.md, measured on this machine)"
@@ -242,8 +278,8 @@ help:
 clean:
 	rm -rf build/*
 
-.PHONY: all preflight defense academico final ppgc all3 fast fast-defense fast-academico fast-ppgc \
+.PHONY: all preflight defense academico final ppgc extra all3 fast fast-defense fast-academico fast-ppgc \
         fast3 fast3-defense fast3-academico fast3-ppgc format format-status verify-equiv \
         check check-trapped check-torn check-doubled check-texroot check-parallelism \
         check-meta check-verify check-wordcount check-pages check-sweepguard \
-        check-format check-equiv check-scripts sync-pages help clean
+        check-format check-equiv check-extraxrefs check-scripts sync-pages help clean

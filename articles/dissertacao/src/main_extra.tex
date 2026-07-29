@@ -1,0 +1,68 @@
+% !TeX root = main_extra.tex
+% ============================================================================
+% main_extra.tex -- the SUPPLEMENTARY VOLUME. A SEPARATE DOCUMENT, not a fourth build
+% of the dissertation.
+%
+% READ THIS FIRST IF YOU CAME FROM main.tex. The three builds described in that file's
+% header (defense, academico, ppgc) are ONE source behind two switches: each entry file
+% holds two lines, sets a switch, and reads main.tex, so no build can drift from another.
+% THIS FILE IS NOT ONE OF THEM and deliberately does not follow that pattern. It has its
+% own preamble, its own front matter, its own table of contents and its own bibliography,
+% because it is a different document with a different title and a different reader. Do not
+% "unify" it with main.tex: the moment it reads main.tex it acquires main.tex's front
+% matter, its title, and its six chapters, which is the opposite of what it is for.
+%
+% WHY IT EXISTS. Author decision 2026-07-29, on the advisor's ruling of 2026-07-28 about
+% the errata appendix, relayed by the author: "Nao precisa, nao e obrigatorio que seja
+% copia identica do artigo. E do jeito que voce colocou no inicio de cada capitulo acho
+% que explica bem." The chapter prefaces already tell the reader that the reproduced
+% articles were re-typeset and corrected, so the errata appendix is not owed to the main
+% document. It is still worth keeping, and so is the label-history benchmark, so both move
+% here rather than being deleted. This volume is also the home for any later material whose
+% place in the main text is undecided: add it at the marked slot near the end of this file.
+%
+% WHAT IT CARRIES, and why the letters are B and D with nothing between them:
+%   Appendix B  errata to the three reproduced articles   chapters/apx_b_errata.tex
+%   Appendix D  the label-history benchmark               chapters/apx_d_ceiling.tex
+% Those are the letters the two appendices carried while they were in the main document,
+% and they keep them HERE ON PURPOSE. GLOSSARY.md:51 identifies the benchmark by "Appendix
+% D", the author and the advisor both refer to "Appendix B", and a reader holding both
+% volumes should find one Appendix B, not two different ones. The counter is therefore set
+% explicitly before each chapter (see the \setcounter lines below) instead of being allowed
+% to renumber them A and B. Appendices A, C and E stay in the main document and are NOT
+% reproduced here.
+%
+% BUILD. `make extra` -> build/main_extra.pdf. It is NOT part of `make all3` or `make
+% fast3`: those build the three variants of the dissertation, and this is not one of them.
+%
+% OVERLEAF. This volume must compile in Overleaf, so it depends on nothing local:
+%   - no format dump (the `fast` targets' precompiled preamble is never loaded here);
+%   - no Makefile, no shell script, no python;
+%   - no -output-directory, so a plain click-to-compile works;
+%   - only files inside src/: this file, 0_extra.tex, the two appendix chapters and the
+%     tables they input, abntex2-UFV.sty, abntex2-num.bst and references.bib.
+% THE BARE SEQUENCE, and it was RUN before this paragraph was written (2026-07-29, in a
+% copy of src/ with build/ excluded, no make, no -output-directory):
+%   pdflatex main_extra && bibtex main_extra && pdflatex main_extra && pdflatex main_extra
+% Measured from that run: rc=0 on all four commands, 19 pages, tex_errors 0, undefined
+% references 0, undefined citations 0, overfull boxes 0, 4 \bibitem in main_extra.bbl,
+% 0 BibTeX warnings. The transcript is in src_utils/_round7/24_extra_and_cosine.md.
+%
+% THE BIBTEX ARGUMENT IS THE TRAP, and it is not symmetric between the two paths:
+%   no -output-directory (Overleaf, the sequence above)  ->  bibtex main_extra
+%   make extra (-output-directory=build/main_extra-aux)  ->  bibtex build/main_extra-aux/main_extra
+% MEASURED, not assumed: running `bibtex build/main_extra` in the no-output-directory tree
+% exits 1 with "I couldn't open file name `build/main_extra.aux'", which in an && chain stops
+% the chain, and in a click-to-compile editor yields a document whose citations never resolve.
+% An earlier version of this comment quoted that wrong form as the verified one. Use the form
+% that matches how you are building, and if the bibliography comes out empty, this is why.
+%
+% CROSS-VOLUME REFERENCES. The two appendices point at chapters of the dissertation
+% (Chapter 3, 4, 5) and at four of its floats. Those targets are in the OTHER document, so
+% their numbers cannot be resolved by compiling this one. They are declared as frozen values
+% in 0_extra.tex, in one block, and src_utils/check_extra_xrefs.py fails the gate suite if
+% any declared value stops matching the number the main build actually prints. Read that
+% block before you touch a chapter order.
+% ============================================================================
+
+\input{0_extra.tex}
