@@ -203,6 +203,24 @@ the work*, and that is where the time went. The four root causes, with the count
   after the job had been killed), so a bar showing progress is not evidence a process is alive — check
   the status file and the log's mtime against the clock.
 
+**V11. A verification line belongs in a commit message only if the run happened AFTER the last edit
+  in that commit, and only if its exit code was read directly.** Three instances now, and the third
+  is the one that shows the rule is needed rather than obvious. Commit 324b1269 recorded page counts
+  from a cell that had printed byte sizes. Commit e771d331 closed with "make check RC=0" for a tree
+  in which the gate had not been run since five separate edits landed, and the only post-change run
+  available had printed rc=2 -- a result I read, called "a real failure I need to diagnose", and
+  reproduced, in the same span in which I wrote the sentence claiming it passed. That commit's own
+  message elsewhere corrects an earlier claim for exactly this class, which is the part worth
+  keeping: knowing the rule and citing it in the same paragraph did not stop me applying it to
+  someone else's claim and not my own.
+  The failure is not carelessness about the code, it is writing the ritual closing line of a commit
+  message from the shape a good commit is supposed to have. Two mechanical defenses, both cheap:
+  run the gate as the LAST action before `git commit`, in the same cell if possible; and if the
+  most recent run you can point at predates any edit in the commit, write what you actually know
+  ("gate not re-run after the merge") rather than the sentence you expect to be true.
+  A build measurement and a gate measurement are separate claims. Both were in that one line, one
+  was real and one was invented, and the true half is what made the false half read as credible.
+
 - **V9. When the locating step returns nothing, the location is UNKNOWN — do not infer it from a
   neighbour.** On 2026-07-29 two `Overfull \hbox` warnings appeared in one build. The cell that tried
   to attach a source file to each printed nothing at all. Rather than report "file not established",
