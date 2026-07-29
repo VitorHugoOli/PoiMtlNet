@@ -20,6 +20,30 @@
 (citation protocol, number protocol, claim registry, review gates) apply to every edit in this
 folder. No chapter text goes to the author or advisor without passing its gates.
 
+> ### The mistake you are most likely to make here is not about the science
+>
+> Measured across round 6 (13.3 h, 61 commits): **17 commits were rework**, and of the 14 that were
+> genuine, **9 were wrong statements about the work rather than about the dissertation** — what a
+> check covered, what a command returned, whether a gate passed. Not one was a fabricated citation.
+> The science protocols (§1, §2) were holding; the record of the work was not.
+>
+> Before you write any sentence of the form *"the sweep found N"*, *"all X pass"*, *"every Y was
+> checked"*, or *"make check is green"*, read
+> [`AGENT_GUARDRAILS.md`](AGENT_GUARDRAILS.md) **§4b** and obey its seven rules. The two that would
+> alone have prevented most of those nine:
+>
+> - **Re-read the tool's output and copy from it.** Do not write what you meant the check to do. If
+>   your code contains a `continue`, a `skip`, or a filter, **say what was excluded and how many.**
+>   `make check` exited 2 for an entire day while six commit messages said all gates pass, because
+>   the output was read for known-good lines instead of for the exit code.
+> - **Strip comments before grepping this source.** It carries provenance comments that quote the
+>   strings you are searching for, so an unfiltered sweep always over-reports. Filter the *file*
+>   (`grep -vn '^[[:space:]]*%'`), not the `grep -n` output. Three separate defects in one day.
+>
+> A number about the work carries the command that produced it, runnable from a stated directory.
+> `src_utils/check_verify_list.py` enforces exactly this for the author-facing documents; extend it
+> rather than writing a fresh unverified claim.
+
 > **If you are an AI agent working here for the first time, read**
 > [`science/AGENT_HANDOFF.md`](science/AGENT_HANDOFF.md) **first.** It holds what no other document
 > does: the failure modes agents actually hit in this repository (prose swallowed into LaTeX

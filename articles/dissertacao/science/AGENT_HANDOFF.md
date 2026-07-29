@@ -225,6 +225,54 @@ that did not make sense:
 **When a probe gives you a surprising number, suspect the probe first.** Verify it against a case
 whose answer you already know.
 
+### 2.8 The claim about the work, written from intent instead of output (NINE instances in one day)
+
+**This is now the largest failure class in this repository, and §2.1 through §2.7 are all special
+cases of it.** Round 6 (2026-07-28) ran 13.3 hours and 61 commits; 17 were rework, 14 of those
+genuine, and **9 of the 14 were a wrong statement about the work** rather than about the
+dissertation. Zero were fabricated citations. The science protocols held. What failed was every
+sentence of the form *"the sweep covered N files"*, *"all gates pass"*, *"every command was
+executed"*.
+
+The nine, by mechanism, because the mechanism is what generalizes:
+
+- **The producing code contained a skip, and the claim did not mention it.** A sweep reported
+  "19 blocks, 0 failing" while its own loop began `if "make" in code: continue` — four blocks never
+  ran and the skips were counted as passes. The same shape twice more: `make check` exited 2 for a
+  full day while six commit messages said all gates pass (the output was read for known-good lines
+  instead of for `$?`), and a page-count syncer printed `SKIP` and exited 0 when its pattern stopped
+  matching, so nobody was checking four page-count claims.
+- **The instrument could not see the thing being claimed.** `FPDFText_GetFontSize` reports the size
+  declared *inside* an embedded XObject and ignores `\includegraphics` scaling, so it read 6.97 pt
+  for a figure rendering at 11.15 pt. The reading was correct; the question was wrong. Ask what an
+  instrument is blind to *before* building a claim on it.
+- **A line-based `grep` missed a match sharing a source line with another.** Gave 8-of-12 where the
+  truth was 9-of-13, and the omitted file was one the author needed to publish. Related and separate:
+  greps over this source **must strip comments first**, because the provenance comments quote the
+  strings being searched for — an unfiltered `\path{}` count annotated `# 13` returned 15, a sweep
+  promising 3 prose hits returned 4, and one promising **zero** returned 5. Filter the *file*
+  (`grep -vn '^[[:space:]]*%'`), not the `grep -n` output: `:[0-9]*: *%` misses an indented comment.
+- **A record's superseded revision was read as current.** Files under `docs/studies/` keep their own
+  prior revisions inline under headings that say `(superseded)`. A search landing inside one found a
+  real sentence that had stopped being true, and the flag it raised would have weakened a correct
+  claim in the abstract, the conclusion and a paper under review. **Anchor on the revision header.**
+- **Correcting the number at its source did not correct the claim.** When 8-of-12 became 9-of-13, the
+  old figure survived in four other durable records, including the author's own push list — which
+  listed eight files when nine needed pushing. After any count fix, grep the *superseded value*.
+- **A new guard was itself defective.** The gate written to catch this class recursed into its own
+  caller (taking `make check` from 1 s to 297 s) and its first fix reported zero skips while still
+  recursing, because a broad "is this just a `cd` note?" test sat *above* the narrow recursion guard
+  and swallowed the cases it existed for. **Ordering is load-bearing; a skip is never silent.**
+
+**The gate:** `src_utils/check_verify_list.py`, run by `check.sh`. It executes every command
+documented in the author-facing files, asserts the ones carrying an `# EXPECT:` annotation, and
+reports *executed-but-not-asserted* as its own category so the verified count cannot be inflated.
+Extend it rather than writing a fresh unverified claim. The law is `AGENT_GUARDRAILS.md` §4b.
+
+**The one-line version, if you remember nothing else:** *before writing a number about your own
+work, read the tool's last lines again and copy from them.* Nine of these cost 2.4 hours, and every
+one was caught by somebody else re-running the check.
+
 ---
 
 ## 3 · How to work here

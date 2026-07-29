@@ -124,6 +124,15 @@ echo "== torn sentences (a body line opening mid-sentence: the clause before it 
 # reintroduced.
 if ! python3 "$UTILS/check_torn_sentences.py"; then FAIL=1; fi
 
+echo "== coverage claims about the work carry the command that produced them (GUARDRAILS 4b V1) =="
+# Round 6 measured its own rework: 17 of 61 commits, 14 genuine, and NINE of those fourteen were a
+# wrong statement about the WORK rather than about the dissertation. Zero were fabricated citations.
+# The worst carried no digit at all -- "Every command in this file was executed verbatim ... and
+# returns the output its 'if all is well' line describes" -- written when four blocks had never run
+# and nothing had been compared to any expectation. Validated against that exact historical file
+# (1 hit at VERIFY_LIST.md:56 as of 0aceb5ee~1, 0 on the current tree).
+if ! python3 "$UTILS/check_meta_claims.py"; then FAIL=1; fi
+
 echo "== the author-facing verification commands actually return what they claim =="
 # VERIFY_LIST.md and PENDENCIAS.md tell the author to run specific commands and state what each
 # should return. On 2026-07-28 three of them did not: a \path{} count annotated 13 returned 15,

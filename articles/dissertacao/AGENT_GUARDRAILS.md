@@ -142,6 +142,76 @@ model versions over a months-long project.
 - **L6. Fresh-eyes audits.** Style and consistency audits are run by an agent that did NOT write
   the text under audit (or by the author), never self-certified by the drafting agent.
 
+## 4b · Meta-claim protocol: claims about the WORK, not about the science
+
+**Why this section exists, measured.** Round 6 (2026-07-28) ran 13.3 hours and produced 61 commits.
+**Seventeen of the 61 were rework** — repairing something the round itself had broken or misclaimed —
+and reading all seventeen, **fourteen were genuine rework worth 2.4 hours**, of which **nine (64%)
+share one property**:
+
+> The wrong statement was never about the dissertation. It was about **the work**: what a check
+> covered, what a command returned, how many files a sweep touched, whether a gate passed. Every one
+> was written from what the agent *intended the check to do* rather than from re-reading what the
+> check *actually printed*.
+
+§1 and §2 protect the *science* (citations, numbers in the text). Nothing protected the *record of
+the work*, and that is where the time went. The four root causes, with the count each cost:
+
+| # | Root cause | Commits | The instance |
+|---|---|--:|---|
+| **R1** | The record described something other than what ran | 5 | A count command annotated `# 13` returned 15; a "sweep of every command" skipped four blocks and counted the skips as passes; a switch test printed one question and compiled a different case. |
+| **R2** | The instrument was blind to, or narrower than, the claim built on it | 4 | `FPDFText_GetFontSize` reports the size declared *inside* an embedded object and ignores `\includegraphics` scaling, so it read 6.97 pt after a figure was rescaled; a line-based `grep` missed a `\path{}` sharing a source line, giving 8-of-12 for a true 9-of-13. |
+| **R4** | An own count was wrong, or the filter did not match the question asked | 3 | A row count of 27 reported over 30 instances; a subsection-heading count measured "does it print" when the paragraph's subject was "was it published". |
+| **R3/R5** | A stale inline revision was read as current; a new guard was itself defective | 2 | A flag raised against a correct claim by landing inside a section headed *(superseded)*; a new gate recursed into its own caller and reported zero skips while doing it. |
+
+### The rules
+
+- **V1. A number about the work carries the command that produced it.** Any count, coverage claim,
+  or pass/fail statement written into a durable record (`PENDENCIAS.md`, a report, a commit message,
+  a provenance comment) must be accompanied by the exact command that yields it, runnable from a
+  stated working directory. *A number without its command is an opinion with a digit in it.*
+- **V2. Re-read the output; do not paraphrase the intent.** Before writing "the sweep found N" or
+  "all X pass", read the tool's own last lines again and copy from them. If the code that produced
+  the claim contained a `continue`, a `skip`, an `except: pass`, or a filter, **the claim must name
+  what was excluded and how many.** An unreported skip counted as a pass is the single most common
+  defect in this repository's history.
+- **V3. Distrust a clean result from an unvalidated instrument.** Before believing a measurement,
+  ask what the instrument is blind to, and prove it can see the defect by running it against a case
+  where the defect is present. This extends §7's gate rule from *gates* to **every ad-hoc `grep`,
+  `wc`, API call, and one-off script** — most of R2 was ad-hoc, not a gate.
+- **V4. Greps over this source strip comments first.** Non-negotiable, and its own rule because it
+  caused three separate defects in one day. This tree carries dense provenance comments that *quote
+  the very strings being searched for*, so an unfiltered sweep always over-reports. Use
+  `grep -vn '^[[:space:]]*%' "$f" | grep '<pattern>'` — filter the **file**, not the `grep -n`
+  output, because `:[0-9]*: *%` misses an indented comment.
+- **V5. Anchor on the revision header, not the first matching line.** Records in `docs/studies/`
+  keep their own superseded revisions **inline** under headings that say so. A search landing inside
+  one finds a real sentence that stopped being true. Check the revision header before quoting.
+- **V6. Correcting a number at its source is not correcting the claim.** After fixing any count,
+  grep the *superseded value* across all durable docs. When 8-of-12 became 9-of-13, the old figure
+  survived in four other places, including the author's own push list — which listed eight files
+  when nine needed pushing.
+- **V7. A gate may not invoke its own caller, and a skip is never silent.** A new check must
+  self-test in both directions (§7), must not call the suite that calls it, and must report skipped
+  items with the reason. Ordering matters: a broad "is this a note?" test placed before a narrow
+  guard will swallow the cases the guard exists for.
+
+### Scope discipline for delegated work (the other 2.6 hours)
+
+Round 6 lost **2.6 hours (19%)** waiting on the slowest sub-agent in each of five waves. The worst
+was 5.4 hours; its cell log shows **84 inspection cells and 57 git-archaeology cells against 21
+build cells** — it was not compute-bound, it was scope-bound.
+
+- **S1. Every delegated task carries an explicit archaeology budget.** State how far back history
+  may be walked and what to do on exhaustion (report the gap as a `[VERIFY]` flag, do not keep
+  digging). Unbounded "recover the record" tasks are the ones that run five hours.
+- **S2. A wave's slowest member sets the wave's cost.** Split any track whose scope is open-ended
+  (a whole-document audit, a full-history recovery) into independently landable pieces, so a
+  straggler delays one finding rather than the whole wave.
+- **S3. Time-boxed checkpoint.** A child running past ~90 minutes without landing writes its partial
+  findings to its report file and says what remains. Partial results in hand beat complete results
+  three hours later.
+
 ## 5 · Review gates (the pipeline every chapter passes, in order)
 
 ```
@@ -202,6 +272,8 @@ policy; (d) every major publisher (ICMJE, Elsevier, Springer, IEEE, ACM) require
 | **Trusting the tolerant tool** (two checks disagree; the one reporting success is believed) | The source did not compile for six commits while `build.sh` reported "104 pp, 0 overfull, 0 undefined": under `-interaction=nonstopmode` pdflatex recovers from an error and still writes a PDF, and the checker never looked for TeX errors. `make` (`-halt-on-error`) produced nothing the whole time. **Rule: `tex_errors=0` is part of every build claim; a PDF existing is not evidence the source is correct; when two tools disagree about one artifact, distrust the one reporting success.** (2026-07-28, §2.3b of `science/AGENT_HANDOFF.md`.) |
 | **A gate that has never fired** (a check whose passing carries no information) | Validate every new gate in BOTH directions before trusting it: run it against a tree where the defect is present and confirm it fails, then against the fixed tree and confirm it passes. Four of this repository's checkers were wrong at least once by being tuned only on the case in front of them. |
 | **Silent correction** (fixing a published number/claim without a trail) | Errata policy (NORTH_STAR §5.7): every departure from a published source is listed and approved. |
+| **Reporting the intent instead of the output** (writing what the check was *meant* to cover) | The largest single defect class in this repository, 9 of 14 genuine rework commits in round 6. §4b V1–V2: a number about the work carries its command, and any `continue`/`skip`/filter in the producing code must be named in the claim with its count. |
+| **Believing an instrument you have not interrogated** (a clean reading from a tool blind to the thing measured) | §4b V3. `FPDFText_GetFontSize` returned 6.97 pt for a figure that renders at 11.15 pt, because it reports the size declared inside the embedded object and ignores `\includegraphics` scaling. The reading was not wrong; the question was. |
 
 ## 8 · Evidence base (why these rules; verified 2026-07-18)
 
