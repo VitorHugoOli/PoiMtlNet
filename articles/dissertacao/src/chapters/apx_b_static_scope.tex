@@ -13,15 +13,34 @@ classify the category of a place from that place's own representation. This sect
 records what we established after publication about the second one, and it bears on how
 that chapter's category results should be read.
 
-The place embedding that Chapter~\ref{ch:courb} feeds to the static task is built from a
-fine-grained class label attached to each place, and that label determines the target
-category exactly. Measured over the five Gowalla state subsets the collection uses, the
-fine class takes between 284 and 365 distinct values per state, every one of them maps to
-exactly one of the seven top-level categories, and none maps to more than one. The
-embedding is a lookup on the fine class, and the fine class is a strict refinement of the
-label. So the static task's input determines its target by construction, and the reported
-accuracy on that task measures a deterministic mapping rather than a learned semantic
-inference.
+% [2026-07-30, author decision in PENDENCIAS 2.4] REWRITTEN FOR CLARITY at his request: "a
+% explicação não está bem didatica e clara, requere bastante esforço para entender e varias
+% leituras". His example was the exact sentence this replaces -- "built from a fine-grained class
+% label attached to each place" -- which never tells the reader that the thing in question is the
+% VENUE'S OWN NAME. It now says so in the second sentence, with three real values.
+%
+% NUMBER CORRECTED WHILE REWRITING, and it was wrong in the published-adjacent text: the range was
+% "between 284 and 365 distinct values per state". MEASURED from the five state parquets at
+% /Users/vitor/Desktop/mestrado/data/checkins_by_state, column `spot_categories` (NOT `fclass` --
+% that name appears only in docs/context/EMBEDDINGS.md and does not exist in the data):
+%   Alabama 284 | Arizona 306 | Florida 325 | California 334 | Texas 377
+%   places mapping to more than one top-level category: 0 in every state
+% So the maximum is 377, not 365. The "none maps to more than one" claim is confirmed exactly.
+%   df.groupby('spot_categories')['category'].nunique()  ->  max 1 in all five states
+% The example strings are verbatim from Alabama's column: 'Coffee Shop', 'Seafood', 'Airport'.
+The problem is easiest to see by asking what the static task is actually given. Each place in the
+Gowalla data carries a fine-grained venue type, a string such as \texttt{Coffee Shop},
+\texttt{Seafood}, or \texttt{Airport}. The place embedding that Chapter~\ref{ch:courb} feeds to the
+static task is a lookup table on that string: two places of the same venue type receive the same
+vector. The target the task must predict is the top-level category, and \texttt{Coffee Shop} belongs
+to Food no matter which coffee shop it is.
+
+The input therefore contains the answer. We confirmed this holds without exception across the five
+Gowalla state subsets the collection uses: the venue type takes between 284 and 377 distinct values
+per state, and in every state each of those values maps to exactly one of the seven top-level
+categories. Not one is ambiguous. A model given the venue type and asked for the category is being
+asked to reproduce a lookup it already holds, so the reported accuracy on the static task measures
+that mapping rather than any learned semantic inference.
 
 Three qualifications matter, and none of them is a softening.
 
@@ -31,17 +50,14 @@ exists between input and label. Every claim Chapter~\ref{ch:courb} makes about t
 sequential task, including the improvement that the decomposed representation produces,
 stands as published.
 
-The second is that the two chapters differ in how direct the channel is, and the
-difference is one of degree rather than of kind. Chapter~\ref{ch:cbic} builds each node's
-input feature from the average of that place's neighbors' one-hot categories, excluding
-the place itself, so no place's own label appears in its own input. That exclusion does
-not survive the graph convolution: the place graph is undirected, so a place appears in
-its neighbors' features, and one convolution aggregates over the neighborhood together
-with the place itself. A place's own label therefore returns to its own embedding at the
-first hop, averaged in with the neighborhood. So the earlier chapter's
-static task also has a path from label to representation. It is indirect and averaged,
-where Chapter~\ref{ch:courb}'s is an exact lookup, and that distinction is the whole of
-the difference between them.
+The second is that Chapter~\ref{ch:cbic} has a version of the same problem, milder but present, and
+saying so is more honest than drawing a line between the two. That chapter builds each place's input
+feature from the average of its neighbors' categories and deliberately leaves the place itself out,
+which looks like it closes the channel. It does not. The place graph is undirected, so a place
+appears in its own neighbors' features, and a single graph convolution averages a place together
+with its neighborhood. The place's own label comes back at the first hop, diluted among its
+neighbors. The difference between the two chapters is therefore one of degree: an exact lookup in
+Chapter~\ref{ch:courb}, a diluted average in Chapter~\ref{ch:cbic}.
 % [round6, D-01, domain panel persona 09] CORRECTED, and this is a correction to MY OWN prose from
 % earlier the same day. The paragraph used to conclude "so a place's own label never enters its own
 % representation", exculpating Ch.3 entirely. THE PREMISE IS TRUE AND THE CONCLUSION DOES NOT FOLLOW.
@@ -66,7 +82,7 @@ that chapter gives on its own terms: it replaces the place-level embedding with 
 check-in-level representation, whose input is a single visit, and the identity described
 above does not arise.
 
-This appendix, and not the chapter, is where the statement belongs, because Chapter~\ref{ch:courb} is a
-published, co-authored article and this appendix is the instrument this collection uses
-for the difference between what the published text says and what we know now. The
+The statement belongs here rather than in the chapter because Chapter~\ref{ch:courb} is a published,
+co-authored article, and this appendix is where this collection records the difference between what
+a published text says and what we know now. The
 measurement is recorded in the repository released with this work.
