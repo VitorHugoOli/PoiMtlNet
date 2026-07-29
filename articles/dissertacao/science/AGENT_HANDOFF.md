@@ -441,7 +441,9 @@ articles/dissertacao/
     build.sh check.sh       build and gate
     check_trapped_prose.py test_trapped_prose.py sweep_guard.py sync_page_counts.py
     PENDENCIAS.md           what needs the author
-    codex_reviewer.md CODEX_AUDIT.md CODEX_VS_PERSONAS.md   external review + its audit
+    codex_reviewer.md CODEX_VS_PERSONAS.md                  external review + the persona seam
+                              (CODEX_AUDIT.md moved to _archive/ on 2026-07-29; its nine still-open
+                               points were lifted into PENDENCIAS.md §5 before the move)
     _review_v2/ _review_v3/ _specialists_v2/                persona reports
     _archive/               superseded working files, with a README index
   reviewers/                the 19 persona briefs

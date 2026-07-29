@@ -56,10 +56,10 @@ folder. No chapter text goes to the author or advisor without passing its gates.
 
 - **v1 lives in [`src/`](src/)** — the single working copy; the draft folders (`storyline/`,
   `fundamentals/`) are **frozen** (freeze pointers in each). **One source, THREE builds**, two entry
-  files: `make defense` → `build/main.pdf` (**108 pp**), copied to
+  files: `make defense` → `build/main.pdf` (**100 pp**), copied to
   [`src/dissertacao.pdf`](src/dissertacao.pdf), the banca PDF; `make final` →
-  `build/main_final.pdf` (**105 pp**, the AcademicoPG deposit body); `make ppgc` →
-  `build/main_ppgc.pdf` (**109 pp**, the defense document plus the approval sheet, from a two-line
+  `build/main_final.pdf` (**97 pp**, the AcademicoPG deposit body); `make ppgc` →
+  `build/main_ppgc.pdf` (**94 pp**, the defense document plus the approval sheet, from a two-line
   `main_ppgc.tex` that sets one switch and reads `main.tex`). All three: `tex_errors=0`, 0 overfull
   hbox/vbox, 0 undefined refs/cites, 0 bibtex problems, 0 oversized floats, 0 `Hfootnote` dest
   warnings. `make check` **exit 0**. Measured 2026-07-28 on full three-pass builds.
@@ -72,7 +72,8 @@ folder. No chapter text goes to the author or advisor without passing its gates.
   not a missing font, and cannot be probed on this machine.
 - **Round 6 (2026-07-28)** audited the codex findings, ran the research the author's decisions
   required, applied them, and ran eight review tracks over the result. Its outcome per finding is
-  appended to [`src_utils/CODEX_AUDIT.md`](src_utils/CODEX_AUDIT.md); the author's live queue is
+  appended to [`src_utils/_archive/CODEX_AUDIT.md`](src_utils/_archive/CODEX_AUDIT.md) (archived
+  2026-07-29 once every open point was lifted into the tracker's §5); the author's live queue is
   [`src_utils/PENDENCIAS.md`](src_utils/PENDENCIAS.md) §2; what was deliberately left out of the text
   is [`src_utils/LEFT_OUT.md`](src_utils/LEFT_OUT.md); the audit trail is
   `src_utils/_round6/` (`SOURCE_LEDGER.md`, `VERIFY_LIST.md`, `ANCHORS.md`, and the fifteen pass

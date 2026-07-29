@@ -1,106 +1,48 @@
 # PENDENCIAS.md — o que depende de voce
 
-> **Registro de pendencias da dissertacao (v3, 2026-07-28).** Cada item aqui esta bloqueado em um
-> fato externo, em uma decisao sua, ou em uma aprovacao do orientador/Comissao. **Nada aqui pode ser
+> **Registro de pendencias da dissertacao (v4, 2026-07-29).** Cada item aqui esta bloqueado em uma
+> decisao sua, em uma aprovacao do orientador/Comissao, ou em um fato externo. **Nada aqui pode ser
 > resolvido por um agente, e nenhum foi resolvido sozinho.**
 >
 > Formato de cada item: **(A) o que falta**, **(B) por que importa**, **(C) o que eu preciso de voce**.
 > Onde ja existe texto pronto ou medicao feita, o caminho esta indicado.
->
-> **Estado do build agora** (medido em `29c7629c`, os tres alvos reconstruidos):
->
-> | alvo | paginas | tex_errors | overfull hbox/vbox | undef cite/ref | bibtex | floats grandes | avisos Hfootnote |
-> |---|---:|---:|---:|---:|---:|---:|---:|
-> | `make defense` -> `main.pdf` | **108** | 0 | 0 / 0 | 0 / 0 | 0 | 0 | 0 |
-> | `make final` -> `main_final.pdf` | **105** | 0 | 0 / 0 | 0 / 0 | 0 | 0 | 0 |
-> | `make ppgc` -> `main_ppgc.pdf` | **109** | 0 | 0 / 0 | 0 / 0 | 0 | 0 | 0 |
->
-> `make check`: **exit 0**. Pela primeira vez nesta rodada. Ver o item fechado C-6 abaixo: durante
-> toda a rodada o gate saiu com codigo 2 enquanto seis mensagens de commit, minhas inclusive,
-> afirmavam "all gates pass".
 
 ---
 
 ## Como ler este arquivo
 
-Ele tem tres partes e apenas a segunda exige algo de voce:
+Ele tem quatro partes e as duas primeiras exigem algo de voce:
 
-1. **§1 Fechado nesta rodada** — o que entrou, com o commit. Nada a fazer; esta aqui para voce
-   auditar.
-2. **§2 Aberto e bloqueado em voce** — decisoes, aprovacoes e um push de repositorio. **Esta e a
-   sua fila.**
+1. **§2 Aberto e bloqueado em voce** — decisoes, aprovacoes e um push de repositorio. **Esta e a
+   sua fila.** A numeracao comeca em 2.1 por continuidade: quatro comentarios no fonte citam
+   "PENDENCIAS 2.4", e renumerar quebraria essas citacoes.
+2. **§5 Levantados do `CODEX_AUDIT.md` ao arquiva-lo** — nove pontos daquela auditoria que ainda
+   dependem de voce. Eram para ser aplicados por decisao sua e **nao estao no documento**; cada um
+   traz a medicao que mostra isso.
 3. **§3 Aberto e bloqueado em terceiros** — orientador, Comissao, revisores do MobiWac. Fora do seu
    controle e do meu.
+4. **§4 O que auditar primeiro** — a lista priorizada, se voce tiver uma hora.
+
+**O que saiu daqui.** O antigo §1 ("Fechado nesta rodada", a rodada 6 inteira, com commits) foi
+movido para [`_archive/PENDENCIAS_RESOLVIDOS.md`](_archive/PENDENCIAS_RESOLVIDOS.md) em 2026-07-29,
+a seu pedido, **com os 19 hashes de commit intactos**. Nada foi apagado nem resumido. O
+`CODEX_AUDIT.md` foi para o mesmo arquivo, depois do levantamento do §5.
 
 Um item que esta ausente do texto porque alguem **decidiu** que ficasse fora nao e pendencia: esta
 em [`LEFT_OUT.md`](LEFT_OUT.md), com quem decidiu e quando. Um item ausente porque ninguem chegou
 nele e pendencia e esta aqui.
 
----
+**Estado do build.** Medido em 2026-07-29 na rodada 7, com `make fast3` (os tres alvos em ~14 s,
+contra ~115 s do caminho antigo): defesa 108 pp, academico 105 pp, ppgc 109 pp; `tex_errors` 0,
+overfull 0, undefined 0, bibtex 0. `make check` sai 0 em ~2 s, 20 gates. **Um aviso:** enquanto eu
+escrevia isto outra trilha da rodada 7 estava editando `src/`, entao qualquer numero de pagina aqui
+pode ter se movido. Para remedir:
 
-## §1 · Fechado nesta rodada (round 6)
-
-### 1.1 O bloqueador que ninguem viu: o fonte nao compilava
-
-**Fechado em `ba90aa6d`.** De `6d780b58` a `a880632b` a chave de abertura do grupo `{\small ...}` em
-`tables/frame/bib_errata.tex` estava ausente e a de fechamento sobreviveu. Todo build morria com
-`! Extra }, or forgotten \endgroup`. Seis mensagens de commit reportaram "104/99 pp, 0 overfull, 0
-undefined" nesse periodo.
-
-**Por que passou:** os dois caminhos de build discordavam e o que foi acreditado era o cego. O
-`Makefile` usa `-halt-on-error` e nao produzia nada; `src_utils/build.sh` roda em
-`-interaction=nonstopmode`, onde o pdflatex se recupera do erro e **escreve um PDF completo**, que o
-script media e certificava limpo — porque nunca procurava por erros. Agora procura (`tex_errors`), e
-o gate foi validado nas duas direcoes antes de ser aceito.
-
-**Registrado em:** `science/AGENT_HANDOFF.md` §2.3b e `AGENT_GUARDRAILS.md` §7 (duas linhas novas de
-vies: desconfie da ferramenta que reporta sucesso quando duas discordam; valide todo gate novo contra
-uma arvore onde o defeito esta presente).
-
-### 1.2 As decisoes suas que foram aplicadas
-
-| Sua decisao | O que foi feito | Commit |
-|---|---|---|
-| COD-007: recuperar protocolo de Ch.3/Ch.4 | Eixo de split, seeds e regra de checkpoint recuperados do codigo e dos artefatos de execucao, e adicionados como **adicoes declaradas** com trilha em Apendice B | `519de348`, `a7ab2eaa` |
-| COD-002: registrar o que fica fora do texto | [`LEFT_OUT.md`](LEFT_OUT.md) criado, 8 entradas, cada uma com achado, o que o texto diz em vez disso, por que esta fora, e **quem decidiu com data** | `e9370222` |
-| 2.2: a tarefa estatica do Ch.4 em Apendice B, "facil de ser comentado" | Secao nova em `chapters/apx_b_static_scope.tex`, incluida por **um** `\input`. Caminho de supressao **testado** em arvore copiada: compila limpo, sem referencia pendente | `28097d93` |
-| Split do `main.tex` | `main.tex` = build da defesa; `main_ppgc.tex` = o mesmo PDF **mais** a folha de aceite, em duas linhas de conteudo, para os dois nao divergirem. Terceiro alvo `make ppgc` | `7a91b720` |
-| Chapters "corridos": dividir como nos artigos originais | Os tres capitulos de artigo divididos em 18 arquivos por secao, espelhando os nomes de arquivo de cada artigo. Verificado mecanico: camada de texto dos tres builds **identica byte a byte** antes e depois | `4e84cf7a` |
-| Resumo/Abstract: cortar e refazer | 500 -> 310 palavras e 423 -> 271, refeitos como par de paridade de 11 sentencas, 19 claims em ambas as linguas | `40ed8e7b` |
-| Margens e formatacao local | **Medido, nada a mudar.** Sondei a geometria real compilando uma pagina com o preambulo do documento: 3/2/3/2 cm e entrelinha exatamente 1,500x, todos exatos ao manual §7 | `2d117c7a` |
-| Volume de comentarios | **Medido, recomendo nao comprimir.** 1.217 de 1.269 linhas de comentario (95%) carregam um fato rastreavel; as 52 restantes sao banners estruturais e a sua propria fila de sign-off | `2d117c7a` |
-| Nomes de exemplo no front matter | **Nao existem.** Todos os campos reais, exceto tres placeholders honestos entre colchetes (dois membros da banca e a data), que e o estado correto | `18b817d9` |
-
-### 1.3 Os defeitos que as revisoes acharam, e que foram corrigidos
-
-Oito trilhas de revisao rodaram sobre o texto desta rodada. Nenhuma tinha visto o que a outra fez.
-O que elas acharam:
-
-| ID | Gravidade | O defeito | Commit |
-|---|---|---|---|
-| N-1 | BLOCKER | O limite "dentro de ±0,003" do cosseno de gradientes e **falso para Alabama** (+0,0032). Criado nesta rodada: o **escopo** da frase foi corrigido de tres para quatro datasets e o limite foi carregado sem reverificar a grandeza que depende do escopo. Corrigido na dissertacao **e** no manuscrito | `fecc7fb1` |
-| N-2 | MAJOR | Ch.2 afirmava que Ch.3 "nao identifica o eixo de split", o que a adicao COD-007 desta rodada tornou falso no mesmo dia. O reparo foi **previsto por escrito** e redigido pela trilha de protocolo, e caiu entre dois escopos | `fecc7fb1` |
-| D-01 | BLOCKER | Minha propria secao de Apendice B concluia que "o rotulo de um lugar nunca entra na sua propria representacao" no Ch.3. **A premissa e verdadeira e a conclusao nao segue:** o grafo e nao dirigido e a convolucao agrega o no com a vizinhanca, entao o rotulo volta no primeiro salto. Reproduzido em grafo de 4 nos: h_0[Food] = 0,667 contra x_0[Food] = 0,000 | `4b609643` |
-| D-02 | BLOCKER | Ch.6 citava o ganho de 20,2 a 22,0 pontos do Ch.4 **sem rotular a tarefa**, como o diagnostico do arco inteiro. O ganho e da tarefa **estatica**, que o Apendice B desta rodada desqualifica. O numero fica (e a figura auditada do capitulo publicado), agora com tarefa e qualificacao, e o diagnostico repousa na tarefa sequencial | `4b609643` |
-| F-01 | BLOCKER | **5 de 13** caminhos de reprodutibilidade do Apendice A **nao estao** no branch publico (auditado por CONTEUDO 2026-07-29; a contagem anterior de 9 comparava caminhos, e tres arquivos ja estao publicos sob `analysis_protocol/`) que o Ch.5 aponta em nota de rodape. Todos os 13 existem nesta maquina: a promessa estava errada, nao o codigo. (A primeira contagem dizia 8 de 12; ver `c6e62c62` -- um `grep` por linha perdeu `m1_full_output.txt`, que divide a linha com outro caminho) | `ec1cea0d`, `c6e62c62` |
-| F-02 | MAJOR | A pagina 77, secao 6.2, tinha uma sentenca **sem sujeito**: "California run, completed since, repeats the pattern". O artigo "The" terminava a linha anterior e foi absorvido por um bloco de comentario inserido depois. Recuperado do commit original | `ec1cea0d` |
-| C-1 | MAJOR | O build de **deposito** (AcademicoPG) imprimia 11 na pagina fisica 8. `\finalbuildfirstpage` estava fixo no offset do build de defesa, e o deposito tem tres paginas pre-textuais menos. Nao conformidade de numeracao no unico build que e depositado | `29c7629c` |
-| E-5 | MAJOR | **Dez marcas de nota de rodape eram hyperlinks vivos para a pagina 1** em todos os tres builds. A persona mediu **onde os links caem**, nao apenas se os destinos resolvem. Corrigido com `hyperfootnotes=false` passado em tempo de carga (em `\hypersetup` **nao** funciona: o abntex2 ja carregou o hyperref) | `29c7629c` |
-| E-2 | MAJOR | Seis arquivos sem diretiva `% !TeX root`, e depois do split esses seis incluiam os tres masters de capitulo. Segunda instancia na semana. Gate novo `check_tex_root.py` achou **18 outros** | `29c7629c` |
-| STY-01 | MAJOR | Sete termos em uso que o registro fail-closed nao tinha, **dois deles em portugues no Resumo** que a minha propria passagem de registro seis horas antes nao cobriu | `a8865214` |
-| AIC-01 | MAJOR | A densidade de paralelismo negativo foi **congelada** por uma revisao anterior e esta rodada a levantou de 67 para 79. O diagnostico da persona e o que importa: *"um guard que vive so no relatorio de uma rodada anterior e um guard que ninguem esta checando."* Movido para `check_negative_parallelism.py` | `a8865214` |
-| C-6 | MAJOR | **`make check` saiu com codigo 2 durante toda a rodada** enquanto seis commits diziam "all gates pass". Dois falsos positivos ("this article" no apendice de errata, que e correto; "Pareto", que e o termo tecnico). Ambos isentos com a justificativa no lugar | `6ee23ca7` |
-| L-9 | MINOR | O Apendice B imprimia "todos os 25 lugares" com uma decomposicao que soma 25 apenas contando um cabecalho de subsecao onde ha dois. Reenumerado: 28 | `6ee23ca7` |
-| M-1, M-2 | MAJOR | O Resumo/Abstract perdeu o indice temporal do diagnostico do CoUrb e usava um universal sem escopo ("em todos os estados") cujo antecedente mais proximo e o numero errado de estados. Corrigidos **em paridade** nas duas linguas | `6ee23ca7` |
-
-### 1.4 Gates novos, todos validados nas duas direcoes antes de serem aceitos
-
-| Gate | A classe silenciosa que ele pega | Por que nenhum outro gate a via |
-|---|---|---|
-| `build.sh` `tex_errors` | O fonte nao compila | `nonstopmode` se recupera e escreve um PDF completo, que o script media |
-| `check_doubled_macro.py` | `\\ref{...}` com barra dobrada, que imprime o rotulo cru | O pdflatex nao avisa (as duas metades sao legais) e `undef_ref` fica em 0, corretamente |
-| `check_negative_parallelism.py` | Densidade de paralelismo negativo acima do teto | Vivia so num relatorio de revisao |
-| `check_tex_root.py` | Diretiva `% !TeX root` ausente ou apontando para arquivo inexistente | Invisivel para o `make`, que le o `main.tex` e nunca olha um comentario magico |
+```bash
+cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
+source src_utils/texenv.sh && (cd src && make fast3) && bash src_utils/build.sh src both
+python3 src_utils/sync_page_counts.py --write   # se a contagem mudou
+```
 
 ---
 
@@ -305,6 +247,185 @@ comecei porque nao foi o que voce pediu nesta.
 **Por que eu nao agi nisso.** O escopo desta rodada foi `CODEX_AUDIT.md` mais as suas decisoes em
 `PENDENCIAS.md`. Aplicar 1.229 linhas de feedback novo no fim de uma rodada longa, sem voce ter
 pedido, seria exatamente o tipo de improviso que o `AGENT_GUARDRAILS` manda parar e sinalizar.
+
+---
+
+## §5 · Levantados do `CODEX_AUDIT.md` quando ele foi arquivado (2026-07-29)
+
+Voce pediu: *"About the codex_audit if we finish with it archive it or delete, and if some point
+still pending my approval or I need to be aware add in the pendencias."* Fiz a varredura dos **26
+itens** (18 COD- mais 8 NUM-), das 16 caixas `DECISAO` que voce escreveu no arquivo, e da tabela de
+desfecho da rodada 6. O arquivo esta agora em
+[`_archive/CODEX_AUDIT.md`](_archive/CODEX_AUDIT.md), inteiro.
+
+**O resultado, e ele nao e agradavel.** A tabela de desfecho marca 22 dos 26 itens como aplicados.
+Conferi cada um **no PDF renderizado e no fonte vivo**, nao na tabela, e **nove instrucoes suas nao
+estao no documento**. Nao e que estejam mal aplicadas: as frases que voce mandou mudar continuam
+palavra por palavra como estavam. Cinco delas a tabela de desfecho declara "APLICADO".
+
+Nao sei se ninguem chegou nelas ou se cairam entre escopos de trilhas — o `CODEX_AUDIT.md` §6 as
+listava como "corrigiveis sem o autor" e o §7 como "precisa do autor", e a rodada 6 tinha oito
+trilhas. O que eu sei e o que a medicao mostra. **Cada item abaixo traz o comando que o mede**, para
+voce nao ter que acreditar em mim.
+
+Para conferir os nove de uma vez, do diretorio da dissertacao:
+
+```bash
+cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
+for p in 'leakage-guarded' 'equivalence is well powered' 'unbalanced result for the MTL and single' \
+         'revise that verdict by changing the input representation' 'mean reciprocal rank'; do
+  printf '%-58s %s\n' "$p" "$(grep -rl "$p" src/chapters/*.tex src/chapters/*/*.tex 2>/dev/null | tr '\n' ' ')"
+done
+# EXPECT: lines=5
+```
+
+Cinco linhas, cada uma nomeando o arquivo onde a frase ainda vive. Se uma linha vier vazia, aquele
+item foi resolvido depois desta varredura.
+
+### 5.1 Cap. 1: "leakage-guarded" — voce mandou mudar e a frase esta la
+
+**(A) O que falta.** Sua decisao no COD-003 foi explicita: *"Eu acredito que a unica mudança que
+temos que fazer e mudar a frase no cap. 1."* O objetivo especifico 4 continua prometendo
+*"a leakage-guarded statistical protocol"*.
+
+**(B) Por que importa.** O proprio Cap. 5 diz que **limitou** o canal de aresta futura, nao que o
+fechou. "Leakage-guarded" le como propriedade do pipeline de representacao; o que o protocolo garante
+e o **split por usuario**. E a diferenca entre o que voce testou e o que a frase promete.
+
+**(C) O que eu preciso de voce.** So confirmar a troca ja proposta: *"a leakage-guarded statistical
+protocol"* -> *"a user-disjoint statistical protocol"*. Uma clausula, nenhum numero, e a frase fica
+mais fraca, nunca mais forte. E declaracao de objetivo, entao nao aplico sozinho.
+
+### 5.2 Cap. 5: "The equivalence is well powered" — a unica coisa que voce pediu no COD-006
+
+**(A) O que falta.** Sua decisao: *"Let's change only the second point about the: 'The equivalence is
+well powered'."* A frase esta intacta em `5_mobiwac/05_setup.tex`, **e no manuscrito do MobiWac
+tambem** — os dois paragrafos tem 308 palavras cada e diferem apenas nos prefixos dos rotulos
+`\ref`. A tabela de desfecho diz que ela foi removida.
+
+**(B) Por que importa.** "Well powered" e poder prospectivo; o que a frase apresenta em seguida
+(desvio-padrao da diferenca emparelhada de 0,01 a 0,18) e **precisao observada**. E o paragrafo em
+que repousa todo o veredito do Cap. 5.
+
+**(C) O que eu preciso de voce.** Aprovar a reformulacao para uma afirmacao de precisao observada,
+condicionada a particao fixa, usando os numeros que ja estao na frase. **E edite nos dois lugares**:
+Cap. 5 e `articles/[mobiwac]/src/sections/05_setup.tex`, mais uma linha no `ERRATA.md` do MobiWac,
+que e o regime do capitulo sob revisao.
+
+> Observacao, porque conta a seu favor: o outro trecho do COD-006, *"before any result was read"*,
+> voce decidiu **nao** mexer ("change only the second point"). Ele tambem esta la. Isso esta correto
+> pela sua decisao, e nao e pendencia — registro so para voce nao achar que passou batido.
+
+### 5.3 Cap. 3: a frase do resultado desbalanceado
+
+**(A) O que falta.** Sua decisao no COD-016: *"E quanto a frase no cap 3. Sim vamos refaze-la para
+ser mais entendivel e facil de ser lida."* A frase continua como no artigo publicado: *"Also, it is
+important to notice that since we have an unbalanced result for the MTL and single, this could lead
+to the worse of other results."*
+
+**(B) Por que importa.** E prosa publicada e co-autorada, e a banca vai ler. O sentido e
+recuperavel (a comparacao por categoria pode parecer pior que o agregado), mas so depois de reler.
+
+**(C) O que eu preciso de voce.** Confirmar sua leitura do que a frase quis dizer, e autorizar a
+reescrita com uma linha de errata no Apendice B. Nao escrevo no seu nome uma interpretacao de prosa
+publicada sua.
+
+### 5.4 Cap. 3: o prefacio que diz que os capitulos seguintes mudam so a representacao
+
+**(A) O que falta.** Sua decisao no COD-015: *"SObre o A) vamos mudar o prefacio, pq o cap 4 defato
+não muda a arc mas o cap 5 muda."* O prefacio continua dizendo que os Caps. 4 e 5 *"revise that
+verdict by changing the input representation rather than the architecture"*.
+
+**(B) Por que importa.** O Cap. 5 muda a topologia de compartilhamento **e** o par de tarefas. A
+introducao acerta isso; o prefacio do Cap. 3 nao.
+
+**(C) O que eu preciso de voce.** A frase nova, ou aprovacao de uma proposta minha. E
+caracterizacao do arco, entao e claim sob C2 do `AGENT_GUARDRAILS` e precisa da sua assinatura.
+
+### 5.5 Cap. 2: as duas metricas prometidas que nenhum capitulo reporta
+
+**(A) O que falta.** Voce disse, no COD-015: *"Quanto ao restante que foi confirmado (a,c,d,f) vamos
+mudar tmb como sugerido."* O item (d) sao duas promessas do Cap. 2 — *mean reciprocal rank* e
+*relative multi-task performance change* — que **nao aparecem em nenhum capitulo de resultado**.
+Medido: as duas frases renderizam em uma unica pagina do Cap. 2 e em nenhuma outra; "MRR" nao
+aparece em pagina alguma.
+
+**(B) Por que importa.** Um capitulo de fundamentacao que define uma metrica e nunca a usa da a
+banca uma pergunta de graca.
+
+**(C) O que eu preciso de voce.** Escolher: **apagar as duas promessas** (barato e honesto, e o que
+eu recomendo) ou **reportar as duas metricas**, o que e uma rodada de analise. Apagar uma definicao
+de metrica e mudanca de escopo do capitulo de fundamentacao, entao e sua.
+
+### 5.6 Cap. 6: a safra do Gowalla, 2009-2011 contra 2009-2010
+
+**(A) O que falta.** Mesmo item (c) que voce aprovou. O Cap. 6 diz *"collected between 2009 and
+2011"*; a prosa publicada do Cap. 4 diz *"February 2009 and October 2010"*.
+
+**(B) Por que importa — e aqui eu discordo do que a auditoria recomendou.** Ela mandou "casar a
+moldura com a faixa publicada". **Nao faca isso sem ler o comentario de proveniencia do Cap. 5**, em
+`5_mobiwac/05_setup.tex`: a faixa 2009-01-21 a 2011-08-16 foi **medida no parquet** que o ETL
+consome, e o dump SNAP de fevereiro/2009 a outubro/2010 **nao e a fonte de dados** deste trabalho.
+Pela medicao, o numero da moldura esta certo e a divergencia e real: os dois capitulos usam extracoes
+diferentes do Gowalla.
+
+**(C) O que eu preciso de voce.** Decidir como dizer isso. Sugestao: manter 2009-2011 no Cap. 6 e
+acrescentar uma clausula dizendo que o Cap. 4 reporta a faixa do dump que aquele estudo usou. Nao
+"corrija" um numero medido para casar com um herdado.
+
+### 5.7 Cap. 5: quebrar o paragrafo de integridade, sem mudar uma palavra
+
+**(A) O que falta.** Sua decisao: *"Podemos aplicar as quebras de linha no cap 5."* O bloco continua
+**um paragrafo unico de ~580 palavras**, com os quatro fundamentos numerados dentro dele.
+
+**(B) Por que importa.** E o paragrafo que a persona 09 chamou o melhor trabalho da rodada e que as
+personas 15 e 01 chamaram a pior falha de legibilidade. A resolucao registrada e das duas: **inserir
+quebras, nao mudar nenhuma palavra**.
+
+**(C) O que eu preciso de voce.** Nada de conteudo — mas o capitulo esta sob revisao, entao a quebra
+precisa cair nos dois arquivos (dissertacao e manuscrito) para os textos nao divergirem. Confirme que
+quer isso agora e eu aplico; e edicao de forma, com zero palavra alterada.
+
+### 5.8 Apendice A: seus papeis no CoUrb, que so voce tem
+
+**(A) O que falta.** Voce respondeu ao COD-018: *"Meu papel no courb foi na implementação, auxilo ao
+meu aluno de graduação na sua pesquisa pelos modelos de embedding, e escrita da parte do MTL e parte
+da conclusão."* Isso **nao esta no Apendice A**. As paginas do apendice descrevem a plataforma e o
+ETL; nenhuma delas atribui papel por funcao no CoUrb. O que existe e o prefacio do Cap. 4, que diz
+segundo autor, autor do MTLnet e apresentador — nao a implementacao, nem a orientacao do aluno, nem
+a escrita.
+
+**(B) Por que importa.** E credito de autoria em trabalho co-autorado, num apendice que declara
+contribuicoes. Um texto que omite metade do seu papel e um texto que subdeclara voce.
+
+**(C) O que eu preciso de voce.** A frase final, com seus termos. Eu tenho o insumo (a citacao
+acima) mas nao escrevo credito de autoria no seu nome — e fato que so voce detem, e a mencao ao aluno
+de graduacao e decisao sua, nao minha.
+
+### 5.9 Apendice C: nomear o modelo, como voce pediu
+
+**(A) O que falta.** Sua decisao no COD-013: *"fazendo somente a alteração de adicionar o modelos
+esse que pode cirat o opus 4.8, inclusive não precisa de contar toda a historia que o fable acbou e
+tivemos que usar o opus, só cite que usamos o opus e fim."* Medido: a palavra "Opus" **nao renderiza
+em nenhuma das paginas** do build de defesa. O apendice diz apenas "Claude (Anthropic)". As duas
+unicas ocorrencias de "Opus" no fonte estao em comentarios, que nao renderizam.
+
+**(B) Por que importa.** A politica do CNPq pede a ferramenta **e a versao**. E foi exatamente o que
+voce pediu, sem a historia em volta.
+
+**(C) O que eu preciso de voce.** A string exata da versao. Voce escreveu "opus 4.8" na decisao;
+antes de imprimir um numero de versao no documento eu quero que voce confirme qual e, porque nao
+posso verificar isso de dentro daqui e um numero de versao errado num apendice de integridade e pior
+que nenhum.
+
+### 5.10 Dois pontos do audit que NAO viraram pendencia, e por que
+
+Para o registro, porque um item ausente sem explicacao parece esquecimento:
+
+| Ponto | Por que nao esta acima |
+|---|---|
+| O ledger de adaptacao do Cap. 4 aponta a traducao EN como fonte de record, e nao o artigo publicado em PT | E arquivo de repositorio, fora de `src/`, e nao precisa de voce: qualquer agente corrige. Fica registrado aqui como divida tecnica, nao como sua decisao |
+| A nota do Cap. 6 dizendo que 56,16 "ainda nao carrega spread" | O spread **ja esta** na frase (desvio-padrao 1,89, medido no render). O que sobrou e o comentario obsoleto que diz o contrario. Tambem nao precisa de voce |
 
 ---
 

@@ -36,7 +36,7 @@ in the document; these are the raw payloads behind them.
 | File | Why it is still live |
 |---|---|
 | `PENDENCIAS.md` | The register of what needs the author |
-| `codex_reviewer.md`, `CODEX_AUDIT.md`, `CODEX_VS_PERSONAS.md` | The external review, its per-finding audit, and the seam against the persona suite |
+| `codex_reviewer.md`, `CODEX_VS_PERSONAS.md` | The external review and the seam against the persona suite. **`CODEX_AUDIT.md` is no longer live** — see the round-7 section below |
 | `DATASET_LICENSING_FINDINGS.md` | Every licence claim in Appendix E traces here |
 | `etl_tooling_contribution_evidence.md` | The evidence behind Appendix A's software-contribution claim |
 | `cbic_recompute_result.md` | Cited as provenance from three source files |
@@ -45,3 +45,15 @@ in the document; these are the raw payloads behind them.
 | `README_SRC.md` | The build recipe and TeX-tree notes |
 | `_review_v1/`, `_review_v2/`, `_specialists_v1/`, `_specialists_v2/`, `_gates/` | Reviewer reports, referenced by both registers |
 | `adaptation_ledgers/` | Per-chapter records of what changed against the published text |
+
+## Archived 2026-07-29 (round 7)
+
+| File | What it was | Why it is here, and what was lifted out first |
+|---|---|---|
+| `CODEX_AUDIT.md` | The per-finding audit of `codex_reviewer.md`: 18 COD- items, 8 NUM- rows, sixteen `DECISAO` boxes in the author's own words, and a round-6 outcome table | Archived at the author's instruction (*"if we finish with it archive it or delete, and if some point still pending my approval or I need to be aware add in the pendencias"*). **Before the move, every COD-/NUM- id and every `DECISAO` box was swept, and NINE points still needing him were lifted into `PENDENCIAS.md` §5**, each with the command that measures it. Five of the nine sit under outcome-table rows that say "APPLIED" while the sentence they name is still in the document; the §5 items say so and show the measurement |
+| `PENDENCIAS_RESOLVIDOS.md` (extended) | Not newly archived — the round-6 §1 of `PENDENCIAS.md` was appended to it | The tracker's §1 ("Fechado nesta rodada", the whole of round 6) moved here verbatim **with its 19 commit hashes**, so the audit trail survives the move and the live tracker holds only what needs a decision |
+
+**If you are looking for a COD- or NUM- verdict**, it is in `_archive/CODEX_AUDIT.md`. Read it the way
+its own §8 asks to be read: it is a competent audit of a build that no longer exists, about a third of
+its `file:line` coordinates are stale, and the three paper chapters have since been split into
+per-section files. Re-anchor by phrase before acting on anything in it.
