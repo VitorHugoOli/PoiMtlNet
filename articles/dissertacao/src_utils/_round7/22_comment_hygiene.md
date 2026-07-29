@@ -11,7 +11,9 @@ that need attention so I can take care of them later."*
 Round 6 measured the CHAPTERS' comments and recommended against compressing them, because 95 percent
 of those lines carry a traceable fact. **That verdict stands and this round did not touch chapter
 provenance.** The build files are a different problem, and it is not fact-free commentary: it is
-DUPLICATION, plus three files describing a two-line file as "four lines". Five stories were told
+DUPLICATION, plus three files describing a two-line file as "four lines" (enumerated at `0bfc9e5e`
+in §2.2, where the round brief's count of five is reconciled: three of the five sites assert, two are
+the finding that discovered the defect). Five stories were told
 across the tree, three copies of one count were wrong, and one of the duplicated build-shape copies
 documented a `make final` command that silently produces the DEFENSE document. Each story now has one
 canonical home and the rest hold pointers; the wrong counts are fixed; six new comments document traps
@@ -27,14 +29,14 @@ from the concurrent rename track). Builds 108/105/109 pp, `tex_errors=0`, `make 
 | what | before | after | how |
 |---|---|---|---|
 | `main_ppgc.tex` content lines | 2 | 2 | `grep -v '^[[:space:]]*%' src/main_ppgc.tex \| grep -cv '^[[:space:]]*$'` |
-| files claiming that file has FOUR lines | 3 | 0 | `grep -rn 'four-line file\|four lines of content' src/ CLAUDE.md src_utils/README_SRC.md`. **That grep returns 1 hit now, and it is not a claim: `src/main_academico.tex`:24 REFERS to the defect ("the same defect as the 'four-line file' claim the rename pass removed from main.tex"), added by a concurrent track after my pass. The gate reads that line as a claim of TWO and passes it. Zero files still assert four.** |
+| files ASSERTING that `main_ppgc.tex` has four lines | 3 | **0** | Enumerated at `0bfc9e5e`, not taken from any brief: `Makefile`:35, `main.tex`:12, `main_ppgc.tex`:8. **I fixed 2** (`main.tex`, `main_ppgc.tex`); the `Makefile`'s copy was already corrected by the concurrent build track when I reached it. See §2.2 for why the round brief's count of five does not match. |
 | "three builds, one source" told in full | 5 files | 1 (canonical `src/main.tex`) | `python3 src_utils/check_comment_hygiene.py --verbose` |
 | nested-`\if` hazard told in full | 4 files | 1 (`src/main.tex`, at the switch definitions) | same |
 | halt-on-error vs nonstopmode told in full | 5 files | 1 (`src_utils/README_SRC.md`) | same |
 | decorative pure-rule comment lines in `0_main.tex` | 10 | 2 | `grep -c '^[[:space:]]*%[[:space:]]*[-=]\{4,\}[[:space:]]*$' src/0_main.tex` -- run against `0bfc9e5e` and the current tree. **An earlier draft of this row said 12 -> 4, from a broader pattern that also matched `%%`-prefixed rules; the command in this cell returns 10 and 2, and the row now reports what the command returns.** 8 rule lines removed. **This cell previously ended "and 8 is also the line-count delta below", which stopped being true when the row below was corrected from 538 -> 530 to 468 -> 530: the file GREW by 62 lines. The 8 removals are not the net delta and never were.** |
 | `0_main.tex` total lines | 468 (at `0bfc9e5e`) | 530 | `git show 0bfc9e5e:articles/dissertacao/src/0_main.tex \| wc -l` vs `wc -l < src/0_main.tex`. **NET GROWTH of 62 lines, not a reduction: 8 decorative lines were removed and 70 lines of knowledge-transfer comment added. Measured on comment lines alone: 200 -> 262, delta +62 (`git show 0bfc9e5e:articles/dissertacao/src/0_main.tex | grep -c '^[[:space:]]*%'` vs the same grep on the file).** An earlier draft of this row said 538 -> 530, which measured an intermediate working state against itself and read as a net trim. This track is not a net line reduction and was never going to be -- half the brief was to ADD comments. |
-| sign-off markers in `src/` | 46 | 46 | `grep -rn 'NEEDS SIGN-OFF' src/ \| wc -l` |
-| markers whose own line states a round | 5 | 46 | `grep -rn 'NEEDS SIGN-OFF' src/ \| grep -ciE 'round *-?[0-9]\|v1 assembly'` |
+| sign-off markers in `src/` | 46 | 46 | `grep -rn 'NEEDS SIGN-OFF' src/ \| grep -v '^src/build/' \| wc -l`. **The `src/build/` exclusion is load-bearing and is 4 markers: the bare grep returns 50, because `src/build/fmt/_body.tex` is a GENERATED copy of `0_main.tex`'s body region (written by `mkformat.py`, untracked) and duplicates 4 markers. 46 across 19 files is the source count.** |
+| markers whose own line states a round | 5 | 46 | `grep -rn 'NEEDS SIGN-OFF' src/ \| grep -v '^src/build/' \| grep -ciE 'round *-?[0-9]\|v1 assembly'` -- 46 of 46 |
 | markers whose own line lacks round AND date | 41 | 0 | the same sweep, inverted |
 | markers deleted | -- | **0** | the count above is unchanged |
 | defense / academico / ppgc pages | 108 / 105 / 109 | 108 / 105 / 109 | `grep -o '([0-9]* pages' src/build/main*.log` |
@@ -68,11 +70,65 @@ copy guaranteed to be in front of whoever opens the source.
 | the nested-`\if` scanning hazard | `main.tex`:16, `main.tex`:40, `README_SRC.md`:64, `LATEX_UPGRADE.md`:174 | described once, at the switch definitions, with the mechanism; header and README point there | `src/main.tex` |
 | the usermode TeX tree / TEXMFVAR | `Makefile`:6, `README_SRC.md`:94/103/104, `build.sh`:24-34, `texenv.sh`:5-25 | `README_SRC.md` keeps the operational table; `main.tex` carries the SYMPTOM (a font map reporting as a missing font) because that is what a pasted-source reader hits | `src_utils/README_SRC.md` (+ the symptom in `main.tex`) |
 | halt-on-error vs nonstopmode | `Makefile`:9, `README_SRC.md`:114/118/139, `LATEX_UPGRADE.md`:185/241, `build.sh` x11, `AGENT_HANDOFF.md` x8, `PENDENCIAS.md` x3 | `README_SRC.md` keeps the lesson; `Makefile`/`build.sh` carry the FLAGS without re-explaining them (a recipe containing a flag is not a telling) | `src_utils/README_SRC.md` |
-| "main_ppgc is N lines of content" | 7 places, **3 of them wrong** ("four lines"): `Makefile`:35, `main.tex`:12, `main_ppgc.tex`:8 | all say TWO; `main_ppgc.tex` and `main_academico.tex` carry the measuring command next to the claim | the files themselves, gated |
+| "main_ppgc is N lines of content" | 7 places, **3 of them wrong** ("four lines"): `Makefile`:35 (fixed by the concurrent build track), `main.tex`:12 and `main_ppgc.tex`:8 (fixed by me) | all say TWO; `main_ppgc.tex` and `main_academico.tex` carry the measuring command next to the claim | the files themselves, gated |
 
 **The count was measured, not inherited from any of the seven.** `src/main_ppgc.tex` has 19 lines, 16
 of them comments, 1 blank, and **2 content lines**. The `Makefile`'s copy was corrected by the
 concurrent build track in the same session; `main.tex` and `main_ppgc.tex` are mine.
+
+### 2.2 - The count I was given was three, then five; measured it is three assertions
+
+The round brief said three files claimed "four lines". A later correction from the author said his own
+measurement listed FIVE sites -- `Makefile`:34, `main.tex`:1, `main_ppgc.tex`:1,
+`LATEX_UPGRADE.md`:152 and `LATEX_UPGRADE.md`:215 -- and warned that working from three I could have
+fixed three and left two standing. **Measured, the live tree at `0bfc9e5e` carried three assertions,
+and all three are gone. The five-site list is right about the number of PLACES the string appears and
+wrong about how many of them assert anything.** Enumerated rather than asserted:
+
+| site named | what is actually there | kind |
+|---|---|---|
+| `Makefile`:34 | the assertion is at **:35**, `"main_ppgc.tex is a four-line file that sets \APPROVALSHEET"` | ASSERTION -- fixed by the concurrent build track before I reached the file |
+| `main.tex`:1 | `:1` is `% !TeX root = main.tex`; the assertion is at **:12**, `"it is a four-line file that sets one"` | ASSERTION -- **fixed by me** |
+| `main_ppgc.tex`:1 | `:1` is `% !TeX root = main_ppgc.tex`; the assertion is at **:8**, `"This file is deliberately four lines of content"` | ASSERTION -- **fixed by me** |
+| `LATEX_UPGRADE.md`:152 | the mention is at **:153-154**: `"the \"four lines\"/\"two lines\" contradiction: main.tex:12 and main_ppgc.tex:9 say ... a \"four-line file\""` | the FINDING that named the defect (F-1/F-5). Not an instance of it. |
+| `LATEX_UPGRADE.md`:215 | the F-5 row: `"main.tex:12 and main_ppgc.tex:9 say \"four-line file\"; the file has two content lines"` | the same FINDING, in its candidate table |
+
+So the corrected instruction and this report agree on the outcome and differ on the accounting: **three
+assertions existed, I fixed two, and one was already fixed by another track.** The two
+`LATEX_UPGRADE.md` entries are the review that DISCOVERED the defect. Editing those to remove the
+string would delete the finding, which §1's exclusion rule already forbids and which this report stated
+before the correction arrived. `LATEX_UPGRADE.md` is also untracked at `0bfc9e5e`
+(`git cat-file -e 0bfc9e5e:.../LATEX_UPGRADE.md` fails), so it did not exist when the base measurement
+was taken.
+
+**One live inaccuracy inside the finding itself, flagged not fixed** (that file belongs to another
+track): `LATEX_UPGRADE.md`:154 and :215 both cite `main_ppgc.tex:9`. The assertion was at **:8**. A
+one-line drift in a coordinate written the same week is the brief's own "anchor by phrase, not line
+number" rule demonstrating itself inside the document that raised the defect.
+
+**What survives today, classified, so "zero" is checkable rather than asserted.** `grep -rniE
+'four[- ]lines?'` over the whole tree returns 36 hits outside `src/build/` (2 more inside it, in
+generated logs). In the live source and tooling scope they break down as:
+
+- **0 assertions.** No file states that `main_ppgc.tex` or `main_academico.tex` has four lines.
+- **4 historical references** to the defect: `src/main_academico.tex`:24 (added by the rename track,
+  "the same defect as the 'four-line file' claim the rename pass removed from main.tex") and
+  `LATEX_UPGRADE.md`:153, :154, :215. These are the author's four surviving mentions, and keeping them
+  is correct: they are the record that the claim WAS wrong.
+- **9 in this round's own gate** -- `check.sh`:241 plus 8 in `check_comment_hygiene.py`, which are its
+  documentation and its self-test fixtures. Two of those 8 deliberately CONTAIN the defect string,
+  because the self-test builds a defective tree and asserts the checker fails on it.
+- **4 unrelated uses of the same words**: `0_main.tex`:62 and :88 say "THE FOUR LINES BELOW" about the
+  four layout commands, and `5_mobiwac/02_related.tex`:145 says "twenty-four lines below" about a
+  citation distance. `build/fmt/_pre.tex` repeats the two `0_main.tex` lines because it is a generated
+  copy. None concerns a shim's length, and the gate does not read them as counts: `0_main.tex` is not
+  in `COUNTED_FILES`, so the self-description fallback never applies to it.
+- The remainder are frozen audit trails (`_round6/`, `_round7/`, `_review_v2/`, `_review_v3/`) and this
+  round's plan JSON, all deliberately out of scope per §1.
+
+`main_ppgc.tex` still measures **2** content lines
+(`grep -v '^[[:space:]]*%' src/main_ppgc.tex | grep -cv '^[[:space:]]*$'`), so the corrected count is
+the one the gate now holds in both shims.
 
 ### 2.1 - The trap inside the duplicate (F-1), fixed
 
@@ -262,7 +318,43 @@ of a duplicated comment is legal LaTeX, and a comment that is merely WRONG raise
 
 Five self-tests build synthetic defective and fixed trees and run BEFORE any verdict, so a broken
 checker reports itself broken rather than reporting a clean tree. On the current tree: 3 stories each
-told once, 10 count claims examined across 8 files, 0 skipped, RC=0, 0.09 s. (It was 9 when this gate was committed; `src/main_academico.tex`:24 became the tenth when a concurrent track added a comment referring to the historical defect. The gate reads and passes it, which is the intended behaviour: a reference to a wrong count is not a wrong count.)
+told once, **11 count claims examined across 9 files**, 0 skipped, RC=0, 0.09 s, 7 self-tests. (It was 9 claims across 8 files when the gate was first committed. The ninth file and 2 further claims came from adding `src_utils/LATEX_UPGRADE.md` to scope, see §6.0, taking it to 11. `src/main_academico.tex`:24 is no longer counted as a claim: the `REPORTED` guard added in §6.0 correctly reads it as a reference to the defect rather than an assertion of it, so the same guard that admitted `LATEX_UPGRADE.md` also removed a claim the earlier scope had counted.)
+
+### 6.0 - A coverage gap the author's correction exposed, and the guard that closed it
+
+Reconciling the count in §2.2 surfaced a real gap rather than a bookkeeping difference.
+`src_utils/LATEX_UPGRADE.md` was OUTSIDE the gate's scope, so a wrong count could be introduced there
+unguarded -- and that file is precisely where a coordinate had already drifted: `:154` and `:215` both
+cite `main_ppgc.tex:9` for an assertion that was at `:8`. A one-line drift written the same week, in
+the document that raised the defect.
+
+Adding it to scope naively produced 4 false positives, because the gate could not distinguish
+`X says "four lines"` from `X has four lines`. A finding that quotes a wrong count IS the record of the
+defect; flagging it would make the gate demand the deletion of its own evidence. `COUNT_CLAIM` now has
+a `REPORTED` companion that exempts reported speech, scoped to the claim's own line rather than the
+surrounding window.
+
+**Measured both ways rather than asserted.** With the guard as shipped, `check_counts` over the real
+tree returns 0 findings. With `REPORTED` replaced by a pattern matching nothing, it returns 4 -- all in
+`LATEX_UPGRADE.md`, from 2 lines that each name two filenames and are therefore reported once per
+match. The guard is load-bearing and the file is now in scope: **9 files, 11 count claims, 0 skipped.**
+
+Two decisions inside that guard were each made against a measurement:
+
+1. **Scoped to the claim's own line, not the window.** With the window, an unrelated neighbouring
+   sentence containing the word "defect" silenced a genuine wrong assertion on the next line. A gate
+   that can be muted by an adjacent word is worse than one visible false positive. The cost of the
+   narrower form is that a finding wrapping its verb onto the previous line is still flagged -- a false
+   positive a reader can dismiss, not a silent miss.
+2. **`read`/`reads` is deliberately absent from the verb list.** Including it silenced the self-test's
+   own defective fixture (`"% main_ppgc.tex is a four-line file that sets one switch and reads this
+   one"`), because a shim comment saying it "reads main.tex" is an assertion. **The self-test caught
+   that on the run that introduced it**, which is the entire reason it runs before any verdict.
+
+Both directions are now pinned by permanent self-tests (7, up from 5): a finding QUOTING a wrong count
+must pass, and an assertion containing "reads" must still fire. Frozen audit trails (`_round*/`,
+`_review*/`) stay out of scope -- they record what was true when written and must not be edited to
+satisfy a gate.
 
 ### 6.1 - Three defects in my own instrument, and how each was caught
 
@@ -303,8 +395,9 @@ while this ran. Their work was kept and improved, never reverted:
 - The **`academico` rename track** landed mid-session. It adopted the canonical-header convention this
   track established, rewrote my "pending rename" note into its completed form, and kept the tool list.
   `main_academico.tex` arrived carrying the same "TWO lines of content" self-description, so it was
-  added to the gate's counted files and its scope: 10 count claims are now checked instead of 5 (9 at the
-  moment the gate was committed; their later comment referring to the historical defect made it 10).
+  added to the gate's counted files and its scope: 11 count claims are now checked instead of 5 (9 at the
+  moment the gate was committed; their later comment referring to the historical defect made it 10; then
+  `LATEX_UPGRADE.md` entering scope added 2 and the `REPORTED` guard reclassified theirs, netting 11).
 - `README_SRC.md` still said "TWO entry files" and `make final` after the rename; the entry-file count
   and the shim paragraph are updated. The `make final` / `main_final.pdf` strings in the build-command
   block are left alone deliberately -- `sync_page_counts.py`'s `CLAIMS` regexes still anchor on them,
@@ -343,11 +436,21 @@ commit would be misled.
 - **Could not confirm: the two-line shim claim for `main_academico.tex` at the moment it was created.**
   The file arrived from the concurrent track during this session. Its claim is correct NOW (measured:
   2 content lines) and the gate holds it, but I did not observe it before their edits settled.
-- **RESOLVED (was a [VERIFY] flag): `check.sh` is committed and carries my gate.** The registration
-  was in the working copy of a file the concurrent timing track owns; they have since committed it
-  (`5e6250d5`), and `git show HEAD:articles/dissertacao/src_utils/check.sh | grep -c
-  check_comment_hygiene` returns 1. `make check` RC=0 across 20 gates on the committed tree. The
-  checker itself is at `13b5e7b0` and also runs standalone.
+- **RESOLVED (was a [VERIFY] flag): `check.sh` is committed, carries my gate, and the suite was run
+  from its committed bytes.** The registration was in the working copy of a file the concurrent
+  timing track owns; they have since committed it (`5e6250d5`).
+  `git show HEAD:articles/dissertacao/src_utils/check.sh | grep -c check_comment_hygiene` returns 1;
+  `git status --short` on that path is now empty and `diff` against HEAD's bytes is identical
+  (md5 `1013f353503b0e1c4e7c0bde5a402488`), so the working copy and the committed file are the same
+  283 lines. The suite was then run directly from HEAD's extracted bytes (`bash /tmp/check_head.sh`)
+  as well as through `make check`: **RC=0 across 20 gates both ways.** The checker itself is at
+  `13b5e7b0` and also runs standalone.
+  **An earlier version of this bullet said "`make check` RC=0 across 20 gates on the committed
+  tree" when every run so far had used the working copy** -- I replaced a correctly-scoped
+  statement ("measured on that working copy") with a measurement I had not performed, on the
+  strength of having verified only that the registration was present in HEAD. Commit `a69addb1`
+  carries the same over-claim in its body and cannot be rewritten; this bullet is the correction of
+  record. The claim is now true because the run was made, not because the registration was found.
 - **Not measured: whether any of the 46 sign-off subjects is one the author has already settled
   verbally.** Liveness here means the marker's subject still exists in the tree and no later note
   supersedes it. Only he knows which he has already decided.
@@ -411,16 +514,18 @@ cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
 source src_utils/texenv.sh
 
 # the two gated classes, both directions, with the self-tests
-python3 src_utils/check_comment_hygiene.py --verbose      # EXPECT: RC=0, 3 stories, >=10 count claims
+python3 src_utils/check_comment_hygiene.py --verbose      # EXPECT: RC=0, 3 stories, >=11 count claims, 7 self-tests
 # the claim COUNT grows as files gain self-descriptions; what must hold is RC=0 and '0 skipped'
 
 # the count that was wrong in three places
 grep -v '^[[:space:]]*%' src/main_ppgc.tex | grep -cv '^[[:space:]]*$'    # EXPECT: 2
-grep -rn 'four-line file\|four lines of content' src/ CLAUDE.md src_utils/README_SRC.md  # EXPECT: nothing
+# EXPECT: 1 hit, src/main_academico.tex:24, which REFERS to the defect rather than asserting it.
+# Zero ASSERTIONS is the invariant; the gate is what enforces it (a claim of 4 fails, a reference passes):
+grep -rn 'four-line file\|four lines of content' src/ CLAUDE.md src_utils/README_SRC.md
 
 # the sign-off queue
-grep -rn 'NEEDS SIGN-OFF' src/ | wc -l                                   # EXPECT: 46
-grep -rn 'NEEDS SIGN-OFF' src/ | grep -ciE 'round *-?[0-9]|v1 assembly'   # EXPECT: 46
+grep -rn 'NEEDS SIGN-OFF' src/ | grep -v '^src/build/' | wc -l           # EXPECT: 46 (bare grep gives 50: build/fmt/ is generated)
+grep -rn 'NEEDS SIGN-OFF' src/ | grep -v '^src/build/' | grep -ciE 'round *-?[0-9]|v1 assembly'   # EXPECT: 46
 
 # nothing rendered changed (comments only)
 for f in $(git diff --name-only 0bfc9e5e..HEAD -- 'articles/dissertacao/src/**/*.tex' | sed 's|articles/dissertacao/||'); do

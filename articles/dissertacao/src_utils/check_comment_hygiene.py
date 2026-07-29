@@ -97,6 +97,16 @@ DISS = Path(__file__).resolve().parent.parent
 SCOPE = [
     "src/main.tex", "src/main_ppgc.tex", "src/main_academico.tex", "src/0_main.tex",
     "src/Makefile", "src_utils/README_SRC.md", "CLAUDE.md", "PLAN.md",
+    # Added 2026-07-29 after the round-7 correction: this file was the one place a wrong count
+    # could still be introduced unguarded, and it is where a coordinate had ALREADY drifted
+    # (:154 and :215 cite main_ppgc.tex:9; the assertion was at :8). It is safe to include only
+    # because REPORTED exempts reported speech -- without that, its two historical references to
+    # the defect produced 4 false positives, from 2 lines (:154 and :215) that each name two
+    # filenames and so are reported once per match. Verified by neutralizing REPORTED and
+    # re-running: 0 findings with the guard, those same 4 without it.
+    # Frozen audit trails stay OUT (_round*/ , _review*/):
+    # they record what was true when written and must not be edited to satisfy a gate.
+    "src_utils/LATEX_UPGRADE.md",
 ]
 
 STORIES = [
@@ -154,6 +164,19 @@ POINTER = re.compile(
 # --------------------------------------------------------------------------------------------
 NUMWORD = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6,
            "seven": 7, "eight": 8, "nine": 9, "ten": 10}
+
+# Reported speech: the text is QUOTING a count rather than asserting one. A finding that reads
+# `main.tex:12 says "four-line file"` documents the defect; the gate must not demand its deletion.
+# Deliberately narrow -- each verb must sit next to the count, and a quotation mark alone is not
+# enough (a correct claim may legitimately be quoted).
+# "read"/"reads" is deliberately ABSENT: a shim comment saying it "reads main.tex" is an
+# assertion, and including that verb silenced the self-test's own defective fixture
+# ("% main_ppgc.tex is a four-line file that sets one switch and reads this one"). The self-test
+# caught it on the run that introduced it, which is the entire reason the self-test runs first.
+REPORTED = re.compile(
+    r"\b(?:says?|said|claim(?:s|ed)?|assert(?:s|ed)?|state[sd]?|"
+    r"describ(?:e[sd]?|ing)\s+\w+\s+as|contradiction|errata|"
+    r"used\s+to\s+say|was\s+wrong|no\s+longer)\b", re.I)
 
 # Matches "four-line file", "two lines of content", "TWO lines of content", "2-line file".
 #
@@ -330,6 +353,33 @@ def check_counts(root: Path, scope: list[str], counted: list[str],
             # rather than twice (once for its own line and once for the previous line's window).
             if not COUNT_CLAIM.search(line):
                 continue
+            # REPORTED SPEECH IS NOT AN ASSERTION. A finding, errata row or post-mortem that says
+            # `main.tex:12 SAYS "four-line file"` is the RECORD that the claim was wrong; flagging
+            # it would make the gate demand the deletion of its own evidence, and the exclusion of
+            # frozen audit trails from SCOPE is the same principle applied at file granularity.
+            #
+            # This mattered the moment it was written. src_utils/LATEX_UPGRADE.md was outside SCOPE,
+            # so a wrong count could be introduced there unguarded -- and that file is precisely
+            # where a coordinate HAD already drifted (:154 and :215 both cite main_ppgc.tex:9; the
+            # assertion was at :8). Adding it to SCOPE without this guard produced 4 false
+            # positives on its two historical references. With the guard it is in scope and clean,
+            # so a NEW wrong assertion there is caught while the record of the old one survives.
+            #
+            # HOW THAT WAS ESTABLISHED, so the claim is a measurement and not an intention: the
+            # file was added to SCOPE (see the list above, 9 entries), then check_counts was run
+            # twice over the real tree -- once as shipped and once with REPORTED replaced by a
+            # pattern matching nothing. As shipped: 0 findings. Guard neutralized: 4, all in
+            # LATEX_UPGRADE.md. Two self-tests below pin both directions so this cannot silently
+            # regress: a finding QUOTING a wrong count must pass, and an assertion containing a
+            # verb like "reads" must still fire.
+            # Scoped to the CLAIM'S OWN LINE, not the window. Tested: with the window, an
+            # unrelated neighbouring sentence containing "defect" silenced a genuine wrong
+            # assertion on the next line -- a gate that can be muted by an adjacent word is worse
+            # than one false positive. The cost of the narrower form is that a finding which wraps
+            # its verb onto the previous line is still flagged; that is a visible false positive a
+            # reader can dismiss, not a silent miss.
+            if REPORTED.search(line):
+                continue
             # The pattern has two alternates ("N lines of content|file|shim" and "N-line
             # file|shim"), so the number lands in whichever group matched.
             numtok = (cm.group("num") or cm.group("num2")).lower()
@@ -411,6 +461,27 @@ def selftest() -> bool:
         clean = not probs
         results.append(("B: correct count PASSES", clean))
         ok &= clean
+
+        # ---- REPORTED SPEECH, both directions ----
+        # A finding that QUOTES a wrong count is the record of the defect and must pass; an
+        # ASSERTION must still fire even when the sentence contains a verb like "reads". Both
+        # cases are here because the second one broke on the run that introduced REPORTED: the
+        # verb list included "read", which silenced the defective fixture below.
+        _write(root, "src_utils/LATEX_UPGRADE.md",
+               '`main.tex:12` says `main_ppgc.tex` is a "four-line file"; it has two content lines.\n')
+        probs = check_counts(root, ["src_utils/LATEX_UPGRADE.md", "src/main_ppgc.tex"],
+                             ["src/main_ppgc.tex"])
+        clean = not probs
+        results.append(("B: a finding QUOTING a wrong count PASSES", clean))
+        ok &= clean
+
+        _write(root, "src_utils/LATEX_UPGRADE.md",
+               "% main_ppgc.tex is a four-line file that sets one switch and reads this one.\n")
+        probs = check_counts(root, ["src_utils/LATEX_UPGRADE.md", "src/main_ppgc.tex"],
+                             ["src/main_ppgc.tex"])
+        hit = any("claims" in p and "4 lines" in p for p in probs)
+        results.append(("B: an ASSERTION containing 'reads' still FIRES", hit))
+        ok &= hit
 
         # ---- direction 1b: a file describing ITSELF wrongly, without naming itself ----
         _write(root, "src/main_ppgc.tex",
