@@ -18,16 +18,21 @@
 \begin{table}[htbp]
     \centering
     \caption{The cosine between the next-region and next-category gradients on the shared
-    trunk, on four datasets. Equivalence to zero is a two one-sided test (TOST) against a margin
-    of $\pm 0.05$; it holds at every dataset, and the TOST column gives the order of magnitude of
-    its $p$-value. Tests are computed on the independent unit named in the second column and
-    never on the individual observations, because the fifty per-epoch values within a fold are
-    one training trajectory rather than fifty independent draws; the observation count describes
-    the data and is not the sample size of any test. Alabama and Georgia both show all five fold
-    means positive with a $t$-test that rejects zero, but the exact sign test is at its floor at
-    five observations, marked $\dagger$, so each is a consistent tendency rather than an
-    established effect. Florida's unit is the configuration because its twelve configurations
-    reuse the same five folds.}
+    trunk, on four datasets. Equivalence to zero holds at every dataset by two one-sided tests
+    (TOST) against a margin of $\pm 0.05$, and the TOST column gives the order of magnitude of
+    its $p$-value. Every test runs on the independent unit named in the second column, never on
+    the individual observations, whose count describes the data and is not any test's sample
+    size; Florida's unit is the configuration because its twelve configurations reuse the same
+    five folds. Alabama and Georgia show all five fold means positive with a $t$-test that
+    rejects zero, but their exact sign test sits at its floor at five observations, marked
+    $\dagger$, so each is a consistent tendency and not an established effect.}
+% [round7, 2026-07-29] 152 words -> 118, on the same standard applied to the figure caption: the
+% caption says what the reader is looking at and what to conclude, and the body carries the
+% argument. What went: the clause re-explaining WHY fifty per-epoch values are one trajectory
+% (Section apx:cosine:setup makes that case in full, twice). What stayed, deliberately: the unit
+% column's justification, the observation-count disclaimer and the dagger's meaning. Those three
+% are the table's honesty devices -- a p-value here without its unit is meaningless, which is the
+% whole reason the unit shares a column group with the tests.
     \label{tab:apx:cosine}
 % WIDTH. Nine columns overflowed the text block by 132.49 pt in every build variant (measured:
 % build.sh reported overfull_hbox=2 for DEFENSE and ACADEMICO, the first at "lines 33--45", which

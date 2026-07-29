@@ -7,7 +7,16 @@ src/chapters/apx_f_cosine.tex or src/tables/frame/cosine.tex is computed by hand
 from a summary file.
 
 INPUT   src_utils/_round7/gradient_cosine_observations.parquet
-        3,650 rows; columns state, fold, epoch, cos, config.
+        3,900 rows; columns state, fold, epoch, cos, config.
+
+NOT EVERY SERIES CARRIES FIFTY VALUES, and the appendix now says so. Two of Florida's twelve
+configurations (T6_4_two_pass, T6_4_infonce_tau0_5) hold 65 rows per fold rather than 50: their
+epochs 1 to 15 each appear twice, with different cosines, which is a partial re-run harvested on
+top of the original series. 10 of the 75 series are affected, 150 of the 3,900 rows. It does not
+touch the appendix's claim (equivalence holds either way, and both configurations stay equivalent
+to zero), but it does move those two configuration means, so the reported Florida span is computed
+over the rows as they stand. Measured with:
+    df.groupby(['state','config','fold']).size().value_counts()   ->  50: 65 series, 65: 10 series
 
 THE UNIT OF INDEPENDENCE, which is the whole methodological point.
 The 50 per-epoch cosines inside one fold are consecutive states of ONE training trajectory, so
@@ -27,8 +36,8 @@ makes that visible instead of inferable.
 STRUCTURAL ASSERTIONS run before any statistic, and they exist because an earlier combine of
 this data carried a fourth "dataset" that was really the directory name of Florida's shipped
 configuration arm. A fabricated dataset in a dissertation appendix is the failure this guards:
-    exactly 3 states, named alabama/arizona/florida
-    3,650 rows = 3,150 + 250 + 250
+    exactly 4 states, named alabama/arizona/florida/georgia
+    3,900 rows = 3,150 + 250 + 250 + 250
     no nulls in cos
 
 Usage:  python3 src_utils/_round7/cosine_stats.py
@@ -46,7 +55,13 @@ HERE = Path(__file__).resolve().parent
 PARQUET = HERE / "gradient_cosine_observations.parquet"
 MARGIN = 0.05
 FLORIDA_UNIT = "config"          # Florida aggregates to configuration means
-EXPECTED = {"alabama": 250, "arizona": 250, "florida": 3150}
+EXPECTED = {"alabama": 250, "arizona": 250, "florida": 3150, "georgia": 250}
+# [round7, 2026-07-29] GEORGIA ADDED. This dict and the three assertions below still named THREE
+# states after georgia landed (commit ff69ba07), so the script asserted its way to a crash on the
+# parquet it ships with, and the appendix pointed at a derivation that could not run:
+#   AssertionError: expected ['alabama','arizona','florida'], got ['alabama','arizona','florida','georgia']
+# The row total moves 3,650 -> 3,900 for the same reason. That is AGENT_GUARDRAILS 4b V6: the count
+# was corrected in the parquet and in the appendix, and this file kept the superseded value.
 
 
 def tost_p(v: np.ndarray, margin: float = MARGIN) -> float:
@@ -100,7 +115,7 @@ def main() -> int:
     counts = obs.groupby("state").size().to_dict()
     assert states == sorted(EXPECTED), f"expected {sorted(EXPECTED)}, got {states}"
     assert counts == EXPECTED, f"row counts {counts} != {EXPECTED}"
-    assert len(obs) == sum(EXPECTED.values()) == 3650, len(obs)
+    assert len(obs) == sum(EXPECTED.values()) == 3900, len(obs)
     assert int(obs["cos"].isna().sum()) == 0, "null cosines present"
     print(f"STRUCTURE OK  states={states}  rows={len(obs)}  per-state={counts}")
     print(f"folds={sorted(obs['fold'].unique())}  epochs={obs['epoch'].nunique()}"
