@@ -342,10 +342,11 @@ commit would be misled.
 - **Could not confirm: the two-line shim claim for `main_academico.tex` at the moment it was created.**
   The file arrived from the concurrent track during this session. Its claim is correct NOW (measured:
   2 content lines) and the gate holds it, but I did not observe it before their edits settled.
-- **Could not confirm: `check.sh` as committed.** My gate registration is in the working copy of a file
-  the concurrent timing track owns and has not yet committed. `make check` RC=0 with 20 gates was
-  measured on that working copy. If they commit a different version, the registration must be
-  re-applied -- the checker itself is committed at `13b5e7b0` and runs standalone.
+- **RESOLVED (was a [VERIFY] flag): `check.sh` is committed and carries my gate.** The registration
+  was in the working copy of a file the concurrent timing track owns; they have since committed it
+  (`5e6250d5`), and `git show HEAD:articles/dissertacao/src_utils/check.sh | grep -c
+  check_comment_hygiene` returns 1. `make check` RC=0 across 20 gates on the committed tree. The
+  checker itself is at `13b5e7b0` and also runs standalone.
 - **Not measured: whether any of the 46 sign-off subjects is one the author has already settled
   verbally.** Liveness here means the marker's subject still exists in the tree and no later note
   supersedes it. Only he knows which he has already decided.
