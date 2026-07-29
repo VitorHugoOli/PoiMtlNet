@@ -413,3 +413,27 @@ and assume I introduced it.
 The commit contains only this track's seven files. The working tree carries the author's concurrent
 edits to other chapters, `preamble.tex`, `content.tex` and the build files; none of those were staged
 or touched.
+
+### F17 · MINOR · `make check` has a race against the build it measures (found by accident, reported)
+
+Running `make defense; make extra; make check` back to back returned **RC=2**, with the page-count
+gate reporting `src/build/main.log has no page count -- the build did not finish`. The build had
+finished: its own last line read `Output written on build/main.pdf (100 pages, 1539694 bytes)` and
+`latexbuild main -> build/main.pdf pages=100 tex_errors=0`. Re-running `make check` alone, seconds
+later and with nothing else changed, returned **RC=0** and printed "all recorded page counts agree
+with the build".
+
+The gate greps `Output written on \S+ \((\d+) pages` out of `build/main.log`
+(`src_utils/sync_page_counts.py:80`). `latexbuild.sh` copies the log from `build/main-aux/` into
+`build/`, so a `make check` launched immediately after a build can read the file mid-copy, find no
+match, and conclude the build never finished. The failure mode is indistinguishable in its output
+from a genuinely truncated build, which is what makes it worth recording: **its message names the
+wrong cause, and the suggested remedy (`sync_page_counts.py --write`) would write nothing useful.**
+
+Not fixed, because a fix belongs to the build/gate machinery rather than to this track, and because
+the correct fix is not obvious from one observation (a `sync` in `latexbuild.sh`, an atomic
+`os.replace` on the copy, or a retry in the gate). Verified with a clean sequential run separated by
+`sleep 3`: **`make defense` RC=0 (100 pp), `make extra` RC=0 (19 pp), `make check` RC=0**, and
+`main.log` reporting tex_errors 0, overfull 0/0, undefined 0/0. That is the state at HEAD.
+**[VERIFY: the `make check` page-count race. Reproduce by running `make defense && make check` with
+no pause; expect RC=2 and the "did not finish" message on a build that did finish.]**
