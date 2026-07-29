@@ -269,6 +269,14 @@ gate "== the author-facing verification commands actually return what they claim
 # is actually verified is never overstated.
 if ! python3 "$UTILS/check_verify_list.py"; then FAIL=1; fi
 
+gate "== audit APPLIED claims re-measured against the source (round 8: 8 of 9 were false) =="
+# THE GATE THAT DID NOT EXIST. On 2026-07-28 an outcome table recorded sixteen findings as APPLIED;
+# on 2026-07-30 eight of the author's nine instructions were still not in the document, five of them
+# under rows asserting they were done. Twenty gates were green throughout -- the one artifact with no
+# gate was the document certifying all the others. _round8/28_postmortem_false_applied.md and
+# AGENT_GUARDRAILS §4b V14. Runs in ~0.1 s; it would have failed loudly on the day.
+if ! python3 "$UTILS/check_audit_claims.py"; then FAIL=1; fi
+
 gate "== TeX root directives (invisible to make: only an editor build ever notices) =="
 # Two silent defects in one week, both found by review rather than by any gate: six files pointing
 # at a main_defense.tex that has never existed in this tree, and six others with no directive at

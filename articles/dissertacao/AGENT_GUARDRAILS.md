@@ -310,6 +310,34 @@ the work*, and that is where the time went. The four root causes, with the count
   does not cover the detector is worse than none, because its presence reads as proof. That is why
   the classification is now by SABOTAGE -- break the logic, read the exit code -- and not by whether
   a `def self_test` exists.
+
+**V14. A parallel track's self-report is not evidence that its edit landed, and an outcome table is a
+  claim about the work.** This is the rule the whole 2026-07-30 recovery round exists to write.
+  On 2026-07-28 an audit outcome table was annotated with sixteen rows reading **APPLIED**. Two days
+  later the author read the tracker and found the fixes were not in the document. Measured: of the
+  nine instructions he personally gave, EIGHT were never applied, five under rows asserting they were
+  done. COD-006's row reads '"before any result was read" and "well powered" removed'; both strings
+  were still in the source, in the dissertation and in the submitted paper.
+  THE MECHANISM, from the commit graph rather than from memory. The commit that wrote the rows says
+  in its own message "No source touched" -- it is pure bookkeeping. Of the four fix commits those
+  rows cite, THREE never touched the file the row is about (COD-006 cites a commit that touches
+  5_mobiwac/05_setup.tex zero times; same for COD-015a and COD-003). The fourth touched its file and
+  fixed a DIFFERENT HALF of the finding, and the row credited the whole. Round 6 ran eight parallel
+  tracks: each reported what it intended, the table recorded the reports, and no step re-read the
+  source.
+  WHY IT SURVIVED THIRTEEN HOURS, and this generalizes past audits. Twenty gates were green the
+  entire time and every one of them was right — the single artifact with NO gate was the document
+  that certifies all the others. A green suite reads as a clean document. A verdict column with a
+  real commit hash reads as a citation. And nobody re-reads a closed row: the natural next action
+  after marking a table APPLIED is to ARCHIVE the file, which is what happened, so the claim outlived
+  the only moment anyone would have questioned it.
+  THREE CONSEQUENCES. (1) Every APPLIED row needs a machine-checkable probe -- a string that must be
+  absent because it was removed, or present because it was added; `check_audit_claims.py` is the
+  gate, and rows whose subject is a process are listed as unprobed BY NAME rather than counted as
+  passes. (2) When a finding has several parts, credit the PART, never the finding: "APPLIED" on a
+  multi-part row is how COD-013 passed on work done to its other half. (3) Do NOT archive an audit
+  on the strength of its own outcome table. Re-measure first; archiving is what turned these claims
+  into history.
 ### Scope discipline for delegated work (the other 2.6 hours)
 
 Round 6 lost **2.6 hours (19%)** waiting on the slowest sub-agent in each of five waves. The worst
