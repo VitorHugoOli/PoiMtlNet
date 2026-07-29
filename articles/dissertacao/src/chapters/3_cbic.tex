@@ -32,19 +32,19 @@ the term ``Next-POI Prediction'' as used in the reproduced article denotes the f
 not the exact place itself; the dissertation reserves \emph{next place} for the
 exact-POI task, which is not studied here.
 % [round7, 2026-07-29] Errata pointer repointed, NOT deleted. It read "are listed in
-% Appendix B"; Appendix B moved to the supplementary volume (0_main.tex's appendix block
+% Appendix B"; Appendix B moved to the supplementary volume (content.tex's appendix block
 % records the decision), so a bare "Appendix B" would send the reader to this document's
 % Appendix C. The advisor's ruling is that this preface is what explains the re-typeset, so
-% the sentence has to keep telling the reader where the itemized corrections are. The volume
-% is named through \extravolume (defined in 0_main.tex) so all eight pointers agree.
-% The appendix LETTER is written literally rather than as a \ref, because the target label is
-% in another document; 0_extra.tex freezes that letter and check_extra_xrefs.py guards it.
+% the sentence has to keep telling the reader where the itemized corrections are. The volume is
+% named through \extravolume (defined in preamble.tex) so all eight pointers agree, and the
+% appendix LETTER is literal rather than a \ref because the target label is in another document;
+% main_extra.tex freezes that letter and check_extra_xrefs.py guards it.
 % [round4, NEW-4] Pointer corrected: the earlier wording said "the following chapters do
-% not rely on it", which is false for Chapter 4 -- 4_courb.tex:115 trains with the Nash-MTL
-% balancer ("Multi-task training uses the Nash-MTL regularizer"), and 4_courb.tex:84 states
-% the same for the MTLnet baseline. Chapter 5 is the chapter that does not use it: it reports
-% a fixed loss weighting and states that no balancer, Nash-MTL included, improved on it
-% (5_mobiwac.tex:180-186). This sentence is dissertation-authored preface prose, not
+% not rely on it", which is false for Chapter 4 -- 4_courb/methodology.tex:36 trains with the
+% Nash-MTL balancer ("Multi-task training uses the Nash-MTL regularizer"), and
+% 4_courb/related.tex:45 states the same for the MTLnet baseline. Chapter 5 is the chapter that
+% does not use it: it reports a fixed loss weighting and states that no balancer, Nash-MTL
+% included, improved on it (5_mobiwac/02_related.tex:111-114). This sentence is dissertation-authored preface prose, not
 % reproduced published text, so it carries no Appendix B errata row.
 % [round3, author 3.5/MJ-8] terminology bridge: the article reuses "Next-POI" for what
 % the frame names "next category" (and internally the published text even shades it toward
@@ -52,12 +52,9 @@ exact-POI task, which is not studied here.
 % abstract's "exact place is not predicted" is not tripped.
 \end{chapterpreface}
 
-% ---------------------------------------------------------------------------
-% SECTIONS. Split into chapters/3_cbic/ on 2026-07-28 at the author's request, to
-% match the one-file-per-section layout of the original paper source under
-% articles/CBIC___MTL/sections/. Purely mechanical: cut at \section boundaries, no prose edited.
-% Order below IS the reading order; the rendered document is byte-identical.
-% ---------------------------------------------------------------------------
+% SECTIONS, split into chapters/3_cbic/ on 2026-07-28 at the author's request to match the
+% one-file-per-section layout of articles/CBIC___MTL/sections/. Purely mechanical: cut at
+% \section boundaries, no prose edited, and the order below IS the reading order.
 \input{chapters/3_cbic/intro}
 \input{chapters/3_cbic/basis}
 \input{chapters/3_cbic/method}

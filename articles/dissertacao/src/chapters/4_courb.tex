@@ -7,9 +7,9 @@
 %% Audited numbers (ERRATA #1/#2) sourced from articles/CoUrb_2026/slides/judge_feedback.md.
 %% [2026-07-27] Spelling normalized: 26 sites "MTLNet" -> "MTLnet" (24 printed, 2 in comments),
 %% the form GLOSSARY.md:41 registers. "ST-MTLNet" (GLOSSARY.md:44) is a separate registered
-%% name and is unchanged, as is its expansion "Spatial-Temporal MTLNet".
-%% The :84 declaration that this chapter preserved the published spelling was removed.
-%% Appendix B row: apx_b_errata.tex, Article 2 section.
+%% name and is unchanged, as is its expansion "Spatial-Temporal MTLNet". This count was taken
+%% BEFORE the chapter was split and counts comment occurrences; the printed-site count of record
+%% is in apx_b_errata.tex's Article 2 section, which also carries the Appendix B row.
 %%==============================================================
 % Short one-line display + TOC heading (see Ch.3 note). Full published title is in the preface.
 \chapter[ST-MTLNet: Spatio-Temporal POI Representations]{ST-MTLNet: Spatio-Temporal POI Representations for Multi-Task Learning}
@@ -24,24 +24,20 @@ This chapter is a translated reproduction of the paper ``ST-MTLNet: Representaç
 % apx_b_errata.tex, this sentence stays true. If you suppress the section, delete this
 % sentence too, or it points at an appendix that no longer discusses the topic.
 % [round7, 2026-07-29] Retargeted from \ref{apx:errata} to a literal "Appendix~B of
-% \extravolume" when Appendix B moved out of this document. The reason the original avoided
-% the section label still holds, and there is now a second reason to avoid a \ref of any
-% kind: the label lives in another document. \extravolume is defined in 0_main.tex; the
-% frozen letter is guarded by src_utils/check_extra_xrefs.py. The trailing "\ " after
-% \extravolume is load-bearing -- without it TeX swallows the following space and the
-% sentence reads "dissertationrecords".
+% \extravolume" when Appendix B moved out of this document, which adds a second reason to avoid
+% a \ref of any kind: the label now lives in another document. \extravolume is defined in
+% preamble.tex; the frozen letter is guarded by src_utils/check_extra_xrefs.py. The trailing
+% "\ " after \extravolume is load-bearing -- without it TeX swallows the following space and
+% the sentence reads "dissertationrecords".
 % [NEEDS SIGN-OFF: raised round 6, 2026-07-28 | one added sentence in a PUBLISHED chapter's preface. The preface is FRAME
 % prose written for the dissertation, not translated article text, so it carries no errata
 % cost -- but it is a public pointer to a statement about a co-authored result, so the author
 % signs it. Co-author notice given (author, 2026-07-27); advisor conversation pending.]
 \end{chapterpreface}
 
-% ---------------------------------------------------------------------------
-% SECTIONS. Split into chapters/4_courb/ on 2026-07-28 at the author's request, to
-% match the one-file-per-section layout of the original paper source under
-% articles/CoUrb_2026/src_en/sections/. Purely mechanical: cut at \section boundaries, no prose edited.
-% Order below IS the reading order; the rendered document is byte-identical.
-% ---------------------------------------------------------------------------
+% SECTIONS, split into chapters/4_courb/ on 2026-07-28 at the author's request to match the
+% one-file-per-section layout of articles/CoUrb_2026/src_en/sections/. Purely mechanical: cut at
+% \section boundaries, no prose edited, and the order below IS the reading order.
 \input{chapters/4_courb/intro}
 \input{chapters/4_courb/related}
 \input{chapters/4_courb/methodology}

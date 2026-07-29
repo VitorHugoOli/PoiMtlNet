@@ -35,9 +35,9 @@ and~\ref{ch:mobiwac} and is released with the code.
 % [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-006 consistency, 2026-07-26] "supported every experiment in the
 % dissertation" -> "supported the experiments of Chapters 3 and 5". Forced by the rewrite
 % below: the study of Chapter 4 released its code as a separate repository
-% (4_courb.tex:43), so "every experiment" contradicted the corrected sentence two
+% (4_courb/intro.tex:35), so "every experiment" contradicted the corrected sentence two
 % sentences later. Chapters 3 and 5 both footnote this platform's repository
-% (3_cbic.tex:59; 5_mobiwac.tex:55, the mobiwac branch). AUTHOR: if the Chapter 4
+% (3_cbic/intro.tex:30; 5_mobiwac/01_introduction.tex:27, the mobiwac branch). AUTHOR: if the Chapter 4
 % experiments did in fact run on this platform with only the released analysis code kept
 % elsewhere, restore the wider claim and say so; that is a fact only you can settle.
 It is organized as a registry-driven experimental framework rather than a
@@ -57,20 +57,20 @@ the hard-to-soft parameter-sharing spectrum.
 % single-task-versus-multi-task comparison reported in Chapters 3 to 5 rests on a common,
 % leakage-controlled measurement procedure") was false in three ways, each verified in the
 % source this session before the rewrite:
-%   1. NOT user-disjoint in Ch.3/Ch.4. 4_courb.tex:226: "The split is stratified by sample,
+%   1. NOT user-disjoint in Ch.3/Ch.4. 4_courb/results.tex:14: "The split is stratified by sample,
 %      not by user, so the check-ins of one user may appear in both training and
-%      validation"; the Ch.4 preface (:13) repeats it. Ch.3 states 5-fold cross-validation
-%      (3_cbic.tex:261, :347) and never asserts a user-disjoint split.
+%      validation"; the Ch.4 preface (4_courb.tex:19) repeats it. Ch.3 states 5-fold
+%      cross-validation (3_cbic/results.tex:30) and never asserts a user-disjoint split.
 %   2. NO significance protocol in Ch.3/Ch.4. A full sweep for Wilcoxon / Holm / TOST /
 %      p-value over both chapters returns nothing; Ch.3 reasons from overlapping standard
-%      deviations instead (3_cbic.tex:344, ":55"). Tested claims are confined to Ch.5
-%      (5_mobiwac.tex:355).
+%      deviations instead (3_cbic/results.tex:135). Tested claims are confined to Ch.5
+%      (5_mobiwac/05_setup.tex:32).
 %   3. NOT the same codebase throughout. Ch.4's released code is a separate repository
-%      (4_courb.tex:43, TarikSalles/Spatial_Embeddings); Ch.3 and Ch.5 point at
-%      VitorHugoOli/PoiMtlNet (3_cbic.tex:59; 5_mobiwac.tex:55). Only the Ch.4 case is
+%      (4_courb/intro.tex:35, TarikSalles/Spatial_Embeddings); Ch.3 and Ch.5 point at
+%      VitorHugoOli/PoiMtlNet (3_cbic/intro.tex:30; 5_mobiwac/01_introduction.tex:27). Only Ch.4 is
 %      asserted in the new prose, since that is the one the chapters themselves evidence.
 % What the replacement asserts, and its sources: the protocol components are the final
-% study's (5_mobiwac.tex:355 for the paired tests, the TOST margin, and the seed/fold
+% study's (5_mobiwac/05_setup.tex:32 for the paired tests, the TOST margin, and the seed/fold
 % design; :359 for the per-fold region-transition prior built from training data) and are
 % implemented in the platform (src_utils/etl_tooling_contribution_evidence.md §2.6:
 % src/data/folds.py, StratifiedGroupKFold, "leak-free per-fold region-transition prior";
@@ -126,24 +126,19 @@ and are supplied on request.
 % That is the third count for this one item (8 of 12, then 9 of 13, now 5 of 13) and every earlier
 % error was an instrument answering a narrower question than the claim built on it -- guardrails
 % §4b V3. The prose below is scoped to what is true either way, so no sentence changes.
-% from it:
-%   PRESENT  src/data/folds.py, scripts/closing_data/score_joint_best.py,
-%            scripts/closing_data/superiority_wilcoxon.py, scripts/closing_data/region_match_tost.py,
-%            and (as analysis_protocol/*) STATISTICAL_PROTOCOL.md, JOINT_BEST_RESULTS.md,
-%            m2_prereg_output.txt
-%   ABSENT   docs/.../STATISTICAL_PROTOCOL.md, scripts/build_phase3_per_fold_transitions.sh,
-%            docs/.../JOINT_BEST_RESULTS.md, m1_stats_n20.py, m2_prereg_perfold.py,
-%            m1_full_output.txt, m2_prereg_output.txt, docs/.../stats_n20/,
-%            scripts/embedding_eval/autocorrelation_ceiling.py
-%            (m1_full_output.txt was missing from this list in the first version of this comment,
-%            which is why the counts read 8-of-12 instead of 9-of-13.)
-% All thirteen exist on this machine; the FOUR bare filenames resolve inside the stats_n20 directory.
-% [corrected 2026-07-28, finding 6827bde0] An earlier version of this comment said "twelve" and
-% "the four bare filenames" over a set of twelve, which does not add up. Recounted by extracting
-% every \path{} from the PROSE of this file with comments stripped: THIRTEEN entries, FOUR of them
-% bare (m1_stats_n20.py, m2_prereg_perfold.py, m1_full_output.txt, m2_prereg_output.txt), all four
-% resolving inside stats_n20/. The first count came from a line-based grep that missed one entry
-% sharing a line with another.
+% THE FIVE STILL ABSENT, as the hash-based re-measurement above classified them:
+%   scripts/build_phase3_per_fold_transitions.sh, m1_stats_n20.py, m2_prereg_perfold.py,
+%   m1_full_output.txt, scripts/embedding_eval/autocorrelation_ceiling.py
+% The other eight resolve: four under their own paths (src/data/folds.py, score_joint_best.py,
+% superiority_wilcoxon.py, region_match_tost.py), three under analysis_protocol/ as named above,
+% and the thirteenth entry is the stats_n20/ DIRECTORY, which this instrument cannot classify at
+% all because it hashes files. Read the "9" of the previous count as the same set before those
+% three were found and with the directory counted as a missing file.
+% The denominator is measured too: extracting every \path{} from the PROSE of this file with
+% comments stripped gives THIRTEEN entries, FOUR of them bare (m1_stats_n20.py,
+% m2_prereg_perfold.py, m1_full_output.txt, m2_prereg_output.txt), all four resolving inside
+% stats_n20/ on this machine. The 12 of the first count came from a line-based grep that missed an
+% entry sharing a line with another (corrected 2026-07-28, finding 6827bde0).
 % So the code is real and the PROMISE was wrong: the document's most load-bearing reproducibility
 % sentence did not resolve for a reader who followed the chapter's own footnote.
 % The prose now claims only what is true. THE BETTER FIX IS THE AUTHOR'S: push the eight missing
@@ -191,7 +186,7 @@ and are supplied on request.
         \path{scripts/embedding_eval/autocorrelation_ceiling.py}; outputs and the reading
         of them are in Appendix~D of \extravolume, which names the files.
 % [round7, 2026-07-29] Repointed from \ref{apx:ceiling}: Appendix D moved to the
-% supplementary volume. The letter D is preserved there by construction (0_extra.tex sets the
+% supplementary volume. The letter D is preserved there by construction (main_extra.tex sets the
 % chapter counter) and guarded by src_utils/check_extra_xrefs.py, so naming it literally is
 % safe; a \ref would be a dangling reference to a label in another document.
 \end{description}
@@ -224,7 +219,7 @@ describes.
 %   partition only, "built by scripts/build_phase3_per_fold_transitions.sh"; the whole-dataset
 %   version is recorded there as leak-inflated. Written as "region-transition prior" per
 %   WRITING_LAW section 2 (log_T is a banned repo codename). That our models do not consume it
-%   and the external baseline does: 5_mobiwac.tex:361.
+%   and the external baseline does: 5_mobiwac/05_setup.tex:34.
 %  JOINT-BEST. GLOSSARY.md "joint-best convention" ("Both tasks read at the one saved model per
 %   fold (the validation-selected epoch)"). Script header, scripts/closing_data/
 %   score_joint_best.py:2-6, contrasts it with per-task diagnostic-best; results file named at
@@ -242,8 +237,8 @@ describes.
 %   disclosed anywhere in the document; I could not establish that either belongs to the reported
 %   configuration, so neither is named.]
 %  REPOSITORIES. Two, and the appendix above already distinguishes them: the platform of
-%   Chapters 3 and 5 (3_cbic.tex:66; 5_mobiwac.tex:55, the mobiwac branch) and the separate
-%   repository of Chapter 4 (4_courb.tex:58). This section cites the Chapter 5 footnote by \ref
+%   Chapters 3 and 5 (3_cbic/intro.tex:30; 5_mobiwac/01_introduction.tex:27, the mobiwac branch) and the separate
+%   repository of Chapter 4 (4_courb/intro.tex:35). This section cites the Chapter 5 footnote by \ref
 %   rather than reprinting the URL, so there is one URL of record per repository in the document.
 %  NOT INCLUDED, on purpose: hardware, package versions, and per-model training configurations.
 %   Chapter 5 states that the full training configuration for every model is in the released

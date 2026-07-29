@@ -3,15 +3,12 @@
 % preamble.tex -- everything before \begin{document}: packages, class options, the ABNT/UFV
 % metadata fields, hyperref setup and the build switches' consumers.
 %
-% WHY THIS FILE EXISTS (author decision 2026-07-29). This and content.tex were one file, 0_main.tex,
-% which was 44 percent preamble and 56 percent document. The name described neither half, and two
-% things depended on the boundary between them:
-%   * src_utils/mkformat.py precompiles the preamble into a format dump. It found the boundary by
-%     searching for \begin{document} and hashing the bytes before it, so its staleness key contained
-%     a BYTE OFFSET that moved on every preamble edit.
-%   * A reader had to know that the top of a 580-line file was preamble and the rest was not.
-% Splitting makes both names true and removes the offset from the staleness key: the format now
-% depends on preamble.tex's own checksum.
+% WHY THIS FILE EXISTS (author decision 2026-07-29). This and content.tex were one 580-line file
+% that was 44 percent preamble and 56 percent document, and two things depended on the boundary
+% between them: a reader had to know where it fell, and src_utils/mkformat.py found it by searching
+% for \begin{document} and hashing the bytes before it, so its staleness key carried a BYTE OFFSET
+% that moved on every preamble edit. Splitting makes both names true and keys the format dump to
+% this file's own checksum instead.
 %
 % WHAT BELONGS HERE: anything that must be read before \begin{document}. If you add a package or a
 % metadata field, it goes here and the format dump is invalidated automatically -- `make fast3` will
@@ -22,41 +19,27 @@
 % "Extra }, or forgotten \endgroup" or a silently empty document.
 % ============================================================================
 
-% !TeX root = main.tex
-%%==============================================================
-%% Master's dissertation -- Vitor H. O. Silva, UFV / PPGCC (Campus Florestal)
 %% Skeleton derived from a prior UFV/PPGCC abnTeX2 dissertation tree (TEMPLATE.md §0
-%% decision), machinery kept, content stripped.
-%% KEPT: abntex2 class + abntex2-UFV.sty + abntex2-num.bst, memoir options,
-%%       hyperref setup, babel plumbing (brazil loaded, english main), booktabs/
-%%       subcaption/amsmath float stack, frenchspacing.
-%% STRIPPED: the source tree's chapters, \modelname macro, color palette, listings/
-%%       algorithm2e/lipsum/svg/pdfpages/dsfont/lscape (unused here; re-add per need),
-%%       and its Abstract text and title metadata.
-%% CHANGED: lmodern -> newtxtext/newtxmath (Times; manual §8);
-%%       abntex2cite [alf] -> [num] (settled decision #5, single numeric global list);
-%%       two build modes via \ifdefensebuild (TEMPLATE.md §2 item 4);
-%%       chapterpreface environment (time-capsule device, NORTH_STAR §3);
-%%       \OnehalfSpacing enforced (manual §7: 1.5 line spacing).
-%% Compile with pdflatex via main.tex (defense), main_ppgc.tex (defense + approval sheet),
-%% or `make final` (AcademicoPG deposit body). Never compile this file directly.
+%% decision), machinery kept, content stripped. What was changed rather than inherited:
+%% lmodern -> newtxtext/newtxmath (Times; manual §8); abntex2cite [alf] -> [num] (settled
+%% decision #5, one numeric global list); the two build modes (TEMPLATE.md §2 item 4); the
+%% chapterpreface environment (time-capsule device, NORTH_STAR §3); \OnehalfSpacing (manual §7).
+%% Packages the source tree carried and this one does not need are simply absent (listings,
+%% algorithm2e, lipsum, svg, pdfpages, dsfont, lscape); re-add per need.
+%% Never compile this file directly -- it has no \begin{document}.
 %%
-%% ONE THING TO KNOW BEFORE YOU EDIT THE PREAMBLE (everything from here down to
-%% \begin{document}). A precompiled pdflatex FORMAT DUMP of this preamble exists, built by
-%% src_utils/mkformat.py into build/fmt/mainpre.fmt and used by the `make fast` / `make fast3`
-%% targets. A format dump is a frozen snapshot of the preamble: if it is loaded after the
-%% preamble has changed, pdflatex uses the OLD preamble, the build succeeds, and the PDF is
-%% silently wrong -- no warning, no error, nothing in the log that names the cause. That is the
-%% worst failure shape this repository has (science/AGENT_HANDOFF.md §2.3b and §2.4b: a clean
-%% report over a wrong artifact).
-%%
-%% YOU DO NOT HAVE TO REMEMBER TO REBUILD IT. mkformat.py keys the dump to a checksum of this
+%% ONE THING TO KNOW BEFORE YOU EDIT THE PREAMBLE. A precompiled pdflatex FORMAT DUMP of it
+%% exists, built by src_utils/mkformat.py into build/fmt/mainpre.fmt for the `make fast` /
+%% `make fast3` targets. A format dump is a frozen snapshot: loaded after the preamble has
+%% changed, pdflatex uses the OLD preamble, the build succeeds, and the PDF is silently wrong,
+%% with no warning and nothing in the log that names the cause -- the worst failure shape this
+%% repository has (science/AGENT_HANDOFF.md §2.3b, §2.4b: a clean report over a wrong artifact).
+%% YOU DO NOT HAVE TO REMEMBER TO REBUILD IT: mkformat.py keys the dump to a checksum of this
 %% preamble plus main.tex and the files they load, rebuilds when the key moves, and
-%% src_utils/fastbuild.sh REFUSES to run against a stale key rather than producing a build from
-%% it (`fastbuild: REFUSING to build -- stale: ...`). The plain `make defense`/`final`/`ppgc`
-%% targets never load the dump at all, so they are always correct and are what Overleaf uses.
-%% If a `fast` build ever disagrees with a plain build, the plain build is the document: report
-%% it, do not work around it. `make format-status` says whether the dump is fresh and why.
+%% src_utils/fastbuild.sh REFUSES a stale key rather than building from it. The plain targets
+%% never load the dump at all, which is what Overleaf uses. If a `fast` build ever disagrees
+%% with a plain build, the plain build is the document: report it, do not work around it.
+%% `make format-status` says whether the dump is fresh and why.
 %%==============================================================
 
 % [round6, E-5] hyperfootnotes=false must reach hyperref AT LOAD TIME. abntex2 loads hyperref
@@ -103,13 +86,9 @@
 % 1.6134 cm, against a specification of 2 cm. [fixed] is the one option value that performs
 % no line-rounding at all (memoir.cls:1096-1137: `classic`, `lines` and `nearest` each call
 % a rounding macro; `fixed` calls none), which is why it is the option here.
-%
-% HOW THE BREAKAGE PRESENTS, which is the reason this is worth a comment: it does not.
-% pdflatex raises no warning, no overfull box, no error; every gate in src_utils/check.sh
-% stays green; \OnehalfSpacing is still in force so the text looks entirely normal. The
-% document simply prints with a bottom margin ~4 mm short of the specification on every
-% page, and the reader who finds it is whoever checks the deposit against the UFV manual.
-% If you touch these four lines, re-derive \lowermargin the way the numbers above were
+% AND IT BREAKS SILENTLY: no warning, no overfull box, no error, every gate green, the text
+% looking entirely normal, and a bottom margin about 4 mm short of the specification on every
+% page. If you touch these four lines, re-derive \lowermargin the way the numbers above were
 % obtained rather than trusting that the build stayed clean.
 \OnehalfSpacing
 \setlrmarginsandblock{3cm}{2cm}{*}
@@ -188,8 +167,8 @@
 % \extravolume is that one name. Change it here and every pointer follows.
 % NOT a \ref: the target is in another document and has no label here. The pointers say what
 % the volume is called, not what number anything in it carries -- except the two appendix
-% letters B and D, which are stable by construction (0_extra.tex sets the chapter counter so
-% they keep the letters they had here) and are guarded by src_utils/check_extra_xrefs.py.
+% letters B and D, which are stable by construction (main_extra.tex sets the chapter counter
+% so they keep the letters they had here) and guarded by src_utils/check_extra_xrefs.py.
 \newcommand{\extravolume}{the supplementary volume of this dissertation}
 \newcommand{\Extravolume}{The supplementary volume of this dissertation}
 % ---------------------------------------------------------------------------------------
@@ -203,21 +182,21 @@
 % ---------------------------------------------------------------
 % Cover / folha de rosto metadata
 % ---------------------------------------------------------------
-% TITLE (author decision 2026-07-24): the working title is now SELECTED and live below.
-% The Resumo/Abstract catalog headers echo it verbatim (kept in sync). This remains a
-% "for now" choice pending the final call with the advisor; the alternates stay commented
-% here so the author can swap in one line if the advisor prefers another.
-% Echo locations kept in sync: \titulo below (folha de rosto), Resumo catalog header,
-% Abstract catalog header; hyperref pdftitle inherits \titulo.
-%
-% SELECTED (author 2026-07-24):
-%   From Representations to a Single Joint Model: Multi-Task Learning for
-%   Point-of-Interest Category and Region Prediction
+% TITLE (author decision 2026-07-30, commit e771d331): the title live below is the author's own
+% candidate with his adjustment, and it supersedes the 2026-07-24 working title ("From
+% Representations to a Single Joint Model ..."), which named only the two sequential tasks. His
+% reasoning: two of the three articles are about category CLASSIFICATION, so a title naming only
+% next category and next region misdescribes the collection. Still pending the final call with the
+% advisor.
+% FIVE LIVE SITES CARRY THIS STRING and must not drift apart: \titulo below (folha de rosto), the
+% Resumo and Abstract catalog headers in content.tex, main_extra.tex's derived title, and hyperref
+% pdftitle (which inherits \titulo). Verified in the RENDER, not the source, when it was applied.
 %
 % ALTERNATES (kept for the advisor conversation; all pass the two-factor rule -- name
 % both the representation and the sharing/architecture factor, or neither;
 % storyline/AVAL_NECESSARIA_3_ptBR.md D2):
-%   1. Multi-Task Learning for Point-of-Interest Classification and Prediction Tasks: The Role of the Check-in-Level Representation
+%   1. From Representations to a Single Joint Model: Multi-Task Learning for
+%      Point-of-Interest Category and Region Prediction
 %   2. Representation Drives, Sharing Delivers: A Check-in-Level Multi-Task
 %      Study of Next Category and Region Prediction
 %   3. The Visit, Not the Place: Check-in-Level Representations and a Joint
@@ -255,24 +234,21 @@ degree of \textit{Magister Scientiae}.}
     filecolor=magenta,
     urlcolor=blue,
     bookmarksdepth=4,
-    % [round6, E-5, visual/presentation persona 18] hyperfootnotes DISABLED.
+    % [round6, E-5, visual/presentation persona 18] hyperfootnotes DISABLED, and the option is NOT
+    % set here -- it is passed at load time by the \PassOptionsToPackage line at the top of this
+    % file, because setting hyperfootnotes=false in \hypersetup after abntex2 has already loaded
+    % hyperref leaves the defect in place (measured). This comment sits here because this is where
+    % someone will look for it.
     % THE DEFECT: every build logged ten "pdfTeX warning (dest): name{Hfootnote.N} has been
-    % referenced but does not exist" lines, and the persona measured where the links actually
-    % LAND rather than only whether the destinations resolve: all ten footnote marks jumped the
-    % reader to PHYSICAL PAGE 1 (the folha de rosto in the defense build, the List of Figures in
-    % the deposit build). Ten dead links in a PDF handed to a committee, and the counter that
-    % would have shown them is one no build claim in this project has ever carried.
-    % THE CAUSE: abntex2 loads hyperref itself, and this document's footnotes are set inside
-    % groups the footnote-anchor mechanism does not survive, so hyperref emits a reference to an
-    % anchor it never writes. The link then falls back to the start of the document.
-    % THE FIX: turn the footnote marks back into plain text. A footnote mark sits on the same
-    % page as its own note in this document, so the link was never carrying the reader anywhere
-    % useful even when it worked. Nothing else in hyperref changes: internal cross-references,
-    % citations and URLs stay live.
-    % NOTE: the option is NOT set here. Setting hyperfootnotes=false in \hypersetup after
-    % abntex2 has already loaded hyperref leaves all ten warnings in place (measured). It is
-    % passed at load time with \PassOptionsToPackage before \documentclass, at the top of this
-    % file. This comment stays here because this is where someone will look for it.
+    % referenced but does not exist" lines, and the persona measured where the links LAND rather
+    % than only whether the destinations resolve: all ten footnote marks jumped the reader to
+    % PHYSICAL PAGE 1 (the folha de rosto in the defense build, the List of Figures in the deposit
+    % build). Ten dead links in a PDF handed to a committee. The cause is that abntex2 loads
+    % hyperref itself and this document's footnotes are set inside groups the footnote-anchor
+    % mechanism does not survive, so hyperref emits a reference to an anchor it never writes.
+    % Turning the marks back into plain text costs nothing here: a footnote mark sits on the same
+    % page as its own note, so the link was never carrying the reader anywhere useful. Internal
+    % cross-references, citations and URLs stay live.
 }
 \makeatother
 

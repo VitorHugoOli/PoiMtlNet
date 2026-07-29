@@ -3,13 +3,13 @@
 % content.tex -- the document body: front matter, the six chapters, the appendices, the
 % bibliography. Everything from \begin{document} onward.
 %
-% Split out of 0_main.tex on 2026-07-29 (author decision); the preamble half is preamble.tex, which
-% carries the reasoning. The two are read in order by main.tex, so this file MUST open with
-% \begin{document} -- it is the first line of real content below.
+% Split out of the former single-file body on 2026-07-29 (author decision); the preamble half is
+% preamble.tex, which carries the reasoning. The two are read in order by main.tex, so this file
+% MUST open with \begin{document} -- it is the first line of real content below.
 %
-% The build switches (\ifdefensebuild, \ifapprovalsheet, \ifacademicobuild) are DEFINED in
-% main.tex / main_academico.tex / main_ppgc.tex and CONSUMED here. If a block should appear in only
-% some builds, gate it here rather than duplicating an entry file.
+% The two build switches (\ifdefensebuild, \ifapprovalsheet) are DEFINED in main.tex, selected by
+% \ACADEMICOBUILD / \APPROVALSHEET in main_academico.tex / main_ppgc.tex, and CONSUMED here. If a
+% block should appear in only some builds, gate it here rather than duplicating an entry file.
 % ============================================================================
 
 \begin{document}
@@ -48,28 +48,23 @@
         \vspace{\onelineskip}
 
         % [NEEDS SIGN-OFF: Resumo CUT, round 6, 2026-07-28] The pair was cut on the author's
-        % ruling that both blocks were too long. MEASURED on the rendered pages of the 105-page
-        % defense build, on one stated convention (catalog header and keyword block stripped;
-        % hyphenated compounds count as one word; sentence enders exclude decimals, initials and
-        % Sec./Fig./cf./e.g./i.e./et al.):
+        % ruling that both blocks were too long. MEASURED on the rendered pages of the then
+        % 105-page defense build, on one stated convention (catalog header and keyword block
+        % stripped; hyphenated compounds count as one word; sentence enders exclude decimals,
+        % initials and Sec./Fig./cf./e.g./i.e./et al.):
         %   Resumo   p.3-4  500 words / 10 sentences / mean 50.0  ->  this text
         %   Abstract p.5    423 words / 10 sentences / mean 42.3  ->  the block below
         % The same instrument on the five defended dissertations in exemples/ gives the envelope
         % this cut targets: 195-282 words, 6-12 sentences, mean 19.5-37.5 across all eight blocks
-        % (Resumos 233-282, Abstracts 195-250). Per-block numbers and the before/after are in
-        % src_utils/_round6/15_resumo_abstract.md, which also records which claim each cut
-        % sentence carried and where that claim still lives in the body.
+        % (Resumos 233-282, Abstracts 195-250).
         % NOTHING ON THE CLAIM FLOOR WAS CUT: the question and its conditional answer, the
         % three-study arc, both tasks, the next-place exclusion, the 5,3-9,4 range with its
         % joint-best convention, four of six with TOST non-inferiority at the other two, and both
         % data sources are all still here. Verbs stay bound to their tests (supera / equipara-se,
-        % GLOSSARY §4). Two claims were cut as NOT on the floor and are named in the report:
-        % the higher training cost of the first study (1_introduction.tex "cost more to train";
-        % 6_conclusion.tex, same phrase) and the task-pair evolution (1_introduction.tex "The task
-        % pair therefore evolved across the three studies"; 6_conclusion.tex "The task-pair
-        % confound"). "Transferencia negativa" as a named failure mode also leaves the Resumo; the
-        % mechanism survives as "compartilhar parametros pode prejudicar uma das tarefas", and the
-        % name is defined in 2_fundamentals.tex ("known as negative transfer").
+        % GLOSSARY §4). Which claims left, and where each still lives in the body, is tabulated in
+        % src_utils/_round6/15_resumo_abstract.md; two were cut as not on the floor (the first
+        % study's higher training cost, and the task-pair evolution), and "transferencia negativa"
+        % survives here as the mechanism rather than the name, which 2_fundamentals.tex defines.
         % PT terms are GLOSSARY §6 entries only. "Modelos ajustados" for "fitted models" is still
         % NOT in §6: proposed, pending the author's approval before it counts as canonical.
         \noindent Redes sociais baseadas em localização registram \emph{check-ins}: visitas
@@ -112,19 +107,11 @@
         % Resumo it belongs to. It was breaking onto p.4 alone (14 words on an otherwise blank page).
         % A minipage makes the label and the five keywords ONE box, so TeX can fit the whole block into
         % the space left at the foot of the Resumo page instead of carrying it to the next one.
-        %
-        % [round5, RE-MEASURED after an audit caught a false diagnosis here] \needspace{7\onelineskip}
-        % was tried first, and the record previously written in this comment was WRONG. Measured on the
-        % current 529-word Resumo, with the macro correctly escaped:
-        %   \needspace{7\onelineskip} -> 104 pp, the block lands WHOLE on p.4 (21 words, label included)
-        %   minipage                  -> 103 pp, the block sits on p.3 with the Resumo, page closed
-        % So needspace DOES hold the label and keywords together. What it does not do is pull them onto
-        % the previous page: it reserves space for the LINES that follow, so when the block does not fit
-        % it moves the block rather than fitting it. A minipage is a box, so it fits.
-        % The earlier claim that needspace "never worked at any value" came from my own escaping bug: a
-        % regex wrote \needspace{N\\onelineskip} with a doubled backslash, and the later sweep arms
-        % (8, 9, 10) used a single-backslash pattern that could not match the corrupted form, so those
-        % three arms never applied at all and returned byte-identical results I misread as evidence.
+        % DO NOT SUBSTITUTE \needspace HERE. Measured on the 529-word Resumo of the time, with the
+        % macro correctly escaped: \needspace{7\onelineskip} -> 104 pp with the block landing whole on
+        % p.4; minipage -> 103 pp with the block on p.3 alongside the Resumo. needspace does hold the
+        % label and keywords together, but it reserves space for the LINES that follow, so when the
+        % block does not fit it moves the block rather than fitting it. A minipage is a box, so it fits.
         \vspace{\onelineskip}
         \noindent
         % Keywords one per line (UFV_COMPLIANCE §2 system rules: one per line, lowercase
@@ -149,11 +136,9 @@
 
             % [NEEDS SIGN-OFF: Abstract CUT, round 6, 2026-07-28] Cut as the claim-parity pair of the
             % Resumo above (WRITING_LAW §6): same claims, same numbers, same hedges, sentence for
-            % sentence, and cut in the same pass so the two cannot drift. MEASURED on the rendered
-            % page, same convention as the Resumo comment: 423 words / 10 sentences / mean 42.3 before.
-            % Both blocks now carry eleven sentences that correspond one to one. Verbs stay bound to
-            % their tests: "outperforms" for the paired superiority test, "matches" only with TOST
-            % non-inferiority inside the two-point margin, and Arizona is not upgraded (GLOSSARY §4).
+            % sentence, and cut in the same pass so the two cannot drift. The measurement convention
+            % and the claim-floor argument are at the Resumo block above; both blocks now carry eleven
+            % sentences that correspond one to one.
             % Numbers quoted, not computed: 5.3 to 9.4 macro-F1 = the per-dataset category deltas of
             % docs/studies/closing_data/v17_completion/stats_n20/RESULTS.md §1 (FL +5.34 the low end,
             % AZ +9.40 the high end) as reported by 6_conclusion.tex; "four of them" = the four
@@ -310,11 +295,11 @@
 % GLOSSARY.md at lines 41 ("the departure is listed in Appendix B") and 73 ("Appendix B §B.5
 % only"); GLOSSARY.md:51 likewise pins the label-history benchmark to "Appendix D". Measured:
 %   grep -n 'Appendix [A-E]' GLOSSARY.md   -> lines 41, 51, 53, 73
-% Relettering would silently repoint every one of those at a different appendix.
-% The two volumes therefore share one lettering. \Alph{chapter}
-% assigns the letter from the chapter counter, so the counter is set explicitly before the two
-% appendices that follow a gap; without those two lines this document prints A, B, C and the
-% supplementary volume prints A, B, and "Appendix B" means two different things.
+% Relettering would silently repoint every one of those at a different appendix, so the two
+% volumes share one lettering. \Alph{chapter} assigns the letter from the chapter counter, which
+% is why the counter is set explicitly before each appendix that follows a gap; without those two
+% lines this document prints A, B, C, the supplementary volume also prints A, B, and "Appendix B"
+% means two different things.
 %
 % THE POINTERS INTO THE MOVED MATERIAL were rewritten, not deleted: eight \ref sites in six
 % files, listed in src_utils/_round7/24_extra_and_cosine.md with the before and after of each.

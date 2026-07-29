@@ -32,32 +32,21 @@
 %   \ifdefensebuild   front matter on (defense) or off (AcademicoPG deposit)
 %   \ifapprovalsheet  approval-sheet placeholder on (ppgc) or off (everything else)
 %
-% ONE source, TWO front-matter modes (UFV_COMPLIANCE §1). The mode is chosen by the
-% \ifdefensebuild switch, defined HERE by default as the DEFENSE build:
+% What \ifdefensebuild actually switches (UFV_COMPLIANCE §1): the defense build carries the full
+% front matter (cover/folha de rosto, approval placeholder, Resumo/Abstract, lists, sumario);
+% the AcademicoPG deposit build starts at the lists, because that system generates
+% cover/ficha/resumo/abstract from web forms. The deposit build's body page counter is
+% \finalbuildfirstpage below, which keeps its old name deliberately: it is the anchor
+% src_utils/mkformat.py extracts the switch region by (its SWITCH_LAST), and the author's rename
+% decision covers the switch macro and the external names, not this counter. Flagged, not applied.
 %
-%   DEFENSE build (default): full front matter (cover/folha de rosto, approval
-%     placeholder, Resumo/Abstract, lists, sumario) -- the PDF the banca reads.
-%     Just compile main.tex normally (this is what `make` / `make defense` does).
-%
-%   ACADEMICO deposit build: body only (lists -> sumario -> body); the AcademicoPG
-%     system generates cover/ficha/resumo/abstract from web forms. Produced by compiling
-%     main_academico.tex, which sets \ACADEMICOBUILD and reads this file. `make academico`
-%     runs that; THE MAKEFILE'S `academico:` RECIPE IS THE ONE PLACE THE COMMAND IS WRITTEN
-%     DOWN -- read it there and do not retype it here. The body page counter for this build
-%     is \finalbuildfirstpage below, which keeps its old name deliberately: it is the anchor
-%     src_utils/mkformat.py extracts the switch region by (its SWITCH_LAST), the author's
-%     rename decision covers the switch macro and the external names and not this counter,
-%     and a name change here buys nothing the reader can see. Flagged, not applied.
-%     WHY THIS PARAGRAPH NO LONGER QUOTES A COMMAND: until 2026-07-29 it quoted
-%       pdflatex "\newif\ifdefensebuild\defensebuildfalse\input{main.tex}"
-%     and claimed `make final` did exactly that. It never did, and worse, the quoted
-%     command silently produces the DEFENSE document under a deposit-looking jobname:
-%     the command-line \newif\ifdefensebuild is undone when this file re-executes
-%     \newif\ifdefensebuild below, the \ifdefined test then finds no switch macro, and the
-%     run takes the defense branch. Measured 2026-07-29 by running it verbatim, three
-%     passes: 108 pages with the Abstract on rendered page 3, i.e. the defense document,
-%     against the deposit build's 105. An operator following that comment would have
-%     uploaded the full-front-matter document to AcademicoPG.
+% DO NOT SELECT THE DEPOSIT BUILD FROM THE COMMAND LINE. A `pdflatex "\newif\ifdefensebuild
+% \defensebuildfalse\input{main.tex}"` invocation stood here until 2026-07-29 and silently
+% produced the DEFENSE document under a deposit-looking jobname: the command-line \newif is undone
+% when this file re-executes \newif\ifdefensebuild below, so the \ifdefined test finds no switch
+% macro and the run takes the defense branch. Measured 2026-07-29 by running it verbatim: 108
+% pages with the Abstract on rendered page 3, against that day's 105-page deposit build. Compile
+% main_academico.tex instead, which is why it exists.
 %
 % NAMING: this build was called `final` until 2026-07-29 (target `make final`, output
 % build/main_final.pdf, switch \FINALBUILD, counter \finalbuildfirstpage). The author renamed
@@ -71,18 +60,19 @@
 % src/Makefile, and this header. A missed one does not error: it reports the page count of a
 % file that is no longer written, or writes a PDF nobody reads.
 %
-% BEFORE YOUR FIRST BUILD ON THIS MACHINE: `source ../src_utils/texenv.sh`. It sets PATH plus
-% the three TEXMF variables and is not optional. The failure it prevents is worth naming here,
-% because it lies about its own cause and README_SRC.md does not travel with an Overleaf paste
-% of src/: with TEXMFVAR wrong, the class and every .tfm resolve, three passes run, and pdftex
-% then dies with
+% THE ENVIRONMENT: `make` sets PATH and the three TEXMF variables itself (see the Makefile
+% header), so a make build needs no preparation; a bare `pdflatex` run on this machine still
+% needs `. ../src_utils/texenv.sh` first. The failure that omission produces is worth naming
+% here, because it lies about its own cause and README_SRC.md does not travel with an Overleaf
+% paste of src/: with TEXMFVAR wrong, the class and every .tfm resolve, three
+% passes run, and pdftex then dies with
 %   !pdfTeX error: Font ntx-Regular-tlf-ot1r at 657 not found ==> Fatal error occurred,
 %   no output PDF file produced!
 % That is NOT a missing font. The .tfm and the .pfb are both present. What is missing is the
 % font MAP: newtx registers its ntx-* entries in the usermode updmap output under TEXMFVAR, and
 % the system-wide map has none of them. Do not go looking for the font, and do not try to probe
 % the variable either -- `kpsewhich -var-value TEXMFVAR` reports an unreadable path on this
-% machine, which is why texenv.sh sets it explicitly instead of asking.
+% machine, which is why src_utils/texenv.sh sets it explicitly instead of asking.
 %
 % TeX tree, build verification protocol and the gate suite: ../src_utils/README_SRC.md.
 % Output goes to build/; the current defense PDF is copied to ./dissertacao.pdf by `make`.
@@ -120,31 +110,16 @@
 % pages are counted but not numbered, so the first body page prints
 % (number of pre-textual pages) + 1.
 %
-% [round6, C-1, UFV compliance persona 13] CORRECTED 11 -> 8, and the defect is worth
-% naming because the comment above it was right the whole time.
-% MEASURED, by finding the first page whose header carries a digit in each render and
-% reading the printed number:
-%   defense (main.pdf)      10 pre-textual pages, first body page is physical p.11, prints 11  OK
-%   ppgc    (main_ppgc.pdf) 11 pre-textual pages, physical p.12, prints 12                     OK
-%   academico (then main_final.pdf, now main_academico.pdf) 7 pre-textual pages, physical
-%           p.8, printed 11                                                                   WRONG
-% The AcademicoPG deposit build has NO folha de rosto, approval sheet, Resumo or Abstract --
-% the system generates those from web forms -- so it has three fewer pre-textual pages than
-% the defense build. This counter was hardcoded to the DEFENSE build's offset, and every
-% subsequent page inherited the three-page error: the deposit PDF's printed numbers ran
-% three ahead of its physical pages throughout, which is a numbering non-compliance on the
-% one build that is actually deposited.
-% This is only reachable in the academico build (0_main.tex sets the counter inside the
-% \ifdefensebuild-false branch), which is why the defense and ppgc builds were correct and
-% nobody noticed. The [VERIFY] flag it carried asked for tuning against the RASCUNHO PDF and
-% was the right instinct; what it did not say is that the value was wrong on its own terms.
-% [round7, 2026-07-29] CORRECTED 8 -> 9, and the CAUSE is the reusable part: this counter is a
-% hardcoded copy of a MEASURED property of the front matter, so it silently goes wrong whenever the
-% front matter changes length. Nothing in this round touched it. What changed is that the new cosine
-% appendix added a figure and a table, which pushed the List of Figures and the List of Tables each
-% onto a second page in the academico build -- 7 pre-textual pages became 8, so the first body page
-% moved from physical 8 to physical 9 while this counter still said 8. Every deposited page number
-% was then one behind its physical page.
+% THE STANDING HAZARD, and the reason this counter is corrected in every round that touches the
+% front matter: it is a hardcoded copy of a MEASURED property of that front matter, so it goes
+% silently wrong whenever the front matter changes length, and it is only reachable in the
+% academico build (content.tex sets it inside the \ifdefensebuild-false branch), which is why the
+% defense and ppgc builds stay correct and nobody notices. Corrected 11 -> 8 in round 6 (the
+% deposit build has three fewer pre-textual pages than the defense build, so it had inherited the
+% defense offset and every deposited page number ran three ahead) and 8 -> 9 in round 7, when the
+% cosine appendix's figure and table pushed the List of Figures and the List of Tables each onto a
+% second page and 7 pre-textual pages became 8. Both times the printed number was wrong on the one
+% build that is actually deposited, which is a UFV numbering non-compliance.
 % MEASURED on the current build, by finding the first page whose header carries a digit:
 %   defense   (main.pdf)           physical p.12, prints 12  OK
 %   ppgc      (main_ppgc.pdf)      physical p.13, prints 13  OK
@@ -155,8 +130,8 @@
 % IF YOU ADD OR REMOVE FRONT MATTER, OR ANY FLOAT THAT LENGTHENS THE LISTS, RE-MEASURE THIS.
 \newcommand{\finalbuildfirstpage}{9}
 
-% The preamble and the body, in that order. They were one file (0_main.tex) until 2026-07-29;
-% see preamble.tex's header for why they are two. mkformat.py precompiles preamble.tex into a
+% The preamble and the body, in that order. They were one file until 2026-07-29; see
+% preamble.tex's header for why they are two. mkformat.py precompiles preamble.tex into a
 % format dump and its staleness key is that file's own checksum, so a preamble edit invalidates
 % the format automatically. Do not reorder these, and do not add a third \input between them.
 \input{preamble.tex}

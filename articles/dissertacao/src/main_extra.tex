@@ -34,7 +34,7 @@
 % exits 1 with "I couldn't open file name", which stops an && chain and, in a GUI editor, leaves
 % every citation silently unresolved.
 %
-% MERGED 2026-07-30 (author): this file and 0_extra.tex were one \input apart -- 68 lines of which
+% MERGED 2026-07-30 (author): this file and the former 0_extra.tex were one \input apart -- 68 lines of which
 % two were live -- for no benefit. The dissertation splits preamble.tex/content.tex because that
 % boundary is load-bearing for the format dump; this volume has no format dump and one entry point,
 % so one file is the honest shape.
@@ -53,10 +53,10 @@
 ]{abntex2}
 
 \usepackage{abntex2-UFV}
-% The four-line layout unit from 0_main.tex, kept verbatim and for the same reason: the
+% The four-line layout unit from the dissertation's preamble.tex, kept verbatim and for the same reason: the
 % [fixed] option is what makes the bottom margin come out at the 2 cm the UFV manual
 % specifies, because the default `classic` rounds the text block to a whole number of lines
-% and takes the difference out of the bottom margin. The derivation is in 0_main.tex; it is
+% and takes the difference out of the bottom margin. The derivation is in preamble.tex; it is
 % not repeated here, and the order of these four lines is load-bearing.
 \OnehalfSpacing
 \setlrmarginsandblock{3cm}{2cm}{*}
@@ -152,7 +152,7 @@
 %
 % THE LINK TARGET. A frozen label has no destination inside this volume, and pointing one at
 % a destination that does not exist reproduces the dead-link defect this project has already
-% had once (0_main.tex's hyperfootnotes note: ten footnote marks that all jumped to physical
+% had once (preamble.tex's hyperfootnotes note: ten footnote marks that all jumped to physical
 % page 1). So every frozen reference is anchored at ext:dissertation, a real destination
 % created in the opening statement below, where the sentence explaining that the dissertation
 % is a separate document lives. A reader who clicks "Chapter 5" lands on that explanation

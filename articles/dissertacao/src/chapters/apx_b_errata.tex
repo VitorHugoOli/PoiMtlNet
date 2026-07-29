@@ -58,11 +58,13 @@
 %   figure sets to the reader (REV-016), with the mechanism quoted from
 %   src_utils/cbic_recompute_result.md section 3 (category-mapping drift; the earlier
 %   check-in set is a strict subset of the current one). Table B.2 gained 5 rows.
-%   The Chapter 4 "three marked additions" claim was an undercount: eight exist, all
-%   verified present in 4_courb.tex and absent from articles/CoUrb_2026/src_en/ this
-%   session (preface :13; recap subsection :81; split sentence :238; seed sentence :238;
-%   dataset-table lead :258; Figure 4.2 reading instruction :278; category-table lead
-%   :284; next-POI-table lead :327). Chapter 5's "three marked additions" claim was
+%   The Chapter 4 "three marked additions" claim was an undercount: eight exist, all verified
+%   present in Chapter 4 and absent from articles/CoUrb_2026/src_en/ at the time. They are the
+%   preface, the recap subsection, the split sentence, the seed sentence, the dataset-table lead,
+%   the Figure 4.2 reading instruction, the category-table lead and the next-POI-table lead.
+%   The line coordinates this list carried were taken before the chapter was split into
+%   chapters/4_courb/ on 2026-07-28 and pointed into a file that is now 45 lines long; find each
+%   addition by its phrase instead. Chapter 5's "three marked additions" claim was
 %   re-checked against 5_mobiwac_ADAPTATION_LEDGER.md A1-A3 and against the chapter, by
 %   8-gram diff against articles/[mobiwac]/src/: it is CORRECT, the chapter writes no
 %   table lead sentences of its own. Chapter 3's ledger (A4 = preface, A7 = convergence
@@ -137,7 +139,7 @@ bolding is not misread as ``best per row''.
 % [v2 review F-06, 2026-07-26] Added on persona 10's finding (10_mtl_expert_report.md). The
 % reviewer extracted arXiv:2202.01017 and confirmed "matrix-vector" does not occur in it, while
 % "agnostic to the architecture used" does, so only the cost half is defective. The chapter's own
-% comment at 3_cbic.tex:252-258 had already REPORTED it and left it as the author's call; the
+% comment at 3_cbic/results.tex:135 had already REPORTED it and left it as the author's call; the
 % reviewer's added point is the ASYMMETRY -- Appendix B corrects the neighbouring clause of the very
 % same sentence, so silence on this half invites the question. Implementation evidence quoted from
 % that comment, itself sourced to tarik-new nash_mtl.py:99,:126-141 and src/losses/nash_mtl/
@@ -367,8 +369,8 @@ The comparison is recorded in the research repository, in
 % drift"; mapping files data/gowalla/callback_categories.json and extra_categories.json
 % last modified 2026-04-14, ~11 months after the CBIC-era extraction of 2025-05-06;
 % stage_1 drops rows whose category does not map; the extra POIs skew to Entertainment
-% 21.1% vs 5.2%, Outdoors, and Travel). Numbers: Ch.3/Ch.4 triple from 4_courb.tex:238
-% (the published CoUrb dataset table); Ch.5 triple from 5_mobiwac.tex:324. No number here
+% 21.1% vs 5.2%, Outdoors, and Travel). Numbers: Ch.3/Ch.4 triple from 4_courb/results.tex:14
+% (the published CoUrb dataset table); Ch.5 triple from 5_mobiwac/05_setup.tex:32. No number here
 % was computed by an agent.
 % PRECISION NOTE, deliberate: the strict-subset result in section 3 of that document was
 % measured for the CBIC-era WORKING extraction (filtrado.csv: 10,460 / 64,454 / 960,520)

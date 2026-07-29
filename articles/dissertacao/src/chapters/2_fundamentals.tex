@@ -1,8 +1,8 @@
 % !TeX root = ../main.tex
 % Chapter 2 -- Fundamentals (Fundamentacao Teorica). Frame chapter, English.
-% Draft 2 (panel-reviewed). Assembled from the section drafts; each section carries its own ledger.
-% Inlined into this single file for the src/ tree (integration 2026-07-23); sections in source
-% order 2.1-2.5, lineage table inlined in Section 2.2.
+% Draft 2 (panel-reviewed), assembled 2026-07-23 from the section drafts of 2026-07-21 into this
+% one file; sections in source order 2.1-2.5, lineage table inlined in Section 2.2. Every section
+% obeys WRITING_LAW.md + GLOSSARY.md and closes with its own citation/number ledger.
 % Bibliography: single global dissertation .bib. New keys are in fundamentals/_bib/new_references_ch2.bib;
 % all other keys are already in the project bibs (see COVERAGE_EVALUATION.md and _bib/BIB_NOTES.md).
 
@@ -20,7 +20,6 @@ drawing these together into the question the following chapters answer
 (Section~\ref{sec:fund:relevance}).
 
 % Section 2.1 -- POI-prediction tasks
-% Draft 1 (2026-07-21). Obeys WRITING_LAW.md + GLOSSARY.md. Citation/number ledger at the section end.
 
 \section{Point-of-interest prediction tasks}
 \label{sec:fund:tasks}
@@ -122,7 +121,6 @@ co-equal ends, which is the setting the following sections build the tools for.
 % ---------------------------------------------------------------------------
 
 % Section 2.2 -- Representations for mobility (the chapter's spine)
-% Draft 1 (2026-07-21). Obeys WRITING_LAW.md + GLOSSARY.md. Citation/number ledger at the section end.
 
 \section{Representations for mobility}
 \label{sec:fund:repr}
@@ -177,26 +175,19 @@ the adopted one, on a zero-to-one scale, with the spread taken across the five f
 % [NEEDS SIGN-OFF: NUM-4, round6, 2026-07-28] Number RE-ANCHORED and its convention added.
 % The clause previously read "the category F1 on Alabama, over five folds, rose monotonically
 % from 0.74 to 0.82 across the swept values": two means with no spread, no swept range, and no
-% epoch budget. 0.74 and 0.82 were quoted from research/embeddings/hgi/CLAUDE.md:117, which
-% itself ROUNDS the sweep table; quoting the rounded restatement put a computed step between the
-% page and the source of record. Now quoted from the table itself,
-% research/embeddings/hgi/README.md:544 (header, "5 folds x 50 epochs") and :548-551 (rows):
+% epoch budget, and both quoted from research/embeddings/hgi/CLAUDE.md:117, which itself ROUNDS
+% the sweep table -- a computed step between the page and the source of record. Now quoted from
+% the table, research/embeddings/hgi/README.md:544 (header, "5 folds x 50 epochs") and :548-551:
 %   w_r 0.4 -> 0.7388 +/- 0.0205 | 0.5 -> 0.7678 +/- 0.0211
 %   w_r 0.6 -> 0.7944 +/- 0.0186 | 0.7 -> 0.8186 +/- 0.0123
-% Monotonicity is the source's own word (CLAUDE.md:117 "rises monotonically"; preprocess.py:38
-% "rose monotonically") and is readable off those four rows without computing anything.
-% The adopted 0.7 is the shipped default: preprocess.py:23 DEFAULT_CROSS_REGION_WEIGHT = 0.7.
-% [VERIFY: averaging convention of the swept "Cat F1"] Provenance of this clause:
-% research/embeddings/hgi/CLAUDE.md:117 ("The paper uses 0.4 but that's tuned for dense
-% Chinese cities; on Alabama Cat F1 rises monotonically 0.74 -> 0.82 as w_r goes
-% 0.4 -> 0.7"), mirrored at research/embeddings/hgi/preprocess.py:35-39 and tabulated at
-% research/embeddings/hgi/README.md:544-551 (5 folds x 50 epochs; 0.4 -> 0.7388 +/- 0.0205,
-% 0.7 -> 0.8186 +/- 0.0123). w_r = 0.4 verified firsthand in the HGI PDF, Eq. 2 ("wr is a
-% factor to differentiate intra- (wr = 1) and cross-region (wr = 0.4) edges"), and the
-% region-representation goal in its abstract. The sources record "Cat F1" without naming
-% the averaging convention (macro vs weighted), so the sentence says "category F1" and not
-% "macro-F1"; author to confirm the convention, or drop the two values and keep the clause
-% qualitative.
+% Monotonicity is the source's own word (CLAUDE.md:117; preprocess.py:38) and is readable off
+% those four rows without computing anything. The adopted 0.7 is the shipped default:
+% preprocess.py:23 DEFAULT_CROSS_REGION_WEIGHT = 0.7. The published w_r = 0.4 and the
+% region-representation goal were verified firsthand in the HGI PDF, Eq. 2 ("wr is a factor to
+% differentiate intra- (wr = 1) and cross-region (wr = 0.4) edges") and its abstract.
+% [VERIFY: averaging convention of the swept "Cat F1"] Every source records "Cat F1" without
+% naming macro or weighted averaging, so the sentence says "category F1" and not "macro-F1";
+% author to confirm the convention, or drop the two values and keep the clause qualitative.
 
 A place embedding, however it is trained, shares one property: it assigns each place a
 single fixed vector. That vector is the same whether the place is visited on a weekday
@@ -266,56 +257,37 @@ the batch to form a false pair. No target label appears in any of the three equa
 which is the sense in which the representation is trained without task labels.
 % [NEEDS SIGN-OFF: COD-015, round6, 2026-07-28] New frame prose: the Check2HGI loss, which the
 % document did not carry anywhere. The author approved adding it.
-% WHY HERE AND NOT IN Ch.5, decided on the science: this paragraph is the point where the
-% dissertation builds the infomax line, DGI's local-global objective (:157-160) then HGI's
-% hierarchical one (:163-166), so the fourth boundary is a term added to an objective the reader
-% has just met. Section 5.4.1 of Chapter 5 states the same construction in words ("each vector
-% learns to match its real neighborhood and reject a shuffled one") for a paper audience and
-% under a page limit; Ch.5 is under review, so an equation there is a two-file change to the
-% submitted text, and the equation is not needed to follow that chapter's argument. Placing it in
-% the frame also puts it before both chapters that use the representation, which is what the
-% frame is for.
+% WHY HERE AND NOT IN Ch.5: this paragraph is where the dissertation builds the infomax line,
+% DGI's local-global objective then HGI's hierarchical one, so the fourth boundary reads as a term
+% added to an objective met two paragraphs earlier, and the frame places it before both chapters
+% that use the representation. Ch.5 §5.4.1 states the same construction in words for a paper
+% audience under a page limit; that chapter is under review, so an equation there would be a
+% two-file change to the submitted text and its argument does not need one.
 % SOURCE, transcribed not invented: docs/context/check2hgi_overview.tex, section "Funcao de
-% Perda" (Portuguese). Its three display equations, in order, are the three above:
-%   L = 0.4 L_{c2p} + 0.3 L_{p2r} + 0.3 L_{r2c}   (with the underbraces naming each boundary)
-%   D(e_1, e_2) = sigma(e_1^T W e_2)              ("discriminador bilinear", W learned, sigma the
-%                                                  sigmoid, "saida entre 0 e 1")
-%   L_* = -log D(e^+, e^+) - log(1 - D(e^+, e^-)) (the per-boundary term)
-% Symbols, weights, subscripts and the star on L_* are the source's own. Kept: \mathcal{L},
-% \mathcal{D}, the c2p/p2r/r2c subscripts, e^+/e^-, W, sigma. Dropped: the source's \underbrace
-% annotations (their content is in the sentence instead) and its Portuguese labels.
-% The same three weights are the shipped defaults, verified in the running code this session:
+% Perda" (Portuguese). Its three display equations, in order, are the three above; symbols,
+% weights, subscripts and the star on L_* are the source's own. Dropped in transcription: its
+% \underbrace annotations (their content is in the sentence instead) and its Portuguese labels.
+% The three weights are also the shipped defaults, verified in the running code:
 % research/embeddings/check2hgi/model/Check2HGIModule.py:51-53 (alpha_c2p=0.4, alpha_p2r=0.3,
-% alpha_r2c=0.3), assembled at :1192-1195 (total_loss = alpha_c2p*loss_c2p + alpha_p2r*loss_p2r
-% + alpha_r2c*loss_r2c); the same three values in the pipeline config at
-% pipelines/embedding/check2hgi.pipe.py:43-45. Per-boundary term at :1159, :1184, :1189
-% (-log(pos) - log(1 - neg), the source's form); discriminator at :1003-1018 (matmul(emb1,
-% weight), elementwise product summed, torch.sigmoid) and :246 "Bilinear transformation weights
-% for discrimination at each boundary".
-% ONE FAITHFULNESS NOTE the author should know: e^- is described above as "substituted from
-% elsewhere in the batch", which is the source's OPTIMIZED path (its section "Corrupcao de
-% Embeddings": negatives are formed by permuting already-computed embeddings rather than by
-% re-running the encoder on shuffled features). That is what the code does by default. The
-% equations themselves are indifferent to how e^- is produced, so nothing in them depends on
-% this note. The auxiliary terms Ch.5 mentions (a masked reconstruction and an anchor, weights
-% 0.3 and 0.1, 5_mobiwac.tex:290) are NOT in this equation: the source document does not carry
-% them, and their defaults in the code are 0.0 (Check2HGIModule.py:68, :178), enabled per run
-% rather than by the objective above. The equation is therefore the three-boundary objective, as
-% the source states it, and the sentence does not claim it is the complete training loss of
-% every run reported in Chapter 5. [VERIFY: whether Ch.5's two auxiliary terms should be named
-% here as well; that needs the run configuration of the shipped representation, which I did not
-% establish this session.]
-% GLOSSARY DEPENDENCY, fail-closed rule: RESOLVED 2026-07-28. This passage uses two terms the
-% registry did not hold, "bilinear discriminator" and "logistic function". The drafting agent
-% correctly declined to self-authorize them and recorded the paragraph as BLOCKED rather than
-% merely awaiting wording sign-off, which is the behavior GLOSSARY §1 asks for. The style gate
-% (persona 03, STY-01) then measured seven such terms document-wide and made the same call.
-% Both are now registered in GLOSSARY §2 with the equation they name, so the block is cleared and
-% what remains is ordinary sign-off on the wording. Precedent that made the registration easy:
-% "discriminator" is already used in published Ch.3 prose (3_cbic/basis.tex, "$D$ is a
-% discriminator that differentiates each positive example from its corrupted version"), so only
-% the modifier "bilinear" and the name of $\sigma$ were new to the document.
-% Registry note: prose says "logistic function", never "sigmoid".
+% alpha_r2c=0.3), assembled at :1192-1195; the same three in pipelines/embedding/check2hgi.pipe.py:43-45.
+% Per-boundary term at :1159, :1184, :1189; discriminator at :1003-1018 (matmul, elementwise
+% product summed, torch.sigmoid) and :246 "Bilinear transformation weights for discrimination at
+% each boundary".
+% TWO SCOPE FACTS THE AUTHOR SHOULD KNOW. (1) e^- is "substituted from elsewhere in the batch",
+% which is the source's optimized path (its "Corrupcao de Embeddings": negatives permute
+% already-computed embeddings rather than re-running the encoder), and what the code does by
+% default; the equations are indifferent to how e^- is produced. (2) The auxiliary terms Ch.5
+% mentions (masked reconstruction and anchor, weights 0.3 and 0.1) are NOT in this equation: the
+% source does not carry them and their code defaults are 0.0 (Check2HGIModule.py:68, :178),
+% enabled per run. So this is the three-boundary objective as the source states it, and the prose
+% does not claim it is the complete training loss of every Ch.5 run. [VERIFY: whether Ch.5's two
+% auxiliary terms should be named here too; that needs the run configuration of the shipped
+% representation, which I did not establish this session.]
+% GLOSSARY DEPENDENCY: RESOLVED 2026-07-28. "bilinear discriminator" and "logistic function" were
+% not in the registry, the drafting agent declined to self-authorize them and recorded the
+% paragraph as BLOCKED (the behavior GLOSSARY §1 asks for), and both are now registered in §2 with
+% the equation they name. What remains is ordinary sign-off on the wording. Prose says "logistic
+% function", never "sigmoid".
 
 Where a place embedding answers ``what is this place,'' a check-in-level representation
 answers ``what is this visit,'' and
@@ -340,31 +312,26 @@ Chapter~\ref{ch:cbic} and the positive result of Chapter~\ref{ch:mobiwac} can be
 against each other at all.
 % [NEEDS SIGN-OFF: COD-013, round6, 2026-07-28] New frame prose. The author approved naming the
 % joint model's descent from MTLnet; it was carried only by the lineage table's row order.
-% Placed HERE and not in Ch.5 on the science: the fact is about the RELATION between two
-% chapters' artifacts, which is the frame's own subject, and it is what licenses reading Ch.3's
-% null against Ch.5's positive result. Ch.5 is under review, so a sentence there would be a
-% two-file change to the submitted paper, and the paper does not need it: within the paper the
-% joint model stands alone. Establishing the descent FROM THE CODE, read this session:
-%   src/models/mtl/mtlnet_crossattn_dualtower/model.py:42
-%       class MTLnetCrossAttnDualTower(MTLnetCrossAttn)
-%   src/models/mtl/mtlnet_crossattn/model.py:207
-%       class MTLnetCrossAttn(MTLnet)          <- so the chain is MTLnet -> CrossAttn -> DualTower
-%   src/models/mtl/mtlnet/model.py:39   class MTLnet(nn.Module)   (the base)
+% Placed HERE and not in Ch.5 for the same reason as the equation above: the fact is about the
+% RELATION between two chapters' artifacts, which is the frame's subject, and it is what licenses
+% reading Ch.3's null against Ch.5's positive result. Within the paper the joint model stands alone.
+% ESTABLISHED FROM THE CODE, read this session:
+%   src/models/mtl/mtlnet_crossattn_dualtower/model.py:42  class MTLnetCrossAttnDualTower(MTLnetCrossAttn)
+%   src/models/mtl/mtlnet_crossattn/model.py:207           class MTLnetCrossAttn(MTLnet)
+%   src/models/mtl/mtlnet/model.py:39                      class MTLnet(nn.Module)   (the base)
+%   -> the chain is MTLnet -> CrossAttn -> DualTower.
 % "overrides exactly one component": mtlnet_crossattn/model.py:362 def _build_shared_backbone,
-% whose docstring at :368 reads "Override MTLnet's FiLM + shared_layers with cross-attention
-% blocks"; its body registers crossattn_blocks and the two final LayerNorms and nothing else.
-% The FiLM + residual stack it replaces is mtlnet/model.py:193-197 (self.task_embedding,
-% self.film = FiLMLayer, self.shared_layers), built from mtlnet/model.py:179 in the base class.
+% docstring :368 "Override MTLnet's FiLM + shared_layers with cross-attention blocks"; its body
+% registers crossattn_blocks and two LayerNorms and nothing else. The FiLM + residual stack it
+% replaces is mtlnet/model.py:193-197, built from :179 in the base class.
 % "inherits encoders, heads, parameter partition": mtlnet_crossattn/model.py:208-214 class
-% docstring ("Construction mostly inherits from MTLnet (task encoders, heads, register of
-% task_set etc.)"); the accessors shared_parameters/task_specific_parameters/reg_specific_parameters
-% at :554,:563,:578. "Each block lets one stream read the other while each keeps its own FFN":
-% :55-66 (_CrossAttnBlock docstring, the four update lines) and :63 "Separate FFNs per task, no
-% parameter sharing". The second specialization and what it hands the region output:
-% mtlnet_crossattn_dualtower/model.py:1-9 module docstring ("The ONLY behavioral change is that
-% the reg head ... is handed the raw post-pad-mask region sequence") and :86-90. Registry id deliberately absent from prose per WRITING_LAW section 2.
-% No number is quoted here and no result is claimed; the two verdicts referenced are the ones
-% Ch.3 and Ch.5 already state.
+% docstring; accessors shared_parameters/task_specific_parameters/reg_specific_parameters at
+% :554, :563, :578. "each stream keeps its own feed-forward weights": :55-66 (_CrossAttnBlock
+% docstring) and :63 "Separate FFNs per task, no parameter sharing". The second specialization:
+% mtlnet_crossattn_dualtower/model.py:1-9 ("The ONLY behavioral change is that the reg head ... is
+% handed the raw post-pad-mask region sequence") and :86-90.
+% Registry id deliberately absent from prose per WRITING_LAW §2. No number is quoted here and no
+% result is claimed; the two verdicts referenced are the ones Ch.3 and Ch.5 already state.
 
 \input{tables/frame/lineage}
 
@@ -412,7 +379,6 @@ against each other at all.
 % ---------------------------------------------------------------------------
 
 % Section 2.3 -- Multi-task learning
-% Draft 1 (2026-07-21). Obeys WRITING_LAW.md + GLOSSARY.md. Citation/number ledger at the section end.
 
 \section{Multi-task learning}
 \label{sec:fund:mtl}
@@ -539,7 +505,6 @@ representation argument the next chapters develop \cite{silva2025mtlnet}.
 % ---------------------------------------------------------------------------
 
 % Section 2.4 -- Datasets and evaluation
-% Draft 1 (2026-07-21). Obeys WRITING_LAW.md + GLOSSARY.md. Citation/number ledger at the section end.
 
 \section{Datasets and evaluation}
 \label{sec:fund:eval}
@@ -652,30 +617,23 @@ test within the stated margin.
 %                        SINGLE cite (author ruling); splitter behavior stated
 %                        defensively (v1.0/2021 addition). [new bib]
 %  REV-006 SCOPING (2026-07-26, fixed in the common text per the author's instruction, NOT in the errata).
-%    The protocol paragraph and the chapter roadmap (:16-17) presented user-disjoint splitting and the inferential
-%    tests as governing the whole document. They govern Chapter 5 only. Verified firsthand this session:
-%      - Ch.5 splits by user            -> 5_mobiwac.tex:341 ("We split by user with stratified five-fold
-%                                          cross-validation ... a test user's visits never appear in training").
-%      - Ch.4 explicitly does NOT       -> 4_courb.tex:226 ("The split is stratified by sample, not by user, so the
-%                                          check-ins of one user may appear in both training and validation"),
-%                                          repeated in the chapter preface at 4_courb.tex:13.
-%      - Ch.3 does not name the axis    -> 3_cbic.tex:261 ("all experiments were conducted using a 5-fold
-%                                          cross-validation methodology"), no split axis stated.
-%      - Significance testing is Ch.5-only. grep -nE "p-value|Wilcoxon|t-test|Holm|TOST" returns NOTHING in either
-%        3_cbic.tex or 4_courb.tex (exit 1 on both). The single adjacent line, 3_cbic.tex:344, appeals to
-%        "statistically ... largely comparable" from overlapping standard deviations and reports no test.
-%    Both halves are therefore scoped: the split axis AND the tests. Final sentence changed from "throughout the
-%    document" to "wherever this dissertation reports a test" so it no longer implies tests everywhere.
+%    The protocol paragraph and the chapter roadmap presented user-disjoint splitting and the inferential tests
+%    as governing the whole document; they govern Chapter 5 only, and both halves are now scoped. Verified
+%    firsthand: Ch.5 splits by user (5_mobiwac.tex, "a test user's visits never appear in training"); Ch.4
+%    explicitly does not (4_courb.tex, "stratified by sample, not by user", repeated in its preface); Ch.3 states
+%    5-fold cross-validation without naming the axis in the published text. Significance testing is Ch.5-only:
+%    a sweep for p-value/Wilcoxon/t-test/Holm/TOST returns nothing in either published chapter, and Ch.3's one
+%    adjacent line argues from overlapping standard deviations with no test. The closing sentence therefore reads
+%    "wherever this dissertation reports a test" rather than "throughout the document".
 %  CLASS-WEIGHTING CONTRADICTION (author pending item 3.6, 2026-07-26). The prose said "The training pipeline
-%    counters the same imbalance with class-weighted cross-entropy", contradicting 5_mobiwac.tex:254 (Eq. 5.1
+%    counters the same imbalance with class-weighted cross-entropy", contradicting 5_mobiwac/04_method.tex:37 (Eq. 5.1
 %    context): "$L_{cat}$ and $L_{reg}$ are plain unweighted cross-entropy losses ... Class-weighting, tested on
 %    both outputs, lowered both region accuracy and category macro-F1" (identical in the version of record,
-%    articles/[mobiwac]/src/sections/04_method.tex:39). Fixed in Ch.2, not Ch.5. NOT scoped to an earlier study:
-%    neither 3_cbic.tex nor 4_courb.tex describes a class-weighted training loss anywhere (the only class weighting
-%    found in the codebase is research/embeddings/dgi/model/GCNEncoder.py:41-48, inside the DGI EMBEDDING
-%    pre-training, which is not the prediction training pipeline this sentence is about), so scoping it to Ch.3/Ch.4
-%    would have asserted a fact no committed chapter states. The sentence now names the real remedy (macro-F1 as
-%    the reporting metric) and reports the Ch.5 finding.
+%    articles/[mobiwac]/src/sections/04_method.tex:39). Fixed in Ch.2, not Ch.5, and NOT scoped to an earlier
+%    study: neither published chapter describes a class-weighted training loss, and the only class weighting in
+%    the codebase is inside the DGI embedding pre-training (research/embeddings/dgi/model/GCNEncoder.py:41-48),
+%    not the prediction pipeline this sentence is about. The sentence now names the real remedy (macro-F1 as the
+%    reporting metric) and reports the Ch.5 finding.
 %  wilcoxon1945          paired signed-rank test ("outperforms" bound to it) (VERIFIED PDF). [new bib]
 %  holm1979              Holm step-down family-wise correction
 %  lakens2017tost        TOST equivalence within a margin ("matches" bound to it, two-point margin) [new bib]
@@ -693,8 +651,7 @@ test within the stated margin.
 %  four-of-six + two-point margin (referenced in 2.5): confirm against Ch.5 RESULTS_BOARD.md / PAPER_PLAN §3 at adaptation (fact NOTE 10).
 % ---------------------------------------------------------------------------
 
-% Section 2.5 -- Relevance (synthesis; NO fresh citations)
-% Draft 1 (2026-07-21). Obeys WRITING_LAW.md + GLOSSARY.md. Argument-only ledger at the section end.
+% Section 2.5 -- Relevance (synthesis; NO fresh citations; argument-only ledger at its end)
 
 \section{Relevance}
 \label{sec:fund:relevance}

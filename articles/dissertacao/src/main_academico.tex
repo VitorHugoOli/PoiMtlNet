@@ -18,16 +18,13 @@
 % This file is deliberately TWO lines of content: the \def below and the \input after it.
 % Measure it rather than trusting this sentence:
 %   grep -v '^[[:space:]]*%' main_academico.tex | grep -cv '^[[:space:]]*$'   returns 2
-% and src_utils/check_comment_hygiene.py fails the build if that stops being true. The count
-% is anchored to the two commands by name, not to line numbers: a first draft of this header
-% said ":22-23 below" and was stale before the file was committed, which is the same class of
-% defect as the "four-line file" claim the rename pass removed from main.tex.
-% It sets one switch and reads main.tex, so the deposit PDF cannot drift from the defense
-% document except where \ifdefensebuild says it should.
+% and src_utils/check_comment_hygiene.py fails the build if that stops being true. The count is
+% anchored to the two commands by name, not to line numbers, because a line coordinate here went
+% stale before the file was ever committed.
 %
-% Build: `make academico` -> build/main_academico.pdf. Do not add content here. If something
-% belongs in every build it belongs in 0_main.tex; if it belongs only in this one, gate it on
-% \ifdefensebuild there (false in this build).
+% Build: `make academico` -> build/main_academico.pdf. Do not add content here: shared material
+% goes in content.tex or preamble.tex, and anything for this build alone is gated there on
+% \ifdefensebuild (false in this build).
 %
 % The three builds, the two switches and what each build is: the main.tex header, which is
 % the canonical telling and the one that travels with an Overleaf paste of src/.

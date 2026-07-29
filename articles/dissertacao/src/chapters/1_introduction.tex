@@ -191,7 +191,17 @@ than silently edited.
 % appendix by role rather than by letter because the surrounding sentence is about the
 % practice, not about a location; the sentences that send a reader to a specific correction
 % (Ch.3's preface and footnotes, Ch.4's preface, Ch.5's preface, the conclusion) carry the
-% letter. \extravolume is defined in 0_main.tex. The collection is organized as follows:
+% letter. \extravolume is defined in preamble.tex.
+% [round7 comment-trim pass, 2026-07-29] TRAPPED PROSE, REPORTED AND NOT FIXED. The lead-in
+% sentence "The collection is organized as follows:" sits on the line above INSIDE this comment
+% block, so it never reaches the PDF: rendered page 15 runs straight from "rather than silently
+% edited." into the first bullet with no lead-in. Verified in the render, not the source.
+% check_trapped_prose.py does not catch it (it returns 0 suspects for this file) because the
+% swallowed text is on a comment line rather than a prose line following one.
+% NOT FIXED HERE because restoring it would add a line of prose to page 15, and this pass is
+% required to leave the rendered PDF byte-identical. Author: move the sentence out of the comment,
+% then re-measure the page counts. Reported in src_utils/_round7/27_comment_trim.md.
+% The collection is organized as follows:
 
 \begin{itemize}
   \item \textbf{Chapter~\ref{ch:fundamentals}, Fundamentals}, consolidates the background the three
@@ -265,7 +275,7 @@ The contributions of this dissertation fall into four groups.
 \end{description}
 
 % [round5, persona 03 S3-05] "seed" first reached the reader here, on rendered p. 16, while its
-% definition sits at 5_mobiwac.tex:388 on p. 66 -- a fifty-page forward dependency in a frame
+% definition sits in 5_mobiwac/05_setup.tex on p. 66 -- a fifty-page forward dependency in a frame
 % chapter, where WRITING_LAW's define-at-first-use rule is in full force. The gloss added here uses
 % the registry's own wording, so Ch.5's definition is unchanged and stays canonical. The Abstract and
 % Resumo already comply by writing "random initializations" instead of the bare term.
