@@ -1,0 +1,28 @@
+{
+ "n_observations": 3650,
+ "datasets": [
+  "alabama",
+  "arizona",
+  "florida"
+ ],
+ "pooled_mean": 0.000999,
+ "pct_within_margin_0.05": 90.96,
+ "range": [
+  -0.3407,
+  0.5802
+ ],
+ "per_dataset_r_with_epoch": {
+  "florida": [
+   0.0006,
+   0.9724
+  ],
+  "alabama": [
+   -0.1804,
+   0.0042
+  ],
+  "arizona": [
+   -0.0476,
+   0.454
+  ]
+ }
+}
