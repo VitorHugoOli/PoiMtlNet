@@ -300,22 +300,34 @@ architecture, and the reasoning in Section~\ref{apx:cosine:mechanism} applies on
 shaped like this one.
 
 Three of the six datasets of Chapter~\ref{ch:mobiwac} are not represented above. California,
-Texas, and Istanbul are absent for reasons of computational cost rather than any difficulty of
-principle: they are the largest of the six, and the region task at that scale forces full
-single-precision training. The same diagnostic on those three needs no new method, only the
-compute, and it is the obvious next measurement. Until it exists, this appendix covers three of
-the dissertation's six datasets plus Georgia, and a reader should not extrapolate to the three
-that are missing.
+Texas, and Istanbul are absent for reasons of computational resource rather than any difficulty of
+principle: they are the largest of the six, the region task at that scale forces full
+single-precision training, and the attempt to measure them ran out of disk on the machine that
+would have done it. The diagnostic itself needs no new method. Until it is run, this appendix
+covers three of the dissertation's six datasets plus Georgia, and a reader should not extrapolate
+to the three that are missing.
 % [VERIFY: the per-dataset extension to California, Texas, and Istanbul. STATUS at the time this
 % appendix was written, from the job's own _status.json and not from its log: job 805120f1 on
 % ssh:nespedgpu was KILLED by SIGTERM at a 35-minute wall-clock cap (exitCode 124 at 35.0 min).
 % It completed alabama, arizona and georgia -- which is where three of this appendix's four
 % datasets come from -- and was cut off inside california's fold 1; texas and istanbul never
 % started. Texas and Istanbul were resubmitted as separate single-dataset jobs c2a02f5d and
-% d332e69e, and California as five per-fold jobs, so that each piece fits inside the cap. All were
-% in flight when this was written and none of their numbers had arrived, which is why the appendix
-% stops at four datasets: a coverage sentence naming a dataset whose observations are not in the
-% parquet is the defect that caution exists to avoid.
+% d332e69e, and California as five per-fold jobs (213ce119 for the retry).
+%
+% THE RUN IS BLOCKED, NOT PENDING, and the blocker is not compute. The GPU host's disk is FULL:
+% 373G of 393G used, 0 bytes available. That is what California actually died of --
+% "RuntimeError: basic_ios::clear: iostream error" is a failed WRITE, not a model failure -- and
+% two folds produced no output while their job still exited 0, which is the "well-formed output
+% carrying no data" shape of AGENT_HANDOFF §2.7. The space is pre-existing and belongs to other
+% work (61G in results/check2hgi/california/checkpoints; PoiMtlNet totals 94G); the diagnostic
+% runs themselves are about 15 MB. Freeing it is the author's decision and nothing was deleted.
+% ALSO DO NOT TRUST CALIFORNIA'S FOLDS 2 AND 3 IF YOU FIND THEM ON DISK: they were harvested by
+% a step that resolves the newest output directory, which races under concurrent jobs, and
+% "--only-fold k" writes its output as fold1_diagnostics.csv for every k, so the filename carries
+% no fold identity. The two files are byte-identical and cannot be attributed to a fold by any
+% evidence on disk. Using them would put a duplicated fold in a dissertation appendix.
+% This is why the appendix stops at four datasets: a coverage sentence naming a dataset whose
+% observations are not in the parquet is the defect that caution exists to avoid.
 % THREE ESTIMATION ERRORS ARE RECORDED HERE BECAUSE EACH WOULD HAVE REACHED THIS FILE, and they
 % share one lesson -- derive a runtime from the thing's OWN timestamps. (3) is the newest: California
 % was priced at 1.49 min/epoch by dividing the WHOLE JOB's elapsed time, which already covered
