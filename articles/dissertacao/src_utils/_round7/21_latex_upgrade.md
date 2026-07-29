@@ -344,9 +344,9 @@ demonstrably the document it claims to be, verified in the render rather than in
 | 2 | Build health | **GOOD** | All three: `tex_errors=0`, `Fatal=no`, overfull hbox 0, overfull vbox 0, undefined cites 0, undefined refs 0, `Float too large` 0, `Hfootnote` 0, `Label(s) may have changed` 0. Underfull hboxes 17/16/17 — cosmetic, `\OnehalfSpacing` in a justified one-column book, and not a margin risk (hand-off to 13). One package warning per build, identical: babel `Name 'brazil' is deprecated. Use 'brazilian' instead` (F19-4). |
 | 3 | Bibliography integrity (mechanical) | **GOOD** | `src/references.bib` (the only file `\bibliography{references}` loads): **100 entries, zero duplicate keys**. All three `.blg` present, **0 errors**, 1 warning each. The documented collision set is **absent**: `grep -c '^@.*{Wang_2023,'` and the same for `Liu_2023`/`Lai_2024` each return **0** here. Two DGI-family keys exist and are two *different* papers — `velickovic2019deep` is titled "Deep Graph Infomax", `velivckovic2017graph` is "Graph Attention Networks" — so this is two works, not one fragmented key. Backend is `bibtex` + `abntex2cite[num]` + `abntex2-num.bst`, matching the settled decision. |
 | 4 | Cross-reference plumbing | **NEEDS-WORK (minor)** | 50 `.tex` files swept, comments stripped and comment *tails* truncated. **259 live `\ref`-family calls: 249 tied with `~`, 9 preceded by a plain space, 1 other.** Zero labels before their caption; zero hardcoded "Figure 3.2"-style numbers; label prefixes consistent (`sec` 53, `tab` 16, `apx` 13, `eq` 9, `fig` 7, `ch` 6, `fn` 1). The 9 untied refs are F19-1. |
-| 5 | Graphics & floats (source) | **GOOD** | 7 `\includegraphics`: **zero hardcoded pt/cm widths, zero absolute paths**; 5 carry `width=\textwidth`, 2 carry no option at all (F19-5). 3 vector `.pdf` (MobiWac), 3 raster `.png` (CBIC/CoUrb, the published figures). Float placements: 18 `[htbp]`, 3 `[htb]`, **zero `[H]`**. No `svg`, so no `--shell-escape` dependency. |
+| 5 | Graphics & floats (source) | **GOOD** | 7 `\includegraphics`: **zero hardcoded pt/cm widths, zero absolute paths**; 5 carry `width=\textwidth`, 2 carry no option at all (F19-5). By extension, counted rather than recalled: **4 vector `.pdf`** (all MobiWac: `fig1_dataflow`, `fig2_model`, `fig3_embquality`, `fig4_deltas`) and **3 raster `.png`** (CBIC's `cbic_mtlnet_arch`, CoUrb's `arquitetura_modelo` and `distribuicao_estados` — the published figures), which sums to the 7. Float placements: 18 `[htbp]`, 3 `[htb]`, **zero `[H]`**. No `svg`, so no `--shell-escape` dependency. |
 | 6 | Two-build correctness | **GOOD — this is what changed** | Three entry files, each producing its own document, verified in the render: `main` 108 pp with cover+Resumo+Abstract; `main_academico` 105 pp with none of the three; `main_ppgc` 109 pp with all three plus the approval sheet. First numbered page prints its own physical position in all three (11/8/12). The new thin entry file is byte-equivalent to the injection it replaced across text, digits, page boxes and bookmarks. The F-1 trap is gone and its explanation remains. `\finalbuildfirstpage` still carries its measured derivation. |
-| 7 | Maintainability & reproducibility | **NEEDS-WORK (pre-existing)** | `% !TeX root` present in **all 50** files and every target resolves, including the two new roots. `src/` stays Overleaf-pasteable: **zero live references from `src/` into `src_utils/` or a parent**. `\sd{}` used 37 times across the table files. But **1 of 16 table files declares script provenance in its header** (F19-2). 13 manual layout commands, 10 of them in `0_main.tex`'s front matter where they are structural (`\vspace*{\fill}` on the cover), 3 `\vspace{2pt|6pt}` inside MobiWac tables. |
+| 7 | Maintainability & reproducibility | **NEEDS-WORK (pre-existing)** | `% !TeX root` present in **all 50** files and every target resolves, including the two new roots. `src/` stays Overleaf-pasteable: **zero live references from `src/` into `src_utils/` or a parent**. `\sd{}` used 37 times across the table files. But **1 of 16 table files declares script provenance in its header** — `tables/frame/lineage.tex`, which points at `tables/README.md` for its extraction provenance (F19-2). 13 manual layout commands, 10 of them in `0_main.tex`'s front matter where they are structural (`\vspace*{\fill}` on the cover), 3 `\vspace{2pt|6pt}` inside MobiWac tables. |
 | 8 | Portability | **NEEDS-WORK, and newly better** | Engine deps are declared and minimal; no shell-escape, no absolute paths. The deposit build was un-openable outside `make` until this pass and now is not — all three are a selectable compile root. Remaining risk is environmental rather than in the source: this machine's TeX is **BasicTeX** (`/usr/local/texlive/2026basic`) plus a usermode tree, which is why the preflight was worth adding. |
 
 ### Ranked findings
@@ -366,10 +366,18 @@ whitespace edit there is the author's call, not mine. Flagged, `[VERIFY]` V-3.
 **F19-2 (LOW, pre-existing) — 15 of 16 table files carry no script-provenance header.**
 
 TEMPLATE §3 and AGENT_GUARDRAILS N2 want numeric table cells generated by a committed script rather
-than hand-typed; only `tables/frame/bib_errata.tex` says where its numbers came from. This is the
-*source side* of number integrity, and the value check belongs to persona 06. *Direction:* add a
-one-line provenance comment naming the producing script or the source table per file. Out of my
-track's scope. Handed off.
+than hand-typed; only **`tables/frame/lineage.tex`** says where its numbers came from, via
+`% frame/lineage.tex -- one table. Extraction provenance and verification: tables/README.md`. The
+other 15 carry no such line, `tables/frame/bib_errata.tex` among them. This is the *source side* of
+number integrity, and the value check belongs to persona 06. *Direction:* add a one-line provenance
+comment naming the producing script or the source table per file. Out of my track's scope. Handed
+off.
+
+*(Correction, same pass: an earlier draft of this finding and of dimension 7 named
+`tables/frame/bib_errata.tex` as the file that carries provenance. The count of 1 was right and the
+file was wrong — `bib_errata.tex` is in the list of 15 that lack it, which my own producing cell had
+printed. A reader following the direction would have skipped the wrong file. Re-measured by printing
+both lists rather than only the count.)*
 
 **F19-3 (INFORMATIONAL) — `\usepackage[utf8]{inputenc}` is on l2tabu's obsolete list for modern
 engines but is correct here.** This document compiles with `pdflatex`, not LuaLaTeX or XeLaTeX, and
