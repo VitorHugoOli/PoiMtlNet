@@ -46,30 +46,24 @@
 %                Measured by counting two-column data rows between \midrule and \bottomrule, and
 %                between \endlastfoot and \end{longtable} for B.4, with LaTeX comments stripped.
 %                ROUND 8 (2026-07-30): B.2 goes 13 -> 14 and the total 43 -> 44, with the COD-016a
-%                readability rewrite of the "unbalanced result" sentence. The command, runnable from
-%                articles/dissertacao (AGENT_GUARDRAILS 4b V1, a count carries the command that
-%                produced it), and it prints one line per table plus the total:
-%   python3 - <<'PY'
-%   import re,sys; sys.path.insert(0,"src_utils")
-%   from check_audit_claims import live_text
-%   from pathlib import Path
-%   T=Path("src/tables"); tot=0
-%   for n,r in [("B.1","cbic/errata.tex"),("B.2","cbic/errata_wording.tex"),
-%               ("B.3","courb/errata.tex"),("B.4","frame/bib_errata.tex")]:
-%       t=live_text(T/r)
-%       b=(t.split("\endlastfoot",1)[1].split("\end{longtable}",1)[0]
-%          if "\begin{longtable}" in t else
-%          t.split("\midrule",1)[1].split("\bottomrule",1)[0])
-%       c=len([x for x in (y.strip() for y in b.split("\\\\"))
-%              if x and x.replace("\addlinespace","").strip()])
-%       tot+=c; print(n,r,c)
-%   print("TOTAL",tot)
-%   PY
-%                # EXPECT: B.1 8, B.2 14, B.3 4, B.4 18, TOTAL 44
-%                A CAVEAT ABOUT THAT SNIPPET, because it cost a wrong reading here first: splitting a
-%                LONGTABLE on \midrule lands inside its repeated header block, not on the body, and
-%                reports B.1 as 4. The \endlastfoot branch above is what makes the two containers
-%                comparable, and B.1 and B.4 are the two longtables.
+%                readability rewrite of the "unbalanced result" sentence. The command that produces
+%                these counts (AGENT_GUARDRAILS 4b V1, a count carries the command that produced it),
+%                runnable from articles/dissertacao:
+%                    python3 src_utils/count_errata_rows.py     # rc 0 when claim == tables
+%                It measures all four tables and reconciles them against THIS sentence, so the claim
+%                above is a checked expectation rather than an annotation: change a table without
+%                changing the sentence, or the reverse, and it exits 1 naming the table.
+%                A CAVEAT IT ENCODES AS A SELF-TEST, because it produced a wrong reading here first:
+%                splitting a LONGTABLE on \midrule lands inside its repeated per-page header instead
+%                of the body and reports B.1 as 4, so the body of a longtable starts at \endlastfoot.
+%                B.1 and B.4 are the two longtables.
+%                WHY A SCRIPT AND NOT A PASTED SNIPPET, which is what stood here until it was checked:
+%                the snippet wrote LaTeX control words as ordinary Python literals, where "\begin" is
+%                a backspace plus "egin" and "\addlinespace" is a bell plus "ddlinespace". Its
+%                longtable branch could therefore never fire. Run verbatim it printed B.1 12, B.2 15,
+%                B.3 5, B.4 22, TOTAL 54, contradicting the correct counts two lines above it. A
+%                command pasted into a LaTeX comment crosses two escaping layers before anyone runs
+%                it; a committed script crosses one and can test itself.
 %   Round 6 also gave Article 1 its first additions paragraph, the counterpart of the CoUrb section's
 %                eight-addition paragraph, covering the preface, the convergence lead sentence, and the
 %                four protocol facts recovered for COD-007. The CoUrb additions paragraph rises from
