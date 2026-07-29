@@ -30,9 +30,9 @@
 %                undercounted the table by one. That row belongs to the references track.
 %                Table B.4 gained 2 further rows in the references pass of 2026-07-25
 %                (Kohavi DOI dropped; Rußwurm re-typed to ICLR 2024), for 14 total.
-%   Itemized rows, RE-MEASURED 2026-07-28 (round 6) by parsing each table's own body rather than
-%                carrying the previous arithmetic forward: B.1 CBIC content 8, B.2 CBIC wording 13,
-%                B.3 CoUrb content 4, B.4 bibliography 18. Total 43. Table B.5 (MobiWac claim-scope)
+%   Itemized rows, RE-MEASURED 2026-07-30 (round 8) by parsing each table's own body rather than
+%                carrying the previous arithmetic forward: B.1 CBIC content 8, B.2 CBIC wording 14,
+%                B.3 CoUrb content 4, B.4 bibliography 18. Total 44. Table B.5 (MobiWac claim-scope)
 %                holds 2 and is counted separately, since the under-review regime puts most of that
 %                chapter's corrections in the article's own errata record instead.
 %                THE PREVIOUS CLAIM HERE WAS "6 + 13 + 3 + 14 = 36", and two of its four terms were
@@ -45,6 +45,31 @@
 %                (the Nash-MTL guarantee narrowing), which is what takes the two tables to 8 and 4.
 %                Measured by counting two-column data rows between \midrule and \bottomrule, and
 %                between \endlastfoot and \end{longtable} for B.4, with LaTeX comments stripped.
+%                ROUND 8 (2026-07-30): B.2 goes 13 -> 14 and the total 43 -> 44, with the COD-016a
+%                readability rewrite of the "unbalanced result" sentence. The command, runnable from
+%                articles/dissertacao (AGENT_GUARDRAILS 4b V1, a count carries the command that
+%                produced it), and it prints one line per table plus the total:
+%   python3 - <<'PY'
+%   import re,sys; sys.path.insert(0,"src_utils")
+%   from check_audit_claims import live_text
+%   from pathlib import Path
+%   T=Path("src/tables"); tot=0
+%   for n,r in [("B.1","cbic/errata.tex"),("B.2","cbic/errata_wording.tex"),
+%               ("B.3","courb/errata.tex"),("B.4","frame/bib_errata.tex")]:
+%       t=live_text(T/r)
+%       b=(t.split("\endlastfoot",1)[1].split("\end{longtable}",1)[0]
+%          if "\begin{longtable}" in t else
+%          t.split("\midrule",1)[1].split("\bottomrule",1)[0])
+%       c=len([x for x in (y.strip() for y in b.split("\\\\"))
+%              if x and x.replace("\addlinespace","").strip()])
+%       tot+=c; print(n,r,c)
+%   print("TOTAL",tot)
+%   PY
+%                # EXPECT: B.1 8, B.2 14, B.3 4, B.4 18, TOTAL 44
+%                A CAVEAT ABOUT THAT SNIPPET, because it cost a wrong reading here first: splitting a
+%                LONGTABLE on \midrule lands inside its repeated header block, not on the body, and
+%                reports B.1 as 4. The \endlastfoot branch above is what makes the two containers
+%                comparable, and B.1 and B.4 are the two longtables.
 %   Round 6 also gave Article 1 its first additions paragraph, the counterpart of the CoUrb section's
 %                eight-addition paragraph, covering the preface, the convergence lead sentence, and the
 %                four protocol facts recovered for COD-007. The CoUrb additions paragraph rises from
@@ -197,7 +222,11 @@ time, and one refers to the lack of significant improvement from that model. Bot
 left as published, because both understate rather than overstate what the chapter shows:
 they qualify results the chapter reports as negative, so removing the word would make the
 chapter's own conclusion sound stronger than it was. A reader should nevertheless read
-them descriptively, since no inferential test supports either. The final row records a footnote added to a definition rather than
+them descriptively, since no inferential test supports either. The thirteenth row records a
+sentence rewritten for readability: the published clause about an ``unbalanced result'' between
+the two models had no grammatical referent for what it said this could make worse, and the
+chapter now states the same possibility in the terms the surrounding paragraph establishes,
+with its hedge preserved. The final row records a footnote added to a definition rather than
 a substitution. No edit in this table raises the strength of a claim.
 
 \input{tables/cbic/errata_wording}

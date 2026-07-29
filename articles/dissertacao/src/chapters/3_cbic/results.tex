@@ -127,7 +127,36 @@ As shown in Table~\ref{tab:cbic:category}, both our MTL and Single models outper
 
 
 \subsubsection{Next POI Category Prediction}
-The results for next POI category prediction, detailed in Table~\ref{tab:cbic:next}, indicate a competitive performance landscape. The MHA+PE model \cite{zeng2019next} shows strong F1-scores in several categories, notably `Food' ($43.47 \pm 0.50$) and `Shopping' ($43.53 \pm 1.66$), outperforming our MTL and Single models in these instances. However, our MTL model achieves the best F1-score in `Travel' ($64.61 \pm 1.11$) and `Nightlife' ($22.07 \pm 0.52$), surpassing MHA+PE in these two categories. The Single model also shows competitive results, leading in `Entertainment' ($26.06 \pm 1.01$) and `Outdoors' ($22.45 \pm 0.81$). This suggests that while MHA+PE is highly effective for certain POI categories, our MTL and Single models offer superior or comparable performance in others, particularly where different sequential patterns might be exploited. Also, it is important to notice that since we have an unbalanced result for the MTL and single, this could lead to the worse of other results.
+The results for next POI category prediction, detailed in Table~\ref{tab:cbic:next}, indicate a competitive performance landscape. The MHA+PE model \cite{zeng2019next} shows strong F1-scores in several categories, notably `Food' ($43.47 \pm 0.50$) and `Shopping' ($43.53 \pm 1.66$), outperforming our MTL and Single models in these instances. However, our MTL model achieves the best F1-score in `Travel' ($64.61 \pm 1.11$) and `Nightlife' ($22.07 \pm 0.52$), surpassing MHA+PE in these two categories. The Single model also shows competitive results, leading in `Entertainment' ($26.06 \pm 1.01$) and `Outdoors' ($22.45 \pm 0.81$). This suggests that while MHA+PE is highly effective for certain POI categories, our MTL and Single models offer superior or comparable performance in others, particularly where different sequential patterns might be exploited. One further point concerns how these leads are distributed. The MTL and Single models do not lead consistently across the categories, each obtaining the better F1-score in some of them, and this uneven distribution could make either model appear worse in the categories where the other one leads.
+% [COD-016a, round8, 2026-07-30] PUBLISHED SENTENCE REWRITTEN FOR READABILITY. Author decision,
+% PENDENCIAS 5.3, quoted: "vamos refaze-la para ser mais entendivel e facil de ser lida", with
+% "Vamsos reformula-la e adicionar no appendix" authorizing the errata row.
+% Published wording, verbatim from articles/CBIC___MTL/sections/results.tex:34 and identical here
+% before this edit: "Also, it is important to notice that since we have an unbalanced result for the
+% MTL and single, this could lead to the worse of other results."
+% WHAT MOVED AND WHAT DID NOT. Three defects made it unreadable, and each is addressed without
+% changing what it asserts: "unbalanced result for the MTL and single" is a noun phrase for the
+% pattern the two preceding sentences have just described in full (MTL leads Travel and Nightlife,
+% Single leads Entertainment and Outdoors), so it now names that pattern as an uneven distribution of
+% the per-category leads; "the worse of other results" has no grammatical referent, and the referent
+% the surrounding paragraph supplies is the remaining categories, where whichever model does not lead
+% shows the lower score; and the sentence carried two subordinate clauses under one hedge, so it is
+% split in two. The hedge is preserved exactly: "could", not "does".
+% NO NUMBER, NO TABLE CELL AND NO VERB OF VERDICT CHANGES, and the claim is not strengthened: it
+% remains a possibility about how the per-category reading looks, not a measured finding. The
+% chapter reports no inferential test, and this sentence still asserts none.
+% THE INTERPRETATION IS THE ONE RECORDED IN PENDENCIAS 5.3, which reads the intended meaning as "a
+% comparacao por categoria pode parecer pior que o agregado". It is an interpretation of published
+% co-authored prose, which is why the marker below is here even though the rewrite itself is
+% authorized: what needs the author's eye is the reading, not the permission.
+% ERRATA: recorded in the supplementary volume, chapters/apx_b_errata.tex, as a new row of
+% Table~B.2 (CBIC wording substitutions), which takes that table from 13 rows to 14.
+% [NEEDS SIGN-OFF: COD-016a, round8, 2026-07-30 | AUTHOR -- a published, co-authored sentence rewritten
+% for clarity. Confirm that "each model leads in some categories, so the other appears worse in those"
+% is what the original meant. If you read it instead as being about the imbalance of the CATEGORY
+% DISTRIBUTION (the Food class dominating the data) rather than about the split of the leads between
+% the two models, say so and I will re-do the sentence and the errata row, because those are two
+% different claims and only you can settle which one you and your co-authors wrote.]
 
 \input{tables/cbic/next}
 
