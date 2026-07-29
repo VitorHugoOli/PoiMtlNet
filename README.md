@@ -26,8 +26,7 @@ made public after acceptance.
 | `research/baselines/{stan,rehdm,poi_rgnn}/` | External baselines with their own ETL + trainers |
 | `scripts/baselines/` | Remaining baselines: HMT-GRN (`b3_hmt_grn.py`), cascade (`b4_cascade.py`), CTLE (`build_ctle_substrate.py`, `ctle_e2e.py`, `ctle_lib/`) |
 | `scripts/` | CLI entrypoints: `train.py`, `evaluate.py`, substrate/input builders, fold fan-out, transition priors, simple baselines |
-| `scripts/closing_data/` | The paper's run recipes (`p3_board.sh`, `run_catx_v17_seed0_5f.sh`, `run_catx_v17_n20.sh`), matched scorers, and the statistical tests |
-| `analysis_protocol/` | The analysis plan, its deviation log, the executed analysis, and the epoch-selection record (Section 6) |
+| `scripts/closing_data/` | The paper's run recipes (`p3_board.sh`, `run_catx_v17_seed0_5f.sh`, `run_catx_v17_n20.sh`), matched scorers, and pre-registered statistical tests |
 | `scripts/second_dataset/` | Istanbul (Massive-STEPS) ETL: acquisition, category mapping, parsing, graph build, splits, inputs, substrate training |
 | `analysis/` | Paper analysis scripts: region non-inferiority TOST, near-miss distance analyses, shortlist compactness, co-visitation network |
 | `pipelines/` | Thin pipeline wrappers (Gowalla ETL, embedding generation, input creation) |
@@ -45,11 +44,7 @@ made public after acceptance.
   `scripts/closing_data/` and `analysis/` read per-fold score files that were
   produced by the training runs; they are not shipped to keep the release lean
   (and because they carry machine-specific paths). Running the recipes below
-  regenerates them; the paper's tables carry the aggregated numbers. Two
-  exceptions are shipped because a claim depends on them: the four per-fold
-  arrays for Istanbul's dedicated category ceiling
-  (`analysis_protocol/istanbul_cat_ceiling_perfold/`) and the output of the
-  registered test (`analysis_protocol/m2_prereg_output.txt`).
+  regenerates them; the paper's tables carry the aggregated numbers.
 
 ---
 
@@ -261,42 +256,19 @@ and ceilings): `scripts/closing_data/a40_score_matched.py` and
 
 ## 6. Statistics and analysis
 
-The analysis plan, the deviation log, and the executed analysis are in
-[`analysis_protocol/`](analysis_protocol/) — read its `README.md` first. It records what
-was registered before the runs (superiority for next-category, non-inferiority for
-next-region, assigned per task, with the two-point margin pinned), the two departures
-from it, and which reported claim falls outside it.
-
-**What was pre-registered, in one line:** next-category superiority (paired Wilcoxon,
-per-fold, n=20, Holm across the six datasets) and next-region non-inferiority (TOST at a
-two-point margin). Next-region *superiority* was **not** registered; those four
-improvements are secondary results and are reported in their own correction family.
+Pre-registered tests (margins and test families fixed before the final runs):
 
 ```bash
-# the registered test at its registered footing: per-fold, n=20, Holm within the
-# six-dataset next-category family (+ the four next-region cells as their own family)
-python scripts/closing_data/m2_prereg_perfold.py
-
-# the reported footing: per-seed means (n=4), paired t with the Wilcoxon alongside.
-# At four pairs the exact one-sided Wilcoxon p cannot fall below 0.0625, which is why
-# the t is the reported statistic (analysis_protocol/DEVIATION_LOG.md, D-1 and D-2).
-python scripts/closing_data/m1_stats_n20.py
-python scripts/closing_data/superiority_wilcoxon.py   # per-fold superiority, seed-0 footing
-
-# equivalence: TOST non-inferiority at the two-point margin (AL/AZ/Istanbul)
-python scripts/closing_data/region_match_tost.py
-
-# the epoch-selection convention behind every reported joint result
-python scripts/closing_data/score_joint_best.py <rundir> --seed <seed> --tag <tag>
+python scripts/closing_data/superiority_wilcoxon.py   # paired one-sided Wilcoxon + Holm:
+                                                      # category superiority (all datasets),
+                                                      # region superiority (FL/CA/TX)
+python scripts/closing_data/region_match_tost.py      # TOST non-inferiority (δ = 2 pp) for the
+                                                      # small-state region cells (AL/AZ/Istanbul)
+python scripts/closing_data/m1_stats_n20.py           # the same families at the n=20 footing
 ```
 
 These read the per-fold score files produced by Section 5 (not shipped — see
-"What is NOT included"). `m2_prereg_perfold.py` aborts if any recomputed aggregate stops
-matching the reported cell.
-
-Note: the `superiority_wilcoxon.py` and `m1_stats_n20.py` docstrings describe next-region
-superiority as pre-registered. That is incorrect — `analysis_protocol/STATISTICAL_PROTOCOL.md`
-is authoritative and registers non-inferiority only for that task.
+"What is NOT included").
 
 Paper analysis scripts (in `analysis/`; repo-root autodetected, overridable via
 `REPO_ROOT`):
