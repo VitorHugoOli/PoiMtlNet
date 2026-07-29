@@ -224,9 +224,48 @@ path between those poles, with the decisive variable named and tested.
 Six limitations bound the scope of these conclusions.
 
 \begin{enumerate}
-  \item \textbf{Data vintage.} The five state datasets come from Gowalla check-ins
-        collected between 2009 and 2011; mobility patterns, place inventories, and
+  \item \textbf{Data vintage.} The five state datasets come from Gowalla, whose public
+        check-ins were collected between February 2009 and October 2010
+        \cite{cho2011gowalla}; mobility patterns, place inventories, and
         check-in behavior have changed since.
+% [COD/PENDENCIAS 5.6, round8, 2026-07-30] "collected between 2009 and 2011" -> "collected between
+% February 2009 and October 2010", with the citation added. Author decision, PENDENCIAS 5.6: "Busque
+% pelo que o artigo original cita e vamos usar isso em ambos. Inclusive ambos usaram o mesmo recorte
+% nao houve diferenca."
+% SOURCED THIS SESSION, first hand. Cho, Myers and Leskovec, "Friendship and Mobility: User Movement
+% in Location-Based Social Networks", KDD 2011, DOI 10.1145/2020408.2020579. The publisher copy is
+% closed (Unpaywall, Semantic Scholar, PMC, Elsevier and Springer all returned no open copy); the
+% authors' own posted PDF was opened at cs.stanford.edu/people/jure/pubs/mobile-kdd11.pdf, 9 pages.
+% Section 2, "CHARACTERISTICS OF CHECK-INS", page 2, states: "We collected all the public check-in
+% data between Feb. 2009 and Oct. 2010 for Gowalla and Apr. 2008 to Oct. 2010 for Brightkite. The
+% total number of check-ins for Gowalla is 6.4 million". Only the window is used here; the 6.4 million
+% figure is NOT quoted in the text, because it counts the whole SNAP collection and not the five-state
+% subset this work uses.
+% CHAPTER 4 NEEDS NO EDIT, which is why this is a one-file change rather than two. Its published prose
+% at 4_courb/conclusion.tex:20 already reads "collected between February 2009 and October 2010", the
+% paper's window verbatim, so the two chapters now agree and no published text is touched. Checked
+% against the Portuguese record and the English translation, ../CoUrb_2026/src/sections/conclusion.tex
+% and src_en/sections/conclusion.tex: both carry the same window.
+% A MEASURED FACT THIS DOES NOT ERASE, and it is the reason for the marker below. The provenance
+% comment at 5_mobiwac/05_setup.tex:17-21 records that the data this work actually consumes is the
+% figshare CC0 category-annotated dump (36,001,959 check-ins), whose date range was MEASURED on the
+% parquet on 2026-07-09 as 2009-01-21 to 2011-08-16, and it states that the SNAP/cho2011 dump is not
+% the data source. That measurement is where "2009 and 2011" came from, so it was not a careless
+% number, and it is left in place unaltered. The sentence above is therefore written as a statement
+% about the GOWALLA COLLECTION as its own paper reports it, not as a claim about the span of the five
+% parquet files, which is the only form in which the author's instruction and the measurement can both
+% stand. PENDENCIAS 5.6's own warning applies and is respected: do not "correct" a measured number to
+% match an inherited one.
+% [NEEDS SIGN-OFF: PENDENCIAS 5.6, round8, 2026-07-30 | AUTHOR -- your decision is applied and Chapter 4
+% needed no change, but ONE PREMISE OF IT IS NOT CONFIRMED HERE. You wrote that both studies used the
+% same extract ("ambos usaram o mesmo recorte nao houve diferenca"). The repository's own measurement
+% disagrees: Chapter 5's pipeline reads a 36-million-check-in figshare dump spanning 2009-01-21 to
+% 2011-08-16, while the window now printed in both chapters is the 6.4-million-check-in SNAP collection
+% window from the paper. Those are two different artifacts, so a reader who checks could find the
+% dissertation citing a window narrower than the data behind Chapter 5. If Chapter 4's study did read
+% the SNAP dump and Chapter 5's reads figshare, the honest form is one clause saying so, and I did not
+% add it because whether the two extracts are the same is a fact about your own runs that I cannot
+% establish from this repository.]
   \item \textbf{Taxonomy coarseness.} The category task uses seven top-level classes;
         finer-grained taxonomies may behave differently under joint training.
   \item \textbf{Transductive representation.} The check-in-level representation is
