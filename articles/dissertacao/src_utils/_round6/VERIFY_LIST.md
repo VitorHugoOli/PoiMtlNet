@@ -37,8 +37,8 @@ Before anything else, one command reproduces the build state every other row ass
 
 ```bash
 cd ~/Desktop/mestrado/ingred/articles/dissertacao && source src_utils/texenv.sh \
-  && (cd src && make defense && make final && make ppgc)
-grep -h 'Output written' src/build/main.log src/build/main_final.log src/build/main_ppgc.log
+  && (cd src && make defense && make academico && make ppgc)
+grep -h 'Output written' src/build/main.log src/build/main_academico.log src/build/main_ppgc.log
 ```
 Expect **108, 105, 109 pages**. (This rewrites the tracked `src/dissertacao.pdf`; `git checkout --
 articles/dissertacao/src/dissertacao.pdf` afterwards if you do not intend to commit it.)
@@ -444,7 +444,7 @@ you to eyeball three PDFs:
 ```bash
 python3 - <<'PY'
 import pypdfium2 as pdfium, re
-for stem in ("main", "main_final", "main_ppgc"):
+for stem in ("main", "main_academico", "main_ppgc"):
     d = pdfium.PdfDocument(f"src/build/{stem}.pdf")
     for i in range(min(20, len(d))):
         t = d[i].get_textpage().get_text_range()
@@ -459,16 +459,19 @@ PY
 # EXPECT: contains=main        first numbered page: physical  11 prints  11  OK
 ```
 
-**What the answer should be.** Three `OK` lines: `main` physical 11 prints 11, `main_final` physical 8
-prints **8**, `main_ppgc` physical 12 prints 12. Before this round `main_final` printed 11 on physical
-page 8, and every page after it inherited that three-page error. Run `make defense && make final &&
-make ppgc` first if `src/build/` is stale.
+**What the answer should be.** Three `OK` lines: `main` physical 11 prints 11, `main_academico`
+physical 8 prints **8**, `main_ppgc` physical 12 prints 12. Before this round the deposit build
+(then `main_final`) printed 11 on physical page 8, and every page after it inherited that three-page
+error. Run `make defense && make academico && make ppgc` first if `src/build/` is stale.
+(The deposit target was renamed `final` -> `academico` on 2026-07-29, LATEX_UPGRADE.md §4 A-1; the
+command above is executed by `src_utils/check_verify_list.py`, so the stem here is live tooling and
+not a frozen record.)
 
 ### A5. The footnote links
 
 **What to check.** That clicking a footnote mark no longer jumps to page 1.
 
-**How.** `grep -c Hfootnote src/build/main.log src/build/main_final.log src/build/main_ppgc.log`,
+**How.** `grep -c Hfootnote src/build/main.log src/build/main_academico.log src/build/main_ppgc.log`,
 then click a footnote mark in the PDF.
 
 **What the answer should be.** **0** in all three logs, and the mark should be plain text with no link.

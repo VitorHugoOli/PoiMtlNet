@@ -308,6 +308,23 @@ while this ran. Their work was kept and improved, never reverted:
   block are left alone deliberately -- `sync_page_counts.py`'s `CLAIMS` regexes still anchor on them,
   and that file is theirs.
 
+## 7.1 - Two things my commit boundaries do NOT say cleanly
+
+Disclosed because the commit messages imply a tidier split than happened, and a reader auditing by
+commit would be misled.
+
+- **`d9584fca` is titled as the sign-off commit but also carries part of the `0_main.tex` comment
+  work** (9 of the added lines match the `[fixed]` / aux-tree / format-dump blocks). `0_main.tex` was
+  staged whole, and the two pieces of work were in it at the same time. The content is right and both
+  pieces are described in the round's commits; the attribution by commit is not clean.
+  `git show d9584fca -- articles/dissertacao/src/0_main.tex` shows exactly what landed there.
+- **`ce45c051` carries one NON-comment line that is not mine:** `main.tex`'s
+  `\ifdefined\FINALBUILD` -> `\ifdefined\ACADEMICOBUILD`, from the concurrent rename track, which
+  was in the working copy when I committed the file. Committing the file whole PRESERVES their work
+  rather than reverting it, which is the required behaviour, but it means this commit is not
+  comment-only despite its subject line. It is the single exception behind the "non-comment content
+  byte-identical" claim throughout this report.
+
 ## 8 - [VERIFY] flags and what could not be confirmed
 
 - **[VERIFY: the bottom-margin figure is derived from `\lowermargin`, not from the rendered page box.]**

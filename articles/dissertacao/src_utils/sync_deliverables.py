@@ -39,7 +39,10 @@ DELIVERABLES = {
     "src_utils/_archive/PENDENCIAS_RESOLVIDOS.md": "PENDENCIAS_RESOLVIDOS.md",
     "science/AGENT_HANDOFF.md": "AGENT_HANDOFF.md",
     "src/dissertacao.pdf": "dissertacao_v3_defense.pdf",
-    "src/build/main_final.pdf": "dissertacao_v3_final.pdf",
+    # main_final.pdf -> main_academico.pdf on 2026-07-29 (LATEX_UPGRADE.md §4 A-1). The
+    # WORKSPACE name keeps "final" on purpose: it is what already-saved artifacts are called,
+    # and renaming it would fork the artifact's version history rather than continue it.
+    "src/build/main_academico.pdf": "dissertacao_v3_final.pdf",
 }
 
 

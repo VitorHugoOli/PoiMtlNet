@@ -1,7 +1,7 @@
 #!/bin/bash
 # Build the dissertation and verify the result honestly.
 #
-#   usage: src_utils/build.sh <srcdir> [defense|final|both]
+#   usage: src_utils/build.sh <srcdir> [defense|academico|both]     ('final' still accepted)
 #   e.g.   src_utils/build.sh src both
 #
 # This lived in /tmp for one whole working session and was swept mid-session, which silently turned
@@ -38,7 +38,7 @@ if ! kpsewhich pdftex.map >/dev/null 2>&1 || ! grep -q "^ntx-Regular" "$TEXMFVAR
   updmap-user --quiet >/dev/null 2>&1 || true
 fi
 
-SRC="${1:?usage: build.sh <srcdir> [defense|final|both]}"
+SRC="${1:?usage: build.sh <srcdir> [defense|academico|both]}"
 MODE="${2:-defense}"
 cd "$SRC" || exit 1
 mkdir -p build build/chapters
@@ -51,22 +51,30 @@ run_defense() {
   pdflatex -interaction=nonstopmode -output-directory=build main.tex >/dev/null 2>&1
   pdflatex -interaction=nonstopmode -output-directory=build main.tex >/dev/null 2>&1
 }
-run_final() {
-  J="-jobname=main_final"; F="\def\FINALBUILD{}\input{main.tex}"
-  pdflatex -interaction=nonstopmode -output-directory=build $J "$F" >/dev/null 2>&1
-  BIBINPUTS=.: TEXMFOUTPUT=build bibtex build/main_final >/dev/null 2>&1 || true
-  pdflatex -interaction=nonstopmode -output-directory=build $J "$F" >/dev/null 2>&1
-  BIBINPUTS=.: TEXMFOUTPUT=build bibtex build/main_final >/dev/null 2>&1 || true
-  pdflatex -interaction=nonstopmode -output-directory=build $J "$F" >/dev/null 2>&1
-  pdflatex -interaction=nonstopmode -output-directory=build $J "$F" >/dev/null 2>&1
+# The deposit build. Was `run_final`, writing main_final.pdf from a command-line
+# "\def\FINALBUILD{}\input{main.tex}" injection, until 2026-07-29: the author renamed the build
+# `academico` and it now has its own thin entry file (LATEX_UPGRADE.md §4 A-1/A-2/A-3), so this
+# compiles main_academico.tex like the other two and injects nothing.
+run_academico() {
+  J="-jobname=main_academico"
+  pdflatex -interaction=nonstopmode -output-directory=build $J main_academico.tex >/dev/null 2>&1
+  BIBINPUTS=.: TEXMFOUTPUT=build bibtex build/main_academico >/dev/null 2>&1 || true
+  pdflatex -interaction=nonstopmode -output-directory=build $J main_academico.tex >/dev/null 2>&1
+  BIBINPUTS=.: TEXMFOUTPUT=build bibtex build/main_academico >/dev/null 2>&1 || true
+  pdflatex -interaction=nonstopmode -output-directory=build $J main_academico.tex >/dev/null 2>&1
+  pdflatex -interaction=nonstopmode -output-directory=build $J main_academico.tex >/dev/null 2>&1
 }
 
 BUILT=""
 case "$MODE" in
-  defense) run_defense; BUILT="main";;
-  final)   run_final;   BUILT="main_final";;
-  both)    run_defense; run_final; BUILT="main main_final";;
-  *) echo "unknown mode: $MODE"; exit 2;;
+  defense)   run_defense; BUILT="main";;
+  academico) run_academico; BUILT="main_academico";;
+  # `final` was this mode's name until 2026-07-29. Kept as an accepted spelling rather than
+  # removed: `build.sh src both` is what the documented protocol calls, but `src final` appears
+  # in older notes, and a mode name that silently exits 2 would read as a broken script.
+  final)     run_academico; BUILT="main_academico";;
+  both)      run_defense; run_academico; BUILT="main main_academico";;
+  *) echo "unknown mode: $MODE (defense|academico|both; 'final' = academico, renamed 2026-07-29)"; exit 2;;
 esac
 
 # NOTE: we already cd'd into "$SRC", so the verifier must resolve paths from the CURRENT
@@ -77,7 +85,7 @@ BUILT="$BUILT" python3 - "$PWD" <<'PY'
 import os, re, sys
 src = sys.argv[1]
 built = os.environ.get("BUILT", "").split()
-label = {"main": "DEFENSE", "main_final": "FINAL"}
+label = {"main": "DEFENSE", "main_academico": "ACADEMICO"}
 rc = 0
 for stem in built:
     lg = os.path.join(src, "build", stem + ".log")

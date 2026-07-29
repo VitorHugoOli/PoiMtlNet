@@ -26,22 +26,31 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 # (file, regex with ONE capture group for the number, which build the number refers to)
+#
+# THE THIRD FIELD IS THE INTERNAL KEY, NOT DOC TEXT. It was "final" until 2026-07-29 and is now
+# "academico", matching measured() below and the renamed build (LATEX_UPGRADE.md §4 A-1). The
+# REGEXES are deliberately NOT renamed with it: they match what the author-facing documents
+# actually say, and those documents still say `make final` / `main_final.pdf`. Renaming a
+# pattern to match a document that has not changed is how this tool went silent on 2026-07-28 --
+# it printed nothing and exited 0 while four page-count claims went unchecked. If a document is
+# later reworded to `academico`, change its pattern HERE in the same commit and confirm this
+# script still reports it (an UNMATCHED line is the loud failure; there is no silent skip).
 CLAIMS = [
     # CLAUDE.md §1 was rewritten 2026-07-28 to describe three builds; these patterns follow it.
     ("CLAUDE.md",                r"`build/main\.pdf` \(\*\*(\d+) pp\*\*\)", "defense"),
-    ("CLAUDE.md",                r"`build/main_final\.pdf` \(\*\*(\d+) pp\*\*", "final"),
+    ("CLAUDE.md",                r"`build/main_final\.pdf` \(\*\*(\d+) pp\*\*", "academico"),
     ("CLAUDE.md",                r"`build/main_ppgc\.pdf` \(\*\*(\d+) pp\*\*", "ppgc"),
     ("PLAN.md",                  r"defense \*\*(\d+) pp\*\*", "defense"),
-    ("PLAN.md",                  r"final AcademicoPG \*\*(\d+) pp\*\*", "final"),
+    ("PLAN.md",                  r"final AcademicoPG \*\*(\d+) pp\*\*", "academico"),
 
     # PENDENCIAS was rewritten as a three-part tracker on 2026-07-28 and its build state is now a
     # table row per target, not a "X/Y" pair in prose. The old patterns SKIPped silently after that,
     # which is the same failure this whole tool exists to prevent: a page-count claim nobody checks.
     ("src_utils/PENDENCIAS.md",  r"`make defense` -> `main\.pdf` \| \*\*(\d+)\*\*", "defense"),
-    ("src_utils/PENDENCIAS.md",  r"`make final` -> `main_final\.pdf` \| \*\*(\d+)\*\*", "final"),
+    ("src_utils/PENDENCIAS.md",  r"`make final` -> `main_final\.pdf` \| \*\*(\d+)\*\*", "academico"),
     ("src_utils/PENDENCIAS.md",  r"`make ppgc` -> `main_ppgc\.pdf` \| \*\*(\d+)\*\*", "ppgc"),
     ("src_utils/codex_reviewer.md", r"The builds on disk are \*\*(\d+)/\d+ pages\*\*", "defense"),
-    ("src_utils/codex_reviewer.md", r"The builds on disk are \*\*\d+/(\d+) pages\*\*", "final"),
+    ("src_utils/codex_reviewer.md", r"The builds on disk are \*\*\d+/(\d+) pages\*\*", "academico"),
 ]
 
 
@@ -49,7 +58,10 @@ def measured() -> dict[str, int]:
     out = {}
     # ppgc added 2026-07-28: three targets now, and a claim about a target this tool does not
     # measure would raise a KeyError rather than being silently skipped, which is the right failure.
-    for stem, key in (("main", "defense"), ("main_final", "final"), ("main_ppgc", "ppgc")):
+    # main_final -> main_academico on 2026-07-29 (LATEX_UPGRADE.md §4 A-1). The stem is
+    # hardcoded here and in five other tools; a missed one does not error, it silently reports
+    # the page count of a log that is no longer written.
+    for stem, key in (("main", "defense"), ("main_academico", "academico"), ("main_ppgc", "ppgc")):
         log = ROOT / "src" / "build" / f"{stem}.log"
         if not log.exists():
             sys.exit(f"no {log.relative_to(ROOT)} -- build first, this script reads the real log")
