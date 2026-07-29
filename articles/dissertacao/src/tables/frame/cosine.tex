@@ -1,0 +1,53 @@
+% !TeX root = ../../main.tex
+% Table for Appendix F (apx_f_cosine.tex): the gradient-cosine equivalence result.
+%
+% EVERY CELL RE-DERIVED from src_utils/_round7/gradient_cosine_observations.parquet by
+% src_utils/_round7/cosine_stats.py; its printed output is quoted in
+% src_utils/_round7/24_extra_and_cosine.md. No cell is copied from a README or a brief.
+%
+% THE UNIT COLUMN IS NOT DECORATION. It names what n counts, because the 50 per-epoch cosines
+% within a fold are one training trajectory and are not independent. Florida aggregates to
+% configuration means (its 12 configurations reuse the same 5 folds); Alabama and Arizona to
+% fold means. A p-value in this table without its unit is meaningless, which is why the unit
+% and n sit in the same column group as the tests.
+%
+% ALABAMA'S t-TEST COLUMN IS DELIBERATELY ACCOMPANIED BY THE SIGN TEST AND ITS FLOOR. At n=5
+% the exact sign test cannot return below 0.0625 even when all five values agree, so the
+% t-test's 0.0125 rests entirely on normality at n=5. Reporting the t-test alone would present
+% a suggestive pattern as an established effect; the floor column is what stops that reading.
+\begin{table}[htbp]
+    \centering
+    \caption{The cosine between the next-region and next-category gradients on the shared
+    trunk, on four datasets. Equivalence to zero is a two one-sided test (TOST) against a margin
+    of $\pm 0.05$; it holds at every dataset, and the TOST column gives the order of magnitude of
+    its $p$-value. Tests are computed on the independent unit named in the second column and
+    never on the individual observations, because the fifty per-epoch values within a fold are
+    one training trajectory rather than fifty independent draws; the observation count describes
+    the data and is not the sample size of any test. Alabama and Georgia both show all five fold
+    means positive with a $t$-test that rejects zero, but the exact sign test is at its floor at
+    five observations, marked $\dagger$, so each is a consistent tendency rather than an
+    established effect. Florida's unit is the configuration because its twelve configurations
+    reuse the same five folds.}
+    \label{tab:apx:cosine}
+% WIDTH. Nine columns overflowed the text block by 132.49 pt in every build variant (measured:
+% build.sh reported overfull_hbox=2 for DEFENSE and ACADEMICO, the first at "lines 33--45", which
+% is this tabular). The header is now two-deep so the interval and the two floored tests fit in
+% narrower columns, and the confidence interval is set as a single \makecell-free pair of short
+% numbers. Re-measure after any column change; do not assume it still fits.
+    {\small
+    \setlength{\tabcolsep}{4pt}
+    \begin{tabular}{llrrlrrr}
+        \toprule
+        & & \multicolumn{2}{c}{Sample} & \multicolumn{2}{c}{Mean cosine} & \multicolumn{2}{c}{$p$ against zero} \\
+        \cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+        Dataset & Unit & $n$ & obs. & 95\% CI & mean & TOST & $t$ / sign \\
+        \midrule
+        Florida & configuration & 12 & 3{,}150 & $[-0.0012, +0.0017]$ & $+0.0003$ & $10^{-16}$ & $0.70$ / $0.77$ \\
+        Alabama & fold          &  5 &   250 & $[+0.0040, +0.0184]$ & $+0.0112$ & $10^{-5}$  & $0.013$ / $0.063^{\dagger}$ \\
+        Arizona & fold          &  5 &   250 & $[-0.0051, +0.0081]$ & $+0.0015$ & $10^{-5}$  & $0.56$ / $1.00$ \\
+        Georgia & fold          &  5 &   250 & $[+0.0016, +0.0061]$ & $+0.0039$ & $10^{-7}$  & $0.009$ / $0.063^{\dagger}$ \\
+        \bottomrule
+        \multicolumn{8}{l}{\footnotesize $^{\dagger}$ $0.0625$ is the smallest value the exact sign test can return at $n = 5$.} \\
+    \end{tabular}
+    }
+\end{table}
