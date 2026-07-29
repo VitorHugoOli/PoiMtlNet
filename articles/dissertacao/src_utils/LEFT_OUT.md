@@ -201,7 +201,7 @@ change available without redesigning a submitted paper's figure.
 
 ---
 
-## LO-9 · The conditions on the Nash-MTL guarantee, beyond the two the paper names
+## LO-9 · The conditions on the Nash-MTL guarantee, beyond the two the paper names [!]
 
 **Finding.** `arXiv:2202.01017v2` was fetched and read this session (19 pages). Its guarantee is real
 and it is **conditional**, on more than the dissertation states:
