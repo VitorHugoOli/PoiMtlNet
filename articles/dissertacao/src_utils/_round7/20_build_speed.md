@@ -182,7 +182,8 @@ Anchored by phrase, never by line number.
   get the serial time), `fast`/`fast3`/`format`/`format-status`/`verify-equiv`, twelve
   `check-*` targets, `check-scripts`, `sync-pages`, `help`.
 
-**`src_utils/check.sh`** — each of the 18 `echo "== ... =="` gate headers became `gate "== ... =="`,
+**`src_utils/check.sh`** — each `echo "== ... =="` gate header became `gate "== ... =="` (18 of them at the time; the count is COMPUTED at run time, not hardcoded, so a gate added by
+another track is picked up automatically -- the suite reported 19 within the hour),
 and `gate_report` runs before `exit $FAIL`. The clock is `perl -MTime::HiRes`, not
 `$EPOCHREALTIME`: this machine's `/bin/bash` is 3.2.57 and that variable arrived in bash 5.
 The harness's own cost is measured (20 probes in 0.151 s, ~7.5 ms each) and **disclosed in the
@@ -277,30 +278,37 @@ The brief's instruction was not to parallelize for its own sake, and the measure
 that. `make check`, with the new timing table, run from `articles/dissertacao`:
 
 ```bash
-source src_utils/texenv.sh && bash src_utils/check.sh     # 18 gates
+source src_utils/texenv.sh && bash src_utils/check.sh     # every gate, timed
 ```
 
-| seconds | gate |
-|--:|---|
-| 0.020 | em-dashes |
-| 0.021 | 'this paper' / 'this article' |
-| 0.046 | contractions |
-| 0.118 | WRITING_LAW §4 banned words |
-| 0.030 | banned verdict verbs |
-| 0.022 | 'Pareto' occurrences (informational) |
-| 0.036 | repo codenames |
-| 0.036 | unresolved `\ref`/`\cite` |
-| 0.026 | sweep-guard self-tests |
-| 0.033 | recorded page counts |
-| 0.030 | word-count claims |
-| 0.037 | torn sentences |
-| 0.040 | coverage claims (GUARDRAILS 4b V1) |
-| **0.927** | **the author-facing verification commands** |
-| 0.046 | TeX root directives |
-| 0.057 | negative-parallelism density |
-| 0.053 | doubled backslash before a reference macro |
-| 0.233 | prose trapped inside a `%` comment |
-| 1.811 | sum of gates (suite total 2.016 s, of which ~0.14 s is the timing harness itself) |
+Two runs are shown: the state I measured **before** parallelizing the one slow gate, and the state
+of the suite as it stands now. The gate list grew from 18 to 19 between them (another track added
+the comment-hygiene gate), which is why the totals are not a clean subtraction — and which is the
+point of the table being generated rather than typed.
+
+| gate | before (18 gates) | now (19 gates) |
+|---|--:|--:|
+| em-dashes | 0.020 | 0.019 |
+| 'this paper' / 'this article' | 0.021 | 0.021 |
+| contractions | 0.046 | 0.044 |
+| WRITING_LAW §4 banned words | 0.118 | 0.117 |
+| banned verdict verbs | 0.030 | 0.029 |
+| 'Pareto' occurrences (informational) | 0.022 | 0.022 |
+| repo codenames | 0.036 | 0.032 |
+| unresolved `\ref`/`\cite` | 0.036 | 0.044 |
+| sweep-guard self-tests | 0.026 | 0.026 |
+| recorded page counts | 0.033 | 0.034 |
+| word-count claims | 0.030 | 0.029 |
+| torn sentences | 0.037 | 0.038 |
+| coverage claims (GUARDRAILS 4b V1) | 0.040 | 0.042 |
+| **the author-facing verification commands** | **0.927** | **0.365** |
+| TeX root directives | 0.046 | 0.045 |
+| negative-parallelism density | 0.057 | 0.055 |
+| doubled backslash before a reference macro | 0.053 | 0.053 |
+| comment hygiene (added by another track) | — | 0.084 |
+| prose trapped inside a `%` comment | 0.233 | 0.230 |
+| **sum of gates** | **1.811** | **1.329** |
+| suite total (incl. ~0.15 s of clock probes and the table) | 2.016 | 1.533 |
 
 **One gate was above 0.3 s, so exactly one was parallelized.** `check_verify_list.py` was 0.93 s
 of the 2.0 s suite. Profiled before touching it: 19 fenced bash blocks in the author-facing docs,
