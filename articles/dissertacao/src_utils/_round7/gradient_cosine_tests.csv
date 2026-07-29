@@ -1,0 +1,4 @@
+dataset,configurations,n,mean,sd,t_vs_zero,p_vs_zero,TOST_within_0.05,pct_negative,p_sign_test
+florida,12,3150,0.00015,0.03373,0.249,0.803,equivalent,48.9,0.206
+alabama,1,250,0.01119,0.07272,2.434,0.016,equivalent,44.8,0.114
+arizona,1,250,0.0015,0.0373,0.638,0.524,equivalent,46.8,0.343
