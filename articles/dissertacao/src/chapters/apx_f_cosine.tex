@@ -2,72 +2,47 @@
 % ============================================================================
 % Appendix F -- why the two tasks do not compete on the shared trunk.
 %
-% [round7, 2026-07-29] NEW APPENDIX, in the MAIN document at the author's explicit request:
-% "the appendix of cossin loss between next-region and next category we can keep plan on the
-% main text ... will be a future appendix where we give more data and more explanations over it
-% ... why these two tasks for our arch don't conflict and how this MAY be extended for others
-% archs."
+% [round7, 2026-07-29] NEW APPENDIX, in the MAIN document at the author's request: "why these two
+% tasks for our arch don't conflict and how this MAY be extended for others archs."
 %
-% IT IS THE LETTER F, after E (ethics), because Appendices B and D moved to the supplementary
-% volume this round and the remaining letters were NOT renumbered (content.tex's appendix block
-% explains why: "Appendix B" already names the errata appendix outside this document). So the
-% main document's appendices read A, C, E, F. That gap is deliberate and documented.
+% IT IS THE LETTER F, after E, because Appendices B and D moved to the supplementary volume and the
+% rest were NOT renumbered -- "Appendix B" already names the errata appendix outside this document.
+% The A, C, E, F gap is deliberate; content.tex's appendix block carries the reasoning.
 %
-% CHAPTER 5'S BODY IS UNTOUCHED. The cosine material already in Chapter 5 stays exactly where
-% it is and says exactly what it said; this appendix is additional, and Chapter 5 does not point
-% at it (a pointer would be an edit to an under-review chapter for no reader benefit -- the
-% appendix is reachable from the table of contents and from the conclusion's future-work
-% paragraph if the author wants it there).
+% CHAPTER 5'S BODY IS UNTOUCHED and does not point here. It is under review, so an edit for no
+% reader benefit is not worth the divergence between the two texts.
 %
-% EVERY NUMBER HERE WAS RE-DERIVED FROM THE OBSERVATIONS, NOT COPIED FROM A BRIEF OR A README.
-% Source of record: src_utils/_round7/gradient_cosine_observations.parquet (3,900 rows;
-% columns state, fold, epoch, cos, config), at commit ff69ba07. The derivation is
-% src_utils/_round7/cosine_stats.py, whose printed output is quoted in
-% src_utils/_round7/24_extra_and_cosine.md. Structural assertions run before any statistic:
-% exactly 4 states, 3,900 = 3,150 + 250 + 250 + 250 rows.
+% SOURCE OF RECORD FOR EVERY NUMBER: src_utils/_round7/gradient_cosine_observations.parquet (3,900
+% rows; state, fold, epoch, cos, config) at commit ff69ba07, derived by _round7/cosine_stats.py,
+% output quoted in _round7/24_extra_and_cosine.md. Re-derive, never increment: the count moved from
+% three datasets to four mid-writing and every figure was recomputed at that point. If a fifth
+% lands, re-run the script and read its output.
 %
-% [round7 review, 2026-07-29] THAT DERIVATION SCRIPT DID NOT RUN, and this file pointed at it
-% anyway. cosine_stats.py still declared EXPECTED = 3 states / 3,650 rows after Georgia landed, so
-% its own first assertion killed it on the parquet it ships with:
-%   AssertionError: expected ['alabama','arizona','florida'], got [... 'georgia']
-% A file cannot be the source of record for numbers it refuses to compute. Fixed to 4 states /
-% 3,900 rows; it now runs (RC=0) and every value in this appendix and in tables/frame/cosine.tex
-% was re-checked against its output, plus an independent recomputation from the parquet. All match.
-% The one number NOT reproducible from the parquet alone is Alabama's "+0.058 over the first five
-% epochs": it is the mean of the 25 (5 folds x 5 epochs) values in that block, printed by the
-% script's ALABAMA EPOCH BLOCKS section as +0.05824. Quoted, not computed here.
+% TRAP -- THAT SCRIPT ONCE DID NOT RUN WHILE THIS FILE POINTED AT IT. It still declared 3 states /
+% 3,650 rows after Georgia landed, so its own assertion killed it on the parquet it ships with. A
+% file cannot be the source of record for numbers it refuses to compute; check that it runs (RC=0)
+% before citing it. One value is NOT reproducible from the parquet alone: Alabama's "+0.058 over the
+% first five epochs" is the mean of 25 values printed by the script's ALABAMA EPOCH BLOCKS section.
 %
-% THE COUNT MOVED FROM THREE DATASETS TO FOUR while this appendix was being written (Georgia
-% landed at 3,900 rows / ff69ba07, after an earlier runtime estimate for it proved 47x too
-% pessimistic). Every count in this file was re-derived at that point rather than incremented;
-% if a fifth dataset lands, do the same -- re-run cosine_stats.py and read its output.
+% TRAP -- THE UNIT OF INDEPENDENCE IS THE FOLD, and an earlier draft got this wrong. The 50
+% per-epoch cosines within a fold are consecutive states of ONE trajectory. Every p-value is
+% computed on fold means (n=5) or configuration means (Florida, n=12), never on the 3,900 raw
+% observations, which would be anti-conservative.
 %
-% THE UNIT OF INDEPENDENCE IS THE LOAD-BEARING METHODOLOGICAL POINT, and getting it wrong is
-% what an earlier draft of this appendix did. The 50 per-epoch cosines inside one fold are
-% consecutive states of ONE training trajectory, so they are not independent draws. Every
-% p-value below is therefore computed on fold means (Alabama, Arizona; n=5) or configuration
-% means (Florida; n=12), never on the 3,900 raw observations. An observation-level test is
-% anti-conservative and none is quoted as significance.
+% TRAP -- THE CLAIM A READER WILL WANT TO MAKE, AND MUST NOT. Alabama and Georgia are both 5/5
+% positive with t-tests at p=0.0125 and p=0.0093. That is still not significance: the exact sign
+% test returns 0.0625 for both, which IS its floor at n=5, so the rejection rests entirely on
+% assuming normality. The same standard binds the downward-drift claim two paragraphs later -- they
+% disagreed once, and 4445e7ab fixed it. Never write "significantly positive" here.
 %
-% ONE CLAIM WAS DELIBERATELY NOT MADE, AND IT IS THE ONE A READER WILL WANT TO MAKE. At the fold
-% level Alabama's five fold means are all positive with a t-test at p=0.0125, and Georgia repeats
-% that pattern exactly, 5/5 positive at p=0.0093. Two independent datasets agreeing is a stronger
-% OBSERVATION than either alone -- and it is still not significance, because the exact sign test
-% returns 0.0625 for both, which IS its floor at n=5: a distribution-free test cannot reach 0.05
-% with five observations however consistent the effect. The significance would rest entirely on
-% assuming normality at n=5. So the text says the tendency RECURS ACROSS DATASETS, which is worth
-% stating, and that five folds per dataset cannot establish it. Never "significantly positive".
+% COVERAGE: FOUR datasets (florida, alabama, arizona, georgia), ONE architecture family. California,
+% Texas, and Istanbul are outstanding against job 805120f1, marked [VERIFY], and blocked on that
+% host's disk rather than queued. Nothing here implies six datasets or any architecture coverage.
 %
-% COVERAGE, stated in the text and repeated here so it cannot drift: FOUR datasets (florida,
-% alabama, arizona, georgia), ONE architecture family. California, Texas, and Istanbul are named
-% as outstanding against job 805120f1 and marked [VERIFY]. Nothing here implies six datasets or
-% any architecture coverage.
-%
-% [NEEDS SIGN-OFF: raised round 7, 2026-07-29 | THE WHOLE APPENDIX. It is new frame prose that
-% makes a mechanistic claim (orthogonality explains why hard sharing costs nothing here, and
-% why the representation mattered more than the sharing scheme) and a bounded extension claim.
-% Neither is in any paper's claim whitelist, so both are new claims under AGENT_GUARDRAILS §3
-% C2 and need the author's approval before this appendix is shown to the advisor.]
+% [NEEDS SIGN-OFF: raised round 7, 2026-07-29 | THE WHOLE APPENDIX. New frame prose making a
+% mechanistic claim (orthogonality explains why hard sharing costs nothing here) and a bounded
+% extension claim. Neither is in any paper's claim whitelist, so both are new claims under
+% AGENT_GUARDRAILS §3 C2 and need the author's approval before this goes to the advisor.]
 % ============================================================================
 
 \chapter{Why the Two Tasks Do Not Compete on the Shared Trunk}
@@ -332,22 +307,14 @@ the attempt ran out of disk on the machine that would have done it; Istanbul, a 
 queued behind them when the disk filled. The diagnostic needs no new method, so all three are blocked
 on that machine's free space rather than waiting in its queue. The coverage here is therefore three
 of the dissertation's six datasets plus Georgia, and a reader should not extrapolate to the rest.
-% [round7, 2026-07-29] "THEY ARE THE LARGEST OF THE SIX" WAS FALSE FOR ISTANBUL, and this is a
-% number auditor finding, not a style one. MEASURED from the dissertation's own dataset table:
-%   grep -v '^[[:space:]]*%' tables/mobiwac/datasets.tex | grep -E '^(AL|AZ|FL|TX|CA|Istanbul)'
-% Check-ins, ascending: AL 113,846 | AZ 236,450 | ISTANBUL 462,615 | FL 1,407,034 | CA 3,171,380 |
-% TX 4,089,892. Regions, ascending: Istanbul 520 | AL 1,109 | AZ 1,547 | FL 4,703 | TX 6,553 |
-% CA 8,501. Istanbul is the SMALLEST of the six by region count and the third smallest by
-% check-ins -- it is smaller than Florida, which IS measured here. So "they are the largest" held
-% for two of the three named datasets and inverted the truth for the third, and it made the
-% resource explanation look like it covered a case it does not. The corrected sentence scopes the
-% size claim to California and Texas and gives Istanbul its real reason, which the job record
-% supports: it never started (see the VERIFY block below -- job 805120f1 was killed inside
-% california's fold 1, and texas and istanbul had not begun).
-% ALSO: "blocked, not queued" is now IN THE PROSE, not only in the comment below. PENDENCIAS §2.9
-% measures the host at 393G/373G used, 0 bytes available; the round brief requires the appendix not
-% to imply these runs are pending. The old prose said "ran out of disk" once and then "until it is
-% run", which reads as a queue. It now says which of the two it is.
+% [round7, 2026-07-29] DO NOT WRITE "the largest of the six" ABOUT THESE THREE. It is false for
+% Istanbul, which is the SMALLEST by region count and smaller than Florida, which IS measured here.
+% Measured from tables/mobiwac/datasets.tex (strip comments first, the table has them):
+%   check-ins: AL 113,846 | AZ 236,450 | ISTANBUL 462,615 | FL 1,407,034 | CA 3,171,380 | TX 4,089,892
+%   regions:   Istanbul 520 | AL 1,109 | AZ 1,547 | FL 4,703 | TX 6,553 | CA 8,501
+% The size claim is therefore scoped to California and Texas; Istanbul's reason is that it never
+% started. Say BLOCKED, never "pending" or "queued": PENDENCIAS §2.9 measures the host at 0 bytes
+% free, so these runs cannot start, and a reader told they are queued is being told something false.
 % [VERIFY: the per-dataset extension to California, Texas, and Istanbul. STATUS at the time this
 % appendix was written, from the job's own _status.json and not from its log: job 805120f1 on
 % ssh:nespedgpu was KILLED by SIGTERM at a 35-minute wall-clock cap (exitCode 124 at 35.0 min).
