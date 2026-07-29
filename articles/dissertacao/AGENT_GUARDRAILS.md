@@ -191,6 +191,18 @@ the work*, and that is where the time went. The four root causes, with the count
   grep the *superseded value* across all durable docs. When 8-of-12 became 9-of-13, the old figure
   survived in four other places, including the author's own push list — which listed eight files
   when nine needed pushing.
+- **V10. A per-item rate comes from that item's own start and end, never from the batch total.**
+  On 2026-07-29 one job trained six datasets in sequence. To cost the dataset still running I divided
+  the JOB's elapsed time (which already covered three completed datasets) by that dataset's epoch
+  count, and published 1.49 min/epoch, 74 min/fold, 6.2 h. Its own stamps give 0.446 min/epoch and
+  22.3 min/fold, a 3.3x error, and the difference decided the outcome: at the wrong rate a per-fold
+  resubmission looked impossible, so a recoverable dataset was reported to the author and to a
+  sub-agent as unrecoverable. In the same note another dataset's cost had been derived correctly from
+  its own stamps; the convention simply was not applied to the one still in flight. Also: a progress
+  bar in a harvested log can be tens of minutes stale (identical bar bytes reappeared 40 minutes
+  after the job had been killed), so a bar showing progress is not evidence a process is alive — check
+  the status file and the log's mtime against the clock.
+
 - **V9. When the locating step returns nothing, the location is UNKNOWN — do not infer it from a
   neighbour.** On 2026-07-29 two `Overfull \hbox` warnings appeared in one build. The cell that tried
   to attach a source file to each printed nothing at all. Rather than report "file not established",
@@ -291,6 +303,7 @@ policy; (d) every major publisher (ICMJE, Elsevier, Springer, IEEE, ACM) require
 | **Self-certification** (agent declares its own output verified) | L6 fresh-eyes rule; author audits independently. |
 | **Trusting the tolerant tool** (two checks disagree; the one reporting success is believed) | The source did not compile for six commits while `build.sh` reported "104 pp, 0 overfull, 0 undefined": under `-interaction=nonstopmode` pdflatex recovers from an error and still writes a PDF, and the checker never looked for TeX errors. `make` (`-halt-on-error`) produced nothing the whole time. **Rule: `tex_errors=0` is part of every build claim; a PDF existing is not evidence the source is correct; when two tools disagree about one artifact, distrust the one reporting success.** (2026-07-28, §2.3b of `science/AGENT_HANDOFF.md`.) |
 | **A gate that has never fired** (a check whose passing carries no information) | Validate every new gate in BOTH directions before trusting it: run it against a tree where the defect is present and confirm it fails, then against the fixed tree and confirm it passes. Four of this repository's checkers were wrong at least once by being tuned only on the case in front of them. |
+| **Costing an item from the batch's total** (per-item rate divided out of an aggregate that includes other items) | §4b V10: derive each item's rate from its own start and end. A 3.3x error this way turned a recoverable dataset into a reported write-off. |
 | **Generalising from the one that matched** (a locating step returns nothing; the location is inferred from a neighbouring hit that did match) | §4b V9: report the location as unresolved. Two overfull boxes, one line range matched a file, and both were attributed to it — the other was in a block of comment lines where nothing can be typeset. |
 | **Taking shape for substance** (exit 0, right filename, right row count, empty column) | §4b V8: open one output file and count non-empty cells in the column you came for. Three remote runs in one night reported success with an all-`NaN` target column; the failure was invisible in every signal except the data itself. |
 | **Silent correction** (fixing a published number/claim without a trail) | Errata policy (NORTH_STAR §5.7): every departure from a published source is listed and approved. |

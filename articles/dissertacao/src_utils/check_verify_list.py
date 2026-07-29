@@ -75,6 +75,18 @@ def cwd_for(code: str) -> Path:
     return DISS
 
 
+# Verbs that CHANGE something. A documented block carrying any of these is refused, not run.
+# Deliberately broad and anchored at a word boundary: `git reset --hard`, `git push`, `git commit`,
+# `git add`, `git mv`, `rm -rf`, `mv`, `> file` truncation, and pip/conda installs. False positives
+# here cost a printed REFUSED line; a false negative costs the author's branch.
+MUTATING = re.compile(
+    r"\bgit\s+(?:reset|push|commit|add|mv|rm|checkout|branch\s+-[DdfM]|clean)\b"
+    r"|\brm\s+-[rf]|\bmv\s+\S+\s+\S+"
+    r"|\bpip\s+install\b|\bconda\s+(?:install|remove)\b"
+    r"|\btruncate\b|\bdd\s+if=|>\s*/(?!dev/null)"
+)
+
+
 def classify(code: str) -> tuple[str, list[str]]:
     """Decide what kind of block this is. Returns (kind, body lines).
 
@@ -88,6 +100,18 @@ def classify(code: str) -> tuple[str, list[str]]:
     is the failure mode this whole file exists to answer.
     """
     body = [l for l in code.split("\n") if l.strip() and not l.strip().startswith("#")]
+    # MUTATING COMMANDS ARE REFUSED, AND THIS TEST RUNS BEFORE EVERY OTHER ONE.
+    # Found 2026-07-29: PENDENCIAS §2.1 documents the recovery procedure for a destructive local
+    # commit, so its bash block legitimately contains `git reset --hard 3c57197c`, `git commit` and
+    # `git push origin mobiwac`. This harness EXECUTES documented blocks. It was running that one on
+    # every `make check`. It did no damage only because the target worktree's .git/ happens to be
+    # unwritable in this sandbox -- an accident of the environment, not a safeguard. On the author's
+    # machine `make check` would have reset a branch and pushed it.
+    # A verification harness must never mutate. Blocks carrying a mutating verb are reported as
+    # REFUSED, loudly, and never run: a documented recovery procedure is for a human to execute
+    # deliberately, and a gate that runs it is a footgun wearing a checker's clothes.
+    if MUTATING.search(code):
+        return "refused", body
     if "check.sh" in code or "make check" in code:
         return "recursion", body            # see RECURSION in the module docstring
     if ("make defense" in code or "make final" in code or "make ppgc" in code
@@ -145,8 +169,13 @@ def main() -> int:
 
     ran = asserted = failed = 0
     skipped: list[tuple[str, str]] = []
+    refused: list[tuple[str, str]] = []
     build_blocks: list[tuple[str, str, bool]] = []
     for (doc, code, kind, body), proc in zip(plan, results):
+        if kind == "refused":
+            # Reported by name, never counted as verified. See MUTATING above for why.
+            refused.append((doc.name, body[0][:58] if body else "(empty)"))
+            continue
         if kind == "recursion":
             skipped.append((doc.name, body[0][:58] if body else "(empty)"))
             continue
@@ -193,6 +222,13 @@ def main() -> int:
             print(f"  verified {doc.name}: {head}")
     print(f"\n{ran} documented command(s) executed; {asserted} carried a machine-checkable "
           f"expectation; {failed} failed.")
+    for name, head in refused:
+        print(f"  REFUSED  {name}: {head}")
+    if refused:
+        print(f"    {len(refused)} block(s) carry a MUTATING command (git reset/push/commit, rm, "
+              f"install) and were NOT executed. That is deliberate: this harness verifies, it does "
+              f"not mutate. A documented recovery procedure is for a human to run on purpose. "
+              f"They are not counted as verified.")
     for name, head in skipped:
         print(f"{len(skipped)} skipped to avoid recursion (they invoke this gate's own caller): "
               f"{name}: {head}" if skipped.index((name, head)) == 0 else
