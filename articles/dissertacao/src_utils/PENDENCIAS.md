@@ -32,11 +32,36 @@ Um item que esta ausente do texto porque alguem **decidiu** que ficasse fora nao
 em [`LEFT_OUT.md`](LEFT_OUT.md), com quem decidiu e quando. Um item ausente porque ninguem chegou
 nele e pendencia e esta aqui.
 
-**Estado do build.** Medido em 2026-07-29 na rodada 7, com `make fast3` (os tres alvos em ~14 s,
-contra ~115 s do caminho antigo): defesa 108 pp, academico 105 pp, ppgc 109 pp; `tex_errors` 0,
-overfull 0, undefined 0, bibtex 0. `make check` sai 0 em ~2 s, 20 gates. **Um aviso:** enquanto eu
-escrevia isto outra trilha da rodada 7 estava editando `src/`, entao qualquer numero de pagina aqui
-pode ter se movido. Para remedir:
+**Estado do build: NAO CONFIRMADO agora, e `make check` esta saindo 2.**
+
+Esta secao dizia, numa versao anterior de hoje, que `make check` **saia 0** em ~2 s. **Isso estava
+errado quando eu escrevi** — a minha propria medicao no mesmo dia deu **RC=2**, e eu tinha lido o
+codigo de saida de um estagio de `pipe` (`| grep`) em vez do codigo do comando. E a mesma classe de
+defeito que o post-mortem desta rodada documenta, dentro do arquivo que existe para voce confiar.
+Corrigido, com o codigo lido direto:
+
+| o que | medido em 2026-07-29, lendo `$?` direto |
+|---|---|
+| `make check` | **RC=2**, 20 gates, ~19 s |
+| gate que falha | **`sync_page_counts.py`**, e o motivo importa: `src/build/main.log` estava **sem contagem de pagina, build incompleto**, porque outra trilha da rodada 7 estava compilando enquanto eu media |
+| segundo achado do mesmo gate | tres claims de pagina **stale**, e uma linha `UNMATCHED` em **este arquivo**: o padrao que guardava o numero de paginas do `make ppgc` nao casa mais, entao aquela afirmacao esta **sem guarda** |
+| `make fast3` | 13 s para os tres alvos (contra 115 s do `make all3` e 83 s de um alvo so) |
+
+**Nao anote nenhuma contagem de pagina deste arquivo como verdade hoje.** Enquanto eu escrevia, `src/`
+tinha 16 arquivos modificados e quatro novos por outra trilha, e as contagens que eu observei mudaram
+entre duas medicoes minhas (108/105/109, depois 100/86/101 com um build pela metade). Quando a arvore
+parar de se mover, remeça:
+
+```bash
+cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
+source src_utils/texenv.sh && (cd src && make fast3) && bash src_utils/build.sh src both
+(cd src && make check); echo "RC=$?"          # leia o RC assim, nunca depois de um pipe
+python3 src_utils/sync_page_counts.py --write # conserta as tres claims stale e a linha UNMATCHED
+```
+
+Ha tambem um defeito real por tras da falha do gate, que **nao e meu e nao esta consertado**: o build
+de deposito imprime **8 na pagina fisica 9** (`main_academico.pdf`). Mesma classe do C-1 da rodada 6, no
+unico build que e depositado. Detalhe no post-mortem, `_round7/25_postmortem.md` §5.
 
 ```bash
 cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao

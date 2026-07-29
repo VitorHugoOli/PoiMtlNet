@@ -43,12 +43,24 @@ CLAIMS = [
     ("PLAN.md",                  r"defense \*\*(\d+) pp\*\*", "defense"),
     ("PLAN.md",                  r"final AcademicoPG \*\*(\d+) pp\*\*", "academico"),
 
-    # PENDENCIAS was rewritten as a three-part tracker on 2026-07-28 and its build state is now a
+    # PENDENCIAS was rewritten as a three-part tracker on 2026-07-28 and its build state became a
     # table row per target, not a "X/Y" pair in prose. The old patterns SKIPped silently after that,
     # which is the same failure this whole tool exists to prevent: a page-count claim nobody checks.
-    ("src_utils/PENDENCIAS.md",  r"`make defense` -> `main\.pdf` \| \*\*(\d+)\*\*", "defense"),
-    ("src_utils/PENDENCIAS.md",  r"`make final` -> `main_final\.pdf` \| \*\*(\d+)\*\*", "academico"),
-    ("src_utils/PENDENCIAS.md",  r"`make ppgc` -> `main_ppgc\.pdf` \| \*\*(\d+)\*\*", "ppgc"),
+    #
+    # RETIRED 2026-07-29 (trackers track), and retired rather than repointed on purpose. That §1
+    # table lived inside the "Fechado nesta rodada" section, which moved to
+    # _archive/PENDENCIAS_RESOLVIDOS.md when the tracker was split -- so these three patterns went
+    # UNMATCHED, i.e. three guards reporting that the claim they protected was no longer checked.
+    # (Confirmed in both directions: all three match ba5dd5b3^:PENDENCIAS.md and none matches the
+    # split file.) They are NOT repointed at the archive, because an archived record is a historical
+    # snapshot and must NOT be rewritten when the build moves -- guarding it would make this tool
+    # edit history. And they are NOT repointed at the live tracker's new build-state section,
+    # because that section deliberately carries NO per-target page number today: the tree was being
+    # rebuilt by a concurrent track and the honest claim was "not confirmed, remeasure when it
+    # settles". A guard over a number that is not asserted has nothing to check.
+    #
+    # WHEN THE TRACKER CARRIES PAGE COUNTS AGAIN, restore three rows here in the same commit that
+    # adds them, or this comment becomes the next silent gap.
     ("src_utils/codex_reviewer.md", r"The builds on disk are \*\*(\d+)/\d+ pages\*\*", "defense"),
     ("src_utils/codex_reviewer.md", r"The builds on disk are \*\*\d+/(\d+) pages\*\*", "academico"),
 ]

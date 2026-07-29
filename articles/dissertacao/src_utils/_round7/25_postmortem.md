@@ -59,10 +59,43 @@ I counted invocations, not cells, because one cell often runs three targets:
 # is excluded, and the exclusions are counted and reported rather than dropped.
 ```
 
-**Round 6 (2026-07-28): 168 single-target compile invocations** — `make defense` 75, `make final`
-51, `make ppgc` 30, plus `make academico` 0 (the target did not exist yet) — with **59 `make check`**
-and **43 `build.sh`**. Named exclusions, so the number is auditable: 7 references inside cells whose
-language was `diff`, and 20 inside heredocs or Python string literals.
+**Round 6 (2026-07-28): 168 single-target compile invocations** — `make defense` **75**, `make final`
+**63**, `make ppgc` **30** (75 + 63 + 30 = 168), plus `make academico` 0 (the target did not exist
+yet) — with **59 `make check`** and **43 `build.sh`**.
+
+Every reference the matcher saw is accounted for, so the 168 is auditable in the only way that
+means anything — the parts reconcile to a whole that reconciles to the raw match count:
+
+| disposition | refs | |
+|---|--:|---|
+| counted, single-target compiles | 168 | `defense` 75 + `final` 63 + `ppgc` 30 |
+| counted, other targets | 102 | `make check` 59, `build.sh` 43 |
+| **excluded** — inside a heredoc or triple-quoted body | **32** | a target named in a script the cell *writes*, not runs |
+| **excluded** — cells whose language was `diff` | **7** | patch text, never executed |
+| **excluded** — diff hunks in non-diff cells | 0 | |
+| **excluded** — comment lines | 0 | |
+| **total** | **309** | = 270 counted + 39 excluded, and 302 of the 309 reproduce as a per-line match count over non-`diff` cells (the other 7 are the `diff`-language cells, counted whole) |
+
+> **Two corrections here, both filed by review, and the second is more interesting than the first.**
+>
+> **(a) The enumeration did not sum to its own headline.** An earlier revision wrote `make final` as
+> **51**, giving 156 beside a 168 total. 51 and 156 are both real numbers — the output of a
+> *superseded* classifier that had not yet excluded diff-hunk lines — so the paragraph married the
+> new total to the old component. The lesson is not "check your arithmetic": **an enumeration and its
+> total are two separate claims, and my verification pass checked hash resolution and cost arithmetic
+> without ever checking that the parts sum to the whole.** A total is the cheapest cross-check there
+> is and I did not run it.
+>
+> **(b) My first correction then dropped the 32 heredoc exclusions entirely** and called 7 the
+> complete exclusion set, having wrongly attributed the heredoc category to the superseded run. It
+> came from the *same* run as the 168. Worse, that run reported it as **20**, and the true figure is
+> **32**: it was computed as a residual, `matches_in_whole_source - matches_counted`, and the
+> matcher's `^` anchor was applied **without `re.M`**, so over a whole cell it matched only at offset
+> 0 while the per-line pass matched at every line start. The residual was therefore taken against an
+> under-count (263 instead of 302) and absorbed the 39-reference gap. Counting the heredoc zones
+> **directly** gives 32 and makes the ledger above close exactly. **A residual is not a measurement:
+> it is whatever your other numbers failed to explain, and it will silently absorb your instrument's
+> own defects.** Third instance in this file of a number that looked settled and was not.
 
 Per-pass cost is the variable, and it is noisy. The build-speed track measured the same command on
 the same tree at **105, 111, 122.7 and 128 s** across four runs; I measured `make defense` today at
