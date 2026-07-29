@@ -456,11 +456,40 @@ measurement of this run. `bl/exp7.sh`'s reporter requires the PDF *and* the log 
 `NO-BUILD` otherwise.
 
 **The generalizable lesson, since this round is collecting them:** every one of these was caught by
-a number that did not make sense (a 2,293-byte switch region where 229 bytes are live; 0.04 s for a gate that runs 15
-subprocesses; a perfect match from a build that refused; 0.9 s for a three-pass build). None was
-caught by reading my own code. `AGENT_GUARDRAILS` §4b V3 — *distrust a clean result from an
-unvalidated instrument* — is the rule that would have caught all five, and the corollary this round
-adds is that **an implausibly good number deserves the same suspicion as an implausibly bad one.**
+a number that did not make sense (a 2,293-byte switch region where 229 bytes are live; 0.04 s for a
+gate that runs 15 subprocesses; a perfect match from a build that refused; 0.9 s for a three-pass
+build). None was caught by reading my own code. `AGENT_GUARDRAILS` §4b V3 — *distrust a clean result
+from an unvalidated instrument* — is the rule that would have caught all five, and the corollary
+this round adds is that **an implausibly good number deserves the same suspicion as an implausibly
+bad one.**
+
+### 6.1 · Nine claims about my own tooling that an audit pass found wrong
+
+Recorded in full because this is §2.8's class arriving in a track whose author had just read §2.8,
+and because the pattern across the nine is uniform: **each was written from what I had measured
+adjacent to the claim, rather than from measuring the claim.** All nine are corrected in commit
+`445bb172`, each against a fresh measurement.
+
+| what I wrote | what re-measurement gave |
+|---|---|
+| harness costs ~7.5 ms per boundary (~0.14 s total) | ~17 ms per boundary, **~0.34 s** — a `gate` call spawns three perl processes, not one |
+| `bookmark tree IDENTICAL` | two *unreadable* outlines were comparing equal; now `UNVERIFIED` and a failure |
+| switch region "2,809 bytes for a region that is 130" | **2,293 bytes**, of which **229 in 5 lines** are live; blind `find()` spans 6,714 and starts inside the quoted command |
+| "~32 s per pass, ~28 s preamble, ~87%" as measured here | inherited from the brief; this session measured whole-build 122.7 → 15.4 s and never decomposed a pass |
+| re-dump takes "~28 s" | **33.7 s** and **36.0 s**, the two runs there were |
+| footer: "round 7 measured every gate below 0.3 s" | true of the recorded run, stated as if it described the current one; now attributed |
+| report: "Four things" | seven files (the brief asked for four; they landed as seven) |
+| `check-scripts` "~1.9 s" | 1.855 s cold, **1.182–1.256 s** warm across four runs |
+| report: "18 gates" | 19 — another track added one within the hour |
+
+Three of the nine deserve their names said plainly. **The harness one** is the sharpest: I timed a
+bare clock read and wrote that down as the cost of a boundary that does three of them plus
+arithmetic. Timing a component and reporting it as the whole is the same error shape as
+`FPDFText_GetFontSize` reading inside an XObject (§2.8, R2) — the reading was right, the question
+was wrong. **The outline one** is a gate that could not fail. **The "~32 s per pass" one** is a
+brief's inherited number laundered into a docstring under a "Measured on this machine" header, with
+a date and a commit hash attached to lend it weight it had not earned — and that dressing is what
+makes it worse than a bare guess.
 
 ---
 
