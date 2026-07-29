@@ -177,6 +177,8 @@ devolver a ficha como PDF para inserir, ela entra depois da folha de rosto e eu 
 **Se voce quiser Contagem na folha de rosto mesmo assim**, e uma linha em `0_main.tex:189` — mas divergiria da ABNT e do
 exemplar, e eu marcaria `[NEEDS SIGN-OFF]` registrando que foi escolha consciente sua e nao conformidade.
 
+> DECISSAO: Podemos fechar esse ponto, quando a UFV retorna o pdf adcionamos lá. No mais vamos manter a norma da ABNT
+
 ### 2.4 A secao de escopo da tarefa estatica: manter ou suprimir
 
 **(A) O que falta.** Sua conversa com o orientador sobre argumentar ou nao publicamente quanto ao escopo da tarefa
@@ -203,16 +205,14 @@ ou ela aponta para um apendice que nao discute mais o assunto.
 > esforço para entender e varias leituras. podemos melhorar bastante esse texto, apesar de ele não entrar diretamente no
 > texto final, ele tem que estar polido e pronto para se necessario.
 
-**FEITO em 2026-07-30, `apx_b_static_scope.tex`.** A frase que voce citou era o sintoma certo: ela
-nunca dizia ao leitor que a coisa em questao e **o proprio nome do local**. Agora a segunda frase da
-secao diz, com tres valores reais tirados do dado: `Coffee Shop`, `Seafood`, `Airport`. O argumento
-passou a ser lido de uma vez -- a entrada contem a resposta, porque `Coffee Shop` pertence a Food
-independentemente de qual cafeteria seja.
+**FEITO em 2026-07-30, `apx_b_static_scope.tex`.** A frase que voce citou era o sintoma certo: ela nunca dizia ao leitor
+que a coisa em questao e **o proprio nome do local**. Agora a segunda frase da secao diz, com tres valores reais tirados
+do dado: `Coffee Shop`, `Seafood`, `Airport`. O argumento passou a ser lido de uma vez -- a entrada contem a resposta,
+porque `Coffee Shop` pertence a Food independentemente de qual cafeteria seja.
 
-A comparacao com o Cap. 3 tambem foi reescrita. Ela levava oito linhas para dizer que a exclusao do
-proprio no nao sobrevive a convolucao; agora diz que o Cap. 3 tem uma versao mais branda do mesmo
-problema e explica o mecanismo em quatro frases, terminando na diferenca real (busca exata contra
-media diluida).
+A comparacao com o Cap. 3 tambem foi reescrita. Ela levava oito linhas para dizer que a exclusao do proprio no nao
+sobrevive a convolucao; agora diz que o Cap. 3 tem uma versao mais branda do mesmo problema e explica o mecanismo em
+quatro frases, terminando na diferenca real (busca exata contra media diluida).
 
 > **EU DISSE QUE UM NUMERO ESTAVA ERRADO E ERA EU QUE ESTAVA.** Afirmei que "284 a 365" deveria ser
 > "284 a 377". **Nao deveria.** Eu medi a coluna errada, na granularidade errada: contei
@@ -224,8 +224,8 @@ media diluida).
 > **O texto original estava certo e foi restaurado.** A afirmacao "nenhum mapeia para mais de uma
 > categoria" continua confirmada: 0 ambiguos nos cinco estados, na medicao correta.
 
-Build: `main_extra` 20 pp (era 19), tex_errors 0, `make check` RC=0. A secao continua suprimivel por
-um unico `\input`, como voce pediu quando ela entrou.
+Build: `main_extra` 20 pp (era 19), tex_errors 0, `make check` RC=0. A secao continua suprimivel por um unico `\input`,
+como voce pediu quando ela entrou.
 
 ### 2.5 O tamanho de tipo das duas figuras de arquitetura
 
@@ -241,6 +241,10 @@ impressas.
 `_round6/12_figures.md`: subir `fontSize` de 13 para cerca de 20 e reexportar na mesma largura de pixels. Registrado
 em [`LEFT_OUT.md`](LEFT_OUT.md) LO-6 como **diferido, nao recusado**.
 
+> DECISSAO: Pode aumentar, mas mantenha os espaço ja'oculpado pela imagem, se já conseguir aumentar um pouco a font e
+> amntendo a proporção da imagem já é um ganho. Mas, hoje apesar dos textos estarem menores, como o contraste está bom
+> está facil de ler.
+
 ### 2.6 A coluna do CBIC que nao reproduz
 
 **(A) O que falta.** Tres das quatro colunas de resultado publicadas do CBIC reproduzem exatamente contra as execucoes
@@ -248,6 +252,8 @@ commitadas (21/21 celulas). A quarta, a de proxima-categoria do modelo conjunto,
 commitado**.
 
 **(B) Por que importa.** E um numero publicado. Nao ha erro conhecido nele; o que falta e a execucao que o gerou.
+
+> DECISSAO: Documentar no letf_out.md
 
 **(C) O que eu preciso de voce.** Dizer se existe um rundir dessa coluna fora deste repositorio. Se nao existir, isso e
 uma limitacao de proveniencia a registrar, nao um erro a corrigir. Registrado em
@@ -263,6 +269,8 @@ uma limitacao de proveniencia a registrar, nao um erro a corrigir. Registrado em
 foram commitadas. Isso foi estabelecido lendo os dois codebases, nao presumido. A pendencia e apenas **como dizer isso**
 se perguntarem. Sugestao: dizer que o desenvolvimento foi manual e iterativo e que o repositorio preserva a configuracao
 final, nao o caminho.
+
+> DECISSAO: Documentar no letf_out.md e adcionar esse ponto no appendix B
 
 ---
 
@@ -336,6 +344,8 @@ E a diferenca entre o que voce testou e o que a frase promete.
 user-disjoint statistical protocol"*. Uma clausula, nenhum numero, e a frase fica mais fraca, nunca mais forte. E
 declaracao de objetivo, entao nao aplico sozinho.
 
+> DECISAO: Valide no texto, pf.
+
 ### 5.2 Cap. 5: "The equivalence is well powered" — a unica coisa que voce pediu no COD-006
 
 **(A) O que falta.** Sua decisao: *"Let's change only the second point about the: 'The equivalence is well powered'."* A
@@ -355,6 +365,9 @@ capitulo sob revisao.
 > voce decidiu **nao** mexer ("change only the second point"). Ele tambem esta la. Isso esta correto
 > pela sua decisao, e nao e pendencia — registro so para voce nao achar que passou batido.
 
+
+> DECISAO: Vamos reformular.
+
 ### 5.3 Cap. 3: a frase do resultado desbalanceado
 
 **(A) O que falta.** Sua decisao no COD-016: *"E quanto a frase no cap 3. Sim vamos refaze-la para ser mais entendivel e
@@ -367,6 +380,8 @@ categoria pode parecer pior que o agregado), mas so depois de reler.
 **(C) O que eu preciso de voce.** Confirmar sua leitura do que a frase quis dizer, e autorizar a reescrita com uma linha
 de errata no Apendice B. Nao escrevo no seu nome uma interpretacao de prosa publicada sua.
 
+> DECISAO:Vamsos reformula-la e adicionar no appendix.
+
 ### 5.4 Cap. 3: o prefacio que diz que os capitulos seguintes mudam so a representacao
 
 **(A) O que falta.** Sua decisao no COD-015: *"SObre o A) vamos mudar o prefacio, pq o cap 4 defato não muda a arc mas o
@@ -378,6 +393,8 @@ o prefacio do Cap. 3 nao.
 
 **(C) O que eu preciso de voce.** A frase nova, ou aprovacao de uma proposta minha. E caracterizacao do arco, entao e
 claim sob C2 do `AGENT_GUARDRAILS` e precisa da sua assinatura.
+
+> DECISAO: Pode refazer por conta propria.
 
 ### 5.5 Cap. 2: as duas metricas prometidas que nenhum capitulo reporta
 
@@ -392,6 +409,8 @@ graca.
 **(C) O que eu preciso de voce.** Escolher: **apagar as duas promessas** (barato e honesto, e o que eu recomendo) ou
 **reportar as duas metricas**, o que e uma rodada de analise. Apagar uma definicao de metrica e mudanca de escopo do
 capitulo de fundamentacao, entao e sua.
+
+> DECISAO: Pode refazer por conta propria.
 
 ### 5.6 Cap. 6: a safra do Gowalla, 2009-2011 contra 2009-2010
 
@@ -408,6 +427,9 @@ a divergencia e real: os dois capitulos usam extracoes diferentes do Gowalla.
 clausula dizendo que o Cap. 4 reporta a faixa do dump que aquele estudo usou. Nao
 "corrija" um numero medido para casar com um herdado.
 
+> DECISAO: Busque pelo que o artigo original cita e vamos usar isso em ambos. Inclusive ambos usaram o mesmo recorte não
+> houve diferença.
+
 ### 5.7 Cap. 5: quebrar o paragrafo de integridade, sem mudar uma palavra
 
 **(A) O que falta.** Sua decisao: *"Podemos aplicar as quebras de linha no cap 5."* O bloco continua **um paragrafo
@@ -420,6 +442,8 @@ palavra**.
 **(C) O que eu preciso de voce.** Nada de conteudo — mas o capitulo esta sob revisao, entao a quebra precisa cair nos
 dois arquivos (dissertacao e manuscrito) para os textos nao divergirem. Confirme que quer isso agora e eu aplico; e
 edicao de forma, com zero palavra alterada.
+
+> DECISAO: Vamos alterar só na dissertação.
 
 ### 5.8 Apendice A: seus papeis no CoUrb, que so voce tem
 
@@ -435,6 +459,8 @@ que omite metade do seu papel e um texto que subdeclara voce.
 **(C) O que eu preciso de voce.** A frase final, com seus termos. Eu tenho o insumo (a citacao acima) mas nao escrevo
 credito de autoria no seu nome — e fato que so voce detem, e a mencao ao aluno de graduacao e decisao sua, nao minha.
 
+> DECISAO: Não precisa mexer nisso, pode remover essa preocupação
+
 ### 5.9 Apendice C: nomear o modelo, como voce pediu
 
 **(A) O que falta.** Sua decisao no COD-013: *"fazendo somente a alteração de adicionar o modelos esse que pode cirat o
@@ -448,6 +474,8 @@ historia em volta.
 **(C) O que eu preciso de voce.** A string exata da versao. Voce escreveu "opus 4.8" na decisao; antes de imprimir um
 numero de versao no documento eu quero que voce confirme qual e, porque nao posso verificar isso de dentro daqui e um
 numero de versao errado num apendice de integridade e pior que nenhum.
+
+> DECISAO: Usamos o opus 4.8, fable 5 e opus 5.
 
 ### 5.10 Dois pontos do audit que NAO viraram pendencia, e por que
 
@@ -500,6 +528,37 @@ restantes como bloqueados por disco, nao como pendentes de fila.
 > california cinco jobs de um fold (`--only-fold k`, 0-indexado, ~22 min por fold). Os scripts estao
 > prontos. **Antes de submeter qualquer coisa, `df -h /home | tail -1` no host** -- um job lancado em
 > disco cheio queima o limite de tempo e volta verde sem dado.
+
+### 2.10 Onze dos catorze checkers nao tem prova de que funcionam
+
+**Medido 2026-07-30 com `make selftest`, que foi criado exatamente para medir isso.** Cada checker em
+`src_utils/` existe para pegar um defeito, e ate hoje nenhum deles tinha sido testado **na direcao que
+importa**: com o defeito presente. Um guard validado so numa arvore limpa nao prova nada -- ele
+passaria igual se o padrao nao casasse com nada, se a lista de arquivos estivesse vazia, ou se
+alguem o tivesse comentado.
+
+| estado | checkers |
+|---|---|
+| **PROVEN** (dispara no defeito, silencia no limpo) | `check_doubled_macro`, `check_torn_sentences`, `check_trapped_prose` |
+| **UNPROVEN** (nenhuma fixture) | `check_comment_hygiene`, `check_extra_xrefs`, `check_meta_claims`, `check_negative_parallelism`, `check_tex_root`, `check_tracker_refs`, `check_verify_list`, `check_wordcount_claims`, `sweep_guard`, `sync_page_counts`, `sync_deliverables` |
+
+**(A) O que falta.** Um par de fixtures (`_fixtures/<checker>/dirty/` e `clean/`) para cada um dos
+onze. A fixture do `check_torn_sentences` foi tirada do **defeito historico real** (commit
+`1bf9a227`, quatro frases rasgadas no Resumo/Abstract), nao inventada -- e o padrao a seguir.
+
+**(B) Por que importa.** Duas vezes voce perguntou o que estava errado e as duas vezes apareceu um
+defeito grande que estava em producao havia semanas, com o `make check` dizendo RC=0 o tempo todo. A
+causa estrutural nao foi nenhum bug individual: foi que **um checker que ninguem nunca viu disparar e
+um checker que ninguem sabe se funciona**. `make selftest` fecha essa classe, e ele proprio foi
+validado sabotando um checker (`return 0` no lugar do resultado): rc=1 com a sabotagem, rc=0 sem.
+
+**(C) O que eu preciso de voce.** Nada -- isto e trabalho de agente, nao decisao sua. Esta aqui
+porque **uma lacuna nao registrada e exatamente como os dois defeitos grandes sobreviveram**. A
+proxima rodada escreve as fixtures que faltam; o runner ja lista quais sao, por nome, em cada execucao.
+
+> `make selftest` NAO faz parte do `make check`, de proposito: uma suite de lint que roda a propria
+> suite de testes a cada invocacao e o mesmo erro de trabalho-dentro-de-trabalho que fez o `check`
+> levar 265 s.
 
 ## §3 · Aberto e bloqueado em terceiros
 

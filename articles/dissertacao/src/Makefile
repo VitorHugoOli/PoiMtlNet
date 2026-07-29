@@ -86,6 +86,11 @@ verify-equiv:
 # nobody needs to know the src_utils/ layout to re-run one gate while fixing what it found;
 # `check-scripts` runs every build-independent checker and reports all failures, not just the first.
 check:         ; @$(UTILS)/check.sh
+# `selftest` proves the CHECKERS, not the document: each one must fire on a fixture containing its
+# defect and stay silent on the same fixture repaired. Deliberately NOT a prerequisite of `check` --
+# a lint gate that runs its own test suite every invocation is the work-inside-work mistake that
+# made `check` take 265 s. Run it when you change a checker.
+selftest:      ; @python3 $(UTILS)/selftest_all.py
 check-scripts: ; @$(UTILS)/check_scripts.sh
 sync-pages:    ; @python3 $(UTILS)/sync_page_counts.py --write
 
@@ -104,6 +109,7 @@ help:
 	@echo "       make format | format-status                build / inspect the format dump"
 	@echo "       (timings: src_utils/_round7/20_build_speed.md)"
 	@echo "GATES  make check          THE gate: the full suite, exit 0 or bust"
+	@echo "       make selftest       prove the checkers themselves, both directions"
 	@echo "       make check-scripts  every build-independent gate, one line each"
 	@echo "       make check-<name>   one gate: $(CHECKERS)"
 	@echo "       make check-pages check-format check-equiv verify-equiv"
@@ -112,7 +118,7 @@ help:
 
 clean: ; rm -rf build/*
 
-.PHONY: all defense academico final ppgc extra all3 fast fast-defense fast-academico fast-ppgc \
+.PHONY: all defense academico final ppgc extra all3 fast fast-defense fast-academico fast-ppgc selftest \
         fast3 fast3-defense fast3-academico fast3-ppgc format format-status verify-equiv \
         check check-scripts check-pages check-format check-equiv sync-pages help clean \
         $(addprefix check-,$(CHECKERS))
