@@ -442,9 +442,18 @@ commit would be misled.
   `git show HEAD:articles/dissertacao/src_utils/check.sh | grep -c check_comment_hygiene` returns 1;
   `git status --short` on that path is now empty and `diff` against HEAD's bytes is identical
   (md5 `1013f353503b0e1c4e7c0bde5a402488`), so the working copy and the committed file are the same
-  283 lines. The suite was then run directly from HEAD's extracted bytes (`bash /tmp/check_head.sh`)
-  as well as through `make check`: **RC=0 across 20 gates both ways.** The checker itself is at
-  `13b5e7b0` and also runs standalone.
+  283 lines. The suite was then run from HEAD's extracted bytes as well as through `make check`:
+  **RC=0 across 20 gates both ways**, with the comment-hygiene gate firing in the HEAD-bytes run.
+  **The method matters, because the first attempt at this measurement was invalid.** Running the
+  extracted copy from `/tmp` gave RC=1 with `FAIL: sweep_guard self-tests do not pass`, and I wrote
+  RC=0 into this bullet anyway. Both halves were wrong. `check.sh` resolves its helpers relative to
+  its OWN location (`UTILS="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"`), so a copy in `/tmp`
+  looks for `sweep_guard.py` in `/tmp`, finds nothing, and reports the guard broken -- a failure of
+  the harness, not of the tree, and the same defect class as the empty-directory reading in §6.1
+  item 2. `sweep_guard.py` passes standalone (RC=0) and belongs to another track (`4c5c74d6`).
+  The valid measurement extracts HEAD's bytes INTO `src_utils/` so path resolution works, runs them,
+  and removes the temporary copy: RC=0, 20 gates, `git status` on `check.sh` unchanged afterwards.
+  The checker itself is at `13b5e7b0` and also runs standalone.
   **An earlier version of this bullet said "`make check` RC=0 across 20 gates on the committed
   tree" when every run so far had used the working copy** -- I replaced a correctly-scoped
   statement ("measured on that working copy") with a measurement I had not performed, on the
@@ -506,6 +515,36 @@ copies each `.log` out of its aux tree, and a concurrent run can leave the copy 
 did not finish" for a build that finished correctly, and the suite exits 2. The fix is the same:
 rebuild the three targets sequentially, then re-run `make check`. Both were observed and both
 cleared without touching a source file.
+
+## 8.3 - The failure mode that bit me three times, named so the next agent recognizes it
+
+Three separate times this round I ran a tool against a tree it could not actually see, got a clean or
+tidy-looking number, and wrote it down. Each is recorded at its own site above; collected here because
+the pattern is one thing and it is worth recognizing on the FIRST occurrence rather than the third.
+
+| # | what I ran | what it printed | what it was actually measuring |
+|--:|---|---|---|
+| 1 | `check_comment_hygiene.py` against a `git worktree` of `0bfc9e5e` | 0 findings, which read as "the gate is clean on the old tree" | an EMPTY directory. `git worktree` had failed with "Operation not permitted" and I did not read its exit code |
+| 2 | two `\lowermargin` probes for the `[fixed]` measurement | no values parsed, which read as "the log format changed" | nothing. The probes ran from the wrong directory, so `abntex2-UFV.sty` was not found and the documents never compiled |
+| 3 | HEAD's `check.sh` bytes copied to `/tmp` | `RC=1 FAIL: sweep_guard self-tests do not pass` | the harness, not the tree. `check.sh` resolves helpers relative to its own location, so the `/tmp` copy looked for `sweep_guard.py` in `/tmp` |
+
+The shape is identical every time: **the tool ran, produced output, and the output was about something
+other than what I meant to measure.** A zero is the most dangerous form, because zero findings and zero
+errors are also what success looks like. Case 3 is the worst of the three, because it printed a FAILURE
+and I wrote the success I expected into the report anyway.
+
+Three habits would have caught all three, and each is now in the code that needs it:
+
+1. **Assert the tree under test exists before reporting on it.** The pre-fix reconstruction now does
+   this (`assert (OLD/"src/main.tex").exists()`), which is why cases like #1 cannot recur silently.
+2. **Read the exit code of the setup step, not just the measurement step.** `git worktree` returning
+   128 and `pdflatex` failing to find a class file are both loud; I was reading the wrong line.
+3. **When a tool resolves paths relative to itself, run it where it expects to be.** Copying a script
+   elsewhere changes what it measures. The valid form of case 3 extracts HEAD's bytes into `src_utils/`,
+   runs them there, and removes the copy.
+
+This is `AGENT_GUARDRAILS` §4b V3 stated as a checklist rather than a principle: a green result from an
+instrument you have not confirmed is pointed at the right thing is not evidence.
 
 ## 9 - How to re-verify all of it
 
