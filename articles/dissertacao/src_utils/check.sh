@@ -124,6 +124,16 @@ echo "== torn sentences (a body line opening mid-sentence: the clause before it 
 # reintroduced.
 if ! python3 "$UTILS/check_torn_sentences.py"; then FAIL=1; fi
 
+echo "== the author-facing verification commands actually return what they claim =="
+# VERIFY_LIST.md and PENDENCIAS.md tell the author to run specific commands and state what each
+# should return. On 2026-07-28 three of them did not: a \path{} count annotated 13 returned 15,
+# a sweep promising 3 prose hits returned 4, and one promising ZERO returned 5 -- each because it
+# did not strip this source's provenance comments, which quote the strings being searched for.
+# What let them survive is that nothing ran them. This gate runs them, and asserts the ones
+# carrying an EXPECT annotation. It reports run-but-not-asserted separately so the count of what
+# is actually verified is never overstated.
+if ! python3 "$UTILS/check_verify_list.py"; then FAIL=1; fi
+
 echo "== TeX root directives (invisible to make: only an editor build ever notices) =="
 # Two silent defects in one week, both found by review rather than by any gate: six files pointing
 # at a main_defense.tex that has never existed in this tree, and six others with no directive at

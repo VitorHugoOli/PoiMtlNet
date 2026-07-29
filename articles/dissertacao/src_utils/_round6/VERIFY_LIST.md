@@ -53,12 +53,32 @@ Unless a block says otherwise with its own `cd`, **run from `articles/dissertaca
 cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
 ```
 
-Paths that reach outside the dissertation folder are written `../../` from there. Every command in
-this file was executed verbatim from that directory on 2026-07-28 and returns the output its "if all
-is well" line describes; three had repo-root paths that resolved from neither cwd and were corrected
-then. **Greps over `.tex` files strip comment lines first** (`grep -vn '^[[:space:]]*%'`), because this
-source carries dense provenance comments that quote the very strings being searched for, and an
-unfiltered count reports more hits than the reader sees.
+Paths that reach outside the dissertation folder are written `../../` from there. Blocks that begin
+`cd articles/dissertacao` are meant to run from the **repository root** and say so in their own first
+line.
+
+**What has and has not been verified about these commands.** Run
+`python3 src_utils/check_verify_list.py` from `articles/dissertacao/`; as of 2026-07-28 it reports:
+
+```
+16 documented command(s) executed; 7 carried a machine-checkable expectation; 0 failed.
+9 were executed but NOT asserted against their prose expectation.
+```
+
+So: **every command runs and produces output**, and **seven** of them have their output checked
+against a stated expectation (`# EXPECT: lines=N` / `contains=` / `equals=` inside the block). The
+other nine were executed but their "if all is well" text is a human judgment or too discursive to
+encode, so they are **run, not verified** — do not describe them otherwise. The three `make` blocks
+were run separately and produce 108/105/109 pages with `make check` at RC=0.
+
+**Greps over `.tex` files strip comment lines first** (`grep -vn '^[[:space:]]*%'`). This source carries
+dense provenance comments that quote the very strings being searched for, so an unfiltered sweep
+reports more hits than the reader sees. Three commands in this file were wrong for exactly that reason
+on 2026-07-28 and were corrected: a `\path{}` count annotated 13 that returned 15, a "four of six"
+sweep promising 3 prose hits that returned 4, and a "three of our six" sweep promising **zero** that
+returned 5, every one an audit comment. Six paths across four commands also resolved from neither
+working directory. The harness above exists so the next such defect is caught by running the file
+rather than by reading it.
 
 ## Tier 1 — would mislead a reader or the banca (items 1-6)
 
@@ -113,6 +133,7 @@ cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
 for f in src/0_main.tex src/chapters/1_introduction.tex src/chapters/6_conclusion.tex; do
   grep -vn '^[[:space:]]*%' "$f" | grep 'four of six\|four of the six' | sed "s|^|$f:|"
 done
+# EXPECT: lines=3
 ```
 Comment lines are dropped **before** the search (`grep -vn` keeps the original line numbers). Without
 that this returns 4 hits, one being an indented provenance comment in `0_main.tex` rather than prose
@@ -143,6 +164,7 @@ printed chapter: 21 in prose, one in a subsection heading, one in a figure capti
 headings".
 ```bash
 grep -rn 'subsection{.*MTLnet' src/chapters/4_courb/    # expect TWO hits
+# EXPECT: lines=2
 ```
 *If all is well:* the appendix says 26 with "two in subsection headings" — because there are two
 (`methodology.tex:87` "Baseline: MTLnet with DGI" and `related.tex:42` "The MTLnet framework"), and
@@ -212,6 +234,7 @@ for f in articles/dissertacao/src/chapters/5_mobiwac/07_discussion.tex \
          'articles/[mobiwac]/src/sections/07_discussion.tex'; do
   grep -vn '^[[:space:]]*%' "$f" | grep 'One model serves both tasks' | sed "s|^|$f:|"
 done
+# EXPECT: lines=2
 ```
 Two fixes to this command: the paper path was written relative to `articles/dissertacao/` and did not
 resolve from where the rest of this list is run, and without the comment filter the paper file returns
@@ -223,8 +246,14 @@ paper.
 
 **13. The `+0.001` gradient-cosine sentence, fixed for parity in both texts.**
 ```bash
-grep -rn 'three of our six\|three of six' src/ '../[mobiwac]/src/'
+for f in $(grep -rl 'three of our six\|three of six' src/ '../[mobiwac]/src/' 2>/dev/null); do
+  grep -vn '^[[:space:]]*%' "$f" | grep 'three of our six\|three of six' | sed "s|^|$f:|"
+done
+# EXPECT: lines=0
 ```
+Comment lines are dropped before the search. Unfiltered this returns **5 hits, every one an audit
+comment** recording the old wording, which is the opposite of the "zero" the expectation states — the
+filtered form returns nothing, which is what "zero prose hits" means.
 *If all is well:* **zero prose hits** (only audit comments mention the old wording — I verified
 this), and both texts read "four Gowalla states … Alabama, Arizona and Florida, which are three of
 the five United States datasets reported here, and Georgia, which this study does not otherwise
@@ -383,6 +412,7 @@ for p in src/data/folds.py \
   printf "%-70s " "$(basename "$p")"
   git cat-file -e "mobiwac:$p" 2>/dev/null && echo PRESENT || echo ABSENT
 done
+# EXPECT: lines=13
 ```
 
 **What the answer should be.** The **first four PRESENT**, the **remaining nine ABSENT**. Push the
@@ -400,16 +430,31 @@ site.
 
 **What to check.** That each build prints its own physical page number.
 
-**How.**
+**How.** This compares the printed number against the physical position for you, rather than asking
+you to eyeball three PDFs:
 
 ```bash
-cd articles/dissertacao && source src_utils/texenv.sh && (cd src && make defense && make final && make ppgc)
+python3 - <<'PY'
+import pypdfium2 as pdfium, re
+for stem in ("main", "main_final", "main_ppgc"):
+    d = pdfium.PdfDocument(f"src/build/{stem}.pdf")
+    for i in range(min(20, len(d))):
+        t = d[i].get_textpage().get_text_range()
+        m = re.match(r'\s*(\d{1,3})\s', t) or re.search(r'\n\s*(\d{1,3})\s*$', t)
+        if m:
+            got = int(m.group(1))
+            print(f"{stem:11s} first numbered page: physical {i+1:3d} prints {got:3d}  "
+                  f"{'OK' if got == i+1 else 'MISMATCH'}")
+            break
+PY
+# EXPECT: lines=3
+# EXPECT: contains=main        first numbered page: physical  11 prints  11  OK
 ```
 
-then open each PDF and compare the first numbered page's printed number against its physical position.
-
-**What the answer should be.** defense physical 11 prints 11; final physical 8 prints **8**; ppgc
-physical 12 prints 12. Before this round the deposit build printed 11 on physical page 8.
+**What the answer should be.** Three `OK` lines: `main` physical 11 prints 11, `main_final` physical 8
+prints **8**, `main_ppgc` physical 12 prints 12. Before this round `main_final` printed 11 on physical
+page 8, and every page after it inherited that three-page error. Run `make defense && make final &&
+make ppgc` first if `src/build/` is stale.
 
 ### A5. The footnote links
 
@@ -426,6 +471,7 @@ then click a footnote mark in the PDF.
 
 ```bash
 cd articles/dissertacao && source src_utils/texenv.sh && (cd src && make check); echo "RC=$?"
+# EXPECT: contains=RC=0
 ```
 
 **What the answer should be.** **RC=0** — for the first time this round; it exited 2 throughout while

@@ -170,7 +170,9 @@ Ja presentes, **nao republicar**: `src/data/folds.py`,
 > F=articles/dissertacao/src/chapters/apx_a_contributions.tex
 > grep -v '^[[:space:]]*%' "$F" | grep -o 'path{[^}]*}' | wc -l          # 13 entradas na prosa
 > grep -v '^[[:space:]]*%' "$F" | grep -o 'path{[^}]*}' | grep -cv '/'   #  4 sem barra
-> ```
+> 
+> # EXPECT: lines=2
+```
 >
 > **O `grep -v '%'` e obrigatorio.** Sem ele o comando retorna **15**, porque os proprios comentarios
 > de proveniencia deste apendice escrevem a palavra `\path{}` ao explicar a contagem, e o `grep` casa
