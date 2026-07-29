@@ -82,7 +82,7 @@ O que elas acharam:
 | N-2 | MAJOR | Ch.2 afirmava que Ch.3 "nao identifica o eixo de split", o que a adicao COD-007 desta rodada tornou falso no mesmo dia. O reparo foi **previsto por escrito** e redigido pela trilha de protocolo, e caiu entre dois escopos | `fecc7fb1` |
 | D-01 | BLOCKER | Minha propria secao de Apendice B concluia que "o rotulo de um lugar nunca entra na sua propria representacao" no Ch.3. **A premissa e verdadeira e a conclusao nao segue:** o grafo e nao dirigido e a convolucao agrega o no com a vizinhanca, entao o rotulo volta no primeiro salto. Reproduzido em grafo de 4 nos: h_0[Food] = 0,667 contra x_0[Food] = 0,000 | `4b609643` |
 | D-02 | BLOCKER | Ch.6 citava o ganho de 20,2 a 22,0 pontos do Ch.4 **sem rotular a tarefa**, como o diagnostico do arco inteiro. O ganho e da tarefa **estatica**, que o Apendice B desta rodada desqualifica. O numero fica (e a figura auditada do capitulo publicado), agora com tarefa e qualificacao, e o diagnostico repousa na tarefa sequencial | `4b609643` |
-| F-01 | BLOCKER | **8 de 12** caminhos de reprodutibilidade do Apendice A **nao estao** no branch publico que o Ch.5 aponta em nota de rodape. Todos existem nesta maquina: a promessa estava errada, nao o codigo | `ec1cea0d` |
+| F-01 | BLOCKER | **9 de 13** caminhos de reprodutibilidade do Apendice A **nao estao** no branch publico que o Ch.5 aponta em nota de rodape. Todos os 13 existem nesta maquina: a promessa estava errada, nao o codigo. (A primeira contagem dizia 8 de 12; ver `c6e62c62` -- um `grep` por linha perdeu `m1_full_output.txt`, que divide a linha com outro caminho) | `ec1cea0d`, `c6e62c62` |
 | F-02 | MAJOR | A pagina 77, secao 6.2, tinha uma sentenca **sem sujeito**: "California run, completed since, repeats the pattern". O artigo "The" terminava a linha anterior e foi absorvido por um bloco de comentario inserido depois. Recuperado do commit original | `ec1cea0d` |
 | C-1 | MAJOR | O build de **deposito** (AcademicoPG) imprimia 11 na pagina fisica 8. `\finalbuildfirstpage` estava fixo no offset do build de defesa, e o deposito tem tres paginas pre-textuais menos. Nao conformidade de numeracao no unico build que e depositado | `29c7629c` |
 | E-5 | MAJOR | **Dez marcas de nota de rodape eram hyperlinks vivos para a pagina 1** em todos os tres builds. A persona mediu **onde os links caem**, nao apenas se os destinos resolvem. Corrigido com `hyperfootnotes=false` passado em tempo de carga (em `\hypersetup` **nao** funciona: o abntex2 ja carregou o hyperref) | `29c7629c` |
@@ -134,34 +134,47 @@ outros 43:**
    usamos no cbic"; a medicao diz que o canal do Ch.3 e **indireto**, nao ausente. A secao continua
    concentrando o achado no Ch.4, onde esta a identidade exata. **Leia esse paragrafo especificamente.**
 2. **`apx_a_contributions.tex`** — a frase de reprodutibilidade foi **enfraquecida** para "supplied on
-   request" porque 8 de 12 caminhos nao estao no branco publico. Uma banca pode perguntar por que. Ver
+   request" porque 9 de 13 caminhos nao estao no branch publico. Uma banca pode perguntar por que. Ver
    2.2 abaixo: se voce publicar os arquivos, a frase forte volta.
 3. **`6_conclusion.tex`** — as duas sentencas D-02 adicionadas, que qualificam o numero do Ch.4.
 
-### 2.2 Publicar os 8 arquivos que faltam no branch publico
+### 2.2 Publicar os 9 arquivos que faltam no branch publico
 
-**(A) O que falta.** Estes existem nesta maquina e **nao** em
-`github.com/VitorHugoOli/PoiMtlNet/tree/mobiwac`:
+**(A) O que falta.** O Apendice A cita **13** caminhos. Estes **nove** existem nesta maquina e
+**nao** em `github.com/VitorHugoOli/PoiMtlNet/tree/mobiwac` (os quatro nomes sem barra resolvem
+dentro de `stats_n20/`, e o caminho completo esta dado aqui para o push):
 
 ```
 docs/studies/closing_data/v17_completion/STATISTICAL_PROTOCOL.md
 scripts/build_phase3_per_fold_transitions.sh
 docs/studies/closing_data/joint_best/JOINT_BEST_RESULTS.md
-m1_stats_n20.py
-m2_prereg_perfold.py
-m2_prereg_output.txt
 docs/studies/closing_data/v17_completion/stats_n20/
+docs/studies/closing_data/v17_completion/stats_n20/m1_stats_n20.py
+docs/studies/closing_data/v17_completion/stats_n20/m2_prereg_perfold.py
+docs/studies/closing_data/v17_completion/stats_n20/m1_full_output.txt
+docs/studies/closing_data/v17_completion/stats_n20/m2_prereg_output.txt
 scripts/embedding_eval/autocorrelation_ceiling.py
 ```
 
-Presentes: `src/data/folds.py`, `scripts/closing_data/score_joint_best.py`,
-`superiority_wilcoxon.py`, `region_match_tost.py`.
+Ja presentes, **nao republicar**: `src/data/folds.py`,
+`scripts/closing_data/score_joint_best.py`, `scripts/closing_data/superiority_wilcoxon.py`,
+`scripts/closing_data/region_match_tost.py`.
+
+> **Correcao 2026-07-28 (`c6e62c62`).** A primeira versao desta lista dizia **8 de 12** e omitia
+> `m1_full_output.txt`. A contagem veio de um `grep` linha a linha, e esse arquivo divide a linha com
+> outro `\path{}` no fonte. Recontado extraindo cada `\path{}` da **prosa** com comentarios
+> removidos: **13 entradas, 4 sem barra, 9 ausentes**. Confira com:
+>
+> ```bash
+> cd /Users/vitor/Desktop/mestrado/ingred
+> grep -o 'path{[^}]*}' articles/dissertacao/src/chapters/apx_a_contributions.tex | wc -l   # 13
+> ```
 
 **(B) Por que importa.** A frase de reprodutibilidade mais carregada do documento nao resolvia para
 um leitor que seguisse a nota de rodape do proprio capitulo. Eu escopei a prosa para o que e
 verdadeiro, mas **a correcao melhor e publicar**, nao enfraquecer a frase.
 
-**(C) O que eu preciso de voce.** Um push desses oito para o branch publico. Feito isso, reverta o
+**(C) O que eu preciso de voce.** Um push desses **nove** para o branch publico. Feito isso, reverta o
 paragrafo de `apx_a_contributions.tex` para a versao forte e apague o comentario `[round6, F-01]`
 que esta la — ele contem a instrucao.
 

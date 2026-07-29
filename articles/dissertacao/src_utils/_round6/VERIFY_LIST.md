@@ -333,26 +333,41 @@ diagnosis should rest on the sequential task, naming Chapter 5 as what tests it.
 
 ### A3. The weakened reproducibility sentence
 
-**What to check.** Whether you would rather publish the eight files than weaken the sentence.
+**What to check.** Whether you would rather publish the **nine** missing files than weaken the
+sentence. Appendix A cites **thirteen** paths; four are already public.
 
 **Where.** Defense PDF **p. 88**; source `src/chapters/apx_a_contributions.tex`.
 
-**How.**
+**How.** Check all thirteen at once, so the four that are already there are visible too:
 
 ```bash
 cd /Users/vitor/Desktop/mestrado/ingred
-for p in docs/studies/closing_data/v17_completion/STATISTICAL_PROTOCOL.md \
+S=docs/studies/closing_data/v17_completion/stats_n20
+for p in src/data/folds.py \
+         scripts/closing_data/score_joint_best.py \
+         scripts/closing_data/superiority_wilcoxon.py \
+         scripts/closing_data/region_match_tost.py \
+         docs/studies/closing_data/v17_completion/STATISTICAL_PROTOCOL.md \
          scripts/build_phase3_per_fold_transitions.sh \
          docs/studies/closing_data/joint_best/JOINT_BEST_RESULTS.md \
-         m1_stats_n20.py m2_prereg_perfold.py m2_prereg_output.txt \
-         docs/studies/closing_data/v17_completion/stats_n20 \
+         "$S" "$S/m1_stats_n20.py" "$S/m2_prereg_perfold.py" \
+         "$S/m1_full_output.txt" "$S/m2_prereg_output.txt" \
          scripts/embedding_eval/autocorrelation_ceiling.py; do
-  printf "%-70s " "$p"; git cat-file -e "mobiwac:$p" 2>/dev/null && echo PRESENT || echo ABSENT
+  printf "%-70s " "$(basename "$p")"
+  git cat-file -e "mobiwac:$p" 2>/dev/null && echo PRESENT || echo ABSENT
 done
 ```
 
-**What the answer should be.** All eight ABSENT today. Push them and the strong sentence comes back;
-the instruction is in the `[round6, F-01]` comment at the site.
+**What the answer should be.** The **first four PRESENT**, the **remaining nine ABSENT**. Push the
+nine and the strong sentence comes back; the instruction is in the `[round6, F-01]` comment at the
+site.
+
+> **Two corrections to this item, 2026-07-28 (`c6e62c62`).** It first said "the eight files" and its
+> command listed only eight, omitting `m1_full_output.txt` — a line-based grep of the appendix missed
+> it, because it shares a source line with another `\path{}`. The command was also wrong in a way
+> that would have looked right: it queried the four bare filenames at the repository root, where they
+> do not exist in any branch, so they would have reported ABSENT for the wrong reason. They live
+> inside `stats_n20/`, and the command above gives their full paths.
 
 ### A4. The deposit build's page numbering
 

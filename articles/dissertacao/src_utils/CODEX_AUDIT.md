@@ -1153,7 +1153,7 @@ These came from the eight review tracks, none of which had seen the others' work
 | N-1 | BLOCKER | The gradient-cosine bound is false for Alabama, in both the dissertation and the manuscript under review. Created **by this round**: the sentence's scope was corrected without re-checking the quantity that depends on the scope | `fecc7fb1` |
 | N-2 | MAJOR | Ch.2 asserted a gap that this round's own Ch.3 addition had filled. The repair was **predicted in writing** and drafted, and fell between two tracks' remits | `fecc7fb1` |
 | D-01 | BLOCKER | My Appendix B exculpation of Ch.3 does not follow from its premise: the graph is undirected and the convolution aggregates the node with its neighborhood, so the label returns at the first hop | `4b609643` |
-| F-01 | BLOCKER | 8 of 12 reproducibility paths absent from the published branch. All exist locally: the promise was wrong, not the code | `ec1cea0d` |
+| F-01 | BLOCKER | **9 of 13** reproducibility paths absent from the published branch. All thirteen exist locally: the promise was wrong, not the code. First recorded as 8 of 12; a line-based grep missed `m1_full_output.txt`, which shares a source line with another `\path{}` | `ec1cea0d`, `c6e62c62` |
 | C-1, E-5, E-2 | MAJOR | Deposit-build numbering; ten footnote marks hyperlinked to page 1 in every build; twelve files with a missing or dangling TeX root | `29c7629c` |
 | STY-01, AIC-01 | MAJOR | Seven unregistered terms, two of them missed by my own registration pass; and a density guard that had been frozen by a prior review and lived only in that review's report | `a8865214` |
 | C-6 | MAJOR | `make check` exited 2 for the whole round while six commit messages said it passed | `6ee23ca7` |
