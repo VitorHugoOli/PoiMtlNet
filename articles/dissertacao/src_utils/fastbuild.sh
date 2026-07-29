@@ -76,7 +76,24 @@ PDF || exit 1
 
 cp "$AUX/$STEM.pdf" "$AUX/$STEM.log" "$AUX/$STEM.blg" build/ || exit 1
 
-ERRS=$(grep -c '^! ' "build/$STEM.log" 2>/dev/null || echo 0)
+# tex_errors, counted WITHOUT `grep -c ... || echo 0`.
+#
+# THE DEFECT THAT WAS HERE, and it inverted this script's whole verdict: `grep -c` exits 1 when
+# the count is ZERO, so the `|| echo 0` fallback fired on every CLEAN build, ERRS became the two
+# words "0 0", the `[ "$ERRS" = "0" ]` test failed, and fastbuild.sh exited 1 after a perfectly
+# good build. Measured: `make fast3` reported "*** [fast3-academico] Error 1" and
+# "Waiting for unfinished jobs" while all three PDFs were correct at 108/105/109 pages with
+# tex_errors=0, and the equivalence check passed 3 of 3 against the serial reference. A build
+# that succeeds while its runner reports failure is the mirror image of AGENT_HANDOFF §2.3b, and
+# it is worse in one way: it trains the operator to ignore this script's exit code.
+#
+# `grep -c ... | tail -1` keeps grep's stdout and discards its status (the pipeline's status is
+# tail's), so a zero count reads as the single word "0".
+ERRS=$(grep -c '^! ' "build/$STEM.log" 2>/dev/null | tail -1)
 PAGES=$(sed -n 's/.*Output written on [^ ]* (\([0-9]*\) pages.*/\1/p' "build/$STEM.log" | tail -1)
 echo "fastbuild $TARGET -> build/$STEM.pdf  pages=$PAGES tex_errors=$ERRS aux=$AUX"
+if [ -z "$PAGES" ]; then
+  echo "fastbuild: NO PAGE COUNT in build/$STEM.log -- the build did not finish"
+  exit 1
+fi
 [ "$ERRS" = "0" ] || exit 1
