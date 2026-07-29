@@ -118,3 +118,37 @@ announced. If you want the arc in the title, **A** carries it but runs long.
 
 **[NEEDS SIGN-OFF]** The title is the author's decision. Nothing here is applied; `0_main.tex` still
 carries the current title.
+
+
+## The decision, 2026-07-30
+
+The author chose **A**, with one adjustment of his own that is the important part:
+
+> Multi-Task Learning for Point-of-Interest Classification and Prediction Tasks: The Role of the Check-in-Level Representation
+
+**His reasoning, and it corrects mine.** Every candidate I proposed named the two tasks as *next
+category* and *next region*. That describes Chapter 5 and misdescribes the collection: two of the
+three articles are about category **classification**, so a title naming only the *next* tasks tells
+a reader the dissertation is narrower than it is. "Classification and Prediction Tasks" covers both
+shapes of work. I had measured the CTD convention carefully and missed the thing a reader of his own
+document would notice first.
+
+**Measured against the CTD envelope** (n=16, mean 9.7 words, colon titles mean 2.7 words before the
+colon): the applied title is 14 words, 8 before the colon and 6 after. It is longer than the CTD
+mean and its left side is the longest in the comparison set. That is a deliberate trade, not an
+oversight: the left side now carries both task families, which is what he wanted it to do.
+
+Three variants that keep his meaning and sit closer to the convention, if he wants them later:
+
+| | words | left | title |
+|---|---:|---:|---|
+| **A-1** | 13 | 7 | Multi-Task Learning for Point-of-Interest Classification and Prediction: The Role of the Check-in-Level Representation |
+| **A-2** | 13 | 4 | Point-of-Interest Classification and Prediction: Multi-Task Learning and the Role of the Check-in-Level Representation |
+| **A-3** | 9 | 2 | Check-in-Level Representations: Multi-Task Learning for Point-of-Interest Classification and Prediction |
+
+A-1 drops one word only. "Tasks" is doing no work that "Classification and Prediction" does not
+already do, and dropping it costs nothing. A-2 inverts to the CTD order (object first, approach
+second) and brings the left side to 4 words. A-3 leads with the finding itself, which is the shape
+this dissertation actually argues, and is the only variant inside the CTD mean.
+
+Applied: A with the author's adjustment, at all five live sites, verified in the render.

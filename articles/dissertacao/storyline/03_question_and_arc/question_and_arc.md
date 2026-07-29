@@ -41,6 +41,5 @@ sharing topology. Never representation alone.
 
 ## Working title (D2, advisor decides)
 
-"From Representations to a Single Joint Model: Multi-Task Learning for Point-of-Interest
-Category and Region Prediction" — with three alternates in the `drafts/1_introduction.tex`
+"Multi-Task Learning for Point-of-Interest Classification and Prediction Tasks: The Role of the Check-in-Level Representation" — with three alternates in the `drafts/1_introduction.tex`
 header comment block.

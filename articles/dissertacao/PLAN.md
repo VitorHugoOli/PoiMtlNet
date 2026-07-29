@@ -33,7 +33,7 @@ rule (never absorb silently).
 
 **NOT green — author actions before the advisor build (ranked; full list in the handoff note):**
 
-1. **Title** — now set to a working option (*From Representations to a Single Joint Model: …*);
+1. **Title** — now set to a working option (*Multi-Task Learning for Point-of-Interest Classification and Prediction Tasks: …*);
    still needs the **final call with the advisor** (three alternates are commented in `0_main.tex`).
 2. **CBIC dataset counts** — recomputed this round via the sanctioned Gowalla ETL (Florida
    subset); the result is in `src/src_utils/cbic_recompute_result.md` for the author to confirm

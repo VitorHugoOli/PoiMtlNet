@@ -225,7 +225,7 @@ constraint rather than a scope limit. Cheap to extend, and it is frame prose, so
 > **#4 (MobiWac re-sync)** — ✅ done (no drift at the Phase-8 re-sync); additionally, the B.1 CBIC
 > misattribution was corrected in BOTH Ch.5 and the version-of-record `[mobiwac]/src/` this round
 > (author-authorized, logged in the MobiWac ERRATA + Appendix B). **#8 (title)** — now SET to the
-> working option (*From Representations to a Single Joint Model: …*) live at all echo points, with
+> working option (*Multi-Task Learning for Point-of-Interest Classification and Prediction Tasks: …*) live at all echo points, with
 > the three alternates commented in `src/0_main.tex`; the final call rests with the advisor, so it
 > is "decided for now," not closed. **CBIC dataset counts** — recomputed this round via the
 > sanctioned Gowalla ETL (`src/src_utils/cbic_recompute_result.md`), pending author confirmation.
@@ -264,8 +264,7 @@ constraint rather than a scope limit. Cheap to extend, and it is frame prose, so
      audited win-count / pp-gain numbers and the `silva2025mtlnet` venue fix.
 8. **Title of the dissertation** — 🔵 SET FOR NOW (round 2, 2026-07-24), pending the advisor's
    final call. Live at all echo points (folha de rosto, Resumo + Abstract headers, pdftitle):
-   - **SELECTED:** *From Representations to a Single Joint Model: Multi-Task Learning for
-     Point-of-Interest Category and Region Prediction*
+   - **SELECTED:** *Multi-Task Learning for Point-of-Interest Classification and Prediction Tasks: The Role of the Check-in-Level Representation*
    - Alternates kept commented in `src/0_main.tex` for the advisor conversation (the newer
      2026-07-23 author decision block in `src/chapters/1_introduction.tex` supersedes the earlier
      §5.8 shortlist; the commented set is the current candidate list).
