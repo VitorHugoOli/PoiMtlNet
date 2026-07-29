@@ -2,7 +2,7 @@
 """check_meta_claims.py -- flag coverage claims in durable records that carry no command.
 
 WHY THIS EXISTS (measured). Round 6, 2026-07-28: 13.3 hours, 61 commits, 17 of them rework. Of the
-14 genuine rework commits, NINE were a wrong statement about the WORK rather than about the
+14 genuine rework commits, TWELVE were a wrong statement about the WORK rather than about the
 dissertation -- what a check covered, what a command returned, whether a gate passed. Zero were
 fabricated citations: the science protocols (AGENT_GUARDRAILS §1-§2) were holding, and nothing
 protected the record of the work.
@@ -13,14 +13,14 @@ AGENT_GUARDRAILS §4b V1 is the rule this enforces:
 
 So a sentence like "all 19 commands were executed" or "the sweep covered 49 files" is only admissible
 in a durable record if a runnable command sits near it. A number without its command is an opinion
-with a digit in it -- and it is exactly what nine rework commits had to go back and fix.
+with a digit in it -- and it is exactly what twelve rework commits had to go back and fix.
 
 WHAT IT CHECKS. In the author-facing and durable records (not chapter prose, not reports that are
 themselves the measurement), find sentences making a COVERAGE claim -- a count paired with a
 coverage verb -- and require a fenced command block or an inline `code` command within a short
 window. Flags what has no command, so the writer either adds one or rewords the claim.
 
-DELIBERATELY NARROW. It looks for a count adjacent to a coverage verb, which is the shape all nine
+DELIBERATELY NARROW. It looks for a count adjacent to a coverage verb, which is the shape the twelve
 defects had. It does not try to parse prose generally: a checker that flags everything is a checker
 people switch off, and this repository already has a documented case of a gate whose only hit was a
 known-good line, which trained everyone to read past its exit code.
@@ -45,14 +45,14 @@ TARGETS = [
     "src_utils/README_SRC.md",
 ]
 
-# A coverage claim: a count next to a verb of coverage. The nine defects were all this shape.
+# A coverage claim: a count next to a verb of coverage. The twelve defects were all this shape.
 # A COUNT, not a date and not a version. Dates were the entire false-positive population of the
 # first version of this gate: "verified 2026-07-18" matched as "a count next to a coverage verb"
 # six times out of six. A count here is 1-4 digits that is NOT a year and NOT part of a date.
 COUNT = r"(?:\*\*)?(?!(?:19|20)\d\d\b)\d{1,4}(?:\*\*)?"
 VERB = (r"(?:executed|verified|checked|covered|passed|scanned|swept|ran)")
 # The count must be QUANTIFYING the coverage: adjacent, and with a plural noun of things between
-# them ("49 files ... passed", "all 19 commands were executed"). This is the shape all nine
+# them ("49 files ... passed", "all 19 commands were executed"). This is the shape the twelve
 # round-6 defects had, and it excludes "verified <date>" and "verified vs manual §7".
 NOUN = r"(?:files?|commands?|blocks?|gates?|checks?|entries|entradas|paths?|caminhos?|" \
        r"claims?|afirma\w+|cells?|instances?|targets?|hits?|references?|scripts?|rows?|" \
@@ -204,9 +204,60 @@ def self_test() -> None:
     assert not find_unbacked(rng), "self-test: an item range is not a coverage claim"
 
 
+# --- §4b arithmetic: the headline must equal the table it sits above -------------------------
+# WHY. The first version of §4b said "fourteen were genuine ... of which nine (64%)
+# share one property" directly above a table whose rows read R1=5, R2=4, R4=3. Five plus four plus
+# three is twelve, not nine. The 9 came from a hard-coded literal in an f-string
+# (`print(f"R1+R2+R4 = {9}/{real}")`) while the surrounding cell computed the row counts correctly
+# -- so the transcript printed a contradiction and I copied the wrong half into four durable files.
+# The rule this file exists to enforce, applied to this file's own founding statistic.
+GUARDRAILS = DISS / "AGENT_GUARDRAILS.md"
+# The table's last row is a COMBINED "R3/R5", so a per-cause regex silently drops it and the
+# denominator comes out as 12 instead of 14 -- which made this checker's first run report a
+# percentage error that was the CHECKER's, not the document's. Match combined labels too.
+ROW = re.compile(r"\*\*(R[0-9](?:/R?[0-9])*)\*\*[^|]*\|[^|]*\|\s*(\d+)\s*\|")
+HEADLINE = re.compile(r"\*\*(\w+)\s*\n?\((\d+)%\)\s*share one property\*\*", re.I)
+WORDNUM = {"nine": 9, "ten": 10, "eleven": 11, "twelve": 12, "thirteen": 13, "fourteen": 14}
+
+
+def check_4b_arithmetic() -> list[str]:
+    """Headline count in §4b must equal the sum of the R1/R2/R4 rows in its own table."""
+    if not GUARDRAILS.exists():
+        return []
+    text = GUARDRAILS.read_text(encoding="utf-8")
+    flat = _unwrap(text)
+    m = HEADLINE.search(flat)
+    if not m:
+        return ["AGENT_GUARDRAILS.md: §4b headline sentence not found — "
+                "if it was reworded, update check_4b_arithmetic() or the guarantee is gone"]
+    word, pct = m.group(1).lower(), int(m.group(2))
+    claimed = WORDNUM.get(word)
+    if claimed is None:
+        return [f"AGENT_GUARDRAILS.md: §4b headline count {word!r} not recognised"]
+    rows = {r: int(n) for r, n in ROW.findall(text)}
+    # META = the causes named in the headline's own grouping; a combined label like "R3/R5" is
+    # never part of it, so membership is tested per constituent cause.
+    META_CAUSES = {"R1", "R2", "R4"}
+    meta = sum(v for k, v in rows.items() if set(k.replace("R", "").split("/")) &
+               {c[1:] for c in META_CAUSES} and "/" not in k)
+    genuine = sum(rows.values())
+    problems = []
+    if meta != claimed:
+        problems.append(f"AGENT_GUARDRAILS.md: §4b headline says {word} ({claimed}) share the "
+                        f"property, but its own table rows R1+R2+R4 sum to {meta} "
+                        f"({'+'.join(str(rows[k]) for k in ('R1','R2','R4') if k in rows)})")
+    if genuine and round(claimed / genuine * 100) != pct:
+        problems.append(f"AGENT_GUARDRAILS.md: §4b headline percentage {pct}% does not match "
+                        f"{claimed}/{genuine} = {round(claimed/genuine*100)}%")
+    return problems
+
+
 def main() -> int:
     self_test()
     total = 0
+    for problem in check_4b_arithmetic():
+        print(problem)
+        total += 1
     for rel in TARGETS:
         path = DISS / rel
         if not path.exists():

@@ -146,8 +146,8 @@ model versions over a months-long project.
 
 **Why this section exists, measured.** Round 6 (2026-07-28) ran 13.3 hours and produced 61 commits.
 **Seventeen of the 61 were rework** — repairing something the round itself had broken or misclaimed —
-and reading all seventeen, **fourteen were genuine rework worth 2.4 hours**, of which **nine (64%)
-share one property**:
+and reading all seventeen, **fourteen were genuine rework worth 2.4 hours**, of which **twelve
+(86%) share one property**:
 
 > The wrong statement was never about the dissertation. It was about **the work**: what a check
 > covered, what a command returned, how many files a sweep touched, whether a gate passed. Every one
@@ -272,7 +272,7 @@ policy; (d) every major publisher (ICMJE, Elsevier, Springer, IEEE, ACM) require
 | **Trusting the tolerant tool** (two checks disagree; the one reporting success is believed) | The source did not compile for six commits while `build.sh` reported "104 pp, 0 overfull, 0 undefined": under `-interaction=nonstopmode` pdflatex recovers from an error and still writes a PDF, and the checker never looked for TeX errors. `make` (`-halt-on-error`) produced nothing the whole time. **Rule: `tex_errors=0` is part of every build claim; a PDF existing is not evidence the source is correct; when two tools disagree about one artifact, distrust the one reporting success.** (2026-07-28, §2.3b of `science/AGENT_HANDOFF.md`.) |
 | **A gate that has never fired** (a check whose passing carries no information) | Validate every new gate in BOTH directions before trusting it: run it against a tree where the defect is present and confirm it fails, then against the fixed tree and confirm it passes. Four of this repository's checkers were wrong at least once by being tuned only on the case in front of them. |
 | **Silent correction** (fixing a published number/claim without a trail) | Errata policy (NORTH_STAR §5.7): every departure from a published source is listed and approved. |
-| **Reporting the intent instead of the output** (writing what the check was *meant* to cover) | The largest single defect class in this repository, 9 of 14 genuine rework commits in round 6. §4b V1–V2: a number about the work carries its command, and any `continue`/`skip`/filter in the producing code must be named in the claim with its count. |
+| **Reporting the intent instead of the output** (writing what the check was *meant* to cover) | The largest single defect class in this repository: 12 of the 14 genuine rework commits in round 6 (R1+R2+R4 of §4b's table = 5+4+3). §4b V1–V2: a number about the work carries its command, and any `continue`/`skip`/filter in the producing code must be named in the claim with its count. |
 | **Believing an instrument you have not interrogated** (a clean reading from a tool blind to the thing measured) | §4b V3. `FPDFText_GetFontSize` returned 6.97 pt for a figure that renders at 11.15 pt, because it reports the size declared inside the embedded object and ignores `\includegraphics` scaling. The reading was not wrong; the question was. |
 
 ## 8 · Evidence base (why these rules; verified 2026-07-18)

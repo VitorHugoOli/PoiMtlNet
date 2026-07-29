@@ -23,14 +23,14 @@ folder. No chapter text goes to the author or advisor without passing its gates.
 > ### The mistake you are most likely to make here is not about the science
 >
 > Measured across round 6 (13.3 h, 61 commits): **17 commits were rework**, and of the 14 that were
-> genuine, **9 were wrong statements about the work rather than about the dissertation** — what a
+> genuine, **12 were wrong statements about the work rather than about the dissertation** — what a
 > check covered, what a command returned, whether a gate passed. Not one was a fabricated citation.
 > The science protocols (§1, §2) were holding; the record of the work was not.
 >
 > Before you write any sentence of the form *"the sweep found N"*, *"all X pass"*, *"every Y was
 > checked"*, or *"make check is green"*, read
 > [`AGENT_GUARDRAILS.md`](AGENT_GUARDRAILS.md) **§4b** and obey its seven rules. The two that would
-> alone have prevented most of those nine:
+> alone have prevented most of those twelve:
 >
 > - **Re-read the tool's output and copy from it.** Do not write what you meant the check to do. If
 >   your code contains a `continue`, a `skip`, or a filter, **say what was excluded and how many.**
