@@ -191,6 +191,15 @@ the work*, and that is where the time went. The four root causes, with the count
   grep the *superseded value* across all durable docs. When 8-of-12 became 9-of-13, the old figure
   survived in four other places, including the author's own push list — which listed eight files
   when nine needed pushing.
+- **V8. A file is not data; open it and count.** Before reporting that any run — local or remote —
+  produced a measurement, open one output file and count the non-empty cells in the column you came
+  for. Exit status, file count, row count, byte size and header shape are **all satisfied by an empty
+  result**. On 2026-07-29 three remote runs reported `rc=0`, each harvesting five well-formed CSVs
+  with the target column entirely `NaN`, because the diagnostic that fills it is opt-in and defaults
+  off; the claim "per-state data is arriving" was made on the strength of the shape. One `awk` line
+  would have caught it. This applies with equal force to a `.parquet` you just wrote, a figure you
+  just rendered, and a table you just extracted.
+
 - **V7. A gate may not invoke its own caller, and a skip is never silent.** A new check must
   self-test in both directions (§7), must not call the suite that calls it, and must report skipped
   items with the reason. Ordering matters: a broad "is this a note?" test placed before a narrow
@@ -271,6 +280,7 @@ policy; (d) every major publisher (ICMJE, Elsevier, Springer, IEEE, ACM) require
 | **Self-certification** (agent declares its own output verified) | L6 fresh-eyes rule; author audits independently. |
 | **Trusting the tolerant tool** (two checks disagree; the one reporting success is believed) | The source did not compile for six commits while `build.sh` reported "104 pp, 0 overfull, 0 undefined": under `-interaction=nonstopmode` pdflatex recovers from an error and still writes a PDF, and the checker never looked for TeX errors. `make` (`-halt-on-error`) produced nothing the whole time. **Rule: `tex_errors=0` is part of every build claim; a PDF existing is not evidence the source is correct; when two tools disagree about one artifact, distrust the one reporting success.** (2026-07-28, §2.3b of `science/AGENT_HANDOFF.md`.) |
 | **A gate that has never fired** (a check whose passing carries no information) | Validate every new gate in BOTH directions before trusting it: run it against a tree where the defect is present and confirm it fails, then against the fixed tree and confirm it passes. Four of this repository's checkers were wrong at least once by being tuned only on the case in front of them. |
+| **Taking shape for substance** (exit 0, right filename, right row count, empty column) | §4b V8: open one output file and count non-empty cells in the column you came for. Three remote runs in one night reported success with an all-`NaN` target column; the failure was invisible in every signal except the data itself. |
 | **Silent correction** (fixing a published number/claim without a trail) | Errata policy (NORTH_STAR §5.7): every departure from a published source is listed and approved. |
 | **Reporting the intent instead of the output** (writing what the check was *meant* to cover) | The largest single defect class in this repository: 12 of the 14 genuine rework commits in round 6 (R1+R2+R4 of §4b's table = 5+4+3). §4b V1–V2: a number about the work carries its command, and any `continue`/`skip`/filter in the producing code must be named in the claim with its count. |
 | **Believing an instrument you have not interrogated** (a clean reading from a tool blind to the thing measured) | §4b V3. `FPDFText_GetFontSize` returned 6.97 pt for a figure that renders at 11.15 pt, because it reports the size declared inside the embedded object and ignores `\includegraphics` scaling. The reading was not wrong; the question was. |

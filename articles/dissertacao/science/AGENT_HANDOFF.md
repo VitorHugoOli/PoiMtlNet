@@ -225,6 +225,45 @@ that did not make sense:
 **When a probe gives you a surprising number, suspect the probe first.** Verify it against a case
 whose answer you already know.
 
+### 2.7b A remote job that exits 0 having measured nothing (THREE times in one night)
+
+**Found 2026-07-29**, on the `nespedgpu` host, while producing data for the gradient-cosine appendix.
+Three consecutive submissions of the same script reported success or ran clean, and the first two
+produced no usable data at all. Each failure was a different mechanism and each was invisible in the
+job's own status:
+
+1. **`rc=127`, six times, in one second.** A submitted job runs in a NON-LOGIN shell: there is no
+   conda and no venv on `PATH`, `which python` returns nothing, and only `/usr/bin/python3` exists
+   (without torch). The script called bare `python`. Because the loop swallowed each return code and
+   the tarball step still ran, the wrapper exited 0 and `compute_done` reported **success** with
+   `output_file_count: 0`. Fix: call the repo's interpreter by absolute path
+   (`/home/vitor.oliveira/PoiMtlNet/.venv/bin/python`) and probe it before the loop.
+2. **Clean runs, empty column.** Three states then trained to `rc=0` and harvested 5 well-formed
+   diagnostics CSVs each — with **every `grad_cosine_shared` cell empty** and `grad_norm_*` all
+   `0.0`. The diagnostic is **opt-in**: `src/training/runners/mtl_cv.py:1520` gates it on
+   `MTL_TRAIN_DIAGNOSTICS=1`, which defaults **off** (flipped 2026-07-01 because the batch-0 cosine
+   costs two extra full backwards per epoch with `retain_graph`). With it off the column is written
+   as `NaN`. Training numerics are unaffected either way, so turning it on does not change the model.
+3. **The `orphaned` status is a false alarm on this host** (already in the provider notes): the
+   daemon's poller flags a job orphaned within minutes while the process is alive and the GPU busy.
+   `orphaned` is not evidence of failure, and `success` is not evidence of data.
+
+**What I did wrong, and it is the reusable part.** After (2) I told a sub-agent that per-state data
+was arriving, because the job said `rc=0` and the files had the right shape and row count. **I had
+not opened one.** A file is not data. The check that would have caught it is one line:
+
+```bash
+awk -F, 'NR>1 && $2 != "" && $2 != "nan" {c++} END {print c+0}' fold1_diagnostics.csv
+```
+
+**The gate now in the run script:** a state counts as harvested only when its cosine column carries
+numbers, and the wrapper exits non-zero when nothing was harvested — so a run that measures nothing
+can no longer present as a green job with an empty tarball.
+
+**The rule.** Before reporting that a remote job produced data, open one output file and count the
+non-empty cells in the column you came for. Exit status, file count, file size and header shape are
+all satisfied by an empty result.
+
 ### 2.8 The claim about the work, written from intent instead of output (TWELVE instances in one day)
 
 **This is now the largest failure class in this repository, and §2.1 through §2.7 are all special
