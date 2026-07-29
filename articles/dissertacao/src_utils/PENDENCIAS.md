@@ -464,6 +464,48 @@ Para o registro, porque um item ausente sem explicacao parece esquecimento:
 
 ---
 
+### 2.9 O disco do nespedgpu esta 100% cheio, e isso bloqueia qualquer treino novo
+
+**Medido 2026-07-29 09:00Z, nada foi apagado.** `df -h /home` no host de GPU:
+
+```
+/dev/mapper/vg0-home  393G  373G  0  100% /home
+```
+
+Zero bytes livres. Inodes estao em 5%, entao e byte, nao arquivo.
+
+**Onde esta o espaco** (medido, nada alterado):
+
+| caminho | tamanho |
+|---|---:|
+| `PoiMtlNet/` | 94G |
+| `PoiMtlNet/results/` | 82G |
+| `results/check2hgi/california/checkpoints/` | **61G** |
+| um diretorio `mtlnet_*` de run | 1 a 7 MB |
+
+Ou seja: o consumo e de **checkpoints de modelo salvos**, nao de diagnosticos. Os 25 diretorios de run
+do california somados dao menos de 100 MB.
+
+**Como isso apareceu.** Um treino morreu com `RuntimeError: basic_ios::clear: iostream error` -- que e
+uma escrita que falhou, nao um problema de modelo ou de dado -- e dois folds de um job sequencial nao
+produziram saida nenhuma enquanto o wrapper ainda saiu com codigo 0. Um arquivo truncado onde se
+esperava um completo e o outro sintoma.
+
+**Consequencia para a dissertacao:** os datasets california, texas e istanbul do apendice do
+gradiente-cosseno **nao puderam ser medidos**. O apendice fecha com quatro datasets (florida, alabama,
+arizona, georgia) e marca os tres restantes como bloqueados por disco, nao como pendentes de fila.
+
+> **DECISAO SUA, e eu nao vou tomar por voce:** liberar espaco no host e sua decisao, nao minha --
+> aqueles 61G sao seus checkpoints e eu nao apago nada na sua maquina. Duas opcoes:
+> **(a)** apagar/arquivar `results/check2hgi/california/checkpoints/` (61G) se aqueles checkpoints ja
+> nao servem, o que libera espaco de sobra; **(b)** deixar como esta e aceitar quatro datasets no
+> apendice, que e um resultado honesto e completo por si.
+>
+> Se voce liberar o espaco, os tres datasets que faltam custam: texas e istanbul um job cada, e
+> california cinco jobs de um fold (`--only-fold k`, 0-indexado, ~22 min por fold). Os scripts estao
+> prontos. **Antes de submeter qualquer coisa, `df -h /home | tail -1` no host** -- um job lancado em
+> disco cheio queima o limite de tempo e volta verde sem dado.
+
 ## §3 · Aberto e bloqueado em terceiros
 
 | Item | Bloqueado em | Estado |
