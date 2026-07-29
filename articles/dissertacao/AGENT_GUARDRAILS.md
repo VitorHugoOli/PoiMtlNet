@@ -264,6 +264,27 @@ the work*, and that is where the time went. The four root causes, with the count
   agent's instrumentation, not just about the bug.** Twice in this project he asked "why is this
   slow" and twice the answer was a large defect sitting in plain output. When that happens, fix the
   defect AND ask what should have surfaced it unprompted.
+
+**V13. A per-item verification must be stated per item, and a claim that justifies new work must be
+  checked HARDER than one that does not.** Two instances in one hour, 2026-07-30, and they share a
+  root.
+  FIRST, the batch claim. A commit fixing seven tools closed with "SIX MORE, each verified firing".
+  Five were genuinely exercised. Two -- a scope floor and a missing-source branch -- had only been
+  read in the diff, and one of them I had explicitly noted was exiting at argparse before its new
+  logic ran, then counted as verified anyway. The summary line borrowed the credibility of the five
+  for the two. If verification is per item, say it per item, or the strongest evidence in the batch
+  launders the weakest.
+  SECOND, the motivated claim. The commit introducing a new self-test runner asserted that "not one"
+  of the twenty-one tools had ever been tested against its own defect. False, and contradicted by
+  the gate script I had read that session: six checkers run internal self-tests before reporting,
+  and one has a separate regression suite of real shipped defects that the gate executes. My own
+  summary in the same turn said "five with no self-test at all", which presupposes the others have
+  them -- the blanket claim contradicted my own prose a paragraph away.
+  The mechanism is worth naming because it is not carelessness. A new tool is easier to justify
+  against a total absence than a partial one, so the overstatement flattered the thing I had just
+  built. **When a claim's function is to justify work you want to do, that is the claim to verify
+  first, not last.** The real gap was narrower and still sufficient; stating it accurately cost
+  nothing and would have been more persuasive.
 ### Scope discipline for delegated work (the other 2.6 hours)
 
 Round 6 lost **2.6 hours (19%)** waiting on the slowest sub-agent in each of five waves. The worst

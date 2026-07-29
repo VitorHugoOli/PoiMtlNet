@@ -4,16 +4,29 @@ unproven. Run with `make selftest`.
 
 WHY THIS EXISTS, AND WHY IT IS NOT PART OF `make check`
 =======================================================
-Twenty-one tools live in src_utils/. Each was written to catch a defect, and until 2026-07-30 none
-had ever been audited as code. Two rounds of the author asking "why is this slow" turned up, in
+Twenty-one tools live in src_utils/. Two rounds of the author asking "why is this slow" turned up, in
 plain output, a gate that rebuilt the whole document on every invocation and a mutation guard that
-let seven of eight dangerous command shapes through. Both had been in place for weeks, and the gate
-suite reported RC=0 the entire time.
+let seven of eight dangerous command shapes through. Both had been in place for weeks with the gate
+suite reporting RC=0.
 
-The structural problem was never the individual bug. It was that a checker which has never been seen
-to FIRE is a checker nobody knows works. A guard validated only against a clean tree proves exactly
-nothing: it would pass if its regex matched nothing at all, if its file list were empty, if it had
-been commented out. That is the failure class this runner closes.
+WHAT WAS ALREADY THERE, stated accurately because the first version of this docstring got it wrong
+and claimed no tool had ever been tested. That was false. Six checkers run their own self-tests
+BEFORE they report and print the result -- check_comment_hygiene (8 lines of it),
+check_extra_xrefs (5), check_doubled_macro, check_meta_claims, check_tracker_refs,
+check_negative_parallelism -- and check_trapped_prose has a separate regression suite,
+test_trapped_prose.py, carrying four must_flag reproductions of real shipped defects, which check.sh
+executes inside the trapped-prose gate. Those are real proof and this runner does not replace them.
+
+WHAT WAS MISSING is narrower and still worth closing. (1) Five tools have NO self-test at all:
+check_torn_sentences, check_wordcount_claims, sweep_guard's own logic, sync_page_counts,
+sync_deliverables. (2) The tools that DO self-test each do it their own way, in-process, against
+fixtures they build internally -- so there is no single place that answers "which checkers are
+proven, and which are merely assumed". An unreported gap is how both big defects survived, so this
+runner exists to make the answer to that question a printed list rather than a reading exercise.
+
+The contract is the useful part: a checker validated only against a clean tree proves nothing. It
+would pass identically if its regex matched nothing, if its file list were empty, or if it had been
+commented out.
 
 It is deliberately NOT wired into `make check`. A lint gate people run constantly must stay at
 seconds, and a gate suite that runs its own test suite on every invocation is the same
