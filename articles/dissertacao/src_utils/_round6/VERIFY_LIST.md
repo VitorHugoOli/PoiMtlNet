@@ -456,7 +456,7 @@ for stem in ("main", "main_academico", "main_ppgc"):
             break
 PY
 # EXPECT: lines=3
-# EXPECT: contains=main        first numbered page: physical  11 prints  11  OK
+# EXPECT: contains=main        first numbered page: physical  12 prints  12  OK
 ```
 
 **What the answer should be.** Three `OK` lines: `main` physical 11 prints 11, `main_academico`

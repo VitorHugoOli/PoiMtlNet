@@ -138,6 +138,21 @@
 % \ifdefensebuild-false branch), which is why the defense and ppgc builds were correct and
 % nobody noticed. The [VERIFY] flag it carried asked for tuning against the RASCUNHO PDF and
 % was the right instinct; what it did not say is that the value was wrong on its own terms.
-\newcommand{\finalbuildfirstpage}{8}
+% [round7, 2026-07-29] CORRECTED 8 -> 9, and the CAUSE is the reusable part: this counter is a
+% hardcoded copy of a MEASURED property of the front matter, so it silently goes wrong whenever the
+% front matter changes length. Nothing in this round touched it. What changed is that the new cosine
+% appendix added a figure and a table, which pushed the List of Figures and the List of Tables each
+% onto a second page in the academico build -- 7 pre-textual pages became 8, so the first body page
+% moved from physical 8 to physical 9 while this counter still said 8. Every deposited page number
+% was then one behind its physical page.
+% MEASURED on the current build, by finding the first page whose header carries a digit:
+%   defense   (main.pdf)           physical p.12, prints 12  OK
+%   ppgc      (main_ppgc.pdf)      physical p.13, prints 13  OK
+%   academico (main_academico.pdf) physical p. 9, printed  8  WRONG before this fix
+% HOW TO RE-DERIVE IT, rather than trusting this number: count the pre-textual pages of
+% build/main_academico.pdf (they carry no printed number) and add one. src_utils/_round6/
+% VERIFY_LIST.md item A4 carries the command, and check.sh runs it, which is how this was caught.
+% IF YOU ADD OR REMOVE FRONT MATTER, OR ANY FLOAT THAT LENGTHENS THE LISTS, RE-MEASURE THIS.
+\newcommand{\finalbuildfirstpage}{9}
 
 \input{0_main.tex}
