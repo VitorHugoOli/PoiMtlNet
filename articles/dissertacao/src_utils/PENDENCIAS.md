@@ -167,8 +167,17 @@ Ja presentes, **nao republicar**: `src/data/folds.py`,
 >
 > ```bash
 > cd /Users/vitor/Desktop/mestrado/ingred
-> grep -o 'path{[^}]*}' articles/dissertacao/src/chapters/apx_a_contributions.tex | wc -l   # 13
+> F=articles/dissertacao/src/chapters/apx_a_contributions.tex
+> grep -v '^[[:space:]]*%' "$F" | grep -o 'path{[^}]*}' | wc -l          # 13 entradas na prosa
+> grep -v '^[[:space:]]*%' "$F" | grep -o 'path{[^}]*}' | grep -cv '/'   #  4 sem barra
 > ```
+>
+> **O `grep -v '%'` e obrigatorio.** Sem ele o comando retorna **15**, porque os proprios comentarios
+> de proveniencia deste apendice escrevem a palavra `\path{}` ao explicar a contagem, e o `grep` casa
+> com essas duas ocorrencias vazias tambem. Uma versao anterior desta nota trazia o comando sem o
+> filtro e anotava `# 13` ao lado — um comando que **parece** certo e devolve outro numero, que e
+> exatamente a classe de defeito que esta rodada passou o tempo todo corrigindo. Se voce rodar e vier
+> 15, o filtro caiu.
 
 **(B) Por que importa.** A frase de reprodutibilidade mais carregada do documento nao resolvia para
 um leitor que seguisse a nota de rodape do proprio capitulo. Eu escopei a prosa para o que e

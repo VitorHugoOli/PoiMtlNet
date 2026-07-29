@@ -21,7 +21,7 @@ whole round is red, and has been red since before the round started).
 `chapters/5_mobiwac/02_related.tex:161` and `articles/[mobiwac]/src/sections/02_related.tex:99`,
 both reading "per-dataset means within $\pm0.003$".
 ```bash
-sed -n '29,31p' docs/studies/archive/mtl_improvement/WHY_ORTHOGONAL_AND_NO_MODERN_OPTIMIZERS.md
+sed -n '29,31p' ../../docs/studies/archive/mtl_improvement/WHY_ORTHOGONAL_AND_NO_MODERN_OPTIMIZERS.md
 ```
 (from the repository root). *If all is well:* the per-state means read FL +0.0007, **AL +0.0032**,
 AZ −0.0005, GE −0.0004 — and `0.0032 > 0.003`, so the bound is false for **Alabama, the first state
@@ -44,6 +44,21 @@ Expect **108, 105, 109 pages**. (This rewrites the tracked `src/dissertacao.pdf`
 articles/dissertacao/src/dissertacao.pdf` afterwards if you do not intend to commit it.)
 
 ---
+
+## Where to run these commands
+
+Unless a block says otherwise with its own `cd`, **run from `articles/dissertacao/`**:
+
+```bash
+cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
+```
+
+Paths that reach outside the dissertation folder are written `../../` from there. Every command in
+this file was executed verbatim from that directory on 2026-07-28 and returns the output its "if all
+is well" line describes; three had repo-root paths that resolved from neither cwd and were corrected
+then. **Greps over `.tex` files strip comment lines first** (`grep -vn '^[[:space:]]*%'`), because this
+source carries dense provenance comments that quote the very strings being searched for, and an
+unfiltered count reports more hits than the reader sees.
 
 ## Tier 1 — would mislead a reader or the banca (items 1-6)
 
@@ -94,8 +109,14 @@ next-region superiority, so the four next-region gains … are secondary results
 Resumo (p. 2), the Abstract (p. 3), Chapter 1 (p. 13) and Chapter 6 all say the joint model
 outperforms on region "at four of six" with no such qualifier.
 ```bash
-grep -rn 'four of six\|four of the six' src/0_main.tex src/chapters/1_introduction.tex src/chapters/6_conclusion.tex
+cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
+for f in src/0_main.tex src/chapters/1_introduction.tex src/chapters/6_conclusion.tex; do
+  grep -vn '^[[:space:]]*%' "$f" | grep 'four of six\|four of the six' | sed "s|^|$f:|"
+done
 ```
+Comment lines are dropped **before** the search (`grep -vn` keeps the original line numbers). Without
+that this returns 4 hits, one being an indented provenance comment in `0_main.tex` rather than prose
+the reader sees: **3 prose hits is the answer**, not 4.
 *If all is well:* you rule either that the frame adds "as a secondary result" once, or that the
 asymmetry is deliberate and goes in `LEFT_OUT.md`. The statistics record's own 2026-07-27 correction
 is unambiguous that the registered primary test for **every** region cell is TOST non-inferiority.
@@ -157,9 +178,9 @@ representation.
 The claim is that the joint model is a *specialization* of the MTLnet class overriding exactly one
 component.
 ```bash
-sed -n '42p'  src/models/mtl/mtlnet_crossattn_dualtower/model.py   # class …DualTower(MTLnetCrossAttn)
-sed -n '207p' src/models/mtl/mtlnet_crossattn/model.py             # class MTLnetCrossAttn(MTLnet)
-sed -n '368p' src/models/mtl/mtlnet_crossattn/model.py             # "Override MTLnet's FiLM + shared_layers…"
+sed -n '42p'  ../../src/models/mtl/mtlnet_crossattn_dualtower/model.py  # class …DualTower(MTLnetCrossAttn)
+sed -n '207p' ../../src/models/mtl/mtlnet_crossattn/model.py            # class MTLnetCrossAttn(MTLnet)
+sed -n '368p' ../../src/models/mtl/mtlnet_crossattn/model.py            # "Override MTLnet's FiLM + shared_layers…"
 ```
 (from the repository root). *If all is well:* all three lines read as above — I confirmed each of the
 six coordinates the comment cites. This one is worth your eyes because it is the sentence that
@@ -186,9 +207,15 @@ moved three times since that fix.
 The round softened the attribution in **both** texts and declared one deliberate divergence:
 Chapter 5 states the disconfirming ablation with its numbers, the paper does not.
 ```bash
-grep -n 'One model serves both tasks' src/chapters/5_mobiwac/07_discussion.tex \
-  '../[mobiwac]/src/sections/07_discussion.tex'
+cd /Users/vitor/Desktop/mestrado/ingred
+for f in articles/dissertacao/src/chapters/5_mobiwac/07_discussion.tex \
+         'articles/[mobiwac]/src/sections/07_discussion.tex'; do
+  grep -vn '^[[:space:]]*%' "$f" | grep 'One model serves both tasks' | sed "s|^|$f:|"
+done
 ```
+Two fixes to this command: the paper path was written relative to `articles/dissertacao/` and did not
+resolve from where the rest of this list is run, and without the comment filter the paper file returns
+an extra hit that is a section banner. Filtered, **one prose hit per file** is the answer.
 *If all is well:* the same sentence opens both (dissertation p. 73), neither names a component as
 the source of the category gain, and `articles/[mobiwac]/ERRATA.md` carries the four dated entries.
 The declared divergence is a judgment you should endorse or reject, since it is your submitted
@@ -311,8 +338,8 @@ chapters differ in how direct the channel is". Source `src/chapters/apx_b_static
 **How.** Read the paragraph. Then, if you want the mechanism checked rather than taken:
 
 ```bash
-sed -n '114,131p' research/embeddings/dgi/preprocess.py    # the feature: neighbours' mean, self excluded
-sed -n '28,30p'  research/embeddings/hgi/model/POIEncoder.py  # a single GCNConv, self-loops on by default
+sed -n '114,131p' ../../research/embeddings/dgi/preprocess.py    # the feature: neighbours' mean, self excluded
+sed -n '28,30p'  ../../research/embeddings/hgi/model/POIEncoder.py  # a single GCNConv, self-loops on by default
 ```
 
 **What the answer should be if all is well.** The paragraph should say the two chapters differ in
