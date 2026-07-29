@@ -76,7 +76,20 @@ BIBINPUTS=".:" TEXMFOUTPUT="$AUX" bibtex "$AUX/$STEM"; test $? -le 1 || exit 1
 PDF || exit 1
 PDF || exit 1
 
-cp "$AUX/$STEM.pdf" "$AUX/$STEM.log" "$AUX/$STEM.blg" build/ || exit 1
+# ATOMIC PUBLISH, not a plain cp. `cp` into a shared directory is not atomic: a reader that
+# opens build/$STEM.log while cp is mid-write sees a TRUNCATED file. That happened on 2026-07-29 --
+# build/main_academico.log was found at 12,288 bytes (exactly 12 KiB, a page-boundary partial write)
+# and later at 0 bytes, against a complete 35,586-byte aux log, while sync_page_counts.py reported
+# "no page count -- the build did not finish" about a build that had finished fine. Two writers were
+# involved: `make fast3` runs three fastbuild.sh concurrently under -j3, and a second agent was
+# running its own build in the same tree.
+# Copy to a per-process temp name in the SAME directory, then rename. rename(2) within one filesystem
+# is atomic, so a reader sees either the old complete file or the new complete file, never a partial.
+for ext in pdf log blg; do
+  [ -f "$AUX/$STEM.$ext" ] || continue
+  cp "$AUX/$STEM.$ext" "build/.$STEM.$ext.$$" || exit 1
+  mv -f "build/.$STEM.$ext.$$" "build/$STEM.$ext" || exit 1
+done
 
 # tex_errors, counted WITHOUT `grep -c ... || echo 0`.
 #
