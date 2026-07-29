@@ -1,81 +1,45 @@
 % !TeX root = main.tex
 % ============================================================================
-% main.tex -- single entry point for the dissertation (Vitor H. O. Silva, UFV/PPGCC).
+% main.tex -- the dissertation's real entry point (Vitor H. O. Silva, UFV/PPGCC). This header is
+% the canonical description of the build shape; the Makefile, README_SRC.md and CLAUDE.md point
+% here rather than retelling it. The story lived in five places until 2026-07-29 and three copies
+% had drifted, which is why there is now one.
 %
-% THIS HEADER IS THE CANONICAL "three builds, one source" EXPLANATION, and the only copy
-% guaranteed to be in front of whoever opens the source: src_utils/README_SRC.md lives
-% OUTSIDE src/ and does not travel with an Overleaf paste. Every other file that mentions
-% the build shape (the Makefile, README_SRC.md, CLAUDE.md) points here instead of retelling
-% it. If you change the build shape, change it HERE first, then check that the pointers
-% still describe it. The story was told in five places until 2026-07-29 and three of the
-% copies had drifted; that is why the rule exists.
+% THREE BUILDS, ONE SOURCE. The other two entry files are two-line shims that set a switch and
+% read this one, so no build can drift from another except where a switch says it should, and
+% each is selectable as a compile root in Overleaf:
+%   main.tex            defense PDF      `make defense`    -> build/main.pdf -> ./dissertacao.pdf
+%   main_academico.tex  AcademicoPG body `make academico`  sets \ACADEMICOBUILD
+%   main_ppgc.tex       defense + sheet  `make ppgc`       sets \APPROVALSHEET
 %
-% THREE builds, ONE source, THREE entry files -- and this is the real one; the other two are
-% two-line shims that set a switch and read it:
+% \ifdefensebuild carries the front matter (cover, folha de rosto, Resumo/Abstract, lists); the
+% deposit build starts at the lists because AcademicoPG generates those from web forms
+% (UFV_COMPLIANCE §1). \ifapprovalsheet adds the approval placeholder. Both use \ifdefined rather
+% than \newif for the reason given at their definitions below.
 %
-%   main.tex           -> the DEFENSE PDF. `make` / `make defense` -> build/main.pdf,
-%                         copied to ./dissertacao.pdf. This is the reading copy.
-%   main_academico.tex -> the AcademicoPG deposit body. `make academico` ->
-%                         build/main_academico.pdf. Sets \ACADEMICOBUILD.
-%   main_ppgc.tex      -> the SAME defense PDF plus the approval sheet. `make ppgc` ->
-%                         build/main_ppgc.pdf. That is its ONLY difference from main.tex
-%                         (author decision 2026-07-28). Sets \APPROVALSHEET.
+% WARNING 1 -- DO NOT SELECT THE DEPOSIT BUILD FROM THE COMMAND LINE. A `pdflatex "\newif
+% \ifdefensebuild \defensebuildfalse\input{main.tex}"` invocation stood here until 2026-07-29 and
+% silently produced the DEFENSE document under a deposit-looking jobname: this file's own \newif
+% undoes the command-line one, so \ifdefined finds no switch and the run takes the defense branch.
+% Measured by running it verbatim: 108 pages with the Abstract on page 3, against that day's
+% 105-page deposit build. Compile main_academico.tex instead.
 %
-% Each shim holds TWO lines of content, sets one switch and reads this file, so no build can
-% drift from another except where a switch says it should. Every build is therefore selectable
-% as a compile ROOT in Overleaf or any GUI editor -- which the deposit build was not until
-% 2026-07-29, when it existed only as a Makefile command-line injection.
+% WARNING 2 -- IF YOU RENAME A BUILD, SWEEP THE TOOLS THAT HARDCODE ITS STEM; none derives it, and
+% a missed one does not error, it reports the page count of a file nobody writes any more:
+% build.sh (jobname, both bibtex calls, BUILT, the label map), sync_page_counts.py (the stem tuple
+% AND its CLAIMS regexes), sync_deliverables.py, mkformat.py, fastbuild.sh, verify_format.py
+% (STEMS), Makefile, this header. `final` -> `academico` on 2026-07-29 (LATEX_UPGRADE.md §4 A-1).
+% \finalbuildfirstpage keeps its old name on purpose: mkformat.py uses it as SWITCH_LAST to find
+% the switch region, and the author's rename covered the external names, not this counter.
 %
-% Two switches, both defined below, both following the same \ifdefined pattern so a
-% command-line \def works without the nested-\if scanning problem (explained at the switch
-% definitions below, which is the one place that hazard is described in full):
-%   \ifdefensebuild   front matter on (defense) or off (AcademicoPG deposit)
-%   \ifapprovalsheet  approval-sheet placeholder on (ppgc) or off (everything else)
+% WARNING 3 -- `make` sets PATH and the TEXMF variables itself, but a bare `pdflatex` here does
+% not. Without them the class and every .tfm resolve, three passes run, and pdftex dies with
+% "Font ntx-Regular-tlf-ot1r at 657 not found". That is a missing font MAP, not a missing font:
+% newtx registers its ntx-* entries in the usermode updmap output under TEXMFVAR. Do not go
+% looking for the font, and do not probe the variable either -- `kpsewhich -var-value TEXMFVAR`
+% reports an unreadable path on this machine, which is why texenv.sh sets it explicitly.
 %
-% What \ifdefensebuild actually switches (UFV_COMPLIANCE §1): the defense build carries the full
-% front matter (cover/folha de rosto, approval placeholder, Resumo/Abstract, lists, sumario);
-% the AcademicoPG deposit build starts at the lists, because that system generates
-% cover/ficha/resumo/abstract from web forms. The deposit build's body page counter is
-% \finalbuildfirstpage below, which keeps its old name deliberately: it is the anchor
-% src_utils/mkformat.py extracts the switch region by (its SWITCH_LAST), and the author's rename
-% decision covers the switch macro and the external names, not this counter. Flagged, not applied.
-%
-% DO NOT SELECT THE DEPOSIT BUILD FROM THE COMMAND LINE. A `pdflatex "\newif\ifdefensebuild
-% \defensebuildfalse\input{main.tex}"` invocation stood here until 2026-07-29 and silently
-% produced the DEFENSE document under a deposit-looking jobname: the command-line \newif is undone
-% when this file re-executes \newif\ifdefensebuild below, so the \ifdefined test finds no switch
-% macro and the run takes the defense branch. Measured 2026-07-29 by running it verbatim: 108
-% pages with the Abstract on rendered page 3, against that day's 105-page deposit build. Compile
-% main_academico.tex instead, which is why it exists.
-%
-% NAMING: this build was called `final` until 2026-07-29 (target `make final`, output
-% build/main_final.pdf, switch \FINALBUILD, counter \finalbuildfirstpage). The author renamed
-% it `academico` -- src_utils/LATEX_UPGRADE.md §4 A-1/A-2/A-3 -- because "final" says nothing
-% next to `defense` and `ppgc`, while "academico" names the system the PDF is uploaded to.
-% If you rename it again, sweep the tools that hardcode the stem, because none of them derives
-% it: src_utils/build.sh (jobname, the two bibtex calls, the BUILT list, the label map),
-% src_utils/sync_page_counts.py (the measured() stem tuple AND its CLAIMS regexes),
-% src_utils/sync_deliverables.py (the output-name map), src_utils/mkformat.py and
-% src_utils/fastbuild.sh (their target/stem maps), src_utils/verify_format.py (STEMS),
-% src/Makefile, and this header. A missed one does not error: it reports the page count of a
-% file that is no longer written, or writes a PDF nobody reads.
-%
-% THE ENVIRONMENT: `make` sets PATH and the three TEXMF variables itself (see the Makefile
-% header), so a make build needs no preparation; a bare `pdflatex` run on this machine still
-% needs `. ../src_utils/texenv.sh` first. The failure that omission produces is worth naming
-% here, because it lies about its own cause and README_SRC.md does not travel with an Overleaf
-% paste of src/: with TEXMFVAR wrong, the class and every .tfm resolve, three
-% passes run, and pdftex then dies with
-%   !pdfTeX error: Font ntx-Regular-tlf-ot1r at 657 not found ==> Fatal error occurred,
-%   no output PDF file produced!
-% That is NOT a missing font. The .tfm and the .pfb are both present. What is missing is the
-% font MAP: newtx registers its ntx-* entries in the usermode updmap output under TEXMFVAR, and
-% the system-wide map has none of them. Do not go looking for the font, and do not try to probe
-% the variable either -- `kpsewhich -var-value TEXMFVAR` reports an unreadable path on this
-% machine, which is why src_utils/texenv.sh sets it explicitly instead of asking.
-%
-% TeX tree, build verification protocol and the gate suite: ../src_utils/README_SRC.md.
-% Output goes to build/; the current defense PDF is copied to ./dissertacao.pdf by `make`.
+% TeX tree, verification protocol and the gate suite: ../src_utils/README_SRC.md.
 % ============================================================================
 
 % Default mode = DEFENSE. main_academico.tex sets \ACADEMICOBUILD (\def\ACADEMICOBUILD{})

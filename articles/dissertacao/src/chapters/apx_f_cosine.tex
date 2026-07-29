@@ -213,13 +213,10 @@ systematic pull to one side.
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\textwidth]{figures/fig_gradient_cosine}
-    \caption{The two tasks' gradients on the shared trunk are orthogonal, on four datasets. The
-    shaded band in each panel is the equivalence margin of $\pm 0.05$. Panel (a) pools all 3,900
-    epoch-level cosines; panel (b) gives each dataset's mean and 95 percent confidence interval on
-    the independent unit named beside it, that unit's own values behind them as faint dots; panel
-    (c) follows the mean cosine over the fifty training epochs, one line per dataset, labeled with
-    its mean per-fold slope and its count of negative folds. Every mean lies inside the margin, and
-    no significance is marked anywhere in the figure.}
+    \caption{The two tasks' gradients on the shared trunk are orthogonal, on four datasets.
+    The shaded band is the equivalence margin of $\pm 0.05$; every mean falls inside it. Panels:
+    (a) the pooled distribution, (b) each dataset's mean with its 95 percent interval, (c) the
+    mean over training. No significance is marked anywhere in the figure.}
     \label{fig:apx:cosine}
 % [round7, 2026-07-29] THE CAPTION WAS 199 WORDS AND THREE OF ITS STATEMENTS WERE FALSE. It
 % described the PRE-GEORGIA figure: commit 4445e7ab rebuilt the image from the four-dataset
