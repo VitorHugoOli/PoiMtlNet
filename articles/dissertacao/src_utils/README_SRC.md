@@ -54,7 +54,9 @@ compiles with no missing files.
 
 ```
 make            # or `make defense` -> build/main.pdf (108 pp), copied to ./dissertacao.pdf
-make final      # -> build/main_final.pdf (105 pp; AcademicoPG body-only upload)
+make academico  # -> build/main_academico.pdf (105 pp; AcademicoPG body-only upload)
+                # `make final` still works and forwards here, printing that it was renamed
+                # on 2026-07-29; it does NOT write build/main_final.pdf any more.
 make ppgc       # -> build/main_ppgc.pdf  (109 pp; the defense PDF plus the approval sheet)
 make check      # the lint gates; see below
 make clean      # empty build/
@@ -91,7 +93,7 @@ UFV: two BUILDS are required (full-front-matter defense PDF + body-only Academic
 manual governs the submission and the final PDF, not the LaTeX source.
 
 Each target compiles into its OWN aux tree at `build/<stem>-aux/` and its `.pdf`, `.log` and `.blg`
-are copied back into `build/`, so every documented path (`build/main.pdf`, `build/main_final.log`,
+are copied back into `build/`, so every documented path (`build/main.pdf`, `build/main_academico.log`,
 and the rest) stays true while the three targets can run concurrently — `make all3`. Before
 2026-07-29 they shared one `build/chapters/`, and two simultaneous builds corrupted each other's aux;
 the reasoning and the exact error message it produces are in the `\include` block of `0_main.tex`.
@@ -122,7 +124,7 @@ Run **both** tools and read `tex_errors`:
 
 ```
 source src_utils/texenv.sh
-(cd src && make defense && make final)   # -halt-on-error -> the honest pass/fail
+(cd src && make defense && make academico)   # -halt-on-error -> the honest pass/fail
 ./src_utils/build.sh src both            # the report, including tex_errors
 ```
 

@@ -50,12 +50,18 @@ the run's own output copied here:
 THE FIRST VERSION OF THIS NOTE WAS WRONG, and the way it was wrong is the point. It was written
 BEFORE the validation ran, from what the check was expected to do: it claimed 2 violations and
 named src/main.tex as one of the two caught. The first real run found src/main_ppgc.tex:8 and
-src/Makefile:35 -- and MISSED src/main.tex:12, because that copy names its subject three lines
-above the count and the window then reached only one line back. So the file the note credited as
-detected was the one copy the checker could not see. That is root cause R1/R2 of
-AGENT_GUARDRAILS §4b in a single sentence, committed inside the gate written to prevent it. The
-window was widened to the surrounding comment paragraph (see check_counts), after which all three
-copies are found. Do not write a measurement into this file before reading the run's output.
+src/Makefile:35 -- and MISSED src/main.tex:12. So the file the note credited as detected was the
+one copy the checker could not see. That is root cause R1/R2 of AGENT_GUARDRAILS §4b in a single
+sentence, committed inside the gate written to prevent it.
+
+Why main.tex:12 escaped, stated exactly (a later draft of this paragraph got the direction wrong
+too, which is its own small lesson about describing a window from memory). At 0bfc9e5e the header
+reads, on consecutive lines 10-12: "main_ppgc.tex -> the SAME defense PDF ..." / "build/
+main_ppgc.pdf. That is its ONLY difference ..." / "... it is a four-line file". The subject is
+therefore TWO LINES ABOVE the count. The original window was `line + next line` -- one line
+FORWARD and none backward -- so from line 12 it could not see line 10. The window is now the
+surrounding comment paragraph, up to 6 lines back and 2 forward (see check_counts), after which
+all three copies are found. Do not write a measurement into this file before reading the output.
 
     python3 src_utils/check_comment_hygiene.py             # gate: exit 0 clean, 1 on a finding
     python3 src_utils/check_comment_hygiene.py --selftest   # both-directions validation only
@@ -280,7 +286,7 @@ def check_counts(root: Path, scope: list[str], counted: list[str],
             #   main.tex (pre-fix, 0bfc9e5e:10-12)
             #                  "main_ppgc.tex -> the SAME defense PDF ..." / "build/main_ppgc.pdf.
             #                  That is its ONLY difference ..." / "... it is a four-line file"
-            #                  -> subject THREE lines BEFORE the count
+            #                  -> subject TWO lines BEFORE the count (0bfc9e5e:10 vs :12)
             # A line-at-a-time scan sees a count with no filename and a filename with no count and
             # reports neither. That is root cause R2 in AGENT_GUARDRAILS §4b -- a line-based grep
             # missing a match that shares a boundary -- which cost this repository an 8-of-12 that
@@ -300,9 +306,18 @@ def check_counts(root: Path, scope: list[str], counted: list[str],
             named = [n for n in FILENAME.findall(window) if n.split("/")[-1] in truth]
             # A file may describe ITSELF without naming itself at all ("This file is deliberately
             # two lines of content"). That fallback only applies when THIS file is one of the
-            # counted files -- otherwise every "N lines of content" anywhere in the tree would be
-            # attributed to whichever counted file happened to be listed first. 0_main.tex tripped
-            # exactly that before this guard: its own text was measured against main_ppgc.tex.
+            # counted files -- otherwise a stray "N lines of content" in a file that merely
+            # MENTIONS a counted file would be attributed to it.
+            #
+            # THE FALSE POSITIVE THAT MOTIVATED BOTH GUARDS, described accurately because an
+            # earlier version of this comment blamed the wrong one. 0_main.tex's header carries
+            #   "%%       \OnehalfSpacing enforced (manual §7: 1.5 line spacing)."
+            #   "%% Compile with pdflatex via main.tex (defense), main_ppgc.tex (defense + ...)"
+            # on CONSECUTIVE lines. The subject came from the FORWARD half of the window (the next
+            # line genuinely names main_ppgc.tex), not from the self-description fallback -- so the
+            # fix that mattered was the decimal exclusion in COUNT_CLAIM, which stops "1.5 line
+            # spacing" being read as "5 lines". The `rel in counted` restriction above is a second,
+            # independent narrowing and was not what cleared this case.
             if not named:
                 if p.name in truth and rel in counted:
                     named = [p.name]
