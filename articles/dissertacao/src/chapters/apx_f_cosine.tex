@@ -193,9 +193,10 @@ computed from one mini-batch. What does not happen is a systematic pull to eithe
     percent confidence interval, computed on the independent unit named in the label, twelve
     configuration means for Florida and five fold means for the others; the small dots behind
     each interval are those individual unit values. All four means lie inside the margin.
-    Panel (c) follows the mean cosine over folds across the fifty training epochs; the $p$-value
-    in each label tests that dataset's per-fold slopes against zero, and an asterisk marks the
-    two datasets whose decline over training reaches significance. Panel (a) reads the whole
+    Panel (c) follows the mean cosine over folds across the fifty training epochs; each label
+    gives that dataset's mean per-fold slope and how many of its folds are negative. No
+    significance is marked, because at five folds the exact sign test cannot fall below
+    $0.0625$ whatever the slopes do. Panel (a) reads the whole
     distribution, (b) the certainty about its center, and (c) whether the center moves.}
     \label{fig:apx:cosine}
 \end{figure}
@@ -218,11 +219,14 @@ worth one further remark: a positive cosine is mild cooperation between the task
 so what the smaller datasets hint at points away from interference rather than toward it.
 
 The second is a decline over training. On Alabama the mean cosine falls from about $+0.058$ over
-the first five epochs toward zero, and the fall survives a fold-level test on the per-fold slopes
-($p = 0.006$, all five slopes negative); Georgia shows the same in weaker form ($p = 0.047$,
-also all five negative), while Florida and Arizona are flat ($p = 0.71$ and $p = 0.57$). Both
-declines rest on five folds, against the sixty series behind Florida's estimate, so they are the
-least precisely estimated trends in the set. The decline stays inside the margin throughout, it
+the first five epochs toward zero, with all five per-fold slopes negative; Georgia shows the same
+pattern, also five of five, while Arizona is mixed at three of five and Florida, on sixty series,
+is flat. A $t$-test on the five slopes would reject for Alabama and Georgia, but that is the same
+$n = 5$ footing on which this appendix declines to call the positive mean significant: the exact
+sign test returns $0.0625$ for both, which is its floor at five observations. We therefore report
+the decline as a consistent tendency and not as an established effect, and we hold it to the same
+standard as the claim above rather than a weaker one. Florida is the only series with enough
+independent units to settle the question, and it shows no trend. The decline stays inside the margin throughout, it
 moves the cosine toward zero rather than away from it, and no mechanism is proposed for it.
 % [round7] "Alabama and Georgia are the smallest datasets here" was CUT as unsourced. Alabama is
 % indeed the smallest of the dissertation's six (113,846 check-ins, tables/mobiwac/datasets.tex),

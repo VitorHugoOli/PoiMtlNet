@@ -43,24 +43,33 @@
  "panel_c_per_fold_slope": {
   "florida": {
    "mean_slope": -1.658e-05,
-   "p": 0.7108,
-   "n_folds": 60
+   "t_test_p": 0.7108,
+   "sign_test_p": 0.8974,
+   "n_folds": 60,
+   "n_negative": 29
   },
   "alabama": {
    "mean_slope": -0.000907,
-   "p": 0.0058,
-   "n_folds": 5
+   "t_test_p": 0.0058,
+   "sign_test_p": 0.0625,
+   "n_folds": 5,
+   "n_negative": 5
   },
   "arizona": {
    "mean_slope": -0.0001227,
-   "p": 0.5685,
-   "n_folds": 5
+   "t_test_p": 0.5685,
+   "sign_test_p": 1.0,
+   "n_folds": 5,
+   "n_negative": 3
   },
   "georgia": {
    "mean_slope": -0.0002729,
-   "p": 0.047,
-   "n_folds": 5
+   "t_test_p": 0.047,
+   "sign_test_p": 0.0625,
+   "n_folds": 5,
+   "n_negative": 5
   }
  },
- "coverage": "FOUR datasets, ONE architecture family (MTLnet cross-attention). california, texas, istanbul outstanding (job 805120f1)."
+ "coverage": "FOUR datasets, ONE architecture family (MTLnet cross-attention). california, texas, istanbul outstanding (job 805120f1).",
+ "drift_caveat": "Alabama (5/5 negative, t p=0.0058) and Georgia (5/5, t p=0.0470) lean negative, but the exact sign test gives p=0.0625 for both -- ITS FLOOR AT n=5. That is the SAME footing as the positive-mean claim, which this record declines to call significant, so the drift is not called significant either. Report as a consistent negative tendency on five folds. Florida, with 60 independent units, is flat (t p=0.7108, 29/60 negative) and is the only series with enough units to settle the question."
 }
