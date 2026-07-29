@@ -155,7 +155,7 @@ superseded number or claim read as the project's current state.
   splits with plain `StratifiedKFold(n_splits, shuffle=True)` on sample rows stratified by class
   (L225–228); `src/etl/next/fold.py` L19+L34 likewise; no group-aware splitter exists anywhere in
   the project code. A user's windows can therefore span train and test. UW-3 closed.];
-  ~~Nash-MTL caveat as in Ch.3~~ **REVOKED by author ruling 2026-07-27** (PENDENCIAS 2.3, option A:
+  ~~Nash-MTL caveat as in Ch.3~~ **REVOKED by author ruling 2026-07-27** (the PENDENCIAS of that date, item 2.3 — the tracker was rewritten in round 6 and renumbered again 2026-07-29, so that number no longer resolves; the ruling is quoted verbatim here because the quote outlives the coordinate. Option A:
   "vamos manter como estar, de fato e um erro, mas nao e algo que afeta o escopo do projeto de forma
   critica"). No caveat and no errata for the optimizer-preference claim in Ch.3 or Ch.4. Scope of what
   this gives up, so the decision stays auditable: only the optimizer-PREFERENCE claim. Ch.3's main

@@ -189,6 +189,21 @@ gate "== torn sentences (a body line opening mid-sentence: the clause before it 
 # reintroduced.
 if ! python3 "$UTILS/check_torn_sentences.py"; then FAIL=1; fi
 
+gate "== PENDENCIAS section citations still resolve (silent: renders fine, points nowhere) =="
+# On 2026-07-29 the tracker was renumbered (2.3-2.7 -> 2.4-2.8) and FOUR source comments cited the old
+# number for the static-scope section. Three were repointed; the fourth -- the header of the very file
+# the citation is ABOUT -- was missed, and the commit message said all four were done. The grep that
+# found four was run and read; the fix list was written with three entries.
+# A stale section number is not a LaTeX error, not an undefined reference, and not a broken link: it
+# renders correctly and points somewhere wrong (AGENT_HANDOFF §2.6). Historical citations are exempt
+# when the citation itself says so ("PENDENCIAS 2.4, was 2.2"), and dated audit records under
+# _round*/, _review_v*/, _archive/ are skipped -- they describe a tracker as it stood.
+# Validated against the real defect: reintroducing the bare citation of 2.2 (a number that no longer resolves) in
+# apx_b_static_scope.tex:3 gives exactly 1 hit; the repaired tree gives 0.
+# (This comment names the old number in the exempt form on purpose -- see the line above --
+#  because the gate reads every .sh in the tree, including this one.)
+if ! python3 "$UTILS/check_tracker_refs.py"; then FAIL=1; fi
+
 gate "== coverage claims about the work carry the command that produced them (GUARDRAILS 4b V1) =="
 # Round 6 measured its own rework: 17 of 61 commits, 14 genuine, and TWELVE of those fourteen were a
 # wrong statement about the WORK rather than about the dissertation. Zero were fabricated citations.
