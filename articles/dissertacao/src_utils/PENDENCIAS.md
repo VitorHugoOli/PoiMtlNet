@@ -574,6 +574,23 @@ edicao de forma, com zero palavra alterada.
 
 > DECISAO: Vamos alterar só na dissertação.
 
+**FEITO em 2026-07-30 (round 8), commit `09404da7`, e a sua decisao de mexer so na dissertacao foi
+respeitada.** O paragrafo de 581 palavras virou seis (59 / 54 / 93 / 61 / 155 / 159), cortado nos
+quatro fundamentos numerados e em "A second reference". **Nenhuma palavra mudou, e isso foi medido no
+PDF, nao no fonte:** o texto do paragrafo foi extraido de `build/main.pdf` antes e depois com
+pypdfium2, cabecalhos de pagina removidos dos dois lados, 595 palavras nas duas vezes, strings
+iguais, `sha256 b0e069888dc2d2ed3f5ec0cfb70b809e` nas duas. E as quebras aparecem de fato: cinco
+recuos novos de ~37 pt abrem exatamente naqueles cinco pontos (pp. 66-67), que antes estavam no meio
+da linha. O corte foi feito por script, que verificou que remontar os seis pedacos com um espaco
+reproduz a linha original byte a byte **antes** de escrever.
+
+`articles/[mobiwac]/src/sections/05_setup.tex` **nao foi tocado.** Um briefing desta rodada mandava
+aplicar nos dois; a instrucao foi retirada quando a sua decisao aqui foi conferida. Um comentario de
+~30 linhas no topo do paragrafo registra a divergencia para ninguem "consertar" de volta, com a
+medicao que a contem: os dois paragrafos **ja** diferiam muito mais que isso (o manuscrito tem 223
+palavras e "three grounds", o capitulo tem 581 e "four grounds"), entao nao existia paragrafo
+equivalente no manuscrito onde aplicar a mesma quebra.
+
 ### 5.8 Apendice A: seus papeis no CoUrb, que so voce tem
 
 **(A) O que falta.** Voce respondeu ao COD-018: *"Meu papel no courb foi na implementação, auxilo ao meu aluno de
@@ -590,6 +607,21 @@ credito de autoria no seu nome — e fato que so voce detem, e a mencao ao aluno
 
 > DECISAO: Não precisa mexer nisso, pode remover essa preocupação
 
+**RESPEITADO em 2026-07-30 (round 8), commit `11e7e5d7`. O Apendice A nao foi tocado, e isso e o
+resultado do item.** O briefing desta rodada mandava adicionar o credito de todo jeito. Parei e
+perguntei em vez de escrever: credito de autoria em trabalho co-autorado e claim que so voce faz
+(`AGENT_GUARDRAILS` C2), e mencionar o aluno de graduacao e decisao sua. Voce confirmou a decisao
+registrada aqui.
+
+Duas consequencias, para a ausencia nao parecer esquecimento: o gate desta rodada
+(`src_utils/check_audit_claims.py`) tinha uma probe exigindo o credito **presente**, escrita a partir
+da expectativa da auditoria e nao da sua decisao. Ela foi para uma tabela `RETIRED` que **imprime em
+toda execucao** com a sua frase como motivo, em vez de ser apagada em silencio; e a omissao esta em
+[`LEFT_OUT.md`](LEFT_OUT.md) LO-11, no formato daquele arquivo. Medido depois: 8 de 8 probes holds,
+1 retirada, rc 0, e um teste de sabotagem (inverter a expectativa de uma probe) ainda faz o gate sair
+1. Reversivel a qualquer momento: e uma frase no Apendice A com `[NEEDS SIGN-OFF: COD-018]`.
+Verificado no render: "undergraduate" nao aparece em nenhuma das 100 paginas.
+
 ### 5.9 Apendice C: nomear o modelo, como voce pediu
 
 **(A) O que falta.** Sua decisao no COD-013: *"fazendo somente a alteração de adicionar o modelos esse que pode cirat o
@@ -605,6 +637,29 @@ numero de versao no documento eu quero que voce confirme qual e, porque nao poss
 numero de versao errado num apendice de integridade e pior que nenhum.
 
 > DECISAO: Usamos o opus 4.8, fable 5 e opus 5.
+
+**FEITO em 2026-07-30 (round 8), commit `62708bcb`, corrigido em `aec06d77`.** Uma clausula, sem
+contar a historia da troca, como voce pediu. **Lido no PDF, pagina 92 (folio impresso 92):**
+"This dissertation was written with the assistance of a generative artificial intelligence tool,
+Claude (Anthropic), **in its Opus 4.8, Fable 5, and Opus 5 versions**, used as a research and writing
+assistant under the author's direction."
+
+Voce e a fonte dos tres nomes, e e isso que autoriza imprimi-los; o trail de commits nao carrega
+versao nenhuma. Como confirmacao, `host.list_models()` resolve `claude-opus-4-8`, `claude-fable-5` e
+`claude-opus-5`. A pagina do `platform.claude.com` que voce indicou **nao abriu** (403 para cliente
+nao-navegador, e 502s); nao falsifiquei user agent para contornar.
+
+> **ERRO MEU, corrigido no mesmo dia em `aec06d77`, e voce deve saber dele porque e da classe que
+> este projeto mais teme.** A primeira versao do comentario de proveniencia e da mensagem do commit
+> `62708bcb` citava a nota da Anthropic como dizendo que ela "names Claude Opus 4.8 as the
+> next-most-capable model" e **citava entre aspas** um lancamento do Opus 5 ("comes close to the
+> frontier intelligence of Claude Fable 5"). **Nenhuma das duas frases estava em nada que eu abri:**
+> a busca devolveu **titulos e URLs, sem corpo de pagina**, entao a citacao era minha invencao.
+> Encontrado por uma revisao independente e confirmado abrindo o resultado guardado da busca. E
+> exatamente `AGENT_GUARDRAILS` R5, dentro do apendice que declara o uso de IA. A frase impressa
+> nunca dependeu disso e nao mudou. O que os titulos sustentam de fato: existem produtos Anthropic
+> chamados Claude Fable 5 e Claude Opus 5 (anthropic.com, cnbc.com e axios.com de 2026-07-24).
+> "Opus 4.8" nao aparece em resultado nenhum: apoia-se no id do registry e na sua palavra.
 
 ### 5.10 Dois pontos do audit que NAO viraram pendencia, e por que
 
