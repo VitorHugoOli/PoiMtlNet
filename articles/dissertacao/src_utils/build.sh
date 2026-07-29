@@ -112,14 +112,11 @@ for stem in built:
     # by 163.4335pt on input line 98" the whole time.
     bigfloat = re.findall(r"Float too large for page by ([\d.]+)pt on input line (\d+)", flat)
     # TeX ERRORS, which this checker did not look for until 2026-07-28 and which is the worst
-    # miss in its history. Under -interaction=nonstopmode pdflatex RECOVERS from an error and
-    # still writes a PDF, so the "no PDF produced" branch above never fires. From commit
-    # 6d780b58 to a880632b the opening brace of the {\small ...} group in
-    # tables/frame/bib_errata.tex was missing; every build died with "! Extra }, or forgotten
-    # \endgroup", every build still emitted a 104-page PDF, and this script reported
-    # "pages=['104'] overfull_hbox=0 undef_cite=0 ... oversized_floats=0" for six consecutive
-    # commits. `make` catches it (it passes -halt-on-error and produces nothing), so the two
-    # tools disagreed and the one that was believed was the one that could not see the error.
+    # miss in its history: this script's interaction mode means the "no PDF produced" branch
+    # above never fires on a source that does not compile, so THIS is the only place a TeX error
+    # is caught. The mechanism, the six commits it cost (6d780b58..a880632b) and the numbers
+    # this script printed while blind are documented once, canonically, in
+    # src_utils/README_SRC.md -- read it there before weakening anything below.
     # Errors are collected from BOTH the raw log (each "! ..." line) and the flattened log
     # (the fatal notice wraps).
     texerr = re.findall(r"^! .*", raw, re.M)

@@ -108,7 +108,24 @@ SCOPE = [
     # Frozen audit trails stay OUT (_round*/ , _review*/):
     # they record what was true when written and must not be edited to satisfy a gate.
     "src_utils/LATEX_UPGRADE.md",
+    # Added 2026-07-29 (round 8 audit) -- T2, a checker whose scope silently missed files. SCOPE was
+    # a hand-written list of the files that existed when the gate was written, so the two build
+    # scripts and the fourth entry file were never examined. Measured before the extension by
+    # running the story patterns over every non-frozen file NOT in SCOPE: the
+    # halt-on-error-vs-nonstopmode story matched in src_utils/build.sh and src_utils/fastbuild.sh,
+    # neither carrying a pointer -- i.e. two full re-tellings the gate reported clean, which is the
+    # very duplication it exists to prevent. main_extra.tex is here because it is the fourth entry
+    # file and it self-describes a "four-line layout unit" (a claim about preamble.tex, not about
+    # itself, so CLASS B does not fire on it -- but the file must be in scope for a future count
+    # claim about a counted file to be caught).
+    "src_utils/build.sh", "src_utils/fastbuild.sh", "src_utils/latexbuild.sh",
+    "src/main_extra.tex",
 ]
+
+# A SCOPE that a refactor can shrink without error is the T2 defect this gate was itself carrying.
+# The floor is asserted at run time: if the list ever drops below the number of files present when
+# it was last audited, the gate says so instead of reporting a clean tree over a smaller sample.
+SCOPE_FLOOR = 12
 
 STORIES = [
     {
@@ -511,6 +528,14 @@ def main(argv: list[str]) -> int:
 
     in_scope = [r for r in SCOPE if (DISS / r).exists()]
     absent = [r for r in SCOPE if r not in in_scope]
+    # A SHRUNK SCOPE IS A FINDING, NOT A CLEAN RUN. A chapter split once moved most of this
+    # repository's prose out of every checker's glob and all of them immediately reported OK.
+    if len(in_scope) < SCOPE_FLOOR:
+        print(f"  FAIL: scope floor breached -- {len(in_scope)} file(s) examined, floor is "
+              f"{SCOPE_FLOOR}. Missing: {', '.join(absent) or 'none declared absent'}. A gate over "
+              f"a shrunken sample reports clean for the wrong reason; restore the files or lower "
+              f"SCOPE_FLOOR deliberately with a reason.")
+        return 1
     problems = check_stories(DISS, in_scope, verbose)
     problems += check_counts(DISS, in_scope, COUNTED_FILES, verbose)
 

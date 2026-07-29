@@ -31,7 +31,16 @@ DISS = Path(__file__).resolve().parent.parent
 TRACKER = DISS / "src_utils" / "PENDENCIAS.md"
 SKIP = ("_round", "_review_v", "_archive", "_gates", "_specialists", "/build/", "__pycache__")
 
-CITE = re.compile(r"PENDENCIAS\s+(\d+)\.(\d+)")
+# The citation may or may not carry a section symbol, and BOTH spellings are in the live tree.
+# Found 2026-07-29 (round 8 audit): the original pattern was `PENDENCIAS\s+(\d+)\.(\d+)`, which
+# requires whitespace immediately before the digits and therefore could not see `PENDENCIAS §2.9`.
+# Two live citations use that spelling -- src/chapters/apx_f_cosine.tex:316 and
+# src_utils/check_verify_list.py:128 -- so this gate reported "every live citation resolves" while
+# never having looked at them. Reproduced before the fix: a file citing `PENDENCIAS §9.9` (no such
+# heading) gave RC=0; the same file with `PENDENCIAS 9.9` gave RC=1. That is T1/T2 -- a guard whose
+# pattern is a list of the spellings that existed when it was written. The `§` may also arrive as
+# `\S` from LaTeX source or as the word "section".
+CITE = re.compile(r"PENDENCIAS\s*(?:§|\\S|[Ss]ection|[Ss]ec\.?|item)?\s*(\d+)\.(\d+)")
 HEADING = re.compile(r"^#{2,4}\s+(\d+)\.(\d+)\b", re.M)
 # An exemption must be adjacent to the citation, not anywhere in the file: a "was 2.2" on line 400
 # does not license a bare "PENDENCIAS 2.2" on line 3. 90 chars is about one wrapped line.
@@ -78,7 +87,18 @@ def self_test() -> None:
         "self-test: a bare citation must NOT be exempt"
     assert EXEMPT.search("PENDENCIAS 2.4, was 2.2 before the renumber"), \
         "self-test: a citation carrying 'was N.M' must be exempt"
-    assert ("2", "2") not in live or True
+    # EVERY SPELLING IN THE LIVE TREE MUST BE VISIBLE TO CITE. A guard written as the set of
+    # spellings that existed on the day it was written expires without announcing it, and this one
+    # had: `PENDENCIAS §2.9` was invisible for as long as the gate existed. Each variant below is
+    # asserted to yield the SAME coordinate, so adding a spelling to the tree without adding it
+    # here fails the self-test instead of passing the gate.
+    for variant in ("PENDENCIAS 2.4", "PENDENCIAS §2.4", "PENDENCIAS \\S2.4",
+                    "PENDENCIAS section 2.4", "PENDENCIAS Sec. 2.4"):
+        assert CITE.findall(variant) == [("2", "4")], \
+            f"self-test: CITE cannot see the spelling {variant!r} -- it would go unchecked"
+    # ...and a bare number that is not a tracker citation must not be swept in.
+    assert not CITE.findall("see Table 2.4 of the manual"), \
+        "self-test: CITE must not match a coordinate that does not name the tracker"
 
 
 def main() -> int:

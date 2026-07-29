@@ -79,11 +79,38 @@ def cwd_for(code: str) -> Path:
 # Deliberately broad and anchored at a word boundary: `git reset --hard`, `git push`, `git commit`,
 # `git add`, `git mv`, `rm -rf`, `mv`, `> file` truncation, and pip/conda installs. False positives
 # here cost a printed REFUSED line; a false negative costs the author's branch.
+#
+# ROUND 8, 2026-07-30: this pattern was itself a name-list and SIX shapes walked past it. Measured
+# with a 29-case fixture table (`--selftest` below), the pre-round version let all of these through
+# as kind="run", i.e. EXECUTED on every `make check`:
+#     git -C <path> push origin main          option before the subcommand; `git\s+push` cannot match
+#     git --git-dir=... commit -am wip        same
+#     printf 'x' > notes.txt                  the redirect test was anchored at `> /`, so any
+#     echo appended >> PENDENCIAS.md          RELATIVE target, and every append, was invisible
+#     tee src_utils/out.txt                   writes without a redirect operator at all
+#     curl -X POST ... -d @payload.json       leaves the machine; `ssh` was listed, `curl` was not
+#     sed -i '' 's/a/b/' PENDENCIAS.md        in-place edit
+#     python3 src_utils/sync_page_counts.py --write     this tree's own repair flags
+# The rule generalized: match the TOOL plus "any options" rather than the exact word pair, treat
+# every redirect that is not /dev/null as a write, and name the write-capable tools as a class.
 MUTATING = re.compile(
-    r"\bgit\s+(?:reset|push|commit|add|mv|rm|checkout|branch\s+-[DdfM]|clean)\b"
-    r"|\brm\s+-[rf]|\bmv\s+\S+\s+\S+"
-    r"|\bpip\s+install\b|\bconda\s+(?:install|remove)\b"
-    r"|\btruncate\b|\bdd\s+if=|>\s*/(?!dev/null)"
+    # git with any number of options between the binary and a mutating subcommand
+    r"\bgit\b(?:\s+-{1,2}[^\s]+(?:\s+[^\s-][^\s]*)?)*\s+"
+    r"(?:reset|push|commit|add|mv|rm|checkout|switch|restore|branch|clean|tag|stash|apply|"
+    r"cherry-pick|rebase|merge|fetch|pull|remote|submodule|worktree|gc|prune|filter-branch)\b"
+    r"|\brm\s+-|\brmdir\b|\bmv\s+\S+\s+\S+|\bcp\s+\S+\s+\S+|\bln\s+-s"
+    r"|\b(?:tee|truncate|shred|install|chmod|chown|touch|mkdir|unlink)\b"
+    r"|\bsed\s+(?:-\S+\s+)*-\S*i|\bperl\s+(?:-\S+\s+)*-\S*i"
+    r"|\bdd\s+if=|\bpip3?\s+install\b|\bconda\s+(?:install|remove|create)\b"
+    r"|\bnpm\s+(?:install|i)\b|\bbrew\s+(?:install|upgrade)\b"
+    # anything that leaves this machine
+    r"|\b(?:curl|wget|ssh|scp|rsync|sftp)\b"
+    # this tree's own repair flags: --write / --fix / --in-place / -i
+    r"|--(?:write|fix|in-place|apply)\b"
+    # every redirection whose target is not /dev/null, absolute or relative, truncating or appending
+    r"|>>?\s*(?!/dev/null|&\s*[12])\S"
+    # a heredoc that writes a file
+    r"|<<-?\s*['\"]?\w+['\"]?[^\n]*\n(?:.|\n)*?\n\s*\w+\s*$"
 )
 
 # WHICH COMMANDS COUNT AS "a build" -- and this list was INCOMPLETE, which is the whole defect.
@@ -105,9 +132,29 @@ MUTATING = re.compile(
 #
 # Refused rather than skipped-in-silence, and reported with this reason, because the block itself
 # is CORRECT for the author -- he should run that recipe. It just must not run here.
+#
+# ROUND 8: the target ALTERNATION was widened last round but the `make` invocation itself was still
+# assumed to be bare, so `make -C src defense` and `make --directory=src defense` fell through to
+# kind="run" and were executed in full. Same defect one level up: a guard that matches the argument
+# and not the way the tool is called. `make` now tolerates any options before the target, and the
+# target list is a negative test (anything that is NOT one of the handful of known cheap targets
+# counts as a build) so the next target added is guarded on the day it is added rather than the day
+# someone measures the suite.
+CHEAP_MAKE_TARGETS = ("check", "check-scripts", "clean", "help", "wordcount", "status")
 BUILDING = re.compile(
-    r"\bmake\s+(?:defense|academico|final|ppgc|extra|all3|fast3?|fast-\w+|verify-equiv)\b"
-    r"|\bbuild\.sh\b|\bpdflatex\b|\bmkformat\.py\b(?![^\n]*--(?:status|selftest))"
+    r"\bmake\b(?:\s+-{1,2}[^\s]+(?:\s+[^\s-][^\s]*)?)*\s+(?!(?:" + "|".join(CHEAP_MAKE_TARGETS) + r")\b)[a-z][\w.-]*"
+    r"|\bbuild\.sh\b|\bpdflatex\b|\blatexmk\b|\bxelatex\b|\blualatex\b|\bbibtex\b|\bbiber\b"
+    r"|\bmkformat\.py\b(?![^\n]*--(?:status|selftest))"
+)
+
+# RECURSION. Also a name-list until round 8: it was the two substrings "check.sh" and "make check",
+# so `make -C src check`, `make --directory=src check` and `cd src && make -f Makefile check` all
+# classified as "run" and would have re-entered the suite that called them. Verified NOT by running
+# one (that is the hang this guard exists to prevent) but with `make -C src -n check`, whose dry run
+# prints `../src_utils/check.sh`: the command does reach this gate's own caller.
+RECURSING = re.compile(
+    r"\bcheck\.sh\b|\bcheck_scripts\.sh\b"
+    r"|\bmake\b(?:\s+-{1,2}[^\s]+(?:\s+[^\s-][^\s]*)?)*\s+check(?:-scripts)?\b"
 )
 
 
@@ -136,12 +183,16 @@ def classify(code: str) -> tuple[str, list[str]]:
     # deliberately, and a gate that runs it is a footgun wearing a checker's clothes.
     if MUTATING.search(code):
         return "refused", body
-    if "check.sh" in code or "make check" in code:
+    if RECURSING.search(code):
         return "recursion", body            # see RECURSION in the module docstring
     if BUILDING.search(code):
         return "build", body
-    if len(body) == 1 and body[0].strip().startswith("cd ") and "&&" not in body[0]:
-        return "note", body                 # the bare working-directory note, not a check
+    # THE BARE WORKING-DIRECTORY NOTE. The `&&` test alone was too narrow: `cd src; grep -c foo x`
+    # is one line with no `&&`, so it classified as a note and was skipped SILENTLY -- the exact
+    # unreported-skip-counted-as-a-pass failure named in the docstring. Any separator disqualifies.
+    if (len(body) == 1 and body[0].strip().startswith("cd ")
+            and not re.search(r"&&|\|\||;|\||`|\$\(", body[0])):
+        return "note", body
     return "run", body
 
 

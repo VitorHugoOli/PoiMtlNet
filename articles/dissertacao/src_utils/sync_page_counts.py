@@ -68,6 +68,7 @@ CLAIMS = [
 
 def measured() -> dict[str, int]:
     out = {}
+    skews: list[str] = []
     # ppgc added 2026-07-28: three targets now, and a claim about a target this tool does not
     # measure would raise a KeyError rather than being silently skipped, which is the right failure.
     # main_final -> main_academico on 2026-07-29 (LATEX_UPGRADE.md §4 A-1). The stem is
@@ -75,12 +76,35 @@ def measured() -> dict[str, int]:
     # the page count of a log that is no longer written.
     for stem, key in (("main", "defense"), ("main_academico", "academico"), ("main_ppgc", "ppgc")):
         log = ROOT / "src" / "build" / f"{stem}.log"
+        pdf = ROOT / "src" / "build" / f"{stem}.pdf"
         if not log.exists():
             sys.exit(f"no {log.relative_to(ROOT)} -- build first, this script reads the real log")
+        # THE LOG IS NOT THE DOCUMENT. Until 2026-07-29 this function read the page count out of
+        # the .log and never looked at the .pdf, so it certified page counts for documents that
+        # were NOT ON DISK. Reproduced: with all three PDFs deleted and the three logs left in
+        # place it printed "measured from the build logs: defense 104 pp, ..." followed by "all
+        # recorded page counts agree with the build" and exited 0 -- as `make check`'s page gate.
+        # That is a good result about an artifact that does not exist, which is the exact defect
+        # class of science/AGENT_HANDOFF.md §2.3b read from the other side.
+        if not pdf.exists():
+            sys.exit(f"no {pdf.relative_to(ROOT)} -- the log records a page count for a PDF that "
+                     f"is not on disk; rebuild rather than trusting the log")
+        # And the two must come from the SAME run. latexbuild.sh and fastbuild.sh publish the
+        # .pdf and the .log in one loop, so the skew is milliseconds in practice (measured
+        # +/-0.0 s on all four stems on 2026-07-29). A large skew means the log describes a
+        # different build than the PDF beside it, which is the WRONG-ARTIFACT case. The measured
+        # skew is printed on every run rather than only on failure (§4b V12: a number a human has
+        # to interpret every run will not be interpreted).
+        skew = log.stat().st_mtime - pdf.stat().st_mtime
+        if abs(skew) > 300:
+            sys.exit(f"{stem}: the .log and the .pdf are {skew:+.0f} s apart -- they are not from "
+                     f"the same build, so the page count does not describe this PDF")
+        skews.append(f"{stem} {skew:+.0f}s")
         hits = re.findall(r"Output written on \S+ \((\d+) pages", log.read_text(errors="replace"))
         if not hits:
             sys.exit(f"{log.relative_to(ROOT)} has no page count -- the build did not finish")
         out[key] = int(hits[-1])
+    print("pdf/log skew, same-run check: " + ", ".join(skews))
     return out
 
 

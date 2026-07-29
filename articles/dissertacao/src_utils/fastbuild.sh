@@ -65,8 +65,9 @@ fi
 RUN="build/fmt/_run_$TARGET.tex"
 [ -f "$RUN" ] || { echo "fastbuild: $RUN missing; run mkformat.py --emit"; exit 3; }
 
-# -halt-on-error, like the Makefile: it is the honest pass/fail signal. nonstopmode recovers
-# from an error and still writes a PDF, which is how a broken source passed six builds.
+# -halt-on-error, like the Makefile: it is the honest pass/fail signal, and it is not optional
+# here. Why the other interaction mode cannot be trusted is explained once, canonically, in
+# src_utils/README_SRC.md; read it there before changing this flag.
 PDF() { pdflatex -interaction=nonstopmode -halt-on-error \
           -output-directory="$AUX" -jobname="$STEM" \
           "&build/fmt/mainpre" "$RUN"; }

@@ -75,11 +75,23 @@ def main() -> int:
         required[name.strip()] = needle.strip().strip("'\"")
 
     rc = 0
+    copied = 0
+    skipped = 0
     for rel, dest_name in DELIVERABLES.items():
         src = os.path.join(REPO_ROOT, rel)
         dst = os.path.join(ws, dest_name)
         if not os.path.exists(src):
-            print(f"  SKIP    {rel} (not present in repo)")
+            # A MISSING SOURCE IS A FAILURE, not a skip. Until 2026-07-29 this printed SKIP and
+            # left rc at 0, so with every source absent the tool printed five SKIP lines,
+            # "deliverables in sync", and exit 0 while copying NOTHING into the workspace
+            # (reproduced on an empty fixture repo: RC=0, 0 files in the workspace). This script
+            # exists because a deliverable was saved from a stale workspace copy; a source that is
+            # not there is the same failure one step earlier, and empty-result-means-pass is how
+            # it stayed invisible. A stem renamed under this table (main_final -> main_academico,
+            # 2026-07-29) lands here, which is precisely when it must be loud.
+            print(f"  MISSING  {rel} (not present in repo) -- nothing was copied to {dest_name}")
+            skipped += 1
+            rc = 1
             continue
         shutil.copy2(src, dst)
         a, b = sha(src), sha(dst)
