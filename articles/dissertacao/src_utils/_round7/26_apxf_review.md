@@ -397,7 +397,19 @@ and assume I introduced it.
 6. **Not run:** persona 13 (UFV compliance) and persona 17 (excellence assessor). 13 measures margins,
    numbering and front matter, none of which this pass touches; 17 requires the complete document as
    its unit and would duplicate the STEP 1 arc reading at a much larger scope.
-7. **Unfinished:** the final `make check` run was still executing when this track's time ran out. Its
-   result is reported in the commit message and the submission from the run that completed; if it is
-   not green the page-count gate is the first thing to re-check, since `sync_page_counts.py --write`
-   already updated the three registers to 100/97/101.
+7. **Resolved after the commit:** `make check` ran to completion at commit 2731ff15 and returned
+   **RC=0**, read from the exit status of a direct `make check` with no pipe. Its page-count gate
+   printed "measured from the build logs: defense 100 pp, academico 97 pp, ppgc 101 pp / all recorded
+   page counts agree with the build", and its verification-commands gate reported "16 documented
+   command(s) executed; 7 carried a machine-checkable expectation; 0 failed." The self-configuring
+   Makefile needed no `texenv.sh` sourcing and the python preflight raised nothing.
+
+## Post-commit state
+
+    commit 2731ff15   review(apx-f): the caption described the pre-Georgia figure, and three of its
+                      statements were false
+    make defense RC=0 (100 pp) · make extra RC=0 (19 pp) · make check RC=0
+
+The commit contains only this track's seven files. The working tree carries the author's concurrent
+edits to other chapters, `preamble.tex`, `content.tex` and the build files; none of those were staged
+or touched.
