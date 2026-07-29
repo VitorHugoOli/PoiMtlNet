@@ -19,15 +19,18 @@ that chapter's category results should be read.
 % label attached to each place" -- which never tells the reader that the thing in question is the
 % VENUE'S OWN NAME. It now says so in the second sentence, with three real values.
 %
-% NUMBER CORRECTED WHILE REWRITING, and it was wrong in the published-adjacent text: the range was
-% "between 284 and 365 distinct values per state". MEASURED from the five state parquets at
-% /Users/vitor/Desktop/mestrado/data/checkins_by_state, column `spot_categories` (NOT `fclass` --
-% that name appears only in docs/context/EMBEDDINGS.md and does not exist in the data):
-%   Alabama 284 | Arizona 306 | Florida 325 | California 334 | Texas 377
-%   places mapping to more than one top-level category: 0 in every state
-% So the maximum is 377, not 365. The "none maps to more than one" claim is confirmed exactly.
-%   df.groupby('spot_categories')['category'].nunique()  ->  max 1 in all five states
-% The example strings are verbatim from Alabama's column: 'Coffee Shop', 'Seafood', 'Airport'.
+% THE RANGE 284-365 IS CORRECT AND WAS RE-CONFIRMED. Do not "fix" it to 377: I did exactly that on
+% 2026-07-30 and it was wrong, because the number depends on WHICH COLUMN and AT WHAT GRANULARITY.
+% The pipeline's fine class is the parquet's `spot` column, which
+% research/embeddings/hgi/preprocess.py:62 renames to `fclass`, then drops rows with a null category
+% (:64) and reduces to ONE ROW PER placeid (:75-80). Reproduced on the five state parquets:
+%   Alabama 284 | Arizona 305 | Florida 324 | California 333 | Texas 365   -> the range in the text
+%   values mapping to more than one top-level category: 0, in every state
+% The parquet ALSO has a `spot_categories` column, which is a per-check-in JSON string. Counting
+% distinct values there, over raw check-in rows without the placeid dedup, gives 284/306/325/334/377
+% -- a different quantity that has no role in the pipeline. `fclass` is not a stale name: it is what
+% poi2vec.py requires and what the embedding is actually keyed on.
+% The example strings are verbatim values of that column: 'Coffee Shop', 'Seafood', 'Airport'.
 The problem is easiest to see by asking what the static task is actually given. Each place in the
 Gowalla data carries a fine-grained venue type, a string such as \texttt{Coffee Shop},
 \texttt{Seafood}, or \texttt{Airport}. The place embedding that Chapter~\ref{ch:courb} feeds to the
@@ -36,7 +39,7 @@ vector. The target the task must predict is the top-level category, and \texttt{
 to Food no matter which coffee shop it is.
 
 The input therefore contains the answer. We confirmed this holds without exception across the five
-Gowalla state subsets the collection uses: the venue type takes between 284 and 377 distinct values
+Gowalla state subsets the collection uses: the venue type takes between 284 and 365 distinct values
 per state, and in every state each of those values maps to exactly one of the seven top-level
 categories. Not one is ambiguous. A model given the venue type and asked for the category is being
 asked to reproduce a lookup it already holds, so the reported accuracy on the static task measures

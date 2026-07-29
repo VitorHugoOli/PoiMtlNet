@@ -214,12 +214,15 @@ proprio no nao sobrevive a convolucao; agora diz que o Cap. 3 tem uma versao mai
 problema e explica o mecanismo em quatro frases, terminando na diferenca real (busca exata contra
 media diluida).
 
-> **UM NUMERO ESTAVA ERRADO e foi corrigido no caminho.** O texto dizia "between 284 and 365
-> distinct values per state". **Medido** nos cinco parquets de
-> `data/checkins_by_state`, coluna `spot_categories` (o nome `fclass` so existe em
-> `docs/context/EMBEDDINGS.md`, nao no dado): Alabama 284, Arizona 306, Florida 325, California 334,
-> **Texas 377**. O maximo e 377, nao 365. A afirmacao "nenhum mapeia para mais de uma categoria" foi
-> confirmada exatamente: 0 ambiguos nos cinco estados.
+> **EU DISSE QUE UM NUMERO ESTAVA ERRADO E ERA EU QUE ESTAVA.** Afirmei que "284 a 365" deveria ser
+> "284 a 377". **Nao deveria.** Eu medi a coluna errada, na granularidade errada: contei
+> `spot_categories` (um JSON por check-in) sobre linhas de check-in cruas. A fine class do pipeline
+> e a coluna `spot`, que `research/embeddings/hgi/preprocess.py:62` renomeia para `fclass`, depois
+> descarta categoria nula (:64) e reduz a **uma linha por placeid** (:75-80). Reproduzido assim:
+> Alabama 284, Arizona 305, Florida 324, California 333, **Texas 365** -- exatamente o intervalo que
+> ja estava no texto. `fclass` tambem nao e um nome morto: e o que `poi2vec.py` exige.
+> **O texto original estava certo e foi restaurado.** A afirmacao "nenhum mapeia para mais de uma
+> categoria" continua confirmada: 0 ambiguos nos cinco estados, na medicao correta.
 
 Build: `main_extra` 20 pp (era 19), tex_errors 0, `make check` RC=0. A secao continua suprimivel por
 um unico `\input`, como voce pediu quando ela entrou.
