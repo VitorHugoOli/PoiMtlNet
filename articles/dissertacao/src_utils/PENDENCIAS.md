@@ -160,6 +160,40 @@ git push origin mobiwac-fix:mobiwac             # so depois de ver o 0 acima
 
 Se o `grep -c '^D'` nao devolver **0**, nao faca o push.
 
+### 2.2 Publicar os arquivos que faltam no branch publico — FEITO em 2026-07-30
+
+> **ESTE ITEM FOI APAGADO POR ENGANO, nao resolvido.** Ele existiu da versao `98a33251` ate
+> `3bd47d5d` (2026-07-29), e naquele commit -- que era sobre *citacoes de tracker*, nao sobre este
+> item -- o bloco 2.2 inteiro sumiu do arquivo sem ser arquivado em
+> [`_archive/PENDENCIAS_RESOLVIDOS.md`](_archive/PENDENCIAS_RESOLVIDOS.md) e sem renumerar o resto.
+> O trabalho **ainda estava aberto** naquele momento. O buraco entre 2.1 e 2.3 ficou no arquivo por
+> um dia inteiro e foi voce quem notou. Restaurado aqui com o desfecho, porque um item que
+> desaparece silenciosamente e pior do que um item marcado errado: nada aponta para ele.
+
+**O que era.** A frase de reprodutibilidade do Apendice A cita treze caminhos `\path{}` como
+disponiveis no branch `mobiwac`. Nem todos estavam la.
+
+**O que aconteceu de fato, e a contagem mudou tres vezes.** Nove -> cinco -> **tres**. As duas
+primeiras contagens casavam por **nome de arquivo** nos caminhos que o apendice cita; a auditoria por
+**conteudo** mostrou que este branch guarda parte deles em outro diretorio.
+
+**RESOLVIDO em 2026-07-30**, com a sua decisao de reverter em vez de reescrever historia publica:
+
+| commit | efeito |
+|---|---|
+| `b7b072d2` | `git revert 6c4267ba` — restaura os 14 arquivos que uma delecao publicada tinha removido |
+| `0288cb70` | adiciona os TRES que faltavam de fato |
+
+Verificado contra o remoto depois do push: `origin/mobiwac` esta em `0288cb70`, os 25 arquivos de
+reprodutibilidade conferem **byte a byte** contra `3c57197c` (0 problemas), os tres adicionados estao
+presentes, e o efeito liquido e **18 arquivos, 2.434 insercoes, 0 delecoes**.
+
+> **AINDA E SUA DECISAO, e a unica coisa que sobrou deste item.** Dois arquivos ja publicados em
+> `scripts/closing_data/` divergem das copias locais: `m1_stats_n20.py` (411 linhas locais contra 335
+> no branch, 84 linhas diferentes) e `m2_prereg_perfold.py` (214 contra 222, 36 diferentes).
+> **Nao toquei.** Substituir um artefato publicado por uma versao local divergente e decisao de
+> autor, nao limpeza. Se a versao local e a correta, e um commit seu.
+
 ### 2.3 A ficha catalografica: naturalidade Contagem, e a biblioteca que gera
 
 **Sua decisao 2026-07-29:** Contagem e o dado de naturalidade/residencia e vai na **ficha catalografica**, nao na folha
@@ -300,6 +334,101 @@ nesta.
 o tipo de improviso que o `AGENT_GUARDRAILS` manda parar e sinalizar.
 
 ---
+
+### 2.9 O disco do nespedgpu esta 100% cheio, e isso bloqueia qualquer treino novo
+
+**Medido 2026-07-29 09:00Z, nada foi apagado.** `df -h /home` no host de GPU:
+
+```
+/dev/mapper/vg0-home  393G  373G  0  100% /home
+```
+
+Zero bytes livres. Inodes estao em 5%, entao e byte, nao arquivo.
+
+**Onde esta o espaco** (medido, nada alterado):
+
+| caminho                                     |  tamanho |
+|---------------------------------------------|---------:|
+| `PoiMtlNet/`                                |      94G |
+| `PoiMtlNet/results/`                        |      82G |
+| `results/check2hgi/california/checkpoints/` |  **61G** |
+| um diretorio `mtlnet_*` de run              | 1 a 7 MB |
+
+Ou seja: o consumo e de **checkpoints de modelo salvos**, nao de diagnosticos. Os 25 diretorios de run do california
+somados dao menos de 100 MB.
+
+**Como isso apareceu.** Um treino morreu com `RuntimeError: basic_ios::clear: iostream error` -- que e uma escrita que
+falhou, nao um problema de modelo ou de dado -- e dois folds de um job sequencial nao produziram saida nenhuma enquanto
+o wrapper ainda saiu com codigo 0. Um arquivo truncado onde se esperava um completo e o outro sintoma.
+
+**Consequencia para a dissertacao:** os datasets california, texas e istanbul do apendice do gradiente-cosseno **nao
+puderam ser medidos**. O apendice fecha com quatro datasets (florida, alabama, arizona, georgia) e marca os tres
+restantes como bloqueados por disco, nao como pendentes de fila.
+
+> **DECISAO SUA, e eu nao vou tomar por voce:** liberar espaco no host e sua decisao, nao minha --
+> aqueles 61G sao seus checkpoints e eu nao apago nada na sua maquina. Duas opcoes:
+> **(a)** apagar/arquivar `results/check2hgi/california/checkpoints/` (61G) se aqueles checkpoints ja
+> nao servem, o que libera espaco de sobra; **(b)** deixar como esta e aceitar quatro datasets no
+> apendice, que e um resultado honesto e completo por si.
+>
+> Se voce liberar o espaco, os tres datasets que faltam custam: texas e istanbul um job cada, e
+> california cinco jobs de um fold (`--only-fold k`, 0-indexado, ~22 min por fold). Os scripts estao
+> prontos. **Antes de submeter qualquer coisa, `df -h /home | tail -1` no host** -- um job lancado em
+> disco cheio queima o limite de tempo e volta verde sem dado.
+
+
+> DECISAO: Liberado
+
+### 2.10 Dos catorze checkers: sete se auto-verificam de verdade, um tem auto-teste que nao morde, dois tem fixtures, quatro nao tem nada
+
+> **TERCEIRA CORRECAO DESTE ITEM, 2026-07-30.** As tres versoes anteriores erraram, cada uma de um
+> jeito diferente, e as tres pelo mesmo motivo: eu classifiquei ferramentas sem abrir os arquivos.
+> (1) A primeira disse "onze sem prova nenhuma" -- exagero. (2) A segunda colocou o `sweep_guard` na
+> coluna errada. (3) A terceira dizia "quatro de catorze" mas a tabela **classificava doze**: o
+> `check_tex_root` e o `check_verify_list` nao apareciam em coluna nenhuma, e eram justamente os dois
+> que eu nao tinha aberto. Agora os catorze estao classificados, e a classificacao veio de sabotar a
+> logica de deteccao de cada um e ver se o proprio auto-teste pega.
+
+**Medido: quebrei o detector de cada ferramenta e observei o codigo de saida.**
+
+| ferramenta | auto-teste | pega a propria logica quebrada? |
+|---|---|---|
+| `check_doubled_macro` | `self_test()` no `main()` | **sim** (rc 0 -> 1) |
+| `check_tex_root` | `self_test()`, 4 asserts | **sim** (rc 0 -> 1) |
+| `check_tracker_refs` | `self_test()`, 5 asserts | **sim** (rc 0 -> 1) |
+| `check_meta_claims` | `self_test()`, 10 asserts | **sim** (rc 0 -> 1) |
+| `check_extra_xrefs` | `self_test()` | **sim** (rc 0 -> 1) |
+| `check_comment_hygiene` | `self_test()`, 8 linhas de saida | **sim** (rc 0 -> 1) |
+| `sweep_guard` | 4 asserts no `__main__` | **sim** (sabotando `n == 0`, rc 0 -> 1) |
+| `check_negative_parallelism` | `self_test()` existe | **NAO.** Desliguei um dos quatro detectores (`rather than`) e ele continuou saindo 0. O auto-teste nao cobre a tabela de padroes. |
+| `check_trapped_prose` | suite externa `test_trapped_prose.py`, 4 casos `must_flag`, rodada pelo `check.sh`; + par de fixtures novo | sim, pelas fixtures |
+| `check_torn_sentences` | par de fixtures novo (defeito historico real, `1bf9a227`) | sim, pelas fixtures |
+| `check_verify_list` | **nenhum** | -- |
+| `check_wordcount_claims` | **nenhum** | -- |
+| `sync_page_counts` | **nenhum** (guard de descompasso .log/.pdf exercitado a mao, rc=1) | -- |
+| `sync_deliverables` | **nenhum** (ramo de fonte ausente exercitado a mao, rc=1) | -- |
+
+**Catorze linhas, catorze ferramentas: 7 + 1 + 2 + 4 = 14.** Sete auto-testes que mordem, um que nao
+morde, duas cobertas por fixtures externas, quatro sem nada. Contando o que **nao esta provado pelo
+proprio mecanismo**, sao cinco: os quatro sem nada mais o `check_negative_parallelism`.
+
+**(A) O que falta.** (i) O `check_negative_parallelism` precisa que o auto-teste cubra a tabela de
+padroes -- hoje ele passa com um detector desligado, que e a definicao de auto-teste decorativo.
+(ii) Par de fixtures para `check_verify_list`, `check_wordcount_claims`, `sync_page_counts` e
+`sync_deliverables`. (iii) Fixtures externas para os sete que so se auto-testam por dentro, nao porque
+o interno nao valha, mas porque **nada responde "quais estao provados" sem ler dezesseis arquivos**.
+
+**(B) Por que importa.** Duas vezes voce perguntou o que estava errado e as duas vezes apareceu um
+defeito grande em producao havia semanas com `make check` dizendo RC=0. E este proprio item errou tres
+vezes seguidas, o que mede a mesma coisa por outro lado.
+
+**(C) O que eu preciso de voce.** Nada. `AGENT_GUARDRAILS` §4b V13, que agora inclui a regra que
+faltava: **uma tabela cujo cabecalho conta N tem que ter N linhas.** Um total que nao fecha com as
+proprias linhas e um erro aritmetico visivel sem conhecimento nenhum do dominio.
+
+> `make selftest` NAO faz parte do `make check`, de proposito: uma suite de lint que roda a propria
+> suite de testes a cada invocacao e o mesmo erro de trabalho-dentro-de-trabalho que fez o `check`
+> levar 265 s.
 
 ## §5 · Levantados do `CODEX_AUDIT.md` quando ele foi arquivado (2026-07-29)
 
@@ -487,101 +616,6 @@ Para o registro, porque um item ausente sem explicacao parece esquecimento:
 | A nota do Cap. 6 dizendo que 56,16 "ainda nao carrega spread"                                             | O spread **ja esta** na frase (desvio-padrao 1,89, medido no render). O que sobrou e o comentario obsoleto que diz o contrario. Tambem nao precisa de voce |
 
 ---
-
-### 2.9 O disco do nespedgpu esta 100% cheio, e isso bloqueia qualquer treino novo
-
-**Medido 2026-07-29 09:00Z, nada foi apagado.** `df -h /home` no host de GPU:
-
-```
-/dev/mapper/vg0-home  393G  373G  0  100% /home
-```
-
-Zero bytes livres. Inodes estao em 5%, entao e byte, nao arquivo.
-
-**Onde esta o espaco** (medido, nada alterado):
-
-| caminho                                     |  tamanho |
-|---------------------------------------------|---------:|
-| `PoiMtlNet/`                                |      94G |
-| `PoiMtlNet/results/`                        |      82G |
-| `results/check2hgi/california/checkpoints/` |  **61G** |
-| um diretorio `mtlnet_*` de run              | 1 a 7 MB |
-
-Ou seja: o consumo e de **checkpoints de modelo salvos**, nao de diagnosticos. Os 25 diretorios de run do california
-somados dao menos de 100 MB.
-
-**Como isso apareceu.** Um treino morreu com `RuntimeError: basic_ios::clear: iostream error` -- que e uma escrita que
-falhou, nao um problema de modelo ou de dado -- e dois folds de um job sequencial nao produziram saida nenhuma enquanto
-o wrapper ainda saiu com codigo 0. Um arquivo truncado onde se esperava um completo e o outro sintoma.
-
-**Consequencia para a dissertacao:** os datasets california, texas e istanbul do apendice do gradiente-cosseno **nao
-puderam ser medidos**. O apendice fecha com quatro datasets (florida, alabama, arizona, georgia) e marca os tres
-restantes como bloqueados por disco, nao como pendentes de fila.
-
-> **DECISAO SUA, e eu nao vou tomar por voce:** liberar espaco no host e sua decisao, nao minha --
-> aqueles 61G sao seus checkpoints e eu nao apago nada na sua maquina. Duas opcoes:
-> **(a)** apagar/arquivar `results/check2hgi/california/checkpoints/` (61G) se aqueles checkpoints ja
-> nao servem, o que libera espaco de sobra; **(b)** deixar como esta e aceitar quatro datasets no
-> apendice, que e um resultado honesto e completo por si.
->
-> Se voce liberar o espaco, os tres datasets que faltam custam: texas e istanbul um job cada, e
-> california cinco jobs de um fold (`--only-fold k`, 0-indexado, ~22 min por fold). Os scripts estao
-> prontos. **Antes de submeter qualquer coisa, `df -h /home | tail -1` no host** -- um job lancado em
-> disco cheio queima o limite de tempo e volta verde sem dado.
-
-
-> DECISAO: Liberado
-
-### 2.10 Dos catorze checkers: sete se auto-verificam de verdade, um tem auto-teste que nao morde, dois tem fixtures, quatro nao tem nada
-
-> **TERCEIRA CORRECAO DESTE ITEM, 2026-07-30.** As tres versoes anteriores erraram, cada uma de um
-> jeito diferente, e as tres pelo mesmo motivo: eu classifiquei ferramentas sem abrir os arquivos.
-> (1) A primeira disse "onze sem prova nenhuma" -- exagero. (2) A segunda colocou o `sweep_guard` na
-> coluna errada. (3) A terceira dizia "quatro de catorze" mas a tabela **classificava doze**: o
-> `check_tex_root` e o `check_verify_list` nao apareciam em coluna nenhuma, e eram justamente os dois
-> que eu nao tinha aberto. Agora os catorze estao classificados, e a classificacao veio de sabotar a
-> logica de deteccao de cada um e ver se o proprio auto-teste pega.
-
-**Medido: quebrei o detector de cada ferramenta e observei o codigo de saida.**
-
-| ferramenta | auto-teste | pega a propria logica quebrada? |
-|---|---|---|
-| `check_doubled_macro` | `self_test()` no `main()` | **sim** (rc 0 -> 1) |
-| `check_tex_root` | `self_test()`, 4 asserts | **sim** (rc 0 -> 1) |
-| `check_tracker_refs` | `self_test()`, 5 asserts | **sim** (rc 0 -> 1) |
-| `check_meta_claims` | `self_test()`, 10 asserts | **sim** (rc 0 -> 1) |
-| `check_extra_xrefs` | `self_test()` | **sim** (rc 0 -> 1) |
-| `check_comment_hygiene` | `self_test()`, 8 linhas de saida | **sim** (rc 0 -> 1) |
-| `sweep_guard` | 4 asserts no `__main__` | **sim** (sabotando `n == 0`, rc 0 -> 1) |
-| `check_negative_parallelism` | `self_test()` existe | **NAO.** Desliguei um dos quatro detectores (`rather than`) e ele continuou saindo 0. O auto-teste nao cobre a tabela de padroes. |
-| `check_trapped_prose` | suite externa `test_trapped_prose.py`, 4 casos `must_flag`, rodada pelo `check.sh`; + par de fixtures novo | sim, pelas fixtures |
-| `check_torn_sentences` | par de fixtures novo (defeito historico real, `1bf9a227`) | sim, pelas fixtures |
-| `check_verify_list` | **nenhum** | -- |
-| `check_wordcount_claims` | **nenhum** | -- |
-| `sync_page_counts` | **nenhum** (guard de descompasso .log/.pdf exercitado a mao, rc=1) | -- |
-| `sync_deliverables` | **nenhum** (ramo de fonte ausente exercitado a mao, rc=1) | -- |
-
-**Catorze linhas, catorze ferramentas: 7 + 1 + 2 + 4 = 14.** Sete auto-testes que mordem, um que nao
-morde, duas cobertas por fixtures externas, quatro sem nada. Contando o que **nao esta provado pelo
-proprio mecanismo**, sao cinco: os quatro sem nada mais o `check_negative_parallelism`.
-
-**(A) O que falta.** (i) O `check_negative_parallelism` precisa que o auto-teste cubra a tabela de
-padroes -- hoje ele passa com um detector desligado, que e a definicao de auto-teste decorativo.
-(ii) Par de fixtures para `check_verify_list`, `check_wordcount_claims`, `sync_page_counts` e
-`sync_deliverables`. (iii) Fixtures externas para os sete que so se auto-testam por dentro, nao porque
-o interno nao valha, mas porque **nada responde "quais estao provados" sem ler dezesseis arquivos**.
-
-**(B) Por que importa.** Duas vezes voce perguntou o que estava errado e as duas vezes apareceu um
-defeito grande em producao havia semanas com `make check` dizendo RC=0. E este proprio item errou tres
-vezes seguidas, o que mede a mesma coisa por outro lado.
-
-**(C) O que eu preciso de voce.** Nada. `AGENT_GUARDRAILS` §4b V13, que agora inclui a regra que
-faltava: **uma tabela cujo cabecalho conta N tem que ter N linhas.** Um total que nao fecha com as
-proprias linhas e um erro aritmetico visivel sem conhecimento nenhum do dominio.
-
-> `make selftest` NAO faz parte do `make check`, de proposito: uma suite de lint que roda a propria
-> suite de testes a cada invocacao e o mesmo erro de trabalho-dentro-de-trabalho que fez o `check`
-> levar 265 s.
 
 ## §3 · Aberto e bloqueado em terceiros
 

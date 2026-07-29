@@ -101,9 +101,44 @@ def self_test() -> None:
         "self-test: CITE must not match a coordinate that does not name the tracker"
 
 
+def nesting_problems() -> list[str]:
+    """A "### N.M" heading must sit under its own "## §N", not under some other section's.
+
+    FOUND 2026-07-30 BY THE AUTHOR, not by this gate. Items 2.9 and 2.10 were appended at the end of
+    the file, which by then was inside "§5 - raised from CODEX_AUDIT", so a reader following the
+    headings found a GPU-disk item and a checker-coverage item filed under an audit they have
+    nothing to do with. Every citation still resolved -- scan() was green throughout -- because a
+    citation resolves on the NUMBER and this defect is about POSITION.
+
+    That is the same shape as the round-6 failure this whole round is about: the check that existed
+    was green, and the thing that was wrong was not the thing it checked.
+    """
+    out, current = [], None
+    for line in TRACKER.read_text(encoding="utf-8").split("\n"):
+        m_sec = re.match(r"^## §(\d+)\b", line)
+        if m_sec:
+            current = m_sec.group(1)
+            continue
+        m_item = re.match(r"^### (\d+)\.(\d+)\b(.*)", line)
+        if m_item and current is not None and m_item.group(1) != current:
+            out.append(
+                f"MISFILED  item {m_item.group(1)}.{m_item.group(2)} sits inside §{current}: "
+                f"{m_item.group(3).strip()[:56]}"
+            )
+    return out
+
+
 def main() -> int:
     self_test()
     problems = scan()
+    misfiled = nesting_problems()
+    for m in misfiled:
+        print(m)
+    if misfiled:
+        print(f"\nFAIL: {len(misfiled)} item(s) filed under the wrong section. A reader navigating "
+              f"by heading will not find them, and every citation still resolves, so nothing else "
+              f"catches this. Move them under their own §N.")
+        return 1
     for p in problems:
         print(p)
     if problems:
