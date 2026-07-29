@@ -86,6 +86,30 @@ MUTATING = re.compile(
     r"|\btruncate\b|\bdd\s+if=|>\s*/(?!dev/null)"
 )
 
+# WHICH COMMANDS COUNT AS "a build" -- and this list was INCOMPLETE, which is the whole defect.
+# The build guard below has existed since round 7 and its comment correctly says running a build
+# here "took make check from 4 seconds to 297". But it tested for `make defense`, `make final`,
+# `make ppgc` and `pdflatex` by substring, and two blocks added to PENDENCIAS.md afterwards open
+# with `make fast3 && bash src_utils/build.sh src both` -- neither of which matched. So the guard
+# reported nothing, the harness built all three targets and then rebuilt two more, on EVERY
+# `make check`.
+#
+# Measured 2026-07-30: 264.1 s of a 265.5 s suite, 99.5 percent, against 0.927 s for the same gate
+# in round 7. The lesson is not "add fast3": it is that a substring list of the CURRENT target names
+# is guaranteed to go stale the next time a target is added, which is exactly what happened. Hence
+# one pattern, covering the Makefile's build targets as a class plus the two scripts and pdflatex.
+#
+# The cost was not only the clock. A gate that rebuilds the PDFs is a gate that COLLIDES with any
+# other build, which is the source of every intermittent rc=1 chased this round: the suite
+# rewriting build/*.pdf underneath its own page-count and numbering checks.
+#
+# Refused rather than skipped-in-silence, and reported with this reason, because the block itself
+# is CORRECT for the author -- he should run that recipe. It just must not run here.
+BUILDING = re.compile(
+    r"\bmake\s+(?:defense|academico|final|ppgc|extra|all3|fast3?|fast-\w+|verify-equiv)\b"
+    r"|\bbuild\.sh\b|\bpdflatex\b|\bmkformat\.py\b(?![^\n]*--(?:status|selftest))"
+)
+
 
 def classify(code: str) -> tuple[str, list[str]]:
     """Decide what kind of block this is. Returns (kind, body lines).
@@ -114,8 +138,7 @@ def classify(code: str) -> tuple[str, list[str]]:
         return "refused", body
     if "check.sh" in code or "make check" in code:
         return "recursion", body            # see RECURSION in the module docstring
-    if ("make defense" in code or "make final" in code or "make ppgc" in code
-            or "pdflatex" in code):
+    if BUILDING.search(code):
         return "build", body
     if len(body) == 1 and body[0].strip().startswith("cd ") and "&&" not in body[0]:
         return "note", body                 # the bare working-directory note, not a check
