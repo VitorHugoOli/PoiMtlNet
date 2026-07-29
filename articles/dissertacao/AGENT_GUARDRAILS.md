@@ -298,6 +298,18 @@ the work*, and that is where the time went. The four root causes, with the count
   cover -- it is a proxy, and I used it because it was cheap and because understating coverage feels
   like the safe error. It is not safe: a tool wrongly listed as unproven gets re-tested at cost, and
   a queue that misdescribes its own contents is the thing this file exists to prevent.
+  FOURTH INSTANCE, and it needs no domain knowledge to catch, which is why it is the most embarrassing
+  of the four. The corrected table was headed "four of the FOURTEEN checkers" and listed TWELVE rows:
+  check_tex_root and check_verify_list appeared in no column at all -- and they were exactly the two
+  files I had still not opened, so the sweep_guard error was reproduced in the artifact fixing it.
+  **A table whose headline counts N must have N rows. Count them.** A total that does not reconcile
+  with its own rows is an arithmetic error visible to any reader, and it discredits the measurements
+  that ARE right by sitting next to them.
+  Opening the two files also produced the finding the proxy could never have: check_negative_parallelism
+  HAS a self_test(), and disabling one of its four detectors leaves it exiting 0. A self-test that
+  does not cover the detector is worse than none, because its presence reads as proof. That is why
+  the classification is now by SABOTAGE -- break the logic, read the exit code -- and not by whether
+  a `def self_test` exists.
 ### Scope discipline for delegated work (the other 2.6 hours)
 
 Round 6 lost **2.6 hours (19%)** waiting on the slowest sub-agent in each of five waves. The worst

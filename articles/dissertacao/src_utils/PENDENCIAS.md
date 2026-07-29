@@ -532,45 +532,52 @@ restantes como bloqueados por disco, nao como pendentes de fila.
 
 > DECISAO: Liberado
 
-### 2.10 Quatro dos catorze checkers nao tem nenhuma auto-verificacao
+### 2.10 Dos catorze checkers: sete se auto-verificam de verdade, um tem auto-teste que nao morde, dois tem fixtures, quatro nao tem nada
 
-> **CORRECAO DUPLA, 2026-07-30.** Este item errou nas DUAS direcoes antes de ser medido.
-> A primeira versao disse que **onze** checkers estavam sem prova nenhuma -- falso: sete rodam
-> auto-testes proprios antes de reportar e imprimem o resultado, e o `check_trapped_prose` tem uma
-> suite separada (`test_trapped_prose.py`) com quatro reproducoes de defeitos reais que o `check.sh`
-> executa. A segunda versao corrigiu isso mas colocou o `sweep_guard` na coluna "sem auto-teste",
-> afirmando que os "4 self-tests" que o `check.sh` roda cobriam o *substituidor* e nao o guard.
-> **Tambem falso, e eu nunca abri o arquivo antes de escrever isso.** Os quatro testes exercitam as
-> funcoes proprias do `sweep_guard` (`substitute` e `assert_distinct`); um deles foi escrito depois
-> de quebrar o guard de proposito e ver a suite continuar verde. Sabotando o ramo `n == 0`, eles
-> saem com rc=1; restaurado, rc=0.
+> **TERCEIRA CORRECAO DESTE ITEM, 2026-07-30.** As tres versoes anteriores erraram, cada uma de um
+> jeito diferente, e as tres pelo mesmo motivo: eu classifiquei ferramentas sem abrir os arquivos.
+> (1) A primeira disse "onze sem prova nenhuma" -- exagero. (2) A segunda colocou o `sweep_guard` na
+> coluna errada. (3) A terceira dizia "quatro de catorze" mas a tabela **classificava doze**: o
+> `check_tex_root` e o `check_verify_list` nao apareciam em coluna nenhuma, e eram justamente os dois
+> que eu nao tinha aberto. Agora os catorze estao classificados, e a classificacao veio de sabotar a
+> logica de deteccao de cada um e ver se o proprio auto-teste pega.
 
-**Medido, com o codigo aberto desta vez:**
+**Medido: quebrei o detector de cada ferramenta e observei o codigo de saida.**
 
-| ferramenta | estado |
-|---|---|
-| `check_comment_hygiene`, `check_extra_xrefs`, `check_doubled_macro`, `check_meta_claims`, `check_tracker_refs`, `check_negative_parallelism`, `sweep_guard` | **auto-testam antes de reportar**, e imprimem o resultado |
-| `check_trapped_prose` | suite externa `test_trapped_prose.py` (4 casos `must_flag`), rodada pelo `check.sh`; agora tambem par de fixtures |
-| `check_torn_sentences` | agora **PROVEN** por fixture externa (defeito historico real, `1bf9a227`) |
-| `check_wordcount_claims`, `sync_page_counts`, `sync_deliverables` | **sem auto-teste de nenhum tipo** |
+| ferramenta | auto-teste | pega a propria logica quebrada? |
+|---|---|---|
+| `check_doubled_macro` | `self_test()` no `main()` | **sim** (rc 0 -> 1) |
+| `check_tex_root` | `self_test()`, 4 asserts | **sim** (rc 0 -> 1) |
+| `check_tracker_refs` | `self_test()`, 5 asserts | **sim** (rc 0 -> 1) |
+| `check_meta_claims` | `self_test()`, 10 asserts | **sim** (rc 0 -> 1) |
+| `check_extra_xrefs` | `self_test()` | **sim** (rc 0 -> 1) |
+| `check_comment_hygiene` | `self_test()`, 8 linhas de saida | **sim** (rc 0 -> 1) |
+| `sweep_guard` | 4 asserts no `__main__` | **sim** (sabotando `n == 0`, rc 0 -> 1) |
+| `check_negative_parallelism` | `self_test()` existe | **NAO.** Desliguei um dos quatro detectores (`rather than`) e ele continuou saindo 0. O auto-teste nao cobre a tabela de padroes. |
+| `check_trapped_prose` | suite externa `test_trapped_prose.py`, 4 casos `must_flag`, rodada pelo `check.sh`; + par de fixtures novo | sim, pelas fixtures |
+| `check_torn_sentences` | par de fixtures novo (defeito historico real, `1bf9a227`) | sim, pelas fixtures |
+| `check_verify_list` | **nenhum** | -- |
+| `check_wordcount_claims` | **nenhum** | -- |
+| `sync_page_counts` | **nenhum** (guard de descompasso .log/.pdf exercitado a mao, rc=1) | -- |
+| `sync_deliverables` | **nenhum** (ramo de fonte ausente exercitado a mao, rc=1) | -- |
 
-Nos tres sem auto-teste, dois guards novos foram exercitados a mao e disparam (descompasso .log/.pdf
-no `sync_page_counts`, rc=1; fonte ausente no `sync_deliverables`, rc=1). O `check_wordcount_claims`
-nao foi exercitado em nenhuma direcao.
+**Catorze linhas, catorze ferramentas: 7 + 1 + 2 + 4 = 14.** Sete auto-testes que mordem, um que nao
+morde, duas cobertas por fixtures externas, quatro sem nada. Contando o que **nao esta provado pelo
+proprio mecanismo**, sao cinco: os quatro sem nada mais o `check_negative_parallelism`.
 
-**(A) O que falta.** Par de fixtures para `check_wordcount_claims`, `sync_page_counts` e
-`sync_deliverables`, e fixtures externas para os sete que hoje so se auto-testam por dentro -- nao
-porque o auto-teste interno nao valha, mas porque **nao existe um lugar unico que responda quais
-checkers estao provados e quais estao supostos**. Hoje a resposta exige ler dezesseis arquivos.
+**(A) O que falta.** (i) O `check_negative_parallelism` precisa que o auto-teste cubra a tabela de
+padroes -- hoje ele passa com um detector desligado, que e a definicao de auto-teste decorativo.
+(ii) Par de fixtures para `check_verify_list`, `check_wordcount_claims`, `sync_page_counts` e
+`sync_deliverables`. (iii) Fixtures externas para os sete que so se auto-testam por dentro, nao porque
+o interno nao valha, mas porque **nada responde "quais estao provados" sem ler dezesseis arquivos**.
 
 **(B) Por que importa.** Duas vezes voce perguntou o que estava errado e as duas vezes apareceu um
-defeito grande em producao havia semanas, com `make check` dizendo RC=0. O `make selftest` transforma
-essa pergunta em lista impressa, e ele proprio foi validado sabotando um checker: rc=1 com a
-sabotagem, rc=0 sem.
+defeito grande em producao havia semanas com `make check` dizendo RC=0. E este proprio item errou tres
+vezes seguidas, o que mede a mesma coisa por outro lado.
 
-**(C) O que eu preciso de voce.** Nada. Esta registrado porque uma lacuna nao registrada e como os
-dois defeitos grandes sobreviveram -- e porque este item, corrigindo um exagero, produziu outro na
-direcao oposta sem abrir o arquivo. `AGENT_GUARDRAILS` §4b V13.
+**(C) O que eu preciso de voce.** Nada. `AGENT_GUARDRAILS` §4b V13, que agora inclui a regra que
+faltava: **uma tabela cujo cabecalho conta N tem que ter N linhas.** Um total que nao fecha com as
+proprias linhas e um erro aritmetico visivel sem conhecimento nenhum do dominio.
 
 > `make selftest` NAO faz parte do `make check`, de proposito: uma suite de lint que roda a propria
 > suite de testes a cada invocacao e o mesmo erro de trabalho-dentro-de-trabalho que fez o `check`

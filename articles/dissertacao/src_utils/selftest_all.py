@@ -16,18 +16,25 @@ substituter rather than the guard (also false -- those four tests exercise sweep
 substitute() and assert_distinct(), one of them added after deliberately breaking the guard and
 watching the suite stay green, and sabotaging its `n == 0` branch makes them exit 1).
 
-SEVEN tools verify themselves before reporting, printing the result: check_comment_hygiene (8 lines
-of it), check_extra_xrefs (5), check_doubled_macro, check_meta_claims, check_tracker_refs,
-check_negative_parallelism, sweep_guard (4). check_trapped_prose has a separate regression suite,
-test_trapped_prose.py, carrying four must_flag reproductions of real shipped defects, which check.sh
-executes inside the trapped-prose gate. All of that is real proof and this runner replaces none of it.
+MEASURED BY SABOTAGE, all fourteen classified, because three earlier versions of this paragraph were
+each wrong in a different direction from reading proxies instead of files. The test: break the tool's
+own detection logic, run it, read the exit code.
 
-WHAT IS MISSING is narrower and still worth closing. (1) FOUR tools have no self-test of any kind:
-check_torn_sentences, check_wordcount_claims, sync_page_counts, sync_deliverables. (2) The tools that
-DO self-test each do it their own way, in-process, against fixtures they build internally -- so no
-single place answers "which checkers are proven, and which are merely assumed"; today that answer
-takes reading sixteen files. An unreported gap is how both big defects survived, so this runner makes
-the answer a printed list rather than a reading exercise.
+  SEVEN self-tests BITE (rc 0 -> 1 when their detector is disabled): check_doubled_macro,
+    check_tex_root, check_tracker_refs, check_meta_claims, check_extra_xrefs, check_comment_hygiene,
+    sweep_guard. These are real proof and this runner replaces none of them.
+  ONE SELF-TEST DOES NOT BITE: check_negative_parallelism has a self_test(), but disabling one of its
+    four detectors ("rather than") leaves it exiting 0. Its self-test does not cover the pattern
+    table, which makes it decorative for that failure -- worse than none, because it reads as proof.
+  TWO are covered by external fixtures: check_trapped_prose (also has test_trapped_prose.py, four
+    must_flag reproductions of real shipped defects, run by check.sh) and check_torn_sentences.
+  FOUR have nothing: check_verify_list, check_wordcount_claims, sync_page_counts, sync_deliverables.
+
+WHY THIS RUNNER STILL EARNS ITS PLACE, stated without inflating the gap: the eight in-process
+self-tests each do it their own way against fixtures they build internally, so nothing answers "which
+checkers are proven and which are merely assumed" without reading sixteen files -- and as the
+check_negative_parallelism row shows, the presence of a self_test() is not the same as coverage. An
+unreported gap is how both big defects survived; this makes the answer a printed list.
 
 The contract is the useful part: a checker validated only against a clean tree proves nothing. It
 would pass identically if its regex matched nothing, if its file list were empty, or if it had been
