@@ -568,10 +568,19 @@ validation score, the geometric mean of the two task metrics.
 %   # EXPECT before this edit: ONE line, src/chapters/2_fundamentals.tex {'MRR': 1, 'Delta_m': 1}.
 %   # EXPECT after it: no output at all.
 % Scope of that sweep, stated because an unreported exclusion is how the round-6 table went wrong:
-% 59 .tex files under src/ (build/ excluded, it holds generated copies), all 17 files under
-% src/tables/, and the 16 files of the submitted manuscript at articles/[mobiwac]/src/. Neither term
+% 70 .tex files in total. 54 under src/ with build/ excluded (it holds generated copies), of which the
+% 17 files under src/tables/ are a SUBSET and not an additional group, plus the 16 files of the
+% submitted manuscript at articles/[mobiwac]/src/. Neither term
 % occurs in any results table of any chapter, so the promises were not merely unmentioned in prose,
 % they were unreported everywhere.
+% CORRECTED 2026-07-30, and the correction is the point: this line first said "59 .tex files under
+% src/ (build/ excluded)". 59 is the count INCLUDING build/; excluding it gives 54. So the number was
+% right about a set I had not swept and wrong about the one I had, which is the V1 failure in its
+% purest form: I reported a count without re-running the command that produced it. It also added the
+% 17 table files as though they were a separate group, when src/tables/ lies under src/ and was
+% already inside the 54. Re-measured by the command above, whose file list is now printed rather
+% than described: 54 + 16 = 70 swept, 0 hits after the edit, and it reproduces the ONE-hit-per-term
+% result before it.
 % WHAT REPLACED THEM. The Acc@10 sentence keeps its limitation and states it directly ("a model can
 % rank the true region tenth as cheaply as first") instead of naming a second metric to fix it, so the
 % honest point the MRR clause was carrying survives without promising a figure. The Delta_m sentence is
