@@ -22,15 +22,43 @@ typographical and tabulation errata were corrected, and each correction is liste
 Appendix~B of \extravolume. Its
 conclusions are the conclusions of the time, for the configuration studied here: with a
 place-level embedding and hard parameter sharing, multi-task learning did not
-consistently improve on the dedicated single-task models. Chapters~\ref{ch:courb}
-and~\ref{ch:mobiwac} revise that verdict by changing the input representation rather
-than the architecture. The chapter's preference for the Nash-MTL optimizer is likewise
+consistently improve on the dedicated single-task models. The two chapters that follow
+revise that verdict, and they change different things to do it.
+Chapter~\ref{ch:courb} keeps this architecture and replaces the input representation,
+which is what identifies the representation as the binding constraint.
+Chapter~\ref{ch:mobiwac} then changes the architecture as well, moving from hard
+parameter sharing to a cross-attention sharing topology, and changes the task pair with
+it. The chapter's preference for the Nash-MTL optimizer is likewise
 a conclusion of the time, weakened by a later finding about the optimizer
 implementation, and Chapter~\ref{ch:mobiwac} does not rely on it. A note on terminology:
 the term ``Next-POI Prediction'' as used in the reproduced article denotes the frame's
 \emph{next category} task, that is, predicting the category of the next visited place,
 not the exact place itself; the dissertation reserves \emph{next place} for the
 exact-POI task, which is not studied here.
+% [COD-015a, round8, 2026-07-30] The preface said Chapters 4 and 5 "revise that verdict by changing the
+% input representation rather than the architecture", which is right about Chapter 4 and wrong about
+% Chapter 5. Author decision, PENDENCIAS 5.4, quoted: "vamos mudar o prefacio, pq o cap 4 defato nao
+% muda a arc mas o cap 5 muda", with "Pode refazer por conta propria" on the wording. One sentence
+% became three, and each half is now sourced in this document:
+%   Ch.4 keeps the architecture -- 4_courb/methodology.tex:12 and its Figure caption at :21
+%     ("Architecture based on MTLnet") swap the single 64-dimensional place-level input for decomposed
+%     spatial, temporal and categorical encoders and leave the model itself alone; Chapter 5's own
+%     recap says the same in one clause, 5_mobiwac/02_related.tex:25 "kept the MTLnet architecture
+%     unchanged and replaced its single 64-dimensional place-level input"; and Chapter 1 objective 2
+%     states it as the objective ("while holding the architecture fixed").
+%   Ch.5 changes the architecture -- 5_mobiwac/01_introduction.tex:26 and 04_method.tex:28 both
+%     describe the shared trunk as a cross-attention stack, and 02_related.tex:31 says in those words
+%     that the "sharing topology is redesigned around it". The task pair moved too, which is why this
+%     preface now names it: 6_conclusion.tex:240 lists the task-pair change as a confound of the final
+%     result. NOT sourced to 02_related.tex:20 -- that line describes MTLnet, the Chapter 3 model, and
+%     an earlier draft of this comment cited it for Chapter 5's topology, which is the misattribution
+%     class this round exists to catch.
+% "sharing topology" is the GLOSSARY term (line 128); "task pair" is used in Chapters 1, 5 and 6 and in
+% the conclusion's confound item, so no new vocabulary enters here. The sentence about Nash-MTL that
+% follows is untouched, and it is the round-4 correction that already distinguishes Chapter 4 (which
+% trains with the balancer) from Chapter 5 (which does not).
+% This is dissertation-authored preface prose, not reproduced published text, so it carries no
+% Appendix B errata row, on the same footing as the round-4 note below.
 % [round7, 2026-07-29] Errata pointer repointed, NOT deleted. It read "are listed in
 % Appendix B"; Appendix B moved to the supplementary volume (content.tex's appendix block
 % records the decision), so a bare "Appendix B" would send the reader to this document's
