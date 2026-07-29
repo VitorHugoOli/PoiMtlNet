@@ -8,7 +8,10 @@ partly open, and the class of defect that cost round 6 the most **was hit thirte
 round 7 itself**, by me among others. §4 lists them with their commits. A post-mortem that reads as
 a success report is useless, so the honest summary is one line:
 
-> **The machine got faster and the record did not get more truthful.**
+> **The machine got faster and the record did not get more truthful.** Round 7 cut a three-target
+> build from 115 s to 13 s and, in the same session, hit the wrong-claim-about-the-work class **seven
+> times** — three of them *after* the rules and gates written against it landed, and two of those
+> reached a sub-agent as an instruction.
 
 ---
 
@@ -173,10 +176,43 @@ against the case they were written for.** The next open-ended audit is the test.
 
 This is the section the brief asked for and the one I would want read first.
 
-§4b's countermeasures are V1-V7 plus four new gates. They are good rules. They did not prevent the
-class. Reading every round-7 commit body, **thirteen of the round's thirty-one commits correct a
-statement about the work** — a count, a coverage claim, an exit code, a line coordinate, a
-self-description — rather than anything about the dissertation:
+§4b's countermeasures are V1-V8 plus five gates aimed at this class, **and V8 and `check_tracker_refs.py` were
+themselves added mid-round in response to instances that landed after the earlier ones.** They are
+good rules. They did not prevent the class.
+
+**Two counts, two criteria, and they must not be conflated.** The author counts **seven times the
+class was hit** this round; I count **thirteen commits that correct a statement about the work**.
+Neither number is wrong and neither contains the other: a single hit can take two commits to repair,
+and a commit can repair a defect that was never separately "an instance". The counts answer different
+questions — *how many times did we get it wrong* against *how much of the log is repair* — and this
+post-mortem reports both rather than picking the flattering one.
+
+**The headline, which is the author's and is the honest one:**
+
+> The guardrails written **this round** against this exact class did not prevent **three further
+> instances of it in the same session, and two of those reached a sub-agent as an instruction.**
+
+The three, in the author's own words, recorded here because they are the part a success report would
+omit:
+
+| # | What happened | Why the existing rules did not catch it |
+|---|---|---|
+| 5 | A host-notes write for `MTL_TRAIN_DIAGNOSTICS` was claimed and **had never happened** | V1 covers numbers about the work; nothing covered an *action* about the work |
+| 6 | A sub-agent was told per-state data was arriving when **every cosine cell in those files was empty** — `rc=0` and the file shape were trusted without opening one | This is the gap V8 was then written to close: *a file is not data; open it and count* |
+| 7 | Per-dataset p-values computed on **250 serially-dependent per-epoch values as if independent**; "significantly positive" written into a commit message as a directive and sent to a sub-agent **twice** | No rule bound a statistical claim to its unit of independence; and a commit message read as an instruction propagates before review sees it |
+
+Plus a **runtime estimate wrong by 47x** that was acted on by mis-scoping a sub-agent's task
+(`ff69ba07`) — a §3 scope-discipline failure caused by a §4 meta-claim, which is the two cost centres
+of round 6 feeding each other inside round 7.
+
+**What instances 6 and 7 have in common, and it is new.** In round 6 every meta-claim defect was
+*recorded* somewhere durable — a comment, a report, a commit message — and caught by a later reader.
+These two were **transmitted to a sub-agent as an instruction**, which means the wrong claim was
+acting as a specification while it was still wrong. A gate reads files; it cannot read a delegation
+brief. That is the part of this class that no gate added this round can reach, and instance 7 did it
+twice.
+
+Reading every round-7 commit body, the thirteen repair commits are:
 
 | commit | what was wrong | §4b class |
 |---|---|---|
@@ -218,7 +254,7 @@ pure R2) and `cc85b437` (250 serially-dependent cosines treated as independent, 
    about something other than what was meant to be measured. **A zero is the most dangerous reading,
    because zero findings is also what success looks like.**
 
-**And two of mine, in this very track.**
+**And four of mine, in this very track.**
 
 The first was inherited and I shipped it before catching it. `PENDENCIAS.md` §2.1 told the author
 that *"cada arquivo acima foi verificado individualmente como intacto no remoto"* for the fifteen
@@ -231,36 +267,68 @@ text also states what the check does and does not establish — path existence i
 byte identity — because that distinction is what makes it the right question for a commit that was
 never pushed.
 
-The second: two of my page-coordinate probes disagreed within ten
+The second happened in the checkpoint turn of this very track, and it is the same defect as the
+author's instance 6 in a different costume. Reporting gate state, I ran
+`make check 2>&1 | grep -o '[0-9]* gates'` and printed `RC=${PIPESTATUS[0]}`, which gave **RC=0**.
+Read directly, without the pipe, `make check` returns **RC=2**. I had written the passing exit code
+of a *pipeline stage* and called it the suite's verdict — after `dfea92e3` had already corrected a
+`grep -c` exit-status defect this round, and after `e1a1e4cf` had recorded writing `RC=0` for a run
+that printed `RC=1`. Third instance of the exit-code shape in one round, first of them mine. The
+right form is what §5 uses: run it, capture `$?` on its own line, quote that.
+
+The third: two of my page-coordinate probes disagreed within ten
 minutes. The cause was not a bad probe: another round-7 track was editing `src/` while I measured, so
 the build moved under me (16 modified files and four new ones under `src/` at the time of writing). I
 caught it because the disagreement was visible; had only one probe run, I would have written down a
 page number that was already wrong. **Every coordinate in my deliverables is therefore a phrase, not
 a line or a page.** Concurrent tracks make line coordinates a liability, not just a fragility.
 
-### What the four new gates do and do not cover
+### What the meta-claim gates do and do not cover
 
-| gate | catches | blind to |
-|---|---|---|
-| `check_verify_list.py` | A documented command that does not return what its prose claims | Claims with no command attached — most of the thirteen above |
-| `check_comment_hygiene.py` | A file whose self-count disagrees with itself; a story told twice | Any count about something other than the file it lives in |
-| `check_tracker_refs.py` | A `PENDENCIAS N.M` citation that stops resolving | Whether the item it points at is still true |
-| `check_tex_root.py`, `check_doubled_macro.py` | Two silent LaTeX classes | Nothing in the meta-claim family |
+**Measured, not recalled** — `check.sh` invokes thirteen checkers; the five aimed at this class, with
+the commit that first added each file:
+
+```bash
+grep -o 'check_[a-z_]*\.py\|sweep_guard\.py\|sync_page_counts\.py\|test_[a-z_]*\.py' \
+     src_utils/check.sh | sort -u          # -> 13 checkers
+```
+
+| gate | added | catches | blind to |
+|---|---|---|---|
+| `check_wordcount_claims.py` | 07-27 `07948d73` | A before/after word-count claim that does not reconcile with its own numbers | Any other quantity |
+| `check_verify_list.py` | 07-28 `0aceb5ee` | A documented command that does not return what its prose claims | Claims with **no** command attached |
+| `check_meta_claims.py` | 07-28 `5d98d492` | A coverage claim in a durable record carrying **no command** — V1 as a gate | Whether the command that *is* attached measures the right thing |
+| `check_comment_hygiene.py` | 07-29 `13b5e7b0` | A file whose self-count disagrees with itself; a story told twice | Any count about something other than the file it lives in |
+| `check_tracker_refs.py` | 07-29 `3bd47d5d` | A `PENDENCIAS N.M` citation that stops resolving | Whether the item it points at is still true |
+| **V8**, a rule not a gate | mid-round | Reporting a run without opening its output | Nothing enforces it, and instance 7 post-dates it |
+
+**I did not know two of these existed until I measured.** My earlier draft said "four new gates" and
+named a set that omitted `check_meta_claims.py` — the gate that enforces V1, the rule most of this
+section is about — and `check_wordcount_claims.py`. Writing a gate inventory from memory in the
+post-mortem about writing claims from memory is the joke this round keeps making, and it is the
+fourth instance of mine recorded here.
 
 The pattern: **the gates catch claims that live in a file the gate can read and check against
-itself.** Twelve of the thirteen round-7 instances were claims in commit messages, reports, and cells
-— none of which any gate reads. That is not a gap to be closed by a fifteenth gate. `check_verify_list`
+itself.** Twelve of the thirteen repair commits addressed claims in commit messages, reports, and
+cells — none of which any gate reads — and the two worst instances were claims in a **delegation
+brief**, which is further out of reach still. That is not a gap to be closed by a fifteenth gate. `check_verify_list`
 already exposes the honest version of this: it reports **11 executed-but-not-asserted** blocks
 separately, so nobody can inflate the verified count. More surface would help less than the one habit
 V1 already names, which is that **a number about the work carries the command that produced it.**
 
 ### The one measurable improvement in this class
 
-Round 6 discovered its rework at the end, in a sweep. Round 7's thirteen instances were each caught
-and committed **within minutes to hours of the claim**, several by the concurrent tracks reviewing each
-other (`b0db492d` was corrected by a track that had changed the count within the hour). The class was
-not prevented; its **latency** dropped. That is a real gain and it is not the gain the round was
-aiming for.
+Round 6 discovered its rework at the end, in a sweep. Round 7's repairs each landed **within minutes
+to hours of the claim**, several from concurrent tracks reviewing each other (`b0db492d` was corrected
+by a track that had changed the count within the hour). The class was not prevented; its **latency**
+dropped.
+
+**Do not read that as the round succeeding on a technicality.** Latency only helps a claim that sits
+still waiting to be read. Instances 6 and 7 did not sit still — they were handed to a sub-agent and
+were acting on the work while wrong, and instance 7 was re-sent after the first correction. For a
+transmitted claim, low latency is not a safety property. So the honest scorecard is: **compilation
+solved, straggler cost bounded but untested, and the meta-claim class not merely unfixed but
+demonstrated to survive the very rules written against it in the same session.**
 
 ---
 
@@ -317,6 +385,13 @@ Not new rules. These are V1-V7 restated as the actions that would have caught th
    it needs doing.
 4. **Anchor by phrase, and assume the tree is moving.** Concurrent tracks edit the same source. A page
    number measured ten minutes ago may already be false, and you will not be told.
+
+5. **A commit message is not a notepad; a sub-agent may execute it.** Instance 7's "significantly
+   positive" travelled as a specification. Anything you write that a child may read is an
+   instruction — hold it to the standard of one, and when you correct it, **re-send the correction to
+   everyone who received the original.**
+6. **`rc=0` plus a plausible file shape is not data.** V8 says open it and count. Instance 6 had
+   well-formed CSVs with the right header, the right row count, and an entirely empty column.
 
 And one that is not in §4b, learned here: **when two of your own probes disagree, that is the most
 valuable signal you will get all round.** Do not reconcile them by picking the one that fits. Find out
