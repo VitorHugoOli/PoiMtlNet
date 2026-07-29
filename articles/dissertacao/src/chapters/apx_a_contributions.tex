@@ -189,7 +189,11 @@ and are supplied on request.
         \path{docs/studies/closing_data/v17_completion/stats_n20/}.
   \item[The label-history benchmark.] Computed by
         \path{scripts/embedding_eval/autocorrelation_ceiling.py}; outputs and the reading
-        of them are in Appendix~\ref{apx:ceiling}, which names the files.
+        of them are in Appendix~D of \extravolume, which names the files.
+% [round7, 2026-07-29] Repointed from \ref{apx:ceiling}: Appendix D moved to the
+% supplementary volume. The letter D is preserved there by construction (0_extra.tex sets the
+% chapter counter) and guarded by src_utils/check_extra_xrefs.py, so naming it literally is
+% safe; a \ref would be a dangling reference to a label in another document.
 \end{description}
 
 Two qualifications belong with this list. The metric conventions it presupposes are

@@ -20,7 +20,7 @@ This chapter computes POI embeddings using graph attention convolution along wit
 
 A point of interest is defined as a tuple $\langle id, lat, long, cat \rangle$, where $id$ serves as a unique identifier, $lat$ and $long$ represent its coordinates, and $cat$ denotes its category, such as restaurant or pharmacy. A place suffers from complementarity effect \cite{du2019beyond}, implying that a location is affected by its neighbors (e.g. leisure zones are often near residential districts). Hence, we propose a graph-based contrastive method to capture this spatial locality behavior, generating a POI embedding to serve as input to our MTL model.
 
-To capture the spatial locality and capture neighborhood information, we model the weighted graph $G(V, E)$ as a Delaunay Triangulation, where each vertex $v \in V$ represents a POI and edge $e_{ij} \in E$ defines the connection between POI $p_i$ and a POI $p_j$. Besides that, following \cite{huang2022estimating} the weight of an edge $e_{ij}$ is defined as $w_{ij} = \log((1+D^{1.5}/1+d_{ij}^{1.5}))$, where D is the diagonal length of bounding box that encloses the coordinates of POIs, and $d_{ij}$ is the geodesic distance between $p_{i}$ and $p_{j}$. The node feature matrix is based on category one-hot encoding of each POI, represented by $X \in \mathbb{R}^{n_c}$, where $n_c$ is the number of possible categories.\footnote{The released implementation feeds the network the mean of the one-hot vectors of a POI's graph neighbours, with the POI's own vector excluded, rather than the POI's own one-hot vector (\texttt{research/embeddings/dgi/preprocess.py}). Appendix~\ref{apx:errata} records the departure. The distinction matters for how the embedding should be read: the input describes a POI's neighbourhood, so the static task the embedding supports is spatial homophily rather than recall of the POI's own label.}
+To capture the spatial locality and capture neighborhood information, we model the weighted graph $G(V, E)$ as a Delaunay Triangulation, where each vertex $v \in V$ represents a POI and edge $e_{ij} \in E$ defines the connection between POI $p_i$ and a POI $p_j$. Besides that, following \cite{huang2022estimating} the weight of an edge $e_{ij}$ is defined as $w_{ij} = \log((1+D^{1.5}/1+d_{ij}^{1.5}))$, where D is the diagonal length of bounding box that encloses the coordinates of POIs, and $d_{ij}$ is the geodesic distance between $p_{i}$ and $p_{j}$. The node feature matrix is based on category one-hot encoding of each POI, represented by $X \in \mathbb{R}^{n_c}$, where $n_c$ is the number of possible categories.\footnote{The released implementation feeds the network the mean of the one-hot vectors of a POI's graph neighbours, with the POI's own vector excluded, rather than the POI's own one-hot vector (\texttt{research/embeddings/dgi/preprocess.py}). Appendix~B of \extravolume\ records the departure. The distinction matters for how the embedding should be read: the input describes a POI's neighbourhood, so the static task the embedding supports is spatial homophily rather than recall of the POI's own label.}
 % [round5, cross-check finding] The published sentence is preserved; the footnote records what the
 % released code does. Verified: dgi.py:56 sets x=embedding_array_test, and preprocess.py:121-130
 % builds that as the neighbour mean with the node itself excluded (isolated nodes get a zero vector).
@@ -99,8 +99,17 @@ The choice of hard parameter sharing is motivated by its efficiency and regulari
     way empirically, reporting that joint training ``often leads to inferior overall performance as
     task objectives can compete''; its contribution is a framework for assigning tasks to several
     networks so that competing tasks are separated, and it describes that framework as costly at
-    training time. See Table~\ref{tab:apx:cbic-errata}.}
+    training time. See Appendix~B.1 of \extravolume.}
 \end{itemize}
+% [round7, 2026-07-29] The three pointers in this file were repointed when Appendices B and D
+% moved to the supplementary volume. MEASURED first, because the two kinds of target behave
+% differently across the move (read from the two builds' own aux trees):
+%   the APPENDIX LETTER and its SECTION numbers survive:  apx:errata B -> B, apx:errata:cbic B.1 -> B.1
+%   the TABLE NUMBER does not:                            tab:apx:cbic-errata 11 -> 1
+% because table counters restart in a document holding two appendices instead of five. So the
+% two footnotes that said "See Table~\ref{tab:apx:cbic-errata}" now name the SECTION that holds
+% that table, Appendix~B.1, which is stable; writing "Table 11" would have been wrong and
+% "Table 1" would drift the moment anything is added to the volume ahead of it.
 % [round6, COD-008 / COD-005] CORRECTION of a published claim, listed in Appendix B
 % (tables/cbic/errata.tex). The bullet cited the right paper for the reverse of its finding, which is
 % the claim-not-supported class that existence checking cannot catch. The bullet keeps its place in
@@ -204,7 +213,7 @@ By setting $\Delta\boldsymbol{\theta}=\sum_{k}\alpha_k\mathbf{g}_k$ with positiv
 Nash-MTL is architecture-agnostic.\footnote{The published sentence continued ``and requires only two
 matrix-vector products per iteration''. That cost claim is corrected here rather than reproduced: it
 is not supported by the method's own paper, and it understates the cost. See
-Table~\ref{tab:apx:cbic-errata}.} Its invariance to the scale of the individual task gradients, the second of the axioms listed above, balances heterogeneous tasks without manual re-weighting. For efficiency, task weights can be updated less frequently, significantly reducing runtime while maintaining performance~\cite{nash}.
+Appendix~B.1 of \extravolume.} Its invariance to the scale of the individual task gradients, the second of the axioms listed above, balances heterogeneous tasks without manual re-weighting. For efficiency, task weights can be updated less frequently, significantly reducing runtime while maintaining performance~\cite{nash}.
 % [round4, REV-020a] Factual correction to reproduced prose. The published sentence read
 % "Its reliance on gradient signs rather than scales inherently balances heterogeneous tasks".
 % Nash-MTL does not read gradient signs: it is scale-invariant, which is what this same
