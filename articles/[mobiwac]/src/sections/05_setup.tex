@@ -39,7 +39,46 @@ For the category task, we report macro-averaged F1 (macro-F1), which averages th
 (a visit whose true region is absent from that fold's training data counts as an error); its
 reference point is the dedicated model.
 
-A claimed gain and a claimed match require different tests, because a difference that fails to reach significance is not by itself evidence of a match. We fix the assignment in advance, before reading any results: where the joint model was expected to outperform, we test \emph{superiority}; where it was expected only to match the dedicated model, we test \emph{non-inferiority}. The assignment and the margin were fixed in an analysis plan during development and are released with the code; superiority is tested with a paired $t$ on the per-seed means and reported with the 90\% confidence interval of the paired difference. A \emph{seed} is one complete repetition of the five-fold experiment, over the same folds, with a different random initialization; folds and seeds are the two axes of repetition. On every dataset, we use four seeds for both models ($4\times5=20$ measurements) and pair the per-seed means ($n{=}4$ per dataset), with a Holm correction~\cite{holm1979} across the comparisons. The \emph{non-inferiority} claim is that the joint model is no worse than the dedicated model by more than a two-point margin; we test it with the two one-sided tests (TOST) procedure~\cite{lakens2017tost}. The two-point margin is fixed in advance as well: a mobility-aware service acts on which region will be busy, not on a single rank position (Section~\ref{sec:problem}), so a two-point shift in Acc@10 is below the granularity at which such a service would behave differently. For scale, with 520 to 8,501 regions, a random top-ten guess includes the true region at most about two percent of the time. The equivalence is well powered: the paired difference's standard deviation is 0.01 to 0.18 points across the datasets, giving power near 1.0 to declare equivalence when the true difference is near zero; the intervals pass a margin as small as one point at Alabama and Arizona (Section~\ref{sec:results-part2}).
+A claimed gain and a claimed match require different tests, because a difference that fails to reach significance is not by itself evidence of a match. A written analysis plan, fixed during development and before any result was read, assigned one test to each task, with the two-point margin pinned there: \emph{superiority} for next-category, \emph{non-inferiority} for next-region. It assigned the tests per task, not per dataset, and did not cover next-region superiority, so the four next-region gains of Section~\ref{sec:results-part2} are secondary results outside it. The plan registered a paired Wilcoxon signed-rank test; at four seeds its exact one-sided $p$ cannot fall below $0.0625$, so we report a paired $t$ on the per-seed means, with the 90\% confidence interval of the paired difference, and the registered test alongside it. Both, and this departure, are released with the code. A \emph{seed} is one complete repetition of the five-fold experiment, over the same folds, with a different random initialization; folds and seeds are the two axes of repetition. On every dataset, both models use four seeds ($4\times5=20$ measurements) and the tests pair the per-seed means ($n{=}4$), with a Holm correction~\cite{holm1979} across the six next-category comparisons and, separately, across the four next-region ones. The \emph{non-inferiority} claim is that the joint model is no worse than the dedicated model by more than a two-point margin; we test it with the two one-sided tests (TOST) procedure~\cite{lakens2017tost}. The two-point margin is fixed in advance as well: a mobility-aware service acts on which region will be busy, not on a single rank position (Section~\ref{sec:problem}), so a two-point shift in Acc@10 is below the granularity at which such a service would behave differently. The precision of the equivalence test is measured on this fixed partition: the paired difference's standard deviation is 0.01 to 0.18 points across the datasets, and the intervals pass a margin as small as one point at Alabama and Arizona (Section~\ref{sec:results-part2}).
+% [COD-006a, round8, 2026-07-30] "The equivalence is well powered:" -> "The precision of the equivalence
+% test is measured on this fixed partition:". Author decision, PENDENCIAS 5.2, quoted: "Let's change only
+% the second point about the: 'The equivalence is well powered'." The defect is a category error, not a
+% number: "well powered" is PROSPECTIVE power, a property of a design under an assumed effect size, and at
+% n=4 seeds it is not something this study estimated. What the sentence then presents is OBSERVED
+% precision, the paired difference's standard deviation and the interval widths on the folds that were
+% run, so the clause now names that instead. Both numbers are the ones already in the sentence and neither
+% moved; no test, no verdict and no dataset scope changes. The earlier revision of this sentence also
+% carried "giving power near 1.0 to declare equivalence when the true difference is near zero", which had
+% already been cut before this round; nothing reinstates it.
+% DELIBERATELY NOT TOUCHED, and this is the author's ruling, not an oversight: "fixed during development
+% and before any result was read" stays. He scoped the decision to "only the second point", and the
+% analysis plan genuinely was fixed before results were read (protocol committed 2026-06-21, first board
+% cells 2026-06-22, provenance in the block above). check_audit_claims.py COD-006b therefore still reports
+% NOT APPLIED, which is the CORRECT state for it: nobody asked for that removal.
+% Applied to BOTH trees, since Chapter 5 is under review and the two texts must stay identical:
+% src/chapters/5_mobiwac/05_setup.tex and articles/[mobiwac]/src/sections/05_setup.tex. Verified after
+% editing: the two paragraph lines still differ only in the three "mobiwac:" \ref label prefixes.
+% ANALYSIS-PLAN WORDING (2026-07-25 audit, author-approved). Sources for this paragraph:
+%   docs/studies/closing_data/v17_completion/STATISTICAL_PROTOCOL.md -- §1 family table (cat: superiority;
+%   reg: NON-INFERIORITY only, per task, all six datasets) + §5.2 (Holm within the six-dataset cat set;
+%   TOST cells explicitly NOT pooled into it) + §3.2 (delta_reg = 2 pp, pinned pre-unblind).
+%   Protocol committed 2026-06-21 (c96c67e3); first board cells 2026-06-22 -> the a-priori claim holds
+%   for what the document contains.
+%   Wilcoxon -> paired t departure + the 0.0625 exact floor at n=4: v17_completion/stats_n20/RESULTS.md,
+%   "Deviation log (protocol §8)" entries 1-3. Reproduced 2026-07-25: every n=4 exact one-sided Wilcoxon
+%   sits at 0.0625; the paired t gives Holm-adj p <= 1.0e-06 at all six cat cells.
+%   NO region-superiority family is registered anywhere in the protocol -> the four reg gains are labeled
+%   secondary here. Holm scope sentence now names both families explicitly (was "across the comparisons",
+%   which implied a coverage the analysis does not have).
+%   REGISTERED TEST NOW RUNS (2026-07-25): the four Istanbul dedicated-category per-fold sidecars were
+%   recovered from the A40 and committed at h3_istanbul/step3_runs/cat_ceiling_perfold/ (per-seed means
+%   match cat_ceil_s*.txt exactly), closing stats_n20/RESULTS.md LIMITS #2. The complete six-dataset
+%   pre-registered family (per-fold n=20 paired one-sided Wilcoxon, Holm m=6) now runs for the first time:
+%   every dataset rejects at Holm-adj p = 5.7e-06, 20/20 folds positive, exact n=20 floor 9.54e-07.
+%   The four reg cells reject in their own m=4 family (Holm-adj 3.8e-06). NO verdict changed.
+%   Generator + gated output: stats_n20/m2_prereg_perfold.py, m2_prereg_output.txt (24/24 board gates).
+%   The duplicated scale sentence ("a random top-ten guess ... two percent") was cut here to fund these
+%   lines; 06_results.tex:35-36 carries it verbatim, which is where the reader needs the anchor.
 
 \subsection{Baselines}
 \label{sec:setup-baselines}

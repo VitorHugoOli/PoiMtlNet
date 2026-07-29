@@ -79,14 +79,18 @@ NOT_CHECKABLE = {
 }
 
 
-def live_text(path: Path) -> str:
-    """Source with comments removed, joined into one whitespace-normalized string.
+def strip_text(raw: str) -> str:
+    """The stripper itself, on a string, so it can be self-tested without a file on disk.
 
-    Joined on purpose: a claim whose numbers wrap to the next line is invisible to a per-line
-    regex, and that produced a false NOT-APPLIED on NUM-4. See trap 2 in the module docstring.
+    Split out from live_text on 2026-07-30 (COD-006a): the self-test used to assert that the
+    string "well powered" was PRESENT in the live Chapter 5 source, because at the time that
+    was the escaped-percent case it needed. Applying the fix that probe exists to check would
+    therefore have crashed the gate on an AssertionError, which is a self-test that fails when
+    the document becomes correct. The property being proved is about the stripper, not about
+    any one sentence, so it is now proved on literals that cannot drift.
     """
     keep = []
-    for line in path.read_text(encoding="utf-8", errors="replace").split("\n"):
+    for line in raw.split("\n"):
         m = COMMENT.search(line)
         cut = line[: m.start()] if m else line
         if cut.strip():
@@ -94,19 +98,48 @@ def live_text(path: Path) -> str:
     return re.sub(r"\s+", " ", " ".join(keep))
 
 
+def live_text(path: Path) -> str:
+    """Source with comments removed, joined into one whitespace-normalized string.
+
+    Joined on purpose: a claim whose numbers wrap to the next line is invisible to a per-line
+    regex, and that produced a false NOT-APPLIED on NUM-4. See trap 2 in the module docstring.
+    """
+    return strip_text(path.read_text(encoding="utf-8", errors="replace"))
+
+
 def self_test() -> None:
-    """Both directions on the stripper, against the two real cases that fooled it."""
-    esc = SRC / "chapters/5_mobiwac/05_setup.tex"
-    apx = SRC / "chapters/apx_c_ai_disclosure.tex"
-    if esc.exists():
-        assert "well powered" in live_text(esc), (
-            "self-test: an escaped \\% truncated a live line and hid text after it -- the comment "
-            "pattern must be (?<!\\\\)% . Reporting now would turn a present defect into a pass."
-        )
-    if apx.exists():
-        assert "Model-family evidence" not in live_text(apx), (
-            "self-test: a real % comment leaked into the live text -- every probe would then read "
-            "provenance commentary as prose, which is how COD-013 was first scored as APPLIED."
+    """Both directions on the stripper, against the two real cases that fooled it.
+
+    On LITERALS, not on live sentences. Both literals are reductions of the actual defects:
+    the escaped-percent case is the shape of 5_mobiwac/05_setup.tex line 94, where `90\\%` at
+    column 763 truncated a 2,068-character paragraph and hid the target clause at column 1848;
+    the comment case is the shape of apx_c_ai_disclosure.tex, whose two "Opus" mentions are
+    both inside `%` comments saying why it is NOT in the prose.
+    """
+    # Direction 1: an ESCAPED percent is not a comment. Everything after it must survive.
+    esc = strip_text(r"a 90\% interval and then THE_TAIL_TEXT after it")
+    assert "THE_TAIL_TEXT" in esc, (
+        "self-test: an escaped \\% truncated the line and hid the text after it -- the comment "
+        "pattern must be (?<!\\\\)% . Reporting now would turn a present defect into a pass."
+    )
+    assert r"90\%" in esc, "self-test: the escaped percent itself was eaten"
+    # Direction 2: a REAL comment must be excluded, including an indented one and a trailing one.
+    com = strip_text("prose survives\n   % INDENTED_COMMENT_TEXT\ncode % TRAILING_COMMENT_TEXT")
+    assert "INDENTED_COMMENT_TEXT" not in com and "TRAILING_COMMENT_TEXT" not in com, (
+        "self-test: a real % comment leaked into the live text -- every probe would then read "
+        "provenance commentary as prose, which is how COD-013 was first scored as APPLIED."
+    )
+    assert "prose survives" in com and "code" in com, "self-test: the stripper over-stripped"
+    # Direction 3: the stripper must still reach PAST the real escaped percent in the real file.
+    # Anchored on a citation key rather than on prose, because a key is guarded by the
+    # undefined-citation gate and so cannot be silently reworded the way a sentence can.
+    esc_file = SRC / "chapters/5_mobiwac/05_setup.tex"
+    if esc_file.exists():
+        live = live_text(esc_file)
+        assert "lakens2017tost" in live, (
+            "self-test: the stripper no longer reaches the TOST citation, which sits 766 "
+            "characters past the escaped percent on the same source line. Every probe on this "
+            "file would be reading a truncated paragraph."
         )
 
 
