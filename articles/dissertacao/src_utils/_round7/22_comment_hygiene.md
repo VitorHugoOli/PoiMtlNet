@@ -27,11 +27,11 @@ from the concurrent rename track). Builds 108/105/109 pp, `tex_errors=0`, `make 
 | what | before | after | how |
 |---|---|---|---|
 | `main_ppgc.tex` content lines | 2 | 2 | `grep -v '^[[:space:]]*%' src/main_ppgc.tex \| grep -cv '^[[:space:]]*$'` |
-| files claiming that file has FOUR lines | 3 | 0 | `grep -rn 'four-line file\|four lines of content' src/ CLAUDE.md src_utils/README_SRC.md` |
+| files claiming that file has FOUR lines | 3 | 0 | `grep -rn 'four-line file\|four lines of content' src/ CLAUDE.md src_utils/README_SRC.md`. **That grep returns 1 hit now, and it is not a claim: `src/main_academico.tex`:24 REFERS to the defect ("the same defect as the 'four-line file' claim the rename pass removed from main.tex"), added by a concurrent track after my pass. The gate reads that line as a claim of TWO and passes it. Zero files still assert four.** |
 | "three builds, one source" told in full | 5 files | 1 (canonical `src/main.tex`) | `python3 src_utils/check_comment_hygiene.py --verbose` |
 | nested-`\if` hazard told in full | 4 files | 1 (`src/main.tex`, at the switch definitions) | same |
 | halt-on-error vs nonstopmode told in full | 5 files | 1 (`src_utils/README_SRC.md`) | same |
-| decorative pure-rule comment lines in `0_main.tex` | 10 | 2 | `grep -c '^[[:space:]]*%[[:space:]]*[-=]\{4,\}[[:space:]]*$' src/0_main.tex` -- run against `0bfc9e5e` and the current tree. **An earlier draft of this row said 12 -> 4, from a broader pattern that also matched `%%`-prefixed rules; the command in this cell returns 10 and 2, and the row now reports what the command returns.** 8 removed, and 8 is also the line-count delta below. |
+| decorative pure-rule comment lines in `0_main.tex` | 10 | 2 | `grep -c '^[[:space:]]*%[[:space:]]*[-=]\{4,\}[[:space:]]*$' src/0_main.tex` -- run against `0bfc9e5e` and the current tree. **An earlier draft of this row said 12 -> 4, from a broader pattern that also matched `%%`-prefixed rules; the command in this cell returns 10 and 2, and the row now reports what the command returns.** 8 rule lines removed. **This cell previously ended "and 8 is also the line-count delta below", which stopped being true when the row below was corrected from 538 -> 530 to 468 -> 530: the file GREW by 62 lines. The 8 removals are not the net delta and never were.** |
 | `0_main.tex` total lines | 468 (at `0bfc9e5e`) | 530 | `git show 0bfc9e5e:articles/dissertacao/src/0_main.tex \| wc -l` vs `wc -l < src/0_main.tex`. **NET GROWTH of 62 lines, not a reduction: 8 decorative lines were removed and 70 lines of knowledge-transfer comment added. Measured on comment lines alone: 200 -> 262, delta +62 (`git show 0bfc9e5e:articles/dissertacao/src/0_main.tex | grep -c '^[[:space:]]*%'` vs the same grep on the file).** An earlier draft of this row said 538 -> 530, which measured an intermediate working state against itself and read as a net trim. This track is not a net line reduction and was never going to be -- half the brief was to ADD comments. |
 | sign-off markers in `src/` | 46 | 46 | `grep -rn 'NEEDS SIGN-OFF' src/ \| wc -l` |
 | markers whose own line states a round | 5 | 46 | `grep -rn 'NEEDS SIGN-OFF' src/ \| grep -ciE 'round *-?[0-9]\|v1 assembly'` |
@@ -42,7 +42,7 @@ from the concurrent rename track). Builds 108/105/109 pp, `tex_errors=0`, `make 
 | `make check` | RC=0, 18 gates | RC=0, 20 gates | `(cd src && make check); echo $?` |
 | gates in the suite | 18 | 20 | one is mine, one is the concurrent timing track's |
 | `main.tex` total lines | 74 | 143 | `wc -l`; the canonical build header, the nested-`\if` mechanism and the TEXMFVAR trap all live here now |
-| `main_ppgc.tex` total lines | 19 | 25 | `wc -l`; the corrected count plus its measuring command plus the pointer |
+| `main_ppgc.tex` total lines | 19 | 28 | `wc -l < src/main_ppgc.tex`. My edits took it to 25 (corrected count + measuring command + pointer); a later concurrent commit (`688856cc`, which de-staled line coordinates in both shims) took it to 28. **This row said 25 until the value was re-measured; a report number about a file two other tracks are editing is only true as of its commit.** |
 
 **A skip named, per the brief.** The duplication counts above are measured over 8 LIVE files
 (`src/main.tex`, `src/main_ppgc.tex`, `src/main_academico.tex`, `src/0_main.tex`, `src/Makefile`,
@@ -262,7 +262,7 @@ of a duplicated comment is legal LaTeX, and a comment that is merely WRONG raise
 
 Five self-tests build synthetic defective and fixed trees and run BEFORE any verdict, so a broken
 checker reports itself broken rather than reporting a clean tree. On the current tree: 3 stories each
-told once, 9 count claims examined across 8 files, 0 skipped, RC=0, 0.09 s.
+told once, 10 count claims examined across 8 files, 0 skipped, RC=0, 0.09 s. (It was 9 when this gate was committed; `src/main_academico.tex`:24 became the tenth when a concurrent track added a comment referring to the historical defect. The gate reads and passes it, which is the intended behaviour: a reference to a wrong count is not a wrong count.)
 
 ### 6.1 - Three defects in my own instrument, and how each was caught
 
@@ -303,7 +303,8 @@ while this ran. Their work was kept and improved, never reverted:
 - The **`academico` rename track** landed mid-session. It adopted the canonical-header convention this
   track established, rewrote my "pending rename" note into its completed form, and kept the tool list.
   `main_academico.tex` arrived carrying the same "TWO lines of content" self-description, so it was
-  added to the gate's counted files and its scope: 9 count claims are now checked instead of 5.
+  added to the gate's counted files and its scope: 10 count claims are now checked instead of 5 (9 at the
+  moment the gate was committed; their later comment referring to the historical defect made it 10).
 - `README_SRC.md` still said "TWO entry files" and `make final` after the rename; the entry-file count
   and the shim paragraph are updated. The `make final` / `main_final.pdf` strings in the build-command
   block are left alone deliberately -- `sync_page_counts.py`'s `CLAIMS` regexes still anchor on them,
@@ -381,6 +382,28 @@ that gate's own provenance the sharper lesson.
 Revalidated after the fixes, both directions on the reconstructed pre-fix tree: CLASS B 3 -> 0,
 CLASS A 1 -> 0, gate RC=0, `make final` still builds by forwarding.
 
+## 8.2 - The aux-tree hazard fired again during final verification, which is the comment earning its keep
+
+While running §9's own commands, `make defense` failed:
+
+    ! File ended while scanning use of \@writefile.
+    <inserted text> \par
+    l.57 \@input{chapters/4_courb.aux}
+    ! ==> Fatal error occurred, no output PDF file produced!
+
+Nothing in `4_courb.tex` is wrong. Another track was building at the same time and
+`build/main-aux/chapters/4_courb.aux` was read mid-write. Waiting 20 seconds and rebuilding gave
+RC=0 with `tex_errors=0` and 108 pages, no source change of any kind. This is the second
+independent occurrence this session and it presents exactly as §4 item 2 says it does: as a defect
+in whichever chapter happened to be mid-write.
+
+A second symptom of the same race, worth knowing because it fails a DIFFERENT gate: the Makefile
+copies each `.log` out of its aux tree, and a concurrent run can leave the copy at zero bytes.
+`sync_page_counts.py` then reports "`src/build/main_academico.log` has no page count -- the build
+did not finish" for a build that finished correctly, and the suite exits 2. The fix is the same:
+rebuild the three targets sequentially, then re-run `make check`. Both were observed and both
+cleared without touching a source file.
+
 ## 9 - How to re-verify all of it
 
 ```bash
@@ -388,7 +411,8 @@ cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
 source src_utils/texenv.sh
 
 # the two gated classes, both directions, with the self-tests
-python3 src_utils/check_comment_hygiene.py --verbose      # EXPECT: RC=0, 3 stories, 9 count claims
+python3 src_utils/check_comment_hygiene.py --verbose      # EXPECT: RC=0, 3 stories, >=10 count claims
+# the claim COUNT grows as files gain self-descriptions; what must hold is RC=0 and '0 skipped'
 
 # the count that was wrong in three places
 grep -v '^[[:space:]]*%' src/main_ppgc.tex | grep -cv '^[[:space:]]*$'    # EXPECT: 2
