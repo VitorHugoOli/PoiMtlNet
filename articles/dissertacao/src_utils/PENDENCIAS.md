@@ -92,19 +92,29 @@ D analysis_protocol/JOINT_BEST_SCORING.md          D scripts/closing_data/m2_pre
 M README.md                                        D scripts/closing_data/score_joint_best.py
 ```
 
-**NADA FOI PERDIDO.** O commit e local; `origin/mobiwac` continua em `3c57197c` e cada arquivo acima
-foi verificado individualmente como intacto no remoto. Confira:
+**NADA FOI PERDIDO.** O commit e local e `origin/mobiwac` continua em `3c57197c`.
+
+> **Correcao de cobertura, 2026-07-29.** A versao anterior desta frase dizia que *"cada arquivo
+> acima foi verificado individualmente"* e o comando abaixo checava **quatro** dos quinze. A frase
+> prometia mais que o comando entregava — exatamente a classe que o `AGENT_GUARDRAILS` §4b V1/V2
+> existe para pegar, e ela estava neste arquivo. Agora o comando percorre **os quinze caminhos que o
+> commit toca, lidos do proprio commit**, sem lista digitada a mao:
 
 ```bash
 cd /Users/vitor/Desktop/mestrado/ingred
-git log --oneline -1 origin/mobiwac            # EXPECT: 3c57197c
-for f in analysis_protocol/STATISTICAL_PROTOCOL.md analysis_protocol/JOINT_BEST_RESULTS.md \
-         analysis_protocol/m2_prereg_output.txt scripts/closing_data/score_joint_best.py; do
-  printf "%-48s " "$f"
-  git cat-file -e "origin/mobiwac:$f" 2>/dev/null && echo SAFE || echo GONE
-done
-# EXPECT: quatro SAFE
+git log --oneline -1 origin/mobiwac      # EXPECT: contains=3c57197c
+git -C .claude/worktrees/wf_9231ab26-2a8-4 show --name-status --format='' 6c4267ba \
+| while read -r st path; do
+    printf "%-6s %-58s " "$st" "$path"
+    git cat-file -e "origin/mobiwac:$path" 2>/dev/null && echo PRESENTE || echo AUSENTE
+  done | tee /tmp/mobiwac_check.txt | tail -3
+echo "caminhos: $(wc -l < /tmp/mobiwac_check.txt), ausentes: $(grep -c AUSENTE /tmp/mobiwac_check.txt || true)"
 ```
+
+Rodado em 2026-07-29: **15 caminhos, 0 ausentes** — 14 delecoes cujos arquivos continuam no remoto,
+mais `README.md`, que o commit modifica e que tambem esta la. O que isso verifica e a **existencia de
+cada caminho** em `origin/mobiwac`, nao a identidade byte a byte do conteudo; para as delecoes e
+exatamente a pergunta certa, porque o commit local nunca foi enviado.
 
 **Por que eu nao consertei.** Tentei `git reset --hard 3c57197c` e o sandbox recusou:
 `unable to unlink old 'README.md': Operation not permitted`. Aquele worktree e **somente-leitura**

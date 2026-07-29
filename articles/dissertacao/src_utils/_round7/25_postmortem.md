@@ -218,7 +218,20 @@ pure R2) and `cc85b437` (250 serially-dependent cosines treated as independent, 
    about something other than what was meant to be measured. **A zero is the most dangerous reading,
    because zero findings is also what success looks like.**
 
-**And one of mine, in this very track.** Two of my page-coordinate probes disagreed within ten
+**And two of mine, in this very track.**
+
+The first was inherited and I shipped it before catching it. `PENDENCIAS.md` §2.1 told the author
+that *"cada arquivo acima foi verificado individualmente como intacto no remoto"* for the fifteen
+paths of the destructive worktree commit, above a command that checked **four**. The sentence
+promised more coverage than the command delivered — V1 and V2 exactly — and it survived my own
+rewrite of that section because I re-read the *prose* and not the *block under it*. It is now a loop
+over all fifteen paths read from the commit itself, with no hand-typed list: **15 paths, 0 absent**
+(14 deletions whose files remain in `origin/mobiwac`, plus the modified `README.md`). The corrected
+text also states what the check does and does not establish — path existence in the remote, not
+byte identity — because that distinction is what makes it the right question for a commit that was
+never pushed.
+
+The second: two of my page-coordinate probes disagreed within ten
 minutes. The cause was not a bad probe: another round-7 track was editing `src/` while I measured, so
 the build moved under me (16 modified files and four new ones under `src/` at the time of writing). I
 caught it because the disagreement was visible; had only one probe run, I would have written down a
