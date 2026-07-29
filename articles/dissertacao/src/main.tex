@@ -155,4 +155,9 @@
 % IF YOU ADD OR REMOVE FRONT MATTER, OR ANY FLOAT THAT LENGTHENS THE LISTS, RE-MEASURE THIS.
 \newcommand{\finalbuildfirstpage}{9}
 
-\input{0_main.tex}
+% The preamble and the body, in that order. They were one file (0_main.tex) until 2026-07-29;
+% see preamble.tex's header for why they are two. mkformat.py precompiles preamble.tex into a
+% format dump and its staleness key is that file's own checksum, so a preamble edit invalidates
+% the format automatically. Do not reorder these, and do not add a third \input between them.
+\input{preamble.tex}
+\input{content.tex}

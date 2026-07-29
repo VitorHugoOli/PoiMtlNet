@@ -72,7 +72,7 @@ def strip_comments(text: str) -> str:
 def files() -> list[Path]:
     # chapters/*/*.tex included: the paper chapters are split per section (2026-07-28).
     return (sorted(SRC.glob("chapters/*.tex")) + sorted(SRC.glob("chapters/*/*.tex"))
-            + [SRC / "0_main.tex"])
+            + [SRC / "preamble.tex", SRC / "content.tex"])
 
 
 def measure(paths: list[Path]) -> tuple[dict[str, int], int, dict[str, dict[str, int]]]:

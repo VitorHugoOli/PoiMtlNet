@@ -89,7 +89,7 @@ def main(paths: list[str]) -> int:
         paths = sorted(glob.glob(os.path.join(SRC, "chapters", "*.tex"))) \
               + sorted(glob.glob(os.path.join(SRC, "chapters", "*", "*.tex"))) \
               + sorted(glob.glob(os.path.join(SRC, "tables", "*", "*.tex"))) \
-              + [os.path.join(SRC, "0_main.tex")]
+              + [os.path.join(SRC, "preamble.tex"), os.path.join(SRC, "content.tex")]
     total = 0
     for p in paths:
         if not os.path.exists(p):

@@ -95,7 +95,8 @@ DISS = Path(__file__).resolve().parent.parent
 #               LATEX_UPGRADE.md uses.
 # --------------------------------------------------------------------------------------------
 SCOPE = [
-    "src/main.tex", "src/main_ppgc.tex", "src/main_academico.tex", "src/0_main.tex",
+    "src/main.tex", "src/main_ppgc.tex", "src/main_academico.tex",
+    "src/preamble.tex", "src/content.tex",
     "src/Makefile", "src_utils/README_SRC.md", "CLAUDE.md", "PLAN.md",
     # Added 2026-07-29 after the round-7 correction: this file was the one place a wrong count
     # could still be introduced unguarded, and it is where a coordinate had ALREADY drifted
