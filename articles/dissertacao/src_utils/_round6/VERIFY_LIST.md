@@ -61,15 +61,23 @@ line.
 `python3 src_utils/check_verify_list.py` from `articles/dissertacao/`; as of 2026-07-28 it reports:
 
 ```
-16 documented command(s) executed; 7 carried a machine-checkable expectation; 0 failed.
-9 were executed but NOT asserted against their prose expectation.
+15 documented command(s) executed; 7 carried a machine-checkable expectation; 0 failed.
+2 skipped to avoid recursion (they invoke this gate's own caller)
+1 build block: cwd checked, build NOT run here
+8 were executed but NOT asserted against their prose expectation.
 ```
 
-So: **every command runs and produces output**, and **seven** of them have their output checked
-against a stated expectation (`# EXPECT: lines=N` / `contains=` / `equals=` inside the block). The
-other nine were executed but their "if all is well" text is a human judgment or too discursive to
-encode, so they are **run, not verified** — do not describe them otherwise. The three `make` blocks
-were run separately and produce 108/105/109 pages with `make check` at RC=0.
+Read that as four categories, because they are not the same thing:
+
+- **7 verified.** Output compared against a stated expectation (`# EXPECT: lines=N` / `contains=` /
+  `equals=` inside the block).
+- **8 run, not verified.** They execute and produce output, but their "if all is well" text is a human
+  judgment or too discursive to encode. **Do not describe these as verified.**
+- **2 skipped, deliberately.** They invoke `make check`, which invokes this harness. Running them here
+  does not terminate; they are exercised every time `make check` itself runs.
+- **1 build block.** Its working directory is checked but the three-target build is not re-run here —
+  that takes four minutes and `build.sh` is the tool for it. Verified separately: 108/105/109 pages,
+  `tex_errors 0`, `make check` RC=0.
 
 **Greps over `.tex` files strip comment lines first** (`grep -vn '^[[:space:]]*%'`). This source carries
 dense provenance comments that quote the very strings being searched for, so an unfiltered sweep

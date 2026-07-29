@@ -19,6 +19,17 @@ the block is run from its declared working directory and its output compared aga
 Blocks without an EXPECT annotation are still RUN, and reported as executed-not-asserted, so the count
 of what was actually verified is never overstated.
 
+RECURSION. This gate is invoked from check.sh, and two documented blocks invoke check.sh (or
+`make check`) themselves -- which is correct for the author, since checking that the gate suite passes
+is one of the things the list tells him to do. Running them from inside the harness re-enters check.sh,
+which re-enters the harness, and the run does not terminate. I built exactly that cycle on 2026-07-28
+and it hung `make check` for ten minutes before I noticed.
+
+So the harness SKIPS any block that invokes `check.sh` or `make check`, and reports them as skipped
+with the reason rather than silently -- an unreported skip counted as a pass is the defect this file
+was written to answer. Those two blocks are exercised every time check.sh itself runs, which is the
+only place they can be exercised without recursion.
+
 THE ANNOTATION. Add a comment line inside the bash block:
 
     # EXPECT: lines=3
@@ -66,14 +77,41 @@ def cwd_for(code: str) -> Path:
 
 def main() -> int:
     ran = asserted = failed = 0
+    skipped: list[tuple[str, str]] = []
+    build_blocks: list[tuple[str, str, bool]] = []
     for doc in DOCS:
         if not doc.exists():
             continue
         for code in blocks(doc):
             body = [l for l in code.split("\n")
                     if l.strip() and not l.strip().startswith("#")]
-            if len(body) == 1 and body[0].strip().startswith("cd "):
-                continue                       # the working-directory note, not a check
+            # ORDER MATTERS. The recursion test runs FIRST: blocks 3 and 17 of VERIFY_LIST are
+            # single-line `cd ... && make check` commands, so the working-directory test below would
+            # swallow them as "notes" and skip them silently -- which is how the first version of this
+            # guard reported 0 skipped while still recursing. An unreported skip is the failure mode
+            # this whole file exists to answer, so it must not be reachable for these.
+            if "check.sh" in code or "make check" in code:
+                # See RECURSION in the module docstring.
+                skipped.append((doc.name, body[0][:58] if body else "(empty)"))
+                continue
+            if ("make defense" in code or "make final" in code or "make ppgc" in code
+                    or "pdflatex" in code):
+                # A three-target build takes ~4 minutes and check.sh is a lint gate that people run
+                # constantly. Running it here took make check from 4 seconds to 297. The build is
+                # already verified by build.sh, which is the tool for it; what matters HERE is that
+                # the documented command is well formed and its paths resolve, so that is what is
+                # checked. Reported, not silent.
+                first = body[0] if body else ""
+                probe = re.sub(r'&&\s*\(?cd src.*$', '', first).strip().rstrip("&").strip()
+                ok = True
+                if probe:
+                    r = subprocess.run(["bash", "-c", probe + " && echo REACHED"],
+                                       capture_output=True, cwd=cwd_for(code))
+                    ok = b"REACHED" in r.stdout
+                build_blocks.append((doc.name, first[:58], ok))
+                continue
+            if len(body) == 1 and body[0].strip().startswith("cd ") and "&&" not in body[0]:
+                continue                       # the bare working-directory note, not a check
             exps = expectations(code)
             proc = subprocess.run(["bash", "-c", code], capture_output=True,
                                   cwd=cwd_for(code))
@@ -104,6 +142,19 @@ def main() -> int:
                 print(f"  verified {doc.name}: {head}")
     print(f"\n{ran} documented command(s) executed; {asserted} carried a machine-checkable "
           f"expectation; {failed} failed.")
+    for name, head in skipped:
+        print(f"{len(skipped)} skipped to avoid recursion (they invoke this gate's own caller): "
+              f"{name}: {head}" if skipped.index((name, head)) == 0 else
+              f"    also: {name}: {head}")
+    if skipped:
+        print("    Those run every time check.sh runs, which is the only place they can run "
+              "without re-entering this harness.")
+    for name, head, ok in build_blocks:
+        print(f"  {'cd-ok   ' if ok else 'CD-FAIL '} {name}: {head}  "
+              f"(build block: cwd checked, build NOT run here -- use build.sh)")
+    if any(not ok for _, _, ok in build_blocks):
+        print("    A build block whose own cd does not resolve cannot work for the author.")
+        return 1
     if ran - asserted:
         print(f"{ran - asserted} were executed but NOT asserted against their prose expectation "
               f"(prose too discursive to encode, or the check is a human judgment). "
