@@ -6,3 +6,5 @@ alabama,"observation (epoch-fold, SERIALLY DEPENDENT)",250,0.01119,0.07272,0.015
 alabama,fold-series mean,5,0.01119,0.0058,0.0125,0.0625,0.0625,equivalent
 arizona,"observation (epoch-fold, SERIALLY DEPENDENT)",250,0.0015,0.0373,0.5241,0.3428,0.0,equivalent
 arizona,fold-series mean,5,0.0015,0.00533,0.5621,1.0,0.0625,equivalent
+georgia,"observation (epoch-fold, SERIALLY DEPENDENT)",250,0.00385,0.02715,0.0258,0.0267,0.0,equivalent
+georgia,fold-series mean,5,0.00385,0.00183,0.0093,0.0625,0.0625,equivalent

@@ -1,22 +1,18 @@
 {
- "n_observations": 3650,
+ "n_observations": 3900,
  "datasets": [
   "alabama",
   "arizona",
-  "florida"
+  "florida",
+  "georgia"
  ],
- "pooled_mean_of_observations": 0.000999,
- "pct_within_margin_0.05": 90.96,
+ "pooled_mean_of_observations": 0.001182,
+ "pct_within_margin_0.05": 91.28,
  "range": [
   -0.3407,
   0.5802
  ],
- "DEPENDENCE_NOTE": "The 50 per-epoch cosines within a fold are one training trajectory and are NOT independent. Panel (b) CIs and every p-value below are computed on the INDEPENDENT unit: configuration means for florida (n=12), fold means for alabama and arizona (n=5). Observation-level p-values are anti-conservative and must not be quoted as significance.",
- "panel_b_unit": {
-  "florida": "12 configuration means",
-  "alabama": "5 fold means",
-  "arizona": "5 fold means"
- },
+ "DEPENDENCE_NOTE": "The 50 per-epoch cosines within a fold are one training trajectory and are NOT independent. Panel (b) CIs and every p-value are computed on the INDEPENDENT unit: configuration means for florida (n=12), fold means elsewhere (n=5). Observation-level p-values are anti-conservative; do not quote them.",
  "panel_b_mean_ci95": {
   "florida": [
    0.00026,
@@ -29,16 +25,21 @@
   "arizona": [
    0.0015,
    0.00662
+  ],
+  "georgia": [
+   0.00385,
+   0.00227
   ]
  },
  "TOST_equivalent_within_0.05_at_every_unit": true,
- "alabama_positive_mean": {
-  "fold_means_all_positive": "5/5",
-  "t_test_p": 0.0125,
-  "sign_test_p": 0.0625,
-  "sign_test_floor_at_n5": 0.0625,
-  "verdict": "consistent positive tendency, NOT a significant effect -- a distribution-free test cannot reach 0.05 at n=5"
+ "all_positive_fold_means": {
+  "florida": "31/60",
+  "alabama": "5/5",
+  "arizona": "3/5",
+  "georgia": "5/5"
  },
+ "sign_test_floor_at_n5": 0.0625,
+ "significance_caveat": "alabama and georgia have all fold means positive with t-test p=0.0125 and 0.0093, but the exact sign test floor at n=5 is 0.0625. Report as a consistent positive tendency, NOT as significant.",
  "panel_c_per_fold_slope": {
   "florida": {
    "mean_slope": -1.658e-05,
@@ -54,6 +55,12 @@
    "mean_slope": -0.0001227,
    "p": 0.5685,
    "n_folds": 5
+  },
+  "georgia": {
+   "mean_slope": -0.0002729,
+   "p": 0.047,
+   "n_folds": 5
   }
- }
+ },
+ "coverage": "FOUR datasets, ONE architecture family (MTLnet cross-attention). california, texas, istanbul outstanding (job 805120f1)."
 }
