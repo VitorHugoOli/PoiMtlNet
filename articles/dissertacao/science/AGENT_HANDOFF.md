@@ -264,6 +264,41 @@ can no longer present as a green job with an empty tarball.
 non-empty cells in the column you came for. Exit status, file count, file size and header shape are
 all satisfied by an empty result.
 
+### 2.7c Concurrent jobs on one GPU: OOM, and a harvest race that duplicates data silently
+
+**Found 2026-07-29**, producing the per-dataset gradient-cosine data. After a six-datasets-in-one job
+was killed at the host's ~35 min wall-clock cap, I split the largest dataset into five per-fold jobs
+and submitted all five at once, alongside two other datasets. Seven concurrent jobs, one A40, 46 GiB.
+Three failures, each instructive:
+
+1. **CUDA out of memory.** Three of the five folds died with `Process 947712 has 4.17 GiB memory in
+   use. Process 947858 has 4.01 GiB memory in use`. Parallel submission on a **single-GPU** host does
+   not parallelize anything — it converts a queue into a memory fight. Submit sequentially, or one
+   job at a time, and let the cap decide how much fits.
+
+2. **The cap fired again on the two datasets that were sharing the GPU**, so contention turned a job
+   that would have fit into one that did not.
+
+3. **THE ONE THAT WOULD HAVE REACHED THE DISSERTATION.** Two folds reported success and their
+   harvested CSVs were **byte-identical on the host** (same md5). Two genuinely distinct run
+   directories existed — but the harvest step selects the newest `mtlnet_*` directory with
+   `find -newer <sentinel>`, and with concurrent jobs that is a **race**: both jobs resolved to the
+   same directory. Compounding it, `--only-fold k` writes its output as `fold1_diagnostics.csv` for
+   **every** k, so the filename carries no fold identity and nothing downstream can attribute a file
+   to a fold.
+
+   The result was two files claiming to be different folds, actually one run duplicated, with no
+   evidence on disk to tell them apart. Had they been used, the appendix would have reported a
+   five-dataset result containing one fabricated fold. **The data was discarded**, and the dataset is
+   still listed as outstanding rather than partially reported.
+
+**The rules.** On a single-accelerator host, run jobs sequentially. Never select an output directory
+by recency when more than one job can be writing — pass an explicit output path, or derive the
+directory from the job's own identifier. And when a tool names its output the same thing regardless of
+which slice it computed, the slice identity must be carried by the directory you put it in, checked
+before the file is used: two files that should differ and do not are evidence of a harvest fault, not
+of an interesting result.
+
 ### 2.8 The claim about the work, written from intent instead of output (TWELVE instances in one day)
 
 **This is now the largest failure class in this repository, and §2.1 through §2.7 are all special
