@@ -20,7 +20,7 @@ representation with a redesigned sharing topology under which one joint model fi
 outperforms the dedicated single-task models on the category task at all six datasets
 and on the region task at four of the six, and is statistically non-inferior to them,
 within a two-point margin (TOST), at the other two (Chapter~\ref{ch:mobiwac}).
-% [NEEDS SIGN-OFF: REV-015, 2026-07-26] The unqualified "outperforms both dedicated
+% [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-015, 2026-07-26] The unqualified "outperforms both dedicated
 % models" was the one locus in the document carrying no scope. Scope copied from
 % 5_mobiwac.tex:26-30 and from Section 6.1 below (:49-53): category at all six,
 % region at four (Istanbul, Florida, California, Texas), TOST non-inferiority within
@@ -70,8 +70,8 @@ between input and target exists, and Chapter~\ref{ch:mobiwac} is what tests it.
 % The number stays, because it is the published chapter's own audited figure and this is the chapter
 % recap. What changed is that it now carries its task and its qualification, and the arc's diagnosis
 % now rests on the sequential result rather than on this figure alone.
-% [NEEDS SIGN-OFF: two added sentences in the author's own frame prose. No number changed.]
-% [NEEDS SIGN-OFF: REV-009 + idiom law, 2026-07-26] Two changes in one sentence pair.
+% [NEEDS SIGN-OFF: raised round 6, 2026-07-28 | two added sentences in the author's own frame prose. No number changed.]
+% [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-009 + idiom law, 2026-07-26] Two changes in one sentence pair.
 % (1) "moved the needle farther than" -> "produced a larger gain than" (WRITING_LAW §4
 % idiom rule: no phrasal metaphors; claim strength unchanged). (2) The 64-to-192 width
 % asymmetry, previously invisible in the frame chapters, is now named and attributed.
@@ -125,7 +125,7 @@ nothing.
 % used a different engine and batch (check2hgi/bs2048, April) from the shipped board
 % (check2hgi_dk_ovl/bs8192, catx_v17_n20/*.json rundir), and its mechanism depends on the alpha*log_T
 % prior that 5_mobiwac.tex says our models do not use. The withheld attribution is unaffected: it
-% rests on the freeze control and the capacity-matched control. [NEEDS SIGN-OFF: AUTHOR]
+% rests on the freeze control and the capacity-matched control. [NEEDS SIGN-OFF: raised round 5, 2026-07-27 | AUTHOR]
 Second,
 a capacity-matched dedicated baseline, run after the
 Chapter~\ref{ch:mobiwac} manuscript was submitted and reported here as a frame-level analysis: a
@@ -141,7 +141,7 @@ dedicated model at its own tuned width and 64.51 for the joint model.
 % in capacity_matched_summary.json, results.alabama_h672: bs2048_lr0.0025 n=20 mean=56.1611
 % std=1.885; bs2048_lr0.005 n=20 mean=55.6098; bs8192_lr0.005 n=20 mean=55.7406. The std was also
 % missing (persona 10 F-14). No verdict moves: the joint model still leads by +8.35. The
-% [NEEDS SIGN-OFF: gate fix B-2, 2026-07-24] 64.54 -> 64.51 to match Ch.5 Table 3, the
+% [NEEDS SIGN-OFF: raised round 3, 2026-07-24 | gate fix B-2, 2026-07-24] 64.54 -> 64.51 to match Ch.5 Table 3, the
 % dissertation's reported joint-best convention (JOINT_BEST_RESULTS.md: AL 64.54 diag-best
 % / 64.51 joint-best). AGENT_GUARDRAILS N5 forbids blurring joint-best vs diagnostic-best;
 % verdict-neutral: at the 64.51 basis the joint model leads the capacity arm (56.16) by
@@ -168,7 +168,7 @@ detail supports the fairness of the comparison: at both datasets the widened mod
 best training configuration uses a lower learning rate than the narrow width's, so
 the sweep found the wide model's own better setting rather than rerunning the narrow
 model's.
-% [NEEDS SIGN-OFF: REV-013, 2026-07-26] The interim sentence ("A partial California run,
+% [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-013, 2026-07-26] The interim sentence ("A partial California run,
 % fifteen of twenty repetitions at the time of writing, shows the same direction") is
 % replaced by the completed run, committed at
 % docs/results/closing_data/capacity_matched_stl_cat/ (commit 58232dd2). Every figure is
@@ -249,7 +249,7 @@ Six limitations bound the scope of these conclusions.
         rather than depth, but the homogeneity of the final pair remains a
         possible contributor to the size of the improvement.
         % [GATE FIX C-1] "the size of the win" -> "the size of the improvement" (idiom law).
-        % [NEEDS SIGN-OFF: REV-013, 2026-07-26] "closes the parameter-count explanation"
+        % [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-013, 2026-07-26] "closes the parameter-count explanation"
         % was unqualified inside a limitations list. Scope QUOTED from
         % docs/results/closing_data/capacity_matched_stl_cat/README.md, "Reading":
         % "Parameter count alone, without the second task's training signal, does not

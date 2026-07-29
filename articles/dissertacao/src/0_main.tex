@@ -16,6 +16,23 @@
 %%       \OnehalfSpacing enforced (manual §7: 1.5 line spacing).
 %% Compile with pdflatex via main.tex (defense), main_ppgc.tex (defense + approval sheet),
 %% or `make final` (AcademicoPG deposit body). Never compile this file directly.
+%%
+%% ONE THING TO KNOW BEFORE YOU EDIT THE PREAMBLE (everything from here down to
+%% \begin{document}). A precompiled pdflatex FORMAT DUMP of this preamble exists, built by
+%% src_utils/mkformat.py into build/fmt/mainpre.fmt and used by the `make fast` / `make fast3`
+%% targets. A format dump is a frozen snapshot of the preamble: if it is loaded after the
+%% preamble has changed, pdflatex uses the OLD preamble, the build succeeds, and the PDF is
+%% silently wrong -- no warning, no error, nothing in the log that names the cause. That is the
+%% worst failure shape this repository has (science/AGENT_HANDOFF.md §2.3b and §2.4b: a clean
+%% report over a wrong artifact).
+%%
+%% YOU DO NOT HAVE TO REMEMBER TO REBUILD IT. mkformat.py keys the dump to a checksum of this
+%% preamble plus main.tex and the files they load, rebuilds when the key moves, and
+%% src_utils/fastbuild.sh REFUSES to run against a stale key rather than producing a build from
+%% it (`fastbuild: REFUSING to build -- stale: ...`). The plain `make defense`/`final`/`ppgc`
+%% targets never load the dump at all, so they are always correct and are what Overleaf uses.
+%% If a `fast` build ever disagrees with a plain build, the plain build is the document: report
+%% it, do not work around it. `make format-status` says whether the dump is fresh and why.
 %%==============================================================
 
 % [round6, E-5] hyperfootnotes=false must reach hyperref AT LOAD TIME. abntex2 loads hyperref
@@ -41,6 +58,35 @@
 % text block ~11pt taller than the 3cm/2cm margins dictate (bottom margin measured
 % 1.5-1.6 cm vs the 2 cm spec). Re-derive the block from the margins under the 1.5 line
 % spacing the manual mandates, then fix WITHOUT line-rounding.
+%
+% THE FOUR LINES BELOW ARE ONE UNIT AND THEIR ORDER IS LOAD-BEARING. \OnehalfSpacing FIRST,
+% because \checkandfixthelayout derives the text block from the CURRENT \baselineskip; the
+% two \set...marginsandblock lines declare the margins UFV manual §7 specifies; and the
+% [fixed] option on the last line is not decoration -- it is the reason the bottom margin
+% comes out at the specified 2 cm.
+%
+% WHY [fixed] IS LOAD-BEARING, MEASURED 2026-07-29 on this preamble's own package stack
+% (a minimal document with these five lines, compiled from src/ with only the option
+% changed; both variants tex_errors=0):
+%   \checkandfixthelayout[fixed]   \textheight 702.78308pt   \lowermargin 56.9055pt = 2.0000 cm
+%   \checkandfixthelayout          \textheight 713.78398pt   \lowermargin 45.9046pt = 1.6134 cm
+% The default option is `classic`, and it does NOT keep the height the margins dictate. It
+% REPLACES it with a whole number of lines plus \topskip: memoir.cls:1039 \m@mclassicht
+% computes floor(\textheight / \baselineskip) * \baselineskip + \topskip. Here that is
+% floor(702.78308 / 17.99446) = 39 lines, so 39 * 17.99446 + 12pt = 713.78394pt -- 11.00pt
+% TALLER than the margins asked for. A taller block with the top margin held fixed can only
+% grow downward, so the whole 11.00pt is taken out of the bottom margin: 2.0000 cm becomes
+% 1.6134 cm, against a specification of 2 cm. [fixed] is the one option value that performs
+% no line-rounding at all (memoir.cls:1096-1137: `classic`, `lines` and `nearest` each call
+% a rounding macro; `fixed` calls none), which is why it is the option here.
+%
+% HOW THE BREAKAGE PRESENTS, which is the reason this is worth a comment: it does not.
+% pdflatex raises no warning, no overfull box, no error; every gate in src_utils/check.sh
+% stays green; \OnehalfSpacing is still in force so the text looks entirely normal. The
+% document simply prints with a bottom margin ~4 mm short of the specification on every
+% page, and the reader who finds it is whoever checks the deposit against the UFV manual.
+% If you touch these four lines, re-derive \lowermargin the way the numbers above were
+% obtained rather than trusting that the build stayed clean.
 \OnehalfSpacing
 \setlrmarginsandblock{3cm}{2cm}{*}
 \setulmarginsandblock{3cm}{2cm}{*}
@@ -108,10 +154,8 @@
 \hyphenation{fe-de-ral}
 \hyphenation{scientiae}
 
-% ---------------------------------------------------------------
 % Chapter preface: the time-capsule device (NORTH_STAR §3). One italic paragraph
 % before §N.1 stating venue, status, contribution note, and what later chapters revise.
-% ---------------------------------------------------------------
 \newenvironment{chapterpreface}%
 {\begin{quotation}\itshape\noindent}%
 {\end{quotation}\vspace{0.5\baselineskip}}
@@ -196,9 +240,7 @@ degree of \textit{Magister Scientiae}.}
     \frenchspacing
     \OnehalfSpacing % manual §7: 1.5 line spacing for the body
 
-% ----------------------------------------------------------
 % PRE-TEXTUAL
-% ----------------------------------------------------------
     \pretextual
 
     \ifdefensebuild
@@ -286,7 +328,7 @@ degree of \textit{Magister Scientiae}.}
         % dissertation does not study. The exclusion is now stated positively in the second
         % sentence ("mas nao o ponto de interesse exato"), which is the body's own claim
         % (1_introduction.tex "The exact next place is not predicted anywhere in this work").
-        % [NEEDS SIGN-OFF: author caveats 2.1/3-4-5, 2026-07-24, carried through the cut]
+        % [NEEDS SIGN-OFF: raised round 6, 2026-07-28 | author caveats 2.1/3-4-5, 2026-07-24, carried through the cut]
         % 3: the margin metric is named (Acc@10). 4: the joint-best convention behind 5,3-9,4 is
         % named. 5: "determina se" stays "depende de" (the Sec. 6.2 confound forbids a causal verb).
 
@@ -364,7 +406,7 @@ degree of \textit{Magister Scientiae}.}
             statistically matches, with non-inferiority within a two-point Acc@10 margin (TOST),
             at the other two. The answer is therefore conditional: whether multi-task learning
             helps depends on the input representation and the sharing topology built on it.
-            % [NEEDS SIGN-OFF: author caveats 2.1/3-4-5, 2026-07-24, carried through the cut]
+            % [NEEDS SIGN-OFF: raised round 6, 2026-07-28 | author caveats 2.1/3-4-5, 2026-07-24, carried through the cut]
             % 3: the non-inferiority margin metric is named (Acc@10). 4: the joint-best convention
             % behind the 5.3-9.4 range is named. 5: "determines whether" stays "depends on", since the
             % confound in Sec. 6.2 (representation, topology and task pair moved together) makes a hard
@@ -429,9 +471,7 @@ degree of \textit{Magister Scientiae}.}
     \tableofcontents*
     \cleardoublepage
 
-% ----------------------------------------------------------
 % TEXTUAL
-% ----------------------------------------------------------
     \textual
     \ifdefensebuild\else
     % Final build: body pages resume arabic numbering at the tuned offset
@@ -439,6 +479,30 @@ degree of \textit{Magister Scientiae}.}
     \setcounter{page}{\finalbuildfirstpage}
     \fi
 
+% \include, NOT \input, for each chapter: it gives every chapter its own .aux, which is what
+% preserves per-chapter page and counter state across runs. That per-chapter aux is also the
+% thing that makes two SIMULTANEOUS builds of this tree dangerous, and the failure does not
+% look like a build-system problem, so it is described here where the \include list is.
+%
+% THE HAZARD. Every target compiles this same file, so every target writes the same set of
+% per-chapter aux names. Until 2026-07-29 all three wrote them into ONE directory, and a
+% second build starting while a first was mid-pass read a half-written aux. MEASURED on
+% 2026-07-29, `make final` launched while another session was building the tree:
+%     ! Extra }, or forgotten \endgroup.
+%     l.175 }
+% reported while reading build/chapters/4_courb.aux. Nothing is wrong with chapter 4 -- the
+% aux was simply truncated at the moment it was read. The same collision has also been seen
+% as "Runaway argument? ... ! File ended while scanning use of \@writefile". Read either
+% message as EVIDENCE OF A CONCURRENT BUILD before you look for a LaTeX defect: rerun the
+% target alone, and if it then passes, that was the whole story.
+%
+% THE FIX, and what it means for you: the Makefile now gives each target its own aux tree
+% under build/<stem>-aux/, so the three cannot collide and can run concurrently (`make all3`).
+% The .pdf, .log and .blg of each are copied back into build/ afterwards, because that is
+% where every tool and document expects them. The aux files are deliberately NOT copied back:
+% an aux at a path BibTeX also searches is how four undefined citations once shipped in both
+% PDFs (science/AGENT_HANDOFF.md §2.4). If you add a chapter here, nothing needs updating --
+% the trees are created per target, not per chapter.
     \include{chapters/1_introduction}
     \include{chapters/2_fundamentals}
     \include{chapters/3_cbic}
@@ -446,9 +510,7 @@ degree of \textit{Magister Scientiae}.}
     \include{chapters/5_mobiwac}
     \include{chapters/6_conclusion}
 
-% ----------------------------------------------------------
 % POST-TEXTUAL
-% ----------------------------------------------------------
     \postextual
 
 % Bibliography at body size (12 pt). The inherited {\footnotesize ...} wrapper measured
