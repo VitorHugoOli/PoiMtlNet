@@ -75,71 +75,122 @@ def cwd_for(code: str) -> Path:
     return DISS
 
 
+def classify(code: str) -> tuple[str, list[str]]:
+    """Decide what kind of block this is. Returns (kind, body lines).
+
+    Factored out of main() when this gate was parallelized, so the two passes (plan, then
+    report) cannot disagree about a block's kind -- one classifier, called twice.
+
+    ORDER MATTERS AND IS LOAD-BEARING. The recursion test runs FIRST: blocks 3 and 17 of
+    VERIFY_LIST are single-line `cd ... && make check` commands, so the bare-cd test below
+    would swallow them as "notes" and skip them silently, which is how the first version of
+    this guard reported 0 skipped while still recursing. An unreported skip counted as a pass
+    is the failure mode this whole file exists to answer.
+    """
+    body = [l for l in code.split("\n") if l.strip() and not l.strip().startswith("#")]
+    if "check.sh" in code or "make check" in code:
+        return "recursion", body            # see RECURSION in the module docstring
+    if ("make defense" in code or "make final" in code or "make ppgc" in code
+            or "pdflatex" in code):
+        return "build", body
+    if len(body) == 1 and body[0].strip().startswith("cd ") and "&&" not in body[0]:
+        return "note", body                 # the bare working-directory note, not a check
+    return "run", body
+
+
+def probe_cmd(body: list[str]) -> str:
+    first = body[0] if body else ""
+    return re.sub(r'&&\s*\(?cd src.*$', '', first).strip().rstrip("&").strip()
+
+
 def main() -> int:
-    ran = asserted = failed = 0
-    skipped: list[tuple[str, str]] = []
-    build_blocks: list[tuple[str, str, bool]] = []
+    # PARALLEL EXECUTION, and why it is worth it HERE and nowhere else in the suite.
+    # Round 7 timed every gate: all of them are under 0.3 s except this one, which was 0.93 s
+    # of the 2.0 s suite. Profiled, that is 15 documented shell blocks whose subprocesses sum
+    # to 0.85 s, with the slowest single block at 0.30 s -- so the work is I/O-bound subprocess
+    # waiting, not Python, and a thread pool is the right shape. The gates that are already
+    # 0.03 s are NOT parallelized: forking to save 30 ms costs more than it saves, and the
+    # per-gate timing table in check.sh is there so the next gate that grows past a second is
+    # visible rather than suspected.
+    #
+    # THREADS, NOT PROCESSES: every one of these blocks is a subprocess.run() that releases the
+    # GIL while it waits. And the RESULTS ARE PRINTED IN DOCUMENT ORDER, not completion order,
+    # so this gate's output stays byte-comparable with its serial form -- a gate whose output
+    # reorders run to run cannot be diffed, and diffing its output is how the author checks it.
+    from concurrent.futures import ThreadPoolExecutor
+
+    plan: list[tuple[Path, str, str, list[str]]] = []
     for doc in DOCS:
         if not doc.exists():
             continue
         for code in blocks(doc):
-            body = [l for l in code.split("\n")
-                    if l.strip() and not l.strip().startswith("#")]
-            # ORDER MATTERS. The recursion test runs FIRST: blocks 3 and 17 of VERIFY_LIST are
-            # single-line `cd ... && make check` commands, so the working-directory test below would
-            # swallow them as "notes" and skip them silently -- which is how the first version of this
-            # guard reported 0 skipped while still recursing. An unreported skip is the failure mode
-            # this whole file exists to answer, so it must not be reachable for these.
-            if "check.sh" in code or "make check" in code:
-                # See RECURSION in the module docstring.
-                skipped.append((doc.name, body[0][:58] if body else "(empty)"))
-                continue
-            if ("make defense" in code or "make final" in code or "make ppgc" in code
-                    or "pdflatex" in code):
-                # A three-target build takes ~4 minutes and check.sh is a lint gate that people run
-                # constantly. Running it here took make check from 4 seconds to 297. The build is
-                # already verified by build.sh, which is the tool for it; what matters HERE is that
-                # the documented command is well formed and its paths resolve, so that is what is
-                # checked. Reported, not silent.
-                first = body[0] if body else ""
-                probe = re.sub(r'&&\s*\(?cd src.*$', '', first).strip().rstrip("&").strip()
-                ok = True
-                if probe:
-                    r = subprocess.run(["bash", "-c", probe + " && echo REACHED"],
-                                       capture_output=True, cwd=cwd_for(code))
-                    ok = b"REACHED" in r.stdout
-                build_blocks.append((doc.name, first[:58], ok))
-                continue
-            if len(body) == 1 and body[0].strip().startswith("cd ") and "&&" not in body[0]:
-                continue                       # the bare working-directory note, not a check
-            exps = expectations(code)
-            proc = subprocess.run(["bash", "-c", code], capture_output=True,
-                                  cwd=cwd_for(code))
-            out = proc.stdout.decode("utf-8", "replace").strip()
-            lines = [l for l in out.split("\n") if l.strip()]
-            ran += 1
-            head = body[0][:58] if body else "(empty)"
-            if not exps:
-                print(f"  ran      {doc.name}: {head}  (no EXPECT annotation)")
-                continue
-            asserted += 1
-            problems = []
-            if proc.returncode != 0:
-                problems.append(f"exit {proc.returncode}")
-            for kind, want in exps:
-                if kind == "lines" and len(lines) != int(want):
-                    problems.append(f"lines={len(lines)}, expected {want}")
-                elif kind == "contains" and want not in out:
-                    problems.append(f"output does not contain {want!r}")
-                elif kind == "equals" and out != want:
-                    problems.append(f"output {out[:40]!r} != {want!r}")
-            if problems:
-                failed += 1
-                print(f"  FAIL     {doc.name}: {head}")
-                for p in problems:
-                    print(f"           {p}")
-            else:
-                print(f"  verified {doc.name}: {head}")
+            kind, body = classify(code)
+            plan.append((doc, code, kind, body))
+
+    def execute(item):
+        doc, code, kind, body = item
+        if kind == "run":
+            return subprocess.run(["bash", "-c", code], capture_output=True, cwd=cwd_for(code))
+        if kind == "build":
+            probe = probe_cmd(body)
+            if not probe:
+                return None
+            return subprocess.run(["bash", "-c", probe + " && echo REACHED"],
+                                  capture_output=True, cwd=cwd_for(code))
+        return None
+
+    n_conc = sum(1 for _, _, k, _ in plan if k in ("run", "build"))
+    with ThreadPoolExecutor(max_workers=min(8, max(1, n_conc))) as pool:
+        results = list(pool.map(execute, plan))
+
+    ran = asserted = failed = 0
+    skipped: list[tuple[str, str]] = []
+    build_blocks: list[tuple[str, str, bool]] = []
+    for (doc, code, kind, body), proc in zip(plan, results):
+        if kind == "recursion":
+            skipped.append((doc.name, body[0][:58] if body else "(empty)"))
+            continue
+        if kind == "build":
+            # A three-target build takes minutes and check.sh is a lint gate that people run
+            # constantly. Running it here took make check from 4 seconds to 297. The build is
+            # already verified by build.sh, which is the tool for it; what matters HERE is that
+            # the documented command is well formed and its paths resolve, so that is what is
+            # checked. Reported, not silent.
+            first = body[0] if body else ""
+            ok = True if proc is None else (b"REACHED" in proc.stdout)
+            build_blocks.append((doc.name, first[:58], ok))
+            continue
+        if kind == "note":
+            continue
+        exps = expectations(code)
+        out = proc.stdout.decode("utf-8", "replace").strip()
+        lines = [l for l in out.split("\n") if l.strip()]
+        ran += 1
+        head = body[0][:58] if body else "(empty)"
+        if not exps:
+            print(f"  ran      {doc.name}: {head}  (no EXPECT annotation)")
+            continue
+        asserted += 1
+        problems = []
+        if proc.returncode != 0:
+            problems.append(f"exit {proc.returncode}")
+        # `etype`, not `kind`: `kind` is the BLOCK's classification in this scope, and reusing
+        # the name here shadowed it. Harmless today only because the outer loop reassigns it,
+        # which is exactly the kind of accident that stops being harmless after one edit.
+        for etype, want in exps:
+            if etype == "lines" and len(lines) != int(want):
+                problems.append(f"lines={len(lines)}, expected {want}")
+            elif etype == "contains" and want not in out:
+                problems.append(f"output does not contain {want!r}")
+            elif etype == "equals" and out != want:
+                problems.append(f"output {out[:40]!r} != {want!r}")
+        if problems:
+            failed += 1
+            print(f"  FAIL     {doc.name}: {head}")
+            for p in problems:
+                print(f"           {p}")
+        else:
+            print(f"  verified {doc.name}: {head}")
     print(f"\n{ran} documented command(s) executed; {asserted} carried a machine-checkable "
           f"expectation; {failed} failed.")
     for name, head in skipped:

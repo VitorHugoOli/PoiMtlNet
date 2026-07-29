@@ -7,15 +7,70 @@ FAIL=0
 SRCROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../src" && pwd)"
 UTILS="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"   # absolute: this script cds into src/
 cd "$SRCROOT"
+
+# ---- per-gate timing (round 7) ---------------------------------------------------------
+# WHY. The author's standing complaint was that "the checks are slow". Measured, they are not:
+# the nine Python checkers total about 1.4 s and the whole suite runs in under 2 s. What was
+# slow was the 95 s BUILD that people ran immediately before `make check`, and the cost got
+# attributed to the gates. So this suite now prints where its own time goes, and the argument
+# is settled by the table rather than by anyone's impression. It also means the NEXT gate that
+# turns slow is visible on the run that made it slow, instead of being suspected months later.
+#
+# The clock is `perl -MTime::HiRes`, not $EPOCHREALTIME: this machine's /bin/bash is 3.2.57
+# (Apple ships that), and $EPOCHREALTIME arrived in bash 5. Measured cost of the probe itself:
+# 20 calls in 0.151 s, i.e. ~7.5 ms per boundary, so the 19 boundaries below add ~0.14 s of the
+# suite's own runtime. That overhead is REAL and is disclosed in the table's footer rather than
+# hidden -- a timing harness that lies about its own cost is worse than none.
+# Set CHECK_TIMING=0 to suppress the table (the gates still run; only the report is skipped).
+CHECK_TIMING="${CHECK_TIMING:-1}"
+GATE_NAMES=(); GATE_TIMES=(); GATE_N=0; GATE_T0=""; GATE_CUR=""
+_now() { perl -MTime::HiRes -e 'printf "%.3f", Time::HiRes::time()'; }
+SUITE_T0="$(_now)"
+# gate "== title ==" : closes the previous gate's clock, prints the header, opens a new one.
+gate() {
+  if [ -n "$GATE_CUR" ]; then
+    GATE_NAMES[$GATE_N]="$GATE_CUR"
+    GATE_TIMES[$GATE_N]="$(perl -e "printf '%.3f', $(_now) - $GATE_T0")"
+    GATE_N=$((GATE_N + 1))
+  fi
+  GATE_CUR="$1"; GATE_T0="$(_now)"
+  echo "$1"
+}
+gate_report() {
+  if [ -n "$GATE_CUR" ]; then
+    GATE_NAMES[$GATE_N]="$GATE_CUR"
+    GATE_TIMES[$GATE_N]="$(perl -e "printf '%.3f', $(_now) - $GATE_T0")"
+    GATE_N=$((GATE_N + 1))
+  fi
+  [ "$CHECK_TIMING" = "0" ] && return 0
+  local total; total="$(perl -e "printf '%.3f', $(_now) - $SUITE_T0")"
+  echo ""
+  echo "== per-gate timing (seconds; $GATE_N gates, suite total ${total}s) =="
+  local i=0 sum=0
+  while [ $i -lt $GATE_N ]; do
+    # Strip the "== ... ==" decoration and truncate, so the table is readable at a glance.
+    local name; name="$(echo "${GATE_NAMES[$i]}" | sed 's/^== //; s/ ==$//' | cut -c1-64)"
+    printf '  %6ss  %s\n' "${GATE_TIMES[$i]}" "$name"
+    sum="$(perl -e "printf '%.3f', $sum + ${GATE_TIMES[$i]}")"
+    i=$((i + 1))
+  done
+  printf '  %6ss  SUM OF GATES (the rest is this table plus ~%s s of clock probes)\n' \
+         "$sum" "$(perl -e "printf '%.2f', 0.0075 * ($GATE_N + 1)")"
+  echo "  Nothing here is parallelized. Round 7 measured every gate below 0.3 s except"
+  echo "  check_verify_list.py, and forking for a 0.1 s gate costs more than it saves; the"
+  echo "  measurement is in src_utils/_round7/20_build_speed.md. If a gate in this table grows"
+  echo "  past ~1 s, THAT is the one to parallelize, and this table is how you will know."
+}
+# ----------------------------------------------------------------------------------------
 # chapters/*/*.tex added 2026-07-28: the three paper chapters were split into per-section
 # files, and a pattern stopping at chapters/*.tex leaves 55% of the prose unswept.
 CH="chapters/*.tex chapters/*/*.tex"
 
-echo "== em-dashes (WRITING_LAW §1: none anywhere in prose) =="
+gate "== em-dashes (WRITING_LAW §1: none anywhere in prose) =="
 EMDASH=$(printf '\xe2\x80\x94')
 if grep -n "$EMDASH" $CH 0_main.tex 2>/dev/null | grep -v '^[^:]*:[0-9]*: *%'; then FAIL=1; else echo OK; fi
 
-echo "== 'this paper' / 'this article' inside chapters (apx_b_errata exempt: see below) =="
+gate "== 'this paper' / 'this article' inside chapters (apx_b_errata exempt: see below) =="
 # THE EXEMPTION, added 2026-07-28. This sweep exists because a chapter of a coletanea must not call
 # itself "this paper" -- it is a chapter now. apx_b_errata.tex is the ONE file where the phrase is
 # correct: it is the errata appendix, and its whole subject is the three published/submitted ARTICLES
@@ -31,13 +86,13 @@ echo "== 'this paper' / 'this article' inside chapters (apx_b_errata exempt: see
 # means something again.
 if grep -niE 'this (paper|article)' $CH | grep -v '^[^:]*:[0-9]*: *%' | grep -v '^chapters/apx_b_errata'; then FAIL=1; else echo OK; fi
 
-echo "== contractions =="
+gate "== contractions =="
 if grep -nE "\b(don't|doesn't|isn't|aren't|won't|can't|couldn't|wouldn't|shouldn't|it's|we're|they're|there's|hasn't|haven't|didn't|wasn't|weren't)\b" $CH | grep -v '^[^:]*:[0-9]*: *%'; then FAIL=1; else echo OK; fi
 
-echo "== WRITING_LAW §4 banned words (prose lines only; apx_b quotes published text and is exempt) =="
+gate "== WRITING_LAW §4 banned words (prose lines only; apx_b quotes published text and is exempt) =="
 if grep -nwiE 'delve|delves|intricate|showcase|showcases|underscores?|pivotal|leverages?|leveraging|seamless|seamlessly|testament|moreover|furthermore' $CH | grep -v '^[^:]*:[0-9]*: *%' | grep -v '^chapters/apx_b_errata'; then FAIL=1; else echo OK; fi
 
-echo "== banned verdict verbs (beats/wins/ties as result verbs; crude sweep, review hits) =="
+gate "== banned verdict verbs (beats/wins/ties as result verbs; crude sweep, review hits) =="
 # "Pareto" was in this alternation and produced five hits, every one of them the TECHNICAL term
 # (Pareto-optimal descent directions, Pareto efficiency, a Pareto-stationary point) in optimization
 # prose, three of them inside published chapters where the word is the field's own and cannot change.
@@ -45,16 +100,16 @@ echo "== banned verdict verbs (beats/wins/ties as result verbs; crude sweep, rev
 # never going to be a real hit here. It is separated out below so this sweep can be read.
 grep -nwiE 'beats?|wins?' $CH | grep -v '^[^:]*:[0-9]*: *%' || echo OK
 
-echo "== 'Pareto' occurrences (informational: the technical term is legal, a verdict use is not) =="
+gate "== 'Pareto' occurrences (informational: the technical term is legal, a verdict use is not) =="
 # Informational, never FAIL. Read the hits: Pareto-optimal / Pareto-stationary / Pareto efficiency
 # are the optimization literature's own terms and are correct. What would be wrong is "Pareto" used
 # to mean "better", which no hit currently is.
 grep -nwiE 'Pareto' $CH | grep -v '^[^:]*:[0-9]*: *%' | sed 's/^/    /' | cut -c1-140 || true
 
-echo "== repo codenames =="
+gate "== repo codenames =="
 if grep -nwE 'B9|v1[1-7]|champion-G|H3-alt|dk_ovl|log_T|substrate' $CH | grep -v '^[^:]*:[0-9]*: *%'; then FAIL=1; else echo OK; fi
 
-echo "== unresolved \\ref/\\cite (needs a compiled .log) =="
+gate "== unresolved \\ref/\\cite (needs a compiled .log) =="
 # NOTE 2026-07-26: this check used a line-anchored grep. LaTeX WRAPS its warnings at 79 columns, so
 # a wrapped "Citation `key' on page N undefined" was invisible to it and four undefined citations
 # shipped in both PDFs. The log is flattened before matching, and the .blg is read too, because a
@@ -85,7 +140,7 @@ if [ -f "$BLG" ]; then
   if grep -iE "error|didn't find|I was expecting" "$BLG"; then FAIL=1; else echo "OK (bibtex)"; fi
 else echo "SKIP: no $BLG"; fi
 
-echo "== sweep-guard self-tests (a no-op substitution must not look like a result) =="
+gate "== sweep-guard self-tests (a no-op substitution must not look like a result) =="
 # Twice this project drew a conclusion from a parameter sweep whose arms never applied: once a doubled
 # backslash made the target unmatchable, once a bad escape killed the substitution inside a heredoc.
 # Both printed identical results across arms, which read as evidence. These tests pin both cases.
@@ -97,7 +152,7 @@ else
   echo "OK (4 self-tests)"
 fi
 
-echo "== recorded page counts vs the measured build =="
+gate "== recorded page counts vs the measured build =="
 # These are PRESENT-TENSE claims about what is on disk (CLAUDE.md, PLAN.md, PENDENCIAS.md,
 # codex_reviewer.md). They have drifted three times, always caught by review rather than by the
 # edit that caused it. The codex page-drift note is load-bearing: it tells a reader how far every
@@ -107,7 +162,7 @@ if ! python3 "$UTILS/sync_page_counts.py"; then
   FAIL=1
 fi
 
-echo "== word-count claims reconcile with their own recorded stages =="
+gate "== word-count claims reconcile with their own recorded stages =="
 # THIRD arithmetic error in a WRITE-UP of correct work (2026-07-27): a register entry stated the
 # Resumo compression split backwards ("~13 words of gloss, the other ~30 deleted clauses") when its
 # own recorded stages give compression 23/19 and deletion 13/14. The measurement was right; the prose
@@ -115,7 +170,7 @@ echo "== word-count claims reconcile with their own recorded stages =="
 # Quoted admissions of the old figure are allowed, so the corrections themselves do not trip it.
 if ! python3 "$UTILS/check_wordcount_claims.py"; then FAIL=1; fi
 
-echo "== torn sentences (a body line opening mid-sentence: the clause before it is GONE) =="
+gate "== torn sentences (a body line opening mid-sentence: the clause before it is GONE) =="
 # A DIFFERENT defect from trapped prose: nothing is trapped, the opening clause is simply absent, and
 # the build is clean. Found 2026-07-27 by persona 03 in the Resumo and Abstract (rendered pp. 3-4,
 # four instances), introduced by an assistant compressing those blocks. The trapped-prose detector
@@ -124,7 +179,7 @@ echo "== torn sentences (a body line opening mid-sentence: the clause before it 
 # reintroduced.
 if ! python3 "$UTILS/check_torn_sentences.py"; then FAIL=1; fi
 
-echo "== coverage claims about the work carry the command that produced them (GUARDRAILS 4b V1) =="
+gate "== coverage claims about the work carry the command that produced them (GUARDRAILS 4b V1) =="
 # Round 6 measured its own rework: 17 of 61 commits, 14 genuine, and TWELVE of those fourteen were a
 # wrong statement about the WORK rather than about the dissertation. Zero were fabricated citations.
 # The worst carried no digit at all -- "Every command in this file was executed verbatim ... and
@@ -133,7 +188,7 @@ echo "== coverage claims about the work carry the command that produced them (GU
 # (1 hit at VERIFY_LIST.md:56 as of 0aceb5ee~1, 0 on the current tree).
 if ! python3 "$UTILS/check_meta_claims.py"; then FAIL=1; fi
 
-echo "== the author-facing verification commands actually return what they claim =="
+gate "== the author-facing verification commands actually return what they claim =="
 # VERIFY_LIST.md and PENDENCIAS.md tell the author to run specific commands and state what each
 # should return. On 2026-07-28 three of them did not: a \path{} count annotated 13 returned 15,
 # a sweep promising 3 prose hits returned 4, and one promising ZERO returned 5 -- each because it
@@ -143,7 +198,7 @@ echo "== the author-facing verification commands actually return what they claim
 # is actually verified is never overstated.
 if ! python3 "$UTILS/check_verify_list.py"; then FAIL=1; fi
 
-echo "== TeX root directives (invisible to make: only an editor build ever notices) =="
+gate "== TeX root directives (invisible to make: only an editor build ever notices) =="
 # Two silent defects in one week, both found by review rather than by any gate: six files pointing
 # at a main_defense.tex that has never existed in this tree, and six others with no directive at
 # all, which after the per-section split included the three paper-chapter masters -- the files an
@@ -151,14 +206,14 @@ echo "== TeX root directives (invisible to make: only an editor build ever notic
 # lands on whoever opens a file in an editor. Now checked.
 if ! python3 "$UTILS/check_tex_root.py"; then FAIL=1; fi
 
-echo "== negative-parallelism density (a standing guard that lived only in a review report) =="
+gate "== negative-parallelism density (a standing guard that lived only in a review report) =="
 # The AI-credibility persona froze this count on 2026-07-20 and found it raised from 67 to 79 on
 # 2026-07-28, with its own verdict on why: "a guard that lives only in a previous round's review
 # report is a guard nobody is checking." So the instruction moved into the gate. Density per 1k
 # prose words, comments stripped (this repo's provenance comments quote the constructions).
 if ! python3 "$UTILS/check_negative_parallelism.py"; then FAIL=1; fi
 
-echo "== doubled backslash before a reference macro (silent: no warning, undef_ref stays 0) =="
+gate "== doubled backslash before a reference macro (silent: no warning, undef_ref stays 0) =="
 # A THIRD silent class, found 2026-07-28 in 5_mobiwac.tex:789. Two cross-references written
 # "\\ref{...}" with a doubled backslash: LaTeX reads a line break followed by the literal text
 # "ref{tab:mobiwac:results}", so page 75 of the defense PDF printed the raw label to the reader.
@@ -168,7 +223,20 @@ echo "== doubled backslash before a reference macro (silent: no warning, undef_r
 # file: 2 hits at 232befd5~1, 0 after the fix, and its own self-test runs before it reports.
 if ! python3 "$UTILS/check_doubled_macro.py"; then FAIL=1; fi
 
-echo "== prose trapped inside a % comment (silent: builds clean, reader sees a broken sentence) =="
+gate "== comment hygiene: a duplicated story, or a self-count that disagrees with its file =="
+# Round 7 measured the BUILD files' comments (round 6 had measured the chapters' and correctly
+# recommended against compressing those). The defect there is duplication, not commentary: the
+# "three builds, one source" story was told in 5 files, the nested-\if hazard in 4, the usermode
+# TeX tree in 4, halt-on-error vs nonstopmode in 5, and "main_ppgc.tex is N lines" in 7 places --
+# THREE of which said "four lines" for a file with 2 content lines. Neither class is visible to
+# any other gate: every copy is legal LaTeX or Make, so nothing warns, and a comment that is
+# merely WRONG costs whoever believes it. Validated both ways against the real historical tree
+# reconstructed from 0bfc9e5e: CLASS B reports the 3 wrong copies there and 0 here; CLASS A
+# reports README_SRC.md as a second full telling there and 0 here. Its own self-tests build
+# synthetic defective and fixed trees and run before it reports.
+if ! python3 "$UTILS/check_comment_hygiene.py"; then FAIL=1; fi
+
+gate "== prose trapped inside a % comment (silent: builds clean, reader sees a broken sentence) =="
 # Has happened twice: apx_a_contributions.tex, and 4_courb.tex:187 where half a PUBLISHED
 # methodology sentence was appended to a comment tail and three method facts stopped rendering.
 DETECTOR=""; FIXTURES=""
@@ -199,5 +267,7 @@ else
   fi
   if ! python3 "$DETECTOR"; then FAIL=1; fi
 fi
+
+gate_report
 
 exit $FAIL
