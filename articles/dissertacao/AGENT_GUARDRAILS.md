@@ -246,6 +246,24 @@ the work*, and that is where the time went. The four root causes, with the count
   items with the reason. Ordering matters: a broad "is this a note?" test placed before a narrow
   guard will swallow the cases the guard exists for.
 
+
+**V12. A tool that prints a diagnostic is not a tool you have read. Look at the output, not the exit
+  code.** On 2026-07-29 `check.sh` gained a per-gate timing table. From that commit to 2026-07-30 the
+  suite ran on the order of fifty times and **33 commit messages claimed `make check` RC=0**. Every
+  one of those runs printed, at the top of that table, `264.144s` against a suite total of `265.288s`
+  and eighteen other gates under a quarter-second. The number was on screen dozens of times. Nobody
+  read it, including the agent that had added the table the day before specifically to make slow
+  gates visible.
+  What made it invisible was the exit code. `make check` returned 0, 0 satisfies the commit ritual,
+  and the eye stops at the first thing that answers the question it came with. A diagnostic that
+  only a curious reader will notice is a diagnostic that will not be noticed.
+  Two consequences, and the second is the general one. FIRST: when a tool emits a measurement, give
+  it a THRESHOLD and let it complain -- the timing table now flags any gate over 5 s, because a
+  number that has to be interpreted by a human every run will not be. SECOND, and this outlives the
+  timing case: **the author noticing a problem before the agent does is itself a finding about the
+  agent's instrumentation, not just about the bug.** Twice in this project he asked "why is this
+  slow" and twice the answer was a large defect sitting in plain output. When that happens, fix the
+  defect AND ask what should have surfaced it unprompted.
 ### Scope discipline for delegated work (the other 2.6 hours)
 
 Round 6 lost **2.6 hours (19%)** waiting on the slowest sub-agent in each of five waves. The worst

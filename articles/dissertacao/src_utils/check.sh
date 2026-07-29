@@ -5,6 +5,7 @@
 # that path from this script's location, so it works from any cwd. Exits nonzero on any finding.
 FAIL=0
 SRCROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../src" && pwd)"
+SLOW_GATE_S=5          # a gate over this announces itself; see the timing table footer
 UTILS="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"   # absolute: this script cds into src/
 cd "$SRCROOT"
 
@@ -77,17 +78,49 @@ gate_report() {
          "$sum" "$(perl -e "printf '%.2f', $SECS_PER_BOUNDARY * ($GATE_N + 1)")"
   printf '            %s boundaries x ~%s s, three perl spawns each)\n' \
          "$((GATE_N + 1))" "$SECS_PER_BOUNDARY"
-  echo "  Nothing here is parallelized except the verification-commands gate. When round 7 timed"
-  echo "  this suite, that was the only gate above 0.3 s (0.927 s of a 1.811 s total) and every"
-  echo "  other one was under 0.24 s; forking for a 0.05 s gate costs more than it saves. Those"
-  echo "  figures are the run recorded in src_utils/_round7/20_build_speed.md §4, NOT this run --"
-  echo "  read the column above for what the gates cost today. If one grows past ~1 s, THAT is"
-  echo "  the one to parallelize, and this table is how you will find out."
+  # THE TABLE NOW COMPLAINS INSTEAD OF INFORMING, and the reason is measured. This table was added
+  # 2026-07-29 with a comment promising "the NEXT gate that turns slow is visible on the run that
+  # made it slow". It was visible: for roughly fifty runs and 33 commits claiming RC=0, the top row
+  # read 264.144s against a 265.288s total. Nobody read it, including the agent that had added it
+  # the day before. The exit code was 0, and 0 answered the question the reader arrived with.
+  # A diagnostic only a curious reader notices is a diagnostic that will not be noticed
+  # (AGENT_GUARDRAILS §4b V12), so anything over the threshold now announces itself.
+  local slow=0 i2=0
+  while [ $i2 -lt $GATE_N ]; do
+    if perl -e "exit((${GATE_TIMES[$i2]} > $SLOW_GATE_S) ? 0 : 1)"; then
+      local nm; nm="$(echo "${GATE_NAMES[$i2]}" | sed 's/^== //; s/ ==$//' | cut -c1-56)"
+      printf '  SLOW GATE: %ss (over the %ss threshold) -- %s\n' "${GATE_TIMES[$i2]}" "$SLOW_GATE_S" "$nm"
+      slow=$((slow + 1))
+    fi
+    i2=$((i2 + 1))
+  done
+  if [ "$slow" -gt 0 ]; then
+    echo "  ^ $slow gate(s) over threshold. A lint gate people run constantly should be seconds."
+    echo "    Before optimizing, ask what it is DOING: the last time this fired, a gate was"
+    echo "    rebuilding the whole document on every invocation because its build guard was a"
+    echo "    list of target names that two new targets had grown past."
+  else
+    echo "  All $GATE_N gates under the ${SLOW_GATE_S}s threshold."
+  fi
 }
 # ----------------------------------------------------------------------------------------
-# chapters/*/*.tex added 2026-07-28: the three paper chapters were split into per-section
-# files, and a pattern stopping at chapters/*.tex leaves 55% of the prose unswept.
-CH="chapters/*.tex chapters/*/*.tex"
+# THE PROSE SCOPE, and it has silently shrunk TWICE. chapters/*/*.tex was added 2026-07-28 after
+# the paper chapters were split into per-section files and a pattern stopping at chapters/*.tex
+# left 55% of the prose unswept. Then on 2026-07-29 0_main.tex became preamble.tex + content.tex
+# and this list still named 0_main.tex: `grep` exits 2 on the missing file, the pipeline swallows
+# it, and both halves went unswept with every gate still printing OK.
+#
+# BOTH FAILURES WERE SILENT, which is the point. So the scope is now DERIVED from the filesystem
+# and ASSERTED non-empty below, rather than typed. If a file moves, the glob follows it; if the
+# glob ever matches nothing, the suite stops instead of reporting a clean sweep of no files.
+CH="$(ls chapters/*.tex chapters/*/*.tex preamble.tex content.tex 2>/dev/null | tr '\n' ' ')"
+CH_N=$(echo $CH | wc -w | tr -d ' ')
+if [ "$CH_N" -lt 10 ]; then
+  echo "FAIL: the prose scope resolved to $CH_N files, which is too few to be right."
+  echo "  A checker sweeping an empty or truncated file list reports OK and proves nothing;"
+  echo "  that has happened twice here. Files found: $CH"
+  exit 2
+fi
 
 gate "== em-dashes (WRITING_LAW §1: none anywhere in prose) =="
 EMDASH=$(printf '\xe2\x80\x94')
