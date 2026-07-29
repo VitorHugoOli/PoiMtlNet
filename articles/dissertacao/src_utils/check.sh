@@ -8,6 +8,19 @@ SRCROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../src" && pwd)"
 UTILS="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"   # absolute: this script cds into src/
 cd "$SRCROOT"
 
+# PYTHON PREFLIGHT. Several gates read the built PDFs through pypdfium2. If the python3 first on
+# PATH does not have it, they die with a bare ModuleNotFoundError traceback partway through the
+# suite and the reader has to work out which interpreter ran. Found 2026-07-30 while testing the
+# Makefile from a bare PATH=/usr/bin:/bin, where /usr/bin/python3 is the system one and has no
+# third-party packages. Say so once, up front, and name the interpreter.
+if ! python3 -c "import pypdfium2" >/dev/null 2>&1; then
+  echo "GATE PREREQUISITE MISSING: python3 has no pypdfium2, and several gates read the PDFs with it."
+  echo "  python3 resolves to: $(command -v python3 || echo '<not on PATH>')"
+  echo "  install with:        python3 -m pip install pypdfium2"
+  echo "  or put the interpreter that has it first on PATH."
+  exit 2
+fi
+
 # ---- per-gate timing (round 7) ---------------------------------------------------------
 # WHY. The author's standing complaint was that "the checks are slow". Measured, they are not:
 # the nine Python checkers total about 1.4 s and the whole suite runs in under 2 s. What was
