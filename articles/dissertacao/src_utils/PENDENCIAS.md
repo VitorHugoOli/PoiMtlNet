@@ -117,64 +117,53 @@ D analysis_protocol/JOINT_BEST_SCORING.md          D scripts/closing_data/m2_pre
 M README.md                                        D scripts/closing_data/score_joint_best.py
 ```
 
-**NADA FOI PERDIDO.** O commit e local e `origin/mobiwac` continua em `3c57197c`.
+> **CORRECAO GRAVE, 2026-07-30.** A frase abaixo dizia *"NADA FOI PERDIDO. O commit e local e
+> `origin/mobiwac` continua em `3c57197c`"*. **Isso ficou falso.** Verificado contra o remoto com
+> `git fetch origin mobiwac`: `origin/mobiwac` e o local apontam ambos para `6c4267ba`. A delecao de
+> 2.028 linhas **foi publicada**. Os 14 arquivos de reprodutibilidade estiveram ausentes do branch
+> publico enquanto o artigo estava em revisao.
+>
+> A verificacao anterior nao errou o comando; ela errou o **momento**. Rodou antes do push e a
+> conclusao foi registrada como se fosse permanente. Um estado remoto verificado uma vez nao continua
+> verdadeiro: se a afirmacao e sobre o remoto, ela precisa da data da medicao e de uma re-medicao
+> antes de ser reusada.
 
-> **Correcao de cobertura, 2026-07-29.** A versao anterior desta frase dizia que *"cada arquivo
-> acima foi verificado individualmente"* e o comando abaixo checava **quatro** dos quinze. A frase
-> prometia mais que o comando entregava — exatamente a classe que o `AGENT_GUARDRAILS` §4b V1/V2
-> existe para pegar, e ela estava neste arquivo. Agora o comando percorre **os quinze caminhos que o
-> commit toca, lidos do proprio commit**, sem lista digitada a mao:
+**RESOLVIDO (parcialmente) EM 2026-07-30**, com a sua decisao de reverter em vez de reescrever a
+historia publica. Dois commits preparados e verificados:
+
+| commit | efeito |
+|---|---|
+| `b7b072d2` | `git revert 6c4267ba` — restaura os 14 arquivos, 2.028 insercoes |
+| `0288cb70` | adiciona os TRES que faltavam de fato, 406 insercoes, 0 delecoes |
+
+Efeito liquido contra o tip publicado: **18 arquivos, 2.434 insercoes, 0 delecoes**, 26 arquivos de
+reprodutibilidade presentes.
+
+**A CONTAGEM MUDOU DE NOVO, e a razao importa.** Nove -> cinco -> **tres**. A auditoria por
+**conteudo** (nao por nome) mostrou que dois dos cinco ja estao publicados sob outro diretorio, com
+conteudo diferente:
+
+| arquivo | no branch | diferenca | acao |
+|---|---|---|---|
+| `m1_stats_n20.py` | `scripts/closing_data/` | 411 vs 335 linhas, 84 alteradas | **nao tocado** |
+| `m2_prereg_perfold.py` | `scripts/closing_data/` | 214 vs 222 linhas, 36 alteradas | **nao tocado** |
+
+> **DECISAO SUA:** substituir um artefato ja publicado por uma versao local divergente e decisao de
+> autor, nao limpeza. Eu nao toquei. Se a versao local e a correta, e um commit seu.
+
+**O PUSH FALTA, e nao consigo faze-lo daqui.** O helper `osxkeychain` nao roda sem sessao
+interativa (`could not read Username for 'https://github.com': Device not configured`) e nao ha
+credencial GitHub configurada nesta sessao. Os dois commits estao empacotados:
 
 ```bash
 cd /Users/vitor/Desktop/mestrado/ingred
-git log --oneline -1 origin/mobiwac      # EXPECT: contains=3c57197c
-git -C .claude/worktrees/wf_9231ab26-2a8-4 show --name-status --format='' 6c4267ba \
-| while read -r st path; do
-    printf "%-6s %-58s " "$st" "$path"
-    git cat-file -e "origin/mobiwac:$path" 2>/dev/null && echo PRESENTE || echo AUSENTE
-  done | tee /tmp/mobiwac_check.txt | tail -3
-echo "caminhos: $(wc -l < /tmp/mobiwac_check.txt), ausentes: $(grep -c AUSENTE /tmp/mobiwac_check.txt || true)"
+git fetch /Users/vitor/Desktop/mestrado/temp/tarik-new/mobiwac_fix.bundle mobiwac:mobiwac-fix
+git log --oneline mobiwac..mobiwac-fix          # EXPECT: 0288cb70 e b7b072d2
+git diff --name-status mobiwac..mobiwac-fix | grep -c '^D'   # EXPECT: 0
+git push origin mobiwac-fix:mobiwac             # so depois de ver o 0 acima
 ```
 
-Rodado em 2026-07-29: **15 caminhos, 0 ausentes** — 14 delecoes cujos arquivos continuam no remoto,
-mais `README.md`, que o commit modifica e que tambem esta la. O que isso verifica e a **existencia de
-cada caminho** em `origin/mobiwac`, nao a identidade byte a byte do conteudo; para as delecoes e
-exatamente a pergunta certa, porque o commit local nunca foi enviado.
-
-**Por que eu nao consertei.** Tentei `git reset --hard 3c57197c` e o sandbox recusou:
-`unable to unlink old 'README.md': Operation not permitted`. Aquele worktree e **somente-leitura**
-para mim, e `.git/` tambem — nao consigo criar worktree nem branch nesta sessao
-(`could not create directory of '.git/worktrees/...': Operation not permitted`). O reset falhou sem
-efeito: `6c4267ba` continua sendo o HEAD local e a arvore continua limpa.
-
-**O procedimento, para voce rodar.** Tres passos; o segundo e o que eu queria ter feito:
-
-```bash
-cd /Users/vitor/Desktop/mestrado/ingred/.claude/worktrees/wf_9231ab26-2a8-4
-
-# 1. voltar ao estado publicado. 6c4267ba fica no reflog se voce quiser reve-lo depois.
-git reset --hard 3c57197c
-git log --oneline -1        # EXPECT: 3c57197c
-
-# 2. adicionar de fato os CINCO que faltam, na convencao do proprio branch
-#    (analysis_protocol/ para os artefatos de estatistica, scripts/ para os dois scripts)
-cp /tmp/mobiwac_stage/analysis_protocol/m1_stats_n20.py      analysis_protocol/
-cp /tmp/mobiwac_stage/analysis_protocol/m2_prereg_perfold.py analysis_protocol/
-cp /tmp/mobiwac_stage/analysis_protocol/m1_full_output.txt   analysis_protocol/
-cp /tmp/mobiwac_stage/build_phase3_per_fold_transitions.sh   scripts/
-cp /tmp/mobiwac_stage/autocorrelation_ceiling.py             scripts/
-git add analysis_protocol scripts
-git commit -m "publish the five reproducibility artifacts Appendix A cites"
-
-# 3. VERIFIQUE O DIFF ANTES DO PUSH. Deve ser cinco adicoes e ZERO delecoes.
-git show --stat HEAD        # EXPECT: 5 files changed, N insertions(+), 0 deletions(-)
-git push origin mobiwac     # so depois de ver isso
-```
-
-Se o passo 3 mostrar qualquer `deletion`, **nao faca o push** e me chame.
-
-Feito isso, reverta o paragrafo de `apx_a_contributions.tex` para a versao forte e apague o
-comentario `[round6, F-01]` que esta la — ele contem a instrucao.
+Se o `grep -c '^D'` nao devolver **0**, nao faca o push.
 
 ### 2.3 A ficha catalografica: naturalidade Contagem, e a biblioteca que gera
 

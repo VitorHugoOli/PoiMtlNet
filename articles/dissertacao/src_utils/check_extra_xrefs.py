@@ -6,7 +6,7 @@ WHAT THIS EXISTS FOR
 src/main_extra.tex is a SEPARATE document carrying Appendix B (errata) and Appendix D (the
 label-history benchmark). Those two appendices discuss chapters of the DISSERTATION, so they
 contain \\ref{ch:cbic}, \\ref{ch:mobiwac}, \\ref{tab:mobiwac:results} and so on -- 46 call
-sites whose targets live in a document this one does not read. src/0_extra.tex resolves them
+sites whose targets live in a document this one does not read. src/main_extra.tex resolves them
 by declaring frozen (label -> printed number) pairs with \\dissertationlabel.
 
 A frozen number is exactly the kind of record that drifts (science/AGENT_HANDOFF.md §2.6:
@@ -17,12 +17,12 @@ because each is internally consistent. Only a comparison ACROSS the two can see 
 
 THE THREE DIRECTIONS IT CHECKS
 ------------------------------
-1. STALE   a label declared in 0_extra.tex whose frozen number differs from the number the
+1. STALE   a label declared in main_extra.tex whose frozen number differs from the number the
            main defense build actually printed for it.
 2. MISSING a \\ref target used by the supplementary volume's own sources that is neither
-           defined inside that volume nor declared in 0_extra.tex -- i.e. it would render
+           defined inside that volume nor declared in main_extra.tex -- i.e. it would render
            as `??`.
-3. DEAD    a label declared in 0_extra.tex that nothing in the volume references any more.
+3. DEAD    a label declared in main_extra.tex that nothing in the volume references any more.
            This direction matters because a dead declaration is what makes the other two
            look green: it is a value nobody is checking, kept alive by a gate that only
            compared declarations against the main build.
@@ -74,7 +74,7 @@ def strip_comments(text: str) -> str:
     return "\n".join(l for l in text.splitlines() if not re.match(r"^\s*%", l))
 
 
-def volume_sources(srcroot: Path, entry: str = "0_extra.tex") -> list[Path]:
+def volume_sources(srcroot: Path, entry: str = "main_extra.tex") -> list[Path]:
     """Every .tex the supplementary volume pulls in, followed transitively from its entry."""
     seen: list[Path] = []
     todo = [srcroot / entry]
@@ -106,7 +106,7 @@ def audit(srcroot: Path, auxroot: Path) -> tuple[list[str], list[str], int, int,
     findings: list[str] = []
     notes: list[str] = []
 
-    entry = srcroot / "0_extra.tex"
+    entry = srcroot / "main_extra.tex"
     if not entry.exists():
         return ([], [f"SKIP: {entry} does not exist (no supplementary volume in this tree)"], 0, 0, 0)
 
@@ -128,14 +128,14 @@ def audit(srcroot: Path, auxroot: Path) -> tuple[list[str], list[str], int, int,
         if r not in own_labels and r not in declared:
             findings.append(
                 f"MISSING: \\ref{{{r}}} is used {used[r]}x in the supplementary volume, is not "
-                f"defined inside it, and is not declared in 0_extra.tex -- it renders as ??"
+                f"defined inside it, and is not declared in main_extra.tex -- it renders as ??"
             )
 
     # ---- direction 3: DEAD declaration ----
     for d in sorted(declared):
         if d not in used:
             findings.append(
-                f"DEAD: 0_extra.tex declares {d} but nothing in the volume references it. "
+                f"DEAD: main_extra.tex declares {d} but nothing in the volume references it. "
                 f"Remove the declaration, or restore the reference that used it."
             )
 
@@ -163,7 +163,7 @@ def audit(srcroot: Path, auxroot: Path) -> tuple[list[str], list[str], int, int,
                 n_checked += 1
                 if measured[lbl] != frozen:
                     findings.append(
-                        f"STALE: {lbl} is frozen as {frozen!r} in 0_extra.tex but the main "
+                        f"STALE: {lbl} is frozen as {frozen!r} in main_extra.tex but the main "
                         f"build printed {measured[lbl]!r}"
                     )
             if unfound:
@@ -198,7 +198,7 @@ Chapter~\ref{ch:cbic} and Chapter~\ref{ch:mobiwac}, and Table~\ref{tab:apx:x}.
 def _tree(root: Path, extra: str, chap: str, aux_num_cbic: str | None = "3") -> tuple[Path, Path]:
     src = root / "src"
     (src / "chapters").mkdir(parents=True, exist_ok=True)
-    (src / "0_extra.tex").write_text(extra)
+    (src / "main_extra.tex").write_text(extra)
     (src / "chapters" / "apx_x.tex").write_text(chap)
     auxroot = src / "build" / "main-aux"
     auxroot.mkdir(parents=True, exist_ok=True)
