@@ -430,3 +430,48 @@ And one that is not in §4b, learned here: **when two of your own probes disagre
 valuable signal you will get all round.** Do not reconcile them by picking the one that fits. Find out
 which instrument was pointed at the wrong tree — mine was, and the disagreement is the only reason I
 know.
+
+
+## Addendum, 2026-07-30: the largest single time sink was one gate, and it had been guarded
+
+The author asked why this day ran from morning into the afternoon and guessed `make check`. He was
+right, and the measurement is stark. From check.sh's own per-gate timing table:
+
+| gate | seconds |
+|---|---:|
+| the author-facing verification commands actually return what they claim | **264.144** |
+| prose trapped inside a % comment | 0.239 |
+| PENDENCIAS section citations still resolve | 0.136 |
+| every other gate | under 0.14 |
+| **SUM** | **265.288** |
+
+One gate was **99.5 percent** of the suite. In round 7 that same gate ran in 0.927 s.
+
+**The cause is the interesting part, because the guard existed.** `check_verify_list` executes the
+bash blocks documented in the author-facing files, and it has had a build guard since round 7 whose
+own comment records that running a build there "took make check from 4 seconds to 297". That guard
+tested by substring for `make defense`, `make final`, `make ppgc` and `pdflatex`. Two blocks added
+to PENDENCIAS.md afterwards open with `make fast3 && bash src_utils/build.sh src both`. Neither
+string was in the list, so the guard passed them and the harness built all three targets, then
+rebuilt two more, on every `make check`.
+
+**A guard written as a list of current names has an expiry date, and nothing announces it.** `fast3`
+and `extra` did not exist when the list was written. The guard did not fail loudly when they
+appeared; it simply stopped covering the case it was written for, and the only symptom was a slow
+suite -- which I attributed to the suite being thorough. Replaced with one pattern over the
+Makefile's build targets as a class, self-tested against 12 build forms and 6 safe forms.
+
+**The clock was the smaller half of the cost.** A gate that rebuilds the PDFs collides with anything
+else touching `build/`. Every intermittent `rc=1` chased during this round was attributed to "a
+concurrent build from the review tracks", and some of those were the sub-agents -- but at least some
+were the gate colliding with itself, rewriting `build/*.pdf` underneath its own page-count and
+numbering checks, inside one process. That misattribution cost several diagnosis cycles, each of
+which ended in "three clean runs, must have been the tracks."
+
+Result: **265 s to 2 s**, rc=0.
+
+**The rule this suggests, and it generalizes past this gate:** when a guard exists and the thing it
+guards against happens anyway, the defect is the guard's PREDICATE, not its absence. Ask what shape
+the predicate has -- a list of names, a fixed set of extensions, a hardcoded count -- and whether
+anything makes it fail loudly when the world grows past it. A guard that silently stops matching is
+worse than no guard, because its presence is read as coverage.
