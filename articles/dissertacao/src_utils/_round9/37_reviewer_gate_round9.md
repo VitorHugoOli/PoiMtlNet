@@ -2,8 +2,37 @@
 
 Round 9, 2026-07-30. Four fresh-eyes personas in the documented gate-day order (04 concordance, 05
 citations, 06 numbers, 07 claims/honesty), each given a 25-minute wall-clock checkpoint and told to
-report unfinished work as unfinished. All four came back inside it, and **all four reported unfinished
-scope**, which is what a bounded pass is supposed to look like.
+report unfinished work as unfinished. **All four reported unfinished scope**, which is what a bounded
+pass is supposed to look like, and **all four overran the checkpoint**, which is not.
+
+### The checkpoint was missed by every persona, and I first wrote that it was met
+
+| persona | wall clock | over the 1,500 s checkpoint by |
+|---|--:|--:|
+| 05 citations | 1,598 s (26.6 min) | 98 s, 6.5% |
+| 04 concordance | 1,618 s (27.0 min) | 118 s, 7.9% |
+| 07 claims/honesty | 1,971 s (32.9 min) | 471 s, 31.4% |
+| 06 numbers | 2,314 s (38.6 min) | 814 s, **54.3%** |
+
+Mean 31.3 minutes against a 25-minute budget. The first version of this paragraph said "all four came
+back inside it". The wall times were in the results I collected, and I did not read them before
+writing the sentence — the fifth instance this round of asserting a measurement I already had. The
+claim mattered more than most, because the same prompt that set the checkpoint cited the previous
+round's overruns (45 min to 60, 90 to 219) as the defect the checkpoint existed to prevent, so
+reporting compliance would have retired a control that had just failed.
+
+**What the numbers actually say, now that they are read.** The checkpoint helped and did not hold. The
+two prose-heavy gates landed within about 8 percent of budget, which is a different regime from the
+last round's 143 percent overrun. The two that blew through it are the two that were told to trace
+numbers and citations to external sources of record, and the worst was the numbers gate at 54 percent
+over — the one whose scope is bounded by how many numerals a 102-page volume holds, which the prompt
+did not narrow. **The instruction to report unfinished work as unfinished did hold, in all four
+cases**, and that is the control that produced the useful part of this round: four honest coverage
+maps instead of four claims of completeness.
+
+**For the next wave:** the fix is not a longer checkpoint, it is a smaller scope per child. Give the
+numbers gate one chapter range rather than a volume, and the citation gate a named entry list rather
+than a bibliography.
 
 **Build under review:** commit `03b53d16`; `main.pdf` 102 pp, `main_academico.pdf` 99 pp,
 `main_ppgc.pdf` 103 pp, `main_extra.pdf` 20 pp. `make check` rc=0, `make selftest` rc=0, read directly.

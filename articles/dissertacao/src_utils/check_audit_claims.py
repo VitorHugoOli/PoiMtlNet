@@ -175,6 +175,28 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     ("R9-confirm", "FAB-01 is recorded as already satisfied and only CONFIRMED, never as an applied "
                    "edit verified in both directions",
      "CONSIDERATIONS.md", r"ALREADY SATISFIED; CONFIRMED IN THE RENDERED PDF, NOT APPLIED", True),
+    # ---- R9-clock: the reviewer round's own process claim. The four personas were given a 25-minute
+    # (1,500 s) wall-clock checkpoint BECAUSE the previous round overran (45 min -> 60, 90 -> 219),
+    # and the gate report first said all four came back inside it. All four missed it: 1,598 / 1,618 /
+    # 1,971 / 2,314 s, the worst 54% over. The wall times were in the results the findings were read
+    # from. Reporting compliance would have retired a control on a number nobody looked at, and the
+    # next round would have inherited a checkpoint believed to work. Positive probe pins the worst
+    # measured time (the figure a later summary is most likely to soften); the inverted one bans the
+    # superseded sentence. .md paths resolve against UTILS, so _round9/ is reachable from here.
+    ("R9-clock",   "the reviewer round records that every persona OVERRAN the 25-minute checkpoint, "
+                   "with the measured wall times",
+     "_round9/37_reviewer_gate_round9.md", r"2,314 s \(38\.6 min\)", True),
+    # R9-clock2 IS ANCHORED, and the first version was not, which is why it fired on a clean file.
+    # The banned string is quoted inside the correction that retires it ("The first version of this
+    # paragraph said \"all four came back inside it\""), and PROBES match case-insensitively, so a bare
+    # ban on the phrase cannot tell the retired ASSERTION from the record of retiring it. Same lesson
+    # as R9-nocount's first version, which banned a bare phrase and matched the protected region
+    # wording. The pattern therefore requires the sentence-initial capitalized form followed by the
+    # clause that made it an assertion -- the shape only the original can have. Keeping the quotation
+    # legal is the point: a correction that cannot name what it corrects is not a correction.
+    ("R9-clock2",  "the superseded 'All four came back inside it' ASSERTION is gone from the gate "
+                   "report (the quotation of it inside the correction stays legal)",
+     "_round9/37_reviewer_gate_round9.md", r"All four came back inside it, and \*\*all four", False),
 )
 
 # COD-016b needs a STRUCTURAL probe, not a string one, so it lives here rather than in PROBES --

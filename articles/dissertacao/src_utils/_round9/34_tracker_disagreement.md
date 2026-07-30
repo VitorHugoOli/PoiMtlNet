@@ -146,6 +146,28 @@ fix was to repair the file and amend, so no red state is preserved in history â€
 error is the finding, and it is the same shape as trusting a self-report: I had the evidence and did
 not look at it before moving on.
 
-Running total for round 9: **four claim-or-count defects in my own work**, three found by a reviewer
-and one by the suite. Every one of them was a statement I could have checked with a command I had
-already written.
+## Fifth instance: reporting that a control held, when the data in hand said it failed
+
+`37_reviewer_gate_round9.md` said the four reviewer personas "all came back inside" their 25-minute
+wall-clock checkpoint. **None did.** Measured: 1,598 s, 1,618 s, 1,971 s and 2,314 s against a 1,500 s
+budget, the worst 54 percent over. The wall times arrived in the same result objects I read the
+findings from.
+
+This one is the worst of the five, and not because the error is larger. The checkpoint existed
+*because* the previous round overran (45 minutes to 60, 90 to 219); the prompt says so in the sentence
+that sets it. Reporting compliance would have retired a control on the strength of a number I never
+looked at, and the next round would have inherited a checkpoint believed to work.
+
+It also differs from the first four in where the failure sat. Those were summaries written from a
+collection instead of from the predicate. This was a summary written from an **expectation** â€” I had
+set the checkpoint, the children reported unfinished work as instructed, the reports were good, and I
+wrote down the outcome I was expecting rather than the one the field held. The correction now in `37`
+reads the numbers properly, and they say something more useful than either version: the checkpoint
+half-worked. The two prose gates landed within 8 percent; the two told to resolve external sources
+blew through it, worst of all the numbers gate, whose scope nobody bounded. The fix is a smaller scope
+per child, not a longer clock.
+
+Running total for round 9: **five claim-or-count defects in my own work**, four found by a reviewer
+and one by the suite. Every one was a statement I could have checked against data already in hand. The
+pattern across all five is one sentence: **I wrote what I expected the measurement to say, in the
+window between having it and reading it.**
