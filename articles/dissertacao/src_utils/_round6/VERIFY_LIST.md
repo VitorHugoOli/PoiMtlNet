@@ -138,18 +138,41 @@ Resumo (p. 2), the Abstract (p. 3), Chapter 1 (p. 13) and Chapter 6 all say the 
 outperforms on region "at four of six" with no such qualifier.
 ```bash
 cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
-for f in src/0_main.tex src/chapters/1_introduction.tex src/chapters/6_conclusion.tex; do
+for f in src/content.tex src/chapters/1_introduction.tex src/chapters/6_conclusion.tex; do
   grep -vn '^[[:space:]]*%' "$f" | grep 'four of six\|four of the six' | sed "s|^|$f:|"
 done
 # EXPECT: lines=3
 ```
 Comment lines are dropped **before** the search (`grep -vn` keeps the original line numbers). Without
-that this returns 4 hits, one being an indented provenance comment in `0_main.tex` rather than prose
-the reader sees: **3 prose hits is the answer**, not 4.
+that this returns 4 hits, one being an indented provenance comment rather than prose the reader sees:
+**3 prose hits is the answer**, not 4.
+
+> **ROUND 8 CORRECTION, 2026-07-30 — the command named a file that does not exist, and its
+> expectation passed anyway.** The first element was `src/0_main.tex`; the front matter moved into
+> `src/content.tex` before this list was written, so that `grep` wrote
+> `grep: src/0_main.tex: No such file or directory` to **stderr** and contributed nothing to stdout.
+> `# EXPECT: lines=3` counts stdout lines only, so the block reported *verified* while searching two
+> files instead of three. The three hits it printed are all in the two files that do exist
+> (`1_introduction.tex:132`, `6_conclusion.tex:21`, `6_conclusion.tex:93`) — the arithmetic was a
+> coincidence, not a check. §4b V1/V2: the number matched, the command did not do what its prose
+> says. With `content.tex` substituted the expectation is unchanged at 3, because the Resumo and the
+> Abstract phrase the count as "quatro deles" / "four of them" rather than "four of six":
+> ```
+> src/content.tex:166:            a joint-best selection. On next region it outperforms at four of them and
+> ```
+> That is the same claim in different words, so the asymmetry this item raises is **wider than the
+> item states**, not narrower. Measured with the comment-stripping sweep over all 54 `.tex` files:
+> the unhedged count appears in prose at `1_introduction.tex`, `2_fundamentals.tex:786`,
+> `5_mobiwac/01_introduction.tex:39`, `5_mobiwac/08_conclusion.tex:14`, `5_mobiwac.tex`, and twice in
+> `6_conclusion.tex` — seven sites, plus the two front-matter paraphrases. In the rendered defense
+> PDF the phrase prints on pages 14, 58, 59, 76, 77 and 78; the hedge prints on page 67 alone.
+> The decision this item asks for is unchanged and is now `PENDENCIAS.md` §2.11.
+
 *If all is well:* you rule either that the frame adds "as a secondary result" once, or that the
 asymmetry is deliberate and goes in `LEFT_OUT.md`. The statistics record's own 2026-07-27 correction
 is unambiguous that the registered primary test for **every** region cell is TOST non-inferiority.
-No round-6 track owned this. Ledger finding L-5.
+No round-6 track owned this. Ledger finding L-5. **Handed to the author as `PENDENCIAS.md` §2.11 on
+2026-07-30** (round 8): the measurement is complete, the ruling is his.
 
 **6. The Ch.2 sentence that the Ch.3 protocol addition just falsified.**
 Chapter 2 (`chapters/2_fundamentals.tex:601-602`, **rendered p. 23**) says Chapter 3 "reports
