@@ -39,7 +39,7 @@ scope**; the other twelve are outside it and I neither confirm nor contest them.
 
 | its finding | in my scope? | my position |
 |---|---|---|
-| **SF-4** pointer "next paragraph" | yes, §2.3 new block | **AGREE, and I close its open question.** It could not tell whether the defect was introduced this round. It was: the sentence is inside `beebd33b`. My **R-4** adds the measurement it lacked (the guarantees paragraph is the document's *first* mention of CAGrad, Aligned-MTL, GradNorm and FAMO), which suggests a second repair it did not consider. |
+| **SF-4** pointer "next paragraph" | yes, §2.3 new block | **AGREE, and I close its open question.** It could not tell whether the defect was introduced this round. It was: the sentence is inside `beebd33b`. My **R-4** adds the measurement it lacked (the guarantees paragraph names four balancers, Nash-MTL, CAGrad, Aligned-MTL and PCGrad, and is the first place in the body where any of them appears), which suggests a second repair it did not consider. |
 | **SF-7** "Two \<plural\> \<verb\>" ×6 | one of its six sites is in the new block | **AGREE on the pattern, DIFFER on one site.** See below. |
 | **SF-8** the Wilcoxon sentence | Ch. 2, but **not** in this round's diff | **AGREE it is the chapter's hardest sentence** (66 words, measured; joint third longest of 185). Not a round-9 finding: `git diff c94d1f19..HEAD` does not touch it. I flag the overlap because its fix and my **R-1**'s fix land in the same paragraph pair. |
 | **SF-10** §2.5 says the gap three times | yes, and it constrains my R-3 | **AGREE, and it changes my own recommendation.** My R-3 asks §2.5 to pick up the orthogonality thread; SF-10 says §2.5 is already saying its argument three times. Both can be right, so R-3 proposes a clause that *replaces* rather than adds, and says so. |
@@ -139,7 +139,8 @@ chapter. Its three paragraphs are 152 w / 6 sents, 222 w / 8, 129 w / 3, against
 | (B errata, D benchmark — supplementary volume) | 2,159 / 893 | — |
 
 Against the paper chapters: Ch. 3 = 4,440 words, Ch. 4 = 4,330, Ch. 5 = 5,435. Appendix F at 1,753 is
-**32 percent of the shortest paper chapter** and grew only 40 words this round (1,713 → 1,753) while
+**40 percent of the shortest paper chapter** (1,753 / 4,330 at Ch. 4) and 32 percent of the longest
+(1,753 / 5,435 at Ch. 5), and it grew only 40 words this round (1,713 → 1,753) while
 adding three datasets. It is the longest appendix in the defense build and the second longest overall,
 but it is not article-sized, and it did not become one this round.
 
@@ -319,21 +320,24 @@ is "A family of methods tries to manage the conflict at the level of the gradien
 **three paragraphs later**, at character offset 2,285 on p. 23 against the pointer's target at 101.
 
 What makes this a genuine ambiguity rather than a slip: I traced all occurrences of each balancer name
-in Ch. 2. Nash-MTL, CAGrad, Aligned-MTL and PCGrad each appear exactly twice, **once in the guarantees
-paragraph and once in the family paragraph** — and the guarantees paragraph is the first mention of
-CAGrad, Aligned-MTL, GradNorm and FAMO anywhere in the document (all first render on p. 23). So the
-pointer does land on a paragraph full of method names; it just is not the paragraph that says how their
-weights are set.
+in Ch. 2. **Nash-MTL, CAGrad, Aligned-MTL and PCGrad are the four the guarantees paragraph names**, and
+each of the four appears exactly twice in the chapter, once there and once in the family paragraph. The
+guarantees paragraph is also the first place in the body where any of the four appears: CAGrad,
+Aligned-MTL and PCGrad first render on p. 23, and so does Nash-MTL, whose only earlier occurrence is the
+table of contents on p. 9. GradNorm and FAMO are **not** in the guarantees paragraph; they debut in the
+family paragraph, on the same page. So the pointer does land on a paragraph full of method names; it just
+is not the paragraph that says how their weights are set.
 
 **Why it harms the reader** (lens 3, clarity: no reference interpretable two ways). This is the prior
 pass's SF-4, which could not establish whether the defect was introduced by this round. **It was:** the
 pointer sentence is inside the block added by `beebd33b`, verified in `git diff c94d1f19..HEAD`.
 
 **Fix:** the prior pass's proposal stands — "each of the balancing methods below is a different answer
-to…". I add one alternative it did not consider: since the guarantees paragraph is where four of these
-methods first appear, the cleanest repair may be to name them at the equation as a set ("uncertainty
-weighting, GradNorm, PCGrad, CAGrad, Nash-MTL, Aligned-MTL and FAMO, discussed below, each answer this
-differently"), which fixes the pointer and the first-mention order together.
+to…". I add one alternative it did not consider: since the guarantees paragraph is where four of the
+eight balancers make their first body appearance, the cleanest repair may be to name the full set at the
+equation ("uncertainty weighting, GradNorm, dynamic weight averaging, PCGrad, CAGrad, Nash-MTL,
+Aligned-MTL and FAMO, discussed below, each answer this differently"), which fixes the pointer and the
+first-mention order together.
 
 ### R-5 [Major] — the 66-word guarantees sentence is the one place in the new block where a reader must re-read
 
