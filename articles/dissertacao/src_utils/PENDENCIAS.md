@@ -69,22 +69,42 @@ python3 src_utils/sync_page_counts.py --write   # se a contagem mudou
 
 ## §2 · Aberto e bloqueado em VOCE
 
-### 2.1 Os 46 marcadores `[NEEDS SIGN-OFF]` no fonte
+### 2.1 Os 53 marcadores `[NEEDS SIGN-OFF]` no fonte
 
-**(A) O que falta.** 46 marcadores, distribuidos assim:
+> **CONTAGEM E TABELA CORRIGIDAS, 2026-07-30 (round 8), por medicao.** O cabecalho dizia **46** e a
+> tabela abaixo listava um arquivo que **nao existe mais**: o `0_main.tex` foi dividido em
+> `preamble.tex` + `content.tex` em 2026-07-29 (commit `2b9b853d`), e os quatro marcadores que a
+> tabela atribuia a ele estao hoje em `content.tex`. A tabela tambem nao fechava com o proprio
+> comando que ela manda rodar: o comando devolve **57**, a tabela somava 46, e sete marcadores novos
+> tinham entrado desde `2bf5f8ea` sem que ninguem reconciliasse. E a classe do V13 do
+> `AGENT_GUARDRAILS` -- uma tabela cujo cabecalho conta N tem que ter N linhas.
 
-| Arquivo                                                                                                                                                                                                                   |      n |
-|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------:|
-| `chapters/6_conclusion.tex`                                                                                                                                                                                               |      7 |
-| `chapters/apx_a_contributions.tex`                                                                                                                                                                                        |      6 |
-| `chapters/2_fundamentals.tex`                                                                                                                                                                                             |      5 |
-| `chapters/apx_b_errata.tex`                                                                                                                                                                                               |      5 |
-| `0_main.tex`                                                                                                                                                                                                              |      4 |
-| `chapters/5_mobiwac/06_results.tex`                                                                                                                                                                                       |      3 |
-| `chapters/1_introduction.tex`, `5_mobiwac/02_related.tex`, `5_mobiwac/07_discussion.tex`                                                                                                                                  | 2 cada |
-| `3_cbic/method.tex`, `3_cbic/results.tex`, `4_courb.tex`, `4_courb/methodology.tex`, `4_courb/results.tex`, `5_mobiwac.tex`, `apx_b_static_scope.tex`, `apx_c_ai_disclosure.tex`, `apx_d_ceiling.tex`, `apx_e_ethics.tex` | 1 cada |
+**(A) O que falta.** **53 marcadores no fonte** (57 se contar a arvore gerada `src/build/`, que nao e
+fonte: `build/fmt/_body.tex` e escrito pelo `mkformat.py` e nao esta versionado). Medido assim, e o
+numero 53 e o que importa porque e nele que voce assina:
 
-Para listar: `grep -rn "NEEDS SIGN-OFF" src/ | grep -v Binary`.
+```bash
+cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
+grep -rn "NEEDS SIGN-OFF" src/ --exclude-dir=build | grep -v Binary | wc -l   # EXPECT: 53
+grep -rn "NEEDS SIGN-OFF" src/ | grep -v Binary | wc -l                       # 57: os 4 a mais sao o _body.tex gerado
+```
+
+| Arquivo                                                                                                                                                                     |      n |
+|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------:|
+| `chapters/6_conclusion.tex`                                                                                                                                                 |      9 |
+| `chapters/2_fundamentals.tex`                                                                                                                                               |      6 |
+| `chapters/apx_a_contributions.tex`                                                                                                                                          |      6 |
+| `chapters/apx_b_errata.tex`                                                                                                                                                 |      5 |
+| `content.tex` (era `0_main.tex`)                                                                                                                                            |      4 |
+| `chapters/5_mobiwac/06_results.tex`                                                                                                                                         |      3 |
+| `chapters/1_introduction.tex`, `3_cbic/results.tex`, `5_mobiwac/02_related.tex`, `5_mobiwac/07_discussion.tex`                                                              | 2 cada |
+| `3_cbic/method.tex`, `4_courb.tex`, `4_courb/methodology.tex`, `4_courb/results.tex`, `5_mobiwac.tex`, `5_mobiwac/05_setup.tex`, `apx_b_static_scope.tex`, `apx_c_ai_disclosure.tex`, `apx_d_ceiling.tex`, `apx_e_ethics.tex`, `apx_f_cosine.tex`, `main_extra.tex` | 1 cada |
+
+**Soma: 9+6+6+5+4+3 + (2x4) + (1x12) = 53.** Confere com o comando acima.
+
+**Todos os 53 estao dentro de comentarios `%`**, entao nenhum imprime no PDF: o marcador e recado
+para voce, nao texto do leitor. Medido com o stripper do `check_audit_claims.py` (0 ocorrencias
+visiveis depois de remover comentarios, 53 no fonte cru).
 
 **(B) Por que importa.** Cada um e uma frase reescrita por um agente em prosa que e sua, ou uma mudanca de escopo num
 capitulo publicado. Nenhuma pode ir a banca sem voce ter lido.
@@ -146,19 +166,38 @@ mostrou que dois dos cinco ja estao publicados sob outro diretorio, com conteudo
 > **DECISAO SUA:** substituir um artefato ja publicado por uma versao local divergente e decisao de
 > autor, nao limpeza. Eu nao toquei. Se a versao local e a correta, e um commit seu.
 
-**O PUSH FALTA, e nao consigo faze-lo daqui.** O helper `osxkeychain` nao roda sem sessao interativa
-(`could not read Username for 'https://github.com': Device not configured`) e nao ha credencial GitHub configurada nesta
-sessao. Os dois commits estao empacotados:
+> **O PUSH JA ACONTECEU e este bloco estava obsoleto de tres maneiras. Corrigido 2026-07-30 (round
+> 8), tudo medido, nada empurrado por mim.** O texto abaixo dizia *"O PUSH FALTA, e nao consigo
+> faze-lo daqui"* e mandava rodar quatro comandos. Medido agora:
+>
+> | o que o bloco antigo dizia                                    | medido em 2026-07-30                                                                                                       |
+> |---------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
+> | o push falta                                                  | **feito.** `origin/mobiwac` esta em `0288cb70`; o reflog do remoto registra `0288cb70 update by push`                       |
+> | `git log --oneline mobiwac..mobiwac-fix` -> `0288cb70 b7b072d2` | devolve **0 linhas**. `mobiwac-fix` esta em `6c4267ba`, que e ANCESTRAL do `mobiwac` local: o branch de trabalho ficou atras |
+> | `git diff --name-status mobiwac..mobiwac-fix \| grep -c '^D'`   | devolve **17**, nao 0 -- na direcao em que o bloco mandava ler, o `mobiwac-fix` e que apaga 17 arquivos                     |
+> | `git fetch <bundle> mobiwac:mobiwac-fix`                      | **falha:** `fatal: couldn't find remote ref mobiwac`. O bundle expoe um unico ref, `HEAD` (= `0288cb70`), nao `mobiwac`     |
+>
+> **Rodar os quatro comandos hoje, na ordem em que estavam escritos, faria exatamente o dano que o
+> bloco existia para evitar:** o `fetch` falha, o `grep -c '^D'` devolve 17 (e nao 0, entao a propria
+> guarda do bloco te pararia), e um `git push origin mobiwac-fix:mobiwac` seria um **retrocesso** do
+> tip publicado de `0288cb70` para `6c4267ba` -- ou seja, republicaria a delecao de 2.028 linhas.
+> **Nao rode nada deste bloco.** Ele fica registrado, e nao apagado, porque um comando de recuperacao
+> que expirou em silencio e a classe de defeito que o `AGENT_GUARDRAILS` §4b V6 nomeia.
+
+**Estado publicado, medido em 2026-07-30 (leia a data: uma verificacao de remoto tem validade):**
 
 ```bash
 cd /Users/vitor/Desktop/mestrado/ingred
-git fetch /Users/vitor/Desktop/mestrado/temp/tarik-new/mobiwac_fix.bundle mobiwac:mobiwac-fix
-git log --oneline mobiwac..mobiwac-fix          # EXPECT: 0288cb70 e b7b072d2
-git diff --name-status mobiwac..mobiwac-fix | grep -c '^D'   # EXPECT: 0
-git push origin mobiwac-fix:mobiwac             # so depois de ver o 0 acima
+git fetch origin mobiwac
+git rev-parse origin/mobiwac                                  # 0288cb70...
+git diff --name-status 6c4267ba..origin/mobiwac | grep -c '^D' # 0 delecoes contra o tip que apagava
+git diff --shortstat 3c57197c..origin/mobiwac                  # 3 files changed, 406 insertions(+)
 ```
 
-Se o `grep -c '^D'` nao devolver **0**, nao faca o push.
+O efeito liquido contra `6c4267ba` (o tip que continha a delecao) e **17 arquivos adicionados, 1
+modificado, 0 apagados**; contra `3c57197c` (o tip anterior a ela) e **3 arquivos, 406 insercoes, 0
+delecoes** -- os tres que faltavam de fato. `analysis_protocol/` tem 13 arquivos no branch e
+`scripts/closing_data/` outros 13. **Nada mais a empurrar aqui.**
 
 ### 2.2 Publicar os arquivos que faltam no branch publico — FEITO em 2026-07-30
 
