@@ -122,6 +122,17 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # that probe watches "claims no Pareto property of any kind" -- a different sentence. A term can be
     # struck from the definition while the disclaimer about it survives, and the glossary probe only
     # checks the REGISTRY, not the prose. So the fail-closed rule needs the prose side gated too.
+    # ---- APPENDIX F's DATASET COUNTS. The cosine track measured that NOTHING gated them: it widened
+    # the appendix from four datasets / 3,900 observations to seven / 4,650, verified every count in the
+    # rendered PDF, and reported honestly that the counts rested on that one session's reading and on
+    # nothing mechanical. It could not add the probe itself because this file belonged to the parallel
+    # track that round. Three probes, so a silent regression to the old counts cannot pass:
+    ("R9-apxf7",  "Appendix F reports SEVEN datasets, matching the seven states in the parquet",
+     "chapters/apx_f_cosine.tex", r"seven datasets", True),
+    ("R9-apxfn",  "Appendix F reports 4,650 epoch-level cosines, the measured row count",
+     "chapters/apx_f_cosine.tex", r"4,650", True),
+    ("R9-apxfold", "the superseded four-dataset counts are GONE from Appendix F (inverted)",
+     "chapters/apx_f_cosine.tex", r"3,900|four datasets", False),
     ("R9-pareto2", "Ch.2 still DEFINES Pareto dominance in prose, not only disclaims Pareto claims",
      "chapters/2_fundamentals.tex", r"a relation named\s+Pareto dominance", True),
     ("R9-pareto3", "Ch.2 still defines Pareto optimality from dominance",
