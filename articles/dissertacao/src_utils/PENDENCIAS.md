@@ -350,6 +350,27 @@ final, nao o caminho.
 
 > DECISSAO: Documentar no letf_out.md e adcionar esse ponto no appendix B
 
+**FEITO em 2026-07-30 (round 8), e METADE ja estava feita sem que ninguem tivesse notado a outra.**
+A sua decisao tem duas partes e elas estavam em estados diferentes:
+
+| parte da sua decisao        | estado quando eu medi                                                                                   |
+|-----------------------------|-----------------------------------------------------------------------------------------------------------|
+| documentar no `LEFT_OUT.md` | **ja estava**, LO-1, com a fonte (`_round6/10_protocol_recovery.md` §1.4)                                |
+| adicionar no Apendice B     | **so para o Cap. 3.** A secao do Artigo 2 (CoUrb) nao dizia nada: `configuration`, `tuning`, `recoverable`, `harness`, `hyperparameter` -> 0 ocorrencias no texto sem comentarios |
+
+O achado de origem e sobre **os dois** estudos -- a tabela de veredito daquele arquivo da
+"NOT RECOVERABLE as a budget" para o Cap. 3 **e** para o Cap. 4, pelo mesmo motivo (nunca existiu
+harness de busca em nenhum dos dois codebases e as configuracoes perdedoras nao foram commitadas).
+Uma frase creditada por inteiro quando so metade andou e a segunda consequencia do V14 do
+`AGENT_GUARDRAILS`, que e a razao de esta rodada existir.
+
+Acrescentada uma frase na secao do Artigo 2, com a mesma redacao da do Artigo 1 para os dois
+capitulos declararem o mesmo limite do mesmo jeito. **Lido no PDF do volume suplementar, nao no
+fonte:** p. 8 (Cap. 3) e p. 9 (Cap. 4), 20 pp, tex_errors 0. A sua recolecao ("nao mudamos muito")
+continua **fora** do texto de proposito: e coerente com o codigo, mas recolecao nao e registro
+(`AGENT_GUARDRAILS` N1). LO-1 atualizado com onde a frase imprime. Marcado
+`[NEEDS SIGN-OFF: PENDENCIAS 2.7, round8]`.
+
 ### 2.8 `CONSIDERATIONS.md`: uma rodada NOVA que chegou durante esta, e que eu NAO executei
 
 **(A) O que falta.** `src_utils/CONSIDERATIONS.md` apareceu na arvore de trabalho **durante** esta rodada (modificado

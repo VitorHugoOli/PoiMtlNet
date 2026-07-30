@@ -313,7 +313,27 @@ seed; and that training runs for the full configured number of epochs without ea
 stopping, with each task read at the epoch of its own highest validation macro-F1 on the
 fold the score is reported on. All three are recovered from the code released with the
 article and none is a claim about a result. The last is worded exactly as in
-Chapter~\ref{ch:cbic}, whose study runs the same code. The remaining three are the lead sentences that introduce the three tables,
+Chapter~\ref{ch:cbic}, whose study runs the same code. As in that chapter, the number of model
+configurations examined during the study is not recoverable from the released material, and no
+sentence of this chapter asserts one.
+% [NEEDS SIGN-OFF: PENDENCIAS 2.7, round8, 2026-07-30] ONE SENTENCE ADDED, on the author's decision
+% "Documentar no letf_out.md e adcionar esse ponto no appendix B". Half of that was already done and
+% half was not, which is why it needed measuring rather than re-reading a report: LEFT_OUT.md LO-1
+% carries the finding, and Article 1 of this appendix already printed the identical sentence for
+% Chapter 3 -- but Article 2 did not, and the finding is about BOTH studies.
+% Measured before writing, on the comment-stripped source of the Article 2 section (chars 5504 to
+% the Article 3 heading): 'configuration' 0, 'tuning' 0, 'recoverable' 0, 'harness' 0,
+% 'hyperparameter' 0. And in the rendered extra volume, "not recoverable" appeared on p.8 only,
+% inside Article 1.
+% THE SOURCE OF RECORD IS _round6/10_protocol_recovery.md section 1.4, whose verdict table gives
+% "NOT RECOVERABLE as a budget" for Ch.3 AND for Ch.4, same reason: no search harness ever existed in
+% either codebase and the losing configurations were not committed. The author's recollection ("we
+% did not change much") is consistent with the code and is deliberately NOT printed, because a
+% recollection is not a record (GUARDRAILS N1).
+% Wording is copied from the Article 1 sentence rather than re-drafted, so the two chapters state the
+% same limitation identically; "As in that chapter" carries the parallel without repeating the whole
+% claim. No quantity is asserted -- the sentence's entire content is that no quantity is available.
+The remaining three are the lead sentences that introduce the three tables,
 one each for Tables~\ref{tab:courb:dataset},~\ref{tab:courb:category},
 and~\ref{tab:courb:next}, written because the dissertation's presentation rules require a
 table to be introduced by a takeaway sentence. Each of the three reads its table and states

@@ -23,8 +23,21 @@ in the register; it belongs in the text.
 **not recoverable**. No search harness has ever existed in either codebase, run outputs were
 gitignored, and only the hand-copied best runs survive.
 
-**What the text says instead.** Nothing. Neither chapter asserts a configuration count, and the
-protocol sentences added this round were written specifically so that they do not imply one.
+**What the text says instead.** Neither chapter asserts a configuration count, and the protocol
+sentences were written specifically so that they do not imply one. **Since 2026-07-30 the appendix
+also states the absence outright, for both studies** (author decision, `PENDENCIAS.md` 2.7:
+*"Documentar no letf_out.md e adcionar esse ponto no appendix B"*): the reproduction appendix's
+Article 1 section says *"The number of model configurations examined during the study is not
+recoverable from the released material, and no sentence of the chapter asserts one"*, and Article 2
+now says the same of Chapter 4. Rendered in the supplementary volume, pp. 8 and 9 (read from
+`build/main_extra.pdf`, not from the source).
+
+> **Half of this entry's decision was applied and half was not, for a day, which is worth recording
+> because it is this project's most expensive defect class.** The Article 1 sentence had been there;
+> Article 2 had nothing (`configuration`, `tuning`, `recoverable`, `harness`, `hyperparameter` all
+> returned 0 in the comment-stripped Article 2 section), while the finding in
+> `10_protocol_recovery.md` §1.4 is explicitly about **both** codebases. A finding credited to a
+> whole when only one part moved is exactly `AGENT_GUARDRAILS` §4b V14's second consequence.
 
 **Why it is out.** Because asserting a count would be a claim about conduct with no artifact behind
 it. The author's recollection ("we did not change much") is consistent with the code, but a
