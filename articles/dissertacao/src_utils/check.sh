@@ -269,6 +269,16 @@ gate "== the author-facing verification commands actually return what they claim
 # is actually verified is never overstated.
 if ! python3 "$UTILS/check_verify_list.py"; then FAIL=1; fi
 
+gate "== Appendix B errata row counts vs the appendix's own claim =="
+# Wired 2026-07-30 on the Chapter-text track's recommendation. It shipped a row-count claim in
+# apx_b_errata.tex whose own verification command could not produce the counts it asserted -- caught
+# by a reviewer, not by the gate suite. This reconciles the printed totals against the actual rows.
+if [ -f "$UTILS/count_errata_rows.py" ]; then
+  if ! python3 "$UTILS/count_errata_rows.py"; then FAIL=1; fi
+else
+  echo "  SKIP: count_errata_rows.py absent -- if it was deleted, delete this block too."
+fi
+
 gate "== audit APPLIED claims re-measured against the source (round 8: 8 of 9 were false) =="
 # THE GATE THAT DID NOT EXIST. On 2026-07-28 an outcome table recorded sixteen findings as APPLIED;
 # on 2026-07-30 eight of the author's nine instructions were still not in the document, five of them

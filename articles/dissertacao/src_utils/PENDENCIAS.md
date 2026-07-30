@@ -559,6 +559,37 @@ clausula dizendo que o Cap. 4 reporta a faixa do dump que aquele estudo usou. Na
 > DECISAO: Busque pelo que o artigo original cita e vamos usar isso em ambos. Inclusive ambos usaram o mesmo recorte não
 > houve diferença.
 
+### 5.6b A premissa da sua decisao 5.6 nao e o que os arquivos mostram — resolvi imprimindo AS DUAS datas
+
+**Medido em 2026-07-30, nos cinco parquets que este trabalho consome.** Sua decisao no 5.6 foi
+*"Busque pelo que o artigo original cita e vamos usar isso em ambos. Inclusive ambos usaram o mesmo
+recorte nao houve diferenca."* A primeira metade foi cumprida: o `cho2011gowalla` foi aberto em
+primeira mao (PDF dos proprios autores, Secao 2, p.2) e ele diz **Fev 2009 a Out 2010**.
+
+**A segunda metade nao se sustenta.** Os cinco estados usados nao param em Out 2010:
+
+| estado | primeiro check-in | ultimo check-in | n |
+|---|---|---|---|
+| Alabama | 2009-03-18 | 2011-07-27 | 113.846 |
+| Arizona | 2009-03-26 | 2011-07-04 | 236.450 |
+| Florida | 2009-03-13 | 2011-08-11 | 1.407.034 |
+| Texas | 2009-01-21 | **2011-08-16** | 4.089.892 |
+| California | 2009-01-24 | 2011-08-14 | 3.171.380 |
+
+Uniao: **2009-01-21 a 2011-08-16** — dez meses depois da janela que o artigo declara.
+
+**Por que isso importa e nao e frescura.** A frase esta no Cap. 6 sob a limitacao *"Data vintage"*.
+Ali o leitor le a data como **a safra dos dados que voce usou**, nao como uma nota sobre o que outro
+artigo coletou. Imprimir so Fev 2009–Out 2010 subestimaria o proprio corpus em dez meses.
+
+**O que eu fiz.** A frase agora carrega as duas datas: o que os autores relatam, e o que a extracao
+daqui abrange, com a medicao completa e o comando no comentario de proveniencia do
+`6_conclusion.tex`. Nao e uma correcao da sua decisao — voce estava decidindo **qual fonte citar**, e
+essa parte esta cumprida.
+
+> **DECISAO SUA.** Se voce preferir imprimir **so** a janela do artigo, a clausula depois da virgula e
+> a que sai, e eu removo. Marcado com `[NEEDS SIGN-OFF: PENDENCIAS 5.6, round8]` no fonte.
+
 ### 5.7 Cap. 5: quebrar o paragrafo de integridade, sem mudar uma palavra
 
 **(A) O que falta.** Sua decisao: *"Podemos aplicar as quebras de linha no cap 5."* O bloco continua **um paragrafo

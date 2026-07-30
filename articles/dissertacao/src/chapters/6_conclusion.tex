@@ -224,10 +224,32 @@ path between those poles, with the decisive variable named and tested.
 Six limitations bound the scope of these conclusions.
 
 \begin{enumerate}
-  \item \textbf{Data vintage.} The five state datasets come from Gowalla, whose public
-        check-ins were collected between February 2009 and October 2010
-        \cite{cho2011gowalla}; mobility patterns, place inventories, and
-        check-in behavior have changed since.
+% [round8, 2026-07-30, PENDENCIAS 5.6] BOTH DATES, because they are different facts and one of them
+% was about to be printed alone. The author's decision was "busque pelo que o artigo original cita e
+% vamos usar isso em ambos", and a track did exactly that: opened cho2011gowalla first-hand (authors'
+% posted PDF, cs.stanford.edu, Section 2 p.2) and put Feb 2009 - Oct 2010 here. Correct as a statement
+% ABOUT THAT PAPER, and wrong as a statement about this work's data, which is what a limitation headed
+% "Data vintage" is read as.
+% MEASURED on the five parquet files this work consumes (columns: local_time; command below):
+%   Alabama    2009-03-18 .. 2011-07-27   n=113,846
+%   Arizona    2009-03-26 .. 2011-07-04   n=236,450
+%   Florida    2009-03-13 .. 2011-08-11   n=1,407,034
+%   Texas      2009-01-21 .. 2011-08-16   n=4,089,892
+%   California 2009-01-24 .. 2011-08-14   n=3,171,380
+%   union 2009-01-21 .. 2011-08-16 -- TEN MONTHS past the window the paper states.
+%   python3 -c "import pandas as pd,glob,os
+%   for f in ['Alabama','Arizona','Florida','Texas','California']:
+%       t=pd.to_datetime(pd.read_parquet(f'/Users/vitor/Desktop/mestrado/data/checkins_by_state/{f}.parquet')['local_time'],errors='coerce')
+%       print(f, t.min(), t.max(), len(t))"
+% The author's premise in 5.6 ("ambos usaram o mesmo recorte, nao houve diferenca") is therefore not
+% what the files show. Not a defect in his decision -- he was ruling on which SOURCE to cite -- but the
+% sentence now carries both dates rather than silently understating this work's own span by 10 months.
+% [NEEDS SIGN-OFF: PENDENCIAS 5.6, round8, 2026-07-30 | two dates instead of one. If he prefers only
+% the paper's window, the clause after the comma is the one to cut.]
+  \item \textbf{Data vintage.} The five state datasets come from Gowalla. Its authors report collecting public
+check-ins between February 2009 and October 2010~\cite{cho2011gowalla}, while the extraction
+used here spans January 2009 to August 2011 across the five states; mobility patterns, place
+inventories, and check-in behavior have changed since either date.
 % [COD/PENDENCIAS 5.6, round8, 2026-07-30] "collected between 2009 and 2011" -> "collected between
 % February 2009 and October 2010", with the citation added. Author decision, PENDENCIAS 5.6: "Busque
 % pelo que o artigo original cita e vamos usar isso em ambos. Inclusive ambos usaram o mesmo recorte
