@@ -36,6 +36,17 @@ two is itself a defect this repository has hit. This file started as a gate on C
 table and now also gates FIXES THIS PROJECT MADE ON ITS OWN INITIATIVE -- the `R8-` probes. The reason
 is measured, not precautionary: a review pointed out that nothing gated round 8's own repairs, and
 reverting each of the three left all 22 gates green.
+
+  BASELINE PROVENANCE, corrected 2026-07-30 after a second review. The first two legs (the Ch.5
+  glossary word, the Ch.6 two-date sentence) were measured validly. THE THIRD WAS NOT, at the time I
+  wrote that sentence: my wrapper sabotage injected `\footnotesize` next to `\begin{document}` in
+  preamble.tex, and all seven occurrences of that anchor there are inside `%` comments -- the same
+  stripping I diagnosed one cell later for the probe-validation run, and never went back to re-take for
+  the baseline. So "all three left 22 gates green" was two measurements and one stripped no-op.
+  RE-TAKEN PROPERLY: R8-bibfont removed from PROBES, the wrapper inserted on the first LIVE line, the
+  token asserted present in live_text(), then every gate read directly -- 11 checkers, check.sh, all
+  rc=0, zero gates catching it. The claim survives; the warrant did not exist when it was written, which
+  is the more instructive half.
   R8-head / R8-head2  the Ch.5 glossary violation ("region head" -> "region output", and the repo
                       shorthand -> "region-transition prior"), fixed in 48c4d01d
   R8-vintage          the Ch.6 data-vintage item printing BOTH Gowalla windows, the paper's stated one

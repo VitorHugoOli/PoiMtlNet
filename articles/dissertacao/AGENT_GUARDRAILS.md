@@ -373,7 +373,11 @@ the work*, and that is where the time went. The four root causes, with the count
   defect you just wrote up.** Round 8 built a gate for the inherited audit's claims and applied nine of
   its own fixes with nothing gating any of them: reverting the Ch.5 glossary word, collapsing the Ch.6
   two-date sentence, or restoring the bibliography wrapper each left ALL 22 GATES GREEN, measured by
-  sabotage rather than assumed. Worse, REV-024 was archived as closed on a single measurement -- the
+  sabotage -- with one caveat that is itself the rule: the wrapper leg was FIRST measured with a sabotage
+  injected next to `\begin{document}` in preamble.tex, where all seven occurrences of that anchor sit
+  inside `%` comments, so the token was stripped and that leg measured nothing. It was re-taken on a
+  live line, with the token asserted present in live_text(), before this rule was allowed to keep the
+  word "measured". Worse, REV-024 was archived as closed on a single measurement -- the
   exact shape the same session had written up as unre-checkable (a measurement without its tree state
   can only be re-taken, never re-checked). So: adding a probe is PART OF applying a fix, not a later
   tidy-up, and the test is mechanical -- revert the edit; if the suite stays green, the fix is
@@ -383,6 +387,17 @@ the work*, and that is where the time went. The four root causes, with the count
   there is stripped and the probe's correct `holds` reads exactly like a probe that never fires.
   Finally, when a gate's coverage grows past what its docstring claims, the docstring is the defect --
   state the new scope in the same commit.
+
+  **V15b, the corollary that cost three invalid runs in one window.** A sabotage measurement has TWO
+  failure modes that print identically to success, and both bit here on the same afternoon: the
+  substitution can fail to apply (wrong anchor -- a line wrap fell between "extraction" and "used", and
+  an assert stopped the script mid-way so the green rc below it belonged to an unsabotaged tree), or it
+  can apply to text the instrument never reads (injected beside an anchor whose every occurrence is
+  commented, so the stripper removed it). Neither produces an error; both produce a clean run. **So a
+  sabotage is not evidence until you assert BOTH that the file changed AND that the change reaches the
+  text the instrument evaluates** -- for a comment-stripping checker that means asserting the token
+  appears in live_text(), not merely in the file. Keep sabotage and measurement in one shell, and never
+  let an assert-guarded setup script's later steps be assumed from an earlier step's exit code.
 
 **V14. A parallel track's self-report is not evidence that its edit landed, and an outcome table is a
   claim about the work.** This is the rule the whole 2026-07-30 recovery round exists to write.
