@@ -475,6 +475,23 @@ existe mais" e uma medicao, e essa e minha.
 - **Probe in `check_audit_claims.py`:** none yet. A probe lands in the same commit as the fix, never as a later tidy-up (GUARDRAILS §4b V15).
 - **Registry terms inside the quote:** `next place`
 - **Build commit the measurement was taken against:** `d4078c75`
+
+- **CORRECTED 2026-07-30, after the citation auditor's pass.** My block said the decisive paper's
+  content could not be established. The repository had already established it: `src/references.bib`
+  lines 1148-1152 carry a provenance block, brought over from the MobiWac paper's own bibliography,
+  recording a verification **against the Springer article page on 2026-07-06** and its finding —
+  HAMTL jointly predicts the next location and its category, and **its location target is
+  venue-level**. On that record the chapter's claim of absence is not threatened by this paper, and
+  the sentence at `5_mobiwac/02_related.tex`:92-94 that says so is supported rather than floating.
+  What this session could not do is independently reproduce that read: the article is closed access,
+  the configured Springer key returns 401 on every documented endpoint, and the landing page redirects
+  to an authentication gate I did not route around. **The item stays BLOCKED**, because what it
+  actually asks for is a systematic count of MTL-for-POI work and no single paper settles that. But
+  the question the author most likely wants answered — does this paper break the novelty claim — is
+  **probably no, on the repo's own recorded reading.** I reached the wrong status by treating "I could
+  not open it this session" as "it is unverified", without checking whether the repository had already
+  done the work; the bibliography's provenance comments are a source of record and cost one grep.
+
 ### FAB-29 — fixes ???
 
 - **Reviewer:** Fabricio, written

@@ -919,6 +919,79 @@ paginas. A arvore da **102/99/103**. O `sync_page_counts.py` varria so `CLAUDE.m
 hora (a outra esteira somou uma pagina ao §2.3 entre uma medicao e a seguinte).
 
 > **DECISAO SUA:** nada aqui. Fica como registro.
+
+### 6.10 Tres bloqueadores das personas de revisao — todos conferidos por mim no fonte
+
+As quatro personas de fato (04 concordancia, 05 citacoes, 06 numeros, 07 alegacoes/honestidade)
+rodaram contra o build `03b53d16`. Relatorios em `_round9/reviews/`, resumo em
+`_round9/37_reviewer_gate_round9.md`. **Tres bloqueadores.** Reconferi os tres abrindo o fonte, porque
+auto-relato de persona nao e evidencia (L6). Os tres sao decisao sua: dois sao alegacoes de conteudo e
+o terceiro tem duas saidas de custo diferente.
+
+#### BLQ-1 — o Apendice F diz que o compartilhamento duro "nao custa nada", e chama de duro a topologia errada
+
+**Onde:** `chapters/apx_f_cosine.tex`:290, renderiza na p. 101 do build de defesa.
+**Texto:** "That is why hard sharing costs nothing in this architecture, and why
+Chapter~\ref{ch:mobiwac} finds no balancer improving on a fixed loss weighting".
+
+**Dois defeitos numa clausula, os dois confirmados no fonte:**
+1. A afirmacao de custo e **irrestrita**, e o proprio documento a desmente:
+   `5_mobiwac/06_results.tex`:145-146 registra o ganho de regiao indo "from $-0.41$ at the smallest
+   count to $+2.20$ at the largest". Existe celula negativa, e o Cap. 5 a chama de deficit pequeno
+   mas estatisticamente significativo.
+2. A arquitetura do Cap. 5 **nao e compartilhamento duro** pela definicao do proprio Cap. 2:
+   `5_mobiwac/01_introduction.tex` a descreve como "a shared trunk (a cross-attention stack where the
+   two tasks exchange semantic context) and a private spatial path for the region task".
+
+1. **Trocar pela afirmacao licenciada, que o Cap. 5 ja usa: "sharing stopped hurting" (p. 80),
+   nomeando a topologia como tronco de atencao cruzada** — corrige os dois defeitos numa frase, nao
+   perde o argumento (o ponto do apendice e a ortogonalidade, nao o custo), ~10 min
+2. **So restringir o custo ("costs nothing on the category task", ou "at four of the six datasets")**
+   — mantem a palavra "custo", mas continua chamando a topologia de compartilhamento duro
+3. **Deixar como esta** — a frase e uma generalizacao irrestrita contra uma celula negativa medida no
+   mesmo documento; e o tipo de frase que uma banca localiza
+
+> **DECISAO SUA:** ______
+
+#### BLQ-2 — a resposta consolidada usa "everywhere" nu e colapsa a particao da regiao
+
+**Onde:** `chapters/6_conclusion.tex`:106, renderiza na p. 79. E a frase mais citavel da dissertacao.
+**Texto:** "outperforms the dedicated models on the category task everywhere and outperforms or
+matches them on the region task."
+
+**Confirmado contra a lei, que aqui e explicita.** `WRITING_LAW.md`:83 diz, literalmente, que a
+afirmacao de escala fica escopada aos cinco estados e **bare "everywhere" never**; a linha 75 proibe
+"outperforms region everywhere" por nome. E "outperforms or matches" joga fora a particao
+quatro-de-seis / TOST que a redacao protegida exige — particao que **este mesmo capitulo enuncia
+corretamente na pagina anterior**.
+
+1. **Reescrever com a particao explicita: supera nas seis para categoria; para regiao, supera em
+   quatro dos seis e nao e inferior (TOST, +/-2 pp) nos outros dois** — e a redacao protegida, ja
+   usada duas vezes no mesmo capitulo, ~15 min
+2. **Manter "everywhere" so para categoria (onde e verdade nas seis) e abrir a particao so na regiao**
+   — mais curto, mas "everywhere" nu esta proibido pela linha 83 sem excecao por tarefa
+3. **Deixar como esta** — contradiz a lei que voce mesmo escreveu, na frase que mais vai ser lida
+
+> **DECISAO SUA:** ______
+
+#### BLQ-3 — dois fatores de escala calculados na prosa, sem ledger e sem script
+
+**Onde:** `chapters/apx_f_cosine.tex`:317-319, p. 101.
+**Texto:** "this axis spans a factor of thirty-six in volume and one of sixteen in the size of the
+region label set".
+
+**Os numeros estao CERTOS** — 4.089.892 / 113.846 = 35,92 e 8.501 / 520 = 16,35, e os quatro extremos
+sao rastreaveis em `datasets.tex`. O achado nao e erro de conta: e que os dois fatores sao
+**derivados na prosa**, e N2/N3 mandam citar, nunca calcular. Nada os regenera quando um dataset muda.
+
+1. **Enunciar os quatro extremos (que ja sao rastreaveis) e cortar as razoes** — o leitor faz a divisao
+   se quiser; some a alegacao nao rastreavel, ~5 min
+2. **Manter as razoes e registra-las no ledger do apendice com o comando que as produz** — preserva a
+   frase como esta, custa uma linha de ledger e um probe
+3. **Deixar como esta** — dois numeros no volume construido sem origem registrada
+
+> **DECISAO SUA:** ______
+
 ---
 
 ## §3 · Aberto e bloqueado em terceiros
