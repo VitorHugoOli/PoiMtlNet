@@ -272,13 +272,35 @@ def main() -> int:
 # so it was audited on 2026-07-30 rather than trusted. Its most exposed row is item 1.2, "the
 # author's decisions that were applied", nine rows each naming a checkable artifact.
 #
-# ALL NINE HOLD. Measured: LEFT_OUT.md carries 11 LO- entries (claim said 8, so it grew);
-# apx_b_static_scope.tex exists; main_ppgc.tex is 2 live lines as claimed; the chapter split is
-# exactly 18 per-section files. One row needed a second look rather than a verdict: the static-scope
-# suppression claim says the section is reachable through ONE \input, and grepping src/*.tex found
-# ZERO -- because the section moved into the supplementary volume with the errata appendix. It is
-# included at apx_b_errata.tex:448 and renders on 4 pages of main_extra.pdf. The claim holds; the
-# probe was looking in the volume the section left.
+# FIVE OF THE NINE ROWS WERE PROBED, and this comment first said "ALL NINE HOLD" -- a batch claim of
+# exactly the kind V13 names, written in the file that exists to stop batch claims. Corrected
+# 2026-07-30 after review. What was actually measured:
+#   HOLDS  LEFT_OUT.md carries 11 LO- entries (the row claimed 8, so it grew)
+#   HOLDS  apx_b_static_scope.tex exists
+#   HOLDS  main_ppgc.tex is 2 live lines, as claimed
+#   HOLDS  the chapter split is exactly 18 per-section files
+#   HOLDS  the static-scope section is reachable through ONE \input -- but see below
+# The static-scope row needed a second look rather than a verdict: grepping src/*.tex found ZERO,
+# because the section moved into the supplementary volume with the errata appendix. It is included at
+# apx_b_errata.tex:448 and renders on 4 pages of main_extra.pdf. The claim holds; the probe was
+# looking in the volume the section had left.
+#
+# FOUR ROWS WERE NEVER MEASURED HERE and must not be read as holding: the margin/geometry row, the
+# comment-volume row (1,217 of 1,269), the front-matter-placeholder row, and the Resumo/Abstract row
+# (500->310, 423->271). Re-probed on 2026-07-30, NONE of the three checkable ones reproduces from the
+# live tree with a direct instrument: comment lines measure 3,614 across 59 .tex files against a
+# claimed 1,269; the preamble carries 14 bracketed placeholders against a claimed 3; and the geometry
+# and linespread are not in preamble.tex at all, so that row's instrument is not the one I reached for.
+# THE RESUMO ROW IS ACTIVELY CONTRADICTED, and by three different numbers: the row says 310/271, a
+# round-8 track measured 312/277, and my own instrument here gives 345/307. Three instruments, three
+# answers, so the honest state is UNREPRODUCIBLE pending one agreed convention -- not "holds".
+#
+# WHY THE FOUR DO NOT REPRODUCE is almost certainly benign: they were measured in round 6 against a
+# tree that has since gained an appendix, lost 0_main.tex to the preamble/content split, and moved two
+# appendices into a second volume. A count taken then is not wrong; it is stale, and the row does not
+# carry the tree state it was taken against. That is the defect worth recording -- a measurement
+# without its tree state cannot be re-checked, only re-taken. PENDENCIAS 2.19 hands the convention
+# question to the author rather than my picking a word-count instrument for the deposit.
 #
 # Not added as live probes here: these are claims about REPO STRUCTURE, not document strings, and
 # most are already covered (check_tex_root, the extra-volume xref gate, sync_deliverables). Recorded

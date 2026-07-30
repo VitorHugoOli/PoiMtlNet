@@ -839,6 +839,43 @@ git push origin refs/notes/commits
 
 Sem isso a mensagem falsa viaja e a correcao fica na sua maquina, que e pior do que nao ter corrigido.
 
+### 2.19 Quatro numeros do registro de itens fechados nao reproduzem, e um deles tem TRES respostas
+
+**Encontrado por revisao em 2026-07-30, depois de eu ter certificado nove linhas tendo medido cinco.**
+O item 1.2 do `_archive/PENDENCIAS_RESOLVIDOS.md` ("as decisoes suas que foram aplicadas") tem nove
+linhas. Eu medi cinco, escrevi "TODAS AS NOVE CONFEREM", e uma esteira paralela mediu, na mesma
+sessao, um numero que contradiz uma das quatro que eu nao havia medido.
+
+**As cinco que conferem de fato:** `LEFT_OUT.md` com 11 entradas (a linha dizia 8, entao cresceu),
+`apx_b_static_scope.tex` existe, `main_ppgc.tex` tem 2 linhas vivas, a divisao em 18 arquivos por
+secao, e o `\input` unico da secao de escopo estatico (que hoje vive no volume suplementar).
+
+**As quatro que NAO reproduzem, medidas agora:**
+
+| linha do 1.2 | o que ela afirma | medido em 2026-07-30 |
+|---|---|---|
+| Resumo/Abstract | 310 / 271 palavras | **tres respostas**: 310/271 (relatorio), 312/277 (esteira do round 8), 345/307 (meu instrumento) |
+| Volume de comentarios | 1.217 de 1.269 linhas | 3.614 linhas de comentario em 59 arquivos `.tex` |
+| Front matter | 3 placeholders entre colchetes | 14 no `preamble.tex` |
+| Margens/entrelinha | 3/2/3/2 cm, 1,500x | `geometry` e `linespread` nao estao no `preamble.tex` |
+
+**Por que isso provavelmente e inofensivo, e por que ainda assim importa.** Esses numeros foram
+medidos na rodada 6, contra uma arvore que desde entao ganhou um apendice, perdeu o `0_main.tex` na
+divisao preamble/content, e mandou dois apendices para um segundo volume. Nao estao *errados* — estao
+*velhos*. **O defeito real e que nenhum deles registra contra qual estado da arvore foi tomado**, e uma
+medicao sem esse estado nao pode ser re-conferida, so re-tomada. As tres primeiras linhas provavelmente
+tambem mudaram de instrumento (o que conta como "linha de comentario" e "palavra" mudou entre rodadas).
+
+> **DECISAO SUA, e e uma so.** Qual instrumento de contagem de palavras vale para o Resumo e o Abstract
+> no deposito? Ha tres respostas em circulacao porque ha tres convencoes (hifenizacao rejuntada ou nao,
+> numeros contam ou nao, o bloco de palavras-chave entra ou nao). **Eu nao escolho isso por voce**: o
+> limite da UFV, se houver, e o que decide, e um numero de palavras impresso no deposito e seu. Diga a
+> convencao e eu fixo uma, aplico, e ponho o comando no arquivo para que a proxima leitura seja
+> conferencia e nao investigacao.
+>
+> As outras tres linhas nao pedem nada de voce: sao numeros de um registro fechado, e ja estao
+> marcados como nao-reproduziveis no `check_audit_claims.py`.
+
 ### 2.18 Um `refs/notes/commits` foi para o `origin` sem eu ter pedido, e a decisao de remover e sua
 
 **Medido em 2026-07-30, nada foi alterado no remoto.** `git ls-remote origin | grep notes` retorna
@@ -850,12 +887,22 @@ Sem isso a mensagem falsa viaja e a correcao fica na sua maquina, que e pior do 
 `* [new reference] refs/notes/commits`. Um sub-agente reportou isso por conta propria, incluindo o
 fato de ter subestimado o escopo na primeira vez que descreveu.
 
-**O que ha nesses notes: 14 anotacoes, e todas sao correcoes de mensagens de commit minhas.** Cada
+**O que ha nesses notes: 15 anotacoes, e todas sao correcoes de mensagens de commit minhas.** Cada
 uma diz que uma frase de commit era falsa e qual e a medicao correta — a convencao deste repositorio
 para nao reescrever historia. Sao, literalmente, o registro dos meus proprios erros.
 
-**Por que provavelmente nao e grave.** Os 14 commits anotados **nao estao em nenhum branch do
-`origin`**: `git branch -r --contains <hash>` retorna zero para todos. Sao objetos alcancaveis apenas
+**Por que provavelmente nao e grave — agora medido em TODOS, nao em seis.** A primeira versao deste
+item afirmava "os 14 commits anotados nao estao em nenhum branch do origin" a partir de uma sondagem
+que rodou com `head -6`: **oito nunca foram checados**, e a recomendacao abaixo repousava nessa
+generalizacao. Re-medido sem o `head`, e a contagem tambem estava errada — sao **15** notes, nao 14:
+
+```
+for h in $(git notes list | awk '{print $2}'); do
+  git branch -r --contains "$h" | grep -c "origin/"; done
+# checked=15  on_public_branch=0
+```
+
+**15 de 15 verificados, zero em qualquer branch do `origin`.** Sao objetos alcancaveis apenas
 pelo ref de notes, nao historia visivel de nenhum branch publico. Quem clonar o repositorio **nao
 recebe notes por padrao** (precisa de `git fetch origin refs/notes/*:refs/notes/*`).
 
