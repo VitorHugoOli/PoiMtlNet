@@ -415,6 +415,18 @@ all four files; the cause was `git` exiting 128 on an unreadable global config, 
 newline-wrapped page text, not absent prose. Both were caught by asserting a control I had already
 seen on screen. Every page number in this report comes from the second, validated pass.
 
+## Out-of-scope handoff (one line, per `reviewers/README.md` §7)
+
+`src/chapters/apx_f_cosine.tex:356` says *"WRITING_LAW §4 now carries the general rule (process
+narration)"*, but the ban is at `WRITING_LAW.md:36`, inside `## 1 · Register` (line 14) and well
+before `## 4 · AI-tell law` (line 119); `check_process_narration.py:10` has it right ("The rule is
+now WRITING_LAW §1"). **Not a finding of mine** — it is a `%` comment, so no reader receives it, and
+my remit is what the reader receives. It is a stale cross-reference that will send the next agent to
+the wrong section, which is why it is worth one line. Verified independently in the current tree, not
+taken from another reviewer's report.
+
+---
+
 **Quote fidelity, self-audited.** I re-checked all 19 blockquote lines and all 8 table quotes in
 this report as substrings of the extracted render. **All match** except two, both artifacts of my
 own comparison and neither a misquote: (a) the extractor emits "𝑤𝑘 ," with a space before the comma
