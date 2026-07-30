@@ -221,14 +221,21 @@ def orphaned_items() -> list[str]:
     repo = TRACKER.resolve().parents[3]
     rel_t = str(TRACKER.resolve().relative_to(repo))
     rel_a = rel_t.replace("PENDENCIAS.md", "_archive/PENDENCIAS_RESOLVIDOS.md")
+    # COMPARE AGAINST HEAD, NOT HEAD~1. Validated by sabotage on 2026-07-30 and the first version was
+    # WRONG: it read HEAD~1, so an item added in the most recent commit and then deleted in the working
+    # tree was invisible (it never existed in HEAD~1, so "gone" could not be detected). Deleting a
+    # committed item produced rc=0 -- a gate reporting clean on the exact defect it was written for.
+    # HEAD is the right baseline: the question is "did an item that the repository knows about leave
+    # the working file without being archived", and HEAD is what the repository knows.
     try:
         prev = subprocess.run(
-            ["git", "-C", str(repo), "show", f"HEAD~1:{rel_t}"],
+            ["git", "-C", str(repo), "show", f"HEAD:{rel_t}"],
             capture_output=True, text=True, timeout=20,
         )
     except Exception:
         return []
     if prev.returncode != 0 or not prev.stdout:
+        # git unavailable or the file is not committed yet -- not a pass, but nothing to compare.
         return []
 
     def titles(text: str) -> dict[str, str]:
@@ -259,14 +266,29 @@ def orphaned_items() -> list[str]:
 def main() -> int:
     self_test()
     problems = scan()
-    misfiled = nesting_problems() + orphaned_items()
+    # Two DIFFERENT defect classes, reported separately. They shared one FAIL message until
+    # 2026-07-30, so an orphaned item was announced as "filed under the wrong section" -- a message
+    # that sends the reader to move a heading when the actual repair is to archive an item or restore
+    # it. A gate that fires with the wrong diagnosis costs almost as much as one that does not fire.
+    misfiled = nesting_problems()
+    orphaned = orphaned_items()
     severed = severed_items()
-    for m in misfiled + severed:
+    for m in misfiled + orphaned + severed:
         print(m)
+    if orphaned:
+        print(f"\nFAIL: {len(orphaned)} item(s) left the tracker without reaching "
+              f"_archive/PENDENCIAS_RESOLVIDOS.md. An item that vanishes is worse than one marked "
+              f"wrongly: nothing points at it, so nobody looks. Either archive it with its outcome, "
+              f"or restore it -- three items were lost this way (2.2, the Ch.4 italics item, and "
+              f"REV-024) and the author found two of them by reading the file.")
     if misfiled:
         print(f"\nFAIL: {len(misfiled)} item(s) filed under the wrong section. A reader navigating "
               f"by heading will not find them, and every citation still resolves, so nothing else "
               f"catches this. Move them under their own §N.")
+    # ONE return for both classes. Until 2026-07-30 the `return 1` sat inside the misfiled branch, so
+    # an orphaned item printed its FAIL banner and then exited 0 -- the loudest possible way for a gate
+    # to pass. Caught by sabotage (delete a committed item, read the exit code), not by reading.
+    if misfiled or orphaned:
         return 1
     if severed:
         print(f"\nFAIL: {len(severed)} item(s) sit past a horizontal rule that visually closes "
