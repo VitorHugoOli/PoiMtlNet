@@ -287,9 +287,24 @@ consequences follow.
 
 The first is about gradient balancers. Nash-MTL and the family around it exist to resolve exactly
 the disagreement measured here, reweighting or reprojecting task gradients so a dominant task cannot
-overwrite a weaker one. Orthogonality leaves them nothing to resolve. That is why hard sharing costs
-nothing in this architecture, and why Chapter~\ref{ch:mobiwac} finds no balancer improving on a
-fixed loss weighting: the measurement explains the finding.
+% [round9, 2026-07-30] HARD-SHARING CLAUSE DELETED. It read "That is why hard sharing costs nothing in
+% this architecture, and why Chapter 5 finds no balancer improving on a fixed loss weighting". The
+% excellence persona found that the clause names a scheme the measured model does not use and no arm of
+% Chapter 5 tested, and I verified it before cutting rather than accepting the report:
+%   "hard sharing"/"hard-sharing" in Ch.5 live prose: 0 and 0. The single "hard parameter sharing" hit
+%   there describes the EARLIER study's configuration ("On a place-level embedding with hard parameter
+%   sharing, that joint model did not outperform..."), not an arm this chapter ran.
+%   Instrument validated in the same pass: the same patterns return 2, 9 and 1 in Chapter 3, so a zero
+%   in Chapter 5 is an absence and not a broken grep.
+%   Chapter 2 (p.22) defines hard parameter sharing as a common trunk splitting at the output heads;
+%   Chapter 5 (p.65) describes this model as exchanging information between per-task streams, "not by
+%   owning hidden layers in common". The two are opposites, so the claim was about a different model.
+% WRITING_LAW §3: a cost claim with no measured arm has no reference point. The balancer half IS
+% measured and stays; the replacement says plainly what the measurement does not cover.
+overwrite a weaker one. Orthogonality leaves them nothing to resolve. That is why Chapter~\ref{ch:mobiwac} finds no
+balancer improving on a fixed loss weighting: the measurement explains that finding. It says nothing
+about the cost of a common trunk, which this architecture does not use and no arm of that chapter
+tested.
 
 The second is about the arc of the three studies. The investigation opened on the hypothesis that
 the sharing scheme limited joint training, and the first study's null result was read that way at

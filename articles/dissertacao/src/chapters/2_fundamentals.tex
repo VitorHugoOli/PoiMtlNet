@@ -494,8 +494,24 @@ dedicated single-task models under the tests of Section~\ref{sec:fund:eval}.
 Conflict has a standard measure, and it is the quantity the gradient methods act on: the
 cosine of the angle between two tasks' gradients at the shared parameters, negative when
 the tasks disagree and near zero when their updates are close to orthogonal
-\cite{yu2020pcgrad}. Orthogonality is not a conflict resolved but a conflict absent, which
-puts a limit on what any of these methods can contribute. Appendix~\ref{apx:cosine}
+% [round9, 2026-07-30] SENTENCE CORRECTED, and it was a technical error, not a wording one. It read
+% "...which puts a limit on what any of these methods can contribute." FALSE for every method named
+% except PCGrad, and the MTL-expert persona proved it with a worked counter-example that I reproduced
+% numerically before accepting: for g1=[3,0], g2=[0,1] (cosine exactly 0), PCGrad's rule projects only
+% when the cosine is negative, so it is a no-op; MGDA's min-norm solution weights [0.10, 0.90] and
+% deviates 53.1 degrees from the equal-weight sum; Aligned-MTL sees a condition number of 3.0, a
+% system it exists to rescale. Uncertainty weighting and GradNorm never read the angle at all.
+% THE DISSERTATION ALSO CONTRADICTED ITSELF: Chapter 5 (5_mobiwac/02_related.tex) reports Nash-MTL
+% exceeding equal weighting on next-category at Alabama by 0.68 points. If orthogonality left a
+% balancer nothing to contribute, that number could not exist.
+% The replacement keeps the true half (the angular channel is empty, which is PCGrad's channel) and
+% states what the others still do, tied to the measurement this document actually has.
+\cite{yu2020pcgrad}. Orthogonality is not a conflict resolved but a conflict absent, so the
+surgical correction that projects one gradient away from another has nothing to project
+\cite{yu2020pcgrad}. The other methods are not idle at that angle: they read the Gram matrix of
+the task gradients or the task losses, so they still respond to differences in gradient
+magnitude, and Chapter~\ref{ch:mobiwac} records two of them exceeding equal weighting on one
+dataset and losing that position on the others. Appendix~\ref{apx:cosine}
 measures the cosine on the joint model of Chapter~\ref{ch:mobiwac} and finds the two
 tasks' gradients statistically indistinguishable from orthogonal on the datasets measured
 there; it reads that result as the reason no balancing method improved on a fixed
