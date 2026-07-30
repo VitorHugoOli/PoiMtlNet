@@ -128,7 +128,7 @@ nos IDs estaveis deste arquivo, o **GER-09** e o **GER-11**; e o "ponto no fim d
 `CONSIDERATIONS.md` **foi** executado nesta rodada, no sentido de estar medido e dividido, mas **nenhum
 item foi aplicado a nenhum capitulo** — que e provavelmente o que ela queria dizer.
 
-> **DECISAO SUA:** nada aqui. Este item esta fechado; o que espera voce esta no **§6**.
+> **AUTHOR:** nada aqui. Este item esta fechado; o que espera voce esta no **§6**.
 
 *Forense: `_round9/31_stale_quote_pass.md` (o passe de obsolescencia, incluindo os dois instrumentos
 meus que estavam quebrados e como cada um foi pego).*
@@ -174,6 +174,9 @@ impossivel apenas sob um limite que nos mesmos definimos.**
 *Forense completa (a corrida de harvest, o gate de distincao por md5 validado por sabotagem, o `c.download()` que
 achatou quinze arquivos em cinco, e o cap que era nosso): [`_round9/30_cosine_six.md`](_round9/30_cosine_six.md).*
 
+> **AUTHOR:** Vamos um pouco ainda mais longe, voce pode editar o Cap. 5 tanto o artigo original quanto o da
+> dissertacao, como estamos um fase de revisão no mobiwac, conseguimos mandar uma revisão ainda.
+
 ### 2.11 A assimetria do resultado de regiao: o Cap. 5 ressalva, e o resto do documento nao
 
 **Origem:** `_round6/VERIFY_LIST.md` itens 4 e 5 (achado L-5 do ledger), entregues em 2026-07-30.
@@ -208,8 +211,10 @@ ledger).
 > **Eu nao decido isto** porque muda o que o Resumo e a Conclusao afirmam sobre o resultado
 > principal do Cap. 5, que e prosa sua sobre um resultado seu.
 
-> DECISAO: Na verdade se esses resultados forem de grande importancia e algo importante para narrativa, vale deixar eles
-> como primario é só alterar o mobiwac, ao invés do outros textos, o que acha ? Se não concorda vide a narrativa do texto vamos de A
+> **AUTHOR:**  Na verdade se esses resultados forem de grande importancia e algo importante para narrativa, vale deixar
+> eles
+> como primario é só alterar o mobiwac, ao invés do outros textos, o que acha ? Se não concorda vide a narrativa do
+> texto vamos de A
 
 ### 2.12 `Pareto-stationary point` esta na prosa e nao esta no registro (o `GLOSSARY` e fail-closed)
 
@@ -286,6 +291,9 @@ sua propria palavra (l. 98 deste arquivo) e a do Germano (`articles/[mobiwac]/RE
 > compressao e a que a literatura de MTL costuma fazer, entao **deixei como esta**. Se quiser corrigir,
 > e uma linha de errata no Apendice B, e a decisao e sua.
 
+> **AUTHOR:** Otimo trabalho, pode adicionar essa linha no appendix B, para termos conhecimento desse detalhe menor e
+> não deixar passar batido.
+
 ### 2.14 O intervalo de paginas do `nash`: nao da para verificar daqui
 
 **Origem:** `_round6/VERIFY_LIST.md` item 14, entregue em 2026-07-30 (precedente `standley2020tasks`).
@@ -307,6 +315,32 @@ pode ser apresentado como conferido. O campo esta no `.bib` e nao esta verificad
 
 > **(a)** confirmar o intervalo e ele fica; **(b)** apagar o campo `pages`, que e exatamente o
 > precedente que esta bibliografia ja adotou para `standley2020tasks`.
+
+> **AUTHOR:** I get from the website:
+> @InProceedings{pmlr-v162-navon22a, title = {Multi-Task Learning as a Bargaining Game}, author = {Navon, Aviv and
+> Shamsian, Aviv and Achituve, Idan and Maron, Haggai and Kawaguchi, Kenji and Chechik, Gal and Fetaya, Ethan},
+> booktitle = {Proceedings of the 39th International Conference on Machine Learning}, pages = {16428--16446}, year =
+> {2022}, editor = {Chaudhuri, Kamalika and Jegelka, Stefanie and Song, Le and Szepesvari, Csaba and Niu, Gang and
+> Sabato,
+> Sivan}, volume = {162}, series = {Proceedings of Machine Learning Research}, month = {17--23 Jul}, publisher = {PMLR},
+> pdf = {https://proceedings.mlr.press/v162/navon22a/navon22a.pdf},
+> url = {https://proceedings.mlr.press/v162/navon22a.html}, abstract = {In Multi-task learning (MTL), a joint model is
+> trained to simultaneously make predictions for several tasks. Joint training reduces computation costs and improves
+> data
+> efficiency; however, since the gradients of these different tasks may conflict, training a joint model for MTL often
+> yields lower performance than its corresponding single-task counterparts. A common method for alleviating this issue
+> is
+> to combine per-task gradients into a joint update direction using a particular heuristic. In this paper, we propose
+> viewing the gradients combination step as a bargaining game, where tasks negotiate to reach an agreement on a joint
+> direction of parameter update. Under certain assumptions, the bargaining problem has a unique solution, known as
+> the <em>Nash Bargaining Solution</em>, which we propose to use as a principled approach to multi-task learning. We
+> describe a new MTL optimization procedure, Nash-MTL, and derive theoretical guarantees for its convergence.
+> Empirically,
+> we show that Nash-MTL achieves state-of-the-art results on multiple MTL benchmarks in various domains.} }
+> Intresting that in the google scholar use the citation:
+> @article{navon2022multi, title={Multi-task learning as a bargaining game}, author={Navon, Aviv and Shamsian, Aviv and
+> Achituve, Idan and Maron, Haggai and Kawaguchi, Kenji and Chechik, Gal and Fetaya, Ethan}, journal={arXiv preprint
+> arXiv:2202.01017}, year={2022} }
 
 ### 2.15 Tres citacoes NOT-SUPPORTED e um termo banido, todos em prosa publicada reproduzida
 
@@ -342,6 +376,9 @@ citacoes acima. Nenhum gate pega: o de codenomes casa
 > Multi-task Architecture Learning" e a versao de registro e AAAI 2019,
 > `10.1609/aaai.v33i01.33014822`, pp. 4822-4829). Decida as duas juntas para tocar a entrada **uma
 > vez** so.
+
+> **AUTHOR:** Vamos de troca em ambas, seguindo o caminho A, modificando os artigos originais e adicionando uma entrada
+> no appendix B.
 
 ### 2.16 Quatro artefatos publicados **divergiram** das copias locais (o item 2.2 cobria dois)
 
@@ -379,6 +416,8 @@ divergente e decisao de autor, nao faxina — nao toquei em nada.
 >
 > A prosa do Apendice A **nao depende disto**: ela ja diz que os scripts estatisticos *"are part of
 > the working repository and are supplied on request"*, o que nenhuma das leituras acima torna falso.
+
+> **AUTHOR:** Vamso publicar as alterações na brnach do mobiwac.
 
 ### 2.18 Um `refs/notes/commits` foi para o `origin` sem eu ter pedido, e a decisao de remover e sua
 
@@ -420,7 +459,7 @@ historia visivel de nenhum branch publico. Quem clonar o repositorio **nao receb
 > Eu recomendo a **2 + 3** se este repositorio for ficar publico com a defesa, e a **1** se ele
 > permanecer privado. Nao executei nenhuma delas porque mexer em ref publicado e sua alcada.
 
-> **DECISAO:** 2+3 
+> **AUTHOR:** 2+3
 
 ### 2.19 Quatro numeros do registro de fechados nao reproduzem; um tem tres respostas
 
@@ -435,6 +474,8 @@ foi tomado, e medicao sem isso so pode ser re-tomada, nunca re-conferida.
 > no deposito? Ha **tres** respostas (310/271 no relatorio, 312/277 de uma esteira, 345/307 do meu
 > instrumento) porque ha tres convencoes. Um numero impresso no seu deposito e seu. Diga a convencao,
 > eu fixo uma, aplico, e ponho o comando no arquivo.
+
+> **AUTHOR:**  310/271 no relatorio, eu não entendi porque há 3, mas o quantidade de plavras no resumo hoje são essas.
 
 ### 2.20 O Cap. 4 italiciza ingles corriqueiro 153 vezes, e este item DESAPARECEU do tracker sem decisao
 
@@ -475,8 +516,8 @@ nao tem nenhuma, e o proprio capitulo se contradiz.
 > Eu recomendaria a **2**, e nao aplico nada sem voce: e prosa de artigo publicado e o proprio item
 > dizia que a decisao e sua. `WRITING_LAW` nao cobre italico de estrangeirismo em capitulo traduzido,
 > entao nao ha regra para eu invocar.
- 
-> **DECISAO:** 2.
+
+> **AUTHOR:**  2.
 
 ### 2.21 O segundo ponto do seu orientador: como os termos entram
 
@@ -492,6 +533,9 @@ proibicoes da §3 ausentes, as 28 da §4 medidas (22 ausentes, 6 dentro da condi
 > trato uma por uma.
 
 *Medicao termo por termo: [`_round8/29_pendencias_detail.md`](_round8/29_pendencias_detail.md).*
+
+> **AUTHOR:** `license the verbs` em fundamentação téorica. Foi o unico termo que ele marcou e comnetou para ter cuidado
+> com o termos.
 
 ## §5 · Levantados do `CODEX_AUDIT.md` quando ele foi arquivado (2026-07-29)
 
@@ -566,6 +610,10 @@ cumprida.
 > a que sai, e eu removo. Marcado com `[NEEDS SIGN-OFF: PENDENCIAS_RESOLVIDOS 5.6 (arquivado 2026-07-30), round8]` no
 > fonte.
 
+> **AUTHOR:** Vamos usar só as datas que encontramos no database de 2009 a 2011, pode omitir que no artigo eles comentam
+> que é de 2009 a 20010. O need sing-off assim como os demais já resolvidos que estão no latex pode ser removidos não
+> precisam fica lá. Se quider documentar isso tem que ser em algum lugar do src_util.
+
 ## §6 · As decisoes que sairam do `CONSIDERATIONS.md` (round 9)
 
 > **De onde isto vem.** `CONSIDERATIONS.md` foi reescrito em 43 blocos com ID estavel: **20** itens eu
@@ -600,7 +648,13 @@ cumprida.
 2. **Dividir em duas frases curtas e manter o conteudo** — atende a queixa real (confusao) sem reabrir o aval; ~30 min
 3. **Levar a ele com o registro do aval na mao** — ele decide sabendo o que o paragrafo protege
 
-> **DECISAO SUA:** ______
+> **DECISAO SUA:** Eu também discordo, se compravarmos que esse pragrafo está correto. Ele fala que uma quarta tarefa
+> aprece no artigo ? Isso está errado, CBIC e COURB: poi category classification and next-category, já no mobiwac:
+> next-region and next-category, ou seja são 3 tarefas a um todo. Além disso eu acho que a frase:
+> `with the static classification of a place's category`, para explicar a tarefa de classificação de categoria de um poi
+> desconhecido, não está bem explicada é esta confusa. Isso é outro ponto a tarefa no 2 primeiros artigos era
+> classificação de categoria de um poi deconhecido, avalise se o restante do texto está tratando isso dessa forma. Também temos
+> que avaliar se esse error de 4 tarefas não aparece em outros lugares.
 
 #### FAB-27 — the table's chapter references are wrong
 
