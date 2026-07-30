@@ -33,6 +33,27 @@ repeat and expensive to notice:
      reported the defect as absent. The comment pattern must be `(?<!\\)%`.
 The stripper self-tests both directions (escaped % survives, real comment excluded) before this file
 reports anything, because a stripper that silently over-strips turns every probe into a false pass.
+
+HOW TO VALIDATE THIS GATE, because my first two attempts were both invalid and both looked like the
+gate failing to fire. Sabotage must reintroduce the defect THE WAY IT ORIGINALLY EXISTED:
+
+  1. WRONG -- copy src_utils and src to a temp tree and sed there. SRC resolves from __file__, so a
+     copied checker reads the copied src; that part is fine. What broke it is (2).
+  2. WRONG -- `sed 's/a user-disjoint statistical protocol/a leakage-guarded .../'`. That string does
+     not exist on any single line: objective 4 wraps, with "user-disjoint" ending one line and
+     "statistical protocol" opening the next. The sed matched only the PROVENANCE COMMENTS (which
+     quote the phrase unwrapped), so the live prose was untouched and the gate correctly reported
+     holds -- while I read it as the gate being blind.
+  3. RIGHT -- replace across the wrap, in place, then restore:
+       s.replace("in a user-disjoint\n        statistical protocol",
+                 "in a leakage-guarded\n        statistical protocol", 1)
+     with an assert that the substitution changed the text. Measured: rc=1 with the defect, naming
+     COD-003; rc=0 after restoring; `git diff` empty, so the file came back byte-identical.
+
+The irony is the point: the wrap that made my sabotage silently no-op is the SAME wrap that made a
+per-line probe score NUM-4's real fix as missing (trap 2 above). A test that cannot fail is worth
+nothing, and "the sabotage did not apply" and "the gate did not fire" look identical from the outside.
+Always assert that the sabotage changed something before believing what the gate says about it.
 """
 from __future__ import annotations
 
