@@ -51,11 +51,25 @@ registra o que foi feito em vez de pedir uma decisao.
 > **O que sobrou aqui espera VOCE, nao a mim.** Onde a medicao esta completa, o bloco `(A)/(B)/(C)`
 > diz exatamente o que falta e quanto custa cada saida.
 
-### 2.1 Os 53 marcadores `[NEEDS SIGN-OFF]` no fonte
+### 2.1 Os marcadores `[NEEDS SIGN-OFF]` no fonte — **54** medidos em 2026-07-30
 
-**O que e.** 53 pontos do fonte marcados como precisando do seu aval. Nenhum bloqueia build; o gate
-`check_verify_list` conta e a contagem bate. A lista completa, com arquivo, linha e o que cada um afirma, sai de:
-`grep -rn "NEEDS SIGN-OFF" src/ --include="*.tex" | grep -v ":\s*%"`.
+**O que e.** Pontos do fonte marcados como precisando do seu aval. Nenhum bloqueia build, e **nenhum aparece no PDF**:
+todos vivem em comentario `%`. **O numero anda** — tracks paralelas removem marcadores conforme voce decide, e ele caiu
+de 56 para 54 durante esta propria varredura. Confie no comando, nao no titulo:
+
+```bash
+cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
+grep -rc "\[NEEDS SIGN-OFF" src --include="*.tex" --exclude-dir=build | grep -v ":0$" | sort -t: -k2 -rn
+```
+
+Medido assim em 2026-07-30 sobre `5c074a2a` mais a arvore de trabalho: **54 marcadores em 21 arquivos** (52 com corpo
+`[NEEDS SIGN-OFF: ...]` e 2 retrovisores nus `[NEEDS SIGN-OFF]`); 58 se `src/build/` entrar, porque `build/fmt/_body.tex`
+e copia gerada — dai o `--exclude-dir=build`.
+
+*(O comando que estava aqui — `grep -rn ... | grep -v ":\s*%"` — imprimia **zero linhas** e saia `rc=1`: o `-v` casa o
+`%` do comentario em que cada marcador vive, entao removia justamente tudo o que devia contar. E nenhum gate conta estes
+marcadores: `check_verify_list` executa blocos documentados, nao mede esta contagem, ao contrario do que este item
+afirmava.)*
 
 **Tres tem prioridade** (afirmam algo sobre trabalho publicado ou co-autorado): o paragrafo corrigido do Apendice B
 sobre o Cap. 3, o numero limitado do Cap. 4 na conclusao, e a frase de reprodutibilidade enfraquecida. Estao detalhados
@@ -72,9 +86,15 @@ esta em [`_round8/29_pendencias_detail.md`](_round8/29_pendencias_detail.md).*
 **Voce autorizou:** *"pode aumentar, mas mantenha o espaco ja ocupado pela imagem... mantendo a proporcao"*, e observou
 que o contraste hoje ja deixa legivel.
 
-**Nao consigo fazer daqui:** nao ha `drawio` nem `inkscape` neste ambiente, e so **1 dos 2** `.drawio`
-esta no repositorio. A receita esta em `_round6/12_figures.md` (subir `fontSize` de 13 para ~20 e reexportar na mesma
-largura em pixels).
+**Nao consigo fazer daqui:** nao ha `drawio` nem `inkscape` neste ambiente. **Os dois `.drawio` estao no
+repositorio** — `figures/mtlnet_poi_new.drawio` (13.640 B, `fontSize=14`) e `figures/courb/arquitetura_modelo.drawio`
+(14.588 B, `fontSize=13`), medidos em 2026-07-30 com `find . -name '*.drawio'` (quatro no repo inteiro). A receita esta
+em `_round6/12_figures.md` (subir `fontSize` para ~20 e reexportar na mesma largura em pixels).
+
+*(Este bloco dizia **"so 1 dos 2"**. Era falso, e o commit `b89a9876` ja tinha diagnosticado exatamente isso — o
+instrumento era `ls src/figures/*.drawio`, glob nao-recursivo que nao ve `figures/courb/` — mas a correcao nao chegou ao
+arquivo. Tamanhos de tipo medidos, no `LEFT_OUT.md` LO-6: **45,3%** do corpo no do Cap. 3 e **44,4%** no do Cap. 4,
+contra corpo de 11,96 pt. O raster do Cap. 3 e byte-identico ao publicado do CBIC, conferido por sha256.)*
 
 > **Seu, quando quiser:** reexportar as duas no Draw.io e me passar os PNG — eu troco e remeco o tipo na
 > pagina. **Opcional**, pela sua propria observacao sobre o contraste.
@@ -623,17 +643,15 @@ Apendice D** no commit `4eea637a`. O arquivo continua `chapters/apx_f_cosine.tex
 letra.)
 
 **A conferencia fecha nos dois sentidos**, e as tres parcelas estao escritas como palavras de proposito:
-seis linhas corrigidas nesta esteira, cinco fechadas pela esteira do apendice do cosseno e uma aberta
-para voce, que somam as doze. Escrita com algarismos e um sinal de igual, esta frase ja se quebrou duas
-vezes num reflow, deixando o `12.` no inicio de uma linha, onde o markdown o le como item de lista
-numerada e a aritmetica desaparece da pagina.
+seis linhas corrigidas nesta esteira, cinco fechadas pela esteira do apendice do cosseno e uma aberta para voce, que
+somam as doze. Escrita com algarismos e um sinal de igual, esta frase ja se quebrou duas vezes num reflow, deixando o
+`12.` no inicio de uma linha, onde o markdown o le como item de lista numerada e a aritmetica desaparece da pagina.
 
-*(Este bloco dizia **nove ocorrencias** e "quatro/quatro/uma". Estava errado, e o erro foi pego por
-revisao, nao por mim: eu somei categorias de cabeca em vez de contar as linhas que o instrumento
-imprime. Medido rodando o gate sobre a arvore do `06529ed6` com o `OPEN_REGISTER` vazio, para que nada
-fique retido e todo achado imprima; o gate sai com `rc=1` e conta seis achados de grafia ou construcao
-britanica mais seis de fraseado, doze linhas ao todo. O detalhamento linha por linha, com o comando,
-esta na secao 1.3 do relatorio.)*
+*(Este bloco dizia **nove ocorrencias** e "quatro/quatro/uma". Estava errado, e o erro foi pego por revisao, nao por
+mim: eu somei categorias de cabeca em vez de contar as linhas que o instrumento imprime. Medido rodando o gate sobre a
+arvore do `06529ed6` com o `OPEN_REGISTER` vazio, para que nada fique retido e todo achado imprima; o gate sai com
+`rc=1` e conta seis achados de grafia ou construcao britanica mais seis de fraseado, doze linhas ao todo. O detalhamento
+linha por linha, com o comando, esta na secao 1.3 do relatorio.)*
 
 `chapters/3_cbic/conclusion.tex`, p. 43 do build de defesa:
 
@@ -699,13 +717,21 @@ Para conferir os nove de uma vez, do diretorio da dissertacao:
 cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
 for p in 'leakage-guarded' 'equivalence is well powered' 'unbalanced result for the MTL and single' \
          'revise that verdict by changing the input representation' 'mean reciprocal rank'; do
-  printf '%-58s %s\n' "$p" "$(grep -rl "$p" src/chapters/*.tex src/chapters/*/*.tex 2>/dev/null | tr '\n' ' ')"
+  printf '%-58s %s\n' "$p" "$(grep -rl "$p" src/chapters src/tables --include='*.tex' 2>/dev/null \
+    | while read -r f; do grep -v '^[[:space:]]*%' "$f" | grep -q "$p" && printf '%s ' "$f"; done)"
 done
 # EXPECT: lines=5
 ```
 
-Cinco linhas, cada uma nomeando o arquivo onde a frase ainda vive. Se uma linha vier vazia, aquele item foi resolvido
-depois desta varredura.
+Cinco linhas, cada uma nomeando o arquivo onde a frase ainda vive **em prosa**. Se uma linha vier vazia, aquele item foi
+resolvido depois desta varredura.
+
+**Rodado em 2026-07-30: quatro das cinco linhas vem vazias**, e a quinta aponta para
+`src/tables/cbic/errata_wording.tex`, que e a *tabela de errata* — a frase esta la como evidencia citada, nao como
+alegacao viva. *(A versao anterior deste comando era **cega a comentarios** e imprimia cinco linhas cheias: quatro
+daquelas frases sobrevivem apenas em comentarios de proveniencia, que citam a redacao antiga para registrar o que mudou.
+A variante acima descarta linhas `%` antes de casar, e concorda com o `live_text` do `check_audit_claims.py`, que e o
+stripper usado pelos gates deste projeto.)*
 
 ### 5.6b A premissa da sua decisao 5.6 nao e o que os arquivos mostram — resolvi imprimindo AS DUAS datas
 
@@ -1094,7 +1120,8 @@ Chapter 6's +0.001 cosine lands with no definition behind it.
 2. **So a equacao da perda e a definicao de conflito** — ~3h; e o minimo que torna o numero do Cap. 6 legivel
 3. **Nao fazer** — a pergunta de pesquisa da dissertacao e se MTL ajuda, e o capitulo nunca escreve o objetivo de MTL
 
-> **DECISAO SUA:** Opção 1.
+> **DECISAO SUA:** Opção 1. Voce pode se aproveitar da explicação de cosseno do appendix F, apesar de estarmos fazendo
+> essa nova parte não precisa remover nada do appendix F, caso fique repetitivo.
 
 #### GER-10 — the fundamentals need a logical narrative built on formal definition blocks
 
@@ -1110,7 +1137,7 @@ go.
 2. **Subsecoes so em §2.2 e §2.3** — meia medida, cobre onde estao as duas lacunas
 3. **Nao fazer** — o capitulo e uma referencia que o leitor consulta vindo do Cap. 5; sem titulos ele nao acha nada
 
-> **DECISAO SUA:** ______
+> **DECISAO SUA:** Opção 1.
 
 #### GER-03 — the HGI tuning sweep is thrown into the text with no connection to it
 
@@ -1128,7 +1155,19 @@ averaging convention. Relocating is compatible with the probe if the probe moves
    o [VERIFY] da convencao de media, que hoje reporta quatro decimais sob uma convencao que o capitulo ainda nao fixou
 3. **Manter onde esta e so resolver o [VERIFY]** — mais barato; o defeito de fluxo que ele apontou continua
 
-> **DECISAO SUA:** ______
+> **DECISAO SUA:** Aqui temos alguns problemas, vamos aos fatos. A parte que está com problema hoje é a: "The baseline
+> was also tuned rather than taken as published: the cross-region edge weight of their Equation 2, set to 0.4 for the
+> dense Chinese cities they study, was raised to 0.7 for the sparser United States state datasets used here. The sweep
+> that fixed that value ran on Alabama over four settings of the weight, 0.4, 0.5, 0.6, and 0.7, each measured over five
+> folds with a budget of 50 epochs, and the category F1 rose monotonically across them, from $0.7388 \pm 0.0205$ at the
+> published setting to $0.8186 \pm 0.0123$ at the adopted one, on a zero-to-one scale, with the spread taken across the
+> five folds."
+> O ponto e que ela parece sem nexo, para quem está lendo rapido ou desatendo, não entende que estamos discutindo sobre
+> o fato que os hyperparmsteeros usado pelo hgi em nosso artigo foi retirado do artigo base que se baseava em uma cidade
+> chinesa. Esse é o primeiro ponto essa frase está confusa sem nexo, sengundo ponto ela está "overwhelming", ou seja,
+> ela está com execesso de informação, podemos simplificar bem isso e caso o leitor uqe se interesee acesso o artigo
+> deles para saber mais. Por fim um outro ponto, é quanto ao fato disso não pertencer a fundamentação téorica, é sim a
+> métodologia. Eu proponho melhorar esse texto e deixar isso em um appendice.
 
 #### GER-04 — the static-vector paragraph reads like introduction prose, and it matters
 
@@ -1142,7 +1181,13 @@ chars from the NUM-4 probe string.
 2. **Mover para o inicio de §2.2 como paragrafo de abertura** — atende a impressao de "texto de introducao"; mexe num
    paragrafo a 108 caracteres do probe NUM-4
 
-> **DECISAO SUA:** ______
+> **DECISAO SUA:** Eu acredito que tenhamos que deixar ele onde está, na introdução já comentamos sobre o ponto de a
+> literatura usar em sua maioria poi embedding ao inves de checking embedding, caso não comentamos isso bem lá, porfavor
+> melhore o texto da introdução. Mas, quanto aqui eu acredito que temos que sim, manter esse paragrafo onde ele está ele
+> server de cola e ponte falarmos sobre outros tipos de embedding, estes que serão usados no checking embedding. E aqui
+> abrimos outra ponta no paragrafo: "Beforethatstep,severalgeneralencoderssupplythecontextastaticplacevectoromits.",
+> precisamos melhorar sua conexão com o paragrafo anterior falando sobre esse ponto que o checkin embdding precisa de
+> embedding temporais e locacionais e onde entra o conteduo do resto do paragrafo; valide essa minha ideaia.
 
 ### 6.7 Bloqueado numa verificacao que falhou
 
@@ -1375,21 +1420,9 @@ como esta apresentado.
 
 | Item                                               | Bloqueado em                     | Estado                                                                                                                                |
 |----------------------------------------------------|----------------------------------|---------------------------------------------------------------------------------------------------------------------------------------|
-| Dois membros da banca e a data da defesa           | Orientador / PPGCC               | Placeholders honestos entre colchetes em `0_main.tex`; **os colchetes aparecem no PDF**, entao nada inventado e apresentado como fato |
+| Dois membros da banca e a data da defesa           | Orientador / PPGCC               | Placeholders entre colchetes em `preamble.tex:217-219`. **Nao imprimem em nenhum dos tres builds** (`\folhadeaprovacao` esta comentada em `abntex2-UFV.sty:166-170`), entao nao ha nada inventado no PDF — nem os nomes reais quando chegarem |
 | Folha de aprovacao assinada                        | A defesa                         | `make ppgc` gera o PDF com o placeholder; a versao assinada o substitui depois                                                        |
 | Status do MobiWac                                  | Revisores                        | A redacao e sempre "submitted, under review", em todo o documento. **Nao mudar** ate haver decisao                                    |
-| `\finalbuildfirstpage` conferido contra o RASCUNHO | Upload pos-defesa ao AcademicoPG | Agora **8**, derivado das 7 paginas pre-textuais do build de deposito e verificado no render. Confira contra o RASCUNHO quando subir  |
+| `\finalbuildfirstpage` conferido contra o RASCUNHO | Upload pos-defesa ao AcademicoPG | Agora **9** (`main.tex:95`), das 8 paginas pre-textuais do build de deposito; a primeira pagina de corpo do `main_academico.pdf` e a fisica 9 e imprime 9. Confira contra o RASCUNHO quando subir  |
 
 ---
-
-## §4 · Retirado
-
-A lista priorizada de auditoria vivia aqui e apontava para [`_round6/VERIFY_LIST.md`](_round6/VERIFY_LIST.md). **Esse
-registro esta fechado** (medido 2026-07-30): os sete itens A1-A7 carregam cada um a sua disposicao de round 8 ou 9, e
-`check_verify_list.py` sai 0. O ultimo em aberto era o A3, a decisao de publicar os arquivos que faltavam — resolvida
-por execucao, nao por decisao: os seis artefatos de analise estao no `origin/mobiwac`, conferidos contra o REMOTO com
-`git ls-tree -r origin/mobiwac`.
-
-O aviso que estava aqui — *nao confie no sucesso auto-reportado, incluindo o meu* — nao se perdeu: virou lei em
-`AGENT_GUARDRAILS.md` §4b, hoje com dezessete regras numeradas, cada uma escrita a partir de um caso real deste projeto.
-E o lugar certo, porque uma advertencia numa fila de tarefas some quando a fila e limpa.
