@@ -313,6 +313,15 @@ artifact of one choice among them.
 % Read from cosine_stats.py's "configuration-mean span" line, which exists to be quoted.
 % "equivalent to zero on its own five folds" is also measured, not asserted: that script's
 % per-configuration block reports 12 of 12 equivalent at the fold unit.
+% [round9, 2026-07-30] THE BLANK LINE BELOW IS LOAD-BEARING. A comment-only line does NOT break a
+% LaTeX paragraph, so without it "The second axis" ran on from "...one choice among them." as one
+% paragraph in the render (verified on defense p.101 before the fix). The source looked like two
+% paragraphs and the reader received one. Found by the readability persona, round 9.
+% (2_fundamentals.tex:756-767 has the same SHAPE but is NOT the same defect: there "The statistical
+% treatment is scoped the same way" continues its paragraph deliberately, so no break is owed. The
+% test is whether the sentence after the comment opens a new topic, not whether a comment sits above.)
+
+\medskip\noindent
 The second axis is the data. It now covers every dataset Chapter~\ref{ch:mobiwac} reports on: the
 check-in counts run from 113,846 at Alabama to 4,089,892 at Texas and the region counts from 520 at
 Istanbul to 8,501 at California, so this axis spans a factor of thirty-six in volume and one of
