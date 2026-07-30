@@ -344,6 +344,19 @@ the work*, and that is where the time went. The four root causes, with the count
   evidence, with the silent subset inheriting the verdict. The structural fix is not vigilance but
   SHAPE: report per item, with each item's own evidence beside it, because a summary line is precisely
   where the unmeasured members hide.
+  SEVENTH INSTANCE, immediately after writing that fix, and it shows the fix was stated too weakly.
+  I reported six flagged terms "each inside its condition" having printed 7 of their 18 occurrences --
+  zero contexts for two of the six terms, and 3 of 11 for another. WORSE: the one occurrence I DID
+  print contradicted the verdict I gave it. The glossary bans "head" as internal jargon and exempts it
+  only "when describing OTHER systems"; the sentence on screen read "an earlier configuration whose
+  region head was driven by a transition prior" -- OUR configuration -- and I wrote that the
+  other-systems exemption applied. That is not a sampling error. **Reading the evidence is not the same
+  as evaluating it: a context line printed and then classified against the rule from memory is
+  unverified.** So the per-item shape rule needs its second half: report per item, AND for each item
+  quote the specific evidence next to the specific clause of the rule it satisfies. If the quote and
+  the clause cannot sit in one sentence without contradiction, the verdict is wrong -- and if a term
+  has N occurrences, N of N get read before any verdict covers them, because the violating one is
+  never the one you sampled. (The real violation was fixed: "region head" -> "region output".)
 
 **V14. A parallel track's self-report is not evidence that its edit landed, and an outcome table is a
   claim about the work.** This is the rule the whole 2026-07-30 recovery round exists to write.

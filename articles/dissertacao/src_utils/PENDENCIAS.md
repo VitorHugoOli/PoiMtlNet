@@ -875,19 +875,33 @@ tinha **zero** referencias a esse arquivo. O glossario tem 393 linhas.
 | codenomes de repositorio | lista escrita a mao (`C2HGI`, `B9`, `v11`–`v17`, `champion-G`, `H3-alt`, `log_T`, `substrate`, `engine`, `board`, `recipe`) | **zero** |
 | persona 03 re-rodada depois de 26/07? | data do relatorio | **sim**, `_round6/17_style_readability_credibility.md`, 28/07 |
 
-**As seis de §4 que aparecem, uma por uma** — §4 as proibe *condicionalmente*, e cada uso satisfaz a
-condicao:
+**As seis de §4 que apareciam, uma por uma — TODAS as ocorrencias lidas desta vez.** A primeira versao
+deste bloco disse "todas dentro da condicao" tendo lido **7 de 18** ocorrencias: nao imprimi nenhum
+contexto de `cross-attention` nem de `transformer`, e li 3 dos 11 `margin`. Relido inteiro:
 
-- **`margin` x11** — §4 reserva a palavra para a margem de dois pontos do TOST. Os usos sao
-  "the two-point margin", "the screen's margin": e o sentido reservado.
-- **`cross-attention` x3, `transformer` x1** — §4 diz "nomeie so se for realmente estrutural". E o
-  mecanismo de compartilhamento do modelo conjunto, ou seja, estrutural.
-- **`Audit` x2** — §4 bane como auto-elogio ("audited recipe") e permite como **substantivo** para a
-  medicao de vazamento. Os dois usos sao substantivo: "a screening audit run during development".
-- **`activity` x2** — §4 bane para *as nossas duas tarefas*. Os dois usos descrevem trabalhos de
-  terceiros (DRRGNN, MCARNN), onde §4 manda manter o termo padrao.
-- **`head` x1** — idem, e num contexto de ablacao ("region head"), o mesmo uso que §4 permite ao
-  descrever outros sistemas.
+- **`margin` 11/11 lidas** — §4 reserva a palavra para a margem de dois pontos do TOST. Nove dizem
+  "two-point margin" / "the screen's margin" explicitamente; as duas restantes ("pass a margin as small
+  as one point", "exceeded that margin") sao referencias de volta a mesma margem, no mesmo paragrafo.
+  **Dentro da condicao.**
+- **`cross-attention` 3/3 lidas** — §4 permite nomear arquitetura "se for realmente estrutural". As tres
+  descrevem o tronco compartilhado do modelo conjunto: "a shared trunk (a cross-attention stack where
+  the two tasks exchange...)", "a cross-attention stack of two blocks", e a ablacao que o remove.
+  E o mecanismo, nao decoracao. **Dentro da condicao.**
+- **`transformer` 1/1 lida** — descreve o **CTLE**, um baseline de terceiros: "CTLE is a sequence model,
+  a Transformer that reads the check-in sequence itself". §4 manda manter o termo padrao ao descrever
+  outros sistemas. **Dentro da condicao.**
+- **`Audit` 2/2 lidas** — §4 bane como auto-elogio ("audited recipe") e permite como **substantivo**
+  para a medicao de vazamento. As duas sao substantivo. **Dentro da condicao.**
+- **`activity` 2/2 lidas** — §4 bane para *as nossas duas tarefas*; as duas descrevem DRRGNN e MCARNN,
+  trabalhos de terceiros. **Dentro da condicao.**
+- **`head` 1/1 lida — ERA VIOLACAO DE VERDADE, e eu a tinha registrado como permitida.** A unica
+  ocorrencia e *"an earlier configuration whose region head was driven by a transition prior"*: e uma
+  configuracao **nossa**, nao de terceiro, e §4 lista `head` entre "our internal research words ...
+  jargon in the paper", prescrevendo "output", com a excecao valendo **so** ao descrever outros
+  sistemas. Eu li exatamente esse contexto e escrevi que a excecao se aplicava.
+  **CORRIGIDO:** "region head" -> "region output", e o `transition prior` virou
+  `region-transition prior` pela mesma lei. Renderiza na p. 73. A arvore do manuscrito **nao** tem
+  essa frase (0 ocorrencias), entao nao havia edicao pareada a fazer.
 
 **O que continua NAO medido, e nao vou dizer que esta.** §6 (checklist de consistencia), §7 (marcas de
 texto de maquina) e §8 (registro internacional simples) sao julgamentos de estilo, nao listas de termos:
