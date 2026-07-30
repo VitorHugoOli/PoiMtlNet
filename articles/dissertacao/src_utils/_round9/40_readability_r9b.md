@@ -1,4 +1,12 @@
-# 35 · Readability editor — round 9, the changed prose only
+# 40 · Readability editor — round 9b, the changed prose only
+
+> **Filename note.** First committed as `_round9/35_readability.md` in `195bf79e`, renamed here at the
+> author's instruction because the 33–37 slots were already allocated. **No existing file was
+> overwritten:** `git cat-file -e 195bf79e^:…/_round9/35_readability.md` returns *"exists on disk, but
+> not in 195bf79e^"*, `git log --all` shows that path touched by exactly one commit (mine), and slot 35
+> at `195bf79e^` was held by `35_wave_a_render_check.py`, a different filename. The rename is recorded
+> by git as `R100`, a pure rename at 100 percent similarity. The earlier readability report is at
+> `_round9/reviews/15_readability.md` (build `901a0408`, 08:41–09:14 today) and is untouched.
 
 **Persona:** `reviewers/15_readability_editor.md` (senior academic editor; ten lenses; craft and reader
 experience, not law enforcement — personas 02/03 own sentence mechanics and the ban lists).
@@ -18,6 +26,48 @@ including the §1 process-narration ban added today), `AGENT_GUARDRAILS.md` §4b
 prior commit. **R-4 below is that finding, confirmed against the diff it could not run**; I claim no
 originality for it. Appendix F, `tables/frame/cosine.tex`, the front matter and the rendered-vs-source
 question were outside that pass entirely, and findings R-1, R-2, R-3, R-5, R-6, R-7, R-8 are new.
+Finding-by-finding agreement is in the next section.
+
+---
+
+## Where I agree with `reviews/15_readability.md`, and where I differ
+
+I read all 16 of its findings (12 should-fix + 4 nits, and its own tally reconciles with its rows — I
+checked, because a header that miscounts its rows is this project's V13 fourth instance). Its scope was
+Ch. 1 / 2 / 6 as prose; mine is the round's diff as rendered. **Four of its sixteen fall inside my
+scope**; the other twelve are outside it and I neither confirm nor contest them.
+
+| its finding | in my scope? | my position |
+|---|---|---|
+| **SF-4** pointer "next paragraph" | yes, §2.3 new block | **AGREE, and I close its open question.** It could not tell whether the defect was introduced this round. It was: the sentence is inside `beebd33b`. My **R-4** adds the measurement it lacked (the guarantees paragraph is the document's *first* mention of CAGrad, Aligned-MTL, GradNorm and FAMO), which suggests a second repair it did not consider. |
+| **SF-7** "Two \<plural\> \<verb\>" ×6 | one of its six sites is in the new block | **AGREE on the pattern, DIFFER on one site.** See below. |
+| **SF-8** the Wilcoxon sentence | Ch. 2, but **not** in this round's diff | **AGREE it is the chapter's hardest sentence** (66 words, measured; joint third longest of 185). Not a round-9 finding: `git diff c94d1f19..HEAD` does not touch it. I flag the overlap because its fix and my **R-1**'s fix land in the same paragraph pair. |
+| **SF-10** §2.5 says the gap three times | yes, and it constrains my R-3 | **AGREE, and it changes my own recommendation.** My R-3 asks §2.5 to pick up the orthogonality thread; SF-10 says §2.5 is already saying its argument three times. Both can be right, so R-3 proposes a clause that *replaces* rather than adds, and says so. |
+
+**The one place I differ, and it is narrow.** SF-7 lists six sites of the "announce the count, then
+enumerate" template and treats them as one habit. One of the six, `2_fundamentals.tex:445`, is inside
+the block I review, and it is a **different construction**. Measured, all six classified, N of N:
+
+| site | paragraph starts | sentence | construction |
+|---|--:|--:|---|
+| `2_fund:82` | L82 | 1 of 10 | announce-then-enumerate, paragraph opener |
+| `2_fund:624` | L624 | 1 of 4 | announce-then-enumerate, paragraph opener |
+| `6_concl:110` | L110 | 1 of 12 | announce-then-enumerate, paragraph opener |
+| `2_fund:164` | L150 | 9 of 12 | announce-then-enumerate, mid-paragraph |
+| `6_concl:48` | L43 | 4 of 8 | announce-then-enumerate, mid-paragraph |
+| **`2_fund:445`** | **L433** | **6 of 8** | **partitive: "Two of these papers"** |
+
+"Two of these papers state the residual limitation themselves" does not announce a count and then
+enumerate; it selects two members of a set the reader already has (the five methods named two sentences
+earlier) and it enumerates nothing. Three of the six are the template as described; two are the same
+construction mid-paragraph; the sixth is not the construction. **Consequence for the author:** if SF-7's
+fix is applied by pattern-matching "Two \<plural\>", this sentence will be rewritten for a tic it does
+not have, and rewriting it would cost the citation scoping ("two of these papers", `liu2021cagrad` and
+`senushkin2023aligned`) that makes the attribution precise. I recommend leaving `:445` as it stands and
+applying SF-7 to the other five.
+
+I also **agree with its empty blocker section** and reach the same result independently: nothing in the
+changed prose defeats comprehension.
 
 ---
 
