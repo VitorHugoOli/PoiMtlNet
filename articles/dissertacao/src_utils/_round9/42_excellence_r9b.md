@@ -172,7 +172,12 @@ strengthening and the appendix delivered it; the conclusion has not been told.
 
 **Fix.** One clause in Chapter 6, no new claim: after "...rather than a general rule", add
 "Appendix~\ref{apx:cosine} reports the same quantity on the configuration these results use,
-across all six datasets." That closes G10.1's second half at zero compute cost and turns
+across the six datasets of Chapter~\ref{ch:mobiwac} and one further Gowalla state." The count
+matters, so state it the way the rest of the document does: the appendix measures **seven**
+datasets, which are the dissertation's six plus Georgia, and Table 11's own caption uses exactly
+that construction ("over the six datasets of Chapter~\ref{ch:mobiwac} and Georgia"). A bare "all
+six" in Chapter 6 would undercount the appendix; a bare "seven" would imply the dissertation has
+seven datasets, which it does not. This closes G10.1's second half at zero compute cost and turns
 three isolated statements into one thread.
 
 ---
@@ -278,6 +283,54 @@ count is on the record rather than discovered later.
 **Fix.** No change to the new prose. On the next Chapter 2 pass, convert three of the six
 older instances ("carries a consequence" → "has a consequence"; "traces carry geographic
 detail" → "traces record geographic detail").
+
+---
+
+### EX-9 · RECOMMENDED · the "worth noting" family is four instances document-wide, all four in the two files under review
+
+**Files:** `src/chapters/2_fundamentals.tex`, `src/chapters/apx_f_cosine.tex` · **PDF pp. 21, 23, 98, 99**
+
+> p. 23 (new this round, inside the Pareto block): "Reaching that front is not what the
+> balancing methods promise, and the distance between the promise and the front **deserves one
+> statement**."
+> p. 99 (sentence reworded this round): "Two departures from that flat picture appear, and both
+> are **worth reporting** rather than smoothing."
+> p. 98: "Figure 8 shows the distributions, and one feature **needs saying** plainly..."
+> p. 21: "The training objective makes that extension concrete, and it is **worth stating** here
+> because it is what the fourth level costs."
+
+**Why.** GLOSSARY §7's banned-word table registers *"it is important / worth noting that"* with
+the prescribed replacement *"Note that", or just state it*, and WRITING_LAW §4 inherits that
+table verbatim. Measured across all 48 live `.tex` files: this family occurs **4 times, and all
+4 are in the two files this round changed** — zero elsewhere in the document. "Note that", the
+law's prescribed replacement, occurs **0 times**. §4.5's own calibration is the governing
+clause: *"One decorative instance is noise; density convicts."* Four in one document is a
+cluster, not noise, and its concentration in the newest prose is the signature §4.1 warns about.
+
+**What I am not saying.** Two of the four are load-bearing and I would keep them. *"both are
+worth reporting rather than smoothing"* commits the appendix to not hiding the two departures
+from its own headline result, which is a disposition, not decoration; *"one feature needs saying
+plainly"* introduces the mean-versus-observation caveat that the same paragraph then proves.
+§4.6 is explicit that *"the offense is decoration and stacking"*, and those two are neither. The
+one I would cut is the new one: *"deserves one statement"* announces a statement and then makes
+it, and deleting the announcement loses nothing — the Pareto-stationary sentence that follows
+stands alone and is stronger without a preamble. The p. 21 instance is outside my review range
+(it entered at `456eaa72`, round 6) and is recorded only so the author sees the full count.
+
+**Fix.** In §2.3, cut the announcement and let the claim open the sentence: "Reaching that front
+is not what the balancing methods promise. A point is Pareto-stationary when some convex
+combination of the task gradients is zero, which is necessary for Pareto optimality without
+being sufficient." Leave the other three; if the author disagrees and wants the family at zero,
+the p. 21 instance is the next one to go, not the appendix's two.
+
+**Checked and cleared, so the author does not have to re-check it.** *"The distance between that
+result and a null result is the point of this appendix"* (p. 98) is **not** a violation, and I
+tested it rather than assuming. It sits 73 words after the §F.2 heading, so it is not a
+section-opening purpose statement of the kind §1 mandates, but §1's fourth sub-class bans
+self-reference *to the writing* — its three examples are "this appendix originally reported",
+"as noted above", "the boundary the paragraph above draws", all of which refer to the prose's own
+history or structure. This sentence refers to the appendix's scientific purpose, which is the
+same move as "the contribution of this chapter is". It stays.
 
 ---
 
@@ -466,6 +519,14 @@ SECTION PROPORTIONS (rendered Ch.2, chars between headings)
 - **Process narration in the changed prose: NOT FOUND**, in the render or by the gate.
 - **Em-dashes, contractions, banned vocabulary, semicolon braids, restating-the-section
   endings in the changed prose: NOT FOUND** (counts above).
+- **Firstly/Secondly scaffolds and rule-of-three cascades: NOT FOUND**, and I checked this
+  because a first sweep flagged ten "The first / The second" items in Appendix F. Measured:
+  zero `Firstly/Secondly/Thirdly/Finally`-ly forms in the three changed prose files, and the
+  ten hits resolve to three separate two-item PAIRS ("The first is a positive tendency... The
+  second is a decline"; "The first is about gradient balancers... The second is about the arc";
+  "the first axis is the tuning... The second axis is the data"). GLOSSARY §7 bans the
+  Firstly/Secondly scaffold and rule-of-**three** cascades; a two-item enumeration where the
+  document genuinely has two items is neither, and each pair here is a real pair. Cleared.
 - **Repo codenames in the changed prose: NOT FOUND.** The twelve Florida configuration ids
   (`T6_4_two_pass`, `shipping_florida_mtl_ep50_seed42`, …) stay in the comments and the
   parquet; the prose says "twelve configurations that vary the loss weight, the weighting
