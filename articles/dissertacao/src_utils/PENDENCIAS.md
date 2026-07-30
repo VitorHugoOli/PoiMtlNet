@@ -614,17 +614,17 @@ material novo que so voce pode aprovar antes de ir ao orientador. Custo de tirar
 ### 2.24 Um `towards` britanico em prosa publicada do CBIC, e a saida e uma linha de errata
 
 **O que e.** Sua queixa 8 do item 2.22 (o `needs saying plainly`) gerou a lei de registro e o gate 25
-(`check_register.py`). Varridos os 54 `.tex` vivos mais o `references.bib`, **doze linhas de achado em
-onze sitios** (uma frase pode disparar duas regras): **5** grafias britanicas, **1** construcao
-britanica (a sua) e **6** formas de fraseado. **Seis eram nossas e foram corrigidas**; **cinco** estao
-no Apendice F e a outra esteira ja as fechou. **Sobrou uma, e ela e sua**, porque esta em prosa
-publicada:
+(`check_register.py`). Varridos os 54 `.tex` vivos mais o `references.bib`, **doze linhas de achado em onze sitios**
+(uma frase pode disparar duas regras): **5** grafias britanicas, **1** construcao britanica (a sua) e **6** formas de
+fraseado. **Seis eram nossas e foram corrigidas**; **cinco** estao no Apendice F e a outra esteira ja as fechou.
+**Sobrou uma, e ela e sua**, porque esta em prosa publicada:
 
-*(Este bloco dizia **nove ocorrencias** e "quatro/quatro/uma". Estava errado, e o erro foi pego por
-revisao, nao por mim: eu somei categorias de cabeca em vez de contar as linhas do instrumento. Medido
-agora rodando o gate sobre a arvore do `06529ed6` com o `OPEN_REGISTER` vazio, para que nada fique
-retido e todo achado imprima: `rc=1`, "6 British spelling/construction hit(s) and 6 hard-phrasing
-shape(s)", 12 linhas. A conferencia fecha nos dois sentidos: 6 corrigidas + 5 do Apendice F + 1 sua =
+*(Este bloco dizia **nove ocorrencias** e "quatro/quatro/uma". Estava errado, e o erro foi pego por revisao, nao por
+mim: eu somei categorias de cabeca em vez de contar as linhas do instrumento. Medido agora rodando o gate sobre a arvore
+do `06529ed6` com o `OPEN_REGISTER` vazio, para que nada fique retido e todo achado imprima: `rc=1`, "6 British
+spelling/construction hit (s) and 6 hard-phrasing shape (s)", 12 linhas. A conferencia fecha nos dois sentidos: 6
+corrigidas + 5 do Apendice F + 1 sua =
+
 12. O detalhamento linha por linha esta na §1.3 do relatorio.)*
 
 `chapters/3_cbic/conclusion.tex`, p. 43 do build de defesa:
@@ -633,13 +633,12 @@ shape(s)", 12 linhas. A conferencia fecha nos dois sentidos: 6 corrigidas + 5 do
 > required for the simpler, static classification task"
 
 **Medido, nao suposto:** a frase e substring literal de
-`articles/CBIC___MTL/sections/conclusion.tex:13`, e este `towards` e a **unica** forma britanica em
-toda a fonte publicada do CBIC (zero `-our`, zero `-ise`, zero `whilst`); CoUrb-EN e MobiWac nao tem
-nenhuma.
+`articles/CBIC___MTL/sections/conclusion.tex:13`, e este `towards` e a **unica** forma britanica em toda a fonte
+publicada do CBIC (zero `-our`, zero `-ise`, zero `whilst`); CoUrb-EN e MobiWac nao tem nenhuma.
 
-**Por que nao apliquei.** Pela NORTH_STAR §5.7, mudar uma palavra de prosa publicada e decisao sua, e
-esta e questao de vocabulario, nao de correcao. O gate mantem o achado **aberto por nome** e falha se a
-entrada ficar obsoleta, entao nao se perde em nenhuma das duas saidas.
+**Por que nao apliquei.** Pela NORTH_STAR §5.7, mudar uma palavra de prosa publicada e decisao sua, e esta e questao de
+vocabulario, nao de correcao. O gate mantem o achado **aberto por nome** e falha se a entrada ficar obsoleta, entao nao
+se perde em nenhuma das duas saidas.
 
 > **DECISAO SUA, e e uma linha:** (**a**) trocar por `toward` e acrescentar uma linha em
 > `tables/cbic/errata_wording.tex`, que ja carrega **quatorze** linhas exatamente desta classe
@@ -649,13 +648,13 @@ entrada ficar obsoleta, entao nao se perde em nenhuma das duas saidas.
 
 **Um segundo ponto, tambem seu, e eu deliberadamente NAO fiz gate dele.** O ponto final fica **fora**
 da aspa de fechamento em **13 sitios** (`tables/cbic/errata.tex` 5, `tables/courb/errata.tex` 3,
-`chapters/3_cbic/method.tex` 2, `tables/cbic/errata_wording.tex` 2, `chapters/apx_b_errata.tex` 1). O
-estilo americano poe dentro. **Todos os 13 estao em tabelas de errata onde a string citada e a
-evidencia**, e mover um ponto para dentro de uma citacao altera a citacao. E decisao sobre a convencao
-da errata, nao erro de grafia. Se quiser, e mecanico e faco os 13 numa passagem.
+`chapters/3_cbic/method.tex` 2, `tables/cbic/errata_wording.tex` 2, `chapters/apx_b_errata.tex` 1). O estilo americano
+poe dentro. **Todos os 13 estao em tabelas de errata onde a string citada e a evidencia**, e mover um ponto para dentro
+de uma citacao altera a citacao. E decisao sobre a convencao da errata, nao erro de grafia. Se quiser, e mecanico e faco
+os 13 numa passagem.
 
-*Forense: [`_round9/44_register_law.md`](_round9/44_register_law.md) (a varredura com contagem por
-arquivo, as regras, e o transcrito de validacao do gate nos dois sentidos).*
+*Forense: [`_round9/44_register_law.md`](_round9/44_register_law.md) (a varredura com contagem por arquivo, as regras, e
+o transcrito de validacao do gate nos dois sentidos).*
 
 > **DECISAO SUA:** ______
 
@@ -973,7 +972,8 @@ resultados, identificamos que...') is a first-person results framing, a register
 2. **Manter "A resposta e, portanto, condicional: ..."** — mantem o registro; contraria o pedido
 3. **Meio: "Os resultados mostram que o ganho do aprendizado multitarefa depende de..."** — impessoal e direto
 
-> **DECISAO SUA:** ______
+> **DECISAO SUA:** Vamos com a 3 opção algo como: "Os resultados mostram que o benefício do aprendizado multitarefa
+> depende da representação de entrada e da topologia de compartilhamento entre as tarefas."
 
 ### 6.4 Ja satisfeitos — so falta voce confirmar
 
@@ -988,7 +988,7 @@ is content.
 1. **Confirmar como satisfeito** — zero; a palavra nao existe no fonte vivo
 2. **Perguntar a ele se o build que leu era antigo** — um e-mail; evita ele repetir o ponto
 
-> **DECISAO SUA:** ______
+> **DECISAO SUA:** Perfeito, mantemos assim!
 
 #### FAB-05 — drop the negative-result / diagnosis / resolution clause
 
@@ -998,7 +998,7 @@ is content.
 
 1. **Confirmar como satisfeito** — zero; a clausula nao existe mais
 
-> **DECISAO SUA:** ______
+> **DECISAO SUA:** Perfeito, mantemos assim!
 
 #### FAB-08 — drop the task-pair clause from the Resumo
 
@@ -1012,7 +1012,8 @@ both places.
 2. **Decidir junto com o FAB-17** — o mesmo conteudo esta na introducao COM aval registrado; decidir separado corre o
    risco de tirar dos dois lugares
 
-> **DECISAO SUA:** ______
+> **DECISAO SUA:** Perfeito, mantemos assim! Mas vamos adicionar um comentario sobre o resumo, que uma informação está
+> sendo omitida o fato de serem tarefas diferentes entre os dois primeiros e o ultimo artigo.
 
 ### 6.5 Detalhe de dados na introducao — ele quer fora, e ha um contraste em jogo
 
