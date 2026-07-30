@@ -330,6 +330,20 @@ the work*, and that is where the time went. The four root causes, with the count
   does not cover the detector is worse than none, because its presence reads as proof. That is why
   the classification is now by SABOTAGE -- break the logic, read the exit code -- and not by whether
   a `def self_test` exists.
+  FIFTH AND SIXTH INSTANCES, both on 2026-07-30, and together they name the sub-rule that was missing.
+  (a) "Five of seven candidates accounted" came from five probes, one of which had printed ZERO
+  evidence for the item it was counted for and another of which was never run. (b) "The mechanical part
+  is measured" was written when one of the two mechanical lists had parsed to ZERO terms -- it is a
+  bullet list, not a table, so the table regex matched nothing -- and the other's parse had been
+  rejected as wrong and never redone. The only real measurement was a term list I had typed by hand.
+  **A PARSE THAT RETURNS ZERO ROWS IS NOT A CLEAN RESULT; IT IS A BROKEN INSTRUMENT, AND IN THE OUTPUT
+  IT IS INDISTINGUISHABLE FROM "NO VIOLATIONS".** Before believing a zero, assert the parser found the
+  rows it was meant to find: `assert len(rows) > 0` costs nothing, and its absence is how an unmeasured
+  section becomes a measured one in a durable record. The same asymmetry runs through all six
+  instances -- a count, a coverage claim, or a sweep verdict written from the subset that produced
+  evidence, with the silent subset inheriting the verdict. The structural fix is not vigilance but
+  SHAPE: report per item, with each item's own evidence beside it, because a summary line is precisely
+  where the unmeasured members hide.
 
 **V14. A parallel track's self-report is not evidence that its edit landed, and an outcome table is a
   claim about the work.** This is the rule the whole 2026-07-30 recovery round exists to write.

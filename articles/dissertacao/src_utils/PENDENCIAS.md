@@ -859,18 +859,39 @@ um pouco estranho o jeito que alguns termos sao inseridos (marquei alguns la)"*.
 `articles/[mobiwac]/GLOSSARY.md` e diz que ele **vence** para o Cap. 5; o relatorio v2 dela, de 26/07,
 tinha **zero** referencias a esse arquivo. O glossario tem 393 linhas.
 
-**Medido em 2026-07-30 — o buraco esta fechado:**
+> **A PRIMEIRA VERSAO DESTE BLOCO EXAGEROU, e a revisao pegou.** Ela dizia "o buraco esta fechado" e
+> "o que esta medido e a parte mecanica", declarando como nao-medidas apenas as secoes 6, 7 e 8. Mas as
+> **duas listas mecanicas de termos** — §3 (jargao -> palavra simples) e §4 (palavras a evitar) —
+> **tambem nao estavam medidas**: meu parse de §4 devolveu **zero** termos (e uma lista de bullets, nao
+> uma tabela) e o parse de §3 devolveu 69 linhas que eu mesmo rejeitei como erradas e nunca refiz. A
+> unica medicao valida era a minha propria lista de codenomes, escrita a mao. Medidas agora, de verdade:
 
-| verificacao | resultado |
-|---|---|
-| persona 03 re-rodada depois de 26/07? | **sim**, `_round6/17_style_readability_credibility.md`, 28/07 |
-| codenomes de repositorio proibidos na prosa viva do Cap. 5 (`C2HGI`, `B9`, `v11`–`v17`, `champion-G`, `H3-alt`, `log_T`, `substrate`, `engine`, `board`, `recipe`) | **zero** |
-| `frozen` (tambem na lista) | 2 usos, **ambos legitimos**: "frozen weights (no fine-tuning)", terminologia padrao de ML, e o comentario de proveniencia do proprio arquivo registra a excecao: *"frozen -> fixed, except frozen weights, glossed"* |
+**Medido em 2026-07-30, secao por secao:**
 
-**Uma ressalva honesta sobre o que eu NAO medi.** As secoes 7 e 8 do glossario (marcas de texto de
-maquina, registro internacional simples) e o "checklist de consistencia" da secao 6 sao julgamentos de
-estilo, nao listas de termos: nao ha como medi-los com um grep, e eu nao vou dizer que estao aplicados
-porque a persona rodou. O que esta medido e a parte mecanica.
+| secao do glossario | como medi | resultado |
+|---|---|---|
+| §3 jargao -> simples | tabela de 3 colunas, 26 linhas; so as de veredito `avoid` sao proibicoes | **3 proibicoes** (`substrate`, `recipe`, `end-to-end (training)`) — **zero** na prosa viva do Cap. 5 |
+| §4 palavras a evitar | lista de bullets; extrai os 34 termos entre aspas e removi os 6 que sao a *substituicao prescrita*, nao a proibicao | **28 proibicoes**, 22 com zero uso; **6 presentes**, todas condicionais e todas dentro da condicao (abaixo) |
+| codenomes de repositorio | lista escrita a mao (`C2HGI`, `B9`, `v11`–`v17`, `champion-G`, `H3-alt`, `log_T`, `substrate`, `engine`, `board`, `recipe`) | **zero** |
+| persona 03 re-rodada depois de 26/07? | data do relatorio | **sim**, `_round6/17_style_readability_credibility.md`, 28/07 |
+
+**As seis de §4 que aparecem, uma por uma** — §4 as proibe *condicionalmente*, e cada uso satisfaz a
+condicao:
+
+- **`margin` x11** — §4 reserva a palavra para a margem de dois pontos do TOST. Os usos sao
+  "the two-point margin", "the screen's margin": e o sentido reservado.
+- **`cross-attention` x3, `transformer` x1** — §4 diz "nomeie so se for realmente estrutural". E o
+  mecanismo de compartilhamento do modelo conjunto, ou seja, estrutural.
+- **`Audit` x2** — §4 bane como auto-elogio ("audited recipe") e permite como **substantivo** para a
+  medicao de vazamento. Os dois usos sao substantivo: "a screening audit run during development".
+- **`activity` x2** — §4 bane para *as nossas duas tarefas*. Os dois usos descrevem trabalhos de
+  terceiros (DRRGNN, MCARNN), onde §4 manda manter o termo padrao.
+- **`head` x1** — idem, e num contexto de ablacao ("region head"), o mesmo uso que §4 permite ao
+  descrever outros sistemas.
+
+**O que continua NAO medido, e nao vou dizer que esta.** §6 (checklist de consistencia), §7 (marcas de
+texto de maquina) e §8 (registro internacional simples) sao julgamentos de estilo, nao listas de termos:
+nao ha grep que os decida, e uma persona ter rodado nao e evidencia de que foram aplicados.
 
 > **DECISAO SUA, pequena.** O seu orientador escreveu *"marquei alguns la"* — ele marcou termos
 > especificos num PDF ou num documento que **eu nao tenho**. Se voce me passar essas marcacoes, eu

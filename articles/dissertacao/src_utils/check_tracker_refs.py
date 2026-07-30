@@ -205,10 +205,15 @@ def orphaned_items() -> list[str]:
       * REV-024, bibliography font -- CLOSED BUT UNARCHIVED. Commit 9e2b5157, struck through.
         Re-verified (no \footnotesize wrapper in any live root file) and moved to the archive.
       * The ADVISOR'S TERMINOLOGY point -- LOST, and I first counted it accounted WITHOUT PROBING IT.
-        Measured: the hole it named (persona 03's report never citing the MobiWac glossary) is closed --
-        re-run 28/07, zero banned repo codenames in live Ch.5 prose, the two "frozen" hits are
-        "frozen weights", a documented exception. Restored as 2.21; it stays open only for the
-        author's own marked-up terms, which I do not have.
+        Restored as 2.21. The hole it named (persona 03's report never citing the MobiWac glossary) is
+        now measured per glossary section: §3's three `avoid` verdicts absent, §4's 28 bans with 22
+        absent and 6 present-but-inside-their-condition, repo codenames zero, persona re-run 28/07.
+        §6-§8 are style judgments and are declared UNMEASURED in the item rather than assumed applied.
+        NOTE ON MY OWN FIRST PASS: I claimed "the mechanical part is measured" when §4 had parsed to
+        ZERO terms (it is a bullet list, not a table) and §3's parse had been rejected as wrong and
+        never redone -- so the only real measurement was my own hand-written codename list. A parse
+        that returns zero rows is not a clean result; it is a broken instrument, and it reads identical
+        to "no violations" in the output.
       * CATEGORY DETERMINISM in five states -- ACCOUNTED, and my probe looked in the wrong file. It is
         the content of apx_b_static_scope.tex and renders on p.11 of main_extra.pdf: "between 284 and
         365 distinct values per state". A grep of the archive returned 0 and I read that as a loss.
