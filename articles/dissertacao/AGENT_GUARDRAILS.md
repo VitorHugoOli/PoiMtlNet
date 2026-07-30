@@ -413,6 +413,23 @@ the work*, and that is where the time went. The four root causes, with the count
   rewrite. A recursive `find` where a glob would do costs nothing; a false number in the author's queue
   costs him a wrong decision.
 
+- **V16. Fifteen rules about whether a claim is TRUE, and none about whether a sentence BELONGS.** The
+  author read Appendix F on 2026-07-30 and found this in the deposited prose: *"the machine that would
+  have run them was out of disk."* Every V-rule above was satisfied by that sentence. It was true, it
+  was measured, its exit codes were read directly, its provenance comment was accurate, and a probe
+  would have confirmed it. It was also indefensible in a dissertation, and he asked whether the law
+  covered it. Measured: `grep -cin "process narration|out of disk|the machine that"` over this file and
+  WRITING_LAW.md returned 0 and 0.
+  The asymmetry is structural, and worth stating so the next agent sees it: this file mentions
+  claims and measurement 136 times and the register, the prose, or the reader 19 times. It was written
+  by agents correcting agents about verification, which is the failure mode we kept producing, and it
+  grew a blind spot exactly where the reader lives. **A sentence that passes every rule in §4b can
+  still have no business in the document.** Before a sentence lands, ask the second question too: not
+  only "is this true and measured" but "would the author defend it aloud to a banca, and does the
+  reader need it to understand the work?" If the answer to the second is no, the first does not save
+  it. Register law lives in WRITING_LAW; §1 now bans process narration outright, with gate 23
+  (check_process_narration.py) enforcing it. Verification is necessary and it was never sufficient.
+
 **V14. A parallel track's self-report is not evidence that its edit landed, and an outcome table is a
   claim about the work.** This is the rule the whole 2026-07-30 recovery round exists to write.
   On 2026-07-28 an audit outcome table was annotated with sixteen rows reading **APPLIED**. Two days
