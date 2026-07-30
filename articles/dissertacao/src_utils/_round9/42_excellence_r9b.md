@@ -140,11 +140,18 @@ and it is the kind a banca member who has read Chapter 3 will catch immediately.
 `git log -S` places it at `fcdf6ad4` — but the round widened the appendix's coverage and
 re-stated its opening, and the sentence is inside the block under sign-off.)
 
-**Fix.** Say what the first study did: "That is why the first study's search for the limit
-in its optimizer and its sharing scheme found so little, and why changing the representation
-changed so much in the second and third." Or, tighter and fully supported: "That is why no
-change on the optimization side moved the first study's result, and why changing the
-representation moved the second and third."
+**Fix, and the appendix supplies its own wording.** §F.3 already states this argument
+correctly, twenty source lines later: *"The investigation opened on the hypothesis that the
+sharing scheme limited joint training, and the first study's null result was read that way at
+the time"* (p. 101). That is accurate — the hypothesis was held and the result was read through
+it — and it makes no claim that the scheme was replaced. The defect is confined to the opening's
+compression of the same point. Bring the opening into line with it: "That is why the first
+study's null result, read at the time as a limit of the sharing scheme, moved so little, and why
+changing the representation moved the second and third." Or, shorter and equally supported: "That
+is why no change on the optimization side moved the first study's result, and why changing the
+representation moved the second and third." (I found the p. 101 sentence while re-reading the ten
+ordinal hits for the cleared check in §4 — it is the single cheapest fix available for this
+finding, because the author's own correct phrasing is already in the file.)
 
 ---
 
@@ -496,6 +503,35 @@ SECTION PROPORTIONS (rendered Ch.2, chars between headings)
   2.1 14.6% | 2.2 31.1% | 2.3 24.9% | 2.4 17.4% | 2.5 10.1%
   New block = 38% of §2.3. Chapter 2 live words 4,495 -> 4,989 (+11%). §2.3 remains second
   to §2.2 in length, so the Pareto material has not unbalanced the chapter.
+
+POST-DRAFT SWEEP (returned after the first submission; it changed the report)
+  "worth noting"-family regex (worth noting/reporting/stating/saying/mentioning, needs saying/
+  stating, deserves a statement, bears noting) over all 48 live .tex files, comments stripped:
+    4 hits, ALL FOUR in the two files under review -- 2_fundamentals.tex x2, apx_f_cosine.tex
+    x2; zero in the other 46. "Note that", the law's prescribed replacement: 0 occurrences.
+    git log -S dates each: "deserves one statement" -> beebd33b (IN range); "are worth
+    reporting" -> 56fdf622, sentence reworded in this round's diff (1 added, 1 removed line);
+    "needs saying" -> 56fdf622; "it is worth stating" -> 456eaa72 (round 6, outside range).
+    -> EX-9.
+  "the point of this appendix": 73 words after the F.2 \section, so not a section-opening
+    purpose statement -- but §1's ban is on self-reference to the WRITING, and this names the
+    appendix's scientific purpose. Cleared, not a finding.
+
+TWO INSTRUMENT FAILURES OF MY OWN, both caught and both recorded
+  1. A subprocess git-diff run inside the analysis kernel returned an EMPTY string (cwd
+     resolution) and briefly made all four "worth noting" phrases look absent from the diff.
+     Caught by re-running in bash, where "deserves one statement" shows as an added line and
+     the control ("Pareto dominance") returns 2. The zero was the instrument, not the data.
+  2. The "The first/second" clearing verdict, corrected after review. The originating sweep
+     flagged 10; my clearing verdict named three two-item pairs, which accounts for SIX, and
+     presented the check as covering all ten. I had re-measured with a NARROWED regex,
+     "The (first|second|third) (?:is|axis|departure)", which returns 6 -- so four of the ten
+     were certified without being read. A COUNT FROM A DIFFERENT INSTRUMENT IS NOT A COUNT OF
+     THE FLAGGED SET. Re-ran the originating pattern, asserted N == 10, printed all ten with
+     170 characters of left context: 6 are the three real pairs, 4 are ordinal references to
+     the three studies. Cleared on all ten. Reading the four also surfaced the p.101 sentence
+     that now supplies EX-2's fix, so the un-inspected remainder was not inert; it held the
+     cheapest repair in the file.
 ```
 
 ### Nothing found, stated explicitly
@@ -519,14 +555,24 @@ SECTION PROPORTIONS (rendered Ch.2, chars between headings)
 - **Process narration in the changed prose: NOT FOUND**, in the render or by the gate.
 - **Em-dashes, contractions, banned vocabulary, semicolon braids, restating-the-section
   endings in the changed prose: NOT FOUND** (counts above).
-- **Firstly/Secondly scaffolds and rule-of-three cascades: NOT FOUND**, and I checked this
-  because a first sweep flagged ten "The first / The second" items in Appendix F. Measured:
-  zero `Firstly/Secondly/Thirdly/Finally`-ly forms in the three changed prose files, and the
-  ten hits resolve to three separate two-item PAIRS ("The first is a positive tendency... The
-  second is a decline"; "The first is about gradient balancers... The second is about the arc";
-  "the first axis is the tuning... The second axis is the data"). GLOSSARY §7 bans the
-  Firstly/Secondly scaffold and rule-of-**three** cascades; a two-item enumeration where the
-  document genuinely has two items is neither, and each pair here is a real pair. Cleared.
+- **Firstly/Secondly scaffolds and rule-of-three cascades: NOT FOUND**, and this one cost me a
+  correction, so the audit trail is here in full. A sweep flagged **ten** "The first / The
+  second" items in Appendix F. My first clearing verdict named three two-item pairs, which
+  accounts for **six** of the ten, and asserted the other four were covered; a reviewer caught
+  it. That is precisely the failure the brief warns about, so I re-ran the **originating**
+  regex, asserted N = 10, and read all ten in context. The classification:
+  **six** are three genuine two-item pairs ("The first is a positive tendency... The second is
+  a decline", p. 99; "The first is about gradient balancers... The second is about the arc",
+  p. 101; "The first axis is the tuning... The second axis is the data", p. 101), each a pair
+  because the appendix genuinely has two of that thing.
+  **Four** are not enumeration at all: they are ordinal references to the three studies of the
+  collection ("the first study" / "the second and third", p. 97; "the first study's null result"
+  / "the second and third studies", p. 101). The document has three studies as a matter of
+  fact, so naming them by position is reference, not a rhythm device.
+  Measured alongside: zero `Firstly/Secondly/Thirdly/Finally`-ly forms in the three changed
+  prose files. GLOSSARY §7 bans the Firstly/Secondly scaffold and rule-of-**three** cascades;
+  neither reaches any of the ten. **Cleared, on all ten, read individually.** One byproduct of
+  reading the four went into EX-2 below, where it changes the prescribed fix.
 - **Repo codenames in the changed prose: NOT FOUND.** The twelve Florida configuration ids
   (`T6_4_two_pass`, `shipping_florida_mtl_ep50_seed42`, …) stay in the comments and the
   parquet; the prose says "twelve configurations that vary the loss weight, the weighting
