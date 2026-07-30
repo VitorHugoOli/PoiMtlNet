@@ -180,12 +180,36 @@ five-fold cross-validation without identifying the split axis". The Ch.3 additio
 identify it (`chapters/3_cbic/results.tex:30`, rendered p. 36). I confirmed both in the PDF, so this
 is a live contradiction the reader can see, thirteen pages apart.
 ```bash
-# the clause wraps across two source lines, so grep the file as one string:
-python3 -c "print('without identifying the split axis' in open('src/chapters/2_fundamentals.tex').read().replace(chr(10),' '))"
+# The clause wraps across two source lines, so the file is read as one string -- AND the
+# comments are stripped first, with this tree's own stripper, because the repair's provenance
+# comment quotes the retired clause verbatim. A comment-blind read of this file reports the
+# landed fix as missing (round-8 correction below).
+python3 -c "
+import sys; sys.path.insert(0, 'src_utils')
+from pathlib import Path
+from check_audit_claims import live_text
+t = live_text(Path('src/chapters/2_fundamentals.tex'))
+print('retired_clause_in_prose:', 'without identifying the split axis' in t)
+print('repair_in_prose:', 'stratify by sample rather than by user' in t)
+"
+# EXPECT: contains=retired_clause_in_prose: False
+# EXPECT: contains=repair_in_prose: True
 ```
-*If all is well:* that prints `False`, because the clause has been replaced by the repair drafted in
-the comment at the Ch.3 site ("Chapters 3 and 4 both stratify by sample rather than by user … and
-only Chapter 5 splits by user"). It prints `True` today. `[VERIFY]` V-8.
+*If all is well:* `retired_clause_in_prose: False` and `repair_in_prose: True`, because the clause has
+been replaced by the repair drafted in the comment at the Ch.3 site ("Chapters 3 and 4 both stratify
+by sample rather than by user … and only Chapter 5 splits by user"). `[VERIFY]` V-8.
+
+> **ROUND 8, 2026-07-30 — VERIFIED APPLIED, and the command as written said the opposite.** The
+> repair is in the prose, at `chapters/2_fundamentals.tex:646-649`: "Chapters 3 and 4 both stratify by
+> sample rather than by user, so that the check-ins of one user may appear in both training and
+> validation, and only Chapter 5 splits by user." It prints on **p. 24** of the 100-page defense build
+> (`pypdfium2`, hyphenation normalized). The retired clause survives only inside the `%` provenance
+> comment at `:651` that explains why it was retired, so the old command — which read the raw file —
+> printed `True` and scored a real fix as unapplied. This is trap 1 of
+> `_round8/28_postmortem_false_applied.md` inverted: a comment-blind read can fail a fix as easily as
+> it can pass a missing one. The block above now strips comments with `check_audit_claims.strip_text`,
+> per §4b V4, and carries two assertions so the harness checks both halves rather than the absence
+> alone.
 
 ---
 
@@ -203,6 +227,45 @@ grep -rn 'subsection{.*MTLnet' src/chapters/4_courb/    # expect TWO hits
 and `12_figures.md` calls it the 26-site normalization, so three records give three counts and the
 wrong one is the one that prints. No result depends on it; it is in the appendix whose only job is to
 be exactly right about what changed. Ledger finding L-9.
+
+> **ROUND 8, 2026-07-30 — CLOSED, and the printed count is now 28, neither 25 nor the 26 this item
+> predicted.** The appendix reads: "normalized to the second form at all **28** places where the name
+> appears in the printed chapter **and its tables**: 23 in prose, two in subsection headings, one in a
+> figure caption, and two in table headings" — supplementary volume `main_extra.pdf` p. 9 (the errata
+> appendix moved out of the defense build in round 7, which is why this item's "page 95" no longer
+> resolves there). Every component reconciles against the source, counted with this tree's own
+> stripper over the seven `4_courb/*.tex` files, `4_courb.tex`, and the four `tables/courb/*.tex`:
+> ```bash
+> cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
+> python3 -c "
+> import sys; sys.path.insert(0, 'src_utils')
+> from pathlib import Path
+> from check_audit_claims import strip_text
+> SRC = Path('src')
+> files = sorted((SRC/'chapters/4_courb').glob('*.tex')) + [SRC/'chapters/4_courb.tex'] \
+>         + sorted((SRC/'tables/courb').glob('*.tex'))
+> b = {'prose': 0, 'subsection': 0, 'caption': 0, 'table_heading': 0}
+> for f in files:
+>     in_tables = 'tables/' in str(f)
+>     for line in f.read_text().splitlines():
+>         live = strip_text(line)
+>         n = live.count('MTLnet')
+>         if not n: continue
+>         k = ('subsection' if '\\\\subsection' in live else
+>              'caption' if '\\\\caption' in live else
+>              'table_heading' if in_tables else 'prose')
+>         b[k] += n
+> print('prose', b['prose'], 'subsection', b['subsection'],
+>       'caption', b['caption'], 'table', b['table_heading'], 'total', sum(b.values()))
+> "
+> # EXPECT: contains=prose 23 subsection 2 caption 1 table 2 total 28
+> ```
+> The two table-heading sites are `tables/courb/category.tex:10` and `tables/courb/next.tex:10`, both
+> `\textbf{MTLnet}` column heads. Note what the earlier count missed and why: the phrase "in the
+> printed chapter" excluded the two `tables/courb/` files, which the chapter `\input`s and the reader
+> sees — so 21 prose was really 23 prose plus 2 table headings across a wider file set. The appendix
+> now names the file set in the sentence ("and its tables"), which is what makes the total checkable
+> rather than merely arithmetic. Verified against the render, not the intent.
 
 ---
 
