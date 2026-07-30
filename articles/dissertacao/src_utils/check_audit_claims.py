@@ -31,6 +31,29 @@ repeat and expensive to notice:
   3. AN ESCAPED PERCENT IS NOT A COMMENT. `90\\%` inside a sentence truncated a 2,068-character
      paragraph at column 766, hiding "well powered" at column 1848 -- so the fixed stripper
      reported the defect as absent. The comment pattern must be `(?<!\\)%`.
+SCOPE, WIDENED 2026-07-30, and stated here because a docstring claiming one scope over code covering
+two is itself a defect this repository has hit. This file started as a gate on CODEX_AUDIT's outcome
+table and now also gates FIXES THIS PROJECT MADE ON ITS OWN INITIATIVE -- the `R8-` probes. The reason
+is measured, not precautionary: a review pointed out that nothing gated round 8's own repairs, and
+reverting each of the three left all 22 gates green.
+  R8-head / R8-head2  the Ch.5 glossary violation ("region head" -> "region output", and the repo
+                      shorthand -> "region-transition prior"), fixed in 48c4d01d
+  R8-vintage          the Ch.6 data-vintage item printing BOTH Gowalla windows, the paper's stated one
+                      and the measured span of the files actually used
+  R8-bibfont          an INVERTED probe: the \footnotesize bibliography wrapper must stay ABSENT.
+                      REV-024 was archived as closed this session on a ONE-TIME measurement, which is
+                      the very defect written up as PENDENCIAS 2.19 -- a measurement without its tree
+                      state can only be re-taken, never re-checked. This probe converts it into
+                      something re-checkable on every run.
+Adding a probe here is now part of applying a fix, not a later tidy-up: if reverting the edit leaves
+the suite green, the fix is undefended.
+
+ONE TRAP WHEN VALIDATING AN INVERTED PROBE, hit while validating R8-bibfont. My sabotage inserted the
+banned token near `\begin{document}` in preamble.tex -- and all SEVEN occurrences of that anchor in
+that file are inside `%` comments, so live_text() stripped the sabotage and the probe correctly
+reported holds. It read exactly like a probe that does not fire. Insert the sabotage into the first
+LIVE line instead, and assert the token is present in live_text() before believing the verdict.
+
 The stripper self-tests both directions (escaped % survives, real comment excluded) before this file
 reports anything, because a stripper that silently over-strips turns every probe into a false pass.
 
@@ -89,6 +112,17 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     ("COD-016a", "Ch.3 unbalanced-result sentence rewritten",
      "chapters/3_cbic/results.tex", r"important to notice that since we have an", False),
     # COD-018 was HERE and is retired deliberately, not dropped. See RETIRED below.
+    # ---- ROUND-8 FIXES OF OUR OWN, not CODEX_AUDIT findings. Added 2026-07-30 after a review
+    # observed that this file gated only the inherited audit and nothing round 8 repaired on its own
+    # initiative: all three reverts below left 22 gates green, measured by sabotage.
+    ("R8-head",  'Ch.5 says "region output", not the banned "region head"',
+     "chapters/5_mobiwac/06_results.tex", r"region\s+output\s+was\s+driven", True),
+    ("R8-head2", 'the same sentence says "region-transition prior", not the repo shorthand',
+     "chapters/5_mobiwac/06_results.tex", r"region-transition\s+prior", True),
+    ("R8-vintage", "Ch.6 data-vintage item prints BOTH Gowalla windows, the paper's and the measured one",
+     "chapters/6_conclusion.tex", r"August\s+2011", True),
+    ("R8-bibfont", "no footnotesize wrapper around the bibliography (REV-024, archived on one measurement)",
+     "preamble.tex", r"footnotesize", False),
     ("NUM-4",    "HGI sweep reports its spreads and its averaging convention",
      "chapters/2_fundamentals.tex", r"0\.8186", True),
 )

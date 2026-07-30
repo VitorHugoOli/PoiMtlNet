@@ -385,6 +385,12 @@ a arvore viva; o que NAO se sustentou voltou para o `PENDENCIAS.md` em vez de vi
 
 ### ~~Fonte da bibliografia: 12 pt ou `\footnotesize`? (REV-024)~~ — RESOLVIDO 2026-07-27
 
+> **AGORA TEM SONDA, 2026-07-30.** Este item foi arquivado com **uma medicao unica** (o wrapper ausente
+> de tres arquivos), que e exatamente o defeito descrito no item 2.19: medicao sem o estado da arvore
+> so pode ser re-tomada, nunca re-conferida. Corrigido — `check_audit_claims.py` tem a sonda invertida
+> `R8-bibfont`, que **falha** se o `\footnotesize` voltar. Validada por sabotagem: rc=1 com o wrapper
+> de volta numa linha viva, rc=0 sem ele.
+>
 > **Nao estava aqui, e deveria.** Fechado com commit em `63b6ad33` (2026-07-27) e removido do tracker
 > sem ser copiado para este arquivo. Reencontrado na varredura de 2026-07-30 e **re-verificado**: o
 > wrapper `{\footnotesize ...}` nao existe em nenhum arquivo raiz vivo (`main.tex`, `preamble.tex`,

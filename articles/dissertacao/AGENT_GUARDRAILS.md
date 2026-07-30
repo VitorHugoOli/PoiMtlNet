@@ -369,6 +369,21 @@ the work*, and that is where the time went. The four root causes, with the count
   in the render, one a register that needs no probe), which is the trap: the verdict was right and the
   warrant was not, so nothing downstream would ever have caught it.
 
+- **V15. A fix without a probe is undefended, and archiving it on a one-time measurement re-creates the
+  defect you just wrote up.** Round 8 built a gate for the inherited audit's claims and applied nine of
+  its own fixes with nothing gating any of them: reverting the Ch.5 glossary word, collapsing the Ch.6
+  two-date sentence, or restoring the bibliography wrapper each left ALL 22 GATES GREEN, measured by
+  sabotage rather than assumed. Worse, REV-024 was archived as closed on a single measurement -- the
+  exact shape the same session had written up as unre-checkable (a measurement without its tree state
+  can only be re-taken, never re-checked). So: adding a probe is PART OF applying a fix, not a later
+  tidy-up, and the test is mechanical -- revert the edit; if the suite stays green, the fix is
+  undefended. For a fix whose correctness is an ABSENCE, write an INVERTED probe (expect-not-found), and
+  when validating it insert the sabotage into a LIVE line and assert the token reaches live_text():
+  seven of preamble.tex's `\begin{document}` occurrences are inside comments, so a sabotage placed
+  there is stripped and the probe's correct `holds` reads exactly like a probe that never fires.
+  Finally, when a gate's coverage grows past what its docstring claims, the docstring is the defect --
+  state the new scope in the same commit.
+
 **V14. A parallel track's self-report is not evidence that its edit landed, and an outcome table is a
   claim about the work.** This is the rule the whole 2026-07-30 recovery round exists to write.
   On 2026-07-28 an audit outcome table was annotated with sixteen rows reading **APPLIED**. Two days
