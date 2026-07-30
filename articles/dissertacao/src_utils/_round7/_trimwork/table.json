@@ -1,0 +1,325 @@
+[
+ [
+  "src/content.tex",
+  {
+   "total": 339,
+   "com": 167,
+   "blocks": 25,
+   "maxb": 27,
+   "signoff": 4
+  },
+  {
+   "total": 324,
+   "com": 152,
+   "blocks": 25,
+   "maxb": 27,
+   "signoff": 4
+  }
+ ],
+ [
+  "src/main.tex",
+  {
+   "total": 163,
+   "com": 152,
+   "blocks": 5,
+   "maxb": 89,
+   "signoff": 0
+  },
+  {
+   "total": 138,
+   "com": 127,
+   "blocks": 5,
+   "maxb": 79,
+   "signoff": 0
+  }
+ ],
+ [
+  "src/main_academico.tex",
+  {
+   "total": 37,
+   "com": 34,
+   "blocks": 1,
+   "maxb": 34,
+   "signoff": 0
+  },
+  {
+   "total": 34,
+   "com": 31,
+   "blocks": 1,
+   "maxb": 31,
+   "signoff": 0
+  }
+ ],
+ [
+  "src/main_extra.tex",
+  {
+   "total": 277,
+   "com": 117,
+   "blocks": 7,
+   "maxb": 41,
+   "signoff": 1
+  },
+  {
+   "total": 277,
+   "com": 117,
+   "blocks": 7,
+   "maxb": 41,
+   "signoff": 1
+  }
+ ],
+ [
+  "src/main_ppgc.tex",
+  {
+   "total": 28,
+   "com": 25,
+   "blocks": 1,
+   "maxb": 25,
+   "signoff": 0
+  },
+  {
+   "total": 27,
+   "com": 24,
+   "blocks": 1,
+   "maxb": 24,
+   "signoff": 0
+  }
+ ],
+ [
+  "src/preamble.tex",
+  {
+   "total": 278,
+   "com": 176,
+   "blocks": 16,
+   "maxb": 36,
+   "signoff": 0
+  },
+  {
+   "total": 254,
+   "com": 152,
+   "blocks": 16,
+   "maxb": 29,
+   "signoff": 0
+  }
+ ],
+ [
+  "src/chapters/1_introduction.tex",
+  {
+   "total": 271,
+   "com": 54,
+   "blocks": 8,
+   "maxb": 25,
+   "signoff": 2
+  },
+  {
+   "total": 281,
+   "com": 64,
+   "blocks": 8,
+   "maxb": 25,
+   "signoff": 2
+  }
+ ],
+ [
+  "src/chapters/2_fundamentals.tex",
+  {
+   "total": 766,
+   "com": 321,
+   "blocks": 19,
+   "maxb": 57,
+   "signoff": 5
+  },
+  {
+   "total": 723,
+   "com": 278,
+   "blocks": 19,
+   "maxb": 50,
+   "signoff": 5
+  }
+ ],
+ [
+  "src/chapters/3_cbic.tex",
+  {
+   "total": 65,
+   "com": 36,
+   "blocks": 3,
+   "maxb": 19,
+   "signoff": 0
+  },
+  {
+   "total": 62,
+   "com": 33,
+   "blocks": 3,
+   "maxb": 19,
+   "signoff": 0
+  }
+ ],
+ [
+  "src/chapters/4_courb.tex",
+  {
+   "total": 49,
+   "com": 37,
+   "blocks": 3,
+   "maxb": 17,
+   "signoff": 1
+  },
+  {
+   "total": 45,
+   "com": 33,
+   "blocks": 3,
+   "maxb": 16,
+   "signoff": 1
+  }
+ ],
+ [
+  "src/chapters/5_mobiwac.tex",
+  {
+   "total": 56,
+   "com": 29,
+   "blocks": 3,
+   "maxb": 15,
+   "signoff": 1
+  },
+  {
+   "total": 53,
+   "com": 26,
+   "blocks": 3,
+   "maxb": 15,
+   "signoff": 1
+  }
+ ],
+ [
+  "src/chapters/6_conclusion.tex",
+  {
+   "total": 287,
+   "com": 103,
+   "blocks": 9,
+   "maxb": 23,
+   "signoff": 7
+  },
+  {
+   "total": 287,
+   "com": 103,
+   "blocks": 9,
+   "maxb": 23,
+   "signoff": 7
+  }
+ ],
+ [
+  "src/chapters/apx_a_contributions.tex",
+  {
+   "total": 251,
+   "com": 152,
+   "blocks": 9,
+   "maxb": 45,
+   "signoff": 6
+  },
+  {
+   "total": 246,
+   "com": 147,
+   "blocks": 9,
+   "maxb": 45,
+   "signoff": 6
+  }
+ ],
+ [
+  "src/chapters/apx_b_errata.tex",
+  {
+   "total": 438,
+   "com": 221,
+   "blocks": 10,
+   "maxb": 92,
+   "signoff": 5
+  },
+  {
+   "total": 440,
+   "com": 223,
+   "blocks": 10,
+   "maxb": 94,
+   "signoff": 5
+  }
+ ],
+ [
+  "src/chapters/apx_b_static_scope.tex",
+  {
+   "total": 72,
+   "com": 23,
+   "blocks": 2,
+   "maxb": 18,
+   "signoff": 1
+  },
+  {
+   "total": 72,
+   "com": 23,
+   "blocks": 2,
+   "maxb": 18,
+   "signoff": 1
+  }
+ ],
+ [
+  "src/chapters/apx_c_ai_disclosure.tex",
+  {
+   "total": 92,
+   "com": 54,
+   "blocks": 1,
+   "maxb": 54,
+   "signoff": 1
+  },
+  {
+   "total": 92,
+   "com": 54,
+   "blocks": 1,
+   "maxb": 54,
+   "signoff": 1
+  }
+ ],
+ [
+  "src/chapters/apx_d_ceiling.tex",
+  {
+   "total": 127,
+   "com": 27,
+   "blocks": 3,
+   "maxb": 12,
+   "signoff": 1
+  },
+  {
+   "total": 127,
+   "com": 27,
+   "blocks": 3,
+   "maxb": 12,
+   "signoff": 1
+  }
+ ],
+ [
+  "src/chapters/apx_e_ethics.tex",
+  {
+   "total": 98,
+   "com": 11,
+   "blocks": 3,
+   "maxb": 6,
+   "signoff": 1
+  },
+  {
+   "total": 98,
+   "com": 11,
+   "blocks": 3,
+   "maxb": 6,
+   "signoff": 1
+  }
+ ],
+ [
+  "src/chapters/apx_f_cosine.tex",
+  {
+   "total": 352,
+   "com": 154,
+   "blocks": 8,
+   "maxb": 60,
+   "signoff": 1
+  },
+  {
+   "total": 401,
+   "com": 217,
+   "blocks": 10,
+   "maxb": 71,
+   "signoff": 1
+  }
+ ]
+]

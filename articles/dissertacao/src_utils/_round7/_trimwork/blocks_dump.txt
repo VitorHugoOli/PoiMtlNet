@@ -1,0 +1,529 @@
+====================================================================================================
+FILE src/chapters/3_cbic.tex
+====================================================================================================
+   1| % !TeX root = ../main.tex
+   2| % ==================================================================
+   3| % Chapter 3 -- Article 1 (CBIC 2025), re-typeset for the dissertation.
+   4| % Source: articles/CBIC___MTL/ (published record; DOI 10.21528/CBIC2025-1191324).
+   5| % Adaptation rules: NORTH_STAR §3-§4 + WRITING_LAW; every departure from the
+   6| % published text is logged in ../../src_utils/adaptation_ledgers/3_cbic_ADAPTATION_LEDGER.md (feeds Appendix B).
+   7| % Citation keys are kept AS-IS from the paper's references.bib (Phase-4 merge).
+   8| % ==================================================================
+   9| % Short one-line display + TOC heading (matches the frame chapters and the Germano
+  10| % precedent, which titles article chapters by the model/paper name, not "Article N: <full
+  11| % academic title>"). The full published title is stated verbatim in the preface below.
+  12| \chapter[Multi-Task Learning for POI Category and Next-POI Prediction]{Multi-Task Learning for POI Category and Next-POI Prediction}
+  13| \label{ch:cbic}
+  14| 
+  15| \begin{chapterpreface}
+  16| This chapter reproduces the article ``An Investigation into Multi-Task Learning for
+  17| Point-of-Interest Category Classification and Next-POI Prediction'', published at the
+  18| Congresso Brasileiro de Intelig\^encia Computacional (CBIC 2025), DOI
+  19| 10.21528/CBIC2025-1191324, with Vitor H. O. Silva as first author. The text was
+  20| reformatted from the two-column conference layout to the dissertation format;
+  21| typographical and tabulation errata were corrected, and each correction is listed in
+  22| Appendix~B of \extravolume. Its
+  23| conclusions are the conclusions of the time, for the configuration studied here: with a
+  24| place-level embedding and hard parameter sharing, multi-task learning did not
+  25| consistently improve on the dedicated single-task models. Chapters~\ref{ch:courb}
+  26| and~\ref{ch:mobiwac} revise that verdict by changing the input representation rather
+  27| than the architecture. The chapter's preference for the Nash-MTL optimizer is likewise
+  28| a conclusion of the time, weakened by a later finding about the optimizer
+  29| implementation, and Chapter~\ref{ch:mobiwac} does not rely on it. A note on terminology:
+  30| the term ``Next-POI Prediction'' as used in the reproduced article denotes the frame's
+  31| \emph{next category} task, that is, predicting the category of the next visited place,
+  32| not the exact place itself; the dissertation reserves \emph{next place} for the
+  33| exact-POI task, which is not studied here.
+  34| % [round7, 2026-07-29] Errata pointer repointed, NOT deleted. It read "are listed in
+  35| % Appendix B"; Appendix B moved to the supplementary volume (0_main.tex's appendix block
+  36| % records the decision), so a bare "Appendix B" would send the reader to this document's
+  37| % Appendix C. The advisor's ruling is that this preface is what explains the re-typeset, so
+  38| % the sentence has to keep telling the reader where the itemized corrections are. The volume
+  39| % is named through \extravolume (defined in 0_main.tex) so all eight pointers agree.
+  40| % The appendix LETTER is written literally rather than as a \ref, because the target label is
+  41| % in another document; 0_extra.tex freezes that letter and check_extra_xrefs.py guards it.
+  42| % [round4, NEW-4] Pointer corrected: the earlier wording said "the following chapters do
+  43| % not rely on it", which is false for Chapter 4 -- 4_courb.tex:115 trains with the Nash-MTL
+  44| % balancer ("Multi-task training uses the Nash-MTL regularizer"), and 4_courb.tex:84 states
+  45| % the same for the MTLnet baseline. Chapter 5 is the chapter that does not use it: it reports
+  46| % a fixed loss weighting and states that no balancer, Nash-MTL included, improved on it
+  47| % (5_mobiwac.tex:180-186). This sentence is dissertation-authored preface prose, not
+  48| % reproduced published text, so it carries no Appendix B errata row.
+  49| % [round3, author 3.5/MJ-8] terminology bridge: the article reuses "Next-POI" for what
+  50| % the frame names "next category" (and internally the published text even shades it toward
+  51| % exact-location on p.27); this sentence fixes the mapping so a reader who trusts the
+  52| % abstract's "exact place is not predicted" is not tripped.
+  53| \end{chapterpreface}
+  54| 
+  55| % ---------------------------------------------------------------------------
+  56| % SECTIONS. Split into chapters/3_cbic/ on 2026-07-28 at the author's request, to
+  57| % match the one-file-per-section layout of the original paper source under
+  58| % articles/CBIC___MTL/sections/. Purely mechanical: cut at \section boundaries, no prose edited.
+  59| % Order below IS the reading order; the rendered document is byte-identical.
+  60| % ---------------------------------------------------------------------------
+  61| \input{chapters/3_cbic/intro}
+  62| \input{chapters/3_cbic/basis}
+  63| \input{chapters/3_cbic/method}
+  64| \input{chapters/3_cbic/results}
+  65| \input{chapters/3_cbic/conclusion}
+  66| 
+====================================================================================================
+FILE src/chapters/4_courb.tex
+====================================================================================================
+   1| % !TeX root = ../main.tex
+   2| %%==============================================================
+   3| %% Chapter 4 -- Article 2 (CoUrb 2026 / SBRC). Re-typeset from the verified EN
+   4| %% translation articles/CoUrb_2026/src_en/ (DOI 10.5753/courb.2026.22960).
+   5| %% Every departure from the published text is logged in
+   6| %% ../../src_utils/adaptation_ledgers/4_courb_ADAPTATION_LEDGER.md (feeds Appendix B).
+   7| %% Audited numbers (ERRATA #1/#2) sourced from articles/CoUrb_2026/slides/judge_feedback.md.
+   8| %% [2026-07-27] Spelling normalized: 26 sites "MTLNet" -> "MTLnet" (24 printed, 2 in comments),
+   9| %% the form GLOSSARY.md:41 registers. "ST-MTLNet" (GLOSSARY.md:44) is a separate registered
+  10| %% name and is unchanged, as is its expansion "Spatial-Temporal MTLNet".
+  11| %% The :84 declaration that this chapter preserved the published spelling was removed.
+  12| %% Appendix B row: apx_b_errata.tex, Article 2 section.
+  13| %%==============================================================
+  14| % Short one-line display + TOC heading (see Ch.3 note). Full published title is in the preface.
+  15| \chapter[ST-MTLNet: Spatio-Temporal POI Representations]{ST-MTLNet: Spatio-Temporal POI Representations for Multi-Task Learning}
+  16| \label{ch:courb}
+  17| 
+  18| \begin{chapterpreface}
+  19| This chapter is a translated reproduction of the paper ``ST-MTLNet: Representações Espaço-Temporais de Pontos de Interesse para Aprendizado Multitarefa,'' published in Portuguese in the Anais do X Workshop de Computação Urbana (CoUrb 2026, an SBRC workshop), pages 323 to 336, DOI 10.5753/courb.2026.22960 \cite{paiva2026stmtlnet}. Tarik S. Paiva is the first author of the paper; the author of this dissertation is the second author, presented the paper at the workshop, and is the first author of the baseline model MTLnet, introduced in Chapter~\ref{ch:cbic}. The evaluation protocol of this study stratifies the cross-validation split by sample rather than by user, a weaker protocol than the user-disjoint cross-validation adopted in Chapter~\ref{ch:mobiwac}; the conclusions reported here are those of the time, for that configuration. This chapter isolates the representation effect with MTLnet as its only baseline; it does not revisit the MTL-versus-single-task question, which Chapter~\ref{ch:mobiwac} reopens. As in Chapter~\ref{ch:cbic}, the term ``Next-POI Prediction'' used here denotes the frame's \emph{next category} task (the category of the next visited place), not the exact-place task the dissertation calls \emph{next place}. Appendix~B of \extravolume\ records what we established after publication about the scope of this chapter's static task, and that record should be read alongside the category results reported here.
+  20| % [round3, author 3.5/MJ-8] same terminology bridge as the Ch.3 preface.
+  21| % [round6, author decision 2026-07-27, PENDENCIAS 2.4, was 2.2 before the 2026-07-29 renumber] The pointer to the static-task scope
+  22| % section the author authorized for Appendix B. DELIBERATELY names the APPENDIX and not the
+  23| % section's own label: if the author suppresses that section by commenting its \input in
+  24| % apx_b_errata.tex, this sentence stays true. If you suppress the section, delete this
+  25| % sentence too, or it points at an appendix that no longer discusses the topic.
+  26| % [round7, 2026-07-29] Retargeted from \ref{apx:errata} to a literal "Appendix~B of
+  27| % \extravolume" when Appendix B moved out of this document. The reason the original avoided
+  28| % the section label still holds, and there is now a second reason to avoid a \ref of any
+  29| % kind: the label lives in another document. \extravolume is defined in 0_main.tex; the
+  30| % frozen letter is guarded by src_utils/check_extra_xrefs.py. The trailing "\ " after
+  31| % \extravolume is load-bearing -- without it TeX swallows the following space and the
+  32| % sentence reads "dissertationrecords".
+  33| % [NEEDS SIGN-OFF: raised round 6, 2026-07-28 | one added sentence in a PUBLISHED chapter's preface. The preface is FRAME
+  34| % prose written for the dissertation, not translated article text, so it carries no errata
+  35| % cost -- but it is a public pointer to a statement about a co-authored result, so the author
+  36| % signs it. Co-author notice given (author, 2026-07-27); advisor conversation pending.]
+  37| \end{chapterpreface}
+  38| 
+  39| % ---------------------------------------------------------------------------
+  40| % SECTIONS. Split into chapters/4_courb/ on 2026-07-28 at the author's request, to
+  41| % match the one-file-per-section layout of the original paper source under
+  42| % articles/CoUrb_2026/src_en/sections/. Purely mechanical: cut at \section boundaries, no prose edited.
+  43| % Order below IS the reading order; the rendered document is byte-identical.
+  44| % ---------------------------------------------------------------------------
+  45| \input{chapters/4_courb/intro}
+  46| \input{chapters/4_courb/related}
+  47| \input{chapters/4_courb/methodology}
+  48| \input{chapters/4_courb/results}
+  49| \input{chapters/4_courb/conclusion}
+  50| 
+====================================================================================================
+FILE src/chapters/5_mobiwac.tex
+====================================================================================================
+   1| % !TeX root = ../main.tex
+   2| % =====================================================================
+   3| % Chapter 5 -- Article 3 (MobiWac 2026): re-typeset of the version of record
+   4| % articles/[mobiwac]/src/ (author decision NORTH_STAR section 5.4: "the last one in
+   5| % the src"; re-sync before the final gate pass). Status: submitted, under review
+   6| % (EDAS #1571313639) -- never "published/accepted".
+   7| % Adaptation ledger: ../../src_utils/adaptation_ledgers/5_mobiwac_ADAPTATION_LEDGER.md (feeds Appendix B).
+   8| % Figure assets: figures/mobiwac/ (TikZ figures recompiled standalone with
+   9| % newtxtext/newtxmath at natural single-column width; fig3/fig4 regenerated from
+  10| % the paper's own scripts at 5.2 in width, numbers untouched).
+  11| % Claim discipline: inherited verbatim from articles/[mobiwac]/ (PAPER_PLAN
+  12| % section 3 whitelist; ERRATA.md constraints). Region verbs bound to tests; never
+  13| % upgrade Arizona; scaling claim scoped to the five U.S. states.
+  14| % =====================================================================
+  15| % Short one-line display + TOC heading (see Ch.3 note). Full published title is in the preface.
+  16| \chapter[A Check-in-Level Multi-Task Study of Next Category and Region]{A Check-in-Level Multi-Task Study of Next Category and Region}
+  17| \label{ch:mobiwac}
+  18| 
+  19| \begin{chapterpreface}
+  20| % [round7, 2026-07-29] "recorded in the errata appendix" -> "recorded in Appendix~B of
+  21| % \extravolume". This is PREFACE prose written for the dissertation, not reproduced article
+  22| % text, so it carries no parity cost against the submitted manuscript and no errata row. The
+  23| % sentence had to change: the errata appendix is no longer in this document, and a reader who
+  24| % went looking for it would find the AI-disclosure appendix at that letter.
+  25| % [NEEDS SIGN-OFF: raised v1 assembly, 2026-07-23 | new-to-chapter frame text (the time-capsule preface mandated by
+  26| % NORTH_STAR section 3/section 4 Ch.5); claims drawn from the approved spine and the paper's claim
+  27| % whitelist (PAPER_PLAN section 3).]
+  28| This chapter reproduces the article ``Predicting the Next Category and Region of a
+  29| Visit: A Check-in-Level Multi-Task Study on Mobility Data,'' submitted to MobiWac
+  30| 2026, under review at the time of writing (EDAS \#1571313639). It closes the
+  31| investigation that Chapters~\ref{ch:cbic} and~\ref{ch:courb} open: with a
+  32| check-in-level representation and a redesigned sharing topology, a single joint
+  33| model outperforms the dedicated single-task category model at all six datasets
+  34| studied (five U.S. states and Istanbul) and the dedicated region model at four of
+  35| the six, and it matches the dedicated region model (statistically, within two
+  36| points) at the other two. The article was
+  37| reformatted from its two-column original into the dissertation layout: sections,
+  38| figures, and tables were renumbered, and the figures were regenerated at
+  39| single-column width. No result, claim, or conclusion was altered; every departure
+  40| from the submitted text is recorded in Appendix~B of \extravolume.
+  41| \end{chapterpreface}
+  42| 
+  43| % ---------------------------------------------------------------------------
+  44| % SECTIONS. Split into chapters/5_mobiwac/ on 2026-07-28 at the author's request, to
+  45| % match the one-file-per-section layout of the original paper source under
+  46| % articles/[mobiwac]/src/sections/. Purely mechanical: cut at \section boundaries, no prose edited.
+  47| % Order below IS the reading order; the rendered document is byte-identical.
+  48| % ---------------------------------------------------------------------------
+  49| \input{chapters/5_mobiwac/01_introduction}
+  50| \input{chapters/5_mobiwac/02_related}
+  51| \input{chapters/5_mobiwac/03_problem}
+  52| \input{chapters/5_mobiwac/04_method}
+  53| \input{chapters/5_mobiwac/05_setup}
+  54| \input{chapters/5_mobiwac/06_results}
+  55| \input{chapters/5_mobiwac/07_discussion}
+  56| \input{chapters/5_mobiwac/08_conclusion}
+  57| 
+====================================================================================================
+FILE src/main_academico.tex
+====================================================================================================
+   1| % !TeX root = main_academico.tex
+   2| % ============================================================================
+   3| % main_academico.tex -- the AcademicoPG deposit body (no cover, no folha de rosto, no
+   4| % approval sheet, no Resumo, no Abstract: that system generates all of them from web forms).
+   5| %
+   6| % Author decision, 2026-07-28 (src_utils/LATEX_UPGRADE.md §4, A-1/A-2/A-3): this build was
+   7| % called `final` until 2026-07-29. "Final" said nothing next to `defense` and `ppgc` -- final
+   8| % of what? -- so the target, the jobname, the output file and the switch macro all say
+   9| % academico now, after the one system the PDF is actually uploaded to.
+  10| %
+  11| % WHY THIS FILE EXISTS AT ALL. Until it did, this was the only one of the three builds that
+  12| % could not be opened in Overleaf or a GUI editor, because it lived exclusively as a pdflatex
+  13| % command-line injection in the Makefile. Every editor can select a compile ROOT; none can be
+  14| % told to add \def\ACADEMICOBUILD{} first. So the deposit build -- the one PDF that is
+  15| % actually submitted -- was the one nobody could produce without make. Now all three builds
+  16| % are a selectable root: main.tex, main_academico.tex, main_ppgc.tex.
+  17| %
+  18| % This file is deliberately TWO lines of content: the \def below and the \input after it.
+  19| % Measure it rather than trusting this sentence:
+  20| %   grep -v '^[[:space:]]*%' main_academico.tex | grep -cv '^[[:space:]]*$'   returns 2
+  21| % and src_utils/check_comment_hygiene.py fails the build if that stops being true. The count
+  22| % is anchored to the two commands by name, not to line numbers: a first draft of this header
+  23| % said ":22-23 below" and was stale before the file was committed, which is the same class of
+  24| % defect as the "four-line file" claim the rename pass removed from main.tex.
+  25| % It sets one switch and reads main.tex, so the deposit PDF cannot drift from the defense
+  26| % document except where \ifdefensebuild says it should.
+  27| %
+  28| % Build: `make academico` -> build/main_academico.pdf. Do not add content here. If something
+  29| % belongs in every build it belongs in 0_main.tex; if it belongs only in this one, gate it on
+  30| % \ifdefensebuild there (false in this build).
+  31| %
+  32| % The three builds, the two switches and what each build is: the main.tex header, which is
+  33| % the canonical telling and the one that travels with an Overleaf paste of src/.
+  34| % ============================================================================
+  35| 
+  36| \def\ACADEMICOBUILD{}
+  37| \input{main.tex}
+  38| 
+====================================================================================================
+FILE src/main_ppgc.tex
+====================================================================================================
+   1| % !TeX root = main_ppgc.tex
+   2| % ============================================================================
+   3| % main_ppgc.tex -- the defense PDF WITH the approval sheet (folha de aprovacao).
+   4| %
+   5| % Author decision, 2026-07-28: "o main deve gerar o build da defesa e o main_ppgc so
+   6| % gerar o pdf da defesa com a folha de aceite."
+   7| %
+   8| % This file is deliberately TWO lines of content: the \def below and the \input after it. The
+   9| % count was stated as "four" here and in main.tex until 2026-07-29 -- measure it, do not trust
+  10| % a prose claim about it:
+  11| %   grep -v '^[[:space:]]*%' main_ppgc.tex | grep -cv '^[[:space:]]*$'   returns 2
+  12| % The line coordinates this sentence used to carry (":18-19") had already gone stale by the
+  13| % time the header above them grew, so the anchor is now the two commands by name.
+  14| % It sets one switch and reads main.tex, so main_ppgc.pdf is the defense document plus the
+  15| % approval sheet, and the two entry points CANNOT drift apart. Everything real -- the
+  16| % preamble, the front matter, the chapters, the bibliography -- lives in main.tex and
+  17| % 0_main.tex.
+  18| %
+  19| % Build: `make ppgc` -> build/main_ppgc.pdf. Do not add content here. If something
+  20| % belongs in both builds it belongs in 0_main.tex; if it belongs only in this one, gate
+  21| % it on \ifapprovalsheet there.
+  22| %
+  23| % The three builds, the two switches and what each build is: the main.tex header, which is
+  24| % the canonical telling and the one that travels with an Overleaf paste of src/.
+  25| % ============================================================================
+  26| 
+  27| \def\APPROVALSHEET{}
+  28| \input{main.tex}
+  29| 
+====================================================================================================
+FILE src/chapters/1_introduction.tex
+====================================================================================================
+   1| % !TeX root = ../main.tex
+   2| % Chapter 1 -- Introduction (Introducao Geral)
+   3| %
+   4| % ---------------------------------------------------------------------------
+   5| % DISSERTATION TITLE (working decision, author 2026-07-23; final call with the
+   6| % advisor before the front matter is built -- Resumo/Abstract header must match
+   7| % the folha de rosto exactly):
+   8| %   WORKING TITLE:
+   9| %     From Representations to a Single Joint Model: Multi-Task Learning for
+  10| %     Point-of-Interest Category and Region Prediction
+  11| %   ALTERNATES for the advisor to consider (all pass the two-factor rule --
+  12| %   name both the representation and the sharing/architecture factor, or
+  13| %   neither; see storyline/AVAL_NECESSARIA_3_ptBR.md D2):
+  14| %     1. Representation Drives, Sharing Delivers: A Check-in-Level Multi-Task
+  15| %        Study of Next Category and Region Prediction
+  16| %     2. The Visit, Not the Place: Check-in-Level Representations and a Joint
+  17| %        Model for Next Category and Region Prediction
+  18| %     3. One Visit, One Vector: From a Published Null to a Joint Model for
+  19| %        Next Category and Region Prediction
+  20| % ---------------------------------------------------------------------------
+  21| %
+  22| % Draft 1 (2026-07-23). Written from the approved beat budget
+  23| % (storyline/audit/ch1_beat_budget.md) and the synced spine (NORTH_STAR §6.1).
+  24| % Obeys WRITING_LAW.md + GLOSSARY.md. Citation ledger: 1_citations.md (same folder).
+  25| % Rule of this chapter: it NARRATES; the prefaces, recaps, and Chapter 6 litigate.
+  26| 
+  27| \chapter{Introduction}
+  28| \label{ch:intro}
+  29| 
+  30| \section{Context and motivation}
+  31| \label{sec:intro:context}
+  32| 
+  33| Location-based social networks let a person announce where they are: a
+  34| \emph{check-in} records that a given user visited a given place, a point of interest
+  35| (POI), at a given time. Such records now exist at large scale, and they carry more
+  36| regularity than their noise suggests;
+  37| an analysis of large-scale human traces estimated the potential predictability of an
+  38| individual's next location at about 93 percent~\cite{song2010limits}. A system that
+  39| anticipates two properties of the next visit, \emph{what kind of place} it will be and
+  40| \emph{in which part of the city} it will happen, can act before the visit occurs: a
+  41| recommender can rank candidates of the right type, a navigation or transit service can
+  42| prepare for where the user is heading, and a platform can allocate attention and
+  43| resources by area. These uses reach beyond mobility research itself. The study of
+  44| human mobility informs urban planning, disease spreading, and pollution analysis,
+  45| among other societal concerns~\cite{luca2021mobilitysurvey}, and place categories are
+  46| the semantic characterization that location-based services rely on~\cite{Xu2023}. The
+  47| field also imports its tools: part of the representation machinery used in this
+  48| research, the spatial location encoders of the second study, was first validated on
+  49| geospatial tasks such as species recognition and remote sensing
+  50| classification~\cite{mai2023sphere2vecgeneralpurposelocationrepresentation,wu2024torchspatial}.
+  51| 
+  52| The two properties above are the two prediction tasks of this dissertation. The
+  53| \emph{next category} task predicts the category of the next visited place, one of
+  54| seven top-level classes. The \emph{next region} task predicts the official geographic
+  55| unit of the next visit, a census tract in the United States or a mahalle in Istanbul,
+  56| a target space that ranges from hundreds to several thousand classes per dataset. The
+  57| exact \emph{next place} task, predicting the specific establishment, is a third and
+  58| different problem; this dissertation does not address it, and Chapter~\ref{ch:fundamentals} keeps the
+  59| three tasks formally distinct.
+  60| 
+  61| A fourth task also appears in this dissertation: the first two studies paired next
+  62| category prediction with the static classification of a place's category, category
+  63| classification, and Section~\ref{sec:intro:arc} explains why the final study replaced
+  64| it. Next category and next region were chosen for what a mobility-aware service can
+  65| act on, and both are established end targets in the literature on the way to the
+  66| harder next-place problem.
+  67| 
+  68| Serving both predictions raises a natural engineering wish. The two tasks read the
+  69| same trace of visits, so one model could learn them together, sharing what they have
+  70| in common; this is multi-task learning (MTL)~\cite{caruana1997multitask}, and it has
+  71| produced single networks that handle many vision tasks at
+  72| once~\cite{kokkinos2016ubernet}, recurrent models that diagnose over a hundred
+  73| clinical conditions simultaneously~\cite{lipton2015learning}, and language models
+  74| fine-tuned across dozens of tasks described by
+  75| instructions~\cite{wei2022finetuned}. The operational appeal is
+  76| concrete: a single model to maintain, and a single forward pass that returns both
+  77| predictions together, instead of two dedicated single-task models running side by
+  78| side. The promise, however, is not automatic.
+  79| % [NEEDS SIGN-OFF: raised v1 assembly, 2026-07-23 | gate L3 fix A-1. Original sentence was near-verbatim with Ch.5
+  80| % ("one artifact to train, version, and deploy, and one forward pass whose single set
+  81| % of inputs produces both answers at once"); reworded here so the paper chapter keeps
+  82| % the original wording. Claim unchanged. Revert if you prefer the duplication.]
+  83| Sharing parameters between tasks can hurt one of them, a failure mode known as
+  84| negative transfer. Whether joint training helps for this pair of POI prediction
+  85| tasks, and what the answer depends on, was unresolved when this research started.
+  86| 
+  87| \section{Research question and the arc of this dissertation}
+  88| \label{sec:intro:arc}
+  89| 
+  90| This dissertation answers one question:
+  91| 
+  92| \begin{quote}
+  93| \textbf{Does multi-task learning help point-of-interest prediction (next category and
+  94| next region), and what does the answer depend on?}
+  95| \end{quote}
+  96| 
+  97| The answer was not found in one step, and the journey is the contribution. This
+  98| dissertation is a collection of three studies, and it presents them in the order they
+  99| happened: a negative result, its diagnosis, and its resolution.
+ 100| 
+ 101| The first study (Chapter~\ref{ch:cbic}, published at CBIC 2025) built the first joint model of
+ 102| this research, MTLnet, from standard components: a place-level graph embedding as
+ 103| input and hard parameter sharing beneath the two task heads. It predicted place
+ 104| categories in two forms, the static category classification task and the sequential
+ 105| prediction of the next category. The joint model did not consistently outperform the
+ 106| two dedicated single-task models, and it cost more to train. The paper reported this
+ 107| null result as a finding, together with three candidate explanations, one of which
+ 108| pointed at the input representation.
+ 109| 
+ 110| The second study (Chapter~\ref{ch:courb}, published at CoUrb 2026) tested the representation
+ 111| explanation first, as the cheapest controlled test among the three: it kept the MTLnet
+ 112| architecture fixed and replaced only the input, a monolithic 64-dimensional place
+ 113| embedding, with decomposed spatial, temporal, and categorical encoders. Category
+ 114| performance rose sharply at every state tested. The diagnosis followed: at that stage
+ 115| of the research, the input representation, not the sharing architecture, was the
+ 116| bottleneck.
+ 117| 
+ 118| The third study (Chapter~\ref{ch:mobiwac}, submitted to MobiWac 2026 and under review) acted on that
+ 119| diagnosis. Any place-level embedding assigns a place the same vector on every visit; a
+ 120| representation that cannot tell a weekday lunch from a Saturday night out at the same
+ 121| place is working against both tasks at once. That observation is the hypothesis the
+ 122| final study tests. It moves the representation to the check-in level: one vector per
+ 123| visit. Acting on another of the first study's candidate explanations, the
+ 124| restrictiveness of hard parameter sharing, it also redesigns the sharing topology,
+ 125| replacing the shared hidden layers with cross-attention between two task-specific
+ 126| streams. The change of representation also refines what a joint model should predict,
+ 127| since under a per-visit representation the static classification of places becomes a
+ 128| less natural fit than the sequential tasks, and the task pair settles on next category
+ 129| and next region. With both changes in place, one joint model finally outperforms both
+ 130| dedicated single-task models across the six datasets studied, five states of the
+ 131| United States and Istanbul: on the category task at all six, and on the region task at
+ 132| four of six, with statistical non-inferiority within a two-point margin (TOST) at the
+ 133| other two.
+ 134| 
+ 135| The task pair therefore evolved across the three studies, from static category
+ 136| classification plus next category in the first two to next category plus next region
+ 137| in the last, and this dissertation names that evolution plainly rather than narrating
+ 138| one fixed experiment. The arc it reports is a correction trail: each study revised
+ 139| what the previous one concluded, and the later chapters state precisely which earlier
+ 140| conclusions they supersede.
+ 141| 
+ 142| \section{Objectives}
+ 143| \label{sec:intro:objectives}
+ 144| 
+ 145| The general objective of this dissertation is to determine whether multi-task learning
+ 146| helps point-of-interest prediction for the next category and next region tasks, and to
+ 147| identify what the answer depends on. Four specific objectives structure the work, one
+ 148| per chapter of the collection and its consolidation:
+ 149| 
+ 150| \begin{enumerate}
+ 151|   \item Investigate whether a standard hard-parameter-sharing joint model benefits its
+ 152|         two category tasks, static category classification and next category
+ 153|         prediction, relative to dedicated single-task models (Chapter~\ref{ch:cbic}).
+ 154|   \item Diagnose the role of the input representation in that result by decomposing
+ 155|         and enriching the input while holding the architecture fixed (Chapter~\ref{ch:courb}).
+ 156|   \item Design and validate a check-in-level representation and a joint model built on
+ 157|         it for next category and next region prediction (Chapter~\ref{ch:mobiwac}).
+ 158|   \item Anchor the final answer to the research question in a leakage-guarded
+ 159|         statistical protocol, the user-disjoint cross-validation with paired
+ 160|         significance and non-inferiority testing of Chapter~\ref{ch:mobiwac}, and consolidate the
+ 161|         evidence of the three studies under it (Chapter~\ref{ch:conclusion}).
+ 162| \end{enumerate}
+ 163| 
+ 164| \section{Scope and assumptions}
+ 165| \label{sec:intro:scope}
+ 166| 
+ 167| The empirical scope is fixed by the data and the targets. The experiments draw on
+ 168| observational check-in traces from two sources: the Gowalla dataset restricted to five
+ 169| states of the United States (Alabama, Arizona, Florida, California, Texas) and the
+ 170| Istanbul portion of the Massive-STEPS benchmark. The prediction targets are the next category, over the
+ 171| seven-class taxonomy defined in Chapter~\ref{ch:fundamentals}, and the next region, over census tracts in
+ 172| the United States and mahalles in Istanbul. The exact next place is not predicted
+ 173| anywhere in this work. The joint model operates under a single-model constraint: one
+ 174| trained artifact whose one forward pass over one set of inputs yields both
+ 175| predictions. Design-time assumptions of this kind are stated here and kept separate
+ 176| from the evaluation-time limitations discussed in Chapter~\ref{ch:conclusion}.
+ 177| 
+ 178| \section{Organization of this dissertation}
+ 179| \label{sec:intro:organization}
+ 180| 
+ 181| In accordance with the Master's Regulations of the Federal University of Vi\c{c}osa,
+ 182| this dissertation is organized as a collection of works, with each central chapter
+ 183| presented as an independent article. The chapters were re-typeset in a unified format
+ 184| for this dissertation; their content is faithful to the published text of each
+ 185| article, or, in the case of the article under review, to the submitted manuscript, and
+ 186| any correction applied afterward is listed in the errata appendix of \extravolume\ rather
+ 187| than silently edited.
+ 188| % [round7, 2026-07-29] "the errata appendix" -> "the errata appendix of \extravolume". This
+ 189| % sentence is the promise the whole errata regime rests on, so it had to keep pointing at a
+ 190| % document the reader can actually obtain once the appendix left this one. It names the
+ 191| % appendix by role rather than by letter because the surrounding sentence is about the
+ 192| % practice, not about a location; the sentences that send a reader to a specific correction
+ 193| % (Ch.3's preface and footnotes, Ch.4's preface, Ch.5's preface, the conclusion) carry the
+ 194| % letter. \extravolume is defined in 0_main.tex. The collection is organized as follows:
+ 195| 
+ 196| \begin{itemize}
+ 197|   \item \textbf{Chapter~\ref{ch:fundamentals}, Fundamentals}, consolidates the background the three
+ 198|         articles share: the POI prediction tasks, representations for mobility data,
+ 199|         multi-task learning, and the datasets and evaluation protocol. It closes by
+ 200|         connecting these fundamentals to the three questions the articles answer.
+ 201|   \item \textbf{Chapter~\ref{ch:cbic}} presents the first article, published in English at the
+ 202|         XVII Congresso Brasileiro de Intelig\^encia Computacional (CBIC 2025,
+ 203|         DOI~10.21528/CBIC2025-1191324), with this author as first author.
+ 204|         % Venue verified 2026-07-23 against the official CBIC 2025 site
+ 205|         % (cbic2025.dcc.ufmg.br): XVII edition, promoted by SBIC, Belo Horizonte,
+ 206|         % October 27-30, 2025.
+ 207|   \item \textbf{Chapter~\ref{ch:courb}} presents the second article, published in Portuguese at the
+ 208|         X Workshop de Computa\c{c}\~ao Urbana (CoUrb 2026,
+ 209|         DOI~10.5753/courb.2026.22960), held jointly with the Simp\'osio Brasileiro de
+ 210|         Redes de Computadores e Sistemas Distribu\'idos (SBRC 2026), and reproduced
+ 211|         here as an English translation.
+ 212|         % Venue verified 2026-07-23 against SBC OpenLibrary (sol.sbc.org.br/index.php/
+ 213|         % courb): X edition, May 25-29 2026, Praia do Forte/BA, with the XLIV SBRC.
+ 214|         The article is first-authored by Tarik S.\ Paiva; this author is the second
+ 215|         author, contributed the MTLnet baseline on which the study builds, and
+ 216|         presented the paper at the event.
+ 217|   \item \textbf{Chapter~\ref{ch:mobiwac}} presents the third article, submitted to the 23rd ACM
+ 218|         International Symposium on Mobility Management and Wireless Access (MobiWac
+ 219|         2026) and currently under review, with this author as first author.
+ 220|         % Venue verified 2026-07-23 against the official symposium site
+ 221|         % (mobiwac-symposium.org/2026): 23rd edition. Update the status wording
+ 222|         % here and in sections 1.1-1.2 the moment a decision arrives.
+ 223|   \item \textbf{Chapter~\ref{ch:conclusion}, Conclusion}, consolidates the answer to the research
+ 224|         question, states the limitations, and derives future work from them.
+ 225| \end{itemize}
+ 226| 
+ 227| Each article chapter opens with a short preface identifying its venue, its publication
+ 228| status, and the points on which later chapters revise its conclusions, so that the
+ 229| reader always knows which statements reflect the state of the research at the time of
+ 230| that article and which reflect the dissertation's final position.
+ 231| 
+ 232| \section{Contributions}
+ 233| \label{sec:intro:contributions}
+ 234| 
+ 235| The contributions of this dissertation fall into four groups.
+ 236| 
+ 237| \begin{description}
+ 238|   \item[Theoretical.] The finding that the input representation, together with the
+ 239|         sharing topology built on it, dominates whether multi-task learning helps
+ 240|         these POI prediction tasks. The arc also yields a corrected view of MTL for
+ 241|         this task family: a null result under a place-level representation coexists
+ 242|         with a positive result under a check-in-level one.
+ 243|   \item[Software.] The MTLnet framework (Chapter~\ref{ch:cbic}), the check-in-level
+ 244|         representation and the joint model built on it (Chapter~\ref{ch:mobiwac}), and the
+ 245|         reproducible training and evaluation pipelines behind the experiments of
+ 246|         Chapters~\ref{ch:cbic} and~\ref{ch:mobiwac}, with code repositories referenced in the respective
+ 247|         chapters.
+ 248|   \item[Empirical.] A six-dataset benchmark of joint versus dedicated models for next
+ 249|         category and next region prediction under user-disjoint cross-validation,
+ 250|         with twenty fitted models per configuration (four seeds, each a complete
+ 251|         repetition of the five-fold experiment with a different random initialization, over one
+ 252|         fixed set of five folds), paired significance tests on the four per-seed means, that is,
+ 253|         four paired observations, non-inferiority margins, and a leakage audit. All
+ 254|         four seeds reuse the same fold partition, so the reported intervals do not
+ 255|         cover uncertainty over resampled user splits.
+ 256|         % [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-014, 2026-07-26] "twenty repetitions per configuration
+ 257|         % (four seeds, five folds)" -> the 20 fits kept, the inferential unit (n = 4)
+ 258|         % named, plus the fixed-partition clause. Sources: GLOSSARY rows "paired
+ 259|         % superiority test" + "n = 20 (fitted models) and n = 4 (inferential unit)";
+ 260|         % stats_n20/RESULTS.md:65-67; STATISTICAL_PROTOCOL.md:187-190.
+ 261|   \item[Practical.] Evidence that one deployable model can serve both prediction
+ 262|         services at once, outperforming the dedicated models on the category task and
+ 263|         outperforming or remaining non-inferior to them on the region task, with the
+ 264|         operational simplicity of a single artifact and a single forward pass.
+ 265| \end{description}
+ 266| 
+ 267| % [round5, persona 03 S3-05] "seed" first reached the reader here, on rendered p. 16, while its
+ 268| % definition sits at 5_mobiwac.tex:388 on p. 66 -- a fifty-page forward dependency in a frame
+ 269| % chapter, where WRITING_LAW's define-at-first-use rule is in full force. The gloss added here uses
+ 270| % the registry's own wording, so Ch.5's definition is unchanged and stays canonical. The Abstract and
+ 271| % Resumo already comply by writing "random initializations" instead of the bare term.

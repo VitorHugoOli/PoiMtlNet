@@ -1,0 +1,993 @@
+================================================================================================
+FILE src/chapters/6_conclusion.tex (288 lines)
+================================================================================================
+--- block 1..9 (9 lines) ---
+   1| % !TeX root = ../main.tex
+   2| % Chapter 6 -- Conclusion (Conclusao Geral)
+   3| % Draft 1 (2026-07-23). Written from NORTH_STAR section 6 Ch.6 beats (synced with all
+   4| % signed-off additions, AVAL rounds 1-3) + the D1 capacity-baseline record
+   5| % (storyline/audit/capacity_baseline_experiment.md section 5).
+   6| % Obeys WRITING_LAW.md + GLOSSARY.md. Claim/number ledger: 6_citations.md (same folder).
+   7| % [AUTHOR DECISION pending in section 6.2: prominence of the capacity-matched baseline
+   8| %  paragraph -- it is included per the D1 licensing contract (suppression is not an
+   9| %  option once run), but its length and placement are the author's call.]
+
+--- block 23..27 (5 lines) ---
+  23| % [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-015, 2026-07-26] The unqualified "outperforms both dedicated
+  24| % models" was the one locus in the document carrying no scope. Scope copied from
+  25| % 5_mobiwac.tex:26-30 and from Section 6.1 below (:49-53): category at all six,
+  26| % region at four (Istanbul, Florida, California, Texas), TOST non-inferiority within
+  27| % two points at Alabama and Arizona. Arizona is NOT upgraded.
+
+--- block 62..84 (23 lines) ---
+  62| % [round6, D-02, domain panel personas 09/10] BOUNDED. The paragraph quoted Ch.4's 20.2-22.0 point
+  63| % gain unlabelled, as the diagnosis of the whole arc. Two things were wrong with that. First, the
+  64| % number is the STATIC task's (4_courb/results.tex:92, "in all 21 category-state combinations",
+  65| % the per-state means over the 7 categories x 3 states), and by this round's own Appendix B section
+  66| % that task's input determines its target by construction -- so a large part of the gain measures the
+  67| % introduction of a deterministic input-to-label channel, not a better mobility representation.
+  68| % Second, the arc's claim needs the SEQUENTIAL task, which is clean in both published chapters
+  69| % (3_cbic/method.tex, 4_courb/methodology.tex) and is what Ch.5 goes on to test.
+  70| % The number stays, because it is the published chapter's own audited figure and this is the chapter
+  71| % recap. What changed is that it now carries its task and its qualification, and the arc's diagnosis
+  72| % now rests on the sequential result rather than on this figure alone.
+  73| % [NEEDS SIGN-OFF: raised round 6, 2026-07-28 | two added sentences in the author's own frame prose. No number changed.]
+  74| % [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-009 + idiom law, 2026-07-26] Two changes in one sentence pair.
+  75| % (1) "moved the needle farther than" -> "produced a larger gain than" (WRITING_LAW §4
+  76| % idiom rule: no phrasal metaphors; claim strength unchanged). (2) The 64-to-192 width
+  77| % asymmetry, previously invisible in the frame chapters, is now named and attributed.
+  78| % Sources (quoted, not computed): 4_courb.tex:209 (E_input in R^192), :215 ("The input
+  79| % dimensionality of ST-MTLNet (R^192) is higher than that of the baseline (R^64)" and
+  80| % "an additional experimental control equalizing the dimensionality of the
+  81| % representations would allow validating more precisely whether the gains occur mainly
+  82| % from the semantic specialization of the encoders, and not only from the increase in
+  83| % input dimensionality"); GLOSSARY §2 ST-MTLNet row (64-d each -> 192-d). Chapter 4 was
+  84| % NOT edited.
+
+--- block 122..128 (7 lines) ---
+ 122| % [round5, F50 audit] The author asked whether this experiment is sound enough to cite. It is not,
+ 123| % as previously worded. F50_T1_5_CROSSATTN_ABSORPTION.md:229 calls its own null "misleading" and a
+ 124| % "hidden compensation effect"; F49 puts the architectural contribution at -16.16 pp. The run also
+ 125| % used a different engine and batch (check2hgi/bs2048, April) from the shipped board
+ 126| % (check2hgi_dk_ovl/bs8192, catx_v17_n20/*.json rundir), and its mechanism depends on the alpha*log_T
+ 127| % prior that 5_mobiwac.tex says our models do not use. The withheld attribution is unaffected: it
+ 128| % rests on the freeze control and the capacity-matched control. [NEEDS SIGN-OFF: raised round 5, 2026-07-27 | AUTHOR]
+
+--- block 138..159 (22 lines) ---
+ 138| % [round5, COD-010] The previous sentence said "across three training configurations and all twenty
+ 139| % fitted models, the best of them reaches 56.16", which miscounted and mislabelled: twenty is the
+ 140| % PER-ARM count, not the total, and 56.16 is the best arm's MEAN, not a maximum over fits. Verified
+ 141| % in capacity_matched_summary.json, results.alabama_h672: bs2048_lr0.0025 n=20 mean=56.1611
+ 142| % std=1.885; bs2048_lr0.005 n=20 mean=55.6098; bs8192_lr0.005 n=20 mean=55.7406. The std was also
+ 143| % missing (persona 10 F-14). No verdict moves: the joint model still leads by +8.35. The
+ 144| % [NEEDS SIGN-OFF: raised round 3, 2026-07-24 | gate fix B-2, 2026-07-24] 64.54 -> 64.51 to match Ch.5 Table 3, the
+ 145| % dissertation's reported joint-best convention (JOINT_BEST_RESULTS.md: AL 64.54 diag-best
+ 146| % / 64.51 joint-best). AGENT_GUARDRAILS N5 forbids blurring joint-best vs diagnostic-best;
+ 147| % verdict-neutral: at the 64.51 basis the joint model leads the capacity arm (56.16) by
+ 148| % +8.35 and the dedicated ceiling (56.82) by +7.69; no conclusion moves. Persona 14
+ 149| % APPROVE-WITH-EDIT. If you prefer 64.54, name it as the diagnostic-best value in prose.
+ 150| % [round6, F-02, banca simulator persona 12] SENTENCE REJOINED. It read "California run, completed
+ 151| % since, repeats the pattern", a sentence with no subject, on p.77 of the defense build -- inside
+ 152| % section 6.2, the consolidated answer, which is the highest-traffic prose after the abstract.
+ 153| % Cause, from 59de8280: the sentence was written as "... and 64.51 for the joint model. The" /
+ 154| % "California run, completed since, repeats the pattern", with its article "The" ending the previous
+ 155| % prose line. A later round inserted eleven lines of provenance comment BETWEEN "The" and
+ 156| % "California", and the article was absorbed into the comment tail. Same family as the trapped-prose
+ 157| % class, in its rarer form: nothing was swallowed mid-sentence, an ARTICLE was orphaned across an
+ 158| % inserted block, so the remaining fragment still parses as a line and no gate fires on it.
+ 159| % Recovered from the original commit rather than reinvented.
+
+--- block 171..189 (19 lines) ---
+ 171| % [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-013, 2026-07-26] The interim sentence ("A partial California run,
+ 172| % fifteen of twenty repetitions at the time of writing, shows the same direction") is
+ 173| % replaced by the completed run, committed at
+ 174| % docs/results/closing_data/capacity_matched_stl_cat/ (commit 58232dd2). Every figure is
+ 175| % QUOTED from that folder's README.md + capacity_matched_summary.json: matched width
+ 176| % hidden_dim=752 / 5,249,719 params = 101.9% of the joint model's 5,151,189 (param-audit
+ 177| % table); best arm bs8192 @ lr 0.0025, n = 20, mean 69.88, std 0.26 (results table);
+ 178| % California's own narrow-width ceiling 70.60 +/- 0.07 (reference-points table);
+ 179| % shortfalls -0.72 CA and -0.66 AL, "essentially the same as Alabama's ... not larger"
+ 180| % (README "Correction to an interim reading"); the lower-learning-rate observation
+ 181| % (README "Methodological observation": AL 0.0025 vs 0.005; CA 0.0025 vs 0.005). The
+ 182| % interim characterization "larger magnitude" is refuted by the completed sweep and does
+ 183| % not appear anywhere in the document. The direction claim is unchanged.
+ 184| % NOTE for the author: the Alabama value 56.16 above still carries no spread; the same
+ 185| % README gives std 1.89 for that arm. Adding it would satisfy WRITING_LAW §3 for the
+ 186| % whole paragraph, but that sentence is outside this correction's scope, so it is left
+ 187| % as approved. The CA/AL joint-model margins (-7.17 CA, -8.38 AL) are stated in the
+ 188| % README on the DIAGNOSTIC-BEST basis and are therefore NOT quoted here, where the AL
+ 189| % comparison runs on the joint-best basis (AGENT_GUARDRAILS N5).
+
+--- block 193..200 (8 lines) ---
+ 193| % [GATE FIX C-1, 2026-07-23] "buys nothing" -> "yields nothing"; "the win lives in" ->
+ 194| % "the gain resides in" (WRITING_LAW §4 idiom law; claim strength unchanged; author may reword).
+ 195| % [v2 review F-01, 2026-07-26] Synced with the Ch.5 correction (persona 10). The frame said the
+ 196| % gain "comes from a stronger shared trunk"; the freeze control cannot locate the component, and
+ 197| % docs/findings/archive/F50/F50_T1_5_CROSSATTN_ABSORPTION.md:19-20 tests the trunk directly at FL
+ 198| % and finds delta -0.04 +- 0.13 (statistically indistinguishable, :37). Both figures quoted. The
+ 199| % capacity-matched control in the SECOND leg is untouched and is the stronger of the two: it rules
+ 200| % out plain parameter count, which the trunk ablation does not bear on.
+
+--- block 211..213 (3 lines) ---
+ 211| % [round5, NUM-3] Scope corrected. The pool is R0_matched_metric_bar.json: four Gowalla states
+ 212| % (AL, AZ, GA, FL), and GA is not one of the dissertation's six datasets. Ch.5 was corrected on this
+ 213| % point in round 4; this locus was missed then. No value changed.
+
+--- block 251..257 (7 lines) ---
+ 251|         % [GATE FIX C-1] "the size of the win" -> "the size of the improvement" (idiom law).
+ 252|         % [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-013, 2026-07-26] "closes the parameter-count explanation"
+ 253|         % was unqualified inside a limitations list. Scope QUOTED from
+ 254|         % docs/results/closing_data/capacity_matched_stl_cat/README.md, "Reading":
+ 255|         % "Parameter count alone, without the second task's training signal, does not
+ 256|         % reproduce the gain in this setting -- category task, two of six datasets, one
+ 257|         % width point per dataset, width scaling rather than depth." No claim added.
+
+================================================================================================
+FILE src/chapters/apx_a_contributions.tex (252 lines)
+================================================================================================
+--- block 1..15 (15 lines) ---
+   1| % !TeX root = ../main.tex
+   2| % Appendix A -- Other scientific contributions.
+   3| % [2026-07-27] Section A.2 (the earlier unpublished BRACIS iteration) REMOVED on the author's
+   4| % ruling; recorded in NORTH_STAR §4. The lone A.1 heading went with it, so the appendix is one
+   5| % unsectioned statement, as Appendix C already is.
+   6| % [round 7, 2026-07-29] The sentence that stood here -- "AGENT_GUARDRAILS C4 still mandates the
+   7| % containment device and needs the matching update (not my file)" -- IS NO LONGER TRUE and is
+   8| % removed rather than left to mislead. C4 was amended on 2026-07-27 by author decision and the
+   9| % edit landed: read it in AGENT_GUARDRAILS.md, where the rule now prohibits any BRACIS material
+  10| % and explicitly voids the disclosure half ("The *prohibition* half of C4 survives and is now the
+  11| % whole rule; the *disclosure* half is void"). Nothing is owed to that file. The sign-off below
+  12| % is still open on its own terms -- it is about this appendix's prose, not about C4.
+  13| % Counts trace to ../../src_utils/etl_tooling_contribution_evidence.md + ../../_archive/handoffs/handoff_tooling.json.
+  14| % ETL note: stage_3.py writes per-state CSV (stage_3.py:98); the text claims only a 56-way split.
+  15| % [NEEDS SIGN-OFF: raised v1 assembly, 2026-07-23 | whole appendix -- new frame prose.]
+
+--- block 20..25 (6 lines) ---
+  20| % [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-023, 2026-07-26] "the three published studies" -> "the three
+  21| % studies of this collection". Two of the three are published (CBIC 2025, DOI
+  22| % 10.21528/CBIC2025-1191324; CoUrb 2026, DOI 10.5753/courb.2026.22960); the third is
+  23| % submitted and under review (5_mobiwac.tex:22-24, "submitted to MobiWac 2026, under
+  24| % review at the time of writing"), which every other locus in the document states
+  25| % correctly.
+
+--- block 28..31 (4 lines) ---
+  28| % [round6, 2026-07-28] Heading ADDED. The file header records that the lone A.1 heading was
+  29| % dropped when the former A.2 was removed, leaving one unsectioned statement. The
+  30| % reproducibility section below restores a second topic, so the appendix carries two headings
+  31| % again rather than one section trailing an unheaded opening. The opening prose is unchanged.
+
+--- block 35..42 (8 lines) ---
+  35| % [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-006 consistency, 2026-07-26] "supported every experiment in the
+  36| % dissertation" -> "supported the experiments of Chapters 3 and 5". Forced by the rewrite
+  37| % below: the study of Chapter 4 released its code as a separate repository
+  38| % (4_courb.tex:43), so "every experiment" contradicted the corrected sentence two
+  39| % sentences later. Chapters 3 and 5 both footnote this platform's repository
+  40| % (3_cbic.tex:59; 5_mobiwac.tex:55, the mobiwac branch). AUTHOR: if the Chapter 4
+  41| % experiments did in fact run on this platform with only the released analysis code kept
+  42| % elsewhere, restore the wider claim and say so; that is a fact only you can settle.
+
+--- block 55..77 (23 lines) ---
+  55| % [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-006, 2026-07-26] The former sentence ("The same codebase
+  56| % standardizes evaluation across the dissertation ... so that every
+  57| % single-task-versus-multi-task comparison reported in Chapters 3 to 5 rests on a common,
+  58| % leakage-controlled measurement procedure") was false in three ways, each verified in the
+  59| % source this session before the rewrite:
+  60| %   1. NOT user-disjoint in Ch.3/Ch.4. 4_courb.tex:226: "The split is stratified by sample,
+  61| %      not by user, so the check-ins of one user may appear in both training and
+  62| %      validation"; the Ch.4 preface (:13) repeats it. Ch.3 states 5-fold cross-validation
+  63| %      (3_cbic.tex:261, :347) and never asserts a user-disjoint split.
+  64| %   2. NO significance protocol in Ch.3/Ch.4. A full sweep for Wilcoxon / Holm / TOST /
+  65| %      p-value over both chapters returns nothing; Ch.3 reasons from overlapping standard
+  66| %      deviations instead (3_cbic.tex:344, ":55"). Tested claims are confined to Ch.5
+  67| %      (5_mobiwac.tex:355).
+  68| %   3. NOT the same codebase throughout. Ch.4's released code is a separate repository
+  69| %      (4_courb.tex:43, TarikSalles/Spatial_Embeddings); Ch.3 and Ch.5 point at
+  70| %      VitorHugoOli/PoiMtlNet (3_cbic.tex:59; 5_mobiwac.tex:55). Only the Ch.4 case is
+  71| %      asserted in the new prose, since that is the one the chapters themselves evidence.
+  72| % What the replacement asserts, and its sources: the protocol components are the final
+  73| % study's (5_mobiwac.tex:355 for the paired tests, the TOST margin, and the seed/fold
+  74| % design; :359 for the per-fold region-transition prior built from training data) and are
+  75| % implemented in the platform (src_utils/etl_tooling_contribution_evidence.md §2.6:
+  76| % src/data/folds.py, StratifiedGroupKFold, "leak-free per-fold region-transition prior";
+  77| % paired Wilcoxon and TOST under scripts/). No count or performance number was added.
+
+--- block 99..102 (4 lines) ---
+  99| % [NEEDS SIGN-OFF: raised round 6, 2026-07-28 | whole section -- new frame prose. The author approved adding reproducibility
+ 100| % content, following the pattern of Appendix D, where each number names the script that produced
+ 101| % it and the output file it lives in. No number is quoted here that is not already in the
+ 102| % document; what this section adds is the path a reader follows to re-derive one.]
+
+--- block 111..153 (43 lines) ---
+ 111| % [round6, F-01, banca simulator persona 12] BLOCKER CLOSED BY SCOPING, and the author has a
+ 112| % publishing decision to make that this comment does NOT close.
+ 113| % THE DEFECT: this paragraph said "every path is relative to the platform repository, which Ch.5
+ 114| % footnotes at first mention", which points the reader at
+ 115| % https://github.com/VitorHugoOli/PoiMtlNet/tree/mobiwac. Measured against that branch, path by path
+ 116| % (git cat-file -e mobiwac:<path>), NINE OF THE THIRTEEN \path{} entries appeared ABSENT.
+ 117| % [round7, 2026-07-29] RE-AUDITED BY CONTENT AND THE COUNT IS FIVE, NOT NINE. `git cat-file -e
+ 118| % mobiwac:<path>` answers "is this PATH in the branch", and the question is "is this FILE in the
+ 119| % branch". The mobiwac branch has NO docs/ tree -- it keeps these artifacts under analysis_protocol/ --
+ 120| % so three files that are present with BYTE-IDENTICAL content read as absent:
+ 121| %     STATISTICAL_PROTOCOL.md -> analysis_protocol/STATISTICAL_PROTOCOL.md
+ 122| %     JOINT_BEST_RESULTS.md   -> analysis_protocol/JOINT_BEST_RESULTS.md
+ 123| %     m2_prereg_output.txt    -> analysis_protocol/m2_prereg_output.txt
+ 124| % Re-measured by hashing each local file and searching all 552 blobs of the branch:
+ 125| %     for p in <the thirteen>; do oid=$(git hash-object "$p"); grep " $oid<TAB>" <(git ls-tree -r mobiwac); done
+ 126| % That is the third count for this one item (8 of 12, then 9 of 13, now 5 of 13) and every earlier
+ 127| % error was an instrument answering a narrower question than the claim built on it -- guardrails
+ 128| % §4b V3. The prose below is scoped to what is true either way, so no sentence changes.
+ 129| % from it:
+ 130| %   PRESENT  src/data/folds.py, scripts/closing_data/score_joint_best.py,
+ 131| %            scripts/closing_data/superiority_wilcoxon.py, scripts/closing_data/region_match_tost.py,
+ 132| %            and (as analysis_protocol/*) STATISTICAL_PROTOCOL.md, JOINT_BEST_RESULTS.md,
+ 133| %            m2_prereg_output.txt
+ 134| %   ABSENT   docs/.../STATISTICAL_PROTOCOL.md, scripts/build_phase3_per_fold_transitions.sh,
+ 135| %            docs/.../JOINT_BEST_RESULTS.md, m1_stats_n20.py, m2_prereg_perfold.py,
+ 136| %            m1_full_output.txt, m2_prereg_output.txt, docs/.../stats_n20/,
+ 137| %            scripts/embedding_eval/autocorrelation_ceiling.py
+ 138| %            (m1_full_output.txt was missing from this list in the first version of this comment,
+ 139| %            which is why the counts read 8-of-12 instead of 9-of-13.)
+ 140| % All thirteen exist on this machine; the FOUR bare filenames resolve inside the stats_n20 directory.
+ 141| % [corrected 2026-07-28, finding 6827bde0] An earlier version of this comment said "twelve" and
+ 142| % "the four bare filenames" over a set of twelve, which does not add up. Recounted by extracting
+ 143| % every \path{} from the PROSE of this file with comments stripped: THIRTEEN entries, FOUR of them
+ 144| % bare (m1_stats_n20.py, m2_prereg_perfold.py, m1_full_output.txt, m2_prereg_output.txt), all four
+ 145| % resolving inside stats_n20/. The first count came from a line-based grep that missed one entry
+ 146| % sharing a line with another.
+ 147| % So the code is real and the PROMISE was wrong: the document's most load-bearing reproducibility
+ 148| % sentence did not resolve for a reader who followed the chapter's own footnote.
+ 149| % The prose now claims only what is true. THE BETTER FIX IS THE AUTHOR'S: push the eight missing
+ 150| % files to the public branch, then restore the stronger sentence. Recorded in PENDENCIAS.
+ 151| % [NEEDS SIGN-OFF: raised round 6, 2026-07-28 | "supplied on request" is a weaker commitment than the previous sentence implied,
+ 152| % and a banca may ask why. If the files are published before the defense, revert this paragraph to
+ 153| % the stronger claim and delete this comment.]
+
+--- block 193..196 (4 lines) ---
+ 193| % [round7, 2026-07-29] Repointed from \ref{apx:ceiling}: Appendix D moved to the
+ 194| % supplementary volume. The letter D is preserved there by construction (0_extra.tex sets the
+ 195| % chapter counter) and guarded by src_utils/check_extra_xrefs.py, so naming it literally is
+ 196| % safe; a \ref would be a dangling reference to a label in another document.
+
+--- block 207..251 (45 lines) ---
+ 207| % SOURCE LEDGER for this section. Every path was checked to exist on disk this session
+ 208| % (2026-07-28) and every protocol statement is quoted from a source file, not from the task brief.
+ 209| %  FOLDS. docs/context/DATA_SPLITS.md, "Configuration": StratifiedGroupKFold(n_splits=5,
+ 210| %   shuffle=True, random_state=42), "Stratification: by primary class", "Group: by userid".
+ 211| %   Confirmed in the implementation the doc names as source of truth: src/data/folds.py:1159 and
+ 212| %   :1247 both construct StratifiedGroupKFold(n_splits=self.n_splits, shuffle=True,
+ 213| %   random_state=self.seed) with the default seed at :1061 (seed: int = 42) and n_splits at
+ 214| %   :1059 (n_splits: int = 5). The paired-fold construction and its leak argument:
+ 215| %   DATA_SPLITS.md "MTL fold pairing on a shared user partition" steps 1-4, implemented from
+ 216| %   folds.py:1204-1208 and :1453-1455. The doc's own precedence rule is "if there's ever a
+ 217| %   discrepancy, the code wins"; there is no discrepancy here.
+ 218| %  SEEDS. DATA_SPLITS.md "Multi-seed pooling": "Same fold partition across seeds -- fold-id
+ 219| %   seed=42 always; only the model-init seed varies", "Seeds {0, 1, 7, 100} ... Combined with 5
+ 220| %   folds -> n=20". Matched by STATISTICAL_PROTOCOL.md (seeds {0,1,7,100} x 5 folds; one fixed
+ 221| %   fold partition across arms). The n=20 / n=4 distinction is GLOSSARY.md's registered pair and
+ 222| %   is NOT restated as a test footing here, since this section describes the design, not the test.
+ 223| %  TRANSITION PRIOR. DATA_SPLITS.md "Per-fold log_T": computed on the per-fold training
+ 224| %   partition only, "built by scripts/build_phase3_per_fold_transitions.sh"; the whole-dataset
+ 225| %   version is recorded there as leak-inflated. Written as "region-transition prior" per
+ 226| %   WRITING_LAW section 2 (log_T is a banned repo codename). That our models do not consume it
+ 227| %   and the external baseline does: 5_mobiwac.tex:361.
+ 228| %  JOINT-BEST. GLOSSARY.md "joint-best convention" ("Both tasks read at the one saved model per
+ 229| %   fold (the validation-selected epoch)"). Script header, scripts/closing_data/
+ 230| %   score_joint_best.py:2-6, contrasts it with per-task diagnostic-best; results file named at
+ 231| %   RESULTS_BOARD.md and present on disk.
+ 232| %  TESTS. Script paths from stats_n20/RESULTS.md:44-46 ("Test conventions mirror
+ 233| %   scripts/closing_data/superiority_wilcoxon.py + region_match_tost.py") and from the directory
+ 234| %   listing; the four stats_n20 files were listed on disk. Verdict tables at RESULTS.md:72-90.
+ 235| %  BENCHMARK. apx_d_ceiling.tex already names this script and its outputs; not duplicated.
+ 236| %  METRICS. Deliberately NOT restated: docs/context/METRICS.md is an internal document whose
+ 237| %   conventions differ in places from what the chapters report (it makes MRR primary for the
+ 238| %   joint scoreboard and describes an "F51 canonical extraction" of per-fold max over epochs >= 5,
+ 239| %   which is NOT the joint-best convention Chapter 5 reports). Pointing the reader at the
+ 240| %   chapters, which state the conventions actually used, avoids importing a superseded one.
+ 241| %   [VERIFY: whether the author wants METRICS.md's Delta-m variants and the F51 extraction rule
+ 242| %   disclosed anywhere in the document; I could not establish that either belongs to the reported
+ 243| %   configuration, so neither is named.]
+ 244| %  REPOSITORIES. Two, and the appendix above already distinguishes them: the platform of
+ 245| %   Chapters 3 and 5 (3_cbic.tex:66; 5_mobiwac.tex:55, the mobiwac branch) and the separate
+ 246| %   repository of Chapter 4 (4_courb.tex:58). This section cites the Chapter 5 footnote by \ref
+ 247| %   rather than reprinting the URL, so there is one URL of record per repository in the document.
+ 248| %  NOT INCLUDED, on purpose: hardware, package versions, and per-model training configurations.
+ 249| %   Chapter 5 states that the full training configuration for every model is in the released
+ 250| %   code, and I did not establish a committed version manifest this session.
+ 251| %   [VERIFY: a package-version manifest for the released code, if one exists, would belong here.]
+
+================================================================================================
+FILE src/chapters/apx_b_errata.tex (439 lines)
+================================================================================================
+--- block 1..92 (92 lines) ---
+   1| % !TeX root = ../main.tex
+   2| % Appendix B -- Errata to the reproduced articles
+   3| % Compiled 2026-07-23 from: articles/CBIC___MTL/ERRATA.md, articles/CoUrb_2026/ERRATA.md,
+   4| % articles/[mobiwac]/ERRATA.md, the three chapter ADAPTATION_LEDGER.md files (same
+   5| % folder), and BIB_MERGE_REPORT.md §3. Cites nothing new (bib keys shown as typewriter
+   6| % text, no \cite). Errata policy: NORTH_STAR §5.7 (fix silently in the re-typeset
+   7| % chapters + global bib; list every departure here).
+   8| %
+   9| % RECONCILIATION (fixes applied == fixes listed), cross-checked line by line:
+  10| %   CBIC ledger  B1-B7 -> rows 1-6 of Table B.1 (B1 = the dataset-counts row; row 6 is the
+  11| %                round-4 Nash scale-invariance correction, REV-020a) + the two
+  12| %                preservation notes after it (B6 Nash-MTL, B7 bolding convention);
+  13| %                C1-C8 -> the first 8 rows of Table B.2 (C7 marked subsumed by row 2 of
+  14| %                B.1); round-4 adds 5 more rows to B.2 (four REV-027 inferential-verb
+  15| %                substitutions + the REV-010 footnote).
+  16| %   CoUrb ledger A1-A4 -> rows 1-3 of Table B.3 + the preservation note (A4);
+  17| %                B4 (table lead sentences + the Figure 4.2 reading instruction, reclassified
+  18| %                to C4-C7) and C1-C3, C8 (frame additions) -> the additions paragraph, which
+  19| %                enumerates all eight; REV-021 (inline-math re-typeset) -> the mechanical
+  20| %                paragraph before it.
+  21| %   MobiWac ledger: one content correction (B.1 CBIC misattribution, round 2); additions
+  22| %                A1-A3 -> covering sentence. B/C/D items are mechanical re-typeset, declared
+  23| %                in §1.5.
+  24| %   Front matter (CBIC ledger A1 + CoUrb B7 + MobiWac E1-E2) -> ONE paragraph in the appendix
+  25| %                opening, covering all three chapters, rather than repeated per section.
+  26| %   BIB_MERGE_REPORT §3 items 1-11 -> 11 of the 12 rows of Table B.4; §1 key
+  27| %                consolidations -> covering sentence. The 12th row (the CoUrb Gowalla
+  28| %                mis-source, liu2014geographical) traces to the §1 key-rename table of the
+  29| %                same report, not to §3; the header previously said "11 rows", which
+  30| %                undercounted the table by one. That row belongs to the references track.
+  31| %                Table B.4 gained 2 further rows in the references pass of 2026-07-25
+  32| %                (Kohavi DOI dropped; Rußwurm re-typed to ICLR 2024), for 14 total.
+  33| %   Itemized rows, RE-MEASURED 2026-07-28 (round 6) by parsing each table's own body rather than
+  34| %                carrying the previous arithmetic forward: B.1 CBIC content 8, B.2 CBIC wording 13,
+  35| %                B.3 CoUrb content 4, B.4 bibliography 18. Total 43. Table B.5 (MobiWac claim-scope)
+  36| %                holds 2 and is counted separately, since the under-review regime puts most of that
+  37| %                chapter's corrections in the article's own errata record instead.
+  38| %                THE PREVIOUS CLAIM HERE WAS "6 + 13 + 3 + 14 = 36", and two of its four terms were
+  39| %                already stale before this round, which is why the count is now measured and not
+  40| %                incremented: B.1 went 6 -> 7 in round 5 when the Nash-MTL cost claim moved out of the
+  41| %                preservation prose and into the table (author decision 1b.3), and B.4 went 14 -> 16 in
+  42| %                the 6d780b58 table reorganization and 16 -> 18 in this round's citation pass (the
+  43| %                UberNet and Sphere2Vec version-of-record upgrades). Neither movement was reflected
+  44| %                here. Round 6 then added one row to B.1 (the Standley claim narrowing) and one to B.3
+  45| %                (the Nash-MTL guarantee narrowing), which is what takes the two tables to 8 and 4.
+  46| %                Measured by counting two-column data rows between \midrule and \bottomrule, and
+  47| %                between \endlastfoot and \end{longtable} for B.4, with LaTeX comments stripped.
+  48| %   Round 6 also gave Article 1 its first additions paragraph, the counterpart of the CoUrb section's
+  49| %                eight-addition paragraph, covering the preface, the convergence lead sentence, and the
+  50| %                four protocol facts recovered for COD-007. The CoUrb additions paragraph rises from
+  51| %                eight to nine with the checkpoint sentence added at the same protocol site.
+  52| %
+  53| % ROUND 4 (this pass) -- what changed and why:
+  54| %   Table B.1 gained the Nash scale-invariance row (REV-020a) and its dataset-counts row
+  55| %   was corrected: it had claimed the CBIC figures come "from the current data pipeline",
+  56| %   which is false (the current pipeline yields the Chapter 5 counts). New Section
+  57| %   "Two extractions of the same Gowalla corpus" (apx:errata:corpus) explains the two
+  58| %   figure sets to the reader (REV-016), with the mechanism quoted from
+  59| %   src_utils/cbic_recompute_result.md section 3 (category-mapping drift; the earlier
+  60| %   check-in set is a strict subset of the current one). Table B.2 gained 5 rows.
+  61| %   The Chapter 4 "three marked additions" claim was an undercount: eight exist, all
+  62| %   verified present in 4_courb.tex and absent from articles/CoUrb_2026/src_en/ this
+  63| %   session (preface :13; recap subsection :81; split sentence :238; seed sentence :238;
+  64| %   dataset-table lead :258; Figure 4.2 reading instruction :278; category-table lead
+  65| %   :284; next-POI-table lead :327). Chapter 5's "three marked additions" claim was
+  66| %   re-checked against 5_mobiwac_ADAPTATION_LEDGER.md A1-A3 and against the chapter, by
+  67| %   8-gram diff against articles/[mobiwac]/src/: it is CORRECT, the chapter writes no
+  68| %   table lead sentences of its own. Chapter 3's ledger (A4 = preface, A7 = convergence
+  69| %   lead sentence) was checked for the same pattern: Appendix B makes no count claim for
+  70| %   Chapter 3, so there is nothing to correct there; A7 is a mechanical lead sentence of
+  71| %   the same class as Chapter 4's three, and A4 is the preface.
+  72| %
+  73| % REFERENCES TRACK (2026-07-25) -- three changes to Table B.4, all verified this session:
+  74| %   (1) The row that printed a raw bibliography key for the CoUrb Gowalla mis-source now
+  75| %       names the work instead (Liu et al. 2014, "Exploiting Geographical Neighborhood
+  76| %       Characteristics for Location Recommendation", ACM CIKM), because that key is the
+  77| %       one bib entry with no \cite in the document, so the printed bibliography drops it
+  78| %       and the raw key resolved to nothing for the reader. Authors, title, venue and year
+  79| %       copied from Crossref, DOI 10.1145/2661829.2662002. The entry stays in
+  80| %       references.bib; only the way the table names the work changed.
+  81| %   (2) New row: Kohavi (1995) carried doi = 10.5281/zenodo.19712698, a 2026 third-party
+  82| %       Zenodo re-deposit (DataCite: publisher "Zenodo", registered 2026-04-23), not the
+  83| %       IJCAI-95 record. DOI dropped; attributes confirmed against the IJCAI proceedings
+  84| %       PDF (www.ijcai.org/Proceedings/95-2/Papers/016.pdf).
+  85| %   (3) New row: the Rußwurm et al. spherical-harmonics encoder was typed @misc/arXiv with
+  86| %       year=2024; re-typed to the ICLR 2024 record (arXiv journal_ref "Published as a
+  87| %       conference paper at ICLR 2024"; OpenReview submission 3806, venue "ICLR 2024
+  88| %       spotlight"). Same class as the GAT erratum already in the table. The citation key
+  89| %       was also ASCII-renamed and its four citing sites updated; a key rename alters no
+  90| %       reference content and is covered by the existing key-consolidation sentence, so it
+  91| %       is not itemized as a defect row.
+  92| % [NEEDS SIGN-OFF: raised v1 assembly, 2026-07-23 | whole appendix -- new frame prose around quoted ledger content.]
+
+--- block 124..125 (2 lines) ---
+ 124| % [round5, author decision 1b.3] The Nash-MTL cost claim moved OUT of this section and INTO the
+ 125| % errata table above: one standard for factual errors, per the author. "Three elements" -> "Two".
+
+--- block 137..151 (15 lines) ---
+ 137| % [v2 review F-06, 2026-07-26] Added on persona 10's finding (10_mtl_expert_report.md). The
+ 138| % reviewer extracted arXiv:2202.01017 and confirmed "matrix-vector" does not occur in it, while
+ 139| % "agnostic to the architecture used" does, so only the cost half is defective. The chapter's own
+ 140| % comment at 3_cbic.tex:252-258 had already REPORTED it and left it as the author's call; the
+ 141| % reviewer's added point is the ASYMMETRY -- Appendix B corrects the neighbouring clause of the very
+ 142| % same sentence, so silence on this half invites the question. Implementation evidence quoted from
+ 143| % that comment, itself sourced to tarik-new nash_mtl.py:99,:126-141 and src/losses/nash_mtl/
+ 144| % loss.py:105,:158-200 (optim_niter = 20 default, each pass a cvxpy/ECOS solve). No published text
+ 145| % is edited; this is a disclosure in dissertation-authored appendix prose, which the errata policy
+ 146| % permits without an errata row.
+ 147| % [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | AUTHOR. You previously ruled this REPORTED, NOT CORRECTED. I have NOT changed
+ 148| % that ruling -- the published sentence stands. What changed is that the appendix now names the
+ 149| % preservation instead of staying silent. If you would rather correct the clause outright (it is a
+ 150| % factual defect in a published article, and the errata mechanism exists), say so and I will move it
+ 151| % into the errata table.]
+
+--- block 170..182 (13 lines) ---
+ 170| % [round6, COD-007] NEW paragraph. Article 1 had no additions paragraph; this is the counterpart of
+ 171| % the eight-addition paragraph in the CoUrb section below, in the same register. The four protocol
+ 172| % facts are the COD-007 cells: split axis, sample unit, seed count, checkpoint rule. Evidence for
+ 173| % each, with file and line in the CBIC-era codebase at commit 9b06053f, is in the comment block at
+ 174| % the citing site (3_cbic.tex, "Evaluation protocol"); it is not repeated here.
+ 175| % The last sentence is deliberate and is the one thing this paragraph asserts about what the study did
+ 176| % NOT record: no tuning harness ever existed in either codebase and the losing configurations were
+ 177| % never committed (.gitignore was /results/*), so a configuration count cannot be recovered. Written
+ 178| % as a statement about the RECORD rather than about the conduct of the study, which is the strongest
+ 179| % form the evidence supports. Preface and convergence lead sentence: 3_cbic ledger A4 and A7,
+ 180| % re-verified this session (the lead sentence "The convergence measurements show a clear wall-time
+ 181| % disadvantage" is absent from articles/CBIC___MTL/sections/results.tex).
+ 182| % [NEEDS SIGN-OFF: raised round 6, 2026-07-28 | AUTHOR -- new appendix prose describing additions to a published chapter.]
+
+--- block 212..222 (11 lines) ---
+ 212| % [round6, COD-005 sub-claim 4] The banner said the table replaces "the published numbers", which
+ 213| % the fourth row is not: it is a wording narrowing of a claim about Nash-MTL, not a number. One
+ 214| % clause widened rather than giving the CoUrb section a second table as the CBIC section has, which
+ 215| % is more structure than one row justifies. Row and evidence: tables/courb/errata.tex, and the
+ 216| % source trail is in the comment at the citing site (4_courb.tex, the Nash-MTL paragraph).
+ 217| % [round6, second pass] The first widening said "the first three ... replace the published numbers"
+ 218| % and that was still wrong by one row. MEASURED against tables/courb/errata.tex: rows 1 and 2 carry
+ 219| % audited decimal values (15 of 21 combinations; 20.2 to 22.0 percentage points), row 3 is the
+ 220| % "wins" -> "outperforms the baseline" verdict-verb substitution with no number in it, and row 4 is
+ 221| % the Nash-MTL narrowing. So the banner now describes four rows in three groups, which is what the
+ 222| % table contains. Counted by parsing the table body, not by reading down the column.
+
+--- block 237..252 (16 lines) ---
+ 237| % [round6, L-9, source-ledger pass] COUNT CORRECTED. This read "all 25 places ... 21 in prose, one
+ 238| % in a subsection heading, one in a figure caption, and two in table headings", a breakdown that sums
+ 239| % to 25 only by counting one subsection heading where there are two. Three records gave three
+ 240| % different counts for one normalization, and the wrong one was the one that PRINTED.
+ 241| % Re-enumerated by occurrence, on the post-split tree, counting MTLnet not preceded by "ST-" on
+ 242| % non-comment lines across chapters/4_courb.tex, chapters/4_courb/*.tex and tables/courb/*.tex:
+ 243| %   prose 23, subsection headings 2 (4_courb/related.tex:42 and 4_courb/methodology.tex:87),
+ 244| %   figure caption 1, table headings 2  ->  TOTAL 28.
+ 245| % The old scope said "the printed chapter" while its own subtotals included table headings, which
+ 246| % live in tables/courb/. The scope is now stated to match what is counted.
+ 247| % Note the sibling record at 4_courb.tex:7 ("26 sites, 24 printed, 2 in comments"): that is a
+ 248| % DIFFERENT measurement, taken before the chapter was split and counting comment occurrences too.
+ 249| % It is a provenance comment about an edit, not a printed claim, and it is left as the record of
+ 250| % what that edit touched on that day.
+ 251| % No quantity, claim or reference depends on this count. It is corrected because a printed number
+ 252| % that does not sum is exactly the kind of thing a banca member checks. The name of the proposed model,
+
+--- block 260..267 (8 lines) ---
+ 260| % [2026-07-27] New paragraph. Author decision 2026-07-26 (standardize now + record it, rather
+ 261| % than leave a reviewer to find the split). Count RE-MEASURED against 21adcfa9 (persona 12 caught
+ 262| % the first tally): 25 printed sites, 21 prose + 1 subsection heading + 1 caption + 2 table
+ 263| % headings, plus 2 in comments. The earlier "24" omitted the subsection heading.
+ 264| % 5_mobiwac.tex MTLnet x3, already canonical.
+ 265| % Canonical form: GLOSSARY.md:41. ST-MTLNet (x17, GLOSSARY.md:44) deliberately untouched.
+ 266| % [NEEDS SIGN-OFF: raised round 5, 2026-07-27 | AUTHOR -- the errata policy (NORTH_STAR section 5.7) covers content
+ 267| % departures; this is the first purely typographical one to get its own paragraph.]
+
+--- block 331..337 (7 lines) ---
+ 331| % [2026-07-27, author instruction] "estamos no periodo de revisao do artigo, entao nao precisa
+ 332| % haver erratas, para ele a nao ser que essa errata nao cabe entrar na revisao se for algum
+ 333| % conceito muito elaborado, como e o caso do appendix D". Count corrected from four to two.
+ 334| % [round4] Claim-scope corrections from the Ch.5 track. Source ledger with every quoted
+ 335| % value and its file:line: src_utils/handoff/ch5_errata_rows.md. Banner deliberately
+ 336| % differs from Table B.2's ("writing-rule conformance"): three of these change claim
+ 337| % SCOPE and one changes a comparison BASIS, so they are not wording substitutions.
+
+--- block 365..385 (21 lines) ---
+ 365| % [round4, REV-016] Reader-facing explanation of the two Florida figure sets. Mechanism
+ 366| % quoted from src_utils/cbic_recompute_result.md section 3 ("Root cause: category-mapping
+ 367| % drift"; mapping files data/gowalla/callback_categories.json and extra_categories.json
+ 368| % last modified 2026-04-14, ~11 months after the CBIC-era extraction of 2025-05-06;
+ 369| % stage_1 drops rows whose category does not map; the extra POIs skew to Entertainment
+ 370| % 21.1% vs 5.2%, Outdoors, and Travel). Numbers: Ch.3/Ch.4 triple from 4_courb.tex:238
+ 371| % (the published CoUrb dataset table); Ch.5 triple from 5_mobiwac.tex:324. No number here
+ 372| % was computed by an agent.
+ 373| % PRECISION NOTE, deliberate: the strict-subset result in section 3 of that document was
+ 374| % measured for the CBIC-era WORKING extraction (filtrado.csv: 10,460 / 64,454 / 960,520)
+ 375| % against the fresh ETL, NOT for the published CoUrb triple that Chapters 3 and 4 actually
+ 376| % report. The prose above therefore says "the working extraction of the earlier period"
+ 377| % and claims direction, not identity. It does not assert that the mapping drift accounts
+ 378| % for the whole of the specific gap between the two reported triples.
+ 379| % [VERIFY, open and inherited] Section 5 of the same document records one unresolved
+ 380| % question: the CBIC-era working extraction counts 10,460 Florida users against the
+ 381| % published CoUrb row's 20,301, a factor of about two that could not be reconstructed from
+ 382| % committed artifacts, and the author's 2026-07-24 ruling (NORTH_STAR section 4, Ch.3)
+ 383| % settled which figure the chapters report without settling why the two differ. The
+ 384| % paragraph above is written so that it stays true either way, but if the author ever
+ 385| % resolves that question the sentence about the controlled comparison should be revisited.
+
+--- block 387..422 (36 lines) ---
+ 387| % =====================================================================================
+ 388| % [round6, author decision 2026-07-27, PENDENCIAS 2.4, was 2.2 before the 2026-07-29 renumber] The Ch.4 static-task scope section.
+ 389| % The author's ruling, verbatim: "Isso ja esta de acordo com ele, podemos adicionar isso no
+ 390| % appendix B, mas deixe isso facil de ser comentado, vide que eu ainda vou discutir com meu
+ 391| % orientador sobre se argumentamos ou nao quanto a isso."
+ 392| % So: (a) courtesy notice to the co-author is GIVEN, (b) Appendix B is the sanctioned place,
+ 393| % (c) THIS SECTION MUST BE EASY TO COMMENT OUT pending his conversation with the advisor.
+ 394| % TO SUPPRESS IT: comment the single \input line below. Nothing else references this section
+ 395| % except the Ch.4 preface pointer, which is written to degrade gracefully (it names the
+ 396| % appendix, not a \ref to this label), so commenting the input leaves no dangling reference.
+ 397| % The section body lives in chapters/apx_b_static_scope.tex for exactly that reason.
+ 398| %
+ 399| % EVERY NUMBER IN THAT FILE WAS MEASURED THIS ROUND, not quoted from a prior report:
+ 400| %   data/checkins_by_state/{Alabama,Arizona,Florida,California,Texas}.parquet, POI-level table
+ 401| %   (drop_duplicates on placeid, matching research/embeddings/hgi/preprocess.py:75-80 which
+ 402| %   dedups by placeid with mode_or_first), grouping the `spot` column -- which
+ 403| %   preprocess.py:62 renames to `fclass` -- by nunique of `category`:
+ 404| %     Alabama     11,848 POIs   284 spot values   7 categories   0 spanning >1 category
+ 405| %     Arizona     20,666        305               7              0
+ 406| %     Florida     76,544        324               7              0
+ 407| %     California 169,145        333               7              0
+ 408| %     Texas      160,938        365               7              0
+ 409| %   Agrees with persona 11's independent re-derivation (284 to 365, none ambiguous).
+ 410| % MECHANISM, read in code, not inferred:
+ 411| %   research/embeddings/hgi/poi2vec.py:487  poi_embeddings[valid] = fclass_embeddings[fclass_values[valid]]
+ 412| %     -> the place vector is a pure function of the fine class.
+ 413| %   research/embeddings/dgi/preprocess.py:114-130  the DGI node feature is the MEAN OF THE
+ 414| %     NEIGHBORS' one-hots, EXCLUDING the node itself (embedding_array.iloc[neighbors].mean),
+ 415| %     so the node's own label never enters its own representation. This is why the author was
+ 416| %     right to separate the two chapters: the defect is CoUrb's, not CBIC's.
+ 417| %   research/embeddings/hgi/preprocess.py:41-45 documents the ablation arm that permutes the
+ 418| %     encoded fclass column to break exactly this determinism, which is independent evidence
+ 419| %     that the team identified the mechanism before this round.
+ 420| % [NEEDS SIGN-OFF: raised round 6, 2026-07-28 | whole section -- new frame prose making a public statement about a
+ 421| % published co-authored result. The author has the co-author's agreement; the ADVISOR
+ 422| % conversation is still pending, which is why it is one commented-out line from suppression.]
+
+================================================================================================
+FILE src/chapters/apx_b_static_scope.tex (73 lines)
+================================================================================================
+--- block 1..5 (5 lines) ---
+   1| % !TeX root = ../main.tex
+   2| % apx_b_static_scope.tex -- one section of Appendix B, kept in its own file so that a SINGLE
+   3| % commented \input line in apx_b_errata.tex suppresses it (author's condition, PENDENCIAS 2.4, was 2.2 before the 2026-07-29 renumber:
+   4| % "deixe isso facil de ser comentado"). Provenance for every number is in the comment block
+   5| % at that \input site. Do not inline this file back into the appendix.
+
+--- block 45..62 (18 lines) ---
+  45| % [round6, D-01, domain panel persona 09] CORRECTED, and this is a correction to MY OWN prose from
+  46| % earlier the same day. The paragraph used to conclude "so a place's own label never enters its own
+  47| % representation", exculpating Ch.3 entirely. THE PREMISE IS TRUE AND THE CONCLUSION DOES NOT FOLLOW.
+  48| % Excluding a node's label from its own INPUT FEATURE is not excluding it from its own EMBEDDING.
+  49| % Measured rather than reasoned: research/embeddings/dgi/preprocess.py:114-130 builds
+  50| % x_i = mean of one-hots over N(i), self excluded -- verified, x_i does NOT contain node i's label.
+  51| % But nx.from_pandas_edgelist builds an UNDIRECTED graph, so node i is in N(j) for each j in N(i),
+  52| % and POIEncoder.py:29 is a single GCNConv(cached=True) whose add_self_loops defaults to True, so
+  53| % h_i aggregates over N(i) union {i}. Reproduced the whole path on a 4-node graph: node 0's own
+  54| % Food one-hot is absent from x_0 (0.000) and present in h_0 with weight 0.667.
+  55| % So the exculpation was false and is withdrawn. What survives is the degree distinction, which is
+  56| % real and is what the author's own ruling rested on ("esse nao se aplica ao DGI que usamos no cbic",
+  57| % PENDENCIAS 2.4, was 2.2): CoUrb's channel is an exact deterministic function of a strict label refinement,
+  58| % CBIC's is a neighborhood average. Those are different situations. They are not absence and presence.
+  59| % [NEEDS SIGN-OFF: raised round 6, 2026-07-28 | this paragraph now says something WEAKER about Chapter 3 than the author's ruling
+  60| % assumed. He ruled the static-task problem is CoUrb's alone; the measurement says Ch.3's channel is
+  61| % indirect rather than absent. The section still concentrates the finding on Ch.4, which is where the
+  62| % exact identity is, but he should read this paragraph specifically before it ships.]
+
+================================================================================================
+FILE src/chapters/apx_c_ai_disclosure.tex (93 lines)
+================================================================================================
+--- block 1..54 (54 lines) ---
+   1| % !TeX root = ../main.tex
+   2| % Appendix C -- AI-use disclosure
+   3| % Drafted 2026-07-23 per AGENT_GUARDRAILS §6 D1/D2 (drafted from the git provenance
+   4| % trail, not from recollection). Provenance basis (git log, this repository):
+   5| %   draft(ai) commits: phase 0b-4 dissertation assembly (2026-07-23, 5 commits),
+   6| %   CoUrb EN translation + sync (2026-07-20, 2 commits).
+   7| %   edit(author) commits: e.g. 2f333e2b (CoUrb src revision).
+   8| %   Model-family evidence in commit subjects: "Opus readability pass" (MobiWac,
+   9| %   review/editing); no version strings are derivable for the drafting commits, so
+  10| %   none are stated (per the do-not-invent rule).
+  11| % ONE PAGE MAX. [NEEDS SIGN-OFF: raised v1 assembly, 2026-07-23, narrowed round 7 2026-07-29 |
+  12| % whole appendix -- the author must confirm scope and tool naming. STILL LIVE and still his call.
+  13| % The THIRD question this marker used to ask, "whether to name specific model versions he can
+  14| % source", is ANSWERED and no longer needs a decision from him: round 6 established that no
+  15| % version string is derivable from the provenance trail for the drafting commits (see the note
+  16| % just above and the COD-013 paragraph below), so the appendix names the tool and stops there.
+  17| % He can still overrule that if he can source a version himself, but there is nothing here
+  18| % waiting on him for it.]
+  19| %
+  20| % [round6, 2026-07-28] TRIMMED on the author's instruction: cut what overstated or padded,
+  21| % keep the substance. Four cuts, and one of them removes a claim that was false.
+  22| %  1. FALSE CLAIM REMOVED. "The complete first version passed an eighteen-reviewer panel" and
+  23| %     its role list. The count is right (18 numbered reports in src_utils/_review_v1/) but
+  24| %     "passed" is not: the panel's own consolidated verdict table records persona 03 as
+  25| %     "GATE FAIL (document)" and persona 06 as "GATE FAIL (conditional)", with BLOCKER-class
+  26| %     findings at 01, 03, 06, 09 and 10 (_review_v1/CONSOLIDATED_REVIEW_REPORT.md:13-22). A
+  27| %     document does not pass a panel two of whose gates failed it. The kept sentence says what
+  28| %     the passes DID -- checked, by an agent that did not write the text, findings offered as
+  29| %     corrections -- which the reports evidence. "(Claude Opus family)" went with the sentence
+  30| %     that carried it; the tool is already named in the opening paragraph, and this appendix has
+  31| %     never been able to source a version string (see the note above), so the parenthesis added
+  32| %     precision it could not support. That also closes the ANCHORS.md COD-013 row for this file
+  33| %     ("name the model"): the model cannot be named more precisely than it already is.
+  34| %  2. CEREMONY CUT. "This appendix discloses the scope of that use and the verification process
+  35| %     applied, in line with the disclosure recommendations of ... and the CNPq integrity policy"
+  36| %     announced what the appendix would do before doing it. Now one clause, and it distinguishes
+  37| %     what the two sources actually are: CNPq Portaria 2.664/2026 MANDATES declaration,
+  38| %     UFV/DPE 03/2026 RECOMMENDS (AGENT_GUARDRAILS.md:169-171; UFV_COMPLIANCE.md:103-104).
+  39| %  3. CEREMONY CUT. "The record below is reconstructed from the version-control history ...
+  40| %     rather than from recollection." That is a statement about the drafting process of this
+  41| %     appendix, not about the AI use it discloses. The provenance stays in this comment block,
+  42| %     where the author and an auditor can use it; the reader does not need it.
+  43| %  4. PADDING CUT. "Every AI-drafted passage passed a fail-closed verification pipeline before
+  44| %     reaching the advisor:" followed by a five-clause semicolon chain naming an outline, a fact
+  45| %     gate, a style gate and the author's approval. It read as apparatus. The three rules that
+  46| %     the chain amounted to are now three short sentences, plus the fail-closed rule itself
+  47| %     (flag, do not smooth), which was the one substantive thing the chain named and was buried
+  48| %     in it. "No content entered the document from model memory" was dropped as a claim about a
+  49| %     process no reader can verify; what replaced it is the rule that produces it.
+  50| % Substance kept in full: the tool and its role, the policy basis, all four scope items with
+  51| % the drafting/re-typesetting split, the translation fidelity check, and the author's
+  52| % responsibility. Nothing was added. Word count 374 -> 303, measured on this file with LaTeX
+  53| % comments stripped and escaped percent signs preserved (my first draft of this line said
+  54| % 469 -> 340, which I had not measured; corrected here rather than left standing).
+
+================================================================================================
+FILE src/chapters/apx_d_ceiling.tex (128 lines)
+================================================================================================
+--- block 1..12 (12 lines) ---
+   1| % !TeX root = ../main.tex
+   2| % Appendix D -- the label-history benchmark.
+   3| % [2026-07-27] Rewritten to stand alone: the screening procedure is now defined here rather than
+   4| % only in Ch.5, the two look-alike quantities are named once side by side, and "ceiling" is
+   5| % replaced by "label-history benchmark" throughout the prose.
+   6| % Numbers READ from docs/results/embedding_eval/rescreen_cat/autocorrelation_ceiling.json
+   7| % (table, sd, floors, window counts, Istanbul strict variant, Texas skip reason). Encoder scores
+   8| % quoted from leak_sniff_fl.csv (perstep, delta_std) and leak_sniff_resln_fl.csv; margin 0.03 from
+   9| % scripts/embedding_eval/leak_sniff.py:63. "Four to six points" quoted from 5_mobiwac.tex:376.
+  10| % [NEEDS SIGN-OFF: raised round 5, 2026-07-27 | whole appendix -- new frame prose. Alternative offered to the author: fold it
+  11| % into Ch.5 as one paragraph and drop the chapter, which would need the Ch.5 cross-reference
+  12| % (5_mobiwac.tex:376) removed.]
+
+--- block 87..92 (6 lines) ---
+  87| % [2026-07-27] Exception traced to leak_sniff_fl.csv rgcn: perstep=0.3328 (below 0.3617),
+  88| % perstep_raw=0.4142 (above). Disqualified on other evidence: RESCREEN.md:47-52, :92; the
+  89| % "passed the screen, leaked under a sequence model" framing is Ch.5's own (5_mobiwac.tex:396).
+  90| % Named by architecture, not by the model acronym, which is not in the GLOSSARY registry.
+  91| % The Ch.5 universal ("Every encoder screened ... lies above") that this once contradicted was
+  92| % narrowed at 5_mobiwac.tex on 2026-07-27; the two now agree. Resolved, not open.
+
+--- block 108..116 (9 lines) ---
+ 108| % [round5, persona 16] The previous clause said "because those places were re-categorized over
+ 109| % time", asserting a mechanism the artifact does not contain: autocorrelation_ceiling.json records
+ 110| % places_multi_category 196 of places 29816 and nothing about why. Claim removed, count kept.
+ 111| %
+ 112| % [round7, 2026-07-29] The line below lost its leading space-joined sentence to the comment above:
+ 113| % a comment whose last line ends without terminal punctuation, followed by a prose line that
+ 114| % starts with a space, reads as one continued comment and the prose never reaches the PDF. This
+ 115| % file only entered check_trapped_prose.py's scope when it moved into the extra volume, which is
+ 116| % why it survived five rounds. Blank line inserted; nothing else changed.
+
+================================================================================================
+FILE src/chapters/apx_e_ethics.tex (99 lines)
+================================================================================================
+--- block 1..6 (6 lines) ---
+   1| % !TeX root = ../main.tex
+   2| % Appendix E -- Data ethics and governance. NEW 2026-07-27, dissertation-authored prose.
+   3| % Licenses: src_utils/DATASET_LICENSING_FINDINGS.md (Figshare, Hugging Face and GitHub
+   4| % records re-opened 2026-07-27). Pipeline facts: src/etl/gowalla/main.py:22-25,
+   5| % src/etl/massive_steps/stage_1.py:84-90, src/etl/gowalla/stage_3.py:38-43, .gitignore:5.
+   6| % [NEEDS SIGN-OFF: raised round 5, 2026-07-27 | AUTHOR -- whole appendix; it makes institutional claims.]
+
+--- block 18..19 (2 lines) ---
+  18| % [round5] \texttt{} on the DOI is unbreakable and overflowed the margin by 0.94 pt; \path
+  19| % breaks at the punctuation. Same fix as Appendix D's file paths.
+
+--- block 51..53 (3 lines) ---
+  51| % [round5, fact gate M-1/M-2] Both verified live 2026-07-27: www.yongliu.org/datasets/ returns
+  52| % HTTP 301 to idnpokerasia.net (not a dead link, a repurposed host); HF API gives gated="auto" for
+  53| % foursquare/fsq-os-places and gated=false for CRUISEResearchGroup/Massive-STEPS-Istanbul.
+
+================================================================================================
+FILE src/chapters/apx_f_cosine.tex (353 lines)
+================================================================================================
+--- block 1..60 (60 lines) ---
+   1| % !TeX root = ../main.tex
+   2| % ============================================================================
+   3| % Appendix F -- why the two tasks do not compete on the shared trunk.
+   4| %
+   5| % [round7, 2026-07-29] NEW APPENDIX, in the MAIN document at the author's explicit request:
+   6| % "the appendix of cossin loss between next-region and next category we can keep plan on the
+   7| % main text ... will be a future appendix where we give more data and more explanations over it
+   8| % ... why these two tasks for our arch don't conflict and how this MAY be extended for others
+   9| % archs."
+  10| %
+  11| % IT IS THE LETTER F, after E (ethics), because Appendices B and D moved to the supplementary
+  12| % volume this round and the remaining letters were NOT renumbered (0_main.tex's appendix block
+  13| % explains why: "Appendix B" already names the errata appendix outside this document). So the
+  14| % main document's appendices read A, C, E, F. That gap is deliberate and documented.
+  15| %
+  16| % CHAPTER 5'S BODY IS UNTOUCHED. The cosine material already in Chapter 5 stays exactly where
+  17| % it is and says exactly what it said; this appendix is additional, and Chapter 5 does not point
+  18| % at it (a pointer would be an edit to an under-review chapter for no reader benefit -- the
+  19| % appendix is reachable from the table of contents and from the conclusion's future-work
+  20| % paragraph if the author wants it there).
+  21| %
+  22| % EVERY NUMBER HERE WAS RE-DERIVED FROM THE OBSERVATIONS, NOT COPIED FROM A BRIEF OR A README.
+  23| % Source of record: src_utils/_round7/gradient_cosine_observations.parquet (3,900 rows;
+  24| % columns state, fold, epoch, cos, config), at commit ff69ba07. The derivation is
+  25| % src_utils/_round7/cosine_stats.py, whose printed output is quoted in
+  26| % src_utils/_round7/24_extra_and_cosine.md. Structural assertions run before any statistic:
+  27| % exactly 4 states, 3,900 = 3,150 + 250 + 250 + 250 rows.
+  28| %
+  29| % THE COUNT MOVED FROM THREE DATASETS TO FOUR while this appendix was being written (Georgia
+  30| % landed at 3,900 rows / ff69ba07, after an earlier runtime estimate for it proved 47x too
+  31| % pessimistic). Every count in this file was re-derived at that point rather than incremented;
+  32| % if a fifth dataset lands, do the same -- re-run cosine_stats.py and read its output.
+  33| %
+  34| % THE UNIT OF INDEPENDENCE IS THE LOAD-BEARING METHODOLOGICAL POINT, and getting it wrong is
+  35| % what an earlier draft of this appendix did. The 50 per-epoch cosines inside one fold are
+  36| % consecutive states of ONE training trajectory, so they are not independent draws. Every
+  37| % p-value below is therefore computed on fold means (Alabama, Arizona; n=5) or configuration
+  38| % means (Florida; n=12), never on the 3,900 raw observations. An observation-level test is
+  39| % anti-conservative and none is quoted as significance.
+  40| %
+  41| % ONE CLAIM WAS DELIBERATELY NOT MADE, AND IT IS THE ONE A READER WILL WANT TO MAKE. At the fold
+  42| % level Alabama's five fold means are all positive with a t-test at p=0.0125, and Georgia repeats
+  43| % that pattern exactly, 5/5 positive at p=0.0093. Two independent datasets agreeing is a stronger
+  44| % OBSERVATION than either alone -- and it is still not significance, because the exact sign test
+  45| % returns 0.0625 for both, which IS its floor at n=5: a distribution-free test cannot reach 0.05
+  46| % with five observations however consistent the effect. The significance would rest entirely on
+  47| % assuming normality at n=5. So the text says the tendency RECURS ACROSS DATASETS, which is worth
+  48| % stating, and that five folds per dataset cannot establish it. Never "significantly positive".
+  49| %
+  50| % COVERAGE, stated in the text and repeated here so it cannot drift: FOUR datasets (florida,
+  51| % alabama, arizona, georgia), ONE architecture family. California, Texas, and Istanbul are named
+  52| % as outstanding against job 805120f1 and marked [VERIFY]. Nothing here implies six datasets or
+  53| % any architecture coverage.
+  54| %
+  55| % [NEEDS SIGN-OFF: raised round 7, 2026-07-29 | THE WHOLE APPENDIX. It is new frame prose that
+  56| % makes a mechanistic claim (orthogonality explains why hard sharing costs nothing here, and
+  57| % why the representation mattered more than the sharing scheme) and a bounded extension claim.
+  58| % Neither is in any paper's claim whitelist, so both are new claims under AGENT_GUARDRAILS §3
+  59| % C2 and need the author's approval before this appendix is shown to the advisor.]
+  60| % ============================================================================
+
+--- block 99..114 (16 lines) ---
+  99| % [round7] THE SCOPE CORRECTION THAT MATTERS MOST IN THIS FILE. An earlier draft of this appendix
+ 100| % called these "four datasets" without qualification, which would have told the reader that
+ 101| % Georgia is one of the dissertation's six. It is NOT. MEASURED, from src/:
+ 102| %   grep -v '^[[:space:]]*%' tables/mobiwac/datasets.tex | grep -E '^(AL|AZ|FL|TX|CA|Istanbul)'
+ 103| %   -> AL, AZ, FL, TX, CA, Istanbul. Six rows. No Georgia.
+ 104| % and Chapter 5's own related-work section says it outright: "and Georgia, which this
+ 105| % dissertation does not otherwise use" (5_mobiwac/02_related.tex). So the appendix now says which
+ 106| % three of its four datasets are the dissertation's and what the fourth is.
+ 107| % THE OTHER HALF OF THE SAME PROBLEM: Ch.5's related-work paragraph ALREADY reports this cosine
+ 108| % measurement, on these same four states, as averaging +0.001 with a largest per-dataset mean of
+ 109| % +0.0032. My pooled mean over the 3,900 observations is +0.00118, close to its +0.001 -- but my
+ 110| % largest per-dataset mean is Alabama's +0.0112, which is NOT its +0.0032. The two do not
+ 111| % contradict each other because they are different runs (Ch.5's is development-time, four seeds,
+ 112| % an earlier data preparation; this one is 5 folds x 50 epochs on the shipped preparation), but a
+ 113| % reader who compared them without being told would read a discrepancy. Hence the sentence above.
+ 114| % Chapter 5's prose is NOT edited: it is under review and its own numbers remain its own.
+
+--- block 123..126 (4 lines) ---
+ 123| % [round7] "Alabama and Arizona" -> "Alabama, Arizona, and Georgia". Caught by READING THE
+ 124| % RENDERED PAGE, not the source: the sentence was written when there were three datasets and the
+ 125| % list was not revisited when Georgia landed, so the page named two datasets while the table below
+ 126| % it listed four. A count updated in one place and not the other is AGENT_GUARDRAILS §4b V6.
+
+--- block 130..145 (16 lines) ---
+ 130| % [round7] CITATION KEY CORRECTED before this appendix ever appeared in a clean build. The
+ 131| % first draft wrote \cite{lakens2017equivalence}, a key that does not exist in references.bib --
+ 132| % invented from the author's name and the paper's topic, which is exactly the fabrication
+ 133| % AGENT_GUARDRAILS §1 R1 forbids. The build caught it as one undefined citation. The real key,
+ 134| % already used by Chapter 5 for the same procedure, is lakens2017tost (Lakens 2017, Soc.
+ 135| % Psychol. Personal. Sci. 8(4):355-362, DOI 10.1177/1948550617697177), verified against the
+ 136| % entry at references.bib rather than retyped. The appendix cites the same source Ch.5 does,
+ 137| % which is what it should have done from the start.
+ 138| %
+ 139| % THE BLANK COMMENT LINE ABOVE, AND THE ONE BELOW THIS BLOCK, ARE LOAD-BEARING. A comment block
+ 140| % that runs straight into a prose line makes TeX read the prose as a continuation of the comment,
+ 141| % and the paragraph silently vanishes from the PDF with a clean build and no warning. That is
+ 142| % science/AGENT_HANDOFF.md §2.1, the most persistent defect class in this repository, and it
+ 143| % happened HERE: the margin-justification paragraph below was swallowed by the comment above and
+ 144| % was absent from the rendered appendix until 2026-07-29. src_utils/check_trapped_prose.py is
+ 145| % what caught it. End every comment block with a newline before prose resumes.
+
+--- block 163..169 (7 lines) ---
+ 163| % [round7] THE PER-DATASET NUMBERS WERE MOVED OUT OF THIS PARAGRAPH INTO THE TABLE, for two
+ 164| % reasons that coincided. (1) They were duplicated: every value here was already in
+ 165| % tables/frame/cosine.tex, so a correction had to be made twice or the two would disagree.
+ 166| % (2) Five inline math intervals in running prose gave TeX nothing to break on and produced an
+ 167| % overfull hbox of 5.48 pt (measured: build.sh, "lines 111--118"). The prose now says what the
+ 168| % numbers mean and the table carries the numbers, which is the arrangement WRITING_LAW §5 asks
+ 169| % for anyway (a results table introduced by a lead takeaway sentence).
+
+--- block 231..236 (6 lines) ---
+ 231| % [round7] "Alabama and Georgia are the smallest datasets here" was CUT as unsourced. Alabama is
+ 232| % indeed the smallest of the dissertation's six (113,846 check-ins, tables/mobiwac/datasets.tex),
+ 233| % but Georgia is not in that table at all -- it is not one of the six -- so no committed artifact in
+ 234| % this repository states its size, and I did not measure it. The sentence now says what IS
+ 235| % measurable from the observations themselves: both estimates rest on five folds against Florida's
+ 236| % sixty series. Same point about precision, no unverifiable size claim.
+
+--- block 275..279 (5 lines) ---
+ 275| % [round7] SPAN CORRECTED before first build: this read [-0.00214, +0.00457], which is the
+ 276| % SECOND-lowest configuration mean (T6_1_lambda0_2). The minimum is -0.00261 (T6_4_two_pass).
+ 277| % Read from cosine_stats.py's "configuration-mean span" line, which exists to be quoted.
+ 278| % "equivalent to zero on its own five folds" is also measured, not asserted: that script's
+ 279| % per-configuration block reports 12 of 12 equivalent at the fold unit.
+
+--- block 313..352 (40 lines) ---
+ 313| % [VERIFY: the per-dataset extension to California, Texas, and Istanbul. STATUS at the time this
+ 314| % appendix was written, from the job's own _status.json and not from its log: job 805120f1 on
+ 315| % ssh:nespedgpu was KILLED by SIGTERM at a 35-minute wall-clock cap (exitCode 124 at 35.0 min).
+ 316| % It completed alabama, arizona and georgia -- which is where three of this appendix's four
+ 317| % datasets come from -- and was cut off inside california's fold 1; texas and istanbul never
+ 318| % started. Texas and Istanbul were resubmitted as separate single-dataset jobs c2a02f5d and
+ 319| % d332e69e, and California as five per-fold jobs (213ce119 for the retry).
+ 320| %
+ 321| % THE RUN IS BLOCKED, NOT PENDING, and the blocker is not compute. The GPU host's disk is FULL:
+ 322| % 373G of 393G used, 0 bytes available. That is what California actually died of --
+ 323| % "RuntimeError: basic_ios::clear: iostream error" is a failed WRITE, not a model failure -- and
+ 324| % two folds produced no output while their job still exited 0, which is the "well-formed output
+ 325| % carrying no data" shape of AGENT_HANDOFF §2.7. The space is pre-existing and belongs to other
+ 326| % work (61G in results/check2hgi/california/checkpoints; PoiMtlNet totals 94G); the diagnostic
+ 327| % runs themselves are about 15 MB. Freeing it is the author's decision and nothing was deleted.
+ 328| % ALSO DO NOT TRUST CALIFORNIA'S FOLDS 2 AND 3 IF YOU FIND THEM ON DISK: they were harvested by
+ 329| % a step that resolves the newest output directory, which races under concurrent jobs, and
+ 330| % "--only-fold k" writes its output as fold1_diagnostics.csv for every k, so the filename carries
+ 331| % no fold identity. The two files are byte-identical and cannot be attributed to a fold by any
+ 332| % evidence on disk. Using them would put a duplicated fold in a dissertation appendix.
+ 333| % This is why the appendix stops at four datasets: a coverage sentence naming a dataset whose
+ 334| % observations are not in the parquet is the defect that caution exists to avoid.
+ 335| % THREE ESTIMATION ERRORS ARE RECORDED HERE BECAUSE EACH WOULD HAVE REACHED THIS FILE, and they
+ 336| % share one lesson -- derive a runtime from the thing's OWN timestamps. (3) is the newest: California
+ 337| % was priced at 1.49 min/epoch by dividing the WHOLE JOB's elapsed time, which already covered
+ 338| % alabama, arizona and georgia, by california's own 34 epochs; from its own start and kill stamps the
+ 339| % rate is 0.446 min/epoch, about 22 min per fold. A 3.3x error, and the difference between
+ 340| % "impossible under the cap" and "one fold fits easily". No runtime figure appears in the prose
+ 341| % above, deliberately: a runtime is not a result, and each of these was wrong before it was right.
+ 342| % (1) Georgia was estimated at 8.7 h from its FIRST epoch and finished in 11 minutes, a 47x error,
+ 343| % because epoch 1 carries warmup -- never extrapolate a run from its first epoch. (2) California was
+ 344| % reported as "about 5.4 h remaining" for a process that was already dead: its log had been frozen
+ 345| % for 78 minutes and the GPU was idle, and the stale log was being read as progress. Check the
+ 346| % process, not the log.
+ 347| % WHEN THE RUNS LAND: re-run src_utils/_round7/cosine_stats.py (it asserts its own structure),
+ 348| % extend tables/frame/cosine.tex and rebuild the figure, then correct EVERY count in this file.
+ 349| % The dataset count appears in: this file's header comment (twice), the observations paragraph,
+ 350| % the "three of those four" paragraph, the figure caption, the table caption, the first sentence
+ 351| % of Section apx:cosine:extension, the data-axis paragraph, and the paragraph above. Grep for
+ 352| % "3,900", "four datasets" and "3,150 + 250" rather than trusting this list to stay complete.]
+
+================================================================================================
+FILE src/main_extra.tex (278 lines)
+================================================================================================
+--- block 1..41 (41 lines) ---
+   1| % !TeX root = main_extra.tex
+   2| % ============================================================================
+   3| % main_extra.tex -- the SUPPLEMENTARY VOLUME. A separate document, not a fourth variant of the
+   4| % dissertation: its own preamble, front matter, table of contents and bibliography. It does not
+   5| % read main.tex, and it is deliberately absent from `make all3` and `make fast3`.
+   6| %
+   7| % WHAT IT CARRIES, and why. The advisor ruled (2026-07-28) that the errata appendix is not needed
+   8| % in the dissertation, because each chapter preface already explains the relationship to the
+   9| % published article. Rather than delete that work, it moved here, together with Appendix D (the
+  10| % label-history ceiling benchmark), plus anything else whose place in the main text is undecided.
+  11| % The dissertation is complete without this volume; that is stated in its opening section too.
+  12| %
+  13| % APPENDIX LETTERS B AND D ARE PRESERVED here even though the main document's appendices now read
+  14| % A, C, E, F with gaps. Reason, measured: GLOSSARY.md lines 41 and 73 name "Appendix B" and line 51
+  15| % names "Appendix D", and the two published articles' errata trails refer to them by letter. A
+  16| % renumber would silently break every one of those references.
+  17| %
+  18| % CROSS-VOLUME REFERENCES. 46 \ref sites in these appendices point at labels defined in the MAIN
+  19| % document, which this volume does not read. They resolve through nine frozen \newlabel
+  20| % declarations in the "cross-volume labels" block below -- not by editing the appendix prose, so
+  21| % the text is identical to what it was in the dissertation. src_utils/check_extra_xrefs.py checks
+  22| % all three failure directions (a frozen number that has drifted, a reference with no target, a
+  23| % frozen label nothing uses) against the main build's aux, and is wired into `make check`.
+  24| %
+  25| % BUILDING IT ON OVERLEAF. This volume must build with no `make` and no format dump. This exact
+  26| % sequence was RUN on 2026-07-29 in a copy of src/ with build/ excluded, and these are the numbers
+  27| % it printed: rc=0 on all four commands, 19 pages, 0 TeX errors, 0 undefined references, 0
+  28| % undefined citations, 0 overfull boxes, 4 \bibitem in the .bbl, 0 BibTeX warnings.
+  29| %
+  30| %     pdflatex main_extra && bibtex main_extra && pdflatex main_extra && pdflatex main_extra
+  31| %
+  32| % The bibtex ARGUMENT differs from the one in `make extra` and the difference is not cosmetic:
+  33| % plain `bibtex main_extra` here, `bibtex build/main_extra-aux/main_extra` there. The wrong form
+  34| % exits 1 with "I couldn't open file name", which stops an && chain and, in a GUI editor, leaves
+  35| % every citation silently unresolved.
+  36| %
+  37| % MERGED 2026-07-30 (author): this file and 0_extra.tex were one \input apart -- 68 lines of which
+  38| % two were live -- for no benefit. The dissertation splits preamble.tex/content.tex because that
+  39| % boundary is load-bearing for the format dump; this volume has no format dump and one entry point,
+  40| % so one file is the honest shape.
+  41| % ============================================================================
+
+--- block 56..60 (5 lines) ---
+  56| % The four-line layout unit from 0_main.tex, kept verbatim and for the same reason: the
+  57| % [fixed] option is what makes the bottom margin come out at the 2 cm the UFV manual
+  58| % specifies, because the default `classic` rounds the text block to a whole number of lines
+  59| % and takes the difference out of the bottom margin. The derivation is in 0_main.tex; it is
+  60| % not repeated here, and the order of these four lines is load-bearing.
+
+--- block 128..160 (33 lines) ---
+ 128| % ---------------------------------------------------------------------------------------
+ 129| % CROSS-VOLUME REFERENCES -- the one mechanism in this file that needs explaining.
+ 130| %
+ 131| % THE PROBLEM. Both appendices below discuss chapters of the DISSERTATION, which is a
+ 132| % different document. `\ref{ch:cbic}` therefore has no target here: compiled alone, every
+ 133| % one of them renders as `??` and the build reports undefined references. There are 46 such
+ 134| % call sites (measured: see the count in the gate named below), and rewriting all 46 by hand
+ 135| % into literal numbers would put 46 unguarded numbers in prose, which is exactly the drift
+ 136| % AGENT_HANDOFF §2.6 describes -- a chapter reorder would silently falsify every one.
+ 137| %
+ 138| % THE MECHANISM. \dissertationlabel declares one frozen (label -> number) pair, in the
+ 139| % internal form \ref reads, so the existing `\ref{...}` call sites keep working unchanged and
+ 140| % no appendix prose is edited. The number is FROZEN, so it must be guarded, and it is:
+ 141| %   src_utils/check_extra_xrefs.py  reads the number the MAIN build actually printed for
+ 142| %   each label out of build/main-aux/**/*.aux and fails if a frozen value here disagrees.
+ 143| % It runs in src_utils/check.sh, so `make check` catches a stale value. It also fails when a
+ 144| % \ref target used by this volume is not declared here at all, and when a declared label is
+ 145| % no longer referenced -- the third direction matters, because a dead declaration is what
+ 146| % makes the other two look green.
+ 147| %
+ 148| % THE VALUES BELOW WERE READ, NOT REMEMBERED. Each comes from the \newlabel line the
+ 149| % defense build wrote, at commit 3bd47d5d:
+ 150| %   grep -rh 'newlabel{ch:cbic}' build/main-aux/    ->  \newlabel{ch:cbic}{{3}{26}{...}}
+ 151| % and likewise for the other eight. The first braced group is the printed number.
+ 152| %
+ 153| % THE LINK TARGET. A frozen label has no destination inside this volume, and pointing one at
+ 154| % a destination that does not exist reproduces the dead-link defect this project has already
+ 155| % had once (0_main.tex's hyperfootnotes note: ten footnote marks that all jumped to physical
+ 156| % page 1). So every frozen reference is anchored at ext:dissertation, a real destination
+ 157| % created in the opening statement below, where the sentence explaining that the dissertation
+ 158| % is a separate document lives. A reader who clicks "Chapter 5" lands on that explanation
+ 159| % rather than on nothing.
+ 160| % ---------------------------------------------------------------------------------------
+
+--- block 192..201 (10 lines) ---
+ 192| % ---------------------------------------------------------------------------------------
+ 193| % THE OPENING STATEMENT. What this volume is, why it is separate, and that the dissertation
+ 194| % is complete without it. The third clause is the load-bearing one: a supplementary volume
+ 195| % that reads as a missing piece of the dissertation would undo the advisor's ruling instead
+ 196| % of implementing it.
+ 197| % [NEEDS SIGN-OFF: raised round 7, 2026-07-29 | whole chapter -- new frame prose. It states
+ 198| % what the reader is holding and makes a claim about the main document's completeness, which
+ 199| % is the author's to make. Written from the advisor's ruling of 2026-07-28 as relayed by the
+ 200| % author, and from NORTH_STAR §4's errata regime; no result or number is asserted here.]
+ 201| % ---------------------------------------------------------------------------------------
+
+--- block 238..245 (8 lines) ---
+ 238| % ---------------------------------------------------------------------------------------
+ 239| % THE APPENDICES. \setcounter{chapter}{N} before each \chapter is what preserves the
+ 240| % letters B and D: \appendix (entered by apendicesenv) sets \thechapter to \Alph{chapter},
+ 241| % so the counter must arrive at 2 and 4 rather than at 1 and 2. Without these two lines the
+ 242| % two appendices print as A and B, and every "Appendix B" and "Appendix D" written outside
+ 243| % this document -- GLOSSARY.md:51, the author's notes, the advisor's own words -- would name
+ 244| % the wrong one.
+ 245| % ---------------------------------------------------------------------------------------
+
+--- block 252..258 (7 lines) ---
+ 252| % ---------------------------------------------------------------------------------------
+ 253| % SLOT FOR UNDECIDED MATERIAL. The author's design for this volume includes "anything else
+ 254| % whose place in the main text is undecided". Add it here, after Appendix D, with its own
+ 255| % \setcounter{chapter}{N} if it is meant to carry a specific letter. Anything added here
+ 256| % needs: a \chapter, a \label, and an entry in the source ledger of the report that
+ 257| % introduced it (src_utils/_round7/24_extra_and_cosine.md for this volume's first version).
+ 258| % ---------------------------------------------------------------------------------------
+
+--- block 261..273 (13 lines) ---
+ 261| % Bibliography LAST, after the appendices. It is a real bibliography built by BibTeX from the
+ 262| % same references.bib the dissertation uses, so an entry cannot drift between the two volumes.
+ 263| %
+ 264| % BOTH APPENDICES CITE, and an earlier version of this comment said only Appendix D did.
+ 265| % MEASURED, from src/ (the command, per AGENT_GUARDRAILS §4b V1):
+ 266| %   grep -v '^[[:space:]]*%' chapters/apx_b_errata.tex chapters/apx_d_ceiling.tex \
+ 267| %       tables/frame/*.tex tables/cbic/*.tex tables/courb/*.tex tables/mobiwac/errata_scope.tex \
+ 268| %     | grep -o '\\cite[a-z]*{[^}]*}' | sort -u
+ 269| %   -> \cite{kohavi1995crossval}, \cite{pedregosa2011sklearn}, \cite{sokolova2009measures}
+ 270| %      from Appendix D, and \cite{silva2025mtlnet} from Appendix B (its Article-3 section, on
+ 271| %      the misattribution of the CBIC paper). Four keys, four \bibitem in main_extra.bbl.
+ 272| % This matters if either appendix is ever removed from this volume: dropping Appendix D does
+ 273| % NOT make the bibliography unnecessary, because Appendix B still cites.
+

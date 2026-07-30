@@ -1,0 +1,103 @@
+{
+ "path": "src/build/main_extra.pdf",
+ "n_pages": 19,
+ "doc_sha256": "858cacb00949971254cfacc63bfb6574b81bf15169c86ce3cd9b5b88b1ffd348",
+ "total_chars": 43165,
+ "pages": [
+  {
+   "page": 1,
+   "chars": 233,
+   "sha256": "6cb9d57ebd7361e7e1c2d7cd29fccb8ce3ac73ee19a083f0a6279ad809c8e8ec"
+  },
+  {
+   "page": 2,
+   "chars": 918,
+   "sha256": "803b8befad478989b2ddd093143f01e6a08c082993fa1a057c2756ba2334b35f"
+  },
+  {
+   "page": 3,
+   "chars": 2345,
+   "sha256": "61065d9c472468c4e5f07a0d3c43c11a07e76eeceb8cfa60097c039e26b3d520"
+  },
+  {
+   "page": 4,
+   "chars": 8,
+   "sha256": "2d4b3e2813c6058b5f056f91316db8c83f4d685cc5596bc61e4bb14d4b4b1680"
+  },
+  {
+   "page": 5,
+   "chars": 2042,
+   "sha256": "491d0d7941a95fb23395205172b74fba8446af6214106e9e42aa6634fe9cf02b"
+  },
+  {
+   "page": 6,
+   "chars": 2267,
+   "sha256": "de88455ff32882f828a34b181a3a0ae212a9f58633416fb0ab289964d01fe9dd"
+  },
+  {
+   "page": 7,
+   "chars": 2802,
+   "sha256": "9753d046e68229888d04c965d1504c4633250fc79a870a05fce4576325568f30"
+  },
+  {
+   "page": 8,
+   "chars": 3161,
+   "sha256": "ac17ff979437b481ca9e9f2fe329a13bbdf36fbcaad048a19badf89d2a589b20"
+  },
+  {
+   "page": 9,
+   "chars": 3205,
+   "sha256": "a9b1d9259fb7922d68a36f51ef4f1ebcb078dde1e46a86bde8818358870d6679"
+  },
+  {
+   "page": 10,
+   "chars": 3243,
+   "sha256": "52dea38bc90762c67f010518a8ced82eab3ad949ad33ef1dba93437a18bc857d"
+  },
+  {
+   "page": 11,
+   "chars": 2922,
+   "sha256": "dcafbadf5b5d48ab3026319731844010adf6907fdd6253f094eedaa53f60c956"
+  },
+  {
+   "page": 12,
+   "chars": 3083,
+   "sha256": "41978a7f2ff660619d0007526beb5c9cb994002b6c97089993872dac2385d15c"
+  },
+  {
+   "page": 13,
+   "chars": 3064,
+   "sha256": "4052b119e837ad8b277ca4ae70a25b6e81052b719b634e4458164047f1c7f807"
+  },
+  {
+   "page": 14,
+   "chars": 2775,
+   "sha256": "031bb0ecb7c8133ec6b284cc2cf108354d031b9793582235a8d5cc2833dccad3"
+  },
+  {
+   "page": 15,
+   "chars": 2690,
+   "sha256": "9e506956374a16c2819c78c18dbc8f96c78f4c0c3f4501e037d2487f3f3a614c"
+  },
+  {
+   "page": 16,
+   "chars": 2692,
+   "sha256": "6d86dd313673c61440b889965f96f1e8c4f28f85a3ce1bafae31312ac9c36504"
+  },
+  {
+   "page": 17,
+   "chars": 3326,
+   "sha256": "20e3a55d9d28ac0f92a29dc8b68a7750e0cf32d11b86db704d0906955bff72ef"
+  },
+  {
+   "page": 18,
+   "chars": 1654,
+   "sha256": "c5234899a864cd9880b72dd8c30d976c06e31e55529e6346f00708f2675d0cfa"
+  },
+  {
+   "page": 19,
+   "chars": 735,
+   "sha256": "58beb8bf0fdefe235a13c939bbae2b6acca760c0a7641f57068b232cf33116c8"
+  }
+ ]
+}

@@ -1,0 +1,159 @@
+{
+ "version": 3,
+ "created_at": "2026-07-29T02:29:18.398Z",
+ "task_summary": "Speed the build, clean the comments, restructure appendices, retitle, clean trackers",
+ "agents": [],
+ "phases": [
+  {
+   "name": "Phase 1 \u00b7 Build engineering first, so everything after is 3x faster",
+   "delegations": [
+    {
+     "name": "Build speed",
+     "steps": [
+      {
+       "title": "Precompile the preamble into a format dump",
+       "description": "Measured: one pass is 31.7s of which the preamble is 27.7s (87%); the body is 4s. A mylatexformat dump cut a pass to 3.7s, an 8.6x speedup, verified producing a 109-page PDF. Two hazards to close first: a clean preamble/body split (the crude one leaves a stray \\begin{document}), and a staleness guard keyed on the preamble's checksum, because a stale format is silently wrong. Gate it so a changed preamble rebuilds the dump automatically."
+      },
+      {
+       "title": "Make the three targets build in parallel",
+       "description": "Give each target its own aux tree so build/chapters/*.aux cannot collide, then add a target that runs all three concurrently. Measured baseline: 96s per target serially, 45s for three in parallel. Verify all three PDFs are identical to the serial ones by text fingerprint before trusting it."
+      },
+      {
+       "title": "Make the gate suite fast and parallel",
+       "description": "The nine check scripts total 1.4s, so they are not the bottleneck; the perception comes from make check being run right after a 96s build. Confirm each script's cost, parallelize the file-walking ones across cores only where it measurably helps, and make check.sh report its own per-gate timing so a future slow gate is visible rather than felt."
+      },
+      {
+       "title": "Wire every check into the Makefile",
+       "description": "Some checks exist as scripts but are not reachable from make. Add named targets for each and a single fast target that runs all of them, so the author never has to know the script paths."
+      }
+     ]
+    },
+    {
+     "name": "LaTeX upgrade",
+     "steps": [
+      {
+       "title": "Review LATEX_UPGRADE.md against the live tree",
+       "description": "Re-verify each of the five candidates and five findings against the current source, since the tree changed after that review was written. Record a verdict per item with the measurement behind it, including any that no longer apply."
+      },
+      {
+       "title": "Fix the wrong-PDF trap and the masked bibtex errors",
+       "description": "F-1: main.tex documents a command that silently produces the DEFENSE build under a deposit jobname, and inverts the attribution of the nested-if hazard. F-2: bibtex || true masks fatal errors. Both are corrected and the fix validated by making bibtex fail deliberately."
+      },
+      {
+       "title": "Apply the academico rename and thin entry file",
+       "description": "A-1/A-2/A-3: rename the final build to academico throughout (target, jobname, output, switch macro), and add a thin main_academico.tex matching the main_ppgc.tex pattern. Every dependent tool (check.sh, build.sh, sync_page_counts.py, sync_deliverables.py) must be updated in the same commit or the page-count gate goes silent."
+      },
+      {
+       "title": "Preflight the TeX environment in the Makefile",
+       "description": "F-3: the Makefile documents texenv.sh as mandatory but does not check it. Add a preflight that fails with the actual remedy rather than a font-not-found error, which is the failure that cost the first hour of the previous round."
+      },
+      {
+       "title": "Re-review the LaTeX source with persona 19",
+       "description": "Run reviewers/19_latex_source_reviewer.md over the tree AFTER every change in this phase, not before, so it audits the new state: the format dump, the three aux trees, the academico rename, the trimmed comments. It wrote LATEX_UPGRADE.md, so it is also the right reviewer to judge whether its own recommendations were applied faithfully."
+      }
+     ]
+    },
+    {
+     "name": "Comment hygiene",
+     "steps": [
+      {
+       "title": "Deduplicate the build-file comment stories",
+       "description": "Measured across the build files and governance docs: the 'three builds, one source' story is told 5 times, the nested-if scanning hazard 4, the usermode TeX tree 4, halt-on-error vs nonstopmode 5, and 'main_ppgc is N lines' SEVEN times, of which three say 'four lines' for a file with 2 content lines. Keep one canonical telling per story, point the rest at it, and fix the wrong counts. main.tex is currently 85% comment."
+      },
+      {
+       "title": "Keep only comments that carry a fact or a warning",
+       "description": "Trim, merge and summarize. A comment stays if it carries a traceable fact (path, line, number, date, commit, finding id) or names a trap a future agent would fall into. Decorative rule lines and restatements of adjacent code go. Every deletion is checked against the fact-density measurement so provenance the number protocol requires is never removed."
+      },
+      {
+       "title": "Write the knowledge-transfer comments that are missing",
+       "description": "The inverse of trimming: this refactor creates new traps (a format dump that goes stale, three aux trees, the academico rename) and each needs a comment saying what breaks and how it presents. Written for someone who has never seen this tree."
+      },
+      {
+       "title": "Date and triage the 46 sign-off markers",
+       "description": "46 [NEEDS SIGN-OFF] markers across 19 files, and 40 carry NO round attribution, so the author cannot tell which are fresh. Give each its round and date, verify each still points at a live question, update the ones whose subject moved this round, and remove none without saying so. They are the author's queue and must survive the comment trim intact."
+      },
+      {
+       "title": "Gate comment hygiene so it cannot regress",
+       "description": "A checker for the two mechanical classes: a duplicated canonical story, and a self-describing count that disagrees with the file it describes (the 'four lines' defect). Validated in both directions against the current tree, which carries the defect today."
+      }
+     ]
+    }
+   ],
+   "id": "phase-0"
+  },
+  {
+   "name": "Phase 2 \u00b7 Structure and content the advisor asked for",
+   "delegations": [
+    {
+     "name": "Extra volume",
+     "steps": [
+      {
+       "title": "Create main_extra as a second deliverable",
+       "description": "A new main_extra.tex entry file plus a Makefile target, following the thin main_ppgc.tex pattern so it builds standalone in Overleaf. It carries the errata appendix (B) and the ceiling appendix (D), both removed from the main document per the advisor, and becomes the home for anything else whose place in the main text is undecided."
+      },
+      {
+       "title": "Remove B and D from the main document",
+       "description": "Remove the two includes, then check every cross-reference into them. The chapter prefaces point at the errata appendix, and per the advisor those prefaces are what now carries the explanation, so each pointer must be rewritten rather than deleted. Confirm zero undefined references and re-measure the page count."
+      },
+      {
+       "title": "Draft the gradient-cosine appendix as new material",
+       "description": "NOT an existing appendix: measured, there is none, and the cosine material sits in two places in Chapter 5's body. This is new writing for the main text giving fuller data and explanation of the next-region/next-category gradient relationship. Chapter 5 is under review, so its body prose stays untouched and the appendix must stand on its own without breaking parity with the submitted paper."
+      }
+     ]
+    },
+    {
+     "name": "Title",
+     "steps": [
+      {
+       "title": "Ground the title conventions in real defended work",
+       "description": "Already fetched and saved to exemples/ctd2026/ with PROVENANCE.md: all 16 CTD 2026 selected works, measured at mean 9.7 words, 9 of 16 with a colon, and ZERO opening with a rhetorical From/Toward/Beyond. Extend that with their structure and abstract shape, and note that one is from the same advisor and lab."
+      },
+      {
+       "title": "Propose candidate titles with the evidence for each",
+       "description": "Three to five candidates that keep the two tasks and the multi-task framing findable, drop the rhetorical opener the current title leads with, and sit inside the measured word range. Each carries what it gains and what it gives up; the author picks."
+      }
+     ]
+    }
+   ],
+   "id": "phase-1"
+  },
+  {
+   "name": "Phase 3 \u00b7 Trackers, and the round's own post-mortem",
+   "delegations": [
+    {
+     "name": "Trackers",
+     "steps": [
+      {
+       "title": "Split PENDENCIAS into open and resolved",
+       "description": "Move everything closed to _archive/PENDENCIAS_RESOLVIDOS.md with its commit, leaving only decisions the author must take and things he must be aware of. The resolved file keeps the commit hashes so the audit trail survives the move."
+      },
+      {
+       "title": "Archive CODEX_AUDIT after lifting anything still open",
+       "description": "Sweep every COD- and NUM- item for anything still awaiting the author's approval or awareness, move those into PENDENCIAS as first-class items, then archive the audit. Nothing pending may be lost in the archiving."
+      },
+      {
+       "title": "Write the round post-mortem",
+       "description": "The measured causes of the 13.3 hours: 3.4h of LaTeX compilation across 82 build cells, 2.6h waiting on the slowest sub-agent in each wave, and the self-inflicted rework. What changes concretely for next time, with the numbers that justify each change."
+      }
+     ]
+    }
+   ],
+   "id": "phase-2"
+  }
+ ],
+ "desired_outputs": [
+  "A build that is measurably faster: preamble precompiled (31.7s -> 3.7s per pass, with a staleness guard) and three targets in isolated aux trees building in parallel (96s -> 45s)",
+  "Build-file comments deduplicated and trimmed to what carries a fact or a warning, with new knowledge-transfer comments for the traps this refactor creates, and a gate against regression",
+  "All 46 [NEEDS SIGN-OFF] markers dated, triaged and preserved as the author's queue",
+  "LATEX_UPGRADE.md applied (wrong-PDF trap, bibtex || true, academico rename A-1/A-2/A-3, TeX preflight) and re-reviewed by persona 19 AFTER the changes",
+  "main_extra.tex as its own entry file and Makefile target, Overleaf-buildable, carrying appendices B and D",
+  "A new gradient-cosine appendix in the main text, written as new material",
+  "Three to five candidate titles grounded in the CTD 2026 and UFV measurements",
+  "PENDENCIAS.md reduced to open decisions only, resolved items in _archive/PENDENCIAS_RESOLVIDOS.md, CODEX_AUDIT.md archived after lifting anything still pending",
+  "A written post-mortem of the 13.3h round with per-cause measurements"
+ ],
+ "feasibility": {
+  "confidence": "high",
+  "rationale": "Every build claim here is already measured on this machine, including the 8.6x preamble speedup verified end-to-end. The two genuine risks are a stale format dump reading as correct, which a checksum guard closes, and the comment trim removing provenance the number protocol requires, which is why deletions are checked against the fact-density measurement rather than done by eye."
+ }
+}

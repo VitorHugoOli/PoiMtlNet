@@ -1,0 +1,635 @@
+{
+ "rows": [
+  {
+   "file": "src/content.tex",
+   "total": 324,
+   "comment": 152,
+   "pct": 46.9,
+   "blocks": 25,
+   "max_block": 27,
+   "blocks_ge_min": 7,
+   "lines_in_blocks_ge_min": 111,
+   "signoff": 4
+  },
+  {
+   "file": "src/main.tex",
+   "total": 138,
+   "comment": 127,
+   "pct": 92.0,
+   "blocks": 5,
+   "max_block": 79,
+   "blocks_ge_min": 3,
+   "lines_in_blocks_ge_min": 120,
+   "signoff": 0
+  },
+  {
+   "file": "src/main_academico.tex",
+   "total": 34,
+   "comment": 31,
+   "pct": 91.2,
+   "blocks": 1,
+   "max_block": 31,
+   "blocks_ge_min": 1,
+   "lines_in_blocks_ge_min": 31,
+   "signoff": 0
+  },
+  {
+   "file": "src/main_extra.tex",
+   "total": 277,
+   "comment": 117,
+   "pct": 42.2,
+   "blocks": 7,
+   "max_block": 41,
+   "blocks_ge_min": 5,
+   "lines_in_blocks_ge_min": 105,
+   "signoff": 1
+  },
+  {
+   "file": "src/main_ppgc.tex",
+   "total": 27,
+   "comment": 24,
+   "pct": 88.9,
+   "blocks": 1,
+   "max_block": 24,
+   "blocks_ge_min": 1,
+   "lines_in_blocks_ge_min": 24,
+   "signoff": 0
+  },
+  {
+   "file": "src/preamble.tex",
+   "total": 254,
+   "comment": 152,
+   "pct": 59.8,
+   "blocks": 16,
+   "max_block": 29,
+   "blocks_ge_min": 7,
+   "lines_in_blocks_ge_min": 130,
+   "signoff": 0
+  },
+  {
+   "file": "src/chapters/1_introduction.tex",
+   "total": 281,
+   "comment": 64,
+   "pct": 22.8,
+   "blocks": 8,
+   "max_block": 25,
+   "blocks_ge_min": 2,
+   "lines_in_blocks_ge_min": 42,
+   "signoff": 2
+  },
+  {
+   "file": "src/chapters/2_fundamentals.tex",
+   "total": 723,
+   "comment": 278,
+   "pct": 38.5,
+   "blocks": 19,
+   "max_block": 50,
+   "blocks_ge_min": 10,
+   "lines_in_blocks_ge_min": 255,
+   "signoff": 5
+  },
+  {
+   "file": "src/chapters/3_cbic.tex",
+   "total": 62,
+   "comment": 33,
+   "pct": 53.2,
+   "blocks": 3,
+   "max_block": 19,
+   "blocks_ge_min": 2,
+   "lines_in_blocks_ge_min": 30,
+   "signoff": 0
+  },
+  {
+   "file": "src/chapters/4_courb.tex",
+   "total": 45,
+   "comment": 33,
+   "pct": 73.3,
+   "blocks": 3,
+   "max_block": 16,
+   "blocks_ge_min": 2,
+   "lines_in_blocks_ge_min": 30,
+   "signoff": 1
+  },
+  {
+   "file": "src/chapters/5_mobiwac.tex",
+   "total": 53,
+   "comment": 26,
+   "pct": 49.1,
+   "blocks": 3,
+   "max_block": 15,
+   "blocks_ge_min": 2,
+   "lines_in_blocks_ge_min": 23,
+   "signoff": 1
+  },
+  {
+   "file": "src/chapters/6_conclusion.tex",
+   "total": 287,
+   "comment": 103,
+   "pct": 35.9,
+   "blocks": 9,
+   "max_block": 23,
+   "blocks_ge_min": 5,
+   "lines_in_blocks_ge_min": 81,
+   "signoff": 7
+  },
+  {
+   "file": "src/chapters/apx_a_contributions.tex",
+   "total": 246,
+   "comment": 147,
+   "pct": 59.8,
+   "blocks": 9,
+   "max_block": 45,
+   "blocks_ge_min": 5,
+   "lines_in_blocks_ge_min": 129,
+   "signoff": 6
+  },
+  {
+   "file": "src/chapters/apx_b_errata.tex",
+   "total": 440,
+   "comment": 223,
+   "pct": 50.7,
+   "blocks": 10,
+   "max_block": 94,
+   "blocks_ge_min": 8,
+   "lines_in_blocks_ge_min": 214,
+   "signoff": 5
+  },
+  {
+   "file": "src/chapters/apx_b_static_scope.tex",
+   "total": 72,
+   "comment": 23,
+   "pct": 31.9,
+   "blocks": 2,
+   "max_block": 18,
+   "blocks_ge_min": 1,
+   "lines_in_blocks_ge_min": 18,
+   "signoff": 1
+  },
+  {
+   "file": "src/chapters/apx_c_ai_disclosure.tex",
+   "total": 92,
+   "comment": 54,
+   "pct": 58.7,
+   "blocks": 1,
+   "max_block": 54,
+   "blocks_ge_min": 1,
+   "lines_in_blocks_ge_min": 54,
+   "signoff": 1
+  },
+  {
+   "file": "src/chapters/apx_d_ceiling.tex",
+   "total": 127,
+   "comment": 27,
+   "pct": 21.3,
+   "blocks": 3,
+   "max_block": 12,
+   "blocks_ge_min": 2,
+   "lines_in_blocks_ge_min": 21,
+   "signoff": 1
+  },
+  {
+   "file": "src/chapters/apx_e_ethics.tex",
+   "total": 98,
+   "comment": 11,
+   "pct": 11.2,
+   "blocks": 3,
+   "max_block": 6,
+   "blocks_ge_min": 0,
+   "lines_in_blocks_ge_min": 0,
+   "signoff": 1
+  },
+  {
+   "file": "src/chapters/apx_f_cosine.tex",
+   "total": 383,
+   "comment": 190,
+   "pct": 49.6,
+   "blocks": 10,
+   "max_block": 60,
+   "blocks_ge_min": 6,
+   "lines_in_blocks_ge_min": 168,
+   "signoff": 1
+  }
+ ],
+ "blocks": [
+  {
+   "file": "src/content.tex",
+   "line": 1,
+   "len": 13,
+   "first": "% !TeX root = main.tex"
+  },
+  {
+   "file": "src/content.tex",
+   "line": 50,
+   "len": 20,
+   "first": "% [NEEDS SIGN-OFF: Resumo CUT, round 6, 2026-07-28] The pair was cut on the author's"
+  },
+  {
+   "file": "src/content.tex",
+   "line": 97,
+   "len": 8,
+   "first": "% [round5, persona 17 MAJOR-2, still honored] \"Proximo lugar visitado\" is NOT used: it"
+  },
+  {
+   "file": "src/content.tex",
+   "line": 106,
+   "len": 9,
+   "first": "% [round5, author decision 3.3 option ii] Purely mechanical: keep the keyword block with the"
+  },
+  {
+   "file": "src/content.tex",
+   "line": 137,
+   "len": 10,
+   "first": "% [NEEDS SIGN-OFF: Abstract CUT, round 6, 2026-07-28] Cut as the claim-parity pair of the"
+  },
+  {
+   "file": "src/content.tex",
+   "line": 243,
+   "len": 24,
+   "first": "% \\include, NOT \\input, for each chapter: it gives every chapter its own .aux, which is what"
+  },
+  {
+   "file": "src/content.tex",
+   "line": 282,
+   "len": 27,
+   "first": "% APPENDICES. B and D are NOT here, and the gap in the lettering is deliberate."
+  },
+  {
+   "file": "src/main.tex",
+   "line": 1,
+   "len": 79,
+   "first": "% !TeX root = main.tex"
+  },
+  {
+   "file": "src/main.tex",
+   "line": 81,
+   "len": 18,
+   "first": "% Default mode = DEFENSE. main_academico.tex sets \\ACADEMICOBUILD (\\def\\ACADEMICOBUILD{})"
+  },
+  {
+   "file": "src/main.tex",
+   "line": 108,
+   "len": 23,
+   "first": "% Page number of the FIRST BODY PAGE in the academico deposit build (the macro keeps the name"
+  },
+  {
+   "file": "src/main_academico.tex",
+   "line": 1,
+   "len": 31,
+   "first": "% !TeX root = main_academico.tex"
+  },
+  {
+   "file": "src/main_extra.tex",
+   "line": 1,
+   "len": 41,
+   "first": "% !TeX root = main_extra.tex"
+  },
+  {
+   "file": "src/main_extra.tex",
+   "line": 128,
+   "len": 33,
+   "first": "% ---------------------------------------------------------------------------------------"
+  },
+  {
+   "file": "src/main_extra.tex",
+   "line": 192,
+   "len": 10,
+   "first": "% ---------------------------------------------------------------------------------------"
+  },
+  {
+   "file": "src/main_extra.tex",
+   "line": 238,
+   "len": 8,
+   "first": "% ---------------------------------------------------------------------------------------"
+  },
+  {
+   "file": "src/main_extra.tex",
+   "line": 261,
+   "len": 13,
+   "first": "% Bibliography LAST, after the appendices. It is a real bibliography built by BibTeX from the"
+  },
+  {
+   "file": "src/main_ppgc.tex",
+   "line": 1,
+   "len": 24,
+   "first": "% !TeX root = main_ppgc.tex"
+  },
+  {
+   "file": "src/preamble.tex",
+   "line": 1,
+   "len": 20,
+   "first": "% !TeX root = main.tex"
+  },
+  {
+   "file": "src/preamble.tex",
+   "line": 22,
+   "len": 22,
+   "first": "%% Skeleton derived from a prior UFV/PPGCC abnTeX2 dissertation tree (TEMPLATE.md \u00a70"
+  },
+  {
+   "file": "src/preamble.tex",
+   "line": 64,
+   "len": 29,
+   "first": "% Gate D-1 fix: abntex2-UFV runs \\checkandfixthelayout under single spacing, leaving a"
+  },
+  {
+   "file": "src/preamble.tex",
+   "line": 118,
+   "len": 8,
+   "first": "% [round5, advisor request 2026-07-27] Citation brackets: square, not round."
+  },
+  {
+   "file": "src/preamble.tex",
+   "line": 160,
+   "len": 12,
+   "first": "% ---------------------------------------------------------------------------------------"
+  },
+  {
+   "file": "src/preamble.tex",
+   "line": 182,
+   "len": 24,
+   "first": "% ---------------------------------------------------------------"
+  },
+  {
+   "file": "src/preamble.tex",
+   "line": 237,
+   "len": 15,
+   "first": "% [round6, E-5, visual/presentation persona 18] hyperfootnotes DISABLED, and the option is NOT"
+  },
+  {
+   "file": "src/chapters/1_introduction.tex",
+   "line": 1,
+   "len": 25,
+   "first": "% !TeX root = ../main.tex"
+  },
+  {
+   "file": "src/chapters/1_introduction.tex",
+   "line": 188,
+   "len": 17,
+   "first": "% [round7, 2026-07-29] \"the errata appendix\" -> \"the errata appendix of \\extravolume\". This"
+  },
+  {
+   "file": "src/chapters/2_fundamentals.tex",
+   "line": 99,
+   "len": 23,
+   "first": "% ---------------------------------------------------------------------------"
+  },
+  {
+   "file": "src/chapters/2_fundamentals.tex",
+   "line": 175,
+   "len": 16,
+   "first": "% [NEEDS SIGN-OFF: NUM-4, round6, 2026-07-28] Number RE-ANCHORED and its convention added."
+  },
+  {
+   "file": "src/chapters/2_fundamentals.tex",
+   "line": 258,
+   "len": 33,
+   "first": "% [NEEDS SIGN-OFF: COD-015, round6, 2026-07-28] New frame prose: the Check2HGI loss, which the"
+  },
+  {
+   "file": "src/chapters/2_fundamentals.tex",
+   "line": 313,
+   "len": 22,
+   "first": "% [NEEDS SIGN-OFF: COD-013, round6, 2026-07-28] New frame prose. The author approved naming the"
+  },
+  {
+   "file": "src/chapters/2_fundamentals.tex",
+   "line": 339,
+   "len": 41,
+   "first": "% ---------------------------------------------------------------------------"
+  },
+  {
+   "file": "src/chapters/2_fundamentals.tex",
+   "line": 445,
+   "len": 8,
+   "first": "% [v2 review F-08, 2026-07-26] CAGrad description corrected (persona 10, who read arXiv:2110.14048)."
+  },
+  {
+   "file": "src/chapters/2_fundamentals.tex",
+   "line": 468,
+   "len": 38,
+   "first": "% ---------------------------------------------------------------------------"
+  },
+  {
+   "file": "src/chapters/2_fundamentals.tex",
+   "line": 573,
+   "len": 11,
+   "first": "% [round6, N-2, fact gate persona 06/07] REPAIRED. This clause used to read \"Chapter 3 reports"
+  },
+  {
+   "file": "src/chapters/2_fundamentals.tex",
+   "line": 603,
+   "len": 50,
+   "first": "% ---------------------------------------------------------------------------"
+  },
+  {
+   "file": "src/chapters/2_fundamentals.tex",
+   "line": 711,
+   "len": 13,
+   "first": "% ---------------------------------------------------------------------------"
+  },
+  {
+   "file": "src/chapters/3_cbic.tex",
+   "line": 1,
+   "len": 11,
+   "first": "% !TeX root = ../main.tex"
+  },
+  {
+   "file": "src/chapters/3_cbic.tex",
+   "line": 34,
+   "len": 19,
+   "first": "% [round7, 2026-07-29] Errata pointer repointed, NOT deleted. It read \"are listed in"
+  },
+  {
+   "file": "src/chapters/4_courb.tex",
+   "line": 1,
+   "len": 14,
+   "first": "% !TeX root = ../main.tex"
+  },
+  {
+   "file": "src/chapters/4_courb.tex",
+   "line": 20,
+   "len": 16,
+   "first": "% [round3, author 3.5/MJ-8] same terminology bridge as the Ch.3 preface."
+  },
+  {
+   "file": "src/chapters/5_mobiwac.tex",
+   "line": 1,
+   "len": 15,
+   "first": "% !TeX root = ../main.tex"
+  },
+  {
+   "file": "src/chapters/5_mobiwac.tex",
+   "line": 20,
+   "len": 8,
+   "first": "% [round7, 2026-07-29] \"recorded in the errata appendix\" -> \"recorded in Appendix~B of"
+  },
+  {
+   "file": "src/chapters/6_conclusion.tex",
+   "line": 1,
+   "len": 9,
+   "first": "% !TeX root = ../main.tex"
+  },
+  {
+   "file": "src/chapters/6_conclusion.tex",
+   "line": 62,
+   "len": 23,
+   "first": "% [round6, D-02, domain panel personas 09/10] BOUNDED. The paragraph quoted Ch.4's 20.2-22.0 point"
+  },
+  {
+   "file": "src/chapters/6_conclusion.tex",
+   "line": 138,
+   "len": 22,
+   "first": "% [round5, COD-010] The previous sentence said \"across three training configurations and all twenty"
+  },
+  {
+   "file": "src/chapters/6_conclusion.tex",
+   "line": 171,
+   "len": 19,
+   "first": "% [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-013, 2026-07-26] The interim sentence (\"A partia"
+  },
+  {
+   "file": "src/chapters/6_conclusion.tex",
+   "line": 193,
+   "len": 8,
+   "first": "% [GATE FIX C-1, 2026-07-23] \"buys nothing\" -> \"yields nothing\"; \"the win lives in\" ->"
+  },
+  {
+   "file": "src/chapters/apx_a_contributions.tex",
+   "line": 1,
+   "len": 15,
+   "first": "% !TeX root = ../main.tex"
+  },
+  {
+   "file": "src/chapters/apx_a_contributions.tex",
+   "line": 35,
+   "len": 8,
+   "first": "% [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-006 consistency, 2026-07-26] \"supported every ex"
+  },
+  {
+   "file": "src/chapters/apx_a_contributions.tex",
+   "line": 55,
+   "len": 23,
+   "first": "% [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-006, 2026-07-26] The former sentence (\"The same "
+  },
+  {
+   "file": "src/chapters/apx_a_contributions.tex",
+   "line": 111,
+   "len": 38,
+   "first": "% [round6, F-01, banca simulator persona 12] BLOCKER CLOSED BY SCOPING, and the author has a"
+  },
+  {
+   "file": "src/chapters/apx_a_contributions.tex",
+   "line": 202,
+   "len": 45,
+   "first": "% SOURCE LEDGER for this section. Every path was checked to exist on disk this session"
+  },
+  {
+   "file": "src/chapters/apx_b_errata.tex",
+   "line": 1,
+   "len": 94,
+   "first": "% !TeX root = ../main.tex"
+  },
+  {
+   "file": "src/chapters/apx_b_errata.tex",
+   "line": 139,
+   "len": 15,
+   "first": "% [v2 review F-06, 2026-07-26] Added on persona 10's finding (10_mtl_expert_report.md). The"
+  },
+  {
+   "file": "src/chapters/apx_b_errata.tex",
+   "line": 172,
+   "len": 13,
+   "first": "% [round6, COD-007] NEW paragraph. Article 1 had no additions paragraph; this is the counterpart of"
+  },
+  {
+   "file": "src/chapters/apx_b_errata.tex",
+   "line": 214,
+   "len": 11,
+   "first": "% [round6, COD-005 sub-claim 4] The banner said the table replaces \"the published numbers\", which"
+  },
+  {
+   "file": "src/chapters/apx_b_errata.tex",
+   "line": 239,
+   "len": 16,
+   "first": "% [round6, L-9, source-ledger pass] COUNT CORRECTED. This read \"all 25 places ... 21 in prose, one"
+  },
+  {
+   "file": "src/chapters/apx_b_errata.tex",
+   "line": 262,
+   "len": 8,
+   "first": "% [2026-07-27] New paragraph. Author decision 2026-07-26 (standardize now + record it, rather"
+  },
+  {
+   "file": "src/chapters/apx_b_errata.tex",
+   "line": 367,
+   "len": 21,
+   "first": "% [round4, REV-016] Reader-facing explanation of the two Florida figure sets. Mechanism"
+  },
+  {
+   "file": "src/chapters/apx_b_errata.tex",
+   "line": 389,
+   "len": 36,
+   "first": "% ====================================================================================="
+  },
+  {
+   "file": "src/chapters/apx_b_static_scope.tex",
+   "line": 45,
+   "len": 18,
+   "first": "% [round6, D-01, domain panel persona 09] CORRECTED, and this is a correction to MY OWN prose from"
+  },
+  {
+   "file": "src/chapters/apx_c_ai_disclosure.tex",
+   "line": 1,
+   "len": 54,
+   "first": "% !TeX root = ../main.tex"
+  },
+  {
+   "file": "src/chapters/apx_d_ceiling.tex",
+   "line": 1,
+   "len": 12,
+   "first": "% !TeX root = ../main.tex"
+  },
+  {
+   "file": "src/chapters/apx_d_ceiling.tex",
+   "line": 108,
+   "len": 9,
+   "first": "% [round5, persona 16] The previous clause said \"because those places were re-categorized over"
+  },
+  {
+   "file": "src/chapters/apx_f_cosine.tex",
+   "line": 1,
+   "len": 60,
+   "first": "% !TeX root = ../main.tex"
+  },
+  {
+   "file": "src/chapters/apx_f_cosine.tex",
+   "line": 90,
+   "len": 15,
+   "first": "% [round7, 2026-07-29] THE PARTIAL RE-RUN, previously undisclosed and now stated. \"One"
+  },
+  {
+   "file": "src/chapters/apx_f_cosine.tex",
+   "line": 115,
+   "len": 16,
+   "first": "% [round7] THE SCOPE CORRECTION THAT MATTERS MOST IN THIS FILE. An earlier draft of this appendix"
+  },
+  {
+   "file": "src/chapters/apx_f_cosine.tex",
+   "line": 146,
+   "len": 16,
+   "first": "% [round7] CITATION KEY CORRECTED before this appendix ever appeared in a clean build. The"
+  },
+  {
+   "file": "src/chapters/apx_f_cosine.tex",
+   "line": 213,
+   "len": 21,
+   "first": "% [round7, 2026-07-29] THE CAPTION WAS 199 WORDS AND THREE OF ITS STATEMENTS WERE FALSE. It"
+  },
+  {
+   "file": "src/chapters/apx_f_cosine.tex",
+   "line": 344,
+   "len": 40,
+   "first": "% [VERIFY: the per-dataset extension to California, Texas, and Istanbul. STATUS at the time this"
+  }
+ ]
+}

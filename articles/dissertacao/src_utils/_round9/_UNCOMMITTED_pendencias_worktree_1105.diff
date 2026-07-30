@@ -1,0 +1,1084 @@
+diff --git a/articles/dissertacao/src_utils/PENDENCIAS.md b/articles/dissertacao/src_utils/PENDENCIAS.md
+index 73cecd33..8ec1b991 100644
+--- a/articles/dissertacao/src_utils/PENDENCIAS.md
++++ b/articles/dissertacao/src_utils/PENDENCIAS.md
+@@ -29,8 +29,8 @@ e voce achou dois deles lendo o arquivo. **Nao renumere:**
+ comentarios no fonte citam estes numeros, e um buraco na numeracao e melhor que um ponteiro errado.
+ 
+ **Ordem das secoes:** §2 (voce) -> §5 (do `CODEX_AUDIT`) -> §6 (do `CONSIDERATIONS`) -> §3 (terceiros) -> §4 (o que
+-auditar primeiro). Deliberada: o que depende de voce vem antes. O §6 entrou em 2026-07-30 e substitui o
+-§2.8, que agora registra o que foi feito em vez de pedir uma decisao.
++auditar primeiro). Deliberada: o que depende de voce vem antes. O §6 entrou em 2026-07-30 e substitui o §2.8, que agora
++registra o que foi feito em vez de pedir uma decisao.
+ 
+ ---
+ 
+@@ -79,90 +79,36 @@ largura em pixels).
+ > **Seu, quando quiser:** reexportar as duas no Draw.io e me passar os PNG — eu troco e remeco o tipo na
+ > pagina. **Opcional**, pela sua propria observacao sobre o contraste.
+ 
+-### 2.8 `CONSIDERATIONS.md` — EXECUTADO nesta rodada; a fila de decisao virou o §6
+-
+-**O que era.** `src_utils/CONSIDERATIONS.md` (1.229 linhas, nao commitado) trazia o feedback verbal do
+-Germano transcrito por voce (l. 3-58), o feedback escrito do Fabrício (l. 59-309), a auditoria Codex do
+-Cap. 2 de 2026-07-28 (l. 310-994) e o adendo dela (l. 995-1229), com uma lista de trabalho consolidada.
+-Voce pediu as duas coisas do item: commitar o arquivo, e executar a divisao.
+-
+-**O que foi feito (round 9, commit `d4078c75`).** O arquivo foi commitado **sem uma alteracao**
+-antes de qualquer reescrita, e depois reescrito no esquema de um bloco por item: **43 blocos**, IDs
+-estaveis `FAB-01`..`FAB-31` (a sua propria numeracao), `GER-01`..`GER-11` e `AUT-01`. A prosa original
+-esta preservada byte a byte em
+-[`_round9/30_considerations_prosa_original.md`](_round9/30_considerations_prosa_original.md), com o
+-sha256 e o comando que o reproduz no cabecalho.
+-
+-**O passe de citacoes obsoletas, antes de qualquer juizo.** Das 41 ancoras localizaveis,
+-**32 sao exatas e 9 estao obsoletas** (4 alteradas, 5 desaparecidas). As nove
+-obsoletas sao **todas** do Fabrício, **todas** citam `0_main.tex` (arquivo que deixou de existir em
+-2026-07-29), e sao exatamente os itens **FAB-02 a FAB-10**. As **20** ancoras dele fora daquele
+-arquivo conferem todas.
+-
+-*(Este paragrafo dizia "10 obsoletas, todas citam `0_main.tex`" e "21 ancoras". Estava errado por
+-uma: a decima era o **FAB-27**, que esta em `tables/frame/lineage.tex`, e cuja citacao so falhou
+-porque ele a escreveu prefixada com "Na tabela: " e terminada em "....". O texto que ele cita esta
+-presente palavra por palavra. Os numeros certos sao os de cima, e sao os mesmos que o §6 carrega —
+-o §2.8 tinha ficado com a versao anterior a correcao, o que deixou este arquivo contradizendo a si
+-mesmo por dois commits.)* Comandos em
+-[`_round9/31_stale_quote_pass.md`](_round9/31_stale_quote_pass.md).
+-
+-**A divisao.** 21 itens "eu aplico", 21 precisam de voce (viraram o **§6**), 1 bloqueado
+-(FAB-28, verificacao falhou). Tres medicoes da auditoria de 2026-07-28 **nao reproduzem** e foram
+-retomadas: ela contou 27 paragrafos / media 161 / cinco acima de 240 palavras, e hoje sao
+-33 / 132 / 4.
+-
+-**Preservado da esteira paralela (commit `c94d1f19`, 02:01:51), porque a minha reescrita deste bloco
+-apagou a nota dela e a nota esta certa** — anotada como dela, e reconciliada com a numeracao deste
+-arquivo:
+-
+-> **ATUALIZACAO 2026-07-30:** voce acrescentou um ponto seu no fim do arquivo (l. 1228), sobre
+-> otimalidade de Pareto nos fundamentos de MTL. **Esse esta sendo executado agora** — e o item 2.12 pelo
+-> outro lado (o termo esta em prosa publicada e nao esta no `GLOSSARY`, que e fail-closed), e a esteira que
+-> trabalha nele tambem le os itens G8 (definicoes formais de MTL) e G10 (o argumento tecnico para o achado
+-> de nao-conflito) porque sao a mesma peca de texto. **O resto do arquivo continua nao executado.**
+-
+-Duas reconciliacoes, para os ponteiros nao apontarem para o vazio. Os `G8` e `G10` daquela nota sao,
+-nos IDs estaveis deste arquivo, o **GER-09** e o **GER-11**; e o "ponto no fim do arquivo (l. 1228)" e o
+-**AUT-01**. E a frase final daquela nota deixou de valer entre 02:01 e agora: o resto do
+-`CONSIDERATIONS.md` **foi** executado nesta rodada, no sentido de estar medido e dividido, mas **nenhum
+-item foi aplicado a nenhum capitulo** — que e provavelmente o que ela queria dizer.
+-
+-> **DECISAO SUA:** nada aqui. Este item esta fechado; o que espera voce esta no **§6**.
+-
+-*Forense: `_round9/31_stale_quote_pass.md` (o passe de obsolescencia, incluindo os dois instrumentos
+-meus que estavam quebrados e como cada um foi pego).*
+-
+ ### 2.9 Os tres datasets que faltavam no Apendice F — RODADOS. O apendice agora tem SETE, e sobra uma decisao pequena
+ 
+ **FEITO EM 2026-07-30, e nada aqui espera GPU.** California, Texas e Istanbul foram medidos no `nespedgpu`, um dataset
+ por job, sequencialmente. Cada `rc=0` foi lido do `_status.json` do proprio job, e cada duracao vem dos **stamps do
+ proprio dataset**, nunca do total do job:
+ 
+-| dataset    | job        | duracao (stamps proprios) | folds |
+-|------------|------------|---------------------------|-------|
+-| istanbul   | `9f3da11f` | 19,3 min (04:56:49→05:16:07) | 5/5 |
+-| texas      | `6faa6e22` | 55,1 min (05:17:52→06:12:59) | 5/5 |
+-| california | `67585dff` | 44,3 min (06:14:17→06:58:37) | 5/5 |
++| dataset    | job        | duracao (stamps proprios)    | folds |
++|------------|------------|------------------------------|-------|
++| istanbul   | `9f3da11f` | 19,3 min (04:56:49→05:16:07) | 5/5   |
++| texas      | `6faa6e22` | 55,1 min (05:17:52→06:12:59) | 5/5   |
++| california | `67585dff` | 44,3 min (06:14:17→06:58:37) | 5/5   |
+ 
+-**Custou ~2h de GPU, nao as ~6h estimadas** — e o motivo importa: `--no-checkpoints`. Os pesos salvos eram o que enchia o
+-disco (`results/check2hgi/texas/checkpoints` sozinho tinha 7,1G) enquanto o diretorio que carrega o diagnostico tem
++**Custou ~2h de GPU, nao as ~6h estimadas** — e o motivo importa: `--no-checkpoints`. Os pesos salvos eram o que enchia
++o disco (`results/check2hgi/texas/checkpoints` sozinho tinha 7,1G) enquanto o diretorio que carrega o diagnostico tem
+ ~6-11 MB. `df -h /home` ficou em **313G usados / 61G livres, 84%, sem mover**, lido direto antes de cada submit e depois
+ de cada run. E nao muda numerica nenhuma: **medido**, nao argumentado — o alabama, que ja estava no apendice, foi
+ re-rodado com a flag e reproduziu os cinco CSVs por fold **byte a byte identicos**.
+ 
+-**Nada foi apagado na sua maquina.** Os 61G que voce liberou continuam livres; os dois arquivos corrompidos da corrida de
+-harvest antiga seguem em `~/cosine_appendix/california_f2` e `_f3` (md5 `2afa6aebfb...` nos dois) e **nao entraram** no
+-parquet: o california veio do job `67585dff`, cujos cinco folds tem cinco md5 distintos.
++**Nada foi apagado na sua maquina.** Os 61G que voce liberou continuam livres; os dois arquivos corrompidos da corrida
++de harvest antiga seguem em `~/cosine_appendix/california_f2` e `_f3` (md5 `2afa6aebfb...` nos dois) e **nao entraram**
++no parquet: o california veio do job `67585dff`, cujos cinco folds tem cinco md5 distintos.
+ 
+ **O apendice passou de quatro para SETE datasets** — as suas **seis** mais a Georgia, que nao e uma das seis. 4.650
+ observacoes, todos os testes no **fold** como unidade. Equivalencia por TOST dentro de ±0,05 vale em todos os sete.
+ Verificado no PDF renderizado (pp. 97-102), nao no fonte.
+ 
+ **Um achado que vale mais que os tres datasets:** o "limite de 35 minutos do host" era **nosso**. O `job.sh` embrulha a
+-carga em `timeout <N>` com o `timeout_seconds` que o agente passou, e o `job.sh` do job 805120f1 diz `timeout 2100` = 35,0
+-min exatos. Nao existe teto de 35 min nesse host. O texas rodou 55 min. **O dataset que foi registrado como impossivel era
+-impossivel apenas sob um limite que nos mesmos definimos.**
++carga em `timeout <N>` com o `timeout_seconds` que o agente passou, e o `job.sh` do job 805120f1 diz `timeout 2100` =
++35,0 min exatos. Nao existe teto de 35 min nesse host. O texas rodou 55 min. **O dataset que foi registrado como
++impossivel era impossivel apenas sob um limite que nos mesmos definimos.**
+ 
+ > **DECISAO SUA, e e pequena:** o Cap. 5 continua reportando a medida antiga desse mesmo cosseno (de
+ > desenvolvimento, quatro seeds, preparacao anterior) com media +0,001 e maior media por dataset
+@@ -174,6 +120,9 @@ impossivel apenas sob um limite que nos mesmos definimos.**
+ *Forense completa (a corrida de harvest, o gate de distincao por md5 validado por sabotagem, o `c.download()` que
+ achatou quinze arquivos em cinco, e o cap que era nosso): [`_round9/30_cosine_six.md`](_round9/30_cosine_six.md).*
+ 
++> **AUTHOR:** Vamos um pouco ainda mais longe, voce pode editar o Cap. 5 tanto o artigo original quanto o da
++> dissertacao, como estamos um fase de revisão no mobiwac, conseguimos mandar uma revisão ainda.
++
+ ### 2.11 A assimetria do resultado de regiao: o Cap. 5 ressalva, e o resto do documento nao
+ 
+ **Origem:** `_round6/VERIFY_LIST.md` itens 4 e 5 (achado L-5 do ledger), entregues em 2026-07-30.
+@@ -208,8 +157,10 @@ ledger).
+ > **Eu nao decido isto** porque muda o que o Resumo e a Conclusao afirmam sobre o resultado
+ > principal do Cap. 5, que e prosa sua sobre um resultado seu.
+ 
+-> DECISAO: Na verdade se esses resultados forem de grande importancia e algo importante para narrativa, vale deixar eles
+-> como primario é só alterar o mobiwac, ao invés do outros textos, o que acha ? Se não concorda vide a narrativa do texto vamos de A
++> **AUTHOR:**  Na verdade se esses resultados forem de grande importancia e algo importante para narrativa, vale deixar
++> eles
++> como primario é só alterar o mobiwac, ao invés do outros textos, o que acha ? Se não concorda vide a narrativa do
++> texto vamos de A
+ 
+ ### 2.12 `Pareto-stationary point` esta na prosa e nao esta no registro (o `GLOSSARY` e fail-closed)
+ 
+@@ -225,18 +176,18 @@ e o termo esta em prosa em **cinco** sitios (o registro anterior dizia dois), em
+ `chapters/3_cbic/method.tex` (*"convergence to a Pareto-stationary point"*), duas vezes em
+ `chapters/3_cbic/basis.tex` (*"Pareto-optimal descent directions"* e *"Pareto efficiency"*),
+ `chapters/4_courb/methodology.tex` (a garantia do Nash-MTL, a mesma frase do item 3 do
+-`VERIFY_LIST`) e a linha de errata que registra essa correcao, em `tables/courb/errata.tex`, que
+-ainda traz a forma sem hifen, "Pareto stationary". As outras duas entradas que o item 4 daquele
+-arquivo pedia — **bilinear discriminator** e **logistic function** — **ja entraram**
++`VERIFY_LIST`) e a linha de errata que registra essa correcao, em `tables/courb/errata.tex`, que ainda traz a forma sem
++hifen, "Pareto stationary". As outras duas entradas que o item 4 daquele arquivo pedia — **bilinear discriminator** e
++**logistic function** — **ja entraram**
+ (`GLOSSARY.md:71` e `:72`); so esta faltou.
+ 
+-**Duas correcoes ao proprio texto acima, medidas em 2026-07-30 e registradas aqui porque mudam o que
+-um agente pode fazer.** Primeira: **nao sao todos prosa publicada**. As frases do Cap. 3 sao (cada uma
+-e substring literal de `articles/CBIC___MTL/sections/*.tex`), mas a do Cap. 4 **nao e** — e a frase
+-corrigida por errata deste proprio documento, ja listada no Apendice B, e a fonte PT publicada nao tem
+-nenhuma ocorrencia do termo (`articles/CoUrb_2026/src`, nove arquivos `.tex`, zero). Segunda: as
+-paginas. O registro anterior dizia pp. 36 e 48, medidas num build de 100 paginas; o trecho novo da
+-§2.3 acrescenta uma pagina, entao **medido contra o build de defesa de 101 paginas deste commit**:
++**Duas correcoes ao proprio texto acima, medidas em 2026-07-30 e registradas aqui porque mudam o que um agente pode
++fazer.** Primeira: **nao sao todos prosa publicada**. As frases do Cap. 3 sao (cada uma e substring literal de
++`articles/CBIC___MTL/sections/*.tex`), mas a do Cap. 4 **nao e** — e a frase corrigida por errata deste proprio
++documento, ja listada no Apendice B, e a fonte PT publicada nao tem nenhuma ocorrencia do termo
++(`articles/CoUrb_2026/src`, nove arquivos `.tex`, zero). Segunda: as paginas. O registro anterior dizia pp. 36 e 48,
++medidas num build de 100 paginas; o trecho novo da §2.3 acrescenta uma pagina, entao **medido contra o build de defesa
++de 101 paginas deste commit**:
+ §2.3 nova na p. 23, `3_cbic/basis.tex` nas pp. 31 e 32, `3_cbic/method.tex` na p. 37,
+ `4_courb/methodology.tex` na p. 49, e a linha de errata na **p. 16 do volume suplementar**
+ (`make extra`, 20 paginas), que nao entra no build de defesa.
+@@ -257,20 +208,20 @@ termo e editar uma frase publicada, com linha no Apendice B.
+ 
+ > DESICAO: A.
+ 
+-**EXECUTADO EM 2026-07-30, a sua decisao (a).** O termo entrou em `GLOSSARY.md:103` (§4) e `:148` (§6),
+-e com ele tres outros que a §2.3 passou a usar: **Pareto dominance**, **Pareto optimality** e
+-**gradient conflict**. Cada definicao foi copiada de um artigo aberto no PDF naquela sessao, com a
+-pagina na propria linha do registro; o razao completo, com a declaracao exata de convergencia de cada
+-metodo, esta em [`_round9/31_pareto.md`](_round9/31_pareto.md). O trecho novo da §2.3 renderiza na
+-**p. 23** do build de defesa de 101 paginas, e o gate agora pega a regressao: `check_audit_claims.py`
+-probes `R9-pareto`, `R9-conflict`, `R9-nocount` e `R9-glossary`, cada um validado por sabotagem
+-(reverter a propriedade e ler rc=1). A anotacao do `VERIFY_LIST` item 4 que esperava
++**EXECUTADO EM 2026-07-30, a sua decisao (a).** O termo entrou em `GLOSSARY.md:103` (§4) e `:148` (§6), e com ele tres
++outros que a §2.3 passou a usar: **Pareto dominance**, **Pareto optimality** e **gradient conflict**. Cada definicao foi
++copiada de um artigo aberto no PDF naquela sessao, com a pagina na propria linha do registro; o razao completo, com a
++declaracao exata de convergencia de cada metodo, esta em [`_round9/31_pareto.md`](_round9/31_pareto.md). O trecho novo
++da §2.3 renderiza na **p. 23** do build de defesa de 101 paginas, e o gate agora pega a regressao:
++`check_audit_claims.py`
++probes `R9-pareto`, `R9-conflict`, `R9-nocount` e `R9-glossary`, cada um validado por sabotagem (reverter a propriedade
++e ler rc=1). A anotacao do `VERIFY_LIST` item 4 que esperava
+ `Pareto-stationary 0` foi corrigida para `2` no mesmo commit, porque a decisao (a) a tornou falsa.
+ 
+-**Uma coisa ficou faltando, e e sua.** Tres dos quatro termos PT nao existem em nenhum lugar deste
+-repositorio, nem na fonte PT publicada, nem em nenhuma superficie em portugues da dissertacao. Nao os
+-inventei em silencio: entraram marcados como propostos. `otimalidade de Pareto` **nao** e um deles, e
+-sua propria palavra (l. 98 deste arquivo) e a do Germano (`articles/[mobiwac]/REVIEW_GERMANO.md:778`).
++**Uma coisa ficou faltando, e e sua.** Tres dos quatro termos PT nao existem em nenhum lugar deste repositorio, nem na
++fonte PT publicada, nem em nenhuma superficie em portugues da dissertacao. Nao os inventei em silencio: entraram
++marcados como propostos. `otimalidade de Pareto` **nao** e um deles, e sua propria palavra (l. 98 deste arquivo) e a do
++Germano (`articles/[mobiwac]/REVIEW_GERMANO.md:778`).
+ 
+ > **DECISAO SUA:** confirmar ou trocar os tres nao atestados: **dominância de Pareto**, **ponto
+ > Pareto-estacionário**, **conflito de gradientes**. Custo: uma linha. Nenhuma superficie PT usa os
+@@ -286,6 +237,9 @@ sua propria palavra (l. 98 deste arquivo) e a do Germano (`articles/[mobiwac]/RE
+ > compressao e a que a literatura de MTL costuma fazer, entao **deixei como esta**. Se quiser corrigir,
+ > e uma linha de errata no Apendice B, e a decisao e sua.
+ 
++> **AUTHOR:** Otimo trabalho, pode adicionar essa linha no appendix B, para termos conhecimento desse detalhe menor e
++> não deixar passar batido.
++
+ ### 2.14 O intervalo de paginas do `nash`: nao da para verificar daqui
+ 
+ **Origem:** `_round6/VERIFY_LIST.md` item 14, entregue em 2026-07-30 (precedente `standley2020tasks`).
+@@ -308,6 +262,32 @@ pode ser apresentado como conferido. O campo esta no `.bib` e nao esta verificad
+ > **(a)** confirmar o intervalo e ele fica; **(b)** apagar o campo `pages`, que e exatamente o
+ > precedente que esta bibliografia ja adotou para `standley2020tasks`.
+ 
++> **AUTHOR:** I get from the website:
++> @InProceedings{pmlr-v162-navon22a, title = {Multi-Task Learning as a Bargaining Game}, author = {Navon, Aviv and
++> Shamsian, Aviv and Achituve, Idan and Maron, Haggai and Kawaguchi, Kenji and Chechik, Gal and Fetaya, Ethan},
++> booktitle = {Proceedings of the 39th International Conference on Machine Learning}, pages = {16428--16446}, year =
++> {2022}, editor = {Chaudhuri, Kamalika and Jegelka, Stefanie and Song, Le and Szepesvari, Csaba and Niu, Gang and
++> Sabato,
++> Sivan}, volume = {162}, series = {Proceedings of Machine Learning Research}, month = {17--23 Jul}, publisher = {PMLR},
++> pdf = {https://proceedings.mlr.press/v162/navon22a/navon22a.pdf},
++> url = {https://proceedings.mlr.press/v162/navon22a.html}, abstract = {In Multi-task learning (MTL), a joint model is
++> trained to simultaneously make predictions for several tasks. Joint training reduces computation costs and improves
++> data
++> efficiency; however, since the gradients of these different tasks may conflict, training a joint model for MTL often
++> yields lower performance than its corresponding single-task counterparts. A common method for alleviating this issue
++> is
++> to combine per-task gradients into a joint update direction using a particular heuristic. In this paper, we propose
++> viewing the gradients combination step as a bargaining game, where tasks negotiate to reach an agreement on a joint
++> direction of parameter update. Under certain assumptions, the bargaining problem has a unique solution, known as
++> the <em>Nash Bargaining Solution</em>, which we propose to use as a principled approach to multi-task learning. We
++> describe a new MTL optimization procedure, Nash-MTL, and derive theoretical guarantees for its convergence.
++> Empirically,
++> we show that Nash-MTL achieves state-of-the-art results on multiple MTL benchmarks in various domains.} }
++> Intresting that in the google scholar use the citation:
++> @article{navon2022multi, title={Multi-task learning as a bargaining game}, author={Navon, Aviv and Shamsian, Aviv and
++> Achituve, Idan and Maron, Haggai and Kawaguchi, Kenji and Chechik, Gal and Fetaya, Ethan}, journal={arXiv preprint
++> arXiv:2202.01017}, year={2022} }
++
+ ### 2.15 Tres citacoes NOT-SUPPORTED e um termo banido, todos em prosa publicada reproduzida
+ 
+ **Origem:** `_round6/VERIFY_LIST.md` itens 15 e 16, entregues juntos em 2026-07-30 como uma decisao unica.
+@@ -343,6 +323,9 @@ citacoes acima. Nenhum gate pega: o de codenomes casa
+ > `10.1609/aaai.v33i01.33014822`, pp. 4822-4829). Decida as duas juntas para tocar a entrada **uma
+ > vez** so.
+ 
++> **AUTHOR:** Vamos de troca em ambas, seguindo o caminho A, modificando os artigos originais e adicionando uma entrada
++> no appendix B.
++
+ ### 2.16 Quatro artefatos publicados **divergiram** das copias locais (o item 2.2 cobria dois)
+ 
+ **(A) O que e.** O Apendice A cita treze caminhos `\path{}`. A pergunta "quantos faltam no branch publico" ja teve
+@@ -380,6 +363,8 @@ divergente e decisao de autor, nao faxina — nao toquei em nada.
+ > A prosa do Apendice A **nao depende disto**: ela ja diz que os scripts estatisticos *"are part of
+ > the working repository and are supplied on request"*, o que nenhuma das leituras acima torna falso.
+ 
++> **AUTHOR:** Vamso publicar as alterações na brnach do mobiwac.
++
+ ### 2.18 Um `refs/notes/commits` foi para o `origin` sem eu ter pedido, e a decisao de remover e sua
+ 
+ **Medido em 2026-07-30, nada foi alterado no remoto.** `git ls-remote origin | grep notes` retorna
+@@ -420,7 +405,7 @@ historia visivel de nenhum branch publico. Quem clonar o repositorio **nao receb
+ > Eu recomendo a **2 + 3** se este repositorio for ficar publico com a defesa, e a **1** se ele
+ > permanecer privado. Nao executei nenhuma delas porque mexer em ref publicado e sua alcada.
+ 
+-> **DECISAO:** 2+3 
++> **DECISAO:** 2+3
+ 
+ ### 2.19 Quatro numeros do registro de fechados nao reproduzem; um tem tres respostas
+ 
+@@ -436,6 +421,8 @@ foi tomado, e medicao sem isso so pode ser re-tomada, nunca re-conferida.
+ > instrumento) porque ha tres convencoes. Um numero impresso no seu deposito e seu. Diga a convencao,
+ > eu fixo uma, aplico, e ponho o comando no arquivo.
+ 
++> **AUTHOR:**  310/271 no relatorio, eu não entendi porque há 3, mas o quantidade de plavras no resumo hoje são essas.
++
+ ### 2.20 O Cap. 4 italiciza ingles corriqueiro 153 vezes, e este item DESAPARECEU do tracker sem decisao
+ 
+ > **ESTE ITEM FOI PERDIDO, nao resolvido.** Ele existiu ate `1ef83867` (2026-07-28) e saiu do arquivo
+@@ -475,8 +462,8 @@ nao tem nenhuma, e o proprio capitulo se contradiz.
+ > Eu recomendaria a **2**, e nao aplico nada sem voce: e prosa de artigo publicado e o proprio item
+ > dizia que a decisao e sua. `WRITING_LAW` nao cobre italico de estrangeirismo em capitulo traduzido,
+ > entao nao ha regra para eu invocar.
+- 
+-> **DECISAO:** 2.
++
++> **AUTHOR:**  2.
+ 
+ ### 2.21 O segundo ponto do seu orientador: como os termos entram
+ 
+@@ -493,6 +480,9 @@ proibicoes da §3 ausentes, as 28 da §4 medidas (22 ausentes, 6 dentro da condi
+ 
+ *Medicao termo por termo: [`_round8/29_pendencias_detail.md`](_round8/29_pendencias_detail.md).*
+ 
++> **AUTHOR:** `license the verbs` em fundamentação téorica. Foi o unico termo que ele marcou e comnetou para ter cuidado
++> com o termos.
++
+ ## §5 · Levantados do `CODEX_AUDIT.md` quando ele foi arquivado (2026-07-29)
+ 
+ > **NOVE DOS DEZ ESTAO FECHADOS e foram movidos para `_archive/PENDENCIAS_RESOLVIDOS.md` em
+@@ -566,6 +556,10 @@ cumprida.
+ > a que sai, e eu removo. Marcado com `[NEEDS SIGN-OFF: PENDENCIAS_RESOLVIDOS 5.6 (arquivado 2026-07-30), round8]` no
+ > fonte.
+ 
++> **AUTHOR:** Vamos usar só as datas que encontramos no database de 2009 a 2011, pode omitir que no artigo eles comentam
++> que é de 2009 a 20010. O need sing-off assim como os demais já resolvidos que estão no latex pode ser removidos não
++> precisam fica lá. Se quider documentar isso tem que ser em algum lugar do src_util.
++
+ ## §6 · As decisoes que sairam do `CONSIDERATIONS.md` (round 9)
+ 
+ > **De onde isto vem.** `CONSIDERATIONS.md` foi reescrito em 43 blocos com ID estavel: **20** itens eu
+@@ -587,30 +581,49 @@ cumprida.
+ >
+ > **Substitui o §2.8**, que agora registra o que foi feito.
+ 
+-
+ ### 6.1 Onde eu discordo do revisor — tres itens, e a decisao e sua
+ 
+ #### FAB-17 — the fourth-task paragraph is confusing and could go
+ 
+ **Citacao:** exata — `chapters/1_introduction.tex:61-66`. **Renderiza em:** 1_introduction.tex:61-64
+ 
+-**Minha leitura:** DISAGREE, and this is the one I would push back on. The paragraph he would delete is the AVAL-signed-off task-pair acknowledgment (a) and the three-legged task-choice defense (b) recorded in NORTH_STAR 6 Ch.1 beat 4. It exists because a prior review round required the document to state plainly that the task pair EVOLVED and to defend the task choice. Deleting it reopens both. If it is confusing, the fix is to split it into two shorter sentences, not to remove it.
++**Minha leitura:** DISAGREE, and this is the one I would push back on. The paragraph he would delete is the
++AVAL-signed-off task-pair acknowledgment (a) and the three-legged task-choice defense (b) recorded in NORTH_STAR 6 Ch.1
++beat 4. It exists because a prior review round required the document to state plainly that the task pair EVOLVED and to
++defend the task choice. Deleting it reopens both. If it is confusing, the fix is to split it into two shorter sentences,
++not to remove it.
+ 
+-1. **Remover o paragrafo, como ele pede** — REABRE dois pontos com aval registrado (NORTH_STAR §6 Ch.1 beat 4 (a) e (b)): o reconhecimento de que o par de tarefas MUDOU, e a defesa da escolha das tarefas. Uma rodada anterior exigiu os dois
++1. **Remover o paragrafo, como ele pede** — REABRE dois pontos com aval registrado (NORTH_STAR §6 Ch.1 beat 4 (a) e
++   (b)): o reconhecimento de que o par de tarefas MUDOU, e a defesa da escolha das tarefas. Uma rodada anterior exigiu
++   os dois
+ 2. **Dividir em duas frases curtas e manter o conteudo** — atende a queixa real (confusao) sem reabrir o aval; ~30 min
+ 3. **Levar a ele com o registro do aval na mao** — ele decide sabendo o que o paragrafo protege
+ 
+-> **DECISAO SUA:** ______
++> **DECISAO SUA:** Eu também discordo, se compravarmos que esse pragrafo está correto. Ele fala que uma quarta tarefa
++> aprece no artigo ? Isso está errado, CBIC e COURB: poi category classification and next-category, já no mobiwac:
++> next-region and next-category, ou seja são 3 tarefas a um todo. Além disso eu acho que a frase:
++> `with the static classification of a place's category`, para explicar a tarefa de classificação de categoria de um poi
++> desconhecido, não está bem explicada é esta confusa. Isso é outro ponto a tarefa no 2 primeiros artigos era
++> classificação de categoria de um poi deconhecido, avalise se o restante do texto está tratando isso dessa forma. Também temos
++> que avaliar se esse error de 4 tarefas não aparece em outros lugares.
+ 
+ #### FAB-27 — the table's chapter references are wrong
+ 
+-**Citacao:** exata — `tables/frame/lineage.tex:5-8 (caption) -> Table 2.1`. **Renderiza em:** tables/frame/lineage.tex -> Table 2.1
++**Citacao:** exata — `tables/frame/lineage.tex:5-8 (caption) -> Table 2.1`. **Renderiza em:**
++tables/frame/lineage.tex -> Table 2.1
+ 
+-**Minha leitura:** disagree as stated; a real problem underneath. Checked directly: ch:courb -> 4 and ch:mobiwac -> 5 in build/main-aux, both resolve, nothing dangling. What is wrong is that ONE column mixes bracketed citations and chapter pointers, so the chapter numbers read as mis-rendered citations. Also ST-MTLNet HAS a published record (paiva2026stmtlnet, already in the bib and cited in Ch.4/Ch.5) and the table shows it only as 'Chapter 4'. Two fixes are possible and they differ in cost.
++**Minha leitura:** disagree as stated; a real problem underneath. Checked directly: ch:courb -> 4 and ch:mobiwac -> 5 in
++build/main-aux, both resolve, nothing dangling. What is wrong is that ONE column mixes bracketed citations and chapter
++pointers, so the chapter numbers read as mis-rendered citations. Also ST-MTLNet HAS a published record
++(paiva2026stmtlnet, already in the bib and cited in Ch.4/Ch.5) and the table shows it only as 'Chapter 4'. Two fixes are
++possible and they differ in cost.
+ 
+-1. **So dividir a coluna em "Reference" e "Where in this dissertation"** — resolve a ambiguidade real (a coluna mistura [41] com "Chapter 4"); ~1h com rebuild
+-2. **Dividir a coluna E citar o `paiva2026stmtlnet` na linha do ST-MTLNet** — a entrada JA existe no .bib e ja e citada nos Cap. 4 e 5; a tabela hoje mostra so "Chapter 4" para um artigo publicado com DOI
+-3. **Perguntar a ele primeiro** — as `\ref` estao corretas (`ch:courb`->4, `ch:mobiwac`->5, lidas do build); se ele viu `??` num PDF, era .aux velho, nao erro de fonte
++1. **So dividir a coluna em "Reference" e "Where in this dissertation"** — resolve a ambiguidade real (a coluna
++   mistura [41] com "Chapter 4"); ~1h com rebuild
++2. **Dividir a coluna E citar o `paiva2026stmtlnet` na linha do ST-MTLNet** — a entrada JA existe no .bib e ja e citada
++   nos Cap. 4 e 5; a tabela hoje mostra so "Chapter 4" para um artigo publicado com DOI
++3. **Perguntar a ele primeiro** — as `\ref` estao corretas (`ch:courb`->4, `ch:mobiwac`->5, lidas do build); se ele viu
++   `??` num PDF, era .aux velho, nao erro de fonte
+ 
+ > **DECISAO SUA:** ______
+ 
+@@ -618,24 +631,32 @@ cumprida.
+ 
+ **Citacao:** parafrase (ele descreveu, nao citou). **Renderiza em:** 2_fundamentals.tex:143-165 + Table 2.1
+ 
+-**Minha leitura:** partially disagree, and the disagreement is mine to state, not to settle. The prose already says HGI 'builds directly on' DGI and 'extends' the objective, which is inheritance language, not contrast. I do not think the paragraph sets them against each other. His reading has a real cause though: the lineage table lists them as adjacent rows under 'What it added'. Also his framing 'HGI e uma aplicacao' would UNDER-credit Huang et al., and would sit badly beside our claim that Check2HGI extends the same hierarchy.
++**Minha leitura:** partially disagree, and the disagreement is mine to state, not to settle. The prose already says HGI
++'builds directly on' DGI and 'extends' the objective, which is inheritance language, not contrast. I do not think the
++paragraph sets them against each other. His reading has a real cause though: the lineage table lists them as adjacent
++rows under 'What it added'. Also his framing 'HGI e uma aplicacao' would UNDER-credit Huang et al., and would sit badly
++beside our claim that Check2HGI extends the same hierarchy.
+ 
+-1. **Uma clausula explicitando os papeis (DGI = o objetivo; HGI = o objetivo instanciado na hierarquia POI-regiao-cidade)** — atende a causa real da leitura dele sem mexer numa descricao correta; ~20 min
+-2. **Reescrever como ele sugere, chamando o HGI de "aplicacao"** — EU DISCORDO: sub-credita Huang et al., que contribuem um objetivo novo, e fica mal ao lado da nossa propria frase de que o Check2HGI *extends* a mesma hierarquia
++1. **Uma clausula explicitando os papeis (DGI = o objetivo; HGI = o objetivo instanciado na hierarquia
++   POI-regiao-cidade)** — atende a causa real da leitura dele sem mexer numa descricao correta; ~20 min
++2. **Reescrever como ele sugere, chamando o HGI de "aplicacao"** — EU DISCORDO: sub-credita Huang et al., que contribuem
++   um objetivo novo, e fica mal ao lado da nossa propria frase de que o Check2HGI *extends* a mesma hierarquia
+ 3. **Nao mexer** — a prosa ja diz "builds directly on" e "extends"; mas dois leitores tropecaram
+ 
+ > **DECISAO SUA:** ______
+ 
+-
+ ### 6.2 Onde o pedido colide com uma regra de honestidade do proprio documento
+ 
+ #### FAB-09 — simplify the results description; keep it higher level
+ 
+ **Citacao:** ALTERADA — `content.tex`. **Renderiza em:** content.tex:91-94
+ 
+-**Minha leitura:** partly satisfied. The joint-best gloss he wanted simplified is GONE from the Resumo; the numbers (5,3 a 9,4) and the TOST clause remain. Cutting them further trades honesty rules (every number carries its convention) against his readability ask.
++**Minha leitura:** partly satisfied. The joint-best gloss he wanted simplified is GONE from the Resumo; the numbers (5,3
++a 9,4) and the TOST clause remain. Cutting them further trades honesty rules (every number carries its convention)
++against his readability ask.
+ 
+-1. **Cortar a faixa 5,3-9,4 e o TOST do Resumo, deixando "supera nas seis" e "equipara-se nas outras duas"** — atende o pedido; MAS o WRITING_LAW §3 exige que todo numero carregue convencao, e que "equipara-se" venha com o teste
++1. **Cortar a faixa 5,3-9,4 e o TOST do Resumo, deixando "supera nas seis" e "equipara-se nas outras duas"** — atende o
++   pedido; MAS o WRITING_LAW §3 exige que todo numero carregue convencao, e que "equipara-se" venha com o teste
+ 2. **Manter os numeros e cortar so a glosa de joint-best** — ja feito: a glosa saiu na reescrita de 28/07
+ 3. **Manter como esta** — contraria o pedido dele
+ 
+@@ -645,9 +666,13 @@ cumprida.
+ 
+ **Citacao:** exata — `chapters/1_introduction.tex:130-133`. **Renderiza em:** 1_introduction.tex:130-132
+ 
+-**Minha leitura:** his call: it collides with an honesty rule. He wants the result detail out of the introduction. WRITING_LAW 3 requires every number to carry its reference point and convention, and the region verbs to be bound to their tests. Dropping 'four of six ... TOST' from the intro removes exactly that binding, so the sentence must either keep the test or stop making the comparative claim.
++**Minha leitura:** his call: it collides with an honesty rule. He wants the result detail out of the introduction.
++WRITING_LAW 3 requires every number to carry its reference point and convention, and the region verbs to be bound to
++their tests. Dropping 'four of six ... TOST' from the intro removes exactly that binding, so the sentence must either
++keep the test or stop making the comparative claim.
+ 
+-1. **Tirar "quatro dos seis ... TOST" da introducao** — atende; MAS remove exatamente a amarra verbo-teste que o WRITING_LAW §3 exige, e a frase continua afirmando comparacao
++1. **Tirar "quatro dos seis ... TOST" da introducao** — atende; MAS remove exatamente a amarra verbo-teste que o
++   WRITING_LAW §3 exige, e a frase continua afirmando comparacao
+ 2. **Tirar a comparacao TODA da introducao e deixar so a pergunta** — coerente: sem afirmacao, sem teste
+ 3. **Manter** — contraria o pedido
+ 
+@@ -657,22 +682,40 @@ cumprida.
+ 
+ **Citacao:** ALTERADA — `content.tex`. **Renderiza em:** content.tex:76
+ 
+-**Minha leitura:** agree on substance; the sentence changed. He asked for the present tense. The live wording is 'permanecia em aberto' (imperfect), not the 'era' he quoted. Present tense would read 'permanece em aberto'. It is a claim-time question: the document elsewhere time-indexes CBIC/CoUrb conclusions, and the abstract saying 'permanece' asserts the question is open TODAY, after the dissertation answered it.
++**Minha leitura:** agree on substance; the sentence changed. He asked for the present tense. The live wording is
++'permanecia em aberto' (imperfect), not the 'era' he quoted. Present tense would read 'permanece em aberto'. It is a
++claim-time question: the document elsewhere time-indexes CBIC/CoUrb conclusions, and the abstract saying 'permanece'
++asserts the question is open TODAY, after the dissertation answered it.
+ 
+-1. **Presente: "permanece em aberto"** — uma palavra, nos dois idiomas; MAS afirma que a pergunta esta aberta HOJE, depois de a dissertacao responder
+-2. **Manter o imperfeito "permanecia"** — preserva a regra de indexacao temporal do WRITING_LAW §3; contraria o pedido dele
+-3. **Reformular: "era uma questao aberta no inicio desta pesquisa"** — explicita o ponto de referencia, atende o sentido dele sem a leitura de presente
++1. **Presente: "permanece em aberto"** — uma palavra, nos dois idiomas; MAS afirma que a pergunta esta aberta HOJE,
++   depois de a dissertacao responder
++2. **Manter o imperfeito "permanecia"** — preserva a regra de indexacao temporal do WRITING_LAW §3; contraria o pedido
++   dele
++3. **Reformular: "era uma questao aberta no inicio desta pesquisa"** — explicita o ponto de referencia, atende o sentido
++   dele sem a leitura de presente
+ 
+ > **DECISAO SUA:** ______
+ 
+ #### FAB-18 — put the open question in the present tense
+ 
+-**Citacao:** exata — `1_introduction.tex:92`, `content.tex:156` (EN) e a contraparte PT em `content.tex:76`. **Renderiza em:** 1_introduction.tex:92 + content.tex:156 (EN) + content.tex:76 (PT)
+-
+-**Minha leitura:** agree on substance; same decision as FAB-03, not a separate one. He asks for the present tense here and at FAB-03; it is one claim in three places (1_introduction.tex:92, content.tex:156 EN, content.tex:76 PT). I first bucketed this as 'apply' and FAB-03 as 'decide', which cannot both be right: the same sentence cannot be mine to edit in English and his to rule on in Portuguese, and the Resumo/Abstract pair must stay claim-for-claim identical (WRITING_LAW 6). The substantive question is the one FAB-03 carries: 'is/permanece' asserts the question is open TODAY, after this dissertation answered it, which is what the time-indexing rule exists to prevent. Caught while applying it, not while sorting.
+-
+-1. **Presente nos tres sitios: 'is an open question' / 'permanece em aberto'** — atende ao pedido literal dele nos dois idiomas; MAS afirma que a pergunta esta aberta hoje, depois de o documento responde-la, que e exatamente o que a regra de indexacao temporal existe para evitar
+-2. **Reformular os tres para explicitar o ponto de referencia: 'was an open question at the start of this research' / 'era uma questao aberta no inicio desta pesquisa'** — e o que eu recomendo: da a ele o efeito que ele quer (o texto le como se escrito no inicio) sem afirmar que continua aberta; ~15 min, tres sitios, e o par Resumo/Abstract continua identico
++**Citacao:** exata — `1_introduction.tex:92`, `content.tex:156` (EN) e a contraparte PT em `content.tex:76`. **Renderiza
++em:** 1_introduction.tex:92 + content.tex:156 (EN) + content.tex:76 (PT)
++
++**Minha leitura:** agree on substance; same decision as FAB-03, not a separate one. He asks for the present tense here
++and at FAB-03; it is one claim in three places (1_introduction.tex:92, content.tex:156 EN, content.tex:76 PT). I first
++bucketed this as 'apply' and FAB-03 as 'decide', which cannot both be right: the same sentence cannot be mine to edit in
++English and his to rule on in Portuguese, and the Resumo/Abstract pair must stay claim-for-claim identical (WRITING_LAW
++6). The substantive question is the one FAB-03 carries: 'is/permanece' asserts the question is open TODAY, after this
++dissertation answered it, which is what the time-indexing rule exists to prevent. Caught while applying it, not while
++sorting.
++
++1. **Presente nos tres sitios: 'is an open question' / 'permanece em aberto'** — atende ao pedido literal dele nos dois
++   idiomas; MAS afirma que a pergunta esta aberta hoje, depois de o documento responde-la, que e exatamente o que a
++   regra de indexacao temporal existe para evitar
++2. **Reformular os tres para explicitar o ponto de referencia: 'was an open question at the start of this research' / '
++   era uma questao aberta no inicio desta pesquisa'** — e o que eu recomendo: da a ele o efeito que ele quer (o texto le
++   como se escrito no inicio) sem afirmar que continua aberta; ~15 min, tres sitios, e o par Resumo/Abstract continua
++   identico
+ 3. **Manter o passado nos tres** — preserva a regra; contraria o pedido explicito dele, duas vezes
+ 
+ > **DECISAO SUA:** ______
+@@ -681,25 +724,38 @@ cumprida.
+ 
+ **Citacao:** parafrase (ele descreveu, nao citou). **Renderiza em:** 6_conclusion.tex + Appendix F
+ 
+-**Minha leitura:** agree on both halves. The non-conflict evidence is thinner than the claim: one mean (+0.001), four seeds, four Gowalla states of which GA is not one of the six datasets, taken during development on an earlier data preparation, with no spread and no Istanbul. A mean cannot distinguish 'consistently orthogonal' from 'strongly conflicting in both directions and cancelling'. Either strengthen it or downgrade the sentence.
+-
+-1. **Recomputar o cosseno na configuracao reportada, nos seis conjuntos incluindo Istambul, com dispersao por conjunto** — transforma anedota em resultado, e o Germano pediu exatamente isso; custo de GPU, e o item 2.9 ja tem tres conjuntos parados
+-2. **Rebaixar a frase do Cap. 6 para "uma observacao de tempo de desenvolvimento, oferecida como consistente com a interpretacao e nao como evidencia dela"** — zero custo de compute, honesto, e e o que eu faria primeiro; a frase atual sustenta "essencialmente ortogonais" com UMA media, quatro sementes, quatro estados do Gowalla dos quais GA nao e um dos seis, sem dispersao e sem Istambul
++**Minha leitura:** agree on both halves. The non-conflict evidence is thinner than the claim: one mean (+0.001), four
++seeds, four Gowalla states of which GA is not one of the six datasets, taken during development on an earlier data
++preparation, with no spread and no Istanbul. A mean cannot distinguish 'consistently orthogonal' from 'strongly
++conflicting in both directions and cancelling'. Either strengthen it or downgrade the sentence.
++
++1. **Recomputar o cosseno na configuracao reportada, nos seis conjuntos incluindo Istambul, com dispersao por
++   conjunto** — transforma anedota em resultado, e o Germano pediu exatamente isso; custo de GPU, e o item 2.9 ja tem
++   tres conjuntos parados
++2. **Rebaixar a frase do Cap. 6 para "uma observacao de tempo de desenvolvimento, oferecida como consistente com a
++   interpretacao e nao como evidencia dela"** — zero custo de compute, honesto, e e o que eu faria primeiro; a frase
++   atual sustenta "essencialmente ortogonais" com UMA media, quatro sementes, quatro estados do Gowalla dos quais GA nao
++   e um dos seis, sem dispersao e sem Istambul
+ 3. **As duas: rebaixar agora, fortalecer se a GPU liberar** — protege a defesa e mantem a porta aberta
+ 
+ > **DECISAO SUA:** ______
+ 
+-
+ ### 6.3 Onde a passagem citada nao existe mais, e o pedido precisa de nova redacao
+ 
+ #### FAB-02 — start a new sentence on the shared-history point
+ 
+ **Citacao:** DESAPARECIDA — `content.tex`. **Renderiza em:** content.tex:73-74
+ 
+-**Minha leitura:** his edit no longer applies as written. The clause he quoted is GONE: the Resumo was cut and rebuilt on 2026-07-28. The live sentence is 'as duas tarefas leem o mesmo histórico, portanto um único modelo poderia aprendê-las em conjunto'. His point (start a new sentence, foreground the data argument) can still be applied to the new sentence, but it is a rewrite of text he has not read.
++**Minha leitura:** his edit no longer applies as written. The clause he quoted is GONE: the Resumo was cut and rebuilt
++on 2026-07-28. The live sentence is 'as duas tarefas leem o mesmo histórico, portanto um único modelo poderia
++aprendê-las em conjunto'. His point (start a new sentence, foreground the data argument) can still be applied to the new
++sentence, but it is a rewrite of text he has not read.
+ 
+-1. **Aplicar o espirito no texto NOVO: quebrar a frase do Resumo em duas, comecando a segunda em "Em termos de dados, as duas tarefas..."** — reescrita de uma frase que ele nao leu; o Resumo e o Abstract tem que mudar juntos ou se contradizem
+-2. **Nao aplicar e registrar que a passagem citada nao existe mais** — zero custo; ele pode repetir o ponto ao ler o build novo
++1. **Aplicar o espirito no texto NOVO: quebrar a frase do Resumo em duas, comecando a segunda em "Em termos de dados, as
++   duas tarefas..."** — reescrita de uma frase que ele nao leu; o Resumo e o Abstract tem que mudar juntos ou se
++   contradizem
++2. **Nao aplicar e registrar que a passagem citada nao existe mais** — zero custo; ele pode repetir o ponto ao ler o
++   build novo
+ 
+ > **DECISAO SUA:** ______
+ 
+@@ -707,10 +763,14 @@ cumprida.
+ 
+ **Citacao:** DESAPARECIDA — `content.tex`. **Renderiza em:** content.tex:82
+ 
+-**Minha leitura:** agree; his own note has a '??'. He wrote 'no primeiro estudo (??)', i.e. he was unsure. The quoted phrase is GONE; the live text reads 'naquela configuração'. Whether to name the study or the configuration is a claim-scope choice: 'no segundo estudo' is where the diagnosis was made, not the first.
++**Minha leitura:** agree; his own note has a '??'. He wrote 'no primeiro estudo (??)', i.e. he was unsure. The quoted
++phrase is GONE; the live text reads 'naquela configuração'. Whether to name the study or the configuration is a
++claim-scope choice: 'no segundo estudo' is where the diagnosis was made, not the first.
+ 
+-1. **"no segundo estudo"** — nomeia o estudo, que e o que ele queria; e o SEGUNDO, nao o primeiro que ele chutou com "(??)"
+-2. **Manter "naquela configuracao"** — preserva o escopo exato (a conclusao vale para aquela configuracao, nao para o estudo todo)
++1. **"no segundo estudo"** — nomeia o estudo, que e o que ele queria; e o SEGUNDO, nao o primeiro que ele chutou com "
++   (??)"
++2. **Manter "naquela configuracao"** — preserva o escopo exato (a conclusao vale para aquela configuracao, nao para o
++   estudo todo)
+ 3. **As duas: "no segundo estudo, naquela configuracao"** — mais longo, e o Resumo esta no limite de tamanho
+ 
+ > **DECISAO SUA:** ______
+@@ -719,22 +779,26 @@ cumprida.
+ 
+ **Citacao:** ALTERADA — `content.tex`. **Renderiza em:** content.tex:94
+ 
+-**Minha leitura:** agree on substance; sentence changed. 'e a condição é o achado' is gone; the live sentence is 'A resposta é, portanto, condicional: se o aprendizado multitarefa ajuda depende...'. His proposed opener ('Como principais resultados, identificamos que...') is a first-person results framing, a register choice for the PT Resumo.
++**Minha leitura:** agree on substance; sentence changed. 'e a condição é o achado' is gone; the live sentence is 'A
++resposta é, portanto, condicional: se o aprendizado multitarefa ajuda depende...'. His proposed opener ('Como principais
++resultados, identificamos que...') is a first-person results framing, a register choice for the PT Resumo.
+ 
+-1. **Adotar o abre dele: "Como principais resultados, identificamos que..."** — primeira pessoa do plural no Resumo; o resto do Resumo e impessoal
++1. **Adotar o abre dele: "Como principais resultados, identificamos que..."** — primeira pessoa do plural no Resumo; o
++   resto do Resumo e impessoal
+ 2. **Manter "A resposta e, portanto, condicional: ..."** — mantem o registro; contraria o pedido
+ 3. **Meio: "Os resultados mostram que o ganho do aprendizado multitarefa depende de..."** — impessoal e direto
+ 
+ > **DECISAO SUA:** ______
+ 
+-
+ ### 6.4 Ja satisfeitos — so falta voce confirmar
+ 
+ #### FAB-04 — do not mention the coletanea in the Resumo
+ 
+ **Citacao:** DESAPARECIDA — `content.tex`. **Renderiza em:** content.tex (absent)
+ 
+-**Minha leitura:** his edit is already satisfied. 'coletânea' occurs NOWHERE in the live Resumo or Abstract, and nowhere in the live tree. Either an earlier round already applied this, or he read a build that predates the rebuild. Confirm he is content.
++**Minha leitura:** his edit is already satisfied. 'coletânea' occurs NOWHERE in the live Resumo or Abstract, and nowhere
++in the live tree. Either an earlier round already applied this, or he read a build that predates the rebuild. Confirm he
++is content.
+ 
+ 1. **Confirmar como satisfeito** — zero; a palavra nao existe no fonte vivo
+ 2. **Perguntar a ele se o build que leu era antigo** — um e-mail; evita ele repetir o ponto
+@@ -755,25 +819,32 @@ cumprida.
+ 
+ **Citacao:** DESAPARECIDA — `content.tex`. **Renderiza em:** content.tex (absent)
+ 
+-**Minha leitura:** already satisfied. The task-pair clause is GONE from the Resumo. But note FAB-17 asks to delete the SAME content from the introduction, where it is AVAL-signed-off. Deciding 08 and 17 together avoids removing it from both places.
++**Minha leitura:** already satisfied. The task-pair clause is GONE from the Resumo. But note FAB-17 asks to delete the
++SAME content from the introduction, where it is AVAL-signed-off. Deciding 08 and 17 together avoids removing it from
++both places.
+ 
+ 1. **Confirmar como satisfeito no Resumo** — zero
+-2. **Decidir junto com o FAB-17** — o mesmo conteudo esta na introducao COM aval registrado; decidir separado corre o risco de tirar dos dois lugares
++2. **Decidir junto com o FAB-17** — o mesmo conteudo esta na introducao COM aval registrado; decidir separado corre o
++   risco de tirar dos dois lugares
+ 
+ > **DECISAO SUA:** ______
+ 
+-
+ ### 6.5 Detalhe de dados na introducao — ele quer fora, e ha um contraste em jogo
+ 
+ #### FAB-14 — the seven classes belong to the data, not the introduction
+ 
+ **Citacao:** exata — `chapters/1_introduction.tex:52-54`. **Renderiza em:** 1_introduction.tex:52-53
+ 
+-**Minha leitura:** disagree, and it is his call. He says the 7 classes are a property of the data, not the problem. He is right in principle. But the count is what makes the next-category output space concrete against next region's hundreds-to-thousands, which is the contrast 1.2 is built on, and Appendix B's static-scope note depends on the taxonomy being introduced. Cost of removing: the reader meets 'seven' first in 2.4.
++**Minha leitura:** disagree, and it is his call. He says the 7 classes are a property of the data, not the problem. He
++is right in principle. But the count is what makes the next-category output space concrete against next region's
++hundreds-to-thousands, which is the contrast 1.2 is built on, and Appendix B's static-scope note depends on the taxonomy
++being introduced. Cost of removing: the reader meets 'seven' first in 2.4.
+ 
+-1. **Tirar as sete classes da introducao** — atende; o leitor so encontra o numero em §2.4, e o contraste 7 vs milhares que §1.2 constroi perde um lado
++1. **Tirar as sete classes da introducao** — atende; o leitor so encontra o numero em §2.4, e o contraste 7 vs milhares
++   que §1.2 constroi perde um lado
+ 2. **Manter** — contraria o pedido de um membro da banca
+-3. **Manter so o contraste sem o numero: "um punhado de classes contra milhares de regioes"** — preserva o contraste, tira o dado
++3. **Manter so o contraste sem o numero: "um punhado de classes contra milhares de regioes"** — preserva o contraste,
++   tira o dado
+ 
+ > **DECISAO SUA:** ______
+ 
+@@ -781,7 +852,8 @@ cumprida.
+ 
+ **Citacao:** exata — `chapters/1_introduction.tex:54-56`. **Renderiza em:** 1_introduction.tex:54
+ 
+-**Minha leitura:** disagree, same reason. Same class as FAB-14: census tract / mahalle is what makes 'region' concrete. Removing it leaves 'the official geographic unit' undefined until 2.4.
++**Minha leitura:** disagree, same reason. Same class as FAB-14: census tract / mahalle is what makes 'region' concrete.
++Removing it leaves 'the official geographic unit' undefined until 2.4.
+ 
+ 1. **Tirar census tract / mahalle da introducao** — atende; "unidade geografica oficial" fica sem definicao ate §2.4
+ 2. **Manter** — contraria o pedido
+@@ -789,18 +861,26 @@ cumprida.
+ 
+ > **DECISAO SUA:** ______
+ 
+-
+ ### 6.6 Os itens grandes do Germano — custo real, retorno real
+ 
+ #### GER-08 — several concepts have no formal definition, starting with a check-in
+ 
+ **Citacao:** parafrase (ele descreveu, nao citou). **Renderiza em:** new 2.1 subsection
+ 
+-**Minha leitura:** strongly agree; it is a cross-chapter edit. The chapter defines a check-in in prose only and then writes L_c2p over check-in and place embeddings with no notation for a check-in, a user, a place, a category, or a region. His reason is the right one: the later chapters' equations need symbols with an origin. But notation must be checked against Chapters 3-5 AS COMMITTED and every new symbol registered in the fail-closed GLOSSARY first, so this is not a Chapter 2 edit.
+-
+-1. **Adicionar o bloco de notacao (check-in, usuario, lugar, categoria, regiao, historico, as tres tarefas) como subsecao no fim de §2.1** — o item de maior retorno das duas revisoes: da simbolos as equacoes dos Cap. 3-5. MAS e edicao TRANSVERSAL: a notacao tem que ser conferida contra os Cap. 3-5 COMO ESTAO, e cada simbolo novo tem que entrar no GLOSSARY (fail-closed) ANTES de aparecer. Estimo meio dia mais a sua aprovacao do registro
+-2. **Versao minima: definir formalmente so o check-in e as tres tarefas** — ~2h; atende o exemplo que ele deu e deixa o resto
+-3. **Nao fazer nesta rodada** — e o ponto mais forte da revisao do Germano e o precedente do proprio programa (a dissertacao dele) o cumpre
++**Minha leitura:** strongly agree; it is a cross-chapter edit. The chapter defines a check-in in prose only and then
++writes L_c2p over check-in and place embeddings with no notation for a check-in, a user, a place, a category, or a
++region. His reason is the right one: the later chapters' equations need symbols with an origin. But notation must be
++checked against Chapters 3-5 AS COMMITTED and every new symbol registered in the fail-closed GLOSSARY first, so this is
++not a Chapter 2 edit.
++
++1. **Adicionar o bloco de notacao (check-in, usuario, lugar, categoria, regiao, historico, as tres tarefas) como
++   subsecao no fim de §2.1** — o item de maior retorno das duas revisoes: da simbolos as equacoes dos Cap. 3-5. MAS e
++   edicao TRANSVERSAL: a notacao tem que ser conferida contra os Cap. 3-5 COMO ESTAO, e cada simbolo novo tem que entrar
++   no GLOSSARY (fail-closed) ANTES de aparecer. Estimo meio dia mais a sua aprovacao do registro
++2. **Versao minima: definir formalmente so o check-in e as tres tarefas** — ~2h; atende o exemplo que ele deu e deixa o
++   resto
++3. **Nao fazer nesta rodada** — e o ponto mais forte da revisao do Germano e o precedente do proprio programa (a
++   dissertacao dele) o cumpre
+ 
+ > **DECISAO SUA:** ______
+ 
+@@ -808,9 +888,14 @@ cumprida.
+ 
+ **Citacao:** exata — `chapters/2_fundamentals.tex:383`. **Renderiza em:** 2_fundamentals.tex:383-508 -> 2.3
+ 
+-**Minha leitura:** strongly agree, and it is the largest item here. 2.3 defines MTL in one prose clause and never writes the total loss; names eight balancers in eight sentences of identical shape with no taxonomy; credits almost no lineage; and never defines what conflict IS, which is what PCGrad, CAGrad and Aligned-MTL all act on. That last gap is why Chapter 6's +0.001 cosine lands with no definition behind it.
++**Minha leitura:** strongly agree, and it is the largest item here. 2.3 defines MTL in one prose clause and never writes
++the total loss; names eight balancers in eight sentences of identical shape with no taxonomy; credits almost no lineage;
++and never defines what conflict IS, which is what PCGrad, CAGrad and Aligned-MTL all act on. That last gap is why
++Chapter 6's +0.001 cosine lands with no definition behind it.
+ 
+-1. **Fazer os quatro: a equacao da perda total, agrupar os balanceadores por mecanismo (peso vs cirurgia de gradiente), creditar a linhagem, e definir conflito pelo cosseno** — o maior item de conteudo; ~1 dia. Define a quantidade que o +0,001 do Cap. 6 mede, que hoje nao tem definicao em lugar nenhum
++1. **Fazer os quatro: a equacao da perda total, agrupar os balanceadores por mecanismo (peso vs cirurgia de gradiente),
++   creditar a linhagem, e definir conflito pelo cosseno** — o maior item de conteudo; ~1 dia. Define a quantidade que o
++   +0,001 do Cap. 6 mede, que hoje nao tem definicao em lugar nenhum
+ 2. **So a equacao da perda e a definicao de conflito** — ~3h; e o minimo que torna o numero do Cap. 6 legivel
+ 3. **Nao fazer** — a pergunta de pesquisa da dissertacao e se MTL ajuda, e o capitulo nunca escreve o objetivo de MTL
+ 
+@@ -820,9 +905,13 @@ cumprida.
+ 
+ **Citacao:** parafrase (ele descreveu, nao citou). **Renderiza em:** whole chapter
+ 
+-**Minha leitura:** agree, as a drafting principle. This is the synthesis of his other points, and the comparative evidence agrees: our Ch.2 has 5 sections and ZERO subsections; the approved same-advisor precedent (Viegas) has 5 sections and 19 subsections at similar length. Adding two heading levels is what gives GER-08 and GER-09 somewhere to go.
++**Minha leitura:** agree, as a drafting principle. This is the synthesis of his other points, and the comparative
++evidence agrees: our Ch.2 has 5 sections and ZERO subsections; the approved same-advisor precedent (Viegas) has 5
++sections and 19 subsections at similar length. Adding two heading levels is what gives GER-08 and GER-09 somewhere to
++go.
+ 
+-1. **Adicionar dois niveis de titulo em todo o capitulo** — a prosa quase nao muda e o capitulo fica navegavel; e onde o GER-08 e o GER-09 vao morar. Precedente: Viegas tem 5 secoes e 19 subsecoes com o mesmo tamanho; o nosso tem 5 e ZERO
++1. **Adicionar dois niveis de titulo em todo o capitulo** — a prosa quase nao muda e o capitulo fica navegavel; e onde o
++   GER-08 e o GER-09 vao morar. Precedente: Viegas tem 5 secoes e 19 subsecoes com o mesmo tamanho; o nosso tem 5 e ZERO
+ 2. **Subsecoes so em §2.2 e §2.3** — meia medida, cobre onde estao as duas lacunas
+ 3. **Nao fazer** — o capitulo e uma referencia que o leitor consulta vindo do Cap. 5; sem titulos ele nao acha nada
+ 
+@@ -832,10 +921,16 @@ cumprida.
+ 
+ **Citacao:** exata — `chapters/2_fundamentals.tex:167-170`. **Renderiza em:** 2_fundamentals.tex:167-174 -> 2.2
+ 
+-**Minha leitura:** agree it does not belong; the gate constrains HOW. Strongly agree the four-point sweep is a methods result in a fundamentals chapter, reported to four decimals under an averaging convention the chapter has not yet fixed. BUT the sentence is probe NUM-4 in check_audit_claims.py, which requires 0.8186 to be PRESENT with its spreads and averaging convention. Relocating is compatible with the probe if the probe moves with it; deleting the numbers is not.
++**Minha leitura:** agree it does not belong; the gate constrains HOW. Strongly agree the four-point sweep is a methods
++result in a fundamentals chapter, reported to four decimals under an averaging convention the chapter has not yet fixed.
++BUT the sentence is probe NUM-4 in check_audit_claims.py, which requires 0.8186 to be PRESENT with its spreads and
++averaging convention. Relocating is compatible with the probe if the probe moves with it; deleting the numbers is not.
+ 
+-1. **Mover o sweep para o Cap. 5 (metodo ou apendice) e mover o probe NUM-4 com ele, no MESMO commit** — atende ao ponto; o probe exige que 0.8186 esteja PRESENTE com dispersoes e convencao, e mudar de arquivo sem repontar o probe deixa o gate vermelho
+-2. **Manter uma frase conceitual sem numeros em §2.2 e o sweep no Cap. 5** — o que eu recomendo; resolve tambem o [VERIFY] da convencao de media, que hoje reporta quatro decimais sob uma convencao que o capitulo ainda nao fixou
++1. **Mover o sweep para o Cap. 5 (metodo ou apendice) e mover o probe NUM-4 com ele, no MESMO commit** — atende ao
++   ponto; o probe exige que 0.8186 esteja PRESENTE com dispersoes e convencao, e mudar de arquivo sem repontar o probe
++   deixa o gate vermelho
++2. **Manter uma frase conceitual sem numeros em §2.2 e o sweep no Cap. 5** — o que eu recomendo; resolve tambem
++   o [VERIFY] da convencao de media, que hoje reporta quatro decimais sob uma convencao que o capitulo ainda nao fixou
+ 3. **Manter onde esta e so resolver o [VERIFY]** — mais barato; o defeito de fluxo que ele apontou continua
+ 
+ > **DECISAO SUA:** ______
+@@ -844,79 +939,97 @@ cumprida.
+ 
+ **Citacao:** exata — `chapters/2_fundamentals.tex:192-193`. **Renderiza em:** 2_fundamentals.tex:192-199
+ 
+-**Minha leitura:** agree it reads as introduction; he also says keep it. He called it well written and important, and only observed it reads like introduction prose. There is no defect to fix here, only a placement question, and it is 108 chars from the NUM-4 probe string.
++**Minha leitura:** agree it reads as introduction; he also says keep it. He called it well written and important, and
++only observed it reads like introduction prose. There is no defect to fix here, only a placement question, and it is 108
++chars from the NUM-4 probe string.
+ 
+ 1. **Nao mexer** — ele mesmo disse que esta bem escrito e que e importante; nao ha defeito a corrigir
+-2. **Mover para o inicio de §2.2 como paragrafo de abertura** — atende a impressao de "texto de introducao"; mexe num paragrafo a 108 caracteres do probe NUM-4
++2. **Mover para o inicio de §2.2 como paragrafo de abertura** — atende a impressao de "texto de introducao"; mexe num
++   paragrafo a 108 caracteres do probe NUM-4
+ 
+ > **DECISAO SUA:** ______
+ 
+-
+ ### 6.7 Bloqueado numa verificacao que falhou
+ 
+ #### FAB-28 — there is more MTL-for-POI work than the two papers cited
+ 
+ **Citacao:** exata — `chapters/2_fundamentals.tex:454`. **Renderiza em:** 2_fundamentals.tex:454 -> 2.3
+ 
+-**Minha leitura:** agree on substance; verification FAILED on the decisive paper. He is right that the coverage is thin, and the real exposure is that 2.3 claims NO multi-task model predicts next region as a co-equal end target while wang2025hamtl (hierarchy-aware MTL for user LOCATION prediction, J. Supercomputing 81(11):1196, 2025) sits uncited in the same bibliography. Whether the claim survives turns on whether that paper treats a region-like unit as an END TARGET, and I could NOT establish it: OpenAlex has no abstract, Crossref has no abstract, the configured Springer key returns 401 on meta/v2, metadata and meta/v1, the paper is closed access (Unpaywall oa_status=closed), and the landing page 303-redirects to an authentication gate. Semantic Scholar offers only a MACHINE-GENERATED tldr, which AGENT_GUARDRAILS R5 forbids as a source. Four of the five other candidates ARE verified and citable (see the ledger); this one is not, and it is the one the novelty sentence depends on.
+-
+-1. **Voce (ou a biblioteca da UFV) abre o `wang2025hamtl` e me passa o resumo** — desbloqueia; e o unico caminho admissivel sob o §1
+-2. **Citar os quatro verificados (`Zhang2020`, `Halder2022`, `Xu2023` como MTL, `Halder2021` por atributo) e NAO citar o `wang2025hamtl`** — amplia a cobertura sem apoiar alegacao em titulo; a frase de novidade continua exposta a quem achar o artigo
+-3. **Enfraquecer a frase de novidade para "entre os trabalhos revisados aqui"** — honesto e barato; abre mao de uma alegacao que pode muito bem sobreviver
++**Minha leitura:** agree on substance; verification FAILED on the decisive paper. He is right that the coverage is thin,
++and the real exposure is that 2.3 claims NO multi-task model predicts next region as a co-equal end target while
++wang2025hamtl (hierarchy-aware MTL for user LOCATION prediction, J. Supercomputing 81 (11):1196, 2025) sits uncited in
++the same bibliography. Whether the claim survives turns on whether that paper treats a region-like unit as an END
++TARGET, and I could NOT establish it: OpenAlex has no abstract, Crossref has no abstract, the configured Springer key
++returns 401 on meta/v2, metadata and meta/v1, the paper is closed access (Unpaywall oa_status=closed), and the landing
++page 303-redirects to an authentication gate. Semantic Scholar offers only a MACHINE-GENERATED tldr, which
++AGENT_GUARDRAILS R5 forbids as a source. Four of the five other candidates ARE verified and citable (see the ledger);
++this one is not, and it is the one the novelty sentence depends on.
++
++1. **Voce (ou a biblioteca da UFV) abre o `wang2025hamtl` e me passa o resumo** — desbloqueia; e o unico caminho
++   admissivel sob o §1
++2. **Citar os quatro verificados (`Zhang2020`, `Halder2022`, `Xu2023` como MTL, `Halder2021` por atributo) e NAO citar o
++   `wang2025hamtl`** — amplia a cobertura sem apoiar alegacao em titulo; a frase de novidade continua exposta a quem
++   achar o artigo
++3. **Enfraquecer a frase de novidade para "entre os trabalhos revisados aqui"** — honesto e barato; abre mao de uma
++   alegacao que pode muito bem sobreviver
+ 
+ > **DECISAO SUA:** ______
+ 
+-
+ ### 6.8 A sua propria pergunta
+ 
+ #### AUT-01 — does the MTL fundamentals need Pareto optimality
+ 
+ **Citacao:** -. **Renderiza em:** 2_fundamentals.tex 2.3
+ 
+-**Minha leitura:** agree it needs a brief treatment. The author's own added question: does the MTL fundamentals need Pareto optimality. Since 2.3 names gradient-surgery balancers, and MGDA/CAGrad/Nash-MTL are all argued in terms of Pareto-stationary points, the concept is already implicit. Note 'Pareto-stationary point' is ALREADY in the prose and is PENDENCIAS 2.12 (unregistered in the fail-closed GLOSSARY), so this item and 2.12 are the same decision.
++**Minha leitura:** agree it needs a brief treatment. The author's own added question: does the MTL fundamentals need
++Pareto optimality. Since 2.3 names gradient-surgery balancers, and MGDA/CAGrad/Nash-MTL are all argued in terms of
++Pareto-stationary points, the concept is already implicit. Note 'Pareto-stationary point' is ALREADY in the prose and is
++PENDENCIAS 2.12 (unregistered in the fail-closed GLOSSARY), so this item and 2.12 are the same decision.
+ 
+-1. **Um paragrafo breve em §2.3: o problema multitarefa e multi-objetivo, os balanceadores de cirurgia de gradiente sao argumentados em termos de estacionariedade de Pareto, e por isso o MGDA/CAGrad/Nash-MTL existem** — atende sua intuicao e da espinha ao paragrafo dos balanceadores; ~1h. Note que `Pareto-stationary point` JA esta na prosa e e o item 2.12 (nao registrado no GLOSSARY), entao este item e o 2.12 sao a MESMA decisao
++1. **Um paragrafo breve em §2.3: o problema multitarefa e multi-objetivo, os balanceadores de cirurgia de gradiente sao
++   argumentados em termos de estacionariedade de Pareto, e por isso o MGDA/CAGrad/Nash-MTL existem** — atende sua
++   intuicao e da espinha ao paragrafo dos balanceadores; ~1h. Note que `Pareto-stationary point` JA esta na prosa e e o
++   item 2.12 (nao registrado no GLOSSARY), entao este item e o 2.12 sao a MESMA decisao
+ 2. **So registrar `Pareto` no GLOSSARY e nao expandir** — fecha o 2.12 sem crescer o capitulo
+ 3. **Nao tratar** — o capitulo nomeia balanceadores cuja justificativa e Pareto e nunca diz isso
+ 
+ > **DECISAO SUA:** ______
+ 
+-
+ ### 6.9 Edicao concorrente durante esta rodada — RESOLVIDA pela propria esteira, e registrada
+ 
+ **O que aconteceu.** Enquanto eu media, **outra esteira** alterou arquivos que eu nao toquei:
+ `GLOSSARY.md` (02:11 e 02:30, os quatro registros de Pareto, que fecham a **2.12** pela opcao (a)),
+-`src/chapters/2_fundamentals.tex` (02:23, +106 linhas em §2.3: a equacao da perda total mais o
+-tratamento de Pareto), `check_audit_claims.py` (02:38, cinco probes dela sobre a minha mudanca de
+-segunda raiz) e `_round6/VERIFY_LIST.md` (03:01).
++`src/chapters/2_fundamentals.tex` (02:23, +106 linhas em §2.3: a equacao da perda total mais o tratamento de Pareto),
++`check_audit_claims.py` (02:38, cinco probes dela sobre a minha mudanca de segunda raiz) e `_round6/VERIFY_LIST.md` (03:
++01).
+ 
+ **Duas falhas de gate que eu vi eram dela, e as duas ja estao fechadas — por ela, nao por mim.**
+ Registrado porque eu quase abri uma decisao sua sobre a primeira:
+ 
+-| o que falhou | causa | estado agora |
+-|---|---|---|
+-| `check_verify_list`: `EXPECT: contains=Pareto-stationary 0` | o registro do termo tornou a anotacao falsa | corrigida para `2` no mesmo commit do registro, que e o caminho da V6 |
+-| `check_verify_list`: `CD-FAIL` num bloco de build | um bloco cercado em `VERIFY_LIST.md:326` sem sufixo `cd src` para o extrator remover, entao o gate **rodava um build de verdade** (108 s medidos) e nunca via `REACHED` | o bloco foi tirado da cerca em 03:01; `make check` volta a 2,4 s |
++| o que falhou                                                | causa                                                                                                                                                                   | estado agora                                                          |
++|-------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
++| `check_verify_list`: `EXPECT: contains=Pareto-stationary 0` | o registro do termo tornou a anotacao falsa                                                                                                                             | corrigida para `2` no mesmo commit do registro, que e o caminho da V6 |
++| `check_verify_list`: `CD-FAIL` num bloco de build           | um bloco cercado em `VERIFY_LIST.md:326` sem sufixo `cd src` para o extrator remover, entao o gate **rodava um build de verdade** (108 s medidos) e nunca via `REACHED` | o bloco foi tirado da cerca em 03:01; `make check` volta a 2,4 s      |
+ 
+-**Consequencia metodologica, e essa vale mais que os dois defeitos.** Eu li os dois como vermelhos
+-meus, e um deles eu ja tinha escrito aqui como uma decisao sua com tres opcoes. Numa arvore com duas
+-esteiras, **um gate vermelho nao e evidencia de nada ate voce reconferir de quem e o arquivo e qual e o
+-mtime dele** — o meu primeiro diagnostico foi de um arquivo lido no meio da escrita de outra pessoa.
++**Consequencia metodologica, e essa vale mais que os dois defeitos.** Eu li os dois como vermelhos meus, e um deles eu
++ja tinha escrito aqui como uma decisao sua com tres opcoes. Numa arvore com duas esteiras, **um gate vermelho nao e
++evidencia de nada ate voce reconferir de quem e o arquivo e qual e o mtime dele** — o meu primeiro diagnostico foi de um
++arquivo lido no meio da escrita de outra pessoa.
+ 
+-**Um item meu mudou de balde por causa disso, e nao foi por edicao concorrente:** o **FAB-18** virou
+-decisao sua (§6.2), porque ele pede o presente na mesma frase que o FAB-03, e eu tinha posto um em cada
+-balde. Achei ao aplicar, nao ao classificar.
++**Um item meu mudou de balde por causa disso, e nao foi por edicao concorrente:** o **FAB-18** virou decisao sua (§6.2),
++porque ele pede o presente na mesma frase que o FAB-03, e eu tinha posto um em cada balde. Achei ao aplicar, nao ao
++classificar.
+ 
+-**Tres coordenadas minhas andaram +106 linhas** por causa da edicao em §2.3, e foram reconferidas linha
+-a linha, nao deslocadas por aritmetica: FAB-28 (454 -> 560), FAB-29 (513 -> 619), FAB-30 (515-516 ->
++**Tres coordenadas minhas andaram +106 linhas** por causa da edicao em §2.3, e foram reconferidas linha a linha, nao
++deslocadas por aritmetica: FAB-28 (454 -> 560), FAB-29 (513 -> 619), FAB-30 (515-516 ->
+ 621-622 e 670 -> 776).
+ 
+-**E um defeito que eu encontrei e corrigi, este nao concorrente:** o §4 item 5 deste arquivo mandava
+-voce rodar `make final` (alvo renomeado para `academico` em 2026-07-29) e prometia **108/105/109**
++**E um defeito que eu encontrei e corrigi, este nao concorrente:** o §4 item 5 deste arquivo mandava voce rodar
++`make final` (alvo renomeado para `academico` em 2026-07-29) e prometia **108/105/109**
+ paginas. A arvore da **102/99/103**. O `sync_page_counts.py` varria so `CLAUDE.md`, `PLAN.md` e
+-`codex_reviewer.md`, e por isso o numero envelheceu sem gate — **este arquivo entrou na varredura em
+-2026-07-30**, depois de a minha propria correcao aqui ficar obsoleta por uma pagina em menos de uma
+-hora (a outra esteira somou uma pagina ao §2.3 entre uma medicao e a seguinte).
++`codex_reviewer.md`, e por isso o numero envelheceu sem gate — **este arquivo entrou na varredura em 2026-07-30**,
++depois de a minha propria correcao aqui ficar obsoleta por uma pagina em menos de uma hora (a outra esteira somou uma
++pagina ao §2.3 entre uma medicao e a seguinte).
+ 
+ > **DECISAO SUA:** nada aqui. Fica como registro.
+ 
+@@ -924,50 +1037,47 @@ hora (a outra esteira somou uma pagina ao §2.3 entre uma medicao e a seguinte).
+ 
+ As quatro personas de fato (04 concordancia, 05 citacoes, 06 numeros, 07 alegacoes/honestidade)
+ rodaram contra o build `03b53d16`. Relatorios em `_round9/reviews/`, resumo em
+-`_round9/37_reviewer_gate_round9.md`. **Tres bloqueadores.** Reconferi os tres abrindo o fonte, porque
+-auto-relato de persona nao e evidencia (L6). Os tres sao decisao sua: dois sao alegacoes de conteudo e
+-o terceiro tem duas saidas de custo diferente.
++`_round9/37_reviewer_gate_round9.md`. **Tres bloqueadores.** Reconferi os tres abrindo o fonte, porque auto-relato de
++persona nao e evidencia (L6). Os tres sao decisao sua: dois sao alegacoes de conteudo e o terceiro tem duas saidas de
++custo diferente.
+ 
+ #### BLQ-1 — o Apendice F diz que o compartilhamento duro "nao custa nada", e chama de duro a topologia errada
+ 
+-**Onde:** `chapters/apx_f_cosine.tex`:290, renderiza na p. 101 do build de defesa.
+-**Texto:** "That is why hard sharing costs nothing in this architecture, and why
+-Chapter~\ref{ch:mobiwac} finds no balancer improving on a fixed loss weighting".
++**Onde:** `chapters/apx_f_cosine.tex`:290, renderiza na p. 101 do build de defesa. **Texto:** "That is why hard sharing
++costs nothing in this architecture, and why Chapter~\ref{ch:mobiwac} finds no balancer improving on a fixed loss
++weighting".
+ 
+ **Dois defeitos numa clausula, os dois confirmados no fonte:**
++
+ 1. A afirmacao de custo e **irrestrita**, e o proprio documento a desmente:
+-   `5_mobiwac/06_results.tex`:145-146 registra o ganho de regiao indo "from $-0.41$ at the smallest
+-   count to $+2.20$ at the largest". Existe celula negativa, e o Cap. 5 a chama de deficit pequeno
+-   mas estatisticamente significativo.
++   `5_mobiwac/06_results.tex`:145-146 registra o ganho de regiao indo "from $-0.41$ at the smallest count to $+2.20$ at
++   the largest". Existe celula negativa, e o Cap. 5 a chama de deficit pequeno mas estatisticamente significativo.
+ 2. A arquitetura do Cap. 5 **nao e compartilhamento duro** pela definicao do proprio Cap. 2:
+-   `5_mobiwac/01_introduction.tex` a descreve como "a shared trunk (a cross-attention stack where the
+-   two tasks exchange semantic context) and a private spatial path for the region task".
++   `5_mobiwac/01_introduction.tex` a descreve como "a shared trunk (a cross-attention stack where the two tasks exchange
++   semantic context) and a private spatial path for the region task".
+ 
+-1. **Trocar pela afirmacao licenciada, que o Cap. 5 ja usa: "sharing stopped hurting" (p. 80),
+-   nomeando a topologia como tronco de atencao cruzada** — corrige os dois defeitos numa frase, nao
+-   perde o argumento (o ponto do apendice e a ortogonalidade, nao o custo), ~10 min
++1. **Trocar pela afirmacao licenciada, que o Cap. 5 ja usa: "sharing stopped hurting" (p. 80), nomeando a topologia como
++   tronco de atencao cruzada** — corrige os dois defeitos numa frase, nao perde o argumento (o ponto do apendice e a
++   ortogonalidade, nao o custo), ~10 min
+ 2. **So restringir o custo ("costs nothing on the category task", ou "at four of the six datasets")**
+    — mantem a palavra "custo", mas continua chamando a topologia de compartilhamento duro
+-3. **Deixar como esta** — a frase e uma generalizacao irrestrita contra uma celula negativa medida no
+-   mesmo documento; e o tipo de frase que uma banca localiza
++3. **Deixar como esta** — a frase e uma generalizacao irrestrita contra uma celula negativa medida no mesmo documento; e
++   o tipo de frase que uma banca localiza
+ 
+ > **DECISAO SUA:** ______
+ 
+ #### BLQ-2 — a resposta consolidada usa "everywhere" nu e colapsa a particao da regiao
+ 
+-**Onde:** `chapters/6_conclusion.tex`:106, renderiza na p. 79. E a frase mais citavel da dissertacao.
+-**Texto:** "outperforms the dedicated models on the category task everywhere and outperforms or
+-matches them on the region task."
++**Onde:** `chapters/6_conclusion.tex`:106, renderiza na p. 79. E a frase mais citavel da dissertacao. **Texto:**
++"outperforms the dedicated models on the category task everywhere and outperforms or matches them on the region task."
+ 
+-**Confirmado contra a lei, que aqui e explicita.** `WRITING_LAW.md`:83 diz, literalmente, que a
+-afirmacao de escala fica escopada aos cinco estados e **bare "everywhere" never**; a linha 75 proibe
+-"outperforms region everywhere" por nome. E "outperforms or matches" joga fora a particao
+-quatro-de-seis / TOST que a redacao protegida exige — particao que **este mesmo capitulo enuncia
+-corretamente na pagina anterior**.
++**Confirmado contra a lei, que aqui e explicita.** `WRITING_LAW.md`:83 diz, literalmente, que a afirmacao de escala fica
++escopada aos cinco estados e **bare "everywhere" never**; a linha 75 proibe
++"outperforms region everywhere" por nome. E "outperforms or matches" joga fora a particao quatro-de-seis / TOST que a
++redacao protegida exige — particao que **este mesmo capitulo enuncia corretamente na pagina anterior**.
+ 
+-1. **Reescrever com a particao explicita: supera nas seis para categoria; para regiao, supera em
+-   quatro dos seis e nao e inferior (TOST, +/-2 pp) nos outros dois** — e a redacao protegida, ja
+-   usada duas vezes no mesmo capitulo, ~15 min
++1. **Reescrever com a particao explicita: supera nas seis para categoria; para regiao, supera em quatro dos seis e nao e
++   inferior (TOST, +/-2 pp) nos outros dois** — e a redacao protegida, ja usada duas vezes no mesmo capitulo, ~15 min
+ 2. **Manter "everywhere" so para categoria (onde e verdade nas seis) e abrir a particao so na regiao**
+    — mais curto, mas "everywhere" nu esta proibido pela linha 83 sem excecao por tarefa
+ 3. **Deixar como esta** — contradiz a lei que voce mesmo escreveu, na frase que mais vai ser lida
+@@ -976,80 +1086,77 @@ corretamente na pagina anterior**.
+ 
+ #### BLQ-3 — dois fatores de escala calculados na prosa, sem ledger e sem script
+ 
+-**Onde:** `chapters/apx_f_cosine.tex`:317-319, p. 101.
+-**Texto:** "this axis spans a factor of thirty-six in volume and one of sixteen in the size of the
+-region label set".
++**Onde:** `chapters/apx_f_cosine.tex`:317-319, p. 101. **Texto:** "this axis spans a factor of thirty-six in volume and
++one of sixteen in the size of the region label set".
+ 
+-**Os numeros estao CERTOS** — 4.089.892 / 113.846 = 35,92 e 8.501 / 520 = 16,35, e os quatro extremos
+-sao rastreaveis em `datasets.tex`. O achado nao e erro de conta: e que os dois fatores sao
+-**derivados na prosa**, e N2/N3 mandam citar, nunca calcular. Nada os regenera quando um dataset muda.
++**Os numeros estao CERTOS** — 4.089.892 / 113.846 = 35,92 e 8.501 / 520 = 16,35, e os quatro extremos sao rastreaveis em
++`datasets.tex`. O achado nao e erro de conta: e que os dois fatores sao **derivados na prosa**, e N2/N3 mandam citar,
++nunca calcular. Nada os regenera quando um dataset muda.
+ 
+-1. **Enunciar os quatro extremos (que ja sao rastreaveis) e cortar as razoes** — o leitor faz a divisao
+-   se quiser; some a alegacao nao rastreavel, ~5 min
+-2. **Manter as razoes e registra-las no ledger do apendice com o comando que as produz** — preserva a
+-   frase como esta, custa uma linha de ledger e um probe
++1. **Enunciar os quatro extremos (que ja sao rastreaveis) e cortar as razoes** — o leitor faz a divisao se quiser; some
++   a alegacao nao rastreavel, ~5 min
++2. **Manter as razoes e registra-las no ledger do apendice com o comando que as produz** — preserva a frase como esta,
++   custa uma linha de ledger e um probe
+ 3. **Deixar como esta** — dois numeros no volume construido sem origem registrada
+ 
+ > **DECISAO SUA:** ______
+ 
+-
+ ### 6.11 Segunda onda de personas — um bloqueador confirmado, um rebaixado por mim
+ 
+-Cinco personas que voce pediu (15 legibilidade, 16 credibilidade-IA, 17 excelencia, 11 POI/mobilidade,
+-10 MTL) contra o build `901a0408`. Relatorios em `_round9/reviews/`, resumo em
++Cinco personas que voce pediu (15 legibilidade, 16 credibilidade-IA, 17 excelencia, 11 POI/mobilidade, 10 MTL) contra o
++build `901a0408`. Relatorios em `_round9/reviews/`, resumo em
+ `_round9/38_reviewer_wave2_round9.md`. Reconferi no fonte tudo que entrou aqui.
+ 
+ #### BLQ-4 — o Apendice F descreve um experimento que nunca foi feito
+ 
+-**Onde:** `chapters/apx_f_cosine.tex`:83, renderiza na p. 97 do build de defesa.
+-**Texto:** "That is why replacing the sharing scheme changed so little in the first study, and why
+-changing the representation changed so much in the second and third."
++**Onde:** `chapters/apx_f_cosine.tex`:83, renderiza na p. 97 do build de defesa. **Texto:** "That is why replacing the
++sharing scheme changed so little in the first study, and why changing the representation changed so much in the second
++and third."
+ 
+ **Confirmado, e o proprio documento diz o contrario em tres lugares.** O Cap. 3 construiu **uma**
+-arquitetura (`3_cbic/method.tex`:69, "built upon a hard parameter-sharing scheme") e lista as
+-alternativas como trabalho futuro (`3_cbic/conclusion.tex`:23, "We plan to explore alternative
+-parameter-sharing mechanisms, such as **soft sharing (e.g., Cross-Stitch Networks) or
+-Mixture-of-Experts (MoE) models**"). Os resultados dele comparam MTL contra os modelos de tarefa
+-unica, contra MHA+PE e contra o HMRM — nunca dois esquemas de compartilhamento. E o
++arquitetura (`3_cbic/method.tex`:69, "built upon a hard parameter-sharing scheme") e lista as alternativas como trabalho
++futuro (`3_cbic/conclusion.tex`:23, "We plan to explore alternative parameter-sharing mechanisms, such as **soft
++sharing (e.g., Cross-Stitch Networks) or Mixture-of-Experts (MoE) models**"). Os resultados dele comparam MTL contra os
++modelos de tarefa unica, contra MHA+PE e contra o HMRM — nunca dois esquemas de compartilhamento. E o
+ `1_introduction.tex`:133-135 atribui a troca da topologia de compartilhamento ao **terceiro** estudo.
+ 
+ **O mesmo apendice acerta duas paginas depois**, em :294-299: o nulo do primeiro estudo *foi lido*
+-como evidencia sobre compartilhamento na epoca, e o limite estava em outro lugar. Ou seja, a frase
+-certa ja existe no mesmo arquivo.
++como evidencia sobre compartilhamento na epoca, e o limite estava em outro lugar. Ou seja, a frase certa ja existe no
++mesmo arquivo.
+ 
+-1. **Reescrever a frase de :83 na forma que :294-299 ja usa — o nulo do primeiro estudo foi
+-   interpretado como limite do compartilhamento, e a medicao mostra que nao era** — corrige a
+-   afirmacao sem perder o argumento do apendice, ~10 min
+-2. **Cortar a clausula "replacing the sharing scheme" e ficar so com a metade da representacao** —
+-   mais curto; perde a ponte para o arco dos tres estudos
+-3. **Deixar como esta** — um leitor da p. 97 e informado de um experimento que nao aconteceu; e do
+-   tipo que a banca pergunta
++1. **Reescrever a frase de :83 na forma que :294-299 ja usa — o nulo do primeiro estudo foi interpretado como limite do
++   compartilhamento, e a medicao mostra que nao era** — corrige a afirmacao sem perder o argumento do apendice, ~10 min
++2. **Cortar a clausula "replacing the sharing scheme" e ficar so com a metade da representacao** — mais curto; perde a
++   ponte para o arco dos tres estudos
++3. **Deixar como esta** — um leitor da p. 97 e informado de um experimento que nao aconteceu; e do tipo que a banca
++   pergunta
+ 
+ > **DECISAO SUA:** ______
+ 
+ #### BLQ-5 — a persona de MTL abriu um bloqueador no PCGrad, e eu o REBAIXEI; a decisao final e sua
+ 
+-**Onde:** `chapters/2_fundamentals.tex`:442-445.
+-**Texto:** "PCGrad guarantees that one projected update leaves the multi-task loss no higher than the
+-unmodified gradient would ... and it makes no Pareto claim at all \cite{yu2020pcgrad}."
++**Onde:** `chapters/2_fundamentals.tex`:442-445. **Texto:** "PCGrad guarantees that one projected update leaves the
++multi-task loss no higher than the unmodified gradient would ... and it makes no Pareto claim at all
++\cite{yu2020pcgrad}."
+ 
+-**O que ela alegou:** que a p. 5 do CAGrad atribui convergencia a um ponto de Pareto arbitrario a
+-*propria analise* do PCGrad, o que contradiria o "no Pareto claim at all".
++**O que ela alegou:** que a p. 5 do CAGrad atribui convergencia a um ponto de Pareto arbitrario a *propria analise* do
++PCGrad, o que contradiria o "no Pareto claim at all".
+ 
+ **Por que eu rebaixei.** Abri os dois registros nesta sessao. O arXiv:2001.06782 (PCGrad, NeurIPS
++
+ 2020) nao tem 'Pareto' nem frase de convergencia no resumo, e a extracao do proprio repo achou **zero**
+-'Pareto' em 27 paginas com o instrumento validado no mesmo texto. O resumo do arXiv:2110.14048 (CAGrad)
+-diz que os metodos anteriores "lack convergence guarantee and/or could converge to any Pareto-stationary
+-point". **A clausula do capitulo esta citada a `yu2020pcgrad` e fala do que aquele artigo afirma**; a
+-frase do CAGrad e um terceiro caracterizando a familia. As duas coisas convivem.
+-
+-**O que sobra, e por isso o item existe:** se a p. 5 do CAGrad de fato atribui o resultado a analise do
+-PCGrad, um leitor que conhece o CAGrad vai achar "no Pareto claim at all" mais categorico do que a
+-literatura em volta sustenta. **Eu nao consegui ler a p. 5** — so o resumo era alcancavel sem o PDF —
+-e por isso rebaixei em vez de descartar, e digo qual metade nao conferi.
+-
+-1. **Suavizar para "and makes no Pareto claim of its own"** — mantem a verdade sobre a fonte citada e
+-   remove o absoluto que incomoda quem conhece o CAGrad, ~5 min
++      'Pareto' em 27 paginas com o instrumento validado no mesmo texto. O resumo do arXiv:2110.14048 (CAGrad)
++      diz que os metodos anteriores "lack convergence guarantee and/or could converge to any Pareto-stationary point".
++      **A clausula do capitulo esta citada a `yu2020pcgrad` e fala do que aquele artigo afirma**; a frase do CAGrad e um
++      terceiro caracterizando a familia. As duas coisas convivem.
++
++**O que sobra, e por isso o item existe:** se a p. 5 do CAGrad de fato atribui o resultado a analise do PCGrad, um
++leitor que conhece o CAGrad vai achar "no Pareto claim at all" mais categorico do que a literatura em volta sustenta.
++**Eu nao consegui ler a p. 5** — so o resumo era alcancavel sem o PDF — e por isso rebaixei em vez de descartar, e digo
++qual metade nao conferi.
++
++1. **Suavizar para "and makes no Pareto claim of its own"** — mantem a verdade sobre a fonte citada e remove o absoluto
++   que incomoda quem conhece o CAGrad, ~5 min
+ 2. **Abrir a p. 5 do CAGrad e decidir com ela na mao** — o certo se voce tem acesso; e um paragrafo
+ 3. **Deixar como esta** — a frase e exata sobre a fonte que cita, e a persona nao a refutou
+ 
+@@ -1057,16 +1164,15 @@ e por isso rebaixei em vez de descartar, e digo qual metade nao conferi.
+ 
+ #### Sem decisao sua, so registro: o que as duas personas de dominio confirmaram
+ 
+-A de POI/mobilidade nao achou bloqueador: a distincao proxima categoria / proxima regiao / proximo
+-lugar se sustenta em tudo que ela leu, o argumento nivel-de-check-in contra nivel-de-lugar esta correto
+-como afirmacao de modelagem de mobilidade e ancorado no CTLE e nao no seu proprio resultado, e as
+-divulgacoes de protocolo do Cap. 5 sao **mais fortes que a norma dessa literatura**. Os quatro
+-should-fix dela sao todos a mesma classe: **lugar, nao verdade** — defesas que o Cap. 5 carrega e o
+-Cap. 2 nao (construcao de janela, transdutividade, justificativa da unidade regional, a intuicao de
+-revisita). A de MTL verificou **seis das sete clausulas de garantia** do bloco de Pareto de hoje contra
+-cinco PDFs de origem, e retirou duas conclusoes proprias depois de abrir as paginas que as refutavam.
+-A de excelencia deu **VERY GOOD forte** com caminho barato para outstanding, e registrou que o
+-resultado nulo publicado e **inequivocamente um ativo** como esta apresentado.
++A de POI/mobilidade nao achou bloqueador: a distincao proxima categoria / proxima regiao / proximo lugar se sustenta em
++tudo que ela leu, o argumento nivel-de-check-in contra nivel-de-lugar esta correto como afirmacao de modelagem de
++mobilidade e ancorado no CTLE e nao no seu proprio resultado, e as divulgacoes de protocolo do Cap. 5 sao **mais fortes
++que a norma dessa literatura**. Os quatro should-fix dela sao todos a mesma classe: **lugar, nao verdade** — defesas que
++o Cap. 5 carrega e o Cap. 2 nao (construcao de janela, transdutividade, justificativa da unidade regional, a intuicao de
++revisita). A de MTL verificou **seis das sete clausulas de garantia** do bloco de Pareto de hoje contra cinco PDFs de
++origem, e retirou duas conclusoes proprias depois de abrir as paginas que as refutavam. A de excelencia deu **VERY GOOD
++forte** com caminho barato para outstanding, e registrou que o resultado nulo publicado e **inequivocamente um ativo**
++como esta apresentado.
+ 
+ ---
+ 
+@@ -1092,10 +1198,10 @@ item. Os cinco de maior consequencia:
+ 3. **As duas sentencas D-02 em `6_conclusion.tex`** (p. 76). Elas mudam o que o numero mais citado do Ch.4 licencia.
+ 4. **A frase de reprodutibilidade em `apx_a_contributions.tex`** (p. 88), contra 2.2 acima.
+ 5. **`make check` e os tres builds.** `cd articles/dissertacao && source src_utils/texenv.sh &&
+-   (cd src && make defense && make academico && make ppgc && make check)`. Deve sair 0 e dar
+-   **102/99/103** paginas. *(Corrigido em 2026-07-30: dizia `make final`, alvo renomeado para
+-   `academico` em 2026-07-29 — ainda funciona como alias, mas imprime um aviso — e citava
+-   **108/105/109**, que nao e o que a arvore produz. Medido agora com pypdfium2 sobre
++   (cd src && make defense && make academico && make ppgc && make check)`. Deve sair 0 e dar **102/99/103** paginas. *(
++   Corrigido em 2026-07-30: dizia `make final`, alvo renomeado para
++   `academico` em 2026-07-29 — ainda funciona como alias, mas imprime um aviso — e citava **108/105/109**, que nao e o
++   que a arvore produz. Medido agora com pypdfium2 sobre
+    `src/build/main.pdf`, `main_academico.pdf` e `main_ppgc.pdf`. O `sync_page_counts.py` nao pega isto:
+    ele varre `CLAUDE.md`, `PLAN.md` e `codex_reviewer.md`, e nao o §4 deste arquivo.)*
+ 
