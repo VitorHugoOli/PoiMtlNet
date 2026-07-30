@@ -13,9 +13,14 @@
 
 Ele tem quatro partes e as duas primeiras exigem algo de voce:
 
-1. **§2 Aberto e bloqueado em voce** — decisoes, aprovacoes e um push de repositorio. **Esta e a sua fila.** A numeracao
-   comeca em 2.1 por continuidade: quatro comentarios no fonte citam
+1. **§2 Aberto e bloqueado em voce** — decisoes e aprovacoes. **Esta e a sua fila.** A numeracao
+   comeca em 2.1 por continuidade: **cinco** comentarios em tres arquivos do fonte citam
    "PENDENCIAS 2.4", e renumerar quebraria essas citacoes.
+   > **Contagem corrigida 2026-07-30:** dizia "quatro comentarios". Sao cinco, em
+   > `apx_b_static_scope.tex` (3), `4_courb.tex` (1) e `apx_b_errata.tex` (1). Medido com
+   > `grep -rcE 'PENDENCIAS[[:space:]]*(§|\S|[Ss]ection|[Ss]ec\.?|item)?[[:space:]]*2\.4' src/chapters/*.tex`.
+   > O argumento nao muda -- renumerar continua quebrando citacoes -- mas o numero que o sustenta
+   > agora fecha com o comando que o mede. O push que esta linha citava ja foi feito (item 2.1).
 2. **§5 Levantados do `CODEX_AUDIT.md` ao arquiva-lo** — nove pontos daquela auditoria que ainda dependem de voce. Eram
    para ser aplicados por decisao sua e **nao estao no documento**; cada um traz a medicao que mostra isso.
 3. **§3 Aberto e bloqueado em terceiros** — orientador, Comissao, revisores do MobiWac. Fora do seu controle e do meu.
@@ -345,8 +350,6 @@ final, nao o caminho.
 
 > DECISSAO: Documentar no letf_out.md e adcionar esse ponto no appendix B
 
----
-
 ### 2.8 `CONSIDERATIONS.md`: uma rodada NOVA que chegou durante esta, e que eu NAO executei
 
 **(A) O que falta.** `src_utils/CONSIDERATIONS.md` apareceu na arvore de trabalho **durante** esta rodada (modificado
@@ -371,8 +374,6 @@ nesta.
 **Por que eu nao agi nisso.** O escopo desta rodada foi `CODEX_AUDIT.md` mais as suas decisoes em
 `PENDENCIAS.md`. Aplicar 1.229 linhas de feedback novo no fim de uma rodada longa, sem voce ter pedido, seria exatamente
 o tipo de improviso que o `AGENT_GUARDRAILS` manda parar e sinalizar.
-
----
 
 ### 2.9 O disco do nespedgpu esta 100% cheio, e isso bloqueia qualquer treino novo
 

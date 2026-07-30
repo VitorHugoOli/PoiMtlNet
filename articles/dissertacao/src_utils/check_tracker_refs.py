@@ -99,6 +99,21 @@ def self_test() -> None:
     # ...and a bare number that is not a tracker citation must not be swept in.
     assert not CITE.findall("see Table 2.4 of the manual"), \
         "self-test: CITE must not match a coordinate that does not name the tracker"
+    # SEVERANCE, both directions, on literals so the property cannot drift with the tracker's text.
+    # A rule BEFORE an item of the same section is the defect; a rule that closes the section (next
+    # line is a `##`) is legitimate and must not fire, or every well-formed section fails.
+    assert _severed_in("## §2 · x\n\n### 2.1 a\n\n---\n\n### 2.2 b\n"), \
+        "self-test: a '---' between two items of §2 must be reported -- it visually ends the section"
+    assert not _severed_in("## §2 · x\n\n### 2.1 a\n\n---\n\n## §3 · y\n\n### 3.1 c\n"), \
+        "self-test: a '---' that CLOSES a section must not fire; that is this file's own convention"
+    # AND the reset branch, which the two assertions above do NOT reach. Without it a rule stays
+    # "pending" across intervening prose and fires on whatever item comes next, however far below --
+    # a false positive on a shape this file does not consider a defect. Sabotaging `elif
+    # line.strip():` left both assertions above passing, which is AGENT_GUARDRAILS §4b V13's fourth
+    # instance (a self-test that does not cover a detector reads as proof while proving nothing), so
+    # the branch gets its own literal.
+    assert not _severed_in("## §2 · x\n\n### 2.1 a\n\n---\n\nprose resumes here\n\n### 2.2 b\n"), \
+        "self-test: prose after a '---' must clear it -- only a rule ADJACENT to an item severs"
 
 
 def nesting_problems() -> list[str]:
@@ -128,16 +143,68 @@ def nesting_problems() -> list[str]:
     return out
 
 
+def severed_items() -> list[str]:
+    """A horizontal rule inside a section visually ends it before its items run out.
+
+    THE RESIDUAL OF THE DEFECT ABOVE, found 2026-07-30 after nesting_problems() was already green.
+    In this tracker `---` is a SECTION separator: it precedes `## Como ler`, `## §2`, `## §3` and
+    `## §4` and nothing else. Items 2.8, 2.9 and 2.10 were originally APPENDED AT THE END of the
+    file, each behind such a rule. Commit 74e8e411 moved their HEADINGS under §2 and the rules came
+    with them, so §2 read as though it closed after 2.7 and three items sat past its apparent end --
+    which is the same reader-navigation failure nesting_problems() exists to prevent, one layer
+    down. Heading nesting was correct, every citation resolved, and the file still misled.
+
+    So the rule is: between a `## §N` and the next `##`, a `---` may not appear before a `### N.M`.
+    A rule at the very end of the section (immediately before the next `##`) is legitimate -- that
+    is what closes the section.
+    """
+    return _severed_in(TRACKER.read_text(encoding="utf-8"))
+
+
+def _severed_in(text: str) -> list[str]:
+    """The severance rule on a STRING, so self_test() can prove it without a file on disk."""
+    lines = text.split("\n")
+    out, current, pending_rule = [], None, None
+    for i, line in enumerate(lines, start=1):
+        if re.match(r"^## ", line):
+            current = re.match(r"^## §(\d+)\b", line)
+            current = current.group(1) if current else None
+            pending_rule = None
+            continue
+        if current is None:
+            continue
+        if line.strip() == "---":
+            pending_rule = i
+            continue
+        m_item = re.match(r"^### (\d+)\.(\d+)\b(.*)", line)
+        if m_item and pending_rule is not None:
+            out.append(
+                f"SEVERED   a '---' at line {pending_rule} closes §{current} before item "
+                f"{m_item.group(1)}.{m_item.group(2)} at line {i}: "
+                f"{m_item.group(3).strip()[:44]}"
+            )
+            pending_rule = None
+        elif line.strip():
+            pending_rule = None
+    return out
+
+
 def main() -> int:
     self_test()
     problems = scan()
     misfiled = nesting_problems()
-    for m in misfiled:
+    severed = severed_items()
+    for m in misfiled + severed:
         print(m)
     if misfiled:
         print(f"\nFAIL: {len(misfiled)} item(s) filed under the wrong section. A reader navigating "
               f"by heading will not find them, and every citation still resolves, so nothing else "
               f"catches this. Move them under their own §N.")
+        return 1
+    if severed:
+        print(f"\nFAIL: {len(severed)} item(s) sit past a horizontal rule that visually closes "
+              f"their own section. In this file '---' separates SECTIONS, so a reader stops there "
+              f"and never reaches them. Remove the rule, or move the item.")
         return 1
     for p in problems:
         print(p)
