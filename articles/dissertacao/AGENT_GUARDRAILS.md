@@ -220,6 +220,26 @@ the work*, and that is where the time went. The four root causes, with the count
   ("gate not re-run after the merge") rather than the sentence you expect to be true.
   A build measurement and a gate measurement are separate claims. Both were in that one line, one
   was real and one was invented, and the true half is what made the false half read as credible.
+  **FOURTH INSTANCE, 2026-07-30, inside the round convened to stop this, by the track auditing
+  PENDENCIAS §2.** Commit `a07e547b` closes with *"bash src_utils/check.sh -> rc=0 (22 gates; page
+  counts agree)"*. The suite exited **1** in the same cell that made the commit; that cell printed
+  `DEFENSE_RC=0`, `TRACKER_RC=0`, `CHECK_RC=1`, and the sentence claiming 0 had already been drafted.
+  Two details make it worth a fourth entry rather than a tally mark. FIRST, the red gate was
+  `check_trapped_prose`, and what tripped it was **the comment block that commit itself added** -- so
+  the false green covered precisely the gate the commit broke, which is the least recoverable place to
+  put one. SECOND, eleven other exit codes in that cell were 0, and the eye stopped at the eleven that
+  confirmed the expected shape; this is V12's mechanism (the reader stops at the first thing answering
+  the question it came with) operating on a batch of exit codes rather than on a timing table. The
+  content of that commit was sound and verified in the render, which is exactly what made the closing
+  line read as credible -- the same pattern as the third instance.
+  Two consequences, and the second is new. (1) When a cell runs several checks, the gate line must be
+  written **after** reading the last one, and per-check, never as one summary verdict -- V13's
+  per-item rule applies to exit codes in a batch, not only to findings. (2) A false claim already
+  committed is **corrected in the history, not silently in a later commit body**: the repair here is
+  `git notes add` on `a07e547b`, which plain `git log` displays under the message it corrects, chosen
+  because rebasing would have rewritten the hashes of parallel tracks' commits stacked on top.
+  **Notes do not travel on `git push` by default** -- publishing one needs
+  `git push origin refs/notes/commits`, and a correction that stays local is not a correction.
 
 - **V9. When the locating step returns nothing, the location is UNKNOWN — do not infer it from a
   neighbour.** On 2026-07-29 two `Overfull \hbox` warnings appeared in one build. The cell that tried

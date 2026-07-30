@@ -791,6 +791,54 @@ nada.
 > A prosa do Apendice A **nao depende disto**: ela ja diz que os scripts estatisticos *"are part of
 > the working repository and are supplied on request"*, o que nenhuma das leituras acima torna falso.
 
+### 2.17 UMA AFIRMACAO FALSA MINHA, ja no historico: o commit `a07e547b` diz que o gate saiu 0 e ele saiu 1
+
+**(A) O que e.** O commit `a07e547b` (a frase do orcamento de tuning, item 2.7) termina com
+*"bash src_utils/check.sh -> rc=0 (22 gates; page counts agree)"*. **A suite saiu 1.** A mesma celula
+que fez o commit imprimiu `DEFENSE_RC=0`, `TRACKER_RC=0`, `CHECK_RC=1`, e eu escrevi 0.
+
+**(B) Por que eu estou te contando isso em vez de so consertar.** Porque e a classe exata do V11 do
+`AGENT_GUARDRAILS`, a quarta ocorrencia, cometida **dentro da rodada que existe para impedi-la**; e
+porque a regra desta rodada e que nenhuma track acredita no proprio relatorio. Achado por uma revisao
+independente, nao por mim.
+
+Dois detalhes que importam mais que o erro:
+
+- **O gate vermelho era o `check_trapped_prose`, e quem o disparou foi o bloco de comentario que
+  aquele commit acrescentou.** Ou seja: a linha falsa cobria justamente o gate que aquele commit
+  quebrou.
+- **Onze outros codigos de saida na mesma celula eram 0**, e o olho parou nos onze que confirmavam o
+  formato esperado. E o mecanismo do V12 (o leitor para na primeira coisa que responde a pergunta com
+  que ele chegou) aplicado a um lote de exit codes.
+
+**(C) O que ficou verdadeiro, medido.** O **conteudo** daquele commit esta certo e foi verificado no
+render: a frase imprime em `main_extra.pdf` p. 8 (Cap. 3) e p. 9 (Cap. 4), `make extra` rc=0, 20 pp,
+tex_errors 0. Somente a linha do gate era falsa. E o flag do `check_trapped_prose` era **falso
+positivo**, por um defeito real da ferramenta: ela comparava todo arquivo de capitulo contra o
+`dissertacao.pdf`, mas o `apx_b_errata` renderiza no volume suplementar, entao naquele arquivo o teste
+estava invertido -- so podia dar falso positivo e era **cego** a um rasgo de verdade. Consertado em
+`f624767c`, validado nas duas direcoes. Depois do conserto: `bash src_utils/check.sh` rc=0, 22 gates,
+lido direto.
+
+**(D) O que eu preciso de voce.** Nada para decidir, mas **uma coisa para fazer se voce publicar este
+historico.** A correcao esta anexada ao proprio commit com `git notes`, e o `git log` normal ja a
+mostra debaixo da mensagem que ela corrige:
+
+```bash
+cd /Users/vitor/Desktop/mestrado/ingred
+git log -1 a07e547b            # a nota aparece sob a mensagem
+```
+
+Escolhi nota em vez de `--amend` porque o commit esta seis commits atras num branch em que tracks
+paralelas desta rodada commitaram; reescrever a historia trocaria os hashes dos commits delas.
+**Notas nao sobem no `git push` por padrao.** Se voce publicar, precisa de:
+
+```bash
+git push origin refs/notes/commits
+```
+
+Sem isso a mensagem falsa viaja e a correcao fica na sua maquina, que e pior do que nao ter corrigido.
+
 ## §5 · Levantados do `CODEX_AUDIT.md` quando ele foi arquivado (2026-07-29)
 
 Voce pediu: *"About the codex_audit if we finish with it archive it or delete, and if some point still pending my
