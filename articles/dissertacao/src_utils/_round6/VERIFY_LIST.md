@@ -131,6 +131,38 @@ grep -c 'bilinear discriminator\|logistic function' GLOSSARY.md   # expect 0 tod
 the entry lands **before** p. 19 ships. Same question for **Pareto-stationary point** at p. 47
 (`15_claim_scoping_applied.md` §9). Three entries, one decision.
 
+> **ROUND 8, 2026-07-30 — TWO OF THREE LANDED; THE THIRD IS STILL AN OPEN FAIL-CLOSED BREACH.**
+> Credit the part, not the finding (§4b V14 consequence 2), so this row is split:
+> ```bash
+> cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
+> printf 'bilinear discriminator %s\nlogistic function %s\nPareto-stationary %s\n' \
+>   "$(grep -c 'bilinear discriminator' GLOSSARY.md)" \
+>   "$(grep -c 'logistic function' GLOSSARY.md)" \
+>   "$(grep -c 'Pareto-stationary' GLOSSARY.md)"
+> # EXPECT: contains=bilinear discriminator 1
+> # EXPECT: contains=logistic function 1
+> # EXPECT: contains=Pareto-stationary 0
+> ```
+> (`grep -c` counts matching LINES, so each registered term reads 1: one row each. An earlier draft of
+> this probe annotated `logistic function 2`, carried over from a string-occurrence count — the term
+> appears twice on line 72, as the row name and again inside its own note. The harness failed the
+> block, which is the point of annotating it rather than describing it. §4b V1, and it is the same
+> class of defect as the `# 13` that returned 15.)
+> **bilinear discriminator** is registered at `GLOSSARY.md:71` and **logistic function** at `:72`,
+> both with the note that they clear this block; the terms print in Chapter 2 (defense build p. 20).
+> That half is closed.
+>
+> **Pareto-stationary point is NOT registered and IS in prose, at two sites**, so the fail-closed rule
+> is being broken right now: `chapters/3_cbic/method.tex` ("convergence to a Pareto-stationary point")
+> and `chapters/4_courb/methodology.tex` (the narrowed Nash-MTL guarantee of item 3 above), printing
+> on **pp. 36 and 48** of the defense build. `tables/courb/errata.tex` also carries the unhyphenated
+> "Pareto stationary". Both prose sites are in **reproduced published prose**, which is why an agent
+> may not resolve this by rewording: the term cannot be removed without editing a published sentence,
+> and it cannot stay without an entry. The registry decision is the author's and is handed over as
+> `PENDENCIAS.md` §2.12. Note that the gate suite has an informational Pareto gate ("the technical
+> term is legal") which passes — it checks occurrences, not registration, so nothing in `make check`
+> catches this.
+
 **5. Chapter 5 hedges the region result and the frame does not.**
 `chapters/5_mobiwac/05_setup.tex:76` (p. 66) states that the analysis plan "did not cover
 next-region superiority, so the four next-region gains … are secondary results outside it". The
@@ -281,6 +313,17 @@ grep -n 'random_state=42\|Seeds {0, 1, 7, 100}' ../../docs/context/DATA_SPLITS.m
 look yourself is that this appendix is new this round and is a claim about how the experiments were
 run, which is the class of claim you personally answer for at the defense.
 
+> **ROUND 8, 2026-07-30 — VERIFIED, with the appendix's coordinates re-anchored.** The two source
+> lines are unchanged: `DATA_SPLITS.md:16` reads
+> `StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=42)` and `:65` reads
+> `**Seeds {0, 1, 7, 100}** for the standard 4-seed pool. Combined with 5 folds -> n=20 paired
+> (seed, fold) tuples.` The appendix states the same five facts, now at
+> `chapters/apx_a_contributions.tex:153-154` (splitter, five splits, shuffling, seed 42, grouping by
+> user) and `:160` (the four initializations), not at the `:107,113` this item cites — the file grew
+> after the list was written, so cite the phrase and date the line number (`ANCHORS.md` §5). One
+> wording note, not a defect: the appendix writes the seeds as prose ("0, 1, 7, and 100"), so a probe
+> searching for the literal `0, 1, 7, 100` returns false. Match on `0, 1, 7, and 100`.
+
 **8. The Check2HGI loss equation (three numbered equations, new to Ch.2, p. 19).**
 The weights `0.4 / 0.3 / 0.3` appear in two independent places and agree:
 `docs/context/check2hgi_overview.tex:215` and
@@ -289,6 +332,40 @@ both. *If all is well:* they still agree, **and** you settle the open question t
 the code carries two further auxiliary terms whose defaults are `0.0` and which the equation omits.
 `[VERIFY]` V-14's sibling; the pass says settling it needs the run configuration of the shipped
 representation.
+
+> **ROUND 8, 2026-07-30 — VERIFIED, and the open question is CLOSED without needing the author. The
+> auxiliary terms are FOUR, not two.** The weights still agree in both places:
+> `check2hgi_overview.tex:215` prints `0.4 L_c2p + 0.3 L_p2r + 0.3 L_r2c` and
+> `Check2HGIModule.py:51-53` declares `alpha_c2p=0.4, alpha_p2r=0.3, alpha_r2c=0.3`, summed at
+> `:1192-1195`. Chapter 2's Equation (`eq:fund:check2hgi`) prints the same three coefficients.
+> ```bash
+> cd /Users/vitor/Desktop/mestrado/ingred
+> python3 -c "
+> import re
+> from pathlib import Path
+> seg = Path('research/embeddings/check2hgi/model/Check2HGIModule.py').read_text()
+> seg = seg[seg.find('def __init__'):][:6000]
+> for name in ('mae_lambda', 'p2p_lambda', 'n2v_lambda', 'n2v_align_lambda'):
+>     m = re.search(name + r'\s*:?\s*[\w\[\].]*\s*=\s*([^\n,]+)', seg)
+>     print(name, m.group(1).strip() if m else 'NOT_IN_SIGNATURE')
+> "
+> # EXPECT: lines=4
+> # EXPECT: contains=mae_lambda 0.0
+> # EXPECT: contains=n2v_align_lambda 0.0
+> ```
+> All four default to `0.0`: `mae_lambda` (T4.1 masked reconstruction), `p2p_lambda` (T6.1 co-visit
+> InfoNCE), `n2v_lambda` (T5.2a Node2Vec skip-gram) and `n2v_align_lambda` (its alignment term). What
+> settles the question is that each is guarded by a **conjunction**, not by the coefficient alone:
+> every one requires both `lambda > 0` **and** an optional data structure or head that the canonical
+> path never builds (`self._mae_loss is not None`, `data.covisit_pairs`, `self.n2v_head is not None`).
+> The four coefficients are also unreachable from the canonical entry point: `check2hgi.py` reads each
+> through `getattr(args, ..., 0.0)`, and the only `add_argument` declarations for them live in
+> `scripts/canonical_improvement/regen_emb_t3.py`, a T3 experiment helper, where `--n2v-lambda`'s
+> non-zero default of 0.3 is itself gated behind `--use-node2vec-poi`
+> (`_n2v_lambda_eff = float(args.n2v_lambda) if args.use_node2vec_poi else 0.0`, `:356`).
+> So the equation as printed is exact for the shipped representation, and the omission is correct
+> rather than a simplification. This does **not** need the author's run configuration, which is why it
+> is closed here and not handed over.
 
 **9. The joint model's descent from MTLnet (new frame prose, p. 20).**
 The claim is that the joint model is a *specialization* of the MTLnet class overriding exactly one
@@ -302,6 +379,24 @@ sed -n '368p' ../../src/models/mtl/mtlnet_crossattn/model.py            # "Overr
 six coordinates the comment cites. This one is worth your eyes because it is the sentence that
 licenses reading Chapter 3's null against Chapter 5's positive result, which is the arc of the
 dissertation.
+
+> **ROUND 8, 2026-07-30 — VERIFIED. All three lines read as documented, at the lines documented.**
+> ```bash
+> cd /Users/vitor/Desktop/mestrado/ingred
+> sed -n '42p'  src/models/mtl/mtlnet_crossattn_dualtower/model.py
+> sed -n '207p' src/models/mtl/mtlnet_crossattn/model.py
+> sed -n '368p' src/models/mtl/mtlnet_crossattn/model.py
+> # EXPECT: lines=3
+> # EXPECT: contains=class MTLnetCrossAttnDualTower(MTLnetCrossAttn):
+> # EXPECT: contains=class MTLnetCrossAttn(MTLnet):
+> ```
+> `:42` is `class MTLnetCrossAttnDualTower(MTLnetCrossAttn):`, `:207` is
+> `class MTLnetCrossAttn(MTLnet):`, and `:368` is the docstring
+> `"""Override MTLnet's FiLM + shared_layers with cross-attention blocks."""`. The inheritance chain
+> the frame prose asserts is therefore in the code as two class statements, and the single overridden
+> component is named by the class that overrides it. Unusually for this list, the coordinates did not
+> drift; these three are the load-bearing ones and they are now annotated so the harness re-reads them
+> on every `make check` instead of only when a human runs the block.
 
 **10. The Resumo and Abstract word counts, on the rendered page.**
 Reported as 310 / 271. I measure **310 and 272** with the report's own instrument.
