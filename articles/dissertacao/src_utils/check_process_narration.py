@@ -73,6 +73,17 @@ RULES: tuple[tuple[str, str, str], ...] = (
      r"a matter of computational resource|were measured afterward|"
      r"(?<!under review )at the time of (?:writing|this writing)|were added later|we then ran",
      'Appendix F 2026-07-30: "a matter of computational resource rather than of principle"'),
+    ("presence justification",
+     # A FIFTH SHAPE, found 2026-07-30 by the style persona reading 79 of 79 Appendix F sentences after
+     # this gate had already reported rc=0. Appendix F said Georgia "enters because the diagnostic ran on
+     # it cheaply and stays because dropping a measured dataset would be a choice about the evidence".
+     # Not infrastructure, not version history, not scheduling, not self-talk: it explains why a dataset
+     # is PRESENT, and grounds it in a run's cost and an editorial decision. The four original patterns
+     # were each written from one deleted sentence, so they covered that sentence's shapes and no others.
+     r"ran on it cheaply|because the diagnostic ran|it enters because|"
+     r"stays because dropping|would be a choice about the evidence|"
+     r"(?:included|kept|retained) (?:here )?because (?:it|the run|the measurement) (?:was|were) (?:cheap|free|available)",
+     'Appendix F 2026-07-30: "it enters because the diagnostic ran on it cheaply"'),
     ("writing self-talk",
      r"the paragraph above (?:draws|shows|states)|as noted above|as mentioned above|"
      r"the (?:preceding|previous) paragraph (?:draws|shows)",

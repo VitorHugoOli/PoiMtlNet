@@ -548,10 +548,17 @@ dataset and losing that position on the others. Appendix~\ref{apx:cosine}
 %  (M3) "THE REASON" DROPPED CHAPTER 5's QUALIFIERS. That chapter scopes the finding to nineteen loss
 %       and gradient methods on its own datasets; "the reason ... in this work" read as a general
 %       explanation. Now "one part of the reason", which is what the evidence carries.
-% The margin is written in words ("two hundredths") because §2.3 has not introduced the TOST notation
-% at this point in the chapter; the appendix states it as +/-0.05 where the test is defined.
+% The margin is written in words ("five hundredths") because §2.3 has not introduced the TOST notation
+% at this point in the chapter; the appendix states it as +/-0.05 where the test is defined and also
+% writes it as "five hundredths" in its own prose, so the two agree.
+% [CORRECTION 2026-07-30, found by review] THIS SENTENCE FIRST SAID "two hundredths", which is 0.02.
+% The margin tested is +/-0.05. Two hundredths is TIGHTER than anything that was run, so the sentence
+% asserted a stronger equivalence than the evidence supports -- and the provenance comment beside it
+% said +/-0.05 in the same cell, so the contradiction was visible on screen as I wrote it. No +/-0.02
+% TOST exists anywhere in this project. The wrong number reached the rendered PDF at p.23 and commit
+% 91e7956a before it was caught.
 measures the cosine on the joint model of Chapter~\ref{ch:mobiwac} and finds the two
-tasks' gradients equivalent to orthogonal, within a margin of two hundredths, at every dataset
+tasks' gradients equivalent to orthogonal, within a margin of five hundredths, at every dataset
 measured there. Three of those datasets do carry a mean that a paired test separates from zero, and
 the appendix reports both results: the departures are too small to matter at the scale a balancer
 acts on, not too small to detect. That measurement is one part of the reason the argument moves to
