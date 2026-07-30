@@ -66,13 +66,48 @@ SRC = Path(__file__).resolve().parent.parent / "src"
 PDF = SRC / "dissertacao.pdf"
 MIN_TAIL_WORDS = 2          # ", Nash-MTL treats" is three; do not raise this
 
+# THE RENDER TEST NEEDS THE RIGHT RENDER. Found 2026-07-30: this document is TWO volumes. The
+# supplementary volume (main_extra.tex) carries apx_b_errata, apx_b_static_scope (nested \input) and
+# apx_d_ceiling, and NONE of their prose is in dissertacao.pdf. Checking them against the main PDF
+# inverts the test: every tail is "absent from the PDF" because the whole file is, so the detector
+# could only ever emit false positives there -- and, worse, it was blind to a REAL tear in those
+# three files, because a genuine tear is also absent and looks identical. It fired on a correct
+# comment in apx_b_errata on the day this was found, which is how the blind spot surfaced at all.
+# The map is derived from the build, not hardcoded: see volume_of().
+EXTRA_PDF = SRC / "build" / "main_extra.pdf"
 
-def rendered_text() -> str:
+
+def rendered_text(pdf: Path = PDF) -> str:
     import pypdfium2 as pdfium
 
-    doc = pdfium.PdfDocument(str(PDF))
+    doc = pdfium.PdfDocument(str(pdf))
     raw = "\n".join(doc[i].get_textpage().get_text_range() for i in range(len(doc)))
     return re.sub(r"\s+", " ", re.sub(r"-\s*\n\s*", "", raw.replace("\r", " ")))
+
+
+def extra_volume_files() -> set[str]:
+    """Chapter stems that render into the SUPPLEMENTARY volume, read from the source.
+
+    Derived rather than listed, so moving an appendix between volumes cannot silently point this
+    checker at the wrong PDF again. Follows one level of nesting because apx_b_static_scope reaches
+    the volume through an \\input inside apx_b_errata rather than through main_extra.tex directly --
+    a hardcoded top-level list would have missed it.
+    """
+    entry = SRC / "main_extra.tex"
+    if not entry.exists():
+        return set()
+    pat = re.compile(r"\\(?:include|input)\{chapters/([A-Za-z0-9_]+)\}")
+    stems, queue = set(), [entry]
+    while queue:
+        text = "\n".join(ln.split("%")[0] for ln in queue.pop().read_text(
+            encoding="utf8", errors="replace").split("\n"))
+        for stem in pat.findall(text):
+            if stem not in stems:
+                stems.add(stem)
+                nested = SRC / "chapters" / f"{stem}.tex"
+                if nested.exists():
+                    queue.append(nested)
+    return stems
 
 
 def words(text: str, n: int) -> list[str]:
@@ -152,17 +187,33 @@ def main() -> int:
         print(f"FAIL: {PDF} not found; build first")
         return 2
     pdf = rendered_text()
+    extra_stems = extra_volume_files()
+    extra_pdf = None
+    if extra_stems:
+        if not EXTRA_PDF.exists():
+            print(f"FAIL: {len(extra_stems)} file(s) render into the supplementary volume "
+                  f"({', '.join(sorted(extra_stems))}) and {EXTRA_PDF} is missing. Checking them "
+                  f"against the main PDF would flag every comment tail in them. Run `make extra`.")
+            return 2
+        extra_pdf = rendered_text(EXTRA_PDF)
     total = 0
+    skipped = []
     # chapters/*/*.tex included since the 2026-07-28 per-section split (55 percent of the
     # prose lives there now; a glob stopping at chapters/*.tex reports OK on a blind spot).
     for tex in sorted(list((SRC / "chapters").glob("*.tex"))
                       + list((SRC / "chapters").glob("*/*.tex")) + [SRC / "preamble.tex", SRC / "content.tex"]):
-        for lineno, tail, joined in suspects_in(tex, pdf):
+        # Each file is compared against the volume it actually renders into. See EXTRA_PDF.
+        target = extra_pdf if tex.stem in extra_stems else pdf
+        for lineno, tail, joined in suspects_in(tex, target):
             total += 1
             print(f"TRAPPED PROSE {tex.name}:{lineno}")
             print(f"  runs on into the next line, and the joined text is absent from the PDF:")
             print(f"    '{joined}...'")
             print(f"  comment tail: {tail}")
+    # V2: name the scope, so a clean result cannot be read as broader than it is.
+    if extra_stems:
+        print(f"  scope: main volume + {len(extra_stems)} file(s) checked against the "
+              f"supplementary render ({', '.join(sorted(extra_stems))}); 0 skipped")
     print(f"trapped-prose suspects: {total}")
     return 1 if total else 0
 
