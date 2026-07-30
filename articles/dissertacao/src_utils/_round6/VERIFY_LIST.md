@@ -33,6 +33,32 @@ and it needs the two-file change plus the `ERRATA.md` line. Raised as N-1 by the
 **I re-derived it at the source and confirm it**, and I note that my own ledger row is where it slipped
 past, because I recorded the cosine as inherited rather than re-deriving it. Ledger finding L-8.
 
+> **ROUND 8, 2026-07-30 — FIXED IN BOTH TEXTS. The false bound is gone; the sentence now reports the
+> largest per-dataset mean instead of bounding it.** Both files read "the largest per-dataset mean in
+> absolute value is $+0.0032$" — `chapters/5_mobiwac/02_related.tex:156-165` and
+> `articles/[mobiwac]/src/sections/02_related.tex:94-104`. `\pm0.003` appears in neither, in prose or
+> in comment:
+> ```bash
+> cd /Users/vitor/Desktop/mestrado/ingred
+> python3 -c "
+> import sys
+> from pathlib import Path
+> sys.path.insert(0, 'articles/dissertacao/src_utils')
+> from check_audit_claims import live_text
+> for p in ('articles/dissertacao/src/chapters/5_mobiwac/02_related.tex',
+>           'articles/[mobiwac]/src/sections/02_related.tex'):
+>     t = live_text(Path(p))
+>     print(Path(p).parent.name, 'pm0.003:', 'pm0.003' in t, '| reports_0.0032:', '+0.0032' in t)
+> "
+> # EXPECT: lines=2
+> # EXPECT: contains=pm0.003: False | reports_0.0032: True
+> ```
+> That is the right repair rather than loosening the bound to `±0.004`: `0.0032` is the value the
+> source of record carries (`WHY_ORTHOGONAL_AND_NO_MODERN_OPTIMIZERS.md:29-31`, per-state FL +0.0007,
+> **AL +0.0032**, AZ −0.0005, GE −0.0004), so printing it is quoting rather than bounding. The pooled
+> figure prints as `+0.001` in both texts and the orthogonality conclusion is untouched, as this item
+> predicted. `articles/[mobiwac]/ERRATA.md` carries the parity entries.
+
 Before anything else, one command reproduces the build state every other row assumes:
 
 ```bash
@@ -40,8 +66,21 @@ cd ~/Desktop/mestrado/ingred/articles/dissertacao && source src_utils/texenv.sh 
   && (cd src && make defense && make academico && make ppgc)
 grep -h 'Output written' src/build/main.log src/build/main_academico.log src/build/main_ppgc.log
 ```
-Expect **108, 105, 109 pages**. (This rewrites the tracked `src/dissertacao.pdf`; `git checkout --
-articles/dissertacao/src/dissertacao.pdf` afterwards if you do not intend to commit it.)
+Expect **100, 97, 101 pages**.
+
+> **ROUND 8, 2026-07-30 — the expected counts in this block were 108 / 105 / 109 and are now
+> 100 / 97 / 101.** Measured, one target at a time:
+> `make defense` prints `Output written on build/main-aux/main.pdf (100 pages, 1538478 bytes)` and the
+> builder line `latexbuild main -> build/main.pdf pages=100 tex_errors=0`; `main_academico.pdf` is 97
+> pages and `main_ppgc.pdf` is 101, both read with `pypdfium2` (`len(PdfDocument(...))`), which is the
+> instrument that cannot disagree with the file. The eight-page drop is round 7 moving Appendices B and
+> D into the supplementary volume `main_extra.pdf` (20 pages) — the same move that makes this list's
+> "page 93/95/99" coordinates unresolvable in `main.pdf`. **Consequence for every other row here: a
+> page number in this file that lands past 100, or names the errata appendix, is a coordinate into the
+> pre-round-7 build.** The per-page claims re-measured in round 8 are annotated with the build they
+> were read from. The gate `recorded page counts vs the measured build` covers this going forward.
+> (This rewrites the tracked `src/dissertacao.pdf`; `git checkout --
+> articles/dissertacao/src/dissertacao.pdf` afterwards if you do not intend to commit it.)
 
 ---
 
@@ -104,6 +143,26 @@ same documented exemption `apx_b_errata` already has in the banned-words gate. *
 stand is a durable record claiming the gate passes while it does not** — that is the failure mode
 `AGENT_GUARDRAILS` §7 names, and it is the reason this item is first. Ledger finding L-1.
 
+> **ROUND 8, 2026-07-30 — RESOLVED, and by the exemption route this item offered rather than by a
+> prose edit. `check.sh` now exits 0.** Read directly, never after a pipe (a round-7 commit reported a
+> gate as passing when the rc belonged to `head`):
+> ```
+> cd src && bash ../src_utils/check.sh >/tmp/chk.txt 2>&1; echo "CHECK_RC=$?"   ->  CHECK_RC=0
+> ```
+> 22 gates, suite total 2.047 s, every gate under the 5 s threshold. The `'this paper' / 'this
+> article'` gate now carries `apx_b_errata` as a documented exemption in its own header line
+> ("apx_b_errata exempt: see below", `check.sh:129-131`), which is the disposition this item put to the
+> author: the sentence refers to the MobiWac manuscript and survives at
+> `chapters/apx_b_errata.tex:348` (not `:307` — the file grew). So the durable record and the gate now
+> agree, which is what the item asked for.
+>
+> Two things worth carrying forward, because they are the reason this row was first and they are both
+> now covered. The suite was **265 s** in round 7, 99.5 percent of it this file's own harness
+> rebuilding the PDFs on every run; the build refusal in `check_verify_list.py` closed that and the
+> per-gate timing table above is what makes a regression visible (§4b V12). And the gate count in the
+> header is 22, matching the 22 rows of the timing table — count them if you change the suite, because
+> a headline that does not reconcile with its own rows discredits the measurements beside it (V13).
+
 **2. The Standley correction changes a published claim against the chapter's own interest.**
 Page 34 of the defense PDF, the `Empirical Performance` bullet plus its footnote.
 *Check:* read p. 34 and the footnote, then read the Appendix B row (p. 93). *If all is well:* the
@@ -113,6 +172,19 @@ theory", and quotes it arguing the other way. I re-read `arXiv:1905.07553` (v3 a
 and confirm all nine quotations verbatim. **This is `[NEEDS SIGN-OFF]` and it removes a stated
 advantage of the architecture Chapter 3 adopts — it is your call, not the reviewer's.**
 
+> **ROUND 8, 2026-07-30 — the text is as this item describes it; the SIGN-OFF is still open.** Both
+> halves measured in the source with the comment stripper, and located in the render:
+> the bullet at `chapters/3_cbic/method.tex` claims **only** reduced inference cost ("sharing one
+> network across tasks reduces inference cost, since one network is evaluated instead of one per task")
+> and its footnote reproduces the published sentence, then states that the cited work names improved
+> accuracy and reduced training time among the benefits joint training may have "in theory" and argues
+> the other way empirically, quoting "often leads to inferior overall performance as task objectives
+> can compete". It prints on **p. 35** of the 100-page defense build, not p. 34 (round-7 pagination).
+> The Appendix B row is in the supplementary volume, `main_extra.pdf` p. 14, not defense p. 93.
+> **No agent action is possible here and none was taken**: the item is `[NEEDS SIGN-OFF]` because it
+> narrows a published claim against the chapter's own interest, which is an author ruling. It is one of
+> the 53 markers inventoried under `PENDENCIAS.md` §2.1 (see §2.13 for the corrected count).
+
 **3. The Nash-MTL guarantee, narrowed in published co-authored prose.**
 `chapters/4_courb/methodology.tex:36`, rendered p. 47.
 *If all is well:* the sentence reads "Away from a Pareto-stationary point … and under the method's
@@ -120,6 +192,19 @@ assumption that the gradients are linearly independent there, that direction is 
 for every task". Both conditions are in the paper: p.1 "Under certain as-sumptions", p.3 "if θ is
 not Pareto stationary then the gradients are linearly independent", p.6 "our update rule is a
 descent direction for all tasks". I verified all three in the 19-page PDF. Also `[NEEDS SIGN-OFF]`.
+
+> **ROUND 8, 2026-07-30 — the narrowed sentence is in the source, word for word as this item quotes
+> it.** At `chapters/4_courb/methodology.tex`, comment-stripped: "Away from a Pareto-stationary point,
+> meaning a point at which some convex combination of the task gradients is zero, and under the
+> method's assumption that the gradients are linearly independent there, that direction is a descent
+> direction for every task, avoiding the dominance of one task over the other." Both conditions the
+> item requires are present ("Away from a Pareto-stationary point", "under the method's assumption that
+> the gradients are linearly independent"). It prints on **p. 48** of the defense build, not p. 47. I
+> did **not** re-open `arXiv:2202.01017` to re-verify the three page-level quotations; that half rests
+> on the round-6 pass's authority and is recorded here as inherited rather than re-derived, which is
+> the distinction item 0's own ledger row shows is worth making. Still `[NEEDS SIGN-OFF]` — and note
+> that the same sentence is the second prose site of the unregistered "Pareto-stationary point" of item
+> 4, so the two decisions touch one line and should be taken together.
 
 **4. Two glossary terms are in the rendered document and not in the registry.**
 The registry is fail-closed, so this **blocks** the new Ch.2 paragraph rather than merely awaiting
@@ -408,11 +493,38 @@ one-word gap is two soft-hyphen breaks on p. 3; the instrument does not apply th
 normalization its own documentation declares. Trivial in size, but it is a number in a durable
 record that does not reproduce. Ledger finding L-4.
 
+> **ROUND 8, 2026-07-30 — RE-MEASURED, AND NEITHER PAIR REPRODUCES: the counts are now 312 and 277.**
+> Same instrument, same pages, on the current 100-page build (write the spec to a file; process
+> substitution is not available in this sandbox):
+> ```
+> printf '[{"pdf":"src/build/main.pdf","pages":[2],"label":"Resumo"},
+>          {"pdf":"src/build/main.pdf","pages":[3],"label":"Abstract"}]' > /tmp/abs_spec.json
+> python3 src_utils/_round6/_measure_abs.py /tmp/abs_spec.json
+>   Resumo   312 words / 11 sentences / mean 28.4
+>   Abstract 277 words / 11 sentences / mean 25.2
+> ```
+> This is a **stale record, not a defect in the document**: the sentence counts still hold at 11 and 11,
+> and both blocks were edited after that measurement — `src/content.tex` moved through three commits
+> since (`2b9b853d` split `0_main.tex` into `preamble.tex` + `content.tex`, `e771d331`, `19396c9f`).
+> Nothing in the dissertation claims 310 or 271, checked across all 54 `.tex` files for a
+> word-count sentence carrying any of 310/271/312/277: zero hits. The figures live only in round-6
+> reports (`06_07_number_claim_audit.md:302-303`, `15_resumo_abstract.md:75`), and the standing rule for
+> those is item 20: do not repair the reports, use this file as the address book. So L-4's substance is
+> closed — the instrument's soft-hyphen blindness is real and documented, and it is now the smaller half
+> of the discrepancy.
+
 **11. The near-blank page the Resumo cut was meant to remove.**
 *Check:* open p. 2 of the defense PDF. *If all is well:* the `Palavras-chave` block is on **p. 2
 with the Resumo** (I confirmed: keywords appear on p. 2 only, and the old orphan page is gone; front
 matter word counts are p.1 = 54, p.2 = 363, p.3 = 317). Worth a glance because the pagination has
 moved three times since that fix.
+
+> **ROUND 8, 2026-07-30 — VERIFIED, still true after the round-7 repagination.** `Palavras-chave`
+> appears on **p. 2 only** (swept across all 100 pages with `pypdfium2`, one hit), so the orphan page
+> has not come back. The front-matter word counts read p.1 = 54, p.2 = 361, p.3 = 317 — p.1 and p.3
+> unchanged, p.2 two words below the recorded 363, which is the same two words the Resumo gained in
+> item 10 landing on a page whose total was measured with a different tokenizer. The first numbered
+> page is physical 12 printing 12, so the front matter is intact ahead of it.
 
 **12. The paper/dissertation parity divergence at the trunk attribution.**
 The round softened the attribution in **both** texts and declared one deliberate divergence:
@@ -433,6 +545,17 @@ the source of the category gain, and `articles/[mobiwac]/ERRATA.md` carries the 
 The declared divergence is a judgment you should endorse or reject, since it is your submitted
 paper.
 
+> **ROUND 8, 2026-07-30 — the parity holds; the JUDGMENT is still open.** The block returns exactly
+> one prose hit per file, `5_mobiwac/07_discussion.tex:12` and `[mobiwac]/src/sections/07_discussion.tex:13`,
+> both opening "One model serves both tasks." Neither names a component as the source of the category
+> gain: the dissertation closes the paragraph with "Which part of the joint architecture produces the
+> category gain is not settled by the controls reported here", and the paper carries the same sentence.
+> The declared divergence is visible in the same two lines — the paper stops there, the dissertation
+> continues into the disconfirming ablation with its numbers. `articles/[mobiwac]/ERRATA.md` exists and
+> carries dated entries. The sentence prints on **p. 75** of the defense build, not p. 73.
+> **Endorsing or rejecting the divergence is an author judgment about a submitted manuscript, so no
+> agent action was taken.**
+
 **13. The `+0.001` gradient-cosine sentence, fixed for parity in both texts.**
 ```bash
 for f in $(grep -rl 'three of our six\|three of six' src/ '../[mobiwac]/src/' 2>/dev/null); do
@@ -448,6 +571,19 @@ this), and both texts read "four Gowalla states … Alabama, Arizona and Florida
 the five United States datasets reported here, and Georgia, which this study does not otherwise
 use". I did **not** re-derive the cosine value itself; that number remains on the protocol pass's
 authority.
+
+> **ROUND 8, 2026-07-30 — VERIFIED. Zero prose hits, and confirmed by a second, wider instrument.**
+> The documented block returns nothing. Independently, a comment-stripped sweep for
+> `three of our six|three of six` over every `.tex` in `articles/dissertacao/src/` **and**
+> `articles/[mobiwac]/src/` returns 0 sites, which is the stronger form of the same claim (the block
+> only searches files that `grep -rl` matched raw, so a file whose only hit was in a comment is still
+> opened and then correctly yields nothing). Both texts read as the item quotes them, with the
+> dissertation saying "this dissertation does not otherwise use" and the paper "this study does not
+> otherwise use" — a deliberate register difference, not a parity break. The cosine value itself: item 0
+> above **did** re-derive it this round against
+> `WHY_ORTHOGONAL_AND_NO_MODERN_OPTIMIZERS.md:29-31`, so the caveat this item ends on ("remains on the
+> protocol pass's authority") is now discharged for the `+0.001` pooled figure and for the `+0.0032`
+> maximum that replaced the false bound.
 
 ---
 
