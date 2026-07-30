@@ -282,27 +282,29 @@
 % PENDENCIAS.md:84) per Manual 04_2026 §8 (UFV_COMPLIANCE.md:32). Adds about two pages.
     \bibliography{references}
 
-% APPENDICES. B and D are NOT here, and the gap in the lettering is deliberate.
+% APPENDICES. This document letters its four appendices A, B, C, D in sequence.
 %
-% [round7, 2026-07-29, author decision on the advisor's ruling of 2026-07-28] Appendix B
-% (errata to the reproduced articles) and Appendix D (the label-history benchmark) were moved
-% OUT of this document and into the supplementary volume, src/main_extra.tex. The advisor's
-% words, relayed by the author: "Nao precisa, nao e obrigatorio que seja copia identica do
-% artigo. E do jeito que voce colocou no inicio de cada capitulo acho que explica bem." The
-% chapter prefaces already explain the re-typeset and its corrections, so the errata appendix
-% is not owed to this document's reader; it is still worth keeping, so it moved rather than
-% being deleted.
+% [round9c, 2026-07-30, AUTHOR DECISION, PENDENCIAS 2.22 point 0] "You must rename all the
+% appendix, so the letters respect the correct order in the current version of the text. In this
+% case this appendix would be the letter D." The two \setcounter{chapter} lines that used to hold
+% the gapped lettering (A, C, E, F) were removed, so \Alph{chapter} letters the four appendices
+% in file order: contributions A, AI disclosure B, ethics C, gradient cosine D. FILE NAMES ARE
+% UNCHANGED (apx_c_*, apx_e_*, apx_f_*): the letter a reader sees comes from the counter, not the
+% file name, and renaming the files would touch every cross-reference for no rendered difference.
 %
-% WHY THE THREE THAT REMAIN KEEP A, C AND E rather than being relettered A, B, C: "Appendix B"
-% already names the errata appendix in the author's notes, in the advisor's own words, and in
-% GLOSSARY.md at lines 41 ("the departure is listed in Appendix B") and 73 ("Appendix B §B.5
-% only"); GLOSSARY.md:51 likewise pins the label-history benchmark to "Appendix D". Measured:
-%   grep -n 'Appendix [A-E]' GLOSSARY.md   -> lines 41, 51, 53, 73
-% Relettering would silently repoint every one of those at a different appendix, so the two
-% volumes share one lettering. \Alph{chapter} assigns the letter from the chapter counter, which
-% is why the counter is set explicitly before each appendix that follows a gap; without those two
-% lines this document prints A, B, C, the supplementary volume also prints A, B, and "Appendix B"
-% means two different things.
+% HISTORY, superseded (round7, 2026-07-29): Appendix B (errata) and Appendix D (label-history
+% benchmark) moved to the supplementary volume, src/main_extra.tex, on the advisor's ruling of
+% 2026-07-28 ("Nao precisa, nao e obrigatorio que seja copia identica do artigo. E do jeito que
+% voce colocou no inicio de cada capitulo acho que explica bem."). The three appendices that
+% remained kept A, C, E, and the cosine appendix entered as F, so the two volumes shared one
+% lettering and "Appendix B" named one thing. The author's point-0 ruling supersedes that
+% arrangement for THIS document; the supplementary volume still letters its two appendices B and
+% D (its own \setcounter lines, untouched). CONSEQUENCE THE AUTHOR SHOULD KNOW, recorded in the
+% round report: this document now also has an Appendix B (AI disclosure) and an Appendix D
+% (gradient cosine), so a bare "Appendix B" is ambiguous across the two volumes. Every prose
+% pointer at the moved material already says "Appendix~B/D of \extravolume" (measured: 10 sites,
+% all carrying "of \extravolume"), so no reader-facing sentence is ambiguous today; keep naming
+% the volume in any new pointer.
 %
 % THE POINTERS INTO THE MOVED MATERIAL were rewritten, not deleted: eight \ref sites in six
 % files, listed in src_utils/_round7/24_extra_and_cosine.md with the before and after of each.
@@ -312,14 +314,11 @@
     \begin{apendicesenv}
         \partapendices
         \include{chapters/apx_a_contributions}
-        \setcounter{chapter}{2}
         \include{chapters/apx_c_ai_disclosure}
-        \setcounter{chapter}{4}
         \include{chapters/apx_e_ethics}
-% [round7, 2026-07-29] NEW: Appendix F, the gradient-cosine appendix, placed AFTER the existing
-% appendices at the author's explicit request that this material live in the main text. It is F
-% and not B because the letters were not renumbered when B and D moved out (see above), so the
-% main document's appendices read A, C, E, F. Chapter 5's body is not edited and does not point
+% [round7, 2026-07-29] The gradient-cosine appendix, placed AFTER the existing appendices at the
+% author's explicit request that this material live in the main text. Lettered D since round9c
+% (the sequential-lettering decision above). Chapter 5's body is not edited and does not point
 % at it; the cosine material already in that chapter stays where it is.
         \include{chapters/apx_f_cosine}
     \end{apendicesenv}

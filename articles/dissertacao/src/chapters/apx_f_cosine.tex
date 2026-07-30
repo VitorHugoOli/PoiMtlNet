@@ -5,9 +5,11 @@
 % [round7, 2026-07-29] NEW APPENDIX, in the MAIN document at the author's request: "why these two
 % tasks for our arch don't conflict and how this MAY be extended for others archs."
 %
-% IT IS THE LETTER F, after E, because Appendices B and D moved to the supplementary volume and the
-% rest were NOT renumbered -- "Appendix B" already names the errata appendix outside this document.
-% The A, C, E, F gap is deliberate; content.tex's appendix block carries the reasoning.
+% IT PRINTS AS APPENDIX D since round9c (2026-07-30, the author's PENDENCIAS 2.22 point 0 ruling:
+% the letters must run in order, A, B, C, D). It was the letter F from round 7 to round 9c, when
+% the lettering kept the gaps left by Appendices B and D moving to the supplementary volume; the
+% file name stays apx_f_cosine.tex because the letter comes from the chapter counter, not the file
+% name. content.tex's appendix block carries the current reasoning and the history.
 %
 % CHAPTER 5'S BODY IS UNTOUCHED and does not point here. It is under review, so an edit for no
 % reader benefit is not worth the divergence between the two texts.
@@ -62,24 +64,61 @@
 % any architecture coverage: that boundary is the appendix's remaining limit and it is stated in
 % Section apx:cosine:extension.
 %
-% [NEEDS SIGN-OFF: raised round 7, 2026-07-29 | THE WHOLE APPENDIX. New frame prose making a
-% mechanistic claim (orthogonality explains why hard sharing costs nothing here) and a bounded
-% extension claim. Neither is in any paper's claim whitelist, so both are new claims under
-% AGENT_GUARDRAILS §3 C2 and need the author's approval before this goes to the advisor.]
+% [SIGNED OFF 2026-07-30, PENDENCIAS 2.22: "I approve the appedix F you can remove the [NEEDS
+% SIGN-OFF]". The approval came with fifteen numbered points, all applied in round9c and each
+% recorded at its own site in this file; the round report is _round9/43_apxf_author.md. The marker
+% raised in round 7 covered THE WHOLE APPENDIX (new mechanistic and extension claims outside any
+% paper's whitelist, AGENT_GUARDRAILS §3 C2); the author's approval closes it.]
 % ============================================================================
 
 \chapter{Why the Two Tasks Do Not Compete on the Shared Trunk}
 \label{apx:cosine}
 
 A joint model that shares parameters between two tasks can end up worse at both than two dedicated
-models are at one each. The usual reason is a disagreement, and it shows up in the gradients: if the
+models are at one each~\cite{standley2020tasks}.
+% [round9c, 2026-07-30] CITATION ADDED at the author's instruction (PENDENCIAS 2.22 point 1).
+% standley2020tasks is already in references.bib and is cited by Chapter 2's negative-transfer
+% paragraph and by Chapter 3's method section for the same phenomenon. VERIFIED THIS SESSION at the
+% source: arXiv:1905.07553 (Standley et al., ICML 2020), PDF opened, p.1: "the quality of predictions
+% are often observed to suffer when a network is tasked with making multiple predictions due to a
+% phenomenon called negative transfer. In fact, multi-task performance can suffer so much that
+% smaller independent networks are often superior." That is exactly this sentence's claim: joint
+% training can leave the joint model worse than dedicated single-task models. Author list checked
+% against the arXiv API record, not retyped from another bibliography.
+The usual reason is a disagreement, and it shows up in the gradients: if the
 update next-region asks for points against the update next-category asks for, one task improves at
 the other's expense. That has a direct measurement, and this appendix runs it on the joint model of
 Chapter~\ref{ch:mobiwac}.
 
 The two tasks turn out not to disagree. Their gradients are statistically indistinguishable from
-orthogonal on every dataset measured, which is a stronger and stranger result than mere absence of
-conflict, and it carries a consequence for the whole investigation: a gradient balancer had nothing
+orthogonal on every dataset measured, which is a stronger statement than mere absence of
+conflict, and it carries a direct consequence for that model: a gradient balancer had nothing
+% [round9c, 2026-07-30] TWO EDITS IN THIS PARAGRAPH, both from PENDENCIAS 2.22.
+% POINT 2: "a stronger and stranger result" -> "a stronger statement". The author: "Don't say
+% stranger result without cite some ref, but my main take is not to say this, is your jugdment and
+% can cause questions in the reviewer". "Stranger" was an aesthetic judgment with no source;
+% "stronger" is defensible without a citation because the appendix itself derives it (an equivalence
+% test licenses a positive claim where a failed rejection does not -- the apx:cosine:result
+% paragraph makes the argument in full).
+% POINT 3: "for the whole investigation" -> "for that model", and the arc sentence CUT. It read:
+% "That is why varying the gradient balancer changed so little in the first study, and why changing
+% the representation changed so much in the second and third." The author: the first study used a
+% different task pair and MTLnet's architecture was different, "so we can relate the results of this
+% appendix to the first and secon study" [sic; context makes it "cannot"]. MEASURED, from the live
+% prose of each chapter, before cutting:
+%   Ch.3 task pair (3_cbic/intro.tex): "POI Category Classification" (static, no sequence) +
+%     "Next-POI Prediction" (the next category). Architecture (3_cbic/method.tex): "hard
+%     parameter-sharing scheme" with FiLM.
+%   Ch.4 (4_courb/methodology.tex): same task pair, "the original MTLnet ... whose internal
+%     architecture is kept unchanged in this chapter"; only the input changes.
+%   Ch.5 / this appendix: next category + next region, cross-attention trunk, no hidden layers in
+%     common (5_mobiwac/04_method.tex).
+% So the appendix's measurement shares NEITHER the task pair NOR the architecture with studies one
+% and two, and its own extension section draws exactly that boundary ("Nothing here says the
+% gradients stay orthogonal in a model that shares more of its depth" -- hard sharing shares its
+% whole trunk). A cosine measured on one pair and one architecture cannot explain results on
+% another. The claim that survives is the one F.3 makes and Ch.2 already repeats with the right
+% scope: this measurement explains why no balancer improved on fixed weighting IN CHAPTER 5.
 % [round9, 2026-07-30] "REPLACING THE SHARING SCHEME" -> "VARYING THE GRADIENT BALANCER" (excellence
 % persona EX-2). The sentence reported an experiment the first study never ran. Verified in Chapter 3's
 % own live prose before changing it: what it varied was the OPTIMIZER ("Nash-MTL was compared with
@@ -92,15 +131,29 @@ conflict, and it carries a consequence for the whole investigation: a gradient b
 % what the orthogonality result actually explains.
 % Sentence predates this round (git log -S places it at fcdf6ad4) but sits inside the block under
 % sign-off, so it is in scope.
-to balance. That is why varying the gradient balancer changed so little in the first study, and why
-changing the representation changed so much in the second and third. The sections below give the
+% [SUPERSEDED round9c, 2026-07-30] The sentence this block corrected was CUT ENTIRELY at the
+% author's instruction (PENDENCIAS 2.22 point 3); the correction's verification record stays as
+% history of why the verb had already changed once. The reason for the cut is in the comment block
+% above the paragraph's second sentence.
+to balance. The sections below give the
 measurement, the two findings that qualify it, and the boundary beyond which none of it is claimed.
 
 \section{What was measured, and on what unit}
 \label{apx:cosine:setup}
 
 At every training epoch, each task loss was back-propagated to the shared cross-attention trunk, and
-the cosine of the angle between the two resulting gradient vectors was recorded. The cosine is the
+the cosine of the angle between the two resulting gradient vectors was recorded, the quantity the
+gradient-surgery literature uses to define task conflict~\cite{yu2020pcgrad}. The cosine is the
+% [round9c, 2026-07-30] CITATION ADDED at the author's instruction (PENDENCIAS 2.22 point 4: "we
+% should cite some article/studie/document that show this apporach"). yu2020pcgrad is already in
+% references.bib and is the source Chapter 2's gradient-conflict definition cites (GLOSSARY §4
+% "gradient conflict" row also pins it: Def. 1, arXiv:2001.06782). VERIFIED THIS SESSION at the
+% source: arXiv:2001.06782 PDF opened; p.1 "We define two gradients to be conflicting if they point
+% away from one another, i.e., have a negative cosine similarity"; p.4 Definition 1 and the PCGrad
+% procedure compute the cosine similarity between task gradients; p.9 (Fig. 4) records the
+% percentage of iterations with positive/negative gradient cosine during training, i.e. the same
+% per-iteration measurement this appendix records per epoch. Author list checked against the arXiv
+% API record.
 right quantity because it is scale-free: it reads how the two requested updates are aligned and
 ignores how large they are, which differs between the tasks and drifts during training. A cosine of
 $+1$ means the tasks ask for the same update, $-1$ for opposite ones, and $0$ that the requests are
@@ -109,10 +162,21 @@ orthogonal, each leaving the other's objective unchanged to first order.
 The observations are 4,650 epoch-level cosines from seven datasets. Florida contributes 3,150 across
 twelve configurations that vary the loss weight, the weighting schedule, and the training procedure;
 Alabama, Arizona, California, Georgia, Istanbul, and Texas contribute 250 each at the canonical
-configuration. Every run is five-fold user-disjoint cross-validation over fifty epochs, so one
-configuration on one dataset is five series of fifty values, and two of Florida's carry a partial
-re-run on top of theirs.
-% [round7, 2026-07-29] THE PARTIAL RE-RUN, previously undisclosed and now stated. "One
+configuration. Every run is five-fold user-disjoint cross-validation over fifty epochs.
+% [round9c, 2026-07-30] CLAUSE CUT at the author's instruction (PENDENCIAS 2.22 point 5: "Exclude
+% this ... is over detail"). What went: "so one configuration on one dataset is five series of fifty
+% values, and two of Florida's carry a partial re-run on top of theirs." WHERE EACH FACT LIVES NOW:
+% the five-series-of-fifty structure is restated by the unit-of-independence paragraph ("five fold
+% means", "one training run") and by the table's Unit and n columns; the partial re-run's full
+% disclosure (10 of 75 series hold 65 rows because epochs 1..15 appear twice; it does not move any
+% verdict; TOST p=1.54e-05 and 2.90e-08 for the two configurations either way) is in the round-7
+% comment block below, measured from the parquet. The extension section's span sentence still says
+% "over the observations as recorded", which is the reader-facing hedge that covers the duplicated
+% epochs without re-teaching them.
+% [round7, 2026-07-29; re-scoped round9c, 2026-07-30] THE PARTIAL RE-RUN. Stated in prose from
+% round 7 to round 9c, then cut from prose at the author's instruction (2.22 point 5, over-detail);
+% THIS COMMENT IS NOW ITS ONLY HOME, and it stays because a duplicate must be named with its count
+% (GUARDRAILS 4b V2), whether or not the reader is retaught it. "One
 % configuration on one dataset is five series of fifty values" is true of 65 of the 75 series;
 % T6_4_two_pass and T6_4_infonce_tau0_5 hold 65 rows per fold, because their epochs 1 to 15 each
 % appear TWICE with different cosines. 10 series, 150 of the 3,900 rows. MEASURED:
@@ -141,11 +205,22 @@ re-run on top of theirs.
 % What the reader needs is that Georgia is an extra dataset under the same protocol.
 Six of the seven are the six Chapter~\ref{ch:mobiwac} reports on. The seventh, Georgia, is a further
 Gowalla state the dissertation does not otherwise use, included here as an additional test of the
-same diagnostic. That
-chapter reaches the same conclusion from a smaller
-development-time measurement, on an earlier data preparation and over four seeds rather than
-per-epoch series, so the two sets of numbers are not interchangeable and this appendix supersedes
-nothing there.
+same diagnostic. Chapter~\ref{ch:mobiwac} also reports its own smaller measurement of this
+quantity; that one comes from a different run, so the two sets of numbers are not interchangeable.
+% [round9c, 2026-07-30] SENTENCE SIMPLIFIED at the author's instruction (PENDENCIAS 2.22 point 6:
+% "This is a implementation detail let's exclude also"). What went: "reaches the same conclusion
+% from a smaller development-time measurement, on an earlier data preparation and over four seeds
+% rather than per-epoch series ... and this appendix supersedes nothing there." THE FACT COULD NOT
+% GO ENTIRELY, and here is the check the cut rule requires: Ch.5's related-work section
+% (5_mobiwac/02_related.tex) reports this same cosine at a pooled +0.001 with a largest per-dataset
+% mean of +0.0032, while this appendix reports Alabama at +0.0112 -- different runs, and a reader
+% who compares the two numbers without being told they are different runs reads a contradiction.
+% That warning existed ONLY in this sentence (measured: no other live-prose site in this file or in
+% Ch.5 says the two runs differ). So the run-differs fact stays in one plain sentence and the
+% implementation detail (which data preparation, seeds versus epochs, who supersedes whom) went to
+% this comment: the earlier measurement is development-time, four seeds, an earlier data
+% preparation; this one is 5 folds x 50 epochs on the shipped preparation; neither supersedes the
+% other.
 % [round7] THE SCOPE CORRECTION THAT MATTERS MOST IN THIS FILE. An earlier draft of this appendix
 % called these "four datasets" without qualification, which would have told the reader that
 % Georgia is one of the dissertation's six. It is NOT. MEASURED, from src/:
@@ -163,8 +238,8 @@ nothing there.
 % reader who compared them without being told would read a discrepancy. Hence the sentence above.
 % Chapter 5's prose is NOT edited: it is under review and its own numbers remain its own.
 
-Those fifty values are not fifty independent measurements. They are consecutive states of one
-training run, so treating them as independent draws would report more confidence than the data hold.
+Those fifty values are not fifty independent measurements: they are consecutive states of one
+training run.
 % [round9, 2026-07-30] REPETITION UNIT STATED (excellence persona EX-4). The appendix reported fold counts
 % and observation counts but never said how many random initializations stand behind each dataset, and a
 % reader could not tell whether the five fold means come from five restarts or one. Measured from
@@ -173,13 +248,23 @@ training run, so treating them as independent draws would report more confidence
 % (3,150). The parquet carries no seed column, so initialization is not a factor in this design at all --
 % which is the limitation now stated rather than left for the reader to infer.
 % This is a genuine bound on the result and it belongs beside the other three the appendix already gives.
-The unit of independence is the fold. Every test below therefore runs on five fold means at each of
-the six single-configuration datasets, and on Florida's sixty fold series, its twelve configurations
-over the same five folds. Each of those six is measured at a single random initialization; the
-variation the tests see is across folds, not across restarts of the same fold. Because those twelve reuse one set of folds they are not independent of one
-another either, so the table also reports Florida read as twelve configuration means, which is the
-more conservative reading and gives the same answer. Where a count of observations appears it
-describes the data, not a test's sample size.
+The unit of independence is the fold, and every test below runs on folds: five fold means at each
+dataset, and at Florida its sixty fold series, five folds for each of its twelve configurations.
+Each dataset is measured at a single random initialization, so the variation the tests see is
+across folds, not across restarts. Where a count of observations appears it describes the data, not
+a test's sample size.
+% [round9c, 2026-07-30] PARAGRAPH SIMPLIFIED at the author's instruction (PENDENCIAS 2.22 point 7:
+% keep that the tests run on folds, "don't need to do a lot of tech explanation", and on Florida
+% "explain it in much details can cause confusion, lets try to be more straight"). What went, and
+% where each fact lives: (a) "treating them as independent draws would report more confidence than
+% the data hold" -- the first sentence still gives the reason in plainer words (one training run).
+% (b) "Because those twelve reuse one set of folds they are not independent of one another either,
+% so the table also reports Florida read as twelve configuration means, which is the more
+% conservative reading and gives the same answer" -- the Florida depth the author flagged; the fact
+% itself (n=12 configuration means, same +0.0003, still equivalent, TOST p=1.3e-16) is in the TABLE
+% FOOTNOTE, where the reader meets it beside the numbers, so nothing is lost. The trap comment at
+% the top of this file still binds any future editor: p-values on fold means, never on the 4,650
+% raw observations.
 % [round7] "Alabama and Arizona" -> "Alabama, Arizona, and Georgia". Caught by READING THE
 % RENDERED PAGE, not the source: the sentence was written when there were three datasets and the
 % list was not revisited when Georgia landed, so the page named two datasets while the table below
@@ -239,8 +324,16 @@ positive claim instead: the mean alignment lies inside a margin fixed in advance
 alignment is there is too small to matter. That is a claim about the tasks, not about the
 experiment's power.
 
-Figure~\ref{fig:apx:cosine} shows the distributions, and one feature needs saying plainly: the
-equivalence is a statement about the mean, not about every observation. Of the 4,650 cosines, 92.4
+Figure~\ref{fig:apx:cosine} shows the distributions, and one feature must be stated plainly: the
+equivalence is a statement about the mean, not about every observation.
+% [round9c, 2026-07-30] "needs saying plainly" -> "must be stated plainly" (PENDENCIAS 2.22 point
+% 8). "Needs + gerund" ("needs saying", "needs fixing") is a British-English construction;
+% WRITING_LAW §1 requires American English throughout. The author asked that the instance be fixed
+% and that the rule be evaluated document-wide; the register/British-English rule and its gate
+% belong to the parallel track this round, so this file fixes its own instance and the report names
+% the finding for them. Measured in this file before the fix: `needs [a-z]+ing` over live prose ->
+% exactly this one hit; no other needs+gerund site here.
+Of the 4,650 cosines, 92.4
 percent fall inside the margin, and the full range runs from $-0.34$ to $+0.58$, the largest value
 lying past the right edge of panel (a). Individual epochs drift out of the margin in both
 directions, ordinary noise in a quantity computed from one mini-batch. What never happens is a
@@ -280,29 +373,55 @@ systematic pull to one side.
 % the caption still names every element and carries its reading instruction.
 \end{figure}
 
-Two departures from that flat picture appear, and both are worth reporting rather than smoothing.
+Two patterns stand out in the data.
 The first is a positive tendency that recurs on two datasets: all five of Alabama's fold means are
+% [round9c, 2026-07-30] OPENER REWRITTEN, two author points at once (PENDENCIAS 2.22). POINT 9:
+% "Two departures from that flat picture appear" -- his words: "is pure A.I, we cna be more simple
+% and direct". POINT 10: "both are worth reporting rather than smoothing" -- his words: "we don't
+% need to say this, appears as we are try to hide somthing we just need to report". Both clauses
+% went; the replacement names the two patterns and reports them. "Departures" survives inside the
+% paragraph body ("for both departures" was ALSO rewritten under point 11, see below), so the
+% pattern/departure vocabulary does not cycle.
 positive, averaging $+0.0112$, and so are all five of Georgia's, averaging $+0.0039$. No other
 dataset is unanimous in either direction. The second is a decline over training, on those same two
 and with the same unanimity, all five per-fold slopes negative in each; the other four
 single-configuration datasets are mixed, from two of five at Istanbul to four of five at California,
 and Florida is flat at twenty-nine of sixty.
 
-Neither is called significant here, and the reason is the design rather than the data. At five folds
-the exact sign test cannot return less than $0.0625$, so no distribution-free test could reach
-significance however consistent the pattern. A $t$-test does reject on both datasets and for both
-departures, but at five observations that rests entirely on assuming normality, and this appendix
-will not accept for one claim a basis it rejects for another. Both are therefore consistent
-tendencies rather than established effects. California makes the same point from the other side and
-is the reason the table carries a sign-test column at all: its $t$-test returns $0.048$, below the
-conventional threshold, while its exact sign test returns $0.375$ on four of five positive folds, so
-what looks like a finding under one test is not even a leaning under the other. Florida, whose sixty
-independent series are the only estimate in the set with the resolution to settle either question,
-shows neither departure.
+Neither pattern is called significant here, and the reason is the design rather than the data. At
+five folds the exact sign test cannot return less than $0.0625$, so no distribution-free test could
+reach significance however consistent the pattern. A $t$-test does reject at Alabama and at Georgia,
+for the positive means and for the declines, but with five folds that rejection depends on assuming
+the fold means are normally distributed, an assumption five values cannot check. Both patterns are
+therefore consistent tendencies rather than established effects. California shows why the table
+carries a sign-test column: its $t$-test returns $0.048$, below the conventional threshold, while
+its exact sign test returns $0.375$ on four of five positive folds, so what looks like a finding
+under one test is not even a leaning under the other. Florida, whose sixty independent series are
+the only estimate in the set with the resolution to settle either question, shows neither pattern.
+% [round9c, 2026-07-30] PARAGRAPH REWRITTEN at the author's instruction (PENDENCIAS 2.22 point 11:
+% "you don't say which datasets, and this phrase is confusing and hard to read for whom don't have
+% a lot of knowhow. We can try to improve the rest of this paragraph"). Changes: (a) the t-test
+% sentence now NAMES Alabama and Georgia -- measured against the source of record before writing
+% (cosine_stats6.py output and gradient_cosine_slopes6.json: positive-mean t-tests AL 0.0125, GA
+% 0.0093; slope t-tests AL 0.0058, GA 0.047; sign tests at the 0.0625 floor in all four cases, so
+% the two datasets and both patterns are exactly the rejections). (b) "rests entirely on assuming
+% normality, and this appendix will not accept for one claim a basis it rejects for another" ->
+% plain statement that the rejection depends on a normality assumption five values cannot check;
+% the same-standard argument was rhetoric, and the trap rule at the top of this file (never write
+% "significantly positive") still binds. (c) "departures" -> "patterns" to match the rewritten
+% opener (point 9). The California and Florida sentences kept their facts unchanged.
 
-Both point away from trouble in any case. A positive cosine is mild cooperation, not conflict, and
-the decline stays inside the margin throughout while moving toward zero rather than away from it. No
-mechanism is proposed for either.
+Neither pattern suggests a conflict. A positive cosine means the two tasks cooperate slightly, and
+the declining cosines stay inside the margin and move toward zero, not away from it. No mechanism is
+proposed for either pattern.
+% [round9c, 2026-07-30] PARAGRAPH REWRITTEN at the author's instruction (PENDENCIAS 2.22 point 12:
+% "is well written, but is not natural for a non native writer in english, and force a non native
+% read more than once to understand"). "Both point away from trouble in any case" is a phrasal
+% metaphor (point away from trouble) that WRITING_LAW §4's idiom rule already discourages; "mild
+% cooperation, not conflict" and "throughout while moving toward zero rather than away from it"
+% stack three qualifications in one clause. The rewrite says the same three facts in three plain
+% clauses: no conflict is suggested; positive cosine = slight cooperation; the decline stays inside
+% the margin and moves toward zero. No fact was dropped.
 % [round7] "Alabama and Georgia are the smallest datasets here" was CUT as unsourced. Alabama is
 % indeed the smallest of the dissertation's six (113,846 check-ins, tables/mobiwac/datasets.tex),
 % but Georgia is not in that table at all -- it is not one of the six -- so no committed artifact in
@@ -314,10 +433,8 @@ mechanism is proposed for either.
 \label{apx:cosine:mechanism}
 
 Orthogonal gradients mean neither task's update reinforces or cancels the other's on the shared
-parameters, so the trunk can serve both without either improvement being paid for by the other. Two
-consequences follow.
-
-The first is about gradient balancers. Nash-MTL and the family around it exist to resolve exactly
+parameters, so the trunk can serve both without either improvement being paid for by the other. The
+main consequence is about gradient balancers. Nash-MTL and the family around it exist to resolve exactly
 the disagreement measured here, reweighting or reprojecting task gradients so a dominant task cannot
 % [round9, 2026-07-30] HARD-SHARING CLAUSE DELETED. It read "That is why hard sharing costs nothing in
 % this architecture, and why Chapter 5 finds no balancer improving on a fixed loss weighting". The
@@ -336,14 +453,36 @@ the disagreement measured here, reweighting or reprojecting task gradients so a 
 overwrite a weaker one. Orthogonality leaves them nothing to resolve. That is why Chapter~\ref{ch:mobiwac} finds no
 balancer improving on a fixed loss weighting: the measurement explains that finding. It says nothing
 about the cost of a common trunk, which this architecture does not use and no arm of that chapter
-tested.
-
-The second is about the arc of the three studies. The investigation opened on the hypothesis that
-the sharing scheme limited joint training, and the first study's null result was read that way at
-the time. Had the tasks been in conflict, a better sharing scheme or a better balancer would have
-been the remedy. They were not, so the limit lay elsewhere, and the second and third studies located
-it in the input representation. There was little interference to fix, and therefore little for a
-change of architecture to recover.
+tested. Orthogonal gradients also do not mean that the tasks share no knowledge: the two streams
+still exchange information through the cross-attention trunk, a sharing mechanism this measurement
+does not read.
+% [round9c, 2026-07-30] TWO EDITS IN THIS SECTION, both from PENDENCIAS 2.22.
+% POINT 14, THE ADDED SENTENCE. The author: "Somthing that worths to mention, don't need fither
+% explanation, in the F.3 is that besides the gradients don't addup, this don't means that the tasks
+% are not sharing their knowladge since exstie otehr mechanims like the gate in the arch and so
+% on...". One sentence, as instructed. THE NAMED MECHANISM WAS CHECKED AGAINST WHAT THE MODEL
+% ACTUALLY CONTAINS before writing it: the author says "the gate", and the shipped region output
+% does carry a gated fusion (src/models/next/next_stan_flow_dualtower/head.py: "gated" is the
+% PRIMARY fusion mode, g = sigma(W.[priv;shared])), but Chapter 5's prose NEVER describes it --
+% grep over 5_mobiwac/*.tex live prose: zero occurrences of gate/gating/gated -- and GLOSSARY.md
+% registers no "gate" term, so naming it here would use an unregistered term for an undescribed
+% component (fail-closed rule). The mechanism Ch.5 DOES describe, in the registered vocabulary, is
+% the cross-attention exchange: "attention lets each stream read the other's features", "the tasks
+% therefore share by exchanging information between per-task streams" (04_method.tex). So the
+% sentence names the cross-attention exchange as the example and keeps "other sharing mechanisms"
+% plural, which covers the gate without naming it.
+% POINT 13, THE PARAGRAPH CUT. "The second is about the arc of the three studies..." (six sentences,
+% rendered p.101) was REMOVED. The author: "we need to take care cause the first two studies was
+% diferrent tasks that these ones that we are testing int eh appendix F. Maybe remove this."
+% Same measurement as the intro cut (see the comment block in the opening section): Ch.3/Ch.4
+% predicted category classification + next category on hard-parameter-sharing MTLnet; this appendix
+% measures next category + next region on the cross-attention model, so "there was little
+% interference to fix" cannot be carried from this measurement back to the first two studies. With
+% the paragraph gone, "Two consequences follow" became a broken scaffold; the opening sentence now
+% announces only the balancer consequence. NO UNIQUE FACT WAS LOST: the balancer consequence stays,
+% Ch.5's development-time cosine (four states, different run) is reported in 5_mobiwac/02_related.tex
+% and stays there, and the conclusion's pointer (6_conclusion.tex) already scopes the finding to
+% "this pair of tasks rather than a general rule".
 
 \section{How far this extends, and how far it does not}
 \label{apx:cosine:extension}
@@ -410,7 +549,10 @@ Section~\ref{apx:cosine:mechanism} applies only to models shaped like this one.
 %      which WRITING_LAW §4 bans outright.
 % The measurement provenance that mattered is preserved in the comments below and in
 % _round9/30_cosine_six.md. WRITING_LAW §4 now carries the general rule (process narration).
-% [NEEDS SIGN-OFF: PENDENCIAS 2.9, round8, 2026-07-30] ONE CLAUSE REPLACED, AND THE REASON IS THAT
+% [SIGNED OFF 2026-07-30 with the whole appendix, PENDENCIAS 2.22 point 0; raised as NEEDS
+% SIGN-OFF under PENDENCIAS 2.9 in round 8. The author read and approved the appendix whose prose
+% carries the replacement clause, and his 2.9 ruling separately accepted the seven-dataset
+% extension this block explains.] ONE CLAUSE REPLACED, AND THE REASON IS THAT
 % IT HAD BECOME FALSE. It read "so all three are blocked on that machine's free space rather than
 % waiting in its queue". That was a PRESENT-TENSE claim about a remote machine, and a remote state
 % verified once does not stay true -- the same lesson PENDENCIAS 2.1 records about origin/mobiwac.
