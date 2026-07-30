@@ -33,6 +33,36 @@
   predict").
 - **No em-dash anywhere.** Use commas, parentheses, semicolons, or two sentences. (Also an AI
   tell; also the MobiWac rule.)
+- **No process narration, and this is a hard ban.** The prose states what is true of the work, never
+  how the work came to be done or what the writing went through. Four sub-classes, each with a real
+  instance from this repository that a reader would have received:
+  - **Infrastructure.** *"the machine that would have run them was out of disk"* (Appendix F, deleted
+    2026-07-30 at the author's instruction). A lab machine's free space is not a fact about mobility
+    data. Also banned: GPU model, queue state, wall-clock caps, checkpoint sizes, run directories.
+  - **The document's own version history.** *"California, Texas, and Istanbul were absent from an
+    earlier version of this appendix"* (same paragraph). The reader of the deposited document never
+    saw an earlier version and cannot act on the fact that one existed. Errata belong in the errata
+    appendix, where the regime is deliberate and the reader is told why.
+  - **Scheduling and provenance of the agent's own effort.** *"were measured afterward"*, *"at the
+    time of writing"*, *"we then ran"*. When a measurement was taken is a fact about the project, not
+    about the result. If a date genuinely qualifies a claim (a dataset vintage, a snapshot of a live
+    resource), the date goes in and the narrative does not.
+  - **Self-reference to the writing.** *"this appendix originally reported"*, *"as noted above"*,
+    *"the boundary the paragraph above draws"*. The last of these also violates §4's ban on restating
+    a section, and it appeared in the same deleted paragraph.
+
+  **Why the ban is absolute rather than a matter of taste.** Process narration reads as an excuse, it
+  dates the document the moment the circumstance changes, and it is unverifiable by the reader: a
+  banca member cannot check that a machine was full. It is also the single easiest AI tell to spot,
+  because a human author simply omits it. **The test:** if the sentence would be false or pointless
+  once the circumstance changes, or if it explains why something is missing rather than stating what
+  is present, cut it and put the reason in a source comment or a round report.
+
+  **Where the material goes instead.** A limitation the reader must know ("this appendix covers one
+  architecture family") is a LIMITATION and stays, stated as a property of the evidence. The reason
+  the limitation exists goes in the provenance comment. Nothing is lost by the cut; measured before
+  deleting the paragraph above, its only fact (the dataset coverage) was already stated three other
+  times including in the figure caption.
 
 ## 2 · Canonical names (repo-wide; unchanged from the paper GLOSSARY §1)
 

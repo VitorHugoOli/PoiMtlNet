@@ -279,6 +279,14 @@ else
   echo "  SKIP: count_errata_rows.py absent -- if it was deleted, delete this block too."
 fi
 
+gate "== process narration in prose (the author found this in Appendix F, and no rule banned it) =="
+# THE DEFECT: Appendix F told the reader "the machine that would have run them was out of disk". The
+# author's objection was that a dissertation states what is true and this is a fact about a lab
+# machine. He also asked whether the law covered it; it did not, measured (grep over
+# AGENT_GUARDRAILS.md and WRITING_LAW.md returned 0). WRITING_LAW §1 now bans the class and this gate
+# enforces it. Validated by reintroducing the author's exact sentence: 4 rules fire, rc=1; rc=0 clean.
+if ! python3 "$UTILS/check_process_narration.py"; then FAIL=1; fi
+
 gate "== audit APPLIED claims re-measured against the source (round 8: 8 of 9 were false) =="
 # THE GATE THAT DID NOT EXIST. On 2026-07-28 an outcome table recorded sixteen findings as APPLIED;
 # on 2026-07-30 eight of the author's nine instructions were still not in the document, five of them
