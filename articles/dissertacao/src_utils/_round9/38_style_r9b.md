@@ -546,6 +546,38 @@ consistent with the registry, because they are outside this round's diff.
 
 ---
 
+## 5b · Why F-02 survived a green gate suite (measured, and it is a gate defect, not a prose one)
+
+Twenty-two gates are green on this tree and `check_audit_claims.py` carries **two** round-9 probes for
+this passage. Neither can see F-02, and the reason is worth recording because it is the same shape as
+V13's proxy problem.
+
+```
+("R9-conflict",  "Ch.2 defines gradient conflict as the cosine between per-task gradients, so "
+                 "Appendix F's orthogonality result has a definition to point back to",
+                 "chapters/2_fundamentals.tex", r"cosine of the angle between two tasks", True)
+("R9-glossary",  "the four Pareto/conflict terms are registered before the prose uses them",
+                 "../GLOSSARY.md", r"\*\*Pareto-stationary point\*\*", True)
+```
+
+- **`R9-conflict` watches the definition, not the name.** Its pattern is `cosine of the angle between
+  two tasks`. That string is present, so the probe passes — and it would pass identically if the words
+  `gradient conflict` never appeared anywhere in the document, which is the state the tree is in. The
+  probe's own label says the purpose is that Appendix F "has a definition to point back to"; what
+  Appendix F actually needs to point back to is a **named** term, and the probe cannot tell the two
+  apart.
+- **`R9-glossary` is labelled for four terms and checks one row.** Its pattern is
+  `\*\*Pareto-stationary point\*\*` (1 possible match). Measured: deleting the `**Pareto dominance**`,
+  `**Pareto optimality**` or `**gradient conflict**` row from `GLOSSARY.md` leaves this probe green,
+  because the pattern does not reference them. The label claims a coverage the pattern does not have.
+
+Neither is a finding against the prose, and I am not proposing the gate edit (that is the applying
+agent's work). It is here because the author's standing question after V14 is *what should have
+surfaced this unprompted*, and the answer is a third probe of the inverted kind the registry rule
+actually implies: **for each of the four registered terms, the term's own name must appear in live
+prose in the chapter that defines it.** That probe fires today on `gradient conflict` and passes on the
+other three, which is the both-directions validation §7 requires, available for free.
+
 ## 6 · Findings index
 
 | id | severity | file | PDF page | one line |
