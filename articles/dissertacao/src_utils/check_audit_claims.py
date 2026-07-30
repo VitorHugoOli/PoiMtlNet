@@ -72,6 +72,39 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
      "chapters/2_fundamentals.tex", r"0\.8186", True),
 )
 
+# COD-016b needs a STRUCTURAL probe, not a string one, so it lives here rather than in PROBES --
+# and it was MISSING FROM BOTH LISTS until a reviewer noticed, which made the docstring's claim to
+# re-measure every APPLIED row false by omission. Exactly the defect this file exists to catch,
+# in this file. Fixed by adding the probe, not by narrowing the claim.
+#
+# A TRAP WORTH THE PARAGRAPH: Chapter 5's setup section holds TWO long paragraphs, and they belong
+# to DIFFERENT findings. COD-006 is the PROTOCOL paragraph ("A claimed gain and a claimed match..."),
+# 2,110 characters, which the author did NOT ask to be split and which is correctly still one
+# paragraph. COD-016b is the INTEGRITY paragraph (the four numbered fundamentals, "First, its
+# training objective is label-free..."), which he DID approve breaking. Measuring the first one and
+# reading its single-paragraph state as a failed split produced a false alarm here on 2026-07-30 --
+# anchor on "First, its training objective", never on paragraph length alone.
+INTEGRITY_ANCHOR = "First, its training objective is label-free"
+
+
+def integrity_paragraph_probe() -> tuple[bool, str]:
+    """COD-016b: the ~580-word integrity block must be several paragraphs, no word changed."""
+    path = SRC / "chapters/5_mobiwac/05_setup.tex"
+    if not path.exists():
+        return False, "05_setup.tex not found"
+    raw = path.read_text(encoding="utf-8", errors="replace")
+    j = raw.find(INTEGRITY_ANCHOR)
+    if j < 0:
+        return False, f"anchor absent: {INTEGRITY_ANCHOR!r} -- the block was reworded or removed"
+    start = raw.rfind("\n\n", 0, j)
+    m = re.search(r"\\(sub)*section\{", raw[j:])
+    seg = raw[start : j + m.start()] if m else raw[start : j + 6000]
+    live = "\n".join(l for l in seg.split("\n") if not l.lstrip().startswith("%"))
+    paras = [re.sub(r"\s+", " ", q).strip() for q in re.split(r"\n\s*\n", live) if q.strip()]
+    longest = max((len(q) for q in paras), default=0)
+    ok = len(paras) >= 4
+    return ok, f"{len(paras)} paragraph(s), longest {longest} chars (was 1 of ~3,900)"
+
 # Probes retired because the AUTHOR withdrew the underlying instruction. These are NOT passes and
 # NOT failures: the finding no longer describes anything the document is supposed to contain.
 #
@@ -180,14 +213,27 @@ def main() -> int:
         if not ok:
             bad.append(fid)
         print(f"  {'holds' if ok else 'NOT APPLIED':11s} {fid:9s} {what}")
+    ok, detail = integrity_paragraph_probe()
+    if not ok:
+        bad.append("COD-016b")
+    print(f"  {'holds' if ok else 'NOT APPLIED':11s} {'COD-016b':9s} "
+          f"the integrity block is several paragraphs: {detail}")
+
     for fid, why in sorted(NOT_CHECKABLE.items()):
         print(f"  unprobed    {fid:9s} {why}")
     for fid, why in sorted(RETIRED.items()):
         print(f"  RETIRED     {fid:9s} {why}")
 
-    print(f"\n  {len(PROBES) - len(bad) - len(missing_files)} of {len(PROBES)} probes hold; "
+    # V13, applied to this file's own report: a total must reconcile with the rows above it. The
+    # count was 8-of-8 for one turn after COD-016b's structural probe was added, i.e. a headline
+    # that did not count a row it had just printed -- the exact arithmetic defect V13 names.
+    total = len(PROBES) + 1  # string probes, plus the structural COD-016b probe
+    held = total - len(bad) - len(missing_files)
+    print(f"\n  {held} of {total} probes hold; "
           f"{len(bad)} claim(s) not applied; {len(NOT_CHECKABLE)} process claim(s) unprobed; "
           f"{len(RETIRED)} withdrawn by the author")
+    print(f"  ({total} = {len(PROBES)} string + 1 structural; rows printed above must equal "
+          f"{total + len(NOT_CHECKABLE) + len(RETIRED)})")
     if missing_files:
         print("  A probe whose file is gone is NOT a pass. Re-point it or retire it deliberately.")
         return 2
