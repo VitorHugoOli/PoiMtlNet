@@ -61,6 +61,19 @@ CLAIMS = [
     #
     # WHEN THE TRACKER CARRIES PAGE COUNTS AGAIN, restore three rows here in the same commit that
     # adds them, or this comment becomes the next silent gap.
+    #
+    # RESTORED 2026-07-30, in the commit that reintroduced the numbers. PENDENCIAS §4 item 5 is the
+    # author's own "run these before you trust anything" list, and it had drifted twice over: it told
+    # him to run `make final` (renamed to `academico` on 2026-07-29) and promised 108/105/109 against
+    # a tree building 101/98/102. I corrected it by hand -- and MY CORRECTION WAS STALE WITHIN THE
+    # HOUR, because a concurrent track added a page to §2.3 between my measurement and the next
+    # build. That is the argument for the guard rather than for more careful typing: this is the one
+    # page-count claim the author is most likely to act on, and it was the only one no tool watched.
+    # The pattern matches the three-target form "**102/99/103** paginas" as a unit, so all three
+    # targets are checked, and a fourth number in that slot cannot pass silently.
+    ("src_utils/PENDENCIAS.md",  r"\*\*(\d+)/\d+/\d+\*\* paginas", "defense"),
+    ("src_utils/PENDENCIAS.md",  r"\*\*\d+/(\d+)/\d+\*\* paginas", "academico"),
+    ("src_utils/PENDENCIAS.md",  r"\*\*\d+/\d+/(\d+)\*\* paginas", "ppgc"),
     ("src_utils/codex_reviewer.md", r"The builds on disk are \*\*(\d+)/\d+ pages\*\*", "defense"),
     ("src_utils/codex_reviewer.md", r"The builds on disk are \*\*\d+/(\d+) pages\*\*", "academico"),
 ]

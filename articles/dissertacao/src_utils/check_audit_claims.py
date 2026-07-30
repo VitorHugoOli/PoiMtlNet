@@ -164,6 +164,17 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
      "PENDENCIAS.md", r"\*\*32 sao exatas e 9 estao obsoletas\*\*", True),
     ("R9-agree2", "the superseded 'As 21 ancoras dos capitulos' claim is gone from PENDENCIAS",
      "PENDENCIAS.md", r"As 21 ancoras dos capitulos", False),
+    # ---- R9-confirm: FAB-01 CHANGED NOTHING, and it was still counted as an applied-and-verified
+    # edit. The Wave A loop wrote the standard note -- "verified in the RENDERED PDF, both
+    # directions: new wording present and old wording absent" -- onto every member of the wave,
+    # including the one whose request was ALREADY satisfied before this round started. For a no-op
+    # there is no superseded wording, so the absent half of that claim cannot be measured, and
+    # asserting it is a claim about a measurement that never ran. Same V13 shape as the stale-anchor
+    # miscount earlier this round: a headline count that stopped agreeing with its own members.
+    # The probe pins the carve-out, so the note cannot be re-applied to a no-op by a later sweep.
+    ("R9-confirm", "FAB-01 is recorded as already satisfied and only CONFIRMED, never as an applied "
+                   "edit verified in both directions",
+     "CONSIDERATIONS.md", r"ALREADY SATISFIED; CONFIRMED IN THE RENDERED PDF, NOT APPLIED", True),
 )
 
 # COD-016b needs a STRUCTURAL probe, not a string one, so it lives here rather than in PROBES --

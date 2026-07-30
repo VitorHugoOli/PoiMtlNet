@@ -116,13 +116,17 @@
         \noindent
         % Keywords one per line (UFV_COMPLIANCE §2 system rules: one per line, lowercase
         % except proper nouns, no punctuation); PT mirrors EN.
+        % [FAB-11, round 9] Comma-separated, not one per line, at the advisor's request. The
+        % "one per line" rule of UFV_COMPLIANCE.md:39 governs the AcademicoPG WEB FORM fields, not
+        % the printed page, and this block renders in the defense and ppgc PDFs only -- measured:
+        % the keyword block appears on pp. 2-3 of build/main.pdf and pp. 3-4 of build/main_ppgc.pdf
+        % and on NO page of build/main_academico.pdf, which is the deposit body. So the form rule is
+        % not in play here and the request does not collide with it. When the author fills the web
+        % form he still pastes them one per line, from this same list.
         \begin{minipage}{\linewidth}
-            \textbf{Palavras-chave}:\\
-            aprendizado multitarefa\\
-            ponto de interesse\\
-            previsão da próxima categoria\\
-            previsão da próxima região\\
-            representação em nível de check-in
+            \textbf{Palavras-chave}:
+            aprendizado multitarefa, ponto de interesse, previsão da próxima categoria,
+            previsão da próxima região, representação em nível de check-in
         \end{minipage}
     \end{resumo}
 
@@ -178,13 +182,12 @@
             \vspace{\onelineskip}
             \noindent
             % Keywords one per line (UFV_COMPLIANCE §2 system rules); EN mirrors PT.
+            % [FAB-11, round 9] Comma-separated, mirroring the PT block above; see the note there
+            % for why the AcademicoPG one-per-line form rule does not govern this page.
             \begin{minipage}{\linewidth}
-                \textbf{Keywords}:\\
-                multi-task learning\\
-                point of interest\\
-                next-category prediction\\
-                next-region prediction\\
-                check-in-level representation
+                \textbf{Keywords}:
+                multi-task learning, point of interest, next-category prediction,
+                next-region prediction, check-in-level representation
             \end{minipage}
         \end{otherlanguage*}
     \end{resumo}

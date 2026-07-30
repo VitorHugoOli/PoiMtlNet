@@ -23,12 +23,15 @@
 >
 > **Consequencias para este arquivo, medidas e nao inferidas:**
 >
-> 1. **`make check` esta em rc=2, e a causa e aquela edicao, nao esta.** O gate
->    `check_verify_list` executa um comando documentado em `_round6/VERIFY_LIST.md` cuja anotacao diz
->    `# EXPECT: contains=Pareto-stationary 0`. Em `HEAD` o `GLOSSARY.md` tem **0** ocorrencias; na
->    arvore de trabalho tem **2**. A anotacao ficou obsoleta no instante em que o termo foi
->    registrado. **Eu nao corrigi** porque a anotacao pertence ao trabalho que esta em curso, e
->    reescrever um EXPECT de outro editor no meio da edicao dele produz conflito.
+> 1. **`make check` esteve em rc=2 por causa daquela edicao, e ja voltou a rc=0** — pela propria
+>    esteira, nao por mim. O gate `check_verify_list` reprovava numa anotacao de
+>    `_round6/VERIFY_LIST.md` que dizia `# EXPECT: contains=Pareto-stationary 0`, tornada falsa no
+>    instante em que o termo foi registrado; ela foi corrigida para `2` no mesmo commit do registro.
+>    Um segundo vermelho (um `CD-FAIL`) vinha de um bloco cercado no mesmo arquivo que fazia o gate
+>    **rodar um build de verdade**, 108 s medidos; o bloco saiu da cerca as 03:01. Eu nao mexi em
+>    nenhum dos dois: sao daquela esteira. **A licao e minha, porem** — eu li os dois como vermelhos
+>    meus e cheguei a escrever o primeiro como uma decisao do autor com tres opcoes. Numa arvore com
+>    duas esteiras, um gate vermelho nao vale nada ate se reconferir de quem e o arquivo e qual o mtime.
 > 2. **Tres coordenadas minhas andaram +106 linhas** e foram **reconferidas linha a linha**, nao
 >    deslocadas por aritmetica: FAB-28 (454 -> 560), FAB-29 (513 -> 619) e FAB-30 (515-516 -> 621-622,
 >    e 670 -> 776). As ancoras antes da linha 418 nao se moveram.
@@ -107,10 +110,16 @@ As tres linhas obsoletas sao todas da Parte V, cujo argumento inteiro e sobre es
 
 | Balde | Itens | O que significa |
 |---|--:|---|
-| **VOCE APLICA** | 21 | Concordo, a correcao nao envolve juizo de conteudo seu, e nada trava. |
-| **VOCE DECIDE** | 21 | Precisa da sua palavra: ou eu discordo do revisor, ou colide com uma regra de honestidade do proprio documento, ou tem mais de uma saida com custos diferentes. Opcoes em `PENDENCIAS.md` §6. |
+| **VOCE APLICA** | 20 | Concordo, a correcao nao envolve juizo de conteudo seu, e nada trava. **7 edicoes ja estao aplicadas e conferidas no PDF renderizado nos dois sentidos** (texto novo presente, texto antigo ausente), e **1 — o FAB-01 — ja estava satisfeito e so foi conferido**, sem edicao: sao a Wave A do `_round9/33_apply_plan.md`. Os outros 12 esperam a outra esteira soltar o `2_fundamentals.tex` ou uma linha sua no `GLOSSARY`. |
+| **VOCE DECIDE** | 22 | Precisa da sua palavra: ou eu discordo do revisor, ou colide com uma regra de honestidade do proprio documento, ou tem mais de uma saida com custos diferentes. Opcoes em `PENDENCIAS.md` §6. |
 | **BLOQUEADO** | 1 | A verificacao falhou: FAB-28, nao consegui abrir o resumo do `wang2025hamtl`. |
 | **Total** | **43** | 31 FAB + 11 GER + 1 AUT |
+
+*(O FAB-18 mudou de balde **enquanto eu o aplicava**, e por isso os numeros aqui nao sao os do primeiro
+commit desta rodada: ele pede o presente na mesma frase que o FAB-03 pede em portugues, e eu tinha
+posto um como "eu aplico" e o outro como "voce decide". Nao podem ser os dois: e a mesma frase em duas
+linguas, e o par Resumo/Abstract tem de ficar identico afirmacao por afirmacao. Virou uma decisao sua
+sobre tres sitios. Achei isso ao digitar a edicao, nao ao classificar.)*
 
 **Discordar de um membro da banca e decisao sua, nao minha.** Onde acho que o revisor esta errado no
 merito, o item e "VOCE DECIDE" com o meu argumento anexado, por mais convicto que eu esteja. Sao tres:
@@ -132,6 +141,7 @@ existe mais" e uma medicao, e essa e minha.
   - **The file he cites no longer exists.** `0_main.tex` became `preamble.tex` + `content.tex` on 2026-07-29; where the passage survives, it is in `content.tex`.
 - **What he asks:** Colocar em inglês também.
 - **My take:** agree. The PT resumo names the advisor in Portuguese and the EN abstract already says 'Advisor:'; his ask is satisfied at content.tex:134 for the label, but the ROLE line in the PT block is PT-only by ABNT convention. The applicable edit is the EN abstract's own line, already correct. Nothing to change beyond confirming; recorded as satisfied.
+- **ALREADY SATISFIED; CONFIRMED IN THE RENDERED PDF, NOT APPLIED.** Nothing was edited for this item and nothing needed to be: `build/main.pdf` already carries `Advisor: Fabrício Aguiar Silva` in the English abstract and `Orientador: Fabrício Aguiar Silva` on the folha de rosto, and the diff against `c39b7b77` contains no advisor line added or removed. **The both-directions check that the other Wave A items carry does not apply here** — there is no superseded wording to be absent, so only the presence half is measurable, and that is what was measured. I first wrote the standard applied-and-verified note on this block, which claimed a measurement that could not exist.
 - **Disposition:** **YOU APPLY**
 - **Where it renders if applied:** content.tex:47 (PT), :134 (EN) -> pp. i-ii
 - **Probe in `check_audit_claims.py`:** none — this edit changes no string a probe can pin. Named rather than omitted, so the gap is visible.
@@ -253,6 +263,7 @@ existe mais" e uma medicao, e essa e minha.
   - **The file he cites no longer exists.** `0_main.tex` became `preamble.tex` + `content.tex` on 2026-07-29; where the passage survives, it is in `content.tex`.
 - **What he asks:** Separar por "virgula" em vez de quebra de linha; fazer o mesmo no inglês.
 - **My take:** agree. Keywords are separated by \\ line breaks in both blocks. Comma separation is a presentation choice with no honesty or registry consequence, and he asked for both languages.
+- **APPLIED THIS SESSION and verified in the RENDERED PDF** (`build/main.pdf`, text layer, both directions: new wording present and old wording absent), not in the source. Build `24eef3f1`+, all four targets rc=0, tex_errors=0.
 - **Disposition:** **YOU APPLY**
 - **Where it renders if applied:** content.tex:120-125, :182-187
 - **Probe in `check_audit_claims.py`:** `R9-keywords` — **NAME RESERVED, NOT YET IMPLEMENTED.** The edit has not been made, so there is nothing to probe yet. The probe lands in the same commit as the edit (GUARDRAILS §4b V15); until then this row is a plan, not a measurement.
@@ -266,6 +277,7 @@ existe mais" e uma medicao, e essa e minha.
 - **Live-source status:** **exact** — `chapters/1_introduction.tex:34`.
 - **What he asks:** `users`
 - **My take:** agree. Plural 'users' reads better and the sentence is generic. No claim changes.
+- **APPLIED THIS SESSION and verified in the RENDERED PDF** (`build/main.pdf`, text layer, both directions: new wording present and old wording absent), not in the source. Build `24eef3f1`+, all four targets rc=0, tex_errors=0.
 - **Disposition:** **YOU APPLY**
 - **Where it renders if applied:** 1_introduction.tex:34
 - **Probe in `check_audit_claims.py`:** none — this edit changes no string a probe can pin. Named rather than omitted, so the gap is visible.
@@ -277,6 +289,7 @@ existe mais" e uma medicao, e essa e minha.
 - **Live-source status:** **exact** — `chapters/1_introduction.tex:52`.
 - **What he asks:** Em `prediction tasks`, consideração: `prediction tasks that are object of study of this ...`
 - **My take:** agree. His phrasing is more precise about what the two tasks are to the document.
+- **APPLIED THIS SESSION and verified in the RENDERED PDF** (`build/main.pdf`, text layer, both directions: new wording present and old wording absent), not in the source. Build `24eef3f1`+, all four targets rc=0, tex_errors=0.
 - **Disposition:** **YOU APPLY**
 - **Where it renders if applied:** 1_introduction.tex:52
 - **Probe in `check_audit_claims.py`:** none — this edit changes no string a probe can pin. Named rather than omitted, so the gap is visible.
@@ -312,6 +325,7 @@ existe mais" e uma medicao, e essa e minha.
 - **Live-source status:** **exact** — `chapters/1_introduction.tex:56-59`.
 - **What he asks:** Em "; this dissertation does not address it," a consideração: "not addressed in this dissertation (TENTE USAR MENOS ; no meio das frases...parece muito resultado de IA)"
 - **My take:** agree. He is right on both counts and the second is a house rule already: semicolon braids are banned by WRITING_LAW 4. Rewriting as two clauses removes the AI tell he names.
+- **APPLIED THIS SESSION and verified in the RENDERED PDF** (`build/main.pdf`, text layer, both directions: new wording present and old wording absent), not in the source. Build `24eef3f1`+, all four targets rc=0, tex_errors=0.
 - **Disposition:** **YOU APPLY**
 - **Where it renders if applied:** 1_introduction.tex:56-58
 - **Probe in `check_audit_claims.py`:** none — this edit changes no string a probe can pin. Named rather than omitted, so the gap is visible.
@@ -335,9 +349,9 @@ existe mais" e uma medicao, e essa e minha.
 - **Quote:** "was unresolved when this research started."
 - **Live-source status:** **exact** — `chapters/1_introduction.tex:85; content.tex:152-153`.
 - **What he asks:** Colocar no presente.
-- **My take:** agree. Same tense change as FAB-03, and the intro and the abstract must move together or they contradict.
-- **Disposition:** **YOU APPLY**
-- **Where it renders if applied:** 1_introduction.tex:85 + content.tex:152
+- **My take:** agree on substance; same decision as FAB-03, not a separate one. He asks for the present tense here and at FAB-03; it is one claim in three places (1_introduction.tex:92, content.tex:156 EN, content.tex:76 PT). I first bucketed this as 'apply' and FAB-03 as 'decide', which cannot both be right: the same sentence cannot be mine to edit in English and his to rule on in Portuguese, and the Resumo/Abstract pair must stay claim-for-claim identical (WRITING_LAW 6). The substantive question is the one FAB-03 carries: 'is/permanece' asserts the question is open TODAY, after this dissertation answered it, which is what the time-indexing rule exists to prevent. Caught while applying it, not while sorting.
+- **Disposition:** **I DECIDE** — options and costs in `PENDENCIAS.md` §6
+- **Where it renders if applied:** 1_introduction.tex:92 + content.tex:156 (EN) + content.tex:76 (PT)
 - **Probe in `check_audit_claims.py`:** `R9-tense` — **NAME RESERVED, NOT YET IMPLEMENTED.** The edit has not been made, so there is nothing to probe yet. The probe lands in the same commit as the edit (GUARDRAILS §4b V15); until then this row is a plan, not a measurement.
 - **Build commit the measurement was taken against:** `d4078c75`
 ### FAB-19 — cut the arc of this dissertation from the heading
@@ -347,6 +361,7 @@ existe mais" e uma medicao, e essa e minha.
 - **Live-source status:** **exact** — `chapters/1_introduction.tex:87`.
 - **What he asks:** Em "the arc of this dissertation" consideração: "Tirar"
 - **My take:** agree. 'the arc of this dissertation' in a section heading is decoration; the section is the research question.
+- **APPLIED THIS SESSION and verified in the RENDERED PDF** (`build/main.pdf`, text layer, both directions: new wording present and old wording absent), not in the source. Build `24eef3f1`+, all four targets rc=0, tex_errors=0.
 - **Disposition:** **YOU APPLY**
 - **Where it renders if applied:** 1_introduction.tex:87
 - **Probe in `check_audit_claims.py`:** none — this edit changes no string a probe can pin. Named rather than omitted, so the gap is visible.
@@ -393,6 +408,7 @@ existe mais" e uma medicao, e essa e minha.
 - **Live-source status:** **exact** — `chapters/1_introduction.tex:218`.
 - **What he asks:** Em ", Fundamentals}," o comentario é: "Tirar."
 - **My take:** agree. Repeating the chapter title after the \ref is redundant once the ref renders the number.
+- **APPLIED THIS SESSION and verified in the RENDERED PDF** (`build/main.pdf`, text layer, both directions: new wording present and old wording absent), not in the source. Build `24eef3f1`+, all four targets rc=0, tex_errors=0.
 - **Disposition:** **YOU APPLY**
 - **Where it renders if applied:** 1_introduction.tex:218
 - **Probe in `check_audit_claims.py`:** none — this edit changes no string a probe can pin. Named rather than omitted, so the gap is visible.
@@ -404,6 +420,7 @@ existe mais" e uma medicao, e essa e minha.
 - **Live-source status:** **exact** — `chapters/1_introduction.tex:244-245`.
 - **What he asks:** Em ", Conclusion}, " o comentario é: "Tirar."
 - **My take:** agree. Same as FAB-23.
+- **APPLIED THIS SESSION and verified in the RENDERED PDF** (`build/main.pdf`, text layer, both directions: new wording present and old wording absent), not in the source. Build `24eef3f1`+, all four targets rc=0, tex_errors=0.
 - **Disposition:** **YOU APPLY**
 - **Where it renders if applied:** 1_introduction.tex:244
 - **Probe in `check_audit_claims.py`:** none — this edit changes no string a probe can pin. Named rather than omitted, so the gap is visible.

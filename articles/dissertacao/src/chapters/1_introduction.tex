@@ -31,7 +31,10 @@
 \label{sec:intro:context}
 
 Location-based social networks let a person announce where they are: a
-\emph{check-in} records that a given user visited a given place, a point of interest
+% [FAB-12, round 9] "users" plural at the advisor's request. The sentence is generic (it
+% describes what the record type is, not one person's visit), so the plural reads better and
+% no claim changes.
+\emph{check-in} records that users visited a given place, a point of interest
 (POI), at a given time. Such records now exist at large scale, and they carry more
 regularity than their noise suggests;
 an analysis of large-scale human traces estimated the potential predictability of an
@@ -49,14 +52,18 @@ research, the spatial location encoders of the second study, was first validated
 geospatial tasks such as species recognition and remote sensing
 classification~\cite{mai2023sphere2vecgeneralpurposelocationrepresentation,wu2024torchspatial}.
 
-The two properties above are the two prediction tasks of this dissertation. The
-\emph{next category} task predicts the category of the next visited place, one of
-seven top-level classes. The \emph{next region} task predicts the official geographic
-unit of the next visit, a census tract in the United States or a mahalle in Istanbul,
-a target space that ranges from hundreds to several thousand classes per dataset. The
-exact \emph{next place} task, predicting the specific establishment, is a third and
-different problem; this dissertation does not address it, and Chapter~\ref{ch:fundamentals} keeps the
-three tasks formally distinct.
+% [FAB-13, round 9] "the two prediction tasks that are the object of study of this
+% dissertation", his wording, which is more precise about what the two tasks are TO the document.
+% [FAB-16, round 9] The semicolon before "this dissertation does not address it" is gone: he read
+% it as an AI tell, and WRITING_LAW §4 bans semicolon braids independently. Now two sentences.
+The two properties above are the two prediction tasks that are the object of study of
+this dissertation. The \emph{next category} task predicts the category of the next
+visited place, one of seven top-level classes. The \emph{next region} task predicts the
+official geographic unit of the next visit, a census tract in the United States or a
+mahalle in Istanbul, a target space that ranges from hundreds to several thousand
+classes per dataset. The exact \emph{next place} task, predicting the specific
+establishment, is a third and different problem, not addressed in this dissertation.
+Chapter~\ref{ch:fundamentals} keeps the three tasks formally distinct.
 
 A fourth task also appears in this dissertation: the first two studies paired next
 category prediction with the static classification of a place's category, category
@@ -84,7 +91,10 @@ Sharing parameters between tasks can hurt one of them, a failure mode known as
 negative transfer. Whether joint training helps for this pair of POI prediction
 tasks, and what the answer depends on, was unresolved when this research started.
 
-\section{Research question and the arc of this dissertation}
+% [FAB-19, round 9] "and the arc of this dissertation" removed from the heading at his request:
+% the section IS the research question, and the arc is what the section body then narrates. The
+% \label is untouched on purpose -- sec:intro:arc is cited from three other files.
+\section{Research question}
 \label{sec:intro:arc}
 
 This dissertation answers one question:
@@ -215,7 +225,9 @@ than silently edited.
 % The collection is organized as follows:
 
 \begin{itemize}
-  \item \textbf{Chapter~\ref{ch:fundamentals}, Fundamentals}, consolidates the background the three
+  % [FAB-23, round 9] ", Fundamentals" dropped at his request: the \ref renders the number and the
+  % chapter title is already in the sumario, so repeating it here is redundant.
+  \item \textbf{Chapter~\ref{ch:fundamentals}} consolidates the background the three
         articles share: the POI prediction tasks, representations for mobility data,
         multi-task learning, and the datasets and evaluation protocol. It closes by
         connecting these fundamentals to the three questions the articles answer.
@@ -241,7 +253,8 @@ than silently edited.
         % Venue verified 2026-07-23 against the official symposium site
         % (mobiwac-symposium.org/2026): 23rd edition. Update the status wording
         % here and in sections 1.1-1.2 the moment a decision arrives.
-  \item \textbf{Chapter~\ref{ch:conclusion}, Conclusion}, consolidates the answer to the research
+  % [FAB-24, round 9] Same as FAB-23.
+  \item \textbf{Chapter~\ref{ch:conclusion}} consolidates the answer to the research
         question, states the limitations, and derives future work from them.
 \end{itemize}
 
