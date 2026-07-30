@@ -217,6 +217,33 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     ("R9-clock2",  "the superseded 'All four came back inside it' ASSERTION is gone from the gate "
                    "report (the quotation of it inside the correction stays legal)",
      "_round9/37_reviewer_gate_round9.md", r"All four came back inside it, and \*\*all four", False),
+    # ---- R9-wave2: wave 2's checkpoint outcome, and the reason it needs a probe is that the LAST
+    # wave's outcome was reported wrong and then its diagnosis was reported wrong too. Wave 1: 0 of 4
+    # inside a 25-min budget, mean 31.3 min, which I first wrote as "all four came back inside it"
+    # (R9-clock). The correction ended with a prescription -- narrow the scope, not the clock -- and
+    # wave 2 acted on it: narrowed scopes, 30-min budget, and the result was 1 of 5 inside, mean 41.1
+    # min. The mean got WORSE. A summary of this round is likeliest to round both waves off to "the
+    # personas ran and reported", so the probe pins the number that makes the failure legible: 1 of 5.
+    #
+    # THIS PROBE'S FIRST PATTERN WAS WRONG AND IT FIRED ON A CLEAN FILE, which is the third time this
+    # round an instrument was the defect rather than the document (after R9-clock2 and R9-nocount). I
+    # wrote it against a markdown table row -- r"\*\*1 of 5\*\* \| \*\*41\.1 min\*\*" -- that lives in
+    # _round9/34, not in 38; the wave-2 report states the same measurement in prose. A pattern written
+    # from memory of a sibling file is not a measurement of this one. Anchored now on the prose 38
+    # actually carries.
+    ("R9-wave2",   "the wave-2 record states that only ONE of five personas came in under the "
+                   "checkpoint, with the measured mean",
+     "_round9/38_reviewer_wave2_round9.md", r"one of five inside, mean 41\.1 minutes", True),
+    # The blocker that wave 2 found, pinned in the tracker rather than only in a report: Appendix F
+    # tells the reader an experiment happened (replacing the sharing scheme in study 1) that Chapter 3
+    # lists as future work. Re-verified in three places before it was written down. Inverted probes
+    # would be wrong here -- the prose is the AUTHOR'S to change, so what gets gated is that the item
+    # stays on his decision list until he rules on it, not that the sentence is already gone.
+    ("R9-blq4",    "the Appendix F never-run-experiment blocker is on the author's decision list",
+     "PENDENCIAS.md", r"BLQ-4 — o Apendice F descreve um experimento que nunca foi feito", True),
+    ("R9-blq5",    "the PCGrad blocker is recorded as DOWNGRADED BY ME, with the half I could not "
+                   "check named, rather than passed through at the persona's severity",
+     "PENDENCIAS.md", r"eu o REBAIXEI; a decisao final e sua", True),
 )
 
 # COD-016b needs a STRUCTURAL probe, not a string one, so it lives here rather than in PROBES --

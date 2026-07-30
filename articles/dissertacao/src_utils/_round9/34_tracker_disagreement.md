@@ -171,3 +171,47 @@ Running total for round 9: **five claim-or-count defects in my own work**, four 
 and one by the suite. Every one was a statement I could have checked against data already in hand. The
 pattern across all five is one sentence: **I wrote what I expected the measurement to say, in the
 window between having it and reading it.**
+
+
+---
+
+## The checkpoint, wave 2: the fix I derived from instance five was itself wrong
+
+Instance five was reporting that a 25-minute checkpoint held when all four personas had overrun it.
+The correction I wrote ended with a prescription: **"the fix is a smaller scope per child, not a longer
+clock."** Wave 2 tested that prescription, because I acted on it — every persona got a deliberately
+narrowed scope (frame chapters only, one section only, skip the paper chapters) plus a 30-minute clock.
+
+| wave | budget | personas inside | mean |
+|---|--:|--:|--:|
+| 1 | 25 min | 0 of 4 | 31.3 min |
+| 2, scopes narrowed | 30 min | **1 of 5** | **41.1 min** |
+
+**The mean got worse.** Narrowing scope was not the operative variable, and I had asserted it as the
+diagnosis on a sample of four with no attempt to separate scope from anything else.
+
+What actually separates the one persona that finished (27.5 min) from the three that ran 44 to 56
+minutes is **how many external sources the work required opening** — not how much of the volume it was
+given. The AI-credibility pass runs mechanical sweeps over text already on disk. The MTL expert
+downloaded and paged five arXiv PDFs. The POI expert built, invalidated, and rebuilt a
+pointer-verification instrument. The excellence assessor read across the whole volume and corrected one
+of its own instruments mid-report. Text volume did not predict the overrun; source resolution did.
+
+**And two of those overruns were the most valuable work in the round.** The MTL expert withdrew two of
+its own findings after opening the pages that refuted them. The POI expert caught its own location
+layer twice — first stripped-grep line numbers, then a repair whose heuristic could not detect the
+defect class it was checking — and replaced it with a phrase-anchored check plus a negative control.
+Neither retraction fits in thirty minutes, and a checkpoint that had bound them would have produced two
+confident wrong findings instead.
+
+**The revised conclusion, held more loosely than the last one:** a wall-clock checkpoint disciplines a
+persona that reads what is already on disk and does not bind one that must resolve external sources.
+For source-resolving personas the budget belongs in **sources opened** — "verify at most five
+attributions, name the rest as unreached" — with the clock advisory. I am stating this as the current
+best reading rather than as the fix, because the previous version of this paragraph was stated as the
+fix and was wrong within one wave.
+
+**The pattern this adds to the five above.** Those were all one failure: writing what I expected the
+measurement to say. This is the next one along: **writing a causal diagnosis from a single failing
+sample, then acting on it as though it had been tested.** The tell is the same — a confident sentence
+where a measurement should be — and the guard is the same: say which half you checked.

@@ -992,6 +992,82 @@ sao rastreaveis em `datasets.tex`. O achado nao e erro de conta: e que os dois f
 
 > **DECISAO SUA:** ______
 
+
+### 6.11 Segunda onda de personas — um bloqueador confirmado, um rebaixado por mim
+
+Cinco personas que voce pediu (15 legibilidade, 16 credibilidade-IA, 17 excelencia, 11 POI/mobilidade,
+10 MTL) contra o build `901a0408`. Relatorios em `_round9/reviews/`, resumo em
+`_round9/38_reviewer_wave2_round9.md`. Reconferi no fonte tudo que entrou aqui.
+
+#### BLQ-4 — o Apendice F descreve um experimento que nunca foi feito
+
+**Onde:** `chapters/apx_f_cosine.tex`:83, renderiza na p. 97 do build de defesa.
+**Texto:** "That is why replacing the sharing scheme changed so little in the first study, and why
+changing the representation changed so much in the second and third."
+
+**Confirmado, e o proprio documento diz o contrario em tres lugares.** O Cap. 3 construiu **uma**
+arquitetura (`3_cbic/method.tex`:69, "built upon a hard parameter-sharing scheme") e lista as
+alternativas como trabalho futuro (`3_cbic/conclusion.tex`:23, "We plan to explore alternative
+parameter-sharing mechanisms, such as **soft sharing (e.g., Cross-Stitch Networks) or
+Mixture-of-Experts (MoE) models**"). Os resultados dele comparam MTL contra os modelos de tarefa
+unica, contra MHA+PE e contra o HMRM — nunca dois esquemas de compartilhamento. E o
+`1_introduction.tex`:133-135 atribui a troca da topologia de compartilhamento ao **terceiro** estudo.
+
+**O mesmo apendice acerta duas paginas depois**, em :294-299: o nulo do primeiro estudo *foi lido*
+como evidencia sobre compartilhamento na epoca, e o limite estava em outro lugar. Ou seja, a frase
+certa ja existe no mesmo arquivo.
+
+1. **Reescrever a frase de :83 na forma que :294-299 ja usa — o nulo do primeiro estudo foi
+   interpretado como limite do compartilhamento, e a medicao mostra que nao era** — corrige a
+   afirmacao sem perder o argumento do apendice, ~10 min
+2. **Cortar a clausula "replacing the sharing scheme" e ficar so com a metade da representacao** —
+   mais curto; perde a ponte para o arco dos tres estudos
+3. **Deixar como esta** — um leitor da p. 97 e informado de um experimento que nao aconteceu; e do
+   tipo que a banca pergunta
+
+> **DECISAO SUA:** ______
+
+#### BLQ-5 — a persona de MTL abriu um bloqueador no PCGrad, e eu o REBAIXEI; a decisao final e sua
+
+**Onde:** `chapters/2_fundamentals.tex`:442-445.
+**Texto:** "PCGrad guarantees that one projected update leaves the multi-task loss no higher than the
+unmodified gradient would ... and it makes no Pareto claim at all \cite{yu2020pcgrad}."
+
+**O que ela alegou:** que a p. 5 do CAGrad atribui convergencia a um ponto de Pareto arbitrario a
+*propria analise* do PCGrad, o que contradiria o "no Pareto claim at all".
+
+**Por que eu rebaixei.** Abri os dois registros nesta sessao. O arXiv:2001.06782 (PCGrad, NeurIPS
+2020) nao tem 'Pareto' nem frase de convergencia no resumo, e a extracao do proprio repo achou **zero**
+'Pareto' em 27 paginas com o instrumento validado no mesmo texto. O resumo do arXiv:2110.14048 (CAGrad)
+diz que os metodos anteriores "lack convergence guarantee and/or could converge to any Pareto-stationary
+point". **A clausula do capitulo esta citada a `yu2020pcgrad` e fala do que aquele artigo afirma**; a
+frase do CAGrad e um terceiro caracterizando a familia. As duas coisas convivem.
+
+**O que sobra, e por isso o item existe:** se a p. 5 do CAGrad de fato atribui o resultado a analise do
+PCGrad, um leitor que conhece o CAGrad vai achar "no Pareto claim at all" mais categorico do que a
+literatura em volta sustenta. **Eu nao consegui ler a p. 5** — so o resumo era alcancavel sem o PDF —
+e por isso rebaixei em vez de descartar, e digo qual metade nao conferi.
+
+1. **Suavizar para "and makes no Pareto claim of its own"** — mantem a verdade sobre a fonte citada e
+   remove o absoluto que incomoda quem conhece o CAGrad, ~5 min
+2. **Abrir a p. 5 do CAGrad e decidir com ela na mao** — o certo se voce tem acesso; e um paragrafo
+3. **Deixar como esta** — a frase e exata sobre a fonte que cita, e a persona nao a refutou
+
+> **DECISAO SUA:** ______
+
+#### Sem decisao sua, so registro: o que as duas personas de dominio confirmaram
+
+A de POI/mobilidade nao achou bloqueador: a distincao proxima categoria / proxima regiao / proximo
+lugar se sustenta em tudo que ela leu, o argumento nivel-de-check-in contra nivel-de-lugar esta correto
+como afirmacao de modelagem de mobilidade e ancorado no CTLE e nao no seu proprio resultado, e as
+divulgacoes de protocolo do Cap. 5 sao **mais fortes que a norma dessa literatura**. Os quatro
+should-fix dela sao todos a mesma classe: **lugar, nao verdade** — defesas que o Cap. 5 carrega e o
+Cap. 2 nao (construcao de janela, transdutividade, justificativa da unidade regional, a intuicao de
+revisita). A de MTL verificou **seis das sete clausulas de garantia** do bloco de Pareto de hoje contra
+cinco PDFs de origem, e retirou duas conclusoes proprias depois de abrir as paginas que as refutavam.
+A de excelencia deu **VERY GOOD forte** com caminho barato para outstanding, e registrou que o
+resultado nulo publicado e **inequivocamente um ativo** como esta apresentado.
+
 ---
 
 ## §3 · Aberto e bloqueado em terceiros
