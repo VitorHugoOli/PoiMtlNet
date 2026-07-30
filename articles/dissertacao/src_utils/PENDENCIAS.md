@@ -534,40 +534,82 @@ proibicoes da §3 ausentes, as 28 da §4 medidas (22 ausentes, 6 dentro da condi
 
 ### 2.22 Apendice F: o revisor de excelencia aprova, mas a assinatura e sua
 
-**(A) O que e.** O apendice F carrega `[NEEDS SIGN-OFF]` desde a rodada 7 porque faz duas afirmacoes
-novas que nao estao na whitelist de nenhum artigo: a mecanistica (ortogonalidade explica por que nenhum
-balanceador melhorou o peso fixo) e a de extensao (o diagnostico serve para outras arquiteturas).
-O revisor de excelencia leu o capitulo inteiro e o apendice no PDF renderizado e respondeu a pergunta que
-eu fiz a ele: **aprovaria a assinatura** com duas correcoes, ambas ja aplicadas nesta rodada
-(`e6ae1c0d` tirou a clausula do hard sharing, `3623dde8` corrigiu "replacing the sharing scheme" para
-"varying the gradient balancer"). Ele tambem re-derivou as 63 celulas da Tabela 11 a partir do parquet e
-todas reproduziram.
+**(A) O que e.** O apendice F carrega `[NEEDS SIGN-OFF]` desde a rodada 7 porque faz duas afirmacoes novas que nao estao
+na whitelist de nenhum artigo: a mecanistica (ortogonalidade explica por que nenhum balanceador melhorou o peso fixo) e
+a de extensao (o diagnostico serve para outras arquiteturas). O revisor de excelencia leu o capitulo inteiro e o
+apendice no PDF renderizado e respondeu a pergunta que eu fiz a ele: **aprovaria a assinatura** com duas correcoes,
+ambas ja aplicadas nesta rodada (`e6ae1c0d` tirou a clausula do hard sharing, `3623dde8` corrigiu "replacing the sharing
+scheme" para
+"varying the gradient balancer"). Ele tambem re-derivou as 63 celulas da Tabela 11 a partir do parquet e todas
+reproduziram.
 
-**(B) O que ja foi feito.** As cinco revisoes de personas rodaram sobre os quatro arquivos alterados
-(2_fundamentals, apx_f_cosine, 1_introduction, tables/frame/cosine). Nove itens REQUIRED aplicados, cada
-um verificado por mim na fonte antes de aceitar. Relatorios em `_round9/38_style_r9b.md`,
+**(B) O que ja foi feito.** As cinco revisoes de personas rodaram sobre os quatro arquivos alterados (2_fundamentals,
+apx_f_cosine, 1_introduction, tables/frame/cosine). Nove itens REQUIRED aplicados, cada um verificado por mim na fonte
+antes de aceitar. Relatorios em `_round9/38_style_r9b.md`,
 `39_mtl_r9b.md`, `40_readability_r9b.md`, `41_ai_tells_r9b.md`, `42_excellence_r9b.md`.
 
-**(C) O que eu preciso de voce.** A assinatura, ou a instrucao de tirar o apendice. Ele nao e um erro
-para consertar: e material novo que so voce pode aprovar antes de ir ao orientador. Custo de tirar: um
+**(C) O que eu preciso de voce.** A assinatura, ou a instrucao de tirar o apendice. Ele nao e um erro para consertar: e
+material novo que so voce pode aprovar antes de ir ao orientador. Custo de tirar: um
 `\input` comentado, mais o ponteiro novo no Cap. 6 (`3623dde8`) e a referencia em 2.3 (p. 23).
+
+> **AUTHOR:** I approve the appedix F you can remove the `[NEEDS SIGN-OFF]`, but i have some considerations:
+> 0. You must rename all the appendix, so the letters respect the correct order in the current version of the text. In
+     this case this appendix would be the letter D.
+> 1. On the `an end up worse at both than two dedicated models are at one each.` we shoud add a reference to it.
+> 2. Don't say `stranger result` without cite some ref, but my main take is not to say this, is your jugdment and can
+     cause questions in the reviewer
+> 3. This phrase: "That is why varying the gradient balancer changed so little in the first study, and why changing the
+     representation changed so much in the second and third.". Have a huge erros in the first sutdy we use 2 diffents
+     tasks, than the last third study of mobiwac, also the arch of the MTLnet was different so we can relate the results
+     of this appendix to the first and secon study.
+> 4. On the "the cosine of the angle between the two resulting gradient vectors was recorded" we should cite some
+     article/studie/document that show this apporach
+> 5. Exclude this: "so one configuration on one dataset is five series of fifty values, and two of Florida’s
+     carryapartialre-run ontopoftheirs.", is over detail.
+> 6. This is a implementation detail let's exclude also: "That chapter reaches the same conclusion from a smaller
+     development-time measurement,onanearlierdatapreparationandoverfourseedsratherthanper-epochseries,so the
+     twosetsofnumbersarenotinterchangeableand this appendix supersedes nothingthere."
+> 7. on the: "Every test below therefore runs on five fold... Whereacountofobservationsappearsitdescribesthedata,
+     notatest’ssample size." this part explain the how the experiments was runned is importante, but we can simplify the
+     details, don't need to do a lot of tech explanation, also about the florida I belive explain it in much details can
+     cause confusion, lets try to be more straight.
+> 8. The phrase: "feature needs saying plainly" this is britisher english and this boke on of the agents_guartrails. If
+     this is not in the guardrails add this and eval in the rest of the text if we have similar stuctures that are
+     britisher.
+> 9. This phrase:  "Two departures from that flat picture appear" is pure A.I, we cna be more simple and direct.
+> 10. This phrase: "both are worth reporting rather than smoothing" we don't need to say this, appears as we are try to
+      hide somthing we just need to report.
+> 11. On the: "A 𝑡-test does reject on both datasets and for both
+      departures,butatfiveobservationsthatrestsentirelyonassumingnormality,andthisappendix
+      willnotacceptforoneclaimabasisitrejectsforanother.", you don't say which datasets, and this phrase is confusing
+      and hard to read for whom don't have a lot of knowhow. We can try to improve the rest of this paragraph
+> 12. The phrase: "Both point away from trouble in any case. A positive cosine is mild cooperation, not conflict, and
+      the decline stays inside the margin throughout while moving toward zero rather thanawayfromit." is well written,
+      but is not natural for a non native writer in english, and force a non native read more than once to understand.
+> 13. On the paragraph that starts with: "The second is about the arc of the three studies.", we need to take care cause
+      the first two studies was diferrent tasks that these ones that we are testing int eh appendix F. Maybe remove
+      this.
+> 14. Somthing that worths to mention, don't need fither explanation, in the F.3 is that besides the gradients don't
+      addup, this don't means that the tasks are not sharing their knowladge since exstie otehr mechanims like the gate
+      in the arch and so on...
 
 ### 2.23 Cinco itens RECOMMENDED das revisoes que eu nao apliquei
 
-**(A) O que e.** Ficaram por decisao de escopo, nao por esquecimento. Cada um tem quote e pagina no
-relatorio citado.
+**(A) O que e.** Ficaram por decisao de escopo, nao por esquecimento. Cada um tem quote e pagina no relatorio citado.
 
-| id | onde | o que | por que nao apliquei |
-|---|---|---|---|
-| R-3 | p.26-27 | §2.5 nao retoma a pergunta que §2.3 deixa aberta | mexe em prosa que nao mudou nesta rodada |
-| R-5 | p.23 | uma frase de 66 palavras com tres pontuacoes fortes | reescrita de estilo, sua chamada |
-| R-6 | p.23 | so uma referencia no corpo aponta para o Apendice F | pode ser deliberado |
-| EX-6 | p.101 | uma comparacao entre datasets que o texto nao precisa | `40_readability` e `42_excellence` divergem |
-| EX-9 | p.23, 99 | densidade de figuras de linguagem | OPTIONAL nos dois relatorios |
+| id   | onde     | o que                                                 | por que nao apliquei                        |
+|------|----------|-------------------------------------------------------|---------------------------------------------|
+| R-3  | p.26-27  | §2.5 nao retoma a pergunta que §2.3 deixa aberta      | mexe em prosa que nao mudou nesta rodada    |
+| R-5  | p.23     | uma frase de 66 palavras com tres pontuacoes fortes   | reescrita de estilo, sua chamada            |
+| R-6  | p.23     | so uma referencia no corpo aponta para o Apendice F   | pode ser deliberado                         |
+| EX-6 | p.101    | uma comparacao entre datasets que o texto nao precisa | `40_readability` e `42_excellence` divergem |
+| EX-9 | p.23, 99 | densidade de figuras de linguagem                     | OPTIONAL nos dois relatorios                |
 
 **(B) O que ja foi feito.** Triados e medidos; nada aplicado.
 
 **(C) O que eu preciso de voce.** Diga quais valem e eu aplico. Nenhum e um erro de fato.
+
+> **AUTHOR:** Aplique o R-3,5,6 e o EX-6, seguindo a recomendação do 42_excellence, não aplique o EX-9.
 
 ## §5 · Levantados do `CODEX_AUDIT.md` quando ele foi arquivado (2026-07-29)
 
