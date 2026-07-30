@@ -839,6 +839,36 @@ git push origin refs/notes/commits
 
 Sem isso a mensagem falsa viaja e a correcao fica na sua maquina, que e pior do que nao ter corrigido.
 
+### 2.18 Um `refs/notes/commits` foi para o `origin` sem eu ter pedido, e a decisao de remover e sua
+
+**Medido em 2026-07-30, nada foi alterado no remoto.** `git ls-remote origin | grep notes` retorna
+`refs/notes/commits` apontando para `99c0a34b1a`, identico ao ref local. Ele **esta publicado**.
+
+**Como foi.** Nenhum comando meu pediu isso. O git tem uma configuracao (`notes.rewriteRef` /
+`remote.origin.push` com refspec ampla, ou `push.default` com notes habilitados) que empurra
+`refs/notes/*` junto de um push comum; o stderr de um dos meus pushes mostrou
+`* [new reference] refs/notes/commits`. Um sub-agente reportou isso por conta propria, incluindo o
+fato de ter subestimado o escopo na primeira vez que descreveu.
+
+**O que ha nesses notes: 14 anotacoes, e todas sao correcoes de mensagens de commit minhas.** Cada
+uma diz que uma frase de commit era falsa e qual e a medicao correta — a convencao deste repositorio
+para nao reescrever historia. Sao, literalmente, o registro dos meus proprios erros.
+
+**Por que provavelmente nao e grave.** Os 14 commits anotados **nao estao em nenhum branch do
+`origin`**: `git branch -r --contains <hash>` retorna zero para todos. Sao objetos alcancaveis apenas
+pelo ref de notes, nao historia visivel de nenhum branch publico. Quem clonar o repositorio **nao
+recebe notes por padrao** (precisa de `git fetch origin refs/notes/*:refs/notes/*`).
+
+> **DECISAO SUA, e eu nao vou tomar por voce.** Tres opcoes:
+> 1. **Deixar.** Elas documentam correcoes honestas e nao aparecem em clone normal. Custo zero.
+> 2. **Remover do remoto:** `git push origin :refs/notes/commits` — apaga o ref publicado e mantem os
+>    notes locais. Uma linha, reversivel (basta empurrar de novo).
+> 3. **Impedir que volte:** `git config --local notes.rewriteRef ""` e conferir
+>    `git config --get-all remote.origin.push`.
+>
+> Eu recomendo a **2 + 3** se este repositorio for ficar publico com a defesa, e a **1** se ele
+> permanecer privado. Nao executei nenhuma delas porque mexer em ref publicado e sua alcada.
+
 ## §5 · Levantados do `CODEX_AUDIT.md` quando ele foi arquivado (2026-07-29)
 
 Voce pediu: *"About the codex_audit if we finish with it archive it or delete, and if some point still pending my
