@@ -94,6 +94,12 @@ largura em pixels).
 uma lista de trabalho ja consolidada. E a proxima rodada, e e mais importante que a maior parte do que sobrou aqui. Nao
 esta perdido: o arquivo esta no disco. Mas nao esta commitado, e nenhum item dele foi aplicado ao texto.
 
+**ATUALIZACAO 2026-07-30:** voce acrescentou um ponto seu no fim do arquivo (l. 1228), sobre
+otimalidade de Pareto nos fundamentos de MTL. **Esse esta sendo executado agora** — e o item 2.12 pelo
+outro lado (o termo esta em prosa publicada e nao esta no `GLOSSARY`, que e fail-closed), e a esteira que
+trabalha nele tambem le os itens G8 (definicoes formais de MTL) e G10 (o argumento tecnico para o achado
+de nao-conflito) porque sao a mesma peca de texto. **O resto do arquivo continua nao executado.**
+
 **(C) O que eu preciso de voce.** Duas coisas. Primeiro, **commitar o arquivo** se ele estiver pronto (eu
 deliberadamente nao commitei prosa sua em andamento). Segundo, dizer se quer que eu execute a lista de trabalho
 consolidada dele — ela e uma rodada propria, com pesquisa e verificacao, e nao a comecei porque nao foi o que voce pediu
