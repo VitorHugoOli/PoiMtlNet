@@ -581,6 +581,195 @@ proprias linhas e um erro aritmetico visivel sem conhecimento nenhum do dominio.
 > suite de testes a cada invocacao e o mesmo erro de trabalho-dentro-de-trabalho que fez o `check`
 > levar 265 s.
 
+---
+
+### 2.11 A assimetria do resultado de regiao: o Cap. 5 ressalva, e o resto do documento nao
+
+**(A) O que e.** `chapters/5_mobiwac/05_setup.tex` diz que o plano de analise *"did not cover
+next-region superiority, so the four next-region gains ... are secondary results outside it"*. O
+resto do documento afirma o mesmo resultado **sem essa ressalva**. Medido com o varredor que remove
+comentarios, sobre os 54 `.tex`:
+
+| onde | forma |
+|---|---|
+| `1_introduction.tex:132`, `6_conclusion.tex:21` e `:93` | "four of six" / "four of the six" |
+| `2_fundamentals.tex:786`, `5_mobiwac/01_introduction.tex:39`, `5_mobiwac/08_conclusion.tex:14`, `5_mobiwac.tex` | idem |
+| `content.tex:166` (Resumo e Abstract) | "quatro deles" / "four of them" — a mesma alegacao, em outras palavras |
+
+No PDF de defesa (100 pp) a alegacao sem ressalva imprime nas **pp. 14, 58, 59, 76, 77 e 78**; a
+ressalva imprime **so na p. 67**. Sao sete sitios em prosa mais as duas parafrases do pre-textual,
+contra uma ressalva.
+
+**(B) Por que importa.** O registro estatistico de 2026-07-27 e inequivoco: o teste primario
+registrado para **toda** celula de regiao e nao-inferioridade TOST. Uma leitura rapida do Resumo, da
+Introducao ou da Conclusao le "outperforms em quatro de seis" como resultado primario; a p. 67 diz
+que nao e. Nenhuma track da rodada 6 assumiu isso (achado L-5 do ledger).
+
+**(C) O que eu preciso de voce.** Uma regra, e ela vale para os nove sitios de uma vez:
+
+> **(a)** o texto de moldura acrescenta "as a secondary result" (ou equivalente) **uma vez**, no
+> ponto que voce escolher — o candidato natural e a Conclusao, que ja e o lugar onde o escopo do
+> plano de analise e discutido. Custo: uma frase, mais linha de errata se voce quiser rastrear.
+> **(b)** a assimetria e deliberada — o Cap. 5 e o capitulo que carrega o metodo, entao e onde a
+> ressalva pertence — e isso vai para `LEFT_OUT.md` com o motivo. Custo: zero no texto, mas o
+> registro passa a existir.
+>
+> **Eu nao decido isto** porque muda o que o Resumo e a Conclusao afirmam sobre o resultado
+> principal do Cap. 5, que e prosa sua sobre um resultado seu.
+
+### 2.12 `Pareto-stationary point` esta na prosa e nao esta no registro (o `GLOSSARY` e fail-closed)
+
+**(A) O que e.** A regra de manutencao do `GLOSSARY.md` e explicita: *"a term not in this registry
+may not be used in dissertation prose"*. Medido hoje:
+
+```bash
+cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
+grep -c 'Pareto-stationary' GLOSSARY.md          # 0
+```
+
+e o termo esta em prosa em **dois** sitios, os dois em texto publicado reproduzido:
+`chapters/3_cbic/method.tex` (*"convergence to a Pareto-stationary point"*) e
+`chapters/4_courb/methodology.tex` (a garantia do Nash-MTL, a mesma frase do item 3 do
+`VERIFY_LIST`). Imprimem nas **pp. 36 e 48**. `tables/courb/errata.tex` ainda traz a forma sem
+hifen, "Pareto stationary". As outras duas entradas que o item 4 daquele arquivo pedia — **bilinear
+discriminator** e **logistic function** — **ja entraram** (`GLOSSARY.md:71` e `:72`); so esta faltou.
+
+**(B) Por que importa.** O `make check` **nao pega isto**: existe um gate de "Pareto" mas ele e
+informativo e conta ocorrencias, nao registro. E o termo nao pode ser simplesmente removido — as
+duas frases sao publicadas, entao tirar o termo e editar uma frase publicada, com linha no
+Apendice B.
+
+**(C) O que eu preciso de voce.** Uma decisao, tres saidas:
+
+> **(a)** registrar o termo (uma linha na §4 do `GLOSSARY`, a definicao ja esta escrita na propria
+> frase do Cap. 4: *"a point at which some convex combination of the task gradients is zero"*).
+> Custo: uma linha, e o documento fica consistente com a propria regra.
+> **(b)** trocar o termo nas duas frases publicadas. Custo: duas linhas de errata no Apendice B, e
+> voce esta editando prosa publicada por uma questao de vocabulario.
+> **(c)** registrar uma excecao explicita para termos que chegam em prosa reproduzida. Custo: uma
+> nota no `GLOSSARY`, e a regra deixa de ser fail-closed para essa classe.
+
+### 2.13 A contagem dos `[NEEDS SIGN-OFF]`: o comando conta 4 a mais, sempre, e a tabela da §2.1 esta vencida
+
+**(A) O que e.** O `VERIFY_LIST` A7 manda rodar `grep -rn "NEEDS SIGN-OFF" src/ | wc -l` e esperar
+46. **Esse comando conta a mais, por construcao**: ele varre `src/build/`, onde
+`src/build/fmt/_body.tex` e uma **copia gerada** que o `src/.gitignore` exclui. Sao os mesmos quatro
+marcadores contados duas vezes. Toda contagem futura precisa de `--exclude-dir=build`.
+
+**(B) O numero em si nao e estavel, e isso e o achado.** Medi 53, e vinte minutos depois 55, na
+mesma sessao. Nao foi erro de medicao: uma **track paralela da rodada 8** acrescentou um marcador em
+`apx_b_errata.tex` enquanto eu media, e outros dois chegaram nos commits `3ef8dc8b` e `d9ab436f`.
+Registro com o momento, como manda o §4b: **55 no fonte / 59 com `build/`, medido em `d9ab436f`**,
+mais um marcador ainda nao commitado na arvore de trabalho.
+
+**(C) A tabela da §2.1 nao fecha mais**, por dois motivos independentes: o total (46) envelheceu, e
+ela lista `0_main.tex` com 4 marcadores — arquivo que **nao existe mais**; esses quatro estao hoje
+em `content.tex`. Distribuicao medida em `d9ab436f` (`--exclude-dir=build`):
+
+| arquivo | n |
+|---|--:|
+| `chapters/6_conclusion.tex` | 9 |
+| `chapters/2_fundamentals.tex`, `chapters/apx_a_contributions.tex`, `chapters/apx_b_errata.tex` | 6 cada |
+| `content.tex` | 4 |
+| `chapters/5_mobiwac/06_results.tex` | 3 |
+| `chapters/1_introduction.tex`, `3_cbic/results.tex`, `5_mobiwac/02_related.tex`, `5_mobiwac/07_discussion.tex`, `apx_f_cosine.tex` | 2 cada |
+| `3_cbic/method.tex`, `4_courb.tex`, `4_courb/methodology.tex`, `4_courb/results.tex`, `5_mobiwac.tex`, `5_mobiwac/05_setup.tex`, `apx_b_static_scope.tex`, `apx_c_ai_disclosure.tex`, `apx_d_ceiling.tex`, `apx_e_ethics.tex`, `main_extra.tex` | 1 cada |
+
+**(D) O que eu preciso de voce.** Nada para decidir; e a sua fila. **Nao reescrevi a tabela da §2.1**
+porque ela e o seu inventario de leitura e porque qualquer numero que eu escreva ali envelhece no
+proximo sign-off. A ordem de leitura recomendada continua valendo: A1, depois A3, depois A2.
+
+### 2.14 O intervalo de paginas do `nash`: nao da para verificar daqui
+
+**(A) O que e.** `references.bib` traz `pages = {16428--16446}` para
+`@inproceedings{nash}` (Navon et al., *Multi-Task Learning as a Bargaining Game*, ICML 2022).
+Tentado de novo nesta sessao, contra as fontes de registro que o sandbox alcanca:
+
+| fonte | resposta |
+|---|---|
+| OpenAlex | um unico registro, `W4225981399`, tipo **preprint**, venue "arXiv", `first_page` e `last_page` **nulos** |
+| Crossref (`query.bibliographic`) | cinco obras, **nenhuma delas este artigo** — nao ha DOI registrado da versao de anais |
+| `proceedings.mlr.press` | **fora da allowlist** do sandbox; nao acessado |
+
+**(B) Por que importa.** Pelo §1 do `AGENT_GUARDRAILS`, um identificador que nao foi aberto na fonte
+de registro nao pode ser apresentado como conferido. O campo esta no `.bib` e nao esta verificado.
+
+**(C) O que eu preciso de voce.** Um clique fecha: `proceedings.mlr.press/v162/navon22a.html`.
+
+> **(a)** confirmar o intervalo e ele fica; **(b)** apagar o campo `pages`, que e exatamente o
+> precedente que esta bibliografia ja adotou para `standley2020tasks`.
+
+### 2.15 Tres citacoes NOT-SUPPORTED e um termo banido, todos em prosa publicada reproduzida
+
+**(A) O que e.** Quatro pontos, um so tipo de decisao: **nenhum deles pode ser corrigido por um
+agente**, porque todos estao em frases publicadas, e mexer nelas gera linha de errata.
+
+| onde | o que |
+|---|---|
+| `3_cbic/method.tex` | `ruder2017sluice` citado para regularizacao implicita do hard sharing |
+| `4_courb/methodology.tex:173` | `sun2020go` citado para ciclos temporais revelarem a *funcao* do lugar |
+| `4_courb/methodology.tex:184` | `belkin2003laplacian` citado para um regularizador hierarquico de embedding |
+| `4_courb/methodology.tex:173,184` | **`fclass` em prosa renderizada**, 4 ocorrencias em 3 linhas |
+
+**(B) Sobre o `fclass`, que ninguem tinha levantado.** O `GLOSSARY.md:73` diz, com todas as letras:
+*"In code this column is `spot`, renamed `fclass` at `hgi/preprocess.py:62`; **NEVER write `fclass`
+in prose**"*. Varri os 54 `.tex` sem comentarios: `4_courb/methodology.tex` e o **unico** arquivo. E
+as frases identicas estao publicadas no CoUrb (`src_en/sections/metodology.tex:109` e `:120`), entao
+e o mesmo tipo de decisao das tres citacoes acima. Nenhum gate pega: o de codenomes casa
+`B9|v1[1-7]|champion-G|H3-alt|dk_ovl|log_T|substrate`, e `fclass` nao esta na lista.
+
+**(C) O que eu preciso de voce.** Uma decisao por linha, ou uma regra para as quatro:
+
+> **(a)** trocar. As substituicoes sugeridas (`baxter2000model`, `Xu2023`) **ja estao** na
+> bibliografia e ja sao citadas para essas alegacoes em outros pontos; para o `fclass`, o termo
+> registrado e "fine class". Custo: uma linha de errata no Apendice B por sitio.
+> **(b)** manter e registrar. As frases sao do artigo publicado e reproduzi-las fielmente e
+> defensavel; a divergencia vai para `LEFT_OUT.md`. Custo: zero no texto.
+>
+> `ruder2017sluice` merece uma nota: a mesma chave carrega **tambem** uma decisao de metadados (o
+> titulo no `.bib` e o do preprint superado, "Sluice Networks..."; o titulo de registro e "Latent
+> Multi-task Architecture Learning" e a versao de registro e AAAI 2019,
+> `10.1609/aaai.v33i01.33014822`, pp. 4822-4829). Decida as duas juntas para tocar a entrada **uma
+> vez** so.
+
+### 2.16 Quatro artefatos publicados **divergiram** das copias locais (o item 2.2 cobria dois)
+
+**(A) O que e.** O Apendice A cita treze caminhos `\path{}`. A pergunta "quantos faltam no branch
+publico" ja teve **quatro** respostas nesta base (9 de 13, depois 5, depois 4, agora esta). O motivo
+de todas as anteriores e o mesmo: `git cat-file -e mobiwac:<caminho>` pergunta *"este CAMINHO esta
+no branch"*, e a alegacao e *"este ARQUIVO esta no branch"* — e o branch `mobiwac` **nao tem arvore
+`docs/`**, guarda esses artefatos em `analysis_protocol/`. Remedi por **hash**, comparando cada
+arquivo local com os blobs do branch:
+
+| classe | n | quais |
+|---|--:|---|
+| no branch, **byte a byte identicos** | 8 | `folds.py`; `STATISTICAL_PROTOCOL.md`, `JOINT_BEST_RESULTS.md`, `m1_full_output.txt`, `m2_prereg_output.txt` (sob `analysis_protocol/`); `build_phase3_per_fold_transitions.sh`; `score_joint_best.py`; `autocorrelation_ceiling.py` (em `scripts/`, nao `scripts/embedding_eval/`) |
+| no branch com **conteudo diferente** | 4 | `superiority_wilcoxon.py`, `region_match_tost.py`, `m1_stats_n20.py`, `m2_prereg_perfold.py` |
+| diretorio (o instrumento nao classifica) | 1 | `stats_n20/` |
+
+**Nada esta faltando.** Quatro artefatos publicados **divergiram**:
+
+| arquivo | local | no branch | linhas diferentes |
+|---|--:|--:|--:|
+| `superiority_wilcoxon.py` | 147 | 126 | 37 |
+| `region_match_tost.py` | 74 | 74 | 2 |
+| `m1_stats_n20.py` | 411 | 335 | 84 |
+| `m2_prereg_perfold.py` | 214 | 222 | 36 |
+
+**(B) Por que importa.** O seu item **2.2 ja reservou exatamente esta decisao a voce**, mas para
+**dois** arquivos (`m1_stats_n20.py` e `m2_prereg_perfold.py`). Sao **quatro**. Substituir um
+artefato publicado por uma versao local divergente e decisao de autor, nao faxina — nao toquei em
+nada.
+
+**(C) O que eu preciso de voce.** Por arquivo, ou uma regra para os quatro:
+
+> **(a)** publicar a versao local, se ela e a correta (um commit seu no branch `mobiwac`);
+> **(b)** deixar como esta, se a versao publicada e a que gerou os numeros do artigo — que e o caso
+> a favor de deixar quieto, e o mais provavel para `region_match_tost.py`, com 2 linhas de diferenca.
+>
+> A prosa do Apendice A **nao depende disto**: ela ja diz que os scripts estatisticos *"are part of
+> the working repository and are supplied on request"*, o que nenhuma das leituras acima torna falso.
+
 ## §5 · Levantados do `CODEX_AUDIT.md` quando ele foi arquivado (2026-07-29)
 
 Voce pediu: *"About the codex_audit if we finish with it archive it or delete, and if some point still pending my
