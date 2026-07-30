@@ -375,7 +375,13 @@ nesta.
 `PENDENCIAS.md`. Aplicar 1.229 linhas de feedback novo no fim de uma rodada longa, sem voce ter pedido, seria exatamente
 o tipo de improviso que o `AGENT_GUARDRAILS` manda parar e sinalizar.
 
-### 2.9 O disco do nespedgpu esta 100% cheio, e isso bloqueia qualquer treino novo
+### 2.9 O disco do nespedgpu estava 100% cheio — LIBERADO por voce; sobrou a decisao de rodar ou nao
+
+> **ESTADO ATUAL, medido 2026-07-30T00:48Z: 61G livres, GPU ociosa, embeddings prontos.** O bloqueio
+> nao existe mais. O que era "libere espaco ou aceite quatro datasets" virou "rode os tres que faltam
+> ou aceite quatro", e isso e uma decisao diferente, com outro custo. A medicao completa e as duas
+> opcoes estao no fim deste item; o registro abaixo e como o bloqueio foi diagnosticado e fica porque
+> explica por que o apendice tem quatro datasets e nao sete.
 
 **Medido 2026-07-29 09:00Z, nada foi apagado.** `df -h /home` no host de GPU:
 
@@ -418,6 +424,64 @@ restantes como bloqueados por disco, nao como pendentes de fila.
 
 
 > DECISAO: Liberado
+
+#### O BLOQUEIO ACABOU, medido em 2026-07-30T00:48Z, e isso muda o item de bloqueio para escolha
+
+Voce escreveu "Liberado" e eu conferi no host antes de escrever esta linha, porque **um estado remoto
+verificado uma vez nao continua verdadeiro** e este arquivo ja errou exatamente assim uma vez (item
+2.1, `origin/mobiwac`). Medido por mim, nao por voce:
+
+| o que                                        | 2026-07-29 09:00Z          | **2026-07-30 00:48Z**       |
+|----------------------------------------------|----------------------------|-----------------------------|
+| `df -h /home` disponivel                     | **0** (100% cheio)         | **61G** (84% usado)         |
+| `results/check2hgi/california/checkpoints/`  | 61G                        | **ausente**                 |
+| `results/check2hgi/california/` (o diretorio) | —                          | 64M                         |
+| GPU (`nvidia-smi`)                           | —                          | 0 MiB usados, 0% ocupada    |
+| treino vivo (`pgrep -af scripts/train.py`)   | —                          | nenhum                      |
+| interpretador `PoiMtlNet/.venv/bin/python`   | —                          | torch 2.11.0+cu128, cuda True |
+| embeddings Check2HGI em `output/check2hgi/`  | —                          | os sete estados presentes   |
+
+**Nada foi apagado por mim.** Os checkpoints sairam pela sua mao; eu so li `df`, `du`, `ls` e
+`nvidia-smi`. Reproduza com:
+
+```bash
+ssh nespedgpu 'df -h /home | tail -1; du -sh ~/PoiMtlNet/results/check2hgi/california'
+```
+
+**UMA CONSEQUENCIA JA APLICADA NO TEXTO, porque a frase tinha ficado falsa.** O apendice do
+gradiente-cosseno afirmava, no presente, que os tres datasets estao *"blocked on that machine's free
+space rather than waiting in its queue"*. Com 61G livres isso deixou de ser verdade **dentro do
+documento**. A clausula agora diz que o que falta aos tres e **a execucao**, nao um metodo -- verdade
+independente de voce rodar ou nao. Lido no PDF (p. 100 do build de defesa, 100 pp, tex_errors 0), nao
+no fonte. As duas frases anteriores, que contam que a tentativa *encheu* o disco, sao historia e
+ficaram. Marcado `[NEEDS SIGN-OFF: PENDENCIAS 2.9, round8]`. Uma instrucao para agentes futuros no
+mesmo arquivo (*"Say BLOCKED, never 'pending' or 'queued'"*) mandava, hoje, escrever algo falso: esta
+marcada como superada, com o motivo, em vez de apagada.
+
+> **A DECISAO QUE SOBRA, e ela e nova: nao e mais "liberar espaco", e "rodar ou nao rodar".**
+> Com disco, GPU livre e os embeddings prontos, os tres datasets que faltam custam:
+>
+> | dataset   | forma de submissao                                       | custo medido                        |
+> |-----------|----------------------------------------------------------|-------------------------------------|
+> | texas     | um job                                                   | cabe no cap de 35 min               |
+> | istanbul  | um job                                                   | cabe no cap de 35 min               |
+> | california| cinco jobs de um fold (`--only-fold k`, **0-indexado**)  | ~22,3 min por fold, ~1,9 h no total |
+>
+> **(a) Rodar os tres.** O apendice passa de quatro para sete datasets e a conclusao de ortogonalidade
+> ganha a cobertura completa do Cap. 5. Custo real: os tres jobs **sequenciais** (o host tem uma GPU
+> so; sete jobs concorrentes ja mataram tres por falta de memoria), mais re-rodar
+> `src_utils/_round7/cosine_stats.py`, estender `tables/frame/cosine.tex`, refazer a figura e
+> **corrigir toda contagem de dataset no apendice** -- o proprio arquivo lista os oito lugares e manda
+> conferir por grep em vez de confiar na lista.
+> **(b) Nao rodar.** Quatro datasets e um resultado honesto e fechado; o apendice ja diz que o leitor
+> nao deve extrapolar. Custo: zero, e o texto ja esta correto como esta.
+>
+> **Eu nao escolho por voce**, porque (a) gasta ~2 h da sua GPU e mexe em prosa de apendice que voce
+> assina. Se for (a), duas armadilhas medidas deste host, para o job nao voltar verde e vazio:
+> `export MTL_TRAIN_DIAGNOSTICS=1` (a diagnostica e opt-in e o padrao e desligado -- tres estados ja
+> foram colhidos com a coluna `grad_cosine_shared` inteiramente vazia), e **nao selecione o diretorio
+> de saida por recencia**, que sob jobs concorrentes ja produziu dois "folds diferentes" byte a byte
+> identicos. E `df -h /home | tail -1` antes de cada submissao.
 
 ### 2.10 Dos catorze checkers: sete se auto-verificam de verdade, um tem auto-teste que nao morde, dois tem fixtures, quatro nao tem nada
 

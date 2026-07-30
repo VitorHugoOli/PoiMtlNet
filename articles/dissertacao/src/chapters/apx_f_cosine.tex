@@ -304,17 +304,38 @@ California, Texas, and Istanbul, the other three datasets of Chapter~\ref{ch:mob
 above for reasons of computational resource rather than of principle. California and Texas are the
 two largest of the six and the region task at that scale forces full single-precision training, and
 the attempt ran out of disk on the machine that would have done it; Istanbul, a smaller dataset, was
-queued behind them when the disk filled. The diagnostic needs no new method, so all three are blocked
-on that machine's free space rather than waiting in its queue. The coverage here is therefore three
+queued behind them when the disk filled. The diagnostic needs no new method, so what these three lack
+is the run itself rather than a way to perform it. The coverage here is therefore three
 of the dissertation's six datasets plus Georgia, and a reader should not extrapolate to the rest.
+% [NEEDS SIGN-OFF: PENDENCIAS 2.9, round8, 2026-07-30] ONE CLAUSE REPLACED, AND THE REASON IS THAT
+% IT HAD BECOME FALSE. It read "so all three are blocked on that machine's free space rather than
+% waiting in its queue". That was a PRESENT-TENSE claim about a remote machine, and a remote state
+% verified once does not stay true -- the same lesson PENDENCIAS 2.1 records about origin/mobiwac.
+% Re-measured 2026-07-30T00:48Z over ssh:nespedgpu, `df -h /home`:
+%     /dev/mapper/vg0-home  393G  313G  61G  84% /home
+% 61G free, not 0. results/check2hgi/california/checkpoints (the 61G this comment names below) is
+% ABSENT; that whole state directory is now 64M. The author freed it -- "DECISAO: Liberado" in
+% PENDENCIAS 2.9 -- so the sentence outlived its own measurement by a day.
+% The replacement clause is true whether or not the runs are ever made, and it says the same thing
+% to the reader: the gap is a run, not a method. WHETHER TO MAKE THE RUN IS THE AUTHOR'S CALL and is
+% recorded as its own decision in PENDENCIAS 2.9 with the measured cost; nothing here presumes it.
+% The two sentences before this one are HISTORY and stay: the attempt really did run out of disk.
 % [round7, 2026-07-29] DO NOT WRITE "the largest of the six" ABOUT THESE THREE. It is false for
 % Istanbul, which is the SMALLEST by region count and smaller than Florida, which IS measured here.
 % Measured from tables/mobiwac/datasets.tex (strip comments first, the table has them):
 %   check-ins: AL 113,846 | AZ 236,450 | ISTANBUL 462,615 | FL 1,407,034 | CA 3,171,380 | TX 4,089,892
 %   regions:   Istanbul 520 | AL 1,109 | AZ 1,547 | FL 4,703 | TX 6,553 | CA 8,501
 % The size claim is therefore scoped to California and Texas; Istanbul's reason is that it never
-% started. Say BLOCKED, never "pending" or "queued": PENDENCIAS §2.9 measures the host at 0 bytes
-% free, so these runs cannot start, and a reader told they are queued is being told something false.
+% started.
+% [SUPERSEDED 2026-07-30, round8] This paragraph used to end: 'Say BLOCKED, never "pending" or
+% "queued": PENDENCIAS §2.9 measures the host at 0 bytes free, so these runs cannot start, and a
+% reader told they are queued is being told something false.' THE DISK IS NO LONGER FULL (61G free,
+% measured 2026-07-30T00:48Z; see the sign-off note at the coverage paragraph), so that instruction
+% now tells the next agent to write something false, which is the exact failure it was written to
+% prevent. Superseded rather than deleted, per AGENT_GUARDRAILS §4b V5: an instruction that expired
+% is evidence about how this file drifts, and a reader who finds only its absence learns nothing.
+% WHAT TO SAY NOW: say the runs were NOT MADE, and do not attribute the gap to any live condition on
+% the host without re-running `df -h /home` in the same session and dating the reading.
 % [VERIFY: the per-dataset extension to California, Texas, and Istanbul. STATUS at the time this
 % appendix was written, from the job's own _status.json and not from its log: job 805120f1 on
 % ssh:nespedgpu was KILLED by SIGTERM at a 35-minute wall-clock cap (exitCode 124 at 35.0 min).
