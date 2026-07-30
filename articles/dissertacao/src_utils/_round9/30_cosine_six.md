@@ -167,7 +167,7 @@ dataset into a reported write-off two days ago).
 | alabama (control, already in the appendix) | `ec3e3b52` | `done`, exitCode 0 | 04:53:32 → 04:54:48, 1.3 min | 5/5, md5s identical to the appendix's run |
 | istanbul | `9f3da11f` | `done`, exitCode 0 | 04:56:49 → 05:16:07, 19.3 min | 5/5, five distinct md5s |
 | texas | `6faa6e22` | `done`, exitCode 0 | 05:17:52 → 06:12:59, 55.1 min | 5/5, five distinct md5s |
-| california | `67585dff` | in flight as this line is written; last poll fold 2 of 5 | started 06:14:00; fold 1 took 9.2 min from its own stamps | pending its own harvest record |
+| california | `67585dff` | `done`, exitCode 0 | 06:14:17 → 06:58:37, 44.3 min | 5/5, five distinct md5s |
 
 Istanbul's five md5s, from the job's own `_meta_istanbul.txt` and re-verified after transfer:
 `0147f73581c947c90702b77e140aa2ee`, `5ac8138c0cc8bf86d7ca137124252367`,
@@ -189,11 +189,141 @@ the committed parquet, which is what exposed it; the fix is to stage uniquely-na
 host first. **This is failure mode 4 again, reproduced by the harvest tooling rather than by the
 cluster, and caught by the same distinct-hash check.**
 
-**Not started when this section was first written, and not to be described as anything else:** the
-california run, the execution of `cosine_stats6.py` (written, self-asserting, never yet run against
-real input — the only `observations6.parquet` that has existed was the synthetic self-test file,
-deleted), the six-dataset table and figure, and every count in `apx_f_cosine.tex`.
+**All three terminated `done` with exitCode 0 and 5/5 provable folds, so the fallback was not needed.**
+It is recorded here because it governed until the last run landed: if any dataset could not be
+completed or could not be proved fold-distinct, the appendix would have stayed at FOUR, this file
+would have said which and why, and no count would have been partially updated.
 
-**The fallback stands and is not a failure.** If any of the three cannot be completed or cannot be
-proved fold-distinct, the appendix stays at FOUR datasets, this file says which and why, and no count
-is partially updated. Four honest datasets beat six with one unprovable fold.
+## 8 · The gate on the real data
+
+```bash
+cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
+python3 src_utils/_round7/cosine_harvest6.py <newdata_dir>; echo "GATE_RC=$?"
+# GATE_RC=0 -- kept 15 of 15 files; distinct md5 = 15
+# wrote gradient_cosine_observations6.parquet: 4650 rows = 3900 + 750
+```
+
+Every one of the fifteen files: 50 rows, 50 non-empty `grad_cosine_shared` cells, a complete epoch
+1..50 series, and a distinct md5 matching its job's own `_meta` record. Three further checks the gate
+itself does not make:
+
+1. **The two lists were joined**, per `AGENT_GUARDRAILS` §4b V13: files without a parquet series, and
+   parquet series without a file. Both empty. A count of the instrument's output is not a count of
+   the set.
+2. **No two fold series are numerically identical** within any new state, not merely byte-distinct.
+3. **The 3,900 pre-existing rows are unchanged**, max `|old - new|` = 0.0. Compared POSITIONALLY, and
+   the reason matters: a key-merge on `(state, fold, epoch, config)` returns 4,200 rows and a nonzero
+   max difference, because 300 Florida rows sit on duplicated keys (its two partial-re-run
+   configurations). 3,900 + 300 = 4,200 exactly. That was diagnosed before it was believed, rather
+   than being read as drift in the old data.
+
+## 9 · The statistics, at the fold unit, seven datasets
+
+```bash
+python3 src_utils/_round7/cosine_stats6.py; echo "STATS6_RC=$?"   # 0
+python3 src_utils/_round7/cosine_stats.py;  echo "STATS4_RC=$?"   # 0, the four-dataset record, kept
+```
+
+The four-dataset script is kept and still runs deliberately: it is the mechanical proof that the
+published four-dataset text was derived from four-dataset data. Rewriting its assertions in place
+would have destroyed that.
+
+| dataset | unit | n | mean | 95% CI | TOST p | t p | sign p | positive |
+|---|---|--:|--:|---|--:|--:|--:|--:|
+| Florida | fold series | 60 | +0.00026 | [−0.00099, +0.00151] | 4.5e-62 | 0.676 | 0.897 | 31/60 |
+| Alabama | fold | 5 | +0.01119 | [+0.00399, +0.01840] | 5.8e-05 | 0.0125 | 0.0625 † | 5/5 |
+| Arizona | fold | 5 | +0.00150 | [−0.00511, +0.00812] | 1.7e-05 | 0.562 | 1.000 | 3/5 |
+| California | fold | 5 | +0.00071 | [+0.00001, +0.00140] | 2.0e-09 | 0.0478 | 0.375 | 4/5 |
+| Texas | fold | 5 | −0.00026 | [−0.00236, +0.00183] | 1.6e-07 | 0.744 | 0.375 | 4/5 |
+| Istanbul | fold | 5 | +0.00011 | [−0.00084, +0.00106] | 6.6e-09 | 0.757 | 1.000 | 3/5 |
+| Georgia | fold | 5 | +0.00385 | [+0.00158, +0.00612] | 3.0e-07 | 0.0093 | 0.0625 † | 5/5 |
+
+† 0.0625 is the sign test's FLOOR at n=5, not a result. Pooled descriptive over all 4,650:
+mean +0.001021, 92.37 percent within ±0.05, range [−0.3407, +0.5802].
+
+**What survives.** Equivalence to zero within ±0.05 by TOST, at every one of the seven datasets and
+at every level of aggregation including the raw observations. It does not depend on the dependence
+question, on the choice of unit, or on normality at small n.
+
+**What does not, and is not upgraded.** At n=5 the two-sided exact sign test cannot return below
+0.0625, so no five-fold dataset can support a significance claim about the sign of its mean. Reported
+honestly rather than as significance the design cannot reach.
+
+**California is the case the round produced that the four-dataset appendix could not have.** Its
+t-test returns 0.0478, under the conventional threshold, while its sign test returns 0.3750 on 4 of 5
+positive folds. It carries no dagger, because 0.375 is not the floor: this is the normality
+assumption doing the work, not the sample size. The appendix now shows both ways a five-fold sample
+misleads — a floored test that cannot reject, and a t-test that rejects where the distribution-free
+test does not even lean.
+
+**Texas: mean −0.00026 with 4 of 5 fold means POSITIVE.** One fold at −0.00322 outweighs four small
+positive ones. The positive-fold count is a column precisely so this is visible rather than inferred
+from the mean's sign.
+
+## 10 · Appendix, table, figure — and the two sentences a count-grep would have missed
+
+Every number verified in the RENDERED PDF (pp. 97-102 of the 102-page defense build), never in the
+source: 18 required strings present, all seven table rows present, and `3,900`, `four datasets`,
+`91.3`, `all four cases`, `All four means`, `three of the dissertation's six` all confirmed absent
+from the appendix's own pages.
+
+**Two findings from that verification are about the instrument, not the document, and both would have
+read as defects.** First, a `four datasets` hit that survived every edit: it is on **p. 76, in
+Chapter 5**, about a different measurement (a geographic shortlist on Alabama, Arizona, Florida and
+Istanbul), in another track's file. My page range was too wide. A stale string outside your own scope
+is not your finding. Second, two required sentences reported MISSING: one because the PDF renders a
+typographic apostrophe where my probe had an ASCII one, the other because my probe read "rejects on
+both" where the prose says "does reject on both". Both were present. **A probe string typed from
+memory rather than copied from the source is an instrument that reports false defects**, which costs
+the same as one that misses real ones.
+
+**Two false sentences the round-7 instruction list did not name, and neither carries a dataset
+count:**
+
+1. *"A $t$-test does reject in all four cases."* With seven datasets the t-test rejects on THREE
+   (alabama 0.0125, georgia 0.0093, california 0.0478). Wrong in the count and in the scope.
+2. *"Arizona is mixed at three of five."* True, but it was the only non-unanimous dataset named when
+   there was one. There are now four, from two of five at Istanbul to four of five at California.
+
+A grep for `3,900` or `four datasets` finds NEITHER. That is the durable lesson of this step: when a
+dataset count changes, the numerals are the easy part, and the VERDICTS computed from them are where
+the false sentences hide. The closing comment block in `apx_f_cosine.tex` now says so.
+
+**The figure was rebuilt and panel (c) replaced rather than rescaled.** Seven per-epoch trajectories
+left four grey series a reader could not tell apart, and the panel's claim is about SLOPES, so it now
+plots one point per fold for the slope of cosine against epoch — the same unit every p-value uses —
+with a tick at each dataset's mean. Georgia carries a dagger and a footnote because it is not one of
+the six. Two defects were caught before saving:
+
+- Its first title read *"Slopes straddle zero everywhere"*, which is **false** for alabama and
+  georgia (5/5 negative each) and contradicted its own second clause. Now *"Mean slopes all within
+  0.001 of zero"*, measured at 0.000907 for the largest.
+- The bbox check first reported the x-label overlapping its own tick labels, with the label ABOVE
+  them — a geometric impossibility in the render. `savefig(bbox_inches='tight')` leaves the artists'
+  display coordinates belonging to a differently-sized canvas, so the check must run on a fresh
+  `fig.canvas.draw()`. On a fresh draw: no overlaps, nothing outside the figure. Panel (c) data
+  occupancy went 19 percent → 83 percent.
+
+Every in-figure claim was walked back to the data before saving: means equivalent to zero (TOST at
+all seven), 92.4 percent inside the margin, every mean inside the margin, alabama and georgia
+all-positive, all mean slopes within 0.001 of zero, alabama and georgia all-negative, florida 29/60.
+
+## 11 · Gates, builds, and one red gate that was right
+
+```bash
+cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao/src
+make defense >/tmp/b.txt 2>&1; echo "DEFENSE_RC=$?"     # 0 -- 102 pages, tex_errors=0
+make academico >/tmp/a.txt 2>&1; echo "ACADEMICO_RC=$?"  # 0 -- 99 pages
+make ppgc >/tmp/p.txt 2>&1; echo "PPGC_RC=$?"            # 0 -- 103 pages
+make extra >/tmp/e.txt 2>&1; echo "EXTRA_RC=$?"          # 0 -- 20 pages
+cd .. && bash src_utils/check.sh >/tmp/c.txt 2>&1; echo "CHECK_RC=$?"   # 0
+```
+
+Page counts moved 100/97/101 → **102/99/103**, the appendix having grown by two pages.
+
+**`check.sh` exited 1 the first time and it was right to.** Seven recorded page-count claims went
+stale in `CLAUDE.md`, `PLAN.md` and `src_utils/codex_reviewer.md` — files outside this track. The gate
+named them individually and named its own fix (`sync_page_counts.py --write`); the other track ran it,
+and those three files are deliberately **not** in this track's commits. The build and the gate were
+both re-run as the LAST actions before each commit, and each exit code was read directly rather than
+through a pipe.
