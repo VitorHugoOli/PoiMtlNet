@@ -1322,28 +1322,14 @@ como esta apresentado.
 
 ---
 
-## §4 · O que auditar primeiro, se voce tiver uma hora
+## §4 · Retirado
 
-A lista priorizada esta em [`_round6/VERIFY_LIST.md`](_round6/VERIFY_LIST.md), com o comando de verificacao de cada
-item. Os cinco de maior consequencia:
+A lista priorizada de auditoria vivia aqui e apontava para [`_round6/VERIFY_LIST.md`](_round6/VERIFY_LIST.md).
+**Esse registro esta fechado** (medido 2026-07-30): os sete itens A1-A7 carregam cada um a sua disposicao de
+round 8 ou 9, e `check_verify_list.py` sai 0. O ultimo em aberto era o A3, a decisao de publicar os arquivos
+que faltavam — resolvida por execucao, nao por decisao: os seis artefatos de analise estao no `origin/mobiwac`,
+conferidos contra o REMOTO com `git ls-tree -r origin/mobiwac`.
 
-1. **O paragrafo D-01 em `apx_b_static_scope.tex`** (p. 99 do build de defesa). E a unica prosa nova que faz uma
-   afirmacao publica sobre um resultado co-autorado, e eu errei nele uma vez.
-2. **O par Resumo/Abstract** (pp. 2-3). Mais lido que qualquer outra pagina.
-3. **As duas sentencas D-02 em `6_conclusion.tex`** (p. 76). Elas mudam o que o numero mais citado do Ch.4 licencia.
-4. **A frase de reprodutibilidade em `apx_a_contributions.tex`** (p. 88), contra 2.2 acima.
-5. **`make check` e os tres builds.** `cd articles/dissertacao && source src_utils/texenv.sh &&
-   (cd src && make defense && make academico && make ppgc && make check)`. Deve sair 0 e dar **102/99/103** paginas. *(
-   Corrigido em 2026-07-30: dizia `make final`, alvo renomeado para
-   `academico` em 2026-07-29 — ainda funciona como alias, mas imprime um aviso — e citava **108/105/109**, que nao e o
-   que a arvore produz. Medido agora com pypdfium2 sobre
-   `src/build/main.pdf`, `main_academico.pdf` e `main_ppgc.pdf`. O `sync_page_counts.py` nao pega isto:
-   ele varre `CLAUDE.md`, `PLAN.md` e `codex_reviewer.md`, e nao o §4 deste arquivo.)*
-
-> **Nao confie no sucesso auto-reportado, incluindo o meu.** Esta rodada corrigiu **oito** afirmacoes
-> minhas que nao se sustentaram na medicao: um limite falso que eu carreguei ao corrigir um escopo,
-> uma exculpacao do Ch.3 que nao segue da premissa, "all gates pass" com o gate saindo 2, "byte
-> identical ... same SHA" quando o que e identico e a camada de texto, um instrumento de tamanho de
-> fonte cego ao `\includegraphics`, uma linha de ancoragem que eu li errado, um flag levantado contra
-> uma afirmacao correta lendo uma revisao superada, e um teste de gate invalido porque eu copiei o PDF
-> corrigido para a arvore quebrada. Todas as oito foram achadas por outra passagem, nao por mim.
+O aviso que estava aqui — *nao confie no sucesso auto-reportado, incluindo o meu* — nao se perdeu: virou lei
+em `AGENT_GUARDRAILS.md` §4b, hoje com dezessete regras numeradas, cada uma escrita a partir de um caso real
+deste projeto. E o lugar certo, porque uma advertencia numa fila de tarefas some quando a fila e limpa.

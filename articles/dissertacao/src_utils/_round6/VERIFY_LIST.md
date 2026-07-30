@@ -1085,6 +1085,19 @@ site.
 > in this note, and rewriting it to the by-content form would put a `git hash-object` loop into a
 > harness-executed block for no gain — the finding is recorded here in full.
 
+> **ROUND 9, 2026-07-30 — CLOSED BY EXECUTION, not by a decision.** The question this item asks (publish
+> the missing files, or weaken the sentence) was overtaken: the files were published. Verified against the
+> REMOTE, not a local branch: `git fetch origin mobiwac && git ls-tree -r origin/mobiwac --name-only`
+> lists 555 files and all six of the analysis artifacts this item turns on are among them --
+> `m1_stats_n20.py`, `m2_prereg_perfold.py`, `autocorrelation_ceiling.py`, `score_joint_best.py`,
+> `superiority_wilcoxon.py`, `region_match_tost.py`. The sentence in `apx_a_contributions.tex` therefore
+> does not need weakening and the author has no decision left to take here.
+> The earlier count in this item ("nine missing, four already public") was superseded twice, first to five
+> and then to three, each time by auditing CONTENT rather than filename: files existed on the branch under
+> a different directory, and two differed in content and were deliberately left alone as the author's call
+> (`PENDENCIAS` 2.16). The history is in that item; the arithmetic here is stale by design and is left
+> rather than rewritten, since re-deriving it would only re-answer a closed question.
+
 ### A4. The deposit build's page numbering
 
 **What to check.** That each build prints its own physical page number.
