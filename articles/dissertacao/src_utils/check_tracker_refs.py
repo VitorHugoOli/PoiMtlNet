@@ -189,10 +189,77 @@ def _severed_in(text: str) -> list[str]:
     return out
 
 
+def orphaned_items() -> list[str]:
+    """An item that leaves PENDENCIAS.md must be archived, not deleted.
+
+    THE DEFECT, found by the author on 2026-07-30 and then measured across all 63 revisions of the
+    tracker: 91 distinct items have existed by title; 30 are live; 61 left. Nineteen went to
+    _archive/PENDENCIAS_RESOLVIDOS.md as intended. Of the rest, most were retitles of an item that is
+    still live or archived (the sign-off marker item alone was retitled six times as its count changed,
+    27 -> 31 -> 32 -> 46 -> 53 -> 55), but TWO were real losses:
+
+      * the Ch.4 italics item -- 153 \emph of ordinary English, whose own title said "e uma decisao
+        sua", vanished at 1ef83867 with no decision and no archive entry. Restored as 2.20.
+      * REV-024, the bibliography font size -- legitimately closed with commit 9e2b5157 and struck
+        through, but never copied across. Re-verified (the \footnotesize wrapper is absent from every
+        live root file) and moved to the archive under a round-8 banner.
+
+    Item 2.2 was a third, found the same day by the author reading the file.
+
+    WHY NO GATE SAW IT. check_tracker_refs verified that citations RESOLVE and nesting_problems() that
+    items sit under their own section. Neither asks whether an item that USED to exist still exists
+    somewhere. A deletion leaves nothing to check -- which is exactly why it needs a check that reads
+    history rather than the current file.
+
+    This function is deliberately CHEAP and NARROW: it compares the live tracker against the archive
+    for items whose heading survives in git HEAD~N only. Running the full 63-revision sweep on every
+    `make check` would be the work-inside-work mistake that made this suite take 265 seconds, so the
+    deep sweep stays a manual procedure, documented in PENDENCIAS 2.21.
+    """
+    import subprocess
+
+    repo = TRACKER.resolve().parents[3]
+    rel_t = str(TRACKER.resolve().relative_to(repo))
+    rel_a = rel_t.replace("PENDENCIAS.md", "_archive/PENDENCIAS_RESOLVIDOS.md")
+    try:
+        prev = subprocess.run(
+            ["git", "-C", str(repo), "show", f"HEAD~1:{rel_t}"],
+            capture_output=True, text=True, timeout=20,
+        )
+    except Exception:
+        return []
+    if prev.returncode != 0 or not prev.stdout:
+        return []
+
+    def titles(text: str) -> dict[str, str]:
+        out = {}
+        for m in re.finditer(r"(?m)^### ~?~?(\d+[a-z]?\.\d+)\s+(.+)$", text):
+            out[m.group(1)] = re.sub(r"\s+", " ", m.group(2)).strip("~ ")
+        return out
+
+    now = titles(TRACKER.read_text(encoding="utf-8"))
+    was = titles(prev.stdout)
+    arch_path = repo / rel_a
+    arch = re.sub(r"\s+", " ", arch_path.read_text(encoding="utf-8")) if arch_path.exists() else ""
+
+    out = []
+    for num, title in was.items():
+        if num in now:
+            continue
+        key = title[:34]
+        if key and key in arch:
+            continue
+        # a retitle keeps the number; a renumber keeps the title. Only flag when BOTH are gone.
+        if any(title[:34] == t[:34] for t in now.values()):
+            continue
+        out.append(f"ORPHANED  item {num} left the tracker without reaching the archive: {title[:58]}")
+    return out
+
+
 def main() -> int:
     self_test()
     problems = scan()
-    misfiled = nesting_problems()
+    misfiled = nesting_problems() + orphaned_items()
     severed = severed_items()
     for m in misfiled + severed:
         print(m)

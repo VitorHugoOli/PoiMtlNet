@@ -365,3 +365,27 @@ O que elas acharam:
 | `check_tex_root.py` | Diretiva `% !TeX root` ausente ou apontando para arquivo inexistente | Invisivel para o `make`, que le o `main.tex` e nunca olha um comentario magico |
 
 ---
+
+
+---
+
+## Recuperados na varredura de 2026-07-30 (rodada 8)
+
+Itens que sairam do `PENDENCIAS.md` **fechados de forma legitima** — com commit e com marca de
+resolucao no titulo — mas que nunca foram copiados para este arquivo. Encontrados varrendo as 63
+revisoes do tracker **por titulo**, porque os numeros de item foram reciclados em tres renumeracoes e
+uma busca por numero nao os acha. Cada um foi re-verificado contra a arvore viva antes de ser
+registrado aqui; o que NAO se sustentou voltou para o `PENDENCIAS.md` em vez de vir para ca.
+
+### ~~Fonte da bibliografia: 12 pt ou `\footnotesize`? (REV-024)~~ — RESOLVIDO 2026-07-27
+
+> **Nao estava aqui, e deveria.** Fechado com commit em `63b6ad33` (2026-07-27) e removido do tracker
+> sem ser copiado para este arquivo. Reencontrado na varredura de 2026-07-30 e **re-verificado**: o
+> wrapper `{\footnotesize ...}` nao existe em nenhum arquivo raiz vivo (`main.tex`, `preamble.tex`,
+> `content.tex` -> 0 ocorrencias), entao o fechamento se sustenta.
+
+Aplicado: o wrapper `{\footnotesize ...}` saiu do `0_main.tex` e a bibliografia compoe em 12 pt,
+conforme a decisao do autor e o `UFV_COMPLIANCE.md:32`. O `\campus{Campus Florestal}` foi setado e
+**nao renderiza** hoje: a macro so e lida dentro de `\imprimircapa`, que nenhum build chama. Passa a
+aparecer quando a capa for decidida. Commit `9e2b5157`.
+

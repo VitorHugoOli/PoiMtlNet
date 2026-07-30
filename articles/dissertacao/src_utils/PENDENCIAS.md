@@ -594,6 +594,8 @@ proprias linhas e um erro aritmetico visivel sem conhecimento nenhum do dominio.
 
 ### 2.11 A assimetria do resultado de regiao: o Cap. 5 ressalva, e o resto do documento nao
 
+**Origem:** `_round6/VERIFY_LIST.md` itens 4 e 5 (achado L-5 do ledger), entregues em 2026-07-30.
+
 **(A) O que e.** `chapters/5_mobiwac/05_setup.tex` diz que o plano de analise *"did not cover
 next-region superiority, so the four next-region gains ... are secondary results outside it"*. O
 resto do documento afirma o mesmo resultado **sem essa ressalva**. Medido com o varredor que remove
@@ -702,6 +704,8 @@ continua valendo: A1, depois A3, depois A2.
 
 ### 2.14 O intervalo de paginas do `nash`: nao da para verificar daqui
 
+**Origem:** `_round6/VERIFY_LIST.md` item 14, entregue em 2026-07-30 (precedente `standley2020tasks`).
+
 **(A) O que e.** `references.bib` traz `pages = {16428--16446}` para
 `@inproceedings{nash}` (Navon et al., *Multi-Task Learning as a Bargaining Game*, ICML 2022).
 Tentado de novo nesta sessao, contra as fontes de registro que o sandbox alcanca:
@@ -721,6 +725,8 @@ de registro nao pode ser apresentado como conferido. O campo esta no `.bib` e na
 > precedente que esta bibliografia ja adotou para `standley2020tasks`.
 
 ### 2.15 Tres citacoes NOT-SUPPORTED e um termo banido, todos em prosa publicada reproduzida
+
+**Origem:** `_round6/VERIFY_LIST.md` itens 15 e 16, entregues juntos em 2026-07-30 como uma decisao unica.
 
 **(A) O que e.** Quatro pontos, um so tipo de decisao: **nenhum deles pode ser corrigido por um
 agente**, porque todos estao em frases publicadas, e mexer nelas gera linha de errata.
@@ -838,6 +844,46 @@ git push origin refs/notes/commits
 ```
 
 Sem isso a mensagem falsa viaja e a correcao fica na sua maquina, que e pior do que nao ter corrigido.
+
+### 2.20 O Cap. 4 italiciza ingles corriqueiro 153 vezes, e este item DESAPARECEU do tracker sem decisao
+
+> **ESTE ITEM FOI PERDIDO, nao resolvido.** Ele existiu ate `1ef83867` (2026-07-28) e saiu do arquivo
+> naquele commit **sem ir para o `_archive/PENDENCIAS_RESOLVIDOS.md` e sem uma decisao sua**. O titulo
+> dizia explicitamente *"e uma decisao sua"*. Reencontrado em 2026-07-30 varrendo as 63 revisoes do
+> tracker por titulo, nao por numero — porque os numeros foram reciclados em tres renumeracoes.
+
+**Re-medido agora, na prosa viva (comentarios removidos), e os numeros continuam praticamente iguais
+aos de dois dias atras:**
+
+| capitulo | `\emph`/`\textit` |
+|---|---|
+| Cap. 1 | 6 |
+| Cap. 2 | 6 |
+| Cap. 3 | 23 |
+| **Cap. 4** | **153** (eram 155) |
+| Cap. 5 | 10 |
+| Cap. 6 | 0 |
+
+Mais italicizados no Cap. 4: `embedding` 18, `baseline` 16, `encoders` 15, `encoder` 14,
+`embeddings` 12, `check-ins` 7. **E inconsistente consigo mesmo** — a mesma palavra aparece nas duas
+formas: `encoder` italico 14 / romano 8, `encoders` 15 / 7, `baseline` 16 / 4, `embedding` 18 / 1.
+
+**A causa e legitima, a consequencia nao.** Isso vem do artigo em portugues, onde italicizar
+estrangeirismo e a pratica correta. Num capitulo **em ingles** a mesma marcacao nao marca mais
+estrangeirismo: le-se como enfase numa palavra que nao tem nenhuma, e o proprio capitulo se contradiz.
+
+> **DECISAO SUA, e continua sendo. Tres caminhos:**
+> 1. **Deixar como esta.** O Cap. 4 e capitulo de artigo publicado; a marcacao veio de la. Custo zero,
+>    mas um leitor em ingles ve enfase onde nao ha.
+> 2. **Remover o italico de vocabulario corrente** (embedding, baseline, encoder e plurais), mantendo
+>    italico so em termo tecnico em primeiro uso. ~90 substituicoes, mecanicas, e eu registro como
+>    partida de errata no Apendice B por ser capitulo publicado.
+> 3. **Uniformizar sem remover:** escolher uma forma por palavra e aplicar. Resolve a contradicao
+>    interna sem mudar a densidade de italico.
+>
+> Eu recomendaria a **2**, e nao aplico nada sem voce: e prosa de artigo publicado e o proprio item
+> dizia que a decisao e sua. `WRITING_LAW` nao cobre italico de estrangeirismo em capitulo traduzido,
+> entao nao ha regra para eu invocar.
 
 ### 2.19 Quatro numeros do registro de itens fechados nao reproduzem, e um deles tem TRES respostas
 
