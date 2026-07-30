@@ -121,3 +121,31 @@ that were seven**, **seven both-directions checks that were three**. In each cas
 was available and correct; in each case the summary sentence was written from the set rather than
 re-derived from the predicate it asserted. The rule stated above is the fix, and its scope now
 includes the sentences that audit the rule. Waves B and C claim nothing applied.
+
+
+---
+
+## Fourth instance, and this one the suite caught: an item stranded past its section rule
+
+While adding the reviewer blockers to `PENDENCIAS.md` §6.10, I inserted the block after the `---` that
+closes the section, so a reader following the file's own convention stops before reaching three
+blocker-severity items. `check_trapped_prose` flagged it, by name, with the line number.
+
+**Worth recording for two reasons, neither of them the defect itself.**
+
+First, **this is the second time this round I made this exact mistake** — item 6.9 landed the same way
+two hours earlier and was fixed the same way. The insert-before-the-next-heading idiom finds the right
+*heading* and the wrong *boundary*, every time, because the rule sits between the last item and the
+heading. The durable fix is to anchor an insert on the closing rule rather than the next heading, and
+that is now what the code does.
+
+Second, and less comfortably: **I committed with the gate red.** The commit ran `make check`, the
+output showed `FAIL`, and the commit went through anyway because the command was chained with `&&` in
+a way that let the commit run regardless. The gate did its job; I did not read it before acting. The
+fix was to repair the file and amend, so no red state is preserved in history — but the sequencing
+error is the finding, and it is the same shape as trusting a self-report: I had the evidence and did
+not look at it before moving on.
+
+Running total for round 9: **four claim-or-count defects in my own work**, three found by a reviewer
+and one by the suite. Every one of them was a statement I could have checked with a command I had
+already written.
