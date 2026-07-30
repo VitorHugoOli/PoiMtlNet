@@ -859,6 +859,32 @@ returns diluted through one convolution. It should **not** say Chapter 3 is unaf
 said "esse nao se aplica ao DGI que usamos no cbic"; the measurement says the channel there is
 indirect, not absent. If you want the stronger exculpation, it cannot be supported as written.
 
+> **ROUND 8, 2026-07-30 — the paragraph says exactly this, though not in the words this item quotes.**
+> It has been rewritten since; the opening is now "The second is that Chapter 3 has a version of the
+> same problem, milder but present, and saying so is more honest than drawing a line between the two",
+> so a search for "how direct the channel is" returns nothing and the paragraph is still there. It
+> carries the mechanism the item requires: the DGI feature "deliberately leaves the place itself out,
+> which looks like it closes the channel. It does not. The place graph is undirected, so a place appears
+> in its own neighbors' features, and a single graph convolution averages a place together with its
+> neighborhood. The place's own label comes back at the first hop, diluted among its neighbors." And it
+> lands on the required verdict verbatim: "The difference between the two chapters is therefore one of
+> degree: an exact lookup in Chapter 4, a diluted average in Chapter 3." The one occurrence of
+> "unaffected" is in a different clause ("The first is that the sequential task is unaffected"), not an
+> exculpation of Chapter 3. It prints in the supplementary volume, `main_extra.pdf`, section B.5 — not
+> defense p. 99. **The reading is the author's to endorse; the text is not what his 2026-07-27 ruling
+> assumed, which is what this item exists to surface, and that remains true.**
+
+### A2 — VERIFIED, 2026-07-30
+
+Both sentences are in `chapters/6_conclusion.tex` and print on **p. 74** of the 100-page defense
+build (this item says p. 76). The figure stays and is bounded exactly as prescribed: "raised category
+macro-F1 by 20.2 to 22.0 percentage points across the three states tested", then "Two qualifications
+bound what that number licenses. It is measured on the **static task**, which classifies a place from
+that place's own representation, and **Appendix B of the supplementary volume** records that this
+task's input determines its target by construction, so the figure is not evidence about the sequential
+task." The second qualification is the width mismatch, 192 against 64. The arc's diagnosis then rests
+on the sequential task in the following sentence. Nothing here needs the author beyond reading it.
+
 ### A2. The bounded Ch.4 number in the conclusion
 
 **What to check.** That the two added sentences say what you would say.
@@ -908,6 +934,44 @@ site.
 > do not exist in any branch, so they would have reported ABSENT for the wrong reason. They live
 > inside `stats_n20/`, and the command above gives their full paths.
 
+> **THIRD CORRECTION, ROUND 8, 2026-07-30 — the command still answers the wrong question, and the
+> answer by content is EIGHT of thirteen present, not four.** Run as written it prints 6 PRESENT and 7
+> ABSENT, which matches neither the "four/nine" the item states nor the "five still absent" the
+> appendix comment records. The reason is the one already written into `apx_a_contributions.tex`:
+> `git cat-file -e mobiwac:<path>` asks *is this PATH in the branch*, and the claim is *is this FILE in
+> the branch*. The `mobiwac` branch has **no `docs/` tree** and keeps these artifacts under
+> `analysis_protocol/`, so byte-identical files read as absent. Re-measured by hashing each local file
+> and looking the object up among the branch's blobs (the four bare filenames resolved into
+> `stats_n20/` first, as the second correction requires):
+>
+>     ON BRANCH, BYTE-IDENTICAL (8): src/data/folds.py; STATISTICAL_PROTOCOL.md and
+>       JOINT_BEST_RESULTS.md and m1_full_output.txt and m2_prereg_output.txt (all under
+>       analysis_protocol/); scripts/build_phase3_per_fold_transitions.sh;
+>       scripts/closing_data/score_joint_best.py; autocorrelation_ceiling.py (at scripts/, not
+>       scripts/embedding_eval/)
+>     NOT ON BRANCH BY CONTENT (4): superiority_wilcoxon.py, region_match_tost.py,
+>       m1_stats_n20.py, m2_prereg_perfold.py
+>     DIRECTORY, unclassifiable by a file-hashing instrument (1): stats_n20/
+>
+> **All four of the "not on branch by content" files are on the branch at their own paths with
+> DIFFERENT content**, which is a materially different situation from missing and is the one the author
+> already reserved to himself in `PENDENCIAS.md` §2.2: `superiority_wilcoxon.py` 147 local lines against
+> 126 published (37 differing lines), `region_match_tost.py` 74 against 74 (2 lines),
+> `m1_stats_n20.py` 411 against 335 (84), `m2_prereg_perfold.py` 214 against 222 (36). So **nothing is
+> missing from the public branch; four published artifacts have diverged from the working copies.**
+> Replacing a published artifact with a divergent local version is an author decision, not cleanup, and
+> §2.2 already says so for two of the four — it now covers four (`PENDENCIAS.md` §2.16).
+>
+> This is the **fourth** count this one item has produced (9 of 13, then 5 of 13, then 4-of-13
+> by-path, now 8 of 13 by content), and every revision came from an instrument answering a narrower
+> question than the claim built on it. §4b V3, V6. The count that matters for the prose is **zero
+> genuinely absent**, and the prose is already scoped to what is true either way: the appendix says the
+> statistical scripts "are part of the working repository and are supplied on request", which no
+> reading of these numbers falsifies.
+> **The block above is left exactly as written.** It is the by-path question, it is correctly labelled
+> in this note, and rewriting it to the by-content form would put a `git hash-object` loop into a
+> harness-executed block for no gain — the finding is recorded here in full.
+
 ### A4. The deposit build's page numbering
 
 **What to check.** That each build prints its own physical page number.
@@ -933,13 +997,35 @@ PY
 # EXPECT: contains=main        first numbered page: physical  12 prints  12  OK
 ```
 
-**What the answer should be.** Three `OK` lines: `main` physical 11 prints 11, `main_academico`
-physical 8 prints **8**, `main_ppgc` physical 12 prints 12. Before this round the deposit build
+**What the answer should be.** Three `OK` lines: `main` physical 12 prints 12, `main_academico`
+physical 9 prints **9**, `main_ppgc` physical 13 prints 13. Before this round the deposit build
 (then `main_final`) printed 11 on physical page 8, and every page after it inherited that three-page
 error. Run `make defense && make academico && make ppgc` first if `src/build/` is stale.
 (The deposit target was renamed `final` -> `academico` on 2026-07-29, LATEX_UPGRADE.md §4 A-1; the
 command above is executed by `src_utils/check_verify_list.py`, so the stem here is live tooling and
 not a frozen record.)
+
+> **ROUND 8, 2026-07-30 — VERIFIED: three `OK` lines, and the prose numbers here were one page stale
+> in all three builds.** Measured output:
+> ```
+> main        first numbered page: physical  12 prints  12  OK
+> main_academico first numbered page: physical   9 prints   9  OK
+> main_ppgc   first numbered page: physical  13 prints  13  OK
+> ```
+> The `# EXPECT: contains=` annotation on the block already carried `physical  12 prints  12`, so the
+> executable half was right and only the **prose** said 11 / 8 / 12; the prose is corrected above. That
+> asymmetry is the useful part: the annotated line is re-read on every `make check` and the sentence
+> beside it is not, which is why an expectation belongs in the block rather than in the paragraph. The
+> property the item cares about — printed number equals physical position, no inherited offset —
+> holds in all three, on builds of 100, 97 and 101 pages.
+
+### A5 — VERIFIED, 2026-07-30
+
+`Hfootnote` count is **0** in all three logs (`main`, `main_academico`, `main_ppgc`), counted in
+python rather than with `grep -c`, which exits 1 on a zero count and would fail the harness while
+reporting the passing value. The same probe is annotated under item 18 above, so this is checked on
+every `make check` rather than only when someone runs this block. Clicking a mark to confirm it is
+plain text is the human half and is not automatable here.
 
 ### A5. The footnote links
 
@@ -960,10 +1046,27 @@ cd articles/dissertacao && source src_utils/texenv.sh && (cd src && make check);
 ```
 
 **What the answer should be.** **RC=0** — for the first time this round; it exited 2 throughout while
-six commit messages said otherwise. You should see `OK: 49 .tex files, every root directive present and
-resolving`, `negative parallelism: ... 3.19 per 1k (ceiling 3.60)`, `OK: no doubled reference macros in
-49 files`, and `trapped-prose suspects: 0`. Each of the four new gates self-tests in both directions
+six commit messages said otherwise. You should see `OK: 54 .tex files, every root directive present and
+resolving`, `negative parallelism: ... 3.35 per 1k (ceiling 3.60)`, `OK: no doubled reference macros in
+54 files`, and `trapped-prose suspects: 0`. Each of the four new gates self-tests in both directions
 before it reports; if one prints only OK and no self-test line, distrust it.
+
+> **ROUND 8, 2026-07-30 — VERIFIED RC=0, and three of the four expected strings had drifted.** The
+> suite is now **22 gates, 2.047 s total**, every gate under the 5 s threshold. Measured strings, with
+> the stale value this item carried:
+> ```
+> OK: 54 .tex files, every root directive present and resolving          (item said 49)
+> negative parallelism: 120 instances / 35844 prose words = 3.35 per 1k  (item said 3.19)
+> OK: no doubled reference macros in 54 files                            (item said 49)
+> trapped-prose suspects: 0                                              (unchanged)
+> ```
+> The prose above is corrected. None of these is a defect: the file count grew with the chapter split
+> and the appendix move, and the parallelism density stayed under its 3.60 ceiling. **The instruction
+> in the last sentence is worth keeping and is now stronger than it reads.** `selftest_all.py` classifies
+> the fourteen checkers by *sabotage* rather than by whether a `def self_test` exists, and reports
+> **PROVEN 3, FAILED 0, UNPROVEN or HALF 11 of 14** — so "distrust a gate that prints only OK" is not a
+> hypothetical: eleven of the fourteen currently have no fixture proving they fire on their own defect.
+> That inventory is `PENDENCIAS.md` §2.10 and is the author's to prioritize.
 
 ### A7. The 46 sign-off markers, three of them first
 
@@ -972,3 +1075,41 @@ before it reports; if one prints only OK and no self-test line, distrust it.
 
 **What the answer should be.** Read A1, A3 and A2 above before the other 43. Those three are the ones
 where the round changed what the document claims rather than how it says it.
+
+> **ROUND 8, 2026-07-30 — the count is not 46, the command as written over-counts, and the number is
+> NOT STABLE ENOUGH TO ASSERT. What is assertable is the over-count.**
+> ```bash
+> cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
+> python3 -c "
+> import subprocess
+> def n(args):
+>     return len(subprocess.run(['grep', '-rn', 'NEEDS SIGN-OFF'] + args,
+>                               capture_output=True, text=True).stdout.splitlines())
+> with_build, source_only = n(['src/']), n(['src/', '--exclude-dir=build'])
+> print('inflated_by_generated_build_copy', with_build - source_only)
+> print('build_copy_is_generated', __import__('pathlib').Path('src/build/fmt/_body.tex').exists())
+> "
+> # EXPECT: contains=inflated_by_generated_build_copy 4
+> # EXPECT: contains=build_copy_is_generated True
+> ```
+> The gap is **four markers in `src/build/fmt/_body.tex`, a generated file** that `src/.gitignore`
+> excludes — the same four counted twice, once in the source and once in the formatter's copy. **Any
+> count of these must pass `--exclude-dir=build`**; the bare command in this item does not, so every
+> number it has ever produced was inflated by four.
+>
+> **Why the absolute number is deliberately not asserted here, which is the finding worth carrying.**
+> I measured 53 in source, then 55 twenty minutes later in the same session. Nothing was wrong with
+> either measurement: **a concurrent round-8 track added a `[NEEDS SIGN-OFF]` to
+> `apx_b_errata.tex` while this file was open**, and two more arrived in commits that landed between my
+> own (`3ef8dc8b`, `d9ab436f`). Pinning an exact total in an `EXPECT` would hand the author a gate that
+> the next legitimate sign-off breaks. So the block asserts the structural defect, which is durable, and
+> the count is recorded with its moment: **55 in source / 59 with `build/`, measured at `d9ab436f`,
+> with one further marker uncommitted in the working tree.**
+> This is `§4b V14` at the level of measurement rather than bookkeeping: in a parallel round a count is
+> a reading at a timestamp, not a property of the repository, and it must be written down with both.
+> The §2.1 inventory table is stale on the same account, and separately by structure — it lists
+> `0_main.tex` with 4, a file that no longer exists; those four are now in `content.tex`. Since the
+> markers are the author's queue rather than a claim in the document, the corrected count, the by-file
+> breakdown and the `--exclude-dir=build` rule go to `PENDENCIAS.md` §2.13 rather than being edited into
+> §2.1 by an agent.
+> **The reading order this item recommends is unchanged and still right**: A1, then A3, then A2.
