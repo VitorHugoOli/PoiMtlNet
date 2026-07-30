@@ -617,15 +617,23 @@ material novo que so voce pode aprovar antes de ir ao orientador. Custo de tirar
 (`check_register.py`). Varridos os 54 `.tex` vivos mais o `references.bib`, **doze linhas de achado em onze sitios**
 (uma frase pode disparar duas regras): **5** grafias britanicas, **1** construcao britanica (a sua) e **6** formas de
 fraseado. **Seis eram nossas e foram corrigidas**; **cinco** estao no Apendice F e a outra esteira ja as fechou.
-**Sobrou uma, e ela e sua**, porque esta em prosa publicada. (As cinco do apendice do cosseno estao contadas aqui como "Apendice F", que era a letra quando esta varredura mediu; a outra esteira aplicou o seu ponto 0 e **reletrou para Apendice D** no commit `4eea637a`. O arquivo continua `chapters/apx_f_cosine.tex` e o gate e ancorado no caminho, nao na letra.)
+**Sobrou uma, e ela e sua**, porque esta em prosa publicada. (As cinco do apendice do cosseno estao contadas aqui como
+"Apendice F", que era a letra quando esta varredura mediu; a outra esteira aplicou o seu ponto 0 e **reletrou para
+Apendice D** no commit `4eea637a`. O arquivo continua `chapters/apx_f_cosine.tex` e o gate e ancorado no caminho, nao na
+letra.)
 
-*(Este bloco dizia **nove ocorrencias** e "quatro/quatro/uma". Estava errado, e o erro foi pego por revisao, nao por
-mim: eu somei categorias de cabeca em vez de contar as linhas do instrumento. Medido agora rodando o gate sobre a arvore
-do `06529ed6` com o `OPEN_REGISTER` vazio, para que nada fique retido e todo achado imprima: `rc=1`, "6 British
-spelling/construction hit (s) and 6 hard-phrasing shape (s)", 12 linhas. A conferencia fecha nos dois sentidos: 6
-corrigidas + 5 do Apendice F + 1 sua =
+**A conferencia fecha nos dois sentidos**, e as tres parcelas estao escritas como palavras de proposito:
+seis linhas corrigidas nesta esteira, cinco fechadas pela esteira do apendice do cosseno e uma aberta
+para voce, que somam as doze. Escrita com algarismos e um sinal de igual, esta frase ja se quebrou duas
+vezes num reflow, deixando o `12.` no inicio de uma linha, onde o markdown o le como item de lista
+numerada e a aritmetica desaparece da pagina.
 
-12. O detalhamento linha por linha esta na §1.3 do relatorio.)*
+*(Este bloco dizia **nove ocorrencias** e "quatro/quatro/uma". Estava errado, e o erro foi pego por
+revisao, nao por mim: eu somei categorias de cabeca em vez de contar as linhas que o instrumento
+imprime. Medido rodando o gate sobre a arvore do `06529ed6` com o `OPEN_REGISTER` vazio, para que nada
+fique retido e todo achado imprima; o gate sai com `rc=1` e conta seis achados de grafia ou construcao
+britanica mais seis de fraseado, doze linhas ao todo. O detalhamento linha por linha, com o comando,
+esta na secao 1.3 do relatorio.)*
 
 `chapters/3_cbic/conclusion.tex`, p. 43 do build de defesa:
 
