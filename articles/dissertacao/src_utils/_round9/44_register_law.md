@@ -1,7 +1,15 @@
 # 44 · The register law: British English, and phrasing that forces a second reading
 
-**Round 9, 2026-07-30. Baseline `06529ed6`, delivered at `9d035bd9`.**
+**Round 9, 2026-07-30. Baseline `06529ed6`.**
 Answers PENDENCIAS 2.22 points 8, 9 and 12.
+
+> **One naming note before you read, because the letter moved under this report.** Everything below
+> calls the cosine appendix **Appendix F**, which is what it printed as while this track measured it and
+> what your points 8, 9 and 12 refer to. The parallel track then applied your point 0 and **relettered
+> it to Appendix D** (commit `4eea637a`); the defense build now prints appendices A, B, C, D and the
+> source file is still `chapters/apx_f_cosine.tex`. So: the letter in this report is the one you were
+> reading from, the file path is current, and the gate is keyed on the path rather than the letter, so
+> nothing in it went stale. Read "Appendix F" here as "the cosine appendix, now D".
 
 ---
 

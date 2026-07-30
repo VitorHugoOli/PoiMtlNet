@@ -617,7 +617,7 @@ material novo que so voce pode aprovar antes de ir ao orientador. Custo de tirar
 (`check_register.py`). Varridos os 54 `.tex` vivos mais o `references.bib`, **doze linhas de achado em onze sitios**
 (uma frase pode disparar duas regras): **5** grafias britanicas, **1** construcao britanica (a sua) e **6** formas de
 fraseado. **Seis eram nossas e foram corrigidas**; **cinco** estao no Apendice F e a outra esteira ja as fechou.
-**Sobrou uma, e ela e sua**, porque esta em prosa publicada:
+**Sobrou uma, e ela e sua**, porque esta em prosa publicada. (As cinco do apendice do cosseno estao contadas aqui como "Apendice F", que era a letra quando esta varredura mediu; a outra esteira aplicou o seu ponto 0 e **reletrou para Apendice D** no commit `4eea637a`. O arquivo continua `chapters/apx_f_cosine.tex` e o gate e ancorado no caminho, nao na letra.)
 
 *(Este bloco dizia **nove ocorrencias** e "quatro/quatro/uma". Estava errado, e o erro foi pego por revisao, nao por
 mim: eu somei categorias de cabeca em vez de contar as linhas do instrumento. Medido agora rodando o gate sobre a arvore
