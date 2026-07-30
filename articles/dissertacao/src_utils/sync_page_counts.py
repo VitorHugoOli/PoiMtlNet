@@ -71,9 +71,18 @@ CLAIMS = [
     # page-count claim the author is most likely to act on, and it was the only one no tool watched.
     # The pattern matches the three-target form "**102/99/103** paginas" as a unit, so all three
     # targets are checked, and a fourth number in that slot cannot pass silently.
-    ("src_utils/PENDENCIAS.md",  r"\*\*(\d+)/\d+/\d+\*\* paginas", "defense"),
-    ("src_utils/PENDENCIAS.md",  r"\*\*\d+/(\d+)/\d+\*\* paginas", "academico"),
-    ("src_utils/PENDENCIAS.md",  r"\*\*\d+/\d+/(\d+)\*\* paginas", "ppgc"),
+    # REMOVED 2026-07-30. These three watched the "**102/99/103** paginas" claim in PENDENCIAS §4, and
+    # §4 was retired the same day (VERIFY_LIST closed, so the audit-priority list it pointed at had no
+    # reason to exist). The claim they guarded is GONE, not stale: there is no page-count assertion left
+    # in PENDENCIAS.md to keep in sync. Verified before removing, and stated precisely because a loose
+    # count would be wrong: `grep -c "\*\*[0-9]+/[0-9]+/[0-9]+\*\* paginas"` returns 0, i.e. no claim in
+    # the three-target form these rows parsed. The bare word "paginas" still appears 11 times, all of
+    # them prose about a past measurement ("medido contra o build de 101 paginas") or a page RANGE in a
+    # citation, none of them a present-tense assertion of this tree's page count. That distinction is
+    # the whole point of the rows: they guard claims a build can falsify, not mentions of the word.
+    # Left as a comment rather than deleted so the next agent does not re-add a row for a claim the file
+    # no longer makes. The gate's UNMATCHED branch caught this immediately, which is what it is for: a
+    # pattern that stops matching is a claim that has become unchecked, and that is a defect either way.
     ("src_utils/codex_reviewer.md", r"The builds on disk are \*\*(\d+)/\d+ pages\*\*", "defense"),
     ("src_utils/codex_reviewer.md", r"The builds on disk are \*\*\d+/(\d+) pages\*\*", "academico"),
 ]
