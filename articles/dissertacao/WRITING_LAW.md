@@ -38,6 +38,83 @@
   data quantities ("8,501 regions"); words for small counts ("two tasks, seven categories").
   Comma after sentence-initial adverbial phrases. Write relative pronouns ("the head **that** we
   do not predict").
+
+- **No British English, and the ban is wider than a spelling list.** The author read Appendix F on
+  2026-07-30 and found *"feature needs saying plainly"* in the deposited prose (PENDENCIAS 2.22
+  point 8). Read the instance carefully, because it is the reason this rule is shaped the way it is:
+  **it is not a misspelling.** Every word is spelled identically in both dialects. It is the British
+  `need`+gerund construction, where American English writes "needs to be said plainly". He also
+  asked whether the governing documents banned it; they did not. Measured before this rule was
+  written: `grep -cin "british"` over this file and `AGENT_GUARDRAILS.md` returned 0 and 0. The
+  previous line said "American English throughout" and named no British form, so an agent had
+  nothing to check against. Both halves are now named.
+
+  **Spellings.** American in every case: `-ize`/`-ization` not `-ise`/`-isation`, `-yze` not `-yse`,
+  `-or` not `-our` (behavior, color, neighbor, labor), `-er` not `-re` (center, meter, fiber),
+  single `l` before a vowel suffix (traveled, modeled, labeled, signaled) and double `l` where
+  American doubles it (skillful, fulfill, installment), `-se` for the noun (defense, offense,
+  license, pretense) and `practice` for both noun and verb, `while` not `whilst`, `among` not
+  `amongst`, `toward`/`forward`/`afterward` without the `-s`, `learned`/`spelled`/`burned` not
+  `learnt`/`spelt`/`burnt`, `program` not `programme`, `catalog` not `catalogue`, `gray` not `grey`,
+  `judgment`/`acknowledgment` without the medial `e`, `aging` not `ageing`, `percent` not `per
+  cent`, `skeptic` not `sceptic`, `inquiry` not `enquiry`, `oriented` not `orientated`, `focused`
+  not `focussed`, no `oe`/`ae` digraph. **Words that end in `-ise` in both dialects are not
+  British** and must not be "corrected": surprise, comprise, exercise, advertise, supervise, revise,
+  devise, improvise, compromise, franchise, arise, precise, premise, and their prefixed and
+  inflected forms.
+
+  **Constructions**, which no spelling list reaches: `need`/`want` + gerund ("needs saying",
+  "wants doing"), `different to` or `different than` for `different from`, the bare institution
+  noun ("in hospital", "at university", "in future" for "in the future"), `have got` for `have` or
+  `must`, `shall` for the future or for obligation, `at the weekend`, `was sat`/`was stood` for the
+  progressive, a collective noun with a plural verb ("the committee have"), and `providing that`
+  for `provided that`.
+
+  Two carve-outs, both narrow. A **verbatim quotation** of published wording keeps its source's
+  spelling: correcting inside `` ``...'' `` would falsify the quotation. A British form in
+  **reproduced published prose of one of the three papers** is an errata decision, not a spelling
+  fix, and goes to the author with its cost under the errata regime (NORTH_STAR §5.7) rather than
+  being changed quietly. Gate 25 (`src_utils/check_register.py`) enforces the mechanical half and
+  holds the author-owned hits open by name.
+
+- **No phrasing a non-native writer would not produce, and this is the harder rule.** The author's
+  second complaint, from the same reading (PENDENCIAS 2.22 points 9 and 12): prose that is correct,
+  even well written, and still forces a non-native reader to read it twice. His two instances, both
+  from Appendix F, and his own words on each:
+  - *"Two departures from that flat picture appear"* — **"pure A.I, we can be more simple"**.
+  - *"Both point away from trouble in any case. A positive cosine is mild cooperation, not conflict,
+    and the decline stays inside the margin throughout while moving toward zero rather than away
+    from it."* — **"well written, but is not natural for a non native writer in english, and force a
+    non native read more than once to understand"**.
+
+  "Avoid awkward phrasing" would be unenforceable, so the ban names **shapes**:
+  - **Inverted or delayed subjects.** A named subject held away from its verb by a modifier chain,
+    with an intransitive verb of appearance at the end of the clause ("Two departures from that flat
+    picture *appear*"), and the cleft that does the same job ("What carries that diagnosis is…").
+    Name the subject and let it act: "The figure shows two departures."
+  - **An abstract noun as the subject where a person or a thing would do.** A number does not move,
+    prefer, or point: "the decline stays inside the margin *while moving toward zero rather than
+    away from it*" asks the reader to animate a statistic. Say what was measured: "the mean falls
+    toward zero and stays inside the margin."
+  - **Chained qualification inside one sentence.** Three or more qualifying connectives (while,
+    whereas, though, rather than, instead of, throughout, nevertheless) in one sentence, each
+    narrowing the last. Split it, or drop the qualifications the claim does not need. Honesty does
+    not require them in a single breath; §3 requires them *present*, not *stacked*.
+  - **Idiom that is native literary register rather than academic register.** "point away from
+    trouble", "in any case", "at any rate", "by the same token", "not least", "if anything". This
+    extends §4's idiom rule from phrasal-verb metaphors to literary connective idiom, which is the
+    class that survived the earlier sweeps.
+
+  **The test is his, and it has two halves.** Would a Brazilian non-native writer of academic
+  English produce this sentence? And can a non-native reader take it in on **one** reading? A no to
+  either sends the sentence back. Technical difficulty is not a defense: keep the technical term,
+  define it once, and simplify everything around it.
+
+  **What is gated and what is judged.** Gate 25 catches the four shapes above, and that is the
+  mechanical half only. The judgment half is the readability editor's first-read method
+  (`reviewers/15_readability_editor.md`, review method and lens 2), whose verdict is PASS only with
+  zero passages that need a second reading; `AGENT_GUARDRAILS.md` §5 makes that verdict part of G3.
+  This rule deliberately does not restate that method, and **a green gate is not a first-read PASS**.
 - **No em-dash anywhere.** Use commas, parentheses, semicolons, or two sentences. (Also an AI
   tell; also the MobiWac rule.)
 - **No process narration, and this is a hard ban.** The prose states what is true of the work, never
@@ -225,6 +302,12 @@ chapter; "deliberately X" → "X by design"; "sits above" → "lies above" (one 
 - [ ] Language pass: simple, direct American English that the author would defend aloud; American
       spelling and usage are consistent; no passage requires a second reading for its intended
       meaning or logical connection.
+- [ ] Register sweep (§1, gate 25 `check_register.py`): zero British spellings and zero British
+      constructions outside a verbatim quotation; any hit in reproduced published prose is with the
+      author as an errata decision, not changed quietly.
+- [ ] Hard-phrasing sweep (§1): no delayed or inverted subject, no abstract noun as agent of a
+      motion verb, no chained qualification, no literary connective idiom. The gate covers these
+      four shapes; the first-read verdict is persona 15's and is required separately.
 - [ ] Idiom sweep: no phrasal metaphors; em-dash count = 0; contractions = 0.
 - [ ] Tables captioned above with lead sentences; figures self-contained; metrics defined with
       boundary behavior; hygiene sentences present at every leakage-sensitive step.

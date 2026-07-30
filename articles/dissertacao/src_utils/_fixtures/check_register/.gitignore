@@ -1,0 +1,4 @@
+# selftest_all.py COPIES the checker into <side>/src_utils/ at run time, because every checker
+# resolves its paths from __file__ and would otherwise sweep the real dissertation. The copy is a
+# run artifact, not a fixture.
+src_utils/check_register.py

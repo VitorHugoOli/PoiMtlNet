@@ -287,6 +287,36 @@ gate "== process narration in prose (the author found this in Appendix F, and no
 # enforces it. Validated by reintroducing the author's exact sentence: 4 rules fire, rc=1; rc=0 clean.
 if ! python3 "$UTILS/check_process_narration.py"; then FAIL=1; fi
 
+gate "== register: British English and hard phrasing (the author found both in Appendix F) =="
+# WHICH AUTHOR INSTANCES THIS ANSWERS: PENDENCIAS 2.22 points 8, 9 and 12, all from one reading of
+# Appendix F on 2026-07-30, in a tree where all 24 gates were green.
+#   point 8  "feature needs saying plainly" -- BRITISH, and note it is NOT a spelling: every word is
+#            spelled the same in both dialects. It is the British need+gerund construction, so a
+#            spelling list would have reported clean. The gate covers spellings AND constructions.
+#   point 9  "Two departures from that flat picture appear" -- his note: "pure A.I, we can be more
+#            simple".
+#   point 12 "Both point away from trouble in any case. A positive cosine is mild cooperation, not
+#            conflict, and the decline stays inside the margin throughout while moving toward zero
+#            rather than away from it." -- his note: "well written, but is not natural for a non
+#            native writer in english, and force a non native read more than once to understand".
+# He also asked whether the law covered either; it did not, measured (`grep -cin "british"` over
+# WRITING_LAW.md and AGENT_GUARDRAILS.md returned 0 and 0). WRITING_LAW §1 now bans both classes.
+# HALF MECHANICAL, HALF JUDGMENT, and the gate says which is which in its own docstring: the British
+# spellings and constructions are gated hard, and four expressible hard-phrasing shapes are gated;
+# whether a sentence reads on the first pass is persona 15's verdict
+# (reviewers/15_readability_editor.md lens 2), which this gate points at rather than duplicating.
+# A GREEN RESULT HERE IS NOT A FIRST-READ PASS.
+# SCOPE INCLUDES references.bib, because the .tex-only version of this gate reported clean while
+# "towards" printed on page 82 of the defense build -- the bibliography is not a .tex file. Only the
+# fields WE author are checked (note/annote/abstract/howpublished/addendum); title, journal and author
+# are attributes of record under §1 R2, and the one British form in the bibliography is inside
+# Xu2023's published title, which reads "towards" at Crossref 10.1145/3582553.
+# Validated in both directions against his real sentences: planting "feature needs saying plainly" in
+# a live line gives rc=1 naming the file and the rule, restoring gives rc=0; the American twin of
+# every spelling family is asserted NOT to fire; and a stale open-register entry fails rather than
+# silently passing. Transcript in _round9/44_register_law.md.
+if ! python3 "$UTILS/check_register.py"; then FAIL=1; fi
+
 gate "== audit APPLIED claims re-measured against the source (round 8: 8 of 9 were false) =="
 # THE GATE THAT DID NOT EXIST. On 2026-07-28 an outcome table recorded sixteen findings as APPLIED;
 # on 2026-07-30 eight of the author's nine instructions were still not in the document, five of them

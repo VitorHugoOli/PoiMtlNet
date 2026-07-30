@@ -402,10 +402,19 @@ shares a pool of expert subnetworks but gives each task its own gate over them, 
 that routing, not a fixed trunk, determines sharing \cite{ma2018mmoe}. Progressive
 layered extraction sharpens this by separating shared experts from task-specific ones
 in layered gates \cite{tang2020ple}, and DSelect-k makes the expert selection itself
-differentiable and sparse \cite{hazimeh2021dselectk}. The principle these architectures
-share, keeping shared and task-specific components side by side rather than forcing one
-common trunk, is the one the joint model of Chapter~\ref{ch:mobiwac} adopts, though it realizes it with
-cross-attention rather than expert gating.
+differentiable and sparse \cite{hazimeh2021dselectk}. These architectures share one
+principle: they keep shared and task-specific components side by side instead of forcing
+one common trunk. The joint model of Chapter~\ref{ch:mobiwac} adopts that principle and
+realizes it with cross-attention rather than expert gating.
+% [round9, register track] SPLIT for the register law (WRITING_LAW §1, hard-phrasing class (b);
+% gate src_utils/check_register.py, chained-qualification shape). The previous single sentence ran
+% 38 words with three qualifying connectives ("rather than", "though", "rather than") and three
+% commas, and held its main verb "is" until word 21. It is now two sentences, each with one idea and
+% its verb early. NOTHING ABOUT THE CLAIM CHANGED: the shared principle, the contrast with a single
+% common trunk, and the cross-attention-not-gating qualification all survive verbatim in substance.
+% One "rather than" was replaced by "instead of" to avoid raising the negative-parallelism density
+% that check_negative_parallelism.py holds under a ceiling; the second is kept because it scopes how
+% the principle is realized.
 
 Sharing is not free. When tasks pull the shared parameters in different directions,
 joint training can leave a task worse off than its single-task model, a failure

@@ -76,15 +76,28 @@ REQUIRED = (
     "check_trapped_prose",
     "check_torn_sentences",
     "check_doubled_macro",
+    # Added round 9 with the gate itself. It belongs in REQUIRED rather than merely in the report
+    # because both of its classes were found by the AUTHOR reading the rendered PDF, not by any
+    # gate, and its Class A patterns are the kind that pass silently when tuned wrong: an -ise or
+    # -our family whitelisted one word too far reports OK on real British spelling. The fixture is
+    # the standing proof it can still fail.
+    "check_register",
 )
 
 # Every checker in the tree, so the report covers the whole surface rather than only what is easy.
 ALL_CHECKERS = (
-    "check_comment_hygiene", "check_doubled_macro", "check_extra_xrefs", "check_meta_claims",
-    "check_negative_parallelism", "check_tex_root", "check_torn_sentences", "check_tracker_refs",
-    "check_trapped_prose", "check_verify_list", "check_wordcount_claims", "sweep_guard",
+    "check_audit_claims", "check_comment_hygiene", "check_doubled_macro", "check_extra_xrefs",
+    "check_meta_claims", "check_negative_parallelism", "check_process_narration", "check_register",
+    "check_tex_root", "check_torn_sentences", "check_tracker_refs", "check_trapped_prose",
+    "check_verify_list", "check_wordcount_claims", "sweep_guard",
     "sync_page_counts", "sync_deliverables",
 )
+# THREE NAMES WERE MISSING FROM THIS TUPLE, found 2026-07-30 while adding check_register. The header
+# printed "14 checkers" and src_utils/ holds seventeen: check_audit_claims (the gate that re-measures
+# every APPLIED claim) and check_process_narration were absent, so the coverage report has been
+# silently describing a smaller surface than the tree has -- exactly the shape of AGENT_GUARDRAILS
+# §4b V13's fourth instance, where a table headlined fourteen listed twelve rows. The count in the
+# header is derived from this tuple, so it now reconciles.
 
 
 def run_in(checker: str, tree: Path) -> tuple[int, str]:

@@ -429,6 +429,29 @@ the work*, and that is where the time went. The four root causes, with the count
   reader need it to understand the work?" If the answer to the second is no, the first does not save
   it. Register law lives in WRITING_LAW; §1 now bans process narration outright, with gate 23
   (check_process_narration.py) enforcing it. Verification is necessary and it was never sufficient.
+  **SECOND AND THIRD INSTANCES, same reading, same appendix, same blind spot** (PENDENCIAS 2.22
+  points 8, 9 and 12). He also found *"feature needs saying plainly"*, and separately three sentences
+  he called correct and unreadable: *"Two departures from that flat picture appear"* ("pure A.I, we
+  can be more simple") and *"Both point away from trouble in any case. A positive cosine is mild
+  cooperation, not conflict, and the decline stays inside the margin throughout while moving toward
+  zero rather than away from it."* ("well written, but is not natural for a non native writer in
+  english, and force a non native read more than once to understand"). Measured before the rules were
+  written: `grep -cin "british"` over this file and WRITING_LAW.md returned 0 and 0.
+  Three details make these worth recording rather than folding into the paragraph above. FIRST, the
+  first one **is not a spelling**: every word in "needs saying plainly" is spelled identically in both
+  dialects, so a spelling list, which is what an agent asked for "British English" would reach for,
+  finds nothing. The class is a CONSTRUCTION class, and a checker built only on `-ise` and `-our`
+  would have reported clean. SECOND, the other two are not errors at all under any rule this project
+  had: they are grammatical, honest, measured, and cited. What is wrong with them is that **the reader
+  they were written for cannot use them on one pass** -- a banca of Brazilian computer scientists
+  reading English. THIRD, and this is the part that generalizes past register: all three arrived in
+  ONE reading by the author, of ONE appendix, in a tree where 24 gates were green. The gates were all
+  correct. They measured what they measured. **The author reading the rendered PDF is still finding
+  defect classes no gate expresses, which is a standing finding about the instrumentation and not
+  about him** -- the same conclusion V12 draws, arrived at from the opposite direction. WRITING_LAW §1
+  now bans both classes and gate 25 (check_register.py) enforces the mechanical half; the judgment
+  half is persona 15's first-read verdict, which §5 makes part of G3. When he finds a fourth class,
+  the right response is to write the rule AND ask what should have surfaced it unprompted.
 
 - **V17. A zero from a pattern that cannot express the target wording is not an absence.** V13 already
   says a parse returning zero rows is a broken instrument. This is the harder case, because the parser
@@ -555,6 +578,7 @@ policy; (d) every major publisher (ICMJE, Elsevier, Springer, IEEE, ACM) require
 | **Self-certification** (agent declares its own output verified) | L6 fresh-eyes rule; author audits independently. |
 | **Trusting the tolerant tool** (two checks disagree; the one reporting success is believed) | The source did not compile for six commits while `build.sh` reported "104 pp, 0 overfull, 0 undefined": under `-interaction=nonstopmode` pdflatex recovers from an error and still writes a PDF, and the checker never looked for TeX errors. `make` (`-halt-on-error`) produced nothing the whole time. **Rule: `tex_errors=0` is part of every build claim; a PDF existing is not evidence the source is correct; when two tools disagree about one artifact, distrust the one reporting success.** (2026-07-28, §2.3b of `science/AGENT_HANDOFF.md`.) |
 | **A gate that has never fired** (a check whose passing carries no information) | Validate every new gate in BOTH directions before trusting it: run it against a tree where the defect is present and confirm it fails, then against the fixed tree and confirm it passes. Four of this repository's checkers were wrong at least once by being tuned only on the case in front of them. |
+| **Writing for a native reader** (correct, elegant English the intended reader must read twice; and British forms a spelling list cannot see, because the defect is a construction) | WRITING_LAW §1 register rules, gate 25 `check_register.py` for the mechanical half, persona 15's first-read verdict for the judgment half. Found by the author, not by any gate: "feature needs saying plainly" is spelled identically in both dialects, and "Two departures from that flat picture appear" breaks no rule that existed. §4b V16, second and third instances. |
 | **Costing an item from the batch's total** (per-item rate divided out of an aggregate that includes other items) | §4b V10: derive each item's rate from its own start and end. A 3.3x error this way turned a recoverable dataset into a reported write-off. |
 | **Generalising from the one that matched** (a locating step returns nothing; the location is inferred from a neighbouring hit that did match) | §4b V9: report the location as unresolved. Two overfull boxes, one line range matched a file, and both were attributed to it — the other was in a block of comment lines where nothing can be typeset. |
 | **Taking shape for substance** (exit 0, right filename, right row count, empty column) | §4b V8: open one output file and count non-empty cells in the column you came for. Three remote runs in one night reported success with an all-`NaN` target column; the failure was invisible in every signal except the data itself. |
