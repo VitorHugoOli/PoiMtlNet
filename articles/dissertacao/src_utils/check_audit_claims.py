@@ -1,93 +1,30 @@
 #!/usr/bin/env python3
-"""check_audit_claims.py -- every "APPLIED" claim in an audit is re-measured against the live source.
+"""check_audit_claims.py -- re-measures every "APPLIED" claim against the live source.
 
-WHY THIS EXISTS
-===============
-On 2026-07-28 the round-6 outcome table in CODEX_AUDIT.md was written with sixteen rows reading
-**APPLIED**. On 2026-07-30 the author read PENDENCIAS.md and found that many of those fixes were
-never in the document. Re-measured here: of the nine instructions he had given, EIGHT were still
-unapplied, and five of the eight sat under a row asserting they were done. COD-006's row said
-'"before any result was read" and "well powered" removed' -- both strings were still in
-5_mobiwac/05_setup.tex, in both the dissertation and the submitted-paper tree.
+WHAT IT GATES. Two things, and the scope is wider than the name: (1) the CODEX_AUDIT outcome table's
+COD-/NUM- findings, and (2) fixes this project made on its own initiative (the `R8-` probes). An
+outcome table is a CLAIM ABOUT THE WORK, the highest-risk statement class here, and it was the one
+class with no gate: on 2026-07-30 eight of nine findings marked APPLIED were still unapplied.
 
-The cause is not that anyone lied. Round 6 ran eight parallel tracks; a track reported what it
-INTENDED, the outcome table recorded the report, and nothing ever re-read the source. An audit
-outcome table is a CLAIM ABOUT THE WORK, which is the highest-risk statement class in this
-repository (AGENT_GUARDRAILS §4b), and it was the one class with no gate.
+HOW TO ADD A PROBE -- do this in the SAME commit as the fix, not later.
+    ("id", "what the claim asserts", "path/under/src", r"regex", True)   # True = must be PRESENT
+Then prove it bites: revert the fix, run this file, read rc. rc must be 1. If the suite stays green,
+the fix is undefended (GUARDRAILS §4b V15). A claim you cannot probe goes in NOT_CHECKABLE, never
+silently omitted -- and RETIRED holds probes the author withdrew, kept visible so nobody "finishes"
+a finding he closed.
 
-So each finding here carries a MACHINE-CHECKABLE probe: a string that must be absent because it was
-removed, or present because it was added. If a probe cannot be written, the finding is listed as
-NOT MECHANICALLY CHECKABLE rather than assumed -- an unreported gap is how this survived.
+FOUR MEASUREMENT TRAPS, each of which produced a WRONG verdict here before it was fixed:
+  1. comment-blind matching scored a missing fix as done -- provenance comments quote the very
+     strings being checked, so all matching runs on live_text().
+  2. per-line matching scored a real fix as missing -- claims wrap; live_text() joins lines.
+  3. an escaped `\%` mid-sentence truncated a paragraph and hid the clause after it, so the
+     stripper only cuts an UNESCAPED `%`. Self-tested both ways before this file reports anything.
+  4. a sabotage that does not reach live_text() reads exactly like a probe that never fires -- all
+     seven `\begin{document}` in preamble.tex are inside comments. Assert the token is in
+     live_text() before believing any verdict about it.
 
-THREE TRAPS THIS FILE HIT WHILE BEING WRITTEN, all in the "measure the source" step, all cheap to
-repeat and expensive to notice:
-
-  1. A COMMENT-BLIND grep counts provenance comments as prose. Appendix C mentions "Opus" twice --
-     both inside `%` comments explaining why it is NOT named in the text. A plain `grep -c opus`
-     therefore reported the fix as DONE when the reader sees nothing.
-  2. A LINE-BASED probe misses a claim that wraps. NUM-4's numbers sit two lines below the sentence
-     that introduces them, so a per-line regex found nothing and reported a correctly-applied fix
-     as missing. Comments must be stripped and the file joined into one string.
-  3. AN ESCAPED PERCENT IS NOT A COMMENT. `90\\%` inside a sentence truncated a 2,068-character
-     paragraph at column 766, hiding "well powered" at column 1848 -- so the fixed stripper
-     reported the defect as absent. The comment pattern must be `(?<!\\)%`.
-SCOPE, WIDENED 2026-07-30, and stated here because a docstring claiming one scope over code covering
-two is itself a defect this repository has hit. This file started as a gate on CODEX_AUDIT's outcome
-table and now also gates FIXES THIS PROJECT MADE ON ITS OWN INITIATIVE -- the `R8-` probes. The reason
-is measured, not precautionary: a review pointed out that nothing gated round 8's own repairs, and
-reverting each of the three left all 22 gates green.
-
-  BASELINE PROVENANCE, corrected 2026-07-30 after a second review. The first two legs (the Ch.5
-  glossary word, the Ch.6 two-date sentence) were measured validly. THE THIRD WAS NOT, at the time I
-  wrote that sentence: my wrapper sabotage injected `\footnotesize` next to `\begin{document}` in
-  preamble.tex, and all seven occurrences of that anchor there are inside `%` comments -- the same
-  stripping I diagnosed one cell later for the probe-validation run, and never went back to re-take for
-  the baseline. So "all three left 22 gates green" was two measurements and one stripped no-op.
-  RE-TAKEN PROPERLY: R8-bibfont removed from PROBES, the wrapper inserted on the first LIVE line, the
-  token asserted present in live_text(), then every gate read directly -- 11 checkers, check.sh, all
-  rc=0, zero gates catching it. The claim survives; the warrant did not exist when it was written, which
-  is the more instructive half.
-  R8-head / R8-head2  the Ch.5 glossary violation ("region head" -> "region output", and the repo
-                      shorthand -> "region-transition prior"), fixed in 48c4d01d
-  R8-vintage          the Ch.6 data-vintage item printing BOTH Gowalla windows, the paper's stated one
-                      and the measured span of the files actually used
-  R8-bibfont          an INVERTED probe: the \footnotesize bibliography wrapper must stay ABSENT.
-                      REV-024 was archived as closed this session on a ONE-TIME measurement, which is
-                      the very defect written up as PENDENCIAS 2.19 -- a measurement without its tree
-                      state can only be re-taken, never re-checked. This probe converts it into
-                      something re-checkable on every run.
-Adding a probe here is now part of applying a fix, not a later tidy-up: if reverting the edit leaves
-the suite green, the fix is undefended.
-
-ONE TRAP WHEN VALIDATING AN INVERTED PROBE, hit while validating R8-bibfont. My sabotage inserted the
-banned token near `\begin{document}` in preamble.tex -- and all SEVEN occurrences of that anchor in
-that file are inside `%` comments, so live_text() stripped the sabotage and the probe correctly
-reported holds. It read exactly like a probe that does not fire. Insert the sabotage into the first
-LIVE line instead, and assert the token is present in live_text() before believing the verdict.
-
-The stripper self-tests both directions (escaped % survives, real comment excluded) before this file
-reports anything, because a stripper that silently over-strips turns every probe into a false pass.
-
-HOW TO VALIDATE THIS GATE, because my first two attempts were both invalid and both looked like the
-gate failing to fire. Sabotage must reintroduce the defect THE WAY IT ORIGINALLY EXISTED:
-
-  1. WRONG -- copy src_utils and src to a temp tree and sed there. SRC resolves from __file__, so a
-     copied checker reads the copied src; that part is fine. What broke it is (2).
-  2. WRONG -- `sed 's/a user-disjoint statistical protocol/a leakage-guarded .../'`. That string does
-     not exist on any single line: objective 4 wraps, with "user-disjoint" ending one line and
-     "statistical protocol" opening the next. The sed matched only the PROVENANCE COMMENTS (which
-     quote the phrase unwrapped), so the live prose was untouched and the gate correctly reported
-     holds -- while I read it as the gate being blind.
-  3. RIGHT -- replace across the wrap, in place, then restore:
-       s.replace("in a user-disjoint\n        statistical protocol",
-                 "in a leakage-guarded\n        statistical protocol", 1)
-     with an assert that the substitution changed the text. Measured: rc=1 with the defect, naming
-     COD-003; rc=0 after restoring; `git diff` empty, so the file came back byte-identical.
-
-The irony is the point: the wrap that made my sabotage silently no-op is the SAME wrap that made a
-per-line probe score NUM-4's real fix as missing (trap 2 above). A test that cannot fail is worth
-nothing, and "the sabotage did not apply" and "the gate did not fire" look identical from the outside.
-Always assert that the sabotage changed something before believing what the gate says about it.
+Full history -- why each probe exists, the closed-register audit, the corrected provenance of the
+baseline measurements -- is in _round8/29_pendencias_detail.md.
 """
 from __future__ import annotations
 
@@ -312,46 +249,12 @@ def main() -> int:
 
 
 # ---------------------------------------------------------------------------------------------
-# THE CLOSED-ITEM REGISTER, checked for the same defect. _archive/PENDENCIAS_RESOLVIDOS.md carries
-# 16 closed items with 40 commit citations -- the identical claim shape that failed in CODEX_AUDIT,
-# so it was audited on 2026-07-30 rather than trusted. Its most exposed row is item 1.2, "the
-# author's decisions that were applied", nine rows each naming a checkable artifact.
-#
-# FIVE OF THE NINE ROWS WERE PROBED, and this comment first said "ALL NINE HOLD" -- a batch claim of
-# exactly the kind V13 names, written in the file that exists to stop batch claims. Corrected
-# 2026-07-30 after review. What was actually measured:
-#   HOLDS  LEFT_OUT.md carries 11 LO- entries (the row claimed 8, so it grew)
-#   HOLDS  apx_b_static_scope.tex exists
-#   HOLDS  main_ppgc.tex is 2 live lines, as claimed
-#   HOLDS  the chapter split is exactly 18 per-section files
-#   HOLDS  the static-scope section is reachable through ONE \input -- but see below
-# The static-scope row needed a second look rather than a verdict: grepping src/*.tex found ZERO,
-# because the section moved into the supplementary volume with the errata appendix. It is included at
-# apx_b_errata.tex:448 and renders on 4 pages of main_extra.pdf. The claim holds; the probe was
-# looking in the volume the section had left.
-#
-# FOUR ROWS WERE NEVER MEASURED HERE and must not be read as holding: the margin/geometry row, the
-# comment-volume row (1,217 of 1,269), the front-matter-placeholder row, and the Resumo/Abstract row
-# (500->310, 423->271). Re-probed on 2026-07-30, NONE of the three checkable ones reproduces from the
-# live tree with a direct instrument: comment lines measure 3,614 across 59 .tex files against a
-# claimed 1,269; the preamble carries 14 bracketed placeholders against a claimed 3; and the geometry
-# and linespread are not in preamble.tex at all, so that row's instrument is not the one I reached for.
-# THE RESUMO ROW IS ACTIVELY CONTRADICTED, and by three different numbers: the row says 310/271, a
-# round-8 track measured 312/277, and my own instrument here gives 345/307. Three instruments, three
-# answers, so the honest state is UNREPRODUCIBLE pending one agreed convention -- not "holds".
-#
-# WHY THE FOUR DO NOT REPRODUCE is almost certainly benign: they were measured in round 6 against a
-# tree that has since gained an appendix, lost 0_main.tex to the preamble/content split, and moved two
-# appendices into a second volume. A count taken then is not wrong; it is stale, and the row does not
-# carry the tree state it was taken against. That is the defect worth recording -- a measurement
-# without its tree state cannot be re-checked, only re-taken. PENDENCIAS 2.19 hands the convention
-# question to the author rather than my picking a word-count instrument for the deposit.
-#
-# Not added as live probes here: these are claims about REPO STRUCTURE, not document strings, and
-# most are already covered (check_tex_root, the extra-volume xref gate, sync_deliverables). Recorded
-# so the next agent does not have to re-audit the register to learn it was audited.
-# ---------------------------------------------------------------------------------------------
-
-
+# THE CLOSED-ITEM REGISTER was audited for this same defect on 2026-07-30, not trusted:
+# _archive/PENDENCIAS_RESOLVIDOS.md carries 16 closed items with 40 commit citations, the identical
+# claim shape that failed in CODEX_AUDIT. Its most exposed row (item 1.2, nine checkable artifacts)
+# holds for five rows; the other four do not reproduce and are recorded as PENDENCIAS 2.19 with the
+# reason -- they are STALE, not false: taken in round 6 against a tree that has since gained an
+# appendix and lost 0_main.tex, and none records the tree state it was taken against.
+# Full audit in _round8/29_pendencias_detail.md. Do not redo it; extend 2.19 if a number moves.
 if __name__ == "__main__":
     sys.exit(main())

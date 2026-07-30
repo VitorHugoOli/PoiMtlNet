@@ -73,8 +73,7 @@ this repository without excluding that column. That constraint is the reason for
 
 **Where the full finding lives.** `src_utils/_round6/10_protocol_recovery.md` §1.5.
 
-**Decided by.** Recorded 2026-07-28. **Open for the author**: if he prefers to disclose it, the
-natural home is Appendix B's Article 1 section.
+**Decided by.** Recorded 2026-07-28. **Decidido pelo autor (2026-07-30):** *"Documentar no left_out.md"*. Era exatamente isso, e este registro e o desfecho — nao ha divulgacao pendente no Apendice B.
 
 ---
 

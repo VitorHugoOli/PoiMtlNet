@@ -870,3 +870,57 @@ Para o registro, porque um item ausente sem explicacao parece esquecimento:
 ---
 
 ---
+
+
+---
+
+## Fechados em 2026-07-30 (segunda leva da rodada 8)
+
+Tres itens que o autor apontou como ainda no tracker apesar de prontos. **Dois fecham pela
+decisao dele proprio** — 2.4 e 2.6 tinham a ruling escrita no bloco e o trabalho feito — e o
+terceiro fecha porque o proprio bloco `(C)` dele dizia "Nada": e registro, nao pendencia.
+Cada um re-verificado contra a arvore viva antes de sair, nao pelo que eu lembrava.
+
+### ~~2.10 Cobertura de auto-teste dos catorze checkers — registro, nao pendencia~~
+
+> *Titulo anterior, mantido para rastreabilidade (o item foi encurtado antes de ser arquivado, e uma busca por titulo antigo tem de acha-lo): "Dos catorze checkers: sete se auto-verificam de verdade, um tem auto-teste que nao morde, dois tem fixtures, quatro nao tem nada".*
+
+> **POR QUE SAIU DO TRACKER (movido em 2026-07-30).** FECHADO como registro: o proprio bloco `(C)` do item dizia **"Nada"** de voce. E uma medicao concluida (sete dos catorze checkers morrem quando sabotados, um tem auto-teste que nao cobre o detector, dois tem fixtures, quatro nao tem nada) mais a regra V13. `make selftest` nomeia os nao-provados em cada execucao, entao o gap fica visivel sem o tracker. rc=0.
+
+**O que e.** Medido por sabotagem (quebrar o detector e ler o codigo de saida), nao por procurar um
+`def self_test`: **sete** morrem quando quebrados, **um** tem auto-teste que nao cobre o proprio
+detector (`check_negative_parallelism`), **dois** tem fixtures, **quatro** nao tem nada.
+`make selftest` nomeia os nao-provados em cada execucao em vez de omiti-los.
+
+**(C) Nada de voce.** A tabela completa e a regra que saiu disso (`AGENT_GUARDRAILS` §4b V13) estao em
+[`_round8/29_pendencias_detail.md`](_round8/29_pendencias_detail.md). Fica aqui so como registro do
+que ainda nao tem prova.
+
+---
+
+### ~~2.4 A secao de escopo da tarefa estatica~~
+
+> **POR QUE SAIU DO TRACKER (movido em 2026-07-30).** FECHADO pela sua decisao, as duas partes feitas. O Apendice B saiu do corpo principal (rodada 7, esta no volume suplementar) e a prosa do B.5 foi reescrita em 2026-07-30. Verificado na prosa viva: a frase que voce citou tem **0** ocorrencias, o texto diz que a entrada e o nome do proprio local (4 ocorrencias), e a faixa 284-365 esta re-confirmada contra o pipeline. Renderiza na p. 11 do volume extra.
+
+Sua decisao tinha duas partes e **as duas estao feitas**: o Apendice B saiu do corpo principal (rodada
+7, esta no volume suplementar) e a prosa do B.5 foi reescrita em 2026-07-30. Verificado: a frase que
+voce citou (*"built from a fine-grained class label attached to each place"*) nao existe mais, o texto
+agora diz que a entrada e o **nome do proprio local**, e a faixa 284-365 esta re-confirmada contra o
+pipeline. Renderiza na p. 11 do volume extra.
+
+*Este bloco fica aqui uma rodada para voce conferir e depois vai para o arquivo.*
+
+---
+
+### ~~2.6 A coluna do CBIC que nao reproduz~~
+
+> **POR QUE SAIU DO TRACKER (movido em 2026-07-30).** FECHADO pela sua decisao *"documentar no left_out.md"*. `LEFT_OUT.md` LO-2 carrega o achado (tres das quatro colunas publicadas do CBIC reproduzem exatamente, 21 de 21 celulas cada; a quarta nao casa com nenhum artefato) e a restricao que ele impoe. A linha "Open for the author" dentro do LO-2 era anterior a sua decisao e foi removida.
+
+Sua decisao foi *"documentar no left_out.md"*, e esta feito: `LEFT_OUT.md` LO-2 carrega o achado
+completo (tres das quatro colunas publicadas do CBIC reproduzem exatamente, 21 de 21 celulas cada; a
+quarta nao casa com nenhum artefato deste repositorio) e a restricao que ele impoe — nenhuma frase
+futura pode dizer que os numeros do CBIC sao reproduziveis sem excluir essa coluna.
+
+*A linha "Open for the author" dentro do LO-2 e anterior a sua decisao e esta obsoleta.*
+
+---

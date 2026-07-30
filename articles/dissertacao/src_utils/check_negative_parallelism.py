@@ -108,7 +108,7 @@ PATTERN_SAMPLES: dict[str, str] = {
 def self_test() -> None:
     """Per-pattern, then aggregate. The per-pattern half is the load-bearing one.
 
-    WHY IT IS SHAPED THIS WAY (measured 2026-07-30, PENDENCIAS 2.10). The previous self-test summed
+    WHY IT IS SHAPED THIS WAY (measured 2026-07-30, PENDENCIAS_RESOLVIDOS 2.10 (arquivado 2026-07-30)). The previous self-test summed
     `len(p.findall(sample)) for p in PATTERNS.values()` over one dense sample and asserted only that
     the resulting DENSITY crossed the ceiling. Because the sum pools all four detectors, any single
     detector could be replaced with a pattern matching nothing and the remaining three still carried
