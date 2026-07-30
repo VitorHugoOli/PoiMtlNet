@@ -74,6 +74,21 @@ python3 src_utils/sync_page_counts.py --write   # se a contagem mudou
 
 ## §2 · Aberto e bloqueado em VOCE
 
+> **LIMPO EM 2026-07-30, a seu pedido.** Cinco itens desta secao estavam **de fato fechados** e foram
+> movidos para `_archive/PENDENCIAS_RESOLVIDOS.md` com o motivo de saida no topo de cada bloco:
+> **2.2** (push publicado, verificado por hash contra o remoto — o resto virou 2.16), **2.3** (fechado
+> pela sua frase *"podemos fechar esse ponto"*), **2.7** (orcamento de tuning nao-recuperavel,
+> registrado em `LEFT_OUT.md`), **2.13** (o comando contava 4 a mais por ser cego a comentarios;
+> corrigido) e **2.17** (afirmacao falsa minha, corrigida com nota de git em `a07e547b`).
+>
+> **Os buracos na numeracao — 2.2, 2.3, 2.7, 2.13, 2.17 — sao esses cinco, e nao perdas.** Nao
+> renumerei os que ficaram: seis comentarios no fonte e o `_round6/VERIFY_LIST.md` citam estes numeros,
+> e renumerar transformaria cada citacao num ponteiro para o item errado, que e pior que um buraco.
+> O gate `check_tracker_refs.py` agora falha se um item sair daqui sem chegar ao arquivo.
+>
+> **O que sobrou aqui espera VOCE, nao a mim.** Onde a medicao esta completa, o bloco `(A)/(B)/(C)`
+> diz exatamente o que falta e quanto custa cada saida.
+
 ### 2.1 Os 53 marcadores `[NEEDS SIGN-OFF]` no fonte
 
 > **CONTAGEM E TABELA CORRIGIDAS, 2026-07-30 (round 8), por medicao.** O cabecalho dizia **46** e a
@@ -215,59 +230,6 @@ modificado, 0 apagados**; contra `3c57197c` (o tip anterior a ela) e **3 arquivo
 delecoes** -- os tres que faltavam de fato. `analysis_protocol/` tem 13 arquivos no branch e
 `scripts/closing_data/` outros 13. **Nada mais a empurrar aqui.**
 
-### 2.2 Publicar os arquivos que faltam no branch publico — FEITO em 2026-07-30
-
-> **ESTE ITEM FOI APAGADO POR ENGANO, nao resolvido.** Ele existiu da versao `98a33251` ate
-> `3bd47d5d` (2026-07-29), e naquele commit -- que era sobre *citacoes de tracker*, nao sobre este
-> item -- o bloco 2.2 inteiro sumiu do arquivo sem ser arquivado em
-> [`_archive/PENDENCIAS_RESOLVIDOS.md`](_archive/PENDENCIAS_RESOLVIDOS.md) e sem renumerar o resto.
-> O trabalho **ainda estava aberto** naquele momento. O buraco entre 2.1 e 2.3 ficou no arquivo por
-> um dia inteiro e foi voce quem notou. Restaurado aqui com o desfecho, porque um item que
-> desaparece silenciosamente e pior do que um item marcado errado: nada aponta para ele.
-
-**O que era.** A frase de reprodutibilidade do Apendice A cita treze caminhos `\path{}` como
-disponiveis no branch `mobiwac`. Nem todos estavam la.
-
-**O que aconteceu de fato, e a contagem mudou tres vezes.** Nove -> cinco -> **tres**. As duas
-primeiras contagens casavam por **nome de arquivo** nos caminhos que o apendice cita; a auditoria por
-**conteudo** mostrou que este branch guarda parte deles em outro diretorio.
-
-**RESOLVIDO em 2026-07-30**, com a sua decisao de reverter em vez de reescrever historia publica:
-
-| commit | efeito |
-|---|---|
-| `b7b072d2` | `git revert 6c4267ba` — restaura os 14 arquivos que uma delecao publicada tinha removido |
-| `0288cb70` | adiciona os TRES que faltavam de fato |
-
-Verificado contra o remoto depois do push: `origin/mobiwac` esta em `0288cb70`, os 25 arquivos de
-reprodutibilidade conferem **byte a byte** contra `3c57197c` (0 problemas), os tres adicionados estao
-presentes, e o efeito liquido e **18 arquivos, 2.434 insercoes, 0 delecoes**.
-
-> **AINDA E SUA DECISAO, e a unica coisa que sobrou deste item.** Dois arquivos ja publicados em
-> `scripts/closing_data/` divergem das copias locais: `m1_stats_n20.py` (411 linhas locais contra 335
-> no branch, 84 linhas diferentes) e `m2_prereg_perfold.py` (214 contra 222, 36 diferentes).
-> **Nao toquei.** Substituir um artefato publicado por uma versao local divergente e decisao de
-> autor, nao limpeza. Se a versao local e a correta, e um commit seu.
-
-### 2.3 A ficha catalografica: naturalidade Contagem, e a biblioteca que gera
-
-**Sua decisao 2026-07-29:** Contagem e o dado de naturalidade/residencia e vai na **ficha catalografica**, nao na folha
-de rosto. O `\local{Florestal - Minas Gerais}` fica como esta, que e o que a ABNT pede (local de publicacao = cidade da
-instituicao) e o que o exemplar do Germano usa.
-
-**O que eu apliquei.** Nada de cidade no LaTeX. Apenas o nome, em tres lugares:
-`\autor` e as duas linhas "SILVA, Vitor Hugo **De** Oliveira, M.Sc." do Resumo e do Abstract. Verificado no PDF: a folha
-de rosto renderiza `VITOR HUGO DE OLIVEIRA SILVA`.
-
-**O que depende de voce.** A ficha catalografica **nao e gerada por este LaTeX** — vem do formulario da Biblioteca
-Central da UFV, e a naturalidade e um campo daquele formulario. Quando preencher, use **Contagem, MG**. Se a biblioteca
-devolver a ficha como PDF para inserir, ela entra depois da folha de rosto e eu adiciono o `\includepdf` no lugar certo.
-
-**Se voce quiser Contagem na folha de rosto mesmo assim**, e uma linha em `0_main.tex:189` — mas divergiria da ABNT e do
-exemplar, e eu marcaria `[NEEDS SIGN-OFF]` registrando que foi escolha consciente sua e nao conformidade.
-
-> DECISSAO: Podemos fechar esse ponto, quando a UFV retorna o pdf adcionamos lá. No mais vamos manter a norma da ABNT
-
 ### 2.4 A secao de escopo da tarefa estatica: manter ou suprimir
 
 **(A) O que falta.** Sua conversa com o orientador sobre argumentar ou nao publicamente quanto ao escopo da tarefa
@@ -347,40 +309,6 @@ commitado**.
 **(C) O que eu preciso de voce.** Dizer se existe um rundir dessa coluna fora deste repositorio. Se nao existir, isso e
 uma limitacao de proveniencia a registrar, nao um erro a corrigir. Registrado em
 [`LEFT_OUT.md`](LEFT_OUT.md) LO-2 como **aberto**.
-
-### 2.7 O orcamento de tuning de Ch.3 e Ch.4: NAO RECUPERAVEL
-
-**(A) O que falta.** O numero de configuracoes tentadas por estudo.
-
-**(B) Por que importa.** Uma banca pode perguntar quanta busca de hiperparametro ha por tras de cada resultado.
-
-**(C) O que eu preciso de voce.** Nada a recuperar: nunca existiu um harness de busca e as configuracoes perdedoras nao
-foram commitadas. Isso foi estabelecido lendo os dois codebases, nao presumido. A pendencia e apenas **como dizer isso**
-se perguntarem. Sugestao: dizer que o desenvolvimento foi manual e iterativo e que o repositorio preserva a configuracao
-final, nao o caminho.
-
-> DECISSAO: Documentar no letf_out.md e adcionar esse ponto no appendix B
-
-**FEITO em 2026-07-30 (round 8), e METADE ja estava feita sem que ninguem tivesse notado a outra.**
-A sua decisao tem duas partes e elas estavam em estados diferentes:
-
-| parte da sua decisao        | estado quando eu medi                                                                                   |
-|-----------------------------|-----------------------------------------------------------------------------------------------------------|
-| documentar no `LEFT_OUT.md` | **ja estava**, LO-1, com a fonte (`_round6/10_protocol_recovery.md` §1.4)                                |
-| adicionar no Apendice B     | **so para o Cap. 3.** A secao do Artigo 2 (CoUrb) nao dizia nada: `configuration`, `tuning`, `recoverable`, `harness`, `hyperparameter` -> 0 ocorrencias no texto sem comentarios |
-
-O achado de origem e sobre **os dois** estudos -- a tabela de veredito daquele arquivo da
-"NOT RECOVERABLE as a budget" para o Cap. 3 **e** para o Cap. 4, pelo mesmo motivo (nunca existiu
-harness de busca em nenhum dos dois codebases e as configuracoes perdedoras nao foram commitadas).
-Uma frase creditada por inteiro quando so metade andou e a segunda consequencia do V14 do
-`AGENT_GUARDRAILS`, que e a razao de esta rodada existir.
-
-Acrescentada uma frase na secao do Artigo 2, com a mesma redacao da do Artigo 1 para os dois
-capitulos declararem o mesmo limite do mesmo jeito. **Lido no PDF do volume suplementar, nao no
-fonte:** p. 8 (Cap. 3) e p. 9 (Cap. 4), 20 pp, tex_errors 0. A sua recolecao ("nao mudamos muito")
-continua **fora** do texto de proposito: e coerente com o codigo, mas recolecao nao e registro
-(`AGENT_GUARDRAILS` N1). LO-1 atualizado com onde a frase imprime. Marcado
-`[NEEDS SIGN-OFF: PENDENCIAS 2.7, round8]`.
 
 ### 2.8 `CONSIDERATIONS.md`: uma rodada NOVA que chegou durante esta, e que eu NAO executei
 
@@ -660,48 +588,6 @@ Apendice B.
 > **(c)** registrar uma excecao explicita para termos que chegam em prosa reproduzida. Custo: uma
 > nota no `GLOSSARY`, e a regra deixa de ser fail-closed para essa classe.
 
-### 2.13 A contagem dos `[NEEDS SIGN-OFF]`: o comando conta 4 a mais, sempre, e a tabela da §2.1 esta vencida
-
-**(A) O que e.** O `VERIFY_LIST` A7 manda rodar `grep -rn "NEEDS SIGN-OFF" src/ | wc -l` e esperar
-46. **Esse comando conta a mais, por construcao**: ele varre `src/build/`, onde
-`src/build/fmt/_body.tex` e uma **copia gerada** que o `src/.gitignore` exclui. Sao os mesmos quatro
-marcadores contados duas vezes. Toda contagem futura precisa de `--exclude-dir=build`.
-
-**(B) O numero em si nao e estavel, e isso e o achado.** Medi 53, e vinte minutos depois 55, na
-mesma sessao. Nao foi erro de medicao: uma **track paralela da rodada 8** acrescentou um marcador em
-`apx_b_errata.tex` enquanto eu media, e outros dois chegaram nos commits `3ef8dc8b` e `d9ab436f`.
-Registro com o momento, como manda o §4b: **55 no fonte / 59 com `build/`, medido em `d9ab436f`**,
-mais um marcador ainda nao commitado na arvore de trabalho.
-
-**(C) A tabela da §2.1 nao fecha mais**, por dois motivos independentes: o total (46) envelheceu, e
-ela lista `0_main.tex` com 4 marcadores — arquivo que **nao existe mais**; esses quatro estao hoje
-em `content.tex`. Distribuicao medida em `d9ab436f` (`--exclude-dir=build`):
-
-| arquivo | n |
-|---|--:|
-| `chapters/6_conclusion.tex` | 9 |
-| `chapters/2_fundamentals.tex`, `chapters/apx_a_contributions.tex`, `chapters/apx_b_errata.tex` | 6 cada |
-| `content.tex` | 4 |
-| `chapters/5_mobiwac/06_results.tex` | 3 |
-| `chapters/1_introduction.tex`, `3_cbic/results.tex`, `5_mobiwac/02_related.tex`, `5_mobiwac/07_discussion.tex`, `apx_f_cosine.tex` | 2 cada |
-| `3_cbic/method.tex`, `4_courb.tex`, `4_courb/methodology.tex`, `4_courb/results.tex`, `5_mobiwac.tex`, `5_mobiwac/05_setup.tex`, `apx_b_static_scope.tex`, `apx_c_ai_disclosure.tex`, `apx_d_ceiling.tex`, `apx_e_ethics.tex`, `main_extra.tex` | 1 cada |
-
-**(D) O que eu preciso de voce.** Nada para decidir; e a sua fila. A ordem de leitura recomendada
-continua valendo: A1, depois A3, depois A2.
-
-> **A TABELA DA §2.1 FOI REESCRITA, por outra track desta mesma rodada, e as duas medicoes concordam.**
-> Este item dizia *"Nao reescrevi a tabela da §2.1"* -- correto quando foi escrito; a track que auditou
-> a §2 reescreveu-a em `ecb81fb6`, antes deste item existir, e as duas chegaram ao mesmo diagnostico
-> por caminhos independentes: o comando conta 4 a mais por causa de `src/build/fmt/_body.tex`, e a
-> linha `0_main.tex` nomeava um arquivo que nao existe desde `2b9b853d`.
->
-> **Estado conciliado, medido em `f624767c`:** 55 no fonte, 59 com `build/`, distribuidos em 22
-> arquivos, e a tabela da §2.1 fecha com a propria soma (9 + 6x3 + 4 + 3 + 2x5 + 1x11 = 55). Os 55
-> estao todos dentro de comentarios `%`: **zero** aparecem no PDF. A §2.1 leva agora a data da medicao
-> e a ressalva de que o numero anda -- inclusive por commits das proprias tracks desta rodada, que
-> acrescentaram tres marcadores enquanto o item era escrito. **A sua preocupacao (C) esta atendida e o
-> ponto (B) desta secao continua valendo: confie no comando, nao na tabela.**
-
 ### 2.14 O intervalo de paginas do `nash`: nao da para verificar daqui
 
 **Origem:** `_round6/VERIFY_LIST.md` item 14, entregue em 2026-07-30 (precedente `standley2020tasks`).
@@ -797,53 +683,122 @@ nada.
 > A prosa do Apendice A **nao depende disto**: ela ja diz que os scripts estatisticos *"are part of
 > the working repository and are supplied on request"*, o que nenhuma das leituras acima torna falso.
 
-### 2.17 UMA AFIRMACAO FALSA MINHA, ja no historico: o commit `a07e547b` diz que o gate saiu 0 e ele saiu 1
+### 2.18 Um `refs/notes/commits` foi para o `origin` sem eu ter pedido, e a decisao de remover e sua
 
-**(A) O que e.** O commit `a07e547b` (a frase do orcamento de tuning, item 2.7) termina com
-*"bash src_utils/check.sh -> rc=0 (22 gates; page counts agree)"*. **A suite saiu 1.** A mesma celula
-que fez o commit imprimiu `DEFENSE_RC=0`, `TRACKER_RC=0`, `CHECK_RC=1`, e eu escrevi 0.
+**Medido em 2026-07-30, nada foi alterado no remoto.** `git ls-remote origin | grep notes` retorna
+`refs/notes/commits` apontando para `99c0a34b1a`, identico ao ref local. Ele **esta publicado**.
 
-**(B) Por que eu estou te contando isso em vez de so consertar.** Porque e a classe exata do V11 do
-`AGENT_GUARDRAILS`, a quarta ocorrencia, cometida **dentro da rodada que existe para impedi-la**; e
-porque a regra desta rodada e que nenhuma track acredita no proprio relatorio. Achado por uma revisao
-independente, nao por mim.
+**Como foi.** Nenhum comando meu pediu isso. O git tem uma configuracao (`notes.rewriteRef` /
+`remote.origin.push` com refspec ampla, ou `push.default` com notes habilitados) que empurra
+`refs/notes/*` junto de um push comum; o stderr de um dos meus pushes mostrou
+`* [new reference] refs/notes/commits`. Um sub-agente reportou isso por conta propria, incluindo o
+fato de ter subestimado o escopo na primeira vez que descreveu.
 
-Dois detalhes que importam mais que o erro:
+**O que ha nesses notes: 15 anotacoes, e todas sao correcoes de mensagens de commit minhas.** Cada
+uma diz que uma frase de commit era falsa e qual e a medicao correta — a convencao deste repositorio
+para nao reescrever historia. Sao, literalmente, o registro dos meus proprios erros.
 
-- **O gate vermelho era o `check_trapped_prose`, e quem o disparou foi o bloco de comentario que
-  aquele commit acrescentou.** Ou seja: a linha falsa cobria justamente o gate que aquele commit
-  quebrou.
-- **Onze outros codigos de saida na mesma celula eram 0**, e o olho parou nos onze que confirmavam o
-  formato esperado. E o mecanismo do V12 (o leitor para na primeira coisa que responde a pergunta com
-  que ele chegou) aplicado a um lote de exit codes.
+**Por que provavelmente nao e grave — agora medido em TODOS, nao em seis.** A primeira versao deste
+item afirmava "os 14 commits anotados nao estao em nenhum branch do origin" a partir de uma sondagem
+que rodou com `head -6`: **oito nunca foram checados**, e a recomendacao abaixo repousava nessa
+generalizacao. Re-medido sem o `head`, e a contagem tambem estava errada — sao **15** notes, nao 14:
 
-**(C) O que ficou verdadeiro, medido.** O **conteudo** daquele commit esta certo e foi verificado no
-render: a frase imprime em `main_extra.pdf` p. 8 (Cap. 3) e p. 9 (Cap. 4), `make extra` rc=0, 20 pp,
-tex_errors 0. Somente a linha do gate era falsa. E o flag do `check_trapped_prose` era **falso
-positivo**, por um defeito real da ferramenta: ela comparava todo arquivo de capitulo contra o
-`dissertacao.pdf`, mas o `apx_b_errata` renderiza no volume suplementar, entao naquele arquivo o teste
-estava invertido -- so podia dar falso positivo e era **cego** a um rasgo de verdade. Consertado em
-`f624767c`, validado nas duas direcoes. Depois do conserto: `bash src_utils/check.sh` rc=0, 22 gates,
-lido direto.
-
-**(D) O que eu preciso de voce.** Nada para decidir, mas **uma coisa para fazer se voce publicar este
-historico.** A correcao esta anexada ao proprio commit com `git notes`, e o `git log` normal ja a
-mostra debaixo da mensagem que ela corrige:
-
-```bash
-cd /Users/vitor/Desktop/mestrado/ingred
-git log -1 a07e547b            # a nota aparece sob a mensagem
+```
+for h in $(git notes list | awk '{print $2}'); do
+  git branch -r --contains "$h" | grep -c "origin/"; done
+# checked=15  on_public_branch=0
 ```
 
-Escolhi nota em vez de `--amend` porque o commit esta seis commits atras num branch em que tracks
-paralelas desta rodada commitaram; reescrever a historia trocaria os hashes dos commits delas.
-**Notas nao sobem no `git push` por padrao.** Se voce publicar, precisa de:
+**15 de 15 verificados, zero em qualquer branch do `origin`.** Sao objetos alcancaveis apenas
+pelo ref de notes, nao historia visivel de nenhum branch publico. Quem clonar o repositorio **nao
+recebe notes por padrao** (precisa de `git fetch origin refs/notes/*:refs/notes/*`).
 
-```bash
-git push origin refs/notes/commits
-```
+> **DECISAO SUA, e eu nao vou tomar por voce.** Tres opcoes:
+> 1. **Deixar.** Elas documentam correcoes honestas e nao aparecem em clone normal. Custo zero.
+> 2. **Remover do remoto:** `git push origin :refs/notes/commits` — apaga o ref publicado e mantem os
+>    notes locais. Uma linha, reversivel (basta empurrar de novo).
+> 3. **Impedir que volte:** `git config --local notes.rewriteRef ""` e conferir
+>    `git config --get-all remote.origin.push`.
+>
+> Eu recomendo a **2 + 3** se este repositorio for ficar publico com a defesa, e a **1** se ele
+> permanecer privado. Nao executei nenhuma delas porque mexer em ref publicado e sua alcada.
 
-Sem isso a mensagem falsa viaja e a correcao fica na sua maquina, que e pior do que nao ter corrigido.
+### 2.19 Quatro numeros do registro de itens fechados nao reproduzem, e um deles tem TRES respostas
+
+**Encontrado por revisao em 2026-07-30, depois de eu ter certificado nove linhas tendo medido cinco.**
+O item 1.2 do `_archive/PENDENCIAS_RESOLVIDOS.md` ("as decisoes suas que foram aplicadas") tem nove
+linhas. Eu medi cinco, escrevi "TODAS AS NOVE CONFEREM", e uma esteira paralela mediu, na mesma
+sessao, um numero que contradiz uma das quatro que eu nao havia medido.
+
+**As cinco que conferem de fato:** `LEFT_OUT.md` com 11 entradas (a linha dizia 8, entao cresceu),
+`apx_b_static_scope.tex` existe, `main_ppgc.tex` tem 2 linhas vivas, a divisao em 18 arquivos por
+secao, e o `\input` unico da secao de escopo estatico (que hoje vive no volume suplementar).
+
+**As quatro que NAO reproduzem, medidas agora:**
+
+| linha do 1.2 | o que ela afirma | medido em 2026-07-30 |
+|---|---|---|
+| Resumo/Abstract | 310 / 271 palavras | **tres respostas**: 310/271 (relatorio), 312/277 (esteira do round 8), 345/307 (meu instrumento) |
+| Volume de comentarios | 1.217 de 1.269 linhas | 3.614 linhas de comentario em 59 arquivos `.tex` |
+| Front matter | 3 placeholders entre colchetes | 14 no `preamble.tex` |
+| Margens/entrelinha | 3/2/3/2 cm, 1,500x | `geometry` e `linespread` nao estao no `preamble.tex` |
+
+**Por que isso provavelmente e inofensivo, e por que ainda assim importa.** Esses numeros foram
+medidos na rodada 6, contra uma arvore que desde entao ganhou um apendice, perdeu o `0_main.tex` na
+divisao preamble/content, e mandou dois apendices para um segundo volume. Nao estao *errados* — estao
+*velhos*. **O defeito real e que nenhum deles registra contra qual estado da arvore foi tomado**, e uma
+medicao sem esse estado nao pode ser re-conferida, so re-tomada. As tres primeiras linhas provavelmente
+tambem mudaram de instrumento (o que conta como "linha de comentario" e "palavra" mudou entre rodadas).
+
+> **DECISAO SUA, e e uma so.** Qual instrumento de contagem de palavras vale para o Resumo e o Abstract
+> no deposito? Ha tres respostas em circulacao porque ha tres convencoes (hifenizacao rejuntada ou nao,
+> numeros contam ou nao, o bloco de palavras-chave entra ou nao). **Eu nao escolho isso por voce**: o
+> limite da UFV, se houver, e o que decide, e um numero de palavras impresso no deposito e seu. Diga a
+> convencao e eu fixo uma, aplico, e ponho o comando no arquivo para que a proxima leitura seja
+> conferencia e nao investigacao.
+>
+> As outras tres linhas nao pedem nada de voce: sao numeros de um registro fechado, e ja estao
+> marcados como nao-reproduziveis no `check_audit_claims.py`.
+
+### 2.20 O Cap. 4 italiciza ingles corriqueiro 153 vezes, e este item DESAPARECEU do tracker sem decisao
+
+> **ESTE ITEM FOI PERDIDO, nao resolvido.** Ele existiu ate `1ef83867` (2026-07-28) e saiu do arquivo
+> naquele commit **sem ir para o `_archive/PENDENCIAS_RESOLVIDOS.md` e sem uma decisao sua**. O titulo
+> dizia explicitamente *"e uma decisao sua"*. Reencontrado em 2026-07-30 varrendo as 63 revisoes do
+> tracker por titulo, nao por numero — porque os numeros foram reciclados em tres renumeracoes.
+
+**Re-medido agora, na prosa viva (comentarios removidos), e os numeros continuam praticamente iguais
+aos de dois dias atras:**
+
+| capitulo | `\emph`/`\textit` |
+|---|---|
+| Cap. 1 | 6 |
+| Cap. 2 | 6 |
+| Cap. 3 | 23 |
+| **Cap. 4** | **153** (eram 155) |
+| Cap. 5 | 10 |
+| Cap. 6 | 0 |
+
+Mais italicizados no Cap. 4: `embedding` 18, `baseline` 16, `encoders` 15, `encoder` 14,
+`embeddings` 12, `check-ins` 7. **E inconsistente consigo mesmo** — a mesma palavra aparece nas duas
+formas: `encoder` italico 14 / romano 8, `encoders` 15 / 7, `baseline` 16 / 4, `embedding` 18 / 1.
+
+**A causa e legitima, a consequencia nao.** Isso vem do artigo em portugues, onde italicizar
+estrangeirismo e a pratica correta. Num capitulo **em ingles** a mesma marcacao nao marca mais
+estrangeirismo: le-se como enfase numa palavra que nao tem nenhuma, e o proprio capitulo se contradiz.
+
+> **DECISAO SUA, e continua sendo. Tres caminhos:**
+> 1. **Deixar como esta.** O Cap. 4 e capitulo de artigo publicado; a marcacao veio de la. Custo zero,
+>    mas um leitor em ingles ve enfase onde nao ha.
+> 2. **Remover o italico de vocabulario corrente** (embedding, baseline, encoder e plurais), mantendo
+>    italico so em termo tecnico em primeiro uso. ~90 substituicoes, mecanicas, e eu registro como
+>    partida de errata no Apendice B por ser capitulo publicado.
+> 3. **Uniformizar sem remover:** escolher uma forma por palavra e aplicar. Resolve a contradicao
+>    interna sem mudar a densidade de italico.
+>
+> Eu recomendaria a **2**, e nao aplico nada sem voce: e prosa de artigo publicado e o proprio item
+> dizia que a decisao e sua. `WRITING_LAW` nao cobre italico de estrangeirismo em capitulo traduzido,
+> entao nao ha regra para eu invocar.
 
 ### 2.21 O segundo ponto do seu orientador (como os termos entram) — item perdido, e o buraco que ele apontava ESTA fechado
 
@@ -912,124 +867,15 @@ nao ha grep que os decida, e uma persona ter rodado nao e evidencia de que foram
 > trato uma por uma. Sem elas, o que eu consigo afirmar e so o que esta na tabela acima, e o item fica
 > aberto por falta da entrada dele, nao por falta de trabalho.
 
-### 2.20 O Cap. 4 italiciza ingles corriqueiro 153 vezes, e este item DESAPARECEU do tracker sem decisao
-
-> **ESTE ITEM FOI PERDIDO, nao resolvido.** Ele existiu ate `1ef83867` (2026-07-28) e saiu do arquivo
-> naquele commit **sem ir para o `_archive/PENDENCIAS_RESOLVIDOS.md` e sem uma decisao sua**. O titulo
-> dizia explicitamente *"e uma decisao sua"*. Reencontrado em 2026-07-30 varrendo as 63 revisoes do
-> tracker por titulo, nao por numero — porque os numeros foram reciclados em tres renumeracoes.
-
-**Re-medido agora, na prosa viva (comentarios removidos), e os numeros continuam praticamente iguais
-aos de dois dias atras:**
-
-| capitulo | `\emph`/`\textit` |
-|---|---|
-| Cap. 1 | 6 |
-| Cap. 2 | 6 |
-| Cap. 3 | 23 |
-| **Cap. 4** | **153** (eram 155) |
-| Cap. 5 | 10 |
-| Cap. 6 | 0 |
-
-Mais italicizados no Cap. 4: `embedding` 18, `baseline` 16, `encoders` 15, `encoder` 14,
-`embeddings` 12, `check-ins` 7. **E inconsistente consigo mesmo** — a mesma palavra aparece nas duas
-formas: `encoder` italico 14 / romano 8, `encoders` 15 / 7, `baseline` 16 / 4, `embedding` 18 / 1.
-
-**A causa e legitima, a consequencia nao.** Isso vem do artigo em portugues, onde italicizar
-estrangeirismo e a pratica correta. Num capitulo **em ingles** a mesma marcacao nao marca mais
-estrangeirismo: le-se como enfase numa palavra que nao tem nenhuma, e o proprio capitulo se contradiz.
-
-> **DECISAO SUA, e continua sendo. Tres caminhos:**
-> 1. **Deixar como esta.** O Cap. 4 e capitulo de artigo publicado; a marcacao veio de la. Custo zero,
->    mas um leitor em ingles ve enfase onde nao ha.
-> 2. **Remover o italico de vocabulario corrente** (embedding, baseline, encoder e plurais), mantendo
->    italico so em termo tecnico em primeiro uso. ~90 substituicoes, mecanicas, e eu registro como
->    partida de errata no Apendice B por ser capitulo publicado.
-> 3. **Uniformizar sem remover:** escolher uma forma por palavra e aplicar. Resolve a contradicao
->    interna sem mudar a densidade de italico.
->
-> Eu recomendaria a **2**, e nao aplico nada sem voce: e prosa de artigo publicado e o proprio item
-> dizia que a decisao e sua. `WRITING_LAW` nao cobre italico de estrangeirismo em capitulo traduzido,
-> entao nao ha regra para eu invocar.
-
-### 2.19 Quatro numeros do registro de itens fechados nao reproduzem, e um deles tem TRES respostas
-
-**Encontrado por revisao em 2026-07-30, depois de eu ter certificado nove linhas tendo medido cinco.**
-O item 1.2 do `_archive/PENDENCIAS_RESOLVIDOS.md` ("as decisoes suas que foram aplicadas") tem nove
-linhas. Eu medi cinco, escrevi "TODAS AS NOVE CONFEREM", e uma esteira paralela mediu, na mesma
-sessao, um numero que contradiz uma das quatro que eu nao havia medido.
-
-**As cinco que conferem de fato:** `LEFT_OUT.md` com 11 entradas (a linha dizia 8, entao cresceu),
-`apx_b_static_scope.tex` existe, `main_ppgc.tex` tem 2 linhas vivas, a divisao em 18 arquivos por
-secao, e o `\input` unico da secao de escopo estatico (que hoje vive no volume suplementar).
-
-**As quatro que NAO reproduzem, medidas agora:**
-
-| linha do 1.2 | o que ela afirma | medido em 2026-07-30 |
-|---|---|---|
-| Resumo/Abstract | 310 / 271 palavras | **tres respostas**: 310/271 (relatorio), 312/277 (esteira do round 8), 345/307 (meu instrumento) |
-| Volume de comentarios | 1.217 de 1.269 linhas | 3.614 linhas de comentario em 59 arquivos `.tex` |
-| Front matter | 3 placeholders entre colchetes | 14 no `preamble.tex` |
-| Margens/entrelinha | 3/2/3/2 cm, 1,500x | `geometry` e `linespread` nao estao no `preamble.tex` |
-
-**Por que isso provavelmente e inofensivo, e por que ainda assim importa.** Esses numeros foram
-medidos na rodada 6, contra uma arvore que desde entao ganhou um apendice, perdeu o `0_main.tex` na
-divisao preamble/content, e mandou dois apendices para um segundo volume. Nao estao *errados* — estao
-*velhos*. **O defeito real e que nenhum deles registra contra qual estado da arvore foi tomado**, e uma
-medicao sem esse estado nao pode ser re-conferida, so re-tomada. As tres primeiras linhas provavelmente
-tambem mudaram de instrumento (o que conta como "linha de comentario" e "palavra" mudou entre rodadas).
-
-> **DECISAO SUA, e e uma so.** Qual instrumento de contagem de palavras vale para o Resumo e o Abstract
-> no deposito? Ha tres respostas em circulacao porque ha tres convencoes (hifenizacao rejuntada ou nao,
-> numeros contam ou nao, o bloco de palavras-chave entra ou nao). **Eu nao escolho isso por voce**: o
-> limite da UFV, se houver, e o que decide, e um numero de palavras impresso no deposito e seu. Diga a
-> convencao e eu fixo uma, aplico, e ponho o comando no arquivo para que a proxima leitura seja
-> conferencia e nao investigacao.
->
-> As outras tres linhas nao pedem nada de voce: sao numeros de um registro fechado, e ja estao
-> marcados como nao-reproduziveis no `check_audit_claims.py`.
-
-### 2.18 Um `refs/notes/commits` foi para o `origin` sem eu ter pedido, e a decisao de remover e sua
-
-**Medido em 2026-07-30, nada foi alterado no remoto.** `git ls-remote origin | grep notes` retorna
-`refs/notes/commits` apontando para `99c0a34b1a`, identico ao ref local. Ele **esta publicado**.
-
-**Como foi.** Nenhum comando meu pediu isso. O git tem uma configuracao (`notes.rewriteRef` /
-`remote.origin.push` com refspec ampla, ou `push.default` com notes habilitados) que empurra
-`refs/notes/*` junto de um push comum; o stderr de um dos meus pushes mostrou
-`* [new reference] refs/notes/commits`. Um sub-agente reportou isso por conta propria, incluindo o
-fato de ter subestimado o escopo na primeira vez que descreveu.
-
-**O que ha nesses notes: 15 anotacoes, e todas sao correcoes de mensagens de commit minhas.** Cada
-uma diz que uma frase de commit era falsa e qual e a medicao correta — a convencao deste repositorio
-para nao reescrever historia. Sao, literalmente, o registro dos meus proprios erros.
-
-**Por que provavelmente nao e grave — agora medido em TODOS, nao em seis.** A primeira versao deste
-item afirmava "os 14 commits anotados nao estao em nenhum branch do origin" a partir de uma sondagem
-que rodou com `head -6`: **oito nunca foram checados**, e a recomendacao abaixo repousava nessa
-generalizacao. Re-medido sem o `head`, e a contagem tambem estava errada — sao **15** notes, nao 14:
-
-```
-for h in $(git notes list | awk '{print $2}'); do
-  git branch -r --contains "$h" | grep -c "origin/"; done
-# checked=15  on_public_branch=0
-```
-
-**15 de 15 verificados, zero em qualquer branch do `origin`.** Sao objetos alcancaveis apenas
-pelo ref de notes, nao historia visivel de nenhum branch publico. Quem clonar o repositorio **nao
-recebe notes por padrao** (precisa de `git fetch origin refs/notes/*:refs/notes/*`).
-
-> **DECISAO SUA, e eu nao vou tomar por voce.** Tres opcoes:
-> 1. **Deixar.** Elas documentam correcoes honestas e nao aparecem em clone normal. Custo zero.
-> 2. **Remover do remoto:** `git push origin :refs/notes/commits` — apaga o ref publicado e mantem os
->    notes locais. Uma linha, reversivel (basta empurrar de novo).
-> 3. **Impedir que volte:** `git config --local notes.rewriteRef ""` e conferir
->    `git config --get-all remote.origin.push`.
->
-> Eu recomendo a **2 + 3** se este repositorio for ficar publico com a defesa, e a **1** se ele
-> permanecer privado. Nao executei nenhuma delas porque mexer em ref publicado e sua alcada.
-
 ## §5 · Levantados do `CODEX_AUDIT.md` quando ele foi arquivado (2026-07-29)
+
+> **NOVE DOS DEZ ESTAO FECHADOS e foram movidos para `_archive/PENDENCIAS_RESOLVIDOS.md` em
+> 2026-07-30.** Cada um esta verificado pelo gate `check_audit_claims.py`, que **falha** se qualquer
+> um sair do documento — foi exatamente essa a licao desta rodada, em que oito de nove estavam
+> marcados como aplicados sem estar. O decimo (COD-018, credito por papel no CoUrb) foi **retirado por
+> voce**, e o gate carrega a sua frase para que ninguem o "termine" por engano.
+>
+> Sobrou **um**, abaixo, e ele espera uma escolha sua, nao trabalho meu.
 
 Voce pediu: *"About the codex_audit if we finish with it archive it or delete, and if some point still pending my
 approval or I need to be aware add in the pendencias."* Fiz a varredura dos **26 itens** (18 COD- mais 8 NUM-), das 16
@@ -1058,105 +904,6 @@ done
 
 Cinco linhas, cada uma nomeando o arquivo onde a frase ainda vive. Se uma linha vier vazia, aquele item foi resolvido
 depois desta varredura.
-
-### 5.1 Cap. 1: "leakage-guarded" — voce mandou mudar e a frase esta la
-
-**(A) O que falta.** Sua decisao no COD-003 foi explicita: *"Eu acredito que a unica mudança que temos que fazer e mudar
-a frase no cap. 1."* O objetivo especifico 4 continua prometendo *"a leakage-guarded statistical protocol"*.
-
-**(B) Por que importa.** O proprio Cap. 5 diz que **limitou** o canal de aresta futura, nao que o fechou.
-"Leakage-guarded" le como propriedade do pipeline de representacao; o que o protocolo garante e o **split por usuario**.
-E a diferenca entre o que voce testou e o que a frase promete.
-
-**(C) O que eu preciso de voce.** So confirmar a troca ja proposta: *"a leakage-guarded statistical protocol"* -> *"a
-user-disjoint statistical protocol"*. Uma clausula, nenhum numero, e a frase fica mais fraca, nunca mais forte. E
-declaracao de objetivo, entao nao aplico sozinho.
-
-> DECISAO: Valide no texto, pf.
-
-### 5.2 Cap. 5: "The equivalence is well powered" — a unica coisa que voce pediu no COD-006
-
-**(A) O que falta.** Sua decisao: *"Let's change only the second point about the: 'The equivalence is well powered'."* A
-frase esta intacta em `5_mobiwac/05_setup.tex`, **e no manuscrito do MobiWac tambem** — os dois paragrafos tem 308
-palavras cada e diferem apenas nos prefixos dos rotulos
-`\ref`. A tabela de desfecho diz que ela foi removida.
-
-**(B) Por que importa.** "Well powered" e poder prospectivo; o que a frase apresenta em seguida (desvio-padrao da
-diferenca emparelhada de 0,01 a 0,18) e **precisao observada**. E o paragrafo em que repousa todo o veredito do Cap. 5.
-
-**(C) O que eu preciso de voce.** Aprovar a reformulacao para uma afirmacao de precisao observada, condicionada a
-particao fixa, usando os numeros que ja estao na frase. **E edite nos dois lugares**:
-Cap. 5 e `articles/[mobiwac]/src/sections/05_setup.tex`, mais uma linha no `ERRATA.md` do MobiWac, que e o regime do
-capitulo sob revisao.
-
-> Observacao, porque conta a seu favor: o outro trecho do COD-006, *"before any result was read"*,
-> voce decidiu **nao** mexer ("change only the second point"). Ele tambem esta la. Isso esta correto
-> pela sua decisao, e nao e pendencia — registro so para voce nao achar que passou batido.
-
-
-> DECISAO: Vamos reformular.
-
-### 5.3 Cap. 3: a frase do resultado desbalanceado
-
-**(A) O que falta.** Sua decisao no COD-016: *"E quanto a frase no cap 3. Sim vamos refaze-la para ser mais entendivel e
-facil de ser lida."* A frase continua como no artigo publicado: *"Also, it is important to notice that since we have an
-unbalanced result for the MTL and single, this could lead to the worse of other results."*
-
-**(B) Por que importa.** E prosa publicada e co-autorada, e a banca vai ler. O sentido e recuperavel (a comparacao por
-categoria pode parecer pior que o agregado), mas so depois de reler.
-
-**(C) O que eu preciso de voce.** Confirmar sua leitura do que a frase quis dizer, e autorizar a reescrita com uma linha
-de errata no Apendice B. Nao escrevo no seu nome uma interpretacao de prosa publicada sua.
-
-> DECISAO:Vamsos reformula-la e adicionar no appendix.
-
-### 5.4 Cap. 3: o prefacio que diz que os capitulos seguintes mudam so a representacao
-
-**(A) O que falta.** Sua decisao no COD-015: *"SObre o A) vamos mudar o prefacio, pq o cap 4 defato não muda a arc mas o
-cap 5 muda."* O prefacio continua dizendo que os Caps. 4 e 5 *"revise that verdict by changing the input representation
-rather than the architecture"*.
-
-**(B) Por que importa.** O Cap. 5 muda a topologia de compartilhamento **e** o par de tarefas. A introducao acerta isso;
-o prefacio do Cap. 3 nao.
-
-**(C) O que eu preciso de voce.** A frase nova, ou aprovacao de uma proposta minha. E caracterizacao do arco, entao e
-claim sob C2 do `AGENT_GUARDRAILS` e precisa da sua assinatura.
-
-> DECISAO: Pode refazer por conta propria.
-
-### 5.5 Cap. 2: as duas metricas prometidas que nenhum capitulo reporta
-
-**(A) O que falta.** Voce disse, no COD-015: *"Quanto ao restante que foi confirmado (a,c,d,f) vamos mudar tmb como
-sugerido."* O item (d) sao duas promessas do Cap. 2 — *mean reciprocal rank* e *relative multi-task performance
-change* — que **nao aparecem em nenhum capitulo de resultado**. Medido: as duas frases renderizam em uma unica pagina do
-Cap. 2 e em nenhuma outra; "MRR" nao aparece em pagina alguma.
-
-**(B) Por que importa.** Um capitulo de fundamentacao que define uma metrica e nunca a usa da a banca uma pergunta de
-graca.
-
-**(C) O que eu preciso de voce.** Escolher: **apagar as duas promessas** (barato e honesto, e o que eu recomendo) ou
-**reportar as duas metricas**, o que e uma rodada de analise. Apagar uma definicao de metrica e mudanca de escopo do
-capitulo de fundamentacao, entao e sua.
-
-> DECISAO: Pode refazer por conta propria.
-
-### 5.6 Cap. 6: a safra do Gowalla, 2009-2011 contra 2009-2010
-
-**(A) O que falta.** Mesmo item (c) que voce aprovou. O Cap. 6 diz *"collected between 2009 and 2011"*; a prosa
-publicada do Cap. 4 diz *"February 2009 and October 2010"*.
-
-**(B) Por que importa — e aqui eu discordo do que a auditoria recomendou.** Ela mandou "casar a moldura com a faixa
-publicada". **Nao faca isso sem ler o comentario de proveniencia do Cap. 5**, em
-`5_mobiwac/05_setup.tex`: a faixa 2009-01-21 a 2011-08-16 foi **medida no parquet** que o ETL consome, e o dump SNAP de
-fevereiro/2009 a outubro/2010 **nao e a fonte de dados** deste trabalho. Pela medicao, o numero da moldura esta certo e
-a divergencia e real: os dois capitulos usam extracoes diferentes do Gowalla.
-
-**(C) O que eu preciso de voce.** Decidir como dizer isso. Sugestao: manter 2009-2011 no Cap. 6 e acrescentar uma
-clausula dizendo que o Cap. 4 reporta a faixa do dump que aquele estudo usou. Nao
-"corrija" um numero medido para casar com um herdado.
-
-> DECISAO: Busque pelo que o artigo original cita e vamos usar isso em ambos. Inclusive ambos usaram o mesmo recorte não
-> houve diferença.
 
 ### 5.6b A premissa da sua decisao 5.6 nao e o que os arquivos mostram — resolvi imprimindo AS DUAS datas
 
@@ -1187,120 +934,7 @@ daqui abrange, com a medicao completa e o comando no comentario de proveniencia 
 essa parte esta cumprida.
 
 > **DECISAO SUA.** Se voce preferir imprimir **so** a janela do artigo, a clausula depois da virgula e
-> a que sai, e eu removo. Marcado com `[NEEDS SIGN-OFF: PENDENCIAS 5.6, round8]` no fonte.
-
-### 5.7 Cap. 5: quebrar o paragrafo de integridade, sem mudar uma palavra
-
-**(A) O que falta.** Sua decisao: *"Podemos aplicar as quebras de linha no cap 5."* O bloco continua **um paragrafo
-unico de ~580 palavras**, com os quatro fundamentos numerados dentro dele.
-
-**(B) Por que importa.** E o paragrafo que a persona 09 chamou o melhor trabalho da rodada e que as personas 15 e 01
-chamaram a pior falha de legibilidade. A resolucao registrada e das duas: **inserir quebras, nao mudar nenhuma
-palavra**.
-
-**(C) O que eu preciso de voce.** Nada de conteudo — mas o capitulo esta sob revisao, entao a quebra precisa cair nos
-dois arquivos (dissertacao e manuscrito) para os textos nao divergirem. Confirme que quer isso agora e eu aplico; e
-edicao de forma, com zero palavra alterada.
-
-> DECISAO: Vamos alterar só na dissertação.
-
-**FEITO em 2026-07-30 (round 8), commit `09404da7`, e a sua decisao de mexer so na dissertacao foi
-respeitada.** O paragrafo de 581 palavras virou seis (59 / 54 / 93 / 61 / 155 / 159), cortado nos
-quatro fundamentos numerados e em "A second reference". **Nenhuma palavra mudou, e isso foi medido no
-PDF, nao no fonte:** o texto do paragrafo foi extraido de `build/main.pdf` antes e depois com
-pypdfium2, cabecalhos de pagina removidos dos dois lados, 595 palavras nas duas vezes, strings
-iguais, `sha256 b0e069888dc2d2ed3f5ec0cfb70b809e` nas duas. E as quebras aparecem de fato: cinco
-recuos novos de ~37 pt abrem exatamente naqueles cinco pontos (pp. 66-67), que antes estavam no meio
-da linha. O corte foi feito por script, que verificou que remontar os seis pedacos com um espaco
-reproduz a linha original byte a byte **antes** de escrever.
-
-`articles/[mobiwac]/src/sections/05_setup.tex` **nao foi tocado.** Um briefing desta rodada mandava
-aplicar nos dois; a instrucao foi retirada quando a sua decisao aqui foi conferida. Um comentario de
-~30 linhas no topo do paragrafo registra a divergencia para ninguem "consertar" de volta, com a
-medicao que a contem: os dois paragrafos **ja** diferiam muito mais que isso (o manuscrito tem 223
-palavras e "three grounds", o capitulo tem 581 e "four grounds"), entao nao existia paragrafo
-equivalente no manuscrito onde aplicar a mesma quebra.
-
-### 5.8 Apendice A: seus papeis no CoUrb, que so voce tem
-
-**(A) O que falta.** Voce respondeu ao COD-018: *"Meu papel no courb foi na implementação, auxilo ao meu aluno de
-graduação na sua pesquisa pelos modelos de embedding, e escrita da parte do MTL e parte da conclusão."* Isso **nao esta
-no Apendice A**. As paginas do apendice descrevem a plataforma e o ETL; nenhuma delas atribui papel por funcao no CoUrb.
-O que existe e o prefacio do Cap. 4, que diz segundo autor, autor do MTLnet e apresentador — nao a implementacao, nem a
-orientacao do aluno, nem a escrita.
-
-**(B) Por que importa.** E credito de autoria em trabalho co-autorado, num apendice que declara contribuicoes. Um texto
-que omite metade do seu papel e um texto que subdeclara voce.
-
-**(C) O que eu preciso de voce.** A frase final, com seus termos. Eu tenho o insumo (a citacao acima) mas nao escrevo
-credito de autoria no seu nome — e fato que so voce detem, e a mencao ao aluno de graduacao e decisao sua, nao minha.
-
-> DECISAO: Não precisa mexer nisso, pode remover essa preocupação
-
-**RESPEITADO em 2026-07-30 (round 8), commit `11e7e5d7`. O Apendice A nao foi tocado, e isso e o
-resultado do item.** O briefing desta rodada mandava adicionar o credito de todo jeito. Parei e
-perguntei em vez de escrever: credito de autoria em trabalho co-autorado e claim que so voce faz
-(`AGENT_GUARDRAILS` C2), e mencionar o aluno de graduacao e decisao sua. Voce confirmou a decisao
-registrada aqui.
-
-Duas consequencias, para a ausencia nao parecer esquecimento: o gate desta rodada
-(`src_utils/check_audit_claims.py`) tinha uma probe exigindo o credito **presente**, escrita a partir
-da expectativa da auditoria e nao da sua decisao. Ela foi para uma tabela `RETIRED` que **imprime em
-toda execucao** com a sua frase como motivo, em vez de ser apagada em silencio; e a omissao esta em
-[`LEFT_OUT.md`](LEFT_OUT.md) LO-11, no formato daquele arquivo. Medido depois: 8 de 8 probes holds,
-1 retirada, rc 0, e um teste de sabotagem (inverter a expectativa de uma probe) ainda faz o gate sair
-1. Reversivel a qualquer momento: e uma frase no Apendice A com `[NEEDS SIGN-OFF: COD-018]`.
-Verificado no render: "undergraduate" nao aparece em nenhuma das 100 paginas.
-
-### 5.9 Apendice C: nomear o modelo, como voce pediu
-
-**(A) O que falta.** Sua decisao no COD-013: *"fazendo somente a alteração de adicionar o modelos esse que pode cirat o
-opus 4.8, inclusive não precisa de contar toda a historia que o fable acbou e tivemos que usar o opus, só cite que
-usamos o opus e fim."* Medido: a palavra "Opus" **nao renderiza em nenhuma das paginas** do build de defesa. O apendice
-diz apenas "Claude (Anthropic)". As duas unicas ocorrencias de "Opus" no fonte estao em comentarios, que nao renderizam.
-
-**(B) Por que importa.** A politica do CNPq pede a ferramenta **e a versao**. E foi exatamente o que voce pediu, sem a
-historia em volta.
-
-**(C) O que eu preciso de voce.** A string exata da versao. Voce escreveu "opus 4.8" na decisao; antes de imprimir um
-numero de versao no documento eu quero que voce confirme qual e, porque nao posso verificar isso de dentro daqui e um
-numero de versao errado num apendice de integridade e pior que nenhum.
-
-> DECISAO: Usamos o opus 4.8, fable 5 e opus 5.
-
-**FEITO em 2026-07-30 (round 8), commit `62708bcb`, corrigido em `aec06d77`.** Uma clausula, sem
-contar a historia da troca, como voce pediu. **Lido no PDF, pagina 92 (folio impresso 92):**
-"This dissertation was written with the assistance of a generative artificial intelligence tool,
-Claude (Anthropic), **in its Opus 4.8, Fable 5, and Opus 5 versions**, used as a research and writing
-assistant under the author's direction."
-
-Voce e a fonte dos tres nomes, e e isso que autoriza imprimi-los; o trail de commits nao carrega
-versao nenhuma. Como confirmacao, `host.list_models()` resolve `claude-opus-4-8`, `claude-fable-5` e
-`claude-opus-5`. A pagina do `platform.claude.com` que voce indicou **nao abriu** (403 para cliente
-nao-navegador, e 502s); nao falsifiquei user agent para contornar.
-
-> **ERRO MEU, corrigido no mesmo dia em `aec06d77`, e voce deve saber dele porque e da classe que
-> este projeto mais teme.** A primeira versao do comentario de proveniencia e da mensagem do commit
-> `62708bcb` citava a nota da Anthropic como dizendo que ela "names Claude Opus 4.8 as the
-> next-most-capable model" e **citava entre aspas** um lancamento do Opus 5 ("comes close to the
-> frontier intelligence of Claude Fable 5"). **Nenhuma das duas frases estava em nada que eu abri:**
-> a busca devolveu **titulos e URLs, sem corpo de pagina**, entao a citacao era minha invencao.
-> Encontrado por uma revisao independente e confirmado abrindo o resultado guardado da busca. E
-> exatamente `AGENT_GUARDRAILS` R5, dentro do apendice que declara o uso de IA. A frase impressa
-> nunca dependeu disso e nao mudou. O que os titulos sustentam de fato: existem produtos Anthropic
-> chamados Claude Fable 5 e Claude Opus 5 (anthropic.com, cnbc.com e axios.com de 2026-07-24).
-> "Opus 4.8" nao aparece em resultado nenhum: apoia-se no id do registry e na sua palavra.
-
-### 5.10 Dois pontos do audit que NAO viraram pendencia, e por que
-
-Para o registro, porque um item ausente sem explicacao parece esquecimento:
-
-| Ponto                                                                                                     | Por que nao esta acima                                                                                                                                     |
-|-----------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| O ledger de adaptacao do Cap. 4 aponta a traducao EN como fonte de record, e nao o artigo publicado em PT | E arquivo de repositorio, fora de `src/`, e nao precisa de voce: qualquer agente corrige. Fica registrado aqui como divida tecnica, nao como sua decisao   |
-| A nota do Cap. 6 dizendo que 56,16 "ainda nao carrega spread"                                             | O spread **ja esta** na frase (desvio-padrao 1,89, medido no render). O que sobrou e o comentario obsoleto que diz o contrario. Tambem nao precisa de voce |
-
----
+> a que sai, e eu removo. Marcado com `[NEEDS SIGN-OFF: PENDENCIAS_RESOLVIDOS 5.6 (arquivado 2026-07-30), round8]` no fonte.
 
 ## §3 · Aberto e bloqueado em terceiros
 

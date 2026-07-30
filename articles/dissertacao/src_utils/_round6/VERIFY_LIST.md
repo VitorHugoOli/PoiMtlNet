@@ -15,6 +15,32 @@ first state it names), item 6 (a frame sentence on p. 23 now contradicts a chapt
 p. 36, and the repair was drafted but never applied) and item 1 (a gate reported green across the
 whole round is red, and has been red since before the round started).
 
+> ## FECHADO EM 2026-07-30 — 15 dos 20 itens estao resolvidos; os 5 restantes vivem no PENDENCIAS
+>
+> **Este arquivo nao e mais uma fila; e o registro de verificacao da rodada 6, fechado.** O autor
+> pediu em 2026-07-30 que os pontos ja resolvidos saissem das filas. Aqui eles **nao foram apagados**,
+> por dois motivos medidos: (1) `check_verify_list.py` e `check_meta_claims.py` leem este arquivo por
+> caminho e executam os blocos de comando dele, entao apagar itens quebraria dois gates; (2) cada
+> bloco carrega o *comando* que produziu a verificacao, que e a evidencia — apagar o item apagaria a
+> prova junto com a conclusao.
+>
+> **Estado, por item:** 15 resolvidos (0, 1, 2, 3, 6, 7, 8, 9, 11, 12, 13, 17, 18, 19, 20 e os
+> anexos A1, A2, A4, A5, A6). Cinco continuam abertos e **nenhum deles espera trabalho meu** — sao
+> decisoes suas, e a fila viva delas e o `PENDENCIAS.md`, nao este arquivo:
+>
+> | item daqui | onde a decisao vive agora |
+> |---|---|
+> | 4 (termo fora do registro) | `PENDENCIAS.md` §2.12 |
+> | 5 (assimetria do resultado de regiao) | §2.11 |
+> | 14 (intervalo de paginas do `nash`) | §2.14 |
+> | 15 e 16 (citacoes e termo banido em prosa publicada) | §2.15 |
+> | A3 (artefatos publicados divergentes) | §2.16 |
+>
+> A7 apontava para §2.13, que foi **arquivado** em 2026-07-30 (o defeito do comando foi corrigido e a
+> contagem passou a bater); o ponteiro no bloco dele registra isso em vez de apontar para o vazio.
+>
+> **Nao adicione item novo aqui.** Achado novo vai para o `PENDENCIAS.md`; este arquivo e historico.
+
 > ## ROUND 8 DISPOSITION, 2026-07-30 — every item worked, none dropped
 >
 > Read this before the three above: **all three have since been resolved.** Item 0 is fixed in both
@@ -26,7 +52,7 @@ whole round is red, and has been red since before the round started).
 > | **verified as described** | 2, 3, 7, 9, 11, 12, 13, 17, 18, 19 (numbers), 20, A1, A2, A4, A5, A6 |
 > | **fixed this round** | 0 (both texts), 1 (gate green), 6 and 6b (and their commands), 8 (closed without the author) |
 > | **the item's own command was defective** | 5 (named a deleted file, expectation passed anyway), 6 (comment-blind, failed a landed fix), 17 (superseded by a gate), A3 (asked by-path, claim is by-content), A7 (over-counts by four, always) |
-> | **handed to the author** | 4 → §2.12, 5 → §2.11, 14 → §2.14, 15 and 16 → §2.15, A3 → §2.16, A7 → §2.13 |
+> | **handed to the author** | 4 → §2.12, 5 → §2.11, 14 → §2.14, 15 and 16 → §2.15, A3 → §2.16, A7 → §2.13 **(§2.13 foi arquivado em 2026-07-30: o defeito do comando foi corrigido e a contagem passou a bater; ver `_archive/PENDENCIAS_RESOLVIDOS.md`)** |
 > | **still `[NEEDS SIGN-OFF]`, unchanged** | 2, 3, 12, 19, A1 |
 >
 > **Three things about this file itself are now wrong and are corrected in place**, because a reader
