@@ -12,11 +12,26 @@
 % CHAPTER 5'S BODY IS UNTOUCHED and does not point here. It is under review, so an edit for no
 % reader benefit is not worth the divergence between the two texts.
 %
-% SOURCE OF RECORD FOR EVERY NUMBER: src_utils/_round7/gradient_cosine_observations.parquet (3,900
-% rows; state, fold, epoch, cos, config) at commit ff69ba07, derived by _round7/cosine_stats.py,
-% output quoted in _round7/24_extra_and_cosine.md. Re-derive, never increment: the count moved from
-% three datasets to four mid-writing and every figure was recomputed at that point. If a fifth
-% lands, re-run the script and read its output.
+% SOURCE OF RECORD FOR EVERY NUMBER: src_utils/_round7/gradient_cosine_observations6.parquet (4,650
+% rows; state, fold, epoch, cos, config), derived by _round7/cosine_stats6.py (RC=0), output quoted
+% in _round9/30_cosine_six.md. Re-derive, never increment: the count moved from three datasets to
+% four mid-writing in round 7 and from four to SEVEN in round 9, and every figure was recomputed at
+% each point. If an eighth lands, re-run the script and read its output.
+%
+% [round9, 2026-07-30] SEVEN DATASETS. California, Texas and Istanbul were measured on ssh:nespedgpu
+% (jobs 67585dff, 6faa6e22, 9f3da11f; each rc=0 read from its own _status.json), one dataset per job,
+% sequentially, with MTL_TRAIN_DIAGNOSTICS=1 exported explicitly. Every one of the fifteen new
+% per-fold CSVs passed the distinctness gate in _round7/cosine_harvest6.py (15 distinct md5, 50
+% non-empty cosine cells over a complete epoch 1..50 series, GATE_RC=0), and the gate was validated
+% by sabotage in both directions first. The four pre-existing datasets are unchanged: a positional
+% comparison of the two parquets gives max |old - new| = 0.0 over all 3,900 rows.
+%
+% SEVEN, NOT SIX, AND THE DISTINCTION IS LOAD-BEARING. The dissertation's six are alabama, arizona,
+% california, florida, istanbul and texas. GEORGIA IS A SEVENTH and is not one of them --
+% tables/mobiwac/datasets.tex lists AL, AZ, FL, TX, CA, Istanbul and no Georgia. Do not write "six
+% datasets" about this appendix's evidence and do not let a sentence imply Georgia is one of the six.
+% The old four-dataset derivation, _round7/cosine_stats.py, is KEPT AND STILL RUNS (RC=0): it is the
+% mechanical record that the four-dataset text was derived from four-dataset data.
 %
 % TRAP -- THAT SCRIPT ONCE DID NOT RUN WHILE THIS FILE POINTED AT IT. It still declared 3 states /
 % 3,650 rows after Georgia landed, so its own assertion killed it on the parquet it ships with. A
@@ -26,18 +41,26 @@
 %
 % TRAP -- THE UNIT OF INDEPENDENCE IS THE FOLD, and an earlier draft got this wrong. The 50
 % per-epoch cosines within a fold are consecutive states of ONE trajectory. Every p-value is
-% computed on fold means (n=5) or configuration means (Florida, n=12), never on the 3,900 raw
-% observations, which would be anti-conservative.
+% computed on fold means (n=5, or n=60 fold series for Florida), never on the 4,650 raw
+% observations, which would be anti-conservative. Florida's twelve configuration means (n=12) are
+% reported beside it as the more conservative reading and give the same answer.
 %
 % TRAP -- THE CLAIM A READER WILL WANT TO MAKE, AND MUST NOT. Alabama and Georgia are both 5/5
 % positive with t-tests at p=0.0125 and p=0.0093. That is still not significance: the exact sign
 % test returns 0.0625 for both, which IS its floor at n=5, so the rejection rests entirely on
 % assuming normality. The same standard binds the downward-drift claim two paragraphs later -- they
 % disagreed once, and 4445e7ab fixed it. Never write "significantly positive" here.
+% [round9] CALIFORNIA IS THE THIRD CASE AND IT IS NOT A FLOOR CASE. Its t-test returns 0.0478,
+% under the conventional threshold, while its exact sign test returns 0.3750 on 4 of 5 positive
+% folds -- so it carries NO dagger (0.375 is not the floor) and it is the cleanest demonstration in
+% the set that the t-test's rejection at n=5 is doing the work of the normality assumption, not of
+% the evidence. Also TEXAS: mean -0.0003 with 4 of 5 fold means POSITIVE, because one fold at
+% -0.0032 outweighs four small positive ones. Not a typo; do not "fix" the sign of that mean.
 %
-% COVERAGE: FOUR datasets (florida, alabama, arizona, georgia), ONE architecture family. California,
-% Texas, and Istanbul are outstanding against job 805120f1, marked [VERIFY], and blocked on that
-% host's disk rather than queued. Nothing here implies six datasets or any architecture coverage.
+% COVERAGE: SEVEN datasets (the dissertation's six -- florida, alabama, arizona, california, texas,
+% istanbul -- plus georgia), ONE architecture family. Nothing is outstanding. Nothing here implies
+% any architecture coverage: that boundary is the appendix's remaining limit and it is stated in
+% Section apx:cosine:extension.
 %
 % [NEEDS SIGN-OFF: raised round 7, 2026-07-29 | THE WHOLE APPENDIX. New frame prose making a
 % mechanistic claim (orthogonality explains why hard sharing costs nothing here) and a bounded
@@ -71,11 +94,12 @@ ignores how large they are, which differs between the tasks and drifts during tr
 $+1$ means the tasks ask for the same update, $-1$ for opposite ones, and $0$ that the requests are
 orthogonal, each leaving the other's objective unchanged to first order.
 
-The observations are 3,900 epoch-level cosines from four datasets. Florida contributes 3,150 across
+The observations are 4,650 epoch-level cosines from seven datasets. Florida contributes 3,150 across
 twelve configurations that vary the loss weight, the weighting schedule, and the training procedure;
-Alabama, Arizona, and Georgia contribute 250 each at the canonical configuration. Every run is
-five-fold user-disjoint cross-validation over fifty epochs, so one configuration on one dataset is
-five series of fifty values, and two of Florida's carry a partial re-run on top of theirs.
+Alabama, Arizona, California, Georgia, Istanbul, and Texas contribute 250 each at the canonical
+configuration. Every run is five-fold user-disjoint cross-validation over fifty epochs, so one
+configuration on one dataset is five series of fifty values, and two of Florida's carry a partial
+re-run on top of theirs.
 % [round7, 2026-07-29] THE PARTIAL RE-RUN, previously undisclosed and now stated. "One
 % configuration on one dataset is five series of fifty values" is true of 65 of the 75 series;
 % T6_4_two_pass and T6_4_infonce_tau0_5 hold 65 rows per fold, because their epochs 1 to 15 each
@@ -92,10 +116,10 @@ five series of fifty values, and two of Florida's carry a partial re-run on top 
 % it is computed over the rows as they stand. Understating a sentence's coverage silently is what
 % GUARDRAILS 4b V2 forbids: a filter, a skip or a duplicate must be named with its count.
 
-Three of the four, Florida, Alabama, and Arizona, are among the six Chapter~\ref{ch:mobiwac} reports
-on. The fourth, Georgia, is a further Gowalla state the dissertation does not otherwise use; it
-enters because the diagnostic ran on it cheaply and stays because dropping a measured dataset would
-be a choice about the evidence. That chapter reaches the same conclusion from a smaller
+Six of the seven are the six Chapter~\ref{ch:mobiwac} reports on. The seventh, Georgia, is a further
+Gowalla state the dissertation does not otherwise use; it enters because the diagnostic ran on it
+cheaply and stays because dropping a measured dataset would be a choice about the evidence. That
+chapter reaches the same conclusion from a smaller
 development-time measurement, on an earlier data preparation and over four seeds rather than
 per-epoch series, so the two sets of numbers are not interchangeable and this appendix supersedes
 nothing there.
@@ -118,10 +142,12 @@ nothing there.
 
 Those fifty values are not fifty independent measurements. They are consecutive states of one
 training run, so treating them as independent draws would report more confidence than the data hold.
-The unit of independence is the fold, and for Florida, whose twelve configurations reuse the same
-five folds, the configuration. Every test below therefore runs on five fold means for Alabama,
-Arizona, and Georgia and on twelve configuration means for Florida. Where a count of observations
-appears it describes the data, not a test's sample size.
+The unit of independence is the fold. Every test below therefore runs on five fold means at each of
+the six single-configuration datasets, and on Florida's sixty fold series, its twelve configurations
+over the same five folds. Because those twelve reuse one set of folds they are not independent of one
+another either, so the table also reports Florida read as twelve configuration means, which is the
+more conservative reading and gives the same answer. Where a count of observations appears it
+describes the data, not a test's sample size.
 % [round7] "Alabama and Arizona" -> "Alabama, Arizona, and Georgia". Caught by READING THE
 % RENDERED PAGE, not the source: the sentence was written when there were three datasets and the
 % list was not revisited when Georgia landed, so the page named two datasets while the table below
@@ -163,7 +189,7 @@ different quantity on a different scale and should not be read against this one.
 \input{tables/frame/cosine}
 
 Every dataset is equivalent to zero, and Table~\ref{tab:apx:cosine} gives each one's mean, confidence
-interval and tests. All four means lie within one and a half hundredths of zero, against a margin of
+interval and tests. All seven means lie within one and a half hundredths of zero, against a margin of
 five hundredths, and equivalence holds at every other level of aggregation as well, including the raw
 observations, so the conclusion does not depend on the choice of unit.
 % [round7] THE PER-DATASET NUMBERS WERE MOVED OUT OF THIS PARAGRAPH INTO THE TABLE, for two
@@ -182,7 +208,7 @@ alignment is there is too small to matter. That is a claim about the tasks, not 
 experiment's power.
 
 Figure~\ref{fig:apx:cosine} shows the distributions, and one feature needs saying plainly: the
-equivalence is a statement about the mean, not about every observation. Of the 3,900 cosines, 91.3
+equivalence is a statement about the mean, not about every observation. Of the 4,650 cosines, 92.4
 percent fall inside the margin, and the full range runs from $-0.34$ to $+0.58$, the largest value
 lying past the right edge of panel (a). Individual epochs drift out of the margin in both
 directions, ordinary noise in a quantity computed from one mini-batch. What never happens is a
@@ -191,10 +217,13 @@ systematic pull to one side.
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\textwidth]{figures/fig_gradient_cosine}
-    \caption{The two tasks' gradients on the shared trunk are orthogonal, on four datasets.
-    The shaded band is the equivalence margin of $\pm 0.05$; every mean falls inside it. Panels:
-    (a) the pooled distribution, (b) each dataset's mean with its 95 percent interval, (c) the
-    mean over training. No significance is marked anywhere in the figure.}
+    \caption{The two tasks' gradients on the shared trunk are orthogonal, on seven datasets: the
+    six of Chapter~\ref{ch:mobiwac} and Georgia, marked $\ddagger$ because the dissertation does not
+    otherwise use it. The shaded band is the equivalence margin of $\pm 0.05$; every mean falls
+    inside it. Panels: (a) the pooled distribution of all 4,650 epoch-level cosines, (b) each
+    dataset's mean with its 95 percent interval on the independent unit, (c) one point per fold for
+    the slope of the cosine against the epoch, with a tick at each dataset's mean slope. No
+    significance is marked anywhere in the figure.}
     \label{fig:apx:cosine}
 % [round7, 2026-07-29] THE CAPTION WAS 199 WORDS AND THREE OF ITS STATEMENTS WERE FALSE. It
 % described the PRE-GEORGIA figure: commit 4445e7ab rebuilt the image from the four-dataset
@@ -219,19 +248,25 @@ systematic pull to one side.
 % the caption still names every element and carries its reading instruction.
 \end{figure}
 
-Two departures from that flat picture appear on the smaller datasets, and both are worth reporting
-rather than smoothing. The first is a positive tendency that recurs: all five of Alabama's fold means
-are positive, averaging $+0.0112$, and so are all five of Georgia's, averaging $+0.0039$. The second
-is a decline over training, on the same two datasets and with the same unanimity, all five per-fold
-slopes negative in each; Arizona is mixed at three of five, and Florida is flat.
+Two departures from that flat picture appear, and both are worth reporting rather than smoothing.
+The first is a positive tendency that recurs on two datasets: all five of Alabama's fold means are
+positive, averaging $+0.0112$, and so are all five of Georgia's, averaging $+0.0039$. No other
+dataset is unanimous in either direction. The second is a decline over training, on those same two
+and with the same unanimity, all five per-fold slopes negative in each; the other four
+single-configuration datasets are mixed, from two of five at Istanbul to four of five at California,
+and Florida is flat at twenty-nine of sixty.
 
 Neither is called significant here, and the reason is the design rather than the data. At five folds
 the exact sign test cannot return less than $0.0625$, so no distribution-free test could reach
-significance however consistent the pattern. A $t$-test does reject in all four cases, but at five
-observations that rests entirely on assuming normality, and this appendix will not accept for one
-claim a basis it rejects for another. Both are therefore consistent tendencies rather than
-established effects. Florida, whose sixty independent series are the only estimate in the set with
-the resolution to settle either question, shows neither.
+significance however consistent the pattern. A $t$-test does reject on both datasets and for both
+departures, but at five observations that rests entirely on assuming normality, and this appendix
+will not accept for one claim a basis it rejects for another. Both are therefore consistent
+tendencies rather than established effects. California makes the same point from the other side and
+is the reason the table carries a sign-test column at all: its $t$-test returns $0.048$, below the
+conventional threshold, while its exact sign test returns $0.375$ on four of five positive folds, so
+what looks like a finding under one test is not even a leaning under the other. Florida, whose sixty
+independent series are the only estimate in the set with the resolution to settle either question,
+shows neither departure.
 
 Both point away from trouble in any case. A positive cosine is mild cooperation, not conflict, and
 the decline stays inside the margin throughout while moving toward zero rather than away from it. No
@@ -266,7 +301,7 @@ change of architecture to recover.
 \section{How far this extends, and how far it does not}
 \label{apx:cosine:extension}
 
-Four datasets and twelve configurations bound this result along two axes, each answering a different
+Seven datasets and twelve configurations bound this result along two axes, each answering a different
 objection.
 
 The first axis is the tuning. Every one of Florida's twelve configurations is equivalent to zero on
@@ -278,10 +313,12 @@ artifact of one choice among them.
 % Read from cosine_stats.py's "configuration-mean span" line, which exists to be quoted.
 % "equivalent to zero on its own five folds" is also measured, not asserted: that script's
 % per-configuration block reports 12 of 12 equivalent at the fold unit.
-The second axis is the data. Among the three datasets Chapter~\ref{ch:mobiwac} also reports, the
-check-in counts run from 113,846 at Alabama to 1,407,034 at Florida and the region counts from
-1,109 to 4,703, so this axis spans an order of magnitude in volume, and Georgia adds a fourth
-state under the same protocol. The result is not a quirk of Florida either.
+The second axis is the data. It now covers every dataset Chapter~\ref{ch:mobiwac} reports on: the
+check-in counts run from 113,846 at Alabama to 4,089,892 at Texas and the region counts from 520 at
+Istanbul to 8,501 at California, so this axis spans a factor of thirty-six in volume and one of
+sixteen in the size of the region label set, with Georgia added under the same protocol. Equivalence
+holds at both ends. The result is not a quirk of Florida, and it is not an artifact of small data
+either: the two largest states behave like the two smallest.
 
 Together the two axes suggest orthogonality belongs to the task pair rather than to the tuning. Next
 category asks which of seven kinds of place a user visits next, next region asks which tract or
@@ -300,13 +337,12 @@ folds, with the fold means tested for equivalence against a margin chosen in adv
 there makes orthogonality the task pair's property; otherwise it belongs to this architecture, and
 Section~\ref{apx:cosine:mechanism} applies only to models shaped like this one.
 
-California, Texas, and Istanbul, the other three datasets of Chapter~\ref{ch:mobiwac}, are missing
-above for reasons of computational resource rather than of principle. California and Texas are the
-two largest of the six and the region task at that scale forces full single-precision training, and
-the attempt ran out of disk on the machine that would have done it; Istanbul, a smaller dataset, was
-queued behind them when the disk filled. The diagnostic needs no new method, so what these three lack
-is the run itself rather than a way to perform it. The coverage here is therefore three
-of the dissertation's six datasets plus Georgia, and a reader should not extrapolate to the rest.
+California, Texas, and Istanbul were absent from an earlier version of this appendix, and their
+absence was a matter of computational resource rather than of principle: the machine that would have
+run them was out of disk. They were measured afterward under the same protocol as the others, so the
+coverage here is all six of the dissertation's datasets plus Georgia. What a reader should still not
+extrapolate to is another architecture, which is the boundary the paragraph above draws and the only
+one that remains.
 % [NEEDS SIGN-OFF: PENDENCIAS 2.9, round8, 2026-07-30] ONE CLAUSE REPLACED, AND THE REASON IS THAT
 % IT HAD BECOME FALSE. It read "so all three are blocked on that machine's free space rather than
 % waiting in its queue". That was a PRESENT-TENSE claim about a remote machine, and a remote state
@@ -336,6 +372,34 @@ of the dissertation's six datasets plus Georgia, and a reader should not extrapo
 % is evidence about how this file drifts, and a reader who finds only its absence learns nothing.
 % WHAT TO SAY NOW: say the runs were NOT MADE, and do not attribute the gap to any live condition on
 % the host without re-running `df -h /home` in the same session and dating the reading.
+% [RESOLVED 2026-07-30, round9. THE [VERIFY] BELOW IS CLOSED AND ITS BODY IS KEPT AS HISTORY.
+% California, Texas and Istanbul were measured. Jobs, each rc=0 read from its own _status.json, with
+% each duration derived from THAT dataset's own start and end stamps rather than from any job total:
+%   istanbul   9f3da11f  04:56:49 -> 05:16:07  19.3 min
+%   texas      6faa6e22  05:17:52 -> 06:12:59  55.1 min
+%   california 67585dff  06:14:17 -> 06:58:37  44.3 min
+% `df -h /home` read directly before every submit and after every run: 393G/313G used/61G avail, 84%,
+% unchanged throughout, because these runs passed --no-checkpoints. That flag is why they fit: saved
+% weights are what filled the disk (texas checkpoints alone were 7.1G) while a run directory carrying
+% the diagnostics is ~6-11 MB. It is not a numerics change, and that was MEASURED rather than argued:
+% alabama, already in this appendix, was re-run with the flag and reproduced all five of its per-fold
+% CSVs BYTE-IDENTICAL (md5 2780bce86f7eb6b2bb1638724d61f0c9, fd8cb0744f45913d955ecab5f90242a0,
+% f087d50a4c07ac844b477586988373cc, a6349e4ee7bf0133d98c8db8657e1d37, 40a5f0e7152277f1faf96312a4850250).
+%
+% AND THE 35-MINUTE CAP THAT THE BLOCK BELOW TREATS AS A PROPERTY OF THE HOST WAS OURS. job.sh wraps
+% the payload in `timeout <N>` where N is the submitted timeout_seconds; job 805120f1's own job.sh
+% reads `timeout 2100`, which is 35.0 min exactly. There is no host ceiling there. Texas ran 55 min
+% and california 44 min under a larger value. The dataset written up as unrecoverable was
+% unrecoverable only under a limit we had set, which is worth more than the cap itself as a lesson.
+%
+% THE HARVEST RACE WAS AVOIDED BY CONSTRUCTION AND THEN GATED. --folds 5 (never five --only-fold k
+% jobs) so the runner writes real fold1..fold5 names, and the job script captures its own child pid
+% and resolves results/check2hgi/<state>/mtlnet_*_<pid>, since the rundir leaf ends in that pid.
+% _round7/cosine_harvest6.py then refuses to build the parquet unless every per-fold md5 is distinct,
+% every cosine column is non-empty, and every epoch series is a complete 1..50; it was validated by
+% sabotage in both directions (clean rc=0; a duplicated pair, a blanked column and a 34-epoch
+% truncation each rc=1) before real data went through it. Full record: _round9/30_cosine_six.md.]
+%
 % [VERIFY: the per-dataset extension to California, Texas, and Istanbul. STATUS at the time this
 % appendix was written, from the job's own _status.json and not from its log: job 805120f1 on
 % ssh:nespedgpu was KILLED by SIGTERM at a 35-minute wall-clock cap (exitCode 124 at 35.0 min).
@@ -356,8 +420,12 @@ of the dissertation's six datasets plus Georgia, and a reader should not extrapo
 % "--only-fold k" writes its output as fold1_diagnostics.csv for every k, so the filename carries
 % no fold identity. The two files are byte-identical and cannot be attributed to a fold by any
 % evidence on disk. Using them would put a duplicated fold in a dissertation appendix.
-% This is why the appendix stops at four datasets: a coverage sentence naming a dataset whose
+% This is why the appendix stopped at four datasets: a coverage sentence naming a dataset whose
 % observations are not in the parquet is the defect that caution exists to avoid.
+% [round9] THOSE TWO CALIFORNIA FILES ARE STILL ON THE HOST at ~/cosine_appendix/california_f2 and
+% _f3, still byte-identical (md5 2afa6aebfb2a2c2145a104c3a54f50f6 both, re-measured 2026-07-30), and
+% they are STILL NOT IN THE PARQUET. California's rows come from job 67585dff, whose five folds carry
+% five distinct md5. The warning above stands as written; do not resurrect those two files.
 % THREE ESTIMATION ERRORS ARE RECORDED HERE BECAUSE EACH WOULD HAVE REACHED THIS FILE, and they
 % share one lesson -- derive a runtime from the thing's OWN timestamps. (3) is the newest: California
 % was priced at 1.49 min/epoch by dividing the WHOLE JOB's elapsed time, which already covered
@@ -370,9 +438,21 @@ of the dissertation's six datasets plus Georgia, and a reader should not extrapo
 % reported as "about 5.4 h remaining" for a process that was already dead: its log had been frozen
 % for 78 minutes and the GPU was idle, and the stale log was being read as progress. Check the
 % process, not the log.
-% WHEN THE RUNS LAND: re-run src_utils/_round7/cosine_stats.py (it asserts its own structure),
-% extend tables/frame/cosine.tex and rebuild the figure, then correct EVERY count in this file.
-% The dataset count appears in: this file's header comment (twice), the observations paragraph,
-% the "three of those four" paragraph, the figure caption, the table caption, the first sentence
-% of Section apx:cosine:extension, the data-axis paragraph, and the paragraph above. Grep for
-% "3,900", "four datasets" and "3,150 + 250" rather than trusting this list to stay complete.]
+% THE RUNS LANDED, and this is what updating the counts actually took, recorded because the list
+% below was incomplete when it was written. Re-run src_utils/_round7/cosine_stats6.py (it asserts its
+% own structure), rebuild the figure, then correct EVERY count. The sites, MEASURED with
+%   awk '!/^[[:space:]]*%/' chapters/apx_f_cosine.tex | grep -nE 'four|seven|3,900|4,650'
+% rather than trusted from a list: this header (twice), the observations paragraph, the
+% dissertation-coverage paragraph, the unit-of-independence paragraph, the result paragraph, the
+% figure-introduction paragraph, the figure caption, the tendency paragraph, the sign-test paragraph,
+% the first sentence and the data-axis paragraph of Section apx:cosine:extension, the closing
+% coverage paragraph, and both the caption and the body of tables/frame/cosine.tex.
+% TWO SITES THE ROUND-7 LIST DID NOT NAME, and each would have left a false sentence on the page:
+%   (a) "A t-test does reject in all four cases" -- with seven datasets the t-test rejects on THREE
+%       (alabama 0.0125, georgia 0.0093, california 0.0478), so the sentence was wrong in the count
+%       AND in the scope. It now names the two datasets and their two departures, and California is
+%       discussed separately because its sign test does not agree with its t-test.
+%   (b) "Arizona is mixed at three of five" -- true, but it was the ONLY non-unanimous dataset named
+%       when there was one; with four such datasets the sentence has to give the range.
+% NEITHER IS A COUNT OF THE WORD "four". A grep for the dataset count would not have found either.
+% When the next dataset lands, re-read the STATISTICS for changed verdicts, not just the numerals.]

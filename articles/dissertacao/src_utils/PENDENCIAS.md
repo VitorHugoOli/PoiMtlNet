@@ -133,17 +133,46 @@ item foi aplicado a nenhum capitulo** — que e provavelmente o que ela queria d
 *Forense: `_round9/31_stale_quote_pass.md` (o passe de obsolescencia, incluindo os dois instrumentos
 meus que estavam quebrados e como cada um foi pego).*
 
-### 2.9 O disco do `nespedgpu` — liberado por voce; sobrou decidir se roda o resto
+### 2.9 Os tres datasets que faltavam no Apendice F — RODADOS. O apendice agora tem SETE, e sobra uma decisao pequena
 
-**O que e.** O disco encheu (0 bytes livres) e matou tres datasets do Apendice F; voce liberou espaco. O apendice hoje
-reporta **quatro** datasets (florida, alabama, arizona, georgia) e diz que california, texas e istanbul foram
-bloqueados, o que e verdade e esta escrito.
+**FEITO EM 2026-07-30, e nada aqui espera GPU.** California, Texas e Istanbul foram medidos no `nespedgpu`, um dataset
+por job, sequencialmente. Cada `rc=0` foi lido do `_status.json` do proprio job, e cada duracao vem dos **stamps do
+proprio dataset**, nunca do total do job:
 
-> **DECISAO SUA:** rodar os tres que faltam (~6h de GPU, e o apendice passa a seis) ou publicar com
-> quatro. **Eu nao apago nada na sua maquina** — os 61G sao seus checkpoints.
+| dataset    | job        | duracao (stamps proprios) | folds |
+|------------|------------|---------------------------|-------|
+| istanbul   | `9f3da11f` | 19,3 min (04:56:49→05:16:07) | 5/5 |
+| texas      | `6faa6e22` | 55,1 min (05:17:52→06:12:59) | 5/5 |
+| california | `67585dff` | 44,3 min (06:14:17→06:58:37) | 5/5 |
 
-*Forense (o crash `basic_ios::clear` que era falha de escrita, a corrida de harvest que produziu dois folds identicos, e
-por que descartei aqueles dados): [`_round8/29_pendencias_detail.md`](_round8/29_pendencias_detail.md).*
+**Custou ~2h de GPU, nao as ~6h estimadas** — e o motivo importa: `--no-checkpoints`. Os pesos salvos eram o que enchia o
+disco (`results/check2hgi/texas/checkpoints` sozinho tinha 7,1G) enquanto o diretorio que carrega o diagnostico tem
+~6-11 MB. `df -h /home` ficou em **313G usados / 61G livres, 84%, sem mover**, lido direto antes de cada submit e depois
+de cada run. E nao muda numerica nenhuma: **medido**, nao argumentado — o alabama, que ja estava no apendice, foi
+re-rodado com a flag e reproduziu os cinco CSVs por fold **byte a byte identicos**.
+
+**Nada foi apagado na sua maquina.** Os 61G que voce liberou continuam livres; os dois arquivos corrompidos da corrida de
+harvest antiga seguem em `~/cosine_appendix/california_f2` e `_f3` (md5 `2afa6aebfb...` nos dois) e **nao entraram** no
+parquet: o california veio do job `67585dff`, cujos cinco folds tem cinco md5 distintos.
+
+**O apendice passou de quatro para SETE datasets** — as suas **seis** mais a Georgia, que nao e uma das seis. 4.650
+observacoes, todos os testes no **fold** como unidade. Equivalencia por TOST dentro de ±0,05 vale em todos os sete.
+Verificado no PDF renderizado (pp. 97-102), nao no fonte.
+
+**Um achado que vale mais que os tres datasets:** o "limite de 35 minutos do host" era **nosso**. O `job.sh` embrulha a
+carga em `timeout <N>` com o `timeout_seconds` que o agente passou, e o `job.sh` do job 805120f1 diz `timeout 2100` = 35,0
+min exatos. Nao existe teto de 35 min nesse host. O texas rodou 55 min. **O dataset que foi registrado como impossivel era
+impossivel apenas sob um limite que nos mesmos definimos.**
+
+> **DECISAO SUA, e e pequena:** o Cap. 5 continua reportando a medida antiga desse mesmo cosseno (de
+> desenvolvimento, quatro seeds, preparacao anterior) com media +0,001 e maior media por dataset
+> +0,0032. O apendice agora da +0,00102 no conjunto e +0,0112 no alabama. **Nao sao contraditorios** —
+> sao corridas diferentes, e o apendice ja diz isso em uma frase. Voce decide se quer (**a**) deixar
+> como esta, ou (**b**) que eu proponha uma nota no Cap. 5 apontando para o Apendice F. **Eu nao toco
+> no Cap. 5**: esta sob revisao.
+
+*Forense completa (a corrida de harvest, o gate de distincao por md5 validado por sabotagem, o `c.download()` que
+achatou quinze arquivos em cinco, e o cap que era nosso): [`_round9/30_cosine_six.md`](_round9/30_cosine_six.md).*
 
 ### 2.11 A assimetria do resultado de regiao: o Cap. 5 ressalva, e o resto do documento nao
 
@@ -541,8 +570,10 @@ cumprida.
 
 > **De onde isto vem.** `CONSIDERATIONS.md` foi reescrito em 43 blocos com ID estavel: **20** itens eu
 > aplico, **22** precisam de voce e estao aqui, **1** esta bloqueado numa verificacao que falhou.
-> **8 dos que eu aplico ja estao aplicados e conferidos no PDF renderizado**; os outros 12 esperam a
-> outra esteira soltar o `2_fundamentals.tex` ou uma linha sua no `GLOSSARY` (`_round9/33_apply_plan.md`). O bloco
+> **7 edicoes ja estao aplicadas e conferidas no PDF renderizado** (nos dois sentidos: texto novo
+> presente, texto antigo ausente), e o **FAB-01 ja estava satisfeito** — conferido, nao aplicado, porque
+> nao havia o que editar. Os outros 12 esperam a outra esteira soltar o `2_fundamentals.tex` ou uma
+> linha sua no `GLOSSARY` (`_round9/33_apply_plan.md`). O bloco
 > completo de cada item (citacao, status no fonte vivo, meu raciocinio, onde renderiza, probe, commit da
 > medicao) esta em [`CONSIDERATIONS.md`](CONSIDERATIONS.md).
 >
@@ -882,8 +913,10 @@ a linha, nao deslocadas por aritmetica: FAB-28 (454 -> 560), FAB-29 (513 -> 619)
 
 **E um defeito que eu encontrei e corrigi, este nao concorrente:** o §4 item 5 deste arquivo mandava
 voce rodar `make final` (alvo renomeado para `academico` em 2026-07-29) e prometia **108/105/109**
-paginas. A arvore da **101/98/102**. O `sync_page_counts.py` nao varre o §4, so `CLAUDE.md`, `PLAN.md` e
-`codex_reviewer.md`, e por isso o numero envelheceu sem gate.
+paginas. A arvore da **102/99/103**. O `sync_page_counts.py` varria so `CLAUDE.md`, `PLAN.md` e
+`codex_reviewer.md`, e por isso o numero envelheceu sem gate — **este arquivo entrou na varredura em
+2026-07-30**, depois de a minha propria correcao aqui ficar obsoleta por uma pagina em menos de uma
+hora (a outra esteira somou uma pagina ao §2.3 entre uma medicao e a seguinte).
 
 > **DECISAO SUA:** nada aqui. Fica como registro.
 ---
@@ -911,7 +944,7 @@ item. Os cinco de maior consequencia:
 4. **A frase de reprodutibilidade em `apx_a_contributions.tex`** (p. 88), contra 2.2 acima.
 5. **`make check` e os tres builds.** `cd articles/dissertacao && source src_utils/texenv.sh &&
    (cd src && make defense && make academico && make ppgc && make check)`. Deve sair 0 e dar
-   **101/98/102** paginas. *(Corrigido em 2026-07-30: dizia `make final`, alvo renomeado para
+   **102/99/103** paginas. *(Corrigido em 2026-07-30: dizia `make final`, alvo renomeado para
    `academico` em 2026-07-29 — ainda funciona como alias, mas imprime um aviso — e citava
    **108/105/109**, que nao e o que a arvore produz. Medido agora com pypdfium2 sobre
    `src/build/main.pdf`, `main_academico.pdf` e `main_ppgc.pdf`. O `sync_page_counts.py` nao pega isto:
