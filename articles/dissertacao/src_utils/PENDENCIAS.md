@@ -84,32 +84,43 @@ python3 src_utils/sync_page_counts.py --write   # se a contagem mudou
 > tinham entrado desde `2bf5f8ea` sem que ninguem reconciliasse. E a classe do V13 do
 > `AGENT_GUARDRAILS` -- uma tabela cujo cabecalho conta N tem que ter N linhas.
 
-**(A) O que falta.** **53 marcadores no fonte** (57 se contar a arvore gerada `src/build/`, que nao e
-fonte: `build/fmt/_body.tex` e escrito pelo `mkformat.py` e nao esta versionado). Medido assim, e o
-numero 53 e o que importa porque e nele que voce assina:
+**(A) O que falta.** **55 marcadores no fonte** (59 se contar a arvore gerada `src/build/`, que nao e
+fonte: `build/fmt/_body.tex` e escrito pelo `mkformat.py` e nao esta versionado). O numero do fonte e
+o que importa, porque e nele que voce assina:
 
 ```bash
 cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
-grep -rn "NEEDS SIGN-OFF" src/ --exclude-dir=build | grep -v Binary | wc -l   # EXPECT: 53
-grep -rn "NEEDS SIGN-OFF" src/ | grep -v Binary | wc -l                       # 57: os 4 a mais sao o _body.tex gerado
+grep -rn "NEEDS SIGN-OFF" src/ --exclude-dir=build | grep -v Binary | wc -l   # 55 em f624767c
+grep -rn "NEEDS SIGN-OFF" src/ | grep -v Binary | wc -l                       # 59: os 4 a mais sao o _body.tex gerado
 ```
+
+> **ESTE NUMERO ANDA, e a minha propria correcao envelheceu em trinta minutos.** Eu reescrevi esta
+> tabela com **53**, medido em `ecb81fb6` (21:40), corrigindo os 46 que estavam aqui. 53 estava certo
+> naquele commit. Depois **eu mesmo** acrescentei dois marcadores -- em `d9ab436f`
+> (`apx_f_cosine.tex`, a decisao de rodar ou nao os tres datasets) e em `a07e547b`
+> (`apx_b_errata.tex`, a frase do orcamento de tuning) -- e uma track paralela desta rodada
+> acrescentou o seu. Dai 55.
+>
+> A licao nao e que 53 estava errado. E que **uma tabela de contagem neste arquivo e instrumento ruim
+> para esta grandeza**, porque cada sign-off novo a invalida, inclusive os meus. O que nao envelhece
+> e o **comando**, e ele esta acima. A tabela abaixo esta datada por isso. Se a soma nao fechar quando
+> voce ler, rode o comando: ele e a resposta, a tabela e so a conveniencia. A §2.13 registra a mesma
+> instabilidade pelo lado do `VERIFY_LIST` A7.
 
 | Arquivo                                                                                                                                                                     |      n |
 |-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------:|
 | `chapters/6_conclusion.tex`                                                                                                                                                 |      9 |
-| `chapters/2_fundamentals.tex`                                                                                                                                               |      6 |
-| `chapters/apx_a_contributions.tex`                                                                                                                                          |      6 |
-| `chapters/apx_b_errata.tex`                                                                                                                                                 |      5 |
+| `chapters/2_fundamentals.tex`, `chapters/apx_a_contributions.tex`, `chapters/apx_b_errata.tex`                                                                               | 6 cada |
 | `content.tex` (era `0_main.tex`)                                                                                                                                            |      4 |
 | `chapters/5_mobiwac/06_results.tex`                                                                                                                                         |      3 |
-| `chapters/1_introduction.tex`, `3_cbic/results.tex`, `5_mobiwac/02_related.tex`, `5_mobiwac/07_discussion.tex`                                                              | 2 cada |
-| `3_cbic/method.tex`, `4_courb.tex`, `4_courb/methodology.tex`, `4_courb/results.tex`, `5_mobiwac.tex`, `5_mobiwac/05_setup.tex`, `apx_b_static_scope.tex`, `apx_c_ai_disclosure.tex`, `apx_d_ceiling.tex`, `apx_e_ethics.tex`, `apx_f_cosine.tex`, `main_extra.tex` | 1 cada |
+| `chapters/1_introduction.tex`, `3_cbic/results.tex`, `5_mobiwac/02_related.tex`, `5_mobiwac/07_discussion.tex`, `apx_f_cosine.tex`                                           | 2 cada |
+| `3_cbic/method.tex`, `4_courb.tex`, `4_courb/methodology.tex`, `4_courb/results.tex`, `5_mobiwac.tex`, `5_mobiwac/05_setup.tex`, `apx_b_static_scope.tex`, `apx_c_ai_disclosure.tex`, `apx_d_ceiling.tex`, `apx_e_ethics.tex`, `main_extra.tex` | 1 cada |
 
-**Soma: 9+6+6+5+4+3 + (2x4) + (1x12) = 53.** Confere com o comando acima.
+**Soma: 9 + (6x3) + 4 + 3 + (2x5) + (1x11) = 55**, em 22 arquivos, medido em `f624767c`.
 
-**Todos os 53 estao dentro de comentarios `%`**, entao nenhum imprime no PDF: o marcador e recado
+**Todos os 55 estao dentro de comentarios `%`**, entao nenhum imprime no PDF: o marcador e recado
 para voce, nao texto do leitor. Medido com o stripper do `check_audit_claims.py` (0 ocorrencias
-visiveis depois de remover comentarios, 53 no fonte cru).
+visiveis depois de remover comentarios, 55 no fonte cru).
 
 **(B) Por que importa.** Cada um e uma frase reescrita por um agente em prosa que e sua, ou uma mudanca de escopo num
 capitulo publicado. Nenhuma pode ir a banca sem voce ter lido.
@@ -673,9 +684,21 @@ em `content.tex`. Distribuicao medida em `d9ab436f` (`--exclude-dir=build`):
 | `chapters/1_introduction.tex`, `3_cbic/results.tex`, `5_mobiwac/02_related.tex`, `5_mobiwac/07_discussion.tex`, `apx_f_cosine.tex` | 2 cada |
 | `3_cbic/method.tex`, `4_courb.tex`, `4_courb/methodology.tex`, `4_courb/results.tex`, `5_mobiwac.tex`, `5_mobiwac/05_setup.tex`, `apx_b_static_scope.tex`, `apx_c_ai_disclosure.tex`, `apx_d_ceiling.tex`, `apx_e_ethics.tex`, `main_extra.tex` | 1 cada |
 
-**(D) O que eu preciso de voce.** Nada para decidir; e a sua fila. **Nao reescrevi a tabela da §2.1**
-porque ela e o seu inventario de leitura e porque qualquer numero que eu escreva ali envelhece no
-proximo sign-off. A ordem de leitura recomendada continua valendo: A1, depois A3, depois A2.
+**(D) O que eu preciso de voce.** Nada para decidir; e a sua fila. A ordem de leitura recomendada
+continua valendo: A1, depois A3, depois A2.
+
+> **A TABELA DA §2.1 FOI REESCRITA, por outra track desta mesma rodada, e as duas medicoes concordam.**
+> Este item dizia *"Nao reescrevi a tabela da §2.1"* -- correto quando foi escrito; a track que auditou
+> a §2 reescreveu-a em `ecb81fb6`, antes deste item existir, e as duas chegaram ao mesmo diagnostico
+> por caminhos independentes: o comando conta 4 a mais por causa de `src/build/fmt/_body.tex`, e a
+> linha `0_main.tex` nomeava um arquivo que nao existe desde `2b9b853d`.
+>
+> **Estado conciliado, medido em `f624767c`:** 55 no fonte, 59 com `build/`, distribuidos em 22
+> arquivos, e a tabela da §2.1 fecha com a propria soma (9 + 6x3 + 4 + 3 + 2x5 + 1x11 = 55). Os 55
+> estao todos dentro de comentarios `%`: **zero** aparecem no PDF. A §2.1 leva agora a data da medicao
+> e a ressalva de que o numero anda -- inclusive por commits das proprias tracks desta rodada, que
+> acrescentaram tres marcadores enquanto o item era escrito. **A sua preocupacao (C) esta atendida e o
+> ponto (B) desta secao continua valendo: confie no comando, nao na tabela.**
 
 ### 2.14 O intervalo de paginas do `nash`: nao da para verificar daqui
 
