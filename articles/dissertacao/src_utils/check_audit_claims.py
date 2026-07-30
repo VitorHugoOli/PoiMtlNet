@@ -117,6 +117,15 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # definition, and the sabotage runs: _round9/31_pareto.md.
     ("R9-pareto", "Ch.2 defines Pareto optimality and states that this dissertation does not claim it",
      "chapters/2_fundamentals.tex", r"claims no Pareto property of any kind", True),
+    # R9-pareto2: the DEFINITION itself, not just the honesty clause. Found 2026-07-30 by sabotage:
+    # replacing "a relation named\nPareto dominance" with "domination" left R9-pareto holding, because
+    # that probe watches "claims no Pareto property of any kind" -- a different sentence. A term can be
+    # struck from the definition while the disclaimer about it survives, and the glossary probe only
+    # checks the REGISTRY, not the prose. So the fail-closed rule needs the prose side gated too.
+    ("R9-pareto2", "Ch.2 still DEFINES Pareto dominance in prose, not only disclaims Pareto claims",
+     "chapters/2_fundamentals.tex", r"a relation named\s+Pareto dominance", True),
+    ("R9-pareto3", "Ch.2 still defines Pareto optimality from dominance",
+     "chapters/2_fundamentals.tex", r"no other dominates is Pareto optimal", True),
     ("R9-conflict", "Ch.2 defines gradient conflict as the cosine between per-task gradients, so "
                     "Appendix F's orthogonality result has a definition to point back to",
      "chapters/2_fundamentals.tex", r"cosine of the angle between two tasks", True),
