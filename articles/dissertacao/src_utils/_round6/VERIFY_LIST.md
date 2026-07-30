@@ -15,6 +15,32 @@ first state it names), item 6 (a frame sentence on p. 23 now contradicts a chapt
 p. 36, and the repair was drafted but never applied) and item 1 (a gate reported green across the
 whole round is red, and has been red since before the round started).
 
+> ## ROUND 8 DISPOSITION, 2026-07-30 — every item worked, none dropped
+>
+> Read this before the three above: **all three have since been resolved.** Item 0 is fixed in both
+> texts, item 6's repair is in the prose (its *command* was the thing that was wrong), and item 1's
+> gate exits 0. Each item below now carries a dated block saying what was measured, with the command.
+>
+> | disposition | items |
+> |---|---|
+> | **verified as described** | 2, 3, 7, 9, 11, 12, 13, 17, 18, 19 (numbers), 20, A1, A2, A4, A5, A6 |
+> | **fixed this round** | 0 (both texts), 1 (gate green), 6 and 6b (and their commands), 8 (closed without the author) |
+> | **the item's own command was defective** | 5 (named a deleted file, expectation passed anyway), 6 (comment-blind, failed a landed fix), 17 (superseded by a gate), A3 (asked by-path, claim is by-content), A7 (over-counts by four, always) |
+> | **handed to the author** | 4 → §2.12, 5 → §2.11, 14 → §2.14, 15 and 16 → §2.15, A3 → §2.16, A7 → §2.13 |
+> | **still `[NEEDS SIGN-OFF]`, unchanged** | 2, 3, 12, 19, A1 |
+>
+> **Three things about this file itself are now wrong and are corrected in place**, because a reader
+> who trusts a coordinate here is the reader this file exists to protect. The build is **100 / 97 /
+> 101 pages, not 108 / 105 / 109** — round 7 moved two appendices into the supplementary volume, so a
+> page number past 100 or naming the errata appendix is a pre-round-7 coordinate. Item 10's word
+> counts do not reproduce. And several line numbers moved with the files.
+>
+> **One caution for whoever measures next.** Round 8 ran eight tracks in parallel against this
+> checkout. A count taken here is a reading at a timestamp, not a property of the repository: the
+> sign-off total moved twice while this file was open (item A7). Where a number could not be pinned,
+> the block asserts the *structural* defect and dates the count, rather than pinning a total a
+> legitimate edit would break.
+
 ---
 
 **0. The `±0.003` gradient-cosine bound is false, in the dissertation AND in the submitted paper.**

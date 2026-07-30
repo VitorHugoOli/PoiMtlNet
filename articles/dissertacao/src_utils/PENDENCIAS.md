@@ -581,8 +581,6 @@ proprias linhas e um erro aritmetico visivel sem conhecimento nenhum do dominio.
 > suite de testes a cada invocacao e o mesmo erro de trabalho-dentro-de-trabalho que fez o `check`
 > levar 265 s.
 
----
-
 ### 2.11 A assimetria do resultado de regiao: o Cap. 5 ressalva, e o resto do documento nao
 
 **(A) O que e.** `chapters/5_mobiwac/05_setup.tex` diz que o plano de analise *"did not cover

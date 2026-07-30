@@ -81,8 +81,10 @@ def cwd_for(code: str) -> Path:
 # here cost a printed REFUSED line; a false negative costs the author's branch.
 #
 # ROUND 8, 2026-07-30: this pattern was itself a name-list and SIX shapes walked past it. Measured
-# with a 29-case fixture table (`--selftest` below), the pre-round version let all of these through
-# as kind="run", i.e. EXECUTED on every `make check`:
+# with the case table at the foot of this file (`--selftest`, 36 rows -- an earlier draft of this
+# comment said 29 and cited a table that did not yet exist; it does now, and the count is read from
+# SELFTEST_CASES rather than retyped), the pre-round version let all of these through as
+# kind="run", i.e. EXECUTED on every `make check`:
 #     git -C <path> push origin main          option before the subcommand; `git\s+push` cannot match
 #     git --git-dir=... commit -am wip        same
 #     printf 'x' > notes.txt                  the redirect test was anchored at `> /`, so any
