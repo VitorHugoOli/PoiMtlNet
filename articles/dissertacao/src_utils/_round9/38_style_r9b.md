@@ -578,6 +578,60 @@ actually implies: **for each of the four registered terms, the term's own name m
 prose in the chapter that defines it.** That probe fires today on `gradient conflict` and passes on the
 other three, which is the both-directions validation §7 requires, available for free.
 
+## 5c · `PENDENCIAS.md`: restored on the author's instruction, gates green, and one risk he needs to know
+
+**Done, and verified.** `git checkout -- articles/dissertacao/src_utils/PENDENCIAS.md`. Item 2.8 is back
+(1 occurrence of `^### 2.8`), the file is clean against HEAD, and `bash src_utils/check.sh` → **rc=0**,
+read directly as the last action in that shell (V11). The three named gates now read:
+
+```
+ORPHANED …            -> gone (grep for ORPHAN over the suite log returns nothing)
+holds       R9-pend28 the old 2.8 no longer asks for a decision -- it records what was done
+holds       R9-agree  PENDENCIAS 2.8 carries the CORRECTED stale count … (9 of 41, not the superseded 10)
+```
+
+Before restoring I preserved the working-tree version, because `git checkout --` on an uncommitted file
+is unrecoverable and 385 insertions had no other copy:
+
+- `_round9/_UNCOMMITTED_pendencias_worktree_1105.md` — the full file, **verified byte-identical**
+  by `cmp` and md5 `cedb699a54a587eec3edebd10c4477db` before the checkout, not by a token guess.
+  (My first attempt asserted on a string I *expected* to be in it; that assert fired and stopped the
+  script, which is V15b working as intended — the token was in `check_audit_claims.py`, not in
+  `PENDENCIAS.md`. The backup was then verified with the instrument that matches the question.)
+- `_round9/_UNCOMMITTED_pendencias_worktree_1105.diff` — the 1,084-line diff, 33 hunks.
+
+Both are left **untracked and uncommitted**, since the instruction is to commit only this report.
+
+**The provenance, stated as what I can and cannot prove.** I did not write to that file, and there is no
+write to it anywhere in this track's tool log; the one mention of the name in this report is line 95, a
+parenthetical citing `GLOSSARY.md`'s own provenance note. What I can prove positively:
+
+| Evidence | Measured |
+|---|---|
+| `PENDENCIAS.md` last **committed** | `a847ed8f`, **09:49:23** local — before this track's first tool call (≈10:16) |
+| The worktree edit's mtime | **11:05:48** local |
+| Concurrent tracks committing in that window | **four**, 13 commits between 10:45:55 and 11:23:02 (`40_readability_r9b` at 11:07:42, `39_mtl_r9b` at 11:09:22 and 11:16:21, `41_ai_tells_r9b` at 10:58:50, `42_excellence_r9b` at 11:23:02) |
+| This track's writes | `38_style_r9b.md` only (11:12:17, 11:15:31), plus the two backups above |
+| `dissertacao.pdf`, also dirty | mtime 11:20:09, identical to `build/main.pdf` — `make defense` writes both; that one **is** a side effect of my build and I did not stage it |
+
+The 11:05:48 edit falls inside another track's commit sequence and outside any write of mine. I cannot
+prove a negative from mtimes alone, and I am not asking you to take my word for it — the two facts that
+matter are that the tree is restored and green, and that **the work may still be live somewhere.**
+
+**The risk, which is the actionable part.** If one of the four concurrent tracks is holding that
+restructure in flight, my `git checkout --` just discarded **385 insertions / 279 deletions** of its
+uncommitted work with no notice to it. That is why I copied the file first. Its shape, measured from the
+preserved diff so you can identify the owner without opening it: **33 hunks, 367 added and 251 removed
+content lines, exactly one heading removed (`### 2.8 CONSIDERATIONS.md — EXECUTADO nesta rodada; a fila
+de decisao virou o §6`) and none added.** So it is a content rewrite across the file, in the shape of a
+compression pass, and *not* a re-sectioning — which makes the loss of 2.8 look like the incidental
+casualty of a rewrite rather than its purpose. Recovering it is `cp` from the preserved path; deciding
+whether it should land is yours.
+
+**No proposal attached.** I have no view on whether that restructure has value, because I never read it
+as content — I measured its shape to write this paragraph and nothing more. It is not my file and not my
+remit.
+
 ## 6 · Findings index
 
 | id | severity | file | PDF page | one line |
