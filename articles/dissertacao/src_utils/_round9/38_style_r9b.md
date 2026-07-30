@@ -538,7 +538,12 @@ Sweeps run in-kernel over `live_text()` of all 51 `.tex` files under `src/` (`SR
 | List of Tables | parsed `Table N –` entries from rendered pp. 5–9, `assert rows` | 11 entries, median 31 words, Table 11 = 196 |
 | quote↔page pairing | substring match of each quoted string against each of the 102 rendered pages, `assert pg in got` for all 16 | all 16 verified |
 
-**What I did not measure, stated so it is not read as covered.** Whether each citation supports its
+**What I did not measure, stated so it is not read as covered.** **The gate suite, at the time this
+report was drafted.** The two gate runs above are individual scripts; I did not run
+`bash src_utils/check.sh` until later in the session (§5b's correction and §5c), and when I did it came
+back **rc=1** on a condition unrelated to my remit. Every style verdict here rests on the in-kernel
+sweeps and on the two scripts named, none of which depends on the suite's state — but no sentence in
+this report may be read as certifying the tree. Also not measured: whether each citation supports its
 sentence (personas 05/07); whether the numbers in the table match the parquet (persona 06); the LaTeX
 cause of the p. 7 `California's𝑡-test` spacing (persona 19). The `gradient conflict` verdict in F-02 is
 about the **name's absence in Chapter 2**; I did not audit whether Chapter 3's three uses of it are
@@ -546,11 +551,22 @@ consistent with the registry, because they are outside this round's diff.
 
 ---
 
-## 5b · Why F-02 survived a green gate suite (measured, and it is a gate defect, not a prose one)
+## 5b · Why no probe catches F-02 (a gate defect, not a prose one)
 
-Twenty-two gates are green on this tree and `check_audit_claims.py` carries **two** round-9 probes for
-this passage. Neither can see F-02, and the reason is worth recording because it is the same shape as
-V13's proxy problem.
+> **CORRECTION, and it is mine.** This section originally opened *"Twenty-two gates are green on this
+> tree"*, and that sentence was false twice over. I never ran the suite: the only gate runs behind this
+> report are the two individual scripts in §5 (`check_process_narration.py`,
+> `check_negative_parallelism.py`). The "22" came from this repository's commit conventions, which I had
+> read in `AGENT_GUARDRAILS.md` §4b, not from any output — the exact defect V1 names, a number about the
+> work with no command behind it. Worse, the tree was **not** green when I wrote it: the first whole-suite
+> run in this session, taken later, printed `check.sh RC=1` with `ORPHANED item 2.8 left the tracker
+> without reaching the archive`, and that condition already held at the time (the `PENDENCIAS.md` edit's
+> mtime, 11:05:48, precedes this report file's 11:15:31). So the heading's own framing was wrong: F-02 did
+> not survive a *green* suite. It survived **two probes that cannot see it**, which is the finding, and it
+> stands independent of any suite state.
+
+`check_audit_claims.py` carries **two** round-9 probes for this passage. Neither can see F-02, and the
+reason is worth recording because it is the same shape as V13's proxy problem.
 
 ```
 ("R9-conflict",  "Ch.2 defines gradient conflict as the cosine between per-task gradients, so "
@@ -601,6 +617,18 @@ is unrecoverable and 385 insertions had no other copy:
 - `_round9/_UNCOMMITTED_pendencias_worktree_1105.diff` — the 1,084-line diff, 33 hunks.
 
 Both are left **untracked and uncommitted**, since the instruction is to commit only this report.
+
+**One diagnostic appeared beside that green exit code, and it is not the suite's.** The shell that made
+the previous commit also printed `make: *** No rule to make target 'defense'. Stop.` A green rc next to
+a failing `make` is precisely the tolerant-tool bias §7 lists, so I did not let the 0 stand on its own.
+Re-run with the streams separated: `check.sh` → **rc=0 with 0 lines of stderr**, and `grep -i make` over
+that stderr returns nothing. The message therefore did not come from the gate suite. Its origin is a
+`make defense` invoked from the **repository root**, where no such rule exists (`make -n defense`
+succeeds in `src/` and fails at the root) — my own build ran from `src/` and succeeded, so it is not
+mine either, and it is consistent with one of the four concurrent tracks building from the wrong working
+directory. **The rc=0 in the commit message is a real measurement of the suite; the `make` line belongs
+to something else in the tree.** Both halves are stated because the true half is what would have made an
+unexamined green look credible.
 
 **The provenance, stated as what I can and cannot prove.** I did not write to that file, and there is no
 write to it anywhere in this track's tool log; the one mention of the name in this report is line 95, a
