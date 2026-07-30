@@ -32,19 +32,35 @@ cd articles/dissertacao/src && make defense        # in a clean copy of src/ + s
 → latexbuild main -> build/main.pdf  pages=102  tex_errors=0
 ```
 
-Note for the author, not a finding: `make defense` **fails in the working tree as it stands** —
-`build/main-aux/chapters/4_courb.aux` is truncated mid-`\@writefile` (`! File ended while scanning
-use of \@writefile`, `Runaway argument? {\contentsline {subsection}{\numberline {4.3.1}Baseline:
-MTLnet with \ETC.`) and pdfTeX dies with no output PDF. It is a stale-aux artifact, not a source
-defect: the same tree built clean at 102 pages after copying `src/` and `src_utils/` to a fresh
-directory with an empty `build/`. `make clean` should clear it. Every page number below is from
-that clean 102-page build.
+Note for the author, not a finding, and stated as the transient condition it turned out to be: my
+in-tree `make defense` **failed**, exit 2, with `build/main-aux/chapters/4_courb.aux` truncated
+mid-`\@writefile` (`! File ended while scanning use of \@writefile`, `Runaway argument?
+{\contentsline {subsection}{\numberline {4.3.1}Baseline: MTLnet with \ETC.`) and no output PDF
+produced. It is a stale-aux artifact and not a source defect: the same sources built clean at 102
+pages in a fresh copy of `src/` + `src_utils/` with an empty `build/`. It is also **no longer
+reproducible in the working tree** — `build/main-aux/main.log` now records "Output written on
+build/main-aux/main.pdf (102 pages, 1533933 bytes)" with zero `Fatal error` lines, so a later build
+in this tree succeeded and overwrote my failing run's log. Treat it as: if a build dies this way,
+`make clean` clears it. Every page number below is from my own clean 102-page build.
 
-One side effect to disclose: the first `make defense` attempt, run in the working tree before I
-moved to a copy, left `src/dissertacao.pdf` differing from HEAD (1,533,933 bytes against the
-committed 1,534,343). It is a build product and regenerable. I did not revert it, because other
-tracks in this wave are building concurrently and a checkout could discard their output; it is not
+I first wrote here that my failed attempt had left `src/dissertacao.pdf` differing from HEAD. That
+was wrong and I retract it: a build that produces no PDF never reaches the Makefile's
+`&& cp build/main.pdf dissertacao.pdf`. What is measurable is that `src/dissertacao.pdf` and
+`src/build/main.pdf` are byte-identical (`md5 50348efbdc45fefb975c90654f6676af`, 1,533,933 bytes,
+both stamped 10:17:42) and differ from HEAD's 1,534,343, and that they are **not** my build
+(`/tmp/dissbuild/.../main.pdf` is `978dbc74806b14945f018767a684e342`). Five commits from other
+tracks landed in this tree between 10:55 and 11:12, so the writer is one of them; per the V9 rule I
+name it UNKNOWN rather than infer it. Either way it is a regenerable build product and it is not
 part of my commit.
+
+One consequence worth recording, because it affects how my quotes should be checked. The in-tree PDF
+and mine agree byte-for-byte on 8 of the 10 pages I cite; pages 22 and 24 differ, and the diff is
+citation **numerals only** (`[6]`→`[7]`, `[39]`→`[1]`, `[11]`→`[12]`) with every sentence identical.
+Bracket numbers are therefore volatile in this tree while a concurrent track edits the
+bibliography. The five my findings depend on are not: `[46] sener2018mgda`, `[47] nash`,
+`[48] liu2021cagrad`, `[49] senushkin2023aligned`, `[50] yu2020pcgrad` resolve identically in both
+`main.bbl` files (checked by parsing `\bibitem` from each, 99 entries each), so M2 and M7 name the
+right papers under either build.
 
 ---
 
@@ -293,10 +309,12 @@ True on the equivalence verdict, which the preceding sentence ("Equivalence hold
 has already said. Not true on anything else: the two smallest are Alabama (113,846 check-ins,
 `|mean| = 0.0112`, 5/5 folds positive, `t = 0.013`, 5/5 slopes negative) and Arizona (236,450,
 `0.0015`, 3/5), the two largest Texas (4,089,892, `0.0003`, 4/5) and California (3,171,380,
-`0.0007`, 4/5). Alabama is the one dataset in the set that does *not* behave like the others, with
-a mean sixteen times Texas's and both departures unanimous. Spearman over the six dissertation
-datasets gives `ρ = −0.486, p = 0.33 (n = 6)`, i.e. no size trend — which supports the sentence's
-intent and not its wording.
+`0.0007`, 4/5). Alabama is the one dataset in the set that does *not* behave like the others: its mean is the
+largest of the seven and the only one above one hundredth, more than seven times the next-largest
+among the smaller states (Arizona, `+0.0015`) and more than forty times Texas's in absolute value,
+with both departures unanimous. Spearman over the six dissertation datasets gives
+`ρ = −0.486, p = 0.33 (n = 6)`, i.e. no size trend — which supports the sentence's intent and not
+its wording.
 
 **Fix.** Cut the clause, or make it the verdict-level statement it is: "…and it is not an artifact
 of small data either: equivalence holds at the largest datasets and the smallest alike."
@@ -502,6 +520,30 @@ does not mean an inactive balancer *at a step*.
 AZ 236,450; IST 462,615; FL 1,407,034; CA 3,171,380; TX 4,089,892. Regions 520 (IST) to 8,501 (CA).
 Georgia has no row there, which is consistent with p. 97's statement that the dissertation does not
 otherwise use it.
+
+## Corrections to this report
+
+Three defects in the first version of this file, recorded here rather than fixed silently, because a
+review that misstates its own numbers has no standing to correct anyone else's.
+
+1. **M9 named the wrong comparison entity.** It read "a mean sixteen times Texas's". Alabama
+   `+0.0112` against Texas `−0.000264` is 42× at full precision and 37× on the printed cells; 16× is
+   Alabama against **California** (`+0.0112 / +0.0007`). Caught by a reviewer against my own Table 11
+   re-derivation. Rewritten to state the comparison that is both true and sign-safe: Texas's mean is
+   negative, so a bare "times" ratio against it crosses a sign change and should not be written that
+   way at all.
+2. **The `dissertacao.pdf` disclosure attributed to me a change I did not make.** A build that
+   produces no PDF cannot have run the `cp`. Retracted in "The build" above, with the writer named
+   UNKNOWN per V9 rather than inferred from the five concurrent commits.
+3. **The build note was written as a standing property of the tree** when it is a transient
+   condition: the working tree's `main.log` now records a successful 102-page run, so my failure is
+   no longer reproducible there. Rewritten as a conditional.
+
+After the M9 fix, every numeric claim in this report was re-swept against
+`gradient_cosine_observations6.parquet` in one pass: **24 of 24 verified**, including all seven
+means, the seven slope counts, the pooled mean, the negative-observation count, the two size factors,
+and the "3 of 7 CIs exclude zero" figure that M4 rests on. The sweep asserts each check rather than
+printing it, so a silent zero could not pass as a clean result.
 
 ## Open questions only the author can answer
 
