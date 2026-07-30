@@ -199,5 +199,25 @@ def main() -> int:
     return 0
 
 
+# ---------------------------------------------------------------------------------------------
+# THE CLOSED-ITEM REGISTER, checked for the same defect. _archive/PENDENCIAS_RESOLVIDOS.md carries
+# 16 closed items with 40 commit citations -- the identical claim shape that failed in CODEX_AUDIT,
+# so it was audited on 2026-07-30 rather than trusted. Its most exposed row is item 1.2, "the
+# author's decisions that were applied", nine rows each naming a checkable artifact.
+#
+# ALL NINE HOLD. Measured: LEFT_OUT.md carries 11 LO- entries (claim said 8, so it grew);
+# apx_b_static_scope.tex exists; main_ppgc.tex is 2 live lines as claimed; the chapter split is
+# exactly 18 per-section files. One row needed a second look rather than a verdict: the static-scope
+# suppression claim says the section is reachable through ONE \input, and grepping src/*.tex found
+# ZERO -- because the section moved into the supplementary volume with the errata appendix. It is
+# included at apx_b_errata.tex:448 and renders on 4 pages of main_extra.pdf. The claim holds; the
+# probe was looking in the volume the section left.
+#
+# Not added as live probes here: these are claims about REPO STRUCTURE, not document strings, and
+# most are already covered (check_tex_root, the extra-volume xref gate, sync_deliverables). Recorded
+# so the next agent does not have to re-audit the register to learn it was audited.
+# ---------------------------------------------------------------------------------------------
+
+
 if __name__ == "__main__":
     sys.exit(main())
