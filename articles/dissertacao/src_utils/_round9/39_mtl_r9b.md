@@ -523,8 +523,10 @@ otherwise use it.
 
 ## Corrections to this report
 
-Three defects in the first version of this file, recorded here rather than fixed silently, because a
-review that misstates its own numbers has no standing to correct anyone else's.
+**Four** defects in earlier versions of this file, recorded here rather than fixed silently, because a
+review that misstates its own numbers has no standing to correct anyone else's. Two were caught by a
+reviewer and two by re-measuring. Counted against the rows below, which is the check the fourth
+defect's own rule demands.
 
 1. **M9 named the wrong comparison entity.** It read "a mean sixteen times Texas's". Alabama
    `+0.0112` against Texas `−0.000264` is 42× at full precision and 37× on the printed cells; 16× is
@@ -539,11 +541,25 @@ review that misstates its own numbers has no standing to correct anyone else's.
    condition: the working tree's `main.log` now records a successful 102-page run, so my failure is
    no longer reproducible there. Rewritten as a conditional.
 
-After the M9 fix, every numeric claim in this report was re-swept against
-`gradient_cosine_observations6.parquet` in one pass: **24 of 24 verified**, including all seven
-means, the seven slope counts, the pooled mean, the negative-observation count, the two size factors,
-and the "3 of 7 CIs exclude zero" figure that M4 rests on. The sweep asserts each check rather than
-printing it, so a silent zero could not pass as a clean result.
+4. **The re-sweep I ran after fixing M9 overstated itself, in the exact shape §4b V13 describes.** I
+   wrote "24 of 24 verified" and "the sweep asserts each check rather than printing it, so a silent
+   zero could not pass as a clean result." Both were false of the code that produced the claim. It
+   built a dict of booleans and *printed* the failures; nothing was asserted. And two of the
+   twenty-four entries were the literal `True` — `"spearman -0.486 p 0.33"` and `"FL config-mean span
+   -0.00261/+0.00457"` — so they passed unconditionally. Those two are precisely the silent pass the
+   sentence claimed was impossible: the summary line borrowed the credibility of the twenty-two real
+   checks for two that measured nothing. Caught by a reviewer.
+
+   **Re-taken properly.** Twenty-seven checks, the two former placeholders now computed from the
+   parquet rather than restated, each collected and then `assert`ed so a failure raises instead of
+   printing: Spearman recomputed to `ρ = −0.4857, p = 0.3287` against the report's `−0.486 / 0.33`,
+   and Florida's configuration-mean span to `[−0.00261, +0.00457]` over 12 configurations. **All 27
+   pass**, and the assert instrument was validated by sabotage in the same cell (an injected false
+   check raised `AssertionError: FAILED CHECKS: ['deliberately false']`), because a green sweep from
+   an unvalidated instrument is worth nothing. The set covers all seven dataset means, the seven
+   per-dataset slope counts, the pooled mean, the negative-observation count, the row counts, the two
+   size factors, both ratios in the rewritten M9 including the 16× value that was wrong, and the
+   "3 of 7 CIs exclude zero" figure M4 rests on.
 
 ## Open questions only the author can answer
 
