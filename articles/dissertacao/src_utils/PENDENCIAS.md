@@ -532,6 +532,43 @@ proibicoes da §3 ausentes, as 28 da §4 medidas (22 ausentes, 6 dentro da condi
 > **AUTHOR:** `license the verbs` em fundamentação téorica. Foi o unico termo que ele marcou e comnetou para ter cuidado
 > com o termos.
 
+### 2.22 Apendice F: o revisor de excelencia aprova, mas a assinatura e sua
+
+**(A) O que e.** O apendice F carrega `[NEEDS SIGN-OFF]` desde a rodada 7 porque faz duas afirmacoes
+novas que nao estao na whitelist de nenhum artigo: a mecanistica (ortogonalidade explica por que nenhum
+balanceador melhorou o peso fixo) e a de extensao (o diagnostico serve para outras arquiteturas).
+O revisor de excelencia leu o capitulo inteiro e o apendice no PDF renderizado e respondeu a pergunta que
+eu fiz a ele: **aprovaria a assinatura** com duas correcoes, ambas ja aplicadas nesta rodada
+(`e6ae1c0d` tirou a clausula do hard sharing, `3623dde8` corrigiu "replacing the sharing scheme" para
+"varying the gradient balancer"). Ele tambem re-derivou as 63 celulas da Tabela 11 a partir do parquet e
+todas reproduziram.
+
+**(B) O que ja foi feito.** As cinco revisoes de personas rodaram sobre os quatro arquivos alterados
+(2_fundamentals, apx_f_cosine, 1_introduction, tables/frame/cosine). Nove itens REQUIRED aplicados, cada
+um verificado por mim na fonte antes de aceitar. Relatorios em `_round9/38_style_r9b.md`,
+`39_mtl_r9b.md`, `40_readability_r9b.md`, `41_ai_tells_r9b.md`, `42_excellence_r9b.md`.
+
+**(C) O que eu preciso de voce.** A assinatura, ou a instrucao de tirar o apendice. Ele nao e um erro
+para consertar: e material novo que so voce pode aprovar antes de ir ao orientador. Custo de tirar: um
+`\input` comentado, mais o ponteiro novo no Cap. 6 (`3623dde8`) e a referencia em 2.3 (p. 23).
+
+### 2.23 Cinco itens RECOMMENDED das revisoes que eu nao apliquei
+
+**(A) O que e.** Ficaram por decisao de escopo, nao por esquecimento. Cada um tem quote e pagina no
+relatorio citado.
+
+| id | onde | o que | por que nao apliquei |
+|---|---|---|---|
+| R-3 | p.26-27 | §2.5 nao retoma a pergunta que §2.3 deixa aberta | mexe em prosa que nao mudou nesta rodada |
+| R-5 | p.23 | uma frase de 66 palavras com tres pontuacoes fortes | reescrita de estilo, sua chamada |
+| R-6 | p.23 | so uma referencia no corpo aponta para o Apendice F | pode ser deliberado |
+| EX-6 | p.101 | uma comparacao entre datasets que o texto nao precisa | `40_readability` e `42_excellence` divergem |
+| EX-9 | p.23, 99 | densidade de figuras de linguagem | OPTIONAL nos dois relatorios |
+
+**(B) O que ja foi feito.** Triados e medidos; nada aplicado.
+
+**(C) O que eu preciso de voce.** Diga quais valem e eu aplico. Nenhum e um erro de fato.
+
 ## §5 · Levantados do `CODEX_AUDIT.md` quando ele foi arquivado (2026-07-29)
 
 > **NOVE DOS DEZ ESTAO FECHADOS e foram movidos para `_archive/PENDENCIAS_RESOLVIDOS.md` em
@@ -750,7 +787,7 @@ asserts the question is open TODAY, after the dissertation answered it.
 3. **Reformular: "era uma questao aberta no inicio desta pesquisa"** — explicita o ponto de referencia, atende o sentido
    dele sem a leitura de presente
 
-> **DECISAO SUA:** ______
+> **DECISAO SUA:** Manter o imperfeito "permanecia"
 
 #### FAB-18 — put the open question in the present tense
 
