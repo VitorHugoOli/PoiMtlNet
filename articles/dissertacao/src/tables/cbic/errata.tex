@@ -103,5 +103,25 @@ networks, which it describes as costly at training time. Its one result favoring
 training is conditioned on a matched parameter budget and on three or more tasks, and it
 excludes the two-task case this chapter studies. The correction removes a stated advantage of
 the architecture this chapter adopts, so it runs against the chapter's own interest. \\
+\addlinespace
+The survey of optimization techniques states that MGDA ``finds Pareto-optimal descent
+directions''. Pareto optimality and a per-step descent direction are two different
+guarantees, and the cited work proves the first for a bound rather than for the step. &
+Narrowed to the two properties the cited work states. Its method computes a direction that
+decreases every task loss, or else the current point is already Pareto-stationary; the Pareto
+optimality it proves is for an upper bound on the multi-objective loss and holds under stated
+assumptions. Neither the chapter's design nor any of its results depends on this method, which
+it does not use. \\
+\addlinespace
+The rationale for hard parameter sharing attributes the claim that constraining the
+hypothesis space regularizes, and generalizes better when tasks are related, to a work on
+learned soft sharing. That work is a method for learning what and how much to share,
+presented as an improvement on fixed sharing, so it argues against the sentence rather than
+for it. &
+Re-attributed to the work that states the argument the sentence makes: choosing a hypothesis
+space large enough to contain a solution yet small enough to generalize, searched over an
+environment of related tasks. The substituted reference was already in the bibliography and
+is cited for the same claim elsewhere in the chapter. The soft-sharing work remains cited
+where the chapter discusses cross-connection architectures and negative transfer. \\
 \end{longtable}
 }

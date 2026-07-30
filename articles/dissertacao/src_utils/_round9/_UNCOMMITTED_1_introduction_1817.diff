@@ -1,0 +1,239 @@
+diff --git a/articles/dissertacao/src/chapters/1_introduction.tex b/articles/dissertacao/src/chapters/1_introduction.tex
+index 69fdcb10..926388dd 100644
+--- a/articles/dissertacao/src/chapters/1_introduction.tex
++++ b/articles/dissertacao/src/chapters/1_introduction.tex
+@@ -24,19 +24,18 @@
+ % Obeys WRITING_LAW.md + GLOSSARY.md. Citation ledger: 1_citations.md (same folder).
+ % Rule of this chapter: it NARRATES; the prefaces, recaps, and Chapter 6 litigate.
+ 
++
+ \chapter{Introduction}
+ \label{ch:intro}
+ 
++
+ \section{Context and motivation}
+ \label{sec:intro:context}
+ 
+-Location-based social networks let a person announce where they are: a
+-% [FAB-12, round 9] "users" plural at the advisor's request. The sentence is generic (it
+-% describes what the record type is, not one person's visit), so the plural reads better and
+-% no claim changes.
+-\emph{check-in} records that users visited a given place, a point of interest
+-(POI), at a given time. Such records now exist at large scale, and they carry more
+-regularity than their noise suggests;
++Location-based social networks let a person announce where they are through a
++\textit{check-in}, a record that associates a user with a specific place,
++known as a point of interest (POI), at a particular time. Such records now
++exist at large scale,and they carry more regularity than their noise suggests;
+ an analysis of large-scale human traces estimated the potential predictability of an
+ individual's next location at about 93 percent~\cite{song2010limits}. A system that
+ anticipates two properties of the next visit, \emph{what kind of place} it will be and
+@@ -94,14 +93,16 @@ tasks, and what the answer depends on, was unresolved when this research started
+ % [FAB-19, round 9] "and the arc of this dissertation" removed from the heading at his request:
+ % the section IS the research question, and the arc is what the section body then narrates. The
+ % \label is untouched on purpose -- sec:intro:arc is cited from three other files.
++
++
+ \section{Research question}
+ \label{sec:intro:arc}
+ 
+ This dissertation answers one question:
+ 
+ \begin{quote}
+-\textbf{Does multi-task learning help point-of-interest prediction (next category and
+-next region), and what does the answer depend on?}
++    \textbf{Does multi-task learning help point-of-interest prediction (next category and
++    next region), and what does the answer depend on?}
+ \end{quote}
+ 
+ The answer was not found in one step, and the journey is the contribution. This
+@@ -149,6 +150,7 @@ one fixed experiment. The arc it reports is a correction trail: each study revis
+ what the previous one concluded, and the later chapters state precisely which earlier
+ conclusions they supersede.
+ 
++
+ \section{Objectives}
+ \label{sec:intro:objectives}
+ 
+@@ -158,17 +160,17 @@ identify what the answer depends on. Four specific objectives structure the work
+ per chapter of the collection and its consolidation:
+ 
+ \begin{enumerate}
+-  \item Investigate whether a standard hard-parameter-sharing joint model benefits its
+-        two category tasks, static category classification and next category
+-        prediction, relative to dedicated single-task models (Chapter~\ref{ch:cbic}).
+-  \item Diagnose the role of the input representation in that result by decomposing
+-        and enriching the input while holding the architecture fixed (Chapter~\ref{ch:courb}).
+-  \item Design and validate a check-in-level representation and a joint model built on
+-        it for next category and next region prediction (Chapter~\ref{ch:mobiwac}).
+-  \item Anchor the final answer to the research question in a user-disjoint
+-        statistical protocol, the cross-validation with paired
+-        significance and non-inferiority testing of Chapter~\ref{ch:mobiwac}, and consolidate the
+-        evidence of the three studies under it (Chapter~\ref{ch:conclusion}).
++    \item Investigate whether a standard hard-parameter-sharing joint model benefits its
++    two category tasks, static category classification and next category
++    prediction, relative to dedicated single-task models (Chapter~\ref{ch:cbic}).
++    \item Diagnose the role of the input representation in that result by decomposing
++    and enriching the input while holding the architecture fixed (Chapter~\ref{ch:courb}).
++    \item Design and validate a check-in-level representation and a joint model built on
++    it for next category and next region prediction (Chapter~\ref{ch:mobiwac}).
++    \item Anchor the final answer to the research question in a user-disjoint
++    statistical protocol, the cross-validation with paired
++    significance and non-inferiority testing of Chapter~\ref{ch:mobiwac}, and consolidate the
++    evidence of the three studies under it (Chapter~\ref{ch:conclusion}).
+ \end{enumerate}
+ % [COD-003, round8, 2026-07-30] Objective 4 said "a leakage-guarded statistical protocol". Changed to
+ % "a user-disjoint statistical protocol" on the author's decision, PENDENCIAS_RESOLVIDOS 5.1 (arquivado 2026-07-30) ("Valide no texto,
+@@ -182,6 +184,7 @@ per chapter of the collection and its consolidation:
+ % user-disjoint cross-validation with". That deletion is mechanical de-duplication, not a scope
+ % change: the components named (paired significance and non-inferiority testing) are untouched.
+ 
++
+ \section{Scope and assumptions}
+ \label{sec:intro:scope}
+ 
+@@ -196,6 +199,7 @@ trained artifact whose one forward pass over one set of inputs yields both
+ predictions. Design-time assumptions of this kind are stated here and kept separate
+ from the evaluation-time limitations discussed in Chapter~\ref{ch:conclusion}.
+ 
++
+ \section{Organization of this dissertation}
+ \label{sec:intro:organization}
+ 
+@@ -225,37 +229,37 @@ than silently edited.
+ % The collection is organized as follows:
+ 
+ \begin{itemize}
+-  % [FAB-23, round 9] ", Fundamentals" dropped at his request: the \ref renders the number and the
+-  % chapter title is already in the sumario, so repeating it here is redundant.
+-  \item \textbf{Chapter~\ref{ch:fundamentals}} consolidates the background the three
+-        articles share: the POI prediction tasks, representations for mobility data,
+-        multi-task learning, and the datasets and evaluation protocol. It closes by
+-        connecting these fundamentals to the three questions the articles answer.
+-  \item \textbf{Chapter~\ref{ch:cbic}} presents the first article, published in English at the
+-        XVII Congresso Brasileiro de Intelig\^encia Computacional (CBIC 2025,
+-        DOI~10.21528/CBIC2025-1191324), with this author as first author.
+-        % Venue verified 2026-07-23 against the official CBIC 2025 site
+-        % (cbic2025.dcc.ufmg.br): XVII edition, promoted by SBIC, Belo Horizonte,
+-        % October 27-30, 2025.
+-  \item \textbf{Chapter~\ref{ch:courb}} presents the second article, published in Portuguese at the
+-        X Workshop de Computa\c{c}\~ao Urbana (CoUrb 2026,
+-        DOI~10.5753/courb.2026.22960), held jointly with the Simp\'osio Brasileiro de
+-        Redes de Computadores e Sistemas Distribu\'idos (SBRC 2026), and reproduced
+-        here as an English translation.
+-        % Venue verified 2026-07-23 against SBC OpenLibrary (sol.sbc.org.br/index.php/
+-        % courb): X edition, May 25-29 2026, Praia do Forte/BA, with the XLIV SBRC.
+-        The article is first-authored by Tarik S.\ Paiva; this author is the second
+-        author, contributed the MTLnet baseline on which the study builds, and
+-        presented the paper at the event.
+-  \item \textbf{Chapter~\ref{ch:mobiwac}} presents the third article, submitted to the 23rd ACM
+-        International Symposium on Mobility Management and Wireless Access (MobiWac
+-        2026) and currently under review, with this author as first author.
+-        % Venue verified 2026-07-23 against the official symposium site
+-        % (mobiwac-symposium.org/2026): 23rd edition. Update the status wording
+-        % here and in sections 1.1-1.2 the moment a decision arrives.
+-  % [FAB-24, round 9] Same as FAB-23.
+-  \item \textbf{Chapter~\ref{ch:conclusion}} consolidates the answer to the research
+-        question, states the limitations, and derives future work from them.
++    % [FAB-23, round 9] ", Fundamentals" dropped at his request: the \ref renders the number and the
++    % chapter title is already in the sumario, so repeating it here is redundant.
++    \item \textbf{Chapter~\ref{ch:fundamentals}} consolidates the background the three
++    articles share: the POI prediction tasks, representations for mobility data,
++    multi-task learning, and the datasets and evaluation protocol. It closes by
++    connecting these fundamentals to the three questions the articles answer.
++    \item \textbf{Chapter~\ref{ch:cbic}} presents the first article, published in English at the
++    XVII Congresso Brasileiro de Intelig\^encia Computacional (CBIC 2025,
++    DOI~10.21528/CBIC2025-1191324), with this author as first author.
++    % Venue verified 2026-07-23 against the official CBIC 2025 site
++    % (cbic2025.dcc.ufmg.br): XVII edition, promoted by SBIC, Belo Horizonte,
++    % October 27-30, 2025.
++    \item \textbf{Chapter~\ref{ch:courb}} presents the second article, published in Portuguese at the
++    X Workshop de Computa\c{c}\~ao Urbana (CoUrb 2026,
++    DOI~10.5753/courb.2026.22960), held jointly with the Simp\'osio Brasileiro de
++    Redes de Computadores e Sistemas Distribu\'idos (SBRC 2026), and reproduced
++    here as an English translation.
++    % Venue verified 2026-07-23 against SBC OpenLibrary (sol.sbc.org.br/index.php/
++    % courb): X edition, May 25-29 2026, Praia do Forte/BA, with the XLIV SBRC.
++    The article is first-authored by Tarik S.\ Paiva; this author is the second
++    author, contributed the MTLnet baseline on which the study builds, and
++    presented the paper at the event.
++    \item \textbf{Chapter~\ref{ch:mobiwac}} presents the third article, submitted to the 23rd ACM
++    International Symposium on Mobility Management and Wireless Access (MobiWac
++    2026) and currently under review, with this author as first author.
++    % Venue verified 2026-07-23 against the official symposium site
++    % (mobiwac-symposium.org/2026): 23rd edition. Update the status wording
++    % here and in sections 1.1-1.2 the moment a decision arrives.
++    % [FAB-24, round 9] Same as FAB-23.
++    \item \textbf{Chapter~\ref{ch:conclusion}} consolidates the answer to the research
++    question, states the limitations, and derives future work from them.
+ \end{itemize}
+ 
+ Each article chapter opens with a short preface identifying its venue, its publication
+@@ -263,39 +267,40 @@ status, and the points on which later chapters revise its conclusions, so that t
+ reader always knows which statements reflect the state of the research at the time of
+ that article and which reflect the dissertation's final position.
+ 
++
+ \section{Contributions}
+ \label{sec:intro:contributions}
+ 
+ The contributions of this dissertation fall into four groups.
+ 
+ \begin{description}
+-  \item[Theoretical.] The finding that the input representation, together with the
+-        sharing topology built on it, dominates whether multi-task learning helps
+-        these POI prediction tasks. The arc also yields a corrected view of MTL for
+-        this task family: a null result under a place-level representation coexists
+-        with a positive result under a check-in-level one.
+-  \item[Software.] The MTLnet framework (Chapter~\ref{ch:cbic}), the check-in-level
+-        representation and the joint model built on it (Chapter~\ref{ch:mobiwac}), and the
+-        reproducible training and evaluation pipelines behind the experiments of
+-        Chapters~\ref{ch:cbic} and~\ref{ch:mobiwac}, with code repositories referenced in the respective
+-        chapters.
+-  \item[Empirical.] A six-dataset benchmark of joint versus dedicated models for next
+-        category and next region prediction under user-disjoint cross-validation,
+-        with twenty fitted models per configuration (four seeds, each a complete
+-        repetition of the five-fold experiment with a different random initialization, over one
+-        fixed set of five folds), paired significance tests on the four per-seed means, that is,
+-        four paired observations, non-inferiority margins, and a leakage audit. All
+-        four seeds reuse the same fold partition, so the reported intervals do not
+-        cover uncertainty over resampled user splits.
+-        % [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-014, 2026-07-26] "twenty repetitions per configuration
+-        % (four seeds, five folds)" -> the 20 fits kept, the inferential unit (n = 4)
+-        % named, plus the fixed-partition clause. Sources: GLOSSARY rows "paired
+-        % superiority test" + "n = 20 (fitted models) and n = 4 (inferential unit)";
+-        % stats_n20/RESULTS.md:65-67; STATISTICAL_PROTOCOL.md:187-190.
+-  \item[Practical.] Evidence that one deployable model can serve both prediction
+-        services at once, outperforming the dedicated models on the category task and
+-        outperforming or remaining non-inferior to them on the region task, with the
+-        operational simplicity of a single artifact and a single forward pass.
++    \item[Theoretical.] The finding that the input representation, together with the
++    sharing topology built on it, dominates whether multi-task learning helps
++    these POI prediction tasks. The arc also yields a corrected view of MTL for
++    this task family: a null result under a place-level representation coexists
++    with a positive result under a check-in-level one.
++    \item[Software.] The MTLnet framework (Chapter~\ref{ch:cbic}), the check-in-level
++    representation and the joint model built on it (Chapter~\ref{ch:mobiwac}), and the
++    reproducible training and evaluation pipelines behind the experiments of
++    Chapters~\ref{ch:cbic} and~\ref{ch:mobiwac}, with code repositories referenced in the respective
++    chapters.
++    \item[Empirical.] A six-dataset benchmark of joint versus dedicated models for next
++    category and next region prediction under user-disjoint cross-validation,
++    with twenty fitted models per configuration (four seeds, each a complete
++    repetition of the five-fold experiment with a different random initialization, over one
++    fixed set of five folds), paired significance tests on the four per-seed means, that is,
++    four paired observations, non-inferiority margins, and a leakage audit. All
++    four seeds reuse the same fold partition, so the reported intervals do not
++    cover uncertainty over resampled user splits.
++    % [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-014, 2026-07-26] "twenty repetitions per configuration
++    % (four seeds, five folds)" -> the 20 fits kept, the inferential unit (n = 4)
++    % named, plus the fixed-partition clause. Sources: GLOSSARY rows "paired
++    % superiority test" + "n = 20 (fitted models) and n = 4 (inferential unit)";
++    % stats_n20/RESULTS.md:65-67; STATISTICAL_PROTOCOL.md:187-190.
++    \item[Practical.] Evidence that one deployable model can serve both prediction
++    services at once, outperforming the dedicated models on the category task and
++    outperforming or remaining non-inferior to them on the region task, with the
++    operational simplicity of a single artifact and a single forward pass.
+ \end{description}
+ 
+ % [round5, persona 03 S3-05] "seed" first reached the reader here, on rendered p. 16, while its

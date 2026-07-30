@@ -94,7 +94,28 @@ Finally, the processed shared representations are passed to dedicated, unshared 
 The choice of hard parameter sharing is motivated by its efficiency and regularization benefits, which are critical for our target application. This approach is supported by several factors:
 \begin{itemize}
     \item \textbf{Computational Efficiency:} Unlike soft-sharing methods that often introduce task-specific parameters and increase computational overhead, hard sharing maintains a compact model. This is crucial for deployment on resource-constrained edge devices (e.g., NVIDIA Jetson platforms).
-    \item \textbf{Implicit Regularization:} By constraining the hypothesis space, hard sharing acts as a regularizer, often leading to more generalizable models, especially when tasks are related \cite{ruder2017sluice}. Seminal work by Caruana demonstrated significant error reduction with this approach \cite{caruana1997multitask}.
+    \item \textbf{Implicit Regularization:} By constraining the hypothesis space, hard sharing acts as a regularizer, often leading to more generalizable models, especially when tasks are related \cite{baxter2000model}. Seminal work by Caruana demonstrated significant error reduction with this approach \cite{caruana1997multitask}.
+% [round9c, PENDENCIAS 2.15, author decision: path A, 2026-07-30] CITATION SUBSTITUTED,
+% ruder2017sluice -> baxter2000model. Errata row in Appendix B, and the same substitution is applied
+% to the published source at articles/CBIC___MTL/sections/method.tex, per the author's instruction to
+% modify the original articles as well.
+% WHY THE OLD KEY DOES NOT SUPPORT THE SENTENCE. Ruder et al. is a SOFT-sharing method whose
+% contribution is learning what and how much to share, presented as an improvement ON fixed sharing,
+% so it is evidence against the bullet it was attached to rather than for it. Title of record at
+% arXiv:1705.08142 is "Latent Multi-task Architecture Learning", not the "Sluice Networks" title the
+% .bib carried.
+% WHY THE NEW KEY DOES. Baxter, "A Model of Inductive Bias Learning", JAIR 12:149-198, 2000,
+% DOI 10.1613/jair.731, VERIFIED AT CROSSREF THIS SESSION (title, four-field attribution, volume,
+% pages and year read from the record, not retyped from another bibliography). Its abstract states
+% the hypothesis-space argument this bullet makes: the problem is "how to choose a learner's
+% hypothesis space so that it is large enough to contain a solution ... yet small enough to ensure
+% reliable generalization", and within an environment of related tasks "it can search for a
+% hypothesis space that contains good solutions to many of the problems". That is constraint of the
+% hypothesis space, generalization, and relatedness: the bullet's three elements.
+% The key was ALREADY in the bibliography and is ALREADY cited for this same claim at
+% chapters/3_cbic/method.tex:88 and chapters/4_courb/methodology.tex:32, so no bib entry is added.
+% ruder2017sluice REMAINS CITED, correctly, at 3_cbic/basis.tex:40 (Sluice networks as a
+% cross-connection architecture) and :48 (negative transfer). Only this site changes.
     \item \textbf{Empirical Performance:} In practice, sharing one network across tasks reduces
     inference cost, since one network is evaluated instead of one per
     task \cite{standley2020tasks}.\footnote{The published sentence read ``hard parameter sharing

@@ -770,12 +770,27 @@ doi       = {10.1145/3219819.3220007}
 % NOTE: no key spelling with a slash was found in the current tree; the only slash key was the
 % raw-DOI key for Liu et al. 2014 (renamed liu2014geographical).
 % verified: ICML 2022, arXiv:2202.01017 (Nash-MTL).
+% [round9c, PENDENCIAS 2.14, 2026-07-30] BROUGHT TO THE AUTHOR'S PMLR PASTE, field by field. He
+% pasted the entry from proceedings.mlr.press/v162/navon22a.html, the publisher's own page, so his
+% paste is the source of record and outranks both the previous entry here and any other paper's
+% bibliography. Field-by-field comparison of all five .bib files is in _round9/45_author_rulings.md.
+% What differed HERE and is now fixed: booktitle was the house abbreviation "Proc. ICML" and is now
+% the publisher's full series title; volume, series, publisher, month and url were ABSENT and are
+% added. Title, pages (16428--16446) and year already matched his paste and are untouched. Author
+% order already matched; the name format is now his (family, given), which BibTeX renders identically.
+% The booktitle is spelled out because his paste spells it out. That is not a style breach in this
+% file: 18 of its 61 booktitle fields already carry full venue names, including one ICLR entry.
 @inproceedings{nash,
-  author    = {Aviv Navon and Aviv Shamsian and Idan Achituve and Haggai Maron and Kenji Kawaguchi and Gal Chechik and Ethan Fetaya},
+  author    = {Navon, Aviv and Shamsian, Aviv and Achituve, Idan and Maron, Haggai and Kawaguchi, Kenji and Chechik, Gal and Fetaya, Ethan},
   title     = {Multi-Task Learning as a Bargaining Game},
-  booktitle = {Proc. ICML},
+  booktitle = {Proceedings of the 39th International Conference on Machine Learning},
   pages     = {16428--16446},
   year      = {2022},
+  volume    = {162},
+  series    = {Proceedings of Machine Learning Research},
+  publisher = {PMLR},
+  month     = {17--23 Jul},
+  url       = {https://proceedings.mlr.press/v162/navon22a.html},
 }
 
 % PROVENANCE: seed entry (Phase 1) + Crossref 10.5753/courb.2026.22960 (opened this

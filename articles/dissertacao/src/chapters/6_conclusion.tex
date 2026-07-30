@@ -112,9 +112,26 @@ naive hard sharing, no: the joint model of Chapter~\ref{ch:cbic} did not consist
 two dedicated models, and negative transfer between the static and the sequential
 task was among its candidate causes. With a check-in-level representation and a
 sharing topology built for it, yes: one model, one forward pass, both predictions, at
-quality that outperforms the dedicated models on the category task everywhere and
-outperforms or matches them on the region task. The representation, together with the
-sharing topology built on it, is what the answer depends on.
+quality that outperforms the dedicated models on the category task at all six datasets
+and on the region task at four of the six. At the other two it is statistically
+non-inferior to them within a two-point margin (TOST). The representation, together
+with the sharing topology built on it, is what the answer depends on.
+% [round9c, PENDENCIAS 2.11, author decision: option B] The region result is stated with its
+% partition here, as it already is at :21 and :102 of this chapter. TWO defects were in one clause.
+% (1) The partition was collapsed to "outperforms or matches", which discards the four-of-six /
+% TOST split the author's ruling requires be promoted, not dropped. (2) Bare "everywhere" is banned
+% by name at WRITING_LAW.md:83 ("bare \"everywhere\" never"), and line 75 forbids "outperforms
+% region everywhere" by name; the replacement enumerates the six instead.
+% Split into two sentences rather than one three-clause sentence, per WRITING_LAW section 1's ban on
+% chained qualification. "non-inferior" is TOST language and is NOT upgraded to a win.
+% MEASURED before editing, over all 54 live .tex files of both trees with comments stripped and
+% across line wraps: 15 sites state "four of six" or an equivalent, and 14 of them ALREADY pair the
+% claim with its TOST caveat. A second sweep for region-claim sentences WITHOUT the partition found
+% exactly two defects: this one and the Chapter 5 subsection lead, which is fixed in both trees.
+% So the tracker's premise (the frame "drops the TOST caveat") holds at two sites, not at nine.
+% NOTE FOR THE AUTHOR, an overlap I did not decide for you: this same sentence is BLQ-2 in
+% PENDENCIAS section 6.10, which carries NO ruling. The wording applied here is BLQ-2's own
+% option 1, so the two items agree; if you want it reverted it is one sentence.
 
 Two controls separate this claim from wishful attribution. First, the freeze control
 reported in Chapter~\ref{ch:mobiwac}: with the region pathway frozen, the category gain survives, at
@@ -260,13 +277,27 @@ Six limitations bound the scope of these conclusions.
 %       print(f, t.min(), t.max(), len(t))"
 % The author's premise in 5.6 ("ambos usaram o mesmo recorte, nao houve diferenca") is therefore not
 % what the files show. Not a defect in his decision -- he was ruling on which SOURCE to cite -- but the
-% sentence now carries both dates rather than silently understating this work's own span by 10 months.
-% [NEEDS SIGN-OFF: PENDENCIAS_RESOLVIDOS 5.6 (arquivado 2026-07-30), round8, 2026-07-30 | two dates instead of one. If he prefers only
-% the paper's window, the clause after the comma is the one to cut.]
-  \item \textbf{Data vintage.} The five state datasets come from Gowalla. Its authors report collecting public
-check-ins between February 2009 and October 2010~\cite{cho2011gowalla}, while the extraction
-used here spans January 2009 to August 2011 across the five states; mobility patterns, place
-inventories, and check-in behavior have changed since either date.
+% sentence carried both dates for two days; it now carries only the measured one.
+% [round9c, PENDENCIAS 5.6b, 2026-07-30] SIGN-OFF MARKER REMOVED, question answered. It asked which
+% window to print and offered the cut: "If he prefers only the paper's window, the clause after the
+% comma is the one to cut." He chose the OTHER direction, only the measured window, so the clause that
+% came out is the paper's. Nothing is left for him to decide here, and his instruction is explicit:
+% "O need sing-off assim como os demais ja resolvidos que estao no latex pode ser removidos nao
+% precisam fica lá." The reasoning is preserved in _round9/45_author_rulings.md, per the second half of
+% the same instruction ("Se quider documentar isso tem que ser em algum lugar do src_util").
+  \item \textbf{Data vintage.} The five state datasets come from Gowalla~\cite{cho2011gowalla}. The
+extraction used here spans January 2009 to August 2011 across the five states; mobility patterns,
+place inventories, and check-in behavior have changed since.
+% [round9c, PENDENCIAS 5.6b, author decision, 2026-07-30] ONE WINDOW, THE MEASURED ONE. His words:
+% "Vamos usar so as datas que encontramos no database de 2009 a 2011, pode omitir que no artigo eles
+% comentam que e de 2009 a 20010." So the clause reporting what the dataset paper states (February
+% 2009 to October 2010) is REMOVED, and the citation stays on the dataset itself, which is what it is
+% for. "since either date" became "since", since there is now one date range.
+% The measurement that produced the printed span is unchanged and is preserved in full in the
+% provenance block above: five parquet files, union January 21 2009 to August 16 2011, with the
+% command that reads them. The paper's own window is not lost either -- it is recorded in
+% src_utils/_round9/45_author_rulings.md under this item, which is where he asked documentation of
+% this kind to live ("Se quider documentar isso tem que ser em algum lugar do src_util").
 % [COD/PENDENCIAS_RESOLVIDOS 5.6 (arquivado 2026-07-30), round8, 2026-07-30] "collected between 2009 and 2011" -> "collected between
 % February 2009 and October 2010", with the citation added. Author decision, PENDENCIAS_RESOLVIDOS 5.6 (arquivado 2026-07-30): "Busque
 % pelo que o artigo original cita e vamos usar isso em ambos. Inclusive ambos usaram o mesmo recorte

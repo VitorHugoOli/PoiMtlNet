@@ -154,3 +154,31 @@ Verified after applying: paper rebuilds at **9 pages**, 0 undefined references, 
 corrections), because neither can be folded into a paper under review: the representation-integrity
 paragraph, whose added fourth ground cites the dissertation's label-history benchmark appendix, and the
 freeze-control restatement, which cites the dissertation's own results table.
+
+### Corrections applied in the source during review (2026-07-30)
+
+One, under the same standing instruction, and it is the author's ruling on the dissertation tracker's
+item 2.11 (his words: promote the caveat in both texts, so both read "four wins plus two statistically
+non-inferior").
+
+1. **The §6.2 subsection lead (`src/sections/06_results.tex`).** The lead read "One model outperforms
+   or matches the dedicated models on both tasks." Two properties made it worth changing. It collapses
+   the four-of-six / TOST partition that the same section states precisely eleven lines later ("the
+   joint model outperforms the dedicated ceiling at Florida, Texas, California, and Istanbul, and stays
+   a non-inferior match (TOST, ±2 pp) at Alabama and Arizona"), and "matches" is TOST language, so a
+   reader meeting the lead first receives the region result as a win at all six. The lead now reads:
+   "One model outperforms the dedicated models on next category at all six datasets, and on next region
+   it outperforms them at four of the six and is statistically non-inferior within a two-point margin
+   at the other two." **No number, test, or verdict changes**, and Arizona is not upgraded; the verbs
+   are the ones §6.2 already licenses. Applied to the dissertation's `chapters/5_mobiwac/06_results.tex`
+   in the same pass and verified textually identical afterward with a comment-stripping sweep across
+   line wraps.
+
+   **Measured before editing, because the tracker's premise was wider than the defect.** Item 2.11
+   records that the frame prose states the region result without the TOST caveat at nine sites. Swept
+   over all 54 live `.tex` files of the dissertation and the 16 of this paper, comments stripped and
+   matching across line wraps: **15 sites** state "four of six" or an equivalent, and **14 of the 15
+   already pair it with the caveat**. A second sweep, for region-claim sentences that omit the
+   partition altogether, found **exactly two** defects: this lead, and the dissertation's own
+   consolidated-answer sentence in Chapter 6. Both are fixed. The nine-site count in the tracker was
+   an inventory of where the claim *appears*, not of where the caveat is *missing*.

@@ -1,0 +1,169 @@
+TOTAL: 56
+
+[1] src/chapters/1_introduction.tex:85
+    raised v1 assembly, 2026-07-23 | gate L3 fix A-1. Original sentence was near-verbatim with Ch.5 ("one artifact to train, version, and deploy, and one forward pass whose single set of inputs produces both answers at once"); reworded here so the paper chapter keeps the original wording. Claim unchanged. Revert if you prefer the duplication.
+
+[2] src/chapters/1_introduction.tex:295
+    raised round 4, 2026-07-26 | REV-014, 2026-07-26
+
+[3] src/chapters/2_fundamentals.tex:40
+    raised round 3, 2026-07-24 | gate fix B-5, 2026-07-24
+
+[4] src/chapters/2_fundamentals.tex:175
+    NUM-4, round6, 2026-07-28
+
+[5] src/chapters/2_fundamentals.tex:258
+    COD-015, round6, 2026-07-28
+
+[6] src/chapters/2_fundamentals.tex:313
+    COD-013, round6, 2026-07-28
+
+[7] src/chapters/2_fundamentals.tex:585
+    ??
+
+[8] src/chapters/2_fundamentals.tex:590
+    raised round 9, 2026-07-30 | AUTHOR -- this paragraph restates Appendix F's mechanism claim in the frame chapter. The claim is the appendix's and is already flagged there, but repeating it in Chapter 2 widens its audience, and under AGENT_GUARDRAILS C2 a connective claim about what the arc shows is still a claim. Approve the appendix and this follows; reject it and this paragraph loses its last two clauses and keeps the definition.
+
+[9] src/chapters/2_fundamentals.tex:815
+    COD-015d, round8, 2026-07-30 | AUTHOR -- this narrows the scope of the fundamentals chapter by retiring two metric definitions, and it drops one reference from the bibliography with them. Both metrics remain available if a later analysis round reports them; nothing else in the chapter depends on either.
+
+[10] src/chapters/2_fundamentals.tex:955
+    raised v1 assembly, 2026-07-23 | gate L3 fix A-2. The "weekday lunch / Saturday night out" image now appears only in Ch.1 (the signed-off mechanism beat); this hinge sentence was reworded to state the same static-vector limit without duplicating the image. Revert if you prefer the repetition as a deliberate motif.
+
+[11] src/chapters/3_cbic/method.tex:207
+    raised round 6, 2026-07-28 | AUTHOR -- this is a claim change in published co-authored prose, and it REMOVES a stated advantage of the architecture this chapter adopts, so it runs against the chapter's own interest, the same property Appendix B already records for the Nash cost correction. You approved this route in your own words in the audit. The alternative, preserving the bullet and naming the defect in Appendix B's preservation paragraph, is available and cheaper; I did not choose it because the two currently preserved elements are preserved for reasons that do not apply here (one is time-indexed by the chapter preface, the other is a table convention), while this one is a misattribution of a claim to a paper that argues the other way.
+
+[12] src/chapters/3_cbic/results.tex:111
+    raised round 6, 2026-07-28 | AUTHOR -- four sentences of new protocol detail added to a published chapter. Every fact is recovered from the released code and named above; nothing about a tuning budget is asserted, per your instruction. If you want the gap named rather than left silent, the strongest form the evidence supports is "No systematic hyperparameter search was performed; the reported configuration of each model is a single configuration arrived at during development", which is a claim about the study's conduct rather than a recovered record, and I did NOT add it.
+
+[13] src/chapters/3_cbic/results.tex:154
+    COD-016a, round8, 2026-07-30 | AUTHOR -- a published, co-authored sentence rewritten for clarity. Confirm that "each model leads in some categories, so the other appears worse in those" is what the original meant. If you read it instead as being about the imbalance of the CATEGORY DISTRIBUTION (the Food class dominating the data) rather than about the split of the leads between the two models, say so and I will re-do the sentence and the errata row, because those are two different claims and only you can settle which one you and your co-authors wrote.
+
+[14] src/chapters/4_courb/methodology.tex:81
+    raised round 6, 2026-07-28 | AUTHOR -- a claim narrowing in published co-authored prose. The alternative device this collection already uses, reproducing the sentence and externalizing the correction in a footnote (3_cbic.tex, the Nash cost claim), was available and I did not choose it: Chapter 4 is a translated chapter whose prose already carries many parentheticals, and one clause is cheaper for the reader than a footnote. Say the word and I will convert it.
+
+[15] src/chapters/4_courb/results.tex:42
+    raised round 6, 2026-07-28 | AUTHOR -- one new sentence of protocol detail in a published chapter, recovered from the released code. No number and no claim about a result is affected.
+
+[16] src/chapters/4_courb.tex:55
+    raised round 6, 2026-07-28 | one added sentence in a PUBLISHED chapter's preface. The preface is FRAME prose written for the dissertation, not translated article text, so it carries no errata cost -- but it is a public pointer to a statement about a co-authored result, so the author signs it. Co-author notice given (author, 2026-07-27); advisor conversation pending.
+
+[17] src/chapters/5_mobiwac/02_related.tex:14
+    raised v1 assembly, 2026-07-23 | new-to-chapter recap subsection (the bridging device mandated by NORTH_STAR section 3: Ch.5 recaps BOTH the Ch.3 artifact and the Ch.4 finding). Content from the approved spine (NORTH_STAR sections 2 and 6) and the GLOSSARY model-lineage table; no numbers are quoted.
+
+[18] src/chapters/5_mobiwac/02_related.tex:203
+    raised round 5, 2026-07-27 | AUTHOR -- "nineteen", "+0.68" and "+0.19" are new numbers in the chapter.
+
+[19] src/chapters/5_mobiwac/05_setup.tex:124
+    raised round 7, 2026-07-29 | two pointer targets in an under-review chapter's body. Authorized in-session; the author re-reads the rendered paragraph, and an ERRATA.md entry is owed in articles/[mobiwac
+
+[20] src/chapters/5_mobiwac/06_results.tex:46
+    raised v1 assembly, 2026-07-23 | restored element. This figure was cut from the 8-page MobiWac build (author decision 2026-07-09); its four numbers are fully stated in the prose above. Restored here because the dissertation is not page-limited; caption verbatim from articles/[mobiwac
+
+[21] src/chapters/5_mobiwac/06_results.tex:236
+    raised round 5, 2026-07-27 | AUTHOR
+
+[22] src/chapters/5_mobiwac/06_results.tex:259
+    raised round 4, 2026-07-26 | AUTHOR. Two things only you can settle. (1) Ch.5 is PUBLISHED-adjacent text under the errata regime; this rewrites an interpretation sentence, so it needs an Appendix B row, which I have NOT written pending your ruling on wording. (2) The F50 arm is a development record at FL only, and persona 10 also flags CSLSL_CASCADE.md:19 (cascade severs the symmetric channel and still ties within 0.02 pp) as pointing the same way. If you would rather cite the cascade tie instead, or run the cross-attention ablation at the other datasets before disclosing it, say so and I will restructure. What I will NOT do is leave "a stronger shared trunk" asserted as settled while the repo holds a direct test of that component with a null result.
+
+[23] src/chapters/5_mobiwac/07_discussion.tex:58
+    raised round 6, 2026-07-28 | AUTHOR. You approved softening the attribution and adding the scope clauses. Two things to confirm. First, the sentence is now three sentences rather than one, which is a bigger change to the section opener than a clause swap; if you prefer it shorter, the third sentence is the one to cut, and the withholding paragraph above still carries the point. Second, this is prose in the chapter reproduced from the submitted paper, so the same edit is applied in articles/[mobiwac
+
+[24] src/chapters/5_mobiwac/07_discussion.tex:95
+    raised round 6, 2026-07-28 | AUTHOR -- a limitations sentence in the chapter reproduced from the submitted paper. The change makes the paragraph slightly less favorable to the study, which is its point.
+
+[25] src/chapters/5_mobiwac.tex:25
+    raised v1 assembly, 2026-07-23 | new-to-chapter frame text (the time-capsule preface mandated by NORTH_STAR section 3/section 4 Ch.5); claims drawn from the approved spine and the paper's claim whitelist (PAPER_PLAN section 3).
+
+[26] src/chapters/6_conclusion.tex:23
+    raised round 4, 2026-07-26 | REV-015, 2026-07-26
+
+[27] src/chapters/6_conclusion.tex:82
+    raised round 6, 2026-07-28 | two added sentences in the author's own frame prose. No number changed.
+
+[28] src/chapters/6_conclusion.tex:83
+    raised round 4, 2026-07-26 | REV-009 + idiom law, 2026-07-26
+
+[29] src/chapters/6_conclusion.tex:154
+    raised round 5, 2026-07-27 | AUTHOR
+
+[30] src/chapters/6_conclusion.tex:170
+    raised round 3, 2026-07-24 | gate fix B-2, 2026-07-24
+
+[31] src/chapters/6_conclusion.tex:197
+    raised round 4, 2026-07-26 | REV-013, 2026-07-26
+
+[32] src/chapters/6_conclusion.tex:281
+    PENDENCIAS_RESOLVIDOS 5.6 (arquivado 2026-07-30), round8, 2026-07-30 | two dates instead of one. If he prefers only the paper's window, the clause after the comma is the one to cut.
+
+[33] src/chapters/6_conclusion.tex:324
+    PENDENCIAS_RESOLVIDOS 5.6 (arquivado 2026-07-30), round8, 2026-07-30 | AUTHOR -- your decision is applied and Chapter 4 needed no change, but ONE PREMISE OF IT IS NOT CONFIRMED HERE. You wrote that both studies used the same extract ("ambos usaram o mesmo recorte nao houve diferenca"). The repository's own measurement disagrees: Chapter 5's pipeline reads a 36-million-check-in figshare dump spanning 2009-01-21 to 2011-08-16, while the window now printed in both chapters is the 6.4-million-check-in SNAP collection window from the paper. Those are two different artifacts, so a reader who checks could find the dissertation citing a window narrower than the data behind Chapter 5. If Chapter 4's study did read the SNAP dump and Chapter 5's reads figshare, the honest form is one clause saying so, and I did not add it because whether the two extracts are the same is a fact about your own runs that I cannot establish from this repository.
+
+[34] src/chapters/6_conclusion.tex:356
+    raised round 4, 2026-07-26 | REV-013, 2026-07-26
+
+[35] src/chapters/apx_a_contributions.tex:15
+    raised v1 assembly, 2026-07-23 | whole appendix -- new frame prose.
+
+[36] src/chapters/apx_a_contributions.tex:20
+    raised round 4, 2026-07-26 | REV-023, 2026-07-26
+
+[37] src/chapters/apx_a_contributions.tex:35
+    raised round 4, 2026-07-26 | REV-006 consistency, 2026-07-26
+
+[38] src/chapters/apx_a_contributions.tex:55
+    raised round 4, 2026-07-26 | REV-006, 2026-07-26
+
+[39] src/chapters/apx_a_contributions.tex:99
+    raised round 6, 2026-07-28 | whole section -- new frame prose. The author approved adding reproducibility content, following the pattern of Appendix D, where each number names the script that produced it and the output file it lives in. No number is quoted here that is not already in the document; what this section adds is the path a reader follows to re-derive one.
+
+[40] src/chapters/apx_a_contributions.tex:146
+    raised round 6, 2026-07-28 | "supplied on request" is a weaker commitment than the previous sentence implied, and a banca may ask why. If the files are published before the defense, revert this paragraph to the stronger claim and delete this comment.
+
+[41] src/chapters/apx_b_errata.tex:123
+    raised v1 assembly, 2026-07-23 | whole appendix -- new frame prose around quoted ledger content.
+
+[42] src/chapters/apx_b_errata.tex:178
+    raised round 4, 2026-07-26 | AUTHOR. You previously ruled this REPORTED, NOT CORRECTED. I have NOT changed that ruling -- the published sentence stands. What changed is that the appendix now names the preservation instead of staying silent. If you would rather correct the clause outright (it is a factual defect in a published article, and the errata mechanism exists), say so and I will move it into the errata table.
+
+[43] src/chapters/apx_b_errata.tex:213
+    raised round 6, 2026-07-28 | AUTHOR -- new appendix prose describing additions to a published chapter.
+
+[44] src/chapters/apx_b_errata.tex:308
+    raised round 5, 2026-07-27 | AUTHOR -- the errata policy (NORTH_STAR section 5.7) covers content departures; this is the first purely typographical one to get its own paragraph.
+
+[45] src/chapters/apx_b_errata.tex:336
+    PENDENCIAS_RESOLVIDOS 2.7 (arquivado 2026-07-30), round8, 2026-07-30
+
+[46] src/chapters/apx_b_errata.tex:482
+    raised round 6, 2026-07-28 | whole section -- new frame prose making a public statement about a published co-authored result. The author has the co-author's agreement; the ADVISOR conversation is still pending, which is why it is one commented-out line from suppression.
+
+[47] src/chapters/apx_b_static_scope.tex:78
+    raised round 6, 2026-07-28 | this paragraph now says something WEAKER about Chapter 3 than the author's ruling assumed. He ruled the static-task problem is CoUrb's alone; the measurement says Ch.3's channel is indirect rather than absent. The section still concentrates the finding on Ch.4, which is where the exact identity is, but he should read this paragraph specifically before it ships.
+
+[48] src/chapters/apx_c_ai_disclosure.tex:40
+    raised v1 assembly, 2026-07-23, narrowed round 7 2026-07-29, narrowed again round 8 2026-07-30 | whole appendix -- the author must confirm scope. STILL LIVE and still his call. TOOL NAMING is now settled and out of this marker: the author supplied the three versions and confirmed them in session (COD-013, see the provenance note above), and they are in the opening sentence. What remains open is the appendix's SCOPE, which is the four description items and how much of the process they claim.
+
+[49] src/chapters/apx_d_ceiling.tex:10
+    raised round 5, 2026-07-27 | whole appendix -- new frame prose. Alternative offered to the author: fold it into Ch.5 as one paragraph and drop the chapter, which would need the Ch.5 cross-reference (5_mobiwac/05_setup.tex:34) removed.
+
+[50] src/chapters/apx_e_ethics.tex:6
+    raised round 5, 2026-07-27 | AUTHOR -- whole appendix; it makes institutional claims.
+
+[51] src/content.tex:50
+    Resumo CUT, round 6, 2026-07-28
+
+[52] src/content.tex:102
+    raised round 6, 2026-07-28 | author caveats 2.1/3-4-5, 2026-07-24, carried through the cut
+
+[53] src/content.tex:141
+    Abstract CUT, round 6, 2026-07-28
+
+[54] src/content.tex:174
+    raised round 6, 2026-07-28 | author caveats 2.1/3-4-5, 2026-07-24, carried through the cut
+
+[55] src/main_extra.tex:197
+    raised round 7, 2026-07-29 | whole chapter -- new frame prose. It states what the reader is holding and makes a claim about the main document's completeness, which is the author's to make. Written from the advisor's ruling of 2026-07-28 as relayed by the author, and from NORTH_STAR §4's errata regime; no result or number is asserted here.
+
+[56] src/main_extra.tex:244
+    ??

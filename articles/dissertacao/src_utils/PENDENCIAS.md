@@ -63,7 +63,8 @@ grep -rc "\[NEEDS SIGN-OFF" src --include="*.tex" --exclude-dir=build | grep -v 
 ```
 
 Medido assim em 2026-07-30 sobre `5c074a2a` mais a arvore de trabalho: **54 marcadores em 21 arquivos** (52 com corpo
-`[NEEDS SIGN-OFF: ...]` e 2 retrovisores nus `[NEEDS SIGN-OFF]`); 58 se `src/build/` entrar, porque `build/fmt/_body.tex`
+`[NEEDS SIGN-OFF: ...]` e 2 retrovisores nus `[NEEDS SIGN-OFF]`); 58 se `src/build/` entrar, porque
+`build/fmt/_body.tex`
 e copia gerada — dai o `--exclude-dir=build`.
 
 *(O comando que estava aqui — `grep -rn ... | grep -v ":\s*%"` — imprimia **zero linhas** e saia `rc=1`: o `-v` casa o
@@ -86,8 +87,8 @@ esta em [`_round8/29_pendencias_detail.md`](_round8/29_pendencias_detail.md).*
 **Voce autorizou:** *"pode aumentar, mas mantenha o espaco ja ocupado pela imagem... mantendo a proporcao"*, e observou
 que o contraste hoje ja deixa legivel.
 
-**Nao consigo fazer daqui:** nao ha `drawio` nem `inkscape` neste ambiente. **Os dois `.drawio` estao no
-repositorio** — `figures/mtlnet_poi_new.drawio` (13.640 B, `fontSize=14`) e `figures/courb/arquitetura_modelo.drawio`
+**Nao consigo fazer daqui:** nao ha `drawio` nem `inkscape` neste ambiente. **Os dois `.drawio` estao no repositorio** —
+`figures/mtlnet_poi_new.drawio` (13.640 B, `fontSize=14`) e `figures/courb/arquitetura_modelo.drawio`
 (14.588 B, `fontSize=13`), medidos em 2026-07-30 com `find . -name '*.drawio'` (quatro no repo inteiro). A receita esta
 em `_round6/12_figures.md` (subir `fontSize` para ~20 e reexportar na mesma largura em pixels).
 
@@ -1213,7 +1214,9 @@ this one is not, and it is the one the novelty sentence depends on.
 3. **Enfraquecer a frase de novidade para "entre os trabalhos revisados aqui"** — honesto e barato; abre mao de uma
    alegacao que pode muito bem sobreviver
 
-> **DECISAO SUA:** ______
+> **DECISAO SUA:** Vamos então avaliar o wang2025hamtl, adicione no caminho:
+> articles/dissertacao/science/articles/wang2025hamtl.pdf. Apos ler ele avalie quais adicionar na dissertação se todos
+> forme interessante, adicionamos todos.
 
 ### 6.8 A sua propria pergunta
 
@@ -1233,7 +1236,8 @@ PENDENCIAS 2.12 (unregistered in the fail-closed GLOSSARY), so this item and 2.1
 2. **So registrar `Pareto` no GLOSSARY e nao expandir** — fecha o 2.12 sem crescer o capitulo
 3. **Nao tratar** — o capitulo nomeia balanceadores cuja justificativa e Pareto e nunca diz isso
 
-> **DECISAO SUA:** ______
+> **DECISAO SUA:** Vamos com a opção 1. Aqui vale notar que em uma ultima interação, realizamos o item 2.12, então
+> avalie como está e se julgar necesssario voce adiciona mais contexto embasado com referencias.
 
 ### 6.9 Edicao concorrente durante esta rodada — RESOLVIDA pela propria esteira, e registrada
 
@@ -1418,11 +1422,11 @@ como esta apresentado.
 
 ## §3 · Aberto e bloqueado em terceiros
 
-| Item                                               | Bloqueado em                     | Estado                                                                                                                                |
-|----------------------------------------------------|----------------------------------|---------------------------------------------------------------------------------------------------------------------------------------|
+| Item                                               | Bloqueado em                     | Estado                                                                                                                                                                                                                                        |
+|----------------------------------------------------|----------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Dois membros da banca e a data da defesa           | Orientador / PPGCC               | Placeholders entre colchetes em `preamble.tex:217-219`. **Nao imprimem em nenhum dos tres builds** (`\folhadeaprovacao` esta comentada em `abntex2-UFV.sty:166-170`), entao nao ha nada inventado no PDF — nem os nomes reais quando chegarem |
-| Folha de aprovacao assinada                        | A defesa                         | `make ppgc` gera o PDF com o placeholder; a versao assinada o substitui depois                                                        |
-| Status do MobiWac                                  | Revisores                        | A redacao e sempre "submitted, under review", em todo o documento. **Nao mudar** ate haver decisao                                    |
-| `\finalbuildfirstpage` conferido contra o RASCUNHO | Upload pos-defesa ao AcademicoPG | Agora **9** (`main.tex:95`), das 8 paginas pre-textuais do build de deposito; a primeira pagina de corpo do `main_academico.pdf` e a fisica 9 e imprime 9. Confira contra o RASCUNHO quando subir  |
+| Folha de aprovacao assinada                        | A defesa                         | `make ppgc` gera o PDF com o placeholder; a versao assinada o substitui depois                                                                                                                                                                |
+| Status do MobiWac                                  | Revisores                        | A redacao e sempre "submitted, under review", em todo o documento. **Nao mudar** ate haver decisao                                                                                                                                            |
+| `\finalbuildfirstpage` conferido contra o RASCUNHO | Upload pos-defesa ao AcademicoPG | Agora **9** (`main.tex:95`), das 8 paginas pre-textuais do build de deposito; a primeira pagina de corpo do `main_academico.pdf` e a fisica 9 e imprime 9. Confira contra o RASCUNHO quando subir                                             |
 
 ---

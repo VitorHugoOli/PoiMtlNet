@@ -451,11 +451,19 @@ Reaching that front is not what the balancing methods promise, and the distance 
 the promise and the front deserves one statement. A point is Pareto-stationary when some
 convex combination of the task gradients is zero, which is necessary for Pareto
 optimality without being sufficient \cite{nash}. Guarantees in this family are stated at
-that weaker level: Nash-MTL proves that its updates have a subsequence converging to a
+that weaker level. Nash-MTL proves that its updates have a subsequence converging to a
 Pareto-stationary point, and reaches Pareto optimality only under an added convexity
-assumption on the losses that a deep network does not satisfy \cite{nash}; the fixed
-points of CAGrad are Pareto-stationary \cite{liu2021cagrad}; and Aligned-MTL converges to
-such a point for task weights fixed in advance \cite{senushkin2023aligned}. Not every
+assumption on the losses that a deep network does not satisfy \cite{nash}. The fixed
+points of CAGrad are Pareto-stationary \cite{liu2021cagrad}, and Aligned-MTL converges to
+such a point for task weights fixed in advance \cite{senushkin2023aligned}.
+% [round9c, PENDENCIAS 2.23, readability report R-5, author decision "Aplique o R-3,5,6 e o EX-6"]
+% SPLIT AT THE FIRST SEMICOLON, which is the fix the report prescribes. The sentence was 66 words with
+% one colon and two semicolons, the longest in the new block and the fourth longest in the chapter, and
+% its parallelism was false: the Nash-MTL clause carries two claims (what is proved, and what is not)
+% while the other two carry one each. Now: Nash-MTL alone with its two-part claim, then CAGrad and
+% Aligned-MTL, which are genuinely parallel and joined by "and". NO CONTENT MOVES and no citation
+% changes; the three guarantee statements are word-for-word what they were.
+Not every
 method claims even that much. PCGrad guarantees that one projected update leaves the
 multi-task loss no higher than the unmodified gradient would, under conditions on the two
 task gradients, on the curvature of the loss, and on the step size, and it makes no Pareto
@@ -689,8 +697,36 @@ representation argument the next chapters develop \cite{silva2025mtlnet}.
 A claim about mobility prediction is only as trustworthy as the data it is measured on
 and the protocol that measures it. This section fixes both: the datasets the
 dissertation uses, the metrics and reference points each result is read against, the
-validation protocol that keeps the estimate honest, and the tests that license the
-verbs used to report a comparison.
+validation protocol that keeps the estimate honest, and the statistical tests that decide
+which verb a comparison may be reported with.
+% [round9c, PENDENCIAS 2.21, the advisor's flag, 2026-07-30] "the tests that license the verbs used
+% to report a comparison" -> "the statistical tests that decide which verb a comparison may be
+% reported with". THE TERM IS LEGITIMATE and it is not banned: a test does license a verb, and
+% AGENT_GUARDRAILS section 4b and WRITING_LAW's honesty rules use exactly that framing. The advisor's
+% objection is about a READER, and it holds at THIS site: this is the FIRST occurrence in the
+% document (defense build p. 24, section 2.4's opening paragraph), where "license" arrives with no
+% antecedent, and the reader who has not read the glossary meets a verb-of-permission applied to
+% grammar. The replacement says the same thing in the sentence's own terms and costs three words.
+% MEASURED, all 13 occurrences of the license family in live prose, read one by one, not sampled, and
+% counted so the buckets sum to 13: EIGHT are the verb sense and FIVE are dataset licensing.
+% Of the eight verb-sense occurrences, two were opaque (this one and the section-2.4.4 opener at
+% p. 25); one is self-explaining because it names the verb in quotation marks ("either test licenses
+% the verb ``outperforms''", p. 26); two are in Chapter 6 and one in the AI-disclosure appendix, all
+% three ordinary English with a concrete object; and TWO are in the gradient-cosine appendix, which
+% uses the same statistical sense correctly ("A test that merely failed to reject zero would license
+% one statement", "An equivalence test licenses the positive claim instead", both p. 98).
+% The five dataset-licensing occurrences are all in the data-ethics appendix (Apache License 2.0 and
+% the like), an unrelated sense that this item does not touch.
+% APPENDICES ARE NAMED HERE, NOT LETTERED, AND THAT IS DELIBERATE. The filenames and the printed
+% letters do not correspond: apx_f_cosine.tex prints as APPENDIX D (p. 98), apx_e_ethics.tex prints as
+% APPENDIX C (p. 95), and apx_d_ceiling.tex is in the supplementary volume. Phase 0 relettered the
+% cosine appendix F -> D, and the main volume prints A, C, D because B and D-as-filed live in the
+% extra volume. Measured in the rendered defense build of 101 pages: the only appendix headers in the
+% main volume are A (p. 91), C (p. 95) and D (p. 98). A letter written from a filename is wrong here,
+% which is why this note names each appendix by its subject instead.
+% Only the two opaque ones are rewritten. The p. 26 sentence is kept because it is where the usage
+% becomes concrete, and rewriting it would remove the definition rather than the opacity; Appendix D's
+% two are kept because each names what is licensed in the same sentence.
 
 Two check-in datasets serve as the ground. Gowalla is the dataset of record,
 introduced with the study of periodic and socially driven movement in LBSNs, and this
@@ -837,8 +873,15 @@ Chapter~\ref{ch:mobiwac} splits by user.
 % so the frame does not need to characterize its absence.
 The statistical treatment is scoped the
 same way: Chapters~\ref{ch:cbic} and~\ref{ch:courb} report fold means and standard
-deviations and run no significance test, so the tests set out below license verbs in
-Chapter~\ref{ch:mobiwac} alone. Comparisons there are made across the folds and
+deviations and run no significance test, so the tests set out below govern the comparison
+verbs of Chapter~\ref{ch:mobiwac} alone.
+% [round9c, PENDENCIAS 2.21, the advisor's flag, 2026-07-30] "license verbs in Chapter 5 alone" ->
+% "govern the comparison verbs of Chapter 5 alone". Second of the two opaque sites (defense build
+% p. 25). "license verbs" is the most compressed form in the document: no quoted verb, no object,
+% and the reader has to already know the convention to parse it. The scope claim, that only Chapter 5
+% is covered, is unchanged, and the sentence two paragraphs below still shows the convention
+% concretely by naming ``outperforms'' in quotation marks.
+Comparisons there are made across the folds and
 repetitions with paired tests. The paired Wilcoxon
 signed-rank test compares two models across the paired results without assuming
 normality \cite{wilcoxon1945}. Its exact one-sided $p$ has a floor set by the number of
@@ -938,14 +981,36 @@ response to that limit.
 Multi-task learning is the mechanism that would let the two tasks share what they have
 in common, but it is not a free gain. Naive hard sharing can leave a task worse than
 its single-task model, and the elaborate gradient balancers proposed to prevent this
-frequently do not outperform a well-tuned fixed-weight baseline. Whether joint training
-helps therefore cannot be assumed; it has to be measured, against the dedicated
-single-task models, under a protocol that does not flatter it. That protocol is the
+frequently do not outperform a well-tuned fixed-weight baseline. For the task pair studied
+here the reason is measurable: the two tasks' gradients are close to orthogonal on the shared
+parameters, so there was little for a balancer to correct.
+% MOVED HERE 2026-07-30: this block sat between "cannot be assumed;" and "it has to be measured",
+% splitting one sentence across a comment. It renders correctly, but check_trapped_prose flags a
+% comment tail followed by a line that opens mid-sentence, and it is right to: that shape is how a
+% swallowed sentence looks. The comment now sits between complete sentences.
+Whether joint training
+helps therefore cannot be assumed;
+it has to be measured, against the dedicated
+single-task models, under a protocol that does not flatter it.
+That protocol is the
 last piece. User-disjoint cross-validation, macro-F1 and Acc@10 read against named
 floors and the single-task ceiling, and verbs bound to paired tests and to
 non-inferiority testing are what separate a real improvement from a hopeful one. The
 value of the fundamentals in this chapter is that they make the central question
 answerable on honest terms.
+% [round9c, PENDENCIAS 2.23, readability report R-3, author decision "Aplique o R-3,5,6 e o EX-6"]
+% ONE CLAUSE ADDED, as the report prescribes, "after \"fixed-weight baseline\"". Section 2.3 ends by
+% handing the reader a live question (orthogonality bounds what any balancer can contribute) that
+% section 2.5, the chapter's summing-up and the last thing before Chapter 3, did not close: the report
+% measured zero occurrences of "Pareto", "orthogonal", "cosine" and "conflict" in its 532 words, so
+% the summary carried only the pre-Pareto argument and a banca member would read the new block as a
+% digression.
+% NO NEW CLAIM. This restates section 2.3 in the section built to restate, and the measurement it
+% points at is Appendix D's, which is cited from section 2.3. The report offered a replace-rather-than-add
+% option on the strength of a prior pass's SF-10 (section 2.5 stating its gap three times); ADD was
+% chosen because the sentences SF-10 names carry the "measured against the dedicated model" convention
+% that the chapter's honesty rules require, and cutting one to fit a clause would trade a rule for a
+% rhythm. Length cost: three lines of a 532-word section.
 
 That question presses because its parts have not been brought together. The field has
 a place-level representation but not a check-in-level one built for these targets; it

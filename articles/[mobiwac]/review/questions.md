@@ -3,11 +3,11 @@
 1. O que diz no artigo do Loreiro e como nos relacionamos a ele ?
 
 2. O nosso MTL, é um MTL mesmo? O que estamos compartilhando ?
-   1. Entender nossa arch a fundo.
+    1. Entender nossa arch a fundo.
 
 3. O que a literatura quer ? Prever a categoria do proximo cehcking ou do poi(isso e a mesma coisa não ?)
-   1. Quais tarefas são as mais usuais no contexto de POI ?
-   2. Quais são as princiais entradas para next-POI ?
+    1. Quais tarefas são as mais usuais no contexto de POI ?
+    2. Quais são as princiais entradas para next-POI ?
 
 4. Me explique melhor a frase:
    > "to our knowledge, the first to treat fine-grained region as an end target of equal standing (Section II-B)"
@@ -17,7 +17,7 @@
 5. Como funciona o TOST test ?
 
 6. Como funciona DGI/HGI ?
-   1. O que e Infomax ?
+    1. O que e Infomax ?
 
 7. Na literatura a abordagem commum para se tentar prever é: Dado uma sequencia de checkings/POIs qual é o proximo POI?
 
@@ -42,6 +42,8 @@
    > model) does not close the gap either, so the gain comes from the hierarchical per-visit
    > representation, not from contextualization alone or feature injection"
 
-10. Eu quero entender melhor a questão das tarefas não estarem compartilhando conhecimento de acordo com o experimento do freezed de uma das tarefas. Minha duvida e quando, há compartilhamento ? O shared-trunk adiciona mais paramentros logo o ganho e por temros mais parametros e não por compartilhamento?
+10. Eu quero entender melhor a questão das tarefas não estarem compartilhando conhecimento de acordo com o experimento
+    do freezed de uma das tarefas. Minha duvida e quando, há compartilhamento ? O shared-trunk adiciona mais paramentros
+    logo o ganho e por temros mais parametros e não por compartilhamento?
 
-11.
+11. Como sabemso que os gradiente das taefas são ortogonais e por isso não usamos os MTL Optmizers ?

@@ -29,8 +29,18 @@ feature injection.
 
 \subsection{One model, two tasks}
 \label{sec:results-part2}
-One model outperforms or matches the dedicated
-models on both tasks.
+One model outperforms the dedicated models on next
+category at all six datasets, and on next region it outperforms them at four of the six
+and is statistically non-inferior within a two-point margin at the other two.
+% [round9c, dissertation PENDENCIAS 2.11, author decision: option B, 2026-07-30] The lead read
+% "One model outperforms or matches the dedicated models on both tasks", which collapses the
+% four-of-six / TOST partition that section 6.2 and section 5.3 of this paper state precisely.
+% "matches" is TOST language here and reads as a win when the partition is dropped, so the
+% subsection lead now carries the partition it introduces. NO number, test or verdict changes:
+% "outperforms" still covers Florida, Texas, California and Istanbul, and Alabama and Arizona are
+% still non-inferior, not upgraded. The identical sentence is in the dissertation at
+% chapters/5_mobiwac/06_results.tex; the two texts are kept textually identical where they
+% reproduce each other, and this edit was applied to both in the same pass. Recorded in ERRATA.md.
 For scale: always predicting the most common category reaches only about 7
 percent macro-F1 (the majority-class floor), and a random region top-ten guess
 is right at most about two percent of the time (Section~\ref{sec:setup-metrics}).
@@ -42,9 +52,8 @@ Throughout, every reported model is one saved artifact per fold, read at its
 validation-selected epoch: each dedicated model at its task's best epoch, and
 the joint model at the epoch selected by its joint validation score (the
 geometric mean of the two task metrics), with both tasks read from that one
-model. Reading each joint task at its own best epoch
-instead would change every joint result by at most $0.06$ (category) and
-$0.11$ (region) points, so no claim depends on this choice.
+model. Reading each joint task at its own best epoch instead would change every
+joint result by at most $0.06$ (category) and $0.11$ (region) points.
 % AUTHOR DECISION 2026-07-18 (supersedes 2026-07-09): the REPORTED convention is now JOINT-BEST
 % (author ruling, considerations_v3 #10) -- Table 3's joint cells are the one saved model per fold
 % (geom_simple = sqrt(cat F1 x reg Acc@10-indist) on validation, model-SELECTION only; never enters
@@ -71,11 +80,13 @@ from $-0.41$ at the smallest count to $+2.20$ at the largest; region count and
 corpus size co-vary here, so we read the trend across the points rather than
 as a precise law.
 
-All six datasets are measured with four seeds for both models, and the tests
-pair the per-seed means ($n{=}4$). On category, all four
+On category, all four
 seeds favor the joint model on every dataset, and each gain is significant
 after a Holm correction across the six datasets (paired $t$, corrected
-$p<0.001$). On region, Alabama and Arizona are tested for equivalence (TOST,
+$p<0.001$); the four next-region gains hold under their own Holm correction as
+well (corrected $p<0.001$). The registered Wilcoxon test on the individual fold
+differences agrees at every dataset, with all 20 folds favoring the joint model
+(corrected $p<0.001$). On region, Alabama and Arizona are tested for equivalence (TOST,
 $\pm2$~pp) and pass with 90\% confidence intervals well inside two points
 (each entry: point estimate; interval): Alabama ($-0.41$; $-0.63$ to $-0.20$)
 and Arizona ($0.00$; $-0.08$ to $+0.07$). At Arizona, the interval is centered on zero, so we report a match,
@@ -141,8 +152,7 @@ The joint-model results hold for a non-U.S. city under the same representation, 
 joint model outperforms the dedicated category ceiling by $+8.58$ macro-F1
 (dedicated $54.74$, joint $63.32$) and is slightly above the dedicated region ceiling at $+0.19$
 Acc@10 (dedicated $75.16$, joint $75.35$), a gain with statistical support (the whole 90\% confidence interval of the paired
-difference lies above zero, and TOST, $\pm2$~pp, also passes); both
-models average four seeds over five folds. The comparable quantity is the gain over the ceiling, not the absolute
+difference lies above zero, and TOST, $\pm2$~pp, also passes). The comparable quantity is the gain over the ceiling, not the absolute
 Acc@10, since region counts differ across datasets (520 mahalle here). The external baselines show the same ordering on both tasks
 (Table~\ref{tab:results}).
 The U.S. result repeats on a different continent and region unit.

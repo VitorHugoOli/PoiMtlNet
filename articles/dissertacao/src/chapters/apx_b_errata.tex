@@ -30,10 +30,10 @@
 %                undercounted the table by one. That row belongs to the references track.
 %                Table B.4 gained 2 further rows in the references pass of 2026-07-25
 %                (Kohavi DOI dropped; Rußwurm re-typed to ICLR 2024), for 14 total.
-%   Itemized rows, RE-MEASURED 2026-07-30 (round 8) by parsing each table's own body rather than
-%                carrying the previous arithmetic forward: B.1 CBIC content 8, B.2 CBIC wording 14,
-%                B.3 CoUrb content 4, B.4 bibliography 18. Total 44. Table B.5 (MobiWac claim-scope)
-%                holds 2 and is counted separately, since the under-review regime puts most of that
+%   Itemized rows, RE-MEASURED 2026-07-30 (round 9c) by parsing each table's own body rather than
+%                carrying the previous arithmetic forward: B.1 CBIC content 10, B.2 CBIC wording 14,
+%                B.3 CoUrb content 7, B.4 bibliography 19. Total 50. Table B.5 (MobiWac claim-scope)
+%                holds 3 and is counted separately, since the under-review regime puts most of that
 %                chapter's corrections in the article's own errata record instead.
 %                THE PREVIOUS CLAIM HERE WAS "6 + 13 + 3 + 14 = 36", and two of its four terms were
 %                already stale before this round, which is why the count is now measured and not
@@ -43,6 +43,16 @@
 %                UberNet and Sphere2Vec version-of-record upgrades). Neither movement was reflected
 %                here. Round 6 then added one row to B.1 (the Standley claim narrowing) and one to B.3
 %                (the Nash-MTL guarantee narrowing), which is what takes the two tables to 8 and 4.
+%                ROUND 9c ADDED SIX ROWS, on the author's rulings PENDENCIAS 2.12, 2.14 and 2.15, and
+%                the count above is re-measured rather than incremented. B.1 8 -> 10: the MGDA
+%                Pareto-optimality narrowing (2.12, his words "pode adicionar essa linha no appendix B,
+%                para termos conhecimento desse detalhe menor") and the hard-sharing regularization
+%                re-attribution (2.15). B.3 4 -> 7: the temporal-semantics claim split, the
+%                hierarchical-regularizer re-attribution, and the `fclass` term replacement (all 2.15).
+%                B.4 18 -> 19: the Nash-MTL entry brought to the author's PMLR paste (2.14). The gate
+%                that reads this claim, src_utils/count_errata_rows.py, was run before and after: rc=0
+%                at 44 before the rows, rc=1 reporting "measured 50 claimed 44" with the rows and the
+%                stale claim, rc=0 again once this line was updated. That failure is the gate working.
 %                Measured by counting two-column data rows between \midrule and \bottomrule, and
 %                between \endlastfoot and \end{longtable} for B.4, with LaTeX comments stripped.
 %                ROUND 8 (2026-07-30): B.2 goes 13 -> 14 and the total 43 -> 44, with the COD-016a
@@ -233,7 +243,14 @@ The first two corrections in Table~\ref{tab:apx:courb-errata} replace the publis
 numbers by the values of an internal audit of the same results, performed after
 publication; the audited values are the ones the chapter reports. The third substitutes a
 verdict verb without changing the strength of the claim, and the fourth narrows one claim
-about a cited method to the guarantee that method's own paper states.
+about a cited method to the guarantee that method's own paper states. The last three correct
+attribution and vocabulary: two claims are returned to works that state them, and one data
+column is named for the reader rather than by its identifier in the source files.
+% [round9c, PENDENCIAS 2.15, 2026-07-30] The banner enumerates this table ordinally and the table
+% grew from four rows to seven, so one sentence covers rows five to seven as a group rather than a
+% clause per row, the same treatment the CBIC banner gives its own tail. This file's header already
+% records this exact defect twice, the second time as a banner that "was still wrong by one row", so
+% the count was read from the table body rather than carried forward.
 % [round6, COD-005 sub-claim 4] The banner said the table replaces "the published numbers", which
 % the fourth row is not: it is a wording narrowing of a claim about Nash-MTL, not a number. One
 % clause widened rather than giving the CoUrb section a second table as the CBIC section has, which
@@ -316,7 +333,11 @@ article and none is a claim about a result. The last is worded exactly as in
 Chapter~\ref{ch:cbic}, whose study runs the same code. As in that chapter, the number of model
 configurations examined during the study is not recoverable from the released material, and no
 sentence of this chapter asserts one.
-% [NEEDS SIGN-OFF: PENDENCIAS_RESOLVIDOS 2.7 (arquivado 2026-07-30), round8, 2026-07-30] ONE SENTENCE ADDED, on the author's decision
+% [round9c, PENDENCIAS 5.6b second half, 2026-07-30] SIGN-OFF MARKER REMOVED, question settled. Item
+% 2.7 is archived as closed ("FECHADO como nao-recuperavel"), and the sentence below was added on the
+% author's own instruction, quoted in the next line. The marker was recording an executed decision
+% rather than asking one, which is exactly the class he asked to clear from the LaTeX.
+% [round8, 2026-07-30] ONE SENTENCE ADDED, on the author's decision
 % "Documentar no letf_out.md e adcionar esse ponto no appendix B". Half of that was already done and
 % half was not, which is why it needed measuring rather than re-reading a report: LEFT_OUT.md LO-1
 % carries the finding, and Article 1 of this appendix already printed the identical sentence for
@@ -361,18 +382,25 @@ of one figure that the submitted eight-page build had cut for space, whose four 
 are stated in the reproduced prose in both versions. This chapter writes no new lead
 sentences for its tables, since the submitted text already introduces each of them.
 
-Table~\ref{tab:apx:mobiwac-scope} lists two further corrections to the reproduced prose.
-Neither alters an experimental result. Each narrows a claim to what its evidence covers, or
-names the basis on which a reported comparison was measured.
+Table~\ref{tab:apx:mobiwac-scope} lists three further departures in the reproduced prose.
+None alters an experimental result. Two narrow a claim to what its evidence covers or name
+the basis on which a reported comparison was measured, and the third adds a cross-reference.
 
 This article differs from the other two in a way that changes what this section has to record.
 It is under review rather than published, so a correction to a minor factual or scope claim
 does not have to be declared here at all: it is applied to the submitted source as well, and
-the two texts stay identical. Two corrections were handled that way and are named in the
-article's own errata record rather than in this table. What remains here are the two that could
+the two texts stay identical. Three corrections were handled that way and are named in the
+article's own errata record rather than in this table. What remains here are the three that could
 not be folded into a paper under review, because each depends on material the article has no
-room for: one cites the benchmark of Appendix~\ref{apx:ceiling}, and the other cites this
-chapter's own results table.
+room for: one cites the benchmark of Appendix~\ref{apx:ceiling}, one cites this
+chapter's own results table, and one cites Appendix~\ref{apx:cosine}.
+% [round9c, PENDENCIAS 2.11 and 2.9, 2026-07-30] TWO COUNTS UPDATED, both measured rather than
+% incremented. The corrections applied identically in both texts went from two to three: the region
+% partition in the results subsection lead is the third, and the paper's ERRATA.md carries it under a
+% 2026-07-30 heading. The rows that cannot be folded went from two to three: the gradient-cosine
+% pointer cites a dissertation appendix, so the referent does not exist in the submitted paper.
+% This paragraph's own arithmetic is the thing to keep true; the file header records two earlier rounds
+% in which a banner count went stale against its table.
 % [2026-07-27, author instruction] "estamos no periodo de revisao do artigo, entao nao precisa
 % haver erratas, para ele a nao ser que essa errata nao cabe entrar na revisao se for algum
 % conceito muito elaborado, como e o caso do appendix D". Count corrected from four to two.

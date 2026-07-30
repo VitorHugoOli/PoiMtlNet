@@ -40,17 +40,28 @@ SKIP = ("_round", "_review_v", "_archive", "_gates", "_specialists", "/build/", 
 # heading) gave RC=0; the same file with `PENDENCIAS 9.9` gave RC=1. That is T1/T2 -- a guard whose
 # pattern is a list of the spellings that existed when it was written. The `§` may also arrive as
 # `\S` from LaTeX source or as the word "section".
-CITE = re.compile(r"PENDENCIAS\s*(?:§|\\S|[Ss]ection|[Ss]ec\.?|item)?\s*(\d+)\.(\d+)")
-HEADING = re.compile(r"^#{2,4}\s+(\d+)\.(\d+)\b", re.M)
+# A SECOND BLINDNESS OF THE SAME CLASS, found 2026-07-30 (round 9c): the tracker numbers a
+# subdivided item with a LETTER SUFFIX -- `### 5.6b A premissa da sua decisao 5.6 nao e o que os
+# arquivos mostram` is a live heading, and `1b.1`, `2b.1` are in the archive. Neither pattern below
+# could express one. HEADING required a word boundary right after the second number, and in "5.6b"
+# the digit and the letter are both word characters, so no boundary exists there and the heading was
+# invisible. CITE stopped at the digits, so a comment citing `PENDENCIAS 5.6b` produced the
+# coordinate (5, 6) and was reported as pointing at a section that does not exist -- which was true
+# of 5.6, archived, and false of 5.6b, live and open. Reproduced before the fix: three round-9c
+# comments citing the author's own item number failed this gate while the heading sat in the tracker.
+# The suffix is now part of the key on BOTH sides, so 5.6 and 5.6b are different coordinates and a
+# citation of the archived 5.6 still fails, which is the behavior that caught the renumber of 2.2.
+CITE = re.compile(r"PENDENCIAS\s*(?:§|\\S|[Ss]ection|[Ss]ec\.?|item)?\s*(\d+)\.(\d+)([a-z]?)(?![\w.])")
+HEADING = re.compile(r"^#{2,4}\s+(?:~~)?(\d+)\.(\d+)([a-z]?)(?![\w.])", re.M)
 # An exemption must be adjacent to the citation, not anywhere in the file: a "was 2.2" on line 400
 # does not license a bare "PENDENCIAS 2.2" on line 3. 90 chars is about one wrapped line.
 EXEMPT = re.compile(r"was\s+\d+\.\d+|tracker (?:of|was)|no longer resolves|de que data|daquela data")
 
 
-def sections() -> set[tuple[str, str]]:
+def sections() -> set[tuple[str, str, str]]:
     if not TRACKER.exists():
         return set()
-    return {(a, b) for a, b in HEADING.findall(TRACKER.read_text(encoding="utf-8"))}
+    return {(a, b, c) for a, b, c in HEADING.findall(TRACKER.read_text(encoding="utf-8"))}
 
 
 def scan() -> list[str]:
@@ -67,14 +78,14 @@ def scan() -> list[str]:
             continue
         text = path.read_text(encoding="utf-8", errors="replace")
         for m in CITE.finditer(text):
-            key = (m.group(1), m.group(2))
+            key = (m.group(1), m.group(2), m.group(3))
             if key in live:
                 continue
             window = text[m.start(): m.start() + 90]
             if EXEMPT.search(window):
                 continue          # honest historical citation, says so on its own line
             line = text[:m.start()].count("\n") + 1
-            problems.append(f"{rel}:{line}: cites PENDENCIAS {key[0]}.{key[1]}, "
+            problems.append(f"{rel}:{line}: cites PENDENCIAS {key[0]}.{key[1]}{key[2]}, "
                             f"which is not a heading in PENDENCIAS.md")
     return problems
 
@@ -94,7 +105,7 @@ def self_test() -> None:
     # here fails the self-test instead of passing the gate.
     for variant in ("PENDENCIAS 2.4", "PENDENCIAS §2.4", "PENDENCIAS \\S2.4",
                     "PENDENCIAS section 2.4", "PENDENCIAS Sec. 2.4"):
-        assert CITE.findall(variant) == [("2", "4")], \
+        assert CITE.findall(variant) == [("2", "4", "")], \
             f"self-test: CITE cannot see the spelling {variant!r} -- it would go unchecked"
     # ...and a bare number that is not a tracker citation must not be swept in.
     assert not CITE.findall("see Table 2.4 of the manual"), \

@@ -365,8 +365,23 @@ cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
 for f in src/content.tex src/chapters/1_introduction.tex src/chapters/6_conclusion.tex; do
   grep -vn '^[[:space:]]*%' "$f" | grep 'four of six\|four of the six' | sed "s|^|$f:|"
 done
-# EXPECT: lines=3
+# EXPECT: lines=4
 ```
+
+> **ROUND 9c, 2026-07-30 — THE EXPECTATION MOVED FROM 3 TO 4, and the author's ruling is why.**
+> `PENDENCIAS` 2.11, his option B: promote the non-inferiority caveat wherever the region result is
+> stated. Chapter 6's consolidated-answer sentence stated it without the partition at all ("outperforms
+> the dedicated models on the category task everywhere and outperforms or matches them on the region
+> task"), so it matched neither `four of six` nor `four of the six` and this command could not see it.
+> Rewritten to carry the partition, it now does, which takes the count to **4 prose hits**: one in
+> `content.tex` (the Abstract), one in `1_introduction.tex`, and **two** in `6_conclusion.tex`.
+> The premise of the finding above is also corrected by the same measurement. It says the frame states
+> the result "with no such qualifier". Swept across all 54 live `.tex` files of both trees on
+> 2026-07-30, comments stripped and matching across line wraps: 15 sites state the partition and **14
+> already carried the TOST caveat**. The two that did not were this Chapter 6 sentence and the Chapter 5
+> results subsection lead, and both now do. What the frame still does not carry is the *analysis-plan*
+> qualifier this item is actually about (that region superiority sat outside the registered plan), which
+> is a different claim from the TOST caveat and is untouched by 2.11.
 Comment lines are dropped **before** the search (`grep -vn` keeps the original line numbers). Without
 that this returns 4 hits, one being an indented provenance comment rather than prose the reader sees:
 **3 prose hits is the answer**, not 4.
@@ -769,7 +784,18 @@ and already cited for those claims elsewhere.
 >         for f in sorted(Path('src').rglob('*.tex')) if 'build/' not in str(f)}
 > print({k: v for k, v in hits.items() if v})
 > "
-> # EXPECT: contains=src/chapters/4_courb/methodology.tex': 3
+> # EXPECT: output={}
+>
+> **ROUND 9c, 2026-07-30 — THE EXPECTATION IS NOW AN EMPTY DICT, and that is the finding closed.**
+> The author ruled on `PENDENCIAS` 2.15 by path A: fix the banned term in the original article trees
+> and in the dissertation, and record it in the errata appendix. All three occurrences in
+> `4_courb/methodology.tex` are replaced by the registered reader-facing name, **fine class**
+> (`GLOSSARY.md:73`), set roman because it is ordinary English rather than a code token. The same
+> replacement was applied to the published CoUrb sources, PT and EN, and an errata row is in Table B.3.
+> Re-measured after the edit across all 54 live `.tex` files: `fclass` in rendered prose = **0**, and
+> zero in the CBIC, CoUrb-PT, CoUrb-EN and MobiWac trees as well. The pattern was proved able to find
+> the term when present (positive control: it is in `GLOSSARY.md`, which is where the ban is registered),
+> so the zero is an absence and not a broken instrument.
 > ```
 > It is the **same class as items 15 and 16 and it goes to the same place**: the identical sentences are
 > in the published CoUrb paper (`articles/CoUrb_2026/src_en/sections/metodology.tex:109` and `:120`),
