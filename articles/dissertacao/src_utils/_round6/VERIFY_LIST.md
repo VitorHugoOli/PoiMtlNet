@@ -643,6 +643,13 @@ the metadata decision **together with** the claim decision at the same key (it c
 highest-load NOT-SUPPORTED verdict, `chapters/3_cbic/method.tex:91`) so the entry is touched once.
 Ledger finding L-3.
 
+> **ROUND 8, 2026-07-30 — verified and handed over INSIDE item 16 below, deliberately.** This item asks
+> for the two decisions at this key to be taken together, so splitting the verdict across two rows
+> would be the opposite of what it requests. The metadata half is unchanged and still resolves as
+> stated (`.bib` title is the superseded preprint one; title of record "Latent Multi-task Architecture
+> Learning", version of record AAAI 2019, `10.1609/aaai.v33i01.33014822`, pp. 4822-4829). The claim
+> half is measured in item 16. Both are in `PENDENCIAS.md` §2.15 as one decision.
+
 **16. Three claim-support verdicts on published prose you have not yet ruled on.**
 `chapters/4_courb/methodology.tex:126` (`sun2020go` cited for temporal cycles revealing place
 *function*), `:184` (`belkin2003laplacian` cited for a hierarchical embedding regularizer), and
@@ -900,17 +907,6 @@ indirect, not absent. If you want the stronger exculpation, it cannot be support
 > defense p. 99. **The reading is the author's to endorse; the text is not what his 2026-07-27 ruling
 > assumed, which is what this item exists to surface, and that remains true.**
 
-### A2 — VERIFIED, 2026-07-30
-
-Both sentences are in `chapters/6_conclusion.tex` and print on **p. 74** of the 100-page defense
-build (this item says p. 76). The figure stays and is bounded exactly as prescribed: "raised category
-macro-F1 by 20.2 to 22.0 percentage points across the three states tested", then "Two qualifications
-bound what that number licenses. It is measured on the **static task**, which classifies a place from
-that place's own representation, and **Appendix B of the supplementary volume** records that this
-task's input determines its target by construction, so the figure is not evidence about the sequential
-task." The second qualification is the width mismatch, 192 against 64. The arc's diagnosis then rests
-on the sequential task in the following sentence. Nothing here needs the author beyond reading it.
-
 ### A2. The bounded Ch.4 number in the conclusion
 
 **What to check.** That the two added sentences say what you would say.
@@ -920,6 +916,16 @@ on the sequential task in the following sentence. Nothing here needs the author 
 **What the answer should be.** The 20.2 to 22.0 point figure stays (it is the published chapter's own
 audited number), now labelled as the **static task's** and pointing at Appendix B; and the arc's
 diagnosis should rest on the sequential task, naming Chapter 5 as what tests it.
+
+> **ROUND 8, 2026-07-30 — VERIFIED.** Both sentences are in `chapters/6_conclusion.tex` and print on
+> **p. 74** of the 100-page defense build (this item says p. 76). The figure stays and is bounded
+> exactly as prescribed: "raised category macro-F1 by 20.2 to 22.0 percentage points across the three
+> states tested", then "Two qualifications bound what that number licenses. It is measured on the
+> **static task**, which classifies a place from that place's own representation, and **Appendix B of
+> the supplementary volume** records that this task's input determines its target by construction, so
+> the figure is not evidence about the sequential task." The second qualification is the width
+> mismatch, 192 against 64. The arc's diagnosis then rests on the sequential task in the following
+> sentence. Nothing here needs the author beyond reading it.
 
 ### A3. The weakened reproducibility sentence
 
@@ -1045,14 +1051,6 @@ not a frozen record.)
 > property the item cares about — printed number equals physical position, no inherited offset —
 > holds in all three, on builds of 100, 97 and 101 pages.
 
-### A5 — VERIFIED, 2026-07-30
-
-`Hfootnote` count is **0** in all three logs (`main`, `main_academico`, `main_ppgc`), counted in
-python rather than with `grep -c`, which exits 1 on a zero count and would fail the harness while
-reporting the passing value. The same probe is annotated under item 18 above, so this is checked on
-every `make check` rather than only when someone runs this block. Clicking a mark to confirm it is
-plain text is the human half and is not automatable here.
-
 ### A5. The footnote links
 
 **What to check.** That clicking a footnote mark no longer jumps to page 1.
@@ -1061,6 +1059,14 @@ plain text is the human half and is not automatable here.
 then click a footnote mark in the PDF.
 
 **What the answer should be.** **0** in all three logs, and the mark should be plain text with no link.
+
+> **ROUND 8, 2026-07-30 — VERIFIED.** `Hfootnote` count is **0** in all three logs (`main`,
+> `main_academico`, `main_ppgc`), counted in python rather than with the `grep -c` this item
+> prescribes: that command exits 1 on a zero count, which is the passing case here, so as an
+> automated check it fails while reporting the right number. The python form is annotated under item
+> 18 above, so both properties are checked on every `make check` rather than only when someone runs
+> this block by hand. Clicking a mark to confirm it is plain text is the human half and is not
+> automatable here.
 
 ### A6. The gate suite, including the four new gates
 
