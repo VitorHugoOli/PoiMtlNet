@@ -22,15 +22,22 @@
   subsections) where the paper had to compress. Viegas patterns to use: definition → citation →
   concrete example rhythm; sections open with a 1–3 sentence purpose statement; background always
   tied to its downstream use ("this assumption matters for Chapter 5's protocol because…").
-- **Register bar (inherited, unchanged):** standard academic English a Brazilian author would
-  defend aloud. Both failure poles are banned: AI-inflated vocabulary AND native-literary idiom
-  (phrasal-verb metaphors, money/motion metaphors). The test: *would the author say it at the
-  defense, and would the community write it?* Safe verbs: use, cost, show, obtain, reach, remain,
-  include, provide, predict, measure, train, keep.
-- American English throughout. No contractions; "cannot" is correct. Digits for data quantities
-  ("8,501 regions"); words for small counts ("two tasks, seven categories"). Comma after
-  sentence-initial adverbial phrases. Write relative pronouns ("the head **that** we do not
-  predict").
+- **Register bar (inherited, unchanged):** clear, simple academic English that a Brazilian
+  non-native English writer would defend aloud. Prefer common, precise words and direct
+  constructions. Do not replace an established technical term with an inaccurate plain word, but
+  do explain the term at first use. Both failure poles are banned: AI-inflated vocabulary AND
+  native-literary idiom (phrasal-verb metaphors, money/motion metaphors). The test: *would the
+  author say it at the defense, would the community write it, and would a qualified reader
+  understand it on the first reading?* Safe verbs: use, cost, show, obtain, reach, remain, include,
+  provide, predict, measure, train, keep.
+- **American English throughout.** Use American spelling, vocabulary, punctuation, and usage
+  consistently. Clarity takes priority over variation or elegance: a reader must not need to
+  re-read a sentence or paragraph to recover its intended meaning or logical connection. If a
+  passage needs a second reading, revise it by reducing clause load, naming the referent, making
+  the logical link explicit, or splitting it. No contractions; "cannot" is correct. Digits for
+  data quantities ("8,501 regions"); words for small counts ("two tasks, seven categories").
+  Comma after sentence-initial adverbial phrases. Write relative pronouns ("the head **that** we
+  do not predict").
 - **No em-dash anywhere.** Use commas, parentheses, semicolons, or two sentences. (Also an AI
   tell; also the MobiWac rule.)
 - **No process narration, and this is a hard ban.** The prose states what is true of the work, never
@@ -215,6 +222,9 @@ chapter; "deliberately X" → "X by design"; "sits above" → "lies above" (one 
       only with a test.
 - [ ] AI-tell sweep: banned words/templates at zero; intensifiers ≤1 per claim; -ly density in
       band; no semicolon braids; paragraph shapes vary; chapter openers not templated.
+- [ ] Language pass: simple, direct American English that the author would defend aloud; American
+      spelling and usage are consistent; no passage requires a second reading for its intended
+      meaning or logical connection.
 - [ ] Idiom sweep: no phrasal metaphors; em-dash count = 0; contractions = 0.
 - [ ] Tables captioned above with lead sentences; figures self-contained; metrics defined with
       boundary behavior; hygiene sentences present at every leakage-sensitive step.

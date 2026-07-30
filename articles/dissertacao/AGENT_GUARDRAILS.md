@@ -499,12 +499,18 @@ G1 DRAFT     agent drafts per L1; handoff note lists: numbers ledger, new-claim 
 G2 FACT GATE (fail-closed) citation protocol §1 + number protocol §2 + claim registry §3
              + cross-ref lint L4. Any failure returns to draft.
 G3 STYLE GATE (statistical, separate pass, fresh eyes) WRITING_LAW §7 checklist: AI-tell sweep,
-             idiom sweep, variance/burstiness read-aloud, discourse-skeleton variety, register
+             idiom sweep, variance/burstiness read-aloud, discourse-skeleton variety, simple
+             American English, first-read comprehension, and the non-native-author register
 G4 AUTHOR    Vitor reads and approves (edits welcome; approval recorded in git)
 G5 ADVISOR   only after G2–G4 are green
 ```
 
 - Gates G2 and G3 are **separate passes** (fact ≠ style; merging them measurably weakens both).
+- G3 does not pass on lint results alone. Before G4, the cold reader (persona 01) supplies the
+  untouched first-pass signal and the readability editor (persona 15) supplies the analytical
+  first-read-comprehension verdict. Any sentence or paragraph whose intended meaning or logical
+  connection requires a second reading returns to editing. Technical complexity is not an
+  exemption: retain the technical term, define it, and simplify the surrounding prose.
 - Audit intensity scales with AI share: a chapter that is mostly re-typeset published text gets
   the standard pass; heavily AI-drafted frame prose gets the full adversarial treatment
   (contamination is bimodal — heavy-reliance documents carry most fabrications).
