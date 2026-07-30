@@ -442,9 +442,18 @@ such a point for task weights fixed in advance \cite{senushkin2023aligned}. Not 
 method claims even that much. PCGrad guarantees that one projected update leaves the
 multi-task loss no higher than the unmodified gradient would, under conditions on the two
 task gradients, on the curvature of the loss, and on the step size, and it makes no Pareto
-claim at all \cite{yu2020pcgrad}. Two of these papers state the residual limitation
-themselves: arriving somewhere on the front says nothing about where, so the balance
-between the tasks at that point remains uncontrolled
+% [round9, 2026-07-30] ATTRIBUTION CORRECTED (M2, MTL persona). It read "Two of these papers state the
+% residual limitation THEMSELVES", which reads as a self-criticism. Both papers make that criticism
+% about the methods they SUPERSEDE, as the motivation for their own contribution: CAGrad's abstract
+% says prior heuristics "could converge to any Pareto-stationary point" and offers its own convergence
+% to a minimum over the average loss; Aligned-MTL p.2 says such approaches "terminate once the Pareto
+% front is first reached ... might provide a suboptimal solution" and offers drift along the front to a
+% pre-defined weighting, naming Nash-MTL among its targets at p.5. The limitation is real and the
+% citation is correct for it; what was wrong was who the criticism was aimed at.
+claim at all \cite{yu2020pcgrad}. Two of these papers raise the residual limitation
+against the methods they set out to improve on: arriving somewhere on the front says nothing
+about where, so the balance between the tasks at that point remains uncontrolled, and each
+offers its own convergence target as the remedy
 \cite{liu2021cagrad,senushkin2023aligned}. This dissertation therefore claims no Pareto
 property of any kind for its models. Its verdicts are per-task scores measured against
 dedicated single-task models under the tests of Section~\ref{sec:fund:eval}.
@@ -512,11 +521,27 @@ surgical correction that projects one gradient away from another has nothing to 
 the task gradients or the task losses, so they still respond to differences in gradient
 magnitude, and Chapter~\ref{ch:mobiwac} records two of them exceeding equal weighting on one
 dataset and losing that position on the others. Appendix~\ref{apx:cosine}
+% [round9, 2026-07-30] THREE CORRECTIONS IN ONE SENTENCE, all from the MTL persona, all verified here
+% before applying. The sentence read: "finds the two tasks' gradients statistically indistinguishable
+% from orthogonal on the datasets measured there; it reads that result as the reason no balancing
+% method improved on a fixed weighting in this work".
+%  (M4) "STATISTICALLY INDISTINGUISHABLE" IS FALSE AS STATED. Re-measured at the fold unit over
+%       _round7/gradient_cosine_observations6.parquet: a one-sample t-test on the five fold means
+%       rejects zero at THREE of the seven datasets -- alabama p=0.0125, california p=0.0478,
+%       georgia p=0.0093. What the appendix actually establishes is EQUIVALENCE within +/-0.05 (TOST),
+%       which is a different and weaker claim, and it prints both. "Equivalent within a margin" is now
+%       stated with the margin, and the three departures are named rather than hidden.
+%  (M3) "THE REASON" DROPPED CHAPTER 5's QUALIFIERS. That chapter scopes the finding to nineteen loss
+%       and gradient methods on its own datasets; "the reason ... in this work" read as a general
+%       explanation. Now "one part of the reason", which is what the evidence carries.
+% The margin is written in words ("two hundredths") because §2.3 has not introduced the TOST notation
+% at this point in the chapter; the appendix states it as +/-0.05 where the test is defined.
 measures the cosine on the joint model of Chapter~\ref{ch:mobiwac} and finds the two
-tasks' gradients statistically indistinguishable from orthogonal on the datasets measured
-there; it reads that result as the reason no balancing method improved on a fixed
-weighting in this work, and as part of the reason the argument moves to the input
-representation in Chapters~\ref{ch:courb} and~\ref{ch:mobiwac}.
+tasks' gradients equivalent to orthogonal, within a margin of two hundredths, at every dataset
+measured there. Three of those datasets do carry a mean that a paired test separates from zero, and
+the appendix reports both results: the departures are too small to matter at the scale a balancer
+acts on, not too small to detect. That measurement is one part of the reason the argument moves to
+the input representation in Chapters~\ref{ch:courb} and~\ref{ch:mobiwac}.
 % [round9, 2026-07-30] WHY THIS PARAGRAPH EXISTS AND WHAT IT DELIBERATELY DOES NOT DO.
 % It answers two advisor items recorded in src_utils/CONSIDERATIONS.md: G8.4 (the section describes
 % solutions to a conflict it never defines or measures) and G10 (the non-conflict finding needs a
