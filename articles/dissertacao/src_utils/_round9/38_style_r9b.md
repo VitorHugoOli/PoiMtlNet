@@ -618,17 +618,32 @@ is unrecoverable and 385 insertions had no other copy:
 
 Both are left **untracked and uncommitted**, since the instruction is to commit only this report.
 
-**One diagnostic appeared beside that green exit code, and it is not the suite's.** The shell that made
-the previous commit also printed `make: *** No rule to make target 'defense'. Stop.` A green rc next to
-a failing `make` is precisely the tolerant-tool bias §7 lists, so I did not let the 0 stand on its own.
-Re-run with the streams separated: `check.sh` → **rc=0 with 0 lines of stderr**, and `grep -i make` over
-that stderr returns nothing. The message therefore did not come from the gate suite. Its origin is a
-`make defense` invoked from the **repository root**, where no such rule exists (`make -n defense`
-succeeds in `src/` and fails at the root) — my own build ran from `src/` and succeeded, so it is not
-mine either, and it is consistent with one of the four concurrent tracks building from the wrong working
-directory. **The rc=0 in the commit message is a real measurement of the suite; the `make` line belongs
-to something else in the tree.** Both halves are stated because the true half is what would have made an
-unexamined green look credible.
+**One diagnostic appeared beside that green exit code. I first blamed the tree; it was mine, and it
+damaged a commit message.** The shell that made the previous commit also printed
+`make: *** No rule to make target 'defense'. Stop.` A green rc next to a failing `make` is the
+tolerant-tool bias §7 lists, so I did not let the 0 stand: re-run with the streams separated, `check.sh`
+gives **rc=0 with 0 lines of stderr**, so the message is not the suite's. That much held. I then wrote
+that it "belongs to something else in the tree" and was "consistent with one of the four concurrent
+tracks building from the wrong working directory" — **and that was wrong.** The reviewer traced it to my
+own shell, and the mechanism reproduces on demand:
+
+- That cell begins `cd /Users/vitor/Desktop/mestrado/ingred` (the repo root), and its
+  `git commit -m "…"` message is **double-quoted** and contained the span `` `make defense` ``.
+- Bash executes backticks inside double quotes as command substitution. From the repo root there is no
+  `defense` target, so `make` failed — printing to stderr — and substituted **empty output**.
+- The consequence is not cosmetic. The committed message of `1da890cf` now reads
+  *"that one IS a side effect of my  and is deliberately unstaged"*: the phrase was **eaten**, leaving a
+  double space where `make defense` should be. That commit is the only one of my four with an internal
+  double-space anomaly (`grep -c '[a-z]  [a-z]'` → 1, versus 0 for `55620fbf`, `e1ad7ece`, `3a4a1ca7`),
+  which is the signature of the substitution and confirms it happened exactly once.
+
+I had already measured `make -n defense` failing at the root and succeeding in `src/` — the correct
+conclusion was sitting in my own output, and I read it as evidence about someone else because the
+section I was writing was about concurrent tracks. **Recorded rather than quietly fixed:** the `make`
+line is mine, `1da890cf`'s message is missing two words and cannot be rewritten without rewriting
+history, and the lesson is that a `git commit -m` message must be single-quoted or backtick-free.
+Neither error touches a style finding — the gate rc=0 is a real measurement of the suite — but both were
+attributions I stated with more confidence than the evidence carried.
 
 **The provenance, stated as what I can and cannot prove.** I did not write to that file, and there is no
 write to it anywhere in this track's tool log; the one mention of the name in this report is line 95, a
@@ -640,7 +655,7 @@ parenthetical citing `GLOSSARY.md`'s own provenance note. What I can prove posit
 | The worktree edit's mtime | **11:05:48** local |
 | Concurrent tracks committing in that window | **four**, 13 commits between 10:45:55 and 11:23:02 (`40_readability_r9b` at 11:07:42, `39_mtl_r9b` at 11:09:22 and 11:16:21, `41_ai_tells_r9b` at 10:58:50, `42_excellence_r9b` at 11:23:02) |
 | This track's writes | `38_style_r9b.md` only (11:12:17, 11:15:31), plus the two backups above |
-| `dissertacao.pdf`, also dirty | mtime 11:20:09, identical to `build/main.pdf` — `make defense` writes both; that one **is** a side effect of my build and I did not stage it |
+| `dissertacao.pdf`, also dirty | mtime 11:20:09 at the time of measurement, identical to `build/main.pdf`'s — **not my build**, which completed at **10:18:19** local, about 62 minutes earlier. Re-checked later: both are now 11:38:32, a *third* build. Another track is building repeatedly into this tree. I staged neither |
 
 The 11:05:48 edit falls inside another track's commit sequence and outside any write of mine. I cannot
 prove a negative from mtimes alone, and I am not asking you to take my word for it — the two facts that
