@@ -95,10 +95,53 @@ def measure(paths: list[Path]) -> tuple[dict[str, int], int, dict[str, dict[str,
     return counts, words, per_file
 
 
+#: One minimal positive sample per PATTERNS key. Every key must appear here, and each sample must be
+#: matched by ITS OWN pattern and by no other -- see self_test().
+PATTERN_SAMPLES: dict[str, str] = {
+    "rather than": "We measured this rather than assuming it.",
+    ", not":       "It is a fact, not a guess.",
+    "instead of":  "We chose the first instead of the second.",
+    "not ... but": "The gain is not only real but also stable.",
+}
+
+
 def self_test() -> None:
-    """Both directions: a dense sample must fail, a clean one must pass."""
-    dense = "We measured this rather than assuming it. It is a fact, not a guess. " \
-            "We chose the first instead of the second. " * 1
+    """Per-pattern, then aggregate. The per-pattern half is the load-bearing one.
+
+    WHY IT IS SHAPED THIS WAY (measured 2026-07-30, PENDENCIAS 2.10). The previous self-test summed
+    `len(p.findall(sample)) for p in PATTERNS.values()` over one dense sample and asserted only that
+    the resulting DENSITY crossed the ceiling. Because the sum pools all four detectors, any single
+    detector could be replaced with a pattern matching nothing and the remaining three still carried
+    the sample over the ceiling: sabotaging each of the four in turn left this file exiting 0 every
+    time. The tracker recorded that for `rather than`; re-measured, it held for all four.
+
+    A self-test that passes with a detector switched off is worse than no self-test, because its
+    presence reads as proof (AGENT_GUARDRAILS §4b V13). So each pattern is now asserted individually
+    against its own minimal sample, and the table of samples is asserted to COVER the pattern table:
+    adding a fifth pattern without a sample fails here instead of shipping unproven.
+    """
+    # 1. COVERAGE. A sample per pattern, and no orphan samples.
+    assert set(PATTERN_SAMPLES) == set(PATTERNS), (
+        "self-test: PATTERN_SAMPLES and PATTERNS disagree -- "
+        f"only in PATTERNS: {sorted(set(PATTERNS) - set(PATTERN_SAMPLES))}; "
+        f"only in PATTERN_SAMPLES: {sorted(set(PATTERN_SAMPLES) - set(PATTERNS))}. "
+        "A pattern with no sample is an unproven detector."
+    )
+    # 2. EACH DETECTOR, ALONE. Its own sample must match; a sample it does not own must not.
+    for key, sample in PATTERN_SAMPLES.items():
+        assert PATTERNS[key].findall(sample), (
+            f"self-test: the {key!r} detector does not match its own sample {sample!r} -- "
+            "it is disabled, and an aggregate density check cannot see that"
+        )
+        for other, other_sample in PATTERN_SAMPLES.items():
+            if other == key or key == ", not":   # ", not" legitimately occurs inside "not ... but"
+                continue
+            assert not PATTERNS[key].findall(other_sample), (
+                f"self-test: the {key!r} detector also fires on the {other!r} sample -- "
+                "the two would double-count the same clause"
+            )
+    # 3. AGGREGATE, both directions.
+    dense = " ".join(PATTERN_SAMPLES.values())
     clean = "We measured this. It is a fact. We chose the first option. " * 12
     for label, sample, want_over in (("dense", dense, True), ("clean", clean, False)):
         n = sum(len(p.findall(sample)) for p in PATTERNS.values())
@@ -106,7 +149,7 @@ def self_test() -> None:
         dens = n / w * 1000
         over = dens > CEILING_PER_1K
         assert over == want_over, f"self-test {label}: density {dens:.2f}, over={over}"
-    # a construction inside a comment must not count
+    # 4. a construction inside a comment must not count
     assert sum(len(p.findall(strip_comments("% rather than in a comment\nplain text")))
                for p in PATTERNS.values()) == 0, "self-test: comment stripping"
 

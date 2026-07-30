@@ -428,6 +428,14 @@ restantes como bloqueados por disco, nao como pendentes de fila.
 > `check_tex_root` e o `check_verify_list` nao apareciam em coluna nenhuma, e eram justamente os dois
 > que eu nao tinha aberto. Agora os catorze estao classificados, e a classificacao veio de sabotar a
 > logica de deteccao de cada um e ver se o proprio auto-teste pega.
+>
+> **QUARTA PASSAGEM, 2026-07-30 (round 8): a classificacao aguentou a re-medicao, com uma correcao
+> na direcao mais severa.** Repeti a sabotagem nas catorze, sem grepar a palavra "self-test" em
+> lugar nenhum. As treze linhas conferem. A decima quarta -- `check_negative_parallelism` -- estava
+> **subestimada**: o item dizia que UM detector desligado passava batido, e na verdade **os quatro**
+> passavam. Consertado nesta rodada (caixa no fim do item). O padrao vale registrar porque e o
+> contrario do erro das tres primeiras versoes: aquelas afirmavam cobertura que nao existia; esta
+> descreveu um buraco menor do que o real. As duas vem de nao repetir a medicao em cada item.
 
 **Medido: quebrei o detector de cada ferramenta e observei o codigo de saida.**
 
@@ -440,7 +448,7 @@ restantes como bloqueados por disco, nao como pendentes de fila.
 | `check_extra_xrefs` | `self_test()` | **sim** (rc 0 -> 1) |
 | `check_comment_hygiene` | `self_test()`, 8 linhas de saida | **sim** (rc 0 -> 1) |
 | `sweep_guard` | 4 asserts no `__main__` | **sim** (sabotando `n == 0`, rc 0 -> 1) |
-| `check_negative_parallelism` | `self_test()` existe | **NAO.** Desliguei um dos quatro detectores (`rather than`) e ele continuou saindo 0. O auto-teste nao cobre a tabela de padroes. |
+| `check_negative_parallelism` | `self_test()`, agora por padrao | **SIM, desde 2026-07-30** (era **NAO**; ver a caixa abaixo) |
 | `check_trapped_prose` | suite externa `test_trapped_prose.py`, 4 casos `must_flag`, rodada pelo `check.sh`; + par de fixtures novo | sim, pelas fixtures |
 | `check_torn_sentences` | par de fixtures novo (defeito historico real, `1bf9a227`) | sim, pelas fixtures |
 | `check_verify_list` | **nenhum** | -- |
@@ -448,15 +456,33 @@ restantes como bloqueados por disco, nao como pendentes de fila.
 | `sync_page_counts` | **nenhum** (guard de descompasso .log/.pdf exercitado a mao, rc=1) | -- |
 | `sync_deliverables` | **nenhum** (ramo de fonte ausente exercitado a mao, rc=1) | -- |
 
-**Catorze linhas, catorze ferramentas: 7 + 1 + 2 + 4 = 14.** Sete auto-testes que mordem, um que nao
-morde, duas cobertas por fixtures externas, quatro sem nada. Contando o que **nao esta provado pelo
-proprio mecanismo**, sao cinco: os quatro sem nada mais o `check_negative_parallelism`.
+**Catorze linhas, catorze ferramentas: 8 + 2 + 4 = 14.** Oito auto-testes que mordem (era 7+1), duas
+cobertas por fixtures externas, quatro sem nada. Contando o que **nao esta provado pelo proprio
+mecanismo**, agora sao **quatro**: os quatro sem nada.
 
-**(A) O que falta.** (i) O `check_negative_parallelism` precisa que o auto-teste cubra a tabela de
-padroes -- hoje ele passa com um detector desligado, que e a definicao de auto-teste decorativo.
-(ii) Par de fixtures para `check_verify_list`, `check_wordcount_claims`, `sync_page_counts` e
-`sync_deliverables`. (iii) Fixtures externas para os sete que so se auto-testam por dentro, nao porque
-o interno nao valha, mas porque **nada responde "quais estao provados" sem ler dezesseis arquivos**.
+> **O (i) FOI FEITO em 2026-07-30 (round 8), e a medicao original subestimava o defeito.** O item
+> dizia que `check_negative_parallelism` continuava saindo 0 com o detector `rather than` desligado.
+> Re-medido sabotando **cada um dos quatro** em vez de um: `rather than`, `, not`, `instead of` e
+> `not ... but` -- **os quatro** deixavam a ferramenta sair 0. A causa e a forma do auto-teste, nao a
+> escolha do detector: ele somava `findall` sobre os quatro padroes e checava so a **densidade
+> agregada** contra o teto, entao os tres que sobravam sempre levavam a amostra por cima do teto.
+>
+> Agora ha uma tabela `PATTERN_SAMPLES` com uma amostra minima por padrao, e o auto-teste (a) exige
+> que as duas tabelas tenham exatamente as mesmas chaves, (b) afirma cada detector **sozinho** contra
+> a sua propria amostra, e (c) so depois checa a densidade nas duas direcoes. Verificado por sabotagem
+> depois da mudanca, lendo o codigo de saida de cada rodada:
+>
+> ```
+> desligar "rather than"        -> rc=1   desligar "instead of"   -> rc=1
+> desligar ", not"              -> rc=1   desligar "not ... but"  -> rc=1
+> acrescentar um 5o padrao sem amostra -> rc=1  (a asserção de cobertura pega)
+> arvore intacta                -> rc=0   (120 instancias / 35.844 palavras = 3,35 por 1k, teto 3,60)
+> ```
+
+**(A) O que falta.** (ii) Par de fixtures para `check_verify_list`, `check_wordcount_claims`,
+`sync_page_counts` e `sync_deliverables` -- as quatro sem prova nenhuma pelo proprio mecanismo.
+(iii) Fixtures externas para os oito que so se auto-testam por dentro, nao porque o interno nao valha,
+mas porque **nada responde "quais estao provados" sem ler dezesseis arquivos**.
 
 **(B) Por que importa.** Duas vezes voce perguntou o que estava errado e as duas vezes apareceu um
 defeito grande em producao havia semanas com `make check` dizendo RC=0. E este proprio item errou tres
