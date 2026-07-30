@@ -74,21 +74,52 @@ checker that "corrects" *surprise* to *surprize* would be worse than none.
 
 ### 1.3 The measured result, per file, every hit
 
-**Nine hits total.** Four are British spellings, one is a British construction (yours), and four are
-hard-phrasing shapes. This is a clean document; the defects are few and specific.
+**TWELVE hit lines over ELEVEN sites**, and the convention matters because the two numbers differ:
+one sentence can trip two rules. Per class: **5 A1 spellings, 1 A2 construction, 6 B shapes.** This is
+a clean document; the defects are few and specific.
 
-| file | class | hit | provenance | disposition |
-|---|---|---|---|---|
-| `chapters/3_cbic/method.tex` | A1 spelling | `neighbours` | **our own footnote** | **FIXED** |
-| `chapters/3_cbic/method.tex` | A1 spelling | `neighbourhood` | **our own footnote** | **FIXED** |
-| `tables/frame/bib_errata.tex` | A1 spelling | `neighbours` | **our own table cell** | **FIXED** |
-| `tables/frame/bib_errata.tex` | A1 spelling | `neighbourhood` | **our own table cell** | **FIXED** |
-| `chapters/3_cbic/conclusion.tex` | A1 spelling | `towards` | **published CBIC prose** | **YOURS** (§4) |
-| `chapters/apx_f_cosine.tex` | A2 construction | `needs saying` | our prose | **other track** (§5) |
-| `chapters/apx_f_cosine.tex` | B shape | delayed subject | our prose | **other track** (§5) |
-| `chapters/apx_f_cosine.tex` | B shape | idiom ×2 in one sentence | our prose | **other track** (§5) |
-| `chapters/2_fundamentals.tex` | B shape | chained qualification | our prose | **FIXED** |
-| `chapters/6_conclusion.tex` | B shape | delayed subject | our prose | **FIXED** |
+> **This count was wrong in the first version of this report, which said "nine hits" over a
+> ten-row table.** Caught by review, not by me, and it is AGENT_GUARDRAILS §4b V13's fourth instance
+> exactly: *a table whose headline counts N must have N rows.* The nine came from adding up prose
+> categories in my head; the ten-row table then merged the two idioms of one Appendix F sentence into
+> one row and **omitted the cosine sentence's chained-qualification hit entirely** — so the total was
+> wrong and a real hit was missing from a table titled "every hit". Re-measured below by running the
+> gate over the tree as it stood at `06529ed6`, with `OPEN_REGISTER` emptied so nothing is held open
+> or suppressed and every hit prints:
+
+```bash
+cd /tmp && rm -rf baseline_tree && mkdir baseline_tree
+cd /Users/vitor/Desktop/mestrado/ingred
+git archive 06529ed6 articles/dissertacao/src | tar -x -C /tmp/baseline_tree   # 54 .tex
+# copy src_utils/check_register.py in with OPEN_REGISTER replaced by (), then:
+cd /tmp/baseline_tree/articles/dissertacao && python3 src_utils/check_register.py
+# rc=1, "FAIL: 6 British spelling/construction hit(s) and 6 hard-phrasing shape(s)"
+```
+
+| # | file | class | hit | provenance | disposition |
+|--:|---|---|---|---|---|
+| 1 | `chapters/3_cbic/method.tex` | A1 spelling | `neighbours` | **our own footnote** | **FIXED** |
+| 2 | `chapters/3_cbic/method.tex` | A1 spelling | `neighbourhood` | **our own footnote** | **FIXED** |
+| 3 | `tables/frame/bib_errata.tex` | A1 spelling | `neighbours` | **our own table cell** | **FIXED** |
+| 4 | `tables/frame/bib_errata.tex` | A1 spelling | `neighbourhood` | **our own table cell** | **FIXED** |
+| 5 | `chapters/3_cbic/conclusion.tex` | A1 spelling | `towards` | **published CBIC prose** | **YOURS** (§4) |
+| 6 | `chapters/apx_f_cosine.tex` | A2 construction | `needs saying` | our prose | other track (§5) |
+| 7 | `chapters/apx_f_cosine.tex` | B shape | delayed subject: *"Two departures … appear"* | our prose | other track (§5) |
+| 8 | `chapters/apx_f_cosine.tex` | B shape | idiom: *"point away from trouble"* | our prose | other track (§5) |
+| 9 | `chapters/apx_f_cosine.tex` | B shape | idiom: *"in any case"* (same eight-word sentence as 8) | our prose | other track (§5) |
+| 10 | `chapters/apx_f_cosine.tex` | B shape | chained qualification, 3 qualifiers / 2 commas: *"…the decline stays inside the margin…"* | our prose | other track (§5) |
+| 11 | `chapters/2_fundamentals.tex` | B shape | chained qualification, 3 qualifiers / 3 commas | our prose | **FIXED** |
+| 12 | `chapters/6_conclusion.tex` | B shape | delayed subject: *"no such identity … exists"* | our prose | **FIXED** |
+
+**Twelve rows, twelve hit lines.** Rows 8 and 9 are the same sentence (two idioms in eight words,
+which the gate names separately and should), so the count of distinct defective **sites** is **11**.
+Row 10 also carried an abstract-agent hit under the gate's first B4 rule, which would have made
+thirteen lines; B4 was narrowed on the merits (§5.1) and that sentence is now carried by the
+chained-qualification rule alone. Every figure in this paragraph comes from the run above, not from
+addition.
+
+**Disposition reconciles with the rows, both directions:** 6 FIXED by this track (rows 1-4, 11, 12),
+5 closed by the Appendix F track (rows 6-10), 1 open for the author (row 5). 6 + 5 + 1 = 12.
 
 **Zero hits** for: `-ise`/`-isation` (**29** words in the tree match the `-ise`-family candidate
 pattern and the whitelist judges **0** of them British; an earlier exploratory sweep reported 56 with

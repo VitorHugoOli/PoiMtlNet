@@ -614,9 +614,18 @@ material novo que so voce pode aprovar antes de ir ao orientador. Custo de tirar
 ### 2.24 Um `towards` britanico em prosa publicada do CBIC, e a saida e uma linha de errata
 
 **O que e.** Sua queixa 8 do item 2.22 (o `needs saying plainly`) gerou a lei de registro e o gate 25
-(`check_register.py`). Varridos os 54 `.tex` vivos mais o `references.bib`, **nove ocorrencias** em
-todo o documento. Quatro eram nossas e **foram corrigidas**; quatro estao no Apendice F e sao da outra
-esteira. **Sobrou uma, e ela e sua**, porque esta em prosa publicada:
+(`check_register.py`). Varridos os 54 `.tex` vivos mais o `references.bib`, **doze linhas de achado em
+onze sitios** (uma frase pode disparar duas regras): **5** grafias britanicas, **1** construcao
+britanica (a sua) e **6** formas de fraseado. **Seis eram nossas e foram corrigidas**; **cinco** estao
+no Apendice F e a outra esteira ja as fechou. **Sobrou uma, e ela e sua**, porque esta em prosa
+publicada:
+
+*(Este bloco dizia **nove ocorrencias** e "quatro/quatro/uma". Estava errado, e o erro foi pego por
+revisao, nao por mim: eu somei categorias de cabeca em vez de contar as linhas do instrumento. Medido
+agora rodando o gate sobre a arvore do `06529ed6` com o `OPEN_REGISTER` vazio, para que nada fique
+retido e todo achado imprima: `rc=1`, "6 British spelling/construction hit(s) and 6 hard-phrasing
+shape(s)", 12 linhas. A conferencia fecha nos dois sentidos: 6 corrigidas + 5 do Apendice F + 1 sua =
+12. O detalhamento linha por linha esta na §1.3 do relatorio.)*
 
 `chapters/3_cbic/conclusion.tex`, p. 43 do build de defesa:
 
