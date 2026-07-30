@@ -596,6 +596,19 @@ returns only the preprint with null pages, Semantic Scholar confirms ICML 2022 b
 it:* `proceedings.mlr.press/v162/navon22a.html`. *If all is well:* the range matches, or you drop
 the field — which is the precedent this same bibliography set for `standley2020tasks`. `[VERIFY]` V-5.
 
+> **ROUND 8, 2026-07-30 — RE-ATTEMPTED AND STILL UNRESOLVABLE FROM HERE. The `[VERIFY]` stands.** The
+> entry is unchanged (`@inproceedings{nash, ... booktitle = {Proc. ICML}, pages = {16428--16446},
+> year = {2022}`). Two sources of record queried this session:
+> **OpenAlex** returns exactly one work for the title, `W4225981399`, typed `preprint`, venue "arXiv
+> (Cornell University)", `doi 10.48550/arxiv.2202.01017`, with `first_page` and `last_page` both
+> **null** — the ICML version is not a separate record there. **Crossref** `query.bibliographic` returns
+> five works, none of them this paper (top hits are bargaining-theory economics papers), so there is no
+> registered DOI for the proceedings version to carry a page range. `proceedings.mlr.press` is not on
+> the sandbox allowlist and was not fetched. **So the page range remains unverifiable by any
+> automatable route**, and per §1 it may not be presented as checked. The one click still closes it, and
+> the decision is the author's: confirm the range or drop the field, following the
+> `standley2020tasks` precedent. Handed over as `PENDENCIAS.md` §2.14.
+
 **15. `ruder2017sluice` is the third preprint entry, and it was not upgraded.**
 The entry's title is the superseded preprint title ("Sluice Networks…"); the arXiv title of record
 is "Latent Multi-task Architecture Learning" and the version of record is AAAI 2019
@@ -613,6 +626,43 @@ errata decisions rather than free edits. *If all is well:* each gets a ruling an
 Appendix B row. The suggested swaps (`baxter2000model`, `Xu2023`) are already in the bibliography
 and already cited for those claims elsewhere.
 
+> **ROUND 8, 2026-07-30 — ALL THREE SITES ARE STILL AS DESCRIBED, ALL THREE STILL UNRULED, and the
+> coordinates have drifted.** Located by phrase, comments stripped: `ruder2017sluice` is cited for
+> "By constraining the hypothesis space, hard sharing acts as a regularizer, often leading to more
+> generalizable models, especially when tasks are related" (`3_cbic/method.tex`); `sun2020go` for
+> cyclical regularities carrying "discriminative information about the functional nature of the visited
+> POIs" (`4_courb/methodology.tex:173` region); `belkin2003laplacian` for "a hierarchical regularization
+> term ... between category and fclass" (`4_courb/methodology.tex:184`). Each key appears exactly once
+> in its file. **No agent edit is admissible on any of the three** — they are reproduced published
+> sentences, so a swap is an errata decision with an Appendix B row, which is precisely what this item
+> reserves to the author. Handed over as `PENDENCIAS.md` §2.15, jointly with item 15, since
+> `ruder2017sluice` is one key carrying both a metadata decision and a claim decision.
+>
+> **AND ONE FINDING THIS ITEM DID NOT RAISE, found while reading those two lines.** The banned term
+> **`fclass` is in rendered prose three times**, all in `4_courb/methodology.tex` (`:173` twice in the
+> Node2Vec paragraph, `:184` twice more in the regularizer sentence — four occurrences, three source
+> lines), against `GLOSSARY.md:73`, whose note reads "In code this column is `spot`, renamed `fclass`
+> at `hgi/preprocess.py:62`; **NEVER write `fclass` in prose**". Verified with the comment-stripping
+> sweep over all 54 `.tex` files: `4_courb/methodology.tex` is the only file, and the registered term
+> "fine class" is what the appendix uses instead.
+> ```bash
+> cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
+> python3 -c "
+> import sys; sys.path.insert(0, 'src_utils')
+> from pathlib import Path
+> from check_audit_claims import live_text
+> hits = {str(f): live_text(f).count('fclass')
+>         for f in sorted(Path('src').rglob('*.tex')) if 'build/' not in str(f)}
+> print({k: v for k, v in hits.items() if v})
+> "
+> # EXPECT: contains=src/chapters/4_courb/methodology.tex': 3
+> ```
+> It is the **same class as items 15 and 16 and it goes to the same place**: the identical sentences are
+> in the published CoUrb paper (`articles/CoUrb_2026/src_en/sections/metodology.tex:109` and `:120`),
+> so removing the term edits a published sentence and is an errata decision, not cleanup. No gate covers
+> it — the repo-codenames gate at `check.sh` matches `B9|v1[1-7]|champion-G|H3-alt|dk_ovl|log_T|substrate`
+> and not `fclass`. Handed over inside `PENDENCIAS.md` §2.15.
+
 **17. The Appendix B reconciliation count.**
 The header now claims `8 + 13 + 4 + 18 = 43` itemized rows, replacing a stale `= 36`.
 ```bash
@@ -628,11 +678,52 @@ PY
 ```
 *If all is well:* 8, 13, 4, 18. I reproduced exactly this.
 
+> **ROUND 8, 2026-07-30 — the second table is now 14, not 13, and the appendix and the tables agree at
+> 44.** The block above returns **8, 14, 4, 18**. That is not a drift the appendix missed: the header
+> claims 44, and `check_audit_claims.py`'s own record notes the round-8 change ("B.2 goes 13 -> 14 and
+> the total 43 -> 44, with the COD-016a row"), so the source moved and the claim moved with it. This
+> is now covered by a gate rather than by this block — `count_errata_rows.py`, run inside `check.sh`,
+> prints per table and reconciles the total:
+> ```
+> ok  B.1  cbic/errata.tex          measured   8  claimed   8  (longtable)
+> ok  B.2  cbic/errata_wording.tex  measured  14  claimed  14  (table)
+> ok  B.3  courb/errata.tex         measured   4  claimed   4  (table)
+> ok  B.4  frame/bib_errata.tex     measured  18  claimed  18  (longtable)
+> ok  TOTAL                         measured  44  claimed  44
+> ```
+> Two independent instruments, one of them the item's own, agreeing on each row and on the sum. The
+> `= 43` this item introduced is superseded; leave the block as written, since a stale expectation that
+> a gate contradicts is exactly the signal a reader should get.
+
 **18. The two errata rows and the claim they carry, as the reader sees them.**
 Pages 93 (B.1, the Standley narrowing) and 96 (B.3, the Nash guarantee). *If all is well:* both rows
 name the cited work's own position; the B.4 Sphere2Vec row **names the work rather than printing the
 52-character key** (printing it produced the round's only overfull box, `113.58371pt`); and there
 are **0 overfull boxes and 0 oversized floats** in all three builds — which I confirmed.
+
+> **ROUND 8, 2026-07-30 — VERIFIED, at the new addresses.** The rows moved with Appendix B into the
+> supplementary volume: B.1/Standley and B.4/Sphere2Vec are on `main_extra.pdf` **p. 14**, the Nash row
+> on **p. 12** (defense pp. 93 and 96 no longer hold either row — see the build note at the top of this
+> file). The B.4 cell names the work in prose, "The Sphere2Vec location encoder of Mai et al.", with no
+> bare key printed, so the fix that removed the overfull box is intact. Boxes re-counted from the logs
+> of all three defense-family builds:
+> ```bash
+> cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
+> # `grep -c` exits 1 when the count is ZERO, which is the passing case here, so the count is
+> # taken in python: a shell block that exits nonzero is a FAIL to the harness regardless of
+> # what it printed. (My first version of this probe exited 1 with an empty stderr and was
+> # correctly failed.)
+> python3 -c "
+> for stem in ('main', 'main_academico', 'main_ppgc'):
+>     t = open(f'src/build/{stem}.log', errors='replace').read()
+>     print(stem, 'overfull', t.count('Overfull'), 'hfootnote', t.count('Hfootnote'))
+> "
+> # EXPECT: lines=3
+> # EXPECT: contains=main overfull 0 hfootnote 0
+> # EXPECT: contains=main_ppgc overfull 0 hfootnote 0
+> ```
+> **0 in all three.** (`Hfootnote` is also 0 in all three, which is item A5 below, so one probe
+> settles both.)
 
 **19. The Appendix B static-scope section, which makes a public statement about a published
 co-authored result.**
@@ -643,6 +734,30 @@ AL/AZ/FL/CA/TX with **zero** values spanning more than one category — exactly 
 states. *If all is well:* the numbers are right and the only open question is the one you reserved,
 the advisor conversation. `[NEEDS SIGN-OFF]`.
 
+> **ROUND 8, 2026-07-30 — RECOMPUTED INDEPENDENTLY FROM THE PARQUETS; all five counts and the
+> ambiguity claim reproduce exactly.** Not re-read from the section: re-derived from
+> `data/checkins_by_state/{Alabama,Arizona,Florida,California,Texas}.parquet` under the pipeline's own
+> convention, which the section's provenance comment states and which is the whole reason the number is
+> stable — the `spot` column (renamed `fclass` at `hgi/preprocess.py:62`), rows with a null category
+> dropped (`:64`), then reduced to one row per `placeid` (`:75-80`):
+> ```
+> Alabama    claim 284  measured 284    fclass spanning >1 category: 0
+> Arizona    claim 305  measured 305    0
+> Florida    claim 324  measured 324    0
+> California claim 333  measured 333    0
+> Texas      claim 365  measured 365    0
+> ```
+> The section's "Not one is ambiguous" therefore holds at zero across all five states. **The instrument
+> matters here and the section's comment is right to warn about it**: counting the per-check-in
+> `spot_categories` JSON column instead, over raw rows without the `placeid` dedup, gives
+> 284/306/325/334/**377** — the trap that produced a wrong "fix" to 377 on 2026-07-30. Counting distinct
+> category URLs gives a third set again (284/304/322/331/372). Same file, three defensible-looking
+> quantities, one of which the pipeline actually uses; §4b V3.
+> The section is still `\input` at `chapters/apx_b_errata.tex:448` (not `:407`) and remains suppressible
+> by commenting that one line. **The numbers are closed. The `[NEEDS SIGN-OFF]` is not** — the advisor
+> conversation about a public statement on a published co-authored result is yours, and it is item 2.4
+> of `PENDENCIAS.md`.
+
 **20. Sixty-three percent of this round's report coordinates now point past the end of their file.**
 279 of 443 `file:line` references across the fifteen `_round6/*.md` reports land past EOF, because
 the split reduced `3_cbic.tex`, `4_courb.tex` and `5_mobiwac.tex` to 55, 42 and 50 lines.
@@ -650,6 +765,48 @@ the split reduced `3_cbic.tex`, `4_courb.tex` and `5_mobiwac.tex` to 55, 42 and 
 as the current address book — every load-bearing coordinate there was re-resolved by phrase against
 the split tree on 2026-07-28 — and hold future reports to `ANCHORS.md` §5: cite the phrase, date the
 line number. Ledger finding L-6.
+
+> **ROUND 8, 2026-07-30 — RE-MEASURED: 270 of 656, which is 41 percent, not 63.** Swept across the 26
+> `_round6/*.md` **reports** (the item says fifteen; the directory has grown, and this file is excluded
+> from its own denominator — it is the address book, not a report), resolving each `file.tex:line`
+> against `src/`, `src/chapters/` or the path as written, and counting only those that resolve to a real
+> file.
+>
+> **This measurement is deliberately NOT in a runnable block, and the reason is a hazard worth knowing.**
+> The natural way to write it compares a line number against a file length with `>`, and
+> `check_verify_list.py`'s mutation guard reads every `>` whose target is not `/dev/null` as a write —
+> correctly, since it cannot tell a comparison from a redirect without parsing shell. My first draft of
+> this probe was refused on exactly that ground. **The right response is to keep the block out of the
+> fence, not to loosen the guard**: a guard that has to distinguish `a > b` from `a > file` is a guard
+> that will eventually let a real write through. The script, for a human to run from
+> `articles/dissertacao/`, phrased with the comparison reversed so it reads as a filter rather than a
+> redirect:
+>
+>     python3 -c "
+>     import re
+>     from pathlib import Path
+>     tot = past = 0
+>     for md in sorted(Path('src_utils/_round6').glob('*.md')):
+>         if md.name == 'VERIFY_LIST.md': continue
+>         for m in re.finditer(r'([\w/\[\].-]+\.tex):(\d+)', md.read_text(errors='replace')):
+>             cands = [Path('src')/m.group(1), Path('src/chapters')/m.group(1), Path(m.group(1))]
+>             f = next((c for c in cands if c.exists()), None)
+>             if f is None: continue
+>             tot += 1
+>             nl = len(f.read_text(errors='replace').splitlines())
+>             past += nl < int(m.group(2))
+>     print('resolvable', tot, 'past_eof', past)
+>     "
+>     resolvable 656 past_eof 270
+>
+> The **disposition is unchanged and correct: do not fix the reports.** Two notes for whoever reads a
+> round-6 coordinate next. The denominators differ because the two sweeps counted different things —
+> 443 was every `file:line` string, 656 is every one that resolves to a file that exists — so the two
+> percentages are not comparable and neither is wrong; this is the R4 shape (a filter that does not
+> match the question asked), recorded rather than reconciled. And the rot has since spread past the
+> chapter split that caused it: this file's own page numbers went stale in round 7 when eight pages of
+> appendix left the defense build, so **a stale coordinate here is now as likely to be a page number as
+> a line number.** `ANCHORS.md` §5 covers both: cite the phrase, date the number.
 
 ---
 
