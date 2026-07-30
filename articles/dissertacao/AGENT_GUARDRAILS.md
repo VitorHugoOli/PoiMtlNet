@@ -357,6 +357,17 @@ the work*, and that is where the time went. The four root causes, with the count
   the clause cannot sit in one sentence without contradiction, the verdict is wrong -- and if a term
   has N occurrences, N of N get read before any verdict covers them, because the violating one is
   never the one you sampled. (The real violation was fixed: "region head" -> "region output".)
+  EIGHTH AND NINTH, both in the tracker cleanup, and they are the two shapes of a miscounted set.
+  (a) A per-item table headlined "15 of 20" over a set of 21, with the DROPPED member being item 10 --
+  the one whose own block says its numbers do not reproduce, i.e. precisely the member the header
+  existed to surface; the same header said "five open" above six rows. (b) "All nine archived items are
+  gate-confirmed" when SEVEN have a probe: the gate printed nine rows, so I counted rows and called it
+  items, while one row (NUM-4) belonged to a finding outside the moved set and two moved items had no
+  probe at all. **A COUNT OF THE INSTRUMENT'S OUTPUT IS NOT A COUNT OF YOUR SET.** Before writing "all
+  N are covered", join the two lists explicitly and name the unmatched members on both sides -- rows
+  without an item, and items without a row. Both of the uncovered items were in fact fine (one verified
+  in the render, one a register that needs no probe), which is the trap: the verdict was right and the
+  warrant was not, so nothing downstream would ever have caught it.
 
 **V14. A parallel track's self-report is not evidence that its edit landed, and an outcome table is a
   claim about the work.** This is the rule the whole 2026-07-30 recovery round exists to write.

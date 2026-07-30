@@ -402,12 +402,30 @@ aparecer quando a capa for decidida. Commit `9e2b5157`.
 ## Fechados na rodada 8 e movidos em 2026-07-30
 
 Quinze itens que estavam **de fato fechados** e continuavam ocupando o `PENDENCIAS.md`. Cada um foi
-verificado antes de ser movido, e o motivo de saida esta no topo do bloco. Os nove do §5 estao
-confirmados pelo gate `check_audit_claims.py`, que **falha** se qualquer um deles sair do documento;
-o decimo (COD-018) esta retirado por decisao do autor, com a recusa registrada. Os de §2 foram
-verificados um a um: `origin/mobiwac` em `0288cb70` para o 2.2, a sua propria frase de fechamento
-para o 2.3, `LEFT_OUT.md` para o 2.7 e o 5.8, `check_verify_list` em rc=0 para o 2.13, e a nota de
-git em `a07e547b` para o 2.17.
+verificado antes de ser movido, e o motivo de saida esta no topo do bloco.
+
+> **CORRECAO DESTE BANNER, 2026-07-30.** A primeira versao dizia que "os nove do §5 estao confirmados
+> pelo gate `check_audit_claims.py`". **Sete estao; dois nao tem sonda nenhuma no gate.** As nove
+> linhas do gate incluem `NUM-4`, que e outro achado (a varredura do HGI no Cap. 2) e nao corresponde a
+> nenhum item movido — ou seja, eu contei nove linhas de saida como nove itens cobertos. Evidencia
+> real, item por item:
+
+| item | evidencia |
+|---|---|
+| 5.1 | gate, sonda `COD-003` |
+| 5.2 | gate, sonda `COD-006a`; a outra metade (`COD-006b`) o autor mandou MANTER e a sonda esta invertida para falhar se alguem a "terminar" |
+| 5.3 | gate, sonda `COD-016a` |
+| 5.4 | gate, sonda `COD-015a` |
+| 5.5 | gate, sonda `COD-015d` |
+| 5.7 | gate, sonda `COD-016b` |
+| 5.9 | gate, sonda `COD-013` |
+| **5.6** | **sem sonda.** Verificado direto: as duas datas imprimem na **p. 79** — *"between February 2009 and October 2010 ... while the extraction used here spans January 2009 to August 2011"*. A decisao que sobrou e 5.6b, que continua **aberta** |
+| **5.10** | **sem sonda, e nao pede uma:** e um *registro* de dois pontos que deliberadamente NAO viraram pendencia, com o motivo de cada um; os dois estao em `LEFT_OUT.md` (11 entradas LO-) |
+
+O decimo item do §5 (COD-018) esta **retirado por decisao do autor**, com a recusa registrada e a sonda
+mantida como `RETIRED` para que ninguem o "termine". Os de §2 foram verificados um a um:
+`origin/mobiwac` em `0288cb70` para o 2.2, a sua propria frase de fechamento para o 2.3, `LEFT_OUT.md`
+para o 2.7 e o 5.8, `check_verify_list` em rc=0 para o 2.13, e a nota de git em `a07e547b` para o 2.17.
 
 **O que NAO veio para ca, deliberadamente:** todo item que ainda espera uma decisao sua, mesmo que o
 trabalho de medicao esteja completo. Um item medido nao e um item fechado.

@@ -870,10 +870,13 @@ nao ha grep que os decida, e uma persona ter rodado nao e evidencia de que foram
 ## §5 · Levantados do `CODEX_AUDIT.md` quando ele foi arquivado (2026-07-29)
 
 > **NOVE DOS DEZ ESTAO FECHADOS e foram movidos para `_archive/PENDENCIAS_RESOLVIDOS.md` em
-> 2026-07-30.** Cada um esta verificado pelo gate `check_audit_claims.py`, que **falha** se qualquer
-> um sair do documento — foi exatamente essa a licao desta rodada, em que oito de nove estavam
-> marcados como aplicados sem estar. O decimo (COD-018, credito por papel no CoUrb) foi **retirado por
-> voce**, e o gate carrega a sua frase para que ninguem o "termine" por engano.
+> 2026-07-30.** **Sete** deles estao cobertos por uma sonda do gate `check_audit_claims.py`, que
+> **falha** se a correcao sair do documento — foi exatamente essa a licao desta rodada, em que oito de
+> nove estavam marcados como aplicados sem estar. **Dois nao tem sonda**, e a primeira versao deste
+> cabecalho dizia que todos tinham: **5.6** foi verificado direto no render (as duas datas do Gowalla
+> imprimem na p. 79) e **5.10** e um registro de nao-pendencias, nao uma afirmacao do documento. A
+> tabela por item esta no banner do arquivo. O decimo (COD-018, credito por papel no CoUrb) foi
+> **retirado por voce**, e o gate carrega a sua frase para que ninguem o "termine" por engano.
 >
 > Sobrou **um**, abaixo, e ele espera uma escolha sua, nao trabalho meu.
 

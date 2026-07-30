@@ -15,7 +15,7 @@ first state it names), item 6 (a frame sentence on p. 23 now contradicts a chapt
 p. 36, and the repair was drafted but never applied) and item 1 (a gate reported green across the
 whole round is red, and has been red since before the round started).
 
-> ## FECHADO EM 2026-07-30 — 15 dos 20 itens estao resolvidos; os 5 restantes vivem no PENDENCIAS
+> ## FECHADO EM 2026-07-30 — 15 dos 21 itens estao resolvidos; os 6 restantes vivem no PENDENCIAS
 >
 > **Este arquivo nao e mais uma fila; e o registro de verificacao da rodada 6, fechado.** O autor
 > pediu em 2026-07-30 que os pontos ja resolvidos saissem das filas. Aqui eles **nao foram apagados**,
@@ -24,17 +24,27 @@ whole round is red, and has been red since before the round started).
 > bloco carrega o *comando* que produziu a verificacao, que e a evidencia — apagar o item apagaria a
 > prova junto com a conclusao.
 >
-> **Estado, por item:** 15 resolvidos (0, 1, 2, 3, 6, 7, 8, 9, 11, 12, 13, 17, 18, 19, 20 e os
-> anexos A1, A2, A4, A5, A6). Cinco continuam abertos e **nenhum deles espera trabalho meu** — sao
-> decisoes suas, e a fila viva delas e o `PENDENCIAS.md`, nao este arquivo:
+> **CORRECAO DESTE PROPRIO CABECALHO, 2026-07-30.** A primeira versao dizia "15 dos **20**" e listava
+> "cinco" abertos acima de uma tabela de **seis** linhas. Sao **21** itens numerados (0 a 20): o item
+> **10** — as contagens de palavras do Resumo e do Abstract — nao estava em nenhum dos dois grupos,
+> apesar de este arquivo dizer, no proprio bloco dele, que os numeros **nao reproduzem**. Exatamente o
+> item que o cabecalho deveria destacar foi o que caiu do somatorio.
+>
+> **Estado, por item, e a soma fecha em 21:** **15 resolvidos** — 0, 1, 2, 3, 6, 7, 8, 9, 11, 12, 13,
+> 17, 18, 19, 20 (mais os anexos A1, A2, A4, A5, A6). **6 abertos**, e **nenhum espera trabalho meu**:
+> sao decisoes suas, e a fila viva delas e o `PENDENCIAS.md`, nao este arquivo.
 >
 > | item daqui | onde a decisao vive agora |
 > |---|---|
 > | 4 (termo fora do registro) | `PENDENCIAS.md` §2.12 |
 > | 5 (assimetria do resultado de regiao) | §2.11 |
+> | **10 (contagens do Resumo/Abstract, tres instrumentos e tres respostas)** | **§2.19** |
 > | 14 (intervalo de paginas do `nash`) | §2.14 |
 > | 15 e 16 (citacoes e termo banido em prosa publicada) | §2.15 |
 > | A3 (artefatos publicados divergentes) | §2.16 |
+>
+> (15 + 6 = 21. Os anexos A1-A7 sao contados a parte dos numerados, e A3 aparece na tabela porque a
+> decisao dele esta viva; os outros anexos estao entre os resolvidos.)
 >
 > A7 apontava para §2.13, que foi **arquivado** em 2026-07-30 (o defeito do comando foi corrigido e a
 > contagem passou a bater); o ponteiro no bloco dele registra isso em vez de apontar para o vazio.
