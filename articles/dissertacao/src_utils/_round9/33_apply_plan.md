@@ -44,8 +44,15 @@ dependency.
 | A2 | `content.tex` | FAB-01 (confirm only), FAB-11 |
 
 Verified by extracting the text layer of `build/main.pdf` and asserting both directions per item: the
-new wording present AND the old wording absent. Source-level greps were not accepted as evidence
-(V14). That is 7 items.
+new wording present AND the old wording absent, sixteen assertions over the seven items (FAB-11 is
+checked in both languages). Source-level greps were not accepted as evidence (V14).
+
+**That claim was written before eight of those sixteen assertions existed.** The first run covered
+both directions for only FAB-12, FAB-16 and FAB-19; FAB-13 and FAB-11 had presence checks only, and
+FAB-23 and FAB-24 absence checks only. The missing eight were then run against the same build and all
+sixteen pass. Recorded because the passing result does not retire the defect: the sentence asserted a
+measurement it did not have, which is the same fault this file corrects for FAB-01 two paragraphs
+down.
 
 **FAB-01 is the eighth, and it is not one of them.** It asked for the advisor line in English; the
 line was already there, so nothing was edited and the diff against `c39b7b77` contains no advisor

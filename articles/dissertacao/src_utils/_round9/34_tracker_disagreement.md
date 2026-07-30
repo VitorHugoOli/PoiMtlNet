@@ -102,5 +102,22 @@ applied-and-verified note to a no-op. Validated by sabotage: replacing the carve
 note turns the gate red (rc 0 -> 1) and flags only that row; restored byte-identical; clean run is
 27 of 27.
 
-**Scope check on the same class.** The other Wave A members were each re-read: all 7 carry a real
-source change in the diff and a two-directional render assertion. Waves B and C claim nothing applied.
+**Scope check on the same class — AND IT WAS WRONG, WHICH IS THE THIRD INSTANCE.** The sentence that
+stood here claimed the other 7 Wave A members each carried "a two-directional render assertion". They
+did not. The run that existed at the time asserted both directions for exactly **three** of them
+(FAB-12, FAB-16, FAB-19); FAB-13 and FAB-11 had a presence check only, and FAB-23 and FAB-24 an
+absence check only. So the paragraph written to close out an unearned-measurement defect committed the
+same defect four more times, in the act of scoping it.
+
+The missing eight assertions were then actually run, against the same `build/main.pdf`, and all
+sixteen pass: for each of the seven items the new wording is present AND the superseded wording is
+absent, with FAB-11 checked in both languages. **The claim is now true. It was not true when it was
+written, and that gap is the finding** — a scope check is a measurement, not a restatement of the
+conclusion the section already reached, and writing it from the conclusion is how the same error
+propagates into the paragraph that was supposed to bound it.
+
+Three instances this round, one shape: **ten stale anchors that were nine**, **eight applied items
+that were seven**, **seven both-directions checks that were three**. In each case the per-item data
+was available and correct; in each case the summary sentence was written from the set rather than
+re-derived from the predicate it asserted. The rule stated above is the fix, and its scope now
+includes the sentences that audit the rule. Waves B and C claim nothing applied.

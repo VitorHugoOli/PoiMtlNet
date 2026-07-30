@@ -287,6 +287,34 @@ gate "== audit APPLIED claims re-measured against the source (round 8: 8 of 9 we
 # AGENT_GUARDRAILS §4b V14. Runs in ~0.1 s; it would have failed loudly on the day.
 if ! python3 "$UTILS/check_audit_claims.py"; then FAIL=1; fi
 
+gate "== round-9 Wave A: the applied edits re-measured in the RENDERED PDF, both directions =="
+# check_audit_claims reads the SOURCE. This one reads the PDF, and the difference is the point: an
+# edit can be in the .tex and not reach the page (wrong build gated, a conditional, a stale aux).
+# Round 9 claimed "verified in both directions" for seven items when three had been checked that way,
+# after already claiming it for an eighth item that was never edited at all. Prose is a claim; this is
+# the measurement, and it re-runs in two seconds. Skips cleanly when the PDF has not been built --
+# a missing build is not a failed verification, and saying otherwise is how a gate teaches people to
+# ignore it.
+#
+# The path test below reads build/main.pdf RELATIVE to $SRCROOT, which this script has already cd'd
+# into -- the same form the .log gates use at the top of this file. It first said "$ROOT/src/...",
+# and $ROOT IS NOT DEFINED IN THIS SCRIPT, so the test was always false and the gate reported SKIP
+# with the PDF sitting right there. Caught by running it with the file present and reading the
+# output instead of the exit code: rc was 0 either way, because a skip is not a failure. A gate that
+# cannot fail is indistinguishable from a gate that passes, which is the whole reason this suite
+# self-tests.
+if [ -f build/main.pdf ]; then
+  if ! python3 "$UTILS/_round9/35_wave_a_render_check.py" build/main.pdf >/dev/null; then
+    python3 "$UTILS/_round9/35_wave_a_render_check.py" build/main.pdf || true
+    FAIL=1
+  else
+    echo "  16 two-directional assertions over 7 edited items hold in build/main.pdf,"
+    echo "  plus 2 presence checks on FAB-01, which was already satisfied and never edited."
+  fi
+else
+  echo "  SKIP: src/build/main.pdf not built. Run 'make defense' to check the rendered claims."
+fi
+
 gate "== TeX root directives (invisible to make: only an editor build ever notices) =="
 # Two silent defects in one week, both found by review rather than by any gate: six files pointing
 # at a main_defense.tex that has never existed in this tree, and six others with no directive at

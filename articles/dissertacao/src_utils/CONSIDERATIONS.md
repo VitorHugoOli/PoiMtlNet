@@ -263,7 +263,7 @@ existe mais" e uma medicao, e essa e minha.
   - **The file he cites no longer exists.** `0_main.tex` became `preamble.tex` + `content.tex` on 2026-07-29; where the passage survives, it is in `content.tex`.
 - **What he asks:** Separar por "virgula" em vez de quebra de linha; fazer o mesmo no inglês.
 - **My take:** agree. Keywords are separated by \\ line breaks in both blocks. Comma separation is a presentation choice with no honesty or registry consequence, and he asked for both languages.
-- **APPLIED THIS SESSION and verified in the RENDERED PDF** (`build/main.pdf`, text layer, both directions: new wording present and old wording absent), not in the source. Build `24eef3f1`+, all four targets rc=0, tex_errors=0.
+- **APPLIED THIS SESSION and verified in the RENDERED PDF** (`build/main.pdf` at build `386bec74`, text layer, both directions asserted: the new wording present AND the superseded wording absent), not in the source. The two-directional run was completed after an earlier pass had checked only one direction for four of the seven Wave A items; all sixteen assertions pass. Four targets rc=0, tex_errors=0.
 - **Disposition:** **YOU APPLY**
 - **Where it renders if applied:** content.tex:120-125, :182-187
 - **Probe in `check_audit_claims.py`:** `R9-keywords` — **NAME RESERVED, NOT YET IMPLEMENTED.** The edit has not been made, so there is nothing to probe yet. The probe lands in the same commit as the edit (GUARDRAILS §4b V15); until then this row is a plan, not a measurement.
@@ -277,7 +277,7 @@ existe mais" e uma medicao, e essa e minha.
 - **Live-source status:** **exact** — `chapters/1_introduction.tex:34`.
 - **What he asks:** `users`
 - **My take:** agree. Plural 'users' reads better and the sentence is generic. No claim changes.
-- **APPLIED THIS SESSION and verified in the RENDERED PDF** (`build/main.pdf`, text layer, both directions: new wording present and old wording absent), not in the source. Build `24eef3f1`+, all four targets rc=0, tex_errors=0.
+- **APPLIED THIS SESSION and verified in the RENDERED PDF** (`build/main.pdf` at build `386bec74`, text layer, both directions asserted: the new wording present AND the superseded wording absent), not in the source. The two-directional run was completed after an earlier pass had checked only one direction for four of the seven Wave A items; all sixteen assertions pass. Four targets rc=0, tex_errors=0.
 - **Disposition:** **YOU APPLY**
 - **Where it renders if applied:** 1_introduction.tex:34
 - **Probe in `check_audit_claims.py`:** none — this edit changes no string a probe can pin. Named rather than omitted, so the gap is visible.
@@ -289,7 +289,7 @@ existe mais" e uma medicao, e essa e minha.
 - **Live-source status:** **exact** — `chapters/1_introduction.tex:52`.
 - **What he asks:** Em `prediction tasks`, consideração: `prediction tasks that are object of study of this ...`
 - **My take:** agree. His phrasing is more precise about what the two tasks are to the document.
-- **APPLIED THIS SESSION and verified in the RENDERED PDF** (`build/main.pdf`, text layer, both directions: new wording present and old wording absent), not in the source. Build `24eef3f1`+, all four targets rc=0, tex_errors=0.
+- **APPLIED THIS SESSION and verified in the RENDERED PDF** (`build/main.pdf` at build `386bec74`, text layer, both directions asserted: the new wording present AND the superseded wording absent), not in the source. The two-directional run was completed after an earlier pass had checked only one direction for four of the seven Wave A items; all sixteen assertions pass. Four targets rc=0, tex_errors=0.
 - **Disposition:** **YOU APPLY**
 - **Where it renders if applied:** 1_introduction.tex:52
 - **Probe in `check_audit_claims.py`:** none — this edit changes no string a probe can pin. Named rather than omitted, so the gap is visible.
@@ -325,7 +325,7 @@ existe mais" e uma medicao, e essa e minha.
 - **Live-source status:** **exact** — `chapters/1_introduction.tex:56-59`.
 - **What he asks:** Em "; this dissertation does not address it," a consideração: "not addressed in this dissertation (TENTE USAR MENOS ; no meio das frases...parece muito resultado de IA)"
 - **My take:** agree. He is right on both counts and the second is a house rule already: semicolon braids are banned by WRITING_LAW 4. Rewriting as two clauses removes the AI tell he names.
-- **APPLIED THIS SESSION and verified in the RENDERED PDF** (`build/main.pdf`, text layer, both directions: new wording present and old wording absent), not in the source. Build `24eef3f1`+, all four targets rc=0, tex_errors=0.
+- **APPLIED THIS SESSION and verified in the RENDERED PDF** (`build/main.pdf` at build `386bec74`, text layer, both directions asserted: the new wording present AND the superseded wording absent), not in the source. The two-directional run was completed after an earlier pass had checked only one direction for four of the seven Wave A items; all sixteen assertions pass. Four targets rc=0, tex_errors=0.
 - **Disposition:** **YOU APPLY**
 - **Where it renders if applied:** 1_introduction.tex:56-58
 - **Probe in `check_audit_claims.py`:** none — this edit changes no string a probe can pin. Named rather than omitted, so the gap is visible.
@@ -361,7 +361,7 @@ existe mais" e uma medicao, e essa e minha.
 - **Live-source status:** **exact** — `chapters/1_introduction.tex:87`.
 - **What he asks:** Em "the arc of this dissertation" consideração: "Tirar"
 - **My take:** agree. 'the arc of this dissertation' in a section heading is decoration; the section is the research question.
-- **APPLIED THIS SESSION and verified in the RENDERED PDF** (`build/main.pdf`, text layer, both directions: new wording present and old wording absent), not in the source. Build `24eef3f1`+, all four targets rc=0, tex_errors=0.
+- **APPLIED THIS SESSION and verified in the RENDERED PDF** (`build/main.pdf` at build `386bec74`, text layer, both directions asserted: the new wording present AND the superseded wording absent), not in the source. The two-directional run was completed after an earlier pass had checked only one direction for four of the seven Wave A items; all sixteen assertions pass. Four targets rc=0, tex_errors=0.
 - **Disposition:** **YOU APPLY**
 - **Where it renders if applied:** 1_introduction.tex:87
 - **Probe in `check_audit_claims.py`:** none — this edit changes no string a probe can pin. Named rather than omitted, so the gap is visible.
@@ -408,7 +408,7 @@ existe mais" e uma medicao, e essa e minha.
 - **Live-source status:** **exact** — `chapters/1_introduction.tex:218`.
 - **What he asks:** Em ", Fundamentals}," o comentario é: "Tirar."
 - **My take:** agree. Repeating the chapter title after the \ref is redundant once the ref renders the number.
-- **APPLIED THIS SESSION and verified in the RENDERED PDF** (`build/main.pdf`, text layer, both directions: new wording present and old wording absent), not in the source. Build `24eef3f1`+, all four targets rc=0, tex_errors=0.
+- **APPLIED THIS SESSION and verified in the RENDERED PDF** (`build/main.pdf` at build `386bec74`, text layer, both directions asserted: the new wording present AND the superseded wording absent), not in the source. The two-directional run was completed after an earlier pass had checked only one direction for four of the seven Wave A items; all sixteen assertions pass. Four targets rc=0, tex_errors=0.
 - **Disposition:** **YOU APPLY**
 - **Where it renders if applied:** 1_introduction.tex:218
 - **Probe in `check_audit_claims.py`:** none — this edit changes no string a probe can pin. Named rather than omitted, so the gap is visible.
@@ -420,7 +420,7 @@ existe mais" e uma medicao, e essa e minha.
 - **Live-source status:** **exact** — `chapters/1_introduction.tex:244-245`.
 - **What he asks:** Em ", Conclusion}, " o comentario é: "Tirar."
 - **My take:** agree. Same as FAB-23.
-- **APPLIED THIS SESSION and verified in the RENDERED PDF** (`build/main.pdf`, text layer, both directions: new wording present and old wording absent), not in the source. Build `24eef3f1`+, all four targets rc=0, tex_errors=0.
+- **APPLIED THIS SESSION and verified in the RENDERED PDF** (`build/main.pdf` at build `386bec74`, text layer, both directions asserted: the new wording present AND the superseded wording absent), not in the source. The two-directional run was completed after an earlier pass had checked only one direction for four of the seven Wave A items; all sixteen assertions pass. Four targets rc=0, tex_errors=0.
 - **Disposition:** **YOU APPLY**
 - **Where it renders if applied:** 1_introduction.tex:244
 - **Probe in `check_audit_claims.py`:** none — this edit changes no string a probe can pin. Named rather than omitted, so the gap is visible.
