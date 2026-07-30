@@ -10,8 +10,13 @@
 > `apx_f_cosine.tex` / `tables/frame/cosine.tex` / the figure untouched.
 >
 > This is `AGENT_GUARDRAILS` §4b V11 exactly — the ritual closing shape of a report written from what
-> the work was *meant* to produce instead of from what its output said. It is the fourth instance of
-> that class in this repository's records and the first in a report rather than a commit message. The
+> the work was *meant* to produce instead of from what its output said. **It is the fifth instance of
+> that class** and the first in a report rather than a commit message. Counted, not estimated: V11's
+> own text opens "Three instances now" and then adds one under the heading `FOURTH INSTANCE,
+> 2026-07-30, inside the round convened to stop this`, so four were on the books before this one. An
+> earlier version of this banner said "fourth", which undercounted the record by borrowing the number
+> from the last labelled heading rather than adding to it — a miscount about the work, in the banner
+> announcing a miscount about the work. The
 > mechanical defense that would have caught it: **write each section only after the run it describes
 > has printed a terminal status, and put the status line in the section.** Sections below now carry
 > their own state, and §7 is the running ledger of what is done, in flight, and not started.

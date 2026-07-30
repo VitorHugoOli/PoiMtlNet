@@ -26,9 +26,11 @@ Usage:  python3 src_utils/_round7/cosine_harvest6.py <newdata_dir> [out.parquet]
 
 THE SECOND ARGUMENT IS NOT A CONVENIENCE. Validating this gate needs a synthetic clean case (three
 states, five distinct folds each) to prove the gate PASSES data it should pass -- and the first run
-of that validation wrote 4,650 rows of `numpy.random.default_rng(0)` output to the production
-parquet path, where nothing downstream would have distinguished it from measurement. It was deleted
-and re-run with an explicit destination. Any self-test MUST pass its own output path.
+of that validation wrote a 4,650-row parquet to the production path, of which the 750 NEW rows were
+`numpy.random.default_rng(0)` output (the other 3,900 were the real four-dataset parquet this script
+concatenates onto). Nothing downstream would have distinguished those 750 from measurement: they
+carry the right states, the right fold and epoch columns, and cosines of a plausible magnitude. It
+was deleted and re-run with an explicit destination. Any self-test MUST pass its own output path.
 """
 from __future__ import annotations
 

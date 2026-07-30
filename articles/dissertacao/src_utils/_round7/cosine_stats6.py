@@ -17,9 +17,22 @@ serially dependent; treating them as 250 independent draws makes every p-value a
 Every test below therefore runs on ONE VALUE PER FOLD:
     alabama, arizona, georgia, california, texas, istanbul  ->  5 fold means      (n=5)
     florida                                                 -> 60 fold-series means (12 configurations x 5 folds)
-Florida's twelve configurations reuse the same five folds, so its 60 fold-series means are not
-mutually independent either; the configuration-mean aggregation (n=12) is reported beside it as
-the more conservative reading, exactly as the four-dataset script did.
+FLORIDA'S HEADLINE UNIT CHANGED IN THIS FILE, AND IT IS A CHANGE, NOT CONTINUITY. cosine_stats.py
+reports Florida at the CONFIGURATION mean (n=12, its `independent_unit()` returns
+groupby("config")); this file reports it at the FOLD SERIES (n=60, configuration x fold), because
+the round's brief is that the unit of analysis is the FOLD and every other dataset here is at n=5
+fold means. Putting Florida at n=12 in the same column would mean the table's `n` counts two
+different things across rows. An earlier version of this docstring said the configuration reading
+was reported beside it "exactly as the four-dataset script did", which described the wrong direction:
+the four-dataset script made n=12 the headline and this one makes it the secondary reading.
+
+The change moves nothing that matters and both readings are printed. Florida's twelve
+configurations reuse the same five folds, so its 60 fold-series means are not mutually independent
+either; the configuration-mean aggregation (n=12) is the more conservative reading, appears in the
+EQUIVALENCE AT EVERY LEVEL block, and gives the same mean (+0.00026) and the same verdict
+(equivalent, TOST p=1.28e-16 against 4.54e-62 at n=60). The 95% CI does differ with the unit --
+[-0.00099, +0.00151] at n=60 against [-0.0012, +0.0017] at n=12 -- so a CI quoted for Florida must
+name which unit it belongs to, and the table's Unit column is what carries that.
 
 THE SIGN TEST CANNOT REACH 0.05 AT n=5. Its two-sided floor at five values that all agree in
 direction is 0.0625. This script prints the floor next to every sign p-value so that a reader
@@ -45,7 +58,7 @@ MARGIN = 0.05
 # Structural expectations, asserted BEFORE any statistic. The four-dataset script exists because
 # an earlier combine carried a fabricated fourth "dataset" that was really a directory name; the
 # assertion is what caught it. Florida keeps its 3,150 rows (12 configurations, two of which carry
-# a partial re-run of epochs 1-15, so 65 rows in 10 of its 75 series); the six single-configuration
+# a partial re-run of epochs 1-15, so 65 rows in 10 of its 60 series); the six single-configuration
 # states carry 250 each = 5 folds x 50 epochs.
 EXPECTED = {
     "alabama": 250, "arizona": 250, "california": 250, "florida": 3150,
