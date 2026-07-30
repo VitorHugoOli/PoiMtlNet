@@ -502,6 +502,16 @@ the decision to leave it (persona 04's scope, not mine).
   as a numbers or claims question. Persona 06/07 own whether the two framings are consistent.
 - R-1's mechanism is a source-engineering defect with a prose consequence. Persona 19 owns the gate
   proposal; I report the reader-facing half.
+- **A law pointer in `apx_f_cosine.tex`'s deletion comment sends the next agent to the wrong section.**
+  It reads `% _round9/30_cosine_six.md. WRITING_LAW §4 now carries the general rule (process
+  narration).` The ban added today is **§1** ("No process narration, and this is a hard ban", under
+  *Register: dissertation ≠ paper*); I searched §4 in full (2,956 characters, the AI-tell law) and it
+  contains no occurrence of "process narration". A second comment three lines above is correct as
+  written, since the *restating-a-section* half of that paragraph's defect genuinely is a §4 matter.
+  This is a comment, so no reader receives it and it is outside my remit by the rule that separates what
+  the reader gets from what an agent wrote. I pass it on because it will misdirect the next agent who
+  follows it, and because a comment that cites the wrong clause of the law is the kind of thing that
+  survives for rounds. Verified independently, not taken on report.
 
 ## What I did not do
 
