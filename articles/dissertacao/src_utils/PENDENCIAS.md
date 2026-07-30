@@ -28,8 +28,9 @@ bloco**. O gate `check_tracker_refs.py` falha se um item desaparecer sem chegar 
 e voce achou dois deles lendo o arquivo. **Nao renumere:**
 comentarios no fonte citam estes numeros, e um buraco na numeracao e melhor que um ponteiro errado.
 
-**Ordem das secoes:** §2 (voce) -> §5 (do `CODEX_AUDIT`) -> §3 (terceiros) -> §4 (o que auditar primeiro). Deliberada: o
-que depende de voce vem antes.
+**Ordem das secoes:** §2 (voce) -> §5 (do `CODEX_AUDIT`) -> §6 (do `CONSIDERATIONS`) -> §3 (terceiros) -> §4 (o que
+auditar primeiro). Deliberada: o que depende de voce vem antes. O §6 entrou em 2026-07-30 e substitui o
+§2.8, que agora registra o que foi feito em vez de pedir uma decisao.
 
 ---
 
@@ -78,36 +79,35 @@ largura em pixels).
 > **Seu, quando quiser:** reexportar as duas no Draw.io e me passar os PNG — eu troco e remeco o tipo na
 > pagina. **Opcional**, pela sua propria observacao sobre o contraste.
 
-### 2.8 `CONSIDERATIONS.md`: uma rodada NOVA que chegou durante esta, e que eu NAO executei
+### 2.8 `CONSIDERATIONS.md` — EXECUTADO nesta rodada; a fila de decisao virou o §6
 
-**(A) O que falta.** `src_utils/CONSIDERATIONS.md` apareceu na arvore de trabalho **durante** esta rodada (modificado
-19:04, nao commitado, 1.229 linhas). Ele contem material que nao estava no escopo que voce me deu:
+**O que era.** `src_utils/CONSIDERATIONS.md` (1.229 linhas, nao commitado) trazia o feedback verbal do
+Germano transcrito por voce (l. 3-58), o feedback escrito do Fabrício (l. 59-309), a auditoria Codex do
+Cap. 2 de 2026-07-28 (l. 310-994) e o adendo dela (l. 995-1229), com uma lista de trabalho consolidada.
+Voce pediu as duas coisas do item: commitar o arquivo, e executar a divisao.
 
-| Secao                                    | O que e                                                                                          |
-|------------------------------------------|--------------------------------------------------------------------------------------------------|
-| `## Germano` (l. 3-58)                   | Feedback **verbal** do Germano sobre o Cap. 2, transcrito por voce                               |
-| `## Fabrício` (l. 59-309)                | Feedback do **orientador** sobre o Cap. 2                                                        |
-| `# Codex Audit — Chapter 2` (l. 310-994) | Auditoria dos dois feedbacks, comparacao contra `exemples/`, e uma lista de trabalho consolidada |
-| `# Addendum (2026-07-28)` (l. 995-1229)  | O ponto de fluxo do Germano e o item G10 (o achado de conflito de tarefas)                       |
+**O que foi feito (round 9, commit `d4078c75`).** O arquivo foi commitado **sem uma alteracao**
+antes de qualquer reescrita, e depois reescrito no esquema de um bloco por item: **43 blocos**, IDs
+estaveis `FAB-01`..`FAB-31` (a sua propria numeracao), `GER-01`..`GER-11` e `AUT-01`. A prosa original
+esta preservada byte a byte em
+[`_round9/30_considerations_prosa_original.md`](_round9/30_considerations_prosa_original.md), com o
+sha256 e o comando que o reproduz no cabecalho.
 
-**(B) Por que importa.** Isto e feedback do **orientador** e de um leitor externo sobre o capitulo de fundamentacao, com
-uma lista de trabalho ja consolidada. E a proxima rodada, e e mais importante que a maior parte do que sobrou aqui. Nao
-esta perdido: o arquivo esta no disco. Mas nao esta commitado, e nenhum item dele foi aplicado ao texto.
+**O passe de citacoes obsoletas, antes de qualquer juizo.** Das 41 ancoras citadas,
+**31 sao exatas e 10 estao obsoletas** (5 alteradas, 5 desaparecidas). As dez
+obsoletas sao **todas** do Fabrício e **todas** citam `0_main.tex`, arquivo que deixou de existir em
+2026-07-29. As 21 ancoras dos capitulos 1, 2 e 6 conferem todas. Comandos em
+[`_round9/31_stale_quote_pass.md`](_round9/31_stale_quote_pass.md).
 
-**ATUALIZACAO 2026-07-30:** voce acrescentou um ponto seu no fim do arquivo (l. 1228), sobre
-otimalidade de Pareto nos fundamentos de MTL. **Esse esta sendo executado agora** — e o item 2.12 pelo
-outro lado (o termo esta em prosa publicada e nao esta no `GLOSSARY`, que e fail-closed), e a esteira que
-trabalha nele tambem le os itens G8 (definicoes formais de MTL) e G10 (o argumento tecnico para o achado
-de nao-conflito) porque sao a mesma peca de texto. **O resto do arquivo continua nao executado.**
+**A divisao.** 21 itens "eu aplico", 21 precisam de voce (viraram o **§6**), 1 bloqueado
+(FAB-28, verificacao falhou). Tres medicoes da auditoria de 2026-07-28 **nao reproduzem** e foram
+retomadas: ela contou 27 paragrafos / media 161 / cinco acima de 240 palavras, e hoje sao
+33 / 132 / 4.
 
-**(C) O que eu preciso de voce.** Duas coisas. Primeiro, **commitar o arquivo** se ele estiver pronto (eu
-deliberadamente nao commitei prosa sua em andamento). Segundo, dizer se quer que eu execute a lista de trabalho
-consolidada dele — ela e uma rodada propria, com pesquisa e verificacao, e nao a comecei porque nao foi o que voce pediu
-nesta.
+> **DECISAO SUA:** nada aqui. Este item esta fechado; o que espera voce esta no **§6**.
 
-**Por que eu nao agi nisso.** O escopo desta rodada foi `CODEX_AUDIT.md` mais as suas decisoes em
-`PENDENCIAS.md`. Aplicar 1.229 linhas de feedback novo no fim de uma rodada longa, sem voce ter pedido, seria exatamente
-o tipo de improviso que o `AGENT_GUARDRAILS` manda parar e sinalizar.
+*Forense: `_round9/31_stale_quote_pass.md` (o passe de obsolescencia, incluindo os dois instrumentos
+meus que estavam quebrados e como cada um foi pego).*
 
 ### 2.9 O disco do `nespedgpu` — liberado por voce; sobrou decidir se roda o resto
 
@@ -470,6 +470,345 @@ cumprida.
 > **DECISAO SUA.** Se voce preferir imprimir **so** a janela do artigo, a clausula depois da virgula e
 > a que sai, e eu removo. Marcado com `[NEEDS SIGN-OFF: PENDENCIAS_RESOLVIDOS 5.6 (arquivado 2026-07-30), round8]` no
 > fonte.
+
+## §6 · As decisoes que sairam do `CONSIDERATIONS.md` (round 9)
+
+> **De onde isto vem.** `CONSIDERATIONS.md` foi reescrito em 43 blocos com ID estavel: **21** itens eu
+> aplico, **21** precisam de voce e estao aqui, **1** esta bloqueado numa verificacao que falhou. O bloco
+> completo de cada item (citacao, status no fonte vivo, meu raciocinio, onde renderiza, probe, commit da
+> medicao) esta em [`CONSIDERATIONS.md`](CONSIDERATIONS.md).
+>
+> **Medido contra o commit `d4078c75`** (`make check` rc=0, 22 gates, lido direto e nao por pipe;
+> `make selftest` rc=0). **Nao apliquei nada em capitulo nenhum nesta passagem** — a divisao e o produto.
+>
+> **O que voce nao pode saber sem a medicao:** das 41 passagens localizaveis citadas pelos dois revisores,
+> **9 estao obsoletas** — todas do Fabrício, todas no `0_main.tex` (extinto em 2026-07-29), e sao exatamente
+> FAB-02 a FAB-10. Tres delas (**FAB-04, FAB-05, FAB-08**) ja estao satisfeitas: o texto que ele pediu para
+> tirar nao existe mais.
+>
+> **Substitui o §2.8**, que agora registra o que foi feito.
+
+
+### 6.1 Onde eu discordo do revisor — tres itens, e a decisao e sua
+
+#### FAB-17 — the fourth-task paragraph is confusing and could go
+
+**Citacao:** exata — `chapters/1_introduction.tex:61-66`. **Renderiza em:** 1_introduction.tex:61-64
+
+**Minha leitura:** DISAGREE, and this is the one I would push back on. The paragraph he would delete is the AVAL-signed-off task-pair acknowledgment (a) and the three-legged task-choice defense (b) recorded in NORTH_STAR 6 Ch.1 beat 4. It exists because a prior review round required the document to state plainly that the task pair EVOLVED and to defend the task choice. Deleting it reopens both. If it is confusing, the fix is to split it into two shorter sentences, not to remove it.
+
+1. **Remover o paragrafo, como ele pede** — REABRE dois pontos com aval registrado (NORTH_STAR §6 Ch.1 beat 4 (a) e (b)): o reconhecimento de que o par de tarefas MUDOU, e a defesa da escolha das tarefas. Uma rodada anterior exigiu os dois
+2. **Dividir em duas frases curtas e manter o conteudo** — atende a queixa real (confusao) sem reabrir o aval; ~30 min
+3. **Levar a ele com o registro do aval na mao** — ele decide sabendo o que o paragrafo protege
+
+> **DECISAO SUA:** ______
+
+#### FAB-27 — the table's chapter references are wrong
+
+**Citacao:** exata — `tables/frame/lineage.tex:5-8 (caption) -> Table 2.1`. **Renderiza em:** tables/frame/lineage.tex -> Table 2.1
+
+**Minha leitura:** disagree as stated; a real problem underneath. Checked directly: ch:courb -> 4 and ch:mobiwac -> 5 in build/main-aux, both resolve, nothing dangling. What is wrong is that ONE column mixes bracketed citations and chapter pointers, so the chapter numbers read as mis-rendered citations. Also ST-MTLNet HAS a published record (paiva2026stmtlnet, already in the bib and cited in Ch.4/Ch.5) and the table shows it only as 'Chapter 4'. Two fixes are possible and they differ in cost.
+
+1. **So dividir a coluna em "Reference" e "Where in this dissertation"** — resolve a ambiguidade real (a coluna mistura [41] com "Chapter 4"); ~1h com rebuild
+2. **Dividir a coluna E citar o `paiva2026stmtlnet` na linha do ST-MTLNet** — a entrada JA existe no .bib e ja e citada nos Cap. 4 e 5; a tabela hoje mostra so "Chapter 4" para um artigo publicado com DOI
+3. **Perguntar a ele primeiro** — as `\ref` estao corretas (`ch:courb`->4, `ch:mobiwac`->5, lidas do build); se ele viu `??` num PDF, era .aux velho, nao erro de fonte
+
+> **DECISAO SUA:** ______
+
+#### GER-02 — DGI and HGI are presented as counterpoints, and they are not
+
+**Citacao:** parafrase (ele descreveu, nao citou). **Renderiza em:** 2_fundamentals.tex:143-165 + Table 2.1
+
+**Minha leitura:** partially disagree, and the disagreement is mine to state, not to settle. The prose already says HGI 'builds directly on' DGI and 'extends' the objective, which is inheritance language, not contrast. I do not think the paragraph sets them against each other. His reading has a real cause though: the lineage table lists them as adjacent rows under 'What it added'. Also his framing 'HGI e uma aplicacao' would UNDER-credit Huang et al., and would sit badly beside our claim that Check2HGI extends the same hierarchy.
+
+1. **Uma clausula explicitando os papeis (DGI = o objetivo; HGI = o objetivo instanciado na hierarquia POI-regiao-cidade)** — atende a causa real da leitura dele sem mexer numa descricao correta; ~20 min
+2. **Reescrever como ele sugere, chamando o HGI de "aplicacao"** — EU DISCORDO: sub-credita Huang et al., que contribuem um objetivo novo, e fica mal ao lado da nossa propria frase de que o Check2HGI *extends* a mesma hierarquia
+3. **Nao mexer** — a prosa ja diz "builds directly on" e "extends"; mas dois leitores tropecaram
+
+> **DECISAO SUA:** ______
+
+
+### 6.2 Onde o pedido colide com uma regra de honestidade do proprio documento
+
+#### FAB-09 — simplify the results description; keep it higher level
+
+**Citacao:** ALTERADA — `content.tex`. **Renderiza em:** content.tex:91-94
+
+**Minha leitura:** partly satisfied. The joint-best gloss he wanted simplified is GONE from the Resumo; the numbers (5,3 a 9,4) and the TOST clause remain. Cutting them further trades honesty rules (every number carries its convention) against his readability ask.
+
+1. **Cortar a faixa 5,3-9,4 e o TOST do Resumo, deixando "supera nas seis" e "equipara-se nas outras duas"** — atende o pedido; MAS o WRITING_LAW §3 exige que todo numero carregue convencao, e que "equipara-se" venha com o teste
+2. **Manter os numeros e cortar so a glosa de joint-best** — ja feito: a glosa saiu na reescrita de 28/07
+3. **Manter como esta** — contraria o pedido dele
+
+> **DECISAO SUA:** ______
+
+#### FAB-22 — the result detail does not belong in the introduction
+
+**Citacao:** exata — `chapters/1_introduction.tex:130-133`. **Renderiza em:** 1_introduction.tex:130-132
+
+**Minha leitura:** his call: it collides with an honesty rule. He wants the result detail out of the introduction. WRITING_LAW 3 requires every number to carry its reference point and convention, and the region verbs to be bound to their tests. Dropping 'four of six ... TOST' from the intro removes exactly that binding, so the sentence must either keep the test or stop making the comparative claim.
+
+1. **Tirar "quatro dos seis ... TOST" da introducao** — atende; MAS remove exatamente a amarra verbo-teste que o WRITING_LAW §3 exige, e a frase continua afirmando comparacao
+2. **Tirar a comparacao TODA da introducao e deixar so a pergunta** — coerente: sem afirmacao, sem teste
+3. **Manter** — contraria o pedido
+
+> **DECISAO SUA:** ______
+
+#### FAB-03 — put the open question in the present tense
+
+**Citacao:** ALTERADA — `content.tex`. **Renderiza em:** content.tex:76
+
+**Minha leitura:** agree on substance; the sentence changed. He asked for the present tense. The live wording is 'permanecia em aberto' (imperfect), not the 'era' he quoted. Present tense would read 'permanece em aberto'. It is a claim-time question: the document elsewhere time-indexes CBIC/CoUrb conclusions, and the abstract saying 'permanece' asserts the question is open TODAY, after the dissertation answered it.
+
+1. **Presente: "permanece em aberto"** — uma palavra, nos dois idiomas; MAS afirma que a pergunta esta aberta HOJE, depois de a dissertacao responder
+2. **Manter o imperfeito "permanecia"** — preserva a regra de indexacao temporal do WRITING_LAW §3; contraria o pedido dele
+3. **Reformular: "era uma questao aberta no inicio desta pesquisa"** — explicita o ponto de referencia, atende o sentido dele sem a leitura de presente
+
+> **DECISAO SUA:** ______
+
+#### GER-11 — the task non-conflict finding needs stronger evidence, and generalizes into future work
+
+**Citacao:** parafrase (ele descreveu, nao citou). **Renderiza em:** 6_conclusion.tex + Appendix F
+
+**Minha leitura:** agree on both halves. The non-conflict evidence is thinner than the claim: one mean (+0.001), four seeds, four Gowalla states of which GA is not one of the six datasets, taken during development on an earlier data preparation, with no spread and no Istanbul. A mean cannot distinguish 'consistently orthogonal' from 'strongly conflicting in both directions and cancelling'. Either strengthen it or downgrade the sentence.
+
+1. **Recomputar o cosseno na configuracao reportada, nos seis conjuntos incluindo Istambul, com dispersao por conjunto** — transforma anedota em resultado, e o Germano pediu exatamente isso; custo de GPU, e o item 2.9 ja tem tres conjuntos parados
+2. **Rebaixar a frase do Cap. 6 para "uma observacao de tempo de desenvolvimento, oferecida como consistente com a interpretacao e nao como evidencia dela"** — zero custo de compute, honesto, e e o que eu faria primeiro; a frase atual sustenta "essencialmente ortogonais" com UMA media, quatro sementes, quatro estados do Gowalla dos quais GA nao e um dos seis, sem dispersao e sem Istambul
+3. **As duas: rebaixar agora, fortalecer se a GPU liberar** — protege a defesa e mantem a porta aberta
+
+> **DECISAO SUA:** ______
+
+
+### 6.3 Onde a passagem citada nao existe mais, e o pedido precisa de nova redacao
+
+#### FAB-02 — start a new sentence on the shared-history point
+
+**Citacao:** DESAPARECIDA — `content.tex`. **Renderiza em:** content.tex:73-74
+
+**Minha leitura:** his edit no longer applies as written. The clause he quoted is GONE: the Resumo was cut and rebuilt on 2026-07-28. The live sentence is 'as duas tarefas leem o mesmo histórico, portanto um único modelo poderia aprendê-las em conjunto'. His point (start a new sentence, foreground the data argument) can still be applied to the new sentence, but it is a rewrite of text he has not read.
+
+1. **Aplicar o espirito no texto NOVO: quebrar a frase do Resumo em duas, comecando a segunda em "Em termos de dados, as duas tarefas..."** — reescrita de uma frase que ele nao leu; o Resumo e o Abstract tem que mudar juntos ou se contradizem
+2. **Nao aplicar e registrar que a passagem citada nao existe mais** — zero custo; ele pode repetir o ponto ao ler o build novo
+
+> **DECISAO SUA:** ______
+
+#### FAB-07 — name the study instead of the stage of the research
+
+**Citacao:** DESAPARECIDA — `content.tex`. **Renderiza em:** content.tex:82
+
+**Minha leitura:** agree; his own note has a '??'. He wrote 'no primeiro estudo (??)', i.e. he was unsure. The quoted phrase is GONE; the live text reads 'naquela configuração'. Whether to name the study or the configuration is a claim-scope choice: 'no segundo estudo' is where the diagnosis was made, not the first.
+
+1. **"no segundo estudo"** — nomeia o estudo, que e o que ele queria; e o SEGUNDO, nao o primeiro que ele chutou com "(??)"
+2. **Manter "naquela configuracao"** — preserva o escopo exato (a conclusao vale para aquela configuracao, nao para o estudo todo)
+3. **As duas: "no segundo estudo, naquela configuracao"** — mais longo, e o Resumo esta no limite de tamanho
+
+> **DECISAO SUA:** ______
+
+#### FAB-10 — the results sentence opens confusingly
+
+**Citacao:** ALTERADA — `content.tex`. **Renderiza em:** content.tex:94
+
+**Minha leitura:** agree on substance; sentence changed. 'e a condição é o achado' is gone; the live sentence is 'A resposta é, portanto, condicional: se o aprendizado multitarefa ajuda depende...'. His proposed opener ('Como principais resultados, identificamos que...') is a first-person results framing, a register choice for the PT Resumo.
+
+1. **Adotar o abre dele: "Como principais resultados, identificamos que..."** — primeira pessoa do plural no Resumo; o resto do Resumo e impessoal
+2. **Manter "A resposta e, portanto, condicional: ..."** — mantem o registro; contraria o pedido
+3. **Meio: "Os resultados mostram que o ganho do aprendizado multitarefa depende de..."** — impessoal e direto
+
+> **DECISAO SUA:** ______
+
+
+### 6.4 Ja satisfeitos — so falta voce confirmar
+
+#### FAB-04 — do not mention the coletanea in the Resumo
+
+**Citacao:** DESAPARECIDA — `content.tex`. **Renderiza em:** content.tex (absent)
+
+**Minha leitura:** his edit is already satisfied. 'coletânea' occurs NOWHERE in the live Resumo or Abstract, and nowhere in the live tree. Either an earlier round already applied this, or he read a build that predates the rebuild. Confirm he is content.
+
+1. **Confirmar como satisfeito** — zero; a palavra nao existe no fonte vivo
+2. **Perguntar a ele se o build que leu era antigo** — um e-mail; evita ele repetir o ponto
+
+> **DECISAO SUA:** ______
+
+#### FAB-05 — drop the negative-result / diagnosis / resolution clause
+
+**Citacao:** DESAPARECIDA — `chapters/1_introduction.tex`. **Renderiza em:** content.tex (absent)
+
+**Minha leitura:** already satisfied. Same as FAB-04: the 'na ordem em que aconteceram' clause is gone.
+
+1. **Confirmar como satisfeito** — zero; a clausula nao existe mais
+
+> **DECISAO SUA:** ______
+
+#### FAB-08 — drop the task-pair clause from the Resumo
+
+**Citacao:** DESAPARECIDA — `content.tex`. **Renderiza em:** content.tex (absent)
+
+**Minha leitura:** already satisfied. The task-pair clause is GONE from the Resumo. But note FAB-17 asks to delete the SAME content from the introduction, where it is AVAL-signed-off. Deciding 08 and 17 together avoids removing it from both places.
+
+1. **Confirmar como satisfeito no Resumo** — zero
+2. **Decidir junto com o FAB-17** — o mesmo conteudo esta na introducao COM aval registrado; decidir separado corre o risco de tirar dos dois lugares
+
+> **DECISAO SUA:** ______
+
+
+### 6.5 Detalhe de dados na introducao — ele quer fora, e ha um contraste em jogo
+
+#### FAB-14 — the seven classes belong to the data, not the introduction
+
+**Citacao:** exata — `chapters/1_introduction.tex:52-54`. **Renderiza em:** 1_introduction.tex:52-53
+
+**Minha leitura:** disagree, and it is his call. He says the 7 classes are a property of the data, not the problem. He is right in principle. But the count is what makes the next-category output space concrete against next region's hundreds-to-thousands, which is the contrast 1.2 is built on, and Appendix B's static-scope note depends on the taxonomy being introduced. Cost of removing: the reader meets 'seven' first in 2.4.
+
+1. **Tirar as sete classes da introducao** — atende; o leitor so encontra o numero em §2.4, e o contraste 7 vs milhares que §1.2 constroi perde um lado
+2. **Manter** — contraria o pedido de um membro da banca
+3. **Manter so o contraste sem o numero: "um punhado de classes contra milhares de regioes"** — preserva o contraste, tira o dado
+
+> **DECISAO SUA:** ______
+
+#### FAB-15 — census tract and mahalle belong to the data, not the introduction
+
+**Citacao:** exata — `chapters/1_introduction.tex:54-56`. **Renderiza em:** 1_introduction.tex:54
+
+**Minha leitura:** disagree, same reason. Same class as FAB-14: census tract / mahalle is what makes 'region' concrete. Removing it leaves 'the official geographic unit' undefined until 2.4.
+
+1. **Tirar census tract / mahalle da introducao** — atende; "unidade geografica oficial" fica sem definicao ate §2.4
+2. **Manter** — contraria o pedido
+3. **Mover para uma nota de rode** — compromisso; o Viegas usa notas assim
+
+> **DECISAO SUA:** ______
+
+
+### 6.6 Os itens grandes do Germano — custo real, retorno real
+
+#### GER-08 — several concepts have no formal definition, starting with a check-in
+
+**Citacao:** parafrase (ele descreveu, nao citou). **Renderiza em:** new 2.1 subsection
+
+**Minha leitura:** strongly agree; it is a cross-chapter edit. The chapter defines a check-in in prose only and then writes L_c2p over check-in and place embeddings with no notation for a check-in, a user, a place, a category, or a region. His reason is the right one: the later chapters' equations need symbols with an origin. But notation must be checked against Chapters 3-5 AS COMMITTED and every new symbol registered in the fail-closed GLOSSARY first, so this is not a Chapter 2 edit.
+
+1. **Adicionar o bloco de notacao (check-in, usuario, lugar, categoria, regiao, historico, as tres tarefas) como subsecao no fim de §2.1** — o item de maior retorno das duas revisoes: da simbolos as equacoes dos Cap. 3-5. MAS e edicao TRANSVERSAL: a notacao tem que ser conferida contra os Cap. 3-5 COMO ESTAO, e cada simbolo novo tem que entrar no GLOSSARY (fail-closed) ANTES de aparecer. Estimo meio dia mais a sua aprovacao do registro
+2. **Versao minima: definir formalmente so o check-in e as tres tarefas** — ~2h; atende o exemplo que ele deu e deixa o resto
+3. **Nao fazer nesta rodada** — e o ponto mais forte da revisao do Germano e o precedente do proprio programa (a dissertacao dele) o cumpre
+
+> **DECISAO SUA:** ______
+
+#### GER-09 — 2.3 needs MTL formalism, the balancer lineage, and a definition of loss conflict
+
+**Citacao:** exata — `chapters/2_fundamentals.tex:383`. **Renderiza em:** 2_fundamentals.tex:383-508 -> 2.3
+
+**Minha leitura:** strongly agree, and it is the largest item here. 2.3 defines MTL in one prose clause and never writes the total loss; names eight balancers in eight sentences of identical shape with no taxonomy; credits almost no lineage; and never defines what conflict IS, which is what PCGrad, CAGrad and Aligned-MTL all act on. That last gap is why Chapter 6's +0.001 cosine lands with no definition behind it.
+
+1. **Fazer os quatro: a equacao da perda total, agrupar os balanceadores por mecanismo (peso vs cirurgia de gradiente), creditar a linhagem, e definir conflito pelo cosseno** — o maior item de conteudo; ~1 dia. Define a quantidade que o +0,001 do Cap. 6 mede, que hoje nao tem definicao em lugar nenhum
+2. **So a equacao da perda e a definicao de conflito** — ~3h; e o minimo que torna o numero do Cap. 6 legivel
+3. **Nao fazer** — a pergunta de pesquisa da dissertacao e se MTL ajuda, e o capitulo nunca escreve o objetivo de MTL
+
+> **DECISAO SUA:** ______
+
+#### GER-10 — the fundamentals need a logical narrative built on formal definition blocks
+
+**Citacao:** parafrase (ele descreveu, nao citou). **Renderiza em:** whole chapter
+
+**Minha leitura:** agree, as a drafting principle. This is the synthesis of his other points, and the comparative evidence agrees: our Ch.2 has 5 sections and ZERO subsections; the approved same-advisor precedent (Viegas) has 5 sections and 19 subsections at similar length. Adding two heading levels is what gives GER-08 and GER-09 somewhere to go.
+
+1. **Adicionar dois niveis de titulo em todo o capitulo** — a prosa quase nao muda e o capitulo fica navegavel; e onde o GER-08 e o GER-09 vao morar. Precedente: Viegas tem 5 secoes e 19 subsecoes com o mesmo tamanho; o nosso tem 5 e ZERO
+2. **Subsecoes so em §2.2 e §2.3** — meia medida, cobre onde estao as duas lacunas
+3. **Nao fazer** — o capitulo e uma referencia que o leitor consulta vindo do Cap. 5; sem titulos ele nao acha nada
+
+> **DECISAO SUA:** ______
+
+#### GER-03 — the HGI tuning sweep is thrown into the text with no connection to it
+
+**Citacao:** exata — `chapters/2_fundamentals.tex:167-170`. **Renderiza em:** 2_fundamentals.tex:167-174 -> 2.2
+
+**Minha leitura:** agree it does not belong; the gate constrains HOW. Strongly agree the four-point sweep is a methods result in a fundamentals chapter, reported to four decimals under an averaging convention the chapter has not yet fixed. BUT the sentence is probe NUM-4 in check_audit_claims.py, which requires 0.8186 to be PRESENT with its spreads and averaging convention. Relocating is compatible with the probe if the probe moves with it; deleting the numbers is not.
+
+1. **Mover o sweep para o Cap. 5 (metodo ou apendice) e mover o probe NUM-4 com ele, no MESMO commit** — atende ao ponto; o probe exige que 0.8186 esteja PRESENTE com dispersoes e convencao, e mudar de arquivo sem repontar o probe deixa o gate vermelho
+2. **Manter uma frase conceitual sem numeros em §2.2 e o sweep no Cap. 5** — o que eu recomendo; resolve tambem o [VERIFY] da convencao de media, que hoje reporta quatro decimais sob uma convencao que o capitulo ainda nao fixou
+3. **Manter onde esta e so resolver o [VERIFY]** — mais barato; o defeito de fluxo que ele apontou continua
+
+> **DECISAO SUA:** ______
+
+#### GER-04 — the static-vector paragraph reads like introduction prose, and it matters
+
+**Citacao:** exata — `chapters/2_fundamentals.tex:192-193`. **Renderiza em:** 2_fundamentals.tex:192-199
+
+**Minha leitura:** agree it reads as introduction; he also says keep it. He called it well written and important, and only observed it reads like introduction prose. There is no defect to fix here, only a placement question, and it is 108 chars from the NUM-4 probe string.
+
+1. **Nao mexer** — ele mesmo disse que esta bem escrito e que e importante; nao ha defeito a corrigir
+2. **Mover para o inicio de §2.2 como paragrafo de abertura** — atende a impressao de "texto de introducao"; mexe num paragrafo a 108 caracteres do probe NUM-4
+
+> **DECISAO SUA:** ______
+
+
+### 6.7 Bloqueado numa verificacao que falhou
+
+#### FAB-28 — there is more MTL-for-POI work than the two papers cited
+
+**Citacao:** exata — `chapters/2_fundamentals.tex:454`. **Renderiza em:** 2_fundamentals.tex:454 -> 2.3
+
+**Minha leitura:** agree on substance; verification FAILED on the decisive paper. He is right that the coverage is thin, and the real exposure is that 2.3 claims NO multi-task model predicts next region as a co-equal end target while wang2025hamtl (hierarchy-aware MTL for user LOCATION prediction, J. Supercomputing 81(11):1196, 2025) sits uncited in the same bibliography. Whether the claim survives turns on whether that paper treats a region-like unit as an END TARGET, and I could NOT establish it: OpenAlex has no abstract, Crossref has no abstract, the configured Springer key returns 401 on meta/v2, metadata and meta/v1, the paper is closed access (Unpaywall oa_status=closed), and the landing page 303-redirects to an authentication gate. Semantic Scholar offers only a MACHINE-GENERATED tldr, which AGENT_GUARDRAILS R5 forbids as a source. Four of the five other candidates ARE verified and citable (see the ledger); this one is not, and it is the one the novelty sentence depends on.
+
+1. **Voce (ou a biblioteca da UFV) abre o `wang2025hamtl` e me passa o resumo** — desbloqueia; e o unico caminho admissivel sob o §1
+2. **Citar os quatro verificados (`Zhang2020`, `Halder2022`, `Xu2023` como MTL, `Halder2021` por atributo) e NAO citar o `wang2025hamtl`** — amplia a cobertura sem apoiar alegacao em titulo; a frase de novidade continua exposta a quem achar o artigo
+3. **Enfraquecer a frase de novidade para "entre os trabalhos revisados aqui"** — honesto e barato; abre mao de uma alegacao que pode muito bem sobreviver
+
+> **DECISAO SUA:** ______
+
+
+### 6.8 A sua propria pergunta
+
+#### AUT-01 — does the MTL fundamentals need Pareto optimality
+
+**Citacao:** -. **Renderiza em:** 2_fundamentals.tex 2.3
+
+**Minha leitura:** agree it needs a brief treatment. The author's own added question: does the MTL fundamentals need Pareto optimality. Since 2.3 names gradient-surgery balancers, and MGDA/CAGrad/Nash-MTL are all argued in terms of Pareto-stationary points, the concept is already implicit. Note 'Pareto-stationary point' is ALREADY in the prose and is PENDENCIAS 2.12 (unregistered in the fail-closed GLOSSARY), so this item and 2.12 are the same decision.
+
+1. **Um paragrafo breve em §2.3: o problema multitarefa e multi-objetivo, os balanceadores de cirurgia de gradiente sao argumentados em termos de estacionariedade de Pareto, e por isso o MGDA/CAGrad/Nash-MTL existem** — atende sua intuicao e da espinha ao paragrafo dos balanceadores; ~1h. Note que `Pareto-stationary point` JA esta na prosa e e o item 2.12 (nao registrado no GLOSSARY), entao este item e o 2.12 sao a MESMA decisao
+2. **So registrar `Pareto` no GLOSSARY e nao expandir** — fecha o 2.12 sem crescer o capitulo
+3. **Nao tratar** — o capitulo nomeia balanceadores cuja justificativa e Pareto e nunca diz isso
+
+> **DECISAO SUA:** ______
+
+
+### 6.9 Edicao concorrente durante esta rodada, e o `make check` vermelho que ela produziu
+
+**O que aconteceu.** Enquanto eu media, **outro editor** alterou dois arquivos que eu nao toquei, e as
+mudancas nao estao commitadas: `GLOSSARY.md` (02:11:37, +31 linhas, os quatro registros de Pareto, que
+fecham a **2.12** pela opcao (a)) e `src/chapters/2_fundamentals.tex` (02:23:31, +106 linhas em §2.3: a
+equacao da perda total mais o tratamento de Pareto).
+
+**O `make check` esta em rc=2 por causa disso, e eu deliberadamente NAO consertei.** O gate
+`check_verify_list` roda um comando documentado em `_round6/VERIFY_LIST.md` cuja anotacao diz
+`# EXPECT: contains=Pareto-stationary 0`. Medido: em `HEAD` o `GLOSSARY.md` tem **0** ocorrencias, na
+arvore de trabalho tem **2**. Ou seja, a anotacao ficou obsoleta no momento em que o termo foi
+registrado — o registro esta certo e a expectativa envelheceu.
+
+    cd articles/dissertacao
+    grep -c 'Pareto-stationary' GLOSSARY.md     # 2 na arvore, 0 em HEAD
+    grep -n 'EXPECT: contains=Pareto-stationary' src_utils/_round6/VERIFY_LIST.md   # linha 291
+
+> **DECISAO SUA:** quem fecha isso.
+>
+> 1. **Quem esta editando o `GLOSSARY.md` atualiza o EXPECT para `Pareto-stationary 3`** (ou o numero
+>    que a versao final tiver) no mesmo commit do registro — e o caminho certo pela V6: corrigir um
+>    numero na origem sem varrer as copias e como um valor obsoleto sobrevive.
+> 2. **Eu atualizo o EXPECT agora** — resolve o vermelho em um minuto, mas reescreve a anotacao de um
+>    trabalho em curso e o numero pode mudar de novo antes de ele terminar.
+> 3. **Deixar vermelho até aquele trabalho fechar** — honesto, e o gate esta certo: ha uma afirmacao
+>    documentada que nao corresponde mais a arvore.
+>
+> Eu recomendo a **1**. O que eu **nao** faria e commitar o `GLOSSARY.md` de outra pessoa para deixar
+> o gate verde.
+
+**Dois itens meus foram parcialmente atendidos por aquela edicao** (registrado nos blocos deles):
+**AUT-01**, a sua pergunta sobre Pareto, esta em grande parte respondida no fonte; e a **parte 1 do
+GER-09** (a equacao do objetivo de MTL) existe agora. As outras tres partes do GER-09 continuam abertas.
+
+**Tres coordenadas minhas andaram +106 linhas** e foram reconferidas linha a linha, nao deslocadas por
+aritmetica: FAB-28 (454 -> 560), FAB-29 (513 -> 619), FAB-30 (515-516 -> 621-622 e 670 -> 776).
+
+---
 
 ## §3 · Aberto e bloqueado em terceiros
 

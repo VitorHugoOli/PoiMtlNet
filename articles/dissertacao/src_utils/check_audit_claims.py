@@ -1,9 +1,19 @@
 #!/usr/bin/env python3
 """check_audit_claims.py -- re-measures every "APPLIED" claim against the live source.
 
-WHAT IT GATES. Two things, and the scope is wider than the name: (1) the CODEX_AUDIT outcome table's
-COD-/NUM- findings, and (2) fixes this project made on its own initiative (the `R8-` probes). An
-outcome table is a CLAIM ABOUT THE WORK, the highest-risk statement class here, and it was the one
+WHAT IT GATES. THREE things, and the scope is wider than the name -- stated here in full because a
+docstring claiming one scope over code covering more is itself a defect this repo has hit:
+
+  (1) the CODEX_AUDIT outcome table's COD-/NUM- findings;
+  (2) fixes this project made on its own initiative (the `R8-` probes);
+  (3) SINCE 2026-07-30 (round 9), the REVIEW TRACKER ITSELF -- the `R9-` probes below read
+      src_utils/CONSIDERATIONS.md and src_utils/PENDENCIAS.md, which are NOT under src/. That is why
+      there are two roots (SRC and UTILS) and why a probe's path is resolved against whichever root
+      its file lives in. Round 9 sorted 43 reviewer points into apply/decide/blocked; the register of
+      that split is a claim about the work in exactly the sense V14 means, so it is gated here rather
+      than trusted.
+
+An outcome table is a CLAIM ABOUT THE WORK, the highest-risk statement class here, and it was the one
 class with no gate: on 2026-07-30 eight of nine findings marked APPLIED were still unapplied.
 
 HOW TO ADD A PROBE -- do this in the SAME commit as the fix, not later.
@@ -33,7 +43,18 @@ import sys
 from pathlib import Path
 
 SRC = Path(__file__).resolve().parent.parent / "src"
+UTILS = Path(__file__).resolve().parent          # the trackers live HERE, not under src/
 COMMENT = re.compile(r"(?<!\\)%")
+
+
+def probe_root(rel: str) -> Path:
+    """Which root a probe's path is relative to.
+
+    Added round 9 with the R9- probes. The `%`-comment stripper stays on for BOTH roots: it is a
+    no-op on markdown (no unescaped `%` in these trackers -- asserted in self_test), and turning it
+    off per-root would be a second code path to get wrong.
+    """
+    return UTILS if rel.endswith(".md") else SRC
 
 # (finding, what the audit claimed, file, pattern, want_present)
 #   want_present=False -> the flagged string must be GONE for the claim to hold
@@ -73,6 +94,23 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
      "preamble.tex", r"footnotesize", False),
     ("NUM-4",    "HGI sweep reports its spreads and its averaging convention",
      "chapters/2_fundamentals.tex", r"0\.8186", True),
+    # ---- ROUND-9 PROBES: the review-tracker split itself. Paths ending .md resolve against UTILS.
+    # Each was validated by sabotage (revert the property, read rc=1) -- see _round9/32_gate_validation.md.
+    ("R9-schema", "CONSIDERATIONS.md carries all 43 per-item blocks, not prose",
+     "CONSIDERATIONS.md", r"### AUT-01", True),
+    ("R9-commit", "every item block records the build commit its measurement was taken against",
+     "CONSIDERATIONS.md", r"Build commit the measurement was taken against", True),
+    ("R9-verbal", "Germano's points are marked as the AUTHOR'S TRANSCRIPTION of verbal comments, "
+                  "never attributed to him as written words",
+     "CONSIDERATIONS.md", r"transcribed by the author", True),
+    ("R9-stale",  "the stale-quote counts are stated as 9 of 41, not the 10 I first wrote",
+     "CONSIDERATIONS.md", r"9 de 41 ancoras localizaveis", True),
+    ("R9-blocked", "FAB-28 is recorded as BLOCKED on a failed verification, not quietly applied",
+     "CONSIDERATIONS.md", r"INADMISSIBLE for any claim", True),
+    ("R9-pend6",  "PENDENCIAS carries the new section 6 and it replaced the 2.8 placeholder",
+     "PENDENCIAS.md", r"## §6 · As decisoes que sairam do `CONSIDERATIONS\.md`", True),
+    ("R9-pend28", "the old 2.8 no longer asks for a decision -- it records what was done",
+     "PENDENCIAS.md", r"2\.8 `CONSIDERATIONS\.md` — EXECUTADO nesta rodada", True),
 )
 
 # COD-016b needs a STRUCTURAL probe, not a string one, so it lives here rather than in PROBES --
@@ -199,6 +237,19 @@ def self_test() -> None:
             "characters past the escaped percent on the same source line. Every probe on this "
             "file would be reading a truncated paragraph."
         )
+    # Direction 4 (round 9): the SECOND root must actually resolve, and the stripper must not eat
+    # markdown. A probe whose file is read from the wrong root, or whose text the stripper mangles,
+    # reports exactly like a probe that never fires -- which is trap 4 in the module docstring,
+    # one root over. Anchored on a heading the schema cannot lose without the split being gone.
+    assert probe_root("CONSIDERATIONS.md") == UTILS, "self-test: .md probes must resolve under src_utils/"
+    assert probe_root("chapters/2_fundamentals.tex") == SRC, "self-test: .tex probes must resolve under src/"
+    trk = UTILS / "CONSIDERATIONS.md"
+    if trk.exists():
+        live_md = live_text(trk)
+        assert "### FAB-01" in live_md and "### GER-01" in live_md, (
+            "self-test: the tracker's item headings do not survive live_text(), so every R9- probe "
+            "would be measuring mangled text. Check the comment stripper against markdown."
+        )
 
 
 def main() -> int:
@@ -206,7 +257,7 @@ def main() -> int:
     bad, missing_files = [], []
     print("== audit APPLIED claims re-measured against the live source ==")
     for fid, what, rel, pat, want in PROBES:
-        path = SRC / rel
+        path = probe_root(rel) / rel
         if not path.exists():
             missing_files.append((fid, rel))
             print(f"  SKIP        {fid:9s} {rel} not found -- probe cannot run")
