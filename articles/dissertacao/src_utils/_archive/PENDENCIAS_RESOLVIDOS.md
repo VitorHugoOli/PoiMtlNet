@@ -921,6 +921,14 @@ completo (tres das quatro colunas publicadas do CBIC reproduzem exatamente, 21 d
 quarta nao casa com nenhum artefato deste repositorio) e a restricao que ele impoe — nenhuma frase
 futura pode dizer que os numeros do CBIC sao reproduziveis sem excluir essa coluna.
 
+
+**A sua palavra, verbatim:** *"DECISSAO: Documentar no letf_out.md"*.
+
+**O que o item media, restaurado 2026-07-30:** a coluna que nao reproduz e a de **proxima-categoria do
+modelo conjunto**; as outras tres conferem **21/21 celulas** cada. Nao ha erro conhecido no numero
+publicado — o que falta e a **execucao (rundir) que o gerou**, e a pergunta que eu fiz era se existe um
+fora deste repositorio.
+
 *A linha "Open for the author" dentro do LO-2 e anterior a sua decisao e esta obsoleta.*
 
 ---

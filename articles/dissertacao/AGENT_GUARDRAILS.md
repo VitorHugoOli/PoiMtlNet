@@ -399,6 +399,20 @@ the work*, and that is where the time went. The four root causes, with the count
   appears in live_text(), not merely in the file. Keep sabotage and measurement in one shell, and never
   let an assert-guarded setup script's later steps be assumed from an earlier step's exit code.
 
+  **V15c. Compression is a claim that nothing was lost, and it needs the same proof as any other claim.**
+  Shrinking PENDENCIAS.md from 67k to 31k chars, I asserted "every author-facing fact survived" -- and
+  the assertion covered only the six blocks I had drafted in a dict, not the two more swapped in the same
+  cell. Those two lost five real measurements (WHICH two figures item 2.5 is about, at 45.3% and 44.4% of
+  body size, against 93.2% and 66.3% for the pair the audit had tracked) and the author's own verbatim
+  ruling. Worse, one rewrite REPLACED a true fact with a false one: the source count came from
+  `ls figures/*.drawio`, a non-recursive glob blind to `figures/courb/`, so "there are .drawio for both"
+  became "only 1 of the 2 is in the repo" -- and this same session had already opened both files.
+  So: diff the OLD block against the new text mechanically (every number and every backticked path must
+  still appear somewhere -- tracker, archive, or detail file), run it over EVERY block touched rather than
+  the ones you happened to draft, and RE-MEASURE any count you restate instead of carrying it across the
+  rewrite. A recursive `find` where a glob would do costs nothing; a false number in the author's queue
+  costs him a wrong decision.
+
 **V14. A parallel track's self-report is not evidence that its edit landed, and an outcome table is a
   claim about the work.** This is the rule the whole 2026-07-30 recovery round exists to write.
   On 2026-07-28 an audit outcome table was annotated with sixteen rows reading **APPLIED**. Two days

@@ -13,23 +13,23 @@
 *Forense: ponteiro para o relatorio de rodada.*
 ```
 
-**Onde cada coisa vive.** O tracker carrega a **decisao**; a **forense** (como o defeito foi
-descoberto, qual instrumento mentiu, o que cada commit mediu) vai para `_round8/`. Em 2026-07-30 seis
-itens carregavam 34 mil dos 55 mil caracteres do arquivo, quase tudo forense: foi para
-[`_round8/29_pendencias_detail.md`](_round8/29_pendencias_detail.md), **nada apagado**, e o arquivo
-caiu de 67 mil para 37 mil.
+**Onde cada coisa vive.** O tracker carrega a **decisao**; a **forense** (como o defeito foi descoberto, qual
+instrumento mentiu, o que cada commit mediu) vai para `_round8/`. Em 2026-07-30 seis itens carregavam 34 mil dos 55 mil
+caracteres do arquivo, quase tudo forense: foi para
+[`_round8/29_pendencias_detail.md`](_round8/29_pendencias_detail.md), **nada apagado**, e o arquivo caiu de 67 mil para
+37 mil.
 
 **Para ADICIONAR um ponto seu:** escreva embaixo do item, comecando a linha com `> DECISSAO:` (ou
-`> DECISAO:`). Eu leio isso como sua palavra final e nao reinterpreto. Se voce nao tiver numero de
-item, escreva no fim do §2 com um titulo qualquer — eu numero e coloco no lugar.
+`> DECISAO:`). Eu leio isso como sua palavra final e nao reinterpreto. Se voce nao tiver numero de item, escreva no fim
+do §2 com um titulo qualquer — eu numero e coloco no lugar.
 
-**Para FECHAR um item:** ele sai daqui e vai para `_archive/PENDENCIAS_RESOLVIDOS.md` **com o motivo de
-saida no topo do bloco**. O gate `check_tracker_refs.py` falha se um item desaparecer sem chegar ao
-arquivo — tres foram perdidos assim, e voce achou dois deles lendo o arquivo. **Nao renumere:**
+**Para FECHAR um item:** ele sai daqui e vai para `_archive/PENDENCIAS_RESOLVIDOS.md` **com o motivo de saida no topo do
+bloco**. O gate `check_tracker_refs.py` falha se um item desaparecer sem chegar ao arquivo — tres foram perdidos assim,
+e voce achou dois deles lendo o arquivo. **Nao renumere:**
 comentarios no fonte citam estes numeros, e um buraco na numeracao e melhor que um ponteiro errado.
 
-**Ordem das secoes:** §2 (voce) -> §5 (do `CODEX_AUDIT`) -> §3 (terceiros) -> §4 (o que auditar
-primeiro). Deliberada: o que depende de voce vem antes.
+**Ordem das secoes:** §2 (voce) -> §5 (do `CODEX_AUDIT`) -> §3 (terceiros) -> §4 (o que auditar primeiro). Deliberada: o
+que depende de voce vem antes.
 
 ---
 
@@ -53,27 +53,27 @@ primeiro). Deliberada: o que depende de voce vem antes.
 ### 2.1 Os 53 marcadores `[NEEDS SIGN-OFF]` no fonte
 
 **O que e.** 53 pontos do fonte marcados como precisando do seu aval. Nenhum bloqueia build; o gate
-`check_verify_list` conta e a contagem bate. A lista completa, com arquivo, linha e o que cada um
-afirma, sai de: `grep -rn "NEEDS SIGN-OFF" src/ --include="*.tex" | grep -v ":\s*%"`.
+`check_verify_list` conta e a contagem bate. A lista completa, com arquivo, linha e o que cada um afirma, sai de:
+`grep -rn "NEEDS SIGN-OFF" src/ --include="*.tex" | grep -v ":\s*%"`.
 
-**Tres tem prioridade** (afirmam algo sobre trabalho publicado ou co-autorado): o paragrafo corrigido
-do Apendice B sobre o Cap. 3, o numero limitado do Cap. 4 na conclusao, e a frase de reprodutibilidade
-enfraquecida. Estao detalhados em `_round6/VERIFY_LIST.md` A1, A2 e A3.
+**Tres tem prioridade** (afirmam algo sobre trabalho publicado ou co-autorado): o paragrafo corrigido do Apendice B
+sobre o Cap. 3, o numero limitado do Cap. 4 na conclusao, e a frase de reprodutibilidade enfraquecida. Estao detalhados
+em `_round6/VERIFY_LIST.md` A1, A2 e A3.
 
 > **DECISAO SUA:** ler os 53 e me dizer quais aprova. Nao precisa ser de uma vez — se me der os tres
 > prioritarios, eu removo os marcadores deles e mantenho os outros 50.
 
-*Forense (a tentativa de push destrutiva, o worktree, os artefatos divergentes): agora e o item 2.16 e
-o corpo integral esta em [`_round8/29_pendencias_detail.md`](_round8/29_pendencias_detail.md).*
+*Forense (a tentativa de push destrutiva, o worktree, os artefatos divergentes): agora e o item 2.16 e o corpo integral
+esta em [`_round8/29_pendencias_detail.md`](_round8/29_pendencias_detail.md).*
 
 ### 2.5 O tamanho de tipo das duas figuras de arquitetura — autorizado, mas eu nao consigo executar
 
-**Voce autorizou:** *"pode aumentar, mas mantenha o espaco ja ocupado pela imagem... mantendo a
-proporcao"*, e observou que o contraste hoje ja deixa legivel.
+**Voce autorizou:** *"pode aumentar, mas mantenha o espaco ja ocupado pela imagem... mantendo a proporcao"*, e observou
+que o contraste hoje ja deixa legivel.
 
 **Nao consigo fazer daqui:** nao ha `drawio` nem `inkscape` neste ambiente, e so **1 dos 2** `.drawio`
-esta no repositorio. A receita esta em `_round6/12_figures.md` (subir `fontSize` de 13 para ~20 e
-reexportar na mesma largura em pixels).
+esta no repositorio. A receita esta em `_round6/12_figures.md` (subir `fontSize` de 13 para ~20 e reexportar na mesma
+largura em pixels).
 
 > **Seu, quando quiser:** reexportar as duas no Draw.io e me passar os PNG — eu troco e remeco o tipo na
 > pagina. **Opcional**, pela sua propria observacao sobre o contraste.
@@ -105,39 +105,37 @@ o tipo de improviso que o `AGENT_GUARDRAILS` manda parar e sinalizar.
 
 ### 2.9 O disco do `nespedgpu` — liberado por voce; sobrou decidir se roda o resto
 
-**O que e.** O disco encheu (0 bytes livres) e matou tres datasets do Apendice F; voce liberou espaco.
-O apendice hoje reporta **quatro** datasets (florida, alabama, arizona, georgia) e diz que california,
-texas e istanbul foram bloqueados, o que e verdade e esta escrito.
+**O que e.** O disco encheu (0 bytes livres) e matou tres datasets do Apendice F; voce liberou espaco. O apendice hoje
+reporta **quatro** datasets (florida, alabama, arizona, georgia) e diz que california, texas e istanbul foram
+bloqueados, o que e verdade e esta escrito.
 
 > **DECISAO SUA:** rodar os tres que faltam (~6h de GPU, e o apendice passa a seis) ou publicar com
 > quatro. **Eu nao apago nada na sua maquina** — os 61G sao seus checkpoints.
 
-*Forense (o crash `basic_ios::clear` que era falha de escrita, a corrida de harvest que produziu dois
-folds identicos, e por que descartei aqueles dados): [`_round8/29_pendencias_detail.md`](_round8/29_pendencias_detail.md).*
+*Forense (o crash `basic_ios::clear` que era falha de escrita, a corrida de harvest que produziu dois folds identicos, e
+por que descartei aqueles dados): [`_round8/29_pendencias_detail.md`](_round8/29_pendencias_detail.md).*
 
 ### 2.11 A assimetria do resultado de regiao: o Cap. 5 ressalva, e o resto do documento nao
 
 **Origem:** `_round6/VERIFY_LIST.md` itens 4 e 5 (achado L-5 do ledger), entregues em 2026-07-30.
 
-**(A) O que e.** `chapters/5_mobiwac/05_setup.tex` diz que o plano de analise *"did not cover
-next-region superiority, so the four next-region gains ... are secondary results outside it"*. O
-resto do documento afirma o mesmo resultado **sem essa ressalva**. Medido com o varredor que remove
-comentarios, sobre os 54 `.tex`:
+**(A) O que e.** `chapters/5_mobiwac/05_setup.tex` diz que o plano de analise *"did not cover next-region superiority,
+so the four next-region gains ... are secondary results outside it"*. O resto do documento afirma o mesmo resultado
+**sem essa ressalva**. Medido com o varredor que remove comentarios, sobre os 54 `.tex`:
 
-| onde | forma |
-|---|---|
-| `1_introduction.tex:132`, `6_conclusion.tex:21` e `:93` | "four of six" / "four of the six" |
-| `2_fundamentals.tex:786`, `5_mobiwac/01_introduction.tex:39`, `5_mobiwac/08_conclusion.tex:14`, `5_mobiwac.tex` | idem |
-| `content.tex:166` (Resumo e Abstract) | "quatro deles" / "four of them" — a mesma alegacao, em outras palavras |
+| onde                                                                                                            | forma                                                                  |
+|-----------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------|
+| `1_introduction.tex:132`, `6_conclusion.tex:21` e `:93`                                                         | "four of six" / "four of the six"                                      |
+| `2_fundamentals.tex:786`, `5_mobiwac/01_introduction.tex:39`, `5_mobiwac/08_conclusion.tex:14`, `5_mobiwac.tex` | idem                                                                   |
+| `content.tex:166` (Resumo e Abstract)                                                                           | "quatro deles" / "four of them" — a mesma alegacao, em outras palavras |
 
-No PDF de defesa (100 pp) a alegacao sem ressalva imprime nas **pp. 14, 58, 59, 76, 77 e 78**; a
-ressalva imprime **so na p. 67**. Sao sete sitios em prosa mais as duas parafrases do pre-textual,
-contra uma ressalva.
+No PDF de defesa (100 pp) a alegacao sem ressalva imprime nas **pp. 14, 58, 59, 76, 77 e 78**; a ressalva imprime **so
+na p. 67**. Sao sete sitios em prosa mais as duas parafrases do pre-textual, contra uma ressalva.
 
-**(B) Por que importa.** O registro estatistico de 2026-07-27 e inequivoco: o teste primario
-registrado para **toda** celula de regiao e nao-inferioridade TOST. Uma leitura rapida do Resumo, da
-Introducao ou da Conclusao le "outperforms em quatro de seis" como resultado primario; a p. 67 diz
-que nao e. Nenhuma track da rodada 6 assumiu isso (achado L-5 do ledger).
+**(B) Por que importa.** O registro estatistico de 2026-07-27 e inequivoco: o teste primario registrado para **toda**
+celula de regiao e nao-inferioridade TOST. Uma leitura rapida do Resumo, da Introducao ou da Conclusao le "outperforms
+em quatro de seis" como resultado primario; a p. 67 diz que nao e. Nenhuma track da rodada 6 assumiu isso (achado L-5 do
+ledger).
 
 **(C) O que eu preciso de voce.** Uma regra, e ela vale para os nove sitios de uma vez:
 
@@ -151,10 +149,13 @@ que nao e. Nenhuma track da rodada 6 assumiu isso (achado L-5 do ledger).
 > **Eu nao decido isto** porque muda o que o Resumo e a Conclusao afirmam sobre o resultado
 > principal do Cap. 5, que e prosa sua sobre um resultado seu.
 
+> DECISAO: Na verdade se esses resultados forem de grande importancia e algo importante para narrativa, vale deixar eles
+> como primario é só alterar o mobiwac, ao invés do outros textos, o que acha ? Se não concorda vide a narrativa do texto vamos de A
+
 ### 2.12 `Pareto-stationary point` esta na prosa e nao esta no registro (o `GLOSSARY` e fail-closed)
 
-**(A) O que e.** A regra de manutencao do `GLOSSARY.md` e explicita: *"a term not in this registry
-may not be used in dissertation prose"*. Medido hoje:
+**(A) O que e.** A regra de manutencao do `GLOSSARY.md` e explicita: *"a term not in this registry may not be used in
+dissertation prose"*. Medido hoje:
 
 ```bash
 cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
@@ -164,14 +165,13 @@ grep -c 'Pareto-stationary' GLOSSARY.md          # 0
 e o termo esta em prosa em **dois** sitios, os dois em texto publicado reproduzido:
 `chapters/3_cbic/method.tex` (*"convergence to a Pareto-stationary point"*) e
 `chapters/4_courb/methodology.tex` (a garantia do Nash-MTL, a mesma frase do item 3 do
-`VERIFY_LIST`). Imprimem nas **pp. 36 e 48**. `tables/courb/errata.tex` ainda traz a forma sem
-hifen, "Pareto stationary". As outras duas entradas que o item 4 daquele arquivo pedia — **bilinear
-discriminator** e **logistic function** — **ja entraram** (`GLOSSARY.md:71` e `:72`); so esta faltou.
+`VERIFY_LIST`). Imprimem nas **pp. 36 e 48**. `tables/courb/errata.tex` ainda traz a forma sem hifen, "Pareto
+stationary". As outras duas entradas que o item 4 daquele arquivo pedia — **bilinear discriminator** e **logistic
+function** — **ja entraram** (`GLOSSARY.md:71` e `:72`); so esta faltou.
 
-**(B) Por que importa.** O `make check` **nao pega isto**: existe um gate de "Pareto" mas ele e
-informativo e conta ocorrencias, nao registro. E o termo nao pode ser simplesmente removido — as
-duas frases sao publicadas, entao tirar o termo e editar uma frase publicada, com linha no
-Apendice B.
+**(B) Por que importa.** O `make check` **nao pega isto**: existe um gate de "Pareto" mas ele e informativo e conta
+ocorrencias, nao registro. E o termo nao pode ser simplesmente removido — as duas frases sao publicadas, entao tirar o
+termo e editar uma frase publicada, com linha no Apendice B.
 
 **(C) O que eu preciso de voce.** Uma decisao, tres saidas:
 
@@ -183,22 +183,24 @@ Apendice B.
 > **(c)** registrar uma excecao explicita para termos que chegam em prosa reproduzida. Custo: uma
 > nota no `GLOSSARY`, e a regra deixa de ser fail-closed para essa classe.
 
+> DESICAO: A.
+
 ### 2.14 O intervalo de paginas do `nash`: nao da para verificar daqui
 
 **Origem:** `_round6/VERIFY_LIST.md` item 14, entregue em 2026-07-30 (precedente `standley2020tasks`).
 
 **(A) O que e.** `references.bib` traz `pages = {16428--16446}` para
-`@inproceedings{nash}` (Navon et al., *Multi-Task Learning as a Bargaining Game*, ICML 2022).
-Tentado de novo nesta sessao, contra as fontes de registro que o sandbox alcanca:
+`@inproceedings{nash}` (Navon et al., *Multi-Task Learning as a Bargaining Game*, ICML 2022). Tentado de novo nesta
+sessao, contra as fontes de registro que o sandbox alcanca:
 
-| fonte | resposta |
-|---|---|
-| OpenAlex | um unico registro, `W4225981399`, tipo **preprint**, venue "arXiv", `first_page` e `last_page` **nulos** |
-| Crossref (`query.bibliographic`) | cinco obras, **nenhuma delas este artigo** — nao ha DOI registrado da versao de anais |
-| `proceedings.mlr.press` | **fora da allowlist** do sandbox; nao acessado |
+| fonte                            | resposta                                                                                                 |
+|----------------------------------|----------------------------------------------------------------------------------------------------------|
+| OpenAlex                         | um unico registro, `W4225981399`, tipo **preprint**, venue "arXiv", `first_page` e `last_page` **nulos** |
+| Crossref (`query.bibliographic`) | cinco obras, **nenhuma delas este artigo** — nao ha DOI registrado da versao de anais                    |
+| `proceedings.mlr.press`          | **fora da allowlist** do sandbox; nao acessado                                                           |
 
-**(B) Por que importa.** Pelo §1 do `AGENT_GUARDRAILS`, um identificador que nao foi aberto na fonte
-de registro nao pode ser apresentado como conferido. O campo esta no `.bib` e nao esta verificado.
+**(B) Por que importa.** Pelo §1 do `AGENT_GUARDRAILS`, um identificador que nao foi aberto na fonte de registro nao
+pode ser apresentado como conferido. O campo esta no `.bib` e nao esta verificado.
 
 **(C) O que eu preciso de voce.** Um clique fecha: `proceedings.mlr.press/v162/navon22a.html`.
 
@@ -209,21 +211,21 @@ de registro nao pode ser apresentado como conferido. O campo esta no `.bib` e na
 
 **Origem:** `_round6/VERIFY_LIST.md` itens 15 e 16, entregues juntos em 2026-07-30 como uma decisao unica.
 
-**(A) O que e.** Quatro pontos, um so tipo de decisao: **nenhum deles pode ser corrigido por um
-agente**, porque todos estao em frases publicadas, e mexer nelas gera linha de errata.
+**(A) O que e.** Quatro pontos, um so tipo de decisao: **nenhum deles pode ser corrigido por um agente**, porque todos
+estao em frases publicadas, e mexer nelas gera linha de errata.
 
-| onde | o que |
-|---|---|
-| `3_cbic/method.tex` | `ruder2017sluice` citado para regularizacao implicita do hard sharing |
-| `4_courb/methodology.tex:173` | `sun2020go` citado para ciclos temporais revelarem a *funcao* do lugar |
-| `4_courb/methodology.tex:184` | `belkin2003laplacian` citado para um regularizador hierarquico de embedding |
-| `4_courb/methodology.tex:173,184` | **`fclass` em prosa renderizada**, 4 ocorrencias em 3 linhas |
+| onde                              | o que                                                                       |
+|-----------------------------------|-----------------------------------------------------------------------------|
+| `3_cbic/method.tex`               | `ruder2017sluice` citado para regularizacao implicita do hard sharing       |
+| `4_courb/methodology.tex:173`     | `sun2020go` citado para ciclos temporais revelarem a *funcao* do lugar      |
+| `4_courb/methodology.tex:184`     | `belkin2003laplacian` citado para um regularizador hierarquico de embedding |
+| `4_courb/methodology.tex:173,184` | **`fclass` em prosa renderizada**, 4 ocorrencias em 3 linhas                |
 
 **(B) Sobre o `fclass`, que ninguem tinha levantado.** O `GLOSSARY.md:73` diz, com todas as letras:
 *"In code this column is `spot`, renamed `fclass` at `hgi/preprocess.py:62`; **NEVER write `fclass`
-in prose**"*. Varri os 54 `.tex` sem comentarios: `4_courb/methodology.tex` e o **unico** arquivo. E
-as frases identicas estao publicadas no CoUrb (`src_en/sections/metodology.tex:109` e `:120`), entao
-e o mesmo tipo de decisao das tres citacoes acima. Nenhum gate pega: o de codenomes casa
+in prose**"*. Varri os 54 `.tex` sem comentarios: `4_courb/methodology.tex` e o **unico** arquivo. E as frases identicas
+estao publicadas no CoUrb (`src_en/sections/metodology.tex:109` e `:120`), entao e o mesmo tipo de decisao das tres
+citacoes acima. Nenhum gate pega: o de codenomes casa
 `B9|v1[1-7]|champion-G|H3-alt|dk_ovl|log_T|substrate`, e `fclass` nao esta na lista.
 
 **(C) O que eu preciso de voce.** Uma decisao por linha, ou uma regra para as quatro:
@@ -242,32 +244,31 @@ e o mesmo tipo de decisao das tres citacoes acima. Nenhum gate pega: o de codeno
 
 ### 2.16 Quatro artefatos publicados **divergiram** das copias locais (o item 2.2 cobria dois)
 
-**(A) O que e.** O Apendice A cita treze caminhos `\path{}`. A pergunta "quantos faltam no branch
-publico" ja teve **quatro** respostas nesta base (9 de 13, depois 5, depois 4, agora esta). O motivo
-de todas as anteriores e o mesmo: `git cat-file -e mobiwac:<caminho>` pergunta *"este CAMINHO esta
-no branch"*, e a alegacao e *"este ARQUIVO esta no branch"* — e o branch `mobiwac` **nao tem arvore
-`docs/`**, guarda esses artefatos em `analysis_protocol/`. Remedi por **hash**, comparando cada
-arquivo local com os blobs do branch:
+**(A) O que e.** O Apendice A cita treze caminhos `\path{}`. A pergunta "quantos faltam no branch publico" ja teve
+**quatro** respostas nesta base (9 de 13, depois 5, depois 4, agora esta). O motivo de todas as anteriores e o mesmo:
+`git cat-file -e mobiwac:<caminho>` pergunta *"este CAMINHO esta no branch"*, e a alegacao e *"este ARQUIVO esta no
+branch"* — e o branch `mobiwac` **nao tem arvore
+`docs/`**, guarda esses artefatos em `analysis_protocol/`. Remedi por **hash**, comparando cada arquivo local com os
+blobs do branch:
 
-| classe | n | quais |
-|---|--:|---|
-| no branch, **byte a byte identicos** | 8 | `folds.py`; `STATISTICAL_PROTOCOL.md`, `JOINT_BEST_RESULTS.md`, `m1_full_output.txt`, `m2_prereg_output.txt` (sob `analysis_protocol/`); `build_phase3_per_fold_transitions.sh`; `score_joint_best.py`; `autocorrelation_ceiling.py` (em `scripts/`, nao `scripts/embedding_eval/`) |
-| no branch com **conteudo diferente** | 4 | `superiority_wilcoxon.py`, `region_match_tost.py`, `m1_stats_n20.py`, `m2_prereg_perfold.py` |
-| diretorio (o instrumento nao classifica) | 1 | `stats_n20/` |
+| classe                                   | n | quais                                                                                                                                                                                                                                                                               |
+|------------------------------------------|--:|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| no branch, **byte a byte identicos**     | 8 | `folds.py`; `STATISTICAL_PROTOCOL.md`, `JOINT_BEST_RESULTS.md`, `m1_full_output.txt`, `m2_prereg_output.txt` (sob `analysis_protocol/`); `build_phase3_per_fold_transitions.sh`; `score_joint_best.py`; `autocorrelation_ceiling.py` (em `scripts/`, nao `scripts/embedding_eval/`) |
+| no branch com **conteudo diferente**     | 4 | `superiority_wilcoxon.py`, `region_match_tost.py`, `m1_stats_n20.py`, `m2_prereg_perfold.py`                                                                                                                                                                                        |
+| diretorio (o instrumento nao classifica) | 1 | `stats_n20/`                                                                                                                                                                                                                                                                        |
 
 **Nada esta faltando.** Quatro artefatos publicados **divergiram**:
 
-| arquivo | local | no branch | linhas diferentes |
-|---|--:|--:|--:|
-| `superiority_wilcoxon.py` | 147 | 126 | 37 |
-| `region_match_tost.py` | 74 | 74 | 2 |
-| `m1_stats_n20.py` | 411 | 335 | 84 |
-| `m2_prereg_perfold.py` | 214 | 222 | 36 |
+| arquivo                   | local | no branch | linhas diferentes |
+|---------------------------|------:|----------:|------------------:|
+| `superiority_wilcoxon.py` |   147 |       126 |                37 |
+| `region_match_tost.py`    |    74 |        74 |                 2 |
+| `m1_stats_n20.py`         |   411 |       335 |                84 |
+| `m2_prereg_perfold.py`    |   214 |       222 |                36 |
 
-**(B) Por que importa.** O seu item **2.2 ja reservou exatamente esta decisao a voce**, mas para
-**dois** arquivos (`m1_stats_n20.py` e `m2_prereg_perfold.py`). Sao **quatro**. Substituir um
-artefato publicado por uma versao local divergente e decisao de autor, nao faxina — nao toquei em
-nada.
+**(B) Por que importa.** O seu item **2.2 ja reservou exatamente esta decisao a voce**, mas para **dois** arquivos
+(`m1_stats_n20.py` e `m2_prereg_perfold.py`). Sao **quatro**. Substituir um artefato publicado por uma versao local
+divergente e decisao de autor, nao faxina — nao toquei em nada.
 
 **(C) O que eu preciso de voce.** Por arquivo, ou uma regra para os quatro:
 
@@ -286,17 +287,17 @@ nada.
 **Como foi.** Nenhum comando meu pediu isso. O git tem uma configuracao (`notes.rewriteRef` /
 `remote.origin.push` com refspec ampla, ou `push.default` com notes habilitados) que empurra
 `refs/notes/*` junto de um push comum; o stderr de um dos meus pushes mostrou
-`* [new reference] refs/notes/commits`. Um sub-agente reportou isso por conta propria, incluindo o
-fato de ter subestimado o escopo na primeira vez que descreveu.
+`* [new reference] refs/notes/commits`. Um sub-agente reportou isso por conta propria, incluindo o fato de ter
+subestimado o escopo na primeira vez que descreveu.
 
-**O que ha nesses notes: 15 anotacoes, e todas sao correcoes de mensagens de commit minhas.** Cada
-uma diz que uma frase de commit era falsa e qual e a medicao correta — a convencao deste repositorio
-para nao reescrever historia. Sao, literalmente, o registro dos meus proprios erros.
+**O que ha nesses notes: 15 anotacoes, e todas sao correcoes de mensagens de commit minhas.** Cada uma diz que uma frase
+de commit era falsa e qual e a medicao correta — a convencao deste repositorio para nao reescrever historia. Sao,
+literalmente, o registro dos meus proprios erros.
 
-**Por que provavelmente nao e grave — agora medido em TODOS, nao em seis.** A primeira versao deste
-item afirmava "os 14 commits anotados nao estao em nenhum branch do origin" a partir de uma sondagem
-que rodou com `head -6`: **oito nunca foram checados**, e a recomendacao abaixo repousava nessa
-generalizacao. Re-medido sem o `head`, e a contagem tambem estava errada — sao **15** notes, nao 14:
+**Por que provavelmente nao e grave — agora medido em TODOS, nao em seis.** A primeira versao deste item afirmava "os 14
+commits anotados nao estao em nenhum branch do origin" a partir de uma sondagem que rodou com `head -6`: **oito nunca
+foram checados**, e a recomendacao abaixo repousava nessa generalizacao. Re-medido sem o `head`, e a contagem tambem
+estava errada — sao **15** notes, nao 14:
 
 ```
 for h in $(git notes list | awk '{print $2}'); do
@@ -304,9 +305,9 @@ for h in $(git notes list | awk '{print $2}'); do
 # checked=15  on_public_branch=0
 ```
 
-**15 de 15 verificados, zero em qualquer branch do `origin`.** Sao objetos alcancaveis apenas
-pelo ref de notes, nao historia visivel de nenhum branch publico. Quem clonar o repositorio **nao
-recebe notes por padrao** (precisa de `git fetch origin refs/notes/*:refs/notes/*`).
+**15 de 15 verificados, zero em qualquer branch do `origin`.** Sao objetos alcancaveis apenas pelo ref de notes, nao
+historia visivel de nenhum branch publico. Quem clonar o repositorio **nao recebe notes por padrao** (precisa de
+`git fetch origin refs/notes/*:refs/notes/*`).
 
 > **DECISAO SUA, e eu nao vou tomar por voce.** Tres opcoes:
 > 1. **Deixar.** Elas documentam correcoes honestas e nao aparecem em clone normal. Custo zero.
@@ -320,11 +321,11 @@ recebe notes por padrao** (precisa de `git fetch origin refs/notes/*:refs/notes/
 
 ### 2.19 Quatro numeros do registro de fechados nao reproduzem; um tem tres respostas
 
-**O que e.** O item 1.2 do `_archive/PENDENCIAS_RESOLVIDOS.md` tem nove linhas; cinco conferem. Das
-quatro restantes, nenhuma reproduz da arvore viva: comentarios medem 3.614 linhas contra 1.269
-afirmadas, o `preamble.tex` tem 14 placeholders contra 3, e `geometry`/`linespread` nao estao nesse
-arquivo. **Sao velhos, nao errados** — medidos na rodada 6, contra uma arvore que desde entao ganhou um
-apendice e perdeu o `0_main.tex`. O defeito duravel: nenhum registra **contra qual estado da arvore**
+**O que e.** O item 1.2 do `_archive/PENDENCIAS_RESOLVIDOS.md` tem nove linhas; cinco conferem. Das quatro restantes,
+nenhuma reproduz da arvore viva: comentarios medem 3.614 linhas contra 1.269 afirmadas, o `preamble.tex` tem 14
+placeholders contra 3, e `geometry`/`linespread` nao estao nesse arquivo. **Sao velhos, nao errados** — medidos na
+rodada 6, contra uma arvore que desde entao ganhou um apendice e perdeu o `0_main.tex`. O defeito duravel: nenhum
+registra **contra qual estado da arvore**
 foi tomado, e medicao sem isso so pode ser re-tomada, nunca re-conferida.
 
 > **DECISAO SUA, e e uma so:** qual convencao de contagem de palavras vale para o Resumo e o Abstract
@@ -339,25 +340,25 @@ foi tomado, e medicao sem isso so pode ser re-tomada, nunca re-conferida.
 > dizia explicitamente *"e uma decisao sua"*. Reencontrado em 2026-07-30 varrendo as 63 revisoes do
 > tracker por titulo, nao por numero — porque os numeros foram reciclados em tres renumeracoes.
 
-**Re-medido agora, na prosa viva (comentarios removidos), e os numeros continuam praticamente iguais
-aos de dois dias atras:**
+**Re-medido agora, na prosa viva (comentarios removidos), e os numeros continuam praticamente iguais aos de dois dias
+atras:**
 
-| capitulo | `\emph`/`\textit` |
-|---|---|
-| Cap. 1 | 6 |
-| Cap. 2 | 6 |
-| Cap. 3 | 23 |
+| capitulo   | `\emph`/`\textit`  |
+|------------|--------------------|
+| Cap. 1     | 6                  |
+| Cap. 2     | 6                  |
+| Cap. 3     | 23                 |
 | **Cap. 4** | **153** (eram 155) |
-| Cap. 5 | 10 |
-| Cap. 6 | 0 |
+| Cap. 5     | 10                 |
+| Cap. 6     | 0                  |
 
 Mais italicizados no Cap. 4: `embedding` 18, `baseline` 16, `encoders` 15, `encoder` 14,
-`embeddings` 12, `check-ins` 7. **E inconsistente consigo mesmo** — a mesma palavra aparece nas duas
-formas: `encoder` italico 14 / romano 8, `encoders` 15 / 7, `baseline` 16 / 4, `embedding` 18 / 1.
+`embeddings` 12, `check-ins` 7. **E inconsistente consigo mesmo** — a mesma palavra aparece nas duas formas: `encoder`
+italico 14 / romano 8, `encoders` 15 / 7, `baseline` 16 / 4, `embedding` 18 / 1.
 
-**A causa e legitima, a consequencia nao.** Isso vem do artigo em portugues, onde italicizar
-estrangeirismo e a pratica correta. Num capitulo **em ingles** a mesma marcacao nao marca mais
-estrangeirismo: le-se como enfase numa palavra que nao tem nenhuma, e o proprio capitulo se contradiz.
+**A causa e legitima, a consequencia nao.** Isso vem do artigo em portugues, onde italicizar estrangeirismo e a pratica
+correta. Num capitulo **em ingles** a mesma marcacao nao marca mais estrangeirismo: le-se como enfase numa palavra que
+nao tem nenhuma, e o proprio capitulo se contradiz.
 
 > **DECISAO SUA, e continua sendo. Tres caminhos:**
 > 1. **Deixar como esta.** O Cap. 4 e capitulo de artigo publicado; a marcacao veio de la. Custo zero,
@@ -374,14 +375,13 @@ estrangeirismo: le-se como enfase numa palavra que nao tem nenhuma, e o proprio 
 
 ### 2.21 O segundo ponto do seu orientador: como os termos entram
 
-**O que e.** Ele escreveu *"soa um pouco estranho o jeito que alguns termos sao inseridos (marquei
-alguns la)"*. O buraco concreto que o item registrava — o revisor de estilo nunca ter lido o
-`articles/[mobiwac]/GLOSSARY.md`, que vence para o Cap. 5 — esta **fechado**: revisor re-rodado em
-28/07, as tres proibicoes da §3 ausentes, as 28 da §4 medidas (22 ausentes, 6 dentro da condicao, e
-**uma violacao real corrigida**: `region head` -> `region output`).
+**O que e.** Ele escreveu *"soa um pouco estranho o jeito que alguns termos sao inseridos (marquei alguns la)"*. O
+buraco concreto que o item registrava — o revisor de estilo nunca ter lido o
+`articles/[mobiwac]/GLOSSARY.md`, que vence para o Cap. 5 — esta **fechado**: revisor re-rodado em 28/07, as tres
+proibicoes da §3 ausentes, as 28 da §4 medidas (22 ausentes, 6 dentro da condicao, e **uma violacao real corrigida**:
+`region head` -> `region output`).
 
-**Nao medido, e nao vou dizer que esta:** §6, §7 e §8 do glossario sao julgamento de estilo, sem grep
-que decida.
+**Nao medido, e nao vou dizer que esta:** §6, §7 e §8 do glossario sao julgamento de estilo, sem grep que decida.
 
 > **DECISAO SUA, pequena:** ele marcou termos num PDF que **eu nao tenho**. Me passe as marcacoes e eu
 > trato uma por uma.
@@ -431,34 +431,35 @@ depois desta varredura.
 
 ### 5.6b A premissa da sua decisao 5.6 nao e o que os arquivos mostram — resolvi imprimindo AS DUAS datas
 
-**Medido em 2026-07-30, nos cinco parquets que este trabalho consome.** Sua decisao no 5.6 foi
-*"Busque pelo que o artigo original cita e vamos usar isso em ambos. Inclusive ambos usaram o mesmo
-recorte nao houve diferenca."* A primeira metade foi cumprida: o `cho2011gowalla` foi aberto em
-primeira mao (PDF dos proprios autores, Secao 2, p.2) e ele diz **Fev 2009 a Out 2010**.
+**Medido em 2026-07-30, nos cinco parquets que este trabalho consome.** Sua decisao no 5.6 foi *"Busque pelo que o
+artigo original cita e vamos usar isso em ambos. Inclusive ambos usaram o mesmo recorte nao houve diferenca."* A
+primeira metade foi cumprida: o `cho2011gowalla` foi aberto em primeira mao (PDF dos proprios autores, Secao 2, p.2) e
+ele diz **Fev 2009 a Out 2010**.
 
 **A segunda metade nao se sustenta.** Os cinco estados usados nao param em Out 2010:
 
-| estado | primeiro check-in | ultimo check-in | n |
-|---|---|---|---|
-| Alabama | 2009-03-18 | 2011-07-27 | 113.846 |
-| Arizona | 2009-03-26 | 2011-07-04 | 236.450 |
-| Florida | 2009-03-13 | 2011-08-11 | 1.407.034 |
-| Texas | 2009-01-21 | **2011-08-16** | 4.089.892 |
-| California | 2009-01-24 | 2011-08-14 | 3.171.380 |
+| estado     | primeiro check-in | ultimo check-in | n         |
+|------------|-------------------|-----------------|-----------|
+| Alabama    | 2009-03-18        | 2011-07-27      | 113.846   |
+| Arizona    | 2009-03-26        | 2011-07-04      | 236.450   |
+| Florida    | 2009-03-13        | 2011-08-11      | 1.407.034 |
+| Texas      | 2009-01-21        | **2011-08-16**  | 4.089.892 |
+| California | 2009-01-24        | 2011-08-14      | 3.171.380 |
 
 Uniao: **2009-01-21 a 2011-08-16** — dez meses depois da janela que o artigo declara.
 
-**Por que isso importa e nao e frescura.** A frase esta no Cap. 6 sob a limitacao *"Data vintage"*.
-Ali o leitor le a data como **a safra dos dados que voce usou**, nao como uma nota sobre o que outro
-artigo coletou. Imprimir so Fev 2009–Out 2010 subestimaria o proprio corpus em dez meses.
+**Por que isso importa e nao e frescura.** A frase esta no Cap. 6 sob a limitacao *"Data vintage"*. Ali o leitor le a
+data como **a safra dos dados que voce usou**, nao como uma nota sobre o que outro artigo coletou. Imprimir so Fev
+2009–Out 2010 subestimaria o proprio corpus em dez meses.
 
-**O que eu fiz.** A frase agora carrega as duas datas: o que os autores relatam, e o que a extracao
-daqui abrange, com a medicao completa e o comando no comentario de proveniencia do
-`6_conclusion.tex`. Nao e uma correcao da sua decisao — voce estava decidindo **qual fonte citar**, e
-essa parte esta cumprida.
+**O que eu fiz.** A frase agora carrega as duas datas: o que os autores relatam, e o que a extracao daqui abrange, com a
+medicao completa e o comando no comentario de proveniencia do
+`6_conclusion.tex`. Nao e uma correcao da sua decisao — voce estava decidindo **qual fonte citar**, e essa parte esta
+cumprida.
 
 > **DECISAO SUA.** Se voce preferir imprimir **so** a janela do artigo, a clausula depois da virgula e
-> a que sai, e eu removo. Marcado com `[NEEDS SIGN-OFF: PENDENCIAS_RESOLVIDOS 5.6 (arquivado 2026-07-30), round8]` no fonte.
+> a que sai, e eu removo. Marcado com `[NEEDS SIGN-OFF: PENDENCIAS_RESOLVIDOS 5.6 (arquivado 2026-07-30), round8]` no
+> fonte.
 
 ## §3 · Aberto e bloqueado em terceiros
 
