@@ -203,7 +203,8 @@ navigational device in it. Delivered as one 153-word block, the announced parall
 "The second axis is the data" arrives mid-paragraph, where a reader scanning for the second axis will
 not find it. The source intends 53 + 100 words. Same mechanism in Ch. 2 at :755/:767, where a
 122-word protocol paragraph and a 195-word statistics paragraph merge into the 317-word block that is
-the chapter's joint-longest, and the merged result straddles the p. 25/26 break.
+the chapter's joint-longest, and the merged result straddles the p. 25/26 break: 18 rendered lines on
+p. 25 plus 4 on p. 26, so 22 of a 37-line page, about 0.6 of a page in one unbroken block.
 
 I checked all four changed files for this pattern. `apx_f_cosine.tex` has two comment-bridged
 junctions, one benign (inside the `figure` environment at :227/:249, where no paragraph is at stake)
