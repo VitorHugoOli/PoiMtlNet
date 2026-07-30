@@ -374,8 +374,14 @@ O que elas acharam:
 Itens que sairam do `PENDENCIAS.md` **fechados de forma legitima** — com commit e com marca de
 resolucao no titulo — mas que nunca foram copiados para este arquivo. Encontrados varrendo as 63
 revisoes do tracker **por titulo**, porque os numeros de item foram reciclados em tres renumeracoes e
-uma busca por numero nao os acha. Cada um foi re-verificado contra a arvore viva antes de ser
-registrado aqui; o que NAO se sustentou voltou para o `PENDENCIAS.md` em vez de vir para ca.
+uma busca por numero nao os acha.
+
+**Sete candidatos sairam da varredura; a primeira contagem dizia "dois eram perdas reais" e foi escrita
+antes de dois dos sete serem medidos.** Corrigido: TRES eram perdas (o italico do Cap. 4 -> 2.20, este
+REV-024, e o ponto de terminologia do orientador -> 2.21) e QUATRO estavam resolvidos (determinismo da
+categoria -> `apx_b_static_scope.tex`, p.11 do volume extra; cobertura de checkers -> 2.10; rotulos da
+figura do Cap. 4 -> `LEFT_OUT` LO-6; escopo da tarefa estatica -> 2.4). Cada um foi re-verificado contra
+a arvore viva; o que NAO se sustentou voltou para o `PENDENCIAS.md` em vez de vir para ca.
 
 ### ~~Fonte da bibliografia: 12 pt ou `\footnotesize`? (REV-024)~~ — RESOLVIDO 2026-07-27
 

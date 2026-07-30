@@ -845,6 +845,38 @@ git push origin refs/notes/commits
 
 Sem isso a mensagem falsa viaja e a correcao fica na sua maquina, que e pior do que nao ter corrigido.
 
+### 2.21 O segundo ponto do seu orientador (como os termos entram) — item perdido, e o buraco que ele apontava ESTA fechado
+
+> **PERDIDO, nao resolvido — e eu o classifiquei errado duas vezes.** Existiu como `3.4` ate
+> `1ef83867` (2026-07-28), saiu sem decisao e sem ir para o arquivo. Na varredura de 2026-07-30 eu o
+> listei como candidato a perda real e **nunca o medi**, mas escrevi "cinco de sete resolvidos".
+> Medido agora.
+
+**O que ele disse:** *"so tome cuidado com o uso de IA e os termos menos comuns que sao usados... soa
+um pouco estranho o jeito que alguns termos sao inseridos (marquei alguns la)"*.
+
+**O buraco concreto que o item registrava:** o brief da persona 03 (style auditor, gate G3) manda ler
+`articles/[mobiwac]/GLOSSARY.md` e diz que ele **vence** para o Cap. 5; o relatorio v2 dela, de 26/07,
+tinha **zero** referencias a esse arquivo. O glossario tem 393 linhas.
+
+**Medido em 2026-07-30 — o buraco esta fechado:**
+
+| verificacao | resultado |
+|---|---|
+| persona 03 re-rodada depois de 26/07? | **sim**, `_round6/17_style_readability_credibility.md`, 28/07 |
+| codenomes de repositorio proibidos na prosa viva do Cap. 5 (`C2HGI`, `B9`, `v11`–`v17`, `champion-G`, `H3-alt`, `log_T`, `substrate`, `engine`, `board`, `recipe`) | **zero** |
+| `frozen` (tambem na lista) | 2 usos, **ambos legitimos**: "frozen weights (no fine-tuning)", terminologia padrao de ML, e o comentario de proveniencia do proprio arquivo registra a excecao: *"frozen -> fixed, except frozen weights, glossed"* |
+
+**Uma ressalva honesta sobre o que eu NAO medi.** As secoes 7 e 8 do glossario (marcas de texto de
+maquina, registro internacional simples) e o "checklist de consistencia" da secao 6 sao julgamentos de
+estilo, nao listas de termos: nao ha como medi-los com um grep, e eu nao vou dizer que estao aplicados
+porque a persona rodou. O que esta medido e a parte mecanica.
+
+> **DECISAO SUA, pequena.** O seu orientador escreveu *"marquei alguns la"* — ele marcou termos
+> especificos num PDF ou num documento que **eu nao tenho**. Se voce me passar essas marcacoes, eu
+> trato uma por uma. Sem elas, o que eu consigo afirmar e so o que esta na tabela acima, e o item fica
+> aberto por falta da entrada dele, nao por falta de trabalho.
+
 ### 2.20 O Cap. 4 italiciza ingles corriqueiro 153 vezes, e este item DESAPARECEU do tracker sem decisao
 
 > **ESTE ITEM FOI PERDIDO, nao resolvido.** Ele existiu ate `1ef83867` (2026-07-28) e saiu do arquivo

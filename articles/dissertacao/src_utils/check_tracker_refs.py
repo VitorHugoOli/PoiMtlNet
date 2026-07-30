@@ -196,15 +196,26 @@ def orphaned_items() -> list[str]:
     tracker: 91 distinct items have existed by title; 30 are live; 61 left. Nineteen went to
     _archive/PENDENCIAS_RESOLVIDOS.md as intended. Of the rest, most were retitles of an item that is
     still live or archived (the sign-off marker item alone was retitled six times as its count changed,
-    27 -> 31 -> 32 -> 46 -> 53 -> 55), but TWO were real losses:
+    27 -> 31 -> 32 -> 46 -> 53 -> 55). Seven survived that filter as candidate losses, and the first
+    version of this docstring said "TWO were real losses" -- a count taken before two of the seven had
+    been measured at all. Corrected after review. All seven, each probed:
 
-      * the Ch.4 italics item -- 153 \emph of ordinary English, whose own title said "e uma decisao
-        sua", vanished at 1ef83867 with no decision and no archive entry. Restored as 2.20.
-      * REV-024, the bibliography font size -- legitimately closed with commit 9e2b5157 and struck
-        through, but never copied across. Re-verified (the \footnotesize wrapper is absent from every
-        live root file) and moved to the archive under a round-8 banner.
+      * Ch.4 ITALICS -- LOST. 153 \emph of ordinary English, title said "e uma decisao sua", gone at
+        1ef83867 with no decision and no archive entry. Restored as 2.20.
+      * REV-024, bibliography font -- CLOSED BUT UNARCHIVED. Commit 9e2b5157, struck through.
+        Re-verified (no \footnotesize wrapper in any live root file) and moved to the archive.
+      * The ADVISOR'S TERMINOLOGY point -- LOST, and I first counted it accounted WITHOUT PROBING IT.
+        Measured: the hole it named (persona 03's report never citing the MobiWac glossary) is closed --
+        re-run 28/07, zero banned repo codenames in live Ch.5 prose, the two "frozen" hits are
+        "frozen weights", a documented exception. Restored as 2.21; it stays open only for the
+        author's own marked-up terms, which I do not have.
+      * CATEGORY DETERMINISM in five states -- ACCOUNTED, and my probe looked in the wrong file. It is
+        the content of apx_b_static_scope.tex and renders on p.11 of main_extra.pdf: "between 284 and
+        365 distinct values per state". A grep of the archive returned 0 and I read that as a loss.
+      * The CHECKER-COVERAGE item -> live as 2.10. Ch.4 FIGURE LABELS -> LEFT_OUT LO-6.
+        STATIC-TASK SCOPE (REV-002) -> live as 2.4.
 
-    Item 2.2 was a third, found the same day by the author reading the file.
+    Item 2.2 was another of the same class, found the same day by the author reading the file.
 
     WHY NO GATE SAW IT. check_tracker_refs verified that citations RESOLVE and nesting_problems() that
     items sit under their own section. Neither asks whether an item that USED to exist still exists
