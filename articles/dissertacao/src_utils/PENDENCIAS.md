@@ -104,6 +104,22 @@ obsoletas sao **todas** do Fabrício e **todas** citam `0_main.tex`, arquivo que
 retomadas: ela contou 27 paragrafos / media 161 / cinco acima de 240 palavras, e hoje sao
 33 / 132 / 4.
 
+**Preservado da esteira paralela (commit `c94d1f19`, 02:01:51), porque a minha reescrita deste bloco
+apagou a nota dela e a nota esta certa** — anotada como dela, e reconciliada com a numeracao deste
+arquivo:
+
+> **ATUALIZACAO 2026-07-30:** voce acrescentou um ponto seu no fim do arquivo (l. 1228), sobre
+> otimalidade de Pareto nos fundamentos de MTL. **Esse esta sendo executado agora** — e o item 2.12 pelo
+> outro lado (o termo esta em prosa publicada e nao esta no `GLOSSARY`, que e fail-closed), e a esteira que
+> trabalha nele tambem le os itens G8 (definicoes formais de MTL) e G10 (o argumento tecnico para o achado
+> de nao-conflito) porque sao a mesma peca de texto. **O resto do arquivo continua nao executado.**
+
+Duas reconciliacoes, para os ponteiros nao apontarem para o vazio. Os `G8` e `G10` daquela nota sao,
+nos IDs estaveis deste arquivo, o **GER-09** e o **GER-11**; e o "ponto no fim do arquivo (l. 1228)" e o
+**AUT-01**. E a frase final daquela nota deixou de valer entre 02:01 e agora: o resto do
+`CONSIDERATIONS.md` **foi** executado nesta rodada, no sentido de estar medido e dividido, mas **nenhum
+item foi aplicado a nenhum capitulo** — que e provavelmente o que ela queria dizer.
+
 > **DECISAO SUA:** nada aqui. Este item esta fechado; o que espera voce esta no **§6**.
 
 *Forense: `_round9/31_stale_quote_pass.md` (o passe de obsolescencia, incluindo os dois instrumentos
