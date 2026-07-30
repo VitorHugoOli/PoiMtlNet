@@ -204,7 +204,15 @@ scope. During development, on an earlier preparation of the data, the cosine
 similarity between the two tasks' gradients averaged $+0.001$ over four seeds on
 four Gowalla states, three of which are among the five we report, directional conflict
 only, a finding for this pair of
-tasks rather than a general rule. Under the check-in-level representation the two
+% [round9, 2026-07-30] POINTER ADDED (excellence persona EX-3). This paragraph cites the cosine from an
+% EARLIER preparation of the data (+0.001 over four seeds on four Gowalla states, three of them among the
+% five reported), and Appendix F now measures the same quantity on the final model over seven datasets.
+% Measured before adding: Ch.6 contained ZERO references to apx:cosine, so a reader who met the smaller
+% number here had no way to know a larger measurement exists and agrees. No new claim -- the appendix's
+% conclusion is the same, which is the point of saying so.
+tasks rather than a general rule. Appendix~\ref{apx:cosine} reports the same quantity on the
+final model over seven datasets, and reaches the same conclusion from the larger measurement.
+Under the check-in-level representation the two
 sequential tasks coexist with essentially orthogonal gradients: sharing stopped
 hurting. This also explains why gradient-balancing optimizers had little to correct,
 in this configuration, and why a tuned fixed weighting sufficed.

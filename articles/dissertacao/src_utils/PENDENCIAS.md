@@ -693,7 +693,8 @@ beside our claim that Check2HGI extends the same hierarchy.
    um objetivo novo, e fica mal ao lado da nossa propria frase de que o Check2HGI *extends* a mesma hierarquia
 3. **Nao mexer** — a prosa ja diz "builds directly on" e "extends"; mas dois leitores tropecaram
 
-> **DECISAO SUA:** De fato isso já tá bem explicado no texto, então não vamos mexer. Algo que podemos melhorar e explicação do hgi e como ele
+> **DECISAO SUA:** De fato isso já tá bem explicado no texto, então não vamos mexer. Algo que podemos melhorar e
+> explicação do hgi e como ele
 > funciona, vide que essa é uma das aboardagens mais importantes para as contribuições da dissertação.
 
 ### 6.2 Onde o pedido colide com uma regra de honestidade do proprio documento
@@ -711,7 +712,8 @@ against his readability ask.
 2. **Manter os numeros e cortar so a glosa de joint-best** — ja feito: a glosa saiu na reescrita de 28/07
 3. **Manter como esta** — contraria o pedido dele
 
-> **DECISAO SUA:** Então ele revisou uma versão antiga do Resumo, essa nova versão já 
+> **DECISAO SUA:** Ele revisou uma versão antiga do Resumo, essa nova versão já cumpre bem o intuito final. Vamos manter
+> em como esta.
 
 #### FAB-22 — the result detail does not belong in the introduction
 
@@ -727,7 +729,10 @@ keep the test or stop making the comparative claim.
 2. **Tirar a comparacao TODA da introducao e deixar so a pergunta** — coerente: sem afirmacao, sem teste
 3. **Manter** — contraria o pedido
 
-> **DECISAO SUA:** ______
+> **DECISAO SUA:** Eu acho que não precisamos tirar tudo, o ponto e o excesso de inforamção. Podemos comentar algo
+> somente sobre o fatoq ue os experimento foram realizados em 5 estados do estados unidos e um dataset non-U.S para
+> metritos de generalização. Também, podemos comentar que usamos métodos estatisticos para comprovar essa difernça.
+> Enfim a ideia e ser mais deireto. Não remover tudo.
 
 #### FAB-03 — put the open question in the present tense
 
@@ -1249,7 +1254,7 @@ item. Os cinco de maior consequencia:
 3. **As duas sentencas D-02 em `6_conclusion.tex`** (p. 76). Elas mudam o que o numero mais citado do Ch.4 licencia.
 4. **A frase de reprodutibilidade em `apx_a_contributions.tex`** (p. 88), contra 2.2 acima.
 5. **`make check` e os tres builds.** `cd articles/dissertacao && source src_utils/texenv.sh &&
-   (cd src && make defense && make academico && make ppgc && make check)`. Deve sair 0 e dar **101/98/102** paginas. *(
+   (cd src && make defense && make academico && make ppgc && make check)`. Deve sair 0 e dar **102/99/103** paginas. *(
    Corrigido em 2026-07-30: dizia `make final`, alvo renomeado para
    `academico` em 2026-07-29 — ainda funciona como alias, mas imprime um aviso — e citava **108/105/109**, que nao e o
    que a arvore produz. Medido agora com pypdfium2 sobre

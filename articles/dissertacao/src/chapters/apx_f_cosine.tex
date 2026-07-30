@@ -80,7 +80,19 @@ Chapter~\ref{ch:mobiwac}.
 The two tasks turn out not to disagree. Their gradients are statistically indistinguishable from
 orthogonal on every dataset measured, which is a stronger and stranger result than mere absence of
 conflict, and it carries a consequence for the whole investigation: a gradient balancer had nothing
-to balance. That is why replacing the sharing scheme changed so little in the first study, and why
+% [round9, 2026-07-30] "REPLACING THE SHARING SCHEME" -> "VARYING THE GRADIENT BALANCER" (excellence
+% persona EX-2). The sentence reported an experiment the first study never ran. Verified in Chapter 3's
+% own live prose before changing it: what it varied was the OPTIMIZER ("Nash-MTL was compared with
+% different strategies, including PCGrad and an approach with no optimizer", p.38, and PCGrad appears
+% 5x). Alternative sharing is listed there as FUTURE WORK against an untested hypothesis: "We plan to
+% explore alternative parameter-sharing mechanisms, such as soft sharing ... to test the hypothesis that
+% the hard-sharing architecture was overly restrictive" (p.43).
+% Reporting a plan as a completed comparison is a claims-evidence mismatch, and a banca member who has
+% read Chapter 3 catches it immediately. The corrected verb names what was actually varied, which is also
+% what the orthogonality result actually explains.
+% Sentence predates this round (git log -S places it at fcdf6ad4) but sits inside the block under
+% sign-off, so it is in scope.
+to balance. That is why varying the gradient balancer changed so little in the first study, and why
 changing the representation changed so much in the second and third. The sections below give the
 measurement, the two findings that qualify it, and the boundary beyond which none of it is claimed.
 
@@ -153,9 +165,18 @@ nothing there.
 
 Those fifty values are not fifty independent measurements. They are consecutive states of one
 training run, so treating them as independent draws would report more confidence than the data hold.
+% [round9, 2026-07-30] REPETITION UNIT STATED (excellence persona EX-4). The appendix reported fold counts
+% and observation counts but never said how many random initializations stand behind each dataset, and a
+% reader could not tell whether the five fold means come from five restarts or one. Measured from
+% _round7/gradient_cosine_observations6.parquet before writing it: every dataset has exactly 5 folds and
+% ONE configuration (250 observations) except Florida, which has 12 configurations over the same 5 folds
+% (3,150). The parquet carries no seed column, so initialization is not a factor in this design at all --
+% which is the limitation now stated rather than left for the reader to infer.
+% This is a genuine bound on the result and it belongs beside the other three the appendix already gives.
 The unit of independence is the fold. Every test below therefore runs on five fold means at each of
 the six single-configuration datasets, and on Florida's sixty fold series, its twelve configurations
-over the same five folds. Because those twelve reuse one set of folds they are not independent of one
+over the same five folds. Each of those six is measured at a single random initialization; the
+variation the tests see is across folds, not across restarts of the same fold. Because those twelve reuse one set of folds they are not independent of one
 another either, so the table also reports Florida read as twelve configuration means, which is the
 more conservative reading and gives the same answer. Where a count of observations appears it
 describes the data, not a test's sample size.
