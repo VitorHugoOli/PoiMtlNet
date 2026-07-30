@@ -319,6 +319,8 @@ historia visivel de nenhum branch publico. Quem clonar o repositorio **nao receb
 > Eu recomendo a **2 + 3** se este repositorio for ficar publico com a defesa, e a **1** se ele
 > permanecer privado. Nao executei nenhuma delas porque mexer em ref publicado e sua alcada.
 
+> **DECISAO:** 2+3 
+
 ### 2.19 Quatro numeros do registro de fechados nao reproduzem; um tem tres respostas
 
 **O que e.** O item 1.2 do `_archive/PENDENCIAS_RESOLVIDOS.md` tem nove linhas; cinco conferem. Das quatro restantes,
@@ -372,6 +374,8 @@ nao tem nenhuma, e o proprio capitulo se contradiz.
 > Eu recomendaria a **2**, e nao aplico nada sem voce: e prosa de artigo publicado e o proprio item
 > dizia que a decisao e sua. `WRITING_LAW` nao cobre italico de estrangeirismo em capitulo traduzido,
 > entao nao ha regra para eu invocar.
+ 
+> **DECISAO:** 2.
 
 ### 2.21 O segundo ponto do seu orientador: como os termos entram
 
