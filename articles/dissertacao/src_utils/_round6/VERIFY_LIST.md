@@ -288,7 +288,7 @@ the entry lands **before** p. 19 ships. Same question for **Pareto-stationary po
 >   "$(grep -c 'Pareto-stationary' GLOSSARY.md)"
 > # EXPECT: contains=bilinear discriminator 1
 > # EXPECT: contains=logistic function 1
-> # EXPECT: contains=Pareto-stationary 0
+> # EXPECT: contains=Pareto-stationary 2
 > ```
 > (`grep -c` counts matching LINES, so each registered term reads 1: one row each. An earlier draft of
 > this probe annotated `logistic function 2`, carried over from a string-occurrence count — the term
@@ -299,16 +299,61 @@ the entry lands **before** p. 19 ships. Same question for **Pareto-stationary po
 > both with the note that they clear this block; the terms print in Chapter 2 (defense build p. 20).
 > That half is closed.
 >
-> **Pareto-stationary point is NOT registered and IS in prose, at two sites**, so the fail-closed rule
-> is being broken right now: `chapters/3_cbic/method.tex` ("convergence to a Pareto-stationary point")
-> and `chapters/4_courb/methodology.tex` (the narrowed Nash-MTL guarantee of item 3 above), printing
-> on **pp. 36 and 48** of the defense build. `tables/courb/errata.tex` also carries the unhyphenated
-> "Pareto stationary". Both prose sites are in **reproduced published prose**, which is why an agent
-> may not resolve this by rewording: the term cannot be removed without editing a published sentence,
-> and it cannot stay without an entry. The registry decision is the author's and is handed over as
-> `PENDENCIAS.md` §2.12. Note that the gate suite has an informational Pareto gate ("the technical
-> term is legal") which passes — it checks occurrences, not registration, so nothing in `make check`
-> catches this.
+> **ROUND 9, 2026-07-30 — THE THIRD LEG IS NOW CLOSED, AND THE EXPECT ANNOTATION ABOVE CHANGED FROM
+> `Pareto-stationary 0` TO `2` FOR THAT REASON.** The author decided the open question recorded as
+> `PENDENCIAS.md` §2.12 with `DESICAO: A.` (register the term), and the entry landed: `GLOSSARY.md:103`
+> in §4 and `:148` in the §6 Portuguese table, which is why `grep -c` reads 2 rather than 1. Three
+> further terms were registered in the same pass (Pareto dominance, Pareto optimality, gradient
+> conflict) because §2.3 needed them. Source ledger, with the page of each definition in the paper it
+> came from: `_round9/31_pareto.md`. **This annotation was stale for exactly one commit**, and the
+> harness caught it, which is the behavior wanted: the gate failed on a claim that had become false
+> because the underlying decision was taken. That is `§4b V6` in action, a fixed number surviving at a
+> second site, so the count was re-measured here rather than carried across.
+>
+> The original finding, kept because it is the reason the entry exists: the term was **in prose at
+> five live sites and absent from the registry**, breaking the fail-closed rule.
+> `chapters/3_cbic/method.tex` ("convergence to a Pareto-stationary point"), two in
+> `chapters/3_cbic/basis.tex` ("Pareto-optimal descent directions", "Pareto efficiency"),
+> `chapters/4_courb/methodology.tex` (the narrowed Nash-MTL guarantee of item 3 above), and the
+> `tables/courb/errata.tex` row that records that narrowing, which carries the unhyphenated "Pareto
+> stationary". The earlier note said two sites and pp. 36 and 48; the count and the volume are
+> corrected here, and so are the page numbers, for two separate reasons.
+>
+> **Rendered pages, measured with pypdfium2 against the 101-page defense build of this commit** (the
+> new §2.3 passage adds one page, so every site after Chapter 2 moved by one, and the pre-edit
+> 100-page figures are what the first draft of this note wrongly carried). The builds are the ordinary
+> `make defense` / `make extra` in `src/`, quoted in prose rather than as a shell block on purpose:
+> `check_verify_list.py` executes every fenced block it finds, and a three-target build took that gate
+> from 4 seconds to 297, which is why build blocks there are cwd-probed rather than run.
+>
+> | site | defense page | volume |
+> |---|--:|---|
+> | the new §2.3 passage (this round's addition) | 23 | defense |
+> | `3_cbic/basis.tex` "MGDA finds Pareto-optimal descent directions" | 31 | defense |
+> | `3_cbic/basis.tex` "guarantees of Pareto efficiency" | 32 | defense |
+> | `3_cbic/method.tex` "convergence to a Pareto-stationary point" | 37 | defense |
+> | `4_courb/methodology.tex` the narrowed Nash-MTL guarantee | 49 | defense |
+> | `tables/courb/errata.tex` the row recording that narrowing | 16 | **supplementary** (`make extra`, 20 pp; not in the defense build at all) |
+>
+> A page number in a durable record is only true of the build it was taken against, which is why the
+> build and its page count are named in the row above rather than left implicit.
+>
+> **One correction to this item's own reasoning, since it governed what an agent was allowed to do.**
+> It stated that both prose sites are reproduced published prose. Measured in round 9: the Chapter 3
+> sentences are (each is a verbatim substring of `articles/CBIC___MTL/sections/*.tex`), but the
+> Chapter 4 sentence is **not** — it is this dissertation's own errata-corrected sentence, and the
+> published Portuguese source contains no occurrence of the term (`articles/CoUrb_2026/src`, nine
+> `.tex` files, zero live matches). The conclusion the item drew still holds for a different reason:
+> the Chapter 4 sentence is already listed in Appendix B, so rewording it again would mean revising an
+> errata entry, not a published one.
+>
+> Each of the five sentences was also checked against the guarantee its source paper actually states,
+> and all five state it correctly; the one imprecision, MGDA described as finding "Pareto-optimal
+> descent directions" where `sener2018mgda` states a dichotomy between Pareto stationarity and a
+> common descent direction (its pp. 4 and 6), sits inside published prose and was left as published.
+> Note that the gate suite's informational Pareto gate ("the technical term is legal") passes and
+> always did: it counts occurrences, not registration, so `make check` never caught the breach. What
+> catches it now is `check_audit_claims.py`, probes `R9-pareto` and `R9-conflict`.
 
 **5. Chapter 5 hedges the region result and the frame does not.**
 `chapters/5_mobiwac/05_setup.tex:76` (p. 66) states that the analysis plan "did not cover

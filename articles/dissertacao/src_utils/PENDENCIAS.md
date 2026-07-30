@@ -93,10 +93,18 @@ esta preservada byte a byte em
 [`_round9/30_considerations_prosa_original.md`](_round9/30_considerations_prosa_original.md), com o
 sha256 e o comando que o reproduz no cabecalho.
 
-**O passe de citacoes obsoletas, antes de qualquer juizo.** Das 41 ancoras citadas,
-**31 sao exatas e 10 estao obsoletas** (5 alteradas, 5 desaparecidas). As dez
-obsoletas sao **todas** do Fabrício e **todas** citam `0_main.tex`, arquivo que deixou de existir em
-2026-07-29. As 21 ancoras dos capitulos 1, 2 e 6 conferem todas. Comandos em
+**O passe de citacoes obsoletas, antes de qualquer juizo.** Das 41 ancoras localizaveis,
+**32 sao exatas e 9 estao obsoletas** (4 alteradas, 5 desaparecidas). As nove
+obsoletas sao **todas** do Fabrício, **todas** citam `0_main.tex` (arquivo que deixou de existir em
+2026-07-29), e sao exatamente os itens **FAB-02 a FAB-10**. As **20** ancoras dele fora daquele
+arquivo conferem todas.
+
+*(Este paragrafo dizia "10 obsoletas, todas citam `0_main.tex`" e "21 ancoras". Estava errado por
+uma: a decima era o **FAB-27**, que esta em `tables/frame/lineage.tex`, e cuja citacao so falhou
+porque ele a escreveu prefixada com "Na tabela: " e terminada em "....". O texto que ele cita esta
+presente palavra por palavra. Os numeros certos sao os de cima, e sao os mesmos que o §6 carrega —
+o §2.8 tinha ficado com a versao anterior a correcao, o que deixou este arquivo contradizendo a si
+mesmo por dois commits.)* Comandos em
 [`_round9/31_stale_quote_pass.md`](_round9/31_stale_quote_pass.md).
 
 **A divisao.** 21 itens "eu aplico", 21 precisam de voce (viraram o **§6**), 1 bloqueado
@@ -184,12 +192,25 @@ cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
 grep -c 'Pareto-stationary' GLOSSARY.md          # 0
 ```
 
-e o termo esta em prosa em **dois** sitios, os dois em texto publicado reproduzido:
-`chapters/3_cbic/method.tex` (*"convergence to a Pareto-stationary point"*) e
+e o termo esta em prosa em **cinco** sitios (o registro anterior dizia dois), em quatro arquivos:
+`chapters/3_cbic/method.tex` (*"convergence to a Pareto-stationary point"*), duas vezes em
+`chapters/3_cbic/basis.tex` (*"Pareto-optimal descent directions"* e *"Pareto efficiency"*),
 `chapters/4_courb/methodology.tex` (a garantia do Nash-MTL, a mesma frase do item 3 do
-`VERIFY_LIST`). Imprimem nas **pp. 36 e 48**. `tables/courb/errata.tex` ainda traz a forma sem hifen, "Pareto
-stationary". As outras duas entradas que o item 4 daquele arquivo pedia — **bilinear discriminator** e **logistic
-function** — **ja entraram** (`GLOSSARY.md:71` e `:72`); so esta faltou.
+`VERIFY_LIST`) e a linha de errata que registra essa correcao, em `tables/courb/errata.tex`, que
+ainda traz a forma sem hifen, "Pareto stationary". As outras duas entradas que o item 4 daquele
+arquivo pedia — **bilinear discriminator** e **logistic function** — **ja entraram**
+(`GLOSSARY.md:71` e `:72`); so esta faltou.
+
+**Duas correcoes ao proprio texto acima, medidas em 2026-07-30 e registradas aqui porque mudam o que
+um agente pode fazer.** Primeira: **nao sao todos prosa publicada**. As frases do Cap. 3 sao (cada uma
+e substring literal de `articles/CBIC___MTL/sections/*.tex`), mas a do Cap. 4 **nao e** — e a frase
+corrigida por errata deste proprio documento, ja listada no Apendice B, e a fonte PT publicada nao tem
+nenhuma ocorrencia do termo (`articles/CoUrb_2026/src`, nove arquivos `.tex`, zero). Segunda: as
+paginas. O registro anterior dizia pp. 36 e 48, medidas num build de 100 paginas; o trecho novo da
+§2.3 acrescenta uma pagina, entao **medido contra o build de defesa de 101 paginas deste commit**:
+§2.3 nova na p. 23, `3_cbic/basis.tex` nas pp. 31 e 32, `3_cbic/method.tex` na p. 37,
+`4_courb/methodology.tex` na p. 49, e a linha de errata na **p. 16 do volume suplementar**
+(`make extra`, 20 paginas), que nao entra no build de defesa.
 
 **(B) Por que importa.** O `make check` **nao pega isto**: existe um gate de "Pareto" mas ele e informativo e conta
 ocorrencias, nao registro. E o termo nao pode ser simplesmente removido — as duas frases sao publicadas, entao tirar o
@@ -206,6 +227,35 @@ termo e editar uma frase publicada, com linha no Apendice B.
 > nota no `GLOSSARY`, e a regra deixa de ser fail-closed para essa classe.
 
 > DESICAO: A.
+
+**EXECUTADO EM 2026-07-30, a sua decisao (a).** O termo entrou em `GLOSSARY.md:103` (§4) e `:148` (§6),
+e com ele tres outros que a §2.3 passou a usar: **Pareto dominance**, **Pareto optimality** e
+**gradient conflict**. Cada definicao foi copiada de um artigo aberto no PDF naquela sessao, com a
+pagina na propria linha do registro; o razao completo, com a declaracao exata de convergencia de cada
+metodo, esta em [`_round9/31_pareto.md`](_round9/31_pareto.md). O trecho novo da §2.3 renderiza na
+**p. 23** do build de defesa de 101 paginas, e o gate agora pega a regressao: `check_audit_claims.py`
+probes `R9-pareto`, `R9-conflict`, `R9-nocount` e `R9-glossary`, cada um validado por sabotagem
+(reverter a propriedade e ler rc=1). A anotacao do `VERIFY_LIST` item 4 que esperava
+`Pareto-stationary 0` foi corrigida para `2` no mesmo commit, porque a decisao (a) a tornou falsa.
+
+**Uma coisa ficou faltando, e e sua.** Tres dos quatro termos PT nao existem em nenhum lugar deste
+repositorio, nem na fonte PT publicada, nem em nenhuma superficie em portugues da dissertacao. Nao os
+inventei em silencio: entraram marcados como propostos. `otimalidade de Pareto` **nao** e um deles, e
+sua propria palavra (l. 98 deste arquivo) e a do Germano (`articles/[mobiwac]/REVIEW_GERMANO.md:778`).
+
+> **DECISAO SUA:** confirmar ou trocar os tres nao atestados: **dominância de Pareto**, **ponto
+> Pareto-estacionário**, **conflito de gradientes**. Custo: uma linha. Nenhuma superficie PT usa os
+> quatro hoje (o Cap. 2 e em ingles e o Resumo nao os menciona), entao isto nao bloqueia build nem
+> gate; fica registrado para que um tradutor futuro ache uma decisao e nao um vazio.
+
+> **TAMBEM SUA, e e uma questao de errata, nao de vocabulario.** Verifiquei as cinco frases contra a
+> garantia que o artigo-fonte de cada uma realmente enuncia. **Todas as cinco enunciam corretamente**,
+> e nada foi editado. Uma imprecisao: `3_cbic/basis.tex` (p. 31) diz que o MGDA *"finds Pareto-optimal
+> descent directions"*, e o que `sener2018mgda` enuncia (pp. 4 e 6) e uma dicotomia — ou o ponto e
+> Pareto-estacionario, ou a direcao *"decreases all objectives"*; a otimalidade de Pareto que o artigo
+> reivindica e para o limite superior, sob suposicoes (p. 1). E prosa publicada reproduzida e a
+> compressao e a que a literatura de MTL costuma fazer, entao **deixei como esta**. Se quiser corrigir,
+> e uma linha de errata no Apendice B, e a decisao e sua.
 
 ### 2.14 O intervalo de paginas do `nash`: nao da para verificar daqui
 
@@ -489,8 +539,10 @@ cumprida.
 
 ## §6 · As decisoes que sairam do `CONSIDERATIONS.md` (round 9)
 
-> **De onde isto vem.** `CONSIDERATIONS.md` foi reescrito em 43 blocos com ID estavel: **21** itens eu
-> aplico, **21** precisam de voce e estao aqui, **1** esta bloqueado numa verificacao que falhou. O bloco
+> **De onde isto vem.** `CONSIDERATIONS.md` foi reescrito em 43 blocos com ID estavel: **20** itens eu
+> aplico, **22** precisam de voce e estao aqui, **1** esta bloqueado numa verificacao que falhou.
+> **8 dos que eu aplico ja estao aplicados e conferidos no PDF renderizado**; os outros 12 esperam a
+> outra esteira soltar o `2_fundamentals.tex` ou uma linha sua no `GLOSSARY` (`_round9/33_apply_plan.md`). O bloco
 > completo de cada item (citacao, status no fonte vivo, meu raciocinio, onde renderiza, probe, commit da
 > medicao) esta em [`CONSIDERATIONS.md`](CONSIDERATIONS.md).
 >
@@ -579,6 +631,18 @@ cumprida.
 1. **Presente: "permanece em aberto"** — uma palavra, nos dois idiomas; MAS afirma que a pergunta esta aberta HOJE, depois de a dissertacao responder
 2. **Manter o imperfeito "permanecia"** — preserva a regra de indexacao temporal do WRITING_LAW §3; contraria o pedido dele
 3. **Reformular: "era uma questao aberta no inicio desta pesquisa"** — explicita o ponto de referencia, atende o sentido dele sem a leitura de presente
+
+> **DECISAO SUA:** ______
+
+#### FAB-18 — put the open question in the present tense
+
+**Citacao:** exata — `1_introduction.tex:92`, `content.tex:156` (EN) e a contraparte PT em `content.tex:76`. **Renderiza em:** 1_introduction.tex:92 + content.tex:156 (EN) + content.tex:76 (PT)
+
+**Minha leitura:** agree on substance; same decision as FAB-03, not a separate one. He asks for the present tense here and at FAB-03; it is one claim in three places (1_introduction.tex:92, content.tex:156 EN, content.tex:76 PT). I first bucketed this as 'apply' and FAB-03 as 'decide', which cannot both be right: the same sentence cannot be mine to edit in English and his to rule on in Portuguese, and the Resumo/Abstract pair must stay claim-for-claim identical (WRITING_LAW 6). The substantive question is the one FAB-03 carries: 'is/permanece' asserts the question is open TODAY, after this dissertation answered it, which is what the time-indexing rule exists to prevent. Caught while applying it, not while sorting.
+
+1. **Presente nos tres sitios: 'is an open question' / 'permanece em aberto'** — atende ao pedido literal dele nos dois idiomas; MAS afirma que a pergunta esta aberta hoje, depois de o documento responde-la, que e exatamente o que a regra de indexacao temporal existe para evitar
+2. **Reformular os tres para explicitar o ponto de referencia: 'was an open question at the start of this research' / 'era uma questao aberta no inicio desta pesquisa'** — e o que eu recomendo: da a ele o efeito que ele quer (o texto le como se escrito no inicio) sem afirmar que continua aberta; ~15 min, tres sitios, e o par Resumo/Abstract continua identico
+3. **Manter o passado nos tres** — preserva a regra; contraria o pedido explicito dele, duas vezes
 
 > **DECISAO SUA:** ______
 
@@ -787,43 +851,41 @@ cumprida.
 > **DECISAO SUA:** ______
 
 
-### 6.9 Edicao concorrente durante esta rodada, e o `make check` vermelho que ela produziu
+### 6.9 Edicao concorrente durante esta rodada — RESOLVIDA pela propria esteira, e registrada
 
-**O que aconteceu.** Enquanto eu media, **outro editor** alterou dois arquivos que eu nao toquei, e as
-mudancas nao estao commitadas: `GLOSSARY.md` (02:11:37, +31 linhas, os quatro registros de Pareto, que
-fecham a **2.12** pela opcao (a)) e `src/chapters/2_fundamentals.tex` (02:23:31, +106 linhas em §2.3: a
-equacao da perda total mais o tratamento de Pareto).
+**O que aconteceu.** Enquanto eu media, **outra esteira** alterou arquivos que eu nao toquei:
+`GLOSSARY.md` (02:11 e 02:30, os quatro registros de Pareto, que fecham a **2.12** pela opcao (a)),
+`src/chapters/2_fundamentals.tex` (02:23, +106 linhas em §2.3: a equacao da perda total mais o
+tratamento de Pareto), `check_audit_claims.py` (02:38, cinco probes dela sobre a minha mudanca de
+segunda raiz) e `_round6/VERIFY_LIST.md` (03:01).
 
-**O `make check` esta em rc=2 por causa disso, e eu deliberadamente NAO consertei.** O gate
-`check_verify_list` roda um comando documentado em `_round6/VERIFY_LIST.md` cuja anotacao diz
-`# EXPECT: contains=Pareto-stationary 0`. Medido: em `HEAD` o `GLOSSARY.md` tem **0** ocorrencias, na
-arvore de trabalho tem **2**. Ou seja, a anotacao ficou obsoleta no momento em que o termo foi
-registrado — o registro esta certo e a expectativa envelheceu.
+**Duas falhas de gate que eu vi eram dela, e as duas ja estao fechadas — por ela, nao por mim.**
+Registrado porque eu quase abri uma decisao sua sobre a primeira:
 
-    cd articles/dissertacao
-    grep -c 'Pareto-stationary' GLOSSARY.md     # 2 na arvore, 0 em HEAD
-    grep -n 'EXPECT: contains=Pareto-stationary' src_utils/_round6/VERIFY_LIST.md   # linha 291
+| o que falhou | causa | estado agora |
+|---|---|---|
+| `check_verify_list`: `EXPECT: contains=Pareto-stationary 0` | o registro do termo tornou a anotacao falsa | corrigida para `2` no mesmo commit do registro, que e o caminho da V6 |
+| `check_verify_list`: `CD-FAIL` num bloco de build | um bloco cercado em `VERIFY_LIST.md:326` sem sufixo `cd src` para o extrator remover, entao o gate **rodava um build de verdade** (108 s medidos) e nunca via `REACHED` | o bloco foi tirado da cerca em 03:01; `make check` volta a 2,4 s |
 
-> **DECISAO SUA:** quem fecha isso.
->
-> 1. **Quem esta editando o `GLOSSARY.md` atualiza o EXPECT para `Pareto-stationary 3`** (ou o numero
->    que a versao final tiver) no mesmo commit do registro — e o caminho certo pela V6: corrigir um
->    numero na origem sem varrer as copias e como um valor obsoleto sobrevive.
-> 2. **Eu atualizo o EXPECT agora** — resolve o vermelho em um minuto, mas reescreve a anotacao de um
->    trabalho em curso e o numero pode mudar de novo antes de ele terminar.
-> 3. **Deixar vermelho até aquele trabalho fechar** — honesto, e o gate esta certo: ha uma afirmacao
->    documentada que nao corresponde mais a arvore.
->
-> Eu recomendo a **1**. O que eu **nao** faria e commitar o `GLOSSARY.md` de outra pessoa para deixar
-> o gate verde.
+**Consequencia metodologica, e essa vale mais que os dois defeitos.** Eu li os dois como vermelhos
+meus, e um deles eu ja tinha escrito aqui como uma decisao sua com tres opcoes. Numa arvore com duas
+esteiras, **um gate vermelho nao e evidencia de nada ate voce reconferir de quem e o arquivo e qual e o
+mtime dele** — o meu primeiro diagnostico foi de um arquivo lido no meio da escrita de outra pessoa.
 
-**Dois itens meus foram parcialmente atendidos por aquela edicao** (registrado nos blocos deles):
-**AUT-01**, a sua pergunta sobre Pareto, esta em grande parte respondida no fonte; e a **parte 1 do
-GER-09** (a equacao do objetivo de MTL) existe agora. As outras tres partes do GER-09 continuam abertas.
+**Um item meu mudou de balde por causa disso, e nao foi por edicao concorrente:** o **FAB-18** virou
+decisao sua (§6.2), porque ele pede o presente na mesma frase que o FAB-03, e eu tinha posto um em cada
+balde. Achei ao aplicar, nao ao classificar.
 
-**Tres coordenadas minhas andaram +106 linhas** e foram reconferidas linha a linha, nao deslocadas por
-aritmetica: FAB-28 (454 -> 560), FAB-29 (513 -> 619), FAB-30 (515-516 -> 621-622 e 670 -> 776).
+**Tres coordenadas minhas andaram +106 linhas** por causa da edicao em §2.3, e foram reconferidas linha
+a linha, nao deslocadas por aritmetica: FAB-28 (454 -> 560), FAB-29 (513 -> 619), FAB-30 (515-516 ->
+621-622 e 670 -> 776).
 
+**E um defeito que eu encontrei e corrigi, este nao concorrente:** o §4 item 5 deste arquivo mandava
+voce rodar `make final` (alvo renomeado para `academico` em 2026-07-29) e prometia **108/105/109**
+paginas. A arvore da **101/98/102**. O `sync_page_counts.py` nao varre o §4, so `CLAUDE.md`, `PLAN.md` e
+`codex_reviewer.md`, e por isso o numero envelheceu sem gate.
+
+> **DECISAO SUA:** nada aqui. Fica como registro.
 ---
 
 ## §3 · Aberto e bloqueado em terceiros
@@ -848,7 +910,12 @@ item. Os cinco de maior consequencia:
 3. **As duas sentencas D-02 em `6_conclusion.tex`** (p. 76). Elas mudam o que o numero mais citado do Ch.4 licencia.
 4. **A frase de reprodutibilidade em `apx_a_contributions.tex`** (p. 88), contra 2.2 acima.
 5. **`make check` e os tres builds.** `cd articles/dissertacao && source src_utils/texenv.sh &&
-   (cd src && make defense && make final && make ppgc && make check)`. Deve sair 0 e dar 108/105/109.
+   (cd src && make defense && make academico && make ppgc && make check)`. Deve sair 0 e dar
+   **101/98/102** paginas. *(Corrigido em 2026-07-30: dizia `make final`, alvo renomeado para
+   `academico` em 2026-07-29 — ainda funciona como alias, mas imprime um aviso — e citava
+   **108/105/109**, que nao e o que a arvore produz. Medido agora com pypdfium2 sobre
+   `src/build/main.pdf`, `main_academico.pdf` e `main_ppgc.pdf`. O `sync_page_counts.py` nao pega isto:
+   ele varre `CLAUDE.md`, `PLAN.md` e `codex_reviewer.md`, e nao o §4 deste arquivo.)*
 
 > **Nao confie no sucesso auto-reportado, incluindo o meu.** Esta rodada corrigiu **oito** afirmacoes
 > minhas que nao se sustentaram na medicao: um limite falso que eu carreguei ao corrigir um escopo,

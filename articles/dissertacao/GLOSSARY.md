@@ -88,6 +88,21 @@
 | **joint-best convention** | Both tasks read at the one saved model per fold (the validation-selected epoch). Ch.5's reported convention. | never mix with per-task diagnostic-best without saying so |
 | **the floors** | Reference points: majority-class floor (category), Markov-1 floor (region). | every number carries its reference point |
 
+**The four rows below were added 2026-07-30** and close PENDENCIAS 2.12, whose recorded decision is
+option (a), register the term. They are multi-objective optimization vocabulary rather than names this
+project coined, so each definition is copied from a source read at its PDF that session, named in the
+row; nothing here is retyped from another paper's bibliography or from memory. The first three were
+already in prose at five live sites (Ch.3 twice in `basis.tex` and once in `method.tex`, Ch.4's
+`methodology.tex`, and the Appendix B errata row), which the fail-closed rule of §1 does not permit,
+and the fourth was needed before §2.3 could define the quantity Appendix F measures.
+
+| Term | Definition (gloss at first use) | Notes |
+|---|---|---|
+| **Pareto dominance** | One parameter setting dominates another when it is at least as good on every task loss and strictly better on at least one. | The comparison MTL lacks and single-task learning has: with two losses there is no natural ordering, so most pairs of models are simply incomparable. Definition from `liu2021cagrad` Def. 3.1 (arXiv:2110.14048v2 p4) and `sener2018mgda` Def. 1(a) (arXiv:1810.04650v2 p3); `nash` states it in words at arXiv:2202.01017v2 p2 |
+| **Pareto optimality** (Pareto front) | A setting is Pareto optimal when no other setting dominates it. The set of all such settings is the Pareto set, and the set of their loss vectors is the **Pareto front**. | `nash` p2, `sener2018mgda` Def. 1(b) p3. **Not claimed by this dissertation, and claimed by only one of the methods §2.3 names**: `nash` reaches Pareto optimality only under an added convexity assumption (its Theorem 5.5, p6 and p14). Say "Pareto optimality is not claimed here" once, in §2.3, and never write that a balancer attains it |
+| **Pareto-stationary point** | A point at which some convex combination of the task gradients is zero. It is a necessary condition for Pareto optimality, not a sufficient one. | `nash` p2 (*"a point is called Pareto stationary if there exists a convex combination of the gradients at this point that equals zero. Pareto stationarity is a necessary condition for Pareto optimality"*), formalized as $\min_{w} \lVert g_w(\theta)\rVert = 0$ over the probability simplex in `liu2021cagrad` Def. 3.1 p4. **Hyphenated, as here.** Ch.3's spelling is the published one (the sentence at `chapters/3_cbic/method.tex` is a verbatim substring of `articles/CBIC___MTL/sections/method.tex`, checked 2026-07-30); Ch.4's is **not published prose** but this dissertation's own errata-corrected sentence, listed in Appendix B, since the published PT source has zero occurrences of the term (`articles/CoUrb_2026/src`, nine `.tex` files). `tables/courb/errata.tex` carries the unhyphenated "Pareto stationary" inside its statement of the guarantee and is left as it stands |
+| **gradient conflict** | Two tasks conflict at a point when the cosine of the angle between their per-task gradients is negative; near zero means the two updates are close to orthogonal, so neither reinforces nor opposes the other. | `yu2020pcgrad` Def. 1 (arXiv:2001.06782v4 p3). The quantity the gradient-surgery balancers act on, and the quantity Appendix~F measures on the joint model. Define it in §2.3; **report no value there** (`CONSIDERATIONS.md` work-list item 28). Never call a near-zero cosine "no conflict detected" where the appendix's equivalence test licenses the positive statement |
+
 ## 5 · Acronym list (seeds the List of Abbreviations; expand each at first use)
 
 LBSN · POI · MTL · STL · CV · DGI · HGI · Check2HGI · FiLM · GRU · OOD ·
@@ -128,6 +143,10 @@ are named once each in Ch.5's baseline list and the List of Abbreviations only i
 | sharing topology | topologia de compartilhamento |
 | bottleneck | gargalo |
 | paired superiority test | teste pareado; *plural* testes pareados |
+| Pareto optimality (Pareto front) | otimalidade de Pareto (fronteira de Pareto) |
+| Pareto dominance | dominância de Pareto |
+| Pareto-stationary point | ponto Pareto-estacionário |
+| gradient conflict | conflito de gradientes |
 
 The Resumo mirrors the Abstract claim-for-claim (WRITING_LAW §6); this table keeps the pair
 translation-stable. "Embedding" may stay as a loanword in PT (standard in the BR community)
@@ -148,6 +167,18 @@ Two notes on the choices, since a later translator will second-guess them:
   defines (§4, "joint-best convention"), it appears in the results tables in English, and inventing a
   Portuguese calque would make the Resumo and the tables disagree. The Resumo italicizes it, which is
   the BR convention for a retained foreign term.
+**The four Pareto rows were added 2026-07-30** with their English counterparts in §4, and one of the
+four PT strings is attested in this repository while three are not. `otimalidade de Pareto` is the
+author's own wording (`src_utils/PENDENCIAS.md`:98) and the advisor's
+(`articles/[mobiwac]/REVIEW_GERMANO.md`:778), so it is settled. `dominância de Pareto`, `ponto
+Pareto-estacionário` and `conflito de gradientes` are the standard renderings but appear nowhere in
+this repository, in the published PT paper (`articles/CoUrb_2026/src`, nine `.tex` files, zero
+occurrences of "pareto"), or in any Portuguese surface of the dissertation. They are therefore
+**proposed, not settled**, and PENDENCIAS 2.12 asks the author to confirm or replace them. No PT
+surface uses any of the four today: the terms live in Chapter 2, which is English, and the Resumo does
+not mention them. The rows exist because §6 is this registry's convention for every registered term,
+so a later translator finds a decision rather than a gap.
+
 - **`partição` for `fold`, and `as cinco partições fixas`.** The existing row translates "5-fold
   cross-validation" as "validação cruzada (5 partições)", so `partição` was already the registered
   word for the unit; these rows make the singular and the "fixed across seeds" sense explicit,

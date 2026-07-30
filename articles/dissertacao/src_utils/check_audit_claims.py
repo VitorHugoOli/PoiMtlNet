@@ -111,6 +111,59 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
      "PENDENCIAS.md", r"## §6 · As decisoes que sairam do `CONSIDERATIONS\.md`", True),
     ("R9-pend28", "the old 2.8 no longer asks for a decision -- it records what was done",
      "PENDENCIAS.md", r"2\.8 `CONSIDERATIONS\.md` — EXECUTADO nesta rodada", True),
+    # ---- ROUND-9, THE PARETO TRACK (PENDENCIAS 2.12, author's decision "DESICAO: A."). The fix has
+    # two halves that can rot independently -- the §2.3 passage can be reverted, and the glossary rows
+    # it depends on can be dropped -- so it gets a probe on each. Source ledger with the page of every
+    # definition, and the sabotage runs: _round9/31_pareto.md.
+    ("R9-pareto", "Ch.2 defines Pareto optimality and states that this dissertation does not claim it",
+     "chapters/2_fundamentals.tex", r"claims no Pareto property of any kind", True),
+    ("R9-conflict", "Ch.2 defines gradient conflict as the cosine between per-task gradients, so "
+                    "Appendix F's orthogonality result has a definition to point back to",
+     "chapters/2_fundamentals.tex", r"cosine of the angle between two tasks", True),
+    # INVERTED, and the inversion is the point (GUARDRAILS V15: a fix whose correctness is an ABSENCE
+    # needs an expect-not-found probe). Appendix F's dataset coverage was being extended by a parallel
+    # track while this passage was written, so the passage cites it by \ref and says "the datasets
+    # measured there", never a count. If a later editor writes a count into the cosine sentence, that
+    # number acquires a second home and the two disagree the next time one moves -- V6, a corrected
+    # number surviving at a second site.
+    #
+    # THE FIRST VERSION OF THIS PROBE WAS WRONG, AND IT FIRED, WHICH IS HOW I FOUND OUT. It banned
+    # /(four|six)\s+datasets/ anywhere in the chapter and matched line 892, "on the next region at four
+    # of six datasets" -- the §2.5 headline result, which is the protected region-wording law
+    # (WRITING_LAW §3: outperforms at four, matches at the other two) and must NOT be touched. A ban on
+    # a bare phrase cannot tell one claim from another, so the pattern is anchored on the SENTENCE this
+    # probe is actually about: the cosine clause, whose subject is Appendix F's coverage. The prose was
+    # correct and the instrument was not, which is the reverse of the usual case and the reason the
+    # rule is to validate an instrument before believing it (§4b V3).
+    # Kept INVERTED so it stays a true expect-not-found, and anchored so only the cosine sentence can
+    # trip it: the ban is a count in the clause that follows "indistinguishable from orthogonal on".
+    # Written as an alternation of the number words that could plausibly land there (a bare digit too),
+    # which is narrower than banning the phrase chapter-wide and wider than banning today's value.
+    ("R9-nocount", "the Ch.2 cosine sentence cites Appendix F's coverage by reference, not by count",
+     "chapters/2_fundamentals.tex",
+     r"indistinguishable from orthogonal on (?:all )?(?:one|two|three|four|five|six|\d+)\b", False),
+    # The registry half. The prose above may not exist without these rows (GLOSSARY.md is fail-closed,
+    # and this term was in prose UNREGISTERED at five sites for two rounds, which is the breach
+    # PENDENCIAS 2.12 records). A .md path resolves against UTILS, and GLOSSARY.md is a level above it,
+    # hence the "../" -- probe_root joins, it does not restrict.
+    ("R9-glossary", "the four Pareto/conflict terms are registered before the prose uses them",
+     "../GLOSSARY.md", r"\*\*Pareto-stationary point\*\*", True),
+    # ---- R9-agree / R9-agree2: THE TWO TRACKERS CONTRADICTED EACH OTHER FOR TWO COMMITS and twenty
+    # green gates said nothing, because every probe here checks ONE file against ITSELF. PENDENCIAS
+    # §2.8 was generated from a Python variable whose reassignment cell had aborted on an
+    # AssertionError, so it silently kept the pre-correction figures (ten stale, "todas citam
+    # 0_main.tex", 21 exact) while §6 of the SAME FILE and all of CONSIDERATIONS.md carried the
+    # corrected nine. The assertion that fired was protecting the OTHER file; nothing was watching
+    # whether the two agreed. A number with two homes disagrees the next time one of them moves
+    # (GUARDRAILS §4b V6), and here the second home was three screens down in the same document.
+    # Positive probe pins the corrected figure; the inverted one bans the superseded claim. The
+    # corrected count is ALSO pinned in CONSIDERATIONS.md by R9-stale, so the two files can only pass
+    # together.
+    ("R9-agree",  "PENDENCIAS 2.8 carries the CORRECTED stale count, agreeing with its own §6 and "
+                  "with CONSIDERATIONS.md (9 of 41, not the superseded 10)",
+     "PENDENCIAS.md", r"\*\*32 sao exatas e 9 estao obsoletas\*\*", True),
+    ("R9-agree2", "the superseded 'As 21 ancoras dos capitulos' claim is gone from PENDENCIAS",
+     "PENDENCIAS.md", r"As 21 ancoras dos capitulos", False),
 )
 
 # COD-016b needs a STRUCTURAL probe, not a string one, so it lives here rather than in PROBES --

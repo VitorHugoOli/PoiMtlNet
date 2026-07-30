@@ -416,6 +416,112 @@ conflict, minimizing a weighted sum of their losses is only valid when they do n
 and multi-task learning is more honestly cast as a multi-objective problem with no
 single optimum \cite{sener2018mgda}.
 
+Casting it that way obliges one to say what an optimum would be. Deep multi-task
+training minimizes a weighted sum of the task losses,
+\begin{equation}\label{eq:fund:mtl-total}
+  \mathcal{L}_{\mathrm{total}}(\boldsymbol{\theta}) = \sum_{k=1}^{K} w_k\,\mathcal{L}_k(\boldsymbol{\theta}),
+\end{equation}
+over $K$ tasks at shared parameters $\boldsymbol{\theta}$, and each method named in the
+next paragraph is a different answer to how the weights $w_k$, or the update direction
+they imply, should be set. What the sum conceals is that its minimum need not be the
+right target. A single loss orders any two parameter settings; several losses do not, so
+the comparison available is weaker. One setting is said to dominate another when it is at
+least as good on every task loss and strictly better on at least one, a relation named
+Pareto dominance. A setting that no other dominates is Pareto optimal, and the loss
+vectors of all Pareto optimal settings form the Pareto front \cite{sener2018mgda}.
+
+Reaching that front is not what the balancing methods promise, and the distance between
+the promise and the front deserves one statement. A point is Pareto-stationary when some
+convex combination of the task gradients is zero, which is necessary for Pareto
+optimality without being sufficient \cite{nash}. Guarantees in this family are stated at
+that weaker level: Nash-MTL proves that its updates have a subsequence converging to a
+Pareto-stationary point, and reaches Pareto optimality only under an added convexity
+assumption on the losses that a deep network does not satisfy \cite{nash}; the fixed
+points of CAGrad are Pareto-stationary \cite{liu2021cagrad}; and Aligned-MTL converges to
+such a point for task weights fixed in advance \cite{senushkin2023aligned}. Not every
+method claims even that much. PCGrad guarantees that one projected update leaves the
+multi-task loss no higher than the unmodified gradient would, under conditions on the two
+task gradients, on the curvature of the loss, and on the step size, and it makes no Pareto
+claim at all \cite{yu2020pcgrad}. Two of these papers state the residual limitation
+themselves: arriving somewhere on the front says nothing about where, so the balance
+between the tasks at that point remains uncontrolled
+\cite{liu2021cagrad,senushkin2023aligned}. This dissertation therefore claims no Pareto
+property of any kind for its models. Its verdicts are per-task scores measured against
+dedicated single-task models under the tests of Section~\ref{sec:fund:eval}.
+% [round9, 2026-07-30] EVERY GUARANTEE ABOVE WAS READ AT ITS SOURCE PDF THIS SESSION, downloaded
+% from arXiv and located by page. The point of the paragraph is that the five methods do NOT claim
+% the same thing, so each clause is anchored:
+%   nash                 arXiv:2202.01017v2, ICML 2022 per the arXiv comment field, 19 pp.
+%                        p2: "a point is called Pareto stationary if there exists a convex
+%                          combination of the gradients at this point that equals zero. Pareto
+%                          stationarity is a necessary condition for Pareto optimality."
+%                        p6 Theorem 5.4: the sequence "has a subsequence that converges to a Pareto
+%                          stationary point". p6 and p14 Theorem 5.5: "if we also assume that all the
+%                          loss functions are convex then the sequence ... converges to a Pareto
+%                          optimal point" -- hence "only under an added convexity assumption".
+%   liu2021cagrad        arXiv:2110.14048v2, NeurIPS 2021, 20 pp. Def. 3.1 p4 (dominance,
+%                        optimality, stationarity as min_w ||g_w(theta)|| = 0). Theorem 3.2(1) p5:
+%                        "all the fixed points of CAGrad are Pareto-stationary points". Its p1 states
+%                        the family criticism quoted in the last clause: prior methods "lack
+%                        convergence guarantee and/or could converge to any Pareto-stationary point".
+%   senushkin2023aligned arXiv:2305.19000v1, 16 pp. Def. 1 p5; theorems pp12-13, "converges linearly
+%                        to a Pareto-stationary point" with pre-defined task weights. p2 and p5 carry
+%                        the same criticism: methods converging to "an arbitrary Pareto-stationary
+%                        solution" tend to overfit a subset of tasks.
+%   yu2020pcgrad         arXiv:2001.06782v4, NeurIPS 2020, 27 pp. Theorem 2 p5 is the one-step
+%                        inequality L(theta_PCGrad) <= L(theta_MT) under its three stated conditions
+%                        (the angle and magnitude of the two gradients, a curvature lower bound, a
+%                        step-size bound); Theorem 1 p4 is the two-task convex convergence dichotomy.
+%                        MEASURED: the string "Pareto" occurs ZERO times in the paper. The instrument
+%                        was validated on the same extraction (27 pages, 90,294 characters, 185
+%                        "gradient", 25 "theorem", 14 "cosine similarity"), because a grep returning
+%                        zero is a broken instrument until proven otherwise. Hence "no Pareto claim
+%                        at all", which is a statement about the paper, not about the method's worth.
+%   sener2018mgda        arXiv:1810.04650v2, NeurIPS 2018, 15 pp. Def. 1 p3 carries dominance (a) and
+%                        Pareto optimality, the Pareto set and the Pareto front (b) -- the two
+%                        definitions this paragraph's predecessor attributes to it. p4: "Although
+%                        every Pareto optimal point is Pareto stationary, the reverse may not be
+%                        true."
+% DELIBERATELY NOT CITED: Desideri's original MGDA paper. It has no entry in references.bib, it was
+% reachable this session only as a secondary reference inside the two papers above, and no sentence
+% here needs it (AGENT_GUARDRAILS R1: a reference is usable only when its own source was opened).
+% GLOSSARY: Pareto dominance, Pareto optimality, Pareto-stationary point and gradient conflict were
+% registered in GLOSSARY.md §4 and §6 BEFORE this prose landed, per the fail-closed rule and the
+% author's decision in PENDENCIAS 2.12 ("DESICAO: A."). Source ledger: src_utils/_round9/31_pareto.md.
+% NO NUMBER IS QUOTED in these three paragraphs, by design (CONSIDERATIONS work-list item 28: define
+% the conflict measure in Chapter 2, report its value only where it was measured).
+
+Conflict has a standard measure, and it is the quantity the gradient methods act on: the
+cosine of the angle between two tasks' gradients at the shared parameters, negative when
+the tasks disagree and near zero when their updates are close to orthogonal
+\cite{yu2020pcgrad}. Orthogonality is not a conflict resolved but a conflict absent, which
+puts a limit on what any of these methods can contribute. Appendix~\ref{apx:cosine}
+measures the cosine on the joint model of Chapter~\ref{ch:mobiwac} and finds the two
+tasks' gradients statistically indistinguishable from orthogonal on the datasets measured
+there; it reads that result as the reason no balancing method improved on a fixed
+weighting in this work, and as part of the reason the argument moves to the input
+representation in Chapters~\ref{ch:courb} and~\ref{ch:mobiwac}.
+% [round9, 2026-07-30] WHY THIS PARAGRAPH EXISTS AND WHAT IT DELIBERATELY DOES NOT DO.
+% It answers two advisor items recorded in src_utils/CONSIDERATIONS.md: G8.4 (the section describes
+% solutions to a conflict it never defines or measures) and G10 (the non-conflict finding needs a
+% technical argument; in his words the concept "parece jogado no artigo e sem contexto"). The measure
+% is defined here so Appendix F's result has something to point back to.
+%   THE APPENDIX IS CITED BY \ref AND NEVER BY DATASET COUNT. Its coverage was being extended while
+% this was written, so "the datasets measured in Appendix F" is the only durable phrasing; a count
+% here would be a second place to correct and a second place to disagree.
+%   THE MECHANISM CLAIM IS ATTRIBUTED, NOT ASSERTED. "it reads that result as the reason" points at
+% apx_f_cosine.tex \label{apx:cosine:mechanism}, which makes exactly this claim and carries its own
+% [NEEDS SIGN-OFF]. That appendix also bounds itself to one architecture family
+% (\label{apx:cosine:extension}: its mechanism section "applies only to models shaped like this
+% one"), so nothing here extends the reading to Chapter 3's model, which was never measured. The
+% hedge "part of the reason" is deliberate: the representation argument of Chapters 4 and 5 rests on
+% those chapters' own results, not on this appendix.
+% [NEEDS SIGN-OFF: raised round 9, 2026-07-30 | AUTHOR -- this paragraph restates Appendix F's
+% mechanism claim in the frame chapter. The claim is the appendix's and is already flagged there, but
+% repeating it in Chapter 2 widens its audience, and under AGENT_GUARDRAILS C2 a connective claim
+% about what the arc shows is still a claim. Approve the appendix and this follows; reject it and this
+% paragraph loses its last two clauses and keeps the definition.]
+
 A family of methods tries to manage the conflict at the level of the gradients or the
 losses. Uncertainty weighting sets each task's loss weight from its homoscedastic
 uncertainty, learned jointly with the model \cite{kendall2018uncertainty}. GradNorm
