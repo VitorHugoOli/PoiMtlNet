@@ -559,14 +559,21 @@ validation score, the geometric mean of the two task metrics.
 %   from pathlib import Path
 %   pats={"MRR":r"\bMRR\b|mean reciprocal rank|reciprocal rank",
 %         "Delta_m":r"relative multi-task performance|multi-task performance change"}
+%   swept=[]; skipped=[]
 %   for d in [Path("src"),Path("../[mobiwac]/src")]:
 %       for f in sorted(d.rglob("*.tex")):
-%           if "build" in str(f): continue
+%           if "build" in str(f): skipped.append(f); continue
+%           swept.append(f)
 %           t=live_text(f); h={k:len(re.findall(v,t,re.I)) for k,v in pats.items()}
-%           if any(h.values()): print(f,h)
+%           if any(h.values()): print("HIT",f,h)
+%   print("swept",len(swept),"| skipped under build/",len(skipped))
+%   for f in swept: print("  swept:",f)
 %   PY
-%   # EXPECT before this edit: ONE line, src/chapters/2_fundamentals.tex {'MRR': 1, 'Delta_m': 1}.
-%   # EXPECT after it: no output at all.
+%   # EXPECT before this edit: one HIT line, src/chapters/2_fundamentals.tex {'MRR': 1, 'Delta_m': 1}.
+%   # EXPECT after it: no HIT line at all.
+%   # EXPECT either way: "swept 70 | skipped under build/ 5", then 70 "swept:" lines, 54 of them under
+%   #   src/ and 16 under ../[mobiwac]/src/. The counts are the SCOPE claim above, so the command that
+%   #   measures the terms now also proves what it looked at.
 % Scope of that sweep, stated because an unreported exclusion is how the round-6 table went wrong:
 % 70 .tex files in total. 54 under src/ with build/ excluded (it holds generated copies), of which the
 % 17 files under src/tables/ are a SUBSET and not an additional group, plus the 16 files of the
@@ -578,9 +585,25 @@ validation score, the geometric mean of the two task metrics.
 % right about a set I had not swept and wrong about the one I had, which is the V1 failure in its
 % purest form: I reported a count without re-running the command that produced it. It also added the
 % 17 table files as though they were a separate group, when src/tables/ lies under src/ and was
-% already inside the 54. Re-measured by the command above, whose file list is now printed rather
-% than described: 54 + 16 = 70 swept, 0 hits after the edit, and it reproduces the ONE-hit-per-term
-% result before it.
+% already inside the 54. Re-measured: 54 + 16 = 70 swept, 0 hits after the edit, and the sweep
+% reproduces the ONE-hit-per-term result before it.
+% SECOND CORRECTION, 2026-07-30, and it is the same defect one layer up. The paragraph above ended
+% "whose file list is now printed rather than described". THAT WAS FALSE WHEN WRITTEN. The command at
+% the time ended `if any(h.values()): print(f,h)`, which prints only the files that HIT and never the
+% files it looked at, and I had not touched the command in the edit that made the claim. So the note
+% correcting a miscount asserted a change to itself that did not exist, which is exactly the class it
+% was written to correct. Caught in review, not by me.
+% Rather than delete the sentence I made it true: the command now collects `swept` and `skipped`,
+% labels hits with "HIT", and ends by printing "swept N | skipped under build/ M" followed by one line
+% per swept file, so the SCOPE claim in this paragraph is verifiable from the same command that
+% measures the terms. RUN VERBATIM after amending, by extracting the block from this file and
+% executing it rather than retyping it: rc=0, 0 HIT lines, "swept 70 | skipped under build/ 5", and
+% 70 "swept:" lines, 54 under src/ and 16 under ../[mobiwac]/src/.
+% ONE MORE INSTRUMENT ERROR WORTH RECORDING, mine, found while checking that last split: counting the
+% manuscript files with `grep -c mobiwac` over the swept list returns 29, not 16, because thirteen
+% DISSERTATION paths contain that string too (src/chapters/5_mobiwac/*, src/tables/mobiwac/*). The
+% command's own 54/16 split is the correct one; the grep was the wrong question, in the same way the
+% 59-vs-54 count was.
 % WHAT REPLACED THEM. The Acc@10 sentence keeps its limitation and states it directly ("a model can
 % rank the true region tenth as cheaply as first") instead of naming a second metric to fix it, so the
 % honest point the MRR clause was carrying survives without promising a figure. The Delta_m sentence is
