@@ -611,6 +611,45 @@ material novo que so voce pode aprovar antes de ir ao orientador. Custo de tirar
 
 > **AUTHOR:** Aplique o R-3,5,6 e o EX-6, seguindo a recomendação do 42_excellence, não aplique o EX-9.
 
+### 2.24 Um `towards` britanico em prosa publicada do CBIC, e a saida e uma linha de errata
+
+**O que e.** Sua queixa 8 do item 2.22 (o `needs saying plainly`) gerou a lei de registro e o gate 25
+(`check_register.py`). Varridos os 54 `.tex` vivos mais o `references.bib`, **nove ocorrencias** em
+todo o documento. Quatro eram nossas e **foram corrigidas**; quatro estao no Apendice F e sao da outra
+esteira. **Sobrou uma, e ela e sua**, porque esta em prosa publicada:
+
+`chapters/3_cbic/conclusion.tex`, p. 43 do build de defesa:
+
+> "The representation learned by the shared layers might have become biased **towards** the features
+> required for the simpler, static classification task"
+
+**Medido, nao suposto:** a frase e substring literal de
+`articles/CBIC___MTL/sections/conclusion.tex:13`, e este `towards` e a **unica** forma britanica em
+toda a fonte publicada do CBIC (zero `-our`, zero `-ise`, zero `whilst`); CoUrb-EN e MobiWac nao tem
+nenhuma.
+
+**Por que nao apliquei.** Pela NORTH_STAR §5.7, mudar uma palavra de prosa publicada e decisao sua, e
+esta e questao de vocabulario, nao de correcao. O gate mantem o achado **aberto por nome** e falha se a
+entrada ficar obsoleta, entao nao se perde em nenhuma das duas saidas.
+
+> **DECISAO SUA, e e uma linha:** (**a**) trocar por `toward` e acrescentar uma linha em
+> `tables/cbic/errata_wording.tex`, que ja carrega **quatorze** linhas exatamente desta classe
+> ("By leveraging shared information" -> "By using shared information"), todas sob a legenda *"claim
+> strength unchanged or reduced, never raised"*; a troca nao muda alegacao nenhuma. (**b**) deixar
+> como esta, e a entrada do registro aberto do gate passa a ser o registro permanente da decisao.
+
+**Um segundo ponto, tambem seu, e eu deliberadamente NAO fiz gate dele.** O ponto final fica **fora**
+da aspa de fechamento em **13 sitios** (`tables/cbic/errata.tex` 5, `tables/courb/errata.tex` 3,
+`chapters/3_cbic/method.tex` 2, `tables/cbic/errata_wording.tex` 2, `chapters/apx_b_errata.tex` 1). O
+estilo americano poe dentro. **Todos os 13 estao em tabelas de errata onde a string citada e a
+evidencia**, e mover um ponto para dentro de uma citacao altera a citacao. E decisao sobre a convencao
+da errata, nao erro de grafia. Se quiser, e mecanico e faco os 13 numa passagem.
+
+*Forense: [`_round9/44_register_law.md`](_round9/44_register_law.md) (a varredura com contagem por
+arquivo, as regras, e o transcrito de validacao do gate nos dois sentidos).*
+
+> **DECISAO SUA:** ______
+
 ## §5 · Levantados do `CODEX_AUDIT.md` quando ele foi arquivado (2026-07-29)
 
 > **NOVE DOS DEZ ESTAO FECHADOS e foram movidos para `_archive/PENDENCIAS_RESOLVIDOS.md` em
@@ -853,7 +892,8 @@ sorting.
    identico
 3. **Manter o passado nos tres** — preserva a regra; contraria o pedido explicito dele, duas vezes
 
-> **DECISAO SUA:** ______
+> **DECISAO SUA:** No item FAB-03 eu optei por continuar no imperfeito. Assim para manter a concistencia acho que temos
+> que ir com a escolha 2.
 
 #### GER-11 — the task non-conflict finding needs stronger evidence, and generalizes into future work
 
@@ -873,7 +913,8 @@ conflicting in both directions and cancelling'. Either strengthen it or downgrad
    e um dos seis, sem dispersao e sem Istambul
 3. **As duas: rebaixar agora, fortalecer se a GPU liberar** — protege a defesa e mantem a porta aberta
 
-> **DECISAO SUA:** ______
+> **DECISAO SUA:** Já corrigimos isso na versão mais atual do texto, o appendix F está bem mais maduro e com os
+> resultados mais consolidados. Acho que não precisamos atuar quanto a esse ponto.
 
 ### 6.3 Onde a passagem citada nao existe mais, e o pedido precisa de nova redacao
 
@@ -892,7 +933,7 @@ sentence, but it is a rewrite of text he has not read.
 2. **Nao aplicar e registrar que a passagem citada nao existe mais** — zero custo; ele pode repetir o ponto ao ler o
    build novo
 
-> **DECISAO SUA:** ______
+> **DECISAO SUA:** Vamos descartar esse ponto, estamos achando um equilibro bom para o resumo.
 
 #### FAB-07 — name the study instead of the stage of the research
 
@@ -908,7 +949,7 @@ claim-scope choice: 'no segundo estudo' is where the diagnosis was made, not the
    estudo todo)
 3. **As duas: "no segundo estudo, naquela configuracao"** — mais longo, e o Resumo esta no limite de tamanho
 
-> **DECISAO SUA:** ______
+> **DECISAO SUA:** Não precisa atuar
 
 #### FAB-10 — the results sentence opens confusingly
 
@@ -1324,12 +1365,12 @@ como esta apresentado.
 
 ## §4 · Retirado
 
-A lista priorizada de auditoria vivia aqui e apontava para [`_round6/VERIFY_LIST.md`](_round6/VERIFY_LIST.md).
-**Esse registro esta fechado** (medido 2026-07-30): os sete itens A1-A7 carregam cada um a sua disposicao de
-round 8 ou 9, e `check_verify_list.py` sai 0. O ultimo em aberto era o A3, a decisao de publicar os arquivos
-que faltavam — resolvida por execucao, nao por decisao: os seis artefatos de analise estao no `origin/mobiwac`,
-conferidos contra o REMOTO com `git ls-tree -r origin/mobiwac`.
+A lista priorizada de auditoria vivia aqui e apontava para [`_round6/VERIFY_LIST.md`](_round6/VERIFY_LIST.md). **Esse
+registro esta fechado** (medido 2026-07-30): os sete itens A1-A7 carregam cada um a sua disposicao de round 8 ou 9, e
+`check_verify_list.py` sai 0. O ultimo em aberto era o A3, a decisao de publicar os arquivos que faltavam — resolvida
+por execucao, nao por decisao: os seis artefatos de analise estao no `origin/mobiwac`, conferidos contra o REMOTO com
+`git ls-tree -r origin/mobiwac`.
 
-O aviso que estava aqui — *nao confie no sucesso auto-reportado, incluindo o meu* — nao se perdeu: virou lei
-em `AGENT_GUARDRAILS.md` §4b, hoje com dezessete regras numeradas, cada uma escrita a partir de um caso real
-deste projeto. E o lugar certo, porque uma advertencia numa fila de tarefas some quando a fila e limpa.
+O aviso que estava aqui — *nao confie no sucesso auto-reportado, incluindo o meu* — nao se perdeu: virou lei em
+`AGENT_GUARDRAILS.md` §4b, hoje com dezessete regras numeradas, cada uma escrita a partir de um caso real deste projeto.
+E o lugar certo, porque uma advertencia numa fila de tarefas some quando a fila e limpa.

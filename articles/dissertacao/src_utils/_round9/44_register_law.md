@@ -350,25 +350,58 @@ and this one is a matter of vocabulary rather than of correctness.
 
 ---
 
-## 5 · Reported to the Appendix F track (I did not edit those two files)
+## 5 · The Appendix F track's four hits — reported, and now CLOSED by that track
 
-`chapters/apx_f_cosine.tex` and `tables/frame/cosine.tex` are owned by the parallel track. Its four
-register hits, all in `apx_f_cosine.tex`, all rendering on **p. 99 of the defense build**:
+`chapters/apx_f_cosine.tex` and `tables/frame/cosine.tex` are owned by the parallel track, so I swept
+them and edited neither. Its four register hits, all in `apx_f_cosine.tex`, were rendering on p. 99 of
+the defense build:
 
-| your point | rendered text | class | remedy the law now prescribes |
+| your point | the text that was there | class | remedy the law prescribes |
 |---|---|---|---|
 | **8** | "one feature **needs saying** plainly" | British `need`+gerund | "needs to be said plainly" |
 | **9** | "**Two departures from that flat picture appear**, and both are worth reporting rather than smoothing" | delayed subject | name the subject: "The figure shows two departures." |
 | **12** | "**Both point away from trouble in any case.**" | two literary idioms in eight words | state the reading: "Neither departure indicates a conflict." |
-| **12** | "the **decline stays** inside the margin throughout **while moving** toward zero rather than away from it" | abstract agent + chained qualification (3 qualifiers, 2 commas) | a number does not move; say what was measured |
+| **12** | "the **decline stays** inside the margin throughout **while moving** toward zero rather than away from it" | chained qualification (3 qualifiers, 2 commas) | split it |
 
-`tables/frame/cosine.tex` is **clean** for both classes — swept, zero hits.
+**All four are now GONE**, and this is the part worth reading, because it is the only evidence that the
+self-retiring open register works. That track landed its rewrite at 16:46. On the next run this gate
+went **RED**, naming all four entries as `STALE OPEN-REGISTER ENTRY … (the defect is fixed)` and
+demanding their deletion. **Nobody had to remember to come back.** The exemption could not outlive its
+defect, which is what §4b V14 asks of every APPLIED claim, and the four entries were deleted from
+`OPEN_REGISTER` with the mechanism recorded in a comment where they used to be.
+
+Re-swept after their rewrite: `apx_f_cosine.tex` **0 hits**, `tables/frame/cosine.tex` **0 hits**. Its
+replacement sentence reads *"A positive cosine means the two tasks cooperate slightly, and the
+declining cosines stay inside the margin and move toward zero, not away from it"* — no British form,
+one qualifier, and the subject named first.
+
+### 5.1 Their rewrite exposed a real defect in my own detector, and I fixed it on the merits
+
+The first version of the abstract-agent rule (B4) also listed **motion** verbs, and it fired on their
+corrected sentence. Two facts convicted the rule rather than the sentence:
+
+1. **The remedy the rule itself printed** prescribed *"the mean **falls** toward zero"* — a motion
+   verb. The rule was recommending a rewrite of the shape it banned.
+2. It fired on *"the declining **cosines** … **move** toward zero"* while staying silent on *"the
+   **mean** falls toward zero"*, and the only difference is that `cosine` happened to be in the noun
+   list and `mean` did not. **A detector whose verdict turns on which noun someone thought to type is
+   measuring its own list, not the prose.**
+
+B4 is now scoped to verbs of **volition, cognition and speech** — a quantity that *refuses*, *prefers*
+or *admits* has been animated; one that *rises*, *falls* or *moves* has not. Your point-12 sentence is
+still caught, by the **chained-qualification** rule, which is the rule that actually describes what
+made it hard: three qualifiers and two commas. That reassignment is asserted in the gate's self-test,
+so a later widening of B4 cannot quietly become the only thing covering your instance, and four
+literal-motion sentences from this document are asserted **not** to fire.
 
 ---
 
 ## 6 · Builds and gates, exit codes read directly and never through a pipe
 
 Measured as the last actions before each commit (§4b V11):
+
+**With this track's four fixes and nothing else** (measured after them, before the Appendix F track
+landed):
 
 | target | pages | tex_errors | make rc |
 |---|--:|--:|--:|
@@ -377,8 +410,32 @@ Measured as the last actions before each commit (§4b V11):
 | `make ppgc` | **103** | 0 | 0 |
 | `make extra` | **20** | 0 | 0 |
 
-Identical to the baseline measured at `06529ed6` before any edit: 102 / 99 / 103 / 20, zero TeX
-errors. The four prose fixes changed no page count.
+Identical to the baseline measured at `06529ed6` before any edit: 102 / 99 / 103 / 20, zero TeX errors.
+**The four prose fixes on this track changed no page count**, which is what you would expect from two
+American respellings and two sentences rewritten at the same length.
+
+**Re-measured at 16:47, after the Appendix F track landed its rewrite** (202 insertions, 61 deletions
+in `apx_f_cosine.tex`, uncommitted at that moment):
+
+| target | pages | tex_errors | make rc |
+|---|--:|--:|--:|
+| `make defense` | **101** | 0 | 0 |
+| `make academico` | **98** | 0 | 0 |
+| `make ppgc` | **102** | 0 | 0 |
+| `make extra` | **20** | 0 | 0 |
+
+**The one-page drop is that track's, not this one's**, and the attribution is measured rather than
+inferred: `git log --name-only` over this track's commits lists only `2_fundamentals.tex`,
+`3_cbic/method.tex`, `6_conclusion.tex` and `tables/frame/bib_errata.tex`, the 102-page measurement
+postdates all four of them, and the only source file changed between the two measurements is
+`apx_f_cosine.tex`. **I did not run `sync_page_counts.py --write`**: the recorded counts in `CLAUDE.md`,
+`PLAN.md` and `codex_reviewer.md` belong to whoever lands that appendix rewrite, and re-stamping them
+from a tree holding another track's uncommitted work would put a number in your durable records whose
+provenance is a working directory. `make check` is therefore RED on that one gate at handoff, with
+`sync_page_counts` naming all seven stale claims. §8 says so plainly.
+
+**While this track's work was the only uncommitted change in the tree**, read directly before each of
+its three commits:
 
 ```
 bash src_utils/check.sh            -> rc=0   (25 gates, all under the 5s threshold; suite total
@@ -386,6 +443,24 @@ bash src_utils/check.sh            -> rc=0   (25 gates, all under the 5s thresho
 python3 src_utils/selftest_all.py  -> rc=0   (5 PROVEN, 0 FAILED, 17 checkers reported)
 python3 src_utils/check_register.py -> rc=0  (54 .tex + references.bib; 5 hits held OPEN by name)
 ```
+
+**At handoff, with the Appendix F track's rewrite in the tree uncommitted**, and this is the state you
+will actually see:
+
+```
+bash src_utils/check.sh            -> rc=1   ONE gate red: "recorded page counts vs the measured
+                                              build", 7 stale claims, all of them the 102/99/103 ->
+                                              101/98/102 drop caused by that track's rewrite. The
+                                              other 24 gates pass.
+python3 src_utils/selftest_all.py  -> rc=0   (5 PROVEN, 0 FAILED)
+python3 src_utils/check_register.py -> rc=0  (54 .tex + references.bib; 1 hit held OPEN, the
+                                              published CBIC `towards` in §4)
+```
+
+I am reporting the red rather than clearing it, because clearing it means writing a page count into
+`CLAUDE.md` and `PLAN.md` that was measured from a tree containing another track's uncommitted work.
+`python3 src_utils/sync_page_counts.py --write` fixes all seven in one command once that rewrite is
+committed.
 
 Gate count went **24 → 25**: `git show 06529ed6:…/check.sh | grep -c '^gate "=='` returns 24 at the
 baseline, and the current suite reports 25. `check_register` costs **0.27 s**, measured in the timing
@@ -466,12 +541,19 @@ leave it.
 gated, not touched — the quoted strings are evidence in errata tables, and moving a period inside a
 quotation alters the quotation.
 
-**The Appendix F track's (§5):** your four instances from points 8, 9 and 12, reported with the
-rendered text and the remedy the law now prescribes for each.
+**The Appendix F track's (§5): CLOSED by that track.** Your four instances from points 8, 9 and 12 are
+gone from the source and the appendix now sweeps clean for both classes. The gate went red naming all
+four exemptions as stale, which is how I learned they had landed, and the entries were deleted.
+
+**Whoever commits the Appendix F rewrite (§6):** run `python3 src_utils/sync_page_counts.py --write`.
+Seven page-count claims across `CLAUDE.md`, `PLAN.md` and `codex_reviewer.md` are stale by one page
+because of that rewrite, and `make check` is red on that one gate until they are re-stamped. Not mine
+to stamp from a tree holding someone else's uncommitted work.
 
 **Nothing else was left undone on this track.** The four fixes outside those two files are applied and
 verified in the render; the rules are written into both law files; the gate is wired, validated in six
-directions, and proved in `make selftest`.
+directions, proved in `make selftest`, and has already caught one real defect in itself (§5.1) and
+retired four of its own exemptions without being asked.
 
 **One thing I would flag as my own judgment rather than measurement.** The Class B half of the gate
 catches four shapes and cannot catch "this needs a second reading." I have said so in the docstring,

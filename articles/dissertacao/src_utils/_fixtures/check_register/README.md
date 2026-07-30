@@ -14,11 +14,13 @@ Two shapes of the fixture are load-bearing and will look arbitrary otherwise:
 - **Twenty filler chapters.** The gate refuses to report on a scope below 20 `.tex` files, because
   two other prose gates on this project silently swept almost nothing after a file move. A fixture
   under the floor would exit 2 on both sides.
-- **Stubs at the two real OPEN_REGISTER paths** (`chapters/apx_f_cosine.tex` and
-  `chapters/3_cbic/conclusion.tex`), each holding the needle its register entry names. The open
-  register is self-retiring: an entry whose needle is absent makes the gate FAIL and demand the
-  entry's deletion. Without these stubs the clean side would fail, and it would be the gate working
-  correctly rather than a fixture bug.
+- **A stub at the real OPEN_REGISTER path** (`chapters/3_cbic/conclusion.tex`), holding the needle
+  its register entry names. The open register is self-retiring: an entry whose needle is absent makes
+  the gate FAIL and demand the entry's deletion. Without this stub the clean side would fail, and it
+  would be the gate working correctly rather than a fixture bug. `chapters/apx_f_cosine.tex` is a
+  stub too, but it holds ordinary prose: it carried four needles until the parallel Appendix F track
+  landed its rewrite on 2026-07-30 and those four entries retired. Leaving them here would have made
+  the clean side fail on the delayed-subject and idiom shapes, with nothing holding them open.
 
 `references.bib` carries `towards`, `Behaviour` and `Colour` inside `title` and `journal`, which are
 attributes of record under AGENT_GUARDRAILS §1 R2. **Both sides must stay silent on them.** That is
