@@ -416,14 +416,22 @@ conflict, minimizing a weighted sum of their losses is only valid when they do n
 and multi-task learning is more honestly cast as a multi-objective problem with no
 single optimum \cite{sener2018mgda}.
 
-Casting it that way obliges one to say what an optimum would be. Deep multi-task
+% [round9, 2026-07-30] TWO SENTENCES REWRITTEN, found independently by the style and the
+% AI-credibility personas as the same class the author caught in Appendix F: prose whose subject is the
+% document rather than the work.
+%   "each method named in the NEXT PARAGRAPH is a different answer" -- a forward pointer into the
+%     document's own layout. The methods differ from each other whatever order they are printed in.
+%   "CASTING IT THAT WAY OBLIGES ONE TO SAY what an optimum would be" -- announces that a statement is
+%     coming instead of making it. WRITING_LAW §1 sub-class 4 (self-reference to the writing).
+% A third instance the personas flagged, the caption clause explaining why a column exists, is already
+% gone: the 197-to-64-word caption cut removed it.
+A multi-objective problem needs a definition of optimum. Deep multi-task
 training minimizes a weighted sum of the task losses,
 \begin{equation}\label{eq:fund:mtl-total}
   \mathcal{L}_{\mathrm{total}}(\boldsymbol{\theta}) = \sum_{k=1}^{K} w_k\,\mathcal{L}_k(\boldsymbol{\theta}),
 \end{equation}
-over $K$ tasks at shared parameters $\boldsymbol{\theta}$, and each method named in the
-next paragraph is a different answer to how the weights $w_k$, or the update direction
-they imply, should be set. What the sum conceals is that its minimum need not be the
+over $K$ tasks at shared parameters $\boldsymbol{\theta}$. The balancing methods differ in how they
+set the weights $w_k$, or the update direction those weights imply. What the sum conceals is that its minimum need not be the
 right target. A single loss orders any two parameter settings; several losses do not, so
 the comparison available is weaker. One setting is said to dominate another when it is at
 least as good on every task loss and strictly better on at least one, a relation named
@@ -500,7 +508,13 @@ dedicated single-task models under the tests of Section~\ref{sec:fund:eval}.
 % NO NUMBER IS QUOTED in these three paragraphs, by design (CONSIDERATIONS work-list item 28: define
 % the conflict measure in Chapter 2, report its value only where it was measured).
 
-Conflict has a standard measure, and it is the quantity the gradient methods act on: the
+% [round9, 2026-07-30] TERM NAMED (style persona, REQUIRED). The sentence defined the concept without
+% ever using its registered name: "gradient conflict" appears 2x in GLOSSARY.md §4 and appeared ZERO
+% times in this chapter's live prose, so the registry row that Appendix F's orthogonality result points
+% back to had no anchor in the reader's text. The GLOSSARY is fail-closed in one direction (no unregistered
+% term in prose); this was the other direction, a registered term with no prose to anchor it, which no
+% gate checks. The fix is one word: the definition now carries the registered name (see GLOSSARY §4).
+Gradient conflict has a standard measure, and it is the quantity the gradient methods act on: the
 cosine of the angle between two tasks' gradients at the shared parameters, negative when
 the tasks disagree and near zero when their updates are close to orthogonal
 % [round9, 2026-07-30] SENTENCE CORRECTED, and it was a technical error, not a wording one. It read

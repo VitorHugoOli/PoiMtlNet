@@ -430,6 +430,23 @@ the work*, and that is where the time went. The four root causes, with the count
   it. Register law lives in WRITING_LAW; §1 now bans process narration outright, with gate 23
   (check_process_narration.py) enforcing it. Verification is necessary and it was never sufficient.
 
+- **V17. A zero from a pattern that cannot express the target wording is not an absence.** V13 already
+  says a parse returning zero rows is a broken instrument. This is the harder case, because the parser
+  works: cutting the 197-word cosine caption, I checked each dropped fact against the appendix's prose
+  and searched `unit of analysis|on the fold|fold level|fold as the unit` for the claim that the fold is
+  the unit of analysis. Zero hits, so I wrote into a durable provenance comment that the fact "was NOT
+  in the prose (0 hits), so it STAYS here" and called the retained sentence the one fact unique to the
+  caption. The appendix says *"The unit of independence is the fold. Every test below therefore runs on
+  five fold means"* -- the fact stated more fully than my caption stated it, in wording none of my four
+  patterns could match. Caught by review.
+  **Before recording an absence, prove the pattern can find the thing when it is present.** Run it
+  against a passage you know contains the fact, or search for the CONCEPT's distinctive nouns rather
+  than a phrasing you imagined ("fold" and "independen" would have found it; "fold as the unit" could
+  not). A negative result about someone else's prose is a claim about their vocabulary, and you do not
+  get to assume it matches yours. This bit twice in one week from opposite directions: here a
+  hand-written pattern too narrow to match real prose, and earlier a probe that reported `holds` because
+  it matched case-insensitively where the sabotage had been lowercase only.
+
 **V14. A parallel track's self-report is not evidence that its edit landed, and an outcome table is a
   claim about the work.** This is the rule the whole 2026-07-30 recovery round exists to write.
   On 2026-07-28 an audit outcome table was annotated with sixteen rows reading **APPLIED**. Two days

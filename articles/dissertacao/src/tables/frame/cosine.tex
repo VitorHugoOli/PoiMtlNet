@@ -9,8 +9,16 @@
 %   Texas's negative mean vs 4 of 5 positive folds -> stated 2x there, with the -0.0032 fold
 %   Georgia not otherwise used        -> stated 5x there
 %   Florida's twelve configurations   -> stated 4x there
-%   "the fold is the unit, not the observation" -> was NOT in the prose (0 hits), so it STAYS here.
-% Nothing was lost: the one fact unique to the caption is the one sentence retained.
+%   "the fold is the unit, not the observation" -> ALSO in the prose. My first probe returned 0 and I
+%     wrote that absence into this comment as a fact. THE PROBE WAS THE DEFECT: I searched for
+%     "unit of analysis|on the fold|fold level|fold as the unit" and the appendix says "The unit of
+%     INDEPENDENCE is the fold. Every test below therefore runs on five fold means..." (p.98), which
+%     none of those four patterns can match. Caught by review 2026-07-30. A zero from a pattern that
+%     cannot express the target wording is a broken instrument, not an absence (GUARDRAILS §4b V13).
+% So EVERY fact in the old caption was already in the prose, and the caption's job is to identify the
+% table and name the test, not to re-teach the unit of analysis. The retained sentence therefore keeps
+% the reading rule a reader needs AT THE TABLE (the numbers in the rows are fold-level), which is a
+% pointer, not a duplicate paragraph.
 % Table for Appendix F (apx_f_cosine.tex): the gradient-cosine equivalence result.
 %
 % EVERY CELL RE-DERIVED from src_utils/_round7/gradient_cosine_observations6.parquet by
@@ -47,7 +55,7 @@
 % and it is why the positive-fold count is reported rather than inferred from the mean's sign.
 \begin{table}[htbp]
     \centering
-    \caption{The cosine between the next-region and next-category gradients on the shared trunk, over the six datasets of Chapter~\ref{ch:mobiwac} and Georgia. Every test takes the fold as its unit, not the individual observation. Equivalence to zero holds at every dataset (TOST, $\pm 0.05$); $\dagger$ marks a dataset where the exact sign test sits at its floor of $0.0625$, which five folds cannot go below.}
+    \caption{The cosine between the next-region and next-category gradients on the shared trunk, over the six datasets of Chapter~\ref{ch:mobiwac} and Georgia. The rows are fold-level: every test takes the fold as its unit. Equivalence to zero holds at every dataset (TOST, $\pm 0.05$); $\dagger$ marks a dataset where the exact sign test sits at its floor of $0.0625$, which five folds cannot go below.}
 % [round7, 2026-07-29] 152 words -> 118, on the same standard applied to the figure caption: the
 % caption says what the reader is looking at and what to conclude, and the body carries the
 % argument. What went: the clause re-explaining WHY fifty per-epoch values are one trajectory
