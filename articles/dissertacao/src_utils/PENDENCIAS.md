@@ -1308,7 +1308,8 @@ weighting".
 3. **Deixar como esta** — a frase e uma generalizacao irrestrita contra uma celula negativa medida no mesmo documento; e
    o tipo de frase que uma banca localiza
 
-> **DECISAO SUA:** ______
+> **DECISAO SUA:** Já fizemos algumas correções no appendix F, mas se esse ainda continuar com esses erros logicos,
+> podemos seguir com a opção 1.
 
 #### BLQ-2 — a resposta consolidada usa "everywhere" nu e colapsa a particao da regiao
 
@@ -1326,7 +1327,8 @@ redacao protegida exige — particao que **este mesmo capitulo enuncia corretame
    — mais curto, mas "everywhere" nu esta proibido pela linha 83 sem excecao por tarefa
 3. **Deixar como esta** — contradiz a lei que voce mesmo escreveu, na frase que mais vai ser lida
 
-> **DECISAO SUA:** ______
+> **DECISAO SUA:**  Eu acho que isso já foi mudado no texto, mas se caso se manter mantenha everywhere para o categoria
+> e especifique onde for preciso para o next-region.
 
 #### BLQ-3 — dois fatores de escala calculados na prosa, sem ledger e sem script
 

@@ -429,7 +429,7 @@ the work*, and that is where the time went. The four root causes, with the count
   reader need it to understand the work?" If the answer to the second is no, the first does not save
   it. Register law lives in WRITING_LAW; §1 now bans process narration outright, with gate 23
   (check_process_narration.py) enforcing it. Verification is necessary and it was never sufficient.
-  **SECOND AND THIRD INSTANCES, same reading, same appendix, same blind spot** (PENDENCIAS 2.22
+  **SECOND AND THIRD INSTANCES, same reading, same appendix, same blind spot** (PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30)
   points 8, 9 and 12). He also found *"feature needs saying plainly"*, and separately three sentences
   he called correct and unreadable: *"Two departures from that flat picture appear"* ("pure A.I, we
   can be more simple") and *"Both point away from trouble in any case. A positive cosine is mild

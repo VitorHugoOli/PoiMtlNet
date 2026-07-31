@@ -40,7 +40,7 @@
   do not predict").
 
 - **No British English, and the ban is wider than a spelling list.** The author read Appendix F on
-  2026-07-30 and found *"feature needs saying plainly"* in the deposited prose (PENDENCIAS 2.22
+  2026-07-30 and found *"feature needs saying plainly"* in the deposited prose (PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30)
   point 8). Read the instance carefully, because it is the reason this rule is shaped the way it is:
   **it is not a misspelling.** Every word is spelled identically in both dialects. It is the British
   `need`+gerund construction, where American English writes "needs to be said plainly". He also
@@ -78,7 +78,7 @@
   holds the author-owned hits open by name.
 
 - **No phrasing a non-native writer would not produce, and this is the harder rule.** The author's
-  second complaint, from the same reading (PENDENCIAS 2.22 points 9 and 12): prose that is correct,
+  second complaint, from the same reading (PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30) points 9 and 12): prose that is correct,
   even well written, and still forces a non-native reader to read it twice. His two instances, both
   from Appendix F, and his own words on each:
   - *"Two departures from that flat picture appear"* — **"pure A.I, we can be more simple"**.
