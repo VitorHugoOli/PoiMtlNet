@@ -85,7 +85,14 @@ Sphere2Vec-M \cite{mai2023sphere2vecgeneralpurposelocationrepresentation} is a m
 
 \subsection{Temporal Encoder}
 
-Human mobility patterns exhibit cyclical regularities, such as meal times and weekly movements, which carry discriminative information about the functional nature of the visited POIs \cite{sun2020go}. However, the original MTLNet model does not incorporate explicit temporal representations to capture this information.
+Human mobility patterns exhibit cyclical regularities, such as meal times and weekly movements \cite{cho2011friendship}, and models of the next visit read them through explicit temporal representations \cite{sun2020go}. However, the original MTLNet model does not incorporate explicit temporal representations to capture this information.
+% [2026-07-30, dissertation PENDENCIAS 2.15, author decision: path A] CLAIM NARROWED, mirroring the
+% PT source of record (../src/sections/metodology.tex) and the dissertation's Chapter 4. The sentence
+% attributed to sun2020go that temporal cycles reveal place FUNCTION; sun2020go is LSTPM (AAAI 2020,
+% DOI 10.1609/aaai.v34i01.5353), which models user preference for next-POI recommendation and claims
+% nothing about temporal signal predicting place semantics. cho2011friendship (already in this .bib
+% at line 59, already cited at sections/intro.tex:1) supports the temporal-regularity half; the
+% semantics half had no support in this bibliography and is dropped.
 
 To fill this gap, Time2Vec \cite{kazemi2019time2vec} is used, a generic and decoupled temporal representation capable of capturing periodic and non-periodic patterns without the need for manual feature engineering. The architecture combines linear and periodic terms to map the temporal values of each \textit{check-in} (hour of day and day of week, in a coupled manner) into an \textit{embedding} vector. For an \textit{embedding} of dimension $D$, the function is defined as:
 
@@ -106,7 +113,12 @@ The DGI used in the original model encodes categorical information through a \te
 
 The POI Encoder is trained independently to generate the category \textit{embedding} $\mathbf{E}_{\text{POI\_category}} \in \mathbb{R}^{64}$. The POIs are organized into a spatial graph built by Delaunay triangulation over the geographic coordinates, with edges weighted by logarithmic decay of the Haversine distance and penalization for connections between distinct counties (GEOIDs).
 
-Over this graph, random walks (\textit{random walks}) are executed following the Node2Vec methodology \cite{grover2016node2vec}. Each walk is converted into a sequence of secondary categories (\textit{fclass}), resulting in local and global co-occurrences among categories. The model learns the \textit{embeddings} using the \textit{skip-gram} strategy with \textit{negative sampling} \cite{church2017word2vec}:
+Over this graph, random walks (\textit{random walks}) are executed following the Node2Vec methodology \cite{grover2016node2vec}. Each walk is converted into a sequence of secondary categories, the fine classes, resulting in local and global co-occurrences among categories.
+% [2026-07-30, dissertation PENDENCIAS 2.15, author decision: path A] BANNED TERM REMOVED. The
+% dissertation's GLOSSARY registers this column's reader-facing name as "fine class" and forbids the
+% code identifier `fclass` in prose; the wording here is kept identical to the dissertation's Chapter 4
+% so the two English texts do not diverge.
+The model learns the \textit{embeddings} using the \textit{skip-gram} strategy with \textit{negative sampling} \cite{church2017word2vec}:
 
 \[
 \mathcal{L}_{\text{SGNS}}(i,j)
@@ -117,7 +129,16 @@ Over this graph, random walks (\textit{random walks}) are executed following the
 \log \sigma\!\left(-\mathbf{e}_{n_k}^\top \mathbf{e}_i\right),
 \]
 
-in which $\mathbf{e}_i$ is the \textit{embedding} of the target class, $\mathbf{e}_j$ the positive context \textit{embedding}, and $\mathbf{e}_{n_k}$ represent the negative samples. The implementation incorporates a hierarchical regularization term \cite{belkin2003laplacian} between category and \textit{fclass}: $\mathcal{L}_{\text{hier}} = \sum_{(c,s) \in \mathcal{H}} \left\| \mathbf{e}_s - \mathbf{e}_c \right\|_2^2$, in which $\mathcal{H}$ contains the (category, \textit{fclass}) pairs. The total loss is $\mathcal{L} = \mathcal{L}_{\text{SGNS}} + \lambda_{\text{hier}} \, \mathcal{L}_{\text{hier}}$. In the end, the resulting \textit{embedding} is generated per category and remapped to each POI.
+in which $\mathbf{e}_i$ is the \textit{embedding} of the target class, $\mathbf{e}_j$ the positive context \textit{embedding}, and $\mathbf{e}_{n_k}$ represent the negative samples. The implementation incorporates a hierarchical regularization term \cite{Xu2023} between category and fine class: $\mathcal{L}_{\text{hier}} = \sum_{(c,s) \in \mathcal{H}} \left\| \mathbf{e}_s - \mathbf{e}_c \right\|_2^2$, in which $\mathcal{H}$ contains the (category, fine class) pairs.
+% [2026-07-30, dissertation PENDENCIAS 2.15, author decision: path A] CITATION SUBSTITUTED,
+% belkin2003laplacian -> Xu2023, and the banned `fclass` replaced by the registered "fine class".
+% The regularizer is an L2 penalty pulling a subcategory embedding toward its parent over a known
+% label tree. Laplacian eigenmaps (Neural Computation 15(6):1373-1396) is nonlinear dimensionality
+% reduction, so it does not support the term. Xu2023 is TME (ACM TOIS 41(4), DOI 10.1145/3582553),
+% which "utilizes the predefined category hierarchy to regularize the relatedness among categories"
+% (abstract, read at Crossref 2026-07-30). Xu2023 is already in this .bib at line 281 and already
+% cited in sections/related.tex, so no entry is added.
+The total loss is $\mathcal{L} = \mathcal{L}_{\text{SGNS}} + \lambda_{\text{hier}} \, \mathcal{L}_{\text{hier}}$. In the end, the resulting \textit{embedding} is generated per category and remapped to each POI.
 
 \subsubsection{Hierarchical Graph Infomax (HGI)}
 

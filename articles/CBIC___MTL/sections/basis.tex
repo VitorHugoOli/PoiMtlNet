@@ -49,7 +49,17 @@ Each task has its own encoder, but networks exchange information through learned
 \paragraph*{Mixture-of-Experts (MoE)}  
 Multi-Gate Mixture-of-Experts (MMoE) architectures maintain a pool of shared expert subnetworks; each task learns a gating function to combine experts, outperforming monolithic sharing in large-scale recommendation settings \cite{ma2018mmoe,yu2019mmoe}.
 
-To mitigate task interference and loss imbalance, several optimization techniques have been proposed: GradNorm equalizes gradient magnitudes across tasks \cite{chen2018gradnorm}; MGDA finds Pareto-optimal descent directions \cite{sener2018mgda}; PCGrad removes conflicting gradient components \cite{yu2020pcgrad}; and Dynamic Weight Averaging (DWA) reweights losses based on their relative learning speeds \cite{liu2019dwa}.
+To mitigate task interference and loss imbalance, several optimization techniques have been proposed: GradNorm equalizes gradient magnitudes across tasks \cite{chen2018gradnorm}; MGDA finds a direction that decreases every task loss, unless the current point is already Pareto-stationary \cite{sener2018mgda};
+% [2026-07-30, dissertation PENDENCIAS 2.12, author decision] CLAIM NARROWED in this published source,
+% on his instruction to record the point in the dissertation's Appendix B ("pode adicionar essa linha no
+% appendix B, para termos conhecimento desse detalhe menor e nao deixar passar batido"). The published
+% PDF of record (CBIC 2025, DOI 10.21528/CBIC2025-1191324) is NOT edited and still reads
+% "Pareto-optimal descent directions"; this is the working source.
+% sener2018mgda states a dichotomy, not per-step Pareto optimality: the direction decreases all
+% objectives, or the point is already Pareto-stationary. The Pareto optimality it proves is for an upper
+% bound on the multi-objective loss, under stated assumptions (abstract, arXiv:1810.04650, read
+% 2026-07-30). This work does not use MGDA, so no result depends on the sentence.
+PCGrad removes conflicting gradient components \cite{yu2020pcgrad}; and Dynamic Weight Averaging (DWA) reweights losses based on their relative learning speeds \cite{liu2019dwa}.
 
 Despite these successes, MTL still faces several key challenges:
 \begin{itemize}

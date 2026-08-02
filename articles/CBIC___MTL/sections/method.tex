@@ -81,7 +81,18 @@ Finally, the processed shared representations are passed to dedicated, unshared 
 The choice of hard parameter sharing is motivated by its efficiency and regularization benefits, which are critical for our target application. This approach is supported by several factors:
 \begin{itemize}
     \item \textbf{Computational Efficiency:} Unlike soft-sharing methods that often introduce task-specific parameters and increase computational overhead, hard sharing maintains a compact model. This is crucial for deployment on resource-constrained edge devices (e.g., NVIDIA Jetson platforms).
-    \item \textbf{Implicit Regularization:} By constraining the hypothesis space, hard sharing acts as a regularizer, often leading to more generalizable models, especially when tasks are related \cite{ruder2017sluice}. Seminal work by Caruana demonstrated significant error reduction with this approach \cite{caruana1997multitask}.
+    \item \textbf{Implicit Regularization:} By constraining the hypothesis space, hard sharing acts as a regularizer, often leading to more generalizable models, especially when tasks are related \cite{baxter2000model}. Seminal work by Caruana demonstrated significant error reduction with this approach \cite{caruana1997multitask}.
+% [2026-07-30, dissertation PENDENCIAS 2.15, author decision: path A] CITATION SUBSTITUTED in this
+% published source, ruder2017sluice -> baxter2000model, on the author's instruction to correct the
+% original articles and record each in the dissertation's errata appendix. The published PDF of
+% record at CBIC 2025 (DOI 10.21528/CBIC2025-1191324) is NOT edited and still carries the old key;
+% this is the working source.
+% Ruder et al. is a soft-sharing method presented as an improvement on fixed sharing, so it does not
+% support a bullet arguing that hard sharing regularizes. Baxter 2000 (JAIR 12:149-198,
+% DOI 10.1613/jair.731, verified at Crossref 2026-07-30) states the hypothesis-space-constraint
+% argument the bullet makes. baxter2000model is already in this file's bibliography at
+% references.bib:130 and no entry is added. ruder2017sluice stays cited at sections/basis.tex:48 and
+% :56, where it is correct.
     \item \textbf{Empirical Performance:} In practice, hard parameter sharing frequently matches or exceeds the performance of more complex architectures on many benchmarks, while offering faster training and inference \cite{standley2020tasks}.
 \end{itemize}
 This architecture strategically balances model capacity with knowledge transfer, prioritizing efficiency for potential real-time recommendation scenarios.
