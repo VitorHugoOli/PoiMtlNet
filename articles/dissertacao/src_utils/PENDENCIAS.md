@@ -1478,4 +1478,8 @@ como esta apresentado.
     ainda possuem correlação.[VALIDE E PESQUISE MAIS NA CODEBASE]
 25. Será que nomear o joint model, como MTLChkNet agora seria muito tarde ? Alguma outra sugestão de nome melhor ?
     Podemos, até atualizar no mobiwac, vide que ainda está em revisão ?
-26. No §2.3.3 não explicamos o que é o `L𝑘`
+26. No §2.3.3 não explicamos o que é o `L𝑘`, also the explanation make in the §2.3.3 and §2.3.2.1 is working but i
+    belive that we can improve make it more easy to read the concepts better and the constructioin of the logic flow
+    easy to follow and undertand.
+27. Reading more about pareto make me think, shouldn't we have some claim about the pareto property that we enconunter
+    in the chapter 5 ? Even if this claim came in the appendix F ?
