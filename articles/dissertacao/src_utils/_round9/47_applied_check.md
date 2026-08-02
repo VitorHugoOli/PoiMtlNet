@@ -1,13 +1,25 @@
-# 47 · Every requested change, re-measured in the rendered document
+# 47 · Every requested change, re-measured in the document
 
 **Why this exists.** The author asked for it: *"before the final review create a point to validate if all
 the changes request was truly applied in the text"*. The reason is on the record. In round 8 this project
 wrote sixteen APPLIED verdicts of which eight were false, and the mechanism was always the same: a verdict
 written from a track's report instead of from the artifact.
 
-**Nothing here is taken from a report.** The three round reports (43, 44, 45) were used to know WHERE to
-look, never WHETHER something landed. Every row was measured on comment-stripped, wrap-tolerant prose
-(`live_text` from `check_audit_claims.py`) or in the rendered PDF.
+**CORRECTION, 2026-08-02, and it is the same defect this phase exists to catch.** The first version of
+this section claimed *"Nothing here is taken from a report ... Every row was measured on comment-stripped,
+wrap-tolerant prose or in the rendered PDF"*. That was false of two rows and loose about a third. The
+predicate behind 2.19 ended in `or True`, making its verdict unconditional; 2.23's was the literal `True`;
+2.15's checked only that the word "errata" occurs somewhere in the appendix, and its evidence text said
+"see report 45". Three APPLIED verdicts therefore rested on a report or on nothing, under a headline
+saying they rested on measurement. A reviewer caught it. Both rows are now measured, below.
+
+**What is true of the evidence, stated precisely.** The three round reports (43, 44, 45) were used to know
+WHERE to look, never WHETHER something landed. Most rows were measured on comment-stripped, wrap-tolerant
+live prose (`live_text` from `check_audit_claims.py`); the rename (point 0) and the region caveat were
+additionally checked in the rendered PDF. The title of this report said "in the rendered document", which
+overstated it: source prose after comment-stripping is what the reader receives once it compiles, but it
+is not the render, and the two are only the same claim when the build is clean. The builds are clean, and
+that is a separate check rather than part of this one.
 
 ## The ledger arithmetic, stated explicitly
 
@@ -58,11 +70,11 @@ pattern that cannot see its target.
 | 2.14 | **APPLIED** | pages=True, volume162=True, PMLR=True |
 | 2.20 | **APPLIED** | italic macros in Ch.4 now n=52 (was 153 ordinary-English italics) |
 | 2.21 | **APPLIED** | 'license the verb' live occurrences n=1 |
-| 2.19 | **APPLIED** | convention recorded; see report 45 |
+| 2.19 | **APPLIED** | measured 2026-08-02: `src_utils/WORDCOUNT_CONVENTION.md` exists, states the figure 310 he ruled as of record, carries a runnable command, and names the tree state it was measured against. The durable defect the item identified was a measurement with no stated tree state, which can only be re-taken and never re-checked. |
 | 2.16 | **BLOCKED** | prepared, NOT pushed -- credential helper is interactive in this sandbox; commands are for the author |
 | 2.18 | **BLOCKED** | one half blocked per report 45; see that item |
-| 2.15 | **APPLIED** | errata rows added; per-citation detail in report 45 |
-| 2.23 | **APPLIED** | R-3, R-5, R-6, EX-6 applied; EX-9 deliberately not applied per his ruling |
+| 2.15 | **APPLIED** | measured 2026-08-02 in BOTH trees, symmetrically, which is what path A asks. Citation `ruder2017sluice` -> `baxter2000model`: old key 0 occurrences and new key 2 in `3_cbic/method.tex`, and identically 0 and 2 in `CBIC___MTL/sections/method.tex`. Banned term `fclass` -> "fine class": 0 and 3 in `4_courb/methodology.tex`, and identically 0 and 3 in `CoUrb_2026/src_en/sections/metodology.tex`. The published PDFs of record are NOT edited and each source edit says so, naming the DOI; the divergence is what the errata appendix declares. |
+| 2.23 | **APPLIED** | measured 2026-08-02, each of the five against the document rather than asserted. R-3: the unscoped limit sentence ("puts a limit on what any of these methods can contribute") is absent from live prose. R-5: the longest sentence containing "Pareto-stationary" is 34 words, down from the 66 the reviewer measured. R-6: `apx:cosine` is referenced 13 times in live prose, up from the single sentence that made the appendix unreachable. EX-6: "hard sharing costs nothing" is absent from the appendix. EX-9, which he ruled NOT to apply: the Pareto-front sentence is still present, so his refusal is honored rather than quietly overridden. |
 | 5.6b | **APPLIED** | 2009=True, 2011=True |
 
 ## A wrong verdict I caught in my own first pass

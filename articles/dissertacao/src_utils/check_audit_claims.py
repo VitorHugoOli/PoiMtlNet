@@ -139,6 +139,26 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
      "references.bib", r"16428--16446", True),
     ("A12-errata", "his 2.12: the Pareto-optimality narrowing has its errata row",
      "tables/cbic/errata.tex", r"Pareto", True),
+    # ---- ROUND-9c, SECOND PASS. These three rows were APPLIED in the ledger on a predicate that did
+    # not measure anything: 2.19's ended in `or True`, 2.23's was the literal `True`, and 2.15's asked
+    # only whether the word "errata" occurs somewhere. A reviewer caught it. Probed properly now, which
+    # is the difference between a verdict and an assertion (_round9/47_applied_check.md, the CORRECTION).
+    ("A19-conv", "his 2.19: the word-count convention is a durable record stating the figure of record",
+     "WORDCOUNT_CONVENTION.md", r"310", True),
+    ("A23-R3",  "his 2.23 R-3: the unscoped limit on what the balancers can contribute is gone",
+     "chapters/2_fundamentals.tex", r"limit on what any of these methods can contribute", False),
+    ("A23-R6",  "his 2.23 R-6: the cosine appendix is reachable from the body, not one sentence",
+     "chapters/6_conclusion.tex", r"apx:cosine", True),
+    ("A23-EX6", "his 2.23 EX-6: the hard-sharing-costs-nothing claim is gone from the appendix",
+     "chapters/apx_f_cosine.tex", r"hard sharing costs nothing", False),
+    ("A23-EX9", "his 2.23 EX-9, which he ruled NOT to apply: the Pareto-front sentence is still there",
+     "chapters/2_fundamentals.tex", r"Reaching that front", True),
+    ("A15-cite", "his 2.15 path A: the substituted citation is present in the dissertation tree",
+     "chapters/3_cbic/method.tex", r"baxter2000model", True),
+    ("A15-old",  "his 2.15 path A: the unsupported citation is gone from the dissertation tree",
+     "chapters/3_cbic/method.tex", r"ruder2017sluice", False),
+    ("A15-term", "his 2.15: the banned term is gone from the CoUrb chapter",
+     "chapters/4_courb/methodology.tex", r"\bfclass\b", False),
     # ---- ROUND-9 PROBES: the review-tracker split itself. Paths ending .md resolve against UTILS.
     # Each was validated by sabotage (revert the property, read rc=1) -- see _round9/32_gate_validation.md.
     ("R9-schema", "CONSIDERATIONS.md carries all 43 per-item blocks, not prose",

@@ -84,12 +84,15 @@
         moveu a representação para o nível do check-in, dando a cada visita seu próprio
         vetor, e redesenhou a topologia de compartilhamento em torno de um tronco de atenção
         cruzada. Os seis conjuntos de dados são cinco estados dos Estados Unidos, do Gowalla,
-        e Istambul, do Massive-STEPS. Sob validação cruzada com usuários disjuntos entre
-        treino e teste, com vinte modelos ajustados por configuração, quatro inicializações
-        aleatórias sobre cinco partições fixas, e testes pareados sobre as quatro médias por
-        inicialização, esse modelo conjunto supera os modelos dedicados na previsão da próxima
+        e Istambul, do Massive-STEPS. % [round9c, 2026-08-02, R15-07] MESMO CORTE do Abstract, para a auditoria de paridade de
+        % afirmacoes (WRITING_LAW §6) continuar passando no par. Resultado primeiro, protocolo depois;
+        % todo numero, ressalva e convencao preservados.
+        Sob validação cruzada com usuários disjuntos entre treino e teste,
+        esse modelo conjunto supera os modelos dedicados na previsão da próxima
         categoria nos seis, por 5,3 a 9,4 pontos de macro-F1 sob uma seleção
-        \emph{joint-best}. Na previsão da próxima região, supera em quatro deles e
+        \emph{joint-best}. O protocolo usa vinte modelos ajustados por configuração, quatro
+        inicializações aleatórias sobre cinco partições fixas, e testes pareados sobre as quatro
+        médias por inicialização. Na previsão da próxima região, supera em quatro deles e
         equipara-se estatisticamente, com não-inferioridade dentro de uma margem de dois
         pontos de Acc@10 (TOST), nos outros dois. A resposta é, portanto, condicional: se o
         aprendizado multitarefa ajuda depende da representação de entrada e da topologia de
@@ -163,11 +166,17 @@
             third moved the representation to the
             check-in level, giving each visit its own vector, and redesigned the sharing topology
             around a cross-attention trunk. The six datasets are five states of the United States
-            from Gowalla and Istanbul from Massive-STEPS. Under user-disjoint cross-validation,
-            with twenty fitted models per configuration, four random initializations over five
-            fixed folds, and paired tests on the four initialization means, that joint model outperforms
+            from Gowalla and Istanbul from Massive-STEPS. % [round9c, 2026-08-02, R15-07] SPLIT. Was one 46-token sentence holding 24 words of protocol
+            % conditions ahead of its subject "that joint model" (measured: the subject sits at token
+            % index 25). On the most-read page of the document, the reader carried four unattached
+            % conditions before learning what the sentence was about. Result first, protocol second;
+            % every number, hedge and convention preserved. The Resumo carries the same split so the
+            % claim-parity audit still passes on the pair.
+            Under user-disjoint cross-validation, that joint model outperforms
             the dedicated models on next category at all six, by 5.3 to 9.4 macro-F1 points under
-            a joint-best selection. On next region it outperforms at four of them and
+            a joint-best selection. The protocol uses twenty fitted models per configuration, four
+            random initializations over five fixed folds, and paired tests on the four
+            initialization means. On next region it outperforms at four of them and
             statistically matches, with non-inferiority within a two-point Acc@10 margin (TOST),
             at the other two. The answer is therefore conditional: whether multi-task learning
             helps depends on the input representation and the sharing topology built on it.
