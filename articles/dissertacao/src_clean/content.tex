@@ -1,0 +1,177 @@
+% !TeX root = main.tex
+
+\begin{document}
+    \frenchspacing
+    \OnehalfSpacing %
+
+    \pretextual
+
+    \ifdefensebuild
+    {
+        \singlespacing
+        \imprimirfolhaderosto
+        \clearpage
+    }
+    \ifapprovalsheet
+    \begin{center}
+        \vspace*{2cm}
+        {\large\bfseries [Approval sheet placeholder --- PPG signature-page model is\\
+        inserted here for the defense; signed version replaces it afterward]}
+        \vspace*{\fill}
+    \end{center}
+    \clearpage
+    \fi
+
+    \begin{resumo}[Resumo]
+        \singlespacing
+        SILVA, Vitor Hugo De Oliveira, M.Sc., Universidade Federal de Viçosa, agosto de 2026.
+        \textbf{Multitask Learning for Point-of-Interest Classification and Prediction Tasks: The Role of the Check-in-Level Representation}. Orientador: Fabrício Aguiar Silva.
+        \vspace{\onelineskip}
+
+        \noindent Redes sociais baseadas em localização produzem registros de
+        \emph{check-in}, que associam um usuário, um ponto de interesse (POI) e um
+        instante. Esses registros permitem tanto classificar a categoria de um POI
+        quanto antecipar propriedades da próxima visita, como sua categoria e sua
+        região. Esta dissertação investiga se o aprendizado multitarefa (MTL) pode
+        combinar essas tarefas em um único modelo e de quais escolhas de projeto
+        depende o sucesso desse treinamento conjunto. Embora as tarefas compartilhem
+        dados e contexto, o compartilhamento de parâmetros também pode provocar
+        transferência negativa. A investigação foi desenvolvida em três estudos
+        sucessivos, organizados como um resultado negativo, seu diagnóstico e sua
+        resolução. O primeiro estudo propôs o MTLnet, que utilizava uma representação
+        em nível de POI e compartilhamento rígido de parâmetros para realizar
+        classificação de categoria e previsão da próxima categoria. Apesar dessa
+        estratégia de compartilhamento, o modelo conjunto não apresentou vantagem
+        consistente sobre modelos dedicados a cada tarefa. O
+        segundo estudo manteve a arquitetura do MTLnet e substituiu apenas sua entrada
+        por codificadores espaciais, temporais e categóricos decompostos. A melhora
+        acentuada do desempenho de categoria nos conjuntos avaliados indicou que,
+        naquela configuração, a representação de entrada era o principal fator
+        limitante. Com base nesse diagnóstico, o terceiro estudo atribuiu um vetor
+        próprio a cada \emph{check-in}, substituiu o compartilhamento rígido por uma
+        topologia baseada em atenção cruzada e reuniu duas tarefas sequenciais: a
+        previsão da próxima categoria e da próxima região. O modelo final foi avaliado
+        em seis conjuntos de dados de diferentes contextos geográficos, incluindo um
+        conjunto não estadunidense. O protocolo empregou validação cruzada com usuários
+        disjuntos entre treinamento e teste e testes estatísticos pareados. Essas
+        análises mostraram ganhos consistentes na previsão da próxima categoria e
+        resultados superiores ou comparáveis aos modelos dedicados na previsão da
+        próxima região. Os resultados mostram que o MTL não constitui um
+        benefício automático: sua efetividade depende da representação de entrada e
+        da topologia de compartilhamento construída para as tarefas consideradas.
+
+        \vspace{\onelineskip}
+        \noindent
+        \begin{minipage}{\linewidth}
+            \textbf{Palavras-chave}:
+            aprendizado multitarefa, ponto de interesse, previsão da próxima categoria,
+            previsão da próxima região, representação em nível de check-in
+        \end{minipage}
+    \end{resumo}
+
+    \begin{resumo}[Abstract]
+        \begin{otherlanguage*}{english}
+            \singlespacing
+            SILVA, Vitor Hugo De Oliveira, M.Sc., Universidade Federal de Viçosa, August 2026.
+            \textbf{Multitask Learning for Point-of-Interest Classification and Prediction Tasks: The Role of the Check-in-Level Representation}. Advisor: Fabrício Aguiar Silva.
+            \vspace{\onelineskip}
+
+            \noindent Location-based social networks produce \emph{check-in} records
+            associating a user, a point of interest (POI), and a time. These records
+            support both the classification of a POI's category and the prediction of
+            properties of the next visit, such as its category and region. This
+            dissertation investigates whether multitask learning (MTL) can combine
+            these tasks in a single model and which design choices determine the
+            success of joint training. Although the tasks share data and context,
+            parameter sharing may also cause negative transfer. The investigation
+            comprises three successive studies organized as a negative result, its
+            diagnosis, and its resolution. The first study proposed MTLnet, which used
+            a POI-level representation and hard parameter sharing for category
+            classification and next-category prediction. Despite this sharing
+            strategy, the joint model did not consistently outperform models dedicated
+            to each task. The second study
+            retained the MTLnet architecture and replaced only its input with
+            decomposed spatial, temporal, and categorical encoders. The marked
+            improvement in category performance across the evaluated datasets
+            indicated that, in that configuration, the input representation was the
+            main limiting factor. Based on this diagnosis, the third study assigned a
+            distinct vector to each \emph{check-in}, replaced hard sharing with a
+            cross-attention-based topology, and paired two sequential tasks:
+            next-category and next-region prediction. The final model was evaluated on
+            six datasets from different geographic contexts, including one non-U.S.
+            dataset. The protocol used user-disjoint cross-validation and paired
+            statistical tests. These analyses showed consistent gains in next-category
+            prediction and results that were superior or comparable to the dedicated
+            models in next-region prediction. The results show that MTL does not
+            provide an automatic benefit: its effectiveness depends on the input
+            representation and the sharing topology designed for the tasks under
+            consideration.
+
+            \vspace{\onelineskip}
+            \noindent
+            \begin{minipage}{\linewidth}
+                \textbf{Keywords}:
+                multitask learning, point of interest, next-category prediction,
+                next-region prediction, check-in-level representation
+            \end{minipage}
+        \end{otherlanguage*}
+    \end{resumo}
+    \else
+    \pagestyle{empty}
+    \fi
+
+    \pdfbookmark[0]{\listfigurename}{lof}
+    \listoffigures*
+    \cleardoublepage
+
+    \pdfbookmark[0]{\listtablename}{lot}
+    \listoftables*
+    \cleardoublepage
+
+    \begin{siglas}
+        \item[CBIC] Congresso Brasileiro de Intelig\^encia Computacional
+        \item[Check2HGI] Check-in-level representation extending Hierarchical Graph Infomax
+        \item[CoUrb] Workshop de Computa\c{c}\~ao Urbana
+        \item[DGI] Deep Graph Infomax
+        \item[FiLM] Feature-wise Linear Modulation
+        \item[HGI] Hierarchical Graph Infomax
+        \item[LBSN] Location-Based Social Network
+        \item[MobiWac] ACM International Symposium on Mobility Management and Wireless Access
+        \item[MTL] Multitask Learning
+        \item[POI] Point of Interest
+        \item[SBRC] Simp\'osio Brasileiro de Redes de Computadores e Sistemas Distribu\'idos
+        \item[TOST] Two One-Sided Tests
+    \end{siglas}
+    \cleardoublepage
+
+    \pdfbookmark[0]{\contentsname}{toc}
+    \tableofcontents*
+    \cleardoublepage
+
+    \textual
+    \ifdefensebuild\else
+    \pagestyle{abntheadings}
+    \setcounter{page}{\finalbuildfirstpage}
+    \fi
+
+    \include{chapters/1_introduction}
+    \include{chapters/2_fundamentals}
+    \include{chapters/3_cbic}
+    \include{chapters/4_courb}
+    \include{chapters/5_mobiwac}
+    \include{chapters/6_conclusion}
+
+    \postextual
+
+    \bibliography{references}
+
+    \begin{apendicesenv}
+        \partapendices
+        \include{chapters/apx_a_contributions}
+        \include{chapters/apx_c_ai_disclosure}
+        \include{chapters/apx_e_ethics}
+        \include{chapters/apx_f_cosine}
+        \include{chapters/apx_g_hgi_tuning}
+    \end{apendicesenv}
+
+\end{document}

@@ -1,0 +1,66 @@
+% !TeX root = ../../main.tex
+\begin{table}[htb]
+\caption{Content errata of the CoUrb 2026 article and the corrections applied in
+Chapter~\ref{ch:courb} (English translation of the published text).}
+\label{tab:apx:courb-errata}
+\centering
+\small
+\begin{tabular}{@{}p{0.42\textwidth}p{0.52\textwidth}@{}}
+\toprule
+\textbf{Defect in the published article} & \textbf{Correction in the chapter} \\
+\midrule
+Results and conclusion state wins over the baseline in ``16 of the 21
+evaluated combinations''. &
+Audited count: 15 of the 21 combinations, with one additional technical tie
+(\emph{Outdoors} in Florida, where the baseline mean exceeds the best variant by
+0.02 percentage points, within one standard deviation). \\
+\addlinespace
+Introduction, results, and conclusion state ``average gains of 20 to 24
+percentage points'' on the category task. &
+Audited per-state means: gains of 20.2 to 22.0 percentage points, considering the
+better of the two spatial encoders in each combination (the disclosure the audit
+requires). \\
+\addlinespace
+Introduction states ``wins in most scenarios''. &
+``outperforms the baseline in most scenarios'' (verdict-verb rule; claim
+strength unchanged). \\
+\addlinespace
+The methodology states that maximizing the product of the task utilities ``ensures that the
+update is beneficial for all tasks simultaneously''. The guarantee is unconditional as
+written. &
+Narrowed to the guarantee the method's own paper derives: at points that are not Pareto
+stationary, and under its assumption that the task gradients there are linearly independent,
+the update direction is a descent direction for every task. The paper states the property in
+those terms, and it approximates the bargaining solution by an iterative procedure rather than
+solving it exactly. The claim is weaker than the published one, and no result depends on
+it. \\
+\addlinespace
+The methodology attributes to a next-POI recommendation method the claim that cyclical
+mobility regularities carry discriminative information about the functional nature of the
+visited places. That method models long- and short-term user preference and states nothing
+about temporal signal revealing what kind of place a visit is. &
+Split into the part the literature supports and the part it does not. The regularity itself is
+attributed to the paper that published the check-in collection this chapter uses, already
+cited elsewhere in the chapter, and the recommendation method is kept for the property it does
+establish, that models of the next visit read temporal structure explicitly. The claim about
+place function is withdrawn rather than re-attributed, since no work in the bibliography
+supports it. The paragraph's argument, that the original architecture lacks an explicit
+temporal representation, is unchanged. \\
+\addlinespace
+The category-encoder loss attributes its hierarchical regularization term, an L2 penalty that
+pulls a subcategory embedding toward its parent over a known label tree, to a paper on
+nonlinear dimensionality reduction. The two share a graph Laplacian and nothing else. &
+Re-attributed to a multitask embedding method for place-category annotation, which
+regularizes relatedness among categories using a predefined category hierarchy: the same
+construction the loss implements. The reference was already in the bibliography and already
+cited in this chapter. No term, coefficient, or reported value changes. \\
+\addlinespace
+Two sentences of the methodology name a data column by its identifier in the source files,
+\texttt{fclass}, which is not a term a reader of the chapter can resolve. &
+Replaced by the registered reader-facing name, fine class, in both sentences, set in roman
+because it is ordinary English rather than a code token. The parenthetical gloss that
+introduced the column is kept, so the sentence still tells the reader what a secondary
+category is. \\
+\bottomrule
+\end{tabular}
+\end{table}

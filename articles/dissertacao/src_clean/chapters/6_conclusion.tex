@@ -1,0 +1,171 @@
+% !TeX root = ../main.tex
+
+\chapter{Conclusion}
+\label{ch:conclusion}
+
+This dissertation examined whether multitask learning helps next-category and
+next-region prediction and what determines the answer. The three studies provide a
+sequence of results: MTLnet did not consistently outperform its dedicated models
+(Chapter~\ref{ch:cbic}); a controlled comparison identified the input representation
+as the bottleneck for that configuration (Chapter~\ref{ch:courb}); and a
+check-in-level representation with a new sharing topology produced a joint model that
+outperforms the dedicated model on next category at all six datasets and on next
+region at four of them (Chapter~\ref{ch:mobiwac}). At Alabama and Arizona, the joint
+model matches the region model by being statistically non-inferior within a two-point
+margin (TOST).
+
+\section{Contributions by chapter}
+\label{sec:conc:contributions}
+
+Chapter~\ref{ch:cbic} contributes MTLnet and the initial negative result. The model
+uses a place-level graph embedding and hard parameter sharing for static category
+classification of POIs held out from classifier training and for next-category
+prediction. It did not consistently outperform the
+dedicated single-task models and required more training time. The study proposed three
+possible explanations: dissimilar tasks, an input representation that did not serve
+both tasks well, and restrictive hard sharing. Its conclusion applies to that
+place-level, hard-sharing configuration. The later studies test and revise it rather
+than treating it as a general verdict on MTL.
+
+Chapter~\ref{ch:courb} tests the representation explanation while keeping MTLnet
+fixed. Replacing the 64-dimensional place embedding with 192-dimensional spatial,
+temporal, and categorical encoders increases category macro-F1 by 20.2 to 22.0
+percentage points across the three states evaluated. This result identifies the input
+as the bottleneck at that stage, but two limitations constrain its interpretation.
+First, the reported range comes from the static task, whose representation determines
+the target by construction, as recorded in Appendix~B of \extravolume. It is not
+evidence for the sequential task. Second, the comparison is not width-matched. An
+equal-dimension control would be needed to separate the encoders' semantic
+specialization from the increase in input width. The sequential results nonetheless
+motivate the test performed in Chapter~\ref{ch:mobiwac}, where the input does not
+determine the target.
+
+Chapter~\ref{ch:mobiwac} contributes Check2HGI and the final joint model. Check2HGI
+assigns one vector to each visit, and the model combines task-specific streams through
+a shared cross-attention trunk while retaining a private spatial path for next-region
+prediction. Evaluation uses user-disjoint cross-validation with twenty fitted models
+per configuration: four seeds over the same five folds. Paired tests on the four
+per-seed means show that the joint model outperforms the dedicated model on next
+category at all six datasets by 5.3 to 9.4 macro-F1 points. It also outperforms the
+region model at Istanbul, Florida, Texas, and California and matches it at Alabama and
+Arizona through statistical non-inferiority within a two-point margin (TOST).
+The registered primary analysis for the region task was non-inferiority. The four
+region-superiority findings are secondary results outside that plan and are reported
+as such here rather than reclassified after the analysis.
+
+\section{The consolidated answer}
+\label{sec:conc:answer}
+
+The answer to the research question is conditional. With a place-level embedding and
+hard parameter sharing, MTL did not consistently outperform the dedicated models in
+Chapter~\ref{ch:cbic}. With Check2HGI and cross-attention sharing, the joint model in
+Chapter~\ref{ch:mobiwac} outperforms the dedicated category model at all six datasets
+and the dedicated region model at four. It matches the region model at Alabama and
+Arizona through statistical non-inferiority within a two-point margin (TOST). The
+evidence therefore ties the benefit of MTL to the representation and to the sharing
+topology used with it.
+
+The freeze control in Chapter~\ref{ch:mobiwac} narrows this explanation. When the
+region pathway is frozen, the category gain remains at Alabama, Arizona, and Florida.
+The gain therefore does not require the region task to improve the category task
+during joint training. It comes from a component available to the joint architecture
+but absent from the dedicated model. The control does not identify that component. A
+development ablation at Florida removed the cross-attention stack and changed
+next-category macro-F1 by $-0.04 \pm 0.13$. That result came from an earlier
+configuration in which the region head used a transition prior that is absent from
+the reported models. Its record attributes the null change to compensation among
+components. It does not show that the shared trunk has no effect, so this dissertation
+does not use it to assign the gain to one architectural block.
+
+A capacity-matched comparison tests whether model size alone explains the gain. This
+frame-level analysis was run after the Chapter~\ref{ch:mobiwac} manuscript was
+submitted. At Alabama, the dedicated category model was widened from about 0.6
+million to about 4.2 million parameters. Three training configurations produced
+twenty fitted models each, for sixty in total. The strongest widened configuration
+has mean macro-F1 of 56.16 with standard deviation 1.89, compared with 56.82 for the
+dedicated model at its tuned width and 64.51 for the joint model. The California
+experiment gives the same pattern. At hidden dimension 752, the widened model has
+101.9 percent of the joint model's parameters. Its better training configuration
+reaches mean macro-F1 of 69.88 with standard deviation 0.26 over twenty fitted models,
+while the tuned narrow model reaches 70.60 with standard deviation 0.07. The widened
+model is 0.66 points below the narrow model at Alabama and 0.72 points below it at
+California. In both experiments, the best widened configuration uses a lower learning
+rate than the narrow configuration, which shows that the comparison selected a
+training setting for the wider model. Within these two datasets and width controls,
+additional parameters do not recover the joint model's gain.
+
+The gradient analysis provides a compatible result at a different level. During
+development, on an earlier data preparation, mean gradient cosine was $+0.001$ over
+four seeds on four Gowalla states, three of which are among the five reported here.
+The measurement concerns directional conflict for this task pair and does not support
+a general claim about MTL. Appendix~\ref{apx:cosine} evaluates the same quantity for
+the final model over seven datasets and reaches the same conclusion from the broader
+measurement. With the check-in-level representation, the gradients of the two
+sequential tasks are essentially orthogonal. In this configuration, sharing stopped
+hurting, and gradient-balancing methods had little directional conflict to correct.
+A tuned fixed weighting was sufficient.
+
+The negative and positive results therefore describe different configurations rather
+than contradictory conclusions. The first shows that joint training is not
+automatically beneficial. The final study shows one setting in which a check-in-level
+representation and a different sharing topology make one joint model competitive
+with or better than the dedicated models under the stated tests.
+
+\section{Limitations}
+\label{sec:conc:limitations}
+
+Six limitations define the scope of the conclusions.
+
+\begin{enumerate}
+  \item \textbf{Data vintage.} The five state datasets come from
+        Gowalla~\cite{cho2011gowalla}, and the extraction spans January 2009 to August
+        2011. Mobility patterns, available places, and check-in behavior may have
+        changed since that period.
+  \item \textbf{Taxonomy coarseness.} Next-category prediction uses seven top-level
+        classes. A finer taxonomy may change the effect of joint training.
+  \item \textbf{Transductive representation.} Check2HGI is trained on the check-in
+        graph of each dataset. It cannot represent unseen places or users without
+        retraining.
+  \item \textbf{No next-place task.} The experiments do not predict the exact next
+        POI. Their conclusions apply only to next category and next region.
+  \item \textbf{Geographic coverage.} Istanbul is the only dataset outside the United
+        States, so the non-United-States evidence comes from one city.
+  \item \textbf{Task-pair confound.} The representation and sharing topology change
+        at the same stage as the task pair. Chapters~\ref{ch:cbic}
+        and~\ref{ch:courb} combine static category classification with next-category
+        prediction. Chapter~\ref{ch:mobiwac} combines two sequential targets,
+        next-category and next-region prediction. No controlled ablation separates
+        the effect of this task-pair change from the representation and topology
+        changes in the final result. Chapter~\ref{ch:courb} controls the task pair for
+        the representation diagnosis. The capacity-matched analysis also excludes
+        width as an explanation only for the category task at two of the six datasets,
+        at one width per dataset, and does not test depth. The final pair's greater
+        similarity may still contribute to the size of the improvement.
+\end{enumerate}
+
+\section{Future work}
+\label{sec:conc:future}
+
+Each limitation leads to a corresponding experiment. Newer and denser traces would
+test whether the findings extend beyond the Gowalla period (limitation~1). A
+finer-grained category taxonomy would test the effect of a larger semantic output
+space (limitation~2). An inductive version of Check2HGI could represent unseen places
+and users without retraining (limitation~3). Adding exact next place as a third target
+would connect the model to the main task in the mobility literature and test whether
+category and region predictions can provide structure for it
+(limitation~4). Additional cities outside the United States would broaden the
+geographic evidence (limitation~5). Finally, training the Chapter~\ref{ch:mobiwac}
+architecture on the task pair from Chapter~\ref{ch:cbic}, while keeping Check2HGI,
+would isolate the contribution of the task-pair change (limitation~6).
+
+\section{Final remarks}
+\label{sec:conc:final}
+
+The final model produces two predictions in one forward pass: the kind of place a
+person will visit and the region in which the visit will occur. The dissertation also
+records how that result was reached. A negative result with a place-level
+representation led to a controlled diagnosis, and that diagnosis motivated a
+check-in-level representation and a different sharing topology. The negative result
+is therefore not separate from the contribution. It establishes the condition that
+the later studies had to change and explains why the final model works under a
+different configuration.

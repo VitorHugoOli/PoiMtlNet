@@ -1,0 +1,27 @@
+% !TeX root = ../../main.tex
+\begin{table}[htbp]
+    \centering
+    \caption{The cosine between the next-region and next-category gradients on the shared trunk, over the six datasets of Chapter~\ref{ch:mobiwac} and Georgia. The rows are fold-level: every test takes the fold as its unit. Equivalence to zero holds at every dataset (TOST, $\pm 0.05$); $\dagger$ marks a dataset where the exact sign test sits at its floor of $0.0625$, which five folds cannot go below.}
+    \label{tab:apx:cosine}
+    {\small
+    \setlength{\tabcolsep}{4pt}
+    \begin{tabular}{llrrlrrrr}
+        \toprule
+        & & \multicolumn{2}{c}{Sample} & \multicolumn{2}{c}{Mean cosine} & \multicolumn{2}{c}{$p$ against zero} & \\
+        \cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+        Dataset & Unit & $n$ & obs. & 95\% CI & mean & TOST & $t$ / sign & pos. \\
+        \midrule
+        Florida    & fold series & 60 & 3{,}150 & $[-0.0010, +0.0015]$ & $+0.0003$ & $10^{-62}$ & $0.68$ / $0.90$ & 31/60 \\
+        Alabama    & fold        &  5 &   250 & $[+0.0040, +0.0184]$ & $+0.0112$ & $10^{-5}$  & $0.013$ / $0.063^{\dagger}$ & 5/5 \\
+        Arizona    & fold        &  5 &   250 & $[-0.0051, +0.0081]$ & $+0.0015$ & $10^{-5}$  & $0.56$ / $1.00$ & 3/5 \\
+        California & fold        &  5 &   250 & $[+0.0000, +0.0014]$ & $+0.0007$ & $10^{-9}$  & $0.048$ / $0.38$ & 4/5 \\
+        Texas      & fold        &  5 &   250 & $[-0.0024, +0.0018]$ & $-0.0003$ & $10^{-7}$  & $0.74$ / $0.38$ & 4/5 \\
+        Istanbul   & fold        &  5 &   250 & $[-0.0008, +0.0011]$ & $+0.0001$ & $10^{-9}$  & $0.76$ / $1.00$ & 3/5 \\
+        Georgia    & fold        &  5 &   250 & $[+0.0016, +0.0061]$ & $+0.0039$ & $10^{-7}$  & $0.009$ / $0.063^{\dagger}$ & 5/5 \\
+        \bottomrule
+        \multicolumn{9}{l}{\footnotesize $^{\dagger}$ $0.0625$ is the smallest value the exact sign test can return at $n = 5$; no five-fold} \\
+        \multicolumn{9}{l}{\footnotesize row can reach $0.05$ by that test. Florida read at the configuration mean instead ($n = 12$)} \\
+        \multicolumn{9}{l}{\footnotesize gives the same $+0.0003$ and remains equivalent, TOST $p = 1.3 \times 10^{-16}$.} \\
+    \end{tabular}
+    }
+\end{table}

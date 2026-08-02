@@ -1,0 +1,26 @@
+% !TeX root = ../../main.tex
+\begin{table}[htbp]
+\caption{Dataset statistics, ordered by region count: five Gowalla states and Istanbul
+(Massive-STEPS). All share the same seven root categories; the region unit is a census
+tract (a mahalle for Istanbul). Windows: sliding nine-visit inputs plus the next-visit
+target; lengths: per-user check-in counts; density: $100\times\text{check-ins}/(\text{users}\times\text{POIs})$; Majority: share of next-visit
+labels in the most common category (Food in every dataset).}
+\label{tab:mobiwac:datasets}
+\centering
+\setlength{\tabcolsep}{3pt}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{l l r r r r r r r r r}
+\toprule
+\textbf{Dataset} & \textbf{Source} & \shortstack[r]{\textbf{Check-}\\\textbf{ins}} & \textbf{Users} & \textbf{POIs} &
+\textbf{Regions} & \textbf{Windows} & \shortstack[r]{\textbf{Max}\\\textbf{len}} & \shortstack[r]{\textbf{Avg}\\\textbf{len}} & \shortstack[r]{\textbf{Density}\\\textbf{(\%)}} & \shortstack[r]{\textbf{Majority}\\\textbf{(\%)}} \\
+\midrule
+Istanbul & Massive-STEPS &   462{,}615 & 23{,}694 &  29{,}816 &     520 &   271{,}666 &     817 &  19.5 & 0.065 & 33.4 \\
+AL       & Gowalla       &   113{,}846 &  3{,}858 &  11{,}848 & 1{,}109 &    96{,}326 & 3{,}835 &  29.5 & 0.249 & 34.2 \\
+AZ       & Gowalla       &   236{,}450 &  7{,}869 &  20{,}666 & 1{,}547 &   200{,}895 & 5{,}589 &  30.1 & 0.145 & 34.0 \\
+FL       & Gowalla       & 1{,}407{,}034 & 21{,}052 &  76{,}544 & 4{,}703 & 1{,}274{,}418 & 16{,}679 &  66.8 & 0.087 & 24.7 \\
+TX       & Gowalla       & 4{,}089{,}892 & 38{,}644 & 160{,}938 & 6{,}553 & 3{,}830{,}414 & 42{,}300 & 105.8 & 0.066 & 31.0 \\
+CA       & Gowalla       & 3{,}171{,}380 & 37{,}090 & 169{,}145 & 8{,}501 & 2{,}925{,}466 & 14{,}855 &  85.5 & 0.051 & 32.7 \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}

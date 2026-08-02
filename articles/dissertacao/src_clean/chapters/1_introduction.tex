@@ -1,0 +1,198 @@
+% !TeX root = ../main.tex
+
+
+\chapter{Introduction}
+\label{ch:intro}
+
+
+\section{Context and motivation}
+\label{sec:intro:context}
+
+Location-based social networks record visits through \emph{check-ins}. Each check-in
+states that a user visited a place, or point of interest (POI), at a given time.
+Although these traces are noisy, human movement is highly regular: an analysis of
+large-scale mobility traces estimated the potential predictability of an individual's
+next location at about 93 percent~\cite{song2010limits}. Anticipating what kind of
+place a person will visit and where that visit will occur can support recommendation,
+navigation, transit planning, and the allocation of resources by area. The broader
+study of mobility also informs urban planning, disease-spread analysis, and pollution
+research~\cite{luca2021mobilitysurvey}, while place categories provide the semantic
+information used by location-based services~\cite{Xu2023}. Some methods used in this
+dissertation also come from neighboring geospatial tasks. In particular, the spatial
+encoders examined in the second study were first validated for applications such as
+species recognition and remote-sensing
+classification~\cite{mai2023sphere2vecgeneralpurposelocationrepresentation,wu2024torchspatial}.
+
+This dissertation studies two properties of the next visit. \emph{Next-category
+prediction} identifies the semantic category of that visit, and \emph{next-region
+prediction} identifies where it will occur. These tasks differ from \emph{next-place
+prediction}, which identifies the exact establishment and is outside the scope of
+this work. The first two studies also use \emph{category classification}, a static
+task that predicts the category of a POI held out from classifier training. The task
+pair changes in the final study, as explained in Section~\ref{sec:intro:arc}.
+Chapter~\ref{ch:fundamentals} formally defines the three tasks that appear in the
+experiments.
+
+Because next category and next region are predicted from the same visit history, one
+model may serve both tasks. Multitask learning (MTL) trains related tasks jointly so
+that they can share information~\cite{caruana1997multitask}. This approach has been
+used in vision~\cite{kokkinos2016ubernet}, clinical
+prediction~\cite{lipton2015learning}, and language
+modeling~\cite{wei2022finetuned}. For the setting studied here, its operational appeal
+is a single model to maintain and one forward pass that produces both predictions,
+instead of two dedicated single-task models. Joint training does not guarantee better
+predictions, however. Shared parameters can harm one task, a failure known as negative
+transfer. Whether MTL would help these POI prediction tasks, and which design choices
+would determine the result, was an open question at the start of this research.
+
+
+\section{Research question}
+\label{sec:intro:arc}
+
+\textbf{Does multitask learning help point-of-interest prediction (next category and
+next region), and what does the answer depend on?}
+
+The three studies answer this question in sequence. The first reports a negative
+result, the second identifies its main bottleneck, and the third tests the resulting
+solution. This progression is itself part of the contribution because each study
+narrows the explanation supported by the evidence.
+
+Chapter~\ref{ch:cbic}, published at CBIC 2025, introduces MTLnet, the first joint model
+developed in this research. It combines a place-level graph embedding with hard
+parameter sharing and predicts static place categories and the next category in a
+sequence. For that configuration, the joint model did not consistently outperform
+the two dedicated single-task models and required more training time. The study
+treated this null result as a finding and proposed three possible explanations,
+including an input representation that might not provide enough information for both
+tasks.
+
+Chapter~\ref{ch:courb}, published at CoUrb 2026, examines that explanation through a
+controlled comparison. The study keeps MTLnet unchanged and replaces its monolithic
+64-dimensional place embedding with separate spatial, temporal, and categorical
+encoders. Category performance then increases substantially in every state evaluated.
+Because the architecture remains fixed, the study identifies the input representation
+as the bottleneck for that stage of the research.
+
+Chapter~\ref{ch:mobiwac}, submitted to MobiWac 2026 and under review, develops the
+resolution. Any place-level embedding assigns a place the same vector on every visit; a
+representation that cannot tell a weekday lunch from a Saturday night out at the same
+place is working against both tasks at once. That observation is the hypothesis the
+final study tests. It moves the representation to the check-in level: one vector per
+visit. Acting on another of the first study's candidate explanations, it also replaces
+the shared hidden layers with cross-attention between task-specific streams, addressing
+the earlier concern about hard parameter sharing. Under a check-in level representation, static
+category classification is a less natural companion task than a second sequential target,
+so the final task pair becomes next category and next region. Across five United States
+states and Istanbul, the study compares the joint and dedicated models with paired superiority
+and non-inferiority tests. The results support a positive answer for this configuration;
+Chapter~\ref{ch:mobiwac} reports the task-specific outcomes.
+
+The task pair thus changes across the studies: the first two combine static category
+classification with next-category prediction, whereas the final study combines
+next-category and next-region prediction. The dissertation does not treat these as one
+unchanged experiment. It presents a sequence in which a result valid for one
+configuration leads to a diagnosis and then to a different, explicitly bounded
+solution.
+
+
+\section{Objectives}
+\label{sec:intro:objectives}
+
+The general objective is to determine whether multitask learning helps next-category
+and next-region prediction and to identify the conditions that shape the answer. Four
+specific objectives connect this question to the article chapters and to their
+consolidation:
+
+\begin{enumerate}
+    \item Evaluate whether a joint model with hard parameter sharing benefits static
+    category classification and next-category prediction when compared with
+    dedicated single-task models (Chapter~\ref{ch:cbic}).
+    \item Determine how the input representation affects that result by enriching and
+    decomposing the input while keeping the architecture fixed
+    (Chapter~\ref{ch:courb}).
+    \item Design and validate a check-in-level representation and a joint model for
+    next-category and next-region prediction (Chapter~\ref{ch:mobiwac}).
+    \item Consolidate the evidence under the user-disjoint cross-validation,
+    significance-testing, and non-inferiority protocol used in the final study
+    (Chapter~\ref{ch:conclusion}).
+\end{enumerate}
+
+
+\section{Scope and assumptions}
+\label{sec:intro:scope}
+
+The experiments use observational check-in traces from two sources: Gowalla data for
+five United States states (Alabama, Arizona, Florida, California, Texas) and the Istanbul subset of the Massive-STEPS benchmark. The prediction targets are the next category, over the
+seven-class taxonomy defined in Chapter~\ref{ch:fundamentals}, and the next region, over census tracts in
+the United States and mahalles in Istanbul.
+The joint model operates under a single-model constraint: one trained artifact must produce
+both outputs in one forward pass. These choices define the design scope.
+Chapter~\ref{ch:fundamentals} specifies the output spaces and geographic units, and
+Chapter~\ref{ch:conclusion} discusses the limitations that affect how the results may
+generalize.
+
+
+\section{Organization of this dissertation}
+\label{sec:intro:organization}
+
+This dissertation is organized as a collection of works, where each central chapter is an
+independent article. The articles were re-typeset in a common format, and the second
+article was translated into English. Their content follows the published versions or,
+for the article under review, the submitted manuscript.
+% Corrections introduced during adaptation are recorded in the errata appendix of \extravolume.
+
+\begin{itemize}
+    \item \textbf{Chapter~\ref{ch:fundamentals}} defines the shared background: POI
+    prediction tasks, mobility representations, multitask learning, datasets,
+    metrics, and evaluation protocols.
+    \item \textbf{Chapter~\ref{ch:cbic}} reproduces the first article, published in
+    English at the XVII Congresso Brasileiro de Intelig\^encia Computacional
+    (CBIC 2025, DOI~10.21528/CBIC2025-1191324). This dissertation's author is its
+    first author.
+    \item \textbf{Chapter~\ref{ch:courb}} presents an English translation of the second
+    article, published in Portuguese at the X Workshop de Computa\c{c}\~ao Urbana
+    (CoUrb 2026, DOI~10.5753/courb.2026.22960), held with the Simp\'osio
+    Brasileiro de Redes de Computadores e Sistemas Distribu\'idos (SBRC 2026).
+    Tarik S.\ Paiva is the first author. This dissertation's author is the second
+    author, contributed the MTLnet baseline, and presented the work at the event.
+    \item \textbf{Chapter~\ref{ch:mobiwac}} presents the third article, submitted to the
+    23rd ACM International Symposium on Mobility Management and Wireless Access
+    (MobiWac 2026) and under review. This dissertation's author is its first
+    author.
+    \item \textbf{Chapter~\ref{ch:conclusion}} answers the research question across the
+    three studies, states their joint limitations, and connects each limitation
+    to future work.
+\end{itemize}
+
+Each article chapter begins with a preface that identifies its venue and publication
+status. The prefaces also distinguish the conclusion supported at the time of each
+article from the final position of the dissertation.
+
+
+\section{Contributions}
+\label{sec:intro:contributions}
+
+The contributions are organized into four groups.
+
+\begin{description}
+    \item[Theoretical.] The studies show that the input representation and its sharing
+    topology determine whether MTL helps these POI prediction tasks. A null result
+    with a place-level representation and hard sharing therefore does not conflict
+    with a positive result obtained from a check-in-level representation and a
+    different form of sharing.
+    \item[Software.] The work provides MTLnet (Chapter~\ref{ch:cbic}), Check2HGI and the
+    joint model built on it (Chapter~\ref{ch:mobiwac}), and reproducible training
+    and evaluation pipelines for Chapters~\ref{ch:cbic} and~\ref{ch:mobiwac}. The
+    corresponding code repositories are referenced in those chapters.
+    \item[Empirical.] The final study compares joint and dedicated models on six
+    datasets under user-disjoint cross-validation. Each configuration has twenty
+    fitted models: four repetitions of the complete five-fold experiment, each
+    with a different random initialization and the same fixed folds. The analysis
+    uses paired tests on the four per-seed means, non-inferiority tests, and a
+    leakage audit. Because every seed uses the same fold partition, the reported
+    intervals do not include uncertainty from resampling the user splits.
+    \item[Practical.] One model produces both predictions in one forward pass. It
+    outperforms the dedicated model on next category and either outperforms or
+    matches it on next region under the statistical criteria defined in this
+    dissertation.
+\end{description}

@@ -1,0 +1,100 @@
+% !TeX root = ../main.tex
+
+\chapter{Other Scientific Contributions}
+\label{apx:contributions}
+
+\section{The experimental platform}
+\label{apx:contributions:platform}
+Beyond the three studies of this collection, this research produced a reusable software
+platform that supported the experiments of Chapters~\ref{ch:cbic}
+and~\ref{ch:mobiwac} and is released with the code.
+It is organized as a registry-driven experimental framework rather than a
+collection of one-off scripts: name-keyed registries expose interchangeable
+implementations across each axis the dissertation studies. The core comprises a
+192-module, 28{,}644-line source tree, a separate embedding-engine suite, and a test
+layer of comparable size, developed across roughly 1{,}700 commits. The platform
+provides implementations of three dataset families (Gowalla, Massive-STEPS, and
+Foursquare), eight point-of-interest and check-in embedding engines (including the
+place embedding of Deep Graph Infomax, its hierarchical variant, and the
+check-in-level Check2HGI of Chapter~\ref{ch:mobiwac}), twenty-one multitask loss and
+gradient-balancing methods, and thirteen multitask backbone architectures spanning
+the hard-to-soft parameter-sharing spectrum.
+
+A refined extract-transform-load pipeline for the Gowalla check-in dump is a
+distinct part of this contribution. It geospatially partitions the public check-in
+record into fifty-six United States state-level datasets through a three-stage,
+resumable process: category mapping over a several-hundred-entry hierarchy, optional
+timezone localization, and a state spatial join against Census boundary data. The
+platform also holds the evaluation protocol of the final study: user-disjoint
+cross-validation, a region-transition prior rebuilt for each fold from training data
+alone, and the paired significance and non-inferiority tests reported in
+Chapter~\ref{ch:mobiwac}. That protocol is not retroactive. The study of
+Chapter~\ref{ch:courb} stratified its folds by sample rather than by user and ran in a
+separate repository, and neither it nor the study of Chapter~\ref{ch:cbic} reported a
+significance test, so the measurement procedure strengthened over the arc instead of
+holding constant across it. What the tooling contributes is the means by which the
+stricter protocol became practical: the split, the fold-wise prior, and the tests are
+implemented once, in one place, and not once per study. No
+performance or novelty claim is made here; those belong to the results chapters, under
+the evidence protocol the frame follows.
+
+\section{Reproducing the reported numbers}
+\label{apx:contributions:repro}
+
+This section names, for each part of the protocol, the code that implements it and the
+file its output lives in. Every path is relative to the working repository of this
+research. The protocol described is
+Chapter~\ref{ch:mobiwac}'s, and Chapter~\ref{ch:fundamentals} scopes it there rather than
+to the whole collection. The public snapshot that Chapter~\ref{ch:mobiwac} footnotes
+carries the model, the representation, the baselines and the fold construction; the
+statistical scripts and their output files listed below are part of the working repository
+and are supplied on request.
+
+\begin{description}
+  \item[The fold partition.] Folds are built by
+        \path{src/data/folds.py}, which calls scikit-learn's
+        \texttt{StratifiedGroupKFold} with five splits, shuffling enabled, and a fixed
+        partition seed of 42, grouping by user identifier and stratifying on the task
+        label. Grouping by user is what makes the split user-disjoint: a user's
+        check-ins fall on one side of every fold. The same routine builds the paired
+        multitask folds, where both tasks share one user partition so that a user
+        cannot reach one task's training data and the other task's validation data in
+        the same fold.
+  \item[The seeds.] Four random initializations, 0, 1, 7, and 100, each repeating the
+        five-fold experiment over that one fixed partition, which is the twenty fitted
+        models per configuration the chapter reports. The design is recorded in
+        \path{docs/studies/closing_data/v17_completion/STATISTICAL_PROTOCOL.md}. Only
+        the initialization varies across the four; the folds do not, which is why the
+        reported intervals cover variation across initializations and not across
+        resampled user splits, a limitation Chapter~\ref{ch:mobiwac} states.
+  \item[The region-transition prior.] Rebuilt for each fold from that fold's training
+        partition alone by
+        \path{scripts/build_phase3_per_fold_transitions.sh}, which writes one file per
+        fold. Only the external region baseline of Chapter~\ref{ch:mobiwac} consumes
+        it; the joint and dedicated models do not.
+  \item[The reported scores.] Read at one saved model per fold, the epoch selected on
+        validation, which is the joint-best convention: both tasks are read at the same
+        checkpoint rather than each at its own best epoch. The post-hoc scorer is
+        \path{scripts/closing_data/score_joint_best.py} and its results are collected in
+        \path{docs/studies/closing_data/joint_best/JOINT_BEST_RESULTS.md}.
+  \item[The significance tests.] The superiority and non-inferiority tests are
+        implemented in \path{scripts/closing_data/superiority_wilcoxon.py} and
+        \path{scripts/closing_data/region_match_tost.py}. The reported analysis was run
+        by \path{m1_stats_n20.py}, with the pre-registered per-fold variant in
+        \path{m2_prereg_perfold.py}; both scripts, their console output
+        (\path{m1_full_output.txt} and \path{m2_prereg_output.txt}), and the verdict
+        tables that Chapter~\ref{ch:mobiwac} quotes sit together in
+        \path{docs/studies/closing_data/v17_completion/stats_n20/}.
+  \item[The label-history benchmark.] Computed by
+        \path{scripts/embedding_eval/autocorrelation_ceiling.py}; outputs and the reading
+        of them are in Appendix~D of \extravolume, which names the files.
+\end{description}
+
+Two qualifications belong with this list. The metric conventions it presupposes are
+defined where they are used, macro-F1 and accuracy at ten in
+Chapter~\ref{ch:fundamentals} and again in Chapter~\ref{ch:mobiwac}, and this section
+does not restate them. And the list covers the final study alone. The experiments of
+Chapters~\ref{ch:cbic} and~\ref{ch:courb} ran under the weaker protocol described
+earlier in this appendix, the second of them in a separate repository, so a reader
+reproducing those chapters is reproducing what they report and not what this section
+describes.
