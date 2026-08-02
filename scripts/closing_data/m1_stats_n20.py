@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """M1-PARTIAL — v17 pre-registered stats at the 4 fully-n=20 datasets (AL, AZ, FL, Istanbul).
 
-Pre-registration: docs/studies/closing_data/STATISTICAL_PROTOCOL.md (§2 paired Wilcoxon cat
+Pre-registration: analysis_protocol/STATISTICAL_PROTOCOL.md (§2 paired Wilcoxon cat
 superiority; §3 TOST reg non-inferiority, delta_reg = 2 pp; §4 pairing discipline; §5 Holm).
 Conventions mirror scripts/closing_data/superiority_wilcoxon.py + region_match_tost.py.
 
@@ -28,6 +28,18 @@ matched reg vectors; profile.json `quality.next_category` cross-checks cat exact
 but its `next_region` is a different, non-ood-corrected capture, ~+0.01..0.04 off). STL sides
 = the SEED-0 fold vectors of the same runs whose n=20 means are the cited ceilings. These
 cells are NOT in the m=4 Holm family; the pre-registered 6-dataset family Holm waits for A1.
+
+WHICH CELLS THE PRE-REGISTRATION ACTUALLY COVERS (read before citing any reg cell). The
+protocol registers next-CATEGORY superiority (§2 paired Wilcoxon, §5.2 Holm within the
+six-state cat set) and next-REGION **non-inferiority only** (§1's family-(A) row: "reg:
+non-inferiority ... reg -> TOST (§3)"; §5.2's family is "{6 states} x {cat superiority, reg
+non-inferiority}", with the TOST cells "not pooled into the cat Holm family"). There is no
+region-superiority family anywhere in the protocol. The region superiority statistics this
+script prints for the CA/TX cells (and the FL/CA/TX cells in
+scripts/closing_data/superiority_wilcoxon.py) are therefore **post-hoc, outside the
+registered plan** — sound on the evidence, but not registered. Deviation of record:
+analysis_protocol/DEVIATION_LOG.md entry D-4 (2026-07-25); they now carry their own Holm
+family (m=4) and are labeled secondary results in the paper and in dissertation Ch.5.
 """
 import csv
 import json
@@ -330,6 +342,70 @@ for k in ["CA", "TX"]:
     if tost["ci90"][0] > DELTA_REG:
         print(f"      -> CI entirely ABOVE +δ: exceeds the margin in the FAVORABLE direction "
               f"(two-sided equivalence n/a — better than the margin); non-inferiority trivially holds.")
-    print(f"      superiority (the pre-registered reg-'beats' family, superiority_wilcoxon.py): "
+    print(f"      superiority (POST-HOC — reg superiority is NOT in the protocol, which pins reg to "
+          f"non-inferiority only; DEVIATION_LOG.md D-4. Same cells as superiority_wilcoxon.py): "
           f"Wilcoxon p = {supr['p_wilcoxon']:.4f}, folds+={supr['pos']}, paired t(4) p = {supr['p_t']:.2e}")
 print("\n  [provisional] These n=5 seed-0 verdicts are superseded by A1's n=20 the moment it lands.")
+
+
+# ===========================================================================
+# 5 · M1-FULL — CA/TX v17 MTL n=20 landed (A1, 2026-07-11); the 6-dataset Holm
+# ===========================================================================
+print("\n" + "=" * 88)
+print("M1-FULL — CA/TX v17 MTL n=20 (A1 2026-07-11); the pre-registered 6-dataset family Holm")
+print("=" * 88)
+
+CATX_CAT_CEIL = {"CA": "california_bs8192_lr0.005", "TX": "texas_bs8192_lr0.005"}
+CATX_REG_CEIL = {
+    "CA": {0: "region_head_california_region_5f_50ep_ca_ovl_stl_reg_s0.json",
+           1: "region_head_california_region_5f_50ep_california_ovl_stl_reg_topup_s1.json",
+           7: "region_head_california_region_5f_50ep_california_ovl_stl_reg_topup_s7.json",
+           100: "region_head_california_region_5f_50ep_california_ovl_stl_reg_topup_s100.json"},
+    "TX": {0: "region_head_texas_region_5f_50ep_tx_ovl_stl_reg_s0.json",
+           1: "region_head_texas_region_5f_50ep_texas_ovl_stl_reg_topup_s1.json",
+           7: "region_head_texas_region_5f_50ep_texas_ovl_stl_reg_topup_s7.json",
+           100: "region_head_texas_region_5f_50ep_texas_ovl_stl_reg_topup_s100.json"},
+}
+# CA/TX MTL seed-means: seed-0 (canonical seed0_5f matched-score) + {1,7,100} (A1 sidecars committed):
+CATX_MTL_S0 = {"CA": (77.0422, 65.6940), "TX": (77.2272, 67.0723)}
+SIDE = REPO / "docs/results/closing_data/catx_v17_n20"
+
+for k, stt in (("CA", "california"), ("TX", "texas")):
+    mtl_cat = [CATX_MTL_S0[k][0]]
+    mtl_reg = [CATX_MTL_S0[k][1]]
+    for s in (1, 7, 100):
+        sd = json.load(open(SIDE / f"{stt}_s{s}.json"))
+        mtl_cat.append(sd["cat_macro_f1_mean"])
+        mtl_reg.append(sd["reg_full_top10_mean"])
+    stl_cat = [st.mean(json.load(open(SWEEP / f"{CATX_CAT_CEIL[k]}_s{s}.json"))["cat_per_fold"]) for s in SEEDS]
+    stl_reg = [st.mean([x["top10_acc"] * 100
+                        for x in json.load(open(P1 / CATX_REG_CEIL[k][s]))["heads"]["next_stan_flow"]["per_fold"]])
+               for s in SEEDS]
+    ARMS[k] = dict(mtl_cat=mtl_cat, stl_cat=stl_cat, mtl_reg=mtl_reg, stl_reg=stl_reg)
+    check(f"{k} MTL v17 cat (n=20)", st.mean(mtl_cat), {"CA": 77.052, "TX": 77.239}[k])
+    check(f"{k} MTL v17 reg (n=20)", st.mean(mtl_reg), {"CA": 65.693, "TX": 67.062}[k])
+    check(f"{k} STL cat ceiling (n=20)", st.mean(stl_cat), {"CA": 70.60, "TX": 69.79}[k], tol=0.05)
+
+print("\n--- CA/TX seed-level tests (n=4, paired by seed) ---")
+for k in ["CA", "TX"]:
+    a = ARMS[k]
+    sup = paired_superiority(a["mtl_cat"], a["stl_cat"], "n=4 seeds")
+    tost = paired_tost(a["mtl_reg"], a["stl_reg"], "n=4 seeds")
+    supr = paired_superiority(a["mtl_reg"], a["stl_reg"], "n=4 seeds")
+    cat_res[k], reg_res[k] = sup, tost
+    print(f"\n  {k}   CAT Δ={sup['mean_d']:+.3f}±{sup['sd_d']:.3f} pp, pairs+={sup['pos']}, per-seed Δ={sup['d']}")
+    print(f"        Wilcoxon p={sup['p_wilcoxon']:.4f} (n=4 floor 0.0625); paired t(3) p={sup['p_t']:.2e}")
+    print(f"      REG Δ={tost['mean_d']:+.3f}±{tost['sd_d']:.3f} pp, 90% CI=({tost['ci90'][0]:+.3f},{tost['ci90'][1]:+.3f}); "
+          f"superiority Wilcoxon p={supr['p_wilcoxon']:.4f} t(3) p={supr['p_t']:.2e}")
+
+print("\n--- 6-dataset cat-superiority family Holm (M1-FULL, m=6; powered paired t) ---")
+t_family6 = [(k, cat_res[k]["p_t"]) for k in ["AL", "AZ", "FL", "Istanbul", "CA", "TX"]]
+t_holm6 = holm(t_family6)
+for k, p in t_family6:
+    padj, rej = t_holm6[k]
+    print(f"    {k:9s} Δcat={cat_res[k]['mean_d']:+6.2f}  t-p={p:.2e}  Holm_adj={padj:.2e}  reject@.05={rej}")
+allrej = all(t_holm6[k][1] for k, _ in t_family6)
+print(f"\n  M1-FULL VERDICT: 6-dataset cat family "
+      f"{'ALL REJECT @ α=0.05 — MTL beats the category ceiling at every dataset' if allrej else 'NOT all reject'}")
+print("  Reg (per-axis δ=2 pp): matches at AL/AZ, beats at FL/CA/TX/Istanbul (TOST + superiority above).")
+print("  n=20 CONFIRMS the seed-0 provisional verdicts (§3) — no verdict changed.")

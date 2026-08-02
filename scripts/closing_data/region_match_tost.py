@@ -1,6 +1,6 @@
 """SHOULD-FIX: TOST equivalence + power for small-state region 'matches'.
 
-Pre-registered (STATISTICAL_PROTOCOL.md §3.2-3.3): δ_reg = 2 pp, paired,
+Pre-registered (analysis_protocol/STATISTICAL_PROTOCOL.md §3.2-3.3): δ_reg = 2 pp, paired,
 report TOST p + 90% CI (1-2α, α=.05) on mean Δ; verdict = CI within (-2,+2).
 Plus power to detect a true 2-pp gap given the board's variance.
 
