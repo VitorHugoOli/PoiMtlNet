@@ -646,6 +646,33 @@ decisao sua sobre quando rodar os comandos.
 
 > **DECISAO SUA:** ______
 
+### 2.26 A persona 15 rodou por ultimo, e o achado que vale mais que os quatro REQUIRED
+
+**(A) O que e.** Voce pediu a persona 15 no fim de tudo, com as instrucoes que voce mesmo reescreveu
+(`89b7eca1`). Ela leu **873 sentencas em 12 unidades** nos PDFs renderizados e devolveu 4 REQUIRED, 4
+RECOMMENDED e 2 OPTIONAL. Relatorio: `_round9/48_readability_final.md`.
+
+**(B) O que foi aplicado, tudo conferido por mim antes.**
+- **R15-01 estava indo para a banca.** `Appendix ??` renderizava na p. 11 do volume suplementar: um
+  `\ref` para um rotulo que vive no volume PRINCIPAL. Referencia entre volumes nao resolve, porque os dois
+  documentos tem `.aux` separados por construcao. O log de build carregava o aviso e ninguem lia.
+- **R15-02:** o volume suplementar citava um titulo que nao e o titulo da dissertacao, a tres paginas da
+  propria capa, que traz o certo. Agora aponta para a capa em vez de repetir a string.
+- **R15-03:** `region head` era o ultimo do tipo (medido em toda a prosa viva: "region output" 7, "region
+  head" 1). Mais o pronome relativo escrito.
+- **R15-04:** a primeira frase com ideia do apendice empilhava duas oracoes reduzidas terminando em
+  preposicao solta. Nao estava entre os seus quinze pontos e nao mudou desde a versao que voce leu, que e
+  exatamente a classe que voce disse que passa pelas varreduras.
+- **R15-06, o seu proprio banimento:** "It now covers" datava o documento contra uma versao que o leitor
+  nunca viu. **R15-07:** o Abstract e o Resumo abriam com 24 palavras de protocolo antes do sujeito, na
+  pagina mais lida; resultado primeiro agora, nos dois, com todo numero preservado. **R15-08:** virgula
+  entre sujeito e verbo.
+
+**(C) O que eu preciso de voce.** Nada. As duas OPTIONAL (R15-09, R15-10) ficaram sem aplicar e estao
+descritas no relatorio; se quiser, aplico.
+
+> **DECISAO SUA:** ______
+
 ## §5 · Levantados do `CODEX_AUDIT.md` quando ele foi arquivado (2026-07-29)
 
 > **NOVE DOS DEZ ESTAO FECHADOS e foram movidos para `_archive/PENDENCIAS_RESOLVIDOS.md` em
