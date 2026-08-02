@@ -88,9 +88,9 @@ metrics and reference points, as Section~\ref{sec:fund:eval} explains.
 \subsection{Related sequential prediction settings}
 
 The dominant task in the field is \emph{next-place prediction}, which identifies
-the exact POI of the next visit. This is not one of your tasks, but serves as a based for how we attack theses problms.
-The literrature for the next vist start with the
-recurrent models: ST-RNN uses
+the exact POI of the next visit. It is not a target of this dissertation, but the
+sequential models developed for it are the methodological basis for next category
+and next region, and that line begins with recurrent models: ST-RNN uses
 time-specific and distance-specific transition matrices~\cite{liu2016strnn}.
 DeepMove adds attention over long and sparse visit
 histories~\cite{feng2018deepmove}. HST-LSTM incorporates spatial-temporal context
@@ -100,9 +100,9 @@ visits~\cite{yang2020flashback}. Later models make attention central to the
 architecture. STAN connects non-adjacent visits through spatio-temporal
 correlations~\cite{luo2021stan}; GeoSAN combines a hierarchical geographic grid with
 self-attention~\cite{lian2020geosan}; and GETNext introduces a global
-trajectory-flow map into a transformer~\cite{yang2022getnext}. All of these methods
-predict the exact next place, so they provide methodological background rather than
-direct baselines for the targets studied here.
+trajectory-flow map into a transformer~\cite{yang2022getnext}. Every model named here
+predicts the exact next place, so none of them is a direct baseline for the targets
+studied in this dissertation.
 
 \subsection{Category and region as end targets}
 
@@ -455,15 +455,27 @@ evaluation procedure.
 
 \subsubsection{Joint-model selection and floors}
 
-The two task metrics are reported separately. Their geometric mean is used only to
-select a checkpoint for the joint model. Under this joint-best convention, both task
-scores come from the same validation-selected model. The scores are then read against
-task-specific reference points. The category floor always predicts the majority
-class. A first-order Markov model over the training partition provides a sequential
-floor~\cite{gambs2012mmc}. The potential predictability of about 93 percent for a
-coarse next-location target~\cite{song2010limits} is not a ceiling for seven-class
-macro-F1 or region ranking. The relevant comparison for the research question is the
-dedicated single-task model for each output.
+Dedicated single-task models evaluate each target independently using its respective
+metric. Evaluating a joint model, however, requires a single validation signal that
+considers the performance of both outputs simultaneously. The validation protocol
+achieves this by combining category macro-F1 and region Acc@10 into a scalar
+selection score:
+\begin{equation}\label{eq:fund:joint-selection}
+    S_{\mathrm{joint}} = \sqrt{\operatorname{MacroF1} \times \operatorname{Acc@10}}.
+\end{equation}
+Under this \emph{joint-best} convention, both reported task scores come from the same
+validation-selected checkpoint, reflecting the balanced performance of a single
+deployable system.
+
+To interpret these scores, model performance is evaluated between lower reference
+floors and upper benchmark ceilings. At the lower bound, basic baselines establish
+performance floors: a majority-class predictor for category classification, and a
+first-order Markov model over training visits for sequential
+transitions~\cite{gambs2012mmc}. At the upper bound, the primary reference ceiling for
+evaluating multi-task gains is the dedicated single-task model for each output.
+Theoretical limits from prior work, such as the 93~percent potential predictability
+reported for coarse location prediction~\cite{song2010limits}, do not serve as
+ceilings for seven-class macro-F1 or region ranking.
 
 \subsection{Validation and statistical decisions}
 
@@ -497,44 +509,77 @@ superiority and \emph{matches} for statistical non-inferiority within that margi
 \section{Relevance}
 \label{sec:fund:relevance}
 
-This section connects the preceding concepts to the sequence of studies. The
-connection begins with the targets. Next place, next category, and next region have
-different outputs and different measures of success. This dissertation treats next
-category and next region as final outputs rather than as intermediate steps toward an
-exact-place prediction.
+The preceding sections introduce the prediction targets, the representations, multitask
+learning, and the evaluation protocol one at a time. They are parts of a
+single problem. This section states how they combine, before the three studies put
+them to work.
 
-\subsection{Conceptual connection}
+\subsection{The parts of one problem}
 
-The central connection is that task choice, representation, sharing, and evaluation
-cannot be interpreted independently.
+The argument begins with the targets: Next place, next category, and next region have
+different output spaces and different meanings for a correct answer. This dissertation
+treats next category and next region as final outputs rather than as intermediate
+steps toward next-place prediction.
 
-That choice places more pressure on the input representation. A place embedding can
-encode semantic and geographic relationships, but it assigns the same vector to every
-visit to a place. Check2HGI adds the visit as a separate level so that the input can
-vary with the check-in. MTL then determines how the two prediction tasks use and share
-that information. Hard sharing may cause negative transfer, while specialized
-balancers may offer little benefit when the task gradients are nearly orthogonal.
-The comparison must therefore be made against the dedicated single-task model for each
-output.
+Although this dissertation reports on those two targets, its three studies do not all
+train the same pair. Chapters~\ref{ch:cbic}
+and~\ref{ch:courb} pair next-category prediction with category classification, the
+static task that labels a place from its own representation.
+Chapter~\ref{ch:mobiwac} keeps next category but replaces that static task with next
+region. The replacement follows from the representation rather than from a change of
+interest: a place embedding gives a static classifier one fixed vector per place,
+whereas a check-in-level representation describes a single visit, and the static task
+is a less natural fit for that input than a second sequential target.
 
-The evaluation protocol supplies the remaining controls. User-disjoint
-cross-validation limits user leakage. Macro-F1 and OOD-discounted Acc@10 describe
-different outputs and are compared with explicit reference points. Paired superiority
-tests support the verb \emph{outperforms}, while non-inferiority tests within a
-two-point margin support \emph{matches}. These rules prevent an observed mean
-difference from being reported as a conclusion that its test does not support.
+Two choices increase what the input representation must carry: treating next category
+and next region as final outputs, and replacing the static task. A place embedding
+can encode semantic and geographic relationships, but it assigns the same vector to
+every visit to a place, so it carries nothing about the visit being predicted.
+Check2HGI answers that limit by adding the visit as a level of its own.
 
-\subsection{Questions carried into the studies}
+Multitask learning is the mechanism that would let two tasks use what they have in
+common, and it is not a free gain. Hard sharing can leave a task below its dedicated
+single-task model. The balancing methods proposed to prevent that outcome often do not
+improve on a tuned fixed-weight baseline. For the pair of tasks studied here, the
+gradients are close to orthogonal on the shared parameters, which leaves such a method
+little to correct. Whether joint training helps therefore cannot be assumed. It has to be
+measured against the dedicated single-task model for each output, under a protocol
+that does not favor the joint model.
 
-The combined concepts yield one question for each stage of the research arc.
+Section~\ref{sec:fund:eval} defines that protocol, and the final study applies it in
+full. Chapters~\ref{ch:cbic} and~\ref{ch:courb} instead use sample-stratified splits
+and report fold means without significance tests. In the final study, user-disjoint
+cross-validation limits leakage between a user's training and test visits. Macro-F1 and OOD-discounted
+Acc@10 describe different outputs and are read against explicit reference points.
+Paired superiority tests support the verb \emph{outperforms}, while non-inferiority
+tests within a two-point margin support \emph{matches}. These rules prevent an
+observed mean difference from being reported as a conclusion that its test does not
+support.
 
-Together, the fundamentals produce three questions. Chapter~\ref{ch:cbic} asks
-whether a place-level representation and hard parameter sharing are sufficient for a
-joint model. Chapter~\ref{ch:courb} keeps the model fixed and asks whether a richer,
-decomposed input changes the result. Chapter~\ref{ch:mobiwac} asks what a
-check-in-level representation and a different sharing topology enable for two
-sequential targets. Its joint model outperforms the dedicated model on next category
-at all six datasets and on next region at Istanbul, Florida, Texas, and California.
-At Alabama and Arizona, it matches the dedicated model by being statistically
-non-inferior within a two-point margin. The following chapters provide the evidence
-for these answers in that order.
+\subsection{Gaps, questions, and answers}
+
+Whether joint training helps this task pair is still open, and two gaps in the
+literature explain why. The field has a place-level representation, but not a
+check-in-level one built for these targets. It studies multitask learning, but it has
+mostly treated the region as an intermediate signal on the way to a place rather than
+as an end target.
+
+Each study addresses one question. Chapter~\ref{ch:cbic} asks whether a
+place-level representation and hard parameter sharing are sufficient for a joint
+model. For that configuration, the joint model does not outperform the dedicated
+single-task models. Chapter~\ref{ch:courb} keeps the model fixed, asks whether the
+input representation, rather than the sharing topology, is the bottleneck, and finds
+that it is. Chapter~\ref{ch:mobiwac} asks what a check-in-level representation and a
+different sharing topology enable for two sequential targets. There, the joint model
+outperforms the dedicated model on next category at all six datasets, and on next
+region it outperforms at four of them and matches the dedicated model at the other
+two. Chapter~\ref{ch:mobiwac} reports which datasets fall on each side.
+
+Those answers also decide something practical. Anticipating what kind of place a
+person will visit, and where that visit will occur, can support recommendation,
+navigation, transit planning, and the allocation of resources by area. A service that
+needs both predictions can now take them from a single model to maintain and one
+forward pass, instead of two dedicated single-task models. The gain is operational,
+not computational. Chapter~\ref{ch:mobiwac} reports the joint model as the larger
+artifact, and a forward pass through it costs more than running the two dedicated
+models, so the reduction is in the number of models to train and maintain.
