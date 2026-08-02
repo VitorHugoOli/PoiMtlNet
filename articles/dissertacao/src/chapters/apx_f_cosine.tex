@@ -85,9 +85,15 @@ models are at one each~\cite{standley2020tasks}.
 % smaller independent networks are often superior." That is exactly this sentence's claim: joint
 % training can leave the joint model worse than dedicated single-task models. Author list checked
 % against the arXiv API record, not retyped from another bibliography.
-The usual reason is a disagreement, and it shows up in the gradients: if the
-update next-region asks for points against the update next-category asks for, one task improves at
-the other's expense. That has a direct measurement, and this appendix runs it on the joint model of
+% [round9c, 2026-08-02, R15-04] WAS "if the update next-region asks for points against the update
+% next-category asks for". Two reduced relative clauses with the pronoun omitted, both ending on a
+% stranded preposition, and the two strandings placed in one clause with "points against" between
+% them: the reader parses "asks for points" as verb plus object, meets "against", and unwinds. Not one
+% of the four gated shapes, which is the class the author says survives the sweeps. The technical
+% content is unchanged -- opposite updates is what a negative cosine means, and the sentence that
+% follows still defines the measurement.
+The usual reason is a disagreement, and it shows up in the gradients: when the
+two tasks ask for opposite updates, one task improves at the other's expense. That has a direct measurement, and this appendix runs it on the joint model of
 Chapter~\ref{ch:mobiwac}.
 
 The two tasks turn out not to disagree. Their gradients are statistically indistinguishable from

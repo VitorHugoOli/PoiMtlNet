@@ -140,8 +140,14 @@ does not come from the region task teaching the category task; it comes from som
 in the joint architecture that the dedicated model does not have. The control does not
 say which part. A development ablation at Florida removed the cross-attention stack
 alone and moved next-category macro-F1 by $-0.04 \pm 0.13$, but that measurement was
-taken on an earlier configuration whose region head was driven by a transition prior the
-models reported here do not use, and its own record reads the null as a compensation
+% [round9c, 2026-08-02, R15-03] TWO fixes in one clause. (1) "region head" -> "region output":
+% the MobiWac GLOSSARY §4 lists "head" as internal jargon and prescribes "output", exempting it only
+% when describing OTHER systems. This clause describes our own earlier configuration, so the exemption
+% does not apply. Measured over all live .tex: "region output" 7, "region head" 1 -- this one, now 0.
+% (2) the relative pronoun "that" written in, per WRITING_LAW §1: without it, "the models" attaches to
+% "driven by" on first reading and the sentence forces a re-parse.
+taken on an earlier configuration whose region output was driven by a transition prior that
+the models reported here do not use, and its own record reads the null as a compensation
 effect rather than an absence of contribution. We therefore do not name the shared trunk
 as the source, and we do not offer the ablation as evidence that the trunk contributes
 nothing.

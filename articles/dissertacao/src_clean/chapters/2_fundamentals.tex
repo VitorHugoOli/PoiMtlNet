@@ -373,7 +373,7 @@ method is useful only if it improves on a tuned fixed weighting.
 Prior mobility applications show several ways to connect auxiliary targets to an
 exact-place recommendation.
 
-Mobility applications of MTL usually support next-place prediction. MCARNN jointly
+In mobility, MTL has been used almost entirely in the service of next place. MCARNN jointly
 predicts activity and place through a context-aware recurrent
 unit~\cite{Liao2018}. CSLSL instead predicts time, then activity, and then location in
 a cascade~\cite{huang2024cslsl}. iMTL couples next-POI recommendation with the
@@ -387,10 +387,12 @@ to refine the place prediction~\cite{wang2025hamtl}.
 These methods confirm that category information and auxiliary tasks can support
 mobility prediction, but they do not instantiate the pair studied in the final
 chapter. Among the works reviewed here, none treats next category and next region as
-co-equal end targets of one joint model. MTLnet begins this
-dissertation's investigation with hard parameter sharing over a place embedding. It
-does not outperform the dedicated single-task models for that configuration, which
-motivates the representation-focused studies that follow~\cite{silva2025mtlnet}.
+co-equal end targets of one joint model.
+
+This dissertation addresses that gap starting with MTLnet, which evaluates hard
+parameter sharing over a static place embedding~\cite{silva2025mtlnet}. That initial
+configuration fails to outperform dedicated single-task models, motivating the
+representation and topology refinements developed in subsequent chapters.
 
 
 \section{Datasets and evaluation}

@@ -311,6 +311,59 @@ SHAPE_ABSTRACT_AGENT = (
     '(A quantity that rises, falls or moves is literal and is NOT this shape.)',
 )
 
+# B5. A REDUCED RELATIVE CLAUSE ENDING ON A STRANDED PREPOSITION. WRITING_LAW §1 requires relative
+# pronouns be written ("the head THAT we do not predict") and until 2026-08-02 no gate enforced it.
+# Persona 15 found the gap while reading the reworked appendix and proposed this pattern; it was the
+# mechanism behind two of its four REQUIRED findings, and it is precisely the author's own class --
+# grammatical, native-sounding, and a re-read for a non-native reader. His words: phrasing that
+# "force a non native read more than once to understand".
+#
+# The general shape (any omitted relative pronoun) is not reliably expressible. Its worst sub-case
+# is: the clause ends on a stranded preposition, which is exactly where the parse breaks. In the
+# real defect -- "if the update next-region asks for points against the update next-category asks
+# for," -- the reader takes "asks for points" as verb plus object, meets "against", and unwinds.
+#
+# TWO GUARDS, and both were found by the pattern failing on the CORRECT form rather than by
+# reasoning. The determiner alternation includes "that", so a legally written relative pronoun is
+# consumed AS the determiner and the raw pattern fires on the very sentence that fixes the defect.
+# Guard 1: the match may not START with a relative pronoun. Guard 2, and this is the one a 26-char
+# lookbehind got wrong: the pattern can re-match several words to the RIGHT of a clause that already
+# has its pronoun ("the reference level THAT one screening argument in the dissertation is read
+# against" re-matched at "the dissertation"), so the guard scopes back to the clause head -- the
+# previous comma, semicolon or colon -- not a fixed character window.
+_STRANDED_PRONOUNS = r"(?:that|which|whom|whose|where|what)"
+SHAPE_STRANDED = (
+    "reduced relative clause ending on a stranded preposition",
+    r"(?<!\bwhat )(?<!\bwhich )(?<!\bthat )(?<!\bwhom )(?<!\bwhere )"
+    r"\b(?:the|a|an|its|their|this|that|one|two|each|every|no)\s+"
+    r"[a-z][a-z-]{2,}\s+"
+    r"(?:[a-z][a-z-]*\s+){0,3}?"
+    r"(?:asks?|needs?|uses?|reads?|reports?|gives?|wants?|carries|covers?|leaves?|"
+    r"makes?|takes?|looks?|points?|accounts?|calls?|works?|aims?|relies|depends?)\s+"
+    r"(?:for|to|of|on|at|with|from|about|against|into|by|upon)\s*(?=[,.;:]|$)",
+    'write the relative pronoun: not "the prior the models do not use" but "the prior THAT the '
+    'models do not use". The pronoun is what tells the reader a clause is starting; without it the '
+    'verb reads as taking the next noun as its object, and the stranded preposition forces a '
+    're-parse. An interrogative or an already-written pronoun is legal and is NOT this shape.',
+)
+
+
+def stranded_hits(text: str):
+    """Yield SHAPE_STRANDED matches whose clause does NOT already carry a written pronoun.
+
+    Guard 1 skips a match that begins with the pronoun (the alternation eats it as a determiner).
+    Guard 2 scopes the lookback to the clause head, because the pattern can re-match to the right
+    of a correctly written pronoun. Validated in both directions in self_test().
+    """
+    for m in re.finditer(SHAPE_STRANDED[1], text, re.I):
+        if re.match(rf"\s*{_STRANDED_PRONOUNS}\b", m.group(0), re.I):
+            continue
+        clause = re.split(r"[,;:]", text[max(0, m.start() - 150):m.start()])[-1]
+        if re.search(rf"\b{_STRANDED_PRONOUNS}\b", clause, re.I):
+            continue
+        yield m
+
+
 # --------------------------------------------------------------------------------------------
 # THE OPEN REGISTER. Present -> reported as OPEN, not counted as a failure. Absent -> the gate
 # FAILS and asks for the entry to be deleted, so the exemption cannot outlive the defect.
@@ -441,6 +494,11 @@ def scan(text: str, quoted_masked: str) -> list[tuple[str, str, str, str, int, i
     for rule, pat, remedy in (SHAPE_DELAYED_SUBJECT, SHAPE_IDIOM, SHAPE_ABSTRACT_AGENT):
         for m in re.finditer(pat, text, re.I):
             out.append(("B shape", rule, m.group(0), remedy, m.start(), m.end()))
+    # B5 goes through stranded_hits(), not a bare finditer: its two guards cannot be expressed as
+    # lookarounds, because one of them has to scope back to the clause head. See stranded_hits().
+    for m in stranded_hits(text):
+        out.append(("B shape", SHAPE_STRANDED[0], m.group(0), SHAPE_STRANDED[2],
+                    m.start(), m.end()))
     for m in re.finditer(r"[^.!?]{20,}[.!?]", text):
         sent = m.group(0)
         quals = len(SHAPE_CHAINED_QUALS.findall(sent))
@@ -539,6 +597,20 @@ def self_test() -> None:
                     "the curve climbs steeply at the largest region counts"):
         assert not re.search(SHAPE_ABSTRACT_AGENT[1], literal, re.I), (
             f"self-test: B4 flagged literal quantity motion: {literal!r}")
+    # B5, the stranded preposition, validated in BOTH directions on the REAL sentences. The two
+    # negative cases are the ones that found the guards: each is the CORRECT form of a defect this
+    # gate flagged, and the raw pattern fired on both before stranded_hits() existed.
+    b5 = ("if the update next-region asks for points against the update next-category asks for, "
+          "one task improves at the other's expense")
+    assert list(stranded_hits(b5)), (
+        "self-test: B5 did not fire on the real appendix defect (R15-04)")
+    for legal in ("the metrics and reference points that each result is read against, and the seeds",
+                  "which is the reference level that one screening argument in the dissertation is "
+                  "read against.",
+                  "the answer depends on what the representation carries.",
+                  "a transition prior that the models reported here do not use, and its own record"):
+        assert not list(stranded_hits(legal)), (
+            f"self-test: B5 fired on a correctly written relative clause: {legal[:60]!r}")
     for clean in ("Two consequences follow.",
                   "Three limits qualify these results.",
                   "The main contributions of this chapter are as follows.",

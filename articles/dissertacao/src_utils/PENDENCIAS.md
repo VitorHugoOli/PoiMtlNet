@@ -624,6 +624,28 @@ o transcrito de validacao do gate nos dois sentidos).*
 
 > **DECISAO SUA:** ______
 
+### 2.25 O que sobrou da rodada 9c, e as duas coisas que dependem de voce
+
+**(A) O que e.** As suas catorze decisoes de 2026-07-30 foram aplicadas e conferidas uma a uma no PDF renderizado. O
+ledger completo, com a evidencia de cada linha, esta em `_round9/47_applied_check.md`:
+**28 linhas** (13 decisoes mais os 15 pontos numerados do apendice), das quais **25 aplicadas**, **2 bloqueadas** e **1
+que nao pedia nada** (a sua 2.8, "nada aqui"). Vinte delas agora tem sonda em
+`check_audit_claims.py`, validada por sabotagem, entao uma edicao futura que desfizer uma das suas mudancas quebra o
+gate em vez de chegar na banca em silencio.
+
+**(B) O que ficou bloqueado, e por que nao e escolha minha.**
+
+1. **2.16, publicar os quatro artefatos divergentes.** Preparado, nao empurrado: o helper de credencial e interativo
+   neste sandbox e um push nao pode ser feito daqui. Os comandos exatos estao no
+   `_round9/45_author_rulings.md`, no item 2.16. Nenhum push foi fabricado.
+2. **2.18, o `refs/notes/commits` no `origin`.** A sua decisao foi "2+3"; uma das duas metades esta aplicada e a outra
+   depende de uma operacao no remoto. Detalhe no mesmo relatorio.
+
+**(C) O que eu preciso de voce.** Nada nas 25 aplicadas, a nao ser que discorde de alguma. Nas duas bloqueadas, uma
+decisao sua sobre quando rodar os comandos.
+
+> **DECISAO SUA:** ______
+
 ## §5 · Levantados do `CODEX_AUDIT.md` quando ele foi arquivado (2026-07-29)
 
 > **NOVE DOS DEZ ESTAO FECHADOS e foram movidos para `_archive/PENDENCIAS_RESOLVIDOS.md` em
@@ -1431,13 +1453,15 @@ como esta apresentado.
     non-inferiorityprotocolusedinthefinalstudy (Chapter 6)." isso tá errado é no Chapter 5.
 12. No paragrafo: "The joint setting imposes a single-model constraint: one trained artifact must produce both outputs
     in one forward pass.". Que joint settings ?
-13. Na parte de contribuições não estamos destacando achados importantes, e ela nõa está bem escrita faça uma avaliação
+13. Na parte de contribuições não estamos a destacar achados importantes, e ela não está bem escrita faça uma avaliação
     mais profunda. Vou dar alguns exemplos: - O check2hgi é um avanço quanto ao uso de um embedding de mobilidade que se
     utiliza checkin ao inves de poi, e este pode ser usado em varios trabalhos futuros com difererntes propositos; -
     Nosso MTLnet final ou o joint model final ele é um modelo que pode ser usado para treinamento conjunto das tarefas
     ou ainda pode ser expandido para outras tarefas dado sua modularidade; - O achado que as tarefas parecem não serem
-    conflitantes em um modelo MTL; (Esse tem que tomar bastante cuidado). Por favor, avalie eses pontos, avalie os que
-    já estão e faca uma analise pelo texto e trabalho para ver se não estamos esquecendo nada.
+    conflitantes em um modelo MTL. (Esse tem que tomar bastante cuidado);; - Nossos artigos são pioneiros na utilização
+    e MTL para essas duas tarefas, tarefas essas que podemos ter um escopo mais abrangente que o de next-poi Por favor,
+    avalie eses pontos, avalie os que já estão e faca uma analise pelo texto e trabalho para ver se não estamos
+    esquecendo nada.
 14. A frase: "It indicates that mobility is learnable, but it is not a reference point for the category and region
     metrics defined in Section~\ref{sec:fund:eval}." Para mim não faz sentido dizer "It indicates that mobility is
     learnable, but it is not a reference point for the category and region metrics defined in Section~\ref{sec:fund:
@@ -1483,3 +1507,9 @@ como esta apresentado.
     easy to follow and undertand.
 27. Reading more about pareto make me think, shouldn't we have some claim about the pareto property that we enconunter
     in the chapter 5 ? Even if this claim came in the appendix F ?
+28. The §2.3.2 and §2.3.3 are very poor organized and repetitive, the concepts are out of order and the paragraphs
+    requeries read more the once and go and back on other paragraphs to have a complet explanation. My take would be
+    start wiht the §2.3.2.2 that define the problem, from the problem we formal define it with the §2.3.2, then we
+    discuss the current options of the literature witht the §2.3.3, then we closes with §2.3.2.1 and with the part B of
+    the §2.3.2.2 where discuss about the chapter 5 finds and the appendix D. what do you think ?
+29. 

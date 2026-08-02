@@ -393,7 +393,14 @@ the two texts stay identical. Three corrections were handled that way and are na
 article's own errata record rather than in this table. What remains here are the three that could
 not be folded into a paper under review, because each depends on material the article has no
 room for: one cites the benchmark of Appendix~\ref{apx:ceiling}, one cites this
-chapter's own results table, and one cites Appendix~\ref{apx:cosine}.
+chapter's own results table, and one cites the gradient-cosine appendix of the
+% [round9c, 2026-08-02, R15-01] WAS \ref{apx:cosine}, which labels an appendix of the MAIN volume.
+% This file builds in the SUPPLEMENTARY volume, where that label does not exist, so the reference
+% rendered as "Appendix ??" on p. 11 of main_extra.pdf -- measured in the PDF, and the build log
+% carried the warning ("Reference `apx:cosine' on page 11 undefined") that nothing was reading.
+% A cross-volume \ref cannot resolve: the two documents have separate .aux files by construction.
+% Named in prose instead, which is what the reader needs and what survives the volume split.
+dissertation.
 % [round9c, PENDENCIAS 2.11 and 2.9, 2026-07-30] TWO COUNTS UPDATED, both measured rather than
 % incremented. The corrections applied identically in both texts went from two to three: the region
 % partition in the results subsection lead is the third, and the paper's ERRATA.md carries it under a
