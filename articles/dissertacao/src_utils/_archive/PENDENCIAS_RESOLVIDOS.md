@@ -932,3 +932,85 @@ fora deste repositorio.
 *A linha "Open for the author" dentro do LO-2 e anterior a sua decisao e esta obsoleta.*
 
 ---
+
+### ~~2.22 Apendice F: o revisor de excelencia aprova, mas a assinatura e sua~~ (arquivado 2026-07-30)
+
+**FECHADO PELO AUTOR.** Ele aprovou: *"I approve the appedix F you can remove the `[NEEDS SIGN-OFF]`,
+but i have some considerations"*, seguido de quinze pontos numerados (0-14). Todos os quinze foram
+aplicados na rodada 9c e o marcador saiu do fonte.
+
+**O que mudou, medido no PDF renderizado e nao no relatorio de nenhuma esteira:**
+- **Ponto 0, a renumeracao.** O volume principal imprimia A, C, E, F porque os antigos B e D foram para
+  o volume suplementar. Agora imprime **APPENDIX A (p.90), B (p.93), C (p.94), D (p.97)**, em sequencia.
+  O apendice do cosseno e o **D**. O volume suplementar mantem as letras historicas B e D, e o paragrafo
+  "About this volume" explica a ambiguidade em vez de escondê-la.
+- **Pontos 1 e 4, as duas citacoes.** `standley2020tasks` para "can end up worse at both than two
+  dedicated models are at one each" e `yu2020pcgrad` para o cosseno como a quantidade que a literatura
+  de gradient surgery usa para definir conflito. Nenhuma entrada nova foi inventada: as duas ja estavam
+  no `references.bib`, que e a resposta correta mais barata.
+- **Pontos 3 e 13, o arco dos tres estudos.** Ele estava certo, e a medicao e mais forte do que ele
+  colocou: o Cap. 3 e o Cap. 4 preveem classificacao de categoria e proximo POI com hard sharing e FiLM;
+  o Cap. 5 e este apendice preveem proxima categoria e proxima regiao sobre um tronco de cross-attention
+  sem camadas ocultas em comum. **Nem o par de tarefas nem a arquitetura sao compartilhados.** As duas
+  sentencas foram REMOVIDAS, nao reescopadas: qualquer versao reescopada seria especulacao que os dados
+  nao sustentam.
+- **Pontos 2, 5, 6, 7, 9, 10, 11, 12:** cortes e simplificacao. As frases que ele citou estao todas em
+  zero ocorrencias na prosa viva. O ponto 11 agora nomeia os datasets (Alabama e Georgia), conferidos
+  contra a saida de `cosine_stats6.py`.
+- **Ponto 8, o ingles britanico.** "feature needs saying plainly" -> "must be stated plainly". A regra e
+  o gate nasceram deste ponto: `check_register.py` (gate 25) cobre grafias E construcoes, porque a
+  instancia dele era uma construcao needs+gerundio e uma lista de grafias teria perdido justamente o
+  achado dele.
+- **Ponto 14, a qualificacao.** Uma sentenca em D.3: gradientes ortogonais nao significam que as tarefas
+  nao compartilham conhecimento, porque os dois fluxos ainda trocam informacao pelo tronco de
+  cross-attention.
+
+**Onde ler a apuracao ponto a ponto:** `_round9/43_apxf_author.md`, com as palavras dele, o que foi feito
+e a evidencia renderizada de cada um.
+
+**A DECISAO DELE, VERBATIM**, preservada aqui porque os quinze pontos numerados sao o registro do
+que ele pediu e nenhum resumo substitui as palavras dele:
+
+> **AUTHOR:** I approve the appedix F you can remove the `[NEEDS SIGN-OFF]`, but i have some considerations:
+> 0. You must rename all the appendix, so the letters respect the correct order in the current version of the text. In
+     this case this appendix would be the letter D.
+> 1. On the `an end up worse at both than two dedicated models are at one each.` we shoud add a reference to it.
+> 2. Don't say `stranger result` without cite some ref, but my main take is not to say this, is your jugdment and can
+     cause questions in the reviewer
+> 3. This phrase: "That is why varying the gradient balancer changed so little in the first study, and why changing the
+     representation changed so much in the second and third.". Have a huge erros in the first sutdy we use 2 diffents
+     tasks, than the last third study of mobiwac, also the arch of the MTLnet was different so we can relate the results
+     of this appendix to the first and secon study.
+> 4. On the "the cosine of the angle between the two resulting gradient vectors was recorded" we should cite some
+     article/studie/document that show this apporach
+> 5. Exclude this: "so one configuration on one dataset is five series of fifty values, and two of Florida’s
+     carryapartialre-run ontopoftheirs.", is over detail.
+> 6. This is a implementation detail let's exclude also: "That chapter reaches the same conclusion from a smaller
+     development-time measurement,onanearlierdatapreparationandoverfourseedsratherthanper-epochseries,so the
+     twosetsofnumbersarenotinterchangeableand this appendix supersedes nothingthere."
+> 7. on the: "Every test below therefore runs on five fold... Whereacountofobservationsappearsitdescribesthedata,
+     notatest’ssample size." this part explain the how the experiments was runned is importante, but we can simplify the
+     details, don't need to do a lot of tech explanation, also about the florida I belive explain it in much details can
+     cause confusion, lets try to be more straight.
+> 8. The phrase: "feature needs saying plainly" this is britisher english and this boke on of the agents_guartrails. If
+     this is not in the guardrails add this and eval in the rest of the text if we have similar stuctures that are
+     britisher.
+> 9. This phrase:  "Two departures from that flat picture appear" is pure A.I, we cna be more simple and direct.
+> 10. This phrase: "both are worth reporting rather than smoothing" we don't need to say this, appears as we are try to
+      hide somthing we just need to report.
+> 11. On the: "A 𝑡-test does reject on both datasets and for both
+      departures,butatfiveobservationsthatrestsentirelyonassumingnormality,andthisappendix
+      willnotacceptforoneclaimabasisitrejectsforanother.", you don't say which datasets, and this phrase is confusing
+      and hard to read for whom don't have a lot of knowhow. We can try to improve the rest of this paragraph
+> 12. The phrase: "Both point away from trouble in any case. A positive cosine is mild cooperation, not conflict, and
+      the decline stays inside the margin throughout while moving toward zero rather thanawayfromit." is well written,
+      but is not natural for a non native writer in english, and force a non native read more than once to understand.
+> 13. On the paragraph that starts with: "The second is about the arc of the three studies.", we need to take care cause
+      the first two studies was diferrent tasks that these ones that we are testing int eh appendix F. Maybe remove
+      this.
+> 14. Somthing that worths to mention, don't need fither explanation, in the F.3 is that besides the gradients don't
+      addup, this don't means that the tasks are not sharing their knowladge since exstie otehr mechanims like the gate
+      in the arch and so on...
+
+
+

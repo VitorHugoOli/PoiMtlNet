@@ -32,6 +32,17 @@
 | CoUrb | "previsão do próximo POI" (categoria) | **next-category prediction** |
 | MobiWac | "next category" + "next region" | identical — no mapping needed |
 
+### 1.1 · Formal notation for the frame chapters
+
+| Symbol | Definition | Notes |
+|---|---|---|
+| $\mathcal{U}$, $\mathcal{P}$, $\mathcal{C}$, $\mathcal{R}$ | Sets of users, POIs, category classes, and region classes. | Ch.2 notation block. |
+| $x_i=(u,p_i,t_i,c_i,r_i)$ | The $i$th check-in of user $u$: visited POI, timestamp, category, and region. | A category or region may be used as a target rather than as an observed input. |
+| $H_i=(x_{i-\ell},\ldots,x_{i-1})$ | The ordered history of length $\ell$ preceding check-in $x_i$. | Sequential-task input. |
+| $\mathbf{e}_p$ | The learned representation of POI $p$. | Static-task input; distinct from a per-visit Check2HGI vector. |
+| $g_{\mathrm{cat}}(\mathbf{e}_p)$ | Static category classifier whose target is the category $c_p$ of POI $p$. | At evaluation, $p$ is held out from the classifier-training fold. |
+| $f_{\mathrm{cat}}(H_i)$, $f_{\mathrm{reg}}(H_i)$ | Sequential predictors whose targets are the next category $c_i$ and next region $r_i$. | The two outputs of the final joint model. |
+
 ## 2 · Model and artifact lineage (the table Ch.2 renders; one name per artifact, everywhere)
 
 | Name | What it is | Introduced | Dissertation chapter |
@@ -45,7 +56,7 @@
 | **SIREN / Sphere2Vec-M** | The two spatial encoders compared in CoUrb (sinusoidal MLP on normalized coordinates; multi-scale spherical encoder). | CoUrb | Ch.4 only |
 | **Time2Vec** | The temporal encoder (hour-of-day + day-of-week) in CoUrb. | Kazemi et al.; CoUrb | Ch.4 only |
 | **Check2HGI** | **Our check-in-level representation**: extends the place→region→city hierarchy with a fourth check-in level, trained without task labels (hierarchical graph infomax); yields one vector per **visit** (semantic set) plus region vectors (spatial set). | MobiWac (Vitor) | Ch.5 (the centerpiece); gloss = "each visit gets its own vector" |
-| **the joint model** (MobiWac) | One multi-task model, one forward pass, two predictions: private per-task encoders → shared cross-attention trunk → category output (trunk) + region output (trunk + private spatial path). | MobiWac | Ch.5. In prose: "the joint model"; repo id `mtlnet_crossattn_dualtower` NEVER appears in text |
+| **the joint model** (MobiWac) | One multitask model, one forward pass, two predictions: private per-task encoders → shared cross-attention trunk → category output (trunk) + region output (trunk + private spatial path). | MobiWac | Ch.5. In prose: "the joint model"; repo id `mtlnet_crossattn_dualtower` NEVER appears in text |
 | **dedicated single-task model** | The comparison arm: one model trained for one task (the "ceiling" the joint model is measured against). | all papers | everywhere; never bare "baseline" |
 | **the shared trunk** | The shared middle of the joint model, introduced once as "a shared cross-attention stack (the trunk)". | MobiWac GLOSSARY ruling | Ch.5 + frame |
 | **label-history benchmark** (next category) | The best macro-F1 reached by four specified predictors that read only the genuine category history of the input window, with no representation read: persistence, and a balanced logistic model on the last category, on window category counts, and on positional one-hots. A property of the label sequence, NOT of any encoder. Measured: FL 0.3617, AL 0.2800, AZ 0.3232, CA 0.3242, IST 0.3016 (Appendix D). **It is NOT an upper bound:** the four predictors are a specified set, and a better predictor of the same restricted information could exceed them. Say so once, at first use. | this document, 2026-07-26; renamed 2026-07-27 | Ch.5 + Appendix D. Two quantities that must NOT be swapped: this one, and the **clean reference encoder** below, which is what the screen actually gates on |
@@ -116,7 +127,7 @@ are named once each in Ch.5's baseline list and the List of Abbreviations only i
 
 | EN (body) | PT (Resumo/system) |
 |---|---|
-| multi-task learning | aprendizado multitarefa |
+| multitask learning | aprendizado multitarefa |
 | single-task / dedicated model | modelo dedicado (tarefa única) |
 | point of interest (POI) | ponto de interesse (POI) |
 | check-in / visit | check-in / visita |

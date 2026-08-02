@@ -288,7 +288,7 @@ gate "== process narration in prose (the author found this in Appendix F, and no
 if ! python3 "$UTILS/check_process_narration.py"; then FAIL=1; fi
 
 gate "== register: British English and hard phrasing (the author found both in Appendix F) =="
-# WHICH AUTHOR INSTANCES THIS ANSWERS: PENDENCIAS 2.22 points 8, 9 and 12, all from one reading of
+# WHICH AUTHOR INSTANCES THIS ANSWERS: PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30) points 8, 9 and 12, all from one reading of
 # Appendix F on 2026-07-30, in a tree where all 24 gates were green.
 #   point 8  "feature needs saying plainly" -- BRITISH, and note it is NOT a spelling: every word is
 #            spelled the same in both dialects. It is the British need+gerund construction, so a

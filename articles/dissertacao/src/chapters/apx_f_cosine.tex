@@ -5,7 +5,7 @@
 % [round7, 2026-07-29] NEW APPENDIX, in the MAIN document at the author's request: "why these two
 % tasks for our arch don't conflict and how this MAY be extended for others archs."
 %
-% IT PRINTS AS APPENDIX D since round9c (2026-07-30, the author's PENDENCIAS 2.22 point 0 ruling:
+% IT PRINTS AS APPENDIX D since round9c (2026-07-30, the author's PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30) point 0 ruling:
 % the letters must run in order, A, B, C, D). It was the letter F from round 7 to round 9c, when
 % the lettering kept the gaps left by Appendices B and D moving to the supplementary volume; the
 % file name stays apx_f_cosine.tex because the letter comes from the chapter counter, not the file
@@ -64,7 +64,7 @@
 % any architecture coverage: that boundary is the appendix's remaining limit and it is stated in
 % Section apx:cosine:extension.
 %
-% [SIGNED OFF 2026-07-30, PENDENCIAS 2.22: "I approve the appedix F you can remove the [NEEDS
+% [SIGNED OFF 2026-07-30, PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30): "I approve the appedix F you can remove the [NEEDS
 % SIGN-OFF]". The approval came with fifteen numbered points, all applied in round9c and each
 % recorded at its own site in this file; the round report is _round9/43_apxf_author.md. The marker
 % raised in round 7 covered THE WHOLE APPENDIX (new mechanistic and extension claims outside any
@@ -76,7 +76,7 @@
 
 A joint model that shares parameters between two tasks can end up worse at both than two dedicated
 models are at one each~\cite{standley2020tasks}.
-% [round9c, 2026-07-30] CITATION ADDED at the author's instruction (PENDENCIAS 2.22 point 1).
+% [round9c, 2026-07-30] CITATION ADDED at the author's instruction (PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30) point 1).
 % standley2020tasks is already in references.bib and is cited by Chapter 2's negative-transfer
 % paragraph and by Chapter 3's method section for the same phenomenon. VERIFIED THIS SESSION at the
 % source: arXiv:1905.07553 (Standley et al., ICML 2020), PDF opened, p.1: "the quality of predictions
@@ -93,7 +93,7 @@ Chapter~\ref{ch:mobiwac}.
 The two tasks turn out not to disagree. Their gradients are statistically indistinguishable from
 orthogonal on every dataset measured, which is a stronger statement than mere absence of
 conflict, and it carries a direct consequence for that model: a gradient balancer had nothing
-% [round9c, 2026-07-30] TWO EDITS IN THIS PARAGRAPH, both from PENDENCIAS 2.22.
+% [round9c, 2026-07-30] TWO EDITS IN THIS PARAGRAPH, both from PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30).
 % POINT 2: "a stronger and stranger result" -> "a stronger statement". The author: "Don't say
 % stranger result without cite some ref, but my main take is not to say this, is your jugdment and
 % can cause questions in the reviewer". "Stranger" was an aesthetic judgment with no source;
@@ -132,7 +132,7 @@ conflict, and it carries a direct consequence for that model: a gradient balance
 % Sentence predates this round (git log -S places it at fcdf6ad4) but sits inside the block under
 % sign-off, so it is in scope.
 % [SUPERSEDED round9c, 2026-07-30] The sentence this block corrected was CUT ENTIRELY at the
-% author's instruction (PENDENCIAS 2.22 point 3); the correction's verification record stays as
+% author's instruction (PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30) point 3); the correction's verification record stays as
 % history of why the verb had already changed once. The reason for the cut is in the comment block
 % above the paragraph's second sentence.
 to balance. The sections below give the
@@ -144,7 +144,7 @@ measurement, the two findings that qualify it, and the boundary beyond which non
 At every training epoch, each task loss was back-propagated to the shared cross-attention trunk, and
 the cosine of the angle between the two resulting gradient vectors was recorded, the quantity the
 gradient-surgery literature uses to define task conflict~\cite{yu2020pcgrad}. The cosine is the
-% [round9c, 2026-07-30] CITATION ADDED at the author's instruction (PENDENCIAS 2.22 point 4: "we
+% [round9c, 2026-07-30] CITATION ADDED at the author's instruction (PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30) point 4: "we
 % should cite some article/studie/document that show this apporach"). yu2020pcgrad is already in
 % references.bib and is the source Chapter 2's gradient-conflict definition cites (GLOSSARY §4
 % "gradient conflict" row also pins it: Def. 1, arXiv:2001.06782). VERIFIED THIS SESSION at the
@@ -163,7 +163,7 @@ The observations are 4,650 epoch-level cosines from seven datasets. Florida cont
 twelve configurations that vary the loss weight, the weighting schedule, and the training procedure;
 Alabama, Arizona, California, Georgia, Istanbul, and Texas contribute 250 each at the canonical
 configuration. Every run is five-fold user-disjoint cross-validation over fifty epochs.
-% [round9c, 2026-07-30] CLAUSE CUT at the author's instruction (PENDENCIAS 2.22 point 5: "Exclude
+% [round9c, 2026-07-30] CLAUSE CUT at the author's instruction (PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30) point 5: "Exclude
 % this ... is over detail"). What went: "so one configuration on one dataset is five series of fifty
 % values, and two of Florida's carry a partial re-run on top of theirs." WHERE EACH FACT LIVES NOW:
 % the five-series-of-fifty structure is restated by the unit-of-independence paragraph ("five fold
@@ -207,7 +207,7 @@ Six of the seven are the six Chapter~\ref{ch:mobiwac} reports on. The seventh, G
 Gowalla state the dissertation does not otherwise use, included here as an additional test of the
 same diagnostic. Chapter~\ref{ch:mobiwac} also reports its own smaller measurement of this
 quantity; that one comes from a different run, so the two sets of numbers are not interchangeable.
-% [round9c, 2026-07-30] SENTENCE SIMPLIFIED at the author's instruction (PENDENCIAS 2.22 point 6:
+% [round9c, 2026-07-30] SENTENCE SIMPLIFIED at the author's instruction (PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30) point 6:
 % "This is a implementation detail let's exclude also"). What went: "reaches the same conclusion
 % from a smaller development-time measurement, on an earlier data preparation and over four seeds
 % rather than per-epoch series ... and this appendix supersedes nothing there." THE FACT COULD NOT
@@ -253,7 +253,7 @@ dataset, and at Florida its sixty fold series, five folds for each of its twelve
 Each dataset is measured at a single random initialization, so the variation the tests see is
 across folds, not across restarts. Where a count of observations appears it describes the data, not
 a test's sample size.
-% [round9c, 2026-07-30] PARAGRAPH SIMPLIFIED at the author's instruction (PENDENCIAS 2.22 point 7:
+% [round9c, 2026-07-30] PARAGRAPH SIMPLIFIED at the author's instruction (PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30) point 7:
 % keep that the tests run on folds, "don't need to do a lot of tech explanation", and on Florida
 % "explain it in much details can cause confusion, lets try to be more straight"). What went, and
 % where each fact lives: (a) "treating them as independent draws would report more confidence than
@@ -326,7 +326,7 @@ experiment's power.
 
 Figure~\ref{fig:apx:cosine} shows the distributions, and one feature must be stated plainly: the
 equivalence is a statement about the mean, not about every observation.
-% [round9c, 2026-07-30] "needs saying plainly" -> "must be stated plainly" (PENDENCIAS 2.22 point
+% [round9c, 2026-07-30] "needs saying plainly" -> "must be stated plainly" (PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30) point
 % 8). "Needs + gerund" ("needs saying", "needs fixing") is a British-English construction;
 % WRITING_LAW §1 requires American English throughout. The author asked that the instance be fixed
 % and that the rule be evaluated document-wide; the register/British-English rule and its gate
@@ -375,7 +375,7 @@ systematic pull to one side.
 
 Two patterns stand out in the data.
 The first is a positive tendency that recurs on two datasets: all five of Alabama's fold means are
-% [round9c, 2026-07-30] OPENER REWRITTEN, two author points at once (PENDENCIAS 2.22). POINT 9:
+% [round9c, 2026-07-30] OPENER REWRITTEN, two author points at once (PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30)). POINT 9:
 % "Two departures from that flat picture appear" -- his words: "is pure A.I, we cna be more simple
 % and direct". POINT 10: "both are worth reporting rather than smoothing" -- his words: "we don't
 % need to say this, appears as we are try to hide somthing we just need to report". Both clauses
@@ -398,7 +398,7 @@ carries a sign-test column: its $t$-test returns $0.048$, below the conventional
 its exact sign test returns $0.375$ on four of five positive folds, so what looks like a finding
 under one test is not even a leaning under the other. Florida, whose sixty independent series are
 the only estimate in the set with the resolution to settle either question, shows neither pattern.
-% [round9c, 2026-07-30] PARAGRAPH REWRITTEN at the author's instruction (PENDENCIAS 2.22 point 11:
+% [round9c, 2026-07-30] PARAGRAPH REWRITTEN at the author's instruction (PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30) point 11:
 % "you don't say which datasets, and this phrase is confusing and hard to read for whom don't have
 % a lot of knowhow. We can try to improve the rest of this paragraph"). Changes: (a) the t-test
 % sentence now NAMES Alabama and Georgia -- measured against the source of record before writing
@@ -414,7 +414,7 @@ the only estimate in the set with the resolution to settle either question, show
 Neither pattern suggests a conflict. A positive cosine means the two tasks cooperate slightly, and
 the declining cosines stay inside the margin and move toward zero, not away from it. No mechanism is
 proposed for either pattern.
-% [round9c, 2026-07-30] PARAGRAPH REWRITTEN at the author's instruction (PENDENCIAS 2.22 point 12:
+% [round9c, 2026-07-30] PARAGRAPH REWRITTEN at the author's instruction (PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30) point 12:
 % "is well written, but is not natural for a non native writer in english, and force a non native
 % read more than once to understand"). "Both point away from trouble in any case" is a phrasal
 % metaphor (point away from trouble) that WRITING_LAW §4's idiom rule already discourages; "mild
@@ -456,7 +456,7 @@ about the cost of a common trunk, which this architecture does not use and no ar
 tested. Orthogonal gradients also do not mean that the tasks share no knowledge: the two streams
 still exchange information through the cross-attention trunk, a sharing mechanism this measurement
 does not read.
-% [round9c, 2026-07-30] TWO EDITS IN THIS SECTION, both from PENDENCIAS 2.22.
+% [round9c, 2026-07-30] TWO EDITS IN THIS SECTION, both from PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30).
 % POINT 14, THE ADDED SENTENCE. The author: "Somthing that worths to mention, don't need fither
 % explanation, in the F.3 is that besides the gradients don't addup, this don't means that the tasks
 % are not sharing their knowladge since exstie otehr mechanims like the gate in the arch and so
@@ -563,7 +563,7 @@ Section~\ref{apx:cosine:mechanism} applies only to models shaped like this one.
 %      which WRITING_LAW §4 bans outright.
 % The measurement provenance that mattered is preserved in the comments below and in
 % _round9/30_cosine_six.md. WRITING_LAW §4 now carries the general rule (process narration).
-% [SIGNED OFF 2026-07-30 with the whole appendix, PENDENCIAS 2.22 point 0; raised as NEEDS
+% [SIGNED OFF 2026-07-30 with the whole appendix, PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30) point 0; raised as NEEDS
 % SIGN-OFF under PENDENCIAS 2.9 in round 8. The author read and approved the appendix whose prose
 % carries the replacement clause, and his 2.9 ruling separately accepted the seven-dataset
 % extension this block explains.] ONE CLAUSE REPLACED, AND THE REASON IS THAT

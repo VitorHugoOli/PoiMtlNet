@@ -274,6 +274,7 @@ branching to task-specific output heads. This forces all tasks to use the exact
 same hidden representations, which risks negative transfer if the tasks conflict.
 Soft parameter sharing instead gives each task its own complete network, but it
 couples them by penalizing differences between their parameters~\cite{ruder2017mtloverview}.
+
 Because hard sharing is rigid and soft sharing requires many parameters, several
 architectures explore intermediate topologies. Cross-stitch units learn linear
 combinations of activations from different task networks~\cite{misra2016cross}.
@@ -282,10 +283,14 @@ separate routing gate for each task~\cite{ma2018mmoe}. Progressive layered
 extraction separates shared and task-specific experts across successive
 gates~\cite{tang2020ple}, while DSelect-k makes expert selection sparse and
 differentiable~\cite{hazimeh2021dselectk}. These methods selectively share
-computation instead of forcing every task through one fixed trunk. The joint
-model in Chapter~\ref{ch:mobiwac} follows this principle. It uses cross-attention
-between task streams, rather than expert gates, to let each task read from the
-other without merging their main pathways.
+computation instead of forcing every task through one fixed trunk.
+
+The joint model in Chapter~\ref{ch:mobiwac} builds a partial hard-shared interaction
+subsystem based on this principle. It uses bidirectional cross-attention rather than
+routing gates. The tasks do not reuse the same weight matrices, but their streams
+cross within this jointly optimized module. Each stream queries the other to read
+its features, which couples their gradients without forcing their representations
+into a single bottleneck.
 
 \subsection{Multi-objective optimization}
 

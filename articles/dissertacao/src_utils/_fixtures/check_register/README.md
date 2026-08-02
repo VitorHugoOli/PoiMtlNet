@@ -5,7 +5,7 @@ silent on their American equivalents. Not copies of the real tree (failure class
 
 `dirty/src/chapters/fixture_target.tex` carries one hit of each mechanical class the gate must
 catch: the British `need`+gerund construction ("needs saying plainly", the author's own instance
-from PENDENCIAS 2.22 point 8), three British spellings (`neighbour`, `behaviour`, `centre`), and a
+from PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30) point 8), three British spellings (`neighbour`, `behaviour`, `centre`), and a
 Class B delayed-subject shape ("Several differences between the two configurations emerge").
 `clean/` is the same tree with each rewritten in American English and with the subject named first.
 

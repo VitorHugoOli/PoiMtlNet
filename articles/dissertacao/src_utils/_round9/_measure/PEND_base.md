@@ -51,26 +51,11 @@ registra o que foi feito em vez de pedir uma decisao.
 > **O que sobrou aqui espera VOCE, nao a mim.** Onde a medicao esta completa, o bloco `(A)/(B)/(C)`
 > diz exatamente o que falta e quanto custa cada saida.
 
-### 2.1 Os marcadores `[NEEDS SIGN-OFF]` no fonte — **54** medidos em 2026-07-30
+### 2.1 Os 53 marcadores `[NEEDS SIGN-OFF]` no fonte
 
-**O que e.** Pontos do fonte marcados como precisando do seu aval. Nenhum bloqueia build, e **nenhum aparece no PDF**:
-todos vivem em comentario `%`. **O numero anda** — tracks paralelas removem marcadores conforme voce decide, e ele caiu
-de 56 para 54 durante esta propria varredura. Confie no comando, nao no titulo:
-
-```bash
-cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
-grep -rc "\[NEEDS SIGN-OFF" src --include="*.tex" --exclude-dir=build | grep -v ":0$" | sort -t: -k2 -rn
-```
-
-Medido assim em 2026-07-30 sobre `5c074a2a` mais a arvore de trabalho: **54 marcadores em 21 arquivos** (52 com corpo
-`[NEEDS SIGN-OFF: ...]` e 2 retrovisores nus `[NEEDS SIGN-OFF]`); 58 se `src/build/` entrar, porque
-`build/fmt/_body.tex`
-e copia gerada — dai o `--exclude-dir=build`.
-
-*(O comando que estava aqui — `grep -rn ... | grep -v ":\s*%"` — imprimia **zero linhas** e saia `rc=1`: o `-v` casa o
-`%` do comentario em que cada marcador vive, entao removia justamente tudo o que devia contar. E nenhum gate conta estes
-marcadores: `check_verify_list` executa blocos documentados, nao mede esta contagem, ao contrario do que este item
-afirmava.)*
+**O que e.** 53 pontos do fonte marcados como precisando do seu aval. Nenhum bloqueia build; o gate
+`check_verify_list` conta e a contagem bate. A lista completa, com arquivo, linha e o que cada um afirma, sai de:
+`grep -rn "NEEDS SIGN-OFF" src/ --include="*.tex" | grep -v ":\s*%"`.
 
 **Tres tem prioridade** (afirmam algo sobre trabalho publicado ou co-autorado): o paragrafo corrigido do Apendice B
 sobre o Cap. 3, o numero limitado do Cap. 4 na conclusao, e a frase de reprodutibilidade enfraquecida. Estao detalhados
@@ -87,15 +72,9 @@ esta em [`_round8/29_pendencias_detail.md`](_round8/29_pendencias_detail.md).*
 **Voce autorizou:** *"pode aumentar, mas mantenha o espaco ja ocupado pela imagem... mantendo a proporcao"*, e observou
 que o contraste hoje ja deixa legivel.
 
-**Nao consigo fazer daqui:** nao ha `drawio` nem `inkscape` neste ambiente. **Os dois `.drawio` estao no repositorio** —
-`figures/mtlnet_poi_new.drawio` (13.640 B, `fontSize=14`) e `figures/courb/arquitetura_modelo.drawio`
-(14.588 B, `fontSize=13`), medidos em 2026-07-30 com `find . -name '*.drawio'` (quatro no repo inteiro). A receita esta
-em `_round6/12_figures.md` (subir `fontSize` para ~20 e reexportar na mesma largura em pixels).
-
-*(Este bloco dizia **"so 1 dos 2"**. Era falso, e o commit `b89a9876` ja tinha diagnosticado exatamente isso — o
-instrumento era `ls src/figures/*.drawio`, glob nao-recursivo que nao ve `figures/courb/` — mas a correcao nao chegou ao
-arquivo. Tamanhos de tipo medidos, no `LEFT_OUT.md` LO-6: **45,3%** do corpo no do Cap. 3 e **44,4%** no do Cap. 4,
-contra corpo de 11,96 pt. O raster do Cap. 3 e byte-identico ao publicado do CBIC, conferido por sha256.)*
+**Nao consigo fazer daqui:** nao ha `drawio` nem `inkscape` neste ambiente, e so **1 dos 2** `.drawio`
+esta no repositorio. A receita esta em `_round6/12_figures.md` (subir `fontSize` de 13 para ~20 e reexportar na mesma
+largura em pixels).
 
 > **Seu, quando quiser:** reexportar as duas no Draw.io e me passar os PNG — eu troco e remeco o tipo na
 > pagina. **Opcional**, pela sua propria observacao sobre o contraste.
@@ -553,6 +532,67 @@ proibicoes da §3 ausentes, as 28 da §4 medidas (22 ausentes, 6 dentro da condi
 > **AUTHOR:** `license the verbs` em fundamentação téorica. Foi o unico termo que ele marcou e comnetou para ter cuidado
 > com o termos.
 
+### 2.22 Apendice F: o revisor de excelencia aprova, mas a assinatura e sua
+
+**(A) O que e.** O apendice F carrega `[NEEDS SIGN-OFF]` desde a rodada 7 porque faz duas afirmacoes novas que nao estao
+na whitelist de nenhum artigo: a mecanistica (ortogonalidade explica por que nenhum balanceador melhorou o peso fixo) e
+a de extensao (o diagnostico serve para outras arquiteturas). O revisor de excelencia leu o capitulo inteiro e o
+apendice no PDF renderizado e respondeu a pergunta que eu fiz a ele: **aprovaria a assinatura** com duas correcoes,
+ambas ja aplicadas nesta rodada (`e6ae1c0d` tirou a clausula do hard sharing, `3623dde8` corrigiu "replacing the sharing
+scheme" para
+"varying the gradient balancer"). Ele tambem re-derivou as 63 celulas da Tabela 11 a partir do parquet e todas
+reproduziram.
+
+**(B) O que ja foi feito.** As cinco revisoes de personas rodaram sobre os quatro arquivos alterados (2_fundamentals,
+apx_f_cosine, 1_introduction, tables/frame/cosine). Nove itens REQUIRED aplicados, cada um verificado por mim na fonte
+antes de aceitar. Relatorios em `_round9/38_style_r9b.md`,
+`39_mtl_r9b.md`, `40_readability_r9b.md`, `41_ai_tells_r9b.md`, `42_excellence_r9b.md`.
+
+**(C) O que eu preciso de voce.** A assinatura, ou a instrucao de tirar o apendice. Ele nao e um erro para consertar: e
+material novo que so voce pode aprovar antes de ir ao orientador. Custo de tirar: um
+`\input` comentado, mais o ponteiro novo no Cap. 6 (`3623dde8`) e a referencia em 2.3 (p. 23).
+
+> **AUTHOR:** I approve the appedix F you can remove the `[NEEDS SIGN-OFF]`, but i have some considerations:
+> 0. You must rename all the appendix, so the letters respect the correct order in the current version of the text. In
+     this case this appendix would be the letter D.
+> 1. On the `an end up worse at both than two dedicated models are at one each.` we shoud add a reference to it.
+> 2. Don't say `stranger result` without cite some ref, but my main take is not to say this, is your jugdment and can
+     cause questions in the reviewer
+> 3. This phrase: "That is why varying the gradient balancer changed so little in the first study, and why changing the
+     representation changed so much in the second and third.". Have a huge erros in the first sutdy we use 2 diffents
+     tasks, than the last third study of mobiwac, also the arch of the MTLnet was different so we can relate the results
+     of this appendix to the first and secon study.
+> 4. On the "the cosine of the angle between the two resulting gradient vectors was recorded" we should cite some
+     article/studie/document that show this apporach
+> 5. Exclude this: "so one configuration on one dataset is five series of fifty values, and two of Florida’s
+     carryapartialre-run ontopoftheirs.", is over detail.
+> 6. This is a implementation detail let's exclude also: "That chapter reaches the same conclusion from a smaller
+     development-time measurement,onanearlierdatapreparationandoverfourseedsratherthanper-epochseries,so the
+     twosetsofnumbersarenotinterchangeableand this appendix supersedes nothingthere."
+> 7. on the: "Every test below therefore runs on five fold... Whereacountofobservationsappearsitdescribesthedata,
+     notatest’ssample size." this part explain the how the experiments was runned is importante, but we can simplify the
+     details, don't need to do a lot of tech explanation, also about the florida I belive explain it in much details can
+     cause confusion, lets try to be more straight.
+> 8. The phrase: "feature needs saying plainly" this is britisher english and this boke on of the agents_guartrails. If
+     this is not in the guardrails add this and eval in the rest of the text if we have similar stuctures that are
+     britisher.
+> 9. This phrase:  "Two departures from that flat picture appear" is pure A.I, we cna be more simple and direct.
+> 10. This phrase: "both are worth reporting rather than smoothing" we don't need to say this, appears as we are try to
+      hide somthing we just need to report.
+> 11. On the: "A 𝑡-test does reject on both datasets and for both
+      departures,butatfiveobservationsthatrestsentirelyonassumingnormality,andthisappendix
+      willnotacceptforoneclaimabasisitrejectsforanother.", you don't say which datasets, and this phrase is confusing
+      and hard to read for whom don't have a lot of knowhow. We can try to improve the rest of this paragraph
+> 12. The phrase: "Both point away from trouble in any case. A positive cosine is mild cooperation, not conflict, and
+      the decline stays inside the margin throughout while moving toward zero rather thanawayfromit." is well written,
+      but is not natural for a non native writer in english, and force a non native read more than once to understand.
+> 13. On the paragraph that starts with: "The second is about the arc of the three studies.", we need to take care cause
+      the first two studies was diferrent tasks that these ones that we are testing int eh appendix F. Maybe remove
+      this.
+> 14. Somthing that worths to mention, don't need fither explanation, in the F.3 is that besides the gradients don't
+      addup, this don't means that the tasks are not sharing their knowladge since exstie otehr mechanims like the gate
+      in the arch and so on...
+
 ### 2.23 Cinco itens RECOMMENDED das revisoes que eu nao apliquei
 
 **(A) O que e.** Ficaram por decisao de escopo, nao por esquecimento. Cada um tem quote e pagina no relatorio citado.
@@ -570,59 +610,6 @@ proibicoes da §3 ausentes, as 28 da §4 medidas (22 ausentes, 6 dentro da condi
 **(C) O que eu preciso de voce.** Diga quais valem e eu aplico. Nenhum e um erro de fato.
 
 > **AUTHOR:** Aplique o R-3,5,6 e o EX-6, seguindo a recomendação do 42_excellence, não aplique o EX-9.
-
-### 2.24 Um `towards` britanico em prosa publicada do CBIC, e a saida e uma linha de errata
-
-**O que e.** Sua queixa 8 do item 2.22 (o `needs saying plainly`) gerou a lei de registro e o gate 25
-(`check_register.py`). Varridos os 54 `.tex` vivos mais o `references.bib`, **doze linhas de achado em onze sitios**
-(uma frase pode disparar duas regras): **5** grafias britanicas, **1** construcao britanica (a sua) e **6** formas de
-fraseado. **Seis eram nossas e foram corrigidas**; **cinco** estao no Apendice F e a outra esteira ja as fechou.
-**Sobrou uma, e ela e sua**, porque esta em prosa publicada. (As cinco do apendice do cosseno estao contadas aqui como
-"Apendice F", que era a letra quando esta varredura mediu; a outra esteira aplicou o seu ponto 0 e **reletrou para
-Apendice D** no commit `4eea637a`. O arquivo continua `chapters/apx_f_cosine.tex` e o gate e ancorado no caminho, nao na
-letra.)
-
-**A conferencia fecha nos dois sentidos**, e as tres parcelas estao escritas como palavras de proposito:
-seis linhas corrigidas nesta esteira, cinco fechadas pela esteira do apendice do cosseno e uma aberta para voce, que
-somam as doze. Escrita com algarismos e um sinal de igual, esta frase ja se quebrou duas vezes num reflow, deixando o
-`12.` no inicio de uma linha, onde o markdown o le como item de lista numerada e a aritmetica desaparece da pagina.
-
-*(Este bloco dizia **nove ocorrencias** e "quatro/quatro/uma". Estava errado, e o erro foi pego por revisao, nao por
-mim: eu somei categorias de cabeca em vez de contar as linhas que o instrumento imprime. Medido rodando o gate sobre a
-arvore do `06529ed6` com o `OPEN_REGISTER` vazio, para que nada fique retido e todo achado imprima; o gate sai com
-`rc=1` e conta seis achados de grafia ou construcao britanica mais seis de fraseado, doze linhas ao todo. O detalhamento
-linha por linha, com o comando, esta na secao 1.3 do relatorio.)*
-
-`chapters/3_cbic/conclusion.tex`, p. 43 do build de defesa:
-
-> "The representation learned by the shared layers might have become biased **towards** the features
-> required for the simpler, static classification task"
-
-**Medido, nao suposto:** a frase e substring literal de
-`articles/CBIC___MTL/sections/conclusion.tex:13`, e este `towards` e a **unica** forma britanica em toda a fonte
-publicada do CBIC (zero `-our`, zero `-ise`, zero `whilst`); CoUrb-EN e MobiWac nao tem nenhuma.
-
-**Por que nao apliquei.** Pela NORTH_STAR §5.7, mudar uma palavra de prosa publicada e decisao sua, e esta e questao de
-vocabulario, nao de correcao. O gate mantem o achado **aberto por nome** e falha se a entrada ficar obsoleta, entao nao
-se perde em nenhuma das duas saidas.
-
-> **DECISAO SUA, e e uma linha:** (**a**) trocar por `toward` e acrescentar uma linha em
-> `tables/cbic/errata_wording.tex`, que ja carrega **quatorze** linhas exatamente desta classe
-> ("By leveraging shared information" -> "By using shared information"), todas sob a legenda *"claim
-> strength unchanged or reduced, never raised"*; a troca nao muda alegacao nenhuma. (**b**) deixar
-> como esta, e a entrada do registro aberto do gate passa a ser o registro permanente da decisao.
-
-**Um segundo ponto, tambem seu, e eu deliberadamente NAO fiz gate dele.** O ponto final fica **fora**
-da aspa de fechamento em **13 sitios** (`tables/cbic/errata.tex` 5, `tables/courb/errata.tex` 3,
-`chapters/3_cbic/method.tex` 2, `tables/cbic/errata_wording.tex` 2, `chapters/apx_b_errata.tex` 1). O estilo americano
-poe dentro. **Todos os 13 estao em tabelas de errata onde a string citada e a evidencia**, e mover um ponto para dentro
-de uma citacao altera a citacao. E decisao sobre a convencao da errata, nao erro de grafia. Se quiser, e mecanico e faco
-os 13 numa passagem.
-
-*Forense: [`_round9/44_register_law.md`](_round9/44_register_law.md) (a varredura com contagem por arquivo, as regras, e
-o transcrito de validacao do gate nos dois sentidos).*
-
-> **DECISAO SUA:** ______
 
 ## §5 · Levantados do `CODEX_AUDIT.md` quando ele foi arquivado (2026-07-29)
 
@@ -657,21 +644,13 @@ Para conferir os nove de uma vez, do diretorio da dissertacao:
 cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
 for p in 'leakage-guarded' 'equivalence is well powered' 'unbalanced result for the MTL and single' \
          'revise that verdict by changing the input representation' 'mean reciprocal rank'; do
-  printf '%-58s %s\n' "$p" "$(grep -rl "$p" src/chapters src/tables --include='*.tex' 2>/dev/null \
-    | while read -r f; do grep -v '^[[:space:]]*%' "$f" | grep -q "$p" && printf '%s ' "$f"; done)"
+  printf '%-58s %s\n' "$p" "$(grep -rl "$p" src/chapters/*.tex src/chapters/*/*.tex 2>/dev/null | tr '\n' ' ')"
 done
 # EXPECT: lines=5
 ```
 
-Cinco linhas, cada uma nomeando o arquivo onde a frase ainda vive **em prosa**. Se uma linha vier vazia, aquele item foi
-resolvido depois desta varredura.
-
-**Rodado em 2026-07-30: quatro das cinco linhas vem vazias**, e a quinta aponta para
-`src/tables/cbic/errata_wording.tex`, que e a *tabela de errata* — a frase esta la como evidencia citada, nao como
-alegacao viva. *(A versao anterior deste comando era **cega a comentarios** e imprimia cinco linhas cheias: quatro
-daquelas frases sobrevivem apenas em comentarios de proveniencia, que citam a redacao antiga para registrar o que mudou.
-A variante acima descarta linhas `%` antes de casar, e concorda com o `live_text` do `check_audit_claims.py`, que e o
-stripper usado pelos gates deste projeto.)*
+Cinco linhas, cada uma nomeando o arquivo onde a frase ainda vive. Se uma linha vier vazia, aquele item foi resolvido
+depois desta varredura.
 
 ### 5.6b A premissa da sua decisao 5.6 nao e o que os arquivos mostram — resolvi imprimindo AS DUAS datas
 
@@ -874,8 +853,7 @@ sorting.
    identico
 3. **Manter o passado nos tres** — preserva a regra; contraria o pedido explicito dele, duas vezes
 
-> **DECISAO SUA:** No item FAB-03 eu optei por continuar no imperfeito. Assim para manter a concistencia acho que temos
-> que ir com a escolha 2.
+> **DECISAO SUA:** ______
 
 #### GER-11 — the task non-conflict finding needs stronger evidence, and generalizes into future work
 
@@ -895,8 +873,7 @@ conflicting in both directions and cancelling'. Either strengthen it or downgrad
    e um dos seis, sem dispersao e sem Istambul
 3. **As duas: rebaixar agora, fortalecer se a GPU liberar** — protege a defesa e mantem a porta aberta
 
-> **DECISAO SUA:** Já corrigimos isso na versão mais atual do texto, o appendix F está bem mais maduro e com os
-> resultados mais consolidados. Acho que não precisamos atuar quanto a esse ponto.
+> **DECISAO SUA:** ______
 
 ### 6.3 Onde a passagem citada nao existe mais, e o pedido precisa de nova redacao
 
@@ -915,7 +892,7 @@ sentence, but it is a rewrite of text he has not read.
 2. **Nao aplicar e registrar que a passagem citada nao existe mais** — zero custo; ele pode repetir o ponto ao ler o
    build novo
 
-> **DECISAO SUA:** Vamos descartar esse ponto, estamos achando um equilibro bom para o resumo.
+> **DECISAO SUA:** ______
 
 #### FAB-07 — name the study instead of the stage of the research
 
@@ -931,7 +908,7 @@ claim-scope choice: 'no segundo estudo' is where the diagnosis was made, not the
    estudo todo)
 3. **As duas: "no segundo estudo, naquela configuracao"** — mais longo, e o Resumo esta no limite de tamanho
 
-> **DECISAO SUA:** Não precisa atuar
+> **DECISAO SUA:** ______
 
 #### FAB-10 — the results sentence opens confusingly
 
@@ -946,8 +923,7 @@ resultados, identificamos que...') is a first-person results framing, a register
 2. **Manter "A resposta e, portanto, condicional: ..."** — mantem o registro; contraria o pedido
 3. **Meio: "Os resultados mostram que o ganho do aprendizado multitarefa depende de..."** — impessoal e direto
 
-> **DECISAO SUA:** Vamos com a 3 opção algo como: "Os resultados mostram que o benefício do aprendizado multitarefa
-> depende da representação de entrada e da topologia de compartilhamento entre as tarefas."
+> **DECISAO SUA:** ______
 
 ### 6.4 Ja satisfeitos — so falta voce confirmar
 
@@ -962,7 +938,7 @@ is content.
 1. **Confirmar como satisfeito** — zero; a palavra nao existe no fonte vivo
 2. **Perguntar a ele se o build que leu era antigo** — um e-mail; evita ele repetir o ponto
 
-> **DECISAO SUA:** Perfeito, mantemos assim!
+> **DECISAO SUA:** ______
 
 #### FAB-05 — drop the negative-result / diagnosis / resolution clause
 
@@ -972,7 +948,7 @@ is content.
 
 1. **Confirmar como satisfeito** — zero; a clausula nao existe mais
 
-> **DECISAO SUA:** Perfeito, mantemos assim!
+> **DECISAO SUA:** ______
 
 #### FAB-08 — drop the task-pair clause from the Resumo
 
@@ -986,8 +962,7 @@ both places.
 2. **Decidir junto com o FAB-17** — o mesmo conteudo esta na introducao COM aval registrado; decidir separado corre o
    risco de tirar dos dois lugares
 
-> **DECISAO SUA:** Perfeito, mantemos assim! Mas vamos adicionar um comentario sobre o resumo, que uma informação está
-> sendo omitida o fato de serem tarefas diferentes entre os dois primeiros e o ultimo artigo.
+> **DECISAO SUA:** ______
 
 ### 6.5 Detalhe de dados na introducao — ele quer fora, e ha um contraste em jogo
 
@@ -1006,8 +981,7 @@ being introduced. Cost of removing: the reader meets 'seven' first in 2.4.
 3. **Manter so o contraste sem o numero: "um punhado de classes contra milhares de regioes"** — preserva o contraste,
    tira o dado
 
-> **DECISAO SUA:** Nesse caso eu concordo com ele, é podemos só remover a frase: ", one of seven top-level classes.",
-> isso já resolveria.
+> **DECISAO SUA:** ______
 
 #### FAB-15 — census tract and mahalle belong to the data, not the introduction
 
@@ -1020,7 +994,7 @@ Removing it leaves 'the official geographic unit' undefined until 2.4.
 2. **Manter** — contraria o pedido
 3. **Mover para uma nota de rode** — compromisso; o Viegas usa notas assim
 
-> **DECISAO SUA:** Vamos com a opção 1.
+> **DECISAO SUA:** ______
 
 ### 6.6 Os itens grandes do Germano — custo real, retorno real
 
@@ -1043,7 +1017,7 @@ not a Chapter 2 edit.
 3. **Nao fazer nesta rodada** — e o ponto mais forte da revisao do Germano e o precedente do proprio programa (a
    dissertacao dele) o cumpre
 
-> **DECISAO SUA:** Opção 1
+> **DECISAO SUA:** ______
 
 #### GER-09 — 2.3 needs MTL formalism, the balancer lineage, and a definition of loss conflict
 
@@ -1060,8 +1034,7 @@ Chapter 6's +0.001 cosine lands with no definition behind it.
 2. **So a equacao da perda e a definicao de conflito** — ~3h; e o minimo que torna o numero do Cap. 6 legivel
 3. **Nao fazer** — a pergunta de pesquisa da dissertacao e se MTL ajuda, e o capitulo nunca escreve o objetivo de MTL
 
-> **DECISAO SUA:** Opção 1. Voce pode se aproveitar da explicação de cosseno do appendix F, apesar de estarmos fazendo
-> essa nova parte não precisa remover nada do appendix F, caso fique repetitivo.
+> **DECISAO SUA:** ______
 
 #### GER-10 — the fundamentals need a logical narrative built on formal definition blocks
 
@@ -1077,7 +1050,7 @@ go.
 2. **Subsecoes so em §2.2 e §2.3** — meia medida, cobre onde estao as duas lacunas
 3. **Nao fazer** — o capitulo e uma referencia que o leitor consulta vindo do Cap. 5; sem titulos ele nao acha nada
 
-> **DECISAO SUA:** Opção 1.
+> **DECISAO SUA:** ______
 
 #### GER-03 — the HGI tuning sweep is thrown into the text with no connection to it
 
@@ -1095,19 +1068,7 @@ averaging convention. Relocating is compatible with the probe if the probe moves
    o [VERIFY] da convencao de media, que hoje reporta quatro decimais sob uma convencao que o capitulo ainda nao fixou
 3. **Manter onde esta e so resolver o [VERIFY]** — mais barato; o defeito de fluxo que ele apontou continua
 
-> **DECISAO SUA:** Aqui temos alguns problemas, vamos aos fatos. A parte que está com problema hoje é a: "The baseline
-> was also tuned rather than taken as published: the cross-region edge weight of their Equation 2, set to 0.4 for the
-> dense Chinese cities they study, was raised to 0.7 for the sparser United States state datasets used here. The sweep
-> that fixed that value ran on Alabama over four settings of the weight, 0.4, 0.5, 0.6, and 0.7, each measured over five
-> folds with a budget of 50 epochs, and the category F1 rose monotonically across them, from $0.7388 \pm 0.0205$ at the
-> published setting to $0.8186 \pm 0.0123$ at the adopted one, on a zero-to-one scale, with the spread taken across the
-> five folds."
-> O ponto e que ela parece sem nexo, para quem está lendo rapido ou desatendo, não entende que estamos discutindo sobre
-> o fato que os hyperparmsteeros usado pelo hgi em nosso artigo foi retirado do artigo base que se baseava em uma cidade
-> chinesa. Esse é o primeiro ponto essa frase está confusa sem nexo, sengundo ponto ela está "overwhelming", ou seja,
-> ela está com execesso de informação, podemos simplificar bem isso e caso o leitor uqe se interesee acesso o artigo
-> deles para saber mais. Por fim um outro ponto, é quanto ao fato disso não pertencer a fundamentação téorica, é sim a
-> métodologia. Eu proponho melhorar esse texto e deixar isso em um appendice.
+> **DECISAO SUA:** ______
 
 #### GER-04 — the static-vector paragraph reads like introduction prose, and it matters
 
@@ -1121,13 +1082,7 @@ chars from the NUM-4 probe string.
 2. **Mover para o inicio de §2.2 como paragrafo de abertura** — atende a impressao de "texto de introducao"; mexe num
    paragrafo a 108 caracteres do probe NUM-4
 
-> **DECISAO SUA:** Eu acredito que tenhamos que deixar ele onde está, na introdução já comentamos sobre o ponto de a
-> literatura usar em sua maioria poi embedding ao inves de checking embedding, caso não comentamos isso bem lá, porfavor
-> melhore o texto da introdução. Mas, quanto aqui eu acredito que temos que sim, manter esse paragrafo onde ele está ele
-> server de cola e ponte falarmos sobre outros tipos de embedding, estes que serão usados no checking embedding. E aqui
-> abrimos outra ponta no paragrafo: "Beforethatstep,severalgeneralencoderssupplythecontextastaticplacevectoromits.",
-> precisamos melhorar sua conexão com o paragrafo anterior falando sobre esse ponto que o checkin embdding precisa de
-> embedding temporais e locacionais e onde entra o conteduo do resto do paragrafo; valide essa minha ideaia.
+> **DECISAO SUA:** ______
 
 ### 6.7 Bloqueado numa verificacao que falhou
 
@@ -1153,9 +1108,7 @@ this one is not, and it is the one the novelty sentence depends on.
 3. **Enfraquecer a frase de novidade para "entre os trabalhos revisados aqui"** — honesto e barato; abre mao de uma
    alegacao que pode muito bem sobreviver
 
-> **DECISAO SUA:** Vamos então avaliar o wang2025hamtl, adicione no caminho:
-> articles/dissertacao/science/articles/wang2025hamtl.pdf. Apos ler ele avalie quais adicionar na dissertação se todos
-> forme interessante, adicionamos todos.
+> **DECISAO SUA:** ______
 
 ### 6.8 A sua propria pergunta
 
@@ -1175,8 +1128,7 @@ PENDENCIAS 2.12 (unregistered in the fail-closed GLOSSARY), so this item and 2.1
 2. **So registrar `Pareto` no GLOSSARY e nao expandir** — fecha o 2.12 sem crescer o capitulo
 3. **Nao tratar** — o capitulo nomeia balanceadores cuja justificativa e Pareto e nunca diz isso
 
-> **DECISAO SUA:** Vamos com a opção 1. Aqui vale notar que em uma ultima interação, realizamos o item 2.12, então
-> avalie como está e se julgar necesssario voce adiciona mais contexto embasado com referencias.
+> **DECISAO SUA:** ______
 
 ### 6.9 Edicao concorrente durante esta rodada — RESOLVIDA pela propria esteira, e registrada
 
@@ -1247,8 +1199,7 @@ weighting".
 3. **Deixar como esta** — a frase e uma generalizacao irrestrita contra uma celula negativa medida no mesmo documento; e
    o tipo de frase que uma banca localiza
 
-> **DECISAO SUA:** Já fizemos algumas correções no appendix F, mas se esse ainda continuar com esses erros logicos,
-> podemos seguir com a opção 1.
+> **DECISAO SUA:** ______
 
 #### BLQ-2 — a resposta consolidada usa "everywhere" nu e colapsa a particao da regiao
 
@@ -1266,8 +1217,7 @@ redacao protegida exige — particao que **este mesmo capitulo enuncia corretame
    — mais curto, mas "everywhere" nu esta proibido pela linha 83 sem excecao por tarefa
 3. **Deixar como esta** — contradiz a lei que voce mesmo escreveu, na frase que mais vai ser lida
 
-> **DECISAO SUA:**  Eu acho que isso já foi mudado no texto, mas se caso se manter mantenha everywhere para o categoria
-> e especifique onde for preciso para o next-region.
+> **DECISAO SUA:** ______
 
 #### BLQ-3 — dois fatores de escala calculados na prosa, sem ledger e sem script
 
@@ -1363,119 +1313,37 @@ como esta apresentado.
 
 ## §3 · Aberto e bloqueado em terceiros
 
-| Item                                               | Bloqueado em                     | Estado                                                                                                                                                                                                                                        |
-|----------------------------------------------------|----------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Dois membros da banca e a data da defesa           | Orientador / PPGCC               | Placeholders entre colchetes em `preamble.tex:217-219`. **Nao imprimem em nenhum dos tres builds** (`\folhadeaprovacao` esta comentada em `abntex2-UFV.sty:166-170`), entao nao ha nada inventado no PDF — nem os nomes reais quando chegarem |
-| Folha de aprovacao assinada                        | A defesa                         | `make ppgc` gera o PDF com o placeholder; a versao assinada o substitui depois                                                                                                                                                                |
-| Status do MobiWac                                  | Revisores                        | A redacao e sempre "submitted, under review", em todo o documento. **Nao mudar** ate haver decisao                                                                                                                                            |
-| `\finalbuildfirstpage` conferido contra o RASCUNHO | Upload pos-defesa ao AcademicoPG | Agora **9** (`main.tex:95`), das 8 paginas pre-textuais do build de deposito; a primeira pagina de corpo do `main_academico.pdf` e a fisica 9 e imprime 9. Confira contra o RASCUNHO quando subir                                             |
+| Item                                               | Bloqueado em                     | Estado                                                                                                                                |
+|----------------------------------------------------|----------------------------------|---------------------------------------------------------------------------------------------------------------------------------------|
+| Dois membros da banca e a data da defesa           | Orientador / PPGCC               | Placeholders honestos entre colchetes em `0_main.tex`; **os colchetes aparecem no PDF**, entao nada inventado e apresentado como fato |
+| Folha de aprovacao assinada                        | A defesa                         | `make ppgc` gera o PDF com o placeholder; a versao assinada o substitui depois                                                        |
+| Status do MobiWac                                  | Revisores                        | A redacao e sempre "submitted, under review", em todo o documento. **Nao mudar** ate haver decisao                                    |
+| `\finalbuildfirstpage` conferido contra o RASCUNHO | Upload pos-defesa ao AcademicoPG | Agora **8**, derivado das 7 paginas pre-textuais do build de deposito e verificado no render. Confira contra o RASCUNHO quando subir  |
 
 ---
 
-## §4 · Pensamentos e considerações do Autor
+## §4 · O que auditar primeiro, se voce tiver uma hora
 
-1. No resumo e na introdução, valha fazermos uma analise sobre o uso de especificidades, e por especificidades me refiro
-   a menção como: "O modelo final foi avaliado em cinco estados dos Estados Uni- dos, extraídos do Gowalla, e em
-   Istambul, extraída do Massive-STEPS"(resumo), "vinte modelos ajustados por configuração, quatro inicializações
-   aleatórias sobre cinco partições fixas e testes pareados sobre as médias de cada inicialização"(resumo) ou "The
-   category space contains Community, Entertainment, Food, Nightlife, Outdoors, Shopping, and Travel."(2.1.1.2). Vide
-   que o nosso trabalho ele é generico, podemos usar qualquer dataset e quaquer N numeros de categorias. Assim, nos
-   texto que não explicativos de métodologia ou sobre os dados em si, podemos ser mais genericos; no resumo que dei
-   exemplo podemos usar algo como: "O modelo final foi avaliado em 6 datasets, sendo 4 localizados nos U.S e afins de
-   generalização um não U.S"(Temos que refinar bem essa frase é só um exemplo). Ainda sobre esse tópico, no resumo tabém
-   falamos
-   "considerando uma margem de dois pontos de Acc@10 pelo procedimento TOST", outra especificação que não vejo
-   necessidade.
-2. Padronização das palavras tecnicas. Palavras que já estão no "List of abbreviations and acronyms" estão sendo
-   escritas de forma distintas pelo texto. Um exemplo é Point of Interest que em muitos locais aparece como
-   Point-of-Interest. Outro detalhe é o uso correto dessas palavras como no caso de Multi-Task Learning, essa palavra no
-   artigo original é escrita como: Multitask Learning, sem o hifén sem contar que o APA Style, também define a
-   preferencia por uso de plavras sem hifén; enfim faça uma pesquisa para validar essa é outras palavras técnicas e
-   vamos substituir onde necessario.
-3. Na introdução a frase: ",while place categories provide the semantic information used by location-based
-   services [4].", em uma leitura rápida parece não ter nexo com o que está sendo dito anteriormente ou parece ser uma
-   frase só jogada sem muito contexto.
-4. Na frase: "Some methods used in this dissertation also come from neighboring geospatial tasks. In particular, the
-   spatial encoders examined in the second study were first validated for applications such as
-   speciesrecognitionandremote-sensingclassification [5, 6].", será que já fala de métodologia no primiero paragrafo é
-   interessante, estamso contrunido a problmeatica e as bases do problema para o leitor, é o que seria "neighboring
-   geospatial tasks", me parece bem solto.
-5. Na frease: "Because next category and next region are predicted from the same visit history, one model may serve both
-   tasks.", temos que na frase anterior defimos 3 tarefas que treinamos nos modelos conjuntos. Será que essa frase não
-   serai melhor escrita como algo: "Because the previous tasks cited consumes the same visit history, one unify model
-   ,such as Multitask learning (MTL),may server for them. MTL ..."(Temos que melhorar)
-6. We are using the term: "static place categories" to refear to the poi classification of a unkown POI category. But in
-   the §1.1 we are define this task as "category classification, a static task that predicts..."; my point is for a
-   reader that are not familirazed with the tasks and are nobie about this point, this will create confusion. FOr the
-   other tasks we define them and use the same jarguan throught the text.
-7. Na frase: "Under a check-in level representation, static category classification is a less natural companion task
-   than a second sequential target, so the final task pair becomes next category and next region.", acho que a
-   explicação do porque da mudança ainda falta conteudo, principalmente, pq outro motivo é diria até que mais forte apra
-   mudança foiq eu na literatura essas outras duas tarefas possuem mais forças que a classifiçação de poi; sem contar
-   que temos outro problema que não sei se temos que explicitar, mas sobre regime de checking level e nosso motor de
-   embedding a o embedding pode vazar e deve vazar qual a categoria do checking atual, até para o modelos conseguir
-   prever com mais exatidão a proxima categoria.
-8. A frase: "The dissertation does not treat these as one unchanged experiment. It presents a sequence in which a result
-   valid for one configuration leads to a diagnosis and then to a different, explicitly bounded solution."; Eu acredito
-   que podemos melhorar bem, na clareza ainda mais quando se comparado com a que estava antes: ", and this dissertation
-   names that evolution plainly rather than narrating one fixed experiment. The arc it reports is a correction trail:
-   each study revised what the previous one concluded, and the later chapters state precisely which earlier conclusions
-   they supersede."
-9. We use hard share paramter through all the introduction and never explain what is: An common MTL apporach on the
-   paramter and the data flow are shared. Eval this.
-10. No paragrafo: "Evaluate whether a joint model with hard parameter sharing benefits static category classification
-    and next-category prediction when compared with dedicated single-task models (Chapter3).", Acho que podmes incluir:
-    "Evaluate on how an MTL model can be build and work on the POI field and whether a joint model using hard sharing
-    benefits poi classification and next-category...."
-11. No paragrtafo: "Consolidatetheevidenceundertheuser-disjointcross-validation,significance-testing,and
-    non-inferiorityprotocolusedinthefinalstudy (Chapter 6)." isso tá errado é no Chapter 5.
-12. No paragrafo: "The joint setting imposes a single-model constraint: one trained artifact must produce both outputs
-    in one forward pass.". Que joint settings ?
-13. Na parte de contribuições não estamos destacando achados importantes, e ela nõa está bem escrita faça uma avaliação
-    mais profunda. Vou dar alguns exemplos: - O check2hgi é um avanço quanto ao uso de um embedding de mobilidade que se
-    utiliza checkin ao inves de poi, e este pode ser usado em varios trabalhos futuros com difererntes propositos; -
-    Nosso MTLnet final ou o joint model final ele é um modelo que pode ser usado para treinamento conjunto das tarefas
-    ou ainda pode ser expandido para outras tarefas dado sua modularidade; - O achado que as tarefas parecem não serem
-    conflitantes em um modelo MTL; (Esse tem que tomar bastante cuidado). Por favor, avalie eses pontos, avalie os que
-    já estão e faca uma analise pelo texto e trabalho para ver se não estamos esquecendo nada.
-14. A frase: "It indicates that mobility is learnable, but it is not a reference point for the category and region
-    metrics defined in Section~\ref{sec:fund:eval}." Para mim não faz sentido dizer "It indicates that mobility is
-    learnable, but it is not a reference point for the category and region metrics defined in Section~\ref{sec:fund:
-    eval}.", justamente o contrario podemos sim ter os estudo de mobility e next-location como referencia para o
-    category e regio. A frase original era: "This bound is specific to next-location prediction at coarse spatial
-    resolution; it shows that mobility is far from random and is learnable at all, and Section~\ref{sec:fund:eval}
-    states the reference points that actually bound the category and region tasks studied here."
-15. Eu tô com um medo, eu posso estar deixando passar batido por já ter lido varias vez, mas se referir as tarefas como,
-    sequenciais e estaticas, como no exemplo: "three experimental tasks, two sequential and one static.", para mim faz
-    muinto sentido, só que será que estamos explicando isso bem no texto ? E estamos explicando antes de usarmos no
-    texto, as vezes deixa a explicação na lista de abreviassões e accronimos ?. Faca uma analise.
-16. O §2.1.1.1 foi uma introdução bem legal, porém está precisa ser revisada, é precismos ser mais precisos na
-    explicação, algumas lacunas ainda estão presentes como o fato de não falarmos o que é 𝑥𝑖 ou H𝑖. Da onde saiu 𝑐𝑝, 𝑐i
-    e ri, precisamos explicar o que é isso, estamos tacando simbolos sem explicar.
-17. No §2.1.1.1 na frase: "The category space contains Community, Entertainment, Food, Nightlife, Outdoors, Shopping,
-    and Travel. The region target is a census tract in the United States datasets and a mahalle in Istanbul. ", listar
-    as categorias em um definição técnica é um erro, até pq nosso modelo poderia usar N categoria e não só essas 7, além
-    disso citar os datasets não é algo para agora mas para a sessão §2.4
-18. No §2.2.2 se graph-infomax é tão importante para o trabalho, temos que explicar em linhas gerais o que ele é e como
-    funciona.
-19. No §2.2.2 a frase: "The representations used in this work are trained without category or region labels.", tem que
-    ser dita com bastante cudidado, por que no hgi vamso sim usar o categoryu como target, não usamos nos dois primeiros
-    para não gerar vazamento de dados para tarefa estatica.
-20. Não sei se no §2.2.2, mas no check2hgi, como descrito
-    em:  [check2hgi_v17_complete_picture.md](../science/check2hgi_v17_complete_picture.md) tabém usamos POI2vec, não
-    teriamos que citar ele ?
-21. A frase: "MTLnet uses FiLM to condition its shared layers on task identity. Chapter 4 keeps this architecture but
-    replaces its single place embedding withspatial, temporal,and categoricalencoders.The controlled changeisolates the
-    effectoftheinput representation.". não deveria estar no §2.2.3.1, deveria estar na sessão sobre MTL
-22. On the §2.2.3.2 get more context in the
-    file: [check2hgi_v17_complete_picture.md](../science/check2hgi_v17_complete_picture.md) if necessary, and evla if
-    what is in there is correct.
-23. A frase: "The representation changes are paired with a controlled progression in model architecture." não ficou
-    clara para mim, é não pareceu uma boa frase de transição.
-24. A frase: "The models therefore differ in their sharing topology and in the private input available to the region
-    output." Temos que explicar isso melhor, no MTLnet ele já recebia duas entradas, a diferença e que as duas entradas
-    lá era de um mesmo embedding, aqui os embeedings são saidas diferetned do check2hgi, apesar de serem diferentes elas
-    ainda possuem correlação.[VALIDE E PESQUISE MAIS NA CODEBASE]
-25. Será que nomear o joint model, como MTLChkNet agora seria muito tarde ? Alguma outra sugestão de nome melhor ?
-    Podemos, até atualizar no mobiwac, vide que ainda está em revisão ?
-26. No §2.3.3 não explicamos o que é o `L𝑘`
+A lista priorizada esta em [`_round6/VERIFY_LIST.md`](_round6/VERIFY_LIST.md), com o comando de verificacao de cada
+item. Os cinco de maior consequencia:
+
+1. **O paragrafo D-01 em `apx_b_static_scope.tex`** (p. 99 do build de defesa). E a unica prosa nova que faz uma
+   afirmacao publica sobre um resultado co-autorado, e eu errei nele uma vez.
+2. **O par Resumo/Abstract** (pp. 2-3). Mais lido que qualquer outra pagina.
+3. **As duas sentencas D-02 em `6_conclusion.tex`** (p. 76). Elas mudam o que o numero mais citado do Ch.4 licencia.
+4. **A frase de reprodutibilidade em `apx_a_contributions.tex`** (p. 88), contra 2.2 acima.
+5. **`make check` e os tres builds.** `cd articles/dissertacao && source src_utils/texenv.sh &&
+   (cd src && make defense && make academico && make ppgc && make check)`. Deve sair 0 e dar **102/99/103** paginas. *(
+   Corrigido em 2026-07-30: dizia `make final`, alvo renomeado para
+   `academico` em 2026-07-29 — ainda funciona como alias, mas imprime um aviso — e citava **108/105/109**, que nao e o
+   que a arvore produz. Medido agora com pypdfium2 sobre
+   `src/build/main.pdf`, `main_academico.pdf` e `main_ppgc.pdf`. O `sync_page_counts.py` nao pega isto:
+   ele varre `CLAUDE.md`, `PLAN.md` e `codex_reviewer.md`, e nao o §4 deste arquivo.)*
+
+> **Nao confie no sucesso auto-reportado, incluindo o meu.** Esta rodada corrigiu **oito** afirmacoes
+> minhas que nao se sustentaram na medicao: um limite falso que eu carreguei ao corrigir um escopo,
+> uma exculpacao do Ch.3 que nao segue da premissa, "all gates pass" com o gate saindo 2, "byte
+> identical ... same SHA" quando o que e identico e a camada de texto, um instrumento de tamanho de
+> fonte cego ao `\includegraphics`, uma linha de ancoragem que eu li errado, um flag levantado contra
+> uma afirmacao correta lendo uma revisao superada, e um teste de gate invalido porque eu copiei o PDF
+> corrigido para a arvore quebrada. Todas as oito foram achadas por outra passagem, nao por mim.

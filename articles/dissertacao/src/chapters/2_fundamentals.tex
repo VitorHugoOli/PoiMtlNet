@@ -6,6 +6,7 @@
 % Bibliography: single global dissertation .bib. New keys are in fundamentals/_bib/new_references_ch2.bib;
 % all other keys are already in the project bibs (see COVERAGE_EVALUATION.md and _bib/BIB_NOTES.md).
 
+
 \chapter{Fundamentals}
 \label{ch:fundamentals}
 
@@ -20,6 +21,7 @@ drawing these together into the question the following chapters answer
 (Section~\ref{sec:fund:relevance}).
 
 % Section 2.1 -- POI-prediction tasks
+
 
 \section{Point-of-interest prediction tasks}
 \label{sec:fund:tasks}
@@ -121,6 +123,7 @@ co-equal ends, which is the setting the following sections build the tools for.
 % ---------------------------------------------------------------------------
 
 % Section 2.2 -- Representations for mobility (the chapter's spine)
+
 
 \section{Representations for mobility}
 \label{sec:fund:repr}
@@ -235,21 +238,21 @@ because it is what the fourth level costs. The hierarchy has three boundaries be
 adjacent levels, check-in to place, place to region, and region to city, and the total
 objective is a fixed-weight sum of one term per boundary,
 \begin{equation}\label{eq:fund:check2hgi}
-  \mathcal{L} = 0.4\,\mathcal{L}_{c2p} + 0.3\,\mathcal{L}_{p2r} + 0.3\,\mathcal{L}_{r2c},
+    \mathcal{L} = 0.4\,\mathcal{L}_{c2p} + 0.3\,\mathcal{L}_{p2r} + 0.3\,\mathcal{L}_{r2c},
 \end{equation}
 where $\mathcal{L}_{c2p}$ is the check-in-to-place term, $\mathcal{L}_{p2r}$ the
 place-to-region term, and $\mathcal{L}_{r2c}$ the region-to-city term. Each term is
 built from a bilinear discriminator that scores how compatible two embeddings are,
 \begin{equation}\label{eq:fund:check2hgi-disc}
-  \mathcal{D}(\mathbf{e}_1, \mathbf{e}_2) = \sigma(\mathbf{e}_1^{\top}\mathbf{W}\mathbf{e}_2),
+    \mathcal{D}(\mathbf{e}_1, \mathbf{e}_2) = \sigma(\mathbf{e}_1^{\top}\mathbf{W}\mathbf{e}_2),
 \end{equation}
 in which $\mathbf{e}_1$ and $\mathbf{e}_2$ are the two embeddings being compared,
 $\mathbf{W}$ is a learned weight matrix, and $\sigma$ is the logistic function, so the
 score lies between 0 and 1. A boundary's term then rewards a high score on a true pair
 and a low score on a false one,
 \begin{equation}\label{eq:fund:check2hgi-term}
-  \mathcal{L}_{*} = -\log \mathcal{D}(\mathbf{e}^{+}, \mathbf{e}^{+})
-                    - \log\left(1 - \mathcal{D}(\mathbf{e}^{+}, \mathbf{e}^{-})\right),
+    \mathcal{L}_{*} = -\log \mathcal{D}(\mathbf{e}^{+}, \mathbf{e}^{+})
+    - \log\left(1 - \mathcal{D}(\mathbf{e}^{+}, \mathbf{e}^{-})\right),
 \end{equation}
 where $\mathbf{e}^{+}$ denotes an embedding from a true pair, a check-in with the place
 it actually occurred at, and $\mathbf{e}^{-}$ an embedding substituted from elsewhere in
@@ -338,7 +341,8 @@ against each other at all.
 
 % ---------------------------------------------------------------------------
 % CITATION / NUMBER LEDGER -- 2.2 (the spine; DGI -> HGI -> check-in level explicit)
-%  mikolov2013word2vec   skip-gram distributed embeddings (one-hot -> dense) [new bib; ERRATA: CBIC church2017word2vec -> this]
+%  mikolov2013word2vec   skip-gram distributed embeddings (one-hot -> dense) [new bib; ERRATA: CBIC
+%  church2017word2vec -> this]
 %  perozzi2014deepwalk   DeepWalk: skip-gram on graph random walks [new bib]
 %  grover2016node2vec    node2vec: biased-walk neighborhood objective
 %  kipf2017gcn           GCN: localized spectral neighbor aggregation [new bib]
@@ -346,7 +350,8 @@ against each other at all.
 %  hamilton2017graphsage GraphSAGE: inductive aggregators [new bib]
 %  belghazi2018mine      MINE: MI estimable/maximizable by gradient descent [new bib]
 %  hjelm2019dim          Deep InfoMax: local-global MI representation [new bib]
-%  velickovic2019deep    DGI: node reps by local-patch/global-summary MI (base of lineage) [ERRATA: consolidate DGI triple-key]
+%  velickovic2019deep    DGI: node reps by local-patch/global-summary MI (base of lineage) [ERRATA: consolidate DGI
+%  triple-key]
 %  feng2017poi2vec       POI2Vec: geographical influence in POI embedding (early mobility place-embedding)
 %  huang2023hgi          HGI: MI across POI-region-city hierarchy (VERIFIED firsthand, PDF). Direct base.
 %                        REV-019 (2026-07-26): the "region-aware place embeddings" wording is CORRECT and was kept
@@ -379,6 +384,7 @@ against each other at all.
 % ---------------------------------------------------------------------------
 
 % Section 2.3 -- Multi-task learning
+
 
 \section{Multi-task learning}
 \label{sec:fund:mtl}
@@ -437,10 +443,11 @@ single optimum \cite{sener2018mgda}.
 A multi-objective problem needs a definition of optimum. Deep multi-task
 training minimizes a weighted sum of the task losses,
 \begin{equation}\label{eq:fund:mtl-total}
-  \mathcal{L}_{\mathrm{total}}(\boldsymbol{\theta}) = \sum_{k=1}^{K} w_k\,\mathcal{L}_k(\boldsymbol{\theta}),
+    \mathcal{L}_{\mathrm{total}}(\boldsymbol{\theta}) = \sum_{k=1}^{K} w_k\,\mathcal{L}_k(\boldsymbol{\theta}),
 \end{equation}
 over $K$ tasks at shared parameters $\boldsymbol{\theta}$. The balancing methods differ in how they
-set the weights $w_k$, or the update direction those weights imply. What the sum conceals is that its minimum need not be the
+set the weights $w_k$
+, or the update direction those weights imply. What the sum conceals is that its minimum need not be the
 right target. A single loss orders any two parameter settings; several losses do not, so
 the comparison available is weaker. One setting is said to dominate another when it is at
 least as good on every task loss and strictly better on at least one, a relation named
@@ -660,11 +667,15 @@ representation argument the next chapters develop \cite{silva2025mtlnet}.
 %  hazimeh2021dselectk    DSelect-k: differentiable sparse expert selection [new bib]
 %  PLE lineage FIX (domain F6): joint model adopts the structured-sharing PRINCIPLE (shared+task-specific),
 %                        realized with cross-attention, NOT a PLE/MoE descendant. Reworded, no "descends from".
-%  standley2020tasks      negative transfer / which tasks to learn together; joint can hurt (VERIFIED arXiv abstract; existing CBIC key).
+%  standley2020tasks      negative transfer / which tasks to learn together; joint can hurt (VERIFIED arXiv abstract;
+%  existing CBIC key).
 %                        FIX (both gates F2): negative transfer DEFINED here, folded onto standley -- Zhang2020 REMOVED
-%                        (Zhang2020 = iMTL next-POI recommender, NOT negative-transfer literature; reserved for mobility use if needed).
-%  sener2018mgda          MTL as multi-objective optimization; weighted sum valid only if no conflict (VERIFIED arXiv abstract; existing CBIC key)
-%  kendall2018uncertainty homoscedastic-uncertainty loss weighting [new bib; DOI 10.1109/CVPR.2018.00781 verified + arXiv:1705.07115]
+%                        (Zhang2020 = iMTL next-POI recommender, NOT negative-transfer literature; reserved for
+%mobility use if needed).
+%  sener2018mgda          MTL as multi-objective optimization; weighted sum valid only if no conflict (VERIFIED arXiv
+%  abstract; existing CBIC key)
+%  kendall2018uncertainty homoscedastic-uncertainty loss weighting [new bib; DOI 10.1109/CVPR.2018.00781 verified +
+%  arXiv:1705.07115]
 %  chen2018gradnorm       GradNorm: gradient-magnitude balancing
 %  liu2019dwa             DWA: loss-rate schedule weights
 %  yu2020pcgrad           PCGrad: gradient projection off conflict
@@ -675,21 +686,26 @@ representation argument the next chapters develop \cite{silva2025mtlnet}.
 %  lin2022rlw             RLW: random weighting is competitive [new bib]
 %  xin2022domtl           controlled study: MTL optimizers often do not outperform tuned fixed weights
 %  kurin2022scalarization Kurin et al. NeurIPS 2022 "In Defense of the Unitary Scalarization": plain loss-sum + std
-%                        regularization matches/improves specialized optimizers (VERIFIED firsthand arXiv 2201.04122 abstract
+%                        regularization matches/improves specialized optimizers (VERIFIED firsthand arXiv 2201.04122
+%abstract
 %                        + NeurIPS 2022 venue). Added per domain F4 (canonical scalarization-skeptic anchor). [new bib]
 %  vandenhende2022mtl     dense-prediction MTL survey (anchor)
 %  yu2024survey           recent comprehensive MTL survey (existing CBIC key)
 %  Liao2018               MCARNN: activity + next place (parallel MTL, mobility)
 %  huang2024cslsl         CSLSL: causal cascade time->activity->location (category intermediate)
-%  silva2025mtlnet        MTLnet null result: hard sharing on place embedding ~ single-task (TIME-INDEXED, "for that configuration")
+%  silva2025mtlnet        MTLnet null result: hard sharing on place embedding ~ single-task (TIME-INDEXED, "for that
+%  configuration")
 %  NUMBERS: none quoted. MTLnet null stated as configuration-specific
 %  ("does not outperform ... for that configuration"), no metric upgraded.
-%  HONESTY: banned "beat" REMOVED (domain/fact F7): all four instances -> "outperform"/reworded. Region-as-end-target claim
-%           SCOPED to the multi-task co-equal setting (domain/fact F3): single-task region prediction (zhu2022drrgnn, 2.1) exists.
+%  HONESTY: banned "beat" REMOVED (domain/fact F7): all four instances -> "outperform"/reworded. Region-as-end-target
+%  claim
+%           SCOPED to the multi-task co-equal setting (domain/fact F3): single-task region prediction (zhu2022drrgnn,
+%   2.1) exists.
 %           Null result written plainly and time-indexed; no result verb upgraded.
 % ---------------------------------------------------------------------------
 
 % Section 2.4 -- Datasets and evaluation
+
 
 \section{Datasets and evaluation}
 \label{sec:fund:eval}
@@ -761,7 +777,8 @@ are combined at all, it is to select a training checkpoint rather than to report
 result: Chapter~\ref{ch:mobiwac} reads its joint model at the epoch of the best joint
 validation score, the geometric mean of the two task metrics.
 % [COD-015d, round8, 2026-07-30] TWO METRIC PROMISES REMOVED, because no chapter reported either one.
-% Author decision, PENDENCIAS_RESOLVIDOS 5.5 (arquivado 2026-07-30): "Pode refazer por conta propria", on a choice he framed as delete the
+% Author decision, PENDENCIAS_RESOLVIDOS 5.5 (arquivado 2026-07-30): "Pode refazer por conta propria", on a choice he
+% framed as delete the
 % two promises (his recommendation, and mine) or run an analysis round to report them.
 % MEASURED FIRST, not assumed, and the sweep used check_audit_claims.live_text so that provenance
 % comments quoting these very terms are not counted as prose (AGENT_GUARDRAILS 4b V4). Command, runnable
@@ -900,16 +917,22 @@ test within the stated margin.
 % ---------------------------------------------------------------------------
 % CITATION / NUMBER LEDGER -- 2.4 (numbers quoted, not computed; conventions named)
 %  DATASETS FIX (fact F4): "two ... serve as the ground" = Gowalla + Massive-STEPS/Istanbul (the two USED).
-%                        Foursquare (yang2015tsmc) is named as CONTEXT ONLY, explicitly not evaluated on (was mis-counted as a 3rd "ground").
+%                        Foursquare (yang2015tsmc) is named as CONTEXT ONLY, explicitly not evaluated on (was
+%mis-counted as a 3rd "ground").
 %  cho2011gowalla        Gowalla origin, 5 US states used (KDD 2011)
 %  wongso2025massivesteps Massive-STEPS Istanbul benchmark; over-reliance on old datasets [preprint arXiv:2505.11239]
-%  yang2015tsmc          Foursquare NYC/Tokyo (TSMC2014), most-cited (815), covers both cities. CONTEXT ONLY (not used). [new bib]
+%  yang2015tsmc          Foursquare NYC/Tokyo (TSMC2014), most-cited (815), covers both cities. CONTEXT ONLY (not
+%  used). [new bib]
 %  sokolova2009measures  macro-F1 = mean of per-class F1 (VERIFIED PDF). Primary category metric. [new bib]
-%  maninis2019attentive  Delta_m = avg relative per-task change vs single-task (VERIFIED PDF, Sec.4 + Table 3). Sign convention defined in addendum. [new bib]
+%  maninis2019attentive  Delta_m = avg relative per-task change vs single-task (VERIFIED PDF, Sec.4 + Table 3). Sign
+%  convention defined in addendum. [new bib]
 %  gambs2012mmc          mobility Markov chain = non-learned floor (targets next PLACE) [new bib]
-%  song2010limits        93% = next-LOCATION predictability bound (VERIFIED firsthand PDF). FIX (both gates F5): NOT presented
-%                        as a ceiling on category macro-F1 or region Acc@10; the dedicated single-task model is the operative ceiling.
-%  kohavi1995crossval    stratified k-fold CV (VERIFIED by author). [new bib; Zenodo DOI 10.5281/zenodo.19712698 for a resolvable id]
+%  song2010limits        93% = next-LOCATION predictability bound (VERIFIED firsthand PDF). FIX (both gates F5): NOT
+%  presented
+%                        as a ceiling on category macro-F1 or region Acc@10; the dedicated single-task model is the
+%operative ceiling.
+%  kohavi1995crossval    stratified k-fold CV (VERIFIED by author). [new bib; Zenodo DOI 10.5281/zenodo.19712698 for
+%  a resolvable id]
 %  pedregosa2011sklearn  scikit-learn + StratifiedGroupKFold user-disjoint splitter.
 %                        SINGLE cite (author ruling); splitter behavior stated
 %                        defensively (v1.0/2021 addition). [new bib]
@@ -938,20 +961,24 @@ test within the stated margin.
 %           Next-Category CHECK-IN distribution, Food 34.2% per docs/context/TASKS.md; qualitative, NOT recomputed;
 %           fact F9: addendum provenance pointer to be corrected to the check-in table, not the 32.5% POI-count table);
 %           "10" in Acc@10 (metric definition); "two-point margin" (TOST convention, GLOSSARY).
-%  OOD FORESHADOW (domain F8): region metric foreshadowed as "unseen region counts as a miss"; full OOD-Acc@10 definition in Ch.5.
+%  OOD FORESHADOW (domain F8): region metric foreshadowed as "unseen region counts as a miss"; full OOD-Acc@10
+%  definition in Ch.5.
 %  Acc@10 and the majority-class floor: conventions with no origin DOI -- defined defensively, cited
 %           conventionally. MRR was in this line too and its definition is REMOVED from the chapter
 %           (COD-015d, round 8): no chapter reported it. See the COD-015d block below.
-%  pedregosa2011sklearn: StratifiedGroupKFold is a scikit-learn v1.0/2021 feature; single-cite ruling (author) -- 2011 paper for the
+%  pedregosa2011sklearn: StratifiedGroupKFold is a scikit-learn v1.0/2021 feature; single-cite ruling (author) --
+%  2011 paper for the
 %           library, splitter behavior stated defensively in prose.
 %           kohavi1995crossval: claim PLAUSIBLE (Zenodo re-deposit id), author to
 %           confirm original IJCAI-95 text.
 %  Delta_m ("relative multi-task performance change", maninis2019attentive) is REMOVED from the chapter
 %           (COD-015d, round 8): no chapter reported it either. See the COD-015d block below.
-%  four-of-six + two-point margin (referenced in 2.5): confirm against Ch.5 RESULTS_BOARD.md / PAPER_PLAN §3 at adaptation (fact NOTE 10).
+%  four-of-six + two-point margin (referenced in 2.5): confirm against Ch.5 RESULTS_BOARD.md / PAPER_PLAN §3 at
+%  adaptation (fact NOTE 10).
 % ---------------------------------------------------------------------------
 
 % Section 2.5 -- Relevance (synthesis; NO fresh citations; argument-only ledger at its end)
+
 
 \section{Relevance}
 \label{sec:fund:relevance}
@@ -1037,7 +1064,8 @@ these three questions in turn.
 %  Clause 3 -> Ch.5 (MobiWac, SUBMITTED/UNDER REVIEW): what does a check-in representation unlock?
 %  RESULT WORDING (bound to tests, from NORTH_STAR + GLOSSARY, NOT upgraded):
 %    FIX (fact F6): win verb now EXPLICITLY bound -- "by paired superiority tests, outperforms ... on the next category
-%    everywhere ... and on the next region at four of six datasets"; "matches ... by non-inferiority testing" at the other two.
+%    everywhere ... and on the next region at four of six datasets"; "matches ... by non-inferiority testing" at the
+%other two.
 %    AZ/AL pair never upgraded to a win. Forward-points to Ch.5 ("Chapter 5 reports these tests in full").
 %    FIX (fact F7): banned "beat" -> "do not outperform" (was "fail to beat" in the MTL synthesis sentence).
 %  four-of-six + two-point margin: confirm against Ch.5 RESULTS_BOARD.md / PAPER_PLAN §3 at adaptation (fact NOTE 10).

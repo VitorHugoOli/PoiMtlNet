@@ -163,7 +163,7 @@
 | One visit | check-in | event |
 | Our representation | **check-in-level representation (Check2HGI)** | "substrate" (repo word) |
 | Place-level baseline | place embedding (HGI) | "the baseline" alone |
-| One model, both tasks | the joint model / single multi-task model | bare "MTLnet" before it is introduced |
+| One model, both tasks | the joint model / single multitask model | bare "MTLnet" before it is introduced |
 | One task, one model | dedicated single-task model | "baseline" alone |
 | Repetition unit | **seed** = one complete repetition of the five-fold experiment with a different random initialization (define once, then "seed") | "run", "multi-seed run", bare "seed" in the abstract (say "random initialization") |
 

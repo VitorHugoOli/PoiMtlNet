@@ -3,7 +3,7 @@
 in on one reading.
 
 THE TWO DEFECTS IT ANSWERS, both found by the author reading Appendix F in the rendered PDF on
-2026-07-30 (PENDENCIAS 2.22 points 8, 9 and 12), and neither covered by any rule at the time.
+2026-07-30 (PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30) points 8, 9 and 12), and neither covered by any rule at the time.
 Measured before the rule was written: `grep -cin "british"` over WRITING_LAW.md and
 AGENT_GUARDRAILS.md returned 0 and 0. WRITING_LAW §1 said "American English throughout" and named
 no British form; nothing at all addressed the second complaint.
@@ -319,7 +319,7 @@ SHAPE_ABSTRACT_AGENT = (
 # RETIRED 2026-07-30, the same day they were added, and the mechanism is worth recording because it
 # is the only evidence that the self-retiring design works. Four entries held the author's own
 # instances open for the parallel Appendix F track:
-#     "needs saying plainly"                         (PENDENCIAS 2.22 point 8)
+#     "needs saying plainly"                         (PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30) point 8)
 #     "Two departures from that flat picture appear" (point 9)
 #     "Both point away from trouble in any case"     (point 12)
 #     "the decline stays inside the margin throughout while moving toward zero"  (point 12)
