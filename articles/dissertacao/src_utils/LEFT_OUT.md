@@ -312,6 +312,77 @@ and it would carry `[NEEDS SIGN-OFF: COD-018]`.
 
 ---
 
+## LO-12 · The unresolved tension in Chapter 4's description of its temporal input [!]
+
+**Finding.** Two sentences of the published CoUrb methodology cannot both be true as written, and the
+dissertation does not mention it.
+
+- `4_courb/methodology.tex:93` attaches the 192-dimensional concatenation, the temporal component included,
+  to a POI and pairs it with that POI's category. That requires one temporal vector per POI.
+- `4_courb/methodology.tex:153` says the temporal embedding "represents the timestamp of each check-in".
+  That is one vector per visit.
+
+The tension is **established**. Its **resolution is not**, and that is the whole reason this entry exists
+rather than an errata line. What the CoUrb-era code establishes, read on 2026-08-03 at
+`/Users/vitor/Desktop/mestrado/temp/tarik-new`:
+
+- The temporal encoder emits **one row per check-in**. `Time_Encoder.ipynb` cell 2 prints `N checkins
+  (antes de filtrar): 2535573` for California, cell 3 `(2535573, 2)` for its two features (`hour/24`,
+  `weekday/7`, both per check-in), and cell 13 `time_embeds_sin shape: (2535573, 64)`. These are stored
+  notebook outputs, not readings of intent.
+- The category-task input **dedups by place**: `time_emb[["placeid"] + num_cols_time].drop_duplicates(
+  "placeid")` at `PoiMtlNet_Novo/src/etl/create_inputs_hgi.py:437`, followed by inner joins on `placeid`
+  (`:441-443`) and the category attached per `placeid` (`:448`).
+- **But the two cannot be connected.** The ETL reads `time_embedding.parquet` (`:415`); the notebook writes
+  `time_embedding_novo.csv`. **Nothing in that repository writes the parquet**, no CSV-to-parquet conversion
+  exists under `src/etl/` or `pipelines/`, the file is not on disk, and that repository's own `CLAUDE.md:91`
+  describes this ETL reading a `.csv`, disagreeing with its own code. If the parquet is already POI-level,
+  the dedup is a harmless duplicate removal and there is no per-visit information loss at all.
+
+**A conditional measurement, and it is a conditional.** If the table were check-in level, the dedup would
+discard everything but one visit per POI. Measured from `data/checkins_by_state/` on 2026-08-03:
+
+| state | check-ins | distinct POIs | visits per POI |
+|---|--:|--:|--:|
+| Alabama | 113,846 | 11,848 | 9.61 |
+| Arizona | 236,450 | 20,666 | 11.44 |
+| Georgia | 402,581 | 29,667 | 13.57 |
+| Florida | 1,407,034 | 76,544 | 18.38 |
+| Texas | 4,089,892 | 160,938 | 25.41 |
+
+**This quantifies a hypothetical, not a fact.** It says how much would be dropped *if* the input were
+per-visit; it is not evidence that it was. The check-in counts cross-check against the figures the
+dissertation already reports for Alabama and Texas.
+
+**What the text says instead.** Chapter 2 describes Chapter 4's window position as carrying "a vector that
+is a function of the visited POI", with **no temporal qualification of any kind**. Two wordings are
+forbidden and stay forbidden: "of the visit's timestamp" and "aggregated" — the first because the level is
+unestablished, the second because a `drop_duplicates` selects rather than combines. Chapter 4 itself is a
+version of record and is unedited, and `apx_b_errata.tex` carries no line on this.
+
+**Why it is out.** Closing it needs one artifact nobody has: the CoUrb-era
+`data/output/{state}/time_embedding.parquet`, where `len(df)` against that state's POI and check-in counts
+would decide it in one command. The author does not have it ("eu nao tenho o `time_embedding.parquet`").
+Regenerating the embedding from the check-ins was considered and **deliberately not done**: it would measure
+today's code rather than the published run, producing a number shaped like an answer to a question about a
+different object.
+
+**One adjacent clue that does NOT decide it**, recorded so no later pass promotes it to proof:
+`apx_b_errata.tex:190-191` states, recovered from the released code, "that the sample unit of the category
+task is the place, so no place spans two folds". That confirms the category task samples one row per place,
+but it is **Article 1's errata** (that study uses the graph embedding, not the temporal encoder), and "one
+row per place at sampling time" is equally consistent with the dedup producing it and with the table
+arriving POI-level. It is the same ambiguity, not a resolution of it.
+
+**Where the full finding lives.** `_round12/50_courb_temporal_level_investigation.md`, which also carries the
+retraction of an earlier claim that this WAS resolved, and the `[VERIFY]` flag naming the closing artifact.
+The failure that produced that retraction is recorded in `_round9/34_tracker_disagreement.md`.
+
+**Decided by** the author, 2026-08-03: "Vamos de B, e matamos esse assunto, se quiser podemos documentar ele
+no left_out.md."
+
+---
+
 ## How to add an entry
 
 Copy the shape above: the finding, what the text says instead, why it is out, where the full finding

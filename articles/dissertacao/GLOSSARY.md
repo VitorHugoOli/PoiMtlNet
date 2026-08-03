@@ -133,13 +133,6 @@ are named once each in Ch.5's baseline list and the List of Abbreviations only i
 | check-in / visit | check-in / visita |
 | check-in-level representation | representação em nível de check-in |
 | place embedding | representação (embedding) em nível de POI |
-| place representation | representação em nível de POI |
-
-> **Scope of `place representation`** (registered 2026-08-03, at the author's instruction, to license the
-> heading "Check-in and place representation"). It is admitted for HEADINGS AND SECTION TITLES, where it
-> parallels `check-in-level representation`. In running prose the canonical name for the object stays
-> **`place embedding`**: §5's rule is one name per concept and no synonym-cycling, so the two must not
-> alternate in a paragraph about the same vector.
 | next-category prediction | previsão da próxima categoria |
 | next-region prediction | previsão da próxima região |
 | census tract | setor censitário |

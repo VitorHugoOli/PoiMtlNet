@@ -616,7 +616,13 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # he did NOT authorize. Pin the conditionality, not just the title.
     ("R12-ad4cond", "AD-4's title is recorded as CONDITIONAL, because the section inversion may remove "
                     "the need for the subsubsection at all",
-     "../fundamentals/DEFINITIONS.md", r"RESOLVED CONDITIONALLY 2026-08-03", True),
+     # PATTERN REPOINTED 2026-08-03: it was "RESOLVED CONDITIONALLY 2026-08-03", a string that vanished
+     # when he revoked `place representation` and the AD-4 row had to be rewritten. The CLAIM is
+     # unchanged -- AD-4 is conditional and its subsection must not be created -- so the probe is
+     # repointed rather than retired, and it now pins the two halves that matter: that the item is
+     # conditional, and that nothing is created either way.
+     "../fundamentals/DEFINITIONS.md",
+     r"AD-4 was always conditional.*?Nothing is created either way", True),
     # R12-planvoid: the eight-step edit plan assumes the representation definitions move UP into 2.1.
     # Under the inversion that assumption is void and the plan must be REDONE BEFORE any edit. Getting
     # this wrong means editing the chapter against a plan written for a different structure, which is
@@ -665,6 +671,23 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     ("R12-verify",  "and it carries the VERIFY flag naming the one artifact that would close AD-2",
      "_round12/50_courb_temporal_level_investigation.md",
      r"\[VERIFY: the granularity of time_embedding\.parquet", True),
+    # ---- His closing rulings of 2026-08-03. Two probes on the LEFT_OUT entry, because that entry is now the
+    # DURABLE home of a finding whose earlier version I had to retract, and the two ways it can rot are the
+    # two ways the retraction can be undone.
+    #
+    # R12-lo12cond: the visits-per-POI table in LO-12 quantifies a HYPOTHETICAL -- what the dedup would
+    # discard IF the input were per-visit. It is not evidence of granularity. A later reader finding real
+    # numbers in a register entry will be tempted to read them as the finding; the sentence that forbids that
+    # reading is the load-bearing part of the entry, not the table.
+    ("R12-lo12cond","LO-12 states that its visits-per-POI table quantifies a hypothetical rather than an "
+                    "established fact",
+     "LEFT_OUT.md", r"This quantifies a hypothetical, not a fact", True),
+    # R12-lo12clue: the CBIC errata line about the category task's sample unit is ADJACENT and NOT decisive
+    # (different study, different encoder, and consistent with both hypotheses). It is exactly the shape of
+    # the unverified link that produced the retraction, so the entry names it AND names why it does not
+    # settle anything. Losing that qualification would hand a later pass a ready-made false proof.
+    ("R12-lo12clue","and it records the adjacent CBIC errata clue as NOT deciding the question",
+     "LEFT_OUT.md", r"One adjacent clue that does NOT decide it", True),
     # R12-attrib: a commit-message attribution defect, recorded because the suite CANNOT detect this class
     # -- every gate here reads the working tree and none reads the commit log. Two of round 12's commits
     # describe diffs they do not contain, because `git add -A` in a backgrounded cell staged the tree at
@@ -696,13 +719,22 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
                     "source's notation",
      "../fundamentals/DEFINITIONS.md",
      r"departs from the source's notation deliberately", True),
-    # R12-placerep: `place representation` is registered at his instruction, but WRITING_LAW section 5 bans
-    # synonym-cycling and this row is a near-synonym of `place embedding`. Without the scope note the row
-    # licenses precisely the rotation the law forbids, so the note is the load-bearing half of the entry.
-    ("R12-placerep","the new place-representation registry row carries its scope note, so it cannot "
-                    "license synonym-cycling against WRITING_LAW section 5",
-     "../GLOSSARY.md",
-     r"Scope of `place representation`", True),
+    # R12-placerep WAS REMOVED, 2026-08-03, in the same commit that revoked the row it pinned. It required
+    # the scope note on the `place representation` registry row. The author then revoked the row itself
+    # ("vamos usar so place embedding para evitar conflitos e interpretacoes dubias"), so the note went with
+    # it and the probe would have gone red ON HIS DECISION. That is the R12-notwrong defect exactly: a gate
+    # enforcing a claim the author has since withdrawn fights the correction instead of protecting it.
+    # A REPLACEMENT WOULD BE WRONG TOO, and it is worth saying why rather than leaving a gap that looks like
+    # an oversight. The obvious candidate -- ban `place representation` from the tree -- fails on its own
+    # terms: this file, PENDENCIAS, and the round-12 records all discuss the term by name while recording the
+    # decision, so an absence probe would fire on the record OF the decision. The registry is already
+    # fail-closed by POLICY (WRITING_LAW section 5, GLOSSARY's own preamble): a term absent from the
+    # registry may not be used. Note precisely what that means mechanically, because I first wrote that
+    # a `check_glossary_terms` gate handles it and NO SUCH FILE EXISTS -- the checkers are the fourteen
+    # check_*.py in this directory and only this one and check_verify_list.py read GLOSSARY.md at all.
+    # So registry conformance is enforced by review and by targeted probes here, not by a term sweep,
+    # and the honest statement is that revoking this row leaves the term ungated rather than covered
+    # elsewhere. Nothing replaces it, and that is a known gap and not an oversight.
 )
 
 # COD-016b needs a STRUCTURAL probe, not a string one, so it lives here rather than in PROBES --

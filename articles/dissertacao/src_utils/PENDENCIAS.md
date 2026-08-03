@@ -1481,6 +1481,73 @@ vermelho quando eu corrigi o registro — um probe sobre uma conclusao retratada
 porque briga com a correcao. Substituido por probes sobre a **retratacao** (`R12-retract`, `R12-retract2`,
 `R12-verify`).
 
+### 6.22 Rodada 12 — AD-2 encerrada como `[VERIFY]`, e o `place representation` sai do registro
+
+**ITEM 1 — AD-2, OPCAO B: FICA EM `[VERIFY]` E O ASSUNTO ESTA ENCERRADO.** "Vamos de B, e matamos esse
+assunto... eu nao tenho o `time_embedding.parquet`." Registrado como **LO-12** no `LEFT_OUT.md`, e o Cap. 2
+segue na forma neutra ("a vector that is a function of the visited POI"), com "do timestamp da visita" e
+"agregado" ainda proibidas. A retratacao do §6.21 e o **estado final** desta decisao, nao uma pendencia.
+
+**E EU NAO RODEI A REGENERACAO, embora voce tenha autorizado** ("se quiser rodar para saber o resultado e
+documentar, pode"). A razao e exatamente o defeito que acabei de retratar: regenerar o embedding a partir dos
+check-ins mediria o **codigo de hoje**, nao a rodada publicada, e produziria um numero com cara de resposta
+para uma pergunta sobre outro objeto. Seria fabricar o mesmo tipo de evidencia que eu retirei, um passo mais
+adiante. Alem disso nada naquele repositorio escreve o parquet, entao nao existe pipeline para re-rodar: eu
+inventaria um e reportaria o comportamento dele como historia.
+
+**O que eu MEDI, e esta no LO-12 como condicional explicito:** quantas visitas por POI o dedup descartaria
+**se** a tabela fosse de nivel de check-in. Dos `checkins_by_state`: Alabama 113.846 check-ins / 11.848 POIs
+= 9,61x; Arizona 11,44x; Georgia 13,57x; Florida 18,38x; Texas 4.089.892 / 160.938 = 25,41x. **Isso
+quantifica uma hipotese, nao um fato** — e a entrada diz isso com essas palavras. As contagens de check-in
+conferem com as que a dissertacao ja publica para Alabama e Texas, o que serve de conferencia cruzada.
+
+**Uma nota de admissibilidade que vale registrar.** A regra do proprio `LEFT_OUT.md` (l. 9-13) exige que o
+achado esteja **estabelecido**, e a minha primeira formulacao ("o canal temporal e reduzido a uma visita por
+POI") **nao esta** — e a alegacao que retratei. Uma entrada assim importaria a alegacao retratada para o
+registro, que e o pior lugar possivel para ela. Entao o **assunto** da LO-12 e a **tensao nao resolvida**
+entre o `:93` e o `:153`, que **esta** estabelecida, e nao um passo de selecao. A distincao e o que faz a
+entrada passar a propria regra do arquivo.
+
+**Uma pista adjacente que NAO decide, registrada para ninguem promove-la a prova.** O
+`apx_b_errata.tex:190-191` diz, recuperado do codigo liberado, "that the sample unit of the category task is
+the place, so no place spans two folds". Conferido: e a errata do **Artigo 1** (CBIC), cujo estudo usa o
+embedding de grafo e nao o encoder temporal, e "uma linha por place na amostragem" e compativel **tanto** com
+o dedup produzindo isso **quanto** com a tabela ja vir POI-level. E a mesma ambiguidade, nao a resolucao
+dela.
+
+---
+
+**ITEM 2 — `place representation` SAI DO REGISTRO. SO `place embedding`.** "vamos usar so place embedding
+para evitar conflitos e interpretacoes dubias." Feito: a linha e a nota de escopo sairam do `GLOSSARY.md` §6,
+e a tabela PT voltou a ser contigua (a linha nova a partia em duas).
+
+**E o probe saiu no MESMO commit.** O `R12-placerep` pinava justamente aquela nota de escopo, entao ficaria
+vermelho **por uma decisao sua** — que e o defeito do `R12-notwrong`: um gate brigando com a correcao em vez
+de protege-la. Removido, com o motivo no lugar dele. **Nao pus substituto, e vale dizer por que:** banir o
+termo da arvore falharia sozinho, porque este arquivo, o `check_audit_claims.py` e os registros da rodada 12
+discutem o termo pelo nome ao registrar a decisao, e um probe de ausencia dispararia no **registro da
+decisao**. E ao escrever isso eu afirmei que existia um `check_glossary_terms` cuidando disso: **nao existe**.
+Os checkers sao os catorze `check_*.py` do `src_utils/`, e so este e o `check_verify_list.py` leem o
+`GLOSSARY`. Entao a verdade e que revogar a linha deixa o termo **sem gate**, e isso esta escrito no arquivo
+como lacuna conhecida em vez de coberta em outro lugar.
+
+**O TITULO DO AD-4 VOLTOU A FICAR ABERTO, e eu nao vou gastar uma decisao sua nele agora.** Voce deu
+"Check-in and place representation"; com o termo fora do registro, a segunda metade deixa de ser admissivel
+pela regra fail-closed. Mas o AD-4 e **condicional** de qualquer modo: se a inversao §2.1 <-> §2.2 avancar, a
+subsubsecao pode nao existir e o titulo fica irrelevante. Os candidatos, para quando forem necessarios, estao
+na linha do AD-4 no `DEFINITIONS.md` §10: (a) "Check-in and place embedding", as duas metades registradas mas
+nao a sua redacao; (b) "Place embedding and check-in-level representation", literalmente os titulos das duas
+definicoes, mas e a cabeca dupla que a rodada 11 separou de proposito. **Nada foi criado.**
+
+**ITEM 3 — a inversao espera voce.** O estudo do agente esta rodando com escrita limitada a
+`_round12/52_inversion_study.md`, apontado para o `fundamentals/` como voce pediu. Nao ha nada seu pendente
+nisso ate o relatorio existir.
+
+**CONTINUAM DEVIDAS, e voce nao as tratou nesta rodada:** as duas linhas do `GLOSSARY` §1.1 — a do $\rho$
+(que virou **necessaria** quando voce escolheu treze definicoes, porque o $\rho$ passou a ser objeto numerado
+do capitulo) e a nota de escopo do $d$ (o $d$ nao esta livre: $d_{ij}$ e distancia geodesica no Cap. 3 e
+$d_{\mathrm{shared}}$ e largura de tronco no Cap. 5). Estao no §6.20.
+
 ---
 
 ## §3 · Aberto e bloqueado em terceiros
