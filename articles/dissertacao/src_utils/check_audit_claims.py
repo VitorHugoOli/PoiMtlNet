@@ -417,6 +417,32 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
      "chapters/2_fundamentals.tex",
      r"HAMTL sets location\s+prediction as its main task and category prediction as an auxiliary task",
      True),
+    # ---- R10-pm: the postmortem's own causal account, which was FABRICATED on its first writing and is
+    # therefore the one claim in this repo with a demonstrated tendency to drift back toward plausibility.
+    # History: the round-10 harness reported working probes as failing. That much was diagnosed correctly.
+    # Then, asked what broke, I wrote three mechanisms -- an IFS=':' split on "a Portuguese sentence
+    # containing a colon", a helper that restored before reading stdout, and a stale module import -- and
+    # THREE OF THE FOUR CLAIMS WERE INVENTED. No leg carried Portuguese; no helper version restored early;
+    # every module load post-dated the edit. The real cause is ONE mechanism, isolated by reproduction:
+    # str.replace(old, new, 1) against a string occurring twice where the FIRST occurrence sits inside a
+    # % comment, which live_text() strips -- so the live text stays intact and the probe correctly holds.
+    # Verified for both affected legs: def:fund:conflict occurs twice in 2_fundamentals.tex, and
+    # \newtheorem{definition}{Definition}[chapter] occurs twice in preamble.tex (line 99 in a comment,
+    # line 117 live). The positive probe pins the single-mechanism finding; the inverted one bans the
+    # invented detail from being ASSERTED again. The ban is anchored so the RETRACTION may keep quoting
+    # it -- same construction as R9-clock2, for the same reason: a correction that cannot name what it
+    # corrects is not a correction.
+    ("R10-pm",     "the round-10 postmortem records ONE harness mechanism, isolated by reproduction, "
+                   "not the three it first invented",
+     "_round9/34_tracker_disagreement.md", r"There was \*\*ONE\*\* harness bug", True),
+    ("R10-pm2",    "the fabricated three-mechanism account is not ASSERTED anywhere (quoting it inside "
+                   "the retraction stays legal)",
+     "_round9/34_tracker_disagreement.md",
+     r"harness was broken, in three separate ways", False),
+    ("R10-pm3",    "the postmortem states the run's REAL leg counts rather than the three-of-six it "
+                   "first claimed",
+     "_round9/34_tracker_disagreement.md",
+     r"\*\*one\*\* `DID NOT FIRE`, \*\*two\*\* `mutation failed`", True),
 )
 
 # COD-016b needs a STRUCTURAL probe, not a string one, so it lives here rather than in PROBES --

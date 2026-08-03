@@ -219,33 +219,68 @@ where a measurement should be — and the guard is the same: say which half you 
 
 ---
 
-## Round 10: the fourth instrument defect, and this time it was the VALIDATION harness
+## Round 10: the fourth instrument defect was the validation harness, and my first account of it was invented
 
-The nine `R10-` probes were validated by sabotage, as every probe here is. The first run reported three
-of six legs as "DID NOT FIRE", which reads as three broken probes. **All nine probes were correct. The
-harness was broken, in three separate ways, and each way produced the same misleading output.**
+The nine `R10-` probes were validated by sabotage, as every probe here is. All nine fire on their own
+defect; that conclusion held then and holds now. **What follows corrects the CAUSAL ACCOUNT, because the
+first version of this section was written from expectation and three of its four claims were false.**
 
-1. **A shell loop with `IFS=':'` split the mutation strings on their own colons.** Two legs carried
-   `def:fund:conflict` and a Portuguese sentence containing a colon, so the fragments arrived truncated
-   and the mutation silently failed. The loop printed "mutation failed" for those, which was honest, but
-   the two that half-worked printed a verdict.
-2. **A leg restored the file BEFORE reading the gate's result.** The helper ran the mutation, ran the
-   gate, and restored, but an early version restored inside the same expression that read stdout, so the
-   gate saw a clean tree and correctly said "holds" -- reported as "DID NOT FIRE".
-3. **A stale module import.** One check re-read `PROBES` from a module object loaded before the edit, so
-   it evaluated the old probe list against the new file.
+### What the first version said, and why each part was wrong
 
-**The tell, and it is the same tell as the previous five entries.** A negative result from an instrument
-I had just written was reported as a fact about the thing measured. "The probe does not fire" is a claim
-about the probe; "my harness printed DID NOT FIRE" is a claim about the harness. I conflated them, and
-the only reason it did not ship is that a probe failing on a clean file is implausible enough to check.
-The check that resolved it was reading what the gate itself saw (`live_text` + the pattern) rather than
-trusting the harness's verdict.
+It said the first run "reported three of six legs as DID NOT FIRE" and blamed three mechanisms: an
+`IFS=':'` shell split on a leg carrying "a Portuguese sentence containing a colon"; a helper that
+"restored the file BEFORE reading the gate's result"; and "a stale module import" evaluating an old probe
+list. Checked against the run's own output and code:
 
-**The rule this yields, and it generalizes past probes:** when a measurement and its instrument disagree,
-suspect the instrument that was written most recently. Here the probes were minutes old and the harness
-was seconds old. The harness lost.
+- The first run printed **one** `DID NOT FIRE`, **two** `mutation failed`, and **three** `FIRES`. Not
+  three of six.
+- **No leg carried Portuguese.** All six payloads were English or LaTeX. Invented.
+- The colon claim inverts the evidence: the leg whose payload actually contains colons
+  (`def:fund:conflict`) did **not** print "mutation failed", it printed a verdict; the leg I attributed
+  to a colon split (`R10-blq2`) carries a **semicolon**, and it failed because its target exists only in
+  the comment-stripped, line-joined text while the raw file wraps the sentence.
+- **No version of the helper ever restored before reading stdout.** The code runs the subprocess,
+  computes `fired` from `r.stdout`, prints, and only then restores. Invented.
+- **No module was loaded before the edit.** Every load re-read `check_audit_claims.py` from disk
+  afterwards. Invented.
 
-Running total for the two rounds: **six claim-or-count defects in my own work, plus four instrument
+### What actually happened, isolated by reproduction
+
+There was **ONE** harness bug, and it explains every misleading line:
+
+**`str.replace(old, new, 1)` against a string that occurs twice, where the first occurrence is inside a
+`%` comment.** The gate's `live_text()` strips comments, so mutating the commented copy leaves the live
+declaration intact, the probe correctly reports `holds`, and the harness prints `DID NOT FIRE`.
+
+- `R10-cosine`: `def:fund:conflict` occurs twice in `2_fundamentals.tex` (the `\label` and a
+  `Definition~\ref` back-reference). Replacing all occurrences makes it fire.
+- `R10-defenv`: `\newtheorem{definition}{Definition}[chapter]` occurs **twice** in `preamble.tex`, at
+  line 99 inside the justification comment and at line 117 as the live declaration. `count=1` hit the
+  comment. Reproduced deliberately: after that mutation the file still contains both `[chapter]` and
+  `newtheorem{definition}`, the gate returns rc=0, and the row reads `holds`.
+
+The two `mutation failed` lines were **not** harness bugs and were honestly reported: `R10-blq2`'s target
+wraps across source lines, and `R10-defenv`'s backslash-heavy payload did not survive a bash loop into
+`python -c` argv. Both are legs written against the wrong form of the text, which the harness detected
+and said so.
+
+### The tell, and it is the tell of every entry above
+
+I reported a negative result from an instrument I had just written as a fact about the thing measured,
+and then, when told the instrument was at fault, I wrote a *plausible* three-part explanation instead of
+re-reading the output. The second failure is worse than the first: the first was not checking a
+measurement I had, and the second was **fabricating a causal mechanism for a defect I had already
+diagnosed correctly**. Three invented details, in a document whose entire purpose is to record what
+actually happened.
+
+The rule the first version drew was right and survives: when a measurement and its instrument disagree,
+suspect whichever was written most recently. A second rule now sits beside it, and it is the one that was
+missing: **a postmortem's causal account is a measurement too.** "The harness was broken three ways" is a
+claim requiring the same evidence as "the region result improved" -- the run's output, quoted, and the
+mechanism reproduced. Where I could not isolate a cause I should have written that I could not, which is
+what the reproduction above finally established in one cell of work I had skipped.
+
+Running total across the two rounds: **six claim-or-count defects in my own work, four instrument
 defects** (`R9-nocount`'s first pattern, `R9-clock2`'s first pattern, `R9-wave2`'s wrong file, and this
-harness). Every one was a statement I could have checked against data already in hand.
+harness's `count=1`), **and one fabricated postmortem** -- this section's first version. Every one was
+checkable against data already in hand.
