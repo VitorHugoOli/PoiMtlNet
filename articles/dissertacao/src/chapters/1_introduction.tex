@@ -130,10 +130,23 @@ visit. Acting on another of the first study's candidate explanations, it also re
 the shared hidden layers with cross-attention between task-specific streams, addressing
 the earlier concern about hard parameter sharing. Under a check-in level representation, static
 category classification is a less natural companion task than a second sequential target,
-so the final task pair becomes next category and next region. Across five United States
-states and Istanbul, the study compares the joint and dedicated models with paired superiority
-and non-inferiority tests. The results support a positive answer for this configuration;
-Chapter~\ref{ch:mobiwac} reports the task-specific outcomes.
+% [round10, PENDENCIAS §6 FAB-22, author's ruling: "nao precisamos tirar tudo, o ponto e o excesso de
+% informacao. Podemos comentar algo somente sobre o fato que os experimentos foram realizados em 5
+% estados dos estados unidos e um dataset non-U.S para metritos de generalizacao. Tambem, podemos
+% comentar que usamos metodos estatisticos para comprovar essa diferenca. Enfim a ideia e ser mais
+% direto. Nao remover tudo."]
+% MOST OF THIS RULING WAS ALREADY SATISFIED when I re-measured: the per-dataset counts and the
+% "four of six ... TOST" detail he objected to had already left this paragraph, and the sentence
+% already named the five states, Istanbul, and the two test families. ONE CLAUSE WAS MISSING, and it
+% is the half of his ruling that carries the argument: that Istanbul is there BECAUSE it is not a
+% United States dataset, which is what makes it evidence about generalization rather than a sixth
+% dataset. Naming the purpose is also what keeps the sentence honest without the numbers: the claim
+% it makes is about scope, and the scope is now stated.
+so the final task pair becomes next category and next region. The study evaluates five
+United States states and, to test whether the finding holds outside that setting,
+Istanbul as a non-United-States dataset, comparing the joint and dedicated models with
+paired superiority and non-inferiority tests. The results support a positive answer for
+this configuration; Chapter~\ref{ch:mobiwac} reports the task-specific outcomes.
 
 The task pair thus changes across the studies: the first two combine static category
 classification with next-category prediction, whereas the final study combines
