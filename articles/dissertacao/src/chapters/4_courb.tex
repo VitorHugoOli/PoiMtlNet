@@ -1,4 +1,37 @@
 % !TeX root = ../main.tex
+\chapter[ST-MTLNet: Spatio-Temporal POI Representations]{ST-MTLNet: Spatio-Temporal POI Representations for Multitask Learning}
+\label{ch:courb}
+
+\begin{chapterpreface}
+This chapter is a translated reproduction of the paper ``ST-MTLNet: Representações Espaço-Temporais de Pontos de Interesse para Aprendizado Multitarefa,'' published in Portuguese in the Anais do X Workshop de Computação Urbana (CoUrb 2026, an SBRC workshop), pages 323 to 336, DOI 10.5753/courb.2026.22960 \cite{paiva2026stmtlnet}. Tarik S. Paiva is the first author of the paper; the author of this dissertation is the second author, presented the paper at the workshop, and is the first author of the baseline model MTLnet, introduced in Chapter~\ref{ch:cbic}. The evaluation protocol of this study stratifies the cross-validation split by sample rather than by user, a weaker protocol than the user-disjoint cross-validation adopted in Chapter~\ref{ch:mobiwac}; the conclusions reported here are those of the time, for that configuration. This chapter isolates the representation effect with MTLnet as its only baseline; it does not revisit the MTL-versus-single-task question, which Chapter~\ref{ch:mobiwac} reopens. As in Chapter~\ref{ch:cbic}, the term ``Next-POI Prediction'' used here denotes the frame's \emph{next category} task (the category of the next visited place), not the exact-place task the dissertation calls \emph{next place}. Appendix~B of \extravolume\ records what we established after publication about the scope of this chapter's static task, and that record should be read alongside the category results reported here.
+% [round3, author 3.5/MJ-8] same terminology bridge as the Ch.3 preface.
+% [round6, author decision 2026-07-27, PENDENCIAS 2.4, was 2.2 before the 2026-07-29 renumber] The pointer to the static-task scope
+% section the author authorized for Appendix B. DELIBERATELY names the APPENDIX and not the
+% section's own label: if the author suppresses that section by commenting its \input in
+% apx_b_errata.tex, this sentence stays true. If you suppress the section, delete this
+% sentence too, or it points at an appendix that no longer discusses the topic.
+% [round7, 2026-07-29] Retargeted from \ref{apx:errata} to a literal "Appendix~B of
+% \extravolume" when Appendix B moved out of this document, which adds a second reason to avoid
+% a \ref of any kind: the label now lives in another document. \extravolume is defined in
+% preamble.tex; the frozen letter is guarded by src_utils/check_extra_xrefs.py. The trailing
+% "\ " after \extravolume is load-bearing -- without it TeX swallows the following space and
+% the sentence reads "dissertationrecords".
+% [NEEDS SIGN-OFF: raised round 6, 2026-07-28 | one added sentence in a PUBLISHED chapter's preface. The preface is FRAME
+% prose written for the dissertation, not translated article text, so it carries no errata
+% cost -- but it is a public pointer to a statement about a co-authored result, so the author
+% signs it. Co-author notice given (author, 2026-07-27); advisor conversation pending.]
+\end{chapterpreface}
+
+% SECTIONS, split into chapters/4_courb/ on 2026-07-28 at the author's request to match the
+% one-file-per-section layout of articles/CoUrb_2026/src_en/sections/. Purely mechanical: cut at
+% \section boundaries, no prose edited, and the order below IS the reading order.
+\input{chapters/4_courb/intro}
+\input{chapters/4_courb/related}
+\input{chapters/4_courb/methodology}
+\input{chapters/4_courb/results}
+\input{chapters/4_courb/conclusion}
+
+% !TeX root = ../main.tex
 %%==============================================================
 %% Chapter 4 -- Article 2 (CoUrb 2026 / SBRC). Re-typeset from the verified EN
 %% translation articles/CoUrb_2026/src_en/ (DOI 10.5753/courb.2026.22960).
@@ -35,34 +68,4 @@
 %% ERRATA: recorded as a wording departure in Appendix B, since this is published prose.
 %%==============================================================
 % Short one-line display + TOC heading (see Ch.3 note). Full published title is in the preface.
-\chapter[ST-MTLNet: Spatio-Temporal POI Representations]{ST-MTLNet: Spatio-Temporal POI Representations for Multi-Task Learning}
-\label{ch:courb}
-
-\begin{chapterpreface}
-This chapter is a translated reproduction of the paper ``ST-MTLNet: Representações Espaço-Temporais de Pontos de Interesse para Aprendizado Multitarefa,'' published in Portuguese in the Anais do X Workshop de Computação Urbana (CoUrb 2026, an SBRC workshop), pages 323 to 336, DOI 10.5753/courb.2026.22960 \cite{paiva2026stmtlnet}. Tarik S. Paiva is the first author of the paper; the author of this dissertation is the second author, presented the paper at the workshop, and is the first author of the baseline model MTLnet, introduced in Chapter~\ref{ch:cbic}. The evaluation protocol of this study stratifies the cross-validation split by sample rather than by user, a weaker protocol than the user-disjoint cross-validation adopted in Chapter~\ref{ch:mobiwac}; the conclusions reported here are those of the time, for that configuration. This chapter isolates the representation effect with MTLnet as its only baseline; it does not revisit the MTL-versus-single-task question, which Chapter~\ref{ch:mobiwac} reopens. As in Chapter~\ref{ch:cbic}, the term ``Next-POI Prediction'' used here denotes the frame's \emph{next category} task (the category of the next visited place), not the exact-place task the dissertation calls \emph{next place}. Appendix~B of \extravolume\ records what we established after publication about the scope of this chapter's static task, and that record should be read alongside the category results reported here.
-% [round3, author 3.5/MJ-8] same terminology bridge as the Ch.3 preface.
-% [round6, author decision 2026-07-27, PENDENCIAS 2.4, was 2.2 before the 2026-07-29 renumber] The pointer to the static-task scope
-% section the author authorized for Appendix B. DELIBERATELY names the APPENDIX and not the
-% section's own label: if the author suppresses that section by commenting its \input in
-% apx_b_errata.tex, this sentence stays true. If you suppress the section, delete this
-% sentence too, or it points at an appendix that no longer discusses the topic.
-% [round7, 2026-07-29] Retargeted from \ref{apx:errata} to a literal "Appendix~B of
-% \extravolume" when Appendix B moved out of this document, which adds a second reason to avoid
-% a \ref of any kind: the label now lives in another document. \extravolume is defined in
-% preamble.tex; the frozen letter is guarded by src_utils/check_extra_xrefs.py. The trailing
-% "\ " after \extravolume is load-bearing -- without it TeX swallows the following space and
-% the sentence reads "dissertationrecords".
-% [NEEDS SIGN-OFF: raised round 6, 2026-07-28 | one added sentence in a PUBLISHED chapter's preface. The preface is FRAME
-% prose written for the dissertation, not translated article text, so it carries no errata
-% cost -- but it is a public pointer to a statement about a co-authored result, so the author
-% signs it. Co-author notice given (author, 2026-07-27); advisor conversation pending.]
-\end{chapterpreface}
-
-% SECTIONS, split into chapters/4_courb/ on 2026-07-28 at the author's request to match the
-% one-file-per-section layout of articles/CoUrb_2026/src_en/sections/. Purely mechanical: cut at
-% \section boundaries, no prose edited, and the order below IS the reading order.
-\input{chapters/4_courb/intro}
-\input{chapters/4_courb/related}
-\input{chapters/4_courb/methodology}
-\input{chapters/4_courb/results}
-\input{chapters/4_courb/conclusion}
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]

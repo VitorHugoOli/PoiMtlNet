@@ -1,4 +1,5 @@
 % !TeX root = ../../main.tex
+% !TeX root = ../../main.tex
 % chapters/4_courb/methodology.tex -- one section of Chapter 4 (CoUrb 2026, published).
 % Split out of chapters/4_courb.tex on 2026-07-28 (author request: the paper
 % chapters were single long files, while the originals under articles/CoUrb_2026/src_en/sections/
@@ -22,7 +23,7 @@ The proposed methodology is illustrated in Figure~\ref{fig:courb:arquitetura}. T
     \label{fig:courb:arquitetura}
 \end{figure}
 
-MTLnet \cite{silva2025mtlnet} is a multi-task network built on hard parameter sharing \cite{caruana1997multitask}, which simultaneously processes the POI Category Classification and Next-POI Prediction tasks. The architecture uses task-specific encoders implemented as MLPs with LayerNorm and Dropout, which project the input embeddings into a shared latent space of dimension $d_{\mathrm{shared}} = 256$. Next, FiLM modulation (\textit{Feature-wise Linear Modulation}) \cite{perez2018film} is applied, conditioned by a task-identifier embedding $\mathbf{e}_{t}$, which generates scale $\gamma_{t}$ and shift $\beta_{t}$ parameters to modulate the encoded representations:
+MTLnet \cite{silva2025mtlnet} is a multitask network built on hard parameter sharing \cite{caruana1997multitask}, which simultaneously processes the POI Category Classification and Next-POI Prediction tasks. The architecture uses task-specific encoders implemented as MLPs with LayerNorm and Dropout, which project the input embeddings into a shared latent space of dimension $d_{\mathrm{shared}} = 256$. Next, FiLM modulation (\textit{Feature-wise Linear Modulation}) \cite{perez2018film} is applied, conditioned by a task-identifier embedding $\mathbf{e}_{t}$, which generates scale $\gamma_{t}$ and shift $\beta_{t}$ parameters to modulate the encoded representations:
 
 \begin{equation}
 \mathrm{FiLM}(\mathbf{h}_{\mathrm{enc}}^{(t)} \,|\, \mathbf{e}_{t}) = \gamma_{t} \odot \mathbf{h}_{\mathrm{enc}}^{(t)} + \beta_{t}
@@ -33,7 +34,7 @@ The modulated representations are processed by four shared residual blocks with 
 
 At the output, each task has a specialized head. The category classification module uses a set of three parallel MLPs with varying depths (2, 3, and 4 layers), whose outputs are concatenated and projected to the 7 POI classes. The next-POI head employs a \textit{Transformer encoder} with 8 attention heads and 4 layers, a causal mask for autoregressive processing, and attention-weighted pooling using attention weights learned over the timesteps of the input sequence.
 
-Multi-task training uses the Nash-MTL regularizer \cite{nash}, which formulates gradient balancing as a cooperative Nash bargaining game among $K$ tasks. Given the gradients of each task, Nash-MTL seeks the update direction that maximizes the product of the utilities of all tasks. Away from a Pareto-stationary point, meaning a point at which some convex combination of the task gradients is zero, and under the method's assumption that the gradients are linearly independent there, that direction is a descent direction for every task, avoiding the dominance of one task over the other.
+Multitask training uses the Nash-MTL regularizer \cite{nash}, which formulates gradient balancing as a cooperative Nash bargaining game among $K$ tasks. Given the gradients of each task, Nash-MTL seeks the update direction that maximizes the product of the utilities of all tasks. Away from a Pareto-stationary point, meaning a point at which some convex combination of the task gradients is zero, and under the method's assumption that the gradients are linearly independent there, that direction is a descent direction for every task, avoiding the dominance of one task over the other.
 % [round6, COD-005 sub-claim 4] CORRECTION of a published claim, listed in Appendix B
 % (tables/courb/errata.tex). The published clause read "which ensures that the update is beneficial
 % for all tasks simultaneously", which states the guarantee unconditionally. The method's guarantee is
@@ -96,7 +97,7 @@ For the \textit{Next-POI Prediction} task, the check-ins are ordered chronologic
 
 \subsection{Spatial Encoder}
 
-The original MTLnet model encodes spatial information implicitly through the topology of the Delaunay graph, without directly using geographic coordinates as an input signal. However, as discussed in Section~\ref{sec:courb:related}, continuous spatial encoders have shown effectiveness in various geospatial tasks \cite{wu2024torchspatial}, although their application in multi-task POI models remains little explored. This chapter selects two encoders that represent distinct spatial encoding paradigms: SIREN \cite{russwurm2024geographiclocationencodingspherical}, which models continuous functions through sinusoidal activations with controllable frequencies, and Sphere2Vec-M \cite{mai2023sphere2vecgeneralpurposelocationrepresentation}, which operates directly on spherical coordinates preserving geodesic distance properties. This diversity allows evaluating how different geometric and architectural assumptions impact performance on POI tasks.
+The original MTLnet model encodes spatial information implicitly through the topology of the Delaunay graph, without directly using geographic coordinates as an input signal. However, as discussed in Section~\ref{sec:courb:related}, continuous spatial encoders have shown effectiveness in various geospatial tasks \cite{wu2024torchspatial}, although their application in multitask POI models remains little explored. This chapter selects two encoders that represent distinct spatial encoding paradigms: SIREN \cite{russwurm2024geographiclocationencodingspherical}, which models continuous functions through sinusoidal activations with controllable frequencies, and Sphere2Vec-M \cite{mai2023sphere2vecgeneralpurposelocationrepresentation}, which operates directly on spherical coordinates preserving geodesic distance properties. This diversity allows evaluating how different geometric and architectural assumptions impact performance on POI tasks.
 
 All encoders produce $\mathbf{E}_{loc} \in \mathbb{R}^{64}$ and are
 trained with the same binary contrastive loss based on the geographic distance between pairs of coordinates:

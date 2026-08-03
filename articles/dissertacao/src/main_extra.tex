@@ -1,4 +1,5 @@
 % !TeX root = main_extra.tex
+% !TeX root = main_extra.tex
 % ============================================================================
 % main_extra.tex -- the SUPPLEMENTARY VOLUME. A separate document, not a fourth variant of the
 % dissertation: its own preamble, front matter, table of contents and bibliography. It does not
@@ -102,7 +103,7 @@
 \renewcommand{\ABNTEXsubsectionfont}{\rmfamily\bfseries}
 \renewcommand{\ABNTEXsubsubsectionfont}{\rmfamily\bfseries}
 
-\titulo{\normalsize{\textbf{Supplementary Material to the dissertation ``Multi-Task Learning for Point-of-Interest Classification and Prediction Tasks: The Role of the Check-in-Level Representation''}}}
+\titulo{\normalsize{\textbf{Supplementary Material to the dissertation ``Multitask Learning for Point-of-Interest Classification and Prediction Tasks: The Role of the Check-in-Level Representation''}}}
 \autor{\normalsize{\textbf{Vitor Hugo De Oliveira Silva}}}
 \local{\normalsize{\textbf{Florestal - Minas Gerais}}}
 \data{\normalsize{\textbf{2026}}}
@@ -189,6 +190,7 @@
 
     \textual
 
+
 % ---------------------------------------------------------------------------------------
 % THE OPENING STATEMENT. What this volume is, why it is separate, and that the dissertation
 % is complete without it. The third clause is the load-bearing one: a supplementary volume
@@ -199,11 +201,10 @@
 % is the author's to make. Written from the advisor's ruling of 2026-07-28 as relayed by the
 % author, and from NORTH_STAR §4's errata regime; no result or number is asserted here.]
 % ---------------------------------------------------------------------------------------
-\chapter*{About this volume}
-\addcontentsline{toc}{chapter}{About this volume}
-\hypertarget{ext:dissertation}{}
-
-This volume holds two appendices that were written for the dissertation named on the
+    \chapter*{About this volume}
+    \addcontentsline{toc}{chapter}{About this volume}
+    \hypertarget{ext:dissertation}{}
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
 % [round9c, 2026-08-02, R15-02] WAS a quoted title, ``From Representations to a Single Joint Model:
 % Multi-Task Learning for Point-of-Interest Category and Region Prediction'', which is NOT the title
 % of the dissertation. This file's own \titulo field, one hundred lines above, and the folha de rosto,
@@ -212,39 +213,47 @@ This volume holds two appendices that were written for the dissertation named on
 % holding both volumes met two titles for one work within three pages, on the page whose job is to say
 % what this volume belongs to. Naming the cover instead of quoting a string, so it cannot go stale a
 % second time -- the reviewer's own stronger proposal (_round9/48_readability_final.md, R15-02).
-cover of this volume and that are published beside it rather than inside it. The first
-records every departure of the three reproduced article chapters from their published or
-submitted originals. The second measures how much of the next category can be predicted from
-the category history of the input window alone, which is the % [round9c, 2026-08-02, R15-04 gate gap] relative pronoun written in, per WRITING_LAW §1. Three nouns
+
+    This volume holds two appendices that were % [round9c, 2026-08-02, R15-02] WAS a quoted title that is NOT the dissertation's title. This
+    % file's own \titulo field, and the folha de rosto and Resumo of the main document, all read
+    % "Multi-Task Learning for Point-of-Interest Classification and Prediction Tasks: The Role of
+    % the Check-in-Level Representation". A reader holding both volumes met two titles for one work
+    % within three pages, on the page whose job is to say what this volume belongs to. Naming the
+    % cover cannot go stale a second time.
+    written for the dissertation named on the
+    cover of this volume and that are published beside it rather than inside it. The first
+    records every departure of the three reproduced article chapters from their published or
+    submitted originals. The second measures how much of the next category can be predicted from
+    the category history of the input window alone, which is the reference level that one screening
+    argument in the dissertation is read against.
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
 % stacked before a reduced relative clause ending on a stranded preposition -- the hardest of the three
 % instances the reviewer found, and the pronoun is what tells the reader a clause is starting.
-reference level that one screening
-argument in the dissertation is read against.
 
-Both were part of the main document until July of 2026. They were moved here on the
-advisor's assessment that a reproduced chapter need not be an identical copy of the article
-it reproduces, and that the short preface opening each of those chapters already tells the
-reader what was changed and why. That assessment settles the question the errata appendix
-was written to answer, at least for the reader of the dissertation. It leaves the underlying
-record worth keeping, because a departure from a published text should be documented
-somewhere a reader can reach, and this volume is where it is documented.
+    Both were part of the main document until July of 2026. They were moved here on the
+    advisor's assessment that a reproduced chapter need not be an identical copy of the article
+    it reproduces, and that the short preface opening each of those chapters already tells the
+    reader what was changed and why. That assessment settles the question the errata appendix
+    was written to answer, at least for the reader of the dissertation. It leaves the underlying
+    record worth keeping, because a departure from a published text should be documented
+    somewhere a reader can reach, and this volume is where it is documented.
 
-\textbf{The dissertation is complete without this volume.} Nothing here is required to
-follow its argument, to read any of its results, or to judge the work: every claim the
-dissertation makes is stated and supported in the dissertation itself. What this volume adds
-is auditability. A reader comparing a reproduced chapter against the article it came from
-will find the differences enumerated here instead of having to reconstruct them, and a
-reader who wants the fuller treatment of the label-history benchmark will find it here
-rather than in the paragraph that summarizes it.
+    \textbf{The dissertation is complete without this volume.} Nothing here is required to
+    follow its argument, to read any of its results, or to judge the work: every claim the
+    dissertation makes is stated and supported in the dissertation itself. What this volume adds
+    is auditability. A reader comparing a reproduced chapter against the article it came from
+    will find the differences enumerated here instead of having to reconstruct them, and a
+    reader who wants the fuller treatment of the label-history benchmark will find it here
+    rather than in the paragraph that summarizes it.
 
-Two conventions follow from the split. The two appendices keep the letters they carried when
-they were part of the dissertation, B and D, so that the records and correspondence that name
-them by letter still point at the same material; the dissertation letters its own appendices
-independently, so an appendix letter should always be read together with the volume it belongs
-to. And a reference in
-these pages to a numbered chapter, section, table or figure is a reference into the
-dissertation, not into this volume: this volume numbers only its own two appendices and
-their tables.
+    Two conventions follow from the split. The two appendices keep the letters they carried when
+    they were part of the dissertation, B and D, so that the records and correspondence that name
+    them by letter still point at the same material; the dissertation letters its own appendices
+    independently, so an appendix letter should always be read together with the volume it belongs
+    to. And a reference in
+    these pages to a numbered chapter, section, table or figure is a reference into the
+    dissertation, not into this volume: this volume numbers only its own two appendices and
+    their tables.
 % [round9c, 2026-07-30] SENTENCE CORRECTED as a consequence of the author's rename decision
 % (PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30) point 0). The dissertation's appendices now print A, B, C, D in sequence, so
 % the old clauses "a reference to Appendix B means the same thing in both volumes" and "the

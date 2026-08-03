@@ -433,7 +433,32 @@ divergente e decisao de autor, nao faxina — nao toquei em nada.
 > A prosa do Apendice A **nao depende disto**: ela ja diz que os scripts estatisticos *"are part of
 > the working repository and are supplied on request"*, o que nenhuma das leituras acima torna falso.
 
-> **AUTHOR:** Vamso publicar as alterações na brnach do mobiwac.
+> **AUTHOR:** Vamso publicar as alterações na branch do mobiwac.
+
+**APLICADO — 2026-08-02.** Push feito em `origin/mobiwac`, commit `488e4d10` (pai `0288cb70`), rodado de dentro do
+worktree `.temp/mobiwac` (o clone `.tmp/mobiwac_pub_96069` do `45_author_rulings.md` nao existe mais; recomparei do
+zero).
+
+**Nao foi a copia byte a byte dos quatro arquivos locais — tres precisaram de adaptacao, um ficou de fora.**
+`m1_stats_n20.py` local tinha `REPO = Path(__file__).resolve().parents[5]`, correto so porque o arquivo mora 6 niveis
+abaixo da raiz no monorepo; colado sem alteracao nos 2 niveis do branch, o
+`REPO` sairia da arvore do repositorio e quebraria todo caminho do script — nao era so um problema de
+`docs/` vs `analysis_protocol/` na prosa, como o relatorio anterior descreveu, era o script inteiro.
+`region_match_tost.py`, chamado de "caso limpo" no relatorio anterior, tambem apontava para um caminho
+`docs/studies/...` inexistente no branch; corrigi para `analysis_protocol/STATISTICAL_PROTOCOL.md`.
+`m2_prereg_perfold.py` publicado **ja estava mais correto que o local** — indirecao `RESULTS_ROOT` + caminhos
+`analysis_protocol/` que o local tinha perdido, regredindo para caminhos `docs/...` que nao existem no branch — publicar
+o local ali teria piorado o script publicado, entao **fiquei fora dele**; nao e uma decisao pendente, e uma correcao ao
+plano.
+
+Os tres arquivos tocados (`m1_stats_n20.py`, `superiority_wilcoxon.py`, `region_match_tost.py`)
+receberam o conteudo que o proprio `DEVIATION_LOG.md` do branch (entrada D-4, ja publicada) cobrava como pendente — a
+rotulagem "post-hoc" das celulas de superioridade de regiao — com os caminhos adaptados ao layout do branch, nao colados
+do monorepo. `m1_stats_n20.py` tambem ganhou a secao M1-FULL (arms CA/TX em n=20 + a familia Holm de 6 datasets), que so
+existia na copia local.
+`py_compile` limpo nos tres antes do commit; nenhum dos scripts foi executado neste branch (os dados sob
+`docs/results/...` que `SWEEP`/`P1`/`TSV`/`SIDE` leem nao estao publicados aqui — isso ja era verdade antes da minha
+edicao, para os campos que ja existiam).
 
 ### 2.18 Um `refs/notes/commits` foi para o `origin` sem eu ter pedido, e a decisao de remover e sua
 
@@ -622,7 +647,8 @@ os 13 numa passagem.
 *Forense: [`_round9/44_register_law.md`](_round9/44_register_law.md) (a varredura com contagem por arquivo, as regras, e
 o transcrito de validacao do gate nos dois sentidos).*
 
-> **DECISAO SUA:** ______
+> **DECISAO SUA:** Vamos deixar do lado de fora seguindo a norma: ABNT (NBR 10520:2023). Cocuemnte isso no
+> WRITING_LAW.md.
 
 ### 2.25 O que sobrou da rodada 9c, e as duas coisas que dependem de voce
 
@@ -644,34 +670,61 @@ gate em vez de chegar na banca em silencio.
 **(C) O que eu preciso de voce.** Nada nas 25 aplicadas, a nao ser que discorde de alguma. Nas duas bloqueadas, uma
 decisao sua sobre quando rodar os comandos.
 
-> **DECISAO SUA:** ______
+> **DECISAO SUA:** Done!
 
 ### 2.26 A persona 15 rodou por ultimo, e o achado que vale mais que os quatro REQUIRED
 
-**(A) O que e.** Voce pediu a persona 15 no fim de tudo, com as instrucoes que voce mesmo reescreveu
-(`89b7eca1`). Ela leu **873 sentencas em 12 unidades** nos PDFs renderizados e devolveu 4 REQUIRED, 4
-RECOMMENDED e 2 OPTIONAL. Relatorio: `_round9/48_readability_final.md`.
+**(A) O que e.** Voce pediu a persona 15 no fim de tudo, com as instrucoes que voce mesmo reescreveu (`89b7eca1`). Ela
+leu **873 sentencas em 12 unidades** nos PDFs renderizados e devolveu 4 REQUIRED, 4 RECOMMENDED e 2 OPTIONAL. Relatorio:
+`_round9/48_readability_final.md`.
 
 **(B) O que foi aplicado, tudo conferido por mim antes.**
+
 - **R15-01 estava indo para a banca.** `Appendix ??` renderizava na p. 11 do volume suplementar: um
-  `\ref` para um rotulo que vive no volume PRINCIPAL. Referencia entre volumes nao resolve, porque os dois
-  documentos tem `.aux` separados por construcao. O log de build carregava o aviso e ninguem lia.
-- **R15-02:** o volume suplementar citava um titulo que nao e o titulo da dissertacao, a tres paginas da
-  propria capa, que traz o certo. Agora aponta para a capa em vez de repetir a string.
-- **R15-03:** `region head` era o ultimo do tipo (medido em toda a prosa viva: "region output" 7, "region
-  head" 1). Mais o pronome relativo escrito.
-- **R15-04:** a primeira frase com ideia do apendice empilhava duas oracoes reduzidas terminando em
-  preposicao solta. Nao estava entre os seus quinze pontos e nao mudou desde a versao que voce leu, que e
-  exatamente a classe que voce disse que passa pelas varreduras.
-- **R15-06, o seu proprio banimento:** "It now covers" datava o documento contra uma versao que o leitor
-  nunca viu. **R15-07:** o Abstract e o Resumo abriam com 24 palavras de protocolo antes do sujeito, na
-  pagina mais lida; resultado primeiro agora, nos dois, com todo numero preservado. **R15-08:** virgula
-  entre sujeito e verbo.
+  `\ref` para um rotulo que vive no volume PRINCIPAL. Referencia entre volumes nao resolve, porque os dois documentos
+  tem `.aux` separados por construcao. O log de build carregava o aviso e ninguem lia.
+- **R15-02:** o volume suplementar citava um titulo que nao e o titulo da dissertacao, a tres paginas da propria capa,
+  que traz o certo. Agora aponta para a capa em vez de repetir a string.
+- **R15-03:** `region head` era o ultimo do tipo (medido em toda a prosa viva: "region output" 7, "region head" 1). Mais
+  o pronome relativo escrito.
+- **R15-04:** a primeira frase com ideia do apendice empilhava duas oracoes reduzidas terminando em preposicao solta.
+  Nao estava entre os seus quinze pontos e nao mudou desde a versao que voce leu, que e exatamente a classe que voce
+  disse que passa pelas varreduras.
+- **R15-06, o seu proprio banimento:** "It now covers" datava o documento contra uma versao que o leitor nunca viu.
+  **R15-07:** o Abstract e o Resumo abriam com 24 palavras de protocolo antes do sujeito, na pagina mais lida; resultado
+  primeiro agora, nos dois, com todo numero preservado. **R15-08:** virgula entre sujeito e verbo.
 
-**(C) O que eu preciso de voce.** Nada. As duas OPTIONAL (R15-09, R15-10) ficaram sem aplicar e estao
-descritas no relatorio; se quiser, aplico.
+**(C) O que eu preciso de voce.** Nada. As duas OPTIONAL (R15-09, R15-10) ficaram sem aplicar e estao descritas no
+relatorio; se quiser, aplico.
 
-> **DECISAO SUA:** ______
+> **DECISAO SUA:** Aplique o R15-10 e o R15-09
+
+### 2.27 A arvore revisada do autor entrou no `src`, e o que ficou aberto nela
+
+**(A) O que e.** Em 2026-08-02 o autor entregou `src_clean`, lido e editado por ele. O merge esta em
+`src_utils/_round9/49_clean_tree_merge.md`. A prosa dele entrou byte a byte nos 54 arquivos; a camada
+de comentario do `src` (4.114 linhas, 275 blocos, 54 marcadores `[NEEDS SIGN-OFF]`) foi reancorada
+por cima. 228 dos 275 blocos reancoraram exatamente.
+
+**(B) O que fica aberto para voce.**
+
+1. **47 blocos marcados `[ORPHANED 2026-08-02]`.** Cada um anota uma frase que a sua revisao reescreveu
+   ou cortou. Nenhum foi apagado. A tabela completa esta no relatorio 49. Sao seus para manter,
+   reescrever ou deletar; um agente nao deve decidir isso.
+
+2. **54 marcadores `[NEEDS SIGN-OFF]` continuam abertos**, distribuidos em 21 arquivos, com 7 em
+   `2_fundamentals.tex`, 8 em `6_conclusion.tex` e 6 em `apx_a_contributions.tex`. Sao afirmacoes que
+   nenhum artigo publicado sustenta e que dependem da sua assinatura.
+
+3. **A grafia do termo central foi uniformizada em "multitask"**, como manda `GLOSSARY.md:130`. As 36
+   ocorrencias hifenizadas que restam sao TITULOS CITADOS no `references.bib` e nao podem ser
+   alteradas sem falsear as fontes.
+
+4. **`apx_g_hgi_tuning.tex` e um apendice novo seu**, que recebeu a varredura do peso do HGI que saiu
+   do capitulo 2. Renderiza na p. 106 da defesa. Ele nao esta no `main_extra`, so no volume principal.
+
+**(C) Status.** Builds 106/103/107/22 pp, zero erros, zero referencias indefinidas; 25 gates e o
+selftest em rc=0, lidos diretamente.
 
 ## §5 · Levantados do `CODEX_AUDIT.md` quando ele foi arquivado (2026-07-29)
 
@@ -1333,7 +1386,8 @@ nunca calcular. Nada os regenera quando um dataset muda.
    custa uma linha de ledger e um probe
 3. **Deixar como esta** — dois numeros no volume construido sem origem registrada
 
-> **DECISAO SUA:** ______
+> **DECISAO SUA:** Pode remover, e pare ser sincero e uma leitura rapida eu nem entendi o que esses numeros siginificam,
+> então fará até melhor para leitura.
 
 ### 6.11 Segunda onda de personas — um bloqueador confirmado, um rebaixado por mim
 
@@ -1365,7 +1419,7 @@ mesmo arquivo.
 3. **Deixar como esta** — um leitor da p. 97 e informado de um experimento que nao aconteceu; e do tipo que a banca
    pergunta
 
-> **DECISAO SUA:** ______
+> **DECISAO SUA:** Vamos de A.
 
 #### BLQ-5 — a persona de MTL abriu um bloqueador no PCGrad, e eu o REBAIXEI; a decisao final e sua
 
@@ -1394,7 +1448,7 @@ qual metade nao conferi.
 2. **Abrir a p. 5 do CAGrad e decidir com ela na mao** — o certo se voce tem acesso; e um paragrafo
 3. **Deixar como esta** — a frase e exata sobre a fonte que cita, e a persona nao a refutou
 
-> **DECISAO SUA:** ______
+> **DECISAO SUA:** Vamos de 1.
 
 #### Sem decisao sua, so registro: o que as duas personas de dominio confirmaram
 
@@ -1539,4 +1593,47 @@ como esta apresentado.
     start wiht the §2.3.2.2 that define the problem, from the problem we formal define it with the §2.3.2, then we
     discuss the current options of the literature witht the §2.3.3, then we closes with §2.3.2.1 and with the part B of
     the §2.3.2.2 where discuss about the chapter 5 finds and the appendix D. what do you think ?
-29. 
+29. Na frase: "Equivalently, the reported OOD-discounted Acc@10 is the in-distribution Acc@10 multiplied by one minus
+    the out-of-distributionfraction." eu não a entendi, sem contar que não estamos explicando o que é OOD.
+30. No §2.4 precisamos reorganizar a ordem das sub seções e melhora a escrita de algumas, entre a §2.4.1 e a §2.4.2,
+    temo que criar um nova chamada `preparation and data split` onde vamos pegar o que já temos no segundo paragrafo do
+    §2.4.3 e descorrer mais sobre como os dados estão sendo preparados é a metodologia de split e separação antes dos
+    dados entrarem no modelo. Enfim, seguimos para o `Metrics andreferencepoints` e o §2.4.3 vira
+    `Comparision and statistical decisions` onde descorremos sobre o problem de comprar diferetnes resultados e como
+    criamos uma métodologia estruturada para isso.
+31. No primeiro paragrafo do chap 6, é falado: "This dissertation examined whether multitask learning helps
+    next-category and next-region prediction and what determines the answer." Mas, esquecemos de falar sobre o
+    poi-classification.
+32. No paragrafo 2 do §6.2, onde temos: "so the gain does not come from the region task teaching the category task;"
+    Isso está bastante errado já analisamos isso e validamos que na verdade esse não e o big picture e que essas
+    analises, só comprovam que o loss não estava contribuindo para o ganho, mas a métodologia do cross-switch e outros
+    artefatos ainda continuam auxiliando no ganho. (Pesquise e se aprodunde sobre isso); Além disso avali se esse mesmo
+    erros está acontecendo em outras partes do texto.
+33. On the "Contributions by chapter", we should focus less on the results and numbers and show more the conecptual
+    contributions and finds, use numbers and results only if very necessary. We should reserve the results for the
+    `The consolidated answer`, where we should show the results not exensivally, but we an show it more here.
+34. Sobre as limitações, em §6.3 tenho alguns pensamentos sobre eles: - The data vintage is a problem, but we use the
+    Massive steps from 2025; - The `Transductiverepresentation` desirves a huge warn that this is a problem of several
+    apporachs in the literature; - The `The task-pair confound.` I am against it, the problem of isolates the previus
+    MTLnet wiht the check2hgi, is that the check2hgi is a checking embeeding so the poi-classification would recive a
+    data-leack.
+35. Sobre o future works tenho outros pontos que considero essenciais de serem detacados e discutidos: - Melhor
+    integração do check2hgi, hoje ele possui um arch que varias partes são acopladas como o Poi2vec, poderiamos tentar
+    fazer algo mais integrado; - O testar o uso de outras abordagens modernas de MTL, usando soft-sharing; - Testar com
+    mais categorias além de 7; - no check2hgi testar hypergraphs, assunto envolga no contexto the mobility; - Executar
+    para mais datasets não U.S; - Testar cascate no junto ao MTL; - O embedding já serve para tentar trainar para o
+    next-poi, as vezes podemos analisar alguma ou outra feature que podemos adicionar, mas do jeito que está hoje já
+    conseguimos usar, basta modificarmos a pipeline de inputs e criar uma cabeça para o next-poi e acopla-la no nosso
+    joint-model; (Eu vejo esse sendo o mais promissor de todos.)
+36. Eu gostaria de uma avalaição critaca da conclusão eu tenho a impressão que ela está em um bom caminho, mas ainda
+    falta algo para ela ficar melhor. Compare com o que os articles/dissertacao/exemples fazem nas dissertações deles.
+    Ainda sobre a conclusão meu maior problema está sendo com o `The consolidated answer` esse tem um conteudo bastante
+    interessante, mas parece se focar muito em numeros que já foram mostrados nos artigos, assim acho que aqui seria um
+    lugar para mostra os numero mais de forma geral ficando na narrativa da resposta final achada. Essa parte ela bem
+    importante, pq ela fecha o arco do artigo ela tem que ser prazerosa e facil de sere lida. O fluxo em alto nivel: ```
+    Question and thesis-> Chain of cause and effect (explain the chain of discovers that leaves to the resutls) ->
+    Show what we got wrong in your initial thesis ->
+    Connect to the real lesson and results through the lens of the discovers.
+    ```
+37. 
+    

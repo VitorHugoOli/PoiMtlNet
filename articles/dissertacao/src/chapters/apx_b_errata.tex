@@ -1,4 +1,5 @@
 % !TeX root = ../main.tex
+% !TeX root = ../main.tex
 % Appendix B -- Errata to the reproduced articles
 % Compiled 2026-07-23 from: articles/CBIC___MTL/ERRATA.md, articles/CoUrb_2026/ERRATA.md,
 % articles/[mobiwac]/ERRATA.md, the three chapter ADAPTATION_LEDGER.md files (same
@@ -151,10 +152,10 @@ belong to the article records rather than to the chapter bodies.
 Table~\ref{tab:apx:cbic-errata} lists the content corrections applied in the chapter
 text.
 
-\input{tables/cbic/errata}
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
 % [round5, author decision 1b.3] The Nash-MTL cost claim moved OUT of this section and INTO the
 % errata table above: one standard for factual errors, per the author. "Three elements" -> "Two".
-
+\input{tables/cbic/errata}
 
 Two elements of the published article were deliberately preserved rather than
 corrected. The sentence stating that Nash-MTL ``consistently yielded a better
@@ -221,7 +222,7 @@ any kind, so these words claimed more than the study established, and the replac
 state the same findings descriptively. Four further uses of the word were left in place.
 Two report claims of cited work, one states the study's own hypothesis, and one names a
 chosen target level. Two more remain that do read against this chapter's own results:
-one describes the multi-task model as incurring a significantly higher overhead in wall
+one describes the multitask model as incurring a significantly higher overhead in wall
 time, and one refers to the lack of significant improvement from that model. Both are
 left as published, because both understate rather than overstate what the chapter shows:
 they qualify results the chapter reports as negative, so removing the word would make the
@@ -234,7 +235,6 @@ with its hedge preserved. The final row records a footnote added to a definition
 a substitution. No edit in this table raises the strength of a claim.
 
 \input{tables/cbic/errata_wording}
-
 
 \section{Article 2 (Chapter~\ref{ch:courb}, CoUrb 2026)}
 \label{apx:errata:courb}
@@ -265,7 +265,6 @@ column is named for the reader rather than by its identifier in the source files
 
 \input{tables/courb/errata}
 
-
 One element was preserved rather than corrected: the published bolding of the Florida
 \emph{Outdoors} baseline cell in the sequential-task table is kept exactly as
 published; the technical-tie reading lives in the prose only.
@@ -276,6 +275,7 @@ of this dissertation write it \emph{MTLnet}. The reproduced text of
 Chapter~\ref{ch:courb} was normalized to the second form at all 28 places where the name
 appears in the printed chapter and its tables: 23 in prose, two in subsection headings,
 one in a figure caption, and two in table headings.
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
 % [round6, L-9, source-ledger pass] COUNT CORRECTED. This read "all 25 places ... 21 in prose, one
 % in a subsection heading, one in a figure caption, and two in table headings", a breakdown that sums
 % to 25 only by counting one subsection heading where there are two. Three records gave three
@@ -373,7 +373,7 @@ statements are inaccurate against that work: Chapter~\ref{ch:cbic} pairs static 
 classification with next-category prediction and contains no region task, and it
 hypothesizes negative transfer to explain a parity null rather than observing it. The
 two sentences (in the introduction and the related-work recap) were corrected to state
-that the earlier work found no consistent multi-task advantage for the paired category
+that the earlier work found no consistent multitask advantage for the paired category
 tasks, and that the present study is the one that introduces the region task. The
 correction removes an internal contradiction with the chapter's own novelty claim and
 does not alter any experimental result; it was applied both here and in the version of
@@ -397,13 +397,14 @@ article's own errata record rather than in this table. What remains here are the
 not be folded into a paper under review, because each depends on material the article has no
 room for: one cites the benchmark of Appendix~\ref{apx:ceiling}, one cites this
 chapter's own results table, and one cites the gradient-cosine appendix of the
+dissertation.
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
 % [round9c, 2026-08-02, R15-01] WAS \ref{apx:cosine}, which labels an appendix of the MAIN volume.
 % This file builds in the SUPPLEMENTARY volume, where that label does not exist, so the reference
 % rendered as "Appendix ??" on p. 11 of main_extra.pdf -- measured in the PDF, and the build log
 % carried the warning ("Reference `apx:cosine' on page 11 undefined") that nothing was reading.
 % A cross-volume \ref cannot resolve: the two documents have separate .aux files by construction.
 % Named in prose instead, which is what the reader needs and what survives the volume split.
-dissertation.
 % [round9c, PENDENCIAS 2.11 and 2.9, 2026-07-30] TWO COUNTS UPDATED, both measured rather than
 % incremented. The corrections applied identically in both texts went from two to three: the region
 % partition in the results subsection lead is the third, and the paper's ERRATA.md carries it under a
@@ -420,7 +421,6 @@ dissertation.
 % SCOPE and one changes a comparison BASIS, so they are not wording substitutions.
 
 \input{tables/mobiwac/errata_scope}
-
 
 \section{Two extractions of the same Gowalla corpus}
 \label{apx:errata:corpus}
@@ -518,4 +518,3 @@ consolidated to one entry each; key consolidation does not alter any reference's
 content and is not itemized.
 
 \input{tables/frame/bib_errata}
-

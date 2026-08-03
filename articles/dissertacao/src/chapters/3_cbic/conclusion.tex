@@ -1,4 +1,5 @@
 % !TeX root = ../../main.tex
+% !TeX root = ../../main.tex
 % chapters/3_cbic/conclusion.tex -- one section of Chapter 3 (CBIC 2025, published).
 % Split out of chapters/3_cbic.tex on 2026-07-28 (author request: the paper
 % chapters were single long files, while the originals under articles/CBIC___MTL/sections/
@@ -9,7 +10,7 @@
 \section{Conclusion and Future Work}
 \label{sec:cbic:conclusion}
 
-In this chapter, we introduced a Multi-Task Learning (MTL) framework employing hard parameter-sharing, task-specific encoders, and FiLM layers to jointly address POI Category Classification and Next-POI Prediction using DGI-based POI embeddings.
+In this chapter, we introduced a Multitask Learning (MTL) framework employing hard parameter-sharing, task-specific encoders, and FiLM layers to jointly address POI Category Classification and Next-POI Prediction using DGI-based POI embeddings.
 
 Essentially, the MTL approach did not consistently demonstrate superior performance over its single-task counterparts and exhibited higher computational demands in terms of convergence wall time. These findings indicate that the anticipated benefits of MTL are not universally guaranteed and are highly dependent on task compatibility and architectural design.
 
@@ -20,4 +21,4 @@ The lack of significant improvement from the MTL model prompts an analysis of th
     \item \textbf{Architectural Restrictiveness:} Our choice of a hard parameter-sharing architecture, while efficient and strongly regularizing, may have been too restrictive for the tasks. The distinct nature of the tasks might require more flexible computational pathways. A single shared block may be insufficient to learn a representation that benefits both, suggesting that soft-sharing or expert-based models could be more appropriate.
 \end{itemize}
 
-These insights contribute to the broader understanding of MTL's practical challenges. Future research will proceed along several directions motivated by these hypotheses. We plan to explore alternative parameter-sharing mechanisms, such as \textbf{soft sharing (e.g., Cross-Stitch Networks) or Mixture-of-Experts (MoE) models}, to test the hypothesis that the hard-sharing architecture was overly restrictive. In addition, investigating \textbf{advanced multi-task optimizers and loss-balancing schemes} beyond gradient conflict mitigation could address the task difficulty imbalance. Finally, a deeper analysis of \textbf{task relatedness}, perhaps using techniques to measure feature representation overlap, could help quantify the degree of negative transfer and guide future architectural choices.
+These insights contribute to the broader understanding of MTL's practical challenges. Future research will proceed along several directions motivated by these hypotheses. We plan to explore alternative parameter-sharing mechanisms, such as \textbf{soft sharing (e.g., Cross-Stitch Networks) or Mixture-of-Experts (MoE) models}, to test the hypothesis that the hard-sharing architecture was overly restrictive. In addition, investigating \textbf{advanced multitask optimizers and loss-balancing schemes} beyond gradient conflict mitigation could address the task difficulty imbalance. Finally, a deeper analysis of \textbf{task relatedness}, perhaps using techniques to measure feature representation overlap, could help quantify the degree of negative transfer and guide future architectural choices.

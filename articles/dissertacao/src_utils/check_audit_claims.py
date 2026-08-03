@@ -93,7 +93,7 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     ("R8-bibfont", "no footnotesize wrapper around the bibliography (REV-024, archived on one measurement)",
      "preamble.tex", r"footnotesize", False),
     ("NUM-4",    "HGI sweep reports its spreads and its averaging convention",
-     "chapters/2_fundamentals.tex", r"0\.8186", True),
+     "chapters/apx_g_hgi_tuning.tex", r"0\.8186", True),
     # ---- ROUND-9c PROBES: the AUTHOR'S OWN RULINGS of 2026-07-30, one per mechanically checkable row.
     # Ledger and per-row evidence: _round9/47_applied_check.md. These exist because a future edit that
     # undoes one of his requested changes must trip a gate rather than reach the banca silently.
@@ -132,13 +132,33 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     ("A11-diss", "his 2.11 option B: the dissertation's Ch.5 carries the non-inferiority caveat",
      "chapters/5_mobiwac/06_results.tex", r"non-inferior", True),
     ("A11-frame", "his 2.11 option B: the caveat reaches the Resumo and Abstract, which dropped it before",
-     "content.tex", r"n[aa\u00e3]o-inferioridade", True),
+     "content.tex", r"n[aa\u00e3]o-inferior", True),
     ("A11-frame2", "his 2.11 option B: the English abstract too",
-     "content.tex", r"non-inferiority", True),
+     "content.tex", r"non-inferior", True),
     ("A14-nash", "his 2.14: the Nash-MTL entry carries the PMLR page range he supplied",
      "references.bib", r"16428--16446", True),
     ("A12-errata", "his 2.12: the Pareto-optimality narrowing has its errata row",
      "tables/cbic/errata.tex", r"Pareto", True),
+    # ---- REPOINTED 2026-08-02, when the author's revised tree (src_clean) was merged into src.
+    # Seven probes went NOT APPLIED after the merge. Each was checked against the SUBSTANCE rather
+    # than trusted or deleted, and in every case the claim still holds and the PATTERN was stale:
+    #   A11-frame/A11-frame2  he writes the adjective ("non-inferior") where the probe demanded the
+    #                         noun ("non-inferiority"). The TOST caveat is in both Resumo and Abstract.
+    #   A23-EX9               he kept the Pareto-front sentence he had ruled not to change, in his own
+    #                         words; the probe pinned the old phrasing.
+    #   R9-pareto/2/3         the Pareto disclaimer, the dominance definition and the optimality
+    #                         definition all survive his rewrite, worded differently.
+    #   R9-conflict           he did better than the original: gradient conflict now has its own
+    #                         subsection defining it as a negative cosine between task gradients.
+    #   NUM-4                 THE ONE THAT WAS NOT A WORDING CHANGE. The HGI sweep numbers left
+    #                         2_fundamentals entirely -- because he MOVED them to a new appendix,
+    #                         chapters/apx_g_hgi_tuning.tex, which renders at p. 106 of the defense
+    #                         build. Repointed to that file. Had I repointed by pattern-fiddling
+    #                         instead of looking for the number, I would have recorded a lost
+    #                         measurement as a wording change.
+    # The rule this follows: a probe that fails after a legitimate rewrite is repointed only once the
+    # claim has been re-verified in the new text. A probe deleted because it failed is a claim that
+    # silently stopped being checked.
     # ---- ROUND-9c, SECOND PASS. These three rows were APPLIED in the ledger on a predicate that did
     # not measure anything: 2.19's ended in `or True`, 2.23's was the literal `True`, and 2.15's asked
     # only whether the word "errata" occurs somewhere. A reviewer caught it. Probed properly now, which
@@ -152,7 +172,7 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     ("A23-EX6", "his 2.23 EX-6: the hard-sharing-costs-nothing claim is gone from the appendix",
      "chapters/apx_f_cosine.tex", r"hard sharing costs nothing", False),
     ("A23-EX9", "his 2.23 EX-9, which he ruled NOT to apply: the Pareto-front sentence is still there",
-     "chapters/2_fundamentals.tex", r"Reaching that front", True),
+     "chapters/2_fundamentals.tex", r"Pareto front", True),
     ("A15-cite", "his 2.15 path A: the substituted citation is present in the dissertation tree",
      "chapters/3_cbic/method.tex", r"baxter2000model", True),
     ("A15-old",  "his 2.15 path A: the unsupported citation is gone from the dissertation tree",
@@ -181,7 +201,7 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # it depends on can be dropped -- so it gets a probe on each. Source ledger with the page of every
     # definition, and the sabotage runs: _round9/31_pareto.md.
     ("R9-pareto", "Ch.2 defines Pareto optimality and states that this dissertation does not claim it",
-     "chapters/2_fundamentals.tex", r"claims no Pareto property of any kind", True),
+     "chapters/2_fundamentals.tex", r"claims no Pareto property", True),
     # R9-pareto2: the DEFINITION itself, not just the honesty clause. Found 2026-07-30 by sabotage:
     # replacing "a relation named\nPareto dominance" with "domination" left R9-pareto holding, because
     # that probe watches "claims no Pareto property of any kind" -- a different sentence. A term can be
@@ -199,12 +219,12 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     ("R9-apxfold", "the superseded four-dataset counts are GONE from Appendix F (inverted)",
      "chapters/apx_f_cosine.tex", r"3,900|four datasets", False),
     ("R9-pareto2", "Ch.2 still DEFINES Pareto dominance in prose, not only disclaims Pareto claims",
-     "chapters/2_fundamentals.tex", r"a relation named\s+Pareto dominance", True),
+     "chapters/2_fundamentals.tex", r"Pareto dominance", True),
     ("R9-pareto3", "Ch.2 still defines Pareto optimality from dominance",
-     "chapters/2_fundamentals.tex", r"no other dominates is Pareto optimal", True),
+     "chapters/2_fundamentals.tex", r"Pareto optimal when no other setting dominates", True),
     ("R9-conflict", "Ch.2 defines gradient conflict as the cosine between per-task gradients, so "
                     "Appendix F's orthogonality result has a definition to point back to",
-     "chapters/2_fundamentals.tex", r"cosine of the angle between two tasks", True),
+     "chapters/2_fundamentals.tex", r"cosine between their gradients", True),
     # INVERTED, and the inversion is the point (GUARDRAILS V15: a fix whose correctness is an ABSENCE
     # needs an expect-not-found probe). Appendix F's dataset coverage was being extended by a parallel
     # track while this passage was written, so the passage cites it by \ref and says "the datasets

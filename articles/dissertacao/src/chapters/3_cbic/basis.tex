@@ -1,4 +1,5 @@
 % !TeX root = ../../main.tex
+% !TeX root = ../../main.tex
 % chapters/3_cbic/basis.tex -- one section of Chapter 3 (CBIC 2025, published).
 % Split out of chapters/3_cbic.tex on 2026-07-28 (author request: the paper
 % chapters were single long files, while the originals under articles/CBIC___MTL/sections/
@@ -19,13 +20,13 @@ Next-POI Prediction, in contrast, aims to predict which specific location a user
 % instantiation is the category variant (:53, :169, :182, :318). The footnote marks the scope
 % without altering the published wording. Declared in Appendix B, Table B.2.
 
-The prediction and classification of POIs are fundamental challenges in applications such as recommendation systems and urban planning. Xu et al.~\cite{Xu2023} propose the Tree-guided Multi-task Embedding (TME) model, which aims to improve the semantic annotation of POIs using a hierarchical structure of categories and mobility-based representation learning.
+The prediction and classification of POIs are fundamental challenges in applications such as recommendation systems and urban planning. Xu et al.~\cite{Xu2023} propose the Tree-guided Multitask Embedding (TME) model, which aims to improve the semantic annotation of POIs using a hierarchical structure of categories and mobility-based representation learning.
 
-POI Category Classification has been extensively addressed in location-based recommendation systems, with various techniques applied to capture patterns and improve prediction accuracy. In this context, Lim et al.~\cite{Lim2022} propose the Hierarchical Multi-Task Graph Recurrent Network (HMT-GRN), which uses multi-task learning to simultaneously predict the next POI and its geographic region.
+POI Category Classification has been extensively addressed in location-based recommendation systems, with various techniques applied to capture patterns and improve prediction accuracy. In this context, Lim et al.~\cite{Lim2022} propose the Hierarchical Multitask Graph Recurrent Network (HMT-GRN), which uses multitask learning to simultaneously predict the next POI and its geographic region.
 
-Although these approaches have made significant progress in the POI classification and next-location prediction fields, they tend to focus only on single-task objectives. None of the cited models propose a unified multi-task learning (MTL) framework that jointly optimizes both POI category classification and next-POI prediction tasks. This motivates the development of solutions that use shared representations across related POI tasks.
+Although these approaches have made significant progress in the POI classification and next-location prediction fields, they tend to focus only on single-task objectives. None of the cited models propose a unified multitask learning (MTL) framework that jointly optimizes both POI category classification and next-POI prediction tasks. This motivates the development of solutions that use shared representations across related POI tasks.
 
-\subsection{Multi-Task Learning}
+\subsection{Multitask Learning}
 \label{sec:cbic:mtl}
 
 MTL was formalized by Caruana \cite{caruana1997multitask} as an inductive transfer mechanism that enhances generalization by learning shared representations across related tasks. Early neural architectures employed \emph{hard parameter sharing}, where a common set of hidden layers is used for all tasks, yielding strong regularization and reduced training time.
@@ -72,12 +73,12 @@ Despite these successes, MTL still faces several key challenges:
 
 Recent work addresses these issues via task clustering \cite{standley2020tasks}, dynamic curricula, conflict-aware optimizers, and parameter-efficient adapters \cite{yu2024survey}. Nevertheless, principled criteria for task grouping, theoretical guarantees of Pareto efficiency, and energy-efficient training of very large MTL foundation models remain open research directions.
 
-\subsection{Multi-task learning applied in POI}
+\subsection{Multitask learning applied in POI}
 MTL has been explored in problems related to Points of Interest (POIs), primarily due to its ability to improve generalization by sharing information across correlated tasks. In POI modeling scenarios, such as user trajectory prediction and recommendation, MTL allows the learning of complementary objectives simultaneously, allowing for more accuracy.
 
 Early MTL-based approaches such as MCARNN~\cite{Liao2018} employ recurrent neural networks with temporal attention mechanisms to jointly predict user activities and future visited locations. Similarly, the iMTL framework~\cite{Zhang2020} uses an LSTM architecture to model next-activity prediction, incorporating temporal dynamics in user behavior modeling.
 
-More recent works have begun incorporating contextual and semantic signals. TLR-M~\cite{Halder2021}, for example, applies Transformer-based architectures to simultaneously predict the next POI and queue waiting time, demonstrating the value of attention-based models in capturing spatio-temporal dependencies. MTPR~\cite{Xia2020} combines LSTMs and adversarial learning to address uncertainty in check-ins and improve multi-task POI recommendation both location and temporal context with a generative component.
+More recent works have begun incorporating contextual and semantic signals. TLR-M~\cite{Halder2021}, for example, applies Transformer-based architectures to simultaneously predict the next POI and queue waiting time, demonstrating the value of attention-based models in capturing spatio-temporal dependencies. MTPR~\cite{Xia2020} combines LSTMs and adversarial learning to address uncertainty in check-ins and improve multitask POI recommendation both location and temporal context with a generative component.
 
 Despite these advances, existing MTL approaches often focus on joint modeling of next-POI prediction and temporal or behavioral signals, while the relationship between POI category classification and next-POI prediction remains underexplored. Some Models such as TME~\cite{Xu2023} address category annotation using graph-based encoders, but treat prediction and classification separately.
 

@@ -1,19 +1,9 @@
 % !TeX root = ../main.tex
-% ==================================================================
-% Chapter 3 -- Article 1 (CBIC 2025), re-typeset for the dissertation.
-% Source: articles/CBIC___MTL/ (published record; DOI 10.21528/CBIC2025-1191324).
-% Adaptation rules: NORTH_STAR §3-§4 + WRITING_LAW; every departure from the
-% published text is logged in ../../src_utils/adaptation_ledgers/3_cbic_ADAPTATION_LEDGER.md (feeds Appendix B).
-% Citation keys are kept AS-IS from the paper's references.bib (Phase-4 merge).
-% ==================================================================
-% Short one-line display + TOC heading (matches the frame chapters and the Germano
-% precedent, which titles article chapters by the model/paper name, not "Article N: <full
-% academic title>"). The full published title is stated verbatim in the preface below.
-\chapter[Multi-Task Learning for POI Category and Next-POI Prediction]{Multi-Task Learning for POI Category and Next-POI Prediction}
+\chapter[Multitask Learning for POI Category and Next-POI Prediction]{Multitask Learning for POI Category and Next-POI Prediction}
 \label{ch:cbic}
 
 \begin{chapterpreface}
-This chapter reproduces the article ``An Investigation into Multi-Task Learning for
+This chapter reproduces the article ``An Investigation into Multitask Learning for
 Point-of-Interest Category Classification and Next-POI Prediction'', published at the
 Congresso Brasileiro de Intelig\^encia Computacional (CBIC 2025), DOI
 10.21528/CBIC2025-1191324, with Vitor H. O. Silva as first author. The text was
@@ -21,7 +11,7 @@ reformatted from the two-column conference layout to the dissertation format;
 typographical and tabulation errata were corrected, and each correction is listed in
 Appendix~B of \extravolume. Its
 conclusions are the conclusions of the time, for the configuration studied here: with a
-place-level embedding and hard parameter sharing, multi-task learning did not
+place-level embedding and hard parameter sharing, multitask learning did not
 consistently improve on the dedicated single-task models. The two chapters that follow
 revise that verdict, and they change different things to do it.
 Chapter~\ref{ch:courb} keeps this architecture and replaces the input representation,
@@ -88,3 +78,16 @@ exact-POI task, which is not studied here.
 \input{chapters/3_cbic/method}
 \input{chapters/3_cbic/results}
 \input{chapters/3_cbic/conclusion}
+
+% !TeX root = ../main.tex
+% ==================================================================
+% Chapter 3 -- Article 1 (CBIC 2025), re-typeset for the dissertation.
+% Source: articles/CBIC___MTL/ (published record; DOI 10.21528/CBIC2025-1191324).
+% Adaptation rules: NORTH_STAR §3-§4 + WRITING_LAW; every departure from the
+% published text is logged in ../../src_utils/adaptation_ledgers/3_cbic_ADAPTATION_LEDGER.md (feeds Appendix B).
+% Citation keys are kept AS-IS from the paper's references.bib (Phase-4 merge).
+% ==================================================================
+% Short one-line display + TOC heading (matches the frame chapters and the Germano
+% precedent, which titles article chapters by the model/paper name, not "Article N: <full
+% academic title>"). The full published title is stated verbatim in the preface below.
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]

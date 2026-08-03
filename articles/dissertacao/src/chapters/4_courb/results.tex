@@ -1,4 +1,5 @@
 % !TeX root = ../../main.tex
+% !TeX root = ../../main.tex
 % chapters/4_courb/results.tex -- one section of Chapter 4 (CoUrb 2026, published).
 % Split out of chapters/4_courb.tex on 2026-07-28 (author request: the paper
 % chapters were single long files, while the originals under articles/CoUrb_2026/src_en/sections/
@@ -64,7 +65,6 @@ The experiments were conducted with the Gowalla dataset \cite{cho2011gowalla,jur
 
 \input{tables/courb/dataset}
 
-
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\textwidth]{figures/courb/distribuicao_estados.png}
@@ -93,7 +93,6 @@ In the three evaluated states, the two variants of ST-MTLNet outperform the orig
 
 \input{tables/courb/category}
 
-
 The improvements observed in \textit{Food} and \textit{Shopping} reinforce that the geographic location carries discriminative signals relevant to the semantic category of the POI. Figure \ref{fig:courb:distribuicao} shows that these categories tend to form dense clusters in the analyzed sub-regions, favoring the capture of spatial patterns by the continuous encoders. Although the two proposed variants present close performance, a complementary behavior is observed: SIREN obtains more outstanding results in Florida and California, while Sphere2Vec-M stands out more frequently in Texas. Together, these results show that the modular approach consistently outperforms the monolithic paradigm of DGI in this task.
 
 \subsection{Next-POI Prediction}
@@ -111,7 +110,6 @@ The results of the Next-POI Prediction task are presented in Table \ref{tab:cour
 Unlike classification, this task presents a more heterogeneous scenario, but still favorable to the proposed variants: counting the better of the two spatial encoders per combination, the spatio-temporal models outperform the original MTLnet in 15 of the 21 evaluated combinations, with one additional technical tie in \textit{Outdoors} in Florida, where the baseline mean exceeds the best variant by 0.02 percentage points, a gap within one standard deviation. The largest gains occur in \textit{Food}, a category in which both variants outperform the baseline in the three states. The best result is obtained by Sphere2Vec-M in Texas, with 48.67 $\pm$ 0.66, while in California the same model reaches 51.28 $\pm$ 0.57, outperforming DGI by a wide margin. Consistent improvements also appear in \textit{Shopping} and \textit{Community}, suggesting that the combination between continuous spatial information and temporal context favors the modeling of recurrent transitions between categories.
 
 \input{tables/courb/next}
-
 
 The co-location pattern shown in Figure \ref{fig:courb:distribuicao} helps to interpret this behavior, since the presence of dense clusters of categories such as \textit{Food} and \textit{Shopping} favors frequent local transitions along the user's trajectory. Even so, the baseline maintains an advantage in some cases, especially in \textit{Travel} in Florida and California, in addition to specific categories in California, such as \textit{Entertainment}, \textit{Nightlife}, and \textit{Outdoors}.
 

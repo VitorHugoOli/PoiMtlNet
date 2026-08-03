@@ -71,6 +71,15 @@ def suspects(path: str):
         _, prev = lines[i - 1]
         if not prev.rstrip().endswith(TERMINATORS):
             continue
+        # An ABBREVIATION ending a wrapped line is not a sentence end. Added 2026-08-02, when the
+        # author's revised Abstract wrapped after "including one non-U.S." and the next line opened
+        # with "dataset." -- correct prose, and the render confirms one continuous sentence on p. 3.
+        # The wrap is HIS, present in src_clean before any merge, so the gate would have fired on his
+        # tree alone. Matching the abbreviation rather than exempting the file: the next agent who
+        # wraps after "et al." or "Fig." should not have to rediscover this.
+        if re.search(r"\b(?:U\.S\.|U\.K\.|non-U\.S\.|et al\.|e\.g\.|i\.e\.|cf\.|vs\.|Fig\.|Eq\.|"
+                     r"Sec\.|Ch\.|No\.|approx\.|resp\.)$", prev.rstrip()):
+            continue
         # the previous line ends a sentence, so this line should open one
         if LEGIT_OPENER.match(cur):
             continue

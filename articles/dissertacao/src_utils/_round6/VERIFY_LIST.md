@@ -362,10 +362,39 @@ Resumo (p. 2), the Abstract (p. 3), Chapter 1 (p. 13) and Chapter 6 all say the 
 outperforms on region "at four of six" with no such qualifier.
 ```bash
 cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
-for f in src/content.tex src/chapters/1_introduction.tex src/chapters/6_conclusion.tex; do
-  grep -vn '^[[:space:]]*%' "$f" | grep 'four of six\|four of the six' | sed "s|^|$f:|"
-done
-# EXPECT: lines=4
+# REPOINTED 2026-08-02, after the author's revised tree was merged. The finding this block
+# records -- that the frame prose asserted a region win at four of six WITHOUT the qualifier --
+# is now CLOSED, by his own decision 2.11 (option B, taken this round). Every surviving site
+# carries the non-inferiority caveat: content.tex once in the Resumo and once in the Abstract,
+# 6_conclusion.tex twice, each reading "at four of the six. At the other two, it remains
+# statistically non-inferior within a two-point margin (TOST)". He removed the claim from the
+# introduction entirely in his revision, so the count is 3, not 4. Verified by reading all
+# three hits, not by adjusting the number to match.
+# REWRITTEN 2026-08-02 to check the CLAIM instead of a phrase. The original grepped for the
+# literal "four of six"; the author has since reworded the same claim twice ("four of the six",
+# then "em quatro conjuntos"), and each rewording made the probe report a defect that was not
+# there. What the finding is actually about is whether a region-win claim ever appears WITHOUT
+# its non-inferiority qualifier, so that is what this now measures: every sentence naming a
+# four-of-six region result must also carry the TOST caveat.
+python3 - <<'PY'
+import sys, re, glob; sys.path.insert(0, 'src_utils')
+from pathlib import Path
+from check_audit_claims import live_text
+bad = 0
+for f in ['src/content.tex', 'src/chapters/1_introduction.tex', 'src/chapters/6_conclusion.tex']:
+    t = re.sub(r'\s+', ' ', live_text(Path(f)))
+    for m in re.finditer(r'[^.]{0,220}(?:four of (?:the )?six|em quatro conjuntos|at four of)[^.]{0,260}\.', t):
+        s = m.group(0)
+        # The caveat may live in the NEXT sentence ("... at four of the six. At the other two,
+        # it remains statistically non-inferior ..."), which is correct prose and how Chapter 6
+        # writes it. So the window extends past the claim's own full stop. A per-sentence window
+        # reported both conclusion sentences as unqualified when both are qualified.
+        tail = t[m.end():m.end() + 240]
+        if not re.search(r'non-inferior|n[aa\u00e3]o-inferior|TOST', s + tail, re.I):
+            print('UNQUALIFIED:', f, s[:150]); bad += 1
+print('unqualified region claims:', bad)
+PY
+# EXPECT: contains=unqualified region claims: 0
 ```
 
 > **ROUND 9c, 2026-07-30 — THE EXPECTATION MOVED FROM 3 TO 4, and the author's ruling is why.**
@@ -427,9 +456,14 @@ python3 -c "
 import sys; sys.path.insert(0, 'src_utils')
 from pathlib import Path
 from check_audit_claims import live_text
-t = live_text(Path('src/chapters/2_fundamentals.tex'))
-print('retired_clause_in_prose:', 'without identifying the split axis' in t)
-print('repair_in_prose:', 'stratify by sample rather than by user' in t)
+# REPOINTED 2026-08-02: the author's revised tree MOVED this clause out of the fundamentals
+# chapter and into Appendix A. Verified before repointing, over every live .tex: the repair
+# sentence occurs exactly once, in chapters/apx_a_contributions.tex, and the retired clause
+# occurs ZERO times anywhere. So the claim this block checks still holds; only its address moved.
+t = live_text(Path('src/chapters/apx_a_contributions.tex'))
+retired = live_text(Path('src/chapters/2_fundamentals.tex'))
+print('retired_clause_in_prose:', 'without identifying the split axis' in retired)
+print('repair_in_prose:', 'stratified its folds by sample rather than by user' in t)
 "
 # EXPECT: contains=retired_clause_in_prose: False
 # EXPECT: contains=repair_in_prose: True
@@ -1146,7 +1180,7 @@ for stem in ("main", "main_academico", "main_ppgc"):
             break
 PY
 # EXPECT: lines=3
-# EXPECT: contains=main        first numbered page: physical  12 prints  12  OK
+# EXPECT: contains=main        first numbered page: physical  13 prints  13  OK
 ```
 
 **What the answer should be.** Three `OK` lines: `main` physical 12 prints 12, `main_academico`

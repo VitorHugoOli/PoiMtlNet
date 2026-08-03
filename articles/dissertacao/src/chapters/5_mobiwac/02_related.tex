@@ -1,4 +1,5 @@
 % !TeX root = ../../main.tex
+% !TeX root = ../../main.tex
 % chapters/5_mobiwac/02_related.tex -- one section of Chapter 5 (MobiWac 2026, submitted, under review).
 % Split out of chapters/5_mobiwac.tex on 2026-07-28 (author request: the paper
 % chapters were single long files, while the originals under articles/[mobiwac]/src/sections/
@@ -70,7 +71,7 @@ over a partition of the map is also the standard formulation in the human-mobili
 literature, with a grid cell as the target~\cite{luca2021mobilitysurvey}; our
 next-region task substitutes official neighborhood-scale units for grid cells. Our earlier
 work~\cite{silva2025mtlnet} paired static category classification with next-category prediction
-and found no consistent multi-task gain; this chapter introduces the next-region task and adds the check-in-level
+and found no consistent multitask gain; this chapter introduces the next-region task and adds the check-in-level
 representation, on which sharing helps instead of hurting (Section~\ref{sec:mobiwac:results-part2}).
 
 The field
@@ -87,7 +88,7 @@ than a fixed citywide partition; a generative recommender~\cite{sun2025kgtb}
 predicts category and region together, but only as auxiliary steps toward its
 next-place ranking.
 
-\subsection{Multi-task learning for mobility}
+\subsection{Multitask learning for mobility}
 \label{sec:mobiwac:related-mtl}
 MCARNN \cite{Liao2018} jointly predicts activity and
 location, and a recent hierarchy-aware model continues the
@@ -222,7 +223,6 @@ the final model across seven datasets and reaches the same conclusion.
 % what each one gives up. PCGrad 53.11 (-0.46) is kept by name at the
 % author's request so an MTL reviewer sees it was tried.
 % [NEEDS SIGN-OFF: raised round 5, 2026-07-27 | AUTHOR -- "nineteen", "+0.68" and "+0.19" are new numbers in the chapter.]
-
 
 \begin{figure}[htbp]
 \centering

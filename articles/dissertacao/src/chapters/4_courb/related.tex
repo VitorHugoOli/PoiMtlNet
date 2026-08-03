@@ -1,4 +1,5 @@
 % !TeX root = ../../main.tex
+% !TeX root = ../../main.tex
 % chapters/4_courb/related.tex -- one section of Chapter 4 (CoUrb 2026, published).
 % Split out of chapters/4_courb.tex on 2026-07-28 (author request: the paper
 % chapters were single long files, while the originals under articles/CoUrb_2026/src_en/sections/
@@ -9,7 +10,7 @@
 \section{Related Work}
 \label{sec:courb:related}
 
-POI prediction and classification are fundamental challenges in location-based recommendation systems and in urban mobility analysis. This section organizes the related work into four axes: graph-based representations, spatial encoders, temporal representations, and multi-task learning applied to POIs.
+POI prediction and classification are fundamental challenges in location-based recommendation systems and in urban mobility analysis. This section organizes the related work into four axes: graph-based representations, spatial encoders, temporal representations, and multitask learning applied to POIs.
 
 \subsection{Graph-Based POI Representations}
 
@@ -33,9 +34,9 @@ The temporal dimension is central to POI prediction tasks, since user visitation
 
 These models incorporate the temporal dimension mainly in the context of the user's visit sequence. In this sense, Time2Vec \cite{kazemi2019time2vec} proposes a temporal representation that combines linear terms with sinusoidal functions of learnable frequency and phase, capturing periodic and non-periodic patterns from continuous temporal values.
 
-\subsection{Multi-Task Learning for POI Tasks}
+\subsection{Multitask Learning for POI Tasks}
 
-Multi-task learning (MTL) \cite{caruana1997multitask} has been explored in POI tasks mainly to combine Next-POI Prediction with temporal, behavioral, or regional signals. MCARNN \cite{Liao2018} integrates sequential dependencies and temporal regularities to simultaneously predict future activities and places. MTPR \cite{Xia2020} jointly models location and temporal context through geographic LSTMs and adversarial learning. In a more recent line, Halder et al. \cite{Halder2022} propose a multi-task model based on \textit{Transformers} to recommend the next POI and simultaneously predict the waiting time.
+Multitask learning (MTL) \cite{caruana1997multitask} has been explored in POI tasks mainly to combine Next-POI Prediction with temporal, behavioral, or regional signals. MCARNN \cite{Liao2018} integrates sequential dependencies and temporal regularities to simultaneously predict future activities and places. MTPR \cite{Xia2020} jointly models location and temporal context through geographic LSTMs and adversarial learning. In a more recent line, Halder et al. \cite{Halder2022} propose a multitask model based on \textit{Transformers} to recommend the next POI and simultaneously predict the waiting time.
 
 In categorical classification, TME \cite{Xu2023} explores a hierarchical category structure for semantic annotation of POIs, while HMT-GRN \cite{Lim2022} combines Next-POI Prediction and prediction of its geographic region in a recurrent model with hierarchical graphs. Together, these works indicate that MTL is promising in POI problems, but there is still little exploration of architectures that jointly address \textit{POI Category Classification} and \textit{Next-POI Prediction} with continuous spatial and explicit temporal representations. This gap motivates the investigation proposed in this chapter.
 

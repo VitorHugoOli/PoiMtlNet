@@ -1,24 +1,4 @@
 % !TeX root = main.tex
-% ============================================================================
-% preamble.tex -- everything before \begin{document}: packages, class options, the ABNT/UFV
-% metadata fields, hyperref setup and the build switches' consumers.
-%
-% WHY THIS FILE EXISTS (author decision 2026-07-29). This and content.tex were one 580-line file
-% that was 44 percent preamble and 56 percent document, and two things depended on the boundary
-% between them: a reader had to know where it fell, and src_utils/mkformat.py found it by searching
-% for \begin{document} and hashing the bytes before it, so its staleness key carried a BYTE OFFSET
-% that moved on every preamble edit. Splitting makes both names true and keys the format dump to
-% this file's own checksum instead.
-%
-% WHAT BELONGS HERE: anything that must be read before \begin{document}. If you add a package or a
-% metadata field, it goes here and the format dump is invalidated automatically -- `make fast3` will
-% rebuild it. Anything that produces output belongs in content.tex.
-%
-% DO NOT put \begin{document} in this file. mkformat.py dumps everything here and stops; a
-% \begin{document} would be swallowed into the format and every later build would fail with
-% "Extra }, or forgotten \endgroup" or a silently empty document.
-% ============================================================================
-
 %% Skeleton derived from a prior UFV/PPGCC abnTeX2 dissertation tree (TEMPLATE.md §0
 %% decision), machinery kept, content stripped. What was changed rather than inherited:
 %% lmodern -> newtxtext/newtxmath (Times; manual §8); abntex2cite [alf] -> [num] (settled
@@ -50,17 +30,18 @@
 \PassOptionsToPackage{hyperfootnotes=false}{hyperref}
 
 \documentclass[
-    12pt,                    % manual §7: size 12
+    12pt,
     openright,
     oneside,
     a4paper,
     sumario=tradicional,
-    brazil,                    % PT available for Resumo and the folha de rosto boilerplate
-    english,                % last = main document language
+    brazil,
+    english,
 ]{abntex2}
-
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
 % -- Machinery (from the source tree, kept) --
-\usepackage{abntex2-UFV}        % UFV front matter + 3/2 cm margins (checked vs manual §7)
+
+\usepackage{abntex2-UFV}
 % Gate D-1 fix: abntex2-UFV runs \checkandfixthelayout under single spacing, leaving a
 % text block ~11pt taller than the 3cm/2cm margins dictate (bottom margin measured
 % 1.5-1.6 cm vs the 2 cm spec). Re-derive the block from the margins under the 1.5 line
@@ -96,14 +77,14 @@
 \checkandfixthelayout[fixed]
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage{newtxtext,newtxmath} % Times New Roman equivalent (manual §8); replaces lmodern
+\usepackage{newtxtext,newtxmath}
 \usepackage{indentfirst}
 \usepackage{graphicx}
 \usepackage{adjustbox}
 \usepackage{booktabs}
 \usepackage{multirow}
 \usepackage{multicol}
-\usepackage{amsmath} % amssymb/amsfonts dropped: newtxmath provides the AMS symbols (clash on \Bbbk)
+\usepackage{amsmath}
 \usepackage{mathtools}
 \usepackage{subcaption}
 \usepackage{caption}
@@ -178,7 +159,7 @@
 \newenvironment{chapterpreface}%
 {\begin{quotation}\itshape\noindent}%
 {\end{quotation}\vspace{0.5\baselineskip}}
-
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
 % ---------------------------------------------------------------
 % Cover / folha de rosto metadata
 % ---------------------------------------------------------------
@@ -203,7 +184,8 @@
 %      Model for Next Category and Region Prediction
 %   4. One Visit, One Vector: From a Published Null to a Joint Model for
 %      Next Category and Region Prediction
-\titulo{\normalsize{\textbf{Multi-Task Learning for Point-of-Interest Classification and Prediction Tasks: The Role of the Check-in-Level Representation}}}
+
+\titulo{\normalsize{\textbf{Multitask Learning for Point-of-Interest Classification and Prediction Tasks: The Role of the Check-in-Level Representation}}}
 \autor{\normalsize{\textbf{Vitor Hugo De Oliveira Silva}}}
 \local{\normalsize{\textbf{Florestal - Minas Gerais}}}
 \data{\normalsize{\textbf{2026}}}
@@ -252,3 +234,24 @@ degree of \textit{Magister Scientiae}.}
 }
 \makeatother
 
+% !TeX root = main.tex
+% ============================================================================
+% preamble.tex -- everything before \begin{document}: packages, class options, the ABNT/UFV
+% metadata fields, hyperref setup and the build switches' consumers.
+%
+% WHY THIS FILE EXISTS (author decision 2026-07-29). This and content.tex were one 580-line file
+% that was 44 percent preamble and 56 percent document, and two things depended on the boundary
+% between them: a reader had to know where it fell, and src_utils/mkformat.py found it by searching
+% for \begin{document} and hashing the bytes before it, so its staleness key carried a BYTE OFFSET
+% that moved on every preamble edit. Splitting makes both names true and keys the format dump to
+% this file's own checksum instead.
+%
+% WHAT BELONGS HERE: anything that must be read before \begin{document}. If you add a package or a
+% metadata field, it goes here and the format dump is invalidated automatically -- `make fast3` will
+% rebuild it. Anything that produces output belongs in content.tex.
+%
+% DO NOT put \begin{document} in this file. mkformat.py dumps everything here and stops; a
+% \begin{document} would be swallowed into the format and every later build would fail with
+% "Extra }, or forgotten \endgroup" or a silently empty document.
+% ============================================================================
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]

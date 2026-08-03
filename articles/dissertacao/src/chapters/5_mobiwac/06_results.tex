@@ -1,4 +1,5 @@
 % !TeX root = ../../main.tex
+% !TeX root = ../../main.tex
 % chapters/5_mobiwac/06_results.tex -- one section of Chapter 5 (MobiWac 2026, submitted, under review).
 % Split out of chapters/5_mobiwac.tex on 2026-07-28 (author request: the paper
 % chapters were single long files, while the originals under articles/[mobiwac]/src/sections/
@@ -40,8 +41,6 @@ feature injection.
 % AZ 1.0 / FL 0.3 / TX 0.6 / CA 0.4.
 \providecommand{\sd}[1]{\,{\scriptsize$\pm$#1}}
 \input{tables/mobiwac/representation}
-
-
 
 % [NEEDS SIGN-OFF: raised v1 assembly, 2026-07-23 | restored element. This figure was cut from the 8-page MobiWac build
 % (author decision 2026-07-09); its four numbers are fully stated in the prose above.
@@ -137,7 +136,6 @@ joint result by at most $0.06$ (category) and $0.11$ (region) points.
 \providecommand{\sd}[1]{\,{\scriptsize$\pm$#1}}
 \input{tables/mobiwac/results}
 
-
 Figure~\ref{fig:mobiwac:deltas} plots the signed gains ordered by region count. On
 category, the joint model outperforms the dedicated ceiling on
 every dataset, by $+5.33$ to $+9.35$ macro-F1 (smallest at Florida, largest at
@@ -154,7 +152,6 @@ Florida, Texas, California, and Istanbul, and stays a non-inferior match
 from $-0.41$ at the smallest count to $+2.20$ at the largest; region count and
 corpus size co-vary here, so we read the trend across the points rather than
 as a precise law.
-
 
 On category, all four
 seeds favor the joint model on every dataset, and each gain is significant
@@ -194,7 +191,7 @@ The $\pm2$-point band applies to region only.}
 \label{fig:mobiwac:deltas}
 \end{figure}
 
-A reader used to multi-task learning~\cite{caruana1997multitask} expects the
+A reader used to multitask learning~\cite{caruana1997multitask} expects the
 harder task, here next-region with its hundreds to several thousand classes, to teach the easier one; a control shows otherwise. We fix the region pathway at its initial values at the start of training so it can neither learn nor teach the category task, yet the full category gain survives at Alabama, Arizona, and
 Florida: the control reaches $63.50$, $63.67$, and $79.79$ macro-F1, above the
 single-task category score of the one fixed configuration

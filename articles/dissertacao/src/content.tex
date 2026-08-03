@@ -1,4 +1,5 @@
 % !TeX root = main.tex
+% !TeX root = main.tex
 % ============================================================================
 % content.tex -- the document body: front matter, the six chapters, the appendices, the
 % bibliography. Everything from \begin{document} onward.
@@ -14,7 +15,7 @@
 
 \begin{document}
     \frenchspacing
-    \OnehalfSpacing % manual §7: 1.5 line spacing for the body
+    \OnehalfSpacing %
 
 % PRE-TEXTUAL
     \pretextual
@@ -44,9 +45,9 @@
     \begin{resumo}[Resumo]
         \singlespacing
         SILVA, Vitor Hugo De Oliveira, M.Sc., Universidade Federal de Viçosa, agosto de 2026.
-        \textbf{Multi-Task Learning for Point-of-Interest Classification and Prediction Tasks: The Role of the Check-in-Level Representation}. Orientador: Fabrício Aguiar Silva.
+        \textbf{Multitask Learning for Point-of-Interest Classification and Prediction Tasks: The Role of the Check-in-Level Representation}. Orientador: Fabrício Aguiar Silva.
         \vspace{\onelineskip}
-
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
         % [NEEDS SIGN-OFF: Resumo CUT, round 6, 2026-07-28] The pair was cut on the author's
         % ruling that both blocks were too long. MEASURED on the rendered pages of the then
         % 105-page defense build, on one stated convention (catalog header and keyword block
@@ -67,36 +68,48 @@
         % survives here as the mechanism rather than the name, which 2_fundamentals.tex defines.
         % PT terms are GLOSSARY §6 entries only. "Modelos ajustados" for "fitted models" is still
         % NOT in §6: proposed, pending the author's approval before it counts as canonical.
-        \noindent Redes sociais baseadas em localização registram \emph{check-ins}: visitas
-        de um usuário a um ponto de interesse (POI). Duas propriedades da próxima visita
-        merecem ser antecipadas, sua categoria e sua região, mas não o ponto de interesse
-        exato; as duas tarefas leem o mesmo histórico, portanto um único modelo poderia
-        aprendê-las em conjunto por aprendizado multitarefa (MTL). Compartilhar parâmetros
-        pode prejudicar uma das tarefas, e se o treinamento conjunto ajuda esse par, e do que
-        isso depende, permanecia em aberto quando esta pesquisa começou. Três estudos
-        respondem a essa pergunta. O primeiro construiu o MTLnet, um modelo conjunto com uma
-        representação (\emph{embedding}) em nível de POI e compartilhamento rígido de
-        parâmetros; ele não superou consistentemente os modelos dedicados (tarefa única). O
-        segundo substituiu apenas a entrada, por codificadores espaciais, temporais e
-        categóricos decompostos; o desempenho de categoria subiu acentuadamente nos três
-        estados testados, indicando que, naquela configuração, o gargalo era a representação,
-        e não a arquitetura. O terceiro
-        moveu a representação para o nível do check-in, dando a cada visita seu próprio
-        vetor, e redesenhou a topologia de compartilhamento em torno de um tronco de atenção
-        cruzada. Os seis conjuntos de dados são cinco estados dos Estados Unidos, do Gowalla,
-        e Istambul, do Massive-STEPS. % [round9c, 2026-08-02, R15-07] MESMO CORTE do Abstract, para a auditoria de paridade de
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
         % afirmacoes (WRITING_LAW §6) continuar passando no par. Resultado primeiro, protocolo depois;
         % todo numero, ressalva e convencao preservados.
-        Sob validação cruzada com usuários disjuntos entre treino e teste,
-        esse modelo conjunto supera os modelos dedicados na previsão da próxima
-        categoria nos seis, por 5,3 a 9,4 pontos de macro-F1 sob uma seleção
-        \emph{joint-best}. O protocolo usa vinte modelos ajustados por configuração, quatro
-        inicializações aleatórias sobre cinco partições fixas, e testes pareados sobre as quatro
-        médias por inicialização. Na previsão da próxima região, supera em quatro deles e
-        equipara-se estatisticamente, com não-inferioridade dentro de uma margem de dois
-        pontos de Acc@10 (TOST), nos outros dois. A resposta é, portanto, condicional: se o
-        aprendizado multitarefa ajuda depende da representação de entrada e da topologia de
-        compartilhamento construída sobre ela.
+
+        \noindent Redes sociais baseadas em localização produzem registros de
+        \emph{check-in}, que associam um usuário, um ponto de interesse (POI) e um
+        instante. Esses registros permitem tanto classificar a categoria de um POI
+        quanto antecipar propriedades da próxima visita, como sua categoria e sua
+        região. Esta dissertação investiga se o aprendizado multitarefa (MTL) pode
+        combinar essas tarefas em um único modelo e de quais escolhas de projeto
+        depende o sucesso desse treinamento conjunto. Embora as tarefas compartilhem
+        dados e contexto, o compartilhamento de parâmetros também pode provocar
+        transferência negativa. A investigação foi desenvolvida em três estudos
+        sucessivos, organizados como um resultado negativo, seu diagnóstico e sua
+        resolução. O primeiro estudo propôs o MTLnet, que utilizava uma representação
+        em nível de POI e compartilhamento rígido de parâmetros para realizar
+        classificação de categoria e previsão da próxima categoria. Apesar dessa
+        estratégia de compartilhamento, o modelo conjunto não apresentou vantagem
+        consistente sobre modelos dedicados a cada tarefa. O
+        segundo estudo manteve a arquitetura do MTLnet e substituiu apenas sua entrada
+        por codificadores espaciais, temporais e categóricos decompostos. A melhora
+        acentuada do desempenho de categoria nos conjuntos avaliados indicou que,
+        naquela configuração, a representação de entrada era o principal fator
+        limitante. Com base nesse diagnóstico, o terceiro estudo atribuiu um vetor
+        próprio a cada \emph{check-in}, substituiu o compartilhamento rígido por uma
+        topologia baseada em atenção cruzada e reuniu duas tarefas sequenciais: a
+        previsão da próxima categoria e da próxima região. O modelo final foi avaliado
+        em seis conjuntos de dados de diferentes contextos geográficos, incluindo um
+        conjunto não estadunidense. O protocolo empregou validação cruzada com usuários
+        disjuntos entre treinamento e teste e testes estatísticos pareados. % [round9d, 2026-08-02] MESMAS TRES MUDANCAS do Abstract, para a auditoria de paridade de
+        % afirmacoes (WRITING_LAW §6) continuar passando no par: linguagem TOST no lugar de
+        % "comparaveis", MTL expandido no primeiro uso, e os numeros de volta sem "selecao
+        % joint-best", termo que o autor julgou nao explicado aqui.
+        Na previsão da próxima categoria, o modelo conjunto superou os modelos
+        dedicados nos seis conjuntos de dados, com diferenças de 5,3 a 9,4 pontos de
+        macro-F1. Na previsão da próxima região, superou-os em quatro conjuntos e foi
+        estatisticamente não-inferior dentro de uma margem de dois pontos de Acc@10
+        nos outros dois. Suas pontuações também foram maiores que as de todas as linhas
+        de base externas reportadas, nas duas tarefas e nos seis conjuntos. Os
+        resultados mostram que o MTL não constitui um
+        benefício automático: sua efetividade depende da representação de entrada e
+        da topologia de compartilhamento construída para as tarefas consideradas.
         % [round5, persona 17 MAJOR-2, still honored] "Proximo lugar visitado" is NOT used: it
         % collides with the RESERVED term "next place" (GLOSSARY §1) for the exact-POI task this
         % dissertation does not study. The exclusion is now stated positively in the second
@@ -138,9 +151,9 @@
         \begin{otherlanguage*}{english}
             \singlespacing
             SILVA, Vitor Hugo De Oliveira, M.Sc., Universidade Federal de Viçosa, August 2026.
-            \textbf{Multi-Task Learning for Point-of-Interest Classification and Prediction Tasks: The Role of the Check-in-Level Representation}. Advisor: Fabrício Aguiar Silva.
+            \textbf{Multitask Learning for Point-of-Interest Classification and Prediction Tasks: The Role of the Check-in-Level Representation}. Advisor: Fabrício Aguiar Silva.
             \vspace{\onelineskip}
-
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
             % [NEEDS SIGN-OFF: Abstract CUT, round 6, 2026-07-28] Cut as the claim-parity pair of the
             % Resumo above (WRITING_LAW §6): same claims, same numbers, same hedges, sentence for
             % sentence, and cut in the same pass so the two cannot drift. The measurement convention
@@ -151,35 +164,60 @@
             % AZ +9.40 the high end) as reported by 6_conclusion.tex; "four of them" = the four
             % $^{\uparrow}$ rows of tables/mobiwac/results.tex (Istanbul, FL, TX, CA) against the two
             % $^{\approx}$ rows (AL, AZ), which is the same count 6_conclusion.tex states.
-            \noindent Location-based social networks record \emph{check-ins}: visits by a user
-            to a point of interest (POI). Two properties of the next visit are worth
-            anticipating, its category and its region, though not the exact next place; both
-            tasks read the same trace, so one model could learn them together through multi-task
-            learning (MTL). Sharing parameters can hurt one of the tasks, so whether joint
-            training helps this pair, and what that depends on, was unresolved when this research
-            started. Three studies answer that question. The first built MTLnet, a joint model
-            with a place-level embedding and hard parameter sharing; it did not consistently
-            outperform its dedicated single-task counterparts. The second replaced only the
-            input, with decomposed spatial, temporal, and categorical encoders; category
-            performance rose sharply in the three states tested, indicating that in that
-            configuration the bottleneck was the representation, not the architecture. The
-            third moved the representation to the
-            check-in level, giving each visit its own vector, and redesigned the sharing topology
-            around a cross-attention trunk. The six datasets are five states of the United States
-            from Gowalla and Istanbul from Massive-STEPS. % [round9c, 2026-08-02, R15-07] SPLIT. Was one 46-token sentence holding 24 words of protocol
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
             % conditions ahead of its subject "that joint model" (measured: the subject sits at token
             % index 25). On the most-read page of the document, the reader carried four unattached
             % conditions before learning what the sentence was about. Result first, protocol second;
             % every number, hedge and convention preserved. The Resumo carries the same split so the
             % claim-parity audit still passes on the pair.
-            Under user-disjoint cross-validation, that joint model outperforms
-            the dedicated models on next category at all six, by 5.3 to 9.4 macro-F1 points under
-            a joint-best selection. The protocol uses twenty fitted models per configuration, four
-            random initializations over five fixed folds, and paired tests on the four
-            initialization means. On next region it outperforms at four of them and
-            statistically matches, with non-inferiority within a two-point Acc@10 margin (TOST),
-            at the other two. The answer is therefore conditional: whether multi-task learning
-            helps depends on the input representation and the sharing topology built on it.
+
+            \noindent Location-based social networks produce \emph{check-in} records
+            associating a user, a point of interest (POI), and a time. These records
+            support both the classification of a POI's category and the prediction of
+            properties of the next visit, such as its category and region. This
+            dissertation investigates whether multitask learning (MTL) can combine
+            these tasks in a single model and which design choices determine the
+            success of joint training. Although the tasks share data and context,
+            parameter sharing may also cause negative transfer. The investigation
+            comprises three successive studies organized as a negative result, its
+            diagnosis, and its resolution. The first study proposed MTLnet, which used
+            a POI-level representation and hard parameter sharing for category
+            classification and next-category prediction. Despite this sharing
+            strategy, the joint model did not consistently outperform models dedicated
+            to each task. The second study
+            retained the MTLnet architecture and replaced only its input with
+            decomposed spatial, temporal, and categorical encoders. The marked
+            improvement in category performance across the evaluated datasets
+            indicated that, in that configuration, the input representation was the
+            main limiting factor. Based on this diagnosis, the third study assigned a
+            distinct vector to each \emph{check-in}, replaced hard sharing with a
+            cross-attention-based topology, and paired two sequential tasks:
+            next-category and next-region prediction. The final model was evaluated on
+            six datasets from different geographic contexts, including one non-U.S.
+            dataset.
+            % [round9d, 2026-08-02, author decision on the merge of his clean tree] THREE changes to the
+            % sentence he revised, two of them required by rules he set. (1) "comparable" -> the TOST
+            % wording: non-inferiority is a TEST with a margin, "comparable" is an impression, and his
+            % own decision 2.11 this round was to promote that caveat everywhere rather than drop it.
+            % (2) MTL expanded at first use (GLOSSARY is fail-closed), without a second gloss here.
+            % (3) The numbers restored at his
+            % request, WITHOUT "joint-best selection" -- he judged that term unexplained here. Numbers
+            % quoted, not computed: 5.3 to 9.4 macro-F1 is the per-dataset category delta range stated
+            % in Chapter 6; four of six and the two-point Acc@10 TOST margin are Chapter 5's own words.
+            % The external-baseline clause is his addition and is supported at source: Chapter 5 states
+            % the joint model "is also above every external baseline reported, on both tasks, across all
+            % six datasets", naming HMT-GRN, STAN, a ReHDM reference, POI-RGNN and the Markov floor.
+            The protocol used user-disjoint cross-validation and paired statistical
+            tests. In next-category prediction, the joint model outperformed the
+            dedicated single-task models at all six datasets, with differences of 5.3
+            to 9.4 macro-F1 points. In next-region prediction, it outperformed them at
+            four datasets and was statistically non-inferior within a two-point Acc@10
+            margin at the other two. Its scores were also higher than those of every
+            reported external baseline on both tasks at all six datasets. The results
+            show that MTL does not
+            provide an automatic benefit: its effectiveness depends on the input
+            representation and the sharing topology designed for the tasks under
+            consideration.
             % [NEEDS SIGN-OFF: raised round 6, 2026-07-28 | author caveats 2.1/3-4-5, 2026-07-24, carried through the cut]
             % 3: the non-inferiority margin metric is named (Acc@10). 4: the joint-best convention
             % behind the 5.3-9.4 range is named. 5: "determines whether" stays "depends on", since the
@@ -195,7 +233,7 @@
             % for why the AcademicoPG one-per-line form rule does not govern this page.
             \begin{minipage}{\linewidth}
                 \textbf{Keywords}:
-                multi-task learning, point of interest, next-category prediction,
+                multitask learning, point of interest, next-category prediction,
                 next-region prediction, check-in-level representation
             \end{minipage}
         \end{otherlanguage*}
@@ -233,7 +271,7 @@
         \item[HGI] Hierarchical Graph Infomax
         \item[LBSN] Location-Based Social Network
         \item[MobiWac] ACM International Symposium on Mobility Management and Wireless Access
-        \item[MTL] Multi-Task Learning
+        \item[MTL] Multitask Learning
         \item[POI] Point of Interest
         \item[SBRC] Simp\'osio Brasileiro de Redes de Computadores e Sistemas Distribu\'idos
         \item[TOST] Two One-Sided Tests
@@ -330,6 +368,7 @@
 % (the sequential-lettering decision above). Chapter 5's body is not edited and does not point
 % at it; the cosine material already in that chapter stays where it is.
         \include{chapters/apx_f_cosine}
+        \include{chapters/apx_g_hgi_tuning}
     \end{apendicesenv}
 
 \end{document}

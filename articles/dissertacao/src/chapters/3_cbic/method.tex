@@ -1,4 +1,5 @@
 % !TeX root = ../../main.tex
+% !TeX root = ../../main.tex
 % chapters/3_cbic/method.tex -- one section of Chapter 3 (CBIC 2025, published).
 % Split out of chapters/3_cbic.tex on 2026-07-28 (author request: the paper
 % chapters were single long files, while the originals under articles/CBIC___MTL/sections/
@@ -69,10 +70,10 @@ This task predicts the category of the next POI a user will visit from their rec
 
 This format allows the model to infer the category of the next POI solely from the embeddings of the previous visits.
 
-\subsection{Multi-Task Learning Architecture}
+\subsection{Multitask Learning Architecture}
 \label{sec:cbic:mtlarch}
 
-Our proposed Multi-Task Learning (MTL) architecture, depicted in Figure~\ref{fig:cbic:arch}, is built upon a hard parameter-sharing scheme for the joint training of POI Category Classification and Next-POI Prediction. This design integrates Feature-wise Linear Modulation (FiLM) layers to condition the shared representations, a technique aimed at modulating task interactions and mitigating negative transfer \cite{perez2018film,standley2020tasks}.
+Our proposed Multitask Learning (MTL) architecture, depicted in Figure~\ref{fig:cbic:arch}, is built upon a hard parameter-sharing scheme for the joint training of POI Category Classification and Next-POI Prediction. This design integrates Feature-wise Linear Modulation (FiLM) layers to condition the shared representations, a technique aimed at modulating task interactions and mitigating negative transfer \cite{perez2018film,standley2020tasks}.
 
 \paragraph*{Architecture Overview}
 Input features for POI Category Classification ($\mathbf{x}^{(c)}$) and Next-POI Prediction ($\mathbf{x}^{(n)}$) are first processed by separate, task-specific encoders. These encoders, implemented as MLPs, map the raw input features into a shared latent space of dimension $d_{\mathrm{shared}}$.
@@ -217,7 +218,7 @@ This architecture strategically balances model capacity with knowledge transfer,
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\textwidth]{figures/cbic_mtlnet_arch.png}
-    \caption{The proposed Multi-Task Learning (MTL) architecture. Task-specific encoders process inputs for POI Category Classification and Next-POI Prediction. Feature-wise Linear Modulation (FiLM) layers adapt these features using learnable task embeddings. The modulated representations are then processed by a shared path of residual blocks. Finally, dedicated task-specific heads generate the respective outputs.}
+    \caption{The proposed Multitask Learning (MTL) architecture. Task-specific encoders process inputs for POI Category Classification and Next-POI Prediction. Feature-wise Linear Modulation (FiLM) layers adapt these features using learnable task embeddings. The modulated representations are then processed by a shared path of residual blocks. Finally, dedicated task-specific heads generate the respective outputs.}
     \label{fig:cbic:arch}
 \end{figure}
 
@@ -276,4 +277,4 @@ In our model (Figure~\ref{fig:cbic:arch}), we explicitly expose two disjoint par
 \]
 This partition enables independent learning-rate scheduling or regularization if domain shifts between tasks emerge during fine-tuning.
 
-The Nash-MTL optimizer was employed for its ability to aggregate tasks gradients in a balanced and principled manner, formulating the optimization process as a bargaining problem and aiming for joint progress across all tasks. In our evaluation, Nash-MTL was compared with different strategies, including PCGrad~\cite{yu2020pcgrad} and an approach with no optimizer. Among these, it was found that Nash-MTL consistently yielded a better overall performance of the MTL model, with a lower combined multi-task loss, which supported our decision to adopt it as our choice of optimizer.
+The Nash-MTL optimizer was employed for its ability to aggregate tasks gradients in a balanced and principled manner, formulating the optimization process as a bargaining problem and aiming for joint progress across all tasks. In our evaluation, Nash-MTL was compared with different strategies, including PCGrad~\cite{yu2020pcgrad} and an approach with no optimizer. Among these, it was found that Nash-MTL consistently yielded a better overall performance of the MTL model, with a lower combined multitask loss, which supported our decision to adopt it as our choice of optimizer.

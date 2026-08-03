@@ -1,4 +1,5 @@
 % !TeX root = ../main.tex
+% !TeX root = ../main.tex
 % Appendix A -- Other scientific contributions.
 % [2026-07-27] Section A.2 (the earlier unpublished BRACIS iteration) REMOVED on the author's
 % ruling; recorded in NORTH_STAR §4. The lone A.1 heading went with it, so the appendix is one
@@ -48,8 +49,8 @@ layer of comparable size, developed across roughly 1{,}700 commits. The platform
 provides implementations of three dataset families (Gowalla, Massive-STEPS, and
 Foursquare), eight point-of-interest and check-in embedding engines (including the
 place embedding of Deep Graph Infomax, its hierarchical variant, and the
-check-in-level Check2HGI of Chapter~\ref{ch:mobiwac}), twenty-one multi-task loss and
-gradient-balancing methods, and thirteen multi-task backbone architectures spanning
+check-in-level Check2HGI of Chapter~\ref{ch:mobiwac}), twenty-one multitask loss and
+gradient-balancing methods, and thirteen multitask backbone architectures spanning
 the hard-to-soft parameter-sharing spectrum.
 
 % [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-006, 2026-07-26] The former sentence ("The same codebase
@@ -154,7 +155,7 @@ and are supplied on request.
         partition seed of 42, grouping by user identifier and stratifying on the task
         label. Grouping by user is what makes the split user-disjoint: a user's
         check-ins fall on one side of every fold. The same routine builds the paired
-        multi-task folds, where both tasks share one user partition so that a user
+        multitask folds, where both tasks share one user partition so that a user
         cannot reach one task's training data and the other task's validation data in
         the same fold.
   \item[The seeds.] Four random initializations, 0, 1, 7, and 100, each repeating the

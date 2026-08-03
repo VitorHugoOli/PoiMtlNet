@@ -1,3 +1,12 @@
+# REPOINTED 2026-08-02, when the author's revised tree (src_clean) was merged into src.
+# All six of these went ABSENT after the merge. Each was checked in the RENDER before being
+# repointed, and in every case the advisor's request is still satisfied -- the author expressed
+# it in his own words rather than the exact string this file pinned. Examples: FAB-12 asked for
+# the generic plural, and his revision reads "check-in records associating a user, a point of
+# interest (POI), and a time"; FAB-16 asked that the next-place task be marked as out of scope,
+# and his reads "predicts the exact next place, so none of them is a direct baseline for the
+# targets studied in this dissertation". The OLD-string assertions are kept: they still prove the
+# superseded wording has not come back.
 #!/usr/bin/env python3
 """Wave A, verified in the RENDERED PDF -- both directions, every item, as a runnable check.
 
@@ -29,21 +38,21 @@ DEFAULT_PDF = Path(__file__).resolve().parent.parent.parent / "src" / "build" / 
 
 # (item, direction, needle, want_present, ascii_fold)
 CHECKS = [
-    ("FAB-11", "new EN", "multi-task learning, point of interest, next-category prediction", True, False),
+    ("FAB-11", "new", "multitask learning, point of interest, next-category prediction", True, False),
     ("FAB-11", "old EN", "multi-task learning point of interest next-category prediction", False, False),
     ("FAB-11", "new PT", "aprendizado multitarefa, ponto de interesse, previsao", True, True),
     ("FAB-11", "old PT", "aprendizado multitarefa ponto de interesse previsao", False, True),
-    ("FAB-12", "new", "records that users visited a given place", True, False),
+    ("FAB-12", "new", "check-in records associating a user, a point of interest", True, False),
     ("FAB-12", "old", "records that a given user visited a given place", False, False),
-    ("FAB-13", "new", "prediction tasks that are the object of study of this dissertation", True, False),
+    ("FAB-13", "new", "next category and next region are predicted", True, False),
     ("FAB-13", "old", "The two properties above are the two prediction tasks of this dissertation", False, False),
-    ("FAB-16", "new", "different problem, not addressed in this dissertation", True, False),
+    ("FAB-16", "new", "predicts the exact next place, so none of them is a direct baseline", True, False),
     ("FAB-16", "old", "different problem; this dissertation does not address it", False, False),
     ("FAB-19", "new", "Research question", True, False),
     ("FAB-19", "old", "Research question and the arc of this dissertation", False, False),
-    ("FAB-23", "new", "Chapter 2 consolidates the background", True, False),
+    ("FAB-23", "new", "Chapter 2 formally defines the three tasks", True, False),
     ("FAB-23", "old", "Chapter 2, Fundamentals,", False, False),
-    ("FAB-24", "new", "Chapter 6 consolidates the answer to the research", True, False),
+    ("FAB-24", "new", "Chapter 6 answers the research question across the three studies", True, False),
     ("FAB-24", "old", "Chapter 6, Conclusion,", False, False),
 ]
 

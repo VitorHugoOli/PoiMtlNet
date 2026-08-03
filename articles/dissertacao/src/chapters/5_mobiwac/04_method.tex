@@ -1,4 +1,5 @@
 % !TeX root = ../../main.tex
+% !TeX root = ../../main.tex
 % chapters/5_mobiwac/04_method.tex -- one section of Chapter 5 (MobiWac 2026, submitted, under review).
 % Split out of chapters/5_mobiwac.tex on 2026-07-28 (author request: the paper
 % chapters were single long files, while the originals under articles/[mobiwac]/src/sections/
@@ -21,7 +22,7 @@ on the same data. The training
 uses no task label: it
 never sees the next category or the next region. From the trained graph, we extract one 64-dimensional vector per check-in (its region nodes have trained vectors as well), so a model sees a sequence of per-visit vectors rather than repeated per-place ones.
 
-\subsection{The single multi-task model}
+\subsection{The single multitask model}
 \label{sec:mobiwac:method-model}
 
 We then train one model that reads a window of recent per-visit vectors and predicts the next visit's category and region at once. Figure~\ref{fig:mobiwac:model} shows the design. Each task has its own input. The category task reads the window of per-visit vectors (the semantic stream); the region task reads the same window of visits, each visit now represented by the trained vector of its region node from the same graph (the spatial stream). Both pass through private
@@ -45,7 +46,6 @@ Alabama against 1.1 million for the two dedicated models combined (5.2 against
 than arithmetic: one artifact to train, version, and deploy, and one forward
 pass whose one set of inputs produces both answers at once.
 
-
 \begin{figure}[htbp]
 \centering
 % [round6, 2026-07-28] COD-017 in-figure text size, same defect and same remedy as the data-flow
@@ -54,7 +54,7 @@ pass whose one set of inputs produces both answers at once.
 % was printed at 62 percent of the available width. Scaled to the text block, the labels reach
 % body size. The figure content is unchanged.
 \includegraphics[width=\textwidth]{figures/mobiwac/fig2_model.pdf}
-\caption{The single multi-task model. A check-in (semantic) window and a region (spatial) window
+\caption{The single multitask model. A check-in (semantic) window and a region (spatial) window
 pass through private encoders into the shared trunk, the only place where the two tasks
 interact. The category output uses the trunk's output alone; the region output
 combines it with a private spatial path. One model, one forward pass, two predictions.}
