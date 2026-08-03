@@ -51,11 +51,15 @@ registra o que foi feito em vez de pedir uma decisao.
 > **O que sobrou aqui espera VOCE, nao a mim.** Onde a medicao esta completa, o bloco `(A)/(B)/(C)`
 > diz exatamente o que falta e quanto custa cada saida.
 
-### 2.1 Os marcadores `[NEEDS SIGN-OFF]` no fonte — **54** medidos em 2026-07-30
+### 2.1 Os marcadores `[NEEDS SIGN-OFF]` no fonte — **56** medidos em 2026-08-02, agora com mapa item por item
 
 **O que e.** Pontos do fonte marcados como precisando do seu aval. Nenhum bloqueia build, e **nenhum aparece no PDF**:
-todos vivem em comentario `%`. **O numero anda** — tracks paralelas removem marcadores conforme voce decide, e ele caiu
-de 56 para 54 durante esta propria varredura. Confie no comando, nao no titulo:
+todos vivem em comentario `%`. **O numero anda** — tracks paralelas removem marcadores conforme voce decide.
+
+**Novo em 2026-08-02: [`src_utils/NEEDS_SIGN_OFF.md`](NEEDS_SIGN_OFF.md)** traduz os 56 marcadores para PT-BR, um
+por um, com contexto, a pergunta exata e um espaco `> **SUA DECISAO:**` para voce responder — o mesmo padrao
+deste arquivo. Cada item foi conferido contra o fonte vivo (`grep` na linha exata) antes de entrar no mapa.
+Quando um item for resolvido la, ele sai daquele arquivo e o `[NEEDS SIGN-OFF]` correspondente sai do `.tex`. Confie no comando, nao no titulo:
 
 ```bash
 cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
@@ -842,7 +846,6 @@ revisita). A de MTL verificou **seis das sete clausulas de garantia** do bloco d
 origem, e retirou duas conclusoes proprias depois de abrir as paginas que as refutavam. A de excelencia deu **VERY GOOD
 forte** com caminho barato para outstanding, e registrou que o resultado nulo publicado e **inequivocamente um ativo**
 como esta apresentado.
-
 
 ### 6.12 Rodada 10 — as suas 28 decisoes, auditadas contra o texto VIVO antes de qualquer acao
 
