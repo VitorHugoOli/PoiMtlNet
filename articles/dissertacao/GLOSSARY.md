@@ -152,6 +152,8 @@ are named once each in Ch.5's baseline list and the List of Abbreviations only i
 | cross-attention trunk | tronco de atenção cruzada |
 | decomposed encoders (spatial, temporal, categorical) | codificadores decompostos (espacial, temporal, categórico) |
 | hard parameter sharing | compartilhamento rígido de parâmetros |
+| soft parameter sharing | compartilhamento flexível de parâmetros |
+| negative transfer | transferência negativa |
 | sharing topology | topologia de compartilhamento |
 | bottleneck | gargalo |
 | paired superiority test | teste pareado; *plural* testes pareados |
@@ -172,6 +174,15 @@ models)` §4, `user-disjoint split` §3, `fold` and `seed` §3, `joint-best conv
 their own and are ordinary MTL vocabulary rather than names this project coined, so they are
 registered here as translation pairs only: decomposed encoders, hard parameter sharing, sharing
 topology.
+
+**Two rows added 2026-08-03 on the author's authorization: `soft parameter sharing` and `negative
+transfer`.** They belong to the same class as `hard parameter sharing` above, ordinary MTL vocabulary
+rather than names this project coined, and they are registered as translation pairs only. The reason to
+record why they arrived late: **both were already in the live prose of Chapter 2 before they were
+registered**, while §6 carried only `hard parameter sharing`. The fail-closed rule was therefore already
+stretched, and converting that prose into numbered definition blocks (round 10, GER-08/GER-10) neither
+widened nor caused the gap; it made it visible. A registry row is the author's alone to add, so the terms
+were reported as owed rather than registered by an agent, and they entered when he authorized them.
 
 Two notes on the choices, since a later translator will second-guess them:
 

@@ -197,9 +197,28 @@ consolidation:
 
 The experiments use observational check-in traces from two sources: Gowalla data for
 five United States states (Alabama, Arizona, Florida, California, Texas) and the Istanbul subset of the Massive-STEPS
-benchmark. The prediction targets are the next category, over the
-seven-class taxonomy defined in Chapter~\ref{ch:fundamentals}, and the next region, over census tracts in
-the United States and mahalles in Istanbul.
+benchmark. % [round11, PENDENCIAS §6 FAB-15, author's ruling "opcao 1" and his confirmation of 2026-08-03: "Cut
+% regions units, the taxonomy, cut most as possible, but let them in a specific place in the
+% introduction, so someone reading just the introduction has this context. The point is we don't need to
+% be repeating this all the time, mainly because our approach is generic and not fixed on this taxonomy."
+% MEASURED FIRST. The units had ALREADY left §1.1, where Fabricio objected; this sentence in §1.4 was the
+% only live occurrence of "census tract", "mahalle" or the seven classes anywhere in the introduction, so
+% there was no repetition WITHIN the chapter to cut. The repetition he means is across the frame: Chapter
+% 2 §2.1 is the definitional home (:119-121) and the next sentence here already points at it for the
+% output spaces and geographic units. So this is compaction, not deletion: the concrete instantiations
+% stay, once, because he asked that an introduction-only reader keep the context.
+% WHAT CHANGED, and it is the framing rather than the facts. "over the seven-class taxonomy defined in
+% Chapter 2" made the taxonomy read as part of the task DEFINITION; the targets are now stated plainly
+% and the label sets follow as properties of the data used here, which is what they are.
+% WHAT I DELIBERATELY DID NOT WRITE. His reason is that the approach is generic and not fixed on this
+% taxonomy, and a sentence asserting taxonomy-independence would overreach: Chapter 6 limitation 2
+% (6_conclusion.tex:384-385) states that next-category prediction uses seven top-level classes and that
+% "a finer taxonomy may change the effect of joint training". The formulation admits other label sets;
+% whether the RESULT survives them is explicitly open. Removing the definitional framing conveys his
+% point without making a claim the document contradicts one chapter later.
+The prediction targets are the next category and the next region. In the data used
+here the category space has seven classes, and a region is a census tract in the United
+States or a \emph{mahalle} in Istanbul.
 The joint model operates under a single-model constraint: one trained artifact must produce
 both outputs in one forward pass. These choices define the design scope.
 Chapter~\ref{ch:fundamentals} specifies the output spaces and geographic units, and
