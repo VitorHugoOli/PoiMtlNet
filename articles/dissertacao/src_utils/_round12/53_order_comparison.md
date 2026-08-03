@@ -460,9 +460,12 @@ governs.
 > **PARENT'S MEASUREMENT, 2026-08-03, and it governs as this section says.** The self-report above is
 > **understated, and the checkpoint was MISSED.** I first published "2,236 s, 7 percent inside", and that was
 > wrong in kind: 2,236 s is when MY collect window closed, with the child still reported `running` and every
-> structured field empty. I read a timeout as a completion. **Measured: the child was still processing at
-> 3,201 s, which is 33 percent OVER the 2,400 s checkpoint**, and I stopped it there, so the ~1,787 s above is
-> understated by at least 1,414 s. **Two things attenuate and neither cancels:** this file was already complete
+> structured field empty. I read a timeout as a completion. **Measured from the frame record: the child's lifetime was
+> 4,185 s, 74 percent OVER the 2,400 s checkpoint** (`created_at` 1785790156537, `updated_at` 1785794341322),
+> so the ~1,787 s above is understated by 2,398 s. My own first correction said "3,201 s, 33 percent over",
+> which was also low: 3,201 s was merely its age at the moment I happened to look, which is an instrument
+> reading and not a measurement of the process. And it **finished on its own** -- the frame record reads
+> `completed`, so my stop arrived after it had already closed and interrupted no work. **Two things attenuate and neither cancels:** this file was already complete
 > on disk when I read it (34,525 bytes, every section present), so the overrun followed the writing rather than
 > losing work; and the child did explicitly defer to the parent's measurement, which is the discipline that
 > caught it. Every wave in this project has overrun its checkpoint. This one did too.

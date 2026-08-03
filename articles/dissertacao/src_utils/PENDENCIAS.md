@@ -1675,8 +1675,12 @@ visivel. Depois: uma frase de abertura ligando as representacoes aos alvos; o aj
 - **Wall-clock — CORRIGIDO, e eu tinha escrito o oposto do verdadeiro.** Eu publiquei "2.236 s, 7 por cento
   DENTRO, o primeiro estudo a fechar no prazo". **Os 2.236 s nao sao medicao do estudo: e o instante em que a
   MINHA janela de coleta fechou**, com o relatorio dele ainda em `running` e todos os campos vazios. Li um
-  timeout como um termino. **O que esta medido: ele ainda estava processando aos 3.201 s, ou seja 33 por cento
-  ACIMA do checkpoint de 2.400 s**, e eu o encerrei nesse ponto. **Ele estourou, como todas as ondas deste
+  timeout como um termino. **O que esta medido, e a minha propria correcao anterior AINDA
+  ESTAVA BAIXA: a vida do processo filho foi de 4.185 s, ou seja 74 por cento ACIMA do checkpoint de 2.400 s**
+  (`created_at` 1785790156537, `updated_at` 1785794341322, da tabela `frames`). Eu havia escrito "3.201 s, 33
+  por cento", que era so a idade dele no instante em que eu olhei — **outra leitura de instrumento tomada por
+  medicao do processo**. E ele **terminou por conta propria**: o registro diz `completed`, entao o meu
+  `stop_child` chegou depois de ele ja ter fechado, e nao interrompeu trabalho. **Ele estourou, como todas as ondas deste
   projeto.** Duas coisas atenuam e nenhuma apaga: o arquivo entregue ja estava **completo em disco** quando eu
   o li (34.525 bytes, todas as secoes), entao o excesso foi depois da escrita e nao trabalho perdido; e o
   auto-relato dele (~1.787 s) esta **subestimado em pelo menos 1.414 s** contra o momento em que eu o parei —

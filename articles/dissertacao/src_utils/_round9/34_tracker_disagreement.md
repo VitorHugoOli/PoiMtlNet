@@ -497,8 +497,13 @@ message, and the prose to the author.
 fields is not a finish time.** I even wrote "collect window closed at 2236s" in my own next sentence, and then
 used the number as a completion measurement anyway.
 
-**What the measurement was.** The child was still `processing` at **3,201 s**, which is **33 percent OVER**
-the checkpoint, and I stopped it there. Its self-report of ~1,787 s is understated by at least 1,414 s. Two
+**What the measurement was, at the third attempt.** I got this clock wrong twice before reading it properly.
+**2,236 s** was my collect timeout. **3,201 s** was the child's age at the arbitrary moment I next looked --
+another instrument reading, not a measurement of the process, and I published it as "33 percent over" while
+saying I had stopped it there. **The frame record gives the lifetime: 4,185 s, 74 percent OVER the checkpoint**
+(`created_at` 1785790156537, `updated_at` 1785794341322). Its self-report of ~1,787 s is understated by 2,398 s.
+And it **finished on its own**: the record reads `completed`, so my stop landed after it had closed and
+interrupted nothing. Two
 things attenuate and neither cancels: the deliverable was already complete on disk when I read it, so the
 overrun followed the writing; and the child explicitly deferred to the parent's measurement, which is the
 discipline that should have caught this and did not.
@@ -508,10 +513,13 @@ inside a checkpoint without reading the timings I had. Here I had a reading and 
 treated an instrument's own timeout as a measurement of the thing being timed. That is worse in one specific
 way, because a wrong number invites a re-check while a plausible number in the right units does not.
 
-**The rule.** A wall-clock figure for a sub-agent is admissible only from a terminal result -- a `completed`
-status with populated fields, or the moment of a `stop_child`. **A collect timeout measures the collector, not
-the child.** Any figure taken from a cell whose status line says `running` is a statement about my own waiting
-and must be labeled as such or discarded.
+**The rule, and my first version of it was still too narrow.** I wrote that a figure is admissible from "a
+`completed` status with populated fields, or the moment of a `stop_child`" -- and then took the second branch,
+which gave me 3,201 s and was wrong too, because a stop timestamp measures when I intervened. **The only
+admissible source is the frame record itself** (`created_at` to `updated_at` in the `frames` table), which is
+the process's own lifetime and independent of when I looked. Everything else -- collect timeouts, ages at a
+glance, stop moments -- **measures my observation, not the child.** Three readings of one clock, two published,
+both wrong in the same way.
 
 Running total: nine claim-or-count defects, eight instrument defects, three invented mechanisms, **two false
 in-budget claims about sub-agents**, five occurrences of the severed-item defect.

@@ -819,15 +819,27 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # project has published a false in-budget claim about a sub-agent (see R9-clock/R9-clock2 for the first),
     # and both times the true reading was already in hand and unread. Ban the retracted figure as an
     # assertion, anywhere in the record, while allowing the sentences that quote it as retracted.
-    ("R12-clock3",  "the study record carries the parent's real measurement, that the child overran the "
-                    "checkpoint by 33 percent",
+    ("R12-clock3",  "the study record carries the parent's real measurement, that the child's lifetime "
+                    "overran the checkpoint by 74 percent",
      "_round12/53_order_comparison.md",
-     r"33 percent OVER the 2,400 s checkpoint", True),
+     # FIGURE CORRECTED: this probe first pinned "33 percent OVER", which was my second wrong reading of the
+     # same clock (3,201 s was the child's AGE when I looked, not its lifetime). The frame record gives
+     # 4,185 s, 74 percent over. Pinning the real figure, not the intermediate one.
+     r"4,185 s, 74 percent OVER the 2,400 s checkpoint", True),
     ("R12-clock4",  "and PENDENCIAS does not assert the retracted in-budget reading of the collect timeout",
      "PENDENCIAS.md",
      r"(?:\A|[.!?][*_'\")\]]*\s|\n)\s*(?:[-*+]\s+|\d+\.\s+)?(?:\*\*|__|\*)?\s*"
      r"(?:Medido|Wall-clock, medido por mim):?\**\s*2\.236 s contra o checkpoint de 2\.400 s\s*—\s*7 por cento "
      r"DENTRO", False),
+    # R12-clock5: THREE readings of one clock, two of them wrong, and both wrong ones were published. 2,236 s
+    # was my collect timeout; 3,201 s was the child's age at an arbitrary glance; 4,185 s is its lifetime from
+    # the frame record. The pattern is identical each time -- an instrument reading taken for a measurement of
+    # the process -- so ban the superseded figure in assertion form while allowing the sentences that retract
+    # it. The 2,236 ban lives in R12-clock4 for PENDENCIAS; this one covers the study file for both.
+    ("R12-clock5",  "the study does not assert either superseded overrun figure as the measurement",
+     "_round12/53_order_comparison.md",
+     r"(?:\A|[.!?][*_'\")\]]*\s|\n)\s*(?:[-*+>]\s+)?(?:\*\*)?\s*(?:Measured[^.\n]{0,40})?"
+     r"(?:33 percent OVER the 2,400|7 percent inside the 2,400)", False),
     # R12-attrib: a commit-message attribution defect, recorded because the suite CANNOT detect this class
     # -- every gate here reads the working tree and none reads the commit log. Two of round 12's commits
     # describe diffs they do not contain, because `git add -A` in a backgrounded cell staged the tree at
