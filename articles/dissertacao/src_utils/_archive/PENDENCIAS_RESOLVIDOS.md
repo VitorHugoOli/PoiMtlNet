@@ -1699,3 +1699,119 @@ cumprida.
 > **AUTHOR:** Vamos usar só as datas que encontramos no database de 2009 a 2011, pode omitir que no artigo eles comentam
 > que é de 2009 a 20010. O need sing-off assim como os demais já resolvidos que estão no latex pode ser removidos não
 > precisam fica lá. Se quider documentar isso tem que ser em algum lugar do src_util.
+
+
+---
+
+## Arquivados em 2026-08-02 (segunda passagem: 2.21 e 2.24, e o §5 retirado)
+
+### ~~2.21 O segundo ponto do seu orientador: como os termos entram~~ — RESOLVIDO 2026-08-02
+
+**RESOLVIDO em 2026-08-02.** Voce identificou o termo: *"`license the verbs` em fundamentacao teorica. Foi o
+unico termo que ele marcou e comnetou para ter cuidado com o termos."* Medido em todos os 54 `.tex` vivos:
+**o termo ja nao estava no Cap. 2** — a sua propria revisao dissolveu aquela passagem. A metafora sobrevivia
+em tres lugares na prosa viva (duas vezes em `apx_f_cosine.tex`, uma em `apx_c_ai_disclosure.tex`) mais a
+glosa da §4 do `GLOSSARY`. Trocada por `supports` nos quatro. **Os usos em `apx_e_ethics.tex` ficaram**: ali
+`license` e licenca de software de verdade (Apache 2.0), nao a metafora — nao sao desta classe.
+
+*Bloco original preservado verbatim, incluindo a sua decisao.*
+
+
+**O que e.** Ele escreveu *"soa um pouco estranho o jeito que alguns termos sao inseridos (marquei alguns la)"*. O
+buraco concreto que o item registrava — o revisor de estilo nunca ter lido o
+`articles/[mobiwac]/GLOSSARY.md`, que vence para o Cap. 5 — esta **fechado**: revisor re-rodado em 28/07, as tres
+proibicoes da §3 ausentes, as 28 da §4 medidas (22 ausentes, 6 dentro da condicao, e **uma violacao real corrigida**:
+`region head` -> `region output`).
+
+**Nao medido, e nao vou dizer que esta:** §6, §7 e §8 do glossario sao julgamento de estilo, sem grep que decida.
+
+> **DECISAO SUA, pequena:** ele marcou termos num PDF que **eu nao tenho**. Me passe as marcacoes e eu
+> trato uma por uma.
+
+*Medicao termo por termo: [`_round8/29_pendencias_detail.md`](_round8/29_pendencias_detail.md).*
+
+> **AUTHOR:** `license the verbs` em fundamentação téorica. Foi o unico termo que ele marcou e comnetou para ter cuidado
+> com o termos.
+
+---
+
+### ~~2.24 Um `towards` britanico em prosa publicada do CBIC, e a saida e uma linha de errata~~ — RESOLVIDO 2026-08-02
+
+**RESOLVIDO em 2026-08-02, nas duas metades.**
+
+**(1) O ponto e a aspa.** Sua decisao: *"Vamos deixar do lado de fora seguindo a norma: ABNT (NBR
+10520:2023). Cocuemnte isso no WRITING_LAW.md."* Registrado na §1 do `WRITING_LAW`, com a razao de que a
+norma de deposito vence a convencao americana da casa e citando o precedente que ja existia (legenda de
+tabela acima, tambem ABNT contra o estilo americano). O gate 25 passou a cobrir a regra.
+**Voce isentou a citacao de frase completa** — o ponto dela e do autor citado — e a isencao separou os
+tres sitios com precisao: `errata_wording.tex` carrega uma frase completa (*"Also, it is important to
+notice..."*) e **ficou**; os dois de `errata_scope.tex` eram **fragmentos** cujo ponto era da frase
+hospedeira, e foram movidos para fora. As outras 14 ocorrencias ja estavam conformes.
+
+*Duas falhas minhas ao construir esse gate, ambas do mesmo tipo:* escrevi o padrao **invertido** (casava a
+forma correta e ignorava a errada, entao o gate ficava **verde** numa arvore com tres violacoes); e depois
+coloquei a regra na familia de grafia, cujo loop le o texto **com as citacoes mascaradas**, de modo que uma
+regra sobre a pontuacao da propria citacao nao podia disparar. Pego virando um sitio real para a forma
+americana e vendo o gate calado. Corrigido, validado nos dois sentidos e fixado em self-test, positivo e
+negativo.
+
+**(2) O `towards`.** Sua decisao: **opcao (b), deixar como esta.** E prosa publicada do CBIC e a unica forma
+britanica em toda aquela fonte. A entrada do `OPEN_REGISTER` do gate passa a ser **o registro permanente
+dessa decisao**, com a instrucao explicita de nao "corrigir" numa varredura futura. Ela continua la porque e
+auto-retirante: se a frase sair do capitulo, o gate **falha** e pede a remocao da entrada, entao a decisao
+nao apodrece em isencao silenciosa.
+
+*Bloco original preservado verbatim, incluindo a sua decisao.*
+
+
+**O que e.** Sua queixa 8 do item 2.22 (o `needs saying plainly`) gerou a lei de registro e o gate 25
+(`check_register.py`). Varridos os 54 `.tex` vivos mais o `references.bib`, **doze linhas de achado em onze sitios**
+(uma frase pode disparar duas regras): **5** grafias britanicas, **1** construcao britanica (a sua) e **6** formas de
+fraseado. **Seis eram nossas e foram corrigidas**; **cinco** estao no Apendice F e a outra esteira ja as fechou.
+**Sobrou uma, e ela e sua**, porque esta em prosa publicada. (As cinco do apendice do cosseno estao contadas aqui como
+"Apendice F", que era a letra quando esta varredura mediu; a outra esteira aplicou o seu ponto 0 e **reletrou para
+Apendice D** no commit `4eea637a`. O arquivo continua `chapters/apx_f_cosine.tex` e o gate e ancorado no caminho, nao na
+letra.)
+
+**A conferencia fecha nos dois sentidos**, e as tres parcelas estao escritas como palavras de proposito:
+seis linhas corrigidas nesta esteira, cinco fechadas pela esteira do apendice do cosseno e uma aberta para voce, que
+somam as doze. Escrita com algarismos e um sinal de igual, esta frase ja se quebrou duas vezes num reflow, deixando o
+`12.` no inicio de uma linha, onde o markdown o le como item de lista numerada e a aritmetica desaparece da pagina.
+
+*(Este bloco dizia **nove ocorrencias** e "quatro/quatro/uma". Estava errado, e o erro foi pego por revisao, nao por
+mim: eu somei categorias de cabeca em vez de contar as linhas que o instrumento imprime. Medido rodando o gate sobre a
+arvore do `06529ed6` com o `OPEN_REGISTER` vazio, para que nada fique retido e todo achado imprima; o gate sai com
+`rc=1` e conta seis achados de grafia ou construcao britanica mais seis de fraseado, doze linhas ao todo. O detalhamento
+linha por linha, com o comando, esta na secao 1.3 do relatorio.)*
+
+`chapters/3_cbic/conclusion.tex`, p. 43 do build de defesa:
+
+> "The representation learned by the shared layers might have become biased **towards** the features
+> required for the simpler, static classification task"
+
+**Medido, nao suposto:** a frase e substring literal de
+`articles/CBIC___MTL/sections/conclusion.tex:13`, e este `towards` e a **unica** forma britanica em toda a fonte
+publicada do CBIC (zero `-our`, zero `-ise`, zero `whilst`); CoUrb-EN e MobiWac nao tem nenhuma.
+
+**Por que nao apliquei.** Pela NORTH_STAR §5.7, mudar uma palavra de prosa publicada e decisao sua, e esta e questao de
+vocabulario, nao de correcao. O gate mantem o achado **aberto por nome** e falha se a entrada ficar obsoleta, entao nao
+se perde em nenhuma das duas saidas.
+
+> **DECISAO SUA, e e uma linha:** (**a**) trocar por `toward` e acrescentar uma linha em
+> `tables/cbic/errata_wording.tex`, que ja carrega **quatorze** linhas exatamente desta classe
+> ("By leveraging shared information" -> "By using shared information"), todas sob a legenda *"claim
+> strength unchanged or reduced, never raised"*; a troca nao muda alegacao nenhuma. (**b**) deixar
+> como esta, e a entrada do registro aberto do gate passa a ser o registro permanente da decisao.
+
+**Um segundo ponto, tambem seu, e eu deliberadamente NAO fiz gate dele.** O ponto final fica **fora**
+da aspa de fechamento em **13 sitios** (`tables/cbic/errata.tex` 5, `tables/courb/errata.tex` 3,
+`chapters/3_cbic/method.tex` 2, `tables/cbic/errata_wording.tex` 2, `chapters/apx_b_errata.tex` 1). O estilo americano
+poe dentro. **Todos os 13 estao em tabelas de errata onde a string citada e a evidencia**, e mover um ponto para dentro
+de uma citacao altera a citacao. E decisao sobre a convencao da errata, nao erro de grafia. Se quiser, e mecanico e faco
+os 13 numa passagem.
+
+*Forense: [`_round9/44_register_law.md`](_round9/44_register_law.md) (a varredura com contagem por arquivo, as regras, e
+o transcrito de validacao do gate nos dois sentidos).*
+
+> **AUTHOR:** Vamos deixar do lado de fora seguindo a norma: ABNT (NBR 10520:2023). Cocuemnte isso no
+> WRITING_LAW.md.

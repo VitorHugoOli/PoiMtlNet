@@ -100,78 +100,6 @@ contra corpo de 11,96 pt. O raster do Cap. 3 e byte-identico ao publicado do CBI
 > **Seu, quando quiser:** reexportar as duas no Draw.io e me passar os PNG — eu troco e remeco o tipo na
 > pagina. **Opcional**, pela sua propria observacao sobre o contraste.
 
-### 2.21 O segundo ponto do seu orientador: como os termos entram
-
-**O que e.** Ele escreveu *"soa um pouco estranho o jeito que alguns termos sao inseridos (marquei alguns la)"*. O
-buraco concreto que o item registrava — o revisor de estilo nunca ter lido o
-`articles/[mobiwac]/GLOSSARY.md`, que vence para o Cap. 5 — esta **fechado**: revisor re-rodado em 28/07, as tres
-proibicoes da §3 ausentes, as 28 da §4 medidas (22 ausentes, 6 dentro da condicao, e **uma violacao real corrigida**:
-`region head` -> `region output`).
-
-**Nao medido, e nao vou dizer que esta:** §6, §7 e §8 do glossario sao julgamento de estilo, sem grep que decida.
-
-> **DECISAO SUA, pequena:** ele marcou termos num PDF que **eu nao tenho**. Me passe as marcacoes e eu
-> trato uma por uma.
-
-*Medicao termo por termo: [`_round8/29_pendencias_detail.md`](_round8/29_pendencias_detail.md).*
-
-> **AUTHOR:** `license the verbs` em fundamentação téorica. Foi o unico termo que ele marcou e comnetou para ter cuidado
-> com o termos.
-
-### 2.24 Um `towards` britanico em prosa publicada do CBIC, e a saida e uma linha de errata
-
-**O que e.** Sua queixa 8 do item 2.22 (o `needs saying plainly`) gerou a lei de registro e o gate 25
-(`check_register.py`). Varridos os 54 `.tex` vivos mais o `references.bib`, **doze linhas de achado em onze sitios**
-(uma frase pode disparar duas regras): **5** grafias britanicas, **1** construcao britanica (a sua) e **6** formas de
-fraseado. **Seis eram nossas e foram corrigidas**; **cinco** estao no Apendice F e a outra esteira ja as fechou.
-**Sobrou uma, e ela e sua**, porque esta em prosa publicada. (As cinco do apendice do cosseno estao contadas aqui como
-"Apendice F", que era a letra quando esta varredura mediu; a outra esteira aplicou o seu ponto 0 e **reletrou para
-Apendice D** no commit `4eea637a`. O arquivo continua `chapters/apx_f_cosine.tex` e o gate e ancorado no caminho, nao na
-letra.)
-
-**A conferencia fecha nos dois sentidos**, e as tres parcelas estao escritas como palavras de proposito:
-seis linhas corrigidas nesta esteira, cinco fechadas pela esteira do apendice do cosseno e uma aberta para voce, que
-somam as doze. Escrita com algarismos e um sinal de igual, esta frase ja se quebrou duas vezes num reflow, deixando o
-`12.` no inicio de uma linha, onde o markdown o le como item de lista numerada e a aritmetica desaparece da pagina.
-
-*(Este bloco dizia **nove ocorrencias** e "quatro/quatro/uma". Estava errado, e o erro foi pego por revisao, nao por
-mim: eu somei categorias de cabeca em vez de contar as linhas que o instrumento imprime. Medido rodando o gate sobre a
-arvore do `06529ed6` com o `OPEN_REGISTER` vazio, para que nada fique retido e todo achado imprima; o gate sai com
-`rc=1` e conta seis achados de grafia ou construcao britanica mais seis de fraseado, doze linhas ao todo. O detalhamento
-linha por linha, com o comando, esta na secao 1.3 do relatorio.)*
-
-`chapters/3_cbic/conclusion.tex`, p. 43 do build de defesa:
-
-> "The representation learned by the shared layers might have become biased **towards** the features
-> required for the simpler, static classification task"
-
-**Medido, nao suposto:** a frase e substring literal de
-`articles/CBIC___MTL/sections/conclusion.tex:13`, e este `towards` e a **unica** forma britanica em toda a fonte
-publicada do CBIC (zero `-our`, zero `-ise`, zero `whilst`); CoUrb-EN e MobiWac nao tem nenhuma.
-
-**Por que nao apliquei.** Pela NORTH_STAR §5.7, mudar uma palavra de prosa publicada e decisao sua, e esta e questao de
-vocabulario, nao de correcao. O gate mantem o achado **aberto por nome** e falha se a entrada ficar obsoleta, entao nao
-se perde em nenhuma das duas saidas.
-
-> **DECISAO SUA, e e uma linha:** (**a**) trocar por `toward` e acrescentar uma linha em
-> `tables/cbic/errata_wording.tex`, que ja carrega **quatorze** linhas exatamente desta classe
-> ("By leveraging shared information" -> "By using shared information"), todas sob a legenda *"claim
-> strength unchanged or reduced, never raised"*; a troca nao muda alegacao nenhuma. (**b**) deixar
-> como esta, e a entrada do registro aberto do gate passa a ser o registro permanente da decisao.
-
-**Um segundo ponto, tambem seu, e eu deliberadamente NAO fiz gate dele.** O ponto final fica **fora**
-da aspa de fechamento em **13 sitios** (`tables/cbic/errata.tex` 5, `tables/courb/errata.tex` 3,
-`chapters/3_cbic/method.tex` 2, `tables/cbic/errata_wording.tex` 2, `chapters/apx_b_errata.tex` 1). O estilo americano
-poe dentro. **Todos os 13 estao em tabelas de errata onde a string citada e a evidencia**, e mover um ponto para dentro
-de uma citacao altera a citacao. E decisao sobre a convencao da errata, nao erro de grafia. Se quiser, e mecanico e faco
-os 13 numa passagem.
-
-*Forense: [`_round9/44_register_law.md`](_round9/44_register_law.md) (a varredura com contagem por arquivo, as regras, e
-o transcrito de validacao do gate nos dois sentidos).*
-
-> **DECISAO SUA:** Vamos deixar do lado de fora seguindo a norma: ABNT (NBR 10520:2023). Cocuemnte isso no
-> WRITING_LAW.md.
-
 ### 2.27 A arvore revisada do autor entrou no `src`, e o que ficou aberto nela
 
 **(A) O que e.** Em 2026-08-02 o autor entregou `src_clean`, lido e editado por ele. O merge esta em
@@ -231,60 +159,38 @@ Cap. 4): a sua opcao 2 esta aplicada. `\textit` na prosa viva do Cap. 4 = **48**
 em `5c074a2a`; os sobreviventes sao os 7 nomes de categoria, nomes de modelo e substantivos proprios. Duas
 formas arguveis sobraram (`one-hot`, `skip-gram`) e nao mexi nelas.
 
-**(D) O que continua seu.** Os cinco itens acima (`2.1`, `2.5`, `2.21`, `2.24`, `2.27`). As suas decisoes
-anteriores neles **continuam validas** — nenhuma foi superada por mudanca no texto; o que falta em cada um e
-uma escolha ou uma ferramenta que este ambiente nao tem.
+**(D) Segunda passagem, 2026-08-02: o §5 retirado, e o 2.21 e o 2.24 fechados.** O §5 foi **re-medido** depois da
+fusao e virou ponteiro: os onze itens estao no arquivo e as conclusoes sobreviveram (o comando do proprio
+banner ainda reproduz o que ele afirmava). O **2.21** fechou — o termo que o seu orientador marcou,
+`license the verbs`, ja tinha saido do Cap. 2 na sua revisao, e a metafora foi trocada por `supports` nos
+tres sitios vivos restantes mais a glosa do `GLOSSARY`; os usos em `apx_e_ethics.tex` ficaram, porque ali
+`license` e licenca de software de verdade. O **2.24** fechou nas duas metades: a norma ABNT NBR 10520:2023
+esta na §1 do `WRITING_LAW` com gate e self-test, dois fragmentos foram corrigidos e a citacao de frase
+completa ficou por sua isencao; e o `towards` fica como esta por sua decisao, com a entrada do
+`OPEN_REGISTER` como registro permanente dela.
+
+**Sobram tres itens seus:** `2.1`, `2.5` e `2.27`.
 
 *Forense: [`_round9/50_pendencias_audit.md`](_round9/50_pendencias_audit.md), com a medicao de cada um dos 19.*
 
-## §5 · Levantados do `CODEX_AUDIT.md` quando ele foi arquivado (2026-07-29)
+## §5 · Retirado
 
-> **NOVE DOS DEZ ESTAO FECHADOS e foram movidos para `_archive/PENDENCIAS_RESOLVIDOS.md` em
-> 2026-07-30.** **Sete** deles estao cobertos por uma sonda do gate `check_audit_claims.py`, que
-> **falha** se a correcao sair do documento — foi exatamente essa a licao desta rodada, em que oito de
-> nove estavam marcados como aplicados sem estar. **Dois nao tem sonda**, e a primeira versao deste
-> cabecalho dizia que todos tinham: **5.6** foi verificado direto no render (as duas datas do Gowalla
-> imprimem na p. 79) e **5.10** e um registro de nao-pendencias, nao uma afirmacao do documento. A
-> tabela por item esta no banner do arquivo. O decimo (COD-018, credito por papel no CoUrb) foi
-> **retirado por voce**, e o gate carrega a sua frase para que ninguem o "termine" por engano.
->
-> Sobrou **um**, abaixo, e ele espera uma escolha sua, nao trabalho meu.
+Os onze itens levantados do `CODEX_AUDIT.md` quando ele foi arquivado (5.1 a 5.10 mais o 5.6b) estao
+**todos fechados** e vivem em [`_archive/PENDENCIAS_RESOLVIDOS.md`](_archive/PENDENCIAS_RESOLVIDOS.md),
+cada um com a medicao que o fechou e a sua decisao verbatim. O `CODEX_AUDIT.md` inteiro esta em
+[`_archive/CODEX_AUDIT.md`](_archive/CODEX_AUDIT.md).
 
-Voce pediu: *"About the codex_audit if we finish with it archive it or delete, and if some point still pending my
-approval or I need to be aware add in the pendencias."* Fiz a varredura dos **26 itens** (18 COD- mais 8 NUM-), das 16
-caixas `DECISAO` que voce escreveu no arquivo, e da tabela de desfecho da rodada 6. O arquivo esta agora em
-[`_archive/CODEX_AUDIT.md`](_archive/CODEX_AUDIT.md), inteiro.
+**Re-medido em 2026-08-02, depois da fusao da sua arvore revisada, porque um arquivo fechado nao e um
+arquivo que continua verdadeiro.** As conclusoes sobreviveram: o comando que o banner desta secao
+documentava ainda reproduz o que ele afirmava — quatro das cinco frases retiradas vem vazias e a quinta
+aparece so em `tables/cbic/errata_wording.tex`, que e a tabela de errata, onde a redacao antiga esta como
+evidencia citada e nao como alegacao viva. Os treze probes `COD-`/`NUM-`/`R8-` do
+`check_audit_claims.py` seguem em `rc=0`, e o 5.6 (as duas datas do Gowalla) confere no render.
 
-**O resultado, e ele nao e agradavel.** A tabela de desfecho marca 22 dos 26 itens como aplicados. Conferi cada um **no
-PDF renderizado e no fonte vivo**, nao na tabela, e **nove instrucoes suas nao estao no documento**. Nao e que estejam
-mal aplicadas: as frases que voce mandou mudar continuam palavra por palavra como estavam. Cinco delas a tabela de
-desfecho declara "APLICADO".
-
-Nao sei se ninguem chegou nelas ou se cairam entre escopos de trilhas — o `CODEX_AUDIT.md` §6 as listava como
-"corrigiveis sem o autor" e o §7 como "precisa do autor", e a rodada 6 tinha oito trilhas. O que eu sei e o que a
-medicao mostra. **Cada item abaixo traz o comando que o mede**, para voce nao ter que acreditar em mim.
-
-Para conferir os nove de uma vez, do diretorio da dissertacao:
-
-```bash
-cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
-for p in 'leakage-guarded' 'equivalence is well powered' 'unbalanced result for the MTL and single' \
-         'revise that verdict by changing the input representation' 'mean reciprocal rank'; do
-  printf '%-58s %s\n' "$p" "$(grep -rl "$p" src/chapters src/tables --include='*.tex' 2>/dev/null \
-    | while read -r f; do grep -v '^[[:space:]]*%' "$f" | grep -q "$p" && printf '%s ' "$f"; done)"
-done
-# EXPECT: lines=5
-```
-
-Cinco linhas, cada uma nomeando o arquivo onde a frase ainda vive **em prosa**. Se uma linha vier vazia, aquele item foi
-resolvido depois desta varredura.
-
-**Rodado em 2026-07-30: quatro das cinco linhas vem vazias**, e a quinta aponta para
-`src/tables/cbic/errata_wording.tex`, que e a *tabela de errata* — a frase esta la como evidencia citada, nao como
-alegacao viva. *(A versao anterior deste comando era **cega a comentarios** e imprimia cinco linhas cheias: quatro
-daquelas frases sobrevivem apenas em comentarios de proveniencia, que citam a redacao antiga para registrar o que mudou.
-A variante acima descarta linhas `%` antes de casar, e concorda com o `live_text` do `check_audit_claims.py`, que e o
-stripper usado pelos gates deste projeto.)*
+Sete dos itens tem sonda no gate, que **falha** se a correcao sair do documento; **dois nao tem**, e a razao
+esta no banner do arquivo: o 5.6 foi verificado direto no render e o 5.10 e um registro de nao-pendencias,
+nao uma afirmacao do documento. O decimo (COD-018, credito por papel no CoUrb) foi **retirado por voce**, e o
+gate carrega a sua frase para que ninguem o "termine" por engano.
 
 ## §6 · As decisoes que sairam do `CONSIDERATIONS.md` (round 9)
 

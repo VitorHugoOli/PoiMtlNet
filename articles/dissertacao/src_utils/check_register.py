@@ -142,7 +142,32 @@ def _our_is_british(word: str) -> bool:
 
 # Explicit families. Written as full inflected forms, not as `\w+`-style stems: a generative
 # double-l pattern matches "equally", "controlled" and "unfilled", which are American.
+QUOTE_PERIOD = re.compile(r"[a-z0-9)\]](?<!\bal)\.\s*(?:''|\"|\u201d)")
+QUOTE_PERIOD_REMEDY = (
+    "ABNT NBR 10520:2023: write ...information''. not ...information.'' "
+    "(PENDENCIAS_RESOLVIDOS 2.24 (arquivado 2026-08-02), author's ruling of 2026-08-02). A quotation that is itself a complete "
+    "sentence keeps its own period inside -- that period belongs to the quoted author.")
+
+
 SPELLING_RULES: tuple[tuple[str, str, str], ...] = (
+    # ADDED 2026-08-02, PENDENCIAS_RESOLVIDOS 2.24 (arquivado 2026-08-02), on the author's ruling: terminal punctuation goes OUTSIDE the
+    # closing quotation mark, per ABNT NBR 10520:2023, which is the deposit norm and outranks the
+    # house American-English convention. WRITING_LAW carries the rule.
+    #
+    # THIS RULE RUNS BACKWARDS FROM EVERY OTHER ONE IN THIS FILE. The rest flag a British form and ask
+    # for the American one; this flags the AMERICAN form and asks for the ABNT one. It is here rather
+    # than in CONSTRUCTION_RULES because it is a spelling-level, mechanical mark, and putting it in the
+    # same loop means a single sweep covers both directions.
+    #
+    # WHY IT IS GATED AT ALL, when the current tree already complies: because compliance here looks
+    # like an error to anyone applying American style, and 14 sites carry it. A later pass "fixing"
+    # them would be silently reverting the author's ruling -- and 12 of the 14 are errata tables where
+    # the quoted string IS the evidence for a correction, so moving a period inside the quotation
+    # alters the quotation. That is the failure this rule exists to make loud.
+    #
+    # The lookbehind excludes an abbreviation-final period ("et al.", "U.S.") from counting as the
+    # sentence's terminal mark, and requires a word character before the closing quote so that an
+    # empty or macro-only quotation does not match.
     ("-re for -er",
      r"\b[a-z]*(?:centre|metre|litre|fibre|theatre|calibre|sabre|spectre|sombre|lustre|"
      r"manoeuvre|ochre)[a-z]*\b",
@@ -382,11 +407,16 @@ def stranded_hits(text: str):
 # chapters/apx_f_cosine.tex, and the gate fails if any returns.
 OPEN_REGISTER: tuple[tuple[str, str, str, str], ...] = (
     ("chapters/3_cbic/conclusion.tex", "biased towards the features required",
-     "the author (errata decision)",
+     "the author (DECIDED 2026-08-02: leave it)",
      "verbatim published CBIC 2025 prose, confirmed as a substring of "
-     "articles/CBIC___MTL/sections/conclusion.tex. Changing 'towards' to 'toward' costs one row "
-     "in tables/cbic/errata_wording.tex, the same class as the fourteen wording rows already there. "
-     "Reported in _round9/44_register_law.md; not applied without his word."),
+     "articles/CBIC___MTL/sections/conclusion.tex, and the ONLY British form in the whole published "
+     "CBIC source (zero -our, zero -ise, zero whilst). RESOLVED by the author on 2026-08-02, "
+     "PENDENCIAS_RESOLVIDOS 2.24 (arquivado 2026-08-02): option (b), leave it as it stands, and THIS ENTRY IS THE PERMANENT RECORD OF "
+     "THAT DECISION rather than a pending question. Do not 'fix' it in a later sweep. NORTH_STAR "
+     "5.7 reserves changes to published prose to him, and this is vocabulary, not correctness. The "
+     "entry stays because it is self-retiring: if the phrase ever leaves the chapter the gate FAILS "
+     "and asks for the entry to be deleted, so the decision cannot rot into a silent exemption. "
+     "Reported in _round9/44_register_law.md."),
 )
 
 
@@ -488,6 +518,37 @@ def scan(text: str, quoted_masked: str) -> list[tuple[str, str, str, str, int, i
     for rule, pat, remedy in SPELLING_RULES:
         for m in re.finditer(pat, quoted_masked, re.I):
             out.append(("A1 spelling", rule, m.group(0), remedy, m.start(), m.end()))
+    # ABNT NBR 10520:2023 terminal punctuation, PENDENCIAS_RESOLVIDOS 2.24 (arquivado 2026-08-02), author's ruling of 2026-08-02.
+    # SCANNED ON UNMASKED TEXT, and that is the whole reason it is not in SPELLING_RULES. Those run
+    # against `quoted_masked`, which blanks every ``...'' span INCLUDING its delimiters -- correct for
+    # spelling families, since a British spelling inside a quotation may not be corrected, but it
+    # makes a rule about the quote's own punctuation structurally unable to fire. Placed in
+    # SPELLING_RULES first, it reported clean on a tree with three real violations.
+    #
+    # AND THE PATTERN WAS WRITTEN BACKWARDS BEFORE THAT: it required the period AFTER the closing
+    # quote -- the compliant form -- so it matched every correct site and no violation, and the suite
+    # went green. A green gate read as "the tree complies" when it meant "the rule cannot fire".
+    # Caught by flipping one real site to the American form and finding the gate silent. V17: a zero
+    # from a pattern that cannot express its target is not evidence.
+    #
+    # AUTHOR'S EXEMPTION: a quotation that is itself a COMPLETE SENTENCE keeps its own terminal period
+    # INSIDE the marks, because that period is the quoted author's. NBR 10520 governs how a quotation
+    # enters your sentence, not how its author punctuated theirs, and this document's errata tables
+    # exist to reproduce submitted wording verbatim. Exempted by FORM, not by file: the quoted span
+    # opens with `` followed by a capital, or its text ends a finite clause of its own.
+    for m in re.finditer(QUOTE_PERIOD, text):
+        span = m.group(0)
+        # The lookback window must be wide enough for a quoted sentence (the real one here runs 118
+        # characters) and must NOT exclude apostrophes, which appear inside quoted prose. A first
+        # version used [^`']{0,200}, so the closing '' of the span itself broke the match and every
+        # quoted sentence was reported as a violation.
+        inner = text[max(0, m.start() - 400):m.end()]
+        opener = re.search(r"``([^`]{0,400})$", inner)
+        quoted_sentence = bool(opener and re.match(r"[A-Z]", opener.group(1).lstrip()))
+        if quoted_sentence:
+            continue
+        out.append(("A1 punctuation", "period inside a closing quote (ABNT NBR 10520 puts it outside)",
+                    span, QUOTE_PERIOD_REMEDY, m.start(), m.end()))
     for rule, pat, remedy in CONSTRUCTION_RULES:
         for m in re.finditer(pat, text, re.I):
             out.append(("A2 construction", rule, m.group(0), remedy, m.start(), m.end()))
@@ -597,6 +658,26 @@ def self_test() -> None:
                     "the curve climbs steeply at the largest region counts"):
         assert not re.search(SHAPE_ABSTRACT_AGENT[1], literal, re.I), (
             f"self-test: B4 flagged literal quantity motion: {literal!r}")
+    # ABNT NBR 10520 terminal punctuation, pinned in BOTH DIRECTIONS because this rule failed in
+    # both while it was being written: first as a pattern that matched the COMPLIANT form (so the
+    # gate went green on a tree with three violations), then as a member of SPELLING_RULES, whose
+    # loop reads quote-masked text and therefore cannot see a quote's own punctuation at all.
+    # The positive cases below are the real defect shape; the negatives are the author's exemption
+    # (a quoted complete sentence keeps its own period) and the compliant form.
+    for bad in ("he called it a ``joint model.''",
+                'he called it a "joint model."'):
+        assert scan(bad, mask_quotes(bad)), (
+            f"self-test: the ABNT punctuation rule did not fire on {bad!r}. A rule that cannot "
+            "flag the American form makes a green suite mean nothing about this convention.")
+    for ok in ("he called it a ``joint model''.",
+               "the submitted text read ``Also, it is important to notice that the result is "
+               "unbalanced.''",
+               "reported by Silva et al.''"):
+        assert not any(r[1].startswith("period inside a closing quote")
+                       for r in scan(ok, mask_quotes(ok))), (
+            f"self-test: the ABNT punctuation rule fired on a legal form: {ok!r}. The middle case "
+            "is the author's exemption of 2026-08-02 -- flagging it would push a later pass into "
+            "altering a verbatim quotation, which is the harm the rule exists to prevent.")
     # B5, the stranded preposition, validated in BOTH directions on the REAL sentences. The two
     # negative cases are the ones that found the guards: each is the CORRECT form of a defect this
     # gate flagged, and the raw pattern fired on both before stranded_hits() existed.

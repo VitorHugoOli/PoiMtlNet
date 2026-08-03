@@ -30,8 +30,21 @@
   author say it at the defense, would the community write it, and would a qualified reader
   understand it on the first reading?* Safe verbs: use, cost, show, obtain, reach, remain, include,
   provide, predict, measure, train, keep.
-- **American English throughout.** Use American spelling, vocabulary, punctuation, and usage
-  consistently. Clarity takes priority over variation or elegance: a reader must not need to
+- **American English throughout, with ONE deliberate exception.** Use American spelling,
+  vocabulary, and usage consistently.
+- **Terminal punctuation goes OUTSIDE the closing quotation mark, per ABNT NBR 10520:2023.**
+  Author's ruling of 2026-08-02, PENDENCIAS 2.24. American style puts the period inside; this
+  document is deposited under ABNT, whose citation standard places the closing punctuation after
+  the quotation mark, and the deposit norm wins over the house language convention. The document
+  already follows ABNT against American practice elsewhere: table captions go above the table.
+  Write `... shared information".` and never `... shared information."`
+  This is not a style preference to be tidied by a later pass. The 14 sites that carry it are
+  almost all errata tables, where the quoted string IS the evidence for a correction: moving a
+  period inside such a quotation alters the quotation, which is a worse fault than a punctuation
+  convention a reader may not share. Measured 2026-08-02: 6 in `tables/cbic/errata.tex`, 3 in
+  `tables/courb/errata.tex`, 2 each in `tables/cbic/errata_wording.tex` and
+  `chapters/3_cbic/method.tex`, 1 in `chapters/apx_b_errata.tex`.
+- **Clarity takes priority over variation or elegance:** a reader must not need to
   re-read a sentence or paragraph to recover its intended meaning or logical connection. If a
   passage needs a second reading, revise it by reducing clause load, naming the referent, making
   the logical link explicit, or splitting it. No contractions; "cannot" is correct. Digits for

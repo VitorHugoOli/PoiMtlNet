@@ -110,7 +110,7 @@ Each annotates a sentence that is no longer in the text. None was deleted.
 | `chapters/2_fundamentals.tex` | [round9, 2026-07-30] THREE CORRECTIONS IN ONE SENTENCE, all from the MTL persona, all verified h | measures the cosine on the joint model of Chapter~\ref{ch:mobiwac} and |
 | `chapters/2_fundamentals.tex` | relative clause ending on a stranded preposition is the sub-case where a non-native reader's par | the metrics and reference points that each result is read against, the |
 | `chapters/2_fundamentals.tex` | [round6, N-2, fact gate persona 06/07] REPAIRED. This clause used to read "Chapter 3 reports | The statistical treatment is scoped the |
-| `chapters/2_fundamentals.tex` | [round9c, PENDENCIAS 2.21, the advisor's flag, 2026-07-30] "license verbs in Chapter 5 alone" -> | Comparisons there are made across the folds and |
+| `chapters/2_fundamentals.tex` | [round9c, PENDENCIAS_RESOLVIDOS 2.21 (arquivado 2026-08-02), the advisor's flag, 2026-07-30] "license verbs in Chapter 5 alone" -> | Comparisons there are made across the folds and |
 | `chapters/2_fundamentals.tex` | MOVED HERE 2026-07-30: this block sat between "cannot be assumed;" and "it has to be measured", | Whether joint training |
 | `chapters/2_fundamentals.tex` | [GATE FIX B-3, 2026-07-24] "unlocks for" -> "enables in": "unlock" is on the inherited | superiority tests, outperforms the dedicated single-task models on the |
 | `chapters/3_cbic.tex` | !TeX root = ../main.tex | \chapter[Multi-Task Learning for POI Category and Next-POI Prediction] |
