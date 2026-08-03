@@ -1606,64 +1606,87 @@ comportamento de uma checagem de erros. Isso e chamada sua, nao limpeza de fim d
 locales contra aquele log e ele devolve `0` nos dois. Entao o `tex_errors=0` do `extra` vale, e o unico
 defeito real e a contagem de paginas.
 
-### 6.24 O estudo da inversao chegou — e o achado central e um NEGATIVO que muda o peso da decisao
+### 6.24 A comparacao das duas opcoes — o estudo novo RECOMENDA MANTER A ORDEM, ao contrario do `_round12/52`
 
-O relatorio esta em `_round12/52_inversion_study.md`. **Nada foi decidido nem editado**: o estudo era o que
-voce autorizou, e a decisao continua sua.
+O relatorio esta em `_round12/53_order_comparison.md`. **Nada foi decidido nem editado**, e a sua suspensao da
+inversao continua valendo.
 
-**O ACHADO QUE VOCE PEDIU, e ele e um negativo.** A pasta `fundamentals/` — que voce apontou como "onde
-planejamos os fundamentos no principio" — **nao registra nenhum argumento** para tarefas antes de
-representacoes. A ordem chegou como **especificacao**: o `COVERAGE_EVALUATION.md:8-12` trata
-"NORTH_STAR Ch.2 spec: 2.1 tasks -> 2.2 representations" como entrada dada, e o `NORTH_STAR.md:73-80` enuncia
-o mapa sem justificar.
+**A RECOMENDACAO: OPCAO (a) — MANTER `2.1` tarefas, `2.2` representacoes**, e aplicar o redesenho pelo plano do
+`_round12/49`. E o oposto do que o `52` recomendou, com praticamente a mesma base de evidencia; a divergencia
+esta no criterio que **voce** definiu.
 
-**E o detalhe que mais pesa:** a unica frase que **defende** a ordem no texto ("This section defines the
-prediction targets before reviewing the methods used for them", `2_fundamentals.tex:27-28`) e **recente e sua**
-— entra no `0bbe3caa`, de 2026-08-02, o seu proprio passe no `src_clean`. **Conferi eu mesmo:** aquele commit
-e seu, e e de fato o primeiro em que a frase aparece na arvore. Ou seja, **a inversao nao viola nenhuma
-intencao de projeto registrada**; ela contraria uma frase que voce escreveu ha um dia.
+**COMO ELE RESOLVEU O ARGUMENTO DO ESPELHO, que era a sua preocupacao.** Os dois espelhos sao fieis a tese: o
+tasks-first espelha o **DESENHO** do argumento (fixe a referencia, varie a alavanca) e o representations-first
+espelha a **RESPOSTA** (a alavanca e que importava). O desempate dele nao e a tese, e o **leitor**, com dois
+argumentos:
+1. **O espelho-da-resposta so paga a quem ja tem a resposta.** A elegancia de "representacoes primeiro, porque
+   as representacoes dominaram" e legivel para quem relê ou para voce, que conhece o arco. Um membro de banca
+   em primeira leitura ainda nao tem a tese como conviccao; para esse leitor as tarefas sao o enquadramento que
+   torna cada definicao posterior inteligivel. **O espelho-do-desenho e andaime para a primeira leitura; o
+   espelho-da-resposta e recompensa para a segunda** — e a regra G3 do proprio projeto faz da primeira leitura
+   a que governa.
+2. **A invariante e o que os tres artigos compartilham, e o Cap. 2 e onde o leitor adquire o quadro
+   compartilhado.** O que e constante nos tres e a definicao das tarefas; o que varia e o $\rho$. Um capitulo de
+   fundamentos ordenado invariante-primeiro entrega o quadro fixo uma vez e deixa cada capitulo de artigo variar
+   a alavanca contra ele.
 
-**A RECOMENDACAO DELE:** inverter, **com cinco condicoes** — o plano de oito passos refeito do zero; voce
-mesmo editando o `NORTH_STAR.md:73-80` e decidindo a ordem da sintese da §2.5; os itens 16-22 do seu §4
-reancorados no mesmo commit; as quatro strings pinadas por probe carregadas verbatim; e a subsubsecao do AD-4
-descartada em vez de criada. Se as condicoes nao servirem, o fallback e a opcao (a), **nao** uma inversao
-parcial. **Isso e recomendacao, nao autorizacao.**
+**E ELE DESMONTOU O ROTULO "ja esta validada" — que era meu, e estava frouxo.** Eu conferi separadamente e
+confirmo: **o rotulo e do `52`, nao do `49`.** Um `grep` por "validated" no `49` da **zero** ocorrencias dessa
+alegacao. O que o `49` tem e uma **validacao adversarial (Parte A)** das propriedades internas do desenho —
+ordem de dependencia, boa formacao, colisoes de notacao, sobrevivencia de probes — e isso e diferente de dizer
+que a **opcao** esta validada. O estudo aponta tres qualificadores, e o primeiro e o que importa: **o AD-4, que
+e o sign-off na forma da §2.1 e no titulo da subsubsecao, esta ABERTO.** Nas palavras dele, a opcao esta
+"mechanically checked and narratively unsigned" — o **AD-4 e o custo narrativo da opcao (a) em forma de
+decisao**.
 
-**O QUE ELE CORRIGIU NA MINHA TABELA DE CUSTO, e eu confirmei nos arquivos:**
-- **Sao tres sitios de prosa, nao dois.** Faltava a abertura da §2.5, "The preceding sections introduce the
-  prediction targets, the representations, ..." — **conferi que e prosa viva**, nao comentario.
-- **Um sitio FORA do capitulo**, que ninguem tinha listado: o `1_introduction.tex:258-260` repete a ordem
-  ("POI prediction tasks, mobility representations, ...").
-- **A troca e uma reestruturacao com migracao de conteudo, nao uma transposicao.** A prosa de notacao e as
-  Definicoes 2.1/2.2 vivem hoje na §2.1 e as definicoes da §2.2 as consomem. O plano refeito e maior do que o
-  atual.
-- **Sete sitios de vocabulario de tarefa dentro da §2.2** passariam a usar termos de tarefa antes das
-  definicoes delas.
-- **Confirmado como eu tinha medido:** exatamente tres referencias cruzadas, todas dentro do capitulo, e
-  **zero gates** restringindo a ordem.
+**CINCO PONTOS EM QUE ELE DISCORDA DO `52`**, e eu destaco os dois que me parecem mais fortes:
+- **O `52` resolveu o espelho por deferencia, nao por argumento.** Ele concedeu que a escolha era autoral e
+  entao a resolveu com "o julgamento do autor ja se inclina para o espelho-da-resposta". **A sua suspensao
+  provou essa leitura errada**, e tratar um entusiasmo inicial como veredicto e exatamente o padrao de
+  sycophancy que o `AGENT_GUARDRAILS` §7 nomeia.
+- **O `52` precificou so um lado.** Mediu a (b) meticulosamente e cotou a (a) como zero, "o fallback". Os
+  custos narrativos da (a) nao aparecem lá, e nem as economias dela (nenhuma edicao do mapa, nenhuma ponte
+  nova, nenhum rastreador reancorado, nenhum toque na introducao). **Uma comparacao nao se ganha medindo um
+  competidor.**
+- E o achado historico negativo do `52` **dissolve so o argumento de tradicao**, que ninguem precisava fazer.
+  As razoes de presente para tasks-first (a forma dos artigos, o trabalho do leitor, o gate de primeira
+  leitura) nao dependem de intencao registrada.
 
-**QUATRO QUEBRAS NOVAS**, das quais duas sao decisao sua e nao mecanica: a ponte §2.1->§2.2 vira uma lembranca
-para tras com verbo de encaminhamento (e falta escrever uma ponte nova no sentido inverso); a ordem da sintese
-da §2.5 ("The argument begins with the targets", **tambem prosa viva**) deixa de espelhar o capitulo; os
-rastreadores pendentes estao ancorados na numeracao atual; e a camada de posicionamento do proprio
-`DEFINITIONS.md` morre junto com o plano.
+**AS CONDICOES QUE ELE POE NA OPCAO (a)**, e a primeira e desenhada para o seu proprio criterio: **KC-1 — o
+AD-4 e resolvido PRIMEIRO**, com voce vendo a forma redigida da §2.1 e nomeando a cabeca. **Se voce rejeitar a
+forma ao ler, essa rejeicao e o sinal para reabrir a (b)**, porque o AD-4 e o custo narrativo da (a) tornado
+visivel. Depois: uma frase de abertura ligando as representacoes aos alvos; o ajuste da frase de escopo em
+`:27-28` no mesmo commit; e as coordenadas rederivadas contra a arvore viva na aplicacao.
 
-**UM ERRO DELE QUE EU ACHEI E CORRIGI NO PROPRIO RELATORIO.** Ele escreveu que "o historico do git comeca em
-2026-07-23" para sustentar o achado negativo. **E falso sobre o repositorio:** a raiz e de **2025-03-08** e ha
-**2.049 commits, 1.666 deles anteriores** aquela data. **O achado sobrevive, e por uma medicao melhor:**
-daqueles 1.666, **exatamente um** toca `articles/dissertacao/` — o `bb4449c8`, que adiciona um `.gitignore` e
-mais nada. Entao nao existe historico anterior onde uma justificativa pudesse estar escondida. Corrigi no
-relatorio e pus probe, porque uma razao errada sustentando uma conclusao certa e citavel depois como se fosse
-a prova.
+**O QUE EU CONFERI, porque auto-relato nao e evidencia:**
+- **Coordenadas:** o `GLOSSARY.md:45` (linha do $\rho$), o `DEFINITIONS.md:590` (linha do AD-4), o `:576`, o
+  `PENDENCIAS.md:1484`, e o `2_fundamentals.tex:27`, `:68`, `:76` — **todas leem como ele diz**.
+- **A contagem de definicoes:** rodei o `grep` dele e as **doze** definicoes estao exatamente nas linhas que
+  ele lista, o `wc -l` da **1527** como ele diz (o meu 1528 anterior era erro meu, de contar uma quebra final),
+  e as tres ocorrencias de "rho" sao mesmo substrings de "neighborhood"/"node2vec".
+- **Ele releu a arvore DEPOIS do meu commit do §6.25:** cota as linhas do `GLOSSARY` como "already paid", o que
+  esta certo — elas servem as duas opcoes.
+- **Duas derivas pequenas, e as duas sao MINHAS, nao erros dele:** o "ja esta validada" que ele cita no
+  `PENDENCIAS:1633` esta hoje na `:1663` (o meu §6.25 empurrou), e o `wc` mudou pelo mesmo motivo.
+- **Um numero dele esta desatualizado por minha causa:** ele fala de **21** probes no capitulo; hoje sao **22**,
+  porque eu adicionei o `R12-placeterm` nesta rodada. **A alegacao de fundo continua verdadeira, e eu a testei
+  em vez de aceitar:** nenhum dos 22 casa com prosa que enuncia a ordem, entao **nenhum probe restringe a
+  ordem das secoes**.
+- **Wall-clock, medido por mim:** ele se declarou em ~1.787 s e disse explicitamente que a minha medicao
+  governa. **Medido: 2.236 s contra o checkpoint de 2.400 s — 7 por cento DENTRO.** Foi o primeiro estudo desta
+  rodada a fechar dentro do prazo.
 
-**Ele estourou o checkpoint:** 3.442 s contra 2.400 s, **43 por cento acima**. Registrado no relatorio.
-
-> **DECISAO SUA — e ela e grande, entao os custos estao acima e nao aqui:**
-> 1. **Inverter com as cinco condicoes.**
-> 2. **Manter a ordem** e seguir com a opcao (a), a subsubsecao do AD-4, que ja esta validada.
-> 3. **Inverter sem alguma das condicoes** — diga qual, porque cada uma cobre uma quebra medida.
+> **DECISAO SUA — e as duas opcoes estao agora precificadas dos dois lados:**
+> 1. **Opcao (a), manter a ordem**, com o KC-1 primeiro: voce le a forma redigida da §2.1 e nomeia a cabeca,
+>    e uma rejeicao sua ali reabre a (b). E a recomendacao do estudo novo.
+> 2. **Opcao (b), inverter**, com as cinco condicoes do `52`. Se voce escolher esta, **duas perguntas suas
+>    voltam**: a ordem da sintese da §2.5 e a edicao do `NORTH_STAR.md:73-80`.
+> 3. **Ler os dois relatorios antes de decidir** — o `52` defende a (b), o `53` defende a (a), e eles
+>    discordam por escrito e nao por omissao.
 >
 > **DECISAO SUA:** ______
+
+**Nenhum `.tex` foi tocado, o `NORTH_STAR.md:73-80` esta intacto, e o plano do `49` continua parado.**
 
 ### 6.25 O `extra` esta VERDE, e as duas linhas do `GLOSSARY` §1.1 entraram
 

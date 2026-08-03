@@ -796,6 +796,22 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
      # ONCE (\\rho), not twice. My first attempt used \\\\rho and the probe went red against text that
      # was correctly present -- a pattern defect reported as a missing claim.
      "../GLOSSARY.md", r"hold the task definitions fixed and vary \$\\rho\$", True),
+    # R12-cmp: the comparative study reversed the previous recommendation (52 said invert, 53 says keep), and
+    # the reversal turns on ONE argument the author must be able to find: the answer-mirror only pays a reader
+    # who already holds the answer, so the design-mirror serves the FIRST reading the project's own G3 gate
+    # governs. If that sentence is ever smoothed away, the record loses why the two studies disagree and the
+    # 52 recommendation reads as unopposed.
+    ("R12-cmp",     "the comparison records the reader-side resolution of the mirror argument, which is why "
+                    "it reverses 52's recommendation",
+     "_round12/53_order_comparison.md",
+     r"scaffold for a first reading; the answer-mirror is a reward for a second", True),
+    # R12-cmpval: and it must keep saying that the "already-validated" label was 52's coinage rather than 49's
+    # finding, with the concrete qualifier -- AD-4, the sign-off on the section shape, is OPEN. I verified this
+    # independently: grep for "validated" in 49 returns zero occurrences of that claim about the option.
+    ("R12-cmpval",  "and it records that option (a) is mechanically checked but narratively unsigned, because "
+                    "AD-4 is still open",
+     "_round12/53_order_comparison.md",
+     r"mechanically checked and narratively unsigned", True),
     # R12-attrib: a commit-message attribution defect, recorded because the suite CANNOT detect this class
     # -- every gate here reads the working tree and none reads the commit log. Two of round 12's commits
     # describe diffs they do not contain, because `git add -A` in a backgrounded cell staged the tree at
