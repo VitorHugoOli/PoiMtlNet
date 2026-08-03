@@ -1,5 +1,4 @@
 % !TeX root = ../main.tex
-% !TeX root = ../main.tex
 % Chapter 6 -- Conclusion (Conclusao Geral)
 % Draft 1 (2026-07-23). Written from NORTH_STAR section 6 Ch.6 beats (synced with all
 % signed-off additions, AVAL rounds 1-3) + the D1 capacity-baseline record
@@ -8,6 +7,7 @@
 % [AUTHOR DECISION pending in section 6.2: prominence of the capacity-matched baseline
 %  paragraph -- it is included per the D1 licensing contract (suppression is not an
 %  option once run), but its length and placement are the author's call.]
+
 
 \chapter{Conclusion}
 \label{ch:conclusion}
@@ -29,6 +29,7 @@ two-point margin (TOST).
 % 5_mobiwac.tex:26-30 and from Section 6.1 below (:49-53): category at all six,
 % region at four (Istanbul, Florida, California, Texas), TOST non-inferiority within
 % two points at Alabama and Arizona. Arizona is NOT upgraded.
+
 
 \section{Contributions by chapter}
 \label{sec:conc:contributions}
@@ -111,6 +112,7 @@ non-inferior within a two-point margin (TOST). Non-inferiority was the registere
 primary analysis for the region task. The four superiority findings are secondary
 results outside that analysis plan.
 
+
 \section{The consolidated answer}
 \label{sec:conc:answer}
 
@@ -140,14 +142,27 @@ The benefit therefore depends on the input representation and the sharing topolo
 % NOTE FOR THE AUTHOR, an overlap I did not decide for you: this same sentence is BLQ-2 in
 % PENDENCIAS section 6.10, which carries NO ruling. The wording applied here is BLQ-2's own
 % option 1, so the two items agree; if you want it reverted it is one sentence.
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
+The first control asks whether the category improvement comes from the training signal
+of the next-region task, whose output space is much larger. Chapter~\ref{ch:mobiwac}
+tests this explanation by fixing the region pathway at its initial values. This removes
+learning from the region side, so that task cannot provide a training signal to the
+category task, but it leaves the rest of the joint architecture in place. The control
+used one random initialization over five folds and was designed for one matched
+comparison: the fixed-region joint model against the dedicated category model under
+the same training configuration. At Alabama, Arizona, and Florida, the fixed-region
+model retains its category advantage. Within this control, the category improvement
+therefore does not require training transfer from the region task. The result rules out
+that explanation, but it does not determine whether the gain comes from the category
+encoder, the feed-forward blocks, the added depth, cross-attention, or a combination of
+these components.
 % [round9c, 2026-08-02, R15-03] TWO fixes in one clause. (1) "region head" -> "region output":
 % the MobiWac GLOSSARY §4 lists "head" as internal jargon and prescribes "output", exempting it only
 % when describing OTHER systems. This clause describes our own earlier configuration, so the exemption
 % does not apply. Measured over all live .tex: "region output" 7, "region head" 1 -- this one, now 0.
 % (2) the relative pronoun "that" written in, per WRITING_LAW §1: without it, "the models" attaches to
 % "driven by" on first reading and the sentence forces a re-parse.
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text.
+% Kept, unrelocated in meaning, for review.]
 % [round5, F50 audit] The author asked whether this experiment is sound enough to cite. It is not,
 % as previously worded. F50_T1_5_CROSSATTN_ABSORPTION.md:229 calls its own null "misleading" and a
 % "hidden compensation effect"; F49 puts the architectural contribution at -16.16 pp. The run also
@@ -155,7 +170,8 @@ The benefit therefore depends on the input representation and the sharing topolo
 % (check2hgi_dk_ovl/bs8192, catx_v17_n20/*.json rundir), and its mechanism depends on the alpha*log_T
 % prior that 5_mobiwac.tex says our models do not use. The withheld attribution is unaffected: it
 % rests on the freeze control and the capacity-matched control. [NEEDS SIGN-OFF: raised round 5, 2026-07-27 | AUTHOR]
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text.
+% Kept, unrelocated in meaning, for review.]
 % [round5, COD-010] The previous sentence said "across three training configurations and all twenty
 % fitted models, the best of them reaches 56.16", which miscounted and mislabelled: twenty is the
 % PER-ARM count, not the total, and 56.16 is the best arm's MEAN, not a maximum over fits. Verified
@@ -178,7 +194,8 @@ The benefit therefore depends on the input representation and the sharing topolo
 % class, in its rarer form: nothing was swallowed mid-sentence, an ARTICLE was orphaned across an
 % inserted block, so the remaining fragment still parses as a line and no gate fires on it.
 % Recovered from the original commit rather than reinvented.
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text.
+% Kept, unrelocated in meaning, for review.]
 % [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-013, 2026-07-26] The interim sentence ("A partial California run,
 % fifteen of twenty repetitions at the time of writing, shows the same direction") is
 % replaced by the completed run, committed at
@@ -199,19 +216,7 @@ The benefit therefore depends on the input representation and the sharing topolo
 % README on the DIAGNOSTIC-BEST basis and are therefore NOT quoted here, where the AL
 % comparison runs on the joint-best basis (AGENT_GUARDRAILS N5).
 
-The first control asks whether the category improvement comes from the training signal
-of the next-region task, whose output space is much larger. Chapter~\ref{ch:mobiwac}
-tests this explanation by fixing the region pathway at its initial values. This removes
-learning from the region side, so that task cannot provide a training signal to the
-category task, but it leaves the rest of the joint architecture in place. The control
-used one random initialization over five folds and was designed for one matched
-comparison: the fixed-region joint model against the dedicated category model under
-the same training configuration. At Alabama, Arizona, and Florida, the fixed-region
-model retains its category advantage. Within this control, the category improvement
-therefore does not require training transfer from the region task. The result rules out
-that explanation, but it does not determine whether the gain comes from the category
-encoder, the feed-forward blocks, the added depth, cross-attention, or a combination of
-these components.
+
 % [GATE FIX C-1, 2026-07-23] "buys nothing" -> "yields nothing"; "the win lives in" ->
 % "the gain resides in" (WRITING_LAW §4 idiom law; claim strength unchanged; author may reword).
 % [v2 review F-01, 2026-07-26] Synced with the Ch.5 correction (persona 10). The frame said the
@@ -220,7 +225,8 @@ these components.
 % and finds delta -0.04 +- 0.13 (statistically indistinguishable, :37). Both figures quoted. The
 % capacity-matched control in the SECOND leg is untouched and is the stronger of the two: it rules
 % out plain parameter count, which the trunk ablation does not bear on.
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text.
+% Kept, unrelocated in meaning, for review.]
 % [round9, 2026-07-30] POINTER ADDED (excellence persona EX-3). This paragraph cites the cosine from an
 % EARLIER preparation of the data (+0.001 over four seeds on four Gowalla states, three of them among the
 % five reported), and Appendix F now measures the same quantity on the final model over seven datasets.
@@ -283,122 +289,128 @@ of the claim. Multitask learning does not provide an automatic benefit, but the 
 negative result does not rule it out. This dissertation demonstrates one path from the
 negative result to a positive one and identifies the conditions tested along that path.
 
+
 \section{Limitations}
 \label{sec:conc:limitations}
 
 Six limitations bound the scope of these conclusions.
 
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
-% [round8, 2026-07-30, PENDENCIAS_RESOLVIDOS 5.6 (arquivado 2026-07-30)] BOTH DATES, because they are different facts and one of them
-% was about to be printed alone. The author's decision was "busque pelo que o artigo original cita e
-% vamos usar isso em ambos", and a track did exactly that: opened cho2011gowalla first-hand (authors'
-% posted PDF, cs.stanford.edu, Section 2 p.2) and put Feb 2009 - Oct 2010 here. Correct as a statement
-% ABOUT THAT PAPER, and wrong as a statement about this work's data, which is what a limitation headed
-% "Data vintage" is read as.
-% MEASURED on the five parquet files this work consumes (columns: local_time; command below):
-%   Alabama    2009-03-18 .. 2011-07-27   n=113,846
-%   Arizona    2009-03-26 .. 2011-07-04   n=236,450
-%   Florida    2009-03-13 .. 2011-08-11   n=1,407,034
-%   Texas      2009-01-21 .. 2011-08-16   n=4,089,892
-%   California 2009-01-24 .. 2011-08-14   n=3,171,380
-%   union 2009-01-21 .. 2011-08-16 -- TEN MONTHS past the window the paper states.
-%   python3 -c "import pandas as pd,glob,os
-%   for f in ['Alabama','Arizona','Florida','Texas','California']:
-%       t=pd.to_datetime(pd.read_parquet(f'/Users/vitor/Desktop/mestrado/data/checkins_by_state/{f}.parquet')['local_time'],errors='coerce')
-%       print(f, t.min(), t.max(), len(t))"
-% The author's premise in 5.6 ("ambos usaram o mesmo recorte, nao houve diferenca") is therefore not
-% what the files show. Not a defect in his decision -- he was ruling on which SOURCE to cite -- but the
-% sentence carried both dates for two days; it now carries only the measured one.
-% [round9c, PENDENCIAS 5.6b, 2026-07-30] SIGN-OFF MARKER REMOVED, question answered. It asked which
-% window to print and offered the cut: "If he prefers only the paper's window, the clause after the
-% comma is the one to cut." He chose the OTHER direction, only the measured window, so the clause that
-% came out is the paper's. Nothing is left for him to decide here, and his instruction is explicit:
-% "O need sing-off assim como os demais ja resolvidos que estao no latex pode ser removidos nao
-% precisam fica lá." The reasoning is preserved in _round9/45_author_rulings.md, per the second half of
-% the same instruction ("Se quider documentar isso tem que ser em algum lugar do src_util").
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
-% [round9c, PENDENCIAS 5.6b, author decision, 2026-07-30] ONE WINDOW, THE MEASURED ONE. His words:
-% "Vamos usar so as datas que encontramos no database de 2009 a 2011, pode omitir que no artigo eles
-% comentam que e de 2009 a 20010." So the clause reporting what the dataset paper states (February
-% 2009 to October 2010) is REMOVED, and the citation stays on the dataset itself, which is what it is
-% for. "since either date" became "since", since there is now one date range.
-% The measurement that produced the printed span is unchanged and is preserved in full in the
-% provenance block above: five parquet files, union January 21 2009 to August 16 2011, with the
-% command that reads them. The paper's own window is not lost either -- it is recorded in
-% src_utils/_round9/45_author_rulings.md under this item, which is where he asked documentation of
-% this kind to live ("Se quider documentar isso tem que ser em algum lugar do src_util").
-% [COD/PENDENCIAS_RESOLVIDOS 5.6 (arquivado 2026-07-30), round8, 2026-07-30] "collected between 2009 and 2011" -> "collected between
-% February 2009 and October 2010", with the citation added. Author decision, PENDENCIAS_RESOLVIDOS 5.6 (arquivado 2026-07-30): "Busque
-% pelo que o artigo original cita e vamos usar isso em ambos. Inclusive ambos usaram o mesmo recorte
-% nao houve diferenca."
-% SOURCED THIS SESSION, first hand. Cho, Myers and Leskovec, "Friendship and Mobility: User Movement
-% in Location-Based Social Networks", KDD 2011, DOI 10.1145/2020408.2020579. The publisher copy is
-% closed (Unpaywall, Semantic Scholar, PMC, Elsevier and Springer all returned no open copy); the
-% authors' own posted PDF was opened at cs.stanford.edu/people/jure/pubs/mobile-kdd11.pdf, 9 pages.
-% Section 2, "CHARACTERISTICS OF CHECK-INS", page 2, states: "We collected all the public check-in
-% data between Feb. 2009 and Oct. 2010 for Gowalla and Apr. 2008 to Oct. 2010 for Brightkite. The
-% total number of check-ins for Gowalla is 6.4 million". Only the window is used here; the 6.4 million
-% figure is NOT quoted in the text, because it counts the whole SNAP collection and not the five-state
-% subset this work uses.
-% CHAPTER 4 NEEDS NO EDIT, which is why this is a one-file change rather than two. Its published prose
-% at 4_courb/conclusion.tex:20 already reads "collected between February 2009 and October 2010", the
-% paper's window verbatim, so the two chapters now agree and no published text is touched. Checked
-% against the Portuguese record and the English translation, ../CoUrb_2026/src/sections/conclusion.tex
-% and src_en/sections/conclusion.tex: both carry the same window.
-% A MEASURED FACT THIS DOES NOT ERASE, and it is the reason for the marker below. The provenance
-% comment at 5_mobiwac/05_setup.tex:17-21 records that the data this work actually consumes is the
-% figshare CC0 category-annotated dump (36,001,959 check-ins), whose date range was MEASURED on the
-% parquet on 2026-07-09 as 2009-01-21 to 2011-08-16, and it states that the SNAP/cho2011 dump is not
-% the data source. That measurement is where "2009 and 2011" came from, so it was not a careless
-% number, and it is left in place unaltered. The sentence above is therefore written as a statement
-% about the GOWALLA COLLECTION as its own paper reports it, not as a claim about the span of the five
-% parquet files, which is the only form in which the author's instruction and the measurement can both
-% stand. PENDENCIAS_RESOLVIDOS 5.6 (arquivado 2026-07-30)'s own warning applies and is respected: do not "correct" a measured number to
-% match an inherited one.
-% [NEEDS SIGN-OFF: PENDENCIAS_RESOLVIDOS 5.6 (arquivado 2026-07-30), round8, 2026-07-30 | AUTHOR -- your decision is applied and Chapter 4
-% needed no change, but ONE PREMISE OF IT IS NOT CONFIRMED HERE. You wrote that both studies used the
-% same extract ("ambos usaram o mesmo recorte nao houve diferenca"). The repository's own measurement
-% disagrees: Chapter 5's pipeline reads a 36-million-check-in figshare dump spanning 2009-01-21 to
-% 2011-08-16, while the window now printed in both chapters is the 6.4-million-check-in SNAP collection
-% window from the paper. Those are two different artifacts, so a reader who checks could find the
-% dissertation citing a window narrower than the data behind Chapter 5. If Chapter 4's study did read
-% the SNAP dump and Chapter 5's reads figshare, the honest form is one clause saying so, and I did not
-% add it because whether the two extracts are the same is a fact about your own runs that I cannot
-% establish from this repository.]
 \begin{enumerate}
-  \item \textbf{Data vintage.} The five state datasets come from
-        Gowalla~\cite{cho2011gowalla}, and the extraction used here spans January 2009
-        to August 2011 across the five states. Mobility patterns, place inventories,
-        and check-in behavior have changed since.
-  \item \textbf{Taxonomy coarseness.} Next-category prediction uses seven top-level
-        classes. A finer taxonomy may change the effect of joint training.
-  \item \textbf{Transductive representation.} Check2HGI is trained on the check-in
-        graph of each dataset, so it cannot represent unseen places or users without
-        retraining.
-  \item \textbf{No next-place task.} The experiments do not predict the exact next
-        POI, and their conclusions apply only to next category and next region.
-  \item \textbf{Geographic coverage.} Outside the United States, the evidence rests on
-        a single city, Istanbul.
-  \item \textbf{The task-pair confound.} The task pair changed together with the
-        representation and the sharing topology. Chapters~\ref{ch:cbic}
-        and~\ref{ch:courb} paired static category classification with next-category
-        prediction, while Chapter~\ref{ch:mobiwac} pairs two sequential targets,
-        next-category and next-region prediction. No single controlled ablation
-        separates the representation-and-topology change from the task-pair change in
-        the final result. Chapter~\ref{ch:courb} is the fixed-pair control for the
-        diagnosis. The capacity-matched baseline above addresses the parameter-count
-        explanation only in the setting that it tested: the category task, two of the
-        six datasets, one width point per dataset, and width scaling rather than
-        depth. The greater similarity of the final pair may still contribute to the
-        size of the improvement.
-        % [GATE FIX C-1] "the size of the win" -> "the size of the improvement" (idiom law).
-        % [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-013, 2026-07-26] "closes the parameter-count explanation"
-        % was unqualified inside a limitations list. Scope QUOTED from
-        % docs/results/closing_data/capacity_matched_stl_cat/README.md, "Reading":
-        % "Parameter count alone, without the second task's training signal, does not
-        % reproduce the gain in this setting -- category task, two of six datasets, one
-        % width point per dataset, width scaling rather than depth." No claim added.
+    % [round8, 2026-07-30, PENDENCIAS_RESOLVIDOS 5.6 (arquivado 2026-07-30)] BOTH DATES, because they are different facts
+    %     and one of them
+    % was about to be printed alone. The author's decision was "busque pelo que o artigo original cita e
+    % vamos usar isso em ambos", and a track did exactly that: opened cho2011gowalla first-hand (authors'
+    % posted PDF, cs.stanford.edu, Section 2 p.2) and put Feb 2009 - Oct 2010 here. Correct as a statement
+    % ABOUT THAT PAPER, and wrong as a statement about this work's data, which is what a limitation headed
+    % "Data vintage" is read as.
+    % MEASURED on the five parquet files this work consumes (columns: local_time; command below):
+    %   Alabama    2009-03-18 .. 2011-07-27   n=113,846
+    %   Arizona    2009-03-26 .. 2011-07-04   n=236,450
+    %   Florida    2009-03-13 .. 2011-08-11   n=1,407,034
+    %   Texas      2009-01-21 .. 2011-08-16   n=4,089,892
+    %   California 2009-01-24 .. 2011-08-14   n=3,171,380
+    %   union 2009-01-21 .. 2011-08-16 -- TEN MONTHS past the window the paper states.
+    %   python3 -c "import pandas as pd,glob,os
+    %   for f in ['Alabama','Arizona','Florida','Texas','California']:
+    %       t=pd.to_datetime(pd.read_parquet(f'/Users/vitor/Desktop/mestrado/data/checkins_by_state/{f}.parquet')
+    %       ['local_time'],errors='coerce')
+    %       print(f, t.min(), t.max(), len(t))"
+    % The author's premise in 5.6 ("ambos usaram o mesmo recorte, nao houve diferenca") is therefore not
+    % what the files show. Not a defect in his decision -- he was ruling on which SOURCE to cite -- but the
+    % sentence carried both dates for two days; it now carries only the measured one.
+    % [round9c, PENDENCIAS 5.6b, 2026-07-30] SIGN-OFF MARKER REMOVED, question answered. It asked which
+    % window to print and offered the cut: "If he prefers only the paper's window, the clause after the
+    % comma is the one to cut." He chose the OTHER direction, only the measured window, so the clause that
+    % came out is the paper's. Nothing is left for him to decide here, and his instruction is explicit:
+    % "O need sing-off assim como os demais ja resolvidos que estao no latex pode ser removidos nao
+    % precisam fica lá." The reasoning is preserved in _round9/45_author_rulings.md, per the second half of
+    % the same instruction ("Se quider documentar isso tem que ser em algum lugar do src_util").
+    \item \textbf{Data vintage.} The five state datasets come from
+    Gowalla~\cite{cho2011gowalla}, and the extraction used here spans January 2009
+    to August 2011 across the five states. Mobility patterns, place inventories,
+    and check-in behavior have changed since.
+    % [round9c, PENDENCIAS 5.6b, author decision, 2026-07-30] ONE WINDOW, THE MEASURED ONE. His words:
+    % "Vamos usar so as datas que encontramos no database de 2009 a 2011, pode omitir que no artigo eles
+    % comentam que e de 2009 a 20010." So the clause reporting what the dataset paper states (February
+    % 2009 to October 2010) is REMOVED, and the citation stays on the dataset itself, which is what it is
+    % for. "since either date" became "since", since there is now one date range.
+    % The measurement that produced the printed span is unchanged and is preserved in full in the
+    % provenance block above: five parquet files, union January 21 2009 to August 16 2011, with the
+    % command that reads them. The paper's own window is not lost either -- it is recorded in
+    % src_utils/_round9/45_author_rulings.md under this item, which is where he asked documentation of
+    % this kind to live ("Se quider documentar isso tem que ser em algum lugar do src_util").
+    % [COD/PENDENCIAS_RESOLVIDOS 5.6 (arquivado 2026-07-30), round8, 2026-07-30] "collected between 2009 and 2011" ->
+    %     "collected between
+    % February 2009 and October 2010", with the citation added. Author decision, PENDENCIAS_RESOLVIDOS 5.6 (arquivado
+    %     2026-07-30): "Busque
+    % pelo que o artigo original cita e vamos usar isso em ambos. Inclusive ambos usaram o mesmo recorte
+    % nao houve diferenca."
+    % SOURCED THIS SESSION, first hand. Cho, Myers and Leskovec, "Friendship and Mobility: User Movement
+    % in Location-Based Social Networks", KDD 2011, DOI 10.1145/2020408.2020579. The publisher copy is
+    % closed (Unpaywall, Semantic Scholar, PMC, Elsevier and Springer all returned no open copy); the
+    % authors' own posted PDF was opened at cs.stanford.edu/people/jure/pubs/mobile-kdd11.pdf, 9 pages.
+    % Section 2, "CHARACTERISTICS OF CHECK-INS", page 2, states: "We collected all the public check-in
+    % data between Feb. 2009 and Oct. 2010 for Gowalla and Apr. 2008 to Oct. 2010 for Brightkite. The
+    % total number of check-ins for Gowalla is 6.4 million". Only the window is used here; the 6.4 million
+    % figure is NOT quoted in the text, because it counts the whole SNAP collection and not the five-state
+    % subset this work uses.
+    % CHAPTER 4 NEEDS NO EDIT, which is why this is a one-file change rather than two. Its published prose
+    % at 4_courb/conclusion.tex:20 already reads "collected between February 2009 and October 2010", the
+    % paper's window verbatim, so the two chapters now agree and no published text is touched. Checked
+    % against the Portuguese record and the English translation, ../CoUrb_2026/src/sections/conclusion.tex
+    % and src_en/sections/conclusion.tex: both carry the same window.
+    % A MEASURED FACT THIS DOES NOT ERASE, and it is the reason for the marker below. The provenance
+    % comment at 5_mobiwac/05_setup.tex:17-21 records that the data this work actually consumes is the
+    % figshare CC0 category-annotated dump (36,001,959 check-ins), whose date range was MEASURED on the
+    % parquet on 2026-07-09 as 2009-01-21 to 2011-08-16, and it states that the SNAP/cho2011 dump is not
+    % the data source. That measurement is where "2009 and 2011" came from, so it was not a careless
+    % number, and it is left in place unaltered. The sentence above is therefore written as a statement
+    % about the GOWALLA COLLECTION as its own paper reports it, not as a claim about the span of the five
+    % parquet files, which is the only form in which the author's instruction and the measurement can both
+    % stand. PENDENCIAS_RESOLVIDOS 5.6 (arquivado 2026-07-30)'s own warning applies and is respected: do not "correct" a
+    %     measured number to
+    % match an inherited one.
+    % [NEEDS SIGN-OFF: PENDENCIAS_RESOLVIDOS 5.6 (arquivado 2026-07-30), round8, 2026-07-30 | AUTHOR -- your decision is
+    %     applied and Chapter 4
+    % needed no change, but ONE PREMISE OF IT IS NOT CONFIRMED HERE. You wrote that both studies used the
+    % same extract ("ambos usaram o mesmo recorte nao houve diferenca"). The repository's own measurement
+    % disagrees: Chapter 5's pipeline reads a 36-million-check-in figshare dump spanning 2009-01-21 to
+    % 2011-08-16, while the window now printed in both chapters is the 6.4-million-check-in SNAP collection
+    % window from the paper. Those are two different artifacts, so a reader who checks could find the
+    % dissertation citing a window narrower than the data behind Chapter 5. If Chapter 4's study did read
+    % the SNAP dump and Chapter 5's reads figshare, the honest form is one clause saying so, and I did not
+    % add it because whether the two extracts are the same is a fact about your own runs that I cannot
+    % establish from this repository.]
+    \item \textbf{Taxonomy coarseness.} Next-category prediction uses seven top-level
+    classes. A finer taxonomy may change the effect of joint training.
+    \item \textbf{Transductive representation.} Check2HGI is trained on the check-in
+    graph of each dataset, so it cannot represent unseen places or users without
+    retraining.
+    \item \textbf{No next-place task.} The experiments do not predict the exact next
+    POI, and their conclusions apply only to next category and next region.
+    \item \textbf{Geographic coverage.} Outside the United States, the evidence rests on
+    a single city, Istanbul.
+    \item \textbf{The task-pair confound.} The task pair changed together with the
+    representation and the sharing topology. Chapters~\ref{ch:cbic}
+    and~\ref{ch:courb} paired static category classification with next-category
+    prediction, while Chapter~\ref{ch:mobiwac} pairs two sequential targets,
+    next-category and next-region prediction. No single controlled ablation
+    separates the representation-and-topology change from the task-pair change in
+    the final result. Chapter~\ref{ch:courb} is the fixed-pair control for the
+    diagnosis. The capacity-matched baseline above addresses the parameter-count
+    explanation only in the setting that it tested: the category task, two of the
+    six datasets, one width point per dataset, and width scaling rather than
+    depth. The greater similarity of the final pair may still contribute to the
+    size of the improvement.
+    % [GATE FIX C-1] "the size of the win" -> "the size of the improvement" (idiom law).
+    % [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-013, 2026-07-26] "closes the parameter-count explanation"
+    % was unqualified inside a limitations list. Scope QUOTED from
+    % docs/results/closing_data/capacity_matched_stl_cat/README.md, "Reading":
+    % "Parameter count alone, without the second task's training signal, does not
+    % reproduce the gain in this setting -- category task, two of six datasets, one
+    % width point per dataset, width scaling rather than depth." No claim added.
 \end{enumerate}
+
 
 \section{Future work}
 \label{sec:conc:future}
@@ -419,6 +431,7 @@ Further cities outside the United States would widen the geographic base
 Chapter~\ref{ch:cbic} task pair, under the check-in-level representation, is the
 controlled comparison needed to isolate the effect of changing the task pair
 (limitation~6).
+
 
 \section{Final remarks}
 \label{sec:conc:final}

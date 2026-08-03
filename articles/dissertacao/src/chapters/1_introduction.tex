@@ -26,13 +26,15 @@
 % Obeys WRITING_LAW.md + GLOSSARY.md. Citation ledger: 1_citations.md (same folder).
 % Rule of this chapter: it NARRATES; the prefaces, recaps, and Chapter 6 litigate.
 
+
 \chapter{Introduction}
 \label{ch:intro}
 
 
 \section{Context and motivation}
 \label{sec:intro:context}
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text.
+% Kept, unrelocated in meaning, for review.]
 % [FAB-12, round 9] "users" plural at the advisor's request. The sentence is generic (it
 % describes what the record type is, not one person's visit), so the plural reads better and
 % no claim changes.
@@ -51,7 +53,8 @@ dissertation also come from neighboring geospatial tasks. In particular, the spa
 encoders examined in the second study were first validated for applications such as
 species recognition and remote-sensing
 classification~\cite{mai2023sphere2vecgeneralpurposelocationrepresentation,wu2024torchspatial}.
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text.
+% Kept, unrelocated in meaning, for review.]
 % [FAB-13, round 9] "the two prediction tasks that are the object of study of this
 % dissertation", his wording, which is more precise about what the two tasks are TO the document.
 % [FAB-16, round 9] The semicolon before "this dissertation does not address it" is gone: he read
@@ -78,7 +81,8 @@ instead of two dedicated single-task models. Joint training does not guarantee b
 predictions, however. Shared parameters can harm one task, a failure known as negative
 transfer. Whether MTL would help these POI prediction tasks, and which design choices
 would determine the result, was an open question at the start of this research.
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text.
+% Kept, unrelocated in meaning, for review.]
 % [NEEDS SIGN-OFF: raised v1 assembly, 2026-07-23 | gate L3 fix A-1. Original sentence was near-verbatim with Ch.5
 % ("one artifact to train, version, and deploy, and one forward pass whose single set
 % of inputs produces both answers at once"); reworded here so the paper chapter keeps
@@ -88,6 +92,8 @@ would determine the result, was an open question at the start of this research.
 % [FAB-19, round 9] "and the arc of this dissertation" removed from the heading at his request:
 % the section IS the research question, and the arc is what the section body then narrates. The
 % \label is untouched on purpose -- sec:intro:arc is cited from three other files.
+
+
 \section{Research question}
 \label{sec:intro:arc}
 
@@ -160,7 +166,8 @@ consolidation:
 \end{enumerate}
 
 % [COD-003, round8, 2026-07-30] Objective 4 said "a leakage-guarded statistical protocol". Changed to
-% "a user-disjoint statistical protocol" on the author's decision, PENDENCIAS_RESOLVIDOS 5.1 (arquivado 2026-07-30) ("Valide no texto,
+% "a user-disjoint statistical protocol" on the author's decision, PENDENCIAS_RESOLVIDOS 5.1 (arquivado 2026-07-30)
+% ("Valide no texto,
 % pf"), and the substitution is his own proposed wording. The reason it is not cosmetic: Chapter 5
 % states that it LIMITED the future-edge channel of the representation, not that it closed it, so
 % "leakage-guarded" promised a property of the representation pipeline that the protocol does not
@@ -171,11 +178,13 @@ consolidation:
 % user-disjoint cross-validation with". That deletion is mechanical de-duplication, not a scope
 % change: the components named (paired significance and non-inferiority testing) are untouched.
 
+
 \section{Scope and assumptions}
 \label{sec:intro:scope}
 
 The experiments use observational check-in traces from two sources: Gowalla data for
-five United States states (Alabama, Arizona, Florida, California, Texas) and the Istanbul subset of the Massive-STEPS benchmark. The prediction targets are the next category, over the
+five United States states (Alabama, Arizona, Florida, California, Texas) and the Istanbul subset of the Massive-STEPS
+benchmark. The prediction targets are the next category, over the
 seven-class taxonomy defined in Chapter~\ref{ch:fundamentals}, and the next region, over census tracts in
 the United States and mahalles in Istanbul.
 The joint model operates under a single-model constraint: one trained artifact must produce
@@ -211,22 +220,9 @@ for the article under review, the submitted manuscript.
 % then re-measure the page counts. Reported in src_utils/_round7/27_comment_trim.md.
 % The collection is organized as follows:
 
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
-  % [FAB-23, round 9] ", Fundamentals" dropped at his request: the \ref renders the number and the
-  % chapter title is already in the sumario, so repeating it here is redundant.
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
-        % Venue verified 2026-07-23 against the official CBIC 2025 site
-        % (cbic2025.dcc.ufmg.br): XVII edition, promoted by SBIC, Belo Horizonte,
-        % October 27-30, 2025.
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
-        % Venue verified 2026-07-23 against SBC OpenLibrary (sol.sbc.org.br/index.php/
-        % courb): X edition, May 25-29 2026, Praia do Forte/BA, with the XLIV SBRC.
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
-        % Venue verified 2026-07-23 against the official symposium site
-        % (mobiwac-symposium.org/2026): 23rd edition. Update the status wording
-        % here and in sections 1.1-1.2 the moment a decision arrives.
-  % [FAB-24, round 9] Same as FAB-23.
 \begin{itemize}
+    % [FAB-23, round 9] ", Fundamentals" dropped at his request: the \ref renders the number and the
+    % chapter title is already in the sumario, so repeating it here is redundant.
     \item \textbf{Chapter~\ref{ch:fundamentals}} defines the shared background: POI
     prediction tasks, mobility representations, multitask learning, datasets,
     metrics, and evaluation protocols.
@@ -234,16 +230,25 @@ for the article under review, the submitted manuscript.
     English at the XVII Congresso Brasileiro de Intelig\^encia Computacional
     (CBIC 2025, DOI~10.21528/CBIC2025-1191324). This dissertation's author is its
     first author.
+    % Venue verified 2026-07-23 against the official CBIC 2025 site
+    % (cbic2025.dcc.ufmg.br): XVII edition, promoted by SBIC, Belo Horizonte,
+    % October 27-30, 2025.
     \item \textbf{Chapter~\ref{ch:courb}} presents an English translation of the second
     article, published in Portuguese at the X Workshop de Computa\c{c}\~ao Urbana
     (CoUrb 2026, DOI~10.5753/courb.2026.22960), held with the Simp\'osio
     Brasileiro de Redes de Computadores e Sistemas Distribu\'idos (SBRC 2026).
     Tarik S.\ Paiva is the first author. This dissertation's author is the second
     author, contributed the MTLnet baseline, and presented the work at the event.
+    % Venue verified 2026-07-23 against SBC OpenLibrary (sol.sbc.org.br/index.php/
+    % courb): X edition, May 25-29 2026, Praia do Forte/BA, with the XLIV SBRC.
     \item \textbf{Chapter~\ref{ch:mobiwac}} presents the third article, submitted to the
     23rd ACM International Symposium on Mobility Management and Wireless Access
     (MobiWac 2026) and under review. This dissertation's author is its first
     author.
+    % Venue verified 2026-07-23 against the official symposium site
+    % (mobiwac-symposium.org/2026): 23rd edition. Update the status wording
+    % here and in sections 1.1-1.2 the moment a decision arrives.
+    % [FAB-24, round 9] Same as FAB-23.
     \item \textbf{Chapter~\ref{ch:conclusion}} answers the research question across the
     three studies, states their joint limitations, and connects each limitation
     to future work.
@@ -259,12 +264,6 @@ article from the final position of the dissertation.
 
 The contributions are organized into four groups.
 
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
-        % [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-014, 2026-07-26] "twenty repetitions per configuration
-        % (four seeds, five folds)" -> the 20 fits kept, the inferential unit (n = 4)
-        % named, plus the fixed-partition clause. Sources: GLOSSARY rows "paired
-        % superiority test" + "n = 20 (fitted models) and n = 4 (inferential unit)";
-        % stats_n20/RESULTS.md:65-67; STATISTICAL_PROTOCOL.md:187-190.
 \begin{description}
     \item[Theoretical.] The studies show that the input representation and its sharing
     topology determine whether MTL helps these POI prediction tasks. A null result
@@ -282,6 +281,11 @@ The contributions are organized into four groups.
     uses paired tests on the four per-seed means, non-inferiority tests, and a
     leakage audit. Because every seed uses the same fold partition, the reported
     intervals do not include uncertainty from resampling the user splits.
+    % [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-014, 2026-07-26] "twenty repetitions per configuration
+    % (four seeds, five folds)" -> the 20 fits kept, the inferential unit (n = 4)
+    % named, plus the fixed-partition clause. Sources: GLOSSARY rows "paired
+    % superiority test" + "n = 20 (fitted models) and n = 4 (inferential unit)";
+    % stats_n20/RESULTS.md:65-67; STATISTICAL_PROTOCOL.md:187-190.
     \item[Practical.] One model produces both predictions in one forward pass. It
     outperforms the dedicated model on next category and either outperforms or
     matches it on next region under the statistical criteria defined in this

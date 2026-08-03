@@ -101,13 +101,13 @@
         % afirmacoes (WRITING_LAW §6) continuar passando no par: linguagem TOST no lugar de
         % "comparaveis", MTL expandido no primeiro uso, e os numeros de volta sem "selecao
         % joint-best", termo que o autor julgou nao explicado aqui.
-        Na previsão da próxima categoria, o modelo conjunto superou os modelos
-        dedicados nos seis conjuntos de dados, com diferenças de 5,3 a 9,4 pontos de
-        macro-F1. Na previsão da próxima região, superou-os em quatro conjuntos e foi
-        estatisticamente não-inferior dentro de uma margem de dois pontos de Acc@10
-        nos outros dois. Suas pontuações também foram maiores que as de todas as linhas
-        de base externas reportadas, nas duas tarefas e nos seis conjuntos. Os
-        resultados mostram que o MTL não constitui um
+        O modelo conjunto superou os modelos dedicados na previsão da próxima categoria
+        nos seis conjuntos de dados, por 5,3 a 9,4 pontos de macro-F1. Na previsão da
+        próxima região, superou-os em quatro conjuntos e, nos outros dois, foi
+        estatisticamente não-inferior dentro da margem de dois pontos de Acc@10. Em
+        ambas as tarefas e nos seis conjuntos, suas pontuações também ficaram acima das
+        reportadas pelos métodos externos usados como referência.
+        Os resultados mostram que o MTL não constitui um
         benefício automático: sua efetividade depende da representação de entrada e
         da topologia de compartilhamento construída para as tarefas consideradas.
         % [round5, persona 17 MAJOR-2, still honored] "Proximo lugar visitado" is NOT used: it
@@ -208,12 +208,13 @@
             % the joint model "is also above every external baseline reported, on both tasks, across all
             % six datasets", naming HMT-GRN, STAN, a ReHDM reference, POI-RGNN and the Markov floor.
             The protocol used user-disjoint cross-validation and paired statistical
-            tests. In next-category prediction, the joint model outperformed the
-            dedicated single-task models at all six datasets, with differences of 5.3
-            to 9.4 macro-F1 points. In next-region prediction, it outperformed them at
-            four datasets and was statistically non-inferior within a two-point Acc@10
-            margin at the other two. Its scores were also higher than those of every
-            reported external baseline on both tasks at all six datasets. The results
+            tests. The joint model outperformed the dedicated single-task models in
+            next-category prediction at all six datasets by 5.3 to 9.4 macro-F1 points.
+            In next-region prediction, it outperformed them at four datasets and, at
+            the other two, was statistically non-inferior within the two-point Acc@10
+            margin. On both tasks and at all six datasets, its scores were also above
+            those reported by the external baselines.
+            The results
             show that MTL does not
             provide an automatic benefit: its effectiveness depends on the input
             representation and the sharing topology designed for the tasks under

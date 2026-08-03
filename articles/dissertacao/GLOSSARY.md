@@ -141,6 +141,7 @@ are named once each in Ch.5's baseline list and the List of Abbreviations only i
 | random initialization (seed) | inicialização aleatória (semente) |
 | non-inferiority (TOST, 2-point margin) | não-inferioridade estatística (TOST, margem de 2 pontos) |
 | outperforms / matches | supera / equipara-se (estatisticamente) |
+| external baseline | método externo usado como referência |
 | leakage audit | auditoria de vazamento |
 | shared trunk | tronco compartilhado |
 | n = 20 (fitted models) | vinte modelos ajustados (por configuração) |

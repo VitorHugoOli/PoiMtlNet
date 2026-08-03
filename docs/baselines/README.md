@@ -11,6 +11,8 @@ This folder is the read-from for the paper's baseline tables. The raw training J
 ```
 baselines/
 ├── README.md                              ← you are here (protocol + status board)
+├── RELATED_WORK_TRIAGE.md                 ← how the literature defines "next-POI prediction" (task-formulation triage)
+├── next_poi_formulations.md               ← per-paper formulation cards (FPMC → UniMove, quotes + evidence)
 ├── next_category/                         ← task: predict next check-in's category (7 classes, macro-F1 primary)
 │   ├── <baseline_name>.md                 ← one per baseline (paper, why-different, adaptations, repro-cmd)
 │   ├── results/<state>.json               ← per-state aggregated metrics across all baselines
@@ -255,6 +257,7 @@ Sign-flips at all 5 states once the `α·log_T` leak is removed (substrate-asymm
 
 ## Cross-references
 
+- **Task-formulation reference (what "next-POI prediction" means in the literature)** — [`RELATED_WORK_TRIAGE.md`](RELATED_WORK_TRIAGE.md) (synthesis: POI = venue ID, ranking task; category/region strictly auxiliary) + [`next_poi_formulations.md`](next_poi_formulations.md) (per-paper cards, FPMC → UniMove, with exact quotes). Read these before writing related-work prose or answering "why don't you predict the exact POI?".
 - **Substrate comparison (Check2HGI vs HGI)** — plan: [`../research/SUBSTRATE_COMPARISON_PLAN.md`](../research/SUBSTRATE_COMPARISON_PLAN.md); Phase-1 findings + sources appendix: [`../research/SUBSTRATE_COMPARISON_FINDINGS.md`](../research/SUBSTRATE_COMPARISON_FINDINGS.md); Phase-2 work queue: [`../PHASE2_TRACKER.md`](../PHASE2_TRACKER.md). Per-fold data lives in `../results/{phase1_perfold,probe,paired_tests}/`. Phase-1 matched-head summary rows are in `next_category/comparison.md` and `next_region/comparison.md`.
 - Per-method findings docs: `../studies/closing_data/archive/findings/FAITHFUL_STAN_FINDINGS.md`, `../research/STAN_HGI_FINDINGS.md`, `../research/STAN_THREE_WAY_COMPARISON.md`, `../research/F21C_FINDINGS.md`.
 - Paper-level table layout: `../PAPER_STRUCTURE.md §3` and `../results/RESULTS_TABLE.md`.
