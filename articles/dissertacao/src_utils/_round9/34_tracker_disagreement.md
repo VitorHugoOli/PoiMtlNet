@@ -329,3 +329,34 @@ Running total across the four rounds: **six claim-or-count defects, six instrume
 (`R9-nocount`'s first pattern, `R9-clock2`'s first pattern, `R9-wave2`'s wrong file, the round-10
 harness's `count=1`, and now `R12-notagg2`'s anchor plus its first repair), **and one fabricated
 postmortem**. Every one was checkable against data already in hand.
+
+---
+
+## Round 12: the severed-item defect, fifth occurrence, and my positional check was the reason it landed
+
+**The defect.** Adding items 6.18 and 6.19 to `PENDENCIAS.md`, I put a `---` between them to separate two
+decisions. In this file `---` separates SECTIONS, so the gate correctly read it as closing §6 and reported
+6.19 as unreachable. Same shape as the four earlier occurrences.
+
+**Why my own check missed it, which is the part worth keeping.** After each insert I run a positional
+assertion. It passed — because I verified only the item I had just anchored (6.18) and not every item in
+the section. 6.19 sat past the rule I had written myself two paragraphs earlier. **A check scoped to the
+thing I just did cannot see damage to the thing next to it.**
+
+**Then the over-correction, in the same cell.** Re-writing the check to cover every item, I modelled the
+rule as "any `---` before an item strands it" and it reported THREE stranded items where the gate reported
+one. Reading the gate's actual condition showed the difference: a `---` severs only when the next non-blank
+line **starts a new item or section**. The rule at line 1158 is followed by prose, which is legal and which
+the file uses deliberately as a paragraph break inside a long item. So my strict check would have had me
+delete a legal separator to satisfy a rule the gate does not enforce.
+
+**Two rules, and the second is the one I keep relearning:**
+1. After inserting into a sectioned tracker, assert over **every** item in the section, not the one just
+   added.
+2. **Re-implementing a gate's rule from its symptom produces a different rule.** The gate's message said
+   "a `---` closes §6 before item 6.19"; I turned that into "any preceding rule strands an item", which is
+   stricter and wrong. Read the checker, or run it — do not reconstruct it from its output.
+
+Running total: six claim-or-count defects, **seven instrument defects** (adding this over-strict positional
+check to the six already listed), one fabricated postmortem, and five occurrences of the severed-item
+defect.

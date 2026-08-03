@@ -1260,6 +1260,97 @@ tem de ser refeito ANTES de qualquer edicao, nao ajustado depois.
 Sua ordem de trabalho esta registrada e sera respeitada: "depois dessas definicoes podemos aplicado."
 Nenhuma edicao no `.tex` foi feita.
 
+### 6.18 Rodada 12 — a AD-2 esta RESPONDIDA pelo codigo original, e a resposta e uma quarta possibilidade
+
+Voce disse: "Calma analise o codigo original do chap. 4: /Users/vitor/Desktop/mestrado/temp/tarik-new,
+antes de decidirmos." **Era exatamente a fonte que faltava**, e ela fecha o que o `_round12/50` dizia que
+so os artefatos da rodada publicada poderiam fechar. **Nenhuma das tres possibilidades que eu listei era a
+certa.**
+
+**1. O embedding temporal e por CHECK-IN, e a prova esta nos outputs guardados do proprio notebook, nao na
+leitura da intencao do codigo.** `Time_Encoder.ipynb`, California:
+
+| celula | output guardado | o que significa |
+|---|---|---|
+| 2 | `N checkins (antes de filtrar): 2535573` | a entrada e a tabela de check-ins |
+| 3 | `(2535573, 2)` | duas features por check-in (`t_hour = hora/24`, `t_dow = dia/7`) |
+| 13 | `time_embeds_sin shape: (2535573, 64)` | **uma linha de 64 dimensoes por check-in** |
+
+Como as features sao hora e dia da semana **por check-in**, duas visitas ao mesmo POI em horarios
+diferentes produzem vetores **diferentes**. A celula 14 monta o frame indexado por `placeid` e grava num
+caminho cujo nome ja diz o nivel, `time_encoder_embeddings_sin_CHECKIN_{estado}.csv`; a 15 copia para
+`data/output/{estado}/time_embedding_novo.csv`, que e o que o ETL le.
+
+**2. E a entrada da tarefa de categoria reduz de check-in para POI DESCARTANDO LINHAS, nao agregando.**
+`PoiMtlNet_Novo/src/etl/create_inputs_hgi.py:437`, literal:
+
+    time_df = time_emb[["placeid"] + num_cols_time].drop_duplicates("placeid")
+
+Com uma linha por check-in indexada por `placeid`, o `drop_duplicates("placeid")` **mantem a primeira
+ocorrencia de cada POI e joga as outras visitas fora.** Os tres componentes sao then unidos por `placeid`
+(:441-443) e a categoria anexada por `placeid` (:448), o que produz os pares $(\mathbf{E}_{cat}, c)$ do
+`methodology.tex:93`. O default do `process_state` e `cat_embeddings=("poi","loc","time")`, entao o canal
+temporal **esta** na entrada da categoria.
+
+**A RESPONSTA, e por que ela nao estava entre as tres.** Existe uma reducao de check-in para POI, e ela e
+`drop_duplicates`, **nao uma agregacao**. O seu instinto de que algo converte o nivel estava certo; a
+operacao nao e media nem pooling, ela **seleciona uma visita arbitraria por POI**. Ou seja: o canal
+temporal que chega a tarefa de categoria carrega o timestamp de **uma** visita, nao um resumo das visitas
+daquele POI, e a variacao que o encoder foi construido para capturar e descartada nessa tarefa.
+
+| possibilidade que eu havia listado | veredito |
+|---|---|
+| (1) agregacao removida depois | **a mais proxima, e errada na palavra que importa.** A reducao existe e **continua** no codigo original. Nao e agregacao. |
+| (2) a categoria rodou sem o canal temporal | **refutada.** O `cat_embeddings` inclui `time` por default. |
+| (3) vetores de nivel check-in na tarefa de categoria | **refutada para a categoria.** Sao reduzidos a um por `placeid` antes. |
+
+**O QUE ISSO DIZ SOBRE O `:93` E O `:153`, e a conclusao e mais branda do que eu temia.** As duas frases
+sao **individualmente corretas**: o `:153` esta certo de que o encoder produz um vetor por check-in, e o
+`:93` esta certo de que um vetor de 192 dimensoes em nivel de POI e pareado com a categoria do POI. **O que
+o texto publicado nunca enuncia e o passo entre as duas**, e esse passo perde informacao de um jeito que um
+leitor gostaria de saber: uma visita por POI sobrevive e as demais sao descartadas.
+
+Isso e **lacuna de descricao, nao numero errado** — os pares com que a tarefa de categoria treinou sao
+exatamente os que o `:93` descreve. Se o capitulo deve registrar o passo de selecao e materia de **errata**
+sob o `NORTH_STAR` §5.7, e o `apx_b_errata.tex` nao a carrega hoje. **O Capitulo 4 nao foi editado.**
+
+> **DECISAO SUA — o que fazer com a lacuna:**
+> 1. **Linha de errata** registrando que o canal temporal e reduzido a uma visita por POI por selecao da
+>    primeira ocorrencia. Custo: uma linha na tabela de errata do Cap. 4. Ganho: a descricao passa a
+>    corresponder ao que rodou, e ninguem reproduzindo o trabalho se surpreende.
+> 2. **Nao registrar**, tratando como detalhe de implementacao. Nenhum numero muda e o `:93` continua
+>    verdadeiro. Risco: um leitor atento que rode o codigo encontra o `drop_duplicates` e conclui que o
+>    texto o omitiu.
+> 3. **Registrar so no Capitulo 2**, na frase que descreve a entrada do Cap. 4, sem tocar a errata.
+>
+> **DECISAO SUA:** ______
+
+**O que o Capitulo 2 pode dizer agora, e ja esta corrigido no `fundamentals/DEFINITIONS.md` §3:** a
+instanciacao do Cap. 4 dizia "de uma funcao do POI visitado e, no Cap. 4, do timestamp da visita". Isso
+agora esta provado **impreciso**: o timestamp e de **uma visita selecionada**, nao da visita naquela
+posicao da janela. As duas redacoes erradas estao nomeadas no arquivo: "do timestamp da visita" e
+"agregado".
+### 6.19 Um item que nunca chegou a voce: a sobrecarga de indices na D13 (AD-7)
+
+Estava no §9 do `DEFINITIONS.md` como item 4 e nunca virou decisao. Na definicao de conflito de gradiente,
+o $\mathbf{g}_i$, o $\mathbf{g}_j$ e o $\varphi_{ij}$ indexam **tarefas**; em todo o resto do capitulo o
+indice $i$ indexa **check-ins** ($x_i$, $H_i$, $\mathbf{e}_{x_i}$). Conferido no bloco vivo.
+
+Um leitor que acompanha os indices ao longo do capitulo tropeca nisso. **Escopo do probe, dito com
+precisao em vez de superdimensionado:** o `R10-cosine` pina a string `def:fund:conflict`, que e o **label**,
+entao uma renomeacao de indices nao o quebraria; o que uma renomeacao arrisca e a prosa ao redor e o
+apendice que aponta de volta para essa definicao.
+
+> **DECISAO SUA:**
+> 1. **Renomear os indices da D13** para algo como $a$ e $b$ (tarefas), deixando o $i$ livre para
+>    check-ins em todo o capitulo. Custo: a equacao `eq:fund:cosine`, a prosa ao redor, e conferir o
+>    apendice que referencia a definicao.
+> 2. **Deixar como esta e adicionar meia frase** dizendo que ali os indices sao de tarefa. Custo minimo,
+>    resolve para o leitor atento, mantem a notacao da fonte (`yu2020pcgrad` usa $i$ e $j$ para tarefas).
+> 3. **Nao fazer nada.** E convencao da literatura e ninguem reclamou.
+>
+> **DECISAO SUA:** ______
+
 ---
 
 ## §3 · Aberto e bloqueado em terceiros

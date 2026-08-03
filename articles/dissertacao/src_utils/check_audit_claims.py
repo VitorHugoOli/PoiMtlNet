@@ -626,6 +626,32 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
                     "and must be redone before any edit",
      "../fundamentals/DEFINITIONS.md",
      r"must be redone BEFORE any edit, not after", True),
+    # ---- AD-2 ANSWERED from the original CoUrb code (temp/tarik-new), 2026-08-03. Three probes, because
+    # this finding has three distinct ways of being flattened by a later pass and each would mislead
+    # differently.
+    #
+    # R12-dropdup: the OPERATIVE WORD. The reduction is drop_duplicates -- it SELECTS one visit per POI
+    # and discards the rest. "Aggregation" (mean, pooling) is the word everyone reached for, including me
+    # and the author, and it is wrong: aggregation would combine the visits. A record saying "aggregated"
+    # would misdescribe what ran. Pin the file path and line, so the claim stays checkable.
+    ("R12-dropdup", "the AD-2 answer names drop_duplicates at its source line, not an aggregation",
+     "_round12/50_courb_temporal_level_investigation.md",
+     r"create_inputs_hgi\.py:437", True),
+    # R12-shape: the EVIDENCE, and it is the strongest kind available here -- a stored notebook output
+    # shape rather than a reading of code intent. 2535573 rows against 2535573 check-ins settles the
+    # granularity numerically. If this number goes, the finding reverts to an argument about intent.
+    ("R12-shape",  "and it carries the stored output shape that proves the per-check-in granularity "
+                   "numerically rather than by reading intent",
+     "_round12/50_courb_temporal_level_investigation.md",
+     r"\(2535573, 64\)", True),
+    # R12-notwrong: the CALIBRATION. It would be easy to write this up as "the published chapter is
+    # wrong", and it is not: :93 and :153 are each individually correct and the unstated step between them
+    # is a DESCRIPTION GAP, not a wrong number. The pairs the category task trained on are exactly what
+    # :93 says. Overstating this would put a false errata claim against a version of record.
+    ("R12-notwrong","and it states the gap as a DESCRIPTION gap rather than a wrong number, because the "
+                    "training pairs are what the published text says they are",
+     "_round12/50_courb_temporal_level_investigation.md",
+     r"description, not a wrong number", True),
 )
 
 # COD-016b needs a STRUCTURAL probe, not a string one, so it lives here rather than in PROBES --
