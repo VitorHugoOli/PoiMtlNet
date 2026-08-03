@@ -961,6 +961,69 @@ capitulo reporta resultado para $f_{\mathrm{place}}$. Probes `R12-fplace` e `R12
 >
 > **DECISAO SUA:** ______
 
+### 6.14 Rodada 12 — as suas quatro descobertas nas definicoes, resolvidas em projeto, e duas decisoes que sobraram
+
+**Voce achou um defeito estrutural, e ele mede como real.** O grafo de dependencias das doze definicoes
+tem **exatamente uma** violacao da ordem de leitura: a **2.3** consome $\mathbf{e}_p$, que a **2.7**
+introduz 318 linhas depois. Todas as outras consumacoes sao para tras e legais. Medido, nao estimado
+(`_round12/46`).
+
+**A sua pergunta sobre a literatura tem resposta, e voce estava certo.** Quatro fontes abertas nesta
+sessao, cada uma citada do proprio texto (`_round12/48`): CSLSL (Def 1 registro = tupla, Def 2 trajetoria =
+sequencia de REGISTROS), CTLE ("a trajectory consisting of sequential visiting records", com o embedding
+como uma FUNCAO $z(l)$), HAMTL (Def 1 ponto, Def 2 trajetoria de pontos) e **o seu proprio MobiWac**
+(`03_problem.tex`: "Given a user's time-ordered check-in history"). **Quatro de quatro definem a sequencia
+sobre observacoes cruas e introduzem a representacao depois, como um mapa.** O caso decisivo e o CTLE:
+um artigo cuja contribuicao E o embedding e que ainda assim separa as duas camadas.
+
+**O QUE ISSO MUDOU NO PROJETO.** A correcao da sua descoberta 2 NAO e redefinir $H_i$ sobre embeddings. O
+$H_i$ continua sequencia de check-ins e entra um **mapa de representacao nomeado** $\rho(x_i)\in\mathbb{R}^d$,
+estendido a historias, antes das tarefas. O argumento que sustenta isso nao e "a area faz assim": e que a
+sua tese central e que a REPRESENTACAO domina, e isso so e enunciavel se a tarefa for o MESMO OBJETO nos
+tres estudos enquanto a representacao varia. Definir a historia sobre embeddings faria a definicao da
+tarefa mudar de capitulo para capitulo e destruiria o ponto de referencia fixo contra o qual a tese e
+medida. As tres alternativas rejeitadas estao argumentadas em `_round12/47`.
+
+**Sobre o $\mathbf{e}_{p_i}$: voce estava meio certo, e a metade importa.** O $\mathbf{e}_p$ **fica** na
+tarefa estatica, porque ela e quantificada sobre POIs e nao existe indice de check-in ali; renomear
+faria uma tarefa estatica parecer sequencial. O que uma POSICAO de historia carrega e $\mathbf{e}_{p_j}$,
+a composicao de $j\mapsto p_j$ com $p\mapsto\mathbf{e}_p$, e o projeto tira essa composicao da prosa e a
+poe numa equacao. A sua descoberta 4 se dissolve nessa fatoracao: a equacao
+$f_{\mathrm{place}}(H_i)\longrightarrow p_i$ esta correta como esta.
+
+**Um defeito que nenhum de nos dois listou:** $c_p$ aparece LIVRE na Definicao 2.3. Medido: ocorre uma
+unica vez na prosa viva, dentro daquela definicao, sem introducao previa; e a linha do
+$g_{\mathrm{cat}}$ no GLOSSARY §1.1 ja o usa, ou seja, o registro antecipava a ligacao que faltava.
+
+**Nenhum probe quebra.** Os 21 probes que pinam este capitulo continuam verdes e as tres cadeias pinadas
+(`R12-eqxi`, `R12-fplace`, `R12-fplace2`) foram carregadas caractere por caractere no projeto. Verificado
+por mim, nao aceito do relatorio.
+
+> **DECISAO SUA 1 — doze definicoes ou treze.** O mapa $\rho$ pode entrar como uma **definicao numerada**
+> (fica 2.1-2.13, e o mapa ganha o mesmo peso visual das outras) ou como uma **equacao em display** na
+> prosa que antecede as tarefas (fica em doze, e o mapa aparece como notacao). As duas formas estao
+> especificadas em `_round12/47` §3. Nao ha diferenca matematica; a diferenca e o quanto voce quer que a
+> fatoracao "mesma tarefa, representacao variavel" salte aos olhos de quem le, dado que ela e a forma
+> logica da sua tese.
+>
+> **DECISAO SUA:** ______
+
+> **DECISAO SUA 2 — como chamar a entrada do Capitulo 4.** O projeto descreve a entrada dos Capitulos 3 e
+> 4 como de nivel de lugar, e para o Capitulo 4 isso e impreciso. Medido em
+> `4_courb/methodology.tex:153`: o componente temporal "represents the timestamp of each check-in", e
+> `:144` diz que ele mapeia "the temporal values of each check-in (hour of day and day of week)". Ou seja
+> a concatenacao do Capitulo 4 tem um canal que varia POR VISITA, mesmo com o canal categorico
+> (HGI) sendo por lugar. Tres saidas:
+> 1. **Chamar o Capitulo 4 de hibrido** — dois canais por lugar mais um por visita. Mais preciso, e
+>    enfraquece um pouco a linha narrativa "lugar -> check-in" que o Capitulo 5 fecha.
+> 2. **Manter "nivel de lugar" com uma ressalva de uma frase** nomeando o canal temporal como a excecao.
+>    Preserva a narrativa e nao esconde o fato.
+> 3. **Manter como esta** — o vetor ainda e indexado pelo lugar visitado no Capitulo 4, e o canal temporal
+>    e uma feature dele. Defensavel, mas um leitor atento do `methodology.tex` pode perguntar.
+> O Capitulo 4 e versao de registro e nao muda; a decisao e sobre como o Capitulo 2 o descreve.
+>
+> **DECISAO SUA:** ______
+
 ---
 
 ## §3 · Aberto e bloqueado em terceiros
