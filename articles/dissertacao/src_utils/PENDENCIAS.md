@@ -1062,6 +1062,77 @@ lendo o resultado ANTES de restaurar.
 >
 > **DECISAO SUA:** ______
 
+### 6.15 Rodada 12 — as suas tres respostas, e a decisao 2 volta com a pergunta consertada
+
+**Decisao 1 — TREZE. FECHADA.** "Vamos de treze." O $\rho$ entra como definicao numerada e o capitulo
+passa a 2.1-2.13. Consequencia mecanica conferida, nao assumida: a renumeracao desloca tudo depois do
+$\rho$, entao cada `\ref{def:fund:*}` sera reconferido na aplicacao; e o probe `R11-def27` pina
+`\label{def:fund:checkinlevel}`, que e um LABEL e nao um numero, logo a renumeracao nao pode quebra-lo
+(verificado contra a tupla de probes carregada, nao contra a minha memoria dela).
+
+**Decisao 3 — NOMEAR AS DUAS CORRENTES. FECHADA.** Voce confirmou o defeito F-1 e deu o mecanismo: "o
+HGI produz dois embeddings finais um de regiao e outro de checking, e usamos essas duas entradas,
+respectivamentte, next-region e next-category". O "respectivamente" e o que decide a favor de nomear as
+duas em vez de remeter ao Capitulo 5, e a observacao de fatoracao no `fundamentals/DEFINITIONS.md` ja diz
+exatamente isso, com a citacao de `5_mobiwac/04_method.tex:27`.
+
+**Decisao 2 — REABERTA, porque a minha pergunta estava mal posta e o codigo mostra isso.** Voce pediu o
+estudo no codigo e em `docs/`, e ele **inverte a premissa**. Nao ha transformacao de nivel de check-in
+para nivel de POI no pipeline do Time2Vec: nao existe `groupby`, media, nem reducao por POI em lugar
+nenhum. O que existe e uma **recusa**:
+
+- `src/data/inputs/builders.py:40` poe `TIME2VEC` em `_CHECKIN_LEVEL_ENGINES`;
+- `builders.py:191-192`, o construtor da entrada da tarefa de categoria, **levanta erro** nesses engines:
+  "Rejects check-in-level engines (Time2Vec, Check2HGI) -- category task requires one embedding per POI";
+- `research/embeddings/time2vec/README.md:66-69` diz o mesmo e aponta aquele arquivo como o lugar da
+  recusa, e declara a saida como `N_checkins x (6 metadata + 64 dims)`;
+- `docs/context/EMBEDDINGS.md:83` "Type: Check-in-level (one embedding per visit event)", e :103-104 diz
+  que a janela do next vira "a true spatio-temporal trajectory, **not just a POI sequence**".
+
+**E a tensao esta DENTRO do capitulo publicado, nao so entre a prosa e o codigo.** O `methodology.tex:93`
+diz que "each POI is represented by the embedding resulting from the concatenation of the three
+components, $\mathbf{E}_{cat}=[\mathbf{E}_{HGI}\|\mathbf{E}_{loc}\|\mathbf{E}_{time}]$ ... forming pairs
+$(\mathbf{E}_{cat},c)$ where $c$ is the real category of the POI" — o que exige um valor de
+$\mathbf{E}_{time}$ por POI. O `:153` diz que $\mathbf{E}_{time}$ "represents the timestamp of each
+check-in" — um valor por CHECK-IN. **As duas frases nao podem ser ambas verdadeiras como estao escritas.**
+
+**O que eu NAO posso resolver, e por que.** Nao consigo estabelecer o que a RODADA PUBLICADA do CoUrb
+fez. O capitulo e versao de registro de experimentos anteriores; o codigo em disco e o de hoje. Tres
+possibilidades ficam abertas e so voce fecha, porque distinguir precisa dos artefatos da rodada e nao da
+arvore de fontes:
+1. a rodada publicada agregava o $\mathbf{E}_{time}$ para nivel de POI, e esse passo foi removido depois;
+2. a tarefa de categoria da rodada publicada rodou SEM o canal temporal, e o `:93` superdeclara a entrada;
+3. a rodada publicada antecede a guarda e alimentou a tarefa de categoria com vetores de nivel de
+   check-in, o que faria os numeros publicados de categoria descreverem uma entrada diferente da que o
+   `:93` afirma.
+
+Se a resposta for (2) ou (3), e materia de errata sob o `NORTH_STAR` §5.7, e o apendice de errata **nao**
+carrega isso hoje (conferido: ele trata do lead da tabela de categoria e de um re-typeset tipografico
+desta mesma passagem em `:311-318`, e nada sobre o nivel do canal temporal). **O Capitulo 4 nao foi
+editado**, e nem sera por mim: e versao de registro.
+
+**Consequencia para o Capitulo 2, que era o motivo da decisao.** A minha opcao 3 estava ERRADA, nao certa:
+`EMBEDDINGS.md:103-104` diz que a janela do next explicitamente nao e uma sequencia de POIs. E eu **nao
+posso** escrever que o canal temporal e agregado ao lugar, que e o texto que a sua premissa produziria —
+e a unica afirmacao que o codigo refuta. O que o Capitulo 2 pode dizer, e continuar verdadeiro sob as
+tres possibilidades, e que o Capitulo 4 troca o vetor monolitico por uma representacao DECOMPOSTA cujos
+componentes sao aprendidos por encoders separados, sem afirmar um nivel unico para o resultado.
+
+> **DECISAO SUA — qual das tres possibilidades vale, e o que fazer com o `:93`.** As opcoes nao sao
+> simetricas em custo:
+> 1. **Voce confirma (1), que houve agregacao na rodada publicada.** Entao o `:93` esta certo, o `:153`
+>    esta incompleto, e o Capitulo 2 pode dizer "nivel de lugar" nomeando a agregacao. Precisa do
+>    artefato ou do commit que a fazia.
+> 2. **Voce confirma (2), a categoria rodou sem o canal temporal.** Entao o `:93` superdeclara e vira
+>    linha de errata; os numeros publicados continuam validos, so a descricao da entrada muda.
+> 3. **Voce confirma (3).** Custo maior: os numeros de categoria descrevem uma entrada diferente da
+>    declarada, e a errata tem de dizer isso.
+> 4. **Deixar em aberto com um `[VERIFY]` no Capitulo 4** e o Capitulo 2 usando a redacao neutra
+>    ("representacao decomposta", sem nivel). Nao resolve, mas nao arrisca uma afirmacao falsa, e mantem
+>    o Capitulo 2 destravado enquanto voce busca o artefato.
+>
+> **DECISAO SUA:** ______
+
 ---
 
 ## §3 · Aberto e bloqueado em terceiros

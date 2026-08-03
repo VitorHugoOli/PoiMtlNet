@@ -547,6 +547,37 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
                    "as claiming the task",
      "chapters/2_fundamentals.tex",
      r"no chapter reports a result\s*for \$f_\{\\mathrm\{place\}\}\$", True),
+    # ---- ROUND-12, the author's rulings of 2026-08-03 on the definition redesign. These pin RECORDS,
+    # not chapter prose, because the redesign is not applied yet and the records are what a later pass
+    # reads. Each one is a claim that has already drifted once or could plausibly be softened by a
+    # summarizer, which is the test for whether a probe earns its place.
+    #
+    # R12-thirteen: he ruled THIRTEEN definitions ("Vamos de treze"), so rho becomes a numbered
+    # Definition. The twelve-definition fallback stays in the design as the record of the alternative,
+    # which is exactly the condition under which a later reader could mistake the dead option for the
+    # live one. Pin the ruling.
+    ("R12-thirteen","the definition design records THIRTEEN as the author's settled choice, not an open "
+                    "twelve-or-thirteen question",
+     "../fundamentals/DEFINITIONS.md", r"RESOLVED 2026-08-03: THIRTEEN", True),
+    # R12-streams: he confirmed F-1 and gave the mechanism -- two final embeddings of one trained graph,
+    # feeding next-region and next-category respectively. The single-equation wording would misstate the
+    # input of the study the whole arc resolves on, so both halves are pinned: the ruling, and the
+    # two-stream statement itself.
+    ("R12-streams", "Chapter 5's input is recorded as TWO elementwise streams, per his own mechanism",
+     "../fundamentals/DEFINITIONS.md", r"RESOLVED 2026-08-03: NAME BOTH STREAMS", True),
+    # R12-notagg: THE CODE FINDING, and the one most likely to be quietly reversed. His premise was that
+    # Chapter 4's temporal channel is aggregated to POI level. The pipeline does the opposite: the
+    # category-task builder REJECTS check-in-level engines (src/data/inputs/builders.py:191-192) and no
+    # aggregation exists anywhere in it. A later pass that writes "aggregated to the place" into Chapter 2
+    # would be writing the one claim the code refutes, so the investigation's negative finding is pinned
+    # positively and the refuted phrasing is banned from the record.
+    ("R12-notagg",  "the investigation records that NO check-in-to-POI aggregation exists in the Time2Vec "
+                    "pipeline, so Chapter 2 may not claim one",
+     "_round12/50_courb_temporal_level_investigation.md",
+     r"There is no aggregation function anywhere in the\s+Time2Vec pipeline", True),
+    ("R12-notagg2", "and the investigation does not assert the aggregation it was sent to look for",
+     "_round12/50_courb_temporal_level_investigation.md",
+     r"^The temporal channel is aggregated to the place", False),
 )
 
 # COD-016b needs a STRUCTURAL probe, not a string one, so it lives here rather than in PROBES --

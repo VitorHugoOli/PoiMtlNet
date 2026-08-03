@@ -3,9 +3,11 @@
 > **STATUS: a design document, not chapter text. Nothing here is applied to `src/`.**
 > The single working copy of the chapter is `../src/chapters/2_fundamentals.tex` (single-source rule,
 > `CLAUDE.md` §1), and this folder is frozen as the provenance record of how Chapter 2 was built. This
-> file belongs to that record: it is the design the application pass will work from, and **six author
-> decisions gate that pass** (listed in §10 below and carried in `src_utils/PENDENCIAS.md` §6.13 and
-> §6.14). Do not edit the chapter from this file; approve the decisions, then the edit plan in
+> file belongs to that record: it is the design the application pass will work from. **Two of the six
+> gating decisions were resolved on 2026-08-03** (thirteen definitions, and naming Chapter 5's two
+> streams); **four remain**, including one that was REOPENED because a code investigation showed the
+> question had been put wrongly. §10 below carries the current state of all six, and
+> `src_utils/PENDENCIAS.md` §6.13 and §6.14 carry them with their costs. Do not edit the chapter from this file; approve the decisions, then the edit plan in
 > `../src_utils/_round12/49_definitions_validation_and_plan.md` applies it.
 
 ## Why this document exists
@@ -529,16 +531,18 @@ ordering and $\rho$ layer still stand, but findings 2 and 4 reopen at the wordin
 
 ---
 
-## 10. The six author decisions that gate application
+## 10. The six gating decisions: two closed, one reopened, four open
 
-Nothing in this design is applied until these are settled. Three are carried in
-`../src_utils/PENDENCIAS.md` §6.14 with their costs, two in §6.13, and one comes from the validation pass.
+Nothing in this design is applied until the open ones are settled. **AD-1 and AD-3 are CLOSED as of
+2026-08-03.** AD-2 is open and its question changed shape: see
+`../src_utils/_round12/50_courb_temporal_level_investigation.md`, which is the code study he asked for
+and which refutes the premise the decision was framed on. AD-4, AD-5 and AD-6 are untouched.
 
 | id | the decision | where it is recorded |
 |---|---|---|
-| **AD-1** | **Twelve definitions or thirteen.** $\rho$ as a numbered Definition (2.1-2.13, giving the map the same visual weight as the others) or as a displayed equation in the prose before the tasks (staying at twelve, with the map as notation). No mathematical difference; the question is how visible the "same task, varying representation" factorization should be, given that it is the logical shape of the dissertation's thesis. Both forms are fully specified in §3. | PENDENCIAS §6.14 decision 1 |
-| **AD-2** | **How Chapter 2 names Chapter 4's input.** Calling it place-level is imprecise: `4_courb/methodology.tex:153` says its temporal component "represents the timestamp of each check-in", so the concatenation carries a per-visit channel beside per-place ones. Three options: call it hybrid, keep "place-level" with a one-sentence caveat naming the temporal channel, or leave it as is. The factorization is true under all three; options 1 and 2 require rewording the §5 D5 remark. Chapter 4 itself is a version of record and does not change. | PENDENCIAS §6.14 decision 2 |
-| **AD-3** | **How Chapter 2 states Chapter 5's two-stream input** (new, from F-1). Either name both streams in the remark (precise, but imports an architecture detail Chapter 5 explains) or say only that Chapter 5 instantiates at the check-in level and defer the streams (lighter, but incomplete for a Chapter-2-only reader). | PENDENCIAS §6.14 decision 3 |
+| **AD-1** | ~~Twelve definitions or thirteen.~~ **RESOLVED 2026-08-03: THIRTEEN.** His words: "Vamos de treze." $\rho$ enters as a numbered Definition, so the chapter becomes 2.1-2.13 and the factorization carries the same visual weight as the objects it relates. The twelve-definition fallback in §3 is now dead and is kept only as the record of the alternative. Mechanical consequence, verified not assumed: renumbering shifts every definition after $\rho$, so each `\ref{def:fund:*}` must be re-checked at application; probe `R11-def27` pins `\label{def:fund:checkinlevel}`, a LABEL and not a number, so renumbering cannot break it (confirmed against the parsed probe tuple). | PENDENCIAS §6.14 decision 1, closed |
+| **AD-2** | **How Chapter 2 names Chapter 4's input. STILL OPEN, AND THE QUESTION WAS MALFORMED — none of my three options is right.** He asked for a code study and it inverted the premise: there is no check-in-to-POI aggregation in the Time2Vec pipeline, and the category-task builder REJECTS the temporal channel outright (`builders.py:191-192`). Worse, `methodology.tex:93` and `:153` contradict each other as written. Full evidence and the three possibilities that remain open in `../src_utils/_round12/50_courb_temporal_level_investigation.md`; only he can close them, because it needs the published run's artifacts rather than the source tree. Chapter 2 must therefore NOT assert a single level for Chapter 4's input. | PENDENCIAS §6.14 decision 2, reopened with new evidence |
+| **AD-3** | ~~How Chapter 2 states Chapter 5's two-stream input.~~ **RESOLVED 2026-08-03: NAME BOTH STREAMS.** He confirmed the defect and supplied the mechanism: "o HGI produz dois embeddings finais um de regiao e outro de checking, e usamos essas duas entradas, respectivamentte, next-region e next-category" — two final embeddings of the same trained graph, feeding the two tasks respectively. That is what §5's D5 remark now says, with the `04_method.tex:27` quote. His "respectively" is what settles it in favor of naming both rather than deferring to Chapter 5. | PENDENCIAS §6.14 decision 3, closed |
 | **AD-4** | **Sign-off on the new Section 2.1 shape.** The tasks section would host the representation definitions in a new subsubsection, whose heading the author names. `2_fundamentals.tex:26-27` ("This section defines the prediction targets before reviewing the methods") stays literally true, but the section's shape changes. | this file; add to PENDENCIAS on approval |
 | **AD-5** | **The two registry rows already pending:** $\mathbf{e}_{x_i}$ and $f_{\mathrm{place}}(H_i)$. These are a prerequisite, not a consequence: if both are withdrawn, the definitions that use them need re-scoping before any edit lands. | PENDENCIAS §6.13 |
 | **AD-6** | **The label-withholding sentence in D2** — keep as written or sharpen its referent. His sentence, and not mathematically wrong either way. | this file, §5 D2 |
