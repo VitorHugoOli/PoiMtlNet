@@ -634,24 +634,37 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # and discards the rest. "Aggregation" (mean, pooling) is the word everyone reached for, including me
     # and the author, and it is wrong: aggregation would combine the visits. A record saying "aggregated"
     # would misdescribe what ran. Pin the file path and line, so the claim stays checkable.
-    ("R12-dropdup", "the AD-2 answer names drop_duplicates at its source line, not an aggregation",
+    # DESCRIPTION CORRECTED 2026-08-03: this said "the AD-2 answer". There is no AD-2 answer -- it was
+    # retracted. The probe still earns its place because the dedup's LOCATION is an established fact and the
+    # record must keep citing it checkably; what it does NOT license is the conclusion drawn from it.
+    ("R12-dropdup", "the record cites the placeid dedup at its source line, as an established fact and not "
+                    "as evidence of a check-in-to-POI selection step",
      "_round12/50_courb_temporal_level_investigation.md",
      r"create_inputs_hgi\.py:437", True),
     # R12-shape: the EVIDENCE, and it is the strongest kind available here -- a stored notebook output
     # shape rather than a reading of code intent. 2535573 rows against 2535573 check-ins settles the
     # granularity numerically. If this number goes, the finding reverts to an argument about intent.
-    ("R12-shape",  "and it carries the stored output shape that proves the per-check-in granularity "
-                   "numerically rather than by reading intent",
+    ("R12-shape",  "and it carries the stored output shape that establishes the ENCODER's per-check-in "
+                   "granularity numerically (which survives the retraction; what did not survive is that "
+                   "this matrix is what the ETL consumes)",
      "_round12/50_courb_temporal_level_investigation.md",
      r"\(2535573, 64\)", True),
-    # R12-notwrong: the CALIBRATION. It would be easy to write this up as "the published chapter is
-    # wrong", and it is not: :93 and :153 are each individually correct and the unstated step between them
-    # is a DESCRIPTION GAP, not a wrong number. The pairs the category task trained on are exactly what
-    # :93 says. Overstating this would put a false errata claim against a version of record.
-    ("R12-notwrong","and it states the gap as a DESCRIPTION gap rather than a wrong number, because the "
-                    "training pairs are what the published text says they are",
+    # R12-notwrong WAS REPLACED, 2026-08-03. It pinned "description, not a wrong number" -- the calibration
+    # of a conclusion that has since been RETRACTED, so the probe was enforcing a withdrawn claim and went
+    # correctly red when the record was corrected. A probe on a retracted conclusion is worse than no probe:
+    # it fights the correction. What earns a probe now is the RETRACTION, because the tempting error for a
+    # later pass is to re-derive the same conclusion from the same two facts and skip the link again.
+    ("R12-retract", "the AD-2 investigation records that its own 'answered' conclusion was RETRACTED, and "
+                    "why: the ETL reads a parquet nothing in that repository writes",
      "_round12/50_courb_temporal_level_investigation.md",
-     r"description, not a wrong number", True),
+     r"RETRACTED AND REOPENED", True),
+    ("R12-retract2","and it does not assert that AD-2 is answered",
+     "_round12/50_courb_temporal_level_investigation.md",
+     r"(?:\A|[.!?][*_'\")\]]*\s|\n)\s*(?:[-*+]\s+|\d+\.\s+)?(?:\*\*|__|\*)?\s*"
+     r"AD-2 is (?:therefore )?(?:now )?answered", False),
+    ("R12-verify",  "and it carries the VERIFY flag naming the one artifact that would close AD-2",
+     "_round12/50_courb_temporal_level_investigation.md",
+     r"\[VERIFY: the granularity of time_embedding\.parquet", True),
     # R12-attrib: a commit-message attribution defect, recorded because the suite CANNOT detect this class
     # -- every gate here reads the working tree and none reads the commit log. Two of round 12's commits
     # describe diffs they do not contain, because `git add -A` in a backgrounded cell staged the tree at
@@ -663,6 +676,33 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
      # target -- the file says "read the working tree and never the commit log". A dead alternation
      # branch makes a probe look broader than it is; caught by a sabotage leg reporting TARGET ABSENT.
      r"no gate in `check\.sh` can detect it|never the commit log", True),
+    # ---- His four rulings of 2026-08-03 (side chat). Three probes: the two whose flattening would cause
+    # real damage, plus the registry scope note.
+    #
+    # R12-neutral: HIS RULING WAS "do not register", which is SILENCE, not licence to write the wrong
+    # thing. The Chapter 4 instantiation must say only "a function of the visited POI"; both "of the
+    # visit's timestamp" (false: it is ONE SELECTED visit) and "aggregated" (false: the operation selects)
+    # stay forbidden. An edit pass reading "not recorded, implementation detail" could easily reintroduce
+    # a wrong qualification, which is exactly the failure this pins shut.
+    ("R12-neutral", "the design records that his 'do not register' ruling is silence and does NOT license "
+                    "the two wordings the code refutes",
+     "../fundamentals/DEFINITIONS.md",
+     r"not a licence to write the wrong thing", True),
+    # R12-ad7: AD-7 renames D13's indices from i,j to a,b so that i means a check-in everywhere in the
+    # chapter. Pinned on the DESIGN, not the chapter, because the chapter edit lands with the redesign --
+    # editing it earlier would desynchronize the two during the pending window. The rename departs from
+    # the source's own notation (yu2020pcgrad uses i,j for tasks), so the design must keep saying WHY.
+    ("R12-ad7",     "the design carries D13's renamed task indices and the reason for departing from the "
+                    "source's notation",
+     "../fundamentals/DEFINITIONS.md",
+     r"departs from the source's notation deliberately", True),
+    # R12-placerep: `place representation` is registered at his instruction, but WRITING_LAW section 5 bans
+    # synonym-cycling and this row is a near-synonym of `place embedding`. Without the scope note the row
+    # licenses precisely the rotation the law forbids, so the note is the load-bearing half of the entry.
+    ("R12-placerep","the new place-representation registry row carries its scope note, so it cannot "
+                    "license synonym-cycling against WRITING_LAW section 5",
+     "../GLOSSARY.md",
+     r"Scope of `place representation`", True),
 )
 
 # COD-016b needs a STRUCTURAL probe, not a string one, so it lives here rather than in PROBES --

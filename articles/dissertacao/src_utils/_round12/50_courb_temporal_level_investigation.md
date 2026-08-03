@@ -76,75 +76,79 @@ now open there.
 
 ---
 
-## CLOSED, 2026-08-03: the author pointed at the original code and the answer is a FOURTH possibility
+## RETRACTED AND REOPENED, 2026-08-03: I closed this on a link I never established
 
-He said: "Calma analise o codigo original do chap. 4: /Users/vitor/Desktop/mestrado/temp/tarik-new, antes
-de decidirmos." That repository is the CoUrb-era code, and it settles what this document said only the run
-artifacts could settle. **None of the three possibilities above was correct.**
+An auditor found the defect. **The section that stood here claimed AD-2 was answered by a fourth
+possibility, and its central inference is unverified.** The claim is withdrawn. What follows is what the
+original code actually establishes, what it does not, and where the boundary sits.
 
-### What the original code does
+### The defect
 
-**1. The temporal embedding is per CHECK-IN, and the notebook's own stored outputs prove it numerically
-rather than by reading intent.** `Time_Encoder.ipynb`, California:
+I wrote that `Time_Encoder.ipynb` cell 15 writes `time_embedding_novo.csv`, "which is what the ETL reads",
+and concluded from there that `drop_duplicates("placeid")` reduces per-check-in rows to one arbitrary visit
+per POI. **The two files are not the same file, and I never checked.**
 
-| cell | stored output | what it means |
+| what | where | name and format |
 |---|---|---|
-| 2 | `N checkins (antes de filtrar): 2535573` | the input is the check-in table |
-| 3 | `(2535573, 2)` | two features per check-in |
-| 13 | `time_embeds_sin shape: (2535573, 64)` | **one 64-d row per check-in** |
+| what the ETL reads | `PoiMtlNet_Novo/src/etl/create_inputs_hgi.py:415` | `{OUTPUT_DIR}/{state}/time_embedding.**parquet**` |
+| what the notebook writes | `Time_Encoder.ipynb` cell 15 (raw line 1392) | `.../{estado}/time_embedding_**novo**.**csv**` |
+| what two other notebook lines name | `Time_Encoder.ipynb:1714,:1741` | `.../alabama/time_embedding.**csv**` |
 
-Cell 3 shows the features are `t_hour = hour/24` and `t_dow = dow/7`, computed per check-in, so two visits
-to the same POI at different times produce **different** vectors. Cell 14 assembles those rows into a frame
-keyed by `placeid` and writes it to a path whose own name states the level,
-`time_encoder_embeddings_sin_CHECKIN_{estado}.csv`; cell 15 copies it to
-`data/output/{estado}/time_embedding_novo.csv`, which is what the ETL reads.
+Three names, two formats. And the gap is wider than the names:
 
-**2. The category-task input then reduces check-in level to POI level by DISCARDING ROWS, not by
-aggregating them.** `PoiMtlNet_Novo/src/etl/create_inputs_hgi.py:437`, verbatim:
+- **Nothing in the repository writes `time_embedding.parquet`.** Searching every `.py` under
+  `PoiMtlNet_Novo/`, the only occurrence of that filename is the read at `:415`.
+- **No CSV-to-parquet conversion exists** in `src/etl/` or `pipelines/`.
+- **The file is not on disk**, and neither is any `*time*.csv`, so its shape cannot be measured here.
+- That repository's own documentation disagrees with its own code: `CLAUDE.md:91` describes this ETL as
+  reading `time_embedding.csv`, not the parquet the code reads.
 
-    time_df = time_emb[["placeid"] + num_cols_time].drop_duplicates("placeid")
+So **the producer of the table the ETL consumes is outside this repository, and its granularity is unknown
+to me.**
 
-With one row per check-in keyed by `placeid`, `drop_duplicates("placeid")` **keeps the first occurrence of
-each POI and throws every other visit away.** The three components are then inner-joined on `placeid`
-(:441-443) and the category attached per `placeid` (:448), which produces the $(\mathbf{E}_{cat}, c)$ pairs
-of `methodology.tex:93`. `process_state`'s default is `cat_embeddings=("poi","loc","time")`, so the temporal
-channel IS in the category input.
+### What that breaks, stated in full rather than minimized
 
-### The answer, and why it was not among the three
+If `time_embedding.parquet` is already POI-level, `drop_duplicates("placeid")` is a no-op dedup and **there
+is no check-in-to-POI selection step at all.** Everything I derived from the link falls with it: the "fourth
+possibility" framing; "keeps the first visit to each POI and discards the rest"; and the whole analysis that
+`methodology.tex:93` and `:153` are each individually correct with an unstated lossy step between them,
+which was the basis of the description-gap and errata reasoning.
 
-**There is a check-in-to-POI reduction, and it is `drop_duplicates`, not an aggregation.** The author's
-instinct that something converts the level was right; the operation is not a mean or a pooling. It selects
-one arbitrary visit per POI. So the temporal channel reaching the category task carries the timestamp of a
-single visit, not a summary of that POI's visits, and the variation the encoder was built to capture is
-discarded for that task.
+### What still holds, measured and unaffected
 
-Against the three possibilities this document left open:
+- **The notebook's own granularity.** `Time_Encoder.ipynb` cell 2 prints `N checkins (antes de filtrar):
+  2535573`, cell 3 `(2535573, 2)` for the two features, and cell 13 `time_embeds_sin shape: (2535573, 64)`.
+  Cell 3 shows the features are `t_hour = hour/24` and `t_dow = dow/7` per check-in, so two visits to one
+  POI at different times get different vectors. **That encoder emits one row per check-in.** This is a
+  stored output, not an inference.
+- **`drop_duplicates("placeid")` is in the category-task path**, at `create_inputs_hgi.py:437`, followed by
+  inner joins on `placeid` (:441-443) and the category attached per `placeid` (:448).
+- **The temporal channel is in the category input**: `process_state`'s default is
+  `cat_embeddings=("poi","loc","time")`.
+- Consequently the ETL **expects** a table it must reduce by `placeid`. That is suggestive of check-in-level
+  input and it is *not* proof: a defensive dedup against a POI-level table with duplicate rows is equally
+  consistent with the code.
 
-| possibility | verdict |
-|---|---|
-| (1) an aggregation later removed | **closest but wrong in the operative word.** A level reduction exists and is still in the original code. It is not an aggregation. |
-| (2) the category task ran without the temporal channel | **refuted.** `cat_embeddings` defaults to include `time`. |
-| (3) check-in-level vectors fed to the category task | **refuted for the category task.** They are reduced to one row per `placeid` first. |
+### What AD-2 needs, and it is one artifact
 
-The true answer is a fourth one nobody had listed, which is the argument for having stopped here rather
-than picking from three.
+**`data/output/{state}/time_embedding.parquet` from the CoUrb-era run, or whatever produced it.** One
+`len(df)` against that state's POI count and check-in count decides it: `N_checkins` rows means the
+selection step is real, `N_pois` rows means `drop_duplicates` is a no-op and the published description has
+no gap. `[VERIFY: the granularity of time_embedding.parquet as consumed by the published CoUrb run.]`
 
-### What this means for `methodology.tex:93` and `:153`
+**AD-2 is therefore still OPEN.** The three possibilities listed earlier in this document stand
+undiscriminated, and a fourth (a POI-level parquet produced outside this repository, making the dedup
+vacuous) joins them.
 
-Both sentences are now explicable, and neither is false in the way a reader would first suspect. `:153` is
-correct: the encoder does produce one vector per check-in. `:93` is correct that a POI-level 192-d vector
-is paired with the POI's category. **What the published text never states is the step between them**, and
-that step is lossy in a way a reader would want to know about: one visit per POI survives and the rest are
-dropped.
+### The failure mode, named
 
-That is a gap in the description, not a wrong number: the pairs the category task trained on are exactly
-what `:93` says they are. Whether the chapter should record the selection step is an **errata** question
-under `NORTH_STAR` §5.7, and `apx_b_errata.tex` does not carry it today. **Chapter 4 was not edited.**
+I had two verified facts and joined them with an inference I did not verify, then wrote the inference into a
+durable record **as evidence**. Same shape as the fabricated postmortem recorded in
+`../_round9/34_tracker_disagreement.md`: the individual observations were real; the link between them was
+invented. A filename is a fact and can be checked in one command; "which is what the ETL reads" was the
+whole load-bearing claim and it cost nothing to check.
 
-### What Chapter 2 may now say
-
-The neutral wording this document recommended is still the safe one, and it is now also the accurate one:
-Chapter 4 replaces the monolithic place vector with a **decomposed representation whose components are
-learned by separate encoders**. Chapter 2 may add that the components are combined **at the place level for
-the static task**, which is true and sourced. It must not say the temporal channel is *aggregated* to the
-place, because the operation discards rather than combines.
+**No chapter text is affected.** The author's ruling on the errata question was "nao vamos registrar", and
+under it Chapter 2 writes the neutral form. That ruling now rests on the correct footing: not "there is a
+selection step we choose not to mention", but "the level of Chapter 4's temporal input is not established,
+so the chapter asserts nothing about it".

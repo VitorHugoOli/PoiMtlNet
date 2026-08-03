@@ -3,13 +3,13 @@
 > **STATUS: a design document, not chapter text. Nothing here is applied to `src/`.**
 > The single working copy of the chapter is `../src/chapters/2_fundamentals.tex` (single-source rule,
 > `CLAUDE.md` §1), and this folder is frozen as the provenance record of how Chapter 2 was built. This
-> file belongs to that record: it is the design the application pass will work from. **All six gating
-> decisions are now settled** (AD-1 thirteen definitions, AD-2 answered from the original CoUrb code,
-> AD-3 both of Chapter 5's streams named, AD-4 conditionally, AD-5 both registry rows, AD-6 sharpen the
-> D2 sentence). AD-2 took the longest because its question was put wrongly, and the answer turned out to
-> be a possibility none of us had listed. **One NEW decision is open, AD-7**, an index overloading in
-> D13 that was flagged in §9 and never put to the author. §10 carries every ruling with its evidence and
-> `src_utils/PENDENCIAS.md` §6.13 through §6.18 carry the record.
+> file belongs to that record: it is the design the application pass will work from. **Six of the seven
+> gating decisions are settled** (AD-1 thirteen definitions, AD-3 both of Chapter 5's streams named, AD-4
+> conditionally, AD-5 both registry rows, AD-6 sharpen the D2 sentence, AD-7 rename D13's task indices).
+> **AD-2 is OPEN.** I reported it answered on 2026-08-03 and RETRACTED that the same day: the answer rested
+> on an unverified identification of two different files, and closing it needs one artifact from the
+> published run. §10 carries every ruling with its evidence, the AD-2 row carries the retraction, and
+> `src_utils/PENDENCIAS.md` §6.13 through §6.21 carry the record.
 >
 > **AND ONE ITEM LARGER THAN ANY OF THE SIX IS UNDECIDED: inverting §2.1 and §2.2.** He proposed it in
 > answer to AD-4 — representations first, then the tasks trainable on them — and it is a better fix
@@ -174,14 +174,29 @@ $\rho(H_i)$ rather than $H_i$ itself, and the three studies hold the task DEFINI
 $\rho$. The instantiations, each verified against its chapter:
 
 - Chapters 3 and 4 (place-level): position $j$ of the window carries a vector that is a function of
-the visited POI. **Chapter 4 needs one qualification, established 2026-08-03 from the original code and
-not inferable from the published text:** its temporal component is learned per check-in
-(`Time_Encoder.ipynb` cell 13, stored output `(2535573, 64)` against 2{,}535{,}573 check-ins) and is then
-reduced to one row per POI by `drop_duplicates("placeid")`
-(`PoiMtlNet_Novo/src/etl/create_inputs_hgi.py:437`), which keeps the **first** visit to each POI and
-discards the others. So the vector at position $j$ is a function of the POI and of *one selected visit to
-it*, not of the visit at position $j$. Writing "of the visit's timestamp" would therefore be wrong, and
-writing "aggregated" would also be wrong: the operation selects rather than combines. CBIC:
+the visited POI. **Chapter 4's temporal component: the level is NOT established, and the earlier claim here was retracted
+  on 2026-08-03.** This paragraph previously said the component is learned per check-in and then reduced to
+  one row per POI by `drop_duplicates("placeid")`, so that the vector was a function of the POI and of one
+  selected visit to it. **That rested on an unverified identification of two different files and is
+  withdrawn**: the ETL reads `time_embedding.parquet` (`create_inputs_hgi.py:415`), nothing in that
+  repository writes that parquet, and no CSV-to-parquet conversion exists, so it may already be POI-level,
+  in which case the dedup is a no-op. Full boundary in
+  `../src_utils/_round12/50_courb_temporal_level_investigation.md`.
+
+  **What IS established:** the temporal encoder emits one row per check-in (`Time_Encoder.ipynb` cell 13,
+  stored output `(2535573, 64)` against 2{,}535{,}573 check-ins), and the category-task path dedups by
+  `placeid` (`PoiMtlNet_Novo/src/etl/create_inputs_hgi.py:437`). **What is NOT:** whether the table that
+  dedup consumes is per-check-in or already per-POI. `[VERIFY: the granularity of time_embedding.parquet as
+  consumed by the published CoUrb run.]`
+
+  **WHAT THE CHAPTER WRITES, and the author's ruling now rests on firmer ground.** Under his ruling of
+  2026-08-03 (PENDENCIAS §6.18, option 2, "nao vamos registrar") the chapter says only **"a vector that is
+  a function of the visited POI"**, with no temporal qualification. The reason is no longer "there is a
+  selection step we choose not to mention" but the stronger one: **the level of Chapter 4's temporal input
+  is not established, so the chapter asserts nothing about it.** Both "of the visit's timestamp" and
+  "aggregated" stay forbidden, now because neither is established rather than because one was disproved.
+  **"Do not register" is not a licence to write the wrong thing.** Probes `R12-dropdup`, `R12-shape`,
+  `R12-notwrong` and `R12-notagg2` hold this record in place. CBIC:
   "the concatenation of the 64-dimensional embeddings of $p_1$--$p_9$" (`3_cbic/method.tex:64`), i.e.
   $\rho(x_j) = \mathbf{e}_{p_j}$. CoUrb: "Each check-in in the window is represented by the
   corresponding embedding" with $\mathbf{E}_{cat} = [\mathbf{E}_{HGI} \| \mathbf{E}_{loc} \|
@@ -445,15 +460,23 @@ Definitions D6-D8 fixed and vary $\rho$.
   and tests of Section 2.4, which is the right division of labor; the definition names the phenomenon,
   the evaluation section makes it measurable.
 
-**D13. Gradient conflict** (was 2.12; label `def:fund:conflict`; statement unchanged)
+**D13. Gradient conflict** (was 2.12; label `def:fund:conflict`; **indices renamed per AD-7**, statement
+otherwise unchanged)
 
-> Let $\mathbf{g}_i$ and $\mathbf{g}_j$ be the gradients of two task losses with respect to the shared
-> parameters, and let $\varphi_{ij}$ be the angle between them, so that
-> $$\cos\varphi_{ij} = \frac{\mathbf{g}_i^{\top}\mathbf{g}_j}{\lVert \mathbf{g}_i \rVert\, \lVert
-> \mathbf{g}_j \rVert}.$$
-> The two tasks conflict at that point when $\cos\varphi_{ij} < 0$~\cite{yu2020pcgrad}.
+> Let $\mathbf{g}_a$ and $\mathbf{g}_b$ be the gradients of two task losses with respect to the shared
+> parameters, and let $\varphi_{ab}$ be the angle between them, so that
+> $$\cos\varphi_{ab} = \frac{\mathbf{g}_a^{\top}\mathbf{g}_b}{\lVert \mathbf{g}_a \rVert\, \lVert
+> \mathbf{g}_b \rVert}.$$
+> The two tasks conflict at that point when $\cos\varphi_{ab} < 0$~\cite{yu2020pcgrad}.
 
-- Introduces: $\mathbf{g}_i$, $\varphi_{ij}$ (locally bound by its own "Let"). Consumes: the notion of
+**Why $a$ and $b$ rather than $i$ and $j$ (AD-7, his option 1).** Everywhere else in the chapter $i$ indexes
+a check-in ($x_i$, $H_i$, $\mathbf{e}_{x_i}$); here the subscripts index tasks, and a reader following the
+indices across the chapter reads the same letter as two different things. The source uses $i$ and $j$ for
+tasks (`yu2020pcgrad`), so this departs from the source's notation deliberately and only in the letters: no
+quantity, relation or claim changes, and the citation still carries the definition. Live-tree scope for the
+edit: `2_fundamentals.tex:888-895`, six lines, and the symbols occur **nowhere else in the tree**.
+
+- Introduces: $\mathbf{g}_a$, $\varphi_{ab}$ (locally bound by its own "Let"). Consumes: the notion of
   shared parameters (D10).
 - Correctness: well-formed and self-contained; the subscripts $i, j$ here index TASKS, while the same
   letters index check-ins in D1-D9. This overloading is live today and has not confused a reader
@@ -490,7 +513,7 @@ Probes read from `src_utils/check_audit_claims.py` (read only; not edited). All 
 | `R12-fplace2` | `no chapter reports a result for $f_{\mathrm{place}}$` | NOT BROKEN. The exclusion stays beside the function inside D9. |
 | `NUM-4` | `0.8186` in `chapters/apx_g_hgi_tuning.tex` | NOT TOUCHED. Different file; no number in this design. |
 | `R11-def27` | `\label{def:fund:checkinlevel}` | NOT BROKEN. The label moves with its definition and remains in the same file. |
-| `R9-conflict`, `R10-cosine` | cosine prose; `def:fund:conflict` | NOT TOUCHED. D13 is unchanged. |
+| `R9-conflict`, `R10-cosine` | cosine prose; `def:fund:conflict` | **NOT TOUCHED, re-verified after AD-7.** D13's statement is unchanged but its INDICES are renamed ($i,j \to a,b$). Tested against the live chapter text with the rename applied: `R9-conflict` matches `cosine between their gradients` (prose, no symbols) and `R10-cosine` matches the label `def:fund:conflict`. Both hold before and after. |
 | `R9-pareto*`, `R10-novelty`, `R10-hamtl`, `R11-aligned*`, `R11-hgi`, `R12-dwa*`, `COD-015d`, `A23-R3` | various Section 2.3 strings and absence probes | NOT TOUCHED. This design does not alter Section 2.3 prose or reintroduce any banned string. |
 
 The list of probes this design BREAKS is therefore EMPTY, with one obligation on the application pass:
@@ -530,7 +553,7 @@ ordering and $\rho$ layer still stand, but findings 2 and 4 reopen at the wordin
    author's. Not settled here.
 3. **The withholding sentence in D2.** A sharper referent is recommended but no replacement wording is
    proposed, because the sentence is his and it is not mathematically wrong. Not settled.
-4. **The task/check-in index overloading in D13** ($i, j$ index tasks there, check-ins elsewhere).
+4. ~~**The task/check-in index overloading in D13**~~ **CLOSED 2026-08-03 as AD-7: rename to $a,b$.** See the AD-7 row in §10 and D13's restated form in §5. It was raised here and never became a decision until the author was asked directly.
    Flagged with the cost of the cosmetic fix; not settled.
 5. **MobiWac padding convention.** CBIC and CoUrb zero-padding was verified at the cited lines; the
    MobiWac chapter's handling of histories shorter than the window was not re-verified this session
@@ -548,7 +571,7 @@ ordering and $\rho$ layer still stand, but findings 2 and 4 reopen at the wordin
 
 ---
 
-## 10. The gating decisions: six closed, AD-7 new, plus one larger undecided item
+## 10. The gating decisions: six closed, AD-2 reopened, plus one larger undecided item
 
 Nothing in this design is applied until AD-2 is settled and the structural question below is answered. **AD-1, AD-3, AD-4 (conditionally), AD-5 and AD-6 are CLOSED as of 2026-08-03.** AD-2 is open and its question changed shape: see
 `../src_utils/_round12/50_courb_temporal_level_investigation.md`, which is the code study he asked for
@@ -566,7 +589,7 @@ above carry each ruling with its evidence.
 | **AD-4** | ~~Sign-off on the new Section 2.1 shape.~~ **RESOLVED CONDITIONALLY 2026-08-03, and the condition may cancel the subsection.** Title: **"Check-in and place representation"** (he wrote "Cheking"; `check-in` is the registry form, `checking` occurs zero times in `GLOSSARY.md`). One registry point flagged to him rather than substituted silently: `place embedding` IS registered and `place representation` is NOT, so the second half of his title is an unregistered variant. **His own condition is the load-bearing part:** "maybe with this inversion we even need this new section" — if §2.2 comes first, the representation definitions are already in the right section and a compartment inside the tasks section is unnecessary. So this is a conditional answer, not authorization to create the subsection. | PENDENCIAS §6.16, conditionally closed |
 | **AD-5** | ~~The two registry rows already pending.~~ **RESOLVED 2026-08-03: BOTH AUTHORIZED** ($\mathbf{e}_{x_i}$ and $f_{\mathrm{place}}(H_i)$). And a consequence of AD-1: with thirteen definitions the $\rho$ row is no longer optional but **REQUIRED**, because $\rho$ becomes a numbered object of the chapter rather than prose notation. | PENDENCIAS §6.13 and §6.16, closed |
 | **AD-6** | ~~Keep or sharpen the D2 withholding sentence.~~ **RESOLVED 2026-08-03: SHARPEN** ("vamos afia-la"). Measuring what it must say found the real defect, which is not vagueness: as written, "A target label is withheld from it" invites the reading that categories are STRIPPED from the history, and `5_mobiwac/05_setup.tex:76` says the opposite — "a per-visit vector legitimately carries more than the previous category, including the place, its neighborhood, and the hour of the visit". What is withheld lives in $x_i$, which $H_i$'s index range already excludes. The sharper sentence must name the target AS A FUNCTION OF THE TASK ($c_i$ for next category, $r_i$ for next region), say it comes from $x_i$, and say what REMAINS available. | PENDENCIAS §6.16, closed |
-| **AD-7** | **NEW, and never put to him before: the index overloading in D13.** In the gradient-conflict definition $i$ and $j$ index **tasks**; everywhere else in the chapter they index **check-ins** ($x_i$, $H_i$, $\mathbf{e}_{x_i}$). A reader tracking indices across the chapter trips on it. It was raised as item 4 of §9 and never became a decision. The fix is cosmetic but not free: renaming D13's indices touches the cosine equation `eq:fund:cosine` ($\mathbf{g}_i$, $\mathbf{g}_j$, $\varphi_{ij}$, verified in the live block) and any prose referring to its components. **Probe scope, stated precisely rather than overclaimed:** `R10-cosine` pins the string `def:fund:conflict`, the LABEL, so a pure index rename would not break it; what a rename risks is the surrounding prose and the appendix that points back at this definition, not the probe. | this file, §9 item 4; raise in PENDENCIAS |
+| **AD-7** | ~~The index overloading in D13.~~ **RESOLVED 2026-08-03: RENAME THE INDICES** (his option 1). In D13 $\mathbf{g}_i$, $\mathbf{g}_j$ and $\varphi_{ij}$ index **tasks**, while $i$ indexes **check-ins** everywhere else in the chapter ($x_i$, $H_i$, $\mathbf{e}_{x_i}$). The rename frees $i$ for check-ins throughout. **Scope measured, and smaller than the cost note implied:** the symbols occur in exactly six live lines, all inside the D13 block at `2_fundamentals.tex:888-895`, and **nowhere else in the tree**; the appendix on gradient cosine refers to the concept in a comment and never to the label or the symbols, so the earlier claim that a rename "requires checking the appendix" was wider than the evidence. `R10-cosine` pins the label `def:fund:conflict`, which a rename does not touch. **Applied with the redesign, not before:** §5's D13 specifies the statement as unchanged, so editing the chapter now would put the chapter and this design out of step during the window when the redesign is still pending. | PENDENCIAS §6.19, closed |
 
 Two further registry rows are PROPOSED in §8 ($\rho$ and $d$) plus two amendments to existing rows. The
 notation table is the author's; nothing in this document is registered, and no agent may add a row.

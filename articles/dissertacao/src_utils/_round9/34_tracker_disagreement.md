@@ -388,3 +388,48 @@ message** — the class is invisible to the suite by construction.
 
 Running total: **seven claim-or-count defects**, seven instrument defects, one fabricated postmortem, five
 occurrences of the severed-item defect.
+
+---
+
+## Round 12: I closed AD-2 on an inference I never checked, and it was one command away
+
+Found by the reviewer. **The second fabricated causal link of this project**, and structurally identical to
+the first.
+
+**The defect.** I reported AD-2 answered: the temporal encoder emits one row per check-in, the ETL then
+reduces by `drop_duplicates("placeid")`, therefore one arbitrary visit per POI survives and the published
+chapter has an unstated lossy step. The middle term was never established. The notebook writes
+`time_embedding_novo.csv`; the ETL reads `time_embedding.parquet` (`create_inputs_hgi.py:415`). **Different
+name, different format.** I wrote "which is what the ETL reads" and moved on.
+
+**And the gap is wider than the filename.** Re-measured after the finding: **nothing in that repository
+writes `time_embedding.parquet`**, no CSV-to-parquet conversion exists in `src/etl/` or `pipelines/`, the
+file is not on disk, and that repository's own `CLAUDE.md:91` describes the ETL as reading a `.csv`,
+disagreeing with its own code. The producer of the table the ETL consumes is outside the repository and its
+granularity is unknown. If it is already POI-level, the dedup is a no-op and there is no selection step at
+all — so the entire conclusion, including the description-gap and errata analysis, fails with the link.
+
+**Why it was invisible to me.** Both endpoints were real and independently verified: the stored output shape
+`(2535573, 64)` at cell 13, and the dedup at `:437`. Having verified both, I treated the path between them
+as verified too. **A chain is not verified when its links are.**
+
+**Same shape as the fabricated postmortem above.** There, three mechanisms were invented to explain a real
+failure. Here, one connection was invented to join two real facts. Both times the individual observations
+were sound and the *relation* was supplied by expectation. That is the failure mode to watch for in this
+project: not false facts, but unearned links between true ones.
+
+**What it cost, and what it did not.** No chapter text is wrong: the author had ruled "nao vamos registrar",
+so Chapter 2 writes the neutral form either way. The ruling now rests on firmer ground — not "there is a
+selection step we choose not to mention" but "the level is not established, so the chapter asserts nothing".
+What was damaged was the record, which is what a later pass reads, and one probe that had been pinning the
+retracted conclusion (`R12-notwrong`) went correctly red when the record was corrected. **A probe on a
+retracted claim is worse than no probe: it fights the correction.** It was replaced by probes on the
+retraction itself.
+
+**The rule.** When a conclusion depends on two artifacts being the same object — a file read and a file
+written, a table produced and a table consumed — **that identity is a claim and needs its own evidence**.
+The check here was one `grep` for the writer of that filename, and it would have stopped the whole
+conclusion before it was written down.
+
+Running total: **eight claim-or-count defects**, seven instrument defects, **two fabricated causal links**,
+five occurrences of the severed-item defect.

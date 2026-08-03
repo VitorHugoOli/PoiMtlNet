@@ -1351,6 +1351,136 @@ apendice que aponta de volta para essa definicao.
 >
 > **DECISAO SUA:** ______
 
+### 6.20 Rodada 12 — as suas quatro decisoes, e o que cada uma NAO autoriza
+
+**ITEM 1 — A INVERSAO §2.1 <-> §2.2: voce autorizou o ESTUDO, nao a mudanca.** "Use um fable 5 para
+explorar e validar a inversao, vale ler o articles/dissertacao/fundamentals, onde planejamos o fundamentos
+no principio." Um agente `claude-fable-5` esta rodando com esse escopo e com escrita limitada a **um**
+arquivo novo (`_round12/52_inversion_study.md`); ele nao pode tocar `.tex`, `GLOSSARY`, `NORTH_STAR` nem
+este arquivo.
+
+**A sua escolha de fonte foi boa e vale dizer por que.** A pasta `fundamentals/` e o registro **congelado**
+de como o Cap. 2 foi planejado, e os diretorios dela sao literalmente `2.1_poi_prediction_tasks`,
+`2.2_representations_for_mobility`, e assim por diante — ou seja, ela carrega o raciocinio original da ordem
+que a inversao quer trocar. **Uma medicao previa, que o agente vai confirmar ou refutar:** varri a pasta por
+palavras de ordem ("order", "before review", "first distinguish", "sequence") e **nenhum arquivo argumenta a
+ordem**. O `fundamentals.tex` apenas monta 2.1 a 2.5 na sequencia. Se isso se confirmar, o achado e que a
+ordem foi **herdada do escopo do projeto e nunca defendida**, o que enfraquece o argumento de tradicao
+contra a inversao. Nao vou tratar isso como fechado antes do relatorio.
+
+**ITEM 2 — AD-7, OPCAO 1: RENOMEAR OS INDICES DA D13.** Feito **no desenho**, nao no capitulo. O
+$\mathbf{g}_i,\mathbf{g}_j,\varphi_{ij}$ passam a $\mathbf{g}_a,\mathbf{g}_b,\varphi_{ab}$, liberando o $i$
+para check-ins em todo o capitulo.
+
+Duas medicoes que corrigem o que eu havia dito antes:
+- **O escopo e menor do que a minha nota de custo sugeria.** Os simbolos aparecem em **seis linhas vivas**,
+  todas dentro do bloco da D13 (`2_fundamentals.tex:888-895`), e **em nenhum outro lugar da arvore**. O
+  apendice do cosseno menciona o conceito num comentario e nunca o label nem os simbolos, entao a minha
+  frase de que a renomeacao "exige conferir o apendice" era mais larga do que a evidencia.
+- **Os dois probes sobrevivem, testado e nao raciocinado.** Apliquei a renomeacao ao texto real do capitulo
+  e rodei os padroes: o `R9-conflict` casa `cosine between their gradients` (prosa, sem simbolos) e o
+  `R10-cosine` casa o label `def:fund:conflict`. Ambos valem antes e depois.
+
+**Por que no desenho e nao no capitulo agora:** o §5 do `DEFINITIONS.md` especifica a D13 e o redesenho
+ainda esta pendente. Editar o capitulo hoje poria o capitulo e o desenho fora de sincronia justamente na
+janela em que o redesenho espera decisao. Entra junto com o redesenho.
+
+**ITEM 3 — ERRATA DO AD-2, OPCAO 2: NAO REGISTRAR.** A reducao check-in para POI por
+`drop_duplicates("placeid")` fica como detalhe de implementacao. Nenhum numero muda, o
+`methodology.tex:93` continua verdadeiro, o `apx_b_errata.tex` nao recebe linha, e o Capitulo 4 segue
+intocado como versao de registro.
+
+> **UM PONTO QUE A SUA DECISAO NAO COBRE, e que eu registrei no desenho para quem for aplicar:**
+> "nao registrar" e **silencio**, nao licenca para escrever a coisa errada. A instanciacao do Cap. 4 no
+> `DEFINITIONS.md` §3 dizia "uma funcao do POI visitado e, no Cap. 4, do timestamp da visita", e isso esta
+> **provado impreciso**: o timestamp e de **uma visita selecionada** (a primeira por `placeid`), nao da
+> visita naquela posicao da janela. Sob a opcao 2 o Cap. 2 escreve a forma **neutra** — "uma funcao do POI
+> visitado", sem qualificacao temporal — e as duas redacoes erradas continuam **proibidas**: "do timestamp
+> da visita" (falsa) e "agregado" (a operacao seleciona, nao combina). Os probes `R12-dropdup`,
+> `R12-shape`, `R12-notwrong` e `R12-notagg2` guardam isso.
+
+**ITEM 4 — `place representation` ENTRA NO REGISTRO.** Linha adicionada ao `GLOSSARY.md` §6 ao lado de
+`place embedding`. Com isso o titulo do AD-4 fica **"Check-in and place representation"** com as duas
+metades registradas (a grafia canonica e `check-in`; `checking` nao existe no registro).
+
+**Mas registrei com uma nota de escopo, porque duas linhas quase sinonimas colidem com o §5 do
+`WRITING_LAW`** ("One name per concept for the whole document; synonym-cycling is both imprecise and an AI
+tell"). A nota admite `place representation` em **titulos e cabecalhos**, onde faz paralelo com
+`check-in-level representation`, e mantem `place embedding` como o nome canonico **na prosa corrida**. Sem
+isso, a linha nova licenciaria exatamente a rotacao que a lei proibe. Se voce preferir sem a nota, e uma
+linha sua.
+
+**E isto nao cria a subsubsecao.** O AD-4 segue **condicional**: "maybe with this inversion we even need
+this new section". O item 1 acima e o que decide se ela existe.
+
+**AINDA DEVIDO A VOCE, e eu nao pedi antes:** a linha de registro do $\rho$ (que virou **necessaria** quando
+voce escolheu treze definicoes) e a nota de escopo do $d$ (o $d$ nao esta livre: $d_{ij}$ e distancia
+geodesica no Cap. 3 e $d_{\mathrm{shared}}$ e largura de tronco no Cap. 5). Ambas sao linhas do `GLOSSARY`
+§1.1, e a tabela e sua.
+
+**Nenhum `.tex` foi editado.** A sua ordem segue valendo: "depois dessas definicoes podemos aplicado", e o
+plano de 8 passos do `_round12/49` continua sem valer enquanto a inversao nao for decidida.
+
+### 6.21 Rodada 12 — RETRATACAO: a AD-2 nao esta respondida, e eu a fechei sobre um elo que nao verifiquei
+
+**Retiro a resposta que dei ao §6.18.** Um revisor achou o defeito e ele e real. A conclusao dependia de dois
+arquivos serem o mesmo arquivo, e eu nunca conferi isso.
+
+| o que | onde | nome e formato |
+|---|---|---|
+| o que o ETL LE | `PoiMtlNet_Novo/src/etl/create_inputs_hgi.py:415` | `{OUTPUT_DIR}/{state}/time_embedding.**parquet**` |
+| o que o notebook ESCREVE | `Time_Encoder.ipynb`, celula 15 | `.../{estado}/time_embedding_**novo**.**csv**` |
+| o que outras duas linhas do notebook citam | `Time_Encoder.ipynb:1714,:1741` | `.../alabama/time_embedding.**csv**` |
+
+Eu escrevi "which is what the ETL reads" e segui em frente. **Sao tres nomes e dois formatos.**
+
+**E a lacuna e maior do que o nome do arquivo.** Remedido depois do achado: **nada naquele repositorio
+escreve o `time_embedding.parquet`** (procurei em todo `.py` sob `PoiMtlNet_Novo/`; a unica ocorrencia e a
+leitura na :415), **nao existe conversao csv para parquet** em `src/etl/` nem em `pipelines/`, o arquivo
+**nao esta em disco**, e o proprio `CLAUDE.md:91` daquele repositorio descreve este ETL lendo um `.csv`,
+discordando do proprio codigo. **Quem produz a tabela que o ETL consome esta fora daquele repositorio, e a
+granularidade dela e desconhecida para mim.**
+
+**O que isso derruba, dito por inteiro e nao minimizado.** Se o `time_embedding.parquet` ja for de nivel de
+POI, o `drop_duplicates("placeid")` e um dedup inofensivo e **nao existe passo de selecao nenhum**. Cai com
+o elo: a moldura da "quarta possibilidade", o "mantem a primeira visita e descarta as outras", e toda a
+analise de que o `methodology.tex:93` e o `:153` sao individualmente corretos com um passo perdido entre
+eles, que era a base do argumento de lacuna de descricao e de errata.
+
+**O que continua valendo, medido e intacto:** o encoder emite **uma linha por check-in** (celula 13, output
+guardado `(2535573, 64)`, contra 2.535.573 check-ins da celula 2, com features hora e dia por check-in na
+celula 3); o dedup por `placeid` esta no caminho da tarefa de categoria (`:437`); e o canal temporal esta
+naquela entrada (`cat_embeddings` inclui `time`). O ETL portanto **espera** uma tabela que precisa reduzir
+por `placeid` — o que e **sugestivo** e nao prova: um dedup defensivo contra uma tabela de POI com linhas
+repetidas e igualmente compativel com o codigo.
+
+**O QUE FECHA A AD-2 E UM ARTEFATO SO:** o `data/output/{state}/time_embedding.parquet` da rodada do CoUrb,
+ou o que o produziu. Um `len(df)` contra a contagem de POIs e de check-ins daquele estado decide:
+`N_checkins` linhas e o passo de selecao e real; `N_pois` linhas e o dedup nao faz nada e a descricao
+publicada nao tem lacuna. Marcado como `[VERIFY]` no `_round12/50`.
+
+> **DECISAO SUA — nada precisa mudar no texto, mas voce pode fechar isto se tiver o artefato:**
+> 1. **Voce localiza o `time_embedding.parquet` daquela rodada** (ou o notebook/script que o gerou) e eu
+>    meco a granularidade. Fecha a AD-2 de vez.
+> 2. **Deixar em `[VERIFY]`.** Custo zero para o texto: a sua propria decisao de nao registrar mantem o
+>    Cap. 2 na forma neutra, e agora com razao mais forte — nao "existe um passo que escolhemos nao
+>    mencionar", e sim "o nivel nao esta estabelecido, entao o capitulo nao afirma nada sobre ele".
+>
+> **DECISAO SUA:** ______
+
+**O erro, nomeado, porque e o segundo da mesma familia neste projeto.** Os dois extremos eram reais e
+verificados por mim (a forma `(2535573, 64)` e o dedup na `:437`). Tendo verificado os dois, tratei o
+caminho entre eles como verificado tambem. **Uma corrente nao esta verificada quando os elos dela estao.** E
+a mesma forma do postmortem fabricado que o `_round9/34` registra: la eu inventei tres mecanismos para
+explicar uma falha real, aqui inventei uma ligacao para juntar dois fatos reais. Nas duas vezes as
+observacoes eram boas e a **relacao** foi suprida pela expectativa. O teste que faltava era um `grep` pelo
+escritor daquele nome de arquivo.
+
+**Nenhum texto do capitulo esta errado**, e um probe que pinava a conclusao retratada (`R12-notwrong`) ficou
+vermelho quando eu corrigi o registro — um probe sobre uma conclusao retratada e pior que probe nenhum,
+porque briga com a correcao. Substituido por probes sobre a **retratacao** (`R12-retract`, `R12-retract2`,
+`R12-verify`).
+
 ---
 
 ## §3 · Aberto e bloqueado em terceiros
