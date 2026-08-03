@@ -436,33 +436,47 @@ five occurrences of the severed-item defect.
 
 ---
 
-## Round 12: a replacement that silently did nothing, and a verification that reported success anyway
+## Round 12: a write that never happened, and a verification that reported success anyway
 
-**The defect.** When I retracted the AD-2 answer, I rewrote the AD-2 row of `fundamentals/DEFINITIONS.md`
-using byte offsets found with `str.find`. The offsets had been computed against an *earlier* copy of the file
-in the same session; by the time the replacement ran, an intervening edit had shifted them. `str.replace`
-matched nothing and returned the string unchanged. **The retracted framing survived in the design document
-for a full commit**, still telling a later reader that AD-2 was answered by a "fourth possibility".
+**This section was WRONG when first written and is rewritten. The defect is real; the mechanism I gave for
+it was invented.** The first version said the replacement used byte offsets computed against a stale copy so
+`str.replace` matched nothing. That is not what happened, and an auditor caught it.
 
-**Why the check did not catch it.** I printed a verification immediately after. It said the new text was
-present, and it was right: I had checked for a substring the new text contains, and that substring also
-appeared elsewhere in the file. **A presence check on the replacement is not a check that the replacement
-happened.** The only assertion that would have caught it is the negative one: that the OLD text is gone.
+**What actually happened, read off the cells rather than remembered.** The cell that rewrote the AD-2 row of
+`fundamentals/DEFINITIONS.md` also tried to splice a second correction. Its `f.replace(...)` for the row
+**succeeded** in memory. Its last statement before any write was an `assert` on a boundary it had computed
+for the *other* edit, and that assert **raised**. A traceback means no line after it ran, so `write_text`
+never executed and the cell wrote nothing at all. A later cell then re-read the file from disk into the same
+variable, discarding the corrected string. **The retracted framing survived in the design document for a full
+commit**, still telling a later reader that AD-2 was answered by a "fourth possibility", under a header that
+said the opposite.
 
-**The rule, and it is the third variant of one rule this file already carries.** After any `replace` on a
-file that another cell or edit may have touched:
-1. re-read the file from disk immediately before computing offsets or matching, and
-2. assert the OLD string is ABSENT, not merely that the new one is present.
-The earlier variants were re-reading before a block replace (round 11) and diffing against the committed
-state rather than memory (round 9). Same failure with a different surface each time: **an edit verified by
-what it added rather than by what it removed.**
+**Why my verification passed.** I printed a check immediately after and it said the new text was present. It
+was right and irrelevant: I checked for a substring the new text contains, which also appears elsewhere in
+the file. **A presence check on the replacement is not a check that the replacement happened.**
 
-**One near-miss inside the fix.** Validating the ban probe on the retracted phrasing, my sabotage leg went
-silent and I nearly took that as a broken probe. Reading both strings side by side showed the leg had written
-"keeps ... and discarding" where the banned phrase is "keeping ... and discarding". **The leg was malformed,
-the probe was correct.** That is the mirror of the round-12 anchor defect, where the leg was the thing that
-looked right, and the discipline is the same: when a leg and a probe disagree, read both literals before
-concluding which one is wrong.
+**Two rules, and the first is the one that generalizes.**
+1. **Assert the OLD string is ABSENT, not merely that the new one is present.** This is the only check that
+   distinguishes "the edit landed" from "the edit was never applied", and it catches the stale-offset variant
+   and this abort variant alike.
+2. **A cell that computes and writes must not put an `assert` between them.** Any raise turns the write into
+   a no-op while the in-memory value looks correct, and the next cell's re-read erases the evidence. Write
+   first, or verify in a separate cell.
 
-Running total: eight claim-or-count defects, **eight instrument defects**, two fabricated causal links, five
+**The rule the first version derived was the wrong lesson.** It said to re-read the file before computing
+offsets. Under the real mechanism that would have changed nothing: the offsets were fine and the replace
+succeeded. A correct rule cannot be derived from an invented cause.
+
+**And that invention is the point.** Finding a real defect, I explained it with a failure mode I had hit
+twice before in this project instead of reading what the cells did. That is the same error as the fabricated
+postmortem recorded above, and as the unverified link in the AD-2 investigation: **the observation was real
+and the mechanism was supplied by memory.** Third occurrence of that family, and the first where the false
+mechanism reached a durable record AND a probe rationale before being caught.
+
+**One near-miss inside the fix.** Validating the ban probe on the retracted phrasing, a sabotage leg went
+silent and I nearly filed the probe as broken. Reading both literals side by side showed the leg had written
+"keeps ... and discarding" where the banned phrase is "keeping ... and discarding". The leg was malformed and
+the probe was correct. When a leg and a probe disagree, read both strings before deciding which is wrong.
+
+Running total: eight claim-or-count defects, eight instrument defects, **three invented mechanisms**, five
 occurrences of the severed-item defect.

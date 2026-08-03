@@ -1555,8 +1555,18 @@ $d_{\mathrm{shared}}$ e largura de tronco no Cap. 5). Estao no §6.20.
 me obrigou a rodar tudo por outro caminho, e ai o `extra` apareceu vermelho. **As duas ferramentas
 estavam degradadas ao mesmo tempo**, que e exatamente quando um auto-relato vale menos.
 
-**NAO E CULPA DAS MINHAS EDICOES, e isso e medido e nao suposto:** o `git diff 1117b3f9..HEAD --
-src/` dos meus dois commits lista **nenhum arquivo**. Nao toquei em nada que o `main_extra` inclui.
+**NAO E CULPA DAS MINHAS EDICOES — mas a primeira evidencia que eu dei disso estava ERRADA e um revisor
+pegou.** Eu escrevi que o `git diff 1117b3f9..HEAD -- src/` listava "nenhum arquivo". Aquele comando rodou com
+o `cwd` na pasta `dissertacao/` e um pathspec comecando por `articles/dissertacao/`, entao ele procurou em
+`articles/dissertacao/articles/dissertacao/`, que nao existe. **Um resultado vazio de um caminho inexistente
+nao mede nada**, e eu apresentei isso como "medido e nao suposto".
+
+**REMEDIDO da raiz do repositorio, e o numero muda:** os dois commits **tocam sim** um arquivo sob `src/` —
+o `src/dissertacao.pdf`, em ambos. **A conclusao sobrevive, por evidencia diferente:** o `dissertacao.pdf` e
+uma **saida** de build, copiada pelo `Makefile:36` (`cp build/main.pdf dissertacao.pdf`), e nao entra em
+compilacao nenhuma; e **nenhum `.tex` foi alterado pelos dois commits** — a lista completa e
+`DEFINITIONS.md`, `dissertacao.pdf`, `LEFT_OUT.md`, `PENDENCIAS.md`, `_round12/50`, `_round9/34` e
+`check_audit_claims.py`. Nada que o `main_extra` inclua.
 
 **A CAUSA, passo a passo:**
 1. `make extra` -> rc=2, **mas o PDF sai**: 26 paginas, 0 erros de TeX.

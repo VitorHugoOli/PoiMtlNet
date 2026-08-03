@@ -689,11 +689,16 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     ("R12-lo12clue","and it records the adjacent CBIC errata clue as NOT deciding the question",
      "LEFT_OUT.md", r"One adjacent clue that does NOT decide it", True),
     # R12-ad2row: the AD-2 row in the DESIGN document. This exists because the retracted framing SURVIVED
-    # in that row for a full commit: my replacement used a byte offset computed against a stale copy of the
-    # file, the .replace() matched nothing, and the "verified" print reported the NEW text as present because
-    # I had checked for a substring that the new text contains. So the design still told a later reader that
-    # AD-2 was answered by a "fourth possibility", one commit after the retraction landed elsewhere. Ban the
-    # retracted framing by its two most quotable phrases, positioned anywhere.
+    # in that row for a full commit. MECHANISM CORRECTED 2026-08-03 -- this comment first blamed a stale byte
+    # offset whose .replace() matched nothing, which was a mechanism I supplied from memory rather than read
+    # off the cells. What actually happened: the .replace() SUCCEEDED in memory, but the same cell hit an
+    # `assert` (computed for a different edit) that RAISED before its write_text, so nothing was written at
+    # all; a later cell re-read the file from disk and discarded the corrected string. The "verified" print
+    # reported the new text as present because I had checked for a substring the new text contains -- a
+    # presence check on the replacement is not a check that the replacement happened. The distinction matters
+    # for the rule: re-reading before computing offsets would NOT have prevented this, whereas asserting the
+    # OLD string is ABSENT would. Full account in _round9/34_tracker_disagreement.md. Ban the retracted
+    # framing by its two most quotable phrases, positioned anywhere.
     ("R12-ad2row",  "the design's AD-2 row does not carry the retracted 'fourth possibility' framing",
      "../fundamentals/DEFINITIONS.md", r"FOURTH possibility none of us had listed", False),
     ("R12-ad2row2", "nor the retracted claim that the first visit survives and the rest are discarded",
@@ -750,6 +755,21 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
                     "measurement that actually supports the finding",
      "_round12/52_inversion_study.md",
      r"It stands on a measurement of what the early commits CONTAIN", True),
+    # R12-mech: THE RECORD MUST CARRY ONE MECHANISM FOR THE SURVIVING-ROW DEFECT, NOT TWO. For a while it
+    # carried two incompatible ones -- a stale byte offset whose replace missed (invented, written into
+    # _round9/34 and into the R12-ad2row rationale) and an assert that raised before write_text (measured,
+    # written into _round12/51). They are not variants: under one the replace ran and missed, under the other
+    # it succeeded and the write never happened, and only the second is what the cells show. The derived RULE
+    # differs too, which is why a contradiction here is not cosmetic: re-reading before computing offsets
+    # would not have prevented the real defect. Pinned on 34 because that is the file a later pass reads for
+    # the lesson.
+    ("R12-mech",    "the postmortem names the assert-before-write mechanism and retracts the invented "
+                    "stale-offset one",
+     "_round9/34_tracker_disagreement.md",
+     r"the mechanism I gave for\s+it was invented", True),
+    ("R12-mech2",   "and it does not assert the stale-offset story as the cause",
+     "_round9/34_tracker_disagreement.md",
+     r"The offsets had been computed against an \*earlier\* copy", False),
     # R12-attrib: a commit-message attribution defect, recorded because the suite CANNOT detect this class
     # -- every gate here reads the working tree and none reads the commit log. Two of round 12's commits
     # describe diffs they do not contain, because `git add -A` in a backgrounded cell staged the tree at
