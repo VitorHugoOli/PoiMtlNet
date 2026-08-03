@@ -46,8 +46,25 @@ for ext in pdf log blg; do
   mv -f "build/.$STEM.$ext.$$" "build/$STEM.$ext"
 done
 
-PAGES=$(sed -n 's/.*Output written on [^ ]* (\([0-9]*\) pages.*/\1/p' "build/$STEM.log" | tail -1)
-ERRS=$(grep -c '^! ' "build/$STEM.log" || true)
+# LC_ALL=C ON BOTH LINES, and the two have DIFFERENT standing -- read this before "simplifying" it.
+#
+#   :PAGES is a REAL BUG FIX. TeX writes hyphenation into the log in the log's own encoding, and a
+#   Portuguese word from a CBIC bibliography entry lands there as a Latin-1 byte: byte 61294 of
+#   build/main_extra.log is \xea inside "In-te-li-g^en-cia Com-pu-ta-ci-o-nal". BSD sed (macOS) aborts on
+#   the whole file with "RE error: illegal byte sequence" in a UTF-8 locale, so PAGES came out EMPTY and
+#   this script took its own "the build did not finish" branch -- reporting a failure about a build that
+#   had produced a correct 26-page PDF with zero TeX errors. GNU sed does not do this, which is why the
+#   defect is invisible on Linux. LC_ALL=C says "treat the file as bytes", and the regex is pure ASCII, so
+#   nothing else changes. `make extra` was red on this alone; the other three targets have no such byte.
+#
+#   :ERRS is HYGIENE AND SYMMETRY, NOT A BUG FIX. It is here so the two lines cannot drift apart, and
+#   NOT because the count was wrong. MEASURED before adding it: `grep -c '^! '` against that same
+#   Latin-1-bearing log returns 0 in the UTF-8 locale AND 0 under LC_ALL=C, so the `tex_errors=0` this
+#   script has been printing for the extra target IS TRUE. I had suspected the `|| true` was masking a
+#   silent failure here and tested it rather than assuming; it was not. Do not read this line as the
+#   repair of a bug that never existed.
+PAGES=$(LC_ALL=C sed -n 's/.*Output written on [^ ]* (\([0-9]*\) pages.*/\1/p' "build/$STEM.log" | tail -1)
+ERRS=$(LC_ALL=C grep -c '^! ' "build/$STEM.log" || true)
 if [ -z "$PAGES" ]; then
   echo "latexbuild: NO PAGE COUNT in build/$STEM.log -- the build did not finish"
   exit 1

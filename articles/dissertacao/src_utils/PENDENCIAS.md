@@ -1665,6 +1665,55 @@ a prova.
 >
 > **DECISAO SUA:** ______
 
+### 6.25 O `extra` esta VERDE, e as duas linhas do `GLOSSARY` §1.1 entraram
+
+**ITEM 1 — `LC_ALL=C` nas duas linhas, opcao 2. FEITO, e o `extra` passou a rc=0.** Os quatro alvos agora
+saem `104/101/105/26` paginas com `tex_errors=0` em todos, e o `make check` e o `make selftest` em rc=0 —
+**seis comandos verdes, lidos um por um**. Era a primeira vez nesta rodada que o `extra` fechava.
+
+**O comentario diz exatamente o que voce pediu, e diz a diferenca entre as duas linhas:**
+- a `:PAGES` **e correcao de defeito real** — o `sed` do BSD abortava o arquivo inteiro por causa do byte
+  Latin-1 na hifenizacao de "In-te-li-g^en-cia Com-pu-ta-ci-o-nal", entao o `PAGES` saia vazio e o script
+  reportava "the build did not finish" sobre um build que tinha produzido um PDF correto de 26 paginas;
+- a `:ERRS` **e higiene e simetria, NAO conserto de bug**, e o comentario registra a medicao que estabelece
+  isso: o `grep -c '^! '` devolve `0` **nos dois locales** naquele log, entao o `tex_errors=0` do `extra`
+  **e verdadeiro**. Esta escrito no arquivo com essas palavras para ninguem depois ler a `:ERRS` como reparo
+  de um defeito que nunca existiu.
+
+Dois probes guardam a distincao (`R12-locale`, `R12-locale2`), porque confundir as duas linhas e exatamente
+o que voce pediu para evitar. Reli o arquivo do disco imediatamente antes de editar e usei caminhos
+explicitos no commit.
+
+---
+
+**ITEM 2 — as duas linhas do `GLOSSARY` §1.1: ENTRARAM.**
+
+A do **$\rho$** registra o mapa de representacao e, no campo de notas, a razao pela qual ele importa: os
+modelos das tarefas **sequenciais** leem $\rho(H_i)$ e nao o $H_i$, a tarefa estatica le $\mathbf{e}_p$
+direto, e **os tres estudos mantem as definicoes de tarefa fixas e variam o $\rho$** — que e o que torna a
+alegacao central do trabalho enunciavel.
+
+A do **$d$** entrou **com a nota de escopo**, e aqui **corrigi um detalhe da sua propria nota**: voce escreveu
+que o $d_{\mathrm{shared}}$ e largura de tronco **no Cap. 5**. **Medido: ele nao aparece no Cap. 5.** As tres
+ocorrencias vivas estao nos **Caps. 3 e 4** (`3_cbic/method.tex:78`, `4_courb/methodology.tex:25` e `:258`,
+com $256$ onde o valor e dado). O $d_{ij}$ (distancia geodesica no peso da aresta de Delaunay,
+`3_cbic/method.tex:23`) tem quatro ocorrencias, tambem nos Caps. 3 e 4. A linha registra os capitulos
+**medidos**, nao os da nota, e diz que nenhum dos dois subscritos e instancia da linha nova.
+
+---
+
+**ITEM 3 — a inversao: o estudo comparativo esta rodando, e eu NAO toquei em nenhum `.tex` de ordem.** A sua
+suspensao esta respeitada: nada de inverter, nada de editar o `NORTH_STAR.md:73-80`, e o plano de oito passos
+do `_round12/49` continua parado. O resultado vai para o **§6.24**, como voce pediu.
+
+**E uma coisa que eu conferi antes de comecar, porque a sua nota dizia o contrario:** os tres itens que voce
+listou como "no disco, sem commit" (a correcao do primeiro `[VERIFY]` do `_round12/52`, a nota de wall-clock, e
+o probe `R12-studyfix`) **ja estavam commitados**, no `5446ffb3`. A arvore estava limpa. **Mas o seu ponto sobre
+o `R12-studyfix` estava certo e importava:** aquele probe nunca havia disparado, porque a frase-alvo quebra
+linha no fonte e a minha perna procurou a forma sem quebra. **Validei agora contra a forma envolvida**, testando
+o padrao atraves do `strip_text` como voce disse: ele dispara quando a frase de correcao sai, e fica silencioso
+sob uma edicao vizinha nao relacionada. Agora carrega informacao.
+
 ---
 
 ## §3 · Aberto e bloqueado em terceiros

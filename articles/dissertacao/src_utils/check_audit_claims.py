@@ -770,6 +770,32 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     ("R12-mech2",   "and it does not assert the stale-offset story as the cause",
      "_round9/34_tracker_disagreement.md",
      r"The offsets had been computed against an \*earlier\* copy", False),
+    # ---- His rulings of 2026-08-03 (second batch).
+    #
+    # R12-locale: the LC_ALL=C fix on latexbuild.sh, his option 2. TWO probes because the two lines have
+    # DIFFERENT standing and conflating them is the specific error he asked me to prevent: :PAGES was a real
+    # bug (BSD sed aborted on a Latin-1 byte, so `make extra` reported a failed build that had in fact
+    # produced a correct 26-page PDF), while :ERRS is hygiene -- I MEASURED that `grep -c '^! '` returns 0 in
+    # both locales on that log before adding it. A later reader who takes :ERRS for a bug fix would conclude
+    # the tex_errors counts had been wrong all along, which they were not.
+    ("R12-locale",  "both extraction lines in latexbuild.sh run under LC_ALL=C",
+     "../src_utils/latexbuild.sh", r"PAGES=\$\(LC_ALL=C sed", True),
+    ("R12-locale2", "and the script says in its own comment that the ERRS line is hygiene rather than a bug "
+                    "fix, with the measurement that establishes it",
+     "../src_utils/latexbuild.sh", r"HYGIENE AND SYMMETRY, NOT A BUG FIX", True),
+    # R12-dscope: the `d` registry row. `d` is NOT a free letter -- d_{ij} is geodesic distance and
+    # d_{shared} is the shared-trunk width, both live. The row without its scope note would license reading
+    # either as an instance of the representation dimension. NOTE the correction of record: the pending note
+    # said d_shared lives in Chapter 5; MEASURED, it is in Chapters 3 and 4 (3_cbic/method.tex:78,
+    # 4_courb/methodology.tex:25,:258) and Chapter 5 has none. The row states the measured chapters.
+    ("R12-dscope",  "the new `d` registry row carries its scope note naming both live subscripted uses",
+     "../GLOSSARY.md", r"\*\*This letter is NOT free, and the row is scoped for that reason\.\*\*", True),
+    ("R12-rho",     "and the rho row records that varying rho while holding the task definitions fixed is "
+                    "what makes the central claim expressible",
+     # PATTERN NOTE: the target is the LaTeX `$\rho$`, so in this raw-string regex the backslash is escaped
+     # ONCE (\\rho), not twice. My first attempt used \\\\rho and the probe went red against text that
+     # was correctly present -- a pattern defect reported as a missing claim.
+     "../GLOSSARY.md", r"hold the task definitions fixed and vary \$\\rho\$", True),
     # R12-attrib: a commit-message attribution defect, recorded because the suite CANNOT detect this class
     # -- every gate here reads the working tree and none reads the commit log. Two of round 12's commits
     # describe diffs they do not contain, because `git add -A` in a backgrounded cell staged the tree at
