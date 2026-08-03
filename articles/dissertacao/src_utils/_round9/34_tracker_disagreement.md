@@ -480,3 +480,38 @@ the probe was correct. When a leg and a probe disagree, read both strings before
 
 Running total: eight claim-or-count defects, eight instrument defects, **three invented mechanisms**, five
 occurrences of the severed-item defect.
+
+---
+
+## Round 12: I read a collect timeout as a completion, and published the opposite of the truth
+
+**Found by a reviewer. Second false in-budget claim about a sub-agent in this project**, and the first is
+recorded above.
+
+**What I published.** For the comparative study: "2,236 s against the 2,400 s checkpoint, 7 percent inside,
+the first study this round to finish inside its budget." Written into `PENDENCIAS.md` §6.24, the commit
+message, and the prose to the author.
+
+**What 2,236 s actually is.** The moment MY collect window closed. The same output line reads
+`OrderCompare | running`, and every structured field beside it was `None`. **A running child with empty
+fields is not a finish time.** I even wrote "collect window closed at 2236s" in my own next sentence, and then
+used the number as a completion measurement anyway.
+
+**What the measurement was.** The child was still `processing` at **3,201 s**, which is **33 percent OVER**
+the checkpoint, and I stopped it there. Its self-report of ~1,787 s is understated by at least 1,414 s. Two
+things attenuate and neither cancels: the deliverable was already complete on disk when I read it, so the
+overrun followed the writing; and the child explicitly deferred to the parent's measurement, which is the
+discipline that should have caught this and did not.
+
+**The failure mode, and it is not the same as the first one.** In round 9 I asserted four personas came back
+inside a checkpoint without reading the timings I had. Here I had a reading and **misinterpreted its kind**: I
+treated an instrument's own timeout as a measurement of the thing being timed. That is worse in one specific
+way, because a wrong number invites a re-check while a plausible number in the right units does not.
+
+**The rule.** A wall-clock figure for a sub-agent is admissible only from a terminal result -- a `completed`
+status with populated fields, or the moment of a `stop_child`. **A collect timeout measures the collector, not
+the child.** Any figure taken from a cell whose status line says `running` is a statement about my own waiting
+and must be labeled as such or discarded.
+
+Running total: nine claim-or-count defects, eight instrument defects, three invented mechanisms, **two false
+in-budget claims about sub-agents**, five occurrences of the severed-item defect.

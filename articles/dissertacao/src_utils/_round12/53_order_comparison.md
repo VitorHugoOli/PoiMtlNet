@@ -456,3 +456,13 @@ not re-derived, see [VERIFY] 3).
 Wall clock, self-reported and to be measured independently by the parent: approximately 1787
 seconds when this file was completed (measured: date +%s deltas against the session start stamp), inside the 2,400-second checkpoint. The parent's measurement
 governs.
+
+> **PARENT'S MEASUREMENT, 2026-08-03, and it governs as this section says.** The self-report above is
+> **understated, and the checkpoint was MISSED.** I first published "2,236 s, 7 percent inside", and that was
+> wrong in kind: 2,236 s is when MY collect window closed, with the child still reported `running` and every
+> structured field empty. I read a timeout as a completion. **Measured: the child was still processing at
+> 3,201 s, which is 33 percent OVER the 2,400 s checkpoint**, and I stopped it there, so the ~1,787 s above is
+> understated by at least 1,414 s. **Two things attenuate and neither cancels:** this file was already complete
+> on disk when I read it (34,525 bytes, every section present), so the overrun followed the writing rather than
+> losing work; and the child did explicitly defer to the parent's measurement, which is the discipline that
+> caught it. Every wave in this project has overrun its checkpoint. This one did too.

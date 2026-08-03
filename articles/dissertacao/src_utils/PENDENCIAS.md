@@ -1672,9 +1672,16 @@ visivel. Depois: uma frase de abertura ligando as representacoes aos alvos; o aj
   porque eu adicionei o `R12-placeterm` nesta rodada. **A alegacao de fundo continua verdadeira, e eu a testei
   em vez de aceitar:** nenhum dos 22 casa com prosa que enuncia a ordem, entao **nenhum probe restringe a
   ordem das secoes**.
-- **Wall-clock, medido por mim:** ele se declarou em ~1.787 s e disse explicitamente que a minha medicao
-  governa. **Medido: 2.236 s contra o checkpoint de 2.400 s — 7 por cento DENTRO.** Foi o primeiro estudo desta
-  rodada a fechar dentro do prazo.
+- **Wall-clock — CORRIGIDO, e eu tinha escrito o oposto do verdadeiro.** Eu publiquei "2.236 s, 7 por cento
+  DENTRO, o primeiro estudo a fechar no prazo". **Os 2.236 s nao sao medicao do estudo: e o instante em que a
+  MINHA janela de coleta fechou**, com o relatorio dele ainda em `running` e todos os campos vazios. Li um
+  timeout como um termino. **O que esta medido: ele ainda estava processando aos 3.201 s, ou seja 33 por cento
+  ACIMA do checkpoint de 2.400 s**, e eu o encerrei nesse ponto. **Ele estourou, como todas as ondas deste
+  projeto.** Duas coisas atenuam e nenhuma apaga: o arquivo entregue ja estava **completo em disco** quando eu
+  o li (34.525 bytes, todas as secoes), entao o excesso foi depois da escrita e nao trabalho perdido; e o
+  auto-relato dele (~1.787 s) esta **subestimado em pelo menos 1.414 s** contra o momento em que eu o parei —
+  que e exatamente por que ele mesmo disse que a minha medicao governa, e por que auto-relato de prazo nao
+  vale neste projeto.
 
 > **DECISAO SUA — e as duas opcoes estao agora precificadas dos dois lados:**
 > 1. **Opcao (a), manter a ordem**, com o KC-1 primeiro: voce le a forma redigida da §2.1 e nomeia a cabeca,

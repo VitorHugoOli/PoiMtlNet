@@ -812,6 +812,22 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
                     "AD-4 is still open",
      "_round12/53_order_comparison.md",
      r"mechanically checked and narratively unsigned", True),
+    # R12-clock3: I published "2,236 s, 7 percent inside the checkpoint" for the comparative study and it was
+    # wrong IN KIND, not by a margin: 2,236 s is when MY collect window closed with the child still reported
+    # `running` and every structured field empty. I read a timeout as a completion. Measured, the child was
+    # still processing at 3,201 s -- 33 percent OVER the 2,400 s checkpoint. This is the SECOND time this
+    # project has published a false in-budget claim about a sub-agent (see R9-clock/R9-clock2 for the first),
+    # and both times the true reading was already in hand and unread. Ban the retracted figure as an
+    # assertion, anywhere in the record, while allowing the sentences that quote it as retracted.
+    ("R12-clock3",  "the study record carries the parent's real measurement, that the child overran the "
+                    "checkpoint by 33 percent",
+     "_round12/53_order_comparison.md",
+     r"33 percent OVER the 2,400 s checkpoint", True),
+    ("R12-clock4",  "and PENDENCIAS does not assert the retracted in-budget reading of the collect timeout",
+     "PENDENCIAS.md",
+     r"(?:\A|[.!?][*_'\")\]]*\s|\n)\s*(?:[-*+]\s+|\d+\.\s+)?(?:\*\*|__|\*)?\s*"
+     r"(?:Medido|Wall-clock, medido por mim):?\**\s*2\.236 s contra o checkpoint de 2\.400 s\s*—\s*7 por cento "
+     r"DENTRO", False),
     # R12-attrib: a commit-message attribution defect, recorded because the suite CANNOT detect this class
     # -- every gate here reads the working tree and none reads the commit log. Two of round 12's commits
     # describe diffs they do not contain, because `git add -A` in a backgrounded cell staged the tree at
