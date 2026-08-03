@@ -688,6 +688,58 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # settle anything. Losing that qualification would hand a later pass a ready-made false proof.
     ("R12-lo12clue","and it records the adjacent CBIC errata clue as NOT deciding the question",
      "LEFT_OUT.md", r"One adjacent clue that does NOT decide it", True),
+    # R12-ad2row: the AD-2 row in the DESIGN document. This exists because the retracted framing SURVIVED
+    # in that row for a full commit: my replacement used a byte offset computed against a stale copy of the
+    # file, the .replace() matched nothing, and the "verified" print reported the NEW text as present because
+    # I had checked for a substring that the new text contains. So the design still told a later reader that
+    # AD-2 was answered by a "fourth possibility", one commit after the retraction landed elsewhere. Ban the
+    # retracted framing by its two most quotable phrases, positioned anywhere.
+    ("R12-ad2row",  "the design's AD-2 row does not carry the retracted 'fourth possibility' framing",
+     "../fundamentals/DEFINITIONS.md", r"FOURTH possibility none of us had listed", False),
+    ("R12-ad2row2", "nor the retracted claim that the first visit survives and the rest are discarded",
+     "../fundamentals/DEFINITIONS.md",
+     r"keeping the first visit to each POI and discarding the rest", False),
+    # R12-placeterm: the author revoked `place representation` from the registry, which left ONE live line of
+    # the chapter using a term absent from a fail-closed registry (2_fundamentals.tex:650, against eight live
+    # uses of `place embedding`). Fixed to the registered term. Pinned because nothing else gates registry
+    # conformance -- there is no term-sweep checker in this repo, as recorded above.
+    ("R12-placeterm","the chapter does not use the revoked `place representation` in live prose",
+     "chapters/2_fundamentals.tex", r"from a place representation with next-category", False),
+    # R12-d36: the THIRD misattributed commit, and the first whose defect was an aborted cell rather than a
+    # staging mistake. d36da8c5 shipped a DEFINITIONS.md whose header says "AD-2 is OPEN / the AD-2 row
+    # carries the retraction" while the row itself still said ANSWERED. Recorded rather than rewritten
+    # (shared checkout, successor commits). Pinned because this class is invisible to every other gate: they
+    # all read the working tree and none compares a commit message against its own diff.
+    ("R12-d36",     "the record carries the third commit-attribution defect, where a header asserted a "
+                    "correction the table row below it did not carry",
+     "_round12/51_commit_attribution_correction.md",
+     r"shipped a header that contradicts its own table row", True),
+    ("R12-d36why",  "and it names the aborted-cell mechanism plus the negative assertion that would have "
+                    "caught it",
+     "_round12/51_commit_attribution_correction.md",
+     r"cannot detect that one specific replacement never happened", True),
+    # R12-study: the inversion study's LOAD-BEARING finding. The author asked for it specifically, and the
+    # answer is a negative: the frozen planning folder records NO argument for tasks-before-representations,
+    # so the order was inherited from the chapter map rather than defended. A negative finding is the kind
+    # that quietly becomes "we looked and found a reason" on a later retelling, which is why it is pinned.
+    # Spot-checked by me against the live tree, not taken from the sub-agent's self-report: the three
+    # cross-references (2_fundamentals.tex:15, :17, :197), the two labels (:25, :210), zero references
+    # outside the chapter, DEFINITIONS.md:613, and NORTH_STAR.md:73-75 all read as the study reports them.
+    ("R12-study",   "the inversion study records that NO recorded rationale for the tasks-first order "
+                    "exists in the frozen planning folder",
+     "_round12/52_inversion_study.md",
+     r"records NO argument for placing tasks before representations", True),
+    ("R12-studyrec","and its recommendation is marked as a recommendation the author decides, not an "
+                    "authorization",
+     "_round12/52_inversion_study.md",
+     r"this is a recommendation; the author decides, and nothing is authorized", True),
+    # R12-extra: `make extra` is RED and it is not the document -- BSD sed aborts on a Latin-1 byte in the
+    # build log, so the page-count extraction fails while the PDF builds fine. Recorded as his decision
+    # because latexbuild.sh is shared with a parallel agent. Pinned so the red target is not later rediscovered
+    # as a mystery, and so "all four builds rc=0" is not written again while it stands.
+    ("R12-extra",   "the record carries the diagnosis of the red `extra` target as a sed locale failure "
+                    "rather than a document defect",
+     "PENDENCIAS.md", r"illegal byte sequence", True),
     # R12-attrib: a commit-message attribution defect, recorded because the suite CANNOT detect this class
     # -- every gate here reads the working tree and none reads the commit log. Two of round 12's commits
     # describe diffs they do not contain, because `git add -A` in a backgrounded cell staged the tree at

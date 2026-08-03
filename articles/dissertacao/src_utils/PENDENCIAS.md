@@ -1548,6 +1548,54 @@ nisso ate o relatorio existir.
 do capitulo) e a nota de escopo do $d$ (o $d$ nao esta livre: $d_{ij}$ e distancia geodesica no Cap. 3 e
 $d_{\mathrm{shared}}$ e largura de tronco no Cap. 5). Estao no §6.20.
 
+### 6.23 `make extra` esta VERMELHO, e nao e o documento — e o `sed` do proprio script de build
+
+**Eu reportei "all four builds rc=0" nos commits `d36da8c5` e `e1fd3619` e isso estava ERRADO.** O
+`extra` retorna 2. Descobri porque a ferramenta de shell comecou a devolver saida vazia com rc nao-zero,
+me obrigou a rodar tudo por outro caminho, e ai o `extra` apareceu vermelho. **As duas ferramentas
+estavam degradadas ao mesmo tempo**, que e exatamente quando um auto-relato vale menos.
+
+**NAO E CULPA DAS MINHAS EDICOES, e isso e medido e nao suposto:** o `git diff 1117b3f9..HEAD --
+src/` dos meus dois commits lista **nenhum arquivo**. Nao toquei em nada que o `main_extra` inclui.
+
+**A CAUSA, passo a passo:**
+1. `make extra` -> rc=2, **mas o PDF sai**: 26 paginas, 0 erros de TeX.
+2. `pdflatex` sozinho -> rc=0. `bibtex` sozinho -> rc=0.
+3. `bash -x` no `latexbuild.sh`: o script chega em `PAGES=$(sed ...)` e o **`PAGES` sai vazio**, entao
+   entra no ramo "NO PAGE COUNT ... the build did not finish" e sai com erro.
+4. Mas o log **tem** a linha: `Output written on ... (26 pages, 200259 bytes).`, uma ocorrencia.
+5. Rodando o mesmo `sed` na mao: **`sed: RE error: illegal byte sequence`**. Com `LC_ALL=C` ele imprime
+   `26` normalmente.
+6. O log **nao e UTF-8 valido**: o byte 61294 e um `\xea` Latin-1 dentro da hifenizacao de
+   "In-te-li-g\xean-cia Com-pu-ta-ci-o-nal", de uma entrada da bibliografia do CBIC que so aparece no
+   apendice do `extra`.
+
+Ou seja: o TeX escreve no log uma palavra portuguesa hifenizada com um byte Latin-1, e o **`sed` do BSD
+(macOS) recusa o arquivo inteiro num locale UTF-8** — o GNU `sed` nao faria isso. O build **funcionou**;
+o que falhou foi a extracao da contagem de paginas, e o script honestamente reporta a propria falha.
+
+**O `extra` e o unico alvo cujo log carrega esse byte**, que e por que os outros tres passam.
+
+> **DECISAO SUA — a correcao e de uma linha, mas o arquivo e compartilhado:**
+> 1. **`LC_ALL=C` na linha do `PAGES`** (`src_utils/latexbuild.sh:49`). E o minimo, resolve a causa, e o
+>    `LC_ALL=C` e a forma padrao de dizer "trate como bytes". Risco: nenhum que eu veja; a regex e ASCII.
+> 2. **`LC_ALL=C` na linha do `PAGES` e tambem no `grep` do `ERRS`** (linhas 49-50), por simetria. **Eu
+>    levantei a suspeita de que o `grep` estivesse silenciosamente devolvendo 0 e FUI CONFERIR: nao esta.**
+>    O `grep -c '^! '` devolve `0` tanto no locale UTF-8 quanto sob `LC_ALL=C` naquele mesmo log, entao a
+>    contagem `tex_errors=0` do `extra` e verdadeira. Esta opcao e higiene, nao correcao de defeito.
+> 3. **Nao mexer** e aceitar o `extra` vermelho ate a proxima rodada.
+>
+> **DECISAO SUA:** ______
+
+**Por que eu nao apliquei sozinho:** o `latexbuild.sh` e compartilhado com o agente paralelo, o cabecalho
+dele documenta tres propriedades que foram aprendidas quebrando o arquivo, e a opcao 2 muda o
+comportamento de uma checagem de erros. Isso e chamada sua, nao limpeza de fim de rodada minha.
+
+**Uma suspeita que eu levantei e depois DERRUBEI com um comando, em vez de deixar no ar:** achei que o
+`grep -c '^! '` pudesse estar falhando pelo mesmo byte e devolvendo `0` sem significado. Testei nos dois
+locales contra aquele log e ele devolve `0` nos dois. Entao o `tex_errors=0` do `extra` vale, e o unico
+defeito real e a contagem de paginas.
+
 ---
 
 ## §3 · Aberto e bloqueado em terceiros

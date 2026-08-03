@@ -647,7 +647,13 @@ Multitask learning (MTL) trains related tasks together in the expectation that s
 generalization~\cite{caruana1997multitask}. This section explains how tasks share a model,
 why that sharing may fail, and how multitask optimization responds to
 the failure. This dissertation builds joint models for two evolving task pairs. The first pair combines static category
-classification from a place representation with next-category prediction from a check-in history. The final joint model
+% [round12, 2026-08-03] "place representation" -> "place embedding". The author registered
+% "place representation" and revoked it hours later ("vamos usar so place embedding para evitar
+% conflitos e interpretacoes dubias"), which left this ONE live line using a term absent from the
+% fail-closed registry. It was the chapter's only use of that phrasing against eight uses of
+% "place embedding", so this is a one-off inconsistency and not a house convention. No claim changes:
+% the object is the same vector, Definition~\ref{def:fund:placelevel}.
+classification from a place embedding with next-category prediction from a check-in history. The final joint model
 reads a check-in history to predict both the next category and the next region of a visit. Whether the shared
 computation helps depends on the sharing topology and the training objective.
 

@@ -47,3 +47,41 @@ Why this matters here specifically: the whole point of recording the build commi
 is that a reading can be re-taken at the tree it was taken against. A message that misattributes its own
 diff breaks exactly that, and no gate in `check.sh` can detect it, because the gates read the working tree
 and never the commit log.
+
+---
+
+## Third entry: `d36da8c5` shipped a header that contradicts its own table row
+
+**What the commit claims.** `d36da8c5` is the AD-2 retraction. Its message says the retraction landed, and
+the `DEFINITIONS.md` header it committed says **"AD-2 is OPEN"** and **"the AD-2 row carries the
+retraction"**.
+
+**What it actually contains.** The AD-2 row of §10 still read `**ANSWERED 2026-08-03 from the original CoUrb
+code**`, still framed the answer as a `FOURTH possibility none of us had listed`, and still asserted the
+dedup was `keeping the first visit to each POI and discarding the rest`. Verified against the commit:
+`git show d36da8c5:...DEFINITIONS.md | grep -c 'FOURTH possibility'` returns **1**.
+
+So the artifact shipped a header asserting a correction that the table below it did not carry, and I reported
+the retraction as landed on the strength of the header.
+
+**The mechanism, which is a code defect and not a wording slip.** The replacement text for the AD-2 row was
+built in a cell that raised `AssertionError` on a boundary check *before* its `write_text`. The row edit
+therefore existed only in the in-memory string. A later cell re-read the file from disk, discarding that
+string, and spliced in a different correction. Nothing afterwards re-applied the row edit, and none of the
+verification prints re-checked the row: they checked the paragraph and header that *had* been written.
+
+**Why the verification passed.** Every check I ran after the aborted cell asked whether the NEW text was
+present somewhere in the file. Those checks were true, and irrelevant to the row. **A presence check on
+scattered new text cannot detect that one specific replacement never happened.** The negative assertion --
+the retracted phrases are absent -- is the check that would have caught it, and it is the check now gated by
+`R12-ad2row` and `R12-ad2row2`.
+
+**State now.** The row was rewritten and both retracted phrases are gone from the working tree (`grep -c` = 0
+for all three). Two ban probes hold it, each validated by re-injecting the exact banned phrasing. **The
+message of `d36da8c5` remains wrong in history and is not being rewritten**, for the same reason as the two
+entries above: a parallel agent shares this checkout and successor commits already build on it. The
+correction lives here, where it is auditable.
+
+**Pattern across all three entries in this file.** Every one is a claim about a commit that the commit does
+not support, and none is detectable by `check.sh`, because every gate reads the working tree and no gate
+reads git history or compares a message against its own diff.

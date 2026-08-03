@@ -433,3 +433,36 @@ conclusion before it was written down.
 
 Running total: **eight claim-or-count defects**, seven instrument defects, **two fabricated causal links**,
 five occurrences of the severed-item defect.
+
+---
+
+## Round 12: a replacement that silently did nothing, and a verification that reported success anyway
+
+**The defect.** When I retracted the AD-2 answer, I rewrote the AD-2 row of `fundamentals/DEFINITIONS.md`
+using byte offsets found with `str.find`. The offsets had been computed against an *earlier* copy of the file
+in the same session; by the time the replacement ran, an intervening edit had shifted them. `str.replace`
+matched nothing and returned the string unchanged. **The retracted framing survived in the design document
+for a full commit**, still telling a later reader that AD-2 was answered by a "fourth possibility".
+
+**Why the check did not catch it.** I printed a verification immediately after. It said the new text was
+present, and it was right: I had checked for a substring the new text contains, and that substring also
+appeared elsewhere in the file. **A presence check on the replacement is not a check that the replacement
+happened.** The only assertion that would have caught it is the negative one: that the OLD text is gone.
+
+**The rule, and it is the third variant of one rule this file already carries.** After any `replace` on a
+file that another cell or edit may have touched:
+1. re-read the file from disk immediately before computing offsets or matching, and
+2. assert the OLD string is ABSENT, not merely that the new one is present.
+The earlier variants were re-reading before a block replace (round 11) and diffing against the committed
+state rather than memory (round 9). Same failure with a different surface each time: **an edit verified by
+what it added rather than by what it removed.**
+
+**One near-miss inside the fix.** Validating the ban probe on the retracted phrasing, my sabotage leg went
+silent and I nearly took that as a broken probe. Reading both strings side by side showed the leg had written
+"keeps ... and discarding" where the banned phrase is "keeping ... and discarding". **The leg was malformed,
+the probe was correct.** That is the mirror of the round-12 anchor defect, where the leg was the thing that
+looked right, and the discipline is the same: when a leg and a probe disagree, read both literals before
+concluding which one is wrong.
+
+Running total: eight claim-or-count defects, **eight instrument defects**, two fabricated causal links, five
+occurrences of the severed-item defect.
