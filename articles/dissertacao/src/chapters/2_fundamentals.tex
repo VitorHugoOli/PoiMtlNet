@@ -727,9 +727,13 @@ a cascade~\cite{huang2024cslsl}. iMTL couples next-POI recommendation with the
 handling of uncertain check-ins~\cite{Zhang2020}. Halder et al.\ develop multitask
 next-POI recommenders that account for queue time and, in the journal extension, user
 interest~\cite{Halder2021,Halder2022}. TME instead applies tree-guided multitask
-embedding to static semantic POI annotation~\cite{Xu2023}. HAMTL uses a cascaded
-decoder that predicts the next category before the exact next POI, using the category
-to refine the place prediction~\cite{wang2025hamtl}.
+embedding to static semantic POI annotation~\cite{Xu2023}. HAMTL sets location
+prediction as its main task and category prediction as an auxiliary task, and its
+hierarchical decoder predicts the category of the next destination first and then
+refines the prediction of the specific location using that predicted
+category~\cite{wang2025hamtl}. The same group had already published IeMTLF, an
+interaction-enhanced multitask framework for next location
+prediction~\cite{wang2024iemtlf}.
 
 These methods confirm that category information and auxiliary tasks can support
 mobility prediction, but they do not instantiate the pair studied in the final

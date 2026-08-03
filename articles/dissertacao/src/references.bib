@@ -1165,6 +1165,50 @@ year      = {2018},
 % DOI 10.1007/s11227-025-07643-7 (HAMTL --- jointly predicts the next location
 % and its category, hierarchy-aware decoder; location (venue-level) remains the
 % headline. Verified against the Springer article page, 2026-07-06.)
+% CLAIM LOCATED 2026-08-03 in the full PDF the author placed at
+% science/articles/wang2025hamtl.pdf (FAB-28; the three prior sessions could not
+% open the text, so this is the first read of the source itself):
+%   p. 2: "Our framework consists of two tasks: location prediction as the main
+%     task and category prediction as the auxiliary task."
+%   p. 6, Sect. 4.1: the hierarchical decoder "first predicts the location
+%     category, and then predicts the specific location based on the category and
+%     prior hierarchy information".
+%   p. 14: "It first predicts the category for the next destination (e.g.,
+%     restaurant). This category prediction inherently restricts the potential
+%     search space for the subsequent fine-grained location prediction (e.g.,
+%     limiting candidate venues to hotpot restaurants)."
+%   NO REGION-LIKE END TARGET. The hierarchy is category-over-location (a
+%     hierarchy tree of location categories, p. 3, Fig. 1), never a spatial
+%     partition: the words region, district, grid, zone and administrative area
+%     do not appear anywhere in the paper except in the title of reference [40]
+%     (Tobler 1970) on p. 27. Datasets are Foursquare TKY and NYC and the unit
+%     counted is "Location" (Table 1, p. 17); the top-k accuracy and reciprocal
+%     rank metrics are defined over "the true next location of Si" (p. 18). Note
+%     for future editors: an at-sign inside a bib comment aborts the BibTeX run,
+%     so the metric names are spelled out here. So this paper does not
+%     threaten the co-equal-end-targets sentence in 2_fundamentals.tex.
+% NEW 2026-08-03 (FAB-28). Attributes from Crossref api.crossref.org/works/
+% 10.1016/j.ins.2024.120153 and OpenAlex works/doi:..., both opened this session:
+% Information Sciences 661, article 120153, published 2024-03, six authors
+% (Yahui Wang, Hongchang Chen, Shuxin Liu, Kai Wang, Xing Li, Yuxiang Hu).
+% Claim located: the title itself is the authors' own description of the system,
+% and HAMTL (same first author) calls it "our previous work [13]" on p. 7 of the
+% PDF at science/articles/wang2025hamtl.pdf, where [13] is this entry (p. 26).
+% [VERIFY] The abstract and full text were NOT opened: Unpaywall reports the
+% article closed, Semantic Scholar returns a null abstract, OpenAlex carries no
+% inverted index for it, and api.elsevier.com is outside this sandbox's network
+% allowlist. Cite it only for what its title states; do not attribute a task
+% structure, a dataset, or a number to it without opening the paper.
+@article{wang2024iemtlf,
+  author    = {Yahui Wang and Hongchang Chen and Shuxin Liu and Kai Wang and Xing Li and Yuxiang Hu},
+  title     = {IeMTLF: Interaction-enhanced Multi-Task Learning Framework for Next Location Prediction},
+  journal   = {Information Sciences},
+  volume    = {661},
+  pages     = {120153},
+  year      = {2024},
+  doi       = {10.1016/j.ins.2024.120153},
+}
+
 @article{wang2025hamtl,
   author    = {Yahui Wang and Hongchang Chen and Shuxin Liu and Junjie Zhang and Lan Wu and Xiaoyan Cui and Yuxiang Hu},
   title     = {Hierarchy Aware-based Multi-task Learning for User Location Prediction},
