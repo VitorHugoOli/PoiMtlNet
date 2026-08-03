@@ -888,6 +888,16 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # reintroduce it for the next compound.
     ("R12-wise",    "the register gate excludes the -wise family by rule rather than by listing words",
      "../src_utils/check_register.py", r"if low\.endswith\(\"wise\"\) and len\(low\) > 4:", True),
+    # R12-legcount: I published "the eight new ones sabotage-validated" when SEVEN were. The eighth,
+    # R12-s4moved, was never mutated: the validation cell made eight leg() calls, but one reused an earlier
+    # probe's name as the silent control, so the row COUNT matched the probe count while the name SET did
+    # not. It was the worst one to miss -- the only want=False probe of the batch, and an absence probe
+    # holds identically when its pattern can never match (the R9-clock2 and R12-attrib defect). Pinned so
+    # the rule that prevents it survives: reconcile the validated names against the added names as SETS.
+    ("R12-legcount", "the record carries the rule that a validation table is reconciled by probe NAME "
+                     "rather than by row count, because a control leg reuses a name",
+     "_round9/34_tracker_disagreement.md",
+     r"Reconcile the two sets by name, not by cardinality", True),
     # R12-attrib: a commit-message attribution defect, recorded because the suite CANNOT detect this class
     # -- every gate here reads the working tree and none reads the commit log. Two of round 12's commits
     # describe diffs they do not contain, because `git add -A` in a backgrounded cell staged the tree at

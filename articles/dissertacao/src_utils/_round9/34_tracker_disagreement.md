@@ -523,3 +523,36 @@ both wrong in the same way.
 
 Running total: nine claim-or-count defects, eight instrument defects, three invented mechanisms, **two false
 in-budget claims about sub-agents**, five occurrences of the severed-item defect.
+
+---
+
+## Round 12: I claimed eight probes were sabotage-validated when seven were, and the missing one was the absence probe
+
+**Found by a reviewer.** The commit message of `82f92c5a` and the prose to the author both say "the eight new
+ones sabotage-validated". Seven were. `R12-s4moved` was never mutated: the sabotage cell issued eight `leg()`
+calls, but one of them was a REPEAT of `R12-s1bind` serving as the silent control, so the count of calls
+matched the count of probes while the coverage did not.
+
+**Why this one mattered more than the other seven.** `R12-s4moved` is the only ABSENCE probe of the batch
+(`want=False`): it asserts that the two definition environments are GONE from §2.2, which is what makes the
+move a move rather than a duplication. **An absence probe holds identically when its pattern can never
+match** -- a typo in either branch, and it would have printed `holds` forever while proving nothing. That is
+the exact defect class this project has already paid for twice (`R9-clock2`, anchored so it could only match
+at document start; `R12-attrib`, whose second alternation branch matched zero times in its target file). The
+one probe whose direction was unproven was the one whose failure mode is silence.
+
+**Now validated in both branches and both directions**, and the two-branch structure required two legs rather
+than one:
+  - branch 1, the plan's working head reinstated -> FIRES;
+  - branch 2, a definition duplicated back into §2.2 after the limitation paragraph -> FIRES;
+  - unrelated edit -> silent.
+File restored byte-identical.
+
+**The rule, and it is about counting rather than about probes.** I verified the batch by reading a validation
+table that had the right NUMBER of rows. Eight calls, eight probes, all `OK` -- and the reconciliation I never
+did was whether the set of probe NAMES in the table equals the set of probe names added. A control leg reuses
+a name, so the row count is not the coverage count. **Reconcile the two sets by name, not by cardinality**,
+before writing a coverage claim into a commit message.
+
+Running total: ten claim-or-count defects, eight instrument defects, three invented mechanisms, two false
+in-budget claims about sub-agents, five occurrences of the severed-item defect.
