@@ -360,3 +360,31 @@ delete a legal separator to satisfy a rule the gate does not enforce.
 Running total: six claim-or-count defects, **seven instrument defects** (adding this over-strict positional
 check to the six already listed), one fabricated postmortem, and five occurrences of the severed-item
 defect.
+
+---
+
+## Round 12: a commit message that describes a diff it does not contain, and no gate can see it
+
+**The defect.** `2f2021c9`'s message describes the AD-4 closure and asserts the header "says five and one";
+the `DEFINITIONS.md` it committed says "All six gating decisions are now settled", and its diff also carries
+the AD-2 answer, AD-7, and 75 lines of the investigation file. Its successor `6aca55e7` describes the AD-2
+finding but contains neither `DEFINITIONS.md` nor the investigation, both already committed. Full measurement
+in `_round12/51_commit_attribution_correction.md`.
+
+**The cause, and it is mechanical.** I dispatched a cell ending in `git add -A && git commit`, it was
+backgrounded, and I kept editing the same files while it ran. `git add -A` stages the tree when the cell
+reaches that line, not at dispatch, so the commit boundary was set by timing rather than by intent.
+
+**One near-miss worth recording.** I first read "100 of 100" against 99 probe rows and nearly reported a
+false count discrepancy. The gate reports `len(PROBES) + 1`. Both messages' counts are correct. Checked by
+loading each commit's gate module before writing anything down — the same discipline that the fabricated
+postmortem above failed.
+
+**The rule.** A commit message is a claim about a diff and carries the same evidence standard as any other
+claim here. Never leave `git add -A && git commit` in a cell that may be backgrounded while editing
+continues; stage explicit pathspecs for the work being described. And note the blind spot this exposes:
+every gate in `check.sh` reads the working tree, so **no gate in this repo can detect a false commit
+message** — the class is invisible to the suite by construction.
+
+Running total: **seven claim-or-count defects**, seven instrument defects, one fabricated postmortem, five
+occurrences of the severed-item defect.

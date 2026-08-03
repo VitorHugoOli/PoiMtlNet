@@ -652,6 +652,17 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
                     "training pairs are what the published text says they are",
      "_round12/50_courb_temporal_level_investigation.md",
      r"description, not a wrong number", True),
+    # R12-attrib: a commit-message attribution defect, recorded because the suite CANNOT detect this class
+    # -- every gate here reads the working tree and none reads the commit log. Two of round 12's commits
+    # describe diffs they do not contain, because `git add -A` in a backgrounded cell staged the tree at
+    # execution time rather than dispatch time. Pinning the record is the only enforcement available.
+    ("R12-attrib", "the commit-attribution defect is recorded, with the rule that a commit message is a "
+                   "claim about a diff and that no gate here can check one",
+     "_round12/51_commit_attribution_correction.md",
+     # SECOND BRANCH CORRECTED: it was "never reads the commit log", which occurs ZERO times in the
+     # target -- the file says "read the working tree and never the commit log". A dead alternation
+     # branch makes a probe look broader than it is; caught by a sabotage leg reporting TARGET ABSENT.
+     r"no gate in `check\.sh` can detect it|never the commit log", True),
 )
 
 # COD-016b needs a STRUCTURAL probe, not a string one, so it lives here rather than in PROBES --
