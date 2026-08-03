@@ -1027,6 +1027,41 @@ por mim, nao aceito do relatorio.
 >
 > **DECISAO SUA:** ______
 
+**PASSE DE VALIDACAO ADVERSARIAL — cinco defeitos, todos de redacao, nenhum estrutural.** Um segundo
+agente fable-5 reconstruiu o grafo de dependencias por conta propria e enumerou os 21 probes contra o
+texto PROPOSTO. **Estrutura aprovada; zero probes quebram.** Mas achou tres coisas que teriam entrado
+erradas, e eu conferi as tres no fonte:
+
+- **F-1, e e a que importa.** O projeto dizia que a instanciacao do Capitulo 5 e $\rho(x_i)=\mathbf{e}_{x_i}$.
+  `5_mobiwac/04_method.tex:27` diz outra coisa: "the category task reads the window of per-visit vectors
+  (the semantic stream); the region task reads the same window of visits, **each visit now represented by
+  the trained vector of its region node** from the same graph (the spatial stream)". Sao DUAS correntes,
+  nao uma. Aplicado como estava, o Capitulo 2 descreveria errado justamente o estudo em que o arco se
+  resolve. A conclusao estrutural nao muda: $H_i$ cru mais um $\rho$ nomeado continua valendo, e o $\rho$
+  simplesmente tem duas instanciacoes ali.
+- **F-2.** "every predictive model in this dissertation reads $\rho(H_i)$" e falso para a tarefa estatica:
+  `2_fundamentals.tex:116-124` mostra $g_{\mathrm{cat}}(\mathbf{e}_p)\to c_p$, sem historia nenhuma. E a
+  tarefa estatica e exatamente a que o `apx_b_static_scope` existe para manter separada.
+- **F-4, que fecha um item aberto do proprio projeto.** Ele anotava que "os estudos" preenchem janelas
+  curtas com zeros. `5_mobiwac/05_setup.tex:28`: "we keep only the full-length window ending there and
+  **drop these padded duplicates**". O Capitulo 5 descarta, nao preenche.
+- **F-3** (o PAR de tarefas muda no Capitulo 5, entao a frase correta e "hold the task definitions fixed")
+  e **F-5** ($d$ ja esta em uso vivo nos capitulos publicados como dimensao e como distancia $d_{ij}$,
+  entao a linha de registro precisa de nota de escopo em vez de alegar notacao livre).
+
+**Plano de edicao em 8 passos** escrito em `_round12/49`, com os passos 3-5 obrigatoriamente no mesmo
+commit, os comandos que encontram cada referencia cruzada, e o aviso de validar cada probe por sabotagem
+lendo o resultado ANTES de restaurar.
+
+> **DECISAO SUA 3 — como o Capitulo 2 enuncia a entrada de duas correntes do Capitulo 5** (nova, vem do
+> F-1). Duas saidas:
+> 1. **Nomear as duas correntes na propria observacao** — precisa, e antecipa no Capitulo 2 um detalhe de
+>    arquitetura que o Capitulo 5 explica.
+> 2. **Dizer so que o Capitulo 5 instancia no nivel de check-in e remeter as correntes ao Capitulo 5** —
+>    mais leve, e deixa a observacao incompleta para quem le so o Capitulo 2.
+>
+> **DECISAO SUA:** ______
+
 ---
 
 ## §3 · Aberto e bloqueado em terceiros
