@@ -48,6 +48,21 @@ crowd-flow estimation to next-location prediction \cite{luca2021mobilitysurvey},
 the target of a model must be stated precisely before results can be compared.
 The dissertation contains three experimental tasks, two sequential and one static.
 
+% [ROUND 12, item 44] THE PAGE-COUNT COMPACTION OF ROUND 10 IS UNDONE, on the author's
+% authorization now that the page budget is suspended. Round 10's own report
+% (src_utils/_round10/29_ch2_definitions.md sec. 4) records three display equations inlined and four
+% lead-in sentences shortened, and states both were done for the page count and not for
+% readability. Restored to display form here and below: $H_i$ (Definition 2.2), $g_{cat}$
+% (Definition 2.3), and the pair $f_{cat}$ / $f_{reg}$ (Definitions 2.4 and 2.5). Restored lead-ins:
+% "Three definitions separate the targets" (sec. 2.1), "One further target must be named" (sec. 2.2),
+% and "rather than a figure of speech" (the gradient-conflict subsection). The FOURTH item on round
+% 10's list, the duplicated place-embedding limitation sentence, is NOT restored: it was a
+% deduplication rather than a clipped lead-in, its content is now Definition 2.7 itself, and round
+% 11 (item 31) rebuilt that passage when it split the merged definition head. No equation restored
+% here carries a label, because none is referenced from prose; the labelled equations of this
+% chapter (eq:fund:mtl-total, eq:fund:cosine, eq:fund:macro-f1, and the rest) are labelled because
+% something points at them.
+
 \subsubsection{Check-ins and histories}
 
 Let $\mathcal{U}$, $\mathcal{P}$, $\mathcal{C}$, and $\mathcal{R}$ denote the sets of
@@ -64,8 +79,10 @@ $c_i\in\mathcal{C}$ is its category, and $r_i\in\mathcal{R}$ is its region.
 
 \begin{definition}[Check-in history]\label{def:fund:history}
 The check-in history of length $\ell$ preceding check-in $x_i$ is the ordered sequence
-$H_i=(x_{i-\ell},\ldots,x_{i-1})$. A target label is withheld from it when one of the
-sequential tasks is trained.
+\begin{equation}
+    H_i=(x_{i-\ell},\ldots,x_{i-1}).
+\end{equation}
+A target label is withheld from it when one of the sequential tasks is trained.
 \end{definition}
 % ---------------------------------------------------------------------------
 % CITATION / NUMBER LEDGER -- 2.1 (every claim traceable; verbs bound to tests)
@@ -93,24 +110,31 @@ sequential tasks is trained.
 
 \subsubsection{The three experimental tasks}
 
-The first target is static and reads a place; the other two are sequential and read a
-history.
+Three definitions separate the targets. The first is static and reads a place; the
+other two are sequential and read a history.
 
 \begin{definition}[Category classification]\label{def:fund:catclf}
 Category classification predicts the category of a POI from its representation:
-$g_{\mathrm{cat}}(\mathbf{e}_p)\longrightarrow c_p$. At evaluation time, POI $p$ is
-held out from the classifier-training fold, so ``unknown POI'' means unknown to the
-classifier, not necessarily absent from the graph used to learn $\mathbf{e}_p$.
+\begin{equation}
+    g_{\mathrm{cat}}(\mathbf{e}_p)\longrightarrow c_p.
+\end{equation}
+At evaluation time, POI $p$ is held out from the classifier-training fold, so
+``unknown POI'' means unknown to the classifier, not necessarily absent from the graph
+used to learn $\mathbf{e}_p$.
 \end{definition}
 
 \begin{definition}[Next-category prediction]\label{def:fund:nextcat}
 Next-category prediction maps a check-in history to the category of the next visit:
-$f_{\mathrm{cat}}(H_i)\longrightarrow c_i$.
+\begin{equation}
+    f_{\mathrm{cat}}(H_i)\longrightarrow c_i.
+\end{equation}
 \end{definition}
 
 \begin{definition}[Next-region prediction]\label{def:fund:nextreg}
 Next-region prediction maps a check-in history to the region of the next visit:
-$f_{\mathrm{reg}}(H_i)\longrightarrow r_i$.
+\begin{equation}
+    f_{\mathrm{reg}}(H_i)\longrightarrow r_i.
+\end{equation}
 \end{definition}
 
 Chapters~\ref{ch:cbic} and~\ref{ch:courb} pair Definition~\ref{def:fund:catclf} with
@@ -123,12 +147,30 @@ metrics and reference points, as Section~\ref{sec:fund:eval} explains.
 
 \subsection{Related sequential prediction settings}
 
-The models this section reviews were built for a fourth target.
+One further target must be named, because it is the task that the models this section
+reviews were built to solve.
 
+% [round12, 2026-08-03, the author's finding] THIS DEFINITION BROKE THE PATTERN OF ITS OWN NEIGHBORS.
+% Definitions 2.3, 2.4 and 2.5 each state their task as a function: $g_{\mathrm{cat}}(\mathbf{e}_p)
+% \to c_p$, $f_{\mathrm{cat}}(H_i) \to c_i$, $f_{\mathrm{reg}}(H_i) \to r_i$. This one described the
+% mapping in words only, which made the third task look like a different KIND of object from the other
+% three at exactly the point where the chapter's job is to keep the three formally distinct.
+% $f_{\mathrm{place}}$ follows the established naming: $f$ for the sequential predictors that read a
+% history (as against $g$ for the static classifier that reads a place vector), subscripted by the
+% target. The target is $p_i \in \mathcal{P}$, both already registered (Definition 2.1, GLOSSARY §1.1).
+% NAMING THE FUNCTION SHARPENS THE SCOPE STATEMENT RATHER THAN WEAKENING IT. The exclusion now applies
+% to a defined object: the reader sees precisely which mapping is not being learned, instead of being
+% told in prose that something adjacent is out of scope. The sentence keeps the exclusion explicit, and
+% no chapter of this dissertation reports a result for $f_{\mathrm{place}}$.
+% A registry row for $f_{\mathrm{place}}(H_i)$ in GLOSSARY §1.1 is PROPOSED and not written here: the
+% notation table is the author's, as the two representation symbols are.
 \begin{definition}[Next-place prediction]\label{def:fund:nextplace}
-Next-place prediction maps a check-in history to the identity $p_i$ of the next
-visited POI. It is named to delimit the scope of the dissertation and is not one of
-its targets.
+Next-place prediction maps a check-in history to the identity of the next visited POI:
+\begin{equation}
+    f_{\mathrm{place}}(H_i)\longrightarrow p_i.
+\end{equation}
+It is named to delimit the scope of the dissertation, and no chapter reports a result
+for $f_{\mathrm{place}}$.
 \end{definition}
 
 Next place is the dominant task in the field, and the sequential models developed for
@@ -217,55 +259,31 @@ summary~\cite{velickovic2019deep}. DGI supplies the objective and the place embe
 used in the first study. Hierarchical Graph Infomax (HGI) extends that objective
 across POI, region, and city levels~\cite{huang2023hgi}.
 
-HGI is the place-level representation that the final study replaces, so its mechanism
-fixes the reference point of the main comparison of this dissertation. Its own stated
-goal is to learn urban region representations from POIs in a fully unsupervised
-manner, and it reaches that goal by extending the two scales of DGI to three: POI,
-region, and city. The name states what is maximized. Training raises the mutual
-information between representations at two adjacent levels of that hierarchy, and it
-does so without evaluating that quantity in closed form. HGI follows the contrastive
-paradigm and scores pairs instead. A bilinear discriminator combines two embeddings
-through a learned weight matrix and passes the result through a logistic function,
-and the loss rewards a high score for a true pair and a low score for a false pair.
-No label of any downstream task enters that comparison, so the representation is
-obtained without supervision.
+HGI is the place-level representation that the final study replaces, so its reference
+point matters here. The mechanism itself is set out in the original paper, and the
+account below is limited to what the later chapters rely on. Its own stated goal is to
+learn urban region representations from POIs in a fully unsupervised manner, and it
+reaches that goal by extending the two scales of DGI to three: POI, region, and city.
+The name states what is maximized. Training raises the mutual information between
+representations at two adjacent levels of that hierarchy, and it does so without
+evaluating that quantity in closed form. A bilinear discriminator combines two
+embeddings through a learned weight matrix and passes the result through a logistic
+function, and the loss rewards a high score for a true pair and a low score for a
+false pair. No label of any downstream task enters that comparison, so the
+representation is obtained without supervision.
 
-The hierarchy is assembled in five stages. A pretrained category encoder supplies the
-initial POI features, because the category of a POI already accounts for much of its
-meaning. All POIs of a study area are then connected into a Delaunay graph whose edge
-weights decrease with the distance between two POIs and are reduced further when the
-two POIs lie in different regions. One graph convolution layer updates each POI
-embedding into a transformed combination of the POI itself and its spatial context.
-The POI embeddings inside one region are aggregated by multi-head attention, where
-each head represents one perspective on how important a POI is in defining its
-region. A second graph, whose nodes are regions and whose edges join regions that
-share a border, propagates information between neighbors and yields the region
-embeddings. An area-weighted sum over those embeddings produces one city embedding.
-
-Two examples from the original paper show what the levels are for. A hotel inside an
-airport complex and a hotel on a university campus share a category and differ in
-meaning, and only the spatial neighborhood separates them. The POI level does that
-work. Two regions that each contain one company and one restaurant are almost
-indistinguishable from their own contents. If one of them is surrounded by commercial
-regions and the other by industrial areas, the region graph makes the difference
-visible.
-
-The objective has one term for each adjacent pair of levels, and a single weight
-balances them. The first term treats a region embedding and the POI embeddings
-located inside that region as a true pair, and takes POI embeddings from another
-region as the false pair. The second term treats the city embedding and the region
-embeddings as a true pair. Its false pair uses region embeddings recomputed after the
-POI feature matrix has been shuffled row by row, so every POI keeps its place in the
-graph but receives the category embedding of a different POI.
-
-One consequence of this design matters for the later chapters. The training signal
-updates the POI encoder, the aggregation function, and the region encoder together,
-so a POI embedding is optimized to score high against the embedding of its own region
-and low against the embeddings of other regions. Region membership also enters
-earlier, through the edge weights of the POI graph. The POI-level output is therefore
+One consequence of the design matters for the later chapters. A pretrained category
+encoder supplies the initial POI features, one graph convolution layer over a Delaunay
+graph of the POIs of the study area adds spatial context to each of them, multi-head
+attention aggregates the POI embeddings of a region, and an area-weighted sum over
+regions produces one city embedding. The training signal updates the POI encoder, the
+aggregation function, and the region encoder together, so a POI embedding is optimized
+to score high against the embedding of its own region and low against the embeddings
+of other regions. Region membership also enters earlier, through the edge weights of
+the POI graph, which decrease with the distance between two POIs and are reduced
+further when the two POIs lie in different regions. The POI-level output is therefore
 not a description of the place in isolation. It already reflects the region the place
-belongs to, and the authors state the matching property for their own product, whose
-region representations are both locally and globally relevant.
+belongs to.
 
 HGI was developed and evaluated for urban region representation. Its reported
 experiments estimate urban functional distributions, population density, and housing
@@ -274,6 +292,49 @@ region embedding. The POI embedding is an internal stage in producing it. This
 dissertation repurposes that POI-level output for sequential prediction, a use the
 original evaluation does not cover. In this role, HGI supplies the place-level
 baseline in the later studies and the direct basis of Check2HGI.
+
+The move to other study areas left one setting of that baseline open. Huang et al.\
+reduce an edge between POIs of different regions to 0.4 of its weight in the
+experiments named above, and this work did not transfer that value untested. In
+experiments on one of the state datasets of this dissertation, over the same five
+folds used elsewhere, a value of 0.7 gave the best category F1 among the values tried,
+and the later studies adopt it. What that comparison settles is one hyperparameter of
+the place-level baseline. It is not evidence about how HGI and Check2HGI compare.
+% [round12, 2026-08-03] THE 0.7 SENTENCE (item 42, second half), on the author's authorization:
+% "Sobre citar que na dissertacao usamos 0,7, podemos citar por alto, algo como: 'Em experimentos
+% avaliamos que para nossos datasets 0,7 gerava os melhores resultados', como vamos remover o
+% appendix E nao precisa referenciar ele." NO \ref to apx:hgi-tuning: there was none in this file
+% before this edit (checked live, comment-stripped), and none is added.
+% NUMBER PROTOCOL. The paragraph quotes exactly ONE number of its own, 0.7, and it is not a
+% result: it is the shipped default, research/embeddings/hgi/preprocess.py:23
+% DEFAULT_CROSS_REGION_WEIGHT = 0.7. The RESULT behind it is stated qualitatively ("the best
+% category F1 among the values tried"), which is readable off the source-of-record table without
+% computing anything: research/embeddings/hgi/README.md:544 (header, "5 folds x 50 epochs") and
+% :548-551, whose four rows are 0.4 -> 0.7388 +/- 0.0205, 0.5 -> 0.7678 +/- 0.0211,
+% 0.6 -> 0.7944 +/- 0.0186, 0.7 -> 0.8186 +/- 0.0123 (mean +/- standard deviation across the five
+% folds). The largest of the four is the 0.7 row, so "best among the values tried" is the table's
+% own ordering and CONTRADICTS NOTHING in the NUM-4 cells, which stay where they are and keep
+% their spreads and their convention. "one of the state datasets" is Alabama (README.md:544 heads
+% the table "Alabama w_r sweep"); the state is not named in prose because the sweep is a single
+% state and the sentence claims no more than that. The [VERIFY] on the averaging convention of
+% "Cat F1" (see the NUM-4 ledger earlier in this section) still stands, which is why this
+% paragraph writes "category F1" and not "macro-F1".
+% THE PUBLISHED 0.4 WAS LOCATED FIRSTHAND THIS SESSION in the source PDF, science/articles/
+% Learning urban region representations with POIs and hierarchical graph infomax.pdf, p.137
+% (sheet 4) sec. 3.3, Eq. 2 and the sentence under it: "wr is a factor to differentiate intra-
+% (wr = 1) and cross-region (wr = 0.4) edges", and "The choices of the parameters ... and wr =
+% 0.4 (cross-region) are in view of the previous practices". Prose states it as a reduction to
+% 0.4 of the intra-region weight, which is what wr = 1 versus wr = 0.4 in that sentence says.
+% "the experiments named above" is the preceding paragraph's Xiamen Island and Shenzhen, so the
+% study areas are named once in this subsection, not twice.
+% SCOPE WARNING RELOCATED, deliberately, and this is the item's constraint (b). The warning used
+% to live in the last two sentences of chapters/apx_g_hgi_tuning.tex ("This sweep supports
+% adaptation of one baseline hyperparameter; it is not evidence about the relative performance of
+% HGI and Check2HGI"). That appendix prints as APPENDIX E of the defense volume (counter order in
+% content.tex: apx_a -> A, apx_c -> B, apx_e -> C, apx_f -> D, apx_g -> E) and is being moved out
+% of that volume by another agent. A warning in a volume the reader of Chapter 2 no longer has is
+% not a warning, so the limit is carried INSIDE this paragraph, in its last two sentences, rather
+% than pointed at. The appendix file is not edited here (not mine, and another agent is in it).
 % [round11, 2026-08-03] HGI MECHANISM EXPANDED (item GER-02, second part; the author's ruling is
 % that the HGI explanation is worth improving because it is "uma das abordagens mais importantes
 % para as contribuicoes da dissertacao"). The previous text was five sentences of correct but
@@ -289,16 +350,18 @@ baseline in the later studies and the direct basis of Check2HGI.
 %   what is maximized     p.134 abstract: "trained through maximizing the mutual information among
 %                         the POI - region - city hierarchy"; p.139 (sheet 6): "a region-centered
 %                         hierarchical mutual information maximization".
-%   contrastive, not a    p.138 (sheet 5) sec. 3.7: "The general idea of HGI follows the paradigm of
-%   closed-form MI        contrastive learning". The MI is never estimated in closed form: the losses
-%                         Eq. 12-13 p.139 are log-scores of the discriminator D, nothing else.
+%   no closed-form MI     p.138 (sheet 5) sec. 3.7: "The general idea of HGI follows the paradigm of
+%                         contrastive learning". The MI is never estimated in closed form: the losses
+%                         Eq. 12-13 p.139 are log-scores of the discriminator D, nothing else. [round12,
+%                         item 42] The prose sentence naming the contrastive paradigm was CUT in the
+%                         trim; what this row now sources is the surviving clause "without evaluating
+%                         that quantity in closed form".
 %   discriminator         p.139 below Eq. 13: D_pr(p_i, r_k) = sigma_L(p_i W_pr r_k), "sigma_L is a
 %                         sigmoid function". Prose says "logistic function" per GLOSSARY. "bilinear
 %                         discriminator" is the registered term (GLOSSARY sec. 3), already used by
 %                         the Check2HGI equations later in this section.
 %   no downstream labels  p.138-139 sec. 3.7: "The training of HGI only relies on POIs and region
 %                         boundaries, and not on any ground truth data in the downstream tasks."
-%   five stages           p.136 (sheet 3) sec. 3.1, items (1)-(5), which is also the abstract's list.
 %   category encoder      p.136 sec. 3.1(1): "A POI category encoder phi_c is pretrained to generate
 %                         the initial POI features, as categorical information generally plays a key
 %                         role in defining the meaning of a POI." Paraphrased to avoid the banned
@@ -306,43 +369,34 @@ baseline in the later studies and the direct basis of Check2HGI.
 %   Delaunay + weights    p.137 (sheet 4) sec. 3.3: "all the POIs in a study area are connected using
 %                         DT to form a graph"; Eq. 2 a_p = log((1+L^1.5)/(1+l^1.5)) x w_r, "l
 %                         represents the spatial distance between the two POIs ... w_r is a factor to
-%                         differentiate intra- (w_r = 1) and cross-region (w_r = 0.4) edges". Only the
-%                         DIRECTION is written into prose (decreases with distance; reduced across
-%                         regions), NO NUMBER: the repo retunes this weight and the live text carries
-%                         no value for it, so quoting 0.4 here would collide with that (the ledger for
-%                         the retuning is the orphaned NUM-4 block above, sec. 2.2).
-%   one GCN layer + what  p.137 sec. 3.3: "we apply a one-layer GCN encoder"; p.138 (sheet 5) top:
-%   it produces           "the embedding of each POI is updated to be a transformed combination of the
-%                         information from itself and its spatial context, which captures its
-%                         uniqueness."
-%   multi-head heads      p.138 sec. 3.4, closing sentence: the region raw embedding "reflects the
-%                         different importance levels of the POIs from several perspectives (each head
-%                         represents a perspective)".
-%   region graph          p.138 sec. 3.5: "we conceptually view each region as a node, and build edges
-%                         between the regions that share parts of borders"; "We employ a one-layer
-%                         GCN". The paper's fallback for regions that share no border is omitted as a
-%                         detail a reader of this chapter does not need.
+%                         differentiate intra- (w_r = 1) and cross-region (w_r = 0.4) edges". The
+%                         DIRECTION is what the mechanism sentence carries (decreases with distance;
+%                         reduced across regions). [round12, item 42] The published 0.4 is now ALSO
+%                         stated, once, in the adaptation paragraph below, which is where the retuning
+%                         to 0.7 is explained; the same Eq. 2 sentence sources both, and the two do
+%                         not collide because the paragraph says whose value each one is.
+%   one GCN layer         p.137 sec. 3.3: "we apply a one-layer GCN encoder"; p.138 (sheet 5) top: the
+%                         POI embedding is updated with "the information from itself and its spatial
+%                         context". [round12, item 42] The paper's "transformed combination ... which
+%                         captures its uniqueness" wording was CUT with the trim; prose now says only
+%                         that the layer adds spatial context, which is the clause quoted here.
+%   multi-head attention  p.138 sec. 3.4: the POI embeddings of a region are aggregated by multi-head
+%                         attention into the region raw embedding. [round12, item 42] The per-head
+%                         "each head represents a perspective" sentence was CUT; the aggregation
+%                         itself is what prose retains.
 %   city embedding        p.138 sec. 3.6, Eq. 10: "area-weighted summarization", aw_i "is the area
 %                         proportion of region r_i in the study area (city)".
-%   hotel example         p.137 sec. 3.3: "a hotel within an airport complex and another hotel in a
-%                         university campus ... have diverse semantics".
-%   two-regions example   p.135 (sheet 2) end of sec. 2.1: two regions each with a company and a
-%                         restaurant, one "surrounded by commercial regions", the other "surrounded by
-%                         several industrial areas with factories"; they "can hardly be differentiated
-%                         unless their contextual information is incorporated".
 %   positives/negatives   p.139 sec. 3.7: for a region, positives are "the POI embeddings P_i within
-%                         the region", negatives "the POI embeddings P_j in another region r_j"; for
-%                         the city, positives are the region embeddings R, negatives come from
-%                         "row-wise shuffling of the POI graph's feature matrix X_p ... (replace the
-%                         category embedding of each POI with a category embedding from another
-%                         randomly picked POI to form a corrupted graph)".
-%   one balancing weight  p.139 Eq. 11 L = alpha L_pr + (1 - alpha) L_rc; "The strengths of L_pr and
-%                         L_rc are controlled by alpha". Value deliberately not quoted.
+%                         the region", negatives "the POI embeddings P_j in another region r_j". This
+%                         is what the surviving sentence "score high against the embedding of its own
+%                         region and low against the embeddings of other regions" rests on. [round12,
+%                         item 42] The CITY-level pair (row-wise feature shuffling), the two worked
+%                         examples of p.135/p.137, and the single balancing weight alpha of Eq. 11
+%                         were all CUT as mechanism detail, so their ledger rows are removed with
+%                         them; the reader who wants them goes to the original paper, as the author
+%                         directed.
 %   joint training of     p.136 sec. 3.1(6): the hierarchical infomax objective trains "the components
 %   the three modules     of phi_p, AGG_poi-region, and phi_r".
-%   locally and globally  p.139 last sentence of sec. 3.7: "the information from local-scale POIs and
-%   relevant              the global-scale city both flows to the learned region embeddings, making
-%                         them both globally and locally relevant." Also p.134 abstract.
 %   what HGI was FOR      p.134 abstract and p.139 (sheet 6) sec. 4.1: three downstream tasks,
 %   (the honest caveat)   "estimating urban functional distributions, population density, and housing
 %                         price", study areas "Xiamen Island and Shenzhen, China". The evaluated
@@ -388,9 +442,26 @@ representation level. CTLE shows an alternative by learning context-aware and
 time-aware location embeddings whose vectors change with the
 visit~\cite{lin2021ctle}.
 
+% [round12, 2026-08-03, the author's finding] THIS DEFINITION NAMED NO SYMBOL. Definition 2.7 gives the
+% place-level vector as $\mathbf{e}_p$ and this one said only "one vector to each check-in", which left
+% the central contrast of the chapter half-formalized: the two representations are the pivot of the whole
+% argument, and only one of them could be written down.
+% THE SYMBOL IS $\mathbf{e}_{x_i}$, and it was chosen rather than invented freely:
+%   - it parallels $\mathbf{e}_p$ exactly, differing only in what the subscript indexes, which IS the
+%     distinction being defined (a place versus a check-in);
+%   - $x_i$ is already the registered symbol for the $i$th check-in (GLOSSARY §1.1, Definition 2.1), so
+%     the subscript introduces no new object;
+%   - measured before minting: $\mathbf{e}_{x_i}$, $\mathbf{e}_{x}$, $\mathbf{e}_i$, $\mathbf{z}_i$ and
+%     $\mathbf{z}_{x_i}$ occur ZERO times anywhere in the live tree, so nothing is overloaded. The only
+%     $\mathbf{e}$ subscripts in use are $p$, and the generic $1$/$2$/$+$/$-$ of the discriminator
+%     equations.
+% GLOSSARY §1.1 ALREADY IMPLIED THIS GAP: its $\mathbf{e}_p$ row reads "distinct from a per-visit
+% Check2HGI vector" while giving that vector no symbol of its own. A registry row for $\mathbf{e}_{x_i}$
+% is PROPOSED to the author and is not written by an agent; the notation table is his.
 \begin{definition}[Check-in-level representation]\label{def:fund:checkinlevel}
-A check-in-level representation assigns one vector to each check-in $x_i$, so two
-visits to the same POI may enter the model with different representations.
+A check-in-level representation assigns one vector $\mathbf{e}_{x_i}$ to each check-in
+$x_i$, so two visits to the same POI may enter the model with different
+representations.
 \end{definition}
 
 Check2HGI reaches the check-in level of Definition~\ref{def:fund:checkinlevel} by
@@ -811,7 +882,7 @@ Section~\ref{sec:fund:eval}.
 % citation protocol).
 
 Gradient conflict describes one source of negative transfer, and it is a measured
-quantity.
+quantity rather than a figure of speech.
 
 \begin{definition}[Gradient conflict]\label{def:fund:conflict}
 Let $\mathbf{g}_i$ and $\mathbf{g}_j$ be the gradients of two task losses with respect
@@ -858,7 +929,8 @@ meaningful directional conflict at the scale considered by the balancers.
 %  kendall2018uncertainty homoscedastic-uncertainty loss weighting [new bib; DOI 10.1109/CVPR.2018.00781 verified +
 %  arXiv:1705.07115]
 %  chen2018gradnorm       GradNorm: gradient-magnitude balancing
-%  liu2019dwa             DWA: loss-rate schedule weights
+%  liu2019dwa             Dynamic Weight Average (DWA): weights from the loss rate of change
+%                         [PDF opened round 12; name p.2 + Sec. 4.1.3 p.5, Eq. 7 p.5]
 %  yu2020pcgrad           PCGrad: gradient projection off conflict
 %  liu2021cagrad          CAGrad: conflict-averse update w/ convergence [new bib]
 %  navon2022nashmtl       Nash-MTL: bargaining-game gradient combination [ERRATA: consolidate nash double-key/slash]
@@ -896,9 +968,12 @@ meaningful directional conflict at the scale considered by the balancers.
 %   chen2018gradnorm        arXiv:1711.02257  Zhao Chen           abstract: "We present a gradient
 %                           normalization (GradNorm) algorithm"
 %   liu2019dwa              arXiv:1803.10704  Shikun Liu          (Crossref 10.1109/CVPR.2019.00197,
-%                           Liu/Johns/Davison). The paper's own contribution is the MTAN attention
-%                           architecture; DWA is introduced alongside it, hence "alongside their
-%                           attention architecture" rather than a bare "introduce".
+%                           Liu/Johns/Davison; author line read at p.1 of the PDF, round 12). The
+%                           paper's headline contribution is the MTAN attention architecture and
+%                           DWA is a separable weighting scheme introduced alongside it, hence
+%                           "alongside their attention architecture" rather than a bare
+%                           "introduce". Body evidence for the name, the definition and the
+%                           separability is in the round-12 block at the clause itself.
 %   liu2023famo             arXiv:2306.03792  Bo Liu              abstract: "we introduce Fast
 %                           Adaptive Multitask Optimization FAMO, a dynamic weighting method"
 %   sener2018mgda           arXiv:1810.04650  Ozan Sener          (two authors: Sener and Koltun)
@@ -920,11 +995,44 @@ directions.
 The first class sets the weights $w_k$ of Equation~\ref{eq:fund:mtl-total} from
 different signals. Kendall et al.\ weight each loss by the task's homoscedastic
 uncertainty~\cite{kendall2018uncertainty}. Chen et al.\ introduce GradNorm, which
-balances gradient magnitudes and training rates~\cite{chen2018gradnorm}. S. Liu et
-al.\ introduce dynamic weight averaging alongside their attention architecture, using
-recent changes in the task losses~\cite{liu2019dwa}, and B. Liu et al.\ propose FAMO,
-which tracks loss changes without computing every task gradient at each
-step~\cite{liu2023famo}.
+balances gradient magnitudes and training rates~\cite{chen2018gradnorm}.
+% [round12, 2026-08-03] PROVENANCE, and one CORRECTION, for the clause that follows. The PDF of
+% arXiv:1803.10704v2 (science/articles/1803.10704v2.pdf) was opened this session, so the claim is
+% now located in the source rather than inferred from the abstract, and the [VERIFY] this block
+% replaces is closed. What was checked, in the BODY, not the abstract:
+%   NAME (p.2, end of Sec. 1, and the heading of Sec. 4.1.3 on p.5): the authors' own name is
+%     "Dynamic Weight Average (DWA)", singular "Average". The sentence SAID "dynamic weight
+%     averaging", which is not the paper's name; corrected, an R2 fix of the same class as the
+%     Aligned-MTL one recorded below, not a style change. Chapter 3 is a version of record and
+%     keeps CBIC's own "Dynamic Weight Averaging" wording; that divergence is deliberate.
+%   DEFINITION (p.2: "adapts the task weighting over time by considering the rate of change of the
+%     loss for each task"; Eq. 7 and its text, p.5: w_k(t-1) = L_k(t-1) / L_k(t-2), and "the loss
+%     value Lk(t) is calculated as the average loss in each epoch"). The previous wording, "using
+%     recent changes in the task losses", was fair but vaguer than the paper; the clause now names
+%     the rate of change and the ratio of the two previous loss values.
+%   "ALONGSIDE" HOLDS, and this was the word at issue. DWA is presented as a SEPARABLE weighting
+%     scheme, not as part of MTAN: it is introduced in the experimental section (Sec. 4.1.3, p.5)
+%     as one of three weighting schemes, and Tables 2 and 3 (pp. 6-7) run it on the Split, Dense
+%     and Cross-Stitch baselines as well as on MTAN, so it is not tied to the architecture. The
+%     paper also distinguishes it from GradNorm on exactly that axis (p.5: GradNorm "requires
+%     access to the network's internal gradients", DWA "only requires the numerical task loss").
+%   ATTRIBUTION (p.1): Shikun Liu, Edward Johns, Andrew J. Davison. "S. Liu" is correct, and the
+%     initial stays load-bearing against B. Liu (CAGrad, FAMO) in this same paragraph.
+%
+% [round12] The blank line below is load-bearing for a GATE, not decoration. check_trapped_prose
+% flagged the line above as trapped prose, and it was a FALSE POSITIVE WITH A REAL CAUSE: that line
+% ends on a self-contained sentence carrying no file name, no line reference, no finding id and none
+% of the author-directed vocabulary the checker's ledger test looks for, and the next source line was
+% body prose. By those tests it is indistinguishable from a genuine tear, so the checker was right to
+% raise it. The fix is to match this file's own convention (29 of its 34 comment blocks are separated
+% from following prose by a blank line) rather than to widen the checker's exemption list, which would
+% cost real detection to buy silence on a cosmetic point.
+
+S. Liu et al.\ introduce Dynamic Weight Average alongside their attention
+architecture, deriving each weight from the rate of change of that task's loss,
+measured as the ratio of its two previous loss values~\cite{liu2019dwa}, and B. Liu et
+al.\ propose FAMO, which tracks loss changes without computing every task gradient at
+each step~\cite{liu2023famo}.
 
 The second class changes the update direction instead. The multi-objective reading
 begins with Sener and Koltun, who cast multitask learning as multi-objective
@@ -945,12 +1053,9 @@ Nash-MTL, which treats gradient combination as a bargaining problem~\cite{nash},
 % "considering the homoscedastic uncertainty of each task"; sener2018mgda, "explicitly cast multi-task
 % learning as multi-objective optimization"; and Sener and Koltun is correctly two authors, not "et
 % al."). This one was not.
-% [VERIFY] liu2019dwa, the neighbouring clause, is NOT corrected and is flagged instead. Its abstract
-% (arXiv:1803.10704v2) is entirely about the MTAN architecture and never names dynamic weight
-% averaging, which appears in the paper body. The chapter's phrasing is careful about exactly that ("
-% introduce dynamic weight averaging ALONGSIDE their attention architecture"), so it is very likely
-% right, but only the abstract was reachable this session and the claim is therefore not located in a
-% source. Fail-closed: flag, do not reword a sentence that is probably correct.
+% [round12] The liu2019dwa [VERIFY] that stood here is CLOSED: the PDF is now on disk and both halves
+% of the clause were located in the body. The page-level provenance sits with the clause itself,
+% above, and the caution the flag protected survived the check -- "alongside" is right.
 Senushkin et al.\ introduce Aligned-MTL, which uses the condition number of the linear
 system of task gradients as a stability criterion and aligns that system's orthogonal
 components~\cite{senushkin2023aligned}.

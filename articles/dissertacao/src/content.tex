@@ -371,7 +371,17 @@
 % (the sequential-lettering decision above). Chapter 5's body is not edited and does not point
 % at it; the cosine material already in that chapter stays where it is.
         \include{chapters/apx_f_cosine}
-        \include{chapters/apx_g_hgi_tuning}
+% [round12, 2026-08-03] APPENDIX E, "Adaptation of the HGI Baseline", REMOVED from this volume on
+% the author's instruction: "APENDICES -- remover A.1, C.3 e E, mandando esse conteudo para o
+% material extra." The file chapters/apx_g_hgi_tuning.tex is unchanged and is now included by
+% main_extra.tex, where it prints as Appendix G. It was the LAST appendix of this volume, so no
+% letter shifts: contributions A, AI disclosure B, ethics C, gradient cosine D, exactly as before.
+% Verified in the build's own aux table after the edit, not predicted from the source.
+% The label apx:hgi-tuning had no \ref site anywhere in this volume before the removal, measured
+% from src/ with comments stripped (the one file that discusses the sweep in prose,
+% chapters/2_fundamentals.tex, names no label):
+%   for f in $(grep -rl apx:hgi-tuning chapters *.tex); do grep -v '^[[:space:]]*%' "$f" \
+%     | grep -n apx:hgi-tuning; done   ->  only the \label declaration itself
     \end{apendicesenv}
 
 \end{document}

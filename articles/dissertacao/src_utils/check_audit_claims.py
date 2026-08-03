@@ -491,6 +491,62 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
      "../GLOSSARY.md", r"\| soft parameter sharing \| compartilhamento flex", True),
     ("R11-gloss2", "the second authorized registry row is present (negative transfer)",
      "../GLOSSARY.md", r"\| negative transfer \| transfer", True),
+
+    # ---- ROUND-12 PROBES: the liu2019dwa [VERIFY] closed on 2026-08-03 against the PDF the author
+    # put on disk (science/articles/1803.10704v2.pdf, arXiv:1803.10704v2). Three things were read in
+    # the BODY, and all three are pinned here because each has its own way of drifting back:
+    #   the NAME. The clause said "dynamic weight averaging". The authors' own name is "Dynamic
+    #     Weight Average (DWA)" (p.2, end of Sec. 1; heading of Sec. 4.1.3, p.5). An R2 defect of
+    #     the same class as R11-aligned, and the likeliest thing for a later editor to "normalize"
+    #     back to the participle, since the CBIC chapter legitimately carries "Averaging" as its
+    #     published wording. Both halves pinned: the paper's name positively, the gloss banned.
+    #   the WORD "ALONGSIDE", which is what kept the sentence defensible while it was unverified and
+    #     which the body confirms rather than overturns: DWA is introduced in the experimental
+    #     section as one of three weighting schemes and is run on the Split, Dense and Cross-Stitch
+    #     baselines as well as on MTAN (Tables 2-3, pp. 6-7), so it is separable from the
+    #     architecture. Anyone tightening this clause to a bare "introduce DWA" would assert a
+    #     packaged contribution the paper does not present, so the collocation is pinned whole.
+    #   the DEFINITION. Eq. 7 and its text (p.5) set w_k(t-1) = L_k(t-1)/L_k(t-2) over epoch-average
+    #     losses, which is narrower than the earlier "recent changes in the task losses".
+    ("R12-dwa",    "DWA carries its authors' own name and stays SEPARABLE from MTAN "
+                   "(the 'alongside' the closed [VERIFY] was protecting)",
+     "chapters/2_fundamentals.tex",
+     r"Dynamic Weight Average alongside their attention\s+architecture", True),
+    ("R12-dwa2",   "the superseded 'dynamic weight averaging' gloss is gone from the live prose "
+                   "(comments recording the correction may keep quoting it)",
+     "chapters/2_fundamentals.tex", r"dynamic weight averaging", False),
+    ("R12-dwa3",   "the DWA weight is described as the paper defines it, from the loss rate of "
+                   "change measured as the ratio of the two previous loss values",
+     "chapters/2_fundamentals.tex",
+     r"rate of change of that task's loss,\s*measured as the ratio of its two previous loss values",
+     True),
+    # ---- TWO DEFECTS THE AUTHOR FOUND IN THE DEFINITION BLOCKS, 2026-08-03. Both are formalization
+    # gaps rather than wrong statements, and both sit at the chapter's load-bearing points, which is
+    # why they are gated: a later editor tightening prose has every incentive to drop a symbol or
+    # collapse a one-line equation back into a sentence.
+    #
+    # (1) Definition 2.8 named NO symbol while Definition 2.7 gave the place-level vector as
+    #     \mathbf{e}_p. The place-versus-check-in contrast is the pivot of the entire dissertation, and
+    #     only one side of it could be written down. GLOSSARY §1.1 had already implied the gap: its
+    #     \mathbf{e}_p row reads "distinct from a per-visit Check2HGI vector" and gives that vector no
+    #     symbol. \mathbf{e}_{x_i} was verified free across the whole live tree before being used.
+    ("R12-eqxi",   "Definition 2.8 names the check-in-level vector, so both sides of the chapter's "
+                   "central contrast have a symbol",
+     "chapters/2_fundamentals.tex",
+     r"assigns one vector \$\\mathbf\{e\}_\{x_i\}\$ to each check-in", True),
+    # (2) Definition 2.6 was the only task definition stated in prose alone: 2.3, 2.4 and 2.5 each give
+    #     a function (g_cat(e_p) -> c_p, f_cat(H_i) -> c_i, f_reg(H_i) -> r_i) and next place did not.
+    #     That made the excluded task look like a different KIND of object at exactly the point where
+    #     the chapter's job is keeping the three formally distinct. Naming f_place SHARPENS the scope
+    #     statement: the exclusion now applies to a defined mapping. Both halves pinned, because the
+    #     equation and the exclusion can drift independently and the pair is what carries the meaning.
+    ("R12-fplace", "next-place prediction is stated as a function like its three neighbors, not in "
+                   "prose alone",
+     "chapters/2_fundamentals.tex", r"f_\{\\mathrm\{place\}\}\(H_i\)\\longrightarrow p_i", True),
+    ("R12-fplace2","and the scope exclusion survives beside it, so naming the function does not read "
+                   "as claiming the task",
+     "chapters/2_fundamentals.tex",
+     r"no chapter reports a result\s*for \$f_\{\\mathrm\{place\}\}\$", True),
 )
 
 # COD-016b needs a STRUCTURAL probe, not a string one, so it lives here rather than in PROBES --

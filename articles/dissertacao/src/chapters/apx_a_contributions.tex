@@ -17,82 +17,18 @@
 \chapter{Other Scientific Contributions}
 \label{apx:contributions}
 
-% [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-023, 2026-07-26] "the three published studies" -> "the three
-% studies of this collection". Two of the three are published (CBIC 2025, DOI
-% 10.21528/CBIC2025-1191324; CoUrb 2026, DOI 10.5753/courb.2026.22960); the third is
-% submitted and under review (5_mobiwac.tex:22-24, "submitted to MobiWac 2026, under
-% review at the time of writing"), which every other locus in the document states
-% correctly.
-\section{The experimental platform}
-\label{apx:contributions:platform}
-% [round6, 2026-07-28] Heading ADDED. The file header records that the lone A.1 heading was
-% dropped when the former A.2 was removed, leaving one unsectioned statement. The
-% reproducibility section below restores a second topic, so the appendix carries two headings
-% again rather than one section trailing an unheaded opening. The opening prose is unchanged.
-Beyond the three studies of this collection, this research produced a reusable software
-platform that supported the experiments of Chapters~\ref{ch:cbic}
-and~\ref{ch:mobiwac} and is released with the code.
-% [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-006 consistency, 2026-07-26] "supported every experiment in the
-% dissertation" -> "supported the experiments of Chapters 3 and 5". Forced by the rewrite
-% below: the study of Chapter 4 released its code as a separate repository
-% (4_courb/intro.tex:35), so "every experiment" contradicted the corrected sentence two
-% sentences later. Chapters 3 and 5 both footnote this platform's repository
-% (3_cbic/intro.tex:30; 5_mobiwac/01_introduction.tex:27, the mobiwac branch). AUTHOR: if the Chapter 4
-% experiments did in fact run on this platform with only the released analysis code kept
-% elsewhere, restore the wider claim and say so; that is a fact only you can settle.
-It is organized as a registry-driven experimental framework rather than a
-collection of one-off scripts: name-keyed registries expose interchangeable
-implementations across each axis the dissertation studies. The core comprises a
-192-module, 28{,}644-line source tree, a separate embedding-engine suite, and a test
-layer of comparable size, developed across roughly 1{,}700 commits. The platform
-provides implementations of three dataset families (Gowalla, Massive-STEPS, and
-Foursquare), eight point-of-interest and check-in embedding engines (including the
-place embedding of Deep Graph Infomax, its hierarchical variant, and the
-check-in-level Check2HGI of Chapter~\ref{ch:mobiwac}), twenty-one multitask loss and
-gradient-balancing methods, and thirteen multitask backbone architectures spanning
-the hard-to-soft parameter-sharing spectrum.
-
-% [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-006, 2026-07-26] The former sentence ("The same codebase
-% standardizes evaluation across the dissertation ... so that every
-% single-task-versus-multi-task comparison reported in Chapters 3 to 5 rests on a common,
-% leakage-controlled measurement procedure") was false in three ways, each verified in the
-% source this session before the rewrite:
-%   1. NOT user-disjoint in Ch.3/Ch.4. 4_courb/results.tex:14: "The split is stratified by sample,
-%      not by user, so the check-ins of one user may appear in both training and
-%      validation"; the Ch.4 preface (4_courb.tex:19) repeats it. Ch.3 states 5-fold
-%      cross-validation (3_cbic/results.tex:30) and never asserts a user-disjoint split.
-%   2. NO significance protocol in Ch.3/Ch.4. A full sweep for Wilcoxon / Holm / TOST /
-%      p-value over both chapters returns nothing; Ch.3 reasons from overlapping standard
-%      deviations instead (3_cbic/results.tex:135). Tested claims are confined to Ch.5
-%      (5_mobiwac/05_setup.tex:32).
-%   3. NOT the same codebase throughout. Ch.4's released code is a separate repository
-%      (4_courb/intro.tex:35, TarikSalles/Spatial_Embeddings); Ch.3 and Ch.5 point at
-%      VitorHugoOli/PoiMtlNet (3_cbic/intro.tex:30; 5_mobiwac/01_introduction.tex:27). Only Ch.4 is
-%      asserted in the new prose, since that is the one the chapters themselves evidence.
-% What the replacement asserts, and its sources: the protocol components are the final
-% study's (5_mobiwac/05_setup.tex:32 for the paired tests, the TOST margin, and the seed/fold
-% design; :359 for the per-fold region-transition prior built from training data) and are
-% implemented in the platform (src_utils/etl_tooling_contribution_evidence.md §2.6:
-% src/data/folds.py, StratifiedGroupKFold, "leak-free per-fold region-transition prior";
-% paired Wilcoxon and TOST under scripts/). No count or performance number was added.
-A refined extract-transform-load pipeline for the Gowalla check-in dump is a
-distinct part of this contribution. It geospatially partitions the public check-in
-record into fifty-six United States state-level datasets through a three-stage,
-resumable process: category mapping over a several-hundred-entry hierarchy, optional
-timezone localization, and a state spatial join against Census boundary data. The
-platform also holds the evaluation protocol of the final study: user-disjoint
-cross-validation, a region-transition prior rebuilt for each fold from training data
-alone, and the paired significance and non-inferiority tests reported in
-Chapter~\ref{ch:mobiwac}. That protocol is not retroactive. The study of
-Chapter~\ref{ch:courb} stratified its folds by sample rather than by user and ran in a
-separate repository, and neither it nor the study of Chapter~\ref{ch:cbic} reported a
-significance test, so the measurement procedure strengthened over the arc instead of
-holding constant across it. What the tooling contributes is the means by which the
-stricter protocol became practical: the split, the fold-wise prior, and the tests are
-implemented once, in one place, and not once per study. No
-performance or novelty claim is made here; those belong to the results chapters, under
-the evidence protocol the frame follows.
-
+% [round12, 2026-08-03] SECTION A.1, "The experimental platform", MOVED OUT of this volume on the
+% author's instruction: "APENDICES -- remover A.1, C.3 e E, mandando esse conteudo para o material
+% extra." Its text, its \label{apx:contributions:platform}, and the sign-off and provenance comments
+% that annotated it are in chapters/apx_extra_platform.tex, which the supplementary volume includes
+% as its Appendix E. Nothing in either volume referenced that label, measured from src/ with
+% comments stripped:
+%   for f in $(grep -rl 'apx:contributions' chapters tables *.tex); do grep -v '^[[:space:]]*%' "$f" \
+%     | grep -n 'apx:contributions'; done   ->  only the three \label declarations themselves
+% CONSEQUENCE FOR THE AUTHOR, flagged in src_utils/_round12/41_appendix_move.md and not decided
+% here: this appendix now carries one section, the reproducibility list, under a chapter title that
+% was written to cover the platform as well. Retitling the appendix, or promoting the remaining
+% section to an unsectioned statement, is a choice for the author.
 \section{Reproducing the reported numbers}
 \label{apx:contributions:repro}
 

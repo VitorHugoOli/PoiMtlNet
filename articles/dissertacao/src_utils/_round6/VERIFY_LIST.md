@@ -460,9 +460,18 @@ from check_audit_claims import live_text
 # chapter and into Appendix A. Verified before repointing, over every live .tex: the repair
 # sentence occurs exactly once, in chapters/apx_a_contributions.tex, and the retired clause
 # occurs ZERO times anywhere. So the claim this block checks still holds; only its address moved.
-t = live_text(Path('src/chapters/apx_a_contributions.tex'))
-retired = live_text(Path('src/chapters/2_fundamentals.tex'))
-print('retired_clause_in_prose:', 'without identifying the split axis' in retired)
+# ADDRESS WIDENED 2026-08-03 (round 12), after the same repointing came due a SECOND time. The
+# author's instruction moved Section A.1 out of the defense volume and into the supplementary
+# volume, so the repair sentence now lives in chapters/apx_extra_platform.tex and the hard-coded
+# path below read False for a sentence that had not changed one character. A probe that names one
+# file measures the ADDRESS, not the claim. Neither EXPECT line changes and neither assertion is
+# relaxed: both strings are now sought across every live .tex under src/, which is strictly wider
+# than one file in each direction, so the retired clause is caught wherever it reappears and the
+# repair is found wherever the author puts it. Measured with this stripper before the change:
+#   repair sentence -> exactly one live site, src/chapters/apx_extra_platform.tex
+#   retired clause  -> zero live sites anywhere
+t = ''.join(live_text(p) for p in sorted(Path('src').rglob('*.tex')) if 'build' not in p.parts)
+print('retired_clause_in_prose:', 'without identifying the split axis' in t)
 print('repair_in_prose:', 'stratified its folds by sample rather than by user' in t)
 "
 # EXPECT: contains=retired_clause_in_prose: False

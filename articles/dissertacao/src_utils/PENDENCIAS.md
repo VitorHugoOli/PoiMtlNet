@@ -920,6 +920,47 @@ decisao autorizava ("se julgar necessario").
    sua observacao era verdadeira e ja foi corrigida (o commit `6d780b58` se chama "fix the p.96
    overflow"). Nao ha o que mexer, e se voce ainda ve a tabela passando, me diga em qual pagina do PDF.
 
+### 6.13 Rodada 12 — dois defeitos que VOCE achou nas definicoes, e duas linhas de registro que eu nao posso escrever
+
+**Voce encontrou o que o item 7 (passe critico nas definicoes) existia para encontrar**, antes do passe
+rodar. Os dois sao lacunas de formalizacao, nao afirmacoes erradas, e os dois ficam exatamente nos pontos
+onde o capitulo carrega o argumento.
+
+**Defeito 1 — a Definicao 2.8 nao tinha simbolo.** A 2.7 da o vetor de nivel de lugar como
+$\mathbf{e}_p$ e a 2.8 dizia apenas "um vetor para cada check-in". O contraste lugar-versus-check-in e o
+pivo da dissertacao inteira, e so um dos lados podia ser escrito. Corrigido para $\mathbf{e}_{x_i}$.
+Medido antes de cunhar: `\mathbf{e}_{x_i}`, `\mathbf{e}_{x}`, `\mathbf{e}_i`, `\mathbf{z}_i` e
+`\mathbf{z}_{x_i}` aparecem ZERO vezes na arvore viva, entao nada foi sobrecarregado; os unicos
+subscritos de $\mathbf{e}$ em uso eram $p$ e os genericos $1$/$2$/$+$/$-$ das equacoes do
+discriminador. O simbolo espelha o $\mathbf{e}_p$ e muda so o que o subscrito indexa, que E a distincao
+sendo definida. Probe `R12-eqxi`.
+
+**Defeito 2 — a Definicao 2.6 era a unica tarefa em prosa pura.** A 2.3, a 2.4 e a 2.5 dao uma funcao
+($g_{\mathrm{cat}}(\mathbf{e}_p) \to c_p$, $f_{\mathrm{cat}}(H_i) \to c_i$,
+$f_{\mathrm{reg}}(H_i) \to r_i$) e o next place nao dava. Isso fazia a tarefa excluida parecer um tipo
+DIFERENTE de objeto justamente onde a funcao do capitulo e manter as tres formalmente distintas.
+Corrigido para $f_{\mathrm{place}}(H_i) \to p_i$, e nomear a funcao AFIA a declaracao de escopo em vez
+de enfraquece-la: a exclusao passa a incidir sobre um objeto definido. A frase agora diz que nenhum
+capitulo reporta resultado para $f_{\mathrm{place}}$. Probes `R12-fplace` e `R12-fplace2`.
+
+> **DECISAO SUA — duas linhas do GLOSSARY §1.1, que e sua e nao minha.** Eu usei os dois simbolos na
+> prosa do Capitulo 2 porque eles instanciam objetos ja registrados ($x_i$, $H_i$, $p_i$, $\mathcal{P}$),
+> mas a TABELA DE NOTACAO e um registro, e linha de registro e sua. As duas propostas:
+>
+> | Simbolo | Definicao proposta | Nota |
+> |---|---|---|
+> | $\mathbf{e}_{x_i}$ | A representacao aprendida do check-in $x_i$. | Entrada de nivel de check-in; e o "per-visit Check2HGI vector" que a linha do $\mathbf{e}_p$ ja menciona sem nomear. |
+> | $f_{\mathrm{place}}(H_i)$ | Preditor sequencial cujo alvo e o proximo POI $p_i$. | Nomeado apenas para delimitar escopo; nenhum capitulo reporta resultado para ele. |
+>
+> 1. **Registrar as duas** — fecha a lacuna que a propria linha do $\mathbf{e}_p$ aponta ("distinct from
+>    a per-visit Check2HGI vector", sem simbolo).
+> 2. **Registrar so o $\mathbf{e}_{x_i}$** — o $f_{\mathrm{place}}$ existe para ser excluido, e voce pode
+>    preferir nao registrar notacao de uma tarefa que a dissertacao nao executa.
+> 3. **Nenhuma das duas, e eu retiro os simbolos da prosa** — volta ao estado anterior, com os dois
+>    defeitos que voce achou de volta junto.
+>
+> **DECISAO SUA:** ______
+
 ---
 
 ## §3 · Aberto e bloqueado em terceiros
