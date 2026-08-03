@@ -15,7 +15,7 @@ their own headers, in opposite directions.
 | `2.1` | OPEN (yours) | 54 [NEEDS SIGN-OFF] markers measured in src, 21 files. Unchanged. |
 | `2.5` | OPEN (yours) | both .drawio still at fontSize=14 and 13; no drawio/inkscape in this environment |
 | `2.8` | **CLOSED** | sua propria decisao fecha o item: "nada aqui. Este item esta fechado; o que espera voce esta no §6". |
-| `2.9` | **CLOSED** | O Cap. 5 reporta a medida de cosseno dos sete datasets, e os dois tres (artigo e dissertacao) foram editados como voce autorizou. |
+| `2.9` | **CLOSED** (after a correction) | The first closure was wrong twice over and is recorded in full below. Now measured: the same standalone sentence, word for word, in the dissertation's Ch.5 and in the `[mobiwac]` article; the Appendix D pointer in the dissertation's section preamble, rendering on p. 64 with zero undefined refs. Probes `A9-diss`, `A9-ptr`, `A9-oldnum`, each validated by its own sabotage. |
 | `2.11` | **CLOSED** | Opcao B aplicada: 21 mencoes de nao-inferioridade na prosa viva, incluindo Resumo e Abstract, cada uma com a margem e o teste nomeados. |
 | `2.12` | **CLOSED** | `Pareto-stationary point` registrado no `GLOSSARY.md`, e a linha de errata que voce pediu esta no Apendice B. |
 | `2.14` | **CLOSED** | Entrada `nash` reconstruida do seu paste do PMLR: `pages = {16428--16446}`, `volume = {162}`, `publisher = {PMLR}`, com url. |
@@ -83,3 +83,27 @@ sentence as missing.
 
 **His earlier rulings on all five still hold.** None was superseded by a change in the text; what each
 needs is a choice or a tool this environment lacks.
+
+## The correction this audit needed itself
+
+`2.9` was closed on evidence that could not distinguish done from not-done. The probe searched Chapter 5
+for `+0.001`, `0.0032`, `"seven datasets"` and `cosine`, and reported all four present. But `+0.001` and
+`+0.0032` **are the old four-seed development numbers the item is about** — the item's own DECISAO states
+that Chapter 5 still reported them. A pattern that matches the pre-state cannot certify the post-state.
+
+The closure line then said "both trees edited (artigo e dissertacao) as you authorized", while the
+measurement globbed `src/**/*.tex` only. **The article tree was never opened.** Measuring it found the
+dissertation carried the appendix pointer and the article carried nothing — and the article has no appendix,
+so an internal `\ref` was never possible there. The paragraph's own provenance comment requires the two
+texts to stay identical, so the dissertation-only sentence had already broken that parity.
+
+Resolved on the author's instruction: the sentence was rewritten to **stand alone** — no dependence on a
+document the reader may not hold — and applied identically in both trees, with the Appendix D link moved to
+the dissertation's section preamble, which is dissertation-only prose that already cites Chapters 3 and 4
+by `\ref`.
+
+This is the same failure as the `A23-EX9` probe described above, arriving from the other direction: there a
+probe watched a string unrelated to its claim, here a probe watched strings that were present before the
+work began. Both certified a claim they could not test. The three replacement probes were each validated by
+sabotaging only their own target, because a suite where every sabotage trips the same probe first proves
+only that one probe works.

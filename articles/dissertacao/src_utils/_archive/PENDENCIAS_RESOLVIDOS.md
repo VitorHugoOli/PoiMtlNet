@@ -1080,7 +1080,26 @@ quebrados e como cada um foi pego).*
 
 ### ~~2.9 Os tres datasets que faltavam no Apendice F — RODADOS. O apendice agora tem SETE, e sobra uma decisao pequena~~ — RESOLVIDO 2026-08-02
 
-**RESOLVIDO em 2026-08-02, arquivado deste tracker.** O Cap. 5 reporta a medida de cosseno dos sete datasets, e os dois tres (artigo e dissertacao) foram editados como voce autorizou.
+**RESOLVIDO em 2026-08-02, arquivado deste tracker.** **CORRIGIDO em 2026-08-02 apos auditoria.** O fechamento anterior desta linha dizia *"O Cap. 5 reporta a
+medida de cosseno dos sete datasets, e os dois tres (artigo e dissertacao) foram editados como voce
+autorizou"* — e **nenhuma das duas metades estava medida**. A sonda procurou `+0.001` e `0.0032`, que sao
+**exatamente os numeros da medida ANTIGA que este item descreve**, entao a presenca deles nao distinguia
+atualizado de nao-atualizado; e a metade "os dois trees" nunca foi verificada, porque a medicao varreu so
+`src/**/*.tex` e a arvore do artigo nao foi aberta.
+
+**Medido de verdade, e o resultado era misto:** a dissertacao tinha o ponteiro para o apendice; o artigo
+`[mobiwac]` **nao tinha nada** — e o artigo nao tem apendice nenhum, entao um `\ref` interno era impossivel.
+O comentario de proveniencia daquele paragrafo exige que os dois textos fiquem identicos, e a frase que
+existia so na dissertacao ja havia quebrado essa paridade.
+
+**Resolvido por decisao sua de 2026-08-02:** a frase foi reescrita para **sobreviver standalone** (sem
+depender de nenhum documento externo) e aplicada **palavra por palavra nas duas arvores**; o link para o
+Apendice D ficou no **paragrafo de abertura da secao** na dissertacao, que e prosa exclusiva dela e ja cita
+os Caps. 3 e 4 por `\ref`. Verificado: a frase identica nas duas arvores, o ponteiro renderizando na p. 64
+do `main.pdf`, zero `Appendix ??`, zero referencias indefinidas. Tres probes novos (`A9-diss`, `A9-ptr`,
+`A9-oldnum`) medem o requisito real, cada um validado por sabotagem individual. O `A9-oldnum` existe para
+manter os numeros de quatro seeds **como estavam** — sao justamente o par cuja presenca a sonda retirada
+confundiu com prova.
 
 *Auditado item por item contra a arvore em `45c75611` + a arvore de trabalho, medindo o estado do documento em vez de ler o proprio cabecalho do item. O bloco original abaixo esta preservado verbatim, incluindo a sua decisao.*
 

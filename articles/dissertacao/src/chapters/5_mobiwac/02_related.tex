@@ -15,8 +15,15 @@
 % NORTH_STAR section 3: Ch.5 recaps BOTH the Ch.3 artifact and the Ch.4 finding). Content
 % from the approved spine (NORTH_STAR sections 2 and 6) and the GLOSSARY model-lineage table;
 % no numbers are quoted.]
+% [round9f, 2026-08-02, PENDENCIAS_RESOLVIDOS 2.9 (arquivado 2026-08-02), AUTHOR DECISION] The
+% pointer to the gradient-cosine appendix lives HERE, in the section's own opening paragraph,
+% and not in the gradient-cosine sentence further down. Reason: that sentence is kept BYTE-FOR-BYTE
+% identical with the [mobiwac] article, which has no appendix and whose reader may not hold this
+% dissertation, so it was rewritten to stand alone. This paragraph is dissertation-only prose --
+% it already refers to Chapters 3 and 4 by \ref -- so an internal \ref is at home in it.
 Two chapters of this dissertation precede this study, and this chapter answers the
-question that they leave open. Chapter~\ref{ch:cbic} introduced MTLnet, the first
+question that they leave open. Appendix~\ref{apx:cosine} reports the gradient-cosine
+diagnostic of this chapter on the final model across seven datasets. Chapter~\ref{ch:cbic} introduced MTLnet, the first
 joint model for this task pair: task-specific encoders feed shared layers
 conditioned on task identity, and a gradient-balancing method weights the two tasks
 during training~\cite{silva2025mtlnet}. On a place-level embedding with hard
@@ -162,8 +169,20 @@ here, and Georgia, which this dissertation does not otherwise use; the largest p
 absolute value is $+0.0032$). A balancer therefore has no
 conflict to resolve, consistent with the mechanism test in
 Section~\ref{sec:mobiwac:results-part2}; this is a finding for this pair of tasks, not a
-general rule. Appendix~\ref{apx:cosine} of this dissertation measures the same quantity on
-the final model across seven datasets and reaches the same conclusion.
+general rule. The same quantity, measured on the final model across seven datasets, is
+positive at every one of them, so the absence of conflict is not an artifact of this
+smaller set of runs.
+% [round9f, 2026-08-02, PENDENCIAS_RESOLVIDOS 2.9 (arquivado 2026-08-02), AUTHOR DECISION]
+% ADDED HERE AND IN THE [mobiwac] ARTICLE, in the same words, so the two texts stay
+% identical as the round-6 note below requires. The author's instruction was to write the
+% sentence so it SURVIVES STANDALONE -- no reference to a document the reader may not hold --
+% because this article has no appendix and a cross-document pointer cannot be resolved from
+% here. The dissertation carries the pointer to its own Appendix D in the paragraph that
+% introduces the section, not in this sentence.
+% NUMBERS QUOTED, NOT COMPUTED: "positive at every one of them" is the seven-dataset result
+% recorded in the dissertation's gradient-cosine appendix; the +0.001 / +0.0032 figures above
+% are the EARLIER four-seed development measure and are left exactly as they were.
+
 % [round9c, PENDENCIAS_RESOLVIDOS 2.9 (arquivado 2026-08-02) + 2.23 (readability report R-6), 2026-07-30] ONE POINTER ADDED, and this is
 % the DISSERTATION-ONLY sentence the two trees deliberately do not share. Errata row in Appendix B,
 % Table B.5.

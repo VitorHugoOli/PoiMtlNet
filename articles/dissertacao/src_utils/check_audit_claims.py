@@ -139,6 +139,23 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
      "references.bib", r"16428--16446", True),
     ("A12-errata", "his 2.12: the Pareto-optimality narrowing has its errata row",
      "tables/cbic/errata.tex", r"Pareto", True),
+    # ---- ROUND-9f, 2026-08-02. Item 2.9 was closed on evidence that could not distinguish
+    # done from not-done: the probe searched for "+0.001" and "0.0032", which are the OLD
+    # four-seed development numbers the item itself was ABOUT, so their presence proved nothing.
+    # The closure line also said "both trees edited" when the measurement globbed only src/**.
+    # These three probe the actual requirement -- the same standalone sentence in BOTH trees,
+    # and the appendix pointer in the dissertation's section preamble where it can resolve.
+    ("A9-diss",  "2.9: the seven-dataset result is stated in the dissertation's Ch.5, in wording that "
+     "does not depend on holding another document",
+     "chapters/5_mobiwac/02_related.tex",
+     r"measured on the final model across seven datasets, is\s+positive at every one of them", True),
+    ("A9-ptr",   "2.9: the pointer to the gradient-cosine appendix lives in the section preamble, where "
+     "an internal ref resolves",
+     "chapters/5_mobiwac/02_related.tex",
+     r"Appendix~\\ref\{apx:cosine\} reports the gradient-cosine", True),
+    ("A9-oldnum","2.9: the earlier four-seed figures are LEFT AS THEY WERE, not silently restated as the "
+     "seven-dataset result (this is the pair whose presence the withdrawn probe mistook for proof)",
+     "chapters/5_mobiwac/02_related.tex", r"\+0\.0032", True),
     # ---- REPOINTED 2026-08-02, when the author's revised tree (src_clean) was merged into src.
     # Seven probes went NOT APPLIED after the merge. Each was checked against the SUBSTANCE rather
     # than trusted or deleted, and in every case the claim still holds and the PATTERN was stale:
