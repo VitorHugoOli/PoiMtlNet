@@ -6,6 +6,13 @@
 > edit the section files here to change the dissertation text — edit `src/chapters/2_fundamentals.tex`
 > and rebuild. This folder is kept as the provenance record (reference base, section maps, gate
 > reports, `_bib/new_references_ch2.bib`) of how Ch.2 was built.
+>
+> **ONE FILE WAS ADDED AFTER THE FREEZE, and the exception is deliberate: `DEFINITIONS.md`** (2026-08-03,
+> at the author's instruction). It does not violate the single-source rule, because it is not chapter
+> text: it is the consolidated design for the chapter's numbered Definitions, produced after the author
+> found a forward dependency among them, and it is gated behind six decisions of his. The chapter itself
+> is still edited only in `../src/chapters/2_fundamentals.tex`. When the design is applied there, this
+> file becomes provenance like the rest of the folder.
 
 This folder consolidates the grounded, fail-closed literature review for Ch. 2. It is organized by the chapter's
 own sections. Everything here is verification output and planning material; **no chapter prose is drafted yet**
@@ -15,6 +22,10 @@ own sections. Everything here is verification output and planning material; **no
 ```
 fundamentals/
 ├── README.md                         <- this file
+├── DEFINITIONS.md                    <- the twelve (or thirteen) numbered Definitions, consolidated
+│                                        and validated. ADDED 2026-08-03, after the freeze, on the
+│                                        author's instruction. A DESIGN document: six decisions gate
+│                                        its application and nothing in it is in `src/` yet.
 ├── GAP_STATUS.md                     <- verdict on the 8 structural gaps (start here)
 ├── model_lineage_table.md            <- DGI -> HGI -> MTLnet -> ST-MTLNet -> Check2HGI -> joint model
 ├── 2.1_poi_prediction_tasks/         <- 2.1_citations.md
