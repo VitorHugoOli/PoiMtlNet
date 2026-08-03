@@ -575,9 +575,37 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
                     "pipeline, so Chapter 2 may not claim one",
      "_round12/50_courb_temporal_level_investigation.md",
      r"There is no aggregation function anywhere in the\s+Time2Vec pipeline", True),
-    ("R12-notagg2", "and the investigation does not assert the aggregation it was sent to look for",
+    # R12-notagg2 WAS BROKEN ON ITS FIRST WRITING, and the defect is worth recording because it is the
+    # third time in this repo that a probe's SABOTAGE LEG, not the probe, decided whether it looked
+    # covered. The pattern was r"^The temporal channel is aggregated to the place" -- and this gate
+    # matches with re.I ONLY, never re.MULTILINE, so `^` anchors at STRING START and nowhere else. The
+    # ban therefore covered exactly one position in a 5 KB file. My sabotage leg inserted the sentence
+    # as the file's first line, i.e. at the single position the pattern could reach, so it FIRED and I
+    # reported the ban as covering the record. Reproduced after the fact: the same sentence placed
+    # mid-document did not match.
+    #
+    # THE FIX cannot be an unanchored bare-phrase ban, because the record legitimately QUOTES the
+    # refuted wording once, in "And I cannot write that the temporal channel is aggregated to the
+    # place" -- the sentence whose whole job is to refute it. Same constraint as R9-clock2: a correction
+    # that cannot name what it corrects is not a correction. So the ban keys on the ASSERTION FORM at a
+    # sentence boundary ANYWHERE in the file (string start, after a sentence-final punctuation, or after
+    # a newline, with optional markdown emphasis), which is position-independent without also banning
+    # the quotation. Validated at five positions the old pattern could not reach plus two that must stay
+    # legal; the legs below sabotage MID-document, not at the top.
+    #
+    # SECOND MISS, caught by the legs and not by my reasoning, and it is the same lesson one level down:
+    # my first corrected pattern passed a hand-built test on RAW text and then went SILENT on a real
+    # sabotage leg that put the assertion in a bold run. Cause: the gate matches live_text(), whose
+    # strip_text() collapses newlines to spaces, so the text preceding a bolded line arrives as
+    # "...reduction.** **The temporal channel..." -- a period followed by ASTERISKS, which my
+    # [.!?]['\")\]]* class did not admit. A pattern must be tested THROUGH the gate's own normalizer,
+    # never against the raw file. The lead-in now admits emphasis markers and list bullets, and the
+    # pattern is validated over ten positions including two that must stay legal.
+    ("R12-notagg2", "the investigation does not ASSERT the aggregation it was sent to look for, at any "
+                    "position in the file (quoting the refuted wording inside the refutation stays legal)",
      "_round12/50_courb_temporal_level_investigation.md",
-     r"^The temporal channel is aggregated to the place", False),
+     r"(?:\A|[.!?][*_'\")\]]*\s|\n)\s*(?:[-*+]\s+|\d+\.\s+)?(?:\*\*|__|\*)?\s*"
+     r"The temporal channel is aggregated to the place", False),
 )
 
 # COD-016b needs a STRUCTURAL probe, not a string one, so it lives here rather than in PROBES --

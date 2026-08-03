@@ -284,3 +284,48 @@ Running total across the two rounds: **six claim-or-count defects in my own work
 defects** (`R9-nocount`'s first pattern, `R9-clock2`'s first pattern, `R9-wave2`'s wrong file, and this
 harness's `count=1`), **and one fabricated postmortem** -- this section's first version. Every one was
 checkable against data already in hand.
+
+---
+
+## Round 12: the sabotage LEG decided the verdict, twice in one fix
+
+Found by the reviewer, not by me and not by the suite.
+
+**The defect.** `R12-notagg2` bans the record from ASSERTING the aggregation the code refutes. I wrote its
+pattern as `r"^The temporal channel is aggregated to the place"` and reported, in the probe description,
+the commit message, and my reply, that it bans the phrasing *from the record*. **This gate matches with
+`re.I` only and never `re.MULTILINE`**, so `^` anchors at string start and nowhere else: the ban covered
+exactly one position in a 5 KB file. The same sentence written anywhere in the body passed.
+
+**What made it invisible.** My sabotage leg inserted the banned sentence as the file's *first line* — the
+single position the pattern could reach. It fired, and I read the firing as coverage. The leg was
+constructed from the same mental model as the pattern, so it could only ever confirm it.
+
+**Then the fix repeated the error one level down.** My first corrected pattern passed a hand-built test
+over ten cases and then went **silent** on a real sabotage leg that put the assertion in a bold run. Cause:
+the gate matches `live_text()`, whose `strip_text()` collapses newlines to spaces, so the text before a
+bolded line arrives as `...reduction.** **The temporal channel...` — a period followed by *asterisks*,
+which my `[.!?]['\")\]]*` class did not admit. I had tested the pattern against the RAW file, not against
+what the gate sees.
+
+**The rule, and it is narrower than "validate your probes".** Two rules, because the two misses have
+different causes:
+
+1. **A sabotage leg must be built from the FAILURE MODE, not from the pattern.** Ask where the banned
+   thing could plausibly appear — start of file, mid-paragraph, after a heading, in bold, in a list — and
+   sabotage each. A leg derived from the regex tests the regex against itself. The fixed probe is
+   validated at six positions plus one that must stay legal.
+2. **Test a pattern THROUGH the gate's own normalizer, never against the raw file.** `strip_text()` is
+   not the identity: it strips comments and collapses whitespace, and both change what anchors and
+   character classes can match.
+
+**Why the ban cannot simply be unanchored.** The record legitimately quotes the refuted wording once, in
+the sentence whose whole job is to refute it. Same constraint as `R9-clock2`: a correction that cannot
+name what it corrects is not a correction. The ban therefore keys on the assertion form at a sentence
+boundary anywhere in the file, admitting emphasis markers and list bullets, which is position-independent
+without banning the quotation.
+
+Running total across the four rounds: **six claim-or-count defects, six instrument defects**
+(`R9-nocount`'s first pattern, `R9-clock2`'s first pattern, `R9-wave2`'s wrong file, the round-10
+harness's `count=1`, and now `R12-notagg2`'s anchor plus its first repair), **and one fabricated
+postmortem**. Every one was checkable against data already in hand.

@@ -1133,6 +1133,77 @@ componentes sao aprendidos por encoders separados, sem afirmar um nivel unico pa
 >
 > **DECISAO SUA:** ______
 
+### 6.16 Rodada 12 — AD-5 e AD-6 fechadas, e o AD-4 virou uma questao maior do que a que eu fiz
+
+**AD-5 — FECHADA.** As duas linhas de registro do §6.13 estao autorizadas: $\mathbf{e}_{x_i}$ e
+$f_{\mathrm{place}}(H_i)$. E com treze definicoes a linha do $\rho$ deixa de ser opcional e passa a ser
+**necessaria**, porque o $\rho$ agora e um objeto numerado do capitulo e nao mais notacao de prosa.
+
+**AD-6 — FECHADA: afiar.** A frase e `2_fundamentals.tex:85`, dentro da D2: "A target label is withheld
+from it when one of the sequential tasks is trained." Antes de reescrever, medi o que ela precisa dizer, e
+ha um ponto que muda o objetivo do conserto:
+
+- **Qual rotulo depende da tarefa**, e isso e a razao de ela estar vaga. A Definicao 2.1 da
+  $x_i=(u,p_i,t_i,c_i,r_i)$, entao o alvo e $c_i$ para next-category e $r_i$ para next-region. Uma frase
+  so nao pode fixar um campo, e afiar sem partir em duas exige nomear o alvo **como funcao da tarefa**.
+- **O que e retido nao e um campo da HISTORIA.** O $H_i=(x_{i-\ell},\ldots,x_{i-1})$ ja **exclui** o
+  $x_i$ por construcao, e e no $x_i$ que o alvo vive. Os elementos da historia mantem categoria e regiao.
+- **E aqui esta o defeito real da frase atual:** como esta escrita, ela convida a leitura oposta, de que
+  as categorias sao apagadas da historia, o que seria uma descricao FALSA dos dados. O proprio MobiWac diz
+  o contrario em `5_mobiwac/05_setup.tex:76`: "a per-visit vector legitimately carries more than the
+  previous category, including the place, its neighborhood, and the hour of the visit". Ou seja, afiar
+  nao e cosmetico: e trocar uma frase que pode ser lida errado por uma que diz de onde o alvo sai e o que
+  **permanece** disponivel.
+
+---
+
+**AD-4 — a sua resposta e maior do que a minha pergunta, e o seu argumento e melhor do que o do projeto.**
+
+Eu perguntei so o **titulo** de uma subsubsecao dentro da §2.1. Voce respondeu propondo **inverter a
+ordem**: representacao primeiro, com a definicao formal ali, e depois as tarefas que se pode treinar com
+essas representacoes. E voce mesmo pos a ressalva: "a narrativa tem que esta acima desse problema, temos
+que ter muito cuidade".
+
+**O argumento e melhor.** O projeto move duas definicoes para DENTRO da secao de tarefas para tirar a
+dependencia para frente. Voce a elimina na RAIZ: se a representacao vem primeiro, nada precisa se mover,
+porque as tarefas passam a consumir objetos que o leitor ja tem. E a ordem de leitura passa a espelhar a
+propria tese, que e a de que a representacao e o fator dominante.
+
+Como voce pediu cuidado, o custo, medido:
+
+| custo | o que e | tamanho |
+|---|---|---|
+| referencias cruzadas | so **tres** referencias vivas aos dois labels, **todas dentro do proprio `2_fundamentals.tex`** (`sec:fund:tasks` x1, `sec:fund:repr` x2). Nada fora do capitulo aponta para eles. | pequeno |
+| prosa que fica FALSA | `:14-20`, a abertura do capitulo, enuncia a ordem em prosa com os refs ("It **first** distinguishes the POI prediction tasks... It **then** traces mobility representations"); e `:27`, a abertura da §2.1, e a **justificativa explicita** da ordem atual ("This section defines the prediction targets **before** reviewing the methods used for them"). Essa segunda nao fica so obsoleta: fica uma afirmacao falsa sobre a estrutura do proprio capitulo. | duas reescritas |
+| **estrutura do capitulo** | a ordem 2.1-2.5 esta **fixada no mapa do capitulo**, `NORTH_STAR.md:73-80`, e o escopo do projeto diz para nao inventar secoes. Inverter 2.1 e 2.2 **edita o mapa**, e e outra ordem de magnitude em relacao a nomear uma subsubsecao. | **e a razao de a decisao ser sua** |
+| gates | **nenhum.** Medi todos os `check_*.py` e o `check.sh`: os quatro arquivos que mencionam "2.1" falam de itens do PENDENCIAS ou de fixtures de teste, nao do capitulo; e o `R11-fab15` pina uma frase da INTRODUCAO, nao a ordem. | zero |
+| efeito colateral | `fundamentals/` tem diretorios `2.1_poi_prediction_tasks` e `2.2_representations_for_mobility`. A pasta e provenance congelada e os nomes registram como o capitulo **foi** construido, entao nao e erro, mas passa a descrever outra ordem. | anotar |
+
+> **DECISAO SUA — e eu separei em duas porque sao decisoes diferentes de tamanhos diferentes.**
+>
+> **(a) O AD-4 como eu perguntei.** Uma subsubsecao dentro da §2.1 com o titulo que voce der, a ordem das
+> secoes intacta, e o plano de 8 passos vale como esta. Resolve a dependencia para frente e nao toca o
+> mapa. Custo: as duas definicoes de representacao passam a viver na secao de tarefas, que e exatamente o
+> arranjo que o seu argumento diz ser menos natural.
+>
+> **(b) A inversao 2.1 <-> 2.2 que voce propos.** Item NOVO, maior, e uma mudanca de estrutura de
+> capitulo. Ganha a ordem de leitura que espelha a tese e nada precisa se mover para dentro de secao
+> alheia. Custo: reescrever `:14-20`, reescrever `:27`, e uma decisao sua sobre alterar o mapa do
+> `NORTH_STAR`. As tres referencias cruzadas sao triviais.
+>
+> Se escolher (b), eu **nao** executo junto com o resto do round sem essa linha explicita: e mudanca de
+> estrutura, e o plano de 8 passos foi escrito para (a).
+>
+> **DECISAO SUA:** ______
+
+**Fora de escopo, e eu tinha listado indevidamente:** o `src_utils/NEEDS_SIGN_OFF.md` (56 marcadores). Voce
+foi explicito de que este round e sobre as definitions. Retirado daqui; segue em aberto no lugar dele.
+
+**AD-2 continua pre-requisito e nao paralela.** Voce pediu o estudo antes da resposta concreta, e ele esta
+feito: `_round12/50_courb_temporal_level_investigation.md`. O resultado inverte a premissa (nao existe
+agregacao; o construtor da tarefa de categoria **recusa** o canal temporal) e deixa tres possibilidades
+que so os artefatos da rodada publicada distinguem. O §6.15 as lista com o custo de cada uma.
+
 ---
 
 ## §3 · Aberto e bloqueado em terceiros
