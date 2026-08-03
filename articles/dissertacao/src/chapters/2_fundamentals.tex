@@ -215,37 +215,186 @@ local features and a global summary~\cite{hjelm2019dim}, and Deep Graph Infomax 
 applies this objective to graph nodes and a graph-level
 summary~\cite{velickovic2019deep}. DGI supplies the objective and the place embeddings
 used in the first study. Hierarchical Graph Infomax (HGI) extends that objective
-across POI, region, and city levels~\cite{huang2023hgi}. It begins with category
-embeddings, updates each POI from its spatial neighborhood, and aggregates POIs into
-regions with multi-head attention. A region graph then propagates information between
-adjacent regions, and region representations are aggregated into a city summary. The
-training objective brings POIs into agreement with their regions and regions into
-agreement with the city while contrasting corrupted pairs. This hierarchy lets a
-region representation carry both local POI information and city-level context.
+across POI, region, and city levels~\cite{huang2023hgi}.
 
-HGI was developed and evaluated for urban region representation. This dissertation
-repurposes its POI-level output for sequential prediction. In this role, HGI supplies
-the place-level baseline in the later studies and the direct basis of Check2HGI.
+HGI is the place-level representation that the final study replaces, so its mechanism
+fixes the reference point of the main comparison of this dissertation. Its own stated
+goal is to learn urban region representations from POIs in a fully unsupervised
+manner, and it reaches that goal by extending the two scales of DGI to three: POI,
+region, and city. The name states what is maximized. Training raises the mutual
+information between representations at two adjacent levels of that hierarchy, and it
+does so without evaluating that quantity in closed form. HGI follows the contrastive
+paradigm and scores pairs instead. A bilinear discriminator combines two embeddings
+through a learned weight matrix and passes the result through a logistic function,
+and the loss rewards a high score for a true pair and a low score for a false pair.
+No label of any downstream task enters that comparison, so the representation is
+obtained without supervision.
+
+The hierarchy is assembled in five stages. A pretrained category encoder supplies the
+initial POI features, because the category of a POI already accounts for much of its
+meaning. All POIs of a study area are then connected into a Delaunay graph whose edge
+weights decrease with the distance between two POIs and are reduced further when the
+two POIs lie in different regions. One graph convolution layer updates each POI
+embedding into a transformed combination of the POI itself and its spatial context.
+The POI embeddings inside one region are aggregated by multi-head attention, where
+each head represents one perspective on how important a POI is in defining its
+region. A second graph, whose nodes are regions and whose edges join regions that
+share a border, propagates information between neighbors and yields the region
+embeddings. An area-weighted sum over those embeddings produces one city embedding.
+
+Two examples from the original paper show what the levels are for. A hotel inside an
+airport complex and a hotel on a university campus share a category and differ in
+meaning, and only the spatial neighborhood separates them. The POI level does that
+work. Two regions that each contain one company and one restaurant are almost
+indistinguishable from their own contents. If one of them is surrounded by commercial
+regions and the other by industrial areas, the region graph makes the difference
+visible.
+
+The objective has one term for each adjacent pair of levels, and a single weight
+balances them. The first term treats a region embedding and the POI embeddings
+located inside that region as a true pair, and takes POI embeddings from another
+region as the false pair. The second term treats the city embedding and the region
+embeddings as a true pair. Its false pair uses region embeddings recomputed after the
+POI feature matrix has been shuffled row by row, so every POI keeps its place in the
+graph but receives the category embedding of a different POI.
+
+One consequence of this design matters for the later chapters. The training signal
+updates the POI encoder, the aggregation function, and the region encoder together,
+so a POI embedding is optimized to score high against the embedding of its own region
+and low against the embeddings of other regions. Region membership also enters
+earlier, through the edge weights of the POI graph. The POI-level output is therefore
+not a description of the place in isolation. It already reflects the region the place
+belongs to, and the authors state the matching property for their own product, whose
+region representations are both locally and globally relevant.
+
+HGI was developed and evaluated for urban region representation. Its reported
+experiments estimate urban functional distributions, population density, and housing
+price in Xiamen Island and Shenzhen, and the object under evaluation there is the
+region embedding. The POI embedding is an internal stage in producing it. This
+dissertation repurposes that POI-level output for sequential prediction, a use the
+original evaluation does not cover. In this role, HGI supplies the place-level
+baseline in the later studies and the direct basis of Check2HGI.
+% [round11, 2026-08-03] HGI MECHANISM EXPANDED (item GER-02, second part; the author's ruling is
+% that the HGI explanation is worth improving because it is "uma das abordagens mais importantes
+% para as contribuicoes da dissertacao"). The previous text was five sentences of correct but
+% compressed mechanism. Nothing in it was contradicted; every clause of it survives in substance.
+% EVERY MECHANISM CLAIM BELOW WAS READ THIS SESSION at the source PDF on disk,
+% science/articles/Learning urban region representations with POIs and hierarchical graph
+% infomax.pdf = huang2023hgi, ISPRS J. Photogramm. Remote Sens. 196 (2023) 134-145,
+% doi 10.1016/j.isprsjprs.2022.11.021 (journal pagination cited; PDF sheet in parentheses).
+%   goal + unsupervised   p.134 (sheet 1) abstract: "learning urban region representations (vector
+%                         embeddings) with points-of-interest (POIs) in a fully unsupervised manner".
+%   three scales          p.136 (sheet 3) end of Related works: "we extend DGI to model the
+%                         interactions between three scales, i.e., POI, region, and city".
+%   what is maximized     p.134 abstract: "trained through maximizing the mutual information among
+%                         the POI - region - city hierarchy"; p.139 (sheet 6): "a region-centered
+%                         hierarchical mutual information maximization".
+%   contrastive, not a    p.138 (sheet 5) sec. 3.7: "The general idea of HGI follows the paradigm of
+%   closed-form MI        contrastive learning". The MI is never estimated in closed form: the losses
+%                         Eq. 12-13 p.139 are log-scores of the discriminator D, nothing else.
+%   discriminator         p.139 below Eq. 13: D_pr(p_i, r_k) = sigma_L(p_i W_pr r_k), "sigma_L is a
+%                         sigmoid function". Prose says "logistic function" per GLOSSARY. "bilinear
+%                         discriminator" is the registered term (GLOSSARY sec. 3), already used by
+%                         the Check2HGI equations later in this section.
+%   no downstream labels  p.138-139 sec. 3.7: "The training of HGI only relies on POIs and region
+%                         boundaries, and not on any ground truth data in the downstream tasks."
+%   five stages           p.136 (sheet 3) sec. 3.1, items (1)-(5), which is also the abstract's list.
+%   category encoder      p.136 sec. 3.1(1): "A POI category encoder phi_c is pretrained to generate
+%                         the initial POI features, as categorical information generally plays a key
+%                         role in defining the meaning of a POI." Paraphrased to avoid the banned
+%                         "plays a crucial role" template shape (WRITING_LAW sec. 4).
+%   Delaunay + weights    p.137 (sheet 4) sec. 3.3: "all the POIs in a study area are connected using
+%                         DT to form a graph"; Eq. 2 a_p = log((1+L^1.5)/(1+l^1.5)) x w_r, "l
+%                         represents the spatial distance between the two POIs ... w_r is a factor to
+%                         differentiate intra- (w_r = 1) and cross-region (w_r = 0.4) edges". Only the
+%                         DIRECTION is written into prose (decreases with distance; reduced across
+%                         regions), NO NUMBER: the repo retunes this weight and the live text carries
+%                         no value for it, so quoting 0.4 here would collide with that (the ledger for
+%                         the retuning is the orphaned NUM-4 block above, sec. 2.2).
+%   one GCN layer + what  p.137 sec. 3.3: "we apply a one-layer GCN encoder"; p.138 (sheet 5) top:
+%   it produces           "the embedding of each POI is updated to be a transformed combination of the
+%                         information from itself and its spatial context, which captures its
+%                         uniqueness."
+%   multi-head heads      p.138 sec. 3.4, closing sentence: the region raw embedding "reflects the
+%                         different importance levels of the POIs from several perspectives (each head
+%                         represents a perspective)".
+%   region graph          p.138 sec. 3.5: "we conceptually view each region as a node, and build edges
+%                         between the regions that share parts of borders"; "We employ a one-layer
+%                         GCN". The paper's fallback for regions that share no border is omitted as a
+%                         detail a reader of this chapter does not need.
+%   city embedding        p.138 sec. 3.6, Eq. 10: "area-weighted summarization", aw_i "is the area
+%                         proportion of region r_i in the study area (city)".
+%   hotel example         p.137 sec. 3.3: "a hotel within an airport complex and another hotel in a
+%                         university campus ... have diverse semantics".
+%   two-regions example   p.135 (sheet 2) end of sec. 2.1: two regions each with a company and a
+%                         restaurant, one "surrounded by commercial regions", the other "surrounded by
+%                         several industrial areas with factories"; they "can hardly be differentiated
+%                         unless their contextual information is incorporated".
+%   positives/negatives   p.139 sec. 3.7: for a region, positives are "the POI embeddings P_i within
+%                         the region", negatives "the POI embeddings P_j in another region r_j"; for
+%                         the city, positives are the region embeddings R, negatives come from
+%                         "row-wise shuffling of the POI graph's feature matrix X_p ... (replace the
+%                         category embedding of each POI with a category embedding from another
+%                         randomly picked POI to form a corrupted graph)".
+%   one balancing weight  p.139 Eq. 11 L = alpha L_pr + (1 - alpha) L_rc; "The strengths of L_pr and
+%                         L_rc are controlled by alpha". Value deliberately not quoted.
+%   joint training of     p.136 sec. 3.1(6): the hierarchical infomax objective trains "the components
+%   the three modules     of phi_p, AGG_poi-region, and phi_r".
+%   locally and globally  p.139 last sentence of sec. 3.7: "the information from local-scale POIs and
+%   relevant              the global-scale city both flows to the learned region embeddings, making
+%                         them both globally and locally relevant." Also p.134 abstract.
+%   what HGI was FOR      p.134 abstract and p.139 (sheet 6) sec. 4.1: three downstream tasks,
+%   (the honest caveat)   "estimating urban functional distributions, population density, and housing
+%                         price", study areas "Xiamen Island and Shenzhen, China". The evaluated
+%                         object is the REGION representation throughout; the POI embedding is an
+%                         intermediate product (sec. 3.3 -> 3.4). The caveat sentence the previous
+%                         text carried is kept and made specific, per the item's constraint.
+% NOT WRITTEN, though the source supports them, because this is a fundamentals chapter and not a
+% paper summary: hard negative sampling with the cosine window (p.139), the PReLU activations, the
+% Laplacian-Eigenmaps term of the category encoder (p.136 Eq. 1), and all reported results.
+% NO NEW GLOSSARY TERM IS INTRODUCED. Every technical word used here is already registered or
+% already live in this chapter: bilinear discriminator and logistic function (GLOSSARY sec. 3),
+% POI / place, region, DGI, HGI, Check2HGI (sec. 2 and sec. 3); Delaunay graph, graph convolution and
+% multi-head attention are the source's own mechanism names and are used in Ch.3 and Ch.4 prose
+% already (chapters/3_cbic/method.tex:35, chapters/4_courb/related.tex:18).
+% CONSISTENCY CHECKED against the two places the chapter already commits to about HGI: the lineage
+% table row ("Extends graph infomax over the POI, region, and city hierarchy to yield region-aware
+% place embeddings", tables/frame/lineage.tex:26) and the place-level framing of sec. 2.2. The new
+% paragraph on how regional context reaches a POI embedding is the EXPLANATION of the table's
+% "region-aware", not a new claim.
 
 \subsection{From a fixed place vector to visit context}
 
 The move from HGI to Check2HGI begins with information that a fixed POI vector cannot
 express.
 
-\begin{definition}[Place embedding and check-in-level representation]\label{def:fund:placelevel}
+% [ROUND 11, item 31] The two concepts below were ONE definition head until this round
+% ("Place embedding and check-in-level representation", round 10). Round 10's own report
+% (src_utils/_round10/29_ch2_definitions.md §4 and §7 item 2) records the merge as a page-count
+% measure, not a content decision, and the defect it left was visible in the cross-references:
+% :242 and :247 both pointed at the same label while meaning opposite halves of it. The author
+% lifted the page budget and authorized the split. The wording of each half is round 10's,
+% unchanged except for the dropped "instead", which contrasted with a sentence no longer in the
+% same block. The limitation paragraph now sits BETWEEN the two definitions so that each
+% reference stands next to the definition it means.
+\begin{definition}[Place embedding]\label{def:fund:placelevel}
 A place embedding assigns one vector $\mathbf{e}_p$ to each POI $p$, so every check-in
-at that POI enters the model with the same representation. A check-in-level
-representation instead assigns one vector to each check-in $x_i$, so two visits to the
-same POI may enter the model with different representations.
+at that POI enters the model with the same representation.
 \end{definition}
 
 Definition~\ref{def:fund:placelevel} carries one limitation for this research: a
 weekday morning and a Saturday night at the same place have identical inputs at the
 representation level. CTLE shows an alternative by learning context-aware and
 time-aware location embeddings whose vectors change with the
-visit~\cite{lin2021ctle}. Check2HGI reaches the check-in level of
-Definition~\ref{def:fund:placelevel} by adding the check-in below the place in the
-hierarchy.
+visit~\cite{lin2021ctle}.
+
+\begin{definition}[Check-in-level representation]\label{def:fund:checkinlevel}
+A check-in-level representation assigns one vector to each check-in $x_i$, so two
+visits to the same POI may enter the model with different representations.
+\end{definition}
+
+Check2HGI reaches the check-in level of Definition~\ref{def:fund:checkinlevel} by
+adding the check-in below the place in the hierarchy.
 
 \subsubsection{Context encoders}
 
@@ -269,8 +418,8 @@ change isolates the effect of the input representation.
 \subsubsection{The check-in level}
 
 Check2HGI completes the move from contextualized inputs to one learned representation
-per visit. It adds a fourth level below the
-place and learns one vector per visit without using task labels. The hierarchy has
+per visit. It adds a fourth level below the place and learns one vector per visit
+without using task labels. The hierarchy has
 three adjacent-level boundaries: check-in to place, place to region, and region to
 city. Its objective is the fixed-weight sum
 \begin{equation}\label{eq:fund:check2hgi}
@@ -713,7 +862,10 @@ meaningful directional conflict at the scale considered by the balancers.
 %  yu2020pcgrad           PCGrad: gradient projection off conflict
 %  liu2021cagrad          CAGrad: conflict-averse update w/ convergence [new bib]
 %  navon2022nashmtl       Nash-MTL: bargaining-game gradient combination [ERRATA: consolidate nash double-key/slash]
-%  senushkin2023aligned   Aligned-MTL: principal-component alignment, condition number
+%  senushkin2023aligned   Aligned-MTL: condition number of the linear system of gradients as the
+%                         stability criterion, aligning that system's ORTHOGONAL components (the
+%                         paper's own word, abstract; "principal-component alignment" was this
+%                         ledger's earlier gloss and was wrong -- corrected round 11)
 %  liu2023famo            FAMO: O(1) loss-decrease balancing
 %  lin2022rlw             RLW: random weighting is competitive [new bib]
 %  xin2022domtl           controlled study: MTL optimizers often do not outperform tuned fixed weights
@@ -781,8 +933,27 @@ conflicting component in the sense of Definition~\ref{def:fund:conflict}~\cite{y
 B. Liu et al.\ introduce CAGrad, which protects the worst per-task improvement within a
 neighborhood of the average gradient~\cite{liu2021cagrad}. Navon et al.\ introduce
 Nash-MTL, which treats gradient combination as a bargaining problem~\cite{nash}, and
-Senushkin et al.\ introduce Aligned-MTL, which adjusts the principal components of the
-gradient system~\cite{senushkin2023aligned}.
+% [round11, 2026-08-03] CORRECTED, and the correction is an R2 fix, not a style change. THIS SENTENCE
+% SAID "adjusts the principal components of the gradient system". The paper says it aligns the
+% ORTHOGONAL components: arXiv:2305.19000v1 abstract, opened this session, "eliminates instability in
+% the training process by aligning the orthogonal components of the linear system of gradients".
+% "Principal" is not a synonym for "orthogonal" here -- it invites a principal-component-analysis
+% reading the authors do not claim -- and the paper's own stated criterion is the CONDITION NUMBER of
+% the linear system of gradients, which is what the sentence now names. Found while clearing the last
+% debt of round 10: four of the nine lineage attributions had been verified only by the sub-agent that
+% wrote them, and I checked all four at their own records. Three were exact (kendall2018uncertainty,
+% "considering the homoscedastic uncertainty of each task"; sener2018mgda, "explicitly cast multi-task
+% learning as multi-objective optimization"; and Sener and Koltun is correctly two authors, not "et
+% al."). This one was not.
+% [VERIFY] liu2019dwa, the neighbouring clause, is NOT corrected and is flagged instead. Its abstract
+% (arXiv:1803.10704v2) is entirely about the MTAN architecture and never names dynamic weight
+% averaging, which appears in the paper body. The chapter's phrasing is careful about exactly that ("
+% introduce dynamic weight averaging ALONGSIDE their attention architecture"), so it is very likely
+% right, but only the abstract was reachable this session and the claim is therefore not located in a
+% source. Fail-closed: flag, do not reword a sentence that is probably correct.
+Senushkin et al.\ introduce Aligned-MTL, which uses the condition number of the linear
+system of task gradients as a stability criterion and aligns that system's orthogonal
+components~\cite{senushkin2023aligned}.
 
 These methods must be compared with
 simple alternatives. Random loss weighting can be competitive~\cite{lin2022rlw};

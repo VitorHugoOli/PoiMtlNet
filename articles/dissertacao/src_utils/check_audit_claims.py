@@ -443,6 +443,54 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
                    "first claimed",
      "_round9/34_tracker_disagreement.md",
      r"\*\*one\*\* `DID NOT FIRE`, \*\*two\*\* `mutation failed`", True),
+    # ---- ROUND-11 PROBES: the five items the author authorized on 2026-08-03, after suspending the
+    # Chapter 2 page budget ("pode melhorar o texto da fundamentacao sem preocupacao de paginas").
+    #
+    # R11-aligned is the one that earns its keep. The Aligned-MTL sentence said the method "adjusts the
+    # PRINCIPAL components of the gradient system". The paper says it aligns the ORTHOGONAL components
+    # (arXiv:2305.19000v1 abstract) and its stated criterion is the condition number of the linear system
+    # of gradients. "Principal" invites a PCA reading the authors never claim, so this was an R2 defect
+    # (describe a system as its own authors describe it), and it survived a sub-agent's own verification
+    # pass plus a round-10 commit. It was caught only when the four lineage attributions that had never
+    # been checked by anyone but their writer were finally checked. A summariser rewording this sentence
+    # is exactly how "principal" comes back, so both halves are pinned: the authors' word positively,
+    # the wrong word banned.
+    ("R11-aligned", "Aligned-MTL is described with its authors' own word, ORTHOGONAL components, and "
+                    "its stated condition-number criterion",
+     "chapters/2_fundamentals.tex",
+     r"condition number of the linear\s+system of task gradients", True),
+    ("R11-aligned2","the superseded 'principal components of the gradient system' gloss is gone from "
+                    "the live prose (the comment recording the correction may keep quoting it)",
+     "chapters/2_fundamentals.tex", r"adjusts the principal components of the\s+gradient system", False),
+    # R11-def27: the merge that round 10 made PURELY to save one page is undone, on the author's
+    # authorization. The two cross-references point at opposite halves, so a re-merge silently breaks
+    # both. Pin the second label's existence: it only exists because the split happened.
+    ("R11-def27",  "Definition 2.7 is split, so each cross-reference can point at the concept it means",
+     "chapters/2_fundamentals.tex", r"\\label\{def:fund:checkinlevel\}", True),
+    # R11-hgi: GER-02's second half. HGI is the place-level baseline the whole argument turns on, and the
+    # honest caveat is the part most likely to be trimmed by a later editor tightening prose: HGI was
+    # built and evaluated for urban REGION representation, and this dissertation repurposes its POI-level
+    # output for sequential prediction, which its original evaluation does not cover.
+    ("R11-hgi",    "the HGI explanation keeps the honest caveat that this project repurposes a POI-level "
+                   "output the original evaluation does not cover",
+     "chapters/2_fundamentals.tex",
+     r"repurposes that POI-level output for sequential prediction, a use the\s+original evaluation does not cover",
+     True),
+    # R11-fab15: the taxonomy must not read as part of the task DEFINITION in the introduction (the
+    # author: the approach is generic and not fixed on this taxonomy), while the concrete instantiations
+    # survive ONCE so an introduction-only reader keeps the context. Both halves, since either can drift.
+    ("R11-fab15",  "the introduction states the targets plainly, with the label sets as properties of "
+                   "the data rather than part of the definition",
+     "chapters/1_introduction.tex",
+     r"The prediction targets are the next category and the next region\.", True),
+    ("R11-fab15b", "the definitional framing of the taxonomy is gone from the introduction",
+     "chapters/1_introduction.tex", r"over the\s+seven-class taxonomy defined in Chapter", False),
+    # R11-gloss: the two rows the author authorized. They were already in live prose while unregistered,
+    # so the fail-closed rule was being stretched; these rows close it.
+    ("R11-gloss",  "the two authorized registry rows are present (soft parameter sharing)",
+     "../GLOSSARY.md", r"\| soft parameter sharing \| compartilhamento flex", True),
+    ("R11-gloss2", "the second authorized registry row is present (negative transfer)",
+     "../GLOSSARY.md", r"\| negative transfer \| transfer", True),
 )
 
 # COD-016b needs a STRUCTURAL probe, not a string one, so it lives here rather than in PROBES --
