@@ -29,7 +29,7 @@ not terminated.
 
 ## 1 · The state of the host, read before each submit
 
-`PENDENCIAS 2.9` recorded the disk as freed by the author but the appendix's own comment block
+`PENDENCIAS_RESOLVIDOS 2.9 (arquivado 2026-08-02)` recorded the disk as freed by the author but the appendix's own comment block
 warned that a remote state verified once does not stay true. Re-measured at the top of this
 session and again immediately before every one of the three submits:
 

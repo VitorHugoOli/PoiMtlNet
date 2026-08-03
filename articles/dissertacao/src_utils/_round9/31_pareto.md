@@ -101,7 +101,7 @@ right place for it anyway.
 
 ## §3 · Terms registered
 
-Placement follows the author's chosen option (a) in PENDENCIAS 2.12, which names §4 of the glossary.
+Placement follows the author's chosen option (a) in PENDENCIAS_RESOLVIDOS 2.12 (arquivado 2026-08-02), which names §4 of the glossary.
 Every definition is taken from a source opened this session, with the source named in the row.
 
 | term | PT | source of the definition |
@@ -114,7 +114,7 @@ Every definition is taken from a source opened this session, with the source nam
 **PT wording, flagged rather than settled.** `otimalidade de Pareto` is **not** coined here: it is
 the author's own phrasing in `PENDENCIAS.md:98` and the advisor's in `REVIEW_GERMANO.md:778`. The
 other three PT strings are standard renderings but are **not attested anywhere in this repository**,
-so they are marked in the glossary as proposed and are listed in PENDENCIAS 2.12 for a one-line
+so they are marked in the glossary as proposed and are listed in PENDENCIAS_RESOLVIDOS 2.12 (arquivado 2026-08-02) for a one-line
 confirmation. None of the four appears in the Resumo or in any Portuguese surface today; the PT
 column exists because §6 is the registry's convention, not because a PT surface needs them yet.
 
@@ -142,7 +142,7 @@ orthogonality result legible instead of, in the advisor's words, *"jogado no art
   model, which was never measured.
 - **The rest of G8 was not executed.** No subsections were added, the twelve balancers were not
   regrouped into loss-weighting versus gradient-surgery families, and no notation block was added to
-  §2.1. Those are the consolidated `CONSIDERATIONS` work list, which PENDENCIAS 2.8 records as
+  §2.1. Those are the consolidated `CONSIDERATIONS` work list, which PENDENCIAS_RESOLVIDOS 2.8 (arquivado 2026-08-02) records as
   awaiting the author's go-ahead, and this track had no authority over them.
 
 ---

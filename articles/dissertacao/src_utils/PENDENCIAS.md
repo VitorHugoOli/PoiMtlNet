@@ -100,466 +100,6 @@ contra corpo de 11,96 pt. O raster do Cap. 3 e byte-identico ao publicado do CBI
 > **Seu, quando quiser:** reexportar as duas no Draw.io e me passar os PNG — eu troco e remeco o tipo na
 > pagina. **Opcional**, pela sua propria observacao sobre o contraste.
 
-### 2.8 `CONSIDERATIONS.md` — EXECUTADO nesta rodada; a fila de decisao virou o §6
-
-**O que era.** `src_utils/CONSIDERATIONS.md` (1.229 linhas, nao commitado) trazia o feedback verbal do Germano
-transcrito por voce (l. 3-58), o feedback escrito do Fabrício (l. 59-309), a auditoria Codex do Cap. 2 de 2026-07-28 (l.
-310-994) e o adendo dela (l. 995-1229), com uma lista de trabalho consolidada. Voce pediu as duas coisas do item:
-commitar o arquivo, e executar a divisao.
-
-**O que foi feito (round 9, commit `d4078c75`).** O arquivo foi commitado **sem uma alteracao**
-antes de qualquer reescrita, e depois reescrito no esquema de um bloco por item: **43 blocos**, IDs estaveis `FAB-01`..
-`FAB-31` (a sua propria numeracao), `GER-01`..`GER-11` e `AUT-01`. A prosa original esta preservada byte a byte em
-[`_round9/30_considerations_prosa_original.md`](_round9/30_considerations_prosa_original.md), com o sha256 e o comando
-que o reproduz no cabecalho.
-
-**O passe de citacoes obsoletas, antes de qualquer juizo.** Das 41 ancoras localizaveis, **32 sao exatas e 9 estao
-obsoletas** (4 alteradas, 5 desaparecidas). As nove obsoletas sao **todas** do Fabrício, **todas** citam `0_main.tex`
-(arquivo que deixou de existir em 2026-07-29), e sao exatamente os itens **FAB-02 a FAB-10**. As **20** ancoras dele
-fora daquele arquivo conferem todas.
-
-*(Este paragrafo dizia "10 obsoletas, todas citam `0_main.tex`" e "21 ancoras". Estava errado por uma: a decima era o
-**FAB-27**, que esta em `tables/frame/lineage.tex`, e cuja citacao so falhou porque ele a escreveu prefixada com "Na
-tabela: " e terminada em "....". O texto que ele cita esta presente palavra por palavra. Os numeros certos sao os de
-cima, e sao os mesmos que o §6 carrega — o §2.8 tinha ficado com a versao anterior a correcao, o que deixou este arquivo
-contradizendo a si mesmo por dois commits.)* Comandos em
-[`_round9/31_stale_quote_pass.md`](_round9/31_stale_quote_pass.md).
-
-**A divisao.** 21 itens "eu aplico", 21 precisam de voce (viraram o **§6**), 1 bloqueado (FAB-28, verificacao falhou).
-Tres medicoes da auditoria de 2026-07-28 **nao reproduzem** e foram retomadas: ela contou 27 paragrafos / media 161 /
-cinco acima de 240 palavras, e hoje sao 33 / 132 / 4.
-
-**Preservado da esteira paralela (commit `c94d1f19`, 02:01:51), porque a minha reescrita deste bloco apagou a nota dela
-e a nota esta certa** — anotada como dela, e reconciliada com a numeracao deste arquivo:
-
-> **ATUALIZACAO 2026-07-30:** voce acrescentou um ponto seu no fim do arquivo (l. 1228), sobre
-> otimalidade de Pareto nos fundamentos de MTL. **Esse esta sendo executado agora** — e o item 2.12 pelo
-> outro lado (o termo esta em prosa publicada e nao esta no `GLOSSARY`, que e fail-closed), e a esteira que
-> trabalha nele tambem le os itens G8 (definicoes formais de MTL) e G10 (o argumento tecnico para o achado
-> de nao-conflito) porque sao a mesma peca de texto. **O resto do arquivo continua nao executado.**
-
-Duas reconciliacoes, para os ponteiros nao apontarem para o vazio. Os `G8` e `G10` daquela nota sao, nos IDs estaveis
-deste arquivo, o **GER-09** e o **GER-11**; e o "ponto no fim do arquivo (l. 1228)" e o **AUT-01**. E a frase final
-daquela nota deixou de valer entre 02:01 e agora: o resto do
-`CONSIDERATIONS.md` **foi** executado nesta rodada, no sentido de estar medido e dividido, mas **nenhum item foi
-aplicado a nenhum capitulo** — que e provavelmente o que ela queria dizer.
-
-> **AUTHOR:** nada aqui. Este item esta fechado; o que espera voce esta no **§6**.
-
-*Forense: `_round9/31_stale_quote_pass.md` (o passe de obsolescencia, incluindo os dois instrumentos meus que estavam
-quebrados e como cada um foi pego).*
-
-### 2.9 Os tres datasets que faltavam no Apendice F — RODADOS. O apendice agora tem SETE, e sobra uma decisao pequena
-
-**FEITO EM 2026-07-30, e nada aqui espera GPU.** California, Texas e Istanbul foram medidos no `nespedgpu`, um dataset
-por job, sequencialmente. Cada `rc=0` foi lido do `_status.json` do proprio job, e cada duracao vem dos **stamps do
-proprio dataset**, nunca do total do job:
-
-| dataset    | job        | duracao (stamps proprios)    | folds |
-|------------|------------|------------------------------|-------|
-| istanbul   | `9f3da11f` | 19,3 min (04:56:49→05:16:07) | 5/5   |
-| texas      | `6faa6e22` | 55,1 min (05:17:52→06:12:59) | 5/5   |
-| california | `67585dff` | 44,3 min (06:14:17→06:58:37) | 5/5   |
-
-**Custou ~2h de GPU, nao as ~6h estimadas** — e o motivo importa: `--no-checkpoints`. Os pesos salvos eram o que enchia
-o disco (`results/check2hgi/texas/checkpoints` sozinho tinha 7,1G) enquanto o diretorio que carrega o diagnostico tem
-~6-11 MB. `df -h /home` ficou em **313G usados / 61G livres, 84%, sem mover**, lido direto antes de cada submit e depois
-de cada run. E nao muda numerica nenhuma: **medido**, nao argumentado — o alabama, que ja estava no apendice, foi
-re-rodado com a flag e reproduziu os cinco CSVs por fold **byte a byte identicos**.
-
-**Nada foi apagado na sua maquina.** Os 61G que voce liberou continuam livres; os dois arquivos corrompidos da corrida
-de harvest antiga seguem em `~/cosine_appendix/california_f2` e `_f3` (md5 `2afa6aebfb...` nos dois) e **nao entraram**
-no parquet: o california veio do job `67585dff`, cujos cinco folds tem cinco md5 distintos.
-
-**O apendice passou de quatro para SETE datasets** — as suas **seis** mais a Georgia, que nao e uma das seis. 4.650
-observacoes, todos os testes no **fold** como unidade. Equivalencia por TOST dentro de ±0,05 vale em todos os sete.
-Verificado no PDF renderizado (pp. 97-102), nao no fonte.
-
-**Um achado que vale mais que os tres datasets:** o "limite de 35 minutos do host" era **nosso**. O `job.sh` embrulha a
-carga em `timeout <N>` com o `timeout_seconds` que o agente passou, e o `job.sh` do job 805120f1 diz `timeout 2100` =
-35,0 min exatos. Nao existe teto de 35 min nesse host. O texas rodou 55 min. **O dataset que foi registrado como
-impossivel era impossivel apenas sob um limite que nos mesmos definimos.**
-
-> **DECISAO SUA, e e pequena:** o Cap. 5 continua reportando a medida antiga desse mesmo cosseno (de
-> desenvolvimento, quatro seeds, preparacao anterior) com media +0,001 e maior media por dataset
-> +0,0032. O apendice agora da +0,00102 no conjunto e +0,0112 no alabama. **Nao sao contraditorios** —
-> sao corridas diferentes, e o apendice ja diz isso em uma frase. Voce decide se quer (**a**) deixar
-> como esta, ou (**b**) que eu proponha uma nota no Cap. 5 apontando para o Apendice F. **Eu nao toco
-> no Cap. 5**: esta sob revisao.
-
-*Forense completa (a corrida de harvest, o gate de distincao por md5 validado por sabotagem, o `c.download()` que
-achatou quinze arquivos em cinco, e o cap que era nosso): [`_round9/30_cosine_six.md`](_round9/30_cosine_six.md).*
-
-> **AUTHOR:** Vamos um pouco ainda mais longe, voce pode editar o Cap. 5 tanto o artigo original quanto o da
-> dissertacao, como estamos um fase de revisão no mobiwac, conseguimos mandar uma revisão ainda.
-
-### 2.11 A assimetria do resultado de regiao: o Cap. 5 ressalva, e o resto do documento nao
-
-**Origem:** `_round6/VERIFY_LIST.md` itens 4 e 5 (achado L-5 do ledger), entregues em 2026-07-30.
-
-**(A) O que e.** `chapters/5_mobiwac/05_setup.tex` diz que o plano de analise *"did not cover next-region superiority,
-so the four next-region gains ... are secondary results outside it"*. O resto do documento afirma o mesmo resultado
-**sem essa ressalva**. Medido com o varredor que remove comentarios, sobre os 54 `.tex`:
-
-| onde                                                                                                            | forma                                                                  |
-|-----------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------|
-| `1_introduction.tex:132`, `6_conclusion.tex:21` e `:93`                                                         | "four of six" / "four of the six"                                      |
-| `2_fundamentals.tex:786`, `5_mobiwac/01_introduction.tex:39`, `5_mobiwac/08_conclusion.tex:14`, `5_mobiwac.tex` | idem                                                                   |
-| `content.tex:166` (Resumo e Abstract)                                                                           | "quatro deles" / "four of them" — a mesma alegacao, em outras palavras |
-
-No PDF de defesa (100 pp) a alegacao sem ressalva imprime nas **pp. 14, 58, 59, 76, 77 e 78**; a ressalva imprime **so
-na p. 67**. Sao sete sitios em prosa mais as duas parafrases do pre-textual, contra uma ressalva.
-
-**(B) Por que importa.** O registro estatistico de 2026-07-27 e inequivoco: o teste primario registrado para **toda**
-celula de regiao e nao-inferioridade TOST. Uma leitura rapida do Resumo, da Introducao ou da Conclusao le "outperforms
-em quatro de seis" como resultado primario; a p. 67 diz que nao e. Nenhuma track da rodada 6 assumiu isso (achado L-5 do
-ledger).
-
-**(C) O que eu preciso de voce.** Uma regra, e ela vale para os nove sitios de uma vez:
-
-> **(a)** o texto de moldura acrescenta "as a secondary result" (ou equivalente) **uma vez**, no
-> ponto que voce escolher — o candidato natural e a Conclusao, que ja e o lugar onde o escopo do
-> plano de analise e discutido. Custo: uma frase, mais linha de errata se voce quiser rastrear.
-> **(b)** a assimetria e deliberada — o Cap. 5 e o capitulo que carrega o metodo, entao e onde a
-> ressalva pertence — e isso vai para `LEFT_OUT.md` com o motivo. Custo: zero no texto, mas o
-> registro passa a existir.
->
-> **Eu nao decido isto** porque muda o que o Resumo e a Conclusao afirmam sobre o resultado
-> principal do Cap. 5, que e prosa sua sobre um resultado seu.
-
-> **AUTHOR:**  Na verdade se esses resultados forem de grande importancia e algo importante para narrativa, vale deixar
-> eles
-> como primario é só alterar o mobiwac, ao invés do outros textos, o que acha ? Se não concorda vide a narrativa do
-> texto vamos de A
-
-### 2.12 `Pareto-stationary point` esta na prosa e nao esta no registro (o `GLOSSARY` e fail-closed)
-
-**(A) O que e.** A regra de manutencao do `GLOSSARY.md` e explicita: *"a term not in this registry may not be used in
-dissertation prose"*. Medido hoje:
-
-```bash
-cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
-grep -c 'Pareto-stationary' GLOSSARY.md          # 0
-```
-
-e o termo esta em prosa em **cinco** sitios (o registro anterior dizia dois), em quatro arquivos:
-`chapters/3_cbic/method.tex` (*"convergence to a Pareto-stationary point"*), duas vezes em
-`chapters/3_cbic/basis.tex` (*"Pareto-optimal descent directions"* e *"Pareto efficiency"*),
-`chapters/4_courb/methodology.tex` (a garantia do Nash-MTL, a mesma frase do item 3 do
-`VERIFY_LIST`) e a linha de errata que registra essa correcao, em `tables/courb/errata.tex`, que ainda traz a forma sem
-hifen, "Pareto stationary". As outras duas entradas que o item 4 daquele arquivo pedia — **bilinear discriminator** e
-**logistic function** — **ja entraram**
-(`GLOSSARY.md:71` e `:72`); so esta faltou.
-
-**Duas correcoes ao proprio texto acima, medidas em 2026-07-30 e registradas aqui porque mudam o que um agente pode
-fazer.** Primeira: **nao sao todos prosa publicada**. As frases do Cap. 3 sao (cada uma e substring literal de
-`articles/CBIC___MTL/sections/*.tex`), mas a do Cap. 4 **nao e** — e a frase corrigida por errata deste proprio
-documento, ja listada no Apendice B, e a fonte PT publicada nao tem nenhuma ocorrencia do termo
-(`articles/CoUrb_2026/src`, nove arquivos `.tex`, zero). Segunda: as paginas. O registro anterior dizia pp. 36 e 48,
-medidas num build de 100 paginas; o trecho novo da §2.3 acrescenta uma pagina, entao **medido contra o build de defesa
-de 101 paginas deste commit**:
-§2.3 nova na p. 23, `3_cbic/basis.tex` nas pp. 31 e 32, `3_cbic/method.tex` na p. 37,
-`4_courb/methodology.tex` na p. 49, e a linha de errata na **p. 16 do volume suplementar**
-(`make extra`, 20 paginas), que nao entra no build de defesa.
-
-**(B) Por que importa.** O `make check` **nao pega isto**: existe um gate de "Pareto" mas ele e informativo e conta
-ocorrencias, nao registro. E o termo nao pode ser simplesmente removido — as duas frases sao publicadas, entao tirar o
-termo e editar uma frase publicada, com linha no Apendice B.
-
-**(C) O que eu preciso de voce.** Uma decisao, tres saidas:
-
-> **(a)** registrar o termo (uma linha na §4 do `GLOSSARY`, a definicao ja esta escrita na propria
-> frase do Cap. 4: *"a point at which some convex combination of the task gradients is zero"*).
-> Custo: uma linha, e o documento fica consistente com a propria regra.
-> **(b)** trocar o termo nas duas frases publicadas. Custo: duas linhas de errata no Apendice B, e
-> voce esta editando prosa publicada por uma questao de vocabulario.
-> **(c)** registrar uma excecao explicita para termos que chegam em prosa reproduzida. Custo: uma
-> nota no `GLOSSARY`, e a regra deixa de ser fail-closed para essa classe.
-
-> DESICAO: A.
-
-**EXECUTADO EM 2026-07-30, a sua decisao (a).** O termo entrou em `GLOSSARY.md:103` (§4) e `:148` (§6), e com ele tres
-outros que a §2.3 passou a usar: **Pareto dominance**, **Pareto optimality** e **gradient conflict**. Cada definicao foi
-copiada de um artigo aberto no PDF naquela sessao, com a pagina na propria linha do registro; o razao completo, com a
-declaracao exata de convergencia de cada metodo, esta em [`_round9/31_pareto.md`](_round9/31_pareto.md). O trecho novo
-da §2.3 renderiza na **p. 23** do build de defesa de 101 paginas, e o gate agora pega a regressao:
-`check_audit_claims.py`
-probes `R9-pareto`, `R9-conflict`, `R9-nocount` e `R9-glossary`, cada um validado por sabotagem (reverter a propriedade
-e ler rc=1). A anotacao do `VERIFY_LIST` item 4 que esperava
-`Pareto-stationary 0` foi corrigida para `2` no mesmo commit, porque a decisao (a) a tornou falsa.
-
-**Uma coisa ficou faltando, e e sua.** Tres dos quatro termos PT nao existem em nenhum lugar deste repositorio, nem na
-fonte PT publicada, nem em nenhuma superficie em portugues da dissertacao. Nao os inventei em silencio: entraram
-marcados como propostos. `otimalidade de Pareto` **nao** e um deles, e sua propria palavra (l. 98 deste arquivo) e a do
-Germano (`articles/[mobiwac]/REVIEW_GERMANO.md:778`).
-
-> **DECISAO SUA:** confirmar ou trocar os tres nao atestados: **dominância de Pareto**, **ponto
-> Pareto-estacionário**, **conflito de gradientes**. Custo: uma linha. Nenhuma superficie PT usa os
-> quatro hoje (o Cap. 2 e em ingles e o Resumo nao os menciona), entao isto nao bloqueia build nem
-> gate; fica registrado para que um tradutor futuro ache uma decisao e nao um vazio.
-
-> **TAMBEM SUA, e e uma questao de errata, nao de vocabulario.** Verifiquei as cinco frases contra a
-> garantia que o artigo-fonte de cada uma realmente enuncia. **Todas as cinco enunciam corretamente**,
-> e nada foi editado. Uma imprecisao: `3_cbic/basis.tex` (p. 31) diz que o MGDA *"finds Pareto-optimal
-> descent directions"*, e o que `sener2018mgda` enuncia (pp. 4 e 6) e uma dicotomia — ou o ponto e
-> Pareto-estacionario, ou a direcao *"decreases all objectives"*; a otimalidade de Pareto que o artigo
-> reivindica e para o limite superior, sob suposicoes (p. 1). E prosa publicada reproduzida e a
-> compressao e a que a literatura de MTL costuma fazer, entao **deixei como esta**. Se quiser corrigir,
-> e uma linha de errata no Apendice B, e a decisao e sua.
-
-> **AUTHOR:** Otimo trabalho, pode adicionar essa linha no appendix B, para termos conhecimento desse detalhe menor e
-> não deixar passar batido.
-
-### 2.14 O intervalo de paginas do `nash`: nao da para verificar daqui
-
-**Origem:** `_round6/VERIFY_LIST.md` item 14, entregue em 2026-07-30 (precedente `standley2020tasks`).
-
-**(A) O que e.** `references.bib` traz `pages = {16428--16446}` para
-`@inproceedings{nash}` (Navon et al., *Multi-Task Learning as a Bargaining Game*, ICML 2022). Tentado de novo nesta
-sessao, contra as fontes de registro que o sandbox alcanca:
-
-| fonte                            | resposta                                                                                                 |
-|----------------------------------|----------------------------------------------------------------------------------------------------------|
-| OpenAlex                         | um unico registro, `W4225981399`, tipo **preprint**, venue "arXiv", `first_page` e `last_page` **nulos** |
-| Crossref (`query.bibliographic`) | cinco obras, **nenhuma delas este artigo** — nao ha DOI registrado da versao de anais                    |
-| `proceedings.mlr.press`          | **fora da allowlist** do sandbox; nao acessado                                                           |
-
-**(B) Por que importa.** Pelo §1 do `AGENT_GUARDRAILS`, um identificador que nao foi aberto na fonte de registro nao
-pode ser apresentado como conferido. O campo esta no `.bib` e nao esta verificado.
-
-**(C) O que eu preciso de voce.** Um clique fecha: `proceedings.mlr.press/v162/navon22a.html`.
-
-> **(a)** confirmar o intervalo e ele fica; **(b)** apagar o campo `pages`, que e exatamente o
-> precedente que esta bibliografia ja adotou para `standley2020tasks`.
-
-> **AUTHOR:** I get from the website:
-> @InProceedings{pmlr-v162-navon22a, title = {Multi-Task Learning as a Bargaining Game}, author = {Navon, Aviv and
-> Shamsian, Aviv and Achituve, Idan and Maron, Haggai and Kawaguchi, Kenji and Chechik, Gal and Fetaya, Ethan},
-> booktitle = {Proceedings of the 39th International Conference on Machine Learning}, pages = {16428--16446}, year =
-> {2022}, editor = {Chaudhuri, Kamalika and Jegelka, Stefanie and Song, Le and Szepesvari, Csaba and Niu, Gang and
-> Sabato,
-> Sivan}, volume = {162}, series = {Proceedings of Machine Learning Research}, month = {17--23 Jul}, publisher = {PMLR},
-> pdf = {https://proceedings.mlr.press/v162/navon22a/navon22a.pdf},
-> url = {https://proceedings.mlr.press/v162/navon22a.html}, abstract = {In Multi-task learning (MTL), a joint model is
-> trained to simultaneously make predictions for several tasks. Joint training reduces computation costs and improves
-> data
-> efficiency; however, since the gradients of these different tasks may conflict, training a joint model for MTL often
-> yields lower performance than its corresponding single-task counterparts. A common method for alleviating this issue
-> is
-> to combine per-task gradients into a joint update direction using a particular heuristic. In this paper, we propose
-> viewing the gradients combination step as a bargaining game, where tasks negotiate to reach an agreement on a joint
-> direction of parameter update. Under certain assumptions, the bargaining problem has a unique solution, known as
-> the <em>Nash Bargaining Solution</em>, which we propose to use as a principled approach to multi-task learning. We
-> describe a new MTL optimization procedure, Nash-MTL, and derive theoretical guarantees for its convergence.
-> Empirically,
-> we show that Nash-MTL achieves state-of-the-art results on multiple MTL benchmarks in various domains.} }
-> Intresting that in the google scholar use the citation:
-> @article{navon2022multi, title={Multi-task learning as a bargaining game}, author={Navon, Aviv and Shamsian, Aviv and
-> Achituve, Idan and Maron, Haggai and Kawaguchi, Kenji and Chechik, Gal and Fetaya, Ethan}, journal={arXiv preprint
-> arXiv:2202.01017}, year={2022} }
-
-### 2.15 Tres citacoes NOT-SUPPORTED e um termo banido, todos em prosa publicada reproduzida
-
-**Origem:** `_round6/VERIFY_LIST.md` itens 15 e 16, entregues juntos em 2026-07-30 como uma decisao unica.
-
-**(A) O que e.** Quatro pontos, um so tipo de decisao: **nenhum deles pode ser corrigido por um agente**, porque todos
-estao em frases publicadas, e mexer nelas gera linha de errata.
-
-| onde                              | o que                                                                       |
-|-----------------------------------|-----------------------------------------------------------------------------|
-| `3_cbic/method.tex`               | `ruder2017sluice` citado para regularizacao implicita do hard sharing       |
-| `4_courb/methodology.tex:173`     | `sun2020go` citado para ciclos temporais revelarem a *funcao* do lugar      |
-| `4_courb/methodology.tex:184`     | `belkin2003laplacian` citado para um regularizador hierarquico de embedding |
-| `4_courb/methodology.tex:173,184` | **`fclass` em prosa renderizada**, 4 ocorrencias em 3 linhas                |
-
-**(B) Sobre o `fclass`, que ninguem tinha levantado.** O `GLOSSARY.md:73` diz, com todas as letras:
-*"In code this column is `spot`, renamed `fclass` at `hgi/preprocess.py:62`; **NEVER write `fclass`
-in prose**"*. Varri os 54 `.tex` sem comentarios: `4_courb/methodology.tex` e o **unico** arquivo. E as frases identicas
-estao publicadas no CoUrb (`src_en/sections/metodology.tex:109` e `:120`), entao e o mesmo tipo de decisao das tres
-citacoes acima. Nenhum gate pega: o de codenomes casa
-`B9|v1[1-7]|champion-G|H3-alt|dk_ovl|log_T|substrate`, e `fclass` nao esta na lista.
-
-**(C) O que eu preciso de voce.** Uma decisao por linha, ou uma regra para as quatro:
-
-> **(a)** trocar. As substituicoes sugeridas (`baxter2000model`, `Xu2023`) **ja estao** na
-> bibliografia e ja sao citadas para essas alegacoes em outros pontos; para o `fclass`, o termo
-> registrado e "fine class". Custo: uma linha de errata no Apendice B por sitio.
-> **(b)** manter e registrar. As frases sao do artigo publicado e reproduzi-las fielmente e
-> defensavel; a divergencia vai para `LEFT_OUT.md`. Custo: zero no texto.
->
-> `ruder2017sluice` merece uma nota: a mesma chave carrega **tambem** uma decisao de metadados (o
-> titulo no `.bib` e o do preprint superado, "Sluice Networks..."; o titulo de registro e "Latent
-> Multi-task Architecture Learning" e a versao de registro e AAAI 2019,
-> `10.1609/aaai.v33i01.33014822`, pp. 4822-4829). Decida as duas juntas para tocar a entrada **uma
-> vez** so.
-
-> **AUTHOR:** Vamos de troca em ambas, seguindo o caminho A, modificando os artigos originais e adicionando uma entrada
-> no appendix B.
-
-### 2.16 Quatro artefatos publicados **divergiram** das copias locais (o item 2.2 cobria dois)
-
-**(A) O que e.** O Apendice A cita treze caminhos `\path{}`. A pergunta "quantos faltam no branch publico" ja teve
-**quatro** respostas nesta base (9 de 13, depois 5, depois 4, agora esta). O motivo de todas as anteriores e o mesmo:
-`git cat-file -e mobiwac:<caminho>` pergunta *"este CAMINHO esta no branch"*, e a alegacao e *"este ARQUIVO esta no
-branch"* — e o branch `mobiwac` **nao tem arvore
-`docs/`**, guarda esses artefatos em `analysis_protocol/`. Remedi por **hash**, comparando cada arquivo local com os
-blobs do branch:
-
-| classe                                   | n | quais                                                                                                                                                                                                                                                                               |
-|------------------------------------------|--:|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| no branch, **byte a byte identicos**     | 8 | `folds.py`; `STATISTICAL_PROTOCOL.md`, `JOINT_BEST_RESULTS.md`, `m1_full_output.txt`, `m2_prereg_output.txt` (sob `analysis_protocol/`); `build_phase3_per_fold_transitions.sh`; `score_joint_best.py`; `autocorrelation_ceiling.py` (em `scripts/`, nao `scripts/embedding_eval/`) |
-| no branch com **conteudo diferente**     | 4 | `superiority_wilcoxon.py`, `region_match_tost.py`, `m1_stats_n20.py`, `m2_prereg_perfold.py`                                                                                                                                                                                        |
-| diretorio (o instrumento nao classifica) | 1 | `stats_n20/`                                                                                                                                                                                                                                                                        |
-
-**Nada esta faltando.** Quatro artefatos publicados **divergiram**:
-
-| arquivo                   | local | no branch | linhas diferentes |
-|---------------------------|------:|----------:|------------------:|
-| `superiority_wilcoxon.py` |   147 |       126 |                37 |
-| `region_match_tost.py`    |    74 |        74 |                 2 |
-| `m1_stats_n20.py`         |   411 |       335 |                84 |
-| `m2_prereg_perfold.py`    |   214 |       222 |                36 |
-
-**(B) Por que importa.** O seu item **2.2 ja reservou exatamente esta decisao a voce**, mas para **dois** arquivos
-(`m1_stats_n20.py` e `m2_prereg_perfold.py`). Sao **quatro**. Substituir um artefato publicado por uma versao local
-divergente e decisao de autor, nao faxina — nao toquei em nada.
-
-**(C) O que eu preciso de voce.** Por arquivo, ou uma regra para os quatro:
-
-> **(a)** publicar a versao local, se ela e a correta (um commit seu no branch `mobiwac`);
-> **(b)** deixar como esta, se a versao publicada e a que gerou os numeros do artigo — que e o caso
-> a favor de deixar quieto, e o mais provavel para `region_match_tost.py`, com 2 linhas de diferenca.
->
-> A prosa do Apendice A **nao depende disto**: ela ja diz que os scripts estatisticos *"are part of
-> the working repository and are supplied on request"*, o que nenhuma das leituras acima torna falso.
-
-> **AUTHOR:** Vamso publicar as alterações na branch do mobiwac.
-
-**APLICADO — 2026-08-02.** Push feito em `origin/mobiwac`, commit `488e4d10` (pai `0288cb70`), rodado de dentro do
-worktree `.temp/mobiwac` (o clone `.tmp/mobiwac_pub_96069` do `45_author_rulings.md` nao existe mais; recomparei do
-zero).
-
-**Nao foi a copia byte a byte dos quatro arquivos locais — tres precisaram de adaptacao, um ficou de fora.**
-`m1_stats_n20.py` local tinha `REPO = Path(__file__).resolve().parents[5]`, correto so porque o arquivo mora 6 niveis
-abaixo da raiz no monorepo; colado sem alteracao nos 2 niveis do branch, o
-`REPO` sairia da arvore do repositorio e quebraria todo caminho do script — nao era so um problema de
-`docs/` vs `analysis_protocol/` na prosa, como o relatorio anterior descreveu, era o script inteiro.
-`region_match_tost.py`, chamado de "caso limpo" no relatorio anterior, tambem apontava para um caminho
-`docs/studies/...` inexistente no branch; corrigi para `analysis_protocol/STATISTICAL_PROTOCOL.md`.
-`m2_prereg_perfold.py` publicado **ja estava mais correto que o local** — indirecao `RESULTS_ROOT` + caminhos
-`analysis_protocol/` que o local tinha perdido, regredindo para caminhos `docs/...` que nao existem no branch — publicar
-o local ali teria piorado o script publicado, entao **fiquei fora dele**; nao e uma decisao pendente, e uma correcao ao
-plano.
-
-Os tres arquivos tocados (`m1_stats_n20.py`, `superiority_wilcoxon.py`, `region_match_tost.py`)
-receberam o conteudo que o proprio `DEVIATION_LOG.md` do branch (entrada D-4, ja publicada) cobrava como pendente — a
-rotulagem "post-hoc" das celulas de superioridade de regiao — com os caminhos adaptados ao layout do branch, nao colados
-do monorepo. `m1_stats_n20.py` tambem ganhou a secao M1-FULL (arms CA/TX em n=20 + a familia Holm de 6 datasets), que so
-existia na copia local.
-`py_compile` limpo nos tres antes do commit; nenhum dos scripts foi executado neste branch (os dados sob
-`docs/results/...` que `SWEEP`/`P1`/`TSV`/`SIDE` leem nao estao publicados aqui — isso ja era verdade antes da minha
-edicao, para os campos que ja existiam).
-
-### 2.18 Um `refs/notes/commits` foi para o `origin` sem eu ter pedido, e a decisao de remover e sua
-
-**Medido em 2026-07-30, nada foi alterado no remoto.** `git ls-remote origin | grep notes` retorna
-`refs/notes/commits` apontando para `99c0a34b1a`, identico ao ref local. Ele **esta publicado**.
-
-**Como foi.** Nenhum comando meu pediu isso. O git tem uma configuracao (`notes.rewriteRef` /
-`remote.origin.push` com refspec ampla, ou `push.default` com notes habilitados) que empurra
-`refs/notes/*` junto de um push comum; o stderr de um dos meus pushes mostrou
-`* [new reference] refs/notes/commits`. Um sub-agente reportou isso por conta propria, incluindo o fato de ter
-subestimado o escopo na primeira vez que descreveu.
-
-**O que ha nesses notes: 15 anotacoes, e todas sao correcoes de mensagens de commit minhas.** Cada uma diz que uma frase
-de commit era falsa e qual e a medicao correta — a convencao deste repositorio para nao reescrever historia. Sao,
-literalmente, o registro dos meus proprios erros.
-
-**Por que provavelmente nao e grave — agora medido em TODOS, nao em seis.** A primeira versao deste item afirmava "os 14
-commits anotados nao estao em nenhum branch do origin" a partir de uma sondagem que rodou com `head -6`: **oito nunca
-foram checados**, e a recomendacao abaixo repousava nessa generalizacao. Re-medido sem o `head`, e a contagem tambem
-estava errada — sao **15** notes, nao 14:
-
-```
-for h in $(git notes list | awk '{print $2}'); do
-  git branch -r --contains "$h" | grep -c "origin/"; done
-# checked=15  on_public_branch=0
-```
-
-**15 de 15 verificados, zero em qualquer branch do `origin`.** Sao objetos alcancaveis apenas pelo ref de notes, nao
-historia visivel de nenhum branch publico. Quem clonar o repositorio **nao recebe notes por padrao** (precisa de
-`git fetch origin refs/notes/*:refs/notes/*`).
-
-> **DECISAO SUA, e eu nao vou tomar por voce.** Tres opcoes:
-> 1. **Deixar.** Elas documentam correcoes honestas e nao aparecem em clone normal. Custo zero.
-> 2. **Remover do remoto:** `git push origin :refs/notes/commits` — apaga o ref publicado e mantem os
->    notes locais. Uma linha, reversivel (basta empurrar de novo).
-> 3. **Impedir que volte:** `git config --local notes.rewriteRef ""` e conferir
->    `git config --get-all remote.origin.push`.
->
-> Eu recomendo a **2 + 3** se este repositorio for ficar publico com a defesa, e a **1** se ele
-> permanecer privado. Nao executei nenhuma delas porque mexer em ref publicado e sua alcada.
-
-> **AUTHOR:** 2+3
-
-### 2.19 Quatro numeros do registro de fechados nao reproduzem; um tem tres respostas
-
-**O que e.** O item 1.2 do `_archive/PENDENCIAS_RESOLVIDOS.md` tem nove linhas; cinco conferem. Das quatro restantes,
-nenhuma reproduz da arvore viva: comentarios medem 3.614 linhas contra 1.269 afirmadas, o `preamble.tex` tem 14
-placeholders contra 3, e `geometry`/`linespread` nao estao nesse arquivo. **Sao velhos, nao errados** — medidos na
-rodada 6, contra uma arvore que desde entao ganhou um apendice e perdeu o `0_main.tex`. O defeito duravel: nenhum
-registra **contra qual estado da arvore**
-foi tomado, e medicao sem isso so pode ser re-tomada, nunca re-conferida.
-
-> **DECISAO SUA, e e uma so:** qual convencao de contagem de palavras vale para o Resumo e o Abstract
-> no deposito? Ha **tres** respostas (310/271 no relatorio, 312/277 de uma esteira, 345/307 do meu
-> instrumento) porque ha tres convencoes. Um numero impresso no seu deposito e seu. Diga a convencao,
-> eu fixo uma, aplico, e ponho o comando no arquivo.
-
-> **AUTHOR:**  310/271 no relatorio, eu não entendi porque há 3, mas o quantidade de plavras no resumo hoje são essas.
-
-### 2.20 O Cap. 4 italiciza ingles corriqueiro 153 vezes, e este item DESAPARECEU do tracker sem decisao
-
-> **ESTE ITEM FOI PERDIDO, nao resolvido.** Ele existiu ate `1ef83867` (2026-07-28) e saiu do arquivo
-> naquele commit **sem ir para o `_archive/PENDENCIAS_RESOLVIDOS.md` e sem uma decisao sua**. O titulo
-> dizia explicitamente *"e uma decisao sua"*. Reencontrado em 2026-07-30 varrendo as 63 revisoes do
-> tracker por titulo, nao por numero — porque os numeros foram reciclados em tres renumeracoes.
-
-**Re-medido agora, na prosa viva (comentarios removidos), e os numeros continuam praticamente iguais aos de dois dias
-atras:**
-
-| capitulo   | `\emph`/`\textit`  |
-|------------|--------------------|
-| Cap. 1     | 6                  |
-| Cap. 2     | 6                  |
-| Cap. 3     | 23                 |
-| **Cap. 4** | **153** (eram 155) |
-| Cap. 5     | 10                 |
-| Cap. 6     | 0                  |
-
-Mais italicizados no Cap. 4: `embedding` 18, `baseline` 16, `encoders` 15, `encoder` 14,
-`embeddings` 12, `check-ins` 7. **E inconsistente consigo mesmo** — a mesma palavra aparece nas duas formas: `encoder`
-italico 14 / romano 8, `encoders` 15 / 7, `baseline` 16 / 4, `embedding` 18 / 1.
-
-**A causa e legitima, a consequencia nao.** Isso vem do artigo em portugues, onde italicizar estrangeirismo e a pratica
-correta. Num capitulo **em ingles** a mesma marcacao nao marca mais estrangeirismo: le-se como enfase numa palavra que
-nao tem nenhuma, e o proprio capitulo se contradiz.
-
-> **DECISAO SUA, e continua sendo. Tres caminhos:**
-> 1. **Deixar como esta.** O Cap. 4 e capitulo de artigo publicado; a marcacao veio de la. Custo zero,
->    mas um leitor em ingles ve enfase onde nao ha.
-> 2. **Remover o italico de vocabulario corrente** (embedding, baseline, encoder e plurais), mantendo
->    italico so em termo tecnico em primeiro uso. ~90 substituicoes, mecanicas, e eu registro como
->    partida de errata no Apendice B por ser capitulo publicado.
-> 3. **Uniformizar sem remover:** escolher uma forma por palavra e aplicar. Resolve a contradicao
->    interna sem mudar a densidade de italico.
->
-> Eu recomendaria a **2**, e nao aplico nada sem voce: e prosa de artigo publicado e o proprio item
-> dizia que a decisao e sua. `WRITING_LAW` nao cobre italico de estrangeirismo em capitulo traduzido,
-> entao nao ha regra para eu invocar.
-
-> **AUTHOR:**  2.
-
 ### 2.21 O segundo ponto do seu orientador: como os termos entram
 
 **O que e.** Ele escreveu *"soa um pouco estranho o jeito que alguns termos sao inseridos (marquei alguns la)"*. O
@@ -577,24 +117,6 @@ proibicoes da §3 ausentes, as 28 da §4 medidas (22 ausentes, 6 dentro da condi
 
 > **AUTHOR:** `license the verbs` em fundamentação téorica. Foi o unico termo que ele marcou e comnetou para ter cuidado
 > com o termos.
-
-### 2.23 Cinco itens RECOMMENDED das revisoes que eu nao apliquei
-
-**(A) O que e.** Ficaram por decisao de escopo, nao por esquecimento. Cada um tem quote e pagina no relatorio citado.
-
-| id   | onde     | o que                                                 | por que nao apliquei                        |
-|------|----------|-------------------------------------------------------|---------------------------------------------|
-| R-3  | p.26-27  | §2.5 nao retoma a pergunta que §2.3 deixa aberta      | mexe em prosa que nao mudou nesta rodada    |
-| R-5  | p.23     | uma frase de 66 palavras com tres pontuacoes fortes   | reescrita de estilo, sua chamada            |
-| R-6  | p.23     | so uma referencia no corpo aponta para o Apendice F   | pode ser deliberado                         |
-| EX-6 | p.101    | uma comparacao entre datasets que o texto nao precisa | `40_readability` e `42_excellence` divergem |
-| EX-9 | p.23, 99 | densidade de figuras de linguagem                     | OPTIONAL nos dois relatorios                |
-
-**(B) O que ja foi feito.** Triados e medidos; nada aplicado.
-
-**(C) O que eu preciso de voce.** Diga quais valem e eu aplico. Nenhum e um erro de fato.
-
-> **AUTHOR:** Aplique o R-3,5,6 e o EX-6, seguindo a recomendação do 42_excellence, não aplique o EX-9.
 
 ### 2.24 Um `towards` britanico em prosa publicada do CBIC, e a saida e uma linha de errata
 
@@ -650,55 +172,6 @@ o transcrito de validacao do gate nos dois sentidos).*
 > **DECISAO SUA:** Vamos deixar do lado de fora seguindo a norma: ABNT (NBR 10520:2023). Cocuemnte isso no
 > WRITING_LAW.md.
 
-### 2.25 O que sobrou da rodada 9c, e as duas coisas que dependem de voce
-
-**(A) O que e.** As suas catorze decisoes de 2026-07-30 foram aplicadas e conferidas uma a uma no PDF renderizado. O
-ledger completo, com a evidencia de cada linha, esta em `_round9/47_applied_check.md`:
-**28 linhas** (13 decisoes mais os 15 pontos numerados do apendice), das quais **25 aplicadas**, **2 bloqueadas** e **1
-que nao pedia nada** (a sua 2.8, "nada aqui"). Vinte delas agora tem sonda em
-`check_audit_claims.py`, validada por sabotagem, entao uma edicao futura que desfizer uma das suas mudancas quebra o
-gate em vez de chegar na banca em silencio.
-
-**(B) O que ficou bloqueado, e por que nao e escolha minha.**
-
-1. **2.16, publicar os quatro artefatos divergentes.** Preparado, nao empurrado: o helper de credencial e interativo
-   neste sandbox e um push nao pode ser feito daqui. Os comandos exatos estao no
-   `_round9/45_author_rulings.md`, no item 2.16. Nenhum push foi fabricado.
-2. **2.18, o `refs/notes/commits` no `origin`.** A sua decisao foi "2+3"; uma das duas metades esta aplicada e a outra
-   depende de uma operacao no remoto. Detalhe no mesmo relatorio.
-
-**(C) O que eu preciso de voce.** Nada nas 25 aplicadas, a nao ser que discorde de alguma. Nas duas bloqueadas, uma
-decisao sua sobre quando rodar os comandos.
-
-> **DECISAO SUA:** Done!
-
-### 2.26 A persona 15 rodou por ultimo, e o achado que vale mais que os quatro REQUIRED
-
-**(A) O que e.** Voce pediu a persona 15 no fim de tudo, com as instrucoes que voce mesmo reescreveu (`89b7eca1`). Ela
-leu **873 sentencas em 12 unidades** nos PDFs renderizados e devolveu 4 REQUIRED, 4 RECOMMENDED e 2 OPTIONAL. Relatorio:
-`_round9/48_readability_final.md`.
-
-**(B) O que foi aplicado, tudo conferido por mim antes.**
-
-- **R15-01 estava indo para a banca.** `Appendix ??` renderizava na p. 11 do volume suplementar: um
-  `\ref` para um rotulo que vive no volume PRINCIPAL. Referencia entre volumes nao resolve, porque os dois documentos
-  tem `.aux` separados por construcao. O log de build carregava o aviso e ninguem lia.
-- **R15-02:** o volume suplementar citava um titulo que nao e o titulo da dissertacao, a tres paginas da propria capa,
-  que traz o certo. Agora aponta para a capa em vez de repetir a string.
-- **R15-03:** `region head` era o ultimo do tipo (medido em toda a prosa viva: "region output" 7, "region head" 1). Mais
-  o pronome relativo escrito.
-- **R15-04:** a primeira frase com ideia do apendice empilhava duas oracoes reduzidas terminando em preposicao solta.
-  Nao estava entre os seus quinze pontos e nao mudou desde a versao que voce leu, que e exatamente a classe que voce
-  disse que passa pelas varreduras.
-- **R15-06, o seu proprio banimento:** "It now covers" datava o documento contra uma versao que o leitor nunca viu.
-  **R15-07:** o Abstract e o Resumo abriam com 24 palavras de protocolo antes do sujeito, na pagina mais lida; resultado
-  primeiro agora, nos dois, com todo numero preservado. **R15-08:** virgula entre sujeito e verbo.
-
-**(C) O que eu preciso de voce.** Nada. As duas OPTIONAL (R15-09, R15-10) ficaram sem aplicar e estao descritas no
-relatorio; se quiser, aplico.
-
-> **DECISAO SUA:** Aplique o R15-10 e o R15-09
-
 ### 2.27 A arvore revisada do autor entrou no `src`, e o que ficou aberto nela
 
 **(A) O que e.** Em 2026-08-02 o autor entregou `src_clean`, lido e editado por ele. O merge esta em
@@ -708,9 +181,11 @@ por cima. 228 dos 275 blocos reancoraram exatamente.
 
 **(B) O que fica aberto para voce.**
 
-1. **47 blocos marcados `[ORPHANED 2026-08-02]`.** Cada um anota uma frase que a sua revisao reescreveu
-   ou cortou. Nenhum foi apagado. A tabela completa esta no relatorio 49. Sao seus para manter,
-   reescrever ou deletar; um agente nao deve decidir isso.
+1. **28 blocos marcados `[ORPHANED 2026-08-02]`** — eram 47, e voce resolveu 19 no commit `45c75611`
+   ("remove orphaned comments and clean up LaTeX files"). Medido em 2026-08-02:
+   `grep -rho 'ORPHANED 2026-08-02' src --include='*.tex' --exclude-dir=build | wc -l` = **28**. Cada um
+   anota uma frase que a sua revisao reescreveu ou cortou; nenhum foi apagado por mim. A tabela original
+   dos 47 esta no relatorio 49. Sao seus para manter, reescrever ou deletar; um agente nao deve decidir isso.
 
 2. **54 marcadores `[NEEDS SIGN-OFF]` continuam abertos**, distribuidos em 21 arquivos, com 7 em
    `2_fundamentals.tex`, 8 em `6_conclusion.tex` e 6 em `apx_a_contributions.tex`. Sao afirmacoes que
@@ -725,6 +200,42 @@ por cima. 228 dos 275 blocos reancoraram exatamente.
 
 **(C) Status.** Builds 106/103/107/22 pp, zero erros, zero referencias indefinidas; 25 gates e o
 selftest em rc=0, lidos diretamente.
+
+### 2.28 Varredura de auditoria de 2026-08-02: 14 itens fechados, 5 abertos, 2 surpresas
+
+**(A) O que foi feito.** Voce pediu para auditar cada item do §2 e do §5, medindo o estado do documento em
+vez de ler o cabecalho do proprio item. Os 19 itens em escopo foram medidos contra a arvore em `45c75611`
+mais a arvore de trabalho. **14 fecharam e foram para
+[`_archive/PENDENCIAS_RESOLVIDOS.md`](_archive/PENDENCIAS_RESOLVIDOS.md)** com a evidencia e a sua decisao
+preservadas verbatim; 51 citacoes a esses itens foram reapontadas para o arquivo, mais 3 no `GLOSSARY.md`
+e neste arquivo, e o gate `check_tracker_refs` voltou a rc=0.
+
+**(B) As duas surpresas, e as duas vao nas duas direcoes.**
+
+1. **`2.26` estava dado por resolvido e nao estava.** Voce escreveu "Aplique o R15-10 e o R15-09" e nenhum
+   dos dois havia sido aplicado: `"Two patterns stand out in the data."` e `"Settling that needs"` continuavam
+   na prosa viva do apendice do cosseno. **Aplicados agora** (2026-08-02): `"The figure shows two patterns."` e
+   `"Answering that question needs the same diagnostic"`.
+
+2. **`EX-9` dentro do `2.23`: a sua revisao desfez a sua propria decisao.** Voce escreveu "nao aplique o
+   EX-9", cuja familia eram quatro frases (`deserves one statement`, `worth reporting`, `needs saying`,
+   `worth stating`). Todas as quatro **sairam** da prosa viva; `git log -S` mostra duas saindo no seu proprio
+   `src_clean` (`807183c1`). Voce foi consultado e decidiu que a sua leitura com o texto na mao superseda a
+   decisao anterior. Registrado como SUPERSEDIDO, nao como aplicado.
+   **E o meu probe nao pegou isso:** o `A23-EX9` vigiava `"Pareto front"`, que continua no texto, em vez das
+   frases que a decisao protegia — passava enquanto a decisao era desfeita. Reapontado para a definicao de
+   fronteira de Pareto que voce de fato manteve, e validado nos dois sentidos.
+
+**(C) Um item que o tracker dava por aberto e estava aplicado.** O `2.20` (italico em ingles corriqueiro no
+Cap. 4): a sua opcao 2 esta aplicada. `\textit` na prosa viva do Cap. 4 = **48**, contra 157 no fonte
+em `5c074a2a`; os sobreviventes sao os 7 nomes de categoria, nomes de modelo e substantivos proprios. Duas
+formas arguveis sobraram (`one-hot`, `skip-gram`) e nao mexi nelas.
+
+**(D) O que continua seu.** Os cinco itens acima (`2.1`, `2.5`, `2.21`, `2.24`, `2.27`). As suas decisoes
+anteriores neles **continuam validas** — nenhuma foi superada por mudanca no texto; o que falta em cada um e
+uma escolha ou uma ferramenta que este ambiente nao tem.
+
+*Forense: [`_round9/50_pendencias_audit.md`](_round9/50_pendencias_audit.md), com a medicao de cada um dos 19.*
 
 ## §5 · Levantados do `CODEX_AUDIT.md` quando ele foi arquivado (2026-07-29)
 
@@ -774,42 +285,6 @@ alegacao viva. *(A versao anterior deste comando era **cega a comentarios** e im
 daquelas frases sobrevivem apenas em comentarios de proveniencia, que citam a redacao antiga para registrar o que mudou.
 A variante acima descarta linhas `%` antes de casar, e concorda com o `live_text` do `check_audit_claims.py`, que e o
 stripper usado pelos gates deste projeto.)*
-
-### 5.6b A premissa da sua decisao 5.6 nao e o que os arquivos mostram — resolvi imprimindo AS DUAS datas
-
-**Medido em 2026-07-30, nos cinco parquets que este trabalho consome.** Sua decisao no 5.6 foi *"Busque pelo que o
-artigo original cita e vamos usar isso em ambos. Inclusive ambos usaram o mesmo recorte nao houve diferenca."* A
-primeira metade foi cumprida: o `cho2011gowalla` foi aberto em primeira mao (PDF dos proprios autores, Secao 2, p.2) e
-ele diz **Fev 2009 a Out 2010**.
-
-**A segunda metade nao se sustenta.** Os cinco estados usados nao param em Out 2010:
-
-| estado     | primeiro check-in | ultimo check-in | n         |
-|------------|-------------------|-----------------|-----------|
-| Alabama    | 2009-03-18        | 2011-07-27      | 113.846   |
-| Arizona    | 2009-03-26        | 2011-07-04      | 236.450   |
-| Florida    | 2009-03-13        | 2011-08-11      | 1.407.034 |
-| Texas      | 2009-01-21        | **2011-08-16**  | 4.089.892 |
-| California | 2009-01-24        | 2011-08-14      | 3.171.380 |
-
-Uniao: **2009-01-21 a 2011-08-16** — dez meses depois da janela que o artigo declara.
-
-**Por que isso importa e nao e frescura.** A frase esta no Cap. 6 sob a limitacao *"Data vintage"*. Ali o leitor le a
-data como **a safra dos dados que voce usou**, nao como uma nota sobre o que outro artigo coletou. Imprimir so Fev
-2009–Out 2010 subestimaria o proprio corpus em dez meses.
-
-**O que eu fiz.** A frase agora carrega as duas datas: o que os autores relatam, e o que a extracao daqui abrange, com a
-medicao completa e o comando no comentario de proveniencia do
-`6_conclusion.tex`. Nao e uma correcao da sua decisao — voce estava decidindo **qual fonte citar**, e essa parte esta
-cumprida.
-
-> **DECISAO SUA.** Se voce preferir imprimir **so** a janela do artigo, a clausula depois da virgula e
-> a que sai, e eu removo. Marcado com `[NEEDS SIGN-OFF: PENDENCIAS_RESOLVIDOS 5.6 (arquivado 2026-07-30), round8]` no
-> fonte.
-
-> **AUTHOR:** Vamos usar só as datas que encontramos no database de 2009 a 2011, pode omitir que no artigo eles comentam
-> que é de 2009 a 20010. O need sing-off assim como os demais já resolvidos que estão no latex pode ser removidos não
-> precisam fica lá. Se quider documentar isso tem que ser em algum lugar do src_util.
 
 ## §6 · As decisoes que sairam do `CONSIDERATIONS.md` (round 9)
 
@@ -1268,7 +743,7 @@ this one is not, and it is the one the novelty sentence depends on.
 **Minha leitura:** agree it needs a brief treatment. The author's own added question: does the MTL fundamentals need
 Pareto optimality. Since 2.3 names gradient-surgery balancers, and MGDA/CAGrad/Nash-MTL are all argued in terms of
 Pareto-stationary points, the concept is already implicit. Note 'Pareto-stationary point' is ALREADY in the prose and is
-PENDENCIAS 2.12 (unregistered in the fail-closed GLOSSARY), so this item and 2.12 are the same decision.
+PENDENCIAS_RESOLVIDOS 2.12 (arquivado 2026-08-02) (unregistered in the fail-closed GLOSSARY), so this item and 2.12 are the same decision.
 
 1. **Um paragrafo breve em §2.3: o problema multitarefa e multi-objetivo, os balanceadores de cirurgia de gradiente sao
    argumentados em termos de estacionariedade de Pareto, e por isso o MGDA/CAGrad/Nash-MTL existem** — atende sua

@@ -97,27 +97,22 @@
         previsão da próxima categoria e da próxima região. O modelo final foi avaliado
         em seis conjuntos de dados de diferentes contextos geográficos, incluindo um
         conjunto não estadunidense. O protocolo empregou validação cruzada com usuários
-        disjuntos entre treinamento e teste e testes estatísticos pareados. % [round9d, 2026-08-02] MESMAS TRES MUDANCAS do Abstract, para a auditoria de paridade de
-        % afirmacoes (WRITING_LAW §6) continuar passando no par: linguagem TOST no lugar de
-        % "comparaveis", MTL expandido no primeiro uso, e os numeros de volta sem "selecao
-        % joint-best", termo que o autor julgou nao explicado aqui.
-        O modelo conjunto superou os modelos dedicados na previsão da próxima categoria
-        nos seis conjuntos de dados, por 5,3 a 9,4 pontos de macro-F1. Na previsão da
-        próxima região, superou-os em quatro conjuntos e, nos outros dois, foi
-        estatisticamente não-inferior dentro da margem de dois pontos de Acc@10. Em
-        ambas as tarefas e nos seis conjuntos, suas pontuações também ficaram acima das
-        reportadas pelos métodos externos usados como referência.
-        Os resultados mostram que o MTL não constitui um
-        benefício automático: sua efetividade depende da representação de entrada e
-        da topologia de compartilhamento construída para as tarefas consideradas.
+        disjuntos entre treinamento e teste e testes estatísticos pareados.
+        Essas análises mostraram que o modelo conjunto superou os modelos dedicados na
+        previsão da próxima categoria em todos os conjuntos e, na previsão da próxima
+        região, superou-os ou foi estatisticamente não-inferior dentro da margem de dois
+        pontos de Acc@10. Em ambas as tarefas, os resultados do modelo conjunto também
+        ficaram acima dos reportados pelos métodos externos usados como referência.
+        Os resultados mostram que o MTL não constitui um benefício automático: sua efetividade depende da representação de entrada e da topologia de compartilhamento construída para as tarefas consideradas.
         % [round5, persona 17 MAJOR-2, still honored] "Proximo lugar visitado" is NOT used: it
         % collides with the RESERVED term "next place" (GLOSSARY §1) for the exact-POI task this
         % dissertation does not study. The exclusion is now stated positively in the second
         % sentence ("mas nao o ponto de interesse exato"), which is the body's own claim
         % (1_introduction.tex "The exact next place is not predicted anywhere in this work").
         % [NEEDS SIGN-OFF: raised round 6, 2026-07-28 | author caveats 2.1/3-4-5, 2026-07-24, carried through the cut]
-        % 3: the margin metric is named (Acc@10). 4: the joint-best convention behind 5,3-9,4 is
-        % named. 5: "determina se" stays "depende de" (the Sec. 6.2 confound forbids a causal verb).
+        % The margin metric remains named (Acc@10). The joint-best convention and macro-F1 range
+        % are omitted from this high-level summary. "Determina se" stays "depende de" because the
+        % Sec. 6.2 confound forbids a causal verb.
 
         % [round5, author decision 3.3 option ii] Purely mechanical: keep the keyword block with the
         % Resumo it belongs to. It was breaking onto p.4 alone (14 words on an otherwise blank page).
@@ -195,36 +190,21 @@
             next-category and next-region prediction. The final model was evaluated on
             six datasets from different geographic contexts, including one non-U.S.
             dataset.
-            % [round9d, 2026-08-02, author decision on the merge of his clean tree] THREE changes to the
-            % sentence he revised, two of them required by rules he set. (1) "comparable" -> the TOST
-            % wording: non-inferiority is a TEST with a margin, "comparable" is an impression, and his
-            % own decision 2.11 this round was to promote that caveat everywhere rather than drop it.
-            % (2) MTL expanded at first use (GLOSSARY is fail-closed), without a second gloss here.
-            % (3) The numbers restored at his
-            % request, WITHOUT "joint-best selection" -- he judged that term unexplained here. Numbers
-            % quoted, not computed: 5.3 to 9.4 macro-F1 is the per-dataset category delta range stated
-            % in Chapter 6; four of six and the two-point Acc@10 TOST margin are Chapter 5's own words.
-            % The external-baseline clause is his addition and is supported at source: Chapter 5 states
-            % the joint model "is also above every external baseline reported, on both tasks, across all
-            % six datasets", naming HMT-GRN, STAN, a ReHDM reference, POI-RGNN and the Markov floor.
             The protocol used user-disjoint cross-validation and paired statistical
-            tests. The joint model outperformed the dedicated single-task models in
-            next-category prediction at all six datasets by 5.3 to 9.4 macro-F1 points.
-            In next-region prediction, it outperformed them at four datasets and, at
-            the other two, was statistically non-inferior within the two-point Acc@10
-            margin. On both tasks and at all six datasets, its scores were also above
-            those reported by the external baselines.
+            tests. These analyses showed that the joint model outperformed the dedicated
+            single-task models in next-category prediction at every dataset and, in
+            next-region prediction, either outperformed them or was statistically
+            non-inferior within the two-point Acc@10 margin. On both tasks, the joint
+            model's results were also above those reported by the external baselines.
             The results
             show that MTL does not
             provide an automatic benefit: its effectiveness depends on the input
             representation and the sharing topology designed for the tasks under
             consideration.
             % [NEEDS SIGN-OFF: raised round 6, 2026-07-28 | author caveats 2.1/3-4-5, 2026-07-24, carried through the cut]
-            % 3: the non-inferiority margin metric is named (Acc@10). 4: the joint-best convention
-            % behind the 5.3-9.4 range is named. 5: "determines whether" stays "depends on", since the
-            % confound in Sec. 6.2 (representation, topology and task pair moved together) makes a hard
-            % causal verb an overclaim. What the cut dropped, and where each dropped claim still lives,
-            % is tabulated in src_utils/_round6/15_resumo_abstract.md; no floor claim was cut.
+            % The non-inferiority margin metric remains named (Acc@10). The joint-best convention and
+            % macro-F1 range are omitted from this high-level summary. "Determines whether" stays
+            % "depends on", since the confound in Sec. 6.2 makes a hard causal verb an overclaim.
 
             % [round5, decision 3.3 option ii] Same guard as the Resumo block, for parity.
             \vspace{\onelineskip}

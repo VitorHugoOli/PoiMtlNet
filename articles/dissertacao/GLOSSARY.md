@@ -99,7 +99,7 @@
 | **joint-best convention** | Both tasks read at the one saved model per fold (the validation-selected epoch). Ch.5's reported convention. | never mix with per-task diagnostic-best without saying so |
 | **the floors** | Reference points: majority-class floor (category), Markov-1 floor (region). | every number carries its reference point |
 
-**The four rows below were added 2026-07-30** and close PENDENCIAS 2.12, whose recorded decision is
+**The four rows below were added 2026-07-30** and close PENDENCIAS_RESOLVIDOS 2.12 (arquivado 2026-08-02), whose recorded decision is
 option (a), register the term. They are multi-objective optimization vocabulary rather than names this
 project coined, so each definition is copied from a source read at its PDF that session, named in the
 row; nothing here is retyped from another paper's bibliography or from memory. The first three were
@@ -186,7 +186,7 @@ author's own wording (`src_utils/PENDENCIAS.md`:98) and the advisor's
 Pareto-estacionário` and `conflito de gradientes` are the standard renderings but appear nowhere in
 this repository, in the published PT paper (`articles/CoUrb_2026/src`, nine `.tex` files, zero
 occurrences of "pareto"), or in any Portuguese surface of the dissertation. They are therefore
-**proposed, not settled**, and PENDENCIAS 2.12 asks the author to confirm or replace them. No PT
+**proposed, not settled**, and PENDENCIAS_RESOLVIDOS 2.12 (arquivado 2026-08-02) asks the author to confirm or replace them. No PT
 surface uses any of the four today: the terms live in Chapter 2, which is English, and the Resumo does
 not mention them. The rows exist because §6 is this registry's convention for every registered term,
 so a later translator finds a decision rather than a gap.

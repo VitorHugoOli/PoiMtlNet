@@ -76,7 +76,7 @@ in history. Two other observations from the same cause:
   number moves.
 - `check_tracker_refs.py` was **red for a period through no edit of mine**: a live `### 5.6b`
   heading was invisible to its `^#{2,4}\s+(\d+)\.(\d+)\b` pattern (`\b` does not sit between `6` and
-  `b`) while `PENDENCIAS 5.6b` in `6_conclusion.tex:286` truncated to `5.6`. The same track that
+  `b`) while `PENDENCIAS_RESOLVIDOS 5.6b (arquivado 2026-08-02)` in `6_conclusion.tex:286` truncated to `5.6`. The same track that
   introduced the citation fixed the gate's pattern; both patterns now carry `([a-z]?)(?![\w.])`.
 
 ## 4 · What DID land: four facts, each re-measured (commit `5b4d0b4c`)

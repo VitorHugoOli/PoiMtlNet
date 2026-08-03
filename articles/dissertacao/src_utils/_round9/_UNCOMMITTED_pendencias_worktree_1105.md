@@ -984,7 +984,7 @@ this one is not, and it is the one the novelty sentence depends on.
 **Minha leitura:** agree it needs a brief treatment. The author's own added question: does the MTL fundamentals need
 Pareto optimality. Since 2.3 names gradient-surgery balancers, and MGDA/CAGrad/Nash-MTL are all argued in terms of
 Pareto-stationary points, the concept is already implicit. Note 'Pareto-stationary point' is ALREADY in the prose and is
-PENDENCIAS 2.12 (unregistered in the fail-closed GLOSSARY), so this item and 2.12 are the same decision.
+PENDENCIAS_RESOLVIDOS 2.12 (arquivado 2026-08-02) (unregistered in the fail-closed GLOSSARY), so this item and 2.12 are the same decision.
 
 1. **Um paragrafo breve em §2.3: o problema multitarefa e multi-objetivo, os balanceadores de cirurgia de gradiente sao
    argumentados em termos de estacionariedade de Pareto, e por isso o MGDA/CAGrad/Nash-MTL existem** — atende sua

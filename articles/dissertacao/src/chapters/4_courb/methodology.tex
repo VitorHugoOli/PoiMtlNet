@@ -124,7 +124,7 @@ Sphere2Vec-M \cite{mai2023sphere2vecgeneralpurposelocationrepresentation} is a m
 \subsection{Temporal Encoder}
 
 Human mobility patterns exhibit cyclical regularities, such as meal times and weekly movements \cite{cho2011gowalla}, and models of the next visit read them through explicit temporal representations \cite{sun2020go}. However, the original MTLnet model does not incorporate explicit temporal representations to capture this information.
-% [round9c, PENDENCIAS 2.15, author decision: path A, 2026-07-30] CLAIM NARROWED. Errata row in
+% [round9c, PENDENCIAS_RESOLVIDOS 2.15 (arquivado 2026-08-02), author decision: path A, 2026-07-30] CLAIM NARROWED. Errata row in
 % Appendix B; the same edit is applied to both published CoUrb sources (src/sections/metodology.tex
 % for the PT of record and src_en/ for the EN translation).
 % WHAT THE OLD SENTENCE CLAIMED AND THE CITED PAPER DOES NOT SUPPORT. It attributed to sun2020go
@@ -187,12 +187,12 @@ counties (GEOIDs).
 % needed 468.2 pt; the reordered run-up puts the whole expression at about 227 pt.
 
 Over this graph, random walks are executed following the Node2Vec methodology \cite{grover2016node2vec}.
-% [round9c, PENDENCIAS 2.20, author decision: option 2, 2026-07-30] The published PT sentence read
+% [round9c, PENDENCIAS_RESOLVIDOS 2.20 (arquivado 2026-08-02), author decision: option 2, 2026-07-30] The published PT sentence read
 % "caminhadas aleatorias (\textit{random walks})", where the italic parenthetical glossed the
 % Portuguese phrase with the English loan term. Translated to English the gloss repeats the words it
 % glosses, so it is dropped rather than de-italicized. This is a translation artifact, not a claim.
 Each walk is converted into a sequence of secondary categories, the fine classes, resulting in local and global co-occurrences among categories. The model learns the embeddings using the \textit{skip-gram} strategy with \textit{negative sampling} \cite{mikolov2013word2vec,mikolov2013negsampling}:
-% [round9c, PENDENCIAS 2.15, author decision: path A, 2026-07-30] BANNED TERM REMOVED, the first of
+% [round9c, PENDENCIAS_RESOLVIDOS 2.15 (arquivado 2026-08-02), author decision: path A, 2026-07-30] BANNED TERM REMOVED, the first of
 % the two sites on this file's three affected lines. `(\textit{fclass})` was the parenthetical gloss
 % naming the code column; GLOSSARY.md:73 registers the reader-facing term as "fine class" and forbids
 % `fclass` in prose. The gloss now names the registered term in apposition, which keeps the sentence
@@ -209,7 +209,7 @@ Each walk is converted into a sequence of secondary categories, the fine classes
 \]
 
 in which $\mathbf{e}_i$ is the embedding of the target class, $\mathbf{e}_j$ the positive context embedding, and $\mathbf{e}_{n_k}$ represent the negative samples. The implementation incorporates a hierarchical regularization term \cite{Xu2023} between category and fine class: $\mathcal{L}_{\text{hier}} = \sum_{(c,s) \in \mathcal{H}} \left\| \mathbf{e}_s - \mathbf{e}_c \right\|_2^2$, in which $\mathcal{H}$ contains the (category, fine class) pairs. The total loss is $\mathcal{L} = \mathcal{L}_{\text{SGNS}} + \lambda_{\text{hier}} \, \mathcal{L}_{\text{hier}}$. In the end, the resulting embedding is generated per category and remapped to each POI.
-% [round9c, PENDENCIAS 2.15, author decision: path A, 2026-07-30] TWO CHANGES IN ONE SENTENCE, both
+% [round9c, PENDENCIAS_RESOLVIDOS 2.15 (arquivado 2026-08-02), author decision: path A, 2026-07-30] TWO CHANGES IN ONE SENTENCE, both
 % his ruling, each with its own errata row in Appendix B, and both applied to the published CoUrb
 % sources as well (src/sections/metodology.tex PT and src_en/sections/metodology.tex EN).
 % (1) CITATION SUBSTITUTED, belkin2003laplacian -> Xu2023. The cited object is an L2 penalty pulling

@@ -92,7 +92,7 @@ no repeated opening move. This is what §4.3 asks for.
 
 ### 1.3 The four new terms, checked fail-closed against `GLOSSARY.md` (N of N)
 
-All four are registered in `GLOSSARY.md` §4 (the block dated 2026-07-30 under PENDENCIAS 2.12) and §6.
+All four are registered in `GLOSSARY.md` §4 (the block dated 2026-07-30 under PENDENCIAS_RESOLVIDOS 2.12 (arquivado 2026-08-02)) and §6.
 The registry landed **before** the prose, which is the order L2 requires. Occurrence counts are over
 the whole live §2.3, not a sample.
 
@@ -603,7 +603,7 @@ read directly as the last action in that shell (V11). The three named gates now 
 ```
 ORPHANED …            -> gone (grep for ORPHAN over the suite log returns nothing)
 holds       R9-pend28 the old 2.8 no longer asks for a decision -- it records what was done
-holds       R9-agree  PENDENCIAS 2.8 carries the CORRECTED stale count … (9 of 41, not the superseded 10)
+holds       R9-agree  PENDENCIAS_RESOLVIDOS 2.8 (arquivado 2026-08-02) carries the CORRECTED stale count … (9 of 41, not the superseded 10)
 ```
 
 Before restoring I preserved the working-tree version, because `git checkout --` on an uncommitted file

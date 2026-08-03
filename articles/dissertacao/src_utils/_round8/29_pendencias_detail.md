@@ -236,7 +236,7 @@ space rather than waiting in its queue"*. Com 61G livres isso deixou de ser verd
 documento**. A clausula agora diz que o que falta aos tres e **a execucao**, nao um metodo -- verdade
 independente de voce rodar ou nao. Lido no PDF (p. 100 do build de defesa, 100 pp, tex_errors 0), nao
 no fonte. As duas frases anteriores, que contam que a tentativa *encheu* o disco, sao historia e
-ficaram. Marcado `[NEEDS SIGN-OFF: PENDENCIAS 2.9, round8]`. Uma instrucao para agentes futuros no
+ficaram. Marcado `[NEEDS SIGN-OFF: PENDENCIAS_RESOLVIDOS 2.9 (arquivado 2026-08-02), round8]`. Uma instrucao para agentes futuros no
 mesmo arquivo (*"Say BLOCKED, never 'pending' or 'queued'"*) mandava, hoje, escrever algo falso: esta
 marcada como superada, com o motivo, em vez de apagada.
 
@@ -577,7 +577,7 @@ reverting each of the three left all 22 gates green.
                       and the measured span of the files actually used
   R8-bibfont          an INVERTED probe: the \footnotesize bibliography wrapper must stay ABSENT.
                       REV-024 was archived as closed this session on a ONE-TIME measurement, which is
-                      the very defect written up as PENDENCIAS 2.19 -- a measurement without its tree
+                      the very defect written up as PENDENCIAS_RESOLVIDOS 2.19 (arquivado 2026-08-02) -- a measurement without its tree
                       state can only be re-taken, never re-checked. This probe converts it into
                       something re-checkable on every run.
 Adding a probe here is now part of applying a fix, not a later tidy-up: if reverting the edit leaves

@@ -42,7 +42,7 @@ Each task has its own encoder, but networks exchange information through learned
 Multi-Gate Mixture-of-Experts (MMoE) architectures maintain a pool of shared expert subnetworks; each task learns a gating function to combine experts, outperforming monolithic sharing in large-scale recommendation settings \cite{ma2018mmoe}.
 
 To mitigate task interference and loss imbalance, several optimization techniques have been proposed: GradNorm equalizes gradient magnitudes across tasks \cite{chen2018gradnorm}; MGDA finds a direction that decreases every task loss, unless the current point is already Pareto-stationary \cite{sener2018mgda};
-% [round9c, PENDENCIAS 2.12, author decision, 2026-07-30] CLAIM NARROWED in published co-authored
+% [round9c, PENDENCIAS_RESOLVIDOS 2.12 (arquivado 2026-08-02), author decision, 2026-07-30] CLAIM NARROWED in published co-authored
 % prose. Errata row in Appendix B (Table B.1), and the same edit is applied to the published source at
 % articles/CBIC___MTL/sections/basis.tex; the published PDF of record (DOI 10.21528/CBIC2025-1191324)
 % is not edited.

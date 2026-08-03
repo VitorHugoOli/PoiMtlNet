@@ -171,8 +171,22 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
      "chapters/6_conclusion.tex", r"apx:cosine", True),
     ("A23-EX6", "his 2.23 EX-6: the hard-sharing-costs-nothing claim is gone from the appendix",
      "chapters/apx_f_cosine.tex", r"hard sharing costs nothing", False),
-    ("A23-EX9", "his 2.23 EX-9, which he ruled NOT to apply: the Pareto-front sentence is still there",
-     "chapters/2_fundamentals.tex", r"Pareto front", True),
+    # SUPERSEDED 2026-08-02, and this probe was the wrong instrument for the whole time it existed.
+    # His 2.23 ruling was "nao aplique o EX-9" -- EX-9 being four sentences: "deserves one statement"
+    # (p.23), "worth reporting" (p.99), "needs saying" (p.98), "worth stating" (p.21). This probe
+    # watched r"Pareto front" instead, which is still in the chapter and has nothing to do with the
+    # four phrasings. So it PASSED while all four left the document: two in his own revised tree
+    # (807183c1), two in earlier rounds, per git log -S on each phrase.
+    # He was shown the contradiction and ruled that his own read-through supersedes the earlier
+    # decision -- he rewrote those sentences with the text in hand, and one of them ("needs saying")
+    # is the exact British need+gerund construction he later banned by name in WRITING_LAW.
+    # Repointed to what his ruling ACTUALLY protected and what survives: the Pareto-front DEFINITION
+    # he declined to cut. The lesson is the same one this file keeps relearning -- a probe must
+    # express the claim it guards, or it certifies whatever it happens to match.
+    ("A23-EX9", "his 2.23 EX-9 ruling, now SUPERSEDED by his own revision: the Pareto-front "
+     "definition he declined to cut is still there (the four 'worth noting'-family phrasings are "
+     "not, by his later choice)",
+     "chapters/2_fundamentals.tex", r"corresponding loss vectors form the Pareto front", True),
     ("A15-cite", "his 2.15 path A: the substituted citation is present in the dissertation tree",
      "chapters/3_cbic/method.tex", r"baxter2000model", True),
     ("A15-old",  "his 2.15 path A: the unsupported citation is gone from the dissertation tree",
@@ -194,9 +208,15 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
      "CONSIDERATIONS.md", r"INADMISSIBLE for any claim", True),
     ("R9-pend6",  "PENDENCIAS carries the new section 6 and it replaced the 2.8 placeholder",
      "PENDENCIAS.md", r"## §6 · As decisoes que sairam do `CONSIDERATIONS\.md`", True),
-    ("R9-pend28", "the old 2.8 no longer asks for a decision -- it records what was done",
-     "PENDENCIAS.md", r"2\.8 `CONSIDERATIONS\.md` — EXECUTADO nesta rodada", True),
-    # ---- ROUND-9, THE PARETO TRACK (PENDENCIAS 2.12, author's decision "DESICAO: A."). The fix has
+        # REPOINTED 2026-08-02: item 2.8 was archived out of the tracker, so both probes now read the
+    # ARCHIVE. The second also gets a wrap-tolerant pattern: the phrase it pins now wraps across
+    # two lines in the archive file, and the original one-line pattern reported the sentence as
+    # missing when it is present. A first check of mine split on exactly that wrap and nearly
+    # recorded a live sentence as lost.
+("R9-pend28", "the archived 2.8 records what was done rather than asking for a decision",
+     "_archive/PENDENCIAS_RESOLVIDOS.md",
+     r"2\.8 `CONSIDERATIONS\.md` — EXECUTADO nesta rodada", True),
+    # ---- ROUND-9, THE PARETO TRACK (PENDENCIAS_RESOLVIDOS 2.12 (arquivado 2026-08-02), author's decision "DESICAO: A."). The fix has
     # two halves that can rot independently -- the §2.3 passage can be reverted, and the glossary rows
     # it depends on can be dropped -- so it gets a probe on each. Source ledger with the page of every
     # definition, and the sabotage runs: _round9/31_pareto.md.
@@ -249,7 +269,7 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
      r"indistinguishable from orthogonal on (?:all )?(?:one|two|three|four|five|six|\d+)\b", False),
     # The registry half. The prose above may not exist without these rows (GLOSSARY.md is fail-closed,
     # and this term was in prose UNREGISTERED at five sites for two rounds, which is the breach
-    # PENDENCIAS 2.12 records). A .md path resolves against UTILS, and GLOSSARY.md is a level above it,
+    # PENDENCIAS_RESOLVIDOS 2.12 (arquivado 2026-08-02) records). A .md path resolves against UTILS, and GLOSSARY.md is a level above it,
     # hence the "../" -- probe_root joins, it does not restrict.
     ("R9-glossary", "the four Pareto/conflict terms are registered before the prose uses them",
      "../GLOSSARY.md", r"\*\*Pareto-stationary point\*\*", True),
@@ -264,9 +284,10 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # Positive probe pins the corrected figure; the inverted one bans the superseded claim. The
     # corrected count is ALSO pinned in CONSIDERATIONS.md by R9-stale, so the two files can only pass
     # together.
-    ("R9-agree",  "PENDENCIAS 2.8 carries the CORRECTED stale count, agreeing with its own §6 and "
+    ("R9-agree",  "the archived 2.8 carries the CORRECTED stale count, agreeing with its own §6 and "
                   "with CONSIDERATIONS.md (9 of 41, not the superseded 10)",
-     "PENDENCIAS.md", r"\*\*32 sao exatas e 9 estao obsoletas\*\*", True),
+     "_archive/PENDENCIAS_RESOLVIDOS.md",
+     r"\*\*32 sao exatas e 9 estao\s+obsoletas\*\*", True),
     ("R9-agree2", "the superseded 'As 21 ancoras dos capitulos' claim is gone from PENDENCIAS",
      "PENDENCIAS.md", r"As 21 ancoras dos capitulos", False),
     # ---- R9-confirm: FAB-01 CHANGED NOTHING, and it was still counted as an applied-and-verified
@@ -521,7 +542,7 @@ def main() -> int:
 # THE CLOSED-ITEM REGISTER was audited for this same defect on 2026-07-30, not trusted:
 # _archive/PENDENCIAS_RESOLVIDOS.md carries 16 closed items with 40 commit citations, the identical
 # claim shape that failed in CODEX_AUDIT. Its most exposed row (item 1.2, nine checkable artifacts)
-# holds for five rows; the other four do not reproduce and are recorded as PENDENCIAS 2.19 with the
+# holds for five rows; the other four do not reproduce and are recorded as PENDENCIAS_RESOLVIDOS 2.19 (arquivado 2026-08-02) with the
 # reason -- they are STALE, not false: taken in round 6 against a tree that has since gained an
 # appendix and lost 0_main.tex, and none records the tree state it was taken against.
 # Full audit in _round8/29_pendencias_detail.md. Do not redo it; extend 2.19 if a number moves.

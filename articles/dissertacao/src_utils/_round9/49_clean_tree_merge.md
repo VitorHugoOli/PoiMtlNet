@@ -103,7 +103,7 @@ Each annotates a sentence that is no longer in the text. None was deleted.
 | `chapters/2_fundamentals.tex` | --------------------------------------------------------------------------- |  |
 | `chapters/2_fundamentals.tex` | Section 2.3 -- Multi-task learning |  |
 | `chapters/2_fundamentals.tex` | [round9, 2026-07-30] TWO SENTENCES REWRITTEN, found independently by the style and the | A multi-objective problem needs a definition of optimum. Deep multi-ta |
-| `chapters/2_fundamentals.tex` | [round9c, PENDENCIAS 2.23, readability report R-5, author decision "Aplique o R-3,5,6 e o EX-6"] | Not every |
+| `chapters/2_fundamentals.tex` | [round9c, PENDENCIAS_RESOLVIDOS 2.23 (arquivado 2026-08-02), readability report R-5, author decision "Aplique o R-3,5,6 e o EX-6"] | Not every |
 | `chapters/2_fundamentals.tex` | [round9, 2026-07-30] ATTRIBUTION CORRECTED (M2, MTL persona). It read "Two of these papers state | claim at all \cite{yu2020pcgrad}. Two of these papers raise the residu |
 | `chapters/2_fundamentals.tex` | [round9, 2026-07-30] TERM NAMED (style persona, REQUIRED). The sentence defined the concept with | Gradient conflict has a standard measure, and it is the quantity the g |
 | `chapters/2_fundamentals.tex` | [round9, 2026-07-30] SENTENCE CORRECTED, and it was a technical error, not a wording one. It rea | \cite{yu2020pcgrad}. Orthogonality is not a conflict resolved but a co |
@@ -122,7 +122,7 @@ Each annotates a sentence that is no longer in the text. None was deleted.
 | `chapters/6_conclusion.tex` | [NEEDS SIGN-OFF: raised round 4, 2026-07-26 / REV-013, 2026-07-26] The interim sentence ("A part | Parameter count alone, without the second task's training signal, yiel |
 | `chapters/6_conclusion.tex` | [round9, 2026-07-30] POINTER ADDED (excellence persona EX-3). This paragraph cites the cosine fr | tasks rather than a general rule. Appendix~\ref{apx:cosine} reports th |
 | `chapters/6_conclusion.tex` | [round8, 2026-07-30, PENDENCIAS_RESOLVIDOS 5.6 (arquivado 2026-07-30)] BOTH DATES, because they  | \item \textbf{Data vintage.} The five state datasets come from Gowalla |
-| `chapters/6_conclusion.tex` | [round9c, PENDENCIAS 5.6b, author decision, 2026-07-30] ONE WINDOW, THE MEASURED ONE. His words: | \item \textbf{Taxonomy coarseness.} The category task uses seven top-l |
+| `chapters/6_conclusion.tex` | [round9c, PENDENCIAS_RESOLVIDOS 5.6b (arquivado 2026-08-02), author decision, 2026-07-30] ONE WINDOW, THE MEASURED ONE. His words: | \item \textbf{Taxonomy coarseness.} The category task uses seven top-l |
 | `chapters/apx_b_errata.tex` | [round5, author decision 1b.3] The Nash-MTL cost claim moved OUT of this section and INTO the |  |
 | `chapters/apx_b_errata.tex` | [round6, L-9, source-ledger pass] COUNT CORRECTED. This read "all 25 places ... 21 in prose, one | \emph{ST-MTLNet} is a different name and keeps its published form thro |
 | `chapters/apx_b_errata.tex` | [round9c, 2026-08-02, R15-01] WAS \ref{apx:cosine}, which labels an appendix of the MAIN volume. | dissertation. |

@@ -33,7 +33,7 @@ SKIP = ("_round", "_review_v", "_archive", "_gates", "_specialists", "/build/", 
 
 # The citation may or may not carry a section symbol, and BOTH spellings are in the live tree.
 # Found 2026-07-29 (round 8 audit): the original pattern was `PENDENCIAS\s+(\d+)\.(\d+)`, which
-# requires whitespace immediately before the digits and therefore could not see `PENDENCIAS §2.9`.
+# requires whitespace immediately before the digits and therefore could not see `PENDENCIAS_RESOLVIDOS §2.9 (arquivado 2026-08-02)`.
 # Two live citations use that spelling -- src/chapters/apx_f_cosine.tex:316 and
 # src_utils/check_verify_list.py:128 -- so this gate reported "every live citation resolves" while
 # never having looked at them. Reproduced before the fix: a file citing `PENDENCIAS §9.9` (no such
@@ -45,7 +45,7 @@ SKIP = ("_round", "_review_v", "_archive", "_gates", "_specialists", "/build/", 
 # arquivos mostram` is a live heading, and `1b.1`, `2b.1` are in the archive. Neither pattern below
 # could express one. HEADING required a word boundary right after the second number, and in "5.6b"
 # the digit and the letter are both word characters, so no boundary exists there and the heading was
-# invisible. CITE stopped at the digits, so a comment citing `PENDENCIAS 5.6b` produced the
+# invisible. CITE stopped at the digits, so a comment citing `PENDENCIAS_RESOLVIDOS 5.6b (arquivado 2026-08-02)` produced the
 # coordinate (5, 6) and was reported as pointing at a section that does not exist -- which was true
 # of 5.6, archived, and false of 5.6b, live and open. Reproduced before the fix: three round-9c
 # comments citing the author's own item number failed this gate while the heading sat in the tracker.
@@ -100,7 +100,7 @@ def self_test() -> None:
         "self-test: a citation carrying 'was N.M' must be exempt"
     # EVERY SPELLING IN THE LIVE TREE MUST BE VISIBLE TO CITE. A guard written as the set of
     # spellings that existed on the day it was written expires without announcing it, and this one
-    # had: `PENDENCIAS §2.9` was invisible for as long as the gate existed. Each variant below is
+    # had: `PENDENCIAS_RESOLVIDOS §2.9 (arquivado 2026-08-02)` was invisible for as long as the gate existed. Each variant below is
     # asserted to yield the SAME coordinate, so adding a spelling to the tree without adding it
     # here fails the self-test instead of passing the gate.
     for variant in ("PENDENCIAS 2.4", "PENDENCIAS §2.4", "PENDENCIAS \\S2.4",

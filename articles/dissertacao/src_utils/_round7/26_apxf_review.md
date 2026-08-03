@@ -314,7 +314,7 @@ Every item below was checked in the final source and the final render:
   shorter; I trimmed its wording and left every clause of its reasoning.
 - **Four datasets only.** No sentence implies six. "Three of the dissertation's six datasets plus
   Georgia" survives as the coverage statement.
-- **California, Texas and Istanbul are BLOCKED by a full disk (PENDENCIAS §2.9), not pending.** The
+- **California, Texas and Istanbul are BLOCKED by a full disk (PENDENCIAS_RESOLVIDOS §2.9 (arquivado 2026-08-02)), not pending.** The
   prose now says this outright rather than leaving it to a comment: "blocked on that machine's free
   space rather than waiting in its queue". Previously the body said "ran out of disk" and then "until
   it is run", which reads as a queue.

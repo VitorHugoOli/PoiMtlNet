@@ -431,7 +431,7 @@ is a CTD asset.
 BUILD — the artifact every page number refers to
   cd src && make defense
   -> "latexbuild main -> build/main.pdf  pages=102 tex_errors=0"   (exit 0, read directly)
-  NOTE: 102 pages. PENDENCIAS 2.12 and _round9/31_pareto.md both say the §2.3 block renders
+  NOTE: 102 pages. PENDENCIAS_RESOLVIDOS 2.12 (arquivado 2026-08-02) and _round9/31_pareto.md both say the §2.3 block renders
   "na p. 23 do build de defesa de 101 paginas". The page is right; the page COUNT is stale.
 
 CONCURRENT-EDIT CHECK — because two of my four files were edited by another track while I read
