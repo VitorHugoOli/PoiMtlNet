@@ -3,11 +3,21 @@
 > **STATUS: a design document, not chapter text. Nothing here is applied to `src/`.**
 > The single working copy of the chapter is `../src/chapters/2_fundamentals.tex` (single-source rule,
 > `CLAUDE.md` §1), and this folder is frozen as the provenance record of how Chapter 2 was built. This
-> file belongs to that record: it is the design the application pass will work from. **Two of the six
-> gating decisions were resolved on 2026-08-03** (thirteen definitions, and naming Chapter 5's two
-> streams); **four remain**, including one that was REOPENED because a code investigation showed the
-> question had been put wrongly. §10 below carries the current state of all six, and
-> `src_utils/PENDENCIAS.md` §6.13 and §6.14 carry them with their costs. Do not edit the chapter from this file; approve the decisions, then the edit plan in
+> file belongs to that record: it is the design the application pass will work from. **All six gating
+> decisions are now settled** (AD-1 thirteen definitions, AD-2 answered from the original CoUrb code,
+> AD-3 both of Chapter 5's streams named, AD-4 conditionally, AD-5 both registry rows, AD-6 sharpen the
+> D2 sentence). AD-2 took the longest because its question was put wrongly, and the answer turned out to
+> be a possibility none of us had listed. **One NEW decision is open, AD-7**, an index overloading in
+> D13 that was flagged in §9 and never put to the author. §10 carries every ruling with its evidence and
+> `src_utils/PENDENCIAS.md` §6.13 through §6.18 carry the record.
+>
+> **AND ONE ITEM LARGER THAN ANY OF THE SIX IS UNDECIDED: inverting §2.1 and §2.2.** He proposed it in
+> answer to AD-4 — representations first, then the tasks trainable on them — and it is a better fix
+> for the forward dependency than the design's, because nothing has to move. It is also a
+> CHAPTER-STRUCTURE change that edits the fixed chapter map (`NORTH_STAR.md:73-80`), so it needs a
+> decision stated as such. **The eight-step edit plan was written for the OTHER shape and does not
+> survive the inversion; it must be redone BEFORE any edit, not after.** He asked to apply only once
+> the definitions close: "depois dessas definicoes podemos aplicado". Nothing is authorized yet. Do not edit the chapter from this file; approve the decisions, then the edit plan in
 > `../src_utils/_round12/49_definitions_validation_and_plan.md` applies it.
 
 ## Why this document exists
@@ -164,7 +174,14 @@ $\rho(H_i)$ rather than $H_i$ itself, and the three studies hold the task DEFINI
 $\rho$. The instantiations, each verified against its chapter:
 
 - Chapters 3 and 4 (place-level): position $j$ of the window carries a vector that is a function of
-  the visited POI (and, in Chapter 4, of the visit's timestamp through the temporal encoder). CBIC:
+the visited POI. **Chapter 4 needs one qualification, established 2026-08-03 from the original code and
+not inferable from the published text:** its temporal component is learned per check-in
+(`Time_Encoder.ipynb` cell 13, stored output `(2535573, 64)` against 2{,}535{,}573 check-ins) and is then
+reduced to one row per POI by `drop_duplicates("placeid")`
+(`PoiMtlNet_Novo/src/etl/create_inputs_hgi.py:437`), which keeps the **first** visit to each POI and
+discards the others. So the vector at position $j$ is a function of the POI and of *one selected visit to
+it*, not of the visit at position $j$. Writing "of the visit's timestamp" would therefore be wrong, and
+writing "aggregated" would also be wrong: the operation selects rather than combines. CBIC:
   "the concatenation of the 64-dimensional embeddings of $p_1$--$p_9$" (`3_cbic/method.tex:64`), i.e.
   $\rho(x_j) = \mathbf{e}_{p_j}$. CoUrb: "Each check-in in the window is represented by the
   corresponding embedding" with $\mathbf{E}_{cat} = [\mathbf{E}_{HGI} \| \mathbf{E}_{loc} \|
@@ -531,26 +548,69 @@ ordering and $\rho$ layer still stand, but findings 2 and 4 reopen at the wordin
 
 ---
 
-## 10. The six gating decisions: two closed, one reopened, four open
+## 10. The gating decisions: six closed, AD-7 new, plus one larger undecided item
 
-Nothing in this design is applied until the open ones are settled. **AD-1 and AD-3 are CLOSED as of
-2026-08-03.** AD-2 is open and its question changed shape: see
+Nothing in this design is applied until AD-2 is settled and the structural question below is answered. **AD-1, AD-3, AD-4 (conditionally), AD-5 and AD-6 are CLOSED as of 2026-08-03.** AD-2 is open and its question changed shape: see
 `../src_utils/_round12/50_courb_temporal_level_investigation.md`, which is the code study he asked for
-and which refutes the premise the decision was framed on. AD-4, AD-5 and AD-6 are untouched.
+and which refutes the premise the decision was framed on. **AD-4, AD-5 and AD-6 are also closed** as of the
+same date: AD-4 conditionally, with the title "Check-in and place representation" and the condition that the
+section inversion of §11 may remove the need for the subsection at all; AD-5 with both registry rows
+authorized and the $\rho$ row now required rather than optional; AD-6 to sharpen the D2 sentence. The rows
+above carry each ruling with its evidence.
 
 | id | the decision | where it is recorded |
 |---|---|---|
 | **AD-1** | ~~Twelve definitions or thirteen.~~ **RESOLVED 2026-08-03: THIRTEEN.** His words: "Vamos de treze." $\rho$ enters as a numbered Definition, so the chapter becomes 2.1-2.13 and the factorization carries the same visual weight as the objects it relates. The twelve-definition fallback in §3 is now dead and is kept only as the record of the alternative. Mechanical consequence, verified not assumed: renumbering shifts every definition after $\rho$, so each `\ref{def:fund:*}` must be re-checked at application; probe `R11-def27` pins `\label{def:fund:checkinlevel}`, a LABEL and not a number, so renumbering cannot break it (confirmed against the parsed probe tuple). | PENDENCIAS §6.14 decision 1, closed |
-| **AD-2** | **How Chapter 2 names Chapter 4's input. STILL OPEN, AND THE QUESTION WAS MALFORMED — none of my three options is right.** He asked for a code study and it inverted the premise: there is no check-in-to-POI aggregation in the Time2Vec pipeline, and the category-task builder REJECTS the temporal channel outright (`builders.py:191-192`). Worse, `methodology.tex:93` and `:153` contradict each other as written. Full evidence and the three possibilities that remain open in `../src_utils/_round12/50_courb_temporal_level_investigation.md`; only he can close them, because it needs the published run's artifacts rather than the source tree. Chapter 2 must therefore NOT assert a single level for Chapter 4's input. | PENDENCIAS §6.14 decision 2, reopened with new evidence |
+| **AD-2** | ~~How Chapter 2 names Chapter 4's input.~~ **ANSWERED 2026-08-03 from the original CoUrb code he pointed at** (`/Users/vitor/Desktop/mestrado/temp/tarik-new`), and the answer is a **FOURTH possibility none of us had listed.** There IS a check-in-to-POI reduction and it is **`drop_duplicates`, not an aggregation**: `Time_Encoder.ipynb` cell 13 has the stored output `time_embeds_sin shape: (2535573, 64)` against cell 2's `N checkins: 2535573`, so one 64-d row per check-in; then `PoiMtlNet_Novo/src/etl/create_inputs_hgi.py:437` does `time_emb[["placeid"]+num_cols_time].drop_duplicates("placeid")`, keeping the first visit to each POI and discarding the rest. His instinct that something converts the level was right; the operation **selects** rather than combines. Both `methodology.tex:93` and `:153` are individually correct and the **step between them is what the published text never states**, which is a description gap and an errata question, not a wrong number. Full evidence in `../src_utils/_round12/50_courb_temporal_level_investigation.md`. | PENDENCIAS §6.15 and §6.18, answered |
 | **AD-3** | ~~How Chapter 2 states Chapter 5's two-stream input.~~ **RESOLVED 2026-08-03: NAME BOTH STREAMS.** He confirmed the defect and supplied the mechanism: "o HGI produz dois embeddings finais um de regiao e outro de checking, e usamos essas duas entradas, respectivamentte, next-region e next-category" — two final embeddings of the same trained graph, feeding the two tasks respectively. That is what §5's D5 remark now says, with the `04_method.tex:27` quote. His "respectively" is what settles it in favor of naming both rather than deferring to Chapter 5. | PENDENCIAS §6.14 decision 3, closed |
-| **AD-4** | **Sign-off on the new Section 2.1 shape.** The tasks section would host the representation definitions in a new subsubsection, whose heading the author names. `2_fundamentals.tex:26-27` ("This section defines the prediction targets before reviewing the methods") stays literally true, but the section's shape changes. | this file; add to PENDENCIAS on approval |
-| **AD-5** | **The two registry rows already pending:** $\mathbf{e}_{x_i}$ and $f_{\mathrm{place}}(H_i)$. These are a prerequisite, not a consequence: if both are withdrawn, the definitions that use them need re-scoping before any edit lands. | PENDENCIAS §6.13 |
-| **AD-6** | **The label-withholding sentence in D2** — keep as written or sharpen its referent. His sentence, and not mathematically wrong either way. | this file, §5 D2 |
+| **AD-4** | ~~Sign-off on the new Section 2.1 shape.~~ **RESOLVED CONDITIONALLY 2026-08-03, and the condition may cancel the subsection.** Title: **"Check-in and place representation"** (he wrote "Cheking"; `check-in` is the registry form, `checking` occurs zero times in `GLOSSARY.md`). One registry point flagged to him rather than substituted silently: `place embedding` IS registered and `place representation` is NOT, so the second half of his title is an unregistered variant. **His own condition is the load-bearing part:** "maybe with this inversion we even need this new section" — if §2.2 comes first, the representation definitions are already in the right section and a compartment inside the tasks section is unnecessary. So this is a conditional answer, not authorization to create the subsection. | PENDENCIAS §6.16, conditionally closed |
+| **AD-5** | ~~The two registry rows already pending.~~ **RESOLVED 2026-08-03: BOTH AUTHORIZED** ($\mathbf{e}_{x_i}$ and $f_{\mathrm{place}}(H_i)$). And a consequence of AD-1: with thirteen definitions the $\rho$ row is no longer optional but **REQUIRED**, because $\rho$ becomes a numbered object of the chapter rather than prose notation. | PENDENCIAS §6.13 and §6.16, closed |
+| **AD-6** | ~~Keep or sharpen the D2 withholding sentence.~~ **RESOLVED 2026-08-03: SHARPEN** ("vamos afia-la"). Measuring what it must say found the real defect, which is not vagueness: as written, "A target label is withheld from it" invites the reading that categories are STRIPPED from the history, and `5_mobiwac/05_setup.tex:76` says the opposite — "a per-visit vector legitimately carries more than the previous category, including the place, its neighborhood, and the hour of the visit". What is withheld lives in $x_i$, which $H_i$'s index range already excludes. The sharper sentence must name the target AS A FUNCTION OF THE TASK ($c_i$ for next category, $r_i$ for next region), say it comes from $x_i$, and say what REMAINS available. | PENDENCIAS §6.16, closed |
+| **AD-7** | **NEW, and never put to him before: the index overloading in D13.** In the gradient-conflict definition $i$ and $j$ index **tasks**; everywhere else in the chapter they index **check-ins** ($x_i$, $H_i$, $\mathbf{e}_{x_i}$). A reader tracking indices across the chapter trips on it. It was raised as item 4 of §9 and never became a decision. The fix is cosmetic but not free: renaming D13's indices touches the cosine equation `eq:fund:cosine` ($\mathbf{g}_i$, $\mathbf{g}_j$, $\varphi_{ij}$, verified in the live block) and any prose referring to its components. **Probe scope, stated precisely rather than overclaimed:** `R10-cosine` pins the string `def:fund:conflict`, the LABEL, so a pure index rename would not break it; what a rename risks is the surrounding prose and the appendix that points back at this definition, not the probe. | this file, §9 item 4; raise in PENDENCIAS |
 
 Two further registry rows are PROPOSED in §8 ($\rho$ and $d$) plus two amendments to existing rows. The
 notation table is the author's; nothing in this document is registered, and no agent may add a row.
 
-## 11. Where the rest of the trail is
+
+---
+
+## 11. UNDECIDED, and larger than any of the six: inverting §2.1 and §2.2
+
+He raised this answering AD-4, and it is not AD-4. AD-4 asked for the title of a subsubsection; this
+changes the chapter's section order. Recorded separately because the two decisions differ in kind and in
+cost.
+
+**His proposal, verbatim:** "podemos mudar a ordem e talvez faca ate mais sentido vide que o se primeiro
+falarmos de represetnacao e fazermos a definicao formal em representacao a sequencia natual seria falar
+das tarefas que podemos treinar com essas representacoes." Representations first, with the formal
+definitions there; then the tasks trainable on them. And his own caution: "a narrativa tem que esta acima
+desse problema, temos que ter muito cuidade."
+
+**His argument is better than the design's.** The design moves two definitions INTO the tasks section to
+remove the forward dependency. He removes it at the root: with representations first, nothing has to move,
+because the tasks then consume objects the reader already holds. The reading order also comes to mirror the
+dissertation's own thesis, that the representation is the dominant factor. If this is adopted, the
+subsubsection of AD-4 is probably unnecessary, which is exactly what he anticipated.
+
+**The cost, measured rather than estimated:**
+
+| cost | what it is | size |
+|---|---|---|
+| cross-references | **three** live references to the two section labels, ALL inside `2_fundamentals.tex` (`sec:fund:tasks` ×1, `sec:fund:repr` ×2). Nothing outside the chapter points at either. | small |
+| prose that becomes FALSE | `2_fundamentals.tex:14-20`, the chapter opening, states the order in prose with the refs ("It **first** distinguishes the POI prediction tasks… It **then** traces mobility representations"); and `:27`, the §2.1 opening, IS the justification of the present order ("This section defines the prediction targets **before** reviewing the methods used for them"). The second does not merely go stale, it becomes a false statement about the chapter's own structure. | two rewrites |
+| **chapter structure** | the 2.1–2.5 order is fixed in the chapter map, `NORTH_STAR.md:73-80`, and the project scope says not to invent sections. Inverting 2.1 and 2.2 **edits the map**. | **this is why it is his call** |
+| gates | **none.** Every `check_*.py` and `check.sh` was checked: the four files mentioning "2.1" mean PENDENCIAS item numbers or test fixtures, not the chapter. `R11-fab15` pins a sentence in the INTRODUCTION. | zero |
+| side effect | `fundamentals/` has directories `2.1_poi_prediction_tasks` and `2.2_representations_for_mobility`. The folder is frozen provenance and those names record how the chapter WAS built, so not an error, but they would describe a different order. | note only |
+
+**The consequence for the edit plan, and it is why this cannot be decided after application starts.** The
+eight-step plan in `../src_utils/_round12/49_definitions_validation_and_plan.md` was written on the
+assumption that the representation definitions move UP into §2.1. Under the inversion that assumption is
+void: two whole sections trade places and the two prose passages above must be rewritten. **The plan must
+be redone before any edit, not adjusted after one.**
+
+Nothing here is authorized. His work order: "depois dessas definicoes podemos aplicado."
+
+## 12. Where the rest of the trail is
 
 | file | what it holds |
 |---|---|

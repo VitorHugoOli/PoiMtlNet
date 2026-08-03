@@ -73,3 +73,78 @@ What Chapter 2 CAN say, and stay true under all three possibilities, is that Cha
 monolithic place vector with a DECOMPOSED representation whose components are learned by separate
 encoders, without asserting a single level for the result. The level question belongs to Chapter 4 and is
 now open there.
+
+---
+
+## CLOSED, 2026-08-03: the author pointed at the original code and the answer is a FOURTH possibility
+
+He said: "Calma analise o codigo original do chap. 4: /Users/vitor/Desktop/mestrado/temp/tarik-new, antes
+de decidirmos." That repository is the CoUrb-era code, and it settles what this document said only the run
+artifacts could settle. **None of the three possibilities above was correct.**
+
+### What the original code does
+
+**1. The temporal embedding is per CHECK-IN, and the notebook's own stored outputs prove it numerically
+rather than by reading intent.** `Time_Encoder.ipynb`, California:
+
+| cell | stored output | what it means |
+|---|---|---|
+| 2 | `N checkins (antes de filtrar): 2535573` | the input is the check-in table |
+| 3 | `(2535573, 2)` | two features per check-in |
+| 13 | `time_embeds_sin shape: (2535573, 64)` | **one 64-d row per check-in** |
+
+Cell 3 shows the features are `t_hour = hour/24` and `t_dow = dow/7`, computed per check-in, so two visits
+to the same POI at different times produce **different** vectors. Cell 14 assembles those rows into a frame
+keyed by `placeid` and writes it to a path whose own name states the level,
+`time_encoder_embeddings_sin_CHECKIN_{estado}.csv`; cell 15 copies it to
+`data/output/{estado}/time_embedding_novo.csv`, which is what the ETL reads.
+
+**2. The category-task input then reduces check-in level to POI level by DISCARDING ROWS, not by
+aggregating them.** `PoiMtlNet_Novo/src/etl/create_inputs_hgi.py:437`, verbatim:
+
+    time_df = time_emb[["placeid"] + num_cols_time].drop_duplicates("placeid")
+
+With one row per check-in keyed by `placeid`, `drop_duplicates("placeid")` **keeps the first occurrence of
+each POI and throws every other visit away.** The three components are then inner-joined on `placeid`
+(:441-443) and the category attached per `placeid` (:448), which produces the $(\mathbf{E}_{cat}, c)$ pairs
+of `methodology.tex:93`. `process_state`'s default is `cat_embeddings=("poi","loc","time")`, so the temporal
+channel IS in the category input.
+
+### The answer, and why it was not among the three
+
+**There is a check-in-to-POI reduction, and it is `drop_duplicates`, not an aggregation.** The author's
+instinct that something converts the level was right; the operation is not a mean or a pooling. It selects
+one arbitrary visit per POI. So the temporal channel reaching the category task carries the timestamp of a
+single visit, not a summary of that POI's visits, and the variation the encoder was built to capture is
+discarded for that task.
+
+Against the three possibilities this document left open:
+
+| possibility | verdict |
+|---|---|
+| (1) an aggregation later removed | **closest but wrong in the operative word.** A level reduction exists and is still in the original code. It is not an aggregation. |
+| (2) the category task ran without the temporal channel | **refuted.** `cat_embeddings` defaults to include `time`. |
+| (3) check-in-level vectors fed to the category task | **refuted for the category task.** They are reduced to one row per `placeid` first. |
+
+The true answer is a fourth one nobody had listed, which is the argument for having stopped here rather
+than picking from three.
+
+### What this means for `methodology.tex:93` and `:153`
+
+Both sentences are now explicable, and neither is false in the way a reader would first suspect. `:153` is
+correct: the encoder does produce one vector per check-in. `:93` is correct that a POI-level 192-d vector
+is paired with the POI's category. **What the published text never states is the step between them**, and
+that step is lossy in a way a reader would want to know about: one visit per POI survives and the rest are
+dropped.
+
+That is a gap in the description, not a wrong number: the pairs the category task trained on are exactly
+what `:93` says they are. Whether the chapter should record the selection step is an **errata** question
+under `NORTH_STAR` §5.7, and `apx_b_errata.tex` does not carry it today. **Chapter 4 was not edited.**
+
+### What Chapter 2 may now say
+
+The neutral wording this document recommended is still the safe one, and it is now also the accurate one:
+Chapter 4 replaces the monolithic place vector with a **decomposed representation whose components are
+learned by separate encoders**. Chapter 2 may add that the components are combined **at the place level for
+the static task**, which is true and sourced. It must not say the temporal channel is *aggregated* to the
+place, because the operation discards rather than combines.

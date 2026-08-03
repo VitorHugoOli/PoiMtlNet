@@ -1204,6 +1204,62 @@ feito: `_round12/50_courb_temporal_level_investigation.md`. O resultado inverte 
 agregacao; o construtor da tarefa de categoria **recusa** o canal temporal) e deixa tres possibilidades
 que so os artefatos da rodada publicada distinguem. O §6.15 as lista com o custo de cada uma.
 
+### 6.17 Rodada 12 — AD-4 fechada sob condicao, e um erro meu de relato que voce pegou
+
+**PRIMEIRO, O MEU ERRO, porque voce o pegou e eu nao.** Foi relatado a voce que o
+`fundamentals/DEFINITIONS.md` nunca chegou a ser escrito, porque o kernel reiniciou duas vezes durante a
+aplicacao das seis correcoes. Voce respondeu: "Voce esta equivocado: articles/dissertacao/fundamentals/
+DEFINITIONS.md, acredito ser esse arquivo." **Voce estava certo.** Conferido em disco e no git: 43.509
+bytes, 560 linhas, commitado e limpo (`6e43663b`, depois `ae843c78`), com as seis correcoes presentes na
+copia commitada — `with TWO` (F-1) x1, `the trained vector of its region node` x2, `SEQUENTIAL tasks` x2,
+`hold the task DEFINITIONS fixed` x3, `Chapter 5 DROPS the padded windows` x1, `the letter $d$ is NOT
+unclaimed` x1. O relato descrevia o estado de ANTES da escrita e nao foi reconferido depois dela. A licao e
+a mesma que o `_round9/34` ja carrega em outras formas: **um estado que eu observei uma vez nao e um estado
+que eu observo agora**, e "o kernel reiniciou" descreve o meu processo, nao o disco.
+
+**AD-4 — FECHADA SOB CONDICAO, e a condicao pode cancelar a subsecao.** Suas palavras: "vamos de `Cheking
+and place representation`, but as I said we need to create a better plan for it, maybe with this
+inveration we even need this new section."
+
+O titulo fica **"Check-in and place representation"**. Voce escreveu "Cheking"; o `GLOSSARY` registra
+**check-in** (14 ocorrencias, "never 'event'") e `checking` aparece **zero** vezes, entao a grafia canonica
+e essa. **Um ponto de registro que eu prefiro te mostrar a substituir em silencio:** `place embedding`
+esta registrado e `place representation` **nao** esta (zero ocorrencias). A segunda metade do seu titulo e
+portanto uma variante nao registrada de um termo que existe. Tres saidas:
+1. **Manter "Check-in and place representation"** e registrar `place representation` no §1.1 — a linha e
+   sua, e o termo passa a ser canonico. Le melhor e e o que voce pediu.
+2. **"Place embedding and check-in-level representation"** — as duas metades ja registradas, e sao
+   literalmente os titulos das duas definicoes que a subsecao hospedaria. Mais longo, e e exatamente a
+   cabeca dupla que a rodada 11 **separou** por juntar dois conceitos sob um nome.
+3. **Manter o titulo e nao registrar nada** — funciona na pratica, mas deixa a regra fail-closed esticada,
+   que e o mesmo estado que produziu a divida do `soft parameter sharing` e do `negative transfer`.
+
+> **DECISAO SUA:** ______
+
+**Mas a sua propria condicao e a parte que manda:** "maybe with this inversion we even need this new
+section". Se a §2.2 vier primeiro, as definicoes de representacao **ja estao na secao certa** e um
+compartimento dentro da secao de tarefas fica sem funcao. Entao o titulo e uma resposta **condicional** e
+nao uma autorizacao para criar a subsecao. Nao criei nada.
+
+**AD-5 e AD-6 — fechadas, registradas no §6.16.** Com treze definicoes a linha do $\rho$ passa de opcional
+a **necessaria**.
+
+**AD-2 — continua aberta, e o estudo que voce pediu esta feito** (`_round12/50`). Ele **inverte a
+premissa**: nao existe agregacao de check-in para POI no pipeline, e o construtor da entrada da tarefa de
+categoria **recusa** o canal temporal (`builders.py:191-192`). O `§6.15` lista as tres possibilidades que
+sobram, com o custo de cada, e todas as tres precisam dos artefatos da rodada publicada — nao da arvore de
+fontes — para serem distinguidas.
+
+**O ITEM MAIOR CONTINUA SEM DECISAO: a inversao §2.1 <-> §2.2.** Nao e o AD-4 e nao deve ser fechada como
+se fosse. O custo esta medido no `§6.16` e agora tambem no `fundamentals/DEFINITIONS.md` §11: tres
+referencias cruzadas (todas dentro do capitulo), duas passagens de prosa que ficam **falsas** (`:14-20` e
+`:27`), o mapa fixado do capitulo em `NORTH_STAR.md:73-80`, e **zero** gates. E a consequencia que importa
+para o cronograma: **o plano de 8 passos foi escrito para a outra forma e nao sobrevive a inversao.** Ele
+tem de ser refeito ANTES de qualquer edicao, nao ajustado depois.
+
+Sua ordem de trabalho esta registrada e sera respeitada: "depois dessas definicoes podemos aplicado."
+Nenhuma edicao no `.tex` foi feita.
+
 ---
 
 ## §3 · Aberto e bloqueado em terceiros

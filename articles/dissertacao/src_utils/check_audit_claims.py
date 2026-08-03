@@ -606,6 +606,26 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
      "_round12/50_courb_temporal_level_investigation.md",
      r"(?:\A|[.!?][*_'\")\]]*\s|\n)\s*(?:[-*+]\s+|\d+\.\s+)?(?:\*\*|__|\*)?\s*"
      r"The temporal channel is aggregated to the place", False),
+    # ---- The two claims from his 2026-08-03 side-chat rulings that a later pass is most likely to
+    # flatten, and both would cause real damage if flattened.
+    #
+    # R12-ad4cond: AD-4's title is a CONDITIONAL answer. His words: "maybe with this inversion we even
+    # need this new section." If the 2.1/2.2 inversion happens, the representation definitions are
+    # already in the right section and the subsubsection has no function. A summariser reading "AD-4
+    # resolved: Check-in and place representation" would create the subsection, which is precisely what
+    # he did NOT authorize. Pin the conditionality, not just the title.
+    ("R12-ad4cond", "AD-4's title is recorded as CONDITIONAL, because the section inversion may remove "
+                    "the need for the subsubsection at all",
+     "../fundamentals/DEFINITIONS.md", r"RESOLVED CONDITIONALLY 2026-08-03", True),
+    # R12-planvoid: the eight-step edit plan assumes the representation definitions move UP into 2.1.
+    # Under the inversion that assumption is void and the plan must be REDONE BEFORE any edit. Getting
+    # this wrong means editing the chapter against a plan written for a different structure, which is
+    # the most expensive mistake available here. Pinned in the design doc, whose §11 carries the cost
+    # table.
+    ("R12-planvoid","the record states that the eight-step plan does NOT survive the section inversion "
+                    "and must be redone before any edit",
+     "../fundamentals/DEFINITIONS.md",
+     r"must be redone BEFORE any edit, not after", True),
 )
 
 # COD-016b needs a STRUCTURAL probe, not a string one, so it lives here rather than in PROBES --
