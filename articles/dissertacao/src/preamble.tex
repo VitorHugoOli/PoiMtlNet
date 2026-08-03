@@ -94,6 +94,28 @@
 \usepackage{bm}
 \usepackage{longtable}
 
+% -- Numbered definition blocks (Chapter 2) ------------------------------------------------
+% WHY THE PACKAGE AT ALL. memoir already provides \newtheorem, and it works here: a plain
+% \newtheorem{definition}{Definition}[chapter] compiles under this class with rc=0 and renders
+% "Definition 2.1". What it does NOT provide is an upright body font. memoir's own styling hooks
+% (\theoremstyle, \theorembodyfont, \theoremseparator) belong to the ntheorem interface and are
+% UNDEFINED under this class; each one was tried in a minimal document with this package stack and
+% each failed with "Undefined control sequence". Chapter 2 carries nine definition blocks, several
+% of them holding display mathematics, and nine italic paragraphs would read as emphasis rather
+% than as definitions. amsthm's `definition' style gives the upright body with a bold run-in head.
+%
+% WHY THE \let LINE, WHICH IS LOAD-BEARING AND NOT DECORATION. abntex2 pulls in a package that
+% already defines \openbox, so loading amsthm after it dies with "LaTeX Error: Command \openbox
+% already defined" (measured on this exact stack: rc=1 on both passes, the definition still
+% rendering, so the failure is visible only in the exit code). \let\openbox\relax before the load
+% clears the name amsthm re-declares. Measured after the fix: rc=0 on both passes, body upright.
+% \openbox is amsthm's end-of-proof square and this document declares no proof environment, so
+% nothing downstream reads it.
+\let\openbox\relax
+\usepackage{amsthm}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[chapter]
+
 % -- Citations: single global NUMERIC scheme (decision #5) --
 \usepackage[num,abnt-emphasize=bf]{abntex2cite}
 % [round5, advisor request 2026-07-27] Citation brackets: square, not round.

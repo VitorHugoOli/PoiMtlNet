@@ -51,11 +51,22 @@ The dissertation contains three experimental tasks, two sequential and one stati
 \subsubsection{Check-ins and histories}
 
 Let $\mathcal{U}$, $\mathcal{P}$, $\mathcal{C}$, and $\mathcal{R}$ denote the sets of
-users, POIs, category classes, and region classes. The $i$th check-in of user $u$ is
+users, POIs, category classes, and region classes.
 
+\begin{definition}[Check-in]\label{def:fund:checkin}
+The $i$th check-in of user $u$ is the tuple
 \begin{equation}
     x_i=(u,p_i,t_i,c_i,r_i),
 \end{equation}
+where $p_i\in\mathcal{P}$ is the visited POI, $t_i$ is its timestamp,
+$c_i\in\mathcal{C}$ is its category, and $r_i\in\mathcal{R}$ is its region.
+\end{definition}
+
+\begin{definition}[Check-in history]\label{def:fund:history}
+The check-in history of length $\ell$ preceding check-in $x_i$ is the ordered sequence
+$H_i=(x_{i-\ell},\ldots,x_{i-1})$. A target label is withheld from it when one of the
+sequential tasks is trained.
+\end{definition}
 % ---------------------------------------------------------------------------
 % CITATION / NUMBER LEDGER -- 2.1 (every claim traceable; verbs bound to tests)
 %  silva2019urbancomputing  LBSN traces at high geo/temporal resolution; urban computing (S2 abstract, opened)
@@ -80,42 +91,31 @@ users, POIs, category classes, and region classes. The $i$th check-in of user $u
 %           -- region counts stated qualitatively here; exact per-dataset counts belong to Ch.5, not Ch.2.
 % ---------------------------------------------------------------------------
 
-where $p_i\in\mathcal{P}$ is the visited POI, $t_i$ is its timestamp,
-$c_i\in\mathcal{C}$ is its category, and $r_i\in\mathcal{R}$ is its region. The
-ordered history preceding that visit is
-
-\begin{equation}
-    H_i=(x_{i-\ell},\ldots,x_{i-1}),
-\end{equation}
-
-for a history length $\ell$. A target label is withheld from the corresponding model
-input when one of the sequential tasks is trained.
-
 \subsubsection{The three experimental tasks}
 
-The static \emph{category classification} task predicts the semantic category of a
-POI from its learned representation:
+The first target is static and reads a place; the other two are sequential and read a
+history.
 
-\begin{equation}
-    g_{\mathrm{cat}}(\mathbf{e}_p)\longrightarrow c_p.
-\end{equation}
+\begin{definition}[Category classification]\label{def:fund:catclf}
+Category classification predicts the category of a POI from its representation:
+$g_{\mathrm{cat}}(\mathbf{e}_p)\longrightarrow c_p$. At evaluation time, POI $p$ is
+held out from the classifier-training fold, so ``unknown POI'' means unknown to the
+classifier, not necessarily absent from the graph used to learn $\mathbf{e}_p$.
+\end{definition}
 
-At evaluation time, POI $p$ is held out from the classifier-training fold. Thus,
-``unknown POI'' means unknown to the classifier, not necessarily absent from the
-graph used to learn $\mathbf{e}_p$. Chapters~\ref{ch:cbic} and~\ref{ch:courb} pair
-this static task with \emph{next-category prediction}, which predicts
+\begin{definition}[Next-category prediction]\label{def:fund:nextcat}
+Next-category prediction maps a check-in history to the category of the next visit:
+$f_{\mathrm{cat}}(H_i)\longrightarrow c_i$.
+\end{definition}
 
-\begin{equation}
-    f_{\mathrm{cat}}(H_i)\longrightarrow c_i.
-\end{equation}
+\begin{definition}[Next-region prediction]\label{def:fund:nextreg}
+Next-region prediction maps a check-in history to the region of the next visit:
+$f_{\mathrm{reg}}(H_i)\longrightarrow r_i$.
+\end{definition}
 
-Chapter~\ref{ch:mobiwac} instead pairs next category with \emph{next-region
-prediction}:
-
-\begin{equation}
-    f_{\mathrm{reg}}(H_i)\longrightarrow r_i.
-\end{equation}
-
+Chapters~\ref{ch:cbic} and~\ref{ch:courb} pair Definition~\ref{def:fund:catclf} with
+Definition~\ref{def:fund:nextcat}; Chapter~\ref{ch:mobiwac} pairs
+Definition~\ref{def:fund:nextcat} with Definition~\ref{def:fund:nextreg}.
 The category space contains Community, Entertainment, Food, Nightlife, Outdoors,
 Shopping, and Travel. The region target is a census tract in the United States
 datasets and a \emph{mahalle} in Istanbul. These output spaces require different
@@ -123,10 +123,17 @@ metrics and reference points, as Section~\ref{sec:fund:eval} explains.
 
 \subsection{Related sequential prediction settings}
 
-The dominant task in the field is \emph{next-place prediction}, which identifies
-the exact POI of the next visit. It is not a target of this dissertation, but the
-sequential models developed for it are the methodological basis for next category
-and next region, and that line begins with recurrent models: ST-RNN uses
+The models this section reviews were built for a fourth target.
+
+\begin{definition}[Next-place prediction]\label{def:fund:nextplace}
+Next-place prediction maps a check-in history to the identity $p_i$ of the next
+visited POI. It is named to delimit the scope of the dissertation and is not one of
+its targets.
+\end{definition}
+
+Next place is the dominant task in the field, and the sequential models developed for
+it are the methodological basis for next category and next region. That line begins
+with recurrent models: ST-RNN uses
 time-specific and distance-specific transition matrices~\cite{liu2016strnn}.
 DeepMove adds attention over long and sparse visit
 histories~\cite{feng2018deepmove}. HST-LSTM incorporates spatial-temporal context
@@ -225,12 +232,20 @@ the place-level baseline in the later studies and the direct basis of Check2HGI.
 The move from HGI to Check2HGI begins with information that a fixed POI vector cannot
 express.
 
-Every place embedding has the same limitation for this research: it gives a place one
-fixed vector for all visits. A weekday morning and a Saturday night at the same place
-therefore have identical inputs at the representation level. CTLE shows an alternative
-by learning context-aware and time-aware location embeddings whose vectors change
-with the visit~\cite{lin2021ctle}. Check2HGI follows this per-visit view by adding the
-check-in below the place in the hierarchy.
+\begin{definition}[Place embedding and check-in-level representation]\label{def:fund:placelevel}
+A place embedding assigns one vector $\mathbf{e}_p$ to each POI $p$, so every check-in
+at that POI enters the model with the same representation. A check-in-level
+representation instead assigns one vector to each check-in $x_i$, so two visits to the
+same POI may enter the model with different representations.
+\end{definition}
+
+Definition~\ref{def:fund:placelevel} carries one limitation for this research: a
+weekday morning and a Saturday night at the same place have identical inputs at the
+representation level. CTLE shows an alternative by learning context-aware and
+time-aware location embeddings whose vectors change with the
+visit~\cite{lin2021ctle}. Check2HGI reaches the check-in level of
+Definition~\ref{def:fund:placelevel} by adding the check-in below the place in the
+hierarchy.
 
 \subsubsection{Context encoders}
 
@@ -440,11 +455,25 @@ computation begins.
 % A third instance the personas flagged, the caption clause explaining why a column exists, is already
 % gone: the 197-to-64-word caption cut removed it.
 
+\begin{definition}[Hard parameter sharing]\label{def:fund:hard}
 Hard parameter sharing passes all inputs through a single shared trunk before
-branching to task-specific output heads. This forces all tasks to use the exact
-same hidden representations, which risks negative transfer if the tasks conflict.
-Soft parameter sharing instead gives each task its own complete network, but it
-couples them by penalizing differences between their parameters~\cite{ruder2017mtloverview}.
+branching to task-specific output heads, so every task uses the same hidden
+representations~\cite{ruder2017mtloverview}.
+\end{definition}
+
+\begin{definition}[Soft parameter sharing]\label{def:fund:soft}
+Soft parameter sharing gives each task its own complete network and couples the
+networks by penalizing differences between their
+parameters~\cite{ruder2017mtloverview}.
+\end{definition}
+
+Definition~\ref{def:fund:hard} is the topology of the first joint model of this
+dissertation, and it carries the risk this section addresses.
+
+\begin{definition}[Negative transfer]\label{def:fund:negtransfer}
+Negative transfer occurs when joint training leaves a task worse than its dedicated
+single-task model.
+\end{definition}
 
 Because hard sharing is rigid and soft sharing requires many parameters, several
 architectures explore intermediate topologies. Cross-stitch units learn linear
@@ -457,19 +486,19 @@ differentiable~\cite{hazimeh2021dselectk}. These methods selectively share
 computation instead of forcing every task through one fixed trunk.
 
 The joint model in Chapter~\ref{ch:mobiwac} builds a partial hard-shared interaction
-subsystem based on this principle. It uses bidirectional cross-attention rather than
+subsystem based on this principle, using bidirectional cross-attention rather than
 routing gates. The tasks do not reuse the same weight matrices, but their streams
-cross within this jointly optimized module. Each stream queries the other to read
-its features, which couples their gradients without forcing their representations
-into a single bottleneck.
+cross within this jointly optimized module. Each stream queries the other to read its
+features, which couples their gradients without forcing their representations into a
+single bottleneck.
 
 \subsection{Multi-objective optimization}
 
 The second design choice is how several task losses determine one parameter update.
 
-Shared parameters can also produce negative transfer, in which joint training leaves
-a task worse than its dedicated single-task model. Task relationships must therefore
-be measured rather than assumed~\cite{standley2020tasks}. The training problem has
+Shared parameters can produce the negative transfer of
+Definition~\ref{def:fund:negtransfer}, so task relationships must be measured rather
+than assumed~\cite{standley2020tasks}. The training problem has
 multiple losses, and a standard scalar objective writes them as
 \begin{equation}\label{eq:fund:mtl-total}
     \mathcal{L}_{\mathrm{total}}(\boldsymbol{\theta})
@@ -632,10 +661,24 @@ Section~\ref{sec:fund:eval}.
 % the correction is to describe a cited system as its own authors describe it (AGENT_GUARDRAILS
 % citation protocol).
 
-Gradient conflict describes one source of negative transfer. Two tasks conflict when
-the cosine between their gradients on the shared parameters is negative; a value near
-zero means that the updates are nearly orthogonal, so neither reinforces nor opposes
-the other~\cite{yu2020pcgrad}. PCGrad changes a direction only when this cosine is
+Gradient conflict describes one source of negative transfer, and it is a measured
+quantity.
+
+\begin{definition}[Gradient conflict]\label{def:fund:conflict}
+Let $\mathbf{g}_i$ and $\mathbf{g}_j$ be the gradients of two task losses with respect
+to the shared parameters, and let $\varphi_{ij}$ be the angle between them, so that
+\begin{equation}\label{eq:fund:cosine}
+    \cos\varphi_{ij}
+    = \frac{\mathbf{g}_i^{\top}\mathbf{g}_j}
+           {\lVert \mathbf{g}_i\rVert\,\lVert \mathbf{g}_j\rVert}.
+\end{equation}
+The two tasks conflict at that point when $\cos\varphi_{ij}<0$~\cite{yu2020pcgrad}.
+\end{definition}
+
+The cosine between their gradients reads how the two requested updates are aligned and
+ignores how large they are: $+1$ means the tasks ask for the same update, $-1$ for
+opposite ones, and $0$ that the requests are orthogonal, each leaving the other's
+objective unchanged to first order. PCGrad changes a direction only when this cosine is
 negative. Other methods may still react to differences in gradient magnitude or task
 loss. In Chapter~\ref{ch:mobiwac}, two such methods exceed equal weighting on one
 dataset but not on the others. Appendix~\ref{apx:cosine} evaluates the final joint
@@ -693,20 +736,55 @@ meaningful directional conflict at the scale considered by the balancers.
 %           Null result written plainly and time-indexed; no result verb upgraded.
 % ---------------------------------------------------------------------------
 
+% [round10, GER-09 lineage] THE ATTRIBUTIONS BELOW ARE THE ONLY NEW CLAIM IN THIS SUBSECTION, and
+% each first-author surname was read at the record of the work itself this session, not retyped from
+% another bibliography. arXiv API title query, first author and identifier returned:
+%   kendall2018uncertainty  arXiv:1705.07115  Alex Kendall        (Crossref 10.1109/CVPR.2018.00781,
+%                           author family names Cipolla/Gal/Kendall, CVPR 2018)
+%   chen2018gradnorm        arXiv:1711.02257  Zhao Chen           abstract: "We present a gradient
+%                           normalization (GradNorm) algorithm"
+%   liu2019dwa              arXiv:1803.10704  Shikun Liu          (Crossref 10.1109/CVPR.2019.00197,
+%                           Liu/Johns/Davison). The paper's own contribution is the MTAN attention
+%                           architecture; DWA is introduced alongside it, hence "alongside their
+%                           attention architecture" rather than a bare "introduce".
+%   liu2023famo             arXiv:2306.03792  Bo Liu              abstract: "we introduce Fast
+%                           Adaptive Multitask Optimization FAMO, a dynamic weighting method"
+%   sener2018mgda           arXiv:1810.04650  Ozan Sener          (two authors: Sener and Koltun)
+%   yu2020pcgrad            arXiv:2001.06782  Tianhe Yu           v4 PDF opened this session, p.3:
+%                           "We define the gradients as conflicting when cos phi_ij < 0."
+%   liu2021cagrad           arXiv:2110.14048  Bo Liu
+%   nash                    arXiv:2202.01017  Aviv Navon
+%   senushkin2023aligned    arXiv:2305.19000  Dmitry Senushkin
+% TWO DIFFERENT LIUS, which is why the initials are written: Shikun Liu (DWA) and Bo Liu (CAGrad,
+% FAMO) are different people, and a bare "Liu et al." three times would assert one research line
+% where there are two. The initial is the minimum that keeps the sentence true.
+% NO GUARANTEE CLAIM IS MADE HERE. What each method PROVES is stated once, in the guarantees
+% subsection above, whose per-clause page-level provenance block is unchanged and not contradicted:
+% this subsection says only who introduced what and what class it belongs to.
+
 Balancing methods differ in whether they modify loss weights or task-gradient
 directions.
 
-Loss-balancing methods use different signals. Uncertainty weighting learns weights
-from each task's homoscedastic uncertainty~\cite{kendall2018uncertainty}. GradNorm
-balances gradient magnitudes and training rates~\cite{chen2018gradnorm}, while
-dynamic weight averaging uses recent changes in the task
-losses~\cite{liu2019dwa}. Gradient-based methods change the update direction. PCGrad
-projects away a conflicting component~\cite{yu2020pcgrad}; CAGrad protects the
-worst per-task improvement within a neighborhood of the average
-gradient~\cite{liu2021cagrad}; Nash-MTL treats gradient combination as a bargaining
-problem~\cite{nash}; and Aligned-MTL adjusts the principal components of the gradient
-system~\cite{senushkin2023aligned}. FAMO tracks loss changes without computing every
-task gradient at each step~\cite{liu2023famo}. These methods must be compared with
+The first class sets the weights $w_k$ of Equation~\ref{eq:fund:mtl-total} from
+different signals. Kendall et al.\ weight each loss by the task's homoscedastic
+uncertainty~\cite{kendall2018uncertainty}. Chen et al.\ introduce GradNorm, which
+balances gradient magnitudes and training rates~\cite{chen2018gradnorm}. S. Liu et
+al.\ introduce dynamic weight averaging alongside their attention architecture, using
+recent changes in the task losses~\cite{liu2019dwa}, and B. Liu et al.\ propose FAMO,
+which tracks loss changes without computing every task gradient at each
+step~\cite{liu2023famo}.
+
+The second class changes the update direction instead. The multi-objective reading
+begins with Sener and Koltun, who cast multitask learning as multi-objective
+optimization~\cite{sener2018mgda}. Yu et al.\ introduce PCGrad, which projects away a
+conflicting component in the sense of Definition~\ref{def:fund:conflict}~\cite{yu2020pcgrad}.
+B. Liu et al.\ introduce CAGrad, which protects the worst per-task improvement within a
+neighborhood of the average gradient~\cite{liu2021cagrad}. Navon et al.\ introduce
+Nash-MTL, which treats gradient combination as a bargaining problem~\cite{nash}, and
+Senushkin et al.\ introduce Aligned-MTL, which adjusts the principal components of the
+gradient system~\cite{senushkin2023aligned}.
+
+These methods must be compared with
 simple alternatives. Random loss weighting can be competitive~\cite{lin2022rlw};
 specialized optimizers often fail to improve on a tuned fixed-weight
 baseline~\cite{xin2022domtl}; and plain loss summation with standard regularization
