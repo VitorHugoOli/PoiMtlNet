@@ -1596,6 +1596,65 @@ comportamento de uma checagem de erros. Isso e chamada sua, nao limpeza de fim d
 locales contra aquele log e ele devolve `0` nos dois. Entao o `tex_errors=0` do `extra` vale, e o unico
 defeito real e a contagem de paginas.
 
+### 6.24 O estudo da inversao chegou — e o achado central e um NEGATIVO que muda o peso da decisao
+
+O relatorio esta em `_round12/52_inversion_study.md`. **Nada foi decidido nem editado**: o estudo era o que
+voce autorizou, e a decisao continua sua.
+
+**O ACHADO QUE VOCE PEDIU, e ele e um negativo.** A pasta `fundamentals/` — que voce apontou como "onde
+planejamos os fundamentos no principio" — **nao registra nenhum argumento** para tarefas antes de
+representacoes. A ordem chegou como **especificacao**: o `COVERAGE_EVALUATION.md:8-12` trata
+"NORTH_STAR Ch.2 spec: 2.1 tasks -> 2.2 representations" como entrada dada, e o `NORTH_STAR.md:73-80` enuncia
+o mapa sem justificar.
+
+**E o detalhe que mais pesa:** a unica frase que **defende** a ordem no texto ("This section defines the
+prediction targets before reviewing the methods used for them", `2_fundamentals.tex:27-28`) e **recente e sua**
+— entra no `0bbe3caa`, de 2026-08-02, o seu proprio passe no `src_clean`. **Conferi eu mesmo:** aquele commit
+e seu, e e de fato o primeiro em que a frase aparece na arvore. Ou seja, **a inversao nao viola nenhuma
+intencao de projeto registrada**; ela contraria uma frase que voce escreveu ha um dia.
+
+**A RECOMENDACAO DELE:** inverter, **com cinco condicoes** — o plano de oito passos refeito do zero; voce
+mesmo editando o `NORTH_STAR.md:73-80` e decidindo a ordem da sintese da §2.5; os itens 16-22 do seu §4
+reancorados no mesmo commit; as quatro strings pinadas por probe carregadas verbatim; e a subsubsecao do AD-4
+descartada em vez de criada. Se as condicoes nao servirem, o fallback e a opcao (a), **nao** uma inversao
+parcial. **Isso e recomendacao, nao autorizacao.**
+
+**O QUE ELE CORRIGIU NA MINHA TABELA DE CUSTO, e eu confirmei nos arquivos:**
+- **Sao tres sitios de prosa, nao dois.** Faltava a abertura da §2.5, "The preceding sections introduce the
+  prediction targets, the representations, ..." — **conferi que e prosa viva**, nao comentario.
+- **Um sitio FORA do capitulo**, que ninguem tinha listado: o `1_introduction.tex:258-260` repete a ordem
+  ("POI prediction tasks, mobility representations, ...").
+- **A troca e uma reestruturacao com migracao de conteudo, nao uma transposicao.** A prosa de notacao e as
+  Definicoes 2.1/2.2 vivem hoje na §2.1 e as definicoes da §2.2 as consomem. O plano refeito e maior do que o
+  atual.
+- **Sete sitios de vocabulario de tarefa dentro da §2.2** passariam a usar termos de tarefa antes das
+  definicoes delas.
+- **Confirmado como eu tinha medido:** exatamente tres referencias cruzadas, todas dentro do capitulo, e
+  **zero gates** restringindo a ordem.
+
+**QUATRO QUEBRAS NOVAS**, das quais duas sao decisao sua e nao mecanica: a ponte §2.1->§2.2 vira uma lembranca
+para tras com verbo de encaminhamento (e falta escrever uma ponte nova no sentido inverso); a ordem da sintese
+da §2.5 ("The argument begins with the targets", **tambem prosa viva**) deixa de espelhar o capitulo; os
+rastreadores pendentes estao ancorados na numeracao atual; e a camada de posicionamento do proprio
+`DEFINITIONS.md` morre junto com o plano.
+
+**UM ERRO DELE QUE EU ACHEI E CORRIGI NO PROPRIO RELATORIO.** Ele escreveu que "o historico do git comeca em
+2026-07-23" para sustentar o achado negativo. **E falso sobre o repositorio:** a raiz e de **2025-03-08** e ha
+**2.049 commits, 1.666 deles anteriores** aquela data. **O achado sobrevive, e por uma medicao melhor:**
+daqueles 1.666, **exatamente um** toca `articles/dissertacao/` — o `bb4449c8`, que adiciona um `.gitignore` e
+mais nada. Entao nao existe historico anterior onde uma justificativa pudesse estar escondida. Corrigi no
+relatorio e pus probe, porque uma razao errada sustentando uma conclusao certa e citavel depois como se fosse
+a prova.
+
+**Ele estourou o checkpoint:** 3.442 s contra 2.400 s, **43 por cento acima**. Registrado no relatorio.
+
+> **DECISAO SUA — e ela e grande, entao os custos estao acima e nao aqui:**
+> 1. **Inverter com as cinco condicoes.**
+> 2. **Manter a ordem** e seguir com a opcao (a), a subsubsecao do AD-4, que ja esta validada.
+> 3. **Inverter sem alguma das condicoes** — diga qual, porque cada uma cobre uma quebra medida.
+>
+> **DECISAO SUA:** ______
+
 ---
 
 ## §3 · Aberto e bloqueado em terceiros

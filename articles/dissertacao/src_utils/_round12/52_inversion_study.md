@@ -16,6 +16,17 @@ temos que ter muito cuidade" (`DEFINITIONS.md:610-611`).
 
 ---
 
+
+> **Wall clock, recorded by the parent rather than self-reported.** This study ran **3,442 s (57.4 min)**
+> against a **40-minute (2,400 s) checkpoint**: **43 percent over**. It reported "nothing in the assigned
+> scope is unfinished", and its scope claims check out where I sampled them, but the overrun is the pattern
+> every wave in this project has shown and it is recorded rather than rounded away.
+>
+> **The parent verified, and did not take on trust:** the three cross-references (`:15`, `:17`, `:197`), the
+> two labels (`:25`, `:210`), zero references outside the chapter, `DEFINITIONS.md:613`, `NORTH_STAR.md:73-75`,
+> that commit `0bbe3caa` is the author's own `src_clean` pass and is where the order-justifying sentence first
+> enters the tree, and that the two prose sites it quotes are LIVE text rather than comments. **One claim
+> failed that check and is corrected in the [VERIFY] list below.**
 ## 1. The historical finding: no recorded rationale for tasks-first exists
 
 **The direct answer: the `fundamentals/` folder records NO argument for placing tasks before
@@ -344,8 +355,15 @@ problema" bites, and they are his calls, not an agent's.
 
 ## [VERIFY] flags
 
-1. [VERIFY: whether any pre-repository planning artifact argued the tasks-first order; git history
-   begins 2026-07-23 and nothing on disk carries such an argument.]
+1. **[CORRECTED BY THE PARENT, 2026-08-03.]** The study wrote that "git history begins 2026-07-23", and that
+   is **false about the repository**: `git rev-list --max-parents=0` gives a root of **2025-03-08**, and there
+   are **2,049 commits, 1,666 of them before 2026-07-23**. **The conclusion survives, for a different and
+   stronger reason than the one given.** Of those 1,666 earlier commits, exactly **one** touches
+   `articles/dissertacao/` at all: `bb4449c8` (2026-07-20), which adds a `.gitignore` and nothing else. The
+   chapter-map line "2.1 POI prediction tasks" first enters the tree in `bb64e220`. So there is no earlier
+   dissertation history in which a tasks-first rationale could hide, and the finding stands. It stands on a
+   measurement of what the early commits CONTAIN rather than on a wrong claim about when history starts.
+   `[VERIFY: whether any planning artifact OUTSIDE this repository argued the order; nothing on disk does.]`
 2. [VERIFY: whether the author personally composed the `:27` and `:14-20` sentences inside his
    `src_clean` pass or approved an assistant's wording; commit `0bbe3caa` attributes the tree to
    his pass but does not distinguish keystrokes.]

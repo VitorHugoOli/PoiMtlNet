@@ -740,6 +740,16 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     ("R12-extra",   "the record carries the diagnosis of the red `extra` target as a sed locale failure "
                     "rather than a document defect",
      "PENDENCIAS.md", r"illegal byte sequence", True),
+    # R12-studyfix: the sub-agent's study asserted "git history begins 2026-07-23" to support its central
+    # negative finding. FALSE about the repository -- root commit 2025-03-08, 2049 commits, 1666 of them
+    # earlier. I checked instead of accepting the self-report, and the FINDING survives on a better
+    # measurement: of those 1666 earlier commits exactly ONE touches articles/dissertacao/ (bb4449c8, a
+    # .gitignore). Pinned because a correction that lives only in a [VERIFY] list is the kind a later pass
+    # skips, and because the wrong reason would otherwise be quotable as support for a right conclusion.
+    ("R12-studyfix","the inversion study's false 'git history begins' claim is corrected in place, with the "
+                    "measurement that actually supports the finding",
+     "_round12/52_inversion_study.md",
+     r"It stands on a measurement of what the early commits CONTAIN", True),
     # R12-attrib: a commit-message attribution defect, recorded because the suite CANNOT detect this class
     # -- every gate here reads the working tree and none reads the commit log. Two of round 12's commits
     # describe diffs they do not contain, because `git add -A` in a backgrounded cell staged the tree at
