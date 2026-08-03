@@ -840,6 +840,54 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
      "_round12/53_order_comparison.md",
      r"(?:\A|[.!?][*_'\")\]]*\s|\n)\s*(?:[-*+>]\s+)?(?:\*\*)?\s*(?:Measured[^.\n]{0,40})?"
      r"(?:33 percent OVER the 2,400|7 percent inside the 2,400)", False),
+    # ---- ROUND-12 APPLICATION of the _round12/49 Part B plan, under the author's option-(a) ruling of
+    # 2026-08-03 (keep 2.1 tasks, 2.2 representations; move the representation definitions UP into 2.1).
+    # These are the first probes in this project that pin CHAPTER prose produced by the redesign, so each
+    # names the property that would be silently lost rather than the sentence that carries it.
+    ("R12-s1bind",  "STEP 1: the notation prose BINDS the per-POI attributes, which the static-classifier "
+                    "equation at :119 had been consuming undefined",
+     "chapters/2_fundamentals.tex",
+     r"Each POI \$p\\in\\mathcal\{P\}\$ carries a\s+category \$c_p\\in\\mathcal\{C\}\$ and lies in a "
+     r"region \$r_p\\in\\mathcal\{R\}\$", True),
+    ("R12-s2type",  "STEP 2: the check-in definition TYPES its category and region as the visited POI's "
+                    "attributes, which is what makes the place-level vector well typed",
+     "chapters/2_fundamentals.tex", r"\$c_i=c_\{p_i\}\$ is its category, and \$r_i=r_\{p_i\}\$", True),
+    # R12-s3head: the author chose this head himself on 2026-08-03, from two registered candidates, after
+    # revoking the term that made his earlier head inadmissible. It must not drift back to a variant, and
+    # in particular not to "place representation", which is NOT in the registry.
+    ("R12-s3head", "STEP 3: the new subsubsection carries the head the AUTHOR named",
+     "chapters/2_fundamentals.tex", r"\\subsubsection\{Check-in and place embedding\}", True),
+    ("R12-s3map",   "STEP 3: the representation map is a NUMBERED definition (AD-1, thirteen), not a "
+                    "displayed equation in prose",
+     "chapters/2_fundamentals.tex",
+     r"\\begin\{definition\}\[Representation map\]\\label\{def:fund:repmap\}", True),
+    # R12-s3scope: defect F-2 of _round12/49. The remark must stay scoped to the SEQUENTIAL tasks: the
+    # static task reads the place embedding directly, so "every predictive model" was false of it. This
+    # pins the scoping word, which is the whole correction.
+    ("R12-s3scope", "STEP 3: the factorization remark is scoped to the sequential tasks",
+     "chapters/2_fundamentals.tex",
+     r"Every model of the sequential tasks in this dissertation reads \$\\rho\(H_i\)\$", True),
+    # R12-s4moved: the MOVE is only real if the definitions are GONE from 2.2. A probe on their presence in
+    # 2.1 would hold just as well if they were duplicated, which is exactly the failure mode the plan warns
+    # about (two rendered definitions, one number sequence). This asserts the absence.
+    ("R12-s4moved", "STEP 4: the two definition environments are GONE from 2.2, so the move is a move "
+                    "rather than a duplication",
+     "chapters/2_fundamentals.tex",
+     r"\\subsubsection\{Representations of a check-in\}|"
+     r"limitation for this research[\s\S]{0,400}\\begin\{definition\}\[Place embedding\]", False),
+    # R12-s5neutral: AD-2 option 2. The author ruled that Chapter 2 states Chapter 4's input in the NEUTRAL
+    # form and that the level question is documented as LO-12 rather than recorded as an erratum. Both
+    # forbidden wordings are banned by R12-neutral already; this pins the positive form in 2.2 so it cannot
+    # revert to the "place-level input" claim the retracted investigation had made.
+    ("R12-s5neutral","STEP 5: 2.2 states Chapter 4's input in the neutral form, matching the 2.1 remark",
+     "chapters/2_fundamentals.tex", r"while its input stays a function of the visited POI", True),
+    # R12-wise: the -wise suffix is excluded from the British-spelling sweep BY RULE, not by enumeration.
+    # "elementwise" (introduced by step 3) false-fired and turned `make check` red on correct American
+    # prose; the module's own header warns that a hand-typed list matches only the words its author thought
+    # of, and this was that defect. Pinned because a later "simplification" back to enumeration would
+    # reintroduce it for the next compound.
+    ("R12-wise",    "the register gate excludes the -wise family by rule rather than by listing words",
+     "../src_utils/check_register.py", r"if low\.endswith\(\"wise\"\) and len\(low\) > 4:", True),
     # R12-attrib: a commit-message attribution defect, recorded because the suite CANNOT detect this class
     # -- every gate here reads the working tree and none reads the commit log. Two of round 12's commits
     # describe diffs they do not contain, because `git add -A` in a backgrounded cell staged the tree at

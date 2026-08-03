@@ -65,16 +65,34 @@ The dissertation contains three experimental tasks, two sequential and one stati
 
 \subsubsection{Check-ins and histories}
 
+% [round12 STEP 1, 2026-08-03] The second sentence binds $c_p$ and $r_p$, which were UNBOUND before
+% this edit. MEASURED, and the first version of this comment asserted a measurement that had not run
+% (an auditor caught it; the grep cell had failed with empty output and I wrote the claim anyway):
+%   - `c_p\in\mathcal{C}` and `r_p\in\mathcal{R}`: ZERO live occurrences anywhere in the tree at
+%     HEAD, so neither symbol was ever given a type. The one live occurrence of each today is this
+%     edit itself.
+%   - bare `c_p`: ONE live occurrence at HEAD, at :119, and it is a CONSUMER -- the static-classifier
+%     equation $g_{\mathrm{cat}}(\mathbf{e}_p)\longrightarrow c_p$ read the symbol without the
+%     chapter ever having declared it. That is the defect this step fixes, and it is sharper than
+%     "the symbol was absent": the symbol was in USE and undefined.
+%   - bare `r_p`: ZERO live occurrences at HEAD. It enters with this edit and with the
+%     $r_i=r_{p_i}$ of step 2, which is its first consumer. Author's ruling of
+% 2026-08-03: option (a), keep the section order, and apply the definition redesign.
 Let $\mathcal{U}$, $\mathcal{P}$, $\mathcal{C}$, and $\mathcal{R}$ denote the sets of
-users, POIs, category classes, and region classes.
+users, POIs, category classes, and region classes. Each POI $p\in\mathcal{P}$ carries a
+category $c_p\in\mathcal{C}$ and lies in a region $r_p\in\mathcal{R}$.
 
 \begin{definition}[Check-in]\label{def:fund:checkin}
 The $i$th check-in of user $u$ is the tuple
 \begin{equation}
     x_i=(u,p_i,t_i,c_i,r_i),
 \end{equation}
+% [round12 STEP 2, 2026-08-03] Was "$c_i\in\mathcal{C}$ is its category, and
+% $r_i\in\mathcal{R}$ is its region". The equalities state that a check-in's category and region
+% are the visited POI's attributes, which is what makes $\mathbf{e}_{p_j}$ well typed later. The
+% set memberships still hold, now by way of the bindings in the notation prose above.
 where $p_i\in\mathcal{P}$ is the visited POI, $t_i$ is its timestamp,
-$c_i\in\mathcal{C}$ is its category, and $r_i\in\mathcal{R}$ is its region.
+$c_i=c_{p_i}$ is its category, and $r_i=r_{p_i}$ is its region.
 \end{definition}
 
 \begin{definition}[Check-in history]\label{def:fund:history}
@@ -107,6 +125,87 @@ A target label is withheld from it when one of the sequential tasks is trained.
 %  NUMBERS: only 93% (song2010limits), "seven categories", region counts ("a few hundred to several thousand")
 %           -- region counts stated qualitatively here; exact per-dataset counts belong to Ch.5, not Ch.2.
 % ---------------------------------------------------------------------------
+
+% [round12 STEP 3, 2026-08-03] NEW SUBSUBSECTION, and the reason it sits HERE rather than in §2.2.
+% The author ruled option (a) on 2026-08-03 (PENDENCIAS §6.24): keep the section order, and move the
+% two representation definitions up into §2.1 so that no definition consumes a symbol defined later.
+% Before this edit, Definition \ref{def:fund:catclf} read $\mathbf{e}_p$ roughly three hundred lines
+% before the definition that introduces it. THE HEAD IS THE AUTHOR'S: "Check-in and place embedding",
+% chosen by him on 2026-08-03 from the two registered candidates, after his revocation of the term
+% "place representation" invalidated the head he had given earlier. It is not inferred from any other
+% sentence of his. The two definition environments below are MOVED VERBATIM from §2.2, including the
+% probe-pinned sentence of the check-in-level definition character-for-character (R12-eqxi,
+% R11-def27), and each provenance comment block moved with its definition.
+\subsubsection{Check-in and place embedding}
+
+A task definition needs to say what its model reads. Two representations appear
+throughout this dissertation, and the difference between them is what the three studies
+vary.
+
+% [ROUND 11, item 31] The two concepts below were ONE definition head until this round
+% ("Place embedding and check-in-level representation", round 10). Round 10's own report
+% (src_utils/_round10/29_ch2_definitions.md §4 and §7 item 2) records the merge as a page-count
+% measure, not a content decision, and the defect it left was visible in the cross-references:
+% :242 and :247 both pointed at the same label while meaning opposite halves of it. The author
+% lifted the page budget and authorized the split. The wording of each half is round 10's,
+% unchanged except for the dropped "instead", which contrasted with a sentence no longer in the
+% same block.
+% [round12 STEP 3] MOVED from §2.2 with the definition. The limitation paragraph that used to sit
+% between the two definitions STAYS in §2.2, where it introduces the move from HGI to Check2HGI;
+% its \ref is now a backward reference to this block.
+\begin{definition}[Place embedding]\label{def:fund:placelevel}
+A place embedding assigns one vector $\mathbf{e}_p$ to each POI $p$, so every check-in
+at that POI enters the model with the same representation.
+\end{definition}
+
+% [round12, 2026-08-03, the author's finding] THIS DEFINITION NAMED NO SYMBOL. Definition 2.7 gives the
+% place-level vector as $\mathbf{e}_p$ and this one said only "one vector to each check-in", which left
+% the central contrast of the chapter half-formalized: the two representations are the pivot of the whole
+% argument, and only one of them could be written down.
+% THE SYMBOL IS $\mathbf{e}_{x_i}$, and it was chosen rather than invented freely:
+%   - it parallels $\mathbf{e}_p$ exactly, differing only in what the subscript indexes, which IS the
+%     distinction being defined (a place versus a check-in);
+%   - $x_i$ is already the registered symbol for the $i$th check-in (GLOSSARY §1.1, Definition 2.1), so
+%     the subscript introduces no new object;
+%   - measured before minting: $\mathbf{e}_{x_i}$, $\mathbf{e}_{x}$, $\mathbf{e}_i$, $\mathbf{z}_i$ and
+%     $\mathbf{z}_{x_i}$ occur ZERO times anywhere in the live tree, so nothing is overloaded. The only
+%     $\mathbf{e}$ subscripts in use are $p$, and the generic $1$/$2$/$+$/$-$ of the discriminator
+%     equations.
+% GLOSSARY §1.1 ALREADY IMPLIED THIS GAP: its $\mathbf{e}_p$ row reads "distinct from a per-visit
+% Check2HGI vector" while giving that vector no symbol of its own. A registry row for $\mathbf{e}_{x_i}$
+% is PROPOSED to the author and is not written by an agent; the notation table is his.
+% [round12 STEP 3] MOVED from §2.2 with its comment block. The sentence below is pinned by R12-eqxi and
+% R11-def27 and is carried character-for-character.
+\begin{definition}[Check-in-level representation]\label{def:fund:checkinlevel}
+A check-in-level representation assigns one vector $\mathbf{e}_{x_i}$ to each check-in
+$x_i$, so two visits to the same POI may enter the model with different
+representations.
+\end{definition}
+
+% [round12 STEP 3, AD-1] THE REPRESENTATION MAP AS A NUMBERED DEFINITION, not a displayed equation in
+% prose: the author chose thirteen definitions on 2026-08-03 ("Vamos de treze"), which makes $\rho$ a
+% numbered object of the chapter. The remark that follows is corrected for defects F-1, F-2 and F-3 of
+% src_utils/_round12/49: it is scoped to the SEQUENTIAL tasks (the static task reads $\mathbf{e}_p$
+% directly, so "every predictive model" was false of it), and Chapter 5's two streams are both named.
+\begin{definition}[Representation map]\label{def:fund:repmap}
+A representation map assigns to each check-in a vector,
+\begin{equation}
+    \rho(x_i)\in\mathbb{R}^{d},
+\end{equation}
+and extends to histories elementwise,
+\begin{equation}
+    \rho(H_i)=\bigl(\rho(x_{i-\ell}),\ldots,\rho(x_{i-1})\bigr).
+\end{equation}
+\end{definition}
+
+Every model of the sequential tasks in this dissertation reads $\rho(H_i)$ rather than
+$H_i$ itself. Chapter~\ref{ch:cbic} instantiates $\rho$ at the place level,
+$\rho(x_j)=\mathbf{e}_{p_j}$; Chapter~\ref{ch:courb} keeps a vector that is a function of
+the visited POI and enriches it with separate spatial, temporal, and categorical
+components; Chapter~\ref{ch:mobiwac} instantiates it at the check-in level, reading
+per-visit vectors, $\rho(x_i)=\mathbf{e}_{x_i}$ for the semantic stream, with the spatial
+stream carrying the trained vector of the visit's region node. The three studies hold the
+task definitions fixed and vary $\rho$.
 
 \subsubsection{The three experimental tasks}
 
@@ -422,56 +521,36 @@ the place-level baseline. It is not evidence about how HGI and Check2HGI compare
 The move from HGI to Check2HGI begins with information that a fixed POI vector cannot
 express.
 
-% [ROUND 11, item 31] The two concepts below were ONE definition head until this round
-% ("Place embedding and check-in-level representation", round 10). Round 10's own report
-% (src_utils/_round10/29_ch2_definitions.md §4 and §7 item 2) records the merge as a page-count
-% measure, not a content decision, and the defect it left was visible in the cross-references:
-% :242 and :247 both pointed at the same label while meaning opposite halves of it. The author
-% lifted the page budget and authorized the split. The wording of each half is round 10's,
-% unchanged except for the dropped "instead", which contrasted with a sentence no longer in the
-% same block. The limitation paragraph now sits BETWEEN the two definitions so that each
-% reference stands next to the definition it means.
-\begin{definition}[Place embedding]\label{def:fund:placelevel}
-A place embedding assigns one vector $\mathbf{e}_p$ to each POI $p$, so every check-in
-at that POI enters the model with the same representation.
-\end{definition}
-
+% [round12 STEP 4, 2026-08-03] THE TWO DEFINITION ENVIRONMENTS THAT STOOD HERE MOVED UP INTO §2.1,
+% into the new subsubsection "Check-in and place embedding", under the author's option-(a) ruling
+% (PENDENCIAS §6.24). Their provenance comments moved with them. What STAYS here is the prose that
+% USES them: the limitation paragraph below, which introduces the move from HGI to Check2HGI, and the
+% Check2HGI sentence further down.
+% REFERENCE DIRECTION: backward in both cases now, which is the point of the move.
 Definition~\ref{def:fund:placelevel} carries one limitation for this research: a
 weekday morning and a Saturday night at the same place have identical inputs at the
 representation level. CTLE shows an alternative by learning context-aware and
 time-aware location embeddings whose vectors change with the
 visit~\cite{lin2021ctle}.
 
-% [round12, 2026-08-03, the author's finding] THIS DEFINITION NAMED NO SYMBOL. Definition 2.7 gives the
-% place-level vector as $\mathbf{e}_p$ and this one said only "one vector to each check-in", which left
-% the central contrast of the chapter half-formalized: the two representations are the pivot of the whole
-% argument, and only one of them could be written down.
-% THE SYMBOL IS $\mathbf{e}_{x_i}$, and it was chosen rather than invented freely:
-%   - it parallels $\mathbf{e}_p$ exactly, differing only in what the subscript indexes, which IS the
-%     distinction being defined (a place versus a check-in);
-%   - $x_i$ is already the registered symbol for the $i$th check-in (GLOSSARY §1.1, Definition 2.1), so
-%     the subscript introduces no new object;
-%   - measured before minting: $\mathbf{e}_{x_i}$, $\mathbf{e}_{x}$, $\mathbf{e}_i$, $\mathbf{z}_i$ and
-%     $\mathbf{z}_{x_i}$ occur ZERO times anywhere in the live tree, so nothing is overloaded. The only
-%     $\mathbf{e}$ subscripts in use are $p$, and the generic $1$/$2$/$+$/$-$ of the discriminator
-%     equations.
-% GLOSSARY §1.1 ALREADY IMPLIED THIS GAP: its $\mathbf{e}_p$ row reads "distinct from a per-visit
-% Check2HGI vector" while giving that vector no symbol of its own. A registry row for $\mathbf{e}_{x_i}$
-% is PROPOSED to the author and is not written by an agent; the notation table is his.
-\begin{definition}[Check-in-level representation]\label{def:fund:checkinlevel}
-A check-in-level representation assigns one vector $\mathbf{e}_{x_i}$ to each check-in
-$x_i$, so two visits to the same POI may enter the model with different
-representations.
-\end{definition}
-
+% [round12 STEP 4] The check-in-level definition that stood here moved up to §2.1 with its comment
+% block; the sentence below keeps its reference, now backward.
 Check2HGI reaches the check-in level of Definition~\ref{def:fund:checkinlevel} by
 adding the check-in below the place in the hierarchy.
 
 \subsubsection{Context encoders}
 
+% [round12 STEP 5, 2026-08-03, AD-2 option 2] Was "while retaining a place-level input". The author
+% ruled that the unresolved level of Chapter 4's temporal channel is NOT recorded as an erratum
+% (PENDENCIAS §6.22) and that Chapter 2 uses the NEUTRAL form: a vector that is a function of the
+% visited POI, with no claim about the level at which the temporal component is learned. The two
+% wordings that remain FORBIDDEN are "of the visit's timestamp", which would assert per-visit, and
+% "aggregated", which would assert a combination the code does not perform. The question itself is
+% documented as LO-12 in src_utils/LEFT_OUT.md and is closed rather than pending. This sentence now
+% matches the remark in §2.1, which says the same thing in the same terms.
 A per-visit representation needs temporal and spatial context in addition to the
 identity of the visited POI. The second study supplies that context through separate
-encoders while retaining a place-level input.
+encoders while its input stays a function of the visited POI.
 Time2Vec combines linear and periodic components for temporal
 features~\cite{kazemi2019time2vec}. SIREN uses sinusoidal activation functions to
 represent continuous signals~\cite{sitzmann2020implicit}. Space2Vec encodes location

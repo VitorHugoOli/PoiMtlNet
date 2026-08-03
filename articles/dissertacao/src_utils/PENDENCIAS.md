@@ -1323,7 +1323,12 @@ sob o `NORTH_STAR` §5.7, e o `apx_b_errata.tex` nao a carrega hoje. **O Capitul
 >    texto o omitiu.
 > 3. **Registrar so no Capitulo 2**, na frase que descreve a entrada do Cap. 4, sem tocar a errata.
 >
-> **DECISAO SUA:** ______
+> **RESPONDIDA — OPCAO 2, NAO REGISTRAR.** Ele decidiu em 2026-08-03; a resposta esta no **§6.20, item 3**,
+> e o encerramento definitivo no **§6.22** (a AD-2 fechou como `[VERIFY]` e o assunto virou o `LO-12` do
+> `LEFT_OUT.md`). Este `______` era **residuo de formatacao**: o menu ficou aberto depois de a decisao ter
+> sido tomada em outra secao. **Nao gaste decisao dele aqui.** O que ficou aplicado no capitulo: a forma
+> neutra ("a vector that is a function of the visited POI"), com as duas redacoes erradas seguindo
+> proibidas — aplicado ao `.tex` no passo 5 desta rodada, probe `R12-s5neutral`.
 
 **O que o Capitulo 2 pode dizer agora, e ja esta corrigido no `fundamentals/DEFINITIONS.md` §3:** a
 instanciacao do Cap. 4 dizia "de uma funcao do POI visitado e, no Cap. 4, do timestamp da visita". Isso
@@ -1349,7 +1354,13 @@ apendice que aponta de volta para essa definicao.
 >    resolve para o leitor atento, mantem a notacao da fonte (`yu2020pcgrad` usa $i$ e $j$ para tarefas).
 > 3. **Nao fazer nada.** E convencao da literatura e ninguem reclamou.
 >
-> **DECISAO SUA:** ______
+> **RESPONDIDA — OPCAO 1, RENOMEAR.** Ele decidiu em 2026-08-03; a resposta esta no **§6.20, item 2**
+> (AD-7). Este `______` era **residuo de formatacao**, como o do §6.18. **Nao gaste decisao dele aqui.**
+> Estado do trabalho: a renomeacao esta registrada no `fundamentals/DEFINITIONS.md` (a D13 passa a usar
+> $\mathbf{g}_a$, $\mathbf{g}_b$ e $\varphi_{ab}$) e **ainda nao esta no capitulo** — ela entra quando a D13
+> for tocada, porque editar o `.tex` antes disso dessincronizaria o desenho e o capitulo. Os dois probes
+> daquela definicao (`R9-conflict`, `R10-cosine`) foram testados contra o texto real e sobrevivem a
+> renomeacao.
 
 ### 6.20 Rodada 12 — as suas quatro decisoes, e o que cada uma NAO autoriza
 
@@ -1695,9 +1706,51 @@ visivel. Depois: uma frase de abertura ligando as representacoes aos alvos; o aj
 > 3. **Ler os dois relatorios antes de decidir** — o `52` defende a (b), o `53` defende a (a), e eles
 >    discordam por escrito e nao por omissao.
 >
-> **DECISAO SUA:** ______
+> **DECIDIDO POR ELE EM 2026-08-03: OPCAO 1 — MANTER A ORDEM.** Palavras dele: "DECIDI: MANTER A ORDEM.
+> Opcao (a) do _round12/53 — 2.1 tarefas, 2.2 representacoes. A inversao esta encerrada, nao suspensa."
+> **A inversao esta ENCERRADA**, e com ela saem da fila duas perguntas que so existiam sob ela: a ordem da
+> sintese da §2.5 e a edicao do `NORTH_STAR.md:73-80`. O `NORTH_STAR` fica **intacto**.
 
-**Nenhum `.tex` foi tocado, o `NORTH_STAR.md:73-80` esta intacto, e o plano do `49` continua parado.**
+**O REDESENHO FOI APLICADO AO CAPITULO NESTA RODADA.** Ele autorizou junto com a decisao, e o KC-1 foi
+satisfeito da forma que ele mesmo definiu: **o titulo da subsubsecao e escolha dele**, dada explicitamente
+("Check-in and place embedding"), e eu **nao a inferi de nenhuma frase anterior**. O que entrou, dos sete
+passos vivos do `_round12/49` Parte B:
+
+| Passo | O que mudou no `2_fundamentals.tex` | Probe |
+|---|---|---|
+| 1 | A prosa de notacao passa a **vincular** o $c_p$ e o $r_p$ | `R12-s1bind` |
+| 2 | A D1 passa a **tipar** $c_i=c_{p_i}$ e $r_i=r_{p_i}$ | `R12-s2type` |
+| 3 | Nova subsubsecao **"Check-in and place embedding"** na §2.1, com as duas definicoes movidas verbatim, a D5 (mapa de representacao) como **definicao numerada**, e o comentario de fatoracao corrigido (F-1/F-2/F-3) | `R12-s3head`, `R12-s3map`, `R12-s3scope` |
+| 4 | As duas definicoes **saem** da §2.2; a prosa que as usa fica, agora com referencias para tras | `R12-s4moved` |
+| 5 | A §2.2 passa a dizer a forma **neutra** da entrada do Cap. 4 (AD-2 opcao 2) | `R12-s5neutral` |
+| 6 | **Ja estava feito** nesta rodada (as linhas do `GLOSSARY` §1.1) | `R12-dscope`, `R12-rho` |
+| 8 | Varredura de referencias cruzadas e gates | (abaixo) |
+
+**CONFERIDO NO PDF RENDERIZADO e nao no fonte**, que e a sua regra: a pagina 19 do build de defesa mostra a
+subsubsecao, e as definicoes renumeraram sozinhas na ordem certa — **2.3 Place embedding, 2.4
+Check-in-level representation, 2.5 Representation map**, todas ANTES das tarefas (2.6 a 2.9). A frase pinada
+da 2.4 esta la **caractere por caractere**. Zero rotulos multiplamente definidos, zero erros de TeX, zero
+referencias `def:fund:` fora do capitulo, zero "Definition 2.N" literal em prosa viva. **O capitulo cresceu
+uma pagina** (104 -> 105 defesa, 101 -> 102 academico, 105 -> 106 ppgc) e as contagens registradas foram
+sincronizadas.
+
+**DOIS DEFEITOS QUE APARECERAM NO CAMINHO, os dois meus:**
+1. **O gate de registro deu falso positivo em `elementwise`.** A palavra entra com o passo 3 e o
+   `check_register.py` a leu como grafia britanica em `-ise`, deixando o `make check` vermelho sobre prosa
+   americana correta. **Nao e o mesmo que a familia `-ise`**: o sufixo `-wise` significa "a maneira de" e
+   nao tem relacao etimologica com o par `-ise`/`-ize`. Corrigido **por regra e nao por lista** — o proprio
+   cabecalho daquele modulo avisa que uma lista escrita a mao so pega as palavras que o autor pensou, e o
+   `wise`, o `likewise` e o `otherwise` estavam listados um a um, enquanto `pairwise` e qualquer outro
+   composto teriam falhado igual. Conferido que nenhuma grafia britanica real deixou de ser pega. Probe
+   `R12-wise`.
+2. **Eu escrevi "(measured: ...)" num comentario sem ter medido.** Um revisor pegou: a celula do `grep`
+   havia falhado com saida vazia e eu escrevi a alegacao de todo modo. **Medido agora, e o resultado e mais
+   forte do que o que eu tinha alegado:** o `c_p\in\mathcal{C}` e o `r_p\in\mathcal{R}` tinham **zero**
+   ocorrencias vivas na arvore, mas o `c_p` **cru** ja aparecia uma vez, no `:119` — e ali ele e
+   **consumido** pela equacao do classificador estatico. O simbolo estava **em uso e sem definicao**, que e
+   um defeito mais nitido do que "o simbolo nao existia". O comentario agora diz isso.
+
+> **NADA ESPERA VOCE NESTE ITEM.** A decisao esta tomada e aplicada. O que continua seu esta no §6.26.
 
 ### 6.25 O `extra` esta VERDE, e as duas linhas do `GLOSSARY` §1.1 entraram
 
@@ -1747,6 +1800,60 @@ o `R12-studyfix` estava certo e importava:** aquele probe nunca havia disparado,
 linha no fonte e a minha perna procurou a forma sem quebra. **Validei agora contra a forma envolvida**, testando
 o padrao atraves do `strip_text` como voce disse: ele dispara quando a frase de correcao sai, e fica silencioso
 sob uma edicao vizinha nao relacionada. Agora carrega informacao.
+
+### 6.26 Os dois itens que voce mandou MEDIR: um esta fechado ha uma rodada, o outro espera a sua mao
+
+**Voce pediu medicao antes de tratar como aberto ou fechado, e os dois resultados sao diferentes.**
+
+**BLQ-1 — o "hard sharing" no Apendice F: JA ESTA FECHADO, na rodada 9.** A clausula foi **deletada** e o
+registro da delecao esta no proprio arquivo (`apx_f_cosine.tex:458-470`). Ela dizia "That is why hard sharing
+costs nothing in this architecture, and why Chapter 5 finds no balancer improving on a fixed loss weighting".
+**As quatro ocorrencias de "hard sharing" que ainda aparecem naquele arquivo sao COMENTARIOS**, e eu conferi
+uma por uma: as `:124`, `:458`, `:462` e `:467` todas comecam com `%`. Nenhuma e prosa viva.
+
+E a medicao que sustentou a delecao continua valendo: o Cap. 5 descreve a topologia como **cross-attention**
+com caminho espacial privado (`5_mobiwac/04_method.tex:27-31`, prosa viva: "Both pass through private
+per-task encoders (a small input network per task, with no shared weights) into the shared trunk, a
+cross-attention stack of two blocks" e "the region output also keeps a private spatial path"), enquanto o
+Cap. 2 define hard parameter sharing como um tronco comum que se divide nas cabecas de saida. **Sao
+opostos**, exatamente como voce disse. O Apendice F hoje descreve a topologia certa: fala de
+"cross-attention trunk" em prosa viva (`:150`, `:476`, `:573`).
+
+> **NADA ESPERA VOCE AQUI.** O item esta fechado e este paragrafo e o registro da medicao.
+
+---
+
+**AS DUAS LINHAS DO §6.13 — NAO ESTAO NO `GLOSSARY`, e a sua mao e que as escreve.** Medido: nem o
+$\mathbf{e}_{x_i}$ nem o $f_{\mathrm{place}}(H_i)$ aparecem na tabela §1.1. E os dois **estao em uso vivo no
+capitulo**: o $\mathbf{e}_{x_i}$ na Definicao 2.4 e o $f_{\mathrm{place}}(H_i)$ na Definicao 2.9. Pela regra
+fail-closed do registro, sao dois simbolos usados e nao registrados.
+
+**Eu as escrevi e depois as REVERTI, no meio desta rodada.** O motivo esta no proprio capitulo: o comentario
+que eu mesmo carreguei junto com a Definicao 2.4 diz, verbatim, "A registry row for $\mathbf{e}_{x_i}$ is
+PROPOSED to the author and is not written by an agent; the notation table is his". Voce autorizou as duas no
+§6.20 (a AD-5 fechou), mas voce tambem mandou, nesta rodada, **medir e nao aplicar**. Entao elas ficam aqui,
+prontas, e nao no arquivo.
+
+**As duas linhas, para voce colar na §1.1 se aprovar a redacao:**
+
+```
+| $\mathbf{e}_{x_i}$ | The learned representation of check-in $x_i$. | The check-in-level counterpart of $\mathbf{e}_p$: same shape, and the subscript is the point, since it indexes a visit rather than a place. Two visits to one POI may carry different vectors. |
+| $f_{\mathrm{place}}(H_i)$ | Next-place prediction: maps a check-in history to the next visited POI. | Registered so the excluded task is formally distinct rather than the only one described in prose. **This dissertation does not predict next place;** the row names what is out of scope. |
+```
+
+> **DECISAO SUA:**
+> 1. **Colar as duas como estao.** Fecha a lacuna fail-closed dos dois simbolos.
+> 2. **Colar com a sua redacao.** Diga a redacao e eu aplico.
+> 3. **Eu aplico as duas**, se voce preferir abrir excecao a regra de que a tabela e sua. Nesse caso diga,
+>    porque o comentario do capitulo afirma o contrario e eu teria de corrigi-lo no mesmo commit.
+>
+> **DECISAO SUA:** ______
+
+---
+
+**AINDA SEU, e nao e desta lista:** a renomeacao dos indices da D13 (AD-7, respondida, opcao 1) esta
+registrada no desenho e **entra no capitulo quando a D13 for tocada** — ela nao entrou nesta rodada porque
+nada mais na D13 mudou e editar so os indices dessincronizaria o desenho do capitulo por meia rodada.
 
 ---
 

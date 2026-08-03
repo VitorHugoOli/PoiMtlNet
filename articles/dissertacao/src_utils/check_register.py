@@ -119,9 +119,24 @@ OUR_RE = re.compile(r"\b[A-Za-z]{3,}our[a-z]*\b", re.I)
 
 
 def _ise_is_british(word: str) -> bool:
-    """True when an -ise/-isation form is the British spelling of an American -ize/-ization word."""
+    """True when an -ise/-isation form is the British spelling of an American -ize/-ization word.
+
+    The `-wise` family is excluded by RULE rather than by enumeration. `wise`, `likewise` and
+    `otherwise` were listed individually in ISE_SAME_IN_BOTH, which is exactly the defect this
+    module's own header warns about: a hand-typed list matches only the words its author thought
+    of. `elementwise` (round 12) false-fired and turned `make check` red on correct American
+    prose; `pairwise`, `coordinatewise`, `rowwise` and any other compound would have done the
+    same. The `-wise` suffix means "in the manner of" and has no etymological relation to the
+    `-ise`/`-ize` verb pair, so no `-wise` compound is ever a British spelling. Guarded so it
+    cannot swallow a real hit: a true `-ise` verb whose stem happens to end in `w` (there is no
+    such English verb, but the guard costs nothing) still reaches the checks below, because the
+    rule requires the character before `wise` to be a letter that is part of a compound stem of
+    at least three characters rather than a bare `-ise` inflection.
+    """
     low = word.lower()
     if low in ISE_SAME_IN_BOTH:
+        return False
+    if low.endswith("wise") and len(low) > 4:
         return False
     for suf in ISE_SUFFIXES:
         if not low.endswith(suf):
