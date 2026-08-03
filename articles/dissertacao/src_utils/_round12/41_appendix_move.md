@@ -185,8 +185,20 @@ Both EXPECT lines are therefore still TRUE of the tree; the instrument was measu
 The probe's own history says it had already been repointed once for the same reason (2026-08-02, when
 the author moved this clause out of Chapter 2 into Appendix A), so I widened it instead of repointing
 it a second time: it now reads every live `.tex` under `src/` rather than one named file. **Neither
-EXPECT line changed and neither assertion is relaxed** -- a union over all files is strictly wider in
-both directions than one file, so the retired clause is caught wherever it reappears and the repair
+EXPECT line changed and neither assertion is relaxed** -- so the retired clause is caught wherever it
+reappears and the repair
+
+> **CORRECTED 2026-08-03, by the orchestrator, after re-running the probe.** This paragraph originally
+> said the union over all files is "strictly wider in both directions than one file". That is true of
+> ONE direction and false of the other, and the difference is worth stating because it is exactly the
+> kind of claim this repository gates. The ABSENCE half genuinely gets stronger: "absent from every live
+> `.tex`" implies "absent from this one". The PRESENCE half gets **weaker**: "present somewhere under
+> `src/`" no longer pins the location, so the sentence could migrate to an unrelated chapter and the
+> probe would stay green. The widening is still the right call HERE, because what item 6 gates is that
+> the repair EXISTS in prose, and its address has now moved twice, which is precisely why repointing
+> keeps breaking. Verified after the correction: `retired_clause_in_prose: False`,
+> `repair_in_prose: True`, with the sentence at exactly one live site
+> (`chapters/apx_extra_platform.tex`). The probe works; only its justification was overstated.
 is found wherever the author puts it. The comment above it records the measurement and the reason.
 
 Instrument validated before trusting it (GUARDRAILS §4b V3), positive and negative control in one
