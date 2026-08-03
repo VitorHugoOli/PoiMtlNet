@@ -367,6 +367,56 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     ("R9-blq5",    "the PCGrad blocker is recorded as DOWNGRADED BY ME, with the half I could not "
                    "check named, rather than passed through at the persona's severity",
      "PENDENCIAS.md", r"eu o REBAIXEI; a decisao final e sua", True),
+    # ---- ROUND-10 PROBES: the author's 28 rulings, applied 2026-08-03 against baseline dda8978e.
+    # R10-blq2 is the one that would rot silently. His ruling was to keep "everywhere" for the CATEGORY
+    # verdict and specify the partition where the REGION verdict needs it. Chapter 6 was already right;
+    # ONE site survived in the introduction, and a line-oriented grep could not see it because the
+    # sentence wraps across three source lines -- only the comment-stripped, whitespace-collapsed
+    # concatenation found it. Any future rewrite of that bullet is likely to re-collapse the partition
+    # into "outperforms or matches", which is the exact phrase the conclusion's own comment at :131 and
+    # 5_mobiwac/06_results.tex:76 record as a defect. So: pin the partition positively AND ban the
+    # collapsed form in that file. The ban is file-scoped on purpose -- the phrase is legal in comments
+    # elsewhere, where it names the defect rather than committing it.
+    ("R10-blq2",   "the introduction's practical-contribution bullet states the region partition "
+                   "(four of six + TOST) instead of collapsing it",
+     "chapters/1_introduction.tex",
+     r"on the region task at four of the six; at the other two it remains statistically", True),
+    ("R10-blq2b",  "the superseded collapsed wording is gone from the introduction's live prose",
+     "chapters/1_introduction.tex", r"either outperforms or\s+matches it on next region", False),
+    # R10-blq3: the two prose-derived ratios are gone and must not come back. The endpoint counts stay
+    # (each traceable to the appendix's own table), so the positive half of this pair guards against a
+    # well-meaning editor "restoring the span" by recomputing it in prose again -- which is how it got
+    # there. N2/N3: quote, never compute.
+    ("R10-blq3",   "the prose-derived scale ratios are gone from Appendix F, endpoint counts kept",
+     "chapters/apx_f_cosine.tex", r"factor of thirty-six", False),
+    ("R10-blq3b",  "Appendix F still carries the endpoint check-in counts the ratios were derived from",
+     "chapters/apx_f_cosine.tex", r"113,846 at Alabama to 4,089,892 at Texas", True),
+    # R10-fab22: Istanbul's PURPOSE, not just its name. The author's point was that a reader who sees
+    # only "and Istanbul" reads a sixth dataset rather than evidence about generalization. The claim the
+    # sentence makes is about scope, so the scope has to be stated.
+    ("R10-fab22",  "the introduction says WHY Istanbul is there (a non-United-States dataset), not "
+                   "merely that it is there",
+     "chapters/1_introduction.tex", r"Istanbul as a non-United-States dataset", True),
+    # R10-ch2defs: GER-08/09/10. The chapter must keep numbered, REFERENCEABLE definitions -- the
+    # environment declaration in preamble.tex is what makes them numbered, and the cross-references are
+    # what make the chapter GER-10's narrative rather than a definition dump. Two probes because the
+    # two halves fail independently: someone could keep the blocks and drop the references.
+    ("R10-defenv", "Chapter 2 declares a chapter-numbered definition environment",
+     "../src/preamble.tex", r"\\newtheorem\{definition\}\{Definition\}\[chapter\]", True),
+    ("R10-cosine", "gradient conflict is DEFINED with the cosine in Chapter 2, not only named",
+     "chapters/2_fundamentals.tex", r"def:fund:conflict", True),
+    # R10-hamtl: FAB-28, the round-9 blocker. The novelty sentence SURVIVED the PDF (HAMTL calls its
+    # category head auxiliary, names no region-like unit in 28 pages, reports no category metric), so
+    # what needs guarding is that nobody later "narrows it to be safe" without reading the paper, and
+    # that our description keeps the authors' own main/auxiliary framing (GUARDRAILS R2).
+    ("R10-novelty", "the co-equal-end-targets claim still stands, having survived the HAMTL PDF",
+     "chapters/2_fundamentals.tex",
+     r"none treats next category and next region as", True),
+    ("R10-hamtl",  "HAMTL is described as its own authors describe it: location prediction main, "
+                   "category auxiliary",
+     "chapters/2_fundamentals.tex",
+     r"HAMTL sets location\s+prediction as its main task and category prediction as an auxiliary task",
+     True),
 )
 
 # COD-016b needs a STRUCTURAL probe, not a string one, so it lives here rather than in PROBES --

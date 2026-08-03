@@ -843,6 +843,83 @@ origem, e retirou duas conclusoes proprias depois de abrir as paginas que as ref
 forte** com caminho barato para outstanding, e registrou que o resultado nulo publicado e **inequivocamente um ativo**
 como esta apresentado.
 
+
+### 6.12 Rodada 10 — as suas 28 decisoes, auditadas contra o texto VIVO antes de qualquer acao
+
+Baseline `dda8978e`; entregue em `984c70be`, `aaf4e7eb`, `5415d86d`, `d7e8c598`. Auditoria completa em
+`_round10/30_r10_audit.md`; relatorios dos itens grandes em `_round10/28_hamtl.md` e
+`_round10/29_ch2_definitions.md`.
+
+**Voce avisou que o texto tinha mudado, e o aviso foi a coisa mais util desta rodada.** Entre os itens
+serem escritos e as suas decisoes chegarem, **60 commits** entraram na arvore. **Nove das 28 decisoes
+pedem texto que nao existe mais** e foram fechadas como ja-feitas, nao aplicadas: FAB-10, FAB-14,
+FAB-17, GER-03, GER-11, BLQ-1, BLQ-2 (no Cap. 6), BLQ-4, BLQ-5. O GER-03 e o caso mais claro: a sua
+decisao apontava tres defeitos (sem nexo, "overwhelming", pertence a metodologia) e os tres estao
+resolvidos por sua propria mao, com a varredura agora em `apx_g_hgi_tuning.tex` fechando num aviso de
+escopo de que ela **nao** e evidencia sobre HGI contra Check2HGI.
+
+**Quatro edicoes aplicadas, cada uma conferida no PDF renderizado nos dois sentidos:**
+
+| item | o que faltava de verdade |
+|---|---|
+| BLQ-2 | UM site sobrevivia, em `1_introduction.tex`:289-292, e um grep por linha nao o via porque a frase quebra em tres linhas. Agora espelha o Cap. 6: categoria nos seis, regiao em quatro dos seis, TOST nos outros dois |
+| BLQ-3 | os dois fatores derivados sairam do Apendice F; as quatro contagens de ponta ficam, cada uma rastreavel a tabela do §D.1 |
+| FAB-08 | comentario registrando o que o Resumo omite: que **o par de tarefas muda** entre os estudos, que o corte foi deliberado na rodada 6, e onde o leitor recebe a informacao |
+| FAB-22 | faltava a clausula que carrega o seu argumento: **Istanbul esta ali porque nao e dataset dos Estados Unidos**. Sem isso, Istanbul le como um sexto dataset e nao como evidencia de generalizacao |
+
+**FAB-28 esta resolvido, e era o bloqueador da rodada 9.** Voce colocou o PDF em disco e ele foi lido
+inteiro. A frase de ausencia do Cap. 2 **sobrevive sem mudanca**, por tres motivos independentes na
+fonte: o HAMTL chama a predicao de localizacao de tarefa **principal** e a de categoria de **auxiliar**
+(p. 2), logo as duas cabecas nao sao co-iguais; ele nao nomeia nenhuma unidade tipo regiao em 28 paginas
+(uma varredura completa por region/grid/district/zone/administrative devolve **um** acerto, dentro do
+titulo da referencia [40], Tobler 1970, p. 27); e ele nao reporta nenhuma metrica do lado da categoria.
+**O que estava errado era a NOSSA descricao dele**, que nomeava o componente errado e escondia a
+assimetria principal/auxiliar. Corrigida para as palavras dos proprios autores. Uma referencia entrou
+(`wang2024iemtlf`, o trabalho anterior do mesmo grupo) com `[VERIFY]` no bib, porque so o titulo foi
+verificavel.
+
+**Uma constatacao honesta que o item nao previa:** o HAMTL **nao** abre para uma literatura grande de
+MTL-para-POI nao citada. A propria secao de MTL dele quase nao cita mobilidade, e as dez referencias de
+MTL em cascata sao imagem medica, PLN e recomendacao multi-comportamento. Nao foram abertas nem
+propostas, e estao nomeadas como nao-alcancadas. Se voce quiser amplitude de MTL geral em vez de
+MTL-para-POI, esse e o conjunto, e vale um item proprio.
+
+**GER-04: voce pediu para eu validar a sua ideia, e ela esta certa e ja implementada** por voce. A frase
+que voce citou nao existe mais. O §2.2 agora le: limitacao (um vetor fixo por lugar, logo uma manha de
+quarta e um sabado a noite tem entradas identicas) -> "A per-visit representation needs temporal and
+spatial context in addition to the identity of the visited POI" -> o inventario de encoders -> o nivel
+de check-in que os consome. E exatamente a sua proposta. A metade da introducao tambem nao precisa de
+nada: `1_introduction.tex`:125-131 ja carrega o argumento.
+
+**GER-08 / GER-09 / GER-10 / AUT-01 sairam como um unico trabalho**, porque os quatro reestruturam o
+mesmo arquivo. Onze definicoes numeradas e referenciaveis (2.1 check-in ate 2.11 conflito de gradiente,
+esta com a formula do cosseno), com nove referencias cruzadas alem dos onze blocos, que e o que faz da
+coisa a narrativa que o GER-10 pede em vez de um deposito de definicoes. **Zero crescimento de pagina**,
+e o modo importa: as definicoes custaram uma pagina, o `make check` ficou vermelho com quatro contagens
+obsoletas, e em vez de rodar `sync_page_counts --write` para o gate concordar com um documento mais
+longo, o texto foi compactado ate a contagem voltar a 106 e o gate ficar verde sozinho. Nenhuma probe
+foi enfraquecida. O AUT-01 foi avaliado como **ja suficiente** e nada foi acrescentado, o que a sua
+decisao autorizava ("se julgar necessario").
+
+#### O que espera VOCE, e nao e trabalho que eu poderia ter feito
+
+1. **Duas linhas de registro no GLOSSARY**, propostas e nao usadas como termo novo: `soft parameter
+   sharing` (compartilhamento flexivel de parametros) e `negative transfer` (transferencia negativa).
+   As duas expressoes **ja estavam na prosa viva** antes desta sessao e o §6 registra so `hard parameter
+   sharing`, entao converter prosa em blocos de definicao nao ampliou a regra fail-closed. Mas as linhas
+   deviam existir, e linhas de registro sao suas.
+2. **A Definicao 2.7 junta dois conceitos** (representacao em nivel de lugar e em nivel de check-in) sob
+   um mesmo cabecalho, para segurar as 106 paginas. Separar custa um numero de definicao e cerca de
+   quatro linhas, que teriam de ser recuperadas em outro ponto do §2.2.
+3. **Nove atribuicoes de linhagem, das quais eu reconferi cinco** nos registros de origem (Shikun Liu /
+   DWA, Bo Liu / CAGrad, Bo Liu / FAMO, Zhao Chen / GradNorm, Aviv Navon / Nash-MTL, todas confirmadas).
+   As outras quatro repousam na verificacao do agente, sem passe de critico. Digo em vez de omitir.
+4. **FAB-27, a margem: medida e nao reproduz.** Zero `Overfull \hbox` nos quatro builds; extracao de
+   tinta pagina por pagina nas 106 paginas contra o bloco de texto real (455,24pt, perguntado ao TeX)
+   poe **toda** pagina 0,5 mm **dentro** do bloco, a mais apertada em 1,99 cm contra a regra de 2 cm. A
+   sua observacao era verdadeira e ja foi corrigida (o commit `6d780b58` se chama "fix the p.96
+   overflow"). Nao ha o que mexer, e se voce ainda ve a tabela passando, me diga em qual pagina do PDF.
+
 ---
 
 ## §3 · Aberto e bloqueado em terceiros

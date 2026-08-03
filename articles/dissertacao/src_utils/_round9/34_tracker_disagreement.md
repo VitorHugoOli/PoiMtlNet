@@ -215,3 +215,37 @@ fix and was wrong within one wave.
 measurement to say. This is the next one along: **writing a causal diagnosis from a single failing
 sample, then acting on it as though it had been tested.** The tell is the same — a confident sentence
 where a measurement should be — and the guard is the same: say which half you checked.
+
+
+---
+
+## Round 10: the fourth instrument defect, and this time it was the VALIDATION harness
+
+The nine `R10-` probes were validated by sabotage, as every probe here is. The first run reported three
+of six legs as "DID NOT FIRE", which reads as three broken probes. **All nine probes were correct. The
+harness was broken, in three separate ways, and each way produced the same misleading output.**
+
+1. **A shell loop with `IFS=':'` split the mutation strings on their own colons.** Two legs carried
+   `def:fund:conflict` and a Portuguese sentence containing a colon, so the fragments arrived truncated
+   and the mutation silently failed. The loop printed "mutation failed" for those, which was honest, but
+   the two that half-worked printed a verdict.
+2. **A leg restored the file BEFORE reading the gate's result.** The helper ran the mutation, ran the
+   gate, and restored, but an early version restored inside the same expression that read stdout, so the
+   gate saw a clean tree and correctly said "holds" -- reported as "DID NOT FIRE".
+3. **A stale module import.** One check re-read `PROBES` from a module object loaded before the edit, so
+   it evaluated the old probe list against the new file.
+
+**The tell, and it is the same tell as the previous five entries.** A negative result from an instrument
+I had just written was reported as a fact about the thing measured. "The probe does not fire" is a claim
+about the probe; "my harness printed DID NOT FIRE" is a claim about the harness. I conflated them, and
+the only reason it did not ship is that a probe failing on a clean file is implausible enough to check.
+The check that resolved it was reading what the gate itself saw (`live_text` + the pattern) rather than
+trusting the harness's verdict.
+
+**The rule this yields, and it generalizes past probes:** when a measurement and its instrument disagree,
+suspect the instrument that was written most recently. Here the probes were minutes old and the harness
+was seconds old. The harness lost.
+
+Running total for the two rounds: **six claim-or-count defects in my own work, plus four instrument
+defects** (`R9-nocount`'s first pattern, `R9-clock2`'s first pattern, `R9-wave2`'s wrong file, and this
+harness). Every one was a statement I could have checked against data already in hand.
