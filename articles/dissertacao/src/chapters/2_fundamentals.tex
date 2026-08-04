@@ -269,9 +269,24 @@ and~\ref{ch:courb} combine category classification
 (Definition~\ref{def:fund:nextcat}). Chapter~\ref{ch:mobiwac} combines next-category
 prediction with next-region prediction (Definition~\ref{def:fund:nextreg}). All three
 studies use seven categories: Community, Entertainment, Food, Nightlife, Outdoors,
-Shopping, and Travel. For the region task, the target is a census tract in the United
-States datasets and a \emph{mahalle} in Istanbul. These output spaces require different
-metrics and reference points, as Section~\ref{sec:fund:eval} explains.
+Shopping, and Travel. For the region task, the target is an administrative unit at
+neighborhood scale. These output spaces require different metrics and reference points,
+and Section~\ref{sec:fund:eval} both names the unit each dataset supplies and explains
+the measurement.
+% AUT-18, first half (PENDENCIAS §4, author ruling). The specific unit names left the task
+% definition. His reasoning, and it settles a point I had argued the other way: the definition should
+% hold for any dataset the work later adds, so it names the KIND of unit, while the dataset
+% description names the instance. "we can refer to them generically, and be specific in the dataset
+% description."
+% ONE THING HE ALSO RULED OUT, recorded because it would otherwise look like an omission: the text
+% must NOT observe that the papers are non-generalist, or treat that as a shortcoming to flag.
+% TWO DEFECTS FROM MY FIRST ATTEMPT, both fixed here. (1) It pointed at Section~\ref{sec:fund:eval}
+% for unit names that section did not yet carry; the names are now added there first, and this pointer
+% was written only after measuring that they had landed. (2) It left TWO references to
+% Section~\ref{sec:fund:eval} in consecutive sentences; the pointer and the measurement note are now
+% one sentence with one reference.
+% The unit names survive in §2.4.1, in Ch.1 §1.2, and in Ch.5, which is a version of record and is
+% not touched. Probe: R13-aut18.
 
 \subsection{Related sequential prediction settings}
 
@@ -1393,9 +1408,22 @@ The experiments use two sources of check-ins. Gowalla is the main source, and th
 dissertation evaluates Alabama, Arizona, Florida, California, and
 Texas~\cite{cho2011gowalla}. Istanbul check-ins come from Massive-STEPS, which also
 draws attention to the field's continued dependence on old
-datasets~\cite{wongso2025massivesteps}. The Foursquare dataset for New York and Tokyo
+datasets~\cite{wongso2025massivesteps}. The two sources supply different administrative
+units for the region target: a census tract in the five United States datasets, and a
+\emph{mahalle}, a municipal neighborhood, in Istanbul. The Foursquare dataset for New
+York and Tokyo
 is another common benchmark~\cite{yang2015tsmc}, but it provides context only and is
 not used in the experiments reported here.
+% AUT-18, second half (PENDENCIAS §4). The unit names arrive HERE, in the dataset description, and
+% this half is written FIRST so that the pointer added to the task definition in §2.1.1.3 is true at
+% the moment it is written.
+% WHY THE ORDER MATTERS, recorded because I got it wrong on the first attempt: I initially deleted the
+% names from the definition and pointed the reader at this subsection before adding them here. Measured
+% afterward, the chapter then carried NO unit name anywhere, so the new cross-reference pointed at a
+% subsection that did not name what it promised, and a provenance comment asserted the names "survive
+% in §2.4.1" when the only surviving occurrences were in Ch.1, Ch.5, and tables/mobiwac/datasets.tex.
+% A pointer whose target does not carry the referent is worse than the specificity it replaced.
+% Probe: R13-aut18b.
 % [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
 % [round6, N-2, fact gate persona 06/07] REPAIRED. This clause used to read "Chapter 3 reports
 % five-fold cross-validation without identifying the split axis", which was true of the PUBLISHED
@@ -1553,13 +1581,22 @@ Theoretical limits from prior work, such as the 93~percent potential predictabil
 reported for coarse location prediction~\cite{song2010limits}, do not serve as
 ceilings for seven-class macro-F1 or region ranking.
 
-\subsection{Validation and statistical decisions}
+% AUT-31 (PENDENCIAS §4, author ruling "OK"). §2.4's third subsection did two jobs: it described how
+% the data is divided AND which comparison each design supports. A reader after one had to read past
+% the other. The split material becomes its own subsection and the remainder is renamed for what it
+% now does alone.
+% THE LABEL WAS THE RISK AND IT IS NOT AFFECTED: \label{sec:fund:eval} sits on the SECTION
+% (\section{Datasets and evaluation}, :1271-1272), not on either subsection, and it is referenced six
+% times. Verified before moving anything; no \ref target changes and no subsection carries a label.
 
-The validation design determines which generalization claim and comparison verb each
-result can support.
+\subsection{Preparation and data split}
 
-The validation protocol determines whether a result generalizes beyond familiar
-users. The studies use stratified cross-validation~\cite{kohavi1995crossval}, but the
+How the check-ins are divided determines which population a result covers.
+% The first draft of this line read "decides which population a result speaks for", which gate 25
+% flagged as a Class B shape: an abstract noun as the agent of a speech verb. A result does not speak.
+% WRITING_LAW §1 bans the shape, so the sentence names the relation instead of animating the result.
+
+The studies use stratified cross-validation~\cite{kohavi1995crossval}, but the
 split changes across chapters. Chapters~\ref{ch:cbic} and~\ref{ch:courb} stratify
 samples, so one user's check-ins may occur in both training and validation.
 Chapter~\ref{ch:mobiwac} instead uses a grouped, stratified splitter that keeps each
@@ -1568,6 +1605,11 @@ complete repetition of the five-fold experiment with a different random
 initialization. Four seeds over one fixed set of five folds produce twenty fitted
 models per configuration. The fixed folds isolate random-initialization variation but
 do not measure uncertainty from resampling the users.
+
+\subsection{Comparison and statistical decisions}
+
+The validation design determines which generalization claim and comparison verb each
+result can support.
 
 Chapters~\ref{ch:cbic} and~\ref{ch:courb} report fold means and standard deviations
 without significance tests. The inferential rules therefore apply to
