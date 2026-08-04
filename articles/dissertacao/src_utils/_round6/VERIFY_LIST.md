@@ -517,6 +517,12 @@ be exactly right about what changed. Ledger finding L-9.
 > appendix moved out of the defense build in round 7, which is why this item's "page 95" no longer
 > resolves there). Every component reconciles against the source, counted with this tree's own
 > stripper over the seven `4_courb/*.tex` files, `4_courb.tex`, and the four `tables/courb/*.tex`:
+>
+> **ROUND-EXTRAVOL, this session — RECOUNTED to 27 (22 in prose).** Removing the Tarik
+> first-authorship sentence from `4_courb.tex`'s preface (author instruction, unrelated to this
+> normalization) dropped one of the 23 prose `MTLnet` occurrences as a side effect. The appendix
+> prose and the EXPECT annotation below are both updated to 27 / 22; the command and its scope are
+> unchanged.
 > ```bash
 > cd /Users/vitor/Desktop/mestrado/ingred/articles/dissertacao
 > python3 -c "
@@ -540,7 +546,7 @@ be exactly right about what changed. Ledger finding L-9.
 > print('prose', b['prose'], 'subsection', b['subsection'],
 >       'caption', b['caption'], 'table', b['table_heading'], 'total', sum(b.values()))
 > "
-> # EXPECT: contains=prose 23 subsection 2 caption 1 table 2 total 28
+> # EXPECT: contains=prose 22 subsection 2 caption 1 table 2 total 27
 > ```
 > The two table-heading sites are `tables/courb/category.tex:10` and `tables/courb/next.tex:10`, both
 > `\textbf{MTLnet}` column heads. Note what the earlier count missed and why: the phrase "in the

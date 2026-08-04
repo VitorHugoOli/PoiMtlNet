@@ -149,10 +149,20 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
      "does not depend on holding another document",
      "chapters/5_mobiwac/02_related.tex",
      r"measured on the final model across seven datasets, is\s+positive at every one of them", True),
-    ("A9-ptr",   "2.9: the pointer to the gradient-cosine appendix lives in the section preamble, where "
-     "an internal ref resolves",
+    # [round14] A9-ptr REVERSED, and the reversal is the point of the entry. It used to require the
+    # gradient-cosine appendix pointer to be PRESENT in this file (round 9 put it in the section
+    # preamble so an internal \ref would resolve). The author then ruled that the article bodies of
+    # Chapters 3-5 must read as standalone papers and may carry no reference to dissertation
+    # structure, which retires the reason the pointer was placed here. The probe now guards the
+    # ABSENCE instead of the presence, so a later sweep cannot quietly restore it.
+    # The substantive claim is untouched and still guarded by A9-diss above: the seven-dataset
+    # result is stated in this chapter in wording that stands without holding another document.
+    # The appendix itself stays reachable from the frame: 1_introduction.tex, 2_fundamentals.tex,
+    # and 6_conclusion.tex each cite apx:cosine (measured this round, 1 live ref each).
+    ("A9-ptr",   "2.9 SUPERSEDED by the round-14 standalone rule: the article body no longer points at "
+     "the gradient-cosine appendix, and the frame chapters carry that pointer instead",
      "chapters/5_mobiwac/02_related.tex",
-     r"Appendix~\\ref\{apx:cosine\} reports the gradient-cosine", True),
+     r"Appendix~\\ref\{apx:cosine\}", False),
     ("A9-oldnum","2.9: the earlier four-seed figures are LEFT AS THEY WERE, not silently restated as the "
      "seven-dataset result (this is the pair whose presence the withdrawn probe mistook for proof)",
      "chapters/5_mobiwac/02_related.tex", r"\+0\.0032", True),
@@ -1388,6 +1398,63 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
      "chapters/2_fundamentals.tex",
      r"residual layers conditioned by Feature-wise Linear Modulation \(FiLM\) as its\s+shared middle",
      True),
+
+    # ---- round 14, the CoUrb preface protocol sentence -------------------------------
+    # The author asked for the sentence to be deleted on the premise that CoUrb had used
+    # Chapter 5's protocol. It had not. CoUrb's own code of record (github.com/TarikSalles/
+    # Spatial_Embeddings, PoiMtlNet_Novo/src/etl/mtl/create_fold.py) builds folds with
+    # StratifiedKFold at :223, calls next_skf.split(x_next, y_next) at :255 with NO groups=
+    # argument, and drops userid from the feature frame at :195 -- so one user's windows can
+    # land in both sides, which is sample-stratified, not user-disjoint. Chapter 3 states the
+    # same splitter for CBIC (3_cbic/results.tex). So the two chapters DO share a protocol,
+    # which is the author's point, but the shared one is the sample-stratified one. Resolution
+    # (author-chosen, of three offered): keep the protocol fact, drop the "weaker protocol"
+    # judgment and the singling-out of CoUrb, and say the two chapters share it.
+    # RPV-01 guards the removal, RPV-02 the replacement. Both are needed: without RPV-02 a
+    # future sweep could delete the sentence outright and RPV-01 would still pass.
+    ("RPV-01", "4_courb.tex's preface no longer calls its protocol weaker than Chapter 5's, and no "
+               "longer presents the sample-stratified split as this chapter's alone",
+     "chapters/4_courb.tex",
+     r"a weaker protocol than the user-disjoint", False),
+
+    ("RPV-02", "and the preface states instead that Chapters 3 and 4 share one sample-stratified "
+               "protocol, so the protocol disclosure survives the rewording",
+     "chapters/4_courb.tex",
+     r"share one evaluation protocol, which\s+stratifies the cross-validation split by sample rather than by user",
+     True),
+
+    # ---- round 14, the standalone rule for the article bodies -------------------------
+    # Author's rule: the reproduced article bodies of Chapters 3-5 must read as standalone
+    # papers, so no file under chapters/{3_cbic,4_courb,5_mobiwac}/ may reference a sibling
+    # chapter, a dissertation appendix, or a frame section. Seven sites were rewritten this
+    # round. The chapter PREFACES (chapters/3_cbic.tex, 4_courb.tex, 5_mobiwac.tex) are
+    # EXEMPT and deliberately so: NORTH_STAR "Ch.3/4/5 prefaces" requires the cross-chapter
+    # time-capsule framing there, and a preface is dissertation frame, not article text.
+    # An internal Section~\ref inside one article is also legal and expected -- a standalone
+    # paper cross-references its own sections. These probes therefore target ONLY the
+    # cross-document forms: Chapter~\ref{ch:...}, Appendix~\ref{apx:...}, ref{sec:fund...}.
+    # STL-01..04 are absence probes, one per body file that had a violation, so a
+    # regression names the file. STL-05 guards the replacement wording that carries the
+    # protocol disclosure, which must survive the removal of the Chapter 5 comparison.
+    ("STL-01", "3_cbic's results body no longer points forward to Chapter 5 for the protocol "
+               "comparison, while keeping the sample-stratified and single-seed disclosures",
+     "chapters/3_cbic/results.tex", r"Chapter~\\ref\{ch:", False),
+
+    ("STL-02", "4_courb's related-work body introduces MTLnet by citation rather than by chapter",
+     "chapters/4_courb/related.tex", r"Chapter~\\ref\{ch:", False),
+
+    ("STL-03", "4_courb's results body no longer points forward to Chapter 5",
+     "chapters/4_courb/results.tex", r"Chapter~\\ref\{ch:", False),
+
+    ("STL-04", "5_mobiwac's related-work body names neither a sibling chapter nor the "
+               "gradient-cosine appendix nor the containing dissertation",
+     "chapters/5_mobiwac/02_related.tex",
+     r"Chapter~\\ref\{ch:|Appendix~\\ref\{apx:|this dissertation", False),
+
+    ("STL-05", "and the sample-stratified disclosure survives in both results bodies, so making "
+               "them standalone did not drop the limitation the pointers were attached to",
+     "chapters/3_cbic/results.tex",
+     r"stratified splitter over the samples rather than over the users", True),
 )
 
 # COD-016b needs a STRUCTURAL probe, not a string one, so it lives here rather than in PROBES --

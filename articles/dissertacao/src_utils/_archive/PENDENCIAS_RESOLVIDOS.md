@@ -3765,10 +3765,13 @@ referencia de um capitulo do volume principal ao volume suplementar ("Appendix B
 supplementary volume").**
 
 **Item A — autoria.** Duas sentencas vivas no repositorio afirmavam "Tarik S. Paiva is the first
-author" / "second author": `1_introduction.tex:316` (bullet do capitulo 4 na lista de organizacao) e
-a antiga preface de `4_courb.tex` (ja removida fora desta sessao, antes de eu comecar). Removida a
-sentenca restante em `1_introduction.tex`, mantendo a contribuicao real do autor da dissertacao
-(baseline MTLnet, apresentador) sem a ranking de autoria. **A entrada da bibliografia
+author" / "second author": a preface de `4_courb.tex` e o bullet do capitulo 4 na lista de
+organizacao, `1_introduction.tex:316`. **As duas foram removidas nesta rodada**, mantendo a
+contribuicao real do autor da dissertacao (baseline MTLnet, apresentador) sem a ranking de autoria.
+Nota de correcao: uma versao anterior deste bloco afirmava que a sentenca de `4_courb.tex` "ja havia
+sido removida fora desta sessao, antes de eu comecar". Isso estava ERRADO e contradizia o proprio
+paragrafo de efeito colateral abaixo, que atribui a esta rodada o corte da ocorrencia de "MTLnet"
+daquela mesma sentenca. A remocao foi feita aqui. **A entrada da bibliografia
 (`references.bib`, `paiva2026stmtlnet`) foi deixada intacta por decisao explicita do autor** — e o
 registro verdadeiro e verificado no Crossref da lista de autores do artigo publicado, nao uma
 narrativa sobre quem escreveu o capitulo da dissertacao, e alterar essa entrada violaria o protocolo
@@ -3789,7 +3792,8 @@ uma ocorrencia incidental de "MTLnet" que a contagem de normalizacao do Apendice
 com o mesmo metodo da rodada 6: 27 no total, 22 em prosa. Corrigido em `apx_b_errata.tex` e na
 anotacao `EXPECT` de `_round6/VERIFY_LIST.md`.
 
-**Sondas.** Doze sondas novas (`RTV-01` a `RTV-08b`) em `check_audit_claims.py`, cada uma validada
+**Sondas.** Dez sondas novas (`RTV-01`, `02`, `03`, `04`, `05`, `06`, `06b`, `07`, `08`, `08b`) em
+`check_audit_claims.py`, cada uma validada
 por sabotagem nas duas direcoes (reverter a edicao -> `NOT APPLIED`, `rc=1`; restaurar -> `holds`,
 `rc=0`).
 

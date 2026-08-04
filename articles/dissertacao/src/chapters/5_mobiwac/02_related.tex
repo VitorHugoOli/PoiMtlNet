@@ -9,8 +9,9 @@
 \section{Background and Related Work}
 \label{sec:mobiwac:related}
 
-\subsection{The MTLnet framework and the representation diagnosis}
-\label{sec:mobiwac:related-recap}
+% [AUTHOR NOTE] I HAVE COMMENTED
+%\subsection{The MTLnet framework and the representation diagnosis}
+%\label{sec:mobiwac:related-recap}
 % [NEEDS SIGN-OFF: raised v1 assembly, 2026-07-23 | new-to-chapter recap subsection (the bridging device mandated by
 % NORTH_STAR section 3: Ch.5 recaps BOTH the Ch.3 artifact and the Ch.4 finding). Content
 % from the approved spine (NORTH_STAR sections 2 and 6) and the GLOSSARY model-lineage table;
@@ -21,22 +22,29 @@
 % identical with the [mobiwac] article, which has no appendix and whose reader may not hold this
 % dissertation, so it was rewritten to stand alone. This paragraph is dissertation-only prose --
 % it already refers to Chapters 3 and 4 by \ref -- so an internal \ref is at home in it.
-Two chapters of this dissertation precede this study, and this chapter answers the
-question that they leave open. Appendix~\ref{apx:cosine} reports the gradient-cosine
-diagnostic of this chapter on the final model across seven datasets. Chapter~\ref{ch:cbic} introduced MTLnet, the first
-joint model for this task pair: task-specific encoders feed shared layers
-conditioned on task identity, and a gradient-balancing method weights the two tasks
-during training~\cite{silva2025mtlnet}. On a place-level embedding with hard
-parameter sharing, that joint model did not outperform the dedicated single-task
-models, the conclusion of the time for that configuration.
-Chapter~\ref{ch:courb} kept the MTLnet architecture unchanged and replaced its
-single 64-dimensional place-level input with decomposed spatial, temporal, and
-categorical encoders (ST-MTLNet); the category score rose at each of the three
-states studied, so the input representation, not the sharing architecture, was
-identified as the bottleneck~\cite{paiva2026stmtlnet}. This chapter carries that diagnosis one step
-further: the representation moves from the place level to the check-in level, the
-sharing topology is redesigned around it, and the earlier negative conclusion is
-revisited under this new configuration.
+% [round14] STANDALONE. This paragraph opened by naming "two chapters of this dissertation" and
+% pointing at Appendix~\ref{apx:cosine}; both are dissertation structure, which an article body may
+% not carry. The two predecessors are real published papers (CBIC 2025, CoUrb 2026) and were already
+% cited here, so they are now introduced as prior work by citation. The gradient-cosine sentence is
+% dropped rather than reworded: it described a diagnostic that exists only in the dissertation's
+% appendix, so there is no standalone form of the claim. The appendix still reaches this material
+% from its own side, and the dissertation's frame chapters point readers at it
+% (1_introduction.tex, 2_fundamentals.tex, 6_conclusion.tex all cite apx:cosine).
+%Two earlier studies precede this one, and this study answers the
+%question that they leave open. The first introduced MTLnet, the first
+%joint model for this task pair: task-specific encoders feed shared layers
+%conditioned on task identity, and a gradient-balancing method weights the two tasks
+%during training~\cite{silva2025mtlnet}. On a place-level embedding with hard
+%parameter sharing, that joint model did not outperform the dedicated single-task
+%models, the conclusion of the time for that configuration.
+%The second kept the MTLnet architecture unchanged and replaced its
+%single 64-dimensional place-level input with decomposed spatial, temporal, and
+%categorical encoders (ST-MTLNet); the category score rose at each of the three
+%states studied, so the input representation, not the sharing architecture, was
+%identified as the bottleneck~\cite{paiva2026stmtlnet}. This chapter carries that diagnosis one step
+%further: the representation moves from the place level to the check-in level, the
+%sharing topology is redesigned around it, and the earlier negative conclusion is
+%revisited under this new configuration.
 
 \subsection{From place embeddings to per-visit embeddings}
 \label{sec:mobiwac:related-embeddings}
@@ -160,12 +168,17 @@ there while collapsing on next-region.
 % PARITY: the same edit is applied in articles/[mobiwac]/src/sections/02_related.tex, since Chapter 5
 % is under review and the two texts stay identical; logged in articles/[mobiwac]/ERRATA.md rather than
 % in Appendix B.
+% [round14] STANDALONE. "which this dissertation does not otherwise use" named the containing
+% document from inside an article body. Rewritten to say the same thing about THIS study, which is
+% the honest scope note either way: Georgia carried the diagnostic but is not one of the datasets
+% reported here; the dataset-count phrase also moved to the abbreviated registry form. Probes:
+% STL-04 (this file names no sibling chapter, no appendix, and not the dissertation).
 The reason is visible in the gradients. Measured during development on the same
 joint architecture (on an earlier preparation of the data), the cosine
 similarity between the next-category and next-region updates on the shared
 trunk averages $+0.001$ across training (four seeds each on four Gowalla
-states: Alabama, Arizona and Florida, which are three of the five United States datasets reported
-here, and Georgia, which this dissertation does not otherwise use; the largest per-dataset mean in
+states: Alabama, Arizona and Florida, which are three of the five U.S. datasets reported
+here, and Georgia, which is not among the datasets this study reports; the largest per-dataset mean in
 absolute value is $+0.0032$). A balancer therefore has no
 conflict to resolve, consistent with the mechanism test in
 Section~\ref{sec:mobiwac:results-part2}; this is a finding for this pair of tasks, not a

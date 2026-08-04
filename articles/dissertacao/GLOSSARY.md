@@ -72,7 +72,7 @@
 | Term | Definition | Notes |
 |---|---|---|
 | **check-in** | One visit record (user, POI, timestamp) from an LBSN. | never "event" |
-| **POI / place** | Point of Interest — a place a person can visit. | expand POI at first use; never "venue" |
+| **POI / place** | Point of Interest — a place a person can visit. | expand POI at first use; never "venue". **Hyphenation (settled, round 14):** open as a noun ("a point of interest", and the `siglas` expansion "Point of Interest"); hyphenated only attributively before the noun it modifies ("point-of-interest prediction"). This is WRITING_LAW §1's compound-adjective rule and APA's; both forms in the document are correct and neither is a drift to "standardize". Audited round 14: all 10 in-text uses conform, zero attributive uses left open. The `Multi-Task` in the CBIC and MobiWac chapter prefaces is a verbatim published title and stays. |
 | **region** | The spatial prediction unit: a census tract (U.S.); a mahalle (Istanbul). | name the unit at first use |
 | **Gowalla** | Public LBSN dataset (2009–2010 check-ins); we use five U.S. states: AL, AZ, FL, CA, TX. | vintage stated in limitations |
 | **Istanbul (Massive-STEPS)** | The non-U.S. dataset (Ch.5): Istanbul check-ins from the Massive-STEPS benchmark, mapped to the 7-category taxonomy. | |
