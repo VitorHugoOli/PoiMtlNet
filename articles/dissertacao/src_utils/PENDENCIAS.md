@@ -281,6 +281,66 @@ reescrito sem nomear o capitulo irmao, ou se desaparece.
 > e eu aplico a mesma disciplina que os sete `\extravolume`: dobrar o fato in-line onde carrega
 > conteudo, cortar onde e ponteiro puro.
 
+> **FECHADO na rodada 14 (2026-08-04).** Voce deu exatamente essa decisao: *"In the articles(chap 3
+> to 5), they must work as a standalone text, so they must not have a mention of the appendix of the
+> dissertation or to sections of the dissertations."* Os dois grupos acima foram aplicados: sete
+> referencias cruzadas removidas de quatro arquivos de corpo, com a disciplina prometida (dobrar o
+> fato onde ele carrega conteudo, cortar onde e ponteiro puro). O MTLnet passou a ser introduzido por
+> citacao ao artigo publicado (CBIC 2025) em vez de por numero de capitulo; as divulgacoes de
+> protocolo (split estratificado por amostra, cinco folds em uma semente) **permaneceram integras** e
+> so perderam a comparacao com o Cap. 5. As prefaces mantiveram a moldura entre capitulos, porque o
+> `NORTH_STAR` a exige e a preface e prosa de moldura, nao prosa reproduzida do artigo. Probes
+> `STL-01` a `STL-05` guardam o resultado, cada um validado por sabotagem. Commit `2bb82234`.
+
+### 2.32 O Apendice E (Check2HGI e o modelo conjunto) nao e citado por nenhum capitulo
+
+**O fato, medido.** O rotulo `apx:check2hgi-joint-model` aparece **zero** vezes como `\ref` em prosa
+viva em todo o `src/chapters/` e `src/tables/`. A unica ocorrencia no documento e a propria
+declaracao `\label` na linha 3 de `chapters/apx_h_check2hgi_joint_model.tex`, e um `\label` nao e uma
+referencia. Comando que reproduz a medicao:
+
+```bash
+cd articles/dissertacao
+for f in $(find src/chapters src/tables -name "*.tex"); do
+  n=$(grep -v '^[[:space:]]*%' "$f" | grep -c "ref{apx:check2hgi-joint-model}")
+  [ "$n" != "0" ] && echo "$f: $n"
+done   # nao imprime nada
+```
+
+**Por que isso importa.** Compare com o apendice do cosseno de gradientes, que e apontado de tres
+lugares em prosa viva (`1_introduction.tex`, `2_fundamentals.tex`, `6_conclusion.tex`). Um leitor que
+chega ao Apendice E chegou por acidente: nenhum ponto do argumento diz que a explicacao operacional
+do Check2HGI e do modelo conjunto existe. Sao dez paginas (107-116 no build de defesa) que o
+documento nao anuncia.
+
+**Por que eu nao apliquei.** Duas razoes, e a segunda e a que manda:
+
+1. O hospedeiro natural e o Capitulo 5, cujo corpo esta sob o regime de errata do artigo submetido
+   (`NORTH_STAR` §4 reserva alteracoes no corpo dele). Um ponteiro novo ali nao e uma edicao neutra.
+2. **Escolher para onde mandar o leitor e decisao editorial sua, nao minha.** Ha pelo menos tres
+   lugares defensaveis e eles dizem coisas diferentes sobre o papel do apendice.
+
+> **DECISAO SUA.** As opcoes, com o que cada uma implica:
+>
+> - **(a) Na preface do Cap. 5.** A preface e prosa de moldura, entao nao toca o corpo sob errata e
+>   nao conflita com a regra standalone da rodada 14 (que vale para os corpos dos artigos, nao para
+>   as prefaces). E o caminho de menor atrito e a minha sugestao se voce quiser resolver em uma linha.
+> - **(b) No Cap. 2 (Fundamentacao), onde a representacao no nivel de check-in e definida.** Poe o
+>   apendice ao lado da teoria que ele detalha, e o Cap. 2 ja aponta para `apx:cosine`, entao o padrao
+>   existe. Custa uma frase em prosa de moldura, tambem sem tocar o corpo do Cap. 5.
+> - **(c) No corpo do Cap. 5 (secao de metodo).** E onde um leitor mais provavelmente sente falta da
+>   explicacao, mas exige entrada no `ERRATA.md` do artigo e conflita com a regra standalone que voce
+>   acabou de estabelecer: o corpo do artigo passaria a apontar para um apendice da dissertacao,
+>   exatamente o que a rodada 14 removeu. **Nao recomendo.**
+>
+> Diga (a), (b) ou (c) e eu aplico com o probe correspondente.
+
+**Nota separada, cosmetica, sem acao pedida.** O arquivo chama-se `apx_h_check2hgi_joint_model.tex`
+mas imprime como **Apendice E**, porque B, D e G foram para o volume suplementar e as letras impressas
+agora correm A, B, C, D, E sobre os arquivos A, C, E, F, H. Nada depende do nome do arquivo e nenhuma
+letra esta escrita a mao em lugar algum, entao e uma verruga de nomenclatura, nao um defeito. Renomear
+tocaria `content.tex:398` e mais nada.
+
 ## §3 · Aberto e bloqueado em terceiros
 
 | Item                                               | Bloqueado em                     | Estado                                                                                                                                                                                                                                        |
@@ -383,21 +443,6 @@ reescrito sem nomear o capitulo irmao, ou se desaparece.
 - **Build medido contra:** `c13fe4d2` (build/main.pdf, 105 pp, mtime 2026-08-03 21:21:31)
 
 > DECISSAO: Deixar esse ponto aberto, vou perguntar para meu orientador.
-
-### AUT-38 — item vazio no fonte
-
-- **§4 item:** 37
-- **Source status:** [N/A] — o item 37 existe como "37." seguido de duas linhas em branco. Nao ha texto.
-- **Minha leitura e avaliacao:** Nao ha nada para auditar. Reservei o ID para que a numeracao nao seja reciclada se voce
-  escrever aqui depois, que e a regra deste arquivo.
-- **Plano de resolucao proposto:** Escrever o pensamento, ou apagar o marcador. Se escrever, ele entra na proxima
-  passada com este ID.
-- **Sobreposicoes e dependencias:** Nenhuma.
-- **Disposicao alvo:** **[BLOCKED]** — vazio no fonte; aguarda o seu texto.
-- **Onde renderiza:** n/a
-- **Build medido contra:** `c13fe4d2` (build/main.pdf, 105 pp, mtime 2026-08-03 21:21:31)
-
-> DECISSAO: NADA A FAZER.
 
 ---
 
