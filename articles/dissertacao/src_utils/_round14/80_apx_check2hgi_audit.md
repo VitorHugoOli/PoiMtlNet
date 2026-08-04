@@ -192,8 +192,9 @@ misread as an infrastructure problem rather than a register hit.
 The three main-volume targets each gained one page against the pre-round baseline (116 / 113 / 117),
 because Table 12 gained the prior-OFF row and reflowed. `extra` is unchanged.
 
-**Left for the author, deliberately:** T1 (the stale two-layer GRU line in
-`science/mtl_v17_complete_picture.md:409`) and T2 (no chapter points at Appendix E).
+**T1 and the title-page label: CLOSED on the author's instruction (see §9). T2 remains open**
+(no chapter points at Appendix E) -- that one is an editorial call about where to send the
+reader, and it would touch the under-review Chapter 5.
 
 ---
 
@@ -215,3 +216,49 @@ added (per its own header note) because concurrent builds previously corrupted e
 aux files. Building the four targets concurrently is therefore safe and is what this round
 does. The one caveat: do not run two builds of the SAME target at once, which produced a
 spurious `ppgc: rc=2` earlier in this session.
+
+
+---
+
+## 9 · T1 and the advisor label, closed
+
+Both were flagged rather than fixed in the first pass and the author then asked for them.
+
+**T1, the GRU depth: the theory document was corrected, not the appendix.** The direction is
+the point. `mtl_v17_complete_picture.md` said "two layers" in TWO places (the §3.4 code block
+and the §11 checklist); the runtime value is four; Appendix E already said four and was right.
+The trap that produced the error is worth stating, because it makes the wrong answer look
+verified: `NextHeadGRU.__init__` really does declare `num_layers: int = 2`
+(`next_gru/head.py:18`), so reading the head file alone confirms "two". That default never
+applies on the MTL path -- `MTLnet` forwards its model-level `num_layers` into the category
+head (`mtlnet/model.py:161-166`, `:243`) and the MTL config sets `"num_layers": 4`
+(`configs/experiment.py:428`), with no `--num-layers` in the v17 command to override it.
+
+Settled by instantiation rather than by reading, which is the only way to be sure which
+default wins:
+
+```
+gru.num_layers = 4      weight_ih parameter sets = 4
+gru.hidden_size = 256   bidirectional = False
+```
+
+§3.4 now carries that explanation, so the next reader does not "correct" it back to the head
+default.
+
+**The advisor label: the macro was restored, not the text relabelled.** `abntex2-UFV.sty`
+hardcoded `Orientador:` with the language-aware `\imprimirorientadorRotulo` commented out on
+the line directly above. `\orientadorname` is already `Supervisor:` under the `english` class
+option (`abntex2.cls:183` -- the same block that yields this document's "APPENDIX", "Abstract",
+and "List of abbreviations and acronyms"), and the signature page eleven lines below already
+read "Adviser", so the file was inconsistent with itself and with the language the document
+selects. Rendered title page now reads `Supervisor: Fabrício Aguiar Silva`, zero occurrences
+of "Orientador". The line is inherited from UFV's own template, so the deviation is recorded
+in the file and reverting that hunk restores the template's literal.
+
+**One instrument defect found by sabotage, worth recording.** `ORI-01`'s first pattern was
+`r"^\s*\{Orientador:~"`. This engine matches with `re.I` only and never `re.MULTILINE`, so
+`^` binds to STRING START and cannot match mid-file: the probe reported "holds" even with the
+Portuguese literal restored. It guarded nothing. Sabotage validation is the only reason this
+surfaced, and it is a reusable lesson for probes in this file -- **never anchor a probe pattern
+with `^` here.** Fixed to an unanchored literal; both `ORI-01` and `ORI-02` now flip on
+sabotage and hold when restored.
