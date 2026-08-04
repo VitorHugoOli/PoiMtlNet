@@ -15,6 +15,8 @@ nao lista item por item.
 Apendice B (5), Apendice B (1), Apendice C (1), Apendice D (1), Apendice E (1), Volume suplementar: plataforma (4),
 Volume suplementar: sujeitos humanos (1), Volume suplementar (2)
 
+**Estado da auditoria (2026-08-04): 2 MECANICO (pode fechar), 1 PARCIAL, 46 PRECISA DE VOCE, 7 AMBIGUO.** Cada item abaixo carrega essa etiqueta no proprio titulo, entre `### N.` e o texto; veja `## Auditoria` mais abaixo para a tabela completa com o motivo de cada um.
+
 ---
 
 ## Auditoria de 2026-08-03 — validade, obsolescencia e o que ja pode fechar
@@ -120,7 +122,7 @@ abertos; os outros ja fecharam).
 
 ## 0. Resumo/Abstract (content.tex)
 
-### 1. Sign-off pendente: corte Resumo/Abstract, termo 'Modelos ajustados' e bloco orfao
+### 1. [PARCIAL — uma parte fecha, outra nao] Sign-off pendente: corte Resumo/Abstract, termo 'Modelos ajustados' e bloco orfao
 
 **Local:** `src/content.tex:51`
 
@@ -147,7 +149,7 @@ confirmada no texto.
 
 ---
 
-### 2. Confirmação de nomenclatura e omissões no resumo (Acc@10, macro-F1)
+### 2. [PRECISA DE VOCE] Confirmação de nomenclatura e omissões no resumo (Acc@10, macro-F1)
 
 **Local:** `src/content.tex:134`
 
@@ -167,7 +169,7 @@ macro-F1) e de escolha de verbo não-causal permanecem sem a aprovação explíc
 
 ---
 
-### 3. Corte no Abstract (par de paridade do Resumo) orfao
+### 3. [PRECISA DE VOCE] Corte no Abstract (par de paridade do Resumo) orfao
 
 **Local:** `src/content.tex:174`
 
@@ -197,7 +199,7 @@ dois blocos divergentes sem que isso seja percebido.
 
 ---
 
-### 4. Sign-off: métrica Acc@10, omissões e verbo 'depends on'
+### 4. [PRECISA DE VOCE] Sign-off: métrica Acc@10, omissões e verbo 'depends on'
 
 **Local:** `src/content.tex:226` — renderiza no volume **defesa**, p. 3
 
@@ -220,7 +222,7 @@ omissões de conteúdo -- permanece publicada sem a validação explícita do au
 
 ## 1. Introducao
 
-### 5. Reformulacao de frase duplicada com Cap.5 (gate L3, fix A-1)
+### 5. [PRECISA DE VOCE] Reformulacao de frase duplicada com Cap.5 (gate L3, fix A-1)
 
 **Local:** `src/chapters/1_introduction.tex:86` — renderiza no volume **defesa**, p. 13
 
@@ -239,7 +241,7 @@ aprovacao.
 
 ---
 
-### 6. Redacao de n=20/n=4 no veredito por regiao
+### 6. [MECANICO — pode fechar] Redacao de n=20/n=4 no veredito por regiao
 
 **Local:** `src/chapters/1_introduction.tex:316` — renderiza no volume **defesa**, p. 17
 
@@ -267,7 +269,7 @@ particao n=20/n=4 e sem a aprovacao do autor sobre a redacao alinhada ao Capitul
 
 ## 2. Fundamentos
 
-### 7. Escopo do teto de 93% (bound de Song) na secao 2.1
+### 7. [PRECISA DE VOCE] Escopo do teto de 93% (bound de Song) na secao 2.1
 
 **Local:** `src/chapters/2_fundamentals.tex:40` — renderiza no volume **defesa**, p. 18
 
@@ -288,7 +290,7 @@ aprovacao do autor, podendo publicar uma afirmacao ainda incorreta ou uma reform
 
 ---
 
-### 8. Reancoragem do numero NUM-4: valores de Cat F1 (HGI)
+### 8. [PRECISA DE VOCE] Reancoragem do numero NUM-4: valores de Cat F1 (HGI)
 
 **Local:** `src/chapters/2_fundamentals.tex:219` — renderiza no volume **defesa**, p. 20
 
@@ -314,7 +316,7 @@ ou a formulacao qualitativa) sem que a convencao de agregacao subjacente tenha s
 
 ---
 
-### 9. Sign-off da prosa da loss Check2HGI no Cap.2
+### 9. [PRECISA DE VOCE] Sign-off da prosa da loss Check2HGI no Cap.2
 
 **Local:** `src/chapters/2_fundamentals.tex:518` — renderiza no volume **defesa**, p. 23
 
@@ -353,7 +355,7 @@ sobre incluir ou nao os termos auxiliares do Cap.5 -- permanece publicada no Cap
 
 ---
 
-### 10. Prosa de enquadramento sobre linhagem MTLnet no Cap.2
+### 10. [PRECISA DE VOCE] Prosa de enquadramento sobre linhagem MTLnet no Cap.2
 
 **Local:** `src/chapters/2_fundamentals.tex:573`
 
@@ -385,7 +387,7 @@ a leitura conjunta dos resultados dos Caps. 3 e 5, permanece publicada sem a rev
 
 ---
 
-### 11. Limite de escopo do apendice de extensao por cosseno
+### 11. [PRECISA DE VOCE] Limite de escopo do apendice de extensao por cosseno
 
 **Local:** `src/chapters/2_fundamentals.tex:863` — renderiza no volume **defesa**, p. 9
 
@@ -407,7 +409,7 @@ modelo do Capitulo 3.
 
 ---
 
-### 12. Repeticao da alegacao de mecanismo do Apendice F no Capitulo 2
+### 12. [PRECISA DE VOCE] Repeticao da alegacao de mecanismo do Apendice F no Capitulo 2
 
 **Local:** `src/chapters/2_fundamentals.tex:863` — renderiza no volume **defesa**, p. 9
 
@@ -427,7 +429,7 @@ ampliada, sem a aprovacao do autor.
 
 ---
 
-### 13. Remoção de duas definições de métricas e uma referência
+### 13. [PRECISA DE VOCE] Remoção de duas definições de métricas e uma referência
 
 **Local:** `src/chapters/2_fundamentals.tex:1220` — renderiza no volume **defesa**, p. 28
 
@@ -446,7 +448,7 @@ e de uma referência da bibliografia, permanece sem a aprovação do autor.
 
 ---
 
-### 14. Frase-charneira sobre imagem almoço/sábado, órfã (gate L3, A-2)
+### 14. [PRECISA DE VOCE] Frase-charneira sobre imagem almoço/sábado, órfã (gate L3, A-2)
 
 **Local:** `src/chapters/2_fundamentals.tex:1415` — renderiza no volume **defesa**, p. 30
 
@@ -474,7 +476,7 @@ há conteúdo relevante associado a ele.
 
 ## 3. CBIC
 
-### 15. Remoção de vantagem arquitetural por misatribuição de referência (rodada 6)
+### 15. [AMBIGUO — releia o bloco original ou peca 2a opiniao] Remoção de vantagem arquitetural por misatribuição de referência (rodada 6)
 
 **Local:** `src/chapters/3_cbic/method.tex:207` — renderiza no volume **defesa**, p. 40
 
@@ -498,7 +500,7 @@ alegação de aprovação prévia do autor citada no bloco -- permanece sem a co
 
 ---
 
-### 16. Adicao de detalhe de protocolo e possivel frase sobre busca de hiperparametros
+### 16. [PRECISA DE VOCE] Adicao de detalhe de protocolo e possivel frase sobre busca de hiperparametros
 
 **Local:** `src/chapters/3_cbic/results.tex:111` — renderiza no volume **defesa**, p. 10
 
@@ -519,7 +521,7 @@ sua.
 
 ---
 
-### 17. Ambiguidade em frase reescrita sobre COD-016a
+### 17. [PRECISA DE VOCE] Ambiguidade em frase reescrita sobre COD-016a
 
 **Local:** `src/chapters/3_cbic/results.tex:153` — renderiza no volume **defesa**, p. 44
 
@@ -542,7 +544,7 @@ confirmacao do autor sobre qual das duas afirmacoes (COD-016a) e a correta.
 
 ## 4. CoUrb
 
-### 18. Frase adicionada no preface sobre resultado coautorado
+### 18. [PRECISA DE VOCE] Frase adicionada no preface sobre resultado coautorado
 
 **Local:** `src/chapters/4_courb.tex:55`
 
@@ -562,7 +564,7 @@ a aprovacao do autor e sem o sign-off do orientador.
 
 ---
 
-### 19. Narrowing de claim em prosa publicada (Cap. 4)
+### 19. [PRECISA DE VOCE] Narrowing de claim em prosa publicada (Cap. 4)
 
 **Local:** `src/chapters/4_courb/methodology.tex:81` — renderiza no volume **defesa**, p. 10
 
@@ -584,7 +586,7 @@ sem a aprovacao do autor sobre a forma (clausula vs. nota de rodape) escolhida p
 
 ---
 
-### 20. Sign-off pendente: frase sobre seed/StratifiedKFold no Cap. 4
+### 20. [PRECISA DE VOCE] Sign-off pendente: frase sobre seed/StratifiedKFold no Cap. 4
 
 **Local:** `src/chapters/4_courb/results.tex:42` — renderiza no volume **defesa**, p. 58
 
@@ -617,7 +619,7 @@ formulacao cautelosa -- que nao afirma que esse codigo exatamente gerou os exper
 
 ## 5. MobiWac
 
-### 21. Texto de abertura (time-capsule preface) novo no Cap. 5
+### 21. [PRECISA DE VOCE] Texto de abertura (time-capsule preface) novo no Cap. 5
 
 **Local:** `src/chapters/5_mobiwac.tex:25` — renderiza no volume **defesa**, p. 32
 
@@ -637,7 +639,7 @@ aprovada e no claim whitelist, permanece publicado sem a validacao do autor.
 
 ---
 
-### 22. Localização do apontamento ao apêndice gradient-cosine
+### 22. [MECANICO — pode fechar] Localização do apontamento ao apêndice gradient-cosine
 
 **Local:** `src/chapters/5_mobiwac/02_related.tex:14` — renderiza no volume **defesa**, p. 65
 
@@ -662,7 +664,7 @@ da frase idêntica ao artigo [mobiwac], permanece sem confirmação final do aut
 
 ---
 
-### 23. Confirmar novos numeros no capitulo (related work)
+### 23. [PRECISA DE VOCE] Confirmar novos numeros no capitulo (related work)
 
 **Local:** `src/chapters/5_mobiwac/02_related.tex:243` — renderiza no volume **defesa**, p. 4
 
@@ -679,7 +681,7 @@ do autor quanto a sua exatidao.
 
 ---
 
-### 24. Sign-off pendente: dois pointer targets no capitulo em revisao
+### 24. [PRECISA DE VOCE] Sign-off pendente: dois pointer targets no capitulo em revisao
 
 **Local:** `src/chapters/5_mobiwac/05_setup.tex:122` — renderiza no volume **defesa**, p. 11
 
@@ -697,7 +699,7 @@ entrada correspondente em ERRATA.md em articles/[mobiwac]/ pode nao ser criada c
 
 ---
 
-### 25. Restauracao da figura fig3_embquality no capitulo MobiWac
+### 25. [PRECISA DE VOCE] Restauracao da figura fig3_embquality no capitulo MobiWac
 
 **Local:** `src/chapters/5_mobiwac/06_results.tex:44`
 
@@ -720,7 +722,7 @@ dissertacao.
 
 ---
 
-### 26. Uso do termo 'cell' em resultado de tabela
+### 26. [PRECISA DE VOCE] Uso do termo 'cell' em resultado de tabela
 
 **Local:** `src/chapters/5_mobiwac/06_results.tex:232` — renderiza no volume **defesa**, p. 78
 
@@ -742,7 +744,7 @@ a aprovacao do autor da dissertacao.
 
 ---
 
-### 27. Sign-off: reescrita de interpretação e null result do F50 (Ch.5)
+### 27. [PRECISA DE VOCE] Sign-off: reescrita de interpretação e null result do F50 (Ch.5)
 
 **Local:** `src/chapters/5_mobiwac/06_results.tex:255` — renderiza no volume **defesa**, p. 78
 
@@ -771,7 +773,7 @@ autor.
 
 ---
 
-### 28. Confirmar abertura de secao com atribuicao suavizada (round 6)
+### 28. [PRECISA DE VOCE] Confirmar abertura de secao com atribuicao suavizada (round 6)
 
 **Local:** `src/chapters/5_mobiwac/07_discussion.tex:58` — renderiza no volume **defesa**, p. 80
 
@@ -794,7 +796,7 @@ artigo (com registro em ERRATA.md) permanecem sem a confirmacao final do autor.
 
 ---
 
-### 29. Ressalva de particao fixa na secao de limitacoes (Cap. 5, reproduzida do artigo)
+### 29. [PRECISA DE VOCE] Ressalva de particao fixa na secao de limitacoes (Cap. 5, reproduzida do artigo)
 
 **Local:** `src/chapters/5_mobiwac/07_discussion.tex:95` — renderiza no volume **defesa**, p. 80
 
@@ -822,7 +824,7 @@ no capitulo sem a sua aprovacao explicita.
 
 ## 6. Conclusao
 
-### 30. Confirmar escopo da afirmacao "outperforms both dedicated models"
+### 30. [PRECISA DE VOCE] Confirmar escopo da afirmacao "outperforms both dedicated models"
 
 **Local:** `src/chapters/6_conclusion.tex:27` — renderiza no volume **defesa**, p. 11
 
@@ -842,7 +844,7 @@ de 'outperforms', permanece sem validacao do autor.
 
 ---
 
-### 31. Duas frases adicionadas na prosa de enquadramento do autor
+### 31. [PRECISA DE VOCE] Duas frases adicionadas na prosa de enquadramento do autor
 
 **Local:** `src/chapters/6_conclusion.tex:75` — renderiza no volume **defesa**, p. 82
 
@@ -858,7 +860,7 @@ antes que este marcador possa ser removido.
 
 ---
 
-### 32. Reformulacao de frase + atribuicao da assimetria 64x192 (ST-MTLNet)
+### 32. [PRECISA DE VOCE] Reformulacao de frase + atribuicao da assimetria 64x192 (ST-MTLNet)
 
 **Local:** `src/chapters/6_conclusion.tex:75` — renderiza no volume **defesa**, p. 82
 
@@ -886,7 +888,7 @@ validacao do autor.
 
 ---
 
-### 33. Contagem/rotulo de 56.16 e 'vinte' orfaos apos limpeza
+### 33. [PRECISA DE VOCE] Contagem/rotulo de 56.16 e 'vinte' orfaos apos limpeza
 
 **Local:** `src/chapters/6_conclusion.tex:172`
 
@@ -911,7 +913,7 @@ podendo reintroduzir o erro original sem que o autor tenha validado isso.
 
 ---
 
-### 34. Correção 64.54→64.51 e bloco órfão após limpeza do texto
+### 34. [PRECISA DE VOCE] Correção 64.54→64.51 e bloco órfão após limpeza do texto
 
 **Local:** `src/chapters/6_conclusion.tex:172`
 
@@ -938,7 +940,7 @@ frase que já não existe no texto.
 
 ---
 
-### 35. Substituicao da sentenca interina sobre o run da California
+### 35. [PRECISA DE VOCE] Substituicao da sentenca interina sobre o run da California
 
 **Local:** `src/chapters/6_conclusion.tex:172`
 
@@ -971,7 +973,7 @@ estao corretos.
 
 ---
 
-### 36. Confirmar se Cap. 4 e Cap. 5 usaram o mesmo recorte de dados
+### 36. [PRECISA DE VOCE] Confirmar se Cap. 4 e Cap. 5 usaram o mesmo recorte de dados
 
 **Local:** `src/chapters/6_conclusion.tex:373` — renderiza no volume **defesa**, p. 85
 
@@ -996,7 +998,7 @@ tenha sido confirmada ou esclarecida pelo autor.
 
 ---
 
-### 37. Qualificar escopo de "closes the parameter-count explanation"
+### 37. [PRECISA DE VOCE] Qualificar escopo de "closes the parameter-count explanation"
 
 **Local:** `src/chapters/6_conclusion.tex:406` — renderiza no volume **extra**, p. 3
 
@@ -1020,7 +1022,7 @@ confirmacao do autor sobre seu escopo.
 
 ## Apendice A
 
-### 38. Nova prosa de enquadramento de todo o apendice
+### 38. [AMBIGUO — releia o bloco original ou peca 2a opiniao] Nova prosa de enquadramento de todo o apendice
 
 **Local:** `src/chapters/apx_a_contributions.tex:15` — renderiza no volume **defesa**, p. 12
 
@@ -1039,7 +1041,7 @@ permanece publicada sem a revisao e aprovacao do autor.
 
 ---
 
-### 39. Nova prosa de reprodutibilidade no Apendice A
+### 39. [PRECISA DE VOCE] Nova prosa de reprodutibilidade no Apendice A
 
 **Local:** `src/chapters/apx_a_contributions.tex:35` — renderiza no volume **defesa**, p. 95
 
@@ -1059,7 +1061,7 @@ publicada sem a revisao e aprovacao do autor.
 
 ---
 
-### 40. Forca do compromisso sobre disponibilizacao dos arquivos
+### 40. [PRECISA DE VOCE] Forca do compromisso sobre disponibilizacao dos arquivos
 
 **Local:** `src/chapters/apx_a_contributions.tex:82` — renderiza no volume **defesa**, p. 21
 
@@ -1079,7 +1081,7 @@ sobre a disponibilizacao dos arquivos, deixando a dissertacao exposta a question
 
 ## Apendice B (errata)
 
-### 41. Nova prosa de contexto no apêndice B (erratas)
+### 41. [PRECISA DE VOCE] Nova prosa de contexto no apêndice B (erratas)
 
 **Local:** `src/chapters/apx_b_errata.tex:123` — renderiza no volume **extra**, p. 2
 
@@ -1097,7 +1099,7 @@ permanece sem a aprovação do autor.
 
 ---
 
-### 42. Manter defeito factual apenas reportado ou corrigir via errata
+### 42. [PRECISA DE VOCE] Manter defeito factual apenas reportado ou corrigir via errata
 
 **Local:** `src/chapters/apx_b_errata.tex:177` — renderiza no volume **extra**, p. 9
 
@@ -1117,7 +1119,7 @@ formalmente via errata permanece sem a confirmacao do autor.
 
 ---
 
-### 43. Nova prosa do apendice sobre adicoes ao capitulo publicado
+### 43. [PRECISA DE VOCE] Nova prosa do apendice sobre adicoes ao capitulo publicado
 
 **Local:** `src/chapters/apx_b_errata.tex:212`
 
@@ -1135,7 +1137,7 @@ validacao do autor.
 
 ---
 
-### 44. Paragrafo de errata para mudanca puramente tipografica
+### 44. [AMBIGUO — releia o bloco original ou peca 2a opiniao] Paragrafo de errata para mudanca puramente tipografica
 
 **Local:** `src/chapters/apx_b_errata.tex:308` — renderiza no volume **extra**, p. 11
 
@@ -1155,7 +1157,7 @@ permanece sem sua aprovacao explicita.
 
 ---
 
-### 45. Sign-off pendente: prosa publica sobre resultado coautorado
+### 45. [PRECISA DE VOCE] Sign-off pendente: prosa publica sobre resultado coautorado
 
 **Local:** `src/chapters/apx_b_errata.tex:499` — renderiza no volume **defesa**, p. 5
 
@@ -1177,7 +1179,7 @@ aprovacao do ADVISOR.
 
 ## Apendice B (static scope)
 
-### 46. Enfraquecimento da afirmação sobre o Capítulo 3 (static-task)
+### 46. [PRECISA DE VOCE] Enfraquecimento da afirmação sobre o Capítulo 3 (static-task)
 
 **Local:** `src/chapters/apx_b_static_scope.tex:78` — renderiza no volume **extra**, p. 13
 
@@ -1199,7 +1201,7 @@ permanece sem a aprovação do autor.
 
 ## Apendice C (IA)
 
-### 47. Confirmar escopo do apêndice sobre uso de IA
+### 47. [PRECISA DE VOCE] Confirmar escopo do apêndice sobre uso de IA
 
 **Local:** `src/chapters/apx_c_ai_disclosure.tex:40` — renderiza no volume **defesa**, p. 12
 
@@ -1226,7 +1228,7 @@ confirmação do autor.
 
 ## Apendice D (ceiling)
 
-### 48. Reformulacao do Apendice D sobre teto de desempenho
+### 48. [PRECISA DE VOCE] Reformulacao do Apendice D sobre teto de desempenho
 
 **Local:** `src/chapters/apx_d_ceiling.tex:10` — renderiza no volume **extra**, p. 2
 
@@ -1247,7 +1249,7 @@ mante-lo como apendice ou fundi-lo ao Capitulo 5 (com ajuste da referencia cruza
 
 ## Apendice E (etica)
 
-### 49. Sign-off pendente no apendice de etica (apx_e_ethics.tex)
+### 49. [AMBIGUO — releia o bloco original ou peca 2a opiniao] Sign-off pendente no apendice de etica (apx_e_ethics.tex)
 
 **Local:** `src/chapters/apx_e_ethics.tex:6` — renderiza no volume **defesa**, p. 12
 
@@ -1268,7 +1270,7 @@ aprovacao do autor.
 
 ## Volume suplementar: plataforma
 
-### 50. Comentario de proveniencia movido junto com prosa
+### 50. [AMBIGUO — releia o bloco original ou peca 2a opiniao] Comentario de proveniencia movido junto com prosa
 
 **Local:** `src/chapters/apx_extra_platform.tex:15`
 
@@ -1288,7 +1290,7 @@ verificacao do autor quanto a correcao apos o deslocamento.
 
 ---
 
-### 51. Correção de 'estudos publicados' para 'estudos desta coleção'
+### 51. [PRECISA DE VOCE] Correção de 'estudos publicados' para 'estudos desta coleção'
 
 **Local:** `src/chapters/apx_extra_platform.tex:17` — renderiza no volume **defesa**, p. 50
 
@@ -1308,7 +1310,7 @@ a aprovação do autor.
 
 ---
 
-### 52. Abrangencia da plataforma: todos os experimentos ou so Caps. 3 e 5
+### 52. [PRECISA DE VOCE] Abrangencia da plataforma: todos os experimentos ou so Caps. 3 e 5
 
 **Local:** `src/chapters/apx_extra_platform.tex:36` — renderiza no volume **extra**, p. 23
 
@@ -1330,7 +1332,7 @@ dissertacao.
 
 ---
 
-### 53. Correção da frase sobre codebase e protocolo comum de avaliação
+### 53. [PRECISA DE VOCE] Correção da frase sobre codebase e protocolo comum de avaliação
 
 **Local:** `src/chapters/apx_extra_platform.tex:56` — renderiza no volume **extra**, p. 23
 
@@ -1368,7 +1370,7 @@ três erros identificados no texto original.
 
 ## Volume suplementar: sujeitos humanos
 
-### 54. Reivindicacoes institucionais herdadas do Apendice C
+### 54. [AMBIGUO — releia o bloco original ou peca 2a opiniao] Reivindicacoes institucionais herdadas do Apendice C
 
 **Local:** `src/chapters/apx_extra_human_subjects.tex:17` — renderiza no volume **extra**, p. 2
 
@@ -1390,7 +1392,7 @@ aprovacao do autor.
 
 ## Volume suplementar (main_extra.tex)
 
-### 55. Sign-off do novo texto de abertura do capitulo
+### 55. [PRECISA DE VOCE] Sign-off do novo texto de abertura do capitulo
 
 **Local:** `src/main_extra.tex:199`
 
@@ -1410,7 +1412,7 @@ publicada sem sua validacao direta.
 
 ---
 
-### 56. Contexto insuficiente para identificar o assunto do sign-off
+### 56. [AMBIGUO — releia o bloco original ou peca 2a opiniao] Contexto insuficiente para identificar o assunto do sign-off
 
 **Local:** `src/main_extra.tex:276`
 
