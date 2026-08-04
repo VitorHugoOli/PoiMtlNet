@@ -96,9 +96,17 @@ def sync() -> tuple[int, int]:
         else:
             shutil.copy2(src_path, dst_path)
             copied += 1
-    # Remove files that no longer exist in src, so the mirror is 1:1 and not additive.
+    # Remove .tex files that no longer exist in src, so a deleted chapter cannot linger in the
+    # mirror as a stale copy.
+    #
+    # SCOPED TO .tex ON PURPOSE, and the scope is load-bearing. An earlier version deleted ANY
+    # file absent from src, which removed 36 tracked review screenshots under
+    # src_clean/tmp/pdfs/ -- they live only in src_clean and are nobody's build output. The
+    # mirror's job is the document sources; it has no mandate over files that were never in src
+    # to begin with. Anything outside the .tex set is left alone even when src has no
+    # counterpart.
     removed = 0
-    for dst_path in sorted(DST.rglob("*"), reverse=True):
+    for dst_path in sorted(DST.rglob("*.tex"), reverse=True):
         rel = dst_path.relative_to(DST)
         if any(p in SKIP_DIRS for p in rel.parts) or dst_path.name in SKIP_NAMES:
             continue
