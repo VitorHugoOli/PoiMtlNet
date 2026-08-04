@@ -108,18 +108,13 @@ The folds are formed by a stratified splitter over the samples rather than over 
 % WeightedRandomSampler that is commented out at :78). So "one repetition" is a statement about the
 % fold partition, which is what the sentence says, and not about weight initialization.
 %
-% CONSEQUENTIAL EDIT OWED IN ANOTHER FILE, outside this track's remit and reported across remits:
-% 2_fundamentals.tex says Chapter 3 "reports five-fold cross-validation without identifying the
-% split axis". That clause is FALSE the moment this addition lands. Minimal repair, drafted and not
-% applied here: "Chapters~\ref{ch:cbic} and~\ref{ch:courb} both stratify by sample rather than by
-% user, so the check-ins of one user may appear in both training and validation, and only
-% Chapter~\ref{ch:mobiwac} splits by user."
-% [NEEDS SIGN-OFF: raised round 6, 2026-07-28 | AUTHOR -- four sentences of new protocol detail added to a published chapter.
-% Every fact is recovered from the released code and named above; nothing about a tuning budget is
-% asserted, per your instruction. If you want the gap named rather than left silent, the strongest
-% form the evidence supports is "No systematic hyperparameter search was performed; the reported
-% configuration of each model is a single configuration arrived at during development", which is a
-% claim about the study's conduct rather than a recovered record, and I did NOT add it.]
+% [NEEDS SIGN-OFF 16 | CLOSED] Author: "Nao precisamos comentar nada." The hyperparameter-search gap
+% stays UNSTATED -- do not add a sentence about it. The strongest form the evidence would support is a
+% claim about how the study was conducted, not a record recovered from code, so it is not ours to add.
+% The cross-file consequence this block flagged is DONE: 2_fundamentals.tex no longer says Chapter 3
+% reports cross-validation "without identifying the split axis"; it now states that Chapters 3 and 4
+% stratify samples so one user's check-ins may occur in both training and validation. Verified
+% 2026-08-04.
 
 \subsection{Discussion and Comparison with Established Models}
 In this section, we discuss the performance of our proposed MTL model and its single-task (Single) counterpart. For a comprehensive evaluation, we selected two state-of-the-art approaches as baselines. The Human Mobility Representation Model (HMRM), introduced by Chen et al. (2020) \cite{chen2020modeling}, is designed for POI category classification. HMRM calculates POI embeddings by considering users' temporal visiting patterns and the co-occurrence of locations within an individual's historical trajectory. To quantify the relationship between locations and visiting times, it employs Point-wise Mutual Information (PMI). The model then utilizes matrix factorization techniques to generate latent representations (embeddings) from various inputs, and these embeddings are subsequently used to train a Support Vector Machine (SVM) for predicting POI categories.
@@ -133,35 +128,17 @@ As shown in Table~\ref{tab:cbic:category}, both our MTL and Single models outper
 
 \subsubsection{Next POI Category Prediction}
 The results for next POI category prediction, detailed in Table~\ref{tab:cbic:next}, indicate a competitive performance landscape. The MHA+PE model \cite{zeng2019next} shows strong F1-scores in several categories, notably `Food' ($43.47 \pm 0.50$) and `Shopping' ($43.53 \pm 1.66$), outperforming our MTL and Single models in these instances. However, our MTL model achieves the best F1-score in `Travel' ($64.61 \pm 1.11$) and `Nightlife' ($22.07 \pm 0.52$), surpassing MHA+PE in these two categories. The Single model also shows competitive results, leading in `Entertainment' ($26.06 \pm 1.01$) and `Outdoors' ($22.45 \pm 0.81$). This suggests that while MHA+PE is highly effective for certain POI categories, our MTL and Single models offer superior or comparable performance in others, particularly where different sequential patterns might be exploited. One further point concerns how these leads are distributed. The MTL and Single models do not lead consistently across the categories, each obtaining the better F1-score in some of them, and this uneven distribution could make either model appear worse in the categories where the other one leads.
-% [COD-016a, round8, 2026-07-30] PUBLISHED SENTENCE REWRITTEN FOR READABILITY. Author decision,
-% PENDENCIAS_RESOLVIDOS 5.3 (arquivado 2026-07-30), quoted: "vamos refaze-la para ser mais entendivel e facil de ser lida", with
-% "Vamsos reformula-la e adicionar no appendix" authorizing the errata row.
-% Published wording, verbatim from articles/CBIC___MTL/sections/results.tex:34 and identical here
-% before this edit: "Also, it is important to notice that since we have an unbalanced result for the
-% MTL and single, this could lead to the worse of other results."
-% WHAT MOVED AND WHAT DID NOT. Three defects made it unreadable, and each is addressed without
-% changing what it asserts: "unbalanced result for the MTL and single" is a noun phrase for the
-% pattern the two preceding sentences have just described in full (MTL leads Travel and Nightlife,
-% Single leads Entertainment and Outdoors), so it now names that pattern as an uneven distribution of
-% the per-category leads; "the worse of other results" has no grammatical referent, and the referent
-% the surrounding paragraph supplies is the remaining categories, where whichever model does not lead
-% shows the lower score; and the sentence carried two subordinate clauses under one hedge, so it is
-% split in two. The hedge is preserved exactly: "could", not "does".
-% NO NUMBER, NO TABLE CELL AND NO VERB OF VERDICT CHANGES, and the claim is not strengthened: it
-% remains a possibility about how the per-category reading looks, not a measured finding. The
-% chapter reports no inferential test, and this sentence still asserts none.
-% THE INTERPRETATION IS THE ONE RECORDED IN PENDENCIAS_RESOLVIDOS 5.3 (arquivado 2026-07-30), which reads the intended meaning as "a
-% comparacao por categoria pode parecer pior que o agregado". It is an interpretation of published
-% co-authored prose, which is why the marker below is here even though the rewrite itself is
-% authorized: what needs the author's eye is the reading, not the permission.
-% ERRATA: recorded in the supplementary volume, chapters/apx_b_errata.tex, as a new row of
-% Table~B.2 (CBIC wording substitutions), which takes that table from 13 rows to 14.
-% [NEEDS SIGN-OFF: COD-016a, round8, 2026-07-30 | AUTHOR -- a published, co-authored sentence rewritten
-% for clarity. Confirm that "each model leads in some categories, so the other appears worse in those"
-% is what the original meant. If you read it instead as being about the imbalance of the CATEGORY
-% DISTRIBUTION (the Food class dominating the data) rather than about the split of the leads between
-% the two models, say so and I will re-do the sentence and the errata row, because those are two
-% different claims and only you can settle which one you and your co-authors wrote.]
+% [NEEDS SIGN-OFF 17 | CLOSED] Author: "This is done in the pendencias_resolvidas.md" -- the reading
+% is settled there (PENDENCIAS_RESOLVIDOS 5.3): the sentence is about the per-category comparison
+% looking worse than the aggregate, i.e. the split of the leads between the two models, NOT about the
+% imbalance of the category distribution. Those are two different claims; this is the one that was
+% written.
+% WHAT THE REWRITE PRESERVED, kept because a future reader may think the sentence was strengthened:
+% the published wording is "Also, it is important to notice that since we have an unbalanced result
+% for the MTL and single, this could lead to the worse of other results" (verbatim from
+% articles/CBIC___MTL/sections/results.tex:34). No number, table cell, or verb of verdict changed, and
+% the hedge is still "could", not "does". The chapter reports no inferential test and this sentence
+% asserts none. Errata row recorded in the supplementary volume (chapters/apx_b_errata.tex, Table B.2).
 
 \input{tables/cbic/next}
 

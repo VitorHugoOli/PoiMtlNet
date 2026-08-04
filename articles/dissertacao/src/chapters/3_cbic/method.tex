@@ -143,81 +143,25 @@ The choice of hard parameter sharing is motivated by its efficiency and regulari
 % drops only the "records the departure [there]" clause; the two Nash-MTL footnotes keep the
 % correction and drop only the "See Appendix B.1" sentence fragment. Appendix B itself is
 % unchanged in main_extra.tex. Logged in PENDENCIAS_RESOLVIDAS.md.
-% [round6, COD-008 / COD-005] CORRECTION of a published claim, listed in Appendix B
-% (tables/cbic/errata.tex). The bullet cited the right paper for the reverse of its finding, which is
-% the claim-not-supported class that existence checking cannot catch. The bullet keeps its place in
-% the list and its function (why this chapter chose hard sharing); the label stays "Empirical
-% Performance" so no heading changes inside published prose, and the surviving claim is the one the
-% cited work actually supports.
-% SOURCE OF RECORD: arXiv:1905.07553, "Which Tasks Should Be Learned Together in Multi-task
-% Learning?", Standley, Zamir, Chen, Guibas, Malik, Savarese; arXiv comment field reads "Presented to
-% ICML 2020". PDF downloaded and read this session (13 pp.); every quotation re-checked against the
-% extracted text by exact substring match after normalizing hyphenation artifacts.
-%   SURVIVES -- p.1 abstract: "This can save computation at inference time as only a single network
-%     needs to be evaluated." That is the inference-cost half, and it is the only half supported.
-%   FAILS, first half -- p.1 abstract, the very next sentence: "Unfortunately, this often leads to
-%     inferior overall performance as task objectives can compete". p.2, on the paper's own
-%     hard-sharing exemplar UberNet: the author "focuses on reducing the computational cost of
-%     training for hard parameter sharing, but experiences a rapid degradation in performance as more
-%     tasks are added to the network". Also p.2: "they find that multi-task learning is often inferior
-%     to single task learning with multiple networks."
-%   FAILS, second half -- the string "faster training" does not occur in the paper (checked: 0 hits),
-%     but that absence is NOT the finding, and an earlier draft of this correction which asserted the
-%     paper "makes no claim about training speed" was FALSE and was retracted in commit 83d1d8c5.
-%     What the paper says, p.1 introduction: "In addition to reduced inference time, solving a set of
-%     tasks jointly rather than independently can, in theory, have other benefits such as improved
-%     prediction accuracy, increased data efficiency, and reduced training time." So reduced training
-%     time IS named, hedged "in theory", in the sentence that sets up the question the paper then
-%     answers empirically. The bullet reproduced two items from that hedged list under the opening "In
-%     practice", which is a sharper mischaracterization than a bare absence would have been. Every
-%     other training-time passage in the paper concerns the cost of its OWN task-grouping search
-%     (section 5.3 p.6 "Approximations for Reducing Training Time"; the 45-versus-95-percent
-%     comparison p.7), and the conclusion p.9 concedes of that framework that "it can be costly at
-%     training time". The footnote above therefore says "among the benefits joint training may have in
-%     theory", which is what the source says, and not that the paper is silent on training speed.
-%   ALSO NOT USED, though it would favor the bullet -- p.7 reports that at a matched parameter budget
-%     "multi-task networks with 3, 4, or 5 tasks outperform the single-task networks on average.
-%     Nevertheless, two-task networks still do not compare favorably." This chapter's model has
-%     exactly TWO tasks, so the one result leaning the bullet's way excludes this chapter's own case.
-%     Recorded in the Appendix B row rather than in the footnote, to keep the footnote short.
-% WAS A DIFFERENT REFERENCE EVER CITED HERE? NO. The negative rests on a blob scan, stated first
-% because it is the part that does not move: walking `git rev-list --all` and extracting this bullet
-% from every tree that contains either path yields 1729 blobs carrying it and EXACTLY ONE distinct
-% bullet text, with \cite{standley2020tasks} attached in all of them. The earliest is 223f5df7 at :85.
-% A COMMIT ROSTER IS THE WRONG INSTRUMENT HERE, and two earlier versions of this comment got it wrong
-% before that became clear. `git log --all -S<string>` counts occurrence changes, so its output shifts
-% as THIS round's own commits edit the bullet and this comment, and it shifts differently per probe:
-% measured 2026-07-28, 232befd5 appears for "standley2020tasks" and "Empirical Performance" but NOT for
-% "matches or exceeds" (this round removed that wording from the bullet, so that commit changes the
-% count of one string and not the others), and 76d92f22 then appears for the other two. Reporting one
-% merged five-commit list "for all three probes", as the previous version of this comment did, was
-% therefore false for at least one probe no matter which list was chosen.
-% EXCLUDE this round's own commits and the instability disappears: all three probes return the SAME
-% four, and this is the roster to cite -- 223f5df7 (2025-10-21, the import of the CBIC article tree),
-% 83e40091 (2026-05-01, BRACIS release branch), 689b0d6e (2026-07-08, MobiWac release branch),
-% 1a29b545 (2026-07-23, the dissertation re-typeset). Restricted to the article tree alone, all three
-% probes return the same three, without the re-typeset. The two release branches carry the article tree
-% unchanged.
-% Also NOT in any -S roster: 643c686e, which the FIRST version of this comment named. It is the import
-% commit on the current path and appears in the FILE HISTORY, and conflating the two was that error.
-% The file history across all refs shows articles/CBIC___MTL/sections/method.tex touched by THREE
-% commits (643c686e, 689b0d6e, 83e40091), not the one that same version claimed.
-% THE LIMIT: the CBIC LaTeX entered version control on
-% 2025-10-21, AFTER publication, so pre-submission drafts of this bullet are not in this repository at
-% all and the question cannot be answered from here in either direction. What is established is
-% narrower: no substitution happened after the LaTeX entered version control. Stated rather than
-% papered over.
+% [NEEDS SIGN-OFF 15 | CLOSED] Author asked me to re-read and check whether the problematic claim is
+% still present. It is NOT, and the handling is stronger than a removal: nothing was silently dropped.
+% Re-verified in live prose 2026-08-04. The bullet now asserts only the half its citation supports
+% (reduced INFERENCE cost, one network evaluated instead of one per task), and the published sentence
+% is reproduced VERBATIM in the footnote below it, with the correction stated. The errata table lists
+% it (tables/cbic/errata.tex:96). So the reader sees what was published, what it now says, and why.
+%
+% WHY THE CORRECTION WAS NEEDED, kept because someone will want to re-check it: the bullet cited
+% arXiv:1905.07553 (Standley et al., "Which Tasks Should Be Learned Together in Multi-task Learning?")
+% for the REVERSE of that paper's finding. The paper names improved accuracy and reduced training time
+% only among benefits joint training may have "in theory", then argues the other way empirically
+% ("often leads to inferior overall performance as task objectives can compete"), and describes its own
+% task-grouping framework as costly at training time. Only the inference-cost half is supported.
 % The same key is cited at three other sites in this chapter and those three are sound (data
-% heterogeneity, task clustering, and FiLM with negative transfer); only this bullet reversed the
-% paper's direction.
-% [NEEDS SIGN-OFF: raised round 6, 2026-07-28 | AUTHOR -- this is a claim change in published co-authored prose, and it REMOVES a
-% stated advantage of the architecture this chapter adopts, so it runs against the chapter's own
-% interest, the same property Appendix B already records for the Nash cost correction. You approved
-% this route in your own words in the audit. The alternative, preserving the bullet and naming the
-% defect in Appendix B's preservation paragraph, is available and cheaper; I did not choose it because
-% the two currently preserved elements are preserved for reasons that do not apply here (one is
-% time-indexed by the chapter preface, the other is a table convention), while this one is a
-% misattribution of a claim to a paper that argues the other way.]
+% heterogeneity, task clustering, FiLM with negative transfer); only this bullet reversed the direction.
+% ONE LIMIT, STATED RATHER THAN PAPERED OVER: the CBIC LaTeX entered version control on 2025-10-21,
+% AFTER publication, so pre-submission drafts of this bullet are not in this repository and the question
+% of when the wording arose cannot be answered from here. What is established is narrower: no
+% substitution happened after the LaTeX entered version control.
 This architecture strategically balances model capacity with knowledge transfer, prioritizing efficiency for potential real-time recommendation scenarios.
 
 \begin{figure}[htbp]

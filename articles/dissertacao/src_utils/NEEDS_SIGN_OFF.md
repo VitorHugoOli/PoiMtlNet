@@ -1000,7 +1000,7 @@ há conteúdo relevante associado a ele.
 
 ## 3. CBIC
 
-### 15. [AMBIGUO — releia o bloco original ou peca 2a opiniao] Remoção de vantagem arquitetural por misatribuição de referência (rodada 6)
+### 15. [CLOSED rodada 15, 2026-08-04] Remoção de vantagem arquitetural por misatribuição de referência
 
 **Local:** `src/chapters/3_cbic/method.tex:207` — renderiza no volume **defesa**, p. 40
 
@@ -1023,9 +1023,27 @@ alegação de aprovação prévia do autor citada no bloco -- permanece sem a co
 > **SUA DECISAO:** Re-leia essa parte e valide se há algo relacionado com essa afirmação problematica, se ela ainda
 > estiver ali fazemos algo quanto a ela.
 
+**RE-LIDO E RESOLVIDO (rodada 15). A afirmacao problematica NAO esta mais la, e o tratamento e melhor
+do que uma remocao.** Voce pediu para eu reler e agir se ela ainda estivesse presente. Estado atual,
+verificado em prosa viva (`3_cbic/method.tex:119-129`):
+
+- o bullet afirma **apenas a metade que a citacao sustenta** -- custo de *inferencia* reduzido, uma rede
+  avaliada em vez de uma por tarefa;
+- a frase publicada esta **reproduzida palavra por palavra em nota de rodape** logo abaixo, com a
+  correcao declarada. Nada foi silenciosamente descartado;
+- a linha de errata existe (`tables/cbic/errata.tex:96`).
+
+Ou seja: o leitor ve o que foi publicado, o que passou a valer, e por que. O bloco de 75 linhas virou
+`[NEEDS SIGN-OFF 15 | CLOSED]` guardando **por que a correcao era necessaria** (o bullet citava
+arXiv:1905.07553 para o *inverso* do que o artigo conclui: ele nomeia acuracia melhor e tempo de treino
+menor apenas como beneficios "em teoria", e depois argumenta empiricamente o contrario) e **o limite
+honesto**: o LaTeX do CBIC entrou no controle de versao em 2025-10-21, *depois* da publicacao, entao
+rascunhos pre-submissao nao estao neste repositorio e a pergunta de quando a redacao surgiu nao pode ser
+respondida daqui. O que se estabelece e mais estreito: nenhuma substituicao ocorreu depois disso.
+
 ---
 
-### 16. [PRECISA DE VOCE] Adicao de detalhe de protocolo e possivel frase sobre busca de hiperparametros
+### 16. [CLOSED rodada 15, 2026-08-04] Detalhe de protocolo e a frase sobre busca de hiperparametros
 
 **Local:** `src/chapters/3_cbic/results.tex:111` — renderiza no volume **defesa**, p. 10
 
@@ -1044,9 +1062,19 @@ sua.
 
 > **SUA DECISAO:** Não precisamos comentar nada.
 
+**RESOLVIDO (rodada 15).** A lacuna sobre busca de hiperparametros fica **sem mencao** -- nao adicionei
+frase alguma. A formulacao mais forte que a evidencia sustentaria seria uma afirmacao sobre a *conducao*
+do estudo, nao um registro recuperado do codigo, e portanto nao e nossa para afirmar. Registrado no
+marcador para que ninguem a adicione depois "por completude".
+
+O bloco tambem sinalizava uma consequencia em outro arquivo, e **ela ja foi aplicada**: o
+`2_fundamentals.tex` nao diz mais que o Cap.3 reporta validacao cruzada "without identifying the split
+axis"; hoje declara que os Caps. 3 e 4 estratificam por amostra, de modo que os check-ins de um usuario
+podem aparecer em treino e validacao. Conferido em 2026-08-04.
+
 ---
 
-### 17. [PRECISA DE VOCE] Ambiguidade em frase reescrita sobre COD-016a
+### 17. [CLOSED rodada 15, 2026-08-04] Ambiguidade em frase reescrita sobre COD-016a
 
 **Local:** `src/chapters/3_cbic/results.tex:153` — renderiza no volume **defesa**, p. 44
 
@@ -1065,11 +1093,19 @@ confirmacao do autor sobre qual das duas afirmacoes (COD-016a) e a correta.
 
 > **SUA DECISAO:** This is done in the pendencias_resolvidas.md
 
+**RESOLVIDO (rodada 15).** Leitura confirmada pelo registro que voce aponta (`PENDENCIAS_RESOLVIDOS 5.3`):
+a frase e sobre **a divisao das liderancas entre os dois modelos** (a comparacao por categoria parecer
+pior que o agregado), **nao** sobre o desbalanceamento da distribuicao de categorias. Eram duas
+afirmacoes diferentes; esta e a que foi escrita.
+
+O marcador guarda o que impede alguem de achar que a frase foi fortalecida: a redacao publicada esta
+citada literalmente, nenhum numero ou celula de tabela mudou, e o hedge continua "could", nao "does".
+
 ---
 
 ## 4. CoUrb
 
-### 18. [PRECISA DE VOCE] Frase adicionada no preface sobre resultado coautorado
+### 18. [CLOSED rodada 15, 2026-08-04] Frase adicionada no preface sobre resultado coautorado
 
 **Local:** `src/chapters/4_courb.tex:55`
 
@@ -1087,9 +1123,16 @@ a aprovacao do autor e sem o sign-off do orientador.
 
 > **SUA DECISAO:** Já revisei é está tudo certo!
 
+**RESOLVIDO (rodada 15).** `[NEEDS SIGN-OFF 18 | CLOSED]`. Registrei no marcador um fato que mudou desde
+que o item foi escrito: **o ponteiro para "Appendix B of the supplementary volume" nao existe mais** --
+a regra standalone da rodada 14 removeu ponteiros ao volume suplementar de todos os capitulos, e o achado
+de escopo que ele indicava esta hoje declarado como prosa na propria preface. Conferido: zero
+`\extravolume` e zero "Appendix B" em prosa viva do `4_courb.tex`. Nao re-adicione um ponteiro; declare
+o fato.
+
 ---
 
-### 19. [PRECISA DE VOCE] Narrowing de claim em prosa publicada (Cap. 4)
+### 19. [CLOSED rodada 15, 2026-08-04] Narrowing de claim em prosa publicada (Cap. 4)
 
 **Local:** `src/chapters/4_courb/methodology.tex:81` — renderiza no volume **defesa**, p. 10
 
@@ -1109,9 +1152,16 @@ sem a aprovacao do autor sobre a forma (clausula vs. nota de rodape) escolhida p
 
 > **SUA DECISAO:** Deixe do jeito que está
 
+**RESOLVIDO (rodada 15).** O narrowing permanece como clausula no corpo; **nao** converti para nota de
+rodape. Sua razao esta registrada no marcador: o Cap.4 ja carrega muitos parenteticos e uma clausula
+custa menos ao leitor do que uma nota.
+
+A dependencia de glossario que o bloco levantava esta **resolvida**: `Pareto-stationary point` foi
+registrado no `GLOSSARY.md` (linha em ingles e a forma PT `ponto Pareto-estacionario`) em 2026-07-30.
+
 ---
 
-### 20. [PRECISA DE VOCE] Sign-off pendente: frase sobre seed/StratifiedKFold no Cap. 4
+### 20. [CLOSED rodada 15, 2026-08-04] Frase sobre seed/StratifiedKFold no Cap. 4, removida por voce
 
 **Local:** `src/chapters/4_courb/results.tex:42` — renderiza no volume **defesa**, p. 58
 
@@ -1141,6 +1191,42 @@ formulacao cautelosa -- que nao afirma que esse codigo exatamente gerou os exper
 > **SUA DECISAO:** Eu removi essa frase para deixar o texto mais semelhante ao original, além de que já falamos sobre
 > isso no preambulo. Pf remova esse entrada do appendix B do extra content.
 
+**RESOLVIDO (rodada 15) -- e a sua remocao foi maior do que o item descrevia, o que mudou o conserto.**
+
+Voce removeu a frase do `4_courb/results.tex` (trabalho **nao commitado** na arvore: `git diff` contra o
+HEAD mostra a remocao). Ela nao carregava um fato, e sim **tres**, num unico grupo de frases:
+
+1. o split e estratificado por amostra, nao por usuario;
+2. o codigo de referencia fixa uma unica semente, logo os cinco folds sao uma repeticao e os desvios
+   reportados sao a dispersao entre folds naquela semente;
+3. o treino roda o numero configurado de epocas sem early stopping, com cada tarefa lida na epoca de
+   maior macro-F1 de validacao.
+
+**O que fiz no Apendice B** (`chapters/apx_b_errata.tex`), no paragrafo de adicoes do Cap.4: retirei
+**os tres** fatos de protocolo, nao so o da semente. O paragrafo agora diz que o capitulo nao declara
+fato de protocolo alem dos que o artigo publicado reporta, e aponta que a estratificacao por amostra e
+declarada **na preface** -- que e exatamente o que voce disse ("ja falamos sobre isso no preambulo"), e
+conferi que esta la (`4_courb.tex:42`).
+
+> **DOIS ACHADOS QUE A SUA REMOCAO PRODUZIU, e que eu consertei em vez de deixar passar:**
+>
+> **(a) O paragrafo irmao do CBIC ficou com uma referencia pendurada.** Ele afirmava que o ultimo dos
+> seus quatro fatos de protocolo "e redigido exatamente como no Capitulo 4, cujo estudo roda o mesmo
+> codigo". Essa frase **nao existe mais no Cap.4**, entao a comparacao apontava para o vazio. Removi a
+> clausula; os quatro fatos do CBIC permanecem intactos, porque o Cap.3 **continua** carregando-os
+> (conferido: linhas 191-194 do apendice sao as do CBIC, corretamente preservadas).
+>
+> **(b) Nao afirmei uma contagem que nao consigo verificar.** O paragrafo dizia "nove adicoes marcadas".
+> Com tres fatos fora, o numero mudaria para seis -- mas o capitulo **nao marca adicoes com nenhum
+> token contavel** no fonte (procurei: zero ocorrencias de `ADDITION`/`declared as an addition`), entao
+> eu nao teria como conferir nem "nove" nem "seis". Escrevi "adicoes marcadas" sem numero. Esse
+> apendice ja foi mordido por contagem errada antes (o episodio 59-vs-54 esta registrado nele mesmo), e
+> repetir o padrao seria pior do que perder o numero.
+
+**Pendencia sua, nao minha:** a remocao da frase segue **nao commitada**. Eu commitei apenas as minhas
+edicoes de comentario e do apendice; a sua alteracao de prosa continua na arvore de trabalho para voce
+revisar e commitar.
+
 ---
 
 ## 5. MobiWac
@@ -1161,7 +1247,7 @@ estao corretos e conformes ao que foi definido no NORTH_STAR (secao 3/secao 4) e
 **Se ficar sem decisao:** O novo texto de abertura do Capitulo 5, incluindo as afirmacoes nele baseadas na spine
 aprovada e no claim whitelist, permanece publicado sem a validacao do autor.
 
-> **SUA DECISAO:**
+> **SUA DECISAO:** Tudo certo podemos deixar e remover esse marcador por completo.
 
 ---
 
