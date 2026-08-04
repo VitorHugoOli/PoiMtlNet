@@ -32,11 +32,8 @@
 
 \section{Context and motivation}
 \label{sec:intro:context}
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text.
-% Kept, unrelocated in meaning, for review.]
-% [FAB-12, round 9] "users" plural at the advisor's request. The sentence is generic (it
-% describes what the record type is, not one person's visit), so the plural reads better and
-% no claim changes.
+% [FAB-12, round 9] "users" stays plural at the advisor's request: the sentence describes the record
+% type, not one person's visit. No claim depends on it.
 
 Location-based social networks record visits through \emph{check-ins}. Each check-in
 states that a user visited a place, or point of interest (POI), at a given time.
@@ -108,12 +105,10 @@ instead of two dedicated single-task models. Joint training does not guarantee b
 predictions, however. Shared parameters can harm one task, a failure known as negative
 transfer. Whether MTL would help these POI prediction tasks, and which design choices
 would determine the result, was an open question at the start of this research.
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text.
-% Kept, unrelocated in meaning, for review.]
-% [NEEDS SIGN-OFF: raised v1 assembly, 2026-07-23 | gate L3 fix A-1. Original sentence was near-verbatim with Ch.5
-% ("one artifact to train, version, and deploy, and one forward pass whose single set
-% of inputs produces both answers at once"); reworded here so the paper chapter keeps
-% the original wording. Claim unchanged. Revert if you prefer the duplication.]
+% [NEEDS SIGN-OFF 05 | CLOSED] Author approved the current wording. Kept because it is the REASON
+% this passage must not be "simplified" back: it was deliberately reworded away from Ch.5's
+% near-verbatim phrasing so the reproduced paper chapter keeps the original. The claim is identical;
+% only the wording differs. Do not re-align the two.
 
 
 % [FAB-19, round 9] "and the arc of this dissertation" removed from the heading at his request:
@@ -319,24 +314,17 @@ This dissertation is organized as a collection of works, where each central chap
 independent article. The articles were re-typeset in a common format, and the second
 article was translated into English. Their content follows the published versions or,
 for the article under review, the submitted manuscript.
-% Corrections introduced during adaptation are recorded in the errata appendix of \extravolume.
-% [round7, 2026-07-29] "the errata appendix" -> "the errata appendix of \extravolume". This
-% sentence is the promise the whole errata regime rests on, so it had to keep pointing at a
-% document the reader can actually obtain once the appendix left this one. It names the
-% appendix by role rather than by letter because the surrounding sentence is about the
-% practice, not about a location; the sentences that send a reader to a specific correction
-% (Ch.3's preface and footnotes, Ch.4's preface, Ch.5's preface, the conclusion) carry the
-% letter. \extravolume is defined in preamble.tex.
-% [round7 comment-trim pass, 2026-07-29] TRAPPED PROSE, REPORTED AND NOT FIXED. The lead-in
-% sentence "The collection is organized as follows:" sits on the line above INSIDE this comment
-% block, so it never reaches the PDF: rendered page 15 runs straight from "rather than silently
-% edited." into the first bullet with no lead-in. Verified in the render, not the source.
-% check_trapped_prose.py does not catch it (it returns 0 suspects for this file) because the
-% swallowed text is on a comment line rather than a prose line following one.
-% NOT FIXED HERE because restoring it would add a line of prose to page 15, and this pass is
-% required to leave the rendered PDF byte-identical. Author: move the sentence out of the comment,
-% then re-measure the page counts. Reported in src_utils/_round7/27_comment_trim.md.
-% The collection is organized as follows:
+% [OPEN, needs the author -- see NEEDS_SIGN_OFF.md §15.2] THE BULLET LIST BELOW HAS NO LEAD-IN.
+% The paragraph above ends at "submitted manuscript." and the render jumps straight into the first
+% bullet. A lead-in sentence ("The collection is organized as follows:") used to sit here trapped
+% inside a comment; the round-7 pass reported it and left it unfixed because that pass had to keep
+% the PDF byte-identical. That constraint is gone, but restoring it ADDS a line of prose, which is
+% the author's call, so it is flagged rather than applied. Verified 2026-08-04 in the render:
+% neither the lead-in nor the old errata sentence appears in the PDF at all.
+%
+% The errata sentence that also lived here ("Corrections ... are recorded in the errata appendix of
+% \extravolume") is GONE from live prose by design -- the round-14 standalone rule removed the
+% supplementary-volume pointers. Do not restore it here.
 
 \begin{itemize}
     % [FAB-23, round 9] ", Fundamentals" dropped at his request: the \ref renders the number and the
@@ -455,17 +443,13 @@ The contributions are organized into four groups.
     hierarchical beam search, and STAN has its output layer adapted to rank region
     candidates. Neither adaptation reproduces its complete published system, and
     Chapter~\ref{ch:mobiwac} states what was changed.
-    % [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-014, 2026-07-26] "twenty repetitions per configuration
-    % (four seeds, five folds)" -> the 20 fits kept, the inferential unit (n = 4)
-    % named, plus the fixed-partition clause. Sources: GLOSSARY rows "paired
-    % superiority test" + "n = 20 (fitted models) and n = 4 (inferential unit)";
-    % stats_n20/RESULTS.md:65-67; STATISTICAL_PROTOCOL.md:187-190.
-    % [round10, PENDENCIAS_RESOLVIDOS §6.10 (arquivado 2026-08-03) BLQ-2, author's ruling: "mantenha everywhere para o categoria e
-    % especifique onde for preciso para o next-region"] This bullet was the LAST site collapsing the
-    % region verdict into "either outperforms or matches", which discards the partition. Chapter 6
-    % :126-127 already states it correctly and this now mirrors that wording. The category half keeps
-    % its universal because it is true at all six datasets; only the region half needs the partition.
-    % WRITING_LAW §3 bans bare "everywhere", so the category clause names the six datasets instead.
+    % [NEEDS SIGN-OFF 06 | CLOSED] Author approved the wording as it stands (verified in the render,
+    % not the source). Kept because it is the reason for the ASYMMETRY here, which reads like an
+    % inconsistency until explained: the category clause may claim all six datasets because it is
+    % true at all six, while the region clause must name the partition (n = 20 fitted models, n = 4
+    % inferential unit) because the verdict differs by dataset. Never collapse the region half back
+    % into "either outperforms or matches" -- that discards the partition. WRITING_LAW §3 also bans
+    % a bare "everywhere", so the category clause names the six datasets.
     \item[Practical.] One model produces both predictions in one forward pass. It
     outperforms the dedicated models on the category task at all six datasets and on
     the region task at four of the six; at the other two it remains statistically

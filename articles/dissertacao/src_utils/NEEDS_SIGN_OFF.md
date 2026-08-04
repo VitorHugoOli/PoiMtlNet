@@ -11,10 +11,10 @@ ali a sua resposta; quando um item estiver resolvido, ele sai deste arquivo e va
 ele e um mapa de tudo que ainda pede a sua palavra especificamente por estar marcado no fonte, o que o `PENDENCIAS.md`
 nao lista item por item.
 
-**Total: ~~56~~ → 53 marcadores vivos (re-medido em 2026-08-04, rodada 14).** O total caiu de 56 para 53
-porque o refactor de §6.2 (commit `a47691f8`, "§6.2 reordered into four movements") resolveu tres
-marcadores do `6_conclusion.tex` ao reescrever os paragrafos que eles anotavam: aquele arquivo tinha 8
-marcadores e hoje tem 5. **Nenhum marcador foi perdido; tres foram resolvidos por reescrita.**
+**Total: ~~56~~ → 53 marcadores vivos (re-medido em 2026-08-04, rodada 14).** O total caiu de 56 para 53 porque o
+refactor de §6.2 (commit `a47691f8`, "§6.2 reordered into four movements") resolveu tres marcadores do
+`6_conclusion.tex` ao reescrever os paragrafos que eles anotavam: aquele arquivo tinha 8 marcadores e hoje tem 5.
+**Nenhum marcador foi perdido; tres foram resolvidos por reescrita.**
 Reproduza a contagem com:
 
 ```bash
@@ -29,11 +29,10 @@ Distribuicao atual: `content.tex` 4, `1_introduction` 2, `2_fundamentals` 8, `3_
 `apx_c_ai_disclosure` 1, `apx_d_ceiling` 1, `apx_e_ethics` 1, `apx_extra_human_subjects` 1,
 `apx_extra_platform` 4, `main_extra.tex` 2.
 
-**Estado da auditoria (rodada 14, 2026-08-04): 1 MECANICO (pode fechar), 1 VAZIO (premissa deixou de
-existir), 1 PARCIAL, 44 PRECISA DE VOCE, 6 AMBIGUO.** Cada item abaixo carrega essa etiqueta no proprio
-titulo. **Leia primeiro a `## Auditoria da rodada 14` logo abaixo** — ela responde a pergunta que
-motivou esta releitura (quanto comentario pode sair, e o que quebra se sair) e corrige dois itens cuja
-base factual mudou.
+**Estado da auditoria (rodada 14, 2026-08-04): 1 MECANICO (pode fechar), 1 VAZIO (premissa deixou de existir), 1
+PARCIAL, 44 PRECISA DE VOCE, 6 AMBIGUO.** Cada item abaixo carrega essa etiqueta no proprio titulo. **Leia primeiro a
+`## Auditoria da rodada 14` logo abaixo** — ela responde a pergunta que motivou esta releitura (quanto comentario pode
+sair, e o que quebra se sair) e corrige dois itens cuja base factual mudou.
 
 ---
 
@@ -46,16 +45,16 @@ base factual mudou.
 
 ### 14.1 O tamanho real do problema, medido
 
-| Classe de linha de comentario | Linhas | % dos comentarios |
-|---|---:|---:|
-| Outros (proveniencia em prosa, justificativas, historico de rodada) | 3.267 | 61% |
-| Dentro de um bloco `[NEEDS SIGN-OFF]` | 1.491 | 27% |
-| Relatorio de rodada com ID (`[round..]`, `COD-`, `AUT-`, `MEASURED`) | 403 | 7% |
-| Divisores estruturais (`% ====`, `% ----`) | 131 | 2% |
-| **Funcionais (`% !TeX root`) — NAO PODEM SAIR** | **60** | **1%** |
+| Classe de linha de comentario                                        | Linhas | % dos comentarios |
+|----------------------------------------------------------------------|-------:|------------------:|
+| Outros (proveniencia em prosa, justificativas, historico de rodada)  |  3.267 |               61% |
+| Dentro de um bloco `[NEEDS SIGN-OFF]`                                |  1.491 |               27% |
+| Relatorio de rodada com ID (`[round..]`, `COD-`, `AUT-`, `MEASURED`) |    403 |                7% |
+| Divisores estruturais (`% ====`, `% ----`)                           |    131 |                2% |
+| **Funcionais (`% !TeX root`) — NAO PODEM SAIR**                      | **60** |            **1%** |
 
-**52% da arvore `.tex` e linha de comentario: 5.352 de 10.237 linhas.** Os 53 marcadores deste arquivo
-respondem por 1.491 dessas linhas, ou seja **28% de todo o comentario esta preso nos blocos de sign-off**
+**52% da arvore `.tex` e linha de comentario: 5.352 de 10.237 linhas.** Os 53 marcadores deste arquivo respondem por
+1.491 dessas linhas, ou seja **28% de todo o comentario esta preso nos blocos de sign-off**
 — fechar os itens deste arquivo e, de longe, a maior alavanca isolada que voce tem. Reproduza:
 
 ```bash
@@ -65,8 +64,8 @@ cm=$(find . -name "*.tex" -not -path "./build/*" -exec grep -h "^[[:space:]]*%" 
 echo "$cm de $tot linhas sao comentario"
 ```
 
-Os arquivos mais carregados, para priorizar: `2_fundamentals.tex` 1.115 linhas de comentario (59% do
-arquivo), `apx_f_cosine.tex` 558 (77%), `apx_b_errata.tex` 301 (57%), `6_conclusion.tex` 286 (52%),
+Os arquivos mais carregados, para priorizar: `2_fundamentals.tex` 1.115 linhas de comentario (59% do arquivo),
+`apx_f_cosine.tex` 558 (77%), `apx_b_errata.tex` 301 (57%), `6_conclusion.tex` 286 (52%),
 `1_introduction.tex` 253 (52%), `content.tex` 230 (55%).
 
 ### 14.2 A pergunta que travava a decisao: **de 14 gates, exatamente 1 depende de comentario do `.tex`**
@@ -74,19 +73,17 @@ arquivo), `apx_f_cosine.tex` 558 (77%), `apx_b_errata.tex` 301 (57%), `6_conclus
 Havia um medo razoavel de que apagar comentario derrubasse a suite de gates, porque 13 dos 14 scripts
 `check_*.py` mencionam comentarios no codigo. **Medido: dos 14, exatamente UM quebra — o
 `check_comment_hygiene`, que depende de ~10 linhas de comentario do `src/main.tex`. Os 208 probes do
-`check_audit_claims` sao imunes, e os outros 12 gates passam.** Atencao a distincao que gastei duas
-correcoes para acertar: **6 gates leem o `.tex` ja sem comentario e 8 leem cru, mas "ler cru" nao e
-"depender de comentario"** — 7 dos 8 passam mesmo assim. A tabela em (a) mostra qual e qual, e por que
-cada um sobrevive. Os detalhes e a decisao que isso pede estao na
-caixa de correcao ao final desta secao; leia-a antes de apagar qualquer bloco. Duas evidencias
-independentes, na ordem em que as levantei:
+`check_audit_claims` sao imunes, e os outros 12 gates passam.** Atencao a distincao que gastei duas correcoes para
+acertar: **6 gates leem o `.tex` ja sem comentario e 8 leem cru, mas "ler cru" nao e
+"depender de comentario"** — 7 dos 8 passam mesmo assim. A tabela em (a) mostra qual e qual, e por que cada um
+sobrevive. Os detalhes e a decisao que isso pede estao na caixa de correcao ao final desta secao; leia-a antes de apagar
+qualquer bloco. Duas evidencias independentes, na ordem em que as levantei:
 
-**(a) Direto na fonte do instrumento.** `check_audit_claims.py` le todo `.tex` atraves de `live_text()`,
-cuja primeira linha de docstring e literalmente *"Source with comments removed"*. O gate **nao consegue**
-ver um comentario `.tex`, por construcao. Um probe cujo texto-alvo esteja dentro de `%` e inerte hoje —
-isso ja esta documentado no proprio arquivo, na entrada `R13-aut30b`, marcada
-*"UNPROBEABLE BY CONSTRUCTION"*. **Isto vale para os 208 probes e nao foi retratado.** O que nao se
-segue e generalizar de `check_audit_claims` para a suite inteira.
+**(a) Direto na fonte do instrumento.** `check_audit_claims.py` le todo `.tex` atraves de `live_text()`, cuja primeira
+linha de docstring e literalmente *"Source with comments removed"*. O gate **nao consegue**
+ver um comentario `.tex`, por construcao. Um probe cujo texto-alvo esteja dentro de `%` e inerte hoje — isso ja esta
+documentado no proprio arquivo, na entrada `R13-aut30b`, marcada *"UNPROBEABLE BY CONSTRUCTION"*. **Isto vale para os
+208 probes e nao foi retratado.** O que nao se segue e generalizar de `check_audit_claims` para a suite inteira.
 
 > **CORRECAO 2 (achado do revisor, 2026-08-04).** Uma versao anterior deste paragrafo afirmava, em
 > negrito e dizendo-se "conferido script por script", que **"13 dos 14 gates nao usam
@@ -95,8 +92,8 @@ segue e generalizar de `check_audit_claims` para a suite inteira.
 > escrevi outro; pior, ele contradizia a direcao do proprio titulo desta secao. Medido de novo,
 > ignorando mencoes dentro de comentarios do codigo e exigindo a *chamada* do helper:
 
-| Leem o `.tex` **sem** comentario (6) | Leem o `.tex` **cru**, com comentario visivel (8) |
-|---|---|
+| Leem o `.tex` **sem** comentario (6)                                                                                                        | Leem o `.tex` **cru**, com comentario visivel (8)                                                                                                                                  |
+|---------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `check_audit_claims`, `check_doubled_macro`, `check_extra_xrefs`, `check_negative_parallelism`, `check_process_narration`, `check_register` | `check_comment_hygiene`, `check_meta_claims`, `check_tex_root`, `check_torn_sentences`, `check_tracker_refs`, `check_trapped_prose`, `check_verify_list`, `check_wordcount_claims` |
 
 ```bash
@@ -111,25 +108,25 @@ for p in sorted(pathlib.Path('.').glob('check_*.py')):
 **E aqui esta o ponto que importa para a sua decisao: ler cru NAO e o mesmo que DEPENDER de comentario.**
 Dos 8 que leem cru, 7 sobrevivem a um strip, cada um por um motivo diferente e verificavel:
 
-- `check_trapped_prose` — os comentarios sao o **suspeito** que ele caca (prosa presa dentro de `%`).
-  Sem comentario nenhum, ele nao tem o que acusar: passa trivialmente.
+- `check_trapped_prose` — os comentarios sao o **suspeito** que ele caca (prosa presa dentro de `%`). Sem comentario
+  nenhum, ele nao tem o que acusar: passa trivialmente.
 - `check_torn_sentences` — **pula** linhas de comentario explicitamente (`if not s or s.startswith("%")`).
 - `check_tex_root` — precisa da diretiva `% !TeX root`, que **e** um comentario, mas o strip do
   `sync_src_clean.py` preserva diretivas de proposito. Por isso passa no `src_clean`.
-- `check_meta_claims`, `check_tracker_refs`, `check_verify_list`, `check_wordcount_claims` — o alvo deles
-  esta em documentos `.md` e no PDF, nao em comentario de `.tex`.
+- `check_meta_claims`, `check_tracker_refs`, `check_verify_list`, `check_wordcount_claims` — o alvo deles esta em
+  documentos `.md` e no PDF, nao em comentario de `.tex`.
 
-**Sobra exatamente um: `check_comment_hygiene`** — zero helpers de strip, quatro `read_text()`, e ele
-**precisa** ler cru porque o assunto dele sao os proprios comentarios. Esse e o unico que quebra, e a
-caixa abaixo diz por que e o que fazer.
+**Sobra exatamente um: `check_comment_hygiene`** — zero helpers de strip, quatro `read_text()`, e ele **precisa** ler
+cru porque o assunto dele sao os proprios comentarios. Esse e o unico que quebra, e a caixa abaixo diz por que e o que
+fazer.
 
-**(b) Empiricamente, rodando a suite inteira contra uma arvore sem comentario.** O `src_clean` ja e um
-espelho 1:1 sem comentarios, entao a experiencia esta pronta: copiei os gates para um diretorio cujo
+**(b) Empiricamente, rodando a suite inteira contra uma arvore sem comentario.** O `src_clean` ja e um espelho 1:1 sem
+comentarios, entao a experiencia esta pronta: copiei os gates para um diretorio cujo
 `../src` e o `src_clean` e rodei os 14. Resultado: **12 passam, 2 falham.** Dos 208 probes do
 `check_audit_claims`, 34 deixaram de valer, e **nenhum desses 34 aponta para um `.tex`**: 8 leem
-`fundamentals/DEFINITIONS.md`, 7 `_round12/50_...md`, 6 `CONSIDERATIONS.md`, 4 `_round12/53_...md`, 3+3
-outros `_round12/*.md`, 2 `LEFT_OUT.md`, 1 `WORDCOUNT_CONVENTION.md` — documentos de `src_utils/` que o
-diretorio de teste nao tinha. Essa falha era, de fato, artefato do teste.
+`fundamentals/DEFINITIONS.md`, 7 `_round12/50_...md`, 6 `CONSIDERATIONS.md`, 4 `_round12/53_...md`, 3+3 outros
+`_round12/*.md`, 2 `LEFT_OUT.md`, 1 `WORDCOUNT_CONVENTION.md` — documentos de `src_utils/` que o diretorio de teste nao
+tinha. Essa falha era, de fato, artefato do teste.
 
 > ### CORRECAO (achado do revisor, 2026-08-04) — a segunda falha NAO era artefato do teste
 >
@@ -197,75 +194,73 @@ diretorio de teste nao tinha. Essa falha era, de fato, artefato do teste.
 
 ### 14.3 Os dois itens cuja base factual mudou nesta rodada
 
-**Item 22 — VAZIO, a premissa deixou de existir. Nao precisa mais da sua decisao.** O item perguntava
-onde devia morar o ponteiro para o apendice de cosseno de gradientes (a auditoria anterior citava a frase
-*"Appendix D reports the gradient-cosine diagnostic..."* em `5_mobiwac/02_related.tex`). Essa frase **nao
-existe mais em lugar nenhum**: ela foi removida nesta mesma rodada quando voce estabeleceu que os corpos
-dos artigos dos capitulos 3-5 devem ser autonomos (registrado em `PENDENCIAS.md §2.31`, probes
+**Item 22 — VAZIO, a premissa deixou de existir. Nao precisa mais da sua decisao.** O item perguntava onde devia morar o
+ponteiro para o apendice de cosseno de gradientes (a auditoria anterior citava a frase *"Appendix D reports the
+gradient-cosine diagnostic..."* em `5_mobiwac/02_related.tex`). Essa frase **nao existe mais em lugar nenhum**: ela foi
+removida nesta mesma rodada quando voce estabeleceu que os corpos dos artigos dos capitulos 3-5 devem ser autonomos
+(registrado em `PENDENCIAS.md §2.31`, probes
 `STL-01`..`STL-05`, commit `2bb82234`). A cadeia `grep` confirma zero ocorrencias de `gradient-cosine`
-em prosa viva, e o PDF de defesa tambem nao contem a string. **Nao ha ponteiro para posicionar.** O que
-sobrou do assunto e uma pergunta diferente, registrada onde e visivel: `PENDENCIAS.md §2.32` (o Apendice
-E nao e citado por nenhum capitulo). O bloco de comentario correspondente pode sair sem perda.
+em prosa viva, e o PDF de defesa tambem nao contem a string. **Nao ha ponteiro para posicionar.** O que sobrou do
+assunto e uma pergunta diferente, registrada onde e visivel: `PENDENCIAS.md §2.32` (o Apendice E nao e citado por nenhum
+capitulo). O bloco de comentario correspondente pode sair sem perda.
 
-**Item 6 — MECANICO, continua valido e pode fechar.** Verificado no PDF renderizado, nao no fonte: as
-duas metades da redacao do veredito por regiao estao impressas (*"on the region task at four of the
-six"* e *"statistically non-inferior within a two-point margin"*, alem de *"Each configuration has
-twenty"*). O item so pedia confirmacao de redacao ja aplicada.
+**Item 6 — MECANICO, continua valido e pode fechar.** Verificado no PDF renderizado, nao no fonte: as duas metades da
+redacao do veredito por regiao estao impressas (*"on the region task at four of the six"* e *"statistically non-inferior
+within a two-point margin"*, alem de *"Each configuration has twenty"*). O item so pedia confirmacao de redacao ja
+aplicada.
 
 ### 14.4 Achados novos nos comentarios (o que voce pediu: "eval if there are other points")
 
-Varri os 5.352 linhas de comentario procurando afirmacao que o proprio documento ja contradiz. Tres
-achados, em ordem de importancia:
+Varri os 5.352 linhas de comentario procurando afirmacao que o proprio documento ja contradiz. Tres achados, em ordem de
+importancia:
 
-**(a) `content.tex:374-380` da uma orientacao que hoje nao se aplica, e isso e o tipo de comentario que
-engana quem le depois.** O bloco avisa que "Appendix B" e ambiguo entre os dois volumes e afirma:
-*"Every prose pointer at the moved material already says 'Appendix~B/D of \\extravolume' (measured: 10
-sites, all carrying 'of \\extravolume')"*, concluindo *"no reader-facing sentence is ambiguous today;
-keep naming the volume in any new pointer"*. **Medido agora: existe exatamente 1 linha viva com
-`\extravolume` em toda a arvore, e ela e a propria definicao do macro em `preamble.tex:191`.** Os 10
-sites de prosa foram removidos nas rodadas anteriores. A instrucao final ("keep naming the volume")
-continua sendo um bom conselho, mas a medicao que a sustenta esta errada por um fator de 10 e o
-diagnostico de ambiguidade nao tem mais objeto. **Sugestao: este bloco e candidato a remocao, nao a
-correcao** — o conselho util cabe em uma linha.
+**(a) `content.tex:374-380` da uma orientacao que hoje nao se aplica, e isso e o tipo de comentario que engana quem le
+depois.** O bloco avisa que "Appendix B" e ambiguo entre os dois volumes e afirma:
+*"Every prose pointer at the moved material already says 'Appendix~B/D of \\extravolume' (measured: 10 sites, all
+carrying 'of \\extravolume')"*, concluindo *"no reader-facing sentence is ambiguous today; keep naming the volume in any
+new pointer"*. **Medido agora: existe exatamente 1 linha viva com
+`\extravolume` em toda a arvore, e ela e a propria definicao do macro em `preamble.tex:191`.** Os 10 sites de prosa
+foram removidos nas rodadas anteriores. A instrucao final ("keep naming the volume")
+continua sendo um bom conselho, mas a medicao que a sustenta esta errada por um fator de 10 e o diagnostico de
+ambiguidade nao tem mais objeto. **Sugestao: este bloco e candidato a remocao, nao a correcao** — o conselho util cabe
+em uma linha.
 
-**(b) 6 flags `[VERIFY]` genuinamente abertas e invisiveis para o seu fluxo de revisao.** Ha 13 mencoes
-de `[VERIFY]` nos comentarios, mas a maioria e prosa *sobre* uma flag ("o [VERIFY] que este bloco
-substitui esta fechado"). Contando so as linhas que **abrem** um bracket `[VERIFY:` ou `[VERIFY,`, sao 6,
-e nenhuma delas aparece como item numerado deste arquivo — hoje so um `grep` as encontra. Estao
-detalhadas em `## 14.6` abaixo, uma a uma, com o que cada uma pede.
+**(b) 6 flags `[VERIFY]` genuinamente abertas e invisiveis para o seu fluxo de revisao.** Ha 13 mencoes de `[VERIFY]`
+nos comentarios, mas a maioria e prosa *sobre* uma flag ("o [VERIFY] que este bloco substitui esta fechado"). Contando
+so as linhas que **abrem** um bracket `[VERIFY:` ou `[VERIFY,`, sao 6, e nenhuma delas aparece como item numerado deste
+arquivo — hoje so um `grep` as encontra. Estao detalhadas em `## 14.6` abaixo, uma a uma, com o que cada uma pede.
 
 > *Nota de medicao, para nao repetir o erro:* minha primeira contagem disse 8. Ela classificava como
 > "aberta" qualquer linha contendo `[VERIFY`, incluindo duas que apenas mencionavam uma flag ja fechada.
 > A contagem de 6 usa `\[VERIFY[:,]` (a flag sendo *aberta*, nao citada) e foi conferida linha por linha.
 > Comando em 14.6.
 
-**(c) 7 comentarios que se auto-descrevem por contagem, e contagem deriva.** Ex.: `4_courb.tex:8` diz
-*"26 sites 'MTLNet' -> 'MTLnet' (24 printed, 2 in comments)"*; a arvore hoje tem 80 ocorrencias de
-`MTLnet` (47 em prosa, 33 em comentario). **Aqui nao ha erro**: aquele comentario descreve um evento de
-2026-07-27 (quantos sites foram renomeados naquele dia), nao o estado atual — e `apx_b_errata.tex:293`
-ate registra explicitamente essa distincao. Anoto para que uma varredura futura nao os "corrija" para
-numeros de hoje e destrua o registro historico. **Sem acao.**
+**(c) 7 comentarios que se auto-descrevem por contagem, e contagem deriva.** Ex.: `4_courb.tex:8` diz *"26 sites '
+MTLNet' -> 'MTLnet' (24 printed, 2 in comments)"*; a arvore hoje tem 80 ocorrencias de
+`MTLnet` (47 em prosa, 33 em comentario). **Aqui nao ha erro**: aquele comentario descreve um evento de 2026-07-27
+(quantos sites foram renomeados naquele dia), nao o estado atual — e `apx_b_errata.tex:293`
+ate registra explicitamente essa distincao. Anoto para que uma varredura futura nao os "corrija" para numeros de hoje e
+destrua o registro historico. **Sem acao.**
 
 ### 14.5 A ordem que eu recomendo, se o objetivo e reduzir comentario
 
 Nao e uma decisao minha, mas a medicao aponta um caminho barato:
 
-1. **Feche o item 22 (premissa vazia) e o item 6 (mecanico, verificado no PDF).** Custo zero de
-   julgamento, libera dois blocos.
-2. **Decida os 8 `[VERIFY]` de 14.4(b) e o bloco de 14.4(a).** São os comentarios que hoje afirmam algo
-   desatualizado ou pedem algo invisivel; sao os que mais valem a sua atencao.
+1. **Feche o item 22 (premissa vazia) e o item 6 (mecanico, verificado no PDF).** Custo zero de julgamento, libera dois
+   blocos.
+2. **Decida os 8 `[VERIFY]` de 14.4 (b) e o bloco de 14.4 (a).** São os comentarios que hoje afirmam algo desatualizado
+   ou pedem algo invisivel; sao os que mais valem a sua atencao.
 3. **Depois disso, ataque os 51 marcadores restantes por arquivo, do mais carregado para o menos**
-   (`2_fundamentals.tex` primeiro, 8 marcadores e 1.115 linhas de comentario). Cada item fechado
-   autoriza apagar o bloco inteiro que o acompanha — e ai a reducao vem em centenas de linhas, nao em
-   unidades.
-4. **A regra de seguranca (CORRIGIDA -- ver a caixa de correcao em 14.2):** ha DUAS familias de
-   comentario que nao podem sair sem providencia, nao uma. (i) as 60 diretivas `% !TeX root`, guardadas
-   pelo `check_tex_root.py`; (ii) os dois blocos de `src/main.tex` que explicam
+   (`2_fundamentals.tex` primeiro, 8 marcadores e 1.115 linhas de comentario). Cada item fechado autoriza apagar o bloco
+   inteiro que o acompanha — e ai a reducao vem em centenas de linhas, nao em unidades.
+4. **A regra de seguranca (CORRIGIDA -- ver a caixa de correcao em 14.2):** ha DUAS familias de comentario que nao podem
+   sair sem providencia, nao uma. (i) as 60 diretivas `% !TeX root`, guardadas pelo `check_tex_root.py`; (ii) os dois
+   blocos de `src/main.tex` que explicam
    `three-builds-one-source` e `nested-if-scanning-hazard`, guardados pelo `check_comment_hygiene.py`
-   (~10 linhas; para apaga-los tambem, mova as explicacoes para `src_utils/README_SRC.md`, onde a
-   terceira story do mesmo gate ja mora). Fora dessas duas familias, o resto e seguro para o build e
-   para os 208 probes. O `sync_src_clean.py` ja preserva as diretivas e avisa sobre duplicatas -- ele
-   NAO cobre o caso (ii), e o `src_clean` de fato falha nesse gate hoje.
+   (~10 linhas; para apaga-los tambem, mova as explicacoes para `src_utils/README_SRC.md`, onde a terceira story do
+   mesmo gate ja mora). Fora dessas duas familias, o resto e seguro para o build e para os 208 probes. O
+   `sync_src_clean.py` ja preserva as diretivas e avisa sobre duplicatas -- ele NAO cobre o caso (ii), e o `src_clean`
+   de fato falha nesse gate hoje.
 
 ### 14.6 As 6 flags `[VERIFY]` abertas, cada uma com o que decidir
 
@@ -276,17 +271,17 @@ cd articles/dissertacao/src
 grep -rn --include="*.tex" --exclude-dir=build '\[VERIFY[:,]' .
 ```
 
-**V1 — `2_fundamentals.tex:376` · convencao de media do "Cat F1" varrido.** O comentario registra que
-**toda** fonte grava "Cat F1" sem dizer se e macro ou weighted, por isso a prosa escreve "category F1" e
-nao "macro-F1". Duas saidas, ambas honestas: **(a)** voce confirma a convencao e a prosa passa a nomea-la
-(mais informativo, exige que voce saiba qual foi); **(b)** os dois valores saem e a clausula fica
-qualitativa (mais barato, perde os numeros). Isto e uma decisao de *conteudo*, nao de redacao: pela lei
-do repositorio todo numero carrega sua convencao, e hoje esse par nao carrega.
+**V1 — `2_fundamentals.tex:376` · convencao de media do "Cat F1" varrido.** O comentario registra que **toda** fonte
+grava "Cat F1" sem dizer se e macro ou weighted, por isso a prosa escreve "category F1" e nao "macro-F1". Duas saidas,
+ambas honestas: **(a)** voce confirma a convencao e a prosa passa a nomea-la (mais informativo, exige que voce saiba
+qual foi); **(b)** os dois valores saem e a clausula fica qualitativa (mais barato, perde os numeros). Isto e uma
+decisao de *conteudo*, nao de redacao: pela lei do repositorio todo numero carrega sua convencao, e hoje esse par nao
+carrega.
 
-**V2 — `2_fundamentals.tex:736` · as duas perdas auxiliares do Cap.5 devem ser nomeadas aqui?** O texto
-atual apresenta a equacao **sem** alegar ser a loss completa de toda execucao do Cap.5, e essa cautela
-esta correta. A flag registra que nomear os dois termos auxiliares exigiria a configuracao da execucao da
-representacao entregue, *"which I did not establish this session"*.
+**V2 — `2_fundamentals.tex:736` · as duas perdas auxiliares do Cap.5 devem ser nomeadas aqui?** O texto atual apresenta
+a equacao **sem** alegar ser a loss completa de toda execucao do Cap.5, e essa cautela esta correta. A flag registra que
+nomear os dois termos auxiliares exigiria a configuracao da execucao da representacao entregue, *"which I did not
+establish this session"*.
 
 > **ESTA FLAG PODE FECHAR: o que faltava ja existe.** O Apendice E, escrito depois dela, imprime a
 > equacao completa (`eq:apx-check2hgi-loss`) com **cinco** termos e seus pesos — tres contrastivos
@@ -297,36 +292,33 @@ representacao entregue, *"which I did not establish this session"*.
 > detalhe, ou continua apresentando a forma reduzida e deixa o detalhe completo no apendice? A segunda
 > opcao e coerente com o Cap.2 ser um capitulo fino (~8-12 paginas).
 
-**V3 — `apx_a_contributions.tex:176` · divulgar as variantes Delta-m do `METRICS.md` e a regra de
-extracao F51?** O comentario diz que nao foi possivel estabelecer que qualquer das duas pertence a
-configuracao reportada, e por isso nenhuma foi nomeada. Se nao pertencem a configuracao reportada, o
-silencio atual e o correto e a flag fecha sem edicao; se pertencem, faltam no registro de reprodutibilidade.
+**V3 — `apx_a_contributions.tex:176` · divulgar as variantes Delta-m do `METRICS.md` e a regra de extracao F51?** O
+comentario diz que nao foi possivel estabelecer que qualquer das duas pertence a configuracao reportada, e por isso
+nenhuma foi nomeada. Se nao pertencem a configuracao reportada, o silencio atual e o correto e a flag fecha sem edicao;
+se pertencem, faltam no registro de reprodutibilidade.
 
-**V4 — `apx_a_contributions.tex:186` · manifesto de versoes de pacote para o codigo liberado.** A flag
-diz apenas que, **se existir**, esse manifesto pertenceria a essa secao. Decisao de uma palavra: existe
-(e voce quer inclui-lo) ou nao existe (e a flag fecha). Note que a mesma secao ja declara
-explicitamente que hardware, versoes de pacote e configuracoes de treino por modelo estao **fora** de
-proposito — se essa exclusao continua valendo, V4 fecha por coerencia com ela.
+**V4 — `apx_a_contributions.tex:186` · manifesto de versoes de pacote para o codigo liberado.** A flag diz apenas que,
+**se existir**, esse manifesto pertenceria a essa secao. Decisao de uma palavra: existe (e voce quer inclui-lo) ou nao
+existe (e a flag fecha). Note que a mesma secao ja declara explicitamente que hardware, versoes de pacote e
+configuracoes de treino por modelo estao **fora** de proposito — se essa exclusao continua valendo, V4 fecha por
+coerencia com ela.
 
-**V5 — `apx_b_errata.tex:465` · marcada "open and inherited": a divergencia de ~2x na contagem de
-usuarios da Florida.** A extracao da epoca do CBIC conta 10.460 usuarios contra os 20.301 da linha
-publicada do CoUrb, e a diferenca nao foi reconstruida a partir de artefatos versionados. Sua decisao de
-2026-07-24 fixou **qual** numero os capitulos reportam, sem fixar **por que** os dois diferem. O
-paragrafo foi escrito para permanecer verdadeiro nas duas hipoteses, entao **nada esta errado hoje** —
-mas se voce algum dia resolver a origem da divergencia, a frase sobre a comparacao controlada deve ser
-revisitada. Esta e a unica das seis que e legitimamente de longo prazo: pode ficar aberta.
+**V5 — `apx_b_errata.tex:465` · marcada "open and inherited": a divergencia de ~2x na contagem de usuarios da Florida.**
+A extracao da epoca do CBIC conta 10.460 usuarios contra os 20.301 da linha publicada do CoUrb, e a diferenca nao foi
+reconstruida a partir de artefatos versionados. Sua decisao de 2026-07-24 fixou **qual** numero os capitulos reportam,
+sem fixar **por que** os dois diferem. O paragrafo foi escrito para permanecer verdadeiro nas duas hipoteses, entao
+**nada esta errado hoje** — mas se voce algum dia resolver a origem da divergencia, a frase sobre a comparacao
+controlada deve ser revisitada. Esta e a unica das seis que e legitimamente de longo prazo: pode ficar aberta.
 
-**V6 — `apx_f_cosine.tex:666` · extensao por dataset para California, Texas e Istanbul.** O comentario
-registra estado de execucao, lido do `_status.json` do job e nao do log: o job foi morto por SIGTERM num
-teto de 35 minutos de parede, tendo concluido alabama, arizona e georgia (de onde vem tres dos quatro
-datasets do apendice) e sido cortado dentro do fold 1 da california; texas e istanbul nunca comecaram.
-Foram reenviados como jobs separados: `c2a02f5d` e `d332e69e` (texas, istanbul) e `213ce119` (california,
-por fold).
+**V6 — `apx_f_cosine.tex:666` · extensao por dataset para California, Texas e Istanbul.** O comentario registra estado
+de execucao, lido do `_status.json` do job e nao do log: o job foi morto por SIGTERM num teto de 35 minutos de parede,
+tendo concluido alabama, arizona e georgia (de onde vem tres dos quatro datasets do apendice) e sido cortado dentro do
+fold 1 da california; texas e istanbul nunca comecaram. Foram reenviados como jobs separados: `c2a02f5d` e `d332e69e`
+(texas, istanbul) e `213ce119` (california, por fold).
 
-**Tentei resolver isso para voce e nao consegui — o dado nao esta no repositorio.** Procurei os tres IDs
-de job em todo `.json` e `.md` da arvore e **nenhum aparece**: o resultado dos reenvios nao esta
-versionado aqui, so o ID. Nao tenho acesso ao `ssh:nespedgpu` nesta sessao para consultar o estado, e nao
-vou supor que terminaram.
+**Tentei resolver isso para voce e nao consegui — o dado nao esta no repositorio.** Procurei os tres IDs de job em todo
+`.json` e `.md` da arvore e **nenhum aparece**: o resultado dos reenvios nao esta versionado aqui, so o ID. Nao tenho
+acesso ao `ssh:nespedgpu` nesta sessao para consultar o estado, e nao vou supor que terminaram.
 
 ```bash
 cd /Users/vitor/Desktop/mestrado/ingred
@@ -343,102 +335,208 @@ for j in c2a02f5d d332e69e 213ce119; do echo -n "$j: "; grep -rl "$j" --include=
 
 ## Auditoria de 2026-08-03 — validade, obsolescencia e o que ja pode fechar
 
-**CORRECAO 2026-08-03 (achado do revisor, commit 192e9a82).** O paragrafo "Metodo" abaixo NUNCA citou
-numeros de linhas -- o erro nao esta neste arquivo. Ele estava na MENSAGEM DE COMMIT de 192e9a82, que
-atribuia a `1_introduction.tex` a medicao "92 insertions/62 deletions" quando a medicao real desse
-arquivo, na epoca, era 52 insertions/12 deletions (exec-log `caff3bd8`, cell 2578); 92/62 pertence a uma
-medicao ANTERIOR de `2_fundamentals.tex`, colada no arquivo errado no texto do commit. Nota corretiva
-ja anexada ao commit via `git notes`; este paragrafo existe so para que a correcao tambem apareca aqui,
-onde voce le. **A conclusao substantiva nao muda**: os dois arquivos derivaram o suficiente para mover
-numeros de linha, e os 56 marcadores continuam resolvendo 1-para-1 mesmo assim -- so a mensagem do
-commit, nao este documento, tinha o par de numeros errado.
+**CORRECAO 2026-08-03 (achado do revisor, commit 192e9a82).** O paragrafo "Metodo" abaixo NUNCA citou numeros de
+linhas -- o erro nao esta neste arquivo. Ele estava na MENSAGEM DE COMMIT de 192e9a82, que atribuia a
+`1_introduction.tex` a medicao "92 insertions/62 deletions" quando a medicao real desse arquivo, na epoca, era 52
+insertions/12 deletions (exec-log `caff3bd8`, cell 2578); 92/62 pertence a uma medicao ANTERIOR de `2_fundamentals.tex`,
+colada no arquivo errado no texto do commit. Nota corretiva ja anexada ao commit via `git notes`; este paragrafo existe
+so para que a correcao tambem apareca aqui, onde voce le. **A conclusao substantiva nao muda**: os dois arquivos
+derivaram o suficiente para mover numeros de linha, e os 56 marcadores continuam resolvendo 1-para-1 mesmo assim -- so a
+mensagem do commit, nao este documento, tinha o par de numeros errado.
 
-**Metodo.** Os 56 marcadores foram relocalizados no fonte vivo (nao pela linha registrada acima, que andou em `1_introduction.tex` e `2_fundamentals.tex` apos edicoes concorrentes desde a geracao deste arquivo, mas por correspondencia de conteudo dentro do mesmo arquivo). **As 56 correspondencias fecham 1-para-1: nenhum marcador desapareceu, nenhum se fundiu com outro.** Cada item foi entao cruzado contra `PENDENCIAS.md` §2/§4 e `_archive/PENDENCIAS_RESOLVIDOS.md`, procurando por uma decisao ja registrada que respondesse a mesma pergunta.
+**Metodo.** Os 56 marcadores foram relocalizados no fonte vivo (nao pela linha registrada acima, que andou em
+`1_introduction.tex` e `2_fundamentals.tex` apos edicoes concorrentes desde a geracao deste arquivo, mas por
+correspondencia de conteudo dentro do mesmo arquivo). **As 56 correspondencias fecham 1-para-1: nenhum marcador
+desapareceu, nenhum se fundiu com outro.** Cada item foi entao cruzado contra `PENDENCIAS.md` §2/§4 e
+`_archive/PENDENCIAS_RESOLVIDOS.md`, procurando por uma decisao ja registrada que respondesse a mesma pergunta.
 
 **CORRECAO 2026-08-04 (achado do revisor).** A frase original aqui dizia que nenhum item deste "
-documento e nenhum item `AUT-`/`CONSIDERATIONS` compartilhavam arquivo+trecho, apoiada num loop cuja
-variavel de entrada (`answered_locs`) ja saira vazia por um bug de parsing anterior -- a checagem nao
-provava nada. Refeito com o estado atual do §4 (11 itens `AUT-` ainda abertos ali; os demais dos 37
-originais ja foram resolvidos e saem do §4 conforme fecham, entao "37" tambem estava desatualizado):
+documento e nenhum item `AUT-`/`CONSIDERATIONS` compartilhavam arquivo+trecho, apoiada num loop cuja variavel de entrada
+(`answered_locs`) ja saira vazia por um bug de parsing anterior -- a checagem nao provava nada. Refeito com o estado
+atual do §4 (11 itens `AUT-` ainda abertos ali; os demais dos 37 originais ja foram resolvidos e saem do §4 conforme
+fecham, entao "37" tambem estava desatualizado):
 HA sobreposicao de ARQUIVO entre alguns itens `AUT-` e alguns dos 56 abaixo (`content.tex`,
-`1_introduction.tex`, `6_conclusion.tex`, `apx_b_static_scope.tex` aparecem nos dois lados), mas
-nenhum par verificado aponta para o MESMO trecho: os itens `AUT-` abertos tratam de secoes/paragrafos
-inteiros (ex.: AUT-32 pede revisao da abertura do Cap.6; AUT-35 trata das tres limitacoes de §6.3), e
-os marcadores deste arquivo apontam para frases especificas dentro dos mesmos capitulos. Continuam
-sendo registros por desenho diferentes -- este cobre marcadores de proveniencia no `.tex`, o outro
-cobre pontos de revisao do orientador/coautor -- mas a garantia de "zero sobreposicao" era mais forte
-do que a checagem sustentava, e o numero "37" do §4 esta desatualizado (o §4 hoje tem 11 itens `AUT-`
+`1_introduction.tex`, `6_conclusion.tex`, `apx_b_static_scope.tex` aparecem nos dois lados), mas nenhum par verificado
+aponta para o MESMO trecho: os itens `AUT-` abertos tratam de secoes/paragrafos inteiros (ex.: AUT-32 pede revisao da
+abertura do Cap.6; AUT-35 trata das tres limitacoes de §6.3), e os marcadores deste arquivo apontam para frases
+especificas dentro dos mesmos capitulos. Continuam sendo registros por desenho diferentes -- este cobre marcadores de
+proveniencia no `.tex`, o outro cobre pontos de revisao do orientador/coautor -- mas a garantia de "zero sobreposicao"
+era mais forte do que a checagem sustentava, e o numero "37" do §4 esta desatualizado (o §4 hoje tem 11 itens `AUT-`
 abertos; os outros ja fecharam).
 
 **Classificacao de cada um dos 56 itens (numeracao desta pagina, nao a do fonte):**
 
-| # | Status | Por que |
-|---|--------|---------|
-| 1 | PARCIAL | 'Modelos ajustados' ainda pede aprovacao (GLOSSARY); o bloco ORPHANED pede destino. Duas partes, nenhuma mecanica. |
-| 2 | PRECISA DE VOCE | Pedido de confirmacao de escolha de prosa/convencao ja feita; nao ha decisao registrada que resolva. |
-| 3 | PRECISA DE VOCE | Pedido de confirmacao de escolha de prosa/convencao ja feita; nao ha decisao registrada que resolva. |
-| 4 | PRECISA DE VOCE | Pedido de confirmacao de escolha de prosa/convencao ja feita; nao ha decisao registrada que resolva. |
-| 5 | PRECISA DE VOCE | Pedido de confirmacao de escolha de prosa/convencao ja feita; nao ha decisao registrada que resolva. |
-| 6 | MECANICO | BLQ-2 foi respondido (PENDENCIAS_RESOLVIDOS §6.10) e a redacao aplicada foi verificada no render (main.pdf, 'Each configuration has twenty...'). |
-| 7 | PRECISA DE VOCE | Pedido de confirmacao de escolha de prosa/convencao ja feita; nao ha decisao registrada que resolva. |
-| 8 | PRECISA DE VOCE | Confirmacao de prosa + um [VERIFY] aberto (convencao de agregacao do Cat F1 nao nomeada em nenhuma fonte); nenhuma decisao registrada resolve, e o VERIFY exige checar o codigo/fonte de novo. |
-| 9 | PRECISA DE VOCE | Sign-off ordinario de prosa + um [VERIFY] aberto (ponto nao estabelecido na fonte); nenhuma decisao registrada resolve. |
-| 10 | PRECISA DE VOCE | Pedido de confirmacao de escolha de prosa/convencao ja feita; nao ha decisao registrada que resolva. |
-| 11 | PRECISA DE VOCE | Confirmacao de escolha de prosa/redacao ja proposta; nenhuma decisao registrada resolve. |
-| 12 | PRECISA DE VOCE | Confirmacao de escolha de prosa/redacao ja proposta; nenhuma decisao registrada resolve. |
-| 13 | PRECISA DE VOCE | Confirmacao de escolha de prosa/redacao ja proposta; nenhuma decisao registrada resolve. |
-| 14 | PRECISA DE VOCE | Bloco ORPHANED com duas perguntas (destino do marcador + revisao de imagem-charneira); nenhuma decisao registrada resolve. |
-| 15 | AMBIGUO -> Opus 5 / voce | O proprio marcador nao especifica opcoes claras; a ambiguidade e do texto-fonte, nao da traducao. |
-| 16 | PRECISA DE VOCE | Confirmacao de escolha de prosa/redacao ja proposta; nenhuma decisao registrada resolve. |
-| 17 | PRECISA DE VOCE | Confirmacao de escolha de prosa/redacao ja proposta; nenhuma decisao registrada resolve. |
-| 18 | PRECISA DE VOCE | Confirmacao de escolha de prosa/redacao ja proposta; nenhuma decisao registrada resolve. |
-| 19 | PRECISA DE VOCE | Confirmacao de escolha de prosa/redacao ja proposta; nenhuma decisao registrada resolve. |
-| 20 | PRECISA DE VOCE | Confirmacao de escolha de prosa/redacao ja proposta; nenhuma decisao registrada resolve. |
-| 21 | PRECISA DE VOCE | Confirmacao de escolha de prosa/redacao ja proposta; nenhuma decisao registrada resolve. |
-| 22 | MECANICO | AUTHOR DECISION (round9f, PENDENCIAS_RESOLVIDOS 2.9) responde exatamente esta pergunta; aplicacao conferida no fonte vivo. |
-| 23 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/numero ja proposta; nenhuma decisao registrada resolve. |
-| 24 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/numero ja proposta; nenhuma decisao registrada resolve. |
-| 25 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/numero ja proposta; nenhuma decisao registrada resolve. |
-| 26 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/numero ja proposta; nenhuma decisao registrada resolve. |
-| 27 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/numero ja proposta; nenhuma decisao registrada resolve. |
-| 28 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/numero ja proposta; nenhuma decisao registrada resolve. |
-| 29 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/numero ja proposta; nenhuma decisao registrada resolve. |
-| 30 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/numero ja proposta; nenhuma decisao registrada resolve. |
-| 31 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/numero ja proposta; nenhuma decisao registrada resolve. |
-| 32 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/numero ja proposta; nenhuma decisao registrada resolve. |
-| 33 | PRECISA DE VOCE | Bloco ORPHANED com decisao de convencao numerica (contagem por braco vs total) e destino do marcador; nenhuma decisao registrada resolve. |
-| 34 | PRECISA DE VOCE | Duas perguntas fundidas (convencao numerica + destino do ORPHANED); nenhuma decisao registrada resolve a primeira. |
-| 35 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/fato ja proposta ou pendente de checagem externa (ex.: publicacao de arquivos, conversa com orientador); nenhuma decisao registrada resolve. |
-| 36 | PRECISA DE VOCE | PENDENCIAS_RESOLVIDOS 5.6 resolveu que Cap.4 nao precisa mudar, mas a premissa dos dumps distintos (SNAP vs figshare) segue sem confirmacao do autor -- ele pede fatos das proprias execucoes. |
-| 37 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/fato ja proposta ou pendente de checagem externa (ex.: publicacao de arquivos, conversa com orientador); nenhuma decisao registrada resolve. |
-| 38 | AMBIGUO -> Opus 5 / voce | O proprio marcador nao especifica opcoes claras; a ambiguidade e do texto-fonte, nao da traducao. |
-| 39 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/fato ja proposta ou pendente de checagem externa (ex.: publicacao de arquivos, conversa com orientador); nenhuma decisao registrada resolve. |
-| 40 | PRECISA DE VOCE | Depende de um fato externo ao texto (se os arquivos serao publicados antes da defesa) que so o autor sabe. |
-| 41 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/fato ja proposta ou pendente de checagem externa (ex.: publicacao de arquivos, conversa com orientador); nenhuma decisao registrada resolve. |
-| 42 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/fato ja proposta ou pendente de checagem externa (ex.: publicacao de arquivos, conversa com orientador); nenhuma decisao registrada resolve. |
-| 43 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/fato ja proposta ou pendente de checagem externa (ex.: publicacao de arquivos, conversa com orientador); nenhuma decisao registrada resolve. |
-| 44 | AMBIGUO -> Opus 5 / voce | O proprio marcador nao especifica opcoes claras; a ambiguidade e do texto-fonte, nao da traducao. |
-| 45 | PRECISA DE VOCE | Depende de uma conversa com o orientador que so o autor pode confirmar como concluida. |
-| 46 | PRECISA DE VOCE | Pede explicitamente que o autor leia o paragrafo antes do envio; a mensagem enfraquece uma premissa da sua propria decisao anterior. |
-| 47 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/fato ja proposta ou pendente de checagem externa (ex.: publicacao de arquivos, conversa com orientador); nenhuma decisao registrada resolve. |
-| 48 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/fato ja proposta ou pendente de checagem externa (ex.: publicacao de arquivos, conversa com orientador); nenhuma decisao registrada resolve. |
-| 49 | AMBIGUO -> Opus 5 / voce | O proprio marcador nao especifica opcoes claras; a ambiguidade e do texto-fonte, nao da traducao. |
-| 50 | AMBIGUO -> Opus 5 / voce | O proprio marcador nao especifica opcoes claras; a ambiguidade e do texto-fonte, nao da traducao. |
-| 51 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/fato ja proposta ou pendente de checagem externa (ex.: publicacao de arquivos, conversa com orientador); nenhuma decisao registrada resolve. |
-| 52 | PRECISA DE VOCE | Depende de um fato sobre a propria infraestrutura experimental (onde o Cap.4 rodou) que so o autor sabe. |
-| 53 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/fato ja proposta ou pendente de checagem externa (ex.: publicacao de arquivos, conversa com orientador); nenhuma decisao registrada resolve. |
-| 54 | AMBIGUO -> Opus 5 / voce | O proprio marcador nao especifica opcoes claras; a ambiguidade e do texto-fonte, nao da traducao. |
-| 55 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/fato ja proposta ou pendente de checagem externa (ex.: publicacao de arquivos, conversa com orientador); nenhuma decisao registrada resolve. |
-| 56 | AMBIGUO -> Opus 5 / voce | O proprio marcador nao especifica opcoes claras; a ambiguidade e do texto-fonte, nao da traducao. |
+| #  | Status                   | Por que                                                                                                                                                                                        |
+|----|--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1  | PARCIAL                  | 'Modelos ajustados' ainda pede aprovacao (GLOSSARY); o bloco ORPHANED pede destino. Duas partes, nenhuma mecanica.                                                                             |
+| 2  | PRECISA DE VOCE          | Pedido de confirmacao de escolha de prosa/convencao ja feita; nao ha decisao registrada que resolva.                                                                                           |
+| 3  | PRECISA DE VOCE          | Pedido de confirmacao de escolha de prosa/convencao ja feita; nao ha decisao registrada que resolva.                                                                                           |
+| 4  | PRECISA DE VOCE          | Pedido de confirmacao de escolha de prosa/convencao ja feita; nao ha decisao registrada que resolva.                                                                                           |
+| 5  | PRECISA DE VOCE          | Pedido de confirmacao de escolha de prosa/convencao ja feita; nao ha decisao registrada que resolva.                                                                                           |
+| 6  | MECANICO                 | BLQ-2 foi respondido (PENDENCIAS_RESOLVIDOS §6.10) e a redacao aplicada foi verificada no render (main.pdf, 'Each configuration has twenty...').                                               |
+| 7  | PRECISA DE VOCE          | Pedido de confirmacao de escolha de prosa/convencao ja feita; nao ha decisao registrada que resolva.                                                                                           |
+| 8  | PRECISA DE VOCE          | Confirmacao de prosa + um [VERIFY] aberto (convencao de agregacao do Cat F1 nao nomeada em nenhuma fonte); nenhuma decisao registrada resolve, e o VERIFY exige checar o codigo/fonte de novo. |
+| 9  | PRECISA DE VOCE          | Sign-off ordinario de prosa + um [VERIFY] aberto (ponto nao estabelecido na fonte); nenhuma decisao registrada resolve.                                                                        |
+| 10 | PRECISA DE VOCE          | Pedido de confirmacao de escolha de prosa/convencao ja feita; nao ha decisao registrada que resolva.                                                                                           |
+| 11 | PRECISA DE VOCE          | Confirmacao de escolha de prosa/redacao ja proposta; nenhuma decisao registrada resolve.                                                                                                       |
+| 12 | PRECISA DE VOCE          | Confirmacao de escolha de prosa/redacao ja proposta; nenhuma decisao registrada resolve.                                                                                                       |
+| 13 | PRECISA DE VOCE          | Confirmacao de escolha de prosa/redacao ja proposta; nenhuma decisao registrada resolve.                                                                                                       |
+| 14 | PRECISA DE VOCE          | Bloco ORPHANED com duas perguntas (destino do marcador + revisao de imagem-charneira); nenhuma decisao registrada resolve.                                                                     |
+| 15 | AMBIGUO -> Opus 5 / voce | O proprio marcador nao especifica opcoes claras; a ambiguidade e do texto-fonte, nao da traducao.                                                                                              |
+| 16 | PRECISA DE VOCE          | Confirmacao de escolha de prosa/redacao ja proposta; nenhuma decisao registrada resolve.                                                                                                       |
+| 17 | PRECISA DE VOCE          | Confirmacao de escolha de prosa/redacao ja proposta; nenhuma decisao registrada resolve.                                                                                                       |
+| 18 | PRECISA DE VOCE          | Confirmacao de escolha de prosa/redacao ja proposta; nenhuma decisao registrada resolve.                                                                                                       |
+| 19 | PRECISA DE VOCE          | Confirmacao de escolha de prosa/redacao ja proposta; nenhuma decisao registrada resolve.                                                                                                       |
+| 20 | PRECISA DE VOCE          | Confirmacao de escolha de prosa/redacao ja proposta; nenhuma decisao registrada resolve.                                                                                                       |
+| 21 | PRECISA DE VOCE          | Confirmacao de escolha de prosa/redacao ja proposta; nenhuma decisao registrada resolve.                                                                                                       |
+| 22 | MECANICO                 | AUTHOR DECISION (round9f, PENDENCIAS_RESOLVIDOS 2.9) responde exatamente esta pergunta; aplicacao conferida no fonte vivo.                                                                     |
+| 23 | PRECISA DE VOCE          | Confirmacao de escolha de conteudo/redacao/numero ja proposta; nenhuma decisao registrada resolve.                                                                                             |
+| 24 | PRECISA DE VOCE          | Confirmacao de escolha de conteudo/redacao/numero ja proposta; nenhuma decisao registrada resolve.                                                                                             |
+| 25 | PRECISA DE VOCE          | Confirmacao de escolha de conteudo/redacao/numero ja proposta; nenhuma decisao registrada resolve.                                                                                             |
+| 26 | PRECISA DE VOCE          | Confirmacao de escolha de conteudo/redacao/numero ja proposta; nenhuma decisao registrada resolve.                                                                                             |
+| 27 | PRECISA DE VOCE          | Confirmacao de escolha de conteudo/redacao/numero ja proposta; nenhuma decisao registrada resolve.                                                                                             |
+| 28 | PRECISA DE VOCE          | Confirmacao de escolha de conteudo/redacao/numero ja proposta; nenhuma decisao registrada resolve.                                                                                             |
+| 29 | PRECISA DE VOCE          | Confirmacao de escolha de conteudo/redacao/numero ja proposta; nenhuma decisao registrada resolve.                                                                                             |
+| 30 | PRECISA DE VOCE          | Confirmacao de escolha de conteudo/redacao/numero ja proposta; nenhuma decisao registrada resolve.                                                                                             |
+| 31 | PRECISA DE VOCE          | Confirmacao de escolha de conteudo/redacao/numero ja proposta; nenhuma decisao registrada resolve.                                                                                             |
+| 32 | PRECISA DE VOCE          | Confirmacao de escolha de conteudo/redacao/numero ja proposta; nenhuma decisao registrada resolve.                                                                                             |
+| 33 | PRECISA DE VOCE          | Bloco ORPHANED com decisao de convencao numerica (contagem por braco vs total) e destino do marcador; nenhuma decisao registrada resolve.                                                      |
+| 34 | PRECISA DE VOCE          | Duas perguntas fundidas (convencao numerica + destino do ORPHANED); nenhuma decisao registrada resolve a primeira.                                                                             |
+| 35 | PRECISA DE VOCE          | Confirmacao de escolha de conteudo/redacao/fato ja proposta ou pendente de checagem externa (ex.: publicacao de arquivos, conversa com orientador); nenhuma decisao registrada resolve.        |
+| 36 | PRECISA DE VOCE          | PENDENCIAS_RESOLVIDOS 5.6 resolveu que Cap.4 nao precisa mudar, mas a premissa dos dumps distintos (SNAP vs figshare) segue sem confirmacao do autor -- ele pede fatos das proprias execucoes. |
+| 37 | PRECISA DE VOCE          | Confirmacao de escolha de conteudo/redacao/fato ja proposta ou pendente de checagem externa (ex.: publicacao de arquivos, conversa com orientador); nenhuma decisao registrada resolve.        |
+| 38 | AMBIGUO -> Opus 5 / voce | O proprio marcador nao especifica opcoes claras; a ambiguidade e do texto-fonte, nao da traducao.                                                                                              |
+| 39 | PRECISA DE VOCE          | Confirmacao de escolha de conteudo/redacao/fato ja proposta ou pendente de checagem externa (ex.: publicacao de arquivos, conversa com orientador); nenhuma decisao registrada resolve.        |
+| 40 | PRECISA DE VOCE          | Depende de um fato externo ao texto (se os arquivos serao publicados antes da defesa) que so o autor sabe.                                                                                     |
+| 41 | PRECISA DE VOCE          | Confirmacao de escolha de conteudo/redacao/fato ja proposta ou pendente de checagem externa (ex.: publicacao de arquivos, conversa com orientador); nenhuma decisao registrada resolve.        |
+| 42 | PRECISA DE VOCE          | Confirmacao de escolha de conteudo/redacao/fato ja proposta ou pendente de checagem externa (ex.: publicacao de arquivos, conversa com orientador); nenhuma decisao registrada resolve.        |
+| 43 | PRECISA DE VOCE          | Confirmacao de escolha de conteudo/redacao/fato ja proposta ou pendente de checagem externa (ex.: publicacao de arquivos, conversa com orientador); nenhuma decisao registrada resolve.        |
+| 44 | AMBIGUO -> Opus 5 / voce | O proprio marcador nao especifica opcoes claras; a ambiguidade e do texto-fonte, nao da traducao.                                                                                              |
+| 45 | PRECISA DE VOCE          | Depende de uma conversa com o orientador que so o autor pode confirmar como concluida.                                                                                                         |
+| 46 | PRECISA DE VOCE          | Pede explicitamente que o autor leia o paragrafo antes do envio; a mensagem enfraquece uma premissa da sua propria decisao anterior.                                                           |
+| 47 | PRECISA DE VOCE          | Confirmacao de escolha de conteudo/redacao/fato ja proposta ou pendente de checagem externa (ex.: publicacao de arquivos, conversa com orientador); nenhuma decisao registrada resolve.        |
+| 48 | PRECISA DE VOCE          | Confirmacao de escolha de conteudo/redacao/fato ja proposta ou pendente de checagem externa (ex.: publicacao de arquivos, conversa com orientador); nenhuma decisao registrada resolve.        |
+| 49 | AMBIGUO -> Opus 5 / voce | O proprio marcador nao especifica opcoes claras; a ambiguidade e do texto-fonte, nao da traducao.                                                                                              |
+| 50 | AMBIGUO -> Opus 5 / voce | O proprio marcador nao especifica opcoes claras; a ambiguidade e do texto-fonte, nao da traducao.                                                                                              |
+| 51 | PRECISA DE VOCE          | Confirmacao de escolha de conteudo/redacao/fato ja proposta ou pendente de checagem externa (ex.: publicacao de arquivos, conversa com orientador); nenhuma decisao registrada resolve.        |
+| 52 | PRECISA DE VOCE          | Depende de um fato sobre a propria infraestrutura experimental (onde o Cap.4 rodou) que so o autor sabe.                                                                                       |
+| 53 | PRECISA DE VOCE          | Confirmacao de escolha de conteudo/redacao/fato ja proposta ou pendente de checagem externa (ex.: publicacao de arquivos, conversa com orientador); nenhuma decisao registrada resolve.        |
+| 54 | AMBIGUO -> Opus 5 / voce | O proprio marcador nao especifica opcoes claras; a ambiguidade e do texto-fonte, nao da traducao.                                                                                              |
+| 55 | PRECISA DE VOCE          | Confirmacao de escolha de conteudo/redacao/fato ja proposta ou pendente de checagem externa (ex.: publicacao de arquivos, conversa com orientador); nenhuma decisao registrada resolve.        |
+| 56 | AMBIGUO -> Opus 5 / voce | O proprio marcador nao especifica opcoes claras; a ambiguidade e do texto-fonte, nao da traducao.                                                                                              |
 
-**Resumo:** 2 mecanicos (fecham citando uma decisao ja tomada, com a aplicacao verificada no render), 1 parcial (uma metade fecha, a outra nao), 46 precisam da sua palavra porque sao escolhas de conteudo, redacao ou fato que nenhuma decisao anterior resolve, e 7 estao sinalizados como ambiguos -- o proprio bloco de origem nao especifica o que exatamente deve ser confirmado, entao a recomendacao e reler o trecho original no `.tex` (nao a traducao aqui) ou pedir a um modelo mais capaz (Opus 5) uma segunda leitura antes de decidir.
+**Resumo:** 2 mecanicos (fecham citando uma decisao ja tomada, com a aplicacao verificada no render), 1 parcial (uma
+metade fecha, a outra nao), 46 precisam da sua palavra porque sao escolhas de conteudo, redacao ou fato que nenhuma
+decisao anterior resolve, e 7 estao sinalizados como ambiguos -- o proprio bloco de origem nao especifica o que
+exatamente deve ser confirmado, entao a recomendacao e reler o trecho original no `.tex` (nao a traducao aqui) ou pedir
+a um modelo mais capaz (Opus 5) uma segunda leitura antes de decidir.
 
 **Os dois mecanicos, com a evidencia:**
 
-- **#6** (`1_introduction.tex`) -- a decisao BLQ-2 (`PENDENCIAS_RESOLVIDOS §6.10`, arquivado 2026-08-03) respondeu exatamente esta pergunta ("mantenha everywhere para o categoria e especifique onde for preciso para o next-region"). **CORRIGIDO 2026-08-04 (achado do revisor):** a verificacao original so conferiu no render a metade n=20/n=4 do bloco, nao a metade do veredito de regiao que BLQ-2 realmente decide. Reconferido agora: a frase renderizada e "outperforms the dedicated models on the category task at all six datasets and on the region task at four of the six. At the other two, it remains statistically non-inferior within a two-point margin (TOST)" -- as duas metades corretas, ambas presentes. O marcador pode ser removido citando essa decisao.
-- **#22** (`5_mobiwac/06_results.tex`) -- uma AUTHOR DECISION explicita (round9f, 2026-08-02, `PENDENCIAS_RESOLVIDOS 2.9`) responde a mesma pergunta (onde colocar o ponteiro ao apendice de gradient-cosine). **CORRIGIDO 2026-08-04 (achado do revisor):** a verificacao original conferiu so o fonte vivo, nao o render, e o commit dizia "verificado no render" para os dois itens -- falso para este. Reconferido agora no `main.pdf`: "Appendix D reports the gradient-cosine diagnostic of this chapter on the final model across seven datasets", no paragrafo de abertura da secao, exatamente como a decisao pede. O marcador pode ser removido citando essa decisao.
+- **#6** (`1_introduction.tex`) -- a decisao BLQ-2 (`PENDENCIAS_RESOLVIDOS §6.10`, arquivado 2026-08-03) respondeu
+  exatamente esta pergunta ("mantenha everywhere para o categoria e especifique onde for preciso para o next-region").
+  **CORRIGIDO 2026-08-04 (achado do revisor):** a verificacao original so conferiu no render a metade n=20/n=4 do bloco,
+  nao a metade do veredito de regiao que BLQ-2 realmente decide. Reconferido agora: a frase renderizada e "outperforms
+  the dedicated models on the category task at all six datasets and on the region task at four of the six. At the other
+  two, it remains statistically non-inferior within a two-point margin (TOST)" -- as duas metades corretas, ambas
+  presentes. O marcador pode ser removido citando essa decisao.
+- **#22** (`5_mobiwac/06_results.tex`) -- uma AUTHOR DECISION explicita (round9f, 2026-08-02,
+  `PENDENCIAS_RESOLVIDOS 2.9`) responde a mesma pergunta (onde colocar o ponteiro ao apendice de gradient-cosine).
+  **CORRIGIDO 2026-08-04 (achado do revisor):** a verificacao original conferiu so o fonte vivo, nao o render, e o
+  commit dizia "verificado no render" para os dois itens -- falso para este. Reconferido agora no `main.pdf`: "Appendix
+  D reports the gradient-cosine diagnostic of this chapter on the final model across seven datasets", no paragrafo de
+  abertura da secao, exatamente como a decisao pede. O marcador pode ser removido citando essa decisao.
 
-**Nao removi nenhum marcador do `.tex` nem editei os 56 blocos acima.** Esta secao e so o veredito da auditoria; a decisao de remover os marcadores mecanicos, ou de responder os que precisam de voce, e sua.
+**Nao removi nenhum marcador do `.tex` nem editei os 56 blocos acima.** Esta secao e so o veredito da auditoria; a
+decisao de remover os marcadores mecanicos, ou de responder os que precisam de voce, e sua.
+
+---
+
+## Rodada 15 (2026-08-04) — os itens 1-6 fecharam; tres defeitos de prosa encontrados no caminho
+
+**O que voce pediu, e o que foi feito.** Voce preencheu as decisoes dos itens **1 a 6**, que sao
+exatamente os dois capitulos-alvo desta rodada (`content.tex` e `1_introduction.tex`). Todos os seis
+foram aplicados no fonte: o bloco extenso de cada um saiu e no lugar ficou o marcador minimo
+`[NEEDS SIGN-OFF NN | CLOSED]` com uma ou duas linhas de resolucao. Nenhum item 7+ foi tocado.
+
+| # | Sua decisao | O que sobrou no `.tex` |
+|---|---|---|
+| 01 | descartar o bloco ORPHANED; "Modelos ajustados" fica fora do glossario | marcador + **a nota de omissao do par de tarefas**, que voce mesmo pediu no round 10 (FAB-08) |
+| 02 | manter Acc@10; omitir joint-best e faixa de macro-F1; manter "depende de" | marcador + **o guard do termo reservado** ("proximo lugar visitado" nao pode ser usado) |
+| 03 | remover o marcador (opcao 2) | marcador + **a regra de paridade**: Resumo e Abstract sao uma afirmacao em duas linguas |
+| 04 | manter as omissoes e o verbo (opcoes 2 e 3) | marcador, espelhando o 02 do lado do Abstract |
+| 05 | a forma atual e aceitavel | marcador + **o motivo de nao "simplificar"**: a frase foi afastada de proposito do Cap.5 |
+| 06 | tudo certo, manter | marcador + **o motivo da assimetria**: categoria pode alegar os seis datasets, regiao precisa da particao |
+
+**O criterio que usei para decidir o que ficava.** Descartei medicao historica (contagens de palavras
+de um build de 105 paginas que nao existe mais), proveniencia de numeros que **nao estao mais citados**
+nesses blocos (a faixa 5.3-9.4 e o par quatro/dois seguem documentados onde ainda sao citados, no
+`6_conclusion.tex` -- conferido: nenhum desses valores aparece em prosa viva do `content.tex`), e
+avisos de tarefas ja concluidas. Guardei o que impede um agente futuro de **desfazer** uma decisao sua
+sem saber: as regras de paridade, os termos proibidos, e as duas explicacoes de assimetria.
+
+### 15.1 Dois defeitos de prosa no Resumo, que o Abstract nao tem
+
+Encontrados ao ler o texto vivo para decidir o que os comentarios ainda anotavam. **Nao corrigi**: sao
+alteracoes no texto renderizado e o par Resumo/Abstract e regido pela paridade de afirmacoes, entao
+qualquer edicao precisa da sua palavra. Ambos estao **impressos na pagina 2** do volume de defesa.
+
+**D1 — `content.tex:89`, frase truncada. Duas frases fundidas numa que nao fecha o sentido:**
+
+> "O protocolo empregou validação cruzada com usuários disjuntos entre treinamento e teste
+> estatísticos pareados."
+
+O gemeo ingles esta correto e mostra o que se perdeu: *"The protocol used user-disjoint
+cross-validation and paired statistical tests."* Faltou o **"e testes"** — o portugues diz
+"entre treinamento e teste estatisticos pareados", grudando "teste" (do par treinamento/teste) no
+adjetivo "estatisticos pareados". Correcao minima, preservando a paridade com o ingles:
+*"...validação cruzada com usuários disjuntos entre treinamento e teste, e testes estatísticos
+pareados."*
+
+**D2 — `content.tex:85`, "da previsão" duplicado:**
+
+> "reuniu duas tarefas sequenciais: a previsão da próxima categoria e **da previsão** da próxima
+> região."
+
+O gemeo ingles esta correto (*"paired two sequential tasks: next-category and next-region
+prediction"*). Correcao minima: *"a previsão da próxima categoria e da próxima região."*
+
+> **DECISAO SUA:** aprovo as duas correcoes minimas acima (elas nao mexem em nenhuma afirmacao,
+> numero ou hedge, so em concordancia), ou prefere outra redacao? Aplico as duas no mesmo commit,
+> porque a lei de paridade exige que Resumo e Abstract sejam editados juntos — aqui o ingles ja esta
+> certo, entao so o portugues muda.
+
+### 15.2 A lista de capitulos ficou sem frase de entrada
+
+`1_introduction.tex`, secao "Organization of this dissertation". O paragrafo termina em
+*"...or, for the article under review, the submitted manuscript."* e o render **entra direto no
+primeiro bullet**, sem frase de ligacao. A frase de entrada existia (*"The collection is organized as
+follows:"*) mas estava **presa dentro de um comentario**; o pass do round 7 detectou isso, reportou, e
+deliberadamente nao corrigiu porque aquele pass tinha de manter o PDF byte-identico.
+
+**Essa restricao nao existe mais.** Verificado no render (2026-08-04): nem a frase de entrada nem a
+antiga frase de errata aparecem no PDF. Substitui o bloco de comentario obsoleto por um `[OPEN]`
+que diz exatamente isso, no lugar onde a frase entraria.
+
+> **DECISAO SUA:** restauro a frase de entrada (*"The collection is organized as follows:"*, ou outra
+> que voce prefira)? Isso **adiciona uma linha de prosa** a pagina 15 e pode empurrar a paginacao em
+> uma pagina — por isso nao apliquei. Uma lista sem frase de entrada e o tipo de coisa que um
+> orientador circula na primeira leitura.
+
+### 15.3 Comentario obsoleto removido, sem pedir decisao
+
+- `1_introduction.tex:320-337` — o bloco explicava por que a frase de errata apontava para o volume
+  suplementar e reportava a prosa presa. **A frase de errata nao existe mais em prosa viva** (a regra
+  standalone da rodada 14 removeu os ponteiros), e a prosa presa virou o `[OPEN]` de 15.2. O resto do
+  bloco descrevia decisoes sobre texto que ja saiu.
+- `1_introduction.tex:35-39` — marcador `ORPHANED` sobre uma edicao trivial e ja resolvida ("users"
+  no plural, a pedido do orientador). Mantive a razao em duas linhas e removi o envelope de revisao.
+
+### 15.4 Verificacao
+
+Quatro alvos em paralelo, `rc=0`, `tex_errors=0`, zero Overfull, **paginacao inalterada**
+(116/113/117/26) — que e a prova de que so comentario saiu. `make check` `rc=0` com zero linhas FAIL,
+`make selftest` `rc=0`, e os **208 de 208 probes** do `check_audit_claims` continuam valendo.
 
 ---
 
@@ -467,7 +565,8 @@ pertence agora, ou manter para revisao futura -- ja que a frase original que ele
 continua sem destino definido, deixando a informacao sobre a diferenca de tarefas entre os estudos sem localizacao
 confirmada no texto.
 
-> **SUA DECISAO:** 2, como nem usamos esses termos mais podemos descartar.
+> **SUA DECISAO:** 2, como nem usamos esses termos mais podemos descartar. Sobre o termo 'Modelos ajustados', podemos
+> manter fora, nem o usamos mais.
 
 ---
 
@@ -487,7 +586,8 @@ confundimento da Seção 6.2 proíbe uso de verbo causal.
 **Se ficar sem decisao:** As decisões de nomenclatura da métrica, de omissão de detalhes (joint-best e faixa de
 macro-F1) e de escolha de verbo não-causal permanecem sem a aprovação explícita do autor.
 
-> **SUA DECISAO:**
+> **SUA DECISAO:** Podemos manter o Acc@10. Sim vamos omitir, como não explicamos o que é temos que omitir. vamos manter
+> depende de, mais facil para leitura.
 
 ---
 
@@ -517,7 +617,7 @@ trecho de texto para anotar, ou se precisa ser relocado para a frase equivalente
 de linhas $^{\uparrow}$/$^{\approx}$) permanecem sem confirmacao do autor apos a limpeza da arvore, podendo deixar os
 dois blocos divergentes sem que isso seja percebido.
 
-> **SUA DECISAO:**
+> **SUA DECISAO:** vamos de 2.
 
 ---
 
@@ -538,7 +638,7 @@ resumo de alto nível; e (3) manter "depends on" em vez de "determines whether",
 **Se ficar sem decisao:** Se ignorado, a formulação atual do resumo -- incluindo a escolha de verbo mais cautelosa e as
 omissões de conteúdo -- permanece publicada sem a validação explícita do autor.
 
-> **SUA DECISAO:**
+> **SUA DECISAO:** vamos de 2 e 3;
 
 ---
 
@@ -559,7 +659,7 @@ once"). A frase foi reformulada nesta ocorrencia para que o capitulo do artigo m
 **Se ficar sem decisao:** A reformulacao de prosa introduzida para evitar a duplicacao com o Cap.5 permanece sem sua
 aprovacao.
 
-> **SUA DECISAO:**
+> **SUA DECISAO:** A forma que está atual é aceitavel.
 
 ---
 
@@ -572,20 +672,19 @@ ajustados, nomear a unidade inferencial (n = 4) e incluir a clausula de particao
 superiority test" e "n = 20 (fitted models) and n = 4 (inferential unit)"), stats_n20/RESULTS.md:65-67 e
 STATISTICAL_PROTOCOL.md:187-190. Esta era a ultima ocorrencia que colapsava o veredito de regiao em "either outperforms
 or matches", descartando a particao; o Capitulo 6 (:126-127) ja usa a redacao correta e este trecho deve espelha-la.
-Pela decisao do autor no round10 (PENDENCIAS_RESOLVIDOS §6.10 (arquivado 2026-08-03) BLQ-2: "mantenha everywhere para o categoria e especifique onde for
-preciso para o next-region"), a clausula de categoria mantem seu carater universal (valido nos seis datasets) e a
-clausula de regiao precisa da particao. WRITING_LAW §3 proibe o uso de "everywhere" isolado, entao a clausula de
-categoria deve nomear os seis datasets em vez disso.
+Pela decisao do autor no round10 (PENDENCIAS_RESOLVIDOS §6.10 (arquivado 2026-08-03) BLQ-2: "mantenha everywhere para o
+categoria e especifique onde for preciso para o next-region"), a clausula de categoria mantem seu carater universal
+(valido nos seis datasets) e a clausula de regiao precisa da particao. WRITING_LAW §3 proibe o uso de "everywhere"
+isolado, entao a clausula de categoria deve nomear os seis datasets em vez disso.
 
 **O que decidir:** Confirmar se a nova redacao para REV-014 esta correta: (1) a clausula de categoria mantem a afirmacao
 universal mas nomeando os seis datasets (em vez de "everywhere", por causa do WRITING_LAW §3); e (2) a clausula de
 regiao passa a mencionar explicitamente a particao (n = 20 fits, n = 4 como unidade inferencial, quatro seeds e cinco
 folds), espelhando a redacao ja usada no Capitulo 6 :126-127.
 
-**A redacao JA ESTA APLICADA — verificado no PDF, nao no fonte (2026-08-04).** As tres partes que o item
-pedia estao impressas no volume de defesa: a clausula de regiao com a particao
-(*"on the region task at four of the six"*), o veredito nao-inferior com a margem
-(*"statistically non-inferior within a two-point margin"*) e a unidade inferencial
+**A redacao JA ESTA APLICADA — verificado no PDF, nao no fonte (2026-08-04).** As tres partes que o item pedia estao
+impressas no volume de defesa: a clausula de regiao com a particao (*"on the region task at four of the six"*), o
+veredito nao-inferior com a margem (*"statistically non-inferior within a two-point margin"*) e a unidade inferencial
 (*"Each configuration has twenty"*). Reproduza:
 
 ```bash
@@ -601,14 +700,13 @@ for s in ['on the region task at four of the six',
 ```
 
 **Portanto a sua decisao aqui e binaria e barata:** ou voce le as tres frases no PDF e responde
-"aprovado", e o bloco de comentario sai; ou aponta o que quer diferente. **Nao ha trabalho de
-verificacao sobrando** — ele esta feito acima.
+"aprovado", e o bloco de comentario sai; ou aponta o que quer diferente. **Nao ha trabalho de verificacao sobrando** —
+ele esta feito acima.
 
-**Se ficar sem decisao:** o texto continua correto e o build continua verde; o unico custo e que o bloco
-de comentario de ~30 linhas em `1_introduction.tex` permanece no fonte, contra o seu objetivo de reduzir
-comentario.
+**Se ficar sem decisao:** o texto continua correto e o build continua verde; o unico custo e que o bloco de comentario
+de ~30 linhas em `1_introduction.tex` permanece no fonte, contra o seu objetivo de reduzir comentario.
 
-> **SUA DECISAO:**
+> **SUA DECISAO:** Tudo certo vamos manter em como está.
 
 ---
 
@@ -631,7 +729,7 @@ preferir reverter para a formulacao original ('93% is the ceiling any model shou
 **Se ficar sem decisao:** A correcao do escopo do bound de 93% (contradicao entre secao 2.1 e secao 2.4) permanece sem a
 aprovacao do autor, podendo publicar uma afirmacao ainda incorreta ou uma reformulacao nao revisada.
 
-> **SUA DECISAO:**
+> **SUA DECISAO:** Deixa como está.
 
 ---
 
@@ -647,6 +745,7 @@ epochs") e :548-551: w_r 0.4 -> 0.7388 +/- 0.0205 | w_r 0.5 -> 0.7678 +/- 0.0211
 0.7 -> 0.8186 +/- 0.0123. A monotonicidade e palavra da propria fonte (CLAUDE.md:117; preprocess.py:38); o valor adotado
 0.7 e o default do codigo (preprocess.py:23, DEFAULT_CROSS_REGION_WEIGHT = 0.7); e o w_r = 0.4 publicado, junto com o
 objetivo de representacao de regiao, foi verificado no PDF do HGI, Eq. 2 ("wr is a factor to differentiate intra- (wr =
+
 1) and cross-region (wr = 0.4) edges") e no abstract.
 
 **O que decidir:** O bloco traz um [VERIFY] pendente: nenhuma das fontes (CLAUDE.md, README.md, preprocess.py, PDF)
@@ -657,7 +756,7 @@ numericos e manter a frase apenas qualitativa (sem os numeros 0.74/0.82 ou os va
 **Se ficar sem decisao:** Se ignorado, a dissertacao publica valores de "category F1" (0.7388, 0.7678, 0.7944, 0.8186,
 ou a formulacao qualitativa) sem que a convencao de agregacao subjacente tenha sido confirmada pelo autor.
 
-> **SUA DECISAO:**
+> **SUA DECISAO:** Esse bloco nem existe mais no texto, e outro criamos uma appendix para resolver esse problema esse need sing off(nso) pode ser removido do tex.
 
 ---
 
@@ -1672,6 +1771,7 @@ under review at the time of writing"), estado que é descrito corretamente em to
 
 **O que decidir:** O autor precisa confirmar se aprova a troca de "the three published studies" por "the three studies
 of this collection", dado que a redação original classificava incorretamente como publicado um estudo (o de MobiWac
+
 2026) que ainda está em revisão.
 
 **Se ficar sem decisao:** Uma correção que evita afirmar erroneamente que os três estudos estão publicados permanece sem

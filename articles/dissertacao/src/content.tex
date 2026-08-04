@@ -46,52 +46,18 @@
         SILVA, Vitor Hugo De Oliveira, M.Sc., Universidade Federal de Viçosa, agosto de 2026.
         \textbf{Multitask Learning for Point-of-Interest Classification and Prediction Tasks: The Role of the Check-in-Level Representation}. Orientador: Fabrício Aguiar Silva.
         \vspace{\onelineskip}
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
-        % [NEEDS SIGN-OFF: Resumo CUT, round 6, 2026-07-28] The pair was cut on the author's
-        % ruling that both blocks were too long. MEASURED on the rendered pages of the then
-        % 105-page defense build, on one stated convention (catalog header and keyword block
-        % stripped; hyphenated compounds count as one word; sentence enders exclude decimals,
-        % initials and Sec./Fig./cf./e.g./i.e./et al.):
-        %   Resumo   p.3-4  500 words / 10 sentences / mean 50.0  ->  this text
-        %   Abstract p.5    423 words / 10 sentences / mean 42.3  ->  the block below
-        % The same instrument on the five defended dissertations in exemples/ gives the envelope
-        % this cut targets: 195-282 words, 6-12 sentences, mean 19.5-37.5 across all eight blocks
-        % (Resumos 233-282, Abstracts 195-250).
-        % NOTHING ON THE CLAIM FLOOR WAS CUT: the question and its conditional answer, the
-        % three-study arc, both tasks, the next-place exclusion, the 5,3-9,4 range with its
-        % joint-best convention, four of six with TOST non-inferiority at the other two, and both
-        % data sources are all still here. Verbs stay bound to their tests (supera / equipara-se,
-        % GLOSSARY §4). Which claims left, and where each still lives in the body, is tabulated in
-        % src_utils/_round6/15_resumo_abstract.md; two were cut as not on the floor (the first
-        % study's higher training cost, and the task-pair evolution), and "transferencia negativa"
-        % survives here as the mechanism rather than the name, which 2_fundamentals.tex defines.
-        % PT terms are GLOSSARY §6 entries only. "Modelos ajustados" for "fitted models" is still
-        % NOT in §6: proposed, pending the author's approval before it counts as canonical.
+        % [NEEDS SIGN-OFF 01 | CLOSED] Resumo/Abstract cut (round 6) approved; the ORPHANED block
+        % discarded on the author's ruling. Full record: src_utils/_round6/15_resumo_abstract.md.
+        % "Modelos ajustados" stays OUT of GLOSSARY §6 by his ruling -- the term is not used.
         %
-        % [round10, PENDENCIAS §6 FAB-08, author's ruling: "Perfeito, mantemos assim! Mas vamos
-        % adicionar um comentario sobre o resumo, que uma informacao esta sendo omitida o fato de
-        % serem tarefas diferentes entre os dois primeiros e o ultimo artigo."]
-        % THE OMISSION, STATED SO IT IS NOT REDISCOVERED AS A DEFECT. This Resumo does not say that
-        % the TASK PAIR CHANGES between the studies. Three tasks appear across the collection:
-        %   Chapters 3 and 4  -> POI category classification (STATIC: the category of a place) paired
-        %                        with next-POI prediction;
-        %   Chapter 5         -> next category (the category of the NEXT visit) paired with next
-        %                        region.
-        % So the first two studies and the last do not predict the same things, and a reader of this
-        % block alone would take the pair to be constant across all three. It is a deliberate cut,
-        % not an oversight: the sentence carrying it was one of the two removed when the author ruled
-        % both blocks too long (the cut is tabulated in src_utils/_round6/15_resumo_abstract.md,
-        % where it appears as "the task-pair evolution", judged off the claim floor).
-        % WHERE THE READER DOES GET IT, so the omission costs nothing beyond this block:
-        % chapters/1_introduction.tex states the three tasks and keeps them distinct, and
-        % chapters/2_fundamentals.tex §2.1 defines each one formally. The Abstract below carries the
-        % same omission by design, because the pair must stay claim-for-claim identical with this
-        % block (WRITING_LAW: the two blocks are one claim in two languages).
-        % IF IT IS EVER RESTORED, it goes in BOTH blocks in the same edit, and both word counts get
-        % re-measured against the 195-282 envelope above.
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
-        % afirmacoes (WRITING_LAW §6) continuar passando no par. Resultado primeiro, protocolo depois;
-        % todo numero, ressalva e convencao preservados.
+        % KEPT DELIBERATELY, because the author asked for this note in round 10 (PENDENCIAS §6
+        % FAB-08) and because a future reader would otherwise file the omission as a defect:
+        % this Resumo does not say that the TASK PAIR CHANGES across the studies. Chapters 3 and 4
+        % pair POI category classification (static) with next-POI prediction; Chapter 5 pairs next
+        % category with next region. The cut was deliberate, not an oversight. The reader does get
+        % it: 1_introduction.tex keeps the three tasks distinct and 2_fundamentals.tex §2.1 defines
+        % each formally. The Abstract carries the same omission by design -- the two blocks are one
+        % claim in two languages, so if this is ever restored it goes into BOTH in the same edit.
 
         \noindent Redes sociais baseadas em localização produzem registros de
         \emph{check-in}, que associam um usuário, um ponto de interesse (POI) e um
@@ -127,15 +93,12 @@
         pontos de Acc@10. Em ambas as tarefas, os resultados do modelo conjunto também
         ficaram acima dos reportados pelos métodos externos usados como referência.
         Os resultados mostram que o MTL não constitui um benefício automático: sua efetividade depende da representação de entrada e da topologia de compartilhamento construída para as tarefas consideradas.
-        % [round5, persona 17 MAJOR-2, still honored] "Proximo lugar visitado" is NOT used: it
-        % collides with the RESERVED term "next place" (GLOSSARY §1) for the exact-POI task this
-        % dissertation does not study. The exclusion is now stated positively in the second
-        % sentence ("mas nao o ponto de interesse exato"), which is the body's own claim
-        % (1_introduction.tex "The exact next place is not predicted anywhere in this work").
-        % [NEEDS SIGN-OFF: raised round 6, 2026-07-28 | author caveats 2.1/3-4-5, 2026-07-24, carried through the cut]
-        % The margin metric remains named (Acc@10). The joint-best convention and macro-F1 range
-        % are omitted from this high-level summary. "Determina se" stays "depende de" because the
-        % Sec. 6.2 confound forbids a causal verb.
+        % DO NOT write "proximo lugar visitado" here: it collides with the RESERVED term "next
+        % place" (GLOSSARY §1), the exact-POI task this dissertation does not study. The exclusion
+        % is carried by 1_introduction.tex (:90-91, "outside the scope"), not by this block.
+        % [NEEDS SIGN-OFF 02 | CLOSED] Author approved all three: keep "Acc@10"; omit the
+        % joint-best convention and the macro-F1 range from this high-level summary (unexplained
+        % here, so they stay out); keep "depende de" rather than a causal verb.
 
         % [round5, author decision 3.3 option ii] Purely mechanical: keep the keyword block with the
         % Resumo it belongs to. It was breaking onto p.4 alone (14 words on an otherwise blank page).
@@ -171,23 +134,14 @@
             SILVA, Vitor Hugo De Oliveira, M.Sc., Universidade Federal de Viçosa, August 2026.
             \textbf{Multitask Learning for Point-of-Interest Classification and Prediction Tasks: The Role of the Check-in-Level Representation}. Advisor: Fabrício Aguiar Silva.
             \vspace{\onelineskip}
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
-            % [NEEDS SIGN-OFF: Abstract CUT, round 6, 2026-07-28] Cut as the claim-parity pair of the
-            % Resumo above (WRITING_LAW §6): same claims, same numbers, same hedges, sentence for
-            % sentence, and cut in the same pass so the two cannot drift. The measurement convention
-            % and the claim-floor argument are at the Resumo block above; both blocks now carry eleven
-            % sentences that correspond one to one.
-            % Numbers quoted, not computed: 5.3 to 9.4 macro-F1 = the per-dataset category deltas of
-            % docs/studies/closing_data/v17_completion/stats_n20/RESULTS.md §1 (FL +5.34 the low end,
-            % AZ +9.40 the high end) as reported by 6_conclusion.tex; "four of them" = the four
-            % $^{\uparrow}$ rows of tables/mobiwac/results.tex (Istanbul, FL, TX, CA) against the two
-            % $^{\approx}$ rows (AL, AZ), which is the same count 6_conclusion.tex states.
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
-            % conditions ahead of its subject "that joint model" (measured: the subject sits at token
-            % index 25). On the most-read page of the document, the reader carried four unattached
-            % conditions before learning what the sentence was about. Result first, protocol second;
-            % every number, hedge and convention preserved. The Resumo carries the same split so the
-            % claim-parity audit still passes on the pair.
+            % [NEEDS SIGN-OFF 03 | CLOSED] ORPHANED block removed on the author's ruling: the
+            % sentence it annotated is gone and the numbers it sourced (the 5.3-9.4 range, the
+            % four/two split) are no longer quoted in this block. They are still sourced where they
+            % ARE quoted, in 6_conclusion.tex. Record: src_utils/_round6/15_resumo_abstract.md.
+            %
+            % LOAD-BEARING RULE, kept: this Abstract and the Resumo above are ONE claim in two
+            % languages (WRITING_LAW §6). Any edit to a claim, number, or hedge in one must land in
+            % the other in the same commit, or the pair silently drifts.
 
             \noindent Location-based social networks produce \emph{check-in} records
             associating a user, a point of interest (POI), and a time. These records
@@ -225,10 +179,10 @@
             provide an automatic benefit: its effectiveness depends on the input
             representation and the sharing topology designed for the tasks under
             consideration.
-            % [NEEDS SIGN-OFF: raised round 6, 2026-07-28 | author caveats 2.1/3-4-5, 2026-07-24, carried through the cut]
-            % The non-inferiority margin metric remains named (Acc@10). The joint-best convention and
-            % macro-F1 range are omitted from this high-level summary. "Determines whether" stays
-            % "depends on", since the confound in Sec. 6.2 makes a hard causal verb an overclaim.
+            % [NEEDS SIGN-OFF 04 | CLOSED] Author approved the omissions and the verb: the
+            % joint-best convention and macro-F1 range stay out of this high-level summary, and
+            % "depends on" stays instead of "determines whether" (the Sec. 6.2 confound makes a
+            % causal verb an overclaim). Mirrors item 02 on the Resumo side.
 
             % [round5, decision 3.3 option ii] Same guard as the Resumo block, for parity.
             \vspace{\onelineskip}
