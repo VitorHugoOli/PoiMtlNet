@@ -26,9 +26,8 @@ This chapter reproduces the article ``An Investigation into Multi-Task Learning 
 Point-of-Interest Category Classification and Next-POI Prediction'', published at the
 Congresso Brasileiro de Intelig\^encia Computacional (CBIC 2025), DOI
 10.21528/CBIC2025-1191324, with Vitor H. O. Silva as first author. The text was
-reformatted from the two-column conference layout to the dissertation format;
-typographical and tabulation errata were corrected, and each correction is listed in
-Appendix~B of \extravolume. Its
+reformatted from the two-column conference layout to the dissertation format, and
+typographical and tabulation errata were corrected. Its
 conclusions are the conclusions of the time, for the configuration studied here: with a
 place-level embedding and hard parameter sharing, multitask learning did not
 consistently improve on the dedicated single-task models. The two chapters that follow
@@ -76,6 +75,11 @@ exact-POI task, which is not studied here.
 % named through \extravolume (defined in preamble.tex) so all eight pointers agree, and the
 % appendix LETTER is literal rather than a \ref because the target label is in another document;
 % main_extra.tex freezes that letter and check_extra_xrefs.py guards it.
+% [round-extravol, this session] Pointer to "Appendix B of \extravolume" REMOVED on author
+% instruction: the main-volume chapters must not point at the supplementary volume. The sentence
+% now states the reformatting and the errata correction without saying where the itemized list
+% lives; Appendix B itself is untouched in main_extra.tex, so the corrections are still recorded,
+% just no longer pointed at from here. Logged in PENDENCIAS_RESOLVIDAS.md.
 % [round4, NEW-4] Pointer corrected: the earlier wording said "the following chapters do
 % not rely on it", which is false for Chapter 4 -- 4_courb/methodology.tex:36 trains with the
 % Nash-MTL balancer ("Multi-task training uses the Nash-MTL regularizer"), and

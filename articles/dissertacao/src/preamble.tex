@@ -80,6 +80,11 @@
 \usepackage{newtxtext,newtxmath}
 \usepackage{indentfirst}
 \usepackage{graphicx}
+% Vector architecture diagrams in Appendix E. TikZ keeps labels in the document font,
+% remains sharp in print, and avoids an external bitmap asset for model-flow figures.
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,backgrounds,calc,fit,positioning}
+\usepackage{float}
 \usepackage{adjustbox}
 \usepackage{booktabs}
 \usepackage{multirow}

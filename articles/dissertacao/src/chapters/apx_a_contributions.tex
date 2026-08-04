@@ -119,12 +119,16 @@ and are supplied on request.
         tables that Chapter~\ref{ch:mobiwac} quotes sit together in
         \path{docs/studies/closing_data/v17_completion/stats_n20/}.
   \item[The label-history benchmark.] Computed by
-        \path{scripts/embedding_eval/autocorrelation_ceiling.py}; outputs and the reading
-        of them are in Appendix~D of \extravolume, which names the files.
+        \path{scripts/embedding_eval/autocorrelation_ceiling.py}.
 % [round7, 2026-07-29] Repointed from \ref{apx:ceiling}: Appendix D moved to the
 % supplementary volume. The letter D is preserved there by construction (main_extra.tex sets the
 % chapter counter) and guarded by src_utils/check_extra_xrefs.py, so naming it literally is
 % safe; a \ref would be a dangling reference to a label in another document.
+% [round-extravol, this session] Pointer to "Appendix D of \extravolume" REMOVED on author
+% instruction (main-volume chapters must not reference the supplementary volume). The script
+% path already names the source of record; nothing that this appendix needs is lost by dropping
+% the forward-pointer to Appendix D's own reading of its output. Appendix D itself is unchanged
+% in main_extra.tex. Logged in PENDENCIAS_RESOLVIDAS.md.
 \end{description}
 
 Two qualifications belong with this list. The metric conventions it presupposes are

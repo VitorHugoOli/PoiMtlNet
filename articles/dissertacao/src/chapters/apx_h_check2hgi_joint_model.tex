@@ -2,223 +2,195 @@
 \chapter{How Check2HGI and the Joint Model Work}
 \label{apx:check2hgi-joint-model}
 
-This appendix explains the two methods used in the final study as an end-to-end
-system. The emphasis is practical: what information enters each stage, how it is
-transformed, what is learned, and what must be reproduced to obtain the same
-experimental setting. Equations are included only where prose alone would leave
-an implementation choice ambiguous.
+This appendix explains the two methods used in the final study as one operational
+pipeline. The emphasis is on the path followed by the data: what each stage
+receives, how it changes that input, why the transformation is needed, and what is
+passed to the next stage. Exact settings that determine tensor compatibility are
+collected in Table~\ref{tab:apx-active-settings}; lower-level implementation details
+remain available in the source directories listed at the end of the appendix.
 
-The system has two separately trained parts. Check2HGI first learns one vector for
-each check-in and one vector for each geographic region without using the labels of
-the two forecasting tasks. The joint model then consumes sequences of those vectors
-and learns to predict both the category and the region of the next visit. The first
-part answers ``how should a visit and its geographic context be represented?'' The
-second answers ``how can the two forecasting tasks exchange useful information
-without forcing them to use exactly the same predictor?''
+The pipeline has two separately trained parts. Check2HGI learns representations of
+individual visits and geographic regions without using the next-category or
+next-region targets. The joint model then reads sequences of those fixed
+representations and learns the two forecasting tasks together. Check2HGI therefore
+answers how a visit should be represented in its temporal and geographic context.
+The joint model answers how category and region prediction can exchange information
+while retaining task-specific routes.
 
-\section{The complete pipeline at a glance}
+\section{The complete method at a glance}
 \label{sec:apx-methods-pipeline}
 
-Table~\ref{tab:apx-methods-flow} summarizes the complete data flow. The two training
-stages are intentionally separated. Check2HGI is trained once to produce reusable
-representations. Those representations are then treated as fixed inputs to the
-supervised joint model.
+The complete flow contains five stages:
+\begin{enumerate}
+    \item validate the check-in records, order every user's visits by time, and map
+    each place to a geographic polygon;
+    \item construct temporal, place, and region graphs linked by the
+    check-in--place--region--city hierarchy;
+    \item train Check2HGI, then export separate 64-dimensional check-in and region
+    vectors;
+    \item create stride-one windows containing nine observed visits and use the
+    tenth visit as the prediction target; and
+    \item train one joint model to predict the next category and next region from
+    two separate representation sequences.
+\end{enumerate}
 
-\begin{longtable}{p{0.07\textwidth}p{0.23\textwidth}p{0.37\textwidth}p{0.22\textwidth}}
-\caption{End-to-end flow from raw check-ins to the two next-visit predictions.}
-\label{tab:apx-methods-flow}\\
-\toprule
-\textbf{Stage} & \textbf{Input} & \textbf{Operation} & \textbf{Output} \\
-\midrule
-\endfirsthead
-\toprule
-\textbf{Stage} & \textbf{Input} & \textbf{Operation} & \textbf{Output} \\
-\midrule
-\endhead
-1 & Raw check-in records and region polygons & Clean identifiers, sort each user's visits by time, assign places to polygons, and create stable integer mappings & Validated check-ins, places, regions, users, and categories \\
-2 & Validated records & Build the check-in succession graph, the Delaunay place graph, the polygon-adjacency graph, and the check-in--place--region--city hierarchy & A four-level heterogeneous mobility graph \\
-3 & Graph and node features & Train Check2HGI with three contrastive hierarchy losses and two label-free auxiliary losses & Learned check-in, place, and region vectors \\
-4 & Ordered user histories and learned vectors & Create sliding windows containing nine observed visits and use visit ten as the target & Paired category and region training examples \\
-5 & Two $9\times64$ input sequences & Encode each stream, exchange context through two cross-attention blocks, and preserve a private spatial route for the region task & Shared-context and private task features \\
-6 & Task features and next-visit labels & Optimize one weighted objective and select checkpoints using both tasks & Seven category logits and one logit per region class \\
-\bottomrule
-\end{longtable}
+The boundary between Stages 3 and 4 is important. Check2HGI is fitted first, and
+its exported tables remain fixed during supervised training. The joint model does
+not reconstruct the graph or update the representation encoder. Conversely,
+Check2HGI never receives the two forecast labels.
 
-The important separation is between \emph{representation learning} in Stages 2--3
-and \emph{forecast learning} in Stages 4--6. Check2HGI does not receive the next
-category or next region as a training target. Conversely, the joint model does not
-rebuild the graph. It reads the vectors exported by Check2HGI.
-
-\section{From a check-in table to the Check2HGI graph}
+\section{From check-in records to a heterogeneous mobility graph}
 \label{sec:apx-check2hgi-input}
 
-\subsection{Required record and stable ordering}
-
-Each observation is written as
+Each observation is represented by
 \begin{equation}
     c_i=(u_i,p_i,l_i,g_i,t_i).
     \label{eq:apx-checkin-tuple}
 \end{equation}
 Here, $c_i$ is check-in $i$, $u_i$ is its user, $p_i$ is its place, $l_i$
-contains latitude and longitude, $g_i$ is one of the seven place categories, and
-$t_i$ is the timestamp. A spatial join between $l_i$ and the polygon file derives
-the region. Places outside every polygon are removed. Identifiers are remapped to
-contiguous integers so that each row of an embedding matrix has one unambiguous
-entity mapping.
+contains latitude and longitude, $g_i$ is one of seven place categories, and $t_i$
+is the timestamp. A spatial join between $l_i$ and the polygon file assigns the
+check-in's place to a region. Places outside every polygon are removed, and entity
+identifiers are mapped to stable contiguous integers. This mapping ensures that a
+row in an embedding table always refers to the same check-in, place, or region.
 
-Visits are sorted by user and timestamp before any temporal edge or forecasting
-window is created. This ordering is part of the method, not a presentation detail.
-Changing it changes both the graph neighborhoods seen by Check2HGI and the examples
-seen by the joint model.
+Visits are sorted by user and timestamp before any temporal edge or forecast window
+is created. This order is part of the method. Changing it changes both the
+neighborhoods processed by Check2HGI and the examples processed by the joint model.
 
-\subsection{Four node levels and three kinds of structure}
+The resulting heterogeneous graph is
+$\mathcal{G}=(\mathcal{V},\mathcal{E},\mathcal{T}_v,\mathcal{T}_e)$. The set
+$\mathcal{V}$ contains the nodes, $\mathcal{E}$ contains the edges,
+$\mathcal{T}_v$ contains the node types, and $\mathcal{T}_e$ contains the relation
+types. The mappings $\phi:\mathcal{V}\rightarrow\mathcal{T}_v$ and
+$\psi:\mathcal{E}\rightarrow\mathcal{T}_e$ assign a type to each node and edge.
+The graph has four node levels and three forms of structure:
 
-The hierarchy contains check-in, place, region, and city nodes. Formally, it is a
-heterogeneous graph $\mathcal{G}=(\mathcal{V},\mathcal{E},\mathcal{T}_v,
-\mathcal{T}_e)$ with node-type mapping $\phi:\mathcal{V}\rightarrow\mathcal{T}_v$
-and edge-type mapping $\psi:\mathcal{E}\rightarrow\mathcal{T}_e$. The set
-$\mathcal{V}$ contains every node, $\mathcal{E}$ contains every edge,
-$\mathcal{T}_v$ contains the four node types, and $\mathcal{T}_e$ identifies the
-relations described below.
+\begin{description}
+    \item[Check-in succession.] Consecutive visits by the same user are connected
+    in both directions. Their edge weight decreases exponentially with the time
+    interval, using a one-hour decay constant. These edges describe the local order
+    of a trajectory rather than geographic proximity.
 
-The graph combines three different notions of relatedness.
+    \item[Spatial neighborhoods.] A Delaunay triangulation connects nearby places.
+    Region nodes are connected when their polygons intersect. These graphs allow
+    information to propagate between nearby places and adjacent administrative
+    areas.
 
-\begin{enumerate}
-    \item \textbf{Temporal succession at the check-in level.} Consecutive visits by
-    the same user are connected in both directions. A short gap receives a larger
-    weight than a long gap. Before global min--max rescaling, the weight is
-    \begin{equation}
-        \widetilde{a}_{ij}=\exp\!\left(-\frac{|t_j-t_i|}{3600}\right).
-        \label{eq:apx-temporal-weight}
-    \end{equation}
-    Here, $\widetilde{a}_{ij}$ is the raw weight between consecutive check-ins
-    $c_i$ and $c_j$, $|t_j-t_i|$ is their time difference in seconds, and $3600$
-    is the one-hour decay constant. If these raw weights are not all equal, they
-    are rescaled to the interval $[0,1]$ over the complete check-in graph.
+    \item[Hierarchy membership.] Every check-in belongs to one place, every
+    retained place belongs to one region, and every region belongs to the city.
+    These assignments connect the four resolutions of the representation.
+\end{description}
 
-    \item \textbf{Spatial proximity at the place and region levels.} Places are
-    joined by a Delaunay triangulation of their coordinates. Regions are joined
-    when their polygons intersect. These two graphs allow local spatial context to
-    move between nearby places and neighboring regions.
+Category co-occurrence is absent from the reported edge set. Repeated visits to the
+same place also receive no additional check-in edge; they meet through their common
+place node. Category enters through the initial node features and an auxiliary
+reconstruction objective.
 
-    \item \textbf{Geographic membership across levels.} Every check-in belongs to
-    one place, every retained place belongs to one region, and every region belongs
-    to the city. The implementation stores these memberships as assignment vectors
-    and uses segmented pooling rather than constructing a large sparse matrix for
-    every cross-level relation.
-\end{enumerate}
+Each check-in begins with 11 values: seven category indicators, sine and cosine for
+hour of day, and sine and cosine for day of week. Cyclic encoding makes the endpoints
+of the daily and weekly clocks adjacent in feature space. Coordinates are not
+appended to this vector. They determine polygon membership, Delaunay edges, and
+region adjacency instead.
 
-Category co-occurrence is not an edge relation in the final configuration.
-Category enters through node features and an auxiliary reconstruction target.
-Likewise, the active check-in graph contains user-succession edges only. Repeated
-visits to the same place meet through their common place node; they are not joined
-by an additional same-place check-in edge.
-
-\subsection{What a check-in node initially knows}
-
-Each check-in starts with 11 values: a seven-dimensional one-hot category vector,
-two cyclic values for hour of day, and two cyclic values for day of week. Sine and
-cosine encodings make midnight adjacent to 23:00 and Sunday adjacent to Monday in
-feature space. Raw latitude and longitude are not appended to this feature vector.
-Coordinates instead determine polygon membership and the spatial graphs. This
-distinction prevents the representation from treating geographic coordinates as
-ordinary categorical or temporal features.
-
-\section{How Check2HGI transforms the graph}
+\section{How Check2HGI builds the representations}
 \label{sec:apx-check2hgi-forward}
 
-Check2HGI performs a bottom-up pass through the hierarchy. Every level has a
-specific role: graph convolutions mix information between neighbors at the same
-level, while attention pooling summarizes a variable number of lower-level nodes
-into one upper-level vector.
+Check2HGI performs a bottom-up pass through the hierarchy. Graph convolutions mix
+information among neighbors at the same level. Attention pooling moves information
+between levels by summarizing a variable number of lower-level nodes. Figure~
+\ref{fig:apx-check2hgi-flow} separates the self-supervised representation flow from
+the two tables exported to the joint model.
 
-\subsection{Step 1: contextualize each check-in}
+\begin{figure}[H]
+    \centering
+    \input{figures/check2hgi_flow}
+    \caption{Check2HGI representation and export flow. The upper row shows the
+    bottom-up hierarchy used during self-supervised learning. Dashed arrows mark
+    exported or detached routes. Double-bordered boxes are the representations
+    consumed by the joint model.}
+    \label{fig:apx-check2hgi-flow}
+\end{figure}
 
-Two weighted graph-convolution layers operate on the temporal succession graph.
-The first maps the 11 input features to 64 dimensions, followed by layer
-normalization, PReLU, and dropout $0.1$. The second maps $64$ to $64$ and is added
-back to the first-layer state as a residual connection. The result for check-in
-$i$ is $\mathbf{x}_i\in\mathbb{R}^{64}$.
+\subsection{Step 1: place each visit in its trajectory}
 
-This operation changes the meaning of a check-in vector. It no longer describes
-only the visit's own category and time. It also reflects the visits immediately
-before and after it in the same user's trajectory, with the temporal edge weights
-controlling how strongly those neighbors contribute.
+Two weighted graph-convolution layers process the check-in succession graph. The
+first layer maps the 11 input features to 64 dimensions and applies layer
+normalization, PReLU, and dropout. The second layer maps $64$ to $64$ and is added
+to the first-layer state as a residual update. The output for visit $i$ is the
+check-in representation $\mathbf{x}_i\in\mathbb{R}^{64}$.
 
-\subsection{Step 2: summarize visits at each place}
+This transformation changes what one row means. Before the graph encoder, a row
+describes only the visit's own category and cyclic time. After the encoder, it also
+reflects the immediately preceding and following visits in the same user's
+trajectory. The temporal edge weights determine how strongly those neighbors
+contribute.
 
-All check-in vectors assigned to a place are pooled with four attention heads. The
-pooling is not a simple mean. It learns which visits are more informative for
-describing that place. A visit during an unusual time period, for example, can
-receive a different weight from a routine visit even though both refer to the same
-coordinates.
+\subsection{Step 2: summarize visits at their place}
 
-The output is a semantic place embedding $\mathbf{e}_{p}\in\mathbb{R}^{64}$ for
-each place $p$. Four heads divide the 64-dimensional representation into four
-16-dimensional views. A learned seed query asks the same general question of every
-place, while the keys and values derived from its visits determine the weighted
-answer. A residual projection and PReLU produce the final place vector.
+All check-in representations assigned to the same place are pooled with four
+attention heads. This is a learned summary rather than a fixed mean. The module can
+assign different importance to routine and unusual visits while producing one
+64-dimensional place representation $\mathbf{e}_{p_i}\in\mathbb{R}^{64}$.
+
+The attention module uses one learned seed query for every place. Keys and values
+come from the visits assigned to that place. Each head summarizes a 16-dimensional
+part of the representation, and the four outputs are combined with a residual
+projection and PReLU. The result represents how a place is used across the observed
+trajectories, rather than only where it is located.
 
 \subsection{Step 3: add the spatial place neighborhood}
 
-The place-to-region route combines the semantic place embedding with a trainable
-64-dimensional place table initialized from POI2Vec. A learned scalar, initialized
-to $1.0$, controls the initialized table's contribution. One weighted
-$64\rightarrow64$ graph convolution then propagates information over the Delaunay
-place graph, followed by channelwise PReLU.
+The higher spatial route combines the pooled place representation with a trainable
+64-dimensional place table initialized from the pretrained place representation.
+A learned scalar, initialized to $1.0$, controls the table's contribution. One
+weighted graph convolution then propagates the combined state over the Delaunay
+place graph.
 
-The semantic place embedding is detached on this spatial route. Consequently, the
-higher-level place--region and region--city losses cannot rewrite the check-in
-encoder through this branch. The lower level still learns through its own
-check-in--place objective. This stop-gradient boundary gives the spatial hierarchy
-a stable place basis while retaining end-to-end learning inside each intended
-route.
+The pooled place representation is detached on this route. As a consequence, the
+place--region and region--city objectives cannot update the check-in encoder through
+the spatial branch. The check-in and place levels still learn from their own
+check-in--place objective. This boundary prevents higher geographic losses from
+rewriting the temporal visit representation while still allowing the spatial path
+to learn.
 
-\subsection{Step 4: summarize places into regions and regions into the city}
+\subsection{Step 4: form region and city context}
 
-Places within a region are pooled by another four-head attention module. A
+Places inside a region are summarized by a second four-head attention module. A
 $64\rightarrow64$ graph convolution then exchanges information between adjacent
-region polygons. The resulting row $\mathbf{z}_r\in\mathbb{R}^{64}$ is the learned
-embedding of region $r$.
+region polygons. Its output $\mathbf{z}_r\in\mathbb{R}^{64}$ is the representation
+of region $r$ used downstream.
 
-The city vector is the sigmoid of an area-weighted sum of all region vectors. The
-polygon areas are not normalized to sum to one. This city vector is used while
-training the highest hierarchy boundary; downstream forecasting consumes the
-check-in and region vectors rather than the city vector.
+Finally, the model forms a city summary from an area-weighted combination of all
+region representations followed by a sigmoid. This city vector provides global
+context for the highest self-supervised objective. It is not an input to the joint
+forecast model; the downstream model consumes the check-in and region tables.
 
-\section{How Check2HGI learns without forecast labels}
+\section{How Check2HGI learns and what it exports}
 \label{sec:apx-check2hgi-learning}
 
-Check2HGI follows the graph-infomax principle of making representations from true
-relationships score higher than representations from corrupted relationships
-\cite{velickovic2019deep,huang2023hgi}. It applies this idea at three boundaries.
+Check2HGI learns from true and corrupted relationships instead of next-visit labels
+\cite{velickovic2019deep,huang2023hgi}. Bilinear discriminators operate at three
+hierarchy boundaries:
 
 \begin{description}
-    \item[Check-in to place.] A check-in vector is paired with its true place
-    vector as a positive example and with a randomly selected different place as a
-    negative example.
+    \item[Check-in to place.] A check-in and its assigned place form a positive
+    pair. A different place provides the negative pair.
 
-    \item[Place to region.] A place vector is paired with its true region as a
-    positive example and a different region as a negative example. For graphs with
-    fewer than $50{,}000$ places, 25\% of negative-sampling attempts search for a
-    moderately similar region, with category-histogram cosine similarity strictly
-    between $0.6$ and $0.8$. This produces a harder comparison. The similarity is
-    used only for negative selection, not as a graph edge.
+    \item[Place to region.] A place and its assigned region form a positive pair.
+    A different region provides the negative pair, with part of the sampling aimed
+    at moderately similar regions to avoid only trivial comparisons.
 
-    \item[Region to city.] Real region vectors are compared with the city summary.
-    Negative regions are produced by independently permuting the rows of the
-    check-in feature matrix and running a second forward pass while keeping the
-    temporal topology fixed.
+    \item[Region to city.] Real region representations are compared with the city
+    summary. Negative regions are obtained by permuting the check-in feature rows
+    and repeating the forward pass while preserving the temporal topology.
 \end{description}
 
-Two auxiliary objectives regularize the hierarchy. The masked-place objective
-zeros 15\% of the semantic place vectors, averages their Delaunay neighbors, and
-uses a $64\rightarrow128\rightarrow7$ PReLU decoder to reconstruct the masked
-place's empirical category distribution. Its error is the cube of a clipped cosine
-distance. The place-table anchor penalizes movement away from the initial POI2Vec
-table with mean squared error.
-
-The implemented representation objective is
+Two auxiliary objectives regularize the spatial hierarchy. Masked-place
+reconstruction hides 15\% of place representations, aggregates their Delaunay
+neighbors, and reconstructs the empirical category distribution. The table-anchor
+term penalizes excessive movement away from the initialized place table. The exact
+objective is
 \begin{equation}
 \begin{split}
     \mathcal{L}_{\mathrm{Check2HGI}}={}&
@@ -228,342 +200,216 @@ The implemented representation objective is
 \end{split}
 \label{eq:apx-check2hgi-loss}
 \end{equation}
-Here, $\mathcal{L}_{\mathrm{Check2HGI}}$ is the scalar loss used to train the
-representation model; $\mathcal{L}_{C\!P}$, $\mathcal{L}_{P\!R}$, and
-$\mathcal{L}_{R\!\Omega}$ are the contrastive losses at the check-in--place,
-place--region, and region--city boundaries; $\mathcal{L}_{\mathrm{mp}}$ is the
-masked-place reconstruction loss; and $\mathcal{L}_{\mathrm{anc}}$ is the
-place-table anchor. The coefficients are additive design weights and are not
-required to sum to one.
+Here, $\mathcal{L}_{\mathrm{Check2HGI}}$ is the scalar representation loss.
+The terms $\mathcal{L}_{C\!P}$, $\mathcal{L}_{P\!R}$, and
+$\mathcal{L}_{R\!\Omega}$ are the three contrastive losses.
+$\mathcal{L}_{\mathrm{mp}}$ is masked-place reconstruction, and
+$\mathcal{L}_{\mathrm{anc}}$ is the place-table anchor. The coefficients are fixed
+design weights and need not sum to one.
 
-Training uses full-batch Adam for 500 epochs with learning rate $10^{-3}$, no
-weight decay, default Adam coefficients, and global gradient-norm clipping at
-$0.9$. There is no learning-rate decay or early stopping. The saved state is the
+Training uses full-batch Adam for 500 epochs with learning rate $10^{-3}$, no weight
+decay, and gradient-norm clipping at $0.9$. The saved representation state is the
 epoch with the smallest complete training loss. Seed 42 is used for this stage.
 
-\section{What Check2HGI exports}
-\label{sec:apx-check2hgi-output}
-
-The representation stage exports separate lookup tables for check-ins, places, and
-regions, together with the identifier maps needed to retrieve the correct row. The
-joint model uses two of those outputs.
-
-\begin{enumerate}
-    \item The category stream looks up the 64-dimensional check-in vector
-    $\mathbf{x}_i$ produced by the temporal graph encoder.
-    \item The region stream looks up the 64-dimensional region vector
-    $\mathbf{z}_{r_i}$ associated with the visited place's polygon.
-\end{enumerate}
-
-The two vectors remain separate. In particular, the method does not concatenate a
-place embedding, raw coordinates, and temporal features into one 128-dimensional
-visit vector. Category and cyclic time are fused by the temporal graph encoder;
-coordinates shape the spatial hierarchy; and the learned hierarchy losses connect
-the levels during representation training.
-
-For each user $u$, a forecasting example contains the ordered check-in matrix
+After training, the category stream retrieves one check-in representation per
+historical visit. For user $u$, the ordered history is
 \begin{equation}
     \mathbf{H}_u=(\mathbf{x}_1,\mathbf{x}_2,\ldots,\mathbf{x}_k)
     \in\mathbb{R}^{k\times d'},\qquad k=9,\quad d'=64.
     \label{eq:apx-user-sequence}
 \end{equation}
 Here, $\mathbf{H}_u$ is the category-stream history, $\mathbf{x}_j$ is the
-Check2HGI vector for historical visit $j$, $k$ is the number of observed visits,
-and $d'$ is the check-in-vector width. A second matrix of the same shape contains
-the corresponding region vectors. All-zero vectors denote padded positions, and
-the model converts those positions into attention masks.
+Check2HGI representation of historical visit $j$, $k$ is the number of observed
+visits, and $d'$ is the width of each check-in representation. A second
+$9\times64$ matrix contains the corresponding region representations. The two
+modalities remain separate; they are not concatenated into one $9\times128$
+matrix.
 
-Windows have stride one. Visits 1--9 predict visit 10, visits 2--10 predict visit
-11, and so forth. Users need at least ten visits. No synthetic final target is
-added. User identities, not individual windows, determine the five folds, so one
-person's windows cannot appear in both the training and evaluation partitions of a
-fold.
+Windows use stride one: visits 1--9 predict visit 10, visits 2--10 predict visit
+11, and so forth. Users need at least ten visits, and no synthetic final target is
+added. Complete users, rather than individual windows, determine the supervised
+folds.
 
-The representation model is trained on the complete graph before the supervised
-folds are fitted. The evaluation is therefore user-disjoint for the forecasting
-labels, but the label-free representation stage is transductive with respect to
-the graph. Reproducing the protocol requires preserving this distinction.
+Check2HGI is trained on the complete graph before those folds are fitted. The
+forecast evaluation is therefore user-disjoint, while representation learning is
+transductive with respect to the graph. Reproducing the study requires preserving
+this distinction.
 
-\section{How the joint model processes the two histories}
+\section{How the joint model processes both histories}
 \label{sec:apx-joint-forward}
 
-The joint architecture is not one shared encoder followed by two small output
-layers. It combines private encoders, an interaction subsystem, and task-specific
-heads. Information is shared through cross-attention, while each task retains a
-route suited to its own output.
+The joint architecture is more than one shared encoder followed by two output
+layers. It combines private input encoders, a coupled interaction subsystem, and
+task-specific heads. Figure~\ref{fig:apx-joint-flow} shows these routes as parallel
+lanes so that interaction and private processing remain visually distinct.
 
-\subsection{Step 1: encode the two modalities separately}
+\begin{figure}[H]
+    \centering
+    \input{figures/joint_model_flow}
+    \caption{Joint-model forward path. The two histories have equal shapes but
+    independent encoders. The central states exchange information through two
+    bidirectional cross-attention blocks. The region task also preserves a complete
+    private route from the raw region history.}
+    \label{fig:apx-joint-flow}
+\end{figure}
+
+\subsection{Step 1: encode the modalities separately}
 
 The check-in and region histories enter independent encoders with the same shape
-but different parameters. Each encoder applies three linear transformations:
-$64\rightarrow256$, $256\rightarrow256$, and $256\rightarrow256$. Every
-transformation is followed by ReLU and layer normalization. Dropout $0.1$ follows
-the first two transformations but not the third. The output consists of two
-$9\times256$ sequences.
+and different parameters. Each encoder applies three linear transformations:
+$64\rightarrow256$, $256\rightarrow256$, and $256\rightarrow256$. ReLU and layer
+normalization follow every transformation. Dropout $0.1$ follows the first two.
+The result is one $9\times256$ sequence for each task.
 
-Keeping these encoders separate matters because a check-in vector and a region
-vector do not represent the same object. Equal tensor widths do not imply equal
-semantics or shared weights.
+Separate encoders are necessary because equal tensor widths do not imply equal
+meaning. A check-in vector describes one visit in its trajectory, while a region
+vector describes a geographic area after spatial aggregation. Forcing both through
+one encoder would assume that the same parameters should interpret these different
+objects.
 
-\subsection{Step 2: exchange context with cross-attention}
+\subsection{Step 2: exchange context through cross-attention}
 
-Two bidirectional cross-attention blocks connect the streams. Within each block,
-the category stream first queries the region stream. The region stream then queries
-the already updated category stream. Each direction has its own projections,
-normalizations, and feed-forward network.
+Two bidirectional cross-attention blocks connect the encoded streams. In each
+block, the category stream queries the region stream first. The region stream then
+queries the already updated category stream. Each direction has its own attention
+projections, residual connections, layer normalizations, and
+$256\rightarrow256\rightarrow256$ GELU feed-forward network.
 
-For one attention head, the core operation is
+Operationally, every historical category position can retrieve useful information
+from the region-history positions, and every region position can retrieve category
+context. Four attention heads perform this exchange in parallel. Padding positions
+are excluded from the attention weights. After two blocks, separate final layer
+normalizations produce the category-context and region-context sequences.
+
+The interaction subsystem is jointly optimized, but the directional projections
+are not tied. The model therefore differs from classical hard parameter sharing:
+the tasks keep private encoders and heads, while their activations meet in a fixed
+trainable interaction module that receives gradients from both losses.
+
+\subsection{Step 3: produce category and region predictions}
+
+The category-context sequence enters a four-layer unidirectional GRU with input and
+hidden width 256. The head selects the top-layer state at the last valid historical
+position, applies layer normalization and dropout, and produces seven category
+logits.
+
+The region head deliberately keeps two routes. The private tower reads the raw
+$9\times64$ region history and processes it with a STAN-style spatio-temporal
+attention model \cite{luo2021stan}. The shared-context tower reads the
+$9\times256$ region sequence produced by cross-attention. The private tower uses
+four heads and dropout $0.3$; the shared-context tower uses eight heads and dropout
+$0.1$. Each tower returns one 128-dimensional feature vector.
+
+The two region features are combined as
 \begin{equation}
-    \operatorname{Attn}(\mathbf{Q},\mathbf{K},\mathbf{V})
-    =\operatorname{softmax}\!\left(
-      \frac{\mathbf{Q}\mathbf{K}^{\mathsf{T}}}{\sqrt{d_h}}
-    \right)\mathbf{V}.
-    \label{eq:apx-cross-attention}
+    \mathbf{f}_{R}
+    =\mathbf{f}_{\mathrm{priv}}
+    +\beta\mathbf{W}_{mathrm{shr}}\mathbf{f}_{\mathrm{shr}}.
+    \label{eq:apx-region-fusion}
 \end{equation}
-Here, $\mathbf{Q}$ contains query vectors from the stream being updated,
-$\mathbf{K}$ and $\mathbf{V}$ contain key and value vectors from the other stream,
-$d_h=64$ is the head width, and $\operatorname{softmax}$ converts compatibility
-scores into weights over valid historical positions. Padded keys are masked before
-the softmax.
+Here, $\mathbf{f}_{R}\in\mathbb{R}^{128}$ is the fused region feature,
+$\mathbf{f}_{\mathrm{priv}}\in\mathbb{R}^{128}$ is the private-tower feature,
+$\mathbf{f}_{\mathrm{shr}}\in\mathbb{R}^{128}$ is the shared-context feature,
+$\mathbf{W}_{\mathrm{shr}}\in\mathbb{R}^{128\times128}$ is its learned projection,
+and $\beta$ is a trainable scalar initialized to $0.1$. Layer normalization,
+dropout, and a final linear classifier produce one logit per region in the current
+dataset. This design lets category context help region prediction without removing
+the direct spatial sequence model.
 
-Each cross-attention module uses four heads, model width 256, and attention dropout
-$0.15$. A residual connection and layer normalization follow each attention
-operation. Each stream then passes through its own
-$256\rightarrow256\rightarrow256$ feed-forward network with GELU and dropout
-$0.15$, followed by another residual connection and normalization. After two
-blocks, separate final layer normalizations produce the category-context and
-region-context sequences.
-
-The interaction stack is optimized as the shared subsystem, but its primitive
-weights are directional rather than tied. Sharing occurs because each task reads
-the other task's activations and both losses update the coupled system. This is
-more precise than describing the model as conventional hard parameter sharing.
-
-\subsection{Step 3: predict the next category}
-
-The category-context sequence enters a four-layer unidirectional gated recurrent
-unit (GRU). Its input and hidden widths are 256, and dropout $0.1$ is applied
-between GRU layers. The model selects the top-layer hidden state at the final
-nonpadding position, applies layer normalization and dropout $0.1$, and maps the
-result to seven logits. The largest logit identifies the predicted next category.
-
-The active implementation uses four GRU layers. This depth is set when the joint
-model instantiates the category head and is therefore the value required for
-reproduction.
-
-\subsection{Step 4: predict the next region with two routes}
-
-The region head deliberately preserves both a private spatial route and a route
-that has interacted with category.
-
-\begin{description}
-    \item[Private route.] The raw $9\times64$ region sequence is projected to width
-    128 and processed by a STAN-style spatio-temporal attention tower
-    \cite{luo2021stan}. It uses four attention heads, dropout $0.3$, learned
-    $4\times9\times9$ pairwise-position biases, and a
-    $128\rightarrow512\rightarrow128$ GELU feed-forward network.
-
-    \item[Shared-context route.] The $9\times256$ region-context sequence from the
-    cross-attention stack is projected to width 128 and processed by a separate
-    tower. This tower uses eight attention heads, dropout $0.1$, learned
-    $8\times9\times9$ pairwise-position biases, and the same feed-forward widths.
-\end{description}
-
-Each tower uses one self-attention stage to contextualize the history and a second
-attention stage to retrieve the final valid query. Both therefore produce a
-128-dimensional vector. The private vector is added to a linear projection of the
-shared-context vector, multiplied by a trainable scalar initialized to $0.1$.
-Layer normalization, dropout $0.1$, and a final linear layer then produce one logit
-for each region in the dataset-specific region map.
-
-The code contains an optional region-transition prior, but its coefficient is fixed
-at zero in the final model. It contributes nothing to the logits. The reported
-model also uses no knowledge-distillation term.
-
-\section{How the two tasks are trained together}
+\section{How the joint model is optimized and evaluated}
 \label{sec:apx-joint-training}
 
-Both task heads use ordinary mean cross-entropy. Their exact combination is
+Both heads use mean cross-entropy. Their exact supervised objective is
 \begin{equation}
     \mathcal{L}_{\mathrm{total}}
     =0.75\mathcal{L}_{C}+0.25\mathcal{L}_{R}.
     \label{eq:apx-joint-loss}
 \end{equation}
-Here, $\mathcal{L}_{\mathrm{total}}$ is the scalar loss used for one backward pass,
-$\mathcal{L}_{C}$ is mean cross-entropy for the seven next-category classes, and
-$\mathcal{L}_{R}$ is mean cross-entropy over the dataset's region classes. The
-weights are fixed. No uncertainty weighting, GradNorm, gradient surgery, class
-weights, label smoothing, or dynamic task balancing is active.
+Here, $\mathcal{L}_{\mathrm{total}}$ is the scalar used for one backward pass,
+$\mathcal{L}_{C}$ is the next-category cross-entropy loss, and
+$\mathcal{L}_{R}$ is the next-region cross-entropy loss. The weights are fixed.
+No dynamic task balancing, class weighting, label smoothing, or gradient surgery is
+active in the reported configuration.
 
-AdamW uses three parameter groups. The category group contains the check-in encoder
-and GRU head. The region group contains the region encoder and both region towers.
-The shared group contains the two cross-attention blocks and final stream
-normalizations. All groups use weight decay $0.05$, Adam coefficients $(0.9,0.999)$,
-and numerical constant $10^{-8}$. The category peak learning rate is $10^{-3}$ and
-the region peak is $3\times10^{-3}$. The shared peak is $3\times10^{-3}$ for
-Alabama, Arizona, and Florida, and $10^{-3}$ for California, Texas, and Istanbul.
-A per-group OneCycle schedule uses the default warmup fraction $0.3$ and advances
-once after every optimizer step.
+AdamW uses three parameter groups. The category group owns the check-in encoder and
+GRU head. The region group owns the region encoder and both region towers. The
+shared group owns the cross-attention blocks and final stream normalizations. This
+partition makes it possible to apply different peak learning rates while still
+performing one backward pass through the connected model.
 
-The category and region data loaders use the same user-disjoint fold but shuffle
-independently during training. The shorter loader is cycled until the longer loader
-is exhausted. A category batch and a region batch in the same optimizer step can
-therefore contain different windows. Validation uses aligned examples. This pairing
-rule is easy to overlook and must be retained for an exact reproduction.
+The category and region loaders use the same user-disjoint fold and shuffle
+independently during training. Consequently, their batch rows have compatible
+shapes but need not describe the same user or window in one optimizer step;
+cross-attention operates on that random pairing. The shorter loader cycles until
+the longer loader is exhausted. Validation rows are record-aligned. This
+operational detail is unusual, but it is part of the reported training protocol.
 
-Training uses batch size 8192 for each task loader, 50 epochs, no gradient
-accumulation, and global gradient-norm clipping at $1.0$. Early stopping is disabled.
-Experiments use seeds $\{0,1,7,100\}$ and five user-disjoint folds. For each run,
-the selected checkpoint maximizes the geometric mean of category macro-F1 and
-region Accuracy@10, so model selection cannot improve one task while ignoring the
-other.
+Training lasts 50 epochs with batch size 8192 per task, gradient-norm clipping at
+$1.0$, five user-disjoint folds, and seeds $\{0,1,7,100\}$. Early stopping is
+disabled. A per-parameter-group OneCycle schedule preserves the category, region,
+and shared peak learning rates listed in Table~\ref{tab:apx-active-settings}. The
+selected checkpoint maximizes the geometric mean of category macro-F1 and region
+Acc@10, so checkpoint selection depends on both tasks.
 
-\section{Compact implementation specification}
+\section{Implementation settings}
 \label{sec:apx-methods-specification}
 
-Tables~\ref{tab:apx-check2-spec} and~\ref{tab:apx-joint-spec} collect the settings
-that determine tensor compatibility and training behavior. The number of region
-classes is deliberately absent as a fixed value because it is read from each
-dataset's region map.
+Table~\ref{tab:apx-active-settings} lists the settings that materially define the
+reported architecture and training protocol. The region output width is obtained
+from the region map of each dataset and is therefore not one global constant.
 
-\begin{longtable}{p{0.30\textwidth}p{0.60\textwidth}}
-\caption{Check2HGI implementation specification.}
-\label{tab:apx-check2-spec}\\
+{\small
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.19\textwidth}
+                  >{\raggedright\arraybackslash}p{0.31\textwidth}
+                  >{\raggedright\arraybackslash}p{0.39\textwidth}}
+\caption{Reproduction-critical settings for Check2HGI and the joint model.}
+\label{tab:apx-active-settings}\\
 \toprule
-\textbf{Component} & \textbf{Implemented setting} \\
+\textbf{Stage} & \textbf{Component} & \textbf{Reported setting} \\
 \midrule
 \endfirsthead
 \toprule
-\textbf{Component} & \textbf{Implemented setting} \\
+\textbf{Stage} & \textbf{Component} & \textbf{Reported setting} \\
 \midrule
 \endhead
-Check-in input & 7 category indicators plus 4 cyclic time features; width 11 \\
-Check-in encoder & Two weighted graph convolutions, $11\rightarrow64\rightarrow64$; residual second layer \\
-Check-in nonlinearity & Layer normalization, shared-slope PReLU, and dropout $0.1$ after the first layer \\
-Check-in--place pooling & Four attention heads; 16 values per head; output width 64 \\
-Spatial place route & POI2Vec-initialized trainable table; scalar initialized to $1.0$; one weighted $64\rightarrow64$ Delaunay graph convolution; channelwise PReLU \\
-Place--region pooling & Four attention heads; output width 64 \\
-Region graph & One unweighted $64\rightarrow64$ convolution over polygon adjacency; channelwise PReLU \\
-Masked-place decoder & Mask probability $0.15$; neighbor mean; $64\rightarrow128\rightarrow7$ with PReLU \\
-Loss weights & $0.4$ check-in--place, $0.3$ place--region, $0.3$ region--city, $0.3$ masked-place, $0.1$ table anchor \\
-Optimization & Full-batch Adam; learning rate $10^{-3}$; weight decay 0; 500 epochs; clip norm $0.9$; seed 42 \\
+Check2HGI & Check-in input & 7 category indicators + 4 cyclic time values; width 11 \\
+Check2HGI & Graph relations & Consecutive-user check-in edges; Delaunay place edges; polygon-adjacency region edges; hierarchy memberships \\
+Check2HGI & Encoders and pooling & Two check-in graph-convolution layers, one place graph convolution, one region graph convolution; width 64; four heads at both hierarchy pools \\
+Check2HGI & Auxiliary learning & Mask probability $0.15$; pretrained place-table anchor; loss weights in Equation~\ref{eq:apx-check2hgi-loss} \\
+Check2HGI & Optimization & Full-batch Adam; learning rate $10^{-3}$; 500 epochs; weight decay 0; clip norm $0.9$; seed 42 \\
+Joint model & Examples and inputs & Nine-visit history; tenth visit as target; stride 1; separate check-in and region tensors, each $9\times64$ \\
+Joint model & Private encoders & Independent $64\rightarrow256\rightarrow256\rightarrow256$ stacks; ReLU and layer normalization; dropout $0.1$ after the first two transformations \\
+Joint model & Interaction & Two bidirectional cross-attention blocks; four heads; width 256; dropout $0.15$ \\
+Joint model & Category head & Four-layer GRU; hidden width 256; seven output classes \\
+Joint model & Region head & Private tower: 4 heads, dropout $0.3$; shared-context tower: 8 heads, dropout $0.1$; both width 128; additive fusion with $\beta_0=0.1$ \\
+Joint model & Optimization & AdamW; weight decay $0.05$; batch size 8192 per task; 50 epochs; clip norm $1.0$; OneCycle schedule \\
+Joint model & Peak learning rates & Category $10^{-3}$; region $3\times10^{-3}$; shared $3\times10^{-3}$ for AL/AZ/FL and $10^{-3}$ for CA/TX/Istanbul \\
+Joint model & Evaluation & Five user-disjoint folds; seeds $\{0,1,7,100\}$; category macro-F1 and region Acc@10 \\
 \bottomrule
 \end{longtable}
+}
 
-\begin{longtable}{p{0.30\textwidth}p{0.60\textwidth}}
-\caption{Joint-model implementation specification.}
-\label{tab:apx-joint-spec}\\
-\toprule
-\textbf{Component} & \textbf{Implemented setting} \\
-\midrule
-\endfirsthead
-\toprule
-\textbf{Component} & \textbf{Implemented setting} \\
-\midrule
-\endhead
-Window construction & Nine observed visits, tenth visit as target, stride 1, minimum user history 10 \\
-Input tensors & Separate check-in and region sequences, each $9\times64$; zero-vector padding \\
-Private encoders & Independent $64\rightarrow256\rightarrow256\rightarrow256$ linear stacks with ReLU and layer normalization; dropout $0.1$ after the first two transformations \\
-Interaction subsystem & Two bidirectional cross-attention blocks; width 256; four heads; attention and feed-forward dropout $0.15$ \\
-Interaction feed-forward network & Independent per stream and block; $256\rightarrow256\rightarrow256$ with GELU \\
-Category head & Four-layer unidirectional GRU; input and hidden width 256; interlayer dropout $0.1$; seven-class output \\
-Private region tower & Raw region input; width 128; four heads; dropout $0.3$; feed-forward width 512 \\
-Shared-context region tower & Cross-attention input; width 128; eight heads; dropout $0.1$; feed-forward width 512 \\
-Region fusion & Private feature plus projected shared feature scaled by a trainable scalar initialized to $0.1$ \\
-Active supervised loss & $0.75$ category cross-entropy plus $0.25$ region cross-entropy \\
-Optimization & AdamW; weight decay $0.05$; OneCycle; batch size 8192 per task; 50 epochs; clip norm $1.0$ \\
-Peak learning rates & Category $10^{-3}$; region $3\times10^{-3}$; shared $3\times10^{-3}$ for AL/AZ/FL and $10^{-3}$ for CA/TX/Istanbul \\
-Evaluation design & Five user-disjoint folds; seeds $\{0,1,7,100\}$; selection by geometric mean of category macro-F1 and region Accuracy@10 \\
-Inactive options & Transition-prior coefficient 0; knowledge-distillation weight 0; no class weighting or early stopping \\
-\bottomrule
-\end{longtable}
-
-\section{Reproduction procedure and sanity checks}
+\section{Reproduction landmarks and implementation map}
 \label{sec:apx-methods-reproduction}
 
-An independent implementation can reproduce the method with the following order of
-operations.
-
-\begin{enumerate}
-    \item Validate the required check-in fields, sort visits stably by user and
-    timestamp, spatially join places to the region polygons, remove unmatched
-    places, and freeze the identifier maps.
-
-    \item Create 11-dimensional check-in features. Build bidirectional consecutive
-    user edges with the one-hour exponential decay, a symmetrized Delaunay place
-    graph, polygon-adjacency region edges, and the three hierarchy assignments.
-
-    \item Initialize the place table from POI2Vec and train Check2HGI for 500
-    full-batch epochs with Equation~\ref{eq:apx-check2hgi-loss}. Export the best-loss
-    check-in, place, and region tables with their mappings.
-
-    \item Rejoin exported rows to the chronologically ordered records. Check that
-    every check-in and region lookup has width 64 and that each row resolves through
-    exactly one stable identifier.
-
-    \item Generate stride-one windows. For every eligible position, store nine
-    historical check-in vectors, nine historical region vectors, the tenth visit's
-    category, and the tenth visit's region. Do not append a fabricated tail example.
-
-    \item Assign complete users to five folds and apply the same fold assignment to
-    both tasks. Instantiate the joint model with seven category outputs and the
-    region count read from that dataset's region map.
-
-    \item Train for 50 epochs using Equation~\ref{eq:apx-joint-loss}, the three
-    AdamW groups, the dataset-specific shared learning rate, independently shuffled
-    task loaders, and maximum-size cycling. Save the checkpoint selected by the two
-    task metrics together.
-
-    \item Repeat the five folds for the required seeds. Report category macro-F1 and
-    region Accuracy@10 from user-disjoint test partitions and retain the fold and
-    seed identifiers in every result row.
-\end{enumerate}
-
-Before accepting a reproduction, the following checks should pass.
-
+Five checks distinguish the reported method from nearby alternatives:
 \begin{itemize}
-    \item The active check-in graph has succession edges only; category
-    co-occurrence and same-place check-in edges are absent.
-    \item The representation dimensions are $11\rightarrow64$ at the check-in
-    encoder and 64 at the place and region outputs.
-    \item The joint model receives two separate $9\times64$ tensors, not one
-    concatenated $9\times128$ tensor.
-    \item The category GRU has four layers, and the cross-attention subsystem has
-    two blocks with four heads per direction.
-    \item The private region tower reads the raw region sequence. The shared-context
-    tower reads the cross-attention output. Their 128-dimensional results are added,
-    not concatenated.
-    \item The transition-prior coefficient is zero, and the only supervised loss is
-    the fixed $0.75/0.25$ combination.
-    \item User identities are disjoint across supervised folds even though the
-    label-free representation model was trained on the complete graph.
+    \item the check-in graph contains user-succession edges only;
+    \item Check2HGI exports separate check-in and region tables of width 64;
+    \item the joint model receives two $9\times64$ histories rather than one
+    concatenated tensor;
+    \item the private region tower reads the raw region history, while the
+    shared-context tower reads the cross-attention output; and
+    \item the supervised objective is the fixed $0.75/0.25$ combination in
+    Equation~\ref{eq:apx-joint-loss}.
 \end{itemize}
 
-\section{Implementation map}
-\label{sec:apx-methods-implementation-map}
-
-The principal implementation points are listed below so that the conceptual stages
-can be matched to executable definitions.
-
+The implementation is organized in four source areas:
+{\small
 \begin{description}
-    \item[Graph preparation and features:] \path{research/embeddings/check2hgi/preprocess.py}
-    \item[Check-in encoder and masked-place decoder:] \path{research/embeddings/check2hgi/model/variants.py}
-    \item[Check-in--place attention:] \path{research/embeddings/check2hgi/model/Checkin2POI.py}
-    \item[Hierarchy, discriminators, and representation loss:] \path{research/embeddings/check2hgi/model/Check2HGIModule.py}
-    \item[Region pooling and adjacency convolution:] \path{research/embeddings/hgi/model/RegionEncoder.py}
-    \item[Task encoders and joint model assembly:] \path{src/models/mtl/mtlnet/model.py}
-    \item[Bidirectional cross-attention:] \path{src/models/mtl/mtlnet_crossattn/model.py}
-    \item[Dual-tower region routing:] \path{src/models/mtl/mtlnet_crossattn_dualtower/model.py}
-    \item[Category GRU head:] \path{src/models/next/next_gru/head.py}
-    \item[Region attention towers and fusion:] \path{src/models/next/next_stan_flow_dualtower/head.py}
-    \item[Static multitask objective:] \path{src/losses/static_weight/loss.py}
-    \item[Optimizer groups and scheduling:] \path{src/training/helpers.py}
+    \item[Check2HGI representation:] \path{research/embeddings/check2hgi/}
+    \item[Joint-model assembly:] \path{src/models/mtl/mtlnet_crossattn_dualtower/}
+    \item[Task heads:] \path{src/models/next/}
+    \item[Loss and training:] \path{src/losses/} and \path{src/training/}
 \end{description}
-
-Taken together, these stages give the whole methodological picture. Check2HGI turns
-individual visits into representations that are simultaneously temporal,
-place-aware, and region-aware. The joint model then lets category and region
-histories inform one another while preserving the private spatial path needed for
-fine-grained region ranking. The architecture's central idea is therefore not only
-to share parameters. It is to control where information is fused, where it remains
-private, and which training signal is allowed to update each route.
+}
