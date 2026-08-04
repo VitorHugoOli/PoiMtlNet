@@ -523,6 +523,28 @@ que diz exatamente isso, no lugar onde a frase entraria.
 > uma pagina — por isso nao apliquei. Uma lista sem frase de entrada e o tipo de coisa que um
 > orientador circula na primeira leitura.
 
+> **FECHADO por voce (2026-08-04):** *"I have read it and decide that we can close is already resolve,
+> we have add a lead-in phrase. You can remove it from the .tex"*. Bloco `[OPEN]` removido de
+> `1_introduction.tex`. **A frase de entrada e a que abre o paragrafo:** *"This dissertation is
+> organized as a collection of works, where each central chapter is an independent article."* — ela
+> nomeia a estrutura antes dos bullets, entao a lista nao esta orfa. Confirmado na pagina 15 do render.
+
+**Duas correcoes ao que eu havia escrito aqui, ambas achados seus:**
+
+1. **Voce nao conseguiu achar a §15.2 porque eu escrevi o ponteiro errado.** O comentario no `.tex`
+   dizia `see NEEDS_SIGN_OFF.md §15.2`, mas o titulo neste arquivo e `### 15.2`, **sem** o `§`. Uma
+   busca por "§15.2" retorna zero. Era o unico ponteiro desse formato no `src/` (conferido), e ele saiu
+   junto com o bloco. **Licao para os proximos:** cite secoes deste arquivo como `15.2`, nao `§15.2` —
+   o `§` e usado para `PENDENCIAS.md` e para as leis (`WRITING_LAW §3`), que de fato numeram com `§`.
+
+2. **A segunda metade do bloco guardava algo que nunca existiu.** Ela avisava "do not restore" a frase
+   de errata que apontava para o volume suplementar. Conferido em cinco commits (`e3e6d796`,
+   `71fc3ef9`, `2804131b`, `a47691f8`, `45c75611`): **`1_introduction.tex` nunca teve `\extravolume`
+   em prosa viva** — a frase existia so dentro do comentario. O guard protegia contra uma reversao
+   impossivel, e some sem custo. Os ponteiros reais estavam em `3_cbic.tex`, `3_cbic/method.tex`,
+   `4_courb.tex`, `5_mobiwac.tex` e `apx_a_contributions.tex`, e esses **estao** guardados por probes
+   (`RTV-03`..`RTV-08b`), que continuam valendo.
+
 ### 15.3 Comentario obsoleto removido, sem pedir decisao
 
 - `1_introduction.tex:320-337` — o bloco explicava por que a frase de errata apontava para o volume
@@ -542,7 +564,7 @@ Quatro alvos em paralelo, `rc=0`, `tex_errors=0`, zero Overfull, **paginacao ina
 
 ## 0. Resumo/Abstract (content.tex)
 
-### 1. [PARCIAL — uma parte fecha, outra nao] Sign-off pendente: corte Resumo/Abstract, termo 'Modelos ajustados' e bloco orfao
+### 1. [CLOSED rodada 15, 2026-08-04] Corte Resumo/Abstract, termo 'Modelos ajustados' e bloco orfao
 
 **Local:** `src/content.tex:51`
 
@@ -568,9 +590,11 @@ confirmada no texto.
 > **SUA DECISAO:** 2, como nem usamos esses termos mais podemos descartar. Sobre o termo 'Modelos ajustados', podemos
 > manter fora, nem o usamos mais.
 
+**RESOLVIDO (rodada 15, commit `e3e6d796`).** Bloco ORPHANED descartado; "Modelos ajustados" NAO entra no GLOSSARY §6. Em `content.tex:49` ficou `[NEEDS SIGN-OFF 01 | CLOSED]` mais a nota de omissao do par de tarefas que voce pediu no round 10 (FAB-08): ela sobreviveu de proposito, para que a omissao nao seja redescoberta como defeito.
+
 ---
 
-### 2. [PRECISA DE VOCE] Confirmação de nomenclatura e omissões no resumo (Acc@10, macro-F1)
+### 2. [CLOSED rodada 15, 2026-08-04] Nomenclatura e omissões no resumo (Acc@10, macro-F1)
 
 **Local:** `src/content.tex:134`
 
@@ -589,9 +613,11 @@ macro-F1) e de escolha de verbo não-causal permanecem sem a aprovação explíc
 > **SUA DECISAO:** Podemos manter o Acc@10. Sim vamos omitir, como não explicamos o que é temos que omitir. vamos manter
 > depende de, mais facil para leitura.
 
+**RESOLVIDO (rodada 15, commit `e3e6d796`).** As tres escolhas mantidas. Em `content.tex:99` ficou `[NEEDS SIGN-OFF 02 | CLOSED]` mais o guard do termo reservado: "proximo lugar visitado" nao pode ser escrito ali porque colide com "next place" (GLOSSARY §1), a tarefa fora de escopo. A exclusao em si e carregada por `1_introduction.tex:90-91`, nao por este bloco.
+
 ---
 
-### 3. [PRECISA DE VOCE] Corte no Abstract (par de paridade do Resumo) orfao
+### 3. [CLOSED rodada 15, 2026-08-04] Corte no Abstract (par de paridade do Resumo), bloco orfao removido
 
 **Local:** `src/content.tex:174`
 
@@ -619,9 +645,11 @@ dois blocos divergentes sem que isso seja percebido.
 
 > **SUA DECISAO:** vamos de 2.
 
+**RESOLVIDO (rodada 15, commit `e3e6d796`).** Opcao 2: marcador removido. A proveniencia dos numeros saiu junto porque nenhum deles e mais citado neste bloco (conferido: 5.3, 9.4 e "four of them" nao aparecem em prosa viva do `content.tex`); seguem documentados no `6_conclusion.tex`, onde ainda sao citados. Ficou `[NEEDS SIGN-OFF 03 | CLOSED]` mais a regra de paridade Resumo/Abstract.
+
 ---
 
-### 4. [PRECISA DE VOCE] Sign-off: métrica Acc@10, omissões e verbo 'depends on'
+### 4. [CLOSED rodada 15, 2026-08-04] Métrica Acc@10, omissões e verbo 'depends on'
 
 **Local:** `src/content.tex:226` — renderiza no volume **defesa**, p. 3
 
@@ -640,11 +668,13 @@ omissões de conteúdo -- permanece publicada sem a validação explícita do au
 
 > **SUA DECISAO:** vamos de 2 e 3;
 
+**RESOLVIDO (rodada 15, commit `e3e6d796`).** Omissoes e verbo mantidos. `content.tex:182` -> `[NEEDS SIGN-OFF 04 | CLOSED]`.
+
 ---
 
 ## 1. Introducao
 
-### 5. [PRECISA DE VOCE] Reformulacao de frase duplicada com Cap.5 (gate L3, fix A-1)
+### 5. [CLOSED rodada 15, 2026-08-04] Reformulacao de frase duplicada com Cap.5 (gate L3, fix A-1)
 
 **Local:** `src/chapters/1_introduction.tex:86` — renderiza no volume **defesa**, p. 13
 
@@ -661,9 +691,11 @@ aprovacao.
 
 > **SUA DECISAO:** A forma que está atual é aceitavel.
 
+**RESOLVIDO (rodada 15, commit `e3e6d796`).** `1_introduction.tex` -> `[NEEDS SIGN-OFF 05 | CLOSED]`, mantendo o motivo de nao "simplificar" a frase de volta: ela foi afastada de proposito da redacao do Cap.5, para que o capitulo reproduzido conserve a original.
+
 ---
 
-### 6. [MECANICO — pode fechar] Redacao de n=20/n=4 no veredito por regiao
+### 6. [CLOSED rodada 15, 2026-08-04] Redacao de n=20/n=4 no veredito por regiao
 
 **Local:** `src/chapters/1_introduction.tex:316` — renderiza no volume **defesa**, p. 17
 
@@ -707,6 +739,8 @@ ele esta feito acima.
 de ~30 linhas em `1_introduction.tex` permanece no fonte, contra o seu objetivo de reduzir comentario.
 
 > **SUA DECISAO:** Tudo certo vamos manter em como está.
+
+**RESOLVIDO (rodada 15, commit `e3e6d796`).** `1_introduction.tex` -> `[NEEDS SIGN-OFF 06 | CLOSED]`, mantendo o motivo da assimetria (categoria pode alegar os seis datasets; regiao precisa da particao), que sem explicacao parece inconsistencia e convida alguem a "corrigir".
 
 ---
 
