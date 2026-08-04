@@ -83,18 +83,61 @@ isso ja esta documentado no proprio arquivo, na entrada `R13-aut30b`, marcada
 
 **(b) Empiricamente, rodando a suite inteira contra uma arvore sem comentario.** O `src_clean` ja e um
 espelho 1:1 sem comentarios, entao a experiencia esta pronta: copiei os gates para um diretorio cujo
-`../src` e o `src_clean` e rodei os 14. Resultado: **12 passam, 2 falham, e as duas falhas nao tem
-relacao com comentario** — eram arquivos `src_utils/` que faltavam no meu diretorio de teste
-(`check_comment_hygiene` reclamou de *"scope floor breached, 9 file(s) examined, floor is 12"*, isto e,
-da amostra encolhida, nao do conteudo). Dos 208 probes, 34 deixaram de valer, e **nenhum desses 34 aponta
-para um `.tex`**: 8 leem `fundamentals/DEFINITIONS.md`, 7 `_round12/50_...md`, 6 `CONSIDERATIONS.md`, 4
-`_round12/53_...md`, 3+3 outros `_round12/*.md`, 2 `LEFT_OUT.md`, 1 `WORDCOUNT_CONVENTION.md`. São
-documentos de `src_utils/`, que o diretorio de teste nao tinha.
+`../src` e o `src_clean` e rodei os 14. Resultado: **12 passam, 2 falham.** Dos 208 probes do
+`check_audit_claims`, 34 deixaram de valer, e **nenhum desses 34 aponta para um `.tex`**: 8 leem
+`fundamentals/DEFINITIONS.md`, 7 `_round12/50_...md`, 6 `CONSIDERATIONS.md`, 4 `_round12/53_...md`, 3+3
+outros `_round12/*.md`, 2 `LEFT_OUT.md`, 1 `WORDCOUNT_CONVENTION.md` — documentos de `src_utils/` que o
+diretorio de teste nao tinha. Essa falha era, de fato, artefato do teste.
 
-> **CONSEQUENCIA PRATICA, e o ponto principal desta secao:** remover comentario do `.tex` **nao quebra
-> nenhum probe e nenhum gate**. O que voce perde ao apagar um comentario nao e cobertura de gate — e a
-> memoria da decisao. Por isso a ordem certa e: **primeiro decidir o item aqui, depois apagar o bloco**,
-> nunca o contrario. Um bloco apagado antes da decisao leva embora a unica copia do raciocinio.
+> ### CORRECAO (achado do revisor, 2026-08-04) — a segunda falha NAO era artefato do teste
+>
+> **Uma versao anterior desta secao dizia que "as duas falhas nao tem relacao com comentario" e citava
+> `scope floor breached, 9 file(s) examined, floor is 12` como motivo das duas. Isso estava errado.**
+> Aquela mensagem veio da rodada ANTES de eu copiar os arquivos `src_utils/` que faltavam; depois de
+> copia-los a contagem continuou `passing=12 failing=2`, com o `check_comment_hygiene` ainda entre as
+> falhas, e eu nao apurei o motivo real antes de escrever a conclusao. Apurado agora:
+>
+> ```
+> scope: 14 files examined; 0 skipped        <- o scope floor esta OK, nao e mais isso
+> 2 finding(s):
+>   story 'three-builds-one-source': NOBODY tells it, including its canonical home src/main.tex
+>   story 'nested-if-scanning-hazard': NOBODY tells it, including its canonical home src/main.tex
+> ```
+>
+> **Este e exatamente o contra-exemplo que a manchete precisava excluir, e ele existe.** O
+> `check_comment_hygiene.py` exige que **tres explicacoes** estejam contadas em algum lugar da arvore
+> (lista `STORIES`, linhas 130-163), e **duas delas moram em comentarios do `src/main.tex`**:
+>
+> | Story | Onde e contada | Sobrevive a um strip? |
+> |---|---|---|
+> | `three-builds-one-source` | comentario em `src/main.tex` | **NAO** |
+> | `nested-if-scanning-hazard` | comentario em `src/main.tex` | **NAO** |
+> | `halt-on-error-vs-nonstopmode` | `src_utils/README_SRC.md` (markdown) | sim |
+>
+> Na arvore real o gate passa (`rc=0`, 14 arquivos, 0 findings); na arvore sem comentario ele falha
+> (`rc=1`) porque as duas explicacoes de `main.tex` desapareceram junto com os comentarios. O proprio
+> gate explica por que isso importa: *"a story with zero tellers passes vacuously and must never be
+> reported as clean"*.
+
+> **CONSEQUENCIA PRATICA, corrigida.** Remover comentario do `.tex` **nao quebra nenhum dos 208 probes
+> do `check_audit_claims`** — essa parte se sustenta, e e a maior parte da suite. Mas **quebra um gate**,
+> o `check_comment_hygiene`, e por um motivo legitimo: ele existe para garantir que tres armadilhas do
+> build continuem explicadas, e duas dessas explicacoes sao comentarios do `src/main.tex`.
+>
+> Portanto a regra de seguranca tem **duas** linhas, nao uma:
+>
+> 1. as 60 diretivas `% !TeX root` (guardadas pelo `check_tex_root.py`);
+> 2. os dois blocos de comentario do `src/main.tex` que contam `three-builds-one-source` e
+>    `nested-if-scanning-hazard` (guardados pelo `check_comment_hygiene.py`). São ~10 linhas no total.
+>
+> **DECISAO SUA, se um dia quiser apagar tambem esses dois:** ou (a) move as duas explicacoes para
+> `src_utils/README_SRC.md`, junto da terceira, que ja mora em markdown e por isso sobrevive — o gate
+> passa a encontra-las la e o `.tex` fica limpo; ou (b) retira as duas stories da lista `STORIES`
+> deliberadamente, aceitando que as armadilhas deixem de ter guardiao. **A opcao (a) e a que eu
+> recomendo**, e ela e coerente com o padrao que o proprio gate ja usa para a terceira story.
+>
+> E a razao principal continua valendo, e nao e sobre gates: o que voce perde ao apagar um comentario e
+> a memoria da decisao. Por isso a ordem certa e **primeiro decidir o item aqui, depois apagar o bloco**.
 
 ### 14.3 Os dois itens cuja base factual mudou nesta rodada
 
@@ -159,10 +202,14 @@ Nao e uma decisao minha, mas a medicao aponta um caminho barato:
    (`2_fundamentals.tex` primeiro, 8 marcadores e 1.115 linhas de comentario). Cada item fechado
    autoriza apagar o bloco inteiro que o acompanha — e ai a reducao vem em centenas de linhas, nao em
    unidades.
-4. **A regra de seguranca, ja verificada em 14.2:** as unicas linhas de comentario que nao podem sair
-   sao as 60 diretivas `% !TeX root`, e o `check_tex_root.py` falha alto se alguma desaparecer. Todo o
-   resto e seguro para o build e para os gates. O `sync_src_clean.py` ja preserva as diretivas e ja
-   avisa sobre duplicatas.
+4. **A regra de seguranca (CORRIGIDA -- ver a caixa de correcao em 14.2):** ha DUAS familias de
+   comentario que nao podem sair sem providencia, nao uma. (i) as 60 diretivas `% !TeX root`, guardadas
+   pelo `check_tex_root.py`; (ii) os dois blocos de `src/main.tex` que explicam
+   `three-builds-one-source` e `nested-if-scanning-hazard`, guardados pelo `check_comment_hygiene.py`
+   (~10 linhas; para apaga-los tambem, mova as explicacoes para `src_utils/README_SRC.md`, onde a
+   terceira story do mesmo gate ja mora). Fora dessas duas familias, o resto e seguro para o build e
+   para os 208 probes. O `sync_src_clean.py` ja preserva as diretivas e avisa sobre duplicatas -- ele
+   NAO cobre o caso (ii), e o `src_clean` de fato falha nesse gate hoje.
 
 ### 14.6 As 6 flags `[VERIFY]` abertas, cada uma com o que decidir
 
