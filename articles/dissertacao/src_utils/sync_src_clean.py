@@ -44,6 +44,7 @@ SKIP_NAMES = {".DS_Store"}
 # LaTeX error message, which merely happens to have a bang after the percent. Requiring a
 # known directive keyword after the bang fixes it.
 MAGIC = re.compile(r"^\s*%\s*!\s*(TeX\b|arara\b|BIB\b)", re.IGNORECASE)
+ROOT_DIRECTIVE = re.compile(r"^\s*%\s*!TeX\s+root\s*=", re.IGNORECASE)
 
 
 def strip_tex_comments(text: str) -> str:
@@ -78,7 +79,35 @@ def strip_tex_comments(text: str) -> str:
     return "".join(out)
 
 
+def check_no_duplicate_roots() -> list[str]:
+    """Report .tex files in src/ carrying more than one "% !TeX root" directive.
+
+    Case 4 keeps every magic comment verbatim, which is right for a directive but also
+    faithfully reproduces an ACCIDENTAL duplicate. Nine files in this tree had the directive
+    twice (main.tex, content.tex, preamble.tex, the three other masters, 1_introduction,
+    2_fundamentals, tables/mobiwac/errata_scope). The author removed one such duplicate from
+    src_clean by hand and the next sync would have silently put it back, because the mirror
+    reproduces src and the duplicate was in src. Fix the SOURCE, then re-sync -- and this
+    check is here so the situation is reported instead of round-tripping unnoticed.
+    """
+    offenders = []
+    for p in sorted(SRC.rglob("*.tex")):
+        if any(part in SKIP_DIRS for part in p.relative_to(SRC).parts):
+            continue
+        n = sum(1 for line in p.read_text(encoding="utf-8").splitlines()
+                if ROOT_DIRECTIVE.match(line))
+        if n > 1:
+            offenders.append(f"{p.relative_to(SRC)} ({n} directives)")
+    return offenders
+
+
 def sync() -> tuple[int, int]:
+    dup = check_no_duplicate_roots()
+    if dup:
+        print("WARNING: duplicate '% !TeX root' directives in src/ -- fix the SOURCE, not the "
+              "mirror, or the next sync reintroduces them:")
+        for d in dup:
+            print("  " + d)
     tex = copied = 0
     for src_path in sorted(SRC.rglob("*")):
         rel = src_path.relative_to(SRC)
