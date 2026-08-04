@@ -1,0 +1,445 @@
+% !TeX root = ../main.tex
+% Chapter 6 -- Conclusion (Conclusao Geral)
+% Draft 1 (2026-07-23). Written from NORTH_STAR section 6 Ch.6 beats (synced with all
+% signed-off additions, AVAL rounds 1-3) + the D1 capacity-baseline record
+% (storyline/audit/capacity_baseline_experiment.md section 5).
+% Obeys WRITING_LAW.md + GLOSSARY.md. Claim/number ledger: 6_citations.md (same folder).
+% [AUTHOR DECISION pending in section 6.2: prominence of the capacity-matched baseline
+%  paragraph -- it is included per the D1 licensing contract (suppression is not an
+%  option once run), but its length and placement are the author's call.]
+
+
+\chapter{Conclusion}
+\label{ch:conclusion}
+
+This dissertation asked whether multitask learning helps point-of-interest prediction
+for the next category and the next region of a visit, and which design choices
+determine the answer. Three
+studies addressed this question. The first developed a joint model that did not
+consistently outperform its dedicated counterparts (Chapter~\ref{ch:cbic}). The second
+tested the input representation as one possible cause of that result and found that it
+was the main bottleneck in that configuration (Chapter~\ref{ch:courb}). The third used a
+check-in-level representation and a redesigned sharing topology
+(Chapter~\ref{ch:mobiwac}). With this design, the joint model outperforms the dedicated
+single-task models on the category task at all six datasets and on the region task at
+four of the six. At the other two, it remains statistically non-inferior within a
+two-point margin (TOST).
+% [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-015, 2026-07-26] The unqualified "outperforms both dedicated
+% models" was the one locus in the document carrying no scope. Scope copied from
+% 5_mobiwac.tex:26-30 and from Section 6.1 below (:49-53): category at all six,
+% region at four (Istanbul, Florida, California, Texas), TOST non-inferiority within
+% two points at Alabama and Arizona. Arizona is NOT upgraded.
+
+
+\section{Contributions by chapter}
+\label{sec:conc:contributions}
+
+Chapter~\ref{ch:cbic} presents MTLnet, the first joint model developed in this
+research, and reports its negative result. The model combined static category
+classification and next-category prediction. Its lower layers were shared between the
+tasks over a place-level graph embedding. Even so, the joint model did not
+consistently outperform the dedicated single-task models on either task, and it cost
+more to train. The main contribution of the chapter is this finding and the analysis
+behind it. The analysis identifies three possible causes: task dissimilarity and the
+resulting risk of negative transfer, an input representation that may be insufficient
+for both tasks, and an overly rigid sharing topology. This verdict applies to one
+configuration, a place-level input under hard sharing. The following studies examine
+how the result changes when these conditions change.
+
+Chapter~\ref{ch:courb} kept the MTLnet architecture fixed and replaced the single
+64-dimensional place embedding with decomposed spatial, temporal, and categorical
+encoders. The chapter reports results for both tasks. On the static task, category
+macro-F1 rose by 20.2 to 22.0 percentage points across the three states tested. This
+increase was larger than the improvements obtained from the architectural variations
+evaluated in the first study.
+% [round9, register track] REWRITTEN for the register law (WRITING_LAW §1, hard-phrasing class (b);
+% gate src_utils/check_register.py). The previous form was "What carries that diagnosis is the
+% direction and the size of the effect on the sequential task, where no such identity between input
+% and target exists, and Chapter 5 is what tests it." Three defects the author named in his own
+% instances: a cleft opening ("What carries X is Y") that delays the subject to mid-sentence, an
+% existential clause ending in "exists", and a second cleft ("is what tests it"). The subject is now
+% named first and acts. NOTHING ABOUT THE CLAIM CHANGED: the sequential task still carries the
+% diagnosis, the reason is still the absence of the input-to-target identity that Appendix B records
+% for the static task, and Chapter 5 is still named as what tests it. Claim strength unchanged.
+% [round6, D-02, domain panel personas 09/10] BOUNDED. The paragraph quoted Ch.4's 20.2-22.0 point
+% gain unlabelled, as the diagnosis of the whole arc. Two things were wrong with that. First, the
+% number is the STATIC task's (4_courb/results.tex:92, "in all 21 category-state combinations",
+% the per-state means over the 7 categories x 3 states), and by this round's own Appendix B section
+% that task's input determines its target by construction -- so a large part of the gain measures the
+% introduction of a deterministic input-to-label channel, not a better mobility representation.
+% Second, the arc's claim needs the SEQUENTIAL task, which is clean in both published chapters
+% (3_cbic/method.tex, 4_courb/methodology.tex) and is what Ch.5 goes on to test.
+% The number stays, because it is the published chapter's own audited figure and this is the chapter
+% recap. What changed is that it now carries its task and its qualification, and the arc's diagnosis
+% now rests on the sequential result rather than on this figure alone.
+% [NEEDS SIGN-OFF: raised round 6, 2026-07-28 | two added sentences in the author's own frame prose. No number changed.]
+% [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-009 + idiom law, 2026-07-26] Two changes in one sentence pair.
+% (1) "moved the needle farther than" -> "produced a larger gain than" (WRITING_LAW §4
+% idiom rule: no phrasal metaphors; claim strength unchanged). (2) The 64-to-192 width
+% asymmetry, previously invisible in the frame chapters, is now named and attributed.
+% Sources (quoted, not computed): 4_courb/methodology.tex:205 (E_input in R^192) and :209 ("The
+% input dimensionality of ST-MTLNet (R^192) is higher than that of the baseline (R^64)" and
+% "an additional experimental control equalizing the dimensionality of the
+% representations would allow validating more precisely whether the gains occur mainly
+% from the semantic specialization of the encoders, and not only from the increase in
+% input dimensionality"); GLOSSARY §2 ST-MTLNet row (64-d each -> 192-d). Chapter 4 was
+% NOT edited.
+
+That gain needs two qualifications. The static task classifies a place from that
+place's own representation, so its input already determines its target. The gain is not
+evidence about the sequential task. The comparison is also not width-matched. The
+decomposed input is wider than the place embedding that it replaces, 192 dimensions
+against 64, and Chapter~\ref{ch:courb} calls for an equal-dimension control to separate
+what the encoders add semantically from what the extra width adds on its own.
+
+The sequential results provide the relevant diagnosis. For that task, the input does
+not determine the target, and the decomposed encoders are more effective in most of
+the cases tested. Because the sharing topology remained fixed, these results identify
+the input representation as the main bottleneck in that configuration.
+
+Chapter~\ref{ch:mobiwac} builds on this diagnosis with Check2HGI, a check-in-level
+representation that gives each visit its own vector instead of assigning the same
+vector to every visit to a place. The joint model uses cross-attention to share
+information between two task-specific
+streams, while a private spatial path serves the region task. The evaluation used
+user-disjoint cross-validation with twenty
+fitted models per configuration, four seeds over one fixed set of five folds, and paired
+tests on the four per-seed means. Under that protocol, the joint model outperforms the
+dedicated single-task models on the category task at all six datasets, by 5.3 to 9.4
+macro-F1 points. On the region task, it outperforms them at four datasets: Istanbul,
+Florida, California, and Texas. At Alabama and Arizona, it remains statistically
+non-inferior within a two-point margin (TOST). Non-inferiority was the registered
+primary analysis for the region task. The four superiority findings are secondary
+results outside that analysis plan.
+
+
+\section{The consolidated answer}
+\label{sec:conc:answer}
+
+Does multitask learning help point-of-interest prediction? The answer is conditional.
+Identifying those conditions is the dissertation's main finding. With a place-level
+embedding and naive hard sharing, the joint model of Chapter~\ref{ch:cbic} did not
+consistently outperform the two dedicated models. Negative transfer between the static
+and sequential tasks was one possible explanation. With a check-in-level
+representation and a sharing topology designed for it, one model produces both
+predictions in a single forward pass. It outperforms the dedicated models on the
+category task at all six datasets and on the region task at four of the six. At the
+other two, it remains statistically non-inferior within a two-point margin (TOST).
+The benefit therefore depends on the input representation and the sharing topology.
+% [round9c, PENDENCIAS_RESOLVIDOS 2.11 (arquivado 2026-08-02), author decision: option B] The region result is stated with its
+% partition here, as it already is at :21 and :102 of this chapter. TWO defects were in one clause.
+% (1) The partition was collapsed to "outperforms or matches", which discards the four-of-six /
+% TOST split the author's ruling requires be promoted, not dropped. (2) Bare "everywhere" is banned
+% by name at WRITING_LAW.md:83 ("bare \"everywhere\" never"), and line 75 forbids "outperforms
+% region everywhere" by name; the replacement enumerates the six instead.
+% Split into two sentences rather than one three-clause sentence, per WRITING_LAW section 1's ban on
+% chained qualification. "non-inferior" is TOST language and is NOT upgraded to a win.
+% MEASURED before editing, over all 54 live .tex files of both trees with comments stripped and
+% across line wraps: 15 sites state "four of six" or an equivalent, and 14 of them ALREADY pair the
+% claim with its TOST caveat. A second sweep for region-claim sentences WITHOUT the partition found
+% exactly two defects: this one and the Chapter 5 subsection lead, which is fixed in both trees.
+% So the tracker's premise (the frame "drops the TOST caveat") holds at two sites, not at nine.
+% NOTE FOR THE AUTHOR, an overlap I did not decide for you: this same sentence is BLQ-2 in
+% PENDENCIAS_RESOLVIDOS section 6.10 (arquivado 2026-08-03), which carries NO ruling. The wording applied here is BLQ-2's own
+% option 1, so the two items agree; if you want it reverted it is one sentence.
+The first control asks whether the category improvement comes from the training signal
+of the next-region task, whose output space is much larger. Chapter~\ref{ch:mobiwac}
+tests this explanation by fixing the region pathway at its initial values. This removes
+learning from the region side, so that task cannot provide a training signal to the
+category task, but it leaves the rest of the joint architecture in place. The control
+used one random initialization over five folds and was designed for one matched
+comparison: the fixed-region joint model against the dedicated category model under
+the same training configuration. At Alabama, Arizona, and Florida, the fixed-region
+model retains its category advantage. Within this control, the category improvement
+therefore does not require training transfer from the region task. The result rules out
+that explanation, but it does not determine whether the gain comes from the category
+encoder, the feed-forward blocks, the added depth, cross-attention, or a combination of
+these components.
+% [round9c, 2026-08-02, R15-03] TWO fixes in one clause. (1) "region head" -> "region output":
+% the MobiWac GLOSSARY §4 lists "head" as internal jargon and prescribes "output", exempting it only
+% when describing OTHER systems. This clause describes our own earlier configuration, so the exemption
+% does not apply. Measured over all live .tex: "region output" 7, "region head" 1 -- this one, now 0.
+% (2) the relative pronoun "that" written in, per WRITING_LAW §1: without it, "the models" attaches to
+% "driven by" on first reading and the sentence forces a re-parse.
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text.
+% Kept, unrelocated in meaning, for review.]
+% [round5, F50 audit] The author asked whether this experiment is sound enough to cite. It is not,
+% as previously worded. F50_T1_5_CROSSATTN_ABSORPTION.md:229 calls its own null "misleading" and a
+% "hidden compensation effect"; F49 puts the architectural contribution at -16.16 pp. The run also
+% used a different engine and batch (check2hgi/bs2048, April) from the shipped board
+% (check2hgi_dk_ovl/bs8192, catx_v17_n20/*.json rundir), and its mechanism depends on the alpha*log_T
+% prior that 5_mobiwac.tex says our models do not use. The withheld attribution is unaffected: it
+% rests on the freeze control and the capacity-matched control. [NEEDS SIGN-OFF: raised round 5, 2026-07-27 | AUTHOR]
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text.
+% Kept, unrelocated in meaning, for review.]
+% [round5, COD-010] The previous sentence said "across three training configurations and all twenty
+% fitted models, the best of them reaches 56.16", which miscounted and mislabelled: twenty is the
+% PER-ARM count, not the total, and 56.16 is the best arm's MEAN, not a maximum over fits. Verified
+% in capacity_matched_summary.json, results.alabama_h672: bs2048_lr0.0025 n=20 mean=56.1611
+% std=1.885; bs2048_lr0.005 n=20 mean=55.6098; bs8192_lr0.005 n=20 mean=55.7406. The std was also
+% missing (persona 10 F-14). No verdict moves: the joint model still leads by +8.35. The
+% [NEEDS SIGN-OFF: raised round 3, 2026-07-24 | gate fix B-2, 2026-07-24] 64.54 -> 64.51 to match Ch.5 Table 3, the
+% dissertation's reported joint-best convention (JOINT_BEST_RESULTS.md: AL 64.54 diag-best
+% / 64.51 joint-best). AGENT_GUARDRAILS N5 forbids blurring joint-best vs diagnostic-best;
+% verdict-neutral: at the 64.51 basis the joint model leads the capacity arm (56.16) by
+% +8.35 and the dedicated ceiling (56.82) by +7.69; no conclusion moves. Persona 14
+% APPROVE-WITH-EDIT. If you prefer 64.54, name it as the diagnostic-best value in prose.
+% [round6, F-02, banca simulator persona 12] SENTENCE REJOINED. It read "California run, completed
+% since, repeats the pattern", a sentence with no subject, on p.77 of the defense build -- inside
+% section 6.2, the consolidated answer, which is the highest-traffic prose after the abstract.
+% Cause, from 59de8280: the sentence was written as "... and 64.51 for the joint model. The" /
+% "California run, completed since, repeats the pattern", with its article "The" ending the previous
+% prose line. A later round inserted eleven lines of provenance comment BETWEEN "The" and
+% "California", and the article was absorbed into the comment tail. Same family as the trapped-prose
+% class, in its rarer form: nothing was swallowed mid-sentence, an ARTICLE was orphaned across an
+% inserted block, so the remaining fragment still parses as a line and no gate fires on it.
+% Recovered from the original commit rather than reinvented.
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text.
+% Kept, unrelocated in meaning, for review.]
+% [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-013, 2026-07-26] The interim sentence ("A partial California run,
+% fifteen of twenty repetitions at the time of writing, shows the same direction") is
+% replaced by the completed run, committed at
+% docs/results/closing_data/capacity_matched_stl_cat/ (commit 58232dd2). Every figure is
+% QUOTED from that folder's README.md + capacity_matched_summary.json: matched width
+% hidden_dim=752 / 5,249,719 params = 101.9% of the joint model's 5,151,189 (param-audit
+% table); best arm bs8192 @ lr 0.0025, n = 20, mean 69.88, std 0.26 (results table);
+% California's own narrow-width ceiling 70.60 +/- 0.07 (reference-points table);
+% shortfalls -0.72 CA and -0.66 AL, "essentially the same as Alabama's ... not larger"
+% (README "Correction to an interim reading"); the lower-learning-rate observation
+% (README "Methodological observation": AL 0.0025 vs 0.005; CA 0.0025 vs 0.005). The
+% interim characterization "larger magnitude" is refuted by the completed sweep and does
+% not appear anywhere in the document. The direction claim is unchanged.
+% NOTE for the author: the Alabama value 56.16 above still carries no spread; the same
+% README gives std 1.89 for that arm. Adding it would satisfy WRITING_LAW §3 for the
+% whole paragraph, but that sentence is outside this correction's scope, so it is left
+% as approved. The CA/AL joint-model margins (-7.17 CA, -8.38 AL) are stated in the
+% README on the DIAGNOSTIC-BEST basis and are therefore NOT quoted here, where the AL
+% comparison runs on the joint-best basis (AGENT_GUARDRAILS N5).
+
+
+% [GATE FIX C-1, 2026-07-23] "buys nothing" -> "yields nothing"; "the win lives in" ->
+% "the gain resides in" (WRITING_LAW §4 idiom law; claim strength unchanged; author may reword).
+% [v2 review F-01, 2026-07-26] Synced with the Ch.5 correction (persona 10). The frame said the
+% gain "comes from a stronger shared trunk"; the freeze control cannot locate the component, and
+% docs/findings/archive/F50/F50_T1_5_CROSSATTN_ABSORPTION.md:19-20 tests the trunk directly at FL
+% and finds delta -0.04 +- 0.13 (statistically indistinguishable, :37). Both figures quoted. The
+% capacity-matched control in the SECOND leg is untouched and is the stronger of the two: it rules
+% out plain parameter count, which the trunk ablation does not bear on.
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text.
+% Kept, unrelocated in meaning, for review.]
+% [round9, 2026-07-30] POINTER ADDED (excellence persona EX-3). This paragraph cites the cosine from an
+% EARLIER preparation of the data (+0.001 over four seeds on four Gowalla states, three of them among the
+% five reported), and Appendix F now measures the same quantity on the final model over seven datasets.
+% Measured before adding: Ch.6 contained ZERO references to apx:cosine, so a reader who met the smaller
+% number here had no way to know a larger measurement exists and agrees. No new claim -- the appendix's
+% conclusion is the same, which is the point of saying so.
+
+A separate Florida ablation examines cross-attention more directly. Removing the
+cross-attention stack changed next-category macro-F1 by $-0.04 \pm 0.13$, a difference
+that the paired Wilcoxon test could not distinguish from zero. This result is not
+evidence that cross-attention has no effect on the final model. The ablation used a
+configuration with a region-transition prior that is absent from the final models, and
+the remaining components could adapt to the removal of the stack during training. They
+may therefore have compensated for it. The available evidence supports attributing
+the category gain to the joint architecture as a whole, not to one component.
+% [round5, NUM-3] Scope corrected. The pool is R0_matched_metric_bar.json: four Gowalla states
+% (AL, AZ, GA, FL), and GA is not one of the dissertation's six datasets. Ch.5 was corrected on this
+% point in round 4; this locus was missed then. No value changed.
+
+The second control uses a capacity-matched dedicated baseline to test whether model
+size alone explains the gain. At Alabama, the dedicated category model was widened
+from about 0.6 million parameters to about 4.2 million, the joint model's budget. It
+was fitted under three training configurations, with twenty models per configuration
+and sixty in total. The best configuration reaches $56.16 \pm 1.89$ macro-F1, reported
+as the mean and standard deviation over its twenty fitted models. The same model at its
+own tuned width reaches $56.82 \pm 0.03$, while the joint model reaches
+$64.51 \pm 0.09$. California shows the same pattern. At a hidden dimension of 752, the
+widened model has 101.9 percent of the joint model's parameter count and reaches
+$69.88 \pm 0.26$ macro-F1 over its twenty fitted models. The same model at its tuned
+narrow width reaches $70.60 \pm 0.07$, while the joint model reaches
+$77.05 \pm 0.01$.
+
+At both datasets, widening leaves the dedicated model slightly below its narrow-width
+optimum: 0.66 points below at Alabama and 0.72 at California. It recovers none of the
+joint model's gain. The widened models were tuned separately. At both datasets, their
+best training configuration used a lower learning rate than the best configuration of
+the narrow model. However, the narrow models were tuned over a wider search than the
+three configurations evaluated at Alabama and the two evaluated at California for the
+widened models. Within this scope, increasing the parameter count alone did not improve
+the dedicated model. Together, the controls exclude two explanations within the
+settings in which they were evaluated: direct training transfer from the region task
+and parameter count alone. They do not isolate which remaining component of the joint
+architecture produces the gain.
+
+The gradient measurements support the same interpretation within their limited scope.
+For four Gowalla states, an auxiliary analysis on a separate data preparation obtained
+an average cosine similarity of $+0.001$ between the task gradients over four seeds.
+Three of those states are among the five reported in this dissertation. This result
+measures directional conflict only and applies to this pair of tasks.
+Appendix~\ref{apx:cosine} evaluates the same quantity for the final model over seven
+datasets: the six reported here and one additional Gowalla state. It also finds cosine
+values close to zero. Under the check-in-level representation, these results indicate
+little directional conflict between the two sequential tasks. They are also consistent
+with the small effect of gradient-balancing optimizers in this configuration and with
+the effectiveness of a tuned fixed weighting.
+
+The negative result of Chapter~\ref{ch:cbic} and the positive result of
+Chapter~\ref{ch:mobiwac} do not contradict each other. Together, they define the scope
+of the claim. Multitask learning does not provide an automatic benefit, but the first
+negative result does not rule it out. This dissertation demonstrates one path from the
+negative result to a positive one and identifies the conditions tested along that path.
+
+
+\section{Limitations}
+\label{sec:conc:limitations}
+
+Six limitations bound the scope of these conclusions.
+
+\begin{enumerate}
+    % [round8, 2026-07-30, PENDENCIAS_RESOLVIDOS 5.6 (arquivado 2026-07-30)] BOTH DATES, because they are different facts
+    %     and one of them
+    % was about to be printed alone. The author's decision was "busque pelo que o artigo original cita e
+    % vamos usar isso em ambos", and a track did exactly that: opened cho2011gowalla first-hand (authors'
+    % posted PDF, cs.stanford.edu, Section 2 p.2) and put Feb 2009 - Oct 2010 here. Correct as a statement
+    % ABOUT THAT PAPER, and wrong as a statement about this work's data, which is what a limitation headed
+    % "Data vintage" is read as.
+    % MEASURED on the five parquet files this work consumes (columns: local_time; command below):
+    %   Alabama    2009-03-18 .. 2011-07-27   n=113,846
+    %   Arizona    2009-03-26 .. 2011-07-04   n=236,450
+    %   Florida    2009-03-13 .. 2011-08-11   n=1,407,034
+    %   Texas      2009-01-21 .. 2011-08-16   n=4,089,892
+    %   California 2009-01-24 .. 2011-08-14   n=3,171,380
+    %   union 2009-01-21 .. 2011-08-16 -- TEN MONTHS past the window the paper states.
+    %   python3 -c "import pandas as pd,glob,os
+    %   for f in ['Alabama','Arizona','Florida','Texas','California']:
+    %       t=pd.to_datetime(pd.read_parquet(f'/Users/vitor/Desktop/mestrado/data/checkins_by_state/{f}.parquet')
+    %       ['local_time'],errors='coerce')
+    %       print(f, t.min(), t.max(), len(t))"
+    % The author's premise in 5.6 ("ambos usaram o mesmo recorte, nao houve diferenca") is therefore not
+    % what the files show. Not a defect in his decision -- he was ruling on which SOURCE to cite -- but the
+    % sentence carried both dates for two days; it now carries only the measured one.
+    % [round9c, PENDENCIAS_RESOLVIDOS 5.6b (arquivado 2026-08-02), 2026-07-30] SIGN-OFF MARKER REMOVED, question answered. It asked which
+    % window to print and offered the cut: "If he prefers only the paper's window, the clause after the
+    % comma is the one to cut." He chose the OTHER direction, only the measured window, so the clause that
+    % came out is the paper's. Nothing is left for him to decide here, and his instruction is explicit:
+    % "O need sing-off assim como os demais ja resolvidos que estao no latex pode ser removidos nao
+    % precisam fica lá." The reasoning is preserved in _round9/45_author_rulings.md, per the second half of
+    % the same instruction ("Se quider documentar isso tem que ser em algum lugar do src_util").
+    \item \textbf{Data vintage.} The five state datasets come from
+    Gowalla~\cite{cho2011gowalla}, and the extraction used here spans January 2009
+    to August 2011 across the five states. Mobility patterns, place inventories,
+    and check-in behavior have changed since.
+    % [round9c, PENDENCIAS_RESOLVIDOS 5.6b (arquivado 2026-08-02), author decision, 2026-07-30] ONE WINDOW, THE MEASURED ONE. His words:
+    % "Vamos usar so as datas que encontramos no database de 2009 a 2011, pode omitir que no artigo eles
+    % comentam que e de 2009 a 20010." So the clause reporting what the dataset paper states (February
+    % 2009 to October 2010) is REMOVED, and the citation stays on the dataset itself, which is what it is
+    % for. "since either date" became "since", since there is now one date range.
+    % The measurement that produced the printed span is unchanged and is preserved in full in the
+    % provenance block above: five parquet files, union January 21 2009 to August 16 2011, with the
+    % command that reads them. The paper's own window is not lost either -- it is recorded in
+    % src_utils/_round9/45_author_rulings.md under this item, which is where he asked documentation of
+    % this kind to live ("Se quider documentar isso tem que ser em algum lugar do src_util").
+    % [COD/PENDENCIAS_RESOLVIDOS 5.6 (arquivado 2026-07-30), round8, 2026-07-30] "collected between 2009 and 2011" ->
+    %     "collected between
+    % February 2009 and October 2010", with the citation added. Author decision, PENDENCIAS_RESOLVIDOS 5.6 (arquivado
+    %     2026-07-30): "Busque
+    % pelo que o artigo original cita e vamos usar isso em ambos. Inclusive ambos usaram o mesmo recorte
+    % nao houve diferenca."
+    % SOURCED THIS SESSION, first hand. Cho, Myers and Leskovec, "Friendship and Mobility: User Movement
+    % in Location-Based Social Networks", KDD 2011, DOI 10.1145/2020408.2020579. The publisher copy is
+    % closed (Unpaywall, Semantic Scholar, PMC, Elsevier and Springer all returned no open copy); the
+    % authors' own posted PDF was opened at cs.stanford.edu/people/jure/pubs/mobile-kdd11.pdf, 9 pages.
+    % Section 2, "CHARACTERISTICS OF CHECK-INS", page 2, states: "We collected all the public check-in
+    % data between Feb. 2009 and Oct. 2010 for Gowalla and Apr. 2008 to Oct. 2010 for Brightkite. The
+    % total number of check-ins for Gowalla is 6.4 million". Only the window is used here; the 6.4 million
+    % figure is NOT quoted in the text, because it counts the whole SNAP collection and not the five-state
+    % subset this work uses.
+    % CHAPTER 4 NEEDS NO EDIT, which is why this is a one-file change rather than two. Its published prose
+    % at 4_courb/conclusion.tex:20 already reads "collected between February 2009 and October 2010", the
+    % paper's window verbatim, so the two chapters now agree and no published text is touched. Checked
+    % against the Portuguese record and the English translation, ../CoUrb_2026/src/sections/conclusion.tex
+    % and src_en/sections/conclusion.tex: both carry the same window.
+    % A MEASURED FACT THIS DOES NOT ERASE, and it is the reason for the marker below. The provenance
+    % comment at 5_mobiwac/05_setup.tex:17-21 records that the data this work actually consumes is the
+    % figshare CC0 category-annotated dump (36,001,959 check-ins), whose date range was MEASURED on the
+    % parquet on 2026-07-09 as 2009-01-21 to 2011-08-16, and it states that the SNAP/cho2011 dump is not
+    % the data source. That measurement is where "2009 and 2011" came from, so it was not a careless
+    % number, and it is left in place unaltered. The sentence above is therefore written as a statement
+    % about the GOWALLA COLLECTION as its own paper reports it, not as a claim about the span of the five
+    % parquet files, which is the only form in which the author's instruction and the measurement can both
+    % stand. PENDENCIAS_RESOLVIDOS 5.6 (arquivado 2026-07-30)'s own warning applies and is respected: do not "correct" a
+    %     measured number to
+    % match an inherited one.
+    % [NEEDS SIGN-OFF: PENDENCIAS_RESOLVIDOS 5.6 (arquivado 2026-07-30), round8, 2026-07-30 | AUTHOR -- your decision is
+    %     applied and Chapter 4
+    % needed no change, but ONE PREMISE OF IT IS NOT CONFIRMED HERE. You wrote that both studies used the
+    % same extract ("ambos usaram o mesmo recorte nao houve diferenca"). The repository's own measurement
+    % disagrees: Chapter 5's pipeline reads a 36-million-check-in figshare dump spanning 2009-01-21 to
+    % 2011-08-16, while the window now printed in both chapters is the 6.4-million-check-in SNAP collection
+    % window from the paper. Those are two different artifacts, so a reader who checks could find the
+    % dissertation citing a window narrower than the data behind Chapter 5. If Chapter 4's study did read
+    % the SNAP dump and Chapter 5's reads figshare, the honest form is one clause saying so, and I did not
+    % add it because whether the two extracts are the same is a fact about your own runs that I cannot
+    % establish from this repository.]
+    \item \textbf{Taxonomy coarseness.} Next-category prediction uses seven top-level
+    classes. A finer taxonomy may change the effect of joint training.
+    \item \textbf{Transductive representation.} Check2HGI is trained on the check-in
+    graph of each dataset, so it cannot represent unseen places or users without
+    retraining.
+    \item \textbf{No next-place task.} The experiments do not predict the exact next
+    POI, and their conclusions apply only to next category and next region.
+    \item \textbf{Geographic coverage.} Outside the United States, the evidence rests on
+    a single city, Istanbul.
+    \item \textbf{The task-pair confound.} The task pair changed together with the
+    representation and the sharing topology. Chapters~\ref{ch:cbic}
+    and~\ref{ch:courb} paired static category classification with next-category
+    prediction, while Chapter~\ref{ch:mobiwac} pairs two sequential targets,
+    next-category and next-region prediction. No single controlled ablation
+    separates the representation-and-topology change from the task-pair change in
+    the final result. Chapter~\ref{ch:courb} is the fixed-pair control for the
+    diagnosis. The capacity-matched baseline above addresses the parameter-count
+    explanation only in the setting that it tested: the category task, two of the
+    six datasets, one width point per dataset, and width scaling rather than
+    depth. The greater similarity of the final pair may still contribute to the
+    size of the improvement.
+    % [GATE FIX C-1] "the size of the win" -> "the size of the improvement" (idiom law).
+    % [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-013, 2026-07-26] "closes the parameter-count explanation"
+    % was unqualified inside a limitations list. Scope QUOTED from
+    % docs/results/closing_data/capacity_matched_stl_cat/README.md, "Reading":
+    % "Parameter count alone, without the second task's training signal, does not
+    % reproduce the gain in this setting -- category task, two of six datasets, one
+    % width point per dataset, width scaling rather than depth." No claim added.
+\end{enumerate}
+
+
+\section{Future work}
+\label{sec:conc:future}
+
+Future work follows directly from these limitations. Newer and denser traces would
+test the conclusions beyond the Gowalla vintage (limitation~1), and finer-grained
+taxonomies would test them beyond the seven-class division (limitation~2). Because the
+check-in-level representation is trained on a fixed graph, an inductive variant of it,
+one that embeds unseen places and users without retraining, would remove the
+transductive constraint and support deployment in growing cities (limitation~3).
+
+Adding the exact next place as a third target would extend the joint model beyond the
+two properties predicted in this work. The cascade architectures reviewed in
+Chapter~\ref{ch:mobiwac} suggest that category and region predictions can provide
+additional structure for this task (limitation~4).
+Further cities outside the United States would widen the geographic base
+(limitation~5). Training the Chapter~\ref{ch:mobiwac} joint model on the
+Chapter~\ref{ch:cbic} task pair, under the check-in-level representation, is the
+controlled comparison needed to isolate the effect of changing the task pair
+(limitation~6).
+
+
+\section{Final remarks}
+\label{sec:conc:final}
+
+The practical output of this dissertation is a single model that predicts two
+properties of the next visit in one forward pass: what kind of place the user will
+visit and in which part of the city. The methodological contribution is the sequence
+of evidence that led to this model: a published negative result, the diagnosis that
+identified the input representation as the main bottleneck, and a solution designed
+from that diagnosis. The negative result was not an obstacle to the contribution. It
+was its first half.

@@ -1140,6 +1140,21 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     ("R13-aut31b",   "and the remaining subsection is named for what it now does alone",
      "chapters/2_fundamentals.tex",
      r"\\subsection\{Comparison and statistical decisions\}", True),
+    # R13-aut25 / R13-aut25b: the two-input contrast, and the HEDGE that is the author's actual ruling.
+    # The first probe pins the contrast; the second is an ABSENCE probe on the word "correlated" in the
+    # lineage subsection, because the whole point of his ruling was that a correlation is a quantity and
+    # nobody measured it. The absence probe is scoped to the sentence form rather than to the word
+    # anywhere in the chapter: "correlated tasks" appears legitimately in the reproduced CBIC prose, and
+    # a chapter-wide ban would fire on that. The measurement he set aside is LEFT_OUT.md LO-13.
+    ("R13-aut25",    "§2.2.4 contrasts the two architectures by the SOURCE of their two inputs, not by "
+                     "the number of them",
+     "chapters/2_fundamentals.tex",
+     r"MTLnet derives both from one place\s+embedding, whereas the joint model reads two tables exported",
+     True),
+    ("R13-aut25b",   "and it states shared origin as a fact of construction rather than asserting a "
+                     "correlation nobody measured (author's hedge ruling; the measurement is LO-13)",
+     "chapters/2_fundamentals.tex",
+     r"share an origin by construction, so they are not\s+independent views", True),
 )
 
 # COD-016b needs a STRUCTURAL probe, not a string one, so it lives here rather than in PROBES --

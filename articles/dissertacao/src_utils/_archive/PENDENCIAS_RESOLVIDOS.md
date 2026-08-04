@@ -3662,3 +3662,91 @@ O texto da secao removida, verbatim:
 
 Os onze itens individuais (5.1-5.10, 5.6b) ja estavam arquivados abaixo antes desta remocao; nada
 deles mudou aqui.
+
+---
+
+## §4 (os itens `AUT-`) — 26 DE 37 FECHADOS E REMOVIDOS DO `PENDENCIAS.md` — 2026-08-04
+
+> **Rodada 13.** Voce leu os 37 pontos que havia escrito em `## §4 · Pensamentos e consideracoes do
+> Autor`, respondeu 21 deles em `§4.1` com `> DECISSAO:`, e os 15 `[YOU APPLY]` vinham do plano de
+> `§4.2`. Este bloco arquiva os **26 itens fechados**, cada um com o commit em que foi aplicado. Os
+> **11 restantes continuam no `PENDENCIAS.md` §4**, e a razao de cada um esta listada no fim.
+>
+> **Quatro itens fecharam SEM EDICAO ALGUMA, e isso e um resultado e nao uma omissao.** AUT-06, AUT-13,
+> AUT-15, AUT-17 e AUT-33 foram medidos contra o fonte vivo e ja estavam satisfeitos: a redacao que
+> voce criticou tinha sido substituida por outra esteira antes de voce escrever, ou a clausula que
+> faltava ja estava la. Em cada caso a citacao que prova esta no bloco. Outros tres (AUT-11, AUT-28,
+> AUT-34) fecharam sem edicao porque **voce decidiu manter o texto como esta**.
+>
+> **Tres itens correcao de honestidade.** AUT-20 e AUT-23 corrigem uma afirmacao FALSA sobre o nosso
+> proprio sistema: o Cap.2 dizia que as representacoes treinam "without category or region labels", e
+> a categoria da visita atual **e** feature de entrada do no de check-in, alem de haver um termo de
+> reconstrucao de categoria com peso 0.3 na configuracao que o estudo final treina. Trocado por uma
+> afirmacao de **escopo**, que e mais estreita e verdadeira. AUT-03 restaura o hifen dentro de tres
+> citacoes textuais que uma varredura da casa havia alterado, uma delas o titulo publicado do seu
+> proprio artigo, impresso de dois jeitos no mesmo PDF.
+>
+> **Duas das suas premissas foram refutadas por medicao**, e as duas estao registradas no fonte para
+> nao serem re-derivadas: o rotulo de regiao **nao** e feature do no, e latitude e longitude **nao**
+> sao features do no (entram so na construcao do grafo, pela juncao poligonal). E a validacao que voce
+> pediu sobre o Massive-STEPS voltou **REFUTADA**, o que mantem o AUT-35 aberto.
+>
+> **Todos os itens aplicados tem sonda no gate**, adicionada no mesmo commit da correcao e validada por
+> sabotagem individual: `check_audit_claims.py` sai `rc=0` com **167 de 167 probes**. Uma sonda que eu
+> escrevi foi **retirada** por ser inspecionavel: ela mirava texto dentro de um comentario `%`, que o
+> gate remove por projeto, e esta em `NOT_CHECKABLE` **pelo nome**, com o comando de re-medicao.
+
+| item | ruling | commit | o que ficou feito |
+|---|---|---|---|
+| **AUT-03** | A | `e92dfdcf` | tres citacoes textuais restauradas: o titulo publicado do CBIC, o titulo submetido do MobiWac, e a linha da tabela de errata. As tres contra a sua fonte de registro, aberta nesta sessao. |
+| **AUT-04** | [YOU APPLY] | `6633e936` | a oracao das categorias semanticas agora conduz as duas tarefas em vez de pender do fim da frase anterior. |
+| **AUT-05** | [YOU APPLY] | `6633e936` | as duas frases de "neighboring geospatial tasks" sairam do §1.1; o termo nunca era definido. |
+| **AUT-06** | [YOU APPLY] (sem edicao) | `6633e936` | fechado como JA SATISFEITO: as duas tarefas sao nomeadas na mesma frase que diz "both tasks". |
+| **AUT-07** | [YOU APPLY] | `6633e936` | `static place categories` -> `category classification`, o nome registrado no GLOSSARY §1. |
+| **AUT-10** | [YOU APPLY] | `6633e936` | `hard parameter sharing` glosado no primeiro uso do Cap.1. |
+| **AUT-11** | A (sem edicao) | `--` | voce manteve o objetivo 1 como esta. Nada aplicado, por decisao sua. |
+| **AUT-12** | A | `e92dfdcf` | objetivo 4: `ch:conclusion` -> `ch:mobiwac`. Um token, invisivel a todos os gates porque o `\ref` errado RESOLVIA. |
+| **AUT-13** | [YOU APPLY] (sem edicao) | `6633e936` | fechado como JA SATISFEITO por outra esteira: "the joint setting" virou "The joint model operates under...". |
+| **AUT-15** | [YOU APPLY] (sem edicao) | `6633e936` | fechado como JA SATISFEITO: a frase viva ja carrega a clausula de escopo "at a coarse spatial resolution". |
+| **AUT-16** | [YOU APPLY] | `6633e936` | `sequential` e `static` glosados no primeiro uso do Cap.1. |
+| **AUT-17** | [YOU APPLY] (sem edicao) | `6633e936` | fechado como JA SATISFEITO pela rodada 12: os cinco simbolos estao ligados nas duas definicoes numeradas. |
+| **AUT-18** | generico | `54cb689d` | os nomes das unidades sairam da definicao da tarefa e entraram na descricao dos dados. |
+| **AUT-19** | [YOU APPLY] | `6633e936` | uma frase de entrada em §2.2.2 dizendo o que infomax E antes do que ele maximiza. |
+| **AUT-20** | A | `4ee3265a` | a afirmacao de ausencia virou afirmacao de escopo. Cap.2 fica SILENCIOSO sobre o canal do grafo, por sua decisao. |
+| **AUT-21** | i | `4ee3265a` | o mecanismo da tabela pre-treinada e NOMEADO, sem citacao nova. Citar o POI2Vec publicado seria misatribuicao. |
+| **AUT-22** | [YOU APPLY] via GER-06 | `6633e936` | a frase do FiLM saiu de §2.2.3.1 e entrou em §2.3.1, ao lado da definicao de hard sharing. |
+| **AUT-23** | passagem unica | `4ee3265a` | as tres afirmacoes de §2.2.3.2 corrigidas junto com AUT-20 e AUT-21, como voce pediu. |
+| **AUT-24** | [YOU APPLY] | `6633e936` | a abertura de §2.2.4 nomeia o sujeito em vez de usar substantivo abstrato como agente. |
+| **AUT-25** | hedge | `(pendente commit)` | o contraste das duas entradas entrou hedgeado; a medicao da correlacao esta em LEFT_OUT.md LO-13. |
+| **AUT-27** | [YOU APPLY] | `6633e936` | $\mathcal{L}_k$ glosado; era o unico simbolo da equacao sem glosa. |
+| **AUT-28** | C (sem edicao) | `--` | voce optou por nao afirmar nada sobre Pareto. Os quatro probes ficam intactos. |
+| **AUT-30** | [YOU APPLY] | `6633e936` | OOD expandido no primeiro uso, a frase de equivalencia virou definicao direta, e o comentario falso de content.tex foi corrigido com a medicao. |
+| **AUT-31** | OK | `54cb689d` | §2.4 dividida em "Preparation and data split" e "Comparison and statistical decisions". |
+| **AUT-33** | [YOU APPLY] (sem edicao) | `6633e936` | fechado como JA SATISFEITO: o Cap.6 ja separa sinal de treino de arquitetura; varredura com zero defeitos. |
+| **AUT-34** | manter (sem edicao) | `--` | voce manteve §6.1 como esta. |
+
+### Os 11 que continuam no `PENDENCIAS.md` §4
+
+| item | por que continua aberto |
+|---|---|
+| **AUT-02** | a margem de dois pontos no Resumo: ruling A recebido, edicao ainda nao aplicada |
+| **AUT-08** | ruling A recebido (fallback do NORTH_STAR), edicao ainda nao aplicada |
+| **AUT-09** | ruling recebido (combinar as duas redacoes), edicao ainda nao aplicada |
+| **AUT-14** | ruling B: reescrever a secao de Contribuicoes inteira. Trabalho maior, nao iniciado |
+| **AUT-26** | voce deixou aberto para consultar o orientador |
+| **AUT-29** | ruling recebido (promover Gradient conflict + mudar o inicio de 2.3.2), nao aplicado |
+| **AUT-32** | ruling B recebido, oracao ainda nao escrita |
+| **AUT-35** | ruling A+B+comentar limitacao 6: a validacao do Massive-STEPS voltou REFUTADA, precisa da sua leitura |
+| **AUT-36** | ruling recebido (proximo lugar via Check2HGI), nao aplicado |
+| **AUT-37** | ruling OK: reordenar §6.2 em quatro movimentos. Trabalho maior, nao iniciado |
+| **AUT-38** | vazio no fonte |
+
+> **Forense completa da rodada**, com ledger de fontes e bandeiras `[VERIFY]` por item:
+> `src_utils/_round13/` — `60_terminology_audit.md`, `61_check2hgi_audit.md`, `62_literature_audit.md`,
+> `63_conclusion_audit.md`, `70_massivesteps_validation.md`, `71_graphnode_features.md`,
+> `72_leak_screening_search.md`, e o seu §4 original preservado byte por byte em `_aut_original.md`.
+>
+> **Os 26 blocos de auditoria completos**, com a evidencia que a tabela acima resume (DOIs
+> verificados, `file:line` de cada defeito, os comandos de medicao, as sobreposicoes), estao em
+> [`_round13/_aut_closed_blocks.md`](../_round13/_aut_closed_blocks.md). Medido antes de escrever
+> isto: sem esse arquivo, 32 numeros e 20 caminhos do texto removido nao apareciam em lugar nenhum.

@@ -1,0 +1,63 @@
+% !TeX root = ../../main.tex
+% cbic/errata_wording.tex -- one table. Extraction provenance and verification: tables/README.md
+\begin{table}[htb]
+\caption{Wording substitutions in the reproduced CBIC 2025 prose (writing-rule
+conformance; claim strength unchanged or reduced, never raised).}
+\label{tab:apx:cbic-wording}
+\centering
+\small
+\begin{tabular}{@{}p{0.47\textwidth}p{0.47\textwidth}@{}}
+\toprule
+\textbf{Published wording} & \textbf{Chapter wording} \\
+\midrule
+``By leveraging shared information, MTL can potentially mitigate...'' &
+``By using shared information, ...'' \\
+``solutions that leverage shared representations across related POI tasks'' &
+``solutions that use shared representations...'' \\
+``by leveraging shared information across correlated tasks'' &
+``by sharing information across correlated tasks'' \\
+``Moreover, we utilize a Deep Graph Infomax...'' /
+``Moreover, $\mathcal{D}$ is a discriminator...'' &
+``In addition, ...'' (both instances) \\
+``These findings underscore that...'' &
+``These findings indicate that...'' \\
+``Furthermore, investigating advanced multitask optimizers...'' &
+``In addition, investigating...'' \\
+``Furthermore, the computational cost ... was roughly double'' &
+Subsumed by the MFLOPs correction in Table~\ref{tab:apx:cbic-errata}. \\
+``where different sequential patterns might be leveraged'' &
+``might be exploited'' \\
+\addlinespace
+``the MTL framework does not deliver the consistent, significant gains often
+expected'' &
+``does not deliver the consistent gains often expected'' (the chapter reports no
+inferential test, so the word carries no verdict here). \\
+``both our MTL and Single models significantly outperform HMRM across all POI
+categories'' &
+``outperform HMRM in every POI category'' (the comparison is stated by scope instead of
+by significance). \\
+``significantly surpassing MHA+PE in these categories'' &
+``surpassing MHA+PE in these two categories''. \\
+``suggesting that, statistically, the performance of the MTL and Single models is
+largely comparable, without a clear, consistent, and significant advantage'' &
+``suggesting that the performance of the MTL and Single models is largely comparable,
+without a clear or consistent advantage''. \\
+\addlinespace
+``Also, it is important to notice that since we have an unbalanced result for the MTL
+and single, this could lead to the worse of other results.'' &
+Rewritten for readability, with the claim unchanged: the chapter states that the two
+models do not lead consistently across the categories, each obtaining the better
+F1-score in some of them, and that this uneven distribution could make either model
+appear worse in the categories where the other one leads. The published phrase
+``unbalanced result for the MTL and single'' names the pattern the two preceding
+sentences describe, and ``the worse of other results'' had no grammatical referent. The
+hedge ``could'' is preserved, no number is touched, and no inferential claim is added. \\
+\addlinespace
+``Next-POI Prediction, in contrast, aims to predict which specific location a user is
+likely to visit next'' (the related-work definition of the research area) &
+Reproduced verbatim, with a footnote added stating that this is the general formulation
+of the literature and that the variant studied in the chapter predicts the category of
+the next visited place. \\
+\bottomrule
+\end{tabular}
+\end{table}

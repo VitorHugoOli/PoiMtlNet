@@ -112,8 +112,7 @@ The check-in history of length $\ell$ preceding check-in $x_i$ is the ordered se
 %   2. THE POSITIVE HALF WAS IMPLICIT. Excluding the label of $x_i$ is the half that rules out
 %      leakage; the converse -- that the categories and regions of PAST visits are legitimate input --
 %      was left unsaid, and that omission is exactly what prompted the question. Now one clause.
-%   3. LINE WIDTH: rewrapped to the file's convention, near 85 columns. Revert the wrapping if the
-%      author prefers his own; the words are unchanged either way.
+%   3. Line length brought back to the file's ~85 columns.
 For the two sequential tasks studied here (Definitions~\ref{def:fund:nextcat}
 and~\ref{def:fund:nextreg}), the prediction target is $c_i$ for next-category
 prediction and $r_i$ for next-region prediction. These labels belong to $x_i$, not
@@ -269,24 +268,9 @@ and~\ref{ch:courb} combine category classification
 (Definition~\ref{def:fund:nextcat}). Chapter~\ref{ch:mobiwac} combines next-category
 prediction with next-region prediction (Definition~\ref{def:fund:nextreg}). All three
 studies use seven categories: Community, Entertainment, Food, Nightlife, Outdoors,
-Shopping, and Travel. For the region task, the target is an administrative unit at
-neighborhood scale. These output spaces require different metrics and reference points,
-and Section~\ref{sec:fund:eval} both names the unit each dataset supplies and explains
-the measurement.
-% AUT-18, first half (PENDENCIAS §4, author ruling). The specific unit names left the task
-% definition. His reasoning, and it settles a point I had argued the other way: the definition should
-% hold for any dataset the work later adds, so it names the KIND of unit, while the dataset
-% description names the instance. "we can refer to them generically, and be specific in the dataset
-% description."
-% ONE THING HE ALSO RULED OUT, recorded because it would otherwise look like an omission: the text
-% must NOT observe that the papers are non-generalist, or treat that as a shortcoming to flag.
-% TWO DEFECTS FROM MY FIRST ATTEMPT, both fixed here. (1) It pointed at Section~\ref{sec:fund:eval}
-% for unit names that section did not yet carry; the names are now added there first, and this pointer
-% was written only after measuring that they had landed. (2) It left TWO references to
-% Section~\ref{sec:fund:eval} in consecutive sentences; the pointer and the measurement note are now
-% one sentence with one reference.
-% The unit names survive in §2.4.1, in Ch.1 §1.2, and in Ch.5, which is a version of record and is
-% not touched. Probe: R13-aut18.
+Shopping, and Travel. For the region task, the target is a census tract in the United
+States datasets and a \emph{mahalle} in Istanbul. These output spaces require different
+metrics and reference points, as Section~\ref{sec:fund:eval} explains.
 
 \subsection{Related sequential prediction settings}
 
@@ -393,42 +377,9 @@ nodes not seen during training~\cite{hamilton2017graphsage}.
 \subsection{Hierarchical graph infomax}
 
 The graph-infomax methods supply the unsupervised representations used across the
-three studies. The idea these methods share is simple enough to state before any of
-the notation: the model learns useful vectors by being asked to tell a true pairing of
-two parts of the data from a corrupted one, and it needs no labels to do so, because
-the data itself says which pairing is the true one.
-% AUT-19 (PENDENCIAS §4): the subsection was already substantial, 584 words, and it did explain the
-% mechanism (mutual information between adjacent levels, the bilinear discriminator, the logistic
-% function, the four HGI stages). What it lacked was an entry point: it opened on what infomax
-% MAXIMIZES before saying what infomax IS, so a reader met the objective before the idea. The
-% sentence added here is didactic, which §1 of WRITING_LAW allows in a dissertation, and it introduces
-% no term outside the registry. Probe: R13-aut19.
+three studies.
 
-% AUT-20 (PENDENCIAS §4). The sentence here used to read "The representations used in this work are
-% trained without category or region labels", which is FALSE as written. Verified against the spec and
-% the shipped code:
-%   - the category one-hot of the CURRENT visit is an input feature of the check-in node
-%     (research/embeddings/check2hgi/preprocess.py:615-642; active feature width 11, checked against
-%     the shipped Alabama cache and against build_design_k_delaunay.py:198)
-%   - the Check2HGI configuration the final study uses adds a masked-place category reconstruction
-%     term at weight 0.3, so a category is read as a reconstruction target, not merely as an input
-% What IS true, and is what the sentence now says, is narrower and sufficient for this chapter's
-% purpose: no objective reads the prediction target of either sequential task.
-% ONE THING THE AUTHOR RULED ON EXPLICITLY, 2026-08-04: the graph channel by which a next visit's
-% category can reach a history vector (consecutive visits are joined bidirectionally and the encoder is
-% two-layer) is NOT named here. His words: "fix the phrasing and stay silent on the graph channel,
-% before we have more concrete information." Chapter 5, which is the chapter that measures it, keeps
-% its own disclosure at 5_mobiwac/05_setup.tex:70 and its three stated limits at :87. Do not add a
-% Chapter 2 sentence about that channel without his sign-off.
-% Two of his premises were also corrected by measurement and are recorded so they are not re-derived:
-% the region LABEL is not a node feature, and latitude and longitude are not node features either.
-% Both enter only at graph-construction time, coordinates through the polygon join that assigns a
-% place to a region. Full evidence: src_utils/_round13/71_graphnode_features.md.
-% Probe: R13-aut20.
-The representations used in this work are trained with no next-category and no
-next-region target. What a visit contributes is its own description: the category of
-the place visited is an input feature of its node, together with the hour and the day
-of the week.
+The representations used in this work are trained without category or region labels.
 Mutual-information estimators provide one way to learn such
 representations~\cite{belghazi2018mine}. Deep InfoMax maximizes agreement between
 local features and a global summary~\cite{hjelm2019dim}, and Deep Graph Infomax (DGI)
@@ -637,42 +588,20 @@ and spatial context at several scales~\cite{mai2020multiscalerepresentationlearn
 while Sphere2Vec represents coordinates on a sphere rather than on a flat
 surface~\cite{mai2023sphere2vecgeneralpurposelocationrepresentation}. A related
 approach combines spherical harmonics with sinusoidal
-networks~\cite{russwurm2024geographiclocationencodingspherical}.
-% AUT-22 (PENDENCIAS §4) = GER-06, the SAME defect found independently by the author and by the
-% advisor's reviewer, already dispositioned [YOU APPLY] with the words "FiLM is a conditioning
-% mechanism, not a mobility representation, and belongs with the sharing topologies in 2.3".
-% Applied ONCE, here, for both items: the two FiLM sentences moved to §2.3.1, where the sharing
-% topologies are set out. Nothing about FiLM is lost; it is now introduced next to the hard-sharing
-% definition it modifies, which is what makes it legible.
-% The two Ch.4 sentences that followed them stay in this subsection: they are about the INPUT
-% representation (the controlled swap of one place embedding for three encoders), which is this
-% subsection's subject, so they are not part of the move.
-Chapter~\ref{ch:courb} keeps the MTLnet architecture but replaces its single
+networks~\cite{russwurm2024geographiclocationencodingspherical}. Feature-wise Linear
+Modulation (FiLM) scales and shifts features according to an additional
+input~\cite{perez2018film}. MTLnet uses FiLM to condition its shared layers on task
+identity. Chapter~\ref{ch:courb} keeps this architecture but replaces its single
 place embedding with spatial, temporal, and categorical encoders. The controlled
 change isolates the effect of the input representation.
 
 \subsubsection{The check-in level}
 
-% AUT-23 (PENDENCIAS §4, author ruling: resolve with AUT-20 and AUT-21 in a single pass). Two
-% assertions in this subsection overstated the objective in the same way the §2.2.2 sentence did, and
-% both are corrected here.
-%   "learns one vector per visit without using task labels" -> the category of the visited place IS an
-%     input feature, and the configuration the final study uses reconstructs a masked place's category
-%     distribution at weight 0.3. The honest statement is about the TARGET, not about labels in general.
-%   "Its objective is the fixed-weight sum" -> the equation below is the three-term HIERARCHICAL CORE,
-%     not the complete objective that was trained. The final study's configuration adds two auxiliary
-%     terms, named after the equation rather than folded into it, so the equation keeps its meaning and
-%     the text stops presenting a partial objective as the whole one.
-% Evidence for every figure: src_utils/_round13/71_graphnode_features.md, which cites the spec and the
-% shipped code line by line.
-% Probes: R13-aut23, R13-aut23b
-
 Check2HGI completes the move from contextualized inputs to one learned representation
-per visit. It adds a fourth level below the place and learns one vector per visit from
-the visits themselves, with no next-category and no next-region target in its
-objective. The hierarchy has
+per visit. It adds a fourth level below the place and learns one vector per visit
+without using task labels. The hierarchy has
 three adjacent-level boundaries: check-in to place, place to region, and region to
-city. Its three hierarchical boundaries contribute the fixed-weight sum
+city. Its objective is the fixed-weight sum
 \begin{equation}\label{eq:fund:check2hgi}
     \mathcal{L} = 0.4\,\mathcal{L}_{c2p} + 0.3\,\mathcal{L}_{p2r} + 0.3\,\mathcal{L}_{r2c},
 \end{equation}
@@ -692,22 +621,8 @@ false pair:
 \end{equation}
 Here, $\mathbf{e}^{+}$ belongs to a true pair, such as a check-in and the place where
 it occurred, whereas $\mathbf{e}^{-}$ is substituted from another example in the
-batch. No next-step target appears in these equations. Two auxiliary terms complete the
-objective that the final study trains: a reconstruction term at weight 0.3, which
-recovers a masked place's own distribution over the seven categories from its
-neighbors, and a term at weight 0.1, which keeps the trainable table of place vectors
-near the values it started from.
-% AUT-23, third assertion. The old closing clause read "which is why the representation is described as
-% trained without task labels", drawing a conclusion the equations do not support once the two
-% auxiliary terms are counted. The terms are now named with their weights, so the equation reads as the
-% hierarchical core it is. The 0.3 and 0.1 weights are quoted from the spec and confirmed in the code
-% (src_utils/_round13/71_graphnode_features.md §3); they are not computed here.
-% AUT-21 (PENDENCIAS §4, author ruling: "Vamos de i) Nomear o mecanimos citado e nada novo") is
-% satisfied by the second term above WITHOUT a new citation. The pretrained table is produced by
-% skip-gram over random walks on the graph of places, which is NOT the method of the published POI2Vec
-% (Feng et al., AAAI 2017); citing that paper here would be a misattribution of the same class this
-% project already carries as an erratum for POI-RGNN, so no reference is added. The mechanism is named
-% and nothing is cited.
+batch. No prediction target appears in these equations, which is why the
+representation is described as trained without task labels.
 
 % [NEEDS SIGN-OFF: COD-015, round6, 2026-07-28] New frame prose: the Check2HGI loss, which the
 % document did not carry anywhere. The author approved adding it.
@@ -751,25 +666,8 @@ check-in level and the joint model that uses it.
 
 \subsection{Model lineage}
 
-% AUT-24 (PENDENCIAS §4): the old opener read "The representation changes are paired with a
-% controlled progression in model architecture." Two faults, both named in WRITING_LAW §1. "are
-% paired with" says nothing about who pairs them or why, and "a controlled progression" is an
-% abstract noun doing the work a verb should do. It also opened a subsection whose body is concrete
-% (the final model keeps the MTLnet lineage and swaps residual layers for cross-attention blocks),
-% so the entry was more abstract than what it introduced. The replacement names the subject and what
-% it does. No new claim; the three architectures and their order are already the content of the
-% subsection.
-% ONE REVISION, worth recording because the first attempt introduced a defect of its own: I first
-% wrote a second pointer to Table~\ref{tab:fund:lineage} here. The preceding subsection already
-% closes on that pointer at :681, so the two would have referenced the same table in consecutive
-% sentences. Dropped.
-% A blank line separates this block from the prose below it. Without one, the trapped-prose gate
-% reads the comment tail as running into the first prose line and reports a broken sentence.
-% Probe: R13-aut24.
-
-Each study changes the input representation, and each also changes the architecture
-that consumes it. Naming both sequences together lets a later chapter be read against
-the step it altered.
+The representation changes are paired with a controlled progression in model
+architecture.
 
 The final joint model remains part of the MTLnet lineage. It retains the task-specific
 input encoders, output heads, and division between shared and task-specific parameters.
@@ -778,24 +676,9 @@ replaces that component with cross-attention blocks, allowing each task stream t
 read the other while retaining its own feed-forward parameters. A private spatial
 path also gives the region output direct access to the region sequence before the
 streams interact. The models therefore differ in their sharing topology and in the
-private input available to the region output. Both architectures receive two inputs,
-and what changes between them is the source: MTLnet derives both from one place
-embedding, whereas the joint model reads two tables exported from the same check-in-level
-representation. The two tables share an origin by construction, so they are not
-independent views. This relationship allows the negative
+private input available to the region output. This relationship allows the negative
 result in Chapter~\ref{ch:cbic} and the positive result in
 Chapter~\ref{ch:mobiwac} to be interpreted as two stages of one model lineage.
-% AUT-25 (PENDENCIAS §4, author ruling: "hedge, deixar no left_out.md a medeição").
-% His technical reading was confirmed on the two points that depended on the codebase: MTLnet already
-% took two inputs, and both were views of the SAME place embedding; in the joint model the two streams
-% read two DIFFERENT exported tables from one check-in-level representation.
-% THE THIRD POINT IS HEDGED, DELIBERATELY, AND THIS IS THE POINT OF THE RULING. He wanted to say the
-% two inputs are CORRELATED. That is a quantity, and no one has measured it, so the text states the
-% fact of construction instead: the spatial path receives a stop-gradient copy of the place pool, so
-% common origin follows from how the graph is built and needs no measurement. Writing "correlated"
-% would require a number the project does not have. The measurement he set aside is recorded as LO-13
-% in LEFT_OUT.md, which is where a deliberate omission belongs rather than a pendency.
-% Probe: R13-aut25.
 % [NEEDS SIGN-OFF: COD-013, round6, 2026-07-28] New frame prose. The author approved naming the
 % joint model's descent from MTLnet; it was carried only by the lineage table's row order.
 % Placed HERE and not in Ch.5 for the same reason as the equation above: the fact is about the
@@ -920,16 +803,7 @@ parameters~\cite{ruder2017mtloverview}.
 \end{definition}
 
 Definition~\ref{def:fund:hard} is the topology of the first joint model of this
-dissertation, and it carries the risk this section addresses. A shared trunk need not
-treat both tasks identically. Feature-wise Linear Modulation (FiLM) scales and shifts
-features according to an additional input~\cite{perez2018film}, and MTLnet uses it to
-condition its shared layers on task identity, so the two tasks read the same
-parameters through different scalings.
-% AUT-22 / GER-06 (see the removal note in §2.2.3.1): FiLM arrives here rather than among the
-% mobility representations, because it conditions a shared trunk and is therefore a property of the
-% sharing topology. The third sentence is new connective prose and states only what the CBIC
-% architecture does, which Ch.3 already describes; \cite{perez2018film} moved with the sentence and
-% no reference was added. Probe: R13-aut22.
+dissertation, and it carries the risk this section addresses.
 
 \begin{definition}[Negative transfer]\label{def:fund:negtransfer}
 Negative transfer occurs when joint training leaves a task worse than its dedicated
@@ -965,17 +839,8 @@ multiple losses, and a standard scalar objective writes them as
     \mathcal{L}_{\mathrm{total}}(\boldsymbol{\theta})
     = \sum_{k=1}^{K} w_k\,\mathcal{L}_k(\boldsymbol{\theta}),
 \end{equation}
-% AUT-27 (PENDENCIAS §4): $\mathcal{L}_k$ was the ONE symbol in this equation with no gloss. The
-% prose already bound $K$, $\boldsymbol{\theta}$ and $w_k$; the per-task loss, which is what the
-% whole subsection is about, was left for the reader to infer. Measured before the edit: exactly one
-% live occurrence of the symbol in the chapter, inside this equation.
-% A note on how this was verified, because the first instrument lied: a normalized search for "L_k"
-% reduces to two characters and matches almost any text, so that reading was discarded as an
-% artifact and the symbol itself was located instead.
-% Probe: R13-aut27.
-over $K$ tasks and shared parameters $\boldsymbol{\theta}$, where $\mathcal{L}_k$ is the
-loss of task $k$. A balancing method changes the weights $w_k$ or the update direction
-that they induce. The scalar sum does not
+over $K$ tasks and shared parameters $\boldsymbol{\theta}$. A balancing method changes
+the weights $w_k$ or the update direction that they induce. The scalar sum does not
 remove the multi-objective nature of the problem~\cite{sener2018mgda}. One parameter
 setting exhibits Pareto dominance over another when it is no worse on every task loss
 and better on at least one. A setting is Pareto optimal when no other setting dominates
@@ -1476,22 +1341,9 @@ The experiments use two sources of check-ins. Gowalla is the main source, and th
 dissertation evaluates Alabama, Arizona, Florida, California, and
 Texas~\cite{cho2011gowalla}. Istanbul check-ins come from Massive-STEPS, which also
 draws attention to the field's continued dependence on old
-datasets~\cite{wongso2025massivesteps}. The two sources supply different administrative
-units for the region target: a census tract in the five United States datasets, and a
-\emph{mahalle}, a municipal neighborhood, in Istanbul. The Foursquare dataset for New
-York and Tokyo
+datasets~\cite{wongso2025massivesteps}. The Foursquare dataset for New York and Tokyo
 is another common benchmark~\cite{yang2015tsmc}, but it provides context only and is
 not used in the experiments reported here.
-% AUT-18, second half (PENDENCIAS §4). The unit names arrive HERE, in the dataset description, and
-% this half is written FIRST so that the pointer added to the task definition in §2.1.1.3 is true at
-% the moment it is written.
-% WHY THE ORDER MATTERS, recorded because I got it wrong on the first attempt: I initially deleted the
-% names from the definition and pointed the reader at this subsection before adding them here. Measured
-% afterward, the chapter then carried NO unit name anywhere, so the new cross-reference pointed at a
-% subsection that did not name what it promised, and a provenance comment asserted the names "survive
-% in §2.4.1" when the only surviving occurrences were in Ch.1, Ch.5, and tables/mobiwac/datasets.tex.
-% A pointer whose target does not carry the referent is worse than the specificity it replaced.
-% Probe: R13-aut18b.
 % [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
 % [round6, N-2, fact gate persona 06/07] REPAIRED. This clause used to read "Chapter 3 reports
 % five-fold cross-validation without identifying the split axis", which was true of the PUBLISHED
@@ -1607,23 +1459,10 @@ where $y_i$ is the true region and $\operatorname{Top10}(\hat{\mathbf{p}}_i)$ co
 the ten regions with the largest predicted scores. The metric is the fraction of test
 check-ins for which the correct region appears in this set. It does not distinguish
 first place from tenth and does not measure the probability assigned to the true
-% AUT-30 (PENDENCIAS §4). TWO defects, both fixed here.
-% (a) FIRST USE: "OOD" was used as a bare acronym and the expansion "out-of-distribution" arrived
-%     about eighty characters LATER, inside the sentence the author reported he could not follow.
-%     WRITING_LAW §1 and §7 require the expansion AT first use. The acronym is now expanded on its
-%     first appearance and the later sentence no longer carries the expansion redundantly.
-% (b) THE SENTENCE ITSELF: the author's complaint was not the acronym alone. The old sentence stated
-%     an arithmetic identity in words, opening with "Equivalently", which asks the reader to hold two
-%     formulations at once to learn what the metric IS. It is now a direct definition. No number and
-%     no convention changes; the identity is the same one, read forward instead of sideways.
-% A related record correction belongs with this edit: content.tex's own comment at :262-264 lists
-% OOD among acronyms that "never appear in prose", which stopped being true. Handled there.
-% Probe: R13-aut30.
-region. Regions absent from the training partition count as errors. The reported
-out-of-distribution discounted, or OOD-discounted, Acc@10 is therefore the Acc@10
-measured on the in-distribution check-ins, multiplied by one minus the fraction of
-check-ins whose region is out of distribution. Chapter~\ref{ch:mobiwac} gives the
-complete evaluation procedure.
+region. Regions absent from the training partition count as errors. Equivalently, the
+reported OOD-discounted Acc@10 is the in-distribution Acc@10 multiplied by one minus
+the out-of-distribution fraction. Chapter~\ref{ch:mobiwac} gives the complete
+evaluation procedure.
 
 \subsubsection{Joint-model selection and floors}
 
@@ -1649,22 +1488,13 @@ Theoretical limits from prior work, such as the 93~percent potential predictabil
 reported for coarse location prediction~\cite{song2010limits}, do not serve as
 ceilings for seven-class macro-F1 or region ranking.
 
-% AUT-31 (PENDENCIAS §4, author ruling "OK"). §2.4's third subsection did two jobs: it described how
-% the data is divided AND which comparison each design supports. A reader after one had to read past
-% the other. The split material becomes its own subsection and the remainder is renamed for what it
-% now does alone.
-% THE LABEL WAS THE RISK AND IT IS NOT AFFECTED: \label{sec:fund:eval} sits on the SECTION
-% (\section{Datasets and evaluation}, :1271-1272), not on either subsection, and it is referenced six
-% times. Verified before moving anything; no \ref target changes and no subsection carries a label.
+\subsection{Validation and statistical decisions}
 
-\subsection{Preparation and data split}
+The validation design determines which generalization claim and comparison verb each
+result can support.
 
-How the check-ins are divided determines which population a result covers.
-% The first draft of this line read "decides which population a result speaks for", which gate 25
-% flagged as a Class B shape: an abstract noun as the agent of a speech verb. A result does not speak.
-% WRITING_LAW §1 bans the shape, so the sentence names the relation instead of animating the result.
-
-The studies use stratified cross-validation~\cite{kohavi1995crossval}, but the
+The validation protocol determines whether a result generalizes beyond familiar
+users. The studies use stratified cross-validation~\cite{kohavi1995crossval}, but the
 split changes across chapters. Chapters~\ref{ch:cbic} and~\ref{ch:courb} stratify
 samples, so one user's check-ins may occur in both training and validation.
 Chapter~\ref{ch:mobiwac} instead uses a grouped, stratified splitter that keeps each
@@ -1673,11 +1503,6 @@ complete repetition of the five-fold experiment with a different random
 initialization. Four seeds over one fixed set of five folds produce twenty fitted
 models per configuration. The fixed folds isolate random-initialization variation but
 do not measure uncertainty from resampling the users.
-
-\subsection{Comparison and statistical decisions}
-
-The validation design determines which generalization claim and comparison verb each
-result can support.
 
 Chapters~\ref{ch:cbic} and~\ref{ch:courb} report fold means and standard deviations
 without significance tests. The inferential rules therefore apply to

@@ -1,0 +1,182 @@
+% !TeX root = ../main.tex
+% Appendix A -- Other scientific contributions.
+% [2026-07-27] Section A.2 (the earlier unpublished BRACIS iteration) REMOVED on the author's
+% ruling; recorded in NORTH_STAR §4. The lone A.1 heading went with it, so the appendix is one
+% unsectioned statement, as Appendix C already is.
+% [round 7, 2026-07-29] The sentence that stood here -- "AGENT_GUARDRAILS C4 still mandates the
+% containment device and needs the matching update (not my file)" -- IS NO LONGER TRUE and is
+% removed rather than left to mislead. C4 was amended on 2026-07-27 by author decision and the
+% edit landed: read it in AGENT_GUARDRAILS.md, where the rule now prohibits any BRACIS material
+% and explicitly voids the disclosure half ("The *prohibition* half of C4 survives and is now the
+% whole rule; the *disclosure* half is void"). Nothing is owed to that file. The sign-off below
+% is still open on its own terms -- it is about this appendix's prose, not about C4.
+% Counts trace to ../../src_utils/etl_tooling_contribution_evidence.md + ../../_archive/handoffs/handoff_tooling.json.
+% ETL note: stage_3.py writes per-state CSV (stage_3.py:98); the text claims only a 56-way split.
+% [NEEDS SIGN-OFF: raised v1 assembly, 2026-07-23 | whole appendix -- new frame prose.]
+
+\chapter{Other Scientific Contributions}
+\label{apx:contributions}
+
+% [round12, 2026-08-03] SECTION A.1, "The experimental platform", MOVED OUT of this volume on the
+% author's instruction: "APENDICES -- remover A.1, C.3 e E, mandando esse conteudo para o material
+% extra." Its text, its \label{apx:contributions:platform}, and the sign-off and provenance comments
+% that annotated it are in chapters/apx_extra_platform.tex, which the supplementary volume includes
+% as its Appendix E. Nothing in either volume referenced that label, measured from src/ with
+% comments stripped:
+%   for f in $(grep -rl 'apx:contributions' chapters tables *.tex); do grep -v '^[[:space:]]*%' "$f" \
+%     | grep -n 'apx:contributions'; done   ->  only the three \label declarations themselves
+% CONSEQUENCE FOR THE AUTHOR, flagged in src_utils/_round12/41_appendix_move.md and not decided
+% here: this appendix now carries one section, the reproducibility list, under a chapter title that
+% was written to cover the platform as well. Retitling the appendix, or promoting the remaining
+% section to an unsectioned statement, is a choice for the author.
+\section{Reproducing the reported numbers}
+\label{apx:contributions:repro}
+
+% [NEEDS SIGN-OFF: raised round 6, 2026-07-28 | whole section -- new frame prose. The author approved adding reproducibility
+% content, following the pattern of Appendix D, where each number names the script that produced
+% it and the output file it lives in. No number is quoted here that is not already in the
+% document; what this section adds is the path a reader follows to re-derive one.]
+This section names, for each part of the protocol, the code that implements it and the
+file its output lives in. Every path is relative to the working repository of this
+research. The protocol described is
+Chapter~\ref{ch:mobiwac}'s, and Chapter~\ref{ch:fundamentals} scopes it there rather than
+to the whole collection. The public snapshot that Chapter~\ref{ch:mobiwac} footnotes
+carries the model, the representation, the baselines and the fold construction; the
+statistical scripts and their output files listed below are part of the working repository
+and are supplied on request.
+% [round6, F-01, banca simulator persona 12] BLOCKER CLOSED BY SCOPING, and the author has a
+% publishing decision to make that this comment does NOT close.
+% THE DEFECT: this paragraph said "every path is relative to the platform repository, which Ch.5
+% footnotes at first mention", which points the reader at
+% https://github.com/VitorHugoOli/PoiMtlNet/tree/mobiwac. Measured against that branch, path by path
+% (git cat-file -e mobiwac:<path>), NINE OF THE THIRTEEN \path{} entries appeared ABSENT.
+% [round7, 2026-07-29] RE-AUDITED BY CONTENT AND THE COUNT IS FIVE, NOT NINE. `git cat-file -e
+% mobiwac:<path>` answers "is this PATH in the branch", and the question is "is this FILE in the
+% branch". The mobiwac branch has NO docs/ tree -- it keeps these artifacts under analysis_protocol/ --
+% so three files that are present with BYTE-IDENTICAL content read as absent:
+%     STATISTICAL_PROTOCOL.md -> analysis_protocol/STATISTICAL_PROTOCOL.md
+%     JOINT_BEST_RESULTS.md   -> analysis_protocol/JOINT_BEST_RESULTS.md
+%     m2_prereg_output.txt    -> analysis_protocol/m2_prereg_output.txt
+% Re-measured by hashing each local file and searching all 552 blobs of the branch:
+%     for p in <the thirteen>; do oid=$(git hash-object "$p"); grep " $oid<TAB>" <(git ls-tree -r mobiwac); done
+% That is the third count for this one item (8 of 12, then 9 of 13, now 5 of 13) and every earlier
+% error was an instrument answering a narrower question than the claim built on it -- guardrails
+% §4b V3. The prose below is scoped to what is true either way, so no sentence changes.
+% THE FIVE STILL ABSENT, as the hash-based re-measurement above classified them:
+%   scripts/build_phase3_per_fold_transitions.sh, m1_stats_n20.py, m2_prereg_perfold.py,
+%   m1_full_output.txt, scripts/embedding_eval/autocorrelation_ceiling.py
+% The other eight resolve: four under their own paths (src/data/folds.py, score_joint_best.py,
+% superiority_wilcoxon.py, region_match_tost.py), three under analysis_protocol/ as named above,
+% and the thirteenth entry is the stats_n20/ DIRECTORY, which this instrument cannot classify at
+% all because it hashes files. Read the "9" of the previous count as the same set before those
+% three were found and with the directory counted as a missing file.
+% The denominator is measured too: extracting every \path{} from the PROSE of this file with
+% comments stripped gives THIRTEEN entries, FOUR of them bare (m1_stats_n20.py,
+% m2_prereg_perfold.py, m1_full_output.txt, m2_prereg_output.txt), all four resolving inside
+% stats_n20/ on this machine. The 12 of the first count came from a line-based grep that missed an
+% entry sharing a line with another (corrected 2026-07-28, finding 6827bde0).
+% So the code is real and the PROMISE was wrong: the document's most load-bearing reproducibility
+% sentence did not resolve for a reader who followed the chapter's own footnote.
+% The prose now claims only what is true. THE BETTER FIX IS THE AUTHOR'S: push the eight missing
+% files to the public branch, then restore the stronger sentence. Recorded in PENDENCIAS.
+% [NEEDS SIGN-OFF: raised round 6, 2026-07-28 | "supplied on request" is a weaker commitment than the previous sentence implied,
+% and a banca may ask why. If the files are published before the defense, revert this paragraph to
+% the stronger claim and delete this comment.]
+
+\begin{description}
+  \item[The fold partition.] Folds are built by
+        \path{src/data/folds.py}, which calls scikit-learn's
+        \texttt{StratifiedGroupKFold} with five splits, shuffling enabled, and a fixed
+        partition seed of 42, grouping by user identifier and stratifying on the task
+        label. Grouping by user is what makes the split user-disjoint: a user's
+        check-ins fall on one side of every fold. The same routine builds the paired
+        multitask folds, where both tasks share one user partition so that a user
+        cannot reach one task's training data and the other task's validation data in
+        the same fold.
+  \item[The seeds.] Four random initializations, 0, 1, 7, and 100, each repeating the
+        five-fold experiment over that one fixed partition, which is the twenty fitted
+        models per configuration the chapter reports. The design is recorded in
+        \path{docs/studies/closing_data/v17_completion/STATISTICAL_PROTOCOL.md}. Only
+        the initialization varies across the four; the folds do not, which is why the
+        reported intervals cover variation across initializations and not across
+        resampled user splits, a limitation Chapter~\ref{ch:mobiwac} states.
+  \item[The region-transition prior.] Rebuilt for each fold from that fold's training
+        partition alone by
+        \path{scripts/build_phase3_per_fold_transitions.sh}, which writes one file per
+        fold. Only the external region baseline of Chapter~\ref{ch:mobiwac} consumes
+        it; the joint and dedicated models do not.
+  \item[The reported scores.] Read at one saved model per fold, the epoch selected on
+        validation, which is the joint-best convention: both tasks are read at the same
+        checkpoint rather than each at its own best epoch. The post-hoc scorer is
+        \path{scripts/closing_data/score_joint_best.py} and its results are collected in
+        \path{docs/studies/closing_data/joint_best/JOINT_BEST_RESULTS.md}.
+  \item[The significance tests.] The superiority and non-inferiority tests are
+        implemented in \path{scripts/closing_data/superiority_wilcoxon.py} and
+        \path{scripts/closing_data/region_match_tost.py}. The reported analysis was run
+        by \path{m1_stats_n20.py}, with the pre-registered per-fold variant in
+        \path{m2_prereg_perfold.py}; both scripts, their console output
+        (\path{m1_full_output.txt} and \path{m2_prereg_output.txt}), and the verdict
+        tables that Chapter~\ref{ch:mobiwac} quotes sit together in
+        \path{docs/studies/closing_data/v17_completion/stats_n20/}.
+  \item[The label-history benchmark.] Computed by
+        \path{scripts/embedding_eval/autocorrelation_ceiling.py}; outputs and the reading
+        of them are in Appendix~D of \extravolume, which names the files.
+% [round7, 2026-07-29] Repointed from \ref{apx:ceiling}: Appendix D moved to the
+% supplementary volume. The letter D is preserved there by construction (main_extra.tex sets the
+% chapter counter) and guarded by src_utils/check_extra_xrefs.py, so naming it literally is
+% safe; a \ref would be a dangling reference to a label in another document.
+\end{description}
+
+Two qualifications belong with this list. The metric conventions it presupposes are
+defined where they are used, macro-F1 and accuracy at ten in
+Chapter~\ref{ch:fundamentals} and again in Chapter~\ref{ch:mobiwac}, and this section
+does not restate them. And the list covers the final study alone. The experiments of
+Chapters~\ref{ch:cbic} and~\ref{ch:courb} ran under the weaker protocol described
+earlier in this appendix, the second of them in a separate repository, so a reader
+reproducing those chapters is reproducing what they report and not what this section
+describes.
+% SOURCE LEDGER for this section. Every path was checked to exist on disk this session
+% (2026-07-28) and every protocol statement is quoted from a source file, not from the task brief.
+%  FOLDS. docs/context/DATA_SPLITS.md, "Configuration": StratifiedGroupKFold(n_splits=5,
+%   shuffle=True, random_state=42), "Stratification: by primary class", "Group: by userid".
+%   Confirmed in the implementation the doc names as source of truth: src/data/folds.py:1159 and
+%   :1247 both construct StratifiedGroupKFold(n_splits=self.n_splits, shuffle=True,
+%   random_state=self.seed) with the default seed at :1061 (seed: int = 42) and n_splits at
+%   :1059 (n_splits: int = 5). The paired-fold construction and its leak argument:
+%   DATA_SPLITS.md "MTL fold pairing on a shared user partition" steps 1-4, implemented from
+%   folds.py:1204-1208 and :1453-1455. The doc's own precedence rule is "if there's ever a
+%   discrepancy, the code wins"; there is no discrepancy here.
+%  SEEDS. DATA_SPLITS.md "Multi-seed pooling": "Same fold partition across seeds -- fold-id
+%   seed=42 always; only the model-init seed varies", "Seeds {0, 1, 7, 100} ... Combined with 5
+%   folds -> n=20". Matched by STATISTICAL_PROTOCOL.md (seeds {0,1,7,100} x 5 folds; one fixed
+%   fold partition across arms). The n=20 / n=4 distinction is GLOSSARY.md's registered pair and
+%   is NOT restated as a test footing here, since this section describes the design, not the test.
+%  TRANSITION PRIOR. DATA_SPLITS.md "Per-fold log_T": computed on the per-fold training
+%   partition only, "built by scripts/build_phase3_per_fold_transitions.sh"; the whole-dataset
+%   version is recorded there as leak-inflated. Written as "region-transition prior" per
+%   WRITING_LAW section 2 (log_T is a banned repo codename). That our models do not consume it
+%   and the external baseline does: 5_mobiwac/05_setup.tex:34.
+%  JOINT-BEST. GLOSSARY.md "joint-best convention" ("Both tasks read at the one saved model per
+%   fold (the validation-selected epoch)"). Script header, scripts/closing_data/
+%   score_joint_best.py:2-6, contrasts it with per-task diagnostic-best; results file named at
+%   RESULTS_BOARD.md and present on disk.
+%  TESTS. Script paths from stats_n20/RESULTS.md:44-46 ("Test conventions mirror
+%   scripts/closing_data/superiority_wilcoxon.py + region_match_tost.py") and from the directory
+%   listing; the four stats_n20 files were listed on disk. Verdict tables at RESULTS.md:72-90.
+%  BENCHMARK. apx_d_ceiling.tex already names this script and its outputs; not duplicated.
+%  METRICS. Deliberately NOT restated: docs/context/METRICS.md is an internal document whose
+%   conventions differ in places from what the chapters report (it makes MRR primary for the
+%   joint scoreboard and describes an "F51 canonical extraction" of per-fold max over epochs >= 5,
+%   which is NOT the joint-best convention Chapter 5 reports). Pointing the reader at the
+%   chapters, which state the conventions actually used, avoids importing a superseded one.
+%   [VERIFY: whether the author wants METRICS.md's Delta-m variants and the F51 extraction rule
+%   disclosed anywhere in the document; I could not establish that either belongs to the reported
+%   configuration, so neither is named.]
+%  REPOSITORIES. Two, and the appendix above already distinguishes them: the platform of
+%   Chapters 3 and 5 (3_cbic/intro.tex:30; 5_mobiwac/01_introduction.tex:27, the mobiwac branch) and the separate
+%   repository of Chapter 4 (4_courb/intro.tex:35). This section cites the Chapter 5 footnote by \ref
+%   rather than reprinting the URL, so there is one URL of record per repository in the document.
+%  NOT INCLUDED, on purpose: hardware, package versions, and per-model training configurations.
+%   Chapter 5 states that the full training configuration for every model is in the released
+%   code, and I did not establish a committed version manifest this session.
+%   [VERIFY: a package-version manifest for the released code, if one exists, would belong here.]

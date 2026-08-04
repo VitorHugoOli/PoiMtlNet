@@ -1,0 +1,65 @@
+% !TeX root = ../../main.tex
+% mobiwac/results.tex -- one table. Extraction provenance and verification: tables/README.md
+\begin{table}[htbp]
+\caption{One model, two tasks: the single joint model against the dedicated single-task models and the
+external baselines, ordered by region count. The upper block reports next-category (macro-F1) and the
+lower block next-region (Acc@10); the two share the dataset and region-count columns, and the same
+six datasets appear in the same order in both. Bold marks a statistically supported improvement over the dedicated model; in
+the region block, $\uparrow$ marks that supported improvement and $\approx$ a non-inferior match
+(TOST, $\pm2$~pp; Section~\ref{sec:mobiwac:results-part2}).}
+\label{tab:mobiwac:results}
+\centering
+% [NEW-7, 2026-07-26] Was ONE eleven-column tabular inside {adjustbox}{max width=\textwidth},
+% which shrank the body to a measured 8.00 pt (fold sd 6.00 pt) against 11.96 pt body text.
+% Split at the cmidrule the two task blocks already carried, into two tabulars inside this one
+% float: one caption, one \label{tab:mobiwac:results} (all nine \ref sites unchanged), one
+% footnote block. Both halves fit \textwidth at their natural size (category 377 pt, region
+% 408 pt against a 455 pt text block: 3 cm + 2 cm margins on A4), so neither is scaled and the
+% body renders at full 11.96 pt. Each half keeps a {max width=\textwidth} adjustbox purely as a
+% guard: at these widths it is a no-op, and if the estimate is off it clips the overshoot instead
+% of producing an overfull box. If the rebuild confirms the fit, both wrappers can be dropped.
+% Every value, bold mark, \sd{}, $^{\uparrow}$, $^{\approx}$, $^{\dagger}$, $^{\ddagger}$, and
+% the Dataset/Regions key columns are carried over character for character; the Dataset and
+% Regions columns repeat in the second half so each block reads on its own.
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{l r r r r r}
+\toprule
+& & \multicolumn{4}{c}{\textbf{Next-category (macro-F1)}} \\ \cmidrule(lr){3-6}
+\textbf{Dataset} & \textbf{Regions} & \textbf{Markov-K} & \textbf{POI-RGNN} & \textbf{Dedicated} & \textbf{Joint (ours)} \\
+\midrule
+Istanbul & 520     & 24.55 & 30.12 & 54.74\sd{0.09} & \textbf{63.32}\sd{0.02} \\
+AL       & 1{,}109 & 20.50 & 23.80 & 56.82\sd{0.03} & \textbf{64.51}\sd{0.09} \\
+AZ       & 1{,}547 & 23.92 & 27.64 & 56.43\sd{0.10} & \textbf{65.79}\sd{0.02} \\
+FL       & 4{,}703 & 29.74 & 34.49 & 74.51\sd{0.03} & \textbf{79.84}\sd{0.02} \\
+TX       & 6{,}553 & 28.67 & 33.03 & 69.79\sd{0.08} & \textbf{77.24}\sd{0.01} \\
+CA       & 8{,}501 & 27.58 & 31.78 & 70.60\sd{0.07} & \textbf{77.05}\sd{0.01} \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+
+\vspace{6pt}
+
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{l r r r r r r}
+\toprule
+& & \multicolumn{5}{c}{\textbf{Next-region (Acc@10)}} \\ \cmidrule(lr){3-7}
+\textbf{Dataset} & \textbf{Regions} & \textbf{HMT-GRN} & \textbf{ReHDM} & \textbf{STAN} & \textbf{Dedicated} & \textbf{Joint (ours)} \\
+\midrule
+Istanbul & 520     & 60.4  & 69.33 & 61.86 & 75.16\sd{0.01} & \textbf{75.35}\sd{0.04}$^{\uparrow}$ \\
+AL       & 1{,}109 & 57.05 & 65.38 & 60.72 & 70.11\sd{0.10} & 69.70\sd{0.09}$^{\approx}$ \\
+AZ       & 1{,}547 & 43.70 & 53.00 & 49.86 & 59.46\sd{0.08} & 59.46\sd{0.04}$^{\approx}$ \\
+FL       & 4{,}703 & 63.74 & 64.49 & 72.99 & 76.70\sd{0.02} & \textbf{77.41}\sd{0.02}$^{\uparrow}$ \\
+TX       & 6{,}553 & 53.85 & 48.81$^{\ddagger}$ & 61.67$^{\dagger}$ & 64.95\sd{0.01} & \textbf{67.06}\sd{0.01}$^{\uparrow}$ \\
+CA       & 8{,}501 & 49.61 & 50.26$^{\ddagger}$ & 58.52$^{\dagger}$ & 63.49\sd{0.02} & \textbf{65.69}\sd{0.02}$^{\uparrow}$ \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+
+\vspace{2pt}
+{\footnotesize HMT-GRN (region-native, on
+our folds, scored on visits whose region appears in training, $>$99\% of test visits in every dataset
+and fold) is the primary external comparison; STAN (our re-implementation) and ReHDM (its own protocol)
+are references. Markov-K: strongest order per dataset. $^{\dagger}$STAN partial folds: TX 4/5, CA 2/5
+(seed 0). $^{\ddagger}$ReHDM at TX and CA: a single seed. Joint and dedicated entries: four seeds
+$\times$ five folds; $\pm$: sd across seeds.}
+\end{table}

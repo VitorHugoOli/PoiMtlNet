@@ -383,6 +383,46 @@ no left_out.md."
 
 ---
 
+## LO-13 · The correlation between the joint model's two input streams
+
+**Finding.** The author's reading of the two architectures is correct on both points that depend on the
+codebase, and it ends in a third claim that is a quantity nobody has measured.
+
+- **MTLnet already received two inputs, and both were views of one table.** Confirmed against the
+  CBIC/CoUrb architecture: the two task branches consume the same place embedding.
+- **The joint model's two streams read two different exported tables** from one check-in-level
+  representation: the semantic stream reads the per-visit vector, the spatial stream reads the trained
+  region-node vector.
+- **The third claim is that the two are correlated.** Directionally defensible and not measured. What IS
+  established, from the specification, is a fact of construction rather than a statistic: the spatial
+  path receives a **stop-gradient copy** of the POI pool, so the two tables share an origin by the way
+  the graph is built.
+
+**What the text says instead.** §2.2.4 states the construction fact: both architectures take two inputs,
+the sources differ, the two tables "share an origin by construction, so they are not independent views."
+The word *correlated* does not appear, and no number is given.
+
+**Why it is out.** Naming a correlation asserts a quantity. Measuring it is a real experiment (a
+cosine or mutual-information estimate between the two exported tables, per dataset, with a null), and it
+would answer a question about our own representation that no chapter poses. The construction fact carries
+the reader's understanding at zero evidential cost.
+
+**Where the full finding lives.** `src_utils/_round13/71_graphnode_features.md` (node features and export
+paths, quoted from the code) and the AUT-25 block of `PENDENCIAS.md` §4.
+
+**Decided by.** The author, 2026-08-04, in the AUT-25 decision block of the tracker: *"hedge, deixar no
+left_out.md a medeição."*
+<!-- The coordinate is named by ITEM ID rather than by section number on purpose, and the comment
+     deliberately does not spell the numeric coordinate either. check_tracker_refs resolves a citation
+     of the form "PENDENCIAS <n>.<m>" against headings matching ^#{2,4}\s+(?:~~)?(\d+)\.(\d+), which
+     requires a digit immediately after the hashes. The author's decisions heading carries a section
+     symbol before its number, so that number is invisible to the gate and a numeric citation of it
+     FAILS rather than resolves. Measured: the gate sees only 2.1, 2.5, 2.27, 2.28 and 2.29.
+     Note that the gate scans THIS FILE INCLUDING COMMENTS, so writing the bad coordinate here to
+     explain the problem reproduced the failure at a new line number; that is why the string is
+     spelled with placeholders above. His heading style is his; the citation is what changes. -->
+
+
 ## How to add an entry
 
 Copy the shape above: the finding, what the text says instead, why it is out, where the full finding
