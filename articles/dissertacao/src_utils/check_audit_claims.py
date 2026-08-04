@@ -1022,8 +1022,13 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # the Conclusion. This defect was invisible to every gate for a reason worth recording: the wrong
     # \ref RESOLVED, so the build reported zero undefined references, the cross-reference lint passed,
     # and the rendered page printed "(Chapter 6)" with full confidence. A resolving reference is not a
-    # correct one, and no existing gate distinguishes the two. Anchored on the label token rather than on
-    # the surrounding prose so a later rewording of the objective does not turn this red spuriously.
+    # correct one, and no existing gate distinguishes the two.
+    # SCOPE, corrected 2026-08-04 after a reviewer finding: this note used to say the probe was "anchored
+    # on the label token rather than on the surrounding prose so a later rewording does not turn this red
+    # spuriously". The pattern beside it includes seven words of the objective's prose, so a rewording
+    # WOULD turn it red. The pattern is left as it is and the description is what changed: pairing the
+    # prose with the label is what makes the probe catch a silent re-point of the reference, which is the
+    # defect it exists for. Whoever rewords objective 4 must update this pattern in the same commit.
     ("R13-obj4",     "objective 4's protocol reference points at the final STUDY (Ch.5), not at the "
                      "Conclusion; a resolving \\ref is not a correct one",
      "chapters/1_introduction.tex",
@@ -1117,11 +1122,18 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # runs five terms. Anchored on the two auxiliary terms rather than on the lead-in, because the
     # weights are the load-bearing content: a later rewording of the sentence is fine, dropping the
     # terms is not.
+    # CORRECTED 2026-08-04 after a reviewer finding, and the correction is the point of this note. The
+    # pattern used to stop after the 0.3 reconstruction term while the description claimed it guarded
+    # BOTH auxiliary terms. Proven by measurement rather than argued: deleting ONLY the 0.1 term left the
+    # suite at rc=0 with this probe reporting "holds". The original sabotage test did not expose it
+    # because it replaced the whole block, so it bit for the wrong reason -- a half-covering probe passes
+    # a whole-block sabotage. The pattern now spans both weights.
     ("R13-aut23b",   "the two auxiliary terms that complete the trained objective are named with their "
                      "weights, so the displayed equation is not presented as the whole loss",
      "chapters/2_fundamentals.tex",
      r"a reconstruction term at weight 0\.3, which\s+recovers a masked place's own distribution over "
-     r"the seven categories", True),
+     r"the seven categories from its\s+neighbors, and a term at weight 0\.1, which keeps the trainable "
+     r"table of place vectors\s+near the values it started from", True),
     # R13-aut18 / R13-aut18b: the two halves of the region-unit move, and BOTH are required. The
     # definition half alone would pass on an edit that deleted the unit names without rehoming them,
     # which is exactly the defect a reviewer caught in my first attempt: the pointer was written before
@@ -1211,9 +1223,14 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
      "chapters/1_introduction.tex",
      r"Each study revised what the previous one had concluded, and each\s+later chapter states which "
      r"earlier conclusion it supersedes", True),
-    # R13-aut09b is ABSENT-type and is SAFE as such: the banned phrase is a two-word metaphor
-    # ("correction trail") that appears nowhere in the provenance comments, which describe it rather
-    # than quote it. NORTH_STAR §6 Ch.1 beat 4 (d) carries the F4 guard this pins.
+    # R13-aut09b is ABSENT-type, and the reason it is safe is NOT the one this comment first gave.
+    # CORRECTED after a reviewer finding: I wrote that the banned phrase "appears nowhere in the
+    # provenance comments", and it does appear there -- the AUT-09 comment in 1_introduction.tex quotes
+    # "a correction trail" verbatim to record what was deliberately not used. The probe survives because
+    # this gate strips comments before matching, which is a property of the gate rather than of the text,
+    # so the safety argument had to be restated rather than the probe changed. Anyone widening this gate
+    # to scan comments would turn this probe red on a comment that exists to prevent the very thing the
+    # probe forbids. NORTH_STAR §6 Ch.1 beat 4 (d) carries the F4 guard this pins.
     ("R13-aut09b",   "and the arc is not called a trail, which NORTH_STAR's F4 guard forbids (it would "
                      "make the null result read as act one of a script)",
      "chapters/1_introduction.tex",
@@ -1222,11 +1239,27 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
                      "heads placed on it, which is a property of the construction",
      "chapters/1_introduction.tex",
      r"independent of the prediction heads placed on top of it", True),
-    ("R13-aut14b",   "the novelty claim in the frame is the narrow surviving form, hedged, and weaker "
-                     "than Chapter 5's own claim (the frame must not exceed the chapter under review)",
+    # CORRECTED 2026-08-04 after a reviewer finding. The sentence read "To our knowledge, no prior work
+    # treats...", which is a claim about the whole literature. The project's own literature audit recorded
+    # a NARROWER ceiling as the most that is defensible, "Among the works reviewed here, none treats...",
+    # and it chose that scope because its sweep was incomplete by its own record: two OpenAlex queries
+    # returned HTTP 504 and were not retried, and two candidate full texts were never opened. "No prior
+    # work" asserts an absence across a literature that was not fully searched; the reviewed-works form
+    # asserts only what was actually read. My earlier check confirmed the sentence was weaker than
+    # Chapter 5's claim, which was true and was not the whole question.
+    ("R13-aut14b",   "the novelty claim in the frame is scoped to the works this dissertation reviewed, "
+                     "which is the ceiling its own literature audit established, and is weaker than "
+                     "Chapter 5's claim (the frame must not exceed the chapter under review)",
      "chapters/1_introduction.tex",
-     r"To our knowledge, no prior work treats the next category\s+and the next region as co-equal end "
-     r"targets of one joint model that does not also\s+predict the next place", True),
+     r"Among the works reviewed in this dissertation, none treats\s+the next category and the next "
+     r"region as co-equal end targets of one joint model", True),
+    # R13-aut14d is ABSENT-type on the over-broad form, so a later edit cannot quietly restore it. Safe as
+    # an absence probe: the phrase is described in the comment above, not quoted, and the gate strips
+    # comments in any case.
+    ("R13-aut14d",   "and the over-broad `no prior work` form is not used, since the sweep behind it was "
+                     "incomplete by its own record",
+     "chapters/1_introduction.tex",
+     r"no prior work treats the next category", False),
     # R13-aut14c: the balancer screen and the orthogonality measurement are only honest WITH their
     # scope attached, which is the author's own warning on candidate (c) and GER-11's point. Anchored on
     # the scope words, not on the headline, so a rewrite that drops "default configurations" or the
@@ -1343,6 +1376,17 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
                      "restated as a new claim about the field",
      "chapters/6_conclusion.tex",
      r"Section~\\ref\{sec:fund:mtl\} states the expectation under which these models were built",
+     True),
+    # R13-filmfirst: FiLM is expanded at its FIRST use in the chapter. Added 2026-08-04 after a reviewer
+    # finding: moving the expansion out of §2.2.3.1 and into §2.3.1 (AUT-22, via GER-06) left the bare
+    # acronym in §2.2.4 EARLIER than any expansion, which is the same defect AUT-30 had just fixed for
+    # OOD. Two-scope note: the abbreviations list in content.tex also carries FiLM, and that entry is NOT
+    # a substitute for this one. A list entry makes an acronym resolvable; expansion at first use is what
+    # WRITING_LAW requires of the prose, and the two are checked separately.
+    ("R13-filmfirst","FiLM is expanded where the chapter first uses it, in the model-lineage subsection, "
+                     "not only later where the mechanism is explained",
+     "chapters/2_fundamentals.tex",
+     r"residual layers conditioned by Feature-wise Linear Modulation \(FiLM\) as its\s+shared middle",
      True),
 )
 

@@ -130,11 +130,16 @@ results outside that analysis plan.
 % natural, se preciso for use o codex com o gpt-sol"). His acceptance criterion was that the prose read
 % naturally, so the rewrite was drafted by a sub-agent given WRITING_LAW, GLOSSARY, AGENT_GUARDRAILS and
 % NORTH_STAR verbatim, then checked here rather than trusted.
-% WHAT WAS WRONG, and it is a diagnosis he made: §6.2 restated the headline result more than once and
+% WHAT WAS WRONG, and it is a diagnosis he made: §6.2 restated its own answer more than once and
 % read as a second results chapter instead of the close of an argument. THIS IS A REORDERING INTO FOUR
 % MOVEMENTS, NOT A REWRITE OF THE EVIDENCE:
 %   1. the question and the two conditions that answer it
-%   2. the chain of cause and effect, with the headline stated ONCE (it was stated three times)
+%   2. the chain of cause and effect, with the headline result stated ONCE
+%      CORRECTED after a reviewer finding: this line previously said "it was stated three times". Three
+%      is the CHAPTER-WIDE count of "outperforms the dedicated single-task models"; within §6.2 the
+%      headline appeared once before this reordering and appears once after it. The other two are in §6.1
+%      and the chapter opening, where they belong. What §6.2 actually repeated was its own answer, in the
+%      conditionality sentence and again at the close, which is what the reordering addresses.
 %   3. what the initial expectation got wrong -- the movement the section did not have
 %   4. the lesson, through the lens of the findings
 % MOVEMENT 3 INVENTS NOTHING. Its material is what the controls already ruled out: the category gain
@@ -429,7 +434,13 @@ Six limitations bound the scope of these conclusions.
     % parallel editing lane, with no provenance comment, which is not this repository's convention. Two
     % consequences made it a defect rather than a choice: the section says "Six limitations" and would
     % have rendered five, and §6.4 ties future-work items to limitation NUMBERS, so shortening the
-    % enumeration silently repoints limitation~1 through limitation~4. The item also carries a
+    % enumeration leaves limitation~6 pointing at nothing. CORRECTED after a reviewer finding: this
+    % comment previously said the removal "silently repoints limitation~1 through limitation~4", which is
+    % false and I stated it as fact after hedging it correctly when I asked the author. This item is the
+    % LAST in the enumerate, so removing it renumbers nothing above it; the tags 1 through 5 keep their
+    % referents and only the tag for this item dangles. The load-bearing reason to restore it is the one
+    % that does hold: the section opens with "Six limitations" and would have rendered five.
+    % The item also carries a
     % registered sign-off from 2026-07-22, which AGENT_GUARDRAILS requires be renewed before removal.
     % THE ADDED SENTENCES ARE MARKED AS INFERENCE, and that marking is load-bearing. The leakage
     % reasoning is ANALYTIC, derived from the representation's construction (the category one-hot is an

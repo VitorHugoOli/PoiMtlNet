@@ -28,7 +28,8 @@
   "items_no_anchor": 14,
   "empty_stub": [
    37
-  ]
+  ],
+  "_caveat_added_2026-08-04": "THE RE-VERIFICATION OF THESE COUNTS AT THE NEWER HEAD WAS NARROWER THAN IT WAS REPORTED. After the concurrent lane advanced HEAD, I re-ran the anchor pass and reported that all 29 verdicts held with zero drift. That is true only for the 22 ratio-decided anchors. The 7 hand-adjudicated ones (A1d, A14new, A14old, A15, A26, A31, A32) are pinned by construction in that cell: the code restores the stored hand verdict unless the anchor has vanished entirely, so only a transition INTO GONE could have surfaced for them. An EXACT-to-CHANGED movement in those seven passages would have been invisible, and three of the files they live in are exactly the files the lane had changed. The 12/12/5 anchor tally and the 10/10/2 item tally are therefore verified for 22 of 29 anchors at the newer HEAD and carried forward by construction for the other 7. The hand adjudications themselves are documented with their reasoning where they were made, so they can be re-derived rather than trusted."
  },
  "settled_by_me": {
   "2": "half already satisfied: ZERO live-prose 'multi-task' (all 19 hits are in % comments or the commented title alternates preamble.tex:201-206). POI hyphenation overlaps FAB-20/FAB-25 exactly.",

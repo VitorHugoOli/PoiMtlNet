@@ -773,7 +773,16 @@ the step it altered.
 
 The final joint model remains part of the MTLnet lineage. It retains the task-specific
 input encoders, output heads, and division between shared and task-specific parameters.
-MTLnet uses FiLM-conditioned residual layers as its shared middle. The joint model
+MTLnet uses residual layers conditioned by Feature-wise Linear Modulation (FiLM) as its
+shared middle. The joint model
+% REVIEWER FINDING, 2026-08-04. Moving the FiLM expansion out of §2.2.3.1 and into §2.3.1 (AUT-22, via
+% GER-06) left this use of the bare acronym EARLIER in the chapter than its expansion: this line is 776
+% and the expansion now sits at 924. That is the same defect I had just fixed for OOD in AUT-30, so
+% leaving it would have applied the expand-at-first-use rule to one acronym and not the other. The
+% expansion is written out here; §2.3.1 keeps its own, which is where the mechanism is explained rather
+% than named. FiLM is also in the abbreviations list (content.tex), but a list entry is not a first-use
+% expansion.
+% Probe: R13-filmfirst.
 replaces that component with cross-attention blocks, allowing each task stream to
 read the other while retaining its own feed-forward parameters. A private spatial
 path also gives the region output direct access to the region sequence before the
@@ -960,7 +969,13 @@ single bottleneck.
 % original proposal was to move it ahead of its own parent while keeping it nested, which is not a
 % reordering: a child cannot precede its parent. Promoting it to a sibling gives the flow he wants
 % (problem, then formalism, then the literature, then the guarantees) with a hierarchy that still holds.
-% GER-09 and GER-10 asked for this same restructuring of §2.3 and are already resolved, so this does not
+% GER-09 and GER-10 asked for this same restructuring of §2.3. THEIR STATUS IS RECORDED IN TWO PLACES
+% THAT DISAGREE, and a reviewer was right that this comment reported only one side. The resolved archive
+% says they closed as a single piece of work with GER-08 and AUT-01; the live tracker's AUT-29 row still
+% describes them as open and says to decide them together. I acted on the archive, because a resolved
+% record is a decision and the tracker row is a note written before it. What that means concretely: if
+% the author reads GER-09/GER-10 as still live, this promotion is the change they asked for and should
+% be marked as satisfying them rather than reorganized a second time. Recording the conflict so this does not
 % reorganize the section a second time.
 % NOTHING BREAKS ON SECTION NUMBER: no \ref in the tree points at these headings by number. The one
 % cross-reference into this material is Definition~\ref{def:fund:conflict}, cited from the
@@ -1687,9 +1702,28 @@ ceilings for seven-class macro-F1 or region ranking.
 % the other. The split material becomes its own subsection and the remainder is renamed for what it
 % now does alone.
 % THE LABEL WAS THE RISK AND IT IS NOT AFFECTED: \label{sec:fund:eval} sits on the SECTION
-% (\section{Datasets and evaluation}, :1271-1272), not on either subsection, and it is referenced six
-% times. Verified before moving anything; no \ref target changes and no subsection carries a label.
+% (\section{Datasets and evaluation}), not on either subsection, so no \ref target changes and no
+% subsection carries a label. Re-measured 2026-08-04 across every .tex with comments stripped: FIVE live
+% \ref{sec:fund:eval}, all in this file.
+% CORRECTION, and the reason it is recorded rather than silently overwritten: this comment previously
+% said SIX. That figure came from a grep run while my own first attempt at AUT-18 was still on disk, and
+% that attempt added a second reference in one paragraph. The attempt was reverted, the re-application
+% deliberately leaves one reference there, and the committed count is five. The lesson is the same one
+% AGENT_GUARDRAILS §4b records about measuring against a transient tree: a number measured mid-edit is
+% not a number about the document.
 
+% AUT-31, ORDER DEVIATION, recorded after a reviewer finding rather than corrected silently.
+% The plan the author approved enumerated four subsections in this order: Datasets (stays), NEW
+% "Preparation and data split", "Metrics and reference points" (stays), and the old §2.4.3 renamed
+% "Comparison and statistical decisions". The delivered order puts Preparation AFTER Metrics, because the
+% new subsection was carved out of the split material that lived at the end of §2.4.3 and was left where
+% that material already sat.
+% WHY IT IS LEFT THIS WAY AND FLAGGED INSTEAD OF MOVED: the plan marks both Datasets and Metrics as
+% "(fica)", stays, which reads as a list of the four subsections rather than a mandated sequence, and
+% moving a subsection is the class of change the author reserves to himself (AUT-29 is the precedent: he
+% ruled on the promotion explicitly). Either order is defensible on content: Metrics-then-Preparation
+% goes from what is measured to how the data is divided, Preparation-then-Metrics goes from the data to
+% the measurement. One line moves it if he wants the enumerated order.
 \subsection{Preparation and data split}
 
 How the check-ins are divided determines which population a result covers.

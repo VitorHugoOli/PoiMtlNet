@@ -350,10 +350,22 @@ reescrito sem nomear o capitulo irmao, ou se desaparece.
 - **§4 item:** 25
 - **Source status:** [N/A] como citacao (pergunta). `MTLChkNet` aparece **0** vezes na arvore.
 - **Minha leitura e avaliacao:** Medi o raio de impacto antes de opinar, porque a resposta depende dele.
-  `the joint model` tem **49** ocorrencias em prosa viva, e elas nao sao equivalentes entre si: **15 estao no Cap.5**,
+  `the joint model` tem **57** ocorrencias em prosa viva, e elas nao sao equivalentes entre si: **17 estao no Cap.5**,
   que e o manuscrito **submetido**; **5 estao dentro de tabelas de errata**, onde a string citada **e** a evidencia de
-  uma correcao (mudar ali altera a citacao); **22 estao em prosa de moldura e no `content.tex`**, que sao livres; 2 na
-  tabela de linhagem; 2 no Cap.3 publicado. Ou seja: **nao e um search-and-replace**, sao tres regimes diferentes. Alem
+  uma correcao (mudar ali altera a citacao); **31 estao em prosa de moldura e no `content.tex`**, que sao livres; 2 na
+  tabela de linhagem; 2 nos capitulos publicados. Somam 57. Ou seja: **nao e um search-and-replace**, sao tres regimes
+  diferentes. Alem
+  <!-- CONTAGEM RE-MEDIDA em 2026-08-04, e as anteriores ficam registradas para nao voltarem como
+       historia. Este bloco ja disse 49 e depois 46; agora sao 57. As tres foram medidas em momentos
+       diferentes e nenhuma delas era do documento como ele esta: a de 49 saiu de uma arvore com edicoes
+       nao commitadas de outra esteira, a de 46 do commit c13fe4d2, e a de 57 e a de agora, depois das
+       edicoes desta rodada, que acrescentaram ocorrencias no Cap.1 e no Cap.6. Comando, com comentarios
+       removidos primeiro (AGENT_GUARDRAILS §4b V4 -- este arquivo cita as strings que voce procuraria):
+         para cada src/**/*.tex fora de build/, remover o que vem depois de um % nao escapado,
+         colapsar espacos, e contar 'the joint model'; somar por balde.
+       A leitura NAO muda com o numero: continuam tres regimes (submetido, errata citada, prosa livre),
+       e a soma dos baldes fecha com o total. -->
+
   disso `the joint model` esta **registrado** no GLOSSARY §2 como o nome canonico, com a nota de que o id de repositorio
   `mtlnet_crossattn_dualtower` nunca aparece no texto. Uma opiniao que eu devo dar mesmo sem voce pedir: um nome proprio
   novo compra pouco aqui, porque "the joint model" ja e contrastivo com "dedicated single-task model", que e o par que o
@@ -608,10 +620,16 @@ nao como quantidade: afirmar correlacao pediria um numero que ninguem mediu. Dec
 
 > DECISSAO: hedge, deixar no left_out.md a medeição.
 
-**20. AUT-26 · renomear para MTLChkNet. [G]** Raio medido: das 49 ocorrencias de "the joint model", 15 estao no Cap.5
-**submetido**, 5 dentro de tabelas de **errata** (onde a string citada e a evidencia) e 22 em prosa livre. Nao e
-search-and-replace. **Recomendo nao renomear**; se renomear, moldura **e** Cap.5 juntos, nunca so a moldura, e mexer no
-manuscrito precisa da sua autorizacao explicita.
+**20. AUT-26 · renomear para MTLChkNet. [G]** Raio re-medido em 2026-08-04: das **57** ocorrencias de "the joint model",
+**17** estao no Cap.5 **submetido**, 5 dentro de tabelas de **errata** (onde a string citada e a evidencia) e **31** em
+prosa livre, mais 2 na tabela de linhagem e 2 nos capitulos publicados. Nao e search-and-replace. **Recomendo nao
+renomear**; se renomear, moldura **e** Cap.5 juntos, nunca so a moldura, e mexer no manuscrito precisa da sua
+autorizacao explicita.
+<!-- Este item dizia 49/15/22, a mesma contagem retratada que o bloco AUT-26 do §4 carregava. As duas
+     estavam desalinhadas depois de eu corrigir so um dos dois lugares, o que deixava o arquivo afirmando
+     duas contagens diferentes da mesma medicao. Agora as duas dizem 57/17/31 e as duas registram as
+     figuras anteriores. O item continua ABERTO: a sua decisao foi consultar o orientador. -->
+
 
 > DECISSAO: Deixar esse ponto aberto, vou perguntar para meu orientador.
 

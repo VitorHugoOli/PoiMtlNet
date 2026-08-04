@@ -3672,7 +3672,11 @@ deles mudou aqui.
 > `§4.2`. Este bloco arquiva os **26 itens fechados**, cada um com o commit em que foi aplicado. Os
 > **11 restantes continuam no `PENDENCIAS.md` §4**, e a razao de cada um esta listada no fim.
 >
-> **Quatro itens fecharam SEM EDICAO ALGUMA, e isso e um resultado e nao uma omissao.** AUT-06, AUT-13,
+> **OITO itens fecharam SEM EDICAO ALGUMA, e isso e um resultado e nao uma omissao.** A frase aqui dizia
+> "Quatro" e listava cinco IDs, enquanto a tabela abaixo marca oito linhas "(sem edicao)" -- corrigido em
+> 2026-08-04, depois de um reviewer contar as linhas. Os oito sao AUT-06, AUT-11, AUT-13, AUT-15, AUT-17,
+> AUT-28, AUT-33 e AUT-34, e eles fecham por duas razoes diferentes, o que e a distincao que a frase
+> original tentava fazer e errou na conta. **Cinco por medicao:** AUT-06, AUT-13,
 > AUT-15, AUT-17 e AUT-33 foram medidos contra o fonte vivo e ja estavam satisfeitos: a redacao que
 > voce criticou tinha sido substituida por outra esteira antes de voce escrever, ou a clausula que
 > faltava ja estava la. Em cada caso a citacao que prova esta no bloco. Outros tres (AUT-11, AUT-28,
