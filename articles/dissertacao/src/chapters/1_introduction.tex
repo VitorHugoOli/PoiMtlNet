@@ -181,7 +181,26 @@ category classification is a less natural companion task than a second sequentia
 % United States dataset, which is what makes it evidence about generalization rather than a sixth
 % dataset. Naming the purpose is also what keeps the sentence honest without the numbers: the claim
 % it makes is about scope, and the scope is now stated.
-so the final task pair becomes next category and next region. The study evaluates five
+so the final task pair becomes next category and next region. Both are established end
+targets in the mobility literature, and the next region feeds a broader family of
+downstream problems.
+% AUT-08 (PENDENCIAS §4, ruling "Opção A"). The two sentences above are the SANCTIONED FALLBACK from
+% NORTH_STAR §6 Ch.1 beat 4 (b), used rather than paraphrased: "both are established end targets, and
+% next region feeds a broader family of downstream problems".
+% WHAT THEY REPLACE, and why nothing stronger is written. The author wanted the comparative form: that
+% in the literature the next category and the next region carry more weight than static category
+% classification. THAT FORM WAS REFUTED. No open anchor supports it and the OpenAlex counts point the
+% other way, because MTL with a category target is a populated literature (HAMTL, DRRGNN, Hgarn,
+% HMT-GRN, MCMG, CSLSL, MCARNN). The axis the literature DOES support case by case is a different one:
+% in those works the category is usually an AUXILIARY task under a next-place objective rather than an
+% end target. The fallback asserts neither comparison, which is why it is the form that can be defended.
+% This CLOSES the [VERIFY] flag that NORTH_STAR §6 Ch.1 beat 4 (b) left open for this exact sentence,
+% and it closes it NEGATIVELY: the comparative leg is not to be written here later either.
+% The author's second half of this item, the category-leakage argument, is deliberately ABSENT. His
+% ruling was "Opção A" alone; option C (adding that argument) was not taken. It would also require a
+% coordinated rewrite of apx_b_static_scope.tex, which currently reads the other way.
+% Probe: R13-aut08.
+The study evaluates five
 United States states and, to test whether the finding holds outside that setting,
 Istanbul as a non-United-States dataset, comparing the joint and dedicated models with
 paired superiority and non-inferiority tests. The results support a positive answer for
@@ -190,9 +209,23 @@ this configuration; Chapter~\ref{ch:mobiwac} reports the task-specific outcomes.
 The task pair thus changes across the studies: the first two combine static category
 classification with next-category prediction, whereas the final study combines
 next-category and next-region prediction. The dissertation does not treat these as one
-unchanged experiment. It presents a sequence in which a result valid for one
-configuration leads to a diagnosis and then to a different, explicitly bounded
-solution.
+unchanged experiment. Each study revised what the previous one had concluded, and each
+later chapter states which earlier conclusion it supersedes and under which conditions
+the earlier one still holds.
+% AUT-09 (PENDENCIAS §4, ruling "Vamos reescrever e combinar as duas cuidado com a reescrita não soar
+% natural"). Neither version was restored; the two were combined, which is what he asked for.
+% WHAT WAS WRONG WITH THE VERSION THIS REPLACES: "It presents a sequence in which a result valid for
+% one configuration leads to a diagnosis and then to a different, explicitly bounded solution." The
+% subject was "a sequence", and a result "leads to" a diagnosis, so an abstract noun acts. WRITING_LAW
+% §1 bans exactly that shape, and the author's reading of it was correct.
+% WHAT WAS TAKEN FROM THE EARLIER VERSION HE PREFERRED: its named subject and its agents. Each STUDY
+% revised; each CHAPTER states. That is the half that reads naturally.
+% WHAT WAS NOT TAKEN, and why: the earlier version called the arc "a correction trail". NORTH_STAR §6
+% Ch.1 beat 4 (d) carries an explicit F4 guard against making the null result read as act one of a
+% script written in advance, and a named trail is a plot. The clause "under which conditions the
+% earlier one still holds" replaces the metaphor with the time-indexing WRITING_LAW §3 requires: a
+% superseded conclusion was true of its configuration, not wrong from the start.
+% Probe: R13-aut09.
 
 
 \section{Objectives}
@@ -313,10 +346,20 @@ for the article under review, the submitted manuscript.
     article, published in Portuguese at the X Workshop de Computa\c{c}\~ao Urbana
     (CoUrb 2026, DOI~10.5753/courb.2026.22960), held with the Simp\'osio
     Brasileiro de Redes de Computadores e Sistemas Distribu\'idos (SBRC 2026).
-    Tarik S.\ Paiva is the first author. This dissertation's author is the second
-    author, contributed the MTLnet baseline, and presented the work at the event.
+    This dissertation's author contributed the MTLnet baseline used in the study
+    and presented the work at the event.
     % Venue verified 2026-07-23 against SBC OpenLibrary (sol.sbc.org.br/index.php/
     % courb): X edition, May 25-29 2026, Praia do Forte/BA, with the XLIV SBRC.
+    % [round-tarik, this session] Removed the sentence stating Tarik S. Paiva is the
+    % first author / this author is second author, per author instruction: the
+    % PPGCC regimento does not require first authorship for a coletânea chapter
+    % (NORTH_STAR §5 item, verified 2026-07-18), so the role statement is not
+    % asserted in prose. The paper's real author list is unchanged and still
+    % printed in full in the bibliography (references.bib, paiva2026stmtlnet) --
+    % this edit removes a narrative claim, not a citation. Vitor's own
+    % contribution (MTLnet baseline, presenter) is kept, since that is a
+    % statement about this dissertation's author, not about the other paper's
+    % authorship ranking.
     \item \textbf{Chapter~\ref{ch:mobiwac}} presents the third article, submitted to the
     23rd ACM International Symposium on Mobility Management and Wireless Access
     (MobiWac 2026) and under review. This dissertation's author is its first
@@ -335,6 +378,33 @@ status. The prefaces also distinguish the conclusion supported at the time of ea
 article from the final position of the dissertation.
 
 
+% AUT-14 (PENDENCIAS §4, ruling: "Vamos seguir só com as **Depois as decisoes:**"). The author declined
+% the mechanical half of the plan, and his reason is on the record: Chapter 4 "apesar de ter sido uma
+% ótima base teórica, como citada na introdução, ele não possui contribuições praticas para literatura, a
+% não ser os aprendizados que já foram consumidos nos artigos em sequencias." So Chapter 4 and ST-MTLNet
+% are NOT added to the Software or Theoretical bullets, deliberately. Do not "complete" that later.
+% HIS FOUR CANDIDATES, each landed at the strength its evidence supports:
+%  (a) Check2HGI as a reusable advance -> STRENGTHENED (Software). Sustainable and previously
+%      under-declared: it is stated as independent of the heads placed on it, which is a property of the
+%      four-level construction, not a measured transfer result.
+%  (b) the joint model as modular/extensible -> ADMITTED AS DESIGN ONLY (Software). "Separates its
+%      per-task streams from the cross-attention that connects them" is a design fact. The stronger form
+%      he proposed, that it "can be expanded to other tasks", is a PREDICTION no experiment supports and
+%      is deliberately not written.
+%  (c) "the tasks appear not to conflict" -> DEMOTED OUT OF THIS SECTION, and his own warning was right.
+%      The claim now travels with its full scope in the Empirical bullet: the balancer screen is nineteen
+%      methods at DEFAULT configurations, ONE seed, TWO datasets, and the orthogonality statement is
+%      Appendix F's own wording with its reference attached. A mean cannot distinguish "consistently
+%      orthogonal" from "strong conflict in both directions that cancels", which is also GER-11's point.
+%  (d) "our papers are pioneering" -> REFUTED AS HE PHRASED IT, and the refutation was deliberately
+%      sought rather than assumed: eight boolean OpenAlex probes plus five keyword searches, instrument
+%      validated first. MTL with a category target is a POPULATED literature (HAMTL, DRRGNN, Hgarn,
+%      HMT-GRN, MCMG, CSLSL, MCARNN) and next category as an isolated target PREDATES this work. The one
+%      form that survived is the narrow one now written: co-equal end targets, no next-place target,
+%      hedged with "to our knowledge". It is weaker than Chapter 5's live claim, which is correct
+%      because Chapter 5 is under review and the frame must not exceed the chapter. "Pioneering" and
+%      "the first" are banned here. Probe R10-novelty already guards the surviving form.
+% Probes: R13-aut14, R13-aut14b, R13-aut14c.
 \section{Contributions}
 \label{sec:intro:contributions}
 
@@ -345,11 +415,18 @@ The contributions are organized into four groups.
     topology determine whether MTL helps these POI prediction tasks. A null result
     with a place-level representation and hard sharing therefore does not conflict
     with a positive result obtained from a check-in-level representation and a
-    different form of sharing.
+    different form of sharing. To our knowledge, no prior work treats the next category
+    and the next region as co-equal end targets of one joint model that does not also
+    predict the next place.
     \item[Software.] The work provides MTLnet (Chapter~\ref{ch:cbic}), Check2HGI and the
     joint model built on it (Chapter~\ref{ch:mobiwac}), and reproducible training
     and evaluation pipelines for Chapters~\ref{ch:cbic} and~\ref{ch:mobiwac}. The
-    corresponding code repositories are referenced in those chapters.
+    corresponding code repositories are referenced in those chapters. Check2HGI is the
+    reusable part: it learns one vector per visit from a four-level hierarchy and is
+    independent of the prediction heads placed on top of it, so a task other than the
+    two studied here can consume the same representation. The joint model separates its
+    per-task streams from the cross-attention that connects them, which is a property of
+    its design rather than a result measured on further tasks.
     \item[Empirical.] The final study compares joint and dedicated models on six
     datasets under user-disjoint cross-validation. Each configuration has twenty
     fitted models: four repetitions of the complete five-fold experiment, each
@@ -357,6 +434,18 @@ The contributions are organized into four groups.
     uses paired tests on the four per-seed means, non-inferiority tests, and a
     leakage audit. Because every seed uses the same fold partition, the reported
     intervals do not include uncertainty from resampling the user splits.
+    Three further measurements stand on their own. Nineteen loss and gradient
+    balancers were screened at their default configurations, at a single random
+    initialization, on Alabama and Florida, and none improved on a tuned fixed task
+    weighting across both tasks and both datasets. The gradients of the two tasks were
+    measured directly and are statistically indistinguishable from orthogonal on every
+    dataset measured, which explains the balancer result rather than merely accompanying
+    it (Appendix~\ref{apx:cosine}). Two external sequence baselines were adapted so that
+    a region comparison exists at all: HMT-GRN keeps its shared multitask skeleton and
+    gains a per-fold region-transition prior, without its graph components and
+    hierarchical beam search, and STAN has its output layer adapted to rank region
+    candidates. Neither adaptation reproduces its complete published system, and
+    Chapter~\ref{ch:mobiwac} states what was changed.
     % [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-014, 2026-07-26] "twenty repetitions per configuration
     % (four seeds, five folds)" -> the 20 fits kept, the inferential unit (n = 4)
     % named, plus the fixed-partition clause. Sources: GLOSSARY rows "paired

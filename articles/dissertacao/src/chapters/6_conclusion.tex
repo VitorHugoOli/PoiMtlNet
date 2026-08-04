@@ -18,8 +18,21 @@ determine the answer. Three
 studies addressed this question. The first developed a joint model that did not
 consistently outperform its dedicated counterparts (Chapter~\ref{ch:cbic}). The second
 tested the input representation as one possible cause of that result and found that it
-was the main bottleneck in that configuration (Chapter~\ref{ch:courb}). The third used a
-check-in-level representation and a redesigned sharing topology
+was the main bottleneck in that configuration (Chapter~\ref{ch:courb}). Those two
+studies paired next-category prediction with a static category classification task, and
+the pair changed in the final study.
+% AUT-32 (PENDENCIAS §4, ruling "Opção B"). The author noticed that this opening does not mention the
+% static category classification task, and the omission is real. Option B was chosen over widening the
+% research question, and the distinction matters: the question stated here is the SAME question the
+% NORTH_STAR §1 and §1.2 state, about the next category and the next region. Adding the static task to
+% the QUESTION would make this chapter declare a research question that neither of those two approved
+% places declares, so the change would propagate rather than stay a wording fix. The clause above
+% instead records the static task as HISTORY of the first two studies, which is what it is.
+% Consistent with the same treatment elsewhere: the static task is present in the Ch.3/Ch.4 recaps and
+% in limitation 6, and absent from the research question and from the future work. See AUT-35 (c) and
+% AUT-36, which turn on the same task-pair change.
+% Probe: R13-aut32.
+The third used a check-in-level representation and a redesigned sharing topology
 (Chapter~\ref{ch:mobiwac}). With this design, the joint model outperforms the dedicated
 single-task models on the category task at all six datasets and on the region task at
 four of the six. At the other two, it remains statistically non-inferior within a
@@ -327,8 +340,36 @@ Six limitations bound the scope of these conclusions.
     % the same instruction ("Se quider documentar isso tem que ser em algum lugar do src_util").
     \item \textbf{Data vintage.} The five state datasets come from
     Gowalla~\cite{cho2011gowalla}, and the extraction used here spans January 2009
-    to August 2011 across the five states. Mobility patterns, place inventories,
+    to August 2011 across the five states. The Istanbul
+    dataset~\cite{wongso2025massivesteps} is not appreciably more recent for most of its
+    volume: its check-ins fall in two separate periods, 2012 to 2013 and 2017 to 2018,
+    with none in between, and roughly seven in ten belong to the earlier period.
+    Mobility patterns, place inventories,
     and check-in behavior have changed since.
+    % AUT-35 (a) (PENDENCIAS §4, ruling "Vamos aplica o A,B e commentar a limitação 6, com as
+    % alterações do C", plus the author's follow-up choice of the two-block form on 2026-08-04).
+    % "August 2011" is LOAD-BEARING: probe R8-vintage requires that literal string, so the Gowalla
+    % window must not be reworded when this item is edited.
+    % THE AUTHOR'S PREMISE FOR THIS EDIT WAS REFUTED, and the sentence above is what survived.
+    % He believed the Istanbul check-ins were 2017-2018 data and that Massive-STEPS is the most modern
+    % public benchmark. Neither holds as stated:
+    %   - the check-ins span 2012-04-03 to 2018-10-19 in TWO blocks with nothing in 2014, 2015 or 2016.
+    %     Of the 462,615 Istanbul check-ins this work models, 327,242 (70.7%) fall in 2012-2013 and
+    %     135,373 (29.3%) in 2017-2018. MEASURED, not quoted: the benchmark paper gives no per-city
+    %     window anywhere. Command: python3 src_utils/_round13/aut35a_window.py datetime
+    %     output/check2hgi/istanbul/chrono_split/split_assignment.parquet, corroborated by
+    %     data/massive_steps_istanbul/parse_report.json (field datetime_range_local). The instrument
+    %     was blindness-checked first against the Gowalla files, where it returns 2009/2010/2011 and
+    %     nothing else, which is the window this same item states.
+    %   - "most modern public dataset" fails on Yelp, whose open dataset carries check-ins to
+    %     2022-01-19 (measured by streaming checkin.json). The narrow form that does survive concerns
+    %     only openly redistributable, city-partitioned check-in benchmarks used in this literature,
+    %     and it is a claim about the Massive-STEPS COLLECTION rather than the Istanbul split. That
+    %     claim is not made in this document.
+    % The prose says "roughly seven in ten" rather than 70.7%, because a per-dataset percentage of a
+    % third party's data does not belong in a limitation item; the exact figure lives here with its
+    % command. Full evidence and the source ledger: src_utils/_round13/70_massivesteps_validation.md.
+    % Probes: R13-aut35a, and R8-vintage still guards the Gowalla string.
     % [round9c, PENDENCIAS_RESOLVIDOS 5.6b (arquivado 2026-08-02), author decision, 2026-07-30] ONE WINDOW, THE MEASURED ONE. His words:
     % "Vamos usar so as datas que encontramos no database de 2009 a 2011, pode omitir que no artigo eles
     % comentam que e de 2009 a 20010." So the clause reporting what the dataset paper states (February
@@ -385,7 +426,27 @@ Six limitations bound the scope of these conclusions.
     classes. A finer taxonomy may change the effect of joint training.
     \item \textbf{Transductive representation.} Check2HGI is trained on the check-in
     graph of each dataset, so it cannot represent unseen places or users without
-    retraining.
+    retraining. The place-level representation it builds
+    on~\cite{huang2023hgi} is trained the same way, and methods that learn aggregators
+    instead of per-node vectors~\cite{hamilton2017graphsage} are the alternative this
+    constraint points toward.
+    % AUT-35 (b) (PENDENCIAS §4, same ruling as (a) and (c)). The author wanted to add that the
+    % transductive constraint "affects several approaches in the literature". That is a claim about
+    % OTHER PEOPLE'S work, and AGENT_GUARDRAILS §1 forbids it as a bare generality: it needs a located
+    % citation, and the citation must come BEFORE the claim rather than be appended to it, which is the
+    % order used here. Both poles were already in references.bib with resolvable identifiers:
+    % huang2023hgi (10.1016/j.isprsjprs.2022.11.021), whose HGI is the place embedding this work's
+    % baseline uses and is trained per dataset, and hamilton2017graphsage, whose title is literally
+    % "Inductive Representation Learning on Large Graphs".
+    % WHAT IS DELIBERATELY NOT WRITTEN: no count, no "several", no "many methods". The sentence names
+    % two identified works and stops, because "several approaches" is a survey claim and no survey was
+    % read in first person to support it. A broader statement needs a survey sentence opened and quoted,
+    % not an adverb.
+    % NOTE FOR WHOEVER EDITS THIS ITEM NEXT: this edit was applied twice. The first application was
+    % lost when a parallel editing lane rewrote this file at 02:49 while the round was in progress, and
+    % the loss was caught only because probe R13-aut35b failed. The probe is the reason it did not ship
+    % missing.
+    % Probe: R13-aut35b.
     \item \textbf{No next-place task.} The experiments do not predict the exact next
     POI, and their conclusions apply only to next category and next region.
     \item \textbf{Geographic coverage.} Outside the United States, the evidence rests on
@@ -401,7 +462,32 @@ Six limitations bound the scope of these conclusions.
     explanation only in the setting that it tested: the category task, two of the
     six datasets, one width point per dataset, and width scaling rather than
     depth. The greater similarity of the final pair may still contribute to the
-    size of the improvement.
+    size of the improvement. The ablation that would separate the two changes,
+    running static category classification under the check-in-level representation, is
+    not clean under that representation: the category of the visited place is an input
+    feature of a check-in node, so that target would be partly readable from its own
+    input. This follows from the design of the representation and was not measured, so
+    the confound is bounded by the fixed-pair control rather than removed.
+    % AUT-35 (c) (PENDENCIAS §4, ruling "commentar a limitação 6, com as alterações do C").
+    % THIS ITEM WAS COMMENTED OUT IN THE WORKING TREE AND WAS RESTORED ON THE AUTHOR'S INSTRUCTION,
+    % 2026-08-04. It is live at HEAD 9813ac21 and all twelve lines had been prefixed with % by a
+    % parallel editing lane, with no provenance comment, which is not this repository's convention. Two
+    % consequences made it a defect rather than a choice: the section says "Six limitations" and would
+    % have rendered five, and §6.4 ties future-work items to limitation NUMBERS, so shortening the
+    % enumeration silently repoints limitation~1 through limitation~4. The item also carries a
+    % registered sign-off from 2026-07-22, which AGENT_GUARDRAILS requires be renewed before removal.
+    % THE ADDED SENTENCES ARE MARKED AS INFERENCE, and that marking is load-bearing. The leakage
+    % reasoning is ANALYTIC, derived from the representation's construction (the category one-hot is an
+    % input feature of the check-in node, preprocess.py:615-642), and NO experiment measured it. The
+    % text therefore says "follows from the design" and "was not measured" rather than reporting a
+    % finding. Do not upgrade those clauses to a result.
+    % WHY THIS STRENGTHENS THE LIMITATION RATHER THAN WEAKENING IT, which was the author's own reading:
+    % if the ablation that would resolve the confound cannot be run cleanly, then the confound is not
+    % cleanly resolvable, which is a stronger bound on the conclusions than "no ablation was run".
+    % What the argument DOES invalidate is the future-work item that proposed running that ablation.
+    % See AUT-36 for the coupled change: NORTH_STAR §6 requires each future-work item to be tied 1:1 to
+    % a limitation, so this limitation and that item move together.
+    % Probes: R13-aut35c, R13-lim6live.
     % [GATE FIX C-1] "the size of the win" -> "the size of the improvement" (idiom law).
     % [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-013, 2026-07-26] "closes the parameter-count explanation"
     % was unqualified inside a limitations list. Scope QUOTED from
@@ -420,17 +506,67 @@ test the conclusions beyond the Gowalla vintage (limitation~1), and finer-graine
 taxonomies would test them beyond the seven-class division (limitation~2). Because the
 check-in-level representation is trained on a fixed graph, an inductive variant of it,
 one that embeds unseen places and users without retraining, would remove the
-transductive constraint and support deployment in growing cities (limitation~3).
+transductive constraint and support deployment in growing cities. Two further changes to
+the same representation would test how much of its behavior follows from how it is
+assembled rather than from the hierarchy: its place-vector table is initialized from a
+pretrained table and then held near it during training, so an ablation that varies that
+coupling would separate the contribution of the initialization, and a hypergraph
+formulation, in which one edge joins the several visits of a session rather than only
+consecutive pairs, would test whether the pairwise graph is the right structure for a
+visit history (limitation~3).
+% AUT-36 (PENDENCIAS §4, ruling "Seguimos com até quatro frases novas ... Sobre o proximo lugar podemos
+% adicionar ele no trabalho futuro relacionado ao uso do check2hgi para outros contextos. Esse eu faço
+% questão de estar de alguma forma. Quanto ao resto adicione os que você analisou e cabem estar lá").
+% THREE items were added, and they were attached to EXISTING limitations rather than creating new ones.
+% (His ruling allowed up to four. A first draft of this edit did add a fourth, the cascade-tuning and
+% soft-sharing item under limitation 6, and that version was replaced: limitation 6 already hosts the
+% task-pair item, so tagging a second item to it broke the 1:1 rule this comment goes on to explain.
+% The fourth item is therefore recorded as dropped below, not as added.)
+% That choice is the whole structural point: NORTH_STAR §6 requires future work tied 1:1 to
+% limitations, and §6.3 opens with "Six limitations", so inventing limitations to host new items would
+% have changed the count sentence and silently repointed every limitation~N tag in this section.
+%   - the initialization coupling and the hypergraph formulation attach to limitation 3, which is about
+%     how the representation is built, and they are the two of his seven items that were ABSENT from
+%     the whole tree (a hypergraph search returned zero hits across all .tex files).
+%   - the next-place item carries his mechanism, and it is the one he insisted on ("faço questão").
+%     TENSE DISCIPLINE IS LOAD-BEARING HERE: "would require a change to the input pipeline and one
+%     additional output" is conditional. His own phrasing, "do jeito que está hoje já conseguimos
+%     usar", must NEVER be carried over: the present tense would claim a capability, and next place is
+%     a GATED scope exclusion (GLOSSARY §1.1; Definition 2.9 in 2_fundamentals.tex states that no
+%     chapter reports a result for it, guarded by probes R12-fplace and R12-fplace2). His framing of
+%     the item as Check2HGI reaching other contexts is what the clause carries.
+%   - the cascade-tuning and soft-sharing item was DROPPED rather than squeezed in, because both
+%     candidate hosts (limitation 6 and a new limitation) were unavailable: limitation 6 already hosts
+%     the task-pair item, and adding a limitation changes the count. Recorded rather than silently
+%     omitted, so it can be revisited if he authorizes a seventh limitation.
+% Two of his seven items were ALREADY PRESENT and needed nothing: finer taxonomies (limitation 2) and
+% further non-United-States cities (limitation 5).
+% Probes: R13-aut36a, R13-aut36b.
 
 Adding the exact next place as a third target would extend the joint model beyond the
 two properties predicted in this work. The cascade architectures reviewed in
 Chapter~\ref{ch:mobiwac} suggest that category and region predictions can provide
-additional structure for this task (limitation~4).
+additional structure for this task, and reusing the existing check-in-level
+representation would require a change to the input pipeline and one additional output
+rather than a new representation, which is also the route by which this representation
+would serve contexts other than the two studied here (limitation~4).
 Further cities outside the United States would widen the geographic base
-(limitation~5). Training the Chapter~\ref{ch:mobiwac} joint model on the
-Chapter~\ref{ch:cbic} task pair, under the check-in-level representation, is the
-controlled comparison needed to isolate the effect of changing the task pair
+(limitation~5).
+Isolating the effect of changing the task pair needs a static target
+that the check-in-level representation does not already carry as an input feature, since
+running the earlier pair directly under this representation is not a clean comparison
 (limitation~6).
+
+% AUT-36 (PENDENCIAS §4) COUPLED CHANGE, and it is not optional. The item here previously proposed
+% "training the Chapter 5 joint model on the Chapter 3 task pair, under the check-in-level
+% representation", which is precisely the ablation that AUT-35 (c) establishes is not clean: the
+% category of the visited place is an input feature of a check-in node, so the static target would be
+% partly readable from its own input. Leaving both texts unchanged would have the limitation explain
+% why an experiment cannot be run cleanly while the future work proposed running it.
+% NORTH_STAR §6 requires every future-work item to be tied 1:1 to a limitation, so the tie to
+% limitation 6 is preserved and only the proposal changes. It now names the condition a valid version
+% of the comparison would have to meet instead of naming an experiment that cannot meet it.
+% Probe: R13-aut36lim6.
 
 
 \section{Final remarks}

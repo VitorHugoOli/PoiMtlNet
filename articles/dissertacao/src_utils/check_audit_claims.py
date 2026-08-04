@@ -1155,6 +1155,141 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
                      "correlation nobody measured (author's hedge ruling; the measurement is LO-13)",
      "chapters/2_fundamentals.tex",
      r"share an origin by construction, so they are not\s+independent views", True),
+
+    # ---- ROUND-TARIK/EXTRAVOL (this session). Two author instructions: (1) remove the prose
+    # sentence stating Tarik S. Paiva is the CoUrb paper's first author -- the PPGCC regimento does
+    # not require first authorship for a coletânea chapter, so the role statement is not made in
+    # prose; the bibliography's real author list is untouched (guardrails R2, attribute fidelity).
+    # (2) remove every live-prose pointer from a main-volume chapter at "Appendix B/D of
+    # \extravolume" (the supplementary volume) -- main-volume chapters must not reference the extra
+    # material. Both are ABSENCE probes: revert either edit and the corresponding row must fire.
+    ("RTV-01",  "1_introduction.tex no longer states Tarik S. Paiva is the CoUrb paper's first "
+                "author (the role-ranking sentence, not the bibliography entry)",
+     "chapters/1_introduction.tex", r"Tarik S\.\\?\s*Paiva is the first author", False),
+    ("RTV-02",  "the CoUrb chapter-list bullet still credits Vitor's own MTLnet-baseline "
+                "contribution and presenter role, just without the authorship-ranking sentence",
+     "chapters/1_introduction.tex",
+     r"contributed the MTLnet baseline used in the study\s+and presented the work at the event",
+     True),
+    ("RTV-03",  "3_cbic.tex's preface no longer points at Appendix B of the supplementary volume",
+     "chapters/3_cbic.tex", r"\\extravolume", False),
+    ("RTV-04",  "3_cbic/method.tex's three footnotes no longer point at Appendix B(.1) of the "
+                "supplementary volume (DGI neighbor-averaging + two Nash-MTL corrections)",
+     "chapters/3_cbic/method.tex", r"\\extravolume", False),
+    ("RTV-05",  "apx_a_contributions.tex's label-history-benchmark item no longer points at "
+                "Appendix D of the supplementary volume",
+     "chapters/apx_a_contributions.tex", r"\\extravolume", False),
+    ("RTV-06",  "4_courb.tex's preface no longer points at Appendix B of the supplementary "
+                "volume for the post-publication static-task scope finding",
+     "chapters/4_courb.tex", r"\\extravolume", False),
+    ("RTV-06b", "and the static-task-scope finding itself is folded inline rather than lost "
+                "(the venue-type / seven-category one-to-one mapping)",
+     "chapters/4_courb.tex",
+     r"the venue-type feature maps one-to-one onto the seven top-level\s+categories", True),
+    ("RTV-07",  "5_mobiwac.tex's preface no longer points at Appendix B of the supplementary "
+                "volume for the errata record",
+     "chapters/5_mobiwac.tex", r"\\extravolume", False),
+    ("RTV-08",  "5_mobiwac/05_setup.tex's label-history-benchmark paragraph no longer points at "
+                "Appendix D of the supplementary volume (definition + one-candidate exception)",
+     "chapters/5_mobiwac/05_setup.tex", r"\\extravolume", False),
+    ("RTV-08b", "and the one-candidate exception is folded inline rather than lost (the "
+                "relation-typed graph encoder's raw/standardized scores)",
+     "chapters/5_mobiwac/05_setup.tex",
+     r"relation-typed graph encoder, falls below the benchmark on the standardized run", True),
+    # ---- ROUND 13, SECOND WAVE: the author's rulings on the eleven items left open in §4.
+    # R13-aut08: the SANCTIONED FALLBACK from NORTH_STAR §6 Ch.1 beat 4 (b), replacing a comparative
+    # claim about the literature that was refuted. PRESENT-type on the fallback rather than ABSENT-type
+    # on the comparative form, because the refuted wording is quoted in the provenance comment and in
+    # the tracker row that records the refutation (the R12-notwrong trap).
+    ("R13-aut08",    "§1.2 uses the NORTH_STAR-sanctioned fallback for the task-choice defense instead "
+                     "of the comparative claim that no open anchor supports",
+     "chapters/1_introduction.tex",
+     r"Both are established end\s+targets in the mobility literature, and the next region feeds a "
+     r"broader family of\s+downstream problems", True),
+    ("R13-aut09",    "the arc sentence names its subject (each study, each chapter) and time-indexes "
+                     "supersession, instead of letting an abstract noun act",
+     "chapters/1_introduction.tex",
+     r"Each study revised what the previous one had concluded, and each\s+later chapter states which "
+     r"earlier conclusion it supersedes", True),
+    # R13-aut09b is ABSENT-type and is SAFE as such: the banned phrase is a two-word metaphor
+    # ("correction trail") that appears nowhere in the provenance comments, which describe it rather
+    # than quote it. NORTH_STAR §6 Ch.1 beat 4 (d) carries the F4 guard this pins.
+    ("R13-aut09b",   "and the arc is not called a trail, which NORTH_STAR's F4 guard forbids (it would "
+                     "make the null result read as act one of a script)",
+     "chapters/1_introduction.tex",
+     r"correction trail", False),
+    ("R13-aut14",    "the Contributions section claims Check2HGI's reusability as independence from the "
+                     "heads placed on it, which is a property of the construction",
+     "chapters/1_introduction.tex",
+     r"independent of the prediction heads placed on top of it", True),
+    ("R13-aut14b",   "the novelty claim in the frame is the narrow surviving form, hedged, and weaker "
+                     "than Chapter 5's own claim (the frame must not exceed the chapter under review)",
+     "chapters/1_introduction.tex",
+     r"To our knowledge, no prior work treats the next category\s+and the next region as co-equal end "
+     r"targets of one joint model that does not also\s+predict the next place", True),
+    # R13-aut14c: the balancer screen and the orthogonality measurement are only honest WITH their
+    # scope attached, which is the author's own warning on candidate (c) and GER-11's point. Anchored on
+    # the scope words, not on the headline, so a rewrite that drops "default configurations" or the
+    # one-seed/two-dataset scope fails.
+    ("R13-aut14c",   "and the balancer screen travels with its full scope (default configurations, one "
+                     "initialization, two datasets), so a mean is not read as a general result",
+     "chapters/1_introduction.tex",
+     r"screened at their default configurations, at a single random\s+initialization, on Alabama and "
+     r"Florida", True),
+    ("R13-aut32",    "the Ch.6 opening records the static classification task as history of the first "
+                     "two studies without widening the research question",
+     "chapters/6_conclusion.tex",
+     r"studies paired next-category prediction with a static category classification task, and\s+the "
+     r"pair changed in the final study", True),
+    # R13-aut35a: a NEW NUMBER about a third party's dataset, so it is pinned. TWO-SCOPE NOTE: the
+    # Gowalla window is guarded separately by R8-vintage, which requires the literal string
+    # "August 2011"; this probe guards the Istanbul addition in the same item. BOTH must hold and
+    # neither substitutes for the other, because an edit could satisfy either one while breaking the
+    # other half of the same limitation. The prose deliberately says "seven in ten" rather than 70.7%,
+    # so the probe anchors the prose form and the exact figure lives in the provenance comment with the
+    # command that produced it.
+    ("R13-aut35a",   "the data-vintage limitation states the Istanbul two-block window and that most of "
+                     "its volume is the earlier block, so the limitation covers all six datasets",
+     "chapters/6_conclusion.tex",
+     r"two separate periods, 2012 to 2013 and 2017 to 2018,\s+with none in between, and roughly seven "
+     r"in ten belong to the earlier period", True),
+    ("R13-aut35b",   "the transductive limitation cites the two identified poles instead of asserting a "
+                     "bare generality about other people's work",
+     "chapters/6_conclusion.tex",
+     r"The place-level representation it builds\s+on~\\cite\{huang2023hgi\}", True),
+    # R13-aut35c / R13-lim6live are the two halves of one repair and BOTH are required. The second is
+    # the load-bearing one: limitation 6 had been commented out in the working tree, which left the
+    # section claiming "Six limitations" while rendering five and silently repointing the limitation~N
+    # tags in §6.4. A probe on the added sentence ALONE would not catch that, because live_text() strips
+    # comments, so commenting the whole item out would remove the added sentence too and the probe would
+    # simply fail without saying why. R13-lim6live names the cause.
+    ("R13-aut35c",   "the task-pair limitation explains why the resolving ablation is not clean, marked "
+                     "as design inference rather than measurement",
+     "chapters/6_conclusion.tex",
+     r"This follows from the design of the representation and was not measured, so\s+the confound is "
+     r"bounded by the fixed-pair control rather than removed", True),
+    ("R13-lim6live", "and limitation 6 is LIVE, not commented out: the section says `Six limitations` "
+                     "and §6.4 ties future-work items to limitation numbers, so losing the item makes "
+                     "the count false and repoints every tag after it",
+     "chapters/6_conclusion.tex",
+     r"\\item \\textbf\{The task-pair confound\.\}", True),
+    ("R13-aut36a",   "§6.4 adds the initialization-coupling and hypergraph items under limitation 3, "
+                     "without inventing a limitation to host them",
+     "chapters/6_conclusion.tex",
+     r"a hypergraph\s+formulation, in which one edge joins the several visits of a session", True),
+    # R13-aut36b guards the TENSE of the next-place item. Next place is a gated scope exclusion
+    # (R12-fplace, R12-fplace2), so the conditional is what keeps this item from reading as a capability
+    # the dissertation already has. The author's own phrasing ("já conseguimos usar") is the banned form.
+    ("R13-aut36b",   "and the next-place item stays conditional, so a gated scope exclusion is not "
+                     "contradicted by the future work that proposes lifting it",
+     "chapters/6_conclusion.tex",
+     r"reusing the existing check-in-level\s+representation would require a change to the input "
+     r"pipeline and one additional output", True),
+    ("R13-aut36lim6","and the future-work item tied to limitation 6 no longer proposes the ablation "
+                     "that the same limitation explains cannot be run cleanly",
+     "chapters/6_conclusion.tex",
+     r"needs a static target\s+that the check-in-level representation does not already carry as an "
+     r"input feature", True),
 )
 
 # COD-016b needs a STRUCTURAL probe, not a string one, so it lives here rather than in PROBES --
