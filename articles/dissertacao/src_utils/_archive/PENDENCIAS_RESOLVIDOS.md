@@ -3750,3 +3750,109 @@ deles mudou aqui.
 > verificados, `file:line` de cada defeito, os comandos de medicao, as sobreposicoes), estao em
 > [`_round13/_aut_closed_blocks.md`](../_round13/_aut_closed_blocks.md). Medido antes de escrever
 > isto: sem esse arquivo, 32 numeros e 20 caminhos do texto removido nao apareciam em lugar nenhum.
+
+---
+
+### ~~2.30 Remocao das sentencas de primeira-autoria do Tarik e dos sete ponteiros \extravolume nos capitulos 3-5~~ — RESOLVIDO (este round)
+
+**Feito, por instrucao do autor: nao mencionar a primeira-autoria de Tarik S. Paiva em prosa
+(o regimento da PPGCC nao exige primeira autoria para um capitulo de coletanea), e remover toda
+referencia de um capitulo do volume principal ao volume suplementar ("Appendix B/D of the
+supplementary volume").**
+
+**Item A — autoria.** Duas sentencas vivas no repositorio afirmavam "Tarik S. Paiva is the first
+author" / "second author": `1_introduction.tex:316` (bullet do capitulo 4 na lista de organizacao) e
+a antiga preface de `4_courb.tex` (ja removida fora desta sessao, antes de eu comecar). Removida a
+sentenca restante em `1_introduction.tex`, mantendo a contribuicao real do autor da dissertacao
+(baseline MTLnet, apresentador) sem a ranking de autoria. **A entrada da bibliografia
+(`references.bib`, `paiva2026stmtlnet`) foi deixada intacta por decisao explicita do autor** — e o
+registro verdadeiro e verificado no Crossref da lista de autores do artigo publicado, nao uma
+narrativa sobre quem escreveu o capitulo da dissertacao, e alterar essa entrada violaria o protocolo
+de integridade de citacao (AGENT_GUARDRAILS R2).
+
+**Item B — os sete ponteiros `\extravolume`.** Nenhum capitulo do volume principal deve apontar
+para o volume suplementar. Os sete sitios vivos (`3_cbic.tex`, tres em `3_cbic/method.tex`,
+`apx_a_contributions.tex`, `4_courb.tex`, `5_mobiwac.tex`, dois em `5_mobiwac/05_setup.tex`) foram
+reescritos: onde o ponteiro carregava um fato que o leitor precisa (o achado de escopo do
+static-task de `4_courb.tex`, a excecao do encoder relation-typed em `5_mobiwac/05_setup.tex`), o
+fato foi dobrado in-line a partir do proprio Apendice B/D (`apx_b_static_scope.tex`,
+`apx_d_ceiling.tex`); onde era um ponteiro puro sem conteudo autonomo, foi cortado. O Apendice B e
+D em si **nao foram tocados** em `main_extra.tex` — so os ponteiros que apontavam PARA eles.
+
+**Efeito colateral encontrado e corrigido.** Remover a sentenca de autoria em `4_courb.tex` cortou
+uma ocorrencia incidental de "MTLnet" que a contagem de normalizacao do Apendice B dependia
+(`apx_b_errata.tex`: "normalized to the second form at all 28 places ... 23 in prose"). Recontado
+com o mesmo metodo da rodada 6: 27 no total, 22 em prosa. Corrigido em `apx_b_errata.tex` e na
+anotacao `EXPECT` de `_round6/VERIFY_LIST.md`.
+
+**Sondas.** Doze sondas novas (`RTV-01` a `RTV-08b`) em `check_audit_claims.py`, cada uma validada
+por sabotagem nas duas direcoes (reverter a edicao -> `NOT APPLIED`, `rc=1`; restaurar -> `holds`,
+`rc=0`).
+
+**Build.** Os quatro alvos (`defense` 116pp, `academico` 113pp, `ppgc` 117pp, `extra` 26pp) recompilam
+limpos, `tex_errors=0` em todos. `make check` e `make selftest` saem `rc=0` (lido diretamente do
+`$?`, nao inferido da saida impressa).
+
+**Deixado ABERTO, por instrucao explicita do autor** ("Documente this in the pendencias.md and let
+me decide in future"): o ponteiro `Appendix~\ref{apx:cosine}` dentro de `5_mobiwac/02_related.tex`
+(um ponteiro de corpo de artigo para outra secao da dissertacao, ainda que o alvo esteja no mesmo
+volume principal) e os seis ponteiros `Chapter~\ref{ch:...}` entre os corpos dos artigos dos
+capitulos 3-5 apontando para capitulos irmaos. Registrado em `PENDENCIAS.md §2.31`.
+
+---
+
+## §4 (os itens `AUT-`) — A SEGUNDA ONDA: OS 9 QUE FALTAVAM, FECHADOS — 2026-08-04
+
+> **Rodada 13, segunda onda.** Voce respondeu os 11 itens que a primeira onda deixou abertos, e 9 deles
+> fecham aqui. Sobram **dois**, e nenhum dos dois espera trabalho meu: o AUT-26 espera o seu orientador
+> e o AUT-38 esta vazio no fonte, com o ID reservado para nunca ser reciclado.
+>
+> **Duas das suas premissas foram REFUTADAS por medicao nesta onda, e as duas mudaram o texto que voce
+> pediu.** No AUT-08, a forma comparativa ("na literatura essas duas tarefas tem mais forca") nao tem
+> ancora aberta que a sustente e a contagem no OpenAlex aponta para o outro lado, entao entrou a
+> **fallback ja sancionada** no `NORTH_STAR`; isso fecha em **negativo** a bandeira `[VERIFY]` que
+> aquele beat havia deixado exatamente para essa frase. No AUT-35 (a), os check-ins de Istambul **nao
+> sao de 2017-2018**: sao dois blocos, 2012-2013 e 2017-2018, sem nada entre eles, e **70,7% caem no
+> bloco antigo** (327.242 de 462.615, medido, com o instrumento verificado antes contra o Gowalla). E
+> "o conjunto mais moderno da literatura publica" tambem cai, no Yelp, cujos check-ins vao ate
+> 2022-01-19. Voce leu a medicao e escolheu a forma de dois blocos.
+>
+> **Um defeito que eu encontrei e voce mandou corrigir:** a limitacao 6, "The task-pair confound",
+> estava **comentada** na arvore de trabalho, viva no HEAD, sem comentario de proveniencia. A secao
+> dizia "Six limitations" e renderizava cinco, e o §6.4 amarra itens de trabalho futuro a **numeros** de
+> limitacao, entao perder o item repontava as tags seguintes. Restaurada por sua instrucao. Ela foi
+> re-comentada uma segunda vez no meio da rodada e restaurada de novo; a segunda perda foi pega pelo
+> probe `R13-lim6live`, que existe para isso.
+>
+> **Um erro de medicao meu, declarado para nao se repetir:** eu verifiquei as minhas proprias edicoes do
+> Cap.6 com `grep -c`, que conta linhas **comentadas** como presentes, e li "cinco de seis sobrevivem"
+> numa arvore onde tres estavam comentadas. O `AGENT_GUARDRAILS` §4b V4 existe por isso: greps neste
+> fonte tiram os comentarios **primeiro**.
+>
+> **Todos os itens aplicados tem sonda no gate**, adicionada no mesmo commit da correcao e validada por
+> sabotagem individual. `check_audit_claims.py` sai `rc=0` com **197 de 197 probes**, e nesta onda o
+> `check.sh` tambem fecha em **rc=0**.
+
+| item | ruling | commit | o que ficou feito |
+|---|---|---|---|
+| **AUT-02** | A | `--` | voce manteve a margem de dois pontos no Resumo. Sem edicao, por decisao sua. |
+| **AUT-08** | Opção 1/A | `b8fdbd12` | a perna comparativa saiu; entrou a fallback sancionada do NORTH_STAR §6 Cap.1 beat 4 (b). Fecha em NEGATIVO a bandeira [VERIFY] que aquele beat deixou para esta frase. |
+| **AUT-09** | combinar as duas | `b8fdbd12` | a frase do arco foi reconstruida das duas versoes: o sujeito nomeado da anterior, sem a metafora de trilha que a guarda F4 proibe. |
+| **AUT-14** | só as decisoes | `b8fdbd12` | os seus quatro candidatos entraram cada um na forca que a evidencia sustenta; tres contribuicoes nao declaradas entraram com escopo. Voce dispensou a parte mecanica (Cap.4 e ST-MTLNet) e a sua razao esta no fonte. |
+| **AUT-29** | concordo + mudar o inicio | `f9885763` | "Gradient conflict" promovida a subsecao irma e colocada antes; §2.3.3 reaberta no problema em vez da formalizacao. Renderiza 2.3.1..2.3.5. |
+| **AUT-32** | Opção B | `b8fdbd12` | uma oracao registra a tarefa estatica como historia dos dois primeiros estudos, sem alargar a pergunta de pesquisa. |
+| **AUT-35** | A+B+comentar a 6 | `b8fdbd12` | (a) a sua premissa foi REFUTADA e voce escolheu a forma de dois blocos; (b) a transdutividade cita os dois polos antes da frase; (c) a limitacao explica por que a ablacao nao e limpa, marcada como inferencia. |
+| **AUT-36** | até quatro frases | `b8fdbd12` | tres itens novos, todos amarrados a limitacoes EXISTENTES; o quarto foi descartado para nao quebrar a regra 1:1. O item do proximo lugar entrou como voce fez questao, no condicional. |
+| **AUT-37** | OK | `a47691f8` | §6.2 reordenada em quatro movimentos, com o movimento "o que erramos" que faltava. 24 numerais antes, 24 depois. |
+
+### Os 2 que continuam no `PENDENCIAS.md` §4
+
+| item | por que continua aberto |
+|---|---|
+| **AUT-26** | voce deixou aberto para consultar o orientador |
+| **AUT-38** | vazio no fonte; a sua decisao foi "NADA A FAZER", e o ID fica reservado para nunca ser reciclado |
+
+> **Os 9 blocos de auditoria completos**, com a evidencia que a tabela acima resume, estao em
+> [`_round13/_aut_closed_blocks_wave2.md`](../_round13/_aut_closed_blocks_wave2.md). A forense da onda
+> esta em `_round13/70_massivesteps_validation.md` (a validacao refutada), `71_graphnode_features.md` e
+> `72_leak_screening_search.md`.
