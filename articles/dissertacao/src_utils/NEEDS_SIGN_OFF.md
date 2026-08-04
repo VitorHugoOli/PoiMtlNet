@@ -69,12 +69,15 @@ Os arquivos mais carregados, para priorizar: `2_fundamentals.tex` 1.115 linhas d
 arquivo), `apx_f_cosine.tex` 558 (77%), `apx_b_errata.tex` 301 (57%), `6_conclusion.tex` 286 (52%),
 `1_introduction.tex` 253 (52%), `content.tex` 230 (55%).
 
-### 14.2 A pergunta que travava a decisao: **13 dos 14 gates nao leem comentario do `.tex` — 1 le, e quebra**
+### 14.2 A pergunta que travava a decisao: **de 14 gates, exatamente 1 depende de comentario do `.tex`**
 
 Havia um medo razoavel de que apagar comentario derrubasse a suite de gates, porque 13 dos 14 scripts
-`check_*.py` mencionam comentarios no codigo. **Medido, a resposta e "quase nao": os 208 probes do
-`check_audit_claims` sao imunes, mas UM gate — o `check_comment_hygiene` — realmente depende de ~10
-linhas de comentario do `src/main.tex` e falha sem elas.** Os detalhes e a decisao que isso pede estao na
+`check_*.py` mencionam comentarios no codigo. **Medido: dos 14, exatamente UM quebra — o
+`check_comment_hygiene`, que depende de ~10 linhas de comentario do `src/main.tex`. Os 208 probes do
+`check_audit_claims` sao imunes, e os outros 12 gates passam.** Atencao a distincao que gastei duas
+correcoes para acertar: **6 gates leem o `.tex` ja sem comentario e 8 leem cru, mas "ler cru" nao e
+"depender de comentario"** — 7 dos 8 passam mesmo assim. A tabela em (a) mostra qual e qual, e por que
+cada um sobrevive. Os detalhes e a decisao que isso pede estao na
 caixa de correcao ao final desta secao; leia-a antes de apagar qualquer bloco. Duas evidencias
 independentes, na ordem em que as levantei:
 
@@ -83,10 +86,42 @@ cuja primeira linha de docstring e literalmente *"Source with comments removed"*
 ver um comentario `.tex`, por construcao. Um probe cujo texto-alvo esteja dentro de `%` e inerte hoje —
 isso ja esta documentado no proprio arquivo, na entrada `R13-aut30b`, marcada
 *"UNPROBEABLE BY CONSTRUCTION"*. **Isto vale para os 208 probes e nao foi retratado.** O que nao se
-segue — e foi o meu erro — e generalizar de `check_audit_claims` para a suite inteira: **13 dos 14 gates
-nao usam `live_text()`/`strip_text()` e leem o `.tex` cru**, cada um por conta propria. Conferido script
-por script; o `check_comment_hygiene` e o caso extremo, com zero helpers de strip e quatro
-`read_text()` — ele **precisa** ler cru, porque o assunto dele sao os proprios comentarios.
+segue e generalizar de `check_audit_claims` para a suite inteira.
+
+> **CORRECAO 2 (achado do revisor, 2026-08-04).** Uma versao anterior deste paragrafo afirmava, em
+> negrito e dizendo-se "conferido script por script", que **"13 dos 14 gates nao usam
+> `live_text()`/`strip_text()` e leem o `.tex` cru"**. **Isso esta errado, e a minha propria medicao ja
+> mostrava o contrario:** 6 gates *usam* helper de strip, 8 leem cru. Eu tinha o numero certo na tela e
+> escrevi outro; pior, ele contradizia a direcao do proprio titulo desta secao. Medido de novo,
+> ignorando mencoes dentro de comentarios do codigo e exigindo a *chamada* do helper:
+
+| Leem o `.tex` **sem** comentario (6) | Leem o `.tex` **cru**, com comentario visivel (8) |
+|---|---|
+| `check_audit_claims`, `check_doubled_macro`, `check_extra_xrefs`, `check_negative_parallelism`, `check_process_narration`, `check_register` | `check_comment_hygiene`, `check_meta_claims`, `check_tex_root`, `check_torn_sentences`, `check_tracker_refs`, `check_trapped_prose`, `check_verify_list`, `check_wordcount_claims` |
+
+```bash
+cd articles/dissertacao/src_utils && python3 -c "
+import pathlib,re
+for p in sorted(pathlib.Path('.').glob('check_*.py')):
+    code='\n'.join(l for l in p.read_text().splitlines() if not l.lstrip().startswith('#'))
+    print('STRIP' if re.search(r'\b(live_text|strip_text|strip_comments)\s*\(',code) else 'RAW  ', p.name)
+"
+```
+
+**E aqui esta o ponto que importa para a sua decisao: ler cru NAO e o mesmo que DEPENDER de comentario.**
+Dos 8 que leem cru, 7 sobrevivem a um strip, cada um por um motivo diferente e verificavel:
+
+- `check_trapped_prose` — os comentarios sao o **suspeito** que ele caca (prosa presa dentro de `%`).
+  Sem comentario nenhum, ele nao tem o que acusar: passa trivialmente.
+- `check_torn_sentences` — **pula** linhas de comentario explicitamente (`if not s or s.startswith("%")`).
+- `check_tex_root` — precisa da diretiva `% !TeX root`, que **e** um comentario, mas o strip do
+  `sync_src_clean.py` preserva diretivas de proposito. Por isso passa no `src_clean`.
+- `check_meta_claims`, `check_tracker_refs`, `check_verify_list`, `check_wordcount_claims` — o alvo deles
+  esta em documentos `.md` e no PDF, nao em comentario de `.tex`.
+
+**Sobra exatamente um: `check_comment_hygiene`** — zero helpers de strip, quatro `read_text()`, e ele
+**precisa** ler cru porque o assunto dele sao os proprios comentarios. Esse e o unico que quebra, e a
+caixa abaixo diz por que e o que fazer.
 
 **(b) Empiricamente, rodando a suite inteira contra uma arvore sem comentario.** O `src_clean` ja e um
 espelho 1:1 sem comentarios, entao a experiencia esta pronta: copiei os gates para um diretorio cujo
