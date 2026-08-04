@@ -1290,6 +1290,31 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
      "chapters/6_conclusion.tex",
      r"needs a static target\s+that the check-in-level representation does not already carry as an "
      r"input feature", True),
+    # R13-aut29 / R13-aut29b: the §2.3 promotion, and BOTH halves are needed for different reasons.
+    # The first pins the HIERARCHY: "Gradient conflict" is a \subsection, sibling of "Multi-objective
+    # optimization", not a \subsubsection nested under it. Anchored as an ABSENT probe on the nested
+    # form because that is the state being prevented, and the string "subsubsection{Gradient conflict}"
+    # appears in no provenance comment (the comments describe the promotion, they do not quote the old
+    # heading), so there is no R12-notwrong risk here.
+    ("R13-aut29",    "`Gradient conflict` is a subsection, not a subsubsection nested under "
+                     "multi-objective optimization, so the problem is stated before the formalism "
+                     "without a child preceding its own parent",
+     "chapters/2_fundamentals.tex",
+     r"\\subsubsection\{Gradient conflict\}", False),
+    # R13-aut29b pins the ORDINAL SEQUENCE, which is the part that goes stale silently. §2.3 walks the
+    # reader through numbered design choices, and promoting a subsection renumbered them: multi-objective
+    # optimization moved from "second" to "third", and the promoted subsection needed the "second" that
+    # was freed. A structural edit that reorders these subsections again without touching the prose
+    # would leave the ordinals lying, and nothing else in the suite would notice.
+    ("R13-aut29b",   "and the design-choice ordinals match the post-promotion order: conflict is the "
+                     "second choice and multi-objective optimization the third",
+     "chapters/2_fundamentals.tex",
+     r"The second design choice depends on a quantity rather than on a preference", True),
+    ("R13-aut29c",   "and multi-objective optimization is numbered third and opens on the problem it "
+                     "inherits rather than on the scalar objective",
+     "chapters/2_fundamentals.tex",
+     r"The third design choice is how several task losses determine one parameter update\. A\s+"
+     r"measured conflict has to be acted on somewhere", True),
 )
 
 # COD-016b needs a STRUCTURAL probe, not a string one, so it lives here rather than in PROBES --

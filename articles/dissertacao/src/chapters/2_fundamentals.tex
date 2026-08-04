@@ -953,14 +953,84 @@ cross within this jointly optimized module. Each stream queries the other to rea
 features, which couples their gradients without forcing their representations into a
 single bottleneck.
 
+% AUT-29 (PENDENCIAS §4, ruling: "Eu concordo com essa sugestão, mas ainda assim teremos que mudar o
+% inicio do 2.3.2, porque hoje o texto atual, já começa direto na formalização antes da problematica").
+% WHAT MOVED, AND WHY IT IS A PROMOTION RATHER THAN A REORDERING. "Gradient conflict" was a
+% SUBSUBSECTION of "Multi-objective optimization" and is now a SUBSECTION placed before it. The author's
+% original proposal was to move it ahead of its own parent while keeping it nested, which is not a
+% reordering: a child cannot precede its parent. Promoting it to a sibling gives the flow he wants
+% (problem, then formalism, then the literature, then the guarantees) with a hierarchy that still holds.
+% GER-09 and GER-10 asked for this same restructuring of §2.3 and are already resolved, so this does not
+% reorganize the section a second time.
+% NOTHING BREAKS ON SECTION NUMBER: no \ref in the tree points at these headings by number. The one
+% cross-reference into this material is Definition~\ref{def:fund:conflict}, cited from the
+% loss-balancing subsection, and a \label travels with its block.
+% Probes: R13-aut29, R13-aut29b.
+\subsection{Gradient conflict}
+% [v2 review F-08, 2026-07-26] CAGrad description corrected (persona 10, who read arXiv:2110.14048).
+% The prior clause said CAGrad "seeks an update close to the average gradient while bounding
+% conflict". The constraint half was right; the objective half was not. The paper's problem is a
+% MAXIMIN, max_d min_i <g_i, d> subject to ||d - g_0|| <= c||g_0||: it maximizes the worst per-task
+% local improvement inside a ball around the average gradient, rather than bounding conflict. The
+% method's own authors describe it that way. No claim of this dissertation depends on the wording;
+% the correction is to describe a cited system as its own authors describe it (AGENT_GUARDRAILS
+% citation protocol).
+
+The second design choice depends on a quantity rather than on a preference: whether the
+tasks are asking for the same update at all. Gradient conflict describes one source of
+negative transfer, and it is a measured quantity rather than a figure of speech.
+% AUT-29. This sentence exists because promoting the subsection created an ORDINAL GAP: §2.3 walks the
+% reader through numbered design choices, and after the promotion the sequence read "The first design
+% choice" (sharing topologies) followed by "The third" (multi-objective optimization), with the newly
+% promoted subsection sitting between them announcing nothing. Measured across the live section, the
+% ordinals now run first, second, third with no gap and no repeat.
+% Conflict is called a design choice in the same series as the other two because deciding whether to
+% measure it, and what to do when it is present, is a choice the model builder makes. The subsection
+% keeps its own opening claim after this lead-in, so nothing was replaced.
+
+\begin{definition}[Gradient conflict]\label{def:fund:conflict}
+Let $\mathbf{g}_i$ and $\mathbf{g}_j$ be the gradients of two task losses with respect
+to the shared parameters, and let $\varphi_{ij}$ be the angle between them, so that
+\begin{equation}\label{eq:fund:cosine}
+    \cos\varphi_{ij}
+    = \frac{\mathbf{g}_i^{\top}\mathbf{g}_j}
+           {\lVert \mathbf{g}_i\rVert\,\lVert \mathbf{g}_j\rVert}.
+\end{equation}
+The two tasks conflict at that point when $\cos\varphi_{ij}<0$~\cite{yu2020pcgrad}.
+\end{definition}
+
+The cosine between their gradients reads how the two requested updates are aligned and
+ignores how large they are: $+1$ means the tasks ask for the same update, $-1$ for
+opposite ones, and $0$ that the requests are orthogonal, each leaving the other's
+objective unchanged to first order. PCGrad changes a direction only when this cosine is
+negative. Other methods may still react to differences in gradient magnitude or task
+loss. In Chapter~\ref{ch:mobiwac}, two such methods exceed equal weighting on one
+dataset but not on the others. Appendix~\ref{apx:cosine} evaluates the final joint
+model and finds the task gradients equivalent to orthogonal within a margin of five
+hundredths at every dataset measured there. A paired test separates the mean from zero
+at three datasets, but those small departures remain within the equivalence margin.
+The combined result is that the deviations are detectable but too small to represent
+meaningful directional conflict at the scale considered by the balancers.
+
 \subsection{Multi-objective optimization}
 
-The second design choice is how several task losses determine one parameter update.
-
-Shared parameters can produce the negative transfer of
-Definition~\ref{def:fund:negtransfer}, so task relationships must be measured rather
-than assumed~\cite{standley2020tasks}. The training problem has
+The third design choice is how several task losses determine one parameter update. A
+measured conflict has to be acted on somewhere, and the place where it acts is the step
+that turns two losses into one direction. Shared parameters can produce the negative
+transfer of Definition~\ref{def:fund:negtransfer}, so task relationships must be measured
+rather than assumed~\cite{standley2020tasks}. The training problem has
 multiple losses, and a standard scalar objective writes them as
+% AUT-29, second half of the ruling: "ainda assim teremos que mudar o inicio do 2.3.2, porque hoje o
+% texto atual, já começa direto na formalização antes da problematica". His reading was right: the old
+% opening announced the design choice and went straight into the scalar objective, so the equation
+% arrived before any statement of what problem it addresses.
+% The subsection now opens by naming the problem it inherits from the subsection that precedes it,
+% which is the one just promoted. That ordering IS the point of the promotion: conflict is defined and
+% measured first, then this subsection is where something is done about it.
+% ONE NUMBER CHANGED HERE AND IT IS NOT COSMETIC: "The second design choice" became "The third",
+% because promoting Gradient conflict inserted a subsection ahead of this one. The ordinal is prose
+% that counts the section's own structure, so it goes stale silently when the structure moves. Probe
+% R13-aut29b pins it.
 \begin{equation}\label{eq:fund:mtl-total}
     \mathcal{L}_{\mathrm{total}}(\boldsymbol{\theta})
     = \sum_{k=1}^{K} w_k\,\mathcal{L}_k(\boldsymbol{\theta}),
@@ -1120,43 +1190,6 @@ Section~\ref{sec:fund:eval}.
 % repeating it in Chapter 2 widens its audience, and under AGENT_GUARDRAILS C2 a connective claim
 % about what the arc shows is still a claim. Approve the appendix and this follows; reject it and this
 % paragraph loses its last two clauses and keeps the definition.]
-
-\subsubsection{Gradient conflict}
-% [v2 review F-08, 2026-07-26] CAGrad description corrected (persona 10, who read arXiv:2110.14048).
-% The prior clause said CAGrad "seeks an update close to the average gradient while bounding
-% conflict". The constraint half was right; the objective half was not. The paper's problem is a
-% MAXIMIN, max_d min_i <g_i, d> subject to ||d - g_0|| <= c||g_0||: it maximizes the worst per-task
-% local improvement inside a ball around the average gradient, rather than bounding conflict. The
-% method's own authors describe it that way. No claim of this dissertation depends on the wording;
-% the correction is to describe a cited system as its own authors describe it (AGENT_GUARDRAILS
-% citation protocol).
-
-Gradient conflict describes one source of negative transfer, and it is a measured
-quantity rather than a figure of speech.
-
-\begin{definition}[Gradient conflict]\label{def:fund:conflict}
-Let $\mathbf{g}_i$ and $\mathbf{g}_j$ be the gradients of two task losses with respect
-to the shared parameters, and let $\varphi_{ij}$ be the angle between them, so that
-\begin{equation}\label{eq:fund:cosine}
-    \cos\varphi_{ij}
-    = \frac{\mathbf{g}_i^{\top}\mathbf{g}_j}
-           {\lVert \mathbf{g}_i\rVert\,\lVert \mathbf{g}_j\rVert}.
-\end{equation}
-The two tasks conflict at that point when $\cos\varphi_{ij}<0$~\cite{yu2020pcgrad}.
-\end{definition}
-
-The cosine between their gradients reads how the two requested updates are aligned and
-ignores how large they are: $+1$ means the tasks ask for the same update, $-1$ for
-opposite ones, and $0$ that the requests are orthogonal, each leaving the other's
-objective unchanged to first order. PCGrad changes a direction only when this cosine is
-negative. Other methods may still react to differences in gradient magnitude or task
-loss. In Chapter~\ref{ch:mobiwac}, two such methods exceed equal weighting on one
-dataset but not on the others. Appendix~\ref{apx:cosine} evaluates the final joint
-model and finds the task gradients equivalent to orthogonal within a margin of five
-hundredths at every dataset measured there. A paired test separates the mean from zero
-at three datasets, but those small departures remain within the equivalence margin.
-The combined result is that the deviations are detectable but too small to represent
-meaningful directional conflict at the scale considered by the balancers.
 
 \subsection{Loss-balancing methods}
 % ---------------------------------------------------------------------------
