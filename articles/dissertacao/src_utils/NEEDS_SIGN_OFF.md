@@ -11,11 +11,230 @@ ali a sua resposta; quando um item estiver resolvido, ele sai deste arquivo e va
 ele e um mapa de tudo que ainda pede a sua palavra especificamente por estar marcado no fonte, o que o `PENDENCIAS.md`
 nao lista item por item.
 
-**Total: 56 marcadores.** Por capitulo/apendice: 0 (4), 1 (2), 2 (8), 3 (3), 4 (3), 5 (9), 6 (8), Apendice A (3),
-Apendice B (5), Apendice B (1), Apendice C (1), Apendice D (1), Apendice E (1), Volume suplementar: plataforma (4),
-Volume suplementar: sujeitos humanos (1), Volume suplementar (2)
+**Total: ~~56~~ → 53 marcadores vivos (re-medido em 2026-08-04, rodada 14).** O total caiu de 56 para 53
+porque o refactor de §6.2 (commit `a47691f8`, "§6.2 reordered into four movements") resolveu tres
+marcadores do `6_conclusion.tex` ao reescrever os paragrafos que eles anotavam: aquele arquivo tinha 8
+marcadores e hoje tem 5. **Nenhum marcador foi perdido; tres foram resolvidos por reescrita.**
+Reproduza a contagem com:
 
-**Estado da auditoria (2026-08-04): 2 MECANICO (pode fechar), 1 PARCIAL, 46 PRECISA DE VOCE, 7 AMBIGUO.** Cada item abaixo carrega essa etiqueta no proprio titulo, entre `### N.` e o texto; veja `## Auditoria` mais abaixo para a tabela completa com o motivo de cada um.
+```bash
+cd articles/dissertacao/src
+grep -rho "\[NEEDS SIGN-OFF" --include="*.tex" . --exclude-dir=build | wc -l   # 53
+```
+
+Distribuicao atual: `content.tex` 4, `1_introduction` 2, `2_fundamentals` 8, `3_cbic/method` 1,
+`3_cbic/results` 2, `4_courb.tex` 1, `4_courb/methodology` 1, `4_courb/results` 1, `5_mobiwac.tex` 1,
+`5_mobiwac/02_related` 2, `5_mobiwac/05_setup` 1, `5_mobiwac/06_results` 3, `5_mobiwac/07_discussion` 2,
+`6_conclusion` 5, `apx_a_contributions` 3, `apx_b_errata` 5, `apx_b_static_scope` 1,
+`apx_c_ai_disclosure` 1, `apx_d_ceiling` 1, `apx_e_ethics` 1, `apx_extra_human_subjects` 1,
+`apx_extra_platform` 4, `main_extra.tex` 2.
+
+**Estado da auditoria (rodada 14, 2026-08-04): 1 MECANICO (pode fechar), 1 VAZIO (premissa deixou de
+existir), 1 PARCIAL, 44 PRECISA DE VOCE, 6 AMBIGUO.** Cada item abaixo carrega essa etiqueta no proprio
+titulo. **Leia primeiro a `## Auditoria da rodada 14` logo abaixo** — ela responde a pergunta que
+motivou esta releitura (quanto comentario pode sair, e o que quebra se sair) e corrige dois itens cuja
+base factual mudou.
+
+---
+
+## Auditoria da rodada 14 (2026-08-04) — o objetivo declarado: tirar comentario do `.tex`
+
+> **VOCE DISSE:** *"A final take my aim with the need sign off is also to remove the colossal amount of
+> comments that we have in the tex."* Esta secao existe para tornar essa decisao possivel. Nenhuma
+> alteracao foi feita no texto nem nos comentarios nesta rodada — voce pediu explicitamente
+> *"please don't do any change in the text"*, e nada foi mudado.
+
+### 14.1 O tamanho real do problema, medido
+
+| Classe de linha de comentario | Linhas | % dos comentarios |
+|---|---:|---:|
+| Outros (proveniencia em prosa, justificativas, historico de rodada) | 3.267 | 61% |
+| Dentro de um bloco `[NEEDS SIGN-OFF]` | 1.491 | 27% |
+| Relatorio de rodada com ID (`[round..]`, `COD-`, `AUT-`, `MEASURED`) | 403 | 7% |
+| Divisores estruturais (`% ====`, `% ----`) | 131 | 2% |
+| **Funcionais (`% !TeX root`) — NAO PODEM SAIR** | **60** | **1%** |
+
+**52% da arvore `.tex` e linha de comentario: 5.352 de 10.237 linhas.** Os 53 marcadores deste arquivo
+respondem por 1.491 dessas linhas, ou seja **28% de todo o comentario esta preso nos blocos de sign-off**
+— fechar os itens deste arquivo e, de longe, a maior alavanca isolada que voce tem. Reproduza:
+
+```bash
+cd articles/dissertacao/src
+tot=$(find . -name "*.tex" -not -path "./build/*" -exec cat {} \; | wc -l)
+cm=$(find . -name "*.tex" -not -path "./build/*" -exec grep -h "^[[:space:]]*%" {} \; | wc -l)
+echo "$cm de $tot linhas sao comentario"
+```
+
+Os arquivos mais carregados, para priorizar: `2_fundamentals.tex` 1.115 linhas de comentario (59% do
+arquivo), `apx_f_cosine.tex` 558 (77%), `apx_b_errata.tex` 301 (57%), `6_conclusion.tex` 286 (52%),
+`1_introduction.tex` 253 (52%), `content.tex` 230 (55%).
+
+### 14.2 A pergunta que travava a decisao, agora respondida: **os gates nao leem comentario do `.tex`**
+
+Havia um medo razoavel de que apagar comentario derrubasse a suite de gates, porque 13 dos 14 scripts
+`check_*.py` mencionam comentarios no codigo. **Medido, e a resposta e nao.** Duas evidencias
+independentes:
+
+**(a) Direto na fonte do instrumento.** `check_audit_claims.py` le todo `.tex` atraves de `live_text()`,
+cuja primeira linha de docstring e literalmente *"Source with comments removed"*. O gate **nao consegue**
+ver um comentario `.tex`, por construcao. Um probe cujo texto-alvo esteja dentro de `%` e inerte hoje —
+isso ja esta documentado no proprio arquivo, na entrada `R13-aut30b`, marcada
+*"UNPROBEABLE BY CONSTRUCTION"*.
+
+**(b) Empiricamente, rodando a suite inteira contra uma arvore sem comentario.** O `src_clean` ja e um
+espelho 1:1 sem comentarios, entao a experiencia esta pronta: copiei os gates para um diretorio cujo
+`../src` e o `src_clean` e rodei os 14. Resultado: **12 passam, 2 falham, e as duas falhas nao tem
+relacao com comentario** — eram arquivos `src_utils/` que faltavam no meu diretorio de teste
+(`check_comment_hygiene` reclamou de *"scope floor breached, 9 file(s) examined, floor is 12"*, isto e,
+da amostra encolhida, nao do conteudo). Dos 208 probes, 34 deixaram de valer, e **nenhum desses 34 aponta
+para um `.tex`**: 8 leem `fundamentals/DEFINITIONS.md`, 7 `_round12/50_...md`, 6 `CONSIDERATIONS.md`, 4
+`_round12/53_...md`, 3+3 outros `_round12/*.md`, 2 `LEFT_OUT.md`, 1 `WORDCOUNT_CONVENTION.md`. São
+documentos de `src_utils/`, que o diretorio de teste nao tinha.
+
+> **CONSEQUENCIA PRATICA, e o ponto principal desta secao:** remover comentario do `.tex` **nao quebra
+> nenhum probe e nenhum gate**. O que voce perde ao apagar um comentario nao e cobertura de gate — e a
+> memoria da decisao. Por isso a ordem certa e: **primeiro decidir o item aqui, depois apagar o bloco**,
+> nunca o contrario. Um bloco apagado antes da decisao leva embora a unica copia do raciocinio.
+
+### 14.3 Os dois itens cuja base factual mudou nesta rodada
+
+**Item 22 — VAZIO, a premissa deixou de existir. Nao precisa mais da sua decisao.** O item perguntava
+onde devia morar o ponteiro para o apendice de cosseno de gradientes (a auditoria anterior citava a frase
+*"Appendix D reports the gradient-cosine diagnostic..."* em `5_mobiwac/02_related.tex`). Essa frase **nao
+existe mais em lugar nenhum**: ela foi removida nesta mesma rodada quando voce estabeleceu que os corpos
+dos artigos dos capitulos 3-5 devem ser autonomos (registrado em `PENDENCIAS.md §2.31`, probes
+`STL-01`..`STL-05`, commit `2bb82234`). A cadeia `grep` confirma zero ocorrencias de `gradient-cosine`
+em prosa viva, e o PDF de defesa tambem nao contem a string. **Nao ha ponteiro para posicionar.** O que
+sobrou do assunto e uma pergunta diferente, registrada onde e visivel: `PENDENCIAS.md §2.32` (o Apendice
+E nao e citado por nenhum capitulo). O bloco de comentario correspondente pode sair sem perda.
+
+**Item 6 — MECANICO, continua valido e pode fechar.** Verificado no PDF renderizado, nao no fonte: as
+duas metades da redacao do veredito por regiao estao impressas (*"on the region task at four of the
+six"* e *"statistically non-inferior within a two-point margin"*, alem de *"Each configuration has
+twenty"*). O item so pedia confirmacao de redacao ja aplicada.
+
+### 14.4 Achados novos nos comentarios (o que voce pediu: "eval if there are other points")
+
+Varri os 5.352 linhas de comentario procurando afirmacao que o proprio documento ja contradiz. Tres
+achados, em ordem de importancia:
+
+**(a) `content.tex:374-380` da uma orientacao que hoje nao se aplica, e isso e o tipo de comentario que
+engana quem le depois.** O bloco avisa que "Appendix B" e ambiguo entre os dois volumes e afirma:
+*"Every prose pointer at the moved material already says 'Appendix~B/D of \\extravolume' (measured: 10
+sites, all carrying 'of \\extravolume')"*, concluindo *"no reader-facing sentence is ambiguous today;
+keep naming the volume in any new pointer"*. **Medido agora: existe exatamente 1 linha viva com
+`\extravolume` em toda a arvore, e ela e a propria definicao do macro em `preamble.tex:191`.** Os 10
+sites de prosa foram removidos nas rodadas anteriores. A instrucao final ("keep naming the volume")
+continua sendo um bom conselho, mas a medicao que a sustenta esta errada por um fator de 10 e o
+diagnostico de ambiguidade nao tem mais objeto. **Sugestao: este bloco e candidato a remocao, nao a
+correcao** — o conselho util cabe em uma linha.
+
+**(b) 6 flags `[VERIFY]` genuinamente abertas e invisiveis para o seu fluxo de revisao.** Ha 13 mencoes
+de `[VERIFY]` nos comentarios, mas a maioria e prosa *sobre* uma flag ("o [VERIFY] que este bloco
+substitui esta fechado"). Contando so as linhas que **abrem** um bracket `[VERIFY:` ou `[VERIFY,`, sao 6,
+e nenhuma delas aparece como item numerado deste arquivo — hoje so um `grep` as encontra. Estao
+detalhadas em `## 14.6` abaixo, uma a uma, com o que cada uma pede.
+
+> *Nota de medicao, para nao repetir o erro:* minha primeira contagem disse 8. Ela classificava como
+> "aberta" qualquer linha contendo `[VERIFY`, incluindo duas que apenas mencionavam uma flag ja fechada.
+> A contagem de 6 usa `\[VERIFY[:,]` (a flag sendo *aberta*, nao citada) e foi conferida linha por linha.
+> Comando em 14.6.
+
+**(c) 7 comentarios que se auto-descrevem por contagem, e contagem deriva.** Ex.: `4_courb.tex:8` diz
+*"26 sites 'MTLNet' -> 'MTLnet' (24 printed, 2 in comments)"*; a arvore hoje tem 80 ocorrencias de
+`MTLnet` (47 em prosa, 33 em comentario). **Aqui nao ha erro**: aquele comentario descreve um evento de
+2026-07-27 (quantos sites foram renomeados naquele dia), nao o estado atual — e `apx_b_errata.tex:293`
+ate registra explicitamente essa distincao. Anoto para que uma varredura futura nao os "corrija" para
+numeros de hoje e destrua o registro historico. **Sem acao.**
+
+### 14.5 A ordem que eu recomendo, se o objetivo e reduzir comentario
+
+Nao e uma decisao minha, mas a medicao aponta um caminho barato:
+
+1. **Feche o item 22 (premissa vazia) e o item 6 (mecanico, verificado no PDF).** Custo zero de
+   julgamento, libera dois blocos.
+2. **Decida os 8 `[VERIFY]` de 14.4(b) e o bloco de 14.4(a).** São os comentarios que hoje afirmam algo
+   desatualizado ou pedem algo invisivel; sao os que mais valem a sua atencao.
+3. **Depois disso, ataque os 51 marcadores restantes por arquivo, do mais carregado para o menos**
+   (`2_fundamentals.tex` primeiro, 8 marcadores e 1.115 linhas de comentario). Cada item fechado
+   autoriza apagar o bloco inteiro que o acompanha — e ai a reducao vem em centenas de linhas, nao em
+   unidades.
+4. **A regra de seguranca, ja verificada em 14.2:** as unicas linhas de comentario que nao podem sair
+   sao as 60 diretivas `% !TeX root`, e o `check_tex_root.py` falha alto se alguma desaparecer. Todo o
+   resto e seguro para o build e para os gates. O `sync_src_clean.py` ja preserva as diretivas e ja
+   avisa sobre duplicatas.
+
+### 14.6 As 6 flags `[VERIFY]` abertas, cada uma com o que decidir
+
+Localize-as com:
+
+```bash
+cd articles/dissertacao/src
+grep -rn --include="*.tex" --exclude-dir=build '\[VERIFY[:,]' .
+```
+
+**V1 — `2_fundamentals.tex:376` · convencao de media do "Cat F1" varrido.** O comentario registra que
+**toda** fonte grava "Cat F1" sem dizer se e macro ou weighted, por isso a prosa escreve "category F1" e
+nao "macro-F1". Duas saidas, ambas honestas: **(a)** voce confirma a convencao e a prosa passa a nomea-la
+(mais informativo, exige que voce saiba qual foi); **(b)** os dois valores saem e a clausula fica
+qualitativa (mais barato, perde os numeros). Isto e uma decisao de *conteudo*, nao de redacao: pela lei
+do repositorio todo numero carrega sua convencao, e hoje esse par nao carrega.
+
+**V2 — `2_fundamentals.tex:736` · as duas perdas auxiliares do Cap.5 devem ser nomeadas aqui?** O texto
+atual apresenta a equacao **sem** alegar ser a loss completa de toda execucao do Cap.5, e essa cautela
+esta correta. A flag registra que nomear os dois termos auxiliares exigiria a configuracao da execucao da
+representacao entregue, *"which I did not establish this session"*.
+
+> **ESTA FLAG PODE FECHAR: o que faltava ja existe.** O Apendice E, escrito depois dela, imprime a
+> equacao completa (`eq:apx-check2hgi-loss`) com **cinco** termos e seus pesos — tres contrastivos
+> (0,4 / 0,3 / 0,3) e exatamente os dois auxiliares que a flag menciona: reconstrucao de lugar mascarado
+> (0,3) e ancora da tabela de lugares (0,1), com a nota de que os coeficientes sao pesos de projeto
+> fixos e nao precisam somar 1. Todos foram conferidos contra o codigo na auditoria do Apendice E.
+> **Portanto a sua decisao nao e mais "descobrir os termos", e so editorial:** o Cap.2 repete esse
+> detalhe, ou continua apresentando a forma reduzida e deixa o detalhe completo no apendice? A segunda
+> opcao e coerente com o Cap.2 ser um capitulo fino (~8-12 paginas).
+
+**V3 — `apx_a_contributions.tex:176` · divulgar as variantes Delta-m do `METRICS.md` e a regra de
+extracao F51?** O comentario diz que nao foi possivel estabelecer que qualquer das duas pertence a
+configuracao reportada, e por isso nenhuma foi nomeada. Se nao pertencem a configuracao reportada, o
+silencio atual e o correto e a flag fecha sem edicao; se pertencem, faltam no registro de reprodutibilidade.
+
+**V4 — `apx_a_contributions.tex:186` · manifesto de versoes de pacote para o codigo liberado.** A flag
+diz apenas que, **se existir**, esse manifesto pertenceria a essa secao. Decisao de uma palavra: existe
+(e voce quer inclui-lo) ou nao existe (e a flag fecha). Note que a mesma secao ja declara
+explicitamente que hardware, versoes de pacote e configuracoes de treino por modelo estao **fora** de
+proposito — se essa exclusao continua valendo, V4 fecha por coerencia com ela.
+
+**V5 — `apx_b_errata.tex:465` · marcada "open and inherited": a divergencia de ~2x na contagem de
+usuarios da Florida.** A extracao da epoca do CBIC conta 10.460 usuarios contra os 20.301 da linha
+publicada do CoUrb, e a diferenca nao foi reconstruida a partir de artefatos versionados. Sua decisao de
+2026-07-24 fixou **qual** numero os capitulos reportam, sem fixar **por que** os dois diferem. O
+paragrafo foi escrito para permanecer verdadeiro nas duas hipoteses, entao **nada esta errado hoje** —
+mas se voce algum dia resolver a origem da divergencia, a frase sobre a comparacao controlada deve ser
+revisitada. Esta e a unica das seis que e legitimamente de longo prazo: pode ficar aberta.
+
+**V6 — `apx_f_cosine.tex:666` · extensao por dataset para California, Texas e Istanbul.** O comentario
+registra estado de execucao, lido do `_status.json` do job e nao do log: o job foi morto por SIGTERM num
+teto de 35 minutos de parede, tendo concluido alabama, arizona e georgia (de onde vem tres dos quatro
+datasets do apendice) e sido cortado dentro do fold 1 da california; texas e istanbul nunca comecaram.
+Foram reenviados como jobs separados: `c2a02f5d` e `d332e69e` (texas, istanbul) e `213ce119` (california,
+por fold).
+
+**Tentei resolver isso para voce e nao consegui — o dado nao esta no repositorio.** Procurei os tres IDs
+de job em todo `.json` e `.md` da arvore e **nenhum aparece**: o resultado dos reenvios nao esta
+versionado aqui, so o ID. Nao tenho acesso ao `ssh:nespedgpu` nesta sessao para consultar o estado, e nao
+vou supor que terminaram.
+
+```bash
+cd /Users/vitor/Desktop/mestrado/ingred
+for j in c2a02f5d d332e69e 213ce119; do echo -n "$j: "; grep -rl "$j" --include="*.json" --include="*.md" . | wc -l; done   # 0 0 0
+```
+
+> **DECISAO SUA, e ela tem duas partes:** (1) alguem precisa olhar o estado desses tres jobs no cluster —
+> **essa parte e sua ou de quem tem acesso**, eu nao consigo; (2) de posse disso, o apendice **espera** os
+> resultados e passa a cobrir sete datasets, **ou fecha** com os quatro que ja tem e declara o escopo
+> explicitamente. A opcao (2)-fecha e defensavel hoje: o apendice ja diz de quantos datasets fala. Esta e
+> a flag com maior chance de estar desatualizada, justamente porque depende de estado externo ao repo.
 
 ---
 
@@ -260,8 +479,31 @@ universal mas nomeando os seis datasets (em vez de "everywhere", por causa do WR
 regiao passa a mencionar explicitamente a particao (n = 20 fits, n = 4 como unidade inferencial, quatro seeds e cinco
 folds), espelhando a redacao ja usada no Capitulo 6 :126-127.
 
-**Se ficar sem decisao:** O veredito de regiao permanece colapsado em "either outperforms or matches" sem refletir a
-particao n=20/n=4 e sem a aprovacao do autor sobre a redacao alinhada ao Capitulo 6.
+**A redacao JA ESTA APLICADA — verificado no PDF, nao no fonte (2026-08-04).** As tres partes que o item
+pedia estao impressas no volume de defesa: a clausula de regiao com a particao
+(*"on the region task at four of the six"*), o veredito nao-inferior com a margem
+(*"statistically non-inferior within a two-point margin"*) e a unidade inferencial
+(*"Each configuration has twenty"*). Reproduza:
+
+```bash
+cd articles/dissertacao/src && python3 -c "
+import pypdfium2 as p, re
+d=p.PdfDocument('build/main.pdf')
+t=re.sub(r'\s+',' ',' '.join(d[i].get_textpage().get_text_range() for i in range(len(d))))
+for s in ['on the region task at four of the six',
+          'statistically non-inferior within a two-point margin',
+          'Each configuration has twenty']:
+    print(s in t, '|', s)
+"
+```
+
+**Portanto a sua decisao aqui e binaria e barata:** ou voce le as tres frases no PDF e responde
+"aprovado", e o bloco de comentario sai; ou aponta o que quer diferente. **Nao ha trabalho de
+verificacao sobrando** — ele esta feito acima.
+
+**Se ficar sem decisao:** o texto continua correto e o build continua verde; o unico custo e que o bloco
+de comentario de ~30 linhas em `1_introduction.tex` permanece no fonte, contra o seu objetivo de reduzir
+comentario.
 
 > **SUA DECISAO:**
 
@@ -639,9 +881,35 @@ aprovada e no claim whitelist, permanece publicado sem a validacao do autor.
 
 ---
 
-### 22. [MECANICO — pode fechar] Localização do apontamento ao apêndice gradient-cosine
+### 22. [VAZIO — a premissa deixou de existir, nao precisa da sua decisao]
 
-**Local:** `src/chapters/5_mobiwac/02_related.tex:14` — renderiza no volume **defesa**, p. 65
+> **LEIA ISTO PRIMEIRO E PULE O RESTO DO ITEM.** A pergunta deste item era *onde* colocar o ponteiro
+> para o apendice de cosseno de gradientes: no paragrafo de abertura da secao (prosa da dissertacao) ou
+> na frase mantida identica ao artigo. **Nao existe mais ponteiro nenhum para posicionar.** Ele foi
+> removido na rodada 14, quando voce estabeleceu que os corpos dos artigos dos capitulos 3-5 devem ser
+> textos autonomos e nao podem citar apendices ou secoes da dissertacao (`PENDENCIAS.md §2.31`, probes
+> `STL-01`..`STL-05`, commit `2bb82234`).
+>
+> Medido em 2026-08-04, nao inferido:
+>
+> ```bash
+> cd articles/dissertacao/src
+> grep -v '^[[:space:]]*%' chapters/5_mobiwac/02_related.tex | grep -c "gradient-cosine"   # 0
+> ```
+>
+> O PDF de defesa tambem nao contem a string `gradient-cosine` em pagina nenhuma. A decisao registrada
+> no round9f (`PENDENCIAS_RESOLVIDOS 2.9`) nao foi revertida — ela foi **superada** por uma regra
+> posterior e mais ampla, que sua propria instrucao criou.
+>
+> **Acao: nenhuma sua.** O bloco de comentario correspondente no `.tex` pode ser removido sem perda,
+> porque a decisao que ele registrava ja nao tem objeto. O assunto residual — *o Apendice E nao e
+> citado por capitulo nenhum, e um leitor so chega nele por acidente* — e uma pergunta diferente e esta
+> registrada onde voce a vera: **`PENDENCIAS.md §2.32`**, com tres colocacoes possiveis e o custo de
+> cada uma.
+
+**Registro historico do item, mantido apenas para rastreabilidade:**
+
+**Local (na epoca):** `src/chapters/5_mobiwac/02_related.tex:14` — renderizava no volume **defesa**, p. 65
 
 **Contexto:** Trata-se de uma nova subseção de recapitulação para o Cap.5, exigida pela NORTH_STAR seção 3 (o Cap.5
 recapitula tanto o artefato do Cap.3 quanto o achado do Cap.4); o conteúdo vem da espinha dorsal aprovada (NORTH_STAR
