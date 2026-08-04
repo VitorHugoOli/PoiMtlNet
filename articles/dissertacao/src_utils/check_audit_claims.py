@@ -1091,6 +1091,55 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
                      "rather than as an `Equivalently` restatement",
      "chapters/2_fundamentals.tex",
      r"The reported\s+out-of-distribution discounted, or OOD-discounted, Acc@10 is therefore", True),
+    # ---- WAVE 2: the author-decided items. AUT-20/21/23 are ONE edit seen from three angles and were
+    # applied in a single pass on his instruction, so their probes are grouped here.
+    #
+    # THE HONESTY PROBES. R13-aut20 and R13-aut23 are the two halves of a correction to a claim about
+    # OUR OWN system, which WRITING_LAW §3 classes as a bug rather than a style matter. The old wording
+    # ("trained without category or region labels", "without using task labels") was false in both
+    # places: the visited place's category is an input feature of the check-in node, and the
+    # configuration the final study trains reconstructs a masked place's category distribution at weight
+    # 0.3. Each probe is PRESENT-type on the corrected scope claim rather than ABSENT-type on the old
+    # wording, because the old wording is quoted in the provenance comments and in the tracker that
+    # record the correction, and an absence probe would fire on the record OF the fix (the R12-notwrong
+    # trap). Evidence for every figure: _round13/71_graphnode_features.md, spec and code line by line.
+    ("R13-aut20",    "§2.2.2 states the SCOPE of what the representation objectives do not read (the "
+                     "next-category and next-region targets) instead of the false blanket claim that no "
+                     "category or region label is used anywhere",
+     "chapters/2_fundamentals.tex",
+     r"trained with no next-category and no\s+next-region target", True),
+    ("R13-aut23",    "§2.2.3.2 makes the same scope claim for Check2HGI and no longer says it learns "
+                     "`without using task labels`",
+     "chapters/2_fundamentals.tex",
+     r"with no next-category and no next-region target in its\s+objective", True),
+    # R13-aut23b: the equation is the hierarchical CORE, not the complete trained objective. This is the
+    # assertion that had presented a three-term sum as the whole loss while the shipped configuration
+    # runs five terms. Anchored on the two auxiliary terms rather than on the lead-in, because the
+    # weights are the load-bearing content: a later rewording of the sentence is fine, dropping the
+    # terms is not.
+    ("R13-aut23b",   "the two auxiliary terms that complete the trained objective are named with their "
+                     "weights, so the displayed equation is not presented as the whole loss",
+     "chapters/2_fundamentals.tex",
+     r"a reconstruction term at weight 0\.3, which\s+recovers a masked place's own distribution over "
+     r"the seven categories", True),
+    # R13-aut18 / R13-aut18b: the two halves of the region-unit move, and BOTH are required. The
+    # definition half alone would pass on an edit that deleted the unit names without rehoming them,
+    # which is exactly the defect a reviewer caught in my first attempt: the pointer was written before
+    # the destination carried the referent, so the chapter briefly named the unit nowhere.
+    ("R13-aut18",    "the task definition names the KIND of region unit, so it holds for any dataset the "
+                     "work later adds",
+     "chapters/2_fundamentals.tex",
+     r"the target is an administrative unit at\s+neighborhood scale", True),
+    ("R13-aut18b",   "and §2.4.1 names the unit each dataset actually supplies, which is what makes the "
+                     "definition's pointer true",
+     "chapters/2_fundamentals.tex",
+     r"a census tract in the five United States datasets, and a\s+\\emph\{mahalle\}", True),
+    ("R13-aut31",    "§2.4 separates how the data is divided from which comparison the design supports",
+     "chapters/2_fundamentals.tex",
+     r"\\subsection\{Preparation and data split\}", True),
+    ("R13-aut31b",   "and the remaining subsection is named for what it now does alone",
+     "chapters/2_fundamentals.tex",
+     r"\\subsection\{Comparison and statistical decisions\}", True),
 )
 
 # COD-016b needs a STRUCTURAL probe, not a string one, so it lives here rather than in PROBES --

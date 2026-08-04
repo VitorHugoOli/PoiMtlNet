@@ -404,7 +404,31 @@ the data itself says which pairing is the true one.
 % sentence added here is didactic, which §1 of WRITING_LAW allows in a dissertation, and it introduces
 % no term outside the registry. Probe: R13-aut19.
 
-The representations used in this work are trained without category or region labels.
+% AUT-20 (PENDENCIAS §4). The sentence here used to read "The representations used in this work are
+% trained without category or region labels", which is FALSE as written. Verified against the spec and
+% the shipped code:
+%   - the category one-hot of the CURRENT visit is an input feature of the check-in node
+%     (research/embeddings/check2hgi/preprocess.py:615-642; active feature width 11, checked against
+%     the shipped Alabama cache and against build_design_k_delaunay.py:198)
+%   - the Check2HGI configuration the final study uses adds a masked-place category reconstruction
+%     term at weight 0.3, so a category is read as a reconstruction target, not merely as an input
+% What IS true, and is what the sentence now says, is narrower and sufficient for this chapter's
+% purpose: no objective reads the prediction target of either sequential task.
+% ONE THING THE AUTHOR RULED ON EXPLICITLY, 2026-08-04: the graph channel by which a next visit's
+% category can reach a history vector (consecutive visits are joined bidirectionally and the encoder is
+% two-layer) is NOT named here. His words: "fix the phrasing and stay silent on the graph channel,
+% before we have more concrete information." Chapter 5, which is the chapter that measures it, keeps
+% its own disclosure at 5_mobiwac/05_setup.tex:70 and its three stated limits at :87. Do not add a
+% Chapter 2 sentence about that channel without his sign-off.
+% Two of his premises were also corrected by measurement and are recorded so they are not re-derived:
+% the region LABEL is not a node feature, and latitude and longitude are not node features either.
+% Both enter only at graph-construction time, coordinates through the polygon join that assigns a
+% place to a region. Full evidence: src_utils/_round13/71_graphnode_features.md.
+% Probe: R13-aut20.
+The representations used in this work are trained with no next-category and no
+next-region target. What a visit contributes is its own description: the category of
+the place visited is an input feature of its node, together with the hour and the day
+of the week.
 Mutual-information estimators provide one way to learn such
 representations~\cite{belghazi2018mine}. Deep InfoMax maximizes agreement between
 local features and a global summary~\cite{hjelm2019dim}, and Deep Graph Infomax (DGI)
@@ -629,11 +653,26 @@ change isolates the effect of the input representation.
 
 \subsubsection{The check-in level}
 
+% AUT-23 (PENDENCIAS §4, author ruling: resolve with AUT-20 and AUT-21 in a single pass). Two
+% assertions in this subsection overstated the objective in the same way the §2.2.2 sentence did, and
+% both are corrected here.
+%   "learns one vector per visit without using task labels" -> the category of the visited place IS an
+%     input feature, and the configuration the final study uses reconstructs a masked place's category
+%     distribution at weight 0.3. The honest statement is about the TARGET, not about labels in general.
+%   "Its objective is the fixed-weight sum" -> the equation below is the three-term HIERARCHICAL CORE,
+%     not the complete objective that was trained. The final study's configuration adds two auxiliary
+%     terms, named after the equation rather than folded into it, so the equation keeps its meaning and
+%     the text stops presenting a partial objective as the whole one.
+% Evidence for every figure: src_utils/_round13/71_graphnode_features.md, which cites the spec and the
+% shipped code line by line.
+% Probes: R13-aut23, R13-aut23b
+
 Check2HGI completes the move from contextualized inputs to one learned representation
-per visit. It adds a fourth level below the place and learns one vector per visit
-without using task labels. The hierarchy has
+per visit. It adds a fourth level below the place and learns one vector per visit from
+the visits themselves, with no next-category and no next-region target in its
+objective. The hierarchy has
 three adjacent-level boundaries: check-in to place, place to region, and region to
-city. Its objective is the fixed-weight sum
+city. Its three hierarchical boundaries contribute the fixed-weight sum
 \begin{equation}\label{eq:fund:check2hgi}
     \mathcal{L} = 0.4\,\mathcal{L}_{c2p} + 0.3\,\mathcal{L}_{p2r} + 0.3\,\mathcal{L}_{r2c},
 \end{equation}
@@ -653,8 +692,22 @@ false pair:
 \end{equation}
 Here, $\mathbf{e}^{+}$ belongs to a true pair, such as a check-in and the place where
 it occurred, whereas $\mathbf{e}^{-}$ is substituted from another example in the
-batch. No prediction target appears in these equations, which is why the
-representation is described as trained without task labels.
+batch. No next-step target appears in these equations. Two auxiliary terms complete the
+objective that the final study trains: a reconstruction term at weight 0.3, which
+recovers a masked place's own distribution over the seven categories from its
+neighbors, and a term at weight 0.1, which keeps the trainable table of place vectors
+near the values it started from.
+% AUT-23, third assertion. The old closing clause read "which is why the representation is described as
+% trained without task labels", drawing a conclusion the equations do not support once the two
+% auxiliary terms are counted. The terms are now named with their weights, so the equation reads as the
+% hierarchical core it is. The 0.3 and 0.1 weights are quoted from the spec and confirmed in the code
+% (src_utils/_round13/71_graphnode_features.md §3); they are not computed here.
+% AUT-21 (PENDENCIAS §4, author ruling: "Vamos de i) Nomear o mecanimos citado e nada novo") is
+% satisfied by the second term above WITHOUT a new citation. The pretrained table is produced by
+% skip-gram over random walks on the graph of places, which is NOT the method of the published POI2Vec
+% (Feng et al., AAAI 2017); citing that paper here would be a misattribution of the same class this
+% project already carries as an erratum for POI-RGNN, so no reference is added. The mechanism is named
+% and nothing is cited.
 
 % [NEEDS SIGN-OFF: COD-015, round6, 2026-07-28] New frame prose: the Check2HGI loss, which the
 % document did not carry anywhere. The author approved adding it.
