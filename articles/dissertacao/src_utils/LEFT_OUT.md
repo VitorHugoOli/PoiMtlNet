@@ -277,7 +277,7 @@ volume gone and accepts the trade.
 ## LO-11 · The author's per-role credit for the CoUrb paper
 
 **Finding.** The author holds three roles in the CoUrb paper that the dissertation does not state
-anywhere. In his own words, answering COD-018 (`PENDENCIAS.md` §5.8): *"Meu papel no courb foi na
+anywhere. In his own words, answering COD-018 (`PENDENCIAS_RESOLVIDOS` 5.8 (arquivado 2026-07-30)): *"Meu papel no courb foi na
 implementação, auxilo ao meu aluno de graduação na sua pesquisa pelos modelos de embedding, e escrita
 da parte do MTL e parte da conclusão."* That is implementation, supporting his undergraduate
 student's research on the embedding models, and writing the multi-task learning section plus part of
@@ -289,7 +289,7 @@ the paper at the workshop, and is the first author of the baseline model MTLnet
 (`chapters/4_courb.tex`:19). Appendix A describes the platform and the ETL and attributes no
 per-function role for CoUrb. So the credit is present in a narrower form than the finding supports.
 
-**Why it is out.** The author decided so, twice. His `PENDENCIAS.md` §5.8 answer is *"Não precisa
+**Why it is out.** The author decided so, twice. His `PENDENCIAS_RESOLVIDOS` 5.8 (arquivado 2026-07-30) answer is *"Não precisa
 mexer nisso, pode remover essa preocupação."* On 2026-07-30 a round-8 track was briefed to add it
 anyway; the track stopped and asked rather than writing it, and he chose to honor the recorded
 decision. Two reasons this is his call and not an agent's: authorship credit on a co-authored paper
@@ -303,10 +303,10 @@ file's `RETIRED` table, which prints on every run with his quote as the reason, 
 the withdrawal instead of dropping it. Measured after the change: 8 of 8 probes hold, 1 withdrawn,
 and a sabotage test (flipping one probe's expectation) still makes the gate exit 1.
 
-**Where the full finding lives.** `PENDENCIAS.md` §5.8, which quotes him verbatim, and the
+**Where the full finding lives.** `PENDENCIAS_RESOLVIDOS` 5.8 (arquivado 2026-07-30), which quotes him verbatim, and the
 `RETIRED` entry in `src_utils/check_audit_claims.py`.
 
-**Decided by.** The author, in `PENDENCIAS.md` §5.8; reconfirmed 2026-07-30. **Reversible at any
+**Decided by.** The author, in `PENDENCIAS_RESOLVIDOS` 5.8 (arquivado 2026-07-30); reconfirmed 2026-07-30. **Reversible at any
 time:** the input is one sentence in Appendix A, matched to the register the Chapter 4 preface uses,
 and it would carry `[NEEDS SIGN-OFF: COD-018]`.
 
