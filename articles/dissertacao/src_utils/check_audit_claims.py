@@ -1315,6 +1315,35 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
      "chapters/2_fundamentals.tex",
      r"The third design choice is how several task losses determine one parameter update\. A\s+"
      r"measured conflict has to be acted on somewhere", True),
+    # R13-aut37 / R13-aut37b / R13-aut37c: the §6.2 reordering into four movements. The three probes pin
+    # the three things the reordering is FOR, because the section could be re-flattened without any of
+    # them failing individually.
+    # R13-aut37 pins MOVEMENT 3, the movement the section did not have. It is the whole point of the
+    # item, and its material is the controls' negative findings read together.
+    ("R13-aut37",    "§6.2 carries the movement that states what the initial expectation got wrong, "
+                     "framed as a correction of an expectation rather than of a result",
+     "chapters/6_conclusion.tex",
+     r"One premise did not survive the controls, and it concerns the mechanism rather than the\s+"
+     r"outcome", True),
+    # R13-aut37b pins the CORRECTED MECHANISM CLAIM, which is the honest core of movement 3: relatedness
+    # motivated the joint model and is not, on this evidence, the source of its advantage. Anchored on
+    # the hedge ("on this evidence") as well as the claim, because dropping the hedge would turn a
+    # scoped reading of three controls into a general statement about multitask learning.
+    ("R13-aut37b",   "and it names the corrected mechanism with its hedge intact: relatedness motivated "
+                     "the joint model and is not, on this evidence, the source of its advantage",
+     "chapters/6_conclusion.tex",
+     r"is not, on this evidence,\s+the source of that model's advantage", True),
+    # R13-aut37c pins the premise POINTER rather than a restatement of the field's expectation. The draft
+    # of this section originally asserted what "the usual reading of multitask learning" expects, which
+    # is a claim about other people's work and would have needed the author's C2 sign-off. Pointing at
+    # §2.3, which states the expectation in the document's own voice and cites caruana1997multitask for
+    # it, keeps the claim internal and already approved. A later edit that replaces the pointer with a
+    # restatement reintroduces the sign-off debt silently, which is what this probe prevents.
+    ("R13-aut37c",   "and the expectation is cited to the chapter that already states it rather than "
+                     "restated as a new claim about the field",
+     "chapters/6_conclusion.tex",
+     r"Section~\\ref\{sec:fund:mtl\} states the expectation under which these models were built",
+     True),
 )
 
 # COD-016b needs a STRUCTURAL probe, not a string one, so it lives here rather than in PROBES --

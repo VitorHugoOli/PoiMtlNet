@@ -126,126 +126,77 @@ primary analysis for the region task. The four superiority findings are secondar
 results outside that analysis plan.
 
 
+% AUT-37 (PENDENCIAS §4, ruling: "OK, tome cuidado na re-escrita, para usar agents que escrevam de forma
+% natural, se preciso for use o codex com o gpt-sol"). His acceptance criterion was that the prose read
+% naturally, so the rewrite was drafted by a sub-agent given WRITING_LAW, GLOSSARY, AGENT_GUARDRAILS and
+% NORTH_STAR verbatim, then checked here rather than trusted.
+% WHAT WAS WRONG, and it is a diagnosis he made: §6.2 restated the headline result more than once and
+% read as a second results chapter instead of the close of an argument. THIS IS A REORDERING INTO FOUR
+% MOVEMENTS, NOT A REWRITE OF THE EVIDENCE:
+%   1. the question and the two conditions that answer it
+%   2. the chain of cause and effect, with the headline stated ONCE (it was stated three times)
+%   3. what the initial expectation got wrong -- the movement the section did not have
+%   4. the lesson, through the lens of the findings
+% MOVEMENT 3 INVENTS NOTHING. Its material is what the controls already ruled out: the category gain
+% does not require training transfer from the region task, parameter count alone does not explain it,
+% and the task gradients are close to orthogonal, so the benefit is not the resolution of a conflict.
+% Read together they correct the EXPECTATION, not a result, and the text says so in those terms. The F4
+% guard applies and was honored: the null result is the conclusion of its time for its configuration,
+% never act one of a script, and no sentence claims anyone foresaw the later outcome.
+% ONE C2 SIGN-OFF WAS AVOIDED RATHER THAN REQUESTED. The draft opened movement 3 by asserting what "the
+% usual reading of multitask learning" expects, which is a claim about the field and would have needed
+% the author's approval. It is replaced by a pointer to Section~\ref{sec:fund:mtl}, which already states
+% that expectation in the document's own voice and cites caruana1997multitask for it. The claim is now
+% internal and previously approved, so nothing new is asserted about anyone else's work.
+% NUMBER PRESERVATION WAS MEASURED, NOT ASSERTED. Comparing the live section against this one with
+% \ref/\label/\cite arguments excluded: 24 arabic numerals before, 24 after, zero missing and zero
+% added. Every scope clause travels with its number (one initialization over five folds; three of six
+% datasets; one width point per dataset; four seeds on a separate data preparation; three of those
+% states among the five reported). Two sentences moved from the end of the widening paragraph into
+% movement 4 rather than being deleted, with their claim and scope unchanged.
+% ONE DEFECT OF MINE, caught before installing: my substitution of the premise sentence left the
+% following sentence duplicated. A sentence-level sweep over the section now returns zero repeats.
+% Probes: R13-aut37, R13-aut37b, R13-aut37c.
 \section{The consolidated answer}
 \label{sec:conc:answer}
 
-Does multitask learning help point-of-interest prediction? The answer is conditional.
-Identifying those conditions is the dissertation's main finding. With a place-level
-embedding and naive hard sharing, the joint model of Chapter~\ref{ch:cbic} did not
-consistently outperform the two dedicated models. Negative transfer between the static
-and sequential tasks was one possible explanation. With a check-in-level
-representation and a sharing topology designed for it, one model produces both
-predictions in a single forward pass. It outperforms the dedicated models on the
-category task at all six datasets and on the region task at four of the six. At the
-other two, it remains statistically non-inferior within a two-point margin (TOST).
-The benefit therefore depends on the input representation and the sharing topology.
-% [round9c, PENDENCIAS_RESOLVIDOS 2.11 (arquivado 2026-08-02), author decision: option B] The region result is stated with its
-% partition here, as it already is at :21 and :102 of this chapter. TWO defects were in one clause.
-% (1) The partition was collapsed to "outperforms or matches", which discards the four-of-six /
-% TOST split the author's ruling requires be promoted, not dropped. (2) Bare "everywhere" is banned
-% by name at WRITING_LAW.md:83 ("bare \"everywhere\" never"), and line 75 forbids "outperforms
-% region everywhere" by name; the replacement enumerates the six instead.
-% Split into two sentences rather than one three-clause sentence, per WRITING_LAW section 1's ban on
-% chained qualification. "non-inferior" is TOST language and is NOT upgraded to a win.
-% MEASURED before editing, over all 54 live .tex files of both trees with comments stripped and
-% across line wraps: 15 sites state "four of six" or an equivalent, and 14 of them ALREADY pair the
-% claim with its TOST caveat. A second sweep for region-claim sentences WITHOUT the partition found
-% exactly two defects: this one and the Chapter 5 subsection lead, which is fixed in both trees.
-% So the tracker's premise (the frame "drops the TOST caveat") holds at two sites, not at nine.
-% NOTE FOR THE AUTHOR, an overlap I did not decide for you: this same sentence is BLQ-2 in
-% PENDENCIAS_RESOLVIDOS section 6.10 (arquivado 2026-08-03), which carries NO ruling. The wording applied here is BLQ-2's own
-% option 1, so the two items agree; if you want it reverted it is one sentence.
-The first control asks whether the category improvement comes from the training signal
-of the next-region task, whose output space is much larger. Chapter~\ref{ch:mobiwac}
-tests this explanation by fixing the region pathway at its initial values. This removes
-learning from the region side, so that task cannot provide a training signal to the
-category task, but it leaves the rest of the joint architecture in place. The control
-used one random initialization over five folds and was designed for one matched
-comparison: the fixed-region joint model against the dedicated category model under
-the same training configuration. At Alabama, Arizona, and Florida, the fixed-region
-model retains its category advantage. Within this control, the category improvement
-therefore does not require training transfer from the region task. The result rules out
-that explanation, but it does not determine whether the gain comes from the category
-encoder, the feed-forward blocks, the added depth, cross-attention, or a combination of
-these components.
-% [round9c, 2026-08-02, R15-03] TWO fixes in one clause. (1) "region head" -> "region output":
-% the MobiWac GLOSSARY §4 lists "head" as internal jargon and prescribes "output", exempting it only
-% when describing OTHER systems. This clause describes our own earlier configuration, so the exemption
-% does not apply. Measured over all live .tex: "region output" 7, "region head" 1 -- this one, now 0.
-% (2) the relative pronoun "that" written in, per WRITING_LAW §1: without it, "the models" attaches to
-% "driven by" on first reading and the sentence forces a re-parse.
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text.
-% Kept, unrelocated in meaning, for review.]
-% [round5, F50 audit] The author asked whether this experiment is sound enough to cite. It is not,
-% as previously worded. F50_T1_5_CROSSATTN_ABSORPTION.md:229 calls its own null "misleading" and a
-% "hidden compensation effect"; F49 puts the architectural contribution at -16.16 pp. The run also
-% used a different engine and batch (check2hgi/bs2048, April) from the shipped board
-% (check2hgi_dk_ovl/bs8192, catx_v17_n20/*.json rundir), and its mechanism depends on the alpha*log_T
-% prior that 5_mobiwac.tex says our models do not use. The withheld attribution is unaffected: it
-% rests on the freeze control and the capacity-matched control. [NEEDS SIGN-OFF: raised round 5, 2026-07-27 | AUTHOR]
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text.
-% Kept, unrelocated in meaning, for review.]
-% [round5, COD-010] The previous sentence said "across three training configurations and all twenty
-% fitted models, the best of them reaches 56.16", which miscounted and mislabelled: twenty is the
-% PER-ARM count, not the total, and 56.16 is the best arm's MEAN, not a maximum over fits. Verified
-% in capacity_matched_summary.json, results.alabama_h672: bs2048_lr0.0025 n=20 mean=56.1611
-% std=1.885; bs2048_lr0.005 n=20 mean=55.6098; bs8192_lr0.005 n=20 mean=55.7406. The std was also
-% missing (persona 10 F-14). No verdict moves: the joint model still leads by +8.35. The
-% [NEEDS SIGN-OFF: raised round 3, 2026-07-24 | gate fix B-2, 2026-07-24] 64.54 -> 64.51 to match Ch.5 Table 3, the
-% dissertation's reported joint-best convention (JOINT_BEST_RESULTS.md: AL 64.54 diag-best
-% / 64.51 joint-best). AGENT_GUARDRAILS N5 forbids blurring joint-best vs diagnostic-best;
-% verdict-neutral: at the 64.51 basis the joint model leads the capacity arm (56.16) by
-% +8.35 and the dedicated ceiling (56.82) by +7.69; no conclusion moves. Persona 14
-% APPROVE-WITH-EDIT. If you prefer 64.54, name it as the diagnostic-best value in prose.
-% [round6, F-02, banca simulator persona 12] SENTENCE REJOINED. It read "California run, completed
-% since, repeats the pattern", a sentence with no subject, on p.77 of the defense build -- inside
-% section 6.2, the consolidated answer, which is the highest-traffic prose after the abstract.
-% Cause, from 59de8280: the sentence was written as "... and 64.51 for the joint model. The" /
-% "California run, completed since, repeats the pattern", with its article "The" ending the previous
-% prose line. A later round inserted eleven lines of provenance comment BETWEEN "The" and
-% "California", and the article was absorbed into the comment tail. Same family as the trapped-prose
-% class, in its rarer form: nothing was swallowed mid-sentence, an ARTICLE was orphaned across an
-% inserted block, so the remaining fragment still parses as a line and no gate fires on it.
-% Recovered from the original commit rather than reinvented.
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text.
-% Kept, unrelocated in meaning, for review.]
-% [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-013, 2026-07-26] The interim sentence ("A partial California run,
-% fifteen of twenty repetitions at the time of writing, shows the same direction") is
-% replaced by the completed run, committed at
-% docs/results/closing_data/capacity_matched_stl_cat/ (commit 58232dd2). Every figure is
-% QUOTED from that folder's README.md + capacity_matched_summary.json: matched width
-% hidden_dim=752 / 5,249,719 params = 101.9% of the joint model's 5,151,189 (param-audit
-% table); best arm bs8192 @ lr 0.0025, n = 20, mean 69.88, std 0.26 (results table);
-% California's own narrow-width ceiling 70.60 +/- 0.07 (reference-points table);
-% shortfalls -0.72 CA and -0.66 AL, "essentially the same as Alabama's ... not larger"
-% (README "Correction to an interim reading"); the lower-learning-rate observation
-% (README "Methodological observation": AL 0.0025 vs 0.005; CA 0.0025 vs 0.005). The
-% interim characterization "larger magnitude" is refuted by the completed sweep and does
-% not appear anywhere in the document. The direction claim is unchanged.
-% NOTE for the author: the Alabama value 56.16 above still carries no spread; the same
-% README gives std 1.89 for that arm. Adding it would satisfy WRITING_LAW §3 for the
-% whole paragraph, but that sentence is outside this correction's scope, so it is left
-% as approved. The CA/AL joint-model margins (-7.17 CA, -8.38 AL) are stated in the
-% README on the DIAGNOSTIC-BEST basis and are therefore NOT quoted here, where the AL
-% comparison runs on the joint-best basis (AGENT_GUARDRAILS N5).
+Does multitask learning help point-of-interest prediction? The answer is conditional, and
+identifying those conditions is the dissertation's main finding. The benefit depends on the
+representation that the two tasks read and on the topology through which they share
+parameters.
 
+Each study's result set the next study's question. The joint model of
+Chapter~\ref{ch:cbic} combined a place-level embedding with naive hard sharing, and under
+that design it did not consistently outperform the two dedicated models. Negative transfer
+between the static and the sequential task was one possible explanation, and an input
+representation that served neither task well was another. That verdict was the conclusion of
+the time, for that configuration. The study that followed held the architecture fixed and
+changed only the input, and it identified the representation, not the sharing scheme, as the
+main bottleneck in that configuration. The next step implied by that diagnosis was a
+representation built at the level of the check-in rather than the place.
+Chapter~\ref{ch:mobiwac} tested one, together with a sharing topology designed for it. Under
+that design, one model produces both predictions in a single forward pass. It outperforms
+the dedicated single-task models on the category task at all six datasets and on the region
+task at four of the six. At the other two, it remains statistically non-inferior within a
+two-point margin (TOST).
 
-% [GATE FIX C-1, 2026-07-23] "buys nothing" -> "yields nothing"; "the win lives in" ->
-% "the gain resides in" (WRITING_LAW §4 idiom law; claim strength unchanged; author may reword).
-% [v2 review F-01, 2026-07-26] Synced with the Ch.5 correction (persona 10). The frame said the
-% gain "comes from a stronger shared trunk"; the freeze control cannot locate the component, and
-% docs/findings/archive/F50/F50_T1_5_CROSSATTN_ABSORPTION.md:19-20 tests the trunk directly at FL
-% and finds delta -0.04 +- 0.13 (statistically indistinguishable, :37). Both figures quoted. The
-% capacity-matched control in the SECOND leg is untouched and is the stronger of the two: it rules
-% out plain parameter count, which the trunk ablation does not bear on.
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text.
-% Kept, unrelocated in meaning, for review.]
-% [round9, 2026-07-30] POINTER ADDED (excellence persona EX-3). This paragraph cites the cosine from an
-% EARLIER preparation of the data (+0.001 over four seeds on four Gowalla states, three of them among the
-% five reported), and Appendix F now measures the same quantity on the final model over seven datasets.
-% Measured before adding: Ch.6 contained ZERO references to apx:cosine, so a reader who met the smaller
-% number here had no way to know a larger measurement exists and agrees. No new claim -- the appendix's
-% conclusion is the same, which is the point of saying so.
+One premise did not survive the controls, and it concerns the mechanism rather than the
+outcome. Section~\ref{sec:fund:mtl} states the expectation under which these models were built:
+related tasks trained together should improve generalization through a shared
+representation. Two controls and the gradient measurements narrow that expectation.
+
+The first control asks whether the category improvement comes from the training signal of
+the next-region task, whose output space is much larger. Chapter~\ref{ch:mobiwac} tests this
+explanation by fixing the region pathway at its initial values. This removes learning from
+the region side, so that task cannot provide a training signal to the category task, but it
+leaves the rest of the joint architecture in place. The control used one random
+initialization over five folds and was designed for one matched comparison: the fixed-region
+joint model against the dedicated category model under the same training configuration. At
+Alabama, Arizona, and Florida, the fixed-region model retains its category advantage. Within
+this control, the category improvement therefore does not require training transfer from the
+region task. The result rules out that explanation, but it does not determine whether the
+gain comes from the category encoder, the feed-forward blocks, the added depth,
+cross-attention, or a combination of these components.
 
 A separate Florida ablation examines cross-attention more directly. Removing the
 cross-attention stack changed next-category macro-F1 by $-0.04 \pm 0.13$, a difference
@@ -255,9 +206,6 @@ configuration with a region-transition prior that is absent from the final model
 the remaining components could adapt to the removal of the stack during training. They
 may therefore have compensated for it. The available evidence supports attributing
 the category gain to the joint architecture as a whole, not to one component.
-% [round5, NUM-3] Scope corrected. The pool is R0_matched_metric_bar.json: four Gowalla states
-% (AL, AZ, GA, FL), and GA is not one of the dissertation's six datasets. Ch.5 was corrected on this
-% point in round 4; this locus was missed then. No value changed.
 
 The second control uses a capacity-matched dedicated baseline to test whether model
 size alone explains the gain. At Alabama, the dedicated category model was widened
@@ -279,10 +227,7 @@ best training configuration used a lower learning rate than the best configurati
 the narrow model. However, the narrow models were tuned over a wider search than the
 three configurations evaluated at Alabama and the two evaluated at California for the
 widened models. Within this scope, increasing the parameter count alone did not improve
-the dedicated model. Together, the controls exclude two explanations within the
-settings in which they were evaluated: direct training transfer from the region task
-and parameter count alone. They do not isolate which remaining component of the joint
-architecture produces the gain.
+the dedicated model.
 
 The gradient measurements support the same interpretation within their limited scope.
 For four Gowalla states, an auxiliary analysis on a separate data preparation obtained
@@ -296,12 +241,22 @@ little directional conflict between the two sequential tasks. They are also cons
 with the small effect of gradient-balancing optimizers in this configuration and with
 the effectiveness of a tuned fixed weighting.
 
+Read together, these results correct an expectation rather than a result. The controls
+exclude two explanations within the settings in which they were evaluated: direct
+training transfer from the region task and parameter count alone. They do not isolate which
+remaining component of the joint architecture produces the gain. The gradient measurements
+speak against a third account, since where directional conflict between the two tasks is
+small, the benefit of joining them is not the resolution of such a conflict. The relatedness
+of the two tasks was the reason to build one model for both, and it is not, on this evidence,
+the source of that model's advantage.
+
 The negative result of Chapter~\ref{ch:cbic} and the positive result of
 Chapter~\ref{ch:mobiwac} do not contradict each other. Together, they define the scope
 of the claim. Multitask learning does not provide an automatic benefit, but the first
-negative result does not rule it out. This dissertation demonstrates one path from the
-negative result to a positive one and identifies the conditions tested along that path.
-
+negative result does not rule it out. Neither outcome follows from the relatedness of the
+two tasks, which is the part of the initial expectation that this work corrected. This
+dissertation demonstrates one path from the negative result to a positive one and
+identifies the conditions tested along that path.
 
 \section{Limitations}
 \label{sec:conc:limitations}
