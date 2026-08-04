@@ -19,6 +19,15 @@ Volume suplementar: sujeitos humanos (1), Volume suplementar (2)
 
 ## Auditoria de 2026-08-03 — validade, obsolescencia e o que ja pode fechar
 
+**CORRECAO 2026-08-03 (achado do revisor, commit 192e9a82).** O texto abaixo, quando primeiro escrito,
+atribuia a `1_introduction.tex` a medicao "92 insertions/62 deletions" e a `2_fundamentals.tex` a
+medicao "214/89". **O par 92/62 nao pertence a `1_introduction.tex`** -- a medicao real desse arquivo
+na epoca era 52 insertions/12 deletions (exec-log `caff3bd8`, cell 2578); 92/62 e uma medicao ANTERIOR
+de `2_fundamentals.tex`, colada no arquivo errado no registro de proveniencia. Nota corretiva anexada
+ao commit via `git notes`. **A conclusao substantiva nao muda**: os dois arquivos derivaram o
+suficiente para mover numeros de linha, e os 56 marcadores continuam resolvendo 1-para-1 mesmo assim
+-- so o par de numeros atribuido a `1_introduction.tex` estava errado.
+
 **Metodo.** Os 56 marcadores foram relocalizados no fonte vivo (nao pela linha registrada acima, que andou em `1_introduction.tex` e `2_fundamentals.tex` apos edicoes concorrentes desde a geracao deste arquivo, mas por correspondencia de conteudo dentro do mesmo arquivo). **As 56 correspondencias fecham 1-para-1: nenhum marcador desapareceu, nenhum se fundiu com outro.** Cada item foi entao cruzado contra `PENDENCIAS.md` §2/§4 e `_archive/PENDENCIAS_RESOLVIDOS.md`, procurando por uma decisao ja registrada que respondesse a mesma pergunta.
 
 **Nao ha sobreposicao com o novo §4 (`Pensamentos e considerações do Autor`, 37 itens `AUT-`) nem com as 26 decisoes do antigo §6 (`CONSIDERATIONS.md`).** Verificado por arquivo e por palavras-chave: nenhum item deste documento e nenhum item `AUT-`/`CONSIDERATIONS` compartilham arquivo+trecho. Sao registros independentes por desenho -- este documento cobre marcadores de proveniencia no `.tex`; os outros dois, pontos de revisao do orientador/coautor.
@@ -120,7 +129,7 @@ pertence agora, ou manter para revisao futura -- ja que a frase original que ele
 continua sem destino definido, deixando a informacao sobre a diferenca de tarefas entre os estudos sem localizacao
 confirmada no texto.
 
-> **SUA DECISAO:**
+> **SUA DECISAO:** 2, como nem usamos esses termos mais podemos descartar.
 
 ---
 
