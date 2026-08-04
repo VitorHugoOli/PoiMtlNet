@@ -194,3 +194,24 @@ because Table 12 gained the prior-OFF row and reflowed. `extra` is unchanged.
 
 **Left for the author, deliberately:** T1 (the stale two-layer GRU line in
 `science/mtl_v17_complete_picture.md:409`) and T2 (no chapter points at Appendix E).
+
+---
+
+## 8 · Overleaf log findings (author-supplied, TeX Live 2025)
+
+The author's Overleaf build reports warnings this tree does not. **Cause: version skew.**
+Overleaf runs TeX Live 2025, this tree runs TeX Live 2026 (`pdfTeX 3.141592653-2.6-1.40.29`).
+Babel and the font metrics differ between them, and line breaking follows. **For anything
+submitted, the Overleaf log is authoritative, not this one.**
+
+| Item | Status |
+|---|---|
+| `Overfull \hbox (9.27821pt too wide)` at `1_introduction.tex:158-162` | **FIXED at source, version-independently.** Local TL2026 reports zero Overfull boxes for that paragraph, so the defect could not be reproduced here and no local measurement could confirm a fix. Hyphenation points were therefore added for the paragraph's long words (`preamble.tex`, after the existing `\hyphenation{fe-de-ral}`), which changes no wording and only widens the set of lines TeX may choose. `dimensional` is the load-bearing entry: it follows an explicit hyphen in "64-dimensional", and TeX does not hyphenate the remainder of a word after an explicit hyphen unless the parts are given. **Confirm on Overleaf.** |
+| `Package babel Warning: Last declared language option is 'brazil', but the last processed one was 'english'` | **NOT changed. Author decision needed.** This is a real latent ambiguity, not noise: `brazil` and `english` are both class options (`preamble.tex:38-39`), `brazil` is declared last but `english` is processed last, which is exactly why the preamble needs the `\addto\captionsbrazil` block to anglicize captions by hand. `main=english` was TESTED here: rc=0, 116 pages, warning gone, Portuguese `Resumo`/`Palavras-chave` intact, English captions intact, zero hyphenation change on page 2. It was reverted rather than shipped, because the warning does not fire on TL2026 and a babel main-language change should be verified where it actually fires. Apply and confirm on Overleaf. |
+| `Underfull \hbox` at `content.tex:121`, `3_cbic/method.tex:16` (x2), `4_courb.tex:2` | **Pre-existing, previously audited, no action.** The first is front matter; the two in `3_cbic/method.tex` are inside a footnote about the released implementation's neighbor mean. Underfull boxes are loose spacing, not overrun text, and none of these is in the appendix under audit. |
+
+**Note on parallel builds.** `latexbuild.sh:33` gives every target its own `build/<stem>-aux`,
+added (per its own header note) because concurrent builds previously corrupted each other's
+aux files. Building the four targets concurrently is therefore safe and is what this round
+does. The one caveat: do not run two builds of the SAME target at once, which produced a
+spurious `ppgc: rc=2` earlier in this session.
