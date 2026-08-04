@@ -2,23 +2,6 @@
 \section{Background and Related Work}
 \label{sec:mobiwac:related}
 
-\subsection{The MTLnet framework and the representation diagnosis}
-\label{sec:mobiwac:related-recap}
-Two chapters of this dissertation precede this study, and this chapter answers the
-question that they leave open. Chapter~\ref{ch:cbic} introduced MTLnet, the first
-joint model for this task pair: task-specific encoders feed shared layers
-conditioned on task identity, and a gradient-balancing method weights the two tasks
-during training~\cite{silva2025mtlnet}. On a place-level embedding with hard
-parameter sharing, that joint model did not outperform the dedicated single-task
-models, the conclusion of the time for that configuration.
-Chapter~\ref{ch:courb} kept the MTLnet architecture unchanged and replaced its
-single 64-dimensional place-level input with decomposed spatial, temporal, and
-categorical encoders (ST-MTLNet); the category score rose at each of the three
-states studied, so the input representation, not the sharing architecture, was
-identified as the bottleneck~\cite{paiva2026stmtlnet}. This chapter carries that diagnosis one step
-further: the representation moves from the place level to the check-in level, the
-sharing topology is redesigned around it, and the earlier negative conclusion is
-revisited under this new configuration.
 
 \subsection{From place embeddings to per-visit embeddings}
 \label{sec:mobiwac:related-embeddings}
@@ -108,13 +91,15 @@ The reason is visible in the gradients. Measured during development on the same
 joint architecture (on an earlier preparation of the data), the cosine
 similarity between the next-category and next-region updates on the shared
 trunk averages $+0.001$ across training (four seeds each on four Gowalla
-states: Alabama, Arizona and Florida, which are three of the five United States datasets reported
-here, and Georgia, which this dissertation does not otherwise use; the largest per-dataset mean in
+states: Alabama, Arizona and Florida, which are three of the five U.S. datasets reported
+here, and Georgia, which is not among the datasets this study reports; the largest per-dataset mean in
 absolute value is $+0.0032$). A balancer therefore has no
 conflict to resolve, consistent with the mechanism test in
 Section~\ref{sec:mobiwac:results-part2}; this is a finding for this pair of tasks, not a
-general rule. Appendix~\ref{apx:cosine} of this dissertation measures the same quantity on
-the final model across seven datasets and reaches the same conclusion.
+general rule. The same quantity, measured on the final model across seven datasets, is
+positive at every one of them, so the absence of conflict is not an artifact of this
+smaller set of runs.
+
 
 \begin{figure}[htbp]
 \centering

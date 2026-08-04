@@ -5,9 +5,8 @@
 
 A joint model that shares parameters between two tasks can end up worse at both than two dedicated
 models are at one each~\cite{standley2020tasks}.
-The usual reason is a disagreement, and it shows up in the gradients: if the
-update next-region asks for points against the update next-category asks for, one task improves at
-the other's expense. That has a direct measurement, and this appendix runs it on the joint model of
+The usual reason is a disagreement, and it shows up in the gradients: when the
+two tasks ask for opposite updates, one task improves at the other's expense. That has a direct measurement, and this appendix runs it on the joint model of
 Chapter~\ref{ch:mobiwac}.
 
 The two tasks turn out not to disagree. Their gradients are statistically indistinguishable from
@@ -62,9 +61,10 @@ interval and tests. All seven means lie within one and a half hundredths of zero
 five hundredths, and equivalence holds at every other level of aggregation as well, including the raw
 observations, so the conclusion does not depend on the choice of unit.
 
-The distance between that result and a null result is the point of this appendix. A test that merely
-failed to reject zero would license one statement, that no conflict was detected, which is equally
-consistent with a conflict too small to see at this sample size. An equivalence test licenses the
+The distance between that result and a null result is the point of this appendix.
+A test that merely
+failed to reject zero would support one statement, that no conflict was detected, which is equally
+consistent with a conflict too small to see at this sample size. An equivalence test supports the
 positive claim instead: the mean alignment lies inside a margin fixed in advance, so whatever
 alignment is there is too small to matter. That is a claim about the tasks, not about the
 experiment's power.
@@ -90,7 +90,7 @@ systematic pull to one side.
     \label{fig:apx:cosine}
 \end{figure}
 
-Two patterns stand out in the data.
+The figure shows two patterns.
 The first is a positive tendency that recurs on two datasets: all five of Alabama's fold means are
 positive, averaging $+0.0112$, and so are all five of Georgia's, averaging $+0.0039$. No other
 dataset is unanimous in either direction. The second is a decline over training, on those same two
@@ -139,10 +139,9 @@ recorded. Orthogonality survives every hyperparameter and procedure that was var
 artifact of one choice among them.
 
 \medskip\noindent
-The second axis is the data. It now covers every dataset Chapter~\ref{ch:mobiwac} reports on: the
+The second axis is the data. The seven datasets cover every dataset Chapter~\ref{ch:mobiwac} reports on: the
 check-in counts run from 113,846 at Alabama to 4,089,892 at Texas and the region counts from 520 at
-Istanbul to 8,501 at California, so this axis spans a factor of thirty-six in volume and one of
-sixteen in the size of the region label set, with Georgia added under the same protocol. Equivalence
+Istanbul to 8,501 at California, with Georgia added under the same protocol. Equivalence
 holds at both ends: the result is not a quirk of Florida, and it is not an artifact of small data.
 
 Together the two axes suggest orthogonality belongs to the task pair rather than to the tuning. Next
@@ -156,8 +155,10 @@ architecture family, the cross-attention joint model of Chapter~\ref{ch:mobiwac}
 decides where the two tasks meet and how much they share, which makes it at once the factor most
 likely to change the answer and the one this appendix did not vary. Nothing here says the gradients
 stay orthogonal in a model that shares more of its depth, couples the tasks in a cascade, or shares
-an output layer. Settling that needs the same diagnostic and nothing else changed: the per-epoch
+an output layer.
+Answering that question needs the same diagnostic and nothing else changed: the per-epoch
 cosine on the candidate's shared parameters, under a fixed loss weighting, across one dataset's
 folds, with the fold means tested for equivalence against a margin chosen in advance. Equivalence
 there makes orthogonality the task pair's property; otherwise it belongs to this architecture, and
 Section~\ref{apx:cosine:mechanism} applies only to models shaped like this one.
+

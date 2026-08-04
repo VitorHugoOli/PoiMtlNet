@@ -22,6 +22,9 @@
 \usepackage{newtxtext,newtxmath}
 \usepackage{indentfirst}
 \usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,backgrounds,calc,fit,positioning}
+\usepackage{float}
 \usepackage{adjustbox}
 \usepackage{booktabs}
 \usepackage{multirow}
@@ -36,15 +39,20 @@
 \usepackage{bm}
 \usepackage{longtable}
 
+\let\openbox\relax
+\usepackage{amsthm}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[chapter]
+
 \usepackage[num,abnt-emphasize=bf]{abntex2cite}
 \citebrackets{[}{]}
 \makeatletter
-\AtBeginDocument{\renewcommand{\@biblabel}[1]{%
+\AtBeginDocument{\renewcommand{\@biblabel}[1]{
     \ifthenelse{\equal{#1}{}}{}{{\citenumstyle[#1]\hspace{\biblabelsep}}}}}
 \makeatother
 
-\addto\captionsbrazil{%
-    \def\bibname{References}%
+\addto\captionsbrazil{
+    \def\bibname{References}
     \renewcommand{\figurename}{Figure}
     \renewcommand{\tablename}{Table}
     \renewcommand{\listfigurename}{List of Figures}
@@ -65,8 +73,8 @@
 \newcommand{\extravolume}{the supplementary volume of this dissertation}
 \newcommand{\Extravolume}{The supplementary volume of this dissertation}
 
-\newenvironment{chapterpreface}%
-{\begin{quotation}\itshape\noindent}%
+\newenvironment{chapterpreface}
+{\begin{quotation}\itshape\noindent}
 {\end{quotation}\vspace{0.5\baselineskip}}
 
 \titulo{\normalsize{\textbf{Multitask Learning for Point-of-Interest Classification and Prediction Tasks: The Role of the Check-in-Level Representation}}}
@@ -99,3 +107,5 @@ degree of \textit{Magister Scientiae}.}
     bookmarksdepth=4,
 }
 \makeatother
+
+% !TeX root = main.tex

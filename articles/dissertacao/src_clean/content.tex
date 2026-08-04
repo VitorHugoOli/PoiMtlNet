@@ -1,8 +1,9 @@
 % !TeX root = main.tex
+% !TeX root = main.tex
 
 \begin{document}
     \frenchspacing
-    \OnehalfSpacing %
+    \OnehalfSpacing
 
     \pretextual
 
@@ -47,18 +48,21 @@
         por codificadores espaciais, temporais e categóricos decompostos. A melhora
         acentuada do desempenho de categoria nos conjuntos avaliados indicou que,
         naquela configuração, a representação de entrada era o principal fator
-        limitante. Com base nesse diagnóstico, o terceiro estudo atribuiu um vetor
-        próprio a cada \emph{check-in}, substituiu o compartilhamento rígido por uma
-        topologia baseada em atenção cruzada e reuniu duas tarefas sequenciais: a
-        previsão da próxima categoria e da próxima região. O modelo final foi avaliado
+        limitante. Com base nesse diagnóstico, o terceiro estudo passou da
+        representação em nível de POI para uma representação em nível de
+        \emph{check-in} (um vetor por visita, e não por POI), trocou o
+        compartilhamento rígido por uma topologia baseada em atenção cruzada e
+        reuniu duas tarefas sequenciais: a previsão da próxima categoria e da
+        previsão da próxima região. O modelo final foi avaliado
         em seis conjuntos de dados de diferentes contextos geográficos, incluindo um
         conjunto não estadunidense. O protocolo empregou validação cruzada com usuários
-        disjuntos entre treinamento e teste e testes estatísticos pareados. Essas
-        análises mostraram ganhos consistentes na previsão da próxima categoria e
-        resultados superiores ou comparáveis aos modelos dedicados na previsão da
-        próxima região. Os resultados mostram que o MTL não constitui um
-        benefício automático: sua efetividade depende da representação de entrada e
-        da topologia de compartilhamento construída para as tarefas consideradas.
+        disjuntos entre treinamento e teste estatísticos pareados.
+        Essas análises mostraram que o modelo conjunto superou os modelos dedicados na
+        previsão da próxima categoria em todos os conjuntos e, na previsão da próxima
+        região, superou-os ou foi estatisticamente não-inferior dentro da margem de dois
+        pontos de Acc@10. Em ambas as tarefas, os resultados do modelo conjunto também
+        ficaram acima dos reportados pelos métodos externos usados como referência.
+        Os resultados mostram que o MTL não constitui um benefício automático: sua efetividade depende da representação de entrada e da topologia de compartilhamento construída para as tarefas consideradas.
 
         \vspace{\onelineskip}
         \noindent
@@ -94,15 +98,21 @@
             decomposed spatial, temporal, and categorical encoders. The marked
             improvement in category performance across the evaluated datasets
             indicated that, in that configuration, the input representation was the
-            main limiting factor. Based on this diagnosis, the third study assigned a
-            distinct vector to each \emph{check-in}, replaced hard sharing with a
+            main limiting factor. Based on this diagnosis, the third study moved
+            from a place embedding to a check-in-level representation (one vector
+            per visit rather than per POI), replaced hard sharing with a
             cross-attention-based topology, and paired two sequential tasks:
             next-category and next-region prediction. The final model was evaluated on
             six datasets from different geographic contexts, including one non-U.S.
-            dataset. The protocol used user-disjoint cross-validation and paired
-            statistical tests. These analyses showed consistent gains in next-category
-            prediction and results that were superior or comparable to the dedicated
-            models in next-region prediction. The results show that MTL does not
+            dataset.
+            The protocol used user-disjoint cross-validation and paired statistical
+            tests. These analyses showed that the joint model outperformed the dedicated
+            single-task models in next-category prediction at every dataset and, in
+            next-region prediction, either outperformed them or was statistically
+            non-inferior within the two-point Acc@10 margin. On both tasks, the joint
+            model's results were also above those reported by the external baselines.
+            The results
+            show that MTL does not
             provide an automatic benefit: its effectiveness depends on the input
             representation and the sharing topology designed for the tasks under
             consideration.
@@ -171,7 +181,7 @@
         \include{chapters/apx_c_ai_disclosure}
         \include{chapters/apx_e_ethics}
         \include{chapters/apx_f_cosine}
-        \include{chapters/apx_g_hgi_tuning}
+        \include{chapters/apx_h_check2hgi_joint_model}
     \end{apendicesenv}
 
 \end{document}

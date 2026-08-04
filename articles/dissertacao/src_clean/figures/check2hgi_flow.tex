@@ -1,0 +1,68 @@
+% !TeX root = ../main.tex
+\begin{tikzpicture}[
+    font=\small,
+    node distance=0.7cm and 1.2cm,
+    level/.style={draw=black!55, rounded corners=1pt, fill=white,
+        align=center, text width=1.72cm, minimum height=0.62cm, inner sep=3pt,
+        font=\scriptsize},
+    lvlhead/.style={align=left, text width=2.45cm, inner sep=2pt,
+        font=\scriptsize\itshape},
+    member/.style={-{Latex[length=1.5mm]}, line width=0.6pt, draw=black!55},
+    stage/.style={draw=black!70, rounded corners=2pt, fill=black!3,
+        align=center, text width=3.95cm, minimum height=3.3cm, inner sep=5pt},
+    learned/.style={stage, fill=black!9, line width=0.8pt},
+    export/.style={draw=black!75, rounded corners=2pt, fill=white,
+        align=center, text width=3.95cm, minimum height=1.6cm, inner sep=5pt,
+        double, double distance=1pt},
+    auxiliary/.style={draw=black!60, rounded corners=2pt, dashed, fill=white,
+        align=center, text width=3.95cm, minimum height=1.6cm, inner sep=5pt},
+    handoff/.style={draw=black!80, rounded corners=2pt, fill=black!12,
+        align=center, text width=5.6cm, minimum height=1.6cm, inner sep=5pt,
+        line width=0.9pt},
+    flow/.style={-{Latex[length=2.2mm]}, line width=0.75pt, draw=black!80},
+    exportflow/.style={-{Latex[length=2.2mm]}, line width=0.75pt, dashed,
+        draw=black!70},
+    loss/.style={fill=white, inner sep=1.5pt, font=\scriptsize}
+]
+    \node[lvlhead] (lhead) {Four nested levels};
+    \node[level, right=0.72cm of lhead] (lci) {check-in $c_i$};
+    \node[level, right=1.15cm of lci]   (lpl) {place $p$};
+    \node[level, right=1.15cm of lpl]   (lrg) {region $r$};
+    \node[level, right=1.15cm of lrg]   (lct) {city $\Omega$};
+    \draw[member] (lci) -- node[loss]{$\mathcal{L}_{C\!P}$} (lpl);
+    \draw[member] (lpl) -- node[loss]{$\mathcal{L}_{P\!R}$} (lrg);
+    \draw[member] (lrg) -- node[loss]{$\mathcal{L}_{R\!\Omega}$} (lct);
+
+    \node[stage, anchor=north west] (records) at ([yshift=-0.8cm]lhead.south west)
+        {{\scriptsize\itshape raw records}\\\textbf{Input}\\Check-in records\\category, time, coordinates};
+    \node[learned, right=of records] (event)
+        {{\scriptsize\itshape check-in level}\\\textbf{Trajectory context}\\Succession graph\\two weighted GCNs\\$\mathbf{x}_i\in\mathbb{R}^{64}$};
+    \node[learned, right=of event] (place)
+        {{\scriptsize\itshape place level}\\\textbf{Place summary}\\Four-head attention\\over check-ins\\$\mathbf{e}_{p_i}\in\mathbb{R}^{64}$};
+
+    \node[export, below=of records] (xexport)
+        {Exported check-in table\\one 64-vector per visit};
+    \node[auxiliary, below=of place] (ptable)
+        {Detached place summary\\+ pretrained table};
+
+    \node[learned, below=0.9cm of ptable] (spatial)
+        {{\scriptsize\itshape region level}\\\textbf{Spatial context}\\Delaunay place GCN\\place--region attention\\region adjacency GCN};
+    \node[stage] (city) at (event |- spatial)
+        {{\scriptsize\itshape city level}\\\textbf{Global context}\\Area-weighted city summary\\training only};
+
+    \node[export, below=of spatial] (zexport)
+        {Exported region table\\one 64-vector per region};
+    \node[handoff, below=of city] (windows)
+        {Two separate nine-visit sequences\\passed to the joint model};
+
+    \draw[flow] (records) -- (event);
+    \draw[flow] (event) -- node[loss,above]{$\mathcal{L}_{C\!P}$} (place);
+    \draw[exportflow] (place) -- (ptable);
+    \draw[exportflow] (ptable) -- node[loss,left]{$\mathcal{L}_{P\!R}$} (spatial);
+    \draw[flow] (spatial) -- node[loss,above]{$\mathcal{L}_{R\!\Omega}$} (city);
+
+    \draw[exportflow] (event.south) |- (xexport.east);
+    \draw[exportflow] (spatial) -- (zexport);
+    \draw[flow] (xexport.south) |- (windows.west);
+    \draw[flow] (zexport.west) -- (windows.east);
+\end{tikzpicture}
