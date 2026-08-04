@@ -31,7 +31,20 @@ commit, nao este documento, tinha o par de numeros errado.
 
 **Metodo.** Os 56 marcadores foram relocalizados no fonte vivo (nao pela linha registrada acima, que andou em `1_introduction.tex` e `2_fundamentals.tex` apos edicoes concorrentes desde a geracao deste arquivo, mas por correspondencia de conteudo dentro do mesmo arquivo). **As 56 correspondencias fecham 1-para-1: nenhum marcador desapareceu, nenhum se fundiu com outro.** Cada item foi entao cruzado contra `PENDENCIAS.md` §2/§4 e `_archive/PENDENCIAS_RESOLVIDOS.md`, procurando por uma decisao ja registrada que respondesse a mesma pergunta.
 
-**Nao ha sobreposicao com o novo §4 (`Pensamentos e considerações do Autor`, 37 itens `AUT-`) nem com as 26 decisoes do antigo §6 (`CONSIDERATIONS.md`).** Verificado por arquivo e por palavras-chave: nenhum item deste documento e nenhum item `AUT-`/`CONSIDERATIONS` compartilham arquivo+trecho. Sao registros independentes por desenho -- este documento cobre marcadores de proveniencia no `.tex`; os outros dois, pontos de revisao do orientador/coautor.
+**CORRECAO 2026-08-04 (achado do revisor).** A frase original aqui dizia que nenhum item deste "
+documento e nenhum item `AUT-`/`CONSIDERATIONS` compartilhavam arquivo+trecho, apoiada num loop cuja
+variavel de entrada (`answered_locs`) ja saira vazia por um bug de parsing anterior -- a checagem nao
+provava nada. Refeito com o estado atual do §4 (11 itens `AUT-` ainda abertos ali; os demais dos 37
+originais ja foram resolvidos e saem do §4 conforme fecham, entao "37" tambem estava desatualizado):
+HA sobreposicao de ARQUIVO entre alguns itens `AUT-` e alguns dos 56 abaixo (`content.tex`,
+`1_introduction.tex`, `6_conclusion.tex`, `apx_b_static_scope.tex` aparecem nos dois lados), mas
+nenhum par verificado aponta para o MESMO trecho: os itens `AUT-` abertos tratam de secoes/paragrafos
+inteiros (ex.: AUT-32 pede revisao da abertura do Cap.6; AUT-35 trata das tres limitacoes de §6.3), e
+os marcadores deste arquivo apontam para frases especificas dentro dos mesmos capitulos. Continuam
+sendo registros por desenho diferentes -- este cobre marcadores de proveniencia no `.tex`, o outro
+cobre pontos de revisao do orientador/coautor -- mas a garantia de "zero sobreposicao" era mais forte
+do que a checagem sustentava, e o numero "37" do §4 esta desatualizado (o §4 hoje tem 11 itens `AUT-`
+abertos; os outros ja fecharam).
 
 **Classificacao de cada um dos 56 itens (numeracao desta pagina, nao a do fonte):**
 
@@ -98,8 +111,8 @@ commit, nao este documento, tinha o par de numeros errado.
 
 **Os dois mecanicos, com a evidencia:**
 
-- **#6** (`1_introduction.tex`) -- a decisao BLQ-2 (`PENDENCIAS_RESOLVIDOS §6.10`, arquivado 2026-08-03) respondeu exatamente esta pergunta ("mantenha everywhere para o categoria e especifique onde for preciso para o next-region"), e a redacao aplicada foi confirmada no `main.pdf` renderizado: "Each configuration has twenty fitted models: four repetitions... The analysis uses paired tests on the four per-seed means, non-inferiority tests...". O marcador pode ser removido citando essa decisao.
-- **#22** (`5_mobiwac/06_results.tex`) -- uma AUTHOR DECISION explicita (round9f, 2026-08-02, `PENDENCIAS_RESOLVIDOS 2.9`) responde a mesma pergunta (onde colocar o ponteiro ao apendice de gradient-cosine); conferido no fonte vivo que o paragrafo de abertura da secao carrega o ponteiro e a frase espelhada com o artigo [mobiwac] permanece byte-a-byte identica, sem ponteiro. O marcador pode ser removido citando essa decisao.
+- **#6** (`1_introduction.tex`) -- a decisao BLQ-2 (`PENDENCIAS_RESOLVIDOS §6.10`, arquivado 2026-08-03) respondeu exatamente esta pergunta ("mantenha everywhere para o categoria e especifique onde for preciso para o next-region"). **CORRIGIDO 2026-08-04 (achado do revisor):** a verificacao original so conferiu no render a metade n=20/n=4 do bloco, nao a metade do veredito de regiao que BLQ-2 realmente decide. Reconferido agora: a frase renderizada e "outperforms the dedicated models on the category task at all six datasets and on the region task at four of the six. At the other two, it remains statistically non-inferior within a two-point margin (TOST)" -- as duas metades corretas, ambas presentes. O marcador pode ser removido citando essa decisao.
+- **#22** (`5_mobiwac/06_results.tex`) -- uma AUTHOR DECISION explicita (round9f, 2026-08-02, `PENDENCIAS_RESOLVIDOS 2.9`) responde a mesma pergunta (onde colocar o ponteiro ao apendice de gradient-cosine). **CORRIGIDO 2026-08-04 (achado do revisor):** a verificacao original conferiu so o fonte vivo, nao o render, e o commit dizia "verificado no render" para os dois itens -- falso para este. Reconferido agora no `main.pdf`: "Appendix D reports the gradient-cosine diagnostic of this chapter on the final model across seven datasets", no paragrafo de abertura da secao, exatamente como a decisao pede. O marcador pode ser removido citando essa decisao.
 
 **Nao removi nenhum marcador do `.tex` nem editei os 56 blocos acima.** Esta secao e so o veredito da auditoria; a decisao de remover os marcadores mecanicos, ou de responder os que precisam de voce, e sua.
 
