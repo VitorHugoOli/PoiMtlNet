@@ -223,8 +223,23 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
      "CONSIDERATIONS.md", r"9 de 41 ancoras localizaveis", True),
     ("R9-blocked", "FAB-28 is recorded as BLOCKED on a failed verification, not quietly applied",
      "CONSIDERATIONS.md", r"INADMISSIBLE for any claim", True),
-    ("R9-pend6",  "PENDENCIAS carries the new section 6 and it replaced the 2.8 placeholder",
-     "PENDENCIAS.md", r"## §6 · As decisoes que sairam do `CONSIDERATIONS\.md`", True),
+    # REPOINTED 2026-08-03, for the same reason R9-pend28 was repointed on 2026-08-02: the thing it pins
+    # left the live tracker. All twenty-six §6 items were answered by the author, so at his request the
+    # section was archived and its `## §6` heading removed from PENDENCIAS.md. Pinning the heading in the
+    # live file would now fail on his own decision, which is the defect a probe on a withdrawn claim
+    # always becomes. What must not rot is the RECORD of the section: that it existed, that it replaced the
+    # 2.8 placeholder, and that its items went to the archive rather than vanishing -- three §6-era items
+    # were lost in the past by deletion without an arrival check, which is why the archive entry states
+    # the heading verbatim. So this reads the ARCHIVE and pins the closure record.
+    ("R9-pend6",  "the archive records that PENDENCIAS §6 existed, replaced the 2.8 placeholder, and was "
+                  "closed with all twenty-six items archived rather than dropped",
+     "_archive/PENDENCIAS_RESOLVIDOS.md",
+     r"A SECAO §6 DO `PENDENCIAS\.md` FOI ENCERRADA E REMOVIDA", True),
+    # R9-pend6b: and the heading itself, quoted verbatim in the archive, so a later reader can resolve a
+    # source comment that still says "§6" without guessing what it named.
+    ("R9-pend6b", "the archive quotes the removed §6 heading verbatim",
+     "_archive/PENDENCIAS_RESOLVIDOS.md",
+     r"## §6 · As decisoes que sairam do `CONSIDERATIONS\.md` \(round 9\)", True),
         # REPOINTED 2026-08-02: item 2.8 was archived out of the tracker, so both probes now read the
     # ARCHIVE. The second also gets a wrap-tolerant pattern: the phrase it pins now wraps across
     # two lines in the archive file, and the original one-line pattern reported the sentence as
@@ -363,10 +378,15 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # would be wrong here -- the prose is the AUTHOR'S to change, so what gets gated is that the item
     # stays on his decision list until he rules on it, not that the sentence is already gone.
     ("R9-blq4",    "the Appendix F never-run-experiment blocker is on the author's decision list",
-     "PENDENCIAS.md", r"BLQ-4 — o Apendice F descreve um experimento que nunca foi feito", True),
+     # REPOINTED 2026-08-03: §6 was archived at the author's request once all twenty-six items were
+     # answered, so the block this pins now lives in the archive. VERIFIED PRESENT THERE before the
+     # repoint (grep: 1 in the archive, 0 in the live tracker) rather than assumed to have travelled.
+     "_archive/PENDENCIAS_RESOLVIDOS.md",
+     r"BLQ-4 — o Apendice F descreve um experimento que nunca foi feito", True),
     ("R9-blq5",    "the PCGrad blocker is recorded as DOWNGRADED BY ME, with the half I could not "
                    "check named, rather than passed through at the persona's severity",
-     "PENDENCIAS.md", r"eu o REBAIXEI; a decisao final e sua", True),
+     # REPOINTED 2026-08-03 with R9-blq4, same reason, same arrival check.
+     "_archive/PENDENCIAS_RESOLVIDOS.md", r"eu o REBAIXEI; a decisao final e sua", True),
     # ---- ROUND-10 PROBES: the author's 28 rulings, applied 2026-08-03 against baseline dda8978e.
     # R10-blq2 is the one that would rot silently. His ruling was to keep "everywhere" for the CATEGORY
     # verdict and specify the partition where the REGION verdict needs it. Chapter 6 was already right;
@@ -744,7 +764,10 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # as a mystery, and so "all four builds rc=0" is not written again while it stands.
     ("R12-extra",   "the record carries the diagnosis of the red `extra` target as a sed locale failure "
                     "rather than a document defect",
-     "PENDENCIAS.md", r"illegal byte sequence", True),
+     # REPOINTED 2026-08-03 with R9-blq4/blq5: the §6.23 diagnosis moved to the archive when the
+     # section closed. The claim it protects is unchanged -- the red `extra` target was a sed locale
+     # failure and not a document defect -- and the fix itself is pinned separately by R12-locale.
+     "_archive/PENDENCIAS_RESOLVIDOS.md", r"illegal byte sequence", True),
     # R12-studyfix: the sub-agent's study asserted "git history begins 2026-07-23" to support its central
     # negative finding. FALSE about the repository -- root commit 2025-03-08, 2049 commits, 1666 of them
     # earlier. I checked instead of accepting the self-report, and the FINDING survives on a better
@@ -898,6 +921,32 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
                      "rather than by row count, because a control leg reuses a name",
      "_round9/34_tracker_disagreement.md",
      r"Reconcile the two sets by name, not by cardinality", True),
+    # ---- AD-6, CLOSED BY THE AUTHOR'S OWN HAND on 2026-08-03. He rewrote Definition 2.2's vague
+    # retention sentence himself ("A target label is withheld from it when one of the sequential tasks is
+    # trained") and asked for sharpening on top rather than a rewrite. Three probes, because the passage
+    # has three independently rottable properties and his words are the load-bearing ones.
+    ("R12-ad6his",  "AD-6: the author's own wording names the target PER TASK, which is what answers the "
+                    "leakage question, and it is carried verbatim",
+     "chapters/2_fundamentals.tex",
+     r"the prediction target is \$c_i\$ for next-category\s+prediction and \$r_i\$ for next-region "
+     r"prediction\. These labels belong to \$x_i\$", True),
+    # R12-ad6fwd: his sentence was the FIRST live use of both task names, defined ~130 lines later. The
+    # symbols were bound (Definition 2.1) so this is lighter than a symbol-before-its-definition, but it
+    # is the very property the redesign's step order existed to protect. Pinned as an EXPLICIT forward
+    # pointer rather than by renaming his tasks away.
+    ("R12-ad6fwd",  "AD-6: the task names in Definition 2.2 point FORWARD explicitly to the definitions "
+                    "that introduce them, instead of naming them undefined",
+     "chapters/2_fundamentals.tex",
+     r"For the two sequential tasks studied here \(Definitions~\\ref\{def:fund:nextcat\}\s+and~"
+     r"\\ref\{def:fund:nextreg\}\)", True),
+    # R12-ad6pos: the POSITIVE half. Excluding the label of x_i rules out leakage; the converse -- that
+    # the categories and regions of PAST visits are legitimate input -- was implicit, and that exact
+    # omission is what prompted the author's question about a region history. A probe on the exclusion
+    # alone would hold with the informative half deleted, so this pins the half that was missing.
+    ("R12-ad6pos",  "AD-6: Definition 2.2 states the POSITIVE half too, that past visits' categories and "
+                    "regions are observed input",
+     "chapters/2_fundamentals.tex",
+     r"the categories and regions carried by the\s+visits in \$H_i\$ are observed input", True),
     # R12-attrib: a commit-message attribution defect, recorded because the suite CANNOT detect this class
     # -- every gate here reads the working tree and none reads the commit log. Two of round 12's commits
     # describe diffs they do not contain, because `git add -A` in a backgrounded cell staged the tree at

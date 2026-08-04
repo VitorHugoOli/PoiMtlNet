@@ -185,6 +185,56 @@ completa ficou por sua isencao; e o `towards` fica como esta por sua decisao, co
 
 *Forense: [`_round9/50_pendencias_audit.md`](_round9/50_pendencias_audit.md), com a medicao de cada um dos 19.*
 
+### 2.29 Rodada 12, 2026-08-03 — o §6 fechou inteiro, as duas linhas do `GLOSSARY` entraram, e voce mesmo escreveu a D2
+
+**Registro, nao pedido.** Nada aqui espera voce; esta secao existe para que nada disto seja reaberto.
+
+**AS DUAS LINHAS DA §1.1, aplicadas por mim sob a sua autorizacao explicita.** Voce disse "eu autorizo voce a
+colar elas no glossary", que e a **opcao 3** do antigo §6.26 e nao a 1 — a diferenca importa, porque a regra
+da casa e que a tabela de notacao e sua e um agente **propoe** linhas. As duas fecham uma lacuna fail-closed
+medida: o $\mathbf{e}_{x_i}$ estava em uso vivo na Definicao 2.4 e o $f_{\mathrm{place}}(H_i)$ na 2.9, e
+nenhum dos dois estava registrado. Isso completa a **AD-5**. **E a consequencia que a propria opcao 3
+previa foi cumprida no mesmo commit:** o comentario do `2_fundamentals.tex` afirmava, verbatim, que a linha
+"is PROPOSED to the author and is not written by an agent; the notation table is his" — verdadeiro quando
+escrito e **tornado falso pelo ato de escrever a linha**. Ele agora cita a frase antiga como superada, diz
+que voce autorizou a excecao, e mantem a regra geral de pe.
+
+**O §6 SAIU INTEIRO, a seu pedido.** Os vinte e seis itens foram respondidos por voce, os dez `______` que
+restavam eram **residuo de formatacao** (cada um ja respondido em outra secao, conferido um por um), e a
+`h3` e o cabecalho `## §6` foram removidos. **Duas coisas que eu conferi porque este arquivo manda:**
+1. **Chegada antes de apagar.** Para cada bloco eu confeti que o cabecalho **e** uma linha interior do
+   corpo estavam no `_archive/PENDENCIAS_RESOLVIDOS.md` antes de remover. Tres itens desta lista se
+   perderam no passado exatamente por apagar antes de conferir.
+2. **Ponteiros.** Remover a secao orfanou **dezenove** citacoes no fonte e **quatro probes**. As citacoes
+   foram repontadas para a forma historica que o `check_tracker_refs.py` reconhece
+   (`PENDENCIAS_RESOLVIDOS <n>.<m> (arquivado 2026-08-03)`), e os quatro probes (`R9-pend6`, `R9-blq4`,
+   `R9-blq5`, `R12-extra`) passaram a ler o arquivo — cada string **verificada presente lá** antes do
+   repoint, nao suposta. O `R9-pend6` deixou de pinar um cabecalho que voce mandou remover e passa a pinar
+   o registro do encerramento, com o `R9-pend6b` guardando o cabecalho citado verbatim para quem encontrar
+   um comentario antigo dizendo "§6". A numeracao 6.1 a 6.26 **nao** foi reaproveitada.
+
+**A SUA D2, afiada em cima e nao reescrita (AD-6).** Voce substituiu a frase vaga de retencao pela sua, que
+nomeia o alvo por tarefa e enuncia a posse do rotulo. Tres afiamentos, nenhum tocando o seu conteudo:
+- **Referencia para frente.** A sua frase era a **primeira** ocorrencia viva de "next-category prediction" e
+  "next-region prediction" no capitulo, e as duas sao definidas ~130 linhas adiante. Medido, nao suposto. Os
+  simbolos estavam bem (a D1 vincula o $c_i$ e o $r_i$), entao e mais leve que um simbolo-antes-da-definicao,
+  mas e a propriedade que a ordem dos passos do redesenho existia para proteger. Resolvido apontando para
+  frente **explicitamente**, em vez de tirar os nomes das tarefas que voce escolheu.
+- **A metade positiva.** Excluir o rotulo do $x_i$ afasta o vazamento; faltava dizer que as categorias e as
+  regioes das visitas **passadas** sao entrada legitima — que e exatamente a duvida que gerou a sua edicao.
+  Agora esta dito numa oracao.
+- Largura de linha de volta as ~85 colunas do arquivo.
+
+**Nada mudou na 2.5, e isso e deliberado.** A sua leitura estava certa: um "historico de regioes" e uma
+**projecao** de $H_i$ e nao uma entrada diferente, porque a regiao ja esta dentro do check-in pela D1, e o
+que o modelo le e $\rho(H_i)$. Se a definicao da tarefa dissesse "recebe um historico de regioes", ela
+passaria a descrever a escolha de representacao do Cap. 5 e o Cap. 3 nao caberia mais nela.
+
+**Um defeito meu, apanhado por um revisor:** eu publiquei "os oito probes novos validados por sabotagem"
+quando eram **sete**. O oitavo era justamente o probe de **ausencia** — o unico cuja falha e o silencio.
+Corrigido, validado nos dois ramos, e a regra que evita a repeticao esta no `_round9/34`: reconciliar os
+nomes dos probes validados contra os adicionados **como conjuntos**, nao pela contagem de linhas.
+
 ## §3 · Aberto e bloqueado em terceiros
 
 | Item                                               | Bloqueado em                     | Estado                                                                                                                                                                                                                                        |

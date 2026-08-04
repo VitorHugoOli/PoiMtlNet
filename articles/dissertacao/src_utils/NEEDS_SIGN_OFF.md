@@ -147,7 +147,7 @@ ajustados, nomear a unidade inferencial (n = 4) e incluir a clausula de particao
 superiority test" e "n = 20 (fitted models) and n = 4 (inferential unit)"), stats_n20/RESULTS.md:65-67 e
 STATISTICAL_PROTOCOL.md:187-190. Esta era a ultima ocorrencia que colapsava o veredito de regiao em "either outperforms
 or matches", descartando a particao; o Capitulo 6 (:126-127) ja usa a redacao correta e este trecho deve espelha-la.
-Pela decisao do autor no round10 (PENDENCIAS §6.10 BLQ-2: "mantenha everywhere para o categoria e especifique onde for
+Pela decisao do autor no round10 (PENDENCIAS_RESOLVIDOS §6.10 (arquivado 2026-08-03) BLQ-2: "mantenha everywhere para o categoria e especifique onde for
 preciso para o next-region"), a clausula de categoria mantem seu carater universal (valido nos seis datasets) e a
 clausula de regiao precisa da particao. WRITING_LAW §3 proibe o uso de "everywhere" isolado, entao a clausula de
 categoria deve nomear os seis datasets em vez disso.

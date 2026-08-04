@@ -24,16 +24,16 @@ elements to the questions addressed in the article chapters.
 \section{Point-of-interest prediction tasks}
 \label{sec:fund:tasks}
 
-This section defines the prediction targets before reviewing the methods used for
-them. Location-based social networks (LBSNs) describe mobility through check-ins, each
-of which associates a user, a POI, and a timestamp. Their geographic and temporal
+This section establishes what each model predicts before reviewing how those
+predictions are made. Location-based social networks (LBSNs) record mobility as
+check-ins, each linking a user, a POI, and a timestamp. Their geographic and temporal
 detail supports data-driven studies of cities~\cite{silva2019urbancomputing}. The
-recorded behavior also contains regular patterns. People often return to a small set
-of places and make longer trips less frequently~\cite{cho2011gowalla}. An entropy
-analysis estimated the potential predictability of an individual's next location at
-about 93 percent~\cite{song2010limits}. This value concerns next-location prediction
-at a coarse spatial resolution. It indicates that mobility is learnable, but it is
-not a reference point for the category and region metrics defined in
+records also reveal recurring behavior: people often return to a small set of places
+and make longer trips less frequently~\cite{cho2011gowalla}. An entropy analysis
+estimated the potential predictability of an individual's next location at about 93
+percent~\cite{song2010limits}. Because this estimate concerns next-location prediction
+at a coarse spatial resolution, it shows that mobility contains learnable regularity
+but does not provide a reference point for the category and region metrics defined in
 Section~\ref{sec:fund:eval}.
 
 \subsection{Task boundaries and notation}
@@ -43,10 +43,10 @@ Section~\ref{sec:fund:eval}.
 % next-location + forward-ref to §2.4; figure and "learnable at all" role kept. Persona
 % 14 APPROVE-WITH-EDIT text. Revert to the prior wording if you prefer the original.
 
-Deep-learning methods for human mobility address several distinct problems, from
-crowd-flow estimation to next-location prediction \cite{luca2021mobilitysurvey}, so
-the target of a model must be stated precisely before results can be compared.
-The dissertation contains three experimental tasks, two sequential and one static.
+Human-mobility models address distinct targets, from crowd-flow estimation to
+next-location prediction~\cite{luca2021mobilitysurvey}. Because these targets are not
+interchangeable, model comparisons require explicit task boundaries. This dissertation
+studies three tasks: one static and two sequential.
 
 % [ROUND 12, item 44] THE PAGE-COUNT COMPACTION OF ROUND 10 IS UNDONE, on the author's
 % authorization now that the page budget is suspended. Round 10's own report
@@ -100,7 +100,26 @@ The check-in history of length $\ell$ preceding check-in $x_i$ is the ordered se
 \begin{equation}
     H_i=(x_{i-\ell},\ldots,x_{i-1}).
 \end{equation}
-A target label is withheld from it when one of the sequential tasks is trained.
+% [round12, 2026-08-03] THE AUTHOR WROTE THIS PASSAGE HIMSELF, closing AD-6 (sharpen the vague
+% retention sentence, which read "A target label is withheld from it when one of the sequential tasks
+% is trained"). His version names the target per task and states whose label it is, which is what
+% answers the leakage question. Three sharpenings on top of it, and none rewrites his content:
+%   1. FORWARD REFERENCE. His sentence was the FIRST live use of "next-category prediction" and
+%      "next-region prediction" in the chapter, which are defined at Definitions 2.7 and 2.8 further
+%      down. The symbols were fine ($c_i$ and $r_i$ are bound by Definition \ref{def:fund:checkin}),
+%      but naming an undefined task is the same defect class the redesign of this round removed.
+%      Fixed by pointing forward EXPLICITLY rather than by renaming his tasks away.
+%   2. THE POSITIVE HALF WAS IMPLICIT. Excluding the label of $x_i$ is the half that rules out
+%      leakage; the converse -- that the categories and regions of PAST visits are legitimate input --
+%      was left unsaid, and that omission is exactly what prompted the question. Now one clause.
+%   3. LINE WIDTH: rewrapped to the file's convention, near 85 columns. Revert the wrapping if the
+%      author prefers his own; the words are unchanged either way.
+For the two sequential tasks studied here (Definitions~\ref{def:fund:nextcat}
+and~\ref{def:fund:nextreg}), the prediction target is $c_i$ for next-category
+prediction and $r_i$ for next-region prediction. These labels belong to $x_i$, not
+to the preceding check-ins in $H_i$: the categories and regions carried by the
+visits in $H_i$ are observed input, and only the attributes of $x_i$ itself are
+withheld.
 \end{definition}
 % ---------------------------------------------------------------------------
 % CITATION / NUMBER LEDGER -- 2.1 (every claim traceable; verbs bound to tests)
@@ -127,7 +146,7 @@ A target label is withheld from it when one of the sequential tasks is trained.
 % ---------------------------------------------------------------------------
 
 % [round12 STEP 3, 2026-08-03] NEW SUBSUBSECTION, and the reason it sits HERE rather than in §2.2.
-% The author ruled option (a) on 2026-08-03 (PENDENCIAS §6.24): keep the section order, and move the
+% The author ruled option (a) on 2026-08-03 (PENDENCIAS_RESOLVIDOS §6.24 (arquivado 2026-08-03)): keep the section order, and move the
 % two representation definitions up into §2.1 so that no definition consumes a symbol defined later.
 % Before this edit, Definition \ref{def:fund:catclf} read $\mathbf{e}_p$ roughly three hundred lines
 % before the definition that introduces it. THE HEAD IS THE AUTHOR'S: "Check-in and place embedding",
@@ -138,9 +157,9 @@ A target label is withheld from it when one of the sequential tasks is trained.
 % R11-def27), and each provenance comment block moved with its definition.
 \subsubsection{Check-in and place embedding}
 
-A task definition needs to say what its model reads. Two representations appear
-throughout this dissertation, and the difference between them is what the three studies
-vary.
+A task definition must also state what the model reads. Two representations recur
+throughout this dissertation, and the three studies vary which one supplies the model
+input.
 
 % [ROUND 11, item 31] The two concepts below were ONE definition head until this round
 % ("Place embedding and check-in-level representation", round 10). Round 10's own report
@@ -172,8 +191,16 @@ at that POI enters the model with the same representation.
 %     $\mathbf{e}$ subscripts in use are $p$, and the generic $1$/$2$/$+$/$-$ of the discriminator
 %     equations.
 % GLOSSARY §1.1 ALREADY IMPLIED THIS GAP: its $\mathbf{e}_p$ row reads "distinct from a per-visit
-% Check2HGI vector" while giving that vector no symbol of its own. A registry row for $\mathbf{e}_{x_i}$
-% is PROPOSED to the author and is not written by an agent; the notation table is his.
+% Check2HGI vector" while giving that vector no symbol of its own.
+% REGISTRY ROW: WRITTEN, 2026-08-03, and this sentence had to change with it. It used to read "A
+% registry row for $\mathbf{e}_{x_i}$ is PROPOSED to the author and is not written by an agent; the
+% notation table is his" -- true when written, and made FALSE by the act of writing the row. The author
+% authorized the exception explicitly (PENDENCIAS_RESOLVIDOS §6.26 (arquivado 2026-08-03) option 3: he
+% told me to paste both rows rather
+% than paste them himself), which closes AD-5. The general rule still holds and is not weakened by this
+% one instance: the notation table is the author's, and an agent proposes rows rather than minting them.
+% The row for $f_{\mathrm{place}}(H_i)$ landed in the same commit for the same reason -- it too was in
+% live use, at Definition \ref{def:fund:nextplace}, with no registry entry.
 % [round12 STEP 3] MOVED from §2.2 with its comment block. The sentence below is pinned by R12-eqxi and
 % R11-def27 and is carried character-for-character.
 \begin{definition}[Check-in-level representation]\label{def:fund:checkinlevel}
@@ -199,13 +226,13 @@ and extends to histories elementwise,
 \end{definition}
 
 Every model of the sequential tasks in this dissertation reads $\rho(H_i)$ rather than
-$H_i$ itself. Chapter~\ref{ch:cbic} instantiates $\rho$ at the place level,
-$\rho(x_j)=\mathbf{e}_{p_j}$; Chapter~\ref{ch:courb} keeps a vector that is a function of
-the visited POI and enriches it with separate spatial, temporal, and categorical
-components; Chapter~\ref{ch:mobiwac} instantiates it at the check-in level, reading
-per-visit vectors, $\rho(x_i)=\mathbf{e}_{x_i}$ for the semantic stream, with the spatial
-stream carrying the trained vector of the visit's region node. The three studies hold the
-task definitions fixed and vary $\rho$.
+$H_i$ itself. Chapter~\ref{ch:cbic} defines the input at the place level,
+$\rho(x_j)=\mathbf{e}_{p_j}$. Chapter~\ref{ch:courb} retains a vector tied to the visited
+POI but enriches it with separate spatial, temporal, and categorical components.
+Chapter~\ref{ch:mobiwac} moves the input to the check-in level. Its semantic stream reads
+the per-visit vector $\rho(x_i)=\mathbf{e}_{x_i}$, while its spatial stream reads the
+trained vector of the visit's region node. The task definitions remain fixed, while
+each study uses its own form of $\rho$.
 
 \subsubsection{The three experimental tasks}
 
@@ -236,12 +263,14 @@ Next-region prediction maps a check-in history to the region of the next visit:
 \end{equation}
 \end{definition}
 
-Chapters~\ref{ch:cbic} and~\ref{ch:courb} pair Definition~\ref{def:fund:catclf} with
-Definition~\ref{def:fund:nextcat}; Chapter~\ref{ch:mobiwac} pairs
-Definition~\ref{def:fund:nextcat} with Definition~\ref{def:fund:nextreg}.
-The category space contains Community, Entertainment, Food, Nightlife, Outdoors,
-Shopping, and Travel. The region target is a census tract in the United States
-datasets and a \emph{mahalle} in Istanbul. These output spaces require different
+The task pairing changes across the studies. Chapters~\ref{ch:cbic}
+and~\ref{ch:courb} combine category classification
+(Definition~\ref{def:fund:catclf}) with next-category prediction
+(Definition~\ref{def:fund:nextcat}). Chapter~\ref{ch:mobiwac} combines next-category
+prediction with next-region prediction (Definition~\ref{def:fund:nextreg}). All three
+studies use seven categories: Community, Entertainment, Food, Nightlife, Outdoors,
+Shopping, and Travel. For the region task, the target is a census tract in the United
+States datasets and a \emph{mahalle} in Istanbul. These output spaces require different
 metrics and reference points, as Section~\ref{sec:fund:eval} explains.
 
 \subsection{Related sequential prediction settings}
@@ -272,36 +301,38 @@ It is named to delimit the scope of the dissertation, and no chapter reports a r
 for $f_{\mathrm{place}}$.
 \end{definition}
 
-Next place is the dominant task in the field, and the sequential models developed for
-it are the methodological basis for next category and next region. That line begins
-with recurrent models: ST-RNN uses
-time-specific and distance-specific transition matrices~\cite{liu2016strnn}.
-DeepMove adds attention over long and sparse visit
-histories~\cite{feng2018deepmove}. HST-LSTM incorporates spatial-temporal context
-into a hierarchical recurrent cell~\cite{kong2018hstlstm}, while Flashback retrieves
-past hidden states according to the temporal and spatial gaps between
-visits~\cite{yang2020flashback}. Later models make attention central to the
-architecture. STAN connects non-adjacent visits through spatio-temporal
-correlations~\cite{luo2021stan}; GeoSAN combines a hierarchical geographic grid with
-self-attention~\cite{lian2020geosan}; and GETNext introduces a global
-trajectory-flow map into a transformer~\cite{yang2022getnext}. Every model named here
-predicts the exact next place, so none of them is a direct baseline for the targets
-studied in this dissertation.
+Next place is the dominant task in the field, and methods developed for it provide the
+methodological basis for next-category and next-region prediction. Early approaches
+relied on recurrent architectures. ST-RNN uses time-specific and distance-specific
+transition matrices~\cite{liu2016strnn}, while DeepMove adds attention over long and
+sparse visit histories~\cite{feng2018deepmove}. HST-LSTM incorporates
+spatial-temporal context into a hierarchical recurrent cell~\cite{kong2018hstlstm}.
+Flashback retrieves past hidden states according to the temporal and spatial gaps
+between visits~\cite{yang2020flashback}.
+
+Later approaches make attention central to the architecture. STAN connects
+non-adjacent visits through spatio-temporal correlations~\cite{luo2021stan}. GeoSAN
+combines a hierarchical geographic grid with self-attention~\cite{lian2020geosan}, and
+GETNext introduces a global trajectory-flow map into a
+transformer~\cite{yang2022getnext}. Every model named here predicts the exact next
+place, so none of them is a direct baseline for the targets studied in this dissertation.
 
 \subsection{Category and region as end targets}
 
-Two strands of this literature support the present task choice. First, CTLE
-learns context-aware and time-aware location embeddings, allowing the same POI to
-have different vectors in different visits~\cite{lin2021ctle}. This per-visit view
-motivates the representation discussed in Section~\ref{sec:fund:repr}. Second,
-category and region predictions often support next-place prediction rather than serve
-as final outputs. HMT-GRN uses a predicted region to constrain the search for a
-place~\cite{Lim2022}, and CatDM predicts a category to reduce the set of candidate
-places~\cite{yu2020catdm}. Other studies treat one of these properties as the final
-target: activity-region prediction addresses the region
-directly~\cite{zhu2022drrgnn}, and POI-RGNN predicts the next
-category~\cite{capanema2023poirgnn}. This dissertation treats next category and next
-region as co-equal outputs of one model.
+Two strands of this literature support the task choice in this dissertation. The first
+concerns how a visit is represented. CTLE learns context-aware and time-aware location
+embeddings, allowing the same POI to have different vectors in different
+visits~\cite{lin2021ctle}. This per-visit view motivates the representation discussed in
+Section~\ref{sec:fund:repr}.
+
+The second strand concerns the role of category and region predictions. Some methods
+use them to support next-place prediction rather than as final outputs. HMT-GRN uses a
+predicted region to constrain the search for a place~\cite{Lim2022}, and CatDM predicts
+a category to reduce the set of candidate places~\cite{yu2020catdm}. Other studies make
+one of these properties the final target. Activity-region prediction addresses the
+region directly~\cite{zhu2022drrgnn}, while POI-RGNN predicts the next
+category~\cite{capanema2023poirgnn}. This dissertation uses next category and next
+region as final outputs of equal status in one model.
 % Section 2.2 -- Representations for mobility (the chapter's spine)
 
 
@@ -523,7 +554,7 @@ express.
 
 % [round12 STEP 4, 2026-08-03] THE TWO DEFINITION ENVIRONMENTS THAT STOOD HERE MOVED UP INTO §2.1,
 % into the new subsubsection "Check-in and place embedding", under the author's option-(a) ruling
-% (PENDENCIAS §6.24). Their provenance comments moved with them. What STAYS here is the prose that
+% (PENDENCIAS_RESOLVIDOS §6.24 (arquivado 2026-08-03)). Their provenance comments moved with them. What STAYS here is the prose that
 % USES them: the limitation paragraph below, which introduces the move from HGI to Check2HGI, and the
 % Check2HGI sentence further down.
 % REFERENCE DIRECTION: backward in both cases now, which is the point of the move.
@@ -542,7 +573,7 @@ adding the check-in below the place in the hierarchy.
 
 % [round12 STEP 5, 2026-08-03, AD-2 option 2] Was "while retaining a place-level input". The author
 % ruled that the unresolved level of Chapter 4's temporal channel is NOT recorded as an erratum
-% (PENDENCIAS §6.22) and that Chapter 2 uses the NEUTRAL form: a vector that is a function of the
+% (PENDENCIAS_RESOLVIDOS §6.22 (arquivado 2026-08-03)) and that Chapter 2 uses the NEUTRAL form: a vector that is a function of the
 % visited POI, with no claim about the level at which the temporal component is learned. The two
 % wordings that remain FORBIDDEN are "of the visit's timestamp", which would assert per-visit, and
 % "aggregated", which would assert a combination the code does not perform. The question itself is
