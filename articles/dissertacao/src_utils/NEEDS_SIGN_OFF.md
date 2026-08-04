@@ -454,52 +454,51 @@ decisao de remover os marcadores mecanicos, ou de responder os que precisam de v
 
 ## Rodada 15 (2026-08-04) — os itens 1-6 fecharam; tres defeitos de prosa encontrados no caminho
 
-**O que voce pediu, e o que foi feito.** Voce preencheu as decisoes dos itens **1 a 6**, que sao
-exatamente os dois capitulos-alvo desta rodada (`content.tex` e `1_introduction.tex`). Todos os seis
-foram aplicados no fonte: o bloco extenso de cada um saiu e no lugar ficou o marcador minimo
+**O que voce pediu, e o que foi feito.** Voce preencheu as decisoes dos itens **1 a 6**, que sao exatamente os dois
+capitulos-alvo desta rodada (`content.tex` e `1_introduction.tex`). Todos os seis foram aplicados no fonte: o bloco
+extenso de cada um saiu e no lugar ficou o marcador minimo
 `[NEEDS SIGN-OFF NN | CLOSED]` com uma ou duas linhas de resolucao. Nenhum item 7+ foi tocado.
 
-| # | Sua decisao | O que sobrou no `.tex` |
-|---|---|---|
-| 01 | descartar o bloco ORPHANED; "Modelos ajustados" fica fora do glossario | marcador + **a nota de omissao do par de tarefas**, que voce mesmo pediu no round 10 (FAB-08) |
-| 02 | manter Acc@10; omitir joint-best e faixa de macro-F1; manter "depende de" | marcador + **o guard do termo reservado** ("proximo lugar visitado" nao pode ser usado) |
-| 03 | remover o marcador (opcao 2) | marcador + **a regra de paridade**: Resumo e Abstract sao uma afirmacao em duas linguas |
-| 04 | manter as omissoes e o verbo (opcoes 2 e 3) | marcador, espelhando o 02 do lado do Abstract |
-| 05 | a forma atual e aceitavel | marcador + **o motivo de nao "simplificar"**: a frase foi afastada de proposito do Cap.5 |
-| 06 | tudo certo, manter | marcador + **o motivo da assimetria**: categoria pode alegar os seis datasets, regiao precisa da particao |
+| #  | Sua decisao                                                               | O que sobrou no `.tex`                                                                                    |
+|----|---------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
+| 01 | descartar o bloco ORPHANED; "Modelos ajustados" fica fora do glossario    | marcador + **a nota de omissao do par de tarefas**, que voce mesmo pediu no round 10 (FAB-08)             |
+| 02 | manter Acc@10; omitir joint-best e faixa de macro-F1; manter "depende de" | marcador + **o guard do termo reservado** ("proximo lugar visitado" nao pode ser usado)                   |
+| 03 | remover o marcador (opcao 2)                                              | marcador + **a regra de paridade**: Resumo e Abstract sao uma afirmacao em duas linguas                   |
+| 04 | manter as omissoes e o verbo (opcoes 2 e 3)                               | marcador, espelhando o 02 do lado do Abstract                                                             |
+| 05 | a forma atual e aceitavel                                                 | marcador + **o motivo de nao "simplificar"**: a frase foi afastada de proposito do Cap.5                  |
+| 06 | tudo certo, manter                                                        | marcador + **o motivo da assimetria**: categoria pode alegar os seis datasets, regiao precisa da particao |
 
-**O criterio que usei para decidir o que ficava.** Descartei medicao historica (contagens de palavras
-de um build de 105 paginas que nao existe mais), proveniencia de numeros que **nao estao mais citados**
+**O criterio que usei para decidir o que ficava.** Descartei medicao historica (contagens de palavras de um build de 105
+paginas que nao existe mais), proveniencia de numeros que **nao estao mais citados**
 nesses blocos (a faixa 5.3-9.4 e o par quatro/dois seguem documentados onde ainda sao citados, no
-`6_conclusion.tex` -- conferido: nenhum desses valores aparece em prosa viva do `content.tex`), e
-avisos de tarefas ja concluidas. Guardei o que impede um agente futuro de **desfazer** uma decisao sua
-sem saber: as regras de paridade, os termos proibidos, e as duas explicacoes de assimetria.
+`6_conclusion.tex` -- conferido: nenhum desses valores aparece em prosa viva do `content.tex`), e avisos de tarefas ja
+concluidas. Guardei o que impede um agente futuro de **desfazer** uma decisao sua sem saber: as regras de paridade, os
+termos proibidos, e as duas explicacoes de assimetria.
 
 ### 15.1 Dois defeitos de prosa no Resumo, que o Abstract nao tem
 
-Encontrados ao ler o texto vivo para decidir o que os comentarios ainda anotavam. **Nao corrigi**: sao
-alteracoes no texto renderizado e o par Resumo/Abstract e regido pela paridade de afirmacoes, entao
-qualquer edicao precisa da sua palavra. Ambos estao **impressos na pagina 2** do volume de defesa.
+Encontrados ao ler o texto vivo para decidir o que os comentarios ainda anotavam. **Nao corrigi**: sao alteracoes no
+texto renderizado e o par Resumo/Abstract e regido pela paridade de afirmacoes, entao qualquer edicao precisa da sua
+palavra. Ambos estao **impressos na pagina 2** do volume de defesa.
 
 **D1 — `content.tex:89`, frase truncada. Duas frases fundidas numa que nao fecha o sentido:**
 
 > "O protocolo empregou validação cruzada com usuários disjuntos entre treinamento e teste
 > estatísticos pareados."
 
-O gemeo ingles esta correto e mostra o que se perdeu: *"The protocol used user-disjoint
-cross-validation and paired statistical tests."* Faltou o **"e testes"** — o portugues diz
-"entre treinamento e teste estatisticos pareados", grudando "teste" (do par treinamento/teste) no
-adjetivo "estatisticos pareados". Correcao minima, preservando a paridade com o ingles:
-*"...validação cruzada com usuários disjuntos entre treinamento e teste, e testes estatísticos
-pareados."*
+O gemeo ingles esta correto e mostra o que se perdeu: *"The protocol used user-disjoint cross-validation and paired
+statistical tests."* Faltou o **"e testes"** — o portugues diz
+"entre treinamento e teste estatisticos pareados", grudando "teste" (do par treinamento/teste) no adjetivo "estatisticos
+pareados". Correcao minima, preservando a paridade com o ingles:
+*"...validação cruzada com usuários disjuntos entre treinamento e teste, e testes estatísticos pareados."*
 
 **D2 — `content.tex:85`, "da previsão" duplicado:**
 
 > "reuniu duas tarefas sequenciais: a previsão da próxima categoria e **da previsão** da próxima
 > região."
 
-O gemeo ingles esta correto (*"paired two sequential tasks: next-category and next-region
-prediction"*). Correcao minima: *"a previsão da próxima categoria e da próxima região."*
+O gemeo ingles esta correto (*"paired two sequential tasks: next-category and next-region prediction"*). Correcao
+minima: *"a previsão da próxima categoria e da próxima região."*
 
 > **DECISAO SUA:** aprovo as duas correcoes minimas acima (elas nao mexem em nenhuma afirmacao,
 > numero ou hedge, so em concordancia), ou prefere outra redacao? Aplico as duas no mesmo commit,
@@ -508,14 +507,13 @@ prediction"*). Correcao minima: *"a previsão da próxima categoria e da próxim
 
 ### 15.2 A lista de capitulos ficou sem frase de entrada
 
-`1_introduction.tex`, secao "Organization of this dissertation". O paragrafo termina em
-*"...or, for the article under review, the submitted manuscript."* e o render **entra direto no
-primeiro bullet**, sem frase de ligacao. A frase de entrada existia (*"The collection is organized as
-follows:"*) mas estava **presa dentro de um comentario**; o pass do round 7 detectou isso, reportou, e
-deliberadamente nao corrigiu porque aquele pass tinha de manter o PDF byte-identico.
+`1_introduction.tex`, secao "Organization of this dissertation". O paragrafo termina em *"...or, for the article under
+review, the submitted manuscript."* e o render **entra direto no primeiro bullet**, sem frase de ligacao. A frase de
+entrada existia (*"The collection is organized as follows:"*) mas estava **presa dentro de um comentario**; o pass do
+round 7 detectou isso, reportou, e deliberadamente nao corrigiu porque aquele pass tinha de manter o PDF byte-identico.
 
-**Essa restricao nao existe mais.** Verificado no render (2026-08-04): nem a frase de entrada nem a
-antiga frase de errata aparecem no PDF. Substitui o bloco de comentario obsoleto por um `[OPEN]`
+**Essa restricao nao existe mais.** Verificado no render (2026-08-04): nem a frase de entrada nem a antiga frase de
+errata aparecem no PDF. Substitui o bloco de comentario obsoleto por um `[OPEN]`
 que diz exatamente isso, no lugar onde a frase entraria.
 
 > **DECISAO SUA:** restauro a frase de entrada (*"The collection is organized as follows:"*, ou outra
@@ -532,25 +530,24 @@ que diz exatamente isso, no lugar onde a frase entraria.
 **Duas correcoes ao que eu havia escrito aqui, ambas achados seus:**
 
 1. **Voce nao conseguiu achar a §15.2 porque eu escrevi o ponteiro errado.** O comentario no `.tex`
-   dizia `see NEEDS_SIGN_OFF.md §15.2`, mas o titulo neste arquivo e `### 15.2`, **sem** o `§`. Uma
-   busca por "§15.2" retorna zero. Era o unico ponteiro desse formato no `src/` (conferido), e ele saiu
-   junto com o bloco. **Licao para os proximos:** cite secoes deste arquivo como `15.2`, nao `§15.2` —
-   o `§` e usado para `PENDENCIAS.md` e para as leis (`WRITING_LAW §3`), que de fato numeram com `§`.
+   dizia `see NEEDS_SIGN_OFF.md §15.2`, mas o titulo neste arquivo e `### 15.2`, **sem** o `§`. Uma busca por "§15.2"
+   retorna zero. Era o unico ponteiro desse formato no `src/` (conferido), e ele saiu junto com o bloco. **Licao para os
+   proximos:** cite secoes deste arquivo como `15.2`, nao `§15.2` — o `§` e usado para `PENDENCIAS.md` e para as leis
+   (`WRITING_LAW §3`), que de fato numeram com `§`.
 
-2. **A segunda metade do bloco guardava algo que nunca existiu.** Ela avisava "do not restore" a frase
-   de errata que apontava para o volume suplementar. Conferido em cinco commits (`e3e6d796`,
+2. **A segunda metade do bloco guardava algo que nunca existiu.** Ela avisava "do not restore" a frase de errata que
+   apontava para o volume suplementar. Conferido em cinco commits (`e3e6d796`,
    `71fc3ef9`, `2804131b`, `a47691f8`, `45c75611`): **`1_introduction.tex` nunca teve `\extravolume`
-   em prosa viva** — a frase existia so dentro do comentario. O guard protegia contra uma reversao
-   impossivel, e some sem custo. Os ponteiros reais estavam em `3_cbic.tex`, `3_cbic/method.tex`,
-   `4_courb.tex`, `5_mobiwac.tex` e `apx_a_contributions.tex`, e esses **estao** guardados por probes
-   (`RTV-03`..`RTV-08b`), que continuam valendo.
+   em prosa viva** — a frase existia so dentro do comentario. O guard protegia contra uma reversao impossivel, e some
+   sem custo. Os ponteiros reais estavam em `3_cbic.tex`, `3_cbic/method.tex`,
+   `4_courb.tex`, `5_mobiwac.tex` e `apx_a_contributions.tex`, e esses **estao** guardados por probes (`RTV-03`..
+   `RTV-08b`), que continuam valendo.
 
 ### 15.3 Comentario obsoleto removido, sem pedir decisao
 
-- `1_introduction.tex:320-337` — o bloco explicava por que a frase de errata apontava para o volume
-  suplementar e reportava a prosa presa. **A frase de errata nao existe mais em prosa viva** (a regra
-  standalone da rodada 14 removeu os ponteiros), e a prosa presa virou o `[OPEN]` de 15.2. O resto do
-  bloco descrevia decisoes sobre texto que ja saiu.
+- `1_introduction.tex:320-337` — o bloco explicava por que a frase de errata apontava para o volume suplementar e
+  reportava a prosa presa. **A frase de errata nao existe mais em prosa viva** (a regra standalone da rodada 14 removeu
+  os ponteiros), e a prosa presa virou o `[OPEN]` de 15.2. O resto do bloco descrevia decisoes sobre texto que ja saiu.
 - `1_introduction.tex:35-39` — marcador `ORPHANED` sobre uma edicao trivial e ja resolvida ("users"
   no plural, a pedido do orientador). Mantive a razao em duas linhas e removi o envelope de revisao.
 
@@ -590,7 +587,9 @@ confirmada no texto.
 > **SUA DECISAO:** 2, como nem usamos esses termos mais podemos descartar. Sobre o termo 'Modelos ajustados', podemos
 > manter fora, nem o usamos mais.
 
-**RESOLVIDO (rodada 15, commit `e3e6d796`).** Bloco ORPHANED descartado; "Modelos ajustados" NAO entra no GLOSSARY §6. Em `content.tex:49` ficou `[NEEDS SIGN-OFF 01 | CLOSED]` mais a nota de omissao do par de tarefas que voce pediu no round 10 (FAB-08): ela sobreviveu de proposito, para que a omissao nao seja redescoberta como defeito.
+**RESOLVIDO (rodada 15, commit `e3e6d796`).** Bloco ORPHANED descartado; "Modelos ajustados" NAO entra no GLOSSARY §6.
+Em `content.tex:49` ficou `[NEEDS SIGN-OFF 01 | CLOSED]` mais a nota de omissao do par de tarefas que voce pediu no
+round 10 (FAB-08): ela sobreviveu de proposito, para que a omissao nao seja redescoberta como defeito.
 
 ---
 
@@ -613,7 +612,10 @@ macro-F1) e de escolha de verbo não-causal permanecem sem a aprovação explíc
 > **SUA DECISAO:** Podemos manter o Acc@10. Sim vamos omitir, como não explicamos o que é temos que omitir. vamos manter
 > depende de, mais facil para leitura.
 
-**RESOLVIDO (rodada 15, commit `e3e6d796`).** As tres escolhas mantidas. Em `content.tex:99` ficou `[NEEDS SIGN-OFF 02 | CLOSED]` mais o guard do termo reservado: "proximo lugar visitado" nao pode ser escrito ali porque colide com "next place" (GLOSSARY §1), a tarefa fora de escopo. A exclusao em si e carregada por `1_introduction.tex:90-91`, nao por este bloco.
+**RESOLVIDO (rodada 15, commit `e3e6d796`).** As tres escolhas mantidas. Em `content.tex:99` ficou
+`[NEEDS SIGN-OFF 02 | CLOSED]` mais o guard do termo reservado: "proximo lugar visitado" nao pode ser escrito ali porque
+colide com "next place" (GLOSSARY §1), a tarefa fora de escopo. A exclusao em si e carregada por
+`1_introduction.tex:90-91`, nao por este bloco.
 
 ---
 
@@ -645,7 +647,10 @@ dois blocos divergentes sem que isso seja percebido.
 
 > **SUA DECISAO:** vamos de 2.
 
-**RESOLVIDO (rodada 15, commit `e3e6d796`).** Opcao 2: marcador removido. A proveniencia dos numeros saiu junto porque nenhum deles e mais citado neste bloco (conferido: 5.3, 9.4 e "four of them" nao aparecem em prosa viva do `content.tex`); seguem documentados no `6_conclusion.tex`, onde ainda sao citados. Ficou `[NEEDS SIGN-OFF 03 | CLOSED]` mais a regra de paridade Resumo/Abstract.
+**RESOLVIDO (rodada 15, commit `e3e6d796`).** Opcao 2: marcador removido. A proveniencia dos numeros saiu junto porque
+nenhum deles e mais citado neste bloco (conferido: 5.3, 9.4 e "four of them" nao aparecem em prosa viva do
+`content.tex`); seguem documentados no `6_conclusion.tex`, onde ainda sao citados. Ficou `[NEEDS SIGN-OFF 03 | CLOSED]`
+mais a regra de paridade Resumo/Abstract.
 
 ---
 
@@ -668,7 +673,8 @@ omissões de conteúdo -- permanece publicada sem a validação explícita do au
 
 > **SUA DECISAO:** vamos de 2 e 3;
 
-**RESOLVIDO (rodada 15, commit `e3e6d796`).** Omissoes e verbo mantidos. `content.tex:182` -> `[NEEDS SIGN-OFF 04 | CLOSED]`.
+**RESOLVIDO (rodada 15, commit `e3e6d796`).** Omissoes e verbo mantidos. `content.tex:182` ->
+`[NEEDS SIGN-OFF 04 | CLOSED]`.
 
 ---
 
@@ -691,7 +697,9 @@ aprovacao.
 
 > **SUA DECISAO:** A forma que está atual é aceitavel.
 
-**RESOLVIDO (rodada 15, commit `e3e6d796`).** `1_introduction.tex` -> `[NEEDS SIGN-OFF 05 | CLOSED]`, mantendo o motivo de nao "simplificar" a frase de volta: ela foi afastada de proposito da redacao do Cap.5, para que o capitulo reproduzido conserve a original.
+**RESOLVIDO (rodada 15, commit `e3e6d796`).** `1_introduction.tex` -> `[NEEDS SIGN-OFF 05 | CLOSED]`, mantendo o motivo
+de nao "simplificar" a frase de volta: ela foi afastada de proposito da redacao do Cap.5, para que o capitulo
+reproduzido conserve a original.
 
 ---
 
@@ -740,13 +748,15 @@ de ~30 linhas em `1_introduction.tex` permanece no fonte, contra o seu objetivo 
 
 > **SUA DECISAO:** Tudo certo vamos manter em como está.
 
-**RESOLVIDO (rodada 15, commit `e3e6d796`).** `1_introduction.tex` -> `[NEEDS SIGN-OFF 06 | CLOSED]`, mantendo o motivo da assimetria (categoria pode alegar os seis datasets; regiao precisa da particao), que sem explicacao parece inconsistencia e convida alguem a "corrigir".
+**RESOLVIDO (rodada 15, commit `e3e6d796`).** `1_introduction.tex` -> `[NEEDS SIGN-OFF 06 | CLOSED]`, mantendo o motivo
+da assimetria (categoria pode alegar os seis datasets; regiao precisa da particao), que sem explicacao parece
+inconsistencia e convida alguem a "corrigir".
 
 ---
 
 ## 2. Fundamentos
 
-### 7. [PRECISA DE VOCE] Escopo do teto de 93% (bound de Song) na secao 2.1
+### 7. [CLOSED rodada 15, 2026-08-04] Escopo do teto de 93% (bound de Song) na secao 2.1
 
 **Local:** `src/chapters/2_fundamentals.tex:40` — renderiza no volume **defesa**, p. 18
 
@@ -765,9 +775,13 @@ aprovacao do autor, podendo publicar uma afirmacao ainda incorreta ou uma reform
 
 > **SUA DECISAO:** Deixa como está.
 
+**RESOLVIDO (rodada 15).** Bloco reduzido a `[NEEDS SIGN-OFF 07 | CLOSED]` mais o motivo de nao generalizar: o bound de
+Song e para next-location em resolucao grosseira, **nao** para category-F1 nem para ranking de regiao. Sem escopo, a
+frase contradiz a §2.4.
+
 ---
 
-### 8. [PRECISA DE VOCE] Reancoragem do numero NUM-4: valores de Cat F1 (HGI)
+### 8. [REMOVIDO rodada 15, 2026-08-04] Reancoragem do numero NUM-4: valores de Cat F1 (HGI)
 
 **Local:** `src/chapters/2_fundamentals.tex:219` — renderiza no volume **defesa**, p. 20
 
@@ -790,11 +804,21 @@ numericos e manter a frase apenas qualitativa (sem os numeros 0.74/0.82 ou os va
 **Se ficar sem decisao:** Se ignorado, a dissertacao publica valores de "category F1" (0.7388, 0.7678, 0.7944, 0.8186,
 ou a formulacao qualitativa) sem que a convencao de agregacao subjacente tenha sido confirmada pelo autor.
 
-> **SUA DECISAO:** Esse bloco nem existe mais no texto, e outro criamos uma appendix para resolver esse problema esse need sing off(nso) pode ser removido do tex.
+> **SUA DECISAO:** Esse bloco nem existe mais no texto, e outro criamos uma appendix para resolver esse problema esse
+> need sing off (nso) pode ser removido do tex.
+
+**REMOVIDO (rodada 15).** Confirmado antes de apagar: os valores que o bloco documentava (`0.7388`, `0.8186`, `0.74`,
+`0.82`, `monotonic`, `w_r`) **nao aparecem em prosa viva** do `2_fundamentals.tex` -- so dentro de comentarios. O bloco
+de 16 linhas saiu inteiro, junto com a flag `[VERIFY]` da convencao de media que ele carregava.
+
+> **EFEITO COLATERAL QUE EU TIVE DE CONSERTAR:** outro comentario, no paragrafo do 0.7 (linha ~478), apontava para "the
+> NUM-4 ledger earlier in this section" -- um ponteiro que passou a pendurar quando este bloco saiu. Reescrito no lugar: a
+> regra que importava (**escrever "category F1" e nunca "macro-F1", porque nenhuma fonte nomeia a convencao de media**)
+> agora esta declarada ali mesmo, sem depender do bloco removido.
 
 ---
 
-### 9. [PRECISA DE VOCE] Sign-off da prosa da loss Check2HGI no Cap.2
+### 9. [CLOSED rodada 15, 2026-08-04] Prosa da loss Check2HGI no Cap.2
 
 **Local:** `src/chapters/2_fundamentals.tex:518` — renderiza no volume **defesa**, p. 23
 
@@ -829,11 +853,22 @@ pelo autor.
 **Se ficar sem decisao:** Uma prosa nova descrevendo a loss do Check2HGI -- incluindo equacoes, pesos e a questao aberta
 sobre incluir ou nao os termos auxiliares do Cap.5 -- permanece publicada no Cap.2 sem a confirmacao final do autor.
 
-> **SUA DECISAO:**
+> **SUA DECISAO:** O texto atual já mudou bastante em relação a esse texto referido. Mas, vamos deixar do jeito que está
+> e sobre os detalhes de implementação do check2hgi criamos um novo appendix E, ainda não referenciamos ele aqui, pq
+> precisamos do aval do meu professor sobre deixar ou não ele.
+
+**RESOLVIDO (rodada 15).** Prosa mantida. O bloco de 33 linhas virou `[NEEDS SIGN-OFF 09 | CLOSED]` guardando o **fato
+de escopo que faz a equacao estar certa apesar de parecer incompleta**: os dois termos auxiliares (reconstrucao
+mascarada 0.3 e ancora 0.1) estao deliberadamente **fora** dela, porque a fonte nao os carrega e seus defaults no codigo
+sao 0.0. Sem essa nota, alguem "completa" a equacao e introduz um erro.
+
+Anotei ali tambem o que voce disse sobre o Apendice E: a loss completa de cinco termos esta documentada nele, ele
+**ainda nao e referenciado por nenhum capitulo**, e isso aguarda o aval do seu professor. Registrado em
+`PENDENCIAS.md 2.32`.
 
 ---
 
-### 10. [PRECISA DE VOCE] Prosa de enquadramento sobre linhagem MTLnet no Cap.2
+### 10. [CLOSED rodada 15, 2026-08-04] Prosa de enquadramento sobre linhagem MTLnet no Cap.2
 
 **Local:** `src/chapters/2_fundamentals.tex:573`
 
@@ -861,11 +896,17 @@ positivo do Cap.5.
 **Se ficar sem decisao:** Uma descricao tecnica da linhagem e das especializacoes do joint model, usada para justificar
 a leitura conjunta dos resultados dos Caps. 3 e 5, permanece publicada sem a revisao e aprovacao do autor.
 
-> **SUA DECISAO:**
+> **SUA DECISAO:** Essa descrição é critica e está em um bom caminho se queiser ter mais contexto para validar:
+> articles/dissertacao/science/mtl_v17_complete_picture.md
+
+**RESOLVIDO (rodada 15).** Prosa mantida. O bloco virou `[NEEDS SIGN-OFF 10 | CLOSED]` conservando a **cadeia de heranca
+verificavel** (`MTLnet` -> `MTLnetCrossAttn` -> `MTLnetCrossAttnDualTower`, com arquivo e linha de cada classe) e o
+motivo de estar no Cap.2 e nao no Cap.5: o fato e sobre a *relacao* entre artefatos de dois capitulos, e e o que
+autoriza ler o resultado nulo do Cap.3 contra o positivo do Cap.5.
 
 ---
 
-### 11. [PRECISA DE VOCE] Limite de escopo do apendice de extensao por cosseno
+### 11. [CLOSED rodada 15, 2026-08-04] Limite de escopo do apendice de extensao por cosseno
 
 **Local:** `src/chapters/2_fundamentals.tex:863` — renderiza no volume **defesa**, p. 9
 
@@ -883,11 +924,14 @@ capitulos, e nao do apendice.
 representacao permanece publicada sem a validacao do autor, com risco de sugerir indevidamente que o apendice cobre o
 modelo do Capitulo 3.
 
-> **SUA DECISAO:**
+> **SUA DECISAO:** Tanto o 1 quanto o 2, estão corretos!
+
+**RESOLVIDO (rodada 15).** `[NEEDS SIGN-OFF 11 | CLOSED]`, guardando o limite de escopo que voce confirmou: o apendice
+se restringe a uma familia de arquitetura, entao nada ali estende a leitura ao modelo do Cap.3, que nunca foi medido.
 
 ---
 
-### 12. [PRECISA DE VOCE] Repeticao da alegacao de mecanismo do Apendice F no Capitulo 2
+### 12. [CLOSED rodada 15, 2026-08-04] Repeticao da alegacao de mecanismo do apendice de cosseno no Cap.2
 
 **Local:** `src/chapters/2_fundamentals.tex:863` — renderiza no volume **defesa**, p. 9
 
@@ -903,11 +947,13 @@ e mantem apenas a definicao.
 **Se ficar sem decisao:** A alegacao de mecanismo do Apendice F continua sendo repetida no Capitulo 2, com audiencia
 ampliada, sem a aprovacao do autor.
 
-> **SUA DECISAO:**
+> **SUA DECISAO:** Parece que esse ponto já não é mais valido vide que não citamos mais esse appendix F, e ser sincero
+> acho que esse ponto ainda se refere ao appendix F que removemos dos appendix ou pode ser outro appendif que mudou de
+> letra.
 
 ---
 
-### 13. [PRECISA DE VOCE] Remoção de duas definições de métricas e uma referência
+### 13. [CLOSED rodada 15, 2026-08-04] Remoção de duas definições de métricas e uma referência
 
 **Local:** `src/chapters/2_fundamentals.tex:1220` — renderiza no volume **defesa**, p. 28
 
@@ -922,11 +968,11 @@ venha a reportá-las, e que nada mais no capítulo depende de nenhuma delas.
 **Se ficar sem decisao:** Uma redução do escopo do capítulo de fundamentos, com a remoção de duas definições de métricas
 e de uma referência da bibliografia, permanece sem a aprovação do autor.
 
-> **SUA DECISAO:**
+> **SUA DECISAO:** Esse parece ser uma opção legada. Não tem amis uso.
 
 ---
 
-### 14. [PRECISA DE VOCE] Frase-charneira sobre imagem almoço/sábado, órfã (gate L3, A-2)
+### 14. [REMOVIDO rodada 15, 2026-08-04] Frase-charneira sobre imagem almoço/sábado, órfã (gate L3, A-2)
 
 **Local:** `src/chapters/2_fundamentals.tex:1415` — renderiza no volume **defesa**, p. 30
 
@@ -948,7 +994,7 @@ conforme a opção original oferecida no bloco?
 fix A-2) permanece sem confirmação do autor, e o bloco órfão pode continuar ocupando o texto sem que se saiba se ainda
 há conteúdo relevante associado a ele.
 
-> **SUA DECISAO:**
+> **SUA DECISAO:** remoção desse marcado.
 
 ---
 
@@ -974,7 +1020,8 @@ assim como a suposta aprovação prévia mencionada no bloco.
 **Se ficar sem decisao:** uma remoção de conteúdo (vantagem declarada) em prosa publicada e coautorada -- junto com a
 alegação de aprovação prévia do autor citada no bloco -- permanece sem a confirmação explícita dele.
 
-> **SUA DECISAO:**
+> **SUA DECISAO:** Re-leia essa parte e valide se há algo relacionado com essa afirmação problematica, se ela ainda
+> estiver ali fazemos algo quanto a ela.
 
 ---
 
@@ -995,7 +1042,7 @@ conducao do estudo, e nao um registro recuperado do codigo, e que NAO foi adicio
 hiperparametros permanece sem sua aprovacao, deixando o capitulo publicado silencioso sobre esse ponto sem confirmacao
 sua.
 
-> **SUA DECISAO:**
+> **SUA DECISAO:** Não precisamos comentar nada.
 
 ---
 
@@ -1016,7 +1063,7 @@ apenas o autor e os coautores podem definir qual foi efetivamente escrita.
 **Se ficar sem decisao:** Uma reformulacao de prosa publicada e a linha de errata correspondente permanecem sem
 confirmacao do autor sobre qual das duas afirmacoes (COD-016a) e a correta.
 
-> **SUA DECISAO:**
+> **SUA DECISAO:** This is done in the pendencias_resolvidas.md
 
 ---
 
@@ -1038,7 +1085,7 @@ ainda precisa ocorrer antes que o marcador possa ser removido.
 **Se ficar sem decisao:** Uma frase publicada que aponta para uma afirmacao sobre um resultado coautorado permanece sem
 a aprovacao do autor e sem o sign-off do orientador.
 
-> **SUA DECISAO:**
+> **SUA DECISAO:** Já revisei é está tudo certo!
 
 ---
 
@@ -1060,7 +1107,7 @@ the word and I will convert it', ou seja, a conversao para nota de rodape so oco
 **Se ficar sem decisao:** Um narrowing de claim em prosa co-autorada ja publicada permanece incorporado ao Capitulo 4
 sem a aprovacao do autor sobre a forma (clausula vs. nota de rodape) escolhida para apresenta-lo.
 
-> **SUA DECISAO:**
+> **SUA DECISAO:** Deixe do jeito que está
 
 ---
 
@@ -1091,7 +1138,8 @@ formulacao cautelosa -- que nao afirma que esse codigo exatamente gerou os exper
 **Se ficar sem decisao:** Uma frase de detalhe de protocolo inserida no Capitulo 4, baseada em codigo recuperado (commit
 58fd219b) e nao no texto originalmente publicado, permanece sem a aprovacao do autor.
 
-> **SUA DECISAO:**
+> **SUA DECISAO:** Eu removi essa frase para deixar o texto mais semelhante ao original, além de que já falamos sobre
+> isso no preambulo. Pf remova esse entrada do appendix B do extra content.
 
 ---
 

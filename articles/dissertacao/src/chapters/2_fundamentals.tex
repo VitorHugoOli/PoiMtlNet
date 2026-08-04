@@ -36,11 +36,11 @@ but does not provide a reference point for the category and region metrics defin
 Section~\ref{sec:fund:eval}.
 
 \subsection{Task boundaries and notation}
-% [NEEDS SIGN-OFF: raised round 3, 2026-07-24 | gate fix B-5, 2026-07-24] The §2.1 "93% is the ceiling any model
-% should be read against" was an unscoped universal contradicted by §2.4 (Song's bound
-% is next-location at coarse resolution, not category-F1/region-ranking). Rescoped to
-% next-location + forward-ref to §2.4; figure and "learnable at all" role kept. Persona
-% 14 APPROVE-WITH-EDIT text. Revert to the prior wording if you prefer the original.
+% [NEEDS SIGN-OFF 07 | CLOSED] Author: "Deixa como esta."
+% KEEP THE SCOPE. Song's 93% bound is for next-location at coarse resolution -- NOT for category-F1
+% or region ranking. Stated unscoped it contradicts §2.4, which is why this clause names
+% next-location and forward-refs §2.4. Do not generalize it back into "the ceiling any model should
+% be read against".
 
 Human-mobility models address distinct targets, from crowd-flow estimation to
 next-location prediction~\cite{luca2021mobilitysurvey}. Because these targets are not
@@ -360,22 +360,7 @@ final study moves from a place embedding to a check-in-level representation.
 
 The representation line begins with identifiers and progresses to vectors learned
 from graph structure.
-% [NEEDS SIGN-OFF: NUM-4, round6, 2026-07-28] Number RE-ANCHORED and its convention added.
-% The clause previously read "the category F1 on Alabama, over five folds, rose monotonically
-% from 0.74 to 0.82 across the swept values": two means with no spread, no swept range, and no
-% epoch budget, and both quoted from research/embeddings/hgi/CLAUDE.md:117, which itself ROUNDS
-% the sweep table -- a computed step between the page and the source of record. Now quoted from
-% the table, research/embeddings/hgi/README.md:544 (header, "5 folds x 50 epochs") and :548-551:
-%   w_r 0.4 -> 0.7388 +/- 0.0205 | 0.5 -> 0.7678 +/- 0.0211
-%   w_r 0.6 -> 0.7944 +/- 0.0186 | 0.7 -> 0.8186 +/- 0.0123
-% Monotonicity is the source's own word (CLAUDE.md:117; preprocess.py:38) and is readable off
-% those four rows without computing anything. The adopted 0.7 is the shipped default:
-% preprocess.py:23 DEFAULT_CROSS_REGION_WEIGHT = 0.7. The published w_r = 0.4 and the
-% region-representation goal were verified firsthand in the HGI PDF, Eq. 2 ("wr is a factor to
-% differentiate intra- (wr = 1) and cross-region (wr = 0.4) edges") and its abstract.
-% [VERIFY: averaging convention of the swept "Cat F1"] Every source records "Cat F1" without
-% naming macro or weighted averaging, so the sentence says "category F1" and not "macro-F1";
-% author to confirm the convention, or drop the two values and keep the clause qualitative.
+
 
 A one-hot identifier marks a place or category by position but encodes no relationship
 between identifiers. Distributed representations instead learn dense vectors whose
@@ -490,12 +475,14 @@ the place-level baseline. It is not evidence about how HGI and Check2HGI compare
 % :548-551, whose four rows are 0.4 -> 0.7388 +/- 0.0205, 0.5 -> 0.7678 +/- 0.0211,
 % 0.6 -> 0.7944 +/- 0.0186, 0.7 -> 0.8186 +/- 0.0123 (mean +/- standard deviation across the five
 % folds). The largest of the four is the 0.7 row, so "best among the values tried" is the table's
-% own ordering and CONTRADICTS NOTHING in the NUM-4 cells, which stay where they are and keep
-% their spreads and their convention. "one of the state datasets" is Alabama (README.md:544 heads
-% the table "Alabama w_r sweep"); the state is not named in prose because the sweep is a single
-% state and the sentence claims no more than that. The [VERIFY] on the averaging convention of
-% "Cat F1" (see the NUM-4 ledger earlier in this section) still stands, which is why this
-% paragraph writes "category F1" and not "macro-F1".
+% own ordering. "one of the state datasets" is Alabama (README.md:544 heads the table
+% "Alabama w_r sweep"); the state is not named in prose because the sweep is a single state and the
+% sentence claims no more than that.
+% WHY "category F1" AND NEVER "macro-F1" HERE: no source names the averaging convention behind the
+% swept "Cat F1" -- not CLAUDE.md, README.md, preprocess.py, nor the HGI PDF. Writing "macro-F1"
+% would assert a convention nobody recorded. Keep the vaguer, true word.
+% (The NUM-4 provenance ledger that used to sit earlier in this section was retired in round 15: the
+% sweep values it documented are no longer quoted in live prose. The four rows above are the record.)
 % THE PUBLISHED 0.4 WAS LOCATED FIRSTHAND THIS SESSION in the source PDF, science/articles/
 % Learning urban region representations with POIs and hierarchical graph infomax.pdf, p.137
 % (sheet 4) sec. 3.3, Eq. 2 and the sentence under it: "wr is a factor to differentiate intra-
@@ -504,14 +491,13 @@ the place-level baseline. It is not evidence about how HGI and Check2HGI compare
 % 0.4 of the intra-region weight, which is what wr = 1 versus wr = 0.4 in that sentence says.
 % "the experiments named above" is the preceding paragraph's Xiamen Island and Shenzhen, so the
 % study areas are named once in this subsection, not twice.
-% SCOPE WARNING RELOCATED, deliberately, and this is the item's constraint (b). The warning used
-% to live in the last two sentences of chapters/apx_g_hgi_tuning.tex ("This sweep supports
-% adaptation of one baseline hyperparameter; it is not evidence about the relative performance of
-% HGI and Check2HGI"). That appendix prints as APPENDIX E of the defense volume (counter order in
-% content.tex: apx_a -> A, apx_c -> B, apx_e -> C, apx_f -> D, apx_g -> E) and is being moved out
-% of that volume by another agent. A warning in a volume the reader of Chapter 2 no longer has is
-% not a warning, so the limit is carried INSIDE this paragraph, in its last two sentences, rather
-% than pointed at. The appendix file is not edited here (not mine, and another agent is in it).
+% SCOPE WARNING CARRIED HERE, DELIBERATELY -- do not replace it with a pointer. The warning ("this
+% sweep supports adaptation of one baseline hyperparameter; it is not evidence about the relative
+% performance of HGI and Check2HGI") used to live in chapters/apx_g_hgi_tuning.tex. That appendix has
+% since LEFT the main volume (confirmed 2026-08-04: content.tex no longer includes it), so a warning
+% placed there would be a warning in a document this chapter's reader does not have. It therefore
+% lives in this paragraph's last two sentences. If the appendix ever returns, the warning still
+% belongs here as well: the reader meets the 0.7 claim here, not there.
 % [round11, 2026-08-03] HGI MECHANISM EXPANDED (item GER-02, second part; the author's ruling is
 % that the HGI explanation is worth improving because it is "uma das abordagens mais importantes
 % para as contribuicoes da dissertacao"). The previous text was five sentences of correct but
@@ -708,39 +694,20 @@ near the values it started from.
 % project already carries as an erratum for POI-RGNN, so no reference is added. The mechanism is named
 % and nothing is cited.
 
-% [NEEDS SIGN-OFF: COD-015, round6, 2026-07-28] New frame prose: the Check2HGI loss, which the
-% document did not carry anywhere. The author approved adding it.
-% WHY HERE AND NOT IN Ch.5: this paragraph is where the dissertation builds the infomax line,
-% DGI's local-global objective then HGI's hierarchical one, so the fourth boundary reads as a term
-% added to an objective met two paragraphs earlier, and the frame places it before both chapters
-% that use the representation. Ch.5 §5.4.1 states the same construction in words for a paper
-% audience under a page limit; that chapter is under review, so an equation there would be a
-% two-file change to the submitted text and its argument does not need one.
-% SOURCE, transcribed not invented: docs/context/check2hgi_overview.tex, section "Funcao de
-% Perda" (Portuguese). Its three display equations, in order, are the three above; symbols,
-% weights, subscripts and the star on L_* are the source's own. Dropped in transcription: its
-% \underbrace annotations (their content is in the sentence instead) and its Portuguese labels.
-% The three weights are also the shipped defaults, verified in the running code:
-% research/embeddings/check2hgi/model/Check2HGIModule.py:51-53 (alpha_c2p=0.4, alpha_p2r=0.3,
-% alpha_r2c=0.3), assembled at :1192-1195; the same three in pipelines/embedding/check2hgi.pipe.py:43-45.
-% Per-boundary term at :1159, :1184, :1189; discriminator at :1003-1018 (matmul, elementwise
-% product summed, torch.sigmoid) and :246 "Bilinear transformation weights for discrimination at
-% each boundary".
-% TWO SCOPE FACTS THE AUTHOR SHOULD KNOW. (1) e^- is "substituted from elsewhere in the batch",
-% which is the source's optimized path (its "Corrupcao de Embeddings": negatives permute
-% already-computed embeddings rather than re-running the encoder), and what the code does by
-% default; the equations are indifferent to how e^- is produced. (2) The auxiliary terms Ch.5
-% mentions (masked reconstruction and anchor, weights 0.3 and 0.1) are NOT in this equation: the
-% source does not carry them and their code defaults are 0.0 (Check2HGIModule.py:68, :178),
-% enabled per run. So this is the three-boundary objective as the source states it, and the prose
-% does not claim it is the complete training loss of every Ch.5 run. [VERIFY: whether Ch.5's two
-% auxiliary terms should be named here too; that needs the run configuration of the shipped
-% representation, which I did not establish this session.]
-% GLOSSARY DEPENDENCY: RESOLVED 2026-07-28. "bilinear discriminator" and "logistic function" were
-% not in the registry, the drafting agent declined to self-authorize them and recorded the
-% paragraph as BLOCKED (the behavior GLOSSARY §1 asks for), and both are now registered in §2 with
-% the equation they name. What remains is ordinary sign-off on the wording. Prose says "logistic
-% function", never "sigmoid".
+% [NEEDS SIGN-OFF 09 | CLOSED] Author: "vamos deixar do jeito que esta". Equations transcribed from
+% docs/context/check2hgi_overview.tex, section "Funcao de Perda"; the three weights (0.4/0.3/0.3) are
+% the shipped code defaults in Check2HGIModule.py:51-53.
+%
+% SCOPE FACT THAT MUST NOT BE LOST -- it is the reason this equation is CORRECT while looking
+% incomplete next to Chapter 5. The two auxiliary terms Ch.5 mentions (masked-place reconstruction
+% and place-table anchor, weights 0.3 and 0.1) are deliberately NOT here: this is the three-boundary
+% objective as the source states it, and the prose never claims to be the complete training loss of
+% every Ch.5 run. Do not "complete" the equation by adding them.
+% The full five-term loss, with code-verified weights, is documented in the Check2HGI appendix
+% (chapters/apx_h_check2hgi_joint_model.tex). That appendix is NOT yet referenced from any chapter:
+% the author is waiting on his advisor before deciding whether it stays. See PENDENCIAS.md 2.32.
+% Registry note: "bilinear discriminator" and "logistic function" are registered in GLOSSARY §2.
+% Prose says "logistic function", never "sigmoid".
 
 Where a place embedding answers ``what is this place,'' a check-in-level representation
 answers ``what is this visit,'' and
@@ -804,28 +771,22 @@ Chapter~\ref{ch:mobiwac} to be interpreted as two stages of one model lineage.
 % would require a number the project does not have. The measurement he set aside is recorded as LO-13
 % in LEFT_OUT.md, which is where a deliberate omission belongs rather than a pendency.
 % Probe: R13-aut25.
-% [NEEDS SIGN-OFF: COD-013, round6, 2026-07-28] New frame prose. The author approved naming the
-% joint model's descent from MTLnet; it was carried only by the lineage table's row order.
-% Placed HERE and not in Ch.5 for the same reason as the equation above: the fact is about the
-% RELATION between two chapters' artifacts, which is the frame's subject, and it is what licenses
-% reading Ch.3's null against Ch.5's positive result. Within the paper the joint model stands alone.
-% ESTABLISHED FROM THE CODE, read this session:
-%   src/models/mtl/mtlnet_crossattn_dualtower/model.py:42  class MTLnetCrossAttnDualTower(MTLnetCrossAttn)
-%   src/models/mtl/mtlnet_crossattn/model.py:207           class MTLnetCrossAttn(MTLnet)
-%   src/models/mtl/mtlnet/model.py:39                      class MTLnet(nn.Module)   (the base)
-%   -> the chain is MTLnet -> CrossAttn -> DualTower.
-% "overrides exactly one component": mtlnet_crossattn/model.py:362 def _build_shared_backbone,
-% docstring :368 "Override MTLnet's FiLM + shared_layers with cross-attention blocks"; its body
-% registers crossattn_blocks and two LayerNorms and nothing else. The FiLM + residual stack it
-% replaces is mtlnet/model.py:193-197, built from :179 in the base class.
-% "inherits encoders, heads, parameter partition": mtlnet_crossattn/model.py:208-214 class
-% docstring; accessors shared_parameters/task_specific_parameters/reg_specific_parameters at
-% :554, :563, :578. "each stream keeps its own feed-forward weights": :55-66 (_CrossAttnBlock
-% docstring) and :63 "Separate FFNs per task, no parameter sharing". The second specialization:
-% mtlnet_crossattn_dualtower/model.py:1-9 ("The ONLY behavioral change is that the reg head ... is
-% handed the raw post-pad-mask region sequence") and :86-90.
-% Registry id deliberately absent from prose per WRITING_LAW §2. No number is quoted here and no
-% result is claimed; the two verdicts referenced are the ones Ch.3 and Ch.5 already state.
+% [NEEDS SIGN-OFF 10 | CLOSED] Author: "Essa descricao e critica e esta em um bom caminho"; he points
+% at science/mtl_v17_complete_picture.md for fuller context.
+%
+% THE CHAIN, verified in the code, kept because the claim "overrides exactly one component" is
+% checkable and someone will want to re-check it:
+%   mtlnet/model.py:39                      class MTLnet(nn.Module)                  (base)
+%   mtlnet_crossattn/model.py:207           class MTLnetCrossAttn(MTLnet)
+%   mtlnet_crossattn_dualtower/model.py:42  class MTLnetCrossAttnDualTower(MTLnetCrossAttn)
+% CrossAttn overrides only _build_shared_backbone (mtlnet_crossattn/model.py:362), swapping the
+% base's FiLM + residual stack (mtlnet/model.py:193-197) for cross-attention blocks; each stream
+% keeps its own feed-forward weights (:63 "Separate FFNs per task, no parameter sharing"). DualTower
+% changes only that the region head receives the raw post-pad-mask region sequence (:1-9, :86-90).
+%
+% WHY THIS BELONGS IN Ch.2, NOT Ch.5: the fact is about the RELATION between two chapters'
+% artifacts, and it is what licenses reading Ch.3's null result against Ch.5's positive one. Inside
+% the paper the joint model stands alone. Registry ids stay out of prose per WRITING_LAW §2.
 
 \input{tables/frame/lineage}
 
@@ -906,7 +867,8 @@ The first design choice is where task-specific computation ends and shared
 computation begins.
 % [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
 % [round9, 2026-07-30] TWO SENTENCES REWRITTEN, found independently by the style and the
-% AI-credibility personas as the same class the author caught in Appendix F: prose whose subject is the
+% AI-credibility personas as the same class the author caught in the gradient-cosine appendix
+% (apx_f_cosine.tex, which PRINTS as Appendix D): prose whose subject is the
 % document rather than the work.
 %   "each method named in the NEXT PARAGRAPH is a different answer" -- a forward pointer into the
 %     document's own layout. The methods differ from each other whatever order they are printed in.
@@ -1128,7 +1090,8 @@ it, and the corresponding loss vectors form the Pareto front.
 % [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
 % [round9, 2026-07-30] TERM NAMED (style persona, REQUIRED). The sentence defined the concept without
 % ever using its registered name: "gradient conflict" appears 2x in GLOSSARY.md §4 and appeared ZERO
-% times in this chapter's live prose, so the registry row that Appendix F's orthogonality result points
+% times in this chapter's live prose, so the registry row that the gradient-cosine appendix's
+% orthogonality result (apx_f_cosine.tex, printed as Appendix D) points
 % back to had no anchor in the reader's text. The GLOSSARY is fail-closed in one direction (no unregistered
 % term in prose); this was the other direction, a registered term with no prose to anchor it, which no
 % gate checks. The fix is one word: the definition now carries the registered name (see GLOSSARY §4).
@@ -1184,26 +1147,24 @@ between tasks unspecified~\cite{liu2021cagrad,senushkin2023aligned}. This
 dissertation therefore claims no Pareto property for its models. It judges each task
 against its dedicated single-task model under the tests defined in
 Section~\ref{sec:fund:eval}.
-% [round9, 2026-07-30] WHY THIS PARAGRAPH EXISTS AND WHAT IT DELIBERATELY DOES NOT DO.
-% It answers two advisor items recorded in src_utils/CONSIDERATIONS.md: G8.4 (the section describes
-% solutions to a conflict it never defines or measures) and G10 (the non-conflict finding needs a
-% technical argument; in his words the concept "parece jogado no artigo e sem contexto"). The measure
-% is defined here so Appendix F's result has something to point back to.
-%   THE APPENDIX IS CITED BY \ref AND NEVER BY DATASET COUNT. Its coverage was being extended while
-% this was written, so "the datasets measured in Appendix F" is the only durable phrasing; a count
-% here would be a second place to correct and a second place to disagree.
-%   THE MECHANISM CLAIM IS ATTRIBUTED, NOT ASSERTED. "it reads that result as the reason" points at
-% apx_f_cosine.tex \label{apx:cosine:mechanism}, which makes exactly this claim and carries its own
-% [NEEDS SIGN-OFF]. That appendix also bounds itself to one architecture family
-% (\label{apx:cosine:extension}: its mechanism section "applies only to models shaped like this
-% one"), so nothing here extends the reading to Chapter 3's model, which was never measured. The
-% hedge "part of the reason" is deliberate: the representation argument of Chapters 4 and 5 rests on
-% those chapters' own results, not on this appendix.
-% [NEEDS SIGN-OFF: raised round 9, 2026-07-30 | AUTHOR -- this paragraph restates Appendix F's
-% mechanism claim in the frame chapter. The claim is the appendix's and is already flagged there, but
-% repeating it in Chapter 2 widens its audience, and under AGENT_GUARDRAILS C2 a connective claim
-% about what the arc shows is still a claim. Approve the appendix and this follows; reject it and this
-% paragraph loses its last two clauses and keeps the definition.]
+% [NEEDS SIGN-OFF 11 | CLOSED] Author confirmed both scope points: the gradient-cosine appendix
+% bounds itself to one architecture family, so nothing here extends the reading to Chapter 3's model,
+% which was never measured.
+% [NEEDS SIGN-OFF 12 | CLOSED] The mechanism repetition this item objected to is already GONE from
+% the paragraph below: it now reports only the MEASUREMENT (gradients equivalent to orthogonal within
+% a five-hundredths margin, a paired test separating the mean from zero at three datasets). The
+% "reads that result as the reason" clause and the "part of the reason" hedge are no longer in live
+% prose, and the appendix no longer carries a sign-off of its own.
+%
+% TWO RULES THAT STILL BIND THIS PARAGRAPH:
+%  1. CITE THE APPENDIX BY \ref, NEVER BY DATASET COUNT. "at every dataset measured there" is the
+%     durable phrasing; a hardcoded count becomes a second place to correct and to disagree.
+%  2. DO NOT re-import the appendix's mechanism claim here. Restating it in the frame chapter widens
+%     its audience, and under AGENT_GUARDRAILS C2 a connective claim about what the arc shows is
+%     still a claim. The measurement may be reported; the mechanism explanation stays in the
+%     appendix, which bounds itself to models shaped like that one (apx_f_cosine.tex:587).
+% This paragraph answers advisor items G8.4 and G10 in src_utils/CONSIDERATIONS.md: it defines the
+% measure so the appendix's result has something to point back to.
 
 \subsection{Loss-balancing methods}
 % ---------------------------------------------------------------------------
@@ -1425,13 +1386,19 @@ comparison verbs used in the final study.
 % one statement", "An equivalence test licenses the positive claim instead", both p. 98).
 % The five dataset-licensing occurrences are all in the data-ethics appendix (Apache License 2.0 and
 % the like), an unrelated sense that this item does not touch.
-% APPENDICES ARE NAMED HERE, NOT LETTERED, AND THAT IS DELIBERATE. The filenames and the printed
-% letters do not correspond: apx_f_cosine.tex prints as APPENDIX D (p. 98), apx_e_ethics.tex prints as
-% APPENDIX C (p. 95), and apx_d_ceiling.tex is in the supplementary volume. Phase 0 relettered the
-% cosine appendix F -> D, and the main volume prints A, C, D because B and D-as-filed live in the
-% extra volume. Measured in the rendered defense build of 101 pages: the only appendix headers in the
-% main volume are A (p. 91), C (p. 95) and D (p. 98). A letter written from a filename is wrong here,
-% which is why this note names each appendix by its subject instead.
+% APPENDICES ARE NAMED HERE, NOT LETTERED, AND THAT IS DELIBERATE -- keep it that way.
+% FILENAMES AND PRINTED LETTERS DO NOT CORRESPOND, so a letter written from a filename is wrong.
+% Re-measured in the rendered 116-page defense build, 2026-08-04:
+%   apx_a_contributions.tex          -> APPENDIX A  (p. 98)
+%   apx_c_ai_disclosure.tex          -> APPENDIX B
+%   apx_e_ethics.tex                 -> APPENDIX C  (p. 101)
+%   apx_f_cosine.tex                 -> APPENDIX D  (p. 103)
+%   apx_h_check2hgi_joint_model.tex  -> APPENDIX E  (p. 108)
+% The letters run A-E over files A, C, E, F, H because apx_b, apx_d and apx_g live in the
+% supplementary volume. Re-derive rather than trust this list if content.tex changes:
+%   grep '\include{chapters/apx' content.tex | grep -v '^ *%'
+% (An earlier version of this note said the build was 101 pages and listed only A, C, D -- it
+% predated the Check2HGI appendix and had the ethics appendix on the wrong page.)
 % Only the two opaque ones are rewritten. The p. 26 sentence is kept because it is where the usage
 % becomes concrete, and rewriting it would remove the definition rather than the opacity; Appendix D's
 % two are kept because each names what is licensed in the same sentence.
@@ -1440,84 +1407,23 @@ comparison verbs used in the final study.
 
 The geographic scope combines five state-level datasets with one city outside the
 United States.
-% [COD-015d, round8, 2026-07-30] TWO METRIC PROMISES REMOVED, because no chapter reported either one.
-% Author decision, PENDENCIAS_RESOLVIDOS 5.5 (arquivado 2026-07-30): "Pode refazer por conta propria", on a choice he
-% framed as delete the
-% two promises (his recommendation, and mine) or run an analysis round to report them.
-% MEASURED FIRST, not assumed, and the sweep used check_audit_claims.live_text so that provenance
-% comments quoting these very terms are not counted as prose (AGENT_GUARDRAILS 4b V4). Command, runnable
-% from articles/dissertacao, prints one row per chapter group:
-%   python3 - <<'PY'
-%   import re,sys; sys.path.insert(0,"src_utils")
-%   from check_audit_claims import live_text
-%   from pathlib import Path
-%   pats={"MRR":r"\bMRR\b|mean reciprocal rank|reciprocal rank",
-%         "Delta_m":r"relative multi-task performance|multi-task performance change"}
-%   swept=[]; skipped=[]
-%   for d in [Path("src"),Path("../[mobiwac]/src")]:
-%       for f in sorted(d.rglob("*.tex")):
-%           if "build" in str(f): skipped.append(f); continue
-%           swept.append(f)
-%           t=live_text(f); h={k:len(re.findall(v,t,re.I)) for k,v in pats.items()}
-%           if any(h.values()): print("HIT",f,h)
-%   print("swept",len(swept),"| skipped under build/",len(skipped))
-%   for f in swept: print("  swept:",f)
-%   PY
-%   # EXPECT before this edit: one HIT line, src/chapters/2_fundamentals.tex {'MRR': 1, 'Delta_m': 1}.
-%   # EXPECT after it: no HIT line at all.
-%   # EXPECT either way: "swept 70 | skipped under build/ 5", then 70 "swept:" lines, 54 of them under
-%   #   src/ and 16 under ../[mobiwac]/src/. The counts are the SCOPE claim above, so the command that
-%   #   measures the terms now also proves what it looked at.
-% Scope of that sweep, stated because an unreported exclusion is how the round-6 table went wrong:
-% 70 .tex files in total. 54 under src/ with build/ excluded (it holds generated copies), of which the
-% 17 files under src/tables/ are a SUBSET and not an additional group, plus the 16 files of the
-% submitted manuscript at articles/[mobiwac]/src/. Neither term
-% occurs in any results table of any chapter, so the promises were not merely unmentioned in prose,
-% they were unreported everywhere.
-% CORRECTED 2026-07-30, and the correction is the point: this line first said "59 .tex files under
-% src/ (build/ excluded)". 59 is the count INCLUDING build/; excluding it gives 54. So the number was
-% right about a set I had not swept and wrong about the one I had, which is the V1 failure in its
-% purest form: I reported a count without re-running the command that produced it. It also added the
-% 17 table files as though they were a separate group, when src/tables/ lies under src/ and was
-% already inside the 54. Re-measured: 54 + 16 = 70 swept, 0 hits after the edit, and the sweep
-% reproduces the ONE-hit-per-term result before it.
-% SECOND CORRECTION, 2026-07-30, and it is the same defect one layer up. The paragraph above ended
-% "whose file list is now printed rather than described". THAT WAS FALSE WHEN WRITTEN. The command at
-% the time ended `if any(h.values()): print(f,h)`, which prints only the files that HIT and never the
-% files it looked at, and I had not touched the command in the edit that made the claim. So the note
-% correcting a miscount asserted a change to itself that did not exist, which is exactly the class it
-% was written to correct. Caught in review, not by me.
-% Rather than delete the sentence I made it true: the command now collects `swept` and `skipped`,
-% labels hits with "HIT", and ends by printing "swept N | skipped under build/ M" followed by one line
-% per swept file, so the SCOPE claim in this paragraph is verifiable from the same command that
-% measures the terms. RUN VERBATIM after amending, by extracting the block from this file and
-% executing it rather than retyping it: rc=0, 0 HIT lines, "swept 70 | skipped under build/ 5", and
-% 70 "swept:" lines, 54 under src/ and 16 under ../[mobiwac]/src/.
-% ONE MORE INSTRUMENT ERROR WORTH RECORDING, mine, found while checking that last split: counting the
-% manuscript files with `grep -c mobiwac` over the swept list returns 29, not 16, because thirteen
-% DISSERTATION paths contain that string too (src/chapters/5_mobiwac/*, src/tables/mobiwac/*). The
-% command's own 54/16 split is the correct one; the grep was the wrong question, in the same way the
-% 59-vs-54 count was.
-% WHAT REPLACED THEM. The Acc@10 sentence keeps its limitation and states it directly ("a model can
-% rank the true region tenth as cheaply as first") instead of naming a second metric to fix it, so the
-% honest point the MRR clause was carrying survives without promising a figure. The Delta_m sentence is
-% replaced by what the document actually does: per-task comparison against the dedicated single-task
-% model. The clause about the checkpoint is added rather than removed because WRITING_LAW section 5
-% requires the checkpoint-selection rule to be defined with the metrics, and it is measured, not
-% assumed: 5_mobiwac/06_results.tex:86 and :363 both name the joint validation score as the geometric
-% mean of the two task metrics. It is deliberately called a selection rule and not a reported score,
-% which is the distinction the earlier draft of this sentence got wrong by asserting that no aggregate
-% is reported anywhere.
-% CONSEQUENCE HANDLED, NOT LEFT: dropping the Delta_m sentence dropped the only \cite of
-% maninis2019attentive in the document, which would leave an entry that BibTeX silently omits from the
-% printed bibliography while it still sits in references.bib. The entry is removed from
-% src/references.bib in the same commit, its verified provenance comment kept there as a retired
-% record so the work of verifying it is not lost. Bibliography goes 100 entries to 99; measured with
-% grep -c '^@' src/references.bib and against the built main.bbl \bibitem count.
-% [NEEDS SIGN-OFF: COD-015d, round8, 2026-07-30 | AUTHOR -- this narrows the scope of the fundamentals
-% chapter by retiring two metric definitions, and it drops one reference from the bibliography with
-% them. Both metrics remain available if a later analysis round reports them; nothing else in the
-% chapter depends on either.]
+% [NEEDS SIGN-OFF 13 | CLOSED] Author: "Esse parece ser uma opcao legada. Nao tem mais uso."
+% Two metric promises (MRR and the relative multi-task performance delta) were retired in round 8
+% because no chapter reported either. Re-verified 2026-08-04 with check_audit_claims.live_text over
+% every .tex outside build/: zero occurrences of either term in live prose, so the removal still holds.
+%
+% TWO CONSEQUENCES THAT MUST NOT BE UNDONE:
+%  1. The Acc@10 sentence now states its own limitation directly ("a model can rank the true region
+%     tenth as cheaply as first") instead of naming MRR as the fix. Do not reintroduce a second metric
+%     to patch it; the honest point survives without promising a figure.
+%  2. The checkpoint-selection clause STAYS. WRITING_LAW §5 requires the selection rule to be defined
+%     alongside the metrics, and it is measured, not assumed: 5_mobiwac/06_results.tex:86 and :363 both
+%     name the joint validation score as the geometric mean of the two task metrics. It is a SELECTION
+%     RULE, not a reported score -- an earlier draft got this wrong by claiming no aggregate is
+%     reported anywhere.
+% Dropping the delta sentence also dropped the only \cite of maninis2019attentive; that entry was
+% removed from src/references.bib in the same commit (100 entries -> 99) so BibTeX does not carry a
+% silently unprinted entry. Do not re-add it without a citing sentence.
 
 The experiments use two sources of check-ins. Gowalla is the main source, and the
 dissertation evaluates Alabama, Arizona, Florida, California, and
@@ -1614,14 +1520,16 @@ claim of task performance.
 %  definition in Ch.5.
 %  Acc@10 and the majority-class floor: conventions with no origin DOI -- defined defensively, cited
 %           conventionally. MRR was in this line too and its definition is REMOVED from the chapter
-%           (COD-015d, round 8): no chapter reported it. See the COD-015d block below.
+%           (COD-015d, round 8): no chapter reported it. Rationale now sits with the metrics
+%           paragraph, in the closed sign-off 13 block.
 %  pedregosa2011sklearn: StratifiedGroupKFold is a scikit-learn v1.0/2021 feature; single-cite ruling (author) --
 %  2011 paper for the
 %           library, splitter behavior stated defensively in prose.
 %           kohavi1995crossval: claim PLAUSIBLE (Zenodo re-deposit id), author to
 %           confirm original IJCAI-95 text.
 %  Delta_m ("relative multi-task performance change", maninis2019attentive) is REMOVED from the chapter
-%           (COD-015d, round 8): no chapter reported it either. See the COD-015d block below.
+%           (COD-015d, round 8): no chapter reported it either. Rationale now sits with the
+%           metrics paragraph, in the closed sign-off 13 block.
 %  four-of-six + two-point margin (referenced in 2.5): confirm against Ch.5 RESULTS_BOARD.md / PAPER_PLAN §3 at
 %  adaptation (fact NOTE 10).
 % ---------------------------------------------------------------------------
@@ -1768,16 +1676,6 @@ single problem. This section states how they combine, before the three studies p
 them to work.
 
 \subsection{The parts of one problem}
-% [NEEDS SIGN-OFF: raised v1 assembly, 2026-07-23 | gate L3 fix A-2. The "weekday lunch / Saturday night out" image now
-% appears only in Ch.1 (the signed-off mechanism beat); this hinge sentence was reworded
-% to state the same static-vector limit without duplicating the image. Revert if you
-% prefer the repetition as a deliberate motif.]
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
-% MOVED HERE 2026-07-30: this block sat between "cannot be assumed;" and "it has to be measured",
-% splitting one sentence across a comment. It renders correctly, but check_trapped_prose flags a
-% comment tail followed by a line that opens mid-sentence, and it is right to: that shape is how a
-% swallowed sentence looks. The comment now sits between complete sentences.
-
 The argument begins with the targets: Next place, next category, and next region have
 different output spaces and different meanings for a correct answer. This dissertation
 treats next category and next region as final outputs rather than as intermediate
