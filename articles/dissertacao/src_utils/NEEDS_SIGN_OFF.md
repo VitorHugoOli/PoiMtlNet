@@ -17,6 +17,84 @@ Volume suplementar: sujeitos humanos (1), Volume suplementar (2)
 
 ---
 
+## Auditoria de 2026-08-03 — validade, obsolescencia e o que ja pode fechar
+
+**Metodo.** Os 56 marcadores foram relocalizados no fonte vivo (nao pela linha registrada acima, que andou em `1_introduction.tex` e `2_fundamentals.tex` apos edicoes concorrentes desde a geracao deste arquivo, mas por correspondencia de conteudo dentro do mesmo arquivo). **As 56 correspondencias fecham 1-para-1: nenhum marcador desapareceu, nenhum se fundiu com outro.** Cada item foi entao cruzado contra `PENDENCIAS.md` §2/§4 e `_archive/PENDENCIAS_RESOLVIDOS.md`, procurando por uma decisao ja registrada que respondesse a mesma pergunta.
+
+**Nao ha sobreposicao com o novo §4 (`Pensamentos e considerações do Autor`, 37 itens `AUT-`) nem com as 26 decisoes do antigo §6 (`CONSIDERATIONS.md`).** Verificado por arquivo e por palavras-chave: nenhum item deste documento e nenhum item `AUT-`/`CONSIDERATIONS` compartilham arquivo+trecho. Sao registros independentes por desenho -- este documento cobre marcadores de proveniencia no `.tex`; os outros dois, pontos de revisao do orientador/coautor.
+
+**Classificacao de cada um dos 56 itens (numeracao desta pagina, nao a do fonte):**
+
+| # | Status | Por que |
+|---|--------|---------|
+| 1 | PARCIAL | 'Modelos ajustados' ainda pede aprovacao (GLOSSARY); o bloco ORPHANED pede destino. Duas partes, nenhuma mecanica. |
+| 2 | PRECISA DE VOCE | Pedido de confirmacao de escolha de prosa/convencao ja feita; nao ha decisao registrada que resolva. |
+| 3 | PRECISA DE VOCE | Pedido de confirmacao de escolha de prosa/convencao ja feita; nao ha decisao registrada que resolva. |
+| 4 | PRECISA DE VOCE | Pedido de confirmacao de escolha de prosa/convencao ja feita; nao ha decisao registrada que resolva. |
+| 5 | PRECISA DE VOCE | Pedido de confirmacao de escolha de prosa/convencao ja feita; nao ha decisao registrada que resolva. |
+| 6 | MECANICO | BLQ-2 foi respondido (PENDENCIAS_RESOLVIDOS §6.10) e a redacao aplicada foi verificada no render (main.pdf, 'Each configuration has twenty...'). |
+| 7 | PRECISA DE VOCE | Pedido de confirmacao de escolha de prosa/convencao ja feita; nao ha decisao registrada que resolva. |
+| 8 | PRECISA DE VOCE | Confirmacao de prosa + um [VERIFY] aberto (convencao de agregacao do Cat F1 nao nomeada em nenhuma fonte); nenhuma decisao registrada resolve, e o VERIFY exige checar o codigo/fonte de novo. |
+| 9 | PRECISA DE VOCE | Sign-off ordinario de prosa + um [VERIFY] aberto (ponto nao estabelecido na fonte); nenhuma decisao registrada resolve. |
+| 10 | PRECISA DE VOCE | Pedido de confirmacao de escolha de prosa/convencao ja feita; nao ha decisao registrada que resolva. |
+| 11 | PRECISA DE VOCE | Confirmacao de escolha de prosa/redacao ja proposta; nenhuma decisao registrada resolve. |
+| 12 | PRECISA DE VOCE | Confirmacao de escolha de prosa/redacao ja proposta; nenhuma decisao registrada resolve. |
+| 13 | PRECISA DE VOCE | Confirmacao de escolha de prosa/redacao ja proposta; nenhuma decisao registrada resolve. |
+| 14 | PRECISA DE VOCE | Bloco ORPHANED com duas perguntas (destino do marcador + revisao de imagem-charneira); nenhuma decisao registrada resolve. |
+| 15 | AMBIGUO -> Opus 5 / voce | O proprio marcador nao especifica opcoes claras; a ambiguidade e do texto-fonte, nao da traducao. |
+| 16 | PRECISA DE VOCE | Confirmacao de escolha de prosa/redacao ja proposta; nenhuma decisao registrada resolve. |
+| 17 | PRECISA DE VOCE | Confirmacao de escolha de prosa/redacao ja proposta; nenhuma decisao registrada resolve. |
+| 18 | PRECISA DE VOCE | Confirmacao de escolha de prosa/redacao ja proposta; nenhuma decisao registrada resolve. |
+| 19 | PRECISA DE VOCE | Confirmacao de escolha de prosa/redacao ja proposta; nenhuma decisao registrada resolve. |
+| 20 | PRECISA DE VOCE | Confirmacao de escolha de prosa/redacao ja proposta; nenhuma decisao registrada resolve. |
+| 21 | PRECISA DE VOCE | Confirmacao de escolha de prosa/redacao ja proposta; nenhuma decisao registrada resolve. |
+| 22 | MECANICO | AUTHOR DECISION (round9f, PENDENCIAS_RESOLVIDOS 2.9) responde exatamente esta pergunta; aplicacao conferida no fonte vivo. |
+| 23 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/numero ja proposta; nenhuma decisao registrada resolve. |
+| 24 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/numero ja proposta; nenhuma decisao registrada resolve. |
+| 25 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/numero ja proposta; nenhuma decisao registrada resolve. |
+| 26 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/numero ja proposta; nenhuma decisao registrada resolve. |
+| 27 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/numero ja proposta; nenhuma decisao registrada resolve. |
+| 28 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/numero ja proposta; nenhuma decisao registrada resolve. |
+| 29 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/numero ja proposta; nenhuma decisao registrada resolve. |
+| 30 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/numero ja proposta; nenhuma decisao registrada resolve. |
+| 31 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/numero ja proposta; nenhuma decisao registrada resolve. |
+| 32 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/numero ja proposta; nenhuma decisao registrada resolve. |
+| 33 | PRECISA DE VOCE | Bloco ORPHANED com decisao de convencao numerica (contagem por braco vs total) e destino do marcador; nenhuma decisao registrada resolve. |
+| 34 | PRECISA DE VOCE | Duas perguntas fundidas (convencao numerica + destino do ORPHANED); nenhuma decisao registrada resolve a primeira. |
+| 35 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/fato ja proposta ou pendente de checagem externa (ex.: publicacao de arquivos, conversa com orientador); nenhuma decisao registrada resolve. |
+| 36 | PRECISA DE VOCE | PENDENCIAS_RESOLVIDOS 5.6 resolveu que Cap.4 nao precisa mudar, mas a premissa dos dumps distintos (SNAP vs figshare) segue sem confirmacao do autor -- ele pede fatos das proprias execucoes. |
+| 37 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/fato ja proposta ou pendente de checagem externa (ex.: publicacao de arquivos, conversa com orientador); nenhuma decisao registrada resolve. |
+| 38 | AMBIGUO -> Opus 5 / voce | O proprio marcador nao especifica opcoes claras; a ambiguidade e do texto-fonte, nao da traducao. |
+| 39 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/fato ja proposta ou pendente de checagem externa (ex.: publicacao de arquivos, conversa com orientador); nenhuma decisao registrada resolve. |
+| 40 | PRECISA DE VOCE | Depende de um fato externo ao texto (se os arquivos serao publicados antes da defesa) que so o autor sabe. |
+| 41 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/fato ja proposta ou pendente de checagem externa (ex.: publicacao de arquivos, conversa com orientador); nenhuma decisao registrada resolve. |
+| 42 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/fato ja proposta ou pendente de checagem externa (ex.: publicacao de arquivos, conversa com orientador); nenhuma decisao registrada resolve. |
+| 43 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/fato ja proposta ou pendente de checagem externa (ex.: publicacao de arquivos, conversa com orientador); nenhuma decisao registrada resolve. |
+| 44 | AMBIGUO -> Opus 5 / voce | O proprio marcador nao especifica opcoes claras; a ambiguidade e do texto-fonte, nao da traducao. |
+| 45 | PRECISA DE VOCE | Depende de uma conversa com o orientador que so o autor pode confirmar como concluida. |
+| 46 | PRECISA DE VOCE | Pede explicitamente que o autor leia o paragrafo antes do envio; a mensagem enfraquece uma premissa da sua propria decisao anterior. |
+| 47 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/fato ja proposta ou pendente de checagem externa (ex.: publicacao de arquivos, conversa com orientador); nenhuma decisao registrada resolve. |
+| 48 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/fato ja proposta ou pendente de checagem externa (ex.: publicacao de arquivos, conversa com orientador); nenhuma decisao registrada resolve. |
+| 49 | AMBIGUO -> Opus 5 / voce | O proprio marcador nao especifica opcoes claras; a ambiguidade e do texto-fonte, nao da traducao. |
+| 50 | AMBIGUO -> Opus 5 / voce | O proprio marcador nao especifica opcoes claras; a ambiguidade e do texto-fonte, nao da traducao. |
+| 51 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/fato ja proposta ou pendente de checagem externa (ex.: publicacao de arquivos, conversa com orientador); nenhuma decisao registrada resolve. |
+| 52 | PRECISA DE VOCE | Depende de um fato sobre a propria infraestrutura experimental (onde o Cap.4 rodou) que so o autor sabe. |
+| 53 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/fato ja proposta ou pendente de checagem externa (ex.: publicacao de arquivos, conversa com orientador); nenhuma decisao registrada resolve. |
+| 54 | AMBIGUO -> Opus 5 / voce | O proprio marcador nao especifica opcoes claras; a ambiguidade e do texto-fonte, nao da traducao. |
+| 55 | PRECISA DE VOCE | Confirmacao de escolha de conteudo/redacao/fato ja proposta ou pendente de checagem externa (ex.: publicacao de arquivos, conversa com orientador); nenhuma decisao registrada resolve. |
+| 56 | AMBIGUO -> Opus 5 / voce | O proprio marcador nao especifica opcoes claras; a ambiguidade e do texto-fonte, nao da traducao. |
+
+**Resumo:** 2 mecanicos (fecham citando uma decisao ja tomada, com a aplicacao verificada no render), 1 parcial (uma metade fecha, a outra nao), 46 precisam da sua palavra porque sao escolhas de conteudo, redacao ou fato que nenhuma decisao anterior resolve, e 7 estao sinalizados como ambiguos -- o proprio bloco de origem nao especifica o que exatamente deve ser confirmado, entao a recomendacao e reler o trecho original no `.tex` (nao a traducao aqui) ou pedir a um modelo mais capaz (Opus 5) uma segunda leitura antes de decidir.
+
+**Os dois mecanicos, com a evidencia:**
+
+- **#6** (`1_introduction.tex`) -- a decisao BLQ-2 (`PENDENCIAS_RESOLVIDOS §6.10`, arquivado 2026-08-03) respondeu exatamente esta pergunta ("mantenha everywhere para o categoria e especifique onde for preciso para o next-region"), e a redacao aplicada foi confirmada no `main.pdf` renderizado: "Each configuration has twenty fitted models: four repetitions... The analysis uses paired tests on the four per-seed means, non-inferiority tests...". O marcador pode ser removido citando essa decisao.
+- **#22** (`5_mobiwac/06_results.tex`) -- uma AUTHOR DECISION explicita (round9f, 2026-08-02, `PENDENCIAS_RESOLVIDOS 2.9`) responde a mesma pergunta (onde colocar o ponteiro ao apendice de gradient-cosine); conferido no fonte vivo que o paragrafo de abertura da secao carrega o ponteiro e a frase espelhada com o artigo [mobiwac] permanece byte-a-byte identica, sem ponteiro. O marcador pode ser removido citando essa decisao.
+
+**Nao removi nenhum marcador do `.tex` nem editei os 56 blocos acima.** Esta secao e so o veredito da auditoria; a decisao de remover os marcadores mecanicos, ou de responder os que precisam de voce, e sua.
+
+---
+
 ## 0. Resumo/Abstract (content.tex)
 
 ### 1. Sign-off pendente: corte Resumo/Abstract, termo 'Modelos ajustados' e bloco orfao
