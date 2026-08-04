@@ -378,7 +378,16 @@ nodes not seen during training~\cite{hamilton2017graphsage}.
 \subsection{Hierarchical graph infomax}
 
 The graph-infomax methods supply the unsupervised representations used across the
-three studies.
+three studies. The idea these methods share is simple enough to state before any of
+the notation: the model learns useful vectors by being asked to tell a true pairing of
+two parts of the data from a corrupted one, and it needs no labels to do so, because
+the data itself says which pairing is the true one.
+% AUT-19 (PENDENCIAS §4): the subsection was already substantial, 584 words, and it did explain the
+% mechanism (mutual information between adjacent levels, the bilinear discriminator, the logistic
+% function, the four HGI stages). What it lacked was an entry point: it opened on what infomax
+% MAXIMIZES before saying what infomax IS, so a reader met the objective before the idea. The
+% sentence added here is didactic, which §1 of WRITING_LAW allows in a dissertation, and it introduces
+% no term outside the registry. Probe: R13-aut19.
 
 The representations used in this work are trained without category or region labels.
 Mutual-information estimators provide one way to learn such
@@ -589,10 +598,17 @@ and spatial context at several scales~\cite{mai2020multiscalerepresentationlearn
 while Sphere2Vec represents coordinates on a sphere rather than on a flat
 surface~\cite{mai2023sphere2vecgeneralpurposelocationrepresentation}. A related
 approach combines spherical harmonics with sinusoidal
-networks~\cite{russwurm2024geographiclocationencodingspherical}. Feature-wise Linear
-Modulation (FiLM) scales and shifts features according to an additional
-input~\cite{perez2018film}. MTLnet uses FiLM to condition its shared layers on task
-identity. Chapter~\ref{ch:courb} keeps this architecture but replaces its single
+networks~\cite{russwurm2024geographiclocationencodingspherical}.
+% AUT-22 (PENDENCIAS §4) = GER-06, the SAME defect found independently by the author and by the
+% advisor's reviewer, already dispositioned [YOU APPLY] with the words "FiLM is a conditioning
+% mechanism, not a mobility representation, and belongs with the sharing topologies in 2.3".
+% Applied ONCE, here, for both items: the two FiLM sentences moved to §2.3.1, where the sharing
+% topologies are set out. Nothing about FiLM is lost; it is now introduced next to the hard-sharing
+% definition it modifies, which is what makes it legible.
+% The two Ch.4 sentences that followed them stay in this subsection: they are about the INPUT
+% representation (the controlled swap of one place embedding for three encoders), which is this
+% subsection's subject, so they are not part of the move.
+Chapter~\ref{ch:courb} keeps the MTLnet architecture but replaces its single
 place embedding with spatial, temporal, and categorical encoders. The controlled
 change isolates the effect of the input representation.
 
@@ -667,8 +683,25 @@ check-in level and the joint model that uses it.
 
 \subsection{Model lineage}
 
-The representation changes are paired with a controlled progression in model
-architecture.
+% AUT-24 (PENDENCIAS §4): the old opener read "The representation changes are paired with a
+% controlled progression in model architecture." Two faults, both named in WRITING_LAW §1. "are
+% paired with" says nothing about who pairs them or why, and "a controlled progression" is an
+% abstract noun doing the work a verb should do. It also opened a subsection whose body is concrete
+% (the final model keeps the MTLnet lineage and swaps residual layers for cross-attention blocks),
+% so the entry was more abstract than what it introduced. The replacement names the subject and what
+% it does. No new claim; the three architectures and their order are already the content of the
+% subsection.
+% ONE REVISION, worth recording because the first attempt introduced a defect of its own: I first
+% wrote a second pointer to Table~\ref{tab:fund:lineage} here. The preceding subsection already
+% closes on that pointer at :681, so the two would have referenced the same table in consecutive
+% sentences. Dropped.
+% A blank line separates this block from the prose below it. Without one, the trapped-prose gate
+% reads the comment tail as running into the first prose line and reports a broken sentence.
+% Probe: R13-aut24.
+
+Each study changes the input representation, and each also changes the architecture
+that consumes it. Naming both sequences together lets a later chapter be read against
+the step it altered.
 
 The final joint model remains part of the MTLnet lineage. It retains the task-specific
 input encoders, output heads, and division between shared and task-specific parameters.
@@ -804,7 +837,16 @@ parameters~\cite{ruder2017mtloverview}.
 \end{definition}
 
 Definition~\ref{def:fund:hard} is the topology of the first joint model of this
-dissertation, and it carries the risk this section addresses.
+dissertation, and it carries the risk this section addresses. A shared trunk need not
+treat both tasks identically. Feature-wise Linear Modulation (FiLM) scales and shifts
+features according to an additional input~\cite{perez2018film}, and MTLnet uses it to
+condition its shared layers on task identity, so the two tasks read the same
+parameters through different scalings.
+% AUT-22 / GER-06 (see the removal note in §2.2.3.1): FiLM arrives here rather than among the
+% mobility representations, because it conditions a shared trunk and is therefore a property of the
+% sharing topology. The third sentence is new connective prose and states only what the CBIC
+% architecture does, which Ch.3 already describes; \cite{perez2018film} moved with the sentence and
+% no reference was added. Probe: R13-aut22.
 
 \begin{definition}[Negative transfer]\label{def:fund:negtransfer}
 Negative transfer occurs when joint training leaves a task worse than its dedicated
@@ -840,8 +882,17 @@ multiple losses, and a standard scalar objective writes them as
     \mathcal{L}_{\mathrm{total}}(\boldsymbol{\theta})
     = \sum_{k=1}^{K} w_k\,\mathcal{L}_k(\boldsymbol{\theta}),
 \end{equation}
-over $K$ tasks and shared parameters $\boldsymbol{\theta}$. A balancing method changes
-the weights $w_k$ or the update direction that they induce. The scalar sum does not
+% AUT-27 (PENDENCIAS §4): $\mathcal{L}_k$ was the ONE symbol in this equation with no gloss. The
+% prose already bound $K$, $\boldsymbol{\theta}$ and $w_k$; the per-task loss, which is what the
+% whole subsection is about, was left for the reader to infer. Measured before the edit: exactly one
+% live occurrence of the symbol in the chapter, inside this equation.
+% A note on how this was verified, because the first instrument lied: a normalized search for "L_k"
+% reduces to two characters and matches almost any text, so that reading was discarded as an
+% artifact and the symbol itself was located instead.
+% Probe: R13-aut27.
+over $K$ tasks and shared parameters $\boldsymbol{\theta}$, where $\mathcal{L}_k$ is the
+loss of task $k$. A balancing method changes the weights $w_k$ or the update direction
+that they induce. The scalar sum does not
 remove the multi-objective nature of the problem~\cite{sener2018mgda}. One parameter
 setting exhibits Pareto dominance over another when it is no worse on every task loss
 and better on at least one. A setting is Pareto optimal when no other setting dominates
@@ -1460,10 +1511,23 @@ where $y_i$ is the true region and $\operatorname{Top10}(\hat{\mathbf{p}}_i)$ co
 the ten regions with the largest predicted scores. The metric is the fraction of test
 check-ins for which the correct region appears in this set. It does not distinguish
 first place from tenth and does not measure the probability assigned to the true
-region. Regions absent from the training partition count as errors. Equivalently, the
-reported OOD-discounted Acc@10 is the in-distribution Acc@10 multiplied by one minus
-the out-of-distribution fraction. Chapter~\ref{ch:mobiwac} gives the complete
-evaluation procedure.
+% AUT-30 (PENDENCIAS §4). TWO defects, both fixed here.
+% (a) FIRST USE: "OOD" was used as a bare acronym and the expansion "out-of-distribution" arrived
+%     about eighty characters LATER, inside the sentence the author reported he could not follow.
+%     WRITING_LAW §1 and §7 require the expansion AT first use. The acronym is now expanded on its
+%     first appearance and the later sentence no longer carries the expansion redundantly.
+% (b) THE SENTENCE ITSELF: the author's complaint was not the acronym alone. The old sentence stated
+%     an arithmetic identity in words, opening with "Equivalently", which asks the reader to hold two
+%     formulations at once to learn what the metric IS. It is now a direct definition. No number and
+%     no convention changes; the identity is the same one, read forward instead of sideways.
+% A related record correction belongs with this edit: content.tex's own comment at :262-264 lists
+% OOD among acronyms that "never appear in prose", which stopped being true. Handled there.
+% Probe: R13-aut30.
+region. Regions absent from the training partition count as errors. The reported
+out-of-distribution discounted, or OOD-discounted, Acc@10 is therefore the Acc@10
+measured on the in-distribution check-ins, multiplied by one minus the fraction of
+check-ins whose region is out of distribution. Chapter~\ref{ch:mobiwac} gives the
+complete evaluation procedure.
 
 \subsubsection{Joint-model selection and floors}
 

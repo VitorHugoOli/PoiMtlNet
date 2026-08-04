@@ -47,25 +47,53 @@ next location at about 93 percent~\cite{song2010limits}. Anticipating what kind 
 place a person will visit and where that visit will occur can support recommendation,
 navigation, transit planning, and the allocation of resources by area. The broader
 study of mobility also informs urban planning, disease-spread analysis, and pollution
-research~\cite{luca2021mobilitysurvey}, while place categories provide the semantic
-information used by location-based services~\cite{Xu2023}. Some methods used in this
-dissertation also come from neighboring geospatial tasks. In particular, the spatial
-encoders examined in the second study were first validated for applications such as
-species recognition and remote-sensing
-classification~\cite{mai2023sphere2vecgeneralpurposelocationrepresentation,wu2024torchspatial}.
+research~\cite{luca2021mobilitysurvey}. Among the properties of a visit that these
+services rely on, the category of the place carries its semantic
+meaning~\cite{Xu2023}, and it is one of the two properties this dissertation predicts.
+% AUT-04 (PENDENCIAS §4): the place-category clause used to hang off the end of the
+% mobility-applications sentence with "while", which gave no reason for it to be there. The
+% paragraph had already moved from urban planning to disease analysis, and the clause read as a
+% third unconnected item. It now leads INTO the two tasks, which is the work the sentence was
+% supposed to do. \cite{Xu2023} is unchanged; no new claim and no new reference.
+%
+% AUT-05 (PENDENCIAS §4): two sentences removed here. They introduced "neighboring geospatial
+% tasks", a term the document never defines, and jumped to the methodology of the second study
+% three paragraphs before the studies are introduced.
+% WHERE THE CONTENT WENT, measured after the deletion rather than assumed before it, because my
+% first version of this comment was WRONG and claimed both references survive in §2.2.3.1:
+%   mai2023sphere2vec...  DOES appear in §2.2.3.1 (Sphere2Vec, coordinates on a sphere), so the
+%       spatial-encoder material is genuinely presented where it belongs, and also in Ch.4.
+%   wu2024torchspatial    appeared ONLY here and in Ch.4 (intro, related, methodology x2). Deleting
+%       this sentence therefore removed its only frame-chapter citation. It is NOT orphaned in the
+%       bibliography (Ch.4 still cites it four times), so no dangling entry results, but the frame
+%       no longer points at it. That is the correct outcome: a benchmarking library for spatial
+%       representation learning is a methods reference for the study that used it, not a motivating
+%       reference for the opening paragraph.
+% Probes: R13-aut04, R13-aut05.
 % [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text.
 % Kept, unrelocated in meaning, for review.]
 % [FAB-13, round 9] "the two prediction tasks that are the object of study of this
 % dissertation", his wording, which is more precise about what the two tasks are TO the document.
 % [FAB-16, round 9] The semicolon before "this dissertation does not address it" is gone: he read
 % it as an AI tell, and WRITING_LAW §4 bans semicolon braids independently. Now two sentences.
+%
+% AUT-16 (PENDENCIAS §4): the words "static" and "sequential" divide the three tasks throughout the
+% document, and Ch.1 used "static" with no gloss while never using "sequential" at all, so a reader
+% met the contrast only in Ch.2 (§2.1.1.3, which does gloss both). The appositive in the paragraph
+% below supplies the distinction at first use, as WRITING_LAW §1 requires, without moving the formal
+% definitions out of Ch.2.
+% This comment sits at the PARAGRAPH boundary, not beside the sentence it describes, and that is not
+% cosmetic: placed mid-paragraph it split "outside the scope of / this work" across a comment block,
+% which the trapped-prose gate caught as a broken sentence. Probe: R13-aut16.
 
 This dissertation studies two properties of the next visit. \emph{Next-category
 prediction} identifies the semantic category of that visit, and \emph{next-region
 prediction} identifies where it will occur. These tasks differ from \emph{next-place
 prediction}, which identifies the exact establishment and is outside the scope of
-this work. The first two studies also use \emph{category classification}, a static
-task that predicts the category of a POI held out from classifier training. The task
+this work. The two tasks above are sequential, because each one reads a history of
+visits. The first two studies also use \emph{category classification}, a static task
+that reads a single place rather than a history, predicting the category of a POI held
+out from classifier training. The task
 pair changes in the final study, as explained in Section~\ref{sec:intro:arc}.
 Chapter~\ref{ch:fundamentals} formally defines the three tasks that appear in the
 experiments.
@@ -105,10 +133,21 @@ result, the second identifies its main bottleneck, and the third tests the resul
 solution. This progression is itself part of the contribution because each study
 narrows the explanation supported by the evidence.
 
+% AUT-07 + AUT-10 (PENDENCIAS §4). TWO defects in one sentence, so one edit closes both.
+% AUT-07: "static place categories" is NOT in the registry. GLOSSARY §1 registers the task as
+% "category classification", and the fail-closed rule forbids a term the registry does not carry;
+% WRITING_LAW §2 independently bans synonym-cycling, and this was a second name for a task the
+% same chapter had already named two paragraphs earlier. One occurrence, which is exactly the case
+% a sampled sweep misses.
+% AUT-10: "hard parameter sharing" was used three times in this chapter with no gloss, and its
+% formal definition sits in Ch.2 (§2.3.1). WRITING_LAW §1 requires the definition at FIRST use.
+% The gloss here is an appositive and the formal definition stays in Ch.2, so nothing is duplicated.
+% Probes: R13-aut07, R13-aut10.
 Chapter~\ref{ch:cbic}, published at CBIC 2025, introduces MTLnet, the first joint model
 developed in this research. It combines a place-level graph embedding with hard
-parameter sharing and predicts static place categories and the next category in a
-sequence. For that configuration, the joint model did not consistently outperform
+parameter sharing, in which the tasks share one trunk of hidden layers and separate
+only at their output heads, and predicts category classification and the next category
+in a sequence. For that configuration, the joint model did not consistently outperform
 the two dedicated single-task models and required more training time. The study
 treated this null result as a finding and proposed three possible explanations,
 including an input representation that might not provide enough information for both

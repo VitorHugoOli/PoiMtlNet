@@ -1028,6 +1028,69 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
                      "Conclusion; a resolving \\ref is not a correct one",
      "chapters/1_introduction.tex",
      r"non-inferiority protocol used in the final study\s*\(Chapter~\\ref\{ch:mobiwac\}\)", True),
+    # ---- WAVE 1b: the Ch.1/Ch.2 prose items. Each is a small edit, so each probe pins the PROPERTY
+    # the edit established rather than the whole sentence, which would go red on any later rewording.
+    #
+    # R13-aut07 is an ABSENCE probe, and the exception to this file's usual preference for presence
+    # probes is deliberate: the defect WAS a term, so its absence is the fix. It is safe here only
+    # because the banned string is confined to prose -- the tracker rows and provenance comments that
+    # discuss it live outside SRC or inside `%` comments, which live_text() strips. Verified by
+    # sabotage that it fires, and verified that it does NOT fire on the comment in 1_introduction.tex
+    # that names the term while recording the decision.
+    ("R13-aut07",    "the unregistered synonym `static place categories` is gone from prose; GLOSSARY §1 "
+                     "registers the task as `category classification` and the registry is fail-closed",
+     "chapters/1_introduction.tex", r"static place categories", False),
+    ("R13-aut10",    "`hard parameter sharing` is glossed at its FIRST use in Ch.1, three uses before "
+                     "Ch.2's formal definition",
+     "chapters/1_introduction.tex",
+     r"hard\s+parameter sharing, in which the tasks share one trunk of hidden layers", True),
+    ("R13-aut04",    "the place-category clause LEADS INTO the two tasks instead of hanging off the "
+                     "mobility-applications sentence",
+     "chapters/1_introduction.tex",
+     r"the category of the place carries its semantic\s+meaning~\\cite\{Xu2023\}, and it is one of the "
+     r"two properties this dissertation predicts", True),
+    # R13-aut05: absence probe on the undefined term the two deleted sentences introduced. `\cite`
+    # keys are NOT probed here: wu2024torchspatial is still cited four times in Ch.4, so a key-absence
+    # probe would be false, and that measurement is recorded in the removal comment instead.
+    ("R13-aut05",    "`neighboring geospatial tasks`, a term the document never defines, is gone from "
+                     "the opening section",
+     "chapters/1_introduction.tex", r"neighboring geospatial tasks", False),
+    ("R13-aut16",    "`sequential` and `static` are both glossed at first use in Ch.1, not only in Ch.2",
+     "chapters/1_introduction.tex",
+     r"The two tasks above are sequential, because each one reads a history of\s+visits", True),
+    ("R13-aut27",    "the per-task loss symbol is glossed where the total-objective equation introduces "
+                     "it; it was the one symbol in that equation with no gloss",
+     "chapters/2_fundamentals.tex",
+     r"where \$\\mathcal\{L\}_k\$ is the\s+loss of task \$k\$", True),
+    ("R13-aut19",    "§2.2.2 states what infomax IS before stating what it maximizes",
+     "chapters/2_fundamentals.tex",
+     r"tell a true pairing of\s+two parts of the data from a corrupted one", True),
+    ("R13-aut24",    "§2.2.4 opens by naming what each study changes, not with an abstract noun as agent",
+     "chapters/2_fundamentals.tex",
+     r"Each study changes the input representation, and each also changes the architecture", True),
+    # R13-aut22 needs BOTH legs, because a move is two facts: gone from the origin AND present at the
+    # destination. One leg alone would pass on a deletion that lost the content. The origin leg is
+    # scoped to the sentence form that made FiLM read as a mobility representation.
+    ("R13-aut22",    "AUT-22/GER-06 leg 1: FiLM is no longer introduced among the mobility "
+                     "representations in §2.2.3.1",
+     "chapters/2_fundamentals.tex",
+     r"sinusoidal\s+networks~\\cite\{russwurm2024geographiclocationencodingspherical\}\.\s+"
+     r"Feature-wise Linear", False),
+    ("R13-aut22b",   "AUT-22/GER-06 leg 2: FiLM IS introduced with the sharing topologies in §2.3.1, "
+                     "next to the hard-sharing definition it modifies",
+     "chapters/2_fundamentals.tex",
+     r"A shared trunk need not\s+treat both tasks identically\. Feature-wise Linear Modulation \(FiLM\)",
+     True),
+    # R13-aut30: the acronym. Its companion claim (that the abbreviations-list exclusion COMMENT in
+    # content.tex now carries re-measured counts instead of a false blanket claim) is NOT PROBEABLE HERE
+    # and is listed in NOT_CHECKABLE by name. I wrote it as a probe first and it failed, correctly: this
+    # gate matches on live_text(), with `%` comments stripped, which is trap 1 of its own docstring and
+    # the reason the whole file works. Measured: the token is in the raw file and absent from live_text().
+    # A probe whose target the instrument cannot see is not a weak probe, it is a broken one.
+    ("R13-aut30",    "OOD is expanded AT its first use in §2.4.2.2, and the metric is defined directly "
+                     "rather than as an `Equivalently` restatement",
+     "chapters/2_fundamentals.tex",
+     r"The reported\s+out-of-distribution discounted, or OOD-discounted, Acc@10 is therefore", True),
 )
 
 # COD-016b needs a STRUCTURAL probe, not a string one, so it lives here rather than in PROBES --
@@ -1089,6 +1152,18 @@ NOT_CHECKABLE = {
     "COD-009": "the L5 translation-fidelity gate ran -- a process",
     "COD-012": "UFV submission gate -- covered by sync_page_counts and the numbering check",
     "COD-017": "figure type size -- an author decision, PENDENCIAS 2.5",
+    "R13-aut30b": (
+        "the abbreviations-list exclusion comment in content.tex now carries RE-MEASURED per-acronym "
+        "counts (OOD 2, CI 1, UFV 3 live occurrences; STL/CV/GRU/SGKF/PPGCC genuinely 0) instead of the "
+        "false blanket claim that all eight 'never appear in prose'. UNPROBEABLE BY CONSTRUCTION: the "
+        "corrected text lives inside a % comment, and this gate matches on live_text() with comments "
+        "stripped (docstring trap 1), so the token is present in the raw file and absent from the text "
+        "the instrument reads. Measured both ways before listing it here. The PROSE half of AUT-30 -- "
+        "OOD expanded at first use -- IS probed, by R13-aut30. Re-measure with, from "
+        "articles/dissertacao/src:  for a in STL CV GRU OOD CI SGKF UFV PPGCC; do n=0; for f in "
+        "$(find . -name '*.tex' -not -path './build/*'); do n=$((n+$(grep -vE '^[[:space:]]*%' \"$f\" | "
+        "grep -ow \"$a\" | wc -l))); done; echo \"$a $n\"; done"
+    ),
 }
 
 

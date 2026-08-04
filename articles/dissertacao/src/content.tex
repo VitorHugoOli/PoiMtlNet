@@ -259,10 +259,30 @@
 
 % List of abbreviations -- completed 2026-07-23 from GLOSSARY §5, filtered by the
 % expand-at-first-use / minimal-count rule: each entry below was grep-verified to
-% appear in the assembled chapters' prose (comments excluded). Dropped from the §5
-% seed list because they never appear in prose: STL, CV, GRU, OOD, CI, SGKF, UFV,
-% PPGCC. BRACIS appears in Appendix A only (GLOSSARY §5: "appendix only").
+% appear in the assembled chapters' prose (comments excluded).
 % Alphabetical order.
+%
+% [AUT-30, round13, 2026-08-04] THE EXCLUSION LIST BELOW WAS RE-MEASURED AND THREE OF ITS EIGHT
+% ENTRIES WERE FALSE. The list previously read "Dropped from the §5 seed list because they never
+% appear in prose: STL, CV, GRU, OOD, CI, SGKF, UFV, PPGCC" and asserted a property of the prose
+% that had stopped holding. The author found the consequence by reading: OOD was used as a bare
+% acronym in §2.4.2.2 with its expansion arriving later in the same sentence, so the reader met an
+% unexplained acronym that the abbreviations list also did not carry. Re-measured, comments stripped,
+% from articles/dissertacao/src:
+%   for a in STL CV GRU OOD CI SGKF UFV PPGCC; do n=0; for f in $(find . -name '*.tex' \
+%     -not -path './build/*'); do n=$((n+$(grep -vE '^[[:space:]]*%' "$f" | grep -ow "$a" | wc -l)));
+%     done; echo "$a $n"; done
+%   STL 0   CV 0   GRU 0   SGKF 0   PPGCC 0      <- the five that ARE absent, as claimed
+%   OOD 2   (chapters/2_fundamentals.tex)
+%   CI 1    (tables/frame/cosine.tex)
+%   UFV 3   (apx_c_ai_disclosure.tex, main_extra.tex, preamble.tex)
+% OOD is now expanded at its first use in §2.4.2.2, which satisfies the rule that governs the list
+% (expand at first use) without adding an entry for an acronym used twice in one subsection. CI and
+% UFV are likewise expanded or self-evident where they occur (a table note, the AI-use disclosure,
+% and a preamble field), so no entry is owed for those either. The defect corrected here is the
+% COMMENT, which claimed a measurement that no longer held; the five genuinely absent acronyms keep
+% their exclusion. BRACIS appears in Appendix A only (GLOSSARY §5: "appendix only").
+% Probe: R13-aut30b.
     \begin{siglas}
 % [round5] BRACIS entry removed: the only prose that named that venue was Appendix A.2, which the
 % author ruled out this round, leaving the acronym defined but never used.
@@ -332,13 +352,14 @@
 % PENDENCIAS.md:84) per Manual 04_2026 §8 (UFV_COMPLIANCE.md:32). Adds about two pages.
     \bibliography{references}
 
-% APPENDICES. This document letters its four appendices A, B, C, D in sequence.
+% APPENDICES. This document letters its five appendices A, B, C, D, E in sequence.
 %
 % [round9c, 2026-07-30, AUTHOR DECISION, PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30) point 0] "You must rename all the
 % appendix, so the letters respect the correct order in the current version of the text. In this
 % case this appendix would be the letter D." The two \setcounter{chapter} lines that used to hold
-% the gapped lettering (A, C, E, F) were removed, so \Alph{chapter} letters the four appendices
-% in file order: contributions A, AI disclosure B, ethics C, gradient cosine D. FILE NAMES ARE
+% the gapped lettering (A, C, E, F) were removed, so \Alph{chapter} letters the appendices
+% in file order. The reader-oriented methods walkthrough added on 2026-08-04 is fifth and
+% therefore prints as E. FILE NAMES ARE
 % UNCHANGED (apx_c_*, apx_e_*, apx_f_*): the letter a reader sees comes from the counter, not the
 % file name, and renaming the files would touch every cross-reference for no rendered difference.
 %
@@ -371,11 +392,16 @@
 % (the sequential-lettering decision above). Chapter 5's body is not edited and does not point
 % at it; the cosine material already in that chapter stays where it is.
         \include{chapters/apx_f_cosine}
+% [2026-08-04, AUTHOR REQUEST] Reader-oriented, implementation-grounded walkthrough of
+% Check2HGI and the joint multitask model. It is fifth in file order and therefore prints as
+% Appendix E in this volume.
+        \include{chapters/apx_h_check2hgi_joint_model}
 % [round12, 2026-08-03] APPENDIX E, "Adaptation of the HGI Baseline", REMOVED from this volume on
 % the author's instruction: "APENDICES -- remover A.1, C.3 e E, mandando esse conteudo para o
 % material extra." The file chapters/apx_g_hgi_tuning.tex is unchanged and is now included by
-% main_extra.tex, where it prints as Appendix G. It was the LAST appendix of this volume, so no
-% letter shifts: contributions A, AI disclosure B, ethics C, gradient cosine D, exactly as before.
+% main_extra.tex, where it prints as Appendix G. At the time of removal it was the LAST appendix
+% of this volume, so that removal caused no letter shifts. The methods walkthrough added afterward
+% now occupies Appendix E in this volume.
 % Verified in the build's own aux table after the edit, not predicted from the source.
 % The label apx:hgi-tuning had no \ref site anywhere in this volume before the removal, measured
 % from src/ with comments stripped (the one file that discusses the sweep in prose,
