@@ -19,14 +19,15 @@ Volume suplementar: sujeitos humanos (1), Volume suplementar (2)
 
 ## Auditoria de 2026-08-03 — validade, obsolescencia e o que ja pode fechar
 
-**CORRECAO 2026-08-03 (achado do revisor, commit 192e9a82).** O texto abaixo, quando primeiro escrito,
-atribuia a `1_introduction.tex` a medicao "92 insertions/62 deletions" e a `2_fundamentals.tex` a
-medicao "214/89". **O par 92/62 nao pertence a `1_introduction.tex`** -- a medicao real desse arquivo
-na epoca era 52 insertions/12 deletions (exec-log `caff3bd8`, cell 2578); 92/62 e uma medicao ANTERIOR
-de `2_fundamentals.tex`, colada no arquivo errado no registro de proveniencia. Nota corretiva anexada
-ao commit via `git notes`. **A conclusao substantiva nao muda**: os dois arquivos derivaram o
-suficiente para mover numeros de linha, e os 56 marcadores continuam resolvendo 1-para-1 mesmo assim
--- so o par de numeros atribuido a `1_introduction.tex` estava errado.
+**CORRECAO 2026-08-03 (achado do revisor, commit 192e9a82).** O paragrafo "Metodo" abaixo NUNCA citou
+numeros de linhas -- o erro nao esta neste arquivo. Ele estava na MENSAGEM DE COMMIT de 192e9a82, que
+atribuia a `1_introduction.tex` a medicao "92 insertions/62 deletions" quando a medicao real desse
+arquivo, na epoca, era 52 insertions/12 deletions (exec-log `caff3bd8`, cell 2578); 92/62 pertence a uma
+medicao ANTERIOR de `2_fundamentals.tex`, colada no arquivo errado no texto do commit. Nota corretiva
+ja anexada ao commit via `git notes`; este paragrafo existe so para que a correcao tambem apareca aqui,
+onde voce le. **A conclusao substantiva nao muda**: os dois arquivos derivaram o suficiente para mover
+numeros de linha, e os 56 marcadores continuam resolvendo 1-para-1 mesmo assim -- so a mensagem do
+commit, nao este documento, tinha o par de numeros errado.
 
 **Metodo.** Os 56 marcadores foram relocalizados no fonte vivo (nao pela linha registrada acima, que andou em `1_introduction.tex` e `2_fundamentals.tex` apos edicoes concorrentes desde a geracao deste arquivo, mas por correspondencia de conteudo dentro do mesmo arquivo). **As 56 correspondencias fecham 1-para-1: nenhum marcador desapareceu, nenhum se fundiu com outro.** Cada item foi entao cruzado contra `PENDENCIAS.md` §2/§4 e `_archive/PENDENCIAS_RESOLVIDOS.md`, procurando por uma decisao ja registrada que respondesse a mesma pergunta.
 
