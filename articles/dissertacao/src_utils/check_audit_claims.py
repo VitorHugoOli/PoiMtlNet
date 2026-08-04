@@ -994,6 +994,40 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # So registry conformance is enforced by review and by targeted probes here, not by a term sweep,
     # and the honest statement is that revoking this row leaves the term ungated rather than covered
     # elsewhere. Nothing replaces it, and that is a known gap and not an oversight.
+    # ---- ROUND-13 APPLICATION of PENDENCIAS section 4 (the AUT- items), under the author's rulings
+    # recorded inline in section 4.1 on 2026-08-03/04. Each probe names the property that would be
+    # silently lost, not the sentence that happens to carry it today.
+    #
+    # R13-cbictitle / R13-mwtitle / R13-errata-hyphen: THREE VERBATIM QUOTATIONS whose hyphen a house
+    # de-hyphenation sweep removed from INSIDE the quotation marks. The failure class is worth stating
+    # because it will recur: a normalization rule written for house prose has no way to know it has
+    # crossed into quoted material, so the sweep silently rewrote what three sources of record say. The
+    # CBIC case printed the SAME PAPER under two titles in one PDF (chapter preface vs bibliography).
+    # These probes are PRESENT-type on the hyphenated form rather than ABSENT-type on the unhyphenated
+    # one, deliberately: an absence probe would fire on this comment and on the tracker rows that
+    # discuss the defect by name, which is the R12-notwrong trap. Sources of record, each opened:
+    #   CBIC title      -> Crossref DOI 10.21528/CBIC2025-1191324, and CBIC___MTL/main.tex:31
+    #   MobiWac title   -> [mobiwac]/src/main.tex:52 (submitted manuscript, EDAS #1571313639)
+    #   errata wording  -> CBIC___MTL/sections/conclusion.tex:17 (the published sentence)
+    ("R13-cbictitle", "the Ch.3 preface quotes the CBIC title as PUBLISHED, hyphenated, matching Crossref "
+                      "and the paper's own source",
+     "chapters/3_cbic.tex", r"``An Investigation into Multi-Task Learning for", True),
+    ("R13-mwtitle",   "the Ch.5 preface quotes the submitted MobiWac title as the manuscript carries it, "
+                      "hyphenated",
+     "chapters/5_mobiwac.tex", r"A Check-in-Level Multi-Task Study on Mobility Data", True),
+    ("R13-errata-hyphen", "the errata table's Published-wording column shows what CBIC actually published, "
+                          "hyphenated -- the column is self-defeating otherwise",
+     "tables/cbic/errata_wording.tex", r"investigating advanced multi-task optimizers", True),
+    # R13-obj4: objective 4 names the PROTOCOL of the final study, so it must point at Chapter 5, not at
+    # the Conclusion. This defect was invisible to every gate for a reason worth recording: the wrong
+    # \ref RESOLVED, so the build reported zero undefined references, the cross-reference lint passed,
+    # and the rendered page printed "(Chapter 6)" with full confidence. A resolving reference is not a
+    # correct one, and no existing gate distinguishes the two. Anchored on the label token rather than on
+    # the surrounding prose so a later rewording of the objective does not turn this red spuriously.
+    ("R13-obj4",     "objective 4's protocol reference points at the final STUDY (Ch.5), not at the "
+                     "Conclusion; a resolving \\ref is not a correct one",
+     "chapters/1_introduction.tex",
+     r"non-inferiority protocol used in the final study\s*\(Chapter~\\ref\{ch:mobiwac\}\)", True),
 )
 
 # COD-016b needs a STRUCTURAL probe, not a string one, so it lives here rather than in PROBES --
