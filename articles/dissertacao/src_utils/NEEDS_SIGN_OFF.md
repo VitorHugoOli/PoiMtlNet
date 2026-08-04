@@ -69,17 +69,24 @@ Os arquivos mais carregados, para priorizar: `2_fundamentals.tex` 1.115 linhas d
 arquivo), `apx_f_cosine.tex` 558 (77%), `apx_b_errata.tex` 301 (57%), `6_conclusion.tex` 286 (52%),
 `1_introduction.tex` 253 (52%), `content.tex` 230 (55%).
 
-### 14.2 A pergunta que travava a decisao, agora respondida: **os gates nao leem comentario do `.tex`**
+### 14.2 A pergunta que travava a decisao: **13 dos 14 gates nao leem comentario do `.tex` — 1 le, e quebra**
 
 Havia um medo razoavel de que apagar comentario derrubasse a suite de gates, porque 13 dos 14 scripts
-`check_*.py` mencionam comentarios no codigo. **Medido, e a resposta e nao.** Duas evidencias
-independentes:
+`check_*.py` mencionam comentarios no codigo. **Medido, a resposta e "quase nao": os 208 probes do
+`check_audit_claims` sao imunes, mas UM gate — o `check_comment_hygiene` — realmente depende de ~10
+linhas de comentario do `src/main.tex` e falha sem elas.** Os detalhes e a decisao que isso pede estao na
+caixa de correcao ao final desta secao; leia-a antes de apagar qualquer bloco. Duas evidencias
+independentes, na ordem em que as levantei:
 
 **(a) Direto na fonte do instrumento.** `check_audit_claims.py` le todo `.tex` atraves de `live_text()`,
 cuja primeira linha de docstring e literalmente *"Source with comments removed"*. O gate **nao consegue**
 ver um comentario `.tex`, por construcao. Um probe cujo texto-alvo esteja dentro de `%` e inerte hoje —
 isso ja esta documentado no proprio arquivo, na entrada `R13-aut30b`, marcada
-*"UNPROBEABLE BY CONSTRUCTION"*.
+*"UNPROBEABLE BY CONSTRUCTION"*. **Isto vale para os 208 probes e nao foi retratado.** O que nao se
+segue — e foi o meu erro — e generalizar de `check_audit_claims` para a suite inteira: **13 dos 14 gates
+nao usam `live_text()`/`strip_text()` e leem o `.tex` cru**, cada um por conta propria. Conferido script
+por script; o `check_comment_hygiene` e o caso extremo, com zero helpers de strip e quatro
+`read_text()` — ele **precisa** ler cru, porque o assunto dele sao os proprios comentarios.
 
 **(b) Empiricamente, rodando a suite inteira contra uma arvore sem comentario.** O `src_clean` ja e um
 espelho 1:1 sem comentarios, entao a experiencia esta pronta: copiei os gates para um diretorio cujo
@@ -118,6 +125,20 @@ diretorio de teste nao tinha. Essa falha era, de fato, artefato do teste.
 > (`rc=1`) porque as duas explicacoes de `main.tex` desapareceram junto com os comentarios. O proprio
 > gate explica por que isso importa: *"a story with zero tellers passes vacuously and must never be
 > reported as clean"*.
+>
+> **EXPERIMENTO CONTROLADO, para nao repetir o erro de atribuicao.** Meu primeiro teste rodava num
+> diretorio a que faltavam documentos `src_utils/`, e por isso duas falhas se confundiam: uma real e uma
+> artefato. Refeito com **todos** os documentos `src_utils/` e `fundamentals/` presentes, de modo que a
+> **unica** diferenca em relacao ao repo real e que os `.tex` nao tem comentario:
+>
+> | Gate | Resultado | Leitura |
+> |---|---|---|
+> | `check_audit_claims` | **PASS**, `0 claim(s) not applied` | os 208 probes sao imunes a remocao de comentario; a falha anterior era artefato do diretorio de teste |
+> | `check_comment_hygiene` | **FAIL** | falha real, causada pela remocao de comentario |
+> | os outros 12 | PASS | — |
+>
+> Ou seja: **exatamente 1 dos 14 gates depende de comentario do `.tex`**, e o isolamento acima e o que
+> autoriza dizer "1", em vez de inferir a partir de um teste com variavel confundida.
 
 > **CONSEQUENCIA PRATICA, corrigida.** Remover comentario do `.tex` **nao quebra nenhum dos 208 probes
 > do `check_audit_claims`** — essa parte se sustenta, e e a maior parte da suite. Mas **quebra um gate**,
