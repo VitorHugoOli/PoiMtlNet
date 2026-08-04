@@ -164,6 +164,17 @@
 
 \hyphenation{fe-de-ral}
 \hyphenation{scientiae}
+% [round14] Line-breaking help for the long words in the Chapter 1 arc paragraphs. The
+% author's Overleaf log (TeX Live 2025) reports "Overfull \hbox (9.27821pt too wide)" at
+% 1_introduction.tex:158-162; this tree builds on TeX Live 2026, where the same paragraph
+% fits and no Overfull is reported, so the defect is not reproducible here and the fix has
+% to be one that cannot depend on the version. Giving TeX legal break points does exactly
+% that: it changes no wording and no meaning, it only widens the set of lines TeX may
+% choose. "dimensional" is the load-bearing one -- it follows an explicit hyphen in
+% "64-dimensional", and TeX will not hyphenate the remainder of a word after an explicit
+% hyphen unless the parts are given to it.
+\hyphenation{di-men-sio-nal ar-chi-tec-ture rep-re-sen-ta-tion sub-stan-tial-ly
+             con-trolled com-par-i-son cat-e-gor-i-cal mono-lith-ic}
 
 % ---------------------------------------------------------------------------------------
 % THE SUPPLEMENTARY VOLUME, named in one place. [round7, 2026-07-29]
