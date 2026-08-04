@@ -105,10 +105,17 @@ the two tables exported to the joint model.
 \begin{figure}[H]
     \centering
     \input{figures/check2hgi_flow}
-    \caption{Check2HGI representation and export flow. The upper row shows the
-    bottom-up hierarchy used during self-supervised learning. Dashed arrows mark
-    exported or detached routes. Double-bordered boxes are the representations
-    consumed by the joint model.}
+    % [round14] CAPTION SYNC. The caption said "the upper row shows the bottom-up
+    % hierarchy" while the figure was rebuilt this round from a five-across row into a
+    % folded three-band path (the row did not fit the 455pt text block). "Upper row"
+    % no longer described the picture, so the sentence now names the reading order
+    % instead of a row. Content of the caption is otherwise unchanged.
+    \caption{Check2HGI representation and export flow. The strip at the top names the
+    four nested levels of the graph and the objective that spans each boundary between
+    them. Below it, each processing stage carries a tag naming its own level, and the
+    bottom-up pass is read left to right along the top, then down the right-hand side,
+    then right to left. Dashed arrows mark exported or detached routes. Double-bordered
+    boxes are the representations consumed by the joint model.}
     \label{fig:apx-check2hgi-flow}
 \end{figure}
 
@@ -133,8 +140,18 @@ attention heads. This is a learned summary rather than a fixed mean. The module 
 assign different importance to routine and unusual visits while producing one
 64-dimensional place representation $\mathbf{e}_{p_i}\in\mathbb{R}^{64}$.
 
-The attention module uses one learned seed query for every place. Keys and values
-come from the visits assigned to that place. Each head summarizes a 16-dimensional
+% [round14, D3] FACTUAL CORRECTION. The sentence read "The attention module uses one learned seed
+% query for every place", which states a per-place query. The implementation holds ONE query vector
+% for the whole module: research/embeddings/check2hgi/model/Checkin2POI.py:45-47 declares
+% self.S = nn.Parameter(torch.Tensor(1, hidden_channels)) under its own comment "Learnable seed
+% vector (shared query for all POIs)", and :104 projects it as "Project Q (shared seed)". A per-place
+% query would have shape (num_pois, hidden_channels). What varies per place is the key/value set, not
+% the query, and the sentence now says that. The two sentences around it are unchanged: the learned
+% summary versus a fixed mean, and the head split, were both verified correct.
+% Evidence: src_utils/_round14/80_apx_check2hgi_audit.md, defect D3.
+The attention module uses one learned query vector, shared across all places. Keys
+and values come from the visits assigned to the place being summarized, so the query
+is common while the pooled content is specific to the place. Each head summarizes a 16-dimensional
 part of the representation, and the four outputs are combined with a residual
 projection and PReLU. The result represents how a place is used across the observed
 trajectories, rather than only where it is located.
@@ -301,10 +318,16 @@ four heads and dropout $0.3$; the shared-context tower uses eight heads and drop
 $0.1$. Each tower returns one 128-dimensional feature vector.
 
 The two region features are combined as
+% [round14, D1] TYPO FIX inside the equation: \mathbf{W}_{mathrm{shr}} -> \mathbf{W}_{\mathrm{shr}}.
+% The missing backslash was NOT a TeX error, which is why it survived every build: `mathrm` was
+% typeset as the six italic letters m-a-t-h-r-m, so the rendered equation printed W_{mathrmshr} (a
+% nine-character subscript) and contradicted
+% the legend three lines below it, which already writes the symbol correctly. Read in the render at
+% p. 113 of the defense build. Evidence: src_utils/_round14/80_apx_check2hgi_audit.md, defect D1.
 \begin{equation}
     \mathbf{f}_{R}
     =\mathbf{f}_{\mathrm{priv}}
-    +\beta\mathbf{W}_{mathrm{shr}}\mathbf{f}_{\mathrm{shr}}.
+    +\beta\mathbf{W}_{\mathrm{shr}}\mathbf{f}_{\mathrm{shr}}.
     \label{eq:apx-region-fusion}
 \end{equation}
 Here, $\mathbf{f}_{R}\in\mathbb{R}^{128}$ is the fused region feature,
@@ -315,6 +338,36 @@ and $\beta$ is a trainable scalar initialized to $0.1$. Layer normalization,
 dropout, and a final linear classifier produce one logit per region in the current
 dataset. This design lets category context help region prediction without removing
 the direct spatial sequence model.
+
+% [round14, D2, part (a) of two] ADDED. The region-transition prior being disabled was stated
+% NOWHERE in this appendix before this edit: grep -n 'alpha\|prior\|log_T\|transition' over the file
+% returned zero hits. It belongs here because the term is an in-head additive term on the region
+% logits, so the forward-path section is where a reproducer meets it.
+% SOURCE. science/mtl_v17_complete_picture.md:171-181 ("Inactive priors and couplings"): the head
+% computes region_logits = classifier(fused) + alpha * log_T[last_region] with alpha pinned to 0.0
+% and registered as a fixed buffer, so the prior cannot affect logits or training even when a
+% per-fold transition path is supplied; the same section records log_t_kd_weight=0.0 and
+% cond_coupling=none. docs/studies/archive/mtl_improvement/CHAMPION.md:37 records the same two
+% switches for the reported configuration.
+% WHAT IS DELIBERATELY NOT WRITTEN HERE. CHAMPION.md:37 also quantifies the setting (about +1.4
+% percentage points of region accuracy). That is an ablation RESULT, this appendix reports no
+% results, and the audit keeps the number in its own report instead.
+% NAMING. "region-transition prior" is the canonical name (WRITING_LAW §2 bans log_T in prose); it is
+% already used in that form at 5_mobiwac/05_setup.tex:68, 1_introduction.tex:450, 6_conclusion.tex:210
+% and apx_a_contributions.tex:103, and Chapter 5 already tells the reader that our joint and dedicated
+% models do not use it, so this paragraph specifies the mechanism rather than introducing a claim.
+% The second mechanism is described in plain words and NOT called knowledge distillation: that term is
+% absent from GLOSSARY.md, and its §1 maintenance rule is fail-closed. Proposed for registration in
+% the handoff note if a later section needs the term.
+% Evidence: src_utils/_round14/80_apx_check2hgi_audit.md, defect D2.
+The region head contains one further term that stays inactive in the reported
+configuration. A region-transition prior, a table of how often one region follows
+another, can be added to the region logits through a scalar weight. That weight is
+fixed at zero and is not trained, so the prior reaches neither the logits nor the
+gradients, even when a per-fold transition table is supplied. Two related mechanisms
+are also off: the same table is never used as a soft training signal for the region
+output, and the category output is never used as an input to it. Region prediction
+therefore depends only on the two towers described above.
 
 \section{How the joint model is optimized and evaluated}
 \label{sec:apx-joint-training}
@@ -382,6 +435,15 @@ Joint model & Private encoders & Independent $64\rightarrow256\rightarrow256\rig
 Joint model & Interaction & Two bidirectional cross-attention blocks; four heads; width 256; dropout $0.15$ \\
 Joint model & Category head & Four-layer GRU; hidden width 256; seven output classes \\
 Joint model & Region head & Private tower: 4 heads, dropout $0.3$; shared-context tower: 8 heads, dropout $0.1$; both width 128; additive fusion with $\beta_0=0.1$ \\
+% [round14, D2, part (b) of two] ROW ADDED. A table headed "Reproduction-critical settings" that
+% omits the disabled region-transition prior is not reproduction-critical: the term is present in the
+% region head and a reproducer who leaves its scalar at a nonzero default builds a different model.
+% Sources are the same two records cited at the prose site above
+% (science/mtl_v17_complete_picture.md:171-181; docs/studies/archive/mtl_improvement/CHAMPION.md:37).
+% The row follows the existing Stage / Component / Reported setting style and adds no column; the
+% three p{} widths of the longtable are unchanged.
+% Evidence: src_utils/_round14/80_apx_check2hgi_audit.md, defect D2.
+Joint model & Inactive region paths & Additive region-transition prior with its scalar weight fixed at 0 and not trained; no transition-table training signal; no category-conditioned region output \\
 Joint model & Optimization & AdamW; weight decay $0.05$; batch size 8192 per task; 50 epochs; clip norm $1.0$; OneCycle schedule \\
 Joint model & Peak learning rates & Category $10^{-3}$; region $3\times10^{-3}$; shared $3\times10^{-3}$ for AL/AZ/FL and $10^{-3}$ for CA/TX/Istanbul \\
 Joint model & Evaluation & Five user-disjoint folds; seeds $\{0,1,7,100\}$; category macro-F1 and region Acc@10 \\

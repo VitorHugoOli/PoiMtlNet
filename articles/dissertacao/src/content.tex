@@ -113,10 +113,12 @@
         por codificadores espaciais, temporais e categóricos decompostos. A melhora
         acentuada do desempenho de categoria nos conjuntos avaliados indicou que,
         naquela configuração, a representação de entrada era o principal fator
-        limitante. Com base nesse diagnóstico, o terceiro estudo atribuiu um vetor
-        próprio a cada \emph{check-in}, substituiu o compartilhamento rígido por uma
-        topologia baseada em atenção cruzada e reuniu duas tarefas sequenciais: a
-        previsão da próxima categoria e da próxima região. O modelo final foi avaliado
+        limitante. Com base nesse diagnóstico, o terceiro estudo passou da
+        representação em nível de POI para uma representação em nível de
+        \emph{check-in} (um vetor por visita, e não por POI), trocou o
+        compartilhamento rígido por uma topologia baseada em atenção cruzada e
+        reuniu duas tarefas sequenciais: a previsão da próxima categoria e da
+        previsão da próxima região. O modelo final foi avaliado
         em seis conjuntos de dados de diferentes contextos geográficos, incluindo um
         conjunto não estadunidense. O protocolo empregou validação cruzada com usuários
         disjuntos entre treinamento e teste estatísticos pareados.
@@ -206,8 +208,9 @@
             decomposed spatial, temporal, and categorical encoders. The marked
             improvement in category performance across the evaluated datasets
             indicated that, in that configuration, the input representation was the
-            main limiting factor. Based on this diagnosis, the third study assigned a
-            distinct vector to each \emph{check-in}, replaced hard sharing with a
+            main limiting factor. Based on this diagnosis, the third study moved
+            from a place embedding to a check-in-level representation (one vector
+            per visit rather than per POI), replaced hard sharing with a
             cross-attention-based topology, and paired two sequential tasks:
             next-category and next-region prediction. The final model was evaluated on
             six datasets from different geographic contexts, including one non-U.S.
