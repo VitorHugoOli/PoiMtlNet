@@ -115,12 +115,22 @@ If “hard sharing” is restricted to identical primitive weights being reused 
 The category stream is processed by `next_gru`:
 
 ```text
-GRU(input=256, hidden=256, layers=2, dropout=0.1, unidirectional)
+GRU(input=256, hidden=256, layers=4, dropout=0.1, unidirectional)
 -> hidden state at the last valid timestep
 -> LayerNorm(256) -> Dropout(0.1) -> Linear(256,7)
 ```
 
 The optional GRM state gate is off. The head produces raw logits for seven categories.
+
+The layer count is **4, not the head's own default of 2**, and the difference is easy to
+misread from the head file alone. `NextHeadGRU.__init__` declares `num_layers: int = 2`
+(`src/models/next/next_gru/head.py:18`), but that default never applies on the MTL path:
+`MTLnet` passes its own model-level `num_layers` down to the category head
+(`src/models/mtl/mtlnet/model.py:161-166`, forwarded at `:243`), and the MTL experiment
+config sets `"num_layers": 4` (`src/configs/experiment.py:428`). The v17 command in §10.1
+passes no `--num-layers`, so the config value stands. Verified by instantiation rather than
+by reading: building the head as the MTL path builds it reports `gru.num_layers = 4` with
+four `weight_ih` parameter sets, `hidden_size = 256`, `bidirectional = False`.
 
 ### 3.5 Region-private dual-tower head
 
@@ -407,7 +417,8 @@ The following list is the concise definition of what belongs to v17:
 - Task A check-in input; task B region input; both 64-dimensional.
 - Separate 64-to-256 MLP encoders.
 - Two 256-dimensional bidirectional cross-attention blocks with four heads and separate per-stream FFNs.
-- `next_gru` category head, hidden width 256, two layers.
+- `next_gru` category head, hidden width 256, four layers (the head's own default is two; the
+  MTL config's `num_layers=4` is injected and wins -- see §3.4).
 - Region dual tower: private STAN on raw 64-dimensional input and shared STAN on the 256-dimensional interaction stream.
 - STAN feature width 128; private/shared heads 4/8; private/shared dropout 0.3/0.1.
 - Additive auxiliary fusion with trainable `beta`, initialized at 0.1.

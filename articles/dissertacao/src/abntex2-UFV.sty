@@ -93,8 +93,19 @@
   %\smallskip
   %\medskip
   \bigskip
-  %{\imprimirorientadorRotulo~\imprimirorientador\par}
-  {Orientador:~\imprimirorientador\par}
+  % [round14] The Portuguese literal "Orientador:" was hardcoded here, overriding the
+  % language-aware macro on the line above it (which was commented out). On an
+  % English-frame document that printed one Portuguese word on an otherwise English title
+  % page, while the signature page a few lines below already reads "Adviser" -- the file
+  % contradicted itself. \imprimirorientadorRotulo expands to \orientadorname, which
+  % abntex2.cls sets to "Supervisor:" under the english option (abntex2.cls:183, the same
+  % block that already yields this document's "APPENDIX", "Abstract", and "List of
+  % abbreviations and acronyms"). Restoring the macro therefore follows the language the
+  % document already selects instead of pinning one label to the other language.
+  % This file is UFV's template and the hardcoded line is inherited from it, so the change
+  % is deliberate and recorded rather than silent: revert this hunk to go back to the
+  % template's literal.
+  {\imprimirorientadorRotulo~\imprimirorientador\par}
 
   \smallskip
   \abntex@ifnotempty{\imprimircoorientador}{%

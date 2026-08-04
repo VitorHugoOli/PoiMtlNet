@@ -1455,6 +1455,30 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
                "them standalone did not drop the limitation the pointers were attached to",
      "chapters/3_cbic/results.tex",
      r"stratified splitter over the samples rather than over the users", True),
+
+    # ---- round 14, the title-page advisor label -------------------------------------
+    # abntex2-UFV.sty hardcoded the Portuguese literal "Orientador:" and commented out the
+    # language-aware \imprimirorientadorRotulo above it, so an English-frame document printed
+    # one Portuguese word on an otherwise English title page while the signature page a few
+    # lines below already read "Adviser". \orientadorname is "Supervisor:" under the english
+    # option (abntex2.cls:183 -- the same block that yields this document's "APPENDIX",
+    # "Abstract", and "List of abbreviations and acronyms"), so the macro needed restoring,
+    # not relabelling. Verified in the RENDER: title page reads "Supervisor: Fabricio Aguiar
+    # Silva", with zero occurrences of "Orientador".
+    # NOTE: the hardcoded line is inherited from UFV's own template, so this is a deliberate
+    # deviation from the supplied file and the probe is what keeps it from being re-applied
+    # by a later template refresh without anyone noticing.
+    ("ORI-01", "abntex2-UFV.sty no longer hardcodes the Portuguese advisor literal on the "
+               "title page",
+     # NB: this engine matches with re.I ONLY, never re.MULTILINE (see the note near the top of
+     # this file), so "^" anchors at STRING START and cannot match mid-file. The first version of
+     # this probe was r"^\s*\{Orientador:~" and therefore never fired -- it reported "holds" even
+     # with the Portuguese literal restored. Sabotage validation is what caught it. No anchor here.
+     "abntex2-UFV.sty", r"\{Orientador:~\\imprimirorientador", False),
+
+    ("ORI-02", "and it uses the language-aware label macro instead, which resolves to "
+               "Supervisor: under the english class option",
+     "abntex2-UFV.sty", r"\{\\imprimirorientadorRotulo~\\imprimirorientador\\par\}", True),
 )
 
 # COD-016b needs a STRUCTURAL probe, not a string one, so it lives here rather than in PROBES --
