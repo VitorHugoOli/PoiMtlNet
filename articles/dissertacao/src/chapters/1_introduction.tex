@@ -87,10 +87,21 @@ prediction} identifies the semantic category of that visit, and \emph{next-regio
 prediction} identifies where it will occur. These tasks differ from \emph{next-place
 prediction}, which identifies the exact establishment and is outside the scope of
 this work. The two tasks above are sequential, because each one reads a history of
-visits. The first two studies also use \emph{category classification}, a static task
+% [FAB-32 + FAB-33, round 13, 2026-08-03] ONE DEFECT, TWO OCCURRENCES, and he found both. The old
+% text read "The first two studies also use ..." and "The task pair changes in the final study",
+% which address a set of studies the reader has not met: the three studies are first introduced at
+% :125 in the next section, thirty-five lines and one section boundary later. MEASURED, not assumed
+% (first live occurrence of "The three studies conducted in this dissertation" is :125; these
+% sentences are :90 and :92-93). This is the same forward-reference class the Chapter 2 redesign
+% removed and the same one his own Definition 2.2 edit needed fixing for, hours apart.
+% HIS OWN SUGGESTED FORM was to describe the work rather than index an unintroduced set ("Durante o
+% desenvolvimento da dissertacao, tambem usamos a category classification"), and that is what these
+% two sentences now do. Nothing about WHICH tasks pair with which is claimed here any more; the arc
+% section still owns that, and the pointer to it survives.
+visits. This dissertation also uses \emph{category classification}, a static task
 that reads a single place rather than a history, predicting the category of a POI held
-out from classifier training. The task
-pair changes in the final study, as explained in Section~\ref{sec:intro:arc}.
+out from classifier training. Which two tasks are trained together is not fixed
+across the work, as Section~\ref{sec:intro:arc} explains.
 Chapter~\ref{ch:fundamentals} formally defines the three tasks that appear in the
 experiments.
 
@@ -122,7 +133,7 @@ would determine the result, was an open question at the start of this research.
 \textbf{Does multitask learning help point-of-interest prediction (next category and
 next region), and what does the answer depend on?}
 
-The three studies answer this question in sequence. The first reports a negative
+The three studies conducted in this dissertation answer this question in sequence. The first reports a negative
 result, the second identifies its main bottleneck, and the third tests the resulting
 solution. This progression is itself part of the contribution because each study
 narrows the explanation supported by the evidence.
@@ -150,7 +161,7 @@ tasks.
 Chapter~\ref{ch:courb}, published at CoUrb 2026, examines that explanation through a
 controlled comparison. The study keeps MTLnet unchanged and replaces its monolithic
 64-dimensional place embedding with separate spatial, temporal, and categorical
-encoders. Category performance then increases substantially in every state evaluated.
+encoders. Category performance then increases substantially in every scenario evaluated.
 Because the architecture remains fixed, the study identifies the input representation
 as the bottleneck for that stage of the research.
 
@@ -297,9 +308,24 @@ benchmark. % [round11, PENDENCIAS §6 FAB-15, author's ruling "opcao 1" and his 
 % "a finer taxonomy may change the effect of joint training". The formulation admits other label sets;
 % whether the RESULT survives them is explicitly open. Removing the definitional framing conveys his
 % point without making a claim the document contradicts one chapter later.
+% [FAB-34, round 13, 2026-08-03] "o que e isso? defina" -- on \emph{mahalle}, which stood here with
+% no gloss. MEASURED: this is its only live occurrence in the introduction, and the chapter's own
+% first use of it. Chapter 2 DOES gloss it ("a \emph{mahalle}, a municipal neighborhood",
+% 2_fundamentals.tex:1450), but that is 1,148 lines later in a different chapter, and WRITING_LAW §1
+% requires the definition at FIRST use. It is not an acronym, so the siglas list is not its home
+% either (that block carries CBIC, Check2HGI, CoUrb, DGI, FiLM, HGI, LBSN, MobiWac, MTL, POI, SBRC,
+% TOST -- checked).
+% THE GLOSS IS SOURCED, not written from memory, because his own note said "search if needed": the
+% mahalle is the smallest unit of Turkish local administration, below the district, headed by an
+% elected muhtar. It is therefore the CORRECT counterpart of a census tract only as the smallest
+% available areal unit, not as a statistical one -- so the wording says "administrative unit" rather
+% than implying the two are the same kind of object. The two-word appositive matches Chapter 2's own
+% phrasing ("a municipal neighborhood") so the two chapters do not drift apart, and adds the level
+% of government that makes the comparison legible.
 The prediction targets are the next category and the next region. In the data used
 here the category space has seven classes, and a region is a census tract in the United
-States or a \emph{mahalle} in Istanbul.
+States or a \emph{mahalle} in Istanbul, the smallest administrative unit of Turkish
+local government, roughly a municipal neighborhood.
 The joint model operates under a single-model constraint: one trained artifact must produce
 both outputs in one forward pass. These choices define the design scope.
 Chapter~\ref{ch:fundamentals} specifies the output spaces and geographic units, and

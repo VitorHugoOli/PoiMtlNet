@@ -831,3 +831,83 @@ texto. Uma referencia so entra em prosa quando as tres condicoes do `AGENT_GUARD
 por pipe; `make selftest` rc=0). Nada foi aplicado a nenhum capitulo nesta passagem: este arquivo e a
 divisao, e §6 do `PENDENCIAS.md` e a fila da sua decisao. Os comandos que produziram cada numero de §1
 estao em [`_round9/31_stale_quote_pass.md`](_round9/31_stale_quote_pass.md).*
+
+
+--- NEW WAVE ---
+
+## Fabricio — `chapters/1_introduction.tex` 
+### FAB-32
+
+- **Reviewer:** Fabricio, written
+- **Quote:** "visits. The first two studies also use \emph{category classification}, a static task"
+- **Live-source status (SEU registro):** **exact** — `chapters/1_introduction.tex:30`.
+- **What he asks:** `não falou nada de estudos ainda...falar de outra forma aqui, como: Durante o desenvolvimento da dissertação, também usamos a category classification.....`
+- **Author considerations:** Indeed we no metion the studies, I belive that we could take this opotunites to try to finds others contradictions like this one in the introduction and fundamentals, that are the two more proeminets to have ths kind of error
+- **Live-source status (RE-MEDIDO por mim):** **exata**, mas a coordenada andou: vive hoje em
+  `chapters/1_introduction.tex:90` cru, que e `:28` com os comentarios removidos — a contagem que voce usou.
+  A deriva vem de uma passagem paralela da rodada 13 no mesmo arquivo, nao de erro seu. A citacao esta
+  **exata**, palavra por palavra.
+- **Claude take:** **Voce esta certo, e este item e o mesmo defeito do FAB-33.** Medido, nao suposto: os
+  tres estudos sao apresentados ao leitor pela primeira vez em `:125` ("The three studies conducted in
+  this dissertation answer this question in sequence"), na §1.2. A frase marcada esta em `:90`, na §1.1 —
+  trinta e cinco linhas e uma fronteira de secao **antes**. Entao "the first two studies" enderecava um
+  conjunto que o leitor ainda nao conhece. E exatamente a classe de defeito que o redesenho do Cap. 2
+  removeu nesta rodada, e a mesma que a sua propria edicao da Definicao 2.2 precisou corrigir horas
+  antes; as duas caem nela pelo mesmo motivo, que e terem sido escritas de tras para frente.
+  **Apliquei na sua forma:** descrever o trabalho em vez de indexar um conjunto nao apresentado.
+- **Disposition:** VOCE APLICA (aplicado nesta rodada; nenhuma alegacao muda, so a ordem de apresentacao)
+- **Where it renders:** §1.1, p. 1 do `main.pdf` (conferido no PDF renderizado, nao no fonte)
+- **Probe:** `R13-fab32` (a forma nova) + `R13-fab32b` (proibe a volta da antiga)
+- **Build commit:** `fd94d0a2`
+
+### FAB-33
+
+- **Reviewer:** Fabricio, written
+- **Quote:** "The task pair changes in the final study, as explained in Section~\ref{sec:intro:arc}."
+- **Live-source status (SEU registro):** **exact** — `chapters/1_introduction.tex:33`.
+- **What he asks:** `mesmo coisa, não falou nada de estudo...mudar aqui`
+- **Author considerations:** Same problem that the previus review
+- **Live-source status (RE-MEDIDO por mim):** **exata**, e a frase **quebra em duas linhas** no fonte
+  (`:92-93` cru; `:30` com comentarios removidos). Registro isso porque a minha primeira medicao reportou
+  o quote como DESAPARECIDO, e o errado era o meu instrumento: um `grep` de uma linha nao ve uma frase que
+  quebra depois de "The task". A sua citacao esta exata.
+- **Claude take:** **Certo, e e a segunda ocorrencia do FAB-32 e nao um item separado.** A mesma medicao
+  vale: "the final study" chegava antes de existir um estudo para o leitor. Duas coisas que eu
+  deliberadamente **nao** fiz. Nao removi o ponteiro para a §1.3 (`sec:intro:arc`), porque e la que a
+  variacao do par de tarefas e de fato explicada e apagar o ponteiro trocaria um defeito por outro. E nao
+  trouxe a explicacao para ca: a §1.1 esta apresentando as tarefas, e o arco e assunto da §1.3.
+- **Disposition:** VOCE APLICA (aplicado nesta rodada)
+- **Where it renders:** §1.1, p. 1 do `main.pdf` (conferido no render)
+- **Probe:** `R13-fab33` (a forma nova) + `R13-fab33b` (proibe a volta da antiga)
+- **Build commit:** `fd94d0a2`
+
+
+### FAB-34
+
+- **Reviewer:** Fabricio, written
+- **Quote:** "here the category space has seven classes, and a region is a census tract in the United States or a \emph{mahalle} in Istanbul."
+- **Live-source status (SEU registro):** **exact** — `chapters/1_introduction.tex:137`.
+- **What he asks:** On the word ` \emph{mahalle}`: "o que é isso? defina"
+- **Author considerations:** This is a census tract for istambu, but is the name of theri censu trac search if needed
+- **Live-source status (RE-MEDIDO por mim):** **exata**, quebrando em duas linhas em
+  `chapters/1_introduction.tex:301-302` cru (`:135` com comentarios removidos).
+- **Claude take:** **Certo — e a glosa tinha de vir de uma fonte, nao de mim.** Medido primeiro: e a
+  **unica** ocorrencia viva de `mahalle` na introducao, e portanto o primeiro uso do capitulo, sem
+  nenhuma glosa. O Cap. 2 **ja** glosa ("a \emph{mahalle}, a municipal neighborhood",
+  `2_fundamentals.tex:1450`), mas isso esta 1.148 linhas adiante e em outro capitulo, e a `WRITING_LAW`
+  §1 pede a definicao no **primeiro** uso. A lista de siglas tambem nao e a casa dela: aquele bloco
+  carrega CBIC, Check2HGI, CoUrb, DGI, FiLM, HGI, LBSN, MobiWac, MTL, POI, SBRC e TOST — conferido — e
+  `mahalle` nao e sigla.
+  **UMA CORRECAO A SUA PROPRIA NOTA, e e por isso que a sua instrucao de buscar estava certa.** Voce
+  escreveu "This is a census tract for istambul". Nao e, e a diferenca importa para o texto: o mahalle e
+  a **menor unidade da administracao local turca**, abaixo do distrito, chefiada por um *muhtar* eleito.
+  E equivalente ao census tract apenas no sentido de ser a menor unidade areal disponivel, **nao** no de
+  ser uma unidade **estatistica** — o census tract e desenhado pelo recenseamento para agregar populacao,
+  o mahalle e uma unidade de **governo**. Por isso o texto diz "administrative unit" em vez de sugerir
+  que os dois sejam a mesma especie de objeto, e o aposto de duas palavras repete a formulacao que o
+  Cap. 2 ja usa, para os dois capitulos nao divergirem.
+- **Disposition:** VOCE APLICA (aplicado nesta rodada), com **uma correcao factual a sua consideracao**
+- **Where it renders:** §1.4 Scope and assumptions, `main.pdf` (conferido no render)
+- **Probe:** `R13-fab34`
+- **Build commit:** `fd94d0a2`
+ 

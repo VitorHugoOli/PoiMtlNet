@@ -957,6 +957,36 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
                     "regions are observed input",
      "chapters/2_fundamentals.tex",
      r"the categories and regions carried by the\s+visits in \$H_i\$ are observed input", True),
+    # ---- FABRICIO'S NEW WAVE, 2026-08-03 (CONSIDERATIONS.md, "--- NEW WAVE ---": FAB-32/33/34).
+    #
+    # FAB-32 and FAB-33 are ONE defect with two occurrences and he found both: §1.1 referred to "the
+    # first two studies" and "the final study" thirty-five lines BEFORE the three studies are
+    # introduced at :125 in §1.2. Measured, not assumed. Two probes because the two sentences can rot
+    # independently, and each is an ABSENCE probe on the old form PLUS a presence probe on the new one:
+    # a presence-only probe would hold if the old sentence were restored alongside the new.
+    ("R13-fab32",   "FAB-32: §1.1 introduces category classification as the dissertation's own task "
+                    "rather than indexing a set of studies the reader has not met yet",
+     "chapters/1_introduction.tex",
+     r"This dissertation also uses \\emph\{category classification\}, a static task", True),
+    ("R13-fab32b",  "FAB-32: and the superseded form, which named 'the first two studies' before any "
+                    "study existed for the reader, does not come back",
+     "chapters/1_introduction.tex", r"The first two studies also use \\emph\{category", False),
+    ("R13-fab33",   "FAB-33: the task-pair sentence states that the pairing varies WITHOUT naming an "
+                    "unintroduced 'final study', and still points at the arc section that owns it",
+     "chapters/1_introduction.tex",
+     r"Which two tasks are trained together is not fixed\s+across the work, as "
+     r"Section~\\ref\{sec:intro:arc\} explains", True),
+    ("R13-fab33b",  "FAB-33: and the superseded 'The task pair changes in the final study' form stays out",
+     "chapters/1_introduction.tex", r"task\s+pair changes in the final study", False),
+    # FAB-34: "o que e isso? defina" on \emph{mahalle}. His own note said "search if needed", so the
+    # gloss is SOURCED rather than written from memory, and the probe pins the two properties that
+    # make it correct: the level of government (which is what makes it comparable to a census tract)
+    # and the appositive that matches Chapter 2's existing wording so the two chapters cannot drift.
+    ("R13-fab34",   "FAB-34: mahalle is glossed at its FIRST use in the introduction, naming the "
+                    "administrative level rather than implying it is a statistical unit like a tract",
+     "chapters/1_introduction.tex",
+     r"the smallest administrative unit of Turkish\s+local government, roughly a municipal "
+     r"neighborhood", True),
     # R12-attrib: a commit-message attribution defect, recorded because the suite CANNOT detect this class
     # -- every gate here reads the working tree and none reads the commit log. Two of round 12's commits
     # describe diffs they do not contain, because `git add -A` in a backgrounded cell staged the tree at
@@ -1524,11 +1554,12 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
      "chapters/1_introduction.tex",
      r"Because each seed draws its own partition, the reported intervals\s+cover variation from both the "
      r"initialization and the user split, sampled at four\s+draws", True),
-    ("R13-foldseed6", "Ch.2's definition of a seed names both axes, so the term the GLOSSARY registers is "
-                      "complete where the document defines it",
+    ("R13-foldseed6", "Ch.2's definition of a seed names both axes and explains that the seed "
+                      "changes both sources of variation",
      "chapters/2_fundamentals.tex",
-     r"it sets both the random\s+initialization and the partition, so each seed draws its own division of "
-     r"the users", True),
+     r"It determines the model's\s+random initialization and how users are divided among the five "
+     r"folds.*The results include variation from both the random initialization and the user\s+"
+     r"partition because the seed changes both", True),
     # R13-foldseed7 / R13-foldseed8 guard the SUBMITTED chapter, and both halves are pinned because that
     # section carried two separate false statements: one in the seed definition, one in the
     # equivalence-precision sentence. Fixing either alone would leave the section self-contradictory. The
