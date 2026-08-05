@@ -985,15 +985,7 @@ negative transfer, and it is a measured quantity rather than a figure of speech.
 The cosine between their gradients reads how the two requested updates are aligned and
 ignores how large they are: $+1$ means the tasks ask for the same update, $-1$ for
 opposite ones, and $0$ that the requests are orthogonal, each leaving the other's
-% [S-1, 2026-08-03] FOUND BY THE MECHANICAL SWEEP THE AUTHOR ASKED FOR, not reported by a reviewer.
-% This was the chapter's FIRST use of the name PCGrad, with no citation and no gloss; the sentence
-% that introduces it ("Yu et al.\ introduce PCGrad, which projects away a conflicting component")
-% sits 323 lines later at :1311, in §2.3.5. Same shape as FAB-32/33, which is why the sweep caught
-% it: a named thing arriving before the sentence that names it. Fixed with a five-word appositive and
-% the citation, so the reader here needs nothing from §2.3.5; that section keeps its full treatment
-% and now reads as the fuller account rather than the first mention.
-objective unchanged to first order. PCGrad, a gradient-surgery method~\cite{yu2020pcgrad},
-changes a direction only when this cosine is
+objective unchanged to first order. PCGrad changes a direction only when this cosine is
 negative. Other methods may still react to differences in gradient magnitude or task
 loss. In Chapter~\ref{ch:mobiwac}, two such methods exceed equal weighting on one
 dataset but not on the others. Appendix~\ref{apx:cosine} evaluates the final joint
