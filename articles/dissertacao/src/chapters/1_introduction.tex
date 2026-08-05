@@ -415,11 +415,11 @@ The contributions are organized into four groups.
     \item[Empirical.] The final study compares joint and dedicated models on six
     datasets under user-disjoint cross-validation. Each configuration has twenty
     fitted models: four repetitions of the complete five-fold experiment, each
-    with a different random initialization and the same fixed folds. The analysis
+    with its own random initialization and its own user partition. The analysis
     uses paired tests on the four per-seed means, non-inferiority tests, and a
-    leakage audit. Because every seed uses the same fold partition, the reported
-    intervals do not include uncertainty from resampling the user splits.
-    Three further measurements stand on their own. Nineteen loss and gradient
+    leakage audit. Because each seed draws its own partition, the reported intervals
+    cover variation from both the initialization and the user split, sampled at four
+    draws. Three further measurements stand on their own. Nineteen loss and gradient
     balancers were screened at their default configurations, at a single random
     initialization, on Alabama and Florida, and none improved on a tuned fixed task
     weighting across both tasks and both datasets. The gradients of the two tasks were

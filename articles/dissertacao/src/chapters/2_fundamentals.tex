@@ -1643,10 +1643,21 @@ split changes across chapters. Chapters~\ref{ch:cbic} and~\ref{ch:courb} stratif
 samples, so one user's check-ins may occur in both training and validation.
 Chapter~\ref{ch:mobiwac} instead uses a grouped, stratified splitter that keeps each
 user on one side of a fold~\cite{pedregosa2011sklearn}. A seed in that chapter is one
-complete repetition of the five-fold experiment with a different random
-initialization. Four seeds over one fixed set of five folds produce twenty fitted
-models per configuration. The fixed folds isolate random-initialization variation but
-do not measure uncertainty from resampling the users.
+complete repetition of the five-fold experiment, and it sets both the random
+initialization and the partition, so each seed draws its own division of the users. Four
+seeds produce twenty fitted models per configuration and vary both sources together,
+which four draws sample rather than characterize. Within a seed the compared models read
+the same folds, which is what a paired comparison needs.
+% CORRECTED 2026-08-04. This said "Four seeds over one fixed set of five folds" and "The fixed folds
+% isolate random-initialization variation", following the same false premise the author caught in
+% Appendix A. src/data/folds.py passes the run's seed into StratifiedGroupKFold(random_state=...), so the
+% partition moves with the seed: measured, roughly four users in five change fold between seeds, with a
+% same-seed control reproducing the partition exactly. Evidence and the full code path:
+% science/fold_partition_and_seeds.md.
+% This is the DEFINITION of "seed" that the rest of the document depends on, which is why the sentence
+% now states both axes explicitly instead of naming only the initialization. GLOSSARY §1 registers seed
+% as "one full repetition of the five-fold experiment", which stays true and is now complete.
+% Probe: R13-foldseed6.
 
 \subsection{Comparison and statistical decisions}
 

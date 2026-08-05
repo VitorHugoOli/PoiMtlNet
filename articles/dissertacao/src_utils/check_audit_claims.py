@@ -1479,6 +1479,65 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     ("ORI-02", "and it uses the language-aware label macro instead, which resolves to "
                "Supervisor: under the english class option",
      "abntex2-UFV.sty", r"\{\\imprimirorientadorRotulo~\\imprimirorientador\\par\}", True),
+    # ---- THE FOLD PARTITION AND THE SEEDS, 2026-08-04. The author caught a false claim in Appendix A and
+    # it had propagated to four other files. The false version: the partition is fixed at seed 42, and only
+    # the initialization varies across the four seeds. Both halves are wrong. src/data/folds.py passes the
+    # run's seed into StratifiedGroupKFold(random_state=...) at :1159, :1247 and :1453; the only literal 42
+    # in that file is the DEFAULT value of the seed parameter at :1061; scripts/train.py:1874 passes
+    # seed=config.seed from --seed; and the canon guard at train.py:1961 calls 42 the development seed and
+    # requires --seed in {0,1,7,100} for paper-grade numbers. Measured with a same-seed control: roughly
+    # four users in five change fold when the seed changes. Full record and the reverification commands:
+    # science/fold_partition_and_seeds.md.
+    #
+    # WHY EIGHT PROBES FOR ONE CORRECTION. The claim lived in five files, and a probe on any one of them
+    # would leave the others free to drift back into contradiction. Each PRESENT-type probe pins the
+    # corrected wording where it lives; the one ABSENT-type probe pins the false phrase, which is safe
+    # because the provenance comments DESCRIBE it without reproducing the string the pattern matches.
+    ("R13-foldseed",  "Appendix A says the partition seed is the run's seed, not a fixed 42",
+     "chapters/apx_a_contributions.tex",
+     r"and the run's\s+seed as the partition seed", True),
+    ("R13-foldseed2", "and the retracted `fixed partition seed of 42` is gone from Appendix A",
+     "chapters/apx_a_contributions.tex",
+     r"fixed\s+partition seed of 42", False),
+    ("R13-foldseed3", "Appendix A states that a seed sets BOTH the initialization and the partition, so "
+                      "four seeds draw four partitions",
+     "chapters/apx_a_contributions.tex",
+     r"A seed\s+sets both the random initialization and the partition, so the four seeds draw four\s+"
+     r"user partitions", True),
+    # R13-foldseed4 pins the SURVIVAL ARGUMENT for the paired tests, the part a later editor is most likely
+    # to cut as redundant. Without it the corrected text raises a question it does not answer: if the
+    # partitions differ across seeds, why is a paired test valid? The answer (pairing is within a seed; the
+    # tests pair per-seed means) has to travel with the correction.
+    ("R13-foldseed4", "and it records why the paired comparison still holds: pairing is within a seed and "
+                      "the tests pair per-seed means, so no fold identity across seeds is assumed",
+     "chapters/apx_a_contributions.tex",
+     r"the tests pair the per-seed means, so they never\s+assume that a given fold of one seed is the "
+     r"same fold of another", True),
+    ("R13-foldseed5", "Ch.1's empirical bullet says each seed draws its own partition and that the "
+                      "intervals therefore cover both sources of variation, sampled at four draws",
+     "chapters/1_introduction.tex",
+     r"Because each seed draws its own partition, the reported intervals\s+cover variation from both the "
+     r"initialization and the user split, sampled at four\s+draws", True),
+    ("R13-foldseed6", "Ch.2's definition of a seed names both axes, so the term the GLOSSARY registers is "
+                      "complete where the document defines it",
+     "chapters/2_fundamentals.tex",
+     r"it sets both the random\s+initialization and the partition, so each seed draws its own division of "
+     r"the users", True),
+    # R13-foldseed7 / R13-foldseed8 guard the SUBMITTED chapter, and both halves are pinned because that
+    # section carried two separate false statements: one in the seed definition, one in the
+    # equivalence-precision sentence. Fixing either alone would leave the section self-contradictory. The
+    # same correction was applied to the original manuscript at articles/[mobiwac]/src/sections/05_setup.tex
+    # on the author's instruction to keep the two in sync; that file is outside this gate's scope, so the
+    # sync is recorded in the MobiWac errata table rather than probed here.
+    ("R13-foldseed7", "Ch.5's seed definition says the seed sets the initialization and the partition, "
+                      "with both models reading the same folds within a seed",
+     "chapters/5_mobiwac/05_setup.tex",
+     r"it sets the random initialization and the user partition, so each seed draws its own division of "
+     r"the users, and within a seed both models read the same folds", True),
+    ("R13-foldseed8", "and Ch.5's equivalence sentence measures precision across the four partitions "
+                      "rather than on one fixed partition",
+     "chapters/5_mobiwac/05_setup.tex",
+     r"measured across these four partitions", True),
 )
 
 # COD-016b needs a STRUCTURAL probe, not a string one, so it lives here rather than in PROBES --
@@ -1486,18 +1545,16 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
 # re-measure every APPLIED row false by omission. Exactly the defect this file exists to catch,
 # in this file. Fixed by adding the probe, not by narrowing the claim.
 #
-# A TRAP WORTH THE PARAGRAPH: Chapter 5's setup section holds TWO long paragraphs, and they belong
-# to DIFFERENT findings. COD-006 is the PROTOCOL paragraph ("A claimed gain and a claimed match..."),
-# 2,110 characters, which the author did NOT ask to be split and which is correctly still one
-# paragraph. COD-016b is the INTEGRITY paragraph (the four numbered fundamentals, "First, its
-# training objective is label-free..."), which he DID approve breaking. Measuring the first one and
-# reading its single-paragraph state as a failed split produced a false alarm here on 2026-07-30 --
-# anchor on "First, its training objective", never on paragraph length alone.
-INTEGRITY_ANCHOR = "First, its training objective is label-free"
+# A TRAP WORTH THE PARAGRAPH: Chapter 5's setup section holds TWO substantial passages, and they
+# belong to DIFFERENT findings. COD-006 is the PROTOCOL paragraph ("A claimed gain and a claimed
+# match..."), which the author did not ask to split. COD-016b is the INTEGRITY passage, whose
+# paragraph structure he approved in round 8 and whose didactic rewrite he requested on 2026-08-04.
+# Anchor on its own heading, never on the length of the neighboring protocol paragraph.
+INTEGRITY_ANCHOR = r"\emph{Integrity of the representation.}"
 
 
 def integrity_paragraph_probe() -> tuple[bool, str]:
-    """COD-016b: the ~580-word integrity block must be several paragraphs, no word changed."""
+    """COD-016b: the integrity argument must remain divided into readable paragraphs."""
     path = SRC / "chapters/5_mobiwac/05_setup.tex"
     if not path.exists():
         return False, "05_setup.tex not found"

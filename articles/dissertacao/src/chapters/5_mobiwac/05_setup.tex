@@ -29,47 +29,85 @@ The states range from about 114,000 check-ins and 1,109 regions in Alabama to ab
 
 \emph{Splitting.} We split by user with stratified five-fold cross-validation, so all of a user's windows fall in the same fold and overlap cannot leak: a test user's visits never appear in training. The held-out fold is the validation data; we reserve no third split. The split is stratified on the next-category label because the seven-class task is imbalanced: Food is the majority class in every dataset, from about 25 percent of visits in Florida to 34 percent in Alabama (Table~\ref{tab:mobiwac:datasets}).
 
-% [round8, 2026-07-30] COD-016b / PENDENCIAS_RESOLVIDOS 5.7 (arquivado 2026-07-30). THE PARAGRAPH BELOW WAS ONE 581-WORD BLOCK AND
-% IS NOW SIX. NOT ONE WORD CHANGED. The author's decision was "Podemos aplicar as quebras de linha
-% no cap 5" -- insert breaks, change no wording -- resolving a disagreement between reviewer
-% personas, one of which called this paragraph the best work of its round while two others called
-% it the round's worst readability defect.
-% THE SPLIT WAS MADE MECHANICALLY, not by retyping: a script cut the single source line at the five
-% offsets where the numbered grounds begin ("First,", "Second,", "Third,", "Fourth,") plus "A second
-% reference", and asserted that rejoining the six chunks with a single space reproduces the original
-% line byte for byte before writing anything. It does.
-% PROVEN IN THE RENDER, not in the source: the paragraph's text was extracted from build/main.pdf
-% before and after with pypdfium2, running headers stripped from both sides, whitespace normalized.
-% 595 words both times, strings equal, sha256 b0e069888dc2d2ed3f5ec0cfb70b809e both times. And the
-% breaks do render as breaks: five new first-line indents at about +37 pt appear at exactly those
-% five seams (pp. 66-67), each of which was mid-line before.
+% [round8, 2026-07-30] COD-016b originally split this material into six paragraphs without
+% changing its wording. That historical byte-equality no longer describes the live text.
+% [author request, 2026-08-04] The author explicitly requested a didactic rewrite of this section.
+% The four channels, every reported value, and every limitation were retained; the transductive
+% category result now names its POI-level proxy and in-coverage scope directly from A4_RESULTS.md.
+% The clean reference encoder remains distinct from the label-history benchmark, and the linear
+% probe remains a screen rather than a proof.
 %
-% THIS FILE NOW DIVERGES FROM THE SUBMITTED MANUSCRIPT IN PARAGRAPHING, DELIBERATELY. DO NOT
-% "FIX" IT BACK. The standing rule for this chapter (NORTH_STAR §4) is that Chapter 5 and
-% articles/[mobiwac]/src/sections/05_setup.tex stay identical while the paper is under review, so
-% the next person to notice this will reasonably reach for the sync. The author decided otherwise:
-% "DECISAO: Vamos alterar so na dissertacao" (PENDENCIAS_RESOLVIDOS 5.7 (arquivado 2026-07-30)). Reasons the divergence is contained:
-%   - it is PARAGRAPHING ONLY. No word, number, hedge, verb, citation or claim differs because of
-%     this edit, which is what the render proof above establishes.
-%   - the two paragraphs ALREADY differed before it, and by much more: the manuscript's version is
-%     223 words on "three grounds", this one is 581 on "four grounds" (measured 2026-07-30 with
-%     comments stripped). The fourth ground and the label-history benchmark are dissertation-only
-%     expansions with no counterpart in the submitted text, so there is no manuscript paragraph
-%     that this split could have been applied to identically.
-%   - a round-8 brief did instruct that both trees be split; that instruction was withdrawn once
-%     the author's recorded decision was checked against it.
-% If the paragraph ever enters the manuscript, an ERRATA.md entry is owed in articles/[mobiwac]/.
-\emph{Integrity of the representation.} We train the representation once on the whole dataset and feed it to every model, dedicated and joint. A representation built this way could pass information about a test visit along more than one channel. We therefore bound the channels that we can measure, and state for each what the measurement covers, on four grounds.
+% THIS IS A DISSERTATION-ONLY EXPANSION. The submitted manuscript has a shorter, three-ground
+% paragraph and no forward-link screen or label-history benchmark. Do not synchronize this rewrite
+% into articles/[mobiwac]/src/sections/05_setup.tex without a separate author decision and errata
+% assessment. The earlier author ruling was "Vamos alterar so na dissertacao".
+\emph{Integrity of the representation.} We train Check2HGI once on the whole dataset
+and then provide the resulting representation to every dedicated and joint model. The
+prediction models use user-disjoint folds, but the representation has already seen the
+check-ins of all users. This transductive setup creates possible paths through which
+information about a test visit could reach a model. The four checks below examine these
+paths separately. They bound specific risks; they do not prove that the representation
+contains no information from the test side.
 
-First, its training objective is label-free: it contrasts real graph neighborhoods against shuffled ones and never sees a next-category or next-region target. That bounds the training signal and not the inputs, since each visit's own category enters as a node feature (Section~\ref{sec:mobiwac:method-rep}); the fourth ground below measures what that feature can carry between visits.
+\emph{Prediction targets.} The objective used to train the representation does not read
+the next-category or next-region targets. It learns by distinguishing observed graph
+neighborhoods from shuffled ones. This prevents direct supervision from the prediction
+targets, but it does not make the graph free of category information. Each visit's
+observed category is an input feature of its node
+(Section~\ref{sec:mobiwac:method-rep}). The final check below examines whether graph
+links can propagate this feature from a later visit to an earlier one.
 
-Second, we measured the transductive channel, what a graph fitted over all users passes to the test side that a graph fitted over training users alone would not. Rebuilding the representation per fold, from that fold's training users only, moves both tasks by at most a third of a point (region $-0.33$ to $+0.01$; category $0.00$ to $+0.29$, at Alabama, Arizona, and Florida), within fold noise. This measurement covers the visits whose places appear in training (67 to 87 percent); visits to places unseen in training are the one part it cannot reach.
+\emph{Whole-dataset training.} To estimate the effect of training the representation
+over all users, we rebuilt it once per fold using only that fold's training users. We
+then compared these representations with the one trained on the whole dataset. At
+Alabama, Arizona, and Florida, the differences range from $-0.33$ to $+0.01$ Acc@10
+points for region and from $0.00$ to $+0.29$ macro-F1 points for category, all within
+fold noise.
 
-Third, the one component that could pass information between visits, a region-transition prior (a table of how often one region follows another), is built per fold from training data only, after an earlier whole-dataset version inflated region accuracy by 13 to 27 points. Our joint and dedicated models do not use this prior; it appears only in the HMT-GRN baseline (Section~\ref{sec:mobiwac:setup-baselines}).
+The two tasks have different coverage in this comparison. The region result measures
+the region representation directly. The category result uses a POI-level proxy and
+includes only validation examples whose input places also occur in training, which is
+67 to 87 percent of the examples across the three datasets. It does not measure the
+check-in-specific context or visits to places unseen in training. The comparison
+therefore indicates little transductive inflation within its measured scope, rather
+than ruling it out for every test visit.
 
-Fourth, we probe the channel that the graph's own links between consecutive visits open. A visit's node is linked to the visit that follows it, and category is a node input feature, so a per-visit vector could in principle absorb the category of the next visit. A screening audit run during development tests exactly this: it predicts the next category from the last window slot alone. The audit reads each encoder against a clean reference encoder rather than against the category labels directly. At Florida the graph encoder of our own lineage is that reference, at $0.4090$ macro-F1 on standardized features and $0.4074$ on raw ones, on a zero-to-one scale, and the residual variant that the encoder we ship descends from sits at the same level, $0.4197$ and $0.4182$; an attention-based encoder screened beside them reached $0.4976$ and $0.4863$, clear of the reference by more than the screen's margin, and was disqualified on that evidence.
+\emph{Region-transition prior.} A separate component can carry information between
+visits: a table that records how often one region follows another. An earlier version
+built this table from the whole dataset and inflated region accuracy by 13 to 27 points.
+The current region-transition prior is built separately for each fold from training data
+only. The HMT-GRN baseline is the only model that uses it. Our joint and dedicated
+models do not (Section~\ref{sec:mobiwac:setup-baselines}).
 
-A second reference can be computed directly from the category sequence, with no encoder involved. We call it the label-history benchmark: the best macro-F1 reached by four specified predictors that read only the genuine category history of the input window. It is not an upper bound on what a model may score. The four predictors are a specified set, and a better predictor of the same restricted information could exceed them. The benchmark lies below the clean reference: $0.3617$ at Florida, and $0.2800$ to $0.3617$ across the five datasets where the inputs are available. The clean references therefore lie above the label-history benchmark, by four to six points at Florida, and so does every other candidate screened beside them on the raw run of the probe. One candidate, a relation-typed graph encoder, falls below the benchmark on the standardized run ($0.3328$) and above it on the raw one ($0.4142$); it is not a counter-example, because the screen bounds candidates against each other rather than any one of them against an absolute standard.
+\emph{Links between consecutive visits.} In the Check2HGI graph, each visit node is
+linked to the visit that follows it. Because category is a node input feature, the
+vector of an earlier visit could absorb the category of the next one. We screened for
+this channel during development by training a linear probe to predict the next category
+from only the last vector in each input window. The screen compares each candidate with
+a clean reference encoder; it does not use the label-history benchmark as its decision
+threshold.
+
+At Florida, the clean reference reaches $0.4090$ macro-F1 with standardized features
+and $0.4074$ with raw features, on a zero-to-one scale. A residual variant in the lineage
+of the released encoder remains at the same level, with $0.4197$ and $0.4182$,
+respectively. An attention-based candidate reaches $0.4976$ and $0.4863$, exceeds the
+reference by more than the screening margin, and was therefore disqualified.
+
+The label-history benchmark provides a second reference for interpreting these scores.
+It is the best macro-F1 reached by four specified predictors that use only the observed
+category history of the input window, with no encoder involved. One repeats the last
+category. The other three are balanced logistic models that use the last category, the
+category counts in the window, or the category at each position. The benchmark is not an
+upper bound: a different predictor using the same restricted information could score
+higher.
+
+The benchmark is $0.3617$ at Florida and ranges from $0.2800$ to $0.3617$ across the
+five datasets for which the required inputs are available. At Florida, the clean
+references are four to six points above it. Every candidate in the raw-feature screen
+is also above it. One candidate, a relation-typed graph encoder, falls below the
+benchmark on the standardized run ($0.3328$) but rises above it on the raw run
+($0.4142$). This exception does not change the screening decision because candidates
+are judged relative to the clean reference, not against an absolute score.
 % [round5, persona 12 obrigatoria 2] The quantifier was "Every encoder screened", which
 % leak_sniff_fl.csv:8 contradicts: check2hgi_rgcn measures 0.3328 standardized against the 0.3617
 % benchmark, rising to 0.4142 raw. Appendix D already named the exception, so the two disagreed on
@@ -84,7 +122,21 @@ A second reference can be computed directly from the category sequence, with no 
 % [2026-07-27] Renamed "ceiling" -> "label-history benchmark" (author: it is the best of four
 % specified predictors, not an upper bound). Term registered in GLOSSARY.md section 2.
 
-The measurement bounds this channel rather than closing it, and three limits set how far it reaches: the probe is linear, it was run at Florida alone at one random initialization over five user-grouped folds, and it was run on those ancestor builds of the representation rather than on the one that produced the results reported here. The linear form is a screen and not a proof: passing it bounds the channel a linear read can expose, and says nothing about what a nonlinear model could recover. The baseline representations meet the same standard: HGI is pre-trained once on the whole dataset, like ours, and CTLE per fold on training users only.
+\emph{Limits of the screening audit.} The probe is linear, was run only at Florida with
+one random initialization over five user-grouped folds, and evaluated ancestor builds
+of Check2HGI rather than the build that produced the reported results. Passing this
+screen therefore bounds only the information exposed by a linear read. It does not
+establish what a nonlinear sequence model could recover.
+
+Together, these checks support a bounded integrity claim. The prediction targets do not
+supervise Check2HGI, and measured transductive inflation is small within the stated
+coverage. The region-transition prior uses only training data from each fold. The
+screening audit also rejected a candidate whose score exceeded the clean reference by
+more than the screening margin. The limits stated above remain.
+
+The baseline representations follow their own documented training scopes. HGI is
+pre-trained once on the whole dataset, as Check2HGI is, whereas CTLE is trained
+separately in each fold using training users only.
 % NOTE: numbers from the A4 train-users-only transductivity audit (docs/studies/pre_freeze_gates/A4_RESULTS.md):
 % reg AL -0.33 / AZ +0.01 / FL -0.12 (5 folds); cat POI-proxy on in-coverage subset AL +0.29 (66.8%) / AZ +0.27 (71.9%) / FL +0.00 (86.9%).
 % Author TODO: extend to CA/TX/Istanbul to widen coverage further (non-blocking; the gate is on null at AL+AZ+FL).
@@ -150,7 +202,27 @@ For the category task, we report macro-averaged F1 (macro-F1), which averages th
 (a visit whose true region is absent from that fold's training data counts as an error); its
 reference point is the dedicated model.
 
-A claimed gain and a claimed match require different tests, because a difference that fails to reach significance is not by itself evidence of a match. A written analysis plan, fixed during development and before any result was read, assigned one test to each task, with the two-point margin pinned there: \emph{superiority} for next-category, \emph{non-inferiority} for next-region. It assigned the tests per task, not per dataset, and did not cover next-region superiority, so the four next-region gains of Section~\ref{sec:mobiwac:results-part2} are secondary results outside it. The plan registered a paired Wilcoxon signed-rank test; at four seeds its exact one-sided $p$ cannot fall below $0.0625$, so we report a paired $t$ on the per-seed means, with the 90\% confidence interval of the paired difference, and the registered test alongside it. Both, and this departure, are released with the code. A \emph{seed} is one complete repetition of the five-fold experiment, over the same folds, with a different random initialization; folds and seeds are the two axes of repetition. On every dataset, both models use four seeds ($4\times5=20$ measurements) and the tests pair the per-seed means ($n{=}4$), with a Holm correction~\cite{holm1979} across the six next-category comparisons and, separately, across the four next-region ones. The \emph{non-inferiority} claim is that the joint model is no worse than the dedicated model by more than a two-point margin; we test it with the two one-sided tests (TOST) procedure~\cite{lakens2017tost}. The two-point margin is fixed in advance as well: a mobility-aware service acts on which region will be busy, not on a single rank position (Section~\ref{sec:mobiwac:problem}), so a two-point shift in Acc@10 is below the granularity at which such a service would behave differently. The precision of the equivalence test is measured on this fixed partition: the paired difference's standard deviation is 0.01 to 0.18 points across the datasets, and the intervals pass a margin as small as one point at Alabama and Arizona (Section~\ref{sec:mobiwac:results-part2}).
+A claimed gain and a claimed match require different tests, because a difference that fails to reach significance is not by itself evidence of a match. A written analysis plan, fixed during development and before any result was read, assigned one test to each task, with the two-point margin pinned there: \emph{superiority} for next-category, \emph{non-inferiority} for next-region. It assigned the tests per task, not per dataset, and did not cover next-region superiority, so the four next-region gains of Section~\ref{sec:mobiwac:results-part2} are secondary results outside it. The plan registered a paired Wilcoxon signed-rank test; at four seeds its exact one-sided $p$ cannot fall below $0.0625$, so we report a paired $t$ on the per-seed means, with the 90\% confidence interval of the paired difference, and the registered test alongside it. Both, and this departure, are released with the code. A \emph{seed} is one complete repetition of the five-fold experiment: it sets the random initialization and the user partition, so each seed draws its own division of the users, and within a seed both models read the same folds; folds and seeds are the two axes of repetition. On every dataset, both models use four seeds ($4\times5=20$ measurements) and the tests pair the per-seed means ($n{=}4$), with a Holm correction~\cite{holm1979} across the six next-category comparisons and, separately, across the four next-region ones. The \emph{non-inferiority} claim is that the joint model is no worse than the dedicated model by more than a two-point margin; we test it with the two one-sided tests (TOST) procedure~\cite{lakens2017tost}. The two-point margin is fixed in advance as well: a mobility-aware service acts on which region will be busy, not on a single rank position (Section~\ref{sec:mobiwac:problem}), so a two-point shift in Acc@10 is below the granularity at which such a service would behave differently. The precision of the equivalence test is measured across these four partitions: the paired difference's standard deviation is 0.01 to 0.18 points across the datasets, and the intervals pass a margin as small as one point at Alabama and Arizona (Section~\ref{sec:mobiwac:results-part2}).
+% CORRECTED 2026-08-04, on the author's explicit instruction to fix the dissertation copy AND the
+% original MobiWac source so the two stay in sync. He caught the underlying error in Appendix A of the
+% dissertation and it reached this section too.
+% WHAT WAS FALSE: the seed definition said the five-fold experiment is repeated "over the same folds",
+% and the equivalence sentence said the precision is measured "on this fixed partition". Neither holds.
+% src/data/folds.py passes the run's seed straight into StratifiedGroupKFold(random_state=...) (:1159,
+% :1247, :1453); the only literal 42 in that file is the DEFAULT value of the seed parameter (:1061), and
+% scripts/train.py:1874 passes seed=config.seed from --seed. The canon guard (train.py:1961) calls 42 the
+% development seed and requires --seed in {0,1,7,100} for paper-grade numbers. This project's own
+% LANE2_OVERLAP_VALIDATION.md:75 already recorded that partitions "are NOT bit-identical across arms".
+% Measured on a synthetic 300-user frame, with a same-seed control that reproduces the partition exactly:
+% roughly four users in five change fold when the seed changes. Full record and the reverification
+% commands: articles/dissertacao/science/fold_partition_and_seeds.md.
+% THE TESTS REPORTED HERE ARE UNAFFECTED, and the new wording says why rather than leaving it implicit.
+% Pairing happens WITHIN a seed, where both arms share one partition, and the tests pair the per-seed
+% MEANS (n=4), which never requires fold k of one seed to be fold k of another. No number in this
+% section changes. What changes is that the reported intervals now correctly cover partition variability
+% as well, which makes the equivalence claim stronger rather than weaker; the sentence therefore says
+% "across these four partitions" instead of implying a single one.
+% Probes: R13-foldseed7, R13-foldseed8.
 % [COD-006a, round8, 2026-07-30] "The equivalence is well powered:" -> "The precision of the equivalence
 % test is measured on this fixed partition:". Author decision, PENDENCIAS_RESOLVIDOS 5.2 (arquivado 2026-07-30), quoted: "Let's change only
 % the second point about the: 'The equivalence is well powered'." The defect is a category error, not a

@@ -239,3 +239,70 @@ mechanism evidence was re-audited.
    condition for those tests rather than a defect in them. Keeping the sentence with that explanation
    was recommended and declined; this entry exists so the deletion is not later mistaken for the
    correction of an error.
+
+---
+
+## 2026-08-04 — the fold partition is drawn per seed, not fixed (applied to BOTH texts)
+
+**Author's instruction, verbatim:** "Correct in all of the disserations, and for the mobiwac correct in
+the dissertation text and in the orignal sorce so the be in sync." Applied under the standing policy
+recorded in `articles/dissertacao/src/tables/mobiwac/errata_scope.tex`: the paper is under review, so a
+factual correction goes into the paper source as well and the two texts stay identical, logged here
+rather than added as an erratum row.
+
+**What changed, in `src/sections/05_setup.tex` (and the identical dissertation copy at
+`articles/dissertacao/src/chapters/5_mobiwac/05_setup.tex`):**
+
+1. The seed definition. Was: "A *seed* is one complete repetition of the five-fold experiment, over the
+   same folds, with a different random initialization". Now: the seed "sets the random initialization and
+   the user partition, so each seed draws its own division of the users, and within a seed both models
+   read the same folds".
+2. The equivalence-precision sentence. Was: "The precision of the equivalence test is measured on this
+   fixed partition". Now: "measured across these four partitions".
+
+**No number in the paper changes**, and no experimental result is altered. The reported tests pair
+per-seed MEANS (n=4), which never requires fold *k* of one seed to be fold *k* of another, and pairing
+the joint model against the dedicated model happens within a seed, where both arms share one partition.
+
+**The evidence, three independent sources.** Full record, including the reverification commands:
+`articles/dissertacao/science/fold_partition_and_seeds.md`.
+
+- `src/data/folds.py` builds every split with `random_state=self.seed` (`:1159`, `:1247`, `:1453`). The
+  only literal `42` in that file is at `:1061`, the **default value** of the seed parameter.
+  `scripts/train.py:1874` passes `seed=config.seed`, which comes from `--seed` (`:1375-1376`).
+- The code's own canon guard, `scripts/train.py:1961`: `--seed` not set means "development seed 42", and
+  "Paper-grade numbers require `--seed` in {0,1,7,100}".
+- This project's own `docs/studies/pre_freeze_gates/LANE2_OVERLAP_VALIDATION.md:75` already recorded that
+  partitions "are **NOT** bit-identical across arms". `STATISTICAL_PROTOCOL.md:15` cites it for exactly
+  that rule.
+
+Measured, with a control: on a synthetic 300-user frame, roughly four users in five land in a different
+fold when the seed changes, while re-running the same seed reproduces the partition exactly.
+
+**THIS ENTRY CORRECTS THE RECORD IN ENTRY 3 OF THE PREVIOUS BLOCK ABOVE.** That entry deleted the
+fixed-partition caveat from the discussion and stated, for the file, that the deleted sentence "was
+**verified true** before removal, not found to be in error", explaining that "the analysis protocol
+freezes the fold partition once, and that is what licenses the paired Wilcoxon and paired TOST at n=20".
+**That explanation is wrong.** The protocol intends to freeze the folds, and
+`docs/studies/closing_data/RUN_MATRIX.md:77` does list "frozen folds" among the T3 prerequisites, but the
+logs of the runs that produced the reported numbers show no cache was found and the folds were generated
+per seed: `docs/studies/closing_data/archive/run_logs/bf16_island_runs/{alabama,arizona,florida}/champG_bf16.log`
+each open with `Generating folds on the fly (no cache at .../folds/fold_indices_*.pt)`, and no
+`fold_indices*.pt` exists anywhere under `output/`. The deletion itself stands and was the author's call;
+what does not stand is the reason recorded for it.
+
+**One consequence worth stating plainly, because it makes a claim stronger.** The removed caveat said the
+reported intervals miss variability from resampling the user splits. They do not: each seed resamples the
+split, so the intervals cover both sources. A correction that strengthens a result deserves more scrutiny
+than one that weakens it, which is why the corrected prose in both texts adds its own bound: four draws
+**sample** that variability rather than characterize it.
+
+**Also checked and left unchanged:** `src/sections/07_discussion.tex` says the selection rule "is the same
+for both models on the same folds". That is TRUE as written, because it compares the two models within one
+run, where they share a partition by construction. An audit note was added above that paragraph in both
+copies so a later sweep does not "correct" a correct sentence.
+
+**Verification after the edit:** `check_audit_claims` rc=0 with 216 of 216 probes holding, including eight
+new probes for this correction (`R13-foldseed` through `R13-foldseed8`), each sabotage-validated
+individually. The paper source was edited in the same pass as the dissertation copy, so the two remain
+byte-identical in the corrected sentences.
