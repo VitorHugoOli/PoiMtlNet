@@ -19,7 +19,7 @@ No dissertation source, result, numerical value, citation, or claim was changed 
 >
 > **Two things to know before reading it.**
 >
-> First, this review read a 97/92-page pair. The builds on disk are **116/113 pages** (117/114 when that review was written; the round-14 standalone edits to the article bodies shortened each by one page). Every
+> First, this review read a 97/92-page pair. The builds on disk are **117/114 pages** (117/114 when that review was written; the round-14 standalone edits to the article bodies shortened each by one page). Every
 > `file:line` in this document has drifted, and the audit re-pinned each locus by content. The
 > findings mostly survive; the coordinates do not.
 >
@@ -379,7 +379,35 @@ statement in the main chapter while retaining an Appendix B record.
 
 The current design provides four seed-level observations conditional on one fixed five-fold user
 partition. The fold-level Wilcoxon pool reuses the same folds across seeds and should not be read as
-twenty independent population draws. The plan was frozen before the final board, but repository
+twenty independent population draws.
+
+> **PREMISE PARTLY REFUTED, 2026-08-04. Recorded here rather than rewritten: revising a reviewer's
+> verdict is the reviewer's call, not mine.** The two sentences above assume the four seeds share one
+> partition. They do not: `src/data/folds.py` passes the run's seed into
+> `StratifiedGroupKFold(random_state=...)`, so each seed draws its own user partition. Full evidence,
+> code path and a measured control: `../science/fold_partition_and_seeds.md`.
+>
+> **What this does to the finding.** Nothing, for the two clauses it flagged as overstatements: neither
+> depends on the partition premise, and each keeps the disposition the author already gave it. Stated
+> exactly, because I got this wrong once and a live ledger is the wrong place for it:
+> **"well powered" was REMOVED** — probe `COD-006a` in `check_audit_claims.py:65-66` is ABSENT-type on
+> that phrase, and the sentence now reads "The precision of the equivalence test is measured across
+> these four partitions". **"before any result was read" was KEPT, deliberately, and it is ACCURATE.**
+> The author's decision was explicitly narrow, quoted in that file at `:67-72`: *"Let's change only the
+> second point about the: 'The equivalence is well powered'."* Probe `COD-006b` at `:73-74` is
+> PRESENT-type on the phrase and its header states the reason in terms that apply directly to what I
+> nearly did: it "is kept, inverted, so that a later agent 'tidying up' the other half of the audit
+> finding is caught by the gate instead of silently overriding an author decision." My first version of
+> this annotation asserted that clause was "still false on the repository record" and that both clauses
+> "were fixed" — both statements were wrong, and the gate would have caught the edit while the prose
+> asserting it would not have been. What
+> changes is the *reason* offered here for distrusting the pool. The pool should still not be read as
+> twenty independent draws, but the correct reason is that the five folds within a seed are not
+> independent of each other (they partition one dataset), not that the partition is shared across
+> seeds. The reported tests pair the four per-seed means, so they never claimed the twenty.
+>
+> **The recommended remedy in the table at the end of this file ("Condition intervals on the fixed
+> partition") is no longer the right instruction** and is annotated there. The plan was frozen before the final board, but repository
 records show that pilot results informed the two-point margin and protocol choices. “Before any
 result was read” is therefore false. “The equivalence is well powered” relies on observed variance
 and is post-hoc precision, not prospective power.
@@ -1056,7 +1084,7 @@ norms or component ablations.
 | Chapter 4 static shortcut | Withdraw from thesis diagnosis and disclose shuffle result | Target-masked, fold-built rerun |
 | Check2HGI future-edge channel | Mark exact lineage unverified and scope claims | Nonlinear exact-lineage audit plus causal-edge ablation |
 | Selection/reporting reuse | Treat as development-protocol evidence | Nested/inner validation or untouched outer test |
-| Fixed-fold uncertainty | Condition intervals on the fixed partition | Repeated independent grouped splits/hierarchical analysis |
+| Fixed-fold uncertainty | ~~Condition intervals on the fixed partition~~ **superseded 2026-08-04: there is no fixed partition. Each seed draws its own (`science/fold_partition_and_seeds.md`), so the intervals already sample split variability at four draws; the honest limit is that four draws sample it rather than characterize it** | Repeated independent grouped splits/hierarchical analysis (still the stronger design; four draws is a sample, not a characterization) |
 | CoUrb capacity/encoder attribution | Keep width confound and oracle label | Width-matched and encoder-wise ablations |
 | Ethics/governance | Add factually supported statement | Institutional determination plus documented data-management record |
 

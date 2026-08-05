@@ -112,8 +112,15 @@ representation that assigns a distinct vector to each visit rather than reusing 
 vector for every visit to the same place. The joint model exchanges information between
 two task-specific streams through cross-attention, while a private spatial path serves
 the region task. The evaluation used user-disjoint cross-validation, with twenty fitted
-models per configuration: four seeds over one fixed set of five folds. Paired tests used
-the four per-seed means.
+models per configuration: four seeds, each drawing its own five-fold user partition.
+Paired tests used the four per-seed means.
+% CORRECTED 2026-08-04, the same finding the author caught in Appendix A. This said "four seeds over one
+% fixed set of five folds", which is false: src/data/folds.py passes the run's seed into
+% StratifiedGroupKFold(random_state=...), so the partition moves with the seed. Evidence and the full code
+% path: science/fold_partition_and_seeds.md. This was the LAST live occurrence in the .tex sources; the
+% sweep that found it is recorded in §9 of that document.
+% "Paired tests used the four per-seed means" is UNCHANGED and is what keeps this sentence coherent: the
+% tests never required fold k of one seed to be fold k of another. Probe: R13-foldseed9.
 
 Under this protocol, the joint model outperforms the dedicated single-task models on
 the category task at all six datasets, by 5.3 to 9.4 macro-F1 points. On the region task,

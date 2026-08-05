@@ -1538,6 +1538,19 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
                       "rather than on one fixed partition",
      "chapters/5_mobiwac/05_setup.tex",
      r"measured across these four partitions", True),
+    # R13-foldseed9 closes the sweep. Found by the exhaustive pass the author asked for after the first
+    # five files were corrected ("valide no restante da dissertação se isso nõa impactou alguma outra
+    # parte appendix, documentações e afins"): four patterns over every .tex with comments stripped and
+    # every .md, which turned up this last live prose occurrence plus defects in GLOSSARY.md:81, :102,
+    # WRITING_LAW.md:181 and science/mtl_v17_complete_picture.md:281. The sweep and what each hit turned
+    # out to be are tabulated in science/fold_partition_and_seeds.md §9.
+    # NOT A DEFECT, and recorded so a later sweep does not "fix" them: apx_h_check2hgi_joint_model.tex:229
+    # and :432 say "Seed 42", and that is TRUE — it is the seed of the representation-training stage, a
+    # single fit, not the fold partition of the reported experiment.
+    ("R13-foldseed9", "Ch.6's protocol summary says each seed draws its own partition, which was the "
+                      "last live prose occurrence of the retracted `one fixed set of five folds`",
+     "chapters/6_conclusion.tex",
+     r"four seeds, each drawing its own five-fold user partition", True),
 )
 
 # COD-016b needs a STRUCTURAL probe, not a string one, so it lives here rather than in PROBES --

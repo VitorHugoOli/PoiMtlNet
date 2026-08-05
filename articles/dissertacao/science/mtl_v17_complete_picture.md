@@ -278,7 +278,7 @@ The final result set is a v17 family with one documented LR difference:
 | Folds | 5 |
 | Model seeds | 0, 1, 7, 100 |
 | Total paired observations | 20 per dataset, 4 seeds x 5 folds |
-| Fold construction | user-disjoint `StratifiedGroupKFold`, shuffled, fold seed 42 |
+| Fold construction | user-disjoint `StratifiedGroupKFold`, shuffled, `random_state` = the run's seed (**not** a fixed 42; the 42 in `folds.py:1061` is the parameter default, and the reported runs pass `--seed` in {0,1,7,100}, so each seed draws its own partition — see `fold_partition_and_seeds.md`) |
 | Joint loader | `max_size_cycle` |
 | Early stopping | disabled (`-1`) |
 | Precision | no autocast via `MTL_DISABLE_AMP=1`; TF32 enabled for supported CUDA matrix operations |

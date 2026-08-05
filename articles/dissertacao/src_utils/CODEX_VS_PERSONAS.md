@@ -1,5 +1,22 @@
 # CODEX_VS_PERSONAS — the seam between two independent reviews
 
+> **PREMISE ANNOTATION, 2026-08-04.** Row 006 of the table below carries "n=4 over one fixed partition"
+> and quotes the Ch.5 sentence "The four seeds also reuse one fixed fold partition, so the reported
+> intervals cover variation across random initializations and not across resampled user splits". **That
+> premise is refuted.** `src/data/folds.py` passes the run's seed into
+> `StratifiedGroupKFold(random_state=...)`, so each seed draws its own user partition; the code path and a
+> measured control are in `../science/fold_partition_and_seeds.md`. The quoted sentence was later deleted
+> from Ch.5 on the author's instruction, and `[mobiwac]/ERRATA.md` now records that the reason given for
+> that deletion at the time was itself wrong.
+>
+> **This file is NOT edited beyond this note, and it is not frozen history either.** It is a dated record
+> of what two independent reviews saw on 2026-07-27, and its value is that it reports them faithfully;
+> rewriting the rows would destroy that. But it sits outside the archive directories, so a reader can
+> mistake it for current, which is why the correction is stated here at the top rather than left implicit.
+> The disposition of row 006's two wording items is unchanged and is recorded in `codex_reviewer.md` under
+> COD-006: "well powered" was removed, and "before any result was read" was KEPT because the author judged
+> it accurate (probe `COD-006b` exists to keep a later agent from "fixing" it).
+
 **Written:** 2026-07-27. **Task:** audit `src_utils/codex_reviewer.md` (1,419 lines, 18 COD
 findings) against the independent persona suite, and against the source of record.
 **Read-only.** This file is the only file written. No file under `src/` was edited; no git

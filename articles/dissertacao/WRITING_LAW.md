@@ -178,7 +178,7 @@
 | Place-level baseline | place embedding (HGI) | "the baseline" alone |
 | One model, both tasks | the joint model / single multitask model | bare "MTLnet" before it is introduced |
 | One task, one model | dedicated single-task model | "baseline" alone |
-| Repetition unit | **seed** = one complete repetition of the five-fold experiment with a different random initialization (define once, then "seed") | "run", "multi-seed run", bare "seed" in the abstract (say "random initialization") |
+| Repetition unit | **seed** = one complete repetition of the five-fold experiment; it sets the random initialization **and** the fold partition (define once, then "seed") | "run", "multi-seed run", bare "seed" in the abstract (say "random initialization"); "over the same folds" / "one fixed partition" as a property across seeds — corrected 2026-08-04, see `science/fold_partition_and_seeds.md` |
 
 - Hyphenate the compound adjective ("next-category prediction"), leave the bare task name open
   ("the next category").

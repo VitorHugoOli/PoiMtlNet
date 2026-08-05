@@ -118,3 +118,48 @@ grep -n 'random_state' src/data/folds.py                          # every call t
 grep -n 'config.seed' scripts/train.py                            # what the runner passes
 grep -rn 'Generating folds on the fly' docs/studies/closing_data/ # what the reported runs did
 ```
+
+## 9 · The exhaustive sweep: everywhere the claim had reached
+
+The author asked, after the first five files were corrected, whether the finding had touched any other
+appendix or documentation. It had. This section records the sweep so it does not have to be re-run blind.
+
+**The sweep, four patterns over every `.tex` (comments stripped) and every `.md` under the dissertation:**
+
+```
+fixed/same/one partition   : fixed (fold )?partition|same fold partition|one fixed (set of )?(five )?folds
+                             |the same fixed folds|over the same folds|reuse one fixed|identical folds
+seed = initialization only : only the initialization|a different random initialization
+denies split variability   : not across resampl|do not (include|measure|cover) uncertainty from resampl
+literal seed 42 as protocol: seed of 42|seed 42|seed-42|seed=42
+```
+
+**Result: 3 live `.tex` hits, 96 `.md` hits across 204 files scanned.** What each turned out to be.
+
+**Read the directory column before skipping anything.** The first version of this table itemised five `.md`
+sites and disposed of "the remaining ~85" as archive history. Three of them were not archive history:
+`CODEX_VS_PERSONAS.md`, `etl_tooling_contribution_evidence.md` and `handoff/ch5_mechanism_evidence.md` sit
+outside every archive directory, and the first of them carries the retracted premise verbatim. A reviewer
+caught it. Since this document exists so the sweep does not have to be re-run blind, a wrong disposition
+here would have propagated as a blind spot, which is worse than no table at all.
+
+| site | verdict | action |
+|---|---|---|
+| `src/chapters/6_conclusion.tex:115` "four seeds over one fixed set of five folds" | FALSE, the last live prose occurrence | corrected; probe `R13-foldseed9` |
+| `src/chapters/apx_h_check2hgi_joint_model.tex:229`, `:432` "Seed 42" | **TRUE, different claim** | left alone. This is the seed of the representation-training stage, a single fit, not the fold partition. Appendix H's own audit (`_round14/80_apx_check2hgi_audit.md:84`) traced it to `check2hgi.py` defaults. |
+| `GLOSSARY.md:81` the **seed** registry row | FALSE, and the most load-bearing site in the tree, because every chapter defers to it | corrected: the row now says a seed sets initialization **and** partition, and bans "same folds" as an across-seed property |
+| `GLOSSARY.md:102` the **n = 20 / n = 4** row | FALSE in its prose, PRECISE in its citation | corrected. Worth recording why the row was wrong while its own source was right: `STATISTICAL_PROTOCOL.md:187-190` says the arms share the **same frozen folds**, which is the pairing condition and is true; the row generalized that to "across seeds", which is the false step. The row now cites both sides, including `LANE2:75` for the across-seed difference. |
+| `WRITING_LAW.md:181` the repetition-unit row | FALSE | corrected, with the retracted phrasings added to its banned column |
+| `science/mtl_v17_complete_picture.md:281` "fold seed 42" | FALSE, a live spec table | corrected in place |
+| `science/check2hgi_v17_complete_picture.md:625` `--seed 42` | **TRUE, different claim** | left alone: a reproduction command line for the representation build |
+| `src_utils/codex_reviewer.md:381` COD-006, status **Open** | premise PARTLY refuted | ANNOTATED, not rewritten: revising a reviewer's verdict is the reviewer's call. The two overstatements it flagged stand; the reason it gave for distrusting the fold-level pool does not. The correct reason is that five folds within one seed partition one dataset, not that the partition is shared across seeds. |
+| `src_utils/codex_reviewer.md:1059` remedy "Condition intervals on the fixed partition" | instruction now wrong | struck through in place with the reason |
+| `src_utils/CODEX_VS_PERSONAS.md:45` (row 006) | premise REFUTED, and the file is **not** under an archive directory | ANNOTATED at the top of the file. It is a dated record of what two reviews saw on 2026-07-27 and its rows are left intact, because reporting them faithfully is the file's whole value; but it can be mistaken for current, so the correction is stated where a reader meets it first. |
+| `src_utils/etl_tooling_contribution_evidence.md:158` "Default seed 42" | **TRUE, no action** | left alone. It says *default*, which is exactly what 42 is (`folds.py:1061`, `src/configs/experiment.py`). |
+| `src_utils/handoff/ch5_mechanism_evidence.md:31-32,163` "seed 42" | **TRUE, no action** | left alone. These record ablations that were genuinely run at seed 42 (single-arm mechanism probes, not the reported multi-seed protocol). |
+| the remaining ~82 `.md` hits, all under `_archive/`, `_review_v1..v3/`, `_round6/`, `_round9/`, `_round13/_snapshot/`, `_round14/`, `_specialists_v2/`, `reviews/` | **historical record, correct as history** | LEFT ALONE, deliberately: each is a dated record of what was believed when written, and editing one to match today's knowledge falsifies the history that makes it worth keeping. `_round13/_snapshot/GLOSSARY.md` is additionally a pinned copy taken for a measurement and must not be touched. **This row covers ONLY those directories.** Any future hit outside them is live until read. |
+
+**The distinction that decided most of these:** "seed 42" is not by itself a defect. It is false only when
+it describes the FOLD PARTITION of the reported experiment. It is true when it describes the seed of a
+single training stage (Appendix H's representation build) or appears in a reproduction command. A future
+sweep must read the surrounding sentence before touching a hit.
