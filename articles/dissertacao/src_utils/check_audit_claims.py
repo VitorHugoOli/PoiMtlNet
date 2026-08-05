@@ -1491,8 +1491,14 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     #
     # WHY EIGHT PROBES FOR ONE CORRECTION. The claim lived in five files, and a probe on any one of them
     # would leave the others free to drift back into contradiction. Each PRESENT-type probe pins the
-    # corrected wording where it lives; the one ABSENT-type probe pins the false phrase, which is safe
-    # because the provenance comments DESCRIBE it without reproducing the string the pattern matches.
+    # corrected wording where it lives; the one ABSENT-type probe pins the false phrase.
+    # WHY THE ABSENT PROBE IS SAFE, corrected 2026-08-05. This note used to say the provenance comments
+    # "DESCRIBE it without reproducing the string the pattern matches". That is false:
+    # apx_a_contributions.tex:94 quotes "a fixed partition seed of 42" verbatim to record what was fixed.
+    # The probe holds for a different and stronger reason -- this gate reads live_text(), which strips
+    # unescaped % comments before matching, so a phrase quoted inside a comment is invisible to it by
+    # construction. The consequence for whoever edits next: quoting a retracted phrase in a comment is safe
+    # HERE, but a probe on a file this gate does not comment-strip would behave differently.
     ("R13-foldseed",  "Appendix A says the partition seed is the run's seed, not a fixed 42",
      "chapters/apx_a_contributions.tex",
      r"and the run's\s+seed as the partition seed", True),
@@ -1528,12 +1534,21 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # equivalence-precision sentence. Fixing either alone would leave the section self-contradictory. The
     # same correction was applied to the original manuscript at articles/[mobiwac]/src/sections/05_setup.tex
     # on the author's instruction to keep the two in sync; that file is outside this gate's scope, so the
-    # sync is recorded in the MobiWac errata table rather than probed here.
-    ("R13-foldseed7", "Ch.5's seed definition says the seed sets the initialization and the partition, "
-                      "with both models reading the same folds within a seed",
+    # sync is recorded in articles/[mobiwac]/ERRATA.md rather than probed here. (Corrected 2026-08-05: this
+    # said "the MobiWac errata table", i.e. src/tables/mobiwac/errata_scope.tex. No row was added there,
+    # because that table's own header records the standing policy for a paper under review -- apply the
+    # correction to both texts and log it, rather than add an erratum row.)
+    # Pattern updated 2026-08-05 with the prose it guards: "both models read the same folds" became "both
+    # models are built from the same partition" after a reviewer found the stronger form asserted as a
+    # measured fact when it is a code-level property (same splitter call, same seed, same rows), never
+    # verified against saved fold indices. The probe now pins the softened claim, so restoring the stronger
+    # one turns it red.
+    ("R13-foldseed7", "Ch.5's seed definition says the seed sets the initialization and the partition, and "
+                      "that within a seed both models are BUILT FROM the same partition (a code-level "
+                      "property, not a measurement on saved indices)",
      "chapters/5_mobiwac/05_setup.tex",
      r"it sets the random initialization and the user partition, so each seed draws its own division of "
-     r"the users, and within a seed both models read the same folds", True),
+     r"the users, and within a seed both models are built from the same partition", True),
     ("R13-foldseed8", "and Ch.5's equivalence sentence measures precision across the four partitions "
                       "rather than on one fixed partition",
      "chapters/5_mobiwac/05_setup.tex",

@@ -9,7 +9,7 @@
 \section{Discussion and Limitations}
 \label{sec:mobiwac:discussion}
 
-One model serves both tasks, in one forward pass it outperforms the dedicated category
+One model serves both tasks. In one forward pass it outperforms the dedicated category
 model at all six datasets, and on region it outperforms the dedicated model at four of them
 and matches it within a two-point margin at the other two, with the region output keeping a
 private spatial path (Table~\ref{tab:mobiwac:results};
@@ -27,7 +27,10 @@ here (Section~\ref{sec:mobiwac:results-part2}).
 % WHY RESTORING IS THE CORRECT STATE AND NOT A JUDGEMENT CALL: this softened wording IS the recorded
 % outcome of NEEDS_SIGN_OFF 28 (closed 2026-08-05) and of the ERRATA.md entry at :212-228, both of which
 % record it as present in BOTH texts. A comment-out in one copy only was a third state neither record
-% described. Both copies are now byte-identical in this passage again.
+% described. Both copies now carry this passage as live prose with identical wording.
+% CORRECTED 2026-08-05: this line previously said "byte-identical in this passage", which my own diff
+% disproved — the paper wraps its lines differently and uses its own label namespace, so the bytes
+% differ even where every word matches. "Identical wording" is what was checked and is what holds.
 % DO NOT STRENGTHEN THIS ATTRIBUTION. NEEDS_SIGN_OFF.md:1516-1536 records the author asking to restore
 % the stronger wording that credits the shared trunk with the category lift, and that request being
 % DECLINED on evidence: four studies show the category gain survives removal of the trunk (the Florida
@@ -137,8 +140,22 @@ Four limits qualify these results. First, our representation is trained once ove
 never seen during training are the single effect that we cannot fully isolate. A planned follow-up trains it on each
 fold's training places only and embeds unseen visits. Second, epoch selection consults the fold that the score is
 then read on (Section~\ref{sec:mobiwac:setup-windows}), so every absolute score reported here is optimistic. The
-comparison between the joint model and the dedicated models is affected far less, for two reasons we can state
-outright: the selection rule is the same for both models on the same folds, an epoch chosen on validation and read
+comparison between the joint model and the dedicated models is affected far less, for two reasons that we can state
+rather than assume: the selection rule is the same for both models on the same folds, an epoch chosen on validation and read
+% PARITY, 2026-08-05, after a reviewer found me calling the residual divergence between the two copies
+% "all expected and correct" when three of ten differences were prose, not label namespaces:
+%   1. this sentence joined two independent clauses with a comma, where the paper has two sentences. The
+%      splice arrived when the paper's two sentences were merged into one here on 2026-08-04 (commit
+%      9be36e8e); 80_discussion_audit.md item 1 flags it. Now split, matching the paper.
+%   2. "for two reasons we can state outright" against the paper's "that we can state rather than assume".
+%      Adopted the paper's wording, which is also the weaker and more honest of the two: "outright" asserts
+%      confidence the paragraph then qualifies two sentences later with "It does not follow that the bias
+%      cancels exactly".
+%   3. "Figure~\ref" against the paper's "Fig.~\ref" is a house-style difference between a dissertation and
+%      an ACM paper, and is LEFT divergent on purpose.
+% The remaining differences are the label namespace (sec:mobiwac:* against sec:*), the figure abbreviation
+% just noted, and "this chapter's claims" against "the paper's claims" (ERRATA.md:79-80). Verified by an
+% exhaustive sentence-then-word diff of the two live texts rather than asserted.
 on that fold, with each model selected on its own validation objective (Section~\ref{sec:mobiwac:results-part2}),
 and, for the category comparison, the dedicated model receives the wider search, a per-dataset sweep over
 batch size and learning rate against one configuration held fixed across all six datasets for the joint

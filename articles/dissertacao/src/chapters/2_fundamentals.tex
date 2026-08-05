@@ -1646,13 +1646,31 @@ user on one side of a fold~\cite{pedregosa2011sklearn}. A seed in that chapter i
 complete repetition of the five-fold experiment, and it sets both the random
 initialization and the partition, so each seed draws its own division of the users. Four
 seeds produce twenty fitted models per configuration and vary both sources together,
-which four draws sample rather than characterize. Within a seed the compared models read
-the same folds, which is what a paired comparison needs.
+which four draws sample rather than characterize. Within a seed the compared models are built from
+the same partition, which is what a paired comparison needs.
+% WITHIN-SEED SHARING: WHAT IS ESTABLISHED AND WHAT IS NOT. Corrected 2026-08-05 after a reviewer found
+% this stated as a measured fact. It is a CODE-LEVEL property, not something measured on the artifacts:
+% src/data/folds.py builds the joint-model folds at :1247 and the dedicated next-task folds at :1159 with
+% the SAME call, StratifiedGroupKFold(n_splits, shuffle=True, random_state=self.seed) split on the next-task
+% rows grouped by user identifier. Given the same input rows and the same seed, both arms therefore receive
+% the same partition by construction. That conditional matters: LANE2_OVERLAP_VALIDATION.md:75 records
+% partitions NOT bit-identical across arms, and its own parenthetical gives the reason -- "(different
+% windowed rows)". That caveat is about the overlap-versus-non-overlap comparison, where the arms consume
+% different windowings, not about two models reading one windowing.
+% STATISTICAL_PROTOCOL.md:187-190 asserts the same-folds property for the headline family and warns that "If
+% a future re-run regenerates folds for one arm, the headline silently becomes unpaired". The reported runs
+% did generate on the fly (see fold_partition_and_seeds.md §6), so the guarantee rests on the arms consuming
+% identical rows rather than on a frozen cache. [VERIFY: a direct comparison of the saved fold indices of a
+% joint run against a dedicated run at the same seed and dataset would settle it by measurement. Not run;
+% no fold_indices*.pt survives under output/ in this checkout.]
 % CORRECTED 2026-08-04. This said "Four seeds over one fixed set of five folds" and "The fixed folds
 % isolate random-initialization variation", following the same false premise the author caught in
 % Appendix A. src/data/folds.py passes the run's seed into StratifiedGroupKFold(random_state=...), so the
-% partition moves with the seed: measured, roughly four users in five change fold between seeds, with a
-% same-seed control reproducing the partition exactly. Evidence and the full code path:
+% partition moves with the seed. Measured on a SYNTHETIC 300-user frame (not on the study data), roughly
+% four users in five change fold between seeds, with a same-seed control reproducing the partition exactly;
+% the synthetic qualifier is load-bearing and was missing from this comment until 2026-08-05, because the
+% demonstration establishes that random_state changes the partition in sklearn's splitter, not a measured
+% churn rate for Gowalla or Istanbul. Evidence and the full code path:
 % science/fold_partition_and_seeds.md.
 % This is the DEFINITION of "seed" that the rest of the document depends on, which is why the sentence
 % now states both axes explicitly instead of naming only the initialization. GLOSSARY §1 registers seed
