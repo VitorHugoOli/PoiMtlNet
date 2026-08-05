@@ -987,6 +987,37 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
      "chapters/1_introduction.tex",
      r"the smallest administrative unit of Turkish\s+local government, roughly a municipal "
      r"neighborhood", True),
+    # ---- The author's follow-up, 2026-08-03: put the fuller mahalle account in §2.4.1, and answer
+    # whether other terms are shown before being explained. S-1 and S-2 are the sweep's own findings,
+    # not reviewer items, so they are gated the same way his items are.
+    ("R13-mahfull",  "§2.4.1 defines BOTH region units and says what kind of object each is, so the "
+                     "comparison across the two collections is legible",
+     "chapters/2_fundamentals.tex",
+     r"A census tract is a\s+statistical area that the United States Census Bureau draws to hold a "
+     r"roughly stable\s+population", True),
+    ("R13-mahfull2", "and the mahalle half names the administrative level rather than calling it a "
+                     "statistical unit like a tract",
+     "chapters/2_fundamentals.tex",
+     r"smallest unit of Turkish local administration, one level below\s+the district", True),
+    # The unregistered-term ban: the word for the elected head of a mahalle is NOT in the GLOSSARY,
+    # and §1's rule is fail-closed. This probe fails if any chapter starts using it before the author
+    # approves a registry row -- the same shape as the other fail-closed bans in this suite.
+    ("R13-mahterm",  "the unregistered Turkish term for the elected head of a mahalle stays OUT of "
+                     "Ch.2 prose while the GLOSSARY has no row for it",
+     "chapters/2_fundamentals.tex", r"\bmuhtar\b", False),
+    ("R13-s1pcgrad", "S-1: PCGrad is glossed and cited at its FIRST use in §2.3.2, not only where "
+                     "§2.3.5 introduces it 323 lines later",
+     "chapters/2_fundamentals.tex",
+     r"PCGrad, a gradient-surgery method~\\cite\{yu2020pcgrad\},", True),
+    ("R13-s2base",   "S-2: the introduction's two external baselines carry a gloss and a citation, "
+                     "rather than arriving as bare names",
+     "chapters/1_introduction.tex",
+     r"HMT-GRN, which uses a predicted region to\s+constrain the search for a place~\\cite\{Lim2022\}",
+     True),
+    ("R13-s2base2",  "S-2: and the same for STAN, with the gloss Ch.2 already uses",
+     "chapters/1_introduction.tex",
+     r"STAN, which connects non-adjacent visits through\s+spatio-temporal "
+     r"correlations~\\cite\{luo2021stan\}", True),
     # R12-attrib: a commit-message attribution defect, recorded because the suite CANNOT detect this class
     # -- every gate here reads the working tree and none reads the commit log. Two of round 12's commits
     # describe diffs they do not contain, because `git add -A` in a backgrounded cell staged the tree at

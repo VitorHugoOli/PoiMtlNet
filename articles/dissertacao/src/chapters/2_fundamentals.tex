@@ -985,7 +985,15 @@ negative transfer, and it is a measured quantity rather than a figure of speech.
 The cosine between their gradients reads how the two requested updates are aligned and
 ignores how large they are: $+1$ means the tasks ask for the same update, $-1$ for
 opposite ones, and $0$ that the requests are orthogonal, each leaving the other's
-objective unchanged to first order. PCGrad changes a direction only when this cosine is
+% [S-1, 2026-08-03] FOUND BY THE MECHANICAL SWEEP THE AUTHOR ASKED FOR, not reported by a reviewer.
+% This was the chapter's FIRST use of the name PCGrad, with no citation and no gloss; the sentence
+% that introduces it ("Yu et al.\ introduce PCGrad, which projects away a conflicting component")
+% sits 323 lines later at :1311, in §2.3.5. Same shape as FAB-32/33, which is why the sweep caught
+% it: a named thing arriving before the sentence that names it. Fixed with a five-word appositive and
+% the citation, so the reader here needs nothing from §2.3.5; that section keeps its full treatment
+% and now reads as the fuller account rather than the first mention.
+objective unchanged to first order. PCGrad, a gradient-surgery method~\cite{yu2020pcgrad},
+changes a direction only when this cosine is
 negative. Other methods may still react to differences in gradient magnitude or task
 loss. In Chapter~\ref{ch:mobiwac}, two such methods exceed equal weighting on one
 dataset but not on the others. Appendix~\ref{apx:cosine} evaluates the final joint
@@ -1445,9 +1453,29 @@ The experiments use two sources of check-ins. Gowalla is the main source, and th
 dissertation evaluates Alabama, Arizona, Florida, California, and
 Texas~\cite{cho2011gowalla}. Istanbul check-ins come from Massive-STEPS, which also
 draws attention to the field's continued dependence on old
-datasets~\cite{wongso2025massivesteps}. The two sources supply different administrative
-units for the region target: a census tract in the five United States datasets, and a
-\emph{mahalle}, a municipal neighborhood, in Istanbul. The Foursquare dataset for New
+% [2026-08-03, the author's request: "we may explain it in the fundamentals>dataset as well, so in
+% there we can give more detail as necessary".] The one-clause gloss stays in the introduction; the
+% fuller account belongs here, in the dataset description that supplies the unit.
+% WHY BOTH UNITS AND NOT ONLY THE MAHALLE. Measured across the whole live tree: neither unit was ever
+% defined anywhere. "census tract" appears in six files and is never explained; the closest thing is
+% Chapter 5's "A census tract is a neighborhood, not a radio cell", which says what it is not.
+% Glossing only the Turkish term would have implied the American one needs no explanation, which is
+% the asymmetry a reader outside the United States would notice first.
+% WHAT I DELIBERATELY DID NOT WRITE. The word for the elected head of a mahalle is not in the
+% GLOSSARY, and §1's rule is fail-closed: an agent PROPOSES a registry entry and the author approves
+% it BEFORE the term reaches prose. So the sentence says "an elected local administrator" and the
+% term itself is proposed in the handoff instead of minted here. Sources for the two definitions are
+% recorded in the same handoff note; nothing in this paragraph is written from memory.
+datasets~\cite{wongso2025massivesteps}. The two sources supply different areal units
+for the region target: a census tract in the five United States datasets, and a
+\emph{mahalle} in Istanbul. The two are not the same kind of object. A census tract is a
+statistical area that the United States Census Bureau draws to hold a roughly stable
+population and revises at each decennial census; it has no government of its own. A
+\emph{mahalle} is the smallest unit of Turkish local administration, one level below
+the district, and it has an elected local administrator. Both partition a city at
+neighborhood scale, which is what makes the region target comparable across the two
+collections, but one is a unit of measurement and the other a unit of government.
+Chapter~\ref{ch:mobiwac} reports how many regions each dataset contributes. The Foursquare dataset for New
 York and Tokyo
 is another common benchmark~\cite{yang2015tsmc}, but it provides context only and is
 not used in the experiments reported here.

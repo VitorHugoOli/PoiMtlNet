@@ -451,11 +451,21 @@ The contributions are organized into four groups.
     weighting across both tasks and both datasets. The gradients of the two tasks were
     measured directly and are statistically indistinguishable from orthogonal on every
     dataset measured, which explains the balancer result rather than merely accompanying
+    % [S-2, 2026-08-03] FOUND BY THE MECHANICAL SWEEP the author asked for, not by a reviewer. This
+    % was the introduction's only mention of either system, and it arrived with no citation and no
+    % gloss: a reader met "HMT-GRN" and "STAN" as bare names with nothing to attach them to. Chapter 2
+    % introduces both properly (:329 STAN, :345 HMT-GRN) and the bib keys existed, but in this chapter
+    % they appeared only in the comment ledger, never in prose. Same class as FAB-32/33 and S-1.
+    % Both records were opened this session: luo2021stan is Luo, Liu and Liu, WWW 2021, DOI
+    % 10.1145/3442381.3449998; Lim2022 is Lim et al., ACM SIGIR 2022, DOI 10.1145/3477495.3531989.
+    % Each gloss is the one Chapter 2 already uses, so the two chapters describe them identically.
     it (Appendix~\ref{apx:cosine}). Two external sequence baselines were adapted so that
-    a region comparison exists at all: HMT-GRN keeps its shared multitask skeleton and
-    gains a per-fold region-transition prior, without its graph components and
-    hierarchical beam search, and STAN has its output layer adapted to rank region
-    candidates. Neither adaptation reproduces its complete published system, and
+    a region comparison exists at all: HMT-GRN, which uses a predicted region to
+    constrain the search for a place~\cite{Lim2022}, keeps its shared multitask skeleton
+    and gains a per-fold region-transition prior, without its graph components and
+    hierarchical beam search; and STAN, which connects non-adjacent visits through
+    spatio-temporal correlations~\cite{luo2021stan}, has its output layer adapted to rank
+    region candidates. Neither adaptation reproduces its complete published system, and
     Chapter~\ref{ch:mobiwac} states what was changed.
     % [NEEDS SIGN-OFF 06 | CLOSED] Author approved the wording as it stands (verified in the render,
     % not the source). Kept because it is the reason for the ASYMMETRY here, which reads like an
