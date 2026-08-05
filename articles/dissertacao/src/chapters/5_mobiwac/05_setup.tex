@@ -9,25 +9,25 @@
 \section{Experimental Setup}
 \label{sec:mobiwac:setup}
 
+This section describes the datasets, data splits, evaluation metrics, statistical tests, and comparison models used in the experiments.
+
 \subsection{Data}
 \label{sec:mobiwac:setup-data}
-Table~\ref{tab:mobiwac:datasets} summarizes our six datasets. Five come from Gowalla, a location-based social network, covering the U.S. states of Alabama, Arizona, Florida, Texas, and California
-\cite{cho2011gowalla}; the sixth is Istanbul, from the Massive-STEPS collection
-\cite{wongso2025massivesteps}, a non-U.S. check on the findings.
+Table~\ref{tab:mobiwac:datasets} summarizes the six datasets. Five datasets come from Gowalla, a location-based social network, and cover the U.S. states of Alabama, Arizona, Florida, Texas, and California~\cite{cho2011gowalla}. The sixth dataset contains check-ins from Istanbul in the Massive-STEPS collection~\cite{wongso2025massivesteps}. We use Istanbul to examine the findings outside the United States.
 % Data provenance (hidden): the Gowalla source is the public CC0 category-annotated dump,
 % figshare.com/articles/dataset/gowalla_data/22126586 (gowalla_checkins + gowalla_spots_subset1/2,
 % the exact files the ETL consumes; 36,001,959 check-ins). Date range MEASURED on the parquet
 % 2026-07-09: 2009-01-21 .. 2011-08-16 -> "collected 2009 to 2011". The SNAP/cho2011 dump
 % (Feb 2009-Oct 2010) is NOT the data source; cho2011gowalla is cited as the LBSN reference only.
-The states range from about 114,000 check-ins and 1,109 regions in Alabama to about 3.2 million check-ins and 8,501 regions in California. Every dataset uses the seven place categories of Section~\ref{sec:mobiwac:problem}; Istanbul's source collection maps its own labels onto them. The region unit is a census tract for the Gowalla states and a mahalle for Istanbul.
+The U.S. datasets range from about 114,000 check-ins and 1,109 regions in Alabama to about 3.2 million check-ins and 8,501 regions in California. All six datasets use the seven place categories defined in Section~\ref{sec:mobiwac:problem}. The source labels for Istanbul are mapped to these categories. A region is a census tract in the U.S. datasets and a mahalle in Istanbul.
 
 \input{tables/mobiwac/datasets}
 
 \subsection{Windows, splitting, and the integrity of the representation}
 \label{sec:mobiwac:setup-windows}
-\emph{Windows.} For each user with at least ten visits, we build time-ordered overlapping sliding windows of nine visits, one starting at each visit, with the next visit as the target, giving both tasks more examples. Near the end of a user's history, every start position within the last nine visits yields a shorter, padded window whose target is the same final visit; we keep only the full-length window ending there and drop these padded duplicates. The resulting prediction horizon is short but heavy-tailed: the median time from the last visit in a window to its target ranges from 0.4 hours in Florida to 5.5 hours in Istanbul, while 5 to 27 percent of targets lie over 3 days ahead.
+\emph{Windows.} For each user with at least ten visits, we order the visits by time. We then form overlapping sliding windows of nine visits and use the next visit as the target. A new window starts at each visit, which provides more examples for both tasks. Near the end of a user's history, several start positions can produce shorter, padded windows with the same final visit as the target. We remove these duplicates and keep only the full-length window that ends at this target. The prediction horizon is usually short, but some time gaps are much longer. The median time from the last visit in a window to its target ranges from 0.4 hours in Florida to 5.5 hours in Istanbul. Across the datasets, 5 to 27 percent of the targets occur more than 3 days later.
 
-\emph{Splitting.} We split by user with stratified five-fold cross-validation, so all of a user's windows fall in the same fold and overlap cannot leak: a test user's visits never appear in training. The held-out fold is the validation data; we reserve no third split. The split is stratified on the next-category label because the seven-class task is imbalanced: Food is the majority class in every dataset, from about 25 percent of visits in Florida to 34 percent in Alabama (Table~\ref{tab:mobiwac:datasets}).
+\emph{Splitting.} We use stratified five-fold cross-validation and split the data by user. All windows from one user remain in the same fold. Therefore, the overlapping windows cannot cross the training and test sets, and the visits of a test user never appear in training. The held-out fold provides the validation data, and we do not reserve a third split. We stratify the split by the next-category label because the seven classes are imbalanced. Food is the majority class in every dataset, ranging from about 25 percent of visits in Florida to 34 percent in Alabama (Table~\ref{tab:mobiwac:datasets}).
 
 % [round8, 2026-07-30] COD-016b originally split this material into six paragraphs without
 % changing its wording. That historical byte-equality no longer describes the live text.
@@ -42,72 +42,72 @@ The states range from about 114,000 check-ins and 1,109 regions in Alabama to ab
 % into articles/[mobiwac]/src/sections/05_setup.tex without a separate author decision and errata
 % assessment. The earlier author ruling was "Vamos alterar so na dissertacao".
 \emph{Integrity of the representation.} We train Check2HGI once on the whole dataset
-and then provide the resulting representation to every dedicated and joint model. The
-prediction models use user-disjoint folds, but the representation has already seen the
-check-ins of all users. This transductive setup creates possible paths through which
-information about a test visit could reach a model. The four checks below examine these
-paths separately. They bound specific risks; they do not prove that the representation
-contains no information from the test side.
+and provide the resulting representation to every dedicated and joint model. The
+prediction models use user-disjoint folds, but Check2HGI has seen the check-ins of all
+users. This transductive setup creates possible paths for information about a test visit
+to reach a model. The four checks below examine these paths separately. They cover
+specific risks, but they do not prove that the representation contains no information
+from the test side.
 
-\emph{Prediction targets.} The objective used to train the representation does not read
-the next-category or next-region targets. It learns by distinguishing observed graph
-neighborhoods from shuffled ones. This prevents direct supervision from the prediction
-targets, but it does not make the graph free of category information. Each visit's
-observed category is an input feature of its node
+\emph{Prediction targets.} The Check2HGI training objective does not use the
+next-category or next-region targets. It learns by distinguishing observed graph
+neighborhoods from shuffled ones. Thus, the prediction targets do not supervise the
+representation directly. However, the graph still contains category information. The
+observed category of each visit is an input feature of its node
 (Section~\ref{sec:mobiwac:method-rep}). The final check below examines whether graph
-links can propagate this feature from a later visit to an earlier one.
+links can transfer this feature from a later visit to an earlier one.
 
 \emph{Whole-dataset training.} To estimate the effect of training the representation
-over all users, we rebuilt it once per fold using only that fold's training users. We
-then compared these representations with the one trained on the whole dataset. At
+with all users, we rebuilt it for each fold using only that fold's training users. We
+then compared each result with the representation trained on the whole dataset. At
 Alabama, Arizona, and Florida, the differences range from $-0.33$ to $+0.01$ Acc@10
 points for region and from $0.00$ to $+0.29$ macro-F1 points for category, all within
 fold noise.
 
 The two tasks have different coverage in this comparison. The region result measures
 the region representation directly. The category result uses a POI-level proxy and
-includes only validation examples whose input places also occur in training, which is
-67 to 87 percent of the examples across the three datasets. It does not measure the
-check-in-specific context or visits to places unseen in training. The comparison
-therefore indicates little transductive inflation within its measured scope, rather
-than ruling it out for every test visit.
+includes only validation examples whose input places also occur in training. These
+examples account for 67 to 87 percent of the validation data across the three datasets.
+The result does not measure the check-in-specific context or visits to places unseen in
+training. Therefore, the comparison indicates little transductive inflation only within
+its measured scope. It does not rule out inflation for every test visit.
 
-\emph{Region-transition prior.} A separate component can carry information between
-visits: a table that records how often one region follows another. An earlier version
-built this table from the whole dataset and inflated region accuracy by 13 to 27 points.
-The current region-transition prior is built separately for each fold from training data
-only. The HMT-GRN baseline is the only model that uses it. Our joint and dedicated
-models do not (Section~\ref{sec:mobiwac:setup-baselines}).
+\emph{Region-transition prior.} A separate table records how often one region follows
+another. A version built from the whole dataset inflated region accuracy by 13 to 27
+points. We now build this region-transition prior separately for each fold using only
+its training data. The HMT-GRN comparison model is the only model that uses the prior.
+Our joint and dedicated models do not use it
+(Section~\ref{sec:mobiwac:setup-baselines}).
 
 \emph{Links between consecutive visits.} In the Check2HGI graph, each visit node is
 linked to the visit that follows it. Because category is a node input feature, the
-vector of an earlier visit could absorb the category of the next one. We screened for
-this channel during development by training a linear probe to predict the next category
-from only the last vector in each input window. The screen compares each candidate with
-a clean reference encoder; it does not use the label-history benchmark as its decision
-threshold.
+vector of an earlier visit could include the category of the next visit. During
+development, we examined this possibility with a linear probe. The probe predicts the
+next category using only the last vector in each input window. The screen compares each
+candidate with a clean reference encoder. It does not use the label-history benchmark
+as its decision threshold.
 
 At Florida, the clean reference reaches $0.4090$ macro-F1 with standardized features
-and $0.4074$ with raw features, on a zero-to-one scale. A residual variant in the lineage
-of the released encoder remains at the same level, with $0.4197$ and $0.4182$,
-respectively. An attention-based candidate reaches $0.4976$ and $0.4863$, exceeds the
-reference by more than the screening margin, and was therefore disqualified.
+and $0.4074$ with raw features on a zero-to-one scale. A related residual variant
+reaches $0.4197$ and $0.4182$, respectively. An attention-based candidate reaches
+$0.4976$ and $0.4863$. Its scores exceed the clean reference by more than the screening
+margin, so we disqualified it.
 
 The label-history benchmark provides a second reference for interpreting these scores.
 It is the best macro-F1 reached by four specified predictors that use only the observed
 category history of the input window, with no encoder involved. One repeats the last
-category. The other three are balanced logistic models that use the last category, the
+category. The other three are balanced logistic models. They use the last category, the
 category counts in the window, or the category at each position. The benchmark is not an
-upper bound: a different predictor using the same restricted information could score
+upper bound. A different predictor that uses the same restricted information could score
 higher.
 
 The benchmark is $0.3617$ at Florida and ranges from $0.2800$ to $0.3617$ across the
 five datasets for which the required inputs are available. At Florida, the clean
-references are four to six points above it. Every candidate in the raw-feature screen
-is also above it. One candidate, a relation-typed graph encoder, falls below the
-benchmark on the standardized run ($0.3328$) but rises above it on the raw run
-($0.4142$). This exception does not change the screening decision because candidates
-are judged relative to the clean reference, not against an absolute score.
+references are four to six points above the benchmark. All candidates in the
+raw-feature screen are also above it. One relation-typed graph encoder scores below the
+benchmark with standardized features ($0.3328$) and above it with raw features
+($0.4142$). This exception does not change the screening decision because the decision
+compares each candidate with the clean reference.
 % [round5, persona 12 obrigatoria 2] The quantifier was "Every encoder screened", which
 % leak_sniff_fl.csv:8 contradicts: check2hgi_rgcn measures 0.3328 standardized against the 0.3617
 % benchmark, rising to 0.4142 raw. Appendix D already named the exception, so the two disagreed on
@@ -124,19 +124,20 @@ are judged relative to the clean reference, not against an absolute score.
 
 \emph{Limits of the screening audit.} The probe is linear, was run only at Florida with
 one random initialization over five user-grouped folds, and evaluated ancestor builds
-of Check2HGI rather than the build that produced the reported results. Passing this
-screen therefore bounds only the information exposed by a linear read. It does not
-establish what a nonlinear sequence model could recover.
+of Check2HGI instead of the build that produced the reported results. The screen
+therefore measures only the information that a linear probe can use. It does not show
+what a nonlinear sequence model could recover.
 
 Together, these checks support a bounded integrity claim. The prediction targets do not
-supervise Check2HGI, and measured transductive inflation is small within the stated
-coverage. The region-transition prior uses only training data from each fold. The
-screening audit also rejected a candidate whose score exceeded the clean reference by
-more than the screening margin. The limits stated above remain.
+supervise Check2HGI directly, and the measured transductive inflation is small within
+the stated coverage. The region-transition prior uses only the training data from each
+fold. The screening audit also rejected a candidate whose score exceeded the clean
+reference by more than the screening margin. These conclusions remain limited to the
+scope of each check.
 
-The baseline representations follow their own documented training scopes. HGI is
-pre-trained once on the whole dataset, as Check2HGI is, whereas CTLE is trained
-separately in each fold using training users only.
+The other learned representations follow their own training scopes. HGI is pre-trained
+once on the whole dataset, as Check2HGI is. CTLE is trained separately for each fold
+using training users only.
 % NOTE: numbers from the A4 train-users-only transductivity audit (docs/studies/pre_freeze_gates/A4_RESULTS.md):
 % reg AL -0.33 / AZ +0.01 / FL -0.12 (5 folds); cat POI-proxy on in-coverage subset AL +0.29 (66.8%) / AZ +0.27 (71.9%) / FL +0.00 (86.9%).
 % Author TODO: extend to CA/TX/Istanbul to widen coverage further (non-blocking; the gate is on null at AL+AZ+FL).
@@ -197,12 +198,15 @@ separately in each fold using training users only.
 % main_extra.tex. Logged in PENDENCIAS_RESOLVIDAS.md.
 \subsection{Metrics and statistical tests}
 \label{sec:mobiwac:setup-metrics}
-For the category task, we report macro-averaged F1 (macro-F1), which averages the per-class F1 so each of the seven categories counts equally; its reference point is the majority-class floor, the macro-F1 of always predicting the most common category. For the region task, we report accuracy at ten
-(Acc@10), the fraction of test visits whose true region appears among the model's ten highest-scoring guesses
-(a visit whose true region is absent from that fold's training data counts as an error); its
-reference point is the dedicated model.
+For the category task, we report macro-averaged F1 (macro-F1). It is the mean of the F1 scores for the seven categories, so each category has equal weight. Its reference point is the majority-class floor, obtained by always predicting the most common category. For the region task, we report accuracy at ten (Acc@10). This measure is the fraction of test visits for which the true region is among the model's ten highest-scoring predictions. If the true region does not occur in the training data for that fold, the visit counts as an error. The reference point for this task is the dedicated model.
 
-A claimed gain and a claimed match require different tests, because a difference that fails to reach significance is not by itself evidence of a match. A written analysis plan, fixed during development and before any result was read, assigned one test to each task, with the two-point margin pinned there: \emph{superiority} for next-category, \emph{non-inferiority} for next-region. It assigned the tests per task, not per dataset, and did not cover next-region superiority, so the four next-region gains of Section~\ref{sec:mobiwac:results-part2} are secondary results outside it. The plan registered a paired Wilcoxon signed-rank test; at four seeds its exact one-sided $p$ cannot fall below $0.0625$, so we report a paired $t$ on the per-seed means, with the 90\% confidence interval of the paired difference, and the registered test alongside it. Both, and this departure, are released with the code. A \emph{seed} is one complete repetition of the five-fold experiment: it sets the random initialization and the user partition, so each seed draws its own division of the users, and within a seed both models are built from the same partition; folds and seeds are the two axes of repetition. On every dataset, both models use four seeds ($4\times5=20$ measurements) and the tests pair the per-seed means ($n{=}4$), with a Holm correction~\cite{holm1979} across the six next-category comparisons and, separately, across the four next-region ones. The \emph{non-inferiority} claim is that the joint model is no worse than the dedicated model by more than a two-point margin; we test it with the two one-sided tests (TOST) procedure~\cite{lakens2017tost}. The two-point margin is fixed in advance as well: a mobility-aware service acts on which region will be busy, not on a single rank position (Section~\ref{sec:mobiwac:problem}), so a two-point shift in Acc@10 is below the granularity at which such a service would behave differently. The precision of the equivalence test is measured across these four partitions: the paired difference's standard deviation is 0.01 to 0.18 points across the datasets, and the intervals pass a margin as small as one point at Alabama and Arizona (Section~\ref{sec:mobiwac:results-part2}).
+A claimed gain and a claimed match require different tests. A non-significant difference does not provide evidence of a match. A written analysis plan, fixed during development and before any result was read, assigned a superiority test to next-category prediction and a non-inferiority test to next-region prediction. These assignments apply to each task across the datasets. The plan did not define a superiority test for next-region prediction. Therefore, the four next-region gains in Section~\ref{sec:mobiwac:results-part2} are secondary results outside the plan.
+
+The plan registered a paired Wilcoxon signed-rank test. With four seeds, its exact one-sided $p$-value cannot be less than $0.0625$. We therefore report a paired $t$-test on the four per-seed means and its 90\% confidence interval for the paired difference. We also report the registered test. The code release includes both tests and documents this departure from the plan.
+
+A \emph{seed} is one complete repetition of the five-fold experiment. It determines the random initialization and the user partition, so each seed produces a different division of the users. Within one seed, the compared models use the same partition. We repeat the experiment across both folds and seeds. Each dataset uses four seeds with five folds per seed, which gives $4\times5=20$ fitted models per configuration. The statistical tests compare the four per-seed means ($n{=}4$). We apply a Holm correction~\cite{holm1979} across the six next-category comparisons and, separately, across the four next-region comparisons.
+
+The non-inferiority claim states that the joint model is no worse than the dedicated model by more than a two-point margin. We test this claim with the two one-sided tests (TOST) procedure~\cite{lakens2017tost}. The analysis plan also fixed the two-point margin in advance. A mobility-aware service acts on which region will be busy, rather than on a single position in the ranking (Section~\ref{sec:mobiwac:problem}). A two-point change in Acc@10 is below the level at which this service would behave differently. Across the four user partitions, the standard deviation of the paired difference ranges from 0.01 to 0.18 points. At Alabama and Arizona, the intervals also support a margin as small as one point (Section~\ref{sec:mobiwac:results-part2}).
 % WITHIN-SEED SHARING: WHAT IS ESTABLISHED AND WHAT IS NOT. Corrected 2026-08-05 after a reviewer found
 % this stated as a measured fact. It is a CODE-LEVEL property, not something measured on the artifacts:
 % src/data/folds.py builds the joint-model folds at :1247 and the dedicated next-task folds at :1159 with
@@ -259,8 +263,16 @@ A claimed gain and a claimed match require different tests, because a difference
 
 \subsection{Baselines}
 \label{sec:mobiwac:setup-baselines}
-The comparisons play three roles. The first role is played by the per-task state of the art, on our data, under user-disjoint five-fold protocols. For next-category, this is POI-RGNN \cite{capanema2023poirgnn}, re-implemented from its published architecture and hyperparameters, and a Markov baseline that predicts the category that most often follows the recent ones (Markov-K, best order per dataset); for region, we also compute a first-order Markov floor over region transitions, under the same sliding-window protocol and fold splits as our models. For next-region, the primary comparison is HMT-GRN \cite{Lim2022}, an end-to-end recurrent model (trained as one piece from the raw check-ins) evaluated on the same data, folds, and initialization. We keep its shared multitask skeleton and add a region-transition prior built per fold from training data. We drop its graph components and hierarchical beam search, which exist to serve its next-place target, a target that we do not predict. The result is a region-native model (region is one of its own prediction targets), not a reproduction of the complete published system. We also run STAN \cite{luo2021stan}, re-implemented from its published architecture and trained from the raw check-ins with its own embeddings and sequence construction under one fixed configuration. We adapt its output layer to rank region candidates, spatial objects that still support its candidate-distance matching; we do not adapt it to category, where distance matching has no meaning. A ReHDM \cite{li2025rehdm} reference is reported under its own published protocol.
+We use the comparison models for three purposes: to compare each task with established methods, to evaluate the representation, and to compare two ways of coupling the tasks.
 
-The second role is played by two representation controls that attribute the category gain to our specific design, not to contextualization in general or to extra features: CTLE \cite{lin2021ctle}, the closest prior contextual check-in embedding, run end to end at Florida and with frozen weights (no fine-tuning) at Alabama, Arizona, and Istanbul; and a feature-concatenation control appending raw per-visit features to a standard place embedding under the same model.
+\emph{Task comparisons.} For next-category prediction, we use POI-RGNN~\cite{capanema2023poirgnn}, which we re-implement from its published architecture and hyperparameters. We also use a Markov model that predicts the category that most often follows the recent categories. We select the best Markov order for each dataset. For region prediction, we compute a Markov-1 floor over region transitions. It uses the same sliding windows and fold splits as our models.
 
-The third role is a comparison between the two ways of coupling the tasks. The dominant published coupling is the directed cascade, predicting the category first and conditioning the place prediction on it \cite{ye2013nextmove,yu2020catdm,huang2024cslsl}. We test the cascade inside our own model rather than re-implementing those systems: we remove the shared trunk, where the two streams exchange information, and feed the predicted category forward into the region pathway, keeping the representation, outputs, and training configuration unchanged. This isolates the coupling topology (chain versus parallel) at no additional parameter or compute cost: the chain form drops the shared trunk and adds a conditioning projection of about 1,000 parameters. A final control, the standard place-level embedding \cite{huang2023hgi}, isolates what the per-visit representation adds. All other choices, including the nine-visit window, were fixed during development; the full training configuration for every model is in the released code (footnote~\ref{fn:mobiwac:code}).
+The primary next-region comparison is HMT-GRN~\cite{Lim2022}, an end-to-end recurrent model trained as one unit from the raw check-ins. We evaluate it on the same data, folds, and random initializations. We keep its shared multitask structure and add a region-transition prior that is built from the training data in each fold. We remove the graph components and hierarchical beam search because they support exact next-place prediction, which we do not study. The resulting model predicts region as one of its original targets, but it is not a reproduction of the complete published system.
+
+We also run STAN~\cite{luo2021stan}. We re-implement its published architecture and train it from the raw check-ins with its own representations and sequence construction under one fixed configuration. We adapt its output to rank candidate regions, which are spatial objects compatible with its candidate-distance matching. We do not adapt STAN to category prediction because distance matching does not apply to categories. We report ReHDM~\cite{li2025rehdm} as a reference under its published protocol.
+
+\emph{Representation controls.} Two controls test whether the category gain comes from our representation design rather than from contextualization in general or from additional features. CTLE~\cite{lin2021ctle} is the closest prior contextual check-in representation. We train it end to end at Florida. At Alabama, Arizona, and Istanbul, we keep its weights fixed and do not fine-tune them. The second control adds raw features from each visit to a standard place embedding and uses the same prediction model.
+
+\emph{Task coupling.} Published systems often use a directed cascade that predicts the category first and then conditions place prediction on it~\cite{ye2013nextmove,yu2020catdm,huang2024cslsl}. We test this coupling inside our model instead of re-implementing those systems. We remove the shared trunk, where the two task streams exchange information, and provide the predicted category to the region pathway. The representation, outputs, and training configuration remain unchanged. This comparison isolates the coupling topology, chain or parallel, without increasing the parameter count or computation cost. The chain removes the shared trunk and adds a conditioning projection with about 1,000 parameters.
+
+A final control uses the standard place-level HGI representation~\cite{huang2023hgi} to measure what the per-visit representation adds. All other choices, including the nine-visit window, were fixed during development. The released code provides the full training configuration for every model (footnote~\ref{fn:mobiwac:code}).
