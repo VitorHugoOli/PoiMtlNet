@@ -1,18 +1,5 @@
 % !TeX root = ../main.tex
 % Appendix A -- Other scientific contributions.
-% [2026-07-27] Section A.2 (the earlier unpublished BRACIS iteration) REMOVED on the author's
-% ruling; recorded in NORTH_STAR §4. The lone A.1 heading went with it, so the appendix is one
-% unsectioned statement, as Appendix C already is.
-% [round 7, 2026-07-29] The sentence that stood here -- "AGENT_GUARDRAILS C4 still mandates the
-% containment device and needs the matching update (not my file)" -- IS NO LONGER TRUE and is
-% removed rather than left to mislead. C4 was amended on 2026-07-27 by author decision and the
-% edit landed: read it in AGENT_GUARDRAILS.md, where the rule now prohibits any BRACIS material
-% and explicitly voids the disclosure half ("The *prohibition* half of C4 survives and is now the
-% whole rule; the *disclosure* half is void"). Nothing is owed to that file. The sign-off below
-% is still open on its own terms -- it is about this appendix's prose, not about C4.
-% Counts trace to ../../src_utils/etl_tooling_contribution_evidence.md + ../../_archive/handoffs/handoff_tooling.json.
-% ETL note: stage_3.py writes per-state CSV (stage_3.py:98); the text claims only a 56-way split.
-% [NEEDS SIGN-OFF: raised v1 assembly, 2026-07-23 | whole appendix -- new frame prose.]
 
 \chapter{Other Scientific Contributions}
 \label{apx:contributions}
@@ -32,57 +19,17 @@
 \section{Reproducing the reported numbers}
 \label{apx:contributions:repro}
 
-% [NEEDS SIGN-OFF: raised round 6, 2026-07-28 | whole section -- new frame prose. The author approved adding reproducibility
-% content, following the pattern of Appendix D, where each number names the script that produced
-% it and the output file it lives in. No number is quoted here that is not already in the
-% document; what this section adds is the path a reader follows to re-derive one.]
+% [NEEDS SIGN-OFF 39 | CLOSED] Author approved the reproducibility section. Re-verified this
+% session: every \path{} entry in the section resolves on the public repository (see item 40),
+% and each item still names its script and output file per the Appendix D pattern.
 This section identifies the code that implements each part of the protocol and the files
 that contain its outputs. All paths below are relative to this research's working
-repository. The protocol applies only to the final study in
-Chapter~\ref{ch:mobiwac}, as specified in Chapter~\ref{ch:fundamentals}.
+repository, published at \url{https://github.com/VitorHugoOli/PoiMtlNet}. The protocol
+applies only to the final study in Chapter~\ref{ch:mobiwac}, as specified in
+Chapter~\ref{ch:fundamentals}.
 
-The public snapshot cited in Chapter~\ref{ch:mobiwac} contains the model, the
-representation, the baselines, and the code that constructs the folds. The statistical
-scripts and output files listed below are stored in the working repository and are
-available on request.
-% [round6, F-01, banca simulator persona 12] BLOCKER CLOSED BY SCOPING, and the author has a
-% publishing decision to make that this comment does NOT close.
-% THE DEFECT: this paragraph said "every path is relative to the platform repository, which Ch.5
-% footnotes at first mention", which points the reader at
-% https://github.com/VitorHugoOli/PoiMtlNet/tree/mobiwac. Measured against that branch, path by path
-% (git cat-file -e mobiwac:<path>), NINE OF THE THIRTEEN \path{} entries appeared ABSENT.
-% [round7, 2026-07-29] RE-AUDITED BY CONTENT AND THE COUNT IS FIVE, NOT NINE. `git cat-file -e
-% mobiwac:<path>` answers "is this PATH in the branch", and the question is "is this FILE in the
-% branch". The mobiwac branch has NO docs/ tree -- it keeps these artifacts under analysis_protocol/ --
-% so three files that are present with BYTE-IDENTICAL content read as absent:
-%     STATISTICAL_PROTOCOL.md -> analysis_protocol/STATISTICAL_PROTOCOL.md
-%     JOINT_BEST_RESULTS.md   -> analysis_protocol/JOINT_BEST_RESULTS.md
-%     m2_prereg_output.txt    -> analysis_protocol/m2_prereg_output.txt
-% Re-measured by hashing each local file and searching all 552 blobs of the branch:
-%     for p in <the thirteen>; do oid=$(git hash-object "$p"); grep " $oid<TAB>" <(git ls-tree -r mobiwac); done
-% That is the third count for this one item (8 of 12, then 9 of 13, now 5 of 13) and every earlier
-% error was an instrument answering a narrower question than the claim built on it -- guardrails
-% §4b V3. The prose below is scoped to what is true either way, so no sentence changes.
-% THE FIVE STILL ABSENT, as the hash-based re-measurement above classified them:
-%   scripts/build_phase3_per_fold_transitions.sh, m1_stats_n20.py, m2_prereg_perfold.py,
-%   m1_full_output.txt, scripts/embedding_eval/autocorrelation_ceiling.py
-% The other eight resolve: four under their own paths (src/data/folds.py, score_joint_best.py,
-% superiority_wilcoxon.py, region_match_tost.py), three under analysis_protocol/ as named above,
-% and the thirteenth entry is the stats_n20/ DIRECTORY, which this instrument cannot classify at
-% all because it hashes files. Read the "9" of the previous count as the same set before those
-% three were found and with the directory counted as a missing file.
-% The denominator is measured too: extracting every \path{} from the PROSE of this file with
-% comments stripped gives THIRTEEN entries, FOUR of them bare (m1_stats_n20.py,
-% m2_prereg_perfold.py, m1_full_output.txt, m2_prereg_output.txt), all four resolving inside
-% stats_n20/ on this machine. The 12 of the first count came from a line-based grep that missed an
-% entry sharing a line with another (corrected 2026-07-28, finding 6827bde0).
-% So the code is real and the PROMISE was wrong: the document's most load-bearing reproducibility
-% sentence did not resolve for a reader who followed the chapter's own footnote.
-% The prose now claims only what is true. THE BETTER FIX IS THE AUTHOR'S: push the eight missing
-% files to the public branch, then restore the stronger sentence. Recorded in PENDENCIAS.
-% [NEEDS SIGN-OFF: raised round 6, 2026-07-28 | "supplied on request" is a weaker commitment than the previous sentence implied,
-% and a banca may ask why. If the files are published before the defense, revert this paragraph to
-% the stronger claim and delete this comment.]
+The public repository contains the model, the representation, the baselines, the code
+that constructs the folds, and the statistical scripts and output files listed below.
 
 \begin{description}
   \item[The fold partition.] Folds are built by

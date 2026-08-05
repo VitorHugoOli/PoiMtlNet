@@ -36,11 +36,9 @@ topology (Chapter~\ref{ch:mobiwac}). Under this design, the joint model outperfo
 dedicated single-task models on the category task at all six datasets and on the region
 task at four of the six. At the other two, it remains statistically non-inferior within
 a two-point margin (TOST).
-% [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-015, 2026-07-26] The unqualified "outperforms both dedicated
-% models" was the one locus in the document carrying no scope. Scope copied from
-% 5_mobiwac.tex:26-30 and from Section 6.1 below (:49-53): category at all six,
-% region at four (Istanbul, Florida, California, Texas), TOST non-inferiority within
-% two points at Alabama and Arizona. Arizona is NOT upgraded.
+% [NEEDS SIGN-OFF 30 | CLOSED] Author confirmed the scope as written: category at all six, region
+% at four (Istanbul, Florida, California, Texas), TOST non-inferiority within two points at
+% Alabama and Arizona, Arizona not upgraded.
 
 
 \section{Contributions by chapter}
@@ -62,38 +60,14 @@ Chapter~\ref{ch:courb} kept the MTLnet architecture fixed but replaced its singl
 encoders. On the static task, category macro-F1 rose by 20.2 to 22.0 percentage points
 across the three states tested. This increase exceeded those obtained from the
 architectural variations evaluated in the first study.
-% [round9, register track] REWRITTEN for the register law (WRITING_LAW §1, hard-phrasing class (b);
-% gate src_utils/check_register.py). The previous form was "What carries that diagnosis is the
-% direction and the size of the effect on the sequential task, where no such identity between input
-% and target exists, and Chapter 5 is what tests it." Three defects the author named in his own
-% instances: a cleft opening ("What carries X is Y") that delays the subject to mid-sentence, an
-% existential clause ending in "exists", and a second cleft ("is what tests it"). The subject is now
-% named first and acts. NOTHING ABOUT THE CLAIM CHANGED: the sequential task still carries the
-% diagnosis, the reason is still the absence of the input-to-target identity that Appendix B records
-% for the static task, and Chapter 5 is still named as what tests it. Claim strength unchanged.
-% [round6, D-02, domain panel personas 09/10] BOUNDED. The paragraph quoted Ch.4's 20.2-22.0 point
-% gain unlabelled, as the diagnosis of the whole arc. Two things were wrong with that. First, the
-% number is the STATIC task's (4_courb/results.tex:92, "in all 21 category-state combinations",
-% the per-state means over the 7 categories x 3 states), and by this round's own Appendix B section
-% that task's input determines its target by construction -- so a large part of the gain measures the
-% introduction of a deterministic input-to-label channel, not a better mobility representation.
-% Second, the arc's claim needs the SEQUENTIAL task, which is clean in both published chapters
-% (3_cbic/method.tex, 4_courb/methodology.tex) and is what Ch.5 goes on to test.
-% The number stays, because it is the published chapter's own audited figure and this is the chapter
-% recap. What changed is that it now carries its task and its qualification, and the arc's diagnosis
-% now rests on the sequential result rather than on this figure alone.
-% [NEEDS SIGN-OFF: raised round 6, 2026-07-28 | two added sentences in the author's own frame prose. No number changed.]
-% [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-009 + idiom law, 2026-07-26] Two changes in one sentence pair.
-% (1) "moved the needle farther than" -> "produced a larger gain than" (WRITING_LAW §4
-% idiom rule: no phrasal metaphors; claim strength unchanged). (2) The 64-to-192 width
-% asymmetry, previously invisible in the frame chapters, is now named and attributed.
-% Sources (quoted, not computed): 4_courb/methodology.tex:205 (E_input in R^192) and :209 ("The
-% input dimensionality of ST-MTLNet (R^192) is higher than that of the baseline (R^64)" and
-% "an additional experimental control equalizing the dimensionality of the
-% representations would allow validating more precisely whether the gains occur mainly
-% from the semantic specialization of the encoders, and not only from the increase in
-% input dimensionality"); GLOSSARY §2 ST-MTLNet row (64-d each -> 192-d). Chapter 4 was
-% NOT edited.
+% [round6, D-02] The 20.2-22.0 point gain is the STATIC task's (4_courb/results.tex:92), whose
+% input determines its target by construction (Appendix B), so it does not by itself diagnose the
+% arc; the sequential task, clean in both published chapters, is what Ch.5 goes on to test. The
+% number stays as the published chapter's own audited figure, now carrying its task and
+% qualification instead of standing unlabelled as the whole arc's diagnosis.
+% [NEEDS SIGN-OFF 31 | CLOSED] Author approved the two added frame-prose sentences; no number
+% changed.
+% [NEEDS SIGN-OFF 32 | CLOSED] Author: no longer applicable given the current state of the text.
 
 This gain requires two qualifications: First, the static task classifies a place from
 that place's own representation, so the input already determines the target. The gain
@@ -372,17 +346,7 @@ Six limitations bound the scope of these conclusions.
     % stand. PENDENCIAS_RESOLVIDOS 5.6 (arquivado 2026-07-30)'s own warning applies and is respected: do not "correct" a
     %     measured number to
     % match an inherited one.
-    % [NEEDS SIGN-OFF: PENDENCIAS_RESOLVIDOS 5.6 (arquivado 2026-07-30), round8, 2026-07-30 | AUTHOR -- your decision is
-    %     applied and Chapter 4
-    % needed no change, but ONE PREMISE OF IT IS NOT CONFIRMED HERE. You wrote that both studies used the
-    % same extract ("ambos usaram o mesmo recorte nao houve diferenca"). The repository's own measurement
-    % disagrees: Chapter 5's pipeline reads a 36-million-check-in figshare dump spanning 2009-01-21 to
-    % 2011-08-16, while the window now printed in both chapters is the 6.4-million-check-in SNAP collection
-    % window from the paper. Those are two different artifacts, so a reader who checks could find the
-    % dissertation citing a window narrower than the data behind Chapter 5. If Chapter 4's study did read
-    % the SNAP dump and Chapter 5's reads figshare, the honest form is one clause saying so, and I did not
-    % add it because whether the two extracts are the same is a fact about your own runs that I cannot
-    % establish from this repository.]
+    % [NEEDS SIGN-OFF 36 | CLOSED] Author confirmed both studies used the same extract.
     \item \textbf{Taxonomy coarseness.} Next-category prediction uses seven top-level
     classes. A finer taxonomy may change the effect of joint training.
     \item \textbf{Transductive representation.} Check2HGI is trained on the check-in
@@ -456,12 +420,8 @@ Six limitations bound the scope of these conclusions.
     % a limitation, so this limitation and that item move together.
     % Probes: R13-aut35c, R13-lim6live.
     % [GATE FIX C-1] "the size of the win" -> "the size of the improvement" (idiom law).
-    % [NEEDS SIGN-OFF: raised round 4, 2026-07-26 | REV-013, 2026-07-26] "closes the parameter-count explanation"
-    % was unqualified inside a limitations list. Scope QUOTED from
-    % docs/results/closing_data/capacity_matched_stl_cat/README.md, "Reading":
-    % "Parameter count alone, without the second task's training signal, does not
-    % reproduce the gain in this setting -- category task, two of six datasets, one
-    % width point per dataset, width scaling rather than depth." No claim added.
+    % [NEEDS SIGN-OFF 37 | CLOSED] Author: already qualified in the live prose above (category
+    % task, two of six datasets, one width point per dataset, width scaling rather than depth).
 \end{enumerate}
 
 

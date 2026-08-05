@@ -55,30 +55,39 @@ stands as published.
 
 The second is that Chapter~\ref{ch:cbic} has a version of the same problem, milder but present, and
 saying so is more honest than drawing a line between the two. That chapter builds each place's input
-feature from the average of its neighbors' categories and deliberately leaves the place itself out,
-which looks like it closes the channel. It does not. The place graph is undirected, so a place
-appears in its own neighbors' features, and a single graph convolution averages a place together
-with its neighborhood. The place's own label comes back at the first hop, diluted among its
-neighbors. The difference between the two chapters is therefore one of degree: an exact lookup in
-Chapter~\ref{ch:courb}, a diluted average in Chapter~\ref{ch:cbic}.
-% [round6, D-01, domain panel persona 09] CORRECTED, and this is a correction to MY OWN prose from
-% earlier the same day. The paragraph used to conclude "so a place's own label never enters its own
-% representation", exculpating Ch.3 entirely. THE PREMISE IS TRUE AND THE CONCLUSION DOES NOT FOLLOW.
-% Excluding a node's label from its own INPUT FEATURE is not excluding it from its own EMBEDDING.
-% Measured rather than reasoned: research/embeddings/dgi/preprocess.py:114-130 builds
-% x_i = mean of one-hots over N(i), self excluded -- verified, x_i does NOT contain node i's label.
-% But nx.from_pandas_edgelist builds an UNDIRECTED graph, so node i is in N(j) for each j in N(i),
-% and POIEncoder.py:29 is a single GCNConv(cached=True) whose add_self_loops defaults to True, so
-% h_i aggregates over N(i) union {i}. Reproduced the whole path on a 4-node graph: node 0's own
-% Food one-hot is absent from x_0 (0.000) and present in h_0 with weight 0.667.
-% So the exculpation was false and is withdrawn. What survives is the degree distinction, which is
-% real and is what the author's own ruling rested on ("esse nao se aplica ao DGI que usamos no cbic",
-% PENDENCIAS_RESOLVIDOS 2.4 (arquivado 2026-07-30), was 2.2): CoUrb's channel is an exact deterministic function of a strict label refinement,
-% CBIC's is a neighborhood average. Those are different situations. They are not absence and presence.
-% [NEEDS SIGN-OFF: raised round 6, 2026-07-28 | this paragraph now says something WEAKER about Chapter 3 than the author's ruling
-% assumed. He ruled the static-task problem is CoUrb's alone; the measurement says Ch.3's channel is
-% indirect rather than absent. The section still concentrates the finding on Ch.4, which is where the
-% exact identity is, but he should read this paragraph specifically before it ships.]
+feature from the average of its neighbors' categories and deliberately leaves the place itself out.
+We verified that this exclusion holds exactly: a place's own category vector is absent from its own
+input feature. The exclusion does not close the channel, because the input feature is not what the
+static task reads. Each neighbor's feature vector is itself an average over that neighbor's own
+neighborhood, and the place belongs to those neighborhoods, so one round of graph attention returns
+the place's category to its embedding at a measured mean weight of 0.10 against a total own-category
+weight of 0.39. Removing that contribution and leaving everything else unchanged lowers a probe of
+the place's own category from 0.46 to 0.30 macro-F1, against a majority-class floor of 0.07.
+Relabeling a single place, which never alters that place's own input feature, changes its embedding
+for every place that receives at least one message. The difference between the two chapters is
+therefore one of degree: an exact lookup in Chapter~\ref{ch:courb}, a diluted average recovered
+through one hop in Chapter~\ref{ch:cbic}.
+% [NEEDS SIGN-OFF 46 | OPEN] Author asked for an independent code-level verification rather than
+% accepting either his own belief (no leak, since the input feature excludes the place's own label)
+% or the prior round's finding (D-01) at face value. A fresh audit (see src_utils/, DGI-leak-audit)
+% traced the executed path with the real encoder on real Florida/California data and confirmed a
+% leak, quantified above. It also corrected D-01 itself: the encoder is GATConv
+% (research/embeddings/dgi/model/DGIModule.py:12), not GCNConv(cached=True) (an unused sibling
+% module); and the reentry route is not edge_index symmetry (edge_index is directed and asymmetric,
+% verified on the real preprocessed graphs) but the undirected neighbor-mean construction of each
+% neighbor's own input feature. A causal intervention (relabeling one place and re-running the real
+% encoder, with that place's own input row unchanged) confirmed the channel is not an artifact of the
+% linear-algebra decomposition. Full trace, code, and figures: SOURCE_LEDGER_dgi_selfleak.md and
+% dgi_selfleak_audit.png (this session's artifacts).
+% THIS PARAGRAPH NOW SAYS SOMETHING STRONGER ABOUT CHAPTER 3 THAN THE AUTHOR'S ORIGINAL RULING
+% ASSUMED (he believed the input feature's exclusion closed the channel; the measurement says it
+% does not), and the audit's own author explicitly flagged that the flag should stay until he reads
+% it. Two open questions for him: (1) whether the +0.165 macro-F1 delta changes how Chapter 3's
+% static-task numbers should be reported at all, beyond this appendix; (2) an incidental finding in
+% the audit's ledger \S F, outside the leak question: the DGI contrastive objective as implemented
+% appears degenerate (positive and negative score sets are identical as multisets; measured loss
+% floor matches 2*ln2 to six decimals), which may mean "trained DGI embedding" does not describe
+% what Chapter 3 actually used. Not acted on here; his call.
 
 The third is that Chapter~\ref{ch:mobiwac} does not inherit the problem, for the reason
 that chapter gives on its own terms: it replaces the place-level embedding with a
