@@ -29,173 +29,56 @@ The U.S. datasets range from about 114,000 check-ins and 1,109 regions in Alabam
 
 \emph{Splitting.} We use stratified five-fold cross-validation and split the data by user. All windows from one user remain in the same fold. Therefore, the overlapping windows cannot cross the training and test sets, and the visits of a test user never appear in training. The held-out fold provides the validation data, and we do not reserve a third split. We stratify the split by the next-category label because the seven classes are imbalanced. Food is the majority class in every dataset, ranging from about 25 percent of visits in Florida to 34 percent in Alabama (Table~\ref{tab:mobiwac:datasets}).
 
-% [round8, 2026-07-30] COD-016b originally split this material into six paragraphs without
-% changing its wording. That historical byte-equality no longer describes the live text.
-% [author request, 2026-08-04] The author explicitly requested a didactic rewrite of this section.
-% The four channels, every reported value, and every limitation were retained; the transductive
-% category result now names its POI-level proxy and in-coverage scope directly from A4_RESULTS.md.
-% The clean reference encoder remains distinct from the label-history benchmark, and the linear
-% probe remains a screen rather than a proof.
-%
-% THIS IS A DISSERTATION-ONLY EXPANSION. The submitted manuscript has a shorter, three-ground
-% paragraph and no forward-link screen or label-history benchmark. Do not synchronize this rewrite
-% into articles/[mobiwac]/src/sections/05_setup.tex without a separate author decision and errata
-% assessment. The earlier author ruling was "Vamos alterar so na dissertacao".
-\emph{Integrity of the representation.} We train Check2HGI once on the whole dataset
-and provide the resulting representation to every dedicated and joint model. The
-prediction models use user-disjoint folds, but Check2HGI has seen the check-ins of all
-users. This transductive setup creates possible paths for information about a test visit
-to reach a model. The four checks below examine these paths separately. They cover
-specific risks, but they do not prove that the representation contains no information
-from the test side.
+\emph{Integrity of the representation.} Before using Check2HGI in the prediction
+models, we need to check whether it carries information from the validation data. This
+concern exists because the prediction models are trained without the validation users,
+but Check2HGI is trained once on the whole dataset and has seen their visits. Check2HGI
+does not use the next-category or next-region labels in its training objective. This
+reduces the risk, but does not remove it because the observed category of each visit is
+an input to the graph. We therefore study two questions: whether training Check2HGI on
+the whole dataset changes the results, and whether the graph links between consecutive
+visits can bring the next category into the vector used for prediction.
 
-\emph{Prediction targets.} The Check2HGI training objective does not use the
-next-category or next-region targets. It learns by distinguishing observed graph
-neighborhoods from shuffled ones. Thus, the prediction targets do not supervise the
-representation directly. However, the graph still contains category information. The
-observed category of each visit is an input feature of its node
-(Section~\ref{sec:mobiwac:method-rep}). The final check below examines whether graph
-links can transfer this feature from a later visit to an earlier one.
+\emph{Whole-dataset training.} The first question is whether using all users to train
+Check2HGI gives the prediction models an advantage. To check this, we built a new
+representation for each fold using only its training users. We then compared it with the
+representation trained on the whole dataset and used the same validation examples for
+both. Across Alabama, Arizona, and Florida, neither region Acc@10 nor category macro-F1
+changed by more than one third of a point. These differences were smaller than the
+variation between folds.
 
-\emph{Whole-dataset training.} To estimate the effect of training the representation
-with all users, we rebuilt it for each fold using only that fold's training users. We
-then compared each result with the representation trained on the whole dataset. At
-Alabama, Arizona, and Florida, the differences range from $-0.33$ to $+0.01$ Acc@10
-points for region and from $0.00$ to $+0.29$ macro-F1 points for category, all within
-fold noise.
+However, this comparison is not the same for the two tasks. For region prediction, we
+can compare the region vectors directly. For category prediction, a graph built only
+with training users has no vectors for the visits of validation users. Therefore, we
+used one vector for each place and kept only the validation windows whose input places
+also appeared in training. These windows represent 67 to 87 percent of the validation
+data across the three datasets. Thus, the category result applies only to this part of
+the data. It does not cover information that is specific to each visit or places that
+do not appear in training.
 
-The two tasks have different coverage in this comparison. The region result measures
-the region representation directly. The category result uses a POI-level proxy and
-includes only validation examples whose input places also occur in training. These
-examples account for 67 to 87 percent of the validation data across the three datasets.
-The result does not measure the check-in-specific context or visits to places unseen in
-training. Therefore, the comparison indicates little transductive inflation only within
-its measured scope. It does not rule out inflation for every test visit.
+\emph{Links between consecutive visits.} The second question comes from the way the
+graph is built. Check2HGI uses information from connected nodes to build each visit
+vector, and the graph connects consecutive visits in both directions. In addition, each
+visit node contains its observed category. Therefore, the vector for the last visit in
+an input window may receive the category of the next visit, which is the target.
 
-\emph{Region-transition prior.} A separate table records how often one region follows
-another. A version built from the whole dataset inflated region accuracy by 13 to 27
-points. We now build this region-transition prior separately for each fold using only
-its training data. The HMT-GRN comparison model is the only model that uses the prior.
-Our joint and dedicated models do not use it
-(Section~\ref{sec:mobiwac:setup-baselines}).
+To check this possibility, we used a linear classifier to predict the next category
+from only the last visit vector in each window. We compared each Check2HGI version with
+a clean reference encoder under the same test. We did not use any version that scored
+more than three macro-F1 points above this reference, either with raw vectors or after
+standardization. One attention-based version was above this limit in both cases, so we
+removed it.
 
-\emph{Links between consecutive visits.} In the Check2HGI graph, each visit node is
-linked to the visit that follows it. Because category is a node input feature, the
-vector of an earlier visit could include the category of the next visit. During
-development, we examined this possibility with a linear probe. The probe predicts the
-next category using only the last vector in each input window. The screen compares each
-candidate with a clean reference encoder. It does not use the label-history benchmark
-as its decision threshold.
+However, this test has a limited scope. We performed it once at Florida with five
+user-disjoint folds, and it used earlier Check2HGI versions rather than the version used
+in the reported results. Also, a linear classifier can miss information that a
+nonlinear sequence model could use. For these reasons, the test helps us compare the
+versions tested, but it does not prove that the reported representation has no
+information from future visits.
 
-At Florida, the clean reference reaches $0.4090$ macro-F1 with standardized features
-and $0.4074$ with raw features on a zero-to-one scale. A related residual variant
-reaches $0.4197$ and $0.4182$, respectively. An attention-based candidate reaches
-$0.4976$ and $0.4863$. Its scores exceed the clean reference by more than the screening
-margin, so we disqualified it.
+For comparison, HGI is also trained once on the whole dataset, while CTLE is trained
+separately for each fold using only its training users.
 
-The label-history benchmark provides a second reference for interpreting these scores.
-It is the best macro-F1 reached by four specified predictors that use only the observed
-category history of the input window, with no encoder involved. One repeats the last
-category. The other three are balanced logistic models. They use the last category, the
-category counts in the window, or the category at each position. The benchmark is not an
-upper bound. A different predictor that uses the same restricted information could score
-higher.
-
-The benchmark is $0.3617$ at Florida and ranges from $0.2800$ to $0.3617$ across the
-five datasets for which the required inputs are available. At Florida, the clean
-references are four to six points above the benchmark. All candidates in the
-raw-feature screen are also above it. One relation-typed graph encoder scores below the
-benchmark with standardized features ($0.3328$) and above it with raw features
-($0.4142$). This exception does not change the screening decision because the decision
-compares each candidate with the clean reference.
-% [round5, persona 12 obrigatoria 2] The quantifier was "Every encoder screened", which
-% leak_sniff_fl.csv:8 contradicts: check2hgi_rgcn measures 0.3328 standardized against the 0.3617
-% benchmark, rising to 0.4142 raw. Appendix D already named the exception, so the two disagreed on
-% the same page-pair. Scope narrowed to what the CSV supports; no value changed. We report this as a bound on the screen rather than as evidence of a leak in the shipped encoder, because a per-visit vector legitimately carries more than the previous category, including the place, its neighborhood, and the hour of the visit; what the screen establishes is a relative comparison among encoders built the same way, not an absolute innocence.
-% [2026-07-26] Two distinct quantities, which the internal record conflates (RESCREEN.md:57,:87):
-% the clean reference encoder (~0.41, what leak_sniff.py gates on -- leak_sniff.py:63,87, margin
-% 0.03) and the label-history benchmark. The second is computed by
-% scripts/embedding_eval/autocorrelation_ceiling.py; values FL 0.3617 / AL 0.2800 / AZ 0.3232 /
-% CA 0.3242 / IST 0.3016 read from docs/results/embedding_eval/rescreen_cat/
-% autocorrelation_ceiling.{json,csv}. Encoder numbers unchanged (leak_sniff_fl.csv,
-% leak_sniff_resln_fl.csv). Texas absent: no checkin_graph.pt under output/check2hgi/texas/temp/.
-% [2026-07-27] Renamed "ceiling" -> "label-history benchmark" (author: it is the best of four
-% specified predictors, not an upper bound). Term registered in GLOSSARY.md section 2.
-
-\emph{Limits of the screening audit.} The probe is linear, was run only at Florida with
-one random initialization over five user-grouped folds, and evaluated ancestor builds
-of Check2HGI instead of the build that produced the reported results. The screen
-therefore measures only the information that a linear probe can use. It does not show
-what a nonlinear sequence model could recover.
-
-Together, these checks support a bounded integrity claim. The prediction targets do not
-supervise Check2HGI directly, and the measured transductive inflation is small within
-the stated coverage. The region-transition prior uses only the training data from each
-fold. The screening audit also rejected a candidate whose score exceeded the clean
-reference by more than the screening margin. These conclusions remain limited to the
-scope of each check.
-
-The other learned representations follow their own training scopes. HGI is pre-trained
-once on the whole dataset, as Check2HGI is. CTLE is trained separately for each fold
-using training users only.
-% NOTE: numbers from the A4 train-users-only transductivity audit (docs/studies/pre_freeze_gates/A4_RESULTS.md):
-% reg AL -0.33 / AZ +0.01 / FL -0.12 (5 folds); cat POI-proxy on in-coverage subset AL +0.29 (66.8%) / AZ +0.27 (71.9%) / FL +0.00 (86.9%).
-% Author TODO: extend to CA/TX/Istanbul to widen coverage further (non-blocking; the gate is on null at AL+AZ+FL).
-% NOTE (fourth ground, added 2026-07-26 per REV-008): the forward-edge (leak-sniff) audit,
-% docs/results/embedding_eval/rescreen_cat/. Channel named at RESCREEN.md:56 ("forward-temporal
-% neighbor-category bleed"); the per-step gate and its "clean control ceiling (~0.41)" at
-% RESCREEN.md:86-87 (the ~0.45 at RESCREEN.md:57 is the earlier auditor's protocol, NOT this gate --
-% do not mix them). Probe: scripts/embedding_eval/leak_sniff.py (next-cat macro-F1 from the LAST
-% window slot only, GroupKFold-by-user, 5 folds, standardized AND raw, Florida).
-% The four-decimal values on the page are quoted verbatim from the committed table at
-% src_utils/_archive/reviews_v1/dissertation_review_v1.md:221-223, which rounds the CSVs:
-%   leak_sniff_fl.csv       check2hgi_gcn_ctrl 0.4089797540123382 / 0.40744232906432776  clean
-%   leak_sniff_resln_fl.csv check2hgi_resln    0.4196859144977155 / 0.41815720719390814  clean
-%   leak_sniff_fl.csv       check2hgi_gat      0.49761650037538024 / 0.48631035868799294 LEAK
-% Nothing was computed or re-rounded here. The three stated limits are the audit's own residuals:
-% linear probe (RESCREEN.md:94-95 -- R-GCN passed per-step at 0.414 and leaked 0.754 under the GRU
-% at L2), Florida + seed 0 only, and the sniffed rows are the GCN/ResLN ancestor lineage, NOT
-% check2hgi_dk_ovl as shipped. Hence: no coverage claim beyond Florida, and "ancestor builds".
-
-% [round7, 2026-07-29] TWO POINTERS in the "Integrity of the representation" paragraph above
-% were retargeted, and nothing else in this file changed: Appendix~\ref{apx:ceiling} ->
-% "Appendix~D of \extravolume", at the label-history-benchmark definition and at the
-% one-candidate exception. No claim, number, hedge or verb moved.
-%
-% WHY THIS IS PERMITTED IN AN UNDER-REVIEW CHAPTER. The errata regime (NORTH_STAR §4) requires
-% this chapter to stay identical to the submitted manuscript. MEASURED before editing, on
-% articles/[mobiwac]/src/sections/05_setup.tex:
-%   grep -c 'Appendix\|apx:\|label-history' -> 0   (comments included, raw count)
-%   the manuscript says "on three grounds"; this chapter says "on four grounds"
-% so this paragraph is already a dissertation-only expansion with no counterpart in the
-% manuscript, and these two pointers exist nowhere in the submitted text. Retargeting them
-% therefore changes no parity-bearing sentence. AUTHOR AUTHORIZED 2026-07-29, having been shown
-% that measurement. The alternative offered and declined was to keep Appendix D in the main
-% document so this file would not be touched at all.
-% [NEEDS SIGN-OFF 24 | CLOSED] Author instruction 2026-08-04: do NOT mention the leak episode
-% anywhere in the chapter or the article. "I don't want to mention in anywhere in the article the
-% change of leak; we are disproving it and this kind of text can cause confusion in the reader. If
-% they ask, I already have the data."
-% TWO CLAUSES REMOVED, both dissertation-only, so no errata is owed. MEASURED before cutting, on
-% articles/[mobiwac]/src/sections/05_setup.tex: zero occurrences of "leaked under a downstream
-% sequence model" (the manuscript says "on three grounds"; this chapter says "on four grounds", so
-% this paragraph has no manuscript counterpart at all).
-% NEITHER CUT WEAKENS A CLAIM -- each clause used the leak episode only as the REASON for a
-% methodological point, and each point is kept in its own right:
-%   the one-candidate exception still says it is not a counter-example, because the screen bounds
-%     candidates against each other rather than against an absolute standard;
-%   the probe limits still say the linear form is a screen and not a proof, now argued from what a
-%     linear read can expose rather than from the episode.
-% Do not restore the leak wording. The data exists if a reviewer asks.
-% [round-extravol, this session] BOTH pointers to "Appendix D of \extravolume" REMOVED (not
-% retargeted): the main-volume chapters must not reference the supplementary volume at all
-% (author instruction, superseding the round-7 retargeting above). Same parity argument as
-% round 7 applies with the opposite conclusion -- this paragraph has no manuscript counterpart,
-% so cutting the pointer changes no parity-bearing sentence either. Content: the label-history
-% definition needed no pointer to stand alone; the "one candidate" exception now names the
-% architecture and both its raw/standardized scores inline, sourced from apx_d_ceiling.tex,
-% rather than sending the reader to Appendix D for them. Appendix D itself is unchanged in
-% main_extra.tex. Logged in PENDENCIAS_RESOLVIDAS.md.
 \subsection{Metrics and statistical tests}
 \label{sec:mobiwac:setup-metrics}
 For the category task, we report macro-averaged F1 (macro-F1). It is the mean of the F1 scores for the seven categories, so each category has equal weight. Its reference point is the majority-class floor, obtained by always predicting the most common category. For the region task, we report accuracy at ten (Acc@10). This measure is the fraction of test visits for which the true region is among the model's ten highest-scoring predictions. If the true region does not occur in the training data for that fold, the visit counts as an error. The reference point for this task is the dedicated model.
