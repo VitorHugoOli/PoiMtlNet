@@ -93,11 +93,38 @@ here (Section~\ref{sec:mobiwac:results-part2}).
 
 A service could treat the model's top-ranked next regions as an anticipatory
 set: at California, ten regions out of 8{,}501 contain the true next region 65.69
-percent of the time, over 500 times better than picking ten at
-random. On four datasets (Alabama, Arizona, Florida, and Istanbul; a single seed over five folds), the ten shortlisted
+percent of the time. On four datasets (Alabama, Arizona, Florida, and Istanbul; a single seed over five folds), the ten shortlisted
 regions lie a median of 3 to 8 kilometers from the shortlist's centroid, against 17 to 176 kilometers for ten regions
 drawn at random from the same candidate set (median over 10,000 draws). This remains motivation, not a measured service
 result.
+% RATIO CLAUSE DELETED 2026-08-05, on the author's instruction to remove what is wrong in this section
+% ("exclusa e refaça os que estiver errado nessa sessão"). The deleted words were "over 500 times better
+% than picking ten at random". Four independent defects, any one of which is disqualifying:
+%   1. It is a DERIVED quantity stated in prose, which AGENT_GUARDRAILS §2 N2 forbids outright: "No mental
+%      arithmetic, rounding, aggregation, percentage conversion, or delta-taking in prose."
+%   2. Its only source in the repository is a PLANNING document, not a results record:
+%      articles/[mobiwac]/MOBILITY_SCIENCE_BRIDGE_PLAN.md:77-84 tabulates "California | 8,501 | 65.66% |
+%      0.12% | ~547x", and :88-93 is a "Ready-to-paste replacement" sentence carrying this very phrase. The
+%      chapter's declared source of truth (docs/studies/closing_data/RESULTS_BOARD.md) states no such ratio.
+%   3. It was computed from a SUPERSEDED value: the 547x uses 65.66 (seed 0), while the chapter reports
+%      65.69 (n=20). The prose paired a new numerator with a ratio derived from the old one, and the two
+%      round the same way, which is exactly why it survived review.
+%   4. Its denominator is the floor this project's own record tells the reader NOT to use.
+%      articles/[mobiwac]/BRIDGING_METRICS.md:21-22: "The headline reg Acc@10 (~60-77) should be read
+%      against the Markov-1 floor, not the ~1 % random floor." Counted in the JSON rather than trusted from
+%      a table: docs/results/P0/simple_baselines/california/next_region.json gives random acc10_mean
+%      0.0011768859597505001 and markov_1step_region acc10_mean 0.5208956360464413. Against the Markov-1
+%      floor the chapter itself adopts, this cell is not a multiple of 500.
+% AN HONESTY FLAG HAD ALREADY ANTICIPATED THIS EXACT SENTENCE and was never discharged:
+% storyline/archive/process/06_honesty_under_pressure/honesty_flags.md:82 (flag F7) names the
+% "65.69%, 500x better than random" line as a temptation, usable only with its convention, and marks it
+% [VERIFY at adaptation].
+% WHAT IS NOT DELETED, and why: the 65.69 percent and the 8,501 are traced and correct, and the
+% enrichment OBSERVATION is real. Only the unsourced multiplier goes. Replacing it with a floor value
+% would be a new claim needing the author's sign-off, so it was not done here.
+% Swept for propagation before deleting: the ratio appears nowhere else in either text. The "547" hits in
+% tables/mobiwac/{results,datasets}.tex are Arizona's region count, 1,547 (checked, not assumed).
+% Probes: R13-noratio, R13-ratio-abs.
 
 % AUDIT NOTE 2026-08-04, no edit needed here, recorded so a later sweep does not "fix" a correct
 % sentence. The fold-partition correction of that date changed "over the same folds" in
@@ -106,19 +133,75 @@ result.
 % the same partition by construction. That is exactly the property the paired comparison relies on.
 % See articles/dissertacao/science/fold_partition_and_seeds.md §7 for the distinction.
 
-Three limits qualify these results. First, our representation is trained once over all places; visits to places
+Four limits qualify these results. First, our representation is trained once over all places; visits to places
 never seen during training are the single effect that we cannot fully isolate. A planned follow-up trains it on each
 fold's training places only and embeds unseen visits. Second, epoch selection consults the fold that the score is
 then read on (Section~\ref{sec:mobiwac:setup-windows}), so every absolute score reported here is optimistic. The
 comparison between the joint model and the dedicated models is affected far less, for two reasons we can state
 outright: the selection rule is the same for both models on the same folds, an epoch chosen on validation and read
 on that fold, with each model selected on its own validation objective (Section~\ref{sec:mobiwac:results-part2}),
-and the dedicated model receives the wider search, a per-dataset sweep over batch size and learning rate against one
-configuration held fixed across all six datasets for the joint model. The residual therefore favors the comparator,
-which makes the reported difference conservative. It does not follow that the bias cancels exactly. Third, we do not
-build or evaluate a mobility-aware service, this is a background motivation, and this chapter's claims are the
-prediction
-results themselves.
+and, for the category comparison, the dedicated model receives the wider search, a per-dataset sweep over
+batch size and learning rate against one configuration held fixed across all six datasets for the joint
+model, while both sides of the region comparison run a fixed configuration. Where that search applies, the
+residual favors the dedicated model, which makes the reported category difference conservative. It does not follow that the bias cancels exactly. Third, we do not
+% SCOPE NARROWED 2026-08-05. The sentence said "the dedicated model receives the wider search, a
+% per-dataset sweep over batch size and learning rate", unqualified, inside the paragraph that bounds the
+% optimistic-score bias for BOTH tasks. The sweep covers the dedicated CATEGORY model only, and this
+% chapter's own results section says so in the same words in both copies: 06_results.tex:95 (paper
+% 06_results.tex:50) -- "The dedicated category model is tuned per dataset over batch size and learning
+% rate (the dedicated region models use the strongest fixed configuration)". The primary record agrees:
+% docs/studies/closing_data/v17_completion/CEILINGS_N20_FINAL.md:41 is headed "Category ceiling -- recipe"
+% and no region-side sweep is recorded anywhere under v17_completion/.
+% WHY THIS MATTERED ENOUGH TO CHANGE: for the REGION comparison both sides run a fixed configuration, so
+% the "wider search" mitigation does not hold there, and the "therefore ... conservative" conclusion that
+% follows inherited the over-general scope. This is the same defect class as the "identically" correction
+% logged at ERRATA.md:139-148 -- a mitigation made to sound stronger than its evidence, which understates a
+% limitation. The conclusion is now attached to the comparison it is licensed for.
+% THE FIRST REASON IS UNCHANGED AND IS TRUE AS WRITTEN. "the selection rule is the same for both models on
+% the same folds" compares the two models within one run, where they share a partition by construction;
+% verified against science/fold_partition_and_seeds.md §7 during today's fold/seed sweep. Its narrowing to
+% "each model selected on its own validation objective" is the recorded decision at ERRATA.md:139-148 and
+% must survive any later edit.
+% "the comparator" was also replaced: it is unregistered, and GLOSSARY §2 registers "dedicated single-task
+% model" and forbids synonym cycling, which naming it a third way in one paragraph would be.
+% Probes: R13-sweepscope, R13-sweepscope2.
+build or evaluate a mobility-aware service; it is background motivation, and this chapter's claims are the
+prediction results themselves. Fourth, each visit node in the representation graph is linked to the visit
+that follows it, and because category is a node input feature the vector of an earlier visit could absorb
+the category of the next one. A linear probe screened for this during development
+(Section~\ref{sec:mobiwac:setup-windows}), which bounds only the information exposed by a linear read and
+does not establish what a nonlinear sequence model could recover.
+% FOURTH LIMIT ADDED 2026-08-05 on the author's ruling ("Add it as a fourth limit"), applied to BOTH texts.
+% WHY IT WAS A GAP. "Three limits qualify these results" is a closed enumeration, and a closed enumeration
+% is a completeness claim. ERRATA.md:73-80 records that this very count was raised from "Two" to "Three"
+% precisely to admit a disclosed threat, which establishes that the number functions as the paragraph's own
+% inventory of threats. The forward-edge channel is disclosed in this chapter, in the author's voice, at
+% 05_setup.tex:82-84 -- "In the Check2HGI graph, each visit node is linked to the visit that follows it.
+% Because category is a node input feature, the vector of an earlier visit could absorb the category of the
+% next one" -- and §7 named none of it: zero live occurrences of "node", "probe", "screen", "absorb" or
+% "linear" before this edit. The one representation limit §7 did carry, unseen places, is a DIFFERENT
+% channel (transductive), which _round13/72_leak_screening_search.md separates explicitly from the forward
+% edge. So the paragraph's scope demonstrably included this class of threat while omitting this instance.
+% EVERY CLAUSE BELOW IS ALREADY SOURCED IN §5; NOTHING NEW IS ASSERTED. The mechanism is 05_setup.tex:82-84
+% (modal, "could absorb", not asserted); the screen is :84-86; the residual is the chapter's own bounded
+% conclusion at :128-129, "bounds only the information exposed by a linear read" and "does not establish
+% what a nonlinear sequence model could recover". The three limits of the screen itself (linear probe;
+% Florida only, one initialization over five folds; ancestor builds rather than the reported build) stay in
+% §5, where they are stated at :125-129, and are reached by the cross-reference.
+% WHAT IS DELIBERATELY NOT SAID: no quantified leak, no claim that the channel does not leak, no claim that
+% it does. _round13/71_graphnode_features.md establishes the channel is OPEN (the category one-hot is
+% columns 0-6 of the node feature vector; the forward adjacency is present in 96,326 Alabama windows with 0
+% not adjacent), which is not evidence that it leaks; and RESCREEN.md:94-95 records that the linear gate
+% missed one leak, which is why the residual is stated rather than dismissed. Any of those would be a new
+% claim needing sign-off.
+% Probes: R13-leak4th, R13-leak4th2, R13-limitcount.
+% PUNCTUATION AND PARITY 2026-08-05. The dissertation copy joined two independent clauses with a comma
+% ("service, this is a background motivation"), a splice the paper copy does not have; both copies were
+% reflowed in 71d119ce and this one acquired the splice plus the words "this is a". Now a semicolon,
+% matching the paper.
+% "this chapter's claims" against the paper's "the paper's claims" is a DELIBERATE, RECORDED adaptation
+% (ERRATA.md:79-80), left divergent on purpose. It is one of exactly two documented differences between the
+% copies, the other being the label namespace (sec:mobiwac:* against sec:*).
 % [round6, COD-006 "identically"] RE-ANCHORED, READ, AND NARROWED. An earlier audit round recorded this
 % word as REFUTED, on the ground that the per-model selection objectives are disclosed elsewhere in the
 % chapter and the non-cancellation caveat is the next sentence. Both of those facts hold. The word still

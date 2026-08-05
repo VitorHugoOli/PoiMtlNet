@@ -306,3 +306,86 @@ copies so a later sweep does not "correct" a correct sentence.
 new probes for this correction (`R13-foldseed` through `R13-foldseed8`), each sabotage-validated
 individually. The paper source was edited in the same pass as the dissertation copy, so the two remain
 byte-identical in the corrected sentences.
+
+---
+
+## 2026-08-05 — §7 Discussion and Limitations redone (applied to BOTH texts)
+
+**Author's instruction, verbatim:** "Nos também precismaos refazer a sessão de: `Discussion andLimitations`
+com esse achados e os acahdos do restante da dissertação, exclusa e refaça os que estiver errado nessa
+sessão, se preciso for invertigue antes." Investigated first: the audit is
+`articles/dissertacao/src_utils/_round13/80_discussion_audit.md` (678 lines, every number traced to a
+file:line, per-sentence verdicts). Four corrections, each applied identically to
+`src/sections/07_discussion.tex` and the dissertation copy, under the standing policy for a paper under
+review.
+
+**1. The enrichment ratio is DELETED.** The words removed: "over 500 times better than picking ten at
+random". Four independent defects, any one disqualifying:
+
+- it is a **derived quantity stated in prose**, which `AGENT_GUARDRAILS §2 N2` forbids outright;
+- its only source in the repository is a **planning document**, `MOBILITY_SCIENCE_BRIDGE_PLAN.md:77-84`
+  ("California | 8,501 | 65.66% | 0.12% | ≈547×") whose `:88-93` is a "Ready-to-paste replacement"
+  sentence carrying this very phrase. `docs/studies/closing_data/RESULTS_BOARD.md`, the declared source of
+  truth, states no such ratio;
+- it was computed from a **superseded value**: 547× uses 65.66 (seed 0) while the paper reports 65.69
+  (n=20). The prose paired a new numerator with a ratio derived from the old one, and the two round the
+  same way, which is why it survived review;
+- its **denominator is the floor this project tells the reader not to use**. `BRIDGING_METRICS.md:21-22`:
+  "The headline reg Acc@10 (~60–77) should be read against the **Markov-1 floor**, not the ~1 % random
+  floor." Counted in the JSON rather than trusted from a table:
+  `docs/results/P0/simple_baselines/california/next_region.json` gives random `acc10_mean` 0.0011768859597505001
+  and `markov_1step_region` `acc10_mean` 0.5208956360464413.
+
+An honesty flag had already anticipated this exact sentence and was never discharged: flag **F7** names the
+"65.69%, 500× better than random" line as a temptation and marks it `[VERIFY at adaptation]`. **The 65.69
+percent and the 8,501 stay** — both trace, and the enrichment observation is real; only the unsourced
+multiplier goes. Replacing it with a floor value would be a new claim and was not done. Swept for
+propagation before deleting: the ratio appears nowhere else in either text (the "547" hits in the dataset
+and results tables are Arizona's region count, 1,547 — checked, not assumed).
+
+**2. The wider-search mitigation is scoped to the category comparison.** It read "the dedicated model
+receives the wider search, a per-dataset sweep over batch size and learning rate", unqualified, inside the
+paragraph that bounds the optimistic-score bias for **both** tasks. The paper's own results section says
+otherwise in the same words: `src/sections/06_results.tex:50` — "The dedicated category model is tuned per
+dataset over batch size and learning rate **(the dedicated region models use the strongest fixed
+configuration)**". The primary record agrees: `CEILINGS_N20_FINAL.md:41` is headed "Category ceiling —
+recipe", and no region-side sweep is recorded. So for the region comparison both sides run fixed, and the
+"therefore … conservative" conclusion inherited the over-general scope. Now: the sweep is named for the
+category comparison, the region comparison is stated to run fixed on both sides, and the conservative
+reading is attached to the comparison it is licensed for. This is the same defect class as the
+"identically" correction logged earlier in this file — a mitigation made to sound stronger than its
+evidence, which understates a limitation. "the comparator" was also replaced: it is unregistered, and the
+GLOSSARY registers "dedicated single-task model" while forbidding synonym cycling.
+
+**3. A fourth limit is added, and the count changes from three to four.** On the author's ruling ("Add it as
+a fourth limit"). The paper discloses at `src/sections/05_setup.tex` that each visit node is linked to the
+visit that follows it, that category is a node input feature, and that "the vector of an earlier visit could
+absorb the category of the next one", then reports a linear screening probe and its three limits. §7's
+enumeration named none of it while presenting itself as closed — and this file records at the 2026-07-27
+block that the count was raised from "Two" to "Three" precisely to admit a disclosed threat, which
+establishes that the number functions as the paragraph's inventory. The new sentence names the channel in
+the same modal terms §5 uses, names that a linear probe screened it during development, and carries the
+residual §5 already states: it "bounds only the information exposed by a linear read" and "does not
+establish what a nonlinear sequence model could recover". **Nothing beyond §5 is asserted** — no quantified
+leak, no claim that the channel does or does not leak. The residual is load-bearing rather than hedging:
+`docs/results/embedding_eval/rescreen_cat/RESCREEN.md:94-95` records the linear gate missing one leak.
+
+**4. A comma splice, dissertation copy only.** It joined two independent clauses with a comma ("service,
+this is a background motivation") where this paper had the semicolon; both copies were reflowed the previous
+day and the dissertation's acquired the splice. Now matched. The remaining divergence between the two texts
+is exactly two documented adaptations: the label namespace (`sec:mobiwac:*` against `sec:*`) and "this
+chapter's claims" against "the paper's claims".
+
+**What was checked and deliberately NOT changed.** "the selection rule is the same for both models on the
+same folds" is TRUE as written and stays: it compares the two models within one run, where they share a
+partition by construction. The fixed-partition caveat deleted on 2026-08-04 is **not** reinstated in any
+form: it was removed by author instruction AND is factually false, so even a "corrected" version would be a
+new sentence needing sign-off. The mechanism attribution stays softened — the request to credit the shared
+trunk with the category gain was declined on evidence and the ruling was "suavizar, sem desenvolver alem
+disso por hora".
+
+**Verification.** `check_audit_claims` rc=0, 225 of 225 probes hold, seven new probes for this section
+(`R13-noratio`, `R13-ratio-abs`, `R13-sweepscope`, `R13-sweepscope2`, `R13-limitcount`, `R13-leak4th`,
+`R13-leak4th2`), each sabotage-validated individually — including `R13-limitcount` on the count itself, so a
+later edit that adds or drops a limit without touching the number turns it red. Ten render checks against
+the built PDF, all passing. All four dissertation targets build clean.

@@ -1566,6 +1566,58 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
                       "a property of the joint architecture, not of cross-task transfer",
      "chapters/5_mobiwac/07_discussion.tex",
      r"a\s+property of the joint architecture rather than of cross-task transfer", True),
+    # ---- §7 DISCUSSION AND LIMITATIONS, redone 2026-08-05 on the author's instruction to delete and redo
+    # whatever was wrong there. Four corrections, each applied to BOTH the dissertation copy and the
+    # submitted paper source under the standing sync policy. Audit: _round13/80_discussion_audit.md.
+    #
+    # (1) THE UNSOURCED RATIO. R13-ratio-abs is ABSENT-type and is the load-bearing one: the deleted phrase
+    # was a DERIVED quantity in prose (AGENT_GUARDRAILS §2 N2 forbids it), sourced only to a planning
+    # document's "Ready-to-paste replacement" sentence, computed from a superseded 65.66 while the chapter
+    # reports 65.69, against the random floor BRIDGING_METRICS.md:21-22 tells the reader NOT to use. Honesty
+    # flag F7 had already marked the line [VERIFY at adaptation] and it was never discharged. Safe as an
+    # absence probe: the provenance comment describes the phrase without reproducing the matched string.
+    ("R13-noratio",   "the anticipatory-set sentence keeps its two traced numbers and drops the computed "
+                      "enrichment ratio",
+     "chapters/5_mobiwac/07_discussion.tex",
+     r"ten regions out of 8\{,\}501 contain the true next region 65\.69\s+percent of the time\. On four "
+     r"datasets", True),
+    ("R13-ratio-abs", "and the unsourced `times better than picking ten at random` multiplier is gone",
+     "chapters/5_mobiwac/07_discussion.tex",
+     r"times better than picking ten at", False),
+    #
+    # (2) THE WIDER-SEARCH SCOPE. The mitigation was stated of "the dedicated model" unqualified inside a
+    # paragraph bounding the bias for BOTH tasks, while 06_results.tex:95 says "the dedicated region models
+    # use the strongest fixed configuration". Two probes because the correction has two halves and either
+    # alone would be incomplete: the scope qualifier, and the explicit statement that region runs fixed.
+    ("R13-sweepscope", "the wider-search mitigation is scoped to the category comparison, which is the "
+                       "only side that receives a per-dataset sweep",
+     "chapters/5_mobiwac/07_discussion.tex",
+     r"and, for the category comparison, the dedicated model receives the wider search", True),
+    ("R13-sweepscope2","and the region comparison is stated to run a fixed configuration on both sides, so "
+                       "the conservative reading is attached to the comparison it is licensed for",
+     "chapters/5_mobiwac/07_discussion.tex",
+     r"while both sides of the region comparison run a fixed\s+configuration\. Where that search applies, "
+     r"the\s+residual favors the dedicated model, which makes the reported category difference conservative",
+     True),
+    #
+    # (3) THE FOURTH LIMIT. R13-limitcount pins the COUNT, not just the text, because the count is the
+    # completeness claim: ERRATA.md:73-80 records it being raised from "Two" to "Three" precisely to admit a
+    # disclosed threat, so a later edit that adds or drops a limit without touching the number reintroduces
+    # the defect. R13-leak4th2 pins the RESIDUAL clause separately, because that clause is what keeps the
+    # sentence from reading as a clean bill of health: RESCREEN.md:94-95 records the linear gate missing one
+    # leak, so "bounds only ... a linear read" is doing real work and must not be trimmed as hedging.
+    ("R13-limitcount","§7's enumeration says four limits, matching the four it now names",
+     "chapters/5_mobiwac/07_discussion.tex",
+     r"Four limits qualify these results", True),
+    ("R13-leak4th",   "and the fourth names the forward-edge channel in the same modal terms §5 uses, "
+                      "with the screen it was given",
+     "chapters/5_mobiwac/07_discussion.tex",
+     r"because category is a node input feature the vector of an earlier visit could absorb\s+the category "
+     r"of the next one", True),
+    ("R13-leak4th2",  "and it carries the residual rather than presenting the screen as clearance",
+     "chapters/5_mobiwac/07_discussion.tex",
+     r"bounds only the information exposed by a linear read and\s+does not establish what a nonlinear "
+     r"sequence model could recover", True),
 )
 
 # COD-016b needs a STRUCTURAL probe, not a string one, so it lives here rather than in PROBES --
