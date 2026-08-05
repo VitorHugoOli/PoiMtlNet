@@ -82,23 +82,23 @@ users, POIs, category classes, and region classes. Each POI $p\in\mathcal{P}$ ca
 category $c_p\in\mathcal{C}$ and lies in a region $r_p\in\mathcal{R}$.
 
 \begin{definition}[Check-in]\label{def:fund:checkin}
-The $i$th check-in of user $u$ is the tuple
-\begin{equation}
-    x_i=(u,p_i,t_i,c_i,r_i),
-\end{equation}
+    The $i$th check-in of user $u$ is the tuple
+    \begin{equation}
+        x_i=(u,p_i,t_i,c_i,r_i),
+    \end{equation}
 % [round12 STEP 2, 2026-08-03] Was "$c_i\in\mathcal{C}$ is its category, and
 % $r_i\in\mathcal{R}$ is its region". The equalities state that a check-in's category and region
 % are the visited POI's attributes, which is what makes $\mathbf{e}_{p_j}$ well typed later. The
 % set memberships still hold, now by way of the bindings in the notation prose above.
-where $p_i\in\mathcal{P}$ is the visited POI, $t_i$ is its timestamp,
-$c_i=c_{p_i}$ is its category, and $r_i=r_{p_i}$ is its region.
+    where $p_i\in\mathcal{P}$ is the visited POI, $t_i$ is its timestamp,
+    $c_i=c_{p_i}$ is its category, and $r_i=r_{p_i}$ is its region.
 \end{definition}
 
 \begin{definition}[Check-in history]\label{def:fund:history}
-The check-in history of length $\ell$ preceding check-in $x_i$ is the ordered sequence
-\begin{equation}
-    H_i=(x_{i-\ell},\ldots,x_{i-1}).
-\end{equation}
+    The check-in history of length $\ell$ preceding check-in $x_i$ is the ordered sequence
+    \begin{equation}
+        H_i=(x_{i-\ell},\ldots,x_{i-1}).
+    \end{equation}
 % [round12, 2026-08-03] THE AUTHOR WROTE THIS PASSAGE HIMSELF, closing AD-6 (sharpen the vague
 % retention sentence, which read "A target label is withheld from it when one of the sequential tasks
 % is trained"). His version names the target per task and states whose label it is, which is what
@@ -113,12 +113,12 @@ The check-in history of length $\ell$ preceding check-in $x_i$ is the ordered se
 %      was left unsaid, and that omission is exactly what prompted the question. Now one clause.
 %   3. LINE WIDTH: rewrapped to the file's convention, near 85 columns. Revert the wrapping if the
 %      author prefers his own; the words are unchanged either way.
-For the two sequential tasks studied here (Definitions~\ref{def:fund:nextcat}
-and~\ref{def:fund:nextreg}), the prediction target is $c_i$ for next-category
-prediction and $r_i$ for next-region prediction. These labels belong to $x_i$, not
-to the preceding check-ins in $H_i$: the categories and regions carried by the
-visits in $H_i$ are observed input, and only the attributes of $x_i$ itself are
-withheld.
+    For the two sequential tasks studied here (Definitions~\ref{def:fund:nextcat}
+    and~\ref{def:fund:nextreg}), the prediction target is $c_i$ for next-category
+    prediction and $r_i$ for next-region prediction. These labels belong to $x_i$, not
+    to the preceding check-ins in $H_i$: the categories and regions carried by the
+    visits in $H_i$ are observed input, and only the attributes of $x_i$ itself are
+    withheld.
 \end{definition}
 % ---------------------------------------------------------------------------
 % CITATION / NUMBER LEDGER -- 2.1 (every claim traceable; verbs bound to tests)
@@ -145,7 +145,8 @@ withheld.
 % ---------------------------------------------------------------------------
 
 % [round12 STEP 3, 2026-08-03] NEW SUBSUBSECTION, and the reason it sits HERE rather than in §2.2.
-% The author ruled option (a) on 2026-08-03 (PENDENCIAS_RESOLVIDOS §6.24 (arquivado 2026-08-03)): keep the section order, and move the
+% The author ruled option (a) on 2026-08-03 (PENDENCIAS_RESOLVIDOS §6.24 (arquivado 2026-08-03)): keep the section
+% order, and move the
 % two representation definitions up into §2.1 so that no definition consumes a symbol defined later.
 % Before this edit, Definition \ref{def:fund:catclf} read $\mathbf{e}_p$ roughly three hundred lines
 % before the definition that introduces it. THE HEAD IS THE AUTHOR'S: "Check-in and place embedding",
@@ -154,6 +155,7 @@ withheld.
 % sentence of his. The two definition environments below are MOVED VERBATIM from §2.2, including the
 % probe-pinned sentence of the check-in-level definition character-for-character (R12-eqxi,
 % R11-def27), and each provenance comment block moved with its definition.
+
 \subsubsection{Check-in and place embedding}
 
 A task definition must also state what the model reads. Two representations recur
@@ -172,8 +174,8 @@ input.
 % between the two definitions STAYS in §2.2, where it introduces the move from HGI to Check2HGI;
 % its \ref is now a backward reference to this block.
 \begin{definition}[Place embedding]\label{def:fund:placelevel}
-A place embedding assigns one vector $\mathbf{e}_p$ to each POI $p$, so every check-in
-at that POI enters the model with the same representation.
+    A place embedding assigns one vector $\mathbf{e}_p$ to each POI $p$, so every check-in
+    at that POI enters the model with the same representation.
 \end{definition}
 
 % [round12, 2026-08-03, the author's finding] THIS DEFINITION NAMED NO SYMBOL. Definition 2.7 gives the
@@ -203,9 +205,9 @@ at that POI enters the model with the same representation.
 % [round12 STEP 3] MOVED from §2.2 with its comment block. The sentence below is pinned by R12-eqxi and
 % R11-def27 and is carried character-for-character.
 \begin{definition}[Check-in-level representation]\label{def:fund:checkinlevel}
-A check-in-level representation assigns one vector $\mathbf{e}_{x_i}$ to each check-in
-$x_i$, so two visits to the same POI may enter the model with different
-representations.
+    A check-in-level representation assigns one vector $\mathbf{e}_{x_i}$ to each check-in
+    $x_i$, so two visits to the same POI may enter the model with different
+    representations.
 \end{definition}
 
 % [round12 STEP 3, AD-1] THE REPRESENTATION MAP AS A NUMBERED DEFINITION, not a displayed equation in
@@ -214,14 +216,14 @@ representations.
 % src_utils/_round12/49: it is scoped to the SEQUENTIAL tasks (the static task reads $\mathbf{e}_p$
 % directly, so "every predictive model" was false of it), and Chapter 5's two streams are both named.
 \begin{definition}[Representation map]\label{def:fund:repmap}
-A representation map assigns to each check-in a vector,
-\begin{equation}
-    \rho(x_i)\in\mathbb{R}^{d},
-\end{equation}
-and extends to histories elementwise,
-\begin{equation}
-    \rho(H_i)=\bigl(\rho(x_{i-\ell}),\ldots,\rho(x_{i-1})\bigr).
-\end{equation}
+    A representation map assigns to each check-in a vector,
+    \begin{equation}
+        \rho(x_i)\in\mathbb{R}^{d},
+    \end{equation}
+    and extends to histories elementwise,
+    \begin{equation}
+        \rho(H_i)=\bigl(\rho(x_{i-\ell}),\ldots,\rho(x_{i-1})\bigr).
+    \end{equation}
 \end{definition}
 
 Every model of the sequential tasks in this dissertation reads $\rho(H_i)$ rather than
@@ -239,27 +241,27 @@ Three definitions separate the targets. The first is static and reads a place; t
 other two are sequential and read a history.
 
 \begin{definition}[Category classification]\label{def:fund:catclf}
-Category classification predicts the category of a POI from its representation:
-\begin{equation}
-    g_{\mathrm{cat}}(\mathbf{e}_p)\longrightarrow c_p.
-\end{equation}
-At evaluation time, POI $p$ is held out from the classifier-training fold, so
-``unknown POI'' means unknown to the classifier, not necessarily absent from the graph
-used to learn $\mathbf{e}_p$.
+    Category classification predicts the category of a POI from its representation:
+    \begin{equation}
+        g_{\mathrm{cat}}(\mathbf{e}_p)\longrightarrow c_p.
+    \end{equation}
+    At evaluation time, POI $p$ is held out from the classifier-training fold, so
+    ``unknown POI'' means unknown to the classifier, not necessarily absent from the graph
+    used to learn $\mathbf{e}_p$.
 \end{definition}
 
 \begin{definition}[Next-category prediction]\label{def:fund:nextcat}
-Next-category prediction maps a check-in history to the category of the next visit:
-\begin{equation}
-    f_{\mathrm{cat}}(H_i)\longrightarrow c_i.
-\end{equation}
+    Next-category prediction maps a check-in history to the category of the next visit:
+    \begin{equation}
+        f_{\mathrm{cat}}(H_i)\longrightarrow c_i.
+    \end{equation}
 \end{definition}
 
 \begin{definition}[Next-region prediction]\label{def:fund:nextreg}
-Next-region prediction maps a check-in history to the region of the next visit:
-\begin{equation}
-    f_{\mathrm{reg}}(H_i)\longrightarrow r_i.
-\end{equation}
+    Next-region prediction maps a check-in history to the region of the next visit:
+    \begin{equation}
+        f_{\mathrm{reg}}(H_i)\longrightarrow r_i.
+    \end{equation}
 \end{definition}
 
 The task pairing changes across the studies. Chapters~\ref{ch:cbic}
@@ -307,12 +309,12 @@ reviews were built to solve.
 % A registry row for $f_{\mathrm{place}}(H_i)$ in GLOSSARY §1.1 is PROPOSED and not written here: the
 % notation table is the author's, as the two representation symbols are.
 \begin{definition}[Next-place prediction]\label{def:fund:nextplace}
-Next-place prediction maps a check-in history to the identity of the next visited POI:
-\begin{equation}
-    f_{\mathrm{place}}(H_i)\longrightarrow p_i.
-\end{equation}
-It is named to delimit the scope of the dissertation, and no chapter reports a result
-for $f_{\mathrm{place}}$.
+    Next-place prediction maps a check-in history to the identity of the next visited POI:
+    \begin{equation}
+        f_{\mathrm{place}}(H_i)\longrightarrow p_i.
+    \end{equation}
+    It is named to delimit the scope of the dissertation, and no chapter reports a result
+    for $f_{\mathrm{place}}$.
 \end{definition}
 
 Next place is the dominant task in the field, and methods developed for it provide the
@@ -587,7 +589,8 @@ express.
 
 % [round12 STEP 4, 2026-08-03] THE TWO DEFINITION ENVIRONMENTS THAT STOOD HERE MOVED UP INTO §2.1,
 % into the new subsubsection "Check-in and place embedding", under the author's option-(a) ruling
-% (PENDENCIAS_RESOLVIDOS §6.24 (arquivado 2026-08-03)). Their provenance comments moved with them. What STAYS here is the prose that
+% (PENDENCIAS_RESOLVIDOS §6.24 (arquivado 2026-08-03)). Their provenance comments moved with them. What STAYS here is
+% the prose that
 % USES them: the limitation paragraph below, which introduces the move from HGI to Check2HGI, and the
 % Check2HGI sentence further down.
 % REFERENCE DIRECTION: backward in both cases now, which is the point of the move.
@@ -606,7 +609,8 @@ adding the check-in below the place in the hierarchy.
 
 % [round12 STEP 5, 2026-08-03, AD-2 option 2] Was "while retaining a place-level input". The author
 % ruled that the unresolved level of Chapter 4's temporal channel is NOT recorded as an erratum
-% (PENDENCIAS_RESOLVIDOS §6.22 (arquivado 2026-08-03)) and that Chapter 2 uses the NEUTRAL form: a vector that is a function of the
+% (PENDENCIAS_RESOLVIDOS §6.22 (arquivado 2026-08-03)) and that Chapter 2 uses the NEUTRAL form: a vector that is a
+% function of the
 % visited POI, with no claim about the level at which the temporal component is learned. The two
 % wordings that remain FORBIDDEN are "of the visit's timestamp", which would assert per-visit, and
 % "aggregated", which would assert a combination the code does not perform. The question itself is
@@ -835,6 +839,7 @@ Chapter~\ref{ch:mobiwac} to be interpreted as two stages of one model lineage.
 % ---------------------------------------------------------------------------
 % Section 2.3 -- Multi-task learning
 
+
 \section{Multitask learning}
 \label{sec:fund:mtl}
 
@@ -865,7 +870,8 @@ computation helps depends on the sharing topology and the training objective.
 
 The first design choice is where task-specific computation ends and shared
 computation begins.
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text.
+% Kept, unrelocated in meaning, for review.]
 % [round9, 2026-07-30] TWO SENTENCES REWRITTEN, found independently by the style and the
 % AI-credibility personas as the same class the author caught in the gradient-cosine appendix
 % (apx_f_cosine.tex, which PRINTS as Appendix D): prose whose subject is the
@@ -878,15 +884,15 @@ computation begins.
 % gone: the 197-to-64-word caption cut removed it.
 
 \begin{definition}[Hard parameter sharing]\label{def:fund:hard}
-Hard parameter sharing passes all inputs through a single shared trunk before
-branching to task-specific output heads, so every task uses the same hidden
-representations~\cite{ruder2017mtloverview}.
+    Hard parameter sharing passes all inputs through a single shared trunk before
+    branching to task-specific output heads, so every task uses the same hidden
+    representations~\cite{ruder2017mtloverview}.
 \end{definition}
 
 \begin{definition}[Soft parameter sharing]\label{def:fund:soft}
-Soft parameter sharing gives each task its own complete network and couples the
-networks by penalizing differences between their
-parameters~\cite{ruder2017mtloverview}.
+    Soft parameter sharing gives each task its own complete network and couples the
+    networks by penalizing differences between their
+    parameters~\cite{ruder2017mtloverview}.
 \end{definition}
 
 Definition~\ref{def:fund:hard} is the topology of the first joint model of this
@@ -902,8 +908,8 @@ parameters through different scalings.
 % no reference was added. Probe: R13-aut22.
 
 \begin{definition}[Negative transfer]\label{def:fund:negtransfer}
-Negative transfer occurs when joint training leaves a task worse than its dedicated
-single-task model.
+    Negative transfer occurs when joint training leaves a task worse than its dedicated
+    single-task model.
 \end{definition}
 
 Because hard sharing is rigid and soft sharing requires many parameters, several
@@ -942,6 +948,7 @@ single bottleneck.
 % cross-reference into this material is Definition~\ref{def:fund:conflict}, cited from the
 % loss-balancing subsection, and a \label travels with its block.
 % Probes: R13-aut29, R13-aut29b.
+
 \subsection{Gradient conflict}
 % [v2 review F-08, 2026-07-26] CAGrad description corrected (persona 10, who read arXiv:2110.14048).
 % The prior clause said CAGrad "seeks an update close to the average gradient while bounding
@@ -965,14 +972,14 @@ negative transfer, and it is a measured quantity rather than a figure of speech.
 % keeps its own opening claim after this lead-in, so nothing was replaced.
 
 \begin{definition}[Gradient conflict]\label{def:fund:conflict}
-Let $\mathbf{g}_i$ and $\mathbf{g}_j$ be the gradients of two task losses with respect
-to the shared parameters, and let $\varphi_{ij}$ be the angle between them, so that
-\begin{equation}\label{eq:fund:cosine}
-    \cos\varphi_{ij}
-    = \frac{\mathbf{g}_i^{\top}\mathbf{g}_j}
-           {\lVert \mathbf{g}_i\rVert\,\lVert \mathbf{g}_j\rVert}.
-\end{equation}
-The two tasks conflict at that point when $\cos\varphi_{ij}<0$~\cite{yu2020pcgrad}.
+    Let $\mathbf{g}_i$ and $\mathbf{g}_j$ be the gradients of two task losses with respect
+    to the shared parameters, and let $\varphi_{ij}$ be the angle between them, so that
+    \begin{equation}\label{eq:fund:cosine}
+        \cos\varphi_{ij}
+        = \frac{\mathbf{g}_i^{\top}\mathbf{g}_j}
+        {\lVert \mathbf{g}_i\rVert\,\lVert \mathbf{g}_j\rVert}.
+    \end{equation}
+    The two tasks conflict at that point when $\cos\varphi_{ij}<0$~\cite{yu2020pcgrad}.
 \end{definition}
 
 The cosine between their gradients reads how the two requested updates are aligned and
@@ -1026,15 +1033,18 @@ remove the multi-objective nature of the problem~\cite{sener2018mgda}. One param
 setting exhibits Pareto dominance over another when it is no worse on every task loss
 and better on at least one. A setting is Pareto optimal when no other setting dominates
 it, and the corresponding loss vectors form the Pareto front.
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
-% [round9c, PENDENCIAS_RESOLVIDOS 2.23 (arquivado 2026-08-02), readability report R-5, author decision "Aplique o R-3,5,6 e o EX-6"]
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text.
+% Kept, unrelocated in meaning, for review.]
+% [round9c, PENDENCIAS_RESOLVIDOS 2.23 (arquivado 2026-08-02), readability report R-5, author decision "Aplique o
+% R-3,5,6 e o EX-6"]
 % SPLIT AT THE FIRST SEMICOLON, which is the fix the report prescribes. The sentence was 66 words with
 % one colon and two semicolons, the longest in the new block and the fourth longest in the chapter, and
 % its parallelism was false: the Nash-MTL clause carries two claims (what is proved, and what is not)
 % while the other two carry one each. Now: Nash-MTL alone with its two-part claim, then CAGrad and
 % Aligned-MTL, which are genuinely parallel and joined by "and". NO CONTENT MOVES and no citation
 % changes; the three guarantee statements are word-for-word what they were.
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text.
+% Kept, unrelocated in meaning, for review.]
 % [round9, 2026-07-30] ATTRIBUTION CORRECTED (M2, MTL persona). It read "Two of these papers state the
 % residual limitation THEMSELVES", which reads as a self-criticism. Both papers make that criticism
 % about the methods they SUPERSEDE, as the motivation for their own contribution: CAGrad's abstract
@@ -1084,10 +1094,12 @@ it, and the corresponding loss vectors form the Pareto front.
 % here needs it (AGENT_GUARDRAILS R1: a reference is usable only when its own source was opened).
 % GLOSSARY: Pareto dominance, Pareto optimality, Pareto-stationary point and gradient conflict were
 % registered in GLOSSARY.md §4 and §6 BEFORE this prose landed, per the fail-closed rule and the
-% author's decision in PENDENCIAS_RESOLVIDOS 2.12 (arquivado 2026-08-02) ("DESICAO: A."). Source ledger: src_utils/_round9/31_pareto.md.
+% author's decision in PENDENCIAS_RESOLVIDOS 2.12 (arquivado 2026-08-02) ("DESICAO: A."). Source ledger:
+% src_utils/_round9/31_pareto.md.
 % NO NUMBER IS QUOTED in these three paragraphs, by design (CONSIDERATIONS work-list item 28: define
 % the conflict measure in Chapter 2, report its value only where it was measured).
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text.
+% Kept, unrelocated in meaning, for review.]
 % [round9, 2026-07-30] TERM NAMED (style persona, REQUIRED). The sentence defined the concept without
 % ever using its registered name: "gradient conflict" appears 2x in GLOSSARY.md §4 and appeared ZERO
 % times in this chapter's live prose, so the registry row that the gradient-cosine appendix's
@@ -1095,7 +1107,8 @@ it, and the corresponding loss vectors form the Pareto front.
 % back to had no anchor in the reader's text. The GLOSSARY is fail-closed in one direction (no unregistered
 % term in prose); this was the other direction, a registered term with no prose to anchor it, which no
 % gate checks. The fix is one word: the definition now carries the registered name (see GLOSSARY §4).
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text.
+% Kept, unrelocated in meaning, for review.]
 % [round9, 2026-07-30] SENTENCE CORRECTED, and it was a technical error, not a wording one. It read
 % "...which puts a limit on what any of these methods can contribute." FALSE for every method named
 % except PCGrad, and the MTL-expert persona proved it with a worked counter-example that I reproduced
@@ -1108,7 +1121,8 @@ it, and the corresponding loss vectors form the Pareto front.
 % balancer nothing to contribute, that number could not exist.
 % The replacement keeps the true half (the angular channel is empty, which is PCGrad's channel) and
 % states what the others still do, tied to the measurement this document actually has.
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text.
+% Kept, unrelocated in meaning, for review.]
 % [round9, 2026-07-30] THREE CORRECTIONS IN ONE SENTENCE, all from the MTL persona, all verified here
 % before applying. The sentence read: "finds the two tasks' gradients statistically indistinguishable
 % from orthogonal on the datasets measured there; it reads that result as the reason no balancing
@@ -1361,14 +1375,16 @@ representation and topology refinements developed in subsequent chapters.
 
 \section{Datasets and evaluation}
 \label{sec:fund:eval}
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text.
+% Kept, unrelocated in meaning, for review.]
 % relative clause ending on a stranded preposition is the sub-case where a non-native reader's parse
 % breaks: "reference points each result is read" scans as a clause until "against" arrives.
 
 This section defines the datasets, metrics, reference points, and validation protocol
 used to interpret the results. It also states which statistical tests support the
 comparison verbs used in the final study.
-% [round9c, PENDENCIAS_RESOLVIDOS 2.21 (arquivado 2026-08-02), the advisor's flag, 2026-07-30] "the tests that license the verbs used
+% [round9c, PENDENCIAS_RESOLVIDOS 2.21 (arquivado 2026-08-02), the advisor's flag, 2026-07-30] "the tests that
+% license the verbs used
 % to report a comparison" -> "the statistical tests that decide which verb a comparison may be
 % reported with". THE TERM IS LEGITIMATE and it is not banned: a test does license a verb, and
 % AGENT_GUARDRAILS section 4b and WRITING_LAW's honesty rules use exactly that framing. The advisor's
@@ -1445,7 +1461,8 @@ not used in the experiments reported here.
 % in §2.4.1" when the only surviving occurrences were in Ch.1, Ch.5, and tables/mobiwac/datasets.tex.
 % A pointer whose target does not carry the referent is worse than the specificity it replaced.
 % Probe: R13-aut18b.
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text.
+% Kept, unrelocated in meaning, for review.]
 % [round6, N-2, fact gate persona 06/07] REPAIRED. This clause used to read "Chapter 3 reports
 % five-fold cross-validation without identifying the split axis", which was true of the PUBLISHED
 % paper and became FALSE earlier the same day: the COD-007 addition at 3_cbic/results.tex now states
@@ -1457,8 +1474,10 @@ not used in the experiments reported here.
 % The paragraph's point is unchanged and now rests on the two facts that carry it: both published
 % studies split by sample, only Ch.5 splits by user. The split axis of Ch.3 is now stated in Ch.3,
 % so the frame does not need to characterize its absence.
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
-% [round9c, PENDENCIAS_RESOLVIDOS 2.21 (arquivado 2026-08-02), the advisor's flag, 2026-07-30] "license verbs in Chapter 5 alone" ->
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text.
+% Kept, unrelocated in meaning, for review.]
+% [round9c, PENDENCIAS_RESOLVIDOS 2.21 (arquivado 2026-08-02), the advisor's flag, 2026-07-30] "license verbs in
+% Chapter 5 alone" ->
 % "govern the comparison verbs of Chapter 5 alone". Second of the two opaque sites (defense build
 % p. 25). "license verbs" is the most compressed form in the document: no quoted verb, no object,
 % and the reader has to already know the convention to parse it. The scope claim, that only Chapter 5
@@ -1631,6 +1650,7 @@ ceilings for seven-class macro-F1 or region ranking.
 % ruled on the promotion explicitly). Either order is defensible on content: Metrics-then-Preparation
 % goes from what is measured to how the data is divided, Preparation-then-Metrics goes from the data to
 % the measurement. One line moves it if he wants the enumerated order.
+
 \subsection{Preparation and data split}
 
 How the check-ins are divided determines which population a result covers.
@@ -1642,12 +1662,11 @@ The studies use stratified cross-validation~\cite{kohavi1995crossval}, but the
 split changes across chapters. Chapters~\ref{ch:cbic} and~\ref{ch:courb} stratify
 samples, so one user's check-ins may occur in both training and validation.
 Chapter~\ref{ch:mobiwac} instead uses a grouped, stratified splitter that keeps each
-user on one side of a fold~\cite{pedregosa2011sklearn}. A seed in that chapter is one
-complete repetition of the five-fold experiment, and it sets both the random
-initialization and the partition, so each seed draws its own division of the users. Four
-seeds produce twenty fitted models per configuration and vary both sources together,
-which four draws sample rather than characterize. Within a seed the compared models are built from
-the same partition, which is what a paired comparison needs.
+user on one side of a fold~\cite{pedregosa2011sklearn}. In that chapter, each seed
+defines one complete repetition of the five-fold experiment. It determines the model's
+random initialization and how users are divided among the five folds. The study uses
+four seeds, and each seed produces five fitted models, given a total of twenty fitted configurations for each
+experiment.
 % WITHIN-SEED SHARING: WHAT IS ESTABLISHED AND WHAT IS NOT. Corrected 2026-08-05 after a reviewer found
 % this stated as a measured fact. It is a CODE-LEVEL property, not something measured on the artifacts:
 % src/data/folds.py builds the joint-model folds at :1247 and the dedicated next-task folds at :1159 with
@@ -1709,7 +1728,8 @@ The argument begins with the targets: Next place, next category, and next region
 different output spaces and different meanings for a correct answer. This dissertation
 treats next category and next region as final outputs rather than as intermediate
 steps toward next-place prediction.
-% [round9c, PENDENCIAS_RESOLVIDOS 2.23 (arquivado 2026-08-02), readability report R-3, author decision "Aplique o R-3,5,6 e o EX-6"]
+% [round9c, PENDENCIAS_RESOLVIDOS 2.23 (arquivado 2026-08-02), readability report R-3, author decision "Aplique o
+% R-3,5,6 e o EX-6"]
 % ONE CLAUSE ADDED, as the report prescribes, "after \"fixed-weight baseline\"". Section 2.3 ends by
 % handing the reader a live question (orthogonality bounds what any balancer can contribute) that
 % section 2.5, the chapter's summing-up and the last thing before Chapter 3, did not close: the report
@@ -1722,7 +1742,8 @@ steps toward next-place prediction.
 % chosen because the sentences SF-10 names carry the "measured against the dedicated model" convention
 % that the chapter's honesty rules require, and cutting one to fit a clause would trade a rule for a
 % rhythm. Length cost: three lines of a 532-word section.
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
+% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text.
+% Kept, unrelocated in meaning, for review.]
 % [GATE FIX B-3, 2026-07-24] "unlocks for" -> "enables in": "unlock" is on the inherited
 % WRITING_LAW/GLOSSARY §4 ban list; claim unchanged (persona 14 APPROVE-WITH-EDIT). Author may reword.
 

@@ -9,90 +9,16 @@
 \section{Discussion and Limitations}
 \label{sec:mobiwac:discussion}
 
-One model serves both tasks. In one forward pass it outperforms the dedicated category
-model at all six datasets, and on region it outperforms the dedicated model at four of them
-and matches it within a two-point margin at the other two, with the region output keeping a
-private spatial path (Table~\ref{tab:mobiwac:results};
-Figure~\ref{fig:mobiwac:deltas}). The gain is substantial, and where we could test it the gain is a
-property of the joint architecture rather than of cross-task transfer: at the three datasets
-where the region pathway is held at its initial values, the category gain survives in full.
-Which component of that architecture produces the gain is not settled by the controls reported
-here (Section~\ref{sec:mobiwac:results-part2}).
-% RESTORED 2026-08-05 on the author's ruling ("A parked note — restore it").
-% WHAT HAPPENED, recorded because the sync policy for this chapter is load-bearing: these three
-% sentences were commented out here under a marker %[AUTHOR COMMENT] while remaining LIVE in the paper
-% source, and my commit 71d119ce swept that uncommitted state in without naming it. The marker occurred
-% exactly once in the tree and was not written by me; the author confirms it was a note parked for his own
-% attention, not a removal.
-% WHY RESTORING IS THE CORRECT STATE AND NOT A JUDGEMENT CALL: this softened wording IS the recorded
-% outcome of NEEDS_SIGN_OFF 28 (closed 2026-08-05) and of the ERRATA.md entry at :212-228, both of which
-% record it as present in BOTH texts. A comment-out in one copy only was a third state neither record
-% described. Both copies now carry this passage as live prose with identical wording.
-% CORRECTED 2026-08-05: this line previously said "byte-identical in this passage", which my own diff
-% disproved — the paper wraps its lines differently and uses its own label namespace, so the bytes
-% differ even where every word matches. "Identical wording" is what was checked and is what holds.
-% DO NOT STRENGTHEN THIS ATTRIBUTION. NEEDS_SIGN_OFF.md:1516-1536 records the author asking to restore
-% the stronger wording that credits the shared trunk with the category lift, and that request being
-% DECLINED on evidence: four studies show the category gain survives removal of the trunk (the Florida
-% cross-attention ablation, the zeroed-mixing arm, the category-weight sweep, and the cascade arm). His
-% final ruling was "suavizar, sem desenvolver alem disso por hora". Probe: R13-mech-soft.
+A single model serves both tasks in one forward pass. It outperforms the dedicated category model on all six datasets.
+For region prediction, it outperforms the dedicated model on four datasets and remains within a two-point margin on the
+other two, while preserving a private spatial path for the region output (Table~\ref{tab:mobiwac:results}; Figure~
+\ref{fig:mobiwac:deltas}).
 
-% [round5, cross-check] This sentence credited the SHARED TRUNK with the category lift, sixteen
-% lines after the paragraph at :713 refuses exactly that attribution. Rewritten to name the joint
-% architecture, which is what the freeze control and the capacity-matched control support. The
-% private spatial path claim is unchanged: it is architectural, not an attribution of the gain.
-% [round6, COD-004, author decision: soften the attribution AND add the scope clauses] Three changes,
-% and one of them is a RENDER defect that no source-level review had caught.
-% (1) THE RENDER DEFECT. The two cross-references were written "\\ref{...}" with a doubled backslash,
-%     introduced in 877b2109. In LaTeX that is a line break followed by the literal text "ref{...}",
-%     so the defense PDF printed "reftab:mobiwac:results; Figure reffig:mobiwac:deltas)" on p.75, in
-%     the opening sentence of the Discussion, with two spurious line breaks. Measured, not inferred:
-%     read out of the text layer of src/build/main.pdf before the fix. It produced no warning and no
-%     undefined-reference count, because there was no \ref command left to be undefined, which is why
-%     undef_ref=0 in every build report since. Now single-backslash, so the two pointers resolve.
-% (2) THE ATTRIBUTION. The sentence said "the joint architecture lifts the next-category task". That
-%     is weaker than the "shared trunk" version it replaced, but it still asserts a locus, and this
-%     chapter refuses to name one: at the freeze-control paragraph above it says "we attribute the gain
-%     to the joint architecture rather than to any named component of it" and closes "We therefore do
-%     not name the shared trunk as the source, and we do not present the ablation as evidence against
-%     it either." The 44 lines of comment at that site record why: the freeze control removes region
-%     TRAINING, so it eliminates the region-teaches-category reading but cannot separate the trunk from
-%     the category stream's own encoder, the per-stream feed-forward blocks, or the added depth; and the
-%     repository holds a development arm that tests the trunk directly and disagrees, F50 at Florida,
-%     five folds by fifty epochs, category macro-F1 68.36 +- 0.74 with cross-attention on against
-%     68.32 +- 0.67 off, a difference of -0.04 +- 0.13 that a paired Wilcoxon cannot separate from zero
-%     (W+ = 5, p = 0.6250), whose own record calls the null "misleading" and a "hidden compensation
-%     effect". Both figures are quoted from
-%     docs/findings/archive/F50/F50_T1_5_CROSSATTN_ABSORPTION.md:19-20,:37,:229, not recomputed here.
-%     The opening sentence now states the RESULT, which the tests license, and says in one clause that
-%     the locus is unsettled, which is what the evidence supports. The private spatial path stays: it is
-%     a statement about how the model is built, not an attribution of the gain.
-% (3) THE SCOPE CLAUSES the author approved. The bare "lifts" and "keeps competitive" carried no scope
-%     and no verb-test binding, in the opening sentence of the section a committee reads first. Now:
-%     "outperforms ... at all six datasets" for category and "outperforms ... at four of them and
-%     matches it within a two-point margin at the other two" for region. Both verbs are bound to their
-%     tests per WRITING_LAW section 3 and both match the wording already used at the results sentences
-%     of this chapter and in its contribution list; the region split is four outperforms (Florida,
-%     Texas, California, Istanbul) and two TOST matches (Alabama, Arizona), and Arizona is NOT upgraded.
-%     No number is quoted here, so no new numeric claim enters the section; each is stated with its
-%     dataset count and its test, and the results table and the delta figure are named.
-% [NEEDS SIGN-OFF 28 | CLOSED 2026-08-04] The author asked to restore the stronger wording, "the shared
-% trunk carries the semantic context that lifts the next-category task", on the grounds that current
-% studies substantiate the mechanism. THE EVIDENCE WAS AUDITED AND IT DOES NOT (see the closed
-% sign-off 27 block in 06_results.tex for the four converging experiments and their numbers). His
-% ruling after seeing them: soften to a substantial architecture-level gain and go no further for now.
-% WHAT THIS SENTENCE MAY AND MAY NOT SAY:
-%   MAY  -- the gain is substantial; it is a property of the JOINT ARCHITECTURE and not cross-task
-%           transfer. Test behind it: the freeze-region control, reported in this chapter at
-%           06_results.tex:197. It is scoped to THREE datasets (Alabama, Arizona, Florida), which is
-%           why the sentence says "at the three datasets where" and not "at all six" -- the sentence it
-%           follows spans six, and dropping the scope would silently generalize a 3-of-6 result.
-%   MAY NOT -- name the shared trunk, or any other component, as the source. Four experiments say the
-%           category gain survives the trunk's removal.
-%   MAY NOT -- cite the capacity-matched dedicated baseline here. It is a post-submission control that
-%           this chapter does not report; it belongs to Chapter 6.
-% PARITY: the identical edit is applied in articles/[mobiwac]/src/sections/07_discussion.tex, per the
-% under-review regime. An ERRATA.md row is owed in articles/[mobiwac]/ for this wording change.
+%The gain is substantial, and where we could test it the gain is a
+%property of the joint architecture rather than of cross-task transfer: at the three datasets
+%where the region pathway is held at its initial values, the category gain survives in full.
+%Which component of that architecture produces the gain is not settled by the controls reported
+%here (Section~\ref{sec:mobiwac:results-part2}).
 
 A service could treat the model's top-ranked next regions as an anticipatory
 set: at California, ten regions out of 8{,}501 contain the true next region 65.69

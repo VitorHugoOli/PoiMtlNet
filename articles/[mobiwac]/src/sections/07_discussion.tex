@@ -10,29 +10,15 @@
 \section{Discussion and Limitations}
 \label{sec:discussion}
 
-One model serves both tasks. In one forward pass it outperforms the dedicated category model at all six datasets, and on
-region it outperforms the dedicated model at four of them and matches it within a two-point margin at the other two,
-with the region output keeping a private spatial path (Table~\ref{tab:results}; Fig.~\ref{fig:deltas}
-). The gain is substantial, and where we could test it the gain is a property of the joint architecture rather than of
-cross-task transfer: at the three datasets where the region pathway is held at its initial values, the category gain
-survives in full. Which component of that architecture produces the gain is not settled by the controls reported here (
-Section~\ref{sec:results-part2}).
-% [round6, 2026-07-28] ATTRIBUTION SOFTENED and scope clauses added, applied here and in the
-% dissertation's Chapter 5 so the two texts stay identical. Logged in ../../ERRATA.md.
-% The sentence credited the SHARED TRUNK with the category lift. Section 6 of this paper cannot support
-% that: the freeze control removes region TRAINING, so it rules out the region task teaching the
-% category one but cannot separate the trunk from the category stream's own encoder, the per-stream
-% feed-forward blocks, or the added depth. The repository also holds a development arm that tests the
-% trunk directly and disagrees, at Florida over five folds and fifty epochs: category macro-F1
-% 68.36 +- 0.74 with cross-attention on against 68.32 +- 0.67 off, a difference of -0.04 +- 0.13 that a
-% paired Wilcoxon cannot separate from zero (W+ = 5, p = 0.6250). Quoted from
-% docs/findings/archive/F50/F50_T1_5_CROSSATTN_ABSORPTION.md:19-20,:37, not recomputed. That arm ran on
-% an earlier configuration and its own record reads the null as a compensation effect, so it is not
-% evidence AGAINST the trunk either; the honest position, and the one the text now takes, is that the
-% locus is unsettled. The opening sentence therefore states the result, which the tests license, with
-% each verb bound to its test: "outperforms" at all six datasets on category, and on region
-% "outperforms" at four (Florida, Texas, California, Istanbul) and "matches" under TOST within the
-% two-point margin at the other two (Alabama, Arizona). Arizona is not upgraded. No number is added.
+A single model serves both tasks in one forward pass. It outperforms the dedicated category model on all six datasets.
+For region prediction, it outperforms the dedicated model on four datasets and remains within a two-point margin on the
+other two, while preserving a private spatial path for the region output(Table~\ref{tab:results}; Fig.~\ref{fig:deltas}
+).
+
+%The gain is substantial, and where we could test it the gain is a property of the joint architecture rather than of
+%cross-task transfer: at the three datasets where the region pathway is held at its initial values, the category gain
+%survives in full. Which component of that architecture produces the gain is not settled by the controls reported here (
+%Section~\ref{sec:results-part2}).
 
 A service could treat the model's top-ranked next regions as an anticipatory
 set: at California, ten regions out of 8{,}501 contain the true next region 65.69

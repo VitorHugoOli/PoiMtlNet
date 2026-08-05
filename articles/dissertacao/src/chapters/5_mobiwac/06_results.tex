@@ -275,12 +275,31 @@ model at serving time (one model, one forward pass).
 % none of them licenses naming the shared trunk as the source of the category gain:
 %   F50   cross-attention ON vs OFF at FL: cat 68.36+-0.74 vs 68.32+-0.67, delta -0.04+-0.13,
 %         paired Wilcoxon W+=5 p=0.6250 (F50_T1_5_CROSSATTN_ABSORPTION.md:19-20,:37)
-%   F52   zeroing the mixing output: tied with the reference (+0.30, p=0.81)
+%   F52   zeroing the mixing output: category tied with the reference, 68.64+-0.91 vs 68.59+-0.79,
+%         delta +0.05 (F50_RESULTS_TABLE.md:36). NOTE: the "+0.30 p=0.81" in that row is the REGION
+%         delta, not the category one -- an earlier version of this block quoted it as if it were
+%         category. Same inference, wrong metric; do not reintroduce it.
 %   F53   cross-attn ON vs OFF swept across category-loss weight: identical at every value
 %         ("the hyperparameter-dormant cross-attn hypothesis is refuted")
-%   CSLSL cascade, which REMOVES the trunk (disable_cross_attn=True, verified in the forward pass at
-%         mtlnet_crossattn_dualtower/model.py:64-70,:149): delta cat +0.20 AL / +0.20 AZ / +0.01 FL /
-%         -0.20 Istanbul (CSLSL_CASCADE.md:27-30). The gain SURVIVES the trunk's removal.
+%   CSLSL cascade: delta cat +0.20 AL / +0.20 AZ / +0.01 FL / -0.20 Istanbul (CSLSL_CASCADE.md:27-30),
+%         seed 0 x 5 folds.
+%         READ THIS ARM CAREFULLY -- ITS CONFOUND IS ASYMMETRIC BETWEEN THE TWO TASKS, and an earlier
+%         version of this block got it wrong by calling it "the trunk-removal control" outright.
+%         The arm co-applies FIVE pins, not one: disable_cross_attn=True PLUS cond_coupling=posterior,
+%         cond_signal=softmax, cond_inject=add, cond_detach=True (b4_cascade.py:141-155). So it removes
+%         the trunk AND adds a directed category-to-region conditioning edge, and that edge is heavily
+%         learned (cond_norm grows 0.291 -> 4.613 at FL, CSLSL_CASCADE.md:80-83).
+%           REGION and JOINT columns: CONFOUNDED. The new edge can substitute for whatever the trunk
+%             carried toward region, so the 0.02 pp joint tie compares COUPLING TOPOLOGIES (chain vs
+%             parallel) and is not trunk evidence. Do not cite the joint tie against the trunk.
+%           CATEGORY column: NOT confounded, because cond_detach=True detaches the posterior
+%             (next_stan_flow_dualtower/head.py:456-457) and the injection enters only the region
+%             head's fused feature (head.py:481-486), so no signal from that edge can reach the
+%             category path in either direction. With the trunk off, the category path is exactly
+%             category_encoder -> cat_final_ln -> next_gru (dualtower model.py:63,72,81); the two final
+%             LayerNorms are per-stream and exchange nothing.
+%         So the CATEGORY deltas above are the record's only multi-dataset observation of category
+%         performance without the trunk, at seed 0 with n=5, and they show it essentially unchanged.
 % THE TRAP, recorded so nobody re-derives the wrong answer: W6_ENCODER_ISOLATION.md's banner reads
 % "the joint CATEGORY win is the shared TRUNK", and that banner OVERSTATES its own design. Freezing
 % the region stream removes region TRAINING; it cannot separate the trunk from the category stream's
