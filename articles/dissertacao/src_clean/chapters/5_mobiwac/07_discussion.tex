@@ -2,13 +2,15 @@
 \section{Discussion and Limitations}
 \label{sec:mobiwac:discussion}
 
-One model serves both tasks. In one forward pass it outperforms the dedicated category
+One model serves both tasks, in one forward pass it outperforms the dedicated category
 model at all six datasets, and on region it outperforms the dedicated model at four of them
 and matches it within a two-point margin at the other two, with the region output keeping a
 private spatial path (Table~\ref{tab:mobiwac:results};
-Figure~\ref{fig:mobiwac:deltas}). Which part of the joint architecture produces the
-category gain is not settled by the controls reported here
-(Section~\ref{sec:mobiwac:results-part2}).
+Figure~\ref{fig:mobiwac:deltas}). The gain is substantial, and where we could test it the gain is a
+property of the joint architecture rather than of cross-task transfer: at the three datasets
+where the region pathway is held at its initial values, the category gain survives in full.
+Which component of that architecture produces the gain is not settled by the controls reported
+here (Section~\ref{sec:mobiwac:results-part2}).
 
 A service could treat the model's top-ranked next regions as an anticipatory
 set: at California, ten regions out of 8{,}501 contain the true next region 65.69
@@ -16,7 +18,7 @@ percent of the time, over 500 times better than picking ten at
 random. On four datasets (Alabama, Arizona, Florida, and Istanbul; a single seed over five folds), the ten shortlisted regions lie a median of 3 to 8 kilometers from the shortlist's centroid, against 17 to 176 kilometers for ten regions drawn at random from the same candidate set (median over 10,000 draws). This remains motivation, not a measured service result.
 
 Three limits qualify these results. First, our representation is trained once over all places; visits to places
-never seen during training are the single effect that we cannot fully isolate. A planned follow-up trains it on each fold's training places only and embeds unseen visits. Second, epoch selection consults the fold that the score is then read on (Section~\ref{sec:mobiwac:setup-windows}), so every absolute score reported here is optimistic. The comparison between the joint model and the dedicated models is affected far less, for two reasons we can state outright: the selection rule is the same for both models on the same folds, an epoch chosen on validation and read on that fold, with each model selected on its own validation objective (Section~\ref{sec:mobiwac:results-part2}), and the dedicated model receives the wider search, a per-dataset sweep over batch size and learning rate against one configuration held fixed across all six datasets for the joint model. The residual therefore favors the comparator, which makes the reported difference conservative. It does not follow that the bias cancels exactly. The four seeds also reuse one fixed fold partition, so the reported intervals cover variation across random initializations and not across resampled user splits. Third, we do not build or evaluate a mobility-aware service; it is background motivation, and this chapter's claims are the prediction results themselves.
+never seen during training are the single effect that we cannot fully isolate. A planned follow-up trains it on each fold's training places only and embeds unseen visits. Second, epoch selection consults the fold that the score is then read on (Section~\ref{sec:mobiwac:setup-windows}), so every absolute score reported here is optimistic. The comparison between the joint model and the dedicated models is affected far less, for two reasons we can state outright: the selection rule is the same for both models on the same folds, an epoch chosen on validation and read on that fold, with each model selected on its own validation objective (Section~\ref{sec:mobiwac:results-part2}), and the dedicated model receives the wider search, a per-dataset sweep over batch size and learning rate against one configuration held fixed across all six datasets for the joint model. The residual therefore favors the comparator, which makes the reported difference conservative. It does not follow that the bias cancels exactly. Third, we do not build or evaluate a mobility-aware service; it is background motivation, and this chapter's claims are the prediction results themselves.
 
 Our representation is a fixed per-visit vector that any downstream model
 can consume. Moura et al.~\cite{moura2025mobilityaware}, whose structural

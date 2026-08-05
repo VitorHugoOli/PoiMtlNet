@@ -812,7 +812,8 @@ ou a formulacao qualitativa) sem que a convencao de agregacao subjacente tenha s
 de 16 linhas saiu inteiro, junto com a flag `[VERIFY]` da convencao de media que ele carregava.
 
 > **EFEITO COLATERAL QUE EU TIVE DE CONSERTAR:** outro comentario, no paragrafo do 0.7 (linha ~478), apontava para "the
-> NUM-4 ledger earlier in this section" -- um ponteiro que passou a pendurar quando este bloco saiu. Reescrito no lugar: a
+> NUM-4 ledger earlier in this section" -- um ponteiro que passou a pendurar quando este bloco saiu. Reescrito no lugar:
+> a
 > regra que importava (**escrever "category F1" e nunca "macro-F1", porque nenhuma fonte nomeia a convencao de media**)
 > agora esta declarada ali mesmo, sem depender do bloco removido.
 
@@ -1023,23 +1024,23 @@ alegação de aprovação prévia do autor citada no bloco -- permanece sem a co
 > **SUA DECISAO:** Re-leia essa parte e valide se há algo relacionado com essa afirmação problematica, se ela ainda
 > estiver ali fazemos algo quanto a ela.
 
-**RE-LIDO E RESOLVIDO (rodada 15). A afirmacao problematica NAO esta mais la, e o tratamento e melhor
-do que uma remocao.** Voce pediu para eu reler e agir se ela ainda estivesse presente. Estado atual,
-verificado em prosa viva (`3_cbic/method.tex:119-129`):
+**RE-LIDO E RESOLVIDO (rodada 15). A afirmacao problematica NAO esta mais la, e o tratamento e melhor do que uma
+remocao.** Voce pediu para eu reler e agir se ela ainda estivesse presente. Estado atual, verificado em prosa viva
+(`3_cbic/method.tex:119-129`):
 
-- o bullet afirma **apenas a metade que a citacao sustenta** -- custo de *inferencia* reduzido, uma rede
-  avaliada em vez de uma por tarefa;
-- a frase publicada esta **reproduzida palavra por palavra em nota de rodape** logo abaixo, com a
-  correcao declarada. Nada foi silenciosamente descartado;
+- o bullet afirma **apenas a metade que a citacao sustenta** -- custo de *inferencia* reduzido, uma rede avaliada em vez
+  de uma por tarefa;
+- a frase publicada esta **reproduzida palavra por palavra em nota de rodape** logo abaixo, com a correcao declarada.
+  Nada foi silenciosamente descartado;
 - a linha de errata existe (`tables/cbic/errata.tex:96`).
 
 Ou seja: o leitor ve o que foi publicado, o que passou a valer, e por que. O bloco de 75 linhas virou
-`[NEEDS SIGN-OFF 15 | CLOSED]` guardando **por que a correcao era necessaria** (o bullet citava
-arXiv:1905.07553 para o *inverso* do que o artigo conclui: ele nomeia acuracia melhor e tempo de treino
-menor apenas como beneficios "em teoria", e depois argumenta empiricamente o contrario) e **o limite
-honesto**: o LaTeX do CBIC entrou no controle de versao em 2025-10-21, *depois* da publicacao, entao
-rascunhos pre-submissao nao estao neste repositorio e a pergunta de quando a redacao surgiu nao pode ser
-respondida daqui. O que se estabelece e mais estreito: nenhuma substituicao ocorreu depois disso.
+`[NEEDS SIGN-OFF 15 | CLOSED]` guardando **por que a correcao era necessaria** (o bullet citava arXiv:1905.07553 para o
+*inverso* do que o artigo conclui: ele nomeia acuracia melhor e tempo de treino menor apenas como beneficios "em
+teoria", e depois argumenta empiricamente o contrario) e **o limite honesto**: o LaTeX do CBIC entrou no controle de
+versao em 2025-10-21, *depois* da publicacao, entao rascunhos pre-submissao nao estao neste repositorio e a pergunta de
+quando a redacao surgiu nao pode ser respondida daqui. O que se estabelece e mais estreito: nenhuma substituicao ocorreu
+depois disso.
 
 ---
 
@@ -1062,15 +1063,15 @@ sua.
 
 > **SUA DECISAO:** Não precisamos comentar nada.
 
-**RESOLVIDO (rodada 15).** A lacuna sobre busca de hiperparametros fica **sem mencao** -- nao adicionei
-frase alguma. A formulacao mais forte que a evidencia sustentaria seria uma afirmacao sobre a *conducao*
-do estudo, nao um registro recuperado do codigo, e portanto nao e nossa para afirmar. Registrado no
-marcador para que ninguem a adicione depois "por completude".
+**RESOLVIDO (rodada 15).** A lacuna sobre busca de hiperparametros fica **sem mencao** -- nao adicionei frase alguma. A
+formulacao mais forte que a evidencia sustentaria seria uma afirmacao sobre a *conducao*
+do estudo, nao um registro recuperado do codigo, e portanto nao e nossa para afirmar. Registrado no marcador para que
+ninguem a adicione depois "por completude".
 
 O bloco tambem sinalizava uma consequencia em outro arquivo, e **ela ja foi aplicada**: o
-`2_fundamentals.tex` nao diz mais que o Cap.3 reporta validacao cruzada "without identifying the split
-axis"; hoje declara que os Caps. 3 e 4 estratificam por amostra, de modo que os check-ins de um usuario
-podem aparecer em treino e validacao. Conferido em 2026-08-04.
+`2_fundamentals.tex` nao diz mais que o Cap.3 reporta validacao cruzada "without identifying the split axis"; hoje
+declara que os Caps. 3 e 4 estratificam por amostra, de modo que os check-ins de um usuario podem aparecer em treino e
+validacao. Conferido em 2026-08-04.
 
 ---
 
@@ -1094,12 +1095,12 @@ confirmacao do autor sobre qual das duas afirmacoes (COD-016a) e a correta.
 > **SUA DECISAO:** This is done in the pendencias_resolvidas.md
 
 **RESOLVIDO (rodada 15).** Leitura confirmada pelo registro que voce aponta (`PENDENCIAS_RESOLVIDOS 5.3`):
-a frase e sobre **a divisao das liderancas entre os dois modelos** (a comparacao por categoria parecer
-pior que o agregado), **nao** sobre o desbalanceamento da distribuicao de categorias. Eram duas
-afirmacoes diferentes; esta e a que foi escrita.
+a frase e sobre **a divisao das liderancas entre os dois modelos** (a comparacao por categoria parecer pior que o
+agregado), **nao** sobre o desbalanceamento da distribuicao de categorias. Eram duas afirmacoes diferentes; esta e a que
+foi escrita.
 
-O marcador guarda o que impede alguem de achar que a frase foi fortalecida: a redacao publicada esta
-citada literalmente, nenhum numero ou celula de tabela mudou, e o hedge continua "could", nao "does".
+O marcador guarda o que impede alguem de achar que a frase foi fortalecida: a redacao publicada esta citada
+literalmente, nenhum numero ou celula de tabela mudou, e o hedge continua "could", nao "does".
 
 ---
 
@@ -1123,12 +1124,11 @@ a aprovacao do autor e sem o sign-off do orientador.
 
 > **SUA DECISAO:** Já revisei é está tudo certo!
 
-**RESOLVIDO (rodada 15).** `[NEEDS SIGN-OFF 18 | CLOSED]`. Registrei no marcador um fato que mudou desde
-que o item foi escrito: **o ponteiro para "Appendix B of the supplementary volume" nao existe mais** --
-a regra standalone da rodada 14 removeu ponteiros ao volume suplementar de todos os capitulos, e o achado
-de escopo que ele indicava esta hoje declarado como prosa na propria preface. Conferido: zero
-`\extravolume` e zero "Appendix B" em prosa viva do `4_courb.tex`. Nao re-adicione um ponteiro; declare
-o fato.
+**RESOLVIDO (rodada 15).** `[NEEDS SIGN-OFF 18 | CLOSED]`. Registrei no marcador um fato que mudou desde que o item foi
+escrito: **o ponteiro para "Appendix B of the supplementary volume" nao existe mais** -- a regra standalone da rodada 14
+removeu ponteiros ao volume suplementar de todos os capitulos, e o achado de escopo que ele indicava esta hoje declarado
+como prosa na propria preface. Conferido: zero
+`\extravolume` e zero "Appendix B" em prosa viva do `4_courb.tex`. Nao re-adicione um ponteiro; declare o fato.
 
 ---
 
@@ -1152,12 +1152,12 @@ sem a aprovacao do autor sobre a forma (clausula vs. nota de rodape) escolhida p
 
 > **SUA DECISAO:** Deixe do jeito que está
 
-**RESOLVIDO (rodada 15).** O narrowing permanece como clausula no corpo; **nao** converti para nota de
-rodape. Sua razao esta registrada no marcador: o Cap.4 ja carrega muitos parenteticos e uma clausula
-custa menos ao leitor do que uma nota.
+**RESOLVIDO (rodada 15).** O narrowing permanece como clausula no corpo; **nao** converti para nota de rodape. Sua razao
+esta registrada no marcador: o Cap.4 ja carrega muitos parenteticos e uma clausula custa menos ao leitor do que uma
+nota.
 
-A dependencia de glossario que o bloco levantava esta **resolvida**: `Pareto-stationary point` foi
-registrado no `GLOSSARY.md` (linha em ingles e a forma PT `ponto Pareto-estacionario`) em 2026-07-30.
+A dependencia de glossario que o bloco levantava esta **resolvida**: `Pareto-stationary point` foi registrado no
+`GLOSSARY.md` (linha em ingles e a forma PT `ponto Pareto-estacionario`) em 2026-07-30.
 
 ---
 
@@ -1193,20 +1193,19 @@ formulacao cautelosa -- que nao afirma que esse codigo exatamente gerou os exper
 
 **RESOLVIDO (rodada 15) -- e a sua remocao foi maior do que o item descrevia, o que mudou o conserto.**
 
-Voce removeu a frase do `4_courb/results.tex` (trabalho **nao commitado** na arvore: `git diff` contra o
-HEAD mostra a remocao). Ela nao carregava um fato, e sim **tres**, num unico grupo de frases:
+Voce removeu a frase do `4_courb/results.tex` (trabalho **nao commitado** na arvore: `git diff` contra o HEAD mostra a
+remocao). Ela nao carregava um fato, e sim **tres**, num unico grupo de frases:
 
 1. o split e estratificado por amostra, nao por usuario;
-2. o codigo de referencia fixa uma unica semente, logo os cinco folds sao uma repeticao e os desvios
-   reportados sao a dispersao entre folds naquela semente;
-3. o treino roda o numero configurado de epocas sem early stopping, com cada tarefa lida na epoca de
-   maior macro-F1 de validacao.
+2. o codigo de referencia fixa uma unica semente, logo os cinco folds sao uma repeticao e os desvios reportados sao a
+   dispersao entre folds naquela semente;
+3. o treino roda o numero configurado de epocas sem early stopping, com cada tarefa lida na epoca de maior macro-F1 de
+   validacao.
 
-**O que fiz no Apendice B** (`chapters/apx_b_errata.tex`), no paragrafo de adicoes do Cap.4: retirei
-**os tres** fatos de protocolo, nao so o da semente. O paragrafo agora diz que o capitulo nao declara
-fato de protocolo alem dos que o artigo publicado reporta, e aponta que a estratificacao por amostra e
-declarada **na preface** -- que e exatamente o que voce disse ("ja falamos sobre isso no preambulo"), e
-conferi que esta la (`4_courb.tex:42`).
+**O que fiz no Apendice B** (`chapters/apx_b_errata.tex`), no paragrafo de adicoes do Cap.4: retirei **os tres** fatos
+de protocolo, nao so o da semente. O paragrafo agora diz que o capitulo nao declara fato de protocolo alem dos que o
+artigo publicado reporta, e aponta que a estratificacao por amostra e declarada **na preface** -- que e exatamente o que
+voce disse ("ja falamos sobre isso no preambulo"), e conferi que esta la (`4_courb.tex:42`).
 
 > **DOIS ACHADOS QUE A SUA REMOCAO PRODUZIU, e que eu consertei em vez de deixar passar:**
 >
@@ -1223,15 +1222,14 @@ conferi que esta la (`4_courb.tex:42`).
 > apendice ja foi mordido por contagem errada antes (o episodio 59-vs-54 esta registrado nele mesmo), e
 > repetir o padrao seria pior do que perder o numero.
 
-**Pendencia sua, nao minha:** a remocao da frase segue **nao commitada**. Eu commitei apenas as minhas
-edicoes de comentario e do apendice; a sua alteracao de prosa continua na arvore de trabalho para voce
-revisar e commitar.
+**Pendencia sua, nao minha:** a remocao da frase segue **nao commitada**. Eu commitei apenas as minhas edicoes de
+comentario e do apendice; a sua alteracao de prosa continua na arvore de trabalho para voce revisar e commitar.
 
 ---
 
 ## 5. MobiWac
 
-### 21. [PRECISA DE VOCE] Texto de abertura (time-capsule preface) novo no Cap. 5
+### 21. [REMOVIDO rodada 15, 2026-08-05] Texto de abertura (time-capsule preface) novo no Cap. 5
 
 **Local:** `src/chapters/5_mobiwac.tex:25` — renderiza no volume **defesa**, p. 32
 
@@ -1249,9 +1247,11 @@ aprovada e no claim whitelist, permanece publicado sem a validacao do autor.
 
 > **SUA DECISAO:** Tudo certo podemos deixar e remover esse marcador por completo.
 
+**REMOVIDO (rodada 15).** Marcador apagado do `5_mobiwac.tex`. A preface e prosa de enquadramento escrita para a dissertacao, nao texto traduzido do artigo, entao nao carrega custo de paridade nem linha de errata.
+
 ---
 
-### 22. [VAZIO — a premissa deixou de existir, nao precisa da sua decisao]
+### 22. [REMOVIDO rodada 15, 2026-08-05]
 
 > **LEIA ISTO PRIMEIRO E PULE O RESTO DO ITEM.** A pergunta deste item era *onde* colocar o ponteiro
 > para o apendice de cosseno de gradientes: no paragrafo de abertura da secao (prosa da dissertacao) ou
@@ -1302,7 +1302,7 @@ da frase idêntica ao artigo [mobiwac], permanece sem confirmação final do aut
 
 ---
 
-### 23. [PRECISA DE VOCE] Confirmar novos numeros no capitulo (related work)
+### 23. [REMOVIDO rodada 15, 2026-08-05] Confirmar novos numeros no capitulo (related work)
 
 **Local:** `src/chapters/5_mobiwac/02_related.tex:243` — renderiza no volume **defesa**, p. 4
 
@@ -1315,11 +1315,22 @@ consistentes com os dados/resultados que fundamentam o capitulo, para que o marc
 **Se ficar sem decisao:** Numeros novos ("nineteen", "+0.68", "+0.19") inseridos no capitulo permanecem sem verificacao
 do autor quanto a sua exatidao.
 
-> **SUA DECISAO:**
+> **SUA DECISAO:** i have rewrite the text and now is all clean you can remove this NOS from the tex.
+
+**REMOVIDO (rodada 15).** Conferido antes de apagar: os tres numeros continuam **vivos** na prosa
+(`02_related.tex:138,142` -- "nineteen", `0.68`, `0.19`), entao o marcador saiu sem levar conteudo junto.
+
+Mantive o bloco de comentario logo acima porque ele registra uma **auto-contradicao ja corrigida**: uma
+versao anterior afirmava que `scale_norm` tambem ficava acima em ambos os datasets, contradizendo o
+proprio quadro que listava. O bloco guarda as quatro celulas medidas para que ninguem re-levante isso.
+
+> Efeito colateral que consertei: a remocao do marcador deixou o comentario terminando em frase completa
+> colada na prosa, e o gate `check_trapped_prose` acusou (`make check` rc=2). Reescrito para terminar em
+> fragmento, seguindo a convencao dos outros blocos do repo.
 
 ---
 
-### 24. [PRECISA DE VOCE] Sign-off pendente: dois pointer targets no capitulo em revisao
+### 24. [CLOSED rodada 15, 2026-08-05] Sign-off pendente: dois pointer targets no capitulo em revisao
 
 **Local:** `src/chapters/5_mobiwac/05_setup.tex:122` — renderiza no volume **defesa**, p. 11
 
@@ -1333,11 +1344,30 @@ paragrafo venha a entrar no manuscrito.
 **Se ficar sem decisao:** O paragrafo com os dois pointer targets permanece sem a releitura de aprovacao do autor, e a
 entrada correspondente em ERRATA.md em articles/[mobiwac]/ pode nao ser criada caso o paragrafo entre no manuscrito.
 
-> **SUA DECISAO:**
+> **SUA DECISAO:** Vamos fazer uma nova anlise sobre essa frase com os conhecimentos que temos e coms as analises que
+> froma fetias desde lá, inclusive essa frase não está no artigo original. But I don't want to mention in anywhere in
+> the artcile the change of leak we are disprove it and this kind of text can cause confusion in the reader. If they ask
+> i already have the data.
+
+**RESOLVIDO (rodada 15).** As duas clausulas que mencionavam o episodio de leak foram **removidas**, e
+nenhuma linha de errata e devida: medi antes de cortar, e as duas sao **exclusivas da dissertacao** --
+zero ocorrencias de "leaked under a downstream sequence model" em `[mobiwac]/src/sections/05_setup.tex`
+(o manuscrito diz "on three grounds", este capitulo diz "on four grounds", entao o paragrafo nao tem
+contraparte no texto submetido).
+
+**Nenhum corte enfraquece uma alegacao.** Em ambos os casos o episodio era so a *razao* de um ponto
+metodologico, e cada ponto continua de pe por conta propria:
+
+- a excecao do candidato unico continua dizendo que nao e contra-exemplo, agora porque a triagem limita
+  candidatos entre si e nao contra um padrao absoluto;
+- os limites da sonda continuam dizendo que a forma linear e uma triagem e nao uma prova, agora
+  argumentado pelo que uma leitura linear consegue expor.
+
+Como voce pediu: o dado continua existindo se um revisor perguntar; o texto nao o menciona.
 
 ---
 
-### 25. [PRECISA DE VOCE] Restauracao da figura fig3_embquality no capitulo MobiWac
+### 25. [CLOSED rodada 15, 2026-08-05] Restauracao da figura fig3_embquality no capitulo MobiWac
 
 **Local:** `src/chapters/5_mobiwac/06_results.tex:44`
 
@@ -1356,11 +1386,24 @@ capitulo corresponda exatamente ao artigo submetido, ja que os quatro numeros da
 insercao da pointer sentence do gate L4, permanecem sem confirmacao do autor sobre se devem constar na versao final da
 dissertacao.
 
-> **SUA DECISAO:**
+> **SUA DECISAO:** We can keep it, but the phrase is loose we need to ref the fig in some part of the previus text so
+
+**RESOLVIDO (rodada 15).** Figura mantida. A frase de ponteiro era literalmente uma linha solta apos a
+tabela ("Figure X shows the same separability contrast graphically"); agora ela **diz ao leitor o que a
+figura acrescenta** sobre a prosa: as duas medidas lado a lado, para que o tamanho do vao seja lido de
+relance em vez de comparado entre quatro numeros no corpo do texto.
+
+> **O que eu NAO fiz, de proposito.** Voce sugeriu refatorar o texto anterior para discutir apontando
+> para a figura em vez de citar os numeros em prosa. Essa frase e **reproduzida do artigo submetido**
+> (conferido em `[mobiwac]/src/sections/06_results.tex`), entao reestrutura-la seria edicao com custo de
+> paridade e linha de errata, sem ganho para o leitor. So a frase de ponteiro, que e exclusiva da
+> dissertacao, mudou.
+> have more context. Maybe even refector the previus text that instead discc this numbers in prose we can disccus and
+> point for the figure.
 
 ---
 
-### 26. [PRECISA DE VOCE] Uso do termo 'cell' em resultado de tabela
+### 26. [CLOSED rodada 15, 2026-08-05] Uso do termo 'cell' em resultado de tabela
 
 **Local:** `src/chapters/5_mobiwac/06_results.tex:232` — renderiza no volume **defesa**, p. 78
 
@@ -1378,11 +1421,21 @@ no capitulo precisa ser revisto.
 **Se ficar sem decisao:** As duas substituicoes de terminologia ("entries", "result") no lugar de "cell" permanecem sem
 a aprovacao do autor da dissertacao.
 
-> **SUA DECISAO:**
+> **SUA DECISAO:** Tudo ok, mudamos isso no texto original também ?
+
+**RESOLVIDO (rodada 15) -- e a resposta a sua pergunta e SIM.** Conferido em 2026-08-04: **zero**
+ocorrencias de qualquer forma de "cell" na prosa viva **tanto** deste capitulo **quanto** do artigo
+submetido (`[mobiwac]/src/sections/06_results.tex`). Os dois textos estao consistentes e nenhuma linha de
+errata e devida.
+
+O marcador guarda o motivo do banimento para que a palavra nao volte: "cell" para resultado de tabela e
+verdito *never* no `[mobiwac]/GLOSSARY.md §3` ("this audience reads 'cell' as a radio cell"), e a §5.1
+deste capitulo torna a colisao explicita. Os usos de "grid cell" e de radio-cell em outros pontos
+permanecem intactos e corretos.
 
 ---
 
-### 27. [PRECISA DE VOCE] Sign-off: reescrita de interpretação e null result do F50 (Ch.5)
+### 27. [CLOSED rodada 15, 2026-08-05] Sign-off: reescrita de interpretação e null result do F50 (Ch.5)
 
 **Local:** `src/chapters/5_mobiwac/06_results.tex:255` — renderiza no volume **defesa**, p. 78
 
@@ -1407,11 +1460,42 @@ Apêndice B e a afirmação de 'a stronger shared trunk' permanece como se fosse
 repositório contendo um teste direto desse componente (F50/CSLSL_CASCADE.md:19) com resultado nulo, sem revisão do
 autor.
 
-> **SUA DECISAO:**
+> **SUA DECISAO:** Hum, eu acho que em uma avaliação previa já resolvemos esse ponto, valide pf como está o texto hoje e
+> se há algo que eu tenha que decidir. Se necssario lance um agent para revalidar os estudo que fizemos e como vamos
+> consolidar essa frase. Temos que tomar duidado pois ela é parte central da nossa defesa. Não podemos deixar ela vaga e
+> incompleta.
+
+**RE-VALIDADO (rodada 15), com agente dedicado, e o resultado muda a resposta.** Voce pediu para eu
+validar como o texto esta hoje e, se preciso, lancar um agente para revalidar os estudos. Fiz as duas
+coisas. Relatorio completo em `src_utils/handoff/ch5_mechanism_evidence.md`.
+
+**O paragrafo de hoje esta CORRETO e nao deve ser fortalecido.** Quatro experimentos independentes
+convergem, e nenhum autoriza nomear o *shared trunk* como fonte do ganho de categoria:
+
+| estudo | o que testa | resultado |
+|---|---|---|
+| F50 | cross-attention ON vs OFF (FL) | `68.36±0.74` vs `68.32±0.67`, Δ `−0.04±0.13`, Wilcoxon pareado p=0.6250 |
+| F52 | zera a saida do mixing | empata com a referencia (+0.30, p=0.81) |
+| F53 | varre o peso da perda de categoria | identico em todos os valores; hipotese "cross-attn dormente" **refutada** |
+| CSLSL cascade | **remove o trunk** | Δcat `+0.20` AL, `+0.20` AZ, `+0.01` FL, `−0.20` Istanbul |
+
+**Sua objecao tecnica foi verificada, e ela reforca o achado em vez de enfraquece-lo.** Voce levantou que
+no cascade o experimento talvez ainda passasse pelo shared trunk. Fui ao codigo: o forward guarda o laco
+com `if not self._disable_cross_attn:` (`mtlnet_crossattn_dualtower/model.py:64-70` e `:149`), e o proprio
+`CSLSL_CASCADE.md:60-70` registra instrumentacao em runtime -- os dois blocos de cross-attention foram
+chamados **0 vezes** com a flag ligada, contra 2 vezes sem ela. O que resta no caminho sao apenas os
+`LayerNorm` finais **por stream** (`cat_final_ln`, `next_final_ln`), que nao trocam informacao entre
+tarefas. O trunk e de fato removido -- e o ganho sobrevive.
+
+**A ARMADILHA, registrada no `.tex` para ninguem re-derivar a resposta errada.** O `W6_ENCODER_ISOLATION.md`
+tem como titulo "the joint CATEGORY win is the shared TRUNK", e esse titulo **exagera o proprio desenho**:
+congelar a stream de regiao remove o *treino* da regiao, entao nao separa o trunk do encoder proprio da
+categoria, das FFNs por stream, nem da profundidade extra. O `W6:15` admite isso. **O Capitulo 5 esta mais
+honesto que o documento que gerou a frase** -- nao "corrija" o capitulo em direcao a esse titulo.
 
 ---
 
-### 28. [PRECISA DE VOCE] Confirmar abertura de secao com atribuicao suavizada (round 6)
+### 28. [CLOSED rodada 15, 2026-08-05] Confirmar abertura de secao com atribuicao suavizada (round 6)
 
 **Local:** `src/chapters/5_mobiwac/07_discussion.tex:58` — renderiza no volume **defesa**, p. 80
 
@@ -1430,11 +1514,44 @@ under-review.
 **Se ficar sem decisao:** A expansao do abridor para tres frases e a propagacao dessa mudanca para o texto submetido do
 artigo (com registro em ERRATA.md) permanecem sem a confirmacao final do autor.
 
-> **SUA DECISAO:**
+> **SUA DECISAO:**Essa decisão já não se aplcia mais. E as frases estão boas do jeito que estão, mas temos que mudar
+> algo aqui e por todo o artigo e dissertação. não podemos falar algo como "Which part of the joint architecture
+> produces
+> the category gain is not settled", nos podemos voltar com a afirmação de versões anteriores: "One model serves both
+> tasks: the shared trunk carries the semantic context that lifts the next-category task, and the private spatial path
+> keeps the next-region task competitive (Table~\ref{tab:mobiwac:results}; Figure~\ref{fig:mobiwac:deltas})., vide que
+> com os estudo atuais comprovamos que o mecanimos dentro do shared model de fato aprticipam na melhora dos resultados.
+> (ache os estudos para embaser melhor se necessario)
+
+**RESOLVIDO (rodada 15), com a sua decisao final: suavizar, sem desenvolver alem disso por hora.**
+
+Voce pediu para restaurar *"the shared trunk carries the semantic context that lifts the next-category
+task"*. **Nao restaurei**, e o motivo esta no item 27: quatro estudos dizem que o ganho **sobrevive a
+remocao do trunk**. Sua premissa estava metade certa -- os estudos comprovam que a **arquitetura
+conjunta** participa da melhora; o que nenhum estudo mostra e que a parte que participa e o trunk.
+
+A frase ficou assim, nos **dois** textos:
+
+> The gain is substantial, and where we could test it the gain is a property of the joint architecture
+> rather than of cross-task transfer: at the three datasets where the region pathway is held at its
+> initial values, the category gain survives in full.
+
+**Duas coisas que eu tirei da minha propria primeira versao, e por que:**
+
+1. **Escopo de datasets.** Escrevi primeiro "it survives when the region pathway is held at its initial
+   values", sem escopo -- logo depois de uma frase que fala em **seis** datasets. O controle de
+   freeze-region cobre **tres** (AL, AZ, FL). Sem o escopo, um resultado de 3-de-6 vira, na leitura,
+   resultado de 6-de-6. Corrigido para "at the three datasets where".
+2. **A baseline capacity-matched saiu.** Eu a tinha citado como segunda evidencia, mas ela e um controle
+   **pos-submissao que o Cap.5 nao reporta** (conferido: zero mencoes em prosa viva do capitulo). Citar
+   ali um controle que o capitulo nao apresenta seria apontar para o vazio. Ela pertence ao Cap.6.
+
+Linha de errata escrita em `articles/[mobiwac]/ERRATA.md` (entrada 2), com o contexto de por que a
+formulacao mais forte **nao** entrou.
 
 ---
 
-### 29. [PRECISA DE VOCE] Ressalva de particao fixa na secao de limitacoes (Cap. 5, reproduzida do artigo)
+### 29. [CLOSED rodada 15, 2026-08-05] Ressalva de particao fixa na secao de limitacoes (Cap. 5, reproduzida do artigo)
 
 **Local:** `src/chapters/5_mobiwac/07_discussion.tex:95` — renderiza no volume **defesa**, p. 80
 
@@ -1456,7 +1573,26 @@ novo.
 **Se ficar sem decisao:** Uma frase de limitacoes do artigo submetido, tornada deliberadamente mais cautelosa, permanece
 no capitulo sem a sua aprovacao explicita.
 
-> **SUA DECISAO:**
+> **SUA DECISAO:** Essa frase eu acho que tá errada, faça uma avalaição nos documentos que temos, pq já verificamos algo
+> realcionado a isso. De qualquer forma vamos remove-la por hora, tanto daqui quanto do artigo original.
+
+**REMOVIDO (rodada 15), conforme voce decidiu depois de ver a evidencia -- mas registrado que a frase
+NAO estava errada.**
+
+Voce pediu uma avaliacao antes de remover. Fiz, e ela **conferiu**: o `STATISTICAL_PROTOCOL.md:183-190`
+diz que o board congela os folds uma vez e que a comparacao MTL-vs-STL *"is paired because [both] are
+evaluated on the same frozen overlap folds -- this is what licenses the per-fold paired Wilcoxon (cat)
+and paired TOST (reg) at n=20"*. Ou seja, a particao fixa e a **condicao** que autoriza os testes
+pareados da sua alegacao principal, nao um defeito deles.
+
+Eu recomendei manter a frase acrescentando essa explicacao; voce optou por remover mesmo assim, e
+removi dos **dois** textos. Registrei o fato no `.tex` e na errata para que um leitor futuro **nao
+confunda a delecao com a correcao de um erro**.
+
+> **Consistencia verificada:** o `1_introduction.tex` tambem **nao** carrega mais essa ressalva
+> (conferido 2026-08-04), entao os capitulos ficam coerentes entre si -- a ressalva agora nao existe em
+> lugar nenhum do documento. Se um avaliador perguntar o que os intervalos cobrem, a resposta e:
+> variacao entre inicializacoes aleatorias, nao entre reamostragens do split de usuarios.
 
 ---
 

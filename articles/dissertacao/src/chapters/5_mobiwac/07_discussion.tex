@@ -9,13 +9,15 @@
 \section{Discussion and Limitations}
 \label{sec:mobiwac:discussion}
 
-One model serves both tasks. In one forward pass it outperforms the dedicated category
+One model serves both tasks, in one forward pass it outperforms the dedicated category
 model at all six datasets, and on region it outperforms the dedicated model at four of them
 and matches it within a two-point margin at the other two, with the region output keeping a
 private spatial path (Table~\ref{tab:mobiwac:results};
-Figure~\ref{fig:mobiwac:deltas}). Which part of the joint architecture produces the
-category gain is not settled by the controls reported here
-(Section~\ref{sec:mobiwac:results-part2}).
+Figure~\ref{fig:mobiwac:deltas}). The gain is substantial, and where we could test it the gain is a
+property of the joint architecture rather than of cross-task transfer: at the three datasets
+where the region pathway is held at its initial values, the category gain survives in full.
+Which component of that architecture produces the gain is not settled by the controls reported
+here (Section~\ref{sec:mobiwac:results-part2}).
 % [round5, cross-check] This sentence credited the SHARED TRUNK with the category lift, sixteen
 % lines after the paragraph at :713 refuses exactly that attribution. Rewritten to name the joint
 % architecture, which is what the freeze control and the capacity-matched control support. The
@@ -55,15 +57,23 @@ category gain is not settled by the controls reported here
 %     Texas, California, Istanbul) and two TOST matches (Alabama, Arizona), and Arizona is NOT upgraded.
 %     No number is quoted here, so no new numeric claim enters the section; each is stated with its
 %     dataset count and its test, and the results table and the delta figure are named.
-% [NEEDS SIGN-OFF: raised round 6, 2026-07-28 | AUTHOR. You approved softening the attribution and adding the scope clauses. Two
-% things to confirm. First, the sentence is now three sentences rather than one, which is a bigger
-% change to the section opener than a clause swap; if you prefer it shorter, the third sentence is the
-% one to cut, and the withholding paragraph above still carries the point. Second, this is prose in the
-% chapter reproduced from the submitted paper, so the same edit is applied in
-% articles/[mobiwac]/src/sections/07_discussion.tex and logged in that article's ERRATA.md, per the
-% under-review regime. The paper-side sentence still carried the ORIGINAL "the shared trunk carries the
-% semantic context that lifts" wording, so this round is the first time the softening reaches the
-% submitted text at all.]
+% [NEEDS SIGN-OFF 28 | CLOSED 2026-08-04] The author asked to restore the stronger wording, "the shared
+% trunk carries the semantic context that lifts the next-category task", on the grounds that current
+% studies substantiate the mechanism. THE EVIDENCE WAS AUDITED AND IT DOES NOT (see the closed
+% sign-off 27 block in 06_results.tex for the four converging experiments and their numbers). His
+% ruling after seeing them: soften to a substantial architecture-level gain and go no further for now.
+% WHAT THIS SENTENCE MAY AND MAY NOT SAY:
+%   MAY  -- the gain is substantial; it is a property of the JOINT ARCHITECTURE and not cross-task
+%           transfer. Test behind it: the freeze-region control, reported in this chapter at
+%           06_results.tex:197. It is scoped to THREE datasets (Alabama, Arizona, Florida), which is
+%           why the sentence says "at the three datasets where" and not "at all six" -- the sentence it
+%           follows spans six, and dropping the scope would silently generalize a 3-of-6 result.
+%   MAY NOT -- name the shared trunk, or any other component, as the source. Four experiments say the
+%           category gain survives the trunk's removal.
+%   MAY NOT -- cite the capacity-matched dedicated baseline here. It is a post-submission control that
+%           this chapter does not report; it belongs to Chapter 6.
+% PARITY: the identical edit is applied in articles/[mobiwac]/src/sections/07_discussion.tex, per the
+% under-review regime. An ERRATA.md row is owed in articles/[mobiwac]/ for this wording change.
 
 A service could treat the model's top-ranked next regions as an anticipatory
 set: at California, ten regions out of 8{,}501 contain the true next region 65.69
@@ -71,7 +81,7 @@ percent of the time, over 500 times better than picking ten at
 random. On four datasets (Alabama, Arizona, Florida, and Istanbul; a single seed over five folds), the ten shortlisted regions lie a median of 3 to 8 kilometers from the shortlist's centroid, against 17 to 176 kilometers for ten regions drawn at random from the same candidate set (median over 10,000 draws). This remains motivation, not a measured service result.
 
 Three limits qualify these results. First, our representation is trained once over all places; visits to places
-never seen during training are the single effect that we cannot fully isolate. A planned follow-up trains it on each fold's training places only and embeds unseen visits. Second, epoch selection consults the fold that the score is then read on (Section~\ref{sec:mobiwac:setup-windows}), so every absolute score reported here is optimistic. The comparison between the joint model and the dedicated models is affected far less, for two reasons we can state outright: the selection rule is the same for both models on the same folds, an epoch chosen on validation and read on that fold, with each model selected on its own validation objective (Section~\ref{sec:mobiwac:results-part2}), and the dedicated model receives the wider search, a per-dataset sweep over batch size and learning rate against one configuration held fixed across all six datasets for the joint model. The residual therefore favors the comparator, which makes the reported difference conservative. It does not follow that the bias cancels exactly. The four seeds also reuse one fixed fold partition, so the reported intervals cover variation across random initializations and not across resampled user splits. Third, we do not build or evaluate a mobility-aware service; it is background motivation, and this chapter's claims are the prediction results themselves.
+never seen during training are the single effect that we cannot fully isolate. A planned follow-up trains it on each fold's training places only and embeds unseen visits. Second, epoch selection consults the fold that the score is then read on (Section~\ref{sec:mobiwac:setup-windows}), so every absolute score reported here is optimistic. The comparison between the joint model and the dedicated models is affected far less, for two reasons we can state outright: the selection rule is the same for both models on the same folds, an epoch chosen on validation and read on that fold, with each model selected on its own validation objective (Section~\ref{sec:mobiwac:results-part2}), and the dedicated model receives the wider search, a per-dataset sweep over batch size and learning rate against one configuration held fixed across all six datasets for the joint model. The residual therefore favors the comparator, which makes the reported difference conservative. It does not follow that the bias cancels exactly. Third, we do not build or evaluate a mobility-aware service; it is background motivation, and this chapter's claims are the prediction results themselves.
 % [round6, COD-006 "identically"] RE-ANCHORED, READ, AND NARROWED. An earlier audit round recorded this
 % word as REFUTED, on the ground that the per-model selection objectives are disclosed elsewhere in the
 % chapter and the non-cancellation caveat is the next sentence. Both of those facts hold. The word still
@@ -92,8 +102,19 @@ never seen during training are the single effect that we cannot fully isolate. A
 % is untouched; and the wider-search half of the mitigation is untouched. No number, no verb, no result.
 % Same edit in articles/[mobiwac]/src/sections/07_discussion.tex, with the paper's own sec:results-part2
 % label, per the under-review regime; logged in that article's ERRATA.md.
-% [NEEDS SIGN-OFF: raised round 6, 2026-07-28 | AUTHOR -- a limitations sentence in the chapter reproduced from the submitted paper.
-% The change makes the paragraph slightly less favorable to the study, which is its point.]
+% [NEEDS SIGN-OFF 29 | CLOSED 2026-08-04] The fixed-partition caveat is REMOVED, from this chapter and
+% from articles/[mobiwac]/src/sections/07_discussion.tex, on the author's explicit instruction.
+% ON THE RECORD, because the removal was made against the evidence rather than because of it: I checked
+% the claim and it was TRUE. STATISTICAL_PROTOCOL.md:183-190 states that the board freezes folds once,
+% and that the MTL-vs-STL comparison "is paired because [both] are evaluated on the same frozen overlap
+% folds -- this is what licenses the per-fold paired Wilcoxon (cat) and paired TOST (reg) at n=20". The
+% fixed partition is the CONDITION for the headline tests, not a defect. I recommended keeping the
+% sentence and explaining that; the author chose removal after being shown this. Recorded so a later
+% reader does not mistake the deletion for a correction of an error.
+% If a reviewer asks what the reported intervals cover, the answer is: variation across random
+% initializations, not across resampled user splits. The document no longer states this anywhere --
+% verified 2026-08-04 that 1_introduction.tex no longer carries the caveat either, so the two chapters
+% are at least consistent. An ERRATA.md row is owed in articles/[mobiwac]/ for the removal.
 % [v2 review, 2026-07-26] Fixed-partition caveat added here. Personas 09 (statistical consequence)
 % and 04 (concordance seam) independently reported that 1_introduction.tex:246-247 carries this
 % caveat while Chapter 5, which reports the intervals, did not. Source: STATISTICAL_PROTOCOL.md

@@ -12,10 +12,9 @@
 % [AUTHOR NOTE] I HAVE COMMENTED
 %\subsection{The MTLnet framework and the representation diagnosis}
 %\label{sec:mobiwac:related-recap}
-% [NEEDS SIGN-OFF: raised v1 assembly, 2026-07-23 | new-to-chapter recap subsection (the bridging device mandated by
-% NORTH_STAR section 3: Ch.5 recaps BOTH the Ch.3 artifact and the Ch.4 finding). Content
-% from the approved spine (NORTH_STAR sections 2 and 6) and the GLOSSARY model-lineage table;
-% no numbers are quoted.]
+% The recap subsection below is a new-to-chapter bridging device mandated by NORTH_STAR §3 (Ch.5
+% recaps BOTH the Ch.3 artifact and the Ch.4 finding). Content from the approved spine and the
+% GLOSSARY model-lineage table; no numbers quoted, so no errata cost.
 % [round9f, 2026-08-02, PENDENCIAS_RESOLVIDOS 2.9 (arquivado 2026-08-02), AUTHOR DECISION] The
 % pointer to the gradient-cosine appendix lives HERE, in the section's own opening paragraph,
 % and not in the gradient-cosine sentence further down. Reason: that sentence is kept BYTE-FOR-BYTE
@@ -123,13 +122,26 @@ training with a fixed loss weighting is standard practice
 Reports find that gradient-balancing methods, which re-weight
 the tasks' updates during training (PCGrad \cite{yu2020pcgrad}, Nash-MTL \cite{nash}), rarely improve on a
 well-tuned fixed weighting with two tasks \cite{xin2022domtl}.
-We confirm this at scale: of nineteen loss and gradient
-balancers screened at their default configurations at a single seed on two datasets,
-Alabama and Florida, including the two methods named above, none improved on a tuned fixed
-task weighting across both tasks and both datasets. Two exceed equal weighting on next-category at Alabama, Nash-MTL by $0.68$
-points and scale normalization by $0.19$, and neither holds that position elsewhere:
-Nash-MTL loses it on the second dataset, and scale normalization gains on next-category
-there while collapsing on next-region.
+% [2026-08-04, author-approved this session] REWORDED, numbers and scope unchanged. Two defects
+% fixed. FIRST, "and neither holds that position elsewhere" was false for scale normalization: the
+% round5 ledger two screens below (AL/FL full picture) already recorded that scale_norm is above
+% equal_weight on next-category at BOTH datasets (AL +0.19, FL +0.33), so it does not lose that
+% position at Florida -- what it loses is next-region (FL -37.59). The old sentence's own next
+% clause ("scale normalization gains on next-category there") already said this and contradicted
+% the topic clause it followed; the fix states each balancer's Florida outcome directly instead of
+% a blanket claim one of the two contradicts. SECOND, the opening clause held its subject ("none")
+% behind ~30 words of modification (WRITING_LAW section 1 hard-phrasing sweep); reworded so "We
+% confirm..." carries the subject from the first word. No number, dataset, or method name changed.
+% PARITY: same edit applied in articles/[mobiwac]/src/sections/02_related.tex (paper still under
+% review), logged in articles/[mobiwac]/ERRATA.md rather than in Appendix B -- errata regime,
+% not appendix
+We confirm this at scale, screening nineteen loss and gradient balancers, including
+the two methods named above, at their default configurations and a single seed on two
+datasets, Alabama and Florida: none improved on a tuned fixed task weighting across both
+tasks and both datasets. Two exceed equal weighting on next-category at Alabama,
+Nash-MTL by $0.68$ points and scale normalization by $0.19$. At Florida, Nash-MTL falls
+back below equal weighting on both tasks, while scale normalization still exceeds equal
+weighting on next-category but collapses on next-region.
 % [REV-011, author ruling 2026-07-24: "use the 'at their default configurations'"]
 % Applied as written. Evidence check against docs/results/mtl_improvement/T4_audit_and_verdict.md:
 %  - Nash-MTL (named): correctly wired and adapting, a VALID test (T4:37-39). Sound.
@@ -253,7 +265,6 @@ smaller set of runs.
 % the sentence says "across both tasks and both datasets" and then names both exceptions with
 % what each one gives up. PCGrad 53.11 (-0.46) is kept by name at the
 % author's request so an MTL reviewer sees it was tried.
-% [NEEDS SIGN-OFF: raised round 5, 2026-07-27 | AUTHOR -- "nineteen", "+0.68" and "+0.19" are new numbers in the chapter.]
 
 \begin{figure}[htbp]
 \centering

@@ -182,3 +182,60 @@ non-inferior").
    partition altogether, found **exactly two** defects: this lead, and the dissertation's own
    consolidated-answer sentence in Chapter 6. Both are fixed. The nine-site count in the tracker was
    an inventory of where the claim *appears*, not of where the caveat is *missing*.
+
+### Corrections applied in the source during review (2026-08-04)
+
+One, under the same standing instruction, and it is a further correction to the same balancer
+sentence the 2026-07-28 entry above already touched once.
+
+1. **The balancer sentence, second pass (`src/sections/02_related.tex`).** The 2026-07-28 fix added
+   the count and named both exceptions, but its closing clause, "neither holds that position
+   elsewhere", is false for scale normalization. The sentence's own next clause already said so
+   ("scale normalization gains on next-category there") and contradicted the clause it followed: per
+   `docs/results/mtl_improvement/T4_full_screen.json`, `scale_norm` is above equal weighting on
+   next-category at **both** datasets (AL +0.19, FL +0.33) and never loses that position; what
+   collapses at Florida is next-region (35.47 against equal weighting's 62.53), a different axis.
+   Only `nash_mtl` loses its Alabama position entirely at Florida (both tasks negative there). The
+   sentence now states each balancer's Florida outcome directly instead of a blanket claim one of the
+   two contradicts. Separately, the sentence's opening clause held its subject ("none") behind
+   roughly thirty words of modification; reworded so the sentence states "We confirm this at
+   scale, screening..." with the subject first, per the dissertation's `WRITING_LAW.md` §1
+   hard-phrasing sweep (this paper has no equivalent style law of its own, so the dissertation's is
+   the applicable one during adaptation). No number, dataset, or method name changed. Applied
+   identically to the dissertation's `chapters/5_mobiwac/02_related.tex` in the same pass.
+
+### Corrections applied in the source during review (2026-08-05)
+
+Two, both in `src/sections/07_discussion.tex`, both on the author's explicit ruling after the
+mechanism evidence was re-audited.
+
+2. **The section opener's attribution (`src/sections/07_discussion.tex`).** The sentence following
+   the headline result read only "Which part of the joint architecture produces the category gain is
+   not settled by the controls reported here". It now states, before that, what the record does
+   support: "The gain is substantial, and where we could test it the gain is a property of the joint
+   architecture rather than of cross-task transfer: at the three datasets where the region pathway is
+   held at its initial values, the category gain survives in full." No number is quoted and no verdict
+   verb changes; the added clause is scoped to the three datasets the freeze-region control covers
+   (Alabama, Arizona, Florida), against the six the preceding sentence spans, so a three-of-six result
+   is not generalized. The residual "not settled" clause is kept verbatim.
+
+   Context for the change: the author asked to restore a stronger earlier wording naming the shared
+   trunk as the source of the category gain. That wording was **not** restored, because four
+   experiments in the project record converge against it: the cross-attention ablation at Florida
+   (delta -0.04 +- 0.13, paired Wilcoxon p=0.6250), the zeroed-mixing arm (tied, p=0.81), the
+   category-weight sweep (identical at every weight), and the cascade arm, which removes the shared
+   trunk outright and leaves next-category macro-F1 unchanged at four datasets (+0.20 AL, +0.20 AZ,
+   +0.01 FL, -0.20 Istanbul). The softened sentence is what the evidence supports.
+
+3. **The fixed-partition caveat removed (`src/sections/07_discussion.tex`).** The limitations
+   paragraph's sentence "The four seeds also reuse one fixed fold partition, so the reported intervals
+   cover variation across random initializations and not across resampled user splits" is deleted, on
+   the author's instruction. Nothing else in the paragraph changes; the preceding sentence, "It does
+   not follow that the bias cancels exactly", still carries the non-cancellation caveat.
+
+   Recorded for the file: the deleted sentence was **verified true** before removal, not found to be
+   in error. The analysis protocol freezes the fold partition once, and that is what licenses the
+   paired Wilcoxon and paired TOST at n=20 behind the headline comparison. The fixed partition is the
+   condition for those tests rather than a defect in them. Keeping the sentence with that explanation
+   was recommended and declined; this entry exists so the deletion is not later mistaken for the
+   correction of an error.
