@@ -13,14 +13,26 @@ One model serves both tasks, in one forward pass it outperforms the dedicated ca
 model at all six datasets, and on region it outperforms the dedicated model at four of them
 and matches it within a two-point margin at the other two, with the region output keeping a
 private spatial path (Table~\ref{tab:mobiwac:results};
-Figure~\ref{fig:mobiwac:deltas}).
-
-%[AUTHOR COMMENT]
-%The gain is substantial, and where we could test it the gain is a
-%property of the joint architecture rather than of cross-task transfer: at the three datasets
-%where the region pathway is held at its initial values, the category gain survives in full.
-%Which component of that architecture produces the gain is not settled by the controls reported
-%here (Section~\ref{sec:mobiwac:results-part2}).
+Figure~\ref{fig:mobiwac:deltas}). The gain is substantial, and where we could test it the gain is a
+property of the joint architecture rather than of cross-task transfer: at the three datasets
+where the region pathway is held at its initial values, the category gain survives in full.
+Which component of that architecture produces the gain is not settled by the controls reported
+here (Section~\ref{sec:mobiwac:results-part2}).
+% RESTORED 2026-08-05 on the author's ruling ("A parked note — restore it").
+% WHAT HAPPENED, recorded because the sync policy for this chapter is load-bearing: these three
+% sentences were commented out here under a marker %[AUTHOR COMMENT] while remaining LIVE in the paper
+% source, and my commit 71d119ce swept that uncommitted state in without naming it. The marker occurred
+% exactly once in the tree and was not written by me; the author confirms it was a note parked for his own
+% attention, not a removal.
+% WHY RESTORING IS THE CORRECT STATE AND NOT A JUDGEMENT CALL: this softened wording IS the recorded
+% outcome of NEEDS_SIGN_OFF 28 (closed 2026-08-05) and of the ERRATA.md entry at :212-228, both of which
+% record it as present in BOTH texts. A comment-out in one copy only was a third state neither record
+% described. Both copies are now byte-identical in this passage again.
+% DO NOT STRENGTHEN THIS ATTRIBUTION. NEEDS_SIGN_OFF.md:1516-1536 records the author asking to restore
+% the stronger wording that credits the shared trunk with the category lift, and that request being
+% DECLINED on evidence: four studies show the category gain survives removal of the trunk (the Florida
+% cross-attention ablation, the zeroed-mixing arm, the category-weight sweep, and the cascade arm). His
+% final ruling was "suavizar, sem desenvolver alem disso por hora". Probe: R13-mech-soft.
 
 % [round5, cross-check] This sentence credited the SHARED TRUNK with the category lift, sixteen
 % lines after the paragraph at :713 refuses exactly that attribution. Rewritten to name the joint

@@ -1551,6 +1551,21 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
                       "last live prose occurrence of the retracted `one fixed set of five folds`",
      "chapters/6_conclusion.tex",
      r"four seeds, each drawing its own five-fold user partition", True),
+    # R13-mech-soft: the §7 mechanism passage is LIVE in the dissertation copy. It was found commented out
+    # here under a marker %[AUTHOR COMMENT] while still live in the paper source, and the author ruled on
+    # 2026-08-05 that this was a note parked for his attention rather than a removal ("A parked note --
+    # restore it"). Restored, so both copies match NEEDS_SIGN_OFF 28 and ERRATA.md:212-228, which record
+    # this softened wording as present in BOTH texts.
+    # THIS PROBE GUARDS THE SOFTENED FORM, NOT MERELY ITS PRESENCE. The pattern pins "a property of the
+    # joint architecture rather than of cross-task transfer", which is the wording that replaced a claim
+    # crediting the shared trunk with the category lift. The author asked for the stronger version and it
+    # was declined on evidence (NEEDS_SIGN_OFF.md:1516-1536: the gain survives removal of the trunk in four
+    # separate studies), his ruling being "suavizar, sem desenvolver alem disso por hora". A later agent
+    # restoring the stronger attribution, or re-parking the passage in one copy only, turns this red.
+    ("R13-mech-soft", "the Ch.5 mechanism passage is live and keeps the softened attribution: the gain is "
+                      "a property of the joint architecture, not of cross-task transfer",
+     "chapters/5_mobiwac/07_discussion.tex",
+     r"a\s+property of the joint architecture rather than of cross-task transfer", True),
 )
 
 # COD-016b needs a STRUCTURAL probe, not a string one, so it lives here rather than in PROBES --
