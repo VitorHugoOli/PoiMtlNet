@@ -108,7 +108,15 @@ Two further scheduling deviations, which change wall-clock only and no measured 
 3. **Large states run 1-wide**, not 2-wide. `catx_v17_seed0_5f/RESULTS.md` records 2-wide as
    infeasible for CA/TX: each MTL dataset build peaks ~66 GB **host** RAM on this shared 125 GB box.
    (The charter's ~21 GB figure is GPU-side and correct.) Small states run 2-wide.
-4. **Alabama's representation was not rebuilt.** Study cell `E2` is bit-for-bit this definition
+4. **The v18 engine is materialized from the one-shot full-graph export**, not from the per-window
+   `prefix_forward_only` npz. On a forward-only graph the two are the same to float32 round-off
+   (verified over *every* window at three states: max 2.4–3.1e-06 on embeddings of scale ~1.05,
+   with slot 8 — the truncation boundary — no worse than slot 0), because messages flow strictly
+   past → future and a visit's vector cannot depend on anything after it. This cuts FL/CA/TX Phase 0
+   from ~17 h of single-threaded CPU to seconds, and changes no downstream number. Full evidence and
+   the reproduction commands: [`READOUT_EQUIVALENCE.md`](READOUT_EQUIVALENCE.md). The shortcut is
+   **invalid for bidirectional arms** and `materialize_from_insample.py` hard-fails on them.
+5. **Alabama's representation was not rebuilt.** Study cell `E2` is bit-for-bit this definition
    (`--forward-only --add-continuous-time`, seed 42, 500 ep, resln, dim 64, 2 layers, all users,
    `self_test: true`); the v18 engine was materialized from its existing npz. Provenance in
    [`PROVENANCE.md`](PROVENANCE.md).

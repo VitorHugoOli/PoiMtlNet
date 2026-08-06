@@ -14,9 +14,13 @@ readout, and node features carry 4 elapsed-time columns (`in_channels = 15`).
    excluded and on what evidence. **Start here.**
 2. [`V18_RESULTS.md`](V18_RESULTS.md) — the tables. Per state: dedicated cat, dedicated reg, joint
    (diag-best **and** joint-best), Δ vs the v17 published values, current `n` stated in every table.
-3. [`AUDIT.md`](AUDIT.md) — the §6 self-checks with their measured values, and anything that failed.
-4. [`PROVENANCE.md`](PROVENANCE.md) — every rundir: state, seed, PID, path, recipe, commit SHA.
-5. [`data/v18_results.json`](data/v18_results.json) + [`score_all.py`](score_all.py) — the
+3. [`READOUT_EQUIVALENCE.md`](READOUT_EQUIVALENCE.md) — why the v18 engine is materialized from the
+   one-shot full-graph export rather than the per-window readout, the full-coverage evidence, and
+   the guard that stops the shortcut being applied to a bidirectional arm. **Read before touching
+   Phase 0.**
+4. [`AUDIT.md`](AUDIT.md) — the §6 self-checks with their measured values, and anything that failed.
+5. [`PROVENANCE.md`](PROVENANCE.md) — every rundir: state, seed, PID, path, recipe, commit SHA.
+6. [`data/v18_results.json`](data/v18_results.json) + [`score_all.py`](score_all.py) — the
    machine-readable record and the reproducer that regenerates it from the rundirs. **Every number
    in every markdown table here is traceable to that JSON.**
 
@@ -46,11 +50,15 @@ readout, and node features carry 4 elapsed-time columns (`in_channels = 15`).
 ## Layout
 
 ```
-run_phase0_build.sh    build + readout + materialize the v18 engine, per state (resumable)
+run_phase0_fast.sh     Phase 0 as run: build + materialize from the one-shot export  <- USE THIS
+run_phase0_build.sh    Phase 0 via the per-window readout. Superseded for forward-only arms
+                       (identical output, ~17 h slower at FL/CA/TX); kept as the reference path
+                       and REQUIRED for any bidirectional arm. See READOUT_EQUIVALENCE.md
 run_wave.sh <SEED>     one wave: 6 states x 3 families at one seed (resumable, idempotent)
 status_update.py       rewrites status.json + PROGRESS.md from the per-cell sidecars
+score_all.py           the reproducer: regenerates data/v18_results.json from the rundirs
 smoke_alabama.sh       1-fold/2-epoch validation of the full training path
-logs/                  driver + per-cell logs
+logs/                  driver + per-cell logs (gitignored)
 ```
 
 Per-cell score sidecars live at `docs/results/closing_data/v18/<state>_s<seed>_<family>.json` and
