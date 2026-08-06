@@ -1121,7 +1121,13 @@ def main():
                                  "check2hgi_design_k_l0_1", "check2hgi_dk_ovl",
                                  # closing_data board: substrate-column baseline engines (STL reg comparison)
                                  "baseline_b2c_onehot64", "baseline_geotree_skipgram",
-                                 "check2hgi_ctle", "baseline_b2a_poi2vec"],
+                                 "check2hgi_ctle", "baseline_b2a_poi2vec",
+                                 # v18: v17 recipe on the forward-only + elapsed-time substrate.
+                                 # NOTE this list is a FOURTH allowlist, separate from the three in
+                                 # src/configs/paths.py (enum, MTL_CHECK2HGI_ALLOWED_ENGINES, and
+                                 # IoPaths.get_next_region). A new engine must be added here too or
+                                 # the dedicated-region family dies at argparse with rc=2.
+                                 "check2hgi_v18"],
                         help="Override the engine used to load next.parquet/next_region.parquet. "
                              "Region labels and graph maps still come from check2hgi. "
                              "Used by Design A probe and HGI-substrate category-injection probes.")
