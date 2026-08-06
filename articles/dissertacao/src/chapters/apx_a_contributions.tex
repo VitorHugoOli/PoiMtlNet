@@ -5,17 +5,13 @@
 \label{apx:contributions}
 
 % [round12, 2026-08-03] SECTION A.1, "The experimental platform", MOVED OUT of this volume on the
-% author's instruction: "APENDICES -- remover A.1, C.3 e E, mandando esse conteudo para o material
-% extra." Its text, its \label{apx:contributions:platform}, and the sign-off and provenance comments
-% that annotated it are in chapters/apx_extra_platform.tex, which the supplementary volume includes
-% as its Appendix E. Nothing in either volume referenced that label, measured from src/ with
-% comments stripped:
-%   for f in $(grep -rl 'apx:contributions' chapters tables *.tex); do grep -v '^[[:space:]]*%' "$f" \
-%     | grep -n 'apx:contributions'; done   ->  only the three \label declarations themselves
-% CONSEQUENCE FOR THE AUTHOR, flagged in src_utils/_round12/41_appendix_move.md and not decided
-% here: this appendix now carries one section, the reproducibility list, under a chapter title that
-% was written to cover the platform as well. Retitling the appendix, or promoting the remaining
-% section to an unsectioned statement, is a choice for the author.
+% author's instruction ("APENDICES -- remover A.1, C.3 e E, mandando esse conteudo para o material
+% extra") to chapters/apx_extra_platform.tex, and then REMOVED ENTIRELY (rodada 16, 2026-08-05,
+% NEEDS SIGN-OFF 50-53) rather than kept as supplementary-volume content: the author judged the
+% platform description unnecessary for either volume. Its label (apx:contributions:platform) was
+% never \ref'd outside its own historical comments, so nothing else needed updating. This appendix
+% now carries one section, the reproducibility list, under a chapter title written to cover the
+% platform as well; the title stands as is (author's call).
 \section{Reproducing the reported numbers}
 \label{apx:contributions:repro}
 
@@ -67,39 +63,6 @@ that constructs the folds, and the statistical scripts and output files listed b
         characterizing it. Within one seed both models are built from the same partition, which is what
         the paired comparison requires; the tests pair the per-seed means, so they never
         assume that a given fold of one seed is the same fold of another.
-% WITHIN-SEED SHARING: WHAT IS ESTABLISHED AND WHAT IS NOT. Corrected 2026-08-05 after a reviewer found
-% this stated as a measured fact. It is a CODE-LEVEL property, not something measured on the artifacts:
-% src/data/folds.py builds the joint-model folds at :1247 and the dedicated next-task folds at :1159 with
-% the SAME call, StratifiedGroupKFold(n_splits, shuffle=True, random_state=self.seed) split on the next-task
-% rows grouped by user identifier. Given the same input rows and the same seed, both arms therefore receive
-% the same partition by construction. That conditional matters: LANE2_OVERLAP_VALIDATION.md:75 records
-% partitions NOT bit-identical across arms, and its own parenthetical gives the reason -- "(different
-% windowed rows)". That caveat is about the overlap-versus-non-overlap comparison, where the arms consume
-% different windowings, not about two models reading one windowing.
-% STATISTICAL_PROTOCOL.md:187-190 asserts the same-folds property for the headline family and warns that "If
-% a future re-run regenerates folds for one arm, the headline silently becomes unpaired". The reported runs
-% did generate on the fly (see fold_partition_and_seeds.md §6), so the guarantee rests on the arms consuming
-% identical rows rather than on a frozen cache. [VERIFY: a direct comparison of the saved fold indices of a
-% joint run against a dedicated run at the same seed and dataset would settle it by measurement. Not run;
-% no fold_indices*.pt survives under output/ in this checkout.]
-        % CORRECTED 2026-08-04, same finding as the entry above. The old text read "over that one fixed
-        % partition ... Only the initialization varies across the four; the folds do not", which inverted
-        % the design. Full evidence in science/fold_partition_and_seeds.md §2-§5.
-        % THE CORRECTION MAKES THE RESULT STRONGER, WHICH IS WHY IT IS STATED CAREFULLY. The old sentence
-        % conceded that the intervals miss split variability; they do not, because each seed resamples the
-        % split. A claim that grows on correction earns more scrutiny, not less, so the text adds the
-        % bound that four draws SAMPLE that variability rather than characterize it.
-        % THE PAIRED TESTS SURVIVE, and the last sentence records why rather than leaving it to be
-        % re-derived: pairing the joint model against the dedicated model happens WITHIN a seed, where
-        % both arms share one partition, and the reported tests pair per-seed means (n=4), which never
-        % requires fold k of seed 0 to be fold k of seed 1. A future analysis that pairs per (seed, fold)
-        % across seeds would not be valid under this design.
-        % Probes: R13-foldseed3, R13-foldseed4.
-  \item[The region-transition prior.] Rebuilt for each fold from that fold's training
-        partition alone by
-        \path{scripts/build_phase3_per_fold_transitions.sh}, which writes one file per
-        fold. Only the external region baseline of Chapter~\ref{ch:mobiwac} consumes
-        it; the joint and dedicated models do not.
   \item[The reported scores.] Read at one saved model per fold, the epoch selected on
         validation, which is the joint-best convention: both tasks are read at the same
         checkpoint rather than each at its own best epoch. The post-hoc scorer is

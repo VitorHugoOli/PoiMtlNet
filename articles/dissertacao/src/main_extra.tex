@@ -195,10 +195,7 @@
 % is complete without it. The third clause is the load-bearing one: a supplementary volume
 % that reads as a missing piece of the dissertation would undo the advisor's ruling instead
 % of implementing it.
-% [NEEDS SIGN-OFF: raised round 7, 2026-07-29 | whole chapter -- new frame prose. It states
-% what the reader is holding and makes a claim about the main document's completeness, which
-% is the author's to make. Written from the advisor's ruling of 2026-07-28 as relayed by the
-% author, and from NORTH_STAR §4's errata regime; no result or number is asserted here.]
+% [NEEDS SIGN-OFF 55 | CLOSED] Author confirmed the opening statement as written.
 % ---------------------------------------------------------------------------------------
     \chapter*{About this volume}
     \addcontentsline{toc}{chapter}{About this volume}
@@ -213,25 +210,16 @@
 % what this volume belongs to. Naming the cover instead of quoting a string, so it cannot go stale a
 % second time -- the reviewer's own stronger proposal (_round9/48_readability_final.md, R15-02).
 
-    This volume holds five appendices that were % [round9c, 2026-08-02, R15-02] WAS a quoted title that is NOT the dissertation's title. This
-    % file's own \titulo field, and the folha de rosto and Resumo of the main document, all read
-    % "Multi-Task Learning for Point-of-Interest Classification and Prediction Tasks: The Role of
-    % the Check-in-Level Representation". A reader holding both volumes met two titles for one work
-    % within three pages, on the page whose job is to say what this volume belongs to. Naming the
-    % cover cannot go stale a second time.
+    This volume holds four appendices that were
     written for the dissertation named on the
     cover of this volume and that are published beside it rather than inside it. The first
     records every departure of the three reproduced article chapters from their published or
     submitted originals. The second measures how much of the next category can be predicted from
     the category history of the input window alone, which is the reference level that one screening
-    argument in the dissertation is read against. The third describes the reusable experimental
-    platform the research produced alongside its results. The fourth states the author's position on
-    whether review by a research ethics committee was required for this work. The fifth records how
+    argument in the dissertation is read against. The third states the author's position on
+    whether review by a research ethics committee was required for this work. The fourth records how
     one hyperparameter of the place-embedding baseline was selected before that baseline was applied
     to the datasets studied here.
-% [ORPHANED 2026-08-02 by the author's clean-tree pass: the sentence this block annotated is no longer in the text. Kept, unrelocated in meaning, for review.]
-% stacked before a reduced relative clause ending on a stranded preposition -- the hardest of the three
-% instances the reviewer found, and the pronoun is what tells the reader a clause is starting.
 
     The first two were part of the main document until July of 2026. They were moved here on the
     advisor's assessment that a reproduced chapter need not be an identical copy of the article
@@ -241,7 +229,7 @@
     record worth keeping, because a departure from a published text should be documented
     somewhere a reader can reach, and this volume is where it is documented.
 
-    The last three left the main document in August of 2026, on the author's judgment that each
+    The last two left the main document in August of 2026, on the author's judgment that each
     answers a question a reader may bring to the work without being needed to follow its argument.
     They are published here for the same reason the first two are. A record that a reader can reach
     is worth more than a record that is left out because it did not fit the shape of the chapter it
@@ -253,27 +241,21 @@
     is auditability. A reader comparing a reproduced chapter against the article it came from
     will find the differences enumerated here instead of having to reconstruct them, and a
     reader who wants the fuller treatment of the label-history benchmark will find it here
-    rather than in the paragraph that summarizes it. A reader who asks what software the research
-    produced, how the human-subjects question was handled, or how the baseline was adapted before it
-    was used will find each of those three answered here as well.
+    rather than in the paragraph that summarizes it. A reader who asks how the human-subjects
+    question was handled, or how the baseline was adapted before it
+    was used will find each of those answered here as well.
 
     Two conventions follow from the split. The first two appendices keep the letters they carried
     when they were part of the dissertation, B and D, so that the records and correspondence that
-    name them by letter still point at the same material, while the three that arrived later carry
-    E, F and G, letters of this volume alone; the dissertation letters its own appendices
+    name them by letter still point at the same material, while the two that arrived later carry
+    E and F, letters of this volume alone; the dissertation letters its own appendices
     independently, so an appendix letter should always be read together with the volume it belongs
     to. And a reference in
     these pages to a numbered chapter, section, table or figure is a reference into the
-    dissertation, not into this volume: this volume numbers only its own five appendices and
+    dissertation, not into this volume: this volume numbers only its own four appendices and
     their tables.
-% [round9c, 2026-07-30] SENTENCE CORRECTED as a consequence of the author's rename decision
-% (PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30) point 0). The dissertation's appendices now print A, B, C, D in sequence, so
-% the old clauses "a reference to Appendix B means the same thing in both volumes" and "the
-% letters A, C and E belong to appendices that stayed" both became FALSE the moment the main
-% volume relettered. This edit is OUTSIDE the cosine track's two owned files and is reported as
-% such in _round9/43_apxf_author.md: leaving a false reader-facing sentence in a built volume was
-% the worse option. The paragraph is under this file's own [NEEDS SIGN-OFF]; the author reviews
-% both together.
+% [NEEDS SIGN-OFF 56 | CLOSED] Author confirmed the paragraph above (appendix-letter convention),
+% reviewed together with item 55 (the opening statement it sits inside).
 
 % ---------------------------------------------------------------------------------------
 % THE APPENDICES. \setcounter{chapter}{N} before each \chapter is what preserves the
@@ -291,25 +273,23 @@
         \include{chapters/apx_d_ceiling}
 % ---------------------------------------------------------------------------------------
 % ARRIVED ROUND 12, 2026-08-03, on the author's instruction: "APENDICES -- remover A.1, C.3 e E,
-% mandando esse conteudo para o material extra." Three pieces left the defense volume and land
-% here, in the order he named them:
-%   E  chapters/apx_extra_platform.tex        was Section A.1 of the defense volume's Appendix A
-%   F  chapters/apx_extra_human_subjects.tex  was Section C.3 of the defense volume's Appendix C
-%   G  chapters/apx_g_hgi_tuning.tex          was the defense volume's Appendix E, moved whole and
-%                                             with its file unchanged
-% The letters E, F and G belong to THIS volume only. Unlike B and D above, these three carried no
-% letter of their own in the dissertation (two were subsections, and the third was a letter that
-% this volume had already given to something else), so nothing outside this document names them by
-% letter and nothing is owed to a frozen letter. The \setcounter lines are written out anyway,
-% because the two above make the counter's value the mechanism a reader checks.
+% mandando esse conteudo para o material extra." Three pieces left the defense volume and landed
+% here in the order he named them (E platform, F human subjects, G HGI tuning). The platform
+% piece (chapters/apx_extra_platform.tex, was Section A.1 of the defense volume's Appendix A) was
+% removed entirely on the author's later instruction (rodada 16, 2026-08-05, NEEDS SIGN-OFF 50-53:
+% "Podemos apagar e remove a as refs ao apx_extra_platform") rather than kept as dead reference
+% material; its label (apx:contributions:platform) was never \ref'd outside its own file's
+% historical comments, so nothing else in either volume needed updating for its removal beyond
+% this block and the "About this volume" preface above. The remaining two pieces below now carry
+% the letters E and F of this volume; nothing outside this document names them by letter and
+% nothing is owed to a frozen letter, but the \setcounter lines stay because they are the
+% mechanism a reader checks.
 % The letter mapping of the defense volume, which is what made "A.1, C.3, E" resolvable at all, was
 % read from that volume's aux table and is written up in src_utils/_round12/40_appendix_letters.md.
 % ---------------------------------------------------------------------------------------
         \setcounter{chapter}{4}
-        \include{chapters/apx_extra_platform}
-        \setcounter{chapter}{5}
         \include{chapters/apx_extra_human_subjects}
-        \setcounter{chapter}{6}
+        \setcounter{chapter}{5}
         \include{chapters/apx_g_hgi_tuning}
 % ---------------------------------------------------------------------------------------
 % SLOT FOR UNDECIDED MATERIAL. The author's design for this volume includes "anything else
