@@ -1,12 +1,12 @@
 {
-  "updated_at": "2026-08-06T17:07:29.905072+00:00",
-  "commit_sha": "c17ee7296cc86c0d840c7624a43e8559ca91d004",
-  "phase": "wave0",
+  "updated_at": "2026-08-06T19:37:21.989061+00:00",
+  "commit_sha": "cce3ff65d3a38a7d697b7294bc5f99c5b826c8b1",
+  "phase": "wave1",
   "current_n": {
     "istanbul": 5,
     "alabama": 5,
     "arizona": 5,
-    "florida": 0,
+    "florida": 5,
     "texas": 0,
     "california": 0
   },
@@ -385,21 +385,21 @@
       "state": "florida",
       "seed": 0,
       "family": "reg",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
+      "status": "done",
+      "wall_seconds": 1666,
+      "rundir": "docs/results/P1/region_head_florida_region_5f_50ep_v18_florida_reg_s0.json",
       "cat": null,
-      "reg": null
+      "reg": 76.6998
     },
     {
       "state": "florida",
       "seed": 0,
       "family": "joint",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
-      "cat": null,
-      "reg": null
+      "status": "done",
+      "wall_seconds": 7301,
+      "rundir": "results/check2hgi_v18/florida/mtlnet_lr1.0e-04_bs8192_ep50_20260806_173530_649170",
+      "cat": 35.8785,
+      "reg": 77.2552
     },
     {
       "state": "florida",
@@ -734,16 +734,16 @@
   ],
   "running": [
     {
-      "state": "florida",
+      "state": "texas",
       "seed": 0,
-      "family": "reg",
-      "pid": 639632,
-      "started_at": "2026-08-06T17:07:29+00:00"
+      "family": "cat",
+      "pid": 719485,
+      "started_at": "2026-08-06T19:36:56+00:00"
     }
   ],
-  "gpu_free_mib": 45489,
+  "gpu_free_mib": 19834,
   "disk_free_gb": 2192,
-  "disk_free_gb_home": 51,
+  "disk_free_gb_home": 50,
   "blocked_on": null,
   "verify_flags": []
 }

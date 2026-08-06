@@ -1,6 +1,6 @@
 # v18 — PROGRESS
 
-> Rewritten after every completed cell. `updated_at` 2026-08-06T17:07:29.905072+00:00 · phase **wave0** · commit `c17ee729`
+> Rewritten after every completed cell. `updated_at` 2026-08-06T19:37:21.989061+00:00 · phase **wave1** · commit `cce3ff65`
 
 ## Matrix — 6 states × 4 seeds × 3 families
 
@@ -11,24 +11,24 @@
 | istanbul | D D D | . . . | . . . | . . . | 5 |
 | alabama | D D D | . . . | . . . | . . . | 5 |
 | arizona | D D D | . . . | . . . | . . . | 5 |
-| florida | D ~ . | . . . | . . . | . . . | 0 |
-| texas | . . . | . . . | . . . | . . . | 0 |
+| florida | D D D | . . . | . . . | . . . | 5 |
+| texas | ~ . . | . . . | . . . | . . . | 0 |
 | california | . . . | . . . | . . . | . . . | 0 |
 
 ## Timing
 
-- cells done: **10 / 72**
-- measured wall-clock total: **2.10 h**
+- cells done: **12 / 72**
+- measured wall-clock total: **4.59 h**
 - cat: n=4, mean 11.4 min, max 31.7 min
-- reg: n=3, mean 4.8 min, max 8.1 min
-- joint: n=3, mean 21.9 min, max 28.3 min
-- naive estimate for the remaining 62 cells (serial): **13.0 h**
+- reg: n=4, mean 10.5 min, max 27.8 min
+- joint: n=4, mean 46.9 min, max 121.7 min
+- naive estimate for the remaining 60 cells (serial): **23.0 h**
 
 ## Running now
 
-- florida s0 reg (pid 639632, since 2026-08-06T17:07:29+00:00)
+- texas s0 cat (pid 719485, since 2026-08-06T19:36:56+00:00)
 
 ## Environment
 
-- GPU free: 45489 MiB · /dados free: 2192 GB · /home free: 51 GB
+- GPU free: 19834 MiB · /dados free: 2192 GB · /home free: 50 GB
 

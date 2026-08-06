@@ -1,8 +1,8 @@
 {
  "meta": {
   "study": "v18",
-  "generated_utc": "2026-08-06T16:40:18.157084+00:00",
-  "commit_sha": "c17ee7296cc86c0d840c7624a43e8559ca91d004",
+  "generated_utc": "2026-08-06T19:37:21.955792+00:00",
+  "commit_sha": "cce3ff65d3a38a7d697b7294bc5f99c5b826c8b1",
   "definition": "v17 recipe on a forward-only check-in graph with 4 elapsed-time node columns (in_channels 15)",
   "forward_only": true,
   "in_channels": 15,
@@ -294,6 +294,97 @@
    "jb_cat_folds": null,
    "jb_reg_folds": null,
    "jb_epochs": null
+  },
+  {
+   "state": "florida",
+   "seed": 0,
+   "forward_only": true,
+   "in_channels": 15,
+   "v18_config": {
+    "engine": "check2hgi_v18",
+    "repr_seed": 42,
+    "repr_epochs": 500,
+    "encoder": "resln",
+    "dim": 64,
+    "num_layers": 2,
+    "node_layout": [
+     "canonical_11",
+     "continuous_time_4"
+    ],
+    "readout": "prefix_forward_only"
+   },
+   "protocol": {
+    "precision": "fp32",
+    "compile": true,
+    "tf32": true,
+    "folds": 5,
+    "epochs": 50,
+    "selector": "geom_simple",
+    "min_best_epoch": 0
+   },
+   "warnings": [],
+   "cat_rundir": "/home/vitor.oliveira/PoiMtlNet/results/check2hgi_v18/florida/next_lr1.0e-04_bs8192_ep50_20260806_163558_627960",
+   "cat_pid": "627960",
+   "stl_cat": 35.9711,
+   "stl_cat_std": 0.2986,
+   "stl_cat_folds": [
+    36.2962,
+    35.6924,
+    35.5843,
+    36.307,
+    35.9757
+   ],
+   "stl_cat_epochs": [
+    9,
+    13,
+    6,
+    8,
+    8
+   ],
+   "cat_wall_seconds": 1903,
+   "reg_result_json": "/home/vitor.oliveira/PoiMtlNet/docs/results/P1/region_head_florida_region_5f_50ep_v18_florida_reg_s0.json",
+   "stl_reg": 76.6998,
+   "reg_wall_seconds": 1666,
+   "rundir": "/home/vitor.oliveira/PoiMtlNet/results/check2hgi_v18/florida/mtlnet_lr1.0e-04_bs8192_ep50_20260806_173530_649170",
+   "pid": "649170",
+   "joint_wall_seconds": 7301,
+   "db_cat": 35.8785,
+   "db_cat_std": 0.401,
+   "db_cat_folds": [
+    36.225,
+    35.5854,
+    35.2348,
+    36.105,
+    36.2423
+   ],
+   "db_cat_epochs": [
+    13,
+    14,
+    12,
+    14,
+    20
+   ],
+   "db_reg": 77.2552,
+   "db_reg_std": 0.9759,
+   "db_reg_folds": [
+    77.5255,
+    77.2869,
+    76.1515,
+    76.4013,
+    78.9107
+   ],
+   "db_reg_epochs": [
+    35,
+    40,
+    42,
+    36,
+    46
+   ],
+   "jb_cat": null,
+   "jb_reg": null,
+   "jb_cat_folds": null,
+   "jb_reg_folds": null,
+   "jb_epochs": null
   }
  ],
  "cells": {
@@ -440,11 +531,60 @@
    "delta_reg_vs_own_ceiling": 0.0598,
    "delta_cat_vs_v17_cross_substrate": -34.1426,
    "delta_reg_vs_v17_cross_substrate": -0.0189
+  },
+  "florida": {
+   "stl_cat": {
+    "mean": 35.9711,
+    "sd": 0.0,
+    "n_seeds": 1,
+    "n": 5
+   },
+   "stl_reg": {
+    "mean": 76.6998,
+    "sd": 0.0,
+    "n_seeds": 1,
+    "n": 5
+   },
+   "joint_cat_diag_best": {
+    "mean": 35.8785,
+    "sd": 0.0,
+    "n_seeds": 1,
+    "n": 5
+   },
+   "joint_reg_diag_best": {
+    "mean": 77.2552,
+    "sd": 0.0,
+    "n_seeds": 1,
+    "n": 5
+   },
+   "joint_cat_joint_best": {
+    "mean": null,
+    "sd": null,
+    "n_seeds": 0,
+    "n": 0
+   },
+   "joint_reg_joint_best": {
+    "mean": null,
+    "sd": null,
+    "n_seeds": 0,
+    "n": 0
+   },
+   "v17_published": {
+    "mtl_cat": 79.85,
+    "mtl_reg": 77.42,
+    "stl_cat": 74.51,
+    "stl_reg": 76.7
+   },
+   "delta_cat_vs_own_ceiling": -0.0926,
+   "delta_reg_vs_own_ceiling": 0.5554,
+   "delta_cat_vs_v17_cross_substrate": -43.9715,
+   "delta_reg_vs_v17_cross_substrate": -0.1648
   }
  },
  "order": [
   "istanbul_s0",
   "alabama_s0",
-  "arizona_s0"
+  "arizona_s0",
+  "florida_s0"
  ]
 }
