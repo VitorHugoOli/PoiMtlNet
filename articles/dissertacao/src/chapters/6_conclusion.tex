@@ -103,6 +103,30 @@ Alabama and Arizona, it remains statistically non-inferior within a two-point ma
 (TOST). Non-inferiority was the registered primary analysis for the region task; the
 four superiority findings are secondary results outside that analysis plan.
 
+These results cannot be attributed solely to the joint model or its new topology. Comparing Check2HGI against HGI shows
+that a check-in-level representation achieves better performance than a place-level representation. This evidence
+supports testing Check2HGI as an input representation in other mobility prediction architectures, although whether its
+benefits transfer to those models remains to be evaluated.
+
+The final results also provide meaningful insights into how dataset scale affects model performance. For next-region
+prediction across the five U.S. states, the joint model shows stronger performance relative to the dedicated model as
+the number of regions increases.In particular, it achieves an improvement of more than two Acc@10 percentage points in
+Texas and California,the states with the largest number of regions.
+This pattern suggests that joint learning becomes more advantageous when the model has to choose among a larger pool of
+regions. However, states with more regions also tend to have a higher volume of check-in data. Due to the correlation
+between these two properties, a controlled experiment is required to isolate the impact of region count from dataset
+size and other state-level variables, making this observation suggestive rather than causal.
+
+
+Another finding that warrants separate study concerns model capacity. Because the joint model has six times more
+parameters than the dedicated models, we conducted a parameter-count control experiment (Appendix~
+\ref{apx:parameter-count-control}
+). The results show that expanding the dedicated model to match the joint model's capacity yielded performance slightly
+below the original dedicated model in Alabama and California, while still remaining inferior to the joint model. Thus,
+parameter count alone does not account for the joint model's superior next-category performance in these two datasets.
+This shows that the joint model's success is driven by its architecture or multitask training. Since simply widening the
+dedicated model does not replicate these results, we can eliminate model size as the primary reason for the improvement.
+
 
 % [2026-08-06, AUTHOR REQUEST] The earlier AUT-37 ordering was superseded by a more explicit
 % four-movement closing arc: (1) question and conditional answer; (2) the causal sequence from the
@@ -113,71 +137,57 @@ four superiority findings are secondary results outside that analysis plan.
 % Section~\ref{sec:fund:mtl}, where it is already sourced. The Check2HGI implication is limited to a
 % candidate for testing with other architectures; transfer to them is explicitly unmeasured. The
 % manual page break marks the diagnosis-to-resolution hinge and prevents a stranded paragraph.
+
+
 \section{The consolidated answer}
 \label{sec:conc:answer}
 
 The research question asks whether multitask learning helps next-category and
-next-region prediction, and what the answer depends on ? The evidence supports a
-conditional yes. In the final configuration, the joint model outperforms the dedicated
+next-region prediction, and what the answer depends on ? For the first half of this question the evidence supports a
+yes. In the final configuration, the joint model outperforms the dedicated
 single-task models on next-category prediction in all six datasets. On next-region
 prediction, it outperforms them in Istanbul, Florida, Texas, and California. In Alabama
-and Arizona, it is statistically non-inferior within a two-point margin (TOST). Thus, under
-the evaluation defined in advance, one joint model therefore produces both predictions
-in one forward pass without sacrificing either task.
+and Arizona, it is statistically non-inferior within a two-point margin (TOST). Thus,
+under the evaluation defined in advance, one joint model produces both predictions in
+one forward pass without sacrificing either task. This result answers the first part of
+the research question. The sequence of studies explains the conditions behind that
+answer.
 
-This answer emerged through a chain of findings. Chapter~\ref{ch:cbic} began with a
-place-level embedding and naive hard sharing. Its joint model did not consistently
+The explanation begins in Chapter~\ref{ch:cbic}, with a place-level embedding and naive
+hard sharing. Its joint model did not consistently
 outperform the two dedicated models, leaving three possible explanations: the tasks
 might be too different, the input might be insufficient, or the sharing topology might
 be too restrictive. Chapter~\ref{ch:courb} separated one of these explanations by
 keeping the architecture fixed and changing the input. Performance then improved,
 including on the sequential task in most states. Because the architecture did not
 change, this comparison identifies the input representation as the main bottleneck in
-that configuration.
+that configuration. This diagnosis set the direction for the final study.
 
-\pagebreak
-Chapter~\ref{ch:mobiwac} acted on this diagnosis. Check2HGI replaced one vector per
-place with one vector per visit. The joint architecture also replaced naive hard sharing
-with task-specific streams that exchange information through cross-attention, while the
-region output retained a private spatial path. A controlled comparison in
+Chapter~\ref{ch:mobiwac} therefore acted on this diagnosis, first producing the Check2HGI which replaced one vector per
+place with one vector per visit, then through a controlled comparison in
 Section~\ref{sec:mobiwac:results-part1} isolates the representation: with the dedicated
-model, training configuration, windowing, and folds held fixed, Check2HGI produces
+model, training configuration, windowing, and folds held fixed, the studies show that Check2HGI produces
 higher next-category macro-F1 than the place embedding HGI across the six evaluated
-datasets. The complete joint result cannot be assigned to the representation alone,
-however, because the interaction topology and the task pair also changed between the
-early and final studies.
+datasets. Naturally, the second step was the joint architecture, which replaced naive hard sharing
+with task-specific streams that exchange information through cross-attention, while the
+region output retained a private spatial path. Together, these findings improvents achaive suceed in produce
+meninful results.
 
-The initial premise was therefore incomplete. As Section~\ref{sec:fund:mtl} explains,
+
+Along these findings, we could have a better picture to stabilish the answer for the second half of the thesis:
+conditional. The inital premise was incomplete, as
+Section~\ref{sec:fund:mtl} explains,
 multitask learning trains related tasks together in the expectation that a shared
-representation will improve generalization. The three studies show that task relatedness
-and joint training are not sufficient by themselves. The first result remains valid for
-its place-level input and hard-sharing architecture, but it is not a general answer about
-multitask learning. The final gain also cannot be reduced to model size. In the
-parameter-count control reported in Appendix~\ref{apx:parameter-count-control}, the
-capacity-matched dedicated category model scored slightly below the original dedicated
-model in Alabama and California and remained below the joint model. In these two
-datasets, parameter count alone does not explain the joint model's next-category
-advantage. The result points to mechanisms in the joint architecture or its multitask
-training that widening the dedicated model does not reproduce.
+representation will improve generalization and the three studies showing that task relatedness
+and joint training are not sufficient by themselves. The second and thierd studies, bring another light over the inital
+premise an the main lesson
+showing how the representation have a important role in the results. Therefore, the answer is conditinal, cause it
+depend on the archetichture, representation, scale of the datasets and many other factor as discuss along the
+previus chapters.
 
-The final results also suggest that the answer may depend on problem scale. Across the
-five U.S. states, the joint model performs better relative to the dedicated model as the
-number of regions grows. It is slightly worse in Alabama, matches the dedicated model in
-Arizona, and outperforms it in Florida, Texas, and California. The improvement is larger
-than two Acc@10 points in Texas and California. This pattern may mean that joint learning
-becomes more useful when the model must choose among more regions. However, states with
-more regions also tend to contain more check-ins. A controlled experiment is needed to
-separate the number of regions from the amount of data and other differences between the
-states.
-
-The main lesson is therefore about the conditions under which multitask learning helps.
-The strongest controlled finding concerns the input representation, and the final study
-shows that a check-in-level representation and an architecture that connects task-specific
-pathways form one successful joint design. It does not show that the interaction topology
-alone caused the improvement. The controlled comparison with HGI also supports testing
-Check2HGI as the input representation in other mobility prediction architectures, although
-whether its benefit transfers to those architectures remains untested. The consolidated
-answer is not that multitask learning always helps. It is that multitask learning helps
+Taken together, the controlled findings and the bounded observations make the main
+lesson one of conditions rather than a universal verdict. The consolidated answer is therefore
+not that multitask learning always helps. It is that multitask learning helps
 next-category and next-region prediction under the final design and evaluation protocol
 developed in this dissertation.
 
@@ -187,7 +197,8 @@ developed in this dissertation.
 Six limitations bound the scope of these conclusions.
 
 \begin{enumerate}
-    % [round8, 2026-07-30, PENDENCIAS_RESOLVIDOS 5.6 (arquivado 2026-07-30)] BOTH DATES, because they are different facts
+    % [round8, 2026-07-30, PENDENCIAS_RESOLVIDOS 5.6 (arquivado 2026-07-30)] BOTH DATES, because they are different
+    % facts
     %     and one of them
     % was about to be printed alone. The author's decision was "busque pelo que o artigo original cita e
     % vamos usar isso em ambos", and a track did exactly that: opened cho2011gowalla first-hand (authors'
@@ -209,7 +220,8 @@ Six limitations bound the scope of these conclusions.
     % The author's premise in 5.6 ("ambos usaram o mesmo recorte, nao houve diferenca") is therefore not
     % what the files show. Not a defect in his decision -- he was ruling on which SOURCE to cite -- but the
     % sentence carried both dates for two days; it now carries only the measured one.
-    % [round9c, PENDENCIAS_RESOLVIDOS 5.6b (arquivado 2026-08-02), 2026-07-30] SIGN-OFF MARKER REMOVED, question answered. It asked which
+    % [round9c, PENDENCIAS_RESOLVIDOS 5.6b (arquivado 2026-08-02), 2026-07-30] SIGN-OFF MARKER REMOVED, question
+    % answered. It asked which
     % window to print and offered the cut: "If he prefers only the paper's window, the clause after the
     % comma is the one to cut." He chose the OTHER direction, only the measured window, so the clause that
     % came out is the paper's. Nothing is left for him to decide here, and his instruction is explicit:
@@ -248,7 +260,8 @@ Six limitations bound the scope of these conclusions.
     % third party's data does not belong in a limitation item; the exact figure lives here with its
     % command. Full evidence and the source ledger: src_utils/_round13/70_massivesteps_validation.md.
     % Probes: R13-aut35a, and R8-vintage still guards the Gowalla string.
-    % [round9c, PENDENCIAS_RESOLVIDOS 5.6b (arquivado 2026-08-02), author decision, 2026-07-30] ONE WINDOW, THE MEASURED ONE. His words:
+    % [round9c, PENDENCIAS_RESOLVIDOS 5.6b (arquivado 2026-08-02), author decision, 2026-07-30] ONE WINDOW, THE
+    % MEASURED ONE. His words:
     % "Vamos usar so as datas que encontramos no database de 2009 a 2011, pode omitir que no artigo eles
     % comentam que e de 2009 a 20010." So the clause reporting what the dataset paper states (February
     % 2009 to October 2010) is REMOVED, and the citation stays on the dataset itself, which is what it is
