@@ -17,7 +17,16 @@ The v17 substrate and the v18 substrate are produced by different instruments:
 | path | forward passes | device | Florida cost |
 |---|---:|---|---:|
 | `checkin_emb` export (v17 substrate, and the builder's `embeddings_insample.parquet`) | **1**, whole graph | GPU | **133 s** |
-| `infer_checkins.py --readout prefix_forward_only` | **one per window** (1,274,418) | **CPU-only** | ~3–5 h |
+| `infer_checkins.py --readout prefix_forward_only` | **one per window** (1,274,418) | **CPU-only** | **1200 s** (measured, solo) |
+
+⚠ **A correction to an earlier estimate in this study, kept because the mistake is instructive.** The
+readout cost was first projected at ~17 h across FL/CA/TX, by taking a windows/s rate measured at
+arizona (64.7 win/s) and scaling it by window count. Florida then measured **1062 win/s** — 16×
+faster. Per-window cost is *not* a constant across states: the readout is `O(n²)` in a **user's
+history length**, so a state with many short histories is far cheaper per window than one with few
+long ones. Arizona's figure was also depressed by 2-wide CPU contention. **Do not extrapolate a
+windows/s rate between states.** On the measured solo rate the honest figure is ~2 h across FL/CA/TX,
+not 17 h — still worth avoiding, but nothing like the original claim.
 
 `infer_checkins.py` documents this itself (line 42): *"`prefix` is one forward pass per window and
 `streaming` one per visit, so both are `O(n²)` in a user's history length; **no saving is claimed**.
@@ -57,11 +66,18 @@ tensor against the real per-window npz over **every window**, not a sample. Embe
 | alabama | 96,326 | 2.384e-06 | 2.384e-06 | 1.407e-07 |
 | arizona | 200,895 | 2.861e-06 | 2.861e-06 | 1.463e-07 |
 | istanbul | 271,666 | 3.099e-06 | 2.861e-06 | 1.474e-07 |
-| florida | 1,274,418 | *pending — the readout was left running as a large-scale check* | | |
+| florida | **1,274,418** | 3.099e-06 | 3.099e-06 | 1.457e-07 |
 
 Mean residual is float32 epsilon; the tolerance gate is `1e-4`, ~30× above the worst observed value.
-The slow growth with dataset size (2.4 → 3.1e-06) is accumulated round-off from a different op
-ordering, not a semantic drift.
+The residual does **not** grow with scale: Florida's 1,274,418 windows land at exactly istanbul's
+3.099e-06 across a 13× range in arm size, so the 2.4 → 3.1e-06 spread is op-ordering round-off, not
+an accumulating drift that would eventually break the identity at Texas.
+
+Florida's figure is the decisive one: its per-window readout was deliberately left running after the
+fast path had already produced the engine, purely so the two could be compared at scale. It took
+**20 minutes** once it had the box to itself — the multi-hour projections were contention, not cost.
+Comparison was read-only against the shipped `next.parquet`, so it validates the artifact actually
+in use, not a re-derivation of it.
 
 An earlier, independent embedding-level check (before the materializer existed) compared npz slots
 against the per-visit export directly and found the same magnitudes, with no slot-8 outlier.

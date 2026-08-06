@@ -2,7 +2,7 @@
 
 > The charter §6 self-checks, with their **measured values**. Regenerate with `verify_engines.py --write`.
 
-> Generated 2026-08-06T15:27:06.149295+00:00.
+> Generated 2026-08-06T16:14:35.725431+00:00.
 
 Fail closed: a silent wrong number is far worse than a crash. `n/a` marks a check that does not apply to how this state was materialized, with the reason given.
 
@@ -92,7 +92,7 @@ Fail closed: a silent wrong number is far worse than a crash. `n/a` marks a chec
 | backward edges dropped | PASS | `2771964 -> 1385982 (dropped 1385982)` |
 | repr seed / epochs / encoder | PASS | `seed=42 epochs=500 encoder=resln best_epoch=500` |
 | materialization method | PASS | `one-shot full-graph forward-only export (embeddings_insample.parquet), wind` |
-| readout equivalence vs per-window npz | n/a | `not measured for this state (identity established at alabama/arizona/istanbul over every window; forward_only guard enforced in code)` |
+| readout equivalence vs per-window npz | PASS | `max 3.099e-06 (slot8 3.099e-06, mean 1.457e-07) over 1274418 windows` |
 | readout matches training graph | PASS | `prefix_forward_only` |
 | held-out user encodability (--self-test) | PASS | `True` |
 | retention >= 95% of source windows | PASS | `1274418/1274418 = 1.0000` |

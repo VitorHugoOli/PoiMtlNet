@@ -1,10 +1,10 @@
 {
-  "updated_at": "2026-08-06T15:26:13.717247+00:00",
-  "commit_sha": "496cdab4c8751d07ba8e60de4d1219321eda1954",
+  "updated_at": "2026-08-06T16:16:30.172314+00:00",
+  "commit_sha": "82bca51962c803cad7f6ad7f362d288d5fe4feeb",
   "phase": "wave0",
   "current_n": {
-    "istanbul": 0,
-    "alabama": 0,
+    "istanbul": 5,
+    "alabama": 5,
     "arizona": 0,
     "florida": 0,
     "texas": 0,
@@ -15,31 +15,31 @@
       "state": "istanbul",
       "seed": 0,
       "family": "cat",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
-      "cat": null,
+      "status": "done",
+      "wall_seconds": 465,
+      "rundir": "results/check2hgi_v18/istanbul/next_lr1.0e-04_bs2048_ep50_20260806_152619_616431",
+      "cat": 32.7698,
       "reg": null
     },
     {
       "state": "istanbul",
       "seed": 0,
       "family": "reg",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
+      "status": "done",
+      "wall_seconds": 487,
+      "rundir": "docs/results/P1/region_head_istanbul_region_5f_50ep_v18_istanbul_reg_s0.json",
       "cat": null,
-      "reg": null
+      "reg": 75.1563
     },
     {
       "state": "istanbul",
       "seed": 0,
       "family": "joint",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
-      "cat": null,
-      "reg": null
+      "status": "done",
+      "wall_seconds": 1698,
+      "rundir": "results/check2hgi_v18/istanbul/mtlnet_lr1.0e-04_bs8192_ep50_20260806_154211_620510",
+      "cat": 32.6985,
+      "reg": 75.3631
     },
     {
       "state": "istanbul",
@@ -135,10 +135,10 @@
       "state": "alabama",
       "seed": 0,
       "family": "cat",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
-      "cat": null,
+      "status": "done",
+      "wall_seconds": 201,
+      "rundir": "results/check2hgi_v18/alabama/next_lr1.0e-04_bs2048_ep50_20260806_152616_616433",
+      "cat": 28.0334,
       "reg": null
     },
     {
@@ -155,11 +155,11 @@
       "state": "alabama",
       "seed": 0,
       "family": "joint",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
-      "cat": null,
-      "reg": null
+      "status": "done",
+      "wall_seconds": 1094,
+      "rundir": "results/check2hgi_v18/alabama/mtlnet_lr1.0e-04_bs8192_ep50_20260806_152940_617690",
+      "cat": 27.3836,
+      "reg": 69.6831
     },
     {
       "state": "alabama",
@@ -255,21 +255,21 @@
       "state": "arizona",
       "seed": 0,
       "family": "cat",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
-      "cat": null,
+      "status": "done",
+      "wall_seconds": 178,
+      "rundir": "results/check2hgi_v18/arizona/next_lr1.0e-04_bs8192_ep50_20260806_161027_623811",
+      "cat": 31.3502,
       "reg": null
     },
     {
       "state": "arizona",
       "seed": 0,
       "family": "reg",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
+      "status": "done",
+      "wall_seconds": 189,
+      "rundir": "docs/results/P1/region_head_arizona_region_5f_50ep_v18_arizona_reg_s0.json",
       "cat": null,
-      "reg": null
+      "reg": 59.4813
     },
     {
       "state": "arizona",
@@ -734,22 +734,15 @@
   ],
   "running": [
     {
-      "state": "istanbul",
+      "state": "arizona",
       "seed": 0,
-      "family": "cat",
-      "pid": 616431,
-      "started_at": "2026-08-06T15:26:13+00:00"
-    },
-    {
-      "state": "alabama",
-      "seed": 0,
-      "family": "cat",
-      "pid": 616433,
-      "started_at": "2026-08-06T15:26:13+00:00"
+      "family": "joint",
+      "pid": 625368,
+      "started_at": "2026-08-06T16:16:30+00:00"
     }
   ],
   "gpu_free_mib": 45489,
-  "disk_free_gb": 2188,
+  "disk_free_gb": 2192,
   "disk_free_gb_home": 51,
   "blocked_on": null,
   "verify_flags": []

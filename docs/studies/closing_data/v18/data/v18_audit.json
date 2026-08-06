@@ -1,5 +1,5 @@
 {
- "generated_utc": "2026-08-06T15:27:06.149580+00:00",
+ "generated_utc": "2026-08-06T16:14:35.725697+00:00",
  "states": [
   {
    "state": "istanbul",
@@ -344,8 +344,8 @@
     },
     {
      "check": "readout equivalence vs per-window npz",
-     "ok": null,
-     "measured": "not measured for this state (identity established at alabama/arizona/istanbul over every window; forward_only guard enforced in code)"
+     "ok": true,
+     "measured": "max 3.099e-06 (slot8 3.099e-06, mean 1.457e-07) over 1274418 windows"
     },
     {
      "check": "readout matches training graph",
