@@ -1,0 +1,252 @@
+{
+  "study": "check2hgi_integrity_v2 / intervention",
+  "generated_utc": "2026-08-06T01:27:46.416318+00:00",
+  "command": "scripts/integrity_v2/intervene.py --state florida --checkpoints U1=results/check2hgi_integrity_v2/florida/U1/checkpoint.pt U0=results/check2hgi_integrity_v2/florida/U0/checkpoint.pt P1=results/check2hgi_integrity_v2/florida/P1/checkpoint.pt --split docs/results/check2hgi_integrity_v2/florida/split_seed0_fold0.json --max-windows 4000 --out docs/results/check2hgi_integrity_v2/florida/intervention.json",
+  "state": "florida",
+  "split_file": "docs/results/check2hgi_integrity_v2/florida/split_seed0_fold0.json",
+  "user_key": "val_users",
+  "split": {
+    "seed": 0,
+    "fold": 0,
+    "n_folds": 5,
+    "engine": "check2hgi_dk_ovl"
+  },
+  "torch_version": "2.11.0+cu128",
+  "what_each_number_means": {
+    "dependence": "rel_linf / l2 / cosine -- guaranteed nonzero by the architecture (F3), never decisive",
+    "carriage": "fisher_ratio_by_substituted_class vs its shuffled-label floor -- whether the target's category identity is legible"
+  },
+  "arms": {
+    "U1": {
+      "n_windows": 4039,
+      "n_users_used": 2124,
+      "spacing_between_perturbed_targets": 6,
+      "zero_cat": {
+        "n": 4039,
+        "frac_windows_moved": 0.6994305521168606,
+        "rel_linf_median": 0.12833397090435028,
+        "rel_linf_median_among_moved": 0.1992228627204895,
+        "rel_linf_p90": 0.3597686290740967,
+        "l2_median": 1.7120522260665894,
+        "cosine_median": 0.9907737374305725,
+        "cosine_p10": 0.932310938835144,
+        "invariant_within_tolerance": false
+      },
+      "shuffle_cat": {
+        "n": 4039,
+        "frac_windows_moved": 0.4501114137162664,
+        "rel_linf_median": 7.125094469984106e-08,
+        "rel_linf_median_among_moved": 0.31727123260498047,
+        "rel_linf_p90": 0.48028501868247986,
+        "l2_median": 6.987675646996649e-07,
+        "cosine_median": 0.9999998807907104,
+        "cosine_p10": 0.8772820830345154,
+        "invariant_within_tolerance": false
+      },
+      "resample_all": {
+        "n": 4039,
+        "frac_windows_moved": 0.7021539985144838,
+        "rel_linf_median": 0.18408775329589844,
+        "rel_linf_median_among_moved": 0.33525893092155457,
+        "rel_linf_p90": 0.6412706971168518,
+        "l2_median": 2.3509068489074707,
+        "cosine_median": 0.9797227382659912,
+        "cosine_p10": 0.785070538520813,
+        "invariant_within_tolerance": false
+      },
+      "edge_weight": {
+        "n": 4039,
+        "frac_windows_moved": 0.9252290170834365,
+        "rel_linf_median": 0.15586112439632416,
+        "rel_linf_median_among_moved": 0.18141882121562958,
+        "rel_linf_p90": 0.6719865202903748,
+        "l2_median": 2.0049731731414795,
+        "cosine_median": 0.9886900782585144,
+        "cosine_p10": 0.7810036540031433,
+        "invariant_within_tolerance": false
+      },
+      "drop_target": {
+        "n": 4039,
+        "frac_windows_moved": 0.6964595196830898,
+        "rel_linf_median": 0.05855325609445572,
+        "rel_linf_median_among_moved": 0.12301792949438095,
+        "rel_linf_p90": 0.42216160893440247,
+        "l2_median": 0.749438464641571,
+        "cosine_median": 0.9993302226066589,
+        "cosine_p10": 0.9057672023773193,
+        "invariant_within_tolerance": false
+      },
+      "carriage": {
+        "n_perturbed_vectors": 28273,
+        "fisher_ratio_by_substituted_class": 0.035241918705334045,
+        "fisher_ratio_shuffled_labels_control": 0.00018305681568249853,
+        "note": "between-class over within-class scatter of the last-observed vector as a function of the SUBSTITUTED target category; the shuffled-label row is the floor this statistic reaches when substitution carries nothing"
+      },
+      "baseline_vectors": {
+        "n": 4039,
+        "absmax_median": 3.9163525104522705
+      },
+      "checkpoint": {
+        "path": "results/check2hgi_integrity_v2/florida/U1/checkpoint.pt",
+        "cell": "U1",
+        "encoder": "resln",
+        "repr_seed": 42,
+        "restricted": false
+      }
+    },
+    "U0": {
+      "n_windows": 4039,
+      "n_users_used": 2124,
+      "spacing_between_perturbed_targets": 6,
+      "zero_cat": {
+        "n": 4039,
+        "frac_windows_moved": 0.6991829660807131,
+        "rel_linf_median": 0.15349030494689941,
+        "rel_linf_median_among_moved": 0.24258220195770264,
+        "rel_linf_p90": 0.42401647567749023,
+        "l2_median": 1.6816128492355347,
+        "cosine_median": 0.98907870054245,
+        "cosine_p10": 0.922768235206604,
+        "invariant_within_tolerance": false
+      },
+      "shuffle_cat": {
+        "n": 4039,
+        "frac_windows_moved": 0.44912106957167613,
+        "rel_linf_median": 8.536139972648016e-08,
+        "rel_linf_median_among_moved": 0.38201791048049927,
+        "rel_linf_p90": 0.5402477979660034,
+        "l2_median": 8.97972711300099e-07,
+        "cosine_median": 0.9999998807907104,
+        "cosine_p10": 0.883416473865509,
+        "invariant_within_tolerance": false
+      },
+      "resample_all": {
+        "n": 4039,
+        "frac_windows_moved": 0.7016588264421887,
+        "rel_linf_median": 0.21157528460025787,
+        "rel_linf_median_among_moved": 0.3983164429664612,
+        "rel_linf_p90": 0.7139385938644409,
+        "l2_median": 2.280672311782837,
+        "cosine_median": 0.9789804816246033,
+        "cosine_p10": 0.7912264466285706,
+        "invariant_within_tolerance": false
+      },
+      "edge_weight": {
+        "n": 4039,
+        "frac_windows_moved": 0.925476603119584,
+        "rel_linf_median": 0.1718817949295044,
+        "rel_linf_median_among_moved": 0.19782444834709167,
+        "rel_linf_p90": 0.6771814823150635,
+        "l2_median": 1.8758493661880493,
+        "cosine_median": 0.9882106781005859,
+        "cosine_p10": 0.7856336832046509,
+        "invariant_within_tolerance": false
+      },
+      "drop_target": {
+        "n": 4039,
+        "frac_windows_moved": 0.6957167615746472,
+        "rel_linf_median": 0.06580284237861633,
+        "rel_linf_median_among_moved": 0.14217501878738403,
+        "rel_linf_p90": 0.460161030292511,
+        "l2_median": 0.7206041812896729,
+        "cosine_median": 0.9992578625679016,
+        "cosine_p10": 0.9066559076309204,
+        "invariant_within_tolerance": false
+      },
+      "carriage": {
+        "n_perturbed_vectors": 28273,
+        "fisher_ratio_by_substituted_class": 0.03372404522300333,
+        "fisher_ratio_shuffled_labels_control": 0.00017965062670056382,
+        "note": "between-class over within-class scatter of the last-observed vector as a function of the SUBSTITUTED target category; the shuffled-label row is the floor this statistic reaches when substitution carries nothing"
+      },
+      "baseline_vectors": {
+        "n": 4039,
+        "absmax_median": 3.478512763977051
+      },
+      "checkpoint": {
+        "path": "results/check2hgi_integrity_v2/florida/U0/checkpoint.pt",
+        "cell": "U0",
+        "encoder": "resln",
+        "repr_seed": 42,
+        "restricted": true
+      }
+    },
+    "P1": {
+      "n_windows": 4039,
+      "n_users_used": 2124,
+      "spacing_between_perturbed_targets": 6,
+      "zero_cat": {
+        "n": 4039,
+        "frac_windows_moved": 1.0,
+        "rel_linf_median": 0.18825572729110718,
+        "rel_linf_median_among_moved": 0.18825572729110718,
+        "rel_linf_p90": 0.29382848739624023,
+        "l2_median": 0.8385021686553955,
+        "cosine_median": 0.9843789935112,
+        "cosine_p10": 0.9626623392105103,
+        "invariant_within_tolerance": false
+      },
+      "shuffle_cat": {
+        "n": 4039,
+        "frac_windows_moved": 0.6501609309234959,
+        "rel_linf_median": 0.2223665565252304,
+        "rel_linf_median_among_moved": 0.2916055917739868,
+        "rel_linf_p90": 0.43896523118019104,
+        "l2_median": 1.0550955533981323,
+        "cosine_median": 0.9740775227546692,
+        "cosine_p10": 0.9221475720405579,
+        "invariant_within_tolerance": false
+      },
+      "resample_all": {
+        "n": 4039,
+        "frac_windows_moved": 0.9992572418915573,
+        "rel_linf_median": 0.31036385893821716,
+        "rel_linf_median_among_moved": 0.31071737408638,
+        "rel_linf_p90": 0.5169278979301453,
+        "l2_median": 1.4228318929672241,
+        "cosine_median": 0.9501596689224243,
+        "cosine_p10": 0.8833944797515869,
+        "invariant_within_tolerance": false
+      },
+      "edge_weight": {
+        "n": 4039,
+        "frac_windows_moved": 0.9621193364694232,
+        "rel_linf_median": 0.021446404978632927,
+        "rel_linf_median_among_moved": 0.023370860144495964,
+        "rel_linf_p90": 0.07973934710025787,
+        "l2_median": 0.08829092979431152,
+        "cosine_median": 0.9997990131378174,
+        "cosine_p10": 0.9973040223121643,
+        "invariant_within_tolerance": false
+      },
+      "drop_target": {
+        "n": 4039,
+        "frac_windows_moved": 0.9665758851200792,
+        "rel_linf_median": 0.29350030422210693,
+        "rel_linf_median_among_moved": 0.30090755224227905,
+        "rel_linf_p90": 0.5741255283355713,
+        "l2_median": 1.2820645570755005,
+        "cosine_median": 0.9622218012809753,
+        "cosine_p10": 0.8817207217216492,
+        "invariant_within_tolerance": false
+      },
+      "carriage": {
+        "n_perturbed_vectors": 28273,
+        "fisher_ratio_by_substituted_class": 0.07837117825034476,
+        "fisher_ratio_shuffled_labels_control": 0.0001759734777529717,
+        "note": "between-class over within-class scatter of the last-observed vector as a function of the SUBSTITUTED target category; the shuffled-label row is the floor this statistic reaches when substitution carries nothing"
+      },
+      "baseline_vectors": {
+        "n": 4039,
+        "absmax_median": 1.4719979763031006
+      },
+      "checkpoint": {
+        "path": "results/check2hgi_integrity_v2/florida/P1/checkpoint.pt",
+        "cell": "P1",
+        "encoder": "gat",
+        "repr_seed": 42,
+        "restricted": false
+      }
+    }
+  }
+}

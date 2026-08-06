@@ -1,0 +1,121 @@
+{
+  "state": "alabama",
+  "max_rows": 40000,
+  "arms": {
+    "reported_U1": {
+      "dim": 64,
+      "own_category": {
+        "macro_f1_mean": 0.909740398182685,
+        "macro_f1_std": 0.0006656199399647051,
+        "n_seeds": 5,
+        "n": 40000
+      },
+      "majority_class_share": 0.338875,
+      "own_hour_bucket": {
+        "macro_f1_mean": 0.9939781191789114,
+        "macro_f1_std": 0.0007274306462329382,
+        "n_seeds": 5,
+        "n": 40000
+      },
+      "own_place_top20": {
+        "macro_f1_mean": 0.49661399947253254,
+        "macro_f1_std": 0.015689733971609304,
+        "n_seeds": 5,
+        "n": 1946
+      }
+    },
+    "forwardonly_C1": {
+      "dim": 64,
+      "own_category": {
+        "macro_f1_mean": 0.9870181517212139,
+        "macro_f1_std": 0.0010783842699452278,
+        "n_seeds": 5,
+        "n": 40000
+      },
+      "majority_class_share": 0.338875,
+      "own_hour_bucket": {
+        "macro_f1_mean": 0.9958131402341437,
+        "macro_f1_std": 0.0006146419452608703,
+        "n_seeds": 5,
+        "n": 40000
+      },
+      "own_place_top20": {
+        "macro_f1_mean": 0.4660317272093465,
+        "macro_f1_std": 0.013831743967535061,
+        "n_seeds": 5,
+        "n": 1946
+      }
+    },
+    "E2_elapsed": {
+      "dim": 64,
+      "own_category": {
+        "macro_f1_mean": 0.9876445077227105,
+        "macro_f1_std": 0.000952280456540635,
+        "n_seeds": 5,
+        "n": 40000
+      },
+      "majority_class_share": 0.338875,
+      "own_hour_bucket": {
+        "macro_f1_mean": 0.9953449943230194,
+        "macro_f1_std": 0.0009609606120322007,
+        "n_seeds": 5,
+        "n": 40000
+      },
+      "own_place_top20": {
+        "macro_f1_mean": 0.4944044342802272,
+        "macro_f1_std": 0.01572435237166852,
+        "n_seeds": 5,
+        "n": 1946
+      }
+    },
+    "E1_place": {
+      "dim": 64,
+      "own_category": {
+        "macro_f1_mean": 0.7370778830777466,
+        "macro_f1_std": 0.0026192221306697086,
+        "n_seeds": 5,
+        "n": 40000
+      },
+      "majority_class_share": 0.338875,
+      "own_hour_bucket": {
+        "macro_f1_mean": 0.5526197233772845,
+        "macro_f1_std": 0.004519083126399355,
+        "n_seeds": 5,
+        "n": 40000
+      },
+      "own_place_top20": {
+        "macro_f1_mean": 0.9781790488734773,
+        "macro_f1_std": 0.0051871835504992475,
+        "n_seeds": 5,
+        "n": 1946
+      }
+    },
+    "E12_both": {
+      "dim": 64,
+      "own_category": {
+        "macro_f1_mean": 0.7483647834015044,
+        "macro_f1_std": 0.002626903596338984,
+        "n_seeds": 5,
+        "n": 40000
+      },
+      "majority_class_share": 0.338875,
+      "own_hour_bucket": {
+        "macro_f1_mean": 0.6085960741200779,
+        "macro_f1_std": 0.006773439294050056,
+        "n_seeds": 5,
+        "n": 40000
+      },
+      "own_place_top20": {
+        "macro_f1_mean": 0.9833637984966064,
+        "macro_f1_std": 0.005216254254369689,
+        "n_seeds": 5,
+        "n": 1946
+      }
+    }
+  },
+  "question": "does the representation retain the OWN category of the visit it represents? A raw one-hot scores 1.0 by construction; an embedding near the majority-class floor has discarded the feature it was given as input.",
+  "hypotheses": {
+    "H1_under_training": "the embedding keeps the feature and the head fails to use it",
+    "H2_lossy_compression": "the embedding does not keep the feature at all"
+  }
+}

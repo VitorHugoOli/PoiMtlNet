@@ -57,6 +57,31 @@ class EmbeddingEngine(Enum):
     CHECK2HGI_DESIGN_K_RESLN_MAE_L0_1 = "check2hgi_design_k_resln_mae_l0_1"  # design_k + resln + T5.2b mae (full dual-axis stack)
     CHECK2HGI_RESLN_DESIGN_J = "check2hgi_resln_design_j"  # tier_resln: ResLN encoder + Design J anchored learnable POI table
     CHECK2HGI_DK_OVL = "check2hgi_dk_ovl"  # v14 (design_k) embeddings re-windowed at stride=1 (OVERLAPPING) — overlap-window real-pipeline probe; embeddings/region symlinked from v14, only the windowing differs
+    # integrity_v2 consecutive-link study (2026-08-06). Same dk_ovl row space and region labels;
+    # the ONLY difference is which edges existed when the check-in vectors were computed, so the
+    # reported dedicated recipe runs on them unchanged and is comparable to the reported column.
+    # STUDY engines: not for any headline dissertation number.
+    CHECK2HGI_IV2_STRICT = "check2hgi_iv2_strict"
+    CHECK2HGI_IV2_CAUSAL = "check2hgi_iv2_causal"
+    CHECK2HGI_IV2_F25 = "check2hgi_iv2_f25"
+    CHECK2HGI_IV2_F125 = "check2hgi_iv2_f125"
+    CHECK2HGI_IV2_L4 = "check2hgi_iv2_l4"
+    CHECK2HGI_IV2_L3 = "check2hgi_iv2_l3"
+    CHECK2HGI_IV2_L1 = "check2hgi_iv2_l1"
+    CHECK2HGI_IV2_F50 = "check2hgi_iv2_f50"
+    CHECK2HGI_IV2_W128 = "check2hgi_iv2_w128"
+    CHECK2HGI_IV2_W32 = "check2hgi_iv2_w32"
+    CHECK2HGI_IV2_R2 = "check2hgi_iv2_r2"
+    CHECK2HGI_IV2_R1 = "check2hgi_iv2_r1"
+    CHECK2HGI_IV2_E5 = "check2hgi_iv2_e5"
+    CHECK2HGI_IV2_E4 = "check2hgi_iv2_e4"
+    CHECK2HGI_IV2_E3 = "check2hgi_iv2_e3"
+    CHECK2HGI_IV2_E1 = "check2hgi_iv2_e1"
+    CHECK2HGI_IV2_E2 = "check2hgi_iv2_e2"
+    CHECK2HGI_IV2_E12 = "check2hgi_iv2_e12"
+    CHECK2HGI_IV2_LABELONLY = "check2hgi_iv2_labelonly"
+    CHECK2HGI_IV2_D1 = "check2hgi_iv2_d1"
+    CHECK2HGI_IV2_B1 = "check2hgi_iv2_b1"
     # embedding_eval re-screen variants (2026-06-01) — rebuilt via OUTPUT_DIR-scratch,
     # harvested to output/<value>/; do NOT overwrite the frozen output/check2hgi/.
     CHECK2HGI_GCN_CTRL = "check2hgi_gcn_ctrl"        # fresh GCN wd=0 control (same-protocol baseline for the re-screen)
@@ -111,6 +136,27 @@ MTL_CHECK2HGI_ALLOWED_ENGINES = (
     EmbeddingEngine.CHECK2HGI_DESIGN_K_RESLN_L0_1,
     EmbeddingEngine.CHECK2HGI_DESIGN_K_RESLN_MAE_L0_1,  # option-b dual-axis base
     EmbeddingEngine.CHECK2HGI_DK_OVL,  # overlap-window probe (v14 re-windowed stride=1)
+    EmbeddingEngine.CHECK2HGI_IV2_STRICT,  # integrity_v2: target withheld at readout
+    EmbeddingEngine.CHECK2HGI_IV2_CAUSAL,  # integrity_v2: forward-only trained and read
+    EmbeddingEngine.CHECK2HGI_IV2_F25,
+    EmbeddingEngine.CHECK2HGI_IV2_F125,
+    EmbeddingEngine.CHECK2HGI_IV2_L4,
+    EmbeddingEngine.CHECK2HGI_IV2_L3,
+    EmbeddingEngine.CHECK2HGI_IV2_L1,
+    EmbeddingEngine.CHECK2HGI_IV2_F50,
+    EmbeddingEngine.CHECK2HGI_IV2_W128,
+    EmbeddingEngine.CHECK2HGI_IV2_W32,
+    EmbeddingEngine.CHECK2HGI_IV2_R2,
+    EmbeddingEngine.CHECK2HGI_IV2_R1,
+    EmbeddingEngine.CHECK2HGI_IV2_E5,
+    EmbeddingEngine.CHECK2HGI_IV2_E4,
+    EmbeddingEngine.CHECK2HGI_IV2_E3,
+    EmbeddingEngine.CHECK2HGI_IV2_E1,
+    EmbeddingEngine.CHECK2HGI_IV2_E2,
+    EmbeddingEngine.CHECK2HGI_IV2_E12,
+    EmbeddingEngine.CHECK2HGI_IV2_LABELONLY,
+    EmbeddingEngine.CHECK2HGI_IV2_D1,
+    EmbeddingEngine.CHECK2HGI_IV2_B1,
     EmbeddingEngine.BASELINE_B2C_ONEHOT64,  # [ENUM-MERGE] B2c zero-training floor probe
     EmbeddingEngine.CHECK2HGI_CTLE,  # [ENUM-MERGE] B1 CTLE contextual per-visit substrate
     EmbeddingEngine.BASELINE_B2A_POI2VEC,  # [ENUM-MERGE] B2a faithful POI2Vec
@@ -532,6 +578,11 @@ class IoPaths:
             EmbeddingEngine.CHECK2HGI_CTLE,  # [ENUM-MERGE] B1 CTLE contextual per-visit substrate
             EmbeddingEngine.BASELINE_B2A_POI2VEC,  # [ENUM-MERGE] B2a faithful POI2Vec
             EmbeddingEngine.BASELINE_GEOTREE_SKIPGRAM,  # [ENUM-MERGE] geo-tree skip-gram baseline
+            # integrity_v2 study engines. next_region.parquet is copied from check2hgi_dk_ovl,
+            # subset to the same rows in the same order; load_next_region's userid-equality
+            # guard verifies that alignment on every load.
+            EmbeddingEngine.CHECK2HGI_IV2_STRICT,
+            EmbeddingEngine.CHECK2HGI_IV2_CAUSAL,
         )
         if embedd_engine not in supported:
             raise ValueError(

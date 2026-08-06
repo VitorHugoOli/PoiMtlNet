@@ -105,3 +105,26 @@ scripts/_v14_run/logs/
 scripts/_v14_run/*.out
 results_resume_*/
 articles/[mobiwac]/src_v1/.DS_Store
+
+# v17-era run logs (leaked-check2hgi executions; verdicts already committed in the
+# tracked RESULTS/CEILINGS markdown). Kept on disk, out of the repo. — 2026-08-06
+docs/studies/closing_data/catx_v17_audit/
+docs/studies/closing_data/catx_v17_runs/
+docs/studies/closing_data/catx_v17_seed0_5f/**/*.log
+docs/studies/closing_data/catx_v17_seed0_5f/*.log
+docs/studies/closing_data/v17_completion/**/*.log
+docs/studies/closing_data/v17_completion/a1_catx/california_s*/
+docs/studies/closing_data/v17_completion/a1_catx/texas_s*/
+docs/studies/closing_data/v17_completion/a1_catx/smoke2wide/
+docs/studies/closing_data/v17_completion/a40_5_cascade/
+docs/studies/closing_data/v17_completion/cat_ceiling_sweep/logs/
+docs/studies/closing_data/v17_completion/h2_runs/
+docs/studies/closing_data/v17_completion/reg_topup/logs/
+docs/studies/pipeline_audit/aligned_retune/
+docs/studies/pipeline_audit/arch_pairing_screen/
+docs/studies/pipeline_audit/pairing_battery/
+docs/studies/pipeline_audit/runs/
+
+# macOS AppleDouble junk
+._*
+**/._*
