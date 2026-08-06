@@ -122,7 +122,7 @@ The non-inferiority claim states that the joint model is no worse than the dedic
 
 \subsection{Baselines}
 \label{sec:setup-baselines}
-We use the comparison models for three purposes: to compare each task with established methods, to evaluate the representation, and to compare two ways of coupling the tasks.
+We use the comparison models for two purposes: to compare each task with established methods and to evaluate the representation.
 
 \emph{Task comparisons.} For next-category prediction, we use POI-RGNN~\cite{capanema2023poirgnn}, which we re-implement from its published architecture and hyperparameters. We also use a Markov model that predicts the category that most often follows the recent categories. We select the best Markov order for each dataset. For region prediction, we compute a Markov-1 floor over region transitions. It uses the same sliding windows and fold splits as our models.
 
@@ -131,7 +131,5 @@ The primary next-region comparison is HMT-GRN~\cite{lim2022hmtgrn}, an end-to-en
 We also run STAN~\cite{luo2021stan}. We re-implement its published architecture and train it from the raw check-ins with its own representations and sequence construction under one fixed configuration. We adapt its output to rank candidate regions, which are spatial objects compatible with its candidate-distance matching. We do not adapt STAN to category prediction because distance matching does not apply to categories. We report ReHDM~\cite{li2025rehdm} as a reference under its published protocol.
 
 \emph{Representation controls.} Two controls test whether the category gain comes from our representation design rather than from contextualization in general or from additional features. CTLE~\cite{lin2021ctle} is the closest prior contextual check-in representation. We train it end to end at Florida. At Alabama, Arizona, and Istanbul, we keep its weights fixed and do not fine-tune them. The second control adds raw features from each visit to a standard place embedding and uses the same prediction model.
-
-\emph{Task coupling.} Published systems often use a directed cascade that predicts the category first and then conditions place prediction on it~\cite{ye2013nextmove, yu2020catdm, huang2024cslsl}. We test this coupling inside our model instead of re-implementing those systems. We remove the shared trunk, where the two task streams exchange information, and provide the predicted category to the region pathway. The representation, outputs, and training configuration remain unchanged. This comparison isolates the coupling topology, chain or parallel, without increasing the parameter count or computation cost. The chain removes the shared trunk and adds a conditioning projection with about 1,000 parameters.
 
 A final control uses the standard place-level HGI representation~\cite{huang2023hgi} to measure what the per-visit representation adds. All other choices, including the nine-visit window, were fixed during development. The released code provides the full training configuration for every model (footnote~\ref{fn:code}).
