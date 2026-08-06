@@ -14,13 +14,18 @@ readout, and node features carry 4 elapsed-time columns (`in_channels = 15`).
    excluded and on what evidence. **Start here.**
 2. [`V18_RESULTS.md`](V18_RESULTS.md) — the tables. Per state: dedicated cat, dedicated reg, joint
    (diag-best **and** joint-best), Δ vs the v17 published values, current `n` stated in every table.
-3. [`READOUT_EQUIVALENCE.md`](READOUT_EQUIVALENCE.md) — why the v18 engine is materialized from the
+3. [`LOSS_WEIGHT_PROBE.md`](LOSS_WEIGHT_PROBE.md) — **mechanism result.** Is the 0.75/0.25 split a
+   leak artifact, and are the two heads competing? Answer to both: no. The shared-trunk gradients are
+   orthogonal (cos ≈ +0.001 over 750 measurements), rebalancing to 0.50/0.50 buys +0.29 pp (p = 0.42),
+   and PCGrad buys +0.20 pp (p = 0.26) because it has nothing to project. The category collapse is
+   **not** a multi-task optimization problem.
+4. [`READOUT_EQUIVALENCE.md`](READOUT_EQUIVALENCE.md) — why the v18 engine is materialized from the
    one-shot full-graph export rather than the per-window readout, the full-coverage evidence, and
    the guard that stops the shortcut being applied to a bidirectional arm. **Read before touching
    Phase 0.**
-4. [`AUDIT.md`](AUDIT.md) — the §6 self-checks with their measured values, and anything that failed.
-5. [`PROVENANCE.md`](PROVENANCE.md) — every rundir: state, seed, PID, path, recipe, commit SHA.
-6. [`data/v18_results.json`](data/v18_results.json) + [`score_all.py`](score_all.py) — the
+5. [`AUDIT.md`](AUDIT.md) — the §6 self-checks with their measured values, and anything that failed.
+6. [`PROVENANCE.md`](PROVENANCE.md) — every rundir: state, seed, PID, path, recipe, commit SHA.
+7. [`data/v18_results.json`](data/v18_results.json) + [`score_all.py`](score_all.py) — the
    machine-readable record and the reproducer that regenerates it from the rundirs. **Every number
    in every markdown table here is traceable to that JSON.**
 
@@ -55,6 +60,9 @@ run_phase0_build.sh    Phase 0 via the per-window readout. Superseded for forwar
                        (identical output, ~17 h slower at FL/CA/TX); kept as the reference path
                        and REQUIRED for any bidirectional arm. See READOUT_EQUIVALENCE.md
 run_wave.sh <SEED>     one wave: 6 states x 3 families at one seed (resumable, idempotent)
+run_lossweight_probe.sh  the 0.75 vs 0.50 vs pcgrad probe at alabama -> LOSS_WEIGHT_PROBE.md
+run_florida_cw050.sh     the same 0.50/0.50 arm at florida (stronger category signal)
+verify_engines.py      the SS6 self-checks -> AUDIT.md + data/v18_audit.json
 status_update.py       rewrites status.json + PROGRESS.md from the per-cell sidecars
 score_all.py           the reproducer: regenerates data/v18_results.json from the rundirs
 smoke_alabama.sh       1-fold/2-epoch validation of the full training path
@@ -66,8 +74,17 @@ are the resumability source of truth: a cell is done iff its sidecar exists.
 
 ## Engine
 
-`EmbeddingEngine.CHECK2HGI_V18 = "check2hgi_v18"`, registered in **three** places in
-`src/configs/paths.py` (the enum, `MTL_CHECK2HGI_ALLOWED_ENGINES`, and the separate `supported`
-tuple inside `IoPaths.get_next_region` — a category-only registration trains fine and then fails at
-the region tower). One engine per state at `output/check2hgi_v18/<state>/`, shared by all four
-seeds; the representation does not depend on the downstream seed.
+`EmbeddingEngine.CHECK2HGI_V18 = "check2hgi_v18"`. A new engine must be registered in **FOUR**
+allowlists, not the two the charter warns about — miss one and the failure is late and confusing:
+
+| # | where | symptom if missed |
+|---|---|---|
+| 1 | `EmbeddingEngine` enum — `src/configs/paths.py` | nothing resolves |
+| 2 | `MTL_CHECK2HGI_ALLOWED_ENGINES` — `src/configs/paths.py` | joint runs rejected |
+| 3 | `IoPaths.get_next_region` `supported` — `src/configs/paths.py` | trains fine on category, **dies at the region tower** |
+| 4 | `--engine-override` `choices` — `scripts/p1_region_head_ablation.py` | dedicated-region family dies at argparse, `rc=2`, 3 s in |
+
+(#4 cost a wave-1 cell before it was found; fixed in `82bca519` with a comment at the site.)
+
+One engine per state at `output/check2hgi_v18/<state>/`, shared by all four seeds; the representation
+does not depend on the downstream seed.
