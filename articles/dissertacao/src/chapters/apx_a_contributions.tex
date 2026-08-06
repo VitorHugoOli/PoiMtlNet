@@ -56,28 +56,37 @@ that constructs the folds, and the statistical scripts and output files listed b
   \item[The seeds.] Four seeds, 0, 1, 7, and 100, each repeating the
         five-fold experiment in full, which is the twenty fitted
         models per configuration the chapter reports. The design is recorded in
-        \path{docs/studies/closing_data/v17_completion/STATISTICAL_PROTOCOL.md}. A seed
+        \path{docs/reproducibility/mobiwac_v17/STATISTICAL_PROTOCOL.md}. A seed
         sets both the random initialization and the partition, so the four seeds draw four
         user partitions rather than repeating one, and the reported intervals cover both
         sources of variation. Four draws sample the variation across user splits without
         characterizing it. Within one seed both models are built from the same partition, which is what
         the paired comparison requires; the tests pair the per-seed means, so they never
         assume that a given fold of one seed is the same fold of another.
+%  \item[The region-transition prior.] Rebuilt for each fold from that fold's training
+%        partition alone by
+%        \path{pipelines/reproducibility/build_region_transitions.pipe.py}, which writes one file per
+%        fold. Only the external region baseline of Chapter~\ref{ch:mobiwac} consumes
+%        it; the joint and dedicated models do not.
   \item[The reported scores.] Read at one saved model per fold, the epoch selected on
         validation, which is the joint-best convention: both tasks are read at the same
         checkpoint rather than each at its own best epoch. The post-hoc scorer is
-        \path{scripts/closing_data/score_joint_best.py} and its results are collected in
-        \path{docs/studies/closing_data/joint_best/JOINT_BEST_RESULTS.md}.
+        \path{src/tracking/score_joint_best.py} and its results are collected in
+        \path{docs/reproducibility/mobiwac_v17/JOINT_BEST_RESULTS.md}.
   \item[The significance tests.] The superiority and non-inferiority tests are
-        implemented in \path{scripts/closing_data/superiority_wilcoxon.py} and
-        \path{scripts/closing_data/region_match_tost.py}. The reported analysis was run
-        by \path{m1_stats_n20.py}, with the pre-registered per-fold variant in
-        \path{m2_prereg_perfold.py}; both scripts, their console output
-        (\path{m1_full_output.txt} and \path{m2_prereg_output.txt}), and the verdict
-        tables that Chapter~\ref{ch:mobiwac} quotes sit together in
-        \path{docs/studies/closing_data/v17_completion/stats_n20/}.
+        implemented in \path{research/reproducibility/mobiwac_v17/superiority_wilcoxon.py}
+        and \path{research/reproducibility/mobiwac_v17/region_match_tost.py}. The reported
+        analysis was run by \path{research/reproducibility/mobiwac_v17/m1_stats_n20.py},
+        with the pre-registered per-fold variant in
+        \path{research/reproducibility/mobiwac_v17/m2_prereg_perfold.py}. Their console
+        output (\path{docs/reproducibility/mobiwac_v17/outputs/m1_full_output.txt} and
+        \path{docs/reproducibility/mobiwac_v17/outputs/m2_prereg_output.txt}) and the
+        verdict tables quoted in Chapter~\ref{ch:mobiwac}
+        (\path{docs/reproducibility/mobiwac_v17/stats/RESULTS.md}) are frozen together.
   \item[The label-history benchmark.] Computed by
-        \path{scripts/embedding_eval/autocorrelation_ceiling.py}.
+        \path{research/reproducibility/mobiwac_v17/autocorrelation_ceiling.py}; its
+        machine-readable outputs are stored in
+        \path{docs/results/embedding_eval/rescreen_cat/}.
 % [round7, 2026-07-29] Repointed from \ref{apx:ceiling}: Appendix D moved to the
 % supplementary volume. The letter D is preserved there by construction (main_extra.tex sets the
 % chapter counter) and guarded by src_utils/check_extra_xrefs.py, so naming it literally is
@@ -114,16 +123,17 @@ protocol reported in that chapter rather than the one described in this section.
 %   fold partition across arms). The n=20 / n=4 distinction is GLOSSARY.md's registered pair and
 %   is NOT restated as a test footing here, since this section describes the design, not the test.
 %  TRANSITION PRIOR. DATA_SPLITS.md "Per-fold log_T": computed on the per-fold training
-%   partition only, "built by scripts/build_phase3_per_fold_transitions.sh"; the whole-dataset
+%   partition only; stable implementation and CLI: src/data/region_transitions.py and
+%   pipelines/reproducibility/build_region_transitions.pipe.py. The whole-dataset
 %   version is recorded there as leak-inflated. Written as "region-transition prior" per
 %   WRITING_LAW section 2 (log_T is a banned repo codename). That our models do not consume it
 %   and the external baseline does: 5_mobiwac/05_setup.tex:34.
 %  JOINT-BEST. GLOSSARY.md "joint-best convention" ("Both tasks read at the one saved model per
-%   fold (the validation-selected epoch)"). Script header, scripts/closing_data/
-%   score_joint_best.py:2-6, contrasts it with per-task diagnostic-best; results file named at
+%   fold (the validation-selected epoch)"). Script header, src/tracking/score_joint_best.py:2-6,
+%   contrasts it with per-task diagnostic-best; results file named at
 %   RESULTS_BOARD.md and present on disk.
-%  TESTS. Script paths from stats_n20/RESULTS.md:44-46 ("Test conventions mirror
-%   scripts/closing_data/superiority_wilcoxon.py + region_match_tost.py") and from the directory
+%  TESTS. Stable scripts and frozen outputs are under research/reproducibility/mobiwac_v17/ and
+%   docs/reproducibility/mobiwac_v17/; the source study's stats_n20/RESULTS.md supplied the
 %   listing; the four stats_n20 files were listed on disk. Verdict tables at RESULTS.md:72-90.
 %  BENCHMARK. apx_d_ceiling.tex already names this script and its outputs; not duplicated.
 %  METRICS. Deliberately NOT restated: docs/context/METRICS.md is an internal document whose

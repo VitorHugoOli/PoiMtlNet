@@ -30,54 +30,56 @@ The U.S. datasets range from about 114,000 check-ins and 1,109 regions in Alabam
 \emph{Splitting.} We use stratified five-fold cross-validation and split the data by user. All windows from one user remain in the same fold. Therefore, the overlapping windows cannot cross the training and test sets, and the visits of a test user never appear in training. The held-out fold provides the validation data, and we do not reserve a third split. We stratify the split by the next-category label because the seven classes are imbalanced. Food is the majority class in every dataset, ranging from about 25 percent of visits in Florida to 34 percent in Alabama (Table~\ref{tab:mobiwac:datasets}).
 
 \emph{Integrity of the representation.} Before using Check2HGI in the prediction
-models, we need to check whether it carries information from the validation data. This
-concern exists because the prediction models are trained without the validation users,
-but Check2HGI is trained once on the whole dataset and has seen their visits. Check2HGI
-does not use the next-category or next-region labels in its training objective. This
-reduces the risk, but does not remove it because the observed category of each visit is
-an input to the graph. We therefore study two questions: whether training Check2HGI on
-the whole dataset changes the results, and whether the graph links between consecutive
-visits can bring the next category into the vector used for prediction.
+models, we need to check whether it carries information from the validation data. The
+prediction models are trained without the validation users, but Check2HGI is trained
+once on the whole dataset and has seen their visits. Its training objective does not
+use the next-category or next-region labels. However, the observed category of each
+visit is an input to the graph. We therefore check whether whole-dataset training
+changes the results and whether links between consecutive visits bring the next
+category into the vector used for prediction.
 
 \emph{Whole-dataset training.} The first question is whether using all users to train
 Check2HGI gives the prediction models an advantage. To check this, we built a new
-representation for each fold using only its training users. We then compared it with the
-representation trained on the whole dataset and used the same validation examples for
-both. Across Alabama, Arizona, and Florida, neither region Acc@10 nor category macro-F1
-changed by more than one third of a point. These differences were smaller than the
-variation between folds.
+representation for each fold using only its training users.
+The differences were $-0.33$ to $+0.01$ Acc@10 points for region and $0.00$ to
+$+0.29$ macro-F1 points for category.
 
-However, this comparison is not the same for the two tasks. For region prediction, we
-can compare the region vectors directly. For category prediction, a graph built only
-with training users has no vectors for the visits of validation users. Therefore, we
-used one vector for each place and kept only the validation windows whose input places
-also appeared in training. These windows represent 67 to 87 percent of the validation
-data across the three datasets. Thus, the category result applies only to this part of
-the data. It does not cover information that is specific to each visit or places that
-do not appear in training.
+However, the region comparison uses region vectors directly. For category, a graph built only
+with training users has no visit vectors for validation users. We therefore used one
+vector per place and kept only windows whose input places occurred in training. These
+windows cover 67 to 87 percent of the validation data. The comparison does not cover
+information specific to each visit or places unseen in training. Within this
+coverage, whole-dataset training did not meaningfully change the results.
 
-\emph{Links between consecutive visits.} The second question comes from the way the
-graph is built. Check2HGI uses information from connected nodes to build each visit
-vector, and the graph connects consecutive visits in both directions. In addition, each
-visit node contains its observed category. Therefore, the vector for the last visit in
-an input window may receive the category of the next visit, which is the target.
-
-To check this possibility, we used a linear classifier to predict the next category
-from only the last visit vector in each window. We compared each Check2HGI version with
-a clean reference encoder under the same test. We did not use any version that scored
-more than three macro-F1 points above this reference, either with raw vectors or after
-standardization. One attention-based version was above this limit in both cases, so we
-removed it.
-
-However, this test has a limited scope. We performed it once at Florida with five
-user-disjoint folds, and it used earlier Check2HGI versions rather than the version used
-in the reported results. Also, a linear classifier can miss information that a
-nonlinear sequence model could use. For these reasons, the test helps us compare the
-versions tested, but it does not prove that the reported representation has no
-information from future visits.
-
-For comparison, HGI is also trained once on the whole dataset, while CTLE is trained
-separately for each fold using only its training users.
+%\emph{Links between consecutive visits.} The second question comes from the way the
+%graph is built. Check2HGI builds each visit vector from connected nodes. Since
+%consecutive visits are connected in both directions and each visit node contains its
+%observed category, the vector of the last observed visit may receive the category of
+%the next visit.
+%
+%To test this path, we compared the standard Check2HGI encoder, which uses graph
+%convolution, with an alternative that uses graph attention. Both produced the same
+%kind of 64-dimensional visit vector used in our experiments. From each input window,
+%we selected only the vector of the last observed visit. Thus, each test
+%example contained one 64-dimensional embedding, not the complete window.
+%
+%We standardized the embeddings using only the training data and trained a new linear
+%classifier for each fold. The classifier received the single embedding and predicted
+%the category of the next visit. The joint model and its task heads were not used. We
+%chose a linear classifier because it is simple and fast. If it can recover the next
+%category unusually well, the result is a useful warning that the embedding may contain
+%information from the next visit.
+%
+%The reported value is the mean macro-F1 over the five folds. With the standard
+%Check2HGI embeddings, the classifiers scored $0.4090$. This result is expected because
+%the embedding contains the category and time of the last observed visit, together
+%with information from its graph neighborhood. These signals can be related to the
+%next category, so a nonzero score does not by itself show a leak. With the
+%graph-attention embeddings, the score increased to $0.4976$. The same classifier
+%design and data splits were used in both cases. Therefore, the warning comes from the
+%increase over the reference, not from the value $0.4976$ alone: graph attention made
+%the next category much easier to recover from a single embedding and may have given
+%more weight to information from the next connected visit.
 
 \subsection{Metrics and statistical tests}
 \label{sec:mobiwac:setup-metrics}
