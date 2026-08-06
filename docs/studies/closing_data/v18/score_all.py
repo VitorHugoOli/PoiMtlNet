@@ -108,12 +108,17 @@ def collect_run(state: str, seed: int) -> dict | None:
         d = jload(rj) if rj else None
         if d:
             found = True
-            agg = d.get("heads", {}).get("next_stan_flow", {}).get("aggregate", {})
+            head = d.get("heads", {}).get("next_stan_flow", {})
+            agg = head.get("aggregate", {})
             entry["reg_result_json"] = str(rj)
             entry["stl_reg"] = round(agg.get("top10_acc_mean", 0) * 100, 4) or None
-            folds = agg.get("top10_acc_folds") or agg.get("per_fold")
-            if folds:
-                entry["stl_reg_folds"] = [round(x * 100, 4) for x in folds]
+            # per-fold lives under heads.<head>.per_fold as a list of dicts, one per fold;
+            # top10_acc there is the same quantity the aggregate means over.
+            pf = head.get("per_fold")
+            if isinstance(pf, list) and pf:
+                folds = [f.get("top10_acc") for f in pf if f.get("top10_acc") is not None]
+                if folds:
+                    entry["stl_reg_folds"] = [round(x * 100, 4) for x in folds]
             entry["reg_wall_seconds"] = sr.get("wall_seconds")
         else:
             entry["warnings"].append("reg sidecar present but P1 result json unreadable")

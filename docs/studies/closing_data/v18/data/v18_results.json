@@ -1,8 +1,8 @@
 {
  "meta": {
   "study": "v18",
-  "generated_utc": "2026-08-06T19:37:21.955792+00:00",
-  "commit_sha": "cce3ff65d3a38a7d697b7294bc5f99c5b826c8b1",
+  "generated_utc": "2026-08-06T23:04:46.709984+00:00",
+  "commit_sha": "9240da4f1b377bdbc50bff423fee3d0b7d2427a5",
   "definition": "v17 recipe on a forward-only check-in graph with 4 elapsed-time node columns (in_channels 15)",
   "forward_only": true,
   "in_channels": 15,
@@ -71,6 +71,13 @@
    "cat_wall_seconds": 465,
    "reg_result_json": "/home/vitor.oliveira/PoiMtlNet/docs/results/P1/region_head_istanbul_region_5f_50ep_v18_istanbul_reg_s0.json",
    "stl_reg": 75.1563,
+   "stl_reg_folds": [
+    76.6127,
+    74.8937,
+    74.4451,
+    75.0538,
+    74.7759
+   ],
    "reg_wall_seconds": 487,
    "rundir": "/home/vitor.oliveira/PoiMtlNet/results/check2hgi_v18/istanbul/mtlnet_lr1.0e-04_bs8192_ep50_20260806_154211_620510",
    "pid": "620510",
@@ -162,6 +169,13 @@
    "cat_wall_seconds": 201,
    "reg_result_json": "/home/vitor.oliveira/PoiMtlNet/docs/results/P1/region_head_alabama_region_5f_50ep_v18_alabama_reg_s0.json",
    "stl_reg": 69.9956,
+   "stl_reg_folds": [
+    72.1412,
+    68.994,
+    73.5219,
+    71.1216,
+    64.1993
+   ],
    "reg_wall_seconds": 189,
    "rundir": "/home/vitor.oliveira/PoiMtlNet/results/check2hgi_v18/alabama/mtlnet_lr1.0e-04_bs8192_ep50_20260806_152940_617690",
    "pid": "617690",
@@ -253,6 +267,13 @@
    "cat_wall_seconds": 178,
    "reg_result_json": "/home/vitor.oliveira/PoiMtlNet/docs/results/P1/region_head_arizona_region_5f_50ep_v18_arizona_reg_s0.json",
    "stl_reg": 59.4813,
+   "stl_reg_folds": [
+    62.6223,
+    59.7999,
+    59.5311,
+    57.5002,
+    57.9532
+   ],
    "reg_wall_seconds": 189,
    "rundir": "/home/vitor.oliveira/PoiMtlNet/results/check2hgi_v18/arizona/mtlnet_lr1.0e-04_bs8192_ep50_20260806_161634_625368",
    "pid": "625368",
@@ -344,6 +365,13 @@
    "cat_wall_seconds": 1903,
    "reg_result_json": "/home/vitor.oliveira/PoiMtlNet/docs/results/P1/region_head_florida_region_5f_50ep_v18_florida_reg_s0.json",
    "stl_reg": 76.6998,
+   "stl_reg_folds": [
+    76.9868,
+    76.7671,
+    75.6191,
+    75.8246,
+    78.3014
+   ],
    "reg_wall_seconds": 1666,
    "rundir": "/home/vitor.oliveira/PoiMtlNet/results/check2hgi_v18/florida/mtlnet_lr1.0e-04_bs8192_ep50_20260806_173530_649170",
    "pid": "649170",
