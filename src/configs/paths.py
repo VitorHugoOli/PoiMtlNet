@@ -82,6 +82,12 @@ class EmbeddingEngine(Enum):
     CHECK2HGI_IV2_LABELONLY = "check2hgi_iv2_labelonly"
     CHECK2HGI_IV2_D1 = "check2hgi_iv2_d1"
     CHECK2HGI_IV2_B1 = "check2hgi_iv2_b1"
+    # v18 (2026-08-06): the v17 recipe on a leak-free substrate — the consecutive-visit
+    # graph is FORWARD-ONLY in training and at readout, plus 4 elapsed-time node columns
+    # (in_channels 15 = canonical 11 + continuous_time 4). Same dk_ovl row space and region
+    # labels as v17, so the frozen recipe runs on it unchanged and the columns are comparable.
+    # Built by scripts/integrity_v2/build_study_repr.py --forward-only --add-continuous-time.
+    CHECK2HGI_V18 = "check2hgi_v18"
     # embedding_eval re-screen variants (2026-06-01) — rebuilt via OUTPUT_DIR-scratch,
     # harvested to output/<value>/; do NOT overwrite the frozen output/check2hgi/.
     CHECK2HGI_GCN_CTRL = "check2hgi_gcn_ctrl"        # fresh GCN wd=0 control (same-protocol baseline for the re-screen)
@@ -157,6 +163,7 @@ MTL_CHECK2HGI_ALLOWED_ENGINES = (
     EmbeddingEngine.CHECK2HGI_IV2_LABELONLY,
     EmbeddingEngine.CHECK2HGI_IV2_D1,
     EmbeddingEngine.CHECK2HGI_IV2_B1,
+    EmbeddingEngine.CHECK2HGI_V18,  # v18: forward-only graph + elapsed-time node features
     EmbeddingEngine.BASELINE_B2C_ONEHOT64,  # [ENUM-MERGE] B2c zero-training floor probe
     EmbeddingEngine.CHECK2HGI_CTLE,  # [ENUM-MERGE] B1 CTLE contextual per-visit substrate
     EmbeddingEngine.BASELINE_B2A_POI2VEC,  # [ENUM-MERGE] B2a faithful POI2Vec
@@ -583,6 +590,10 @@ class IoPaths:
             # guard verifies that alignment on every load.
             EmbeddingEngine.CHECK2HGI_IV2_STRICT,
             EmbeddingEngine.CHECK2HGI_IV2_CAUSAL,
+            # v18 run (2026-08-06): region task is in scope, so the engine must be here as
+            # well as in the enum + MTL allowlist — a category-only registration trains fine
+            # and then fails at the region tower.
+            EmbeddingEngine.CHECK2HGI_V18,
         )
         if embedd_engine not in supported:
             raise ValueError(

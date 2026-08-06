@@ -1,0 +1,741 @@
+{
+  "updated_at": "2026-08-06T14:34:58.852549+00:00",
+  "commit_sha": "f281a70988a4faf1e1ed9a0bbd53c7d922b2d665",
+  "phase": "phase0",
+  "current_n": {
+    "istanbul": 0,
+    "alabama": 0,
+    "arizona": 0,
+    "florida": 0,
+    "texas": 0,
+    "california": 0
+  },
+  "cells": [
+    {
+      "state": "istanbul",
+      "seed": 0,
+      "family": "cat",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "istanbul",
+      "seed": 0,
+      "family": "reg",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "istanbul",
+      "seed": 0,
+      "family": "joint",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "istanbul",
+      "seed": 1,
+      "family": "cat",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "istanbul",
+      "seed": 1,
+      "family": "reg",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "istanbul",
+      "seed": 1,
+      "family": "joint",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "istanbul",
+      "seed": 7,
+      "family": "cat",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "istanbul",
+      "seed": 7,
+      "family": "reg",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "istanbul",
+      "seed": 7,
+      "family": "joint",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "istanbul",
+      "seed": 100,
+      "family": "cat",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "istanbul",
+      "seed": 100,
+      "family": "reg",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "istanbul",
+      "seed": 100,
+      "family": "joint",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "alabama",
+      "seed": 0,
+      "family": "cat",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "alabama",
+      "seed": 0,
+      "family": "reg",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "alabama",
+      "seed": 0,
+      "family": "joint",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "alabama",
+      "seed": 1,
+      "family": "cat",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "alabama",
+      "seed": 1,
+      "family": "reg",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "alabama",
+      "seed": 1,
+      "family": "joint",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "alabama",
+      "seed": 7,
+      "family": "cat",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "alabama",
+      "seed": 7,
+      "family": "reg",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "alabama",
+      "seed": 7,
+      "family": "joint",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "alabama",
+      "seed": 100,
+      "family": "cat",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "alabama",
+      "seed": 100,
+      "family": "reg",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "alabama",
+      "seed": 100,
+      "family": "joint",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "arizona",
+      "seed": 0,
+      "family": "cat",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "arizona",
+      "seed": 0,
+      "family": "reg",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "arizona",
+      "seed": 0,
+      "family": "joint",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "arizona",
+      "seed": 1,
+      "family": "cat",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "arizona",
+      "seed": 1,
+      "family": "reg",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "arizona",
+      "seed": 1,
+      "family": "joint",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "arizona",
+      "seed": 7,
+      "family": "cat",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "arizona",
+      "seed": 7,
+      "family": "reg",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "arizona",
+      "seed": 7,
+      "family": "joint",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "arizona",
+      "seed": 100,
+      "family": "cat",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "arizona",
+      "seed": 100,
+      "family": "reg",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "arizona",
+      "seed": 100,
+      "family": "joint",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "florida",
+      "seed": 0,
+      "family": "cat",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "florida",
+      "seed": 0,
+      "family": "reg",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "florida",
+      "seed": 0,
+      "family": "joint",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "florida",
+      "seed": 1,
+      "family": "cat",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "florida",
+      "seed": 1,
+      "family": "reg",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "florida",
+      "seed": 1,
+      "family": "joint",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "florida",
+      "seed": 7,
+      "family": "cat",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "florida",
+      "seed": 7,
+      "family": "reg",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "florida",
+      "seed": 7,
+      "family": "joint",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "florida",
+      "seed": 100,
+      "family": "cat",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "florida",
+      "seed": 100,
+      "family": "reg",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "florida",
+      "seed": 100,
+      "family": "joint",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "texas",
+      "seed": 0,
+      "family": "cat",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "texas",
+      "seed": 0,
+      "family": "reg",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "texas",
+      "seed": 0,
+      "family": "joint",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "texas",
+      "seed": 1,
+      "family": "cat",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "texas",
+      "seed": 1,
+      "family": "reg",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "texas",
+      "seed": 1,
+      "family": "joint",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "texas",
+      "seed": 7,
+      "family": "cat",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "texas",
+      "seed": 7,
+      "family": "reg",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "texas",
+      "seed": 7,
+      "family": "joint",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "texas",
+      "seed": 100,
+      "family": "cat",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "texas",
+      "seed": 100,
+      "family": "reg",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "texas",
+      "seed": 100,
+      "family": "joint",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "california",
+      "seed": 0,
+      "family": "cat",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "california",
+      "seed": 0,
+      "family": "reg",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "california",
+      "seed": 0,
+      "family": "joint",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "california",
+      "seed": 1,
+      "family": "cat",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "california",
+      "seed": 1,
+      "family": "reg",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "california",
+      "seed": 1,
+      "family": "joint",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "california",
+      "seed": 7,
+      "family": "cat",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "california",
+      "seed": 7,
+      "family": "reg",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "california",
+      "seed": 7,
+      "family": "joint",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "california",
+      "seed": 100,
+      "family": "cat",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "california",
+      "seed": 100,
+      "family": "reg",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    },
+    {
+      "state": "california",
+      "seed": 100,
+      "family": "joint",
+      "status": "pending",
+      "wall_seconds": null,
+      "rundir": null,
+      "cat": null,
+      "reg": null
+    }
+  ],
+  "running": [],
+  "gpu_free_mib": 45486,
+  "disk_free_gb": 2235,
+  "disk_free_gb_home": 54,
+  "blocked_on": null,
+  "verify_flags": []
+}
