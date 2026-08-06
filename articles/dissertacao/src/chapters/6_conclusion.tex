@@ -149,8 +149,8 @@ studied in this dissertation, the answer is yes. The joint model outperforms the
 dedicated single-task models on next-category prediction in all six datasets. On
 next-region prediction, it outperforms them in Istanbul, Florida, Texas, and California.
 In Alabama and Arizona, it is statistically non-inferior within a two-point margin
-(TOST). Thus, one joint model produces both predictions in one forward pass without
-sacrificing either task under the registered comparison.
+(TOST). Thus, under the evaluation defined in advance, one joint model produces both
+predictions in one forward pass without sacrificing either task.
 
 This answer is conditional because the three studies evaluated different designs. In
 Chapter~\ref{ch:cbic}, a place-level embedding and naive hard sharing did not consistently
@@ -161,41 +161,48 @@ the main bottleneck for that architecture. It also motivated the check-in-level
 representation, which gives each visit its own vector.
 Chapter~\ref{ch:mobiwac} combined this representation with an architecture in which
 task-specific streams exchange information through cross-attention and the region output
-retains a private spatial path. The final results establish the effectiveness of this
-complete design, but they do not isolate each component's contribution because the
-representation, interaction topology, and task pair changed between the early and final
-studies.
+retains a private spatial path. The final results show that this complete design works.
+They do not show how much each change contributed because the representation, the
+interaction topology, and the task pair all changed between the early and final studies.
 
 \pagebreak
-The next-region results show a secondary pattern across the five U.S. states. The joint
-model has a small deficit in Alabama, matches the dedicated model in Arizona, and
-outperforms it in Florida, Texas, and California. The gains exceed two Acc@10 points in
-Texas and California. This ordered pattern is consistent with a larger benefit in
-datasets with more regions. Corpus size also tends to be larger in the same datasets, so
-the two factors are confounded. The comparison cannot determine which factor accounts
-for the pattern, and it does not show that scale caused the gains. A controlled study
-that changes one factor at a time is needed to test this explanation.
+The controlled comparison in Section~\ref{sec:mobiwac:results-part1} isolates the
+representation.
+With the dedicated model, training configuration, windowing, and folds held fixed,
+Check2HGI produces higher next-category macro-F1 than the place embedding HGI across
+the six evaluated datasets. This result supports testing Check2HGI as the input
+representation in other mobility prediction architectures. Whether the benefit
+transfers to those architectures remains untested.
 
-A post-submission capacity control narrows one alternative explanation for the
-next-category result. In Alabama and California, a dedicated category model was widened
-to approximately the parameter budget of the joint model. In both datasets, the wider
-model remained slightly below the dedicated model at its tuned, narrower width and well
-below the joint model. Matching the parameter count therefore did not reproduce the
-next-category gain in these two datasets. This control covers one width point per dataset
-and a narrower hyperparameter search than the original dedicated models. It shows that
-parameter count alone is not an adequate explanation within this scope, but it does not
-identify which part of the joint architecture produces the gain.
+Across the five U.S. states, the joint model performs better relative to the dedicated
+model as the number of regions grows. It is slightly worse in Alabama, matches the
+dedicated model in Arizona, and outperforms it in Florida, Texas, and California. The
+improvement is larger than two Acc@10 points in Texas and California. This pattern may
+mean that joint learning becomes more useful when the model must choose among more regions.
+However, states with more regions also tend to contain more check-ins. We therefore
+cannot tell whether this pattern comes from the number of regions, the amount of data,
+or another difference. A controlled experiment is needed before concluding that either
+factor causes the larger gains.
+
+The parameter-count control in Appendix~\ref{apx:parameter-count-control} tests one
+alternative explanation for the next-category result. In Alabama and California, the
+capacity-matched dedicated category model scored slightly below the original dedicated
+model and remained below the joint model. Thus, in these two datasets, parameter count
+alone does not explain the joint model's next-category advantage. The result points to
+architectural or joint-training mechanisms(such as MTL) that widening the dedicated model does not
+reproduce.
 
 The negative result of Chapter~\ref{ch:cbic} and the positive result of
 Chapter~\ref{ch:mobiwac} therefore do not contradict each other. Multitask learning
 provides no automatic benefit, and choosing related prediction tasks does not guarantee
-one. The strongest isolated evidence concerns the input: changing the representation
-changed the outcome while the architecture was held fixed in Chapter~\ref{ch:courb}.
-The final study then shows that a check-in-level representation and an architecture that
-connects task-specific pathways form one successful joint design. The independent effect
-of that interaction topology remains open. The consolidated answer is therefore not that
-multitask learning always helps, but that it helps next-category and next-region
-prediction under the final design and evaluation protocol developed in this dissertation.
+one. The clearest controlled finding concerns the input. In Chapter~\ref{ch:courb},
+performance changed after the input changed, while the architecture stayed fixed. The
+final study shows that a check-in-level representation and an architecture that connects
+task-specific pathways form one successful joint design. However, it does not show that
+this interaction alone caused the improvement. The consolidated answer is not that
+multitask learning always helps. It is that multitask learning helps next-category and
+next-region prediction under the final design and evaluation protocol developed in this
+dissertation.
 
 \section{Limitations}
 \label{sec:conc:limitations}
@@ -342,11 +349,13 @@ Six limitations bound the scope of these conclusions.
     next-category and next-region prediction. No single controlled ablation
     separates the representation-and-topology change from the task-pair change in
     the final result. Chapter~\ref{ch:courb} is the fixed-pair control for the
-    diagnosis. The capacity-matched baseline above addresses the parameter-count
-    explanation only in the setting that it tested: the category task, two of the
-    six datasets, one width point per dataset, and width scaling rather than
-    depth. The greater similarity of the final pair may still contribute to the
-    size of the improvement. The ablation that would separate the two changes,
+    diagnosis. The additional parameter-count experiment in
+    Appendix~\ref{apx:parameter-count-control} tests only whether a larger dedicated
+    category model can close the gap. It covers two of the six datasets, one width
+    point per dataset, width scaling rather than depth, and a smaller hyperparameter
+    search than the original dedicated model. The greater similarity of
+    the final pair may still contribute to the size of the improvement. The
+    ablation that would separate the two changes,
     running static category classification under the check-in-level representation, is
     not clean under that representation: the category of the visited place is an input
     feature of a check-in node, so that target would be partly readable from its own
