@@ -1,11 +1,11 @@
 {
-  "updated_at": "2026-08-06T16:16:30.172314+00:00",
-  "commit_sha": "82bca51962c803cad7f6ad7f362d288d5fe4feeb",
+  "updated_at": "2026-08-06T17:07:29.905072+00:00",
+  "commit_sha": "c17ee7296cc86c0d840c7624a43e8559ca91d004",
   "phase": "wave0",
   "current_n": {
     "istanbul": 5,
     "alabama": 5,
-    "arizona": 0,
+    "arizona": 5,
     "florida": 0,
     "texas": 0,
     "california": 0
@@ -145,11 +145,11 @@
       "state": "alabama",
       "seed": 0,
       "family": "reg",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
+      "status": "done",
+      "wall_seconds": 189,
+      "rundir": "docs/results/P1/region_head_alabama_region_5f_50ep_v18_alabama_reg_s0.json",
       "cat": null,
-      "reg": null
+      "reg": 69.9956
     },
     {
       "state": "alabama",
@@ -275,11 +275,11 @@
       "state": "arizona",
       "seed": 0,
       "family": "joint",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
-      "cat": null,
-      "reg": null
+      "status": "done",
+      "wall_seconds": 1156,
+      "rundir": "results/check2hgi_v18/arizona/mtlnet_lr1.0e-04_bs8192_ep50_20260806_161634_625368",
+      "cat": 31.6874,
+      "reg": 59.5411
     },
     {
       "state": "arizona",
@@ -375,10 +375,10 @@
       "state": "florida",
       "seed": 0,
       "family": "cat",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
-      "cat": null,
+      "status": "done",
+      "wall_seconds": 1903,
+      "rundir": "results/check2hgi_v18/florida/next_lr1.0e-04_bs8192_ep50_20260806_163558_627960",
+      "cat": 35.9711,
       "reg": null
     },
     {
@@ -734,11 +734,11 @@
   ],
   "running": [
     {
-      "state": "arizona",
+      "state": "florida",
       "seed": 0,
-      "family": "joint",
-      "pid": 625368,
-      "started_at": "2026-08-06T16:16:30+00:00"
+      "family": "reg",
+      "pid": 639632,
+      "started_at": "2026-08-06T17:07:29+00:00"
     }
   ],
   "gpu_free_mib": 45489,
