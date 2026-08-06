@@ -1,7 +1,7 @@
 {
-  "updated_at": "2026-08-06T14:34:58.852549+00:00",
-  "commit_sha": "f281a70988a4faf1e1ed9a0bbd53c7d922b2d665",
-  "phase": "phase0",
+  "updated_at": "2026-08-06T15:26:13.717247+00:00",
+  "commit_sha": "496cdab4c8751d07ba8e60de4d1219321eda1954",
+  "phase": "wave0",
   "current_n": {
     "istanbul": 0,
     "alabama": 0,
@@ -732,10 +732,25 @@
       "reg": null
     }
   ],
-  "running": [],
-  "gpu_free_mib": 45486,
-  "disk_free_gb": 2235,
-  "disk_free_gb_home": 54,
+  "running": [
+    {
+      "state": "istanbul",
+      "seed": 0,
+      "family": "cat",
+      "pid": 616431,
+      "started_at": "2026-08-06T15:26:13+00:00"
+    },
+    {
+      "state": "alabama",
+      "seed": 0,
+      "family": "cat",
+      "pid": 616433,
+      "started_at": "2026-08-06T15:26:13+00:00"
+    }
+  ],
+  "gpu_free_mib": 45489,
+  "disk_free_gb": 2188,
+  "disk_free_gb_home": 51,
   "blocked_on": null,
   "verify_flags": []
 }
