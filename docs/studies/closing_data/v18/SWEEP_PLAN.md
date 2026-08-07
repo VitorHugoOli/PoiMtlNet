@@ -64,6 +64,31 @@ arms would not be comparable to GPU arms — the same class of error as the fp16
 | 8 | **1c-mtl** @ large, *conditional* | MTL | **TX** | the 2 best arms from #7 — **only if** #7 moves cat by > 0.5 pp | 0 | 2 | ⬜ |
 | 9 | **confirm** | both | winners | best dedicated + best MTL arm | 1 | — | ⬜ |
 
+### Inserted 2026-08-07 — trunk arms at alabama, BEFORE the MTL sweep rows
+
+Ordering is deliberate (user decision): the trunk result can change what the MTL sweep should test,
+so it runs **before** rows 3 / 7 / 8. Row 3 (MTL cat-LR grid) is deferred until these report.
+
+| # | stage | arm | state | flag | seeds | cost | status |
+|---|---|---|---|---|---|---|---|
+| T1 | trunk | **A** no sharing | alabama | `--model-param disable_cross_attn=True` | 0 | ~18 min | ⬜ |
+| T2 | trunk | **A′** no mixing, same depth | alabama | `--model-param identity_cross_attn=True` | 0 | ~18 min | ⬜ |
+
+**Hypothesis under test at alabama is the OPPOSITE of the one at CA/TX.** There the question was
+"does severing cost the +2 pp?" (answer: no — see
+[`region_1fold_triage/FINDING.md`](region_1fold_triage/FINDING.md)). Here the question is **does
+severing HELP?** At alabama the joint model is *worse* than dedicated on both heads (Δcat −0.65 /
+−1.04, Δreg −0.31 / −0.33) while the dedicated arm overfits badly (train macro-F1 66.4 vs val 24.0).
+If the trunk is adding capacity that feeds memorization, A and A′ should **beat** champion-G.
+
+Falsification: if A and A′ land within fold-σ of champion-G, the trunk is simply inert at small data
+too, and no trunk-side change will fix the alabama deficit.
+
+⚠ Caveat on A′ (from the Fable review): `identity_cross_attn` zeroes the attention *output* but keeps
+the attention weights (~1.05 M params) present-but-unused, so it is a control for **per-stream FFN
+depth**, not for attention capacity. A vs A′ decomposes mixing vs depth; neither controls the
+2.5–5.9× dual-tower region pathway.
+
 Rows 4 and 6 test the user's hypothesis that class weights should be off on **all** arms; row 6 is
 included because the class-weight effect may itself be size-dependent (macro-F1 balancing matters
 more where the model memorizes).
