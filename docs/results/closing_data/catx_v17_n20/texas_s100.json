@@ -1,0 +1,39 @@
+{
+  "rundir": "results/check2hgi_dk_ovl/texas/mtlnet_lr1.0e-04_bs8192_ep50_20260711_061331_1517315",
+  "seed": 100,
+  "tag": "a1_texas_s100",
+  "method": "reg full=top10_acc_indist*(1-ood_frac) at indist-best epoch; cat=macro-f1 at f1-best epoch; per-task diagnostic-best, fold-mean",
+  "cat_macro_f1_mean": 77.2424,
+  "cat_macro_f1_std": 0.1647,
+  "cat_per_fold": [
+    77.3372,
+    77.3743,
+    77.0761,
+    77.4117,
+    77.0125
+  ],
+  "cat_best_epochs": [
+    48,
+    49,
+    48,
+    50,
+    50
+  ],
+  "reg_full_top10_mean": 67.0623,
+  "reg_full_top10_std": 0.5361,
+  "reg_per_fold": [
+    66.6539,
+    67.6328,
+    66.2185,
+    67.3887,
+    67.4176
+  ],
+  "reg_best_epochs": [
+    49,
+    48,
+    48,
+    50,
+    50
+  ],
+  "n_folds": 5
+}

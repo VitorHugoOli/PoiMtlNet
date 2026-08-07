@@ -1,0 +1,22 @@
+{
+  "rundir": "/teamspace/studios/this_studio/PoiMtlNet/results/check2hgi_dk_ovl/arizona/next_lr1.0e-04_bs2048_ep50_20260623_181527_96788",
+  "tag": "arizona_cat_ceiling",
+  "metric": "STL cat ceiling = macro-F1 (f1 col) at f1-best epoch, fold-mean",
+  "n_folds": 5,
+  "cat_macro_f1_mean": 57.1305,
+  "cat_macro_f1_std": 1.2751,
+  "cat_per_fold": [
+    59.2361,
+    56.0525,
+    57.9549,
+    56.4685,
+    55.9406
+  ],
+  "cat_best_epochs": [
+    47,
+    43,
+    49,
+    47,
+    15
+  ]
+}

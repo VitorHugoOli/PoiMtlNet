@@ -1,0 +1,167 @@
+{
+  "rundir": "results/check2hgi_dk_ovl/texas/mtlnet_lr1.0e-04_bs8192_ep50_20260710_190309_1446702",
+  "seed": 7,
+  "tag": "jb_texas_7",
+  "method": "joint-best: e* = argmax_e selector(e) over epochs with 0-based index >= min_best_epoch (ties -> earliest; selector geom_simple = sqrt(cat_f1 * reg_top10_acc_indist), the mtl_cv joint-checkpoint gate); report cat macro-f1(e*) and reg full top10 = top10_acc_indist(e*)*(1-ood_fraction(e*)). diag-best: per-task best epochs, ungated (a40_score_matched.py convention). Values are percent; fold-mean \u00b1 pstdev. Selection logic: src/tracking/scoring.py.",
+  "selector_name": "geom_simple",
+  "min_best_epoch": 0,
+  "cat_task": "next_category",
+  "reg_task": "next_region",
+  "joint_best": {
+    "cat_macro_f1_mean": 77.2584,
+    "cat_macro_f1_std": 0.0419,
+    "reg_full_top10_mean": 67.0488,
+    "reg_full_top10_std": 0.3623,
+    "cat_per_fold": [
+      77.3105,
+      77.2262,
+      77.2918,
+      77.2667,
+      77.1964
+    ],
+    "reg_per_fold": [
+      66.9036,
+      67.3331,
+      66.4292,
+      67.1231,
+      67.4548
+    ],
+    "epochs": [
+      48,
+      49,
+      48,
+      50,
+      47
+    ],
+    "selector_per_fold": [
+      0.719233,
+      0.721182,
+      0.716593,
+      0.72021,
+      0.721666
+    ],
+    "n_folds": 5
+  },
+  "diag_best": {
+    "cat_macro_f1_mean": 77.26,
+    "cat_macro_f1_std": 0.0433,
+    "reg_full_top10_mean": 67.0512,
+    "reg_full_top10_std": 0.363,
+    "cat_per_fold": [
+      77.3105,
+      77.2262,
+      77.3001,
+      77.2667,
+      77.1964
+    ],
+    "reg_per_fold": [
+      66.904,
+      67.3331,
+      66.4313,
+      67.1273,
+      67.4604
+    ],
+    "cat_best_epochs": [
+      48,
+      49,
+      50,
+      50,
+      47
+    ],
+    "reg_best_epochs": [
+      50,
+      49,
+      47,
+      47,
+      49
+    ],
+    "n_folds": 5
+  },
+  "delta_joint_minus_diag": {
+    "cat": -0.0017,
+    "reg": -0.0025
+  },
+  "per_fold": [
+    {
+      "fold": 1,
+      "source": "csv",
+      "diag_best": {
+        "cat_f1": 77.3105,
+        "cat_epoch": 48,
+        "reg_full_top10": 66.904,
+        "reg_epoch": 50
+      },
+      "joint_best": {
+        "epoch": 48,
+        "selector": 0.719233,
+        "cat_f1": 77.3105,
+        "reg_full_top10": 66.9036
+      }
+    },
+    {
+      "fold": 2,
+      "source": "csv",
+      "diag_best": {
+        "cat_f1": 77.2262,
+        "cat_epoch": 49,
+        "reg_full_top10": 67.3331,
+        "reg_epoch": 49
+      },
+      "joint_best": {
+        "epoch": 49,
+        "selector": 0.721182,
+        "cat_f1": 77.2262,
+        "reg_full_top10": 67.3331
+      }
+    },
+    {
+      "fold": 3,
+      "source": "csv",
+      "diag_best": {
+        "cat_f1": 77.3001,
+        "cat_epoch": 50,
+        "reg_full_top10": 66.4313,
+        "reg_epoch": 47
+      },
+      "joint_best": {
+        "epoch": 48,
+        "selector": 0.716593,
+        "cat_f1": 77.2918,
+        "reg_full_top10": 66.4292
+      }
+    },
+    {
+      "fold": 4,
+      "source": "csv",
+      "diag_best": {
+        "cat_f1": 77.2667,
+        "cat_epoch": 50,
+        "reg_full_top10": 67.1273,
+        "reg_epoch": 47
+      },
+      "joint_best": {
+        "epoch": 50,
+        "selector": 0.72021,
+        "cat_f1": 77.2667,
+        "reg_full_top10": 67.1231
+      }
+    },
+    {
+      "fold": 5,
+      "source": "csv",
+      "diag_best": {
+        "cat_f1": 77.1964,
+        "cat_epoch": 47,
+        "reg_full_top10": 67.4604,
+        "reg_epoch": 49
+      },
+      "joint_best": {
+        "epoch": 47,
+        "selector": 0.721666,
+        "cat_f1": 77.1964,
+        "reg_full_top10": 67.4548
+      }
+    }
+  ],
+  "warnings": []
+}

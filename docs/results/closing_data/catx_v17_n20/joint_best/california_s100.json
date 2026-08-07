@@ -1,0 +1,167 @@
+{
+  "rundir": "results/check2hgi_dk_ovl/california/mtlnet_lr1.0e-04_bs8192_ep50_20260711_011950_1487320",
+  "seed": 100,
+  "tag": "jb_california_100",
+  "method": "joint-best: e* = argmax_e selector(e) over epochs with 0-based index >= min_best_epoch (ties -> earliest; selector geom_simple = sqrt(cat_f1 * reg_top10_acc_indist), the mtl_cv joint-checkpoint gate); report cat macro-f1(e*) and reg full top10 = top10_acc_indist(e*)*(1-ood_fraction(e*)). diag-best: per-task best epochs, ungated (a40_score_matched.py convention). Values are percent; fold-mean \u00b1 pstdev. Selection logic: src/tracking/scoring.py.",
+  "selector_name": "geom_simple",
+  "min_best_epoch": 0,
+  "cat_task": "next_category",
+  "reg_task": "next_region",
+  "joint_best": {
+    "cat_macro_f1_mean": 77.0428,
+    "cat_macro_f1_std": 0.171,
+    "reg_full_top10_mean": 65.7131,
+    "reg_full_top10_std": 0.4892,
+    "cat_per_fold": [
+      76.7944,
+      76.9482,
+      77.0628,
+      77.3118,
+      77.0966
+    ],
+    "reg_per_fold": [
+      64.9971,
+      65.2825,
+      66.147,
+      65.9014,
+      66.2376
+    ],
+    "epochs": [
+      50,
+      50,
+      48,
+      50,
+      49
+    ],
+    "selector_per_fold": [
+      0.706788,
+      0.708917,
+      0.714067,
+      0.713946,
+      0.714705
+    ],
+    "n_folds": 5
+  },
+  "diag_best": {
+    "cat_macro_f1_mean": 77.0554,
+    "cat_macro_f1_std": 0.1741,
+    "reg_full_top10_mean": 65.7138,
+    "reg_full_top10_std": 0.4885,
+    "cat_per_fold": [
+      76.7944,
+      76.9482,
+      77.1117,
+      77.3118,
+      77.1112
+    ],
+    "reg_per_fold": [
+      64.9985,
+      65.2845,
+      66.147,
+      65.9014,
+      66.2376
+    ],
+    "cat_best_epochs": [
+      50,
+      50,
+      44,
+      50,
+      48
+    ],
+    "reg_best_epochs": [
+      49,
+      45,
+      48,
+      50,
+      49
+    ],
+    "n_folds": 5
+  },
+  "delta_joint_minus_diag": {
+    "cat": -0.0127,
+    "reg": -0.0007
+  },
+  "per_fold": [
+    {
+      "fold": 1,
+      "source": "csv",
+      "diag_best": {
+        "cat_f1": 76.7944,
+        "cat_epoch": 50,
+        "reg_full_top10": 64.9985,
+        "reg_epoch": 49
+      },
+      "joint_best": {
+        "epoch": 50,
+        "selector": 0.706788,
+        "cat_f1": 76.7944,
+        "reg_full_top10": 64.9971
+      }
+    },
+    {
+      "fold": 2,
+      "source": "csv",
+      "diag_best": {
+        "cat_f1": 76.9482,
+        "cat_epoch": 50,
+        "reg_full_top10": 65.2845,
+        "reg_epoch": 45
+      },
+      "joint_best": {
+        "epoch": 50,
+        "selector": 0.708917,
+        "cat_f1": 76.9482,
+        "reg_full_top10": 65.2825
+      }
+    },
+    {
+      "fold": 3,
+      "source": "csv",
+      "diag_best": {
+        "cat_f1": 77.1117,
+        "cat_epoch": 44,
+        "reg_full_top10": 66.147,
+        "reg_epoch": 48
+      },
+      "joint_best": {
+        "epoch": 48,
+        "selector": 0.714067,
+        "cat_f1": 77.0628,
+        "reg_full_top10": 66.147
+      }
+    },
+    {
+      "fold": 4,
+      "source": "csv",
+      "diag_best": {
+        "cat_f1": 77.3118,
+        "cat_epoch": 50,
+        "reg_full_top10": 65.9014,
+        "reg_epoch": 50
+      },
+      "joint_best": {
+        "epoch": 50,
+        "selector": 0.713946,
+        "cat_f1": 77.3118,
+        "reg_full_top10": 65.9014
+      }
+    },
+    {
+      "fold": 5,
+      "source": "csv",
+      "diag_best": {
+        "cat_f1": 77.1112,
+        "cat_epoch": 48,
+        "reg_full_top10": 66.2376,
+        "reg_epoch": 49
+      },
+      "joint_best": {
+        "epoch": 49,
+        "selector": 0.714705,
+        "cat_f1": 77.0966,
+        "reg_full_top10": 66.2376
+      }
+    }
+  ],
+  "warnings": []
+}
