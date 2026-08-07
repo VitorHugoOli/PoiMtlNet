@@ -2,6 +2,26 @@
 \section{Conclusion}
 \label{sec:mobiwac:conclusion}
 
-We tested whether one model can predict both the category and region of a user's next visit. A check-in-level
-representation, one vector per visit rather than one per place, makes the next-category task far more learnable than the standard
-place-level representation does. On that representation, a single multitask model outperforms a dedicated category model on every dataset. On region, it outperforms the dedicated model on four of the six datasets and remains non-inferior (TOST, $\pm2$~pp) on the other two. The gains at Texas and California exceed the two-point margin; those at Florida and Istanbul are statistically supported but smaller. Across the U.S. states, the region gain rises with region count. The joint model also remains above every external baseline in Table~\ref{tab:mobiwac:results} on all six datasets, by at least 4 Acc@10 points over the strongest region reference (HMT-GRN, STAN, or ReHDM; the first two on our folds, ReHDM under its own protocol) and by at least 33 macro-F1 points over POI-RGNN on category. One model with a shared semantic context and a private spatial path anticipates both what a user will do next and where.
+We tested whether one model can predict both the category and region of a user's next visit. The central concern was
+that sharing could help one task while hurting the other. However, the evidence shows that sharing alone does not
+explain the outcome because the result also depends on what the model represents. A standard place-level representation
+assigns the same vector to every visit to a place, so it cannot distinguish visits made under different contexts. By
+assigning one vector to each visit, the check-in-level representation can include the visit time, nearby places, and
+recent visits. The controlled comparison then shows that most of the resulting category gain comes from this per-visit
+context rather than from additional training signal. Once this information is available, the joint model can share
+semantic context between the tasks while keeping a private spatial path for region prediction.
+
+With both changes in place, joint training produces a different outcome. The model outperforms the dedicated category
+model on all six datasets. For region prediction, it outperforms the dedicated model at Istanbul, Florida, Texas, and
+California and remains non-inferior within the two-point margin (TOST, $\pm2$
+~pp) at Alabama and Arizona. The gains at Texas and California exceed this margin, while the smaller gains at Florida
+and Istanbul remain statistically supported. The region results also reveal a pattern across the five U.S. states: the
+gain rises with the number of regions. This advantage extends to the external methods because the joint model remains
+above every baseline in Table~\ref{tab:mobiwac:results}
+on all six datasets, by at least 4 Acc@10 points over the strongest region reference (HMT-GRN, STAN, or ReHDM; the first
+two on our folds, ReHDM under its own protocol) and by at least 33 macro-F1 points over POI-RGNN on category.
+
+Together, these results do not mean that multitask learning helps automatically. They show that the initial concern
+about harmful sharing was incomplete: the result also depends on the representation and on how the tasks exchange
+information. When the representation preserves the context of each visit and the architecture keeps a private spatial
+path where the tasks differ, one model can predict both what a user will do next and where in a single forward pass.

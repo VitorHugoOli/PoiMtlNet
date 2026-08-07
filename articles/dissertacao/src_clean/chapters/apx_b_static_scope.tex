@@ -33,12 +33,18 @@ stands as published.
 
 The second is that Chapter~\ref{ch:cbic} has a version of the same problem, milder but present, and
 saying so is more honest than drawing a line between the two. That chapter builds each place's input
-feature from the average of its neighbors' categories and deliberately leaves the place itself out,
-which looks like it closes the channel. It does not. The place graph is undirected, so a place
-appears in its own neighbors' features, and a single graph convolution averages a place together
-with its neighborhood. The place's own label comes back at the first hop, diluted among its
-neighbors. The difference between the two chapters is therefore one of degree: an exact lookup in
-Chapter~\ref{ch:courb}, a diluted average in Chapter~\ref{ch:cbic}.
+feature from the average of its neighbors' categories and deliberately leaves the place itself out.
+We verified that this exclusion holds exactly: a place's own category vector is absent from its own
+input feature. The exclusion does not close the channel, because the input feature is not what the
+static task reads. Each neighbor's feature vector is itself an average over that neighbor's own
+neighborhood, and the place belongs to those neighborhoods, so one round of graph attention returns
+the place's category to its embedding at a measured mean weight of 0.10 against a total own-category
+weight of 0.39. Removing that contribution and leaving everything else unchanged lowers a probe of
+the place's own category from 0.46 to 0.30 macro-F1, against a majority-class floor of 0.07.
+Relabeling a single place, which never alters that place's own input feature, changes its embedding
+for every place that receives at least one message. The difference between the two chapters is
+therefore one of degree: an exact lookup in Chapter~\ref{ch:courb}, a diluted average recovered
+through one hop in Chapter~\ref{ch:cbic}.
 
 The third is that Chapter~\ref{ch:mobiwac} does not inherit the problem, for the reason
 that chapter gives on its own terms: it replaces the place-level embedding with a

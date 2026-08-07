@@ -43,26 +43,27 @@ users, POIs, category classes, and region classes. Each POI $p\in\mathcal{P}$ ca
 category $c_p\in\mathcal{C}$ and lies in a region $r_p\in\mathcal{R}$.
 
 \begin{definition}[Check-in]\label{def:fund:checkin}
-The $i$th check-in of user $u$ is the tuple
-\begin{equation}
-    x_i=(u,p_i,t_i,c_i,r_i),
-\end{equation}
-where $p_i\in\mathcal{P}$ is the visited POI, $t_i$ is its timestamp,
-$c_i=c_{p_i}$ is its category, and $r_i=r_{p_i}$ is its region.
+    The $i$th check-in of user $u$ is the tuple
+    \begin{equation}
+        x_i=(u,p_i,t_i,c_i,r_i),
+    \end{equation}
+    where $p_i\in\mathcal{P}$ is the visited POI, $t_i$ is its timestamp,
+    $c_i=c_{p_i}$ is its category, and $r_i=r_{p_i}$ is its region.
 \end{definition}
 
 \begin{definition}[Check-in history]\label{def:fund:history}
-The check-in history of length $\ell$ preceding check-in $x_i$ is the ordered sequence
-\begin{equation}
-    H_i=(x_{i-\ell},\ldots,x_{i-1}).
-\end{equation}
-For the two sequential tasks studied here (Definitions~\ref{def:fund:nextcat}
-and~\ref{def:fund:nextreg}), the prediction target is $c_i$ for next-category
-prediction and $r_i$ for next-region prediction. These labels belong to $x_i$, not
-to the preceding check-ins in $H_i$: the categories and regions carried by the
-visits in $H_i$ are observed input, and only the attributes of $x_i$ itself are
-withheld.
+    The check-in history of length $\ell$ preceding check-in $x_i$ is the ordered sequence
+    \begin{equation}
+        H_i=(x_{i-\ell},\ldots,x_{i-1}).
+    \end{equation}
+    For the two sequential tasks studied here (Definitions~\ref{def:fund:nextcat}
+    and~\ref{def:fund:nextreg}), the prediction target is $c_i$ for next-category
+    prediction and $r_i$ for next-region prediction. These labels belong to $x_i$, not
+    to the preceding check-ins in $H_i$: the categories and regions carried by the
+    visits in $H_i$ are observed input, and only the attributes of $x_i$ itself are
+    withheld.
 \end{definition}
+
 
 \subsubsection{Check-in and place embedding}
 
@@ -71,25 +72,25 @@ throughout this dissertation, and the three studies vary which one supplies the 
 input.
 
 \begin{definition}[Place embedding]\label{def:fund:placelevel}
-A place embedding assigns one vector $\mathbf{e}_p$ to each POI $p$, so every check-in
-at that POI enters the model with the same representation.
+    A place embedding assigns one vector $\mathbf{e}_p$ to each POI $p$, so every check-in
+    at that POI enters the model with the same representation.
 \end{definition}
 
 \begin{definition}[Check-in-level representation]\label{def:fund:checkinlevel}
-A check-in-level representation assigns one vector $\mathbf{e}_{x_i}$ to each check-in
-$x_i$, so two visits to the same POI may enter the model with different
-representations.
+    A check-in-level representation assigns one vector $\mathbf{e}_{x_i}$ to each check-in
+    $x_i$, so two visits to the same POI may enter the model with different
+    representations.
 \end{definition}
 
 \begin{definition}[Representation map]\label{def:fund:repmap}
-A representation map assigns to each check-in a vector,
-\begin{equation}
-    \rho(x_i)\in\mathbb{R}^{d},
-\end{equation}
-and extends to histories elementwise,
-\begin{equation}
-    \rho(H_i)=\bigl(\rho(x_{i-\ell}),\ldots,\rho(x_{i-1})\bigr).
-\end{equation}
+    A representation map assigns to each check-in a vector,
+    \begin{equation}
+        \rho(x_i)\in\mathbb{R}^{d},
+    \end{equation}
+    and extends to histories elementwise,
+    \begin{equation}
+        \rho(H_i)=\bigl(\rho(x_{i-\ell}),\ldots,\rho(x_{i-1})\bigr).
+    \end{equation}
 \end{definition}
 
 Every model of the sequential tasks in this dissertation reads $\rho(H_i)$ rather than
@@ -107,27 +108,27 @@ Three definitions separate the targets. The first is static and reads a place; t
 other two are sequential and read a history.
 
 \begin{definition}[Category classification]\label{def:fund:catclf}
-Category classification predicts the category of a POI from its representation:
-\begin{equation}
-    g_{\mathrm{cat}}(\mathbf{e}_p)\longrightarrow c_p.
-\end{equation}
-At evaluation time, POI $p$ is held out from the classifier-training fold, so
-``unknown POI'' means unknown to the classifier, not necessarily absent from the graph
-used to learn $\mathbf{e}_p$.
+    Category classification predicts the category of a POI from its representation:
+    \begin{equation}
+        g_{\mathrm{cat}}(\mathbf{e}_p)\longrightarrow c_p.
+    \end{equation}
+    At evaluation time, POI $p$ is held out from the classifier-training fold, so
+    ``unknown POI'' means unknown to the classifier, not necessarily absent from the graph
+    used to learn $\mathbf{e}_p$.
 \end{definition}
 
 \begin{definition}[Next-category prediction]\label{def:fund:nextcat}
-Next-category prediction maps a check-in history to the category of the next visit:
-\begin{equation}
-    f_{\mathrm{cat}}(H_i)\longrightarrow c_i.
-\end{equation}
+    Next-category prediction maps a check-in history to the category of the next visit:
+    \begin{equation}
+        f_{\mathrm{cat}}(H_i)\longrightarrow c_i.
+    \end{equation}
 \end{definition}
 
 \begin{definition}[Next-region prediction]\label{def:fund:nextreg}
-Next-region prediction maps a check-in history to the region of the next visit:
-\begin{equation}
-    f_{\mathrm{reg}}(H_i)\longrightarrow r_i.
-\end{equation}
+    Next-region prediction maps a check-in history to the region of the next visit:
+    \begin{equation}
+        f_{\mathrm{reg}}(H_i)\longrightarrow r_i.
+    \end{equation}
 \end{definition}
 
 The task pairing changes across the studies. Chapters~\ref{ch:cbic}
@@ -147,12 +148,12 @@ One further target must be named, because it is the task that the models this se
 reviews were built to solve.
 
 \begin{definition}[Next-place prediction]\label{def:fund:nextplace}
-Next-place prediction maps a check-in history to the identity of the next visited POI:
-\begin{equation}
-    f_{\mathrm{place}}(H_i)\longrightarrow p_i.
-\end{equation}
-It is named to delimit the scope of the dissertation, and no chapter reports a result
-for $f_{\mathrm{place}}$.
+    Next-place prediction maps a check-in history to the identity of the next visited POI:
+    \begin{equation}
+        f_{\mathrm{place}}(H_i)\longrightarrow p_i.
+    \end{equation}
+    It is named to delimit the scope of the dissertation, and no chapter reports a result
+    for $f_{\mathrm{place}}$.
 \end{definition}
 
 Next place is the dominant task in the field, and methods developed for it provide the
@@ -373,6 +374,7 @@ Chapter~\ref{ch:mobiwac} to be interpreted as two stages of one model lineage.
 \input{tables/frame/lineage}
 
 
+
 \section{Multitask learning}
 \label{sec:fund:mtl}
 
@@ -390,15 +392,15 @@ The first design choice is where task-specific computation ends and shared
 computation begins.
 
 \begin{definition}[Hard parameter sharing]\label{def:fund:hard}
-Hard parameter sharing passes all inputs through a single shared trunk before
-branching to task-specific output heads, so every task uses the same hidden
-representations~\cite{ruder2017mtloverview}.
+    Hard parameter sharing passes all inputs through a single shared trunk before
+    branching to task-specific output heads, so every task uses the same hidden
+    representations~\cite{ruder2017mtloverview}.
 \end{definition}
 
 \begin{definition}[Soft parameter sharing]\label{def:fund:soft}
-Soft parameter sharing gives each task its own complete network and couples the
-networks by penalizing differences between their
-parameters~\cite{ruder2017mtloverview}.
+    Soft parameter sharing gives each task its own complete network and couples the
+    networks by penalizing differences between their
+    parameters~\cite{ruder2017mtloverview}.
 \end{definition}
 
 Definition~\ref{def:fund:hard} is the topology of the first joint model of this
@@ -409,8 +411,8 @@ condition its shared layers on task identity, so the two tasks read the same
 parameters through different scalings.
 
 \begin{definition}[Negative transfer]\label{def:fund:negtransfer}
-Negative transfer occurs when joint training leaves a task worse than its dedicated
-single-task model.
+    Negative transfer occurs when joint training leaves a task worse than its dedicated
+    single-task model.
 \end{definition}
 
 Because hard sharing is rigid and soft sharing requires many parameters, several
@@ -430,6 +432,7 @@ cross within this jointly optimized module. Each stream queries the other to rea
 features, which couples their gradients without forcing their representations into a
 single bottleneck.
 
+
 \subsection{Gradient conflict}
 
 The second design choice depends on a quantity rather than on a preference: whether the
@@ -437,14 +440,14 @@ tasks are asking for the same update at all. Gradient conflict describes one sou
 negative transfer, and it is a measured quantity rather than a figure of speech.
 
 \begin{definition}[Gradient conflict]\label{def:fund:conflict}
-Let $\mathbf{g}_i$ and $\mathbf{g}_j$ be the gradients of two task losses with respect
-to the shared parameters, and let $\varphi_{ij}$ be the angle between them, so that
-\begin{equation}\label{eq:fund:cosine}
-    \cos\varphi_{ij}
-    = \frac{\mathbf{g}_i^{\top}\mathbf{g}_j}
-           {\lVert \mathbf{g}_i\rVert\,\lVert \mathbf{g}_j\rVert}.
-\end{equation}
-The two tasks conflict at that point when $\cos\varphi_{ij}<0$~\cite{yu2020pcgrad}.
+    Let $\mathbf{g}_i$ and $\mathbf{g}_j$ be the gradients of two task losses with respect
+    to the shared parameters, and let $\varphi_{ij}$ be the angle between them, so that
+    \begin{equation}\label{eq:fund:cosine}
+        \cos\varphi_{ij}
+        = \frac{\mathbf{g}_i^{\top}\mathbf{g}_j}
+        {\lVert \mathbf{g}_i\rVert\,\lVert \mathbf{g}_j\rVert}.
+    \end{equation}
+    The two tasks conflict at that point when $\cos\varphi_{ij}<0$~\cite{yu2020pcgrad}.
 \end{definition}
 
 The cosine between their gradients reads how the two requested updates are aligned and
@@ -582,9 +585,16 @@ The experiments use two sources of check-ins. Gowalla is the main source, and th
 dissertation evaluates Alabama, Arizona, Florida, California, and
 Texas~\cite{cho2011gowalla}. Istanbul check-ins come from Massive-STEPS, which also
 draws attention to the field's continued dependence on old
-datasets~\cite{wongso2025massivesteps}. The two sources supply different administrative
-units for the region target: a census tract in the five United States datasets, and a
-\emph{mahalle}, a municipal neighborhood, in Istanbul. The Foursquare dataset for New
+datasets~\cite{wongso2025massivesteps}. The two sources supply different areal units
+for the region target: a census tract in the five United States datasets, and a
+\emph{mahalle} in Istanbul. The two are not the same kind of object. A census tract is a
+statistical area that the United States Census Bureau draws to hold a roughly stable
+population and revises at each decennial census; it has no government of its own. A
+\emph{mahalle} is the smallest unit of Turkish local administration, one level below
+the district, and it has an elected local administrator. Both partition a city at
+neighborhood scale, which is what makes the region target comparable across the two
+collections, but one is a unit of measurement and the other a unit of government.
+Chapter~\ref{ch:mobiwac} reports how many regions each dataset contributes. The Foursquare dataset for New
 York and Tokyo
 is another common benchmark~\cite{yang2015tsmc}, but it provides context only and is
 not used in the experiments reported here.
@@ -653,6 +663,7 @@ reported for coarse location prediction~\cite{song2010limits}, do not serve as
 ceilings for seven-class macro-F1 or region ranking.
 
 
+
 \subsection{Preparation and data split}
 
 How the check-ins are divided determines which population a result covers.
@@ -661,11 +672,11 @@ The studies use stratified cross-validation~\cite{kohavi1995crossval}, but the
 split changes across chapters. Chapters~\ref{ch:cbic} and~\ref{ch:courb} stratify
 samples, so one user's check-ins may occur in both training and validation.
 Chapter~\ref{ch:mobiwac} instead uses a grouped, stratified splitter that keeps each
-user on one side of a fold~\cite{pedregosa2011sklearn}. A seed in that chapter is one
-complete repetition of the five-fold experiment with a different random
-initialization. Four seeds over one fixed set of five folds produce twenty fitted
-models per configuration. The fixed folds isolate random-initialization variation but
-do not measure uncertainty from resampling the users.
+user on one side of a fold~\cite{pedregosa2011sklearn}. In that chapter, each seed
+defines one complete repetition of the five-fold experiment. It determines the model's
+random initialization and how users are divided among the five folds. The study uses
+four seeds, and each seed produces five fitted models, given a total of twenty fitted configurations for each
+experiment.
 
 \subsection{Comparison and statistical decisions}
 

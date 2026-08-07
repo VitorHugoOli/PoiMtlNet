@@ -26,10 +26,10 @@ prediction} identifies the semantic category of that visit, and \emph{next-regio
 prediction} identifies where it will occur. These tasks differ from \emph{next-place
 prediction}, which identifies the exact establishment and is outside the scope of
 this work. The two tasks above are sequential, because each one reads a history of
-visits. The first two studies also use \emph{category classification}, a static task
+visits. This dissertation also uses \emph{category classification}, a static task
 that reads a single place rather than a history, predicting the category of a POI held
-out from classifier training. The task
-pair changes in the final study, as explained in Section~\ref{sec:intro:arc}.
+out from classifier training. Which two tasks are trained together is not fixed
+across the work, as Section~\ref{sec:intro:arc} explains.
 Chapter~\ref{ch:fundamentals} formally defines the three tasks that appear in the
 experiments.
 
@@ -54,7 +54,7 @@ would determine the result, was an open question at the start of this research.
 \textbf{Does multitask learning help point-of-interest prediction (next category and
 next region), and what does the answer depend on?}
 
-The three studies answer this question in sequence. The first reports a negative
+The three studies conducted in this dissertation answer this question in sequence. The first reports a negative
 result, the second identifies its main bottleneck, and the third tests the resulting
 solution. This progression is itself part of the contribution because each study
 narrows the explanation supported by the evidence.
@@ -72,7 +72,7 @@ tasks.
 Chapter~\ref{ch:courb}, published at CoUrb 2026, examines that explanation through a
 controlled comparison. The study keeps MTLnet unchanged and replaces its monolithic
 64-dimensional place embedding with separate spatial, temporal, and categorical
-encoders. Category performance then increases substantially in every state evaluated.
+encoders. Category performance then increases substantially in every scenario evaluated.
 Because the architecture remains fixed, the study identifies the input representation
 as the bottleneck for that stage of the research.
 
@@ -134,7 +134,8 @@ five U.S. states (Alabama, Arizona, Florida, California, Texas) and the Istanbul
 benchmark.
 The prediction targets are the next category and the next region. In the data used
 here the category space has seven classes, and a region is a census tract in the United
-States or a \emph{mahalle} in Istanbul.
+States or a \emph{mahalle} in Istanbul, the smallest administrative unit of Turkish
+local government, roughly a municipal neighborhood.
 The joint model operates under a single-model constraint: one trained artifact must produce
 both outputs in one forward pass. These choices define the design scope.
 Chapter~\ref{ch:fundamentals} specifies the output spaces and geographic units, and
@@ -202,25 +203,24 @@ The contributions are organized into four groups.
     \item[Empirical.] The final study compares joint and dedicated models on six
     datasets under user-disjoint cross-validation. Each configuration has twenty
     fitted models: four repetitions of the complete five-fold experiment, each
-    with a different random initialization and the same fixed folds. The analysis
+    with its own random initialization and its own user partition. The analysis
     uses paired tests on the four per-seed means, non-inferiority tests, and a
-    leakage audit. Because every seed uses the same fold partition, the reported
-    intervals do not include uncertainty from resampling the user splits.
-    Three further measurements stand on their own. Nineteen loss and gradient
+    leakage audit. Because each seed draws its own partition, the reported intervals
+    cover variation from both the initialization and the user split, sampled at four
+    draws. Three further measurements stand on their own. Nineteen loss and gradient
     balancers were screened at their default configurations, at a single random
     initialization, on Alabama and Florida, and none improved on a tuned fixed task
     weighting across both tasks and both datasets. The gradients of the two tasks were
     measured directly and are statistically indistinguishable from orthogonal on every
     dataset measured, which explains the balancer result rather than merely accompanying
     it (Appendix~\ref{apx:cosine}). Two external sequence baselines were adapted so that
-    a region comparison exists at all: HMT-GRN keeps its shared multitask skeleton and
-    gains a per-fold region-transition prior, without its graph components and
-    hierarchical beam search, and STAN has its output layer adapted to rank region
-    candidates. Neither adaptation reproduces its complete published system, and
+    a region comparison exists at all: HMT-GRN keeps its shared multitask skeleton
+    and gains a per-fold region-transition prior, without its graph components and
+    hierarchical beam search; and STAN has its output layer adapted to rank
+    region candidates. Neither adaptation reproduces its complete published system, and
     Chapter~\ref{ch:mobiwac} states what was changed.
     \item[Practical.] One model produces both predictions in one forward pass. It
     outperforms the dedicated models on the category task at all six datasets and on
     the region task at four of the six; at the other two it remains statistically
     non-inferior within a two-point margin (TOST).
 \end{description}
-

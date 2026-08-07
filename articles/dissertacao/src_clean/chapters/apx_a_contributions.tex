@@ -8,13 +8,12 @@
 
 This section identifies the code that implements each part of the protocol and the files
 that contain its outputs. All paths below are relative to this research's working
-repository. The protocol applies only to the final study in
-Chapter~\ref{ch:mobiwac}, as specified in Chapter~\ref{ch:fundamentals}.
+repository, published at \url{https://github.com/VitorHugoOli/PoiMtlNet}. The protocol
+applies only to the final study in Chapter~\ref{ch:mobiwac}, as specified in
+Chapter~\ref{ch:fundamentals}.
 
-The public snapshot cited in Chapter~\ref{ch:mobiwac} contains the model, the
-representation, the baselines, and the code that constructs the folds. The statistical
-scripts and output files listed below are stored in the working repository and are
-available on request.
+The public repository contains the model, the representation, the baselines, the code
+that constructs the folds, and the statistical scripts and output files listed below.
 
 \begin{description}
   \item[The fold partition.] Folds are built by
@@ -34,14 +33,9 @@ available on request.
         sets both the random initialization and the partition, so the four seeds draw four
         user partitions rather than repeating one, and the reported intervals cover both
         sources of variation. Four draws sample the variation across user splits without
-        characterizing it. Within one seed both models read the same folds, which is what
+        characterizing it. Within one seed both models are built from the same partition, which is what
         the paired comparison requires; the tests pair the per-seed means, so they never
         assume that a given fold of one seed is the same fold of another.
-  \item[The region-transition prior.] Rebuilt for each fold from that fold's training
-        partition alone by
-        \path{pipelines/reproducibility/build_region_transitions.pipe.py}, which writes one file per
-        fold. Only the external region baseline of Chapter~\ref{ch:mobiwac} consumes
-        it; the joint and dedicated models do not.
   \item[The reported scores.] Read at one saved model per fold, the epoch selected on
         validation, which is the joint-best convention: both tasks are read at the same
         checkpoint rather than each at its own best epoch. The post-hoc scorer is

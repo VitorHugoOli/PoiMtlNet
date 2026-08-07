@@ -99,36 +99,6 @@ The $\pm2$-point band applies to region only.}
 \label{fig:mobiwac:deltas}
 \end{figure}
 
-A reader used to multitask learning~\cite{caruana1997multitask} expects the
-harder task, here next-region with its hundreds to several thousand classes, to teach the easier one; a control shows otherwise. We fix the region pathway at its initial values at the start of training so it can neither learn nor teach the category task, yet the full category gain survives at Alabama, Arizona, and
-Florida: the control reaches $63.50$, $63.67$, and $79.79$ macro-F1, above the
-single-task category score of the one fixed configuration
-(Table~\ref{tab:mobiwac:representation}) by $+7.63$, $+6.54$, and $+4.64$
-points. That comparison is the one the control was built to make, and it is the
-one to read. The control predates the results of
-Table~\ref{tab:mobiwac:results} and was measured at one random initialization
-over five folds, so its second comparison is to the joint scores of the
-development configuration current at the time ($63.56$, $63.39$, $79.82$), which
-it matched to within $0.3$, and not to the joint entries reported here. The control therefore rules out one reading and narrows the rest. It rules out the region task
-teaching the category one, since the gain survives with the region pathway untrained. What it leaves
-is the joint architecture itself, and the control does not say which part of it: freezing the region
-stream removes region training, not the category stream's own encoder, the per-stream feed-forward
-blocks, or the added depth. We therefore report the negative result, that the gain is not cross-task
-transfer, as a finding, and we attribute the gain to the joint architecture rather than to any named
-component of it. A separate ablation in our own development record, at Florida only, removed the
-cross-attention stack while holding the rest fixed and moved next-category macro-F1 by
-$-0.04 \pm 0.13$, which a paired test cannot separate from zero. Two limits keep us from
-reading that as an absence of contribution. The ablation ran on an earlier configuration
-whose region output was driven by a region-transition prior the models reported here do not
-use,
-and the development record that produced it reads the null as a compensation effect, in
-which the category stream absorbs what the shared stack would otherwise supply, rather
-than as a component that does nothing. We therefore do not name the shared trunk as the
-source, and we do not present the ablation as evidence against it either.
-
-Either way the gain requires no second
-model at serving time (one model, one forward pass).
-
 The joint model is also above every external baseline reported, on both tasks,
 across all six datasets (Table~\ref{tab:mobiwac:results}): on region, the primary
 region-native comparison HMT-GRN~\cite{Lim2022}, STAN~\cite{luo2021stan}
@@ -162,15 +132,6 @@ single explanation. We treat the floor, not the external systems, as the referen
 region task has to clear, and we read the external columns as a comparison against
 published designs rather than as the standard for this task. The dedicated and joint
 models are above the floor at every dataset.
-
-We prefer coupling the tasks in parallel rather than in a chain: neither target is
-subordinate to the other, so a chain must pick one to predict first and pass its errors to the other. The choice still had to be checked, because CSLSL reports its chain outperforming a shared-trunk parallel variant on its own benchmarks~\cite{huang2024cslsl}. Rewired as a cascade
-(Section~\ref{sec:mobiwac:setup-baselines}), our model reaches the same combined
-score, the geometric mean of the two task metrics, as its parallel form: at Alabama, Arizona, Florida, and Istanbul, with both forms trained under the same configuration and initialization, the difference is about zero and neither task moves by more than a quarter of a point. We read this as a defense of the
-parallel design, not a claim that we outperform the cascade: on this
-representation the coupling topology makes no measurable difference, and the simpler parallel structure loses nothing. Two qualifications bound this
-reading: the cascade runs under the configuration tuned for the parallel model, and
-its form was fixed in advance, so tuning the cascade itself remains future work.
 
 \subsection{External validity (Istanbul)}
 \label{sec:mobiwac:results-external}

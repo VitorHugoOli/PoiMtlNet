@@ -73,8 +73,7 @@ intermediate step; CatDM \cite{yu2020catdm} likewise uses the predicted
 category only to filter candidate places. We instead predict
 category and region in parallel, as end targets of equal standing in one model
 with a single forward pass, and we drop the next-place target entirely, so
-neither task is an intermediate step toward a third. Since the cascade is the pattern that the field uses, we test the
-choice directly (Section~\ref{sec:mobiwac:results-part2}). On optimization, we are conservative by design: joint
+neither task is an intermediate step toward a third. On optimization, we are conservative by design: joint
 training with a fixed loss weighting is standard practice
 \cite{caruana1997multitask}, not itself our contribution.
 Reports find that gradient-balancing methods, which re-weight
