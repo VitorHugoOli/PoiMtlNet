@@ -1,0 +1,43 @@
+{
+  "state": "florida",
+  "seed": 0,
+  "family": "joint",
+  "rundir": "/home/vitor.oliveira/PoiMtlNet/results/check2hgi_v18/florida/mtlnet_lr1.0e-04_bs8192_ep50_20260806_173530_649170",
+  "selector": "smoothed-argmax(w=3); value = RAW metric at that epoch",
+  "cat_per_fold": [
+    35.7228,
+    35.5594,
+    34.1035,
+    35.6771,
+    36.2069
+  ],
+  "cat_best_epochs": [
+    12,
+    17,
+    11,
+    20,
+    19
+  ],
+  "cat_macro_f1_mean": 35.4539,
+  "cat_macro_f1_std": 0.7943,
+  "cat_argmax_mean": 35.8785,
+  "cat_argmax_premium": 0.4246,
+  "reg_per_fold": [
+    77.5121,
+    77.2461,
+    76.1366,
+    76.379,
+    78.8935
+  ],
+  "reg_best_epochs": [
+    44,
+    39,
+    48,
+    43,
+    47
+  ],
+  "reg_full_top10_mean": 77.2335,
+  "reg_full_top10_std": 1.0916,
+  "reg_argmax_mean": 77.2552,
+  "reg_argmax_premium": 0.0217
+}

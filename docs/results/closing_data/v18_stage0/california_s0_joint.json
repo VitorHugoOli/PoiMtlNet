@@ -1,0 +1,43 @@
+{
+  "state": "california",
+  "seed": 0,
+  "family": "joint",
+  "rundir": "/home/vitor.oliveira/PoiMtlNet/results/check2hgi_v18/california/mtlnet_lr1.0e-04_bs8192_ep50_20260807_103207_1282845",
+  "selector": "smoothed-argmax(w=3); value = RAW metric at that epoch",
+  "cat_per_fold": [
+    32.5386,
+    33.4812,
+    32.2878,
+    33.1132,
+    33.4056
+  ],
+  "cat_best_epochs": [
+    19,
+    20,
+    22,
+    21,
+    17
+  ],
+  "cat_macro_f1_mean": 32.9653,
+  "cat_macro_f1_std": 0.5299,
+  "cat_argmax_mean": 33.2351,
+  "cat_argmax_premium": 0.2698,
+  "reg_per_fold": [
+    65.3474,
+    65.4665,
+    65.5359,
+    65.4346,
+    66.0313
+  ],
+  "reg_best_epochs": [
+    49,
+    50,
+    50,
+    50,
+    47
+  ],
+  "reg_full_top10_mean": 65.5631,
+  "reg_full_top10_std": 0.2703,
+  "reg_argmax_mean": 65.5664,
+  "reg_argmax_premium": 0.0033
+}

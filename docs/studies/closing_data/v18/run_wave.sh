@@ -76,7 +76,7 @@ json.dump({
     "commit_sha": sha,
     "v18_config": {"engine": "check2hgi_v18", "forward_only": True, "in_channels": 15,
                    "node_layout": ["canonical_11", "continuous_time_4"], "repr_seed": 42},
-    "protocol": {"precision": "fp32 (MTL_DISABLE_AMP=1)", "compile": True, "tf32": True,
+    "protocol": {"precision": "fp32 (MTL_DISABLE_AMP=1, pinned per-command)", "compile": True, "tf32": True,
                  "folds": 5, "epochs": 50,
                  "cat_metric": "macro-F1 at f1-best epoch (diag-best)",
                  "reg_metric": "top10_acc_indist * (1 - ood_fraction) * 100 at indist-best epoch"},
@@ -94,7 +94,8 @@ cell_cat(){
   local lg="$LOGS/${st}_cat.log"
   local t0=$SECONDS
   log "  START $st s$SEED cat (bs=$bs lr=0.005)"
-  MTL_NO_TRAIN_DIAGNOSTICS=1 python scripts/train.py --task next --state "$st" --engine "$ENG" \
+  # fp32 pinned explicitly (user decision 2026-08-07) -- never inherited from a leak
+  env MTL_NO_TRAIN_DIAGNOSTICS=1 MTL_DISABLE_AMP=1 python scripts/train.py --task next --state "$st" --engine "$ENG" \
     --model next_gru --embedding-dim 64 --folds 5 --epochs 50 --seed "$SEED" \
     --batch-size "$bs" --max-lr 0.005 --compile --tf32 --no-checkpoints > "$lg" 2>&1 &
   local pid=$!
@@ -119,8 +120,8 @@ cell_reg(){
   local tag="v18_${st}_reg_s${SEED}"
   local t0=$SECONDS
   log "  START $st s$SEED reg"
-  export MTL_CHUNK_VAL_METRIC=1
-  python -u scripts/p1_region_head_ablation.py --state "$st" --heads next_stan_flow \
+  env MTL_CHUNK_VAL_METRIC=1 MTL_DISABLE_AMP=1 \
+    python -u scripts/p1_region_head_ablation.py --state "$st" --heads next_stan_flow \
     --input-type region --region-emb-source "$V14" \
     --override-hparams freeze_alpha=True alpha_init=0.0 \
     --engine-override "$ENG" --folds 5 --epochs 50 --seed "$SEED" --target region \
@@ -146,10 +147,12 @@ cell_joint(){
   local lg="$LOGS/${st}_joint.log"
   local t0=$SECONDS
   log "  START $st s$SEED joint (bs8192, per-head cat-lr 1e-3, fp32, compile)"
-  export MTL_DISABLE_AMP=1 MTL_CHUNK_VAL_METRIC=1 MTL_STRICT=1 MTL_COMPILE_DYNAMIC=1 MTL_ONECYCLE_PER_HEAD_LR=1
-  export MTL_RAM_HEADROOM_GB=12
-  export TORCHINDUCTOR_CACHE_DIR="$HOME/.inductor_cache_v18_${st}_s${SEED}"
-  python scripts/train.py --task mtl --canon none --task-set check2hgi_next_region --engine "$ENG" \
+  # NO bare `export` here: a shell function's exports persist into LATER cells, which is what made
+  # the cat cells fp16-or-fp32 depending on resume state (see PRECISION_CAVEAT.md).
+  env MTL_DISABLE_AMP=1 MTL_CHUNK_VAL_METRIC=1 MTL_STRICT=1 MTL_COMPILE_DYNAMIC=1 \
+      MTL_ONECYCLE_PER_HEAD_LR=1 MTL_RAM_HEADROOM_GB=12 \
+      TORCHINDUCTOR_CACHE_DIR="$HOME/.inductor_cache_v18_${st}_s${SEED}" \
+    python scripts/train.py --task mtl --canon none --task-set check2hgi_next_region --engine "$ENG" \
     --state "$st" --seed "$SEED" --epochs 50 --folds 5 --batch-size 8192 \
     --mtl-loss static_weight --category-weight 0.75 --no-reg-class-weights --no-cat-class-weights \
     --cat-head next_gru --reg-head next_stan_flow_dualtower \

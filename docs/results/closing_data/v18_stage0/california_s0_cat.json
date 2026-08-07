@@ -1,0 +1,25 @@
+{
+  "state": "california",
+  "seed": 0,
+  "family": "cat",
+  "rundir": "/home/vitor.oliveira/PoiMtlNet/results/check2hgi_v18/california/next_lr1.0e-04_bs8192_ep50_20260807_075555_1179184",
+  "selector": "smoothed-argmax(w=3); value = RAW metric at that epoch",
+  "cat_per_fold": [
+    32.4629,
+    34.1761,
+    32.3341,
+    33.0211,
+    33.1501
+  ],
+  "cat_best_epochs": [
+    35,
+    8,
+    10,
+    41,
+    8
+  ],
+  "cat_macro_f1_mean": 33.0289,
+  "cat_macro_f1_std": 0.7304,
+  "cat_argmax_mean": 33.4954,
+  "cat_argmax_premium": 0.4666
+}

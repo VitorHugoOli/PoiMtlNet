@@ -1,0 +1,43 @@
+{
+  "state": "alabama",
+  "seed": 0,
+  "family": "joint",
+  "rundir": "/home/vitor.oliveira/PoiMtlNet/results/check2hgi_v18/alabama/mtlnet_lr1.0e-04_bs8192_ep50_20260806_152940_617690",
+  "selector": "smoothed-argmax(w=3); value = RAW metric at that epoch",
+  "cat_per_fold": [
+    28.0763,
+    25.8869,
+    24.0357,
+    25.8261,
+    26.941
+  ],
+  "cat_best_epochs": [
+    23,
+    22,
+    13,
+    26,
+    20
+  ],
+  "cat_macro_f1_mean": 26.1532,
+  "cat_macro_f1_std": 1.4984,
+  "cat_argmax_mean": 27.3836,
+  "cat_argmax_premium": 1.2304,
+  "reg_per_fold": [
+    71.5806,
+    68.5164,
+    72.6603,
+    70.9919,
+    63.945
+  ],
+  "reg_best_epochs": [
+    47,
+    37,
+    40,
+    37,
+    36
+  ],
+  "reg_full_top10_mean": 69.5388,
+  "reg_full_top10_std": 3.4771,
+  "reg_argmax_mean": 69.6831,
+  "reg_argmax_premium": 0.1443
+}

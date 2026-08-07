@@ -1,0 +1,12 @@
+{
+  "selector": "smoothed-argmax(window=3)",
+  "value_rule": "RAW metric at the selected epoch (never a smoothed value)",
+  "applied_symmetrically_to": [
+    "dedicated cat",
+    "MTL cat",
+    "MTL reg"
+  ],
+  "reg_dedicated": "unchanged (p1 aggregate; peaks late, no spike artifact)",
+  "statistical_protocol": "UNCHANGED \u2014 per-fold vectors preserved; paired one-sided superiority for 'beats'; TOST +/-2.0 pp for 'matches'; n = seeds x folds",
+  "n_cells": 19
+}
