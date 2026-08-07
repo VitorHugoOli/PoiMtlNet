@@ -101,93 +101,83 @@ the category task at all six datasets, by 5.3 to 9.4 macro-F1 points. On the reg
 it outperforms them at four datasets: Istanbul, Florida, California, and Texas. At
 Alabama and Arizona, it remains statistically non-inferior within a two-point margin
 (TOST). Non-inferiority was the registered primary analysis for the region task; the
-four superiority findings are secondary results outside that analysis plan.
+four superiority findings are secondary results outside that analysis plan. This finds lead for some key point on
+why the joint model produces better results.
 
-These results cannot be attributed solely to the joint model or its new topology. Comparing Check2HGI against HGI shows
-that a check-in-level representation achieves better performance than a place-level representation. This evidence
-supports testing Check2HGI as an input representation in other mobility prediction architectures, although whether its
-benefits transfer to those models remains to be evaluated.
+For the next-category, the controlled comparison between Check2HGI and HGI provides the first explanation. The controlled
+comparison in Section~\ref{sec:mobiwac:results-part1} isolates this change: with the
+dedicated model, training configuration, windowing, and folds held fixed, Check2HGI
+produces higher next-category macro-F1 than the place embedding HGI across the six
+evaluated datasets.This result establishes the input
+representation as one condition that affects performance in this setting. It also
+supports testing Check2HGI in other mobility prediction architectures, although its
+benefit in those architectures has not yet been evaluated.
 
-The final results also provide meaningful insights into how dataset scale affects model performance. For next-region
-prediction across the five U.S. states, the joint model shows stronger performance relative to the dedicated model as
-the number of regions increases.In particular, it achieves an improvement of more than two Acc@10 percentage points in
-Texas and California,the states with the largest number of regions.
-This pattern suggests that joint learning becomes more advantageous when the model has to choose among a larger pool of
-regions. However, states with more regions also tend to have a higher volume of check-in data. Due to the correlation
-between these two properties, a controlled experiment is required to isolate the impact of region count from dataset
-size and other state-level variables, making this observation suggestive rather than causal.
+The joint model's larger capacity offers a second possible explanation for the
+next-category gains.Appendix~\ref{apx:parameter-count-control} compares it with a
+capacity-matched dedicated model. In Alabama and California, the wider model
+produces slightly lower next-category macro-F1 than the original dedicated model and
+remains below the joint model. Thus, parameter count alone does not explain the joint
+model's next-category advantage in these two datasets. The comparison instead points to
+the joint architecture or its multitask training, but it does not separate their effects.
 
+For next-region prediction, the results point to a different possible condition: problem
+scale. Across the five U.S. states, the joint model performs better relative to the
+dedicated model as the number of regions increases. In particular, the improvement
+exceeds two Acc@10 points in Texas and California, the states with the largest number of
+regions. This pattern suggests that joint learning becomes more useful when the model
+must choose among more regions. However, states with more regions also tend to have more
+check-ins. So, a controlled experiment is required to separate the effect of region
+count from the amount of data and other differences between the states.
 
-Another finding that warrants separate study concerns model capacity. Because the joint model has six times more
-parameters than the dedicated models, we conducted a parameter-count control experiment (Appendix~
-\ref{apx:parameter-count-control}
-). The results show that expanding the dedicated model to match the joint model's capacity yielded performance slightly
-below the original dedicated model in Alabama and California, while still remaining inferior to the joint model. Thus,
-parameter count alone does not account for the joint model's superior next-category performance in these two datasets.
-This shows that the joint model's success is driven by its architecture or multitask training. Since simply widening the
-dedicated model does not replicate these results, we can eliminate model size as the primary reason for the improvement.
-
-
-% [2026-08-06, AUTHOR REQUEST] The earlier AUT-37 ordering was superseded by a more explicit
-% four-movement closing arc: (1) question and conditional answer; (2) the causal sequence from the
-% Chapter 3 null result, through the Chapter 4 diagnosis, to the Chapter 5 design; (3) the incomplete
-% initial premise and the parameter-count alternative; and (4) the lesson and its implications.
+% [2026-08-06, AUTHOR REWRITE] The findings on representation, capacity, and problem scale remain
+% separate in the preceding section. The consolidated answer follows three movements: (1) the
+% question and final result; (2) the sequence from the Chapter 3 null result, through the Chapter 4
+% diagnosis, to the Chapter 5 design; and (3) the incomplete initial premise and conditional lesson.
 % The first result remains valid for its configuration. The correction applies to a broad reading of
 % that result, not to the result itself. The MTL expectation is attributed internally to
 % Section~\ref{sec:fund:mtl}, where it is already sourced. The Check2HGI implication is limited to a
 % candidate for testing with other architectures; transfer to them is explicitly unmeasured. The
-% manual page break marks the diagnosis-to-resolution hinge and prevents a stranded paragraph.
+% distinction between diagnosis and resolution is carried by the paragraph sequence.
 
 
 \section{The consolidated answer}
 \label{sec:conc:answer}
 
 The research question asks whether multitask learning helps next-category and
-next-region prediction, and what the answer depends on ? For the first half of this question the evidence supports a
-yes. In the final configuration, the joint model outperforms the dedicated
-single-task models on next-category prediction in all six datasets. On next-region
-prediction, it outperforms them in Istanbul, Florida, Texas, and California. In Alabama
-and Arizona, it is statistically non-inferior within a two-point margin (TOST). Thus,
-under the evaluation defined in advance, one joint model produces both predictions in
-one forward pass without sacrificing either task. This result answers the first part of
-the research question. The sequence of studies explains the conditions behind that
-answer.
+next-region prediction, and what the answer depends on. For the first part, the evidence
+shows that it helps under the final configuration. Althought, this configuration is the decisive choices to ansrwer
+on what the multitask learning depends on. Identifying these conditions is the dissertation's main finding.
 
-The explanation begins in Chapter~\ref{ch:cbic}, with a place-level embedding and naive
-hard sharing. Its joint model did not consistently
-outperform the two dedicated models, leaving three possible explanations: the tasks
-might be too different, the input might be insufficient, or the sharing topology might
-be too restrictive. Chapter~\ref{ch:courb} separated one of these explanations by
+The explanation begins with Chapter~\ref{ch:cbic}, which used a place-level embedding and
+naive hard sharing. Its joint model did not consistently outperform the two dedicated
+models, leaving three possible explanations: the tasks might be too different, the input
+might be insufficient, or the sharing topology might be too restrictive.
+Chapter~\ref{ch:courb} separated one of these explanations by
 keeping the architecture fixed and changing the input. Performance then improved,
 including on the sequential task in most states. Because the architecture did not
 change, this comparison identifies the input representation as the main bottleneck in
 that configuration. This diagnosis set the direction for the final study.
 
-Chapter~\ref{ch:mobiwac} therefore acted on this diagnosis, first producing the Check2HGI which replaced one vector per
-place with one vector per visit, then through a controlled comparison in
-Section~\ref{sec:mobiwac:results-part1} isolates the representation: with the dedicated
-model, training configuration, windowing, and folds held fixed, the studies show that Check2HGI produces
-higher next-category macro-F1 than the place embedding HGI across the six evaluated
-datasets. Naturally, the second step was the joint architecture, which replaced naive hard sharing
-with task-specific streams that exchange information through cross-attention, while the
-region output retained a private spatial path. Together, these findings improvents achaive suceed in produce
-meninful results.
+Chapter~\ref{ch:mobiwac}
+responded to this diagnosis in two steps. First, it introduced Check2HGI, which replaced one vector per place with one
+vector per visit. Follow, for the joint architecture, that replaced naive hard sharing with task-specific streams that
+exchange information through cross-attention, while the region output retained a private spatial path.
 
+Together, all these changes define the final
+configuration evaluated in this dissertation, answering the second part of the research question: the result is
+conditional. The initial premise was incomplete. As Section~\ref{sec:fund:mtl}
+explains, multitask learning trains related tasks together in the expectation that a
+shared representation will improve generalization. The three studies show that task
+relatedness and joint training are not sufficient by themselves. The controlled
+comparisons identify the input representation as one condition. The evidence also
+suggests that the architecture and problem scale may matter, although their individual
+effects were not isolated. The answer therefore depends on the design and evaluation
+conditions, not on joint training alone.
 
-Along these findings, we could have a better picture to stabilish the answer for the second half of the thesis:
-conditional. The inital premise was incomplete, as
-Section~\ref{sec:fund:mtl} explains,
-multitask learning trains related tasks together in the expectation that a shared
-representation will improve generalization and the three studies showing that task relatedness
-and joint training are not sufficient by themselves. The second and thierd studies, bring another light over the inital
-premise an the main lesson
-showing how the representation have a important role in the results. Therefore, the answer is conditinal, cause it
-depend on the archetichture, representation, scale of the datasets and many other factor as discuss along the
-previus chapters.
-
-Taken together, the controlled findings and the bounded observations make the main
-lesson one of conditions rather than a universal verdict. The consolidated answer is therefore
-not that multitask learning always helps. It is that multitask learning helps
+These findings support a conditional rather than universal conclusion.
+The consolidated answer is therefore not that multitask learning always helps. It is
+that multitask learning helps
 next-category and next-region prediction under the final design and evaluation protocol
 developed in this dissertation.
 
