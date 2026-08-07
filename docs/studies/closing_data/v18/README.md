@@ -8,6 +8,11 @@
 features.** Not an architecture change. The check-in graph is **forward-only** in training and at
 readout, and node features carry 4 elapsed-time columns (`in_channels = 15`).
 
+> ⚠ **[`PRECISION_CAVEAT.md`](PRECISION_CAVEAT.md) — READ BEFORE CITING ANY CATEGORY NUMBER.**
+> A shell `export` leak meant the dedicated-category cells ran fp16 or fp32 depending on resume
+> state, and the `precision` field in the cat sidecars is **false for 8 of 10 cells**. Two specific
+> results are void (florida cross-seed cat; texas s0 Δcat). Region and joint are unaffected.
+
 ## Read in this order
 
 1. [`METHODOLOGY.md`](METHODOLOGY.md) — what v18 is, why forward-only, why elapsed time, what was

@@ -2,7 +2,7 @@
 
 > The charter §6 self-checks, with their **measured values**. Regenerate with `verify_engines.py --write`.
 
-> Generated 2026-08-06T16:14:35.725431+00:00.
+> Generated 2026-08-07T20:31:55.596005+00:00.
 
 Fail closed: a silent wrong number is far worse than a crash. `n/a` marks a check that does not apply to how this state was materialized, with the reason given.
 
