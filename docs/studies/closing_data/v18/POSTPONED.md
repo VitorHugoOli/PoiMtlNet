@@ -91,8 +91,12 @@ Run only if **T1 at florida** shows a non-null effect. T1 at FL costs ~41 min (t
 
 ---
 
-## Practical note worth keeping
+## Practical note — ALABAMA-SCOPED, not an architecture verdict
 
-The trunk costs **~3× the wall-clock for ~0 benefit**: at alabama the joint cell is 1094 s with the
-trunk and 359 s without it, for a category difference of −0.015 pp. If the final architecture keeps
-the trunk it should be for a stated reason, because it is not paying for its compute.
+At **alabama** the joint cell is 1094 s with the trunk and 359 s without it, for a category
+difference of −0.015 pp. That is a ~3× compute cost for no measurable benefit **at that state**.
+
+It is **not** a reason to remove the trunk board-wide. The states where the joint model actually has
+an advantage (CA +2.12, TX +2.05 on region) have only a 1-fold screen, which cannot resolve a
+sub-0.15 pp trunk contribution. P4 is the experiment that would license an architecture change, and
+it is deferred by decision — deferred, not answered.

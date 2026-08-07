@@ -70,8 +70,11 @@ Neither should matter much for the region axis (region is leak-immune — its v1
   effect, and no 5-fold ablation exists at those states.
 - It sharpens the remaining open question to **small data**: at alabama the joint model is *worse*
   than dedicated on both heads (Δcat −0.65/−1.04, Δreg −0.31/−0.33) while the dedicated model
-  overfits badly (train macro-F1 66.4 vs val 24.0). Is the trunk **actively harmful** there? No
-  ablation exists at alabama, and it costs ~40 min.
+  overfits badly (train macro-F1 66.4 vs val 24.0). Was the trunk **actively harmful** there?
+  **Answered 2026-08-07, no:** 5-fold arms at alabama give Δcat −0.015 (T1, `disable_cross_attn`) /
+  −0.154 (T2, `identity_cross_attn`) and Δreg −0.138 / −0.004 — inside fold-σ (~1.7 cat, ~3.0 reg).
+  The trunk is inert at alabama, neither helpful nor harmful. That is a **one-state** result and does
+  not transfer to CA/TX, where only this 1-fold screen exists.
 - It reframes the dissertation's region claim: the joint model's region advantage should be
   attributed to the **dual-tower architecture and its capacity**, not to multi-task transfer,
   unless a capacity-matched control says otherwise. That control was computed but never run
