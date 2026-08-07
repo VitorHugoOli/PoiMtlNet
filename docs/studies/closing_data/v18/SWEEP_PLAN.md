@@ -76,10 +76,20 @@ so it runs **before** rows 3 / 7 / 8. Row 3 (MTL cat-LR grid) is deferred until 
 | T3 | trunk | **A** no sharing | florida | `--model-param disable_cross_attn=True` | 0 | ~41 min | 🔄 running |
 | T4 | trunk | **A′** | florida | `identity_cross_attn=True` | 0 | ~45 min | ⏸ conditional on T3 (POSTPONED.md P5) |
 
-**T1/T2 result: the trunk is INERT at small data, not harmful.** The "trunk adds capacity that feeds
-memorization" hypothesis is falsified at alabama — severing it neither helps nor hurts (|Δ| ≤ 0.154
-on either head, against fold-σ ~1.7 cat / ~3.0 reg). Practical note: champion-G takes **1094 s** at
-alabama, T1 takes **359 s** — the trunk costs ~3× the compute for ~0 benefit.
+**T1/T2 result: at ALABAMA the trunk is inert, not harmful.** The "trunk adds capacity that feeds
+memorization" hypothesis is falsified *at alabama* — severing it neither helps nor hurts (|Δ| ≤ 0.154
+on either head, against fold-σ ~1.7 cat / ~3.0 reg).
+
+⚠ **SCOPE — do not generalise this.** This is a 5-fold measurement at ONE small state. The CA/TX/FL/
+IST evidence is a **1-fold screen** which, by its own driver's rule, has power only for a
+several-point effect: it refutes "the trunk carries the +2 pp" and licenses **nothing smaller**. A
+5-fold trunk ablation at CA/TX does **not** exist ([`POSTPONED.md`](POSTPONED.md) P4, deferred by
+decision 2026-08-07). Statements of the form "the trunk is inert at every scale" are **not
+supported**; the supported statement is "inert at alabama (5-fold), and not the source of the CA/TX
+advantage (1-fold screen)".
+
+The compute observation (champion-G 1094 s vs T1 359 s at alabama) is likewise **alabama-scoped** and
+is not a basis for changing the architecture until CA/TX are measured at 5 folds.
 
 **Hypothesis under test at alabama is the OPPOSITE of the one at CA/TX.** There the question was
 "does severing cost the +2 pp?" (answer: no — see

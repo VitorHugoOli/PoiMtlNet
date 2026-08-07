@@ -64,8 +64,10 @@ Neither should matter much for the region axis (region is leak-immune — its v1
 
 ## Why this matters for what comes next
 
-- It removes "does the trunk carry the CA/TX win?" from the priority list — the answer is very
-  probably no, and a 22 h five-fold confirmation would mostly re-measure a null.
+- It removes "does the trunk **carry** the CA/TX win?" from the priority list — that specific
+  hypothesis is refuted by a test with power for it. It does **not** answer "does the trunk
+  contribute anything at CA/TX?", which stays unmeasured: one fold cannot resolve a sub-0.15 pp
+  effect, and no 5-fold ablation exists at those states.
 - It sharpens the remaining open question to **small data**: at alabama the joint model is *worse*
   than dedicated on both heads (Δcat −0.65/−1.04, Δreg −0.31/−0.33) while the dedicated model
   overfits badly (train macro-F1 66.4 vs val 24.0). Is the trunk **actively harmful** there? No

@@ -72,10 +72,17 @@ re-ranking. Expected small even if real.
 
 **What.** A/A′ arms at CA+TX, 5 folds, seed 0 ≈ 22 h.
 
-**Why DE-PRIORITISED.** The 1-fold triage already answered the large-effect question: severing the
-trunk, and even deleting the category task entirely (`rg2`), moves region < 0.15 pp at CA/TX. A
-five-fold pass would mostly re-measure a null at 22 h. The AL arms (T1/T2, run 2026-08-07) confirm
-the same at small data: Δcat −0.015 / −0.154, Δreg −0.138 / −0.004.
+**Why DEFERRED (not answered).** The 1-fold triage answered only the **large-effect** question:
+severing the trunk, and even deleting the category task (`rg2`), does not collapse region at CA/TX,
+so the trunk is not the source of the +2 pp. Its own driver states that a few-tenths gap "is NOT a
+null result — it is an inconclusive screen". So **whether the trunk contributes anything at CA/TX
+remains unmeasured.** The AL arms (T1/T2, 5-fold, 2026-08-07: Δcat −0.015 / −0.154, Δreg −0.138 /
+−0.004) settle only alabama.
+
+⚠ **Do not cite "the trunk is inert" as a general claim.** It is supported at alabama at 5 folds and
+nowhere else. Any architecture decision that removes the trunk board-wide — including the tempting
+compute argument (champion-G 1094 s vs T1 359 s **at alabama**) — needs this experiment first.
+Correction logged after the author flagged the overreach, 2026-08-07.
 
 ## P5 — T2 (A′) at florida ⏸ CONDITIONAL
 
