@@ -1,0 +1,435 @@
+{
+  "study": "check2hgi_integrity_v2 / frozen-predictor counterfactual",
+  "generated_utc": "2026-08-06T01:43:47.182241+00:00",
+  "command": "scripts/integrity_v2/counterfactual.py --state florida --intact results/check2hgi_integrity_v2/florida/U1/emb_all_full.parquet --intervened zero_target_cat=results/check2hgi_integrity_v2/florida/U1/win_cf_zero_target_cat.npz resample_target_all=results/check2hgi_integrity_v2/florida/U1/win_cf_resample_target_all.npz redraw_edge=results/check2hgi_integrity_v2/florida/U1/win_cf_redraw_target_edge_weight.npz placebo_far_future=results/check2hgi_integrity_v2/florida/U1/win_cf_placebo_far_future.npz placebo_observed=results/check2hgi_integrity_v2/florida/U1/win_cf_placebo_observed.npz strict_prefix=results/check2hgi_integrity_v2/florida/U1/win_prefix.npz trainonly_full=results/check2hgi_integrity_v2/florida/U0/emb_all_full.parquet trainonly_prefix=results/check2hgi_integrity_v2/florida/U0/win_prefix.npz --next-parquet output/check2hgi_dk_ovl/florida/input/next.parquet --split docs/results/check2hgi_integrity_v2/florida/split_seed0_fold0.json --head-seeds 3 --epochs 30 --device cuda --out docs/results/check2hgi_integrity_v2/florida/counterfactual.json",
+  "state": "florida",
+  "split": {
+    "seed": 0,
+    "fold": 0,
+    "n_folds": 5,
+    "engine": "check2hgi_dk_ovl"
+  },
+  "design": "two regimes per arm. TRANSFER: heads trained once on the intact representation and frozen, then evaluated here -- an upper bound on reliance, confounded with distribution shift by construction. MATCHED: heads retrained on this representation, so train and test agree -- this is the only contrast quotable against the reported result. Same rows, same labels, same seeds throughout.",
+  "quotable_contrast": "matched",
+  "metric": "next-category macro-F1",
+  "n_train_rows": 17527,
+  "n_val_rows": 6152,
+  "arms": {
+    "zero_target_cat": {
+      "embeddings": "results/check2hgi_integrity_v2/florida/U1/win_cf_zero_target_cat.npz",
+      "transfer": {
+        "regime": "head trained on intact, evaluated here (upper bound on reliance)",
+        "per_seed_macro_f1": [
+          0.33504107622117246,
+          0.3195463968606208,
+          0.3222022231646819
+        ],
+        "mean_macro_f1": 0.32559656541549176,
+        "drop_points": 30.16508435106574,
+        "bootstrap_first_seed": {
+          "mean": 0.28911793982185674,
+          "sd": 0.04985879213207335,
+          "ci95_lo": 0.18656145933670437,
+          "ci95_hi": 0.36897588086635325,
+          "n_boot": 1000,
+          "resampling_unit": "user"
+        },
+        "bootstrap_ci95_points": [
+          18.656145933670437,
+          36.897588086635324
+        ]
+      },
+      "matched": {
+        "regime": "head RETRAINED on this representation (the quotable contrast)",
+        "per_seed_macro_f1": [
+          0.3209560456633649,
+          0.3218304196572119,
+          0.3232241011182424
+        ],
+        "mean_macro_f1": 0.3220035221462731,
+        "drop_points": 30.524388677987606,
+        "bootstrap_first_seed": {
+          "mean": 0.3039271900079696,
+          "sd": 0.06348236372560265,
+          "ci95_lo": 0.17872718817380315,
+          "ci95_hi": 0.41085793047869307,
+          "n_boot": 1000,
+          "resampling_unit": "user"
+        },
+        "bootstrap_ci95_points": [
+          17.872718817380314,
+          41.08579304786931
+        ]
+      },
+      "distribution_shift_share_points": -0.35930432692186653,
+      "paired_windows": 23679,
+      "intact_windows_dropped_by_pairing": 0,
+      "intact_reference_on_paired_rows": 0.6272474089261492
+    },
+    "resample_target_all": {
+      "embeddings": "results/check2hgi_integrity_v2/florida/U1/win_cf_resample_target_all.npz",
+      "transfer": {
+        "regime": "head trained on intact, evaluated here (upper bound on reliance)",
+        "per_seed_macro_f1": [
+          0.2735887659368111,
+          0.2685879474289992,
+          0.273483439304694
+        ],
+        "mean_macro_f1": 0.27188671755683474,
+        "drop_points": 35.536069136931445,
+        "bootstrap_first_seed": {
+          "mean": 0.34635166256891775,
+          "sd": 0.05739788127689807,
+          "ci95_lo": 0.23189610288430262,
+          "ci95_hi": 0.43642602137855896,
+          "n_boot": 1000,
+          "resampling_unit": "user"
+        },
+        "bootstrap_ci95_points": [
+          23.189610288430263,
+          43.642602137855896
+        ]
+      },
+      "matched": {
+        "regime": "head RETRAINED on this representation (the quotable contrast)",
+        "per_seed_macro_f1": [
+          0.31402217978476366,
+          0.3100777657300874,
+          0.3129821427343723
+        ],
+        "mean_macro_f1": 0.31236069608307443,
+        "drop_points": 31.488671284307472,
+        "bootstrap_first_seed": {
+          "mean": 0.31155116869418215,
+          "sd": 0.06270663424815552,
+          "ci95_lo": 0.1870215452408118,
+          "ci95_hi": 0.4154922821626877,
+          "n_boot": 1000,
+          "resampling_unit": "user"
+        },
+        "bootstrap_ci95_points": [
+          18.70215452408118,
+          41.549228216268766
+        ]
+      },
+      "distribution_shift_share_points": 4.047397852623968,
+      "paired_windows": 23679,
+      "intact_windows_dropped_by_pairing": 0,
+      "intact_reference_on_paired_rows": 0.6272474089261492
+    },
+    "redraw_edge": {
+      "embeddings": "results/check2hgi_integrity_v2/florida/U1/win_cf_redraw_target_edge_weight.npz",
+      "transfer": {
+        "regime": "head trained on intact, evaluated here (upper bound on reliance)",
+        "per_seed_macro_f1": [
+          0.5698661458680023,
+          0.5615535795908145,
+          0.5651990817231077
+        ],
+        "mean_macro_f1": 0.5655396023939748,
+        "drop_points": 6.170780653217434,
+        "bootstrap_first_seed": {
+          "mean": 0.05325122070531195,
+          "sd": 0.04114404805798007,
+          "ci95_lo": -0.02826741599431309,
+          "ci95_hi": 0.11923948584404138,
+          "n_boot": 1000,
+          "resampling_unit": "user"
+        },
+        "bootstrap_ci95_points": [
+          -2.826741599431309,
+          11.923948584404139
+        ]
+      },
+      "matched": {
+        "regime": "head RETRAINED on this representation (the quotable contrast)",
+        "per_seed_macro_f1": [
+          0.5792706060253321,
+          0.5808341965543574,
+          0.5818707819204161
+        ],
+        "mean_macro_f1": 0.5806585281667018,
+        "drop_points": 4.658888075944734,
+        "bootstrap_first_seed": {
+          "mean": 0.03929425402971073,
+          "sd": 0.05134954897556848,
+          "ci95_lo": -0.06336138502437928,
+          "ci95_hi": 0.12051282890496628,
+          "n_boot": 1000,
+          "resampling_unit": "user"
+        },
+        "bootstrap_ci95_points": [
+          -6.336138502437929,
+          12.051282890496628
+        ]
+      },
+      "distribution_shift_share_points": 1.5118925772726999,
+      "paired_windows": 23679,
+      "intact_windows_dropped_by_pairing": 0,
+      "intact_reference_on_paired_rows": 0.6272474089261492
+    },
+    "placebo_far_future": {
+      "embeddings": "results/check2hgi_integrity_v2/florida/U1/win_cf_placebo_far_future.npz",
+      "transfer": {
+        "regime": "head trained on intact, evaluated here (upper bound on reliance)",
+        "per_seed_macro_f1": [
+          0.6327027279299953,
+          0.6186862397202696,
+          0.6303532591281826
+        ],
+        "mean_macro_f1": 0.6272474089261492,
+        "drop_points": 0.0,
+        "bootstrap_first_seed": {
+          "mean": 0.0,
+          "sd": 0.0,
+          "ci95_lo": 0.0,
+          "ci95_hi": 0.0,
+          "n_boot": 1000,
+          "resampling_unit": "user"
+        },
+        "bootstrap_ci95_points": [
+          0.0,
+          0.0
+        ]
+      },
+      "matched": {
+        "regime": "head RETRAINED on this representation (the quotable contrast)",
+        "per_seed_macro_f1": [
+          0.6327027279299953,
+          0.6186862397202696,
+          0.6303532591281826
+        ],
+        "mean_macro_f1": 0.6272474089261492,
+        "drop_points": 0.0,
+        "bootstrap_first_seed": {
+          "mean": 0.0,
+          "sd": 0.0,
+          "ci95_lo": 0.0,
+          "ci95_hi": 0.0,
+          "n_boot": 1000,
+          "resampling_unit": "user"
+        },
+        "bootstrap_ci95_points": [
+          0.0,
+          0.0
+        ]
+      },
+      "distribution_shift_share_points": 0.0,
+      "paired_windows": 23679,
+      "intact_windows_dropped_by_pairing": 0,
+      "intact_reference_on_paired_rows": 0.6272474089261492
+    },
+    "placebo_observed": {
+      "embeddings": "results/check2hgi_integrity_v2/florida/U1/win_cf_placebo_observed.npz",
+      "transfer": {
+        "regime": "head trained on intact, evaluated here (upper bound on reliance)",
+        "per_seed_macro_f1": [
+          0.619666225555577,
+          0.6005139330316054,
+          0.6128570230358521
+        ],
+        "mean_macro_f1": 0.6110123938743449,
+        "drop_points": 1.6235015051804247,
+        "bootstrap_first_seed": {
+          "mean": 0.011721123506964477,
+          "sd": 0.004972414596201446,
+          "ci95_lo": -0.0025166070700717857,
+          "ci95_hi": 0.018744020396096406,
+          "n_boot": 1000,
+          "resampling_unit": "user"
+        },
+        "bootstrap_ci95_points": [
+          -0.2516607070071786,
+          1.8744020396096406
+        ]
+      },
+      "matched": {
+        "regime": "head RETRAINED on this representation (the quotable contrast)",
+        "per_seed_macro_f1": [
+          0.6168943753841087,
+          0.6049983899635715,
+          0.6143963315200383
+        ],
+        "mean_macro_f1": 0.6120963656225729,
+        "drop_points": 1.5151043303576306,
+        "bootstrap_first_seed": {
+          "mean": 0.01357830427163552,
+          "sd": 0.005620598187652362,
+          "ci95_lo": -0.0011683431930095852,
+          "ci95_hi": 0.020553305706989853,
+          "n_boot": 1000,
+          "resampling_unit": "user"
+        },
+        "bootstrap_ci95_points": [
+          -0.11683431930095851,
+          2.0553305706989855
+        ]
+      },
+      "distribution_shift_share_points": 0.1083971748227941,
+      "paired_windows": 23679,
+      "intact_windows_dropped_by_pairing": 0,
+      "intact_reference_on_paired_rows": 0.6272474089261492
+    },
+    "strict_prefix": {
+      "embeddings": "results/check2hgi_integrity_v2/florida/U1/win_prefix.npz",
+      "transfer": {
+        "regime": "head trained on intact, evaluated here (upper bound on reliance)",
+        "per_seed_macro_f1": [
+          0.32260218033789456,
+          0.3194549237168574,
+          0.3215548769916179
+        ],
+        "mean_macro_f1": 0.3212039936821233,
+        "drop_points": 30.604341524402585,
+        "bootstrap_first_seed": {
+          "mean": 0.3002559128715304,
+          "sd": 0.053683080637443155,
+          "ci95_lo": 0.1909030846380796,
+          "ci95_hi": 0.3855930469139388,
+          "n_boot": 1000,
+          "resampling_unit": "user"
+        },
+        "bootstrap_ci95_points": [
+          19.090308463807958,
+          38.55930469139388
+        ]
+      },
+      "matched": {
+        "regime": "head RETRAINED on this representation (the quotable contrast)",
+        "per_seed_macro_f1": [
+          0.3131760647155088,
+          0.3187576635525921,
+          0.3147968514371594
+        ],
+        "mean_macro_f1": 0.31557685990175344,
+        "drop_points": 31.167054902439574,
+        "bootstrap_first_seed": {
+          "mean": 0.31015933560695585,
+          "sd": 0.06555826870680888,
+          "ci95_lo": 0.18139597664440404,
+          "ci95_hi": 0.41820263854427003,
+          "n_boot": 1000,
+          "resampling_unit": "user"
+        },
+        "bootstrap_ci95_points": [
+          18.139597664440405,
+          41.820263854427004
+        ]
+      },
+      "distribution_shift_share_points": -0.5627133780369886,
+      "paired_windows": 23679,
+      "intact_windows_dropped_by_pairing": 0,
+      "intact_reference_on_paired_rows": 0.6272474089261492
+    },
+    "trainonly_full": {
+      "embeddings": "results/check2hgi_integrity_v2/florida/U0/emb_all_full.parquet",
+      "transfer": {
+        "regime": "head trained on intact, evaluated here (upper bound on reliance)",
+        "per_seed_macro_f1": [
+          0.14055758416934053,
+          0.1480610373170781,
+          0.13775112805904374
+        ],
+        "mean_macro_f1": 0.14212324984848745,
+        "drop_points": 48.51241590776617,
+        "bootstrap_first_seed": {
+          "mean": 0.4735969929001501,
+          "sd": 0.05660768120843631,
+          "ci95_lo": 0.35448492401605114,
+          "ci95_hi": 0.5617266944352289,
+          "n_boot": 1000,
+          "resampling_unit": "user"
+        },
+        "bootstrap_ci95_points": [
+          35.448492401605115,
+          56.17266944352289
+        ]
+      },
+      "matched": {
+        "regime": "head RETRAINED on this representation (the quotable contrast)",
+        "per_seed_macro_f1": [
+          0.6194204000085973,
+          0.6049534924921713,
+          0.6288824526730982
+        ],
+        "mean_macro_f1": 0.6177521150579556,
+        "drop_points": 0.9495293868193588,
+        "bootstrap_first_seed": {
+          "mean": 0.014068738955639447,
+          "sd": 0.00875034880742508,
+          "ci95_lo": -0.003497823759390438,
+          "ci95_hi": 0.03308819392725392,
+          "n_boot": 1000,
+          "resampling_unit": "user"
+        },
+        "bootstrap_ci95_points": [
+          -0.34978237593904377,
+          3.308819392725392
+        ]
+      },
+      "distribution_shift_share_points": 47.56288652094681,
+      "paired_windows": 23679,
+      "intact_windows_dropped_by_pairing": 0,
+      "intact_reference_on_paired_rows": 0.6272474089261492
+    },
+    "trainonly_prefix": {
+      "embeddings": "results/check2hgi_integrity_v2/florida/U0/win_prefix.npz",
+      "transfer": {
+        "regime": "head trained on intact, evaluated here (upper bound on reliance)",
+        "per_seed_macro_f1": [
+          0.13932279679279888,
+          0.13749375892306223,
+          0.12872613565324106
+        ],
+        "mean_macro_f1": 0.13518089712303405,
+        "drop_points": 49.20665118031151,
+        "bootstrap_first_seed": {
+          "mean": 0.47549605851350524,
+          "sd": 0.0557119602057504,
+          "ci95_lo": 0.35527616468377904,
+          "ci95_hi": 0.5614729076367508,
+          "n_boot": 1000,
+          "resampling_unit": "user"
+        },
+        "bootstrap_ci95_points": [
+          35.52761646837791,
+          56.14729076367509
+        ]
+      },
+      "matched": {
+        "regime": "head RETRAINED on this representation (the quotable contrast)",
+        "per_seed_macro_f1": [
+          0.30987396182032195,
+          0.3132826592929535,
+          0.3123715799427024
+        ],
+        "mean_macro_f1": 0.311842733685326,
+        "drop_points": 31.540467524082317,
+        "bootstrap_first_seed": {
+          "mean": 0.3139104606833482,
+          "sd": 0.06650127098525467,
+          "ci95_lo": 0.1812338992346962,
+          "ci95_hi": 0.4246244685845826,
+          "n_boot": 1000,
+          "resampling_unit": "user"
+        },
+        "bootstrap_ci95_points": [
+          18.12338992346962,
+          42.46244685845826
+        ]
+      },
+      "distribution_shift_share_points": 17.666183656229194,
+      "paired_windows": 23679,
+      "intact_windows_dropped_by_pairing": 0,
+      "intact_reference_on_paired_rows": 0.6272474089261492
+    }
+  },
+  "intact": {
+    "per_seed_macro_f1": [
+      0.6327027279299953,
+      0.6186862397202696,
+      0.6303532591281826
+    ],
+    "mean_macro_f1": 0.6272474089261492
+  }
+}

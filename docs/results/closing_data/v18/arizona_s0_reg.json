@@ -1,0 +1,29 @@
+{
+  "state": "arizona",
+  "seed": 0,
+  "family": "reg",
+  "wall_seconds": 189,
+  "rundir": "docs/results/P1/region_head_arizona_region_5f_50ep_v18_arizona_reg_s0.json",
+  "cat": null,
+  "reg": 59.4813,
+  "commit_sha": "496cdab4c8751d07ba8e60de4d1219321eda1954",
+  "v18_config": {
+    "engine": "check2hgi_v18",
+    "forward_only": true,
+    "in_channels": 15,
+    "node_layout": [
+      "canonical_11",
+      "continuous_time_4"
+    ],
+    "repr_seed": 42
+  },
+  "protocol": {
+    "precision": "fp32 (MTL_DISABLE_AMP=1)",
+    "compile": true,
+    "tf32": true,
+    "folds": 5,
+    "epochs": 50,
+    "cat_metric": "macro-F1 at f1-best epoch (diag-best)",
+    "reg_metric": "top10_acc_indist * (1 - ood_fraction) * 100 at indist-best epoch"
+  }
+}

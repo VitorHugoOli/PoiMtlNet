@@ -1,0 +1,252 @@
+{
+  "study": "check2hgi_integrity_v2 / intervention",
+  "generated_utc": "2026-08-06T00:55:44.281164+00:00",
+  "command": "scripts/integrity_v2/intervene.py --state alabama --checkpoints U1=results/check2hgi_integrity_v2/alabama/U1/checkpoint.pt U0=results/check2hgi_integrity_v2/alabama/U0/checkpoint.pt P1=results/check2hgi_integrity_v2/alabama/P1/checkpoint.pt --split docs/results/check2hgi_integrity_v2/alabama/split_seed0_fold0.json --max-windows 4000 --out docs/results/check2hgi_integrity_v2/alabama/intervention.json",
+  "state": "alabama",
+  "split_file": "docs/results/check2hgi_integrity_v2/alabama/split_seed0_fold0.json",
+  "user_key": "val_users",
+  "split": {
+    "seed": 0,
+    "fold": 0,
+    "n_folds": 5,
+    "engine": "check2hgi_dk_ovl"
+  },
+  "torch_version": "2.11.0+cu128",
+  "what_each_number_means": {
+    "dependence": "rel_linf / l2 / cosine -- guaranteed nonzero by the architecture (F3), never decisive",
+    "carriage": "fisher_ratio_by_substituted_class vs its shuffled-label floor -- whether the target's category identity is legible"
+  },
+  "arms": {
+    "U1": {
+      "n_windows": 4114,
+      "n_users_used": 219,
+      "spacing_between_perturbed_targets": 6,
+      "zero_cat": {
+        "n": 4114,
+        "frac_windows_moved": 0.5401069518716578,
+        "rel_linf_median": 0.00016220941324718297,
+        "rel_linf_median_among_moved": 0.1946765035390854,
+        "rel_linf_p90": 0.3540283143520355,
+        "l2_median": 0.002059340476989746,
+        "cosine_median": 0.9999998211860657,
+        "cosine_p10": 0.9374438524246216,
+        "invariant_within_tolerance": false
+      },
+      "shuffle_cat": {
+        "n": 4114,
+        "frac_windows_moved": 0.3582887700534759,
+        "rel_linf_median": 0.0,
+        "rel_linf_median_among_moved": 0.34432220458984375,
+        "rel_linf_p90": 0.49655574560165405,
+        "l2_median": 0.0,
+        "cosine_median": 0.9999999403953552,
+        "cosine_p10": 0.8923929333686829,
+        "invariant_within_tolerance": false
+      },
+      "resample_all": {
+        "n": 4114,
+        "frac_windows_moved": 0.551045211473019,
+        "rel_linf_median": 0.00023164179583545774,
+        "rel_linf_median_among_moved": 0.31841668486595154,
+        "rel_linf_p90": 0.6529591083526611,
+        "l2_median": 0.002407195046544075,
+        "cosine_median": 0.9999998211860657,
+        "cosine_p10": 0.8066521286964417,
+        "invariant_within_tolerance": false
+      },
+      "edge_weight": {
+        "n": 4114,
+        "frac_windows_moved": 0.8305785123966942,
+        "rel_linf_median": 0.1802867352962494,
+        "rel_linf_median_among_moved": 0.2758938670158386,
+        "rel_linf_p90": 0.8015932440757751,
+        "l2_median": 1.9641432762145996,
+        "cosine_median": 0.985384464263916,
+        "cosine_p10": 0.6809800267219543,
+        "invariant_within_tolerance": false
+      },
+      "drop_target": {
+        "n": 4114,
+        "frac_windows_moved": 0.5452114730189597,
+        "rel_linf_median": 0.00012524891644716263,
+        "rel_linf_median_among_moved": 0.12680590152740479,
+        "rel_linf_p90": 0.4423901438713074,
+        "l2_median": 0.0014260710449889302,
+        "cosine_median": 0.9999998211860657,
+        "cosine_p10": 0.9130554795265198,
+        "invariant_within_tolerance": false
+      },
+      "carriage": {
+        "n_perturbed_vectors": 28798,
+        "fisher_ratio_by_substituted_class": 0.014165699829113209,
+        "fisher_ratio_shuffled_labels_control": 0.00018282973594316084,
+        "note": "between-class over within-class scatter of the last-observed vector as a function of the SUBSTITUTED target category; the shuffled-label row is the floor this statistic reaches when substitution carries nothing"
+      },
+      "baseline_vectors": {
+        "n": 4114,
+        "absmax_median": 3.6316094398498535
+      },
+      "checkpoint": {
+        "path": "results/check2hgi_integrity_v2/alabama/U1/checkpoint.pt",
+        "cell": "U1",
+        "encoder": "resln",
+        "repr_seed": 42,
+        "restricted": false
+      }
+    },
+    "U0": {
+      "n_windows": 4114,
+      "n_users_used": 219,
+      "spacing_between_perturbed_targets": 6,
+      "zero_cat": {
+        "n": 4114,
+        "frac_windows_moved": 0.5420515313563442,
+        "rel_linf_median": 0.00017354896408505738,
+        "rel_linf_median_among_moved": 0.1989426612854004,
+        "rel_linf_p90": 0.34948667883872986,
+        "l2_median": 0.0018803940620273352,
+        "cosine_median": 0.9999998807907104,
+        "cosine_p10": 0.9421325325965881,
+        "invariant_within_tolerance": false
+      },
+      "shuffle_cat": {
+        "n": 4114,
+        "frac_windows_moved": 0.3580456976178901,
+        "rel_linf_median": 0.0,
+        "rel_linf_median_among_moved": 0.3152769207954407,
+        "rel_linf_p90": 0.44653987884521484,
+        "l2_median": 0.0,
+        "cosine_median": 0.9999999403953552,
+        "cosine_p10": 0.9041289687156677,
+        "invariant_within_tolerance": false
+      },
+      "resample_all": {
+        "n": 4114,
+        "frac_windows_moved": 0.5500729217306758,
+        "rel_linf_median": 0.00023233788670040667,
+        "rel_linf_median_among_moved": 0.31631413102149963,
+        "rel_linf_p90": 0.6095744371414185,
+        "l2_median": 0.0024647233076393604,
+        "cosine_median": 0.9999998211860657,
+        "cosine_p10": 0.8144633173942566,
+        "invariant_within_tolerance": false
+      },
+      "edge_weight": {
+        "n": 4114,
+        "frac_windows_moved": 0.8317938745746233,
+        "rel_linf_median": 0.17219758033752441,
+        "rel_linf_median_among_moved": 0.2614380121231079,
+        "rel_linf_p90": 0.7884050607681274,
+        "l2_median": 1.986159086227417,
+        "cosine_median": 0.9868360757827759,
+        "cosine_p10": 0.6903344988822937,
+        "invariant_within_tolerance": false
+      },
+      "drop_target": {
+        "n": 4114,
+        "frac_windows_moved": 0.5452114730189597,
+        "rel_linf_median": 0.00013226171722635627,
+        "rel_linf_median_among_moved": 0.12076111882925034,
+        "rel_linf_p90": 0.39046213030815125,
+        "l2_median": 0.0014840258518233895,
+        "cosine_median": 0.9999998807907104,
+        "cosine_p10": 0.9207898378372192,
+        "invariant_within_tolerance": false
+      },
+      "carriage": {
+        "n_perturbed_vectors": 28798,
+        "fisher_ratio_by_substituted_class": 0.013215070305532105,
+        "fisher_ratio_shuffled_labels_control": 0.0001940856860756518,
+        "note": "between-class over within-class scatter of the last-observed vector as a function of the SUBSTITUTED target category; the shuffled-label row is the floor this statistic reaches when substitution carries nothing"
+      },
+      "baseline_vectors": {
+        "n": 4114,
+        "absmax_median": 3.551409959793091
+      },
+      "checkpoint": {
+        "path": "results/check2hgi_integrity_v2/alabama/U0/checkpoint.pt",
+        "cell": "U0",
+        "encoder": "resln",
+        "repr_seed": 42,
+        "restricted": true
+      }
+    },
+    "P1": {
+      "n_windows": 4114,
+      "n_users_used": 219,
+      "spacing_between_perturbed_targets": 6,
+      "zero_cat": {
+        "n": 4114,
+        "frac_windows_moved": 1.0,
+        "rel_linf_median": 0.210731640458107,
+        "rel_linf_median_among_moved": 0.210731640458107,
+        "rel_linf_p90": 0.31195613741874695,
+        "l2_median": 0.9321615695953369,
+        "cosine_median": 0.9824018478393555,
+        "cosine_p10": 0.9638149738311768,
+        "invariant_within_tolerance": false
+      },
+      "shuffle_cat": {
+        "n": 4114,
+        "frac_windows_moved": 0.6373359261059796,
+        "rel_linf_median": 0.23660454154014587,
+        "rel_linf_median_among_moved": 0.31601375341415405,
+        "rel_linf_p90": 0.43145617842674255,
+        "l2_median": 1.1401278972625732,
+        "cosine_median": 0.9732906818389893,
+        "cosine_p10": 0.9242820739746094,
+        "invariant_within_tolerance": false
+      },
+      "resample_all": {
+        "n": 4114,
+        "frac_windows_moved": 0.9970831307729704,
+        "rel_linf_median": 0.33683568239212036,
+        "rel_linf_median_among_moved": 0.33736759424209595,
+        "rel_linf_p90": 0.5337299108505249,
+        "l2_median": 1.5593509674072266,
+        "cosine_median": 0.9459532499313354,
+        "cosine_p10": 0.8831942081451416,
+        "invariant_within_tolerance": false
+      },
+      "edge_weight": {
+        "n": 4114,
+        "frac_windows_moved": 0.9698590179873602,
+        "rel_linf_median": 0.02439447119832039,
+        "rel_linf_median_among_moved": 0.026121027767658234,
+        "rel_linf_p90": 0.09843191504478455,
+        "l2_median": 0.10465878248214722,
+        "cosine_median": 0.9997679591178894,
+        "cosine_p10": 0.9961609244346619,
+        "invariant_within_tolerance": false
+      },
+      "drop_target": {
+        "n": 4114,
+        "frac_windows_moved": 0.9941662615459407,
+        "rel_linf_median": 0.35106176137924194,
+        "rel_linf_median_among_moved": 0.35241079330444336,
+        "rel_linf_p90": 0.6063899397850037,
+        "l2_median": 1.5777063369750977,
+        "cosine_median": 0.9516479969024658,
+        "cosine_p10": 0.8752937912940979,
+        "invariant_within_tolerance": false
+      },
+      "carriage": {
+        "n_perturbed_vectors": 28798,
+        "fisher_ratio_by_substituted_class": 0.09614182794198264,
+        "fisher_ratio_shuffled_labels_control": 0.0001766238857745572,
+        "note": "between-class over within-class scatter of the last-observed vector as a function of the SUBSTITUTED target category; the shuffled-label row is the floor this statistic reaches when substitution carries nothing"
+      },
+      "baseline_vectors": {
+        "n": 4114,
+        "absmax_median": 1.463425874710083
+      },
+      "checkpoint": {
+        "path": "results/check2hgi_integrity_v2/alabama/P1/checkpoint.pt",
+        "cell": "P1",
+        "encoder": "gat",
+        "repr_seed": 42,
+        "restricted": false
+      }
+    }
+  }
+}

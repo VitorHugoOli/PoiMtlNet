@@ -1,0 +1,180 @@
+{
+  "study": "check2hgi_integrity_v2 / frozen-predictor counterfactual",
+  "generated_utc": "2026-08-06T02:14:09.263297+00:00",
+  "command": "scripts/integrity_v2/counterfactual.py --state alabama --intact results/check2hgi_integrity_v2/alabama/U1/emb_all_full.parquet --intervened strict_readout_biTrained=results/check2hgi_integrity_v2/alabama/U1/win_prefix.npz causal_C1_matched=results/check2hgi_integrity_v2/alabama/C1/win_fwd.npz causal_C1_mismatched=results/check2hgi_integrity_v2/alabama/C1/win_prefix_mismatched.npz --next-parquet output/check2hgi_dk_ovl/alabama/input/next.parquet --split docs/results/check2hgi_integrity_v2/alabama/split_seed0_fold0.json --head-seeds 3 --epochs 30 --device cuda --out docs/results/check2hgi_integrity_v2/alabama/counterfactual_causal.json",
+  "state": "alabama",
+  "split": {
+    "seed": 0,
+    "fold": 0,
+    "n_folds": 5,
+    "engine": "check2hgi_dk_ovl"
+  },
+  "design": "two regimes per arm. TRANSFER: heads trained once on the intact representation and frozen, then evaluated here -- an upper bound on reliance, confounded with distribution shift by construction. MATCHED: heads retrained on this representation, so train and test agree -- this is the only contrast quotable against the reported result. Same rows, same labels, same seeds throughout.",
+  "quotable_contrast": "matched",
+  "metric": "next-category macro-F1",
+  "n_train_rows": 77062,
+  "n_val_rows": 19264,
+  "arms": {
+    "strict_readout_biTrained": {
+      "embeddings": "results/check2hgi_integrity_v2/alabama/U1/win_prefix.npz",
+      "transfer": {
+        "regime": "head trained on intact, evaluated here (upper bound on reliance)",
+        "per_seed_macro_f1": [
+          0.27016462134085406,
+          0.27013867607839553,
+          0.2739000597883857
+        ],
+        "mean_macro_f1": 0.27140111906921177,
+        "drop_points": 34.12586906900598,
+        "bootstrap_first_seed": {
+          "mean": 0.3319092777359393,
+          "sd": 0.05892436435940874,
+          "ci95_lo": 0.234919878849524,
+          "ci95_hi": 0.4392048459434466,
+          "n_boot": 1000,
+          "resampling_unit": "user"
+        },
+        "bootstrap_ci95_points": [
+          23.4919878849524,
+          43.920484594344664
+        ]
+      },
+      "matched": {
+        "regime": "head RETRAINED on this representation (the quotable contrast)",
+        "per_seed_macro_f1": [
+          0.2616791835383272,
+          0.2553886385661439,
+          0.2578755994207723
+        ],
+        "mean_macro_f1": 0.2583144738417478,
+        "drop_points": 35.43453359175238,
+        "bootstrap_first_seed": {
+          "mean": 0.3397567712569104,
+          "sd": 0.06918549416282187,
+          "ci95_lo": 0.2278309980460474,
+          "ci95_hi": 0.46639234150936454,
+          "n_boot": 1000,
+          "resampling_unit": "user"
+        },
+        "bootstrap_ci95_points": [
+          22.78309980460474,
+          46.63923415093645
+        ]
+      },
+      "distribution_shift_share_points": -1.3086645227463944,
+      "paired_windows": 96326,
+      "intact_windows_dropped_by_pairing": 0,
+      "intact_reference_on_paired_rows": 0.6126598097592716
+    },
+    "causal_C1_matched": {
+      "embeddings": "results/check2hgi_integrity_v2/alabama/C1/win_fwd.npz",
+      "transfer": {
+        "regime": "head trained on intact, evaluated here (upper bound on reliance)",
+        "per_seed_macro_f1": [
+          0.25628520273902805,
+          0.25581177963429236,
+          0.2604473385952255
+        ],
+        "mean_macro_f1": 0.25751477365618197,
+        "drop_points": 35.514503610308964,
+        "bootstrap_first_seed": {
+          "mean": 0.3456948869790634,
+          "sd": 0.056561174418873,
+          "ci95_lo": 0.2524883765437979,
+          "ci95_hi": 0.44787901662867313,
+          "n_boot": 1000,
+          "resampling_unit": "user"
+        },
+        "bootstrap_ci95_points": [
+          25.24883765437979,
+          44.78790166286731
+        ]
+      },
+      "matched": {
+        "regime": "head RETRAINED on this representation (the quotable contrast)",
+        "per_seed_macro_f1": [
+          0.2603686575611121,
+          0.2569533664900013,
+          0.25910858415590443
+        ],
+        "mean_macro_f1": 0.2588102027356726,
+        "drop_points": 35.3849607023599,
+        "bootstrap_first_seed": {
+          "mean": 0.34176665521299004,
+          "sd": 0.0674535338248102,
+          "ci95_lo": 0.2337473908970249,
+          "ci95_hi": 0.4660445488374831,
+          "n_boot": 1000,
+          "resampling_unit": "user"
+        },
+        "bootstrap_ci95_points": [
+          23.37473908970249,
+          46.60445488374831
+        ]
+      },
+      "distribution_shift_share_points": 0.1295429079490651,
+      "paired_windows": 96326,
+      "intact_windows_dropped_by_pairing": 0,
+      "intact_reference_on_paired_rows": 0.6126598097592716
+    },
+    "causal_C1_mismatched": {
+      "embeddings": "results/check2hgi_integrity_v2/alabama/C1/win_prefix_mismatched.npz",
+      "transfer": {
+        "regime": "head trained on intact, evaluated here (upper bound on reliance)",
+        "per_seed_macro_f1": [
+          0.24768462840145022,
+          0.2476851022455254,
+          0.2465730914661683
+        ],
+        "mean_macro_f1": 0.24731427403771464,
+        "drop_points": 36.534553572155694,
+        "bootstrap_first_seed": {
+          "mean": 0.3539739173907751,
+          "sd": 0.059134075530792425,
+          "ci95_lo": 0.256959592007225,
+          "ci95_hi": 0.46199168369803895,
+          "n_boot": 1000,
+          "resampling_unit": "user"
+        },
+        "bootstrap_ci95_points": [
+          25.695959200722502,
+          46.19916836980389
+        ]
+      },
+      "matched": {
+        "regime": "head RETRAINED on this representation (the quotable contrast)",
+        "per_seed_macro_f1": [
+          0.26698401537830607,
+          0.25740456697755365,
+          0.25709270924788874
+        ],
+        "mean_macro_f1": 0.2604937638679162,
+        "drop_points": 35.21660458913554,
+        "bootstrap_first_seed": {
+          "mean": 0.33616197910114204,
+          "sd": 0.0661550218316845,
+          "ci95_lo": 0.22866106689718535,
+          "ci95_hi": 0.4562922935428932,
+          "n_boot": 1000,
+          "resampling_unit": "user"
+        },
+        "bootstrap_ci95_points": [
+          22.866106689718535,
+          45.62922935428932
+        ]
+      },
+      "distribution_shift_share_points": 1.3179489830201507,
+      "paired_windows": 96326,
+      "intact_windows_dropped_by_pairing": 0,
+      "intact_reference_on_paired_rows": 0.6126598097592716
+    }
+  },
+  "intact": {
+    "per_seed_macro_f1": [
+      0.6105207164882673,
+      0.614400426252667,
+      0.6130582865368804
+    ],
+    "mean_macro_f1": 0.6126598097592716
+  }
+}

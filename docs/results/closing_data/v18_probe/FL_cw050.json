@@ -1,0 +1,50 @@
+{
+  "arm": "FL_cw050",
+  "state": "florida",
+  "seed": 0,
+  "loss_flags": "--mtl-loss static_weight --category-weight 0.50",
+  "rundir": "results/check2hgi_v18/florida/mtlnet_lr1.0e-04_bs8192_ep50_20260806_203658_759671",
+  "wall_seconds": 7391,
+  "cat": 35.8995,
+  "cat_sd": 0.3927,
+  "reg": 77.0535,
+  "reg_sd": 0.9553,
+  "cat_per_fold": [
+    36.1522,
+    35.7474,
+    35.1994,
+    36.1153,
+    36.2832
+  ],
+  "reg_per_fold": [
+    77.2493,
+    77.0888,
+    75.9993,
+    76.2256,
+    78.7047
+  ],
+  "grad_cosine_shared": {
+    "n": 250,
+    "mean": 0.00081,
+    "sd": 0.00659,
+    "min": -0.04033,
+    "max": 0.03789,
+    "frac_negative": 0.416
+  },
+  "grad_norm_cat_shared": {
+    "n": 250,
+    "mean": 0.09422,
+    "sd": 0.36192,
+    "min": 0.02211,
+    "max": 3.80551,
+    "frac_negative": 0.0
+  },
+  "grad_norm_reg_shared": {
+    "n": 250,
+    "mean": 0.12882,
+    "sd": 0.03137,
+    "min": 0.01111,
+    "max": 0.36007,
+    "frac_negative": 0.0
+  }
+}
