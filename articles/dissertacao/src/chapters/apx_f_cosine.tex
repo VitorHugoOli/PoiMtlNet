@@ -254,7 +254,7 @@ training run.
 % (3,150). The parquet carries no seed column, so initialization is not a factor in this design at all --
 % which is the limitation now stated rather than left for the reader to infer.
 % This is a genuine bound on the result and it belongs beside the other three the appendix already gives.
-The unit of independence is the fold, and every test below runs on folds: five fold means at each
+The unit of analysis is the fold, and every test below runs on folds: five fold means at each
 dataset, and at Florida its sixty fold series, five folds for each of its twelve configurations.
 Each dataset is measured at a single random initialization, so the variation the tests see is
 across folds, not across restarts. Where a count of observations appears it describes the data, not
@@ -279,8 +279,7 @@ a test's sample size.
 Equivalence to zero is assessed by two one-sided tests against a margin of $\pm 0.05$
 \cite{lakens2017tost}. The margin is a judgment about relevance and should be read as one: at
 $|\cos| < 0.05$ one task's update projects less than five percent of its length onto the other's
-direction, below the epoch-to-epoch variation in either gradient and below anything a balancing
-method could act on. Chapter~\ref{ch:mobiwac}'s two-point margin for the region task measures a
+direction, below the epoch-to-epoch variation observed in either gradient. Chapter~\ref{ch:mobiwac}'s two-point margin for the region task measures a
 different quantity on a different scale and should not be read against this one.
 % [round7 review, 2026-07-29] THE MARGIN SENTENCES WERE MERGED INTO THIS PARAGRAPH. They used to be
 % a separate paragraph after the comment block below, which left the citation sentence standing as a
@@ -407,16 +406,17 @@ and with the same unanimity, all five per-fold slopes negative in each; the othe
 single-configuration datasets are mixed, from two of five at Istanbul to four of five at California,
 and Florida is flat at twenty-nine of sixty.
 
-Neither pattern is called significant here, and the reason is the design rather than the data. At
-five folds the exact sign test cannot return less than $0.0625$, so no distribution-free test could
-reach significance however consistent the pattern. A $t$-test does reject at Alabama and at Georgia,
-for the positive means and for the declines, but with five folds that rejection depends on assuming
-the fold means are normally distributed, an assumption five values cannot check. Both patterns are
-therefore consistent tendencies rather than established effects. California shows why the table
-carries a sign-test column: its $t$-test returns $0.048$, below the conventional threshold, while
-its exact sign test returns $0.375$ on four of five positive folds, so what looks like a finding
-under one test is not even a leaning under the other. Florida, whose sixty independent series are
-the only estimate in the set with the resolution to settle either question, shows neither pattern.
+%Neither pattern is called significant here, and the reason is the design rather than the data. At
+%five folds the two-sided exact sign test cannot return less than $0.0625$, so that test cannot
+%reach significance however consistent the pattern. A $t$-test does reject at Alabama and at Georgia,
+%for the positive means and for the declines, but with five folds that rejection depends on assuming
+%the fold means are normally distributed, an assumption five values cannot check. Both patterns are
+%therefore consistent tendencies rather than established effects. California shows why the table
+%carries a sign-test column: its $t$-test returns $0.048$, below the conventional threshold, while
+%its exact sign test returns $0.375$ on four of five positive folds, so what looks like a finding
+%under one test is not even a leaning under the other. Florida shows neither pattern across its
+%sixty fold series, but those series reuse the same five folds across configurations and are not
+%sixty independent replications.
 % [round9c, 2026-07-30] PARAGRAPH REWRITTEN at the author's instruction (PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30) point 11:
 % "you don't say which datasets, and this phrase is confusing and hard to read for whom don't have
 % a lot of knowhow. We can try to improve the rest of this paragraph"). Changes: (a) the t-test
@@ -451,8 +451,8 @@ proposed for either pattern.
 \section{What orthogonality explains}
 \label{apx:cosine:mechanism}
 
-Orthogonal gradients mean neither task's update reinforces or cancels the other's on the shared
-parameters, so the trunk can serve both without either improvement being paid for by the other. The
+Near-orthogonal gradients mean that, at the measured shared parameters, neither task's update
+substantially reinforces or cancels the other's to first order. The
 main consequence is about gradient balancers. Nash-MTL and the family around it exist to resolve exactly
 the disagreement measured here, reweighting or reprojecting task gradients so a dominant task cannot
 % [round9, 2026-07-30] HARD-SHARING CLAUSE DELETED. It read "That is why hard sharing costs nothing in
@@ -469,8 +469,10 @@ the disagreement measured here, reweighting or reprojecting task gradients so a 
 %   owning hidden layers in common". The two are opposites, so the claim was about a different model.
 % WRITING_LAW §3: a cost claim with no measured arm has no reference point. The balancer half IS
 % measured and stays; the replacement says plainly what the measurement does not cover.
-overwrite a weaker one. Orthogonality leaves them nothing to resolve. That is why Chapter~\ref{ch:mobiwac} finds no
-balancer improving on a fixed loss weighting: the measurement explains that finding. It says nothing
+overwrite a weaker one. The near-zero aggregate alignment offers little evidence of a persistent
+conflict for those methods to resolve and is consistent with Chapter~\ref{ch:mobiwac}'s finding that no
+tested balancer improved on fixed loss weighting; the measurement does not by itself explain every
+balancer's performance. It says nothing
 about the cost of a common trunk, which this architecture does not use and no arm of that chapter
 tested. Orthogonal gradients also do not mean that the tasks share no knowledge: the two streams
 still exchange information through the cross-attention trunk, a sharing mechanism this measurement
@@ -511,8 +513,8 @@ objection.
 
 The first axis is the tuning. Every one of Florida's twelve configurations is equivalent to zero on
 its own five folds, and their twelve means span $[-0.00261, +0.00457]$ over the observations as
-recorded. Orthogonality survives every hyperparameter and procedure that was varied, so it is not an
-artifact of one choice among them.
+recorded. Near-orthogonality persists across every hyperparameter and procedure varied in this
+measured sweep, rather than appearing in only one configuration.
 % [round7] SPAN CORRECTED before first build: this read [-0.00214, +0.00457], which is the
 % SECOND-lowest configuration mean (T6_1_lambda0_2). The minimum is -0.00261 (T6_4_two_pass).
 % Read from cosine_stats.py's "configuration-mean span" line, which exists to be quoted.
@@ -546,7 +548,8 @@ artifact of one choice among them.
 The second axis is the data. The seven datasets cover every dataset Chapter~\ref{ch:mobiwac} reports on: the
 check-in counts run from 113,846 at Alabama to 4,089,892 at Texas and the region counts from 520 at
 Istanbul to 8,501 at California, with Georgia added under the same protocol. Equivalence
-holds at both ends: the result is not a quirk of Florida, and it is not an artifact of small data.
+holds at both ends of these ranges, so the result is observed beyond Florida and at datasets of
+different sizes.
 % [round9c, PENDENCIAS_RESOLVIDOS 2.23 (arquivado 2026-08-02), excellence report EX-6, author decision "Aplique o R-3,5,6 e o EX-6,
 % seguindo a recomendacao do 42_excellence"] THE COMPARISON CLAUSE IS DROPPED, keeping the scope. Two
 % reports touch this sentence and the author's instruction is to follow 42_excellence where they
@@ -563,11 +566,12 @@ holds at both ends: the result is not a quirk of Florida, and it is not an artif
 % The colon replaces the sentence break so the two surviving clauses stay attached to "at both ends",
 % which is what they scope.
 
-Together the two axes suggest orthogonality belongs to the task pair rather than to the tuning. Next
+Together the two axes suggest that near-orthogonality is stable for this task pair within the
+measured architecture family rather than tied to one tuning choice. Next
 category asks which of seven kinds of place a user visits next, next region asks which tract or
-neighborhood, and both read the same trace to predict a different projection of one event. Those
-projections appear close to statistically independent given the shared representation, which would
-explain why each task's update carries so little of the other's.
+neighborhood, and both read the same trace to predict a different projection of one event. Their
+gradients remain weakly aligned in the measurements reported here, but this does not establish that
+the task outputs are statistically independent.
 
 That is where the evidence stops, and the boundary matters. Every run measured here uses one
 architecture family, the cross-attention joint model of Chapter~\ref{ch:mobiwac}. The architecture

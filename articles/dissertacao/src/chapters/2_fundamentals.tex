@@ -412,7 +412,7 @@ the data itself says which pairing is the true one.
 % place to a region. Full evidence: src_utils/_round13/71_graphnode_features.md.
 % Probe: R13-aut20.
 The representations used in this work are trained with no next-category and no
-next-region target, each visit contributes with its own description: the category of
+next-region target. Each visit contributes its own description: the category of
 the place visited is an input feature of its node, together with the hour and the day
 of the week.
 Mutual-information estimators provide one way to learn such
@@ -1633,12 +1633,12 @@ Under this \emph{joint-best} convention, both reported task scores come from the
 validation-selected checkpoint, reflecting the balanced performance of a single
 deployable system.
 
-To interpret these scores, model performance is evaluated between lower reference
-floors and upper benchmark ceilings. At the lower bound, basic baselines establish
-performance floors: a majority-class predictor for category classification, and a
+To interpret these scores, model performance is evaluated against lower-bound
+baselines and dedicated single-task reference models. Basic baselines establish
+performance floors: a majority-class predictor for category classification and a
 first-order Markov model over training visits for sequential
-transitions~\cite{gambs2012mmc}. At the upper bound, the primary reference ceiling for
-evaluating multitask gains is the dedicated single-task model for each output.
+transitions~\cite{gambs2012mmc}. The primary reference for evaluating multitask gains
+is the dedicated single-task model for each output.
 Theoretical limits from prior work, such as the 93~percent potential predictability
 reported for coarse location prediction~\cite{song2010limits}, do not serve as
 ceilings for seven-class macro-F1 or region ranking.
@@ -1685,7 +1685,7 @@ Chapter~\ref{ch:mobiwac} instead uses a grouped, stratified splitter that keeps 
 user on one side of a fold~\cite{pedregosa2011sklearn}. In that chapter, each seed
 defines one complete repetition of the five-fold experiment. It determines the model's
 random initialization and how users are divided among the five folds. The study uses
-four seeds, and each seed produces five fitted models, given a total of twenty fitted configurations for each
+four seeds, and each seed produces five fitted models, for a total of twenty fitted configurations for each
 experiment.
 % WITHIN-SEED SHARING: WHAT IS ESTABLISHED AND WHAT IS NOT. Corrected 2026-08-05 after a reviewer found
 % this stated as a measured fact. It is a CODE-LEVEL property, not something measured on the artifacts:
