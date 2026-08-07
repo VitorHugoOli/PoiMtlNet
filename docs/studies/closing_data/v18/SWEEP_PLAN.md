@@ -56,12 +56,12 @@ arms would not be comparable to GPU arms — the same class of error as the fp16
 |---|---|---|---|---|---|---|---|
 | 1 | **1a** small-state dedicated | dedicated | AL, AZ, IST | bs {2048, 8192} × max_lr {0.0005, 0.001, 0.0025, **0.005 anchor**} | 0 | 8 ×3 | 🔄 running |
 | 2 | **1a** schedule shape | dedicated | AL, AZ, IST | epochs {15, 25} @ anchor bs, lr 0.005 | 0 | 2 ×3 | ⬜ |
-| 3 | **1a** MTL cat-LR | MTL | AL, AZ, IST | cat-lr {0.0005, **0.001 anchor**, 0.002}; + epochs 25 @ 0.001 | 0 | 4 ×3 | ⬜ |
+| 3 | **1a** MTL cat-LR | MTL | **AL only** (user 2026-08-07) | cat-lr {0.0005, **0.001 anchor**, 0.002}; + epochs 25 @ 0.001 | 0 | 4 | 🔄 queued |
 | 4 | **1c-ded** class weights | dedicated | **AL** | `--no-class-weights` × max_lr {0.005, best-from-#1} | 0 | 2 | ⬜ |
 | 5 | **1b** large-state dedicated | dedicated | **TX** | max_lr {0.005 anchor, 0.0075, 0.01} × epochs {50, 75} — grid goes **UP** | 0 | 5 | ⬜ |
 | 6 | **1c-ded** class weights @ large | dedicated | **TX** | `--no-class-weights` @ best-from-#5 | 0 | 1 | ⬜ |
-| 7 | **1c-mtl** MTL knobs | MTL | **AL** | `--cat-class-weights` {on, off} × `--category-weight` {0.75, 0.5} @ best cat-lr | 0 | 4 | ⬜ |
-| 8 | **1c-mtl** @ large, *conditional* | MTL | **TX** | the 2 best arms from #7 — **only if** #7 moves cat by > 0.5 pp | 0 | 2 | ⬜ |
+| 7 | **1c-mtl** MTL knobs | MTL | **AL** | `--cat-class-weights` {on, off} × `--category-weight` {0.75, 0.5} @ anchor cat-lr | 0 | 3 | 🔄 queued |
+| 8 | **1c-mtl** @ large, *conditional* | MTL | **TX or CA** | carried from #7 — **only with a very good justification** (user 2026-08-07) | 0 | 2 | ⏸ |
 | 9 | **confirm** | both | winners | best dedicated + best MTL arm | 1 | — | ⬜ |
 
 ### Inserted 2026-08-07 — trunk arms at alabama, BEFORE the MTL sweep rows
@@ -71,8 +71,15 @@ so it runs **before** rows 3 / 7 / 8. Row 3 (MTL cat-LR grid) is deferred until 
 
 | # | stage | arm | state | flag | seeds | cost | status |
 |---|---|---|---|---|---|---|---|
-| T1 | trunk | **A** no sharing | alabama | `--model-param disable_cross_attn=True` | 0 | ~18 min | ⬜ |
-| T2 | trunk | **A′** no mixing, same depth | alabama | `--model-param identity_cross_attn=True` | 0 | ~18 min | ⬜ |
+| T1 | trunk | **A** no sharing | alabama | `--model-param disable_cross_attn=True` | 0 | 359 s | ✅ Δcat **−0.015**, Δreg **−0.138** |
+| T2 | trunk | **A′** no mixing, same depth | alabama | `--model-param identity_cross_attn=True` | 0 | 414 s | ✅ Δcat **−0.154**, Δreg **−0.004** |
+| T3 | trunk | **A** no sharing | florida | `--model-param disable_cross_attn=True` | 0 | ~41 min | 🔄 running |
+| T4 | trunk | **A′** | florida | `identity_cross_attn=True` | 0 | ~45 min | ⏸ conditional on T3 (POSTPONED.md P5) |
+
+**T1/T2 result: the trunk is INERT at small data, not harmful.** The "trunk adds capacity that feeds
+memorization" hypothesis is falsified at alabama — severing it neither helps nor hurts (|Δ| ≤ 0.154
+on either head, against fold-σ ~1.7 cat / ~3.0 reg). Practical note: champion-G takes **1094 s** at
+alabama, T1 takes **359 s** — the trunk costs ~3× the compute for ~0 benefit.
 
 **Hypothesis under test at alabama is the OPPOSITE of the one at CA/TX.** There the question was
 "does severing cost the +2 pp?" (answer: no — see
