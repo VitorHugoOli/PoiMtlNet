@@ -53,16 +53,18 @@ that constructs the folds, and the statistical scripts and output files listed b
         user partition so that a user
         cannot reach one task's training data and the other task's validation data in
         the same fold.
-  \item[The seeds.] Four seeds, 0, 1, 7, and 100, each repeating the
-        five-fold experiment in full, which is the twenty fitted
-        models per configuration the chapter reports. The design is recorded in
+  \item[The seeds.] Four seeds, 0, 1, 7, and 100, each repeat the
+        five-fold experiment in full. Each seed determines a different user
+        partition, so the design produces $4\times5=20$ fitted models per
+        configuration. The design is recorded in
         \path{docs/reproducibility/mobiwac_v17/STATISTICAL_PROTOCOL.md}. A seed
         sets both the random initialization and the partition, so the four seeds draw four
         user partitions rather than repeating one, and the reported intervals cover both
         sources of variation. Four draws sample the variation across user splits without
         characterizing it. Within one seed both models are built from the same partition, which is what
-        the paired comparison requires; the tests pair the per-seed means, so they never
-        assume that a given fold of one seed is the same fold of another.
+        the paired comparison requires. The paired $t$ and TOST analyses compare the four
+        per-seed means, while the registered Wilcoxon sensitivity analysis compares the 20
+        matched seed-fold differences.
 %  \item[The region-transition prior.] Rebuilt for each fold from that fold's training
 %        partition alone by
 %        \path{pipelines/reproducibility/build_region_transitions.pipe.py}, which writes one file per

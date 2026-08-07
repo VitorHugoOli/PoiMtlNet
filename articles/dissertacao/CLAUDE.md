@@ -56,10 +56,10 @@ folder. No chapter text goes to the author or advisor without passing its gates.
 
 - **v1 lives in [`src/`](src/)** — the single working copy; the draft folders (`storyline/`,
   `fundamentals/`) are **frozen** (freeze pointers in each). **One source, THREE builds**, two entry
-  files: `make defense` → `build/main.pdf` (**116 pp**), copied to
+  files: `make defense` → `build/main.pdf` (**118 pp**), copied to
   [`src/dissertacao.pdf`](src/dissertacao.pdf), the banca PDF; `make final` →
   `build/main_final.pdf` (**113 pp**, the AcademicoPG deposit body); `make ppgc` →
-  `build/main_ppgc.pdf` (**117 pp**, the defense document plus the approval sheet, from a two-line
+  `build/main_ppgc.pdf` (**119 pp**, the defense document plus the approval sheet, from a two-line
   `main_ppgc.tex` that sets one switch and reads `main.tex`). All three: `tex_errors=0`, 0 overfull
   hbox/vbox, 0 undefined refs/cites, 0 bibtex problems, 0 oversized floats, 0 `Hfootnote` dest
   warnings. `make check` **exit 0**. Measured 2026-07-28 on full three-pass builds.
