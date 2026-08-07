@@ -14,12 +14,6 @@ For region prediction, it outperforms the dedicated model on four datasets and r
 other two, while preserving a private spatial path for the region output (Table~\ref{tab:mobiwac:results}; Figure~
 \ref{fig:mobiwac:deltas}).
 
-%The gain is substantial, and where we could test it the gain is a
-%property of the joint architecture rather than of cross-task transfer: at the three datasets
-%where the region pathway is held at its initial values, the category gain survives in full.
-%Which component of that architecture produces the gain is not settled by the controls reported
-%here (Section~\ref{sec:mobiwac:results-part2}).
-
 A service could treat the model's top-ranked next regions as an anticipatory
 set: at California, ten regions out of 8{,}501 contain the true next region 65.69
 percent of the time. On four datasets (Alabama, Arizona, Florida, and Istanbul; a single seed over five folds), the ten shortlisted
@@ -62,7 +56,7 @@ result.
 % the same partition by construction. That is exactly the property the paired comparison relies on.
 % See articles/dissertacao/science/fold_partition_and_seeds.md §7 for the distinction.
 
-Four limits qualify these results. First, our representation is trained once over all places; visits to places
+Three limits qualify these results. First, our representation is trained once over all places; visits to places
 never seen during training are the single effect that we cannot fully isolate. A planned follow-up trains it on each
 fold's training places only and embeds unseen visits. Second, epoch selection consults the fold that the score is
 then read on (Section~\ref{sec:mobiwac:setup-windows}), so every absolute score reported here is optimistic. The
@@ -109,35 +103,7 @@ residual favors the dedicated model, which makes the reported category differenc
 % model" and forbids synonym cycling, which naming it a third way in one paragraph would be.
 % Probes: R13-sweepscope, R13-sweepscope2.
 build or evaluate a mobility-aware service; it is background motivation, and this chapter's claims are the
-prediction results themselves. Fourth, each visit node in the representation graph is linked to the visit
-that follows it, and because category is a node input feature the vector of an earlier visit could absorb
-the category of the next one. A linear probe screened for this during development
-(Section~\ref{sec:mobiwac:setup-windows}), which bounds only the information exposed by a linear read and
-does not establish what a nonlinear sequence model could recover.
-% FOURTH LIMIT ADDED 2026-08-05 on the author's ruling ("Add it as a fourth limit"), applied to BOTH texts.
-% WHY IT WAS A GAP. "Three limits qualify these results" is a closed enumeration, and a closed enumeration
-% is a completeness claim. ERRATA.md:73-80 records that this very count was raised from "Two" to "Three"
-% precisely to admit a disclosed threat, which establishes that the number functions as the paragraph's own
-% inventory of threats. The forward-edge channel is disclosed in this chapter, in the author's voice, at
-% 05_setup.tex:82-84 -- "In the Check2HGI graph, each visit node is linked to the visit that follows it.
-% Because category is a node input feature, the vector of an earlier visit could absorb the category of the
-% next one" -- and §7 named none of it: zero live occurrences of "node", "probe", "screen", "absorb" or
-% "linear" before this edit. The one representation limit §7 did carry, unseen places, is a DIFFERENT
-% channel (transductive), which _round13/72_leak_screening_search.md separates explicitly from the forward
-% edge. So the paragraph's scope demonstrably included this class of threat while omitting this instance.
-% EVERY CLAUSE BELOW IS ALREADY SOURCED IN §5; NOTHING NEW IS ASSERTED. The mechanism is 05_setup.tex:82-84
-% (modal, "could absorb", not asserted); the screen is :84-86; the residual is the chapter's own bounded
-% conclusion at :128-129, "bounds only the information exposed by a linear read" and "does not establish
-% what a nonlinear sequence model could recover". The three limits of the screen itself (linear probe;
-% Florida only, one initialization over five folds; ancestor builds rather than the reported build) stay in
-% §5, where they are stated at :125-129, and are reached by the cross-reference.
-% WHAT IS DELIBERATELY NOT SAID: no quantified leak, no claim that the channel does not leak, no claim that
-% it does. _round13/71_graphnode_features.md establishes the channel is OPEN (the category one-hot is
-% columns 0-6 of the node feature vector; the forward adjacency is present in 96,326 Alabama windows with 0
-% not adjacent), which is not evidence that it leaks; and RESCREEN.md:94-95 records that the linear gate
-% missed one leak, which is why the residual is stated rather than dismissed. Any of those would be a new
-% claim needing sign-off.
-% Probes: R13-leak4th, R13-leak4th2, R13-limitcount.
+prediction results themselves.
 % PUNCTUATION AND PARITY 2026-08-05. The dissertation copy joined two independent clauses with a comma
 % ("service, this is a background motivation"), a splice the paper copy does not have; both copies were
 % reflowed in 71d119ce and this one acquired the splice plus the words "this is a". Now a semicolon,
