@@ -52,6 +52,19 @@ small-state job, so 2-wide buys only ~1.18× and is used solely where a row says
 **CPU execution is excluded**: CUDA and CPU kernels give different floating-point results, so CPU
 arms would not be comparable to GPU arms — the same class of error as the fp16/fp32 leak.
 
+## EXECUTION ORDER — confirmed 2026-08-08
+
+**3 → 7 → 4 → 10 → 5 → 6 → 3b → 9.** Rows 3 and 7 run together per state (AL ✅, AZ 🔄, IST queued).
+**Row 8 is postponed and is NOT in this order.**
+
+Chained unattended: `run_queue2.sh` (rows 3+7 at AZ/IST, then row 4) → `run_queue3.sh` (row 10) →
+`run_queue4.sh` (rows 5, 6 at TX 1-fold; row 3b at FL 1-fold). Row 9 needs a winner fixed first.
+
+**If the author is unavailable when the queues finish:** decide row 9 per the pre-registered rules
+below, have the choice reviewed by an independent (Fable-5) reviewer, record the decision and its
+reviewer verdict here, then work out which wave cells the new recipe invalidates and restart the
+waves. Authorised 2026-08-08.
+
 ## STATUS AT A GLANCE (updated 2026-08-08)
 
 | question | answer |
@@ -145,10 +158,19 @@ pick a **direction** but cannot certify a winner — the same rule the region tr
 are compared **on the same fold**, so the contrast stays paired and fair even if fold 0 is not
 representative in absolute level.
 
-⚠ **Use `--only-fold 0`, never `--folds 1`.** `--folds N` overrides `k_folds` to `max(2,N)`, so a
-1-fold run against a 5-fold-built `log_T` leaks 30–40 % of the validation transitions into the prior
-and **inflates reg Acc@10 by 13–23 pp** (`mtl_cv.py:680-688`; documented in
-`region_1fold_triage/run_1f.sh`). At row 3b that would manufacture the very reg number being measured.
+⚠ **Use `--only-fold 0`, never `--folds 1`** — because `--folds N` overrides `k_folds` to
+`max(2,N)`, so `--folds 1` silently trains on a **2-fold split**, a different partition from the
+canonical 5-split, making the screen incomparable to the 5-fold cells. `--only-fold` runs exactly
+fold 0 *of* the canonical 5-split.
+
+**Correction 2026-08-08 (author, repeatedly).** An earlier version of this note justified the same
+flag by a `log_T` leak. **That does not apply here: this recipe never loads `log_T` at all.**
+`_log_t_is_inert` (`mtl_cv.py:552`) is true when `freeze_alpha=True` + `alpha_init=0.0` + every KD
+route off — exactly our config — and `MTL_SKIP_INERT_LOGT` defaults to on, so the load **and its
+leak-guards** are skipped. Every fold logs `[log_T-inert skip] … Output byte-identical`.
+`--per-fold-transition-dir` is passed only to match the board driver; it is inert. The `log_T` leak
+warning applies solely to configs with a **live** α-prior (learnable α, α_init ≠ 0, or any KD
+weight > 0) — not to champion-G or to v18.
 
 ### Inserted 2026-08-07 — trunk arms at alabama, BEFORE the MTL sweep rows
 
