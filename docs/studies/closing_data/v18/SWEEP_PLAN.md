@@ -138,15 +138,53 @@ Net at alabama, both arms fairly tuned and both fp32: **Δcat −0.97 → −0.3
 | 2 | schedule shape | dedicated | AL, AZ, IST | epochs {15, 25} @ anchor | 6 | ✅ done |
 | 3 | MTL cat-LR | MTL | AL, AZ, IST | cat-lr {5e-4, 1e-3, 2e-3} + 25-ep arm | 12 | ✅ done — null |
 | 4 | dedicated class weights | dedicated | AL | `--no-class-weights` × max_lr {0.005, 0.0025} | 2 | ✅ done — removing hurts ~1 pp |
-| 5 | large-state dedicated | dedicated | **TX, 1 fold** | max_lr {0.005, 0.0075, 0.01} × epochs {50, 75} | 5 | ⬜ queued |
-| 6 | dedicated class weights @ large | dedicated | **TX, 1 fold** | `--no-class-weights` | 1 | ⬜ queued |
+| 5 | large-state dedicated | dedicated | **TX, 1 fold** | max_lr {0.005, 0.0075, 0.01} × epochs {50, 75} | 5 | ✅ done — **FLAT** (all within 0.25 sm3); keep 0.005 @ 50 ep |
+| 6 | dedicated class weights @ large | dedicated | **TX, 1 fold** | `--no-class-weights` | 1 | ✅ done — **OFF wins +1.18** (opposite sign to alabama!) |
 | 7 | MTL knobs | MTL | AL, AZ, IST | class-weights {on,off} × cw {0.75, 0.5} | 9 | ✅ done — see SWEEP_FINDINGS §3 |
-| 3b | MTL cat-LR @ large | MTL | **FL, 1 fold** | cat-lr {5e-4, 1e-3, 2e-3} + 25-ep | 4 | ⬜ queued |
+| 3b | MTL cat-LR @ large | MTL | **FL, 1 fold** | cat-lr {5e-4, 1e-3, 2e-3} + 25-ep | 4 | 🔄 running |
 | 8 | MTL @ large | MTL | TX/CA | carried from #7 | 2 | ⏸ **POSTPONED** (P6) |
-| 10 | **MTL batch size** | MTL | AL | per-head LR ×{1.67, 2.5, 3.33} × bs {16384, 32768} | 6 | 🔄 running |
+| 10 | **MTL batch size** | MTL | AL | per-head LR ×{1.67, 2.5, 3.33} × bs {16384, 32768} | 6 | ✅ done — **keep bs8192** (larger batches cost ~1.3 reg) |
 | 9 | confirm | both | winners | best dedicated + best MTL | — | ⬜ |
 
 **Row 8 is NOT in the execution order** — it is postponed (P6) and will not run in this pass.
+
+### Follow-ups added 2026-08-08 (`run_next2.sh`) — triggered by the row-6 sign flip
+
+| step | what | scope | why | cost | status |
+|---|---|---|---|---:|---|
+| **A** | AZ + IST dedicated `--no-class-weights` | 5 folds, at the retuned winner LR **and** at 0.005 | AL (96 k) says weights ON, TX (3.8 M) says OFF. AZ (201 k) / IST (272 k) sit between → is the flip **size-graded** or a texas peculiarity? | ~37 min | ⬜ |
+| **B** | TX class weights, folds 0/1/2, same seed, **50 ep** | 6 runs | one fold can be biased. Fold 0 is re-run at 50 ep for **both** arms so the 3-fold mean does not mix schedules with row 6's 75 ep | ~1.6 h | ⬜ |
+| **C** | TX dedicated bs {16384, 32768} | 1 fold, class-weight flag taken from **B's 3-fold mean** | batch size at a state that is *not* step-starved (unlike AL row 10) | ~40 min | ⬜ |
+| **D** | FL MTL bs {16384, 32768} | 1 fold, at the best row-3b cat-lr | AL's batch sweep was confounded by step starvation; FL has ~13× the windows | ~50 min | ⬜ |
+| **11** | **logit adjustment** `--logit-adjust-tau {0.5, 1.0}` | AL, AZ, IST, 5 folds, at each state's **retuned winner LR** | row 4 removed class weights with **no replacement** and lost ~1 pp. Logit adjustment is the Bayes-consistent substitute and targets macro-F1 directly. **This is the cell row 4 never tested.** | ~49 min | ⬜ queued after A–C |
+
+**A runs first, deliberately.** Two contradictory data points (AL ON, TX OFF) are not a finding; a
+size-graded transition would be. The large-state recipe decision waits on it.
+
+⚠️ **D may OOM at bs32768.** FL MTL at bs8192 uses **15.2 GB of 46 GB**; ~4× the activations likely
+exceeds the card. The driver catches OOM, logs it distinctly and continues — a failure there is
+information, not a crash.
+
+**Epochs pinned at 50 for TX** (author 2026-08-08): row 5 showed 50 vs 75 inside the margin of error.
+
+#### Row 11 — logit adjustment (author request 2026-08-08)
+
+**Verified mechanism, not assumed.** `next_cv.py:123-141` — when `config.loss_calibration` is
+non-empty it builds `CalibratedLoss`, and the class-weighted `CrossEntropyLoss` is the **`else`**
+branch. So `--logit-adjust-tau` **replaces class weighting automatically**. Do **not** also pass
+`--no-class-weights` or `--tail-loss balanced`: stacking logit adjustment on balanced weights
+cratered in T1.4 (AL 30.15 vs 49.97).
+
+**Leak-safe, verified:** class counts come from `train_loader.dataset.targets` — the TRAIN fold only
+(`next_cv.py:127`) — and the offset is applied inside the criterion. `shared_evaluate` takes no
+criterion, so evaluation logits are unadjusted.
+
+**Prior evidence:** the mtl_improvement T1.4 re-pin tuned this exact head and found **τ=0.5 beat
+`--tail-loss balanced` at all four states**. ⚠ Caveat: T1.4 ran on the **stride-9** substrate
+(AL 12,709 windows); v18 is **stride-1** (96,326). Transfer is not guaranteed.
+
+Run at each state's retuned winner LR (AL bs8192@0.0025, AZ bs8192@0.0005, IST bs2048@0.0005) so the
+result composes with the adopted recipe rather than a superseded one.
 | P1 | capacity-matched region control | dedicated reg | AL, CA | `d_model` 480 / 352 | 2 | ⬜ after sweep |
 
 ### 1-fold screens — scope decision 2026-08-08, and its limits
