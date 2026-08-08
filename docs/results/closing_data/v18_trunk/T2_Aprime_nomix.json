@@ -1,0 +1,42 @@
+{
+  "tag": "T2_Aprime_nomix",
+  "state": "alabama",
+  "seed": 0,
+  "model_param": "--model-param identity_cross_attn=True",
+  "rundir": "results/check2hgi_v18/alabama/mtlnet_lr1.0e-04_bs8192_ep50_20260807_225010_155375",
+  "wall_seconds": 414,
+  "precision": "fp32",
+  "cat_argmax": 27.2292,
+  "cat_argmax_std": 1.7348,
+  "cat_per_fold": [
+    28.2617,
+    27.9206,
+    25.096,
+    25.3281,
+    29.5396
+  ],
+  "cat_best_epochs": [
+    18,
+    16,
+    12,
+    25,
+    21
+  ],
+  "reg": 69.679,
+  "reg_std": 3.1968,
+  "reg_per_fold": [
+    71.8194,
+    68.8798,
+    72.9042,
+    70.9348,
+    63.8567
+  ],
+  "cat_sm3": 26.5511,
+  "cat_sm3_per_fold": [
+    28.212,
+    26.6199,
+    24.9657,
+    25.1922,
+    27.7659
+  ]
+}

@@ -1,14 +1,14 @@
 {
-  "updated_at": "2026-08-06T19:37:21.989061+00:00",
-  "commit_sha": "cce3ff65d3a38a7d697b7294bc5f99c5b826c8b1",
+  "updated_at": "2026-08-07T21:17:33.990335+00:00",
+  "commit_sha": "da179081137e7b9960db39cc94c88907f0a4fbd6",
   "phase": "wave1",
   "current_n": {
-    "istanbul": 5,
-    "alabama": 5,
-    "arizona": 5,
+    "istanbul": 10,
+    "alabama": 10,
+    "arizona": 10,
     "florida": 5,
-    "texas": 0,
-    "california": 0
+    "texas": 5,
+    "california": 5
   },
   "cells": [
     {
@@ -45,31 +45,31 @@
       "state": "istanbul",
       "seed": 1,
       "family": "cat",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
-      "cat": null,
+      "status": "done",
+      "wall_seconds": 436,
+      "rundir": "results/check2hgi_v18/istanbul/next_lr1.0e-04_bs2048_ep50_20260807_152316_1450647",
+      "cat": 32.8649,
       "reg": null
     },
     {
       "state": "istanbul",
       "seed": 1,
       "family": "reg",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
+      "status": "done",
+      "wall_seconds": 483,
+      "rundir": "docs/results/P1/region_head_istanbul_region_5f_50ep_v18_istanbul_reg_s1.json",
       "cat": null,
-      "reg": null
+      "reg": 75.1791
     },
     {
       "state": "istanbul",
       "seed": 1,
       "family": "joint",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
-      "cat": null,
-      "reg": null
+      "status": "done",
+      "wall_seconds": 1822,
+      "rundir": "results/check2hgi_v18/istanbul/mtlnet_lr1.0e-04_bs8192_ep50_20260807_153835_1460965",
+      "cat": 32.5944,
+      "reg": 75.4316
     },
     {
       "state": "istanbul",
@@ -165,31 +165,31 @@
       "state": "alabama",
       "seed": 1,
       "family": "cat",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
-      "cat": null,
+      "status": "done",
+      "wall_seconds": 200,
+      "rundir": "results/check2hgi_v18/alabama/next_lr1.0e-04_bs2048_ep50_20260807_152314_1450646",
+      "cat": 28.5455,
       "reg": null
     },
     {
       "state": "alabama",
       "seed": 1,
       "family": "reg",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
+      "status": "done",
+      "wall_seconds": 169,
+      "rundir": "docs/results/P1/region_head_alabama_region_5f_50ep_v18_alabama_reg_s1.json",
       "cat": null,
-      "reg": null
+      "reg": 70.1929
     },
     {
       "state": "alabama",
       "seed": 1,
       "family": "joint",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
-      "cat": null,
-      "reg": null
+      "status": "done",
+      "wall_seconds": 1123,
+      "rundir": "results/check2hgi_v18/alabama/mtlnet_lr1.0e-04_bs8192_ep50_20260807_152922_1454946",
+      "cat": 27.1215,
+      "reg": 69.8493
     },
     {
       "state": "alabama",
@@ -285,31 +285,31 @@
       "state": "arizona",
       "seed": 1,
       "family": "cat",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
-      "cat": null,
+      "status": "done",
+      "wall_seconds": 178,
+      "rundir": "results/check2hgi_v18/arizona/next_lr1.0e-04_bs8192_ep50_20260807_160855_1478679",
+      "cat": 32.4733,
       "reg": null
     },
     {
       "state": "arizona",
       "seed": 1,
       "family": "reg",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
+      "status": "done",
+      "wall_seconds": 181,
+      "rundir": "docs/results/P1/region_head_arizona_region_5f_50ep_v18_arizona_reg_s1.json",
       "cat": null,
-      "reg": null
+      "reg": 59.4992
     },
     {
       "state": "arizona",
       "seed": 1,
       "family": "joint",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
-      "cat": null,
-      "reg": null
+      "status": "done",
+      "wall_seconds": 1161,
+      "rundir": "results/check2hgi_v18/arizona/mtlnet_lr1.0e-04_bs8192_ep50_20260807_161455_1482599",
+      "cat": 31.4712,
+      "reg": 59.436
     },
     {
       "state": "arizona",
@@ -405,21 +405,21 @@
       "state": "florida",
       "seed": 1,
       "family": "cat",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
-      "cat": null,
+      "status": "done",
+      "wall_seconds": 1080,
+      "rundir": "results/check2hgi_v18/florida/next_lr1.0e-04_bs8192_ep50_20260807_203210_110813",
+      "cat": 36.1544,
       "reg": null
     },
     {
       "state": "florida",
       "seed": 1,
       "family": "reg",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
+      "status": "done",
+      "wall_seconds": 1658,
+      "rundir": "docs/results/P1/region_head_florida_region_5f_50ep_v18_florida_reg_s1.json",
       "cat": null,
-      "reg": null
+      "reg": 76.7083
     },
     {
       "state": "florida",
@@ -495,31 +495,31 @@
       "state": "texas",
       "seed": 0,
       "family": "cat",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
-      "cat": null,
+      "status": "done",
+      "wall_seconds": 3266,
+      "rundir": "results/check2hgi_v18/texas/next_lr1.0e-04_bs8192_ep50_20260806_230711_853633",
+      "cat": 34.1162,
       "reg": null
     },
     {
       "state": "texas",
       "seed": 0,
       "family": "reg",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
+      "status": "done",
+      "wall_seconds": 5897,
+      "rundir": "docs/results/P1/region_head_texas_region_5f_50ep_v18_texas_reg_s0.json",
       "cat": null,
-      "reg": null
+      "reg": 64.9514
     },
     {
       "state": "texas",
       "seed": 0,
       "family": "joint",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
-      "cat": null,
-      "reg": null
+      "status": "done",
+      "wall_seconds": 22565,
+      "rundir": "results/check2hgi_v18/texas/mtlnet_lr1.0e-04_bs8192_ep50_20260807_014004_952777",
+      "cat": 35.0775,
+      "reg": 67.0021
     },
     {
       "state": "texas",
@@ -615,31 +615,31 @@
       "state": "california",
       "seed": 0,
       "family": "cat",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
-      "cat": null,
+      "status": "done",
+      "wall_seconds": 4190,
+      "rundir": "results/check2hgi_v18/california/next_lr1.0e-04_bs8192_ep50_20260807_075555_1179184",
+      "cat": 33.4954,
       "reg": null
     },
     {
       "state": "california",
       "seed": 0,
       "family": "reg",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
+      "status": "done",
+      "wall_seconds": 5177,
+      "rundir": "docs/results/P1/region_head_california_region_5f_50ep_v18_california_reg_s0.json",
       "cat": null,
-      "reg": null
+      "reg": 63.4456
     },
     {
       "state": "california",
       "seed": 0,
       "family": "joint",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
-      "cat": null,
-      "reg": null
+      "status": "done",
+      "wall_seconds": 17490,
+      "rundir": "results/check2hgi_v18/california/mtlnet_lr1.0e-04_bs8192_ep50_20260807_103207_1282845",
+      "cat": 33.2351,
+      "reg": 65.5664
     },
     {
       "state": "california",
@@ -734,16 +734,16 @@
   ],
   "running": [
     {
-      "state": "texas",
-      "seed": 0,
-      "family": "cat",
-      "pid": 719485,
-      "started_at": "2026-08-06T19:36:56+00:00"
+      "state": "florida",
+      "seed": 1,
+      "family": "joint",
+      "pid": 126329,
+      "started_at": "2026-08-07T21:17:33+00:00"
     }
   ],
-  "gpu_free_mib": 19834,
+  "gpu_free_mib": 45489,
   "disk_free_gb": 2192,
-  "disk_free_gb_home": 50,
+  "disk_free_gb_home": 40,
   "blocked_on": null,
   "verify_flags": []
 }

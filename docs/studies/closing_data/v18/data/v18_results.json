@@ -1,8 +1,8 @@
 {
  "meta": {
   "study": "v18",
-  "generated_utc": "2026-08-06T23:04:46.709984+00:00",
-  "commit_sha": "9240da4f1b377bdbc50bff423fee3d0b7d2427a5",
+  "generated_utc": "2026-08-07T20:31:52.793437+00:00",
+  "commit_sha": "da179081137e7b9960db39cc94c88907f0a4fbd6",
   "definition": "v17 recipe on a forward-only check-in graph with 4 elapsed-time node columns (in_channels 15)",
   "forward_only": true,
   "in_channels": 15,
@@ -121,6 +121,104 @@
    "jb_epochs": null
   },
   {
+   "state": "istanbul",
+   "seed": 1,
+   "forward_only": true,
+   "in_channels": 15,
+   "v18_config": {
+    "engine": "check2hgi_v18",
+    "repr_seed": 42,
+    "repr_epochs": 500,
+    "encoder": "resln",
+    "dim": 64,
+    "num_layers": 2,
+    "node_layout": [
+     "canonical_11",
+     "continuous_time_4"
+    ],
+    "readout": "prefix_forward_only"
+   },
+   "protocol": {
+    "precision": "fp32",
+    "compile": true,
+    "tf32": true,
+    "folds": 5,
+    "epochs": 50,
+    "selector": "geom_simple",
+    "min_best_epoch": 0
+   },
+   "warnings": [],
+   "cat_rundir": "/home/vitor.oliveira/PoiMtlNet/results/check2hgi_v18/istanbul/next_lr1.0e-04_bs2048_ep50_20260807_152316_1450647",
+   "cat_pid": "1450647",
+   "stl_cat": 32.8649,
+   "stl_cat_std": 0.5293,
+   "stl_cat_folds": [
+    33.4092,
+    33.1387,
+    31.9409,
+    32.6261,
+    33.2095
+   ],
+   "stl_cat_epochs": [
+    8,
+    7,
+    7,
+    9,
+    9
+   ],
+   "cat_wall_seconds": 436,
+   "reg_result_json": "/home/vitor.oliveira/PoiMtlNet/docs/results/P1/region_head_istanbul_region_5f_50ep_v18_istanbul_reg_s1.json",
+   "stl_reg": 75.1791,
+   "stl_reg_folds": [
+    76.0588,
+    74.8771,
+    75.1491,
+    75.7284,
+    74.082
+   ],
+   "reg_wall_seconds": 483,
+   "rundir": "/home/vitor.oliveira/PoiMtlNet/results/check2hgi_v18/istanbul/mtlnet_lr1.0e-04_bs8192_ep50_20260807_153835_1460965",
+   "pid": "1460965",
+   "joint_wall_seconds": 1822,
+   "db_cat": 32.5944,
+   "db_cat_std": 0.6795,
+   "db_cat_folds": [
+    31.9867,
+    33.147,
+    31.5701,
+    33.1701,
+    33.098
+   ],
+   "db_cat_epochs": [
+    21,
+    23,
+    21,
+    25,
+    18
+   ],
+   "db_reg": 75.4316,
+   "db_reg_std": 0.5858,
+   "db_reg_folds": [
+    76.125,
+    75.2397,
+    75.3663,
+    75.9547,
+    74.4722
+   ],
+   "db_reg_epochs": [
+    39,
+    31,
+    33,
+    32,
+    34
+   ],
+   "jb_cat": null,
+   "jb_reg": null,
+   "jb_cat_folds": null,
+   "jb_reg_folds": null,
+   "jb_epochs": null
+  },
+  {
    "state": "alabama",
    "seed": 0,
    "forward_only": true,
@@ -211,6 +309,104 @@
     39,
     36,
     33
+   ],
+   "jb_cat": null,
+   "jb_reg": null,
+   "jb_cat_folds": null,
+   "jb_reg_folds": null,
+   "jb_epochs": null
+  },
+  {
+   "state": "alabama",
+   "seed": 1,
+   "forward_only": true,
+   "in_channels": 15,
+   "v18_config": {
+    "engine": "check2hgi_v18",
+    "repr_seed": 42,
+    "repr_epochs": 500,
+    "encoder": "resln",
+    "dim": 64,
+    "num_layers": 2,
+    "node_layout": [
+     "canonical_11",
+     "continuous_time_4"
+    ],
+    "readout": "prefix_forward_only"
+   },
+   "protocol": {
+    "precision": "fp32",
+    "compile": true,
+    "tf32": true,
+    "folds": 5,
+    "epochs": 50,
+    "selector": "geom_simple",
+    "min_best_epoch": 0
+   },
+   "warnings": [],
+   "cat_rundir": "/home/vitor.oliveira/PoiMtlNet/results/check2hgi_v18/alabama/next_lr1.0e-04_bs2048_ep50_20260807_152314_1450646",
+   "cat_pid": "1450646",
+   "stl_cat": 28.5455,
+   "stl_cat_std": 0.629,
+   "stl_cat_folds": [
+    28.9437,
+    28.8511,
+    28.0899,
+    27.5588,
+    29.2839
+   ],
+   "stl_cat_epochs": [
+    5,
+    3,
+    10,
+    8,
+    10
+   ],
+   "cat_wall_seconds": 200,
+   "reg_result_json": "/home/vitor.oliveira/PoiMtlNet/docs/results/P1/region_head_alabama_region_5f_50ep_v18_alabama_reg_s1.json",
+   "stl_reg": 70.1929,
+   "stl_reg_folds": [
+    71.8817,
+    69.4899,
+    73.6451,
+    71.5635,
+    64.3843
+   ],
+   "reg_wall_seconds": 169,
+   "rundir": "/home/vitor.oliveira/PoiMtlNet/results/check2hgi_v18/alabama/mtlnet_lr1.0e-04_bs8192_ep50_20260807_152922_1454946",
+   "pid": "1454946",
+   "joint_wall_seconds": 1123,
+   "db_cat": 27.1215,
+   "db_cat_std": 1.3754,
+   "db_cat_folds": [
+    29.4153,
+    27.3775,
+    25.7797,
+    25.6226,
+    27.4126
+   ],
+   "db_cat_epochs": [
+    15,
+    7,
+    21,
+    26,
+    17
+   ],
+   "db_reg": 69.8493,
+   "db_reg_std": 3.4766,
+   "db_reg_folds": [
+    71.7467,
+    68.3533,
+    73.614,
+    71.7504,
+    63.7822
+   ],
+   "db_reg_epochs": [
+    35,
+    38,
+    35,
+    38,
+    39
    ],
    "jb_cat": null,
    "jb_reg": null,
@@ -317,6 +513,104 @@
    "jb_epochs": null
   },
   {
+   "state": "arizona",
+   "seed": 1,
+   "forward_only": true,
+   "in_channels": 15,
+   "v18_config": {
+    "engine": "check2hgi_v18",
+    "repr_seed": 42,
+    "repr_epochs": 500,
+    "encoder": "resln",
+    "dim": 64,
+    "num_layers": 2,
+    "node_layout": [
+     "canonical_11",
+     "continuous_time_4"
+    ],
+    "readout": "prefix_forward_only"
+   },
+   "protocol": {
+    "precision": "fp32",
+    "compile": true,
+    "tf32": true,
+    "folds": 5,
+    "epochs": 50,
+    "selector": "geom_simple",
+    "min_best_epoch": 0
+   },
+   "warnings": [],
+   "cat_rundir": "/home/vitor.oliveira/PoiMtlNet/results/check2hgi_v18/arizona/next_lr1.0e-04_bs8192_ep50_20260807_160855_1478679",
+   "cat_pid": "1478679",
+   "stl_cat": 32.4733,
+   "stl_cat_std": 0.6938,
+   "stl_cat_folds": [
+    32.1533,
+    32.8912,
+    32.1387,
+    31.5942,
+    33.5891
+   ],
+   "stl_cat_epochs": [
+    10,
+    18,
+    13,
+    9,
+    5
+   ],
+   "cat_wall_seconds": 178,
+   "reg_result_json": "/home/vitor.oliveira/PoiMtlNet/docs/results/P1/region_head_arizona_region_5f_50ep_v18_arizona_reg_s1.json",
+   "stl_reg": 59.4992,
+   "stl_reg_folds": [
+    62.575,
+    59.3992,
+    59.775,
+    58.0453,
+    57.7018
+   ],
+   "reg_wall_seconds": 181,
+   "rundir": "/home/vitor.oliveira/PoiMtlNet/results/check2hgi_v18/arizona/mtlnet_lr1.0e-04_bs8192_ep50_20260807_161455_1482599",
+   "pid": "1482599",
+   "joint_wall_seconds": 1161,
+   "db_cat": 31.4712,
+   "db_cat_std": 1.4057,
+   "db_cat_folds": [
+    31.7386,
+    33.8071,
+    29.647,
+    30.4816,
+    31.6818
+   ],
+   "db_cat_epochs": [
+    24,
+    21,
+    28,
+    11,
+    22
+   ],
+   "db_reg": 59.436,
+   "db_reg_std": 1.7825,
+   "db_reg_folds": [
+    62.7168,
+    59.1453,
+    59.5535,
+    58.1946,
+    57.5699
+   ],
+   "db_reg_epochs": [
+    32,
+    34,
+    30,
+    35,
+    35
+   ],
+   "jb_cat": null,
+   "jb_reg": null,
+   "jb_cat_folds": null,
+   "jb_reg_folds": null,
+   "jb_epochs": null
+  },
+  {
    "state": "florida",
    "seed": 0,
    "forward_only": true,
@@ -413,33 +707,229 @@
    "jb_cat_folds": null,
    "jb_reg_folds": null,
    "jb_epochs": null
+  },
+  {
+   "state": "texas",
+   "seed": 0,
+   "forward_only": true,
+   "in_channels": 15,
+   "v18_config": {
+    "engine": "check2hgi_v18",
+    "repr_seed": 42,
+    "repr_epochs": 500,
+    "encoder": "resln",
+    "dim": 64,
+    "num_layers": 2,
+    "node_layout": [
+     "canonical_11",
+     "continuous_time_4"
+    ],
+    "readout": "prefix_forward_only"
+   },
+   "protocol": {
+    "precision": "fp32",
+    "compile": true,
+    "tf32": true,
+    "folds": 5,
+    "epochs": 50,
+    "selector": "geom_simple",
+    "min_best_epoch": 0
+   },
+   "warnings": [],
+   "cat_rundir": "/home/vitor.oliveira/PoiMtlNet/results/check2hgi_v18/texas/next_lr1.0e-04_bs8192_ep50_20260806_230711_853633",
+   "cat_pid": "853633",
+   "stl_cat": 34.1162,
+   "stl_cat_std": 0.2686,
+   "stl_cat_folds": [
+    34.5781,
+    34.1539,
+    33.9768,
+    34.1119,
+    33.7604
+   ],
+   "stl_cat_epochs": [
+    16,
+    10,
+    12,
+    5,
+    11
+   ],
+   "cat_wall_seconds": 3266,
+   "reg_result_json": "/home/vitor.oliveira/PoiMtlNet/docs/results/P1/region_head_texas_region_5f_50ep_v18_texas_reg_s0.json",
+   "stl_reg": 64.9514,
+   "stl_reg_folds": [
+    64.7788,
+    65.2022,
+    64.1309,
+    65.2182,
+    65.427
+   ],
+   "reg_wall_seconds": 5897,
+   "rundir": "/home/vitor.oliveira/PoiMtlNet/results/check2hgi_v18/texas/mtlnet_lr1.0e-04_bs8192_ep50_20260807_014004_952777",
+   "pid": "952777",
+   "joint_wall_seconds": 22565,
+   "db_cat": 35.0775,
+   "db_cat_std": 0.6184,
+   "db_cat_folds": [
+    35.1073,
+    36.153,
+    35.1752,
+    34.5786,
+    34.3732
+   ],
+   "db_cat_epochs": [
+    13,
+    23,
+    20,
+    22,
+    12
+   ],
+   "db_reg": 67.0021,
+   "db_reg_std": 0.4469,
+   "db_reg_folds": [
+    66.9101,
+    67.3038,
+    66.1799,
+    67.1747,
+    67.4419
+   ],
+   "db_reg_epochs": [
+    45,
+    50,
+    48,
+    50,
+    49
+   ],
+   "jb_cat": null,
+   "jb_reg": null,
+   "jb_cat_folds": null,
+   "jb_reg_folds": null,
+   "jb_epochs": null
+  },
+  {
+   "state": "california",
+   "seed": 0,
+   "forward_only": true,
+   "in_channels": 15,
+   "v18_config": {
+    "engine": "check2hgi_v18",
+    "repr_seed": 42,
+    "repr_epochs": 500,
+    "encoder": "resln",
+    "dim": 64,
+    "num_layers": 2,
+    "node_layout": [
+     "canonical_11",
+     "continuous_time_4"
+    ],
+    "readout": "prefix_forward_only"
+   },
+   "protocol": {
+    "precision": "fp32",
+    "compile": true,
+    "tf32": true,
+    "folds": 5,
+    "epochs": 50,
+    "selector": "geom_simple",
+    "min_best_epoch": 0
+   },
+   "warnings": [],
+   "cat_rundir": "/home/vitor.oliveira/PoiMtlNet/results/check2hgi_v18/california/next_lr1.0e-04_bs8192_ep50_20260807_075555_1179184",
+   "cat_pid": "1179184",
+   "stl_cat": 33.4954,
+   "stl_cat_std": 0.4657,
+   "stl_cat_folds": [
+    32.8625,
+    34.1761,
+    33.1703,
+    33.4387,
+    33.8295
+   ],
+   "stl_cat_epochs": [
+    9,
+    8,
+    11,
+    6,
+    9
+   ],
+   "cat_wall_seconds": 4190,
+   "reg_result_json": "/home/vitor.oliveira/PoiMtlNet/docs/results/P1/region_head_california_region_5f_50ep_v18_california_reg_s0.json",
+   "stl_reg": 63.4456,
+   "stl_reg_folds": [
+    63.2413,
+    63.3912,
+    63.3186,
+    63.2821,
+    63.9947
+   ],
+   "reg_wall_seconds": 5177,
+   "rundir": "/home/vitor.oliveira/PoiMtlNet/results/check2hgi_v18/california/mtlnet_lr1.0e-04_bs8192_ep50_20260807_103207_1282845",
+   "pid": "1282845",
+   "joint_wall_seconds": 17490,
+   "db_cat": 33.2351,
+   "db_cat_std": 0.4921,
+   "db_cat_folds": [
+    32.5386,
+    33.7562,
+    32.9394,
+    33.1132,
+    33.8281
+   ],
+   "db_cat_epochs": [
+    19,
+    24,
+    23,
+    21,
+    18
+   ],
+   "db_reg": 65.5664,
+   "db_reg_std": 0.2443,
+   "db_reg_folds": [
+    65.3522,
+    65.469,
+    65.5359,
+    65.4346,
+    66.0406
+   ],
+   "db_reg_epochs": [
+    48,
+    49,
+    50,
+    49,
+    46
+   ],
+   "jb_cat": null,
+   "jb_reg": null,
+   "jb_cat_folds": null,
+   "jb_reg_folds": null,
+   "jb_epochs": null
   }
  ],
  "cells": {
   "istanbul": {
    "stl_cat": {
-    "mean": 32.7698,
-    "sd": 0.0,
-    "n_seeds": 1,
-    "n": 5
+    "mean": 32.8173,
+    "sd": 0.0672,
+    "n_seeds": 2,
+    "n": 10
    },
    "stl_reg": {
-    "mean": 75.1563,
-    "sd": 0.0,
-    "n_seeds": 1,
-    "n": 5
+    "mean": 75.1677,
+    "sd": 0.0161,
+    "n_seeds": 2,
+    "n": 10
    },
    "joint_cat_diag_best": {
-    "mean": 32.6985,
-    "sd": 0.0,
-    "n_seeds": 1,
-    "n": 5
+    "mean": 32.6465,
+    "sd": 0.0736,
+    "n_seeds": 2,
+    "n": 10
    },
    "joint_reg_diag_best": {
-    "mean": 75.3631,
-    "sd": 0.0,
-    "n_seeds": 1,
-    "n": 5
+    "mean": 75.3974,
+    "sd": 0.0484,
+    "n_seeds": 2,
+    "n": 10
    },
    "joint_cat_joint_best": {
     "mean": null,
@@ -459,35 +949,35 @@
     "stl_cat": 54.74,
     "stl_reg": 75.16
    },
-   "delta_cat_vs_own_ceiling": -0.0713,
-   "delta_reg_vs_own_ceiling": 0.2068,
-   "delta_cat_vs_v17_cross_substrate": -30.6315,
-   "delta_reg_vs_v17_cross_substrate": -0.0769
+   "delta_cat_vs_own_ceiling": -0.1708,
+   "delta_reg_vs_own_ceiling": 0.2297,
+   "delta_cat_vs_v17_cross_substrate": -30.6835,
+   "delta_reg_vs_v17_cross_substrate": -0.0426
   },
   "alabama": {
    "stl_cat": {
-    "mean": 28.0334,
-    "sd": 0.0,
-    "n_seeds": 1,
-    "n": 5
+    "mean": 28.2895,
+    "sd": 0.3621,
+    "n_seeds": 2,
+    "n": 10
    },
    "stl_reg": {
-    "mean": 69.9956,
-    "sd": 0.0,
-    "n_seeds": 1,
-    "n": 5
+    "mean": 70.0942,
+    "sd": 0.1395,
+    "n_seeds": 2,
+    "n": 10
    },
    "joint_cat_diag_best": {
-    "mean": 27.3836,
-    "sd": 0.0,
-    "n_seeds": 1,
-    "n": 5
+    "mean": 27.2525,
+    "sd": 0.1853,
+    "n_seeds": 2,
+    "n": 10
    },
    "joint_reg_diag_best": {
-    "mean": 69.6831,
-    "sd": 0.0,
-    "n_seeds": 1,
-    "n": 5
+    "mean": 69.7662,
+    "sd": 0.1175,
+    "n_seeds": 2,
+    "n": 10
    },
    "joint_cat_joint_best": {
     "mean": null,
@@ -507,35 +997,35 @@
     "stl_cat": 56.82,
     "stl_reg": 70.11
    },
-   "delta_cat_vs_own_ceiling": -0.6498,
-   "delta_reg_vs_own_ceiling": -0.3125,
-   "delta_cat_vs_v17_cross_substrate": -37.1564,
-   "delta_reg_vs_v17_cross_substrate": -0.1169
+   "delta_cat_vs_own_ceiling": -1.037,
+   "delta_reg_vs_own_ceiling": -0.328,
+   "delta_cat_vs_v17_cross_substrate": -37.2875,
+   "delta_reg_vs_v17_cross_substrate": -0.0338
   },
   "arizona": {
    "stl_cat": {
-    "mean": 31.3502,
-    "sd": 0.0,
-    "n_seeds": 1,
-    "n": 5
+    "mean": 31.9118,
+    "sd": 0.7942,
+    "n_seeds": 2,
+    "n": 10
    },
    "stl_reg": {
-    "mean": 59.4813,
-    "sd": 0.0,
-    "n_seeds": 1,
-    "n": 5
+    "mean": 59.4903,
+    "sd": 0.0127,
+    "n_seeds": 2,
+    "n": 10
    },
    "joint_cat_diag_best": {
-    "mean": 31.6874,
-    "sd": 0.0,
-    "n_seeds": 1,
-    "n": 5
+    "mean": 31.5793,
+    "sd": 0.1529,
+    "n_seeds": 2,
+    "n": 10
    },
    "joint_reg_diag_best": {
-    "mean": 59.5411,
-    "sd": 0.0,
-    "n_seeds": 1,
-    "n": 5
+    "mean": 59.4886,
+    "sd": 0.0743,
+    "n_seeds": 2,
+    "n": 10
    },
    "joint_cat_joint_best": {
     "mean": null,
@@ -555,10 +1045,10 @@
     "stl_cat": 56.43,
     "stl_reg": 59.46
    },
-   "delta_cat_vs_own_ceiling": 0.3372,
-   "delta_reg_vs_own_ceiling": 0.0598,
-   "delta_cat_vs_v17_cross_substrate": -34.1426,
-   "delta_reg_vs_v17_cross_substrate": -0.0189
+   "delta_cat_vs_own_ceiling": -0.3325,
+   "delta_reg_vs_own_ceiling": -0.0017,
+   "delta_cat_vs_v17_cross_substrate": -34.2507,
+   "delta_reg_vs_v17_cross_substrate": -0.0714
   },
   "florida": {
    "stl_cat": {
@@ -607,12 +1097,113 @@
    "delta_reg_vs_own_ceiling": 0.5554,
    "delta_cat_vs_v17_cross_substrate": -43.9715,
    "delta_reg_vs_v17_cross_substrate": -0.1648
+  },
+  "texas": {
+   "stl_cat": {
+    "mean": 34.1162,
+    "sd": 0.0,
+    "n_seeds": 1,
+    "n": 5
+   },
+   "stl_reg": {
+    "mean": 64.9514,
+    "sd": 0.0,
+    "n_seeds": 1,
+    "n": 5
+   },
+   "joint_cat_diag_best": {
+    "mean": 35.0775,
+    "sd": 0.0,
+    "n_seeds": 1,
+    "n": 5
+   },
+   "joint_reg_diag_best": {
+    "mean": 67.0021,
+    "sd": 0.0,
+    "n_seeds": 1,
+    "n": 5
+   },
+   "joint_cat_joint_best": {
+    "mean": null,
+    "sd": null,
+    "n_seeds": 0,
+    "n": 0
+   },
+   "joint_reg_joint_best": {
+    "mean": null,
+    "sd": null,
+    "n_seeds": 0,
+    "n": 0
+   },
+   "v17_published": {
+    "mtl_cat": 77.24,
+    "mtl_reg": 67.06,
+    "stl_cat": 69.79,
+    "stl_reg": 64.95
+   },
+   "delta_cat_vs_own_ceiling": 0.9613,
+   "delta_reg_vs_own_ceiling": 2.0507,
+   "delta_cat_vs_v17_cross_substrate": -42.1625,
+   "delta_reg_vs_v17_cross_substrate": -0.0579
+  },
+  "california": {
+   "stl_cat": {
+    "mean": 33.4954,
+    "sd": 0.0,
+    "n_seeds": 1,
+    "n": 5
+   },
+   "stl_reg": {
+    "mean": 63.4456,
+    "sd": 0.0,
+    "n_seeds": 1,
+    "n": 5
+   },
+   "joint_cat_diag_best": {
+    "mean": 33.2351,
+    "sd": 0.0,
+    "n_seeds": 1,
+    "n": 5
+   },
+   "joint_reg_diag_best": {
+    "mean": 65.5664,
+    "sd": 0.0,
+    "n_seeds": 1,
+    "n": 5
+   },
+   "joint_cat_joint_best": {
+    "mean": null,
+    "sd": null,
+    "n_seeds": 0,
+    "n": 0
+   },
+   "joint_reg_joint_best": {
+    "mean": null,
+    "sd": null,
+    "n_seeds": 0,
+    "n": 0
+   },
+   "v17_published": {
+    "mtl_cat": 77.05,
+    "mtl_reg": 65.69,
+    "stl_cat": 70.6,
+    "stl_reg": 63.49
+   },
+   "delta_cat_vs_own_ceiling": -0.2603,
+   "delta_reg_vs_own_ceiling": 2.1208,
+   "delta_cat_vs_v17_cross_substrate": -43.8149,
+   "delta_reg_vs_v17_cross_substrate": -0.1236
   }
  },
  "order": [
   "istanbul_s0",
+  "istanbul_s1",
   "alabama_s0",
+  "alabama_s1",
   "arizona_s0",
-  "florida_s0"
+  "arizona_s1",
+  "florida_s0",
+  "texas_s0",
+  "california_s0"
  ]
 }

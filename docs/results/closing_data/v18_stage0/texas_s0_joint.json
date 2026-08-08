@@ -1,0 +1,43 @@
+{
+  "state": "texas",
+  "seed": 0,
+  "family": "joint",
+  "rundir": "/home/vitor.oliveira/PoiMtlNet/results/check2hgi_v18/texas/mtlnet_lr1.0e-04_bs8192_ep50_20260807_014004_952777",
+  "selector": "smoothed-argmax(w=3); value = RAW metric at that epoch",
+  "cat_per_fold": [
+    34.9415,
+    35.7535,
+    35.1752,
+    34.2065,
+    33.8173
+  ],
+  "cat_best_epochs": [
+    25,
+    18,
+    20,
+    8,
+    13
+  ],
+  "cat_macro_f1_mean": 34.7788,
+  "cat_macro_f1_std": 0.7723,
+  "cat_argmax_mean": 35.0775,
+  "cat_argmax_premium": 0.2987,
+  "reg_per_fold": [
+    66.907,
+    67.3038,
+    66.1695,
+    67.1747,
+    67.4407
+  ],
+  "reg_best_epochs": [
+    49,
+    50,
+    49,
+    50,
+    50
+  ],
+  "reg_full_top10_mean": 66.9991,
+  "reg_full_top10_std": 0.5039,
+  "reg_argmax_mean": 67.0021,
+  "reg_argmax_premium": 0.003
+}

@@ -1,0 +1,25 @@
+{
+  "state": "texas",
+  "seed": 0,
+  "family": "cat",
+  "rundir": "/home/vitor.oliveira/PoiMtlNet/results/check2hgi_v18/texas/next_lr1.0e-04_bs8192_ep50_20260806_230711_853633",
+  "selector": "smoothed-argmax(w=3); value = RAW metric at that epoch",
+  "cat_per_fold": [
+    33.1356,
+    33.3566,
+    33.605,
+    32.8821,
+    32.7716
+  ],
+  "cat_best_epochs": [
+    17,
+    39,
+    13,
+    4,
+    15
+  ],
+  "cat_macro_f1_mean": 33.1502,
+  "cat_macro_f1_std": 0.3409,
+  "cat_argmax_mean": 34.1162,
+  "cat_argmax_premium": 0.966
+}

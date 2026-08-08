@@ -1,0 +1,43 @@
+{
+  "state": "istanbul",
+  "seed": 1,
+  "family": "joint",
+  "rundir": "/home/vitor.oliveira/PoiMtlNet/results/check2hgi_v18/istanbul/mtlnet_lr1.0e-04_bs8192_ep50_20260807_153835_1460965",
+  "selector": "smoothed-argmax(w=3); value = RAW metric at that epoch",
+  "cat_per_fold": [
+    31.1926,
+    32.9636,
+    31.5701,
+    32.6747,
+    32.7156
+  ],
+  "cat_best_epochs": [
+    22,
+    24,
+    21,
+    19,
+    29
+  ],
+  "cat_macro_f1_mean": 32.2233,
+  "cat_macro_f1_std": 0.7879,
+  "cat_argmax_mean": 32.5944,
+  "cat_argmax_premium": 0.3711,
+  "reg_per_fold": [
+    76.1011,
+    75.0814,
+    75.3203,
+    75.9216,
+    74.2551
+  ],
+  "reg_best_epochs": [
+    40,
+    30,
+    49,
+    33,
+    35
+  ],
+  "reg_full_top10_mean": 75.3359,
+  "reg_full_top10_std": 0.7351,
+  "reg_argmax_mean": 75.4316,
+  "reg_argmax_premium": 0.0957
+}

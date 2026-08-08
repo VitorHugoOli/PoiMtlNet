@@ -1,0 +1,43 @@
+{
+  "state": "arizona",
+  "seed": 1,
+  "family": "joint",
+  "rundir": "/home/vitor.oliveira/PoiMtlNet/results/check2hgi_v18/arizona/mtlnet_lr1.0e-04_bs8192_ep50_20260807_161455_1482599",
+  "selector": "smoothed-argmax(w=3); value = RAW metric at that epoch",
+  "cat_per_fold": [
+    31.2152,
+    33.4834,
+    29.5709,
+    29.5573,
+    30.5506
+  ],
+  "cat_best_epochs": [
+    15,
+    20,
+    21,
+    24,
+    14
+  ],
+  "cat_macro_f1_mean": 30.8755,
+  "cat_macro_f1_std": 1.6172,
+  "cat_argmax_mean": 31.4712,
+  "cat_argmax_premium": 0.5958,
+  "reg_per_fold": [
+    62.7168,
+    58.9835,
+    59.3693,
+    58.1772,
+    57.5151
+  ],
+  "reg_best_epochs": [
+    32,
+    35,
+    31,
+    34,
+    36
+  ],
+  "reg_full_top10_mean": 59.3524,
+  "reg_full_top10_std": 2.0132,
+  "reg_argmax_mean": 59.436,
+  "reg_argmax_premium": 0.0836
+}

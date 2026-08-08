@@ -1,0 +1,25 @@
+{
+  "state": "florida",
+  "seed": 0,
+  "family": "cat",
+  "rundir": "/home/vitor.oliveira/PoiMtlNet/results/check2hgi_v18/florida/next_lr1.0e-04_bs8192_ep50_20260806_163558_627960",
+  "selector": "smoothed-argmax(w=3); value = RAW metric at that epoch",
+  "cat_per_fold": [
+    36.2171,
+    35.6924,
+    34.499,
+    35.7964,
+    35.4614
+  ],
+  "cat_best_epochs": [
+    14,
+    13,
+    7,
+    7,
+    9
+  ],
+  "cat_macro_f1_mean": 35.5333,
+  "cat_macro_f1_std": 0.6398,
+  "cat_argmax_mean": 35.9711,
+  "cat_argmax_premium": 0.4379
+}

@@ -1,6 +1,6 @@
 # v18 — PROGRESS
 
-> Rewritten after every completed cell. `updated_at` 2026-08-06T19:37:21.989061+00:00 · phase **wave1** · commit `cce3ff65`
+> Rewritten after every completed cell. `updated_at` 2026-08-07T21:17:33.990335+00:00 · phase **wave1** · commit `da179081`
 
 ## Matrix — 6 states × 4 seeds × 3 families
 
@@ -8,27 +8,27 @@
 
 | state | seed 0 | seed 1 | seed 7 | seed 100 | n (joint) |
 |---|---|---|---|---|---|
-| istanbul | D D D | . . . | . . . | . . . | 5 |
-| alabama | D D D | . . . | . . . | . . . | 5 |
-| arizona | D D D | . . . | . . . | . . . | 5 |
-| florida | D D D | . . . | . . . | . . . | 5 |
-| texas | ~ . . | . . . | . . . | . . . | 0 |
-| california | . . . | . . . | . . . | . . . | 0 |
+| istanbul | D D D | D D D | . . . | . . . | 10 |
+| alabama | D D D | D D D | . . . | . . . | 10 |
+| arizona | D D D | D D D | . . . | . . . | 10 |
+| florida | D D D | D D ~ | . . . | . . . | 5 |
+| texas | D D D | . . . | . . . | . . . | 5 |
+| california | D D D | . . . | . . . | . . . | 5 |
 
 ## Timing
 
-- cells done: **12 / 72**
-- measured wall-clock total: **4.59 h**
-- cat: n=4, mean 11.4 min, max 31.7 min
-- reg: n=4, mean 10.5 min, max 27.8 min
-- joint: n=4, mean 46.9 min, max 121.7 min
-- naive estimate for the remaining 60 cells (serial): **23.0 h**
+- cells done: **29 / 72**
+- measured wall-clock total: **23.22 h**
+- cat: n=10, mean 20.2 min, max 69.8 min
+- reg: n=10, mean 26.8 min, max 98.3 min
+- joint: n=9, mean 102.6 min, max 376.1 min
+- naive estimate for the remaining 43 cells (serial): **34.4 h**
 
 ## Running now
 
-- texas s0 cat (pid 719485, since 2026-08-06T19:36:56+00:00)
+- florida s1 joint (pid 126329, since 2026-08-07T21:17:33+00:00)
 
 ## Environment
 
-- GPU free: 19834 MiB · /dados free: 2192 GB · /home free: 50 GB
+- GPU free: 45489 MiB · /dados free: 2192 GB · /home free: 40 GB
 
