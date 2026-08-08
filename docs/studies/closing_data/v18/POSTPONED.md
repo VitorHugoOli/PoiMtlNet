@@ -84,10 +84,38 @@ nowhere else. Any architecture decision that removes the trunk board-wide — in
 compute argument (champion-G 1094 s vs T1 359 s **at alabama**) — needs this experiment first.
 Correction logged after the author flagged the overreach, 2026-08-07.
 
+## P6 — The CA/TX sweep: rows 5, 6, 8 ⏸ POSTPONED (time), 2026-08-08
+
+**What.** The large-state half of the re-tuning sweep:
+- **row 5** — TX dedicated, grid going **UP**: `max_lr {0.005, 0.0075, 0.01}` × `epochs {50, 75}`, 5 arms
+- **row 6** — TX dedicated `--no-class-weights` @ the row-5 winner, 1 arm
+- **row 8** — MTL knobs carried to TX or CA, 2 arms
+
+**Cost (measured).** TX dedicated ~5 700 s/arm → rows 5+6 ≈ **9.6 h**; TX MTL ~22 500 s/arm → row 8
+≈ **12.5 h**. Total ≈ 22 h.
+
+**Why POSTPONED.** Deadline. Decision 2026-08-08: take the winner from AL/AZ/IST and replicate it to
+the large states without validating it there.
+
+⚠ **This is the one postponement with a known directional risk.** The failure mode inverts with data
+size: AL/AZ overfit badly (train−val +42 pp) while **CA/TX show no train−val gap at all** (+0.25 /
++0.52) — they are capacity-limited, not overfitting. The small-state fix is a **lower LR**, which is
+the opposite of what a capacity-limited model wants. So the transferred recipe may *reduce* CA/TX
+category scores.
+
+**Therefore, wherever a large-state category number is reported it must say the recipe was
+transferred, not validated.** If CA/TX category drops relative to the current recipe, that is this
+risk materialising — not a new finding.
+
+**The zero-cost alternative, still available:** keep CA/TX on their existing v17 large-state tier
+(bs8192 @ 0.005) and retune only the small states. That is the tiering v17 itself used, and
+SWEEP_PLAN decision rule 4 originally allowed it.
+
 ## P5 — T2 (A′) at florida ⏸ CONDITIONAL
 
-Run only if **T1 at florida** shows a non-null effect. T1 at FL costs ~41 min (the joint cell is
-7301 s and the no-sharing arm runs ~3× faster — measured 1094 s → 359 s at alabama).
+**RESOLVED 2026-08-08: not needed.** T1 at florida ran and was a dead null — cat **+0.002**,
+reg **+0.026** vs champion-G (4525 s). With alabama also null at 5 folds (T1 −0.015/−0.138,
+T2 −0.154/−0.004), there is nothing for A′ to decompose at florida. Closed.
 
 ---
 

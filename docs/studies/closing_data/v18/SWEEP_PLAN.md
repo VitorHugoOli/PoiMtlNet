@@ -52,17 +52,57 @@ small-state job, so 2-wide buys only ~1.18× and is used solely where a row says
 **CPU execution is excluded**: CUDA and CPU kernels give different floating-point results, so CPU
 arms would not be comparable to GPU arms — the same class of error as the fp16/fp32 leak.
 
-| # | stage | arm | states | grid | seeds | arms | status |
-|---|---|---|---|---|---|---|---|
-| 1 | **1a** small-state dedicated | dedicated | AL, AZ, IST | bs {2048, 8192} × max_lr {0.0005, 0.001, 0.0025, **0.005 anchor**} | 0 | 8 ×3 | 🔄 running |
-| 2 | **1a** schedule shape | dedicated | AL, AZ, IST | epochs {15, 25} @ anchor bs, lr 0.005 | 0 | 2 ×3 | ⬜ |
-| 3 | **1a** MTL cat-LR | MTL | **AL only** (user 2026-08-07) | cat-lr {0.0005, **0.001 anchor**, 0.002}; + epochs 25 @ 0.001 | 0 | 4 | 🔄 queued |
-| 4 | **1c-ded** class weights | dedicated | **AL** | `--no-class-weights` × max_lr {0.005, best-from-#1} | 0 | 2 | ⬜ |
-| 5 | **1b** large-state dedicated | dedicated | **TX** | max_lr {0.005 anchor, 0.0075, 0.01} × epochs {50, 75} — grid goes **UP** | 0 | 5 | ⬜ |
-| 6 | **1c-ded** class weights @ large | dedicated | **TX** | `--no-class-weights` @ best-from-#5 | 0 | 1 | ⬜ |
-| 7 | **1c-mtl** MTL knobs | MTL | **AL** | `--cat-class-weights` {on, off} × `--category-weight` {0.75, 0.5} @ anchor cat-lr | 0 | 3 | 🔄 queued |
-| 8 | **1c-mtl** @ large, *conditional* | MTL | **TX or CA** | carried from #7 — **only with a very good justification** (user 2026-08-07) | 0 | 2 | ⏸ |
-| 9 | **confirm** | both | winners | best dedicated + best MTL arm | 1 | — | ⬜ |
+## STATUS AT A GLANCE (updated 2026-08-08)
+
+| question | answer |
+|---|---|
+| Dedicated (STL) sweep settled at AL/AZ/IST? | **YES — 30/30 arms done** (rows 1+2). Winner per state below. |
+| Dedicated row 4 (`--no-class-weights`)? | 🔄 **queued**, runs last in queue2 |
+| MTL cat-LR grid {5e-4,1e-3,2e-3} + 25-ep arm (row 3)? | **AL ✅ done · AZ 🔄 running · IST 🔄 queued** |
+| MTL cat-class-weights {on,off} × category-weight {0.75,0.5} (row 7)? | **AL ✅ done (2×2 complete) · AZ 🔄 running · IST 🔄 queued** |
+| P1 capacity control (after T2)? | ❌ **NOT run — deliberately HELD** by author decision 2026-08-07 → [`POSTPONED.md`](POSTPONED.md) P1 |
+| CA/TX sweep (rows 5, 6, 8)? | ❌ **NOT run — POSTPONED for time** 2026-08-08 → [`POSTPONED.md`](POSTPONED.md) P6 |
+
+### Dedicated (STL) winners — rows 1+2 complete, seed 0, fp32, sm3 selector
+
+| state | current recipe | sm3 | **retuned winner** | sm3 | gain | med best-epoch |
+|---|---|---:|---|---:|---:|---:|
+| alabama | bs2048 @ 0.005 | 27.122 | **bs8192 @ 0.0025** | 27.610 | **+0.49** | 8 → 13 |
+| arizona | bs8192 @ 0.005 | 31.103 | **bs8192 @ 0.0005** | 31.668 | **+0.57** | 10 → 17 |
+| istanbul | bs2048 @ 0.005 | 30.998 | **bs2048 @ 0.0005** | 32.077 | **+1.08** | 6 → 16 |
+
+Lower LR wins at all three, and the median best epoch moves from 6–10 into 13–23 — the signature v17's
+76-arm sweep identified (early-peaking arms were never ceilings, 0/27). On *argmax* istanbul's old
+recipe still looks best (32.722); its sm3 is the **worst** (30.998), which is the argmax-noise effect
+this sweep exists to remove.
+
+### MTL winner so far — alabama only (AZ/IST in flight)
+
+| arm | cat sm3 | reg |
+|---|---:|---:|
+| cw0.75, class-weights **OFF** (current recipe) | 26.153 | 69.683 |
+| **cw0.75, class-weights ON** | **27.276** | 69.696 |
+| cw0.50, class-weights ON | 27.003 | 69.709 |
+| cw0.50, class-weights OFF | 26.915 | 69.687 |
+
+**Class weights ON is the lever: +1.12 sm3, region unchanged.** cat-LR is near-null across 4× its
+range (26.15–26.37). The 25-epoch arm gains cat +0.64 but costs reg −0.79 — rejected.
+
+Net at alabama, both arms fairly tuned and both fp32: **Δcat −0.97 → −0.33**.
+
+## Row register
+
+| # | stage | arm | states | grid | arms | status |
+|---|---|---|---|---|---|---|
+| 1 | small-state dedicated | dedicated | AL, AZ, IST | bs {2048, 8192} × max_lr {0.0005, 0.001, 0.0025, 0.005} | 24 | ✅ done |
+| 2 | schedule shape | dedicated | AL, AZ, IST | epochs {15, 25} @ anchor | 6 | ✅ done |
+| 3 | MTL cat-LR | MTL | AL, AZ, IST | cat-lr {5e-4, 1e-3, 2e-3} + 25-ep arm | 4/state | AL ✅ · AZ 🔄 · IST 🔄 |
+| 4 | dedicated class weights | dedicated | AL | `--no-class-weights` × max_lr {0.005, 0.0025} | 2 | 🔄 queued |
+| 5 | large-state dedicated | dedicated | TX | max_lr {0.005, 0.0075, 0.01} × epochs {50, 75} | 5 | ⏸ **POSTPONED** (P6) |
+| 6 | dedicated class weights @ large | dedicated | TX | `--no-class-weights` | 1 | ⏸ **POSTPONED** (P6) |
+| 7 | MTL knobs | MTL | AL, AZ, IST | class-weights {on,off} × cw {0.75, 0.5} | 3/state | AL ✅ · AZ 🔄 · IST 🔄 |
+| 8 | MTL @ large | MTL | TX/CA | carried from #7 | 2 | ⏸ **POSTPONED** (P6) |
+| 9 | confirm | both | winners | best dedicated + best MTL | — | ⬜ |
 
 ### Inserted 2026-08-07 — trunk arms at alabama, BEFORE the MTL sweep rows
 
@@ -129,8 +169,21 @@ AL MTL ~1 340 s · TX MTL ~22 500 s. Rows 1–3 ≈ 9 h; rows 4–8 ≈ 8 h; row
    that early-peaking arms are never ceilings (0/27), but late-peaking does not guarantee a ceiling
    either (v17's low-LR arms peaked late and sat 3.2 pp below).
 3. **Both arms are re-tuned.** Re-tuning only the baseline would bias Δcat against MTL.
-4. **A retuned recipe is adopted board-wide only if it wins at both a small and a large state**,
-   or else it is tiered by state size — as v17 did.
+4. ~~A retuned recipe is adopted board-wide only if it wins at both a small and a large state~~
+   **SUPERSEDED 2026-08-08 (author decision, time constraint).** The CA/TX sweep is postponed, so the
+   winner from AL/AZ/IST is **replicated to the large states without large-state validation**.
+
+   ⚠ **The evidence argues against this and the risk must travel with the numbers.** The failure mode
+   *inverts* with data size (see the table at the top of this file): AL/AZ overfit catastrophically
+   (train−val +42 pp) while CA/TX show **no train−val gap at all** (+0.25 / +0.52) and are
+   capacity-limited. The small-state fix is **lower LR**, which is the opposite of what a
+   capacity-limited model needs. Replicating it to CA/TX may *reduce* their category scores.
+
+   Two consequences to state wherever a large-state category number is reported: (a) the CA/TX
+   category recipe is **transferred, not validated**; (b) if a CA/TX category number drops relative to
+   the current recipe, that is the expected direction of this risk and not a new finding. The
+   alternative — keep CA/TX on their existing v17 large-state tier (bs8192 @ 0.005) and retune only
+   the small states — is the tiered option v17 itself used, and remains available at zero cost.
 
 ## Returning to the waves
 
