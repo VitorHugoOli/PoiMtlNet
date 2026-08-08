@@ -34,8 +34,12 @@ survives severing the trunk **and** deleting the category task
 ([`region_1fold_triage/FINDING.md`](region_1fold_triage/FINDING.md)), which points at capacity — but
 points is not proves.
 
-**Why HELD (user decision 2026-08-07).** The result would be a claim about **champion-G**, not about
-the v18 evaluation currently in flight. It changes how the region result is *interpreted*, not what
+**RE-QUEUED 2026-08-08** to run after the sweep. Note it is **unaffected by the category retune**:
+P1 is a dedicated *region* run, and the retune touches only the category recipe (region peaks late
+and shows no argmax artifact). "P1 with the new settings" is therefore identical to P1 today.
+
+**Why it was HELD (user decision 2026-08-07).** The result would be a claim about **champion-G**, not
+about the v18 evaluation then in flight. It changes how the region result is *interpreted*, not what
 the board must report, so it does not block the sweep or the waves. Revisit when the v18 numbers are
 settled and the dissertation's region paragraph is being written.
 
@@ -94,8 +98,12 @@ Correction logged after the author flagged the overreach, 2026-08-07.
 **Cost (measured).** TX dedicated ~5 700 s/arm → rows 5+6 ≈ **9.6 h**; TX MTL ~22 500 s/arm → row 8
 ≈ **12.5 h**. Total ≈ 22 h.
 
-**Why POSTPONED.** Deadline. Decision 2026-08-08: take the winner from AL/AZ/IST and replicate it to
-the large states without validating it there.
+**PARTIALLY LIFTED 2026-08-08.** Rows 5 and 6 are now run at **TX with one fold** (~1.9 h instead of
+9.6 h), and a new row 3b runs the MTL cat-LR grid at **FL with one fold** (~1.6 h). Row 8 (TX/CA MTL,
+~12.5 h) stays postponed. CA is run only if TX proves insufficient.
+
+This substantially reduces — but does not eliminate — the transfer risk below: one fold picks a
+direction, it does not certify a recipe.
 
 ⚠ **This is the one postponement with a known directional risk.** The failure mode inverts with data
 size: AL/AZ overfit badly (train−val +42 pp) while **CA/TX show no train−val gap at all** (+0.25 /
