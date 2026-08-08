@@ -2,10 +2,16 @@
 # v18 queue 4 — rows 5, 6 (TX dedicated, 1 fold) then row 3b (FL MTL cat-LR, 1 fold).
 # Runs after queue3 (row 10). Row 8 is POSTPONED and is NOT here.
 #
-# 1-FOLD DISCIPLINE: --only-fold 0, NEVER --folds 1. --folds N overrides k_folds to max(2,N), so a
-# 1-fold run against a 5-fold-built log_T leaks 30-40% of validation transitions into the prior and
-# inflates reg Acc@10 by 13-23 pp (mtl_cv.py:680-688). --only-fold runs exactly fold 0 OF the
-# canonical 5-split and preserves the fold index for the seeded per-fold log_T.
+# 1-FOLD DISCIPLINE: use --only-fold 0, NOT --folds 1 -- but NOT for log_T reasons.
+# --folds N overrides k_folds to max(2,N), so --folds 1 silently trains on a 2-FOLD split: a
+# different partition from the canonical 5-split, so the result is not comparable to the 5-fold
+# cells. --only-fold runs exactly fold 0 OF the canonical 5-split, which is what makes the screen
+# comparable.
+#
+# NOTE: log_T is INERT in this recipe and is never loaded. _log_t_is_inert (mtl_cv.py:552) is true
+# when freeze_alpha=True + alpha_init=0.0 + all KD routes off -- exactly our config -- and
+# MTL_SKIP_INERT_LOGT defaults to on, so the load and its leak-guards are skipped entirely. Every
+# fold logs "[log_T-inert skip]". The transition-dir flag is passed only to match the board driver.
 #
 # These screens pick a DIRECTION; with one fold there is no dispersion, no paired test and no
 # interval, so they cannot certify a winner. Arms are compared on the SAME fold so the contrast is
