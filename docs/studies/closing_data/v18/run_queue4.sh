@@ -114,9 +114,11 @@ PY
   log "DONE $tag ($((SECONDS-t0))s)"
 }
 
-log "waiting for queue3 (row 10)"
-while pgrep -f "run_queue3.sh|run_mtl_bs_alabama" >/dev/null 2>&1; do sleep 120; done
-log "queue3 finished"
+if [ "${SKIP_WAIT:-0}" != "1" ]; then
+  log "waiting for row 10"
+  while pgrep -f run_mtl_bs_alabama >/dev/null 2>&1; do sleep 120; done
+fi
+log "proceeding to rows 5, 6, 3b"
 
 # ---- row 5: TX dedicated, grid goes UP (TX does not overfit: train-val gap +0.25) -------------
 log "row 5 — TX dedicated, 1 fold"
