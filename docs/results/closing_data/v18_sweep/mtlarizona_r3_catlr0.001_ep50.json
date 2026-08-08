@@ -1,0 +1,45 @@
+{
+  "tag": "mtlarizona_r3_catlr0.001_ep50",
+  "arm": "mtl",
+  "state": "arizona",
+  "seed": 0,
+  "wall_seconds": 1133,
+  "rundir": "results/check2hgi_v18/arizona/mtlnet_lr1.0e-04_bs8192_ep50_20260808_033500_212262",
+  "precision": "fp32",
+  "cat_argmax": 31.6874,
+  "cat_argmax_std": 1.2366,
+  "cat_per_fold": [
+    32.1643,
+    33.6509,
+    30.0732,
+    30.7189,
+    31.8298
+  ],
+  "cat_best_epochs": [
+    9,
+    20,
+    21,
+    18,
+    13
+  ],
+  "reg": 59.5411,
+  "reg_std": 1.6998,
+  "reg_per_fold": [
+    62.7094,
+    59.3843,
+    59.4813,
+    58.1747,
+    57.9556
+  ],
+  "cat_sm3": 30.7987,
+  "cat_sm3_per_fold": [
+    31.6332,
+    31.6979,
+    29.7138,
+    30.0177,
+    30.9312
+  ],
+  "row": 3,
+  "cat_lr": 0.001,
+  "anchor": true
+}

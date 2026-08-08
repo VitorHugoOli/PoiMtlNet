@@ -1,0 +1,45 @@
+{
+  "tag": "ded_arizona_bs8192_lr0.005_ep15_s0",
+  "arm": "dedicated",
+  "state": "arizona",
+  "batch_size": 8192,
+  "max_lr": 0.005,
+  "epochs": 15,
+  "seed": 0,
+  "wall_seconds": 96,
+  "rundir": "results/check2hgi_v18/arizona/next_lr1.0e-04_bs8192_ep15_20260808_020806_192388",
+  "precision": "fp32",
+  "argmax_mean": 31.3674,
+  "argmax_std": 1.2385,
+  "argmax_per_fold": [
+    30.9417,
+    32.7179,
+    30.2968,
+    29.9391,
+    32.9415
+  ],
+  "argmax_best_epochs": [
+    6,
+    7,
+    8,
+    9,
+    7
+  ],
+  "sm3_mean": 31.2686,
+  "sm3_std": 1.2846,
+  "sm3_per_fold": [
+    30.9417,
+    32.2563,
+    30.2968,
+    29.9198,
+    32.9282
+  ],
+  "sm3_best_epochs": [
+    6,
+    8,
+    8,
+    13,
+    10
+  ],
+  "median_best_epoch": 7
+}

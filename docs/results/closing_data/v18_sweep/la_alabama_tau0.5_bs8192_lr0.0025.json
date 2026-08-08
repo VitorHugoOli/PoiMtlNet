@@ -1,0 +1,46 @@
+{
+  "tag": "la_alabama_tau0.5_bs8192_lr0.0025",
+  "arm": "dedicated",
+  "state": "alabama",
+  "seed": 0,
+  "row": 11,
+  "batch_size": 8192,
+  "max_lr": 0.0025,
+  "logit_adjust_tau": 0.5,
+  "class_weights": "replaced by logit adjustment",
+  "epochs": 50,
+  "wall_seconds": 146,
+  "rundir": "results/check2hgi_v18/alabama/next_lr1.0e-04_bs8192_ep50_20260808_210638_539153",
+  "precision": "fp32",
+  "argmax_mean": 30.7654,
+  "argmax_per_fold": [
+    32.2618,
+    30.8034,
+    29.6064,
+    29.6361,
+    31.5193
+  ],
+  "argmax_best_epochs": [
+    18,
+    16,
+    18,
+    22,
+    17
+  ],
+  "sm3_mean": 30.4082,
+  "sm3_per_fold": [
+    30.8821,
+    30.8034,
+    29.6064,
+    29.4416,
+    31.3075
+  ],
+  "sm3_best_epochs": [
+    17,
+    16,
+    18,
+    23,
+    20
+  ],
+  "median_best_epoch": 18
+}

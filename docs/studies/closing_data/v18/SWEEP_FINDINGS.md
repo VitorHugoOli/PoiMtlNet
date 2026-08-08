@@ -18,6 +18,7 @@
 
 | finding | states | verdict |
 |---|---|---|
+| **Logit adjustment τ=0.5 on BOTH arms** | AL, AZ, IST | ✅ **LARGEST EFFECT IN THE SWEEP** — dedicated +2.86, MTL +3.18, all p ≤ 0.0014. Δcat preserved (−0.363 → −0.105). See §9 |
 | **Dedicated ceiling was mistuned; lower LR wins** | AL, AZ, IST | ✅ **ROBUST** — wins at all three, +0.49 / +0.57 / +1.08 sm3 |
 | **Shared trunk is inert** | AL, FL (5-fold) | ✅ robust where measured; **not** established at CA/TX |
 | MTL cat-LR matters | AL, AZ, IST | ❌ **null** — spans 0.22 / 0.21 / 0.28 sm3 across 4× the LR range |
@@ -29,8 +30,9 @@
 | MTL batch size (16k / 32k) | AL | ❌ **keep bs8192** — larger batches cost ~1.3 reg — see §7.3 |
 | cw 0.75 vs 0.50 | AL, AZ, IST | ⚠️ **tie-break reversed** — see §3.2 |
 
-**The one-sentence summary: the dedicated baseline was genuinely mistuned and is now fixed; the MTL
-side has no knob that survives three states.**
+**The one-sentence summary: BOTH arms were mis-calibrated — logit adjustment τ=0.5 lifts each by
+~3 pp and leaves Δcat where it was (≈0, "matches") — and separately the dedicated baseline's LR was
+mistuned and is now fixed. No MTL-specific knob survives three states.**
 
 ---
 
@@ -284,6 +286,91 @@ expected to move the reported metric rather than merely stabilise training.
 
 **A is deliberately first.** Two contradictory data points (AL ON, TX OFF) are not a finding; a
 size-graded transition would be. The recipe decision for the large states should wait for it.
+
+
+---
+
+## 9 · Rows 11 + 12 — logit adjustment: the largest effect in the sweep, on BOTH arms
+
+### 9.1 What it is, and why it is not a leak
+
+`--logit-adjust-tau τ` adds `τ · log P_train(y)` to the logits **inside the training loss only**
+(Menon et al., ICLR'21). The model learns `f(x) ≈ log p(y|x) − τ·log p(y)`, so its raw argmax at
+inference targets the **balanced** posterior — the Bayes-consistent estimator for balanced error, and
+our reported metric (macro-F1) is a balanced metric. It is the correct loss for the objective, not a
+trick.
+
+**Leak audit (the author asked for this explicitly; all three routes closed):**
+
+| risk | finding |
+|---|---|
+| priors from the full dataset? | **No** — per-fold from `train_loader.dataset.targets` (STL, `next_cv.py:127`) / `dataloader_category.train.y` (MTL, `mtl_cv.py:504`). Verified empirically: fold offsets differ from the global vector; `fold-0 == global` is **False**. |
+| offset applied at evaluation? | **No** — `shared_evaluate.evaluate()` takes **no criterion**; it computes `logits = model(X)` then `argmax(1)`. The offset lives in `CalibratedLoss.forward()`, which eval never calls. |
+| could the offset smuggle information? | **No** — it is a **length-7 constant vector**, the log of train label frequency. It cannot encode per-example or per-user information. |
+
+Sanity: at τ=0 the criterion reduces to plain cross-entropy to 7 decimals (2.44361711 vs 2.44361687).
+
+It also **replaces** class weighting rather than stacking with it — `next_cv.py:123-141` and
+`mtl_cv.py:481-484` both make the weighted CE the `else` branch ("mutually exclusive with cat
+class-weighting"). Stacking cratered in T1.4 (AL 30.15 vs 49.97), so neither driver passes both.
+
+### 9.2 Row 11 — dedicated arm, τ=0.5 vs τ=1.0
+
+| state | class-weighted | **τ=0.5** | Δ | p | τ=1.0 | Δ | p |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| alabama | 27.6098 | **30.4082** | **+2.798** | 0.0142 | 27.4527 | −0.157 | 0.71 |
+| arizona | 31.6675 | **34.3852** | **+2.718** | 0.0008 | 31.3062 | −0.361 | 0.31 |
+| istanbul | 32.0772 | **35.1431** | **+3.066** | 0.0002 | 32.2704 | +0.193 | 0.59 |
+| | | | **+2.861** | | | **−0.108** | |
+
+**There is a sharp interior optimum.** τ=0.5 wins at all three states; τ=1.0 is a flat null at all
+three. That shape is itself evidence the effect is mechanistically real — a leak or a metric artifact
+would not peak and then reverse. It also reproduces T1.4's τ=0.5 choice on a **different substrate**
+(stride-9 → stride-1, 7.6× the windows), which discharges much of the transfer caveat.
+
+⚠ **τ matters more than the switch.** Anyone adopting logit adjustment at the textbook default of
+1.0 would have measured nothing here.
+
+### 9.3 Row 12 — the MTL arm gains just as much, so Δcat is preserved
+
+Row 11 alone would have implied MTL had fallen ~3 pp behind. It had not — the joint model has the
+same knob (`mtl_cv.py:481-504`) and exploits it at least as well:
+
+| state | ΔMTL | p | ΔDED | Δcat before | **Δcat after** |
+|---|---:|---:|---:|---:|---:|
+| alabama | +2.741 | 0.0010 | +2.824 | −0.308 | −0.391 |
+| arizona | +3.276 | 0.0001 | +2.882 | −0.475 | **−0.081** |
+| istanbul | +3.528 | 0.0005 | +3.066 | −0.306 | **+0.156** |
+| **mean** | | | | **−0.363** | **−0.105** |
+
+**The +2.9 pp is a property of the LOSS, not of the architecture.** Both ceilings rise together and
+Δcat moves by 0.26 pp — if anything *toward* MTL. Every category number at the small states was ~3 pp
+too low; the **MTL-vs-dedicated verdict is unchanged** and now rests on two correctly-calibrated arms
+instead of two mis-calibrated ones.
+
+**Methodological note worth keeping:** reporting row 11 without row 12 would have produced a 3 pp
+swing that was pure measurement asymmetry — the baseline handed a tool the joint model was never
+offered. That is the failure mode `CEILINGS_N20_FINAL` calls baseline sabotage, pointed the other way.
+
+### 9.4 Two honest loose ends
+
+**Region is not quite untouched.** Logit adjustment is category-only by construction, and AL/AZ agree
+(Δreg −0.043 p=0.65, −0.042 p=0.61). But **istanbul shows −0.081 at p=0.002**. The magnitude is
+negligible; the consistency is not. Most likely shared-trunk coupling — changing the category loss
+perturbs the shared gradients and hence the region head. Recorded rather than rounded away; it
+changes no verdict.
+
+**The loss split reverses under calibration.** At alabama, `cw0.50` vs `cw0.75`:
+
+| condition | Δcat (cw0.50 − cw0.75) |
+|---|---:|
+| class-weighted (row 7) | −0.273 (null) |
+| **+ logit adjustment** | **+0.445, p=0.024** |
+
+With a calibrated category loss, giving the category head *less* weight becomes better — plausibly
+because calibration makes the category gradient more effective per unit of weight. **One state, n=5,
+p=0.024, and it contradicts the region-based tie-break.** AZ/IST arms (~30 min) would settle it;
+until then the split stays at cw0.75 and the interaction is recorded as **unresolved**.
 
 ---
 

@@ -1,0 +1,46 @@
+{
+  "tag": "la_istanbul_tau1.0_bs2048_lr0.0005",
+  "arm": "dedicated",
+  "state": "istanbul",
+  "seed": 0,
+  "row": 11,
+  "batch_size": 2048,
+  "max_lr": 0.0005,
+  "logit_adjust_tau": 1.0,
+  "class_weights": "replaced by logit adjustment",
+  "epochs": 50,
+  "wall_seconds": 398,
+  "rundir": "results/check2hgi_v18/istanbul/next_lr1.0e-04_bs2048_ep50_20260808_212804_544140",
+  "precision": "fp32",
+  "argmax_mean": 32.8267,
+  "argmax_per_fold": [
+    33.4189,
+    32.275,
+    32.1329,
+    33.2869,
+    33.0197
+  ],
+  "argmax_best_epochs": [
+    14,
+    20,
+    23,
+    16,
+    9
+  ],
+  "sm3_mean": 32.2704,
+  "sm3_per_fold": [
+    33.0217,
+    31.4684,
+    31.1779,
+    33.0727,
+    32.6111
+  ],
+  "sm3_best_epochs": [
+    25,
+    21,
+    17,
+    24,
+    10
+  ],
+  "median_best_epoch": 16
+}

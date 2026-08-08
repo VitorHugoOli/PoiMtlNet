@@ -1,0 +1,46 @@
+{
+  "tag": "mla_alabama_tau0.5_cw0.75",
+  "arm": "mtl",
+  "state": "alabama",
+  "seed": 0,
+  "row": 12,
+  "logit_adjust_tau": 0.5,
+  "category_weight": 0.75,
+  "cat_class_weights": "replaced by logit adjustment",
+  "wall_seconds": 584,
+  "rundir": "results/check2hgi_v18/alabama/mtlnet_lr1.0e-04_bs8192_ep50_20260808_213522_546088",
+  "precision": "fp32",
+  "cat_argmax": 30.3622,
+  "cat_argmax_std": 1.0545,
+  "cat_per_fold": [
+    31.5737,
+    30.2468,
+    29.0094,
+    29.438,
+    31.5431
+  ],
+  "cat_best_epochs": [
+    23,
+    22,
+    14,
+    19,
+    17
+  ],
+  "reg": 69.653,
+  "reg_std": 3.1076,
+  "reg_per_fold": [
+    71.6585,
+    68.6618,
+    73.0703,
+    70.7375,
+    64.137
+  ],
+  "cat_sm3": 30.0168,
+  "cat_sm3_per_fold": [
+    31.3218,
+    29.6067,
+    28.9532,
+    29.0844,
+    31.1178
+  ]
+}

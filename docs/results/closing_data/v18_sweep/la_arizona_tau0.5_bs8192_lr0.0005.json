@@ -1,0 +1,46 @@
+{
+  "tag": "la_arizona_tau0.5_bs8192_lr0.0005",
+  "arm": "dedicated",
+  "state": "arizona",
+  "seed": 0,
+  "row": 11,
+  "batch_size": 8192,
+  "max_lr": 0.0005,
+  "logit_adjust_tau": 0.5,
+  "class_weights": "replaced by logit adjustment",
+  "epochs": 50,
+  "wall_seconds": 296,
+  "rundir": "results/check2hgi_v18/arizona/next_lr1.0e-04_bs8192_ep50_20260808_210905_539643",
+  "precision": "fp32",
+  "argmax_mean": 34.508,
+  "argmax_per_fold": [
+    34.3688,
+    35.5292,
+    33.2126,
+    33.6091,
+    35.8203
+  ],
+  "argmax_best_epochs": [
+    33,
+    28,
+    35,
+    29,
+    36
+  ],
+  "sm3_mean": 34.3852,
+  "sm3_per_fold": [
+    34.3684,
+    35.4714,
+    33.1634,
+    33.4738,
+    35.4489
+  ],
+  "sm3_best_epochs": [
+    45,
+    27,
+    50,
+    44,
+    35
+  ],
+  "median_best_epoch": 33
+}

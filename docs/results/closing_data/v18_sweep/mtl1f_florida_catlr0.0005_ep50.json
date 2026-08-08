@@ -1,0 +1,26 @@
+{
+  "tag": "mtl1f_florida_catlr0.0005_ep50",
+  "arm": "mtl",
+  "state": "florida",
+  "seed": 0,
+  "row": "3b",
+  "cat_lr": 0.0005,
+  "epochs": 50,
+  "n_folds": 1,
+  "screen": true,
+  "wall_seconds": 1508,
+  "rundir": "results/check2hgi_v18/florida/mtlnet_lr1.0e-04_bs8192_ep50_20260808_164603_468927",
+  "precision": "fp32",
+  "cat_argmax": 36.4909,
+  "cat_per_fold": [
+    36.4909
+  ],
+  "cat_best_epochs": [
+    14
+  ],
+  "reg": 77.347,
+  "reg_per_fold": [
+    77.347
+  ],
+  "cat_sm3": 36.1213
+}

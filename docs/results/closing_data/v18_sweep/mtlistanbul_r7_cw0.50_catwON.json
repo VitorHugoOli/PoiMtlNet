@@ -1,0 +1,45 @@
+{
+  "tag": "mtlistanbul_r7_cw0.50_catwON",
+  "arm": "mtl",
+  "state": "istanbul",
+  "seed": 0,
+  "wall_seconds": 1506,
+  "rundir": "results/check2hgi_v18/istanbul/mtlnet_lr1.0e-04_bs8192_ep50_20260808_073801_245297",
+  "precision": "fp32",
+  "cat_argmax": 32.3861,
+  "cat_argmax_std": 0.7446,
+  "cat_per_fold": [
+    33.5788,
+    31.5752,
+    31.7707,
+    32.8809,
+    32.1249
+  ],
+  "cat_best_epochs": [
+    13,
+    19,
+    21,
+    13,
+    20
+  ],
+  "reg": 75.2623,
+  "reg_std": 0.7289,
+  "reg_per_fold": [
+    76.6735,
+    75.0483,
+    74.5887,
+    75.1201,
+    74.8808
+  ],
+  "cat_sm3": 31.8189,
+  "cat_sm3_per_fold": [
+    33.5788,
+    31.2535,
+    31.0116,
+    31.2643,
+    31.9863
+  ],
+  "row": 7,
+  "cat_class_weights": true,
+  "category_weight": 0.5
+}

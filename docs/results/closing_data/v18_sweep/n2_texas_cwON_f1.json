@@ -1,0 +1,30 @@
+{
+  "tag": "n2_texas_cwON_f1",
+  "arm": "dedicated",
+  "state": "texas",
+  "seed": 0,
+  "batch_size": 8192,
+  "max_lr": 0.005,
+  "epochs": 50,
+  "wall_seconds": 1116,
+  "rundir": "results/check2hgi_v18/texas/next_lr1.0e-04_bs8192_ep50_20260808_191420_501229",
+  "precision": "fp32",
+  "argmax_mean": 34.0223,
+  "argmax_per_fold": [
+    34.0223
+  ],
+  "argmax_best_epochs": [
+    5
+  ],
+  "sm3_mean": 33.664,
+  "sm3_per_fold": [
+    33.664
+  ],
+  "sm3_best_epochs": [
+    39
+  ],
+  "median_best_epoch": 5,
+  "step": "B",
+  "class_weights": true,
+  "fold": 1
+}

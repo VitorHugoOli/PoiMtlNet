@@ -1,0 +1,45 @@
+{
+  "tag": "ded_istanbul_bs8192_lr0.0025_ep50_s0",
+  "arm": "dedicated",
+  "state": "istanbul",
+  "batch_size": 8192,
+  "max_lr": 0.0025,
+  "epochs": 50,
+  "seed": 0,
+  "wall_seconds": 397,
+  "rundir": "results/check2hgi_v18/istanbul/next_lr1.0e-04_bs8192_ep50_20260808_015244_188122",
+  "precision": "fp32",
+  "argmax_mean": 32.3696,
+  "argmax_std": 0.5198,
+  "argmax_per_fold": [
+    33.3582,
+    31.9388,
+    32.193,
+    32.3842,
+    31.9737
+  ],
+  "argmax_best_epochs": [
+    12,
+    12,
+    13,
+    16,
+    12
+  ],
+  "sm3_mean": 31.4216,
+  "sm3_std": 0.8967,
+  "sm3_per_fold": [
+    32.9737,
+    30.8011,
+    31.4091,
+    30.9547,
+    30.9694
+  ],
+  "sm3_best_epochs": [
+    13,
+    13,
+    16,
+    17,
+    13
+  ],
+  "median_best_epoch": 12
+}

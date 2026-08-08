@@ -1,0 +1,47 @@
+{
+  "tag": "ded_alabama_nocw_bs8192_lr0.0025_ep50_s0",
+  "arm": "dedicated",
+  "state": "alabama",
+  "seed": 0,
+  "batch_size": 8192,
+  "max_lr": 0.0025,
+  "epochs": 50,
+  "class_weights": false,
+  "row": 4,
+  "wall_seconds": 146,
+  "rundir": "results/check2hgi_v18/alabama/next_lr1.0e-04_bs8192_ep50_20260808_080531_248975",
+  "precision": "fp32",
+  "argmax_mean": 27.4072,
+  "argmax_std": 1.1913,
+  "argmax_per_fold": [
+    27.5578,
+    28.4368,
+    26.0461,
+    26.0583,
+    28.9372
+  ],
+  "argmax_best_epochs": [
+    12,
+    16,
+    14,
+    21,
+    11
+  ],
+  "sm3_mean": 26.6145,
+  "sm3_std": 0.8175,
+  "sm3_per_fold": [
+    26.7651,
+    27.3913,
+    25.5916,
+    25.9563,
+    27.3681
+  ],
+  "sm3_best_epochs": [
+    9,
+    15,
+    9,
+    22,
+    12
+  ],
+  "median_best_epoch": 14
+}
