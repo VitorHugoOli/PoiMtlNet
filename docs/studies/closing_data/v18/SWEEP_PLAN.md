@@ -85,8 +85,27 @@ this sweep exists to remove.
 | cw0.50, class-weights ON | 27.003 | 69.709 |
 | cw0.50, class-weights OFF | 26.915 | 69.687 |
 
-**Class weights ON is the lever: +1.12 sm3, region unchanged.** cat-LR is near-null across 4× its
-range (26.15–26.37). The 25-epoch arm gains cat +0.64 but costs reg −0.79 — rejected.
+**The finding is the ON/OFF axis, not the loss split.** Paired per-fold at n=5:
+
+| contrast | cat sm3 | p | reg | p |
+|---|---:|---:|---:|---:|
+| class-weights **ON vs OFF** (@cw0.75) | **+1.123** | **0.004** | +0.013 | 0.90 |
+| cw0.50/ON vs cw0.75/ON | −0.273 | 0.62 | +0.014 | 0.90 |
+
+Class weights ON is solid; **the 0.75-vs-0.50 choice is a coin flip at this n** and is left for AZ/IST
+to break. Which of the two ON arms "wins" is selector-dependent — `cw0.50/ON` takes cat-argmax, reg
+and geom_simple-argmax; `cw0.75/ON` takes cat-sm3 and geom_simple-sm3 (author observation 2026-08-08,
+correcting an earlier read that looked only at category):
+
+| arm | cat argmax | cat sm3 | reg | geom argmax | geom sm3 |
+|---|---:|---:|---:|---:|---:|
+| cw0.75 / OFF (current) | 27.3836 | 26.1532 | 69.6831 | 43.68 | 42.69 |
+| cw0.75 / ON | 27.8604 | **27.2760** | 69.6956 | 44.07 | **43.60** |
+| cw0.50 / OFF | 27.6771 | 26.9152 | 69.6873 | 43.92 | 43.31 |
+| cw0.50 / ON | **27.9534** | 27.0034 | **69.7091** | **44.14** | 43.39 |
+
+cat-LR is near-null across 4× its range (26.15–26.37 sm3). The 25-epoch arm gains cat +0.64 but costs
+reg −0.79 — rejected.
 
 Net at alabama, both arms fairly tuned and both fp32: **Δcat −0.97 → −0.33**.
 
@@ -98,11 +117,31 @@ Net at alabama, both arms fairly tuned and both fp32: **Δcat −0.97 → −0.3
 | 2 | schedule shape | dedicated | AL, AZ, IST | epochs {15, 25} @ anchor | 6 | ✅ done |
 | 3 | MTL cat-LR | MTL | AL, AZ, IST | cat-lr {5e-4, 1e-3, 2e-3} + 25-ep arm | 4/state | AL ✅ · AZ 🔄 · IST 🔄 |
 | 4 | dedicated class weights | dedicated | AL | `--no-class-weights` × max_lr {0.005, 0.0025} | 2 | 🔄 queued |
-| 5 | large-state dedicated | dedicated | TX | max_lr {0.005, 0.0075, 0.01} × epochs {50, 75} | 5 | ⏸ **POSTPONED** (P6) |
-| 6 | dedicated class weights @ large | dedicated | TX | `--no-class-weights` | 1 | ⏸ **POSTPONED** (P6) |
+| 5 | large-state dedicated | dedicated | **TX, 1 fold** | max_lr {0.005, 0.0075, 0.01} × epochs {50, 75} | 5 | ⬜ queued |
+| 6 | dedicated class weights @ large | dedicated | **TX, 1 fold** | `--no-class-weights` | 1 | ⬜ queued |
 | 7 | MTL knobs | MTL | AL, AZ, IST | class-weights {on,off} × cw {0.75, 0.5} | 3/state | AL ✅ · AZ 🔄 · IST 🔄 |
+| 3b | MTL cat-LR @ large | MTL | **FL, 1 fold** | cat-lr {5e-4, 1e-3, 2e-3} + 25-ep | 4 | ⬜ queued |
 | 8 | MTL @ large | MTL | TX/CA | carried from #7 | 2 | ⏸ **POSTPONED** (P6) |
 | 9 | confirm | both | winners | best dedicated + best MTL | — | ⬜ |
+| T3′ | trunk re-test on the adopted recipe | MTL | FL | `disable_cross_attn=True` | 1 | ⬜ after sweep |
+| P1 | capacity-matched region control | dedicated reg | AL, CA | `d_model` 480 / 352 | 2 | ⬜ after sweep |
+
+### 1-fold screens — scope decision 2026-08-08, and its limits
+
+Rows 5, 6 and 3b run **one fold** to buy large-state evidence cheaply: rows 5+6 drop from ~9.6 h to
+**~1.9 h**, row 3b from ~6.5 h to **~1.6 h**. This directly reduces the transfer risk recorded in
+[`POSTPONED.md`](POSTPONED.md) P6 — some large-state evidence beats none.
+
+**What one fold can and cannot do.** The effects measured at the small states were +0.49…+1.08 sm3;
+TX dedicated fold-σ is ~0.30. One fold gives no dispersion, no paired test and no interval, so it can
+pick a **direction** but cannot certify a winner — the same rule the region triage driver states. Arms
+are compared **on the same fold**, so the contrast stays paired and fair even if fold 0 is not
+representative in absolute level.
+
+⚠ **Use `--only-fold 0`, never `--folds 1`.** `--folds N` overrides `k_folds` to `max(2,N)`, so a
+1-fold run against a 5-fold-built `log_T` leaks 30–40 % of the validation transitions into the prior
+and **inflates reg Acc@10 by 13–23 pp** (`mtl_cv.py:680-688`; documented in
+`region_1fold_triage/run_1f.sh`). At row 3b that would manufacture the very reg number being measured.
 
 ### Inserted 2026-08-07 — trunk arms at alabama, BEFORE the MTL sweep rows
 
