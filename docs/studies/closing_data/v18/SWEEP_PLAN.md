@@ -85,6 +85,11 @@ this sweep exists to remove.
 | cw0.50, class-weights ON | 27.003 | 69.709 |
 | cw0.50, class-weights OFF | 26.915 | 69.687 |
 
+> **TIE-BREAK, pre-registered 2026-08-08 (author).** When the two class-weights-ON arms are
+> statistically indistinguishable (they are: p=0.62 cat, p=0.90 reg), **break the tie on REGION**,
+> which selects **`cw0.50 / class-weights ON`**. Rationale: region is the axis on which MTL has a
+> defensible claim, so a tie on category should not decide it. Recorded before AZ/IST reported.
+
 **The finding is the ON/OFF axis, not the loss split.** Paired per-fold at n=5:
 
 | contrast | cat sm3 | p | reg | p |
@@ -122,8 +127,10 @@ Net at alabama, both arms fairly tuned and both fp32: **Δcat −0.97 → −0.3
 | 7 | MTL knobs | MTL | AL, AZ, IST | class-weights {on,off} × cw {0.75, 0.5} | 3/state | AL ✅ · AZ 🔄 · IST 🔄 |
 | 3b | MTL cat-LR @ large | MTL | **FL, 1 fold** | cat-lr {5e-4, 1e-3, 2e-3} + 25-ep | 4 | ⬜ queued |
 | 8 | MTL @ large | MTL | TX/CA | carried from #7 | 2 | ⏸ **POSTPONED** (P6) |
+| 10 | **MTL batch size** | MTL | AL | per-head LR ×{1.67, 2.5, 3.33} × bs {16384, 32768} | 6 | ⬜ queued |
 | 9 | confirm | both | winners | best dedicated + best MTL | — | ⬜ |
-| T3′ | trunk re-test on the adopted recipe | MTL | FL | `disable_cross_attn=True` | 1 | ⬜ after sweep |
+
+**Row 8 is NOT in the execution order** — it is postponed (P6) and will not run in this pass.
 | P1 | capacity-matched region control | dedicated reg | AL, CA | `d_model` 480 / 352 | 2 | ⬜ after sweep |
 
 ### 1-fold screens — scope decision 2026-08-08, and its limits
@@ -152,8 +159,8 @@ so it runs **before** rows 3 / 7 / 8. Row 3 (MTL cat-LR grid) is deferred until 
 |---|---|---|---|---|---|---|---|
 | T1 | trunk | **A** no sharing | alabama | `--model-param disable_cross_attn=True` | 0 | 359 s | ✅ Δcat **−0.015**, Δreg **−0.138** |
 | T2 | trunk | **A′** no mixing, same depth | alabama | `--model-param identity_cross_attn=True` | 0 | 414 s | ✅ Δcat **−0.154**, Δreg **−0.004** |
-| T3 | trunk | **A** no sharing | florida | `--model-param disable_cross_attn=True` | 0 | ~41 min | 🔄 running |
-| T4 | trunk | **A′** | florida | `identity_cross_attn=True` | 0 | ~45 min | ⏸ conditional on T3 (POSTPONED.md P5) |
+| T3 | trunk | **A** no sharing | florida | `--model-param disable_cross_attn=True` | 0 | 4525 s | ✅ **DONE** Δcat **+0.002**, Δreg **+0.026** |
+| T4 | trunk | **A′** | florida | `identity_cross_attn=True` | 0 | — | ⏭ **dropped** — nothing for A′ to decompose after T3's null |
 
 **T1/T2 result: at ALABAMA the trunk is inert, not harmful.** The "trunk adds capacity that feeds
 memorization" hypothesis is falsified *at alabama* — severing it neither helps nor hurts (|Δ| ≤ 0.154
