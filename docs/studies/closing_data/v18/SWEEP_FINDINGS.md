@@ -266,6 +266,22 @@ what a shortened step budget damages. The two are confounded at alabama — as f
 exceeds the card. The driver catches OOM, logs it distinctly and continues — a failure there is
 information, not a crash.
 
+### 8.1 Row 11 — logit adjustment (queued after A–C)
+
+`--logit-adjust-tau {0.5, 1.0}` at AL/AZ/IST, 5 folds, at each state's retuned winner LR (~49 min).
+
+**Why this is not a repeat of row 4.** Row 4 removed class weights with **no replacement** and lost
+~1 pp at alabama. Logit adjustment is the Bayes-consistent *substitute*: it shifts logits by
+`τ·log(prior)` instead of reweighting the loss, and it targets macro-F1 directly. `next_cv.py:123-141`
+makes the class-weighted CE the `else` branch, so passing the flag replaces class weighting on its
+own — the untested cell.
+
+Prior: T1.4 found **τ=0.5 beat balanced weighting at all four states** — but on the **stride-9**
+substrate (AL 12,709 windows) versus v18's **stride-1** (96,326), so transfer is not guaranteed.
+
+This is also the intervention the overfitting diagnosis ranked #2 of 3, and the only one of the three
+expected to move the reported metric rather than merely stabilise training.
+
 **A is deliberately first.** Two contradictory data points (AL ON, TX OFF) are not a finding; a
 size-graded transition would be. The recipe decision for the large states should wait for it.
 

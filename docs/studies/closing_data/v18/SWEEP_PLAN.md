@@ -156,6 +156,7 @@ Net at alabama, both arms fairly tuned and both fp32: **Δcat −0.97 → −0.3
 | **B** | TX class weights, folds 0/1/2, same seed, **50 ep** | 6 runs | one fold can be biased. Fold 0 is re-run at 50 ep for **both** arms so the 3-fold mean does not mix schedules with row 6's 75 ep | ~1.6 h | ⬜ |
 | **C** | TX dedicated bs {16384, 32768} | 1 fold, class-weight flag taken from **B's 3-fold mean** | batch size at a state that is *not* step-starved (unlike AL row 10) | ~40 min | ⬜ |
 | **D** | FL MTL bs {16384, 32768} | 1 fold, at the best row-3b cat-lr | AL's batch sweep was confounded by step starvation; FL has ~13× the windows | ~50 min | ⬜ |
+| **11** | **logit adjustment** `--logit-adjust-tau {0.5, 1.0}` | AL, AZ, IST, 5 folds, at each state's **retuned winner LR** | row 4 removed class weights with **no replacement** and lost ~1 pp. Logit adjustment is the Bayes-consistent substitute and targets macro-F1 directly. **This is the cell row 4 never tested.** | ~49 min | ⬜ queued after A–C |
 
 **A runs first, deliberately.** Two contradictory data points (AL ON, TX OFF) are not a finding; a
 size-graded transition would be. The large-state recipe decision waits on it.
@@ -165,6 +166,25 @@ exceeds the card. The driver catches OOM, logs it distinctly and continues — a
 information, not a crash.
 
 **Epochs pinned at 50 for TX** (author 2026-08-08): row 5 showed 50 vs 75 inside the margin of error.
+
+#### Row 11 — logit adjustment (author request 2026-08-08)
+
+**Verified mechanism, not assumed.** `next_cv.py:123-141` — when `config.loss_calibration` is
+non-empty it builds `CalibratedLoss`, and the class-weighted `CrossEntropyLoss` is the **`else`**
+branch. So `--logit-adjust-tau` **replaces class weighting automatically**. Do **not** also pass
+`--no-class-weights` or `--tail-loss balanced`: stacking logit adjustment on balanced weights
+cratered in T1.4 (AL 30.15 vs 49.97).
+
+**Leak-safe, verified:** class counts come from `train_loader.dataset.targets` — the TRAIN fold only
+(`next_cv.py:127`) — and the offset is applied inside the criterion. `shared_evaluate` takes no
+criterion, so evaluation logits are unadjusted.
+
+**Prior evidence:** the mtl_improvement T1.4 re-pin tuned this exact head and found **τ=0.5 beat
+`--tail-loss balanced` at all four states**. ⚠ Caveat: T1.4 ran on the **stride-9** substrate
+(AL 12,709 windows); v18 is **stride-1** (96,326). Transfer is not guaranteed.
+
+Run at each state's retuned winner LR (AL bs8192@0.0025, AZ bs8192@0.0005, IST bs2048@0.0005) so the
+result composes with the adopted recipe rather than a superseded one.
 | P1 | capacity-matched region control | dedicated reg | AL, CA | `d_model` 480 / 352 | 2 | ⬜ after sweep |
 
 ### 1-fold screens — scope decision 2026-08-08, and its limits
