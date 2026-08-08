@@ -52,6 +52,19 @@ small-state job, so 2-wide buys only ~1.18× and is used solely where a row says
 **CPU execution is excluded**: CUDA and CPU kernels give different floating-point results, so CPU
 arms would not be comparable to GPU arms — the same class of error as the fp16/fp32 leak.
 
+## EXECUTION ORDER — confirmed 2026-08-08
+
+**3 → 7 → 4 → 10 → 5 → 6 → 3b → 9.** Rows 3 and 7 run together per state (AL ✅, AZ 🔄, IST queued).
+**Row 8 is postponed and is NOT in this order.**
+
+Chained unattended: `run_queue2.sh` (rows 3+7 at AZ/IST, then row 4) → `run_queue3.sh` (row 10) →
+`run_queue4.sh` (rows 5, 6 at TX 1-fold; row 3b at FL 1-fold). Row 9 needs a winner fixed first.
+
+**If the author is unavailable when the queues finish:** decide row 9 per the pre-registered rules
+below, have the choice reviewed by an independent (Fable-5) reviewer, record the decision and its
+reviewer verdict here, then work out which wave cells the new recipe invalidates and restart the
+waves. Authorised 2026-08-08.
+
 ## STATUS AT A GLANCE (updated 2026-08-08)
 
 | question | answer |
