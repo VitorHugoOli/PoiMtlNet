@@ -65,14 +65,17 @@ below, have the choice reviewed by an independent (Fable-5) reviewer, record the
 reviewer verdict here, then work out which wave cells the new recipe invalidates and restart the
 waves. Authorised 2026-08-08.
 
+> 📊 **Full results with paired tests, per-arm tables and the two corrections:
+> [`SWEEP_FINDINGS.md`](SWEEP_FINDINGS.md).** Read that for the audit; this file is the register.
+
 ## STATUS AT A GLANCE (updated 2026-08-08)
 
 | question | answer |
 |---|---|
 | Dedicated (STL) sweep settled at AL/AZ/IST? | **YES — 30/30 arms done** (rows 1+2). Winner per state below. |
-| Dedicated row 4 (`--no-class-weights`)? | 🔄 **queued**, runs last in queue2 |
-| MTL cat-LR grid {5e-4,1e-3,2e-3} + 25-ep arm (row 3)? | **AL ✅ done · AZ 🔄 running · IST 🔄 queued** |
-| MTL cat-class-weights {on,off} × category-weight {0.75,0.5} (row 7)? | **AL ✅ done (2×2 complete) · AZ 🔄 running · IST 🔄 queued** |
+| Dedicated row 4 (`--no-class-weights`)? | ✅ **done** — removing them **HURTS** ~1 pp (−1.20 @0.005, −1.00 @0.0025). Author hypothesis not supported on the dedicated side. |
+| MTL cat-LR grid {5e-4,1e-3,2e-3} + 25-ep arm (row 3)? | ✅ **done at AL, AZ, IST** — result: **null** (span ≤0.28 sm3 across 4× the LR range) |
+| MTL cat-class-weights {on,off} × category-weight {0.75,0.5} (row 7)? | ✅ **done at AL, AZ, IST** — class weights are **alabama-only** (+1.12 p=0.004; AZ +0.23 p=0.64; IST −0.14 p=0.68) |
 | P1 capacity control (after T2)? | ❌ **NOT run — deliberately HELD** by author decision 2026-08-07 → [`POSTPONED.md`](POSTPONED.md) P1 |
 | CA/TX sweep (rows 5, 6, 8)? | ❌ **NOT run — POSTPONED for time** 2026-08-08 → [`POSTPONED.md`](POSTPONED.md) P6 |
 
@@ -133,14 +136,14 @@ Net at alabama, both arms fairly tuned and both fp32: **Δcat −0.97 → −0.3
 |---|---|---|---|---|---|---|
 | 1 | small-state dedicated | dedicated | AL, AZ, IST | bs {2048, 8192} × max_lr {0.0005, 0.001, 0.0025, 0.005} | 24 | ✅ done |
 | 2 | schedule shape | dedicated | AL, AZ, IST | epochs {15, 25} @ anchor | 6 | ✅ done |
-| 3 | MTL cat-LR | MTL | AL, AZ, IST | cat-lr {5e-4, 1e-3, 2e-3} + 25-ep arm | 4/state | AL ✅ · AZ 🔄 · IST 🔄 |
-| 4 | dedicated class weights | dedicated | AL | `--no-class-weights` × max_lr {0.005, 0.0025} | 2 | 🔄 queued |
+| 3 | MTL cat-LR | MTL | AL, AZ, IST | cat-lr {5e-4, 1e-3, 2e-3} + 25-ep arm | 12 | ✅ done — null |
+| 4 | dedicated class weights | dedicated | AL | `--no-class-weights` × max_lr {0.005, 0.0025} | 2 | ✅ done — removing hurts ~1 pp |
 | 5 | large-state dedicated | dedicated | **TX, 1 fold** | max_lr {0.005, 0.0075, 0.01} × epochs {50, 75} | 5 | ⬜ queued |
 | 6 | dedicated class weights @ large | dedicated | **TX, 1 fold** | `--no-class-weights` | 1 | ⬜ queued |
-| 7 | MTL knobs | MTL | AL, AZ, IST | class-weights {on,off} × cw {0.75, 0.5} | 3/state | AL ✅ · AZ 🔄 · IST 🔄 |
+| 7 | MTL knobs | MTL | AL, AZ, IST | class-weights {on,off} × cw {0.75, 0.5} | 9 | ✅ done — see SWEEP_FINDINGS §3 |
 | 3b | MTL cat-LR @ large | MTL | **FL, 1 fold** | cat-lr {5e-4, 1e-3, 2e-3} + 25-ep | 4 | ⬜ queued |
 | 8 | MTL @ large | MTL | TX/CA | carried from #7 | 2 | ⏸ **POSTPONED** (P6) |
-| 10 | **MTL batch size** | MTL | AL | per-head LR ×{1.67, 2.5, 3.33} × bs {16384, 32768} | 6 | ⬜ queued |
+| 10 | **MTL batch size** | MTL | AL | per-head LR ×{1.67, 2.5, 3.33} × bs {16384, 32768} | 6 | 🔄 running |
 | 9 | confirm | both | winners | best dedicated + best MTL | — | ⬜ |
 
 **Row 8 is NOT in the execution order** — it is postponed (P6) and will not run in this pass.
