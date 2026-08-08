@@ -138,15 +138,33 @@ Net at alabama, both arms fairly tuned and both fp32: **Δcat −0.97 → −0.3
 | 2 | schedule shape | dedicated | AL, AZ, IST | epochs {15, 25} @ anchor | 6 | ✅ done |
 | 3 | MTL cat-LR | MTL | AL, AZ, IST | cat-lr {5e-4, 1e-3, 2e-3} + 25-ep arm | 12 | ✅ done — null |
 | 4 | dedicated class weights | dedicated | AL | `--no-class-weights` × max_lr {0.005, 0.0025} | 2 | ✅ done — removing hurts ~1 pp |
-| 5 | large-state dedicated | dedicated | **TX, 1 fold** | max_lr {0.005, 0.0075, 0.01} × epochs {50, 75} | 5 | ⬜ queued |
-| 6 | dedicated class weights @ large | dedicated | **TX, 1 fold** | `--no-class-weights` | 1 | ⬜ queued |
+| 5 | large-state dedicated | dedicated | **TX, 1 fold** | max_lr {0.005, 0.0075, 0.01} × epochs {50, 75} | 5 | ✅ done — **FLAT** (all within 0.25 sm3); keep 0.005 @ 50 ep |
+| 6 | dedicated class weights @ large | dedicated | **TX, 1 fold** | `--no-class-weights` | 1 | ✅ done — **OFF wins +1.18** (opposite sign to alabama!) |
 | 7 | MTL knobs | MTL | AL, AZ, IST | class-weights {on,off} × cw {0.75, 0.5} | 9 | ✅ done — see SWEEP_FINDINGS §3 |
-| 3b | MTL cat-LR @ large | MTL | **FL, 1 fold** | cat-lr {5e-4, 1e-3, 2e-3} + 25-ep | 4 | ⬜ queued |
+| 3b | MTL cat-LR @ large | MTL | **FL, 1 fold** | cat-lr {5e-4, 1e-3, 2e-3} + 25-ep | 4 | 🔄 running |
 | 8 | MTL @ large | MTL | TX/CA | carried from #7 | 2 | ⏸ **POSTPONED** (P6) |
-| 10 | **MTL batch size** | MTL | AL | per-head LR ×{1.67, 2.5, 3.33} × bs {16384, 32768} | 6 | 🔄 running |
+| 10 | **MTL batch size** | MTL | AL | per-head LR ×{1.67, 2.5, 3.33} × bs {16384, 32768} | 6 | ✅ done — **keep bs8192** (larger batches cost ~1.3 reg) |
 | 9 | confirm | both | winners | best dedicated + best MTL | — | ⬜ |
 
 **Row 8 is NOT in the execution order** — it is postponed (P6) and will not run in this pass.
+
+### Follow-ups added 2026-08-08 (`run_next2.sh`) — triggered by the row-6 sign flip
+
+| step | what | scope | why | cost | status |
+|---|---|---|---|---:|---|
+| **A** | AZ + IST dedicated `--no-class-weights` | 5 folds, at the retuned winner LR **and** at 0.005 | AL (96 k) says weights ON, TX (3.8 M) says OFF. AZ (201 k) / IST (272 k) sit between → is the flip **size-graded** or a texas peculiarity? | ~37 min | ⬜ |
+| **B** | TX class weights, folds 0/1/2, same seed, **50 ep** | 6 runs | one fold can be biased. Fold 0 is re-run at 50 ep for **both** arms so the 3-fold mean does not mix schedules with row 6's 75 ep | ~1.6 h | ⬜ |
+| **C** | TX dedicated bs {16384, 32768} | 1 fold, class-weight flag taken from **B's 3-fold mean** | batch size at a state that is *not* step-starved (unlike AL row 10) | ~40 min | ⬜ |
+| **D** | FL MTL bs {16384, 32768} | 1 fold, at the best row-3b cat-lr | AL's batch sweep was confounded by step starvation; FL has ~13× the windows | ~50 min | ⬜ |
+
+**A runs first, deliberately.** Two contradictory data points (AL ON, TX OFF) are not a finding; a
+size-graded transition would be. The large-state recipe decision waits on it.
+
+⚠️ **D may OOM at bs32768.** FL MTL at bs8192 uses **15.2 GB of 46 GB**; ~4× the activations likely
+exceeds the card. The driver catches OOM, logs it distinctly and continues — a failure there is
+information, not a crash.
+
+**Epochs pinned at 50 for TX** (author 2026-08-08): row 5 showed 50 vs 75 inside the margin of error.
 | P1 | capacity-matched region control | dedicated reg | AL, CA | `d_model` 480 / 352 | 2 | ⬜ after sweep |
 
 ### 1-fold screens — scope decision 2026-08-08, and its limits

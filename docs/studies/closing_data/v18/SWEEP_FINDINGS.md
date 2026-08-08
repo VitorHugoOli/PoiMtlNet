@@ -23,7 +23,10 @@
 | MTL cat-LR matters | AL, AZ, IST | ❌ **null** — spans 0.22 / 0.21 / 0.28 sm3 across 4× the LR range |
 | MTL 25-epoch schedule | AL, AZ, IST | ❌ **rejected** — trades cat for reg |
 | **MTL class weights ON helps** | AL only | ⚠️ **DOES NOT REPLICATE** — see §3 |
-| Removing class weights from the dedicated arm | AL | ❌ **hurts** ~1 pp — see §4 |
+| Removing class weights from the dedicated arm | AL (5f) | ❌ **hurts** ~1 pp — see §4 |
+| **…but at TEXAS it HELPS ~1.2 pp** | TX (1f) | ⚠️ **sign flips with data size** — see §7.2. AZ/IST queued to map it |
+| TX dedicated LR / schedule grid | TX (1f) | ❌ **flat** — no change warranted; recipe tiers by size — see §7.1 |
+| MTL batch size (16k / 32k) | AL | ❌ **keep bs8192** — larger batches cost ~1.3 reg — see §7.3 |
 | cw 0.75 vs 0.50 | AL, AZ, IST | ⚠️ **tie-break reversed** — see §3.2 |
 
 **The one-sentence summary: the dedicated baseline was genuinely mistuned and is now fixed; the MTL
@@ -172,6 +175,99 @@ All fp32, both arms, sm3 selector:
 Fair tuning of both arms moves Δcat from −0.97 to −0.33 at alabama. This is **one state and one
 seed**; it is not the pooled headline. The pooled Stage-0 result across six states remains
 **Δcat +0.010, 95% CI [−0.424, +0.445], "matches" (TOST ±2 pp)**.
+
+
+---
+
+## 7 · Large states — rows 5, 6 (TX, 1 fold) and row 10 (MTL batch size, AL)
+
+### 7.1 Row 5 — TX dedicated LR/schedule grid: FLAT
+
+Grid went **up** (0.005 → 0.01) because TX shows no train−val gap. It found nothing.
+
+| max_lr | epochs | argmax | sm3 | best epoch |
+|---:|---:|---:|---:|---:|
+| **0.005** | 50 | 34.107 | 33.613 | 16 |
+| 0.0075 | 50 | 34.007 | 33.058 | 9 |
+| 0.01 | 50 | 34.012 | 33.607 | **2** |
+| 0.005 | 75 | 33.997 | **33.848** | 9 |
+| 0.0075 | 75 | 34.077 | 33.602 | 9 |
+
+Everything sits within **0.25 sm3 / 0.11 argmax** — smaller than the *gain* the small-state retune
+produced (+0.49…+1.08). At one fold with no dispersion that is a null: the screen picks no direction.
+Raising the LR does **not** help, so the "large states are capacity-limited, go up" reasoning is
+**not** supported either. Both directions are flat.
+
+The `lr 0.01` arm peaks at **epoch 2** — the pathological end of the early-peak signature; its argmax
+is read off essentially a first-epoch spike and only the smoothing rescues it.
+
+**Consequence:** the blind-transfer risk in [`POSTPONED.md`](POSTPONED.md) P6 resolves the safest
+way — there is no reason to change the large-state LR at all. **Recipe tiers by state size**, exactly
+as v17 did: small states take the retuned lower LR, large states keep `bs8192 @ 0.005`.
+**Epochs pinned at 50** (author, 2026-08-08): 50 vs 75 is inside the margin of error.
+
+### 7.2 Row 6 — TX class weights: the sign FLIPS versus alabama ⚠️
+
+| state | data | train−val gap | folds | **Δ sm3 (OFF − ON)** |
+|---|---|---:|---:|---:|
+| **alabama** | 96 k windows | **+42 pp** (memorizing) | 5 | **−1.203** → weights **ON** better |
+| **texas** | 3.83 M windows | **+0.25** (no overfit) | **1** | **+1.176** → weights **OFF** better |
+
+Same knob, opposite sign, and the split falls exactly on the overfit/capacity divide measured in
+§ *Why the sweep is split by state size*. Mechanistically coherent: macro-F1 rewards rare classes, so
+where the model memorizes (AL) class weighting is a useful rebalancer, and where there is enough data
+to fit rare classes anyway (TX) it distorts away from the frequency-weighted optimum.
+
+**This partially vindicates the author's hypothesis** that class weights should be off — true at
+large states, false at small ones. C25's "unweighted wins" evidently transfers at scale, not at small
+data.
+
+⚠️ **It is load-bearing and under-evidenced.** TX's Δcat was **+0.96**, the only "beats" verdict in
+the category column. If the TX dedicated ceiling rises ~1.18, that becomes ≈ **−0.2** and the last
+category "beats" disappears. But this is **1 fold** against alabama's 5. In its favour: +1.18 is ~4×
+TX's dedicated fold-σ (~0.30). Against it: one fold has no dispersion, and row 6 ran at 75 epochs
+while everything else uses 50.
+
+### 7.3 Row 10 — MTL batch size at alabama: keep bs8192
+
+All arms on cw0.50 + class-weights ON. Per-head LRs scaled ×1.67/2.5/3.33 (the `--max-lr` flag is
+inert under `MTL_ONECYCLE_PER_HEAD_LR=1`).
+
+| bs | lr× | cat sm3 | reg | geom |
+|---:|---:|---:|---:|---:|
+| **8192 (reference)** | 1.00 | 27.003 | **69.709** | **43.386** |
+| 16384 | 1.67 | 26.691 | 69.570 | 43.091 |
+| 16384 | 2.50 | 27.115 | 69.182 | 43.311 |
+| 16384 | 3.33 | 26.477 | 69.483 | 42.892 |
+| 32768 | 1.67 | **27.234** | 68.374 | 43.152 |
+| 32768 | 2.50 | 26.649 | 68.470 | 42.716 |
+| 32768 | 3.33 | 27.171 | 68.564 | 43.162 |
+
+**bs8192 wins on region and on the joint selector; every larger-batch arm is worse on `geom`.** The
+best category arm (bs32k ×1.67, +0.23 cat) costs **−1.34 reg**. Category is scattered with no LR
+trend (noise); **region is the informative axis** and loses ~1.3 pp at bs32k across all three LRs.
+
+Read this as **"too few optimizer steps hurts region"**, not "large batches hurt": bs32768 gives only
+~118 steps over 50 epochs at alabama, and the region head peaks late (epochs 25–50), so it is exactly
+what a shortened step budget damages. The two are confounded at alabama — as flagged *before* the run.
+
+---
+
+## 8 · Follow-ups queued (author plan 2026-08-08) — `run_next2.sh`
+
+| step | what | scope | why | cost |
+|---|---|---|---|---:|
+| **A** | AZ + IST dedicated `--no-class-weights` | 5 folds, at the retuned winner LR **and** at 0.005 | AL (96 k) says ON, TX (3.8 M) says OFF. AZ (201 k) and IST (272 k) sit between, so they show whether the flip is **size-graded** or a texas peculiarity | ~37 min |
+| **B** | TX class weights, folds 0/1/2, same seed, **50 ep** | 6 runs | one fold can be biased; fold 0 is re-run at 50 ep for both arms so the 3-fold mean does not mix schedules | ~1.6 h |
+| **C** | TX dedicated bs {16384, 32768} | 1 fold, class-weight flag taken from **B's 3-fold mean** | batch size at a state that is not step-starved | ~40 min |
+| **D** | FL MTL bs {16384, 32768} | 1 fold, at the best row-3b cat-lr | the AL batch sweep was confounded by step starvation; FL has ~4× the windows | ~50 min |
+
+⚠️ **D may OOM at bs32768.** FL MTL at bs8192 uses **15.2 GB of 46 GB**; 4× the activations likely
+exceeds the card. The driver catches OOM, logs it distinctly and continues — a failure there is
+information, not a crash.
+
+**A is deliberately first.** Two contradictory data points (AL ON, TX OFF) are not a finding; a
+size-graded transition would be. The recipe decision for the large states should wait for it.
 
 ---
 
