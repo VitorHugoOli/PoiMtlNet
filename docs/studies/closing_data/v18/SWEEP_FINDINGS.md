@@ -255,7 +255,7 @@ what a shortened step budget damages. The two are confounded at alabama — as f
 
 ---
 
-## 8 · Follow-ups queued (author plan 2026-08-08) — `run_next2.sh`
+## 8 · Follow-ups A–D as planned (results are in §11)
 
 | step | what | scope | why | cost |
 |---|---|---|---|---:|
@@ -414,6 +414,101 @@ calibration the category side is orderly and monotone, so that scatter was subst
 Honest note: bs8192 (geom 45.725) and bs16384 ×1.67 (geom **45.886**) are effectively tied, and the
 latter is ~45 s faster. Not adopted — n=5 at one state, and switching would force regenerating every
 joint cell for a 0.16 geom difference.
+
+
+---
+
+## 11 · Follow-ups A–C and row 3b — results (these were run; §8 only listed them as queued)
+
+### 11.1 Step A — dedicated class weights at AZ / IST (5 folds), mapping the size-dependence
+
+| state | lr | ON sm3 | OFF sm3 | Δ (OFF−ON) | p |
+|---|---:|---:|---:|---:|---:|
+| arizona | 0.0005 | 31.6675 | 31.1194 | -0.548 | 0.362 |
+| arizona | 0.005 | 31.1028 | 30.5804 | -0.522 | 0.598 |
+| istanbul | 0.0005 | 32.0772 | 31.8098 | -0.267 | 0.310 |
+| istanbul | 0.005 | 30.9978 | 31.1756 | +0.178 | 0.717 |
+
+Both arizona LRs agree (−0.548 / −0.522), so the effect is a property of the state, not an
+interaction with the schedule. Istanbul **flips sign between its two LRs** (−0.267 / +0.178), i.e.
+indistinguishable from zero either way. Per-fold signs are split at both states, so these two
+middle points are **weak**, not firm.
+
+### 11.2 Step B — TX class weights, 3 folds, same seed, 50 epochs (the decisive large-state arm)
+
+| fold | ON | OFF | Δ |
+|---:|---:|---:|---:|
+| 0 | 33.6127 | 35.1696 | **+1.557** |
+| 1 | 33.6640 | 35.6980 | **+2.034** |
+| 2 | 32.9860 | 34.0636 | **+1.078** |
+| **mean** | **33.4209** | **34.9771** | **+1.556** |
+
+**sd 0.478, paired t = +5.64, p = 0.0301** — all three folds positive.
+Row 6's original single-fold +1.176 (at 75 ep) was the *conservative* estimate; at 50 ep it is +1.56.
+
+**The size-graded class-weight picture** (Δ = OFF − ON, dedicated arm):
+
+| state | windows | Δ | folds | p |
+|---|---:|---:|---:|---:|
+| alabama | 96 k | **−1.203** | 5 | **0.004** |
+| arizona | 201 k | −0.535 | 5 | 0.36–0.60 |
+| istanbul | 272 k | ≈ 0 (sign-unstable) | 5 | 0.31–0.72 |
+| **texas** | **3,830 k** | **+1.556** | 3 | **0.0301** |
+
+Monotone in data volume with **both endpoints significant and opposite in sign**; the two middle
+states sit on the crossing as nulls. ⚠ **But see §12** — logit adjustment may supersede this rule
+entirely, since it *replaces* class weighting.
+
+### 11.3 Step C — TX dedicated batch size, 1 fold, class weights OFF
+
+| bs | sm3 | argmax | argmax−sm3 | best ep | wall |
+|---:|---:|---:|---:|---:|---:|
+| **8192** | **35.1696** | 35.1696 | **0.000** | [6] | 1116 s |
+| 16384 | 35.0585 | 35.3998 | 0.341 | [10] | 1119 s |
+| 32768 | 34.6175 | 35.1556 | 0.538 | [11] | 1117 s |
+
+Monotone decline (−0.11, −0.55) and **no wall-clock saving at all** (1116/1119/1117 s). The
+`argmax−sm3` gap grows with batch size (0.000 → 0.341 → 0.538): fewer optimizer steps make the
+validation curve spikier and the argmax less trustworthy. Same mechanism as row 10 at alabama, at
+the opposite end of the size range — so **bs8192 is confirmed at a small AND a large state**.
+
+### 11.4 Row 3b — FL MTL cat-LR grid, 1 fold
+
+| cat-lr | ep | cat sm3 | cat argmax | reg |
+|---:|---:|---:|---:|---:|
+| 0.0005 | 50 | 36.1213 | 36.4909 | 77.3470 |
+| 0.001 | 50 | 36.3369 | 36.4161 | 77.3921 |
+| 0.001 | 25 | 36.2987 | 36.3037 | 77.4729 |
+| 0.002 | 50 | 36.3842 | 36.6709 | 77.3752 |
+
+**sm3 span 0.263 across the 4× LR range** — essentially identical to AL (0.22), AZ (0.21), IST
+(0.28). So **cat-LR is null at all four states tested, small and large**; the axis is closed.
+One state-dependent detail: the 25-epoch arm behaves *oppositely* to alabama — at FL it **gains**
++0.08 reg (the best region number in the table) at half the wall time, where at AL it cost −0.79.
+
+### 11.5 A free bit-reproducibility check
+
+Stage 1's driver independently re-ran all four row-3 arms with a **separate inductor cache**.
+Every one reproduced to **Δ = 0.0000** (four decimals):
+
+| arm | run 1 | run 2 |
+|---|---:|---:|
+| catlr0.0005_ep50 | 27.1045 | 27.1045 |
+| catlr0.001_ep50 | 27.3836 | 27.3836 |
+| catlr0.002_ep50 | 27.5131 | 27.5131 |
+| catlr0.001_ep25 | 27.6177 | 27.6177 |
+
+An unplanned duplicate (a scoping slip) turned into evidence that this configuration is
+bit-reproducible under `--compile`, which `CLAUDE.md` treats as not guaranteed.
+
+### 11.6 ⚠ Open: does logit adjustment SUPERSEDE the class-weight rule?
+
+`--logit-adjust-tau` **replaces** class weighting — `next_cv.py:123-141` and `mtl_cv.py:481-484`
+both make the weighted CE the `else` branch. If logit adjustment is adopted board-wide, then the
+size-tiered class-weight rule in §11.2 governs a configuration **we no longer ship**, and the
+texas +1.556 becomes a background finding rather than a recipe rule. **This is unresolved and is
+the first thing an auditor should check.** Logit adjustment has only been measured at AL/AZ/IST —
+never at a large state — so it cannot yet simply replace the tiering at TX/CA.
 
 ---
 
