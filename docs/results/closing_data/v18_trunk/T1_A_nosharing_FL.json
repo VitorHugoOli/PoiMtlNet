@@ -1,0 +1,42 @@
+{
+  "tag": "T1_A_nosharing_FL",
+  "state": "florida",
+  "seed": 0,
+  "model_param": "--model-param disable_cross_attn=True",
+  "rundir": "results/check2hgi_v18/florida/mtlnet_lr1.0e-04_bs8192_ep50_20260807_230308_159089",
+  "wall_seconds": 4525,
+  "precision": "fp32",
+  "cat_argmax": 35.8807,
+  "cat_argmax_std": 0.375,
+  "cat_per_fold": [
+    36.208,
+    35.7061,
+    35.2245,
+    36.1962,
+    36.0687
+  ],
+  "cat_best_epochs": [
+    13,
+    14,
+    12,
+    14,
+    19
+  ],
+  "reg": 77.2809,
+  "reg_std": 0.9884,
+  "reg_per_fold": [
+    77.5443,
+    77.3709,
+    76.1503,
+    76.3994,
+    78.9397
+  ],
+  "cat_sm3": 35.3883,
+  "cat_sm3_per_fold": [
+    35.8988,
+    35.2267,
+    34.3232,
+    35.4241,
+    36.0687
+  ]
+}
