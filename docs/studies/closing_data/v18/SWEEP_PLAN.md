@@ -54,7 +54,9 @@ arms would not be comparable to GPU arms — the same class of error as the fp16
 
 ## EXECUTION ORDER — confirmed 2026-08-08
 
-**3 → 7 → 4 → 10 → 5 → 6 → 3b → 9.** Rows 3 and 7 run together per state (AL ✅, AZ 🔄, IST queued).
+**3 → 7 → 4 → 10 → 5 → 6 → 3b → 9**, then the post-hoc rows **A–C → 11 → 12 → 10b → 13**.
+All of 3/7/4/10/5/6/3b and A/B/C/11/12/10b are **✅ done**; row 13 is **🔄 running**; row 9 is the
+only ⬜ left. Rows 3 and 7 ran together per state (AL ✅, AZ ✅, IST ✅).
 **Row 8 is postponed and is NOT in this order.**
 
 Chained unattended: `run_queue2.sh` (rows 3+7 at AZ/IST, then row 4) → `run_queue3.sh` (row 10) →
@@ -130,6 +132,53 @@ reg −0.79 — rejected.
 
 Net at alabama, both arms fairly tuned and both fp32: **Δcat −0.97 → −0.33**.
 
+### §12 note — category_weight 0.50 vs 0.75 under logit adjustment is a TRADE, not a free win
+
+Re-measured at τ=0.5, 5 folds (`mla_*` arms). Δ is **(0.50 − 0.75)**:
+
+| state | cat Δ | p | reg Δ | p |
+|---|---:|---:|---:|---:|
+| alabama | **+0.336** | **0.024** | −0.060 | 0.520 |
+| arizona | +0.125 | 0.139 | **−0.188** | **0.010** |
+| istanbul | −0.022 | 0.603 | **−0.180** | **0.007** |
+| **mean** | **+0.146** | | **−0.143** | |
+
+**cw0.50 does help category** — significantly at alabama, directionally at arizona. That reading is
+correct. But it costs region **significantly at two of three states**, and the two effects are the
+same size, so pooled it is close to a wash that moves ~0.15 pp from region into category.
+
+**SWEEP_PLAN decision rule 3 pre-registers that ties break on region.** Under that rule the winner is
+**cw0.75**. Adopting 0.50 means overriding the author's own pre-registration — allowed, but it must
+be recorded as a deliberate override, not reported as "0.50 was better".
+
+### §13 — corrections and decisions from the Fable review (2026-08-09)
+
+**⚠ CORRECTION — bs16384 is NOT an improvement at large states.** The measured TX numbers are a
+**monotone decline**: bs8192 → 16384 → 32768 gives sm3 35.1696 → 35.0585 → 34.6175 (−0.111, −0.552),
+with **no wall-clock saving whatsoever** (1116 / 1119 / 1117 s).
+
+The likely source of the opposite impression is the **argmax** column, where bs16384 *does* look
+better — 35.1696 → 35.3995 (**+0.23**). That inversion is exactly the artifact `sm3` exists to
+remove: the `argmax − sm3` gap grows 0.000 → 0.341 → 0.538 with batch size, because fewer optimizer
+steps make the validation curve spikier and its single best epoch less trustworthy. Reading argmax
+picks the tallest spike; reading sm3 picks the highest sustained region. **On the selector this study
+committed to, bs8192 wins.**
+
+It was also tested at a **small** state: row 10 and its post-calibration re-run 10b (AL, MTL). bs16k
+is worse on both heads; bs32k buys +0.156 cat for **−2.05 reg**. So bs8192 is confirmed at both ends
+of the size range and is kept everywhere.
+
+**Row 13 (running)** validates logit adjustment where it has never been measured. It runs at
+**bs8192, not bs16384** — the "faster" rationale is void per the walls above, and running the
+validation off-recipe would confound it.
+
+**Region + logit adjustment (author request, in row 13).** It *is* wired for the dedicated region
+head (`p1_region_head_ablation.py:652-662`, train-split counts only). The prior expectation is that
+it **hurts**: logit adjustment is Bayes-consistent for **balanced error** (macro-F1), whereas region
+is reported by **Acc@10**, a frequency-weighted metric whose Bayes-optimal predictor is the
+*unadjusted* posterior. `mtl_cv.py:477-479` already records that class-balancing hurts this head, and
+turns it off by default for exactly this reason. Cheap enough (189 s/arm) to settle empirically.
+
 ## Row register
 
 | # | stage | arm | states | grid | arms | status |
@@ -139,12 +188,15 @@ Net at alabama, both arms fairly tuned and both fp32: **Δcat −0.97 → −0.3
 | 3 | MTL cat-LR | MTL | AL, AZ, IST | cat-lr {5e-4, 1e-3, 2e-3} + 25-ep arm | 12 | ✅ done — null |
 | 4 | dedicated class weights | dedicated | AL | `--no-class-weights` × max_lr {0.005, 0.0025} | 2 | ✅ done — removing hurts ~1 pp |
 | 5 | large-state dedicated | dedicated | **TX, 1 fold** | max_lr {0.005, 0.0075, 0.01} × epochs {50, 75} | 5 | ✅ done — **FLAT** (all within 0.25 sm3); keep 0.005 @ 50 ep |
-| 6 | dedicated class weights @ large | dedicated | **TX, 1 fold** | `--no-class-weights` | 1 | ✅ done — **OFF wins +1.18** (opposite sign to alabama!) |
+| 6 | dedicated class weights @ large | dedicated | **TX, 1 fold** | `--no-class-weights` | 1 | ✅ done — **OFF wins +1.18** @ 75 ep (opposite sign to alabama!) — **superseded by step B**: +1.556 over 3 folds @ 50 ep, p=0.030 |
 | 7 | MTL knobs | MTL | AL, AZ, IST | class-weights {on,off} × cw {0.75, 0.5} | 9 | ✅ done — see SWEEP_FINDINGS §3 |
-| 3b | MTL cat-LR @ large | MTL | **FL, 1 fold** | cat-lr {5e-4, 1e-3, 2e-3} + 25-ep | 4 | 🔄 running |
+| 3b | MTL cat-LR @ large | MTL | **FL, 1 fold** | cat-lr {5e-4, 1e-3, 2e-3} + 25-ep | 4 | ✅ done — **null** (span 0.263 sm3); nominal best 2e-3 by +0.047 on ONE fold ⇒ keep 1e-3 |
 | 8 | MTL @ large | MTL | TX/CA | carried from #7 | 2 | ⏸ **POSTPONED** (P6) |
 | 10 | **MTL batch size** | MTL | AL | per-head LR ×{1.67, 2.5, 3.33} × bs {16384, 32768} | 6 | ✅ done — **keep bs8192** (larger batches cost ~1.3 reg) |
-| 9 | confirm | both | winners | best dedicated + best MTL | — | ⬜ |
+| 10b | MTL batch size **re-run post-calibration** | MTL | AL | bs {16384, 32768} × per-head LR ×{1.67, 2.5, 3.33} | 6 | ✅ done — **bs8192 still wins**: bs16k is worse on cat *and* reg; bs32k buys +0.156 cat for **−2.05 reg** |
+| 12 | MTL logit-adjust × category_weight | MTL | AL, AZ, IST, 5 folds | cw {0.50, 0.75} @ τ=0.5 | 6 | ✅ done — a **genuine trade**, see §12 note below |
+| **13** | **large-state logit-adjust validation** | both | **TX f0, CA f0, AL region 5f** | τ=0.5 vs baseline | 5 | 🔄 **running** (launched 2026-08-09) |
+| 9 | confirm | both | winners | best dedicated + best MTL | — | ⬜ **the only row still outstanding** |
 
 **Row 8 is NOT in the execution order** — it is postponed (P6) and will not run in this pass.
 
@@ -152,11 +204,11 @@ Net at alabama, both arms fairly tuned and both fp32: **Δcat −0.97 → −0.3
 
 | step | what | scope | why | cost | status |
 |---|---|---|---|---:|---|
-| **A** | AZ + IST dedicated `--no-class-weights` | 5 folds, at the retuned winner LR **and** at 0.005 | AL (96 k) says weights ON, TX (3.8 M) says OFF. AZ (201 k) / IST (272 k) sit between → is the flip **size-graded** or a texas peculiarity? | ~37 min | ⬜ |
-| **B** | TX class weights, folds 0/1/2, same seed, **50 ep** | 6 runs | one fold can be biased. Fold 0 is re-run at 50 ep for **both** arms so the 3-fold mean does not mix schedules with row 6's 75 ep | ~1.6 h | ⬜ |
-| **C** | TX dedicated bs {16384, 32768} | 1 fold, class-weight flag taken from **B's 3-fold mean** | batch size at a state that is *not* step-starved (unlike AL row 10) | ~40 min | ⬜ |
-| **D** | FL MTL bs {16384, 32768} | 1 fold, at the best row-3b cat-lr | AL's batch sweep was confounded by step starvation; FL has ~13× the windows | ~50 min | ⬜ |
-| **11** | **logit adjustment** `--logit-adjust-tau {0.5, 1.0}` | AL, AZ, IST, 5 folds, at each state's **retuned winner LR** | row 4 removed class weights with **no replacement** and lost ~1 pp. Logit adjustment is the Bayes-consistent substitute and targets macro-F1 directly. **This is the cell row 4 never tested.** | ~49 min | ⬜ queued after A–C |
+| **A** | AZ + IST dedicated `--no-class-weights` | 5 folds, at the retuned winner LR **and** at 0.005 | AL (96 k) says weights ON, TX (3.8 M) says OFF. AZ (201 k) / IST (272 k) sit between → is the flip **size-graded** or a texas peculiarity? | ~37 min | ✅ done — AZ **−0.535** (both LRs agree); IST **sign-flips** between LRs ⇒ null. Both weak. |
+| **B** | TX class weights, folds 0/1/2, same seed, **50 ep** | 6 runs | one fold can be biased. Fold 0 is re-run at 50 ep for **both** arms so the 3-fold mean does not mix schedules with row 6's 75 ep | ~1.6 h | ✅ done — **OFF wins +1.556**, sd 0.478, t=+5.64, **p=0.0301**, 3/3 folds positive |
+| **C** | TX dedicated bs {16384, 32768} | 1 fold, class-weight flag taken from **B's 3-fold mean** | batch size at a state that is *not* step-starved (unlike AL row 10) | ~40 min | ✅ done — **bs8192 wins**: 16k −0.111, 32k −0.552, and **no wall saving** (1116/1119/1117 s) |
+| **D** | FL MTL bs {16384, 32768} | 1 fold, at the best row-3b cat-lr | AL's batch sweep was confounded by step starvation; FL has ~13× the windows | ~50 min | ⏭ **NOT RUN** — dropped when row 10b re-confirmed bs8192 at AL post-calibration and step C confirmed it at TX. Two states, both ends of the size range, agree; a third batch sweep was not worth ~50 min. |
+| **11** | **logit adjustment** `--logit-adjust-tau {0.5, 1.0}` | AL, AZ, IST, 5 folds, at each state's **retuned winner LR** | row 4 removed class weights with **no replacement** and lost ~1 pp. Logit adjustment is the Bayes-consistent substitute and targets macro-F1 directly. **This is the cell row 4 never tested.** | ~49 min | ✅ done — **τ=0.5 wins big**: dedicated **+2.86**, MTL **+3.18**, all p≤0.0014. τ=1.0 a flat null. Only AL/AZ/IST ⇒ **row 13** validates it at scale. |
 
 **A runs first, deliberately.** Two contradictory data points (AL ON, TX OFF) are not a finding; a
 size-graded transition would be. The large-state recipe decision waits on it.
