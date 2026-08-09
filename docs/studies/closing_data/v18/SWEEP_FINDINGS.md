@@ -387,6 +387,36 @@ existed precisely to prevent that.
 
 ---
 
+## 10 · Row 10b — batch size re-measured on the adopted recipe
+
+The original row 10 measured batch size on the **class-weighted** recipe that logit adjustment has
+since superseded by ~3 pp, so it was re-run at cw0.75 + τ=0.5.
+
+| bs | lr× | cat sm3 | reg | geom | Δcat | Δreg |
+|---:|---:|---:|---:|---:|---:|---:|
+| **8192** | 1.00 | 30.0168 | **69.6530** | 45.725 | — | — |
+| 16384 | 1.67 | 30.2977 | 69.4952 | **45.886** | +0.281 | −0.158 |
+| 16384 | 2.50 | 30.3568 | 68.8547 | 45.719 | +0.340 | −0.798 |
+| 16384 | 3.33 | 30.2293 | 69.0395 | 45.684 | +0.212 | −0.614 |
+| 32768 | 1.67 | 30.5590 | 68.4685 | 45.742 | +0.542 | −1.184 |
+| 32768 | 2.50 | 30.5846 | 68.1934 | 45.669 | +0.568 | −1.460 |
+| 32768 | 3.33 | **30.8543** | 67.5446 | 45.651 | **+0.837** | **−2.108** |
+
+**Verdict unchanged: keep bs8192.** But calibration made the mechanism legible — it is now a clean
+**monotone trade**: every increase in batch size or LR buys category and pays region in lockstep, and
+the largest step (bs32k ×3.33) has both the biggest gain (+0.84 cat) and the biggest loss (−2.11 reg).
+
+⚠ **A correction to the original row 10's reading.** On the class-weighted recipe the category column
+was scattered with no LR trend, which was interpreted as noise from step starvation. Under
+calibration the category side is orderly and monotone, so that scatter was substantially the
+**mis-calibrated loss**, not the batch size. The *region* conclusion is unchanged either way.
+
+Honest note: bs8192 (geom 45.725) and bs16384 ×1.67 (geom **45.886**) are effectively tied, and the
+latter is ~45 s faster. Not adopted — n=5 at one state, and switching would force regenerating every
+joint cell for a 0.16 geom difference.
+
+---
+
 ## 6 · What an auditor should check hardest
 
 1. **§3.2 and §3.3 are corrections**, not fresh findings. An earlier version of this study reported

@@ -1,0 +1,47 @@
+{
+  "tag": "r10b_AL_bs32k_f2.50",
+  "arm": "mtl",
+  "state": "alabama",
+  "seed": 0,
+  "category_weight": 0.75,
+  "batch_size": 32768,
+  "cat_lr": 0.0025,
+  "logit_adjust_tau": 0.5,
+  "cat_class_weights": "replaced by logit adjustment",
+  "wall_seconds": 558,
+  "rundir": "results/check2hgi_v18/alabama/mtlnet_lr1.0e-04_bs32768_ep50_20260809_005225_597897",
+  "precision": "fp32",
+  "cat_argmax": 30.8672,
+  "cat_per_fold": [
+    32.148,
+    30.8094,
+    29.3553,
+    30.0007,
+    32.0227
+  ],
+  "cat_best_epochs": [
+    25,
+    26,
+    22,
+    26,
+    25
+  ],
+  "reg": 68.1934,
+  "reg_per_fold": [
+    70.7137,
+    66.6995,
+    72.1931,
+    69.4711,
+    61.8894
+  ],
+  "cat_sm3": 30.5846,
+  "cat_sm3_per_fold": [
+    31.8631,
+    30.5051,
+    29.3553,
+    29.2652,
+    31.9344
+  ],
+  "row": "10b",
+  "lr_factor": 2.5
+}
