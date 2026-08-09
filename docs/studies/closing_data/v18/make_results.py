@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import json
 import statistics as st
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -86,6 +87,19 @@ def paired_diffs(runs: list[dict], joint_key: str, stl_key: str) -> list[float]:
 
 
 def main() -> None:
+    # AUDIT FIX (2026-08-09, BLOCKER B1). This used to read data/v18_results.json straight off disk
+    # and recompute NOTHING. After the recipe change that meant a wave could finish and this would
+    # rewrite V18_RESULTS.md + PROVENANCE.md with a fresh "Generated <now>" header and today's SHA
+    # over numbers produced by the SUPERSEDED class-weighted recipe -- silently, with no crash.
+    # Regenerate from the sidecars first, so the markdown can only ever describe what is on disk now.
+    import subprocess
+    r = subprocess.run([sys.executable, str(BASE / "score_all.py"), "--write"],
+                       capture_output=True, text=True)
+    if r.returncode != 0:
+        raise SystemExit(f"score_all.py --write failed, refusing to publish stale numbers:\n"
+                         f"{r.stdout}\n{r.stderr}")
+    print(r.stdout.strip().splitlines()[-1] if r.stdout.strip() else "[score_all] ok")
+
     d = json.loads((BASE / "data/v18_results.json").read_text())
     per_run, cells, meta = d["per_run"], d["cells"], d["meta"]
     now = datetime.now(timezone.utc).isoformat()
@@ -105,7 +119,22 @@ def main() -> None:
          "`min_best_epoch` 0. What the served checkpoint delivers.\n"
          "- cat = macro-F1. reg = `top10_acc_indist · (1 − ood_fraction) · 100`, i.e. **Acc@10**.\n"
          f"- \"beats\" = paired one-sided superiority test. \"matches\" = TOST non-inferiority "
-         f"within ±{DELTA:.0f} pp. A non-inferior result is never upgraded to a win.\n"]
+         f"within ±{DELTA:.0f} pp. A non-inferior result is never upgraded to a win.\n",
+         "\n> ⚠ **Two disclosures that qualify every p-value below.**\n"
+         ">\n"
+         "> **1. The tests pool (seed, fold) pairs as if independent.** `paired_diffs` concatenates "
+         "the 5 per-fold differences from each seed, so n = seeds × 5. The 5 folds within one seed "
+         "share ~80 % of their training data, so these are **not** independent replicates and the "
+         "reported p-values are anti-conservative. At n=10 (2 seeds) the honest independent unit is "
+         "the **seed**, giving n=2 — underpowered. Read the p-values as descriptive, and do not "
+         "promote a marginal result on their strength alone.\n"
+         ">\n"
+         "> **2. The dedicated-cat comparator was tuned on this same CV.** Its per-state `max_lr` "
+         "and the joint `category_weight` were selected at seed 0 on the same 5-fold splits reported "
+         "here. The dedicated arm got a 4-point per-state LR search while the MTL cat-lr axis was "
+         "measured null, so the dedicated ceiling is optimistically biased relative to MTL — which "
+         "makes Δcat a **conservative** estimate of any MTL advantage, and an optimistic one of any "
+         "MTL deficit. See METHODOLOGY.md.\n"]
 
     # ---- table 1: the headline contrast, MTL vs its OWN dedicated ceiling ------------------
     L.append("## 1 · MTL vs its own dedicated ceiling (same substrate, same protocol)\n")
@@ -124,10 +153,15 @@ def main() -> None:
         sc, mc = c["stl_cat"]["mean"], c["joint_cat_diag_best"]["mean"]
         sr, mr = c["stl_reg"]["mean"], c["joint_reg_diag_best"]["mean"]
         f = lambda v: f"{v:.2f}" if v is not None else "—"
+        # AUDIT FIX (W2): (mc-sc) and (mr-sr) were unguarded while f() above them WAS guarded, so a
+        # state whose cat or joint cell failed both attempts crashed the whole report generator --
+        # and run_regen.sh swallows that as "non-fatal", meaning a partially-failed wave produced NO
+        # report at all rather than a partial one.
+        d = lambda a, b: f"**{(a-b):+.2f}**" if None not in (a, b) else "—"
         L.append(
             f"| {s} | {n} | {f(sc)} | {f(mc)} | "
-            f"**{(mc-sc):+.2f}** | {verdict(dcat) if dcat else '—'} | "
-            f"{f(sr)} | {f(mr)} | **{(mr-sr):+.2f}** | {verdict(dreg) if dreg else '—'} |")
+            f"{d(mc, sc)} | {verdict(dcat) if dcat else '—'} | "
+            f"{f(sr)} | {f(mr)} | {d(mr, sr)} | {verdict(dreg) if dreg else '—'} |")
     L.append("")
 
     # ---- table 2: both epoch conventions ---------------------------------------------------
@@ -201,13 +235,25 @@ def main() -> None:
          "```\n"
          "engine   check2hgi_v18 (forward-only graph + 4 elapsed-time node cols, in_channels 15)\n"
          "repr     seed 42, 500 epochs, resln, dim 64, 2 layers -- one per state, seed-independent\n"
+         "-- APPROVED RECIPE 2026-08-09 (FINAL_SETTINGS.md). The pre-2026-08-09 cells used\n"
+         "-- class-weighted CE, cw 0.75 and bs2048 at AL/IST; those are SUPERSEDED and live in\n"
+         "-- docs/results/closing_data/v18_superseded_oldrecipe/. Per-cell truth: the `recipe`\n"
+         "-- field on each sidecar, reproduced in the table below.\n"
          "joint    train.py --task mtl --canon none --task-set check2hgi_next_region\n"
-         "         bs 8192, static_weight cw 0.75, onecycle max-lr 3e-3, cat-lr 1e-3, reg-lr 3e-3,\n"
+         "         bs 8192, static_weight category-weight 0.50, logit-adjust-tau 0.5 (CAT HEAD\n"
+         "         ONLY -- mtl_cv.py:500 keeps the region criterion on plain CE), onecycle\n"
+         "         max-lr 3e-3, cat-lr 1e-3 (AL/AZ/IST) / 2e-3 (FL/CA/TX), reg-lr 3e-3,\n"
          "         shared-lr 1e-3, MTL_ONECYCLE_PER_HEAD_LR=1, cat-head next_gru,\n"
          "         reg-head next_stan_flow_dualtower, geom_simple, fp32, --compile --tf32\n"
-         "cat      train.py --task next --model next_gru --embedding-dim 64, per-state bs/lr\n"
+         "cat      train.py --task next --model next_gru --embedding-dim 64, bs 8192 ALL states,\n"
+         "         max-lr 0.0025 (AL) / 0.0005 (AZ, IST) / 0.005 (FL, CA, TX),\n"
+         "         logit-adjust-tau 0.5 -- REPLACES class weighting (next_cv.py:123-141)\n"
          "reg      p1_region_head_ablation.py --heads next_stan_flow --input-type region\n"
          "         --region-emb-source check2hgi_design_k_resln_mae_l0_1 --max-lr 0.003\n"
+         "         logit-adjust-tau 0 (OFF -- it is Bayes-consistent for BALANCED error, so it\n"
+         "         significantly HURTS Acc@10: AL -1.841 p=0.0002, IST -2.749 p<0.0001, while\n"
+         "         macro-F1 rises. Region reports Acc@10.) UNCHANGED by the 2026-08-09 recipe\n"
+         "         change, which is why those 10 sidecars were kept, not regenerated.\n"
          "```\n",
          "| state | seed | family | rundir | pid | commit |",
          "|---|---:|---|---|---|---|"]

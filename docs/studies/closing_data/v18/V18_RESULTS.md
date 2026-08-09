@@ -1,8 +1,8 @@
 # v18 — RESULTS
 
-> Generated 2026-08-07T20:31:52.834008+00:00 from [`data/v18_results.json`](data/v18_results.json) by `make_results.py`. Every number here is traceable to that JSON, which [`score_all.py`](score_all.py) regenerates from the rundirs.
+> Generated 2026-08-09T06:30:14.493296+00:00 from [`data/v18_results.json`](data/v18_results.json) by `make_results.py`. Every number here is traceable to that JSON, which [`score_all.py`](score_all.py) regenerates from the rundirs.
 
-> Commit `da179081` · seeds run: see the n column of each table.
+> Commit `e351d4b0` · seeds run: see the n column of each table.
 
 **v18 = the frozen v17 recipe on a leak-free substrate**: the consecutive-visit graph is forward-only in training and at readout, plus 4 elapsed-time node columns (`in_channels` 15). Not an architecture change. See [`METHODOLOGY.md`](METHODOLOGY.md).
 
@@ -13,29 +13,36 @@
 - cat = macro-F1. reg = `top10_acc_indist · (1 − ood_fraction) · 100`, i.e. **Acc@10**.
 - "beats" = paired one-sided superiority test. "matches" = TOST non-inferiority within ±2 pp. A non-inferior result is never upgraded to a win.
 
+
+> ⚠ **Two disclosures that qualify every p-value below.**
+>
+> **1. The tests pool (seed, fold) pairs as if independent.** `paired_diffs` concatenates the 5 per-fold differences from each seed, so n = seeds × 5. The 5 folds within one seed share ~80 % of their training data, so these are **not** independent replicates and the reported p-values are anti-conservative. At n=10 (2 seeds) the honest independent unit is the **seed**, giving n=2 — underpowered. Read the p-values as descriptive, and do not promote a marginal result on their strength alone.
+>
+> **2. The dedicated-cat comparator was tuned on this same CV.** Its per-state `max_lr` and the joint `category_weight` were selected at seed 0 on the same 5-fold splits reported here. The dedicated arm got a 4-point per-state LR search while the MTL cat-lr axis was measured null, so the dedicated ceiling is optimistically biased relative to MTL — which makes Δcat a **conservative** estimate of any MTL advantage, and an optimistic one of any MTL deficit. See METHODOLOGY.md.
+
 ## 1 · MTL vs its own dedicated ceiling (same substrate, same protocol)
 
 This is the citable contrast: both arms measured on v18, so the comparison is within-protocol.
 
 | state | n | dedicated cat | MTL cat | **Δcat** | verdict | dedicated reg | MTL reg | **Δreg** | verdict |
 |---|---:|---:|---:|---:|---|---:|---:|---:|---|
-| istanbul | 10 | 32.82 | 32.65 | **-0.17** | matches (TOST +/-2 pp, p=0.000) | 75.17 | 75.40 | **+0.23** | **beats** (paired one-sided p=0.000) |
-| alabama | 10 | 28.29 | 27.25 | **-1.04** | matches (TOST +/-2 pp, p=0.010) | 70.09 | 69.77 | **-0.33** | matches (TOST +/-2 pp, p=0.000) |
-| arizona | 10 | 31.91 | 31.58 | **-0.33** | matches (TOST +/-2 pp, p=0.002) | 59.49 | 59.49 | **-0.00** | matches (TOST +/-2 pp, p=0.000) |
-| florida | 5 | 35.97 | 35.88 | **-0.09** | matches (TOST +/-2 pp, p=0.000) | 76.70 | 77.26 | **+0.56** | **beats** (paired one-sided p=0.000) |
-| texas | 5 | 34.12 | 35.08 | **+0.96** | **beats** (paired one-sided p=0.015) | 64.95 | 67.00 | **+2.05** | **beats** (paired one-sided p=0.000) |
-| california | 5 | 33.50 | 33.24 | **-0.26** | matches (TOST +/-2 pp, p=0.000) | 63.45 | 65.57 | **+2.12** | **beats** (paired one-sided p=0.000) |
+| istanbul | 0 | 35.35 | — | — | — | 75.17 | — | — | — |
+| alabama | 0 | 30.77 | — | — | — | 70.09 | — | — | — |
+| arizona | 0 | — | — | — | — | 59.49 | — | — | — |
+| florida | 0 | — | — | — | — | 76.70 | — | — | — |
+| texas | 0 | — | — | — | — | 64.95 | — | — | — |
+| california | 0 | — | — | — | — | 63.45 | — | — | — |
 
 ## 2 · Joint model — both epoch-selection conventions
 
 | state | n | cat diag-best | cat joint-best | reg diag-best | reg joint-best |
 |---|---:|---:|---:|---:|---:|
-| istanbul | 10 | 32.65 ± 0.07 | — | 75.40 ± 0.05 | — |
-| alabama | 10 | 27.25 ± 0.19 | — | 69.77 ± 0.12 | — |
-| arizona | 10 | 31.58 ± 0.15 | — | 59.49 ± 0.07 | — |
-| florida | 5 | 35.88 ± 0.00 | — | 77.26 ± 0.00 | — |
-| texas | 5 | 35.08 ± 0.00 | — | 67.00 ± 0.00 | — |
-| california | 5 | 33.24 ± 0.00 | — | 65.57 ± 0.00 | — |
+| istanbul | 0 | — | — | — | — |
+| alabama | 0 | — | — | — | — |
+| arizona | 0 | — | — | — | — |
+| florida | 0 | — | — | — | — |
+| texas | 0 | — | — | — | — |
+| california | 0 | — | — | — | — |
 
 ## 3 · Against the v17 published board — CROSS-SUBSTRATE, descriptive only
 
@@ -43,19 +50,6 @@ This is the citable contrast: both arms measured on v18, so the comparison is wi
 
 | state | Δcat v18 | Δcat v17 | shift | Δreg v18 | Δreg v17 | shift |
 |---|---:|---:|---:|---:|---:|---:|
-| istanbul | -0.17 | +8.59 | **-8.76** | +0.23 | +0.28 | -0.05 |
-| alabama | -1.04 | +7.72 | **-8.76** | -0.33 | -0.31 | -0.02 |
-| arizona | -0.33 | +9.40 | **-9.73** | -0.00 | +0.10 | -0.10 |
-| florida | -0.09 | +5.34 | **-5.43** | +0.56 | +0.72 | -0.16 |
-| texas | +0.96 | +7.45 | **-6.49** | +2.05 | +2.11 | -0.06 |
-| california | -0.26 | +6.45 | **-6.71** | +2.12 | +2.20 | -0.08 |
-
-## 4 · Pooled across states
-
-- **Δcat** pooled over 45 (state, seed, fold) pairs: mean **-0.275** — matches (TOST +/-2 pp, p=0.000)
-- **Δreg** pooled over 45 pairs: mean **+0.503** — **beats** (paired one-sided p=0.000)
-
-Pooling across states is reported for a single headline figure; the per-state rows in §1 are the primary result, since the states differ in size and in their v17 deltas.
 
 ## 5 · Related findings
 
