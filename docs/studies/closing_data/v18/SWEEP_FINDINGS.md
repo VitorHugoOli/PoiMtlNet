@@ -470,7 +470,9 @@ entirely, since it *replaces* class weighting.
 Monotone decline (−0.11, −0.55) and **no wall-clock saving at all** (1116/1119/1117 s). The
 `argmax−sm3` gap grows with batch size (0.000 → 0.341 → 0.538): fewer optimizer steps make the
 validation curve spikier and the argmax less trustworthy. Same mechanism as row 10 at alabama, at
-the opposite end of the size range — so **bs8192 is confirmed at a small AND a large state**.
+the opposite end of the size range — so bs8192 is **directionally consistent at a large state**.
+⚠ Not "confirmed": this is **one fold**, so there is no dispersion, no paired test and no interval.
+A clean monotone direction at n=1 is a screen. Only alabama (5 folds) actually confirms bs8192.
 
 ### 11.4 Row 3b — FL MTL cat-LR grid, 1 fold
 
@@ -482,7 +484,8 @@ the opposite end of the size range — so **bs8192 is confirmed at a small AND a
 | 0.002 | 50 | 36.3842 | 36.6709 | 77.3752 |
 
 **sm3 span 0.263 across the 4× LR range** — essentially identical to AL (0.22), AZ (0.21), IST
-(0.28). So **cat-LR is null at all four states tested, small and large**; the axis is closed.
+(0.28). So **cat-LR is null at all four states tested** (AL/AZ/IST at 5 folds, FL at 1) — CA/TX
+untested. Not "closed": FL contributes a single fold, and no large state has a 5-fold measurement.
 One state-dependent detail: the 25-epoch arm behaves *oppositely* to alabama — at FL it **gains**
 +0.08 reg (the best region number in the table) at half the wall time, where at AL it cost −0.79.
 
