@@ -38,23 +38,31 @@ evaluation logits are unadjusted. τ=0 reduces to plain CE.
 
 ## ⚠ Logit adjustment must stay OFF for the region head — measured, not assumed
 
-Alabama dedicated region, 5 folds, τ=0 vs τ=0.5:
+Dedicated region, 5 folds, τ=0 vs τ=0.5, **replicated at two datasets**:
 
-| metric | τ=0 | τ=0.5 | Δ | p |
-|---|---:|---:|---:|---:|
-| **Acc@10 — the reported metric** | **69.9956** | **68.1550** | **−1.841** | **0.0002** |
-| Acc@5 | 58.6954 | 56.6129 | −2.083 | 0.0000 |
-| Acc@1 | 31.1203 | 29.8787 | −1.242 | 0.0023 |
-| MRR | 44.0651 | 42.4748 | −1.590 | 0.0003 |
-| macro-F1 | 7.7452 | 8.1219 | **+0.377** | 0.0008 |
+| metric | AL τ=0 | AL τ=0.5 | Δ | p | IST τ=0 | IST τ=0.5 | Δ | p |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| **Acc@10 — the reported metric** | **69.9956** | **68.1550** | **−1.841** | **0.0002** | **75.1563** | **72.4077** | **−2.749** | **0.0000** |
+| Acc@5 | 58.6954 | 56.6129 | −2.083 | 0.0000 | 64.8819 | 62.2231 | −2.659 | 0.0000 |
+| Acc@1 | 31.1203 | 29.8787 | −1.242 | 0.0023 | 34.5207 | 32.8996 | −1.621 | 0.0000 |
+| MRR | 44.0651 | 42.4748 | −1.590 | 0.0003 | 48.4385 | 46.3512 | −2.087 | 0.0000 |
+| macro-F1 | 7.7452 | 8.1219 | **+0.377** | 0.0008 | 12.4480 | 13.1194 | **+0.671** | 0.0081 |
 
-Exactly the predicted split, and it confirms the mechanism rather than merely rejecting the option:
-logit adjustment is **Bayes-consistent for balanced error**, so macro-F1 *improves significantly* —
-while every frequency-weighted metric (Acc@1/5/10, MRR) degrades significantly, because for those
-the Bayes-optimal predictor is the **unadjusted** posterior. Region is reported by Acc@10, so it
-must stay off. (`mtl_cv.py:477-479` already turns class-balancing off for this head for the same
-reason.) It is on the MTL **category** criterion only — `mtl_cv.py:504` — so the joint model is
-already correct; no code change needed.
+**Ten metric-comparisons, two datasets, every one significant and every one in the predicted
+direction.** macro-F1 rises; Acc@1/5/10 and MRR all fall. That is exactly Bayes-consistency for
+**balanced error**: logit adjustment moves the decision boundary toward the balanced posterior, which
+is optimal for macro-F1 and *sub*-optimal for frequency-weighted ranking metrics, whose Bayes-optimal
+predictor is the **unadjusted** posterior. Istanbul is the stronger region dataset (75.2 vs 70.0
+Acc@10) and shows the *larger* penalty, so this is a property of the **metric**, not of a dataset.
+
+Region is reported by Acc@10 ⇒ **τ = 0 for region, at every state.** (`mtl_cv.py:477-479` already
+disables class-balancing on this head for the same reason.)
+
+**The joint model is already correct — no code change needed.** In MTL the region criterion
+(`next_criterion`, task_b) is a plain `CrossEntropyLoss` built at `mtl_cv.py:500`, independent of
+`config.loss_calibration`; only `category_criterion` goes through `build_calibrated_loss`
+(`mtl_cv.py:504-518`). So every MTL run with `--logit-adjust-tau 0.5` applied it to the **category
+head only**, which is what these tables say it should do.
 
 ## Family (a) — dedicated next-category
 
@@ -75,7 +83,7 @@ not a sweep. Everything carries from v17 unchanged.
 |---|---|---|
 | batch size / max_lr / epochs | **v17 defaults** (max_lr 3e-3, 50 ep) | [—] not swept |
 | class weighting | **off** (v17 default) | [—] pre-v18 |
-| **logit-adjust τ** | **0 — OFF** | [5f] AL: −1.841 Acc@10, p=0.0002 |
+| **logit-adjust τ** | **0 — OFF** | [5f] **AL and IST**: Acc@10 −1.841 (p=0.0002) / −2.749 (p<0.0001) |
 
 ## Family (c) — joint MTL
 
@@ -87,7 +95,7 @@ not a sweep. Everything carries from v17 unchanged.
 | epochs | **50** | **50** | [5f] |
 | category_weight | **0.50** ← author's call | **0.50** | [5f] geom: AL **+0.320 p=0.031**, AZ −0.003, IST −0.288 |
 | cat class weighting | **off — superseded** | **off — superseded** | see above |
-| **logit-adjust τ** (cat head only) | **0.5** | **0.5** | [5f] small, [1f] FL |
+| **logit-adjust τ** (**cat head only** — `mtl_cv.py:500` keeps region on plain CE) | **0.5** | **0.5** | [5f] small, [1f] FL |
 | reg class weighting | **off** | **off** | [—] v17 default |
 | shared trunk | **keep** | **keep** | inert at AL [5f]; CA/TX only a 1-fold screen |
 
