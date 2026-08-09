@@ -360,17 +360,30 @@ negligible; the consistency is not. Most likely shared-trunk coupling — changi
 perturbs the shared gradients and hence the region head. Recorded rather than rounded away; it
 changes no verdict.
 
-**The loss split reverses under calibration.** At alabama, `cw0.50` vs `cw0.75`:
+**The loss split does NOT reverse — alabama was a one-state artefact. RESOLVED 2026-08-09.**
 
-| condition | Δcat (cw0.50 − cw0.75) |
-|---|---:|
-| class-weighted (row 7) | −0.273 (null) |
-| **+ logit adjustment** | **+0.445, p=0.024** |
+Alabama alone suggested calibration flipped the split (−0.273 null → **+0.445, p=0.024**). Measured at
+all three states, it does not replicate:
 
-With a calibrated category loss, giving the category head *less* weight becomes better — plausibly
-because calibration makes the category gradient more effective per unit of weight. **One state, n=5,
-p=0.024, and it contradicts the region-based tie-break.** AZ/IST arms (~30 min) would settle it;
-until then the split stays at cw0.75 and the interaction is recorded as **unresolved**.
+| state | Δcat (cw0.50 − cw0.75) | p | Δreg | p |
+|---|---:|---:|---:|---:|
+| alabama | **+0.445** | **0.024** | −0.060 | 0.52 |
+| arizona | +0.101 | 0.42 | **−0.188** | **0.010** |
+| istanbul | **−0.308** | 0.17 | **−0.180** | **0.007** |
+| **mean** | **+0.079** | | **−0.143** | |
+
+Category is a **tie** (mean +0.079, significant at one state, *negative* at istanbul). Region prefers
+**cw0.75 at all three**, significantly at two. The pre-registered rule — *"when category ties, break
+on region"* — therefore selects **cw0.75**, unchanged. Region's preference for cw0.75 survives
+calibration, exactly as it held before it.
+
+⚠ **A process error worth recording.** The driver's automatic selector compared **category means
+only** and so chose cw0.50, contradicting the pre-registered rule. The batch-size re-run started on
+the wrong split and was killed ~90 s in, before any arm completed; no results were affected. The
+selector has been replaced with the fixed pre-registered value and the reasoning written into the
+script. This is the **second** time an automated shortcut silently substituted a simpler proxy for a
+pre-registered rule (the first picked the row-7 winner on category alone) — both times the rule
+existed precisely to prevent that.
 
 ---
 
