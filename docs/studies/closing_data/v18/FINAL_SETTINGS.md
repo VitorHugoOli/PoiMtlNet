@@ -91,18 +91,22 @@ not a sweep. Everything carries from v17 unchanged.
 | reg class weighting | **off** | **off** | [—] v17 default |
 | shared trunk | **keep** | **keep** | inert at AL [5f]; CA/TX only a 1-fold screen |
 
-### Two rows are author preference, not evidence — flagged so approval is informed
+### Two rows are author preference rather than sweep evidence — both APPROVED 2026-08-09
 
-1. **cat-lr 0.002 at large states.** The axis is null everywhere it has been measured at 5 folds
-   (span 0.21–0.28 across a 4× LR range at AL/AZ/IST). At FL the 0.002 arm leads by **+0.029 geom on
-   one fold** — and its *region* is 0.017 *below* the 0.001 arm. Harmless because the axis is flat,
-   but it introduces a small/large tier for no measured gain. **Uniform 0.001 would be the
-   evidence-minimal choice**; say the word if you would rather drop the tier.
-2. **category_weight 0.50.** Pre-registered decision rule 3 breaks ties on **region**, which selects
-   **0.75**. On geom (the shipped `geom_simple` selector) 0.50 is significantly better at alabama and
-   never significantly worse, so it is defensible — but pooled it is ≈ +0.01, i.e. it moves ~0.15 pp
-   from region into category rather than adding anything. **Adopting it overrides your own
-   pre-registration**, and should be recorded as a deliberate geom-based override.
+Recorded so the provenance is not lost, since neither follows from a significance test.
+
+1. **cat-lr 0.002 at large states — APPROVED.** The author's justification is correct: at florida
+   0.002 has the **best geom of the whole row-3b grid**, 53.0588 vs 53.0301 (1e-3), 53.0299
+   (1e-3 @ 25 ep) and 52.8571 (5e-4). The caveats stand — the margin is **+0.029 on one fold**, the
+   axis is null at 5 folds at AL/AZ/IST (span 0.21–0.28 across a 4× range), and the 0.002 arm's
+   *region* is 0.017 *below* the 1e-3 arm. Harmless on a flat axis; adopted on the author's call.
+   ⚠ Note that row 3b was measured under **class weighting**; cat-lr has not been re-screened under
+   logit adjustment. Step D pinned 0.002 in all three arms, so it does not re-test the axis.
+2. **category_weight 0.50 — APPROVED.** Significantly better on geom at alabama (+0.320, p=0.031),
+   a tie at arizona (−0.003), worse at istanbul (−0.288, ns). Never significantly worse. Pooled it
+   is ≈ +0.01, so it redistributes ~0.15 pp from region into category rather than adding. This
+   **overrides pre-registered decision rule 3** (ties break on region → 0.75); recorded as a
+   deliberate geom-based override, since geom_simple is the shipped selector.
 
 ### Batch size: what was actually measured, since this was contested
 
@@ -113,9 +117,17 @@ not a sweep. Everything carries from v17 unchanged.
   0.538 with batch size.
 - **alabama MTL [5f]** — geom 46.0180 at bs8192 beats all six larger-batch arms (−0.161 … −0.387),
   four of them significantly (p = 0.048 / 0.015 / 0.003 / 0.026).
-- **florida MTL [1f], step D, run 2026-08-09** — geom(sm3) 54.1327 / 54.1219 / 54.2003 for
-  8192 / 16384 / 32768. **A null**: span 0.078, and 16384 is *below* 8192. Walls 1505/1456/1446 s
-  (~3 % saving). bs32768 leads by +0.068 on one fold — inside noise.
+- **florida MTL [1f], step D, run 2026-08-09** — the only large-state MTL batch measurement:
+
+  | bs | cat sm3 | reg | geom (sm3) | Δ | geom (argmax) | Δ | wall |
+  |---:|---:|---:|---:|---:|---:|---:|---:|
+  | **8192** | 37.8597 | 77.4003 | **54.1327** | — | 54.2348 | — | 1505 s |
+  | 16384 | 37.8342 | 77.4215 | 54.1219 | −0.011 | 54.2376 | +0.003 | 1456 s |
+  | 32768 | 37.9049 | 77.5011 | 54.2003 | +0.068 | 54.4021 | +0.167 | 1446 s |
+
+  **bs16384 is a dead tie on both selectors**, so that specific arm has no case here. bs32768 leads
+  nominally (+0.068 / +0.167) but on one fold, and adopting it would tier batch size against 5-fold
+  alabama evidence where bs32768 was significantly *worst* (−0.313 … −0.387, p = 0.003–0.026).
 
 So bs8192 is kept everywhere: it wins where the effect is resolvable (AL) and ties where it is not
 (FL), and the larger batches buy no meaningful wall time at either state.
