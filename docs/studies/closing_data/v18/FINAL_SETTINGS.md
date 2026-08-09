@@ -1,7 +1,12 @@
 # v18 — proposed final settings for the full regeneration
 
-> **Status: AWAITING AUTHOR APPROVAL.** Nothing below is adopted yet. This is the settings sheet the
-> full n=20 regeneration would run under (6 datasets × 4 seeds × 5 folds × 3 model families).
+> **Status: ✅ APPROVED BY THE AUTHOR 2026-08-09. Regeneration launched under these settings.**
+> Driver: `run_regen.sh` → `run_wave.sh` (seeds 0, 1 → n=10; `SEEDS="0 1 7 100"` for n=20).
+>
+> **The 10 dedicated-region cells are NOT regenerated** — region keeps τ=0, so its recipe is
+> unchanged, and the stored sidecars were verified bit-reproducible (today's fresh AL/IST τ=0 arms
+> reproduced the stored 69.9956 / 75.1563 exactly). The 19 cat+joint sidecars used the superseded
+> class-weighted recipe and were moved to `docs/results/closing_data/v18_superseded_oldrecipe/`.
 >
 > Every number cited here is on disk under `docs/results/closing_data/v18_sweep/`. Evidence grade is
 > stated per row: **[5f]** = 5 folds with a paired test, **[1f]** = single-fold screen (direction

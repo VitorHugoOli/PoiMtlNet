@@ -58,14 +58,30 @@ mark_running(){
   phase
 }
 
-# per-state dedicated-category recipe (CEILINGS_N20_FINAL.md; istanbul per h3_istanbul driver)
-cat_bs(){ case $1 in alabama|istanbul) echo 2048 ;; *) echo 8192 ;; esac; }
+# ---------------------------------------------------------------- APPROVED v18 RECIPE (2026-08-09)
+# Superseding the CEILINGS_N20_FINAL tiers, which were tuned on the LEAKED substrate.
+# Source: docs/studies/closing_data/v18/FINAL_SETTINGS.md (author-approved).
+#
+#   dedicated cat : bs8192 everywhere; per-state max_lr; logit-adjust tau=0.5 REPLACES class weights
+#   dedicated reg : UNCHANGED (tau=0 -- logit adjustment significantly HURTS Acc@10 at AL and IST)
+#   joint MTL     : bs8192; category_weight 0.50; logit-adjust tau=0.5 (cat head only);
+#                   cat-lr 1e-3 small / 2e-3 large
+cat_bs(){ echo 8192; }                    # was alabama|istanbul 2048 -- retuned, 5-fold at AL/AZ/IST
+cat_lr(){ case $1 in alabama) echo 0.0025 ;; arizona|istanbul) echo 0.0005 ;; *) echo 0.005 ;; esac; }
+mtl_catlr(){ case $1 in alabama|arizona|istanbul) echo 0.001 ;; *) echo 0.002 ;; esac; }
+LA_TAU=0.5                                # dedicated-cat + MTL-cat only; NEVER the region head
 
-sidecar_write(){  # state family wall rundir cat reg extra_json
+sidecar_write(){  # state family wall rundir cat reg
   local st=$1; local fam=$2; local wall=$3; local rd=$4; local cv=$5; local rv=$6
-  python - "$SIDE/${st}_s${SEED}_${fam}.json" "$st" "$SEED" "$fam" "$wall" "$rd" "$cv" "$rv" "$SHA" <<'PY'
+  local rec
+  case $fam in
+    cat)   rec="bs$(cat_bs "$st") lr$(cat_lr "$st") logit_adjust_tau=$LA_TAU (replaces class weighting)" ;;
+    reg)   rec="max_lr 3e-3 freeze_alpha logit_adjust_tau=0 (OFF: hurts Acc@10, AL -1.84 / IST -2.75)" ;;
+    joint) rec="bs8192 cat-lr $(mtl_catlr "$st") cw0.50 logit_adjust_tau=$LA_TAU (cat head only)" ;;
+  esac
+  python - "$SIDE/${st}_s${SEED}_${fam}.json" "$st" "$SEED" "$fam" "$wall" "$rd" "$cv" "$rv" "$SHA" "$rec" <<'PY'
 import json, sys
-out, st, sd, fam, wall, rd, cv, rv, sha = sys.argv[1:10]
+out, st, sd, fam, wall, rd, cv, rv, sha, rec = sys.argv[1:11]
 def f(x):
     try: return float(x)
     except Exception: return None
@@ -80,6 +96,8 @@ json.dump({
                  "folds": 5, "epochs": 50,
                  "cat_metric": "macro-F1 at f1-best epoch (diag-best)",
                  "reg_metric": "top10_acc_indist * (1 - ood_fraction) * 100 at indist-best epoch"},
+    "recipe": rec,
+    "recipe_version": "v18-approved-2026-08-09 (FINAL_SETTINGS.md)",
 }, open(out, "w"), indent=2)
 print(out)
 PY
@@ -91,13 +109,17 @@ cell_cat(){
   local side="$SIDE/${st}_s${SEED}_cat.json"
   if [ -f "$side" ]; then log "  SKIP $st s$SEED cat (sidecar exists)"; return 0; fi
   local bs; bs=$(cat_bs "$st")
+  local lr; lr=$(cat_lr "$st")
   local lg="$LOGS/${st}_cat.log"
   local t0=$SECONDS
-  log "  START $st s$SEED cat (bs=$bs lr=0.005)"
-  # fp32 pinned explicitly (user decision 2026-08-07) -- never inherited from a leak
+  log "  START $st s$SEED cat (bs=$bs lr=$lr logit-adjust-tau=$LA_TAU)"
+  # fp32 pinned explicitly (user decision 2026-08-07) -- never inherited from a leak.
+  # --logit-adjust-tau REPLACES class weighting (next_cv.py:123-141 makes weighted CE the else
+  # branch). Do NOT also pass --no-class-weights: stacking cratered in T1.4.
   env MTL_NO_TRAIN_DIAGNOSTICS=1 MTL_DISABLE_AMP=1 python scripts/train.py --task next --state "$st" --engine "$ENG" \
     --model next_gru --embedding-dim 64 --folds 5 --epochs 50 --seed "$SEED" \
-    --batch-size "$bs" --max-lr 0.005 --compile --tf32 --no-checkpoints > "$lg" 2>&1 &
+    --batch-size "$bs" --max-lr "$lr" --logit-adjust-tau "$LA_TAU" \
+    --compile --tf32 --no-checkpoints > "$lg" 2>&1 &
   local pid=$!
   mark_running "$st" cat "$pid"
   wait $pid; local rc=$?
@@ -146,7 +168,8 @@ cell_joint(){
   case $st in florida|california|texas) wait_ram ;; esac
   local lg="$LOGS/${st}_joint.log"
   local t0=$SECONDS
-  log "  START $st s$SEED joint (bs8192, per-head cat-lr 1e-3, fp32, compile)"
+  local clr; clr=$(mtl_catlr "$st")
+  log "  START $st s$SEED joint (bs8192, cat-lr $clr, cw0.50, logit-adjust-tau=$LA_TAU, fp32, compile)"
   # NO bare `export` here: a shell function's exports persist into LATER cells, which is what made
   # the cat cells fp16-or-fp32 depending on resume state (see PRECISION_CAVEAT.md).
   env MTL_DISABLE_AMP=1 MTL_CHUNK_VAL_METRIC=1 MTL_STRICT=1 MTL_COMPILE_DYNAMIC=1 \
@@ -154,12 +177,13 @@ cell_joint(){
       TORCHINDUCTOR_CACHE_DIR="$HOME/.inductor_cache_v18_${st}_s${SEED}" \
     python scripts/train.py --task mtl --canon none --task-set check2hgi_next_region --engine "$ENG" \
     --state "$st" --seed "$SEED" --epochs 50 --folds 5 --batch-size 8192 \
-    --mtl-loss static_weight --category-weight 0.75 --no-reg-class-weights --no-cat-class-weights \
+    --mtl-loss static_weight --category-weight 0.50 --no-reg-class-weights --no-cat-class-weights \
+    --logit-adjust-tau "$LA_TAU" \
     --cat-head next_gru --reg-head next_stan_flow_dualtower \
     --reg-head-param raw_embed_dim=64 --reg-head-param fusion_mode=aux \
     --reg-head-param freeze_alpha=True --reg-head-param alpha_init=0.0 \
     --task-a-input-type checkin --task-b-input-type region --log-t-kd-weight 0.0 \
-    --scheduler onecycle --max-lr 3e-3 --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3 \
+    --scheduler onecycle --max-lr 3e-3 --cat-lr "$clr" --reg-lr 3e-3 --shared-lr 1e-3 \
     --model mtlnet_crossattn_dualtower --checkpoint-selector geom_simple --compile --tf32 \
     --per-fold-transition-dir "output/$V14/$st" --no-checkpoints > "$lg" 2>&1 &
   local pid=$!
