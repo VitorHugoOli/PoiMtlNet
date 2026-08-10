@@ -196,6 +196,12 @@ ENVCOMMON="MTL_DISABLE_AMP=1 MTL_STRICT=1"
 #
 # Set P1_GPU_VAL=1 to opt OUT of the CPU path (only with fresh evidence for your shapes).
 REG_ENV="MTL_CHUNK_VAL_METRIC=1"
+# Propagate the ambiguity switch when the caller set it. ENVCOMMON pins MTL_STRICT=1, which also
+# arms the tie-break abort -- and both large states trip that certificate at ~1 row in 766k. Being
+# able to accept that deliberately (MTL_AMBIGUITY_STRICT=0) WITHOUT disarming the canon-recipe and
+# overlap-provenance guards is the difference between a considered decision and dropping every
+# guard at once. The count is still recorded in the cell artifact either way.
+[ -n "${MTL_AMBIGUITY_STRICT:-}" ] && REG_ENV="$REG_ENV MTL_AMBIGUITY_STRICT=$MTL_AMBIGUITY_STRICT"
 [ "${P1_GPU_VAL:-0}" = "1" ] && REG_ENV=""
 
 # ---- torch.compile cache ------------------------------------------------------------------

@@ -248,6 +248,17 @@ fi
 echo PREFLIGHT_REPORT_DONE
 """
 
+def _amb_env() -> str:
+    """Forward MTL_AMBIGUITY_STRICT into the container when the operator set it here.
+
+    Without this the only way to accept a tie-optimistic cell was to drop MTL_STRICT wholesale,
+    which also disarms the canon-recipe and overlap-provenance guards that have nothing to do
+    with tie-breaks. The ambiguity count is recorded in the cell artifact either way.
+    """
+    v = os.environ.get("MTL_AMBIGUITY_STRICT")
+    return f"MTL_AMBIGUITY_STRICT={v} " if v is not None else ""
+
+
 def lane_sh(state: str, seeds: list[int], cells: str, parallel: bool, stagger: int = 0) -> str:
     """The in-container lane command, for one or several seeds packed into ONE container.
 
@@ -269,7 +280,7 @@ def lane_sh(state: str, seeds: list[int], cells: str, parallel: bool, stagger: i
     for i, sd in enumerate(seeds):
         delay = f"sleep {stagger * i}; " if (stagger and i) else ""
         launch.append(
-            f'( {delay}CELLS={cells} {par}HARVEST=1 '
+            f'( {delay}{_amb_env()}CELLS={cells} {par}HARVEST=1 '
             f'HARVEST_OUT=/data/harvest/{state}_s{sd} '
             f'LIVE_DIR=/data/live/{state}_s{sd} LIVE_VOLUME={VOLUME} '
             f'INDUCTOR_ROOT=/data/inductor REPO=/data/repo PY=/usr/local/bin/python '

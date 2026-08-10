@@ -320,8 +320,19 @@ class StreamingClsMetrics:
         # the derivation matches what topk would have returned, so it is not optional there.
         self.hits_from_rank = bool(hits_from_rank)
         self.diagnose_ties = bool(diagnose_ties) or self.hits_from_rank
-        self.strict = (os.environ.get("MTL_STRICT", "0").strip() in ("1", "true", "True")
-                       if strict is None else bool(strict))
+        # MTL_AMBIGUITY_STRICT decouples THIS abort from MTL_STRICT. They were the same switch,
+        # which forced an all-or-nothing choice: keep MTL_STRICT and lose the cell to a single
+        # ambiguous row, or drop it and also disarm the canon-recipe and overlap-provenance guards
+        # that have nothing to do with tie-breaks. Both texas and california trip the certificate
+        # at ~1 row in 766k (0.00013 pp, at the edge of the 4-dp quantum), so the study needs to
+        # be able to accept that deliberately while keeping every other guard armed.
+        _amb = os.environ.get("MTL_AMBIGUITY_STRICT")
+        if strict is not None:
+            self.strict = bool(strict)
+        elif _amb is not None:
+            self.strict = _amb.strip() in ("1", "true", "True")
+        else:
+            self.strict = os.environ.get("MTL_STRICT", "0").strip() in ("1", "true", "True")
         self._preds, self._tgts, self._rank = [], [], []
         self._hit = {k: [] for k in self.top_k}
         self.tie_counts = {k: 0 for k in self.top_k}
