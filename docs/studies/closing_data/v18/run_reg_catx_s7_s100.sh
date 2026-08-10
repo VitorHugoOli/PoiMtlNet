@@ -8,31 +8,32 @@
 # while the other four states are at n=20 -- and they are the two states carrying the study's only
 # robust effect (region +1.93 / +1.96, 25-30x the fold sd).
 #
-# ── SCORING PATH: the decision that matters ──────────────────────────────────────────────────────
+# ── SCORING PATH, and a CORRECTION ───────────────────────────────────────────────────────────────
 # The banked siblings (ca/tx seeds 0,1) were scored on the LEGACY path: full [N,C] logit matrix on
-# the CPU, hits from topk. Their logs say so -- "full val logit ~= 19.9 GB, N_val=585092 x C=8501".
-# Since 2026-08-10 the default is STREAMED + rank-derived hits + GPU. Two ways to stay comparable:
+# the CPU, hits from topk. Since 2026-08-10 the default is STREAMED + rank-derived hits + GPU.
+# The first attempt here set MTL_STRICT=1 and california seed 7 ABORTED on the ambiguity certificate
+# (1 row ambiguous at the 5/6 boundary; top10, the metric this cell reports, was 0/585092).
 #
-#   (A) new default (streamed + rank + GPU), certificate warn-only   <- CHOSEN, on MEASURED grounds
-#   (B) P1_STREAM_VAL=0, replaying the legacy path exactly
+# ⚠ CORRECTION (2026-08-10, after an independent review refuted the first reading). I originally
+# attributed a +0.004478 arizona difference to "compile-session nondeterminism" and generalised it
+# into a ~0.05 pp reproducibility floor. BOTH halves of that were wrong:
+#   * the +0.004478 is caused by commit aab23985 ("skip the inert α·log_T prior gather when frozen
+#     α == 0"), which defaults ON via MTL_SKIP_INERT_PRIOR=1 and fires on exactly the
+#     `freeze_alpha=True alpha_init=0.0` this driver passes. The A/B is in inert_prior_ab/:
+#     skip OFF reproduces the 08-06 banked arizona cell BIT-FOR-BIT on all five folds.
+#   * the ~0.05 pp "joint drift" compared a bs2048 sweep arm against a bs8192 wave cell — a batch
+#     size effect, not drift.
+# Measured reality: compiled cells on this box ARE bit-reproducible across sessions (8/8 exact
+# same-recipe pairs). The real limiter is SEED variance (0.02-0.12 pp), not the compile session.
 #
-# The first attempt chose (A) with MTL_STRICT=1 and california seed 7 promptly ABORTED: 1 row
-# ambiguous at the 5/6 boundary. That looked like a reason to fall back to (B) for homogeneity --
-# so the assumption was tested instead of acted on (run_reg_scoring_parity.sh, arizona + istanbul
-# re-run at seed 0 against their banked cells, both paths):
+# CONSEQUENCE FOR THESE FOUR CELLS: MTL_SKIP_INERT_PRIOR is pinned to 0. The s0/s1 siblings these
+# will be pooled with were banked before aab23985 existed, i.e. with the gather always performed.
+# Leaving the new default ON would inject a known ~0.005 pp inhomogeneity into a single state's
+# n=20 pool for no benefit. It is small against a +1.93/+1.96 effect, but it is free to remove.
 #
-#   source of drift                              arizona Acc@10
-#   scoring path      legacy vs stream            0.0000010
-#   compile session   banked vs a fresh LEGACY    0.0044770     <- same code path, same seed
-#   istanbul          legacy reproduces banked EXACTLY; stream differs 1e-6
-#
-# **Compile-session nondeterminism is ~4500x larger than the scoring change.** Picking (B) to stay
-# "homogeneous" with the banked siblings would therefore buy nothing measurable -- a fresh legacy
-# re-run already disagrees with its own banked cell by 4.5e-3 -- while costing a ~20 GB HOST RAM
-# allocation, which is what SIGSEGV'd texas s1 reg at 06:31 on this shared box, plus ~1.6x wall.
-#
-# So: (A), warn-only, with `ambiguous_rows` recorded in every sidecar. The tie is disclosed rather
-# than either hidden or allowed to kill a 1.4 h cell over a k we do not report.
+# The STREAMED scoring path is kept (certificate warn-only): it is measured at 1e-6 against legacy,
+# and the legacy path allocates ~20 GB of HOST RAM -- which is what SIGSEGV'd texas s1 reg at 06:31
+# on this shared box. `ambiguous_rows` is recorded in every sidecar so the tie is disclosed.
 #
 # ── CONCURRENCY: deliberately 1-wide ─────────────────────────────────────────────────────────────
 # Compiled fold fan-out is NOT bit-identical (~1e-4 drift from inductor autotuning under contention;
@@ -72,7 +73,7 @@ cell_reg(){
   # reports -- was 0/585092. Aborting a 1.4 h cell over a tie in a k we never report is the wrong
   # trade, and the parity experiment (run_reg_scoring_parity.sh) measured what the tie is actually
   # worth. `ambiguous_rows` is captured into the sidecar below, so the tie is recorded, not hidden.
-  env MTL_CHUNK_VAL_METRIC=1 MTL_DISABLE_AMP=1 \
+  env MTL_CHUNK_VAL_METRIC=1 MTL_DISABLE_AMP=1 MTL_SKIP_INERT_PRIOR=0 \
     python -u scripts/p1_region_head_ablation.py --state "$st" --heads next_stan_flow \
     --input-type region --region-emb-source "$V14" \
     --override-hparams freeze_alpha=True alpha_init=0.0 \
@@ -104,12 +105,12 @@ json.dump({
                  "reg_metric": "top10_acc_indist * (1 - ood_fraction) * 100 at indist-best epoch",
                  "scoring": "streamed + rank-derived hits on GPU (2026-08-10 default). Banked "
                             "siblings at seeds 0/1 used the legacy CPU full-logit topk path. "
-                            "Measured equivalence (run_reg_scoring_parity.sh, AZ+IST seed 0): "
-                            "scoring path contributes 1e-6 Acc@10, while compile-session "
-                            "nondeterminism contributes 4.5e-3 on the SAME path -- ~4500x larger. "
+                            "Measured equivalence (run_reg_scoring_parity.sh, AZ+IST seed 0): the "
+                            "scoring path contributes 1e-6 Acc@10. MTL_SKIP_INERT_PRIOR=0 is pinned "
+                            "so this cell matches its pre-aab23985 s0/s1 siblings exactly. "
                             "See ambiguous_rows for the tie certificate on this cell."},
     "ambiguous_rows": AMB,
-    "recipe": "max_lr 3e-3 freeze_alpha logit_adjust_tau=0 (OFF: hurts Acc@10, AL -1.84 / IST -2.75)",
+    "recipe": "max_lr 3e-3 freeze_alpha logit_adjust_tau=0 (OFF: hurts Acc@10, AL -1.84 / IST -2.75); MTL_SKIP_INERT_PRIOR=0",
     "recipe_version": "v18-approved-2026-08-09 (FINAL_SETTINGS.md)",
 }, open(out, "w"), indent=2)
 PY
