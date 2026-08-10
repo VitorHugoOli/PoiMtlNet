@@ -66,7 +66,7 @@ LEAK-SAFETY (HARD REQUIREMENT)
 * Region labels are looked up from the dk_ovl next_region.parquet (a static TIGER
   partition via the check2hgi graph maps), never learned -> no region-label leak.
 * OOD restriction: reg top10_acc_indist is computed against the per-fold TRAIN
-  region label set (training.runners.mtl_eval._ood_restricted_topk) — the board
+  region label set (training.runners.mtl_eval._ood_from_streamed) — the board
   protocol.
 
 ================================================================================
@@ -127,8 +127,8 @@ from configs.paths import EmbeddingEngine, IoPaths, OUTPUT_DIR, RESULTS_ROOT  # 
 from data.folds import load_next_data  # noqa: E402
 from data.inputs.core import generate_sequences  # noqa: E402  (the dk_ovl windower)
 from data.inputs.region_sequence import _load_graph_maps  # noqa: E402
-from tracking.metrics import compute_classification_metrics  # noqa: E402
-from training.runners.mtl_eval import _ood_restricted_topk  # noqa: E402
+from tracking.metrics import StreamingClsMetrics, compute_classification_metrics  # noqa: E402
+from training.runners.mtl_eval import _ood_from_streamed  # noqa: E402
 
 # repo-local CTLE model lib (native architecture, reused verbatim)
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -409,21 +409,28 @@ def run_fold(ctx, train_idx, val_idx, args, device):
 
     # --- eval (matched board metrics) ---
     model.eval()
-    cat_logits_all, reg_logits_all = [], []
+    # STREAMED reg metric. The full [n_val, n_regions] logit is ~20 GB at california (8501
+    # regions) / texas (6553) — this used to cat it whole and would simply OOM there. Every
+    # quantity the OOD block needs (top-k hit, strict-`>` rank, target) is per-ROW, so the
+    # accumulators are O(N) and the result is identical: `_ood_from_streamed` is the same
+    # computation `_ood_restricted_topk` performs, on the same numbers. Masking after the fact
+    # is equivalent to masking first, because top-k of row i does not depend on any other row.
+    # cat stays on the full path — 7-8 classes, the buffer is nothing.
+    cat_logits_all = []
+    reg_acc = StreamingClsMetrics(ctx["n_regions"], top_k=(1, 5, 10))
     with torch.no_grad():
         for s in range(0, va.numel(), bs):
             b = va[s:s + bs]
             cl, rl = model(t["loc"][b], t["hours_f"][b])
             cat_logits_all.append(cl)
-            reg_logits_all.append(rl)
+            reg_acc.update(rl, t["region_y"][b])
     cat_logits = torch.cat(cat_logits_all)
-    reg_logits = torch.cat(reg_logits_all)
     cat_tgt = t["cat_y"][va]
-    reg_tgt = t["region_y"][va]
 
     cat_metrics = compute_classification_metrics(cat_logits, cat_tgt, num_classes=ctx["n_cats"])
     train_region_labels = set(int(r) for r in ctx["region_y"][train_idx])
-    reg_ood = _ood_restricted_topk(reg_logits, reg_tgt, train_region_labels)
+    _, _rt, _rr, _rh = reg_acc.concat()
+    reg_ood = _ood_from_streamed(_rt, _rr, _rh, train_region_labels)
 
     cat_f1 = float(cat_metrics["f1"])
     reg_top10 = float(reg_ood["top10_acc_indist"])

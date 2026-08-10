@@ -54,7 +54,7 @@ flags the documented deviations below.
   smoke). Row order follows next.parquet/sequences_next.parquet (sorted
   ['userid','datetime'] upstream); the three parquets are length-asserted equal.
 * MATCHED PROTOCOL: same folds/seeds/labels/metric as the champion. Reg metric is
-  ``top10_acc_indist`` via the imported ``_ood_restricted_topk`` with the train
+  ``top10_acc_indist`` via the imported ``_ood_from_streamed`` with the train
   label set; cat metric is macro-``f1`` via the imported
   ``compute_classification_metrics``. Joint selector = geom_simple.
 * WINDOWING: uses the CURRENT (stride-9 / non-overlapping) sequences_next.parquet.
@@ -101,8 +101,8 @@ if _SRC not in sys.path:
 from configs.globals import CATEGORIES_MAP, DEVICE  # noqa: E402
 from configs.paths import EmbeddingEngine, IoPaths, OUTPUT_DIR  # noqa: E402
 from data.folds import load_next_data  # noqa: E402  (bit-identical fold inputs)
-from tracking.metrics import compute_classification_metrics  # noqa: E402
-from training.runners.mtl_eval import _ood_restricted_topk  # noqa: E402
+from tracking.metrics import StreamingClsMetrics, compute_classification_metrics  # noqa: E402
+from training.runners.mtl_eval import _ood_from_streamed  # noqa: E402
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -393,18 +393,21 @@ def run_fold(data, train_idx, val_idx, seed, epochs, device, alpha_prior=1.0,
 
     # --- eval (matched metrics, MEMORY-SAFE chunked) ---
     # Accumulating the full [n_val, n_regions] reg-logit matrix OOMs wide-region states
-    # (CA 680K×8501≈23GB) on 24GB unified memory. cat is tiny (8 classes) -> accumulate;
-    # reg -> per-batch top-k + rank counts. METRIC-IDENTICAL to _ood_restricted_topk /
-    # _rank_of_target: top-k is per-row, rank = 1 + #{strictly-greater logits}, in-dist =
-    # target in the train label set. Per-batch reg logits moved to CPU (≈70MB, freed each batch).
+    # (CA 680K×8501≈23GB) on 24GB unified memory, so the reg side streams per-row reductions.
+    # This used to be a hand-rolled copy of that pattern — the FIFTH in the repo, and the only
+    # baseline computing the OOD metric by its own formula (running int counts) instead of the
+    # shared one. It now uses `StreamingClsMetrics` + `_ood_from_streamed`, the same code path
+    # flashback / poi2vec / ctle take, so the four baselines in one table are no longer computing
+    # the same metric two different ways. `move_logits_to="cpu"` preserves this loop's original
+    # choice exactly: reduce on CPU, per batch, freeing the [B, n_regions] block each time.
+    # Numerically the switch is int-count/int vs float32 mean — measured max 2.3e-08 across
+    # realistic (N, rate) pairs, ~43x under the 1e-6 reporting quantum.
+    # Masking after the fact is equivalent to masking first: top-k of row i does not depend on
+    # any other row, which is what made the hand-rolled version correct too.
     model.eval()
     va = torch.from_numpy(np.asarray(val_idx)).long()
     cat_logits_all, yc_all = [], []
-    train_labels_t = torch.as_tensor(sorted(train_label_set_b), dtype=torch.long)
-    ks = (1, 5, 10)
-    hits = {k: 0 for k in ks}
-    n_indist = 0
-    rr_sum = 0.0
+    reg_acc = StreamingClsMetrics(n_regions, top_k=(1, 5, 10), move_logits_to="cpu")
     with torch.no_grad():
         for b in batches(va, shuffle=False):
             xb = poi_t[b].to(device)
@@ -412,28 +415,13 @@ def run_fold(data, train_idx, val_idx, seed, epochs, device, alpha_prior=1.0,
             cl, rl = model(xb, lrb)
             cat_logits_all.append(cl.cpu())
             yc_all.append(y_cat_t[b])
-            yr_b = y_reg_t[b]                       # CPU int64
-            rl = rl.cpu()                           # [B, n_regions] CPU, freed each batch
-            in_dist = torch.isin(yr_b, train_labels_t)
-            nid = int(in_dist.sum().item())
-            n_indist += nid
-            if nid:
-                rl_id = rl[in_dist]
-                yr_id = yr_b[in_dist]
-                for k in ks:
-                    ke = min(k, rl_id.shape[-1])
-                    topk = rl_id.topk(ke, dim=-1).indices
-                    hits[k] += int((topk == yr_id.unsqueeze(-1)).any(dim=-1).sum().item())
-                tgt = rl_id.gather(1, yr_id.unsqueeze(1))
-                rank = (rl_id > tgt).sum(dim=1) + 1   # _rank_of_target tie-handling
-                rr_sum += float((1.0 / rank.float()).sum().item())
+            reg_acc.update(rl, y_reg_t[b])          # [B, n_regions] reduced on CPU, then freed
     cat_logits = torch.cat(cat_logits_all)
     yc = torch.cat(yc_all)
 
     cat_metrics = compute_classification_metrics(cat_logits, yc, num_classes=N_CAT)
-    _inv = max(n_indist, 1)
-    reg_ood = {f"top{k}_acc_indist": hits[k] / _inv for k in ks}
-    reg_ood["mrr_indist"] = rr_sum / _inv
+    _, _rt, _rr, _rh = reg_acc.concat()
+    reg_ood = _ood_from_streamed(_rt, _rr, _rh, train_label_set_b)
 
     cat_f1 = float(cat_metrics["f1"])
     reg_top10 = float(reg_ood["top10_acc_indist"])

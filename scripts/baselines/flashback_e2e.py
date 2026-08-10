@@ -21,7 +21,8 @@ trainer under ``scripts/baselines/`` that
       compute_region_transition._build_per_fold produce;
   (2) REUSES the board metrics — cat macro-``f1`` from
       tracking.metrics.compute_classification_metrics, and reg
-      ``top10_acc_indist`` from training.runners.mtl_eval._ood_restricted_topk
+      ``top10_acc_indist`` from training.runners.mtl_eval._ood_from_streamed (the
+      streamed form of _ood_restricted_topk; same numbers, O(N) memory)
       (OOD-restricted Acc@10 against the per-fold train label set);
   (3) emits per-fold JSON to ``results/<engine>/<state>/`` mirroring the
       champion's key names so the board aggregator reads it uniformly.
@@ -85,7 +86,7 @@ LEAK-SAFETY (HARD REQUIREMENT)
   never updates a parameter.
 * OOD restriction: top10_acc_indist is computed against
   train_label_set = set(region labels seen in train_idx) — exactly the board's
-  protocol (_ood_restricted_topk).
+  protocol (_ood_from_streamed).
 
 ================================================================================
 SMOKE
@@ -125,8 +126,8 @@ from configs.paths import (  # noqa: E402
 )
 from data.folds import load_next_data  # noqa: E402
 from data.inputs.region_sequence import _load_graph_maps  # noqa: E402
-from tracking.metrics import compute_classification_metrics  # noqa: E402
-from training.runners.mtl_eval import _ood_restricted_topk  # noqa: E402
+from tracking.metrics import StreamingClsMetrics, compute_classification_metrics  # noqa: E402
+from training.runners.mtl_eval import _ood_from_streamed  # noqa: E402
 
 ENGINE_NAME = "flashback_b5"  # disk namespace; NOT an EmbeddingEngine member
 PAD = -1
@@ -362,21 +363,28 @@ def run_fold(ctx, train_idx, val_idx, args, device):
 
     # eval
     model.eval()
-    cat_logits_all, reg_logits_all = [], []
+    # STREAMED reg metric. The full [n_val, n_regions] logit is ~20 GB at california (8501
+    # regions) / texas (6553) — this used to cat it whole and would simply OOM there. Every
+    # quantity the OOD block needs (top-k hit, strict-`>` rank, target) is per-ROW, so the
+    # accumulators are O(N) and the result is identical: `_ood_from_streamed` is the same
+    # computation `_ood_restricted_topk` performs, on the same numbers. Masking after the fact
+    # is equivalent to masking first, because top-k of row i does not depend on any other row.
+    # cat stays on the full path — 7-8 classes, the buffer is nothing.
+    cat_logits_all = []
+    reg_acc = StreamingClsMetrics(ctx["n_regions"], top_k=(1, 5, 10))
     with torch.no_grad():
         for s in range(0, va.numel(), bs):
             b = va[s:s + bs]
             cl, rl = model(t["poi"][b], t["lat"][b], t["lon"][b], t["dt"][b], user_t[b])
             cat_logits_all.append(cl)
-            reg_logits_all.append(rl)
+            reg_acc.update(rl, t["region_y"][b])
     cat_logits = torch.cat(cat_logits_all)
-    reg_logits = torch.cat(reg_logits_all)
     cat_tgt = t["cat_y"][va]
-    reg_tgt = t["region_y"][va]
 
     cat_metrics = compute_classification_metrics(cat_logits, cat_tgt, num_classes=ctx["n_cats"])
     train_region_labels = set(int(r) for r in ctx["region_y"][train_idx])
-    reg_ood = _ood_restricted_topk(reg_logits, reg_tgt, train_region_labels)
+    _, _rt, _rr, _rh = reg_acc.concat()
+    reg_ood = _ood_from_streamed(_rt, _rr, _rh, train_region_labels)
 
     geom = math.sqrt(max(cat_metrics["f1"], 0.0) * max(reg_ood["top10_acc_indist"], 0.0))
     return {

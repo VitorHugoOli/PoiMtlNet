@@ -48,7 +48,7 @@ from configs.model import InputsConfig
 from configs.paths import IoPaths
 from data.dataset import POIDataset
 from models.registry import _MODEL_REGISTRY, _ensure_registered  # type: ignore
-from tracking.metrics import compute_classification_metrics
+from tracking.metrics import StreamingClsMetrics, compute_classification_metrics
 
 logger = logging.getLogger("p1_poi")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -176,15 +176,30 @@ def _train_one_fold(model, train_dl, val_dl, optimizer, scheduler, criterion,
                 scheduler.step()  # OneCycleLR is a per-step scheduler
         # eval
         model.eval()
+        # POI cardinality is the LARGEST in the study — larger than the region head's, which
+        # already needed a 20 GB workaround at CA/TX. This used to cat the full [N_val, C] with
+        # no guard of any kind; it survives only at small states, which is exactly where the
+        # banked poi_head_* results come from. Stream above the hand-rolled cutoff (per-row
+        # reductions, identical dict, O(N) memory), keep the full path below it where the
+        # torchmetrics branch is the only equivalent one.
+        _stream = StreamingClsMetrics.should_stream(n_classes)
+        _acc = StreamingClsMetrics(n_classes, top_k=(5, 10)) if _stream else None
         all_logits, all_targets = [], []
         with torch.no_grad():
             for x, y in val_dl:
                 x = x.to(DEVICE); y = y.to(DEVICE)
-                all_logits.append(model(x))
-                all_targets.append(y)
-        logits = torch.cat(all_logits)
-        targets = torch.cat(all_targets)
-        m = compute_classification_metrics(logits, targets, num_classes=n_classes, top_k=(5, 10))
+                out = model(x)
+                if _stream:
+                    _acc.update(out, y)
+                else:
+                    all_logits.append(out)
+                    all_targets.append(y)
+        if _stream:
+            m = _acc.compute()
+        else:
+            logits = torch.cat(all_logits)
+            targets = torch.cat(all_targets)
+            m = compute_classification_metrics(logits, targets, num_classes=n_classes, top_k=(5, 10))
         if m.get("top10_acc", 0) > best["top10_acc"]:
             best = {"top10_acc": m["top10_acc"], "epoch": ep, "metrics": m}
     return best

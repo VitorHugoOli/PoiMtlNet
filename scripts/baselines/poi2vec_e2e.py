@@ -16,7 +16,8 @@ a standalone trainer under ``scripts/baselines/`` that
       to the champion split and to FoldCreator._create_check2hgi_mtl_folds;
   (2) REUSES the board metrics — cat macro-``f1`` from
       tracking.metrics.compute_classification_metrics, and reg
-      ``top10_acc_indist`` from training.runners.mtl_eval._ood_restricted_topk
+      ``top10_acc_indist`` from training.runners.mtl_eval._ood_from_streamed (the
+      streamed form of _ood_restricted_topk; same numbers, O(N) memory)
       (OOD-restricted Acc@10 against the per-fold TRAIN region label set);
   (3) ALIGNS to the GATED STRIDE-1 OVERLAP base ``check2hgi_dk_ovl`` (AL = 96,326
       rows; stride-1, emit_tail gated False, MIN_SEQ 10≡5) — NOT canonical
@@ -129,8 +130,8 @@ from configs.paths import EmbeddingEngine, IoPaths, RESULTS_ROOT  # noqa: E402
 from configs.model import InputsConfig  # noqa: E402
 from data.folds import load_next_data  # noqa: E402
 from data.inputs.region_sequence import _load_graph_maps  # noqa: E402
-from tracking.metrics import compute_classification_metrics  # noqa: E402
-from training.runners.mtl_eval import _ood_restricted_topk  # noqa: E402
+from tracking.metrics import StreamingClsMetrics, compute_classification_metrics  # noqa: E402
+from training.runners.mtl_eval import _ood_from_streamed  # noqa: E402
 
 # Reuse the FAITHFUL AAAI'17 POI2Vec body VERBATIM (mechanisms #1-#4).
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -374,21 +375,28 @@ def run_fold(ctx, seq_df, train_idx, val_idx, args, device):
 
     # --- eval (matched metrics; val never updates a parameter) ---
     model.eval()
-    cls, rls = [], []
+    # STREAMED reg metric. The full [n_val, n_regions] logit is ~20 GB at california (8501
+    # regions) / texas (6553) — this used to cat it whole and would simply OOM there. Every
+    # quantity the OOD block needs (top-k hit, strict-`>` rank, target) is per-ROW, so the
+    # accumulators are O(N) and the result is identical: `_ood_from_streamed` is the same
+    # computation `_ood_restricted_topk` performs, on the same numbers. Masking after the fact
+    # is equivalent to masking first, because top-k of row i does not depend on any other row.
+    # cat stays on the full path — 7-8 classes, the buffer is nothing.
+    cls = []
+    reg_acc = StreamingClsMetrics(ctx["n_regions"], top_k=(1, 5, 10))
     with torch.no_grad():
         for s in range(0, va.numel(), bs):
             b = va[s:s + bs]
             cl, rl = model(poi_t[b], usr_all[b])
             cls.append(cl)
-            rls.append(rl)
+            reg_acc.update(rl, reg_y_t[b])
     cat_logits = torch.cat(cls)
-    reg_logits = torch.cat(rls)
     cat_tgt = cat_y_t[va]
-    reg_tgt = reg_y_t[va]
 
     cat_metrics = compute_classification_metrics(cat_logits, cat_tgt, num_classes=ctx["n_cats"])
     train_region_labels = set(int(r) for r in ctx["region_y"][train_idx])
-    reg_ood = _ood_restricted_topk(reg_logits, reg_tgt, train_region_labels)
+    _, _rt, _rr, _rh = reg_acc.concat()
+    reg_ood = _ood_from_streamed(_rt, _rr, _rh, train_region_labels)
 
     cat_f1 = float(cat_metrics["f1"])
     reg_top10 = float(reg_ood["top10_acc_indist"])
