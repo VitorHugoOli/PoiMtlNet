@@ -37,8 +37,8 @@ def _fixture(n, c, n_train_labels, seed=0, kind="float"):
     return logits, targets, labels
 
 
-def _streamed(logits, targets, labels, c, bs, move_to=None):
-    acc = StreamingClsMetrics(c, top_k=KS, move_logits_to=move_to)
+def _streamed(logits, targets, labels, c, bs, move_to=None, hits_from_rank=False):
+    acc = StreamingClsMetrics(c, top_k=KS, move_logits_to=move_to, hits_from_rank=hits_from_rank)
     for i in range(0, logits.shape[0], bs):
         acc.update(logits[i:i + bs], targets[i:i + bs])
     _, tgts, rank, hit = acc.concat()
@@ -77,8 +77,9 @@ def test_masking_after_topk_equals_masking_before():
 
 def test_exact_ties_do_not_break_equivalence_on_one_device():
     """Ties change which index top-k returns, but both paths ask the same kernel on the same
-    tensor, so they must still agree. (Cross-DEVICE tie-break is a separate question, gated at
-    the p1 call site — nothing here claims anything about it.)"""
+    tensor, so they must still agree. Pinned against the TOPK semantics on purpose: the
+    rank-derived default is deliberately different on ambiguous rows (tie-optimistic), and that
+    difference is covered by its own bounded test in test_streaming_cls_metrics.py."""
     logits, targets, labels = _fixture(2500, 1109, 500, kind="ties")
     want = _ood_restricted_topk(logits, targets, labels, ks=KS)
     got = _streamed(logits, targets, labels, 1109, 384)

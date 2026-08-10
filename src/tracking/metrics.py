@@ -278,6 +278,14 @@ class StreamingClsMetrics:
       bit-identical across settings: ``topk``'s tie-break at the k-boundary is a kernel detail.
       Measured on real region logits: 0 boundary ties in 100 448 rows and a worst cross-device
       delta of 5.96e-08, but use ``diagnose_ties`` rather than assuming it.
+    ``hits_from_rank`` is the DEFAULT (2026-08-10). It removes ``topk`` from the scoring path:
+    ``hit@k == (rank <= k)`` whenever no row is ambiguous, which is an integer comparison and is
+    therefore the same on CPU and CUDA — unlike ``topk``, whose tie-break is a kernel detail. That
+    is what let the val metric move back onto the GPU, which is worth more than the arithmetic it
+    saves: the per-batch ``logits.to("cpu")`` it replaces was synchronising the host every
+    iteration and serialising the GPU (measured: removing it cut 6.4 s from a wall whose scoring
+    was only 2.87 s). Pass ``hits_from_rank=False`` for the historical topk semantics.
+
     * ``store_on`` — where the tiny ``[N]`` accumulators are KEPT. ``"cpu"`` reduces on the GPU
       and parks the results in host memory (mtl_cv's S1 behaviour). Pure memory placement: moving
       an int64 rank vector between devices cannot change its value.
@@ -303,7 +311,7 @@ class StreamingClsMetrics:
 
     def __init__(self, num_classes: int, top_k: Iterable[int] = (3, 5),
                  move_logits_to=None, store_on=None, diagnose_ties: bool = False,
-                 hits_from_rank: bool = False, strict: bool | None = None):
+                 hits_from_rank: bool = True, strict: bool | None = None):
         self.num_classes = int(num_classes)
         self.top_k = tuple(top_k)
         self.move_logits_to = move_logits_to

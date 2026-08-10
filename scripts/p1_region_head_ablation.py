@@ -747,7 +747,13 @@ def _train_single_task(head_name, x_tensor, y_tensor, train_idx, val_idx,
             # cross-device delta of 5.96e-08 with top10_acc bit-identical — so P1_STREAM_GPU=1 is
             # safe and 3.2x faster (57s→18s/fold). Default stays OFF only for homogeneity with the
             # banked CPU-scored cells; the diagnostic below re-checks the precondition every run.
-            _to_cpu = _chunk_val and os.environ.get("P1_STREAM_GPU", "0").strip() not in ("1", "true", "True")
+            # DEFAULT FLIPPED 2026-08-10: scoring stays on the GPU. The reason it ever moved to
+            # the host was the [N, C] buffer, and streaming removed that; what kept it there
+            # afterwards was topk's kernel-dependent tie-break, and rank-derived hits removed that
+            # too. What remains is pure cost: the per-batch `.to("cpu")` synchronised the host
+            # every iteration and serialised the GPU — 6.4 s off an 17.9 s wall whose scoring was
+            # only 2.87 s. Set P1_STREAM_GPU=0 to restore the CPU path.
+            _to_cpu = _chunk_val and os.environ.get("P1_STREAM_GPU", "1").strip() not in ("1", "true", "True")
             if epoch == 0:
                 logger.info(
                     "[p1 S2] STREAMED val metric on %s (per-row accumulators, no [N=%d x C=%d] "

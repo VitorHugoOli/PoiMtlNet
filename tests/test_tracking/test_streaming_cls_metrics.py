@@ -62,15 +62,41 @@ CASES = [
 
 
 @pytest.mark.parametrize("n,c,kind,bs", CASES)
-def test_streamed_equals_full(n, c, kind, bs):
+def test_streamed_topk_equals_full(n, c, kind, bs):
+    """The topk path must match the reference EXACTLY, ties or not — it runs the same op."""
     logits, targets = _make(kind, n, c), _targets(n, c)
-    acc = StreamingClsMetrics(c, top_k=(5, 10))
+    acc = StreamingClsMetrics(c, top_k=(5, 10), hits_from_rank=False)
     for i in range(0, n, bs):
         acc.update(logits[i:i + bs], targets[i:i + bs])
     got = acc.compute()
     want = compute_classification_metrics(logits, targets, num_classes=c, top_k=(5, 10))
     for k in KEYS:
         assert float(got[k]) == float(want[k]), f"{k} diverged at {kind} bs={bs}"
+
+
+@pytest.mark.parametrize("n,c,kind,bs", CASES)
+def test_streamed_rank_default_matches_full_exactly_when_certified(n, c, kind, bs):
+    """The DEFAULT path (rank-derived) equals the topk reference wherever the certificate is 0,
+    and diverges by at most the certified count where it is not.
+
+    This is the honest statement of what the 2026-08-10 default flip changed. On continuous
+    logits — every real state measured — the count is 0 and the two are byte-identical. The
+    synthetic tie fixtures below are the only place they part, and there the divergence is
+    bounded by the number of rows the gate reported, not unbounded.
+    """
+    logits, targets = _make(kind, n, c), _targets(n, c)
+    acc = StreamingClsMetrics(c, top_k=(5, 10))          # default: hits_from_rank=True
+    for i in range(0, n, bs):
+        acc.update(logits[i:i + bs], targets[i:i + bs])
+    got = acc.compute()
+    want = compute_classification_metrics(logits, targets, num_classes=c, top_k=(5, 10))
+    for k in KEYS:
+        if k in ("top5_acc", "top10_acc"):
+            kk = int(k[3:].split("_")[0])
+            moved = abs(float(got[k]) - float(want[k])) * n
+            assert moved <= acc.tie_counts[kk] + 1e-6, f"{k}: divergence exceeds the certificate"
+        elif acc.tie_counts == {5: 0, 10: 0}:
+            assert float(got[k]) == float(want[k]), f"{k} moved with a zero certificate"
 
 
 def test_driven_by_a_loop():
