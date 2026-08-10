@@ -131,3 +131,4 @@ docs/studies/pipeline_audit/runs/
 
 # v18 run logs (transient); the committed record is status.json / PROGRESS.md / the sidecars
 docs/studies/closing_data/v18/logs/
+/docs/studies/closing_data/v18_2/.env
