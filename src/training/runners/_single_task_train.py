@@ -15,7 +15,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from tracking.fold import FoldHistory
-from tracking.metrics import compute_classification_metrics
+from tracking.metrics import StreamingClsMetrics, compute_classification_metrics
 from training.callbacks import CallbackContext, CallbackList
 
 logger = logging.getLogger(__name__)
@@ -86,6 +86,12 @@ def train_single_task(
         running_correct = torch.tensor(0, device=device, dtype=torch.long)
         total = 0
         train_logits_list, train_targets_list = [], []
+        # Fresh per epoch, like the lists it replaces — a single instance reused across epochs
+        # would keep accumulating. None below the hand-rolled cutoff, where the full path is the
+        # only equivalent one and the buffer is harmless anyway.
+        _stream_train = (StreamingClsMetrics(num_classes, top_k=(3, 5))
+                         if (compute_train_f1 and StreamingClsMetrics.should_stream(num_classes))
+                         else None)
         epoch_grad_norms = []
 
         for X_batch, y_batch in train_loader:
@@ -120,20 +126,29 @@ def train_single_task(
             # Retaining all train logits would balloon memory for large
             # datasets, so the legacy ``compute_train_f1`` flag still gates it.
             if compute_train_f1:
-                train_logits_list.append(logits.detach())
-                train_targets_list.append(y_batch)
+                # Same reasoning as the val loop below: opting into train metrics must not mean
+                # opting into an O(N·C) buffer at region cardinality.
+                if _stream_train is not None:
+                    _stream_train.update(logits, y_batch)
+                else:
+                    train_logits_list.append(logits.detach())
+                    train_targets_list.append(y_batch)
 
         if total == 0:
             continue
         train_loss = running_loss.item() / total
         train_acc = running_correct.item() / total
 
-        if compute_train_f1 and train_logits_list:
-            train_logits = torch.cat(train_logits_list)
-            train_targets = torch.cat(train_targets_list)
-            train_metrics = compute_classification_metrics(
-                train_logits, train_targets, num_classes=num_classes,
-            )
+        if compute_train_f1 and (train_logits_list or (_stream_train is not None
+                                                        and _stream_train.n_rows)):
+            if _stream_train is not None:
+                train_metrics = _stream_train.compute()
+            else:
+                train_logits = torch.cat(train_logits_list)
+                train_targets = torch.cat(train_targets_list)
+                train_metrics = compute_classification_metrics(
+                    train_logits, train_targets, num_classes=num_classes,
+                )
             train_f1 = train_metrics['f1']
             # Prefer the torchmetrics-derived accuracy — identical value,
             # avoids drift if the running_correct path is ever removed.
@@ -154,6 +169,14 @@ def train_single_task(
         val_running_loss = torch.tensor(0.0, device=device)
         val_total = 0
         val_logits_list, val_targets_list = [], []
+        # This loop used to cat the FULL [N_val, C] val logit unconditionally, with no size guard
+        # of any kind. At category cardinality (C=7) that is nothing; at REGION cardinality it is
+        # the same ~20 GB tensor that forced the CPU offload in p1 and the chunked path in
+        # mtl_eval (texas C=6553, california C=8501) — an STL region run routed here would simply
+        # OOM. Stream above the hand-rolled cutoff, which is byte-identical there and leaves every
+        # low-cardinality caller (all of today's) on the exact torchmetrics path it used before.
+        _stream_val = StreamingClsMetrics.should_stream(num_classes)
+        _val_acc = StreamingClsMetrics(num_classes, top_k=(3, 5)) if _stream_val else None
 
         with torch.no_grad():
             for X_batch, y_batch in val_loader:
@@ -167,17 +190,23 @@ def train_single_task(
                 val_running_loss += loss.detach() * y_batch.size(0)
                 val_total += y_batch.size(0)
 
-                val_logits_list.append(logits)
-                val_targets_list.append(y_batch)
+                if _stream_val:
+                    _val_acc.update(logits, y_batch)
+                else:
+                    val_logits_list.append(logits)
+                    val_targets_list.append(y_batch)
 
         if val_total == 0:
             continue
         val_loss = val_running_loss.item() / val_total
-        val_logits = torch.cat(val_logits_list)
-        val_targets = torch.cat(val_targets_list)
-        val_metrics = compute_classification_metrics(
-            val_logits, val_targets, num_classes=num_classes,
-        )
+        if _stream_val:
+            val_metrics = _val_acc.compute()
+        else:
+            val_logits = torch.cat(val_logits_list)
+            val_targets = torch.cat(val_targets_list)
+            val_metrics = compute_classification_metrics(
+                val_logits, val_targets, num_classes=num_classes,
+            )
         val_f1 = val_metrics['f1']
         val_acc = val_metrics['accuracy']
 

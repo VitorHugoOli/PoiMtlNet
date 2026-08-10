@@ -73,7 +73,6 @@ from data.folds import (
 from models.registry import create_model
 from tracking.metrics import (
     compute_classification_metrics,
-    _rank_of_target,
     StreamingClsMetrics,
 )
 from utils.seed import seed_everything
@@ -104,8 +103,10 @@ def _should_chunk_val_metric(n_val: int, n_classes: int) -> tuple[bool, float]:
     without setting any env. ``MTL_CHUNK_VAL_METRIC=1`` / ``P1_CHUNK_VAL_METRIC=1`` force
     it on. Scoring on CPU is identical-at-reporting-precision to the GPU path for the
     rank-based metrics (``compute_classification_metrics`` is device-agnostic + already
-    chunked; rank uses strict ``>``). See ``OOM_MEMORY_FIX.md`` + the regression test
-    ``tests/test_training/test_p1_val_chunk_guard.py``.
+    chunked; rank uses strict ``>``). See ``OOM_MEMORY_FIX.md``; the streaming path that
+    supersedes this offload is pinned by ``tests/test_tracking/test_streaming_cls_metrics.py``.
+    (This docstring used to cite ``tests/test_training/test_p1_val_chunk_guard.py``, which has
+    never existed in this repository's history.)
     """
     val_logit_gb = (n_val * n_classes * 4) / 1e9
     forced = (
@@ -696,10 +697,15 @@ def _train_single_task(head_name, x_tensor, y_tensor, train_idx, val_idx,
         # when the full val logit would exceed a GPU budget, or via MTL_CHUNK_VAL_METRIC /
         # P1_CHUNK_VAL_METRIC; else keep the GPU path so small-state / frozen p1 numbers are untouched.
         _chunk_val, _val_logit_gb = _should_chunk_val_metric(len(x_val), n_classes)
+        _stream = (os.environ.get("P1_STREAM_VAL", "1").strip() not in ("0", "false", "False")
+                   and StreamingClsMetrics.should_stream(n_classes))
         # Suppressed when streaming: this message describes a full-logit CPU cat that no longer
         # happens, and under P1_STREAM_GPU=1 it would claim "on CPU" while scoring on the GPU,
         # contradicting the streamed log two lines below.
-        if _chunk_val and epoch == 0 and os.environ.get("P1_STREAM_VAL", "1").strip() in ("0", "false", "False"):
+        # Keyed on the DECISION, not on the env var: with C <= 256 streaming is off regardless of
+        # P1_STREAM_VAL, the full-logit CPU cat below really does happen, and reading the env var
+        # here silently suppressed the one line that says so.
+        if _chunk_val and epoch == 0 and not _stream:
             logger.info(
                 "[p1 S2] scoring val metric on CPU (full val logit ~= %.1f GB, N_val=%d x C=%d) "
                 "to avoid GPU OOM at overlap scale — byte-identical for rank-based metrics",
@@ -730,8 +736,6 @@ def _train_single_task(head_name, x_tensor, y_tensor, train_idx, val_idx,
         # leaves torchmetrics for the hand-rolled path — below it the two would not agree, so the
         # full path stays. Asking the class beats re-typing 256 in a fourth place. (Every state in
         # this study has C >= 520, so streaming is always on here.)
-        _stream = (os.environ.get("P1_STREAM_VAL", "1").strip() not in ("0", "false", "False")
-                   and StreamingClsMetrics.should_stream(n_classes))
         if _stream:
             # DEVICE. Streaming removes the [N, C] buffer, so the OOM that `_chunk_val` exists to
             # prevent cannot happen any more and the CPU move is no longer NECESSARY. It is kept
@@ -756,12 +760,18 @@ def _train_single_task(head_name, x_tensor, y_tensor, train_idx, val_idx,
             # nondeterminism (CLAUDE.md: compiled numbers are within-fold-sigma, not
             # bit-reproducible), so the device question can only be answered inside a single run.
             _ab = os.environ.get("P1_SCORE_AB", "0").strip() in ("1", "true", "True")
-            # Tie diagnostic on epoch 0 only: it costs one topk(max_k+1) per batch (2.9 ms at
-            # 2048x6553 vs 83.5 ms for a full sort — an earlier version ran the sort EVERY epoch
-            # and logged only the first, adding ~26 min/fold at texas).
+            # Tie diagnostic. Costs one topk(max_k+1) per batch (2.9 ms at 2048x6553; a full
+            # sort is 83.5 ms — an earlier version ran the sort EVERY epoch and logged only the
+            # first, adding ~26 min/fold at texas). Cadence differs by role:
+            #   CPU scoring  -> epoch 0 only. Informational; the device cannot affect the result.
+            #   GPU scoring  -> EVERY epoch. Here it is a correctness GATE, and the banked number
+            #     is `per_metric_best` over ALL epochs, not epoch 0's. Checking only the first
+            #     epoch would let a tie at epoch 5 reach the board unseen — the metric that gets
+            #     banked is chosen after every epoch, so the precondition has to hold at each one.
+            _diag = (epoch == 0) or not _to_cpu
             acc = StreamingClsMetrics(n_classes, top_k=(5, 10),
                                       move_logits_to="cpu" if _to_cpu else None,
-                                      diagnose_ties=(epoch == 0))
+                                      diagnose_ties=_diag)
             acc_ab = (StreamingClsMetrics(n_classes, top_k=(5, 10),
                                           move_logits_to=str(DEVICE) if _to_cpu else "cpu",
                                           store_on="cpu")
@@ -774,7 +784,7 @@ def _train_single_task(head_name, x_tensor, y_tensor, train_idx, val_idx,
                         acc_ab.update(out, y_batch)   # same logits, the OTHER device
                     del out
             metrics = acc.compute()
-            if epoch == 0 and acc.n_rows:
+            if _diag and acc.n_rows and (epoch == 0 or acc.has_ties):
                 logger.info("[p1 S2] boundary ties on REAL val logits — %s. Both must read 0 "
                             "before P1_STREAM_GPU=1 is safe for a state with banked CPU cells.",
                             acc.tie_summary())
@@ -783,9 +793,18 @@ def _train_single_task(head_name, x_tensor, y_tensor, train_idx, val_idx,
                 # homogeneous with its CPU-scored siblings, and the operator has to know before
                 # the number is banked.
                 if not _to_cpu and acc.has_ties:
-                    _msg = (f"[p1 S2] GPU scoring with boundary ties present ({acc.tie_summary()}) "
-                            f"— topk tie-break is kernel-dependent, so this cell may NOT match a "
-                            f"CPU-scored sibling. Re-run with P1_STREAM_GPU=0 for the banked path.")
+                    # WHICH switch actually moves scoring to the CPU depends on why we are on the
+                    # GPU. `_to_cpu = _chunk_val and not P1_STREAM_GPU`, so when `_chunk_val` is
+                    # False (a state under the 4 GB budget, e.g. an ad-hoc small-state run) setting
+                    # P1_STREAM_GPU=0 changes NOTHING — and under MTL_STRICT=1, which run_lane.sh
+                    # sets for every cell, following that advice would just reproduce this error.
+                    _fix = ("P1_STREAM_GPU=0" if _chunk_val
+                            else "MTL_CHUNK_VAL_METRIC=1 (P1_STREAM_GPU=0 is a no-op here: this "
+                                 "state is under the auto-chunk budget, so nothing forces the "
+                                 "CPU path)")
+                    _msg = (f"[p1 S2] epoch {epoch}: GPU scoring with boundary ties present "
+                            f"({acc.tie_summary()}) — topk tie-break is kernel-dependent, so this "
+                            f"cell may NOT match a CPU-scored sibling. Re-run with {_fix}.")
                     if os.environ.get("MTL_STRICT", "0").strip() in ("1", "true", "True"):
                         raise RuntimeError(_msg)
                     logger.warning(_msg)

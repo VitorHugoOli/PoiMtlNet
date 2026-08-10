@@ -225,7 +225,10 @@ class StreamingClsMetrics:
     Equivalence: ``compute()`` is **byte-identical** to
     ``compute_classification_metrics(full_logits, top_k)`` on the hand-rolled path, because every
     metric is a per-row reduction (``argmax`` / ``topk`` hit / strict-``>`` rank) or an additive
-    per-class count. Batching cannot change a per-row quantity, so batch size is irrelevant to the
+    per-class count. Two documented exceptions, neither reachable from the current call sites:
+    at ``k <= 1`` the full path omits ``top{k}_acc``/``ndcg_{k}`` while this one emits them, and
+    at ``N == 0`` the full path returns a zeros dict while ``compute()`` raises on ``torch.cat``
+    of an empty list (guard the empty-loader case at the call site, as ``mtl_eval`` does). Batching cannot change a per-row quantity, so batch size is irrelevant to the
     result. Pinned by ``tests/test_tracking/test_streaming_cls_metrics.py``, which also carries
     the pre-refactor inline loops verbatim as golden references.
 
@@ -260,6 +263,7 @@ class StreamingClsMetrics:
         self.tie_counts = {k: 0 for k in self.top_k}
         self.n_rows = 0
         self.compute_device = None   # filled on first update, for logging
+        self._cat = None             # memoised concat; invalidated by update()
 
     @staticmethod
     def should_stream(num_classes) -> bool:
@@ -288,6 +292,7 @@ class StreamingClsMetrics:
         if self.diagnose_ties:
             self._count_boundary_ties(logits)
         self.n_rows += int(logits.shape[0])
+        self._cat = None
         return self
 
     def _count_boundary_ties(self, logits: torch.Tensor) -> None:
@@ -320,8 +325,14 @@ class StreamingClsMetrics:
         dump. Those must read the SAME tensors the metrics were computed from — recomputing them
         from a second pass would be both wasteful and a chance to drift.
         """
-        return (torch.cat(self._preds), torch.cat(self._tgts), torch.cat(self._rank),
-                {k: torch.cat(v) for k, v in self._hit.items()})
+        # Memoised: `mtl_eval` needs the tensors for the OOD block AND calls compute(), which
+        # concatenates too. Without this that is a second full O(N) allocation and pass for no
+        # reason, and the two copies are only value-identical, not the same objects. Invalidated
+        # by update() so a caller that accumulates further cannot read a stale concat.
+        if self._cat is None:
+            self._cat = (torch.cat(self._preds), torch.cat(self._tgts), torch.cat(self._rank),
+                         {k: torch.cat(v) for k, v in self._hit.items()})
+        return self._cat
 
     def compute(self, top_k: Iterable[int] | None = None,
                 num_classes: int | None = None) -> Dict[str, float]:

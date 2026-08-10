@@ -552,7 +552,11 @@ Two independent switches, because they answer two different questions:
 `P1_SCORE_AB=1` — which scores the *same* logits on both devices inside one run, so the comparison
 cannot be confounded by `--compile` nondeterminism the way a fresh-run-vs-banked-value diff would):
 
-| measurement | result |
+> ⚠ **The two tie rows below were measured at EPOCH 0 ONLY and that gave a false all-clear —
+> corrected further down. Re-measuring every epoch found real ties.** Kept as recorded because the
+> mistake is the lesson.
+
+| measurement (epoch 0) | result |
 |---|---|
 | boundary ties, 10th == 11th | **0 / 100 448** (0.0000 %) |
 | boundary ties, 5th == 6th | **0 / 100 448** (0.0000 %) |
@@ -561,11 +565,30 @@ cannot be confounded by `--compile` nondeterminism the way a fresh-run-vs-banked
 | end-to-end run diff, 67 numeric keys | **65 identical**, 2 at ≤ 2.98e-08 (fp32 sum-reduction order) |
 | **wall, 1 fold × 8 epochs** | **57 s CPU → 18 s GPU = 3.2×** |
 
-So the synthetic 3.0e-04 failure above is real but needs a tie that trained fp32 logits do not
-produce, and the CPU penalty that made reg the one family slower on faster silicon is **gone when
-you opt in**. The default stays OFF anyway: TX/CA/FL have s0/s1 banked CPU-scored, and ~3e-08 of
-device noise buys nothing when the A40 is free. Flip `P1_STREAM_GPU=1` when the wall is worth it —
-renting a reg cell is now viable, which the old "never rent CPU-bound work" rule forbade.
+**CORRECTION, same day — trained fp32 logits DO produce boundary ties, and the epoch-0
+diagnostic missed them.** A review pointed out that the banked number comes from `per_metric_best`
+over ALL epochs while the check ran once, at epoch 0. Re-running the same arizona cell with the
+diagnostic on every epoch:
+
+| epoch | 10th == 11th | 5th == 6th |
+|---|---|---|
+| 0 | 0 / 100 448 | 0 / 100 448 |
+| 2, 4, 5 | 0 / 100 448 | **1 / 100 448 (0.0010 %)** |
+
+One tied row is small but not negligible against the reporting quantum: it can move `top5_acc` by
+up to 1/100 448 = **9.96e-06**, ~10x the 1e-6 quantum, so it can change the 4th decimal of a
+reported percentage. The **headline reg metric is Acc@10, which showed 0 ties in every epoch** —
+but `top5_acc` is also banked in `per_metric_best`, so the precondition is not clean.
+
+**Verdict: `P1_STREAM_GPU` stays OFF for study cells, and the 3.2x is not collectable on them.**
+The earlier "measured safe, opt in when the wall is worth it" was written from the epoch-0 sample
+and is withdrawn. `run_lane.sh` sets `MTL_STRICT=1` on every cell, so enabling GPU scoring in the
+lane now **aborts the cell** at the first tied epoch rather than banking a number that may not
+match its CPU-scored siblings — which is the behaviour we want.
+
+**The lesson is about sampling, not about ties.** A precondition checked once per run, on the
+epoch least likely to violate it (an untrained model's logits are the most spread out they will
+ever be), reports the answer you hoped for. Check it wherever the quantity you bank is produced.
 
 **The precondition is checked per run, not assumed.** The epoch-0 diagnostic measures the tie rate
 on the actual logits at both boundaries (via `topk(11)`, 2.9 ms/batch — a full `sort` costs 83.5 ms

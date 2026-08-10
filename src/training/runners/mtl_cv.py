@@ -41,7 +41,6 @@ from torch.nn import CrossEntropyLoss
 
 from tracking.metrics import (
     compute_classification_metrics,
-    _rank_of_target,
     StreamingClsMetrics,
 )
 from utils.flops import calculate_model_flops

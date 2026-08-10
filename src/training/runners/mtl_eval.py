@@ -314,7 +314,7 @@ def evaluate_model(
         # handrolled path: same helpers, same keys/order; preds/rank/hit per-row, on-GPU).
         # _T/_R/_HIT are reused by the OOD block and the val-pred dump below, so they come from
         # the SAME accumulators the metrics are built from rather than a second pass.
-        _P, _T, _R, _HIT = _s2.concat()
+        _, _T, _R, _HIT = _s2.concat()
         metrics_next = _s2.compute(top_k=(3, 5), num_classes=nc_b)
     else:
         all_logits_next = torch.cat(logits_next_list)
