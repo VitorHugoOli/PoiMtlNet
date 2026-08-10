@@ -37,6 +37,7 @@ while partition-bugfix reruns are live.
 
 from __future__ import annotations
 
+import os
 from typing import Optional
 
 import torch
@@ -45,6 +46,17 @@ import torch.nn as nn
 from data.aux_side_channel import get_current_aux
 from models.next.next_stan.head import NextHeadSTAN, _LEGACY_STAN_MASK
 from models.registry import register_model
+
+# Skip the α·log_T gather when the prior is provably inert (frozen α == 0.0): the
+# forward otherwise pays a [B, C] gather + masked_fill + mul + add per batch — ~3-4
+# extra [B, C] passes at region cardinality (CA C=8501: ~70 MB each) — to add an exact
+# zero. Byte-identical: with a frozen zero α, ``logits + 0.0 * prior == logits``
+# bitwise for any finite prior (and the v18 dedicated-reg / joint cells run exactly
+# this config: ``freeze_alpha=True alpha_init=0.0``, log_T = zeros). The learnable-α
+# path is never skipped (α must stay in the autograd graph), and log_T-KD is
+# unaffected (it reads the ``log_T`` buffer directly, never this forward path).
+# MTL_SKIP_INERT_PRIOR=0 restores the legacy always-gather forward.
+_SKIP_INERT_PRIOR = os.environ.get("MTL_SKIP_INERT_PRIOR", "1").strip() not in ("0", "false", "False")
 
 
 @register_model("next_stan_flow")
@@ -103,6 +115,12 @@ class NextHeadStanFlow(nn.Module):
         else:
             self.alpha = nn.Parameter(torch.tensor(float(alpha_init)))
         self._num_classes = int(num_classes)
+        # Frozen α == 0.0 ⇒ the prior term is exactly zero for every batch; skip the
+        # gather entirely (see _SKIP_INERT_PRIOR above). Decided once at construction —
+        # a frozen buffer cannot change during training.
+        self._inert_prior = (
+            _SKIP_INERT_PRIOR and bool(freeze_alpha) and float(alpha_init) == 0.0
+        )
 
         if transition_path is not None:
             payload = torch.load(transition_path, map_location="cpu", weights_only=False)
@@ -120,6 +138,13 @@ class NextHeadStanFlow(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         stan_logits = self.stan(x)
+
+        if self._inert_prior:
+            # Frozen α == 0.0: the prior contributes an exact bitwise zero
+            # (``logits + 0.0 * prior == logits`` for finite priors), so skip the
+            # [B, C] gather/masked_fill/mul/add. α is a buffer here, never a
+            # Parameter, so there is no autograd-graph obligation to keep.
+            return stan_logits
 
         aux = get_current_aux()  # [B] int64 last_region_idx, or None
         if aux is None:

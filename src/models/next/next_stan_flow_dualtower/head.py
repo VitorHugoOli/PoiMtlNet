@@ -47,6 +47,7 @@ import torch.nn as nn
 
 from data.aux_side_channel import get_current_aux
 from models.next.next_stan.head import NextHeadSTAN, _LEGACY_STAN_MASK
+from models.next.next_stan_flow.head import _SKIP_INERT_PRIOR
 from models.registry import register_model
 
 _FUSION_MODES = ("gated", "private_only", "aux", "aux_gated")
@@ -330,6 +331,11 @@ class NextHeadStanFlowDualTower(nn.Module):
             self.register_buffer("alpha", torch.tensor(float(alpha_init)))
         else:
             self.alpha = nn.Parameter(torch.tensor(float(alpha_init)))
+        # Mirror NextHeadStanFlow._inert_prior (see _SKIP_INERT_PRIOR there): a frozen
+        # α == 0.0 makes _apply_prior an exact bitwise no-op, so it is skipped.
+        self._inert_prior = (
+            _SKIP_INERT_PRIOR and bool(freeze_alpha) and float(alpha_init) == 0.0
+        )
 
         if transition_path is not None:
             payload = torch.load(
@@ -413,6 +419,10 @@ class NextHeadStanFlowDualTower(nn.Module):
 
     def _apply_prior(self, logits: torch.Tensor) -> torch.Tensor:
         """Add α·log_T[last_region_idx]; keep α in-graph on the no-aux path."""
+        if self._inert_prior:
+            # Frozen α == 0.0 ⇒ prior adds an exact bitwise zero; skip the [B, C]
+            # gather. α is a buffer here, so no autograd-graph obligation.
+            return logits
         aux = get_current_aux()  # [B] int64 last_region_idx, or None
         if aux is None:
             # Defensive (eval outside AuxPublishingLoader / FLOPs probe / unit
