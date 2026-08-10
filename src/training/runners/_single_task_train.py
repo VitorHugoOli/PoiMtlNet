@@ -95,7 +95,7 @@ def train_single_task(
         # only equivalent one and the buffer is harmless anyway.
         # diagnose_ties OFF here for the same reason as mtl_cv's S1: train metrics are
         # diagnostic. The val accumulator below, which selects the checkpoint, has it ON.
-        _stream_train = (StreamingClsMetrics(num_classes, top_k=(3, 5))
+        _stream_train = (StreamingClsMetrics(num_classes, top_k=(3, 5), hits_from_rank=False)
                          if (compute_train_f1 and StreamingClsMetrics.should_stream(num_classes))
                          else None)
         epoch_grad_norms = []
@@ -210,6 +210,12 @@ def train_single_task(
         val_loss = val_running_loss.item() / val_total
         if _stream_val:
             val_metrics = _val_acc.compute()
+            # The streamed path never materialises these, but the per-class diagnostic block
+            # below reads them. Bind them from the accumulators so that branch cannot raise a
+            # NameError the moment someone passes diagnostic_class_names at C > 256 — the exact
+            # read-before-assignment class of bug this refactor was written to eliminate.
+            _vp, val_targets, _, _ = _val_acc.concat()
+            val_logits = None          # never materialised when streaming — use _vp for preds
         else:
             val_logits = torch.cat(val_logits_list)
             val_targets = torch.cat(val_targets_list)
@@ -223,7 +229,10 @@ def train_single_task(
         # not to the task MetricStore — the docs call out per-class as a
         # detailed breakdown, not a headline metric).
         if diagnostic_class_names:
-            val_preds = val_logits.argmax(dim=1)
+            # Streamed mode has no [N, C] logit to argmax; the accumulator already carries the
+            # per-row predictions, and they are the SAME argmax (StreamingClsMetrics keeps preds
+            # as an honest argmax precisely so downstream consumers like this one are unaffected).
+            val_preds = _vp if _stream_val else val_logits.argmax(dim=1)
             per_class = multiclass_f1_score(
                 val_preds, val_targets,
                 num_classes=num_classes, average=None, zero_division=0,

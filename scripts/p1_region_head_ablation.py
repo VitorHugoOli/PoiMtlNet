@@ -674,6 +674,7 @@ def _train_single_task(head_name, x_tensor, y_tensor, train_idx, val_idx,
     # comparisons can be apples-to-apples.
     per_metric_best: dict = _new_per_metric_tracker()
 
+    _amb_worst, _to_cpu_last = {}, None
     for epoch in range(epochs):
         model.train()
         for x_batch, y_batch in train_dl:
@@ -793,6 +794,9 @@ def _train_single_task(head_name, x_tensor, y_tensor, train_idx, val_idx,
                         acc_ab.update(out, y_batch)   # same logits, the OTHER device
                     del out
             metrics = acc.compute()
+            _to_cpu_last = _to_cpu
+            for _k, _v in acc.tie_counts.items():
+                _amb_worst[f"top{_k}"] = max(_amb_worst.get(f"top{_k}", 0), int(_v))
             if _diag and acc.n_rows and (epoch == 0 or acc.has_ties):
                 logger.info("[p1 S2] boundary ties on REAL val logits — %s. Both must read 0 "
                             "before P1_STREAM_GPU=1 is safe for a state with banked CPU cells.",
@@ -807,10 +811,12 @@ def _train_single_task(head_name, x_tensor, y_tensor, train_idx, val_idx,
                     # False (a state under the 4 GB budget, e.g. an ad-hoc small-state run) setting
                     # P1_STREAM_GPU=0 changes NOTHING — and under MTL_STRICT=1, which run_lane.sh
                     # sets for every cell, following that advice would just reproduce this error.
-                    _fix = ("P1_STREAM_GPU=0" if _chunk_val
-                            else "MTL_CHUNK_VAL_METRIC=1 (P1_STREAM_GPU=0 is a no-op here: this "
-                                 "state is under the auto-chunk budget, so nothing forces the "
-                                 "CPU path)")
+                    # P1_STREAM_GPU=0 only moves the DEVICE; hits stay rank-derived, so a tied
+                    # cell still would not match a topk-scored sibling. The only switch that
+                    # restores the banked semantics is the full legacy path.
+                    _fix = ("P1_STREAM_VAL=0 (the legacy full-logit + topk path the banked cells "
+                            "used; needs ~20 GB host RAM at TX/CA). P1_STREAM_GPU=0 is NOT the "
+                            "fix — it changes the device, not the derivation")
                     _msg = (f"[p1 S2] epoch {epoch}: GPU scoring with boundary ties present "
                             f"({acc.tie_summary()}) — topk tie-break is kernel-dependent, so this "
                             f"cell may NOT match a CPU-scored sibling. Re-run with {_fix}.")
@@ -845,6 +851,12 @@ def _train_single_task(head_name, x_tensor, y_tensor, train_idx, val_idx,
     # before). Downstream callers can read per_metric_best for clean
     # cross-metric reporting.
     best_metrics = dict(per_metric_best["top10_acc"]["snapshot"])
+    # Durable trace of the certificate. Until now a tie-optimistic cell was recorded ONLY as a
+    # line in the driver log, which is not what anyone reads when they later ask "is this number
+    # comparable to its siblings?". Worst case over all epochs, so a clean cell reads 0 and a
+    # dirty one cannot be mistaken for clean by looking at the JSON.
+    best_metrics["ambiguous_rows"] = _amb_worst
+    best_metrics["scored_on"] = "cpu" if _to_cpu_last else "gpu"
     best_metrics["per_metric_best"] = {
         m: per_metric_best[m]["snapshot"] for m in CANONICAL_METRICS
     }

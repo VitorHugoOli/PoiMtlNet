@@ -1514,7 +1514,15 @@ def train_model(model: torch.nn.Module,
         # never used for selection or banked (mtl_cv's own note above). Paying an extra pass
         # per train batch — ~10x more rows than val — to certify a number nobody compares
         # would cost more than the whole val-side certificate.
-        s1_acc_b = StreamingClsMetrics(task_b_num_classes or 0, top_k=_S1_TOPK, store_on="cpu")
+        # hits_from_rank=False is LOAD-BEARING here, not stylistic. The class default flipped to
+        # True on 2026-08-10, and because `diagnose_ties` is forced on in that mode, inheriting it
+        # would (a) pay an equality pass on every TRAIN batch — ~10x more rows than val — and
+        # (b) arm the strict abort, so one ambiguous row in a metric that is never banked and
+        # never selects anything would kill a 6-hour joint cell under MTL_STRICT=1, which
+        # run_wave.sh's cell_joint and run_lane.sh both set. Diagnostics must not be able to fail
+        # a run.
+        s1_acc_b = StreamingClsMetrics(task_b_num_classes or 0, top_k=_S1_TOPK, store_on="cpu",
+                                       hits_from_rank=False)
 
         # Per-epoch diagnostics — recomputed once per epoch on batch 0
         # (see Phase 0 §60 of plan/MTL_IMPROVEMENT_PLAN.md).

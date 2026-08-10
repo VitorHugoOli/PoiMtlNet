@@ -191,7 +191,7 @@ def evaluate_model(
     # full-logit path but avoids the A40 GPU-OOM from cat-ing the whole val epoch's
     # [N, n_regions] logits at CA/TX scale (4.7k-8.5k regions). Every reg metric (incl. the
     # SCORED top10_acc_indist) is a per-row reduction or per-class count, streamed on GPU
-    # (matching the canonical fp16-CUDA topk tie-break — NEVER CPU-moved). Reg only; cat (C=7)
+    # (rank-derived hits since 2026-08-10, so no topk tie-break to match — NEVER CPU-moved). Reg only; cat (C=7)
     # keeps the full path. Gated by MTL_CHUNK_VAL_METRIC (default OFF). See _decide_chunk_val.
     _nc_b_gate = task_b_num_classes if task_b_num_classes is not None else (
         num_classes if num_classes is not None else getattr(model, "num_classes", 0)

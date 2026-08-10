@@ -142,18 +142,23 @@ cell_reg(){
   local tag="v18_${st}_reg_s${SEED}"
   local t0=$SECONDS
   log "  START $st s$SEED reg"
-  # MTL_CHUNK_VAL_METRIC=1 forces the val metric onto the CPU. It was briefly dropped on
-  # 2026-08-10 (the auto-guard in _should_chunk_val_metric already covers TX/CA above 4 GB, and
-  # forcing it costs the small states: arizona reg 343 s on a rented H100 vs 185 s here) and then
-  # RESTORED the same day, because the equivalence argument did not survive measurement:
-  # top10_acc comes from logits.topk(), whose tie-break at the k-boundary is device-dependent.
-  # On an H100, with exact fp32 ties AT the boundary, CPU and GPU disagreed on 19950/20000 rows
-  # and top10_acc moved 3.0e-04 -- 300x the 1e-4pp reporting quantum. Continuous logits showed
-  # 0% boundary ties and ~1e-9 agreement, but the rate on real reg logits is unmeasured and every
-  # banked reg cell is CPU-scored. Keep it forced; homogeneity beats ~40 s per small-state cell.
-  # Real fix (freeze boundary, all states at once): stream the val metric on GPU as mtl_eval.py
-  # does. Checker: v18_2/scripts/check_cpu_gpu_scoring_equiv.py
-  env MTL_CHUNK_VAL_METRIC=1 MTL_DISABLE_AMP=1 \
+  # MTL_CHUNK_VAL_METRIC=1 used to force the val metric onto the CPU, and this comment used to
+  # explain at length why that was necessary. Both are now out of date -- the real fix it called
+  # for ("stream the val metric on GPU as mtl_eval.py does") LANDED on 2026-08-10:
+  #   * streaming removed the [N, C] buffer, so the flag is no longer a memory guard at any size;
+  #   * hits are derived from the rank (`hit@k == rank <= k`) instead of from topk, so the
+  #     k-boundary tie-break that made CPU-vs-GPU scoring differ is gone -- integer comparisons
+  #     are the same on both devices -- and P1_STREAM_GPU now defaults to ON;
+  #   * an ambiguity certificate is measured every run and warns if any row could differ.
+  # The flag is kept because it is what the banked cells were launched with and it now selects
+  # nothing but the (unused) legacy path; `_should_chunk_val_metric` covers TX/CA on its own.
+  # Measured after the change, full arizona cell: 240 s -> 147 s, all five folds identical to
+  # 4 dp, worst numeric key 3.576e-08. Set P1_STREAM_GPU=0 to score on the CPU as before.
+  # MTL_STRICT=1 arms the ambiguity certificate: if any val row's hit@k is genuinely undetermined
+  # (the target sits in a tie group straddling k) the cell ABORTS instead of banking a number
+  # whose semantics differ from its CPU/topk-scored siblings. Warn-only was not enough for an
+  # unattended wave -- the warning lands in this cell's log and nowhere a reader would look.
+  env MTL_CHUNK_VAL_METRIC=1 MTL_DISABLE_AMP=1 MTL_STRICT=1 \
     python -u scripts/p1_region_head_ablation.py --state "$st" --heads next_stan_flow \
     --input-type region --region-emb-source "$V14" \
     --override-hparams freeze_alpha=True alpha_init=0.0 \
