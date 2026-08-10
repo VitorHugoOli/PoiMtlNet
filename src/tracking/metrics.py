@@ -246,6 +246,23 @@ def _ndcg_at_k(logits: torch.Tensor, targets: torch.Tensor, k: int) -> float:
 _CARDINALITY_HAND_ROLLED_THRESHOLD = 256
 
 
+def ambiguity_strict() -> bool:
+    """Should an ambiguous row ABORT the run?
+
+    One function because there are two gates — the accumulator's (here) and p1's per-epoch one —
+    and when they read the environment independently they drifted: `MTL_AMBIGUITY_STRICT` was
+    added to this file and p1's copy kept reading `MTL_STRICT`, so disabling the abort disabled
+    only half of it and the cell died anyway at the other gate. Same question, one answer.
+
+    `MTL_AMBIGUITY_STRICT` wins when set; otherwise this follows `MTL_STRICT`, so existing
+    recipes are unaffected.
+    """
+    v = os.environ.get("MTL_AMBIGUITY_STRICT")
+    if v is not None:
+        return v.strip() in ("1", "true", "True")
+    return os.environ.get("MTL_STRICT", "0").strip() in ("1", "true", "True")
+
+
 class StreamingClsMetrics:
     """Accumulate the inputs of the hand-rolled metric dict one batch at a time.
 
@@ -326,13 +343,7 @@ class StreamingClsMetrics:
         # that have nothing to do with tie-breaks. Both texas and california trip the certificate
         # at ~1 row in 766k (0.00013 pp, at the edge of the 4-dp quantum), so the study needs to
         # be able to accept that deliberately while keeping every other guard armed.
-        _amb = os.environ.get("MTL_AMBIGUITY_STRICT")
-        if strict is not None:
-            self.strict = bool(strict)
-        elif _amb is not None:
-            self.strict = _amb.strip() in ("1", "true", "True")
-        else:
-            self.strict = os.environ.get("MTL_STRICT", "0").strip() in ("1", "true", "True")
+        self.strict = bool(strict) if strict is not None else ambiguity_strict()
         self._preds, self._tgts, self._rank = [], [], []
         self._hit = {k: [] for k in self.top_k}
         self.tie_counts = {k: 0 for k in self.top_k}
@@ -576,4 +587,4 @@ def compute_classification_metrics(
     return metrics
 
 
-__all__ = ["compute_classification_metrics", "StreamingClsMetrics"]
+__all__ = ["compute_classification_metrics", "StreamingClsMetrics", "ambiguity_strict"]

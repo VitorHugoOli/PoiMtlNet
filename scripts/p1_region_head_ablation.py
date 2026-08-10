@@ -74,6 +74,7 @@ from models.registry import create_model
 from tracking.metrics import (
     compute_classification_metrics,
     StreamingClsMetrics,
+    ambiguity_strict,
 )
 from utils.seed import seed_everything
 
@@ -827,7 +828,9 @@ def _train_single_task(head_name, x_tensor, y_tensor, train_idx, val_idx,
                     _msg = (f"[p1 S2] epoch {epoch}: GPU scoring with boundary ties present "
                             f"({acc.tie_summary()}) — topk tie-break is kernel-dependent, so this "
                             f"cell may NOT match a CPU-scored sibling. Re-run with {_fix}.")
-                    if os.environ.get("MTL_STRICT", "0").strip() in ("1", "true", "True"):
+                    # Same decision as the accumulator's gate, read through the same function.
+                    # These two used to read the environment independently and drifted apart.
+                    if ambiguity_strict():
                         raise RuntimeError(_msg)
                     logger.warning(_msg)
             if acc_ab is not None:
