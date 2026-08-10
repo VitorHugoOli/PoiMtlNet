@@ -150,16 +150,41 @@ def test_store_on_cpu_is_value_preserving():
     assert a.compute() == b.compute()
 
 
-def test_tie_diagnostic_counts_the_right_boundary():
-    """A tie forced at the 10/11 boundary must be seen by top10 and NOT by top5."""
-    n, c = 400, 300
-    logits, targets = _make("kboundary", n, c, k=10), _targets(n, c)
+def test_tie_diagnostic_counts_only_ties_the_TARGET_is_in():
+    """A boundary tie between two non-target classes cannot change any reported number.
+
+    This is the distinction the first version of the diagnostic missed: it counted every tie at
+    the k-th/(k+1)-th boundary, which over-reported by orders of magnitude (48-62 rows against a
+    true count of 0 on mildly-rounded logits) and would have vetoed provably safe changes.
+    """
+    c = 300
+    # Row 0: target sits inside a tie group straddling k=5 -> AMBIGUOUS.
+    # Row 1: identical tie group, but the target is the runaway top-1 -> NOT ambiguous.
+    logits = torch.full((2, c), -10.0)
+    logits[:, 0:4] = 5.0                      # four clear winners
+    logits[:, 4:8] = 1.0                      # tie group spanning positions 5..8
+    targets = torch.tensor([5, 0])            # row 0 -> in the tie group; row 1 -> a clear winner
+    logits[1, 0] = 99.0                       # make row 1's target unambiguously rank 1
+
     acc = StreamingClsMetrics(c, top_k=(5, 10), diagnose_ties=True)
     acc.update(logits, targets)
-    assert acc.tie_counts[10] == n
-    assert acc.tie_counts[5] == 0
+    assert acc.tie_counts[5] == 1, "only the row whose TARGET is in the straddling group counts"
+    assert acc.tie_counts[10] == 0, "8 tied members all fit inside the top-10 — nothing ambiguous"
     assert acc.has_ties
-    assert "top10 (10th==11th): 400/400 (100.0000%)" in acc.tie_summary()
+    assert "target ambiguous at the 5/6 boundary" in acc.tie_summary()
+
+
+def test_tie_diagnostic_bounds_the_real_divergence():
+    """The count must upper-bound how much two top-k implementations can actually disagree."""
+    n, c = 4096, 1109
+    logits = torch.randint(0, 4, (n, c), generator=torch.Generator().manual_seed(0)).float()
+    targets = _targets(n, c)
+    acc = StreamingClsMetrics(c, top_k=(5, 10), diagnose_ties=True)
+    acc.update(logits, targets)
+    for k in (5, 10):
+        direct = (logits.topk(k, dim=-1).indices == targets.unsqueeze(-1)).any(dim=-1)
+        via10 = (logits.topk(10, dim=-1).indices[:, :k] == targets.unsqueeze(-1)).any(dim=-1)
+        assert int((direct != via10).sum()) <= acc.tie_counts[k]
 
 
 def test_tie_diagnostic_clean_on_continuous_logits():

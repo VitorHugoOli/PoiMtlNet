@@ -245,10 +245,23 @@ class StreamingClsMetrics:
       and parks the results in host memory (mtl_cv's S1 behaviour). Pure memory placement: moving
       an int64 rank vector between devices cannot change its value.
 
-    ``diagnose_ties`` counts, per k, how often the k-th and (k+1)-th logits are exactly equal —
-    the only condition under which ``move_logits_to`` can alter a reported number. It costs one
-    ``topk(max(top_k) + 1)`` per batch (2.9 ms at 2048x6553, against 83.5 ms for a full ``sort``),
-    so enable it on the first epoch rather than on every one.
+    ``diagnose_ties`` counts, per k, the rows whose reported hit@k is genuinely AMBIGUOUS — the
+    only condition under which the tie-break (and therefore ``move_logits_to``, or any change to
+    how top-k is obtained) can alter a reported number. A row is ambiguous iff the target sits in
+    a tie group straddling the k boundary::
+
+        n_gt < k < n_gt + n_eq        n_gt = #{strictly greater}, n_eq = #{equal, incl. target}
+
+    An earlier version counted instead how often the k-th and (k+1)-th LOGITS were equal, which
+    is a different and much larger set: a tie between two non-target classes cannot change any
+    reported number. Measured on 4096x6553 with mildly-rounded logits, that version fired on
+    48-62 rows while the true ambiguous count — and the observed divergence — were both **0**;
+    with heavy ties it fired on all 4096 rows against 90 truly ambiguous and 1 actually divergent.
+    A gate that over-reports by three orders of magnitude will veto changes that are provably
+    safe, which is exactly what it did.
+
+    Cost: ``n_gt`` is already known (``rank - 1``), so this adds ONE equality pass over the batch
+    rather than the ``topk(max_k + 1)`` the old version needed.
     """
 
     def __init__(self, num_classes: int, top_k: Iterable[int] = (3, 5),
@@ -264,6 +277,7 @@ class StreamingClsMetrics:
         self.n_rows = 0
         self.compute_device = None   # filled on first update, for logging
         self._cat = None             # memoised concat; invalidated by update()
+        self._rank_cache = None      # last batch's rank, so the tie check reuses its n_gt
 
     @staticmethod
     def should_stream(num_classes) -> bool:
@@ -284,28 +298,33 @@ class StreamingClsMetrics:
         keep = (lambda t: t.to(self.store_on)) if self.store_on is not None else (lambda t: t)
         self._preds.append(keep(logits.argmax(dim=-1)))
         self._tgts.append(keep(targets))
-        self._rank.append(keep(_rank_of_target(logits, targets)))
+        self._rank_cache = _rank_of_target(logits, targets)
+        self._rank.append(keep(self._rank_cache))
         for k in self.top_k:
             ke = min(k, logits.shape[-1])
             self._hit[k].append(
                 keep((logits.topk(ke, dim=-1).indices == targets.unsqueeze(-1)).any(dim=-1)))
         if self.diagnose_ties:
-            self._count_boundary_ties(logits)
+            self._count_ambiguous(logits, targets, self._rank_cache)
         self.n_rows += int(logits.shape[0])
         self._cat = None
         return self
 
-    def _count_boundary_ties(self, logits: torch.Tensor) -> None:
-        n_cls = logits.shape[-1]
-        want = max(self.top_k) + 1
-        ke = min(want, n_cls)
-        if ke < 2:
-            return
-        vals = logits.topk(ke, dim=-1).values
+    def _count_ambiguous(self, logits: torch.Tensor, targets: torch.Tensor,
+                         rank: torch.Tensor) -> None:
+        """Rows where the target's own hit@k depends on an arbitrary tie-break.
+
+        `rank` is `1 + #{strictly greater}`, so `n_gt = rank - 1` comes free from the pass the
+        caller already made. Only `n_eq` needs a new one. `hit@k` is then determined for every
+        row EXCEPT those where the target's tie group straddles k — and on those, and only
+        those, two implementations of top-k may disagree.
+        """
+        ts = logits.gather(-1, targets.unsqueeze(-1))
+        n_eq = (logits == ts).sum(dim=-1)
+        n_gt = rank - 1
         for k in self.top_k:
-            # Needs both the k-th and (k+1)-th value to exist; a boundary past C has no tie.
-            if k < ke:
-                self.tie_counts[k] += int((vals[:, k - 1] == vals[:, k]).sum())
+            if k < logits.shape[-1]:
+                self.tie_counts[k] += int(((n_gt < k) & (k < n_gt + n_eq)).sum())
 
     @property
     def has_ties(self) -> bool:
@@ -313,7 +332,8 @@ class StreamingClsMetrics:
 
     def tie_summary(self) -> str:
         return "; ".join(
-            f"top{k} ({k}th=={k + 1}th): {self.tie_counts[k]}/{self.n_rows} "
+            f"top{k} (target ambiguous at the {k}/{k + 1} boundary): "
+            f"{self.tie_counts[k]}/{self.n_rows} "
             f"({100.0 * self.tie_counts[k] / max(self.n_rows, 1):.4f}%)"
             for k in self.top_k)
 
