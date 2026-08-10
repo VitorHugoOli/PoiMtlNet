@@ -401,8 +401,10 @@ class StreamingClsMetrics:
                         f"boundary (the target sits in a tie group straddling k). "
                         f"hits_from_rank={self.hits_from_rank}: the metric would use "
                         f"tie-optimistic semantics on those rows while a topk-scored sibling "
-                        f"cell used the kernel's arbitrary pick. Re-run with "
-                        f"hits_from_rank=False, or accept the change deliberately.")
+                        f"cell used the kernel's arbitrary pick. To reproduce the banked "
+                        f"semantics exactly, re-run with P1_HITS_FROM_RANK=0 P1_STREAM_GPU=0 "
+                        f"(streamed, so no [N, C] buffer, but CPU + topk as the siblings used). "
+                        f"To accept the tie-optimistic value deliberately, unset MTL_STRICT.")
 
     @property
     def has_ties(self) -> bool:

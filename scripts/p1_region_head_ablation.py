@@ -776,15 +776,22 @@ def _train_single_task(head_name, x_tensor, y_tensor, train_idx, val_idx,
             #     epoch would let a tie at epoch 5 reach the board unseen — the metric that gets
             #     banked is chosen after every epoch, so the precondition has to hold at each one.
             _diag = (epoch == 0) or not _to_cpu
+            # P1_HITS_FROM_RANK=0 restores the historical topk semantics. It exists because the
+            # gate's own error message told operators to "re-run with hits_from_rank=False" while
+            # no CLI flag or env var could actually do that -- advice you cannot follow is worse
+            # than none, since it reads as a supported escape hatch. With streaming still on and
+            # P1_STREAM_GPU=0, this reproduces the banked cells EXACTLY (CPU + topk) without the
+            # [N, C] buffer, which is the configuration to use when a state trips the certificate.
+            _hfr = os.environ.get("P1_HITS_FROM_RANK", "1").strip() not in ("0", "false", "False")
             acc = StreamingClsMetrics(n_classes, top_k=(5, 10),
                                       move_logits_to="cpu" if _to_cpu else None,
-                                      diagnose_ties=_diag)
+                                      diagnose_ties=_diag, hits_from_rank=_hfr)
             # No gate on the A/B arm: it scores the SAME logits, so `acc` above already
             # measures the ambiguity of these very rows. A second count would be the same
             # number at twice the price.
             acc_ab = (StreamingClsMetrics(n_classes, top_k=(5, 10),
                                           move_logits_to=str(DEVICE) if _to_cpu else "cpu",
-                                          store_on="cpu")
+                                          store_on="cpu", hits_from_rank=_hfr)
                       if (_ab and epoch == 0) else None)
             with torch.no_grad():
                 for x_batch, y_batch in val_dl:

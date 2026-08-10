@@ -11,7 +11,13 @@ import argparse, pathlib, sys
 
 CELLS = {
     "cat": ["output/{eng}/{st}/input/next.parquet"],
+    # sequences_next.parquet ADDED 2026-08-10: the reg cell reads it in
+    # _build_region_sequence_tensor (p1_region_head_ablation.py:281) but it was listed only under
+    # "joint", so a reg-only gate printed "PREFLIGHT OK (3 inputs)" and the cell then died ~50 s
+    # later on FileNotFoundError -- which is the exact failure this gate exists to prevent, and
+    # worse than no gate because the green line invites you to trust it.
     "reg": ["output/{eng}/{st}/input/next.parquet",
+            "output/{eng}/{st}/temp/sequences_next.parquet",
             "output/{v14}/{st}/region_embeddings.parquet",
             "output/check2hgi/{st}/temp/checkin_graph.pt"],
     "joint": ["output/{eng}/{st}/input/next.parquet",
