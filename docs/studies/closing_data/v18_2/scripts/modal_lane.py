@@ -563,7 +563,7 @@ def main() -> int:
         vals = parse_values(dest)
         (dest / "run_metadata.json").write_text(json.dumps(
             {"kind": "refetch", "state": args.state, "seed": args.seed, "cells": args.cells,
-             "source": f"{VOLUME}:{remote}", "files": got, "values": vals,
+             "source": f"{VOLUME}:/harvest/{args.state}_s{{{args.seed}}}", "files": got, "values": vals,
              "harvest_incomplete": missing or None,
              "archived_at": time.strftime("%Y-%m-%dT%H:%M:%S%z")}, indent=2))
         print(f"refetched {len(got)} file(s) -> {dest}")
@@ -671,7 +671,13 @@ def main() -> int:
             if missing:
                 meta_extra["harvest_incomplete"] = missing
                 print(f"  !! HARVEST INCOMPLETE — missing {missing}")
-                print(f"     the data is still on the Volume at {remote}; re-fetch with")
+                # `remote` was a single-seed local that the multi-seed refactor removed; two
+                # references survived it, and this one sat in the harvest-FAILURE branch — so the
+                # message telling you how to recover your data was itself a NameError, exactly
+                # when you needed it. Rebuild the path from the args that are actually in scope.
+                _rem = ", ".join(f"/harvest/{args.state}_s{sd}"
+                                 for sd in str(args.seed).split(",") if sd.strip())
+                print(f"     the data is still on the Volume at {_rem}; re-fetch with")
                 print(f"     modal_lane.py --state {args.state} --seed {args.seed} --refetch")
                 rc = rc or 4
     except KeyboardInterrupt:

@@ -413,8 +413,26 @@ harvest_watch_stop(){
 rundir_for(){                   # rundir_for <prefix> <pid>
   local pre="$1" pid="${2:-}" rd=""
   if [ -n "$pid" ]; then
-    rd=$(ls -d results/$ENG/$ST/${pre}*_"${pid}" 2>/dev/null | head -1)
+    # PID ALONE IS NOT AN IDENTITY when the volume is shared. Containers each start their PID
+    # space from scratch, so two concurrent cells of the SAME state routinely give the trainer
+    # the same low pid (76 was observed on four containers at once). If a sibling's rundir with
+    # that pid is already on the volume when this container starts, `ls ... _<pid>` matches it
+    # and this cell attests a number computed from someone else's run.
+    #
+    # That is not hypothetical: on 2026-08-10 texas s100 scored texas s7's rundir this way, and
+    # -- because a Modal volume gives a container the snapshot it had at start -- saw it with
+    # only 1 of 5 folds, banking `n_folds=1, 36.4189` (fold 1 of s7) as if it were the s100 cell.
+    # It also overwrote s7's own score file. Correct value after re-scoring: 36.3445 over 5 folds.
+    #
+    # $LANE_MARK is touched at lane start, so anything older cannot belong to this cell. Same
+    # anchor the heartbeat already uses (see folds_done above) -- it just never got applied here.
+    rd=$(find results/$ENG/$ST -maxdepth 1 -name "${pre}*_${pid}" -newer "$LANE_MARK" \
+           -type d 2>/dev/null | head -1)
     [ -n "$rd" ] && { echo "$rd"; return 0; }
+    # A pid match that FAILS the freshness test is the collision above. Never silently accept it.
+    local stale
+    stale=$(ls -d results/$ENG/$ST/${pre}*_"${pid}" 2>/dev/null | head -1)
+    [ -n "$stale" ] && log "  WARN pid $pid matches '$stale' but it predates this lane -- ignoring (sibling cell on the shared volume)"
   fi
   # Fallback only. Say so loudly: an unanchored pick is unsafe the moment anything else
   # shares this volume, and a silent fallback is how a wrong number would get attested.

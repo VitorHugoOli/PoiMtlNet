@@ -42,11 +42,24 @@ phase(){ python "$BASE/status_update.py" --phase "wave${SEED}" >/dev/null 2>&1 |
 memavail_gb(){ awk '/MemAvailable/{printf "%.0f",$2/1048576}' /proc/meminfo; }
 flag(){ echo "$*" >> "$BASE/logs/verify_flags.jsonl"; log "[VERIFY] $*"; }
 
+# BOUNDED (fix 2026-08-10). This used to loop forever. On a shared box whose neighbour parks above
+# the floor that is an indefinite silent stall: status.json still reads phase=waveN with running=[],
+# and nothing ever sets blocked_on, so a reader cannot tell a waiting wave from a progressing one.
+# Wait at most WAIT_RAM_MAX_S, then proceed anyway and say so loudly -- a cell that then dies to the
+# OOM-killer is recoverable (every family checkpoints or is re-run by the retry pass), whereas a
+# wave that waits until morning for nothing is not.
+WAIT_RAM_MAX_S=${WAIT_RAM_MAX_S:-5400}
 wait_ram(){
   local a
   a=$(memavail_gb)
   local waited=0
   while [ "$a" -lt "$RAM_FLOOR_GB" ]; do
+    if [ "$waited" -ge "$WAIT_RAM_MAX_S" ]; then
+      log "    [VERIFY] RAM still ${a} GB < ${RAM_FLOOR_GB} GB after $((waited/60)) min — PROCEEDING anyway"
+      echo "{\"kind\":\"ram_wait_timeout\",\"seed\":$SEED,\"avail_gb\":$a,\"waited_s\":$waited}" \
+        >> "$BASE/logs/verify_flags.jsonl"
+      return 0
+    fi
     [ $((waited % 600)) -eq 0 ] && log "    waiting for RAM: ${a} GB < ${RAM_FLOOR_GB} GB floor (shared box)"
     sleep 60; waited=$((waited+60)); a=$(memavail_gb)
   done

@@ -59,7 +59,9 @@ for SEED in $SEEDS; do
   # Second pass: run_wave is idempotent, so re-invoking retries exactly the cells that have no
   # sidecar. One retry only -- a cell that fails twice is a real problem, not a transient.
   bash "$BASE/run_wave.sh" "$SEED" 2>&1 | tee -a "$DRV"
-  n=$(ls "$BASE/../../results/closing_data/v18"/*_s${SEED}_*.json 2>/dev/null | wc -l)
+  # FIX 2026-08-10: this resolved to docs/studies/results/... which does not exist, so every wave
+  # logged a flat "0/18 cells present" while the aggregation beside it was reading the right dir.
+  n=$(ls docs/results/closing_data/v18/*_s${SEED}_*.json 2>/dev/null | wc -l)
   log "---- WAVE seed=$SEED COMPLETE: $n/18 cells present ----"
   python "$BASE/make_results.py" >> "$DRV" 2>&1 || log "  (make_results.py failed, non-fatal)"
 done

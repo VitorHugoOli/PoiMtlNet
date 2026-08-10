@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-08-10T20:33:18.189572+00:00",
-  "commit_sha": "5075d77d68461c1df318307e791c88ea7dd72f9f",
+  "updated_at": "2026-08-10T22:41:05.501872+00:00",
+  "commit_sha": "aab23985dc5e947a9b289b02310d53df8fb91204",
   "phase": "done",
   "current_n": {
     "istanbul": 20,
@@ -555,10 +555,10 @@
       "state": "texas",
       "seed": 7,
       "family": "cat",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
-      "cat": null,
+      "status": "done",
+      "wall_seconds": 1421,
+      "rundir": "results/check2hgi_v18/texas/next_lr1.0e-04_bs8192_ep50_20260810_215016_76",
+      "cat": 36.319,
       "reg": null
     },
     {
@@ -585,10 +585,10 @@
       "state": "texas",
       "seed": 100,
       "family": "cat",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
-      "cat": null,
+      "status": "done",
+      "wall_seconds": 1430,
+      "rundir": "results/check2hgi_v18/texas/next_lr1.0e-04_bs8192_ep50_20260810_215955_76",
+      "cat": 36.3445,
       "reg": null
     },
     {
@@ -675,10 +675,10 @@
       "state": "california",
       "seed": 7,
       "family": "cat",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
-      "cat": null,
+      "status": "done",
+      "wall_seconds": 1091,
+      "rundir": "results/check2hgi_v18/california/next_lr1.0e-04_bs8192_ep50_20260810_215949_76",
+      "cat": 35.6311,
       "reg": null
     },
     {
@@ -705,10 +705,10 @@
       "state": "california",
       "seed": 100,
       "family": "cat",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
-      "cat": null,
+      "status": "done",
+      "wall_seconds": 1100,
+      "rundir": "results/check2hgi_v18/california/next_lr1.0e-04_bs8192_ep50_20260810_215951_76",
+      "cat": 35.653,
       "reg": null
     },
     {
@@ -733,7 +733,7 @@
     }
   ],
   "running": [],
-  "gpu_free_mib": 45489,
+  "gpu_free_mib": 44316,
   "disk_free_gb": 2192,
   "disk_free_gb_home": 37,
   "blocked_on": null,
