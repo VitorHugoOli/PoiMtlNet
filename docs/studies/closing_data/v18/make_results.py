@@ -140,6 +140,12 @@ def main() -> None:
     L.append("## 1 · MTL vs its own dedicated ceiling (same substrate, same protocol)\n")
     L.append("This is the citable contrast: both arms measured on v18, so the comparison is "
              "within-protocol.\n")
+    L.append("> The **dedicated** column is restricted to the seeds that also have a joint cell, "
+             "so Δ, `n` and the p-value all describe the same seeds. A dedicated cell can run "
+             "ahead of its joint cell (the cheap families are the ones sent to rented hardware), "
+             "so the all-seed dedicated mean can be based on more seeds than this; it is in "
+             "`data/v18_results.json` as `stl_cat` / `stl_reg`, against the paired "
+             "`stl_cat_paired` / `stl_reg_paired` used here.\n")
     L.append("| state | n | dedicated cat | MTL cat | **Δcat** | verdict | dedicated reg | MTL reg | **Δreg** | verdict |")
     L.append("|---|---:|---:|---:|---:|---|---:|---:|---:|---|")
     for s in STATES:
@@ -147,11 +153,17 @@ def main() -> None:
         if not c:
             continue
         runs = [r for r in per_run if r["state"] == s]
-        n = c["joint_cat_diag_best"]["n"]
+        n = (c.get("joint_cat_paired") or c["joint_cat_diag_best"])["n"]
         dcat = paired_diffs(runs, "db_cat_folds", "stl_cat_folds")
         dreg = paired_diffs(runs, "db_reg_folds", "stl_reg_folds")
-        sc, mc = c["stl_cat"]["mean"], c["joint_cat_diag_best"]["mean"]
-        sr, mr = c["stl_reg"]["mean"], c["joint_reg_diag_best"]["mean"]
+        # PAIRED means (audit fix 2026-08-10): the dedicated arm is restricted to the seeds that
+        # also have a joint cell, so Δ, n and the p-value in this row all describe the same seeds.
+        # Falls back to the all-seed mean for older JSONs that predate the paired fields.
+        sc = (c.get("stl_cat_paired") or c["stl_cat"])["mean"]
+        sr = (c.get("stl_reg_paired") or c["stl_reg"])["mean"]
+        # joint side paired too — see score_all.py. Falls back for pre-2026-08-10 JSONs.
+        mc = (c.get("joint_cat_paired") or c["joint_cat_diag_best"])["mean"]
+        mr = (c.get("joint_reg_paired") or c["joint_reg_diag_best"])["mean"]
         f = lambda v: f"{v:.2f}" if v is not None else "—"
         # AUDIT FIX (W2): (mc-sc) and (mr-sr) were unguarded while f() above them WAS guarded, so a
         # state whose cat or joint cell failed both attempts crashed the whole report generator --

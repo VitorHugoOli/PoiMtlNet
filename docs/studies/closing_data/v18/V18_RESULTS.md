@@ -1,8 +1,8 @@
 # v18 — RESULTS
 
-> Generated 2026-08-09T06:30:14.493296+00:00 from [`data/v18_results.json`](data/v18_results.json) by `make_results.py`. Every number here is traceable to that JSON, which [`score_all.py`](score_all.py) regenerates from the rundirs.
+> Generated 2026-08-10T21:48:38.673504+00:00 from [`data/v18_results.json`](data/v18_results.json) by `make_results.py`. Every number here is traceable to that JSON, which [`score_all.py`](score_all.py) regenerates from the rundirs.
 
-> Commit `e351d4b0` · seeds run: see the n column of each table.
+> Commit `dafdc74d` · seeds run: see the n column of each table.
 
 **v18 = the frozen v17 recipe on a leak-free substrate**: the consecutive-visit graph is forward-only in training and at readout, plus 4 elapsed-time node columns (`in_channels` 15). Not an architecture change. See [`METHODOLOGY.md`](METHODOLOGY.md).
 
@@ -24,25 +24,27 @@
 
 This is the citable contrast: both arms measured on v18, so the comparison is within-protocol.
 
+> The **dedicated** column is restricted to the seeds that also have a joint cell, so Δ, `n` and the p-value all describe the same seeds. A dedicated cell can run ahead of its joint cell (the cheap families are the ones sent to rented hardware), so the all-seed dedicated mean can be based on more seeds than this; it is in `data/v18_results.json` as `stl_cat` / `stl_reg`, against the paired `stl_cat_paired` / `stl_reg_paired` used here.
+
 | state | n | dedicated cat | MTL cat | **Δcat** | verdict | dedicated reg | MTL reg | **Δreg** | verdict |
 |---|---:|---:|---:|---:|---|---:|---:|---:|---|
-| istanbul | 0 | 35.35 | — | — | — | 75.17 | — | — | — |
-| alabama | 0 | 30.77 | — | — | — | 70.09 | — | — | — |
-| arizona | 0 | — | — | — | — | 59.49 | — | — | — |
-| florida | 0 | — | — | — | — | 76.70 | — | — | — |
-| texas | 0 | — | — | — | — | 64.95 | — | — | — |
-| california | 0 | — | — | — | — | 63.45 | — | — | — |
+| istanbul | 20 | 35.34 | 35.45 | **+0.11** | **beats** (paired one-sided p=0.001) | 75.16 | 75.27 | **+0.11** | **beats** (paired one-sided p=0.000) |
+| alabama | 20 | 30.77 | 30.70 | **-0.08** | matches (TOST +/-2 pp, p=0.000) | 70.12 | 69.67 | **-0.45** | matches (TOST +/-2 pp, p=0.000) |
+| arizona | 20 | 34.57 | 34.62 | **+0.04** | matches (TOST +/-2 pp, p=0.000) | 59.48 | 59.26 | **-0.22** | matches (TOST +/-2 pp, p=0.000) |
+| florida | 20 | 37.35 | 37.59 | **+0.24** | **beats** (paired one-sided p=0.000) | 76.69 | 77.09 | **+0.39** | **beats** (paired one-sided p=0.000) |
+| texas | 10 | 36.32 | 36.36 | **+0.04** | **beats** (paired one-sided p=0.009) | 64.95 | 66.88 | **+1.93** | **beats** (paired one-sided p=0.000) |
+| california | 10 | 35.62 | 35.75 | **+0.12** | **beats** (paired one-sided p=0.000) | 63.46 | 65.42 | **+1.96** | **beats** (paired one-sided p=0.000) |
 
 ## 2 · Joint model — both epoch-selection conventions
 
 | state | n | cat diag-best | cat joint-best | reg diag-best | reg joint-best |
 |---|---:|---:|---:|---:|---:|
-| istanbul | 0 | — | — | — | — |
-| alabama | 0 | — | — | — | — |
-| arizona | 0 | — | — | — | — |
-| florida | 0 | — | — | — | — |
-| texas | 0 | — | — | — | — |
-| california | 0 | — | — | — | — |
+| istanbul | 20 | 35.45 ± 0.05 | — | 75.27 ± 0.04 | — |
+| alabama | 20 | 30.70 ± 0.06 | — | 69.67 ± 0.07 | — |
+| arizona | 20 | 34.62 ± 0.05 | — | 59.26 ± 0.10 | — |
+| florida | 20 | 37.59 ± 0.06 | — | 77.09 ± 0.02 | — |
+| texas | 20 | 36.37 ± 0.02 | — | 66.86 ± 0.03 | — |
+| california | 20 | 35.75 ± 0.04 | — | 65.43 ± 0.02 | — |
 
 ## 3 · Against the v17 published board — CROSS-SUBSTRATE, descriptive only
 
@@ -50,6 +52,19 @@ This is the citable contrast: both arms measured on v18, so the comparison is wi
 
 | state | Δcat v18 | Δcat v17 | shift | Δreg v18 | Δreg v17 | shift |
 |---|---:|---:|---:|---:|---:|---:|
+| istanbul | +0.11 | +8.59 | **-8.48** | +0.11 | +0.28 | -0.17 |
+| alabama | -0.08 | +7.72 | **-7.80** | -0.45 | -0.31 | -0.14 |
+| arizona | +0.04 | +9.40 | **-9.36** | -0.22 | +0.10 | -0.32 |
+| florida | +0.24 | +5.34 | **-5.10** | +0.39 | +0.72 | -0.33 |
+| texas | +0.04 | +7.45 | **-7.41** | +1.93 | +2.11 | -0.18 |
+| california | +0.12 | +6.45 | **-6.33** | +1.96 | +2.20 | -0.24 |
+
+## 4 · Pooled across states
+
+- **Δcat** pooled over 100 (state, seed, fold) pairs: mean **+0.080** — **beats** (paired one-sided p=0.000)
+- **Δreg** pooled over 100 pairs: mean **+0.356** — **beats** (paired one-sided p=0.000)
+
+Pooling across states is reported for a single headline figure; the per-state rows in §1 are the primary result, since the states differ in size and in their v17 deltas.
 
 ## 5 · Related findings
 

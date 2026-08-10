@@ -205,13 +205,30 @@ def main() -> None:
             "joint_reg_joint_best": agg([e.get("jb_reg") for e in runs]),
             "v17_published": V17.get(st),
         }
+        # PAIRED ceiling means (audit fix 2026-08-10). "stl_cat" above averages EVERY seed with a
+        # dedicated cell; "joint_cat_diag_best" averages the seeds with a JOINT cell. Those sets
+        # diverge as soon as a cheap cell runs ahead of its joint cell -- which is exactly what the
+        # rented lane is for (alabama s100 cat+reg landed while s100 joint had not). Differencing
+        # the unpaired means gave a Δ over one seed set sitting next to an n and a p-value computed
+        # over another. Restrict the ceiling to the seeds that also have a joint result, so the
+        # contrast compares like with like. Identical to the old behaviour when the sets coincide.
+        # SYMMETRIC pairing. Restricting only the dedicated side was half the fix: a seed with a
+        # JOINT result and no dedicated cell (what a joint-only rented purchase produces) would
+        # land in the joint mean while being excluded from the dedicated mean — the same
+        # mismatch, mirrored. Build the subset that has BOTH arms and average each side over it.
+        _pc = [e for e in runs if e.get("stl_cat") is not None and e.get("db_cat") is not None]
+        _pr = [e for e in runs if e.get("stl_reg") is not None and e.get("db_reg") is not None]
+        c["stl_cat_paired"]   = agg([e["stl_cat"] for e in _pc])
+        c["joint_cat_paired"] = agg([e["db_cat"]  for e in _pc])
+        c["stl_reg_paired"]   = agg([e["stl_reg"] for e in _pr])
+        c["joint_reg_paired"] = agg([e["db_reg"]  for e in _pr])
         # Deltas WITHIN v18 (same protocol, so these are the citable contrasts)
-        if c["joint_cat_diag_best"]["mean"] is not None and c["stl_cat"]["mean"] is not None:
+        if c["joint_cat_paired"]["mean"] is not None and c["stl_cat_paired"]["mean"] is not None:
             c["delta_cat_vs_own_ceiling"] = round(
-                c["joint_cat_diag_best"]["mean"] - c["stl_cat"]["mean"], 4)
-        if c["joint_reg_diag_best"]["mean"] is not None and c["stl_reg"]["mean"] is not None:
+                c["joint_cat_paired"]["mean"] - c["stl_cat_paired"]["mean"], 4)
+        if c["joint_reg_paired"]["mean"] is not None and c["stl_reg_paired"]["mean"] is not None:
             c["delta_reg_vs_own_ceiling"] = round(
-                c["joint_reg_diag_best"]["mean"] - c["stl_reg"]["mean"], 4)
+                c["joint_reg_paired"]["mean"] - c["stl_reg_paired"]["mean"], 4)
         # Deltas vs v17 -- ACROSS SUBSTRATES, descriptive only, never a superiority claim
         v = V17.get(st, {})
         if c["joint_cat_diag_best"]["mean"] is not None:

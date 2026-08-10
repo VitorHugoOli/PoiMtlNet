@@ -1,0 +1,37 @@
+{
+  "tag": "parity_alabama_s1_cat",
+  "arm": "dedicated-parity-check",
+  "state": "alabama",
+  "seed": 1,
+  "batch_size": 8192,
+  "max_lr": 0.0025,
+  "logit_adjust_tau": 0.5,
+  "epochs": 50,
+  "wall_seconds": 260,
+  "rundir": "results/check2hgi_v18/alabama/next_lr1.0e-04_bs8192_ep50_20260810_054945_957549",
+  "precision": "fp32",
+  "note": "independent re-run for parity; private inductor cache; does NOT replace the wave sidecar",
+  "cat": 30.8745,
+  "cat_per_fold": [
+    32.7453,
+    30.9879,
+    29.994,
+    29.7222,
+    30.9232
+  ],
+  "cat_best_epochs": [
+    17,
+    17,
+    22,
+    20,
+    17
+  ],
+  "sm3_mean": 30.6764,
+  "sm3_per_fold": [
+    32.7453,
+    30.3091,
+    29.994,
+    29.4102,
+    30.9232
+  ]
+}
