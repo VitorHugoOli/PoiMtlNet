@@ -42,7 +42,7 @@ from torch.nn import CrossEntropyLoss
 from tracking.metrics import (
     compute_classification_metrics,
     _rank_of_target,
-    _streamed_cls_metrics,
+    StreamingClsMetrics,
 )
 from utils.flops import calculate_model_flops
 from utils.mps import clear_mps_cache
@@ -918,11 +918,11 @@ def _run_validation_epoch(model, dataloader_next, dataloader_category,
     # (byte-identical — same set every epoch; perf P3).
     _tl_b: set[int] | None = getattr(fold_history, "_ood_tl_b", None) if fold_history is not None else None
     _tl_a: set[int] | None = getattr(fold_history, "_ood_tl_a", None) if fold_history is not None else None
-    if _tl_b is None and task_b_num_classes is not None and task_b_num_classes > 256:
+    if _tl_b is None and StreamingClsMetrics.should_stream(task_b_num_classes):
         _tl_b = set(dataloader_next.train.y.unique().tolist())
         if fold_history is not None:
             fold_history._ood_tl_b = _tl_b
-    if _tl_a is None and task_a_num_classes is not None and task_a_num_classes > 256:
+    if _tl_a is None and StreamingClsMetrics.should_stream(task_a_num_classes):
         _tl_a = set(dataloader_category.train.y.unique().tolist())
         if fold_history is not None:
             fold_history._ood_tl_a = _tl_a
@@ -1501,11 +1501,14 @@ def train_model(model: torch.nn.Module,
         import os as _os_s1
         _stream_train_b = (
             _os_s1.environ.get("MTL_STREAM_TRAIN_METRIC", "1").strip() in ("1", "true", "True")
-            and task_b_num_classes is not None and task_b_num_classes > 256
+            and StreamingClsMetrics.should_stream(task_b_num_classes)
         )
         _S1_TOPK = (3, 5)  # matches compute_classification_metrics default top_k
-        s1_preds_b, s1_targets_b, s1_rank_b = [], [], []
-        s1_hit_b = {k: [] for k in _S1_TOPK}
+        # Shared accumulator (tracking.metrics). store_on="cpu" reproduces this loop's original
+        # behaviour EXACTLY: reduce on the logits' device, park the tiny [N] results in host
+        # memory. That is NOT the same as moving the logits to CPU first (which changes the topk
+        # tie-break) — the two are separate knobs on purpose.
+        s1_acc_b = StreamingClsMetrics(task_b_num_classes or 0, top_k=_S1_TOPK, store_on="cpu")
 
         # Per-epoch diagnostics — recomputed once per epoch on batch 0
         # (see Phase 0 §60 of plan/MTL_IMPROVEMENT_PLAN.md).
@@ -1726,14 +1729,7 @@ def train_model(model: torch.nn.Module,
                     # is diagnostic-only, so within-device the accumulated [N]/[C]
                     # vectors and the reconstructed metric dict stay byte-identical).
                     _lb = pred_task_b.detach()
-                    _tb = truth_task_b
-                    s1_preds_b.append(_lb.argmax(dim=-1).cpu())
-                    s1_targets_b.append(_tb.cpu())
-                    s1_rank_b.append(_rank_of_target(_lb, _tb).cpu())
-                    for _k in _S1_TOPK:
-                        _ke = min(_k, _lb.shape[-1])
-                        _topk = _lb.topk(_ke, dim=-1).indices
-                        s1_hit_b[_k].append((_topk == _tb.unsqueeze(-1)).any(dim=-1).cpu())
+                    s1_acc_b.update(_lb, truth_task_b)
                     del _lb
                 else:
                     all_task_b_logits.append(pred_task_b.detach().cpu())
@@ -1750,11 +1746,7 @@ def train_model(model: torch.nn.Module,
             # on the C>256 handrolled path: same helpers, same keys, same order. preds=cat of
             # per-batch argmax == full argmax (per-row); rank/hit are per-row; bincounts are
             # additive — so every metric matches the full-logit computation exactly.
-            _hit = {_k: torch.cat(s1_hit_b[_k]) for _k in _S1_TOPK}
-            train_metrics_task_b = _streamed_cls_metrics(
-                torch.cat(s1_preds_b), torch.cat(s1_targets_b), torch.cat(s1_rank_b),
-                _hit, task_b_num_classes, top_k=_S1_TOPK,
-            )
+            train_metrics_task_b = s1_acc_b.compute(num_classes=task_b_num_classes)
         else:
             epoch_task_b_logits = torch.cat(all_task_b_logits)
             epoch_task_b_targets = torch.cat(all_task_b_targets)

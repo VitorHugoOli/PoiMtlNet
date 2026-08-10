@@ -7,9 +7,9 @@ import torch
 logger = logging.getLogger(__name__)
 
 from tracking.metrics import (
+    StreamingClsMetrics,
     compute_classification_metrics,
     _rank_of_target,
-    _streamed_cls_metrics,
 )
 from utils.progress import zip_longest_cycle
 
@@ -130,7 +130,10 @@ def _decide_chunk_val(dataloaders, nc_b_gate) -> bool:
             "Set MTL_CHUNK_VAL_METRIC=1 to silence, or MTL_S2_AUTO_BUDGET_GB to tune.",
             full_logit_gb, n_val, int(nc_b_gate or 0), budget_gb,
         )
-    return (s2_env or auto_chunk) and nc_b_gate is not None and nc_b_gate > 256
+    # Gate on the SHARED cutoff: streaming rebuilds the hand-rolled dict, so it is only
+    # equivalent above the same cardinality where compute_classification_metrics leaves
+    # torchmetrics. Re-typing 256 here is how the two silently drift apart.
+    return (s2_env or auto_chunk) and StreamingClsMetrics.should_stream(nc_b_gate)
 
 
 @torch.no_grad()
@@ -193,8 +196,9 @@ def evaluate_model(
     )
     _chunk_val = _decide_chunk_val(dataloaders, _nc_b_gate)
     _S2_KS = (1, 3, 5, 10)  # union of metrics_next top_k=(3,5) and ood ks=(1,5,10)
-    sv_preds, sv_tgts, sv_rank = [], [], []
-    sv_hit = {k: [] for k in _S2_KS}
+    # Shared accumulator (tracking.metrics) — same per-row reductions this loop used inline,
+    # now in the one place mtl_cv and p1 also call, so the pattern has a single implementation.
+    _s2 = StreamingClsMetrics(_nc_b_gate or 0, top_k=_S2_KS)
 
     # Opt-in per-sample val-prediction dump (MTL_DUMP_VAL_PREDS=1). Feeds the
     # geographic near-miss metric (articles/[mobiwac]/MOBILITY_PLAN.md §3,
@@ -266,12 +270,7 @@ def evaluate_model(
             # reg (task_b) — STREAM per-row reductions ON GPU (canonical fp16 tie-break);
             # discard the [batch, n_regions] logits so the full [N, C] is never materialized.
             _no = next_out.detach()
-            sv_preds.append(_no.argmax(dim=-1))
-            sv_tgts.append(y_next)
-            sv_rank.append(_rank_of_target(_no, y_next))
-            for _k in _S2_KS:
-                _ke = min(_k, _no.shape[-1])
-                sv_hit[_k].append((_no.topk(_ke, dim=-1).indices == y_next.unsqueeze(-1)).any(dim=-1))
+            _s2.update(_no, y_next)
             if _dump_env:
                 # Real top-10 predicted indices (not just the hit boolean
                 # above) — only materialized under the opt-in dump flag; the
@@ -313,12 +312,10 @@ def evaluate_model(
         # Reg metrics_next from the streamed accumulators (byte-identical to
         # compute_classification_metrics(full reg logits, top_k=(3,5)) on the C>256
         # handrolled path: same helpers, same keys/order; preds/rank/hit per-row, on-GPU).
-        _P = torch.cat(sv_preds)
-        _T = torch.cat(sv_tgts)
-        _R = torch.cat(sv_rank)
-        _HIT = {k: torch.cat(sv_hit[k]) for k in _S2_KS}
-        # Shared with the S1 train-metric (mtl_cv); _T/_R/_HIT are reused by the OOD block below.
-        metrics_next = _streamed_cls_metrics(_P, _T, _R, _HIT, nc_b, top_k=(3, 5))
+        # _T/_R/_HIT are reused by the OOD block and the val-pred dump below, so they come from
+        # the SAME accumulators the metrics are built from rather than a second pass.
+        _P, _T, _R, _HIT = _s2.concat()
+        metrics_next = _s2.compute(top_k=(3, 5), num_classes=nc_b)
     else:
         all_logits_next = torch.cat(logits_next_list)
         all_truths_next = torch.cat(truths_next_list)

@@ -142,6 +142,17 @@ cell_reg(){
   local tag="v18_${st}_reg_s${SEED}"
   local t0=$SECONDS
   log "  START $st s$SEED reg"
+  # MTL_CHUNK_VAL_METRIC=1 forces the val metric onto the CPU. It was briefly dropped on
+  # 2026-08-10 (the auto-guard in _should_chunk_val_metric already covers TX/CA above 4 GB, and
+  # forcing it costs the small states: arizona reg 343 s on a rented H100 vs 185 s here) and then
+  # RESTORED the same day, because the equivalence argument did not survive measurement:
+  # top10_acc comes from logits.topk(), whose tie-break at the k-boundary is device-dependent.
+  # On an H100, with exact fp32 ties AT the boundary, CPU and GPU disagreed on 19950/20000 rows
+  # and top10_acc moved 3.0e-04 -- 300x the 1e-4pp reporting quantum. Continuous logits showed
+  # 0% boundary ties and ~1e-9 agreement, but the rate on real reg logits is unmeasured and every
+  # banked reg cell is CPU-scored. Keep it forced; homogeneity beats ~40 s per small-state cell.
+  # Real fix (freeze boundary, all states at once): stream the val metric on GPU as mtl_eval.py
+  # does. Checker: v18_2/scripts/check_cpu_gpu_scoring_equiv.py
   env MTL_CHUNK_VAL_METRIC=1 MTL_DISABLE_AMP=1 \
     python -u scripts/p1_region_head_ablation.py --state "$st" --heads next_stan_flow \
     --input-type region --region-emb-source "$V14" \

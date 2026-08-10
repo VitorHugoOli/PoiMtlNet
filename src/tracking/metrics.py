@@ -200,6 +200,151 @@ def _ndcg_at_k(logits: torch.Tensor, targets: torch.Tensor, k: int) -> float:
     return _ndcg_from_rank(_rank_of_target(logits, targets), k)
 
 
+# Above this class count, `compute_classification_metrics` switches from torchmetrics to the
+# hand-rolled per-class accumulation (torchmetrics' confusion-matrix path allocates
+# num_classes**2 * batch floats internally — ~30 GB at 1K classes x 6K batch, on any device).
+# Module-level so callers that reconstruct the hand-rolled dict — `_streamed_cls_metrics` and its
+# users in mtl_eval.py / p1_region_head_ablation.py — can gate on the SAME cutoff instead of
+# duplicating the literal and silently diverging if it ever moves.
+_CARDINALITY_HAND_ROLLED_THRESHOLD = 256
+
+
+class StreamingClsMetrics:
+    """Accumulate the inputs of the hand-rolled metric dict one batch at a time.
+
+    Motivation: the "keep only per-row reductions, never materialise ``[N, C]``" trick was
+    reimplemented independently in THREE places — the S2 val metric (``mtl_eval``), the S1 train
+    metric (``mtl_cv``) and the p1 region ablation — each with its own copy of the same four
+    accumulators and its own copy of the ``> 256`` literal. Three copies of a loop is three
+    chances to get it subtly wrong, and the p1 copy shipped with a read-before-assignment that
+    made every streamed run die on ``UnboundLocalError``; it was caught only by running it, since
+    a unit test of ``_streamed_cls_metrics`` never touches the caller's loop. This class is the
+    one implementation they now share, so a fix lands everywhere and a new caller cannot invent a
+    fourth variant.
+
+    Equivalence: ``compute()`` is **byte-identical** to
+    ``compute_classification_metrics(full_logits, top_k)`` on the hand-rolled path, because every
+    metric is a per-row reduction (``argmax`` / ``topk`` hit / strict-``>`` rank) or an additive
+    per-class count. Batching cannot change a per-row quantity, so batch size is irrelevant to the
+    result. Pinned by ``tests/test_tracking/test_streaming_cls_metrics.py``, which also carries
+    the pre-refactor inline loops verbatim as golden references.
+
+    Two INDEPENDENT device knobs, because the existing callers genuinely differ and collapsing
+    them into one flag would silently change behaviour:
+
+    * ``move_logits_to`` — where the per-row ops RUN. ``None`` keeps them on the logits' device.
+      Setting ``"cpu"`` moves each batch's logits before reducing (p1's default, which preserves
+      the CPU-scored path every banked reg cell used). This is the one knob that is **not**
+      bit-identical across settings: ``topk``'s tie-break at the k-boundary is a kernel detail.
+      Measured on real region logits: 0 boundary ties in 100 448 rows and a worst cross-device
+      delta of 5.96e-08, but use ``diagnose_ties`` rather than assuming it.
+    * ``store_on`` — where the tiny ``[N]`` accumulators are KEPT. ``"cpu"`` reduces on the GPU
+      and parks the results in host memory (mtl_cv's S1 behaviour). Pure memory placement: moving
+      an int64 rank vector between devices cannot change its value.
+
+    ``diagnose_ties`` counts, per k, how often the k-th and (k+1)-th logits are exactly equal —
+    the only condition under which ``move_logits_to`` can alter a reported number. It costs one
+    ``topk(max(top_k) + 1)`` per batch (2.9 ms at 2048x6553, against 83.5 ms for a full ``sort``),
+    so enable it on the first epoch rather than on every one.
+    """
+
+    def __init__(self, num_classes: int, top_k: Iterable[int] = (3, 5),
+                 move_logits_to=None, store_on=None, diagnose_ties: bool = False):
+        self.num_classes = int(num_classes)
+        self.top_k = tuple(top_k)
+        self.move_logits_to = move_logits_to
+        self.store_on = store_on
+        self.diagnose_ties = bool(diagnose_ties)
+        self._preds, self._tgts, self._rank = [], [], []
+        self._hit = {k: [] for k in self.top_k}
+        self.tie_counts = {k: 0 for k in self.top_k}
+        self.n_rows = 0
+        self.compute_device = None   # filled on first update, for logging
+
+    @staticmethod
+    def should_stream(num_classes) -> bool:
+        """Is streaming equivalent at this cardinality?
+
+        ``_streamed_cls_metrics`` rebuilds the HAND-ROLLED dict, so it only matches
+        ``compute_classification_metrics`` above the same cutoff that function uses to leave
+        torchmetrics. Callers must gate on this instead of re-typing the literal.
+        """
+        return num_classes is not None and int(num_classes) > _CARDINALITY_HAND_ROLLED_THRESHOLD
+
+    def update(self, logits: torch.Tensor, targets: torch.Tensor) -> "StreamingClsMetrics":
+        logits = logits.detach()
+        if self.move_logits_to is not None:
+            logits = logits.to(self.move_logits_to)
+            targets = targets.to(self.move_logits_to)
+        self.compute_device = logits.device
+        keep = (lambda t: t.to(self.store_on)) if self.store_on is not None else (lambda t: t)
+        self._preds.append(keep(logits.argmax(dim=-1)))
+        self._tgts.append(keep(targets))
+        self._rank.append(keep(_rank_of_target(logits, targets)))
+        for k in self.top_k:
+            ke = min(k, logits.shape[-1])
+            self._hit[k].append(
+                keep((logits.topk(ke, dim=-1).indices == targets.unsqueeze(-1)).any(dim=-1)))
+        if self.diagnose_ties:
+            self._count_boundary_ties(logits)
+        self.n_rows += int(logits.shape[0])
+        return self
+
+    def _count_boundary_ties(self, logits: torch.Tensor) -> None:
+        n_cls = logits.shape[-1]
+        want = max(self.top_k) + 1
+        ke = min(want, n_cls)
+        if ke < 2:
+            return
+        vals = logits.topk(ke, dim=-1).values
+        for k in self.top_k:
+            # Needs both the k-th and (k+1)-th value to exist; a boundary past C has no tie.
+            if k < ke:
+                self.tie_counts[k] += int((vals[:, k - 1] == vals[:, k]).sum())
+
+    @property
+    def has_ties(self) -> bool:
+        return any(v > 0 for v in self.tie_counts.values())
+
+    def tie_summary(self) -> str:
+        return "; ".join(
+            f"top{k} ({k}th=={k + 1}th): {self.tie_counts[k]}/{self.n_rows} "
+            f"({100.0 * self.tie_counts[k] / max(self.n_rows, 1):.4f}%)"
+            for k in self.top_k)
+
+    def concat(self):
+        """The concatenated ``(preds, targets, rank, hit)`` accumulators.
+
+        Exposed because the metric dict is not the only consumer: ``mtl_eval`` feeds the same
+        ``targets``/``rank``/``hit`` into the OOD-restricted Acc@K block and the opt-in val-pred
+        dump. Those must read the SAME tensors the metrics were computed from — recomputing them
+        from a second pass would be both wasteful and a chance to drift.
+        """
+        return (torch.cat(self._preds), torch.cat(self._tgts), torch.cat(self._rank),
+                {k: torch.cat(v) for k, v in self._hit.items()})
+
+    def compute(self, top_k: Iterable[int] | None = None,
+                num_classes: int | None = None) -> Dict[str, float]:
+        """``top_k`` narrows the REPORTED ks to a subset of the accumulated ones.
+
+        ``mtl_eval`` accumulates hits at (1, 3, 5, 10) — the union of what the metric dict needs
+        and what the OOD block needs — but reports only (3, 5). Accumulating the union once is
+        cheaper than a second pass, so reporting has to be able to ask for less than was kept.
+
+        ``num_classes`` overrides the count used for the per-class F1 accumulation. The class is
+        constructed inside the eval loop, where the caller may only have the *gate* cardinality;
+        the authoritative value can be resolved later. Passing it here keeps the resolution at
+        the call site instead of mutating the attribute behind the reader's back.
+        """
+        ks = self.top_k if top_k is None else tuple(top_k)
+        nc = self.num_classes if num_classes is None else int(num_classes)
+        missing = [k for k in ks if k not in self._hit]
+        if missing:
+            raise KeyError(f"top_k={missing} was never accumulated (have {sorted(self._hit)})")
+        preds, tgts, rank, hit = self.concat()
+        return _streamed_cls_metrics(preds, tgts, rank, hit, nc, top_k=ks)
+
+
 def compute_classification_metrics(
     logits: torch.Tensor,
     targets: torch.Tensor,
@@ -268,7 +413,6 @@ def compute_classification_metrics(
     # ``torch.bincount`` on 1-D inputs, which stays O(N + num_classes)
     # memory and is numerically equivalent to torchmetrics for the
     # micro/macro-averaged accuracy and F1 we report.
-    _CARDINALITY_HAND_ROLLED_THRESHOLD = 256
     if num_classes > _CARDINALITY_HAND_ROLLED_THRESHOLD:
         acc_micro, acc_macro, f1_macro, f1_weighted = _handrolled_cls_metrics(
             preds, targets, num_classes,
@@ -310,4 +454,4 @@ def compute_classification_metrics(
     return metrics
 
 
-__all__ = ["compute_classification_metrics"]
+__all__ = ["compute_classification_metrics", "StreamingClsMetrics"]

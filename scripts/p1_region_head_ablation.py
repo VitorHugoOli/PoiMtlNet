@@ -71,7 +71,11 @@ from data.folds import (
     load_next_data,
 )
 from models.registry import create_model
-from tracking.metrics import compute_classification_metrics
+from tracking.metrics import (
+    compute_classification_metrics,
+    _rank_of_target,
+    StreamingClsMetrics,
+)
 from utils.seed import seed_everything
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -692,25 +696,120 @@ def _train_single_task(head_name, x_tensor, y_tensor, train_idx, val_idx,
         # when the full val logit would exceed a GPU budget, or via MTL_CHUNK_VAL_METRIC /
         # P1_CHUNK_VAL_METRIC; else keep the GPU path so small-state / frozen p1 numbers are untouched.
         _chunk_val, _val_logit_gb = _should_chunk_val_metric(len(x_val), n_classes)
-        if _chunk_val and epoch == 0:
+        # Suppressed when streaming: this message describes a full-logit CPU cat that no longer
+        # happens, and under P1_STREAM_GPU=1 it would claim "on CPU" while scoring on the GPU,
+        # contradicting the streamed log two lines below.
+        if _chunk_val and epoch == 0 and os.environ.get("P1_STREAM_VAL", "1").strip() in ("0", "false", "False"):
             logger.info(
                 "[p1 S2] scoring val metric on CPU (full val logit ~= %.1f GB, N_val=%d x C=%d) "
                 "to avoid GPU OOM at overlap scale — byte-identical for rank-based metrics",
                 _val_logit_gb, len(x_val), n_classes,
             )
-        all_logits, all_targets = [], []
-        with torch.no_grad():
-            for x_batch, y_batch in val_dl:
-                out = model(x_batch).detach()
-                if _chunk_val:
-                    out = out.cpu()
-                    y_batch = y_batch.cpu()
-                all_logits.append(out)
-                all_targets.append(y_batch)
+        # ---- STREAMED val metric (P1_STREAM_VAL, default ON for C > 256) -------------------
+        # The old path built the FULL [N_val, C] logit and scored it in one go. That tensor is
+        # 20.1 GB at texas and 19.9 GB at california, which OOMs the GPU on the `torch.cat` — so
+        # `_chunk_val` moved the whole thing to CPU instead. That works, and it is why the reg
+        # cell is the one family that runs SLOWER on rented hardware: the scoring is CPU-bound
+        # and a container has 8 cores against the A40 box's 32 (measured: arizona reg 343 s on an
+        # H100 vs 185 s here; florida 455 s/fold vs 332 s/fold).
+        #
+        # Streaming removes the buffer instead of relocating it. Every metric this function
+        # reports is a PER-ROW quantity: `argmax`, `topk(k, dim=-1)` and `_rank_of_target` all
+        # depend on row i alone, so computing them per batch and concatenating the O(N) results
+        # is the SAME arithmetic as computing them on the full [N, C] — not an approximation.
+        # `StreamingClsMetrics` (tracking.metrics) owns those accumulators and reassembles the
+        # identical dict. It is the SAME class `mtl_eval.py` uses for the joint's reg head (S2)
+        # and `mtl_cv.py` for the S1 train metric — the pattern used to be copy-pasted into all
+        # three, which is how the p1 copy shipped a read-before-assignment that killed every
+        # streamed run. One implementation, one place to fix.
+        #
+        # Consequence: no O(N·C) buffer on any device, no CPU offload at any scale, and scoring
+        # becomes homogeneous instead of switching behaviour at a 4 GB size threshold.
+        #
+        # Guard: `should_stream` gates on the cutoff above which `compute_classification_metrics`
+        # leaves torchmetrics for the hand-rolled path — below it the two would not agree, so the
+        # full path stays. Asking the class beats re-typing 256 in a fourth place. (Every state in
+        # this study has C >= 520, so streaming is always on here.)
+        _stream = (os.environ.get("P1_STREAM_VAL", "1").strip() not in ("0", "false", "False")
+                   and StreamingClsMetrics.should_stream(n_classes))
+        if _stream:
+            # DEVICE. Streaming removes the [N, C] buffer, so the OOM that `_chunk_val` exists to
+            # prevent cannot happen any more and the CPU move is no longer NECESSARY. It is kept
+            # by default anyway, because every reg cell banked in this study was CPU-scored and
+            # switching device is the one thing that is NOT bit-identical: `topk`'s tie-break at
+            # the k-boundary is a kernel detail (synthetic worst case on an H100: exact ties forced
+            # at the boundary → CPU and GPU disagreed on 19950/20000 rows, top10_acc moved 3.0e-04).
+            # On REAL arizona reg logits, measured: 0/100448 ties at BOTH boundaries and a worst
+            # cross-device delta of 5.96e-08 with top10_acc bit-identical — so P1_STREAM_GPU=1 is
+            # safe and 3.2x faster (57s→18s/fold). Default stays OFF only for homogeneity with the
+            # banked CPU-scored cells; the diagnostic below re-checks the precondition every run.
+            _to_cpu = _chunk_val and os.environ.get("P1_STREAM_GPU", "0").strip() not in ("1", "true", "True")
+            if epoch == 0:
+                logger.info(
+                    "[p1 S2] STREAMED val metric on %s (per-row accumulators, no [N=%d x C=%d] "
+                    "buffer; would have been %.1f GB) — same per-row ops as the full path",
+                    "cpu" if _to_cpu else str(DEVICE), len(x_val), n_classes, _val_logit_gb,
+                )
+            # A/B EXPERIMENT (P1_SCORE_AB=1): score the SAME logits on BOTH devices in this one
+            # run and report the per-metric delta. Comparing a fresh GPU-scored run against a
+            # banked CPU-scored value would confound the scoring device with `--compile`
+            # nondeterminism (CLAUDE.md: compiled numbers are within-fold-sigma, not
+            # bit-reproducible), so the device question can only be answered inside a single run.
+            _ab = os.environ.get("P1_SCORE_AB", "0").strip() in ("1", "true", "True")
+            # Tie diagnostic on epoch 0 only: it costs one topk(max_k+1) per batch (2.9 ms at
+            # 2048x6553 vs 83.5 ms for a full sort — an earlier version ran the sort EVERY epoch
+            # and logged only the first, adding ~26 min/fold at texas).
+            acc = StreamingClsMetrics(n_classes, top_k=(5, 10),
+                                      move_logits_to="cpu" if _to_cpu else None,
+                                      diagnose_ties=(epoch == 0))
+            acc_ab = (StreamingClsMetrics(n_classes, top_k=(5, 10),
+                                          move_logits_to=str(DEVICE) if _to_cpu else "cpu",
+                                          store_on="cpu")
+                      if (_ab and epoch == 0) else None)
+            with torch.no_grad():
+                for x_batch, y_batch in val_dl:
+                    out = model(x_batch).detach()
+                    acc.update(out, y_batch)
+                    if acc_ab is not None:
+                        acc_ab.update(out, y_batch)   # same logits, the OTHER device
+                    del out
+            metrics = acc.compute()
+            if epoch == 0 and acc.n_rows:
+                logger.info("[p1 S2] boundary ties on REAL val logits — %s. Both must read 0 "
+                            "before P1_STREAM_GPU=1 is safe for a state with banked CPU cells.",
+                            acc.tie_summary())
+                # The precondition for GPU scoring is CHECKED per run, not extrapolated from the
+                # state it was first measured on. A cell that ties while scoring on the GPU is not
+                # homogeneous with its CPU-scored siblings, and the operator has to know before
+                # the number is banked.
+                if not _to_cpu and acc.has_ties:
+                    _msg = (f"[p1 S2] GPU scoring with boundary ties present ({acc.tie_summary()}) "
+                            f"— topk tie-break is kernel-dependent, so this cell may NOT match a "
+                            f"CPU-scored sibling. Re-run with P1_STREAM_GPU=0 for the banked path.")
+                    if os.environ.get("MTL_STRICT", "0").strip() in ("1", "true", "True"):
+                        raise RuntimeError(_msg)
+                    logger.warning(_msg)
+            if acc_ab is not None:
+                _m2 = acc_ab.compute()
+                _worst = max((abs(float(metrics[k]) - float(_m2[k])), k) for k in metrics
+                             if isinstance(metrics.get(k), float))
+                logger.info("[p1 A/B] same logits, both devices — worst |delta| = %.3e on '%s' "
+                            "(top10_acc: %.10f vs %.10f). Reporting quantum is 1e-6.",
+                            _worst[0], _worst[1], metrics["top10_acc"], _m2["top10_acc"])
+        else:
+            all_logits, all_targets = [], []
+            with torch.no_grad():
+                for x_batch, y_batch in val_dl:
+                    out = model(x_batch).detach()
+                    if _chunk_val:
+                        out = out.cpu()
+                        y_batch = y_batch.cpu()
+                    all_logits.append(out)
+                    all_targets.append(y_batch)
 
-        logits = torch.cat(all_logits)
-        targets = torch.cat(all_targets)
-        metrics = compute_classification_metrics(logits, targets, num_classes=n_classes, top_k=(5, 10))
+            logits = torch.cat(all_logits)
+            targets = torch.cat(all_targets)
+            metrics = compute_classification_metrics(logits, targets, num_classes=n_classes, top_k=(5, 10))
 
         _update_per_metric_best(per_metric_best, metrics, epoch + 1)
 
