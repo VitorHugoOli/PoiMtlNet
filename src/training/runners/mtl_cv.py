@@ -10,6 +10,8 @@ from typing import Optional
 from training.profiling import get_profiler
 from utils.seed import seed_everything
 
+
+from utils.precision import check_amp_dtype
 logger = logging.getLogger(__name__)
 
 
@@ -1328,6 +1330,7 @@ def train_model(model: torch.nn.Module,
     )
     if DEVICE.type == 'cuda' and not _disable_amp:
         logger.info("MTL autocast dtype = %s", _amp_dtype)
+        check_amp_dtype("mtl_cv.train_model", _amp_dtype)   # bf16 passes; fp16 does not
 
     # Ephemeral run profiler (no-op unless MTL_PROFILE=1 / --profile). See training/profiling.py.
     _prof = get_profiler()
@@ -1507,6 +1510,10 @@ def train_model(model: torch.nn.Module,
         # behaviour EXACTLY: reduce on the logits' device, park the tiny [N] results in host
         # memory. That is NOT the same as moving the logits to CPU first (which changes the topk
         # tie-break) — the two are separate knobs on purpose.
+        # diagnose_ties deliberately OFF: this is the TRAIN metric, logged for progress and
+        # never used for selection or banked (mtl_cv's own note above). Paying an extra pass
+        # per train batch — ~10x more rows than val — to certify a number nobody compares
+        # would cost more than the whole val-side certificate.
         s1_acc_b = StreamingClsMetrics(task_b_num_classes or 0, top_k=_S1_TOPK, store_on="cpu")
 
         # Per-epoch diagnostics — recomputed once per epoch on batch 0

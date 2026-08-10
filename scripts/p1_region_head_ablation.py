@@ -772,6 +772,9 @@ def _train_single_task(head_name, x_tensor, y_tensor, train_idx, val_idx,
             acc = StreamingClsMetrics(n_classes, top_k=(5, 10),
                                       move_logits_to="cpu" if _to_cpu else None,
                                       diagnose_ties=_diag)
+            # No gate on the A/B arm: it scores the SAME logits, so `acc` above already
+            # measures the ambiguity of these very rows. A second count would be the same
+            # number at twice the price.
             acc_ab = (StreamingClsMetrics(n_classes, top_k=(5, 10),
                                           move_logits_to=str(DEVICE) if _to_cpu else "cpu",
                                           store_on="cpu")

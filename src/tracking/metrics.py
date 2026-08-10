@@ -23,6 +23,7 @@ The ``'f1'`` key stays identical to the previous
 
 from __future__ import annotations
 
+import os
 from typing import Dict, Iterable
 
 import torch
@@ -109,6 +110,42 @@ def _top_k_accuracy(logits: torch.Tensor, targets: torch.Tensor, k: int) -> floa
     top_k = logits.topk(k_eff, dim=-1).indices  # (N, k_eff)
     hit = (top_k == targets.unsqueeze(-1)).any(dim=-1)
     return hit.float().mean().item()
+
+
+def _rank_and_ties(logits: torch.Tensor, targets: torch.Tensor):
+    """``(rank, n_eq)`` in ONE chunked pass — ``n_eq`` counts classes tied with the target.
+
+    Split out of ``_rank_of_target`` because the two quantities answer the same question and read
+    the same memory. ``n_gt = rank - 1`` says how many classes beat the target; ``n_eq`` says how
+    large the target's tie group is. Together they decide hit@k **exactly**::
+
+        n_gt >= k             -> miss, for every valid top-k
+        n_gt + n_eq <= k      -> hit,  for every valid top-k
+        otherwise             -> AMBIGUOUS: the tie group straddles k and the answer depends on
+                                 which tied element the kernel happens to pick
+
+    So when nothing is ambiguous, ``hit@k == (rank <= k)`` — an integer comparison, with no
+    ``topk`` and therefore no dependence on sort order, tie order, or the device's kernel. That
+    is what makes rank-derived hits bit-identical across CPU and CUDA, which ``topk``-derived
+    hits are not.
+
+    Computing ``==`` in the same chunk as ``>`` is close to free: the chunk is already resident.
+    """
+    orig_device = logits.device
+    if orig_device.type == 'mps':          # same MPS INT_MAX guard as _rank_of_target
+        logits = logits.cpu()
+        targets = targets.cpu()
+    target_scores = logits.gather(dim=-1, index=targets.unsqueeze(-1))
+    n = logits.size(0)
+    chunk = 4096
+    higher = torch.empty(n, dtype=torch.long, device=logits.device)
+    equal = torch.empty(n, dtype=torch.long, device=logits.device)
+    for i in range(0, n, chunk):
+        block = logits[i:i + chunk]
+        ts = target_scores[i:i + chunk]
+        higher[i:i + chunk] = (block > ts).sum(dim=-1)
+        equal[i:i + chunk] = (block == ts).sum(dim=-1)
+    return higher + 1, equal
 
 
 def _rank_of_target(logits: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
@@ -265,19 +302,24 @@ class StreamingClsMetrics:
     """
 
     def __init__(self, num_classes: int, top_k: Iterable[int] = (3, 5),
-                 move_logits_to=None, store_on=None, diagnose_ties: bool = False):
+                 move_logits_to=None, store_on=None, diagnose_ties: bool = False,
+                 hits_from_rank: bool = False, strict: bool | None = None):
         self.num_classes = int(num_classes)
         self.top_k = tuple(top_k)
         self.move_logits_to = move_logits_to
         self.store_on = store_on
-        self.diagnose_ties = bool(diagnose_ties)
+        # Deriving hits from the rank REQUIRES the ambiguity count — it is the certificate that
+        # the derivation matches what topk would have returned, so it is not optional there.
+        self.hits_from_rank = bool(hits_from_rank)
+        self.diagnose_ties = bool(diagnose_ties) or self.hits_from_rank
+        self.strict = (os.environ.get("MTL_STRICT", "0").strip() in ("1", "true", "True")
+                       if strict is None else bool(strict))
         self._preds, self._tgts, self._rank = [], [], []
         self._hit = {k: [] for k in self.top_k}
         self.tie_counts = {k: 0 for k in self.top_k}
         self.n_rows = 0
         self.compute_device = None   # filled on first update, for logging
         self._cat = None             # memoised concat; invalidated by update()
-        self._rank_cache = None      # last batch's rank, so the tie check reuses its n_gt
 
     @staticmethod
     def should_stream(num_classes) -> bool:
@@ -296,35 +338,63 @@ class StreamingClsMetrics:
             targets = targets.to(self.move_logits_to)
         self.compute_device = logits.device
         keep = (lambda t: t.to(self.store_on)) if self.store_on is not None else (lambda t: t)
+        # `preds` stays an honest argmax. Taking it from topk position 0 is NOT covered by the
+        # ambiguity predicate: a tie for the row maximum between two NON-target classes leaves the
+        # predicate at zero while changing which class is predicted — and `preds` feeds the
+        # per-class bincounts behind macro-F1, which selects checkpoints in `_single_task_train`.
         self._preds.append(keep(logits.argmax(dim=-1)))
         self._tgts.append(keep(targets))
-        self._rank_cache = _rank_of_target(logits, targets)
-        self._rank.append(keep(self._rank_cache))
-        for k in self.top_k:
-            ke = min(k, logits.shape[-1])
-            self._hit[k].append(
-                keep((logits.topk(ke, dim=-1).indices == targets.unsqueeze(-1)).any(dim=-1)))
+        if self.hits_from_rank or self.diagnose_ties:
+            rank, n_eq = _rank_and_ties(logits, targets)
+        else:
+            rank, n_eq = _rank_of_target(logits, targets), None
+        self._rank.append(keep(rank))
+        n_cls = logits.shape[-1]
+        if self.hits_from_rank:
+            # hit@k == (rank <= k) whenever nothing is ambiguous — see `_rank_and_ties`. No topk,
+            # so no sort order, no tie order, no kernel dependence: this is the same integer on
+            # CPU and CUDA. `min(k, C)` mirrors the topk path's clamp for C < k (there every
+            # class is in the top-k, and rank <= C always holds, so both say "hit").
+            for k in self.top_k:
+                self._hit[k].append(keep(rank <= min(k, n_cls)))
+        else:
+            for k in self.top_k:
+                ke = min(k, n_cls)
+                self._hit[k].append(
+                    keep((logits.topk(ke, dim=-1).indices == targets.unsqueeze(-1)).any(dim=-1)))
         if self.diagnose_ties:
-            self._count_ambiguous(logits, targets, self._rank_cache)
+            self._record_ambiguous(rank, n_eq, n_cls)
         self.n_rows += int(logits.shape[0])
         self._cat = None
         return self
 
-    def _count_ambiguous(self, logits: torch.Tensor, targets: torch.Tensor,
-                         rank: torch.Tensor) -> None:
+    def _record_ambiguous(self, rank: torch.Tensor, n_eq: torch.Tensor, n_cls: int) -> None:
         """Rows where the target's own hit@k depends on an arbitrary tie-break.
 
-        `rank` is `1 + #{strictly greater}`, so `n_gt = rank - 1` comes free from the pass the
-        caller already made. Only `n_eq` needs a new one. `hit@k` is then determined for every
-        row EXCEPT those where the target's tie group straddles k — and on those, and only
-        those, two implementations of top-k may disagree.
+        Both inputs come from the single `_rank_and_ties` pass, so this costs no extra read of
+        the logits. Under `strict`, a non-zero count raises immediately: with `hits_from_rank`
+        the count is the certificate of equivalence, so continuing past it would bank a number
+        that silently uses tie-optimistic semantics where its siblings used the kernel's
+        arbitrary pick.
         """
-        ts = logits.gather(-1, targets.unsqueeze(-1))
-        n_eq = (logits == ts).sum(dim=-1)
         n_gt = rank - 1
         for k in self.top_k:
-            if k < logits.shape[-1]:
-                self.tie_counts[k] += int(((n_gt < k) & (k < n_gt + n_eq)).sum())
+            if k < n_cls:
+                hits = int(((n_gt < k) & (k < n_gt + n_eq)).sum())
+                self.tie_counts[k] += hits
+                # Strict aborts ONLY when the certificate is load-bearing, i.e. when hits are
+                # derived from the rank. With the topk path the count is informational: the
+                # arbitrary tie-break is what every banked sibling used, so ambiguity is not an
+                # error there. Raising regardless would kill every joint cell in the lane
+                # (run_lane.sh sets MTL_STRICT=1) the moment fp16 eval produced a single tie.
+                if hits and self.strict and self.hits_from_rank:
+                    raise RuntimeError(
+                        f"[StreamingClsMetrics] {hits} rows are AMBIGUOUS at the {k}/{k + 1} "
+                        f"boundary (the target sits in a tie group straddling k). "
+                        f"hits_from_rank={self.hits_from_rank}: the metric would use "
+                        f"tie-optimistic semantics on those rows while a topk-scored sibling "
+                        f"cell used the kernel's arbitrary pick. Re-run with "
+                        f"hits_from_rank=False, or accept the change deliberately.")
 
     @property
     def has_ties(self) -> bool:

@@ -11,6 +11,7 @@ from tracking.metrics import (
     compute_classification_metrics,
     _rank_of_target,
 )
+from utils.precision import check_amp_dtype
 from utils.progress import zip_longest_cycle
 
 
@@ -100,6 +101,7 @@ def eval_autocast_ctx(device):
         or os.environ.get("MTL_DISABLE_AMP") == "1"
     )
     if device.type == "cuda" and not disable:
+        check_amp_dtype("mtl_eval.evaluate_model (val)", torch.float16)
         return torch.autocast(device.type, dtype=torch.float16)
     return contextlib.nullcontext()
 
@@ -198,7 +200,12 @@ def evaluate_model(
     _S2_KS = (1, 3, 5, 10)  # union of metrics_next top_k=(3,5) and ood ks=(1,5,10)
     # Shared accumulator (tracking.metrics) — same per-row reductions this loop used inline,
     # now in the one place mtl_cv and p1 also call, so the pattern has a single implementation.
-    _s2 = StreamingClsMetrics(_nc_b_gate or 0, top_k=_S2_KS)
+    # diagnose_ties ON because this is the SCORED MTL reg path: the certificate has to be
+    # measured where the number is produced, not inferred from another state or another family.
+    # (An earlier version of this comment justified it by fp16 tie-manufacturing. That was the
+    # wrong reason: every v18 cell pins fp32 via MTL_DISABLE_AMP=1, so fp16 is not a live path
+    # here — it is a defect the protocol excludes, see utils/precision.py.)
+    _s2 = StreamingClsMetrics(_nc_b_gate or 0, top_k=_S2_KS, diagnose_ties=True)
 
     # Opt-in per-sample val-prediction dump (MTL_DUMP_VAL_PREDS=1). Feeds the
     # geographic near-miss metric (articles/[mobiwac]/MOBILITY_PLAN.md §3,

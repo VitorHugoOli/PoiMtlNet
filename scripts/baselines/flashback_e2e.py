@@ -371,7 +371,7 @@ def run_fold(ctx, train_idx, val_idx, args, device):
     # is equivalent to masking first, because top-k of row i does not depend on any other row.
     # cat stays on the full path — 7-8 classes, the buffer is nothing.
     cat_logits_all = []
-    reg_acc = StreamingClsMetrics(ctx["n_regions"], top_k=(1, 5, 10))
+    reg_acc = StreamingClsMetrics(ctx["n_regions"], top_k=(1, 5, 10), diagnose_ties=True)
     with torch.no_grad():
         for s in range(0, va.numel(), bs):
             b = va[s:s + bs]

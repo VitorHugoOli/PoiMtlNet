@@ -183,7 +183,10 @@ def _train_one_fold(model, train_dl, val_dl, optimizer, scheduler, criterion,
         # reductions, identical dict, O(N) memory), keep the full path below it where the
         # torchmetrics branch is the only equivalent one.
         _stream = StreamingClsMetrics.should_stream(n_classes)
-        _acc = StreamingClsMetrics(n_classes, top_k=(5, 10)) if _stream else None
+        # Banked path (poi_head_* results), so the ambiguity certificate is measured here
+        # every epoch rather than inferred from another head or another state.
+        _acc = (StreamingClsMetrics(n_classes, top_k=(5, 10), diagnose_ties=True)
+                if _stream else None)
         all_logits, all_targets = [], []
         with torch.no_grad():
             for x, y in val_dl:

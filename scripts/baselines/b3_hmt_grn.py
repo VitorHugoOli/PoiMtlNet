@@ -407,7 +407,8 @@ def run_fold(data, train_idx, val_idx, seed, epochs, device, alpha_prior=1.0,
     model.eval()
     va = torch.from_numpy(np.asarray(val_idx)).long()
     cat_logits_all, yc_all = [], []
-    reg_acc = StreamingClsMetrics(n_regions, top_k=(1, 5, 10), move_logits_to="cpu")
+    reg_acc = StreamingClsMetrics(n_regions, top_k=(1, 5, 10), move_logits_to="cpu",
+                                  diagnose_ties=True)
     with torch.no_grad():
         for b in batches(va, shuffle=False):
             xb = poi_t[b].to(device)

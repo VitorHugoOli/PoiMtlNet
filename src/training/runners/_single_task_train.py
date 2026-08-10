@@ -18,6 +18,8 @@ from tracking.fold import FoldHistory
 from tracking.metrics import StreamingClsMetrics, compute_classification_metrics
 from training.callbacks import CallbackContext, CallbackList
 
+
+from utils.precision import check_amp_dtype
 logger = logging.getLogger(__name__)
 
 
@@ -71,6 +73,8 @@ def train_single_task(
         os.environ.get("DISABLE_AMP") == "1"
         or os.environ.get("MTL_DISABLE_AMP") == "1"
     )
+    if device.type == 'cuda' and not _disable_amp:
+        check_amp_dtype("_single_task_train", torch.float16)
     _autocast_ctx = (
         torch.autocast(device.type, dtype=torch.float16)
         if device.type == 'cuda' and not _disable_amp
@@ -89,6 +93,8 @@ def train_single_task(
         # Fresh per epoch, like the lists it replaces — a single instance reused across epochs
         # would keep accumulating. None below the hand-rolled cutoff, where the full path is the
         # only equivalent one and the buffer is harmless anyway.
+        # diagnose_ties OFF here for the same reason as mtl_cv's S1: train metrics are
+        # diagnostic. The val accumulator below, which selects the checkpoint, has it ON.
         _stream_train = (StreamingClsMetrics(num_classes, top_k=(3, 5))
                          if (compute_train_f1 and StreamingClsMetrics.should_stream(num_classes))
                          else None)
@@ -176,7 +182,10 @@ def train_single_task(
         # OOM. Stream above the hand-rolled cutoff, which is byte-identical there and leaves every
         # low-cardinality caller (all of today's) on the exact torchmetrics path it used before.
         _stream_val = StreamingClsMetrics.should_stream(num_classes)
-        _val_acc = StreamingClsMetrics(num_classes, top_k=(3, 5)) if _stream_val else None
+        # val selects the checkpoint (is_improvement = val_f1 > best), so the certificate has
+        # to be measured here every epoch, not sampled once.
+        _val_acc = (StreamingClsMetrics(num_classes, top_k=(3, 5), diagnose_ties=True)
+                    if _stream_val else None)
 
         with torch.no_grad():
             for X_batch, y_batch in val_loader:

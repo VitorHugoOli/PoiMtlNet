@@ -208,3 +208,60 @@ def test_should_stream_tracks_the_shared_threshold():
     assert not StreamingClsMetrics.should_stream(t)
     assert not StreamingClsMetrics.should_stream(7)
     assert not StreamingClsMetrics.should_stream(None)
+
+
+def test_hits_from_rank_is_exact_when_nothing_is_ambiguous():
+    """`hit@k == (rank <= k)` whenever the ambiguity count is 0 — no topk, no tie order, no
+    kernel dependence. That is the whole point: it removes the sort primitive from a question
+    the rank already answers."""
+    n, c = 4000, 1109
+    logits, targets = _make("float", n, c), _targets(n, c)
+    ref = compute_classification_metrics(logits, targets, num_classes=c, top_k=(5, 10))
+    acc = StreamingClsMetrics(c, top_k=(5, 10), hits_from_rank=True)
+    for i in range(0, n, 512):
+        acc.update(logits[i:i + 512], targets[i:i + 512])
+    assert acc.tie_counts == {5: 0, 10: 0}
+    for k in KEYS:
+        assert float(acc.compute()[k]) == float(ref[k]), f"{k} diverged with zero ambiguity"
+
+
+def test_hits_from_rank_diverges_only_where_the_gate_says_it_can():
+    """With heavy ties the two semantics genuinely differ — the gate must have seen it, and the
+    divergence must be bounded by the count it reported."""
+    n, c = 4000, 1109
+    logits = torch.randint(0, 50, (n, c), generator=torch.Generator().manual_seed(0)).float()
+    targets = _targets(n, c)
+    a = StreamingClsMetrics(c, top_k=(5, 10))                       # topk semantics
+    b = StreamingClsMetrics(c, top_k=(5, 10), hits_from_rank=True)  # rank semantics
+    for i in range(0, n, 512):
+        a.update(logits[i:i + 512], targets[i:i + 512])
+        b.update(logits[i:i + 512], targets[i:i + 512])
+    assert b.has_ties, "the gate must flag the very rows that make the two disagree"
+    for k in (5, 10):
+        moved = abs(a.compute()[f"top{k}_acc"] - b.compute()[f"top{k}_acc"]) * n
+        assert moved <= b.tie_counts[k] + 1e-6, f"k={k}: divergence exceeds the reported bound"
+
+
+def test_hits_from_rank_forces_the_gate_on():
+    """The count is the certificate, so the mode cannot run without it."""
+    acc = StreamingClsMetrics(1109, top_k=(5, 10), hits_from_rank=True, diagnose_ties=False)
+    assert acc.diagnose_ties is True
+
+
+def test_strict_raises_on_ambiguity_before_the_number_is_used():
+    logits = torch.zeros(8, 300)          # every class tied -> maximal ambiguity
+    targets = torch.arange(8)
+    acc = StreamingClsMetrics(300, top_k=(5, 10), hits_from_rank=True, strict=True)
+    with pytest.raises(RuntimeError, match="AMBIGUOUS"):
+        acc.update(logits, targets)
+
+
+def test_preds_stays_an_argmax_even_in_rank_mode():
+    """`preds` feeds macro-F1, which selects checkpoints, and a non-target top-1 tie is invisible
+    to the ambiguity predicate — so it must never be taken from a topk row."""
+    logits = torch.randn(200, 400)
+    targets = _targets(200, 400)
+    acc = StreamingClsMetrics(400, top_k=(5, 10), hits_from_rank=True)
+    acc.update(logits, targets)
+    preds, _, _, _ = acc.concat()
+    assert torch.equal(preds, logits.argmax(dim=-1))
