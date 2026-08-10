@@ -1,0 +1,38 @@
+2026-08-10 21:58:52,527 - INFO - TF32 enabled (matmul_precision=high, cudnn.allow_tf32=True)
+2026-08-10 21:58:52,527 - INFO - torch.compile enabled for the p1 head (CUDA only)
+2026-08-10 21:58:52,527 - INFO - Loading data for arizona (input_type=region, region_emb=check2hgi_design_k_resln_mae_l0_1, target=region, engine_override=EmbeddingEngine.CHECK2HGI_V18, visit_feats=False)...
+2026-08-10 21:58:52,527 - INFO - Loading next-POI data: arizona/check2hgi_v18
+2026-08-10 21:58:53,142 - INFO - Next-POI data: (200895, 576) (dim=64, window=9), distribution: {np.int64(0): np.int64(27721), np.int64(1): np.int64(12459), np.int64(2): np.int64(69526), np.int64(3): np.int64(9419), np.int64(4): np.int64(9756), np.int64(5): np.int64(57571), np.int64(6): np.int64(14443)}
+2026-08-10 21:58:54,075 - INFO - x=torch.Size([200895, 9, 64]), emb_dim=64, n_regions=1547, n_seqs=200895, last_region_idx=present
+2026-08-10 21:58:54,317 - INFO - No checkpoint — starting fresh. Will save to docs/results/P1/region_head_arizona_region_5f_50ep_ip_bank_on.checkpoint.json after each fold.
+2026-08-10 21:58:54,317 - INFO - ============================================================
+2026-08-10 21:58:54,317 - INFO - HEAD: next_stan_flow (5 folds x 50 epochs, max_lr=3e-03, ls=0.00, input_ln=False)
+2026-08-10 21:58:54,317 - INFO - ============================================================
+2026-08-10 21:59:02,495 - INFO - [p1 S2] STREAMED val metric on cpu (per-row accumulators, no [N=40179 x C=1547] buffer; would have been 0.2 GB) — same per-row ops as the full path
+2026-08-10 21:59:03,813 - INFO - [p1 S2] boundary ties on REAL val logits — top5 (target ambiguous at the 5/6 boundary): 0/40179 (0.0000%); top10 (target ambiguous at the 10/11 boundary): 0/40179 (0.0000%). Both must read 0 before P1_STREAM_GPU=1 is safe for a state with banked CPU cells.
+2026-08-10 21:59:34,034 - INFO -   fold 0: Acc@1=0.2835 Acc@5=0.5211 Acc@10=0.6263 MRR=0.3950 F1=0.0734 (39.7s, best_ep=48)
+2026-08-10 21:59:34,632 - INFO - [p1 S2] STREAMED val metric on cpu (per-row accumulators, no [N=40179 x C=1547] buffer; would have been 0.2 GB) — same per-row ops as the full path
+2026-08-10 21:59:34,715 - INFO - [p1 S2] boundary ties on REAL val logits — top5 (target ambiguous at the 5/6 boundary): 0/40179 (0.0000%); top10 (target ambiguous at the 10/11 boundary): 0/40179 (0.0000%). Both must read 0 before P1_STREAM_GPU=1 is safe for a state with banked CPU cells.
+2026-08-10 22:00:05,095 - INFO -   fold 1: Acc@1=0.2762 Acc@5=0.4959 Acc@10=0.5981 MRR=0.3825 F1=0.0690 (31.1s, best_ep=40)
+2026-08-10 22:00:05,691 - INFO - [p1 S2] STREAMED val metric on cpu (per-row accumulators, no [N=40179 x C=1547] buffer; would have been 0.2 GB) — same per-row ops as the full path
+2026-08-10 22:00:05,774 - INFO - [p1 S2] boundary ties on REAL val logits — top5 (target ambiguous at the 5/6 boundary): 0/40179 (0.0000%); top10 (target ambiguous at the 10/11 boundary): 0/40179 (0.0000%). Both must read 0 before P1_STREAM_GPU=1 is safe for a state with banked CPU cells.
+2026-08-10 22:00:36,177 - INFO -   fold 2: Acc@1=0.2751 Acc@5=0.4949 Acc@10=0.5952 MRR=0.3816 F1=0.0671 (31.1s, best_ep=43)
+2026-08-10 22:00:36,778 - INFO - [p1 S2] STREAMED val metric on cpu (per-row accumulators, no [N=40179 x C=1547] buffer; would have been 0.2 GB) — same per-row ops as the full path
+2026-08-10 22:00:36,860 - INFO - [p1 S2] boundary ties on REAL val logits — top5 (target ambiguous at the 5/6 boundary): 0/40179 (0.0000%); top10 (target ambiguous at the 10/11 boundary): 0/40179 (0.0000%). Both must read 0 before P1_STREAM_GPU=1 is safe for a state with banked CPU cells.
+2026-08-10 22:01:07,302 - INFO -   fold 3: Acc@1=0.2746 Acc@5=0.4800 Acc@10=0.5752 MRR=0.3748 F1=0.0712 (31.1s, best_ep=45)
+2026-08-10 22:01:07,906 - INFO - [p1 S2] STREAMED val metric on cpu (per-row accumulators, no [N=40179 x C=1547] buffer; would have been 0.2 GB) — same per-row ops as the full path
+2026-08-10 22:01:07,990 - INFO - [p1 S2] boundary ties on REAL val logits — top5 (target ambiguous at the 5/6 boundary): 0/40179 (0.0000%); top10 (target ambiguous at the 10/11 boundary): 0/40179 (0.0000%). Both must read 0 before P1_STREAM_GPU=1 is safe for a state with banked CPU cells.
+2026-08-10 22:01:38,432 - INFO -   fold 4: Acc@1=0.2627 Acc@5=0.4792 Acc@10=0.5796 MRR=0.3684 F1=0.0659 (31.1s, best_ep=43)
+2026-08-10 22:01:38,433 - INFO -   AGGREGATE: Acc@1=0.2744+/-0.0075  Acc@10=0.5949+/-0.0201  MRR=0.3805+/-0.0099  F1=0.0693+/-0.0030
+
+================================================================================
+P1 REGION-HEAD ABLATION - arizona - 5f x 50ep - input=region
+================================================================================
+Head                         Acc@1    Acc@5   Acc@10      MRR       F1
+--------------------------------------------------------------------------------
+next_stan_flow              27.44%   49.42%   59.49%   38.05%    6.93%
+--------------------------------------------------------------------------------
+Markov 1-step (floor)         ~12%        —        ?        —        —
+================================================================================
+2026-08-10 22:01:38,433 - INFO - Saved: docs/results/P1/region_head_arizona_region_5f_50ep_ip_bank_on.json
+2026-08-10 22:01:38,433 - INFO - Removed checkpoint docs/results/P1/region_head_arizona_region_5f_50ep_ip_bank_on.checkpoint.json (run complete).
