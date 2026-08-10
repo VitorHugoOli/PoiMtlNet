@@ -1,0 +1,28 @@
+2026-08-10 22:12:59,915 - INFO - TF32 enabled (matmul_precision=high, cudnn.allow_tf32=True)
+2026-08-10 22:12:59,915 - INFO - Loading data for texas (input_type=region, region_emb=check2hgi_design_k_resln_mae_l0_1, target=region, engine_override=EmbeddingEngine.CHECK2HGI_V18, visit_feats=False)...
+2026-08-10 22:12:59,915 - INFO - Loading next-POI data: texas/check2hgi_v18
+2026-08-10 22:13:08,904 - INFO - Next-POI data: (3830414, 576) (dim=64, window=9), distribution: {np.int64(0): np.int64(590874), np.int64(1): np.int64(407832), np.int64(2): np.int64(1186670), np.int64(3): np.int64(239993), np.int64(4): np.int64(232995), np.int64(5): np.int64(947888), np.int64(6): np.int64(224162)}
+2026-08-10 22:13:23,481 - INFO - x=torch.Size([3830414, 9, 64]), emb_dim=64, n_regions=6553, n_seqs=3830414, last_region_idx=present
+2026-08-10 22:13:26,867 - INFO - No checkpoint — starting fresh. Will save to docs/results/P1/region_head_texas_region_5f_5ep_tx_probe_ip_onlyfold0.checkpoint.json after each fold.
+2026-08-10 22:13:26,867 - INFO - ============================================================
+2026-08-10 22:13:26,867 - INFO - HEAD: next_stan_flow (5 folds x 5 epochs, max_lr=3e-03, ls=0.00, input_ln=False)
+2026-08-10 22:13:26,867 - INFO - ============================================================
+2026-08-10 22:13:45,189 - INFO - [p1 S2] STREAMED val metric on cuda (per-row accumulators, no [N=766083 x C=6553] buffer; would have been 20.1 GB) — same per-row ops as the full path
+/home/vitor.oliveira/PoiMtlNet/src/tracking/metrics.py:65: UserWarning: _bincount_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /pytorch/aten/src/ATen/Context.cpp:160.)
+  tp = torch.bincount(targets, weights=correct, minlength=num_classes)
+2026-08-10 22:13:46,793 - INFO - [p1 S2] boundary ties on REAL val logits — top5 (target ambiguous at the 5/6 boundary): 0/766083 (0.0000%); top10 (target ambiguous at the 10/11 boundary): 1/766083 (0.0001%). Both must read 0 before P1_STREAM_GPU=1 is safe for a state with banked CPU cells.
+2026-08-10 22:13:46,793 - WARNING - [p1 S2] epoch 0: GPU scoring with boundary ties present (top5 (target ambiguous at the 5/6 boundary): 0/766083 (0.0000%); top10 (target ambiguous at the 10/11 boundary): 1/766083 (0.0001%)) — topk tie-break is kernel-dependent, so this cell may NOT match a CPU-scored sibling. Re-run with P1_STREAM_VAL=0 (the legacy full-logit + topk path the banked cells used; needs ~20 GB host RAM at TX/CA). P1_STREAM_GPU=0 is NOT the fix — it changes the device, not the derivation.
+2026-08-10 22:15:00,832 - INFO -   fold 0: Acc@1=0.2988 Acc@5=0.5414 Acc@10=0.6388 MRR=0.4136 F1=0.0814 (94.0s, best_ep=5)
+2026-08-10 22:15:00,833 - INFO -   AGGREGATE: Acc@1=0.2988+/-0.0000  Acc@10=0.6388+/-0.0000  MRR=0.4136+/-0.0000  F1=0.0814+/-0.0000
+
+================================================================================
+P1 REGION-HEAD ABLATION - texas - 5f x 5ep - input=region
+================================================================================
+Head                         Acc@1    Acc@5   Acc@10      MRR       F1
+--------------------------------------------------------------------------------
+next_stan_flow              29.88%   54.14%   63.88%   41.36%    8.14%
+--------------------------------------------------------------------------------
+Markov 1-step (floor)         ~12%        —        ?        —        —
+================================================================================
+2026-08-10 22:15:00,833 - INFO - Saved: docs/results/P1/region_head_texas_region_5f_5ep_tx_probe_ip.json
+2026-08-10 22:15:00,833 - INFO - Removed checkpoint docs/results/P1/region_head_texas_region_5f_5ep_tx_probe_ip_onlyfold0.checkpoint.json (run complete).
