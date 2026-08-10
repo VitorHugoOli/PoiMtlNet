@@ -510,6 +510,15 @@ forcing it adds nothing there and pushes a tiny tensor onto the CPU for the smal
 Measured cost: **arizona reg 343 s on a rented H100 against 185 s alone on the A40**, the only
 family slower on faster silicon.
 
+> ⚠ **That comparison was unfair to the container and it took a while to notice.** The 343 s was
+> measured at `--cpu 8`; the A40 box has **32 cores**, and this cell's bottleneck is CPU-side
+> scoring. Same container, same cell, varying only threads: **8 -> 41 s, 32 -> 23 s (1.78x),
+> GPU-scored -> 18 s**, all three returning identical metrics. A rented reg cell with `--cpu 32`
+> is at **~1.04x the A40 wall**, not 1.85x. It is still not worth renting — 32 cores cost
+> $4.53/h against 8 cores' $1.13/h, so you would pay ~$62 for parity with a free machine — but
+> the reason is price, not speed. **Match the container to the cell's bottleneck: a config sized
+> for the joint (GPU-bound, 8 cores fine) starves the reg.**
+
 **So it was dropped — and then restored the same day.** The justification was that scoring is
 device-independent "by construction", because `_rank_of_target` computes
 `1 + #{logits strictly greater}`, an exact integer count. That is true, and **it does not cover
