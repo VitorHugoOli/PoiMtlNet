@@ -1,0 +1,36 @@
+{
+  "state": "arizona",
+  "seed": 0,
+  "family": "cat",
+  "arm": "place_level_hgi",
+  "engine": "hgi_dk_ovl",
+  "rundir": "results/hgi_dk_ovl/arizona/next_lr1.0e-04_bs8192_ep50_20260811_041136_1280550",
+  "commit_sha": "88322358dbc880fb010f0f91f569caa7e556612d",
+  "recipe": "next_gru emb64 bs8192 max_lr 0.0005 logit_adjust_tau=0.5 5f 50ep fp32 compile+tf32",
+  "recipe_version": "v18-approved-2026-08-09 (FINAL_SETTINGS.md), applied to the place-level arm",
+  "lane_host": "local:NVIDIA A40",
+  "protocol": {
+    "precision": "fp32 (MTL_DISABLE_AMP=1, pinned per-command)",
+    "compile": true,
+    "tf32": true,
+    "folds": 5,
+    "epochs": 50,
+    "cat_metric": "macro-F1 at f1-best epoch (diag-best)"
+  },
+  "cat": 31.9278,
+  "cat_std": 0.9681,
+  "cat_per_fold": [
+    32.2067,
+    32.0609,
+    30.784,
+    31.0662,
+    33.5214
+  ],
+  "cat_best_epochs": [
+    18,
+    19,
+    17,
+    14,
+    12
+  ]
+}
