@@ -508,3 +508,47 @@ The first attempt at this test reported a false failure for exactly the overwrit
 
 **Remaining after this session: gap A (30, unrecoverable), gap D (20, exhausted), 4 undeclared
 `lane_host`, and 1 disputed label.** Everything that the data on hand could settle, is settled.
+
+---
+
+## Addendum 2 — independent verification of the seed 0/1 back-fills (2026-08-11)
+
+> Written by the session that **produced** the seed 0 and seed 1 cells, cross-checking the post-hoc
+> fields another session added, against run records that only this session has: the wave driver logs
+> and the rundirs on disk. **All 36 cells verify. No correction was needed.**
+
+### What was checked, and against what
+
+| back-filled field | cells | verified against | result |
+|---|---:|---|---|
+| `lane_host = local:NVIDIA A40` | 36 | every wave ran on this host; all 36 rundirs resolve locally | ✅ correct |
+| `recipe_version` (copied from siblings) | 10 | region was never retuned — `FINAL_SETTINGS.md` keeps τ=0 and `max_lr 3e-3` | ✅ correct |
+| `scoring_path = legacy full-logit + topk CPU` | 12 reg | the `[p1 S2] scoring val metric on CPU` line in each cell's own log | ✅ correct |
+
+### A stronger check the field values make possible
+
+`commit_sha` on these 36 cells was **driver-written, not back-filled**, and its distribution is an
+independent confirmation that the recipe decision is faithfully recorded:
+
+| commit | family | cells |
+|---|---|---:|
+| `e351d4b0` (seed 0) · `5075d77d` (seed 1) | **cat + joint** | 24 |
+| `496cdab4`, `c17ee729`, `da179081`, `5075d77d` | **reg** | 12 |
+
+Every **cat and joint** cell carries a SHA from *after* the recipe was approved on 2026-08-09 —
+they were regenerated. Every **reg** cell carries an *older* SHA, spread over four commits, because
+region was deliberately **not** regenerated (its recipe did not change). The provenance therefore
+reproduces the FINAL_SETTINGS decision without anyone having asserted it.
+
+⚠ **Do not "fix" the four different SHAs on the reg cells.** They look like an inconsistency and are
+the opposite: each records the commit its wave process actually started from, and those waves were
+restarted several times across 2026-08-06…08-09 as work landed. Normalising them would destroy
+real information.
+
+### On GAP A, from this side
+
+The 30 cells without `commit_sha` are **all** seed 7/100, i.e. none were produced here. This session
+independently confirmed the other session's verdict that they cannot be recovered from the run
+artifacts: `summary/full_summary.json` and the p1 result JSONs carry **no** git/commit/host key
+(checked directly), so no manifest route exists — the finding is not merely that the Modal tar
+lacked `.git`.
