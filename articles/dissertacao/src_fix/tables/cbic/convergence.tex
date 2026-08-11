@@ -1,0 +1,16 @@
+% !TeX root = ../../main.tex
+% cbic/convergence.tex -- one table. Extraction provenance and verification: tables/README.md
+\begin{table}[htbp]
+\caption{Convergence metrics to reach the target F1-score for each model (wall time in seconds, number of epochs, and MFLOPs; 5-fold cross-validation).}
+\label{tab:cbic:convergence}
+\centering
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Model}    & \textbf{Time (s)} & \textbf{Epochs} & \textbf{MFLOPs} \\
+\midrule
+Category & 16.26 & 3.8 & 2.315 \\
+Next     & 18.71 & 3.2 & 0.012 \\
+MTL      & 80.88 & 3.2 & 0.234 \\
+\bottomrule
+\end{tabular}
+\end{table}

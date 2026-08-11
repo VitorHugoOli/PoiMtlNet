@@ -1,0 +1,52 @@
+% !TeX root = ../main.tex
+% =====================================================================
+% Chapter 5 -- Article 3 (MobiWac 2026): re-typeset of the version of record
+% articles/[mobiwac]/src/ (author decision NORTH_STAR section 5.4: "the last one in
+% the src"; re-sync before the final gate pass). Status: submitted, under review
+% (EDAS #1571313639) -- never "published/accepted".
+% Adaptation ledger: ../../src_utils/adaptation_ledgers/5_mobiwac_ADAPTATION_LEDGER.md (feeds Appendix B).
+% Figure assets: figures/mobiwac/ (TikZ figures recompiled standalone with
+% newtxtext/newtxmath at natural single-column width; fig3/fig4 regenerated from
+% the paper's own scripts at 5.2 in width, numbers untouched).
+% Claim discipline: inherited verbatim from articles/[mobiwac]/ (PAPER_PLAN
+% section 3 whitelist; ERRATA.md constraints). Region verbs bound to tests; never
+% upgrade Arizona; scaling claim scoped to the five U.S. states.
+% =====================================================================
+% Short one-line display + TOC heading (see Ch.3 note). Full published title is in the preface.
+\chapter[A Check-in-Level Multitask Study of Next Category and Region]{A Check-in-Level Multitask Study of Next Category and Region}
+\label{ch:mobiwac}
+
+\begin{chapterpreface}
+% [round7, 2026-07-29] "recorded in the errata appendix" -> "recorded in Appendix~B of
+% \extravolume". This is PREFACE prose written for the dissertation, not reproduced article
+% text, so it carries no parity cost against the submitted manuscript and no errata row. The
+% sentence had to change: the errata appendix is no longer in this document, and a reader who
+% went looking for it would find the AI-disclosure appendix at that letter.
+% AUT-03 (PENDENCIAS §4, author ruling A): hyphen restored inside this verbatim quotation.
+% The submitted manuscript's own title is hyphenated ([mobiwac]/src/main.tex:52, EDAS
+% #1571313639). Same cause as 3_cbic.tex:17. Probe: R13-mwtitle.
+This chapter reproduces the article ``Predicting the Next Category and Region of a
+Visit: A Check-in-Level Multi-Task Study on Mobility Data,'' submitted to MobiWac
+2026, under review at the time of writing (EDAS \#1571313639). It closes the
+investigation that Chapters~\ref{ch:cbic} and~\ref{ch:courb} open: with a
+check-in-level representation and a redesigned sharing topology, a single joint
+model outperforms the dedicated single-task category model at all six datasets
+studied (five U.S. states and Istanbul) and the dedicated region model at four of
+the six, and it matches the dedicated region model (statistically, within two
+points) at the other two. The article was
+reformatted from its two-column original into the dissertation layout: sections,
+figures, and tables were renumbered, and the figures were regenerated at
+single-column width. No result, claim, or conclusion was altered.
+\end{chapterpreface}
+
+% SECTIONS, split into chapters/5_mobiwac/ on 2026-07-28 at the author's request to match the
+% one-file-per-section layout of articles/[mobiwac]/src/sections/. Purely mechanical: cut at
+% \section boundaries, no prose edited, and the order below IS the reading order.
+\input{chapters/5_mobiwac/01_introduction}
+\input{chapters/5_mobiwac/02_related}
+\input{chapters/5_mobiwac/03_problem}
+\input{chapters/5_mobiwac/04_method}
+\input{chapters/5_mobiwac/05_setup}
+\input{chapters/5_mobiwac/06_results}
+\input{chapters/5_mobiwac/07_discussion}
+\input{chapters/5_mobiwac/08_conclusion}
