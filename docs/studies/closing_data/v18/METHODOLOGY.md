@@ -98,10 +98,23 @@ charter's own §10 rule:
 1. **fp32** — `MTL_DISABLE_AMP=1`. Not optional on this A40: bf16 backward grad-NaNs at CA/TX class
    counts (C ≈ 6.5–8.5 k) and fp16 overflows at large reg logits. The whole v17 board is fp32.
 2. **`--compile --tf32`** plus `MTL_CHUNK_VAL_METRIC=1 MTL_STRICT=1 MTL_COMPILE_DYNAMIC=1`. Confirmed
-   by the author 2026-08-06: match the published MobiWac results. Note that compiled numbers are
-   within-fold-std but **not** bit-reproducible (inductor autotuning / reduction-order
-   nondeterminism); eager is the deterministic ground truth. Protocol-match with the comparand was
-   weighted above bit-reproducibility.
+   by the author 2026-08-06: match the published MobiWac results.
+
+   ⚠ **Corrected 2026-08-11.** This paragraph used to inherit `CLAUDE.md`'s general warning that
+   compiled numbers are "within-fold-std but **not** bit-reproducible". **That does not hold for
+   v18 on this box, and it was measured, not assumed:** eight same-recipe / different-inductor-cache
+   pairs reproduce **exactly** — four alabama joint pairs (`mtlAL_r3_*` vs `mtl_alabama_*`,
+   identical means, per-fold arrays *and* best-epoch indices), the alabama `mla_*` vs board joint
+   pair, the alabama s1 cat parity check, and the istanbul region parity run. The one non-zero
+   observation (arizona region, +0.004478) was traced to a **code change**, commit `aab23985`
+   (`MTL_SKIP_INERT_PRIOR`, default ON): with the skip off, a fresh session reproduces the 08-06
+   banked cell bit-for-bit on all five folds — see [`inert_prior_ab/`](inert_prior_ab/).
+
+   So on v18 the compile session is **not** a source of variation worth reasoning about. The real
+   limiter is **seed variance** (0.02–0.12 pp on Δcat), which is 4–25× larger. `CLAUDE.md`'s warning
+   was written for a different recipe and substrate (the v16 champion at AL) and still stands there;
+   it should not be carried into v18 claims. Full record in [`log.md`](log.md) under the retraction
+   entry.
 
 Two further scheduling deviations, which change wall-clock only and no measured value:
 

@@ -1,6 +1,8 @@
 # v18 — the v17 recipe on a leak-free substrate
 
-> **Status: RUNNING** (started 2026-08-06, commit `f281a709`, host `nespedgpu`).
+> **Status: COMPLETE** — board at 72/72 (6 states × 4 seeds × 3 families, n=20), finished 2026-08-10.
+> Started 2026-08-06 from commit `f281a709`. Open items are in [`GAPS.md`](GAPS.md); charter
+> compliance in [`CHARTER_COMPLIANCE.md`](CHARTER_COMPLIANCE.md).
 > Live state: [`status.json`](status.json) (machine-readable) · [`PROGRESS.md`](PROGRESS.md) (human).
 > Charter: [`V18_AGENT_PROMPT.md`](V18_AGENT_PROMPT.md).
 
