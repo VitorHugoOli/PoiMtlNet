@@ -132,6 +132,9 @@ docs/studies/pipeline_audit/runs/
 # v18 run logs (transient); the committed record is status.json / PROGRESS.md / the sidecars
 docs/studies/closing_data/v18/logs/
 /docs/studies/closing_data/v18_2/.env
+# Modal credentials for the permanent lane machinery (moved out of the v18_2 study folder
+# 2026-08-11 when that folder was retired). Three accounts; never commit.
+/pipelines/modal/.env
 
 # v18: per-cell training logs are transient (charter §2: do not commit logs).
 # The compact *_DRIVER.log event trail IS kept -- it carries every START/DONE/FAIL,

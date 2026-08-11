@@ -33,7 +33,7 @@ tool does not exist. Find your row first:
 
 ```bash
 pip install modal                     # the only dependency; no ~/.modal.toml is written
-cd docs/studies/closing_data/v18_2/scripts
+cd pipelines/modal
 
 # 0. what would this cost? nothing is submitted.
 python modal_lane.py --state alabama --seed 7 --cells cat,reg --dry-run
@@ -1194,3 +1194,124 @@ resolves to `docs/studies/results/...` and does not exist, so the end-of-wave li
     where the cell ran
 12. before reporting progress, read `state` / `exit_code` / wall from the run — never infer
     elapsed time from a returned wait
+
+## 13 · What the 2026-08-11 reg night changed (read before choosing a card or trusting a log)
+
+Seven corrections, each one measured after an argument turned out to be wrong. They are here
+because every one of them cost a relaunch, a wrong number, or a wasted container.
+
+### 13.1 · The card ranking for **reg** is H100 > A100 ≈ A40 — and the H100 is also CHEAPER
+
+Measured on one fold of california s100, same state, same data, same code, separate tag:
+
+| | s/fold | $/h | $/cell (5 folds) |
+|---|---:|---:|---:|
+| A40 (i9-14900K, free) | 555.7 | — | $0 |
+| A100-40GB | 677 | $4.00 | **$3.76** |
+| **H100** | **268.8** | $5.85 | **$2.60** |
+
+The H100 is **2.07x the A40** and returns the same numbers: `Acc@1 0.3344 / Acc@10 0.6283 /
+MRR 0.4346` identical to 4 dp against the A40's own fold, differing only 1e-4 on Acc@5 and F1.
+Because it finishes in less than half the wall, it costs **less per cell** than the A100 despite
+the higher hourly rate. §6's break-even framing is still correct arithmetic; what was wrong was
+feeding it an estimate.
+
+### 13.2 · Small states understate GPU gain. Never carry their ratio to a large one.
+
+This produced two wrong projections in one day:
+
+| cell | ratio measured at **arizona** | ratio at the **large state** |
+|---|---|---|
+| dedicated-cat | 2.04x | **3.84x** (texas) |
+| dedicated-reg | 1.26x | **2.07x** (california) |
+
+At a small state the fixed costs — data load, `torch.compile` warm-up, per-fold setup — are a
+large fraction of the wall and they do not shrink with a faster card, so the ratio is diluted.
+Measure the ratio **at the size you intend to run**, or state plainly that the number is a lower
+bound.
+
+### 13.3 · The Volume holds its own copy of `src/`. `git push` does NOT update it.
+
+The container imports from `/data/repo/src`, which is a copy you upload by hand. A fix committed
+and pushed is **not** in the container until `modal volume put` runs. This cost two relaunches on
+2026-08-11: the abort message in the traceback was the **old wording**, which is what finally gave
+it away — the behaviour looked identical, only the text differed. Before any launch that depends
+on a change you just made:
+
+```bash
+for f in src/tracking/metrics.py scripts/p1_region_head_ablation.py; do
+  modal volume put poimtl-v18-data "$f" "/repo/$f" --force
+done
+# and VERIFY, do not assume:
+modal volume get poimtl-v18-data /repo/src/tracking/metrics.py /tmp/v.py --force
+md5 -q src/tracking/metrics.py; md5 -q /tmp/v.py    # must match
+```
+
+### 13.4 · A PID is not an identity on a shared Volume
+
+`rundir_for()` matched the output directory by the trainer's pid. Every container starts its pid
+space from scratch, so four concurrent cells all handed the trainer **pid 76**. texas s100 matched
+**texas s7's** rundir — and because a Modal Volume gives a container the snapshot it had **at
+start**, that directory appeared with 1 of its 5 folds. The cell banked `n_folds=1, 36.4189`,
+which was *fold 1 of texas s7*, and overwrote s7's score file on the way out. Only the pre-declared
+sanity anchor caught it.
+
+Fixed by requiring `-newer "$LANE_MARK"` in addition to the pid, and by warning (never silently
+accepting) when a pid matches a directory that predates the lane. The same marker already guarded
+the heartbeat; the fix had simply never been carried across.
+
+### 13.5 · Packing is per-family, and cat does not fit twice on one card
+
+| family | GPU util (1 cell) | VRAM | 2 on one 80 GB card? |
+|---|---:|---:|---|
+| dedicated-cat | 90-95 % | **46.7 GB** | **No** — 93.4 GB > 81.6 GB, arithmetic, not contention |
+| dedicated-reg | ~40-60 % | ~10 GB | Yes, and it raises throughput ~1.3x |
+
+Two families of the same study with opposite bottlenecks. Measure the family you are about to
+pack; do not carry the other one's utilisation over. Note the reg figures are **after** scoring
+moved onto the GPU — the older "10-57 %, 1.8 GB" numbers were taken while it scored on the CPU and
+must not be reused.
+
+### 13.6 · `MTL_AMBIGUITY_STRICT` — accept a tie deliberately without disarming everything else
+
+The rank-derived hit path certifies itself: it counts rows whose hit@k is genuinely undetermined
+(`n_gt < k < n_gt + n_eq`) and aborts under `MTL_STRICT=1`. Both large states trip it at ~1-2 rows
+in 766 083 (0.00013 pp, at the edge of the 4-dp quantum), which forced an all-or-nothing choice:
+keep `MTL_STRICT` and lose the cell, or drop it and also disarm the canon-recipe, overlap-provenance
+and fp16 guards.
+
+`MTL_AMBIGUITY_STRICT=0` disables **only** the tie abort. The count is still measured every epoch
+and still lands in the artifact (`ambiguous_rows` per fold), so an accepted cell records what it
+accepted. `run_lane.sh` forwards it; `modal_lane.py` injects it into the container when set in the
+driver's environment.
+
+### 13.7 · Read progress with the progress tool, not with `grep`
+
+`watch_modal.py` and the heartbeat exist because `modal container logs` returns empty for a sandbox
+(§8). On 2026-08-11 two **healthy** containers were killed because progress was read from a WARNING
+line that only fires when a tie is present — its absence was taken for "no progress". The real
+per-fold times were 742-994 s; packed 2-wide the A100 was delivering **1.3x the A40's throughput**
+at the moment it was terminated. Two further traps in the same family:
+
+* the tqdm bar writes with `\r`, so `tail | grep` returns a **stale** "Epoch 1/50" long after the
+  run has moved on — pipe through `tr '\r' '\n'` first;
+* the heartbeat's own `folds_done` counts rundir artifacts that `p1` does not produce, so it reads
+  `0` for a reg cell that has finished four folds. For p1, count `fold N:` lines in the cell log.
+
+```bash
+python pipelines/modal/watch_modal.py --state texas --seed 100 --follow
+```
+
+### 13.8 · Upload from the A40, not through your laptop
+
+The A40 box already has the Modal client in `~/PoiMtlNet/.venv`. Uploading from there measured
+**16.6 GB in ~18 s** — the "~50 MB/s from nespedgpu" figure in §1 is stale by more than an order of
+magnitude, and routing the same bytes through a laptop is minutes-to-hours slower.
+
+```bash
+ssh nespedgpu "cd ~/PoiMtlNet && MODAL_TOKEN_ID=... MODAL_TOKEN_SECRET=... \
+  .venv/bin/modal volume put poimtl-v18-data <path> /repo/<path> --force"
+```
+
+Always verify by **byte count** against the source afterwards; a size match is what caught that the
+transfer really had completed when it finished suspiciously fast.

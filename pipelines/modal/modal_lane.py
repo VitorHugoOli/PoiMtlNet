@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run a v18_2 lane on Modal from a plain shell — no agent-harness compute API required.
+"""Run a v18 study lane on Modal from a plain shell — no agent-harness compute API required.
 
 WHY THIS EXISTS (read before reaching for run_modal_cell.py)
 ============================================================
@@ -58,9 +58,11 @@ import sys
 import threading
 import time
 
-HERE = pathlib.Path(__file__).resolve().parent
-V18_2 = HERE.parent
-REPO_ROOT = V18_2.parents[3]
+HERE = pathlib.Path(__file__).resolve().parent          # pipelines/modal
+REPO_ROOT = HERE.parents[1]                             # repo root
+# Both were derived by counting parents from the old home
+# (docs/studies/closing_data/v18_2/scripts) and silently pointed outside the repo after the
+# 2026-08-11 move. Anchor on HERE, which is the only path that travels with the file.
 
 ENGINE = "check2hgi_v18"
 V14 = "check2hgi_design_k_resln_mae_l0_1"
@@ -233,10 +235,9 @@ for st in __STATES__; do
   done
 done
 echo "=== preflight.py verdict ==="
-S=docs/studies/closing_data/v18_2/scripts
+S=pipelines/modal
 if [ -s /data/scripts/v18_2_scripts.tgz ]; then
-  mkdir -p docs/studies/closing_data/v18_2
-  tar xzf /data/scripts/v18_2_scripts.tgz -C docs/studies/closing_data/v18_2 2>/dev/null
+  mkdir -p pipelines && tar xzf /data/scripts/v18_2_scripts.tgz -C pipelines 2>/dev/null
 fi
 if [ -f "$S/preflight.py" ]; then
   for st in __STATES__; do
@@ -299,9 +300,8 @@ def lane_sh(state: str, seeds: list[int], cells: str, parallel: bool, stagger: i
 set -uo pipefail
 cd /data/repo || {{ echo NO_REPO; exit 3; }}
 [ -s /data/scripts/v18_2_scripts.tgz ] || {{ echo "ABORT: no scripts bundle on the volume"; exit 8; }}
-mkdir -p docs/studies/closing_data/v18_2
-tar xzf /data/scripts/v18_2_scripts.tgz -C docs/studies/closing_data/v18_2 || exit 8
-S=docs/studies/closing_data/v18_2/scripts
+mkdir -p pipelines && tar xzf /data/scripts/v18_2_scripts.tgz -C pipelines || exit 8
+S=pipelines/modal
 ST={state}
 mkdir -p /data/inductor
 {mk}
@@ -500,7 +500,7 @@ def main() -> int:
     ap.add_argument("--refetch", action="store_true",
                     help="download an existing harvest from the Volume and exit. No container, "
                          "no cost. Use when a run succeeded but its archive came home partial.")
-    ap.add_argument("--env-file", type=pathlib.Path, default=V18_2 / ".env")
+    ap.add_argument("--env-file", type=pathlib.Path, default=HERE / ".env")
     ap.add_argument("--profile", default=None,
                     help="which account in --env-file to bill. REQUIRED when the file holds "
                          "more than one; the script refuses to guess.")
@@ -590,7 +590,7 @@ def main() -> int:
         with tempfile.TemporaryDirectory() as td:
             tgz = pathlib.Path(td) / "v18_2_scripts.tgz"
             with tarfile.open(tgz, "w:gz") as tf:
-                tf.add(HERE, arcname="scripts")
+                tf.add(HERE, arcname="modal")
             with vol.batch_upload(force=True) as up:
                 up.put_file(tgz, "/scripts/v18_2_scripts.tgz")
         # "printing a checkmark does not mean the file is there" -- verify the byte count.
