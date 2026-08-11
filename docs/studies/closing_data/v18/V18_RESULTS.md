@@ -1,8 +1,8 @@
 # v18 — RESULTS
 
-> Generated 2026-08-10T22:37:07.609045+00:00 from [`data/v18_results.json`](data/v18_results.json) by `make_results.py`. Every number here is traceable to that JSON, which [`score_all.py`](score_all.py) regenerates from the rundirs.
+> Generated 2026-08-11T01:44:57.289098+00:00 from [`data/v18_results.json`](data/v18_results.json) by `make_results.py`. Every number here is traceable to that JSON, which [`score_all.py`](score_all.py) regenerates from the rundirs.
 
-> Commit `aab23985` · seeds run: see the n column of each table.
+> Commit `85bcc588` · seeds run: see the n column of each table.
 
 **v18 = the frozen v17 recipe on a leak-free substrate**: the consecutive-visit graph is forward-only in training and at readout, plus 4 elapsed-time node columns (`in_channels` 15). Not an architecture change. See [`METHODOLOGY.md`](METHODOLOGY.md).
 
@@ -32,8 +32,8 @@ This is the citable contrast: both arms measured on v18, so the comparison is wi
 | alabama | 20 | 30.77 | 30.70 | **-0.08** | matches (TOST +/-2 pp, p=0.000) | 70.12 | 69.67 | **-0.45** | matches (TOST +/-2 pp, p=0.000) |
 | arizona | 20 | 34.57 | 34.62 | **+0.04** | matches (TOST +/-2 pp, p=0.000) | 59.48 | 59.26 | **-0.22** | matches (TOST +/-2 pp, p=0.000) |
 | florida | 20 | 37.35 | 37.59 | **+0.24** | **beats** (paired one-sided p=0.000) | 76.69 | 77.09 | **+0.39** | **beats** (paired one-sided p=0.000) |
-| texas | 20 | 36.33 | 36.37 | **+0.04** | **beats** (paired one-sided p=0.000) | 64.95 | 66.88 | **+1.93** | **beats** (paired one-sided p=0.000) |
-| california | 20 | 35.63 | 35.75 | **+0.12** | **beats** (paired one-sided p=0.000) | 63.46 | 65.42 | **+1.96** | **beats** (paired one-sided p=0.000) |
+| texas | 20 | 36.33 | 36.37 | **+0.04** | **beats** (paired one-sided p=0.000) | 64.94 | 66.86 | **+1.91** | **beats** (paired one-sided p=0.000) |
+| california | 20 | 35.63 | 35.75 | **+0.12** | **beats** (paired one-sided p=0.000) | 63.48 | 65.43 | **+1.95** | **beats** (paired one-sided p=0.000) |
 
 ## 2 · Joint model — both epoch-selection conventions
 
@@ -56,13 +56,13 @@ This is the citable contrast: both arms measured on v18, so the comparison is wi
 | alabama | -0.08 | +7.72 | **-7.80** | -0.45 | -0.31 | -0.14 |
 | arizona | +0.04 | +9.40 | **-9.36** | -0.22 | +0.10 | -0.32 |
 | florida | +0.24 | +5.34 | **-5.10** | +0.39 | +0.72 | -0.33 |
-| texas | +0.04 | +7.45 | **-7.41** | +1.93 | +2.11 | -0.18 |
-| california | +0.12 | +6.45 | **-6.33** | +1.96 | +2.20 | -0.24 |
+| texas | +0.04 | +7.45 | **-7.41** | +1.91 | +2.11 | -0.20 |
+| california | +0.12 | +6.45 | **-6.33** | +1.95 | +2.20 | -0.25 |
 
 ## 4 · Pooled across states
 
 - **Δcat** pooled over 120 (state, seed, fold) pairs: mean **+0.079** — **beats** (paired one-sided p=0.000)
-- **Δreg** pooled over 100 pairs: mean **+0.356** — **beats** (paired one-sided p=0.000)
+- **Δreg** pooled over 120 pairs: mean **+0.616** — **beats** (paired one-sided p=0.000)
 
 Pooling across states is reported for a single headline figure; the per-state rows in §1 are the primary result, since the states differ in size and in their v17 deltas.
 

@@ -1,8 +1,8 @@
 {
  "meta": {
   "study": "v18",
-  "generated_utc": "2026-08-10T22:37:07.601741+00:00",
-  "commit_sha": "aab23985dc5e947a9b289b02310d53df8fb91204",
+  "generated_utc": "2026-08-11T01:44:57.282771+00:00",
+  "commit_sha": "85bcc58877c9245e9ed59a6a9bc1aeeba9faef5f",
   "definition": "v17 recipe on a forward-only check-in graph with 4 elapsed-time node columns (in_channels 15)",
   "forward_only": true,
   "in_channels": 15,
@@ -1833,6 +1833,16 @@
     40
    ],
    "cat_wall_seconds": 1421,
+   "reg_result_json": "/home/vitor.oliveira/PoiMtlNet/docs/results/P1/region_head_texas_region_5f_50ep_v18_texas_reg_s7.json",
+   "stl_reg": 64.9436,
+   "stl_reg_folds": [
+    64.7513,
+    65.1429,
+    64.2737,
+    65.115,
+    65.4351
+   ],
+   "reg_wall_seconds": 3260,
    "rundir": "/home/vitor.oliveira/PoiMtlNet/results/check2hgi_v18/texas/mtlnet_lr1.0e-04_bs8192_ep50_20260810_070235_71",
    "pid": "71",
    "joint_wall_seconds": 6558,
@@ -1921,6 +1931,16 @@
     45
    ],
    "cat_wall_seconds": 1430,
+   "reg_result_json": "/home/vitor.oliveira/PoiMtlNet/docs/results/P1/region_head_texas_region_5f_50ep_v18_texas_reg_s100.json",
+   "stl_reg": 64.9295,
+   "stl_reg_folds": [
+    64.3935,
+    65.487,
+    64.1107,
+    65.3297,
+    65.3264
+   ],
+   "reg_wall_seconds": 3384,
    "rundir": "/home/vitor.oliveira/PoiMtlNet/results/check2hgi_v18/texas/mtlnet_lr1.0e-04_bs8192_ep50_20260810_135751_72",
    "pid": "72",
    "joint_wall_seconds": 6601,
@@ -2205,6 +2225,16 @@
     44
    ],
    "cat_wall_seconds": 1091,
+   "reg_result_json": "/home/vitor.oliveira/PoiMtlNet/docs/results/P1/region_head_california_region_5f_50ep_v18_california_reg_s7.json",
+   "stl_reg": 63.5036,
+   "stl_reg_folds": [
+    63.2747,
+    63.0063,
+    63.4036,
+    63.6328,
+    64.2004
+   ],
+   "reg_wall_seconds": 2811,
    "rundir": "/home/vitor.oliveira/PoiMtlNet/results/check2hgi_v18/california/mtlnet_lr1.0e-04_bs8192_ep50_20260810_135832_72",
    "pid": "72",
    "joint_wall_seconds": 5099,
@@ -2293,6 +2323,16 @@
     45
    ],
    "cat_wall_seconds": 1100,
+   "reg_result_json": "/home/vitor.oliveira/PoiMtlNet/docs/results/P1/region_head_california_region_5f_50ep_v18_california_reg_s100.json",
+   "stl_reg": 63.4981,
+   "stl_reg_folds": [
+    62.8277,
+    63.1218,
+    63.8692,
+    63.5852,
+    64.0865
+   ],
+   "reg_wall_seconds": 2809,
    "rundir": "/home/vitor.oliveira/PoiMtlNet/results/check2hgi_v18/california/mtlnet_lr1.0e-04_bs8192_ep50_20260810_162607_74",
    "pid": "74",
    "joint_wall_seconds": 5111,
@@ -2632,10 +2672,10 @@
     "n": 20
    },
    "stl_reg": {
-    "mean": 64.9521,
-    "sd": 0.001,
-    "n_seeds": 2,
-    "n": 10
+    "mean": 64.9443,
+    "sd": 0.0107,
+    "n_seeds": 4,
+    "n": 20
    },
    "joint_cat_diag_best": {
     "mean": 36.3667,
@@ -2680,19 +2720,19 @@
     "n": 20
    },
    "stl_reg_paired": {
-    "mean": 64.9521,
-    "sd": 0.001,
-    "n_seeds": 2,
-    "n": 10
+    "mean": 64.9443,
+    "sd": 0.0107,
+    "n_seeds": 4,
+    "n": 20
    },
    "joint_reg_paired": {
-    "mean": 66.8826,
-    "sd": 0.0107,
-    "n_seeds": 2,
-    "n": 10
+    "mean": 66.8566,
+    "sd": 0.0315,
+    "n_seeds": 4,
+    "n": 20
    },
    "delta_cat_vs_own_ceiling": 0.0416,
-   "delta_reg_vs_own_ceiling": 1.9305,
+   "delta_reg_vs_own_ceiling": 1.9123,
    "delta_cat_vs_v17_cross_substrate": -40.8733,
    "delta_reg_vs_v17_cross_substrate": -0.2034
   },
@@ -2704,10 +2744,10 @@
     "n": 20
    },
    "stl_reg": {
-    "mean": 63.4573,
-    "sd": 0.0166,
-    "n_seeds": 2,
-    "n": 10
+    "mean": 63.4791,
+    "sd": 0.027,
+    "n_seeds": 4,
+    "n": 20
    },
    "joint_cat_diag_best": {
     "mean": 35.7528,
@@ -2752,19 +2792,19 @@
     "n": 20
    },
    "stl_reg_paired": {
-    "mean": 63.4573,
-    "sd": 0.0166,
-    "n_seeds": 2,
-    "n": 10
+    "mean": 63.4791,
+    "sd": 0.027,
+    "n_seeds": 4,
+    "n": 20
    },
    "joint_reg_paired": {
-    "mean": 65.4162,
-    "sd": 0.0245,
-    "n_seeds": 2,
-    "n": 10
+    "mean": 65.4321,
+    "sd": 0.0236,
+    "n_seeds": 4,
+    "n": 20
    },
    "delta_cat_vs_own_ceiling": 0.1198,
-   "delta_reg_vs_own_ceiling": 1.9589,
+   "delta_reg_vs_own_ceiling": 1.953,
    "delta_cat_vs_v17_cross_substrate": -41.2972,
    "delta_reg_vs_v17_cross_substrate": -0.2579
   }

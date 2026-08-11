@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-08-10T22:41:05.501872+00:00",
-  "commit_sha": "aab23985dc5e947a9b289b02310d53df8fb91204",
+  "updated_at": "2026-08-11T01:44:57.669186+00:00",
+  "commit_sha": "85bcc58877c9245e9ed59a6a9bc1aeeba9faef5f",
   "phase": "done",
   "current_n": {
     "istanbul": 20,
@@ -565,11 +565,11 @@
       "state": "texas",
       "seed": 7,
       "family": "reg",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
+      "status": "done",
+      "wall_seconds": 3260,
+      "rundir": "docs/results/P1/region_head_texas_region_5f_50ep_v18_texas_reg_s7.json",
       "cat": null,
-      "reg": null
+      "reg": 64.9436
     },
     {
       "state": "texas",
@@ -595,11 +595,11 @@
       "state": "texas",
       "seed": 100,
       "family": "reg",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
+      "status": "done",
+      "wall_seconds": 3384,
+      "rundir": "docs/results/P1/region_head_texas_region_5f_50ep_v18_texas_reg_s100.json",
       "cat": null,
-      "reg": null
+      "reg": 64.9295
     },
     {
       "state": "texas",
@@ -685,11 +685,11 @@
       "state": "california",
       "seed": 7,
       "family": "reg",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
+      "status": "done",
+      "wall_seconds": 2811,
+      "rundir": "docs/results/P1/region_head_california_region_5f_50ep_v18_california_reg_s7.json",
       "cat": null,
-      "reg": null
+      "reg": 63.5036
     },
     {
       "state": "california",
@@ -715,11 +715,11 @@
       "state": "california",
       "seed": 100,
       "family": "reg",
-      "status": "pending",
-      "wall_seconds": null,
-      "rundir": null,
+      "status": "done",
+      "wall_seconds": 2809,
+      "rundir": "docs/results/P1/region_head_california_region_5f_50ep_v18_california_reg_s100.json",
       "cat": null,
-      "reg": null
+      "reg": 63.4981
     },
     {
       "state": "california",
@@ -733,7 +733,7 @@
     }
   ],
   "running": [],
-  "gpu_free_mib": 44316,
+  "gpu_free_mib": 35942,
   "disk_free_gb": 2192,
   "disk_free_gb_home": 37,
   "blocked_on": null,
