@@ -1,8 +1,8 @@
 # v18 — RESULTS
 
-> Generated 2026-08-11T01:44:57.289098+00:00 from [`data/v18_results.json`](data/v18_results.json) by `make_results.py`. Every number here is traceable to that JSON, which [`score_all.py`](score_all.py) regenerates from the rundirs.
+> Generated 2026-08-11T01:56:26.973027+00:00 from [`data/v18_results.json`](data/v18_results.json) by `make_results.py`. Every number here is traceable to that JSON, which [`score_all.py`](score_all.py) regenerates from the rundirs.
 
-> Commit `85bcc588` · seeds run: see the n column of each table.
+> Commit `4f9b0fa4` · seeds run: see the n column of each table.
 
 **v18 = the frozen v17 recipe on a leak-free substrate**: the consecutive-visit graph is forward-only in training and at readout, plus 4 elapsed-time node columns (`in_channels` 15). Not an architecture change. See [`METHODOLOGY.md`](METHODOLOGY.md).
 

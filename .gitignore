@@ -132,3 +132,10 @@ docs/studies/pipeline_audit/runs/
 # v18 run logs (transient); the committed record is status.json / PROGRESS.md / the sidecars
 docs/studies/closing_data/v18/logs/
 /docs/studies/closing_data/v18_2/.env
+
+# v18: per-cell training logs are transient (charter §2: do not commit logs).
+# The compact *_DRIVER.log event trail IS kept -- it carries every START/DONE/FAIL,
+# the tie certificates and the wall times that the docs cite.
+docs/studies/closing_data/v18/logs/*
+!docs/studies/closing_data/v18/logs/*_DRIVER.log
+docs/studies/closing_data/v18/__pycache__/
