@@ -24,11 +24,15 @@ The advantage is a property of the per-visit vectors themselves rather than of t
 The geometry of the vectors shows why the representation helps this task in
 particular: the per-visit vectors' silhouette score by category (how tight and well separated the seven labeled groups are, on a $-1$ to $1$ scale) is about $0.53$ against about $0.00$ for the place embedding, and their nearest-neighbor category purity (the share of nearest neighbors with the vector's own category) is about $0.98$ against about $0.79$ (both averaged over Alabama, Arizona, and Florida). The same geometry does not separate regions, so the benefit is category-only (the joint model's spatial stream instead reads the region-level vectors of the same graph, Section~\ref{sec:method-model}). CTLE~\cite{lin2021ctle}, the closest prior contextual embedding, also gives each visit its own vector, but it pretrains on place identifiers and timestamps alone, so the category vocabulary never enters its training, whereas our graph reads each visit's category and time of day as input features. At Florida, we fine-tune CTLE together with the task model, using its authors' defaults and the same 64 dimensions and windowing as ours. It reaches $33.45$ macro-F1 at its best epoch and $29.69$ at its final one (an epoch is one pass over the training data), below both the place embedding under the same best-epoch rule and the check-in-level representation. With frozen weights, fed to the same single-task model, CTLE repeats the ordering at Alabama, Arizona, and Istanbul. A feature-concatenation control joins the place embedding with the same raw
 per-visit features that our graph reads (the category one-hot plus hour and
-day-of-week encodings) and feeds the result to the same single-task model. At Alabama, Arizona, and Florida it raises the place embedding by $+2.0$, $+1.7$, and $+0.8$
-macro-F1. Feature injection is therefore of the same order as the representation gap
-itself, which places a real bound on how much of the advantage is attributable to the
-hierarchical structure rather than to the per-visit features it reads. The geometry above is the
-stronger evidence for the structural reading, and we report the control as the limit it is.
+day-of-week encodings) and feeds the result to the same single-task model. On the earlier
+configuration of this study it raised the place embedding by $+2.0$, $+1.7$, and $+0.8$ macro-F1 at
+Alabama, Arizona, and Florida. Read against the category gaps reported here, those margins are of the
+same size as the gaps themselves or larger, so on the category axis this control does not separate
+the hierarchical representation from the per-visit features it reads, and we do not claim that it
+does. At Florida, where the control was also run on the region task, it moved the place embedding by
+$-0.23$ Acc@10, so the injected features do not substitute for the graph on that axis, and the same
+graph supplies the region-level vectors that the joint model's spatial stream consumes. We therefore
+report the category advantage as a measured difference rather than as a decomposition of its causes.
 
 \subsection{One model, two tasks}
 \label{sec:results-part2}

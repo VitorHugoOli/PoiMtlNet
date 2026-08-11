@@ -87,7 +87,7 @@ result.
 % the same partition by construction. That is exactly the property the paired comparison relies on.
 % See articles/dissertacao/science/fold_partition_and_seeds.md §7 for the distinction.
 
-Four limits qualify these results. First, our representation is trained once over all places; visits to places
+Five limits qualify these results. First, our representation is trained once over all places; visits to places
 never seen during training are the single effect that we cannot fully isolate. A planned follow-up trains it on each
 fold's training places only and embeds unseen visits. Second, epoch selection consults the fold that the score is then
 read on
@@ -102,11 +102,14 @@ transferred to Texas and California, while both sides of the region comparison r
 configuration. Where that search applies, the residual
 favors the dedicated model, which makes the reported category difference conservative. It does
 not follow that the bias cancels exactly. Third, we do not build or evaluate a mobility-aware service; it is background
-motivation, and the paper's claims are the prediction results themselves. Fourth, each visit node in the
-representation graph is linked to the visit that follows it, and because category is a node input feature
-the vector of an earlier visit could absorb the category of the next one. A linear probe screened for this
-during development (Section~\ref{sec:setup-windows}), which bounds only the information exposed by a
-linear read and does not establish what a nonlinear sequence model could recover.
+motivation, and the paper's claims are the prediction results themselves. Fourth, the joint model carries more parameters than the two
+dedicated models combined (Section~\ref{sec:method-model}), and its region pathway in particular is
+several times the size of the dedicated region model. The region advantage at Texas and California is
+therefore confounded with capacity: a capacity-matched dedicated region model is the control that
+would separate the two, and it has not been run. Fifth, each visit node in the representation graph
+draws on the visits that precede it, so a vector encodes the visit together with its own history; the
+graph does not pass information from a later visit back to an earlier one, in training or at readout,
+which is what keeps a node from carrying a feature of the target it is used to predict.
 % FOURTH LIMIT ADDED 2026-08-05 on the author's ruling ("Add it as a fourth limit"), applied to BOTH texts.
 % WHY IT WAS A GAP. "Three limits qualify these results" is a closed enumeration, and a closed enumeration
 % is a completeness claim. ERRATA.md:73-80 records that this very count was raised from "Two" to "Three"
