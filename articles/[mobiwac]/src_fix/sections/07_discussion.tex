@@ -32,10 +32,13 @@ attribute the gain, and it remains open.
 The category picture at Texas and California invites a specific hypothesis. Batch size and learning
 rate were searched per dataset for the dedicated models and for the joint model at the four smaller
 datasets; at Texas and California the joint model runs a configuration transferred from those
-searches rather than one validated on them. Those are also the two datasets where the joint model
-sits furthest below the dedicated category model, by $0.13$ and by less than a hundredth of a point.
-A search conducted for the joint model at those two datasets is the natural next step, and until it
-is run this remains a hypothesis rather than an explanation.
+searches rather than one validated on them. Texas carries the second-largest category deficit of the
+six ($-0.13$; Alabama's $-0.19$ is the largest, and it is a dataset where the joint model was
+searched), and California's is under a hundredth of a point. A search conducted for the joint model
+at Texas and California would test whether the transferred configuration is what holds their
+category output slightly below the dedicated model. Until it is run this remains a hypothesis rather
+than an explanation, and Alabama is a reminder that a searched dataset can show a deficit of the same
+size.
 
 %The gain is substantial, and where we could test it the gain is a property of the joint architecture rather than of
 %cross-task transfer: at the three datasets where the region pathway is held at its initial values, the category gain
