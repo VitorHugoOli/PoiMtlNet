@@ -139,3 +139,7 @@ docs/studies/closing_data/v18/logs/
 docs/studies/closing_data/v18/logs/*
 !docs/studies/closing_data/v18/logs/*_DRIVER.log
 docs/studies/closing_data/v18/__pycache__/
+
+# v18_2 rented lane: per-cell run logs are transient (same policy as v18).
+docs/results/closing_data/v18_2/**/*.log
+docs/results/closing_data/v18_2/**/*.out

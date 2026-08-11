@@ -1,0 +1,167 @@
+{
+  "rundir": "results/check2hgi_v18/florida/mtlnet_lr1.0e-04_bs8192_ep50_20260810_070923_60",
+  "seed": 7,
+  "tag": "v18_florida_joint_s7",
+  "method": "joint-best: e* = argmax_e selector(e) over epochs with 0-based index >= min_best_epoch (ties -> earliest; selector geom_simple = sqrt(cat_f1 * reg_top10_acc_indist), the mtl_cv joint-checkpoint gate); report cat macro-f1(e*) and reg full top10 = top10_acc_indist(e*)*(1-ood_fraction(e*)). diag-best: per-task best epochs, ungated (a40_score_matched.py convention). Values are percent; fold-mean \u00b1 pstdev. Selection logic: src/tracking/scoring.py.",
+  "selector_name": "geom_simple",
+  "min_best_epoch": 0,
+  "cat_task": "next_category",
+  "reg_task": "next_region",
+  "joint_best": {
+    "cat_macro_f1_mean": 37.5032,
+    "cat_macro_f1_std": 0.4616,
+    "reg_full_top10_mean": 76.5288,
+    "reg_full_top10_std": 0.9364,
+    "cat_per_fold": [
+      37.9017,
+      37.3072,
+      36.6811,
+      37.8087,
+      37.8174
+    ],
+    "reg_per_fold": [
+      76.3026,
+      76.4783,
+      75.6372,
+      75.9188,
+      78.3073
+    ],
+    "epochs": [
+      14,
+      19,
+      15,
+      16,
+      18
+    ],
+    "selector_per_fold": [
+      0.538313,
+      0.534334,
+      0.52687,
+      0.535887,
+      0.544476
+    ],
+    "n_folds": 5
+  },
+  "diag_best": {
+    "cat_macro_f1_mean": 37.5399,
+    "cat_macro_f1_std": 0.4709,
+    "reg_full_top10_mean": 77.0609,
+    "reg_full_top10_std": 0.8789,
+    "cat_per_fold": [
+      37.9727,
+      37.3962,
+      36.6811,
+      37.8087,
+      37.841
+    ],
+    "reg_per_fold": [
+      76.9762,
+      76.7639,
+      76.3006,
+      76.5057,
+      78.7581
+    ],
+    "cat_best_epochs": [
+      11,
+      13,
+      15,
+      16,
+      12
+    ],
+    "reg_best_epochs": [
+      32,
+      38,
+      27,
+      31,
+      29
+    ],
+    "n_folds": 5
+  },
+  "delta_joint_minus_diag": {
+    "cat": -0.0367,
+    "reg": -0.5321
+  },
+  "per_fold": [
+    {
+      "fold": 1,
+      "source": "standard_scores.json",
+      "diag_best": {
+        "cat_f1": 37.9727,
+        "cat_epoch": 11,
+        "reg_full_top10": 76.9762,
+        "reg_epoch": 32
+      },
+      "joint_best": {
+        "epoch": 14,
+        "selector": 0.538313,
+        "cat_f1": 37.9017,
+        "reg_full_top10": 76.3026
+      }
+    },
+    {
+      "fold": 2,
+      "source": "standard_scores.json",
+      "diag_best": {
+        "cat_f1": 37.3962,
+        "cat_epoch": 13,
+        "reg_full_top10": 76.7639,
+        "reg_epoch": 38
+      },
+      "joint_best": {
+        "epoch": 19,
+        "selector": 0.534334,
+        "cat_f1": 37.3072,
+        "reg_full_top10": 76.4783
+      }
+    },
+    {
+      "fold": 3,
+      "source": "standard_scores.json",
+      "diag_best": {
+        "cat_f1": 36.6811,
+        "cat_epoch": 15,
+        "reg_full_top10": 76.3006,
+        "reg_epoch": 27
+      },
+      "joint_best": {
+        "epoch": 15,
+        "selector": 0.52687,
+        "cat_f1": 36.6811,
+        "reg_full_top10": 75.6372
+      }
+    },
+    {
+      "fold": 4,
+      "source": "standard_scores.json",
+      "diag_best": {
+        "cat_f1": 37.8087,
+        "cat_epoch": 16,
+        "reg_full_top10": 76.5057,
+        "reg_epoch": 31
+      },
+      "joint_best": {
+        "epoch": 16,
+        "selector": 0.535887,
+        "cat_f1": 37.8087,
+        "reg_full_top10": 75.9188
+      }
+    },
+    {
+      "fold": 5,
+      "source": "standard_scores.json",
+      "diag_best": {
+        "cat_f1": 37.841,
+        "cat_epoch": 12,
+        "reg_full_top10": 78.7581,
+        "reg_epoch": 29
+      },
+      "joint_best": {
+        "epoch": 18,
+        "selector": 0.544476,
+        "cat_f1": 37.8174,
+        "reg_full_top10": 78.3073
+      }
+    }
+  ],
+  "warnings": []
+}

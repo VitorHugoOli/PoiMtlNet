@@ -1,0 +1,32 @@
+{
+    "schema_version": 1,
+    "selector_name": "geom_simple",
+    "min_best_epoch": 0,
+    "epoch_convention": "1-based (matches the epoch column of fold{N}_{task}_val.csv)",
+    "units": "fractions in [0,1] (same as the val CSVs); multiply by 100 for paper-style numbers",
+    "reg_metric_used": "top10_acc_indist",
+    "selector_source": "model_task_val_f1",
+    "cat_diag_best": {
+        "epoch": 13,
+        "f1": 0.37996891140937805
+    },
+    "reg_diag_best": {
+        "epoch": 32,
+        "top10_indist": 0.7916943430900574,
+        "ood_fraction": 0.0006512792143846392,
+        "top10_full": 0.7911787290202569
+    },
+    "joint_best": {
+        "epoch": 18,
+        "selector": 0.5465850047233665,
+        "cat_f1": 0.3795715272426605,
+        "top10_indist": 0.7870852947235107,
+        "ood_fraction": 0.0006512792143846392,
+        "top10_full": 0.7865726824311094
+    },
+    "warnings": [],
+    "checkpoint_epoch": 18,
+    "fold": 5,
+    "cat_task": "next_category",
+    "reg_task": "next_region"
+}

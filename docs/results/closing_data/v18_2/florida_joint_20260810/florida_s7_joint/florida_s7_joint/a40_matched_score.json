@@ -1,0 +1,39 @@
+{
+  "rundir": "results/check2hgi_v18/florida/mtlnet_lr1.0e-04_bs8192_ep50_20260810_070923_60",
+  "seed": 7,
+  "tag": "v18_florida_joint_s7",
+  "method": "reg full=top10_acc_indist*(1-ood_frac) at indist-best epoch; cat=macro-f1 at f1-best epoch; per-task diagnostic-best, fold-mean",
+  "cat_macro_f1_mean": 37.5399,
+  "cat_macro_f1_std": 0.4709,
+  "cat_per_fold": [
+    37.9727,
+    37.3962,
+    36.6811,
+    37.8087,
+    37.841
+  ],
+  "cat_best_epochs": [
+    11,
+    13,
+    15,
+    16,
+    12
+  ],
+  "reg_full_top10_mean": 77.0609,
+  "reg_full_top10_std": 0.8789,
+  "reg_per_fold": [
+    76.9762,
+    76.7639,
+    76.3006,
+    76.5057,
+    78.7581
+  ],
+  "reg_best_epochs": [
+    32,
+    38,
+    27,
+    31,
+    29
+  ],
+  "n_folds": 5
+}
