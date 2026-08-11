@@ -140,22 +140,28 @@ decomposition open.
 
 Table 2 in the submitted paper contrasts the check-in-level and place-level representations. Its
 place-level column was measured under a different training configuration than the one the paper now
-reports. Re-measured under the current recipe (same folds, head, windowing, epochs, precision, and
-logit adjustment; only the input representation differs), at Alabama, seed 0:
+reports. Re-measured under the current recipe (same folds, same head, same windowing, same epochs,
+same precision, same logit adjustment; only the input representation differs), at seed 0:
 
-| arm | macro-F1 | per-fold |
-|---|---:|---|
-| check-in level | 30.77 | 32.26, 30.80, 29.61, 29.64, 31.52 |
-| place level | 29.15 | 29.73, 29.74, 28.05, 28.44, 29.78 |
-| **paired difference** | **+1.62** | 5 of 5 folds, two-sided paired t p = 0.0034 |
+| dataset | check-in level | place level | gap | folds favouring check-in level | p |
+|---|---:|---:|---:|---:|---:|
+| Istanbul | 35.35 | 29.07 | **+6.29** | 5/5 | 0.00003 |
+| Alabama | 30.77 | 29.15 | **+1.62** | 5/5 | 0.0034 |
+| Arizona | 34.51 | 31.93 | **+2.58** | 5/5 | 0.0004 |
+| Florida | running | running | — | — | — |
+| Texas | running | running | — | — | — |
+| California | running | running | — | — | — |
 
-The submitted table reports **+29.31** at this dataset. That margin belongs to the earlier
-configuration; under the current recipe the advantage is **+1.62**. Arizona and Istanbul are
-running; the three largest datasets need their place-level inputs rebuilt first (~30 GB, several
-hours) and are the main open cost item — see §6.
+The submitted table reports **+28.09, +29.31 and +27.63** at these three datasets. Those figures
+belong to the earlier configuration. Under the current recipe the gap is **+1.62 to +6.29**: an
+order of magnitude smaller, in the same direction, and statistically clear at every dataset
+measured so far (all five folds favour the check-in-level arm at each).
 
-**This is the single largest change to the paper's claims and it is not optional.** Table 2 and
-every sentence that leans on it must be rewritten to the measured margin.
+**This is the single largest change to the paper's claims and it is not optional.** Table 2, the
+abstract's "about 28 to 40 points" clause, and every sentence that leans on either must be
+rewritten to the measured gap. The remaining three datasets are building and training now (§6);
+each rebuilds its place-level inputs, trains, scores, and then releases the disk before the next
+one starts.
 
 ---
 
@@ -260,14 +266,17 @@ closing claims inherit the new ladder. These follow after the paper text is appr
 
 | item | status | cost |
 |---|---|---|
-| place-level arm at Arizona, Istanbul | running | ~1 h |
-| place-level arm at Florida, Texas, California | needs inputs rebuilt (~30 GB) before training | ~6-10 h, and 30 GB of a disk at 91% |
 | joint-best at all 24 cells | **complete and verified** | — |
-| statistical battery | **complete** | — |
+| statistical battery, both conventions | **complete** | — |
+| place-level arm at Istanbul, Alabama, Arizona | **complete** | — |
+| place-level arm at Florida, California, Texas | running: build, train, score, reclaim, one dataset at a time | ~6-10 h |
+| trunk contribution at Texas and California | **not measured**, and it is the ablation that would license any attribution sentence for the region gain (§1.4) | ~22 h |
 
-The disk is the binding constraint on the three largest datasets. If the author prefers not to
-spend it, Table 2 reports three datasets under the matched recipe and says plainly that the
-remaining three were not re-measured, which is honest and costs one sentence.
+The disk was the binding constraint on the three largest datasets, at 38 GB free against a 9.5 GB
+input for the largest. The running job therefore builds one dataset's place-level inputs, trains,
+scores, and releases them before starting the next, so peak usage stays at one dataset. If it does
+not finish in time, Table 2 reports the datasets measured under the matched recipe and says plainly
+that the rest were not re-measured, which costs one sentence and no honesty.
 
 ---
 
