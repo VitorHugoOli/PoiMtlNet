@@ -103,16 +103,30 @@ def main() -> None:
     if vf.exists():
         flags = [l for l in vf.read_text().splitlines() if l.strip()]
 
+    # current_n counts a seed only when ALL THREE families are banked for it. Counting joint
+    # alone (the pre-2026-08-11 behaviour) structurally cannot see a lagging cat or reg, so a
+    # state whose joint cells were all done reported its full n while dedicated cells were
+    # still missing -- observed on florida 2026-08-10, where joint s7/s100 landed but cat/reg
+    # did not.
     current_n = {}
+    seeds_complete = {}
     for st in STATES:
-        n = sum(1 for c in done if c["state"] == st and c["family"] == "joint")
-        current_n[st] = n * 5                                   # 5 folds per completed seed
+        n = 0
+        complete = []
+        for sd in SEEDS:
+            fams = {c["family"] for c in done if c["state"] == st and c["seed"] == sd}
+            if set(FAMILIES) <= fams:
+                n += 1
+                complete.append(sd)
+        current_n[st] = n * 5                                   # 5 folds per complete seed
+        seeds_complete[st] = complete
 
     status = {
         "updated_at": datetime.now(timezone.utc).isoformat(),
         "commit_sha": commit_sha(),
         "phase": "blocked" if args.blocked_on else args.phase,
         "current_n": current_n,
+        "seeds_complete": seeds_complete,
         "cells": cells,
         "running": running,
         "gpu_free_mib": gpu_free_mib(),

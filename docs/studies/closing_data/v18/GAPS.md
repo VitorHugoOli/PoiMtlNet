@@ -45,6 +45,14 @@ commit was baked into the image, or the checkout the lane ran. If a single SHA c
 one value fills all 30. **If the SHA is genuinely unrecoverable, say so in PROVENANCE.md rather than
 back-filling a guess** — an invented SHA is worse than an admitted gap.
 
+**Update 2026-08-11 (florida s7/s100 joint, 2 of the 30):** unrecoverable, and the reason
+generalises to the other rented cells. The `/repo` on the Modal Volume was uploaded at
+2026-08-10T03:28Z as a **tar of the worktree**, not `git archive`, and carries no `.git`. The two
+nearest commits (`a0df1fe3` 03:44Z, `d8a4cf04` 04:47Z) are both **later** than the upload, so HEAD
+at upload time was an earlier commit that was never recorded. Even a recovered SHA would not certify
+the code, because the payload was the worktree rather than a committed tree. Recorded as
+`commit_sha_note` in each sidecar instead of a back-filled value.
+
 ## 2 · GAP B — 10 cells have no `recipe_version` (MEDIUM)
 
 | seed | family | states |
@@ -88,6 +96,26 @@ Two things follow:
    `METHODOLOGY.md`, or close it: **re-running texas s100 reg locally costs ~57 min** and makes that
    pool single-machine.
 
+**Update 2026-08-11 — the mixing is not confined to texas region.** Enumerating every
+`(state, family)` pool by the silicon each seed ran on shows that **essentially every pool is
+mixed**: seeds 0 and 1 are local, seeds 7 and 100 are rented, across all six states and all three
+families. Texas region is not the exception, it is one instance of the rule. The disclosure in
+`METHODOLOGY.md` therefore cannot be a footnote about one cell; it has to state the design
+honestly — *seeds 0/1 local, seeds 7/100 rented* — and note that the measured cross-hardware
+deviation (0.086 pp) exceeds the seed spread of several region pools.
+
+Closing this by re-running is no longer a 57-minute job: it would mean re-running every seed
+7/100 cell locally, which is the whole rented wave. The realistic close is disclosure, not
+homogenisation.
+
+**florida s7/s100 joint `lane_host` back-filled 2026-08-11**, with a caveat worth checking:
+the requested tier was `A100-40GB`, but every heartbeat sample from both cells reports
+`memory.total = 81920 MiB` (80 GiB). The device *name* had already rolled out of the captured
+`.out` tail, so the sidecars record `modal:A100-class 80GB` with an explicit `[VERIFY]` rather than
+a model name nobody measured. **Whoever audits this should confirm which tier Modal actually
+served** — the other 8 cells are labelled `A100-SXM4-40GB`, and if those were also 80 GiB parts the
+existing labels are wrong too.
+
 ## 4 · GAP D — the tie certificate exists on only 3 of 24 region cells (MEDIUM)
 
 `ambiguous_rows` (how many validation rows have an undecidable hit@k) is recorded on **3 of 24**
@@ -110,6 +138,21 @@ reader can tell the two populations apart without archaeology.
 2. **`status.json` says `phase: "done"` while cells were still running** (`updated_at`
    2026-08-11T01:44). `status_update.py:107-109` derives `current_n` from **joint cells only** ×5,
    so it structurally cannot see a lagging cat or reg family. Fix: count all three families.
+
+## 5b · GAP E item 2 — CLOSED 2026-08-11
+
+`status_update.py` derived `current_n` from **joint cells only**, so a state whose joint cells were
+all banked reported its full n while its dedicated cells were still missing. Observed live on
+florida 2026-08-10: joint s7/s100 landed and the state read n=20 while `florida_s7_cat`,
+`florida_s7_reg`, `florida_s100_cat` and `florida_s100_reg` did not yet exist.
+
+Fixed: a seed now counts toward `current_n` only when **all three families** are banked for it, and
+the status file gained a `seeds_complete` map so a reader sees *which* seeds are complete rather
+than inferring it from a total. Verified by execution, not inspection: hiding `florida_s7_cat` drops
+florida from 20 to 15 with `seeds_complete: [0, 1, 100]`, and restoring it returns 20.
+
+Item 1 of GAP E (the `n` column that cannot represent a row whose halves disagree) is **still
+open** — it remains correct only because both halves happen to be 20.
 
 ## 6 · GAP F — charter deliverable `TASKS.md` was never created (LOW)
 
@@ -141,7 +184,7 @@ Recorded here so they are not mistaken for missing data:
 | 2 | **C** — declare `lane_host` on 42 cells + disclose the texas mix | metadata (+57 min if closing texas) | the machine is a larger variance source than the seed here |
 | 3 | **B** — 10 missing `recipe_version` | metadata only | trivial, and completes the set |
 | 4 | **D** — scoring-path field on 21 reg cells | metadata only | lets a reader separate the two scoring populations |
-| 5 | **E** — two display bugs | small code fix | one is currently correct only by accident |
+| 5 | **E** — display bugs | small code fix | **item 2 CLOSED 2026-08-11**; item 1 still open (correct only by accident) |
 | 6 | **F** — `TASKS.md` | writing | last unmet §7 deliverable |
 
 **None of these require re-training.** Items 1–4 are back-fills into existing sidecars; 5 is a fix in

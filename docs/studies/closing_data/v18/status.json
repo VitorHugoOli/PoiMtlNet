@@ -1,7 +1,7 @@
 {
-  "updated_at": "2026-08-11T01:44:57.669186+00:00",
-  "commit_sha": "85bcc58877c9245e9ed59a6a9bc1aeeba9faef5f",
-  "phase": "done",
+  "updated_at": "2026-08-11T02:15:38.272778+00:00",
+  "commit_sha": "78d8569949963e301357cb0418f01f456503944d",
+  "phase": "wave1",
   "current_n": {
     "istanbul": 20,
     "alabama": 20,
@@ -9,6 +9,44 @@
     "florida": 20,
     "texas": 20,
     "california": 20
+  },
+  "seeds_complete": {
+    "istanbul": [
+      0,
+      1,
+      7,
+      100
+    ],
+    "alabama": [
+      0,
+      1,
+      7,
+      100
+    ],
+    "arizona": [
+      0,
+      1,
+      7,
+      100
+    ],
+    "florida": [
+      0,
+      1,
+      7,
+      100
+    ],
+    "texas": [
+      0,
+      1,
+      7,
+      100
+    ],
+    "california": [
+      0,
+      1,
+      7,
+      100
+    ]
   },
   "cells": [
     {
@@ -733,7 +771,7 @@
     }
   ],
   "running": [],
-  "gpu_free_mib": 35942,
+  "gpu_free_mib": 45489,
   "disk_free_gb": 2192,
   "disk_free_gb_home": 37,
   "blocked_on": null,
