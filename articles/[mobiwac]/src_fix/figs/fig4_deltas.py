@@ -39,12 +39,12 @@ STATES = [
     # Served-checkpoint deltas (joint minus dedicated), four seeds x five folds
     # on both arms. Source: docs/results/closing_data/v18/joint_best_perfold.json
     # (joint) and docs/studies/closing_data/v18/data/v18_results.json (dedicated).
-    ("Istanbul", 520, 0.08, -0.08),
-    ("AL", 1109, -0.19, -0.87),
-    ("AZ", 1547, -0.00, -0.44),
-    ("FL", 4703, 0.19, -0.16),
-    ("TX", 6553, -0.13, 1.21),
-    ("CA", 8501, -0.00, 1.06),
+    ("Istanbul", 520, 0.0798, -0.0789),
+    ("AL", 1109, -0.1882, -0.8744),
+    ("AZ", 1547, -0.0038, -0.4370),
+    ("FL", 4703, 0.1947, -0.1564),
+    ("TX", 6553, -0.1310, 1.2059),
+    ("CA", 8501, -0.0043, 1.0571),
 ]
 
 labels = [s[0] for s in STATES]
@@ -126,7 +126,9 @@ bars_reg = ax.bar(
 
 # --- value labels ---------------------------------------------------------
 for xi, v in zip(xs_cat, cat_delta):
-    sign = "+" if v >= 0 else "\u2212"  # unicode minus
+    # 0.0 prints as "+0.00" only for a true zero; a value that rounds to zero from
+    # below keeps its minus sign, so the label never contradicts the prose.
+    sign = "\u2212" if v < 0 else "+"
     ax.annotate(
         f"{sign}{abs(v):.2f}",
         (xi, v),
@@ -138,7 +140,7 @@ for xi, v in zip(xs_cat, cat_delta):
         color=CAT_COLOR,
     )
 for xi, v in zip(xs_reg, reg_delta):
-    sign = "+" if v >= 0 else "−"  # unicode minus, no em-dash policy unaffected
+    sign = "−" if v < 0 else "+"  # unicode minus, no em-dash policy unaffected
     va = "bottom" if v >= 0 else "top"
     off = 2.0 if v >= 0 else -2.0
     ax.annotate(

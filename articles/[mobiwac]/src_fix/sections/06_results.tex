@@ -71,7 +71,7 @@ numbers at once, which is why the served checkpoint is what we report.
 % convention and keeps diag-best as the <=0.06/<=0.11 robustness check (the inverted form of the old
 % disclosure).
 
-Figure~\ref{fig:deltas} plots the signed gains ordered by region count. On
+Figure~\ref{fig:deltas} plots the signed differences ordered by region count. On
 category, the joint model outperforms the dedicated model at Florida
 ($+0.19$ macro-F1) and lands within a fifth of a point of it at the other five datasets, above at
 Istanbul and below at Alabama, Arizona, Texas, and California.
@@ -85,13 +85,13 @@ grouping rather than a monotone law.
 
 The statistical picture, seed by seed. On region, Texas and California are the two datasets where
 all four seeds favor the joint model and the gain survives a Holm correction across the six datasets
-(paired $t$, corrected $p\le0.0001$); their 90\% confidence intervals are $+1.13$ to $+1.29$ at
+(paired $t$, corrected $p=0.0001$ at Texas and $p<0.0001$ at California); their 90\% confidence intervals are $+1.13$ to $+1.29$ at
 Texas and $+1.03$ to $+1.08$ at California. The remaining four are tested for equivalence (TOST,
 $\pm2$~pp) and pass with intervals well inside the margin: Istanbul ($-0.08$; $-0.16$ to $-0.00$),
 Alabama ($-0.87$; $-1.00$ to $-0.75$), Arizona ($-0.44$; $-0.62$ to $-0.25$), and Florida ($-0.16$;
-$-0.19$ to $-0.13$). Three of those four intervals lie below zero, small deficits that are
-statistically resolvable and far inside two points; we report them as matches within the margin, not
-as gains. On category, Florida is the one dataset where all four seeds favor the joint model and the
+$-0.19$ to $-0.13$). All four intervals lie below zero, and three of the four deficits are
+statistically resolvable; every one of them is far inside two points, so we report them as matches
+within the margin, not as gains. On category, Florida is the one dataset where all four seeds favor the joint model and the
 gain clears the Holm correction (corrected $p=0.011$; $+0.14$ to $+0.25$). The other five category
 differences are not resolved in either direction by a superiority test. We leave them at that: the
 equivalence margin of Section~\ref{sec:setup-metrics} is registered for the region axis, and we do
