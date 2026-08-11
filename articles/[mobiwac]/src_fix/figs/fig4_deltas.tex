@@ -3,8 +3,10 @@
 \begin{figure}[!t]
 \centering
 \includegraphics[width=0.79\columnwidth]{figs/fig4_deltas.pdf}
-\caption{Signed gains of the joint model over the dedicated single-task models, ordered by
-region count. The category gain (macro-F1) is positive at every dataset; the region gain (Acc@10) rises across the five U.S. states and is also positive at Istanbul.
-The $\pm2$-point band applies to region only.}
+\caption{Signed differences between the joint model and the dedicated single-task models, ordered by
+region count. Every difference falls inside the $\pm2$-point band, which applies to region only.
+The region difference (Acc@10) is clearly positive at Texas and California, the two largest region
+vocabularies, and slightly negative at the other four; the category difference (macro-F1) stays
+within a fifth of a point everywhere.}
 \label{fig:deltas}
 \end{figure}
