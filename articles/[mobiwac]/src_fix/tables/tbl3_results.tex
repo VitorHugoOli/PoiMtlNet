@@ -1,30 +1,22 @@
-% Table 3: One model, two tasks (Part 2) -- the main result table. v17 board (2026-07-08 renumbering).
-% Joint single model (v17) vs the dedicated single-task ceilings (n=20 best-vs-best, per-dataset
-% bs x LR tuned -- CEILINGS_N20_FINAL.md), plus next-region externals (HMT-GRN primary; STAN faithful +
-% ReHDM v4 references) and next-category references (POI-RGNN + Markov-9-cat floor).
+% Table 3: One model, two tasks -- the main result table.
 %
-% Provenance (single source: docs/studies/closing_data/RESULTS_BOARD.md + v17_completion/):
-%   Joint (MTL v17): ALL SIX = n=20 (4 seeds x 5 folds), JOINT-BEST convention (one saved model per
-%     fold, geom_simple validation selector, both tasks read there) -- switched from diag-best
-%     2026-07-18 per author ruling (considerations_v3 #10); source joint_best/JOINT_BEST_RESULTS.md +
-%     catx_v17_n20/joint_best/. +- is cross-seed sd of per-seed means. All fp32.
-%   Dedicated ceilings: n=20 best-vs-best (CEILINGS_N20_FINAL.md; cat swept over bs x LR per state,
-%     reg = prior-off next_stan_flow topped to n=20). AZ cat ceiling 56.43 carries a pending 2-seed
-%     top-up that could raise it to ~57.0 (Delta_cat AZ +9.35 -> ~+8.7) -- board banner.
-%   cat Ded/Joint(jb): Ist 54.74+-0.09/63.32+-0.02; AL 56.82+-0.03/64.51+-0.09; AZ 56.43+-0.10/65.79+-0.02;
-%     FL 74.51+-0.03/79.84+-0.02; TX 69.79+-0.08/77.24+-0.01; CA 70.60+-0.07/77.05+-0.01.
-%   reg Ded/Joint(jb): Ist 75.16+-0.01/75.35+-0.04; AL 70.11+-0.10/69.70+-0.09; AZ 59.46+-0.08/59.46+-0.04;
-%     FL 76.70+-0.02/77.41+-0.02; TX 64.95+-0.01/67.06+-0.01; CA 63.49+-0.02/65.69+-0.02.
-%   Externals: HMT-GRN 60.4/57.05/43.70/63.74/53.85/49.61 (unchanged); ReHDM v4 row (version-uniform,
-%     rehdm.md): Ist 69.33 / AL 65.38 / AZ 53.00 / FL 64.49 / TX 48.81 (seed-42 only) / CA 50.26 (seed-42
-%     only); STAN faithful 61.86/60.72/49.86/72.99 + TX 61.67 (4/5 folds) + CA 58.52 (2/5 folds) --
-%     partials closed-as-final with fold-count disclosure (stan_catx/STATUS.md; "infeasible" RETIRED).
-%     Markov-9-cat 24.55/20.50/23.92/29.74/28.67/27.58; POI-RGNN 30.12/23.80/27.64/34.49/33.03/31.78.
-% Honesty rules (do NOT relax): cat BEATS at every dataset; reg BEATS at Ist/FL/TX/CA (90% CI of the
-%   paired difference above zero; all n=20 seed-level since 2026-07-18) and is non-inferior (TOST, <=2pp)
-%   at AL/AZ -- AZ's CI grazes zero, NEVER upgrade AZ to a beat. The two matched reg cells are NOT bolded.
-%   Never cite: STAN v4 collapse (AL 34.46/AZ 38.96), HMT-GRN AL 62.37 outlier, fp16/bf16 VOID JSONs,
-%   ReHDM v2 row (66.06/54.65/65.68).
+% Provenance (every cell read from an artifact, never retyped):
+%   Joint cells: SERVED-CHECKPOINT convention -- one saved model per fold, geom_simple validation
+%     selector, min_best_epoch 0, both tasks read at that epoch. Per-fold source:
+%     docs/results/closing_data/v18/joint_best_perfold.json (24 cells = 6 datasets x 4 seeds;
+%     15 from rundir artifacts, 9 from the banked lane archive, 1 fold recomputed with
+%     src/tracking/scoring.py). Every cell reproduces its docs/results/closing_data/v18/<cell>.json
+%     sidecar to 4 dp.
+%   Dedicated cells: docs/studies/closing_data/v18/data/v18_results.json (stl_cat_folds/stl_reg_folds).
+%   +- is the sd across the four per-seed means.
+%   Tests: superiority = one-sided paired t on the 4 per-seed means, Holm-corrected within each task
+%     family (m=6); non-inferiority = TOST at 2 pp, PRE-REGISTERED FOR THE REGION AXIS ONLY, which is
+%     why category cells carry no equivalence mark. Bold + \uparrow = superiority survives Holm:
+%     category at FL only; region at TX and CA only.
+%   Externals unchanged from the submitted version: HMT-GRN primary (on our folds); STAN
+%     re-implementation and ReHDM (own protocol) as references; Markov-K strongest order per dataset.
+%   Configuration: bs8192, category weight 0.50, logit_adjust_tau 0.5 on the category head, 5 folds,
+%     50 epochs, fp32 (docs/studies/closing_data/v18/FINAL_SETTINGS.md).
 \providecommand{\sd}[1]{\,{\scriptsize$\pm$#1}}
 \begin{table*}[!t]
 \caption{One model, two tasks: the single joint model against the dedicated single-task models and the

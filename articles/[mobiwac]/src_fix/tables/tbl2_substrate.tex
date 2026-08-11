@@ -1,16 +1,11 @@
-% Table 2: The representation makes the category task learnable (Part 1).
-% Check-in-level (Check2HGI) vs place-level (HGI) next-category macro-F1, matched single-task
-% head + recipe + folds (seed 0 x 5 folds), overlapping-window protocol throughout.
-% NOTE (2026-07-08): this is the MATCHED-recipe pair -- it is deliberately NOT Table 3's dedicated
-% ceiling anymore (Table 3's ceilings are the n=20 per-state-tuned best-vs-best set; re-tuning the
-% HGI arm per state was not done, so the controlled A/B here keeps the original single recipe on
-% both arms). Istanbul re-footed on the rebuilt dk_ovl substrate (H3): Check2HGI-SC 54.65+-0.56
-% (docs/results/closing_data/baseline_compare/istanbul_check2hgi_sc.json), HGI arm unchanged
-% 26.56+-0.5 (istanbul_hgi_ovl_cat.json) -> margin +28.09 (was +26.64 on the old GCN base).
-% Gowalla arms unchanged: PR #50 AL/AZ/FL + PR #52 CA/TX.
-% Check2HGI std: Ist 0.6 / AL 2.4 / AZ 1.3 / FL 0.5 / TX 0.2 / CA 0.3 ; HGI std: Ist 0.5 / AL 1.0 /
-% AZ 1.0 / FL 0.3 / TX 0.6 / CA 0.4.
-\providecommand{\sd}[1]{\,{\scriptsize$\pm$#1}}
+% Table 2: the representation contrast on next category (section 6.1).
+%
+% Both arms: same head (next_gru), same five folds, same sliding windows, same 50 epochs, same fp32,
+% same logit_adjust_tau 0.5, seed 0. Only the input representation differs (check-in level vs the
+% place embedding). Check-in-level source: docs/studies/closing_data/v18/data/v18_results.json
+% (stl_cat, seed 0). Place-level source: docs/results/closing_data/v18_place_level/<state>_s0_cat_placelevel.json.
+% Paired t on the five matched folds: significant at every dataset except FL (p=0.067); all five
+% folds favour the check-in-level arm at all six datasets.
 \begin{table}[!t]
 \caption{Next-category macro-F1: the check-in-level representation against a standard place
 embedding (HGI). Same single-task model, training configuration, folds, sliding windows, epoch

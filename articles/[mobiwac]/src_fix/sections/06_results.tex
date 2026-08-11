@@ -67,14 +67,14 @@ geometric mean of the two task metrics), with both tasks read from that one
 model. Reading each joint task at its own best epoch instead would raise every joint result, by at most
 $0.17$ (category) and $0.90$ (region) points, but no single saved model attains both of those
 numbers at once, which is why the served checkpoint is what we report.
-% AUTHOR DECISION 2026-07-18 (supersedes 2026-07-09): the REPORTED convention is now JOINT-BEST
-% (author ruling, considerations_v3 #10) -- Table 3's joint cells are the one saved model per fold
-% (geom_simple = sqrt(cat F1 x reg Acc@10-indist) on validation, model-SELECTION only; never enters
-% the loss; training uses the fixed 0.75/0.25 sum of S4.2), both tasks read there. All pre-registered
-% tests re-verified on the joint-best arrays (n=20 all six; Istanbul reg CI +0.15..+0.23 > 0, 20/20
-% folds; AL/AZ TOST pass) -- see joint_best/JOINT_BEST_RESULTS.md. The sentence above discloses the
-% convention and keeps diag-best as the <=0.06/<=0.11 robustness check (the inverted form of the old
-% disclosure).
+% CONVENTION (author ruling 2026-07-18, considerations_v3 #10): Table 3's joint cells are the SERVED
+% CHECKPOINT -- one saved model per fold, selected by geom_simple = sqrt(cat F1 x reg Acc@10-indist)
+% on validation, min_best_epoch 0, both tasks read at that epoch. The selector is model-SELECTION
+% only and never enters the loss; training uses the fixed 0.50/0.50 sum of S4.2 with logit adjustment
+% on the category head. Per-fold evidence: docs/results/closing_data/v18/joint_best_perfold.json.
+% The sentence above discloses the convention and keeps the per-task-best reading as the
+% <=0.17/<=0.90 robustness check; that reading is HIGHER on both tasks at every dataset, so the
+% reported convention is the conservative one.
 
 Figure~\ref{fig:deltas} plots the signed differences ordered by region count. On
 category, the joint model outperforms the dedicated model at Florida
