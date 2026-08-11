@@ -19,7 +19,7 @@
 The check-in-level representation outperforms a standard place embedding
 (HGI~\cite{huang2023hgi}) on next-category macro-F1 at every dataset
 (Table~\ref{tab:substrate}). The comparison is controlled: target, single-task model, training configuration, windowing, and folds are identical; only the input representation changes (a vector per visit versus a vector per place), so the difference isolates the representation. Both arms also share the epoch budget, the precision, and the logit adjustment, so the only free variable is the input. The gap ranges from $+0.23$ (Florida) to $+6.29$ (Istanbul). It is modest in size and unusually consistent in sign: all five folds favor the check-in-level representation at every one of the six datasets, and the difference is significant under a paired test everywhere except Florida ($p=0.07$).
-Averaging the per-visit vectors into one vector per place removes most of the gain, so what the representation contributes is the context that each visit carries rather than the larger number of training vectors per place.
+The advantage is a property of the per-visit vectors themselves rather than of the larger number of training vectors per place: the geometry below separates categories at the visit level and not at the place level, which is the distinction the task turns on.
 
 The geometry of the vectors shows why the representation helps this task in
 particular: the per-visit vectors' silhouette score by category (how tight and well separated the seven labeled groups are, on a $-1$ to $1$ scale) is about $0.53$ against about $0.00$ for the place embedding, and their nearest-neighbor category purity (the share of nearest neighbors with the vector's own category) is about $0.98$ against about $0.79$ (both averaged over Alabama, Arizona, and Florida). The same geometry does not separate regions, so the benefit is category-only (the joint model's spatial stream instead reads the region-level vectors of the same graph, Section~\ref{sec:method-model}). CTLE~\cite{lin2021ctle}, the closest prior contextual embedding, also gives each visit its own vector, but it pretrains on place identifiers and timestamps alone, so the category vocabulary never enters its training, whereas our graph reads each visit's category and time of day as input features. At Florida, we fine-tune CTLE together with the task model, using its authors' defaults and the same 64 dimensions and windowing as ours. It reaches $33.45$ macro-F1 at its best epoch and $29.69$ at its final one (an epoch is one pass over the training data), below both the place embedding under the same best-epoch rule and the check-in-level representation. With frozen weights, fed to the same single-task model, CTLE repeats the ordering at Alabama, Arizona, and Istanbul. A feature-concatenation control joins the place embedding with the same raw
@@ -86,13 +86,13 @@ grouping rather than a monotone law.
 
 The statistical picture, seed by seed. On region, Texas and California are the two datasets where
 all four seeds favor the joint model and the gain survives a Holm correction across the six datasets
-(paired $t$, corrected $p=0.0001$ at Texas and $p<0.0001$ at California); their 90\% confidence intervals are $+1.13$ to $+1.29$ at
+(paired $t$ on the four per-seed means, Holm-corrected $p=0.00013$ at Texas and $p=0.0000063$ at California); their 90\% confidence intervals are $+1.13$ to $+1.29$ at
 Texas and $+1.03$ to $+1.08$ at California. The remaining four are tested for equivalence (TOST,
 $\pm2$~pp) and pass with intervals well inside the margin: Istanbul ($-0.08$; $-0.16$ to $-0.00$),
 Alabama ($-0.87$; $-1.00$ to $-0.75$), Arizona ($-0.44$; $-0.62$ to $-0.25$), and Florida ($-0.16$;
-$-0.19$ to $-0.13$). All four intervals lie below zero, and three of the four deficits are
-statistically resolvable; every one of them is far inside two points, so we report them as matches
-within the margin, not as gains. On category, Florida is the one dataset where all four seeds favor the joint model and the
+$-0.19$ to $-0.13$). All four intervals lie below zero, and three of the four deficits survive a
+Holm-corrected test in that direction (Alabama, Arizona, and Florida; Istanbul does not); every one
+of them is far inside two points, so we report them as matches within the margin, not as gains. On category, Florida is the one dataset where all four seeds favor the joint model and the
 gain clears the Holm correction (corrected $p=0.011$; $+0.14$ to $+0.25$). The other five category
 differences are not resolved in either direction by a superiority test. We leave them at that: the
 equivalence margin of Section~\ref{sec:setup-metrics} is registered for the region axis, and we do
@@ -100,9 +100,11 @@ not transfer it to category to convert an unresolved difference into a demonstra
 
 A reader used to multi-task learning~\cite{caruana1997multitask} expects the
 harder task, here next-region with its hundreds to several thousand classes, to teach the easier one; a control shows otherwise. We freeze the region pathway at the start of training so it can neither learn nor teach the category
-task, and the category result is unchanged at Alabama, Arizona, and Florida. We therefore report the
-negative result, that the category behavior of the joint model is not the region task teaching the
-category one, as a finding. The control fixes region training rather than any part of the category pathway, so it does not
+task. On the earlier configuration of this model, at Alabama, Arizona, and Florida, the category
+result was unaffected by that intervention, which is a negative result worth reporting: the category
+behavior of the joint model does not arise from the region task teaching the category one. That
+control has not been repeated at the configuration reported here, so we state it as evidence about
+the architecture rather than as a measurement of the present cells. The control fixes region training rather than any part of the category pathway, so it does not
 identify which part of the joint architecture produces the region result, and we do not name the
 shared trunk as its source. Direct ablations of the trunk, at the datasets where they were run,
 move both tasks by less than two tenths of a point in either direction, which is below what a
@@ -162,5 +164,5 @@ $75.08$), the latter non-inferior within the two-point margin. The comparable qu
 difference against the dedicated model, not the absolute
 Acc@10, since region counts differ across datasets (520 mahalle here). The external baselines show the same ordering on both tasks
 (Table~\ref{tab:results}).
-The pattern seen in the U.S. states, one model holding both tasks at the level of two dedicated
-models, repeats on a different continent and a different region unit.
+The pattern seen in the U.S. states, one model holding both tasks within the two-point margin of two
+dedicated models, repeats on a different continent and a different region unit.

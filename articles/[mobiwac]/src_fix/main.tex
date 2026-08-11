@@ -76,7 +76,7 @@ context, instead of giving every place one fixed vector. Across six datasets
 (five U.S. states and one non-U.S. city, Istanbul), this improves next-category
 prediction over a standard place embedding at every dataset, by $0.2$ to $6.3$ points of
 macro-averaged F1, with every fold favoring it,
-and most of the gain comes from the per-visit context, not from extra training signal. We then train one
+and the advantage tracks the geometry of the per-visit vectors rather than the number of training vectors per place. We then train one
 multi-task model for both tasks and read both answers from a single saved
 model. On next region it outperforms the dedicated model at the two datasets
 with the most regions, by about one point, and matches it (statistically,

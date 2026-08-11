@@ -97,8 +97,9 @@ that we can state rather than assume: the selection rule is the same for both mo
 same folds, an epoch chosen on validation and read on that fold, with each model selected on its own
 validation objective (Section~\ref{sec:results-part2}), and, for the category comparison, the dedicated
 model receives the wider search, a per-dataset sweep over batch size and
-learning rate against one configuration held fixed across all six datasets for the joint model, while
-both sides of the region comparison run a fixed configuration. Where that search applies, the residual
+learning rate at every dataset, against a joint configuration searched at the smaller datasets and
+transferred to Texas and California, while both sides of the region comparison run a fixed
+configuration. Where that search applies, the residual
 favors the dedicated model, which makes the reported category difference conservative. It does
 not follow that the bias cancels exactly. Third, we do not build or evaluate a mobility-aware service; it is background
 motivation, and the paper's claims are the prediction results themselves. Fourth, each visit node in the

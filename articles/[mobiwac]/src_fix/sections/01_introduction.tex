@@ -24,8 +24,8 @@ semantic context) and a private spatial path for the region task (Fig.~\ref{fig:
 Our contributions are as follows.
 \begin{itemize}
   \item A check-in-level representation that extends hierarchical graph infomax from the place to the individual visit, improving next-category prediction over a standard place embedding at every one of the six datasets, by $+0.2$ to $+6.3$ points of macro-F1 (a balanced score that counts every
-    category equally), with every fold favoring it at every dataset (Table~\ref{tab:substrate}). A controlled test attributes most of the gain to the per-visit
-    context, not to extra training signal. A single fixed vector
+    category equally), with every fold favoring it at every dataset (Table~\ref{tab:substrate}). The advantage tracks the geometry of the per-visit
+    vectors, which separate categories at the visit level and not at the place level. A single fixed vector
     per place cannot separate places that serve several purposes, and
     per-visit context recovers that distinction.
   \item A single model for joint next-category and next-region prediction, sharing semantic context across tasks while keeping a private spatial path for the region task; to our knowledge, the first work to treat fine-grained region as an end target of equal standing (Section~\ref{sec:related-tasks}). In one forward pass, and reading both answers from a single saved model, it outperforms the dedicated
