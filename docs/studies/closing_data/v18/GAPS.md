@@ -272,3 +272,43 @@ provenance the gap text warns against.
 `current_n` from joint cells only, so it structurally cannot see a lagging cat or reg family), and
 **F** (`TASKS.md`) are unchanged. The remaining 40 `lane_host` and 30 `commit_sha` back-fills are
 left open for the same reason: they concern cells this session did not run.
+
+## A6 · Volume forensics on all three Modal accounts — gap A closed as unrecoverable, and the `[VERIFY]` resolved
+
+Read-only inspection of every volume on the three accounts that ran cells
+(`vitor-h-oliveira`, `vholiviera`, `vitor-oliveira`), 2026-08-11.
+
+**Gap A: `/repo/.git` is absent from every volume on all three accounts.** This independently
+confirms the reason recorded above — the payload was a worktree tar, so there is no commit to
+recover, on any account. **Recommend closing gap A as "admitted, with cause" rather than leaving it
+open as a back-fill**: `commit_sha_note` already states why, and no further evidence exists to find.
+
+> Method note, because it nearly produced a false result: the Modal SDK authenticates once per
+> process, so setting the token env vars and re-importing inside one script returns **the first
+> account three times**. The first pass here reported identical contents for all three and was
+> wrong. Each account must be probed in its own process.
+
+**The `[VERIFY]` on the florida joint cells is resolved, and it does not generalise.** The heartbeat
+records `memory.total`, which separates the three parts cleanly: **40960 MiB = A100-40GB**,
+**81559 MiB = H100 80GB HBM3**, **81920 MiB = A100-80GB**. Cross-checking every cell that declares a
+`lane_host` against the memory its own heartbeat recorded:
+
+| declared | cells | heartbeat says | verdict |
+|---|---|---|---|
+| `modal:NVIDIA A100-SXM4-40GB` | 6 (alabama s100, florida s7/s100 cat+reg) | 40960 MiB | **correct** |
+| `modal:NVIDIA H100 80GB HBM3` | 8 (arizona, istanbul, texas s7) | 81559 MiB | **correct** |
+| `modal:A100-class 80GB [VERIFY]` | 2 (florida s7/s100 joint) | 81920 MiB | **correct — and it is an A100-80GB** |
+
+**Zero divergences across 16 labelled cells.** So the concern that "the 8 cells labelled
+A100-SXM4-40GB may be mislabelled too" does **not** hold: they ran on genuine 40 GB parts. What is
+true is narrower and still worth knowing — **the tier you request is not the part you get**: a
+`A100-40GB` request returned an 80 GiB part for the two joint cells. The `[VERIFY]` label can now be
+replaced with `modal:NVIDIA A100-SXM4-80GB (tier requested: A100-40GB)`, though the device *name*
+itself was never captured for those two and the memory is the only direct evidence.
+
+**A trap for anyone reading heartbeats later:** `$LIVE_DIR` is keyed `<state>_s<seed>` for cat and
+reg but `<state>_s<seed>_joint` for the joint, so a cell's directory **accumulates across families**
+and across re-runs. `florida_s7` (40960) and `florida_s7_joint` (81920) are different cells on
+different hardware; reading either as "florida s7" conflates them. Two of this session's own
+directories hold both 40960 and 81559 samples for the same reason — cat on an H100, reg on an A100,
+same directory.
