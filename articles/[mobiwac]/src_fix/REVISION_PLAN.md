@@ -290,10 +290,13 @@ Keep the abstract's structure, its motivation-first opening, and its keyword lis
 - Lead with the region result, which is where the joint model is strongest.
 - Present the joint model as functional and producing the region result at Texas and California,
   naming the shared trunk as one component of the architecture that delivers it. Do **not** write a
-  sentence that attributes the region gain to the trunk: §1.4 shows the trunk's isolated
-  contribution is unmeasured at exactly the two datasets where the gain occurs, and the one
-  resolved ablation (Florida region) favors the severed arm. State the decomposition as open, and
-  name the Texas and California trunk ablation as the experiment that would settle it.
+  sentence that attributes the region gain to the trunk. The reason, from §1.4: at the two datasets
+  where the gain occurs, the only evidence is a single-fold screen that removed the trunk and then
+  the category task outright and saw region move by less than 0.15 points, which reads against a
+  sharing explanation; and at the two datasets where the trunk was probed at full fold coverage,
+  every contrast is unresolved, the largest being 0.15 points at p = 0.48. State the decomposition
+  as open, and name the Texas and California trunk ablation at board strength as the experiment
+  that would settle it.
 - Add the tuning hypothesis for the category gap at Texas and California: the joint model there
   inherits a configuration selected without a joint-specific search at those two datasets, and a
   dedicated search for the joint model at those datasets is the natural next step. Stated as a
