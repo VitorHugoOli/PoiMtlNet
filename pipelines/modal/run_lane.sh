@@ -286,10 +286,29 @@ sidecar_write(){                # sidecar_write <family> <wall> <rundir> <cat> <
     reg)   rec="max_lr 3e-3 freeze_alpha logit_adjust_tau=0 (OFF: hurts Acc@10, AL -1.84 / IST -2.75)" ;;
     joint) rec="bs8192 cat-lr $(mtl_catlr "$ST") cw0.50 logit_adjust_tau=$LA_TAU (cat head only)" ;;
   esac
-  "$PY" - "$OUT/${ST}_s${SEED}_${fam}.json" "$ST" "$SEED" "$fam" "$wall" "$rd" \
-          "$cv" "$rv" "$SHA" "$rec" "$pid" "${LANE_HOST:-}" <<'PY'
+  # The tie certificate travels WITH the number or it may as well not exist. p1 records
+  # `ambiguous_rows` per fold in its result JSON, but until 2026-08-11 this function dropped it,
+  # so a Modal-run reg cell banked a tie-optimistic value with no disclosure while the A40 driver
+  # recorded it for the identical recipe. texas s100 shipped that way and had to be back-filled by
+  # hand. Read it from the p1 JSON the cell just wrote; empty for families that have none.
+  local p1json amb=""
+  p1json=$(ls -t docs/results/P1/region_head_${ST}_*_${fam_tag:-v18_${ST}_${fam}_s${SEED}}.json 2>/dev/null | head -1)
+  [ -n "$p1json" ] && amb=$("$PY" - "$p1json" <<'AMBPY'
 import json, sys
-out, st, sd, fam, wall, rd, cv, rv, sha, rec, pid, host = sys.argv[1:13]
+try:
+    h = json.load(open(sys.argv[1]))["heads"]
+    pf = list(h.values())[0].get("per_fold") or []
+    it = pf.values() if isinstance(pf, dict) else pf
+    rows = [f.get("ambiguous_rows") for f in it if isinstance(f, dict)]
+    print(json.dumps(rows) if any(r is not None for r in rows) else "")
+except Exception:
+    print("")
+AMBPY
+)
+  "$PY" - "$OUT/${ST}_s${SEED}_${fam}.json" "$ST" "$SEED" "$fam" "$wall" "$rd" \
+          "$cv" "$rv" "$SHA" "$rec" "$pid" "${LANE_HOST:-}" "$amb" <<'PY'
+import json, sys
+out, st, sd, fam, wall, rd, cv, rv, sha, rec, pid, host, amb = sys.argv[1:14]
 def f(x):
     try: return float(x)
     except Exception: return None
@@ -297,6 +316,7 @@ json.dump({
     "state": st, "seed": int(sd), "family": fam,
     "wall_seconds": int(float(wall)), "rundir": rd or None,
     "cat": f(cv), "reg": f(rv),
+    **({"ambiguous_rows": json.loads(amb)} if amb else {}),
     "commit_sha": sha,
     "v18_config": {"engine": "check2hgi_v18", "forward_only": True, "in_channels": 15,
                    "node_layout": ["canonical_11", "continuous_time_4"], "repr_seed": 42},

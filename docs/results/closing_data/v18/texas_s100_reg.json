@@ -29,5 +29,30 @@
   "recipe": "max_lr 3e-3 freeze_alpha logit_adjust_tau=0 (OFF: hurts Acc@10, AL -1.84 / IST -2.75)",
   "recipe_version": "v18-approved-2026-08-09 (FINAL_SETTINGS.md)",
   "lane_host": "modal:NVIDIA A100-SXM4-40GB",
-  "train_pid": null
+  "train_pid": null,
+  "ambiguous_rows": [
+    {
+      "top5": 2,
+      "top10": 2
+    },
+    {
+      "top5": 1,
+      "top10": 1
+    },
+    {
+      "top5": 1,
+      "top10": 2
+    },
+    {
+      "top5": 2,
+      "top10": 1
+    },
+    {
+      "top5": 1,
+      "top10": 0
+    }
+  ],
+  "post_hoc_fields": {
+    "ambiguous_rows": "added post-hoc 2026-08-11: the cell recorded the certificate per fold in its p1 result JSON, but run_lane.sh's sidecar_write did not copy it (the A40 driver does). Copied verbatim from docs/results/closing_data/v18_2/modal_runs/texas_s100_lane_20260810_212305/P1/region_head_texas_region_5f_50ep_v18_texas_reg_s100.json; not recomputed."
+  }
 }

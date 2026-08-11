@@ -40,7 +40,8 @@ the headline result is not in question.
 SHA (`run_wave.sh` captures `git rev-parse HEAD` at wave start).
 
 **What to add:** the SHA the lane image was built from, into each sidecar's `commit_sha`.
-**Where to get it:** the Modal driver under `docs/studies/closing_data/v18_2/modal/` — whatever
+**Where to get it:** the Modal driver, now at `pipelines/modal/` (moved out of the retired
+`v18_2/` folder on 2026-08-11) — whatever
 commit was baked into the image, or the checkout the lane ran. If a single SHA covers all lane cells,
 one value fills all 30. **If the SHA is genuinely unrecoverable, say so in PROVENANCE.md rather than
 back-filling a guess** — an invented SHA is worse than an admitted gap.
@@ -190,3 +191,84 @@ Recorded here so they are not mistaken for missing data:
 **None of these require re-training.** Items 1–4 are back-fills into existing sidecars; 5 is a fix in
 `make_results.py` / `status_update.py`; 6 is a document. The only optional compute is the ~57 min
 texas s100 re-run under item C, and that is a homogeneity choice, not a correctness one.
+
+---
+
+# Addendum — added post-hoc 2026-08-11 by the session that ran the four closing reg cells
+
+> **Everything below this line was written after the audit above, by a different session than the
+> one that produced it.** It is kept separate on purpose: the audit is a snapshot of what was found,
+> and this is what one later session changed and measured. Where a gap is narrowed rather than
+> closed, that is said. Nothing above was edited except one stale path (`v18_2/modal/` →
+> `pipelines/modal/`), which this session broke by moving the folder.
+
+## A1 · What this session closed
+
+| gap | before | after | basis |
+|---|---|---|---|
+| **C** — `lane_host` | 43 missing | **42 missing** (this session's 3; the parallel session filled 2 more, and re-generation reset some keys to an explicit `None`) | declared `local:NVIDIA A40` on texas s7, california s7, california s100 — the three cells this session launched and watched on nespedgpu. **Not** inferred; the other 40 are left undeclared deliberately. |
+| **D** — tie certificate | 21 of 24 reg cells missing | **20 of 24** | texas s100 back-filled from its own p1 result JSON (`[{2,2},{1,1},{1,2},{2,1},{1,0}]`), copied verbatim, not recomputed. |
+
+Both back-filled fields carry a `post_hoc_fields` block in the sidecar naming who added them and on
+what basis, so a reader can tell a driver-written field from a hand-written one.
+
+## A2 · A defect behind gap D, now fixed at the source
+
+The three reg cells that *had* the certificate all ran on the **A40**; the one that lacked it ran on
+**Modal**. That was not a coincidence: `run_lane.sh`'s `sidecar_write` never copied
+`ambiguous_rows`, while the A40 driver did. Identical recipe, identical code, and the disclosure
+depended on which machine you happened to use.
+
+`run_lane.sh` now reads the certificate from the p1 result JSON the cell just wrote and emits it in
+the sidecar. **Future rented reg cells will not need this back-fill.**
+
+## A3 · Cross-hardware: the accumulated evidence says the effect is at or below the reporting quantum
+
+Gap C's concern rests on a cross-hardware deviation of **~0.086 pp**, and the section above
+(written by the session that enumerated the pools) establishes something the original text missed:
+**the mixing is universal**, not a texas-region quirk. Seeds 0/1 are local and 7/100 are rented
+across all six states and all three families. That removes "re-run the one odd cell" as an option
+and makes disclosure the only realistic close — which is the right conclusion.
+
+What this session adds is a tighter measurement of *how much it actually matters*. Same fold, same
+seed, same data, same code, A40 against H100 (california s100, fold 0):
+
+| | Acc@1 | Acc@5 | Acc@10 | MRR | s/fold |
+|---|---|---|---|---|---|
+| local A40 | 0.3344 | 0.5455 | **0.6283** | 0.4346 | 555.7 |
+| Modal H100 | 0.3344 | 0.5456 | **0.6283** | 0.4346 | 268.8 |
+
+**Acc@10 — the banked metric — is identical to 4 dp.** Only Acc@5 and F1 move, by 1e-4.
+
+This is consistent with the other cross-machine agreements the board already contains rather than
+standing alone: texas cat has three seeds inside **0.008 pp** while spanning an A40 and an H100
+(s0/s1 local 36.3225/36.3144, s7 rented 36.3190), and california reg's two rented-vs-local seeds
+sit **0.0055 pp** apart. Several independent pairs, all agreeing at or below the quantum.
+
+**How to read it.** The 0.086 pp figure came from an uncontrolled comparison (different family,
+whole cells, three machines at once); the controlled pairs put the effect at ~0. Three honest
+limits remain: the controlled pair is *one fold*; it compares A40↔H100 while several banked cells
+ran on an **A100**, which no controlled pair covers; and none of this is a proof of bit-identity —
+it is repeated agreement at the precision the board reports.
+
+**Practical consequence:** disclose the design (seeds 0/1 local, 7/100 rented) because it is true
+and cheap to state, but do not treat the mixture as a threat to the results. The evidence available
+does not support re-running anything on those grounds.
+
+## A4 · Gap A is worse than "missing" — the 30 cells carry a literal `"unknown"`
+
+The field exists; its value is the string `unknown`. That matters for tooling: a naive
+`if not d.get("commit_sha")` audit reports **0 missing** and passes. Any future check must test the
+value, not the key.
+
+Two lane cells now carry real SHAs (`85bcc588`, `25942582`), so the mechanism works — the 30 are a
+capture gap in the driver at the time, not a limitation. This session did **not** back-fill them:
+the runs predate it and assigning a SHA to someone else's execution would be exactly the invented
+provenance the gap text warns against.
+
+## A5 · Untouched
+
+**B** (10 cells without `recipe_version`), **E** (both display bugs — `status.json` still derives
+`current_n` from joint cells only, so it structurally cannot see a lagging cat or reg family), and
+**F** (`TASKS.md`) are unchanged. The remaining 40 `lane_host` and 30 `commit_sha` back-fills are
+left open for the same reason: they concern cells this session did not run.
