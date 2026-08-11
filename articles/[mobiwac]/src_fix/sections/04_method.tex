@@ -2,7 +2,9 @@
 %   4.1 The check-in-level representation (Check2HGI): four-level graph (check-in, place, region, city);
 %       infomax objective; one vector per check-in. Fig. \ref{fig:dataflow} (top priority).
 %   4.2 The single model: cross-attention two-stream stack + private spatial path; one model, one forward
-%       pass, two predictions. Fixed-weight sum (0.75/0.25), both outputs plain unweighted cross-entropy.
+%       pass, two predictions. Fixed-weight sum (0.50/0.50); region output plain cross-entropy,
+%       category output cross-entropy with logit adjustment (tau=0.5, train time only), which
+%       replaces class weighting. The dedicated cat model carries the same adjustment.
 %       ⚠ COST (2026-07-08 audit): the joint model is LARGER than the two Table-3 dedicated models COMBINED
 %       (~2.6-4.2x params, ~4x ops, measured on the instantiated v17 model). The old "+5 percent" and the
 %       INV2 "17-20% fewer params / 28% fewer ops" numbers used a different basis (single-task copies of the
@@ -34,10 +36,19 @@ streams, not by owning hidden layers in common. The trunk then feeds a category 
 
 The training loss is a fixed-weight sum of the two outputs,
 \begin{equation}\label{eq:loss}
-L = 0.75\,L_{\mathrm{cat}} + 0.25\,L_{\mathrm{reg}},
+L = 0.5\,L_{\mathrm{cat}} + 0.5\,L_{\mathrm{reg}},
 \end{equation}
-where $L_{\mathrm{cat}}$ and $L_{\mathrm{reg}}$ are plain unweighted cross-entropy losses. The weights were tuned once on validation during development and held fixed across all six datasets. Class-weighting, tested on both outputs, lowered both region accuracy and
-category macro-F1. This is standard fixed-weight joint training~\cite{caruana1997multitask}, kept simple by design so that any improvement over the dedicated single-task models comes from the shared representation, not from an adaptive weighting scheme.
+where $L_{\mathrm{reg}}$ is a plain unweighted cross-entropy loss and $L_{\mathrm{cat}}$ is a
+cross-entropy loss with logit adjustment: $\tau\log P_{\mathrm{train}}(y)$, with $\tau=0.5$, is added
+to the category logits during training only, which shifts the decision boundary toward the balanced
+posterior that macro-F1 rewards. Inference uses the unadjusted logits. The weights and $\tau$ were
+selected once on validation during development and held fixed across all six datasets. Class
+weighting, tested on both outputs, lowered both region accuracy and category macro-F1, and logit
+adjustment replaces it on the category output. This is standard fixed-weight joint
+training~\cite{caruana1997multitask}, kept simple by design so that any improvement over the
+dedicated single-task models comes from the shared representation, not from an adaptive weighting
+scheme. The dedicated category model receives the same adjustment, so the comparison is not affected
+by it.
 
 The joint model includes the shared trunk and both task outputs, so it is
 larger than either dedicated model, and a forward pass costs more compute than running the
