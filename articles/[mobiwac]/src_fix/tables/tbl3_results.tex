@@ -28,9 +28,13 @@
 \providecommand{\sd}[1]{\,{\scriptsize$\pm$#1}}
 \begin{table*}[!t]
 \caption{One model, two tasks: the single joint model against the dedicated single-task models and the
-external baselines, ordered by region count. Category is macro-F1; region is Acc@10. Bold marks a statistically supported improvement over the dedicated model; in
-the region columns, $\uparrow$ marks that supported improvement and $\approx$ a non-inferior match
-(TOST, $\pm2$~pp; Section~\ref{sec:results-part2}).}
+external baselines, ordered by region count. Category is macro-F1; region is Acc@10. Bold and
+$\uparrow$ mark an improvement over the dedicated model with paired statistical support
+(Holm-corrected within each task; Section~\ref{sec:results-part2}). In the region columns
+$\approx$ marks a non-inferior match (TOST, $\pm2$~pp). Category cells that are not marked are
+reported as measured: the equivalence margin is pre-registered for the region axis only, so a
+category difference that no superiority test resolves is left unlabelled rather than called a
+match.}
 \label{tab:results}
 \centering
 \begin{tabular}{l r | r r r r | r r r r r}
@@ -38,18 +42,21 @@ the region columns, $\uparrow$ marks that supported improvement and $\approx$ a 
 & & \multicolumn{4}{c|}{\textbf{Next-category (macro-F1)}} & \multicolumn{5}{c}{\textbf{Next-region (Acc@10)}} \\
 \textbf{Dataset} & \textbf{Regions} & \textbf{Markov-K} & \textbf{POI-RGNN} & \textbf{Dedicated} & \textbf{Joint (ours)} & \textbf{HMT-GRN} & \textbf{ReHDM} & \textbf{STAN} & \textbf{Dedicated} & \textbf{Joint (ours)} \\
 \hline
-Istanbul & 520     & 24.55 & 30.12 & 54.74\sd{0.09} & \textbf{63.32}\sd{0.02} & 60.4  & 69.33 & 61.86 & 75.16\sd{0.01} & \textbf{75.35}\sd{0.04}$^{\uparrow}$ \\
-AL       & 1{,}109 & 20.50 & 23.80 & 56.82\sd{0.03} & \textbf{64.51}\sd{0.09} & 57.05 & 65.38 & 60.72 & 70.11\sd{0.10} & 69.70\sd{0.09}$^{\approx}$ \\
-AZ       & 1{,}547 & 23.92 & 27.64 & 56.43\sd{0.10} & \textbf{65.79}\sd{0.02} & 43.70 & 53.00 & 49.86 & 59.46\sd{0.08} & 59.46\sd{0.04}$^{\approx}$ \\
-FL       & 4{,}703 & 29.74 & 34.49 & 74.51\sd{0.03} & \textbf{79.84}\sd{0.02} & 63.74 & 64.49 & 72.99 & 76.70\sd{0.02} & \textbf{77.41}\sd{0.02}$^{\uparrow}$ \\
-TX       & 6{,}553 & 28.67 & 33.03 & 69.79\sd{0.08} & \textbf{77.24}\sd{0.01} & 53.85 & 48.81$^{\ddagger}$ & 61.67$^{\dagger}$ & 64.95\sd{0.01} & \textbf{67.06}\sd{0.01}$^{\uparrow}$ \\
-CA       & 8{,}501 & 27.58 & 31.78 & 70.60\sd{0.07} & \textbf{77.05}\sd{0.01} & 49.61 & 50.26$^{\ddagger}$ & 58.52$^{\dagger}$ & 63.49\sd{0.02} & \textbf{65.69}\sd{0.02}$^{\uparrow}$ \\
+Istanbul & 520     & 24.55 & 30.12 & 35.34\sd{0.01} & 35.42\sd{0.06} & 60.4 & 69.33 & 61.86 & 75.16\sd{0.01} & 75.08\sd{0.05}$^{\approx}$ \\
+AL       & 1{,}109 & 20.50 & 23.80 & 30.77\sd{0.07} & 30.59\sd{0.07} & 57.05 & 65.38 & 60.72 & 70.12\sd{0.10} & 69.24\sd{0.16}$^{\approx}$ \\
+AZ       & 1{,}547 & 23.92 & 27.64 & 34.57\sd{0.04} & 34.57\sd{0.06} & 43.70 & 53.00 & 49.86 & 59.48\sd{0.07} & 59.04\sd{0.22}$^{\approx}$ \\
+FL       & 4{,}703 & 29.74 & 34.49 & 37.35\sd{0.02} & \textbf{37.55}\sd{0.07}$^{\uparrow}$ & 63.74 & 64.49 & 72.99 & 76.69\sd{0.01} & 76.54\sd{0.01}$^{\approx}$ \\
+TX       & 6{,}553 & 28.67 & 33.03 & 36.33\sd{0.01} & 36.19\sd{0.04} & 53.85 & 48.81$^{\ddagger}$ & 61.67$^{\dagger}$ & 64.94\sd{0.01} & \textbf{66.15}\sd{0.07}$^{\uparrow}$ \\
+CA       & 8{,}501 & 27.58 & 31.78 & 35.63\sd{0.01} & 35.63\sd{0.02} & 49.61 & 50.26$^{\ddagger}$ & 58.52$^{\dagger}$ & 63.48\sd{0.03} & \textbf{64.54}\sd{0.04}$^{\uparrow}$ \\
 \hline
 \multicolumn{11}{@{}p{\dimexpr\textwidth-2\tabcolsep\relax}@{}}{\footnotesize HMT-GRN (region-native, on
 our folds, scored on visits whose region appears in training, $>$99\% of test visits in every dataset
 and fold) is the primary external comparison; STAN (our re-implementation) and ReHDM (its own protocol)
 are references. Markov-K: strongest order per dataset. $^{\dagger}$STAN partial folds: TX 4/5, CA 2/5
 (seed 0). $^{\ddagger}$ReHDM at TX and CA: a single seed. Joint and dedicated entries: four seeds
-$\times$ five folds; $\pm$: sd across seeds.} \\
+$\times$ five folds; $\pm$: sd across seeds. Batch size and learning rate were searched per dataset
+for the dedicated category model and for the joint model at the four smaller datasets; TX and CA
+carry the joint configuration transferred from those searches, and the dedicated region models use
+one fixed configuration throughout.} \\
 \end{tabular}
 \end{table*}
