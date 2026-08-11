@@ -1,0 +1,55 @@
+% Table 3: One model, two tasks (Part 2) -- the main result table. v17 board (2026-07-08 renumbering).
+% Joint single model (v17) vs the dedicated single-task ceilings (n=20 best-vs-best, per-dataset
+% bs x LR tuned -- CEILINGS_N20_FINAL.md), plus next-region externals (HMT-GRN primary; STAN faithful +
+% ReHDM v4 references) and next-category references (POI-RGNN + Markov-9-cat floor).
+%
+% Provenance (single source: docs/studies/closing_data/RESULTS_BOARD.md + v17_completion/):
+%   Joint (MTL v17): ALL SIX = n=20 (4 seeds x 5 folds), JOINT-BEST convention (one saved model per
+%     fold, geom_simple validation selector, both tasks read there) -- switched from diag-best
+%     2026-07-18 per author ruling (considerations_v3 #10); source joint_best/JOINT_BEST_RESULTS.md +
+%     catx_v17_n20/joint_best/. +- is cross-seed sd of per-seed means. All fp32.
+%   Dedicated ceilings: n=20 best-vs-best (CEILINGS_N20_FINAL.md; cat swept over bs x LR per state,
+%     reg = prior-off next_stan_flow topped to n=20). AZ cat ceiling 56.43 carries a pending 2-seed
+%     top-up that could raise it to ~57.0 (Delta_cat AZ +9.35 -> ~+8.7) -- board banner.
+%   cat Ded/Joint(jb): Ist 54.74+-0.09/63.32+-0.02; AL 56.82+-0.03/64.51+-0.09; AZ 56.43+-0.10/65.79+-0.02;
+%     FL 74.51+-0.03/79.84+-0.02; TX 69.79+-0.08/77.24+-0.01; CA 70.60+-0.07/77.05+-0.01.
+%   reg Ded/Joint(jb): Ist 75.16+-0.01/75.35+-0.04; AL 70.11+-0.10/69.70+-0.09; AZ 59.46+-0.08/59.46+-0.04;
+%     FL 76.70+-0.02/77.41+-0.02; TX 64.95+-0.01/67.06+-0.01; CA 63.49+-0.02/65.69+-0.02.
+%   Externals: HMT-GRN 60.4/57.05/43.70/63.74/53.85/49.61 (unchanged); ReHDM v4 row (version-uniform,
+%     rehdm.md): Ist 69.33 / AL 65.38 / AZ 53.00 / FL 64.49 / TX 48.81 (seed-42 only) / CA 50.26 (seed-42
+%     only); STAN faithful 61.86/60.72/49.86/72.99 + TX 61.67 (4/5 folds) + CA 58.52 (2/5 folds) --
+%     partials closed-as-final with fold-count disclosure (stan_catx/STATUS.md; "infeasible" RETIRED).
+%     Markov-9-cat 24.55/20.50/23.92/29.74/28.67/27.58; POI-RGNN 30.12/23.80/27.64/34.49/33.03/31.78.
+% Honesty rules (do NOT relax): cat BEATS at every dataset; reg BEATS at Ist/FL/TX/CA (90% CI of the
+%   paired difference above zero; all n=20 seed-level since 2026-07-18) and is non-inferior (TOST, <=2pp)
+%   at AL/AZ -- AZ's CI grazes zero, NEVER upgrade AZ to a beat. The two matched reg cells are NOT bolded.
+%   Never cite: STAN v4 collapse (AL 34.46/AZ 38.96), HMT-GRN AL 62.37 outlier, fp16/bf16 VOID JSONs,
+%   ReHDM v2 row (66.06/54.65/65.68).
+\providecommand{\sd}[1]{\,{\scriptsize$\pm$#1}}
+\begin{table*}[!t]
+\caption{One model, two tasks: the single joint model against the dedicated single-task models and the
+external baselines, ordered by region count. Category is macro-F1; region is Acc@10. Bold marks a statistically supported improvement over the dedicated model; in
+the region columns, $\uparrow$ marks that supported improvement and $\approx$ a non-inferior match
+(TOST, $\pm2$~pp; Section~\ref{sec:results-part2}).}
+\label{tab:results}
+\centering
+\begin{tabular}{l r | r r r r | r r r r r}
+\hline
+& & \multicolumn{4}{c|}{\textbf{Next-category (macro-F1)}} & \multicolumn{5}{c}{\textbf{Next-region (Acc@10)}} \\
+\textbf{Dataset} & \textbf{Regions} & \textbf{Markov-K} & \textbf{POI-RGNN} & \textbf{Dedicated} & \textbf{Joint (ours)} & \textbf{HMT-GRN} & \textbf{ReHDM} & \textbf{STAN} & \textbf{Dedicated} & \textbf{Joint (ours)} \\
+\hline
+Istanbul & 520     & 24.55 & 30.12 & 54.74\sd{0.09} & \textbf{63.32}\sd{0.02} & 60.4  & 69.33 & 61.86 & 75.16\sd{0.01} & \textbf{75.35}\sd{0.04}$^{\uparrow}$ \\
+AL       & 1{,}109 & 20.50 & 23.80 & 56.82\sd{0.03} & \textbf{64.51}\sd{0.09} & 57.05 & 65.38 & 60.72 & 70.11\sd{0.10} & 69.70\sd{0.09}$^{\approx}$ \\
+AZ       & 1{,}547 & 23.92 & 27.64 & 56.43\sd{0.10} & \textbf{65.79}\sd{0.02} & 43.70 & 53.00 & 49.86 & 59.46\sd{0.08} & 59.46\sd{0.04}$^{\approx}$ \\
+FL       & 4{,}703 & 29.74 & 34.49 & 74.51\sd{0.03} & \textbf{79.84}\sd{0.02} & 63.74 & 64.49 & 72.99 & 76.70\sd{0.02} & \textbf{77.41}\sd{0.02}$^{\uparrow}$ \\
+TX       & 6{,}553 & 28.67 & 33.03 & 69.79\sd{0.08} & \textbf{77.24}\sd{0.01} & 53.85 & 48.81$^{\ddagger}$ & 61.67$^{\dagger}$ & 64.95\sd{0.01} & \textbf{67.06}\sd{0.01}$^{\uparrow}$ \\
+CA       & 8{,}501 & 27.58 & 31.78 & 70.60\sd{0.07} & \textbf{77.05}\sd{0.01} & 49.61 & 50.26$^{\ddagger}$ & 58.52$^{\dagger}$ & 63.49\sd{0.02} & \textbf{65.69}\sd{0.02}$^{\uparrow}$ \\
+\hline
+\multicolumn{11}{@{}p{\dimexpr\textwidth-2\tabcolsep\relax}@{}}{\footnotesize HMT-GRN (region-native, on
+our folds, scored on visits whose region appears in training, $>$99\% of test visits in every dataset
+and fold) is the primary external comparison; STAN (our re-implementation) and ReHDM (its own protocol)
+are references. Markov-K: strongest order per dataset. $^{\dagger}$STAN partial folds: TX 4/5, CA 2/5
+(seed 0). $^{\ddagger}$ReHDM at TX and CA: a single seed. Joint and dedicated entries: four seeds
+$\times$ five folds; $\pm$: sd across seeds.} \\
+\end{tabular}
+\end{table*}

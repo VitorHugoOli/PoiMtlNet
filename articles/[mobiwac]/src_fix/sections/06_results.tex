@@ -1,0 +1,158 @@
+% Section 6: Results (about 1.5 pages). Plan: PAPER_PLAN 4 / §6. Each result gets a "read this as" lead.
+%   6.1 The representation makes the category task learnable (Part 1) -> Table~\ref{tab:substrate}. (Fig 3 cut in the 8p variant.)
+%   6.2 One model, two tasks (Part 2) -> Table~\ref{tab:results}, Fig.~\ref{fig:deltas}.
+%       v17 JOINT-BEST (2026-07-18): category beats everywhere (+5.33..+9.35 vs n=20 best-vs-best ceilings);
+%       region beats at Ist/FL/TX/CA (CI>0), matches at AL/AZ (TOST). n=20 both arms at ALL SIX
+%       datasets (Holm m=6 clears, paired t; CA/TX A1 top-up landed 2026-07-11, no provisional cells).
+%       Cascade variant of OUR model (CSLSL pattern) ties at equal cost at AL/AZ/FL/Istanbul.
+%   6.3 External validity (Istanbul): dk_ovl+v17 rebuild (H3), joint-best -- category +8.58; region +0.19 (CI>0),
+%       both arms n=20, same substrate identity as Gowalla (cross-substrate caveat retired).
+\section{Results}
+\label{sec:results}
+
+\subsection{The representation makes the category task learnable}
+\label{sec:results-part1}
+The check-in-level representation outperforms a standard place embedding
+(HGI~\cite{huang2023hgi}) on next-category macro-F1 by a wide gap on every
+dataset (Table~\ref{tab:substrate}). The comparison is controlled: target, single-task model, training configuration, windowing, and folds are identical; only the input representation changes (a vector per visit versus a vector per place), so the difference isolates the representation. The check-in-level column keeps one fixed configuration, not the per-dataset-tuned dedicated model of Table~\ref{tab:results}. The gaps range from $+27.63$ (Arizona) to $+39.62$ (Florida), with Istanbul at $+28.09$.
+A controlled test isolates this: averaging the per-visit vectors into one vector per place removes roughly 64 to 90 percent of the gain (state-dependent), so most of the gain is the context that each visit carries, not extra training signal (more training vectors per place).
+
+The geometry of the vectors shows why the representation helps this task in
+particular: the per-visit vectors' silhouette score by category (how tight and well separated the seven labeled groups are, on a $-1$ to $1$ scale) is about $0.57$ against about $0.00$ for the place embedding, and their nearest-neighbor category purity (the share of nearest neighbors with the vector's own category) is about $0.98$ against about $0.78$ (both averaged over the five U.S. states). The same geometry does not separate regions, so the benefit is category-only (the joint model's spatial stream instead reads the region-level vectors of the same graph, Section~\ref{sec:method-model}). CTLE~\cite{lin2021ctle}, the closest prior contextual embedding, also gives each visit its own vector, but it pretrains on place identifiers and timestamps alone, so the category vocabulary never enters its training, whereas our graph reads each visit's category and time of day as input features. At Florida, we fine-tune CTLE together with the task model, using its authors' defaults and the same 64 dimensions and windowing as ours. It reaches $33.45$ macro-F1 at its best epoch and $29.69$ at its final one (an epoch is one pass over the training data), about two points below the place embedding under the same best-epoch rule, and far below the check-in-level representation's $75.15$. With frozen weights, fed to the same single-task model, CTLE repeats the ordering at Alabama, Arizona, and Istanbul, with our representation ahead by $+37.8$, $+37.0$, and $+28.7$ macro-F1. A feature-concatenation control joins the place embedding with the same raw
+per-visit features that our graph reads (the category one-hot plus hour and
+day-of-week encodings) and feeds the result to the same single-task model. It
+does not close the gap either: at Alabama, Arizona, and Florida it raises the
+place embedding by only $+2.0$, $+1.7$, and $+0.8$ macro-F1, under a tenth of
+the place-to-check-in gap at each state. The gain therefore comes from
+the hierarchical per-visit representation, not from contextualization alone or
+feature injection.
+
+\subsection{One model, two tasks}
+\label{sec:results-part2}
+One model outperforms the dedicated models on next
+category at all six datasets, and on next region it outperforms them at four of the six
+and is statistically non-inferior within a two-point margin at the other two.
+% [round9c, dissertation PENDENCIAS 2.11, author decision: option B, 2026-07-30] The lead read
+% "One model outperforms or matches the dedicated models on both tasks", which collapses the
+% four-of-six / TOST partition that section 6.2 and section 5.3 of this paper state precisely.
+% "matches" is TOST language here and reads as a win when the partition is dropped, so the
+% subsection lead now carries the partition it introduces. NO number, test or verdict changes:
+% "outperforms" still covers Florida, Texas, California and Istanbul, and Alabama and Arizona are
+% still non-inferior, not upgraded. The identical sentence is in the dissertation at
+% chapters/5_mobiwac/06_results.tex; the two texts are kept textually identical where they
+% reproduce each other, and this edit was applied to both in the same pass. Recorded in ERRATA.md.
+For scale: always predicting the most common category reaches only about 7
+percent macro-F1 (the majority-class floor), and a random region top-ten guess
+is right at most about two percent of the time (Section~\ref{sec:setup-metrics}).
+
+Table~\ref{tab:results} reports the single joint model against the dedicated
+single-task ceilings (the level a joint model is usually expected, at
+best, to match). The dedicated category model is tuned per dataset over batch size and learning rate (the dedicated region models use the strongest fixed configuration).
+Throughout, every reported model is one saved artifact per fold, read at its
+validation-selected epoch: each dedicated model at its task's best epoch, and
+the joint model at the epoch selected by its joint validation score (the
+geometric mean of the two task metrics), with both tasks read from that one
+model. Reading each joint task at its own best epoch instead would change every
+joint result by at most $0.06$ (category) and $0.11$ (region) points.
+% AUTHOR DECISION 2026-07-18 (supersedes 2026-07-09): the REPORTED convention is now JOINT-BEST
+% (author ruling, considerations_v3 #10) -- Table 3's joint cells are the one saved model per fold
+% (geom_simple = sqrt(cat F1 x reg Acc@10-indist) on validation, model-SELECTION only; never enters
+% the loss; training uses the fixed 0.75/0.25 sum of S4.2), both tasks read there. All pre-registered
+% tests re-verified on the joint-best arrays (n=20 all six; Istanbul reg CI +0.15..+0.23 > 0, 20/20
+% folds; AL/AZ TOST pass) -- see joint_best/JOINT_BEST_RESULTS.md. The sentence above discloses the
+% convention and keeps diag-best as the <=0.06/<=0.11 robustness check (the inverted form of the old
+% disclosure).
+
+Figure~\ref{fig:deltas} plots the signed gains ordered by region count. On
+category, the joint model outperforms the dedicated ceiling on
+every dataset, by $+5.33$ to $+9.35$ macro-F1 (smallest at Florida, largest at
+Arizona, and $+8.58$ at Istanbul).
+% Hidden AZ-ceiling sensitivity (response-letter material, author policy: hide caveats, provide on
+% request): the AZ dedicated ceiling (56.43) is the strongest arm tested at the full n=20; two arms
+% screened at 2 of 4 seeds scored ~57.0 (bs2048@{0.0025,0.0075}). If they held at n=20, the AZ gain
+% would be ~+8.8 -- still the largest (Istanbul +8.58). Rule-clean value = 56.43 per the
+% pre-registered n=20 best-vs-best estimator; the top-up was dropped 2026-07-08 (user decision,
+% docs/studies/closing_data/v17_completion/A40.md).
+On region (Acc@10), the joint model outperforms the dedicated ceiling at
+Florida, Texas, California, and Istanbul, and stays a non-inferior match
+(TOST, $\pm2$~pp) at Alabama and Arizona. Across the five U.S. states, the region gain rises with region count,
+from $-0.41$ at the smallest count to $+2.20$ at the largest; region count and
+corpus size co-vary here, so we read the trend across the points rather than
+as a precise law.
+
+On category, all four
+seeds favor the joint model on every dataset, and each gain is significant
+after a Holm correction across the six datasets (paired $t$, corrected
+$p<0.001$); the four next-region gains hold under their own Holm correction as
+well (corrected $p<0.001$). The registered Wilcoxon test on the individual fold
+differences agrees at every dataset, with all 20 folds favoring the joint model
+(corrected $p<0.001$). On region, Alabama and Arizona are tested for equivalence (TOST,
+$\pm2$~pp) and pass with 90\% confidence intervals well inside two points
+(each entry: point estimate; interval): Alabama ($-0.41$; $-0.63$ to $-0.20$)
+and Arizona ($0.00$; $-0.08$ to $+0.07$). At Arizona, the interval is centered on zero, so we report a match,
+not a gain. At Alabama, the whole interval lies below zero, a small but
+statistically significant deficit, still well within the two-point margin. At
+Florida and Istanbul, the 90\% intervals lie entirely above zero (Florida
+$+0.71$; $+0.67$ to $+0.76$; Istanbul $+0.19$; $+0.15$ to $+0.23$), so the
+joint model outperforms there, though both gains are smaller than the
+two-point margin of Section~\ref{sec:setup-metrics}. Texas and California
+exceed that margin: their 90\% intervals lie entirely above it ($+2.10$ to
+$+2.13$ at Texas, $+2.19$ to $+2.21$ at California).
+
+A reader used to multi-task learning~\cite{caruana1997multitask} expects the
+harder task, here next-region with its hundreds to several thousand classes, to teach the easier one; a control shows otherwise. We freeze the region pathway at the start of training so it can neither learn nor teach the category task, yet the full category gain survives at Alabama, Arizona, and
+Florida (within $0.3$ of the joint model and far above the dedicated
+model). We therefore report the negative result, that the gain is not the region task teaching the category one, as a finding. The control fixes region training rather than any part of the category pathway, so it does not identify which part of the joint architecture produces the gain, and we do not name the shared trunk as the source. Either way the gain requires no second model at serving time (one model, one forward pass).
+% [round6, 2026-07-28] ATTRIBUTION SOFTENED here as well, so this section and Section 7 agree and so
+% that this text and the dissertation's Chapter 5 make claims of the same strength. Logged in
+% ../../ERRATA.md.
+% THE DEFECT: this paragraph asserted "a stronger shared trunk" and closed hedging with "a finding, not
+% a hypothesis", while the control it rests on is a disjunction eliminator, not a locator. Freezing the
+% region pathway removes region TRAINING; it leaves untouched the category stream's own encoder, the
+% per-stream feed-forward blocks, and the added depth, so it cannot separate the trunk from those. The
+% repository also holds a development arm that tests the trunk directly and disagrees, at Florida over
+% five folds and fifty epochs: category macro-F1 68.36 +- 0.74 with cross-attention on against
+% 68.32 +- 0.67 off, a difference of -0.04 +- 0.13 that a paired Wilcoxon cannot separate from zero
+% (W+ = 5, p = 0.6250), quoted from
+% docs/findings/archive/F50/F50_T1_5_CROSSATTN_ABSORPTION.md:19-20,:37. That arm ran on an earlier
+% configuration and its own record reads the null as a compensation effect, so it is not evidence
+% against the trunk either. The negative result IS established by the control and is kept as a finding;
+% only the component attribution is withdrawn.
+% A DECLARED DIVERGENCE, deliberate: the dissertation's Chapter 5 states the F50 ablation with its
+% numbers and its two limits, because it has the room. This paper does not, and the two texts are
+% therefore not word-identical at this paragraph. What is identical is the STRENGTH of the claim, which
+% is the property the parity rule exists to protect: neither text now names a component as the source.
+% Recorded in ../../ERRATA.md so the asymmetry is not read later as an oversight.
+
+The joint model is also above every external baseline reported, on both tasks,
+across all six datasets (Table~\ref{tab:results}): on region, the primary
+region-native comparison HMT-GRN~\cite{lim2022hmtgrn}, STAN~\cite{luo2021stan}
+trained from the raw check-ins, and a ReHDM reference~\cite{li2025rehdm}; on
+category, POI-RGNN~\cite{capanema2023poirgnn} and the Markov-K floor. These externals run on their own embeddings, so this comparison
+also includes the representation advantage of Section~\ref{sec:results-part1}; the
+controlled comparison for the joint model remains the Dedicated column of
+Table~\ref{tab:results}, which uses the same representation, windows, and
+folds. The first-order Markov region floor of Section~\ref{sec:setup-baselines},
+computed under our windows and folds, reaches $51$ to $72$ Acc@10 across the
+datasets; the joint model exceeds it by $4.9$ to $10.3$ points on all six
+datasets.
+
+We prefer coupling the tasks in parallel rather than in a chain: neither target is
+subordinate to the other, so a chain must pick one to predict first and pass its errors to the other. The choice still had to be checked, because CSLSL reports its chain outperforming a shared-trunk parallel variant on its own benchmarks~\cite{huang2024cslsl}. Rewired as a cascade
+(Section~\ref{sec:setup-baselines}), our model reaches the same combined
+score, the geometric mean of the two task metrics, as its parallel form: at Alabama, Arizona, Florida, and Istanbul, with both forms trained under the same configuration and initialization, the difference is about zero and neither task moves by more than a quarter of a point. We read this as a defense of the
+parallel design, not a claim that we outperform the cascade: on this
+representation the coupling topology makes no measurable difference, and the simpler parallel structure loses nothing. Two qualifications bound this
+reading: the cascade runs under the configuration tuned for the parallel model, and
+its form was fixed in advance, so tuning the cascade itself remains future work.
+
+\subsection{External validity (Istanbul)}
+\label{sec:results-external}
+The joint-model results hold for a non-U.S. city under the same representation, sliding-window protocol, and training setup as the U.S. states. At Istanbul, the
+joint model outperforms the dedicated category ceiling by $+8.58$ macro-F1
+(dedicated $54.74$, joint $63.32$) and is slightly above the dedicated region ceiling at $+0.19$
+Acc@10 (dedicated $75.16$, joint $75.35$), a gain with statistical support (the whole 90\% confidence interval of the paired
+difference lies above zero, and TOST, $\pm2$~pp, also passes). The comparable quantity is the gain over the ceiling, not the absolute
+Acc@10, since region counts differ across datasets (520 mahalle here). The external baselines show the same ordering on both tasks
+(Table~\ref{tab:results}).
+The U.S. result repeats on a different continent and region unit.

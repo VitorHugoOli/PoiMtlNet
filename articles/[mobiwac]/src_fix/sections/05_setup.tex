@@ -1,0 +1,135 @@
+% Section 5: Experimental Setup (about 1.1 pages). Plan: PAPER_PLAN 4 / §5.
+%   5.1 Data -> Table~\ref{tab:datasets}. Five Gowalla states + Istanbul (Massive-STEPS). Seven categories.
+%   5.2 Windows, splitting, integrity of the representation (overlapping windows; user-split 5-fold CV;
+%       no-leakage argument; per-fold train-only region-transition prior).
+%   5.3 Metrics, superiority vs non-inferiority (macro-F1 category; Acc@10 region; paired Wilcoxon for beats;
+%       TOST at a two-point margin for matches, justified a-priori with a deployment-grounded rationale + TOST power).
+%   5.4 Baselines (POI-RGNN + Markov-9-cat; ReHDM + STAN faithful; CTLE + feature-concat (FL); HMT-GRN;
+%       role 3 = cascade variant of OUR model (CSLSL/CatDM pattern, NOT a re-implementation) -- coupling-topology comparison).
+\section{Experimental Setup}
+\label{sec:setup}
+
+This section describes the datasets, data splits, evaluation metrics, statistical tests, and comparison models used in the experiments.
+
+\subsection{Data}
+\label{sec:setup-data}
+Table~\ref{tab:datasets} summarizes the six datasets. Five datasets come from Gowalla, a location-based social network, and cover the U.S. states of Alabama, Arizona, Florida, Texas, and California~\cite{cho2011gowalla}. The sixth dataset contains check-ins from Istanbul in the Massive-STEPS collection~\cite{wongso2025massivesteps}. We use Istanbul to examine the findings outside the United States.
+% Data provenance (hidden): the Gowalla source is the public CC0 category-annotated dump,
+% figshare.com/articles/dataset/gowalla_data/22126586 (gowalla_checkins + gowalla_spots_subset1/2,
+% the exact files the ETL consumes; 36,001,959 check-ins). Date range MEASURED on the parquet
+% 2026-07-09: 2009-01-21 .. 2011-08-16 -> "collected 2009 to 2011". The SNAP/cho2011 dump
+% (Feb 2009-Oct 2010) is NOT the data source; cho2011gowalla is cited as the LBSN reference only.
+The U.S. datasets range from about 114,000 check-ins and 1,109 regions in Alabama to about 3.2 million check-ins and 8,501 regions in California. All six datasets use the seven place categories defined in Section~\ref{sec:problem}. The source labels for Istanbul are mapped to these categories. A region is a census tract in the U.S. datasets and a mahalle in Istanbul.
+
+\subsection{Windows, splitting, and the integrity of the representation}
+\label{sec:setup-windows}
+\emph{Windows.} For each user with at least ten visits, we order the visits by time. We then form overlapping sliding windows of nine visits and use the next visit as the target. A new window starts at each visit, which provides more examples for both tasks. Near the end of a user's history, several start positions can produce shorter, padded windows with the same final visit as the target. We remove these duplicates and keep only the full-length window that ends at this target. The prediction horizon is usually short, but some time gaps are much longer. The median time from the last visit in a window to its target ranges from 0.4 hours in Florida to 5.5 hours in Istanbul. Across the datasets, 5 to 27 percent of the targets occur more than 3 days later.
+
+\emph{Splitting.} We use stratified five-fold cross-validation and split the data by user. All windows from one user remain in the same fold. Therefore, the overlapping windows cannot cross the training and test sets, and the visits of a test user never appear in training. The held-out fold provides the validation data, and we do not reserve a third split. We stratify the split by the next-category label because the seven classes are imbalanced. Food is the majority class in every dataset, ranging from about 25 percent of visits in Florida to 34 percent in Alabama (Table~\ref{tab:datasets}).
+
+\emph{Integrity of the representation.} We train the representation once on the whole dataset and provide it to every dedicated and joint model. We assess possible information transfer from test visits in three ways. First, the training objective does not use the next-category or next-region targets. It learns by distinguishing observed graph neighborhoods from shuffled ones. Second, we rebuild the representation for each fold using only the training users in that fold. At Alabama, Arizona, and Florida, the resulting differences are at most one third of a point for either task (region, $-0.33$ to $+0.01$; category, $0.00$ to $+0.29$), which is within fold noise. This comparison covers the 67 to 87 percent of visits whose places also appear in training. It does not cover visits to places that are unseen in training. Third, we build the region-transition prior separately for each fold and use only its training data. This prior records how often one region follows another. A version built from the whole dataset inflated region accuracy by 13 to 27 points. Only the HMT-GRN comparison model uses this prior; our joint and dedicated models do not (Section~\ref{sec:setup-baselines}). The other learned representations follow their own training scopes. HGI is pre-trained once on the whole dataset, as our representation is, while CTLE is trained for each fold using training users only.
+% NOTE: numbers from the A4 train-users-only transductivity audit (docs/studies/pre_freeze_gates/A4_RESULTS.md):
+% reg AL -0.33 / AZ +0.01 / FL -0.12 (5 folds); cat POI-proxy on in-coverage subset AL +0.29 (66.8%) / AZ +0.27 (71.9%) / FL +0.00 (86.9%).
+% Author TODO: extend to CA/TX/Istanbul to widen coverage further (non-blocking; the gate is on null at AL+AZ+FL).
+% The forward-link screen is documented in docs/results/embedding_eval/rescreen_cat/RESCREEN.md
+% and articles/dissertacao/src_utils/_round13/72_leak_screening_search.md.
+
+\subsection{Metrics and statistical tests}
+\label{sec:setup-metrics}
+For the category task, we report macro-averaged F1 (macro-F1). It is the mean of the F1 scores for the seven categories, so each category has equal weight. Its reference point is the majority-class floor, obtained by always predicting the most common category. For the region task, we report accuracy at ten (Acc@10). This measure is the fraction of test visits for which the true region is among the model's ten highest-scoring predictions. If the true region does not occur in the training data for that fold, the visit counts as an error. The reference point for this task is the dedicated model.
+
+A claimed gain and a claimed match require different tests. A non-significant difference does not provide evidence of a match. A written analysis plan, fixed during development and before any result was read, assigned a superiority test to next-category prediction and a non-inferiority test to next-region prediction. These assignments apply to each task across the datasets. The plan did not define a superiority test for next-region prediction. Therefore, the four next-region gains in Section~\ref{sec:results-part2} are secondary results outside the plan.
+
+The plan registered a paired Wilcoxon signed-rank test. With four seeds, its exact one-sided $p$-value cannot be less than $0.0625$. We therefore report a paired $t$-test on the four per-seed means and its 90\% confidence interval for the paired difference. We also report the registered test. The code release includes both tests and documents this departure from the plan.
+
+A \emph{seed} is one complete repetition of the five-fold experiment. It determines the random initialization and the user partition, so each seed produces a different division of the users. Within one seed, the compared models use the same partition. We repeat the experiment across both folds and seeds. Each dataset uses four seeds with five folds per seed, which gives $4\times5=20$ fitted models per configuration. The statistical tests compare the four per-seed means ($n{=}4$). We apply a Holm correction~\cite{holm1979} across the six next-category comparisons and, separately, across the four next-region comparisons.
+
+The non-inferiority claim states that the joint model is no worse than the dedicated model by more than a two-point margin. We test this claim with the two one-sided tests (TOST) procedure~\cite{lakens2017tost}. The analysis plan also fixed the two-point margin in advance. A mobility-aware service acts on which region will be busy, rather than on a single position in the ranking (Section~\ref{sec:problem}). A two-point change in Acc@10 is below the level at which this service would behave differently. Across the four user partitions, the standard deviation of the paired difference ranges from 0.01 to 0.18 points. At Alabama and Arizona, the intervals also support a margin as small as one point (Section~\ref{sec:results-part2}).
+% WITHIN-SEED SHARING: WHAT IS ESTABLISHED AND WHAT IS NOT. Corrected 2026-08-05 after a reviewer found
+% this stated as a measured fact. It is a CODE-LEVEL property, not something measured on the artifacts:
+% src/data/folds.py builds the joint-model folds at :1247 and the dedicated next-task folds at :1159 with
+% the SAME call, StratifiedGroupKFold(n_splits, shuffle=True, random_state=self.seed) split on the next-task
+% rows grouped by user identifier. Given the same input rows and the same seed, both arms therefore receive
+% the same partition by construction. That conditional matters: LANE2_OVERLAP_VALIDATION.md:75 records
+% partitions NOT bit-identical across arms, and its own parenthetical gives the reason -- "(different
+% windowed rows)". That caveat is about the overlap-versus-non-overlap comparison, where the arms consume
+% different windowings, not about two models reading one windowing.
+% STATISTICAL_PROTOCOL.md:187-190 asserts the same-folds property for the headline family and warns that "If
+% a future re-run regenerates folds for one arm, the headline silently becomes unpaired". The reported runs
+% did generate on the fly (see fold_partition_and_seeds.md §6), so the guarantee rests on the arms consuming
+% identical rows rather than on a frozen cache. [VERIFY: a direct comparison of the saved fold indices of a
+% joint run against a dedicated run at the same seed and dataset would settle it by measurement. Not run;
+% no fold_indices*.pt survives under output/ in this checkout.]
+% CORRECTED 2026-08-04, on the author's explicit instruction to fix the dissertation copy AND the
+% original MobiWac source so the two stay in sync. He caught the underlying error in Appendix A of the
+% dissertation and it reached this section too.
+% WHAT WAS FALSE: the seed definition said the five-fold experiment is repeated "over the same folds",
+% and the equivalence sentence said the precision is measured "on this fixed partition". Neither holds.
+% src/data/folds.py passes the run's seed straight into StratifiedGroupKFold(random_state=...) (:1159,
+% :1247, :1453); the only literal 42 in that file is the DEFAULT value of the seed parameter (:1061), and
+% scripts/train.py:1874 passes seed=config.seed from --seed. The canon guard (train.py:1961) calls 42 the
+% development seed and requires --seed in {0,1,7,100} for paper-grade numbers. This project's own
+% LANE2_OVERLAP_VALIDATION.md:75 already recorded that partitions "are NOT bit-identical across arms".
+% Measured on a synthetic 300-user frame, with a same-seed control that reproduces the partition exactly:
+% roughly four users in five change fold when the seed changes. Full record and the reverification
+% commands: articles/dissertacao/science/fold_partition_and_seeds.md.
+% THE TESTS REPORTED HERE ARE UNAFFECTED, and the new wording says why rather than leaving it implicit.
+% Pairing happens WITHIN a seed, where both arms share one partition, and the tests pair the per-seed
+% MEANS (n=4), which never requires fold k of one seed to be fold k of another. No number in this
+% section changes. What changes is that the reported intervals now correctly cover partition variability
+% as well, which makes the equivalence claim stronger rather than weaker; the sentence therefore says
+% "across these four partitions" instead of implying a single one.
+% Probes: R13-foldseed7, R13-foldseed8.
+% [COD-006a, round8, 2026-07-30] "The equivalence is well powered:" -> "The precision of the equivalence
+% test is measured on this fixed partition:". Author decision, PENDENCIAS 5.2, quoted: "Let's change only
+% the second point about the: 'The equivalence is well powered'." The defect is a category error, not a
+% number: "well powered" is PROSPECTIVE power, a property of a design under an assumed effect size, and at
+% n=4 seeds it is not something this study estimated. What the sentence then presents is OBSERVED
+% precision, the paired difference's standard deviation and the interval widths on the folds that were
+% run, so the clause now names that instead. Both numbers are the ones already in the sentence and neither
+% moved; no test, no verdict and no dataset scope changes. The earlier revision of this sentence also
+% carried "giving power near 1.0 to declare equivalence when the true difference is near zero", which had
+% already been cut before this round; nothing reinstates it.
+% DELIBERATELY NOT TOUCHED, and this is the author's ruling, not an oversight: "fixed during development
+% and before any result was read" stays. He scoped the decision to "only the second point", and the
+% analysis plan genuinely was fixed before results were read (protocol committed 2026-06-21, first board
+% cells 2026-06-22, provenance in the block above). check_audit_claims.py COD-006b therefore still reports
+% NOT APPLIED, which is the CORRECT state for it: nobody asked for that removal.
+% Applied to BOTH trees, since Chapter 5 is under review and the two texts must stay identical:
+% src/chapters/5_mobiwac/05_setup.tex and articles/[mobiwac]/src/sections/05_setup.tex. Verified after
+% editing: the two paragraph lines still differ only in the three "mobiwac:" \ref label prefixes.
+% ANALYSIS-PLAN WORDING (2026-07-25 audit, author-approved). Sources for this paragraph:
+%   docs/studies/closing_data/v17_completion/STATISTICAL_PROTOCOL.md -- §1 family table (cat: superiority;
+%   reg: NON-INFERIORITY only, per task, all six datasets) + §5.2 (Holm within the six-dataset cat set;
+%   TOST cells explicitly NOT pooled into it) + §3.2 (delta_reg = 2 pp, pinned pre-unblind).
+%   Protocol committed 2026-06-21 (c96c67e3); first board cells 2026-06-22 -> the a-priori claim holds
+%   for what the document contains.
+%   Wilcoxon -> paired t departure + the 0.0625 exact floor at n=4: v17_completion/stats_n20/RESULTS.md,
+%   "Deviation log (protocol §8)" entries 1-3. Reproduced 2026-07-25: every n=4 exact one-sided Wilcoxon
+%   sits at 0.0625; the paired t gives Holm-adj p <= 1.0e-06 at all six cat cells.
+%   NO region-superiority family is registered anywhere in the protocol -> the four reg gains are labeled
+%   secondary here. Holm scope sentence now names both families explicitly (was "across the comparisons",
+%   which implied a coverage the analysis does not have).
+%   REGISTERED TEST NOW RUNS (2026-07-25): the four Istanbul dedicated-category per-fold sidecars were
+%   recovered from the A40 and committed at h3_istanbul/step3_runs/cat_ceiling_perfold/ (per-seed means
+%   match cat_ceil_s*.txt exactly), closing stats_n20/RESULTS.md LIMITS #2. The complete six-dataset
+%   pre-registered family (per-fold n=20 paired one-sided Wilcoxon, Holm m=6) now runs for the first time:
+%   every dataset rejects at Holm-adj p = 5.7e-06, 20/20 folds positive, exact n=20 floor 9.54e-07.
+%   The four reg cells reject in their own m=4 family (Holm-adj 3.8e-06). NO verdict changed.
+%   Generator + gated output: stats_n20/m2_prereg_perfold.py, m2_prereg_output.txt (24/24 board gates).
+%   The duplicated scale sentence ("a random top-ten guess ... two percent") was cut here to fund these
+%   lines; 06_results.tex:35-36 carries it verbatim, which is where the reader needs the anchor.
+
+\subsection{Baselines}
+\label{sec:setup-baselines}
+We use the comparison models for two purposes: to compare each task with established methods and to evaluate the representation.
+
+\emph{Task comparisons.} For next-category prediction, we use POI-RGNN~\cite{capanema2023poirgnn}, which we re-implement from its published architecture and hyperparameters. We also use a Markov model that predicts the category that most often follows the recent categories. We select the best Markov order for each dataset. For region prediction, we compute a Markov-1 floor over region transitions. It uses the same sliding windows and fold splits as our models.
+
+The primary next-region comparison is HMT-GRN~\cite{lim2022hmtgrn}, an end-to-end recurrent model trained as one unit from the raw check-ins. We evaluate it on the same data, folds, and random initializations. We keep its shared multi-task structure and add a region-transition prior that is built from the training data in each fold. We remove the graph components and hierarchical beam search because they support exact next-place prediction, which we do not study. The resulting model predicts region as one of its original targets, but it is not a reproduction of the complete published system.
+
+We also run STAN~\cite{luo2021stan}. We re-implement its published architecture and train it from the raw check-ins with its own representations and sequence construction under one fixed configuration. We adapt its output to rank candidate regions, which are spatial objects compatible with its candidate-distance matching. We do not adapt STAN to category prediction because distance matching does not apply to categories. We report ReHDM~\cite{li2025rehdm} as a reference under its published protocol.
+
+\emph{Representation controls.} Two controls test whether the category gain comes from our representation design rather than from contextualization in general or from additional features. CTLE~\cite{lin2021ctle} is the closest prior contextual check-in representation. We train it end to end at Florida. At Alabama, Arizona, and Istanbul, we keep its weights fixed and do not fine-tune them. The second control adds raw features from each visit to a standard place embedding and uses the same prediction model.
+
+A final control uses the standard place-level HGI representation~\cite{huang2023hgi} to measure what the per-visit representation adds. All other choices, including the nine-visit window, were fixed during development. The released code provides the full training configuration for every model (footnote~\ref{fn:code}).

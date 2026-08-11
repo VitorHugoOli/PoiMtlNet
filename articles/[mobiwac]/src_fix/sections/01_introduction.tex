@@ -1,0 +1,48 @@
+% Section 1: Introduction (about 1 page). Plan: PAPER_PLAN 4 / §1.
+%   p1 hook (LBSN, anticipate the next move, mobility-aware motivation).
+%   p2 the two tasks (next-category, next-region; we do NOT predict the exact next place).
+%   p3 the tension (sharing is not free; where it helps, where it costs).
+%   p4 what we do (check-in-level representation + one model, two tasks).
+%   p5 contributions (three bullets, stated positively).
+%   p6 roadmap.
+% Reminder: next-category / next-region; American English; no em-dash.
+\section{Introduction}
+\label{sec:intro}
+
+Location-based social networks, such as Gowalla~\cite{cho2011gowalla}, let people share the places that they visit as check-ins, which together record how people move through a city. Individual mobility is highly predictable in principle~\cite{song2010limits}, so a service that anticipates the next move can prepare ahead of time, caching content where a user is heading~\cite{bastug2014edge} or provisioning capacity at the destination before demand arrives. Handover predictions already let cellular services adapt in advance at the network level~\cite{vielhaus2022handover}; at the city scale, check-in mobility analysis is likewise a design input for mobility-aware services~\cite{moura2025mobilityaware}.
+
+Predicting the next place exactly, a single point of interest (POI), is hard and often more than a service needs. Two coarser questions are usually enough: the next category, the type of place such as food or shopping, and the next region, the part of the city that a user is heading to (a neighborhood-scale unit such as the U.S. census tract). The first captures intent, the second captures geography; we study whether one model should learn both at once.
+
+Sharing one representation across tasks has a cost: in multi-task learning (MTL), one model does several jobs at once by sharing most of its parts, so the shared parameters can converge to a compromise optimal for neither task, helping one while hurting the other~\cite{caruana1997multitask}. Our earlier
+work reported no consistent multi-task advantage for the paired category tasks and attributed it, in part, to this effect~\cite{silva2025mtlnet}; the useful question is where sharing helps, what it costs, and how to share so the gains hold and the cost stays small.
+
+We propose two enhancements. First, we build a check-in-level representation: instead of one fixed vector per place, each check-in gets its own vector that holds its context (the time, nearby places, and recent visits).
+This adds a fourth level, the check-in, beneath the place, region, and city levels of hierarchical graph infomax~\cite{huang2023hgi,velickovic2019dgi} (Fig.~\ref{fig:dataflow}). Second, we train one model that
+predicts the next category and the next region in a single forward pass, with a shared trunk (a cross-attention stack where the two tasks exchange
+semantic context) and a private spatial path for the region task (Fig.~\ref{fig:model}). We evaluate on two settings chosen to differ: five U.S. states of different sizes (Gowalla) and one non-U.S. city (Istanbul).\footnote{\label{fn:code}Code (model, representation, baselines, statistical tests): \url{https://github.com/VitorHugoOli/PoiMtlNet/tree/mobiwac}. Both data sources are public: the category-annotated Gowalla dump (\url{https://figshare.com/articles/dataset/gowalla_data/22126586}) and Massive-STEPS~\cite{wongso2025massivesteps}.}
+
+Our contributions are as follows.
+\begin{itemize}
+  \item A check-in-level representation that extends hierarchical graph infomax from the place to the individual visit, improving next-category prediction over a standard place embedding by about $+28$ to $+40$ points of macro-F1 (a balanced score that counts every
+    category equally) across all six datasets (Table~\ref{tab:substrate}). A controlled test attributes most of the gain to the per-visit
+    context, not to extra training signal. The gap is large because a single fixed vector
+    per place cannot separate places that serve several purposes, which
+    per-visit context recovers.
+  \item A single model for joint next-category and next-region prediction, sharing semantic context across tasks while keeping a private spatial path for the region task; to our knowledge, the first work to treat fine-grained region as an end target of equal standing (Section~\ref{sec:related-tasks}). In one forward pass, it outperforms a dedicated
+    single-task category model on every dataset (by about $+5$ to $+9$ points of
+    macro-F1), even though each dedicated model is tuned per dataset. On region,
+    it outperforms at four of the six datasets and stays
+    statistically non-inferior within a two-point margin (TOST, a test of
+    equivalence) at the remaining two (Table~\ref{tab:results}).
+  \item An empirical account, across five U.S. states and one non-U.S. city, of how the joint gain scales with the number of regions.
+    The category gain holds on all six datasets. Across the U.S. states, the
+    region result moves monotonically with the region count: the joint model
+    matches the dedicated model (TOST, $\pm2$ percentage points, or pp) at the
+    small region counts and outperforms it at the large region counts, with
+    the state with the most regions (California) showing the largest region
+    gain (Fig.~\ref{fig:deltas}). At Istanbul, the dataset with the fewest
+    regions, the joint model is also ahead on region ($+0.19$ Acc@10). All joint and dedicated results average
+    four random initializations (Section~\ref{sec:results-part2}).
+\end{itemize}
+
+The rest of the paper presents related work (Section~\ref{sec:related}), the problem (Section~\ref{sec:problem}), the method and setup (Sections~\ref{sec:method} and~\ref{sec:setup}), results (Section~\ref{sec:results}), and discussion and conclusions (Sections~\ref{sec:discussion} and~\ref{sec:conclusion}).

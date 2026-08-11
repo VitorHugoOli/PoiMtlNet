@@ -1,0 +1,144 @@
+% Section 2: Background and Related Work (about 1.0 page). Plan: PAPER_PLAN 4 / §2.
+%   2.1 From place embeddings to per-visit embeddings (DGI -> HGI -> Check2HGI; CTLE contrast). Fig. \ref{fig:dataflow}.
+%   2.2 Predicting the next category and the next region (next-place recommenders; why coarser; region over tracts has little precedent).
+%   2.3 Multi-task learning for mobility (MCARNN, iMTL, HAMTL; cascade lineage Ye2013 -> LBPR -> CatDM -> CSLSL;
+%       parallel-over-chain rationale (co-equal targets admit no natural order); we predict in parallel, drop next-place).
+% Honesty: novelty is the specific combination (check-in level + hierarchical graph + infomax), not a per-visit vector per se.
+\section{Background and Related Work}
+\label{sec:related}
+
+\subsection{From place embeddings to per-visit embeddings}
+\label{sec:related-embeddings}
+A place embedding transforms a POI into a vector so that similar or nearby
+places sit close together in the vector space.
+Deep Graph Infomax (DGI)~\cite{velickovic2019dgi}, a general self-supervised
+method for graphs, learns such vectors on a place network linked by
+similarity, time, and distance, training them to tell the real network from a
+copy with shuffled node features.
+Hierarchical Graph Infomax (HGI) \cite{huang2023hgi} adds geographic structure,
+organizing the network as place, then region, then city. Both produce one vector per place, so two visits to the same coffee shop look
+identical to the model.
+Contextual check-in representations instead give each visit its own vector: CTLE
+\cite{lin2021ctle}, the closest example, learns a vector per visit by masking and
+reconstructing parts of a user's check-in sequence. Our
+representation, Check2HGI, also works at the check-in level but through a
+different construction. CTLE is a sequence model, a Transformer that reads the
+check-in sequence itself; Check2HGI remains a network model, keeping the
+hierarchical place-to-region-to-city network and the same infomax objective,
+now extended one level deeper, from individual places down to individual
+check-ins (Fig.~\ref{fig:dataflow}). The order of a user's visits still enters
+the network, as links between consecutive check-ins
+(Section~\ref{sec:method-rep}).
+
+The novelty is this specific combination: per-visit context inside a
+hierarchical graph-infomax representation. We compare against CTLE and a feature-concatenation control to separate the
+combination from contextualization alone and from feature injection.
+
+\subsection{Predicting the next category and the next region}
+\label{sec:related-tasks}
+A large body of work predicts the next place that a user will visit, the exact POI,
+with recurrent and attention models such as DeepMove \cite{feng2018deepmove}, STAN
+\cite{luo2021stan}, and GETNext \cite{yang2022getnext}. In contrast, we target two properties of the next visit, its category and its
+region, rather than the exact place. We choose them because they are
+what a mobility-aware service can act on, not to make the task easier; the region
+alone spans hundreds to several thousand classes. Predicting
+over a partition of the map is also the standard formulation in the human-mobility
+literature, with a grid cell as the target~\cite{luca2021mobilitysurvey}; our
+next-region task substitutes official neighborhood-scale units for grid cells. Our earlier
+work~\cite{silva2025mtlnet} paired static category classification with next-category prediction
+and found no consistent multi-task gain; this paper introduces the next-region task and adds the check-in-level
+representation, on which sharing helps instead of hurting (Section~\ref{sec:results-part2}).
+
+The field
+increasingly models several granularities at once; in those systems, category and
+region are auxiliary signals that help a primary next-place task
+(MCMG \cite{sun2024mcmg}, HMT-GRN \cite{lim2022hmtgrn}).
+We study the pair as the object itself. To our knowledge, fine-grained region as an
+end target of equal standing, rather than an auxiliary coarse grid cell, is
+underexplored.
+The nearest exceptions do not study our exact pairing:
+DRRGNN~\cite{zhu2022drrgnn} forecasts a person's next activity region jointly
+with a mobility-intention label, but over regions discovered per person rather
+than a fixed citywide partition; a generative recommender~\cite{sun2025kgtb}
+predicts category and region together, but only as auxiliary steps toward its
+next-place ranking.
+
+\subsection{Multi-task learning for mobility}
+\label{sec:related-mtl}
+MCARNN \cite{Liao2018} jointly predicts activity and
+location, and a recent hierarchy-aware model continues the
+pattern \cite{wang2025hamtl}; in both, the location target is
+the exact place. The closest alternative to our setting is
+the cascade: predict the category first, then the place given the
+category \cite{ye2013nextmove}. CSLSL
+\cite{huang2024cslsl} is its current form, predicting in a chain (when, then what,
+then where), with location as the primary output and category as an
+intermediate step; CatDM \cite{yu2020catdm} likewise uses the predicted
+category only to filter candidate places. We instead predict
+category and region in parallel, as end targets of equal standing in one model
+with a single forward pass, and we drop the next-place target entirely, so
+neither task is an intermediate step toward a third. Since the cascade is the pattern that the field uses, we test the
+choice directly (Section~\ref{sec:results-part2}). On optimization, we are conservative by design: joint
+training with a fixed loss weighting is standard practice
+\cite{caruana1997multitask}, not itself our contribution.
+Reports find that gradient-balancing methods, which re-weight
+the tasks' updates during training (PCGrad \cite{yu2020pcgrad}, Nash-MTL \cite{navon2022nashmtl}), rarely improve on a
+well-tuned fixed weighting with two tasks \cite{xin2022domtl}.
+% [2026-08-04, author-approved] REWORDED for two defects; numbers and scope unchanged (mirrors the
+% dissertation edit, Appendix B / Ch.5 sourcing note; logged in ERRATA.md). "Neither holds that
+% position elsewhere" was false for scale normalization, which stays above equal weighting on
+% next-category at Florida too (its next-region score is what collapses there); the opening clause
+% also held its subject behind a long modifier chain. No number, dataset, or method name changed.
+We confirm this at scale, screening nineteen loss and gradient balancers, including
+the two methods named above, at their default configurations and a single seed on two
+datasets, Alabama and Florida: none improved on a tuned fixed task weighting across both
+tasks and both datasets. Two exceed equal weighting on next-category at Alabama,
+Nash-MTL by $0.68$ points and scale normalization by $0.19$. At Florida, Nash-MTL falls
+back below equal weighting on both tasks, while scale normalization still exceeds equal
+weighting on next-category but collapses on next-region.
+The reason is visible in the gradients. Measured during development on the same
+joint architecture (on an earlier preparation of the data), the cosine
+similarity between the next-category and next-region updates on the shared
+trunk averages $+0.001$ across training (four seeds each on four Gowalla states: Alabama,
+Arizona and Florida, which are three of the five United States datasets reported here, and
+Georgia, which this study does not otherwise use; the largest per-dataset mean in absolute
+value is $+0.0032$). A
+balancer therefore has no
+conflict to resolve, consistent with the mechanism test in
+Section~\ref{sec:results-part2}; this is a finding for this pair of tasks, not a
+general rule. The same quantity, measured on the final model across seven datasets, is
+positive at every one of them, so the absence of conflict is not an artifact of this
+smaller set of runs.
+% [round9f, 2026-08-02, PENDENCIAS_RESOLVIDOS 2.9 (arquivado 2026-08-02), AUTHOR DECISION]
+% ADDED HERE AND IN THE DISSERTATION'S Chapter 5, in the same words, so the two texts stay
+% identical as the round-6 note below requires. The author's instruction was to write the
+% sentence so it SURVIVES STANDALONE -- no reference to a document the reader may not hold --
+% because this article has no appendix and a cross-document pointer cannot be resolved from
+% here. The dissertation carries the pointer to its own Appendix D in the paragraph that
+% introduces the section, not in this sentence.
+% NUMBERS QUOTED, NOT COMPUTED: "positive at every one of them" is the seven-dataset result
+% recorded in the dissertation's gradient-cosine appendix; the +0.001 / +0.0032 figures above
+% are the EARLIER four-seed development measure and are left exactly as they were.
+% [round6, 2026-07-28] TWO SCOPE CORRECTIONS in this paragraph, both applied here and in the
+% dissertation's Chapter 5 so the two texts stay identical (the paper is under review; author's
+% standing instruction). Logged in ../../ERRATA.md.
+% (1) The balancer sentence stated neither the repetition count nor which two datasets, and "the two
+%     named above" resolved to the two BALANCERS, not to a pair of datasets. Source of record
+%     docs/results/mtl_improvement/T4_audit_and_verdict.md:8-10 ("the full screen at registry
+%     DEFAULTS, seed 0, AL+FL") and :111-112 ("Single-seed (seed0) screen ... FL+AL"); the two states
+%     are confirmed as the only two top-level keys of T4_full_screen.json, each holding the nineteen
+%     arms this sentence counts. "seed 0" is kept out of the prose per ../../GLOSSARY.md:113, which
+%     gives "a single seed" as the phrasing.
+% (2) The gradient-cosine sentence read "three of our six datasets". It was a PARITY DIVERGENCE: the
+%     dissertation corrected this in dccf45d2 and the paper did not. Both were wrong in one direction
+%     and this one in two. The measurement pools FOUR Gowalla states, alabama / arizona / georgia /
+%     florida, which are the only four keys of the "states" object in
+%     docs/results/mtl_improvement/R0_matched_metric_bar.json (each carrying the four seeds 0, 1, 7,
+%     100), and scripts/mtl_improvement/plot_grad_cosine.py names the same four in its STATE_STYLE map
+%     and reads the run directories straight out of that JSON. Georgia is NOT one of the six datasets
+%     this study reports, so "three of our six" both undercounted the pool and implied every state in
+%     it is one we report. Read from the JSON, not recomputed. The correction is in the study's favor:
+%     the finding replicates on a state the paper never reports.
+%     "this dissertation does not otherwise use" is rendered here as "this study does not otherwise
+%     use", the same substitution class as the "this chapter's claims" to "the paper's claims" change
+%     already recorded for section 7.

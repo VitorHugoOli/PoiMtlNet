@@ -1,0 +1,26 @@
+% Section 3: Problem and tasks (about 0.4 page). Plan: PAPER_PLAN 4 / §3.
+% Check-in sequences; windows of nine visits; predict two properties of the next visit:
+%   category (7 classes: Community, Entertainment, Food, Nightlife, Outdoors, Shopping, Travel)
+%   region (the census tract; the mahalle for Istanbul; ~1k to ~8.5k classes).
+% Mobility-aware motivation right-sized to tract granularity (demand/load anticipation, content staging,
+% capacity planning); NOT handover / cell-association. No system claim. 2026-07-08 (P7/C2+C2b): the tail now
+% grounds the uses in the literature (silva2019urbancomputing survey + moura2025mobilityaware venue-local
+% instance, attributed verbs finds/argues/ties) and forward-references sec:discussion's quantified sketch.
+\section{Problem and Tasks}
+\label{sec:problem}
+
+Given a user's time-ordered check-in history, we predict two properties of the next visit. The first is its \emph{category}, one of seven fixed labels: Community, Entertainment, Food,
+Nightlife, Outdoors, Shopping, and Travel. Istanbul's source collection maps its places onto the same seven labels. The second is its \emph{region}, the place's census tract (for Istanbul, the \emph{mahalle}, a municipal neighborhood). We do not predict the exact next place; both properties are easier to learn and, for most uses, enough. Region, unlike category, is a large label set: we frame next-region as classification over candidate regions, from 520 classes (Istanbul) to 8,501 (California; Table~\ref{tab:datasets}).
+
+The motivation is practical: the category says what type of place comes next, hence what a user will want; the region says where, hence where to prepare. The mobility literature supports such preparation: city services have long been built on location-based social network traces~\cite{silva2019urbancomputing}. A recent analysis of tourist check-in
+mobility finds that visits concentrate on a few hub places, argues that crowds and demand therefore concentrate, and ties this structure to
+infrastructure planning and adaptive strategies~\cite{moura2025mobilityaware}.
+That analysis reads past visits; we predict two properties of
+the next one, and aggregated over users, those predictions point to where
+demand is heading before it arrives. A census
+tract is a neighborhood, not a radio cell. We therefore scope our claims to
+neighborhood-level preparation: demand and load anticipation, caching content
+ahead of time, and capacity planning. Cell association and handover are
+radio-level decisions and remain out of scope. We build and evaluate no such
+service here; Section~\ref{sec:discussion} quantifies what these predictions
+would give such a service.
