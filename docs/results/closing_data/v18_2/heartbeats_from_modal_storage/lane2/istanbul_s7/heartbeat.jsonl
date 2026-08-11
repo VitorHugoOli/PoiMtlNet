@@ -1,0 +1,11 @@
+{"t":0,"iso":"2026-08-10T16:24:23+00:00","gpu":"0,4,81559,34,0x0000000000000001","cells_running":0,"folds_done":0,"rundir":"","out_kb":0}
+{"t":62,"iso":"2026-08-10T16:25:25+00:00","gpu":"0,3705,81559,38,0x0000000000000000","cells_running":2,"folds_done":0,"rundir":"","out_kb":1}
+{"t":124,"iso":"2026-08-10T16:26:27+00:00","gpu":"34,12601,81559,41,0x0000000000000000","cells_running":2,"folds_done":0,"rundir":"","out_kb":1}
+{"t":185,"iso":"2026-08-10T16:27:28+00:00","gpu":"98,12885,81559,50,0x0000000000000000","cells_running":2,"folds_done":0,"rundir":"","out_kb":1}
+{"t":246,"iso":"2026-08-10T16:28:29+00:00","gpu":"96,12885,81559,54,0x0000000000000000","cells_running":2,"folds_done":0,"rundir":"","out_kb":2}
+{"t":306,"iso":"2026-08-10T16:29:29+00:00","gpu":"83,11093,81559,56,0x0000000000000000","cells_running":1,"folds_done":1,"rundir":"results/check2hgi_v18/istanbul/mtlnet_lr1.0e-04_bs8192_ep50_20260810_162444_90","out_kb":22}
+{"t":367,"iso":"2026-08-10T16:30:30+00:00","gpu":"82,11093,81559,55,0x0000000000000000","cells_running":1,"folds_done":1,"rundir":"results/check2hgi_v18/istanbul/mtlnet_lr1.0e-04_bs8192_ep50_20260810_162444_90","out_kb":22}
+{"t":428,"iso":"2026-08-10T16:31:31+00:00","gpu":"83,11095,81559,56,0x0000000000000000","cells_running":1,"folds_done":2,"rundir":"results/check2hgi_v18/istanbul/mtlnet_lr1.0e-04_bs8192_ep50_20260810_162444_90","out_kb":23}
+{"t":488,"iso":"2026-08-10T16:32:31+00:00","gpu":"81,11115,81559,56,0x0000000000000000","cells_running":1,"folds_done":3,"rundir":"results/check2hgi_v18/istanbul/mtlnet_lr1.0e-04_bs8192_ep50_20260810_162444_90","out_kb":23}
+{"t":549,"iso":"2026-08-10T16:33:32+00:00","gpu":"82,10771,81559,57,0x0000000000000000","cells_running":1,"folds_done":4,"rundir":"results/check2hgi_v18/istanbul/mtlnet_lr1.0e-04_bs8192_ep50_20260810_162444_90","out_kb":23}
+{"t":610,"iso":"2026-08-10T16:34:33+00:00","gpu":"85,10773,81559,58,0x0000000000000000","cells_running":1,"folds_done":4,"rundir":"results/check2hgi_v18/istanbul/mtlnet_lr1.0e-04_bs8192_ep50_20260810_162444_90","out_kb":26}

@@ -1,0 +1,11 @@
+{"t":0,"iso":"2026-08-10T15:08:08+00:00","gpu":"0,4,81559,38,0x0000000000000001","cells_running":0,"folds_done":0,"rundir":"","out_kb":0}
+{"t":64,"iso":"2026-08-10T15:09:12+00:00","gpu":"81,9739,81559,52,0x0000000000000000","cells_running":3,"folds_done":0,"rundir":"results/check2hgi_v18/arizona/next_lr1.0e-04_bs8192_ep50_20260810_150829_99","out_kb":1}
+{"t":127,"iso":"2026-08-10T15:10:15+00:00","gpu":"25,14237,81559,50,0x0000000000000000","cells_running":3,"folds_done":0,"rundir":"results/check2hgi_v18/arizona/next_lr1.0e-04_bs8192_ep50_20260810_150829_99","out_kb":1}
+{"t":190,"iso":"2026-08-10T15:11:18+00:00","gpu":"0,12227,81559,42,0x0000000000000000","cells_running":2,"folds_done":0,"rundir":"results/check2hgi_v18/arizona/next_lr1.0e-04_bs8192_ep50_20260810_150829_99","out_kb":6}
+{"t":252,"iso":"2026-08-10T15:12:20+00:00","gpu":"76,12249,81559,53,0x0000000000000000","cells_running":2,"folds_done":0,"rundir":"results/check2hgi_v18/arizona/next_lr1.0e-04_bs8192_ep50_20260810_150829_99","out_kb":6}
+{"t":314,"iso":"2026-08-10T15:13:22+00:00","gpu":"89,12249,81559,53,0x0000000000000000","cells_running":2,"folds_done":0,"rundir":"results/check2hgi_v18/arizona/next_lr1.0e-04_bs8192_ep50_20260810_150829_99","out_kb":6}
+{"t":375,"iso":"2026-08-10T15:14:23+00:00","gpu":"75,10735,81559,57,0x0000000000000000","cells_running":1,"folds_done":1,"rundir":"results/check2hgi_v18/arizona/mtlnet_lr1.0e-04_bs8192_ep50_20260810_150831_98","out_kb":25}
+{"t":436,"iso":"2026-08-10T15:15:24+00:00","gpu":"8,10715,81559,51,0x0000000000000000","cells_running":1,"folds_done":2,"rundir":"results/check2hgi_v18/arizona/mtlnet_lr1.0e-04_bs8192_ep50_20260810_150831_98","out_kb":25}
+{"t":497,"iso":"2026-08-10T15:16:25+00:00","gpu":"76,10735,81559,54,0x0000000000000000","cells_running":1,"folds_done":3,"rundir":"results/check2hgi_v18/arizona/mtlnet_lr1.0e-04_bs8192_ep50_20260810_150831_98","out_kb":25}
+{"t":559,"iso":"2026-08-10T15:17:27+00:00","gpu":"31,10715,81559,52,0x0000000000000000","cells_running":1,"folds_done":4,"rundir":"results/check2hgi_v18/arizona/mtlnet_lr1.0e-04_bs8192_ep50_20260810_150831_98","out_kb":25}
+{"t":620,"iso":"2026-08-10T15:18:28+00:00","gpu":"81,10715,81559,55,0x0000000000000000","cells_running":1,"folds_done":4,"rundir":"results/check2hgi_v18/arizona/mtlnet_lr1.0e-04_bs8192_ep50_20260810_150831_98","out_kb":31}

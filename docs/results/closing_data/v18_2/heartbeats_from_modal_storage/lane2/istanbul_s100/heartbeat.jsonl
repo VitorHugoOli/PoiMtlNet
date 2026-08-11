@@ -1,0 +1,11 @@
+{"t":1,"iso":"2026-08-10T16:24:42+00:00","gpu":"0,4,81559,23,0x0000000000000001","cells_running":0,"folds_done":0,"rundir":"","out_kb":0}
+{"t":62,"iso":"2026-08-10T16:25:43+00:00","gpu":"99,10967,81559,34,0x0000000000000000","cells_running":3,"folds_done":0,"rundir":"results/check2hgi_v18/istanbul/next_lr1.0e-04_bs8192_ep50_20260810_162457_97","out_kb":1}
+{"t":124,"iso":"2026-08-10T16:26:45+00:00","gpu":"99,19863,81559,34,0x0000000000000000","cells_running":3,"folds_done":0,"rundir":"results/check2hgi_v18/istanbul/next_lr1.0e-04_bs8192_ep50_20260810_162457_97","out_kb":1}
+{"t":184,"iso":"2026-08-10T16:27:45+00:00","gpu":"91,12885,81559,33,0x0000000000000000","cells_running":2,"folds_done":0,"rundir":"results/check2hgi_v18/istanbul/next_lr1.0e-04_bs8192_ep50_20260810_162457_97","out_kb":6}
+{"t":245,"iso":"2026-08-10T16:28:46+00:00","gpu":"99,12885,81559,32,0x0000000000000000","cells_running":2,"folds_done":0,"rundir":"results/check2hgi_v18/istanbul/next_lr1.0e-04_bs8192_ep50_20260810_162457_97","out_kb":6}
+{"t":306,"iso":"2026-08-10T16:29:47+00:00","gpu":"89,11093,81559,35,0x0000000000000000","cells_running":1,"folds_done":1,"rundir":"results/check2hgi_v18/istanbul/mtlnet_lr1.0e-04_bs8192_ep50_20260810_162501_100","out_kb":26}
+{"t":366,"iso":"2026-08-10T16:30:47+00:00","gpu":"84,11095,81559,35,0x0000000000000000","cells_running":1,"folds_done":2,"rundir":"results/check2hgi_v18/istanbul/mtlnet_lr1.0e-04_bs8192_ep50_20260810_162501_100","out_kb":27}
+{"t":427,"iso":"2026-08-10T16:31:48+00:00","gpu":"85,11095,81559,35,0x0000000000000000","cells_running":1,"folds_done":2,"rundir":"results/check2hgi_v18/istanbul/mtlnet_lr1.0e-04_bs8192_ep50_20260810_162501_100","out_kb":27}
+{"t":488,"iso":"2026-08-10T16:32:49+00:00","gpu":"89,11115,81559,31,0x0000000000000000","cells_running":1,"folds_done":3,"rundir":"results/check2hgi_v18/istanbul/mtlnet_lr1.0e-04_bs8192_ep50_20260810_162501_100","out_kb":27}
+{"t":548,"iso":"2026-08-10T16:33:49+00:00","gpu":"87,10773,81559,34,0x0000000000000000","cells_running":1,"folds_done":4,"rundir":"results/check2hgi_v18/istanbul/mtlnet_lr1.0e-04_bs8192_ep50_20260810_162501_100","out_kb":27}
+{"t":609,"iso":"2026-08-10T16:34:50+00:00","gpu":"0,10773,81559,25,0x0000000000000000","cells_running":1,"folds_done":5,"rundir":"results/check2hgi_v18/istanbul/mtlnet_lr1.0e-04_bs8192_ep50_20260810_162501_100","out_kb":31}

@@ -8,6 +8,22 @@
 >
 > Written 2026-08-11 so the gaps can be assigned. Each item states **what to add, where, and how to
 > get it** — no re-training is required for any of them.
+>
+> **Where this stands (updated 2026-08-11 after three working sessions).** Each gap now carries a
+> **VERDICT** block under its heading giving the outcome and pointing at the addendum holding the
+> evidence. In short: **B, E and F are closed; C went from 43 undeclared to 4; A and D cannot be
+> closed because their sources do not exist**, and saying so is the honest end state rather than a
+> pending task. The audit text below each verdict is the **original finding, left unedited** — the
+> separation between what was found and what was later done is deliberate.
+>
+> | gap | outcome |
+> |---|---|
+> | **A** `commit_sha` | **closed as unrecoverable** — no `.git` on any of the three accounts; 30 cells keep a `commit_sha_note` |
+> | **B** `recipe_version` | **closed** — 10 to 0, copied from sibling cells |
+> | **C** `lane_host` | **largely closed** — 43 to 4 undeclared; 28 of 29 modal labels confirmed against heartbeats; 1 disputed |
+> | **D** tie certificate | **exhausted at source** — superseded by `scoring_path` on all 24 `reg` cells |
+> | **E** display bugs | **both closed**, each verified by execution |
+> | **F** `TASKS.md` | **closed** |
 
 ## 0 · Board state (verified 2026-08-11 01:50)
 
@@ -24,6 +40,17 @@ the headline result is not in question.
 ---
 
 ## 1 · GAP A — 30 cells have no traceable `commit_sha` (HIGH)
+
+> **VERDICT 2026-08-11 — CLOSED AS UNRECOVERABLE (admitted, with cause). Still 30 cells.**
+> The source does not exist and cannot be made to exist: `/repo` was uploaded to Modal as a **tar
+> of the worktree**, with no `.git`, and this was verified by direct listing on **all three
+> accounts** (A6, A7). The two commits nearest the upload are *later* than it, so HEAD at upload
+> time was never recorded — and a recovered SHA would not certify a worktree anyway. Two lane cells
+> that *do* carry real SHAs prove the mechanism works; the 30 are a driver capture gap of the time.
+> **No back-fill is possible or honest here.** Each affected sidecar carries a `commit_sha_note`
+> stating the cause. Note for tooling (A4): the field is present with the literal string
+> `"unknown"`, so `if not d.get("commit_sha")` reports zero missing and passes.
+> Evidence: A4, A6, A7, A9.
 
 `commit_sha` is absent or literally `"unknown"`. These cells cannot be tied to a state of the code.
 
@@ -56,6 +83,14 @@ the code, because the payload was the worktree rather than a committed tree. Rec
 
 ## 2 · GAP B — 10 cells have no `recipe_version` (MEDIUM)
 
+> **VERDICT 2026-08-11 — CLOSED. 10 → 0.**
+> All 10 were seed-0/1 `reg` cells banked before the field existed. The 14 `reg` cells that *do*
+> carry it hold a **single** value, `v18-approved-2026-08-09 (FINAL_SETTINGS.md)`, and region was
+> never retuned (`max_lr 3e-3`, `freeze_alpha=True`, `alpha_init=0.0`, `logit_adjust_tau=0`), so the
+> value was **copied from the sibling cells** rather than inferred from a run record. Each carries a
+> `post_hoc_fields` entry naming that basis.
+> Evidence: A9.
+
 | seed | family | states |
 |---|---|---|
 | 0 | reg | all six |
@@ -69,6 +104,24 @@ Their recipe is known and unchanged (region was never retuned: `max_lr 3e-3`, `f
 string already used by the newer reg sidecars. Pure metadata back-fill, no re-run.
 
 ## 3 · GAP C — hardware is mixed and mostly undeclared (HIGH for the write-up)
+
+> **VERDICT 2026-08-11 — LARGELY CLOSED. 43 → 4 undeclared, plus 1 disputed label.**
+> Three findings, in order of how much they change the picture:
+> **(a) The mixing is universal, not a texas-region quirk.** Every `(state, family)` pool has seeds
+> 0/1 local and 7/100 rented. Re-running "the one odd cell" was never the option it looked like;
+> disclosure is the only realistic close (A7).
+> **(b) The labels are sound.** 18 heartbeats recovered from the three accounts let each cell's
+> silicon be re-derived from `memory.total` and confronted with its declared `lane_host`:
+> **28 of 29 confirm** (A8).
+> **(c) 36 of the 43 were locals that simply never said so.** Declared `local:NVIDIA A40` on two
+> independent grounds: no seed-0/1 cell anywhere declares a modal lane, and **no `_s0`/`_s1` lane
+> exists under `/live` or `/harvest` on any of the three accounts** (A9).
+> **Still open:** 4 cells (`alabama_s7` × 3, `istanbul_s7_cat`) have no heartbeat that can be tied
+> to them and are left **undeclared rather than guessed**; and `texas_s100_reg` declares
+> `A100-SXM4-40GB` while the lane that banked texas s100's folds ran on an H100 (A8).
+> **Resolved along the way:** the `[VERIFY]` on the florida joint cells — they ran on an
+> **A100-80GB** while `A100-40GB` was requested. The tier you ask for is not always the part you get.
+> Evidence: A3, A6, A7, A8, A9.
 
 | hardware | cells |
 |---|---:|
@@ -119,6 +172,16 @@ existing labels are wrong too.
 
 ## 4 · GAP D — the tie certificate exists on only 3 of 24 region cells (MEDIUM)
 
+> **VERDICT 2026-08-11 — EXHAUSTED AT THE SOURCE, and superseded by a field that can be filled.**
+> Only **4 of the 24** p1 result JSONs contain an ambiguous-row count, and all four are already in
+> their sidecars. The other 20 ran on the legacy scorer, where the quantity was never computed:
+> there is nothing to recover, now or later. What §4 actually wanted — telling the two scoring
+> populations apart — is now satisfied directly: **every one of the 24 `reg` cells carries a
+> `scoring_path`** saying which scorer produced it (4 tie-aware, 20 legacy).
+> The underlying defect was also fixed at the source: `run_lane.sh` never copied `ambiguous_rows`
+> while the A40 driver did, so the disclosure depended on which machine you happened to use (A2).
+> Evidence: A2, A9.
+
 `ambiguous_rows` (how many validation rows have an undecidable hit@k) is recorded on **3 of 24**
 region cells — the ones produced after 2026-08-10. Measured values where it exists: 1–2 rows out of
 585 092 (california) and 1 of 766 083 (texas), i.e. **≤ 0.0003 pp** of Acc@10 — negligible, and ~1 %
@@ -130,6 +193,17 @@ there is nothing to measure retroactively. **What to add:** a one-line `"scored_
 reader can tell the two populations apart without archaeology.
 
 ## 5 · GAP E — two display bugs in the generated report (LOW, but user-visible)
+
+> **VERDICT 2026-08-11 — BOTH ITEMS CLOSED.**
+> **Item 1** (the `n` column that could not represent a row whose halves disagree) now prints
+> `n_cat/n_reg` when they differ. **Tested by execution, not inspection**, which mattered:
+> `make_results.py` re-runs `score_all.py` before rendering, so editing the results JSON proves
+> nothing — the edit is overwritten before the table is built, and the first attempt reported a
+> false failure for exactly that reason. With `score_all.py` stubbed and florida's region half
+> forced to n=15 against a category half of 20, the row renders **`20/15`**; restored, it renders
+> `20`.
+> **Item 2** (`current_n` derived from joint cells only) is closed — see §5b.
+> Evidence: §5b, A9.
 
 1. **`V18_RESULTS.md` §1 `n` column is wrong for texas and california.** It prints `20`, taken from
    `joint_cat_paired["n"]` (`make_results.py:156`), but it labels a row whose **region half** may
@@ -157,6 +231,9 @@ open** — it remains correct only because both halves happen to be 20.
 
 ## 6 · GAP F — charter deliverable `TASKS.md` was never created (LOW)
 
+> **VERDICT 2026-08-11 — CLOSED.** `TASKS.md` was written (commit `4bc3e1b0`). Every §7 charter
+> deliverable now exists.
+
 §7 lists `TASKS.md` ("the charter and task list"). Every other §7 deliverable exists: `README.md`,
 `V18_RESULTS.md`, `PROVENANCE.md`, `AUDIT.md`, `METHODOLOGY.md`, `score_all.py`,
 `data/v18_results.json`, `PROGRESS.md`, `status.json`, `log.md`.
@@ -179,28 +256,18 @@ Recorded here so they are not mistaken for missing data:
 
 ## Priority for whoever picks this up
 
-| # | gap | effort | why it matters |
-|---|---|---|---|
-| 1 | **A** — 30 missing `commit_sha` | metadata only | charter §7 requirement; without it 30 cells cannot be tied to code |
-| 2 | **C** — declare `lane_host` on 42 cells + disclose the texas mix | metadata (+57 min if closing texas) | the machine is a larger variance source than the seed here |
-| 3 | **B** — 10 missing `recipe_version` | metadata only | trivial, and completes the set |
-| 4 | **D** — scoring-path field on 21 reg cells | metadata only | lets a reader separate the two scoring populations |
-| 5 | **E** — display bugs | small code fix | **item 2 CLOSED 2026-08-11**; item 1 still open (correct only by accident) |
-| 6 | **F** — `TASKS.md` | writing | last unmet §7 deliverable |
+Everything the data on hand could settle **is settled**. What is left is not a queue of back-fills:
 
-**None of these require re-training.** Items 1–4 are back-fills into existing sidecars; 5 is a fix in
-`make_results.py` / `status_update.py`; 6 is a document. The only optional compute is the ~57 min
-texas s100 re-run under item C, and that is a homogeneity choice, not a correctness one.
+| # | what remains | why it is not a task |
+|---|---|---|
+| 1 | **A** - 30 cells with `commit_sha: "unknown"` | the source does not exist on any account; a back-fill would be invented provenance |
+| 2 | **D** - 20 `reg` cells with no tie certificate | never computed by the legacy scorer; `scoring_path` now marks the two populations instead |
+| 3 | **C** - 4 cells with no `lane_host` | no heartbeat can be tied to them; left undeclared rather than guessed |
+| 4 | **C** - `texas_s100_reg`'s disputed label | needs its rundir tied to one of two heartbeat windows; see A8 for why the obvious rule fails |
+| 5 | section 7 - the two scientific decisions | author calls, not data gaps |
 
----
-
-# Addendum — added post-hoc 2026-08-11 by the session that ran the four closing reg cells
-
-> **Everything below this line was written after the audit above, by a different session than the
-> one that produced it.** It is kept separate on purpose: the audit is a snapshot of what was found,
-> and this is what one later session changed and measured. Where a gap is narrowed rather than
-> closed, that is said. Nothing above was edited except one stale path (`v18_2/modal/` →
-> `pipelines/modal/`), which this session broke by moving the folder.
+**Nothing here requires re-training.** Items 1-3 are closed as far as evidence allows; item 4 is
+the only one where more archaeology could still change an answer.
 
 ## A1 · What this session closed
 
@@ -312,3 +379,132 @@ and across re-runs. `florida_s7` (40960) and `florida_s7_joint` (81920) are diff
 different hardware; reading either as "florida s7" conflates them. Two of this session's own
 directories hold both 40960 and 81559 samples for the same reason — cat on an H100, reg on an A100,
 same directory.
+
+
+## A7 · Storage sweep of the PRIMARY account — the hardware labels are now independently verified, and one lane was found that no session had recorded
+
+Requested by the author 2026-08-11: look in the **primary (vho2009)** storage for anything the
+other sessions missed. Read-only, top-level folders only.
+
+**What was there.** The primary volume `poimtl-v18-data` holds `/seed`, `/scripts`, `/inductor`,
+`/repo`, `/live` and `lane_probe_primary.txt`. `/live` contains **three** lanes:
+`istanbul_s7`, `florida_s7`, `florida_s100`. Lane 2 holds ten more, and its second volume
+`poimtl-v18-data-2` is **empty**.
+
+**A6's `/repo/.git` finding is confirmed on the primary account, by direct listing.** The primary's `/repo` holds `scripts`, `research`, `out`, `src`, `output`, `results`, `docs` — and `modal volume ls poimtl-v18-data /repo/.git` returns *No such file or directory*. (An earlier draft of this section asserted this for *both* volumes before the primary's `/repo` had actually been listed; the listing was then performed and is what is reported here.)
+
+**11 heartbeats recovered**, archived at
+`docs/results/closing_data/v18_2/heartbeats_from_modal_storage/`. This matters because the host
+itself held only **4**, all florida: 23 of the 29 modal-labelled cells had no local evidence at all.
+
+**A6's claim is confirmed, on 22 cells rather than 16.** Re-deriving each cell's silicon from
+`memory.total` in its own heartbeat and confronting it with the declared `lane_host`:
+
+| declared | cells confirmed | heartbeat |
+|---|---:|---|
+| `modal:NVIDIA H100 80GB HBM3` | 11 | 81559 MiB |
+| `modal:NVIDIA A100-SXM4-40GB` | 6 | 40960 MiB |
+| `modal:A100-class 80GB` (florida joint) | 2 | 81920 MiB |
+| via sibling lane heartbeat | 3 | consistent |
+
+**CONFERE = 22, DIVERGE = 0, still without evidence = 7.** So the labels are sound, and the
+`[VERIFY]` this session raised on the florida joint cells is closed by measurement: they ran on an
+**A100-80GB** while `A100-40GB` was requested.
+
+**A finding no session had recorded: `istanbul_s7` ran twice, on two different accounts.**
+Primary at 06:11 UTC on an A100-80GB (81920 MiB), reaching `folds_done=0`; lane 2 at 16:24 UTC on
+an H100 (81559 MiB), reaching `folds_done=4`. The primary run produced no banked result. This is
+worth knowing for two reasons: the board's istanbul s7 numbers come from the H100 lane, not the
+A100 one; and `istanbul_s7_cat` is the one istanbul cell whose `lane_host` is still `None` while
+its `reg` and `joint` siblings declare H100. Its 268 s wall cannot be tied to either heartbeat on
+its own, so it was left **undeclared with a `lane_host_note`** rather than inferred — the same rule
+A1 applied.
+
+**Still without evidence (7 cells):** california s7/s100 (cat, joint), texas s100 (cat, joint, reg).
+Their lanes are not in `/live` on either account.
+
+**Method note, confirming A6's warning the hard way.** `modal.Volume.list` does not exist in client
+1.5.3 — the volume inventory has to come from the `modal volume list` CLI with the tokens in the
+environment, one invocation per account. A full recursive `iterdir` walk of a volume is also
+impractically slow (10 min without finishing one volume); listing the folders that matter is the
+workable approach.
+
+
+## A8 · The two remaining accounts — all 29 modal cells now have heartbeat evidence, 28 labels confirmed, one unresolved
+
+The author supplied credentials for the two profiles named in A6 but never probed here
+(`vholiviera`, `vitor-oliveira`). **The seven cells A7 listed as "no evidence" were on them**:
+`vholiviera` holds `/live/{california_s7, california_s100, texas_s100}`, `vitor-oliveira` holds
+`/live/{california_s7, california_s100, texas_s7, texas_s100}`. Seven more heartbeats pulled;
+**18 in total**, archived under `docs/results/closing_data/v18_2/heartbeats_from_modal_storage/`.
+
+**28 of 29 modal-labelled cells confirm**, one does not resolve:
+
+| declared | cells | verdict |
+|---|---:|---|
+| `H100 80GB HBM3` | 13 | confirmed by `memory.total = 81559` on the lane that banked folds |
+| `A100-SXM4-40GB` | 6 | confirmed by `40960` |
+| `A100-class 80GB` (florida joint) | 2 | confirmed by `81920` — an A100-80GB where 40 GB was requested |
+| others via sibling lane | 7 | consistent |
+| **`texas_s100_reg`** | 1 | **unresolved** — see below |
+
+**`texas_s100_reg` declares `A100-SXM4-40GB`; the lane that banked texas s100's folds ran on an
+H100.** Two runs of that lane exist: `vholiviera` 13:56 UTC on an H100 (`81559`, folds 0→4, rundir
+`..._135751_72`), and `vitor-oliveira` 21:58 UTC whose single heartbeat file spans **two different
+GPUs** — an H100 window to 22:20, then an A100-40GB window from 23:31 with `out_kb` still
+climbing. The cell's 3384 s wall matches neither window cleanly. **Left as declared, flagged here**,
+rather than rewritten on a rule that does not hold.
+
+**Two properties of the heartbeat that invalidate the obvious attribution rule**, worth recording
+because the next reader will reach for it:
+
+1. **`folds_done = 0` does not mean a lane failed.** It counts train.py rundirs, and the `reg`
+   family runs through `p1_region_head_ablation.py`. A lane running only `reg` sits at 0 for its
+   whole life while producing a real result — visible as `out_kb` growing with `folds_done` pinned.
+2. **One `heartbeat.jsonl` can hold more than one lane.** `LIVE_DIR` is keyed by *(state, seed)*,
+   not by cell, so a relaunch on the same day appends to the same file. Reading such a file as one
+   run merges two GPUs into one lane and produces a false "this lane used two cards".
+
+A rule built on (1) alone — "the productive run is the one with folds > 0" — gives a unique answer
+for all 13 lanes and would have silently rewritten `texas_s100_reg`'s label. It was not applied.
+
+
+## A9 · What the accumulated data could close, closed 2026-08-11
+
+Asked by the author: *which gaps are still open, and can we work on them with the data we have?*
+Each gap was tested against what is actually on disk rather than assumed.
+
+| gap | before | after | basis |
+|---|---:|---:|---|
+| **B** — `recipe_version` | 10 missing | **0** | the 10 are all seed-0/1 `reg` cells; the 14 `reg` cells that carry the field hold a **single** value, and region was never retuned. Copied from siblings. |
+| **C** — `lane_host` | 40 missing | **4** | 36 are seed 0/1. Two independent checks: no seed-0/1 cell anywhere declares a modal lane, and **no `_s0`/`_s1` lane exists under `/live` or `/harvest` on any of the three accounts**. Declared `local:NVIDIA A40`. |
+| **D2** — scoring path | 24 unmarked | **0** | every `reg` cell now states which scorer produced it, derived from whether its own p1 JSON carries an ambiguous-row count (4 new path, 20 legacy). This is what §4 asks for. |
+| **E item 1** — the `n` column | wrong by construction | **fixed** | prints `n_cat/n_reg` when the halves disagree. |
+
+Every back-filled field carries a `post_hoc_fields` entry naming the basis, so a reader can tell a
+driver-written value from a hand-written one.
+
+**The E-1 fix was tested by execution, not inspection.** `make_results.py` re-runs `score_all.py`
+before rendering, so simply editing the results JSON proves nothing — the edit is overwritten
+before the table is built. With `score_all.py` stubbed and florida's region half forced to n=15
+against a category half of 20, the row renders **`20/15`**; unstubbed and restored, it renders `20`.
+The first attempt at this test reported a false failure for exactly the overwrite reason.
+
+### What cannot be closed, and why
+
+- **Gap A (30 cells, `commit_sha`).** The source does not exist. `/repo` was uploaded as a worktree
+  tar with no `.git`, verified on **all three accounts**. There is no commit to recover, and a
+  recovered SHA would not certify a worktree anyway. **Recommend closing as "admitted, with
+  cause".**
+- **Gap D (20 cells, `ambiguous_rows`).** Exhausted at the source: only **4 of the 24** p1 result
+  JSONs contain the field, and all four are already in their sidecars. The other 20 ran on the
+  legacy scorer, where the quantity was never computed. Nothing to back-fill — which is why D2
+  above records the *scoring path* instead, so the two populations are distinguishable.
+- **4 cells still without `lane_host`:** `alabama_s7` × 3 and `istanbul_s7_cat`. No `alabama_s7`
+  heartbeat exists on any account; `istanbul_s7` has two candidate lanes and its `cat` cell cannot
+  be tied to either. Left undeclared rather than guessed.
+- **`texas_s100_reg`** (A8) remains the one label whose declared hardware disagrees with the lane
+  that banked its folds.
+
+**Remaining after this session: gap A (30, unrecoverable), gap D (20, exhausted), 4 undeclared
+`lane_host`, and 1 disputed label.** Everything that the data on hand could settle, is settled.

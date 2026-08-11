@@ -1,0 +1,5 @@
+{"t":0,"iso":"2026-08-10T06:11:08+00:00","gpu":"0,4,81920,37,0x0000000000000001","cells_running":1,"folds_done":0,"rundir":"","out_kb":0}
+{"t":61,"iso":"2026-08-10T06:12:09+00:00","gpu":"97,6879,81920,52,0x0000000000000000","cells_running":1,"folds_done":0,"rundir":"","out_kb":1}
+{"t":122,"iso":"2026-08-10T06:13:10+00:00","gpu":"97,6879,81920,59,0x0000000000000000","cells_running":1,"folds_done":0,"rundir":"results/check2hgi_v18/istanbul/next_lr1.0e-04_bs8192_ep50_20260810_061136_73","out_kb":1}
+{"t":182,"iso":"2026-08-10T06:14:10+00:00","gpu":"97,6899,81920,59,0x0000000000000000","cells_running":1,"folds_done":0,"rundir":"results/check2hgi_v18/istanbul/next_lr1.0e-04_bs8192_ep50_20260810_061136_73","out_kb":1}
+{"t":242,"iso":"2026-08-10T06:15:10+00:00","gpu":"84,6899,81920,60,0x0000000000000000","cells_running":1,"folds_done":0,"rundir":"results/check2hgi_v18/istanbul/next_lr1.0e-04_bs8192_ep50_20260810_061136_73","out_kb":1}

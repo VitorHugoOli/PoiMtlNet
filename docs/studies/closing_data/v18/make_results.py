@@ -153,7 +153,12 @@ def main() -> None:
         if not c:
             continue
         runs = [r for r in per_run if r["state"] == s]
-        n = (c.get("joint_cat_paired") or c["joint_cat_diag_best"])["n"]
+        # GAP E item 1 (2026-08-11): this column used to print ONLY the category half's n,
+        # while labelling a row whose region half can have a different n. It was correct only
+        # because both halves happened to be 20. Print both when they disagree.
+        n_cat = (c.get("joint_cat_paired") or c["joint_cat_diag_best"])["n"]
+        n_reg = (c.get("joint_reg_paired") or c["joint_reg_diag_best"])["n"]
+        n = n_cat if n_cat == n_reg else f"{n_cat}/{n_reg}"
         dcat = paired_diffs(runs, "db_cat_folds", "stl_cat_folds")
         dreg = paired_diffs(runs, "db_reg_folds", "stl_reg_folds")
         # PAIRED means (audit fix 2026-08-10): the dedicated arm is restricted to the seeds that

@@ -1,6 +1,6 @@
 # v18 — PROGRESS
 
-> Rewritten after every completed cell. `updated_at` 2026-08-11T02:15:38.272778+00:00 · phase **wave1** · commit `78d85699`
+> Rewritten after every completed cell. `updated_at` 2026-08-11T03:19:51.626460+00:00 · phase **done** · commit `4bc3e1b0`
 
 ## Matrix — 6 states × 4 seeds × 3 families
 
@@ -25,5 +25,5 @@
 
 ## Environment
 
-- GPU free: 45489 MiB · /dados free: 2192 GB · /home free: 37 GB
+- GPU free: 42657 MiB · /dados free: 2192 GB · /home free: 37 GB
 
