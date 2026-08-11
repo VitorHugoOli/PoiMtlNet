@@ -24,15 +24,17 @@ The advantage is a property of the per-visit vectors themselves rather than of t
 The geometry of the vectors shows why the representation helps this task in
 particular: the per-visit vectors' silhouette score by category (how tight and well separated the seven labeled groups are, on a $-1$ to $1$ scale) is about $0.53$ against about $0.00$ for the place embedding, and their nearest-neighbor category purity (the share of nearest neighbors with the vector's own category) is about $0.98$ against about $0.79$ (both averaged over Alabama, Arizona, and Florida). The same geometry does not separate regions, so the benefit is category-only (the joint model's spatial stream instead reads the region-level vectors of the same graph, Section~\ref{sec:method-model}). CTLE~\cite{lin2021ctle}, the closest prior contextual embedding, also gives each visit its own vector, but it pretrains on place identifiers and timestamps alone, so the category vocabulary never enters its training, whereas our graph reads each visit's category and time of day as input features. At Florida, we fine-tune CTLE together with the task model, using its authors' defaults and the same 64 dimensions and windowing as ours. It reaches $33.45$ macro-F1 at its best epoch and $29.69$ at its final one (an epoch is one pass over the training data), below both the place embedding under the same best-epoch rule and the check-in-level representation. With frozen weights, fed to the same single-task model, CTLE repeats the ordering at Alabama, Arizona, and Istanbul. A feature-concatenation control joins the place embedding with the same raw
 per-visit features that our graph reads (the category one-hot plus hour and
-day-of-week encodings) and feeds the result to the same single-task model. Run on its own shorter
-schedule of thirty epochs, it raises the place embedding by $+2.0$, $+1.7$, and $+0.8$ macro-F1 at
-Alabama, Arizona, and Florida. Those margins are the size of the category gaps in
-Table~\ref{tab:substrate} or larger, so on the category axis this control does not separate the
-hierarchical representation from the per-visit features it reads, and we make no such separation
-claim. On the region task at Florida it moves the place embedding by $-0.23$ Acc@10, so the injected
-features do not substitute for the graph on that axis, and the same graph supplies the region-level
-vectors that the joint model's spatial stream consumes. We therefore report the category advantage as
-a measured difference rather than as a decomposition of its causes.
+day-of-week encodings) and feeds the result to the same single-task model. It is a separate study: a
+different variant of our graph, its own harness, and embeddings built on different hardware, so its
+values are not on the scale of Table~\ref{tab:substrate} and we do not place them beside it. Within
+that study, concatenation raises the place embedding by $+2.0$, $+1.7$, and $+0.8$ macro-F1 at
+Alabama, Arizona, and Florida, margins the size of the category gaps we report or larger. On the
+category axis, therefore, this control does not separate the hierarchical representation from the
+per-visit features it reads, and we make no such separation claim. On the region task at Florida it
+moves the place embedding by $-0.23$ Acc@10, so the injected features do not substitute for the graph
+on that axis, and the same graph supplies the region-level vectors that the joint model's spatial
+stream consumes. We report the category advantage as a measured difference rather than as a
+decomposition of its causes.
 
 \subsection{One model, two tasks}
 \label{sec:results-part2}
@@ -104,11 +106,12 @@ not transfer it to category to convert an unresolved difference into a demonstra
 
 A reader used to multi-task learning~\cite{caruana1997multitask} expects the
 harder task, here next-region with its hundreds to several thousand classes, to teach the easier one; a control shows otherwise. We freeze the region pathway at the start of training so it can neither learn nor teach the category
-task. At Alabama, Arizona, and Florida the category result is unaffected by that intervention. This
-is a negative result about the architecture, and we report it as one: the category behavior of the
-joint model does not arise from the region task teaching the category one. The arm runs on its own
-schedule rather than the one behind Table~\ref{tab:results}, so it speaks to the mechanism and not to
-the magnitude of any cell reported there. The control fixes region training rather than any part of the category pathway, so it does not
+task. This arm also belongs to a separate study, on a different variant of the graph and its own
+training configuration, so its absolute scores are not comparable to Table~\ref{tab:results} and we
+do not report them. What it establishes is directional and about the architecture: within that study,
+freezing the region pathway leaves the category result unaffected at Alabama, Arizona, and Florida,
+so the category behavior of this design does not arise from the region task teaching the category
+one. The control fixes region training rather than any part of the category pathway, so it does not
 identify which part of the joint architecture produces the region result, and we do not name the
 shared trunk as its source. Direct ablations of the trunk, at the datasets where they were run,
 move both tasks by less than two tenths of a point in either direction, which is below what a
