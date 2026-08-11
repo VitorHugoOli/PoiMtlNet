@@ -141,13 +141,14 @@ Three facts bound what may be written from this:
    published claim in either direction. It does, however, forbid asserting the opposite.
 3. These arms ran before the current configuration was fixed, so on the category axis they are not
    the model the paper reports (their joint category values sit 1.7 to 3.3 points below the reported
-   cells). On the region axis they are within 0.05 points of the reported values, which is why the
+   cells). On the region axis they sit 0.09 (Alabama) and 0.16 (Florida) points from the corresponding seed-0 cells, which is why the
    region reading above is usable and a category reading from these arms would not be.
 
 **The reason to decline the attribution is positive evidence, not absence of evidence.** At the two
-datasets carrying the region result, the screen removed the trunk and then removed the category task
-outright, and the region advantage moved by less than 0.15 points in every arm while category
-collapsed to single digits, which confirms the task really was switched off. A screen that had the
+datasets carrying the region result, the screen severed the trunk and region moved by less than 0.15
+points at both (Texas -0.120, California -0.099). At California it went further and removed the
+category task outright: region still moved only -0.077 while category collapsed to 8.95, which
+confirms the task really was switched off. The category-removal arm was not run at Texas. A screen that had the
 resolution to see the causal hypothesis and did not see it is a stronger basis for declining to
 assert it than an unresolved contrast would be. It is still one fold at one seed on the earlier
 representation, so it licenses no published claim; it does foreclose asserting the converse.
@@ -202,7 +203,7 @@ at five. That is a defensible claim, and it is a different one.
 **Correction of record: the submitted paper already reports joint-best.** The author ruled this on
 2026-07-18, and `tables/tbl3_results.tex` and `sections/06_results.tex` both state it. So option (A)
 below is **no change of convention**, and option (B) would be a switch, in the direction that turns
-five category cells from unresolved into wins.
+four category cells from unresolved into wins, for five in total.
 
 - **(A) Keep joint-best, as the paper already does.** One served artifact, both numbers read from
   it; the claim is exactly the model a deployment would run. Cost: the category headline becomes
