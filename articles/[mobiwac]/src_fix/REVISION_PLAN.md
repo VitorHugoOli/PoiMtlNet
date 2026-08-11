@@ -174,25 +174,24 @@ same precision, same logit adjustment; only the input representation differs), a
 | Alabama | 30.77 | 29.15 | **+1.62** | 5/5 | 0.0034 | +29.31 |
 | Arizona | 34.51 | 31.93 | **+2.58** | 5/5 | 0.0004 | +27.63 |
 | Florida | 37.36 | 37.13 | +0.23 | 5/5 | 0.067 | +39.62 |
-| Texas | running | running |, |, |, | +37.47 |
-| California | running | running |, |, |, | +37.95 |
+| Texas | 36.32 | 35.33 | **+0.99** | 5/5 | 0.00003 | +37.47 |
+| California | 35.62 | 34.74 | **+0.88** | 5/5 | 0.0005 | +37.95 |
 
 Test: paired t on the five matched folds, two-sided, at seed 0. Both arms run the same head, the
 same five folds, the same sliding windows, the same 50 epochs, the same precision, and the same
 logit adjustment; only the input representation differs.
 
-Under the current configuration the gap is **+0.23 to +6.29** where it has been measured, against
-the **+27.6 to +39.6** the submitted table carries. The direction is consistent, every dataset has
-all five folds favoring the check-in-level representation, and three of the four reach
-significance. Florida does not: at +0.23 points with p = 0.067 it is the first dataset where the two
-representations are, on this evidence, at parity.
+Under the current configuration the gap is **+0.23 to +6.29**, against the **+27.6 to +39.6** the
+submitted table carries. Two things hold across the board and should be said plainly: the direction
+is the same everywhere, and **all five folds favor the check-in-level representation at every one of
+the six datasets**. Five of six reach significance at a single seed. Florida, at +0.23 with
+p = 0.067, is the one dataset where the two representations sit at parity on this evidence.
 
 **This is the single largest change to the paper's claims and it is not optional.** Table 2, the
 abstract's "about 28 to 40 points" clause, and every sentence that leans on either must be rewritten
-to the measured gap, and the claim itself must weaken from "transforms the task" to "a consistent
-but modest advantage, clear at three of four datasets measured". Texas and California are building
-and training now (§6); each rebuilds its place-level inputs, trains, scores, and releases the disk
-before the next one starts.
+to the measured gap, and the claim itself must weaken from a transformation of the task to a
+consistent but modest advantage: the same sign at six of six datasets and in every fold, significant
+at five. That is a defensible claim, and it is a different one.
 
 ---
 
@@ -363,24 +362,24 @@ closing claims inherit the new ladder. These follow after the paper text is appr
 
 | item | status | cost |
 |---|---|---|
-| joint-best at all 24 cells | **complete and verified** |, |
-| statistical battery, both conventions | **complete** |, |
-| place-level arm at Istanbul, Alabama, Arizona | **complete** |, |
-| place-level arm at Florida, California, Texas | running: build, train, score, reclaim, one dataset at a time | ~6-10 h |
-| trunk contribution at Texas and California | **not measured**, and it is the ablation that would license any attribution sentence for the region gain (§1.4) | ~22 h |
+| joint-best at all 24 cells | **complete and verified**, banked | done |
+| statistical battery, both conventions | **complete** | done |
+| place-level arm, all six datasets | **complete**, sidecars banked | done |
+| trunk contribution at Texas and California, at board strength | **open**: only a single-fold screen exists, and it is what would license any attribution sentence for the region result (§1.4) | ~22 h |
 
-The disk was the binding constraint on the three largest datasets, at 38 GB free against a 9.5 GB
-input for the largest. The running job therefore builds one dataset's place-level inputs, trains,
-scores, and releases them before starting the next, so peak usage stays at one dataset. If it does
-not finish in time, Table 2 reports the datasets measured under the matched recipe and says plainly
-the scope it covers, which costs one sentence and no honesty.
+All six datasets are measured, so Table 2 covers the full board and needs no scope sentence. The one
+open measurement is the trunk ablation at Texas and California at board strength.
 
 ---
 
 ## 7 · Author decisions needed before execution
 
-1. **Convention**: (A) joint-best throughout, recommended, or (B) diagnostic-best headline with
-   joint-best alongside.
-2. **Table 2 scope**: rebuild the three largest datasets' place-level inputs, or report the
-   datasets measured and disclose the rest.
-3. **Anything in §4 to add, drop, or reorder** before the text is touched.
+1. **Convention**: (A) keep joint-best, which is what the paper already reports and what this plan
+   is written for, or (B) switch to diagnostic-best. (A) costs the category headline and the
+   region-count scaling claim; (B) reports numbers no single saved model achieves.
+2. **The category equivalence margin**: register one for the category axis, with its own
+   justification and logged as a deviation, or report the five category nulls as unresolved rather
+   than as matches. The two-point margin is registered for region only.
+3. **The scaling claim**: accept its weakened form (the two datasets with the most regions are the
+   two where the joint model outperforms, without a monotone ordering), or drop it.
+4. **Anything in §4 to add, drop, or reorder** before the text is touched.
