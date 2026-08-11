@@ -1,6 +1,10 @@
 % Section 7: Discussion and Limitations (about 0.5 page). Plan: PAPER_PLAN 4 / §7.
-% One model serves both tasks; shared semantic context lifts category, private spatial path keeps region competitive
-% (matches at small region counts, outperforms at large). Limitations (2 since 2026-07-18, CA/TX n=20):
+% One model serves both tasks; region is where joint training pays (outperforms at TX/CA, the two
+% largest region vocabularies; within the margin at the other four). Category outperforms at FL and
+% holds within a fifth of a point elsewhere. Component attribution is OPEN: the trunk ablations move
+% both tasks by <0.2 pp, below single-seed resolution, and TX/CA are unmeasured at board strength.
+% The TX/CA category gap carries a stated tuning hypothesis (configuration transferred, not
+% validated there). Limitations (2 since 2026-07-18, CA/TX n=20):
 % transductive representation (planned training-only variant); the mobility-aware service is background
 % motivation, not evaluated. Small-state region is non-inferior within two points (a match, not a beat).
 % 2026-07-08 (P7/C4-C6): the usage sketch is now quantified (shortlist enrichment from Tbl 3 + shortlist
@@ -10,10 +14,28 @@
 \section{Discussion and Limitations}
 \label{sec:discussion}
 
-A single model serves both tasks in one forward pass. It outperforms the dedicated category model on all six datasets.
-For region prediction, it outperforms the dedicated model on four datasets and remains within a two-point margin on the
-other two, while preserving a private spatial path for the region output(Table~\ref{tab:results}; Fig.~\ref{fig:deltas}
-).
+A single model serves both tasks in one forward pass, and both answers are read from one saved
+checkpoint. The region task is where joint training pays: the model outperforms the dedicated region
+model at Texas and California, the two datasets with the largest region vocabularies, and remains
+within the two-point margin at the other four, while preserving a private spatial path for the
+region output (Table~\ref{tab:results}; Fig.~\ref{fig:deltas}). On category it outperforms the
+dedicated model at Florida and holds within a fifth of a point of it elsewhere.
+
+Two aspects of the design bear on that region result. The shared trunk carries semantic context
+between the two streams, and the private spatial path keeps the region output free to specialize.
+Which of them produces the advantage is not decided by the evidence here: direct ablations of the
+trunk, at the datasets where they were run, move both tasks by less than two tenths of a point in
+either direction, which is below what a single-seed five-fold comparison resolves. Isolating the
+trunk at Texas and California, at the full four-seed protocol, is the experiment that would
+attribute the gain, and it remains open.
+
+The category picture at Texas and California invites a specific hypothesis. Batch size and learning
+rate were searched per dataset for the dedicated models and for the joint model at the four smaller
+datasets; at Texas and California the joint model runs a configuration transferred from those
+searches rather than one validated on them. Those are also the two datasets where the joint model
+sits furthest below the dedicated category model, by $0.13$ and by less than a hundredth of a point.
+A search conducted for the joint model at those two datasets is the natural next step, and until it
+is run this remains a hypothesis rather than an explanation.
 
 %The gain is substantial, and where we could test it the gain is a property of the joint architecture rather than of
 %cross-task transfer: at the three datasets where the region pathway is held at its initial values, the category gain
@@ -21,7 +43,7 @@ other two, while preserving a private spatial path for the region output(Table~\
 %Section~\ref{sec:results-part2}).
 
 A service could treat the model's top-ranked next regions as an anticipatory
-set: at California, ten regions out of 8{,}501 contain the true next region 65.69
+set: at California, ten regions out of 8{,}501 contain the true next region 64.54
 percent of the time. On four datasets (Alabama, Arizona, Florida, and Istanbul; a single seed over five folds), the ten shortlisted
 regions lie a median of 3 to 8 kilometers from the shortlist's centroid, against 17 to 176 kilometers for ten regions
 drawn at random from the same candidate set (median over 10,000 draws). This remains motivation, not a measured service
