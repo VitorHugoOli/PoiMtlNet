@@ -96,23 +96,45 @@ All 20 of 20 (seed, fold) pairs favour the joint model at both datasets. Against
 protocol-matched Markov-1 region floor, the joint model clears the floor by +6.05 (Texas) and
 +5.45 (California) points; the dedicated model clears it by +4.84 and +4.39.
 
-### 1.4 The shared trunk is a contributing component
+### 1.4 What the shared-trunk ablations actually measure
 
-Paired fold-by-fold against the matched joint arm at the same seed and folds:
+Paired fold-by-fold against the matched joint arm at the same seed and the same folds. The sign
+convention below is **severed arm minus joint arm**, so a negative value means the joint model
+(trunk present) scored higher:
 
-| contrast | dataset | Δ category | Δ region |
-|---|---|---:|---:|
-| trunk severed − joint | Alabama | −0.31 (p = 0.43) | −0.14 (p = 0.25) |
-| trunk severed − joint | Florida | −0.02 (p = 0.74) | **−0.23 (p = 0.0014)** |
-| exchange neutralized − joint | Alabama | −0.15 (p = 0.48) | −0.00 (p = 0.98) |
+| dataset | task | joint | severed | Δ (severed − joint) | folds severed higher | p |
+|---|---|---:|---:|---:|---:|---:|
+| Alabama | category | 27.68 | 27.37 | −0.31 | 2/5 | 0.43 |
+| Alabama | region | 69.69 | 69.55 | −0.14 | 2/5 | 0.25 |
+| Alabama | category (vs arm A) | 27.38 | 27.37 | −0.02 | 3/5 | 0.94 |
+| Alabama | region (vs arm A) | 69.68 | 69.55 | −0.14 | 3/5 | 0.38 |
+| Alabama | category (exchange neutralized) | 27.38 | 27.23 | −0.15 | 3/5 | 0.48 |
+| Alabama | region (exchange neutralized) | 69.68 | 69.68 | −0.00 | 3/5 | 0.98 |
+| Florida | category | 35.90 | 35.88 | −0.02 | 3/5 | 0.74 |
+| Florida | region | 77.05 | **77.28** | **+0.23** | **5/5** | **0.0014** |
 
-Removing the trunk costs region accuracy at Florida with a clear paired signal (0 of 5 folds
-favour the severed arm), and every other contrast points the same direction without reaching
-significance at n=5. The trunk contributes; the size of that contribution is resolved at one
-dataset and directionally consistent at the other. **This is the only supportable framing, and it
-matches the author's directive: the trunk is one of the components producing the joint model's
-region result.** The text must not claim the trunk carries the category task, and must not
-describe it as doing nothing.
+**Read this carefully, because it does not say what a first glance suggests.** Seven of the eight
+contrasts favour the joint model by a margin no test can resolve at n=5 (p from 0.25 to 0.98). The
+single contrast that *is* resolved runs the other way: at Florida, severing the trunk **raises**
+region accuracy by 0.23 points on all five folds.
+
+Two facts bound what may be written from this:
+
+1. Both ablation datasets are datasets where the joint model does **not** beat the dedicated region
+   model. Alabama and Florida sit in the "matches" column of §1.2 on region.
+2. The trunk's contribution at **Texas and California — the two datasets where the joint model does
+   beat the dedicated region model** — has never been measured. That ablation is the deferred P4
+   experiment.
+
+So the supportable statements are: the shared trunk is retained as a component of the architecture
+whose region result is reported in §1.3; where its contribution has been isolated, at two datasets
+that sit at parity on region, the effect is small in both directions and resolved only once, in the
+direction of the severed arm; and its contribution at the two datasets carrying the region win is an
+open measurement. The text must not claim the trunk carries the category task, must not attribute
+the Texas and California region gains to it, and must not describe it as doing nothing. **No causal
+attribution sentence for the region gain survives this evidence** — the honest construction names
+the joint architecture as a whole, with the trunk as one of its components, and leaves the
+decomposition open.
 
 ### 1.5 The representation contrast is materially smaller under the current recipe
 
@@ -194,8 +216,12 @@ and the verdict verbs, not the structure.
 
 ### `sections/07_discussion.tex` — rewritten
 - Lead with the region result, which is where the joint model is strongest.
-- Frame the shared trunk as a contributing component on the evidence of §1.4, with the Florida
-  paired result cited and the Alabama contrasts described as directionally consistent.
+- Present the joint model as functional and producing the region result at Texas and California,
+  naming the shared trunk as one component of the architecture that delivers it. Do **not** write a
+  sentence that attributes the region gain to the trunk: §1.4 shows the trunk's isolated
+  contribution is unmeasured at exactly the two datasets where the gain occurs, and the one
+  resolved ablation (Florida region) favours the severed arm. State the decomposition as open, and
+  name the Texas and California trunk ablation as the experiment that would settle it.
 - Add the tuning hypothesis for the category gap at Texas and California: the joint model there
   inherits a configuration selected without a joint-specific search at those two datasets, and a
   dedicated search for the joint model at those datasets is the natural next step. Stated as a
