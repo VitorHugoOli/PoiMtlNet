@@ -2,7 +2,7 @@
 
 > **Status: RUNNING** (started 2026-08-06, commit `f281a709`, host `nespedgpu`).
 > Live state: [`status.json`](status.json) (machine-readable) · [`PROGRESS.md`](PROGRESS.md) (human).
-> Charter: [`../V18_AGENT_PROMPT.md`](../V18_AGENT_PROMPT.md).
+> Charter: [`V18_AGENT_PROMPT.md`](V18_AGENT_PROMPT.md).
 
 **v18 = the frozen v17 recipe, with the consecutive-visit leak fixed, plus elapsed-time node
 features.** Not an architecture change. The check-in graph is **forward-only** in training and at

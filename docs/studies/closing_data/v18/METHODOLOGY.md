@@ -1,7 +1,7 @@
 # v18 — METHODOLOGY
 
 > What v18 is, why each piece is in it, and what was deliberately excluded. Charter:
-> [`../V18_AGENT_PROMPT.md`](../V18_AGENT_PROMPT.md). Run started from commit `f281a709`.
+> [`V18_AGENT_PROMPT.md`](V18_AGENT_PROMPT.md). Run started from commit `f281a709`.
 
 ## 1 · Definition
 
