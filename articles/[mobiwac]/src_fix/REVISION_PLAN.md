@@ -144,10 +144,18 @@ Three facts bound what may be written from this:
    cells). On the region axis they are within 0.05 points of the reported values, which is why the
    region reading above is usable and a category reading from these arms would not be.
 
+**The reason to decline the attribution is positive evidence, not absence of evidence.** At the two
+datasets carrying the region result, the screen removed the trunk and then removed the category task
+outright, and the region advantage moved by less than 0.15 points in every arm while category
+collapsed to single digits, which confirms the task really was switched off. A screen that had the
+resolution to see the causal hypothesis and did not see it is a stronger basis for declining to
+assert it than an unresolved contrast would be. It is still one fold at one seed on the earlier
+representation, so it licenses no published claim; it does foreclose asserting the converse.
+
 So the supportable statements are: the shared trunk is a component of the architecture whose region
 result is reported in §1.3; where its contribution has been probed, at two datasets sitting at
-parity on region and under the earlier configuration, no effect is resolvable in either direction;
-and its contribution at the two datasets carrying the region result is an open measurement. The text
+parity on region, no effect is resolvable in either direction; and at the two datasets carrying the
+region result the only evidence available reads against a sharing explanation. The text
 must not claim the trunk carries the category task, must not attribute the Texas and California
 region gains to it, and must not describe it as doing nothing. **No causal attribution sentence for
 the region gain survives this evidence.** The honest construction names the joint architecture as a
@@ -272,9 +280,11 @@ Keep the abstract's structure, its motivation-first opening, and its keyword lis
 - Add one sentence, in passing, that the reported configuration follows a hyperparameter search over
   batch size and learning rate, run on both the joint and the dedicated category models. **Scope it
   honestly**: the dedicated region models use a fixed configuration and were not searched, and at
-  Texas and California the joint configuration was carried over from the datasets where the search
-  ran rather than searched there. Write the sentence so it is true of all three arms, or name the
-  two it covers.
+  Texas and California the joint configuration was transferred from the datasets where the search
+  ran rather than validated there, which is the disclosure the postponed-work record requires.
+  Write the sentence so it is true of all three arms, or name the ones it covers. This scoping is
+  also what makes the Texas and California tuning hypothesis in the discussion coherent rather than
+  self-contradictory: the hypothesis rests on exactly this transfer.
 
 ### `sections/07_discussion.tex`, rewritten
 - Lead with the region result, which is where the joint model is strongest.
@@ -310,11 +320,28 @@ Keep the abstract's structure, its motivation-first opening, and its keyword lis
 
 ### Sentences carrying magnitudes that move, wherever they sit
 The external baselines and the floors are unchanged as values, but several sentences state the
-paper's distance from them, and those distances move:
+paper's distance from them, and those distances move. Two are already false:
+
+**The conclusion's "at least 4 Acc@10 points over the strongest region reference" fails.** Measured
+against the per-dataset strongest external, under the served checkpoint:
+
+| dataset | joint | strongest external | gap |
+|---|---:|---|---:|
+| Istanbul | 75.08 | 69.33 (ReHDM) | +5.75 |
+| Alabama | 69.24 | 65.38 (ReHDM) | **+3.86** |
+| Arizona | 59.04 | 53.00 (ReHDM) | +6.04 |
+| Florida | 76.54 | 72.99 (STAN) | **+3.55** |
+| Texas | 66.15 | 61.67 (STAN) | +4.48 |
+| California | 64.54 | 58.52 (STAN) | +6.02 |
+
+The floor is **+3.55**, not 4. Either restate the bound or drop the numeral. The companion claim of
+"at least 33 macro-F1 points over POI-RGNN" on category needs the same re-derivation before reuse.
+
+Also re-derive:
 - the region gap over the Markov floor (now +4.07 to +10.02 under the served checkpoint);
-- the "at least N points over the strongest external" phrasings on both tasks;
 - the one-point dispersion claim in `05_setup.tex`, which does not hold at Alabama under convention
   (A) and needs its number re-read from the battery.
+
 Grep for each magnitude before assuming a sentence is safe; a sentence can name no table and still
 carry a stale number.
 
@@ -343,7 +370,7 @@ The disk was the binding constraint on the three largest datasets, at 38 GB free
 input for the largest. The running job therefore builds one dataset's place-level inputs, trains,
 scores, and releases them before starting the next, so peak usage stays at one dataset. If it does
 not finish in time, Table 2 reports the datasets measured under the matched recipe and says plainly
-that the rest were not re-measured, which costs one sentence and no honesty.
+the scope it covers, which costs one sentence and no honesty.
 
 ---
 
