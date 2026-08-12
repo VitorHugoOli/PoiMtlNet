@@ -1,4 +1,28 @@
 % !TeX root = ../main.tex
+%
+% ============================================================================
+% [2026-08-12] EVIDENCE BASE REPLACED. Read this before any comment below it.
+%
+% This appendix was rebuilt on a NEW measurement and every number in its live prose comes from:
+%   docs/results/closing_data/v18_cosine/apxf_cosine_observations_v18.parquet
+%     1,000 rows = 4 datasets (istanbul, alabama, arizona, florida) x 5 folds x 50 epochs,
+%     one measurement per epoch per fold, seed 0, at the joint configuration Chapter 5 reports
+%     (bs8192, category weight 0.50, logit adjustment tau=0.5 on the category head only,
+%     forward-only check-in graph, 15 node features, engine check2hgi_v18).
+%   Provenance and per-dataset statistics: apxf_cosine_summary_v18.json (same directory).
+%   PARITY: each of the four runs reproduces its docs/results/closing_data/v18/<state>_s0_joint.json
+%     cell to 4 dp on BOTH tasks. That parity is what ties this diagnostic to the reported model.
+%   DEVIATION LOGGED: MTL_AMBIGUITY_STRICT=0 (one validation row in ~766k sat in a tie group
+%     straddling the top-10 boundary, which aborts the SCORED REGION metric). The cosine is a
+%     TRAIN-path measurement and is unaffected by validation tie semantics.
+%
+% EVERY COMMENT BELOW THIS BLOCK THAT CITES src_utils/_round7/gradient_cosine_observations6.parquet,
+% 4,650 observations, seven datasets, Georgia, or Florida's twelve configurations describes the
+% SUPERSEDED evidence base. Those comments are kept because they record real editorial decisions
+% (what was cut and why, which probes exist, which review found what), and a decision does not stop
+% being a decision when its numbers change. Do NOT read their COUNTS as current, and do not restore
+% a sentence from them into live prose without re-measuring it against the parquet named above.
+% ============================================================================
 % ============================================================================
 % Appendix F -- why the two tasks do not compete on the shared trunk.
 %
