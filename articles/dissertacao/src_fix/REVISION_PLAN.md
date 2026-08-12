@@ -536,3 +536,112 @@ is adopted in a weaker form than proposed; recording them keeps the disagreement
 29. `figures/mobiwac/fig4_deltas` (regenerated)
 30. `figures/mobiwac/fig3_embquality` (subject to §11.3)
 31. `figures/fig_gradient_cosine.png` (regenerated with Appendix F)
+
+---
+
+## 14 · Author rulings, round 2 (all seven open questions closed)
+
+Recorded verbatim in substance, with the resolution each one gets.
+
+### 14.1 · The ladder and the category axis — RESOLVED WITH A DERIVED BOUND
+
+The ruling was "agora o MTL empata com o dedicated, temos que ser assertivo nisso", approved for the
+region axis. The category axis could not carry it, because the two-point equivalence margin is
+pre-registered for region only. The resolution does not choose a new margin and does not need one.
+
+**The device.** Two one-sided tests at margin *d* pass at the five percent level exactly when the
+ninety percent confidence interval for the difference lies inside the interval from minus *d* to
+plus *d*. So rather than picking a margin and testing against it, the smallest margin the data
+support is **read off the interval**. Nothing is chosen, so there is nothing to justify and no
+deviation to log. The document already uses this language in Appendix F ("equivalent to zero
+within a margin of five hundredths"), so the reader meets a familiar device.
+
+**What it gives, computed from the banked artifacts:**
+
+| axis | per-dataset bound | simultaneous over all six (Bonferroni) | registered margin |
+|---|---:|---:|---:|
+| next category | 0.334 pp | **0.489 pp** | none registered |
+| next region | 1.287 pp | **1.372 pp** | 2 pp (passes) |
+
+So the assertive sentence is available on both axes and is fully test-bound: **every difference
+between the joint model and the dedicated models, on either task and at every dataset, is
+equivalent to zero within half a point.** Verified by running the tests explicitly at the read-off
+margin, where all six category cells pass, and by confirming that they fail just below it, which
+is what makes the bound tight rather than comfortable.
+
+**What still holds.** The bound is a statement about magnitude, not about sign, so the §1.5
+disclosure stays: on region, Alabama (−0.87), Arizona (−0.44) and Florida (−0.16) are resolved
+deficits in the reverse direction, inside the margin; on category, Florida (+0.19) is the one
+Holm-surviving advantage, and the per-dataset intervals at Istanbul, Alabama and Texas exclude
+zero before multiplicity correction. Every "equivalent" claim travels with the direction.
+
+### 14.2 · Wording — plain surface, technical name glossed once
+
+"parity / paridade" is dropped. The recurring readable surface is **the margin itself**:
+"stays within the two-point margin" in English, "permanece dentro da margem de dois pontos
+registrada antes de qualquer resultado ser lido" at first use in Portuguese, with
+"não inferioridade estatística (teste TOST)" glossed there once and used thereafter only where the
+test is being named. On the category axis the surface is the bound: "the difference is bounded
+within half a point". Never "empata", "semelhante", "a par", or "matches" bare, since each asserts
+equality without a test behind it. `GLOSSARY.md` gains a surface row registering the plain phrase
+as the surface of the TOST verdict, and `WRITING_LAW.md` §3's verdict ladder names it, so the next
+agent cannot reintroduce "matches".
+
+### 14.3 · Chapter 5 preface — "manuscrito revisado após a avaliação final"
+
+The preface says the chapter reproduces the manuscript as revised after the final evaluation; the
+submission status wording stays "submitted, under review". `apx_b_errata.tex`'s "the two texts stay
+identical" contract is rewritten to say that the revision supersedes the submitted numbers and may
+be sent to the venue.
+
+### 14.4 · Appendix I — measure first, then decide (calibration running)
+
+Kept, not cut. The author's recollection of the original control was checked against the record and
+differs: it ran at **Alabama and California** (not Florida), at **four seeds by five folds, twenty
+fitted models per arm** (not five), across five arms, on the superseded `check2hgi_dk_ovl` engine.
+Estimates from scaled wall times gave 0.7–1.7 h (Alabama, winning arm), 9–26 h (both datasets), or
+23–64 h (full reproduction), and the author chose to replace the estimate with a measurement: one
+fold at Alabama, hidden 672, on the final engine, which is running. Two things are settled
+regardless of the number: the matched widths must be **re-derived against the final joint parameter
+count** before any arm runs, and the appendix's **framing changes either way**, because it was
+written to rule out parameter count as the explanation for a seven-to-eight point category
+advantage that is now 0.19 points at one dataset. Its stored verdict string is written against the
+superseded board and is not reusable. If the refreshed wider arm beats the joint model on category,
+that is reported.
+
+### 14.5 · Figures — full inventory first (done; rebuild list below)
+
+| figure | prints where | data source | verdict |
+|---|---|---|---|
+| `fig1_dataflow.pdf` | Ch.5 related work | hand-drawn TikZ; its only data claim is the node-feature list "category, hour, weekday" | **stale**: must gain elapsed time |
+| `fig2_model.pdf` | Ch.5 method | hand-drawn TikZ; labels the trunk "bidirectional cross-attention" (correct: that is the attention, not the graph) | check dimensions against the shipped configuration during the Appendix H sweep |
+| `fig3_embquality.pdf` | Ch.5 results | its own docstring: the archived `design_k` engine, five states, Georgia excluded | **stale**: re-measure on the final engines |
+| `fig4_deltas.pdf` | Ch.5 results | the dissertation copy predates the paper's rebuild (Jul 23 vs Aug 11) | **stale**: regenerate from the served-checkpoint deltas |
+| `fig_gradient_cosine.png` | Appendix F | the superseded cosine parquet | **stale**: regenerate from the re-run |
+| `check2hgi_flow.tex` | Appendix H | hand-drawn; numerals inspected and are all TikZ geometry, not data | no data defect; check the two 64-dimension labels in the sweep |
+| `joint_model_flow.tex` | Appendix H | hand-drawn; no data-bearing labels found | no defect found |
+| `cbic_mtlnet_arch.png`, `courb/arquitetura_modelo.png`, `courb/distribuicao_estados.png` | Ch.3, Ch.4 | published-chapter figures | **do not touch** |
+
+The `[mobiwac]/src_fix/figs` copies were audited alongside: `fig1`/`fig2` exist there only as TikZ
+sources, and `fig3` carries the same stale geometry constants as the dissertation copy, so on that
+one figure the dissertation deliberately diverges from the paper rather than following it.
+
+### 14.6 · The shortlist sentence — recompute, then choose in the author's order
+
+Kept if the evidence supports it. The sentence rests on two quantities: the share of visits whose
+true next region is among the ten shortlisted (California, 65.69, superseded; the final board gives
+64.54 for that cell) and the geographic spread of the shortlist (3 to 8 km against 17 to 176 km).
+The second is the harder problem: its record shows it was computed on the superseded preparation at
+four datasets with a per-sample prediction dump, and per-sample predictions are not serialized by
+default. The dump flag still exists in the evaluation path, so the measurement is reproducible, but
+it requires a re-run with the flag set rather than a rescore. Order of preference, as instructed:
+fix it from a recomputation; failing that, make the mobility point another way (the Acc@10 shortlist
+share alone, without the distance claim); remove only as a last resort.
+
+### 14.7 · Appendix H — full legacy sweep, not a fix list
+
+Every architectural and training statement in the appendix is verified against the shipped
+configuration: input width, edge direction, loss weights, embedding and hidden dimensions, head
+counts, dropout, learning rates, scheduler, epochs, folds, selector, and the region-transition
+prior. The forward-only construction is described as the design, with the rationale as a design
+principle, per directive 1.

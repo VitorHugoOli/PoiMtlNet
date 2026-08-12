@@ -127,8 +127,11 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
      "chapters/apx_f_cosine.tex", r"standley2020tasks", True),
     ("A22-4",  "his point 4: the cosine approach carries its citation",
      "chapters/apx_f_cosine.tex", r"yu2020pcgrad", True),
-    ("A22-7",  "his point 7: the fold statement survived the simplification",
-     "chapters/apx_f_cosine.tex", r"unit of independence is the fold", True),
+    # The fold is the analysis unit, not an independent experimental replication: cross-validation
+    # training subsets overlap. The probe preserves the author's requested fold-level statement
+    # without encoding the stronger and statistically inaccurate independence wording.
+    ("A22-7",  "his point 7: the fold-level analysis statement survived the simplification",
+     "chapters/apx_f_cosine.tex", r"unit of analysis is the fold", True),
     ("A11-diss", "his 2.11 option B: the dissertation's Ch.5 carries the non-inferiority caveat",
      "chapters/5_mobiwac/06_results.tex", r"non-inferior", True),
     ("A11-frame", "his 2.11 option B: the caveat reaches the Resumo and Abstract, which dropped it before",
@@ -407,10 +410,17 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # 5_mobiwac/06_results.tex:76 record as a defect. So: pin the partition positively AND ban the
     # collapsed form in that file. The ban is file-scoped on purpose -- the phrase is legal in comments
     # elsewhere, where it names the defect rather than committing it.
+    # [2026-08-12] REPOINTED to the final ladder. The probe's PURPOSE is unchanged: the bullet must
+    # state the region partition rather than collapse it. What changed is the partition itself --
+    # the region axis now outperforms at Texas and California and stays within the registered
+    # two-point margin at the other four, so the old string is not merely stale, it asserts a
+    # verdict the tests no longer support. The positive pin follows the readable surface registered
+    # in GLOSSARY (WRITING_LAW section 3), which is the phrase the prose is required to repeat.
     ("R10-blq2",   "the introduction's practical-contribution bullet states the region partition "
-                   "(four of six + TOST) instead of collapsing it",
+                   "(outperforms at TX/CA, within the registered margin elsewhere) instead of "
+                   "collapsing it",
      "chapters/1_introduction.tex",
-     r"on the region task at four of the six; at the other two it remains statistically", True),
+     r"within the two-point margin", True),
     ("R10-blq2b",  "the superseded collapsed wording is gone from the introduction's live prose",
      "chapters/1_introduction.tex", r"either outperforms or\s+matches it on next region", False),
     # R10-blq3: the two prose-derived ratios are gone and must not come back. The endpoint counts stay

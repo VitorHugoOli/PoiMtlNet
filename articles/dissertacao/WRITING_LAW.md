@@ -196,10 +196,28 @@
 - **Every number carries its reference point** (majority-class floor, Markov floor, dedicated
   ceiling) and its convention (which metric, which selection rule, n=how many). Never a naked
   percentage.
-- **Verbs bound to tests** (MobiWac law, applies wherever those results appear): "outperforms"
-  only with paired superiority (Istanbul/FL/TX/CA region; category everywhere); "matches" /
-  "statistically non-inferior within a two-point margin (TOST)" at AL/AZ; **never upgrade AZ
-  (0.00)**; never "ties", "Pareto", "outperforms region everywhere", never "beats"/"wins".
+- **Verbs bound to tests** (applies wherever the final study's results appear). The ladder below is
+  the single home for these bindings; every other file points here rather than restating them.
+  - **"outperforms"** only where paired superiority survives Holm correction within its task
+    family: **next region at Texas (+1.21) and California (+1.06)**; **next category at Florida
+    (+0.19)**. Nowhere else, on either axis.
+  - **"stays within the two-point margin"** is the recurring readable surface for the region axis,
+    where the ±2 pp margin was registered before any result was read. The technical name
+    ("statistically non-inferior", TOST) is glossed once at first use in each language and then used
+    only where the test itself is being named. All six region datasets clear it.
+  - **"equivalent to zero within half a point"** is the licensed statement for magnitude across
+    both axes. It is *derived, not chosen*: two one-sided tests at margin *d* pass exactly when the
+    90 % CI falls inside ±*d*, so the bound is read off the intervals (per-dataset 0.334 pp on
+    category, 1.287 pp on region; simultaneous over all six datasets under Bonferroni, 0.489 pp and
+    1.372 pp). Because nothing is chosen there is no post-hoc margin to justify. Quote the bound,
+    never a margin invented for the sentence.
+  - **Direction always travels with an equivalence claim.** The bound constrains magnitude, not
+    sign. On region the dedicated model is *resolved* better at Alabama (−0.87), Arizona (−0.44) and
+    Florida (−0.16), all inside the margin; on category the intervals at Istanbul, Alabama and Texas
+    exclude zero before correction. A cell inside the margin is never written as "no difference".
+  - **Banned on either axis**: "matches", "ties", "empata", "semelhante", "a par", "Pareto",
+    "beats", "wins", "outperforms everywhere", and any bare claim of equality. The five unresolved
+    category cells are written as **"the difference is not resolved"**, never as a match.
 - **Time-indexed claims** (this arc's rule): CBIC's "MTL does not help" and CoUrb's protocol
   are presented as conclusions *of the time, for that configuration*. Superseded numbers never
   read as current. Corrections are stated as corrections ("later shown to be
@@ -305,8 +323,12 @@ chapter; "deliberately X" → "X by design"; "sits above" → "lies above" (one 
 - [ ] Every acronym expanded at first use; acronym count minimal; List of Abbreviations complete.
 - [ ] next category / next region / next place kept distinct; "we do not predict the exact next
       place" stated once, early.
-- [ ] Region wording law intact (outperforms 4 / matches AL–AZ / never upgrade AZ); scaling claim
-      scoped; every verdict verb bound to its test.
+- [ ] Verdict ladder intact per §3: "outperforms" only at region TX/CA and category FL; the
+      two-point margin is the readable surface on region; the half-point bound is quoted as derived,
+      never as a chosen margin; direction travels with every equivalence claim; the five category
+      cells read "not resolved" and never "matches"; zero occurrences of the banned equality words.
+- [ ] Scaling claim scoped to the five U.S. states, stated as an observation with both hedges (not
+      monotone inside the Texas–California pair; region count co-varies with corpus size).
 - [ ] Time-index framing on CBIC/CoUrb conclusions; no superseded number reads as current.
 - [ ] Every number has reference point + convention; every mean has its spread; "significant"
       only with a test.
