@@ -421,10 +421,19 @@
 % Check2HGI and the joint multitask model. It is fifth in file order and therefore prints as
 % Appendix E in this volume.
         \include{chapters/apx_h_check2hgi_joint_model}
-% [2026-08-06, AUTHOR REQUEST] Post-submission parameter-count control for the dedicated
-% category model. It exposes the complete aggregate evidence behind the conclusion's
-% capacity claim and prints as Appendix F in this volume.
-        \include{chapters/apx_i_parameter_count_control}
+% [2026-08-12, AUTHOR RULING] THE PARAMETER-COUNT CONTROL MOVED TO THE SUPPLEMENTARY VOLUME, where
+% main_extra.tex now includes it. Two reasons, both measured rather than editorial:
+%   (1) Its whole span is 0.53 macro-F1 points across three arms (narrow 30.77, wider 30.24, joint
+%       30.59 at Alabama), and Chapter 5 reports that category differences within HALF A POINT are
+%       equivalent to zero. Arguing from a 0.53-point effect in an appendix while calling half a
+%       point negligible in the chapter is a contradiction a reader can see, and the document had
+%       no answer for it.
+%   (2) It was built to explain a LARGE joint category advantage. On the final board that advantage
+%       does not exist (joint minus narrow is -0.19, inside the same band), so the competing
+%       explanation it refutes is one nothing in the document asserts.
+% The measurement itself is sound and stays available in the supplement. Its three live references
+% are gone: the discussion's capacity limit is withdrawn in the same commit, and the conclusion's
+% two mentions with it. Removing the LAST appendix of this volume shifts no letter.
 % [round12, 2026-08-03] APPENDIX E, "Adaptation of the HGI Baseline", REMOVED from this volume on
 % the author's instruction: "APENDICES -- remover A.1, C.3 e E, mandando esse conteudo para o
 % material extra." The file chapters/apx_g_hgi_tuning.tex is unchanged and is now included by

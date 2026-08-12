@@ -123,16 +123,15 @@ performance in this setting. It also supports testing Check2HGI in other mobilit
 prediction architectures, although its benefit in those architectures has not yet been
 evaluated.
 
-Model capacity offers a competing explanation for the next-category results, which this
-dissertation attributes to the check-in-level representation.
-Appendix~\ref{apx:parameter-count-control} tests it directly: the dedicated category model is
-widened to the joint model's parameter budget, holding the representation, the folds, and the
-training protocol fixed. At Alabama, where the control ran the full four-seed
-protocol, the wider model scores $0.53$ macro-F1 points below the narrower one it replaces, and the
-direction is unanimous across all twenty folds. Capacity is therefore not the variable next-category
-prediction responds to at that dataset, which leaves the representation as the explanation the
-evidence supports. A single-seed reading at California is consistent with it.
-
+% [2026-08-12, AUTHOR RULING] THE CAPACITY PARAGRAPH IS WITHDRAWN with the appendix it reported
+% (the parameter-count control, now in the supplementary volume; reasoning at its former include
+% site in content.tex). It read: model capacity offers a competing explanation for the next-category
+% results; the control widens the dedicated model to the joint model's budget and finds the wider
+% model 0.53 macro-F1 points BELOW the narrower one at Alabama, unanimous across twenty folds, with
+% a single-seed reading at California consistent with it. The measurement stands and is preserved in
+% the supplement. It leaves this chapter because a 0.53-point argument cannot carry weight in a
+% document that reports category differences within half a point as equivalent to zero, and because
+% the large joint category advantage it was built to explain is not on the final board.
 For next-region prediction, the results point to problem scale as another possible
 condition. The two datasets where the joint model outperforms the dedicated model are
 Texas and California, the two states with the largest number of regions, while the four
@@ -344,12 +343,11 @@ Six limitations bound the scope of these conclusions.
     next-category and next-region prediction. No single controlled ablation
     separates the representation-and-topology change from the task-pair change in
     the final result. Chapter~\ref{ch:courb} is the fixed-pair control for the
-    diagnosis. The additional parameter-count experiment in
-    Appendix~\ref{apx:parameter-count-control} tests only whether a larger dedicated
-    category model can close the gap. It covers Alabama under the four-seed
-    protocol and California at one seed, one width point per dataset, width scaling
-    rather than depth, and a smaller hyperparameter search than the original
-    dedicated model. The greater similarity of
+% [2026-08-12] The sentence describing the parameter-count experiment and its scope is withdrawn
+% with that appendix (see the note above and content.tex). What it said about the LIMITATION is
+% unchanged and stated in the sentence that follows: no controlled ablation separates the two
+% changes, and the greater similarity of the final pair may contribute to the improvement.
+    diagnosis. The greater similarity of
     the final pair may still contribute to the size of the improvement. The
     ablation that would separate the two changes,
     running static category classification under the check-in-level representation, is

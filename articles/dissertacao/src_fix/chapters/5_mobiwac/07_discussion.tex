@@ -116,7 +116,7 @@ measured service result.
 % each) via Section~\ref{sec:mobiwac:setup-windows}'s paragraph, which stays the primary site of this
 % disclosure and carries the region residual. Region -0.33 to +0.01 Acc@10; category +0.27 to +0.29
 % macro-F1. The scope travels with the numbers, per the stats reviewer's finding on exactly this.
-Five limits qualify these results. First, the representation is trained once over all places; a
+Four limits qualify these results. First, the representation is trained once over all places; a
 per-fold rebuild from training users only changed the results by at most $0.33$ Acc@10 and $0.29$
 macro-F1 across three datasets at one seed, with the qualification on the region half recorded in
 Section~\ref{sec:mobiwac:setup-windows}. Second, epoch selection consults the fold that the score is
@@ -167,10 +167,20 @@ California. It does not follow that the bias cancels exactly. Third, we do not
 % model" and forbids synonym cycling, which naming it a third way in one paragraph would be.
 % Probes: R13-sweepscope, R13-sweepscope2.
 build or evaluate a mobility-aware service; it is background motivation, and this chapter's claims are the
-prediction results themselves. Fourth, the joint model is the larger artifact
-(Section~\ref{sec:mobiwac:method-model}), so capacity is one variable the region comparison does not
-hold fixed. Appendix~\ref{apx:parameter-count-control} isolates it on the category task, where added
-width brings no gain. Fifth, each
+prediction results themselves.
+% [2026-08-12, AUTHOR RULING] THE CAPACITY LIMIT IS WITHDRAWN, together with the appendix it pointed
+% at (the parameter-count control, now in the supplementary volume; the reasoning is at its former
+% include site in content.tex). The clause read, verbatim and preserved here rather than deleted:
+%   "Fourth, the joint model is the larger artifact (Section~\ref{sec:mobiwac:method-model}), so
+%    capacity is one variable the region comparison does not hold fixed.
+%    Appendix~\ref{apx:parameter-count-control} isolates it on the category task, where added width
+%    brings no gain."
+% The pointer could not survive the move, and the author's ruling is to drop the limit rather than
+% leave capacity named with no experiment bounding it.
+% THE COUNT MOVES WITH IT: five members become four, so "Five limits qualify these results" is now
+% "Four", and the former Fifth is renumbered Fourth. Probe R13-limitcount pins the count word and is
+% repointed in this same commit, with its reason recorded there.
+Fourth, each
 visit node in the representation graph draws on the visits that precede it, so a vector encodes the visit
 together with its own history; the graph does not pass information from a later visit back to an earlier
 one, in training or at readout, which is what keeps a node from carrying a feature of the target it is

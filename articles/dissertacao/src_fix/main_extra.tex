@@ -70,6 +70,9 @@
 \usepackage{graphicx}
 \usepackage{adjustbox}
 \usepackage{booktabs}
+% [2026-08-12] float is required by the relocated parameter-count control, whose tables use [H].
+% The main volume loads it in preamble.tex; this volume has its own inline preamble and did not.
+\usepackage{float}
 \usepackage{multirow}
 \usepackage{multicol}
 \usepackage{amsmath}
@@ -291,6 +294,10 @@
         \include{chapters/apx_extra_human_subjects}
         \setcounter{chapter}{5}
         \include{chapters/apx_g_hgi_tuning}
+% [2026-08-12, AUTHOR RULING] The parameter-count control, relocated from the main volume. The
+% reasoning is recorded at its former include site in content.tex. It prints as Appendix G here.
+        \setcounter{chapter}{6}
+        \include{chapters/apx_i_parameter_count_control}
 % ---------------------------------------------------------------------------------------
 % SLOT FOR UNDECIDED MATERIAL. The author's design for this volume includes "anything else
 % whose place in the main text is undecided". Add it here, after Appendix D, with its own

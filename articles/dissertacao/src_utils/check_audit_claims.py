@@ -1713,9 +1713,14 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # were added here (the capacity confound on the region advantage, and the forward-only edge
     # construction), so the enumeration reads First..Fifth and the count moves with it. Verified by
     # extracting the ordinals from live text, not by reading the sentence.
-    ("R13-limitcount","§7's enumeration says five limits, matching the five it now names",
+    # [2026-08-12] REPOINTED five -> four. The capacity limit was withdrawn on the author's ruling
+    # together with the parameter-count control it pointed at (relocated to the supplementary volume;
+    # reasoning at its former include site in content.tex). The enumeration now names four members and
+    # the former Fifth is renumbered Fourth. The probe still guards the same property: that the count
+    # word agrees with the members named.
+    ("R13-limitcount","§7's enumeration says four limits, matching the four it now names",
      "chapters/5_mobiwac/07_discussion.tex",
-     r"Five limits qualify these results", True),
+     r"Four limits qualify these results", True),
     ("R13-leak4th",   "and the fourth names the forward-edge channel in the same modal terms §5 uses, "
                       "with the screen it was given",
      "chapters/5_mobiwac/07_discussion.tex",
