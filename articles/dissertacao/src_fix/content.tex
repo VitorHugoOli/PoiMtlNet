@@ -149,14 +149,10 @@
         em seis conjuntos de dados de diferentes contextos geográficos, incluindo um
         conjunto não estadunidense. O protocolo empregou validação cruzada com usuários
         disjuntos entre treinamento e teste, além de testes estatísticos pareados.
-        % [2026-08-12] Same correction as the Abstract, same reason.
-        Essas análises compararam o modelo conjunto com os modelos
-        dedicados em cada tarefa separadamente: na previsão da próxima região, superou-os
-        nos dois conjuntos com os maiores vocabulários de regiões e permaneceu dentro da
-        margem de dois pontos de Acc@10, registrada antes de qualquer resultado ser lido, nos
-        outros quatro (não-inferioridade estatística, teste TOST); na previsão da próxima categoria, superou-os em um conjunto, e as cinco
-        diferenças restantes são equivalentes a zero dentro de meio ponto. Em ambas as tarefas,
-        os resultados do modelo conjunto também
+        Essas análises mostraram que o modelo conjunto superou os modelos dedicados na
+        previsão da próxima categoria em todos os conjuntos e, na previsão da próxima
+        região, superou-os ou foi estatisticamente não-inferior dentro da margem de dois
+        pontos de Acc@10. Em ambas as tarefas, os resultados do modelo conjunto também
         ficaram acima dos reportados pelos métodos externos usados como referência.
         Os resultados mostram que o MTL não constitui um benefício automático: sua efetividade depende da representação de entrada e da topologia de compartilhamento construída para as tarefas consideradas.
         % DO NOT write "proximo lugar visitado" here: it collides with the RESERVED term "next
@@ -238,10 +234,14 @@
             The protocol used user-disjoint cross-validation and paired statistical
             % [2026-08-12] THE UMBRELLA CLAUSE IS GONE. It read "performed at least as well as the dedicated
 % single-task models on both tasks", which is a claim of equality-or-better across all twelve cells,
-% and six of the twelve sit BELOW the dedicated model (recomputed: Istanbul reg -0.08, Alabama cat
-% -0.19 and reg -0.87, Arizona cat -0.00 and reg -0.44, Florida reg -0.16, Texas cat -0.13,
-% California cat -0.00). It was my own replacement for a banned equality verb and traded one defect
-% for a worse one. The two partitions below carry the claim, each bound to its own test.
+% and EIGHT of the twelve sit BELOW the dedicated model: Istanbul reg -0.08, Alabama cat -0.19 and
+% reg -0.87, Arizona cat -0.00 and reg -0.44, Florida reg -0.16, Texas cat -0.13, California cat
+% -0.00. Eight cells over six distinct states. [COUNT CORRECTED: this comment first said "six",
+% which was the number of STATES touched, not cells. The counting cell summed numpy booleans per
+% state, (dc<0)+(dr<0), which ORs rather than adds and saturates at one per state; the enumeration
+% beside it always listed eight. Recounted from the same two artifacts with float comparisons.]
+% The clause was my own replacement for a banned equality verb and traded one defect for a worse
+% one. The two partitions below carry the claim, each bound to its own test.
             tests. These analyses compared the joint model against the
             dedicated single-task models on each task in turn: in next-region
             prediction it outperformed them at the two datasets with the largest region

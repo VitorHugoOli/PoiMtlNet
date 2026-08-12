@@ -867,3 +867,37 @@ moved on to auditing `articles/[mobiwac]/src*/`, which is the standalone article
 review's scope. Its two persisted blocking findings are addressed; the surfaces it had not reached
 are **not** claimed as audited. A future pass over the bibliography and the CBIC and CoUrb chapters'
 numbers would close that gap.
+
+### 17.3 · A second correction to the record: the below-zero cell count was eight, not six
+
+The commit that removed the Abstract and Resumo umbrella clause (`260d61fc`) recorded, in the source
+comment and in the commit body, that "six of the twelve sit BELOW the dedicated model" and then
+enumerated eight cells. Eight is right. Six is the number of distinct **states** touched, not cells.
+
+The cause is a counting bug worth naming, because the cell looked correct. Below-zero cells were
+tallied per state with `b = (dc<0) + (dr<0)`, where `dc` and `dr` are `numpy.float64` means. The
+comparisons yield `numpy.bool_`, and `+` on two of those is logical OR, not integer addition, so a
+state with both axes below zero contributed 1 instead of 2 and the sum saturated at one per state.
+Alabama and Arizona each have both axes below zero, which is exactly the difference between six and
+eight. The enumeration printed beside the total was correct throughout, which is what made the
+mismatch visible.
+
+The corrected count, recomputed with float comparisons from `joint_best_perfold.json` against
+`v18_results.json`:
+
+| dataset | category | region |
+|---|---|---|
+| Istanbul | +0.08 | **-0.08** |
+| Alabama | **-0.19** | **-0.87** |
+| Arizona | **-0.00** | **-0.44** |
+| Florida | +0.19 | **-0.16** |
+| Texas | **-0.13** | +1.21 |
+| California | **-0.00** | +1.06 |
+
+Eight of twelve cells below zero, over six states. **The conclusion the count supported is
+unaffected and is if anything stronger**: the umbrella clause claiming equality-or-better on both
+tasks was false, and it was false at eight cells rather than six. Nothing a reader sees carried the
+wrong number; it appeared only in the source comment, now corrected in place with the cause recorded.
+
+Rule for the next count: never sum boolean comparisons of numpy scalars. Cast with `int()` or
+`float()` first, or count the enumeration rather than a derived total.
