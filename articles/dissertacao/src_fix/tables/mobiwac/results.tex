@@ -1,5 +1,15 @@
 % !TeX root = ../../main.tex
 % mobiwac/results.tex -- one table. Extraction provenance and verification: tables/README.md
+% [2026-08-12] POI-RGNN PROVENANCE, recorded here because a reviewer traced the column to the wrong
+% file and it took a chain of four documents to settle. The printed FL/TX/CA cells (34.49 / 33.03 /
+% 31.78) do NOT reproduce from docs/results/baselines/faithful_poi_rgnn_{florida,texas,california}_5f_*.json,
+% which average 33.347 / 32.084 / 30.711, about one point lower. Those three JSONs are the PRE-BUGFIX
+% May-2 draw. The repository says so itself: docs/baselines/next_category/comparison.md carries a
+% "SUPERSEDED 2026-05-04" banner naming 33.35 / 30.71 / 32.08 as pre-bugfix and 34.49 / 31.78 / 33.03
+% as canonical, and docs/baselines/POI_RGNN_AUDIT.md records the canonical trio against BASELINE.md.
+% The Istanbul, AL and AZ cells match their JSONs exactly, which is why the mismatch looks like mixed
+% provenance rather than a stale set. The printed values are correct; the JSONs are the trap. A reader
+% checking this column must use the canonical chain, not the per-fold files.
 \begin{table}[htbp]
 \caption{One model, two tasks: the single joint model against the dedicated single-task models and the
 external baselines, ordered by region count. The upper block reports next-category (macro-F1) and the
