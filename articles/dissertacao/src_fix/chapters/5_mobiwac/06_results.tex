@@ -13,7 +13,7 @@
 \label{sec:mobiwac:results-part1}
 The check-in-level representation reaches a higher next-category macro-F1 than a standard place
 embedding (HGI~\cite{huang2023hgi}) at every dataset
-(Table~\ref{tab:mobiwac:representation}). The comparison is controlled: target, single-task model, training configuration, windowing, and folds are identical; only the input representation changes (a vector per visit versus a vector per place), so the difference isolates the representation. The check-in-level column keeps one fixed configuration, not the per-dataset-tuned dedicated model of Table~\ref{tab:mobiwac:results}. The difference ranges from $+0.23$ macro-F1 at Florida to
+(Table~\ref{tab:mobiwac:representation}). The comparison is controlled: target, single-task model, training configuration, windowing, epoch budget, logit adjustment, and folds are identical; only the input representation changes (a vector per visit versus a vector per place), so the difference isolates the representation. The check-in-level column is the same dedicated single-task category model reported in Table~\ref{tab:mobiwac:results}, read at seed 0 so that both arms of this comparison share one fold partition; the place-level arm is that model with its input swapped. The difference ranges from $+0.23$ macro-F1 at Florida to
 $+6.29$ at Istanbul, and all five folds favor the check-in-level representation at every one of the
 six datasets. A paired test over the five matched folds separates the two representations at every
 dataset except Florida, where the direction is unanimous across folds but the difference does not
