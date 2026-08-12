@@ -277,12 +277,18 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # rendered PDF, and reported honestly that the counts rested on that one session's reading and on
     # nothing mechanical. It could not add the probe itself because this file belonged to the parallel
     # track that round. Three probes, so a silent regression to the old counts cannot pass:
-    ("R9-apxf7",  "Appendix F reports SEVEN datasets, matching the seven states in the parquet",
-     "chapters/apx_f_cosine.tex", r"seven datasets", True),
-    ("R9-apxfn",  "Appendix F reports 4,650 epoch-level cosines, the measured row count",
-     "chapters/apx_f_cosine.tex", r"4,650", True),
-    ("R9-apxfold", "the superseded four-dataset counts are GONE from Appendix F (inverted)",
-     "chapters/apx_f_cosine.tex", r"3,900|four datasets", False),
+    # [2026-08-12] REPOINTED. The three probes below pinned Appendix F to the count of datasets and
+    # observations in its evidence base. That base was re-measured under the reported joint
+    # configuration, so the counts changed (four datasets, 1,000 observations) while each probe's
+    # PURPOSE is unchanged: the appendix must state its coverage and its row count, and must not
+    # claim coverage it does not have. R9-apxfold inverts accordingly: what must now be absent is
+    # the larger claim, not the smaller one.
+    ("R9-apxf7",  "Appendix F states its coverage as the four datasets it measures",
+     "chapters/apx_f_cosine.tex", r"four datasets", True),
+    ("R9-apxfn",  "Appendix F reports 1,000 epoch-level cosines, the measured row count",
+     "chapters/apx_f_cosine.tex", r"1,000 epoch-level cosines", True),
+    ("R9-apxfold", "Appendix F no longer claims seven datasets or the superseded row count (inverted)",
+     "chapters/apx_f_cosine.tex", r"seven datasets|4,650", False),
     ("R9-pareto2", "Ch.2 still DEFINES Pareto dominance in prose, not only disclaims Pareto claims",
      "chapters/2_fundamentals.tex", r"Pareto dominance", True),
     ("R9-pareto3", "Ch.2 still defines Pareto optimality from dominance",
@@ -429,8 +435,11 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # there. N2/N3: quote, never compute.
     ("R10-blq3",   "the prose-derived scale ratios are gone from Appendix F, endpoint counts kept",
      "chapters/apx_f_cosine.tex", r"factor of thirty-six", False),
-    ("R10-blq3b",  "Appendix F still carries the endpoint check-in counts the ratios were derived from",
-     "chapters/apx_f_cosine.tex", r"113,846 at Alabama to 4,089,892 at Texas", True),
+    # [2026-08-12] REPOINTED with R9-apxf7. The endpoint counts named Alabama and Texas as the ends
+    # of the measured range; Texas is not in the re-measured set, so the appendix now spans the
+    # region counts of the four datasets it has. The probe still requires the span to be stated.
+    ("R10-blq3b",  "Appendix F states the endpoint span of the datasets it actually measures",
+     "chapters/apx_f_cosine.tex", r"520 at Istanbul to 4,703 at\s+Florida", True),
     # R10-fab22: Istanbul's PURPOSE, not just its name. The author's point was that a reader who sees
     # only "and Istanbul" reads a sixth dataset rather than evidence about generalization. The claim the
     # sentence makes is about scope, so the scope has to be stated.
@@ -1666,8 +1675,10 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     ("R13-noratio",   "the anticipatory-set sentence keeps its two traced numbers and drops the computed "
                       "enrichment ratio",
      "chapters/5_mobiwac/07_discussion.tex",
-     r"ten regions out of 8\{,\}501 contain the true next region 65\.69\s+percent of the time\. On four "
-     r"datasets", True),
+     # [2026-08-12] REPOINTED: the shortlist share was recomputed on the final board (64.54, the
+     # California joint Acc@10 cell). The probe's purpose is unchanged, that the sentence keeps its
+     # traced numbers and carries no computed enrichment ratio.
+     r"ten regions out of \$8\{,\}501\$ contain the true next region \$64\.54\$\s+percent of the time", True),
     ("R13-ratio-abs", "and the unsourced `times better than picking ten at random` multiplier is gone",
      "chapters/5_mobiwac/07_discussion.tex",
      r"times better than picking ten at", False),
