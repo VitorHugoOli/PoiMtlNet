@@ -1738,7 +1738,8 @@ correction controls family-wise error across the six dataset
 comparisons~\cite{holm1979}. A superiority test cannot establish that a difference is
 small enough to accept. At the four datasets where the joint model does not outperform on next region, two one-sided tests
 establish that it is statistically non-inferior within a two-point margin~\cite{lakens2017tost}. Accordingly, \emph{outperforms} is reserved for paired
-superiority and \emph{matches} for statistical non-inferiority within that margin.
+superiority, and a difference that fails superiority is reported by the bound its interval
+supports rather than as an equality.
 % Section 2.5 -- Relevance (synthesis; NO fresh citations; argument-only ledger at its end)
 
 
@@ -1819,7 +1820,8 @@ and report fold means without significance tests. In the final study, user-disjo
 cross-validation limits leakage between a user's training and test visits. Macro-F1 and OOD-discounted
 Acc@10 describe different outputs and are read against explicit reference points.
 Paired superiority tests support the verb \emph{outperforms}, while non-inferiority
-tests within a two-point margin support the statement that a difference stays inside that margin. These rules prevent an
+tests within a two-point margin support the statement that a region difference stays inside that
+margin, and the category differences are reported by the bound their intervals support. These rules prevent an
 observed mean difference from being reported as a conclusion that its test does not
 support.
 
@@ -1838,8 +1840,8 @@ single-task models. Chapter~\ref{ch:courb} keeps the model fixed, asks whether t
 input representation, rather than the sharing topology, is the bottleneck, and finds
 that it is. Chapter~\ref{ch:mobiwac} asks what a check-in-level representation and a
 different sharing topology enable for two sequential targets. There, one joint model
-holds its own against the two dedicated models on both tasks and improves on
-them where the region task is hardest. On next region, where the analysis plan registered a
+outperforms the dedicated models on next region at the two datasets with the largest
+region vocabularies, and elsewhere stays inside the bound each axis supports. On next region, where the analysis plan registered a
 two-point equivalence margin in advance, it outperforms the dedicated model at the two datasets
 with the largest region vocabularies and stays inside that margin at the other four. On next
 category, where the plan registered a superiority test and no margin, it outperforms at one

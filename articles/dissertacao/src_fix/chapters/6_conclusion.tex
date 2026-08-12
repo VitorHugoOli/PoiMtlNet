@@ -32,7 +32,7 @@ category classification task, and the pair changed in the final study.
 % AUT-36, which turn on the same task-pair change.
 % Probe: R13-aut32.
 The third study combined a check-in-level representation with a redesigned sharing
-topology (Chapter~\ref{ch:mobiwac}). Under this design, one joint model holds its own against two
+topology (Chapter~\ref{ch:mobiwac}). Under this design, one joint model replaces two
 dedicated single-task models on both tasks. On the region task it outperforms
 them at Texas and California, the two datasets with the largest region vocabularies, and at
 the other four it stays within a two-point margin registered before any result was read
@@ -101,9 +101,10 @@ Paired tests used the four per-seed means.
 
 Under this protocol, the joint model outperforms the dedicated single-task models on the
 region task at Texas ($+1.21$ Acc@10) and California ($+1.06$), and at Istanbul, Alabama,
-Arizona, and Florida it stays within the registered two-point margin. Three of those four
-are small deficits that a test in the reverse direction resolves, the largest being Alabama
-at $-0.87$, so they are reported as differences inside the margin rather than as ties. On
+Arizona, and Florida it stays within the registered two-point margin. All four are small
+deficits, the largest being Alabama at $-0.87$; a test in the reverse direction, corrected across
+the six region comparisons, resolves three of them. They are reported as differences inside the
+margin rather than as ties. On
 the category task it outperforms the dedicated model at Florida ($+0.19$ macro-F1); the
 other five are equivalent to zero within half a point. The equivalence margin was registered for
 the region axis only, so the category bound is read off the intervals rather than chosen in advance.

@@ -457,8 +457,8 @@ The contributions are organized into four groups.
     hierarchical beam search; and STAN has its output layer adapted to rank
     region candidates. Neither adaptation reproduces its complete published system, and
     Chapter~\ref{ch:mobiwac} states what was changed.
-    \item[Practical.] One model produces both predictions in one forward pass, and holds
-    its own against two on both tasks. On the region task it outperforms the dedicated model
+    \item[Practical.] One model produces both predictions in one forward pass, and every
+    difference on both tasks stays inside the bound its axis supports. On the region task it outperforms the dedicated model
     at the two datasets with the largest region vocabularies, Texas and California, and
     at the other four it stays within the two-point margin registered before any result
     was read (statistical non-inferiority, assessed with two one-sided tests). On the
