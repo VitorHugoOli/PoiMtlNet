@@ -3,26 +3,28 @@
 \chapter{A Parameter-Count Control for Next-Category Prediction}
 \label{apx:parameter-count-control}
 
-This experiment tests whether parameter count alone explains the joint model's
-next-category advantage. The dedicated category model was made wider until it had
-approximately the same number of trainable parameters as the complete joint model.
-If parameter count were sufficient, this change should have reduced the performance
-gap. It did not.
+Chapter~\ref{ch:mobiwac} attributes the next-category results to the check-in-level
+representation rather than to the size of the model that reads it. This experiment tests the
+competing explanation. The dedicated category model was made wider until it had approximately the
+same number of trainable parameters as the complete joint model, holding the representation, the
+folds, and the training protocol fixed. If capacity were what the category task responds to, the
+wider model should improve. It does not.
 
-The control covers Alabama and California. It was run after the
-Chapter~\ref{ch:mobiwac} manuscript was submitted, so it is an additional
-dissertation analysis rather than a result of that manuscript.
+The control covers Alabama and California, chosen as the smallest and the largest of the five
+U.S. datasets. It is an additional dissertation analysis and does not appear in the
+Chapter~\ref{ch:mobiwac} manuscript.
 Section~\ref{sec:conc:answer} uses it to test one alternative explanation for the
 final result.
 
 \section{Result at a glance}
 \label{sec:apx-parameter-summary}
 
-Table~\ref{tab:apx-parameter-comparison} places the three results side by side. The
-wider dedicated model scores 0.66 macro-F1 points below the original model in
-Alabama and 0.72 points below it in California. The joint model remains 8.38 and
-7.17 points above the wider model, respectively. Matching the parameter count
-therefore does not reproduce the next-category gain in either dataset.
+Table~\ref{tab:apx-parameter-comparison} places the three results side by side. At both datasets
+the wider dedicated model scores below the narrower one it replaces, so roughly six times the
+parameters buys nothing on this task. The joint model, which carries a comparable budget, lands
+close to the narrow dedicated model rather than close to the wider one. Capacity is therefore not
+the variable the category task responds to at either dataset, which leaves the representation as
+the explanation Chapter~\ref{ch:mobiwac} gives.
 
 \begin{table}[H]
     \centering
