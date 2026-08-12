@@ -316,11 +316,10 @@ models are above the floor at every dataset.
 
 \subsection{External validity (Istanbul)}
 \label{sec:mobiwac:results-external}
-The joint-model results hold for a non-U.S. city under the same representation, sliding-window protocol, and training setup as the U.S. states. At Istanbul, the
-joint model outperforms the dedicated category ceiling by $+8.58$ macro-F1
-(dedicated $54.74$, joint $63.32$) and is slightly above the dedicated region ceiling at $+0.19$
-Acc@10 (dedicated $75.16$, joint $75.35$), a gain with statistical support (the whole 90\% confidence interval of the paired
-difference lies above zero, and TOST, $\pm2$~pp, also passes). The comparable quantity is the gain over the ceiling, not the absolute
+The joint-model results hold for a non-U.S. city under the same representation, sliding-window protocol, and training setup as the U.S. states. At Istanbul, both
+tasks land within a tenth of a point of the dedicated models: category $+0.08$ macro-F1
+(dedicated $35.34$, joint $35.42$) and region $-0.08$ Acc@10 (dedicated $75.16$, joint $75.08$),
+the region difference staying well within the two-point margin. The comparable quantity is the gain over the ceiling, not the absolute
 Acc@10, since region counts differ across datasets (520 mahalle here). The external baselines show the same ordering on both tasks
 (Table~\ref{tab:mobiwac:results}).
 The U.S. result repeats on a different continent and region unit.
