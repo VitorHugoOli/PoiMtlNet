@@ -87,9 +87,14 @@ in Table~\ref{tab:mobiwac:results}.}
 % (and made p.68 floats-only). Both declarations were moved down to the paragraph boundary that
 % follows their first reference; no prose was reordered and declaration order (table before
 % figure) is preserved, so the float numbers are unchanged.
-One model outperforms the dedicated models on next
-category at all six datasets, and on next region it outperforms them at four of the six
-and is statistically non-inferior within a two-point margin at the other two.
+One model serves both tasks without giving up either. On next region it outperforms the dedicated
+model at Texas and California, the two datasets with the most regions, and at the other four it
+stays within the two-point margin registered before any result was read (statistical
+non-inferiority, assessed with two one-sided tests). On next category it outperforms the dedicated
+model at Florida; at the other five datasets the difference is not resolved, since the equivalence
+margin was registered for the region axis only. What every category cell does support is a bound on
+the size of the difference: each one is equivalent to zero within half a point, and within half a
+point simultaneously across all six.
 % [round9c, PENDENCIAS_RESOLVIDOS 2.11 (arquivado 2026-08-02), author decision: option B, 2026-07-30] The lead read "One model
 % outperforms or matches the dedicated models on both tasks", which collapses the four-of-six /
 % TOST partition this chapter's own section 5.3 and section 6.2 state precisely. Applied to BOTH
@@ -97,19 +102,28 @@ and is statistically non-inferior within a two-point margin at the other two.
 % the under-review chapter: articles/[mobiwac]/src/sections/06_results.tex carries the same
 % sentence, and the paper's ERRATA.md records it. No number, test or verdict changes; Arizona is
 % not upgraded. Verified identical with the comment-stripping sweep, across line wraps.
-For scale: always predicting the most common category reaches only about 7
-percent macro-F1 (the majority-class floor), and a random region top-ten guess
-is right at most about two percent of the time (Section~\ref{sec:mobiwac:setup-metrics}).
+For scale: always predicting the most common category reaches between $5.7$ and $7.3$ macro-F1
+depending on the dataset (the majority-class floor, lowest at Florida, whose category mix is the
+most even), and a random region top-ten guess is right at most about two percent of the time
+(Section~\ref{sec:mobiwac:setup-metrics}).
 
 Table~\ref{tab:mobiwac:results} reports the single joint model against the dedicated
 single-task ceilings (the level a joint model is usually expected, at
-best, to match). The dedicated category model is tuned per dataset over batch size and learning rate (the dedicated region models use the strongest fixed configuration).
+best, to match). Batch size and learning rate were searched for the dedicated category model at
+every dataset and for the joint model at the smaller datasets; Texas and California carry the joint
+configuration transferred from those searches, and the dedicated region models use one fixed
+configuration throughout.
 Throughout, every reported model is one saved artifact per fold, read at its
 validation-selected epoch: each dedicated model at its task's best epoch, and
 the joint model at the epoch selected by its joint validation score (the
 geometric mean of the two task metrics), with both tasks read from that one
-model. Reading each joint task at its own best epoch instead would change every
-joint result by at most $0.06$ (category) and $0.11$ (region) points.
+model. This convention is the one a deployed system can actually serve, since it commits to a
+single checkpoint per fold. The alternative, reading each task at its own best epoch, describes no
+single saved model: it reports two different checkpoints as though one system produced both. That
+alternative is more favorable to the joint model, by at most $0.23$ macro-F1 and $0.93$ Acc@10
+points, and it is favorable enough to change the verdicts, turning four further category cells and
+one further region cell into supported improvements. The stricter convention is reported here for
+that reason, and every verdict in this chapter is the one it yields.
 % AUTHOR DECISION 2026-07-18 (supersedes 2026-07-09): the REPORTED convention is now JOINT-BEST
 % (author ruling, considerations_v3 #10) -- Table 3's joint cells are the one saved model per fold
 % (geom_simple = sqrt(cat F1 x reg Acc@10-indist) on validation, model-SELECTION only; never enters
