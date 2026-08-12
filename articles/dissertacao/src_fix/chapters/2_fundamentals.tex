@@ -1886,9 +1886,14 @@ model. For that configuration, the joint model does not outperform the dedicated
 single-task models. Chapter~\ref{ch:courb} keeps the model fixed, asks whether the
 input representation, rather than the sharing topology, is the bottleneck, and finds
 that it is. Chapter~\ref{ch:mobiwac} asks what a check-in-level representation and a
-different sharing topology enable for two sequential targets. There, one joint model
-outperforms the dedicated models on next region at the two datasets with the largest
-region vocabularies, and elsewhere stays inside the bound each axis supports. On next region, where the analysis plan registered a
+different sharing topology enable for two sequential targets.
+% [2026-08-12] A summary sentence stood here that duplicated the region-axis sentence below almost
+% verbatim, including the clause naming the two datasets with the largest region vocabularies. The two
+% axis sentences carry the partition on their own, each bound to the test its axis registered, so the
+% summary was removed rather than reworded. It read: "There, one joint model outperforms the dedicated
+% models on next region at the two datasets with the largest region vocabularies, and elsewhere stays
+% inside the bound each axis supports."
+On next region, where the analysis plan registered a
 two-point equivalence margin in advance, it outperforms the dedicated model at the two datasets
 with the largest region vocabularies and stays inside that margin at the other four. On next
 category, where the plan registered a superiority test and no margin, it outperforms at one

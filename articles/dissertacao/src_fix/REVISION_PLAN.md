@@ -798,3 +798,28 @@ the last in its volume and touched no numbered float in Chapters 3 to 5, so noth
 point at could have moved. Had the removal been anywhere earlier, three of the four `tab:` entries
 would have shifted and the overclaimed sentence would have been false. This table is the check to
 re-run, in full, after any change to the main volume's float or chapter ordering.
+
+### 15.6 · Provenance headers: which rewritten files carry one, and why the rest do not
+
+The source reviewer flagged asymmetric marking: four files carry the dated `[2026-08-12] EVIDENCE
+BASE REPLACED` header while eight others rewritten this session do not. The asymmetry is deliberate,
+and the criterion is whether the file's *comment layer* can mislead a future reader.
+
+A header is warranted when comments below it describe an evidence base that no longer exists, so a
+reader who trusts them would reach a false conclusion. Four files meet that test and carry it:
+`apx_f_cosine.tex` and `tables/frame/cosine.tex` (their comment layers document the superseded
+measurement set at length, including honesty rules phrased as invariants of the old verdict ladder),
+`5_mobiwac/06_results.tex`, and `5_mobiwac/07_discussion.tex`.
+
+The others do not, for one of two reasons:
+
+- **Their comments were rewritten in the same edit.** `apx_i_parameter_count_control.tex`,
+  `apx_h_check2hgi_joint_model.tex`, `tables/mobiwac/results.tex` and `05_setup.tex` carry dated
+  inline notes at each changed site, each stating the artifact it was checked against. A file-level
+  header would add nothing a reader does not already meet at the point of use.
+- **Their comment layer never described results.** `tables/mobiwac/representation.tex`,
+  `tables/mobiwac/errata_scope.tex`, `08_conclusion.tex` and `figures/mobiwac/fig4_deltas_diss.py`
+  carry structural or build commentary, which the evidence change does not touch.
+
+Recorded here rather than resolved by adding eight more headers, because a header on a file whose
+comments are already current trains the next reader to ignore them.

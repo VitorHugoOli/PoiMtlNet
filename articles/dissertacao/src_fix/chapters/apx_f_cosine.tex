@@ -121,7 +121,7 @@ two tasks ask for opposite updates, one task improves at the other's expense. Th
 Chapter~\ref{ch:mobiwac}.
 
 The two tasks turn out not to disagree. Their gradients are statistically indistinguishable from
-orthogonal on every dataset measured, which is a stronger statement than mere absence of
+orthogonal at each of the four datasets where the measurement was taken, which is a stronger statement than mere absence of
 conflict, and it carries a direct consequence for that model: a gradient balancer had nothing
 % [round9c, 2026-07-30] TWO EDITS IN THIS PARAGRAPH, both from PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30).
 % POINT 2: "a stronger and stranger result" -> "a stronger statement". The author: "Don't say
@@ -538,7 +538,10 @@ this measurement.
 The first axis is the tuning. The four measurements here share one configuration, the one
 Chapter~\ref{ch:mobiwac} reports, so on its own this appendix cannot say whether the orthogonality
 survives a different loss weight or schedule. What speaks to that is the balancer screen of
-Section~\ref{sec:mobiwac:results-part2} itself: nineteen loss and gradient balancers, several of
+% [2026-08-12] Cross-reference repointed. It named sec:mobiwac:results-part2 ("One model, two tasks"),
+% which does not carry the screen: the nineteen-balancer result is stated in the chapter's
+% related-work section, which is where sec:mobiwac:related-mtl resolves.
+Section~\ref{sec:mobiwac:related-mtl} itself: nineteen loss and gradient balancers, several of
 which act only when the cosine is negative, none of which improved on the fixed weighting. A
 quantity that stayed near zero only at this configuration would be a poor explanation for a null
 that broad.

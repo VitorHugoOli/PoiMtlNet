@@ -21,6 +21,10 @@
 
 \ifdefined\FIGINPUT\else
   \documentclass[border=4pt]{standalone}
+% [2026-08-12] The wrapper loaded no font package, so this figure compiled in Computer Modern while
+% the document sets in Times (newtxtext/newtxmath). Every other figure matches the body face; this
+% one did not after it was regenerated. Loading the same pair here fixes the mismatch at the source.
+\usepackage{newtxtext,newtxmath}
   \usepackage{tikz}
   \usepackage{amsmath}
   \usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc}

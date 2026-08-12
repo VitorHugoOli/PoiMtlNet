@@ -139,8 +139,9 @@ model. This convention is the one a deployed system can actually serve, since it
 single checkpoint per fold. The alternative, reading each task at its own best epoch, describes no
 single saved model: it reports two different checkpoints as though one system produced both. That
 alternative is more favorable to the joint model, by at most $0.23$ macro-F1 and $0.93$ Acc@10
-points, and it is favorable enough to change the verdicts, turning four further category cells and
-two further region cells into supported improvements. The stricter convention is reported here for
+points as the largest gap at any one seed, and it is favorable enough to change the verdicts,
+turning four further category cells and two further region cells into improvements that survive the
+same Holm correction applied here. The stricter convention is reported here for
 that reason, and every verdict in this chapter is the one it yields.
 % AUTHOR DECISION 2026-07-18 (supersedes 2026-07-09): the REPORTED convention is now JOINT-BEST
 % (author ruling, considerations_v3 #10) -- Table 3's joint cells are the one saved model per fold
@@ -240,9 +241,10 @@ of them is a tie.
 \centering
 \includegraphics{figures/mobiwac/fig4_deltas.pdf}
 \caption{Signed differences between the joint model and the dedicated single-task models, ordered by
-region count. The category differences (macro-F1) are small in both directions; the region
-differences (Acc@10) are clearly positive at the two largest region vocabularies and inside the band
-elsewhere. The $\pm2$-point band is the margin registered for the region axis only.}
+region count. The category differences (macro-F1) are small in both directions; on the region axis
+(Acc@10), the two positive differences at the largest region vocabularies survive a Holm-corrected
+superiority test, and all six lie inside the band, which is where non-inferiority is established.
+The $\pm2$-point band is the margin registered for the region axis only.}
 \label{fig:mobiwac:deltas}
 \end{figure}
 
