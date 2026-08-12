@@ -127,10 +127,11 @@ Model capacity offers a competing explanation for the next-category results, whi
 dissertation attributes to the check-in-level representation.
 Appendix~\ref{apx:parameter-count-control} tests it directly: the dedicated category model is
 widened to the joint model's parameter budget, holding the representation, the folds, and the
-training protocol fixed. At Alabama and California the wider model scores below the narrower one it
-replaces, so the added capacity brings no gain on this task. Capacity is therefore not the variable
-next-category prediction responds to at these two datasets, which leaves the representation as the
-explanation the evidence supports.
+training protocol fixed. At Alabama, where the control ran the full four-seed
+protocol, the wider model scores $0.53$ macro-F1 points below the narrower one it replaces, and the
+direction is unanimous across all twenty folds. Capacity is therefore not the variable next-category
+prediction responds to at that dataset, which leaves the representation as the explanation the
+evidence supports. A single-seed reading at California is consistent with it.
 
 For next-region prediction, the results point to problem scale as another possible
 condition. The two datasets where the joint model outperforms the dedicated model are
@@ -345,9 +346,10 @@ Six limitations bound the scope of these conclusions.
     the final result. Chapter~\ref{ch:courb} is the fixed-pair control for the
     diagnosis. The additional parameter-count experiment in
     Appendix~\ref{apx:parameter-count-control} tests only whether a larger dedicated
-    category model can close the gap. It covers two of the six datasets, one width
-    point per dataset, width scaling rather than depth, and a smaller hyperparameter
-    search than the original dedicated model. The greater similarity of
+    category model can close the gap. It covers Alabama under the four-seed
+    protocol and California at one seed, one width point per dataset, width scaling
+    rather than depth, and a smaller hyperparameter search than the original
+    dedicated model. The greater similarity of
     the final pair may still contribute to the size of the improvement. The
     ablation that would separate the two changes,
     running static category classification under the check-in-level representation, is
