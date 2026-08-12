@@ -167,41 +167,43 @@ that reason, and every verdict in this chapter is the one it yields.
 \providecommand{\sd}[1]{\,{\scriptsize$\pm$#1}}
 \input{tables/mobiwac/results}
 
-Figure~\ref{fig:mobiwac:deltas} plots the signed gains ordered by region count. On
-category, the joint model outperforms the dedicated ceiling on
-every dataset, by $+5.33$ to $+9.35$ macro-F1 (smallest at Florida, largest at
-Arizona, and $+8.58$ at Istanbul).
+Figure~\ref{fig:mobiwac:deltas} plots the signed differences ordered by region count. On
+category, every difference is small in both directions, from $-0.19$ macro-F1 at Alabama to
+$+0.19$ at Florida, and Florida is the only one the tests resolve.
 % Hidden AZ-ceiling sensitivity (response-letter material, author policy: hide caveats, provide on
 % request): the AZ dedicated ceiling (56.43) is the strongest arm tested at the full n=20; two arms
 % screened at 2 of 4 seeds scored ~57.0 (bs2048@{0.0025,0.0075}). If they held at n=20, the AZ gain
 % would be ~+8.8 -- still the largest (Istanbul +8.58). Rule-clean value = 56.43 per the
 % pre-registered n=20 best-vs-best estimator; the top-up was dropped 2026-07-08 (user decision,
 % docs/studies/closing_data/v17_completion/A40.md).
-On region (Acc@10), the joint model outperforms the dedicated ceiling at
-Florida, Texas, California, and Istanbul, and stays a non-inferior match
-(TOST, $\pm2$~pp) at Alabama and Arizona. Across the five U.S. states, the region gain rises with region count,
-from $-0.41$ at the smallest count to $+2.20$ at the largest; region count and
-corpus size co-vary here, so we read the trend across the points rather than
-as a precise law.
+On region (Acc@10), the joint model outperforms the dedicated model at Texas ($+1.21$) and
+California ($+1.06$), and at the other four datasets it stays within the two-point margin. The two
+datasets where it outperforms are the two with the largest region vocabularies, which is where the
+region task is hardest and where the dedicated model has the most to gain from an auxiliary signal.
+The ordering is not monotone inside that pair, since California has more regions than Texas and a
+slightly smaller gain, and region count co-varies with corpus size across these states, so the
+grouping is read as an observation about where the benefit appears rather than as a law relating
+gain to region count.
 
-On category, all four
-seeds favor the joint model on every dataset, and each gain is significant
-after a Holm correction across the six datasets (paired $t$, corrected
-$p<0.001$); the four next-region gains hold under their own Holm correction as
-well (corrected $p<0.001$). The registered Wilcoxon test on the individual fold
-differences agrees at every dataset, with all 20 folds favoring the joint model
-(corrected $p<0.001$). On region, Alabama and Arizona are tested for equivalence (TOST,
-$\pm2$~pp) and pass with 90\% confidence intervals well inside two points
-(each entry: point estimate; interval): Alabama ($-0.41$; $-0.63$ to $-0.20$)
-and Arizona ($0.00$; $-0.08$ to $+0.07$). At Arizona, the interval is centered on zero, so we report a match,
-not a gain. At Alabama, the whole interval lies below zero, a small but
-statistically significant deficit, still well within the two-point margin. At
-Florida and Istanbul, the 90\% intervals lie entirely above zero (Florida
-$+0.71$; $+0.67$ to $+0.76$; Istanbul $+0.19$; $+0.15$ to $+0.23$), so the
-joint model outperforms there, though both gains are smaller than the
-two-point margin of Section~\ref{sec:mobiwac:setup-metrics}. Texas and California
-exceed that margin: their 90\% intervals lie entirely above it ($+2.10$ to
-$+2.13$ at Texas, $+2.19$ to $+2.21$ at California).
+The tests behind those verdicts are reported next, each entry giving the point estimate and its
+90\% confidence interval. On category, Florida is the one dataset where the difference survives the
+Holm correction across the six ($+0.19$; $+0.14$ to $+0.25$; corrected $p=0.011$), with 19 of the
+20 folds favoring the joint model. The other five differences do not survive it, and because the
+equivalence margin was registered for the region axis only, they are reported as not resolved
+rather than as matches: Istanbul ($+0.08$; $+0.01$ to $+0.15$), Arizona ($-0.00$; $-0.04$ to
+$+0.03$), California ($-0.00$; $-0.03$ to $+0.02$), Texas ($-0.13$; $-0.19$ to $-0.08$) and Alabama
+($-0.19$; $-0.33$ to $-0.04$). The intervals themselves carry what can be said about magnitude:
+every one lies inside a third of a point, and a set of two one-sided tests confirms that all six
+differences are equivalent to zero within half a point, simultaneously across the datasets.
+
+On region, Texas ($+1.21$; $+1.13$ to $+1.29$; corrected $p=0.00013$) and California ($+1.06$;
+$+1.03$ to $+1.08$; corrected $p<10^{-4}$) survive the correction, with all 20 folds favoring the
+joint model at both. The remaining four stay within the registered two-point margin, and their
+direction is stated rather than rounded away: Istanbul ($-0.08$; $-0.16$ to $-0.00$) is the only
+one whose interval includes zero, while Alabama ($-0.87$; $-1.00$ to $-0.75$), Arizona ($-0.44$;
+$-0.62$ to $-0.25$) and Florida ($-0.16$; $-0.19$ to $-0.13$) are small deficits that a test in the
+reverse direction does resolve. Each of the four clears the margin comfortably, which is what the
+pre-registered analysis asked of them, but none of them is a tie.
 
 % [REV-029 round 2, 2026-07-26] Moved once more, one paragraph further down. At the previous
 % position this figure and the (now two-block) results table competed for the same page and
@@ -216,9 +218,10 @@ $+2.13$ at Texas, $+2.19$ to $+2.21$ at California).
 \begin{figure}[htbp]
 \centering
 \includegraphics{figures/mobiwac/fig4_deltas.pdf}
-\caption{Signed gains of the joint model over the dedicated single-task models, ordered by
-region count. The category gain (macro-F1) is positive at every dataset; the region gain (Acc@10) rises across the five U.S. states and is also positive at Istanbul.
-The $\pm2$-point band applies to region only.}
+\caption{Signed differences between the joint model and the dedicated single-task models, ordered by
+region count. The category differences (macro-F1) are small in both directions; the region
+differences (Acc@10) are clearly positive at the two largest region vocabularies and inside the band
+elsewhere. The $\pm2$-point band is the margin registered for the region axis only.}
 \label{fig:mobiwac:deltas}
 \end{figure}
 
