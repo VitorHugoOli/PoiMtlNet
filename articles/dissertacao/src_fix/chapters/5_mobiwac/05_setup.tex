@@ -36,6 +36,19 @@ once on the whole dataset and has seen their visits. Its training objective does
 use the next-category or next-region labels. We therefore check whether whole-dataset
 training changes the results.
 
+\emph{Configuration search.} Reported results come from searched configurations, and the search
+was not uniform across the three model families, so its scope is stated here rather than left to
+be inferred. For the dedicated category model, batch size, learning rate, and the logit-adjustment
+strength were searched at every dataset, with the small datasets evaluated over all five folds and
+the large ones screened on a single fold; the selected learning rate differs by dataset, which is
+why the dedicated category arm is a per-dataset-tuned comparison rather than one fixed recipe. For
+the joint model, batch size and the category-head learning rate were searched at Istanbul, Alabama,
+and Arizona over five folds and screened at Florida; Texas and California carry the configuration
+transferred from those searches rather than one of their own. The dedicated region model uses one
+configuration throughout, inherited unchanged, with only the logit-adjustment strength tested and
+set to zero for that task. Section~\ref{sec:mobiwac:discussion} returns to what the uneven joint
+search may mean for the two datasets that did not receive one.
+
 \emph{Whole-dataset training.} The question is whether using all users to train
 Check2HGI gives the prediction models an advantage. To check this, we built a new
 representation for each fold using only its training users.

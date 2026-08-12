@@ -659,7 +659,15 @@ change isolates the effect of the input representation.
 Check2HGI completes the move from contextualized inputs to one learned representation
 per visit. It adds a fourth level below the place and learns one vector per visit from
 the visits themselves, with no next-category and no next-region target in its
-objective. The hierarchy has
+objective. Each visit enters with its category, its cyclic time of day and day of week,
+and four elapsed-time values that place it in the user's own history: the time since the
+previous visit and since the first visit, the gap to the previous visit within the same
+day, and an indicator for a first visit. The elapsed-time values are what distinguish a
+visit that follows minutes after the last one from a visit that opens a new outing, a
+distinction a place-level vector cannot carry because it is the same vector at every
+visit. All of them are measured up to the visit itself, and the edges between consecutive
+visits point forward in time only, so a vector describes its visit and the history before
+it. The hierarchy has
 three adjacent-level boundaries: check-in to place, place to region, and region to
 city. Its three hierarchical boundaries contribute the fixed-weight sum
 \begin{equation}\label{eq:fund:check2hgi}
