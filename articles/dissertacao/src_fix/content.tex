@@ -149,10 +149,13 @@
         em seis conjuntos de dados de diferentes contextos geográficos, incluindo um
         conjunto não estadunidense. O protocolo empregou validação cruzada com usuários
         disjuntos entre treinamento e teste, além de testes estatísticos pareados.
-        Essas análises mostraram que o modelo conjunto superou os modelos dedicados na
-        previsão da próxima categoria em todos os conjuntos e, na previsão da próxima
-        região, superou-os ou foi estatisticamente não-inferior dentro da margem de dois
-        pontos de Acc@10. Em ambas as tarefas, os resultados do modelo conjunto também
+        Essas análises mostraram que o modelo conjunto atendeu às duas tarefas sem custo
+        mensurado em relação aos modelos dedicados: na previsão da próxima região, superou-os
+        nos dois conjuntos com os maiores vocabulários de regiões e permaneceu dentro da
+        margem de dois pontos de Acc@10, registrada antes de qualquer resultado ser lido, nos
+        outros quatro; na previsão da próxima categoria, superou-os em um conjunto, e as cinco
+        diferenças restantes são equivalentes a zero dentro de meio ponto. Em ambas as tarefas,
+        os resultados do modelo conjunto também
         ficaram acima dos reportados pelos métodos externos usados como referência.
         Os resultados mostram que o MTL não constitui um benefício automático: sua efetividade depende da representação de entrada e da topologia de compartilhamento construída para as tarefas consideradas.
         % DO NOT write "proximo lugar visitado" here: it collides with the RESERVED term "next
@@ -232,10 +235,13 @@
             six datasets from different geographic contexts, including one non-U.S.
             dataset.
             The protocol used user-disjoint cross-validation and paired statistical
-            tests. These analyses showed that the joint model outperformed the dedicated
-            single-task models in next-category prediction at every dataset and, in
-            next-region prediction, either outperformed them or was statistically
-            non-inferior within the two-point Acc@10 margin. On both tasks, the joint
+            tests. These analyses showed that the joint model served both tasks at no
+            measured cost against the dedicated single-task models: in next-region
+            prediction it outperformed them at the two datasets with the largest region
+            vocabularies and stayed within the two-point Acc@10 margin registered before
+            any result was read at the other four, and in next-category prediction it
+            outperformed them at one dataset while the five remaining differences were
+            equivalent to zero within half a point. On both tasks, the joint
             model's results were also above those reported by the external baselines.
             The results
             show that MTL does not

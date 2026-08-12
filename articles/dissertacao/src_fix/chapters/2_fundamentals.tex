@@ -1830,10 +1830,14 @@ model. For that configuration, the joint model does not outperform the dedicated
 single-task models. Chapter~\ref{ch:courb} keeps the model fixed, asks whether the
 input representation, rather than the sharing topology, is the bottleneck, and finds
 that it is. Chapter~\ref{ch:mobiwac} asks what a check-in-level representation and a
-different sharing topology enable for two sequential targets. There, the joint model
-outperforms the dedicated model on next category at all six datasets, and on next
-region it outperforms at four of them and matches the dedicated model at the other
-two. Chapter~\ref{ch:mobiwac} reports which datasets fall on each side.
+different sharing topology enable for two sequential targets. There, one joint model
+matches the two dedicated models on both tasks within the margin registered before any
+result was read, and improves on them where the region task is hardest: on next region
+it outperforms the dedicated model at the two datasets with the largest region
+vocabularies and stays within a two-point margin at the other four, and on next category
+it outperforms at one dataset while the remaining five differences are equivalent to
+zero within half a point. Chapter~\ref{ch:mobiwac} reports which datasets fall on each
+side, and with which test.
 
 Those answers also decide something practical. Anticipating what kind of place a
 person will visit, and where that visit will occur, can support recommendation,
