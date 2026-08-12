@@ -39,7 +39,13 @@
 | $\mathcal{U}$, $\mathcal{P}$, $\mathcal{C}$, $\mathcal{R}$ | Sets of users, POIs, category classes, and region classes. | Ch.2 notation block. |
 | $x_i=(u,p_i,t_i,c_i,r_i)$ | The $i$th check-in of user $u$: visited POI, timestamp, category, and region. | A category or region may be used as a target rather than as an observed input. |
 | $H_i=(x_{i-\ell},\ldots,x_{i-1})$ | The ordered history of length $\ell$ preceding check-in $x_i$. | Sequential-task input. |
-| $\Delta_i=(\delta_i,\alpha_i,\gamma_i,\phi_i)$ | The four **elapsed-time quantities** of check-in $x_i$: log time since the previous visit, log time since the user's first visit, the same-day gap capped at one day, and a first-visit indicator. | Derived from the timestamps of $x_i$ and its predecessors, not recorded in the tuple, which is why the definition follows $H_i$ rather than sitting inside $x_i$. All four are measured up to $x_i$ and use no later visit. They are the per-visit context that makes two visits to one POI carry different $\mathbf{e}_{x_i}$. Reported runs record `node_layout = [canonical_11, continuous_time_4]`, `in_channels = 15`. Definition 2.10, in Section 2.2. |
+<!-- [2026-08-12] The symbol row for the elapsed-time quantities was removed with the formal
+definition it registered (Section 2.2.3.2): the chapter defines task and method concepts, not
+feature encodings, and the category indicators and cyclic time values beside them carry no symbol
+either. The TERM row below stays registered, because the prose still uses "elapsed time", and the
+exact composition and width live in the Check2HGI and joint-model appendix. Removing the
+definition also returns Section 2.3's four definitions to 2.10 through 2.13, so the rows citing
+Definition 2.4 and Definition 2.9 are unaffected. -->
 | $\mathbf{e}_p$ | The learned representation of POI $p$. | Static-task input; distinct from a per-visit Check2HGI vector. |
 | $g_{\mathrm{cat}}(\mathbf{e}_p)$ | Static category classifier whose target is the category $c_p$ of POI $p$. | At evaluation, $p$ is held out from the classifier-training fold. |
 | $f_{\mathrm{cat}}(H_i)$, $f_{\mathrm{reg}}(H_i)$ | Sequential predictors whose targets are the next category $c_i$ and next region $r_i$. | The two outputs of the final joint model. |
