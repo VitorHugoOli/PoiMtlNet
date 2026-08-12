@@ -87,14 +87,19 @@ in Table~\ref{tab:mobiwac:results}.}
 % (and made p.68 floats-only). Both declarations were moved down to the paragraph boundary that
 % follows their first reference; no prose was reordered and declaration order (table before
 % figure) is preserved, so the float numbers are unchanged.
-One model serves both tasks, and neither analysis resolves a loss worth acting on. On next region it outperforms the dedicated
-model at Texas and California, the two datasets with the most regions, and at the other four it
-stays within the two-point margin registered before any result was read (statistical
-non-inferiority, assessed with two one-sided tests). On next category it outperforms the dedicated
-model at Florida; at the other five datasets the difference is not resolved, since the equivalence
-margin was registered for the region axis only. What every category cell does support is a bound on
-the size of the difference: each one is equivalent to zero within half a point, and within half a
-point simultaneously across all six.
+One model serves both tasks, and neither analysis resolves a loss worth acting on. On next region it
+outperforms the dedicated model at Texas and California, the two datasets with the most regions, and
+at the other four it stays within the two-point margin registered before any result was read
+(statistical non-inferiority, assessed with two one-sided tests). On next category it outperforms the
+dedicated model at Florida, and at every dataset the difference between the two is equivalent to zero
+within half a point, simultaneously across all six.
+
+Half a point is worth placing against the two comparisons that give the category axis its scale. The
+input representation moves the same metric by $+0.23$ to $+6.29$ points, up to thirty-two times the
+largest difference the choice of architecture makes, and the joint model stands at least $3.06$ points
+above the strongest external baseline at every dataset. Whether one model or two produce the category
+prediction is therefore the smallest of the three effects at work here, which is the sense in which
+one model can replace two on this task.
 % [round9c, PENDENCIAS_RESOLVIDOS 2.11 (arquivado 2026-08-02), author decision: option B, 2026-07-30] The lead read "One model
 % outperforms or matches the dedicated models on both tasks", which collapses the four-of-six /
 % TOST partition this chapter's own section 5.3 and section 6.2 state precisely. Applied to BOTH
@@ -189,7 +194,7 @@ The tests behind those verdicts are reported next, each entry giving the point e
 90\% confidence interval. On category, Florida is the one dataset where the difference survives the
 Holm correction across the six ($+0.19$; $+0.14$ to $+0.25$; corrected $p=0.011$), with 19 of the
 20 folds favoring the joint model. The other five differences do not survive it, and because the
-equivalence margin was registered for the region axis only, they are reported as not resolved
+equivalence margin was registered for the region axis only, they are reported by the bound their intervals support
 rather than as matches: Istanbul ($+0.08$; $+0.01$ to $+0.15$), Arizona ($-0.00$; $-0.04$ to
 $+0.03$), California ($-0.00$; $-0.03$ to $+0.02$), Texas ($-0.13$; $-0.19$ to $-0.08$) and Alabama
 ($-0.19$; $-0.33$ to $-0.04$). The intervals themselves carry what can be said about magnitude:

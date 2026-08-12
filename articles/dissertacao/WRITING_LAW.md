@@ -224,8 +224,9 @@
     Florida (−0.16), all inside the margin; on category the intervals at Istanbul, Alabama and Texas
     exclude zero before correction. A cell inside the margin is never written as "no difference".
   - **Banned on either axis**: "matches", "ties", "empata", "semelhante", "a par", "Pareto",
-    "beats", "wins", "outperforms everywhere", and any bare claim of equality. The five unresolved
-    category cells are written as **"the difference is not resolved"**, never as a match.
+    "beats", "wins", "outperforms everywhere", and any bare claim of equality. The category cells
+    are written as **"equivalent to zero within half a point"**, a bounded-magnitude claim whose
+    bound is read off the intervals rather than chosen, never as a match.
 - **Time-indexed claims** (this arc's rule): CBIC's "MTL does not help" and CoUrb's protocol
   are presented as conclusions *of the time, for that configuration*. Superseded numbers never
   read as current. Corrections are stated as corrections ("later shown to be
@@ -335,7 +336,7 @@ chapter; "deliberately X" → "X by design"; "sits above" → "lies above" (one 
       two-point margin is the readable surface on region; the half-point bound appears **only on the
       next-category axis** and is quoted as derived, never as a chosen margin (the region bound is
       1.372 pp, so "half a point" on that axis is a defect, not a rounding); direction travels with
-      every equivalence claim; the five category cells read "not resolved" and never "matches"; zero
+      every equivalence claim; the category cells read "equivalent to zero within half a point" and never "matches"; zero
       occurrences of the banned equality words.
 - [ ] Scaling claim scoped to the five U.S. states, stated as an observation with both hedges (not
       monotone inside the Texas–California pair; region count co-varies with corpus size).

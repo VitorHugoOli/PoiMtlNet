@@ -137,12 +137,10 @@ residual favors the dedicated model, which makes the reported category differenc
 % model" and forbids synonym cycling, which naming it a third way in one paragraph would be.
 % Probes: R13-sweepscope, R13-sweepscope2.
 build or evaluate a mobility-aware service; it is background motivation, and this chapter's claims are the
-prediction results themselves. Fourth, the joint model carries more parameters than the two dedicated
-models combined (Section~\ref{sec:mobiwac:method-model}), and its region pathway in particular is
-several times the size of the dedicated region model. The region advantage at Texas and California is
-therefore confounded with capacity: a capacity-matched dedicated region model is the control that would
-separate the two, and it has not been run. Appendix~\ref{apx:parameter-count-control} runs that control
-on the category side, where the extra width buys nothing, but the region side remains open. Fifth, each
+prediction results themselves. Fourth, the joint model is the larger artifact
+(Section~\ref{sec:mobiwac:method-model}), so capacity is one variable the region comparison does not
+hold fixed. Appendix~\ref{apx:parameter-count-control} isolates it on the category task, where added
+width brings no gain. Fifth, each
 visit node in the representation graph draws on the visits that precede it, so a vector encodes the visit
 together with its own history; the graph does not pass information from a later visit back to an earlier
 one, in training or at readout, which is what keeps a node from carrying a feature of the target it is
