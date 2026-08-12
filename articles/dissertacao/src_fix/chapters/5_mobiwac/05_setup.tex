@@ -38,17 +38,21 @@ training changes the results.
 
 \emph{Configuration search.} Reported results come from searched configurations, and the search
 was not uniform across the three model families, so its scope is stated here rather than left to
-be inferred. % [2026-08-12] SCOPE CORRECTED against a census of every tuning arm on disk under
-% docs/results/closing_data/v18_sweep/: batch size appears at Istanbul, Alabama, Arizona, Florida and
-% Texas but at no California arm; learning rate is searched over a common grid at Istanbul, Alabama,
-% Arizona and Florida, while Texas's arms sit on a disjoint grid; fold coverage is five folds at
-% Istanbul, Alabama and Arizona, one fold at Florida, three at Texas. The previous sentence put Texas
-% inside the same search as the others and gave Florida a single fold while omitting that its grid
-% differs, so no site in the document stated the scope correctly.
-For the dedicated category model, batch size was searched at every dataset except California, over
-five folds at Istanbul, Alabama and Arizona and on fewer folds at Florida and Texas; the learning
-rate was searched over a common grid at Istanbul, Alabama, Arizona and Florida, with Texas tuned on
-a separate grid. California carries the configuration transferred from those searches.
+be inferred.
+% [2026-08-12] SCOPE CORRECTED TWICE, and the second correction overturned the first. A census of
+% docs/results/closing_data/v18_sweep/ ALONE says batch size never varied at California; adding the
+% earlier generation (docs/studies/closing_data/v17_completion/cat_ceiling_sweep/ and
+% docs/results/closing_data/h2_v17_cat_ceiling/) shows eight California arms varying batch size over
+% {2048, 8192}. The real gap is the LEARNING RATE: California holds a single point (0.005) in both
+% generations, and so does Florida. Texas varies it over three points but on single folds.
+% docs/studies/closing_data/v18/FINAL_SETTINGS.md corroborates, grading max_lr "[5f] small; [1f] TX
+% flat 0.005-0.01" and crediting neither Florida nor California. Both the earlier "at every dataset"
+% and my own "except California" were false; this states the two knobs separately, which is the only
+% form the artifacts support.
+For the dedicated category model, batch size was searched at all six datasets, over five folds at
+Istanbul, Alabama and Arizona and on fewer folds at Florida and Texas. The learning rate was
+searched over five folds at Istanbul, Alabama and Arizona and on single folds at Texas; at Florida
+and California it was not varied, so those two carry the value the smaller searches selected.
 The selected learning rate differs by dataset, which is
 why the dedicated category arm is a per-dataset-tuned comparison rather than one fixed recipe. For
 the joint model, batch size and the category-head learning rate were searched at Istanbul, Alabama,

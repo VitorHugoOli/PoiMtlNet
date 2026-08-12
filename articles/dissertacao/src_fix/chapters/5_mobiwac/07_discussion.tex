@@ -49,9 +49,9 @@ them, and it remains open. What can be said without it is that the shared repres
 component of a design whose joint region output exceeds two dedicated models at those two datasets,
 which is a claim about the model as a whole rather than about transfer between its tasks.
 
-The category picture at Texas and California invites a specific hypothesis. Batch size and learning
-rate were searched for the dedicated category model at every dataset except California and for the
-joint model at the smaller datasets; at Texas and California the joint model runs a configuration transferred from
+The category picture at Texas and California invites a specific hypothesis. Batch size was searched
+for the dedicated category model at every dataset and the learning rate at four of them, with both
+searched for the joint model at the smaller datasets; at Texas and California the joint model runs a configuration transferred from
 those searches rather than one validated on them. Texas carries the second-largest category deficit
 of the six ($-0.13$; Alabama's $-0.19$ is the largest, and it is a dataset where the joint model was
 searched), and California's is under a hundredth of a point. A search conducted for the joint model
@@ -138,14 +138,15 @@ rather than assume: the selection rule is the same for both models on the same f
 % just noted, and "this chapter's claims" against "the paper's claims" (ERRATA.md:79-80). Verified by an
 % exhaustive sentence-then-word diff of the two live texts rather than asserted.
 on that fold, with each model selected on its own validation objective (Section~\ref{sec:mobiwac:results-part2}),
-and, for the category comparison, the dedicated model receives the wider search, a sweep over batch
-size and learning rate that covers every dataset except California, against a joint-model search
-that covers four of the six and leaves Texas and California with a transferred configuration, while
-both sides of the region comparison run a fixed configuration
-(Section~\ref{sec:mobiwac:setup-windows} states the coverage per dataset). Where the dedicated
-search is the wider of the two, the residual favors the dedicated model, which makes the reported
-category difference conservative there. It does not hold at California, where the dedicated
-configuration is transferred rather than searched. It does not follow that the bias cancels exactly. Third, we do not
+and, for the category comparison, the dedicated model receives the wider search: batch size at all
+six datasets and the learning rate at four, against a joint-model search that covers four of the six
+and leaves Texas and California with a transferred configuration, while both sides of the region
+comparison run a fixed configuration (Section~\ref{sec:mobiwac:setup-windows} states the coverage
+per knob and dataset). Where the dedicated search is the wider of the two, the residual favors the
+dedicated model, which makes the reported category difference conservative there. At Florida and
+California, where the dedicated learning rate was not varied, the two searches are closer in extent
+and the reading does not apply; Florida is also the one dataset where the joint model outperforms on
+this task. It does not follow that the bias cancels exactly. Third, we do not
 % SCOPE NARROWED 2026-08-05. The sentence said "the dedicated model receives the wider search, a
 % per-dataset sweep over batch size and learning rate", unqualified, inside the paragraph that bounds the
 % optimistic-score bias for BOTH tasks. The sweep covers the dedicated CATEGORY model only, and this
