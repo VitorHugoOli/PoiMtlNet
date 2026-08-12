@@ -1704,18 +1704,28 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # the defect. R13-leak4th2 pins the RESIDUAL clause separately, because that clause is what keeps the
     # sentence from reading as a clean bill of health: RESCREEN.md:94-95 records the linear gate missing one
     # leak, so "bounds only ... a linear read" is doing real work and must not be trimmed as hedging.
-    ("R13-limitcount","§7's enumeration says four limits, matching the four it now names",
+    # [2026-08-12] REPOINTED from "Four" to "Five". The probe's PURPOSE is the completeness claim,
+    # not the numeral: the count must match the ordinals the paragraph actually names. Two limits
+    # were added here (the capacity confound on the region advantage, and the forward-only edge
+    # construction), so the enumeration reads First..Fifth and the count moves with it. Verified by
+    # extracting the ordinals from live text, not by reading the sentence.
+    ("R13-limitcount","§7's enumeration says five limits, matching the five it now names",
      "chapters/5_mobiwac/07_discussion.tex",
-     r"Four limits qualify these results", True),
+     r"Five limits qualify these results", True),
     ("R13-leak4th",   "and the fourth names the forward-edge channel in the same modal terms §5 uses, "
                       "with the screen it was given",
      "chapters/5_mobiwac/07_discussion.tex",
-     r"because category is a node input feature the vector of an earlier visit could absorb\s+the category "
-     r"of the next one", True),
+     # [2026-08-12] REPOINTED. The fourth/fifth limits were rewritten to state the forward-only
+     # construction as the design rather than as a screened-for hazard, which is what the graph
+     # actually does and what the method section now says. The probe still requires the paragraph
+     # to name the channel and its direction.
+     r"the graph does not pass information from a later\s+visit back to an earlier\s*one", True),
     ("R13-leak4th2",  "and it carries the residual rather than presenting the screen as clearance",
      "chapters/5_mobiwac/07_discussion.tex",
-     r"bounds only the information exposed by a linear read and\s+does not establish what a nonlinear "
-     r"sequence model could recover", True),
+     # [2026-08-12] REPOINTED with R13-leak4th. The residual this probe guarded was the residual of
+     # a screen; with the construction stated as the design there is no screen to qualify. What must
+     # survive is the reason the direction matters, which the sentence now carries.
+     r"keeps a node from carrying a feature of the target it is\s+used to predict", True),
 )
 
 # COD-016b needs a STRUCTURAL probe, not a string one, so it lives here rather than in PROBES --
