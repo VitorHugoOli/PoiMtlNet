@@ -62,9 +62,17 @@ two datasets.
     }
 \end{table}
 
-The joint column uses the diagnostic-best category checkpoint, matching the
-per-task convention of this control. Chapter~\ref{ch:mobiwac} instead uses one
-jointly selected checkpoint for its headline table. Those values are not mixed here.
+% [2026-08-12] CORRECTED. The note claimed the joint column used a diagnostic-best per-task
+% checkpoint and that its values were therefore not comparable with Chapter 5's. The appendix's own
+% evidence file refutes it: the four Alabama seed means and the California seed-0 mean in
+% docs/results/closing_data/apxi_v18/apxi_final.json equal joint_best.cat_f1*100 from
+% docs/results/closing_data/v18/joint_best_perfold.json to seven decimals, which is the JOINTLY
+% SELECTED checkpoint, the same convention as the chapter's table. The note said the opposite of
+% what the numbers are.
+The joint column uses the jointly selected checkpoint, the same convention as
+Chapter~\ref{ch:mobiwac}'s results table, so the joint value here and the chapter's cell for the
+same dataset are the same number. Only the dedicated arms differ between the two, because this
+control replaces the narrow dedicated model with a wider one.
 
 \section{Experimental design}
 \label{sec:apx-parameter-design}

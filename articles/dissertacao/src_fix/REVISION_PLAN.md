@@ -769,3 +769,32 @@ Three explanations cover all sixteen, and they call for different responses:
 Recommendation: none blocks the defense build, and none is a numerical or claim defect. They are a
 ledger-hygiene backlog. The one that would repay attention first is group 2, because a probe
 recorded as applied and never landed is the failure mode this gate exists to catch.
+
+### 15.5 · A correction to the record: the frozen-label check was overclaimed
+
+The commit relocating the parameter-count control (`c215d942`) states that "the supplement's nine
+frozen cross-volume labels were re-checked against the rebuilt main volume and all nine still
+match." The check behind that sentence queried only three of the nine, all of them chapter labels
+(`ch:cbic`, `ch:courb`, `ch:mobiwac`), plus four labels that are not in the frozen table at all. The
+section, figure and table half of the claim had no supporting output when it was written.
+
+The full check has now been run, iterating the nine `\dissertationlabel` entries in `main_extra.tex`
+against `build/main-aux/`:
+
+| frozen entry | frozen value | current | |
+|---|---|---|---|
+| `ch:cbic` | 3 | 3 | match |
+| `ch:courb` | 4 | 4 | match |
+| `ch:mobiwac` | 5 | 5 | match |
+| `sec:intro:organization` | 1.5 | 1.5 | match |
+| `fig:courb:distribuicao` | 3 | 3 | match |
+| `tab:courb:dataset` | 5 | 5 | match |
+| `tab:courb:category` | 6 | 6 | match |
+| `tab:courb:next` | 7 | 7 | match |
+| `tab:mobiwac:results` | 10 | 10 | match |
+
+The conclusion holds, but it held by luck rather than by verification: the relocated appendix was
+the last in its volume and touched no numbered float in Chapters 3 to 5, so nothing these entries
+point at could have moved. Had the removal been anywhere earlier, three of the four `tab:` entries
+would have shifted and the overclaimed sentence would have been false. This table is the check to
+re-run, in full, after any change to the main volume's float or chapter ordering.

@@ -1695,11 +1695,18 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
                        "only side that receives a per-dataset sweep",
      "chapters/5_mobiwac/07_discussion.tex",
      r"and, for the category comparison, the dedicated model receives the wider search", True),
+    # [2026-08-12] REPOINTED. The clause this pinned was rewritten when a census of the tuning arms on
+    # disk (docs/results/closing_data/v18_sweep/) showed the dedicated category search does NOT reach
+    # California, so "at every dataset" was false at four sites and "where that search applies" did not
+    # say where. The probe guards the same property: the region comparison is stated to run a fixed
+    # configuration on both sides, and the conservative reading is attached to the comparison it is
+    # licensed for, now with the dataset the license excludes named.
     ("R13-sweepscope2","and the region comparison is stated to run a fixed configuration on both sides, so "
                        "the conservative reading is attached to the comparison it is licensed for",
      "chapters/5_mobiwac/07_discussion.tex",
-     r"while both sides of the region comparison run a fixed\s+configuration\. Where that search applies, "
-     r"the\s+residual favors the dedicated model, which makes the reported category difference conservative",
+     r"both sides of the region comparison run a fixed configuration.*Where the dedicated\s+search is the "
+     r"wider of the two, the residual favors the dedicated model, which makes the reported\s+category "
+     r"difference conservative there",
      True),
     #
     # (3) THE FOURTH LIMIT. R13-limitcount pins the COUNT, not just the text, because the count is the

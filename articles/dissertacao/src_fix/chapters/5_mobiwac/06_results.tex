@@ -126,10 +126,11 @@ most even), and a random region top-ten guess is right at most about two percent
 
 Table~\ref{tab:mobiwac:results} reports the single joint model against the dedicated
 single-task ceilings (the level a joint model is usually expected, at
-best, to match). Batch size and learning rate were searched for the dedicated category model at
-every dataset and for the joint model at the smaller datasets; Texas and California carry the joint
-configuration transferred from those searches, and the dedicated region models use one fixed
-configuration throughout.
+best, to match). Batch size and learning rate were searched for the dedicated category model
+at every dataset except California and for the joint model at the smaller datasets;
+Section~\ref{sec:mobiwac:setup-windows} states the coverage per dataset. Texas and California carry
+the joint configuration transferred from those searches, and the dedicated region models use one
+fixed configuration throughout.
 Throughout, every reported model is one saved artifact per fold, read at its
 validation-selected epoch: each dedicated model at its task's best epoch, and
 the joint model at the epoch selected by its joint validation score (the

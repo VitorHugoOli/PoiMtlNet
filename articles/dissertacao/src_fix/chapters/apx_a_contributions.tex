@@ -72,19 +72,32 @@ that constructs the folds, and the statistical scripts and output files listed b
 %        it; the joint and dedicated models do not.
   \item[The reported scores.] Read at one saved model per fold, the epoch selected on
         validation, which is the joint-best convention: both tasks are read at the same
+% [2026-08-12] REPOINTED for the same reason as the significance-test entry below: the file this
+% named carries the superseded ladder (verified: +8.59, +9.40, +7.72 and the other five-to-nine-point
+% category gains, against the chapter's single category superiority at Florida). The per-fold record
+% the reported cells come from is named instead, and it is the file the chapter's numbers recompute
+% from cell for cell.
         checkpoint rather than each at its own best epoch. The post-hoc scorer is
-        \path{src/tracking/score_joint_best.py} and its results are collected in
-        \path{docs/reproducibility/mobiwac_v17/JOINT_BEST_RESULTS.md}.
+        \path{src/tracking/score_joint_best.py}, and the per-fold values it produced for
+        every joint cell reported in Chapter~\ref{ch:mobiwac} are stored in
+        \path{docs/results/closing_data/v18/joint_best_perfold.json}.
+% [2026-08-12] REPOINTED. This entry named docs/reproducibility/mobiwac_v17/stats/RESULTS.md and the
+% two console dumps beside it as the frozen record of the verdict tables quoted in Chapter 5. Those
+% files record a DIFFERENT ladder from the one the chapter reports: verified by reading them, they
+% carry category superiority at all six datasets (+7.73, +9.40, +5.34, +8.59, +6.45, +7.45) against
+% the chapter's single category superiority at Florida. A reader following the pointer to check a
+% number would find one that is not on the page. The entry now names the artifacts the reported
+% ladder is computed from, both of which reproduce it cell for cell.
   \item[The significance tests.] The superiority and non-inferiority tests are
         implemented in \path{research/reproducibility/mobiwac_v17/superiority_wilcoxon.py}
-        and \path{research/reproducibility/mobiwac_v17/region_match_tost.py}. The reported
-        analysis was run by \path{research/reproducibility/mobiwac_v17/m1_stats_n20.py},
-        with the pre-registered per-fold variant in
-        \path{research/reproducibility/mobiwac_v17/m2_prereg_perfold.py}. Their console
-        output (\path{docs/reproducibility/mobiwac_v17/outputs/m1_full_output.txt} and
-        \path{docs/reproducibility/mobiwac_v17/outputs/m2_prereg_output.txt}) and the
-        verdict tables quoted in Chapter~\ref{ch:mobiwac}
-        (\path{docs/reproducibility/mobiwac_v17/stats/RESULTS.md}) are frozen together.
+        and \path{research/reproducibility/mobiwac_v17/region_match_tost.py}. The values
+        they consume, and from which every cell of Chapter~\ref{ch:mobiwac}'s results table
+        is computed, are the per-fold records in
+        \path{docs/results/closing_data/v18/joint_best_perfold.json} for the joint model
+        and \path{docs/studies/closing_data/v18/data/v18_results.json} for the dedicated
+        models. Both store one value per fold per seed, so the seed-level means, the paired
+        differences, and the intervals the chapter reports are recomputable from them
+        without rerunning any model.
   \item[The label-history benchmark.] Computed by
         \path{research/reproducibility/mobiwac_v17/autocorrelation_ceiling.py}; its
         machine-readable outputs are stored in
