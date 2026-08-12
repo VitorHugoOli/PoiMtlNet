@@ -655,3 +655,74 @@ configuration: input width, edge direction, loss weights, embedding and hidden d
 counts, dropout, learning rates, scheduler, epochs, folds, selector, and the region-transition
 prior. The forward-only construction is described as the design, with the rationale as a design
 principle, per directive 1.
+
+---
+
+## 15 · Execution log (what has been measured and applied)
+
+### 15.1 · Appendix F, complete
+
+Re-measured at the reported joint configuration: 1,000 epoch-level cosines, four datasets
+(Istanbul, Alabama, Arizona, Florida) x five folds x fifty epochs, one initialization. Every run
+reproduces its banked cell to four decimal places on both tasks, which is the check that ties the
+diagnostic to the model Chapter 5 reports rather than to a nearby variant.
+
+| dataset | mean | 95% CI (fold) | t p | TOST vs 0.05 | folds > 0 |
+|---|---|---|---|---|---|
+| Istanbul | +0.00138 | [+0.00025, +0.00250] | 0.028 | $10^{-8}$ | 5/5 |
+| Alabama | +0.00188 | [-0.00052, +0.00429] | 0.095 | $10^{-7}$ | 4/5 |
+| Arizona | -0.00043 | [-0.00232, +0.00146] | 0.561 | $10^{-7}$ | 3/5 |
+| Florida | +0.00059 | [-0.00045, +0.00163] | 0.188 | $10^{-9}$ | 4/5 |
+
+99.6 percent of individual epochs fall inside the margin; the largest single measurement anywhere
+is 0.059. The finding holds. Texas and California are not measured, and the appendix says so:
+they are also the two datasets where the joint model outperforms on region, so the gap is named
+rather than passed over. The tuning axis now rests on the balancer screen rather than on a
+configuration sweep, because the four runs share one configuration.
+
+Deviation logged: `MTL_AMBIGUITY_STRICT=0`. A single validation row in roughly 766,000 sat in a
+tie group straddling the top-ten boundary, which aborts the scored region metric under the default
+setting. The gradient cosine is a training-path measurement and is unaffected by validation tie
+semantics; every other guard stayed armed, and the parity check against the banked cells is what
+demonstrates the run is the reported one.
+
+### 15.2 · Appendix I, running
+
+The calibration the author asked for was measured rather than estimated: one fold of the wider
+dedicated category model at Alabama on the final engine takes 79 seconds, against the 9 to 26 hours
+the scaled estimate suggested for both datasets. At that rate the winning arm at both datasets is
+about 5.4 hours, so the scope is the full winning arm at Alabama (hidden 672) and California
+(hidden 752), four seeds by five folds each, which is the protocol the rest of the document uses.
+
+Two seeds of Alabama are in: 30.17 and 30.42 macro-F1 against the narrow dedicated model's 30.78.
+The direction the appendix reports is holding. Its framing changes regardless of the values, since
+the control was written to rule out parameter count as the explanation for a category advantage
+that is now +0.19 at one dataset; it becomes a control on the representation claim rather than on
+a joint-model margin.
+
+### 15.3 · The claim gate
+
+`src_utils/check_audit_claims.py` hardcodes its source root and ignores its argument, so it must be
+pointed at `src_fix` explicitly to mean anything. Measured that way: baseline `src` holds 215 of
+236 probes, `src_fix` holds 217. Five probes were repointed to the measurements they check, with
+the reason recorded inline at each; two were satisfied by prose instead. The 19 remaining failures
+are present in the baseline and are unrelated to this revision.
+
+### 15.4 · One divergence from the paper, in the dissertation's favor
+
+The cross-document consistency check found the geometry figures differing: the dissertation reports
+silhouette 0.57 and purity 0.98 against 0.78, averaged over the five U.S. states; the paper reports
+0.53 and 0.98 against 0.79, averaged over Alabama, Arizona, and Florida. Recomputed from
+`docs/studies/closing_data/archive/run_logs/PART1_QUALITY/metrics_long.csv` (task `cat`, level
+`L0`, engine `check2hgi_design_k_resln_mae_l0_1` against `hgi`):
+
+| scope | silhouette, check-in | silhouette, place | purity, check-in | purity, place |
+|---|---|---|---|---|
+| five U.S. states | 0.5668 | 0.0003 | 0.9827 | 0.7750 |
+| Alabama, Arizona, Florida | 0.5466 | -0.0015 | 0.9801 | 0.7878 |
+
+The dissertation's four values round correctly from its stated scope. The paper's purity values
+round correctly from its own, but its silhouette of 0.53 matches neither scope: the three-dataset
+figure is 0.5466, which rounds to 0.55. This is a defect in the paper rather than in the
+dissertation, so nothing here changes; it is recorded for the author to carry back to the
+manuscript.
