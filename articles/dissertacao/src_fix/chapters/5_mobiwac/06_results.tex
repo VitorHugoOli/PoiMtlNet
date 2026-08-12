@@ -242,7 +242,7 @@ controlled comparison for the joint model remains the Dedicated column of
 Table~\ref{tab:mobiwac:results}, which uses the same representation, windows, and
 folds. The first-order Markov region floor of Section~\ref{sec:mobiwac:setup-baselines},
 computed under our windows and folds, reaches $51$ to $72$ Acc@10 across the
-datasets; the joint model exceeds it by $4.9$ to $10.3$ points on all six
+datasets; the joint model exceeds it by $4.1$ to $10.0$ points on all six
 datasets.
 
 That floor is also above the three external region systems at most datasets, and the
@@ -294,11 +294,13 @@ models are above the floor at every dataset.
 %     [round5] REPLACES a mis-citation: PIPELINE_AUDIT_2026-06-03.md:24 (AL 22.4%) is a PLACE-level
 %     "target reappears in its own 9-history" rate on NON-OVERLAPPING windows, so it did not support
 %     the region-level sentence it was attached to. Fact gate B-1/M-3.
-%   margin range 4.9 to 10.3: DERIVED, not quoted -- joint column of Table~\ref{tab:mobiwac:results}
+%   margin range 4.1 to 10.0: DERIVED, not quoted -- joint column of Table~\ref{tab:mobiwac:results}
 %     minus markov_floor_stride1/<state>.json key markov_1step_region_acc10_mean, per dataset.
-%     Verified this session, all six: FL 77.41-72.47=4.94 (narrowest), CA 65.69-59.09=6.60,
-%     TX 67.06-60.10=6.96, AL 69.70-62.26=7.44, AZ 59.46-51.23=8.23,
-%     Istanbul 75.35-65.06=10.29 (widest). Rounds to the printed 4.9 to 10.3.
+%     [2026-08-12] RE-DERIVED on the final joint cells, all six: FL 76.54-72.47=4.07 (narrowest),
+%     CA 64.54-59.09=5.45, TX 66.15-60.10=6.05, AL 69.24-62.26=6.98, AZ 59.04-51.23=7.81,
+%     Istanbul 75.08-65.06=10.02 (widest). Rounds to the printed 4.1 to 10.0. The FLOOR span
+%     (51 to 72) is unchanged: the floors are properties of the data, not model results, so only
+%     the margins move. The narrowest margin is still at Florida and the widest still at Istanbul.
 %     Deliberately re-derived from the chapter's own printed cells
 %     rather than copied from MARKOV_FLOOR_STRIDE1.md, whose +4.95/+10.38 use pre-final joint values
 %     (Ist 75.44 / FL 77.42). Fact gate N-2.
