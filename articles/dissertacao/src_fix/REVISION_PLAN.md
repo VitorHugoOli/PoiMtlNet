@@ -823,3 +823,47 @@ The others do not, for one of two reasons:
 
 Recorded here rather than resolved by adding eight more headers, because a header on a file whose
 comments are already current trains the next reader to ignore them.
+
+---
+
+## 17 · The final review panel
+
+Five reviewers ran against `src_fix`, each carrying the mandatory context documents, the sources of
+truth, and its own persona file from `articles/dissertacao/reviewers/`. Every finding was verified
+against the artifacts before it was applied; three were **rejected or corrected on verification**,
+which is recorded below because a reviewer being wrong is as load-bearing as a reviewer being right.
+
+| reviewer | verdict | blocking | major | outcome |
+|---|---|---|---|---|
+| Committee simulation | pass with corrections | 1 | 2 | all applied |
+| Prose and claims | fail | 2 | 9 | all applied (1 was already fixed) |
+| Source and compliance | pass with corrections | 1 | 4 | all applied |
+| Fact gate | not submitted | 2 | — | both applied; stopped after 2 h, coverage incomplete |
+| Numbers (earlier wave) | — | 3 | 1 | all applied |
+
+### 17.1 · The three findings that changed on verification
+
+**The sweep census, twice.** My first correction scanned only `v18_sweep` and concluded batch size
+was never varied at California. The committee reviewer added the earlier generation
+(`v17_completion/cat_ceiling_sweep`, `h2_v17_cat_ceiling`) and found eight California arms varying
+batch size. The real gap is the learning rate, unvaried at Florida and California in both
+generations. `FINAL_SETTINGS.md` corroborates independently, grading `max_lr` as `[5f] small; [1f]
+TX`. Both the original claim and my correction were false; all five sites now state the two knobs
+separately.
+
+**The external baseline column.** The fact gate could not reproduce three POI-RGNN cells from their
+per-fold artifacts and reported the column as mixing two draws. The arithmetic is right, the
+conclusion is not: `comparison.md` carries a dated `SUPERSEDED` banner naming those artifact values
+as pre-bugfix and the printed values as canonical. No number changed; the table gained a note so the
+next reader does not repeat the trace.
+
+**The frozen cross-volume labels.** Not a reviewer finding but my own overclaim, caught in review:
+the relocation commit said all nine were re-checked when three were. See section 15.5.
+
+### 17.2 · What the panel did not cover
+
+The fact gate never submitted. It was stopped after two hours and more than 500 messages, having
+moved on to auditing `articles/[mobiwac]/src*/`, which is the standalone article and outside this
+review's scope. Its two persisted blocking findings are addressed; the surfaces it had not reached
+are **not** claimed as audited. A future pass over the bibliography and the CBIC and CoUrb chapters'
+numbers would close that gap.
