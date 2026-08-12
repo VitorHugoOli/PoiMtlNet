@@ -120,6 +120,43 @@ category $c_p\in\mathcal{C}$ and lies in a region $r_p\in\mathcal{R}$.
     visits in $H_i$ are observed input, and only the attributes of $x_i$ itself are
     withheld.
 \end{definition}
+
+% [2026-08-12] NEW DEFINITION, at the author's request: the elapsed-time quantities were named in
+% Section 2.2 and in Appendix H's settings table, but the chapter's FORMAL notation stopped at the
+% check-in tuple, so the four values the representation reads had no symbol. They are DERIVED from
+% the timestamps rather than recorded alongside them, which is why they belong here, after the
+% history is defined, rather than inside Definition \ref{def:fund:checkin}: each one needs an
+% earlier visit to be defined against, and the tuple describes a single visit.
+% SOURCE OF RECORD for the four quantities and their measurement rule:
+%   docs/studies/closing_data/v18/METHODOLOGY.md, the elapsed-time node columns row, and the
+%   v18_config recorded in EVERY reported cell:
+%     node_layout = [canonical_11, continuous_time_4], in_channels = 15
+%   verified against all 72 result sidecars in docs/results/closing_data/v18/ (in_channels=15 in
+%   72 of 72) and all 24 rows of docs/studies/closing_data/v18/data/v18_results.json.
+% CAUTION for a future reader: the BUILD logs under docs/results/embedding_eval/delaunay_revalidate/
+% print "feat=11". Those are the earlier graph build; the v18 rebuild appends the four columns, and
+% the per-run records above are the authority for what the reported runs consumed.
+% NUMBERING: no prose cites a definition by number (checked: zero hits for "Definition 2.N" in
+% chapters/, tables/ and content.tex), so inserting here renumbers nothing a reader can see.
+% RENUMBERING NOTICE for anyone reading the older comments in this file: inserting this definition
+% shifted every definition below it by one. The rendered numbers are now checkin 2.1, history 2.2,
+% elapsed 2.3, place embedding 2.4, check-in-level 2.5, representation map 2.6, next place 2.10.
+% Comments dated round 10 through round 13 cite the PRE-insertion numbers and were not rewritten,
+% because the labels they discuss are unambiguous. Live prose cites labels, never numbers; the three
+% GLOSSARY rows that DO cite numbers were updated in the same commit.
+\begin{definition}[Elapsed-time quantities]\label{def:fund:elapsed}
+    Let $t_{i-1}$ be the timestamp of the visit preceding $x_i$ in the same user's history and
+    $t_{u,1}$ the timestamp of that user's first visit. The elapsed-time quantities of $x_i$ are
+    \begin{equation}
+        \Delta_i=\bigl(\,\delta_i,\;\alpha_i,\;\gamma_i,\;\phi_i\,\bigr),
+    \end{equation}
+    where $\delta_i=t_i-t_{i-1}$ is the time since the previous visit, $\alpha_i=t_i-t_{u,1}$ is
+    the time since the user's first visit, $\gamma_i$ is $\delta_i$ when both visits fall on the
+    same calendar day and is capped at one day otherwise, and $\phi_i\in\{0,1\}$ indicates that
+    $x_i$ is the user's first visit, in which case $\delta_i$ and $\gamma_i$ are undefined and
+    take the value zero. Every quantity in $\Delta_i$ is measured up to $x_i$ and uses no visit
+    that follows it.
+\end{definition}
 % ---------------------------------------------------------------------------
 % CITATION / NUMBER LEDGER -- 2.1 (every claim traceable; verbs bound to tests)
 %  silva2019urbancomputing  LBSN traces at high geo/temporal resolution; urban computing (S2 abstract, opened)
@@ -207,7 +244,9 @@ input.
 \begin{definition}[Check-in-level representation]\label{def:fund:checkinlevel}
     A check-in-level representation assigns one vector $\mathbf{e}_{x_i}$ to each check-in
     $x_i$, so two visits to the same POI may enter the model with different
-    representations.
+    representations. What makes them differ is the per-visit context the vector reads,
+    the elapsed-time quantities $\Delta_i$ of Definition~\ref{def:fund:elapsed} among
+    them.
 \end{definition}
 
 % [round12 STEP 3, AD-1] THE REPRESENTATION MAP AS A NUMBERED DEFINITION, not a displayed equation in
@@ -660,9 +699,8 @@ Check2HGI completes the move from contextualized inputs to one learned represent
 per visit. It adds a fourth level below the place and learns one vector per visit from
 the visits themselves, with no next-category and no next-region target in its
 objective. Each visit enters with its category, its cyclic time of day and day of week,
-and four elapsed-time values that place it in the user's own history: the time since the
-previous visit and since the first visit, the gap to the previous visit within the same
-day, and an indicator for a first visit. The elapsed-time values are what distinguish a
+and the four elapsed-time values of Definition~\ref{def:fund:elapsed}, which place it in the
+user's own history. The elapsed-time values are what distinguish a
 visit that follows minutes after the last one from a visit that opens a new outing, a
 distinction a place-level vector cannot carry because it is the same vector at every
 visit. All of them are measured up to the visit itself, and the edges between consecutive
