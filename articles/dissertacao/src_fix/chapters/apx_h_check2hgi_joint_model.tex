@@ -386,8 +386,12 @@ Both heads use mean cross-entropy. Their exact supervised objective is
 Here, $\mathcal{L}_{\mathrm{total}}$ is the scalar used for one backward pass,
 $\mathcal{L}_{C}$ is the next-category cross-entropy loss, and
 $\mathcal{L}_{R}$ is the next-region cross-entropy loss. The weights are fixed.
-No dynamic task balancing, class weighting, label smoothing, or gradient surgery is
-active in the reported configuration.
+The category term applies logit adjustment: $\tau\log P_{\mathrm{train}}(y)$ with
+$\tau=0.5$ is added to the category logits during training, and inference reads the
+unadjusted logits. The region term carries no such adjustment, because $\tau>0$ moves the
+decision boundary toward the balanced posterior that macro-F1 rewards and away from the
+frequency-weighted ranking that Acc@10 rewards. No dynamic task balancing, class
+weighting, label smoothing, or gradient surgery is active in the reported configuration.
 
 AdamW uses three parameter groups. The category group owns the check-in encoder and
 GRU head. The region group owns the region encoder and both region towers. The
@@ -449,8 +453,9 @@ Joint model & Region head & Private tower: 4 heads, dropout $0.3$; shared-contex
 % three p{} widths of the longtable are unchanged.
 % Evidence: src_utils/_round14/80_apx_check2hgi_audit.md, defect D2.
 Joint model & Inactive region paths & Additive region-transition prior with its scalar weight fixed at 0 and not trained; no transition-table training signal; no category-conditioned region output \\
+Joint model & Objective & Fixed $0.50/0.50$ weighting (Equation~\ref{eq:apx-joint-loss}); logit adjustment $\tau=0.5$ on the category term at train time only; region term unadjusted \\
 Joint model & Optimization & AdamW; weight decay $0.05$; batch size 8192 per task; 50 epochs; clip norm $1.0$; OneCycle schedule \\
-Joint model & Peak learning rates & Category $10^{-3}$; region $3\times10^{-3}$; shared $3\times10^{-3}$ for AL/AZ/FL and $10^{-3}$ for CA/TX/Istanbul \\
+Joint model & Peak learning rates & Overall peak $3\times10^{-3}$; category $10^{-3}$ for AL/AZ/Istanbul and $2\times10^{-3}$ for FL/TX/CA; region $3\times10^{-3}$; shared $10^{-3}$ at every dataset \\
 Joint model & Evaluation & Five user-disjoint folds; seeds $\{0,1,7,100\}$; category macro-F1 and region Acc@10 \\
 \bottomrule
 \end{longtable}
