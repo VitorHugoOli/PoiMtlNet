@@ -563,11 +563,21 @@ within a margin of five hundredths"), so the reader meets a familiar device.
 | next category | 0.334 pp | **0.489 pp** | none registered |
 | next region | 1.287 pp | **1.372 pp** | 2 pp (passes) |
 
-So the assertive sentence is available on both axes and is fully test-bound: **every difference
-between the joint model and the dedicated models, on either task and at every dataset, is
-equivalent to zero within half a point.** Verified by running the tests explicitly at the read-off
-margin, where all six category cells pass, and by confirming that they fail just below it, which
-is what makes the bound tight rather than comfortable.
+So an assertive, fully test-bound sentence is available on **each axis, with its own bound**. The
+two must never be merged into one number:
+
+- **Next category: "every difference is equivalent to zero within half a point."** Verified by
+  running the tests explicitly at the read-off margin, where all six category cells pass, and by
+  confirming that they fail just below it, which is what makes the bound tight rather than
+  comfortable.
+- **Next region: "every difference stays within the two-point margin registered before any result
+  was read."** The derived bound here is **1.372 pp** simultaneous, tighter than the registered
+  margin but roughly three times the category bound. Half a point is *false* on this axis: Texas
+  (+1.21) and California (+1.06) are outperformances and Alabama is −0.87.
+
+The strongest correct single sentence spanning both tasks is therefore that no difference exceeds
+the registered two-point margin anywhere, with the category differences an order tighter than that
+at half a point.
 
 **What still holds.** The bound is a statement about magnitude, not about sign, so the §1.5
 disclosure stays: on region, Alabama (−0.87), Arizona (−0.44) and Florida (−0.16) are resolved

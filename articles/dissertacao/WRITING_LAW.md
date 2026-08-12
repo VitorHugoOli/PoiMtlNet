@@ -205,12 +205,20 @@
     where the ±2 pp margin was registered before any result was read. The technical name
     ("statistically non-inferior", TOST) is glossed once at first use in each language and then used
     only where the test itself is being named. All six region datasets clear it.
-  - **"equivalent to zero within half a point"** is the licensed statement for magnitude across
-    both axes. It is *derived, not chosen*: two one-sided tests at margin *d* pass exactly when the
-    90 % CI falls inside ±*d*, so the bound is read off the intervals (per-dataset 0.334 pp on
-    category, 1.287 pp on region; simultaneous over all six datasets under Bonferroni, 0.489 pp and
-    1.372 pp). Because nothing is chosen there is no post-hoc margin to justify. Quote the bound,
-    never a margin invented for the sentence.
+  - **Derived equivalence bounds, one per axis — never quote one axis's bound on the other.** The
+    bound is *derived, not chosen*: two one-sided tests at margin *d* pass exactly when the 90 % CI
+    falls inside ±*d*, so it is read off the intervals. Because nothing is chosen there is no
+    post-hoc margin to justify.
+    - **Next category: "equivalent to zero within half a point."** Per-dataset 0.334 pp;
+      simultaneous over the six datasets under Bonferroni, 0.489 pp. This is the axis the
+      half-point phrase belongs to, and the only one.
+    - **Next region: the registered two-point margin is the claim**; the derived bound is
+      **1.372 pp** simultaneous (1.287 pp per-dataset), which is tighter than the registered margin
+      but is emphatically *not* half a point. Writing "half a point" on the region axis is a
+      three-fold overstatement and contradicts the Texas (+1.21) and California (+1.06) gains
+      recorded in the bullet above.
+    - Quote the bound for the axis being discussed, never a margin invented for the sentence, and
+      never a single cross-axis number.
   - **Direction always travels with an equivalence claim.** The bound constrains magnitude, not
     sign. On region the dedicated model is *resolved* better at Alabama (−0.87), Arizona (−0.44) and
     Florida (−0.16), all inside the margin; on category the intervals at Istanbul, Alabama and Texas
