@@ -131,6 +131,9 @@ category $c_p\in\mathcal{C}$ and lies in a region $r_p\in\mathcal{R}$.
 %   docs/studies/closing_data/v18/METHODOLOGY.md, the elapsed-time node columns row, and the
 %   v18_config recorded in EVERY reported cell:
 %     node_layout = [canonical_11, continuous_time_4], in_channels = 15
+%   The LOG on the first two quantities and the 24 h cap on the third are stated in that same
+%   METHODOLOGY row and in Chapter 5's method section, which is the other live site; the three
+%   now agree. A definition without the log would have contradicted both.
 %   verified against all 72 result sidecars in docs/results/closing_data/v18/ (in_channels=15 in
 %   72 of 72) and all 24 rows of docs/studies/closing_data/v18/data/v18_results.json.
 % CAUTION for a future reader: the BUILD logs under docs/results/embedding_eval/delaunay_revalidate/
@@ -150,12 +153,13 @@ category $c_p\in\mathcal{C}$ and lies in a region $r_p\in\mathcal{R}$.
     \begin{equation}
         \Delta_i=\bigl(\,\delta_i,\;\alpha_i,\;\gamma_i,\;\phi_i\,\bigr),
     \end{equation}
-    where $\delta_i=t_i-t_{i-1}$ is the time since the previous visit, $\alpha_i=t_i-t_{u,1}$ is
-    the time since the user's first visit, $\gamma_i$ is $\delta_i$ when both visits fall on the
-    same calendar day and is capped at one day otherwise, and $\phi_i\in\{0,1\}$ indicates that
-    $x_i$ is the user's first visit, in which case $\delta_i$ and $\gamma_i$ are undefined and
-    take the value zero. Every quantity in $\Delta_i$ is measured up to $x_i$ and uses no visit
-    that follows it.
+    where $\delta_i=\log\bigl(1+(t_i-t_{i-1})\bigr)$ and
+    $\alpha_i=\log\bigl(1+(t_i-t_{u,1})\bigr)$ compress the time since the previous visit and
+    since the user's first visit, $\gamma_i$ is the gap to the previous visit when both fall on
+    the same calendar day and is capped at one day otherwise, and $\phi_i\in\{0,1\}$ indicates
+    that $x_i$ is the user's first visit, in which case the two gaps are undefined and take the
+    value zero. The logarithm keeps a gap of minutes and a gap of weeks on a comparable scale.
+    Every quantity in $\Delta_i$ is measured up to $x_i$ and uses no visit that follows it.
 \end{definition}
 % ---------------------------------------------------------------------------
 % CITATION / NUMBER LEDGER -- 2.1 (every claim traceable; verbs bound to tests)
