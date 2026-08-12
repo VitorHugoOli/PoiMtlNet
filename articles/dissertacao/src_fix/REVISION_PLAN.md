@@ -726,3 +726,46 @@ round correctly from its own, but its silhouette of 0.53 matches neither scope: 
 figure is 0.5466, which rounds to 0.55. This is a defect in the paper rather than in the
 dissertation, so nothing here changes; it is recorded for the author to carry back to the
 manuscript.
+
+---
+
+## 16 · The sixteen pre-existing gate failures (investigated at the author's request)
+
+Every one of the sixteen probes that `check_audit_claims.py` reports as APPLIED-but-absent fails
+identically in the untouched baseline `src/`. None was introduced by this revision, and none
+indicates a wrong statement in the document. Verified by extracting each probe's target file and a
+distinctive literal from its pattern, then searching the comment-stripped prose of both trees:
+
+| probe | target | baseline | revision |
+|---|---|---|---|
+| R8-head, R8-head2 | `5_mobiwac/06_results.tex` | absent | absent |
+| A22-11 | `apx_f_cosine.tex` | absent | absent |
+| A23-R6 | `6_conclusion.tex` | absent | absent |
+| R13-s1pcgrad | `2_fundamentals.tex` | absent | absent |
+| R13-s2base, R13-s2base2 | `1_introduction.tex` | absent | absent |
+| RTV-08b | `5_mobiwac/05_setup.tex` | absent | absent |
+| R13-aut37, -aut37b, -aut37c | `6_conclusion.tex` | absent | absent |
+| R13-foldseed4 | `apx_a_contributions.tex` | absent | absent |
+| R13-foldseed6 | `2_fundamentals.tex` | first clause present, second never written | identical |
+| R13-foldseed7, -foldseed8 | `5_mobiwac/05_setup.tex` | absent | absent |
+| R13-mech-soft | `5_mobiwac/07_discussion.tex` | absent | absent |
+
+Three explanations cover all sixteen, and they call for different responses:
+
+1. **The probe pins prose that was later cut or rewritten for an unrelated reason.** A22-11 pins a
+   sentence naming Georgia, which left the document when the cosine appendix was rebuilt on the
+   four datasets measured at the reported configuration. R13-mech-soft pins a phrasing of the
+   architecture-versus-transfer distinction that the discussion now makes in different words.
+   These should be repointed or retired, one at a time, each with its reason recorded.
+2. **The probe was written from a proposed edit that was never applied.** R13-aut37, -aut37b and
+   -aut37c pin three sentences of a conclusion passage that does not exist in either tree, and
+   R13-foldseed6's second clause was never written. The claim ledger recorded the intent, not the
+   landing. These are the ones worth reading closely: each is a decision the author took that the
+   document does not carry.
+3. **The probe pins the submitted chapter, where the author reserves changes to himself.**
+   R13-foldseed7 and -foldseed8 target `05_setup.tex`, and R8-head/R8-head2 target `06_results.tex`.
+   NORTH_STAR 5.7 reserves published prose to the author, so these stay open by design.
+
+Recommendation: none blocks the defense build, and none is a numerical or claim defect. They are a
+ledger-hygiene backlog. The one that would repay attention first is group 2, because a probe
+recorded as applied and never landed is the failure mode this gate exists to catch.
