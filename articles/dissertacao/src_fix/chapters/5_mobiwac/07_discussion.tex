@@ -15,8 +15,10 @@ other four it stays within the two-point margin registered before any result was
 category it outperforms the dedicated model at Florida, and the five remaining differences are not
 resolved, each of them bounded within half a point of zero. Throughout, the region output keeps its
 own private spatial path (Table~\ref{tab:mobiwac:results}; Figure~\ref{fig:mobiwac:deltas}). The
-practical reading is that one model replaces two at no measured cost on either task, and does
-better than two where the region label space is largest.
+practical reading is that one model replaces two while staying inside the margin the analysis plan
+set as the price worth paying, and does better than two where the region label space is largest.
+The four region cells inside that margin are all small deficits rather than ties, the largest of
+them $0.87$ Acc@10 points at Alabama, so the trade is a measured one and not a free substitution.
 
 Two aspects of the design bear on that region result. The shared trunk carries semantic context
 between the two streams, and the private spatial path keeps the region output free to specialize.

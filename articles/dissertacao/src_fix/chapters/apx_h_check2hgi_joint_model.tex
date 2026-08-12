@@ -68,9 +68,14 @@ The graph has four node levels and three forms of structure:
 
 \begin{description}
     \item[Check-in succession.] Consecutive visits by the same user are connected
-    in both directions. Their edge weight decreases exponentially with the time
+    in one direction only, from the earlier visit to the later one, so that each
+    visit sees the visits that precede it and never those that follow. Their edge
+    weight decreases exponentially with the time
     interval, using a one-hour decay constant. These edges describe the local order
-    of a trajectory rather than geographic proximity.
+    of a trajectory rather than geographic proximity. The direction is part of the
+    design: a target is predicted from a user's past, so a representation built for
+    that target is constructed from the past alone, in training and at readout
+    alike.
 
     \item[Spatial neighborhoods.] A Delaunay triangulation connects nearby places.
     Region nodes are connected when their polygons intersect. These graphs allow
@@ -122,14 +127,14 @@ the two tables exported to the joint model.
 \subsection{Step 1: place each visit in its trajectory}
 
 Two weighted graph-convolution layers process the check-in succession graph. The
-first layer maps the 11 input features to 64 dimensions and applies layer
+first layer maps the 15 input features to 64 dimensions and applies layer
 normalization, PReLU, and dropout. The second layer maps $64$ to $64$ and is added
 to the first-layer state as a residual update. The output for visit $i$ is the
 check-in representation $\mathbf{x}_i\in\mathbb{R}^{64}$.
 
 This transformation changes what one row means. Before the graph encoder, a row
-describes only the visit's own category and cyclic time. After the encoder, it also
-reflects the immediately preceding and following visits in the same user's
+describes only the visit's own category, cyclic time, and elapsed time. After the
+encoder, it also reflects the immediately preceding visits in the same user's
 trajectory. The temporal edge weights determine how strongly those neighbors
 contribute.
 
@@ -375,7 +380,7 @@ therefore depends only on the two towers described above.
 Both heads use mean cross-entropy. Their exact supervised objective is
 \begin{equation}
     \mathcal{L}_{\mathrm{total}}
-    =0.75\mathcal{L}_{C}+0.25\mathcal{L}_{R}.
+    =0.50\mathcal{L}_{C}+0.50\mathcal{L}_{R}.
     \label{eq:apx-joint-loss}
 \end{equation}
 Here, $\mathcal{L}_{\mathrm{total}}$ is the scalar used for one backward pass,
@@ -425,7 +430,7 @@ from the region map of each dataset and is therefore not one global constant.
 \textbf{Stage} & \textbf{Component} & \textbf{Reported setting} \\
 \midrule
 \endhead
-Check2HGI & Check-in input & 7 category indicators + 4 cyclic time values; width 11 \\
+Check2HGI & Check-in input & 7 category indicators + 4 cyclic time values + 4 elapsed-time values; width 15 \\
 Check2HGI & Graph relations & Consecutive-user check-in edges; Delaunay place edges; polygon-adjacency region edges; hierarchy memberships \\
 Check2HGI & Encoders and pooling & Two check-in graph-convolution layers, one place graph convolution, one region graph convolution; width 64; four heads at both hierarchy pools \\
 Check2HGI & Auxiliary learning & Mask probability $0.15$; pretrained place-table anchor; loss weights in Equation~\ref{eq:apx-check2hgi-loss} \\
@@ -462,7 +467,7 @@ Five checks distinguish the reported method from nearby alternatives:
     concatenated tensor;
     \item the private region tower reads the raw region history, while the
     shared-context tower reads the cross-attention output; and
-    \item the supervised objective is the fixed $0.75/0.25$ combination in
+    \item the supervised objective is the fixed $0.50/0.50$ combination in
     Equation~\ref{eq:apx-joint-loss}.
 \end{itemize}
 

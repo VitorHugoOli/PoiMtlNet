@@ -87,7 +87,7 @@ in Table~\ref{tab:mobiwac:results}.}
 % (and made p.68 floats-only). Both declarations were moved down to the paragraph boundary that
 % follows their first reference; no prose was reordered and declaration order (table before
 % figure) is preserved, so the float numbers are unchanged.
-One model serves both tasks without giving up either. On next region it outperforms the dedicated
+One model serves both tasks, and what it gives up on either stays inside the margin the analysis plan registered. On next region it outperforms the dedicated
 model at Texas and California, the two datasets with the most regions, and at the other four it
 stays within the two-point margin registered before any result was read (statistical
 non-inferiority, assessed with two one-sided tests). On next category it outperforms the dedicated
@@ -122,7 +122,7 @@ single checkpoint per fold. The alternative, reading each task at its own best e
 single saved model: it reports two different checkpoints as though one system produced both. That
 alternative is more favorable to the joint model, by at most $0.23$ macro-F1 and $0.93$ Acc@10
 points, and it is favorable enough to change the verdicts, turning four further category cells and
-one further region cell into supported improvements. The stricter convention is reported here for
+two further region cells into supported improvements. The stricter convention is reported here for
 that reason, and every verdict in this chapter is the one it yields.
 % AUTHOR DECISION 2026-07-18 (supersedes 2026-07-09): the REPORTED convention is now JOINT-BEST
 % (author ruling, considerations_v3 #10) -- Table 3's joint cells are the one saved model per fold
@@ -199,11 +199,13 @@ differences are equivalent to zero within half a point, simultaneously across th
 On region, Texas ($+1.21$; $+1.13$ to $+1.29$; corrected $p=0.00013$) and California ($+1.06$;
 $+1.03$ to $+1.08$; corrected $p<10^{-4}$) survive the correction, with all 20 folds favoring the
 joint model at both. The remaining four stay within the registered two-point margin, and their
-direction is stated rather than rounded away: Istanbul ($-0.08$; $-0.16$ to $-0.00$) is the only
-one whose interval includes zero, while Alabama ($-0.87$; $-1.00$ to $-0.75$), Arizona ($-0.44$;
-$-0.62$ to $-0.25$) and Florida ($-0.16$; $-0.19$ to $-0.13$) are small deficits that a test in the
-reverse direction does resolve. Each of the four clears the margin comfortably, which is what the
-pre-registered analysis asked of them, but none of them is a tie.
+direction is stated rather than rounded away: all four are deficits, at Alabama ($-0.87$; $-1.00$
+to $-0.75$), Arizona ($-0.44$; $-0.62$ to $-0.25$), Florida ($-0.16$; $-0.19$ to $-0.13$) and
+Istanbul ($-0.08$; $-0.16$ to $-0.002$), and every one of the four intervals lies entirely below
+zero. Three of them are resolved by a test in the reverse direction after correction, and
+Istanbul's is not, its interval reaching to within two thousandths of zero. Each of the four
+clears the margin comfortably, which is what the pre-registered analysis asked of them, but none
+of them is a tie.
 
 % [REV-029 round 2, 2026-07-26] Moved once more, one paragraph further down. At the previous
 % position this figure and the (now two-block) results table competed for the same page and
