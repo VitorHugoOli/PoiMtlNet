@@ -24,7 +24,7 @@
 \section{Discussion and Limitations}
 \label{sec:mobiwac:discussion}
 
-A single model serves both tasks in one forward pass. On next region it outperforms the dedicated
+A single model serves both tasks in one forward pass, on next region it outperforms the dedicated
 model at Texas and California, the two datasets with the largest region vocabularies, and at the
 other four it stays within the two-point margin registered before any result was read. On next
 category it outperforms the dedicated model at Florida, and the five remaining differences are not
@@ -35,19 +35,28 @@ set as the price worth paying, and does better than two where the region label s
 The four region cells inside that margin are all small deficits rather than ties, the largest of
 them $0.87$ Acc@10 points at Alabama, so the trade is a measured one and not a free substitution.
 
-Two aspects of the design bear on that region result. The shared trunk carries semantic context
-between the two streams, and the private spatial path keeps the region output free to specialize.
-Which of them produces the advantage is not decided by the evidence here: direct ablations of the
-trunk, at the datasets where they were run, move both tasks by less than two tenths of a point in
-either direction, which is below what a single-seed five-fold comparison resolves. That is a
-statement about the resolution of the ablation rather than about the trunk, and the two readings it
-leaves open are quite different. The shared representation may be contributing a modest amount that
-the ablation cannot separate from noise, or the private path may be doing most of the work while the
-trunk supplies context that matters only at the largest region vocabularies. Isolating the trunk at
-Texas and California, at the full four-seed protocol, is the experiment that would decide between
-them, and it remains open. What can be said without it is that the shared representation is one
-component of a design whose joint region output exceeds two dedicated models at those two datasets,
-which is a claim about the model as a whole rather than about transfer between its tasks.
+% [2026-08-12, AUTHOR RULING] REWRITTEN, softer on the shared trunk and shorter. The author's
+% objection: the paragraph argued about the regional result from a trunk ablation that was not run
+% where that result lives. Checked, and it is right for a sharper reason than stated. The ablation
+% DID measure both tasks, but only at Alabama and Florida (docs/studies/closing_data/v18/
+% SWEEP_PLAN.md rows T1-T3: Alabama dcat -0.015 / dreg -0.138 and dcat -0.154 / dreg -0.004;
+% Florida dcat +0.002 / dreg +0.026). Texas and California, the two datasets that carry the region
+% advantage, have only a single-fold screen, and that study's own POSTPONED.md P4 records the gap
+% as "an inconclusive screen", warns in bold against citing the trunk conclusion as a general
+% claim, and states plainly that whether the trunk contributes anything at those two datasets
+% "remains unmeasured". Reasoning about the regional result from arms run elsewhere was the defect.
+% The paragraph now says what the evidence supports at the level it supports it: the shared
+% representation appears able to help, and settling it needs work this study did not do. No
+% per-dataset ablation numbers are quoted, because none of them were measured where the claim is.
+The design gives the two tasks a shared representation while keeping a private spatial path for the
+region output. The evidence here does not separate their contributions. Where the trunk was isolated
+directly, the arms moved both tasks by small amounts that a screen of that size cannot distinguish
+from noise, and those arms were not run at the two datasets that carry the region advantage. The
+reading this supports is a cautious one: the shared representation appears able to help, and how much
+it helps is a question for further work rather than one this study settles. What can be stated
+without that work is narrower, and it is a claim about the model rather than about transfer between
+its tasks: this design, shared representation and private path together, produces a joint region
+output above two dedicated models at the two datasets with the largest region vocabularies.
 
 The category picture at Texas and California invites a specific hypothesis. Batch size was searched
 for the dedicated category model at every dataset and the learning rate at four of them, with both
