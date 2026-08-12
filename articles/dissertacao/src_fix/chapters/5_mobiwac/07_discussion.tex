@@ -105,9 +105,21 @@ measured service result.
 % the same partition by construction. That is exactly the property the paired comparison relies on.
 % See articles/dissertacao/science/fold_partition_and_seeds.md §7 for the distinction.
 
-Five limits qualify these results. First, our representation is trained once over all places; visits to places
-never seen during training are the single effect that we cannot fully isolate. A planned follow-up trains it on each
-fold's training places only and embeds unseen visits. Second, epoch selection consults the fold that the score is
+% [2026-08-12] FIRST LIMIT REFRAMED, author's decision (option b of two he was given). The clause it
+% replaces read: "our representation is trained once over all places; visits to places never seen
+% during training are the single effect that we cannot fully isolate. A planned follow-up trains it on
+% each fold's training places only and embeds unseen visits." Two reasons. (1) The forward-looking
+% promise was withdrawn: it commits to work this document does not carry. (2) The open-ended clause
+% was replaced by the measurement that exists, so the limit is bounded rather than merely disclosed.
+% The count does NOT move: five members stay five, and probe R13-limitcount needs no repointing.
+% NUMBERS: quoted from docs/studies/pre_freeze_gates/A4_RESULTS.md (AL/AZ/FL, seed 0, five folds
+% each) via Section~\ref{sec:mobiwac:setup-windows}'s paragraph, which stays the primary site of this
+% disclosure and carries the region residual. Region -0.33 to +0.01 Acc@10; category +0.27 to +0.29
+% macro-F1. The scope travels with the numbers, per the stats reviewer's finding on exactly this.
+Five limits qualify these results. First, the representation is trained once over all places; a
+per-fold rebuild from training users only changed the results by at most $0.33$ Acc@10 and $0.29$
+macro-F1 across three datasets at one seed, with the qualification on the region half recorded in
+Section~\ref{sec:mobiwac:setup-windows}. Second, epoch selection consults the fold that the score is
 then read on (Section~\ref{sec:mobiwac:setup-windows}), so every absolute score reported here is optimistic. The
 comparison between the joint model and the dedicated models is affected far less, for two reasons that we can state
 rather than assume: the selection rule is the same for both models on the same folds, an epoch chosen on validation and read
