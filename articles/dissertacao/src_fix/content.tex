@@ -149,8 +149,9 @@
         em seis conjuntos de dados de diferentes contextos geográficos, incluindo um
         conjunto não estadunidense. O protocolo empregou validação cruzada com usuários
         disjuntos entre treinamento e teste, além de testes estatísticos pareados.
-        Essas análises mostraram que o modelo conjunto teve desempenho ao menos equivalente ao dos modelos
-        dedicados nas duas tarefas: na previsão da próxima região, superou-os
+        % [2026-08-12] Same correction as the Abstract, same reason.
+        Essas análises compararam o modelo conjunto com os modelos
+        dedicados em cada tarefa separadamente: na previsão da próxima região, superou-os
         nos dois conjuntos com os maiores vocabulários de regiões e permaneceu dentro da
         margem de dois pontos de Acc@10, registrada antes de qualquer resultado ser lido, nos
         outros quatro (não-inferioridade estatística, teste TOST); na previsão da próxima categoria, superou-os em um conjunto, e as cinco
@@ -235,8 +236,14 @@
             six datasets from different geographic contexts, including one non-U.S.
             dataset.
             The protocol used user-disjoint cross-validation and paired statistical
-            tests. These analyses showed that the joint model performed at least as well as the
-            dedicated single-task models on both tasks: in next-region
+            % [2026-08-12] THE UMBRELLA CLAUSE IS GONE. It read "performed at least as well as the dedicated
+% single-task models on both tasks", which is a claim of equality-or-better across all twelve cells,
+% and six of the twelve sit BELOW the dedicated model (recomputed: Istanbul reg -0.08, Alabama cat
+% -0.19 and reg -0.87, Arizona cat -0.00 and reg -0.44, Florida reg -0.16, Texas cat -0.13,
+% California cat -0.00). It was my own replacement for a banned equality verb and traded one defect
+% for a worse one. The two partitions below carry the claim, each bound to its own test.
+            tests. These analyses compared the joint model against the
+            dedicated single-task models on each task in turn: in next-region
             prediction it outperformed them at the two datasets with the largest region
             vocabularies and stayed within the two-point Acc@10 margin registered before
             any result was read at the other four (statistical non-inferiority, by two one-sided tests), and in next-category prediction it

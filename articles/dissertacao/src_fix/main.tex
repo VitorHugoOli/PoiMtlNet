@@ -92,7 +92,11 @@
 % build/main_academico.pdf (they carry no printed number) and add one. src_utils/_round6/
 % VERIFY_LIST.md item A4 carries the command, and check.sh runs it, which is how this was caught.
 % IF YOU ADD OR REMOVE FRONT MATTER, OR ANY FLOAT THAT LENGTHENS THE LISTS, RE-MEASURE THIS.
-\newcommand{\finalbuildfirstpage}{9}
+% [2026-08-12] 9 -> 10. UFV_COMPLIANCE requires the first body page to print (pre-textual count) + 1.
+% MEASURED on build/main_academico.pdf, reading the top-right corner box of each page rather than
+% trusting the header text: physical pages 1 to 9 print no number, and physical page 10 printed 9.
+% Nine pre-textual pages therefore require 10 on the first body page.
+\newcommand{\finalbuildfirstpage}{10}
 
 % The preamble and the body, in that order. They were one file until 2026-07-29; see
 % preamble.tex's header for why they are two. mkformat.py precompiles preamble.tex into a
