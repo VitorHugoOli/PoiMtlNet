@@ -148,10 +148,14 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # The closure line also said "both trees edited" when the measurement globbed only src/**.
     # These three probe the actual requirement -- the same standalone sentence in BOTH trees,
     # and the appendix pointer in the dissertation's section preamble where it can resolve.
-    ("A9-diss",  "2.9: the seven-dataset result is stated in the dissertation's Ch.5, in wording that "
-     "does not depend on holding another document",
+    # [2026-08-12] REPOINTED. The probe's PURPOSE is that Ch.5 states the cosine result in wording
+    # that stands without holding another document; the SEVEN-dataset scope was the accident of the
+    # evidence base. Appendix F was rebuilt on four datasets at the reported configuration, so the
+    # sentence now carries that scope and the equivalence verdict rather than a positivity count.
+    ("A9-diss",  "2.9: the cosine result is stated in the dissertation's Ch.5, at the scope the "
+     "appendix actually measures, in wording that does not depend on holding another document",
      "chapters/5_mobiwac/02_related.tex",
-     r"measured on the final model across seven datasets, is\s+positive at every one of them", True),
+     r"measured on the reported joint model at four datasets, is equivalent to zero at\s+every one of them", True),
     # [round14] A9-ptr REVERSED, and the reversal is the point of the entry. It used to require the
     # gradient-cosine appendix pointer to be PRESENT in this file (round 9 put it in the section
     # preamble so an internal \ref would resolve). The author then ruled that the article bodies of

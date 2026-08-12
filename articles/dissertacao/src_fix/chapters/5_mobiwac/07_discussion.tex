@@ -1,4 +1,19 @@
 % !TeX root = ../../main.tex
+% ============================================================================
+% [2026-08-12] EVIDENCE BASE REPLACED. Read this before any comment below it.
+%
+% Every live value in this file comes from the v18 board:
+%   docs/results/closing_data/v18/joint_best_perfold.json   (24 joint cells, per fold)
+%   docs/studies/closing_data/v18/data/v18_results.json     (dedicated arms, per fold)
+%   docs/results/closing_data/v18_cosine/                   (Appendix F evidence)
+%
+% COMMENTS BELOW THIS BLOCK MAY DESCRIBE THE SUPERSEDED BOARD. They are kept because they
+% record real editorial decisions, and a decision does not stop being a decision when its
+% numbers change. Do NOT read their CELLS, COUNTS, or VERDICTS as current, and do not
+% restore a sentence from them without re-deriving it from the sources named above.
+% In particular, any "honesty rule" phrased as an invariant of the old ladder (category
+% beating at every dataset, region at four) is a record of what was once true, not a rule.
+% ============================================================================
 % chapters/5_mobiwac/07_discussion.tex -- one section of Chapter 5 (MobiWac 2026, submitted, under review).
 % Split out of chapters/5_mobiwac.tex on 2026-07-28 (author request: the paper
 % chapters were single long files, while the originals under articles/[mobiwac]/src/sections/
@@ -112,8 +127,9 @@ rather than assume: the selection rule is the same for both models on the same f
 % exhaustive sentence-then-word diff of the two live texts rather than asserted.
 on that fold, with each model selected on its own validation objective (Section~\ref{sec:mobiwac:results-part2}),
 and, for the category comparison, the dedicated model receives the wider search, a per-dataset sweep over
-batch size and learning rate against one configuration held fixed across all six datasets for the joint
-model, while both sides of the region comparison run a fixed configuration. Where that search applies, the
+batch size and learning rate, against a joint-model search that covers four of the six datasets and leaves
+Texas and California with a transferred configuration, while both sides of the region comparison run a
+fixed configuration. Where that search applies, the
 residual favors the dedicated model, which makes the reported category difference conservative. It does not follow that the bias cancels exactly. Third, we do not
 % SCOPE NARROWED 2026-08-05. The sentence said "the dedicated model receives the wider search, a
 % per-dataset sweep over batch size and learning rate", unqualified, inside the paragraph that bounds the

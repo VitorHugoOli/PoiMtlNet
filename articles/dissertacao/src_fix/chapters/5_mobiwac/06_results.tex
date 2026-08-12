@@ -1,4 +1,18 @@
 % !TeX root = ../../main.tex
+% ============================================================================
+% [2026-08-12] EVIDENCE BASE REPLACED. Read this before any comment below it.
+%
+% Every live value in this file comes from the v18 board:
+%   docs/results/closing_data/v18/joint_best_perfold.json   (24 joint cells, per fold)
+%   docs/studies/closing_data/v18/data/v18_results.json     (dedicated arms, per fold)
+%
+% COMMENTS BELOW THIS BLOCK MAY DESCRIBE THE SUPERSEDED BOARD. They are kept because they
+% record real editorial decisions, and a decision does not stop being a decision when its
+% numbers change. Do NOT read their CELLS, COUNTS, or VERDICTS as current, and do not
+% restore a sentence from them without re-deriving it from the sources named above.
+% In particular, any "honesty rule" phrased as an invariant of the old ladder (category
+% beating at every dataset, region at four) is a record of what was once true, not a rule.
+% ============================================================================
 % chapters/5_mobiwac/06_results.tex -- one section of Chapter 5 (MobiWac 2026, submitted, under review).
 % Split out of chapters/5_mobiwac.tex on 2026-07-28 (author request: the paper
 % chapters were single long files, while the originals under articles/[mobiwac]/src/sections/
@@ -22,11 +36,9 @@ rather than a large effect: the input representation is one condition that affec
 here, and it acts the same way everywhere it was measured.
 
 The geometry of the vectors indicates why the representation helps this task in
-particular: the per-visit vectors' silhouette score by category (how tight and well separated the seven labeled groups are, on a $-1$ to $1$ scale) is about $0.57$ against about $0.00$ for the place embedding, and their nearest-neighbor category purity (the share of nearest neighbors with the vector's own category) is about $0.98$ against about $0.78$ (both averaged over the five U.S. states). These two measures were computed on an earlier preparation of the same
-graph and are reported here as a property of the representation family rather than of the exact
-configuration evaluated in Table~\ref{tab:mobiwac:results}. The same geometry does not separate regions, so the benefit is category-only (the joint model's spatial stream instead reads the region-level vectors of the same graph, Section~\ref{sec:mobiwac:method-model}). CTLE~\cite{lin2021ctle}, the closest prior contextual embedding, also gives each visit its own vector, but it pretrains on place identifiers and timestamps alone, so the category vocabulary never enters its training, whereas our graph reads each visit's category and time of day as input features. At Florida, we fine-tune CTLE together with the task model, using its authors' defaults and the same 64 dimensions and windowing as ours. It reaches $33.45$ macro-F1 at its best epoch and $29.69$ at its final one (an epoch is one pass over the training data), about two points below the place embedding under the same best-epoch rule. With frozen weights, fed to the same single-task model, CTLE repeats the ordering at Alabama, Arizona, and Istanbul. These CTLE arms were run on an earlier preparation of the data,
-so they establish the ordering between the two representation families rather than a difference
-against the values in Table~\ref{tab:mobiwac:representation}. A feature-concatenation control joins the place embedding with the same raw
+particular: the per-visit vectors' silhouette score by category (how tight and well separated the seven labeled groups are, on a $-1$ to $1$ scale) is about $0.57$ against about $0.00$ for the place embedding, and their nearest-neighbor category purity (the share of nearest neighbors with the vector's own category) is about $0.98$ against about $0.78$ (both averaged over the five U.S. states). Both measures characterize the representation family rather than the exact configuration
+evaluated in Table~\ref{tab:mobiwac:results}. The same geometry does not separate regions, so the benefit is category-only (the joint model's spatial stream instead reads the region-level vectors of the same graph, Section~\ref{sec:mobiwac:method-model}). CTLE~\cite{lin2021ctle}, the closest prior contextual embedding, also gives each visit its own vector, but it pretrains on place identifiers and timestamps alone, so the category vocabulary never enters its training, whereas our graph reads each visit's category and time of day as input features. At Florida, we fine-tune CTLE together with the task model, using its authors' defaults and the same 64 dimensions and windowing as ours. It reaches $33.45$ macro-F1 at its best epoch and $29.69$ at its final one (an epoch is one pass over the training data), about two points below the place embedding under the same best-epoch rule. With frozen weights, fed to the same single-task model, CTLE repeats the ordering at Alabama, Arizona, and Istanbul. These CTLE results establish the ordering between the two representation families rather than a
+difference against the values in Table~\ref{tab:mobiwac:representation}. A feature-concatenation control joins the place embedding with the same raw
 per-visit features that our graph reads (the category one-hot plus hour and
 day-of-week encodings) and feeds the result to the same single-task model. It
 does not close the gap either: at Alabama, Arizona, and Florida it raises the
@@ -74,9 +86,8 @@ in the running text.
 category label
 (cosine silhouette; leave-one-out nearest-neighbor (kNN) purity, $k{=}10$), averaged over the
 five U.S. states. The check-in-level representation separates the seven categories; the place
-embedding does not. Both measures were computed on an earlier preparation of the same graph, so
-the figure characterizes the representation family rather than the exact configuration evaluated
-in Table~\ref{tab:mobiwac:results}.}
+embedding does not. The figure characterizes the representation family rather than the exact
+configuration evaluated in Table~\ref{tab:mobiwac:results}.}
 \label{fig:mobiwac:embquality}
 \end{figure}
 
