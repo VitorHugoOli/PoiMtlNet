@@ -19,7 +19,8 @@ task: every fold favors it at every dataset, though the size of the advantage va
 six points. Once this information is available, the joint model can share
 semantic context between the tasks while keeping a private spatial path for region prediction.
 
-With both changes in place, joint training stays within the registered margin on both tasks. For region
+With both changes in place, joint training costs nothing that either analysis can resolve as a
+meaningful loss. For region
 prediction the model outperforms the dedicated model at Texas and California, and at the other four
 datasets it stays within the two-point margin registered before any result was read. For category
 prediction it outperforms the dedicated model at Florida; the five remaining differences are not

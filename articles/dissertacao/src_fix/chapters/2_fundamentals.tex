@@ -1839,12 +1839,13 @@ single-task models. Chapter~\ref{ch:courb} keeps the model fixed, asks whether t
 input representation, rather than the sharing topology, is the bottleneck, and finds
 that it is. Chapter~\ref{ch:mobiwac} asks what a check-in-level representation and a
 different sharing topology enable for two sequential targets. There, one joint model
-matches the two dedicated models on both tasks within the margin registered before any
-result was read, and improves on them where the region task is hardest: on next region
-it outperforms the dedicated model at the two datasets with the largest region
-vocabularies and stays within a two-point margin at the other four, and on next category
-it outperforms at one dataset while the remaining five differences are equivalent to
-zero within half a point. Chapter~\ref{ch:mobiwac} reports which datasets fall on each
+holds its own against the two dedicated models on both tasks and improves on
+them where the region task is hardest. On next region, where the analysis plan registered a
+two-point equivalence margin in advance, it outperforms the dedicated model at the two datasets
+with the largest region vocabularies and stays inside that margin at the other four. On next
+category, where the plan registered a superiority test and no margin, it outperforms at one
+dataset; the remaining five differences are not resolved by that test, and every one of them is
+bounded within half a point of zero. Chapter~\ref{ch:mobiwac} reports which datasets fall on each
 side, and with which test.
 
 Those answers also decide something practical. Anticipating what kind of place a
