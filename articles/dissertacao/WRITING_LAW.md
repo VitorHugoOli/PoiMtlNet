@@ -332,9 +332,11 @@ chapter; "deliberately X" → "X by design"; "sits above" → "lies above" (one 
 - [ ] next category / next region / next place kept distinct; "we do not predict the exact next
       place" stated once, early.
 - [ ] Verdict ladder intact per §3: "outperforms" only at region TX/CA and category FL; the
-      two-point margin is the readable surface on region; the half-point bound is quoted as derived,
-      never as a chosen margin; direction travels with every equivalence claim; the five category
-      cells read "not resolved" and never "matches"; zero occurrences of the banned equality words.
+      two-point margin is the readable surface on region; the half-point bound appears **only on the
+      next-category axis** and is quoted as derived, never as a chosen margin (the region bound is
+      1.372 pp, so "half a point" on that axis is a defect, not a rounding); direction travels with
+      every equivalence claim; the five category cells read "not resolved" and never "matches"; zero
+      occurrences of the banned equality words.
 - [ ] Scaling claim scoped to the five U.S. states, stated as an observation with both hedges (not
       monotone inside the Texas–California pair; region count co-varies with corpus size).
 - [ ] Time-index framing on CBIC/CoUrb conclusions; no superseded number reads as current.
