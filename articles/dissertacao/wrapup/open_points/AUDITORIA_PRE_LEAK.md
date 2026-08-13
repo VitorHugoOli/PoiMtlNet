@@ -4,8 +4,9 @@ Pergunta do autor, 2026-08-13: o Q15 caiu porque descrevia uma auditoria feita s
 anterior da representacao. **Quantos outros pontos que eu levantei caem pelo mesmo motivo?**
 
 A pergunta e boa e o risco e real: nove dos vinte estudos em `docs/results/closing_data/` rodaram na
-preparacao anterior (`check2hgi_dk_ovl`) ou na receita v17. Esta auditoria rastreia cada um ate as
-afirmacoes **vivas** do texto e diz, por estudo, se o vazamento alcanca a afirmacao.
+preparacao anterior (`check2hgi_dk_ovl`) ou na receita v17, e **sete** deles ancoram afirmacoes
+**vivas** do texto. Esta auditoria rastreia cada um e diz, por estudo, se o vazamento alcanca a
+afirmacao.
 
 ## O criterio
 
@@ -26,7 +27,8 @@ que o caminho forward-only esta quebrado (`METHODOLOGY.md:30-31`).
 | `capacity_matched_stl_cat` | o controle de capacidade em categoria, $6.5\times$ os parametros baixa $0.53$ (Apendice G) | sim, mas **ambos os bracos** na mesma preparacao | **VALIDO como comparacao interna** |
 | `baseline_compare` | os quatro baselines externos da tabela do Cap. 5 | sim, os proprios | **VALIDO**, e o texto declara que rodam nos proprios embeddings |
 | `v18_place_level` | a coluna de place embedding da tabela de representacao | sim, `hgi_dk_ovl` | **VALIDO por desenho**: e o braco de comparacao, e o texto o nomeia |
-| `a40`, `h100`, `horizon_stride1` | nenhuma afirmacao viva casa | — | sem exposicao |
+| `horizon_stride1` | o horizonte de predicao, mediana de 0,4 h em Florida a 5,5 h em Istanbul, e 5 a 27 por cento dos alvos mais de tres dias depois (Cap. 5, secao 5.5.1) | **nao** | **IMUNE** |
+| `a40`, `h100` | nenhuma afirmacao viva casa | — | sem exposicao |
 
 ### Por que o piso de Markov e imune, com a medicao
 
@@ -44,6 +46,22 @@ O proprio artefato declara o escopo no campo `what`: *"label-only autocorrelatio
 next-category (no embeddings read)"*. O protocolo confirma: `GroupKFold(5)` por usuario, macro-F1,
 e o teto e o melhor entre persistencia, ultima categoria, contagens de janela e posicional. Todos
 sao funcoes de rotulos.
+
+### Por que o horizonte de predicao e imune, com a medicao
+
+**Correcao de classificacao.** Numa primeira passagem eu agrupei este estudo com os que nao tinham
+exposicao. Estava errado: ele ancora uma afirmacao viva na secao 5.5.1, e a sonda que eu mesmo rodei
+havia impresso tres correspondencias que eu nao examinei antes de classificar.
+
+A quantidade medida e `prediction_horizon_hours`, definida no artefato como
+`timestamp(target) - timestamp(last of the 9 window visits)` por janela. E uma **diferenca de
+timestamps entre visitas**: nenhum vetor e lido, entao a convolucao de vizinhanca nao a alcanca. O
+artefato tambem carrega um `markov_floor_crosscheck` com `exact_match: true` contra o registro do
+piso, o que amarra as duas contagens de janela.
+
+As duas clausulas do texto conferem contra o artefato: mediana de **0,4375 h** em Florida (texto:
+0,4) e **5,5000 h** em Istanbul (texto: 5,5); e a fracao de alvos alem de 72 horas vai de **4,91 por
+cento** em Florida a **27,03 por cento** em Istanbul (texto: 5 a 27).
 
 ### Por que o controle de capacidade em categoria continua valendo
 
@@ -69,6 +87,22 @@ teria notado: o arm nao registra a engine no seu proprio JSON de config.
   representacao diferente, e o prefacio de cada um data suas conclusoes. Nao foram rastreados aqui.
 - `apxi_v18`, `reg_ceiling_n20` e `v18_place_level` nao carregam marca de engine nos JSON que eu li;
   os dois primeiros nao casam com afirmacao viva, e o terceiro foi resolvido pelo campo `engine`.
+### Os dois sem exposicao: por que, e como foi testado
+
+`a40` e `h100` **nao** ficaram sem exposicao por ausencia de correspondencia numerica. Testados por
+valor, 23 e 17 dos seus numeros casam com algum numero em prosa viva, o que e esperado: sao estudos
+sobre as mesmas quantidades, na mesma faixa, e uma busca por valor sozinha nao distingue coincidencia
+de citacao.
+
+O teste que decide e de **proveniencia**, nao de valor. A celula reportada de California, semente 0,
+declara `rundir: results/check2hgi_v18/california/mtlnet_lr1.0e-04_bs8192_ep50_20260809_185016_843391`
+e `lane_host: local:NVIDIA A40`, ou seja: vem da execucao v18, nao do diretorio `a40/` nem do `h100/`.
+O `h100/` carrega um `california_s0_board_partial.json` com `status: PARTIAL (2/5 folds)`, que por
+construcao nao pode ser a fonte de uma celula de cinco folds.
+
+Os dois diretorios sao registros de execucoes de pareamento de hardware, e a afirmacao viva que os
+usa esta em `ORA-5` do registro de lacunas, respondida como divulgacao e nao como resultado.
+
 ## O corpus nao mudou: verificado nos seis datasets
 
 A duvida legitima e se o corpus ou as janelas mudaram entre as preparacoes, porque isso invalidaria
