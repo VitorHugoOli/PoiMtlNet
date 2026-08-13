@@ -52,6 +52,11 @@
 | C11 | **NEW round 4 (REV-027).** "significantly surpassing MHA+PE in these categories" (results, :340) | "surpassing MHA+PE in these two categories" |
 | C12 | **NEW round 4 (REV-027).** "suggesting that, statistically, the performance of the MTL and Single models is largely comparable, without a clear, consistent, and significant advantage" (results, :377) | "suggesting that the performance of the MTL and Single models is largely comparable, without a clear or consistent advantage" |
 | C13 | **NEW round 4 (REV-010).** "Next-POI Prediction, in contrast, aims to predict which specific location a user is likely to visit next, given their past movement history." (related work, :81; published `sections/basis.tex`:23) | Sentence reproduced VERBATIM; a footnote was appended: "This states the general formulation of the task as the literature poses it. The variant studied in this chapter predicts the *category* of the next visited place rather than the place itself, as defined in Section 3.1 and in the chapter preface." |
+| C14 | "MTL allows the learning of complementary objectives simultaneously, allowing for more accuracy." | "MTL allows complementary objectives to be learned simultaneously, which can improve accuracy." |
+| C15 | "Some Models such as TME ... but treat prediction and classification separately." | "Some models, such as TME, ... but treat prediction and classification separately." |
+| C16 | "jointly performs POI category prediction and next-POI classification" | "jointly performs POI category classification and next-category prediction" (the published sentence had the two task operations reversed). |
+| C17 | "enabling more robust predictions even in data-sparse environments" | Removed because the study did not evaluate robustness as a function of data sparsity. |
+| C18 | "We hypothesize three primary factors contributed to this outcome" | "We hypothesize that three primary factors contributed to this outcome." |
 
 **REV-027 scope note (round 4).** The chapter uses "significant/significantly" twelve times and
 reports no inferential test anywhere: a grep for `p-value|p value|Wilcoxon|t-test|Holm|TOST|

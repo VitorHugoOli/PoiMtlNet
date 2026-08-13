@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-r"""Mirror src/ into src_clean/ 1:1, with every LaTeX comment stripped from the .tex files.
+r"""Mirror a source tree into src_clean/ with prose comments stripped from .tex files.
 
-src_clean is the comment-free copy of the active tree. src/ carries a large provenance
-apparatus in comments (decision records, probe names, round history); src_clean is what a
-reader gets who should see only the document.
+src_clean is the comment-free copy of the active tree. The source carries a large
+provenance apparatus in comments (decision records, probe names, round history);
+src_clean is what a reader gets who should see only the document. The source defaults to
+src/ and can be selected with --source, for example --source src_fix.
 
 Comment stripping is not "delete from % to end of line". Three cases must survive:
 
@@ -15,8 +16,9 @@ Comment stripping is not "delete from % to end of line". Three cases must surviv
      including its newline. Leaving a blank line behind would insert a paragraph break in
      LaTeX and change the typeset output.
   3. TRAILING % AS A LINE-JOIN.  In LaTeX a % at end of line suppresses the newline, which
-     is load-bearing inside tabulars and long macro arguments. When a stripped comment
-     leaves nothing but that %, the % is KEPT so the join survives.
+     is load-bearing inside tabulars and long macro arguments. When the % is attached
+     directly to content, it is KEPT so the join survives. When whitespace precedes it,
+     the newline supplies the same space and the % can be removed.
   4. MAGIC COMMENTS.  "% !TeX root = ..." is a DIRECTIVE, not prose: editors read it to know
      which file to compile, and check_tex_root.py requires it on the FIRST line of every .tex
      with a path that resolves. 62 files in this tree carry one. A blanket strip deletes all
@@ -25,18 +27,19 @@ Comment stripping is not "delete from % to end of line". Three cases must surviv
      directives, none of which are prose either).
 
 The script verifies its own work: after syncing, both trees are built and their page
-counts and tex_errors compared. A page-count difference means the strip changed the
-typeset document, which is a bug, not an acceptable difference.
+counts, tex_errors, and extracted PDF text compared. Any difference means the strip
+changed the typeset document, which is a bug, not an acceptable difference.
 """
 from __future__ import annotations
-import re, shutil, subprocess, sys
+import argparse, hashlib, re, shutil, subprocess, sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SRC, DST = ROOT / "src", ROOT / "src_clean"
 SKIP_DIRS = {"build", "__pycache__", ".git"}
-SKIP_NAMES = {".DS_Store"}
+SKIP_NAMES = {".DS_Store", "REVISION_PLAN.md"}
+SKIP_SUFFIXES = {".aux", ".log"}
 
 # "% !TeX root = ...", "% !TeX program = ...", arara directives: functional, never prose.
 # The pattern must be TIGHT. An earlier version was r"^\s*%\s*!" and it wrongly kept
@@ -68,11 +71,12 @@ def strip_tex_comments(text: str) -> str:
                 break
             i += 1
         if cut is not None:
-            kept = body[:cut].rstrip()
-            if not kept:
+            kept = body[:cut]
+            if not kept.strip():
                 continue                          # comment was the only content
-            # case 3: preserve a deliberate line-join
-            body = kept + ("%" if not nl else "")
+            # A preceding space already separates the adjacent lines, so the newline can
+            # replace it. With no space, the % is a functional line-join and must remain.
+            body = kept.rstrip() if kept[-1].isspace() else kept + "%"
             out.append(body + nl)
         else:
             out.append(line)
@@ -111,7 +115,8 @@ def sync() -> tuple[int, int]:
     tex = copied = 0
     for src_path in sorted(SRC.rglob("*")):
         rel = src_path.relative_to(SRC)
-        if any(p in SKIP_DIRS for p in rel.parts) or src_path.name in SKIP_NAMES:
+        if (any(p in SKIP_DIRS for p in rel.parts) or src_path.name in SKIP_NAMES
+                or src_path.suffix in SKIP_SUFFIXES):
             continue
         dst_path = DST / rel
         if src_path.is_dir():
@@ -119,8 +124,10 @@ def sync() -> tuple[int, int]:
             continue
         dst_path.parent.mkdir(parents=True, exist_ok=True)
         if src_path.suffix == ".tex":
-            dst_path.write_text(strip_tex_comments(src_path.read_text(encoding="utf-8")),
-                                encoding="utf-8")
+            stripped = strip_tex_comments(src_path.read_text(encoding="utf-8"))
+            if stripped:
+                stripped = stripped.rstrip("\r\n") + "\n"
+            dst_path.write_text(stripped, encoding="utf-8")
             tex += 1
         else:
             shutil.copy2(src_path, dst_path)
@@ -161,9 +168,39 @@ def build(job: tuple[Path, str]) -> tuple[Path, str, int, str, str]:
     return tree, target, r.returncode, pages.group(1) if pages else "?", errs.group(1) if errs else "?"
 
 
+PDF_STEMS = {
+    "defense": "main",
+    "academico": "main_academico",
+    "ppgc": "main_ppgc",
+    "extra": "main_extra",
+}
+
+
+def pdf_text_digest(tree: Path, target: str) -> str | None:
+    pdf = tree / "build" / f"{PDF_STEMS[target]}.pdf"
+    result = subprocess.run(["pdftotext", pdf, "-"], capture_output=True)
+    if result.returncode != 0:
+        return None
+    return hashlib.sha256(result.stdout).hexdigest()
+
+
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--source",
+        default="src",
+        help="source directory, absolute or relative to articles/dissertacao (default: src)",
+    )
+    parser.add_argument("--no-verify", action="store_true", help="sync without building")
+    args = parser.parse_args()
+
+    selected_source = Path(args.source)
+    SRC = selected_source if selected_source.is_absolute() else ROOT / selected_source
+    if not SRC.is_dir():
+        parser.error(f"source directory does not exist: {SRC}")
+
     sync()
-    if "--no-verify" in sys.argv:
+    if args.no_verify:
         sys.exit(0)
 
     targets = ("defense", "academico", "ppgc", "extra")
@@ -176,11 +213,15 @@ if __name__ == "__main__":
     for target in targets:
         a = done[(SRC, target)]
         b = done[(DST, target)]
-        ok = (a[0] == b[0] == 0) and a[1] == b[1] and a[2] == b[2] == "0"
-        print(f"{target:10s} src rc={a[0]} pages={a[1]} errs={a[2]} | "
-              f"src_clean rc={b[0]} pages={b[1]} errs={b[2]}  {'OK' if ok else 'MISMATCH'}")
+        source_text = pdf_text_digest(SRC, target)
+        same_text = source_text is not None and source_text == pdf_text_digest(DST, target)
+        ok = ((a[0] == b[0] == 0) and a[1] == b[1] and a[2] == b[2] == "0"
+              and same_text)
+        print(f"{target:10s} {SRC.name} rc={a[0]} pages={a[1]} errs={a[2]} | "
+              f"src_clean rc={b[0]} pages={b[1]} errs={b[2]} "
+              f"text={'same' if same_text else 'DIFF'}  {'OK' if ok else 'MISMATCH'}")
         bad |= not ok
     if bad:
         print("FAIL: the stripped tree does not reproduce the source tree.")
         sys.exit(1)
-    print("OK: src_clean is a 1:1 comment-free mirror and builds identically.")
+    print(f"OK: src_clean mirrors {SRC.name} without prose comments and builds identically.")
