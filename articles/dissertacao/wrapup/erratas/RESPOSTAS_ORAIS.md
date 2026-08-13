@@ -1,0 +1,67 @@
+# Respostas orais das erratas
+
+Uma pagina por errata. A frase e para ser dita em pe, sem consultar nada, e cada numero que ela
+carrega esta verificado contra os artefatos (ver `VERIFICACAO.md`).
+
+---
+
+## Q13 · "No Cap. 5 o senhor conclui que o ganho vem da representacao hierarquica e nao da injecao
+de features. No artigo submetido, sobre o mesmo controle, o senhor diz o contrario. Qual defende?"
+
+**Defendo a do artigo, e a frase da dissertacao entra como errata.**
+
+> A fracao de um decimo e calculada contra o intervalo interno do estudo de concatenacao, que roda
+> em outra variante do grafo, com outro harness e embeddings construidos em outro hardware. Na
+> escala da minha Tabela 9, aquele mais dois pontos nao e um decimo do intervalo: e maior que o
+> intervalo. Entao, no eixo de categoria, aquele controle nao separa a representacao hierarquica
+> das features por visita que ela le, e eu nao reivindico essa separacao. A evidencia de que a
+> representacao e o fator dominante esta na Tabela 9, onde a entrada e a unica coisa que muda.
+
+**Se insistirem em por que a frase saiu assim.** Ela cita um termo, o intervalo entre lugar e
+check-in, que aparece uma vez so no documento e nao esta definido em outro lugar. E defeito de
+escopo, nao de medicao: os tres numeros estao certos, e o que falta e dizer a que escala pertencem.
+
+**O que fecha o ponto de vez.** Um estudo de concatenacao na representacao final, sob o harness
+desta dissertacao, que colocaria os dois bracos na mesma escala. Nao foi rodado.
+
+---
+
+## Q14 · "O artigo lista o confundimento de capacidade como um dos cinco limites do resultado de
+regiao. A lista da dissertacao nao o carrega. Por que ele saiu?"
+
+**Ele nao deveria ter saido, entra como errata, e agora vem com a medicao que o artigo dizia faltar.**
+
+> O artigo declara que o controle pareado por capacidade nao havia sido rodado. Eu o rodei. Dando ao
+> modelo dedicado de regiao o orcamento inteiro de parametros do modelo conjunto, ele passa o
+> conjunto em California, por quatro decimos de Acc@10, com a diferenca separada de zero em cinco
+> dobras e direcao unanime, e o iguala em Texas, onde a diferenca nao se separa de zero. Um braco
+> mais estreito, com cinquenta e sete por cento daquele orcamento, ja chega no mesmo nivel. Ou
+> seja: a vantagem de regiao que eu reporto mede capacidade, nao troca entre as tarefas. O que
+> sobrevive e a afirmacao operacional, um modelo produz as duas predicoes em uma passada sem custo
+> mensuravel em nenhuma das duas tarefas, e essa continua de pe.
+
+**Se perguntarem se isso derruba a tese.** Nao, e por uma razao que o documento ja declara: a tese
+e sobre representacao, e vive no eixo de categoria. La o controle de capacidade aponta na direcao
+oposta, multiplicar por seis e meio os parametros do dedicado **baixa** o macro-F1 dele. Os dois
+ganhos de regiao sao resultados secundarios, fora do plano de analise registrado, e a p. 76 e a
+p. 88 ja dizem isso.
+
+**Se perguntarem por que reportar um resultado que enfraquece o proprio texto.** Porque a
+alternativa e deixar a banca descobrir. O limite estava no artigo; retirá-lo da dissertacao sem
+medi-lo seria a unica versao indefensavel dos tres caminhos.
+
+---
+
+## Q15 · o quarto fundamento de integridade descrito na errata do suplemento
+
+**Nao e errata a escrever. E errata a corrigir, e a correcao e retirar.**
+
+> Aquela linha da tabela de errata descreve uma auditoria de desenvolvimento feita sobre uma
+> construcao anterior da representacao, e a propria linha declara os tres limites dela: uma sonda
+> linear, Florida numa unica inicializacao aleatoria, e construcoes anteriores da representacao. O
+> texto que eu depositei nao carrega esse fundamento, e nao deveria: ele mediria uma preparacao que
+> nao e a que os resultados usam. A linha de errata e que esta sobredeclarando, e ela sai.
+
+**A verificacao.** As expressoes "on three grounds", "fourth ground", "linear probe" e
+"forward-edge" tem zero ocorrencias em prosa viva do volume principal; "linear probe" aparece uma
+vez, dentro da propria tabela de errata. Medido em 2026-08-13.

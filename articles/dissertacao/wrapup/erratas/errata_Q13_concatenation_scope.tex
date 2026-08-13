@@ -1,0 +1,44 @@
+% !TeX root = ../../src_fix/main.tex
+% ============================================================================
+% ERRATA Q13 -- o escopo do controle de concatenacao.
+%
+% ESCRITA APOS O ENVIO. Nao esta em nenhum build. Destino provavel: substituir a frase
+% correspondente em chapters/5_mobiwac/06_results.tex quando o deposito final for montado.
+%
+% O QUE ELA CORRIGE. O volume principal, p. 79, afirma: "The gain therefore comes from the
+% hierarchical per-visit representation, not from contextualization alone or feature injection."
+% O artigo submetido, p. 6, sobre OS MESMOS TRES NUMEROS (+2.0 AL, +1.7 AZ, +0.8 FL), recusa
+% explicitamente essa separacao: "this control does not separate the hierarchical representation
+% from the per-visit features it reads, and we make no such separation claim."
+%
+% POR QUE O ARTIGO ESTA CERTO E A DISSERTACAO NAO. A fracao "under a tenth of the
+% place-to-check-in gap" e calculada contra o gap INTERNO do estudo de concatenacao
+% (docs/studies/pre_freeze_gates/A2_RESULTS.md: braco de place embedding 26.29 / 29.58 / 36.21,
+% braco por check-in 50.73 / 52.76 / 70.45), que roda em outra variante do grafo, com outro
+% harness e embeddings construidos em outro hardware. Contra os valores da Tabela 9 desta
+% dissertacao (+1.62 AL, +2.58 AZ, +0.23 FL), +2.0 NAO e um decimo do gap: e MAIOR que o gap.
+% O termo "place-to-check-in gap" ocorre uma unica vez no volume principal, nessa mesma frase,
+% e nao esta definido em nenhum outro lugar; "separate study" nao ocorre em nenhum dos dois volumes.
+%
+% VERIFICADO EM 2026-08-13: as duas afirmacoes de ausencia medidas nas extracoes completas de PDF.
+% ============================================================================
+
+\paragraph*{Errata: o escopo do controle de concatenacao (Cap.~5, p.~79).}
+A frase depositada le, na sua forma corrigida:
+
+\begin{quote}
+Concatenating the per-visit features onto the place embedding raises it by $+2.0$, $+1.7$, and
+$+0.8$ macro-F1 at Alabama, Arizona, and Florida. That control belongs to a separate study: a
+different variant of the graph, its own harness, and embeddings built on different hardware, so
+its values are not on the scale of Table~9 and are not placed beside it. Within that study the
+margins are the size of the category differences reported here or larger. On the category axis,
+therefore, this control does not separate the hierarchical per-visit representation from the
+per-visit features it reads, and no such separation is claimed. The evidence that the
+representation is the dominant factor rests on Table~9, where the input is the only quantity
+that changes.
+\end{quote}
+
+\noindent
+A frase substituida afirmava que o ganho vem da representacao hierarquica e nao de injecao de
+features. A fracao que a sustentava e calculada contra o intervalo interno daquele estudo, nao
+contra a Tabela~9, e na escala da Tabela~9 ela nao se sustenta.

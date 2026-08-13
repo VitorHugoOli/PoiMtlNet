@@ -1,0 +1,40 @@
+% !TeX root = ../../src_fix/main.tex
+% ============================================================================
+% ERRATA Q14 -- o confundimento de capacidade no eixo de regiao.
+%
+% ESCRITA APOS O ENVIO. Nao esta em nenhum build. Destino provavel: entrar como quinto limite
+% na lista de chapters/5_mobiwac/07_discussion.tex quando o deposito final for montado.
+%
+% O QUE ELA CORRIGE. O artigo submetido, p. 9, lista o confundimento de capacidade como o quarto
+% dos seus cinco limites. A dissertacao abre a lista com "Four limits qualify these results" e
+% nenhum dos quatro e esse. Medido em 2026-08-13 nas tres extracoes de PDF e no fonte vivo com
+% comentarios removidos: "capacity-matched", "confounded with capacity" e "several times the size"
+% tem ZERO ocorrencias no volume principal.
+%
+% A DIFERENCA EM RELACAO AO ARTIGO. O artigo declara que o controle "has not been run". Ele foi
+% rodado depois, em 2026-08-13, e o resultado esta em ../post_submission_studies/P1_capacity_region.md.
+% Por isso esta errata nao repete a formulacao do artigo: ela reporta a medicao.
+% ============================================================================
+
+\paragraph*{Errata: o limite de capacidade no eixo de regiao (Cap.~5, lista de limites).}
+A lista passa a ter cinco membros, e o quinto le:
+
+\begin{quote}
+Capacity on the region axis. The joint model carries more parameters than the two dedicated
+models combined, so its region result at Texas and California is confounded with capacity. A
+capacity-matched control separates the two: giving the dedicated region model the joint model's
+entire parameter budget raises it above the joint model at California, by $0.43$ Acc@10 with the
+difference separated from zero over five folds ($p = 0.008$, unanimous in direction), and to
+within $0.21$ Acc@10 at Texas, where the difference is not separated from zero ($p = 0.12$). A
+narrower arm at $57$ percent of that budget already reaches the same level, and the step from it
+to the full budget is not separated from zero. The region advantage reported here therefore
+measures capacity rather than transfer between the tasks, and the claim that survives is the
+operational one: one model produces both predictions in one forward pass at no measured cost on
+either task. The category axis is unaffected: there, a control that multiplies the dedicated
+model's parameters by $6.5$ lowers its macro-F1.
+\end{quote}
+
+\noindent
+Esta errata enfraquece uma afirmacao do texto depositado. O custo de parametros ja estava
+reportado (p.~73) e a atribuicao do resultado de regiao ja nao creditava o tronco compartilhado
+(p.~84); o que faltava era o limite nomeado e, agora, a medicao que o fecha.
