@@ -13,24 +13,27 @@ features. Como sabe?"
 **A resposta, dita em pe.**
 
 > Nao sabemos, e a afirmacao no texto esta errada. Refizemos o controle na escala da propria
-> Tabela 9, e ele mostra o contrario: concatenar as features por visita ao place embedding fecha
-> 111 por cento do intervalo em Alabama e 70 por cento em Arizona. Sao as features que carregam a
-> maior parte do ganho de categoria. Ha errata escrita.
+> Tabela 9, em tres datasets. Concatenar as features por visita ao place embedding fecha o intervalo
+> inteiro em Alabama, 68 por cento em Arizona, e em Florida vai muito alem dele. Sao as features que
+> carregam a maior parte do ganho de categoria. Ha errata escrita.
 >
-> O que a tabela estabelece continua de pe: a representacao de entrada domina a arquitetura. Injetar
-> informacao por visita move o resultado muito mais do que qualquer diferenca de arquitetura que
-> medimos. O que cai e a afirmacao mais fina sobre qual parte da representacao carrega o ganho.
+> O que a tabela estabelece continua de pe: a representacao de entrada domina a arquitetura.
+> Injetar informacao por visita move o resultado muito mais do que qualquer diferenca de
+> arquitetura que medimos. O que cai e a afirmacao mais fina sobre qual parte da representacao
+> carrega o ganho.
 
 **Se insistirem: entao a representacao por check-in nao serve para nada?**
 
-> Serve, e Arizona mostra onde. La a representacao por check-in ainda fica 0,78 ponto acima da
-> concatenacao, unanime nas cinco dobras, com p de 0,03. Em Alabama os dois empatam. Com dois
-> datasets nao da para dizer se essa sobra cresce com o vocabulario de regioes, e nao vou afirmar
-> que cresce.
+> Em um dos tres datasets ela ainda lidera. Em Arizona fica 0,8 ponto acima da concatenacao,
+> unanime nas cinco dobras. Em Alabama as duas empatam, e em Florida a concatenacao e que fica
+> 0,8 acima. Com tres datasets nao da para dizer em que condicao ela lidera, e nao vou inventar
+> uma.
 
-**A procedencia, se perguntarem.** Os dois controles de fidelidade reproduzem a Tabela 9 dentro de
-um decimo de ponto nos dois datasets. Sem isso a comparacao nao valeria, e de fato tres receitas
-plausiveis nao reproduzem.
+**Se perguntarem pela procedencia.** O braco de fidelidade de Alabama reproduz a tabela exatamente,
+fold a fold. Os de Arizona e Florida reproduzem a media, dentro de 0,07 e 0,03, mas nao os folds
+individuais. Verifiquei que o treino e determinista, rodando a mesma configuracao duas vezes com
+diferenca zero, entao essa discrepancia tem causa que ainda nao identifiquei, e digo isso em vez de
+explicar. Ela e da ordem de 0,1 ponto; o efeito medido e de 1,7.
 
 
 ## Q14 · "O artigo lista o confundimento de capacidade como um dos cinco limites do resultado de

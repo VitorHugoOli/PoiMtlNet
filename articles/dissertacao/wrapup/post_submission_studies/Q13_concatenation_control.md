@@ -68,11 +68,9 @@ evidencia que eu tinha reunido tambem era fraca: uma busca por chaves de determi
 que apenas mostra que nao ha uma chave explicita, e nao que o resultado varia.
 
 **O que esta estabelecido:** Alabama reproduz exatamente; Arizona nao. **O que nao esta:** por que.
-A hipotese de ruido de execucao e testavel com um controle direto, rodar a mesma configuracao de
-Arizona duas vezes e medir a diferenca entre elas, e esse controle esta na fila. Se as duas
-execucoes sairem identicas, a diferenca contra o valor reportado e uma diferenca real de entrada ou
-de configuracao que eu ainda nao encontrei, e o braco `place` de Arizona nao esta verificado.
-Enquanto o controle nao rodar, a fidelidade de Arizona esta **em aberto**, e nao explicada.
+A hipotese de ruido de execucao foi testada com o controle direto, e **caiu**: duas execucoes
+identicas dao exatamente o mesmo resultado (secao abaixo). A discrepancia tem outra causa, ainda
+nao identificada, e a fidelidade de Arizona e de Florida fica **em aberto**.
 
 **O que isso afeta, e o que nao afeta.** O ganho da concatenacao em Arizona e de $1{,}70$ ponto,
 uma ordem de grandeza acima da discrepancia de $0{,}19$, e os tres bracos do dataset rodaram na
@@ -87,15 +85,38 @@ suspensa ate o controle responder.
 |---|---|--:|--:|---|
 | Alabama | place | 29,1481 | 29,15 | **verificado**: igualdade exata fold a fold e epoca a epoca |
 | Alabama | check-in | 30,7058 | 30,77 | dentro de $0{,}07$ |
-| Arizona | place | 31,9953 | 31,93 | **em aberto**: media dentro de $0{,}07$, mas nao reproduz por fold |
+| Arizona | place | 31,9953 | 31,93 | **em aberto**: media dentro de $0{,}07$; por fold difere ate $0{,}19$, e o treino e determinista |
 | Arizona | check-in | 34,4991 | 34,51 | dentro de $0{,}02$ |
-| Florida | place | 37,1524 | 37,13 | media dentro de $0{,}03$; por fold, maior diferenca $0{,}09$ |
+| Florida | place | 37,1524 | 37,13 | **em aberto**: media dentro de $0{,}03$; por fold difere ate $0{,}09$ |
 | Florida | check-in | 37,3602 | 37,36 | dentro de $0{,}001$ |
 
 A discrepancia por fold **nao cresce com o tamanho do dataset**: Florida tem treze vezes as janelas
 de Alabama e seis vezes as de Arizona, e sua maior diferenca por fold ($0{,}09$) e menor que a de
-Arizona ($0{,}19$). Nos dois casos o sinal alterna entre folds e a media fica perto de zero. Isso e
-compativel com ruido de execucao, mas o controle direto e que decide.
+Arizona ($0{,}19$). Nos dois casos o sinal alterna entre folds e a media fica perto de zero.
+
+### O controle de determinismo: o resultado, e o que ele derruba
+
+A mesma configuracao de Arizona foi rodada **duas vezes**, com tudo identico. Resultado:
+
+| | fold 1 | fold 2 | fold 3 | fold 4 | fold 5 |
+|---|--:|--:|--:|--:|--:|
+| repeticao A | 32,0441 | 32,1028 | 30,9261 | 31,1953 | 33,7081 |
+| repeticao B | 32,0441 | 32,1028 | 30,9261 | 31,1953 | 33,7081 |
+| diferenca | $0$ | $0$ | $0$ | $0$ | $0$ |
+
+Zero em todos os folds, e zero tambem nas cinquenta epocas da curva de validacao. **O treino e
+determinista**, e a hipotese de ruido de execucao esta descartada. Como a explicacao caiu, a
+discrepancia de Arizona e de Florida contra os valores reportados tem de vir de uma **diferenca real
+de entrada ou de configuracao** entre a minha execucao e a de 11 de agosto, que eu ainda nao
+identifiquei. As pistas que ja tenho: a epoca escolhida no fold 1 de Arizona e a mesma nos dois
+(17), e a duracao por epoca tambem ($21{,}4$ contra $21{,}5$ segundos), de modo que a trajetoria e
+a mesma classe de computacao, com valores levemente diferentes desde o inicio. O commit do codigo e
+o mesmo. As tabelas de entrada tem as mesmas linhas na mesma ordem.
+
+**Consequencia para este estudo.** Alabama esta verificado: reproduz exatamente, e la o controle vale
+sem ressalva. Arizona e Florida ficam com a fidelidade **em aberto**: as medias caem dentro de
+$0{,}07$ e $0{,}03$ da tabela, o que e proximo, mas a igualdade por fold, que Alabama mostra ser
+alcancavel, nao se verifica. Nao afirmo que esses dois bracos estao na escala exata da Tabela 9.
 
 ## O resultado
 
