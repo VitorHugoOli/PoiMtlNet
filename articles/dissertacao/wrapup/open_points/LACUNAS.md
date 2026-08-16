@@ -75,7 +75,22 @@ E o `OPEN_REGISTER.md` que a tarefa nomeia **nao existe em disco**: e uma tupla 
 Estes quatro sao os que podem morder na defesa, porque cada um deixa uma pergunta de mecanismo em
 aberto e o texto enviado ja diz que esta em aberto.
 
-### [ABERTO] · P1 · Controle de regiao com capacidade pareada: a vantagem em Texas e California e compartilhamento ou parametro?
+### [FECHADO 2026-08-13] · P1 · Controle de regiao com capacidade pareada: a vantagem em Texas e California e compartilhamento ou parametro?
+
+**RESPOSTA FINAL (executado):** e capacidade. Dando ao dedicado de regiao o orcamento inteiro de
+parametros do modelo conjunto, ele **supera** o conjunto em California ($-0{,}43$ Acc@10 para o
+conjunto, $p = 0{,}008$, unanime nos cinco folds) e o iguala em Texas ($-0{,}21$, $p = 0{,}12$). Um
+braco a 57 por cento do orcamento ja alcanca o mesmo nivel, e o passo dele ate o orcamento cheio nao
+se separa de zero ($+0{,}021$, $p = 0{,}40$). Registro completo em
+`../post_submission_studies/P1_capacity_region.md`; a errata que leva isso ao texto em
+`../erratas/errata_Q14_capacity_region.tex`.
+
+**Nota de largura:** as larguras publicadas em `capacity_baseline_experiment.md` medem a arquitetura
+anterior e nao pareiam capacidade no modelo atual. As derivadas contra o modelo atual, alvo igual ao
+modelo conjunto inteiro, sao $624$ (AL), $528$ (CA) e $544$ (TX).
+
+<details><summary>o registro de quando o item estava aberto</summary>
+
 
 **ACAO NECESSARIA:** rodar o protocolo dedicado de regiao com a cabeca alargada ate a contagem de
 parametros da via de regiao do modelo conjunto, e comparar com o escore de regiao do modelo conjunto.
@@ -107,6 +122,8 @@ dedicados nos dois conjuntos com o maior vocabulario de regioes. O controle com 
 custa cerca de duas horas e vinte minutos em California por semente e fecha essa pergunta; ele nao
 estava pronto a tempo e esta registrado com o comando exato."
 *Fonte: docs/studies/closing_data/v18/POSTPONED.md:9-49; GAPS.md §7 item 2; region_1fold_triage/FINDING.md*
+
+</details>
 
 ### [ABERTO] · P4 · Ablacao do tronco em cinco dobras em California e Texas
 

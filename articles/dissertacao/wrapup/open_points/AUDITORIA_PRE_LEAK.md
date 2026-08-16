@@ -24,7 +24,8 @@ que o caminho forward-only esta quebrado (`METHODOLOGY.md:30-31`).
 |---|---|---|---|
 | `markov_floor_stride1` | o piso de Markov de regiao, 51 a 72 Acc@10, excedido por 4,1 a 10,0 pontos (Cap. 5, p. 82) | **nao** | **IMUNE** |
 | `h2_v17_cat_ceiling`, `catx_v17_n20` | o benchmark de historico de rotulos (Apendice D) | **nao** | **IMUNE** |
-| `capacity_matched_stl_cat` | o controle de capacidade em categoria, $6.5\times$ os parametros baixa $0.53$ (Apendice G) | sim, mas **ambos os bracos** na mesma preparacao | **VALIDO como comparacao interna** |
+| `capacity_matched_stl_cat` | nenhuma: e a execucao anterior, superseda | sim | **sem exposicao** (ver correcao de 2026-08-14 abaixo) |
+| `apxi_v18` | o controle de capacidade em categoria, $6.5\times$ os parametros baixa $0.53$ (Apendice G) | sim | **VALIDO**: medido na preparacao ATUAL |
 | `baseline_compare` | os quatro baselines externos da tabela do Cap. 5 | sim, os proprios | **VALIDO**, e o texto declara que rodam nos proprios embeddings |
 | `v18_place_level` | a coluna de place embedding da tabela de representacao | sim, `hgi_dk_ovl` | **VALIDO por desenho**: e o braco de comparacao, e o texto o nomeia |
 | `horizon_stride1` | o horizonte de predicao, mediana de 0,4 h em Florida a 5,5 h em Istanbul, e 5 a 27 por cento dos alvos mais de tres dias depois (Cap. 5, secao 5.5.1) | **nao** | **IMUNE** |
@@ -131,3 +132,20 @@ auditoria; e uma discrepancia conhecida e registrada, de meio por cento, no meno
   casa com afirmacao viva.
 - A causa da divergencia de 0,53 por cento em Istanbul. O registro a declara dentro da tolerancia e
   eu nao a rastreei ate a linha que a produz.
+
+## Correcao de 2026-08-14: a fonte do controle de capacidade em categoria
+
+Esta auditoria atribuiu o controle de capacidade em categoria ao diretorio
+`capacity_matched_stl_cat/`, que carrega marcas de `check2hgi_dk_ovl` e v17, e o classificou como
+pre-leak validado por ser comparacao interna. **A atribuicao estava errada.**
+
+Os numeros que o Apendice G imprime vem de `docs/results/closing_data/apxi_v18/apxi_final.json` e
+reproduzem exatamente: Alabama, quatro sementes, largo $30{,}2410$ contra estreito $30{,}7750$,
+diferenca $-0{,}53$ com $p = 0{,}0011$, direcao unanime; California semente 0 com os tres bracos em
+$0{,}057$ ponto. O sufixo do diretorio nomeia a preparacao: v18, a atual.
+
+O `capacity_matched_stl_cat/` e a execucao anterior, superseda, e nao ancora afirmacao viva. O
+apendice continua valido, mas por um motivo mais forte do que o registrado antes: nao e uma
+comparacao interna sobre uma preparacao antiga, e uma medicao na preparacao atual.
+
+Isso reduz de sete para seis os estudos pre-leak que ancoram afirmacoes vivas.
