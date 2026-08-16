@@ -24,8 +24,8 @@ que o caminho forward-only esta quebrado (`METHODOLOGY.md:30-31`).
 |---|---|---|---|
 | `markov_floor_stride1` | o piso de Markov de regiao, 51 a 72 Acc@10, excedido por 4,1 a 10,0 pontos (Cap. 5, p. 82) | **nao** | **IMUNE** |
 | `h2_v17_cat_ceiling`, `catx_v17_n20` | o benchmark de historico de rotulos (Apendice D) | **nao** | **IMUNE** |
-| `capacity_matched_stl_cat` | nenhuma: e a execucao anterior, superseda | sim | **sem exposicao** (ver correcao de 2026-08-14 abaixo) |
-| `apxi_v18` | o controle de capacidade em categoria, $6.5\times$ os parametros baixa $0.53$ (Apendice G) | sim | **VALIDO**: medido na preparacao ATUAL |
+| `capacity_matched_stl_cat` | a **largura pareada e a razao** do Apendice G, `hidden_dim=672` em AL e `752` em CA, $6{,}5\times$ e $8{,}1\times$ os parametros do dedicado | sim | **EXPOSTO, e a razao e de outra geracao** (ver abaixo) |
+| `apxi_v18` | os **escores** do Apendice G, largo $30{,}2410$ contra estreito $30{,}7750$ em AL | sim | **VALIDO**: medido na preparacao atual |
 | `baseline_compare` | os quatro baselines externos da tabela do Cap. 5 | sim, os proprios | **VALIDO**, e o texto declara que rodam nos proprios embeddings |
 | `v18_place_level` | a coluna de place embedding da tabela de representacao | sim, `hgi_dk_ovl` | **VALIDO por desenho**: e o braco de comparacao, e o texto o nomeia |
 | `horizon_stride1` | o horizonte de predicao, mediana de 0,4 h em Florida a 5,5 h em Istanbul, e 5 a 27 por cento dos alvos mais de tres dias depois (Cap. 5, secao 5.5.1) | **nao** | **IMUNE** |
@@ -133,19 +133,33 @@ auditoria; e uma discrepancia conhecida e registrada, de meio por cento, no meno
 - A causa da divergencia de 0,53 por cento em Istanbul. O registro a declara dentro da tolerancia e
   eu nao a rastreei ate a linha que a produz.
 
-## Correcao de 2026-08-14: a fonte do controle de capacidade em categoria
+## Correcao de 2026-08-14: o Apendice G tem DUAS fontes, de geracoes diferentes
 
-Esta auditoria atribuiu o controle de capacidade em categoria ao diretorio
-`capacity_matched_stl_cat/`, que carrega marcas de `check2hgi_dk_ovl` e v17, e o classificou como
-pre-leak validado por ser comparacao interna. **A atribuicao estava errada.**
+Esta auditoria atribuiu o controle de capacidade em categoria inteiramente a
+`capacity_matched_stl_cat/`. Uma primeira correcao o reatribuiu inteiramente a `apxi_v18/`. **As duas
+estavam erradas pelo mesmo motivo: o apendice le dos dois diretorios, e eles sao de geracoes
+diferentes.**
 
-Os numeros que o Apendice G imprime vem de `docs/results/closing_data/apxi_v18/apxi_final.json` e
-reproduzem exatamente: Alabama, quatro sementes, largo $30{,}2410$ contra estreito $30{,}7750$,
-diferenca $-0{,}53$ com $p = 0{,}0011$, direcao unanime; California semente 0 com os tres bracos em
-$0{,}057$ ponto. O sufixo do diretorio nomeia a preparacao: v18, a atual.
+| o que o apendice imprime | vem de | geracao |
+|---|---|---|
+| os escores: largo $30{,}2410$ contra estreito $30{,}7750$ em Alabama, quatro sementes, $-0{,}53$ com $p = 0{,}0011$; California semente 0 com os tres bracos em $0{,}057$ | `apxi_v18/apxi_final.json` | **atual** (v18) |
+| a largura pareada `hidden_dim=672` (AL) e `752` (CA), e as razoes $6{,}5\times$ e $8{,}1\times$ | `capacity_matched_stl_cat/capacity_matched_summary.json`, campo `param_audit` | **anterior** |
 
-O `capacity_matched_stl_cat/` e a execucao anterior, superseda, e nao ancora afirmacao viva. O
-apendice continua valido, mas por um motivo mais forte do que o registrado antes: nao e uma
-comparacao interna sobre uma preparacao antiga, e uma medicao na preparacao atual.
+A aritmetica confere nos dois casos: $4{,}207{,}399 / 644{,}359 = 6{,}53$ e
+$5{,}249{,}719 / 644{,}359 = 8{,}15$. O problema nao e o calculo, e o **alvo**: o campo se chama
+`joint_v17` e vale $4{,}197{,}621$ em Alabama. O modelo conjunto atual tem $6{,}909{,}789$ ali,
+medido em 2026-08-13. A largura de $672$ pareia o orcamento da arquitetura anterior, nao o do modelo
+que a dissertacao reporta.
 
-Isso reduz de sete para seis os estudos pre-leak que ancoram afirmacoes vivas.
+**O veredito do apendice nao muda, e o motivo e o mesmo que vale para P1 na direcao oposta.** A
+afirmacao dele e que largura nao explica o desempenho de categoria: um modelo dedicado com $6{,}5$
+vezes os parametros pontua **abaixo** do estreito. Um alvo maior so tornaria o modelo largo ainda
+maior, e a direcao do resultado e de piora com largura. A afirmacao sobrevive; o que esta
+desatualizado e a **razao citada**, que descreve o orcamento da arquitetura anterior.
+
+**Consequencia pratica.** Se a banca perguntar "6,5 vezes o que?", a resposta correta e "o orcamento
+do modelo conjunto como ele era quando o controle foi desenhado". A razao contra o modelo atual e
+maior. E um ponto de resposta oral, nao uma errata: nenhum numero do apendice esta errado dentro do
+escopo que ele mede.
+
+A contagem de estudos pre-leak que ancoram afirmacoes vivas permanece **sete**.

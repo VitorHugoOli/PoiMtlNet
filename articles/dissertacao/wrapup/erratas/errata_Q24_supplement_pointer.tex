@@ -1,0 +1,34 @@
+% !TeX root = ../../src_fix/main.tex
+% ============================================================================
+% ERRATA Q24 -- o volume principal nao aponta para o suplemento em lugar nenhum.
+%
+% ESCRITA APOS O ENVIO. Nao esta em nenhum build. Destino provavel: o fim da secao 1.5,
+% "Organization of this dissertation", em chapters/1_introduction.tex.
+%
+% O DEFEITO. Medido em 2026-08-14: zero referencias vivas as palavras "supplementary" ou
+% "companion volume" em qualquer arquivo incluido em content.tex. A unica ocorrencia na arvore esta
+% em apx_i_parameter_count_control.tex, que imprime SO no suplemento, e portanto nao alcanca o
+% leitor do volume principal. O apontamento existe apenas na direcao inversa: main_extra.tex carrega
+% uma tabela de rotulos congelados que aponta para a secao 1.5.
+%
+% CONSEQUENCIA. Um leitor que receba apenas o PDF principal nao descobre que os cinco apendices do
+% suplemento existem, entre eles a errata aos artigos reproduzidos e o controle de contagem de
+% parametros. Nenhum numero esta errado; falta a porta de entrada.
+%
+% NOTA: esta errata foi encontrada por uma revisao que apontou que eu havia AFIRMADO, sem medir, que
+% a secao 1.5 ja anunciava o suplemento. A medicao mostrou o contrario, e o defeito e o achado.
+% ============================================================================
+
+\paragraph*{Errata: o apontamento para o volume suplementar (secao 1.5).}
+Ao fim da secao de organizacao, acrescenta-se:
+
+\begin{quote}
+A companion volume, published beside this one, holds five appendices: an errata recording every
+departure of the three reproduced chapters from their published or submitted originals; a
+label-history benchmark for the next-category task; the author's position on research-ethics review;
+the selection of one hyperparameter of the place-embedding baseline; and a parameter-count control
+for the dedicated next-category model. Each is referenced from the chapter it supports.
+\end{quote}
+
+\noindent
+Sem essa frase, um leitor do volume principal nao tem indicacao de que os cinco apendices existem.

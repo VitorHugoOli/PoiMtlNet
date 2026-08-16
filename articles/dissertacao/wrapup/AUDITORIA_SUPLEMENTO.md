@@ -7,8 +7,20 @@ que ainda e valido e arquivando o que nao e.
 
 **O suplemento e um volume entregue, nao material solto.** Ele se declara na propria capa
 *"Supplementary Material to the dissertation ... published beside it rather than inside it"*, tem
-sumario, capa e cinco apendices, e a §1.5 do volume principal o anuncia. Move-lo para a `wrapup`
-desmontaria um dos dois volumes que a banca recebeu.
+capa, sumario e cinco apendices. Move-lo para a `wrapup` desmontaria um dos dois volumes que a banca
+recebeu.
+
+**Uma correcao ao que eu havia escrito aqui.** A primeira versao deste documento afirmava que a
+§1.5 do volume principal anuncia o suplemento. **Nao anuncia.** Medido: zero referencias vivas ao
+suplemento em qualquer arquivo incluido no volume principal, e a §1.5 e a secao de organizacao da
+dissertacao, que descreve os capitulos e nao menciona o volume companheiro. O apontamento existe na
+direcao inversa: o suplemento carrega uma tabela de rotulos congelados que aponta para a §1.5.
+
+Isso enfraquece um dos argumentos, mas nao a conclusao. O que sustenta a decisao de nao mover e o
+que o proprio volume declara de si na capa e no capitulo de abertura, mais o fato de ter sido
+entregue junto. **E tambem revela um ponto para a defesa:** o volume principal nao aponta para o
+suplemento em lugar nenhum, entao um leitor do PDF principal nao descobre que os cinco apendices
+existem. Vale uma frase na §1.5, e ela seria errata.
 
 Por isso a decisao aqui e **auditar, nao mover**. A `wrapup` guarda o que veio depois do envio; o
 suplemento veio antes, e junto. O que esta auditoria produz e o veredito por apendice, para que
