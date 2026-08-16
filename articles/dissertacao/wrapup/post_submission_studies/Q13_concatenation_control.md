@@ -48,35 +48,47 @@ igualdade e a evidencia de que o braco reproduz; media proxima nao e, porque uma
 perto por compensacao entre folds que discordam. Arizona e Florida foram refeitos com a taxa de cada
 um.
 
-### O que o teste por fold revelou depois: o treino nao e determinista
+### Arizona nao reproduz fold a fold, e a causa ainda nao esta estabelecida
 
 Refeito com a taxa de Arizona, o braco `place` ainda **nao** reproduz fold a fold: a maior diferenca
-e $0{,}19$ ponto, praticamente a mesma de antes. A causa nao e a receita. Comparando as curvas de
-validacao epoca a epoca no fold 1:
+e $0{,}19$ ponto, praticamente a mesma de antes. Entao a taxa nao era a unica causa. Comparando as
+curvas de validacao epoca a epoca no fold 1:
 
 | dataset | diferenca media ao longo das 50 epocas | maior diferenca |
 |---|--:|--:|
 | Alabama | $0{,}0000$ | $0{,}0000$ |
 | Arizona | $+0{,}0613$ | $0{,}3463$ |
 
-Alabama sai **bit a bit identico** nas 50 epocas; Arizona flutua desde a epoca 1, em torno de zero,
-sem vies. E ruido de execucao: o caminho de treino nao fixa determinismo de GPU, e a reproducao
-exata de Alabama foi sorte, nao garantia. Tres das cinco epocas escolhidas em Arizona coincidem com
-as reportadas (18, 19 e 14 de $[18, 19, 17, 14, 12]$), o que confirma a mesma trajetoria.
+**Correcao a uma versao anterior deste documento.** Esta secao afirmava que o treino nao e
+determinista e que a reproducao exata de Alabama foi sorte. Isso esta errado, e contradito pela
+propria linha de Alabama na tabela acima: duas execucoes independentes, separadas por cinco dias,
+concordando em quatro casas decimais em **todas as cinquenta epocas**, sao evidencia de que o
+caminho **reproduz**. Nao-determinismo produziria discordancia nos dois datasets, nao em um so. A
+evidencia que eu tinha reunido tambem era fraca: uma busca por chaves de determinismo no codigo,
+que apenas mostra que nao ha uma chave explicita, e nao que o resultado varia.
 
-**Isso nao invalida a comparacao, e a razao e de escala.** O ruido entre execucoes e da ordem de
-$0{,}2$ ponto; o efeito medido e de $1{,}7$ ponto, cerca de nove vezes maior. Alem disso os tres
-bracos de cada dataset rodaram na mesma sessao, com a mesma receita, de modo que o ruido afeta os
-tres igualmente e o teste pareado compara folds correspondentes.
+**O que esta estabelecido:** Alabama reproduz exatamente; Arizona nao. **O que nao esta:** por que.
+A hipotese de ruido de execucao e testavel com um controle direto, rodar a mesma configuracao de
+Arizona duas vezes e medir a diferenca entre elas, e esse controle esta na fila. Se as duas
+execucoes sairem identicas, a diferenca contra o valor reportado e uma diferenca real de entrada ou
+de configuracao que eu ainda nao encontrei, e o braco `place` de Arizona nao esta verificado.
+Enquanto o controle nao rodar, a fidelidade de Arizona esta **em aberto**, e nao explicada.
+
+**O que isso afeta, e o que nao afeta.** O ganho da concatenacao em Arizona e de $1{,}70$ ponto,
+uma ordem de grandeza acima da discrepancia de $0{,}19$, e os tres bracos do dataset rodaram na
+mesma sessao com a mesma receita, de modo que qualquer efeito comum a eles se cancela no teste
+pareado. A conclusao sobre a concatenacao nao depende da resolucao deste ponto. O que depende e a
+afirmacao de que o braco de Arizona esta na escala exata da Tabela 9, e essa afirmacao fica
+suspensa ate o controle responder.
 
 ## Os controles de fidelidade
 
-| dataset | braco | medido | Tabela 9 | diferenca |
-|---|---|--:|--:|--:|
-| Alabama | place | 29,1481 | 29,15 | $-0{,}002$, e igualdade exata fold a fold |
-| Alabama | check-in | 30,7058 | 30,77 | $-0{,}064$ |
-| Arizona | place | 31,9953 | 31,93 | $+0{,}068$, dentro do ruido de execucao |
-| Arizona | check-in | 34,4991 | 34,51 | $-0{,}011$ |
+| dataset | braco | medido | Tabela 9 | estado |
+|---|---|--:|--:|---|
+| Alabama | place | 29,1481 | 29,15 | **verificado**: igualdade exata fold a fold e epoca a epoca |
+| Alabama | check-in | 30,7058 | 30,77 | dentro de $0{,}07$ |
+| Arizona | place | 31,9953 | 31,93 | **em aberto**: media dentro de $0{,}07$, mas nao reproduz por fold |
+| Arizona | check-in | 34,4991 | 34,51 | dentro de $0{,}02$ |
 
 Florida: em execucao com a taxa $0{,}005$.
 
