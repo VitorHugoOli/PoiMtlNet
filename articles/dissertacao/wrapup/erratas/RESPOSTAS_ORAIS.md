@@ -5,26 +5,33 @@ carrega esta verificado contra os artefatos (ver `VERIFICACAO.md`).
 
 ---
 
-## Q13 · "No Cap. 5 o senhor conclui que o ganho vem da representacao hierarquica e nao da injecao
-de features. No artigo submetido, sobre o mesmo controle, o senhor diz o contrario. Qual defende?"
+## Q13 -- o controle de concatenacao
 
-**Defendo a do artigo, e a frase da dissertacao entra como errata.**
+**A pergunta que vem.** "O senhor afirma que o ganho vem da estrutura hierarquica e nao das
+features. Como sabe?"
 
-> A fracao de um decimo e calculada contra o intervalo interno do estudo de concatenacao, que roda
-> em outra variante do grafo, com outro harness e embeddings construidos em outro hardware. Na
-> escala da minha Tabela 9, aquele mais dois pontos nao e um decimo do intervalo: e maior que o
-> intervalo. Entao, no eixo de categoria, aquele controle nao separa a representacao hierarquica
-> das features por visita que ela le, e eu nao reivindico essa separacao. A evidencia de que a
-> representacao e o fator dominante esta na Tabela 9, onde a entrada e a unica coisa que muda.
+**A resposta, dita em pe.**
 
-**Se insistirem em por que a frase saiu assim.** Ela cita um termo, o intervalo entre lugar e
-check-in, que aparece uma vez so no documento e nao esta definido em outro lugar. E defeito de
-escopo, nao de medicao: os tres numeros estao certos, e o que falta e dizer a que escala pertencem.
+> Nao sabemos, e a afirmacao no texto esta errada. Refizemos o controle na escala da propria
+> Tabela 9, e ele mostra o contrario: concatenar as features por visita ao place embedding fecha
+> 111 por cento do intervalo em Alabama e 70 por cento em Arizona. Sao as features que carregam a
+> maior parte do ganho de categoria. Ha errata escrita.
+>
+> O que a tabela estabelece continua de pe: a representacao de entrada domina a arquitetura. Injetar
+> informacao por visita move o resultado muito mais do que qualquer diferenca de arquitetura que
+> medimos. O que cai e a afirmacao mais fina sobre qual parte da representacao carrega o ganho.
 
-**O que fecha o ponto de vez.** Um estudo de concatenacao na representacao final, sob o harness
-desta dissertacao, que colocaria os dois bracos na mesma escala. Nao foi rodado.
+**Se insistirem: entao a representacao por check-in nao serve para nada?**
 
----
+> Serve, e Arizona mostra onde. La a representacao por check-in ainda fica 0,78 ponto acima da
+> concatenacao, unanime nas cinco dobras, com p de 0,03. Em Alabama os dois empatam. Com dois
+> datasets nao da para dizer se essa sobra cresce com o vocabulario de regioes, e nao vou afirmar
+> que cresce.
+
+**A procedencia, se perguntarem.** Os dois controles de fidelidade reproduzem a Tabela 9 dentro de
+um decimo de ponto nos dois datasets. Sem isso a comparacao nao valeria, e de fato tres receitas
+plausiveis nao reproduzem.
+
 
 ## Q14 · "O artigo lista o confundimento de capacidade como um dos cinco limites do resultado de
 regiao. A lista da dissertacao nao o carrega. Por que ele saiu?"

@@ -1,41 +1,45 @@
 % !TeX root = ../../src_fix/main.tex
 % ============================================================================
-% ERRATA Q13 -- o escopo do controle de concatenacao.
+% ERRATA Q13 -- o controle de concatenacao.
 % Escrita depois do envio. Nao entra em nenhum build.
 % Destino: a frase correspondente em chapters/5_mobiwac/06_results.tex.
 %
-% O DEFEITO, em uma frase: o volume principal afirma uma separacao que o artigo submetido,
-% sobre os mesmos tres numeros, recusa.
+% O DEFEITO, em uma frase: o volume principal afirma que o ganho vem da representacao
+% hierarquica e nao de injecao de features, e o experimento na escala correta mostra o oposto.
 %
-% A frase depositada diz que o ganho vem da representacao hierarquica e nao de injecao de
-% features, e apoia isso em "under a tenth of the place-to-check-in gap". Esse decimo e
-% calculado contra o intervalo interno de outro estudo, que roda em outra variante do grafo,
-% com outro harness. Na escala da Tabela 9 desta dissertacao, cujos intervalos sao +1.62 (AL),
-% +2.58 (AZ) e +0.23 (FL), um ganho de +2.0 nao e um decimo do intervalo: e maior que ele.
+% A frase depositada apoia essa separacao em "under a tenth of the place-to-check-in gap".
+% Esse decimo vem de outro estudo, em outra variante do grafo e com outro harness. O controle
+% foi refeito em 2026-08-16 na escala da Tabela 9, com o place embedding sozinho como controle
+% de fidelidade. Ele reproduz a tabela em ambos os datasets, o que valida a comparacao:
+%   Alabama  place 29.1481 (tabela 29.15)   check-in 30.7058 (tabela 30.77)
+%   Arizona  place 31.9660 (tabela 31.93)   check-in 34.5224 (tabela 34.51)
+% E o resultado contradiz a frase: a concatenacao fecha 111 por cento do intervalo em Alabama e
+% 70 por cento em Arizona, nao um decimo.
 %
-% O artigo submetido, p. 6, ja escreve a versao correta: "this control does not separate the
-% hierarchical representation from the per-visit features it reads, and we make no such
-% separation claim".
-%
-% VERIFICADO 2026-08-13: "place-to-check-in gap" ocorre uma unica vez no volume principal, nessa
-% mesma frase, e nao esta definido em nenhum outro lugar. "separate study" nao ocorre em nenhum
-% dos dois volumes.
+% RECEITA: next_gru, bs 8192, max_lr 0.0025, logit_adjust_tau 0.5, cinco dobras, 50 epocas, fp32,
+% compile+tf32, semente 0. Selecao: macro-F1 na epoca de melhor macro-F1.
+% Registro completo em ../post_submission_studies/Q13_concatenation_control.md.
 % ============================================================================
 
-\paragraph*{Errata: o escopo do controle de concatenacao (Cap.~5, p.~79).}
+\paragraph*{Errata: o controle de concatenacao (Cap.~5, p.~79).}
 A frase corrigida le:
 
 \begin{quote}
-Adding the per-visit features to the place embedding raises it by $+2.0$, $+1.7$, and $+0.8$
-macro-F1 at Alabama, Arizona, and Florida. Those numbers come from a separate study, which used a
-different version of the graph and its own training code. They are not on the scale of Table~9 and
-are not placed beside it. This control therefore does not separate the hierarchical representation
-from the per-visit features that it reads, and no such separation is claimed here. The evidence
-that the representation is the dominant factor is Table~9, where the input is the only thing that
-changes.
+A feature-concatenation control adds the per-visit features to the place embedding and feeds the
+result to the same single-task model. On the scale of Table~9, this control closes most of the gap
+between the two representations: at Alabama it raises the place embedding by $1.73$ macro-F1 points
+(paired over five folds, $p = 0.003$, all folds in the same direction), which is the whole
+$1.56$-point gap, and at Arizona it raises it by $1.78$ points ($p < 0.001$), or $70$ percent of the
+$2.56$-point gap. At Arizona the check-in-level representation still scores $0.78$ points above the
+concatenation arm ($p = 0.03$); at Alabama the two are within $0.18$ points of each other
+($p = 0.53$). The category gain therefore comes mostly from the per-visit features that the
+representation reads, and not from the hierarchical structure that reads them. What Table~9
+establishes is that the input representation is the dominant factor, which this control supports;
+it does not establish which part of the representation carries the gain.
 \end{quote}
 
 \noindent
 A frase substituida afirmava que o ganho vem da representacao hierarquica e nao de injecao de
-features. Os tres numeros estao corretos. O que falta na frase depositada e dizer a que escala eles
-pertencem.
+features. Medido na mesma escala, e a injecao de features que carrega a maior parte do ganho de
+categoria. A conclusao central do capitulo nao muda, porque ela e sobre a representacao de entrada
+contra a arquitetura, e nao sobre qual componente da representacao contribui mais.
