@@ -48,28 +48,51 @@ igualdade e a evidencia de que o braco reproduz; media proxima nao e, porque uma
 perto por compensacao entre folds que discordam. Arizona e Florida foram refeitos com a taxa de cada
 um.
 
+### O que o teste por fold revelou depois: o treino nao e determinista
+
+Refeito com a taxa de Arizona, o braco `place` ainda **nao** reproduz fold a fold: a maior diferenca
+e $0{,}19$ ponto, praticamente a mesma de antes. A causa nao e a receita. Comparando as curvas de
+validacao epoca a epoca no fold 1:
+
+| dataset | diferenca media ao longo das 50 epocas | maior diferenca |
+|---|--:|--:|
+| Alabama | $0{,}0000$ | $0{,}0000$ |
+| Arizona | $+0{,}0613$ | $0{,}3463$ |
+
+Alabama sai **bit a bit identico** nas 50 epocas; Arizona flutua desde a epoca 1, em torno de zero,
+sem vies. E ruido de execucao: o caminho de treino nao fixa determinismo de GPU, e a reproducao
+exata de Alabama foi sorte, nao garantia. Tres das cinco epocas escolhidas em Arizona coincidem com
+as reportadas (18, 19 e 14 de $[18, 19, 17, 14, 12]$), o que confirma a mesma trajetoria.
+
+**Isso nao invalida a comparacao, e a razao e de escala.** O ruido entre execucoes e da ordem de
+$0{,}2$ ponto; o efeito medido e de $1{,}7$ ponto, cerca de nove vezes maior. Alem disso os tres
+bracos de cada dataset rodaram na mesma sessao, com a mesma receita, de modo que o ruido afeta os
+tres igualmente e o teste pareado compara folds correspondentes.
+
 ## Os controles de fidelidade
 
 | dataset | braco | medido | Tabela 9 | diferenca |
 |---|---|--:|--:|--:|
-| Alabama | place | 29,1481 | 29,15 | $-0{,}002$, e igualdade fold a fold |
+| Alabama | place | 29,1481 | 29,15 | $-0{,}002$, e igualdade exata fold a fold |
 | Alabama | check-in | 30,7058 | 30,77 | $-0{,}064$ |
+| Arizona | place | 31,9953 | 31,93 | $+0{,}068$, dentro do ruido de execucao |
+| Arizona | check-in | 34,4991 | 34,51 | $-0{,}011$ |
 
-Arizona e Florida: em execucao com a taxa correta.
+Florida: em execucao com a taxa $0{,}005$.
 
 ## O resultado
 
 | dataset | place | place + features | check-in | intervalo | ganho da concatenacao | fracao fechada |
 |---|--:|--:|--:|--:|--:|--:|
 | Alabama | 29,148 | 30,882 | 30,706 | $+1{,}558$ | $+1{,}734$ ($p = 0{,}003$) | **111 por cento** |
-| Arizona | 31,966 | 33,746 | 34,522 | $+2{,}556$ | $+1{,}780$ ($p < 0{,}001$) | **70 por cento** |
+| Arizona | 31,995 | 33,697 | 34,499 | $+2{,}504$ | $+1{,}702$ ($p < 0{,}001$) | **68 por cento** |
 
 Testes pareados sobre as cinco dobras. O ganho da concatenacao e unanime nas cinco dobras nos dois
 datasets.
 
 **Em Alabama a concatenacao alcanca a representacao por check-in.** Os dois bracos ficam a
 $0{,}18$ ponto um do outro, e o teste pareado nao separa ($p = 0{,}53$). Em Arizona sobra intervalo:
-a representacao por check-in fica $0{,}78$ ponto acima da concatenacao, unanime nas cinco dobras
+a representacao por check-in fica $0{,}80$ ponto acima da concatenacao, unanime nas cinco dobras
 ($p = 0{,}03$).
 
 ## O que isso obriga a dizer
