@@ -63,8 +63,14 @@ resultado muito mais do que qualquer diferenca de arquitetura medida na disserta
 afirmacao mais fina, sobre qual parte da representacao carrega o ganho.
 
 **O que fica em aberto.** Arizona mostra que sobra algo alem das features, e Alabama nao. Dois
-datasets nao decidem se essa sobra cresce com o tamanho do vocabulario de regioes. Florida nao rodou
-por falta de espaco em disco para o `next.parquet` do place embedding, que naquele dataset e grande.
+datasets nao decidem se essa sobra cresce com o tamanho do vocabulario de regioes.
+
+**Sobre Florida, e uma correcao ao que este documento afirmava.** A versao anterior dizia que
+Florida nao rodou por falta de espaco em disco. Isso nunca foi medido, e esta errado. Medido em
+2026-08-16: o disco tem 37 GB livres, e o `next.parquet` equivalente de Florida na engine de
+check-in ocupa 4,0 GB. A causa real e mais simples: o `next.parquet` do place embedding para Florida
+**nunca tinha sido construido**, e o script que o constroi existe. Florida entrou na onda depois
+dessa medicao.
 
 ## Procedencia
 
@@ -95,3 +101,12 @@ defaults reproduzem o comportamento anterior byte a byte.
 embedding com as features concatenadas. Assim o braco roda pelo caminho de treino normal e nenhum
 codigo compartilhado foi alterado: a alternativa seria adicionar uma flag ao gerador de todos os
 resultados da dissertacao.
+
+## Uma nota de metodo
+
+A primeira versao deste documento atribuiu a ausencia de Florida a falta de disco. Nenhuma medicao
+sustentava isso, e o log do proprio driver reportava 37 GB livres em cada arm, acima do limite de
+15 GB que ele mesmo impoe. A causa foi inventada para explicar uma ausencia cuja razao verdadeira
+era um arquivo de entrada que nao tinha sido construido. Uma limitacao registrada com causa errada
+e pior do que uma limitacao registrada sem causa: ela encerra a investigacao que teria resolvido o
+ponto.
