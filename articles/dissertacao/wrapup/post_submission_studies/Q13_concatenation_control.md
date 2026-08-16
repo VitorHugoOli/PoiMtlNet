@@ -25,16 +25,37 @@ Tres bracos por dataset, mesma semente, mesmas dobras, mesma receita, variando a
 Os dois controles de fidelidade tem de reproduzir as colunas da Tabela 9. Se nao reproduzirem, os
 tres bracos nao estao na escala da tabela e a comparacao nao vale.
 
-## Os controles de fidelidade passaram
+## O controle de fidelidade tem de ser por fold, nao por media
+
+A primeira onda usou uma unica taxa de aprendizado, $0{,}0025$, nos tres datasets. Pela **media** o
+controle passou em todos: Arizona deu $31{,}9660$ contra $31{,}9278$ reportado, quatro centesimos de
+diferenca. Mas a taxa **nao e uma so**: cada dataset tem a sua, registrada no proprio sidecar.
+
+| dataset | alabama | arizona | florida | california | texas | istanbul |
+|---|--:|--:|--:|--:|--:|--:|
+| `max_lr` | 0,0025 | 0,0005 | 0,005 | 0,005 | 0,005 | 0,0005 |
+
+$0{,}0025$ e a taxa de Alabama. Comparando **fold a fold**, a diferenca aparece:
+
+| dataset | taxa usada | maior diferenca por fold | diferenca na media |
+|---|---|--:|--:|
+| Alabama | 0,0025, a correta | $0{,}0000$ nos cinco folds | $0{,}0000$ |
+| Arizona | 0,0025, a de Alabama | $0{,}2128$, com troca de sinal | $+0{,}0382$ |
+| Florida | 0,0025, a de Alabama | $0{,}0930$, com troca de sinal | $+0{,}0340$ |
+
+Em Alabama, com a taxa certa, os cinco folds saem **exatamente iguais** aos reportados. Essa
+igualdade e a evidencia de que o braco reproduz; media proxima nao e, porque uma media pode cair
+perto por compensacao entre folds que discordam. Arizona e Florida foram refeitos com a taxa de cada
+um.
+
+## Os controles de fidelidade
 
 | dataset | braco | medido | Tabela 9 | diferenca |
 |---|---|--:|--:|--:|
-| Alabama | place | 29,1481 | 29,15 | $-0{,}002$ |
+| Alabama | place | 29,1481 | 29,15 | $-0{,}002$, e igualdade fold a fold |
 | Alabama | check-in | 30,7058 | 30,77 | $-0{,}064$ |
-| Arizona | place | 31,9660 | 31,93 | $+0{,}036$ |
-| Arizona | check-in | 34,5224 | 34,51 | $+0{,}012$ |
 
-Os quatro caem dentro de um decimo de ponto. A comparacao esta na escala da tabela.
+Arizona e Florida: em execucao com a taxa correta.
 
 ## O resultado
 
