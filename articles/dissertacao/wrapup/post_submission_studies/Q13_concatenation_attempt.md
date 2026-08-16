@@ -31,10 +31,26 @@ para essa engine. A mensagem e explicita: `next_region not yet built for Embeddi
 
 O protocolo reportado tem 96.326 janelas em Alabama, o mesmo numero do registro do piso de Markov e
 da Tabela 1. Entao `hgi` tem os vetores certos com o janelamento errado, e `check2hgi_dk_ovl` tem o
-janelamento certo com os vetores errados. Rodei o braco com `check2hgi_dk_ovl` por engano e ele deu
-$32{,}75$ macro-F1 contra os $29{,}15$ reportados: **o controle de fidelidade falhou**, que e
-exatamente o que ele existe para detectar. Sem esse controle passando, nenhuma comparacao entre os
-tres bracos teria valor.
+janelamento certo com os vetores errados.
+
+**Como o braco errado foi lancado, e isto e um erro meu que vale registrar.** Escrevi no driver que
+`check2hgi_dk_ovl` resolve para os mesmos vetores que `hgi_dk_ovl`, citando 11.848 linhas identicas
+em Alabama. A verificacao que produziu esse numero comparou `hgi` com `hgi_dk_ovl`, e nao envolveu
+`check2hgi_dk_ovl` em momento nenhum. Transportei o resultado de uma comparacao para outra e a
+escrevi como se tivesse sido medida. Medido depois: `hgi_dk_ovl` tem $(11.848, 66)$, vetores de
+lugar; `check2hgi_dk_ovl` tem $(113.846, 68)$, vetores de check-in. Sao substratos diferentes, e o
+nome parecido foi o que tornou o engano facil.
+
+A consequencia foi imediata e o proprio experimento a detectou: o braco de fidelidade deu $32{,}75$
+macro-F1 contra os $29{,}15$ reportados, porque rodou a representacao por check-in no lugar do place
+embedding. **O controle de fidelidade falhou, que e exatamente o que ele existe para detectar.** Sem
+ele passando, nenhuma comparacao entre os tres bracos teria valor. Se o braco de fidelidade nao
+estivesse no desenho, o erro teria produzido tres numeros plausiveis e uma conclusao falsa.
+
+**`hgi` tambem nao serve como substituto.** Testado depois: falha com
+`FileNotFoundError: output/hgi/alabama/input/next_region.parquet`, a mesma barreira de `hgi_dk_ovl`.
+O carregador exige essa tabela mesmo quando o alvo e categoria, e ela nao foi construida para
+nenhuma das duas engines de place embedding.
 
 **Terceira, e independente: o construtor de features rejeita o corpus.** Ele reconstroi as janelas a
 partir dos check-ins e compara com a tabela de sequencias. Com `hgi` ele encontra 12.709 contra as
@@ -64,3 +80,6 @@ escala da Tabela 9; sem ele, a errata se limita a nao afirmar a separacao que o 
 3. `\include` no LaTeX exige que o subdiretorio de aux exista antes do build.
 4. O nome de engine no sidecar de um resultado pode nao ser aceito pelo harness que o produziu,
    porque a lista de escolhas e mantida a mao.
+5. Nomes de engine parecidos escondem substratos diferentes: `hgi_dk_ovl` e vetores de lugar,
+   `check2hgi_dk_ovl` e vetores de check-in. Antes de trocar um pelo outro, ler as duas formas, e
+   nao reaproveitar a verificacao de um par para justificar outro.
