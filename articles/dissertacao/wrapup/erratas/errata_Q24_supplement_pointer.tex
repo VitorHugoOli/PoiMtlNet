@@ -27,8 +27,19 @@ A companion volume, published beside this one, holds five appendices: an errata 
 departure of the three reproduced chapters from their published or submitted originals; a
 label-history benchmark for the next-category task; the author's position on research-ethics review;
 the selection of one hyperparameter of the place-embedding baseline; and a parameter-count control
-for the dedicated next-category model. Each is referenced from the chapter it supports.
+for the dedicated next-category model. This volume does not cross-reference them individually,
+because a reference cannot resolve across the two documents.
 \end{quote}
 
 \noindent
 Sem essa frase, um leitor do volume principal nao tem indicacao de que os cinco apendices existem.
+
+% [2026-08-14] A FRASE ORIGINAL DIZIA "Each is referenced from the chapter it supports", o que
+% contradizia a medicao do proprio cabecalho deste arquivo. Medido: zero ponteiros vivos de qualquer
+% arquivo incluido em content.tex para qualquer rotulo de apendice do suplemento. As unicas
+% ocorrencias de \ref{apx:errata} e \ref{apx:ceiling} na arvore estao em tables/cbic/errata.tex e
+% tables/frame/ceiling.tex, e ambas as tabelas sao puxadas EXCLUSIVAMENTE por apendices do proprio
+% suplemento (apx_b_errata.tex e apx_d_ceiling.tex), nunca pelo volume principal. O registro de
+% pendencias tambem guarda a causa: os sete ponteiros "Appendix~[B/D] of \extravolume" foram
+% REMOVIDOS dos capitulos 3 a 5, porque um \ref nao resolve entre volumes. A frase corrigida diz
+% isso ao leitor em vez de prometer ponteiros que nao existem.
