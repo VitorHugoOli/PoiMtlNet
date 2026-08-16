@@ -10,7 +10,7 @@ two tasks ask for opposite updates, one task improves at the other's expense. Th
 Chapter~\ref{ch:mobiwac}.
 
 The two tasks turn out not to disagree. Their gradients are statistically indistinguishable from
-orthogonal on every dataset measured, which is a stronger statement than mere absence of
+orthogonal at each of the four datasets where the measurement was taken, which is a stronger statement than mere absence of
 conflict, and it carries a direct consequence for that model: a gradient balancer had nothing
 to balance. The sections below give the
 measurement, the two findings that qualify it, and the boundary beyond which none of it is claimed.
@@ -26,20 +26,23 @@ ignores how large they are, which differs between the tasks and drifts during tr
 $+1$ means the tasks ask for the same update, $-1$ for opposite ones, and $0$ that the requests are
 orthogonal, each leaving the other's objective unchanged to first order.
 
-The observations are 4,650 epoch-level cosines from seven datasets. Florida contributes 3,150 across
-twelve configurations that vary the loss weight, the weighting schedule, and the training procedure;
-Alabama, Arizona, California, Georgia, Istanbul, and Texas contribute 250 each at the canonical
-configuration. Every run is five-fold user-disjoint cross-validation over fifty epochs.
+The observations are 1,000 epoch-level cosines from four datasets: Istanbul, Alabama, Arizona, and
+Florida contribute 250 each, one measurement per epoch on each of five folds. Every run is the
+reported joint configuration under five-fold user-disjoint cross-validation over fifty epochs, at
+one random initialization. Each run reproduces its dataset's banked seed-0 cell to four decimal
+places on both tasks, which is what ties the
+diagnostic to the model the chapter reports rather than to a nearby variant.
 
-Six of the seven are the six Chapter~\ref{ch:mobiwac} reports on. The seventh, Georgia, is a further
-Gowalla state the dissertation does not otherwise use, included here as an additional test of the
-same diagnostic. Chapter~\ref{ch:mobiwac} also reports its own smaller measurement of this
-quantity; that one comes from a different run, so the two sets of numbers are not interchangeable.
+The four are four of the six datasets Chapter~\ref{ch:mobiwac} reports on. Texas and California are
+not measured here, so every statement in this appendix is scoped to the four, and the question of
+whether the same orthogonality holds at the two largest region vocabularies stays open. Those are
+also the two datasets where the joint model outperforms on region, which makes the gap worth naming
+rather than passing over.
 
 Those fifty values are not fifty independent measurements: they are consecutive states of one
 training run.
-The unit of independence is the fold, and every test below runs on folds: five fold means at each
-dataset, and at Florida its sixty fold series, five folds for each of its twelve configurations.
+The unit of analysis is the fold, and every test below runs on folds: five fold means at each
+dataset.
 Each dataset is measured at a single random initialization, so the variation the tests see is
 across folds, not across restarts. Where a count of observations appears it describes the data, not
 a test's sample size.
@@ -47,8 +50,7 @@ a test's sample size.
 Equivalence to zero is assessed by two one-sided tests against a margin of $\pm 0.05$
 \cite{lakens2017tost}. The margin is a judgment about relevance and should be read as one: at
 $|\cos| < 0.05$ one task's update projects less than five percent of its length onto the other's
-direction, below the epoch-to-epoch variation in either gradient and below anything a balancing
-method could act on. Chapter~\ref{ch:mobiwac}'s two-point margin for the region task measures a
+direction, below the epoch-to-epoch variation observed in either gradient. Chapter~\ref{ch:mobiwac}'s two-point margin for the region task measures a
 different quantity on a different scale and should not be read against this one.
 
 \section{The result}
@@ -57,7 +59,7 @@ different quantity on a different scale and should not be read against this one.
 \input{tables/frame/cosine}
 
 Every dataset is equivalent to zero, and Table~\ref{tab:apx:cosine} gives each one's mean, confidence
-interval and tests. All seven means lie within one and a half hundredths of zero, against a margin of
+interval and tests. All four means lie within two thousandths of zero, against a margin of
 five hundredths, and equivalence holds at every other level of aggregation as well, including the raw
 observations, so the conclusion does not depend on the choice of unit.
 
@@ -71,43 +73,30 @@ experiment's power.
 
 Figure~\ref{fig:apx:cosine} shows the distributions, and one feature must be stated plainly: the
 equivalence is a statement about the mean, not about every observation.
-Of the 4,650 cosines, 92.4
-percent fall inside the margin, and the full range runs from $-0.34$ to $+0.58$, the largest value
-lying past the right edge of panel (a). Individual epochs drift out of the margin in both
+Of the 1,000 cosines, 99.6
+percent fall inside the margin, and the full range runs from $-0.059$ to $+0.057$. Individual epochs drift out of the margin in both
 directions, ordinary noise in a quantity computed from one mini-batch. What never happens is a
 systematic pull to one side.
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\textwidth]{figures/fig_gradient_cosine}
-    \caption{The two tasks' gradients on the shared trunk are orthogonal, on seven datasets: the
-    six of Chapter~\ref{ch:mobiwac} and Georgia, marked $\ddagger$ because the dissertation does not
-    otherwise use it. The shaded band is the equivalence margin of $\pm 0.05$; every mean falls
-    inside it. Panels: (a) the pooled distribution of all 4,650 epoch-level cosines, (b) each
-    dataset's mean with its 95 percent interval on the independent unit, (c) one point per fold for
-    the slope of the cosine against the epoch, with a tick at each dataset's mean slope. No
-    significance is marked anywhere in the figure.}
+    \caption{The two tasks' gradients on the shared trunk are orthogonal, at the four datasets
+    measured under the reported joint configuration. Each point is one epoch of one fold, 250 per
+    dataset; the horizontal mark is the dataset mean and the vertical mark its 95 percent interval
+    on the fold, the independent unit. The shaded band is the equivalence margin of $\pm 0.05$;
+    every mean falls inside it, as do 99.6 percent of the individual epochs. No significance is
+    marked anywhere in the figure.}
     \label{fig:apx:cosine}
 \end{figure}
 
 The figure shows two patterns.
-The first is a positive tendency that recurs on two datasets: all five of Alabama's fold means are
-positive, averaging $+0.0112$, and so are all five of Georgia's, averaging $+0.0039$. No other
-dataset is unanimous in either direction. The second is a decline over training, on those same two
-and with the same unanimity, all five per-fold slopes negative in each; the other four
-single-configuration datasets are mixed, from two of five at Istanbul to four of five at California,
-and Florida is flat at twenty-nine of sixty.
+The first is a positive tendency, unanimous at one dataset: all five of Istanbul's fold means are
+positive, averaging $+0.0014$. The other three are not unanimous: four of five fold means are
+positive at Alabama and at Florida, and three of five at Arizona. The second is a decline over
+training, unanimous at Istanbul and Alabama, where all five per-fold slopes are negative, and mixed
+at Arizona and Florida, where three of five are.
 
-Neither pattern is called significant here, and the reason is the design rather than the data. At
-five folds the exact sign test cannot return less than $0.0625$, so no distribution-free test could
-reach significance however consistent the pattern. A $t$-test does reject at Alabama and at Georgia,
-for the positive means and for the declines, but with five folds that rejection depends on assuming
-the fold means are normally distributed, an assumption five values cannot check. Both patterns are
-therefore consistent tendencies rather than established effects. California shows why the table
-carries a sign-test column: its $t$-test returns $0.048$, below the conventional threshold, while
-its exact sign test returns $0.375$ on four of five positive folds, so what looks like a finding
-under one test is not even a leaning under the other. Florida, whose sixty independent series are
-the only estimate in the set with the resolution to settle either question, shows neither pattern.
 
 Neither pattern suggests a conflict. A positive cosine means the two tasks cooperate slightly, and
 the declining cosines stay inside the margin and move toward zero, not away from it. No mechanism is
@@ -116,12 +105,14 @@ proposed for either pattern.
 \section{What orthogonality explains}
 \label{apx:cosine:mechanism}
 
-Orthogonal gradients mean neither task's update reinforces or cancels the other's on the shared
-parameters, so the trunk can serve both without either improvement being paid for by the other. The
+Near-orthogonal gradients mean that, at the measured shared parameters, neither task's update
+substantially reinforces or cancels the other's to first order. The
 main consequence is about gradient balancers. Nash-MTL and the family around it exist to resolve exactly
 the disagreement measured here, reweighting or reprojecting task gradients so a dominant task cannot
-overwrite a weaker one. Orthogonality leaves them nothing to resolve. That is why Chapter~\ref{ch:mobiwac} finds no
-balancer improving on a fixed loss weighting: the measurement explains that finding. It says nothing
+overwrite a weaker one. The near-zero aggregate alignment offers little evidence of a persistent
+conflict for those methods to resolve and is consistent with Chapter~\ref{ch:mobiwac}'s finding that no
+tested balancer improved on fixed loss weighting; the measurement does not by itself explain every
+balancer's performance. It says nothing
 about the cost of a common trunk, which this architecture does not use and no arm of that chapter
 tested. Orthogonal gradients also do not mean that the tasks share no knowledge: the two streams
 still exchange information through the cross-attention trunk, a sharing mechanism this measurement
@@ -130,25 +121,30 @@ does not read.
 \section{How far this extends, and how far it does not}
 \label{apx:cosine:extension}
 
-Seven datasets and twelve configurations bound this result along two axes, each answering a different
-objection.
+Four datasets bound this result, and the tuning axis is bounded by an earlier screen rather than by
+this measurement.
 
-The first axis is the tuning. Every one of Florida's twelve configurations is equivalent to zero on
-its own five folds, and their twelve means span $[-0.00261, +0.00457]$ over the observations as
-recorded. Orthogonality survives every hyperparameter and procedure that was varied, so it is not an
-artifact of one choice among them.
+The first axis is the tuning. The four measurements here share one configuration, the one
+Chapter~\ref{ch:mobiwac} reports, so on its own this appendix cannot say whether the orthogonality
+survives a different loss weight or schedule. What speaks to that is the balancer screen of
+Section~\ref{sec:mobiwac:related-mtl} itself: nineteen loss and gradient balancers, several of
+which act only when the cosine is negative, none of which improved on the fixed weighting. A
+quantity that stayed near zero only at this configuration would be a poor explanation for a null
+that broad.
 
 \medskip\noindent
-The second axis is the data. The seven datasets cover every dataset Chapter~\ref{ch:mobiwac} reports on: the
-check-in counts run from 113,846 at Alabama to 4,089,892 at Texas and the region counts from 520 at
-Istanbul to 8,501 at California, with Georgia added under the same protocol. Equivalence
-holds at both ends: the result is not a quirk of Florida, and it is not an artifact of small data.
+The second axis is the data. The four datasets span region counts from 520 at Istanbul to 4,703 at
+Florida, one of them outside the United States, and equivalence holds across that range. It does not
+reach the two largest, Texas and California, which are also the two where the joint model outperforms
+on region, so the diagnostic supports the balancer result at the datasets where the two tasks neither
+help nor hinder each other and leaves the largest label spaces untested.
 
-Together the two axes suggest orthogonality belongs to the task pair rather than to the tuning. Next
+Together the two axes suggest that near-orthogonality is stable for this task pair within the
+measured architecture family rather than tied to one tuning choice. Next
 category asks which of seven kinds of place a user visits next, next region asks which tract or
-neighborhood, and both read the same trace to predict a different projection of one event. Those
-projections appear close to statistically independent given the shared representation, which would
-explain why each task's update carries so little of the other's.
+neighborhood, and both read the same trace to predict a different projection of one event. Their
+gradients remain weakly aligned in the measurements reported here, but this does not establish that
+the task outputs are statistically independent.
 
 That is where the evidence stops, and the boundary matters. Every run measured here uses one
 architecture family, the cross-attention joint model of Chapter~\ref{ch:mobiwac}. The architecture
@@ -161,4 +157,3 @@ cosine on the candidate's shared parameters, under a fixed loss weighting, acros
 folds, with the fold means tested for equivalence against a margin chosen in advance. Equivalence
 there makes orthogonality the task pair's property; otherwise it belongs to this architecture, and
 Section~\ref{apx:cosine:mechanism} applies only to models shaped like this one.
-

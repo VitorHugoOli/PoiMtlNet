@@ -1,0 +1,775 @@
+                VITOR HUGO DE OLIVEIRA SILVA
+
+
+
+
+  SUPPLEMENTARY MATERIAL TO THE DISSERTATION “MULTITASK
+LEARNING FOR POINT-OF-INTEREST CLASSIFICATION AND PREDICTION
+   TASKS: THE ROLE OF THE CHECK-IN-LEVEL REPRESENTATION”
+
+
+
+
+                  FLORESTAL - MINAS GERAIS
+                           2026
+                                     Contents
+
+About this volume . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .     3
+
+
+Appendix                                                                                       5
+APPENDIX B Errata to the Reproduced Articles . . . . . . . . . . . . . . . . . . .              6
+  B.1 Article 1 (Chapter 3, CBIC 2025) . . . . . . . . . . . . . . . . . . . . . . . . .        6
+  B.2 Article 2 (Chapter 4, CoUrb 2026) . . . . . . . . . . . . . . . . . . . . . . . .        10
+  B.3 Article 3 (Chapter 5, MobiWac 2026) . . . . . . . . . . . . . . . . . . . . . .          11
+  B.4 Two extractions of the same Gowalla corpus . . . . . . . . . . . . . . . . . . .         12
+  B.5 Bibliography errata . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .      12
+APPENDIX D A Label-History Benchmark for the Next-Category Task . . . . . .                    18
+APPENDIX E The Human-Subjects Question . . . . . . . . . . . . . . . . . . . .                 21
+APPENDIX F Adaptation of the HGI Baseline . . . . . . . . . . . . . . . . . . . .              22
+
+
+References . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .   23
+                                                                                                    3
+
+
+
+                             About this volume
+
+        This volume holds four appendices that were written for the dissertation named on the
+cover of this volume and that are published beside it rather than inside it. The first records
+every departure of the three reproduced article chapters from their published or submitted
+originals. The second measures how much of the next category can be predicted from the
+category history of the input window alone, which is the reference level that one screening
+argument in the dissertation is read against. The third states the author’s position on whether
+review by a research ethics committee was required for this work. The fourth records how one
+hyperparameter of the place-embedding baseline was selected before that baseline was applied
+to the datasets studied here.
+         The first two were part of the main document until July of 2026. They were moved
+here on the advisor’s assessment that a reproduced chapter need not be an identical copy of the
+article it reproduces, and that the short preface opening each of those chapters already tells the
+reader what was changed and why. That assessment settles the question the errata appendix was
+written to answer, at least for the reader of the dissertation. It leaves the underlying record worth
+keeping, because a departure from a published text should be documented somewhere a reader
+can reach, and this volume is where it is documented.
+        The last two left the main document in August of 2026, on the author’s judgment that
+each answers a question a reader may bring to the work without being needed to follow its
+argument. They are published here for the same reason the first two are. A record that a reader
+can reach is worth more than a record that is left out because it did not fit the shape of the chapter
+it would have interrupted.
+        The dissertation is complete without this volume. Nothing here is required to follow
+its argument, to read any of its results, or to judge the work: every claim the dissertation
+makes is stated and supported in the dissertation itself. What this volume adds is auditability. A
+reader comparing a reproduced chapter against the article it came from will find the differences
+enumerated here instead of having to reconstruct them, and a reader who wants the fuller
+treatment of the label-history benchmark will find it here rather than in the paragraph that
+summarizes it. A reader who asks how the human-subjects question was handled, or how the
+baseline was adapted before it was used will find each of those answered here as well.
+        Two conventions follow from the split. The first two appendices keep the letters they
+carried when they were part of the dissertation, B and D, so that the records and correspondence
+that name them by letter still point at the same material, while the two that arrived later carry E
+and F, letters of this volume alone; the dissertation letters its own appendices independently, so
+an appendix letter should always be read together with the volume it belongs to. And a reference
+CONTENTS                                                                                          4
+
+
+in these pages to a numbered chapter, section, table or figure is a reference into the dissertation,
+not into this volume: this volume numbers only its own four appendices and their tables.
+Appendix
+                                                                                                          6
+
+
+
+             APPENDIX B – Errata to the
+                Reproduced Articles
+
+         Chapters 3 to 5 reproduce the three articles of this collection in a unified format. Purely
+structural changes of the re-typeset, such as renumbered sections and labels, tables re-set without
+vertical rules, captions placed above tables, one-column figure sizes, and the substitution of each
+article’s textual self-references by chapter self-references, are declared in Section 1.5 and are not
+listed individually. This appendix lists every content departure from the published or submitted
+texts: corrections of defects known in the article records, wording substitutions required by the
+dissertation’s writing rules, and the corrections applied in the global bibliography. Each article
+folder in the research repository keeps the corresponding errata registry; the published records
+themselves are not edited.
+        None of the three chapters reproduces the front matter of its article. The abstract and
+the keyword list are omitted in all three, the Portuguese resumo of the CoUrb article is omitted
+with them, and the acknowledgments sections of the CBIC and CoUrb articles are omitted as
+well; the MobiWac manuscript carries none. Venue, pages, identifier, status, and authorship are
+stated in each chapter’s preface instead, and the acknowledgments belong to the article records
+rather than to the chapter bodies.
+
+
+B.1      Article 1 (Chapter 3, CBIC 2025)
+        Table 1 lists the content corrections applied in the chapter text.
+
+Table 1 – Content errata of the CBIC 2025 article and the corrections applied in Chapter 3.
+          Numeric values quoted in the corrections are the published table values.
+
+ Defect in the published article                Correction in the chapter
+
+ Prose states “almost four times more wall      Prose reconciled to the table: “about 2.3 times the cu-
+ time”; the convergence table gives 80.88 s     mulative 34.97 s of the individual single-task models”.
+ for the joint model against a cumulative
+ 34.97 s for the single-task models, a factor
+ of about 2.3.
+
+                                                                            Continued on the next page.
+APPENDIX B. Errata to the Reproduced Articles                                                                   7
+
+
+ Table 1 continued from the previous page.
+
+ Defect in the published article                  Correction in the chapter
+
+ Prose states the MFLOPs cost of the joint        Prose reconciled to the table: the text now states that the
+ model is “roughly double”; the table gives       table does not show a higher MFLOPs cost for the joint
+ 0.234 MFLOPs for the joint model against         model and quotes the three cell values; four follow-on
+ 2.315 and 0.012 for the two single-task mo-      wording edits restrict the overhead claim to wall time.
+ dels.
+
+ Broken cross-reference: the label intended       Dataset subsection relabeled; the dangling pointer sen-
+ for the single-task heads sits on the Dataset    tence was removed, since no section describing the
+ subsection, and the method section points to     single-task heads exists in the published paper.
+ it as if it described the heads.
+
+ Typo “spatio-tegm mporal”.                       “spatio-temporal”.
+
+ Unfilled dataset placeholders (𝑁users , 𝑁poi ,   Filled with the Florida figures of record for the same
+ 𝑁checkins ) in the results section.              Gowalla data, as published in the CoUrb dataset table:
+                                                  20,301 users, 65,009 POIs, and 990,518 check-ins. The
+                                                  published CBIC paper left these three statistics as pla-
+                                                  ceholders; they are taken from the published CoUrb
+                                                  table so that one corpus figure serves both chapters,
+                                                  and they are the counts that the extraction pipeline of
+                                                  that time produced, not the counts the current pipeline
+                                                  produces (Section B.4).
+
+ The optimizer subsection states that Nash-       Corrected to name the property the method has: its
+ MTL’s “reliance on gradient signs rather         invariance to the scale of the individual task gradi-
+ than scales inherently balances heterogene-      ents, the axiom already listed in the same subsec-
+ ous tasks”. Nash-MTL does not read gradi-        tion, balances heterogeneous tasks without manual re-
+ ent signs, and the same subsection states the    weighting. Checked against the optimizer’s own paper
+ correct property four paragraphs earlier, lis-   and against the implementation released with the two
+ ting scale invariance among the optimizer’s      studies, neither of which uses gradient signs. The claim
+ axioms.                                          is weaker than the published one, and no result depends
+                                                  on it.
+
+                                                                                 Continued on the next page.
+APPENDIX B. Errata to the Reproduced Articles                                                                    8
+
+
+ Table 1 continued from the previous page.
+
+ Defect in the published article                   Correction in the chapter
+
+ Prose states that Nash-MTL “requires only         The clause is removed from the reproduced sentence
+ two matrix-vector products per iteration”.        and its correction given in a footnote. The claim is
+                                                   not supported by the method’s own paper, where the
+                                                   phrase does not occur, and it understates the cost: both
+                                                   implementations examined run an iterative concave-
+                                                   convex procedure, twenty passes by default, each a
+                                                   convex solve, on top of one backward pass per task.
+                                                   The correction raises the reported cost of a method
+                                                   this chapter used, so it runs against the chapter’s own
+                                                   interest.
+
+ The rationale for hard parameter sharing sta-     Narrowed to the inference-cost claim the cited work
+ tes that the approach “frequently matches or      supports, that a single network is evaluated rather than
+ exceeds the performance of more complex           one network per task, with the correction recorded in a
+ architectures on many benchmarks, while           footnote. The cited work names improved accuracy and
+ offering faster training and inference”, citing   reduced training time among the benefits joint training
+ a work on task grouping.                          may have in theory, then reports empirically that joint
+                                                   training often performs worse than separate networks,
+                                                   and its contribution is a framework for splitting tasks
+                                                   across networks, which it describes as costly at training
+                                                   time. Its one result favoring joint training is conditioned
+                                                   on a matched parameter budget and on three or more
+                                                   tasks, and it excludes the two-task case this chapter
+                                                   studies. The correction removes a stated advantage of
+                                                   the architecture this chapter adopts, so it runs against
+                                                   the chapter’s own interest.
+
+ The survey of optimization techniques states      Narrowed to the two properties the cited work states.
+ that MGDA “finds Pareto-optimal descent           Its method computes a direction that decreases every
+ directions”. Pareto optimality and a per-step     task loss, or else the current point is already Pareto-
+ descent direction are two different guaran-       stationary; the Pareto optimality it proves is for an up-
+ tees, and the cited work proves the first for a   per bound on the multi-objective loss and holds under
+ bound rather than for the step.                   stated assumptions. Neither the chapter’s design nor
+                                                   any of its results depends on this method, which it does
+                                                   not use.
+
+                                                                                  Continued on the next page.
+APPENDIX B. Errata to the Reproduced Articles                                                               9
+
+
+ Table 1 continued from the previous page.
+
+ Defect in the published article                  Correction in the chapter
+
+ The rationale for hard parameter sharing at-     Re-attributed to the work that states the argument the
+ tributes the claim that constraining the hy-     sentence makes: choosing a hypothesis space large
+ pothesis space regularizes, and generalizes      enough to contain a solution yet small enough to gene-
+ better when tasks are related, to a work on      ralize, searched over an environment of related tasks.
+ learned soft sharing. That work is a method      The substituted reference was already in the biblio-
+ for learning what and how much to share,         graphy and is cited for the same claim elsewhere in the
+ presented as an improvement on fixed sha-        chapter. The soft-sharing work remains cited where the
+ ring, so it argues against the sentence rather   chapter discusses cross-connection architectures and
+ than for it.                                     negative transfer.
+
+
+        Two elements of the published article were deliberately preserved rather than corrected.
+The sentence stating that Nash-MTL “consistently yielded a better overall performance” is
+reproduced verbatim; it predates a later finding about the optimizer implementation, and the
+chapter preface carries the of-the-time caution instead of an edit. The emphasis convention of
+the published category table, which bolds the better of the joint and single-task models per
+row and never bolds the HMRM baseline, is also preserved exactly; the new caption states the
+convention so the bolding is not misread as “best per row”.
+         The chapter also carries marked additions that are not part of the published text, each
+declared as an addition in the chapter source. Two are frame devices required by the dissertation:
+the italic preface, which states the venue, the identifier, and the of-the-time framing, and the lead
+sentence that introduces the convergence table, written because the dissertation’s presentation
+rules require a table to be introduced by a takeaway sentence. The others state protocol facts
+the published paper left implicit: that the folds are stratified by sample rather than by user, so
+the check-ins of one user may appear in both training and validation; that the sample unit of
+the category task is the place, so no place spans two folds; that the code of record pins a single
+random seed, so the five folds are one repetition of the experiment and the reported standard
+deviations are the spread across those folds at that seed; and that training runs for the full
+configured number of epochs without early stopping, with each task read at the epoch of its
+own highest validation macro-F1 on the fold the score is reported on. All four are recovered
+from the code released with the article and none is a claim about a result. The number of model
+configurations examined during the study is not recoverable from the released material, and no
+sentence of the chapter asserts one.
+        Table 2 lists the wording substitutions applied to the preserved prose under the disserta-
+tion’s writing rules. The first eight change neither the strength nor the scope of a claim. The next
+four remove the words significant, significantly, and statistically from four statements about the
+chapter’s own measured comparisons: the chapter reports no inferential test of any kind, so these
+APPENDIX B. Errata to the Reproduced Articles                                                    10
+
+
+words claimed more than the study established, and the replacements state the same findings
+descriptively. Four further uses of the word were left in place. Two report claims of cited work,
+one states the study’s own hypothesis, and one names a chosen target level. Two more remain
+that do read against this chapter’s own results: one describes the multitask model as incurring
+a significantly higher overhead in wall time, and one refers to the lack of significant improve-
+ment from that model. Both are left as published, because both understate rather than overstate
+what the chapter shows: they qualify results the chapter reports as negative, so removing the
+word would make the chapter’s own conclusion sound stronger than it was. A reader should
+nevertheless read them descriptively, since no inferential test supports either. The thirteenth row
+records a sentence rewritten for readability: the published clause about an “unbalanced result”
+between the two models had no grammatical referent for what it said this could make worse, and
+the chapter now states the same possibility in the terms the surrounding paragraph establishes,
+with its hedge preserved. The final row records a footnote added to a definition rather than a
+substitution. No edit in this table raises the strength of a claim.
+
+
+B.2      Article 2 (Chapter 4, CoUrb 2026)
+        The first two corrections in Table 3 replace the published numbers by the values of an
+internal audit of the same results, performed after publication; the audited values are the ones
+the chapter reports. The third substitutes a verdict verb without changing the strength of the
+claim, and the fourth narrows one claim about a cited method to the guarantee that method’s
+own paper states. The last three correct attribution and vocabulary: two claims are returned to
+works that state them, and one data column is named for the reader rather than by its identifier
+in the source files.
+       One element was preserved rather than corrected: the published bolding of the Florida
+Outdoors baseline cell in the sequential-task table is kept exactly as published; the technical-tie
+reading lives in the prose only.
+         One sentence of the methodology was re-typeset without a change of content. The
+published sentence introducing the category embedding of the POI Encoder placed a long inline
+expression at the end of its first line, where the one-column measure of this format cannot break
+it and the line runs past the margin. The clause order is reversed so that the expression falls
+earlier in the sentence. Every content word of the published sentence is kept and no quantity,
+symbol, or claim changes, so this is recorded among the mechanical changes of the re-typeset
+rather than as a content departure.
+         The chapter carries marked additions that are not part of the published text, each declared
+as an addition in the chapter source. Three are frame devices required by the dissertation: the
+italic preface, a recap subsection on the MTLnet framework of Chapter 3, and the reading
+instruction appended to the caption of Figure 3, which names the axes and the pattern the panels
+APPENDIX B. Errata to the Reproduced Articles                                                     11
+
+
+show so that the figure can be read on its own. The chapter states no protocol fact beyond those
+the published paper itself reports. The number of model configurations examined during the
+study is not recoverable from the released material, and no sentence of this chapter asserts one.
+The evaluation protocol of this study, which stratifies the cross-validation split by sample rather
+than by user, is stated in the chapter preface, where it frames the study alongside Chapter 3. The
+remaining three are the lead sentences that introduce the three tables, one each for Tables 5, 6,
+and 7, written because the dissertation’s presentation rules require a table to be introduced by
+a takeaway sentence. Each of the three reads its table and states no quantity that the table does
+not already show.
+
+
+B.3      Article 3 (Chapter 5, MobiWac 2026)
+         One content correction was applied. The submitted manuscript describes the prior work
+of Chapter 3 ([1]) as having studied the next-category and next-region tasks and as having
+observed negative transfer between them. Both statements are inaccurate against that work:
+Chapter 3 pairs static category classification with next-category prediction and contains no
+region task, and it hypothesizes negative transfer to explain a parity null rather than observing it.
+The two sentences (in the introduction and the related-work recap) were corrected to state that
+the earlier work found no consistent multitask advantage for the paired category tasks, and that
+the present study is the one that introduces the region task. The correction removes an internal
+contradiction with the chapter’s own novelty claim and does not alter any experimental result; it
+was applied both here and in the version of record, and is recorded in that article’s errata. Beyond
+it, every number and claim in Chapter 5 reproduces the submitted text. The chapter also carries
+three marked additions declared in the chapter source: the italic preface, a recap subsection
+covering the artifacts of Chapters 3 and 4, and the restoration of one figure that the submitted
+eight-page build had cut for space, whose four values are stated in the reproduced prose in both
+versions. This chapter writes no new lead sentences for its tables, since the submitted text already
+introduces each of them.
+         Table 4 lists three further departures in the reproduced prose. None alters an experimental
+result. Two narrow a claim to what its evidence covers or name the basis on which a reported
+comparison was measured, and the third adds a cross-reference.
+         This article differs from the other two in a way that changes what this section has to
+record. It is under review rather than published, so a correction to a minor factual or scope claim
+does not have to be declared here at all: it is applied to the submitted source as well, and the two
+texts stay identical. Three corrections were handled that way and are named in the article’s own
+errata record rather than in this table. What remains here are the three that could not be folded
+into a paper under review, because each depends on material the article has no room for: one
+cites the benchmark of Appendix D, one cites this chapter’s own results table, and one cites the
+APPENDIX B. Errata to the Reproduced Articles                                                            12
+
+
+gradient-cosine appendix of the dissertation.
+
+
+B.4      Two extractions of the same Gowalla corpus
+         Chapters 3 and 4 report the Florida subset of Gowalla as 20,301 users, 65,009 POIs, and
+990,518 check-ins, while Chapter 5 reports 21,052 users, 76,544 POIs, and 1,407,034 check-ins
+for the same state of the same public dataset. The two are different extractions of that state, not
+different datasets and not a discrepancy between them: the first two chapters report the corpus
+as the extraction pipeline of their time produced it, and Chapter 5 reports the current extraction.
+        The mechanism is the category mapping, not the raw data and not a different filtering rule.
+The extraction assigns a category to each check-in from a mapping table and discards the rows
+whose category does not map, so widening that table keeps rows that an earlier run had dropped.
+The mapping files were extended about eleven months after the earlier Florida extraction, and the
+places they added fall mostly in Entertainment, Outdoors, and Travel. A controlled comparison
+against the working extraction of the earlier period confirms the direction: each of its POIs,
+users, and check-ins reappears in the current extraction, which adds further ones. The current
+pipeline therefore cannot reproduce the earlier counts, and the two sets of figures are kept as
+each chapter reported them rather than retrofitted to one another. The comparison is recorded in
+the research repository, in src_utils/cbic_recompute_result.md.
+
+
+B.5      Bibliography errata
+        The dissertation uses a single global bibliography. During its consolidation, the entries
+inherited from the three articles’ reference lists were re-verified against the sources of record
+(Crossref, OpenAlex, arXiv, publisher pages), and the defects in Table 5 were corrected. In
+addition, duplicate keys naming the same work across the three donor lists (among them three
+spellings for the Deep Graph Infomax paper and two for the Nash-MTL paper and for the Gowalla
+reference) were consolidated to one entry each; key consolidation does not alter any reference’s
+content and is not itemized.
+Table 5 – Bibliography errata: defects in entries inherited from the articles’ reference lists and
+          the corrections applied in the global bibliography. Keys in typewriter font.
+
+ Defect in a donor reference list               Correction in the global bibliography
+
+ POI-RGNN cited the wrong paper for the         Replaced        by       the         correct       record
+ Capanema et al. model.                         (capanema2023poirgnn:           Ad     Hoc     Networks,
+                                                v. 138, 103016, 2023), verified against Crossref.
+
+                                                                               Continued on the next page.
+APPENDIX B. Errata to the Reproduced Articles                                                              13
+
+
+ Table 5 continued from the previous page.
+
+ Defect in a donor reference list                 Correction in the global bibliography
+
+ HMRM entry (chen2020modeling): gar-              Five authors restored per the Crossref record; type cor-
+ bled and incomplete author list, journal arti-   rected to journal article (IEEE TKDE, 34(4):1902–
+ cle typed as conference paper, DOI missing.      1914, 2022), DOI 10.1109/TKDE.2020.3001025.
+
+ Graph Attention Networks cited as an arXiv       Cited as the ICLR 2018 version of record; arXiv iden-
+ preprint.                                        tifier kept as a note.
+
+ The spherical-harmonics location encoder         Cited as the ICLR 2024 version of record, confirmed
+ of Rußwurm et al. was typed as an arXiv          against the arXiv journal reference and the OpenRe-
+ preprint, although the entry already recor-      view submission record; arXiv identifier kept as a note.
+ ded the year of the conference version.
+
+ Cross-Stitch    entry   (misra2016cross):        DOI corrected to 10.1109/CVPR.2016.433 (verified).
+ DOI resolves to a different paper.
+
+ MTL-survey entry (zhang2021survey):              DOI corrected to 10.1109/TKDE.2021.3070203 (veri-
+ DOI does not resolve.                            fied).
+
+ The node feature matrix is described as the      Published sentence preserved; a footnote records what
+ category one-hot encoding of each POI. The       the code does and why the distinction matters. The
+ released implementation feeds the mean of        embedding therefore describes a neighborhood rather
+ the one-hot vectors of a POI’s graph neigh-      than a POI’s own label, so the static task it supports is
+ bors, with the POI’s own vector excluded.        spatial homophily.
+ Kohavi (1995), the cross-validation and bo-      DOI dropped, since the IJCAI-95 proceedings predate
+ otstrap study: the entry carried a DOI that      DOI registration. Author, title, volume and pages 1137–
+ resolves to a re-deposit of the paper made in    1143 confirmed against the proceedings PDF published
+ 2026, not to the conference record.              by IJCAI.
+
+ church2017word2vec resolves to a com-            Replaced       by         mikolov2013word2vec         (ar-
+ mentary column, not the skip-gram method.        Xiv:1301.3781) at the citing sentence.
+
+ The sentence corrected in the row above          mikolov2013negsampling (arXiv:1310.4546) ad-
+ attributes both skip-gram and negative           ded alongside it, which is where negative sampling
+ sampling to mikolov2013word2vec (ar-             is introduced. Both keys now appear at the citing sen-
+ Xiv:1301.3781), which introduces skip-           tence, since it claims both methods.
+ gram but not negative sampling.
+
+ yu2019mmoe: no distinct resolvable work;         Dropped; the citing sentence describes MMoE and now
+ its claimed arXiv identifier resolves to an      cites ma2018mmoe alone.
+ unrelated toolkit paper.
+
+ Deep Graph Infomax cited under three dif-        Consolidated             to    a       single       entry
+ ferent key spellings across the donor lists.     (velickovic2019deep, ICLR 2019).
+
+                                                                                 Continued on the next page.
+APPENDIX B. Errata to the Reproduced Articles                                                              14
+
+
+ Table 5 continued from the previous page.
+
+ Defect in a donor reference list                   Correction in the global bibliography
+
+ silva2025mtlnet (the Chapter 3 article,            Venue corrected to CBIC 2025 (Congresso Bra-
+ cited by the CoUrb paper): venue name con-         sileiro    de   Inteligência   Computacional),       DOI
+ flated with another conference, stale “Sub-        10.21528/CBIC2025-1191324; note dropped; six
+ metido” note, wrong author list.                   authors restored per the Crossref record.
+
+ paiva2026stmtlnet (the Chapter 4 arti-             Author restored per the Crossref record of DOI
+ cle): third author missing in the seed entry.      10.5753/courb.2026.22960; pages 323–336 confir-
+                                                    med.
+
+ standley2020tasks: venue given as                  Venue corrected to ICML 2020 per OpenAlex; ar-
+ CVPR; page range unverifiable.                     Xiv:1905.07553 noted; the unverifiable page range
+                                                    dropped.
+
+ kokkinos2016ubernet: typed as an arXiv             Cited as the CVPR 2017 version of record, DOI
+ preprint, with the preprint identifier standing    10.1109/CVPR.2017.579, pages 5454–5463, verified
+ in for the journal field.                          against Crossref; arXiv identifier kept as a note.
+
+ The Sphere2Vec location encoder of Mai et          Cited as the journal version of record (ISPRS Journal
+ al. was typed as an arXiv preprint, with no        of Photogrammetry and Remote Sensing, v. 202, pages
+ venue recorded at all.                             439–462, 2023), DOI 10.1016/j.isprsjprs.2023.06.016,
+                                                    verified against Crossref and against the journal refe-
+                                                    rence recorded on the preprint; arXiv identifier kept as
+                                                    a note.
+
+ CoUrb chapter (4): the Gowalla dataset was         Citation    corrected     to   the   dataset     sources
+ cited via Liu et al. (2014), “Exploiting Geo-      (cho2011gowalla,         jure2014snap),     which    the
+ graphical Neighborhood Characteristics for         same chapter already cites for the dataset elsewhere;
+ Location Recommendation” (ACM CIKM),               the location-recommendation reference was dropped
+ a location-recommendation method paper,            from the chapter.
+ not the dataset source.
+
+ nash (Nash-MTL) recorded the venue by the          Brought to the publisher’s own record for the paper:
+ abbreviation this bibliography uses for that       the proceedings of the thirty-ninth International Con-
+ conference, and carried neither the procee-        ference on Machine Learning, volume 162 of Proce-
+ dings volume, the series, the publisher, nor a     edings of Machine Learning Research, pages 16428–
+ resolvable link. The three articles’ own lists     16446, 2022, with the publisher and the publisher’s
+ went further and cited the work as a preprint,     landing page. The page range was already correct here
+ with a preprint identifier in place of a journal   and is unchanged. The same entry was corrected in
+ or proceedings field.                              each of the three article source trees, where the entry
+                                                    type itself was wrong.
+APPENDIX B. Errata to the Reproduced Articles                                                             15
+
+
+
+
+Table 2 – Wording substitutions in the reproduced CBIC 2025 prose (writing-rule conformance;
+          claim strength unchanged or reduced, never raised).
+
+ Published wording                                     Chapter wording
+ “By leveraging shared information, MTL can po-        “By using shared information, ...”
+ tentially mitigate...”
+ “solutions that leverage shared representations       “solutions that use shared representations...”
+ across related POI tasks”
+ “by leveraging shared information across correla-     “by sharing information across correlated tasks”
+ ted tasks”
+ “Moreover, we utilize a Deep Graph Infomax...”        “In addition, ...” (both instances)
+ / “Moreover, D is a discriminator...”
+ “These findings underscore that...”                   “These findings indicate that...”
+ “Furthermore, investigating advanced multi-task       “In addition, investigating...”
+ optimizers...”
+ “Furthermore, the computational cost ... was          Subsumed by the MFLOPs correction in Table 1.
+ roughly double”
+ “where different sequential patterns might be le-     “might be exploited”
+ veraged”
+ “the MTL framework does not deliver the consis-       “does not deliver the consistent gains often ex-
+ tent, significant gains often expected”               pected” (the chapter reports no inferential test, so
+                                                       the word carries no verdict here).
+ “both our MTL and Single models significantly         “outperform HMRM in every POI category” (the
+ outperform HMRM across all POI categories”            comparison is stated by scope instead of by sig-
+                                                       nificance).
+ “significantly surpassing MHA+PE in these cate-       “surpassing MHA+PE in these two categories”.
+ gories”
+ “suggesting that, statistically, the performance of   “suggesting that the performance of the MTL and
+ the MTL and Single models is largely compa-           Single models is largely comparable, without a
+ rable, without a clear, consistent, and significant   clear or consistent advantage”.
+ advantage”
+ “Also, it is important to notice that since we have   Rewritten for readability, with the claim unchan-
+ an unbalanced result for the MTL and single, this     ged: the chapter states that the two models do not
+ could lead to the worse of other results.”            lead consistently across the categories, each ob-
+                                                       taining the better F1-score in some of them, and
+                                                       that this uneven distribution could make either
+                                                       model appear worse in the categories where the
+                                                       other one leads. The published phrase “unbalan-
+                                                       ced result for the MTL and single” names the
+                                                       pattern the two preceding sentences describe, and
+                                                       “the worse of other results” had no grammatical
+                                                       referent. The hedge “could” is preserved, no num-
+                                                       ber is touched, and no inferential claim is added.
+ “Next-POI Prediction, in contrast, aims to predict    Reproduced verbatim, with a footnote added sta-
+ which specific location a user is likely to visit     ting that this is the general formulation of the
+ next” (the related-work definition of the research    literature and that the variant studied in the chap-
+ area)                                                 ter predicts the category of the next visited place.
+APPENDIX B. Errata to the Reproduced Articles                                                               16
+
+
+
+Table 3 – Content errata of the CoUrb 2026 article and the corrections applied in Chapter 4
+          (English translation of the published text).
+
+ Defect in the published article                   Correction in the chapter
+ Results and conclusion state wins over the        Audited count: 15 of the 21 combinations, with one
+ baseline in “16 of the 21 evaluated combi-        additional technical tie (Outdoors in Florida, where
+ nations”.                                         the baseline mean exceeds the best variant by 0.02
+                                                   percentage points, within one standard deviation).
+ Introduction, results, and conclusion state       Audited per-state means: gains of 20.2 to 22.0 percen-
+ “average gains of 20 to 24 percentage points”     tage points, considering the better of the two spatial
+ on the category task.                             encoders in each combination (the disclosure the audit
+                                                   requires).
+ Introduction states “wins in most scenarios”.     “outperforms the baseline in most scenarios” (verdict-
+                                                   verb rule; claim strength unchanged).
+ The methodology states that maximizing the        Narrowed to the guarantee the method’s own paper de-
+ product of the task utilities “ensures that the   rives: at points that are not Pareto stationary, and under
+ update is beneficial for all tasks simultane-     its assumption that the task gradients there are linearly
+ ously”. The guarantee is unconditional as         independent, the update direction is a descent direction
+ written.                                          for every task. The paper states the property in those
+                                                   terms, and it approximates the bargaining solution by
+                                                   an iterative procedure rather than solving it exactly. The
+                                                   claim is weaker than the published one, and no result
+                                                   depends on it.
+ The methodology attributes to a next-POI          Split into the part the literature supports and the part
+ recommendation method the claim that cy-          it does not. The regularity itself is attributed to the
+ clical mobility regularities carry discrimina-    paper that published the check-in collection this chap-
+ tive information about the functional nature      ter uses, already cited elsewhere in the chapter, and
+ of the visited places. That method models         the recommendation method is kept for the property it
+ long- and short-term user preference and sta-     does establish, that models of the next visit read tempo-
+ tes nothing about temporal signal revealing       ral structure explicitly. The claim about place function
+ what kind of place a visit is.                    is withdrawn rather than re-attributed, since no work
+                                                   in the bibliography supports it. The paragraph’s argu-
+                                                   ment, that the original architecture lacks an explicit
+                                                   temporal representation, is unchanged.
+ The category-encoder loss attributes its hie-     Re-attributed to a multitask embedding method for
+ rarchical regularization term, an L2 penalty      place-category annotation, which regularizes related-
+ that pulls a subcategory embedding toward         ness among categories using a predefined category hie-
+ its parent over a known label tree, to a pa-      rarchy: the same construction the loss implements. The
+ per on nonlinear dimensionality reduction.        reference was already in the bibliography and already
+ The two share a graph Laplacian and nothing       cited in this chapter. No term, coefficient, or reported
+ else.                                             value changes.
+ Two sentences of the methodology name a           Replaced by the registered reader-facing name, fine
+ data column by its identifier in the source       class, in both sentences, set in roman because it is or-
+ files, fclass, which is not a term a reader       dinary English rather than a code token. The parenthe-
+ of the chapter can resolve.                       tical gloss that introduced the column is kept, so the
+                                                   sentence still tells the reader what a secondary cate-
+                                                   gory is.
+APPENDIX B. Errata to the Reproduced Articles                                                                17
+
+
+
+
+Table 4 – Claim-scope corrections in the reproduced MobiWac 2026 prose (claim-scope nar-
+          rowing and comparison-basis disclosure; no experimental result altered).
+
+  Submitted claim                    Correction in the chapter
+  The representation “passes no      The universal negative is replaced by a bounded statement over
+  usable information about the       named channels. The first ground is scoped to the training ob-
+  test visits, on three grounds”.    jective, with the note that each visit’s category is a node input
+                                     feature; a fourth ground is added, reporting the development au-
+                                     dit that probes the forward-edge channel between consecutive
+                                     visits, with its three limits stated: a linear probe, Florida at one
+                                     random initialization, and earlier builds of the representation.
+                                     Every number already in the paragraph is unchanged.
+  The region-pathway control         The control is restated against the single-task category score it
+  lands “within 0.3 of the joint     was measured on, and the “within 0.3” figure is kept with its basis
+  model”.                            named: the joint scores of the development configuration current
+                                     when the control was run, not the joint cells of Table 10. The
+                                     control’s single random initialization over five folds is disclosed.
+                                     The finding is unchanged.
+  The gradient-cosine paragraph      One sentence is added in the chapter, pointing to the appendix
+  reports the development mea-       that measures the same quantity on the final model across seven
+  surement, four seeds on four       datasets and reaches the same conclusion. The sentence cites a
+  Gowalla states, and points only    dissertation appendix, so it is not carried into the submitted paper:
+  to the mechanism test in the re-   the referent does not exist there. No number, scope, or conclusion
+  sults section.                     in the paragraph changes.
+                                                                                                  18
+
+
+
+     APPENDIX D – A Label-History
+   Benchmark for the Next-Category Task
+
+       This appendix answers one question. How much of the next category can be predicted
+from the category history of the input window alone, without reading any representation at all?
+The answer fixes how strong a screening argument in Chapter 5 can honestly be.
+         The screening procedure works as follows. For each candidate representation, a linear
+model is trained to predict the next category from the vector of the last visit in the window
+alone, and the macro-F1 it reaches is compared against the score a reference encoder reaches on
+the same task. A candidate scoring far above that reference encoder is suspected of carrying the
+label it is supposed to predict, and is discarded. The probe is run twice, once on standardized
+features and once on raw ones, and either run can disqualify a candidate.
+       All scores in this appendix are macro-F1 on a zero-to-one scale, and differences between
+them are quoted in points, where one point is 0.01 on that scale.
+         Two quantities are involved in that comparison. Both have served as the screen’s reference
+level at different times, and both have been called the ceiling, which is the confusion this appendix
+exists to remove. Each is given one name here and keeps it.
+
+
+The label-history benchmark. The best macro-F1 obtained from the recorded category history
+      of the input window alone. No representation is read and no encoder is involved, so this is
+      a property of the sequence of category labels. It is what this appendix measures.
+
+The clean reference encoder. The encoder that a screened candidate is actually compared
+     against, and the score the screening margin is applied to. Two encoders play this role
+     at Florida, both from the lineage the representation of Chapter 5 descends from: one at
+     0.4090 macro-F1 on standardized features and 0.4074 on raw ones, and a residual variant
+     at 0.4197 and 0.4182. Where the two are discussed together below, they are named in the
+     plural for that reason.
+
+
+        The benchmark is measured under four predictors that see category labels and nothing
+else. The first is persistence, which repeats the last visited category and fits no parameters. The
+second is a multinomial logistic model on a one-hot encoding of that same last category. The
+third is the same model on the counts of each category over the nine visits of the window.
+The fourth is the same model on positional one-hot encodings of all nine slots, and it is the
+only one of the four that can use the order in which the categories occurred. The benchmark
+is the best score of the four. All of them run under the protocol the screen itself uses: five-fold
+APPENDIX D. A Label-History Benchmark for the Next-Category Task                                          19
+
+
+cross-validation grouped by user, so that no user’s windows fall on both sides of a split [2, 3],
+with macro-F1 averaged over the five folds. Macro-F1 counts the seven categories equally [4],
+which is also why the three logistic models are fitted with balanced class weights: an unweighted
+fit optimizes a different objective and would understate the benchmark.
+        Across the five datasets where the inputs were available the benchmark ranges from
+0.2800 to 0.3617, well above the majority-class floor in every case. Table 6 gives the four
+predictors, the benchmark, and the floor for each dataset.
+Table 6 – The label-history benchmark for next-category prediction, by dataset. Each predictor
+          column sees only the recorded category history of the nine-visit input window; no
+          representation is read. The bold cell in a row marks the predictor that attains the
+          benchmark, and the benchmark column carries its standard deviation over the five
+          folds. The floor predicts the training portion of each fold’s majority class. All values
+          are macro-F1 on a zero-to-one scale over seven categories, averaged over five user-
+          grouped folds. The row counts are those of the harvested per-dataset input tables
+          this audit reads, which are not the stride-one sliding-window counts reported for the
+          experiments in Chapter 5; the benchmark is a property of the label sequence and is
+          unaffected by that difference, but the two counts should not be compared.
+
+                                       Label-history predictors
+      Dataset        Rows    Persistence   One-hot   Counts       Positional     Benchmark        Floor
+      Alabama       12,709       0.2800     0.2800   0.2783          0.2791    0.2800 ± 0.0138   0.0727
+      Arizona       26,396       0.3080     0.3080   0.3191          0.3232    0.3232 ± 0.0163   0.0725
+      Florida      159,175       0.3417     0.3417   0.3503          0.3617    0.3617 ± 0.0069   0.0566
+      California   358,302       0.3160     0.3160   0.3148          0.3242    0.3242 ± 0.0057   0.0704
+      Istanbul      58,075       0.2588     0.2588   0.2947          0.3016    0.3016 ± 0.0058   0.0715
+
+
+        Two readings follow from the table, and they point in different directions.
+        The screening comparison is unaffected. Its verdicts are relative, since a candidate is
+discarded when it clears the clean reference encoder by more than the screening margin of three
+points, and the benchmark enters that arithmetic nowhere. The attention-based encoder that was
+discarded at Florida clears the clean reference encoder by 8.9 points, so its verdict does not
+depend on where the benchmark lies.
+         The absolute reading is the weaker one. At Florida the two clean reference encoders
+score above the benchmark, 0.4090 and 0.4197 against 0.3617, which Chapter 5 reports as a gap
+of four to six points, and so does every candidate screened beside them on the raw run of the
+probe. One candidate falls below the benchmark on the standardized run, a relation-typed graph
+encoder at 0.3328 that rises to 0.4142 on the raw one. It is not an example of a clean encoder
+sitting below the benchmark, because it is the candidate that passed this screen and then leaked
+under a downstream sequence model, which Chapter 5 reports as the reason the linear form is
+a screen rather than a proof. What the screen bounds is therefore the candidates against each
+other, not any of them against an absolute standard. That is the weaker of the two claims, and it
+is the one Chapter 5 makes.
+APPENDIX D. A Label-History Benchmark for the Next-Category Task                                20
+
+
+        The gap is not by itself evidence of a leak. A per-visit vector legitimately carries more
+than the previous category. It also carries the place, the neighborhood of that place in the graph,
+and the hour of the visit, and any of those can predict the next category with no information
+flowing backward in time.
+         The benchmark is also not an upper bound. It is the best score of four named predictors,
+so a different model reading the same category history could score above it. Calling it a ceiling,
+as the internal screening record does, would assert more than the measurement supports.
+         Two coverage limits apply. Texas is absent because the check-in graph the computation
+reads was not retained for that dataset under the shipped representation. Only its embedding
+outputs remain, and measuring the benchmark there would require re-running the preprocessing.
+For Istanbul, 196 of the 29,816 places carry more than one category across the record. The reason
+is not recorded in the data, so none is claimed here.
+        The table maps each place to its most frequent category. A strict variant that instead
+drops every window ending at one of those places keeps 55,946 of the 58,075 windows and
+gives 0.3009, against the 0.3016 of the table.
+      The computation is released with the code as <scripts/embedding_eval/autoc
+orrelation_ceiling.py>. Its outputs are <autocorrelation_ceiling.json> and two
+accompanying comma-separated files, all three under <docs/results/embedding_eval/re
+screen_cat/>. Those file names keep the older word, since they predate the naming settled
+here.
+                                                                                             21
+
+
+
+   APPENDIX E – The Human-Subjects
+             Question
+
+        The studies are a secondary analysis of two collections that were already public before
+the work began, and no participant was recruited, contacted, or observed by the author. On that
+basis the author’s position is that review by a research ethics committee was not required. This
+appendix records that position and its basis. It records no approval and no exemption, because
+none was sought and none is claimed.
+        Should the program require a formal determination for secondary analysis of public data,
+it belongs on file before deposit, and this appendix should then name it.
+                                                                                                22
+
+
+
+  APPENDIX F – Adaptation of the HGI
+             Baseline
+
+        This appendix records one methodological choice that is necessary to interpret the HGI
+baseline used in the later studies. Huang et al. set the cross-region edge weight to 0.4 in the HGI
+experiments on Xiamen and Shenzhen [5]. The present work did not transfer that value without
+evaluation. It selected the weight on Alabama before applying HGI to the United States state
+graphs.
+        The sweep evaluated weights 0.4, 0.5, 0.6, and 0.7 with five folds and a budget of 50
+epochs. The recorded category F1, on a zero-to-one scale and reported as the mean plus or minus
+the standard deviation across folds, increased in the same order:
+
+
+                            Cross-region weight       Category F1
+
+                                     0.4            0.7388 ± 0.0205
+                                     0.5            0.7678 ± 0.0211
+                                     0.6            0.7944 ± 0.0186
+                                     0.7            0.8186 ± 0.0123
+
+        The later studies therefore use 0.7. This sweep supports adaptation of one baseline
+hyperparameter; it is not evidence about the relative performance of HGI and Check2HGI, and
+it does not change HGI’s role in the representation lineage.
+                                                                                            23
+
+
+
+                                  References
+
+[1] SILVA, V. H. O. et al. An investigation into multi-task learning for point-of-interest
+category classification and next-POI prediction. In: Anais do XVII Congresso Brasileiro de
+Inteligência Computacional (CBIC 2025). [S.l.: s.n.], 2025. p. 1–8.
+
+[2] KOHAVI, R. A study of cross-validation and bootstrap for accuracy estimation and model
+selection. In: Proc. IJCAI. [S.l.: s.n.], 1995. v. 14, p. 1137–1143.
+
+[3] PEDREGOSA, F. et al. Scikit-learn: Machine learning in Python. Journal of Machine
+Learning Research, v. 12, p. 2825–2830, 2011.
+
+[4] SOKOLOVA, M.; LAPALME, G. A systematic analysis of performance measures for
+classification tasks. Information Processing & Management, v. 45, n. 4, p. 427–437, 2009.
+
+[5] HUANG, W. et al. Learning urban region representations with POIs and hierarchical graph
+infomax. ISPRS J. Photogramm. Remote Sens., v. 196, p. 134–145, 2023.
+

@@ -26,31 +26,34 @@ that constructs the folds, and the statistical scripts and output files listed b
         user partition so that a user
         cannot reach one task's training data and the other task's validation data in
         the same fold.
-  \item[The seeds.] Four seeds, 0, 1, 7, and 100, each repeating the
-        five-fold experiment in full, which is the twenty fitted
-        models per configuration the chapter reports. The design is recorded in
+  \item[The seeds.] Four seeds, 0, 1, 7, and 100, each repeat the
+        five-fold experiment in full. Each seed determines a different user
+        partition, so the design produces $4\times5=20$ fitted models per
+        configuration. The design is recorded in
         \path{docs/reproducibility/mobiwac_v17/STATISTICAL_PROTOCOL.md}. A seed
         sets both the random initialization and the partition, so the four seeds draw four
         user partitions rather than repeating one, and the reported intervals cover both
         sources of variation. Four draws sample the variation across user splits without
         characterizing it. Within one seed both models are built from the same partition, which is what
-        the paired comparison requires; the tests pair the per-seed means, so they never
-        assume that a given fold of one seed is the same fold of another.
+        the paired comparison requires. The paired $t$ and TOST analyses compare the four
+        per-seed means, while the registered Wilcoxon sensitivity analysis compares the 20
+        matched seed-fold differences.
   \item[The reported scores.] Read at one saved model per fold, the epoch selected on
         validation, which is the joint-best convention: both tasks are read at the same
         checkpoint rather than each at its own best epoch. The post-hoc scorer is
-        \path{src/tracking/score_joint_best.py} and its results are collected in
-        \path{docs/reproducibility/mobiwac_v17/JOINT_BEST_RESULTS.md}.
+        \path{src/tracking/score_joint_best.py}, and the per-fold values it produced for
+        every joint cell reported in Chapter~\ref{ch:mobiwac} are stored in
+        \path{docs/results/closing_data/v18/joint_best_perfold.json}.
   \item[The significance tests.] The superiority and non-inferiority tests are
         implemented in \path{research/reproducibility/mobiwac_v17/superiority_wilcoxon.py}
-        and \path{research/reproducibility/mobiwac_v17/region_match_tost.py}. The reported
-        analysis was run by \path{research/reproducibility/mobiwac_v17/m1_stats_n20.py},
-        with the pre-registered per-fold variant in
-        \path{research/reproducibility/mobiwac_v17/m2_prereg_perfold.py}. Their console
-        output (\path{docs/reproducibility/mobiwac_v17/outputs/m1_full_output.txt} and
-        \path{docs/reproducibility/mobiwac_v17/outputs/m2_prereg_output.txt}) and the
-        verdict tables quoted in Chapter~\ref{ch:mobiwac}
-        (\path{docs/reproducibility/mobiwac_v17/stats/RESULTS.md}) are frozen together.
+        and \path{research/reproducibility/mobiwac_v17/region_match_tost.py}. The values
+        they consume, and from which every cell of Chapter~\ref{ch:mobiwac}'s results table
+        is computed, are the per-fold records in
+        \path{docs/results/closing_data/v18/joint_best_perfold.json} for the joint model
+        and \path{docs/studies/closing_data/v18/data/v18_results.json} for the dedicated
+        models. Both store one value per fold per seed, so the seed-level means, the paired
+        differences, and the intervals the chapter reports are recomputable from them
+        without rerunning any model.
   \item[The label-history benchmark.] Computed by
         \path{research/reproducibility/mobiwac_v17/autocorrelation_ceiling.py}; its
         machine-readable outputs are stored in

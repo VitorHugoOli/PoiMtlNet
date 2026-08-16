@@ -65,6 +65,7 @@ category $c_p\in\mathcal{C}$ and lies in a region $r_p\in\mathcal{R}$.
 \end{definition}
 
 
+
 \subsubsection{Check-in and place embedding}
 
 A task definition must also state what the model reads. Two representations recur
@@ -79,7 +80,8 @@ input.
 \begin{definition}[Check-in-level representation]\label{def:fund:checkinlevel}
     A check-in-level representation assigns one vector $\mathbf{e}_{x_i}$ to each check-in
     $x_i$, so two visits to the same POI may enter the model with different
-    representations.
+    representations, because the vector reads context that belongs to the visit rather
+    than to the place.
 \end{definition}
 
 \begin{definition}[Representation map]\label{def:fund:repmap}
@@ -223,7 +225,7 @@ two parts of the data from a corrupted one, and it needs no labels to do so, bec
 the data itself says which pairing is the true one.
 
 The representations used in this work are trained with no next-category and no
-next-region target, each visit contributes with its own description: the category of
+next-region target. Each visit contributes its own description: the category of
 the place visited is an input feature of its node, together with the hour and the day
 of the week.
 Mutual-information estimators provide one way to learn such
@@ -313,7 +315,21 @@ change isolates the effect of the input representation.
 Check2HGI completes the move from contextualized inputs to one learned representation
 per visit. It adds a fourth level below the place and learns one vector per visit from
 the visits themselves, with no next-category and no next-region target in its
-objective. The hierarchy has
+objective. What each visit contributes is its own context rather than an identifier: elapsed time
+is what distinguishes a visit that follows minutes after the last one from a visit that opens a new
+outing, a distinction a place-level vector cannot carry because it is the same vector at every
+visit.
+
+Three groups of values describe each visit at the input. The category of the visited place enters as
+an indicator over the number of classes. The time of day and the day of week enter through their sine and
+cosine, so that the endpoints of the daily and weekly cycles fall next to each other rather than at
+opposite ends of a scale. The elapsed times enter as the interval since the user's previous visit and
+the interval since that user's first visit, both compressed by a logarithm that keeps a gap of
+minutes and a gap of weeks on a comparable scale, together with the gap within the same calendar day
+and an indicator for a user's first visit, for which the two intervals do not exist. Appendix
+\ref{apx:check2hgi-joint-model} gives the exact composition and its width. Every one of these values
+is measured up to the visit itself, and the edges between consecutive visits point forward in time
+only, so a vector describes its visit and the history before it. The hierarchy has
 three adjacent-level boundaries: check-in to place, place to region, and region to
 city. Its three hierarchical boundaries contribute the fixed-weight sum
 \begin{equation}\label{eq:fund:check2hgi}
@@ -458,8 +474,8 @@ negative. Other methods may still react to differences in gradient magnitude or 
 loss. In Chapter~\ref{ch:mobiwac}, two such methods exceed equal weighting on one
 dataset but not on the others. Appendix~\ref{apx:cosine} evaluates the final joint
 model and finds the task gradients equivalent to orthogonal within a margin of five
-hundredths at every dataset measured there. A paired test separates the mean from zero
-at three datasets, but those small departures remain within the equivalence margin.
+hundredths at each of the four datasets measured there. A paired test separates the mean
+from zero at one of them, but that small departure remains within the equivalence margin.
 The combined result is that the deviations are detectable but too small to represent
 meaningful directional conflict at the scale considered by the balancers.
 
@@ -652,12 +668,12 @@ Under this \emph{joint-best} convention, both reported task scores come from the
 validation-selected checkpoint, reflecting the balanced performance of a single
 deployable system.
 
-To interpret these scores, model performance is evaluated between lower reference
-floors and upper benchmark ceilings. At the lower bound, basic baselines establish
-performance floors: a majority-class predictor for category classification, and a
+To interpret these scores, model performance is evaluated against lower-bound
+baselines and dedicated single-task reference models. Basic baselines establish
+performance floors: a majority-class predictor for category classification and a
 first-order Markov model over training visits for sequential
-transitions~\cite{gambs2012mmc}. At the upper bound, the primary reference ceiling for
-evaluating multitask gains is the dedicated single-task model for each output.
+transitions~\cite{gambs2012mmc}. The primary reference for evaluating multitask gains
+is the dedicated single-task model for each output.
 Theoretical limits from prior work, such as the 93~percent potential predictability
 reported for coarse location prediction~\cite{song2010limits}, do not serve as
 ceilings for seven-class macro-F1 or region ranking.
@@ -675,7 +691,7 @@ Chapter~\ref{ch:mobiwac} instead uses a grouped, stratified splitter that keeps 
 user on one side of a fold~\cite{pedregosa2011sklearn}. In that chapter, each seed
 defines one complete repetition of the five-fold experiment. It determines the model's
 random initialization and how users are divided among the five folds. The study uses
-four seeds, and each seed produces five fitted models, given a total of twenty fitted configurations for each
+four seeds, and each seed produces five fitted models, for a total of twenty fitted configurations for each
 experiment.
 
 \subsection{Comparison and statistical decisions}
@@ -690,10 +706,10 @@ per-seed means. A Wilcoxon signed-rank test on the twenty paired fold results is
 reported alongside it and reaches the same decisions~\cite{wilcoxon1945}. Holm
 correction controls family-wise error across the six dataset
 comparisons~\cite{holm1979}. A superiority test cannot establish that a difference is
-small enough to accept. For Alabama and Arizona, two one-sided tests establish that
-the joint model is statistically non-inferior within a two-point
-margin~\cite{lakens2017tost}. Accordingly, \emph{outperforms} is reserved for paired
-superiority and \emph{matches} for statistical non-inferiority within that margin.
+small enough to accept. At the four datasets where the joint model does not outperform on next region, two one-sided tests
+establish that it is statistically non-inferior within a two-point margin~\cite{lakens2017tost}. Accordingly, \emph{outperforms} is reserved for paired
+superiority, and a difference that fails superiority is reported by the bound its interval
+supports rather than as an equality.
 
 
 \section{Relevance}
@@ -741,7 +757,8 @@ and report fold means without significance tests. In the final study, user-disjo
 cross-validation limits leakage between a user's training and test visits. Macro-F1 and OOD-discounted
 Acc@10 describe different outputs and are read against explicit reference points.
 Paired superiority tests support the verb \emph{outperforms}, while non-inferiority
-tests within a two-point margin support \emph{matches}. These rules prevent an
+tests within a two-point margin support the statement that a region difference stays inside that
+margin, and the category differences are reported by the bound their intervals support. These rules prevent an
 observed mean difference from being reported as a conclusion that its test does not
 support.
 
@@ -759,10 +776,14 @@ model. For that configuration, the joint model does not outperform the dedicated
 single-task models. Chapter~\ref{ch:courb} keeps the model fixed, asks whether the
 input representation, rather than the sharing topology, is the bottleneck, and finds
 that it is. Chapter~\ref{ch:mobiwac} asks what a check-in-level representation and a
-different sharing topology enable for two sequential targets. There, the joint model
-outperforms the dedicated model on next category at all six datasets, and on next
-region it outperforms at four of them and matches the dedicated model at the other
-two. Chapter~\ref{ch:mobiwac} reports which datasets fall on each side.
+different sharing topology enable for two sequential targets.
+On next region, where the analysis plan registered a
+two-point equivalence margin in advance, it outperforms the dedicated model at the two datasets
+with the largest region vocabularies and stays inside that margin at the other four. On next
+category, where the plan registered a superiority test and no margin, it outperforms at one
+dataset, and every one of the six differences is equivalent to zero within half a point, a bound
+read off the intervals rather than chosen in advance. Chapter~\ref{ch:mobiwac} reports which datasets fall on each
+side, and with which test.
 
 Those answers also decide something practical. Anticipating what kind of place a
 person will visit, and where that visit will occur, can support recommendation,

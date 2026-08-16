@@ -24,9 +24,26 @@ once on the whole dataset and has seen their visits. Its training objective does
 use the next-category or next-region labels. We therefore check whether whole-dataset
 training changes the results.
 
+\emph{Configuration search.} Reported results come from searched configurations, and the search
+was not uniform across the three model families, so its scope is stated here rather than left to
+be inferred.
+For the dedicated category model, batch size was searched at all six datasets, over five folds at
+Istanbul, Alabama and Arizona and on fewer folds at Florida and Texas. The learning rate was
+searched over five folds at Istanbul, Alabama and Arizona and on single folds at Texas; at Florida
+and California it was not varied, so those two carry the value the smaller searches selected.
+The selected learning rate differs by dataset, which is
+why the dedicated category arm is a per-dataset-tuned comparison rather than one fixed recipe. For
+the joint model, batch size and the category-head learning rate were searched at Istanbul, Alabama,
+and Arizona over five folds and screened at Florida; Texas and California carry the configuration
+transferred from those searches rather than one of their own. The dedicated region model uses one
+configuration throughout, inherited unchanged, with only the logit-adjustment strength tested and
+set to zero for that task. Section~\ref{sec:mobiwac:discussion} returns to what the uneven joint
+search may mean for the two datasets that did not receive one.
+
 \emph{Whole-dataset training.} The question is whether using all users to train
 Check2HGI gives the prediction models an advantage. To check this, we built a new
-representation for each fold using only its training users.
+representation for each fold using only its training users. This check covers three datasets at
+one seed.
 The differences were $-0.33$ to $+0.01$ Acc@10 points for region and $0.00$ to
 $+0.29$ macro-F1 points for category.
 
@@ -42,13 +59,13 @@ coverage, whole-dataset training did not meaningfully change the results.
 \label{sec:mobiwac:setup-metrics}
 For the category task, we report macro-averaged F1 (macro-F1). It is the mean of the F1 scores for the seven categories, so each category has equal weight. Its reference point is the majority-class floor, obtained by always predicting the most common category. For the region task, we report accuracy at ten (Acc@10). This measure is the fraction of test visits for which the true region is among the model's ten highest-scoring predictions. If the true region does not occur in the training data for that fold, the visit counts as an error. The reference point for this task is the dedicated model.
 
-A claimed gain and a claimed match require different tests. A non-significant difference does not provide evidence of a match. A written analysis plan, fixed during development and before any result was read, assigned a superiority test to next-category prediction and a non-inferiority test to next-region prediction. These assignments apply to each task across the datasets. The plan did not define a superiority test for next-region prediction. Therefore, the four next-region gains in Section~\ref{sec:mobiwac:results-part2} are secondary results outside the plan.
+A claimed gain and a claimed match require different tests. A non-significant difference does not provide evidence of a match. A written analysis plan, fixed during development and before any result was read, assigned a superiority test to next-category prediction and a non-inferiority test to next-region prediction. These assignments apply to each task across the datasets. The plan did not define a superiority test for next-region prediction. Therefore, the two next-region gains in Section~\ref{sec:mobiwac:results-part2} are secondary results outside the plan. On next category the plan registered no equivalence margin, so a difference that fails the superiority test is reported as unresolved rather than as a match.
 
-The plan registered a paired Wilcoxon signed-rank test. With four seeds, its exact one-sided $p$-value cannot be less than $0.0625$. We therefore report a paired $t$-test on the four per-seed means and its 90\% confidence interval for the paired difference. We also report the registered test. The code release includes both tests and documents this departure from the plan.
+The plan registered a paired Wilcoxon signed-rank test on the matched fold differences. The final evaluation uses four seeds, each of which determines a different user partition and repeats the five-fold experiment. This design produces $4\times5=20$ fitted models per configuration. The primary analysis aggregates the five folds within each seed and reports a paired $t$-test on the four per-seed means ($n{=}4$), together with the 90\% confidence interval for the paired difference. At this seed-level footing, the exact one-sided Wilcoxon $p$-value cannot be less than $0.0625$. We also report the registered Wilcoxon test on the 20 matched fold differences as a sensitivity analysis. The code release includes both tests and documents this departure from the plan.
 
-A \emph{seed} is one complete repetition of the five-fold experiment. It determines the random initialization and the user partition, so each seed produces a different division of the users. Within one seed, the compared models use the same partition. We repeat the experiment across both folds and seeds. Each dataset uses four seeds with five folds per seed, which gives $4\times5=20$ fitted models per configuration. The statistical tests compare the four per-seed means ($n{=}4$). We apply a Holm correction~\cite{holm1979} across the six next-category comparisons and, separately, across the four next-region comparisons.
+A \emph{seed} is one complete repetition of the five-fold experiment. It determines the random initialization and the user partition, so each seed produces a different division of the users. Within one seed, the compared models use the same partition. The paired $t$ and TOST analyses compare the four per-seed means, whereas the registered Wilcoxon sensitivity analysis compares the 20 matched seed-fold differences. We apply a Holm correction~\cite{holm1979} across the six next-category comparisons and, separately, across the six next-region comparisons.
 
-The non-inferiority claim states that the joint model is no worse than the dedicated model by more than a two-point margin. We test this claim with the two one-sided tests (TOST) procedure~\cite{lakens2017tost}. The analysis plan also fixed the two-point margin in advance. A mobility-aware service acts on which region will be busy, rather than on a single position in the ranking (Section~\ref{sec:mobiwac:problem}). A two-point change in Acc@10 is below the level at which this service would behave differently. Across the four user partitions, the standard deviation of the paired difference ranges from 0.01 to 0.18 points. At Alabama and Arizona, the intervals also support a margin as small as one point (Section~\ref{sec:mobiwac:results-part2}).
+The non-inferiority claim states that the joint model is no worse than the dedicated model by more than a two-point margin. We test this claim with the two one-sided tests (TOST) procedure~\cite{lakens2017tost}. The analysis plan also fixed the two-point margin in advance. A mobility-aware service acts on which region will be busy, rather than on a single position in the ranking (Section~\ref{sec:mobiwac:problem}). A two-point change in Acc@10 is below the level at which this service would behave differently. Across the four user partitions, the standard deviation of the paired difference ranges from 0.02 to 0.16 points. The intervals at Istanbul, Arizona, and Florida are narrow enough to support a margin as small as one point; Alabama's is not, and it is the dataset with the largest region difference (Section~\ref{sec:mobiwac:results-part2}).
 
 \subsection{Baselines}
 \label{sec:mobiwac:setup-baselines}

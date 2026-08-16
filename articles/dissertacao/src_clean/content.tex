@@ -37,11 +37,11 @@
         generosity, and constant support made him a cornerstone of this work.
 
         To my family and friends, Caleb Martins, Caique Ferraz, Valéria Ferraz, Igor Barros, Alberto Júnior, Lucas
-        Parreira, Arthur Reute, Charles Fonseca, Maria Clara, Maria Scherr, Nicole, and Marcos Vinicius Ribeiro, who
+        Parreira, Arthur Reute, Charles Fonseca, Maria Clara, Maria Scherr, Nicolle Souza, and Marcos Vinicius Ribeiro, who
         are part of my everyday life, thank you for always being by my side and for the care, friendship, encouragement,
         and support you have given me throughout this journey. I am also grateful to my longtime friends from college, Athena
         Fernandes, José Neto, Thiago Oliveira, and Vinicius Rangel, and from high school, Gustavo Fernandes, Gabriel
-        Nunes, Aghata Soares, Igor augusto, Raissa Santos anda Sara Luiza for remaining such an important part of my
+        Nunes, Aghata Soares, Igor Augusto, Raissa Santos, and Sara Luiza for remaining such an important part of my
         life and of the path that brought me here.
 
         I am deeply thankful to Henrique Santana, Gustavo Viegas, and Tarik Paiva, whose friendship became stronger
@@ -79,7 +79,7 @@
             admit what we don't know. There's no shame in that. The only shame is to pretend that
             we have all the answers.''
             \par\vspace{0.3cm}\upshape
-            (Neil deGrasse Tyson, 2014)
+            (Neil deGrasse Tyson, \textit{Cosmos: A Spacetime Odyssey}, episode 2, 2014)
         \end{flushright}
     \end{epigrafe}
     \fi
@@ -113,11 +113,11 @@
         representação em nível de POI para uma representação em nível de
         \emph{check-in} (um vetor por visita, e não por POI), trocou o
         compartilhamento rígido por uma topologia baseada em atenção cruzada e
-        reuniu duas tarefas sequenciais: a previsão da próxima categoria e da
+        reuniu duas tarefas sequenciais: a previsão da próxima categoria e a
         previsão da próxima região. O modelo final foi avaliado
         em seis conjuntos de dados de diferentes contextos geográficos, incluindo um
         conjunto não estadunidense. O protocolo empregou validação cruzada com usuários
-        disjuntos entre treinamento e teste estatísticos pareados.
+        disjuntos entre treinamento e teste, além de testes estatísticos pareados.
         Essas análises mostraram que o modelo conjunto superou os modelos dedicados na
         previsão da próxima categoria em todos os conjuntos e, na previsão da próxima
         região, superou-os ou foi estatisticamente não-inferior dentro da margem de dois
@@ -168,10 +168,13 @@
             six datasets from different geographic contexts, including one non-U.S.
             dataset.
             The protocol used user-disjoint cross-validation and paired statistical
-            tests. These analyses showed that the joint model outperformed the dedicated
-            single-task models in next-category prediction at every dataset and, in
-            next-region prediction, either outperformed them or was statistically
-            non-inferior within the two-point Acc@10 margin. On both tasks, the joint
+            tests. These analyses compared the joint model against the
+            dedicated single-task models on each task in turn: in next-region
+            prediction it outperformed them at the two datasets with the largest region
+            vocabularies and stayed within the two-point Acc@10 margin registered before
+            any result was read at the other four (statistical non-inferiority, by two one-sided tests), and in next-category prediction it
+            outperformed them at one dataset while the five remaining differences were
+            equivalent to zero within half a point. On both tasks, the joint
             model's results were also above those reported by the external baselines.
             The results
             show that MTL does not
@@ -244,7 +247,6 @@
         \include{chapters/apx_e_ethics}
         \include{chapters/apx_f_cosine}
         \include{chapters/apx_h_check2hgi_joint_model}
-        \include{chapters/apx_i_parameter_count_control}
     \end{apendicesenv}
 
 \end{document}

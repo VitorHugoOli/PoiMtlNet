@@ -36,7 +36,9 @@ all: defense
 defense:   ; @$(BUILD) main main.tex && cp build/main.pdf dissertacao.pdf
 academico: ; @$(BUILD) main_academico main_academico.tex
 ppgc:      ; @$(BUILD) main_ppgc main_ppgc.tex
-extra:     ; @$(BUILD) main_extra main_extra.tex
+extra:     ; @echo 'O volume de material extra mudou para ../wrapup/material_extra/ em 2026-08-16.' \
+	           && echo 'Ele e material de apoio a defesa, nao parte do texto depositado.' \
+	           && $(MAKE) -C ../wrapup/material_extra extra
 
 # `make final` was renamed on 2026-07-29 (LATEX_UPGRADE.md §4 A-1). Kept as an alias so a
 # half-remembered command builds the right thing instead of failing.

@@ -8,7 +8,7 @@
 We want each visit, not each place, to have its own vector; we call the resulting representation Check2HGI (Section~\ref{sec:mobiwac:related-embeddings}).
 Figure~\ref{fig:mobiwac:dataflow} shows the full data flow, from check-ins to the two outputs.
 
-We build a graph with four levels: the check-in, its place, the place's region (a census tract), and the city. Edges connect each level to the one above it and link a user's consecutive check-ins with a weight that decays as the time gap between the visits grows; same-place visits connect through their shared place node one level up, and nearby places are linked at the place level. Each visit's category, time of day, and day of week enter as input features of its node, not as edges. This keeps a hierarchical graph's place-to-region-to-city geography and adds the check-in as a bottom level. We train the graph mainly with an infomax objective, under which each vector learns to match its real neighborhood and reject a shuffled one~\cite{velickovic2019deep,huang2023hgi}. Two small label-free auxiliary terms are added (weights 0.3 and 0.1): a masked reconstruction of each place's aggregated category
+We build a graph with four levels: the check-in, its place, the place's region (a census tract), and the city. Edges connect each level to the one above it and link a user's consecutive check-ins with a weight that decays as the time gap between the visits grows; same-place visits connect through their shared place node one level up, and nearby places are linked at the place level. Each visit's category, time of day, and day of week enter as input features of its node, not as edges. Four elapsed-time features join them: the time since the user's previous visit and since the user's first visit, both on a logarithmic scale, the gap to the previous visit within the same day, and an indicator for a user's first visit. Each is measured up to the visit itself, so a node describes the visit and the history preceding it, never anything that follows. These give the representation a sense of tempo, distinguishing a visit that follows minutes after the last one from a visit that opens a new outing, which a categorical hour-and-weekday encoding alone cannot express. The consecutive-visit edges run in one direction only, from an earlier visit to a later one, for the same reason: a target is predicted from a user's past, so the representation is built from the past alone. This keeps a hierarchical graph's place-to-region-to-city geography and adds the check-in as a bottom level. We train the graph mainly with an infomax objective, under which each vector learns to match its real neighborhood and reject a shuffled one~\cite{velickovic2019deep,huang2023hgi}. Two small label-free auxiliary terms are added (weights 0.3 and 0.1): a masked reconstruction of each place's aggregated category
 features, and an anchor to a place embedding pre-trained, label-free,
 on the same data. The training
 uses no task label: it
@@ -25,10 +25,21 @@ streams, not by owning hidden layers in common. The trunk then feeds a category 
 
 The training loss is a fixed-weight sum of the two outputs,
 \begin{equation}\label{eq:mobiwac:loss}
-L = 0.75\,L_{\mathrm{cat}} + 0.25\,L_{\mathrm{reg}},
+L = 0.5\,L_{\mathrm{cat}} + 0.5\,L_{\mathrm{reg}},
 \end{equation}
-where $L_{\mathrm{cat}}$ and $L_{\mathrm{reg}}$ are plain unweighted cross-entropy losses. The weights were tuned once on validation during development and held fixed across all six datasets. Class-weighting, tested on both outputs, lowered both region accuracy and
-category macro-F1. This is standard fixed-weight joint training~\cite{caruana1997multitask}, kept simple by design so that any improvement over the dedicated single-task models comes from the shared representation, not from an adaptive weighting scheme.
+where $L_{\mathrm{reg}}$ is a plain unweighted cross-entropy loss and $L_{\mathrm{cat}}$ is a
+cross-entropy loss with logit adjustment: $\tau\log P_{\mathrm{train}}(y)$, with $\tau=0.5$, is added
+to the category logits during training only, which shifts the decision boundary toward the balanced
+posterior that macro-F1 rewards. Inference uses the unadjusted logits. The weights and $\tau$ were
+selected once on validation during development and held fixed across all six datasets. Class
+weighting, tested on both outputs, lowered both region accuracy and category macro-F1, and logit
+adjustment replaces it on the category output. The two choices differ by task because the two
+metrics do: macro-F1 weights every category equally, which the adjustment targets directly, whereas
+Acc@10 rewards ranking the frequent regions well, so the region output is left unadjusted. This is
+standard fixed-weight joint training~\cite{caruana1997multitask}, kept simple by design so that any
+improvement over the dedicated single-task models comes from the shared representation, not from an
+adaptive weighting scheme. The dedicated category model receives the same adjustment, so the
+comparison between them is not affected by it.
 
 The joint model includes the shared trunk and both task outputs, so it is
 larger than either dedicated model, and a forward pass costs more compute than running the

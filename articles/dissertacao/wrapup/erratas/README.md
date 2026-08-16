@@ -11,9 +11,15 @@ proprio cabecalho.
 |---|---|---|
 | `errata_Q13_concatenation_scope.tex` | a frase do Cap. 5, p. 79, que afirma uma separacao que o artigo submetido recusa sobre os mesmos numeros | escrita; o ponto so fecha de vez com um estudo de concatenacao na representacao final |
 | `errata_Q14_capacity_region.tex` | a lista de limites do Cap. 5, que perdeu o confundimento de capacidade no eixo de regiao | escrita, e ja traz a medicao que o artigo declarava faltar |
-| `errata_Q24_supplement_pointer.tex` | o volume principal, que nao aponta para o suplemento em lugar nenhum: um leitor do PDF principal nao descobre que os cinco apendices existem | escrita |
 | `RESPOSTAS_ORAIS.md` | a frase a ser dita em pe para cada uma, mais Q15 | — |
 | `VERIFICACAO.md` | cada numero das erratas contra o artefato de origem | — |
+
+## Q24 nao gerou errata
+
+Eu havia registrado como defeito o fato de o volume principal nao apontar para o material
+extra. Nao e defeito: o texto depositado cita apenas o proprio texto e o repositorio, sem
+referencias externas, e isso e a politica do documento. O material extra foi escrito como apoio
+a defesa e agora vive em `../material_extra/`.
 
 ## Material extra
 

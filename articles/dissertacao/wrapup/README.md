@@ -5,6 +5,7 @@ seja explicita: tudo fora dela pertence ao documento entregue; tudo aqui e poste
 
 | pasta | conteudo |
 |---|---|
+| `material_extra/` | o volume de material extra, escrito como apoio a defesa: cinco apendices e o build proprio. Nao faz parte do texto depositado |
 | `open_points/` | os registros de lacunas e de perguntas de banca, mais a nota de verificacao que declara o que foi medido de forma independente e o que foi aceito sem medir |
 | `post_submission_studies/` | estudos executados apos o envio, com a onda de execucao e o prompt do agente de hypertuning |
 

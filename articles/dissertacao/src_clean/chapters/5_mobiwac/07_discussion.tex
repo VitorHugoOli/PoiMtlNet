@@ -2,32 +2,73 @@
 \section{Discussion and Limitations}
 \label{sec:mobiwac:discussion}
 
-A single model serves both tasks in one forward pass. It outperforms the dedicated category model on all six datasets.
-For region prediction, it outperforms the dedicated model on four datasets and remains within a two-point margin on the
-other two, while preserving a private spatial path for the region output (Table~\ref{tab:mobiwac:results}; Figure~
-\ref{fig:mobiwac:deltas}).
+A single model serves both tasks in one forward pass, on next region it outperforms the dedicated
+model at Texas and California, the two datasets with the largest region vocabularies, and at the
+other four it stays within the two-point margin registered before any result was read. On next
+category it outperforms the dedicated model at Florida, and the five remaining differences are not
+resolved, each of them bounded within half a point of zero. Throughout, the region output keeps its
+own private spatial path (Table~\ref{tab:mobiwac:results}; Figure~\ref{fig:mobiwac:deltas}). The
+practical reading is that one model replaces two while staying inside the margin the analysis plan
+set as the price worth paying, and does better than two where the region label space is largest.
+The four region cells inside that margin are all small deficits rather than ties, the largest of
+them $0.87$ Acc@10 points at Alabama, so the trade is a measured one and not a free substitution.
+
+The design gives the two tasks a shared representation while keeping a private spatial path for the
+region output. The evidence here does not separate their contributions. Where the trunk was isolated
+directly, the arms moved both tasks by small amounts that a screen of that size cannot distinguish
+from noise, and those arms were not run at the two datasets that carry the region advantage. The
+reading this supports is a cautious one: the shared representation appears able to help, and how much
+it helps is a question for further work rather than one this study settles. What can be stated
+without that work is narrower, and it is a claim about the model rather than about transfer between
+its tasks: this design, shared representation and private path together, produces a joint region
+output above two dedicated models at the two datasets with the largest region vocabularies.
+
+The category picture at Texas and California invites a specific hypothesis. Batch size was searched
+for the dedicated category model at every dataset and the learning rate at four of them, with both
+searched for the joint model at the smaller datasets; at Texas and California the joint model runs a configuration transferred from
+those searches rather than one validated on them. Texas carries the second-largest category deficit
+of the six ($-0.13$; Alabama's $-0.19$ is the largest, and it is a dataset where the joint model was
+searched), and California's is under a hundredth of a point. A search conducted for the joint model
+at those two datasets would test whether the transferred configuration is what holds their category
+output slightly below the dedicated model. Until it is run this remains a hypothesis rather than an
+explanation, and Alabama is a reminder that a searched dataset can show a deficit of the same size.
 
 A service could treat the model's top-ranked next regions as an anticipatory
-set: at California, ten regions out of 8{,}501 contain the true next region 65.69
-percent of the time. On four datasets (Alabama, Arizona, Florida, and Istanbul; a single seed over five folds), the ten shortlisted
-regions lie a median of 3 to 8 kilometers from the shortlist's centroid, against 17 to 176 kilometers for ten regions
-drawn at random from the same candidate set (median over 10,000 draws). This remains motivation, not a measured service
-result.
+set: at California, ten regions out of $8{,}501$ contain the true next region $64.54$
+percent of the time, and at Texas, ten out of $6{,}553$ contain it $66.15$ percent of the time.
+Both figures are the joint model's next-region Acc@10 from
+Table~\ref{tab:mobiwac:results}, read here as a shortlist hit rate: a system that surfaced ten
+census tracts would be right about two times in three, over a candidate set three orders of
+magnitude larger. Where the shortlist misses, the geographic size of the error is the quantity that
+would matter to such a service, and measuring it requires the per-visit predictions that the
+evaluation path does not retain, so it is left to future work. This remains motivation, not a
+measured service result.
 
 
-Three limits qualify these results. First, our representation is trained once over all places; visits to places
-never seen during training are the single effect that we cannot fully isolate. A planned follow-up trains it on each
-fold's training places only and embeds unseen visits. Second, epoch selection consults the fold that the score is
+Four limits qualify these results. First, the representation is trained once over all places; a
+per-fold rebuild from training users only changed the results by at most $0.33$ Acc@10 and $0.29$
+macro-F1 across three datasets at one seed, with the qualification on the region half recorded in
+Section~\ref{sec:mobiwac:setup-windows}. Second, epoch selection consults the fold that the score is
 then read on (Section~\ref{sec:mobiwac:setup-windows}), so every absolute score reported here is optimistic. The
 comparison between the joint model and the dedicated models is affected far less, for two reasons that we can state
 rather than assume: the selection rule is the same for both models on the same folds, an epoch chosen on validation and read
 on that fold, with each model selected on its own validation objective (Section~\ref{sec:mobiwac:results-part2}),
-and, for the category comparison, the dedicated model receives the wider search, a per-dataset sweep over
-batch size and learning rate against one configuration held fixed across all six datasets for the joint
-model, while both sides of the region comparison run a fixed configuration. Where that search applies, the
-residual favors the dedicated model, which makes the reported category difference conservative. It does not follow that the bias cancels exactly. Third, we do not
+and, for the category comparison, the dedicated model receives the wider search: batch size at all
+six datasets and the learning rate at four, against a joint-model search that covers four of the six
+and leaves Texas and California with a transferred configuration, while both sides of the region
+comparison run a fixed configuration (Section~\ref{sec:mobiwac:setup-windows} states the coverage
+per knob and dataset). Where the dedicated search is the wider of the two, the residual favors the
+dedicated model, which makes the reported category difference conservative there. At Florida and
+California, where the dedicated learning rate was not varied, the two searches are closer in extent
+and the reading does not apply; Florida is also the one dataset where the joint model outperforms on
+this task. It does not follow that the bias cancels exactly. Third, we do not
 build or evaluate a mobility-aware service; it is background motivation, and this chapter's claims are the
 prediction results themselves.
+Fourth, each
+visit node in the representation graph draws on the visits that precede it, so a vector encodes the visit
+together with its own history; the graph does not pass information from a later visit back to an earlier
+one, in training or at readout, which is what keeps a node from carrying a feature of the target it is
+used to predict.
 
 Our representation is a fixed per-visit vector that any downstream model
 can consume. Moura et al.~\cite{moura2025mobilityaware}, whose structural

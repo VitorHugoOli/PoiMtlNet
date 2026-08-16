@@ -206,42 +206,39 @@
             % the other in the same commit, or the pair silently drifts.
 
             \noindent Location-based social networks produce \emph{check-in} records
-            associating a user, a point of interest (POI), and a time. These records
-            support both the classification of a POI's category and the prediction of
+            that associate a user, a point of interest (POI), and a time. These records
+            make it possible both to classify a POI's category and to anticipate
             properties of the next visit, such as its category and region. This
             dissertation investigates whether multitask learning (MTL) can combine
-            these tasks in a single model and which design choices determine the
-            success of joint training. Although the tasks share data and context,
-            in a multitask model parameter sharing may also cause negative
-            transfer. The investigation
-            comprises three successive studies organized as a negative result, its
-            diagnosis, and its resolution. The first study proposed MTLnet, which used
-            a POI-level representation and hard parameter sharing for category
-            classification and next-category prediction. Despite this sharing
-            strategy, the joint model did not consistently outperform models dedicated
-            to each task. The second study
+            these tasks in a single model and on which design choices the success of
+            this joint training depends. Although the tasks share data and context,
+            parameter sharing in a multitask model may also cause negative transfer.
+            The investigation was conducted through three successive studies,
+            organized as a negative result, its diagnosis, and its resolution. The
+            first study proposed MTLnet, which used a POI-level representation and hard
+            parameter sharing to perform category classification and next-category
+            prediction. Despite this sharing strategy, the joint model did not show a
+            consistent advantage over models dedicated to each task. The second study
             retained the MTLnet architecture and replaced only its input with
             decomposed spatial, temporal, and categorical encoders. The marked
-            improvement in category performance across the evaluated datasets
-            indicated that, in that configuration, the input representation was the
-            main limiting factor. Based on this diagnosis, the third study moved
-            from a place embedding to a check-in-level representation (one vector
-            per visit rather than per POI), replaced hard sharing with a
-            cross-attention-based topology, and paired two sequential tasks:
-            next-category and next-region prediction. The final model was evaluated on
-            six datasets from different geographic contexts, including one non-U.S.
-            dataset.
-            The protocol used user-disjoint cross-validation and paired statistical
-            tests. These analyses showed that the joint model outperformed the dedicated
-            single-task models in next-category prediction at every dataset and, in
-            next-region prediction, either outperformed them or was statistically
-            non-inferior within the two-point Acc@10 margin. On both tasks, the joint
-            model's results were also above those reported by the external baselines.
-            The results
-            show that MTL does not
-            provide an automatic benefit: its effectiveness depends on the input
-            representation and the sharing topology designed for the tasks under
-            consideration.
+            improvement in category performance on the evaluated datasets indicated
+            that, in that configuration, the input representation was the main limiting
+            factor. Based on this diagnosis, the third study shifted from a POI-level
+            representation to a \emph{check-in}-level representation (one vector per
+            visit rather than per POI), replaced hard sharing with a
+            cross-attention-based topology, and brought together two sequential tasks:
+            next-category prediction and next-region prediction. The final model was
+            evaluated on six datasets from different geographic contexts, including
+            one non-U.S. dataset. The protocol employed cross-validation with users
+            disjoint between training and testing, as well as paired statistical tests.
+            These analyses showed that the joint model outperformed the dedicated
+            models in next-category prediction on all datasets and, in next-region
+            prediction, either outperformed them or was statistically non-inferior
+            within a margin of two Acc@10 points. In both tasks, the joint model's
+            results also exceeded those reported by the external methods used as
+            references. The results show that MTL does not constitute an automatic
+            benefit: its effectiveness depends on the input representation and the
+            sharing topology designed for the tasks under consideration.
             % [NEEDS SIGN-OFF 04 | CLOSED] Author approved the omissions and the verb: the
             % joint-best convention and macro-F1 range stay out of this high-level summary, and
             % "depends on" stays instead of "determines whether" (the Sec. 6.2 confound makes a

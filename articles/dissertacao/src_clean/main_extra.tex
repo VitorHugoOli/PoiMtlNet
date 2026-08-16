@@ -25,6 +25,7 @@
 \usepackage{graphicx}
 \usepackage{adjustbox}
 \usepackage{booktabs}
+\usepackage{float}
 \usepackage{multirow}
 \usepackage{multicol}
 \usepackage{amsmath}
@@ -39,12 +40,12 @@
 \usepackage[num,abnt-emphasize=bf]{abntex2cite}
 \citebrackets{[}{]}
 \makeatletter
-\AtBeginDocument{\renewcommand{\@biblabel}[1]{
+\AtBeginDocument{\renewcommand{\@biblabel}[1]{%
     \ifthenelse{\equal{#1}{}}{}{{\citenumstyle[#1]\hspace{\biblabelsep}}}}}
 \makeatother
 
-\addto\captionsbrazil{
-    \def\bibname{References}
+\addto\captionsbrazil{%
+    \def\bibname{References}%
     \renewcommand{\figurename}{Figure}
     \renewcommand{\tablename}{Table}
     \renewcommand{\contentsname}{Contents}
@@ -116,7 +117,7 @@
     \addcontentsline{toc}{chapter}{About this volume}
     \hypertarget{ext:dissertation}{}
 
-    This volume holds four appendices that were
+    This volume holds five appendices that were
     written for the dissertation named on the
     cover of this volume and that are published beside it rather than inside it. The first
     records every departure of the three reproduced article chapters from their published or
@@ -125,7 +126,10 @@
     argument in the dissertation is read against. The third states the author's position on
     whether review by a research ethics committee was required for this work. The fourth records how
     one hyperparameter of the place-embedding baseline was selected before that baseline was applied
-    to the datasets studied here.
+    to the datasets studied here. The fifth widens the dedicated next-category model until it carries
+    the joint model's parameter budget, holding the representation, the folds, and the training
+    protocol fixed, and finds the wider model scoring below the narrower one it replaces at the
+    dataset where it ran the full four-seed protocol.
 
     The first two were part of the main document until July of 2026. They were moved here on the
     advisor's assessment that a reproduced chapter need not be an identical copy of the article
@@ -135,7 +139,7 @@
     record worth keeping, because a departure from a published text should be documented
     somewhere a reader can reach, and this volume is where it is documented.
 
-    The last two left the main document in August of 2026, on the author's judgment that each
+    The last three left the main document in August of 2026, on the author's judgment that each
     answers a question a reader may bring to the work without being needed to follow its argument.
     They are published here for the same reason the first two are. A record that a reader can reach
     is worth more than a record that is left out because it did not fit the shape of the chapter it
@@ -158,7 +162,7 @@
     independently, so an appendix letter should always be read together with the volume it belongs
     to. And a reference in
     these pages to a numbered chapter, section, table or figure is a reference into the
-    dissertation, not into this volume: this volume numbers only its own four appendices and
+    dissertation, not into this volume: this volume numbers only its own five appendices and
     their tables.
 
     \begin{apendicesenv}
@@ -171,6 +175,8 @@
         \include{chapters/apx_extra_human_subjects}
         \setcounter{chapter}{5}
         \include{chapters/apx_g_hgi_tuning}
+        \setcounter{chapter}{6}
+        \include{chapters/apx_i_parameter_count_control}
     \end{apendicesenv}
 
     \postextual

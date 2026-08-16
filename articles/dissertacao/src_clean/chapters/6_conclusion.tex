@@ -13,10 +13,13 @@ representation as the main bottleneck in the tested configuration
 (Chapter~\ref{ch:courb}). Those two studies paired next-category prediction with a static
 category classification task, and the pair changed in the final study.
 The third study combined a check-in-level representation with a redesigned sharing
-topology (Chapter~\ref{ch:mobiwac}). Under this design, the joint model outperforms the
-dedicated single-task models on the category task at all six datasets and on the region
-task at four of the six. At the other two, it remains statistically non-inferior within
-a two-point margin (TOST).
+topology (Chapter~\ref{ch:mobiwac}). Under this design, one joint model replaces two
+dedicated single-task models on both tasks. On the region task it outperforms
+them at Texas and California, the two datasets with the largest region vocabularies, and at
+the other four it stays within a two-point margin registered before any result was read
+(statistical non-inferiority, assessed with two one-sided tests). On the category task it
+outperforms them at Florida, and the five remaining differences are equivalent to zero within
+half a point.
 
 
 \section{Contributions by chapter}
@@ -59,15 +62,20 @@ the region task. The evaluation used user-disjoint cross-validation, with twenty
 models per configuration: four seeds, each drawing its own five-fold user partition.
 Paired tests used the four per-seed means.
 
-Under this protocol, the joint model outperforms the dedicated single-task models on
-the category task at all six datasets, by 5.3 to 9.4 macro-F1 points. On the region task,
-it outperforms them at four datasets: Istanbul, Florida, California, and Texas. At
-Alabama and Arizona, it remains statistically non-inferior within a two-point margin
-(TOST). Non-inferiority was the registered primary analysis for the region task; the
-four superiority findings are secondary results outside that analysis plan. Further analyses
+Under this protocol, the joint model outperforms the dedicated single-task models on the
+region task at Texas ($+1.21$ Acc@10) and California ($+1.06$), and at Istanbul, Alabama,
+Arizona, and Florida it stays within the registered two-point margin. All four are small
+deficits, the largest being Alabama at $-0.87$; a test in the reverse direction, corrected across
+the six region comparisons, resolves three of them. They are reported as differences inside the
+margin rather than as ties. On
+the category task it outperforms the dedicated model at Florida ($+0.19$ macro-F1); the
+other five are equivalent to zero within half a point. The equivalence margin was registered for
+the region axis only, so the category bound is read off the intervals rather than chosen in advance.
+Non-inferiority was the registered primary analysis for the region task; the
+two superiority findings are secondary results outside that analysis plan. Further analyses
 clarify what these results do and do not establish. They isolate the contribution of the
-input representation, test parameter count as an alternative explanation for the next-category
-gains, and identify a possible relation between problem scale and the next-region gains.
+input representation and identify a possible relation between problem scale and the next-region
+gains.
 
 Beginning with input representation, Section~\ref{sec:mobiwac:results-part1} provides the first
 explanation through a controlled comparison between Check2HGI and HGI. With the dedicated
@@ -78,20 +86,14 @@ performance in this setting. It also supports testing Check2HGI in other mobilit
 prediction architectures, although its benefit in those architectures has not yet been
 evaluated.
 
-The joint model's larger capacity offers a second possible explanation for the
-next-category gains. Appendix~\ref{apx:parameter-count-control} compares it with a
-capacity-matched dedicated model. In Alabama and California, the wider model
-produces slightly lower next-category macro-F1 than the original dedicated model and
-remains below the joint model. Thus, parameter count alone does not explain the joint
-model's next-category advantage in these two datasets. The comparison instead points to
-the joint architecture or its multitask training, but it does not separate their effects.
-
 For next-region prediction, the results point to problem scale as another possible
-condition. Across the five U.S. states, the joint model's advantage over the dedicated
-model grows with the number of regions. It exceeds two Acc@10 points in Texas and
-California, the states with the largest number of regions. This pattern suggests that
-joint learning becomes more useful when the model must choose among more regions.
-However, states with more regions also tend to have more check-ins. A controlled
+condition. The two datasets where the joint model outperforms the dedicated model are
+Texas and California, the two states with the largest number of regions, while the four
+datasets with smaller region vocabularies sit inside the margin. This grouping suggests
+that joint learning becomes more useful when the model must choose among more regions.
+Two observations keep it a suggestion. The ordering does not hold inside the pair, since
+California has more regions than Texas and a slightly smaller gain, and states with more
+regions also tend to have more check-ins. A controlled
 experiment is therefore required to separate the effect of region count from the amount
 of data and other differences between the states. Problem scale remains a possible
 condition, not an established cause.
@@ -124,12 +126,12 @@ information through cross-attention, while the region output retained a private 
 path.
 
 Together, these changes define the final configuration evaluated in this dissertation.
-They also explain why the answer is conditional. The initial premise was incomplete, explained in
-Section~\ref{sec:fund:mtl}, where multitask learning trains related tasks together in
-the expectation that a shared representation will improve generalization, was disproven by the three
-studies showing that task relatedness and joint training are not sufficient by themselves.
-The controlled comparisons identify the input representation as one condition, while suggests that the architecture
-and dataset scale may matter, although their
+They also explain why the answer is conditional. The initial premise, explained in
+Section~\ref{sec:fund:mtl}, was that training related tasks together would improve
+generalization through a shared representation. Across the three studies, task
+relatedness and joint training were not sufficient by themselves.
+The controlled comparisons identify the input representation as one condition,
+while the results suggest that the architecture and dataset scale may matter, although their
 individual effects were not fully isolated. The answer therefore depends on the design and
 evaluation conditions, not on joint training alone.
 
@@ -171,11 +173,7 @@ Six limitations bound the scope of these conclusions.
     next-category and next-region prediction. No single controlled ablation
     separates the representation-and-topology change from the task-pair change in
     the final result. Chapter~\ref{ch:courb} is the fixed-pair control for the
-    diagnosis. The additional parameter-count experiment in
-    Appendix~\ref{apx:parameter-count-control} tests only whether a larger dedicated
-    category model can close the gap. It covers two of the six datasets, one width
-    point per dataset, width scaling rather than depth, and a smaller hyperparameter
-    search than the original dedicated model. The greater similarity of
+    diagnosis. The greater similarity of
     the final pair may still contribute to the size of the improvement. The
     ablation that would separate the two changes,
     running static category classification under the check-in-level representation, is
