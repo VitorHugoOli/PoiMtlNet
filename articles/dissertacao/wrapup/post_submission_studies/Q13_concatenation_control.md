@@ -89,8 +89,13 @@ suspensa ate o controle responder.
 | Alabama | check-in | 30,7058 | 30,77 | dentro de $0{,}07$ |
 | Arizona | place | 31,9953 | 31,93 | **em aberto**: media dentro de $0{,}07$, mas nao reproduz por fold |
 | Arizona | check-in | 34,4991 | 34,51 | dentro de $0{,}02$ |
+| Florida | place | 37,1524 | 37,13 | media dentro de $0{,}03$; por fold, maior diferenca $0{,}09$ |
+| Florida | check-in | 37,3602 | 37,36 | dentro de $0{,}001$ |
 
-Florida: em execucao com a taxa $0{,}005$.
+A discrepancia por fold **nao cresce com o tamanho do dataset**: Florida tem treze vezes as janelas
+de Alabama e seis vezes as de Arizona, e sua maior diferenca por fold ($0{,}09$) e menor que a de
+Arizona ($0{,}19$). Nos dois casos o sinal alterna entre folds e a media fica perto de zero. Isso e
+compativel com ruido de execucao, mas o controle direto e que decide.
 
 ## O resultado
 
@@ -98,9 +103,16 @@ Florida: em execucao com a taxa $0{,}005$.
 |---|--:|--:|--:|--:|--:|--:|
 | Alabama | 29,148 | 30,882 | 30,706 | $+1{,}558$ | $+1{,}734$ ($p = 0{,}003$) | **111 por cento** |
 | Arizona | 31,995 | 33,697 | 34,499 | $+2{,}504$ | $+1{,}702$ ($p < 0{,}001$) | **68 por cento** |
+| Florida | 37,152 | 38,171 | 37,360 | $+0{,}208$ | $+1{,}018$ ($p < 0{,}001$) | **490 por cento** |
 
 Testes pareados sobre as cinco dobras. O ganho da concatenacao e unanime nas cinco dobras nos dois
 datasets.
+
+**Em Florida a concatenacao supera a representacao por check-in.** O intervalo entre as duas colunas
+da tabela e de apenas $0{,}21$ ponto ali, o menor dos tres datasets, e a concatenacao sozinha ganha
+$1{,}02$ ponto, ficando $0{,}81$ acima da representacao por check-in, unanime nas cinco dobras
+($p = 0{,}001$). Os dois controles de fidelidade de Florida sao os mais proximos de todos:
+$+0{,}022$ e $+0{,}000$ contra a tabela.
 
 **Em Alabama a concatenacao alcanca a representacao por check-in.** Os dois bracos ficam a
 $0{,}18$ ponto um do outro, e o teste pareado nao separa ($p = 0{,}53$). Em Arizona sobra intervalo:
