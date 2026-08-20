@@ -1,0 +1,56 @@
+2026-08-12 07:50:26,564 - INFO - TF32 enabled (matmul_precision=high, cudnn.allow_tf32=True)
+2026-08-12 07:50:26,564 - INFO - torch.compile enabled (use_torch_compile=True, donated_buffer=False for retain_graph=True compatibility)
+2026-08-12 07:50:26,564 - WARNING - Generating folds on the fly (no cache at /home/vitor.oliveira/PoiMtlNet/output/check2hgi_v18/california/folds/fold_indices_next.pt). Run `python scripts/study/freeze_folds.py --state california --engine check2hgi_v18 --task next` to freeze them; paired statistical tests require frozen splits.
+2026-08-12 07:50:26,565 - INFO - Creating 5-fold CV for next
+2026-08-12 07:50:26,565 - INFO - Loading next-POI data: california/check2hgi_v18
+2026-08-12 07:50:32,881 - INFO - Next-POI data: (2925466, 576) (dim=64, window=9), distribution: {np.int64(0): np.int64(363768), np.int64(1): np.int64(216054), np.int64(2): np.int64(959467), np.int64(3): np.int64(138390), np.int64(4): np.int64(221460), np.int64(5): np.int64(698639), np.int64(6): np.int64(327688)}
+2026-08-12 07:50:34,553 - INFO - NEXT single-task: user-disjoint folds via StratifiedGroupKFold.
+2026-08-12 07:50:36,981 - INFO - Fold 1/5: train=2340374, val=585092
+2026-08-12 07:50:38,154 - INFO - Fold 2/5: train=2340375, val=585091
+2026-08-12 07:50:39,201 - INFO - Fold 3/5: train=2340374, val=585092
+2026-08-12 07:50:40,247 - INFO - Fold 4/5: train=2340374, val=585092
+2026-08-12 07:50:41,294 - INFO - Fold 5/5: train=2340367, val=585099
+2026-08-12 07:50:41,813 - INFO - ========================================================================
+2026-08-12 07:50:41,813 - INFO - Training: state=california  engine=check2hgi_v18  task=next  epochs=50  folds=5
+2026-08-12 07:50:41,813 - INFO - ========================================================================
+2026-08-12 07:50:42 - INFO  - ========================= FOLD 1/5 =========================
+2026-08-12 07:50:42 - INFO  - FLOPS: 0 | Params: 0
+❌ Error: fvcore is required for PyTorch FLOPs calculation
+Training:   0%|          | 0/50 [00:00<?, ?batch/s]
+Training:   0%|          | 0/50 [01:12<?, ?batch/s, tr_loss=1.5566, tr_acc=0.3868, val_loss=1.5406, val_acc=0.3895(0.3338), best=0.3338]
+2026-08-12 08:52:06 - INFO  - Fold 1/5 completed in 3684.06s | Total: 61.40m | Remaining: 245.60m
+2026-08-12 08:52:06 - INFO  - ---------------------- Summary Fold 1 ----------------------
+2026-08-12 08:52:06 - INFO  - Task       | Best Epoch | F1         | Accuracy   | Top3 Acc   |
+2026-08-12 08:52:06 - INFO  - next       |     7      |     34.71% |     39.98% |     77.88% |
+2026-08-12 08:52:06 - INFO  - --------------------- Report for next ---------------------
+2026-08-12 08:52:06 - INFO  - Category     | Precision  | Recall     | F1-Score   | Support   
+2026-08-12 08:52:06 - INFO  - Community    |    36.28% |    36.20% |    36.24% |    72753.0
+2026-08-12 08:52:06 - INFO  - Entertainment |    24.55% |    20.47% |    22.32% |    43211.0
+2026-08-12 08:52:06 - INFO  - Food         |    47.36% |    41.11% |    44.01% |   191893.0
+2026-08-12 08:52:06 - INFO  - Nightlife    |    28.03% |    17.52% |    21.56% |    27678.0
+2026-08-12 08:52:06 - INFO  - Outdoors     |    27.96% |    27.64% |    27.80% |    44291.0
+2026-08-12 08:52:06 - INFO  - Shopping     |    39.90% |    51.18% |    44.84% |   139728.0
+2026-08-12 08:52:06 - INFO  - Travel       |    44.88% |    47.65% |    46.22% |    65538.0
+2026-08-12 08:52:06 - INFO  - macro avg    |    35.56% |    34.54% |    34.71% |           
+2026-08-12 08:52:06 - INFO  - ======================= End of Fold =======================
+2026-08-12 08:52:06 - INFO  - ========================= FOLD 2/5 =========================
+Training:   0%|          | 0/50 [00:00<?, ?batch/s]
+Training:   0%|          | 0/50 [01:13<?, ?batch/s, tr_loss=1.5624, tr_acc=0.3840, val_loss=1.5248, val_acc=0.3987(0.3442), best=0.3442]
+2026-08-12 09:53:29 - INFO  - Fold 2/5 completed in 3683.16s | Total: 122.79m | Remaining: 184.18m
+2026-08-12 09:53:29 - INFO  - ---------------------- Summary Fold 2 ----------------------
+2026-08-12 09:53:29 - INFO  - Task       | Best Epoch | F1         | Accuracy   | Top3 Acc   |
+2026-08-12 09:53:29 - INFO  - next       |     30     |     35.79% |     40.86% |     78.31% |
+2026-08-12 09:53:29 - INFO  - --------------------- Report for next ---------------------
+2026-08-12 09:53:29 - INFO  - Category     | Precision  | Recall     | F1-Score   | Support   
+2026-08-12 09:53:29 - INFO  - Community    |    36.20% |    42.00% |    38.88% |    72753.0
+2026-08-12 09:53:29 - INFO  - Entertainment |    28.83% |    18.96% |    22.88% |    43210.0
+2026-08-12 09:53:29 - INFO  - Food         |    46.61% |    45.13% |    45.86% |   191893.0
+2026-08-12 09:53:29 - INFO  - Nightlife    |    24.57% |    22.27% |    23.37% |    27678.0
+2026-08-12 09:53:29 - INFO  - Outdoors     |    29.49% |    26.65% |    28.00% |    44292.0
+2026-08-12 09:53:29 - INFO  - Shopping     |    42.84% |    43.07% |    42.95% |   139728.0
+2026-08-12 09:53:29 - INFO  - Travel       |    44.02% |    54.31% |    48.62% |    65537.0
+2026-08-12 09:53:29 - INFO  - macro avg    |    36.08% |    36.06% |    35.79% |           
+2026-08-12 09:53:29 - INFO  - ======================= End of Fold =======================
+2026-08-12 09:53:29 - INFO  - ========================= FOLD 3/5 =========================
+Training:   0%|          | 0/50 [00:00<?, ?batch/s]
+Training:   0%|          | 0/50 [01:13<?, ?batch/s, tr_loss=1.5626, tr_acc=0.3850, val_loss=1.5318, val_acc=0.3969(0.3390), best=0.3390]

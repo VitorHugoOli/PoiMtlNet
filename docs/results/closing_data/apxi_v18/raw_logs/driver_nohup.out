@@ -1,0 +1,21 @@
+commit=88322358
+Capacity-matched dedicated category control, re-run on the FINAL engine.
+Widths and winning arms from docs/results/closing_data/capacity_matched_stl_cat/:
+  alabama  h672 bs2048 lr0.0025 ; california h752 bs8192 lr0.0025
+Protocol matches the reported convention: 4 seeds x 5 folds = 20 fitted models per arm.
+=== alabama h672 seed 0 start 2026-08-12T02:08:25+00:00 ===
+rc=0 wall_s=517
+rundir=results/check2hgi_v18/alabama/next_lr1.0e-04_bs2048_ep50_20260812_020828_1824112
+=== alabama h672 seed 1 start 2026-08-12T02:17:02+00:00 ===
+rc=0 wall_s=522
+rundir=results/check2hgi_v18/alabama/next_lr1.0e-04_bs2048_ep50_20260812_021705_1826231
+=== alabama h672 seed 7 start 2026-08-12T02:25:44+00:00 ===
+rc=0 wall_s=523
+rundir=results/check2hgi_v18/alabama/next_lr1.0e-04_bs2048_ep50_20260812_022547_1828544
+=== alabama h672 seed 100 start 2026-08-12T02:34:27+00:00 ===
+rc=0 wall_s=523
+rundir=results/check2hgi_v18/alabama/next_lr1.0e-04_bs2048_ep50_20260812_023430_1831193
+=== california h752 seed 0 start 2026-08-12T02:43:10+00:00 ===
+rc=0 wall_s=18435
+rundir=results/check2hgi_v18/california/next_lr1.0e-04_bs8192_ep50_20260812_024327_1833769
+=== california h752 seed 1 start 2026-08-12T07:50:25+00:00 ===

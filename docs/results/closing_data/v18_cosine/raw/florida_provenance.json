@@ -1,0 +1,4 @@
+{"state":"florida","seed":0,"rundir":"results/check2hgi_v18/florida/mtlnet_lr1.0e-04_bs8192_ep50_20260811_235837_1802677","tpid":1802677,"rc":0,
+ "folds_with_cosine":5,"cosine_rows":250,"commit":"88322358dbc880fb010f0f91f569caa7e556612d",
+ "config":"bs8192 cw0.50 logit_adjust_tau=0.5 catlr=0.002 fp32 compile tf32 forward-only in_channels=15 epochs=50 folds=5",
+ "deviation":"MTL_AMBIGUITY_STRICT=0; train-path cosine unaffected"}

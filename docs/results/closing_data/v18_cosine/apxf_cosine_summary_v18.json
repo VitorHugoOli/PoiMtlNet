@@ -1,0 +1,112 @@
+{
+ "observations": "apxf_cosine_observations_v18.parquet",
+ "n_rows": 1000,
+ "datasets": [
+  "alabama",
+  "arizona",
+  "florida",
+  "istanbul"
+ ],
+ "margin": 0.05,
+ "per_dataset": {
+  "alabama": {
+   "mean": 0.0018840359999999997,
+   "ci": [
+    -0.000523005526139221,
+    0.004291077526139221
+   ],
+   "t_p": 0.09547034624767511,
+   "tost": 3.1550270905624655e-07,
+   "pos": 4,
+   "absmax": 0.057345,
+   "n_obs": 250
+  },
+  "arizona": {
+   "mean": -0.00043177600000000003,
+   "ci": [
+    -0.0023245880509059473,
+    0.0014610360509059472
+   ],
+   "t_p": 0.5609127605796518,
+   "tost": 1.072096671439482e-07,
+   "pos": 3,
+   "absmax": 0.058676,
+   "n_obs": 250
+  },
+  "florida": {
+   "mean": 0.000593752,
+   "ci": [
+    -0.0004464061126141001,
+    0.0016339101126141
+   ],
+   "t_p": 0.18817326529213374,
+   "tost": 9.91444435215448e-09,
+   "pos": 4,
+   "absmax": 0.046058,
+   "n_obs": 250
+  },
+  "istanbul": {
+   "mean": 0.00137592,
+   "ci": [
+    0.00024848871097822535,
+    0.002503351289021775
+   ],
+   "t_p": 0.027571178659356446,
+   "tost": 1.4585379562932716e-08,
+   "pos": 5,
+   "absmax": 0.054034,
+   "n_obs": 250
+  }
+ },
+ "provenance": {
+  "alabama": {
+   "state": "alabama",
+   "seed": 0,
+   "rundir": "results/check2hgi_v18/alabama/mtlnet_lr1.0e-04_bs8192_ep50_20260811_230121_1794187",
+   "tpid": 1794187,
+   "rc": 0,
+   "folds_with_cosine": 5,
+   "cosine_rows": 250,
+   "commit": "88322358dbc880fb010f0f91f569caa7e556612d",
+   "config": "bs8192 cw0.50 logit_adjust_tau=0.5 catlr=0.001 fp32 compile tf32 forward-only in_channels=15 epochs=50 folds=5",
+   "deviation": "MTL_AMBIGUITY_STRICT=0; train-path cosine unaffected"
+  },
+  "arizona": {
+   "state": "arizona",
+   "seed": 0,
+   "rundir": "results/check2hgi_v18/arizona/mtlnet_lr1.0e-04_bs8192_ep50_20260811_231128_1795466",
+   "tpid": 1795466,
+   "rc": 0,
+   "folds_with_cosine": 5,
+   "cosine_rows": 250,
+   "commit": "88322358dbc880fb010f0f91f569caa7e556612d",
+   "config": "bs8192 cw0.50 logit_adjust_tau=0.5 catlr=0.001 fp32 compile tf32 forward-only in_channels=15 epochs=50 folds=5",
+   "deviation": "MTL_AMBIGUITY_STRICT=0; train-path cosine unaffected"
+  },
+  "istanbul": {
+   "state": "istanbul",
+   "seed": 0,
+   "rundir": "results/check2hgi_v18/istanbul/mtlnet_lr1.0e-04_bs8192_ep50_20260811_233148_1798459",
+   "tpid": 1798459,
+   "rc": 0,
+   "folds_with_cosine": 5,
+   "cosine_rows": 250,
+   "commit": "88322358dbc880fb010f0f91f569caa7e556612d",
+   "config": "bs8192 cw0.50 logit_adjust_tau=0.5 catlr=0.001 fp32 compile tf32 forward-only in_channels=15 epochs=50 folds=5",
+   "deviation": "MTL_AMBIGUITY_STRICT=0; train-path cosine unaffected"
+  },
+  "florida": {
+   "state": "florida",
+   "seed": 0,
+   "rundir": "results/check2hgi_v18/florida/mtlnet_lr1.0e-04_bs8192_ep50_20260811_235837_1802677",
+   "tpid": 1802677,
+   "rc": 0,
+   "folds_with_cosine": 5,
+   "cosine_rows": 250,
+   "commit": "88322358dbc880fb010f0f91f569caa7e556612d",
+   "config": "bs8192 cw0.50 logit_adjust_tau=0.5 catlr=0.002 fp32 compile tf32 forward-only in_channels=15 epochs=50 folds=5",
+   "deviation": "MTL_AMBIGUITY_STRICT=0; train-path cosine unaffected"
+  }
+ },
+ "convention": "per-epoch cos(grad L_cat, grad L_reg) over shared-trunk parameters; one measurement per epoch per fold; unit of independence = fold (n=5); equivalence by TOST against a 0.05 margin"
+}

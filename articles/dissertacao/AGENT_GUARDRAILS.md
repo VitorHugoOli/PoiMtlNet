@@ -63,9 +63,19 @@ failure mode a good-looking dissertation chapter invites.
 **The rules:**
 
 - **N1. Single source of truth per chapter.**
-  - Ch.5 (MobiWac): `docs/studies/closing_data/RESULTS_BOARD.md` §1 (via its §3 file map to the
-    JSONs) + the claim whitelist in `articles/[mobiwac]/PAPER_PLAN.md §3`. Never from prose, never
-    from memory.
+  - Ch.5 (MobiWac): **REPOINTED 2026-08-20.** The source is the table file itself,
+    `src/tables/mobiwac/*.tex` — every printed value carries its provenance in a comment beside it,
+    and that comment is what the fact gate follows. Behind it: joint cells from
+    `docs/results/closing_data/v18/joint_best_perfold.json`, dedicated cells from
+    `docs/studies/closing_data/v18/data/v18_results.json`, full precision in
+    `wrapup/evidence/ladder_recompute.json`. Plus the claim whitelist in
+    `articles/[mobiwac]/PAPER_PLAN.md §3`. Never from prose, never from memory.
+    > ⚠ This rule used to name `docs/studies/closing_data/RESULTS_BOARD.md` §1. **Do not go there.**
+    > That board is the **v17** generation: it never mentions v18 (measured: zero occurrences), it
+    > was last touched 2026-07-20, and its category cells are leak-inflated by 25–45 points
+    > (it prints AL 63.56 / FL 79.85 / CA 77.05 against the delivered 30.59 / 37.55 / 35.63).
+    > Reading it was the single most repeated source of wrong numbers in this project.
+    > Version map: `CLAUDE.md` §0.
   - Ch.3 (CBIC) and Ch.4 (CoUrb): the published papers' own tables (with the documented errata,
     NORTH_STAR §4, as the only sanctioned corrections — CoUrb's audited win-count/means come from
     `articles/CoUrb_2026/slides/judge_feedback.md`).

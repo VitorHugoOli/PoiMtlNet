@@ -99,9 +99,15 @@ preparation) + 17, 16, and 18 re-checks.
 
 ## Sources of truth (numbers trace HERE, never to prose or memory)
 
-- **Ch.5 (MobiWac):** `docs/studies/closing_data/RESULTS_BOARD.md` §1 headline + §3 file map to
-  the JSONs; claim whitelist `articles/[mobiwac]/PAPER_PLAN.md §3`; decisions ledger
-  `articles/[mobiwac]/CLAUDE.md §3`.
+- **Ch.5 (MobiWac):** *(REPOINTED 2026-08-20)* the table file itself, `../src/tables/mobiwac/*.tex`
+  — each value carries its provenance in a comment beside it. Behind it: joint cells from
+  `docs/results/closing_data/v18/joint_best_perfold.json`, dedicated cells from
+  `docs/studies/closing_data/v18/data/v18_results.json`, full precision in
+  `../wrapup/evidence/ladder_recompute.json`; claim whitelist `articles/[mobiwac]/PAPER_PLAN.md §3`;
+  decisions ledger `articles/[mobiwac]/CLAUDE.md §3`.
+  > ⚠ **Not `docs/studies/closing_data/RESULTS_BOARD.md`** — it is the **v17** board, never mentions
+  > v18, and its category cells are leak-inflated by 25–45 points. A persona that reads it will
+  > "correct" delivered numbers to wrong ones. See `../CLAUDE.md` §0.
 - **Ch.3 (CBIC):** the published tables in `articles/CBIC___MTL/` — reproduce, never recompute
   (errata per `../NORTH_STAR.md §4`).
 - **Ch.4 (CoUrb):** the published tables in `articles/CoUrb_2026/`; audited win-count/means from

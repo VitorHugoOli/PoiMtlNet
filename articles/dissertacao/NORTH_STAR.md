@@ -7,6 +7,29 @@
 
 ---
 
+> ## ⚠ BANNER 2026-08-20 — O VEREDITO ABAIXO ESTA SUPERADO EM QUATRO PONTOS
+>
+> Este documento foi escrito antes da geracao **v18**, que fechou um vazamento de rotulo no grafo
+> de visitas consecutivas (valia **28,63 macro-F1** em Alabama). O veredito que ele descreve e o de
+> antes. **O ladder entregue e este:**
+>
+> | eixo | veredito ENTREGUE |
+> |---|---|
+> | next-category | **supera em Florida apenas** (+0,19, Holm *p* 0,011). As outras cinco diferencas sao **nao resolvidas** — nunca "em todos", nunca "empata" |
+> | next-region | **nao-inferior nos seis** (TOST, margem registrada de 2 pontos), com **Texas +1,21** e **California +1,06** superando |
+>
+> As linhas **26, 175, 330 e 394** deste arquivo dizem "category everywhere, region at four of six",
+> e a comparacao com place-level aparece como "+28…+40 macro-F1" quando a faixa real e
+> **+0,23…+6,29**. Elas ficam como estao, marcadas com `[SUPERADO 2026-08-20]`, porque reescrever o
+> corpo apagaria o registro de qual era a tese quando o arco foi desenhado — mas **nenhuma delas
+> pode ser copiada para prosa nova**.
+>
+> Fonte do ladder entregue: `src/tables/mobiwac/results.tex` e
+> `wrapup/evidence/ladder_recompute.json`. Regra de redacao: `WRITING_LAW.md` §3.
+> Mapa completo de versoes: `CLAUDE.md` §0.
+
+---
+
 ## 1 · The research question (one sentence, the whole document answers it)
 
 > **Does multi-task learning help point-of-interest prediction (next category + next region),
@@ -24,6 +47,7 @@ The dissertation's answer, delivered across three papers:
 > representation moves the needle more than any architecture change (CoUrb). With a
 > **check-in-level representation** and the right sharing topology, **one joint model finally
 > outperforms both dedicated single-task models** — category everywhere, region at four of six
+> `[SUPERADO 2026-08-20 — ver o banner no topo: categoria so em Florida; regiao nao-inferior nos seis]`
 > datasets with statistical non-inferiority at the other two (MobiWac).
 
 This is a rare, honest arc: a published negative result, its diagnosis, and its resolution —
@@ -172,7 +196,7 @@ superseded number or claim read as the project's current state.
 - Source: `articles/[mobiwac]/src/` (current 9-page working build; open decision #4). IEEE 2-col
   → dissertation 1-col; keep the paper's GLOSSARY-governed prose (it is already the writing law).
 - **Claim discipline is inherited verbatim** from `articles/[mobiwac]/` (CLAUDE §3 ledger +
-  PAPER_PLAN §3 whitelist): region verbs bound to tests ("outperforms" Istanbul/FL/TX/CA,
+  PAPER_PLAN §3 whitelist): region verbs bound to tests ("outperforms" Istanbul/FL/TX/CA,   % [SUPERADO 2026-08-20: regiao supera so em TX e CA]
   "matches" AL/AZ, never upgrade AZ); scaling claim scoped to the five U.S. states; cascade is
   "a tie at equal cost"; never-cite lists (STAN v4-collapse numbers, ReHDM v2 row, VOID cells).
 - Status wording: "submitted to MobiWac 2026, under review" — never "published/accepted".
@@ -327,7 +351,7 @@ constraint rather than a scope limit. Cheap to extend, and it is frame prose, so
    NOT beat dedicated models (CBIC, published); the diagnosis that the input representation,
    not the sharing architecture, was the bottleneck (CoUrb, published); and the resolution — a
    check-in-level representation plus a redesigned sharing topology under which ONE joint model
-   outperforms both dedicated models (MobiWac, submitted). State plainly that the dissertation
+   outperforms both dedicated models (MobiWac, submitted). [SUPERADO 2026-08-20 — ver banner] State plainly that the dissertation
    presents the negative result as a finding, its diagnosis as the turning point, and the final
    model as the payoff.
    [SIGNED-OFF ADDITIONS to this beat (AVAL rounds 1-2, 2026-07-22) — the arc paragraph must
@@ -391,7 +415,7 @@ model-lineage table (GLOSSARY.md is the source).
 
 One sentence naming the three contributions in chapter order → per-chapter contribution
 paragraphs → the consolidated answer to the research question (representation-dominant;
-verbs bound to tests: category outperforms everywhere, region outperforms at 4 of 6 and
+verbs bound to tests: category outperforms everywhere, region outperforms at 4 of 6 and   [SUPERADO 2026-08-20 — ver banner]
 matches at AL/AZ) → limitations (concrete: Gowalla vintage 2009–2010, 7-category taxonomy,
 transductive-representation caveat, no next-place task, single-city non-U.S. coverage,
 AND [signed-off addition, 2026-07-22] the task-pair confound concession from storyline/02
