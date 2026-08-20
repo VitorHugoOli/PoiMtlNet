@@ -36,12 +36,25 @@ ROOT = Path(__file__).resolve().parent.parent
 # later reworded to `academico`, change its pattern HERE in the same commit and confirm this
 # script still reports it (an UNMATCHED line is the loud failure; there is no silent skip).
 CLAIMS = [
-    # CLAUDE.md §1 was rewritten 2026-07-28 to describe three builds; these patterns follow it.
-    ("CLAUDE.md",                r"`build/main\.pdf` \(\*\*(\d+) pp\*\*\)", "defense"),
-    ("CLAUDE.md",                r"`build/main_final\.pdf` \(\*\*(\d+) pp\*\*", "academico"),
-    ("CLAUDE.md",                r"`build/main_ppgc\.pdf` \(\*\*(\d+) pp\*\*", "ppgc"),
-    ("PLAN.md",                  r"defense \*\*(\d+) pp\*\*", "defense"),
-    ("PLAN.md",                  r"final AcademicoPG \*\*(\d+) pp\*\*", "academico"),
+    # REPOINTED 2026-08-20. CLAUDE.md was rewritten in the reorganisation that collapsed the three
+    # source trees into one, and its build facts moved from a prose paragraph into a table (one row
+    # per target, page count in its own cell). The three old patterns went UNMATCHED -- three guards
+    # announcing that the claim they protected was no longer checked -- so they follow the table now.
+    # Verified in both directions: each matches the current CLAUDE.md and none matches the pre-reorg
+    # one. NOTE the middle target was `main_final.pdf` until it was renamed `main_academico.pdf`
+    # (2026-07-29); the pattern below tracks the current name.
+    ("CLAUDE.md",                r"`build/main\.pdf`[^|]*\|\s*\*\*(\d+)\*\*", "defense"),
+    ("CLAUDE.md",                r"`build/main_academico\.pdf`[^|]*\|\s*\*\*(\d+)\*\*", "academico"),
+    ("CLAUDE.md",                r"`build/main_ppgc\.pdf`[^|]*\|\s*\*\*(\d+)\*\*", "ppgc"),
+
+    # RETIRED 2026-08-20, and retired rather than repointed, for the reason this file already states
+    # for the PENDENCIAS rows below: PLAN.md moved to archive/ in the same reorganisation, and an
+    # archived record is a historical snapshot that must NOT be rewritten when the build moves --
+    # guarding it would make this tool edit history. PLAN.md's counts (118/113) describe the v1 tree
+    # that was deleted; they are correct as history and wrong as a current claim, which is precisely
+    # why the file now lives under archive/ with a "ainda vale? nao" row against it.
+    #   ("PLAN.md", r"defense \*\*(\d+) pp\*\*", "defense"),
+    #   ("PLAN.md", r"final AcademicoPG \*\*(\d+) pp\*\*", "academico"),
 
     # PENDENCIAS was rewritten as a three-part tracker on 2026-07-28 and its build state became a
     # table row per target, not a "X/Y" pair in prose. The old patterns SKIPped silently after that,
