@@ -1,9 +1,9 @@
 # O volume de material extra, construido a partir da wrapup.
 #
-# As tabelas e a classe continuam vindo de ../../src_fix, via TEXINPUTS: os apendices leem
+# As tabelas e a classe continuam vindo de ../../src, via TEXINPUTS: os apendices leem
 # tables/... e o preambulo da dissertacao, e duplicar esses arquivos criaria duas copias que
 # divergem em silencio. TEXINPUTS resolve sem copiar.
-SRC   := ../../src_fix
+SRC   := ../../src
 UTILS := ../../src_utils
 BUILD := $(UTILS)/latexbuild.sh
 

@@ -49,7 +49,8 @@ from check_audit_claims import live_text, strip_text          # noqa: E402
 
 DISS = Path(__file__).resolve().parent.parent
 TABLES = DISS / "src/tables"
-APPENDIX = DISS / "src/chapters/apx_b_errata.tex"
+# REPOINTED 2026-08-20: the errata appendix moved to the supplementary volume at 264c7996.
+APPENDIX = DISS / "wrapup/material_extra/chapters/apx_b_errata.tex"
 
 # label -> table source. Order is the order the appendix states them in.
 TABLE_FILES = (

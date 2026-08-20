@@ -3,17 +3,18 @@
 Figure 4 (MobiWac 2026): headline signed-deltas plot.
 
 Per dataset, ordered by region count, plot:
-  - the next-category delta (MTL - dedicated STL category ceiling), always positive;
-  - the next-region   delta (MTL - dedicated STL region   ceiling), rising with
-    region count across the five U.S. states and also positive at Istanbul.
+  - the next-category delta (joint - dedicated), small in both directions;
+  - the next-region   delta (joint - dedicated), clearly positive at the two
+    largest region vocabularies and inside the band elsewhere.
 
 A shaded +/- 2-point non-inferiority band and a zero line sit on the region axis
-so the reader sees the AL/AZ deltas inside the band and the Istanbul/FL/TX/CA
-deltas positive, while the category delta is up everywhere.
+so the reader sees which deltas clear the band (TX, CA on region) and which sit
+inside it.
 
-Numbers are the v17 JOINT-BEST deltas (2026-07-18: Joint(v17), one saved model
-per fold, minus the n=20 best-vs-best dedicated ceilings; JOINT_BEST_RESULTS.md
-+ CEILINGS_N20_FINAL.md). ALL SIX datasets are n=20 on both arms.
+Numbers are the served-checkpoint deltas: one saved model per fold, both tasks
+read at the epoch its joint validation selector chose, minus the dedicated
+single-task models on the same folds. All six datasets are four seeds x five
+folds on both arms.
 
 Run with the repo venv:
     /Users/vitor/Desktop/mestrado/ingred/.venv/bin/python fig4_deltas.py
@@ -35,16 +36,15 @@ from matplotlib.lines import Line2D
 # ---------------------------------------------------------------------------
 STATES = [
     # label,      region count, category delta, region delta
-    # v17 JOINT-BEST deltas (convention switched 2026-07-18, considerations_v3
-    # #10): Joint(v17, one saved model per fold) minus the n=20 best-vs-best
-    # dedicated ceilings (JOINT_BEST_RESULTS.md + CEILINGS_N20_FINAL.md).
-    # ALL SIX datasets n=20 on both arms (CA/TX A1 landed 2026-07-11).
-    ("Istanbul", 520, 8.58, 0.19),
-    ("AL", 1109, 7.69, -0.41),
-    ("AZ", 1547, 9.35, 0.00),
-    ("FL", 4703, 5.33, 0.71),
-    ("TX", 6553, 7.45, 2.11),
-    ("CA", 8501, 6.45, 2.20),
+    # Served-checkpoint deltas (joint minus dedicated), four seeds x five folds
+    # on both arms. Source: docs/results/closing_data/v18/joint_best_perfold.json
+    # (joint) and docs/studies/closing_data/v18/data/v18_results.json (dedicated).
+    ("Istanbul", 520, 0.0798, -0.0789),
+    ("AL", 1109, -0.1882, -0.8744),
+    ("AZ", 1547, -0.0038, -0.4370),
+    ("FL", 4703, 0.1947, -0.1564),
+    ("TX", 6553, -0.1310, 1.2059),
+    ("CA", 8501, -0.0043, 1.0571),
 ]
 
 labels = [s[0] for s in STATES]
@@ -126,13 +126,16 @@ bars_reg = ax.bar(
 
 # --- value labels ---------------------------------------------------------
 for xi, v in zip(xs_cat, cat_delta):
+    # The sign is computed, not assumed: category deltas now run both ways, and a
+    # hardcoded "+" printed "+-0.2" on the negative ones.
+    sign = "+" if v >= 0 else "\u2212"  # unicode minus
     ax.annotate(
-        f"+{v:.1f}",
+        f"{sign}{abs(v):.2f}",
         (xi, v),
         textcoords="offset points",
-        xytext=(0, 2.0),
+        xytext=(0, 2.0 if v >= 0 else -2.0),
         ha="center",
-        va="bottom",
+        va="bottom" if v >= 0 else "top",
         fontsize=8.0,
         color=CAT_COLOR,
     )
@@ -160,8 +163,11 @@ ax.set_xticklabels(xticklabels)
 ax.set_xlabel("dataset  (region count, low to high)", labelpad=2)
 ax.set_ylabel("$\\Delta$ vs dedicated (pp)", labelpad=2)
 
-ymax = max(cat_delta) + 2.2
-ymin = min(min(reg_delta) - 1.6, -NI_MARGIN - 2.0)
+# The band is the reference the reader needs to see whole, so the limits are the
+# band plus a margin for the labels, not a fixed pad below the smallest bar. The
+# old rule left the lower half of the panel empty once the deltas shrank.
+ymax = max(max(cat_delta), max(reg_delta), NI_MARGIN) + 0.55
+ymin = min(min(cat_delta), min(reg_delta), -NI_MARGIN) - 0.55
 ax.set_ylim(ymin, ymax)
 ax.set_xlim(-0.6, len(STATES) - 0.4)
 

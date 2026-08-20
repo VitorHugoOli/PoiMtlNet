@@ -14,19 +14,23 @@ that sharing could help one task while hurting the other. However, the evidence 
 explain the outcome because the result also depends on what the model represents. A standard place-level representation
 assigns the same vector to every visit to a place, so it cannot distinguish visits made under different contexts. By
 assigning one vector to each visit, the check-in-level representation can include the visit time, nearby places, and
-recent visits. The controlled comparison then shows that most of the resulting category gain comes from this per-visit
-context rather than from additional training signal. Once this information is available, the joint model can share
+recent visits. The controlled comparison then shows a consistent advantage for that representation on the category
+task: every fold favors it at every dataset, though the size of the advantage varies from a quarter of a point to
+six points. Once this information is available, the joint model can share
 semantic context between the tasks while keeping a private spatial path for region prediction.
 
-With both changes in place, joint training produces a different outcome. The model outperforms the dedicated category
-model on all six datasets. For region prediction, it outperforms the dedicated model at Istanbul, Florida, Texas, and
-California and remains non-inferior within the two-point margin (TOST, $\pm2$
-~pp) at Alabama and Arizona. The gains at Texas and California exceed this margin, while the smaller gains at Florida
-and Istanbul remain statistically supported. The region results also reveal a pattern across the five U.S. states: the
-gain rises with the number of regions. This advantage extends to the external methods because the joint model remains
-above every baseline in Table~\ref{tab:mobiwac:results}
-on all six datasets, by at least 4 Acc@10 points over the strongest region reference (HMT-GRN, STAN, or ReHDM; the first
-two on our folds, ReHDM under its own protocol) and by at least 33 macro-F1 points over POI-RGNN on category.
+With both changes in place, the region cost of joint training stays inside the registered two-point
+margin at every dataset. For region
+prediction the model outperforms the dedicated model at Texas and California, and at the other four
+datasets it stays within the two-point margin registered before any result was read. For category
+prediction it outperforms the dedicated model at Florida; the five remaining differences are not
+resolved, and every one of them is equivalent to zero within half a point. The two datasets where
+the region output improves are the two with the largest region vocabularies, which is where an
+auxiliary signal has the most to add, although region count and corpus size co-vary across these
+states and the ordering is not monotone within the pair. The joint model also remains above every
+external baseline in Table~\ref{tab:mobiwac:results} at all six datasets, by at least $3.55$ Acc@10
+points over the strongest region reference (HMT-GRN, STAN, or ReHDM; the first two on our folds,
+ReHDM under its own protocol) and by at least $3.06$ macro-F1 points over POI-RGNN on category.
 
 Together, these results do not mean that multitask learning helps automatically. They show that the initial concern
 about harmful sharing was incomplete: the result also depends on the representation and on how the tasks exchange

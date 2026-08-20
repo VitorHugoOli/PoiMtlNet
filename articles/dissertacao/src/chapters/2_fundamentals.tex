@@ -120,6 +120,7 @@ category $c_p\in\mathcal{C}$ and lies in a region $r_p\in\mathcal{R}$.
     visits in $H_i$ are observed input, and only the attributes of $x_i$ itself are
     withheld.
 \end{definition}
+
 % ---------------------------------------------------------------------------
 % CITATION / NUMBER LEDGER -- 2.1 (every claim traceable; verbs bound to tests)
 %  silva2019urbancomputing  LBSN traces at high geo/temporal resolution; urban computing (S2 abstract, opened)
@@ -207,7 +208,8 @@ input.
 \begin{definition}[Check-in-level representation]\label{def:fund:checkinlevel}
     A check-in-level representation assigns one vector $\mathbf{e}_{x_i}$ to each check-in
     $x_i$, so two visits to the same POI may enter the model with different
-    representations.
+    representations, because the vector reads context that belongs to the visit rather
+    than to the place.
 \end{definition}
 
 % [round12 STEP 3, AD-1] THE REPRESENTATION MAP AS A NUMBERED DEFINITION, not a displayed equation in
@@ -659,7 +661,55 @@ change isolates the effect of the input representation.
 Check2HGI completes the move from contextualized inputs to one learned representation
 per visit. It adds a fourth level below the place and learns one vector per visit from
 the visits themselves, with no next-category and no next-region target in its
-objective. The hierarchy has
+objective. What each visit contributes is its own context rather than an identifier: elapsed time
+is what distinguishes a visit that follows minutes after the last one from a visit that opens a new
+outing, a distinction a place-level vector cannot carry because it is the same vector at every
+visit.
+% [2026-08-12] This paragraph used to list the three feature groups and the paragraph below then
+% listed them again, because the enumeration moved down when the formal definition was removed. The
+% lead-in now states WHY per-visit context matters and leaves WHAT enters to the paragraph that
+% enumerates it once.
+
+% [2026-08-12] THE FORMAL DEFINITION OF THE ELAPSED-TIME QUANTITIES WAS REMOVED, on the author's
+% symmetry argument, and replaced by the paragraph below. The argument is checkable and it holds: all
+% fourteen definitions of this chapter name a TASK or METHOD concept (check-in, history, the two
+% representations, the representation map, the four prediction tasks, hard and soft sharing, negative
+% transfer, gradient conflict). Not one describes a feature encoding. The category indicators and the
+% cyclic time values, which are two thirds of the same input vector, get no symbol and no equation,
+% so a formal Delta_i was the only object in the chapter specifying how a number enters a model
+% rather than what a concept means. It was out of kind with everything around it.
+% WHERE THE SPECIFICATION LIVES: Appendix \ref{apx:check2hgi-joint-model} already carries it in full,
+%   both in prose ("Each check-in begins with 15 values: seven category indicators, sine and cosine
+%   for hour of day, sine and cosine for day of week, and four elapsed-time values") and as a settings
+%   row ("7 category indicators + 4 cyclic time values + 4 elapsed-time values; width 15"). An
+%   implementation appendix is the right home for a featurization; this section needs the reader to
+%   know what the three groups are, not their formulas.
+% WHAT THE PARAGRAPH KEEPS, deliberately: (a) all three feature groups at the SAME level of detail,
+%   which is what removes the asymmetry rather than only relocating it; (b) the measurement rule (no
+%   value uses a later visit) and the forward-only edges, because those are leakage claims rather
+%   than featurization detail and the honesty gate depends on them; (c) the log compression, since
+%   Chapter 5's method section and the METHODOLOGY row both state it and three sites must agree.
+% NOTHING DEPENDED ON THE SYMBOL: Delta_i and \ref{def:fund:elapsed} appeared only inside the
+%   definition itself, no probe pinned it, and removing it returns Section 2.3's four definitions to
+%   2.10 through 2.13, the numbers they held before. The GLOSSARY symbol row goes with it; the term
+%   row and its Portuguese equivalent stay, because the prose still uses the term.
+% SOURCE OF RECORD for the values and the measurement rule (unchanged, kept here because this is now
+%   the only site in the chapter that states them): docs/studies/closing_data/v18/METHODOLOGY.md, the
+%   elapsed-time node columns row, plus the v18_config recorded in every reported cell,
+%   node_layout = [canonical_11, continuous_time_4], in_channels = 15, verified in 72 of 72 result
+%   sidecars under docs/results/closing_data/v18/ and all 24 rows of that study's results file.
+% CAUTION for a future reader: the build logs under docs/results/embedding_eval/delaunay_revalidate/
+%   print "feat=11". Those are the earlier graph build; the per-run records above are the authority.
+Three groups of values describe each visit at the input. The category of the visited place enters as
+an indicator over the number of classes. The time of day and the day of week enter through their sine and
+cosine, so that the endpoints of the daily and weekly cycles fall next to each other rather than at
+opposite ends of a scale. The elapsed times enter as the interval since the user's previous visit and
+the interval since that user's first visit, both compressed by a logarithm that keeps a gap of
+minutes and a gap of weeks on a comparable scale, together with the gap within the same calendar day
+and an indicator for a user's first visit, for which the two intervals do not exist. Appendix
+\ref{apx:check2hgi-joint-model} gives the exact composition and its width. Every one of these values
+is measured up to the visit itself, and the edges between consecutive visits point forward in time
+only, so a vector describes its visit and the history before it. The hierarchy has
 three adjacent-level boundaries: check-in to place, place to region, and region to
 city. Its three hierarchical boundaries contribute the fixed-weight sum
 \begin{equation}\label{eq:fund:check2hgi}
@@ -990,8 +1040,8 @@ negative. Other methods may still react to differences in gradient magnitude or 
 loss. In Chapter~\ref{ch:mobiwac}, two such methods exceed equal weighting on one
 dataset but not on the others. Appendix~\ref{apx:cosine} evaluates the final joint
 model and finds the task gradients equivalent to orthogonal within a margin of five
-hundredths at every dataset measured there. A paired test separates the mean from zero
-at three datasets, but those small departures remain within the equivalence margin.
+hundredths at each of the four datasets measured there. A paired test separates the mean
+from zero at one of them, but that small departure remains within the equivalence margin.
 The combined result is that the deviations are detectable but too small to represent
 meaningful directional conflict at the scale considered by the balancers.
 
@@ -1728,10 +1778,10 @@ per-seed means. A Wilcoxon signed-rank test on the twenty paired fold results is
 reported alongside it and reaches the same decisions~\cite{wilcoxon1945}. Holm
 correction controls family-wise error across the six dataset
 comparisons~\cite{holm1979}. A superiority test cannot establish that a difference is
-small enough to accept. For Alabama and Arizona, two one-sided tests establish that
-the joint model is statistically non-inferior within a two-point
-margin~\cite{lakens2017tost}. Accordingly, \emph{outperforms} is reserved for paired
-superiority and \emph{matches} for statistical non-inferiority within that margin.
+small enough to accept. At the four datasets where the joint model does not outperform on next region, two one-sided tests
+establish that it is statistically non-inferior within a two-point margin~\cite{lakens2017tost}. Accordingly, \emph{outperforms} is reserved for paired
+superiority, and a difference that fails superiority is reported by the bound its interval
+supports rather than as an equality.
 % Section 2.5 -- Relevance (synthesis; NO fresh citations; argument-only ledger at its end)
 
 
@@ -1812,7 +1862,8 @@ and report fold means without significance tests. In the final study, user-disjo
 cross-validation limits leakage between a user's training and test visits. Macro-F1 and OOD-discounted
 Acc@10 describe different outputs and are read against explicit reference points.
 Paired superiority tests support the verb \emph{outperforms}, while non-inferiority
-tests within a two-point margin support \emph{matches}. These rules prevent an
+tests within a two-point margin support the statement that a region difference stays inside that
+margin, and the category differences are reported by the bound their intervals support. These rules prevent an
 observed mean difference from being reported as a conclusion that its test does not
 support.
 
@@ -1830,10 +1881,20 @@ model. For that configuration, the joint model does not outperform the dedicated
 single-task models. Chapter~\ref{ch:courb} keeps the model fixed, asks whether the
 input representation, rather than the sharing topology, is the bottleneck, and finds
 that it is. Chapter~\ref{ch:mobiwac} asks what a check-in-level representation and a
-different sharing topology enable for two sequential targets. There, the joint model
-outperforms the dedicated model on next category at all six datasets, and on next
-region it outperforms at four of them and matches the dedicated model at the other
-two. Chapter~\ref{ch:mobiwac} reports which datasets fall on each side.
+different sharing topology enable for two sequential targets.
+% [2026-08-12] A summary sentence stood here that duplicated the region-axis sentence below almost
+% verbatim, including the clause naming the two datasets with the largest region vocabularies. The two
+% axis sentences carry the partition on their own, each bound to the test its axis registered, so the
+% summary was removed rather than reworded. It read: "There, one joint model outperforms the dedicated
+% models on next region at the two datasets with the largest region vocabularies, and elsewhere stays
+% inside the bound each axis supports."
+On next region, where the analysis plan registered a
+two-point equivalence margin in advance, it outperforms the dedicated model at the two datasets
+with the largest region vocabularies and stays inside that margin at the other four. On next
+category, where the plan registered a superiority test and no margin, it outperforms at one
+dataset, and every one of the six differences is equivalent to zero within half a point, a bound
+read off the intervals rather than chosen in advance. Chapter~\ref{ch:mobiwac} reports which datasets fall on each
+side, and with which test.
 
 Those answers also decide something practical. Anticipating what kind of place a
 person will visit, and where that visit will occur, can support recommendation,

@@ -28,25 +28,26 @@ semantic context) and a private spatial path for the region task (Figure~\ref{fi
 
 Our contributions are as follows.
 \begin{itemize}
-  \item A check-in-level representation that extends hierarchical graph infomax from the place to the individual visit, improving next-category prediction over a standard place embedding by about $+28$ to $+40$ points of macro-F1 (a balanced score that counts every
-    category equally) across all six datasets (Table~\ref{tab:mobiwac:representation}). A controlled test attributes most of the gain to the per-visit
-    context, not to extra training signal. The gap is large because a single fixed vector
+  \item A check-in-level representation that extends hierarchical graph infomax from the place to the individual visit, improving next-category prediction over a standard place embedding across all six datasets, by $+0.23$ to $+6.29$ points of macro-F1 (a balanced score that counts every
+    category equally) (Table~\ref{tab:mobiwac:representation}). The direction is
+    consistent even where the size is small, because a single fixed vector
     per place cannot separate places that serve several purposes, which
     per-visit context recovers.
   \item A single model for joint next-category and next-region prediction, sharing semantic context across tasks while keeping a private spatial path for the region task; to our knowledge, the first work to treat fine-grained region as an end target of equal standing (Section~\ref{sec:mobiwac:related-tasks}). In one forward pass, it outperforms a dedicated
-    single-task category model on every dataset (by about $+5$ to $+9$ points of
-    macro-F1), even though each dedicated model is tuned per dataset. On region,
-    it outperforms at four of the six datasets and stays
-    statistically non-inferior within a two-point margin (TOST, a test of
-    equivalence) at the remaining two (Table~\ref{tab:mobiwac:results}).
-  \item An empirical account, across five U.S. states and one non-U.S. city, of how the joint gain scales with the number of regions.
-    The category gain holds on all six datasets. Across the U.S. states, the
-    region result moves monotonically with the region count: the joint model
-    matches the dedicated model (TOST, $\pm2$ percentage points, or pp) at the
-    small region counts and outperforms it at the large region counts, with
-    the state with the most regions (California) showing the largest region
-    gain (Figure~\ref{fig:mobiwac:deltas}). At Istanbul, the dataset with the fewest
-    regions, the joint model is also ahead on region ($+0.19$ Acc@10). All joint and dedicated results average
+    single-task region model at Texas and California, the two datasets with the
+    largest region vocabularies, and at the other four it stays within a
+    two-point margin registered before any result was read (statistical
+    non-inferiority, assessed with two one-sided tests). On category it
+    outperforms the dedicated model at Florida, and the five remaining
+    differences are equivalent to zero within half a point, even though each
+    dedicated model is tuned per dataset (Table~\ref{tab:mobiwac:results}).
+  \item An empirical account, across five U.S. states and one non-U.S. city, of where the joint
+    region gain appears. The two datasets where the joint model outperforms are the two with the
+    largest region vocabularies, Texas and California, while the four with smaller vocabularies sit
+    inside the two-point margin (Figure~\ref{fig:mobiwac:deltas}). The grouping is reported as an
+    observation rather than a law: the ordering does not hold inside the pair, since California has
+    more regions than Texas and a slightly smaller gain, and region count co-varies with corpus
+    size across these states. All joint and dedicated results average
     four random initializations (Section~\ref{sec:mobiwac:results-part2}).
 \end{itemize}
 

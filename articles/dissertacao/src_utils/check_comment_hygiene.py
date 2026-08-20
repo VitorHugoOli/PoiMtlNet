@@ -119,7 +119,7 @@ SCOPE = [
     # itself, so CLASS B does not fire on it -- but the file must be in scope for a future count
     # claim about a counted file to be caught).
     "src_utils/build.sh", "src_utils/fastbuild.sh", "src_utils/latexbuild.sh",
-    "src/main_extra.tex",
+    "wrapup/material_extra/main_extra.tex",   # moved out of the shipping tree at 264c7996
 ]
 
 # A SCOPE that a refactor can shrink without error is the T2 defect this gate was itself carrying.

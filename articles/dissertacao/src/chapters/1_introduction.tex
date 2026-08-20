@@ -449,18 +449,21 @@ The contributions are organized into four groups.
     balancers were screened at their default configurations, at a single random
     initialization, on Alabama and Florida, and none improved on a tuned fixed task
     weighting across both tasks and both datasets. The gradients of the two tasks were
-    measured directly and are statistically indistinguishable from orthogonal on every
-    dataset measured, which explains the balancer result rather than merely accompanying
-    it (Appendix~\ref{apx:cosine}). Two external sequence baselines were adapted so that
+    measured directly and are statistically indistinguishable from orthogonal at the four
+    datasets where the measurement was taken, which explains the balancer result rather
+    than merely accompanying it (Appendix~\ref{apx:cosine}). Two external sequence baselines were adapted so that
     a region comparison exists at all: HMT-GRN keeps its shared multitask skeleton
     and gains a per-fold region-transition prior, without its graph components and
     hierarchical beam search; and STAN has its output layer adapted to rank
     region candidates. Neither adaptation reproduces its complete published system, and
     Chapter~\ref{ch:mobiwac} states what was changed.
-    \item[Practical.] One model produces both predictions in one forward pass. It
-    outperforms the dedicated models on the category task at all six datasets and on
-    the region task at four of the six; at the other two it remains statistically
-    non-inferior within a two-point margin (TOST).
+    \item[Practical.] One model produces both predictions in one forward pass, and every
+    difference on both tasks stays inside the bound its axis supports. On the region task it outperforms the dedicated model
+    at the two datasets with the largest region vocabularies, Texas and California, and
+    at the other four it stays within the two-point margin registered before any result
+    was read (statistical non-inferiority, assessed with two one-sided tests). On the
+    category task it outperforms the dedicated model at Florida, and the five remaining
+    differences are equivalent to zero within half a point.
 \end{description}
 
 % [round5, persona 03 S3-05] "seed" first reached the reader here, on rendered p. 16, while its

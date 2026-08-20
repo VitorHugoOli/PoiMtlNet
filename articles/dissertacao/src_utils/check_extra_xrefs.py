@@ -55,6 +55,11 @@ from pathlib import Path
 
 UTILS = Path(__file__).resolve().parent
 SRCROOT = UTILS.parent / "src"
+# REPOINTED 2026-08-20. The supplementary volume moved out of the shipping tree to
+# wrapup/material_extra at 264c7996 (it is defense support, not deposited text). Before this
+# repoint the gate found no main_extra.tex and returned SKIP -- reporting green while checking
+# nothing. The MAIN build aux stays under SRCROOT; only the volume source moved.
+EXTRAROOT = UTILS.parent / "wrapup" / "material_extra"
 
 # \dissertationlabel{ch:cbic}{3}
 DECL = re.compile(r"^\s*\\dissertationlabel\{([^}]*)\}\{([^}]*)\}", re.M)
@@ -260,7 +265,7 @@ def main() -> int:
     if only:
         return 0
 
-    findings, notes, n_decl, n_sites, n_checked = audit(SRCROOT, SRCROOT / "build" / "main-aux")
+    findings, notes, n_decl, n_sites, n_checked = audit(EXTRAROOT, SRCROOT / "build" / "main-aux")
     for n in notes:
         print(f"  {n}")
     if findings:

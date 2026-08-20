@@ -1,3 +1,21 @@
+> ## BANNER 2026-08-20 — este plano FOI APLICADO; o cabecalho abaixo esta superado
+>
+> O bloco de status seguinte diz "PROPOSAL ... No chapter, table, or front-matter file has been
+> modified" e descreve `src_fix/` como um ramo byte-identico de `src/`. **As duas coisas deixaram
+> de valer.** O plano foi aplicado por inteiro, a arvore `src_fix/` recebeu as edicoes, foi ela
+> que a banca recebeu, e em 2026-08-20 ela foi renomeada para `src/` (a antiga `src/`, a v1
+> pre-revisao, foi apagada; recupere-a com `git checkout dissertacao-pre-reorg -- articles/dissertacao/src`).
+>
+> O documento fica aqui, em `wrapup/`, porque virou **historia do que mudou e por que**, nao
+> fonte de nada. O texto original abaixo esta preservado sem edicao: reescrever um registro para
+> ele concordar com o presente e exatamente o defeito que AGENT_GUARDRAILS proibe.
+>
+> **Continua valendo:** a secao 1 (o que as medicoes dizem) e a secao 10 (o ledger de fontes) —
+> foram recomputadas dos artefatos e reproduzem as tabelas entregues. **Nao vale mais:** toda
+> frase no futuro do indicativo sobre o que "sera" editado, e todo caminho `src_fix/`.
+
+---
+
 # REVISION_PLAN.md — what changes in the dissertation, and why
 
 > **Status: PROPOSAL, revision 2 (after adversarial review). No chapter, table, or front-matter

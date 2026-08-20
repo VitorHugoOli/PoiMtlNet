@@ -1,4 +1,28 @@
 % !TeX root = ../main.tex
+%
+% ============================================================================
+% [2026-08-12] EVIDENCE BASE REPLACED. Read this before any comment below it.
+%
+% This appendix was rebuilt on a NEW measurement and every number in its live prose comes from:
+%   docs/results/closing_data/v18_cosine/apxf_cosine_observations_v18.parquet
+%     1,000 rows = 4 datasets (istanbul, alabama, arizona, florida) x 5 folds x 50 epochs,
+%     one measurement per epoch per fold, seed 0, at the joint configuration Chapter 5 reports
+%     (bs8192, category weight 0.50, logit adjustment tau=0.5 on the category head only,
+%     forward-only check-in graph, 15 node features, engine check2hgi_v18).
+%   Provenance and per-dataset statistics: apxf_cosine_summary_v18.json (same directory).
+%   PARITY: each of the four runs reproduces its docs/results/closing_data/v18/<state>_s0_joint.json
+%     cell to 4 dp on BOTH tasks. That parity is what ties this diagnostic to the reported model.
+%   DEVIATION LOGGED: MTL_AMBIGUITY_STRICT=0 (one validation row in ~766k sat in a tie group
+%     straddling the top-10 boundary, which aborts the SCORED REGION metric). The cosine is a
+%     TRAIN-path measurement and is unaffected by validation tie semantics.
+%
+% EVERY COMMENT BELOW THIS BLOCK THAT CITES src_utils/_round7/gradient_cosine_observations6.parquet,
+% 4,650 observations, seven datasets, Georgia, or Florida's twelve configurations describes the
+% SUPERSEDED evidence base. Those comments are kept because they record real editorial decisions
+% (what was cut and why, which probes exist, which review found what), and a decision does not stop
+% being a decision when its numbers change. Do NOT read their COUNTS as current, and do not restore
+% a sentence from them into live prose without re-measuring it against the parquet named above.
+% ============================================================================
 % ============================================================================
 % Appendix F -- why the two tasks do not compete on the shared trunk.
 %
@@ -97,7 +121,7 @@ two tasks ask for opposite updates, one task improves at the other's expense. Th
 Chapter~\ref{ch:mobiwac}.
 
 The two tasks turn out not to disagree. Their gradients are statistically indistinguishable from
-orthogonal on every dataset measured, which is a stronger statement than mere absence of
+orthogonal at each of the four datasets where the measurement was taken, which is a stronger statement than mere absence of
 conflict, and it carries a direct consequence for that model: a gradient balancer had nothing
 % [round9c, 2026-07-30] TWO EDITS IN THIS PARAGRAPH, both from PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30).
 % POINT 2: "a stronger and stranger result" -> "a stronger statement". The author: "Don't say
@@ -165,10 +189,12 @@ ignores how large they are, which differs between the tasks and drifts during tr
 $+1$ means the tasks ask for the same update, $-1$ for opposite ones, and $0$ that the requests are
 orthogonal, each leaving the other's objective unchanged to first order.
 
-The observations are 4,650 epoch-level cosines from seven datasets. Florida contributes 3,150 across
-twelve configurations that vary the loss weight, the weighting schedule, and the training procedure;
-Alabama, Arizona, California, Georgia, Istanbul, and Texas contribute 250 each at the canonical
-configuration. Every run is five-fold user-disjoint cross-validation over fifty epochs.
+The observations are 1,000 epoch-level cosines from four datasets: Istanbul, Alabama, Arizona, and
+Florida contribute 250 each, one measurement per epoch on each of five folds. Every run is the
+reported joint configuration under five-fold user-disjoint cross-validation over fifty epochs, at
+one random initialization. Each run reproduces its dataset's banked seed-0 cell to four decimal
+places on both tasks, which is what ties the
+diagnostic to the model the chapter reports rather than to a nearby variant.
 % [round9c, 2026-07-30] CLAUSE CUT at the author's instruction (PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30) point 5: "Exclude
 % this ... is over detail"). What went: "so one configuration on one dataset is five series of fifty
 % values, and two of Florida's carry a partial re-run on top of theirs." WHERE EACH FACT LIVES NOW:
@@ -209,10 +235,11 @@ configuration. Every run is five-fold user-disjoint cross-validation over fifty 
 % explaining why a dataset is PRESENT. The persona found it by reading 79 of 79 sentences against six
 % wider families, which is what a reader does and a regex does not.
 % What the reader needs is that Georgia is an extra dataset under the same protocol.
-Six of the seven are the six Chapter~\ref{ch:mobiwac} reports on. The seventh, Georgia, is a further
-Gowalla state the dissertation does not otherwise use, included here as an additional test of the
-same diagnostic. Chapter~\ref{ch:mobiwac} also reports its own smaller measurement of this
-quantity; that one comes from a different run, so the two sets of numbers are not interchangeable.
+The four are four of the six datasets Chapter~\ref{ch:mobiwac} reports on. Texas and California are
+not measured here, so every statement in this appendix is scoped to the four, and the question of
+whether the same orthogonality holds at the two largest region vocabularies stays open. Those are
+also the two datasets where the joint model outperforms on region, which makes the gap worth naming
+rather than passing over.
 % [round9c, 2026-07-30] SENTENCE SIMPLIFIED at the author's instruction (PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30) point 6:
 % "This is a implementation detail let's exclude also"). What went: "reaches the same conclusion
 % from a smaller development-time measurement, on an earlier data preparation and over four seeds
@@ -255,7 +282,7 @@ training run.
 % which is the limitation now stated rather than left for the reader to infer.
 % This is a genuine bound on the result and it belongs beside the other three the appendix already gives.
 The unit of analysis is the fold, and every test below runs on folds: five fold means at each
-dataset, and at Florida its sixty fold series, five folds for each of its twelve configurations.
+dataset.
 Each dataset is measured at a single random initialization, so the variation the tests see is
 across folds, not across restarts. Where a count of observations appears it describes the data, not
 a test's sample size.
@@ -311,7 +338,7 @@ different quantity on a different scale and should not be read against this one.
 \input{tables/frame/cosine}
 
 Every dataset is equivalent to zero, and Table~\ref{tab:apx:cosine} gives each one's mean, confidence
-interval and tests. All seven means lie within one and a half hundredths of zero, against a margin of
+interval and tests. All four means lie within two thousandths of zero, against a margin of
 five hundredths, and equivalence holds at every other level of aggregation as well, including the raw
 observations, so the conclusion does not depend on the choice of unit.
 % [round7] THE PER-DATASET NUMBERS WERE MOVED OUT OF THIS PARAGRAPH INTO THE TABLE, for two
@@ -345,22 +372,20 @@ equivalence is a statement about the mean, not about every observation.
 % belong to the parallel track this round, so this file fixes its own instance and the report names
 % the finding for them. Measured in this file before the fix: `needs [a-z]+ing` over live prose ->
 % exactly this one hit; no other needs+gerund site here.
-Of the 4,650 cosines, 92.4
-percent fall inside the margin, and the full range runs from $-0.34$ to $+0.58$, the largest value
-lying past the right edge of panel (a). Individual epochs drift out of the margin in both
+Of the 1,000 cosines, 99.6
+percent fall inside the margin, and the full range runs from $-0.059$ to $+0.057$. Individual epochs drift out of the margin in both
 directions, ordinary noise in a quantity computed from one mini-batch. What never happens is a
 systematic pull to one side.
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\textwidth]{figures/fig_gradient_cosine}
-    \caption{The two tasks' gradients on the shared trunk are orthogonal, on seven datasets: the
-    six of Chapter~\ref{ch:mobiwac} and Georgia, marked $\ddagger$ because the dissertation does not
-    otherwise use it. The shaded band is the equivalence margin of $\pm 0.05$; every mean falls
-    inside it. Panels: (a) the pooled distribution of all 4,650 epoch-level cosines, (b) each
-    dataset's mean with its 95 percent interval on the independent unit, (c) one point per fold for
-    the slope of the cosine against the epoch, with a tick at each dataset's mean slope. No
-    significance is marked anywhere in the figure.}
+    \caption{The two tasks' gradients on the shared trunk are orthogonal, at the four datasets
+    measured under the reported joint configuration. Each point is one epoch of one fold, 250 per
+    dataset; the horizontal mark is the dataset mean and the vertical mark its 95 percent interval
+    on the fold, the independent unit. The shaded band is the equivalence margin of $\pm 0.05$;
+    every mean falls inside it, as do 99.6 percent of the individual epochs. No significance is
+    marked anywhere in the figure.}
     \label{fig:apx:cosine}
 % [round7, 2026-07-29] THE CAPTION WAS 199 WORDS AND THREE OF ITS STATEMENTS WERE FALSE. It
 % described the PRE-GEORGIA figure: commit 4445e7ab rebuilt the image from the four-dataset
@@ -392,7 +417,7 @@ systematic pull to one side.
 % "stand out" is a phrasal verb, which WRITING_LAW §4's idiom rule treats as a class to avoid. Named
 % subject, plain verb, as the register gate's own remedy for this shape prints.
 The figure shows two patterns.
-The first is a positive tendency that recurs on two datasets: all five of Alabama's fold means are
+The first is a positive tendency, unanimous at one dataset: all five of Istanbul's fold means are
 % [round9c, 2026-07-30] OPENER REWRITTEN, two author points at once (PENDENCIAS_RESOLVIDOS 2.22 (arquivado 2026-07-30)). POINT 9:
 % "Two departures from that flat picture appear" -- his words: "is pure A.I, we cna be more simple
 % and direct". POINT 10: "both are worth reporting rather than smoothing" -- his words: "we don't
@@ -400,11 +425,10 @@ The first is a positive tendency that recurs on two datasets: all five of Alabam
 % went; the replacement names the two patterns and reports them. "Departures" survives inside the
 % paragraph body ("for both departures" was ALSO rewritten under point 11, see below), so the
 % pattern/departure vocabulary does not cycle.
-positive, averaging $+0.0112$, and so are all five of Georgia's, averaging $+0.0039$. No other
-dataset is unanimous in either direction. The second is a decline over training, on those same two
-and with the same unanimity, all five per-fold slopes negative in each; the other four
-single-configuration datasets are mixed, from two of five at Istanbul to four of five at California,
-and Florida is flat at twenty-nine of sixty.
+positive, averaging $+0.0014$. The other three are not unanimous: four of five fold means are
+positive at Alabama and at Florida, and three of five at Arizona. The second is a decline over
+training, unanimous at Istanbul and Alabama, where all five per-fold slopes are negative, and mixed
+at Arizona and Florida, where three of five are.
 
 %Neither pattern is called significant here, and the reason is the design rather than the data. At
 %five folds the two-sided exact sign test cannot return less than $0.0625$, so that test cannot
@@ -508,13 +532,19 @@ does not read.
 \section{How far this extends, and how far it does not}
 \label{apx:cosine:extension}
 
-Seven datasets and twelve configurations bound this result along two axes, each answering a different
-objection.
+Four datasets bound this result, and the tuning axis is bounded by an earlier screen rather than by
+this measurement.
 
-The first axis is the tuning. Every one of Florida's twelve configurations is equivalent to zero on
-its own five folds, and their twelve means span $[-0.00261, +0.00457]$ over the observations as
-recorded. Near-orthogonality persists across every hyperparameter and procedure varied in this
-measured sweep, rather than appearing in only one configuration.
+The first axis is the tuning. The four measurements here share one configuration, the one
+Chapter~\ref{ch:mobiwac} reports, so on its own this appendix cannot say whether the orthogonality
+survives a different loss weight or schedule. What speaks to that is the balancer screen of
+% [2026-08-12] Cross-reference repointed. It named sec:mobiwac:results-part2 ("One model, two tasks"),
+% which does not carry the screen: the nineteen-balancer result is stated in the chapter's
+% related-work section, which is where sec:mobiwac:related-mtl resolves.
+Section~\ref{sec:mobiwac:related-mtl} itself: nineteen loss and gradient balancers, several of
+which act only when the cosine is negative, none of which improved on the fixed weighting. A
+quantity that stayed near zero only at this configuration would be a poor explanation for a null
+that broad.
 % [round7] SPAN CORRECTED before first build: this read [-0.00214, +0.00457], which is the
 % SECOND-lowest configuration mean (T6_1_lambda0_2). The minimum is -0.00261 (T6_4_two_pass).
 % Read from cosine_stats.py's "configuration-mean span" line, which exists to be quoted.
@@ -545,11 +575,11 @@ measured sweep, rather than appearing in only one configuration.
 % traceable to §D.1's table, and they carry the same information for a reader who wants the span.
 % The number auditor filed this as a blocker at build 03b53d16; the author read the sentence and
 % reported that the ratios did not tell him what they meant, which is the stronger argument.
-The second axis is the data. The seven datasets cover every dataset Chapter~\ref{ch:mobiwac} reports on: the
-check-in counts run from 113,846 at Alabama to 4,089,892 at Texas and the region counts from 520 at
-Istanbul to 8,501 at California, with Georgia added under the same protocol. Equivalence
-holds at both ends of these ranges, so the result is observed beyond Florida and at datasets of
-different sizes.
+The second axis is the data. The four datasets span region counts from 520 at Istanbul to 4,703 at
+Florida, one of them outside the United States, and equivalence holds across that range. It does not
+reach the two largest, Texas and California, which are also the two where the joint model outperforms
+on region, so the diagnostic supports the balancer result at the datasets where the two tasks neither
+help nor hinder each other and leaves the largest label spaces untested.
 % [round9c, PENDENCIAS_RESOLVIDOS 2.23 (arquivado 2026-08-02), excellence report EX-6, author decision "Aplique o R-3,5,6 e o EX-6,
 % seguindo a recomendacao do 42_excellence"] THE COMPARISON CLAUSE IS DROPPED, keeping the scope. Two
 % reports touch this sentence and the author's instruction is to follow 42_excellence where they

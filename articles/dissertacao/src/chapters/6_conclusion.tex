@@ -32,10 +32,13 @@ category classification task, and the pair changed in the final study.
 % AUT-36, which turn on the same task-pair change.
 % Probe: R13-aut32.
 The third study combined a check-in-level representation with a redesigned sharing
-topology (Chapter~\ref{ch:mobiwac}). Under this design, the joint model outperforms the
-dedicated single-task models on the category task at all six datasets and on the region
-task at four of the six. At the other two, it remains statistically non-inferior within
-a two-point margin (TOST).
+topology (Chapter~\ref{ch:mobiwac}). Under this design, one joint model replaces two
+dedicated single-task models on both tasks. On the region task it outperforms
+them at Texas and California, the two datasets with the largest region vocabularies, and at
+the other four it stays within a two-point margin registered before any result was read
+(statistical non-inferiority, assessed with two one-sided tests). On the category task it
+outperforms them at Florida, and the five remaining differences are equivalent to zero within
+half a point.
 % [NEEDS SIGN-OFF 30 | CLOSED] Author confirmed the scope as written: category at all six, region
 % at four (Istanbul, Florida, California, Texas), TOST non-inferiority within two points at
 % Alabama and Arizona, Arizona not upgraded.
@@ -96,15 +99,24 @@ Paired tests used the four per-seed means.
 % "Paired tests used the four per-seed means" is UNCHANGED and is what keeps this sentence coherent: the
 % tests never required fold k of one seed to be fold k of another. Probe: R13-foldseed9.
 
-Under this protocol, the joint model outperforms the dedicated single-task models on
-the category task at all six datasets, by 5.3 to 9.4 macro-F1 points. On the region task,
-it outperforms them at four datasets: Istanbul, Florida, California, and Texas. At
-Alabama and Arizona, it remains statistically non-inferior within a two-point margin
-(TOST). Non-inferiority was the registered primary analysis for the region task; the
-four superiority findings are secondary results outside that analysis plan. Further analyses
+Under this protocol, the joint model outperforms the dedicated single-task models on the
+region task at Texas ($+1.21$ Acc@10) and California ($+1.06$), and at Istanbul, Alabama,
+Arizona, and Florida it stays within the registered two-point margin. All four are small
+deficits, the largest being Alabama at $-0.87$; a test in the reverse direction, corrected across
+the six region comparisons, resolves three of them. They are reported as differences inside the
+margin rather than as ties. On
+the category task it outperforms the dedicated model at Florida ($+0.19$ macro-F1); the
+other five are equivalent to zero within half a point. The equivalence margin was registered for
+the region axis only, so the category bound is read off the intervals rather than chosen in advance.
+Non-inferiority was the registered primary analysis for the region task; the
+two superiority findings are secondary results outside that analysis plan. Further analyses
 clarify what these results do and do not establish. They isolate the contribution of the
-input representation, test parameter count as an alternative explanation for the next-category
-gains, and identify a possible relation between problem scale and the next-region gains.
+% [2026-08-12] The parameter-count clause is withdrawn from this list with the appendix it named
+% (relocated to the supplementary volume; reasoning at its former include site in content.tex). It
+% read: "test parameter count as an alternative explanation for the next-category gains". The list
+% now claims only what this volume reports.
+input representation and identify a possible relation between problem scale and the next-region
+gains.
 
 Beginning with input representation, Section~\ref{sec:mobiwac:results-part1} provides the first
 explanation through a controlled comparison between Check2HGI and HGI. With the dedicated
@@ -115,20 +127,23 @@ performance in this setting. It also supports testing Check2HGI in other mobilit
 prediction architectures, although its benefit in those architectures has not yet been
 evaluated.
 
-The joint model's larger capacity offers a second possible explanation for the
-next-category gains. Appendix~\ref{apx:parameter-count-control} compares it with a
-capacity-matched dedicated model. In Alabama and California, the wider model
-produces slightly lower next-category macro-F1 than the original dedicated model and
-remains below the joint model. Thus, parameter count alone does not explain the joint
-model's next-category advantage in these two datasets. The comparison instead points to
-the joint architecture or its multitask training, but it does not separate their effects.
-
+% [2026-08-12, AUTHOR RULING] THE CAPACITY PARAGRAPH IS WITHDRAWN with the appendix it reported
+% (the parameter-count control, now in the supplementary volume; reasoning at its former include
+% site in content.tex). It read: model capacity offers a competing explanation for the next-category
+% results; the control widens the dedicated model to the joint model's budget and finds the wider
+% model 0.53 macro-F1 points BELOW the narrower one at Alabama, unanimous across twenty folds, with
+% a single-seed reading at California consistent with it. The measurement stands and is preserved in
+% the supplement. It leaves this chapter because a 0.53-point argument cannot carry weight in a
+% document that reports category differences within half a point as equivalent to zero, and because
+% the large joint category advantage it was built to explain is not on the final board.
 For next-region prediction, the results point to problem scale as another possible
-condition. Across the five U.S. states, the joint model's advantage over the dedicated
-model grows with the number of regions. It exceeds two Acc@10 points in Texas and
-California, the states with the largest number of regions. This pattern suggests that
-joint learning becomes more useful when the model must choose among more regions.
-However, states with more regions also tend to have more check-ins. A controlled
+condition. The two datasets where the joint model outperforms the dedicated model are
+Texas and California, the two states with the largest number of regions, while the four
+datasets with smaller region vocabularies sit inside the margin. This grouping suggests
+that joint learning becomes more useful when the model must choose among more regions.
+Two observations keep it a suggestion. The ordering does not hold inside the pair, since
+California has more regions than Texas and a slightly smaller gain, and states with more
+regions also tend to have more check-ins. A controlled
 experiment is therefore required to separate the effect of region count from the amount
 of data and other differences between the states. Problem scale remains a possible
 condition, not an established cause.
@@ -332,11 +347,11 @@ Six limitations bound the scope of these conclusions.
     next-category and next-region prediction. No single controlled ablation
     separates the representation-and-topology change from the task-pair change in
     the final result. Chapter~\ref{ch:courb} is the fixed-pair control for the
-    diagnosis. The additional parameter-count experiment in
-    Appendix~\ref{apx:parameter-count-control} tests only whether a larger dedicated
-    category model can close the gap. It covers two of the six datasets, one width
-    point per dataset, width scaling rather than depth, and a smaller hyperparameter
-    search than the original dedicated model. The greater similarity of
+% [2026-08-12] The sentence describing the parameter-count experiment and its scope is withdrawn
+% with that appendix (see the note above and content.tex). What it said about the LIMITATION is
+% unchanged and stated in the sentence that follows: no controlled ablation separates the two
+% changes, and the greater similarity of the final pair may contribute to the improvement.
+    diagnosis. The greater similarity of
     the final pair may still contribute to the size of the improvement. The
     ablation that would separate the two changes,
     running static category classification under the check-in-level representation, is
