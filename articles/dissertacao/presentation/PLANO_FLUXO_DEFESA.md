@@ -29,6 +29,7 @@
 | **Pós-submissão** | P1 (capacidade) e mtlcheck ficam **só na trilha de reserva**. A trilha principal é redigida para *sobreviver* a eles. | Autor, 2026-08-21 |
 | **A posição sobre o tronco** | O autor sustenta que **não há dados suficientes para provar que o tronco compartilhado não contribuiu**. Ver §5.3 — é defensável e já está no texto entregue. | Autor, 2026-08-21 |
 | **Defeito do Resumo** | Corrigido no fonte para a versão final + errata registrada + **nunca dito em voz alta**, exceto se perguntado. Ver §6, família 6. | Autor, 2026-08-21 |
+| **Template e barra de navegação** | **`nesped_slides_template/`** (Beamer, do NESPeD — autoria de Henrique S. Santana, a mesma defesa que o guia §4.0 analisa). A barra de navegação **é nativa do template**, não precisa ser construída. Ver §11. | Autor, 2026-08-21 |
 | Logística | 28/08/2026, 10:00–12:30, **remota** (Google Meet). Banca: Fabrício A. Silva (presidente), Clayson S. F. de Sousa Celes (ITA, externo), Alex Borges. | Guia §0 |
 | Teto | **50 minutos** (Art. 23). Este plano orça **43 min**, folga de 7. | Regimento |
 
@@ -318,7 +319,10 @@ os ganhos de região em TX/CA são **resultados secundários, fora do plano regi
 
 ## 6 · A trilha de reserva (série B)
 
-Vive **depois** do slide de agradecimentos, fora da contagem de 35–50. `B0` é um **índice
+Vive **depois** do slide de agradecimentos, fora da contagem de 35–50. **O template já resolve o
+"fora da contagem": envolver a série B em `\miniframesoff` … `\miniframeson` faz os slides não
+registrarem ponto na barra de navegação** (§11), então o deck principal continua parecendo ter o
+tamanho que tem. `B0` é um **índice
 clicável**: família de pergunta → número do slide, com hyperlinks internos do PDF.
 
 **Contrato de cada slide B:** uma pergunta = um slide · **o título é a pergunta, em português,
@@ -378,9 +382,10 @@ torna defensável.
 
 ## 8 · Regras que o `SLIDES.md` terá de obedecer
 
-1. **Navegação.** Barra fixa no topo com as seis seções nomeadas — *Introdução · Fundamentos ·
-   CBIC 2025 · CoUrb 2026 · MobiWac 2026 · Conclusão* — com pontos de progresso por slide (o
-   mecanismo do Henrique, guia §4.0). Nomes de seção nunca mudam no meio do deck.
+1. **Navegação.** Nativa do template (§11): declarar as seis seções com `\section{...}` — *Introdução ·
+   Fundamentos · CBIC 2025 · CoUrb 2026 · MobiWac 2026 · Conclusão* — e a barra com os pontos por
+   slide aparece sozinha. Nomes de seção nunca mudam no meio do deck. **Nenhum `\section` fora
+   dessas seis**, porque cada um vira um rótulo na barra.
 2. **A linguagem do veredito é lei.** "Supera" só nas três células de §5.1.
 3. **Proveniência de todo número.** Copiado de célula de tabela entregue (lendo o comentário de
    proveniência ao lado), da tabela publicada do Cap. 3/4, ou do `ladder_recompute.json`. **Nunca
@@ -406,7 +411,9 @@ torna defensável.
 11. **Terminologia fail-closed.** Só termos do [`../GLOSSARY.md`](../GLOSSARY.md); notação
     idêntica, caractere a caractere, à do documento.
 12. **Slides de transição são estruturais.** Cada seção termina na sua frase de transição fixa de
-    §2. Passagens de corte de tempo **não podem removê-las**.
+    §2. Passagens de corte de tempo **não podem removê-las**. O divisor visual de cada seção é
+    automático via `\autotocframe` (§11); a frase de transição é falada sobre ele, ou vai num
+    `\specialframe` próprio quando merecer a tela inteira.
 13. **A contribuição aparece duas vezes**, com redação idêntica: um slide cedo e o slide de
     fechamento — sempre com a ressalva de que o ganho é operacional, **não computacional**.
 14. **Profundidade de apêndice fica fora do deck principal.** E "Apêndice B" é **sempre** nomeado
@@ -430,8 +437,8 @@ torna defensável.
 
 ### Pendências que só o autor fecha
 
-1. **Barra de navegação** — este plano assume o mecanismo do Henrique. Confirmar, ou as regras 1
-   e 12 precisam de um substituto para tornar o fio condutor permanentemente visível.
+1. ~~**Barra de navegação**~~ — **FECHADA 2026-08-21**: o autor confirmou o template do NESPeD, que
+   já traz a barra nativa. Ver §11.
 2. **Q13 / Q14 / Q15** — errata *ou* resposta oral com escopo. Decide a redação e os distintivos
    dos dois slides de retratação (B-P1, B-Q13), e se a linha de errata do Q15 é retirada.
 3. **A frase do veredito em português**, ensaiada literalmente. Ela vem de §5.1 deste plano —
@@ -454,3 +461,72 @@ com a resposta oral pronta caso um arguidor cite o Resumo entregue.
 > banca recebeu (md5 `5be69d1b…`, 119 pp) e **diverge do fonte nesta única frase**. A correção foi
 > verificada num build real do volume de defesa: a frase antiga tem zero ocorrências, a nova
 > renderiza, `tex_errors=0`.
+
+---
+
+## 11 · O template — `nesped_slides_template/`
+
+Template Beamer do NESPeD, de **Henrique S. Santana** — o autor da defesa que o guia §4.0 analisa
+quadro a quadro. A barra de navegação que o guia recomenda **não precisa ser construída: ela é o
+comportamento padrão deste template**. Lido e testado em 2026-08-21.
+
+### 11.1 · O que é nativo, e o que isso resolve do plano
+
+| Recurso do template | Resolve |
+|---|---|
+| `\insertnavigation` no *headline*, com `\beamer@compresstrue` | **A barra de navegação**: rótulos das seções + um ponto por slide, com o ponto atual destacado. Regra 1 de §8 |
+| `\section{...}` | Cada seção declarada vira **um rótulo na barra**. As seis seções de §3 são exatamente seis `\section` |
+| `\autotocframe{opts}` (`\AtBeginSection`) | **O divisor automático de seção** — insere um "Sumário" no início de cada seção, sem precisar lembrar. É o suporte visual das transições de §2 |
+| `\tocframe[sectionstyle=…,subsectionstyle=…]` | Recapitulação sob demanda, com fundo em gradiente e a barra esmaecida |
+| `\miniframesoff` … `\miniframeson` | **Tira frames da contagem de pontinhos.** É o mecanismo exato de que a série B precisa (§6) para ficar fora do deck principal |
+| `\insertframenumber` no *footline* | **Slides numerados** — o guia §4.4 pede isso, e no remoto é o que permite *"volte ao slide 14"* |
+| `\specialframe` (envolver o frame em chaves) | Frame de tela cheia com texto branco sobre gradiente — bom para as frases de transição de §2 |
+| `\titleframe{\titlelogo{…}}` | Slide de título com logos |
+| `\block` / `\alertblock` / `\exampleblock` | Destaques. `alertblock` é o lugar natural das ressalvas que §8 regra 6 manda vir **antes** do número |
+
+Opções do pacote: decoração `net` \| `accel` \| `data`; cor `green` \| `blue` \| `red`.
+O template vem com `[net,green]`. ⚠ **A opção `red` está declarada vazia** no `.sty` — não define
+nenhuma cor. Não usar.
+
+### 11.2 · Duas coisas operacionais que mudam o build
+
+> ⚠ **1. O motor é XeLaTeX ou LuaLaTeX, NÃO `pdflatex`.** O `nesped.sty:15` carrega `fontspec`, que
+> aborta sob `pdflatex` com *"requires either XeTeX or LuaTeX"* e **não produz PDF nenhum**. Isso
+> difere do build da dissertação, que é `pdflatex` via `src_utils/latexbuild.sh` — então o deck
+> **não** pode reusar aquele harness sem trocar o motor.
+>
+> ⚠ **2. O template tem um bug: `\pagewidth` não existe.** Em `nesped.sty:245`, dentro do
+> *headline*, a faixa de gradiente sob a barra de navegação usa `\pagewidth` onde LaTeX/Beamer
+> definem `\paperwidth` (o próprio bloco usa `\paperwidth` corretamente nas linhas acima).
+> Resultado: `Undefined control sequence` **uma vez por frame** — 27 erros no build do template de
+> exemplo — e a faixa decorativa não desenha. O PDF ainda sai, porque o erro não é fatal em
+> `nonstopmode`, e é exatamente por isso que passa despercebido.
+>
+> Correção de uma linha, **validada numa cópia isolada** antes de qualquer coisa ser alterada:
+> `(\pagewidth, 1mm)` → `(\paperwidth, 1mm)`. Medido: o template de exemplo sai de **27 erros para
+> 0**, e a faixa passa a desenhar. (O original não foi tocado.)
+> **Decisão do autor:** corrigir na nossa cópia, ou conviver com os erros? O template é de
+> terceiros e pode estar em uso por outras pessoas do NESPeD.
+
+### 11.3 · Como as seis seções de §3 mapeiam
+
+```latex
+\usepackage[net,green]{nesped}
+\autotocframe{sectionstyle=show/shaded, subsectionstyle=show/show/shaded}
+
+\titleframe{ \titlelogo{img/logo-nesped.png} \titlelogo{img/logo-ufv.png} }
+
+\section{Introdução}          % §3 seção 1  — 4 min
+\section{Fundamentos}         % §3 seção 2  — 6 min   (o motor de de-duplicação)
+\section{CBIC 2025}           % §3 seção 3  — 4 min
+\section{CoUrb 2026}          % §3 seção 4  — 4 min
+\section{MobiWac 2026}        % §3 seção 5  — 20 min
+\section{Conclusão}           % §3 seção 6  — 5 min
+
+\miniframesoff                % a série B começa aqui: fora da barra e da contagem
+```
+
+**Regra que decorre disso:** nenhum `\section` além desses seis, porque cada um vira um rótulo na
+barra e a barra é o fio condutor. Divisões internas usam `\subsection`, que aparece como pontos
+agrupados, não como rótulo novo.
+

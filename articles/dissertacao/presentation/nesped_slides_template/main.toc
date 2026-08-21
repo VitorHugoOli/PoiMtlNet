@@ -1,0 +1,7 @@
+\babel@toc {brazilian}{}\relax 
+\beamer@sectionintoc {1}{Introdução}{3}{0}{1}
+\beamer@sectionintoc {2}{Funcionalidades}{6}{0}{2}
+\beamer@subsectionintoc {2}{1}{Layout}{7}{0}{2}
+\beamer@subsectionintoc {2}{2}{Tabelas, Figuras, Código}{16}{0}{2}
+\beamer@subsectionintoc {2}{3}{Equações e Citações}{20}{0}{2}
+\beamer@sectionintoc {3}{Customização}{22}{0}{3}
