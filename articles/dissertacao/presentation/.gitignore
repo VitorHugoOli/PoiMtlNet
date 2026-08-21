@@ -1,0 +1,17 @@
+# Saida de compilacao dos slides. O template versionado sao os fontes:
+# main.tex, nesped.sty, references.bib e img/.
+*.aux
+*.log
+*.nav
+*.out
+*.snm
+*.toc
+*.vrb
+*.pdf
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# Quando o deck final existir, rastreie-o explicitamente, como o src/ faz com o
+# dissertacao.pdf e o wrapup/material_extra com o main_extra.pdf:
+#   git add -f presentation/<nome-do-deck>.pdf

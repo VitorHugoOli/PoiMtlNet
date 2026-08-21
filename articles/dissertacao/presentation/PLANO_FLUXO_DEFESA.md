@@ -505,8 +505,13 @@ nenhuma cor. Não usar.
 > Correção de uma linha, **validada numa cópia isolada** antes de qualquer coisa ser alterada:
 > `(\pagewidth, 1mm)` → `(\paperwidth, 1mm)`. Medido: o template de exemplo sai de **27 erros para
 > 0**, e a faixa passa a desenhar. (O original não foi tocado.)
-> **Decisão do autor:** corrigir na nossa cópia, ou conviver com os erros? O template é de
-> terceiros e pode estar em uso por outras pessoas do NESPeD.
+> **Status 2026-08-21:** o autor delegou o conserto ao agente **`presentation-guide`** (a sessão que
+> escreveu o guia). O escopo passado a ele: template compilando com 0 erros, motor e comando de
+> build declarados, varredura própria por defeitos além dos dois acima (presumindo que
+> `nonstopmode` esconde mais), verificação de que `\miniframesoff`/`\miniframeson` e os
+> hyperlinks internos funcionam de fato, e um `main.tex` esqueleto já com as seis seções de §11.3.
+> Ele também decide, com o autor, se a correção fica só na nossa cópia — o template é de terceiros
+> e pode estar em uso por outras pessoas do NESPeD.
 
 ### 11.3 · Como as seis seções de §3 mapeiam
 
