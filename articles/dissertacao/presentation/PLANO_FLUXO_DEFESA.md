@@ -588,9 +588,37 @@ Consertado e verificado pelo agente `presentation-guide`, e **re-verificado nest
 | `nesped.sty` (nas duas pastas, cópias idênticas) | **três** bugs corrigidos: `\pagewidth`→`\paperwidth`; `\autotocframe` repassando `{#1}` em vez de `[#1]` (`\ifstrempty`); os 12 `\ifnum \i>0 -- \fi` de `\decorationnet` (deveria ser `\i>1`) que quebravam a malha triangulada de fundo — achado depois de comparar com uma captura de tela do Vitor, não só com o PDF de referência (que tinha o mesmo defeito). Só nas nossas cópias — o original de terceiros não foi tocado |
 | `slides/main.tex` | **esqueleto real**: as seis seções, um frame-stub por subseção do §3 (`TODO n.n`), os quatro pontos de transição do §2 como comentário, e a série B demonstrada (B0 índice clicável + B1 completo replicável) |
 | `slides/template_showcase.tex` | o `main.tex` demonstrativo original do Henrique, preservado por `git mv` como referência de sintaxe |
-| **Build** | **um `Makefile` na raiz de `presentation/`** (não mais um por pasta). Cada projeto compila para `<projeto>/build/` (gitignored) e o `main.pdf` final é copiado para `<projeto>/main.pdf`. Alvos: `make all` (os dois) · `make template` / `make slides` (um de cada vez) · `make check` (valida 0 erros sem gerar PDF pela metade) · `make clean` |
-| **motor** | **`xelatex`** |
-| build | `make all` (raiz) → **OK, `nesped_slides_template/main.pdf` 23 páginas + `slides/main.pdf` 42 páginas, 0 erros nos dois** (rodado nesta sessão) |
+| **Build** | **um `Makefile` dentro de cada pasta** (`nesped_slides_template/Makefile`, `slides/Makefile` — não mais um na raiz, revertido a pedido do autor 2026-08-21). Cada um compila para `<pasta>/build/` (gitignored) e copia o `main.pdf` final para a raiz da própria pasta. Alvos, iguais nos dois: `make all` · `make check` (valida 0 erros sem gerar PDF pela metade) · `make clean` |
+| **Pastas limpas (2026-08-21)** | removidos `.DS_Store`, `slides/template_showcase.tex`/`.pdf` (duplicata do `nesped_slides_template/main.tex`, que já é a demo original), e `build/` de ambas. O PDF de referência do Henrique mudou de `slides/` para `nesped_slides_template/nesped_slides_template.pdf` (mais coerente — ele valida o template, não o deck) |
+| **motor** | **`xelatex`** — ver ⚠ abaixo sobre por que não é `pdflatex` |
+| build | `make all` em cada pasta → **OK, `nesped_slides_template/main.pdf` 23 páginas + `slides/main.pdf` 42 páginas, 0 erros nos dois** (rodado nesta sessão) |
+
+> ⚠ **`pdflatex` foi testado 2026-08-21 e NÃO é seguro para este template, apesar de compilar sem
+> erro.** `fontspec` (a causa original de exigir xelatex/lualatex) na verdade nunca é usada em
+> lugar nenhum do `.sty` além do `\RequirePackage` — é vestigial, e `cabin` já suporta os três
+> motores sozinho. Guardando o require (`\ifPDFTeX\else\RequirePackage{fontspec}\fi`), o
+> `pdflatex` compila com 0 erros e os slides de **conteúdo normal saem pixel-idênticos** ao
+> xelatex (testado: página "Blocos"). **Mas os três mecanismos que pintam fundo em página
+> inteira via `\tikz[remember picture,overlay]{\backgradient ...}` saem em branco** — sem
+> gradiente, sem texto: `\titleframe` (a capa), `\tocframe`/`\autotocframe` (o recap de
+> Sumário — **usado em toda seção deste deck**) e `\specialframe`. A causa provável é uma
+> diferença de driver PGF/TikZ entre pdftex e xetex para `shading=axis` com ângulo, não
+> investigada a fundo. **Não trocar o motor** sem resolver isso primeiro — quebraria a capa e
+> todo divisor de seção do deck real, silenciosamente (compila, só não aparece nada).
+
+> **Confirmado de forma independente nesta sessão, e o instrumento importou.** Compilei
+> `slides/main.tex` com `pdflatex` (só desabilitando o `fontspec`): **42 páginas, 0 erros**, e a
+> camada de TEXTO está completa — `pdftotext` acha os nomes das seções e os títulos normalmente.
+> **Um teste de texto teria dado tudo certo.** Só a renderização revela o defeito: o slide de
+> sumário sai com o fundo em branco, os nomes das seções invisíveis (texto branco sobre branco,
+> porque o gradiente que deveria estar atrás não desenha) e só os numerais 1–6 fantasmas visíveis.
+> Medida objetiva do mesmo slide, renderizado a 80 dpi: **2,2 KB sob `pdflatex` contra 37 KB sob
+> `xelatex`** — dezesseis vezes menos tinta na página. No deck real isso atingiria a capa **e os
+> seis divisores de seção**, sem um único erro de compilação.
+>
+> **Regra que decorre:** para este template, "compilou sem erro" e até "o texto está lá" não são
+> evidência de que a página aparece. Qualquer mudança de motor, de classe ou de pacote gráfico
+> precisa ser validada por **renderização**, não por log nem por extração de texto.
 
 > ⚠ **A contagem de páginas do `make check` não é a final.** `check` é passe único, sem bibtex e
 > sem o TOC resolvido, então reporta **24** páginas para o template onde o `make all` completo
