@@ -158,7 +158,16 @@ are named once each in Ch.5's baseline list and the List of Abbreviations only i
 | registered before any result was read | registrada antes de qualquer resultado ser lido |
 | equivalent to zero within half a point *(next-category axis only)* | equivalente a zero dentro de meio ponto *(apenas no eixo da próxima categoria)* |
 | equivalent to zero within half a point | equivalente a zero dentro de meio ponto |
-| outperforms / matches | supera / equipara-se (estatisticamente) |
+<!-- [ERRATA 2026-08-21] A linha anterior era `| outperforms / matches | supera / equipara-se
+     (estatisticamente) |`, e oferecia uma traducao para um verbo que ESTE MESMO arquivo bane em
+     duas linhas (§4 "Verdict verb 'matches' is banned"; "Never 'matches', 'empata', 'semelhante',
+     'a par'") e que o WRITING_LAW §3 bane em :226. "equipara-se" e semanticamente a familia
+     banida. O defeito era acionavel: um redator de slides em portugues que consultasse esta
+     tabela de equivalentes encontraria o termo proibido e o usaria de boa-fe. Achado na
+     preparacao da apresentacao de defesa. As duas superficies corretas ja estavam registradas
+     tres linhas acima; a linha agora aponta para elas em vez de competir com elas. -->
+| outperforms *(licensed only where the test survives Holm)* | supera |
+| ~~matches~~ — **BANNED VERB, no PT equivalent is offered** | *(use a superfície do eixo: região → "permanece dentro da margem de dois pontos"; categoria → "equivalente a zero dentro de meio ponto")* |
 | external baseline | método externo usado como referência |
 | leakage audit | auditoria de vazamento |
 | shared trunk | tronco compartilhado |
