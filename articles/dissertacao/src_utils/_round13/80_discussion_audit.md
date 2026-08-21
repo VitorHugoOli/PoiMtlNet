@@ -151,7 +151,7 @@ random floor as a value with its source and let the reader see the scale — the
 and needs the author's sign-off (`C2`).
 
 **A recorded honesty flag already anticipated this whole sentence.**
-`articles/dissertacao/storyline/archive/process/06_honesty_under_pressure/honesty_flags.md:82`
+`../../science/storyline/archive/process/06_honesty_under_pressure/honesty_flags.md:82`
 (= `handoff/STORY_REVIEW.md:520-525`, flag **F7**): the "65.69%, 500× better than random" line is
 named as a *temptation*, ruled usable as motivation only if it carries its convention and the "not a
 measured service result" hedge, and marked **[VERIFY at adaptation]**. The [VERIFY] was never

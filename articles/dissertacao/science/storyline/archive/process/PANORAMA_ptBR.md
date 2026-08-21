@@ -8,7 +8,7 @@
 > capítulo em si serão em inglês e só depois do seu aval.
 >
 > **Estado geral.** A revisão de narrativa (10 arquivos em `storyline/`) e a checagem de quatro
-> especialistas (`10_specialist_check/`) estão feitas. Você respondeu aos 11 itens de aval em
+> especialistas (`10_specialist_check`) estão feitas. Você respondeu aos 11 itens de aval em
 > `AVAL_NECESSARIA_ptBR.md`. Os seus "APROVO COM AJUSTE" trouxeram direções novas e muito boas — três
 > delas geram sub-afirmações que pedem um último aval seu, reunidas em `AVAL_NECESSARIA_2_ptBR.md`.
 > Fora isso, estamos prontos para começar a redigir.
@@ -87,8 +87,8 @@ precisa ser dita em voz alta, senão um examinador lê um "gol contra".
 4. **Não é mais fácil, é mais difícil:** a próxima região tem de centenas a milhares de classes (520 a
    8.501), contra sete da tarefa estática abandonada. — *fato desarmante, aprovado.*
 
-O detalhe completo e verificado está em `02_task_choice_endorsement/` (o corolário) e
-`09_application_scope_breadth/` (o além-da-mobilidade). As sub-afirmações novas do seu ajuste (a
+O detalhe completo e verificado está em `02_task_choice_endorsement` (o corolário) e
+`09_application_scope_breadth` (o além-da-mobilidade). As sub-afirmações novas do seu ajuste (a
 comparação "mais presente na literatura" e o enquadramento "alimenta o próximo lugar") pedem um último
 aval — estão no `AVAL_NECESSARIA_2_ptBR.md`, item N1.
 
@@ -151,7 +151,7 @@ trânsito). Rodei a busca, mas:
 **O que temos agora, verificado e seguro:** o material do próprio corpus (CBIC cita visão
 computacional, PLN, saúde, recomendação; CBIC `basis` cita planejamento urbano; CoUrb cita
 recomendação + análise de mobilidade urbana e a origem dos codificadores em ecologia/sensoriamento).
-Detalhe em `09_application_scope_breadth/`.
+Detalhe em `09_application_scope_breadth`.
 
 **Recomendação:** quando o OpenAlex reconectar, faço uma busca dedicada e **abro/verifico** cada
 candidato antes de propor. Até lá, a problematização já pode ser redigida com o material do corpus, e
@@ -181,7 +181,7 @@ ampliada depois. Isso é o item N1 do `AVAL_NECESSARIA_2_ptBR.md`.
 
 **Correções de governança (ação sua, apontadas pelos especialistas):** reconciliar o NORTH_STAR §4/§6
 (ainda afirma o protocolo do CoUrb como fato) com a retração UW-3 ([VERIFICAR]); sincronizar o mapa de
-citações do §2.3. Detalhe em `10_specialist_check/` (resumo de ações no topo).
+citações do §2.3. Detalhe em `10_specialist_check` (resumo de ações no topo).
 
 ---
 
@@ -211,9 +211,9 @@ pendentes.
 - `AVAL_NECESSARIA_ptBR.md` — os 11 itens originais com as suas decisões.
 - `AVAL_NECESSARIA_2_ptBR.md` — **os três sub-avais novos** vindos dos seus ajustes (N1, N2, N3) + a
   confirmação do Item 10.
-- `02_task_choice_endorsement/` — a escolha das tarefas (o corolário, corrigido).
-- `09_application_scope_breadth/` — o além-da-mobilidade (material verificado do corpus).
-- `10_specialist_check/` — os quatro especialistas + o resumo de ações (o que está corrigido vs o que
+- `02_task_choice_endorsement` — a escolha das tarefas (o corolário, corrigido).
+- `09_application_scope_breadth` — o além-da-mobilidade (material verificado do corpus).
+- `10_specialist_check` — os quatro especialistas + o resumo de ações (o que está corrigido vs o que
   é ação sua).
 - `01`…`08` — a revisão de narrativa completa (arco, coesão, beats, craft, honestidade,
   recomendações, lados subponderados).

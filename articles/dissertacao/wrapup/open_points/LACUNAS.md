@@ -59,7 +59,7 @@ LEFT_OUT LO-10 (as 41 linhas decorativas), CONSIDERATIONS GER-09 (as tres partes
 fundamentals/OPEN_QUESTIONS item 1. Cada um traz a medicao no bloco correspondente.
 
 **Registros que os arquivos conhecidos nao citavam** (achado desta varredura):
-`articles/dissertacao/fundamentals/GAP_STATUS.md`, `articles/dissertacao/fundamentals/OPEN_QUESTIONS.md`,
+`../../science/fundamentals/GAP_STATUS.md`, `../../science/fundamentals/OPEN_QUESTIONS.md`,
 `docs/studies/closing_data/v18/region_1fold_triage/FINDING.md`,
 `docs/studies/archive/mtl-protocol-fix/DEFERRED_WORK.md`,
 `docs/findings/F49_LAMBDA0_DECOMPOSITION_GAP.md`,

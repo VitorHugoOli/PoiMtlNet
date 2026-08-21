@@ -109,19 +109,34 @@ One source, three builds, from `src/`:
 > To verify a rebuild, compare `pdftotext` output, **not** md5: there is no `SOURCE_DATE_EPOCH`, so
 > every rebuild differs in `/CreationDate` and md5 can never match.
 
+### 1.2 · Erratas already applied to the source
+
+`src/` is the delivered text, but it is **not byte-frozen**: corrections for the final deposit are
+applied here as they are decided, each one registered in `wrapup/erratas/`. The delivered
+`dissertacao.pdf` is **never rebuilt** — it stays the exact record of what the banca received, so
+after the first applied errata the source and that PDF differ, deliberately and traceably.
+
+| applied | what changed | errata |
+|---|---|---|
+| 2026-08-21 | The Portuguese Resumo said the joint model outperformed the dedicated models on next-category **"em todos os conjuntos"**. The delivered result is superiority at **one** dataset (Florida, Holm *p* 0.011). The defect was isolated — the English Abstract, §2.5, Ch.5 and Ch.6 all said "at one dataset". The Portuguese now mirrors the English. | [`wrapup/erratas/errata_resumo_escopo_categoria.tex`](wrapup/erratas/errata_resumo_escopo_categoria.tex) |
+
+**Consequence for anyone verifying:** a rebuild of `src/` no longer reproduces
+`src/dissertacao.pdf` byte-for-byte or text-for-text. That is expected. To see what the banca
+received, read `dissertacao.pdf`; to see what will be deposited, build from source.
+
 ---
 
 ## 2 · Folder map — and whether each part is still live
 
 | folder | what it is | still live? |
 |---|---|---|
-| [`src/`](src/) | **THE delivered dissertation.** LaTeX source + `chapters/` + `figures/` + `tables/` + the tracked `dissertacao.pdf` | **yes, and frozen.** Prose changes reach it only through `wrapup/erratas/` at the final deposit |
+| [`src/`](src/) | **THE delivered dissertation.** LaTeX source + `chapters/` + `figures/` + `tables/` + the tracked `dissertacao.pdf` | **yes.** Prose changes reach it only as a registered errata — see §1.2 for the applied ledger |
 | [`wrapup/`](wrapup/) | everything that happened **after** the submission: the supplement, the erratas, the open points, the post-submission studies, the rescued evidence | **yes — this is the front line.** Start here for anything defense-related |
 | [`src_utils/`](src_utils/) | the build + gate toolchain, and the round-by-round audit trail | **yes, load-bearing.** `check.sh` executes `_round9` code and delivered `.tex` files cite `_round6…_round14` by path. **Do not prune the underscore dirs** |
 | [`science/`](science/) | internal scientific records (integrity studies, trunk-gain attribution, the technical appendix) + cited article PDFs | yes. The delivered source cites `science/` paths 19× |
 | [`docs/`](docs/) | official UFV PDFs (submission manual) + the 2026-07-18 research records | yes — the deposit is still ahead |
 | [`reviewers/`](reviewers/) | 19 invocable reviewer personas | yes — several fire again before the defense and the deposit |
-| [`fundamentals/`](fundamentals/), [`storyline/`](storyline/) | frozen chapter drafts | **frozen, but do not move them.** The delivered text cites paths inside both (21 `fundamentals/_bib` provenance hits in `references.bib`; `storyline/audit/` from `preamble.tex:216` and three chapters) |
+| [`science/fundamentals/`](science/fundamentals/), [`science/storyline/`](science/storyline/) | frozen chapter drafts | **frozen, but do not move them.** The delivered text cites paths inside both (21 `science/fundamentals/_bib` provenance hits in `references.bib`; `science/storyline/audit/` from `preamble.tex:216` and three chapters) |
 | [`archive/`](archive/) | spent planning + single-use scaffolding | **no — nothing here is a source.** See its README |
 | [`exemples/`](exemples/) | exemplar dissertations (Viegas, Germano, …) used as the quality bar | yes as reference. ⚠ **gitignored — 49 MB that exist only on disk.** Backed up 2026-08-20 to `~/Backups/dissertacao_exemples_2026-08-20.tgz` |
 

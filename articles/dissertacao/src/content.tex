@@ -149,10 +149,19 @@
         em seis conjuntos de dados de diferentes contextos geográficos, incluindo um
         conjunto não estadunidense. O protocolo empregou validação cruzada com usuários
         disjuntos entre treinamento e teste, além de testes estatísticos pareados.
-        Essas análises mostraram que o modelo conjunto superou os modelos dedicados na
-        previsão da próxima categoria em todos os conjuntos e, na previsão da próxima
-        região, superou-os ou foi estatisticamente não-inferior dentro da margem de dois
-        pontos de Acc@10. Em ambas as tarefas, os resultados do modelo conjunto também
+        % [ERRATA 2026-08-21, aplicada ao fonte por decisao do autor | wrapup/erratas/errata_resumo_escopo_categoria.tex]
+        % A frase anterior dizia que o modelo conjunto superou os dedicados na proxima categoria
+        % "em todos os conjuntos". O resultado entregue e superioridade em UM conjunto (Florida,
+        % Holm p = 0,011); as outras cinco diferencas nao sao resolvidas. O Abstract em ingles ja
+        % estava correto -- este periodo passa a espelha-lo. O dissertacao.pdf entregue NAO foi
+        % reconstruido: ele e o registro do que a banca recebeu, e diverge do fonte aqui.
+        Essas análises compararam o modelo conjunto com os modelos dedicados a cada tarefa:
+        na previsão da próxima região ele os superou nos dois conjuntos com os maiores
+        vocabulários de região e permaneceu dentro da margem de dois pontos de Acc@10,
+        registrada antes de qualquer resultado ser lido, nos outros quatro
+        (não-inferioridade estatística, por dois testes unilaterais); e na previsão da
+        próxima categoria ele os superou em um conjunto, enquanto as cinco diferenças
+        restantes são equivalentes a zero dentro de meio ponto. Em ambas as tarefas, os resultados do modelo conjunto também
         ficaram acima dos reportados pelos métodos externos usados como referência.
         Os resultados mostram que o MTL não constitui um benefício automático: sua efetividade depende da representação de entrada e da topologia de compartilhamento construída para as tarefas consideradas.
         % DO NOT write "proximo lugar visitado" here: it collides with the RESERVED term "next

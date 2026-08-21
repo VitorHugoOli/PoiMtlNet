@@ -79,7 +79,7 @@ point under arguição.
    the dedicated category model (and optionally region) scaled to ~the joint model's parameter
    count, same protocol (user-disjoint 5-fold, seeds, same tuning budget). It answers the exact
    banca question with a number instead of a concession. Feasibility: the repo has the full
-   training pipeline (`src/`, `scripts/train.py`, closing-data protocol), and nespedgpu (A40 46GB,
+   training pipeline (`../../../../../../../src`, `../../../../../../../scripts/train.py`, closing-data protocol), and nespedgpu (A40 46GB,
    128GB RAM, 32 cores) is connected — this is well within reach. **Licensing rule (mandatory,
    from the adversarial advisor):** the new numbers do NOT enter Ch.5 (the MobiWac version of
    record is under review); they live in the frame (a Ch.5-adjacent discussion or an appendix) as

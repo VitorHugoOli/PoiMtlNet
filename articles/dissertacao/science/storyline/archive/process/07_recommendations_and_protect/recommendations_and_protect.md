@@ -113,9 +113,9 @@ All result-claims trace to sources fixed in the project instructions; no number 
 any number promoted into chapter prose must re-verify at adaptation (N1). Key traces:
 
 - CBIC null, three hypotheses, task-dissimilarity emphasis, cost-more, Nash-MTL caveat →
-  `articles/CBIC___MTL/sections/intro.tex`, `conclusion.tex`; NORTH_STAR §2, §4.
+  `../../../../../../CBIC___MTL/sections/intro.tex`, `conclusion.tex`; NORTH_STAR §2, §4.
 - CoUrb input-only change, category gain, 16/21 vs audited 15+1 & +20.2–22.0 pp, sample-stratified
-  split, second authorship → `articles/CoUrb_2026/src_en/sections/intro.tex`, `conclusion.tex`;
+  split, second authorship → `../../../../../../CoUrb_2026/src_en/sections/intro.tex`, `conclusion.tex`;
   NORTH_STAR §2, §4; audited numbers per `slides/judge_feedback.md` (not re-opened here — **[VERIFY at
   adaptation]**).
 - MobiWac two-factor method (Check2HGI + cross-attention + private spatial path), region 4/6 + TOST
@@ -124,7 +124,7 @@ any number promoted into chapter prose must re-verify at adaptation (N1). Key tr
   `articles/[mobiwac]/src/sections/01_introduction.tex`, `02_related.tex`, `03_problem.tex`,
   `04_method.tex`, `07_discussion.tex`, `08_conclusion.tex`.
 - §2.5 hinge, mechanism sentence, model-lineage table, draft state →
-  `articles/dissertacao/fundamentals/2.5_relevance/2.5_relevance.tex`, `model_lineage_table.md`,
+  `../../../../fundamentals/2.5_relevance/2.5_relevance.tex`, `model_lineage_table.md`,
   `fundamentals.tex`; intended spine → `NORTH_STAR.md` §1–§3, §6.
 - Honesty bounds → `WRITING_LAW.md` §3, §5; `AGENT_GUARDRAILS.md` §1–§3, §7; `GLOSSARY.md`.
 - Excellence/coletânea calibration → `docs/research/dissertation_excellence_2026-07-20.md` (opened

@@ -11,6 +11,7 @@ proprio cabecalho.
 |---|---|---|
 | `errata_Q13_concatenation_scope.tex` | a frase do Cap. 5, p. 79, que afirma uma separacao que o artigo submetido recusa sobre os mesmos numeros | escrita; o ponto so fecha de vez com um estudo de concatenacao na representacao final |
 | `errata_Q14_capacity_region.tex` | a lista de limites do Cap. 5, que perdeu o confundimento de capacidade no eixo de regiao | escrita, e ja traz a medicao que o artigo declarava faltar |
+| `errata_resumo_escopo_categoria.tex` | o Resumo em portugues, que dizia que o modelo conjunto superou os dedicados na proxima categoria "em todos os conjuntos" quando o resultado entregue e superioridade em UM conjunto | escrita e **ja aplicada ao fonte** (2026-08-21, decisao do autor). O `dissertacao.pdf` entregue nao foi reconstruido |
 | `RESPOSTAS_ORAIS.md` | a frase a ser dita em pe para cada uma, mais Q15 | — |
 | `VERIFICACAO.md` | cada numero das erratas contra o artefato de origem | — |
 

@@ -47,7 +47,7 @@ the search is not repeated.
 | Source | Entries |
 |---|---|
 | `articles/[mobiwac]/src/references.bib` (verified template, R1-preferred) | 44 |
-| `articles/dissertacao/fundamentals/_bib/new_references_ch2.bib` (identifier-verified) | 21 |
+| `../science/fundamentals/_bib/new_references_ch2.bib` (identifier-verified) | 21 |
 | `articles/CBIC___MTL/references.bib` (only chapter-cited keys) | 20 |
 | `articles/CoUrb_2026/src_en/references.bib` (only chapter-cited keys) | 14 |
 

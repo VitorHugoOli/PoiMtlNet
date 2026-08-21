@@ -1,8 +1,8 @@
 # Storyline — the settled narrative content of the frame chapters
 
-> **⏸ FROZEN 2026-07-24 — IMPORTED into `src/`.** The frame chapters drafted here
+> **⏸ FROZEN 2026-07-24 — IMPORTED into `../../../../src`.** The frame chapters drafted here
 > (`drafts/1_introduction.tex`, `drafts/6_conclusion.tex`) were imported into the assembled v1 at
-> `../src/chapters/{1_introduction,6_conclusion}.tex` (Phase 3). **`src/` is now the single
+> `../src/chapters/{1_introduction,6_conclusion}.tex` (Phase 3). **`../../../../src` is now the single
 > working copy** (single-source rule, CLAUDE.md §1). Do NOT edit the drafts here to change the
 > dissertation text — edit `src/chapters/` and rebuild. This folder is kept as the provenance
 > record of how the frame narrative was settled; `1_citations.md` / `6_citations.md` remain the
@@ -11,19 +11,19 @@
 Restructured 2026-07-23 (author request): this folder now mirrors the `fundamentals/` pattern —
 **one folder per content topic, holding the settled information the text renders**, not the
 process that produced it. The process (reviews, iterations, sign-off rounds) is preserved under
-`archive/` and `audit/`.
+`archive` and `audit`.
 
 ## Content folders (what the frame chapters say, with licenses)
 
 | Folder | Topic | Rendered in |
 |---|---|---|
-| `01_motivation_and_stakes/` | stakes, 93% regularity, beyond-mobility breadth, the engineering wish | Ch.1 §1.1–1.2 |
-| `02_tasks_and_scope/` | the four tasks, the pair evolution, the task-choice defense, empirical scope | Ch.1 §1.1/§1.4; Ch.2 §2.1 |
-| `03_question_and_arc/` | the research question, the three-beat arc with licensed wording, the title | Ch.1 §1.3 |
-| `04_organization_and_authorship/` | coletânea declaration, verified venues, authorship transparency, standing devices | Ch.1 §1.5 |
-| `05_contributions/` | the four-group taxonomy with each item's license | Ch.1 §1.6; Ch.6 §6.1 |
-| `06_answer_and_mechanism/` | the consolidated answer, the three-link mechanism chain, the gradient picture | Ch.6 §6.2 |
-| `07_limitations_and_future_work/` | six limitations 1:1 with future work, the confound concession | Ch.6 §6.3–6.4 |
+| `01_motivation_and_stakes` | stakes, 93% regularity, beyond-mobility breadth, the engineering wish | Ch.1 §1.1–1.2 |
+| `02_tasks_and_scope` | the four tasks, the pair evolution, the task-choice defense, empirical scope | Ch.1 §1.1/§1.4; Ch.2 §2.1 |
+| `03_question_and_arc` | the research question, the three-beat arc with licensed wording, the title | Ch.1 §1.3 |
+| `04_organization_and_authorship` | coletânea declaration, verified venues, authorship transparency, standing devices | Ch.1 §1.5 |
+| `05_contributions` | the four-group taxonomy with each item's license | Ch.1 §1.6; Ch.6 §6.1 |
+| `06_answer_and_mechanism` | the consolidated answer, the three-link mechanism chain, the gradient picture | Ch.6 §6.2 |
+| `07_limitations_and_future_work` | six limitations 1:1 with future work, the confound concession | Ch.6 §6.3–6.4 |
 
 ## drafts/ — the texts themselves
 
@@ -51,4 +51,4 @@ process that produced it. The process (reviews, iterations, sign-off rounds) is 
 The seven-lens narrative review (01–07), the second-pass audits (08–09), the specialist and
 full-arc re-review waves (10–11), and the superseded PANORAMA/README. Nothing here is a source
 of truth; when a process file and a content folder disagree, the content folder (and the
-ledgers in `drafts/`) win.
+ledgers in `drafts`) win.

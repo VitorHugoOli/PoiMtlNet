@@ -66,7 +66,7 @@ single-task" (MobiWac). CoUrb's clause is about the *diagnosis*, not about MTL b
 Pass 1 asserted, in lens B and recommendation G-13, that CoUrb's protocol is "sample-stratified, not
 user-disjoint (weaker than MobiWac)." **I cannot verify this firsthand.** CoUrb's `results.tex`
 reports only "mean and standard deviation over 5 folds"; it does not state whether folds are
-user-disjoint or sample-stratified. The dissertation's `docs/context/DATA_SPLITS.md` documents a
+user-disjoint or sample-stratified. The dissertation's `../../../../../../../docs/context/DATA_SPLITS.md` documents a
 `StratifiedGroupKFold` user-disjoint protocol but does **not** attribute protocols per paper, and
 MobiWac (`05_setup.tex` L28) is explicitly "split by user with stratified five-fold cross-validation."
 

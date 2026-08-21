@@ -36,7 +36,7 @@ for the gain. The honest, strong answer is empirical — this experiment.
   FL as stretch. This answers the question without re-running the whole board.
 - **Infrastructure.** nespedgpu (A40 46GB, 128GB RAM, 32 cores; no scheduler). Inputs shipped from
   the repo's existing fold/window artifacts; code path `src/training/runners/*single_task*` +
-  `scripts/train.py` with an `--override` for hidden width. A param-count audit
+  `../../../../../scripts/train.py` with an `--override` for hidden width. A param-count audit
   (`calflops`/`torchinfo`) runs BEFORE training and its output is committed with the results.
 
 ## 3. The licensing contract (fail-closed, agreed before results exist)
@@ -67,7 +67,7 @@ for the gain. The honest, strong answer is empirical — this experiment.
 1. Param-count audit of the joint model + STL ceilings per dataset (local, minutes).
 2. Width-scaling implementation behind a config flag (no changes to existing STL code paths).
 3. Pilot dispatch to nespedgpu (AL seed 0); harness + budget check.
-4. Main runs; results JSON in `docs/studies/` following the closing_data schema, marked
+4. Main runs; results JSON in `../../../../../docs/studies` following the closing_data schema, marked
    POST-SUBMISSION; fact gate before any sentence uses them.
 
 ## 5. Execution record (POST-SUBMISSION analyses — never enter Ch.5)

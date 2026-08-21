@@ -10,21 +10,21 @@ instructions; new frame claims are marked **[NEEDS SIGN-OFF]**; unverified exter
 
 | Folder | Contents | Status |
 |---|---|---|
-| `01_arc_and_logline/` | The reconstructed arc, the diff against the intended spine, the logline test, per-chapter earn-its-clause verdict (lenses 1–2) | pass-1, pass-2 note |
-| `02_task_choice_endorsement/` | **The task-change endorsement** — why next category + next region is the right object, and how to turn the task-pair evolution from a hidden confound into the arc's most satisfying beat (author-requested) | **pass-2, new** |
-| `03_cohesion_and_threads/` | Seam-by-seam cohesion audit + the thread ledger (lens 3) | pass-1, pass-2 note |
-| `04_beats_missing_and_worth_adding/` | Missing vs worth-adding beats (lens 4) | pass-1 |
-| `05_craft_pacing_and_voice/` | Momentum map, sag points, one-voice seam verdict (lens 5) | pass-1 |
-| `06_honesty_under_pressure/` | The honesty flags where a cleaner story would tempt a violation (lens 6) | pass-1, pass-2 note |
-| `07_recommendations_and_protect/` | Ranked located cost-tagged recommendations, protect list, closing 3-question answer (lens 7 + closing) | pass-1, pass-2 revision |
-| `08_underweighted_sides/` | **Second-pass audit** — sides of the story the first review under-weighted, incl. two corrections to pass-1 claims (author-requested) | **pass-2, new** |
-| `09_application_scope_breadth/` | **Beyond mobility** — are we motivating the tasks with examples beyond mobility (recommendation, urban planning, ecology)? Answer + verified material (author-requested, `noth_star_consideration.md` point 3) | **pass-2, new** |
-| `10_specialist_check/` | **Specialist clarity check** — four reviewers (MTL, POI/mobility, claim-honesty, banca) run on the drafts + arc; action summary separating what is fixed from what the author must action (author-requested) | **pass-2, new** |
+| `01_arc_and_logline` | The reconstructed arc, the diff against the intended spine, the logline test, per-chapter earn-its-clause verdict (lenses 1–2) | pass-1, pass-2 note |
+| `02_task_choice_endorsement` | **The task-change endorsement** — why next category + next region is the right object, and how to turn the task-pair evolution from a hidden confound into the arc's most satisfying beat (author-requested) | **pass-2, new** |
+| `03_cohesion_and_threads` | Seam-by-seam cohesion audit + the thread ledger (lens 3) | pass-1, pass-2 note |
+| `04_beats_missing_and_worth_adding` | Missing vs worth-adding beats (lens 4) | pass-1 |
+| `05_craft_pacing_and_voice` | Momentum map, sag points, one-voice seam verdict (lens 5) | pass-1 |
+| `06_honesty_under_pressure` | The honesty flags where a cleaner story would tempt a violation (lens 6) | pass-1, pass-2 note |
+| `07_recommendations_and_protect` | Ranked located cost-tagged recommendations, protect list, closing 3-question answer (lens 7 + closing) | pass-1, pass-2 revision |
+| `08_underweighted_sides` | **Second-pass audit** — sides of the story the first review under-weighted, incl. two corrections to pass-1 claims (author-requested) | **pass-2, new** |
+| `09_application_scope_breadth` | **Beyond mobility** — are we motivating the tasks with examples beyond mobility (recommendation, urban planning, ecology)? Answer + verified material (author-requested, `noth_star_consideration.md` point 3) | **pass-2, new** |
+| `10_specialist_check` | **Specialist clarity check** — four reviewers (MTL, POI/mobility, claim-honesty, banca) run on the drafts + arc; action summary separating what is fixed from what the author must action (author-requested) | **pass-2, new** |
 | `AVAL_NECESSARIA_ptBR.md` | **Documento em português** — cada afirmação [NEEDS SIGN-OFF] explicada para o autor aprovar item a item (11 itens, TODOS decididos pelo autor) | pass-2, decided |
 | `AVAL_NECESSARIA_2_ptBR.md` | Sub-avais dos ajustes do autor (N1–N3 + item 10) — TODOS decididos | pass-3, decided |
 | `AVAL_NECESSARIA_3_ptBR.md` | **Decisões da re-revisão do arco completo** (D1 experimento-ou-concessão; D2 título; D3 orçamento de beats) — **abertas** | **pass-4, new** |
 | `PANORAMA_ptBR.md` | A visão geral (logline, arco em 3 atos, estado das decisões, mapa dos capítulos, caminho até o rascunho) — corrigido na re-revisão | pass-3/4 |
-| `11_full_arc_rereview/` | **Re-revisão do arco completo** — 5 personas, 5/5 "ready_with_fixes"; correções de governança aplicadas; resposta à pergunta N3 do autor; vereditos completos em `five_verdicts.txt` | **pass-4, new** |
+| `11_full_arc_rereview` | **Re-revisão do arco completo** — 5 personas, 5/5 "ready_with_fixes"; correções de governança aplicadas; resposta à pergunta N3 do autor; vereditos completos em `five_verdicts.txt` | **pass-4, new** |
 
 ## The three questions, in one line each
 

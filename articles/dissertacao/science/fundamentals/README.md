@@ -1,8 +1,8 @@
 # Fundamentals (Chapter 2) — consolidated reference base and section maps
 
-> **⏸ FROZEN 2026-07-24 — IMPORTED into `src/`.** The five section files + the model-lineage
-> table drafted here were inlined into the assembled v1 at `../src/chapters/2_fundamentals.tex`
-> (Phase 3). **`src/` is now the single working copy** (single-source rule, CLAUDE.md §1). Do NOT
+> **⏸ FROZEN 2026-07-24 — IMPORTED into `../../../../src`.** The five section files + the model-lineage
+> table drafted here were inlined into the assembled v1 at `../../src/chapters/2_fundamentals.tex`
+> (Phase 3). **`../../../../src` is now the single working copy** (single-source rule, CLAUDE.md §1). Do NOT
 > edit the section files here to change the dissertation text — edit `src/chapters/2_fundamentals.tex`
 > and rebuild. This folder is kept as the provenance record (reference base, section maps, gate
 > reports, `_bib/new_references_ch2.bib`) of how Ch.2 was built.
@@ -11,7 +11,7 @@
 > at the author's instruction). It does not violate the single-source rule, because it is not chapter
 > text: it is the consolidated design for the chapter's numbered Definitions, produced after the author
 > found a forward dependency among them, and it is gated behind six decisions of his. The chapter itself
-> is still edited only in `../src/chapters/2_fundamentals.tex`. When the design is applied there, this
+> is still edited only in `../../src/chapters/2_fundamentals.tex`. When the design is applied there, this
 > file becomes provenance like the rest of the folder.
 
 This folder consolidates the grounded, fail-closed literature review for Ch. 2. It is organized by the chapter's
