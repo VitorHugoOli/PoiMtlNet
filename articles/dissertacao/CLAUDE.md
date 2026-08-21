@@ -79,7 +79,7 @@ they are different texts. **Never write "Appendix B" without naming the volume.*
 | | **main volume** (deposited) | **supplement** (defense support only) |
 |---|---|---|
 | built from | `src/` | `wrapup/material_extra/` |
-| PDF | `src/dissertacao.pdf` — **119 pp**, md5 `5be69d1b…` | `wrapup/material_extra/main_extra.pdf` — **27 pp**, md5 `512b372c…` |
+| PDF **entregue** (congelado) | `src/banca.pdf` — **119 pp**, md5 `5be69d1b…` | `wrapup/material_extra/main_extra.pdf` — **27 pp**, md5 `512b372c…` |
 | A | Other Scientific Contributions | — |
 | **B** | **AI-Use Disclosure** | **Errata to the Reproduced Articles** |
 | C | Data Ethics and Governance | — |
@@ -102,7 +102,7 @@ One source, three builds, from `src/`:
 | `make ppgc` | `build/main_ppgc.pdf` | **120** | defense document + approval sheet |
 | `cd ../wrapup/material_extra && make extra` | `build/main_extra.pdf` | **27** | the supplement |
 
-> 🔴 **FIVE make targets overwrite the tracked `dissertacao.pdf`**: `defense`, the default `all`
+> 🔴 **FIVE make targets overwrite `dissertacao.pdf`** (the current build — `banca.pdf` is safe from them): `defense`, the default `all`
 > (so a bare `make`), `all3`, `fast` / `fast-defense`, and `fast3` — each ends in
 > `cp build/main.pdf dissertacao.pdf`. **Never "just run make" to check something.** Use
 > `make check` (runs no build) or `make academico` / `make ppgc` (they do not copy).
@@ -113,16 +113,19 @@ One source, three builds, from `src/`:
 
 `src/` is the delivered text, but it is **not byte-frozen**: corrections for the final deposit are
 applied here as they are decided, each one registered in `wrapup/erratas/`. The delivered
-`dissertacao.pdf` is **never rebuilt** — it stays the exact record of what the banca received, so
-after the first applied errata the source and that PDF differ, deliberately and traceably.
+**`src/banca.pdf` is never rebuilt** — it is the frozen record of what the banca received
+(md5 `5be69d1b…`, 119 pp). The current build, **with the erratas applied**, is `src/dissertacao.pdf`,
+which `make defense` produces. Two artifacts, on purpose: one is the record, the other is what will
+be deposited.
 
 | applied | what changed | errata |
 |---|---|---|
 | 2026-08-21 | The Portuguese Resumo said the joint model outperformed the dedicated models on next-category **"em todos os conjuntos"**. The delivered result is superiority at **one** dataset (Florida, Holm *p* 0.011). The defect was isolated — the English Abstract, §2.5, Ch.5 and Ch.6 all said "at one dataset". The Portuguese now mirrors the English. | [`wrapup/erratas/errata_resumo_escopo_categoria.tex`](wrapup/erratas/errata_resumo_escopo_categoria.tex) |
 
 **Consequence for anyone verifying:** a rebuild of `src/` no longer reproduces
-`src/dissertacao.pdf` byte-for-byte or text-for-text. That is expected. To see what the banca
-received, read `dissertacao.pdf`; to see what will be deposited, build from source.
+`src/banca.pdf`. That is expected and is the point of the two names. **To see what the banca
+received, read `src/banca.pdf`; to see what will be deposited, read `src/dissertacao.pdf`** (or
+rebuild it with `make defense`).
 
 ---
 
@@ -130,7 +133,7 @@ received, read `dissertacao.pdf`; to see what will be deposited, build from sour
 
 | folder | what it is | still live? |
 |---|---|---|
-| [`src/`](src/) | **THE delivered dissertation.** LaTeX source + `chapters/` + `figures/` + `tables/` + the tracked `dissertacao.pdf` | **yes.** Prose changes reach it only as a registered errata — see §1.2 for the applied ledger |
+| [`src/`](src/) | **THE delivered dissertation.** LaTeX source + `chapters/` + `figures/` + `tables/` + two tracked PDFs: `banca.pdf` (frozen record) and `dissertacao.pdf` (current build, erratas applied) | **yes.** Prose changes reach it only as a registered errata — see §1.2 for the applied ledger |
 | [`wrapup/`](wrapup/) | everything that happened **after** the submission: the supplement, the erratas, the open points, the post-submission studies, the rescued evidence | **yes — this is the front line.** Start here for anything defense-related |
 | [`src_utils/`](src_utils/) | the build + gate toolchain, and the round-by-round audit trail | **yes, load-bearing.** `check.sh` executes `_round9` code and delivered `.tex` files cite `_round6…_round14` by path. **Do not prune the underscore dirs** |
 | [`science/`](science/) | internal scientific records (integrity studies, trunk-gain attribution, the technical appendix) + cited article PDFs | yes. The delivered source cites `science/` paths 19× |
