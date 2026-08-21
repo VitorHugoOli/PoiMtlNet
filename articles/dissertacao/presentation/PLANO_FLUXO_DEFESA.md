@@ -513,6 +513,23 @@ nenhuma cor. Não usar.
 > Ele também decide, com o autor, se a correção fica só na nossa cópia — o template é de terceiros
 > e pode estar em uso por outras pessoas do NESPeD.
 >
+> **CORREÇÃO 2026-08-21 (mesmo dia):** a entrada abaixo, marcada FECHADO, deu a decoração de fundo
+> (`\decorationnet`, os pontos com linhas conectando em malha triangulada) como defeito benigno de
+> renderização do poppler. **Estava errado.** O Vitor comparou com uma captura de tela do template
+> como deveria ficar (malha densa, todo ponto conectado aos vizinhos) contra o PDF que baixou do
+> Overleaf — o mesmo problema aparece lá também: só pontos soltos, nenhuma linha. A causa real: em
+> `\decorationnet`, cada um dos 12 blocos `\draw[primarysuper] \foreach ... { \ifnum \i>0 -- \fi
+> (\node.center) }` insere um `--` **antes do primeiro ponto também** (deveria ser `\ifnum \i>1`,
+> não `\i>0`), o que deixa o caminho do TikZ sem coordenada inicial e aborta a linha inteira —
+> exatamente o "No current point in lineto" que o poppler reportava aos montes, e que eu MEDI
+> existir também no PDF oficial do Henrique sem concluir que era a causa da malha faltando.
+> Corrigido (`sed` nos 12 pontos, `nesped.sty`) e **validado contra a captura de tela do Vitor**:
+> antes, 0 páginas sem o aviso do poppler; depois, 0 páginas COM o aviso, e a malha triangulada
+> aparece igual à referência. `main.tex` e `template_showcase.tex` recompilados com a correção.
+> Lição registrada: uma comparação pixel-a-pixel contra o PDF de referência não bastou porque a
+> referência **também estava com o mesmo defeito** — só a captura de tela (de fora do PDF gerado
+> por este `.sty`) revelou o "como deveria ser". Relato de correção enviado à sessão `ingred-14`.
+
 > **FECHADO 2026-08-21 pelo `presentation-guide`.** `\pagewidth` corrigido; **um segundo defeito
 > real foi encontrado**, mais sério que o primeiro porque atinge exatamente o uso que este plano já
 > assume em §11.3: `\autotocframe` repassava o argumento com chaves (`\tocframe{#1}`) para um

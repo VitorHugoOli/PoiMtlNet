@@ -11,6 +11,8 @@
 *.fls
 *.fdb_latexmk
 *.synctex.gz
+*.bbl
+*.blg
 
 # EXCECAO: o PDF de referencia oficial do template (o build do NESPeD, feito com LuaTeX)
 # NAO e saida de build nossa -- e a fonte de verdade contra a qual o rebuild foi validado.
