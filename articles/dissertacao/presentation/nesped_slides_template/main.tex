@@ -1,14 +1,21 @@
+% ESQUELETO DA DEFESA — estrutura apenas, sem conteúdo.
+% Gerado a partir de PLANO_FLUXO_DEFESA.md §3, §8, §11 (2026-08-21).
+% Nada de texto de slide entra aqui antes de 22/08 (plano validado com o orientador — ver §9).
+% O showcase original do template (todos os comandos de exemplo: blocos, tabelas, código,
+% algoritmos, equações, citações) foi preservado em template_showcase.tex — consulte-o para
+% a sintaxe de qualquer recurso usado abaixo.
+
 \documentclass{beamer}
 \usepackage[net,green]{nesped}
-
-
 \usepackage[brazilian]{babel}
 
-\title[Título Curto]{Título Completo da Apresentação}
-\subtitle{Usando o template do NESPeD para apresentações}
-\author{Henrique S. Santana}
-\institute[UFV]{Universidade Federal de Viçosa}
-\date{25 de setembro de 2024}
+% TODO: título exatamente como no folha de rosto entregue (src/) — fala em PT, slides em EN (§0).
+\title[Título curto]{Multitask Learning for Point-of-Interest Classification and Prediction Tasks: The Role of the Check-in-Level Representation}
+\subtitle{Defesa de Dissertação de Mestrado}
+% TODO: confirmar grafia exata do nome como consta na folha de rosto.
+\author{Vitor Hugo}
+\institute[UFV]{Universidade Federal de Viçosa --- PPGCC}
+\date{28 de agosto de 2026}
 
 \begin{document}
 
@@ -17,289 +24,268 @@
     \titlelogo{img/logo-ufv.png}
 }
 
-\tocframe[]
+% Divisor automático de seção (§11.3). NUNCA \autotocframe{} com chaves vazias por acidente
+% nem passar as opções sem colchetes -- o argumento vai para \tocframe[...], que é como
+% \autotocframe repassa internamente (corrigido 2026-08-21, ver nesped.sty).
+% subsectionstyle=hide, não show/show/shaded: com a profundidade de subseções deste plano
+% (até 6 por seção), mostrar todas elas estoura o slide (validado 2026-08-21 -- 6 Overfull
+% \vbox, um por seção, com show/show/shaded; 0 com hide). Ver relato ao agente ingred-14.
+\autotocframe{sectionstyle=show/shaded, subsectionstyle=hide}
 
+% ============================================================
+% SEÇÃO 1 · Introdução — 4 min (PLANO §3, Seção 1)
+% ============================================================
 \section{Introdução}
 
-\begin{frame}{Introdução}
-    \framesubtitle{É mais fácil do que parece}
-    
-    \begin{itemize}
-        \item Coloque aqui sua introdução.
-        \item Use o comando \texttt{itemize} para organizar seus pontos principais.
-    \end{itemize}
-    
-    \begin{block}{}
-        Ao longo do template são apresentados alguns comandos e funcionalidades de exemplo para te ajudar a estruturar sua apresentação, como este bloco de destaque.
-    \end{block}
-    
+\subsection{Motivação}
+\begin{frame}{TODO 1.1 --- Motivação}
+    % Regularidade da mobilidade (Song et al. ~93%, com a ressalva de não-teto na mesma frase)
+    % + as aplicações que dependem de categoria e região.
 \end{frame}
 
-\begin{frame}{Documentação}
-    Caso precise de mais controle sobre o Beamer, consulte:
-    \begin{itemize}
-        \item Guia do Beamer;~\cite{beamerclass}    
-        \item Beamer Cheat Sheet.~\cite{beamercheat}
-    \end{itemize}
+\subsection{Pergunta e veredito}
+\begin{frame}{TODO 1.2 --- Pergunta de pesquisa e veredito}
+    % A pergunta de pesquisa, literal (§1.2 do texto), e o veredito em uma linha,
+    % em linguagem de lei (ver PLANO §5.1 --- NUNCA reformular).
 \end{frame}
 
-\begin{frame}{Organização}
-    \begin{itemize}
-        \item As apresentações no Beamer são organizadas em \texttt{frame}s;
-        \item Cada \texttt{frame} contém pelo menos um slide;
-        \item Se um \texttt{frame} tiver mais conteúdo do que cabe num slide, ou se for usado o recurso de animação (ex.: itens aparecendo na tela um de cada vez), o \texttt{frame} vai ser partido em mais slides.
-    \end{itemize}
+\subsection{Escopo}
+\begin{frame}{TODO 1.3 --- Escopo}
+    % Def. 2.7/2.8 dentro; Def. 2.9 (next-place) definida para ser EXCLUÍDA;
+    % sete categorias; região = setor censitário / mahalle.
 \end{frame}
 
+\subsection{Roteiro}
+\begin{frame}{TODO 1.4 --- Arco e roteiro}
+    % O arco em uma linha + os três artigos/veículos + autoria (ver LO-11, PLANO §9.4).
+\end{frame}
 
-\section{Funcionalidades}
+% TODO transição de saída do Ato I (PLANO §2, ato I) --- falada sobre o \autotocframe
+% automático da próxima seção, ou \specialframe próprio se merecer tela cheia.
 
-\tocframe[sectionstyle=show/shaded,subsectionstyle=show/show/shaded]
+% ============================================================
+% SEÇÃO 2 · Fundamentos compartilhados — 6 min (PLANO §3, Seção 2)
+% Motor de de-duplicação do deck inteiro — nada disto é reaberto depois (PLANO §4).
+% ============================================================
+\section{Fundamentos}
 
-\subsection{Layout}
+\subsection{Linhagem}
+\begin{frame}{TODO 2.1 --- Linhagem e representação}
+    % Tabela 1 (DGI -> HGI -> Check2HGI; MTLnet -> ST-MTLNet -> modelo conjunto)
+    % + contraste do título: vetor por lugar (Def. 2.3) x vetor por visita (Def. 2.4).
+\end{frame}
 
+\subsection{Vocabulário de MTL}
+\begin{frame}{TODO 2.2 --- MTL, compartilhamento, transferência negativa}
+    % Compartilhamento rígido (Def. 2.10), transferência negativa (Def. 2.12) como risco
+    % nomeado, critério pré-registrado do balanceador (Nash-MTL etc. citados aqui, não depois).
+\end{frame}
+
+\subsection{Base de evidência}
+\begin{frame}{TODO 2.3 --- Datasets}
+    % Uma tabela, seis conjuntos (AL/AZ/FL/TX/CA + Istanbul), ordenada por nº de regiões,
+    % dizendo qual capítulo usou quais.
+\end{frame}
+
+\subsection{Métricas}
+\begin{frame}{TODO 2.4 --- Métricas}
+    % macro-F1 (Food ~1/3, perda não reponderada), Acc@10 + desconto OOD, escore de seleção conjunta.
+\end{frame}
+
+\subsection{Protocolo}
+\begin{frame}{TODO 2.5 --- Protocolo e regras de decisão}
+    % Estratificado por amostra (Caps. 3/4) x disjunto por usuário (Cap. 5), no MESMO slide.
+    % A lei dos verbos (§2.4.4 do texto).
+\end{frame}
+
+\subsection{Trabalhos relacionados}
+\begin{frame}{TODO 2.6 --- Trabalhos relacionados}
+    % Um slide, organizado pelo eixo que importa: categoria/região como MEIO para o
+    % próximo lugar x como FIM. Nunca reaberto depois.
+\end{frame}
+
+% ============================================================
+% SEÇÃO 3 · Capítulo 3 --- CBIC 2025: o nulo previsto — 4 min (PLANO §3, Seção 3)
+% ============================================================
+\section{CBIC 2025}
+
+\subsection{Par de tarefas}
+\begin{frame}{TODO 3.1 --- O par de tarefas}
+    % Classificação estática (Def. 2.6) + próxima categoria --- um estático, um sequencial.
+\end{frame}
+
+\subsection{MTLnet}
+\begin{frame}{TODO 3.2 --- MTLnet (Figura 1)}
+    % Único desenho completo de arquitetura do deck: encoders por tarefa -> FiLM (uma cláusula)
+    % -> tronco residual compartilhado -> duas cabeças.
+\end{frame}
+
+\subsection{Setup}
+\begin{frame}{TODO 3.3 --- Setup}
+    % Florida, sete categorias, 5 folds --- autodeclaração de protocolo dita aqui, não escondida.
+\end{frame}
+
+\subsection{Resultado}
+\begin{frame}{TODO 3.4 --- O nulo}
+    % Nas palavras do próprio capítulo: "largamente comparáveis, sem vantagem clara ou
+    % consistente" + custo de treino.
+\end{frame}
+
+\subsection{Bifurcação}
+\begin{frame}{TODO 3.5 --- Três hipóteses}
+    % Dissimilaridade de tarefas / insuficiência de representação / rigidez de topologia.
+\end{frame}
+
+% TODO transição interna Cap.3 -> Cap.4 (PLANO §2, Ato II) --- congelar a arquitetura,
+% mover só a entrada. Slide próprio ou falada sobre o \autotocframe da Seção 4.
+
+% ============================================================
+% SEÇÃO 4 · Capítulo 4 --- CoUrb 2026: o diagnóstico controlado — 4 min (PLANO §3, Seção 4)
+% ============================================================
+\section{CoUrb 2026}
+
+\subsection{Pergunta herdada}
+\begin{frame}{TODO 4.1 --- Arquitetura ou representação?}
+    % MTLnet CONGELADO, só a entrada muda.
+\end{frame}
+
+\subsection{Ressalva da tarefa estática}
+\begin{frame}{TODO 4.2 --- Ressalva antes do número}
+    % A tarefa estática lê o próprio rótulo (venue-type -> 7 categorias 1:1) -> o ganho de
+    % 20-22 pontos NÃO diz nada sobre a tarefa sequencial. Ressalva SEMPRE antes do número.
+\end{frame}
+
+\subsection{Resultado diagnóstico}
+\begin{frame}{TODO 4.3 --- A tarefa sequencial}
+    % O resultado diagnóstico de fato: alvo nunca está na entrada.
+\end{frame}
+
+\subsection{Bordas honestas}
+\begin{frame}{TODO 4.4 --- Limites oferecidos}
+    % Travel (topologia de grafo vence em movimento esparso de longa distância) +
+    % comparação NÃO pareada em largura (192 x 64 dims).
+\end{frame}
+
+\subsection{Entrega}
+\begin{frame}{TODO 4.5 --- A representação é o gargalo}
+    % Frase de entrega, literal do Cap. 6: arquitetura fixa, entrada mudou, resultado moveu.
+\end{frame}
+
+% TODO transição de saída do Ato II (PLANO §2) --- o vazamento é o pivô, dito em voz alta
+% aqui (enquadramento: a verificação funcionando, não uma confissão). Provável \specialframe.
+
+% ============================================================
+% SEÇÃO 5 · Capítulo 5 --- MobiWac 2026: a resolução — 20 min (PLANO §3, Seção 5)
+% Quase metade da fala --- padrão curto-curto-longo. NÃO comprimir abaixo de ~18 min.
+% ============================================================
+\section{MobiWac 2026}
+
+\subsection{O que muda}
+\begin{frame}{TODO 5.1 --- O que muda e por quê (1 min)}
+    % Representação (lugar -> check-in), topologia (rígida -> atenção cruzada),
+    % protocolo (por amostra -> disjunto por usuário) --- como CONSEQUÊNCIAS do diagnóstico.
+\end{frame}
+
+\subsection{A representação}
+\begin{frame}{TODO 5.2a --- Check2HGI (Figura 4, 5 min)}
+    % Da sequência de check-ins às duas predições; o que um vetor por visita carrega;
+    % a aresta só-para-frente (retomada do vazamento, uma única vez).
+\end{frame}
+\begin{frame}{TODO 5.2b --- Separabilidade (Figura 6)}
+\end{frame}
+\begin{frame}{TODO 5.2c --- Tabela 9}
+    % Nas palavras da própria tabela (PLANO §5.2) --- não "bate nos seis", separa em CINCO.
+\end{frame}
+
+\subsection{A arquitetura}
+\begin{frame}{TODO 5.3 --- Compartilhamento por troca (Figura 5, 3 min)}
+    % Compartilhamento POR TROCA, não por camadas possuídas; caminho espacial privado da região.
+    % A posição do tronco (PLANO §5.3) --- formulação simétrica, nunca "provavelmente contribuiu".
+\end{frame}
+
+\subsection{O protocolo}
+\begin{frame}{TODO 5.4 --- Protocolo final (3 min)}
+    % CV 5-fold disjunta por usuário, sementes {0,1,7,100}, 20 modelos ajustados,
+    % teste pareado sobre as QUATRO médias por semente --- e o desvio declarado do plano.
+\end{frame}
+
+\subsection{O veredito}
+\begin{frame}{TODO 5.5a --- Tabela 10 (5,5 min)}
+    % Linguagem de lei (PLANO §5.1). "Supera" SÓ nas três células. Nunca "empata"/"ties"/
+    % "em todos". As quatro células dentro da margem são déficits, não empates.
+\end{frame}
+\begin{frame}{TODO 5.5b --- Figura 7}
+    % Cláusula obrigatória: ganhos de região em TX/CA são resultados secundários,
+    % fora do plano registrado --- nunca creditados a transferência entre tarefas.
+\end{frame}
+
+\subsection{O trade}
+\begin{frame}{TODO 5.6 --- Trade medido e limites (1,5 min)}
+    % Os quatro limites declarados.
+\end{frame}
+
+% TODO transição de saída do Ato III (PLANO §2) --- "o que os três estudos, juntos,
+% estabelecem -- e o que não estabelecem?"
+
+% ============================================================
+% SEÇÃO 6 · Conclusão Geral — 5 min (PLANO §3, Seção 6)
+% ============================================================
+\section{Conclusão}
+
+\subsection{Resposta condicional}
+\begin{frame}{TODO 6.1 --- A resposta condicional}
+    % MTL ajudou SOB ESTE DESENHO E ESTE PROTOCOLO --- e o que isso não autoriza.
+\end{frame}
+
+\subsection{Contribuição}
+\begin{frame}{TODO 6.2 --- A contribuição una}
+    % Redação IDÊNTICA à do slide de abertura (1.2/1.4). Metade prática (um modelo,
+    % uma passagem) + metade científica (as condições). Ganho operacional, não computacional.
+\end{frame}
+
+\subsection{Limitações e futuro}
+\begin{frame}{TODO 6.3 --- Limitações x trabalhos futuros}
+    % Um slide, duas colunas: seis limitações amarradas 1:1 aos seis trabalhos futuros.
+    % Oferecidas antes de pedidas.
+\end{frame}
+
+\subsection{Fecho}
 {
 \specialframe
-\begin{frame}[fragile]{Layout}
-    \begin{columns}
-        \begin{column}{0.5\textwidth}
-            \begin{itemize}
-                \item Existem várias opções para construir layouts interessantes.
-                \item Uma delas é este tipo de \texttt{frame} customizado.
-            \end{itemize}
-        \end{column}
-        \begin{column}{0.5\textwidth}
-            \begin{block}{}
-                Para habilitar essa configuração, você deve envolver o frame em chaves e chamar o comando \verb|\specialframe|:
-                \begin{lstlisting}[language=Tex, caption=\lstcaption{Configuração de frame especial}, label=lst:special]
-{
-\specialframe
-\begin{frame}{Frame Especial}
-    ...
-\end {frame}
-}\end{lstlisting}
-                \vspace{-3mm}
-            \end{block}
-        \end{column}
-    \end{columns}
+\begin{frame}{TODO 6.4 --- Fecho}
+    % Retomada das aplicações + agradecimentos + linha do repositório.
 \end{frame}
 }
 
-\begin{frame}{Blocos}
-    \begin{block}{Sugestão}
-        Use blocos para dar destaque a pontos específicos da apresentação.
-    \end{block}
-    
-    \begin{alertblock}{Aviso}
-        O pacote Beamer define esse outro tipo de bloco, que seria um bloco de aviso/alerta, para informações críticas.
-    \end{alertblock}
-    
-    \begin{exampleblock}{Exemplo}
-        O terceiro tipo de bloco é o chamado bloco de exemplo.
-    \end{exampleblock}
-\end{frame}
-
-\begin{frame}[fragile]{Recapitulação do Sumário}
-
-    Sempre que quiser recapitular a seção ou subseção onde está na apresentação, use o comando \verb|\tocframe| com o parâmetro que achar adequado (assim como consta na Seção \textit{"10.5 Adding a Table of Contents"} do manual do Beamer~\cite{beamerclass}). Ele foi usado no começo desta seção, e será usado novamente a seguir focando nesta subseção.
-
-
-\end{frame}
-
-\tocframe[sectionstyle=show/shaded,subsectionstyle=show/shaded]
-
-{
-\specialframe
-\begin{frame}{Itens dinâmicos}
-    \framesubtitle{Apresentando informação aos poucos}
-    \begin{columns}
-        \begin{column}{0.5\textwidth}
-            \begin{itemize}[<+->]
-                \item Você pode apresentar as informações do slide pouco a pouco.
-                \item As opções são bem variadas.
-            \end{itemize}
-        \end{column}
-        \begin{column}{0.5\textwidth}
-            \begin{block}{}<3->
-                \begin{enumerate}
-                    \item<3-> Explique uma coisa.
-                    \item<4-| alert@4> Depois outra.
-                    \item<5-> E mais outra.
-                \end{enumerate}
-            \end{block}
-        \end{column}
-    \end{columns}
-\end{frame}
-}
-
-\subsection{Tabelas, Figuras, Código}
-
-\begin{frame}{Tabelas}
-    
-    \begin{itemize}
-        \item Use o comando \texttt{tabular} para criar tabelas -- veja a Tabela~\ref{tab:verdade}, por exemplo.
-        \item Como num documento qualquer no \LaTeX, a numeração desse tipo de elemento é feita automaticamente.
-    \end{itemize}
-    
-    \begin{table}
-        \centering
-        \begin{tabular}{c|c|c}
-            $A$ & $B$ & $A \wedge B$ \\\hline
-            $0$ & $0$ & $0$          \\
-            $0$ & $1$ & $0$          \\
-            $1$ & $0$ & $0$          \\
-            $1$ & $1$ & $1$          \\
-        \end{tabular}
-        \caption{\label{tab:verdade}Uma tabela da verdade.}
-    \end{table}
-\end{frame}
-
-\begin{frame}{Figuras}
-    Adicione imagens na apresentação como de costume no \LaTeX, como mostram as Figuras~\ref{fig:logo-ufv} a~\ref{fig:logo-mmc}:
-    \begin{columns}
-        \begin{column}{0.3\textwidth}
-            \begin{figure}
-                \centering
-                \includegraphics[width=0.6\textwidth]{img/logo-ufv.png}
-                \caption{Logo da UFV}
-                \label{fig:logo-ufv}
-            \end{figure}
-        \end{column}
-        \begin{column}{0.3\textwidth}
-            \begin{figure}
-                \centering
-                \includegraphics[width=0.6\textwidth]{img/logo-nesped.png}
-                \caption{Logo do NESPeD}
-                \label{fig:logo-nesped}
-            \end{figure}
-        \end{column}
-        \begin{column}{0.3\textwidth}
-            \begin{figure}
-                \centering
-                \includegraphics[width=0.6\textwidth]{img/logo-mmc.png}
-                \caption{Logo do myMobiConf}
-                \label{fig:logo-mmc}
-            \end{figure}
-        \end{column}
-    \end{columns}
-\end{frame}
-
-\begin{frame}{Algoritmos em pseudocódigo}
-    \begin{columns}
-        \begin{column}{0.4\textwidth}
-            O Algoritmo~\ref{alg:fft} mostra um exemplo de pseudocódigo usando o pacote \texttt{algorithm2e}.
-        \end{column}
-        \begin{column}{0.6\textwidth}
-            \begin{algorithm}[H]
-                \caption{FFT de Cooley-Tukey}
-                \label{alg:fft}
-                \DontPrintSemicolon
-                \SetKwProg{Fn}{function}{:}{}
-                \SetKwFunction{FFT}{fft}
-                \KwIn{$x[0 ... n-1]$, tal que  $x[i] \in \mathbb{C}, n = 2^c, c \in \mathbb{N}$}
-                \KwOut{$y[0...n-1]$, tal que  $y[i] \in \mathbb{C}$}
-                \Fn{\FFT{$x$}}{
-                    \If{$n = 1$}{
-                        \KwRet $x$\;
-                    }
-                    $y_e \gets \FFT{x[0,2,...,n-2]}$\;
-                    $y_o \gets \FFT{x[1,3,...,n-1]}$\;
-                    \For{$k \gets 0$ to $\frac{n}{2} - 1$}{
-                        $w \gets e^{\frac{2 \pi k i}{n}}$\;
-                        $y[k] \gets y_e[k] + y_o[k] \cdot w$\;
-                        $y[k+\frac{n}{2}] \gets y_e[k] - y_o[k] \cdot w$\;
-                    }
-                    \KwRet $y$\;
-                }
-            \end{algorithm}
-        \end{column}
-    \end{columns}
-\end{frame}
-
-\begin{frame}[fragile]{Código}
-    \begin{columns}
-        \begin{column}{0.35\textwidth}
-            Já a Listagem~\ref{lst:fft} mostra o mesmo código do slide anterior, porém em C++, usando um bloco de código formatado com o pacote \texttt{listings}.
-
-            \begin{alertblock}{\scriptsize Importante}
-                \scriptsize Veja que neste \texttt{frame} foi necessário habilitar a opção \verb|[fragile]|.
-            \end{alertblock}
-        \end{column}
-        \begin{column}{0.65\textwidth}
-            \begin{lstlisting}[language=C++, caption=\lstcaption{FFT de Cooley-Tukey em C++}, label=lst:fft]
-void fft(Complex x[], int n, int &op) {
-  if (n <= 1)
-    return;
-
-  Complex x_e[n/2], x_o[n/2];
-  for (int i = 0; i < n/2; ++i)
-    x_e[i] = x[i*2], x_o[i] = x[i*2 + 1];
-  fft(x_e, n/2, op);
-  fft(x_o, n/2, op);
-
-  for (int k = 0; k < n/2; ++k) {
-    ++op;
-    Complex w = exp(Complex(0, -2*M_PI*k / n));
-    x[k] = x_e[k] + x_o[k] * w;
-    x[k + n/2] = x_e[k] - x_o[k] * w;
-  }
-}\end{lstlisting}
-        \end{column}
-    \end{columns}
-\end{frame}
-
-\subsection{Equações e Citações}
-
-{
-\specialframe
-\begin{frame}{Equações}
-    
-    Uma das vantagens de usar o \LaTeX{} para criar apresentações é poder mostrar equações matemáticas detalhadas com qualidade. Por exemplo, a Equação~\ref{eq:normal} mostra a função de densidade de probabilidade duma distribuição normal, de média $\mu$ e variância $\sigma^2$.
-
-    \begin{block}{}
-        \begin{equation}
-            \label{eq:normal}
-            f(x)={\frac {1}{\sigma {\sqrt {2\pi }}}}\;\;\mathrm {e} ^{-{\frac {1}{2}}\left({\frac {x-\mu }{\sigma }}\right)^{2}}
-        \end{equation}
-    \end{block}
-    
-    É possível usar equações não numeradas também:
-
-    \begin{block}{}
-        $$
-        \pi = 3.14159265358979323846...
-        $$  
-    \end{block}
-    
-\end{frame}
-}
-
-\begin{frame}{Citações}
-    
-    \begin{itemize}
-        \item Já dizia Phil Karlton~\cite{david2017naming}:
-    \end{itemize}
-    \begin{quote}
-        Só existem duas coisas difíceis na ciência da computação: nomear coisas e invalidação de cache.
-    \end{quote}
-    \begin{itemize}
-        \item Formatar referências bibliográficas também é bem chato, ainda bem que isso é automático.
-        \item Ao final do documento, você pode mudar o estilo de bibliografia para o que preferir, como de costume.
-    \end{itemize}
-    
-\end{frame}
-
-\section{Customização}
-
-\begin{frame}{Customização}
-    ???
-\end{frame}
-
+% ============================================================
+% SÉRIE B --- trilha de reserva (PLANO §6). Fora da barra e da contagem do deck principal.
+% Nenhum \section daqui em diante: isso tiraria a série B de "fora da contagem".
+% ============================================================
 \miniframesoff
-\begin{frame}[allowframebreaks]{Referências}
-    \setbeamertemplate{bibliography item}[text]
-    \bibliographystyle{acm}
-    \bibliography{references}
+
+\begin{frame}[noframenumbering]{B0 --- Índice}
+    \hypertarget{b0}{}
+    % TODO: um item por pergunta coberta, cada um \hyperlink{bXX}{...} para o slide B
+    % correspondente. Cobertura obrigatória 1:1 com ARGUICAO.md (ver PLANO §6).
+    \begin{itemize}
+        \item \hyperlink{b1}{B1 --- Veredito e estatística (Q1, Q2, Q4, §7.1)}
+        % \item \hyperlink{b2}{B2 --- Protocolo e vazamento (Q3, Q12, Q19)}
+        % \item \hyperlink{b3}{B3 --- Pós-submissão e retratações (P1, Q13, Q14)}
+        % \item \hyperlink{b4}{B4 --- Capítulos 3--4 (Q16--Q20)}
+        % \item \hyperlink{b5}{B5 --- Não foi medido (U1--U8)}
+        % \item \hyperlink{b6}{B6 --- Documento e escopo (errata do Resumo, Q15)}
+    \end{itemize}
 \end{frame}
+
+\begin{frame}[noframenumbering]{B1 --- TODO: título = a pergunta, em português}
+    \hypertarget{b1}{}
+    % TODO: rodapé de proveniência obrigatório (página do volume principal / suplemento /
+    % caminho de arquivo / "pós-submissão --- não consta em nenhum dos dois volumes").
+    % Números copiados de célula impressa ou de ladder_recompute.json, nunca re-derivados.
+
+    \hyperlink{b0}{\beamerreturnbutton{Voltar ao índice}}
+\end{frame}
+
+% TODO: replicar o padrão do slide B1 para B2--B6 (PLANO §6, tabela de famílias).
 
 \end{document}

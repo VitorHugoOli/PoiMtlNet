@@ -215,7 +215,7 @@
     }
 }
 
-\newcommand{\autotocframe}[1]{\AtBeginSection[]{\tocframe{#1}}}
+\newcommand{\autotocframe}[1]{\AtBeginSection[]{\ifstrempty{#1}{\tocframe}{\tocframe[#1]}}}
 
 % --- headline ---
 
@@ -242,7 +242,7 @@
         \path [left color=primary, right color = secondary, shading=axis, shading angle=45]
             (0pt, 0pt)
             rectangle
-            (\pagewidth, 1mm);
+            (\paperwidth, 1mm);
     }
 }
 

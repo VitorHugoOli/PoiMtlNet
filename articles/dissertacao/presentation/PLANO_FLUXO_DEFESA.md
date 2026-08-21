@@ -512,12 +512,53 @@ nenhuma cor. Não usar.
 > hyperlinks internos funcionam de fato, e um `main.tex` esqueleto já com as seis seções de §11.3.
 > Ele também decide, com o autor, se a correção fica só na nossa cópia — o template é de terceiros
 > e pode estar em uso por outras pessoas do NESPeD.
+>
+> **FECHADO 2026-08-21 pelo `presentation-guide`.** `\pagewidth` corrigido; **um segundo defeito
+> real foi encontrado**, mais sério que o primeiro porque atinge exatamente o uso que este plano já
+> assume em §11.3: `\autotocframe` repassava o argumento com chaves (`\tocframe{#1}`) para um
+> comando que só aceita colchetes (`\tocframe[#1]`) — com argumento vazio isso é inofensivo, mas
+> com um argumento real como `sectionstyle=show/shaded, subsectionstyle=show/show/shaded` (o
+> exemplo do próprio §11.3) o texto do argumento **vaza como conteúdo visível na tela** e ainda
+> rouba um número de slide. Corrigido com `\ifstrempty` (etoolbox, já carregado). Achado adicional
+> não coberto pelos dois de cima: com `subsectionstyle=show/show/shaded` e a profundidade de
+> subseções deste plano (até 6 por seção), o recap automático de Sumário estoura o slide — 6
+> `Overfull \vbox`, um por seção. **O `main.tex` usa `subsectionstyle=hide` por padrão** (0
+> overfull, validado); reverter para `show/…` é possível mas então cada recap de seção precisa de
+> um layout diferente (várias colunas, fonte menor), não testado. `\miniframesoff`/`\miniframeson`
+> e os hyperlinks internos (`\hyperlink`/`\hypertarget`) confirmados funcionando via build de
+> teste isolado. Build validado linha a linha contra `nesped_slides_template.pdf` (o PDF de
+> referência que o autor baixou, produzido por LuaTeX) — texto idêntico, únicas diferenças são
+> kerning entre XeLaTeX/LuaTeX e o estilo de maiúsculas dos autores na página de Referências
+> (cosmético, específico da fonte, e fora do escopo do deck de defesa). Motor: `xelatex`. Comando:
+> `make check` (compila e reporta erro/sucesso sem deixar PDF pela metade) ou `make all` (build
+> completo com bibtex). `main.tex` (o antigo showcase de demonstração) foi preservado como
+> `template_showcase.tex` — `make showcase` recompila-o — e o novo `main.tex` é o esqueleto real
+> das seis seções, com um stub por subseção de §3, os pontos de transição de §2 comentados, e a
+> série B (§6) demonstrada com um índice clicável (B0) + um exemplo completo (B1) para replicar.
+> Decisão sobre o original: a correção fica **só nesta cópia** — reportar ao Henrique fica a
+> critério do autor. Relato completo enviado à sessão `ingred-14`.
 
 ### 11.3 · Como as seis seções de §3 mapeiam
 
+> ⚠ **CORRIGIDO 2026-08-21.** A versão anterior desta seção mandava usar
+> `\autotocframe{sectionstyle=show/shaded, subsectionstyle=show/show/shaded}`. **Aquilo estava
+> errado por dois motivos independentes**, os dois achados pelo agente `presentation-guide` e
+> reproduzidos aqui antes de aceitos:
+>
+> 1. O `\autotocframe` original repassava o argumento **entre chaves** para o `\tocframe`, que só
+>    aceita **colchetes**. Com um argumento real — exatamente o de cima — o texto das opções
+>    **vira um slide visível**, um por seção, e rouba o número de slide. Medido: num teste com duas
+>    seções, as páginas 2 e 5 imprimem literalmente `sectionstyle=show/shaded,
+>    subsectionstyle=show/show/shaded`. No deck real, com seis seções, seriam **seis slides de
+>    lixo**. E compila com **0 erros** — inteiramente silencioso.
+>    Corrigido no `nesped.sty` com `\ifstrempty` (etoolbox, já carregado).
+> 2. `subsectionstyle=show/show/shaded` **estoura o slide de recapitulação** com a profundidade de
+>    subseções deste plano (até 6 por seção, em Fundamentos e MobiWac): 6 `Overfull \vbox`, um por
+>    seção. Com `hide`, zero.
+
 ```latex
 \usepackage[net,green]{nesped}
-\autotocframe{sectionstyle=show/shaded, subsectionstyle=show/show/shaded}
+\autotocframe{sectionstyle=show/shaded, subsectionstyle=hide}
 
 \titleframe{ \titlelogo{img/logo-nesped.png} \titlelogo{img/logo-ufv.png} }
 
@@ -534,4 +575,27 @@ nenhuma cor. Não usar.
 **Regra que decorre disso:** nenhum `\section` além desses seis, porque cada um vira um rótulo na
 barra e a barra é o fio condutor. Divisões internas usam `\subsection`, que aparece como pontos
 agrupados, não como rótulo novo.
+
+### 11.4 · Estado entregue (2026-08-21)
+
+Consertado e verificado pelo agente `presentation-guide`, e **re-verificado nesta sessão**:
+
+| item | estado |
+|---|---|
+| `nesped.sty` | dois bugs corrigidos: `\pagewidth`→`\paperwidth` e o `\autotocframe` de §11.3. Só na nossa cópia — o original de terceiros não foi tocado |
+| `main.tex` | **esqueleto real**: as seis seções, um frame-stub por subseção do §3 (`TODO n.n`), os quatro pontos de transição do §2 como comentário, e a série B demonstrada (B0 índice clicável + B1 completo replicável) |
+| `template_showcase.tex` | o `main.tex` demonstrativo original do Henrique, preservado por `git mv` como referência de sintaxe |
+| `Makefile` | `make check` (valida 0 erros, para iterar) · `make all` (build completo com bibtex) · `make fast` · `make showcase` · `make clean` |
+| **motor** | **`xelatex`** |
+| build | `make check` → **OK, 42 páginas, 0 erros** (rodado nesta sessão) |
+
+**Três coisas a saber antes de escrever conteúdo:**
+
+1. **O número de slide da série B congela, não some.** Sob `\miniframesoff` o frame não registra
+   ponto na barra, mas `\insertframenumber` para de incrementar em vez de ficar em branco. Então
+   os rótulos "B1, B2…" têm de estar **no conteúdo do slide**, não no rodapé.
+2. **Nenhum campo do título pode ficar vazio.** `\subtitle`, `\institute` e `\date` vazios
+   quebram o template com *"There's no line here to end"*. O esqueleto já preenche os quatro.
+3. **Confirmar a grafia do nome e do título** exatamente como na folha de rosto entregue — o
+   esqueleto usa `Vitor Hugo` e um `TODO` como placeholders.
 
