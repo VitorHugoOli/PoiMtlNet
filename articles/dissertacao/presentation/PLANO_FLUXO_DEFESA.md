@@ -35,7 +35,7 @@
 | **Protocolo estatístico** | Introduzido em **5.4**, não na Seção 2 — só o Cap. 5 o usa. Idem Acc@10 e joint-best. | Autor, 2026-08-21 |
 | **Karpathy** | **Não na conclusão.** Série B, como contexto que abre a oferta proativa do P1. Ver §6. | Autor, 2026-08-21 |
 | Logística                         | 28/08/2026, 10:00–12:30, **remota** (Google Meet). Banca: Fabrício A. Silva (presidente), Clayson S. F. de Sousa Celes (ITA, externo), Alex Borges.                                                             | Guia §0           |
-| Teto                              | **50 minutos** (Art. 23). Este plano orça **45 min**, folga de 5.                                                                                                                                               | Regimento         |
+| Teto                              | **50 minutos** (Art. 23). Este plano orça **47,5 min**, folga de 2,5.                                                                                                                                               | Regimento         |
 
 ---
 
@@ -67,7 +67,7 @@ fraqueza do formato em evidência de processo científico".
 As transições são o entregável desta seção — não os atos. Elas são o fio condutor tornado audível, e **passagens de
 corte de tempo não podem removê-las**.
 
-### ATO I — "A pergunta e o chão comum" (min 0–9, seções 1–2)
+### ATO I — "A pergunta e o chão comum" (min 0–11, seções 1–2)
 
 Abre na regularidade da mobilidade e nas aplicações, enuncia a pergunta de pesquisa literalmente, fixa o escopo
 (Definições 2.7/2.8 dentro, 2.9 fora), dá o veredito em uma linha, e então **paga a dívida de duplicação de uma só
@@ -82,7 +82,7 @@ vez**.
 > vez"* — o que deixou de ser verdade quando o protocolo estatístico migrou para 5.4 sob a regra
 > de §4. A frase prometia um fechamento que a Seção 2 não entrega mais.
 
-### ATO II — "O nulo e o seu diagnóstico" (min 9–20, seções 3–4)
+### ATO II — "O nulo e o seu diagnóstico" (min 11–22,5, seções 3–4)
 
 O Cap. 3 entrega o nulo e, o que importa mais, a **bifurcação de três suspeitos**. O Cap. 4 condena um deles por
 experimento controlado.
@@ -100,7 +100,7 @@ experimento controlado.
 **O vazamento é o pivô, e é dito em voz alta.** Enquadramento: *a verificação funcionando*, não uma confissão. Ele é
 mencionado aqui e retomado uma vez dentro de 5.2 — nunca escondido, nunca repetido uma terceira vez.
 
-### ATO III — "A resolução" (min 20–40, seção 5)
+### ATO III — "A resolução" (min 22,5–42,5, seção 5)
 
 Representação → topologia → protocolo → veredito → o trade medido, **nessa ordem**, para que todo resultado caia sobre
 regras já enunciadas — as **superfícies** no Ato I, a **maquinaria** em 5.4, minutos antes do
@@ -110,7 +110,7 @@ veredito que a usa.
 > *"Um veredito condicional, medido sob o protocolo mais estrito dos três. O que os três estudos,
 > juntos, estabelecem — e o que não estabelecem?"*
 
-### ATO IV — "A resposta condicional" (min 40–45, seção 6)
+### ATO IV — "A resposta condicional" (min 42,5–47,5, seção 6)
 
 A resposta condicional, a contribuição una (não uma por artigo), as limitações oferecidas antes de perguntadas, e o
 retorno às aplicações como fecho. **A fala termina onde começou, um nível de entendimento acima** — que é a coletânea
@@ -128,20 +128,27 @@ narra a própria evolução que é o arco, e casa com a Tabela 1 da dissertaçã
 As seções 3–5 levam o **título do artigo** como título de seção; o veículo aparece só como
 proveniência no divisor.
 
-**Minutos são alvos pontuais:** 4 + 5 + 5 + 6 + 20 + 5 = **45 min**, cinco abaixo do teto do
-Art. 23. *(Revisão de 2026-08-21: eram 43, e uma auditoria de orçamento mostrou que os quatro cards
+**Minutos são alvos pontuais:** 5 + 6 + 5,5 + 6 + 20 + 5 = **47,5 min**, dois e meio abaixo do teto
+do Art. 23.
+
+> ⚠ **A folga ficou apertada, e isso é uma escolha declarada.** O orçamento era 45; as adições do
+> autor em 2026-08-22 — o chão conceitual em 1.1, os trabalhos relacionados em representação (2.7),
+> a família de métodos de otimização antes do Nash (3.3A) e a metade de próxima região em 5.2A —
+> valem os 2,5 min que custam. **Mas com ~2,5 de folga num formato remoto, é o ensaio cronometrado
+> que decide o corte, não esta tabela.** Ensaio nº 1 antecipado para 25/08 (§9). *(Revisão de 2026-08-21: eram 43, e uma auditoria de orçamento mostrou que os quatro cards
 de mecanismo novos — DGI, NashMTL, HGI, encoders — custam 40–75 s cada e não cabiam nos +2 min que
 as seções 3 e 4 tinham ganhado. Os 2 min entram onde os cards estão, mais 1 min na Seção 5, que
 absorveu o protocolo estatístico e o related-work próprio.)*
 
-### Seção 1 · Abertura — a pergunta e o escopo — **4 min**
+### Seção 1 · Abertura — a pergunta e o escopo — **5 min**
 
 | # | Subseção |
 |---|---|
-| 1.1 | Motivação em um fôlego: mobilidade é altamente regular (Song *et al.*, ~93%) — **com a ressalva de não-teto na mesma frase** — e as aplicações que dependem de categoria e região |
-| 1.2 | A pergunta de pesquisa, literal (§1.2), **e o veredito em uma linha nas superfícies registradas** (§5.1) |
-| 1.3 | Escopo positivo: Defs. 2.7/2.8 dentro; Def. 2.9 (próximo lugar) definida **para ser excluída**; sete categorias; região = setor censitário / *mahalle* |
-| 1.4 | O arco em uma linha + roteiro: os três artigos pelos **títulos de capítulo**, com veículo/ano/autoria |
+| 1.1 | **O chão conceitual — didático e raso** (seu ponto): o que é uma **LBSN** e o que é um *check-in*; o que a área de **mobilidade humana** estuda; o que é **aprendizado multitarefa** e a sua promessa operacional — um artefato, uma passagem, duas saídas — já com o risco que a acompanha, a **transferência negativa**. Nenhuma profundidade: isto existe para a motivação fazer sentido |
+| 1.2 | Motivação: mobilidade é altamente regular (Song *et al.*, ~93%) — **com a ressalva de não-teto na mesma frase** — e as aplicações que dependem de saber **o quê** e **onde** da próxima visita |
+| 1.3 | A pergunta de pesquisa, literal (§1.2 do texto), **e o veredito em uma linha** nas superfícies registradas (§5.1) |
+| 1.4 | Escopo, positivo e **genérico**: prever a **categoria** e a **região** da próxima visita (Defs. 2.7/2.8); o **próximo lugar** (Def. 2.9) definido **para ser excluído**; a restrição de **modelo único** |
+| 1.5 | O arco em uma linha + roteiro: os três artigos pelos **títulos de capítulo**, com veículo/ano/autoria |
 
 **Propósito.** Fixa pergunta, fronteira e destino em menos de cinco minutos.
 **Se cortada:** a banca encontra o nulo do Cap. 3 sem saber que foi *previsto*.
@@ -151,9 +158,16 @@ absorveu o protocolo estatístico e o related-work próprio.)*
 > a zero dentro de meio ponto"* — que o GLOSSARY já autoriza em linguagem legível. **Um gloss não é
 > um `INTRODUZ`** e não licencia reuso: a maquinaria (TOST, Holm, *t* pareado) só entra em 5.4.
 
-**Nunca dizer.** "Pioneiro"/"o primeiro". Nenhum número além do veredito. Nunca "prediz o próximo POI".
+> ⚠ **A Seção 1 é GENÉRICA — nenhum particular do nosso corpus entra aqui.** Nada de "sete
+> categorias", nada de *mahalle*, nada de nomes de estados ou cidades. A pesquisa é sobre o
+> **problema**, não sobre o corpus: fala-se em **N categorias**, **unidades administrativas**,
+> **conjuntos de dados**. O particular entra na Seção 2, com a base de evidência, que é onde
+> pertence.
 
-### Seção 2 · Fundamentos compartilhados — dito uma vez — **5 min**
+**Nunca dizer.** "Pioneiro"/"o primeiro". Nenhum número além do veredito. Nunca "prediz o próximo
+POI". **E nenhum particular do corpus** — ver o aviso acima.
+
+### Seção 2 · Fundamentos compartilhados — dito uma vez — **6 min**
 
 | # | Subseção |
 |---|---|
@@ -163,7 +177,8 @@ absorveu o protocolo estatístico e o related-work próprio.)*
 | 2.4 | **A métrica que os três compartilham**: macro-F1 e por quê (Food ≈ um terço; a perda **não** é reponderada) + o piso de classe majoritária |
 | 2.5 | **O protocolo dos dois primeiros estudos** + as regras de leitura: estratificado por amostra (o mesmo usuário dos dois lados), leitura *diagnostic-best*, 5 folds; **a lei dos verbos**; e o anúncio de que *cada estudo nomeia a sua convenção* |
 | 2.6 | Trabalhos relacionados em **DOIS slides**: (a) o eixo que diferencia — categoria/região como **meio** para o próximo lugar × como **fim**; (b) o **mapa de onde saem os baselines** (cada bloco apresenta os seus) |
-
+| 2.6 | **Trabalhos relacionados — o que os Caps. 3 e 4 compartilham**, em DOIS slides: (a) o contexto de **POI + MTL**, e especificamente **classificação de categoria de POI** e **predição do próximo POI**, que é exatamente o par que os dois primeiros estudos atacam; (b) o eixo que diferencia — categoria/região como **meio** para o próximo lugar × como **fim** — e o mapa de onde saem os baselines |
+| 2.7 | **Trabalhos relacionados em representação** — a base mais importante da dissertação (seu ponto): a linhagem de embeddings de grafo, **DGI**, **HGI** e a família, no nível de *o que cada um resolve*. Os mecanismos ficam com os capítulos donos (3.2A e 4.1A); aqui é o mapa que torna a linhagem legível |
 **Propósito.** O motor de de-duplicação. **Se cortada:** cada bloco repaga preâmbulo e a fala estoura.
 
 > **Encolheu de 6 para 5 min** sob a regra de §4. **Saíram para a Seção 5**: Acc@10 + desconto OOD,
@@ -175,7 +190,7 @@ absorveu o protocolo estatístico e o related-work próprio.)*
 chamar as médias por categoria dos Caps. 3/4 de "macro-F1". **Nunca Space2Vec nem POI2Vec como
 componentes** — não estão no GLOSSARY e não são deste trabalho (POI2Vec é arte prévia do Cap. 4).
 
-### Seção 3 · *Multitask Learning for POI Category and Next-POI Prediction* — **5 min**
+### Seção 3 · *Multitask Learning for POI Category and Next-POI Prediction* — **5,5 min**
 *(barra: **MTLnet** · proveniência no divisor: CBIC 2025, DOI 10.21528/CBIC2025-1191324)*
 
 | # | Subseção |
@@ -185,7 +200,8 @@ componentes** — não estão no GLOSSARY e não são deste trabalho (POI2Vec é
 | **3.2A** | **Card DGI — "Como funciona \| Por quê"** (ponto 4): retoma o infomax de 2.1; **grafo de Delaunay sobre os POIs, arestas com decaimento logarítmico da distância**; um vetor por lugar. ⚠ **Não dizer "one-hot da própria categoria":** a nota de rodapé do capítulo entregue registra que a implementação liberada alimenta **a média dos one-hots dos vizinhos, com o vetor do próprio POI excluído**, e essa distinção é a defesa de que a tarefa estática lê **homofilia espacial**, não o próprio rótulo. Ou o card diz isso, ou omite o atributo de nó e deixa para o B4. **Sem "coocorrência"** — o Cap. 3 não tem esse canal |
 | 3.3 | Setup em três linhas: Florida, sete categorias, 5 folds — **e a autodeclaração de protocolo dita aqui** (retoma 2.5) |
 | **3.3A** | **Card NashMTL** (ponto 4): retoma o critério de 2.2; intuição de barganha — evitar que uma tarefa domine; e que a adoção é **conclusão do seu tempo**, não defendida hoje |
-| 3.4 | O resultado nas palavras do capítulo: *"largamente comparáveis, sem vantagem clara ou consistente"* + **as lideranças divididas**, mostradas como o próprio deck do CBIC as mostrou |
+| **3.3A** | **Card "como se otimiza uma perda multitarefa"** (seu ponto): antes de nomear o Nash, o **problema** — duas perdas, um conjunto de parâmetros, nenhuma ordem total entre soluções; daí a noção de **frente de Pareto**, e por que a área produziu uma família de métodos (reponderar as perdas × mudar a direção da atualização) |
+| **3.3B** | **Card Nash-MTL**: onde ele cai nessa família — barganha cooperativa, a direção que maximiza o produto das utilidades, evitar que uma tarefa domine. Retoma o critério de 2.2, e diz que a adoção é **conclusão do seu tempo**, não defendida hoje. ⚠ **Nenhuma afirmação de Pareto sobre os nossos modelos** — o Cap. 2 recusa explicitamente |
 | 3.5 | A bifurcação de três hipóteses: dissimilaridade / insuficiência de representação / rigidez de topologia |
 
 **Propósito.** Estabelece que o nulo foi **previsto, publicado e produtivo** — ele fabrica os três
@@ -210,9 +226,9 @@ vale só na tarefa estática; na sequencial MHA+PE lidera **Community, Food e Sh
 | **4.1A** | **Card HGI** (ponto 5, o conceito que você chamou de importância extrema): o mecanismo em palavras simples — encoder de categoria pré-treinado → uma camada de convolução sobre o grafo de POIs → atenção por região → embedding de cidade ponderado por área; discriminador bilinear, **sem rótulos da tarefa final**. Retoma o infomax de 2.1 |
 | **4.1B** | **Card "por que estes encoders"** (ponto 5): a decomposição em **três canais de 64 dims** — espacial (**SIREN × Sphere2Vec-M**, comparados), temporal (**Time2Vec**), categórico (**duas fases: um POI Encoder com caminhadas aleatórias + o HGI**). Cada um com a razão da escolha |
 | 4.2 | **Ressalva primeiro, número depois**: a tarefa estática lê o próprio rótulo (tipo de local ↔ 1:1 nas sete categorias) → o ganho **não diz nada sobre a tarefa sequencial** |
-| 4.3 | O resultado diagnóstico: a tarefa **sequencial**, cujo alvo nunca está na entrada |
+| 4.2 | **Ressalva primeiro, número depois — mas em UMA cláusula**: a tarefa estática lê o próprio rótulo, então o ganho dela **não diz nada sobre a tarefa sequencial**. Dita e seguida adiante; **não gastar dois minutos justificando** (instrução do orientador no deck do CoUrb) |
 | 4.4 | Bordas honestas, com **rótulo de tarefa explícito**: *"Travel (categoria) ✓ × Travel (próxima categoria) ✗"* — com a razão do próprio capítulo (topologia de grafo ainda vence em movimento esparso de longa distância). E a comparação **não pareada em largura** (192 × 64 dims) |
-| 4.5 | A frase de entrega, literal: arquitetura fixa, entrada mudou, resultado moveu → **a representação é o gargalo** |
+| 4.4 | **Discussão dos resultados** (redesenhada, seu ponto): o que a decomposição moveu e onde; **Travel com rótulo de tarefa explícito** — *"Travel (categoria) ✓ × Travel (próxima categoria) ✗"* — com a razão do próprio capítulo (topologia de grafo ainda vence em movimento esparso de longa distância); que **não há encoder espacial universalmente melhor** (SIREN × Sphere2Vec-M depende do território); e a comparação **não pareada em largura** (192 × 64 dims), dita como limite e não defendida |
 
 **Propósito.** Remove um suspeito por experimento controlado — o meio causal do arco.
 
@@ -232,11 +248,11 @@ vale só na tarefa estática; na sequencial MHA+PE lidera **Community, Food e Sh
 |---|---|---:|
 | 5.1 | O que muda, **como consequências do diagnóstico**: representação (lugar → check-in), topologia (rígida → atenção cruzada), protocolo (por amostra → disjunto por usuário) | 1 |
 | 5.2 | **Check2HGI** (ponto 6): Figura 4; o diagrama de níveis de 2.1 **reusado** — *"um quarto nível abaixo do lugar"*; **como ele se apoia no Cap. 4** (o HGI de 4.1A estendido um nível); a aresta **só para frente**; Figura 6 (separabilidade); Tabela 9 | 4,5 |
-| **5.2A** | **Trabalhos relacionados deste estudo** (ponto 6): por que embedding em nível de check-in é **novo na linha**; CTLE como a arte prévia mais próxima | 0,75 |
-| 5.3 | A arquitetura (ponto 6 — **o que mudou no MTL e por quê**): Figura 5; compartilhamento **por troca**, não por camadas possuídas; o caminho espacial privado da região | 3 |
+| **5.2A** | **Trabalhos relacionados deste estudo**, que os Caps. 3/4 não têm: (a) **predição de próxima região** — a tarefa e as suas motivações, que só aparecem aqui; (b) por que **embedding em nível de check-in** é novo na linha, com CTLE como a arte prévia mais próxima | 1 |
+| 5.3 | A arquitetura — **o que mudou no MTL e por quê**: Figura 5; compartilhamento **por troca**, não por camadas possuídas; o caminho espacial privado da região | 3 |
 | **5.4** | **Protocolo e metodologia estatística, introduzidos AQUI** (pontos 6 e 8): CV 5-fold **disjunta por usuário**; **Acc@10 + desconto OOD + piso Markov-1**; janelas **sobrepostas, stride 1**; **joint-best**; sementes {0,1,7,100} = **20 modelos ajustados, unidade inferencial n = 4**; *t* pareado sobre as médias por semente; **TOST na margem registrada**; Holm. **E o desvio declarado** do plano registrado (Wilcoxon sobre folds → *t* pareado sobre médias por semente) | 4,25 |
 | 5.5 | **O veredito**: Tabela 10 + Figura 7, em linguagem de lei (§5.1) | 5 |
-| 5.6 | O trade medido e os quatro limites declarados | 1,5 |
+| 5.6 | O trade medido e os quatro limites declarados | 1,25 |
 
 > ### A escada de 5.4 — quatro degraus, um slide cada
 >
@@ -270,7 +286,11 @@ mesma página). A frase retratada sobre representação hierárquica × injeçã
 | 6.2 | A contribuição una (§6.5), **redação idêntica à do slide de abertura**: metade prática + metade científica |
 | 6.3 | **O centro de gravidade da seção** (seu ponto 7): as seis limitações do §6.3 amarradas **1:1** aos seis trabalhos futuros do §6.4 — cada uma falada como um próximo passo concreto e condicional |
 | 6.4 | Fecho: retomada das aplicações + agradecimentos + a linha do repositório. **O takeaway na tela; o "obrigado" pela voz** (instrução do orientador no deck do CoUrb) |
+| 6.4 | Fecho: retomada das aplicações + **agradecimentos** + a linha do repositório. **O takeaway na tela; o "obrigado" pela voz** (instrução do orientador no deck do CoUrb) |
 
+> **Agradecimentos — os nomes.** Orientador: **Fabrício A. Silva**. Colegas de pesquisa:
+> **Germano**, **Tarik**, **Ingred** e **Pedro Maia**. *(Confirmar a grafia completa de cada um
+> antes do deck final — o GLOSSARY não registra nomes próprios.)*
 **Nunca dizer.** "MTL funciona" sem condição. Re-caminhar a cadeia dos três estudos. Nenhum número novo.
 
 > **A outra metade do seu ponto 7** — o método estatístico "confuso e jogado" no Cap. 5 — **não se
@@ -393,6 +413,27 @@ A regra de linhagem acerta as quatro **e** continua acertando os seus três julg
 
 "Supera" só nessas três células. Em nenhum outro lugar, em nenhum dos dois eixos.
 
+### 5.1b · A frase falada, em português — rascunho para refinar
+
+Montada **só** das superfícies registradas; nenhuma expressão é invenção minha. É o que o autor
+ensaia literalmente (§9, pendência 3) — **e nunca vem do Resumo**.
+
+> *"Sob o desenho final e o protocolo mais estrito dos três: na previsão da **próxima região**, o
+> modelo conjunto **supera** os dedicados em dois conjuntos — os dois de maior vocabulário de
+> região — e nos outros quatro **permanece dentro da margem de dois pontos**, registrada antes de
+> qualquer resultado ser lido. Na **próxima categoria**, **supera em um conjunto**, e as cinco
+> diferenças restantes são **equivalentes a zero dentro de meio ponto**."*
+
+Três períodos, ~25 s. **Procedência de cada expressão em negrito:** "supera" = `GLOSSARY` §6
+(licenciado só onde o teste sobrevive a Holm); "permanece dentro da margem de dois pontos" e
+"registrada antes de qualquer resultado ser lido" = `GLOSSARY` §6, superfícies recorrentes;
+"equivalente a zero dentro de meio ponto" = `GLOSSARY` §6, eixo de categoria apenas.
+
+**Duas coisas a decidir no refino:** (a) nomear ou não os datasets na frase — a versão acima diz
+"dois conjuntos" e deixa Texas e Califórnia para o slide, o que a mantém curta e evita a leitura de
+que a ordem por vocabulário é lei; (b) se o *"sob o desenho final e o protocolo mais estrito dos
+três"* abre a frase ou fica implícito no slide anterior.
+
 ### 5.2 · A Tabela 9, como a própria tabela a enuncia
 
 O rascunho dizia *"check-in bate place-level nos seis"*. A nota de rodapé da tabela entregue diz outra coisa, e a fala
@@ -454,10 +495,43 @@ de limite, e o Q8 é o que o B-P1 e o slide Karpathy servem juntos.
 | **B1 · Veredito e estatística** | as células com intervalos (§5.1, as quatro de região e as cinco de categoria **com sinal**); as duas convenções de checkpoint; a justificativa da margem de 2 pontos; n=4 e o piso do Wilcoxon em 0,0625; o piso de significância prática. *(Q1, Q2, Q4, §7.1)* |
 | **B2 · Protocolo e vazamento** | transdutividade + o controle de reconstrução por dobra (com a ressalva de cobertura 67–87%); a aresta só-para-frente e quanto ela vale; a matriz de cobertura de busca (com ERR-6/ERR-7 oferecidas); **"o senhor escolheu a época no mesmo conjunto em que reporta?"**; a auditoria de proveniência pré-vazamento. *(Q3, Q12, Q19)* |
 | **B3 · Pós-submissão** | **B-P1** *(= a resposta de execução a **Q14** e **U2**)*, **B-Q13** e **B-Q14** *(a divergência entre documentos: o artigo lista o confundimento de capacidade entre os seus limites e a dissertação não)*, os três com distintivo `OFERECER PROATIVAMENTE`; **B-Q15**; o **slide de nomenclatura** (abaixo); o **slide Karpathy** (abaixo); as contagens corrigidas do Apêndice G; e um **bloco reservado para o mtlcheck** (abaixo) |
-| **B4 · Capítulos 3–4** | vazamento de rótulo da tarefa estática + confundimento de largura; **Travel rotulado por tarefa**; a acusação de *selection-overfitting* do juiz do CoUrb; validade do protocolo dos dois primeiros estudos; a divergência do corpus de Florida; **o custo do Cap. 3** (80,88 s × 34,97 s cumulativos = 2,3× — **a tabela, nunca a prosa publicada**, que a `ERRATA.md` do próprio artigo registra como defeituosa) |
+| **B4 · Capítulos 3–4** | **o vazamento de rótulo, com os dois capítulos separados por mecanismo** (redação abaixo); o **objetivo contrastivo do DGI** (abaixo); confundimento de largura; **Travel rotulado por tarefa**; a acusação de *selection-overfitting* do juiz do CoUrb; validade do protocolo dos dois primeiros estudos; a divergência do corpus de Florida; **o custo do Cap. 3** (80,88 s × 34,97 s cumulativos = 2,3× — **a tabela, nunca a prosa publicada**, que a `ERRATA.md` do próprio artigo registra como defeituosa) |
 | **B5 · Não foi medido** | U1–U8, cada um com o limite como manchete |
 | **B6 · Documento e escopo** | o defeito do Resumo (§10) com Resumo × Cap. 5 lado a lado; a colisão de letras de apêndice; contagens de usuários (corpus bruto × pós-filtro); as sete perguntas `[FECHADO]` hoje sem família — **prioridade em Q22** (o piso de Markov de região acima de três sistemas publicados) |
 | **B7 · "Como o Check2HGI e o modelo conjunto funcionam"** | **NOVA** (seu ponto 10): 5–7 slides sobre o **Apêndice E do volume principal**, reusando as figuras que já existem. A fala menciona as duas arquiteturas sem tempo para detalhe; esta família é onde o detalhe mora. Inclui a pergunta mais afiada do apêndice: *o cross-attention atende histórico de região de um usuário com histórico de categoria de outro?* |
+
+### Cinco slides que este plano acrescenta por nome
+
+**B4-LEAK · *"O embedding do Capítulo 3 também devolve a própria categoria do lugar?"***
+> **O Cap. 3 não tem o mesmo defeito do Cap. 4, e a diferença é de mecanismo.** No Cap. 4 a
+> *feature* de tipo de local mapeia **um-para-um** nas categorias: é **consulta direta**. No Cap. 3
+> o vetor de entrada de cada POI **exclui o one-hot dele próprio** por construção — alimenta a
+> **média dos vizinhos** (nota de rodapé do próprio capítulo). Uma auditoria de código mediu que o
+> rótulo ainda **re-entra de forma indireta**, por **um salto** de agregação: **+0,165 macro-F1**,
+> confirmado por intervenção causal (relabelar um lugar, sem tocar no input dele, move o embedding
+> de todo vizinho). É assim que o apêndice entregue formula a diferença:
+> **consulta exata no Cap. 4, média diluída a um salto no Cap. 3.**
+>
+> **E a pergunta que importa vem depois:** isso invalida os capítulos? **Não** — a tarefa
+> **sequencial** de ambos nunca teve o alvo na entrada, e é dela que vêm as conclusões que o arco
+> carrega. O prefácio do Cap. 4 diz literalmente: *"every claim this chapter makes about the
+> sequential task [...] stands as published"*.
+>
+> ⚠ **Nunca dizer "o DGI não vaza".** A auditoria foi encomendada precisamente para não depender da
+> crença de que excluir o próprio one-hot fechava o canal — e mediu que não fecha. O que se afirma
+> é a **diferença de mecanismo e de grau**, que é forte e é verdadeira.
+
+**B4-DGI · *"O objetivo contrastivo do DGI está fazendo o que vocês pensam?"***
+> **O limite é a manchete.** Uma auditoria registrou, incidentalmente, que o objetivo contrastivo do
+> DGI **como implementado parece degenerado**: conjuntos de score positivo e negativo idênticos como
+> multiconjuntos, piso de perda medido batendo `2·ln2` em seis casas. Se confirmado, *"embedding DGI
+> treinado"* pode não descrever o que o Cap. 3 de fato usou.
+> **O que não posso dizer: que foi re-medido. Não foi.** Os artefatos daquela auditoria não estão no
+> repositório e a observação nunca foi acionada.
+> **O que isso limitaria:** o Cap. 3 é o **nulo** do arco — um embedding mais fraco que o suposto
+> torna o nulo *menos* surpreendente, não mais. E os Caps. 4 e 5 não herdam o DGI: o Cap. 4 o
+> substitui, o Cap. 5 constrói sobre o Check2HGI.
+> **Se ninguém perguntar, não levantar.**
 
 ### Três slides que este plano acrescenta por nome
 
@@ -514,7 +588,7 @@ porque a versão corrigida diz *menos*, e é isso que a torna defensável.
    "Cap. 3" sem parada, o que obriga cada capítulo a repagar preâmbulo — colidindo frontalmente com a prioridade de
    de-duplicação. Inserido, financiado pela folga aritmética abaixo.
 2. **Alvos pontuais em vez de faixas.** As linhas do §4.1 somam 36–47 min, e o próprio guia declara "~42–47": o piso
-   está subestimado em 6 minutos. Uma faixa de 11 minutos não é orçamento. Aqui: 4 + 5 + 5 + 6 + 20 + 5 = **45 min**, folga **5 min** contra o teto de 50
+   está subestimado em 6 minutos. Uma faixa de 11 minutos não é orçamento. Aqui: 5 + 6 + 5,5 + 6 + 20 + 5 = **47,5 min**, folga **2,5 min** contra o teto de 50
    *(revisto 2026-08-21 — ver §3)*.
 3. **Numeração de figuras do documento, não do artigo.** A Figura 1 do artigo MobiWac é a **Figura 4** da dissertação. A
    banca lê o documento. Mapeamento fixo: dataflow = **Fig. 4**; modelo = **Fig. 5**; separabilidade = **Fig. 6**;
@@ -581,7 +655,7 @@ porque a versão corrigida diz *menos*, e é isso que a torna defensável.
 |-----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **22/08**       | **Este plano para o Fabrício** — o arco, o orçamento e a barra de navegação, em uma página. O guia §2 é explícito: *a estrutura da apresentação é decisão sua e do orientador*. Nada abaixo começa antes disso |
 | 24/08           | `SLIDES.md` — o slide-a-slide, obedecendo §8                                                                                                                                                                   |
-| 25/08           | Deck construído; ensaio cronometrado nº 1                                                                                                                                                                      |
+| 25/08 | Deck construído; **ensaio cronometrado nº 1 — obrigatório e antecipado**: o orçamento subiu para ~48 min e a folga caiu para ~2. **É o ensaio que decide o corte, não a planilha** |
 | 26/08           | Passagem do orientador; série B completa (cobertura 1:1 com ARGUICAO)                                                                                                                                          |
 | 27/08           | Ensaio nº 2 no Meet, com compartilhamento de tela; PDF de reserva local; os dois volumes abertos em janelas separadas                                                                                          |
 | **28/08 10:00** | Defesa                                                                                                                                                                                                         |
@@ -595,8 +669,13 @@ porque a versão corrigida diz *menos*, e é isso que a torna defensável.
 3. **A frase do veredito em português**, ensaiada literalmente. Ela vem de §5.1 deste plano — **nunca do Resumo**.
    *(Confirmada pelo autor como pendência viva, 2026-08-21.)*
 4. ~~**LO-11 (crédito de autoria no CoUrb)**~~ — **RETIRADA 2026-08-21** a pedido do autor: não precisa ser levantada.
-5. **NSO-46** — o único marcador de aval ainda aberto (`wrapup/erratas/material_apx_static_scope.tex`). Decidir antes
-   de 26/08, porque o slide B4 do autovazamento do Cap. 3 depende dele.
+5. ~~**NSO-46**~~ — **FECHADA 2026-08-22, pela premissa inválida.** O parágrafo que o marcador anota
+   **não chega ao leitor**: `apx_b_static_scope` não é chamado por nenhum `\input` vivo, e doze
+   frases suas foram buscadas nos três builds com **zero aparições** (controles positivos do mesmo
+   instrumento: 8/12 e 10/12). Resposta oral pronta em `LACUNAS` §2.
+   ⚠ **Fechado por isso, e não por "não há vazamento no Cap. 3"** — a auditoria mediu o canal
+   indireto em **+0,165 macro-F1** e o confirmou por intervenção causal. O slide **B4-LEAK** carrega
+   a formulação correta.
 6. **A errata do `GLOSSARY:161`** (§10) — aplicada nesta revisão; confirmar que a redação serve.
 
 ---
