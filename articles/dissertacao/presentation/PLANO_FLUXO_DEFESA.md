@@ -176,7 +176,6 @@ POI". **E nenhum particular do corpus** — ver o aviso acima.
 | 2.3 | A base de evidência: **uma** tabela de seis conjuntos, dizendo qual capítulo usou quais. **Florida é dita aqui, uma vez**: 990.518 check-ins nos Caps. 3/4 e 1.407.034 no Cap. 5 — *duas extrações*, nunca "superconjunto" (não há evidência de contenção) |
 | 2.4 | **A métrica que os três compartilham**: macro-F1 e por quê (Food ≈ um terço; a perda **não** é reponderada) + o piso de classe majoritária |
 | 2.5 | **O protocolo dos dois primeiros estudos** + as regras de leitura: estratificado por amostra (o mesmo usuário dos dois lados), leitura *diagnostic-best*, 5 folds; **a lei dos verbos**; e o anúncio de que *cada estudo nomeia a sua convenção* |
-| 2.6 | Trabalhos relacionados em **DOIS slides**: (a) o eixo que diferencia — categoria/região como **meio** para o próximo lugar × como **fim**; (b) o **mapa de onde saem os baselines** (cada bloco apresenta os seus) |
 | 2.6 | **Trabalhos relacionados — o que os Caps. 3 e 4 compartilham**, em DOIS slides: (a) o contexto de **POI + MTL**, e especificamente **classificação de categoria de POI** e **predição do próximo POI**, que é exatamente o par que os dois primeiros estudos atacam; (b) o eixo que diferencia — categoria/região como **meio** para o próximo lugar × como **fim** — e o mapa de onde saem os baselines |
 | 2.7 | **Trabalhos relacionados em representação** — a base mais importante da dissertação (seu ponto): a linhagem de embeddings de grafo, **DGI**, **HGI** e a família, no nível de *o que cada um resolve*. Os mecanismos ficam com os capítulos donos (3.2A e 4.1A); aqui é o mapa que torna a linhagem legível |
 **Propósito.** O motor de de-duplicação. **Se cortada:** cada bloco repaga preâmbulo e a fala estoura.
@@ -199,9 +198,9 @@ componentes** — não estão no GLOSSARY e não são deste trabalho (POI2Vec é
 | 3.2 | **MTLnet** (Figura 1, **redesenhada em Beamer** — o raster publicado imprime pequeno demais): encoders por tarefa → FiLM (uma cláusula) → tronco residual → duas cabeças |
 | **3.2A** | **Card DGI — "Como funciona \| Por quê"** (ponto 4): retoma o infomax de 2.1; **grafo de Delaunay sobre os POIs, arestas com decaimento logarítmico da distância**; um vetor por lugar. ⚠ **Não dizer "one-hot da própria categoria":** a nota de rodapé do capítulo entregue registra que a implementação liberada alimenta **a média dos one-hots dos vizinhos, com o vetor do próprio POI excluído**, e essa distinção é a defesa de que a tarefa estática lê **homofilia espacial**, não o próprio rótulo. Ou o card diz isso, ou omite o atributo de nó e deixa para o B4. **Sem "coocorrência"** — o Cap. 3 não tem esse canal |
 | 3.3 | Setup em três linhas: Florida, sete categorias, 5 folds — **e a autodeclaração de protocolo dita aqui** (retoma 2.5) |
-| **3.3A** | **Card NashMTL** (ponto 4): retoma o critério de 2.2; intuição de barganha — evitar que uma tarefa domine; e que a adoção é **conclusão do seu tempo**, não defendida hoje |
 | **3.3A** | **Card "como se otimiza uma perda multitarefa"** (seu ponto): antes de nomear o Nash, o **problema** — duas perdas, um conjunto de parâmetros, nenhuma ordem total entre soluções; daí a noção de **frente de Pareto**, e por que a área produziu uma família de métodos (reponderar as perdas × mudar a direção da atualização) |
 | **3.3B** | **Card Nash-MTL**: onde ele cai nessa família — barganha cooperativa, a direção que maximiza o produto das utilidades, evitar que uma tarefa domine. Retoma o critério de 2.2, e diz que a adoção é **conclusão do seu tempo**, não defendida hoje. ⚠ **Nenhuma afirmação de Pareto sobre os nossos modelos** — o Cap. 2 recusa explicitamente |
+| 3.4 | **O resultado — o nulo, mostrado e não afirmado**: as palavras do próprio capítulo, *"largamente comparáveis, sem vantagem clara ou consistente"*, com a tabela por tarefa ao lado. **Onde as baselines externas entram**: na tarefa estática os dois modelos batem a HMRM em todas as categorias; na sequencial as lideranças se **dividem** — é o próprio deck do CBIC que mostra isso, e mostrar a divisão é o que faz o veredito "sem vantagem consistente" cair sem precisar de argumento |
 | 3.5 | A bifurcação de três hipóteses: dissimilaridade / insuficiência de representação / rigidez de topologia |
 
 **Propósito.** Estabelece que o nulo foi **previsto, publicado e produtivo** — ele fabrica os três
@@ -225,9 +224,8 @@ vale só na tarefa estática; na sequencial MHA+PE lidera **Community, Food e Sh
 | 4.1 | A pergunta herdada — *"arquitetura ou representação?"* — e o desenho: **MTLnet congelado**, só a entrada muda (retoma 3.2) |
 | **4.1A** | **Card HGI** (ponto 5, o conceito que você chamou de importância extrema): o mecanismo em palavras simples — encoder de categoria pré-treinado → uma camada de convolução sobre o grafo de POIs → atenção por região → embedding de cidade ponderado por área; discriminador bilinear, **sem rótulos da tarefa final**. Retoma o infomax de 2.1 |
 | **4.1B** | **Card "por que estes encoders"** (ponto 5): a decomposição em **três canais de 64 dims** — espacial (**SIREN × Sphere2Vec-M**, comparados), temporal (**Time2Vec**), categórico (**duas fases: um POI Encoder com caminhadas aleatórias + o HGI**). Cada um com a razão da escolha |
-| 4.2 | **Ressalva primeiro, número depois**: a tarefa estática lê o próprio rótulo (tipo de local ↔ 1:1 nas sete categorias) → o ganho **não diz nada sobre a tarefa sequencial** |
 | 4.2 | **Ressalva primeiro, número depois — mas em UMA cláusula**: a tarefa estática lê o próprio rótulo, então o ganho dela **não diz nada sobre a tarefa sequencial**. Dita e seguida adiante; **não gastar dois minutos justificando** (instrução do orientador no deck do CoUrb) |
-| 4.4 | Bordas honestas, com **rótulo de tarefa explícito**: *"Travel (categoria) ✓ × Travel (próxima categoria) ✗"* — com a razão do próprio capítulo (topologia de grafo ainda vence em movimento esparso de longa distância). E a comparação **não pareada em largura** (192 × 64 dims) |
+| 4.3 | **O resultado diagnóstico**: a tarefa **sequencial**, cujo alvo nunca está na entrada — é dela que vem a conclusão do capítulo. O intervalo de ganho declarado como **melhor-de-dois por linha**, porque é o que ele é (o juiz do CoUrb pegou exatamente isso: SIREN sozinho no Texas dá +17,89, fora da faixa anunciada) |
 | 4.4 | **Discussão dos resultados** (redesenhada, seu ponto): o que a decomposição moveu e onde; **Travel com rótulo de tarefa explícito** — *"Travel (categoria) ✓ × Travel (próxima categoria) ✗"* — com a razão do próprio capítulo (topologia de grafo ainda vence em movimento esparso de longa distância); que **não há encoder espacial universalmente melhor** (SIREN × Sphere2Vec-M depende do território); e a comparação **não pareada em largura** (192 × 64 dims), dita como limite e não defendida |
 
 **Propósito.** Remove um suspeito por experimento controlado — o meio causal do arco.
@@ -285,7 +283,6 @@ mesma página). A frase retratada sobre representação hierárquica × injeçã
 | 6.1 | A resposta condicional (§6.2): MTL ajudou **sob este desenho e este protocolo** — e o que isso não autoriza |
 | 6.2 | A contribuição una (§6.5), **redação idêntica à do slide de abertura**: metade prática + metade científica |
 | 6.3 | **O centro de gravidade da seção** (seu ponto 7): as seis limitações do §6.3 amarradas **1:1** aos seis trabalhos futuros do §6.4 — cada uma falada como um próximo passo concreto e condicional |
-| 6.4 | Fecho: retomada das aplicações + agradecimentos + a linha do repositório. **O takeaway na tela; o "obrigado" pela voz** (instrução do orientador no deck do CoUrb) |
 | 6.4 | Fecho: retomada das aplicações + **agradecimentos** + a linha do repositório. **O takeaway na tela; o "obrigado" pela voz** (instrução do orientador no deck do CoUrb) |
 
 > **Agradecimentos — os nomes, com a fonte de cada grafia.**
@@ -667,16 +664,24 @@ porque a versão corrigida diz *menos*, e é isso que a torna defensável.
 
 ---
 
-## 9 · Portões e prazos (hoje 2026-08-21, defesa 28/08)
+## 9 · Portões e prazos (hoje **sábado 2026-08-22**, defesa sexta 28/08)
 
-| Quando          | O quê                                                                                                                                                                                                          |
-|-----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **22/08**       | **Este plano para o Fabrício** — o arco, o orçamento e a barra de navegação, em uma página. O guia §2 é explícito: *a estrutura da apresentação é decisão sua e do orientador*. Nada abaixo começa antes disso |
-| 24/08           | `SLIDES.md` — o slide-a-slide, obedecendo §8                                                                                                                                                                   |
-| 25/08 | Deck construído; **ensaio cronometrado nº 1 — obrigatório e antecipado**: o orçamento subiu para ~48 min e a folga caiu para ~2. **É o ensaio que decide o corte, não a planilha** |
-| 26/08           | Passagem do orientador; série B completa (cobertura 1:1 com ARGUICAO)                                                                                                                                          |
-| 27/08           | Ensaio nº 2 no Meet, com compartilhamento de tela; PDF de reserva local; os dois volumes abertos em janelas separadas                                                                                          |
-| **28/08 10:00** | Defesa                                                                                                                                                                                                         |
+> **Quem aprova é o autor.** *(Decidido 2026-08-22.)* O portão de validação com o orientador saiu:
+> a estrutura é revisada e aprovada por ele mesmo. O guia §2 sugeria a validação com o Fabrício;
+> a decisão é do autor e está registrada aqui para que ninguém a reintroduza.
+
+| Quando | O quê |
+|---|---|
+| **22/08 (sáb)** | O autor revisa e **aprova este plano**. `SLIDES.md` começa em seguida — o esqueleto `slides/main.tex` precisa ser **recortado contra o §3 revisado** (ele foi gerado antes e não tem os stubs de 3.2A/3.3A/3.3B/4.1A/4.1B/2.7/5.2A nem os quatro degraus de 5.4) |
+| **23/08 (dom)** | `SLIDES.md` completo, obedecendo §8; deck construído (`cd slides && make check`, depois `make all`) |
+| **24/08 (seg)** | 🎯 **ENSAIO Nº 1, com amigos.** É o prazo real: **uma versão do deck tem de existir.** Cronometrado — com folga de 2,5 min contra o teto, **é o ensaio que decide o corte, não a tabela de §3** |
+| 25–26/08 | Revisão a partir do que o ensaio mostrar; **série B completa** (cobertura 1:1 com os códigos do ARGUICAO); as duas passagens de portão, G2 (fato) e G3 (estilo) |
+| 27/08 (qui) | Ensaio nº 2 **no Meet**, com compartilhamento de tela real; PDF de reserva local; os dois volumes abertos em janelas separadas para o *"vá à página X"* |
+| **28/08 (sex) 10:00** | **Defesa** |
+
+> ⚠ **O caminho crítico é o ensaio de segunda, não a defesa.** Entre hoje e ele há dois dias, e o
+> `SLIDES.md` ainda não existe. Tudo em §8 (as dezesseis regras) e §6 (a série B) é escrito a
+> partir deste plano — se o plano mudar depois de segunda, o slide-a-slide se refaz.
 
 ### Pendências que só o autor fecha
 
