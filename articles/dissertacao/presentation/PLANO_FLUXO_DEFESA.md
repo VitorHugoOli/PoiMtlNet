@@ -144,8 +144,8 @@ absorveu o protocolo estatístico e o related-work próprio.)*
 
 | # | Subseção |
 |---|---|
-| 1.1 | **O chão conceitual — didático e raso** (seu ponto): o que é uma **LBSN** e o que é um *check-in*; o que a área de **mobilidade humana** estuda; o que é **aprendizado multitarefa** e a sua promessa operacional — um artefato, uma passagem, duas saídas — já com o risco que a acompanha, a **transferência negativa**. Nenhuma profundidade: isto existe para a motivação fazer sentido |
-| 1.2 | Motivação: mobilidade é altamente regular (Song *et al.*, ~93%) — **com a ressalva de não-teto na mesma frase** — e as aplicações que dependem de saber **o quê** e **onde** da próxima visita |
+| 1.1 | **O gancho, primeiro**: mobilidade humana é altamente regular (Song *et al.*, ~93%) — **com a ressalva de não-teto na mesma frase** — e as aplicações que dependem de saber **o quê** e **onde** da próxima visita |
+| 1.2 | **O chão conceitual — didático, raso, e depois do gancho**: o que é uma **LBSN** e o que é um *check-in*; o que a área de **mobilidade humana** estuda. Termina **de propósito** na promessa operacional do **aprendizado multitarefa** — um artefato, uma passagem, duas saídas — e no risco que a acompanha, a **transferência negativa**, para que a pergunta de 1.3 caia em terreno preparado um fôlego antes |
 | 1.3 | A pergunta de pesquisa, literal (§1.2 do texto), **e o veredito em uma linha** nas superfícies registradas (§5.1) |
 | 1.4 | Escopo, positivo e **genérico**: prever a **categoria** e a **região** da próxima visita (Defs. 2.7/2.8); o **próximo lugar** (Def. 2.9) definido **para ser excluído**; a restrição de **modelo único** |
 | 1.5 | O arco em uma linha + roteiro: os três artigos pelos **títulos de capítulo**, com veículo/ano/autoria |
@@ -158,11 +158,15 @@ absorveu o protocolo estatístico e o related-work próprio.)*
 > a zero dentro de meio ponto"* — que o GLOSSARY já autoriza em linguagem legível. **Um gloss não é
 > um `INTRODUZ`** e não licencia reuso: a maquinaria (TOST, Holm, *t* pareado) só entra em 5.4.
 
-> ⚠ **A Seção 1 é GENÉRICA — nenhum particular do nosso corpus entra aqui.** Nada de "sete
+> ⚠ **A Seção 1 é GENÉRICA — nenhum particular do nosso corpus entra aqui, com UMA exceção.** Nada de "sete
 > categorias", nada de *mahalle*, nada de nomes de estados ou cidades. A pesquisa é sobre o
 > **problema**, não sobre o corpus: fala-se em **N categorias**, **unidades administrativas**,
 > **conjuntos de dados**. O particular entra na Seção 2, com a base de evidência, que é onde
 > pertence.
+>
+> **A exceção, declarada:** a frase do veredito em **1.3** nomeia **Flórida, Texas e Califórnia**
+> (decisão do autor, §5.1b). É a única. Ela é a frase mais ensaiada da fala e nomear ali é uma
+> escolha de precisão, não um vazamento do corpus para a moldura.
 
 **Nunca dizer.** "Pioneiro"/"o primeiro". Nenhum número além do veredito. Nunca "prediz o próximo
 POI". **E nenhum particular do corpus** — ver o aviso acima.
@@ -245,12 +249,12 @@ vale só na tarefa estática; na sequencial MHA+PE lidera **Community, Food e Sh
 | # | Subseção | min |
 |---|---|---:|
 | 5.1 | O que muda, **como consequências do diagnóstico**: representação (lugar → check-in), topologia (rígida → atenção cruzada), protocolo (por amostra → disjunto por usuário) | 1 |
-| 5.2 | **Check2HGI** (ponto 6): Figura 4; o diagrama de níveis de 2.1 **reusado** — *"um quarto nível abaixo do lugar"*; **como ele se apoia no Cap. 4** (o HGI de 4.1A estendido um nível); a aresta **só para frente**; Figura 6 (separabilidade); Tabela 9 | 4,5 |
 | **5.2A** | **Trabalhos relacionados deste estudo**, que os Caps. 3/4 não têm: (a) **predição de próxima região** — a tarefa e as suas motivações, que só aparecem aqui; (b) por que **embedding em nível de check-in** é novo na linha, com CTLE como a arte prévia mais próxima | 1 |
+| 5.2 | **Check2HGI — o que é e como se apoia no Cap. 4**: Figura 4; o diagrama de níveis de 2.1 **reusado** (*"um quarto nível abaixo do lugar"*); o **HGI de 4.1A estendido um nível**; a aresta **só para frente**. **Fecha na Figura 6, que é o payoff**: separabilidade por categoria **0,57 contra 0,00** e pureza de vizinho **0,98 contra 0,78**. ⚠ A Figura 6 mede a **família da representação**, não uma configuração — **não precisa de fold, semente nem pareamento**, e é por isso que ela pode vir antes do protocolo. **Nenhum p-valor aqui** | 4 |
 | 5.3 | A arquitetura — **o que mudou no MTL e por quê**: Figura 5; compartilhamento **por troca**, não por camadas possuídas; o caminho espacial privado da região | 3 |
 | **5.4** | **Protocolo e metodologia estatística, introduzidos AQUI** (pontos 6 e 8): CV 5-fold **disjunta por usuário**; **Acc@10 + desconto OOD + piso Markov-1**; janelas **sobrepostas, stride 1**; **joint-best**; sementes {0,1,7,100} = **20 modelos ajustados, unidade inferencial n = 4**; *t* pareado sobre as médias por semente; **TOST na margem registrada**; Holm. **E o desvio declarado** do plano registrado (Wilcoxon sobre folds → *t* pareado sobre médias por semente) | 4,25 |
-| 5.5 | **O veredito**: Tabela 10 + Figura 7, em linguagem de lei (§5.1) | 5 |
-| 5.6 | O trade medido e os quatro limites declarados | 1,25 |
+| 5.5 | **Os resultados, num bloco só, sob as regras que acabaram de ser fixadas**: primeiro a **Tabela 9** (a representação — à frente nos seis, unânime nas cinco dobras em todos; o teste pareado separa em **cinco de seis**, Florida a *p* = 0,07, o menor salto da tabela); depois a **Tabela 10** e a **Figura 7** (o veredito, em linguagem de lei, §5.1). **A Tabela 9 aparece uma vez só** | 5,5 |
+| 5.6 | O trade medido e os **quatro limites declarados** — oferecidos antes de serem pedidos, que é critério de excelência e não cortesia | 1,25 |
 
 > ### A escada de 5.4 — quatro degraus, um slide cada
 >
@@ -428,10 +432,16 @@ ensaia literalmente (§9, pendência 3) — **e nunca vem do Resumo**.
 
 > *"Na previsão da **próxima região**, o modelo conjunto **supera** os dedicados no **Texas** e na
 > **Califórnia**, e nos outros quatro conjuntos **permanece dentro da margem de dois pontos**,
-> registrada antes de qualquer resultado ser lido. Na **próxima categoria**, **supera na Flórida**,
+> registrada antes de qualquer resultado ser lido — **quatro déficits pequenos, com a direção
+> declarada, nenhum empate**. Na **próxima categoria**, **supera na Flórida**,
 > e as cinco diferenças restantes são **equivalentes a zero dentro de meio ponto**."*
 
-Dois períodos, ~20 s. **Decidido pelo autor em 2026-08-22:** (a) os datasets são **nomeados**, não
+Dois períodos, ~24 s. **A cláusula de direção é obrigatória** (decidida 2026-08-22): sem ela, um
+arguidor pode devolver a frase como *"empata nos outros quatro"* — e o autor teria de corrigir a
+própria frase-manchete, que é o pior lugar possível para parecer que a afirmação passou da
+evidência. A `WRITING_LAW` manda a direção viajar junto de toda afirmação de equivalência.
+
+**Decidido pelo autor em 2026-08-22:** (a) os datasets são **nomeados**, não
 resumidos a "dois conjuntos"; (b) a moldura *"sob o desenho final e o protocolo mais estrito dos
 três"* **sai da fala e fica no slide** — ela protege contra a leitura de "MTL funciona", mas na tela
 faz esse trabalho sem custar tempo de voz.
@@ -449,7 +459,7 @@ resposta é que o agrupamento é **observação, não lei**. **Procedência de c
 que a ordem por vocabulário é lei; (b) se o *"sob o desenho final e o protocolo mais estrito dos
 três"* abre a frase ou fica implícito no slide anterior.
 
-### 5.2 · A Tabela 9, como a própria tabela a enuncia
+### 5.2 · A Tabela 9, como a própria tabela a enuncia *(falada em 5.5, no bloco de resultados)*
 
 O rascunho dizia *"check-in bate place-level nos seis"*. A nota de rodapé da tabela entregue diz outra coisa, e a fala
 segue a tabela:
