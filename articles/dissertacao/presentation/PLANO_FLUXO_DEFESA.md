@@ -288,9 +288,20 @@ mesma página). A frase retratada sobre representação hierárquica × injeçã
 | 6.4 | Fecho: retomada das aplicações + agradecimentos + a linha do repositório. **O takeaway na tela; o "obrigado" pela voz** (instrução do orientador no deck do CoUrb) |
 | 6.4 | Fecho: retomada das aplicações + **agradecimentos** + a linha do repositório. **O takeaway na tela; o "obrigado" pela voz** (instrução do orientador no deck do CoUrb) |
 
-> **Agradecimentos — os nomes.** Orientador: **Fabrício A. Silva**. Colegas de pesquisa:
-> **Germano**, **Tarik**, **Ingred** e **Pedro Maia**. *(Confirmar a grafia completa de cada um
-> antes do deck final — o GLOSSARY não registra nomes próprios.)*
+> **Agradecimentos — os nomes, com a fonte de cada grafia.**
+>
+> | nome | grafia | de onde vem |
+> |---|---|---|
+> | orientador | **Professor Fabrício Silva** | agradecimentos do texto entregue |
+> | colega | **Germano Santos** | idem — *"worked alongside me on every article"* |
+> | colega | **Tarik Paiva** | idem |
+> | colega | **Ingred F. Almeida** | coautora do CBIC 2025 |
+> | colega | **Pedro Maia** | ⚠ **não localizado** em nenhum artigo, no texto entregue, nem no repositório. **O autor precisa fornecer a grafia completa** |
+>
+> **Duas observações, não decisões:** (a) **Ingred e Pedro não constam dos agradecimentos
+> entregues**, que nomeiam Fabrício, Germano, Tarik, além de Henrique Santana e Gustavo Viegas — um
+> slide pode nomear quem quiser, mas vale saber que diverge do depositado; (b) o CBIC tem um
+> coautor que a lista não menciona, **Felipe T. Sousa**.
 **Nunca dizer.** "MTL funciona" sem condição. Re-caminhar a cadeia dos três estudos. Nenhum número novo.
 
 > **A outra metade do seu ponto 7** — o método estatístico "confuso e jogado" no Cap. 5 — **não se
@@ -418,13 +429,20 @@ A regra de linhagem acerta as quatro **e** continua acertando os seus três julg
 Montada **só** das superfícies registradas; nenhuma expressão é invenção minha. É o que o autor
 ensaia literalmente (§9, pendência 3) — **e nunca vem do Resumo**.
 
-> *"Sob o desenho final e o protocolo mais estrito dos três: na previsão da **próxima região**, o
-> modelo conjunto **supera** os dedicados em dois conjuntos — os dois de maior vocabulário de
-> região — e nos outros quatro **permanece dentro da margem de dois pontos**, registrada antes de
-> qualquer resultado ser lido. Na **próxima categoria**, **supera em um conjunto**, e as cinco
-> diferenças restantes são **equivalentes a zero dentro de meio ponto**."*
+> *"Na previsão da **próxima região**, o modelo conjunto **supera** os dedicados no **Texas** e na
+> **Califórnia**, e nos outros quatro conjuntos **permanece dentro da margem de dois pontos**,
+> registrada antes de qualquer resultado ser lido. Na **próxima categoria**, **supera na Flórida**,
+> e as cinco diferenças restantes são **equivalentes a zero dentro de meio ponto**."*
 
-Três períodos, ~25 s. **Procedência de cada expressão em negrito:** "supera" = `GLOSSARY` §6
+Dois períodos, ~20 s. **Decidido pelo autor em 2026-08-22:** (a) os datasets são **nomeados**, não
+resumidos a "dois conjuntos"; (b) a moldura *"sob o desenho final e o protocolo mais estrito dos
+três"* **sai da fala e fica no slide** — ela protege contra a leitura de "MTL funciona", mas na tela
+faz esse trabalho sem custar tempo de voz.
+
+⚠ **Nomear os datasets tem um preço a controlar.** Dito assim, convida a inferência de que a ordem
+por vocabulário de região é lei. **Não é**, e o próprio texto diz: a Califórnia tem **mais** regiões
+que o Texas (8.501 contra 6.553) e ganho **menor** (+1,06 contra +1,21). Se a pergunta vier, a
+resposta é que o agrupamento é **observação, não lei**. **Procedência de cada expressão em negrito:** "supera" = `GLOSSARY` §6
 (licenciado só onde o teste sobrevive a Holm); "permanece dentro da margem de dois pontos" e
 "registrada antes de qualquer resultado ser lido" = `GLOSSARY` §6, superfícies recorrentes;
 "equivalente a zero dentro de meio ponto" = `GLOSSARY` §6, eixo de categoria apenas.
