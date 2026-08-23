@@ -30,7 +30,7 @@
 | **A posição sobre o tronco**      | O autor sustenta que **não há dados suficientes para provar que o tronco compartilhado não contribuiu**. Ver §5.3 — é defensável e já está no texto entregue.                                                   | Autor, 2026-08-21 |
 | **Defeito do Resumo**             | Corrigido no fonte para a versão final + errata registrada + **nunca dito em voz alta**, exceto se perguntado. Ver §6, família 6.                                                                               | Autor, 2026-08-21 |
 | **Template e barra de navegação** | **`slides/`** (Beamer, do NESPeD — autoria de Henrique S. Santana, a mesma defesa que o guia §4.0 analisa). A barra de navegação **é nativa do template**, não precisa ser construída. Ver §11. | Autor, 2026-08-21 |
-| **Regra de ordenação** | §2 só introduz o que **≥2 dos 3 artigos usam na mesma forma**; o resto entra na seção do artigo que usa. Resolve o ponto 8. Ver §4. | Autor, 2026-08-21 |
+| **Regra de ordenação** | **Posse pela LINHAGEM**: um elemento é introduzido no seu ponto de primeiro uso na linhagem; §2 fica só com o que é transversal **e não faz parte da herança que o arco narra**. Resolve o ponto 8. Ver §4. | Autor, 2026-08-21 |
 | **Nomes das seções 3–5** | O **título do artigo**, não o veículo. Barra: a **linhagem de modelos** — MTLnet · ST-MTLNet · Check2HGI. | Autor, 2026-08-21 |
 | **Protocolo estatístico** | Introduzido em **5.4**, não na Seção 2 — só o Cap. 5 o usa. Idem Acc@10 e joint-best. | Autor, 2026-08-21 |
 | **Karpathy** | **Não na conclusão.** Série B, como contexto que abre a oferta proativa do P1. Ver §6. | Autor, 2026-08-21 |
@@ -135,7 +135,7 @@ do Art. 23.
 > autor em 2026-08-22 — o chão conceitual em 1.1, os trabalhos relacionados em representação (2.7),
 > a família de métodos de otimização antes do Nash (3.3A) e a metade de próxima região em 5.2A —
 > valem os 2,5 min que custam. **Mas com ~2,5 de folga num formato remoto, é o ensaio cronometrado
-> que decide o corte, não esta tabela.** Ensaio nº 1 antecipado para 25/08 (§9). *(Revisão de 2026-08-21: eram 43, e uma auditoria de orçamento mostrou que os quatro cards
+> que decide o corte, não esta tabela.** Ensaio nº 1: **24/08** (§9). *(Revisão de 2026-08-21: eram 43, e uma auditoria de orçamento mostrou que os quatro cards
 de mecanismo novos — DGI, NashMTL, HGI, encoders — custam 40–75 s cada e não cabiam nos +2 min que
 as seções 3 e 4 tinham ganhado. Os 2 min entram onde os cards estão, mais 1 min na Seção 5, que
 absorveu o protocolo estatístico e o related-work próprio.)*
@@ -184,7 +184,7 @@ POI". **E nenhum particular do corpus** — ver o aviso acima.
 | 2.7 | **Trabalhos relacionados em representação** — a base mais importante da dissertação (seu ponto): a linhagem de embeddings de grafo, **DGI**, **HGI** e a família, no nível de *o que cada um resolve*. Os mecanismos ficam com os capítulos donos (3.2A e 4.1A); aqui é o mapa que torna a linhagem legível |
 **Propósito.** O motor de de-duplicação. **Se cortada:** cada bloco repaga preâmbulo e a fala estoura.
 
-> **Encolheu de 6 para 5 min** sob a regra de §4. **Saíram para a Seção 5**: Acc@10 + desconto OOD,
+> **Encolheu de 6 para 5 min** sob a regra de §4, **e voltou a 6 em 2026-08-22**, quando 2.7 entrou. **Saíram para a Seção 5**: Acc@10 + desconto OOD,
 > o escore de seleção conjunta, sementes/20 modelos/*t* pareado/TOST/Holm, e a profundidade do split
 > disjunto. **Entrou**: a frase infomax e o diagrama de níveis em 2.1, e o segundo slide de
 > trabalhos relacionados. O tempo liberado financia os cards das seções 3 e 4.
@@ -228,8 +228,8 @@ vale só na tarefa estática; na sequencial MHA+PE lidera **Community, Food e Sh
 | 4.1 | A pergunta herdada — *"arquitetura ou representação?"* — e o desenho: **MTLnet congelado**, só a entrada muda (retoma 3.2) |
 | **4.1A** | **Card HGI** (ponto 5, o conceito que você chamou de importância extrema): o mecanismo em palavras simples — encoder de categoria pré-treinado → uma camada de convolução sobre o grafo de POIs → atenção por região → embedding de cidade ponderado por área; discriminador bilinear, **sem rótulos da tarefa final**. Retoma o infomax de 2.1 |
 | **4.1B** | **Card "por que estes encoders"** (ponto 5): a decomposição em **três canais de 64 dims** — espacial (**SIREN × Sphere2Vec-M**, comparados), temporal (**Time2Vec**), categórico (**duas fases: um POI Encoder com caminhadas aleatórias + o HGI**). Cada um com a razão da escolha |
-| 4.2 | **Ressalva primeiro, número depois — mas em UMA cláusula**: a tarefa estática lê o próprio rótulo, então o ganho dela **não diz nada sobre a tarefa sequencial**. Dita e seguida adiante; **não gastar dois minutos justificando** (instrução do orientador no deck do CoUrb) |
-| 4.3 | **O resultado diagnóstico**: a tarefa **sequencial**, cujo alvo nunca está na entrada — é dela que vem a conclusão do capítulo. O intervalo de ganho declarado como **melhor-de-dois por linha**, porque é o que ele é (o juiz do CoUrb pegou exatamente isso: SIREN sozinho no Texas dá +17,89, fora da faixa anunciada) |
+| 4.2 | **Ressalva primeiro, número depois — mas em UMA cláusula**: a tarefa estática lê o próprio rótulo, então o ganho dela **não diz nada sobre a tarefa sequencial**. Dita e seguida adiante; **não gastar dois minutos justificando** (instrução do orientador no deck do CoUrb). ⚠ **E o intervalo de ganho é declarado como melhor-de-dois por linha**, porque é o que ele é — o juiz do CoUrb pegou exatamente isso: SIREN sozinho no Texas dá **+17,89**, fora da faixa anunciada |
+| 4.3 | **O resultado diagnóstico**: a tarefa **sequencial**, cujo alvo nunca está na entrada — é dela que vem a conclusão do capítulo. |
 | 4.4 | **Discussão dos resultados** (redesenhada, seu ponto): o que a decomposição moveu e onde; **Travel com rótulo de tarefa explícito** — *"Travel (categoria) ✓ × Travel (próxima categoria) ✗"* — com a razão do próprio capítulo (topologia de grafo ainda vence em movimento esparso de longa distância); que **não há encoder espacial universalmente melhor** (SIREN × Sphere2Vec-M depende do território); e a comparação **não pareada em largura** (192 × 64 dims), dita como limite e não defendida |
 
 **Propósito.** Remove um suspeito por experimento controlado — o meio causal do arco.
@@ -343,7 +343,7 @@ linhas, todas na mesma direção: mandaria para a Seção 2 exatamente o que o a
 | elemento | usado por | a contagem mandaria | o certo é | por quê |
 |---|---|---|---|---|
 | MTLnet + FiLM | Caps. 3 e 4, forma idêntica | Seção 2 | **3.2** | *"a mesma arquitetura, sem alterar uma linha"* **é o argumento de controle do Cap. 4** — dizer antes destrói a herança |
-| Nash-MTL | Caps. 3 e 4 | Seção 2 | **3.3A** | idem; e o Cap. 4 o usa (`4_courb/methodology.tex:96`) |
+| Nash-MTL | Caps. 3 e 4 | Seção 2 | **3.3B** | idem; e o Cap. 4 o usa (`4_courb/methodology.tex:96`) |
 | HGI | Caps. 4 e 5, forma *place-level* idêntica (a coluna place-level da Tabela 9 **é** o HGI) | Seção 2 | **4.1A** | o Check2HGI **estende** o HGI um nível abaixo; introduzi-lo cedo apaga a extensão |
 | Istambul | só Cap. 5 | Seção 5 | **2.3** | a tabela de evidência é o contraste, e mostrá-la partida é pior |
 
@@ -362,7 +362,7 @@ A regra de linhagem acerta as quatro **e** continua acertando os seus três julg
 | Restrição de modelo único | **1.3** | 5, 6 | "a restrição de um artefato" |
 | **DGI (mecanismo)** | **3.2A** | 4.1 | "a representação monolítica que o Cap. 4 decompõe" |
 | **MTLnet + FiLM** | **3.2** | 4.1 | *"a mesma arquitetura, sem alterar uma linha"* |
-| **NashMTL** | **3.3A** | 4.1, 5.4 | "o balanceador dos **dois primeiros** estudos" — o Cap. 4 também treina com ele |
+| **Nash-MTL** | **3.3B** | 4.1, 5.4 | "o balanceador dos **dois primeiros** estudos" — o Cap. 4 também treina com ele |
 | **HGI (mecanismo)** | **4.1A** | 5.2 | "a hierarquia que o Check2HGI estende um nível abaixo" |
 | **SIREN / Sphere2Vec-M / Time2Vec / POI Encoder** | **4.1B** | — | não retomados |
 | **Check2HGI** | **5.2** | 6 | "a representação por visita" |
@@ -454,11 +454,6 @@ resposta é que o agrupamento é **observação, não lei**. **Procedência de c
 "registrada antes de qualquer resultado ser lido" = `GLOSSARY` §6, superfícies recorrentes;
 "equivalente a zero dentro de meio ponto" = `GLOSSARY` §6, eixo de categoria apenas.
 
-**Duas coisas a decidir no refino:** (a) nomear ou não os datasets na frase — a versão acima diz
-"dois conjuntos" e deixa Texas e Califórnia para o slide, o que a mantém curta e evita a leitura de
-que a ordem por vocabulário é lei; (b) se o *"sob o desenho final e o protocolo mais estrito dos
-três"* abre a frase ou fica implícito no slide anterior.
-
 ### 5.2 · A Tabela 9, como a própria tabela a enuncia *(falada em 5.5, no bloco de resultados)*
 
 O rascunho dizia *"check-in bate place-level nos seis"*. A nota de rodapé da tabela entregue diz outra coisa, e a fala
@@ -525,17 +520,20 @@ de limite, e o Q8 é o que o B-P1 e o slide Karpathy servem juntos.
 | **B6 · Documento e escopo** | o defeito do Resumo (§10) com Resumo × Cap. 5 lado a lado; a colisão de letras de apêndice; contagens de usuários (corpus bruto × pós-filtro); as sete perguntas `[FECHADO]` hoje sem família — **prioridade em Q22** (o piso de Markov de região acima de três sistemas publicados) |
 | **B7 · "Como o Check2HGI e o modelo conjunto funcionam"** | **NOVA** (seu ponto 10): 5–7 slides sobre o **Apêndice E do volume principal**, reusando as figuras que já existem. A fala menciona as duas arquiteturas sem tempo para detalhe; esta família é onde o detalhe mora. Inclui a pergunta mais afiada do apêndice: *o cross-attention atende histórico de região de um usuário com histórico de categoria de outro?* |
 
-### Cinco slides que este plano acrescenta por nome
+### Dois slides que este plano acrescenta por nome
 
 **B4-LEAK · *"O embedding do Capítulo 3 também devolve a própria categoria do lugar?"***
 > **O Cap. 3 não tem o mesmo defeito do Cap. 4, e a diferença é de mecanismo.** No Cap. 4 a
 > *feature* de tipo de local mapeia **um-para-um** nas categorias: é **consulta direta**. No Cap. 3
 > o vetor de entrada de cada POI **exclui o one-hot dele próprio** por construção — alimenta a
 > **média dos vizinhos** (nota de rodapé do próprio capítulo). Uma auditoria de código mediu que o
-> rótulo ainda **re-entra de forma indireta**, por **um salto** de agregação: **+0,165 macro-F1**,
-> confirmado por intervenção causal (relabelar um lugar, sem tocar no input dele, move o embedding
-> de todo vizinho). É assim que o apêndice entregue formula a diferença:
-> **consulta exata no Cap. 4, média diluída a um salto no Cap. 3.**
+> rótulo ainda **re-entra de forma indireta**, por **um salto** de agregação. A sonda do próprio rótulo
+> cai de **0,46 para 0,30 macro-F1** contra um piso de classe majoritária de **0,07** — cerca de
+> **dezesseis pontos na escala 0–100**. Confirmado por intervenção causal (relabelar um lugar, sem tocar no input dele, move o embedding
+> de todo vizinho). É assim que a **auditoria de código** formula a diferença: **consulta exata no Cap. 4, média diluída a um
+> salto no Cap. 3**. ⚠ **O texto que registra isso NÃO chegou a nenhum dos dois volumes** — o apêndice
+> que o carrega não é chamado por nenhum `\input` vivo (é a razão pela qual o NSO-46 foi fechado, §9).
+> Então isto é resposta oral apoiada no repositório, não citação do documento.
 >
 > **E a pergunta que importa vem depois:** isso invalida os capítulos? **Não** — a tarefa
 > **sequencial** de ambos nunca teve o alvo na entrada, e é dela que vêm as conclusões que o arco
@@ -647,8 +645,11 @@ porque a versão corrigida diz *menos*, e é isso que a torna defensável.
    nenhum dos dois volumes`.
 9. **Proibições literais nas notas do apresentador**: `100,2%` / `101,9%` (Apêndice G do suplemento — as contagens reais
    são 230% / 234%); `+2,12 / +2,05` do P1 (substrato superado); as células v17 `AL 63,56 / FL 79,85 / CA 77,05`;
-   `1,1 milhão para os dois dedicados` (medido:
-   1.850.980); `sob um décimo do salto`; e a frase do Resumo entregue.
+   `sob um décimo do salto`; e a frase do Resumo entregue.
+   ⚠ **Sobre o `1,1 milhão para os dois dedicados` (Cap. 5, p. 73): não repetir como se estivesse
+   verificado, e não citar uma recontagem.** A recontagem que este plano carregava (1.850.980) **não
+   tem fonte em lugar nenhum do repositório** — foi propagada de um relatório sem verificação e está
+   removida. Se a pergunta vier, a resposta é que a razão de parâmetros não foi re-medida.
 10. **Densidade.** Uma ideia por slide. Tabelas 9 e 10 ganham slide próprio e 1,5–2 min cada. Slides de
     figura/definição/transição: 20–40 s. Mínimo 16 pt. Marcadores por palavra-chave, nunca parágrafos. Slides numerados
     (útil no remoto: *"volte ao slide 14"*).
@@ -674,7 +675,7 @@ porque a versão corrigida diz *menos*, e é isso que a torna defensável.
 
 ---
 
-## 9 · Portões e prazos (hoje **sábado 2026-08-22**, defesa sexta 28/08)
+## 9 · Portões e prazos (hoje **domingo 2026-08-23**, defesa sexta 28/08)
 
 > **Quem aprova é o autor.** *(Decidido 2026-08-22.)* O portão de validação com o orientador saiu:
 > a estrutura é revisada e aprovada por ele mesmo. O guia §2 sugeria a validação com o Fabrício;
@@ -699,8 +700,10 @@ porque a versão corrigida diz *menos*, e é isso que a torna defensável.
    nativa. Ver §11.
 2. ~~**Q13 / Q14 / Q15**~~ — **FECHADA 2026-08-21**: o autor decidiu **slides prontos para resposta oral**. B-P1 e
    B-Q13 mantêm o distintivo `OFERECER PROATIVAMENTE`; **B-Q15 ganha slide próprio** (estava diluído em B6).
-3. **A frase do veredito em português**, ensaiada literalmente. Ela vem de §5.1 deste plano — **nunca do Resumo**.
-   *(Confirmada pelo autor como pendência viva, 2026-08-21.)*
+3. ~~**A frase do veredito em português**~~ — **FECHADA 2026-08-22.** Redigida e refinada com o autor;
+   está em **§5.1b**, com a procedência de cada expressão e a cláusula de direção obrigatória. Duas
+   decisões dele: os datasets são **nomeados**, e a moldura *"sob o desenho final…"* fica **no slide,
+   não na voz**. **Resta ensaiá-la literalmente — e nunca tirá-la do Resumo.**
 4. ~~**LO-11 (crédito de autoria no CoUrb)**~~ — **RETIRADA 2026-08-21** a pedido do autor: não precisa ser levantada.
 5. ~~**NSO-46**~~ — **FECHADA 2026-08-22, pela premissa inválida.** O parágrafo que o marcador anota
    **não chega ao leitor**: `apx_b_static_scope` não é chamado por nenhum `\input` vivo, e doze
@@ -709,7 +712,14 @@ porque a versão corrigida diz *menos*, e é isso que a torna defensável.
    ⚠ **Fechado por isso, e não por "não há vazamento no Cap. 3"** — a auditoria mediu o canal
    indireto em **+0,165 macro-F1** e o confirmou por intervenção causal. O slide **B4-LEAK** carrega
    a formulação correta.
-6. **A errata do `GLOSSARY:161`** (§10) — aplicada nesta revisão; confirmar que a redação serve.
+6. ~~**A errata do `GLOSSARY:161`**~~ — **APROVADA pelo autor, 2026-08-22.**
+
+### O que continua aberto
+
+7. **A grafia de "Pedro Maia"** — não localizada em nenhum artigo, no texto entregue, nem em lugar
+   nenhum do repositório. O slide de agradecimentos precisa dela, e não vou inventar sobrenome.
+8. **A aprovação deste plano pelo autor** — é o portão de hoje (§9). O `SLIDES.md` é escrito a
+   partir dele, e o ensaio é amanhã.
 
 ---
 
@@ -852,9 +862,9 @@ Opções do pacote: decoração `net` \| `accel` \| `data`; cor `green` \| `blue
 
 \titleframe{ \titlelogo{img/logo-nesped.png} \titlelogo{img/logo-ufv.png} }
 
-\section[Introdução]{Abertura --- a pergunta e o escopo}                          % 4 min
-\section[Fundamentos]{Fundamentos compartilhados}                                 % 5 min
-\section[MTLnet]{Multitask Learning for POI Category and Next-POI Prediction}      % 5 min
+\section[Introdução]{Abertura --- a pergunta e o escopo}                          % 5 min
+\section[Fundamentos]{Fundamentos compartilhados}                                 % 6 min
+\section[MTLnet]{Multitask Learning for POI Category and Next-POI Prediction}      % 5,5 min
 \section[ST-MTLNet]{ST-MTLNet: Spatio-Temporal POI Representations}               % 6 min
 \section[Check2HGI]{A Check-in-Level Multitask Study of Next Category and Region}  % 20 min
 \section[Conclusão]{Conclusão Geral --- a resposta condicional}                    % 5 min

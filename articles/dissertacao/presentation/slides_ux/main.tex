@@ -9,6 +9,31 @@
 \usepackage[net,green]{nesped}
 \usepackage[brazilian]{babel}
 
+% --- fontes: Petrona (títulos) + IBM Plex Sans (corpo) + IBM Plex Mono (tabelas/código) ---
+% Nomes de arquivo SEMPRE explícitos -- "*" no fontspec substitui pelo nome da família COM
+% espaço, que não bate com os .ttf (sem espaço) em fonts/.
+\setsansfont{IBM Plex Sans}[
+    Path=fonts/,
+    UprightFont=IBMPlexSans-Regular.ttf,
+    BoldFont=IBMPlexSans-Bold.ttf,
+    ItalicFont=IBMPlexSans-Italic.ttf,
+]
+\newfontfamily\titlefont{Petrona SemiBold}[
+    Path=fonts/,
+    UprightFont=Petrona-SemiBold.ttf,
+    BoldFont=Petrona-Bold.ttf,
+]
+\newfontfamily\codefont{JetBrains Mono}[
+    Path=fonts/,
+    UprightFont=JetBrainsMono-Regular.ttf,
+    BoldFont=JetBrainsMono-Bold.ttf,
+]
+\setmonofont{JetBrains Mono}[Path=fonts/, UprightFont=JetBrainsMono-Regular.ttf, BoldFont=JetBrainsMono-Bold.ttf]
+\setbeamerfont{title}{family=\titlefont, series=\bfseries}
+\setbeamerfont{frametitle}{family=\titlefont, series=\bfseries}
+% Use \codefont dentro de tabelas de números para colunas de dígito alinhadas, ex.:
+%   {\codefont \begin{tabular}{lrrr} ... \end{tabular}}
+
 % TODO: título exatamente como no folha de rosto entregue (src/) — fala em PT, slides em EN (§0).
 \title[Título curto]{Multitask Learning for Point-of-Interest Classification and Prediction Tasks: The Role of the Check-in-Level Representation}
 \subtitle{Defesa de Dissertação de Mestrado}
@@ -35,7 +60,7 @@
 % ============================================================
 % SEÇÃO 1 · Introdução — 4 min (PLANO §3, Seção 1)
 % ============================================================
-\section[Introdução]{Abertura --- a pergunta e o escopo}                          % 5 min
+\section{Introdução}
 
 \subsection{Motivação}
 \begin{frame}{TODO 1.1 --- Motivação}
@@ -67,7 +92,7 @@
 % SEÇÃO 2 · Fundamentos compartilhados — 6 min (PLANO §3, Seção 2)
 % Motor de de-duplicação do deck inteiro — nada disto é reaberto depois (PLANO §4).
 % ============================================================
-\section[Fundamentos]{Fundamentos compartilhados}                                 % 6 min
+\section{Fundamentos}
 
 \subsection{Linhagem}
 \begin{frame}{TODO 2.1 --- Linhagem e representação}
@@ -107,7 +132,7 @@
 % ============================================================
 % SEÇÃO 3 · Capítulo 3 --- CBIC 2025: o nulo previsto — 4 min (PLANO §3, Seção 3)
 % ============================================================
-\section[MTLnet]{Multitask Learning for POI Category and Next-POI Prediction}      % 5,5 min
+\section{CBIC 2025}
 
 \subsection{Par de tarefas}
 \begin{frame}{TODO 3.1 --- O par de tarefas}
@@ -142,7 +167,7 @@
 % ============================================================
 % SEÇÃO 4 · Capítulo 4 --- CoUrb 2026: o diagnóstico controlado — 4 min (PLANO §3, Seção 4)
 % ============================================================
-\section[ST-MTLNet]{ST-MTLNet: Spatio-Temporal POI Representations}               % 6 min
+\section{CoUrb 2026}
 
 \subsection{Pergunta herdada}
 \begin{frame}{TODO 4.1 --- Arquitetura ou representação?}
@@ -178,7 +203,7 @@
 % SEÇÃO 5 · Capítulo 5 --- MobiWac 2026: a resolução — 20 min (PLANO §3, Seção 5)
 % Quase metade da fala --- padrão curto-curto-longo. NÃO comprimir abaixo de ~18 min.
 % ============================================================
-\section[Check2HGI]{A Check-in-Level Multitask Study of Next Category and Region}  % 20 min
+\section{MobiWac 2026}
 
 \subsection{O que muda}
 \begin{frame}{TODO 5.1 --- O que muda e por quê (1 min)}
@@ -230,7 +255,7 @@
 % ============================================================
 % SEÇÃO 6 · Conclusão Geral — 5 min (PLANO §3, Seção 6)
 % ============================================================
-\section[Conclusão]{Conclusão Geral --- a resposta condicional}                    % 5 min
+\section{Conclusão}
 
 \subsection{Resposta condicional}
 \begin{frame}{TODO 6.1 --- A resposta condicional}

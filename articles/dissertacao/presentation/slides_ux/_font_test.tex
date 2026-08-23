@@ -1,0 +1,68 @@
+\documentclass{beamer}
+\usepackage[net,green]{nesped}
+\usepackage[brazilian]{babel}
+
+% --- teste de fontes: Fraunces (títulos) + IBM Plex Sans (corpo) + JetBrains Mono (código) ---
+% Fraunces restrito: SOFT=0, WONK=0 (sem o eixo "quirky"), instâncias estáticas em fonts/.
+\setsansfont{IBM Plex Sans}[
+    Path=fonts/,
+    UprightFont=IBMPlexSans-Regular.ttf,
+    BoldFont=IBMPlexSans-Bold.ttf,
+    ItalicFont=IBMPlexSans-Italic.ttf,
+]
+\newfontfamily\titlefont{Fraunces SemiBold}[
+    Path=fonts/,
+    UprightFont=Fraunces-SemiBold.ttf,
+    BoldFont=Fraunces-Bold.ttf,
+]
+\newfontfamily\codefont{JetBrains Mono}[
+    Path=fonts/,
+    UprightFont=JetBrainsMono-Regular.ttf,
+    BoldFont=JetBrainsMono-Bold.ttf,
+]
+\setbeamerfont{title}{family=\titlefont, series=\bfseries}
+\setbeamerfont{frametitle}{family=\titlefont, series=\bfseries}
+\setmonofont{JetBrains Mono}[Path=fonts/, UprightFont=JetBrainsMono-Regular.ttf, BoldFont=JetBrainsMono-Bold.ttf]
+
+\title[Teste]{Teste de fontes: Fraunces + IBM Plex Sans + JetBrains Mono}
+\subtitle{Título com acentuação: relação, condição, não-inferioridade}
+\author{Vitor Hugo}
+\institute[UFV]{Universidade Federal de Viçosa --- PPGCC}
+\date{28 de agosto de 2026}
+
+\begin{document}
+
+\titleframe{
+    \titlelogo{img/logo-nesped.png}
+    \titlelogo{img/logo-ufv.png}
+}
+
+\begin{frame}{Corpo de texto e acentuação}
+    \begin{itemize}
+        \item A representação em nível de check-in é o fator dominante.
+        \item Não-inferioridade, margem de dois pontos, condição pré-registrada.
+        \item Números: 0.19, 63.18\%, $p=0.011$, Acc@10.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Tabela com números em JetBrains Mono}
+    \begin{table}
+        \centering
+        {\codefont
+        \begin{tabular}{lrrr}
+            Estado & Dedicado & Conjunto & $\Delta$ \\\hline
+            Alabama & 63.18 & 63.44 & +0.26 \\
+            Florida & 37.36 & 37.55 & +0.19 \\
+            Texas   & 65.94 & 67.15 & +1.21 \\
+        \end{tabular}}
+    \end{table}
+\end{frame}
+
+\begin{frame}[fragile]{Código em JetBrains Mono}
+    \begin{lstlisting}[language=Python]
+def geom_simple(cat_f1, reg_acc10):
+    return (cat_f1 * reg_acc10) ** 0.5
+    \end{lstlisting}
+\end{frame}
+
+\end{document}
