@@ -19,10 +19,31 @@
 
 | | |
 |---|---|
-| Deck principal | **55 slides · 48 min** (11 + 11,5 + 20 + 5,5) — o orçamento do plano, exato |
+| Deck principal | **54 slides · 48 min** (11 + 11,5 + 20 + 5,5) — o orçamento do plano, exato |
 | Série B (reserva) | **46 slides**, fora da contagem e da barra (`\miniframesoff`) |
-| Ledger | **94 elementos, zero duplicatas de `INTRODUZ`** — a regra §8.4 verificada mecanicamente |
+| Ledger | **73 elementos `INTRODUZ`, zero duplicatas** — conferido **sobre o arquivo montado**. *(A primeira conferência rodou sobre o auto-relato dos redatores e por isso não pegou o S49 duplicado. Um relato não é o artefato.)* |
 | Barra de navegação | Introdução · Fundamentos · **MTLnet** · **ST-MTLNet** · **Check2HGI** · Conclusão |
+
+## `[BLOCO-CONTRIBUIÇÃO]` — a definição única
+
+A regra §8.13 do plano exige que a contribuição apareça **duas vezes com redação idêntica** — cedo
+e no fechamento. Antes desta correção as duas cópias divergiam, e **ambas diziam ser idênticas a
+uma definição no cabeçalho que não existia**. Agora existe: é este bloco, e **S7 e S51 o
+reproduzem palavra por palavra**. Qualquer edição muda os dois.
+
+  > **Practical.** One model, one forward pass, two predictions: the next category and the next
+  > region of a visit. One artifact to train, version and deploy, in place of two.
+  > **The gain is operational, not computational** — the joint model is the larger artifact, and a
+  > forward pass through it costs more than running the two dedicated models. What falls is the
+  > number of models to train and maintain.
+  >
+  > **Scientific.** The conditions, not a universal yes. The input representation and the sharing
+  > topology decide whether multitask learning helps these POI prediction tasks. A null result
+  > under a place embedding with hard parameter sharing does not contradict a positive one under a
+  > check-in-level representation with cross-attention: they are different conditions, and naming
+  > which ones matter is the contribution.
+
+---
 
 ---
 
@@ -118,10 +139,21 @@
 ### S7 · The contribution, in one block
 - **Seção/subseção:** 1.5 (§8 regra 13, primeira das duas aparições)   **Tempo:** 40 s
 - **LEDGER:** INTRODUZ a contribuição una (a segunda aparição, com redação idêntica, é o slide de fechamento da Seção 6)
-- **Na tela:** `[BLOCO-CONTRIBUIÇÃO]`, literal, palavra por palavra igual ao slide de fechamento.
-  > **Practical.** One model, one forward pass, two predictions: the next category and the next region of a visit. **The gain is operational, not computational.** The joint model is the larger artifact, and a forward pass through it costs more than running the two dedicated models. What falls is the number of models to train and maintain.
+- **Na tela:** o `[BLOCO-CONTRIBUIÇÃO]` definido no cabeçalho deste documento, reproduzido
+  **palavra por palavra**. Não reescrever aqui — editar a definição, que muda os dois slides.
+
+  > **Practical.** One model, one forward pass, two predictions: the next category and the next
+  > region of a visit. One artifact to train, version and deploy, in place of two.
+  > **The gain is operational, not computational** — the joint model is the larger artifact, and a
+  > forward pass through it costs more than running the two dedicated models. What falls is the
+  > number of models to train and maintain.
   >
-  > **Scientific.** The conditions, not a universal yes. The input representation and its sharing topology determine whether multitask learning helps these POI prediction tasks. A null result with a place-level representation and hard sharing does not conflict with a positive result obtained from a check-in-level representation and a different form of sharing.
+  > **Scientific.** The conditions, not a universal yes. The input representation and the sharing
+  > topology decide whether multitask learning helps these POI prediction tasks. A null result
+  > under a place embedding with hard parameter sharing does not contradict a positive one under a
+  > check-in-level representation with cross-attention: they are different conditions, and naming
+  > which ones matter is the contribution.
+
 - **Fala (PT):** "A contribuição, em duas metades, e eu volto a esta tela no fim com as mesmas palavras. A metade prática: um modelo, uma passagem, duas predições. O ganho é operacional, não computacional. O modelo conjunto é o artefato maior, e uma passagem por ele custa mais do que rodar os dois dedicados; o que diminui é o número de modelos para treinar e manter. A metade científica: o que eu entrego são condições, não um sim universal. A representação de entrada e a topologia de compartilhamento decidem se o multitarefa ajuda nestas tarefas. É por isso que um resultado nulo com embedding por lugar e compartilhamento rígido não contradiz um resultado positivo com representação em nível de check-in e outra forma de compartilhar."
 - **Proveniência:** metade científica copiada de `chapters/1_introduction.tex:425-431` (grupo Theoretical). Metade prática copiada de `chapters/2_fundamentals.tex:1901-1906` ("a single model to maintain and one forward pass"; "The gain is operational, not computational"; "the reduction is in the number of models to train and maintain"); o custo por passagem também em `chapters/5_mobiwac/04_method.tex:51-56`.
 - **Nunca dizer:** "MTL funciona" sem condição. Nenhum número aqui, e em particular nenhuma contagem de parâmetros: a razão entre o modelo conjunto e os dois dedicados **não foi re-medida** (PLANO §8 regra 9).
@@ -653,9 +685,9 @@
   - Convenção desta tabela, distinta da próxima: **seed 0, five matched folds; ± is the fold sd.**
   - Nota de rodapé da própria tabela, na tela: **All five folds favor the check-in-level representation at every dataset. A paired test separates the two columns at every dataset except Florida (p = 0.07), where the direction is unanimous but the difference does not reach significance.**
   - Bloco lateral, os dois controles: **CTLE**, fine-tuned at Florida, reaches **33.45** macro-F1 at its best epoch, about two points below the place embedding under the same rule, and repeats the ordering with fixed weights at Alabama, Arizona and Istanbul. **Feature concatenation** (the place embedding plus the same raw per-visit features) raises the place embedding by **+2.0, +1.7 and +0.8** macro-F1 at Alabama, Arizona and Florida.
-- **Fala (PT):** "Primeiro resultado, e ele é sobre a representação sozinha, não sobre o multitarefa. A comparação é controlada: mesmo alvo, mesmo modelo de tarefa única, mesma configuração de treino, mesmas partições, mesmas janelas, mesmo orçamento de épocas, mesmo ajuste de logit. **Só a entrada muda.** A convenção desta tabela é a semente zero, com cinco partições pareadas, e o desvio é entre partições; guardem isso, porque a próxima tabela tem outra convenção. A leitura é a da própria tabela, não a minha: o nível de check-in está **à frente nos seis** conjuntos, e é **unânime nas cinco partições em todos eles**; um teste pareado sobre as cinco partições separa as duas colunas em **cinco dos seis**, e a Flórida é a exceção, a p igual a 0,07, onde a direção é unânime mas a diferença não alcança significância. E a Flórida ser a exceção não é acaso: ela é o menor salto da tabela, mais 0,23. A faixa vai desse mais 0,23 na Flórida a mais 6,29 em Istambul. O que isso estabelece é uma **direção consistente**, não um efeito grande. À direita, os dois controles que separam esse ganho de duas explicações mais baratas. O CTLE, que é a contextualização mais próxima, fica cerca de dois pontos abaixo do embedding por lugar na Flórida sob a mesma regra, e repete a ordenação com pesos fixos no Alabama, no Arizona e em Istambul. E a concatenação de features cruas ao embedding por lugar levanta esse embedding em 2,0, 1,7 e 0,8 ponto de macro-F1, no Alabama, no Arizona e na Flórida. O ganho vem da representação hierárquica por visita, e não de contextualização em geral nem de injeção de features."
+- **Fala (PT):** "Primeiro resultado, e ele é sobre a representação sozinha, não sobre o multitarefa. A comparação é controlada: mesmo alvo, mesmo modelo de tarefa única, mesma configuração de treino, mesmas partições, mesmas janelas, mesmo orçamento de épocas, mesmo ajuste de logit. **Só a entrada muda.** A convenção desta tabela é a semente zero, com cinco partições pareadas, e o desvio é entre partições; guardem isso, porque a próxima tabela tem outra convenção. A leitura é a da própria tabela, não a minha: o nível de check-in está **à frente nos seis** conjuntos, e é **unânime nas cinco partições em todos eles**; um teste pareado sobre as cinco partições separa as duas colunas em **cinco dos seis**, e a Flórida é a exceção, a p igual a 0,07, onde a direção é unânime mas a diferença não alcança significância. E a Flórida ser a exceção não é acaso: ela é o menor salto da tabela, mais 0,23. A faixa vai desse mais 0,23 na Flórida a mais 6,29 em Istambul. O que isso estabelece é uma **direção consistente**, não um efeito grande. À direita, os dois controles que separam esse ganho de duas explicações mais baratas. O CTLE, que é a contextualização mais próxima, fica cerca de dois pontos abaixo do embedding por lugar na Flórida sob a mesma regra, e repete a ordenação com pesos fixos no Alabama, no Arizona e em Istambul. E a concatenação de features cruas ao embedding por lugar levanta esse embedding em 2,0, 1,7 e 0,8 ponto de macro-F1, no Alabama, no Arizona e na Flórida. Os dois controles limitam explicações mais baratas; **o que eles não fazem é isolar a hierarquia**. O controle de concatenação foi refeito depois do envio, na escala da Tabela 9, e lá ele fecha a maior parte da diferença — num conjunto, a ultrapassa. Tenho o slide, se quiserem vê-lo."
 - **Proveniência:** todas as células e a nota de rodapé → `tables/mobiwac/representation.tex` (Tab. 9, copiadas célula a célula, incluindo a convenção "seed 0" da legenda); faixa de +0.23 a +6.29, unanimidade das cinco partições, Florida a p = 0.07 e "a consistent direction rather than a large effect" → `chapters/5_mobiwac/06_results.tex:28-36`; CTLE 33.45 → `:40`; concatenação +2.0, +1.7, +0.8 → `:45`.
-- **Nunca dizer:** "o nível de check-in bate o de lugar nos seis" no sentido de teste: o teste separa em cinco. Nunca generalizar a cláusula do capítulo *"under a tenth of the place-to-check-in gap"*: ela é dita **por estado**, e generalizá-la é aritmeticamente falso contra a própria Tabela 9, na mesma página. Nunca chamar a diferença de representação de "margem".
+- **Nunca dizer:** "o nível de check-in bate o de lugar nos seis" no sentido de teste: o teste separa em cinco. Nunca generalizar a cláusula do capítulo *"under a tenth of the place-to-check-in gap"*: ela é dita **por estado**, e generalizá-la é aritmeticamente falso contra a própria Tabela 9, na mesma página. Nunca chamar a diferença de representação de "margem". ⚠ **E nunca a frase retratada** — *"o ganho vem da representação hierárquica e não da injeção de features"*. O controle refeito (`wrapup/post_submission_studies/Q13_concatenation_control.md`, 16/08) conclui que **a frase depositada está errada na direção**, e há errata escrita. Os números desta própria tela a refutam: no Alabama a concatenação levanta **+2,0** contra um salto total de **+1,62**.
 
 ### S46 · Result 2: one model, two tasks
 - **Seção/subseção:** 5.5 (b)   **Tempo:** 120 s
@@ -719,44 +751,6 @@
 - **Nunca dizer:** repetir a razão de parâmetros como se tivesse sido re-medida, e nunca citar uma recontagem. Se a pergunta vier, a resposta é que a razão de parâmetros não foi re-medida. Nunca citar as duas porcentagens de parâmetros impressas no Apêndice G do suplemento: elas estão erradas, e o assunto é do slide B3.
 
 ### S49 · The ladder: three studies, three layers
-- **Seção/subseção:** fronteira 5 → 6 (PLANO §2, Ato III; o §3 orça estes 30 s dentro da Seção 6)   **Tempo:** 30 s
-- **LEDGER:** INTRODUZ a leitura conjunta dos três estudos (a escada da fronteira) · RETOMA a linhagem de 2.1 e as três camadas de 4.5
-- **Na tela:** uma grade de **três linhas × três colunas, zero números**, com uma linha de fecho por estudo. (Este asset não existe e precisa ser criado; o conteúdo exato é este.)
-
-  | | **Representation** | **Sharing topology** | **Protocol** |
-  |---|---|---|---|
-  | **MTLnet** (Ch. 3) | one vector per place | hard parameter sharing | sample-stratified folds, no tests |
-  | **ST-MTLNet** (Ch. 4) | decomposed spatial, temporal and categorical encoders | *unchanged, by design* | *unchanged, by design* |
-  | **Check2HGI** (Ch. 5) | one vector per visit, four-level graph | cross-attention between per-task streams, private spatial path | user-disjoint folds, four seeds, tests fixed in advance |
-
-  - Fecho por linha, *what moved*: **MTLnet** a null, and three named suspects · **ST-MTLNet** with the architecture fixed, the input moved the result: the representation is the bottleneck · **Check2HGI** one model replaces two, and outperforms them on region at the two datasets with the largest region counts.
-  - As duas células *unchanged, by design* ficam marcadas visualmente: é a arquitetura mantida fixa que produz o diagnóstico.
-- **Fala (PT):** "Antes da conclusão, uma tela em que a coletânea inteira cabe. Três linhas, os três estudos; três colunas, as três camadas. O MTLnet: um vetor por lugar, compartilhamento rígido, partições por amostra. Ele entrega um nulo com três suspeitos. O ST-MTLNet: entrada decomposta, e as duas outras colunas **inalteradas de propósito**. É essa arquitetura mantida fixa que faz o diagnóstico valer. O Check2HGI: um vetor por visita, compartilhamento por troca e protocolo disjunto por usuário. Um modelo conjunto substitui dois, e supera os dedicados na região nos dois conjuntos com mais regiões. Um veredito condicional, medido sob o protocolo mais estrito dos três. O que os três estudos, juntos, estabelecem, e o que eles não estabelecem?"
-- **Proveniência:** linha MTLnet → `chapters/1_introduction.tex:151-159`; linha ST-MTLNet → `chapters/1_introduction.tex:161-166`; linha Check2HGI → `chapters/1_introduction.tex:168-190`, `chapters/5_mobiwac/04_method.tex:18-31` e `chapters/5_mobiwac/05_setup.tex:30`; a transição falada é a de PLANO §2, saída do Ato III (redação literal).
-- **Nunca dizer:** nenhum número nesta tela. Nenhum "fomos de X para Y" atravessando protocolos. Nenhuma afirmação de que o Cap. 3 e o Cap. 5 são comparáveis célula a célula.
-
----
-
-# sec6
-
-# SEÇÃO 6 · Conclusão Geral: a resposta condicional (5,5 min)
-
-> `\section[Conclusão]{Conclusão Geral --- a resposta condicional}`
->
-> **Orçamento:** 30 + 55 + 45 + 65 + 65 + 70 = **330 s = 5 min 30 s**, o alvo de PLANO §3.
->
-> **A escada da fronteira (Ato III → Ato IV) fica DESTE lado**, como S49, porque PLANO §3 a
-> orça dentro desta seção (*"inclui o slide de escada da fronteira, 30 s"*). O redator da
-> Seção 5 não a escreve; a Seção 5 termina em S48 e a transição de saída do Ato III é
-> **falada sobre S49**.
->
-> **S49 é slide de transição estrutural (§8 regra 12): passagem de corte de tempo não pode removê-lo.**
->
-> **Aviso de seção.** Nenhum número de resultado entra aqui (PLANO §3, *nunca dizer*). As datas
-> da limitação 1 e as sete classes da limitação 2 não são resultado: são propriedade da base de
-> evidência, e a `WRITING_LAW` §3 exige que uma limitação seja concreta.
-
-### S49 · The ladder: three studies, three layers
 - **Seção/subseção:** 6.0 (fronteira Ato III → Ato IV)   **Tempo:** 30 s
 - **LEDGER:** INTRODUZ a leitura conjunta dos três estudos lado a lado | RETOMA a linhagem de 2.1 e as três camadas de 5.1
 - **Na tela:** grade 3 × 4, **zero números**. Asset a criar (não existe no repositório; conteúdo exato abaixo). As duas células `unchanged, by design` da linha ST-MTLNet recebem marca visual, porque é o congelamento que produz o diagnóstico.
@@ -788,11 +782,20 @@
 ### S51 · The contribution, in one block
 - **Seção/subseção:** 6.2   **Tempo:** 45 s
 - **LEDGER:** RETOMA a contribuição de 1.5 (§8 regra 13: segunda das duas aparições, redação idêntica)
-- **Na tela:** `[BLOCO-CONTRIBUIÇÃO]`, literal, **as mesmas palavras do slide S7**. O bloco está definido uma vez no cabeçalho deste documento e é reproduzido aqui para conferência caractere a caractere:
+- **Na tela:** o `[BLOCO-CONTRIBUIÇÃO]` definido no cabeçalho deste documento, reproduzido
+  **palavra por palavra**. Não reescrever aqui — editar a definição, que muda os dois slides.
 
-  > **Practical.** One model, one forward pass, two predictions: the next category and the next region of a visit. The gain is operational, not computational. One artifact to train, version, and deploy; the joint model is larger than the two dedicated models it replaces.
+  > **Practical.** One model, one forward pass, two predictions: the next category and the next
+  > region of a visit. One artifact to train, version and deploy, in place of two.
+  > **The gain is operational, not computational** — the joint model is the larger artifact, and a
+  > forward pass through it costs more than running the two dedicated models. What falls is the
+  > number of models to train and maintain.
   >
-  > **Scientific.** The conditions, not a universal yes. The input representation and the sharing topology decide whether multitask learning helps these tasks. A null result under a place embedding with hard parameter sharing does not contradict a positive result under a check-in-level representation and a different form of sharing.
+  > **Scientific.** The conditions, not a universal yes. The input representation and the sharing
+  > topology decide whether multitask learning helps these POI prediction tasks. A null result
+  > under a place embedding with hard parameter sharing does not contradict a positive one under a
+  > check-in-level representation with cross-attention: they are different conditions, and naming
+  > which ones matter is the contribution.
 
 - **Fala (PT):** "Esta é a mesma tela que eu mostrei no começo, com as mesmas palavras, e agora ela tem a evidência atrás. A metade prática: um modelo, uma passagem, duas predições. O ganho é operacional, não computacional, um artefato para treinar, versionar e implantar. E o preço vai junto: o modelo conjunto é maior que os dois dedicados que ele substitui. A metade científica: as condições, não um sim universal. A representação de entrada e a topologia de compartilhamento decidem se o multitarefa ajuda nestas tarefas. É por isso que o nulo do Capítulo 3 e o resultado positivo do Capítulo 5 não se contradizem."
 - **Proveniência:** idêntica à de S7. Metade prática, `src/chapters/6_conclusion.tex:468-470` (*"a single model that predicts two properties of the next visit in one forward pass"*) e `src/chapters/5_mobiwac/04_method.tex:51-57` (*"larger than either dedicated model"*, *"operational rather than arithmetic: one artifact to train, version, and deploy"*). Metade científica, `src/chapters/1_introduction.tex:425-431` (Theoretical: a representação de entrada e a topologia de compartilhamento decidem; o nulo não conflita com o positivo).
@@ -1148,7 +1151,7 @@
 - **Na tela:**
   `B-MTLCHECK`
   - A clean reimplementation, written without reusing code from the old repository, running from raw check-ins to trained models. **No file produced by the old repository enters the path.**
-  - Eight cells at Alabama and Arizona, under **the chapter's own protocol** (five flat folds): **mean delta −0.001 pp**, largest single deviation **0.421 pp**, which sits inside the seed spread the chapter itself prints (0.04 to 0.22).
+  - Eight cells at Alabama and Arizona, under **the chapter's own protocol** (five flat folds): **mean delta −0.001 pp**, largest single deviation **0.421 pp**, which is **of the order of** the seed spread the chapter itself prints (0.04 to 0.22) — about twice its top, and the only cell above it.
   - Two caveats the sentence must carry: **one seed** on the new side against four on the chapter's; and the two columns are **not the same configuration** (the representation was rebuilt, the region tower unified, one component corrected).
   - **This is extra material. It does not correct Chapter 5.**
 - **Fala (PT):** "O sistema foi reescrito do zero, sem reaproveitar código, e reproduz a tabela do Capítulo 5 com desvio médio de um milésimo de ponto em oito células; o maior desvio individual é de quatro décimos, e fica na ordem do desvio entre sementes que a própria tabela publica. Duas ressalvas viajam junto: uma semente do meu lado contra quatro do lado dela, e as duas colunas não são a mesma configuração, porque a representação foi reconstruída e a torre de região unificada. É material extra, e não corrige o Capítulo 5."
