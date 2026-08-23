@@ -35,7 +35,7 @@
 | **Protocolo estatístico** | Introduzido em **5.4**, não na Seção 2 — só o Cap. 5 o usa. Idem Acc@10 e joint-best. | Autor, 2026-08-21 |
 | **Karpathy** | **Não na conclusão.** Série B, como contexto que abre a oferta proativa do P1. Ver §6. | Autor, 2026-08-21 |
 | Logística                         | 28/08/2026, 10:00–12:30, **remota** (Google Meet). Banca: Fabrício A. Silva (presidente), Clayson S. F. de Sousa Celes (ITA, externo), Alex Borges.                                                             | Guia §0           |
-| Teto                              | **50 minutos** (Art. 23). Este plano orça **47,5 min**, folga de 2,5.                                                                                                                                               | Regimento         |
+| Teto                              | **50 minutos** (Art. 23). Este plano orça **48 min**, folga de 2.                                                                                                                                               | Regimento         |
 
 ---
 
@@ -75,7 +75,8 @@ vez**.
 
 > **Transição de saída (dita, em slide próprio):**
 > *"Com o vocabulário, os dados e a métrica fixados uma única vez, cada estudo agora só precisa
-> dizer o que mudou — e cada um nomeia a sua própria convenção de avaliação quando chegar a hora.
+> dizer o que mudou — e cada um nomeia a sua própria convenção quando chegar a hora. **E o par de
+> tarefas dos dois primeiros estudos não é o do terceiro; quando ele mudar, eu aviso.**
 > O primeiro usou o que a literatura oferecia: um vetor por lugar e um tronco compartilhado."*
 >
 > ⚠ **Reescrita 2026-08-21.** A versão anterior dizia *"as regras de decisão fixadas uma única
@@ -95,10 +96,25 @@ experimento controlado.
 > *"Com a arquitetura fixa, a entrada moveu o resultado: a representação é o gargalo. Mas o
 > diagnóstico ainda é em nível de lugar, sob um protocolo que deixa o mesmo usuário dos dois
 > lados da divisão. O terceiro estudo reconstrói as três camadas — representação, topologia e
-> protocolo — e, na verificação final, encontramos e fechamos um vazamento no próprio grafo."*
+> protocolo."*
 
-**O vazamento é o pivô, e é dito em voz alta.** Enquadramento: *a verificação funcionando*, não uma confissão. Ele é
-mencionado aqui e retomado uma vez dentro de 5.2 — nunca escondido, nunca repetido uma terceira vez.
+> ⚠ **O VAZAMENTO SAI DA NARRATIVA — decisão do autor, 2026-08-23, e a verificação a sustenta.**
+> A versão anterior fazia dele "o pivô" e o dizia em voz alta aqui. **A dissertação não o cita.**
+> Medido no PDF entregue: `forward-only` e `src < tgt` têm **zero ocorrências**, e as duas menções a
+> *leakage* são outra coisa (a auditoria no protocolo, e a CV disjunta por usuário). Narrá-lo poria
+> na fala algo que a banca **não acha no texto que julgou** — o modo de falha que este plano proíbe
+> para todo material pós-envio.
+>
+> **O que FICA, porque está no texto e é bom projeto:** a **direcionalidade**, dita como princípio,
+> na redação do próprio Cap. 5 — *"as arestas entre visitas consecutivas correm numa direção só, da
+> visita anterior para a posterior [...] o alvo é predito do passado do usuário, então a
+> representação é construída só do passado"* (`04_method.tex:18`). É decisão de projeto que o
+> documento explica; **a história de como ela chegou lá não é**.
+>
+> **E é mais forte assim.** *"A representação é construída só do passado"* é um princípio.
+> *"Achamos um vazamento"* convida a pergunta seguinte: *e o que mais escapou?* Se perguntarem por
+> que a direcionalidade importa, a resposta é o princípio. Se alguém tiver lido o repositório e
+> perguntar pela correção, aí sim — **slide B2**, com a proveniência primeiro.
 
 ### ATO III — "A resolução" (min 22,5–42,5, seção 5)
 
@@ -106,11 +122,16 @@ Representação → topologia → protocolo → veredito → o trade medido, **n
 regras já enunciadas — as **superfícies** no Ato I, a **maquinaria** em 5.4, minutos antes do
 veredito que a usa.
 
+> **Slide de escada — APROVADO como fixo (2026-08-23), 30 s.** Um slide na fronteira: três linhas —
+> **MTLnet · ST-MTLNet · Check2HGI** — por três colunas — **representação · topologia · protocolo** —
+> mais *o que moveu*. **Zero números.** É a punchline da coletânea, e hoje ela só existe de memória:
+> nada na tela mostra os três estudos lado a lado. A transição abaixo é **falada sobre ele**.
+>
 > **Transição de saída:**
 > *"Um veredito condicional, medido sob o protocolo mais estrito dos três. O que os três estudos,
 > juntos, estabelecem — e o que não estabelecem?"*
 
-### ATO IV — "A resposta condicional" (min 42,5–47,5, seção 6)
+### ATO IV — "A resposta condicional" (min 42,5–48, seção 6)
 
 A resposta condicional, a contribuição una (não uma por artigo), as limitações oferecidas antes de perguntadas, e o
 retorno às aplicações como fecho. **A fala termina onde começou, um nível de entendimento acima** — que é a coletânea
@@ -128,8 +149,7 @@ narra a própria evolução que é o arco, e casa com a Tabela 1 da dissertaçã
 As seções 3–5 levam o **título do artigo** como título de seção; o veículo aparece só como
 proveniência no divisor.
 
-**Minutos são alvos pontuais:** 5 + 6 + 5,5 + 6 + 20 + 5 = **47,5 min**, dois e meio abaixo do teto
-do Art. 23.
+**Minutos são alvos pontuais:** 5 + 6 + 5,5 + 6 + 20 + 5,5 = **48 min**, dois abaixo do teto do Art. 23.
 
 > ⚠ **A folga ficou apertada, e isso é uma escolha declarada.** O orçamento era 45; as adições do
 > autor em 2026-08-22 — o chão conceitual em 1.1, os trabalhos relacionados em representação (2.7),
@@ -179,7 +199,7 @@ POI". **E nenhum particular do corpus** — ver o aviso acima.
 | 2.2 | Vocabulário de MTL: compartilhamento rígido (Def. 2.10), transferência negativa (Def. 2.12) como o **risco nomeado**, e o critério **declarado no Cap. 2** (*um balanceador só é útil se superar uma ponderação fixa ajustada*) |
 | 2.3 | A base de evidência: **uma** tabela de seis conjuntos, dizendo qual capítulo usou quais. **Florida é dita aqui, uma vez**: 990.518 check-ins nos Caps. 3/4 e 1.407.034 no Cap. 5 — *duas extrações*, nunca "superconjunto" (não há evidência de contenção) |
 | 2.4 | **A métrica que os três compartilham**: macro-F1 e por quê (Food ≈ um terço; a perda **não** é reponderada) + o piso de classe majoritária |
-| 2.5 | **O protocolo dos dois primeiros estudos** + as regras de leitura: estratificado por amostra (o mesmo usuário dos dois lados), leitura *diagnostic-best*, 5 folds; **a lei dos verbos**; e o anúncio de que *cada estudo nomeia a sua convenção* |
+| 2.5 | **O protocolo dos dois primeiros estudos**, as regras de leitura, **e as duas armadilhas de nomenclatura que sobram** — **o par de tarefas muda** (Caps. 3–4: estática + próxima categoria; Cap. 5: próxima categoria + próxima região) e **a convenção métrica muda** (Caps. 3/4 reportam F1 média por categoria; o Cap. 5, macro-F1), duas frases ditas **antes** de a sala encontrar a primeira tarefa estática: estratificado por amostra (o mesmo usuário dos dois lados), leitura *diagnostic-best*, 5 folds; **a lei dos verbos**; e o anúncio de que *cada estudo nomeia a sua convenção* |
 | 2.6 | **Trabalhos relacionados — o que os Caps. 3 e 4 compartilham**, em DOIS slides: (a) o contexto de **POI + MTL**, e especificamente **classificação de categoria de POI** e **predição do próximo POI**, que é exatamente o par que os dois primeiros estudos atacam; (b) o eixo que diferencia — categoria/região como **meio** para o próximo lugar × como **fim** — e o mapa de onde saem os baselines |
 | 2.7 | **Trabalhos relacionados em representação** — a base mais importante da dissertação (seu ponto): a linhagem de embeddings de grafo, **DGI**, **HGI** e a família, no nível de *o que cada um resolve*. Os mecanismos ficam com os capítulos donos (3.2A e 4.1A); aqui é o mapa que torna a linhagem legível |
 **Propósito.** O motor de de-duplicação. **Se cortada:** cada bloco repaga preâmbulo e a fala estoura.
@@ -252,7 +272,7 @@ vale só na tarefa estática; na sequencial MHA+PE lidera **Community, Food e Sh
 | **5.2A** | **Trabalhos relacionados deste estudo**, que os Caps. 3/4 não têm: (a) **predição de próxima região** — a tarefa e as suas motivações, que só aparecem aqui; (b) por que **embedding em nível de check-in** é novo na linha, com CTLE como a arte prévia mais próxima | 1 |
 | 5.2 | **Check2HGI — o que é e como se apoia no Cap. 4**: Figura 4; o diagrama de níveis de 2.1 **reusado** (*"um quarto nível abaixo do lugar"*); o **HGI de 4.1A estendido um nível**; a aresta **só para frente**. **Fecha na Figura 6, que é o payoff**: separabilidade por categoria **0,57 contra 0,00** e pureza de vizinho **0,98 contra 0,78**. ⚠ A Figura 6 mede a **família da representação**, não uma configuração — **não precisa de fold, semente nem pareamento**, e é por isso que ela pode vir antes do protocolo. **Nenhum p-valor aqui** | 4 |
 | 5.3 | A arquitetura — **o que mudou no MTL e por quê**: Figura 5; compartilhamento **por troca**, não por camadas possuídas; o caminho espacial privado da região | 3 |
-| **5.4** | **Protocolo e metodologia estatística, introduzidos AQUI** (pontos 6 e 8): CV 5-fold **disjunta por usuário**; **Acc@10 + desconto OOD + piso Markov-1**; janelas **sobrepostas, stride 1**; **joint-best**; sementes {0,1,7,100} = **20 modelos ajustados, unidade inferencial n = 4**; *t* pareado sobre as médias por semente; **TOST na margem registrada**; Holm. **E o desvio declarado** do plano registrado (Wilcoxon sobre folds → *t* pareado sobre médias por semente) | 4,25 |
+| **5.4** | **Protocolo e metodologia estatística, introduzidos AQUI** (pontos 6 e 8): CV 5-fold **disjunta por usuário**; **Acc@10 + desconto OOD + piso Markov-1**; janelas **sobrepostas, stride 1**; **joint-best**; sementes {0,1,7,100} = **20 modelos ajustados, unidade inferencial n = 4**; *t* pareado sobre as médias por semente; **TOST na margem registrada**; Holm. **E os dois testes concordam**: o plano registrava o Wilcoxon por dobra sobre os 20 modelos ajustados; ele é **reportado ao lado e concorda** com o *t* pareado sobre as quatro médias por semente, que é o primário porque dobras dentro de uma semente não são independentes. **Não é confissão de desvio — são dois apoios com o mesmo veredito** | 4,25 |
 | 5.5 | **Os resultados, num bloco só, sob as regras que acabaram de ser fixadas**: primeiro a **Tabela 9** (a representação — à frente nos seis, unânime nas cinco dobras em todos; o teste pareado separa em **cinco de seis**, Florida a *p* = 0,07, o menor salto da tabela); depois a **Tabela 10** e a **Figura 7** (o veredito, em linguagem de lei, §5.1). **A Tabela 9 aparece uma vez só** | 5,5 |
 | 5.6 | O trade medido e os **quatro limites declarados** — oferecidos antes de serem pedidos, que é critério de excelência e não cortesia | 1,25 |
 
@@ -280,7 +300,7 @@ Chamar as quatro células dentro da margem de empates. Creditar TX/CA a transfer
 (§5.3). *"Sob um décimo do salto place→check-in"* (**aritmeticamente falso** contra a Tabela 9 na
 mesma página). A frase retratada sobre representação hierárquica × injeção de features.
 
-### Seção 6 · Conclusão Geral — a resposta condicional — **5 min**
+### Seção 6 · Conclusão Geral — a resposta condicional — **5,5 min**  *(inclui o slide de escada da fronteira, 30 s)*
 
 | # | Subseção |
 |---|---|
@@ -369,7 +389,7 @@ A regra de linhagem acerta as quatro **e** continua acertando os seus três julg
 | **Acc@10 + desconto OOD + piso Markov-1** | **5.4** | 5.5, 6 | — |
 | **Joint-best, sementes, n=4, TOST, Holm** | **5.4** | 5.5 | "o protocolo que acabamos de fixar" |
 | **Split disjunto por usuário** | **5.4** | 6 | "o protocolo mais estrito dos três" |
-| A aresta só para frente / o vazamento | **transição ATO II→III** | 5.2 (uma vez) | nunca uma terceira vez |
+| A aresta só para frente (**como princípio de projeto**, nunca como correção) | **5.2** | — | não retomada |
 | O ladder de veredito | **5.5** | 6.1 | "o veredito que acabamos de ver" |
 
 > ⚠ **Três armadilhas de nomenclatura que a fala desarma na Seção 1, uma frase cada:**
@@ -476,8 +496,12 @@ defensável, e já está no texto entregue (`5_mobiwac/07_discussion.tex`):
 
 > *"A evidência não separa as contribuições do tronco compartilhado e do caminho espacial privado.
 > Ela não estabelece que o compartilhamento ajuda, e não o descarta. A afirmação que faço é sobre
-> o **desenho** — esta combinação produz uma saída de região acima de dois modelos dedicados nos
-> dois conjuntos com os maiores vocabulários de região — não sobre transferência entre tarefas."*
+> o desenho. Esta combinação produz uma saída de região acima de dois modelos dedicados, nos dois
+> conjuntos com os maiores vocabulários de região. Não é uma afirmação sobre transferência entre
+> tarefas."*
+>
+> ⚠ **Três frases curtas, de propósito.** A anterior era um período de quatro cláusulas — afirmação,
+> escopo, resultado e negação num fôlego — e é a forma em que a sala ouve **hedge** em vez de posição.
 
 ⚠ **O risco a evitar é escorregar para o outro lado.** "Não podemos provar que não contribuiu" é verdade; "portanto
 provavelmente contribuiu" não é. O P1 mostra que a vantagem **não sobrevive ao pareamento de capacidade** — isso não
@@ -611,7 +635,7 @@ porque a versão corrigida diz *menos*, e é isso que a torna defensável.
    "Cap. 3" sem parada, o que obriga cada capítulo a repagar preâmbulo — colidindo frontalmente com a prioridade de
    de-duplicação. Inserido, financiado pela folga aritmética abaixo.
 2. **Alvos pontuais em vez de faixas.** As linhas do §4.1 somam 36–47 min, e o próprio guia declara "~42–47": o piso
-   está subestimado em 6 minutos. Uma faixa de 11 minutos não é orçamento. Aqui: 5 + 6 + 5,5 + 6 + 20 + 5 = **47,5 min**, folga **2,5 min** contra o teto de 50
+   está subestimado em 6 minutos. Uma faixa de 11 minutos não é orçamento. Aqui: 5 + 6 + 5,5 + 6 + 20 + 5,5 = **48 min**, folga **2 min** contra o teto de 50
    *(revisto 2026-08-21 — ver §3)*.
 3. **Numeração de figuras do documento, não do artigo.** A Figura 1 do artigo MobiWac é a **Figura 4** da dissertação. A
    banca lê o documento. Mapeamento fixo: dataflow = **Fig. 4**; modelo = **Fig. 5**; separabilidade = **Fig. 6**;
