@@ -4,6 +4,11 @@
 # o main.pdf resultante para <projeto>/main.pdf -- por isso build/ inteiro e ignorado, e as
 # extensoes abaixo cobrem o caso de alguem rodar xelatex direto, sem -output-directory.
 build/
+# build_test/: saida do harness de iteracao visual (slides_ux/test_layout.tex), que compila
+# o mesmo nesped.sty SEM a opcao "net". A malha de pontos em TikZ custa ~2 min por passe do
+# xelatex; sem ela o ciclo cai para ~35s, que e o que torna viavel conferir o layout contra
+# o mockup. O .tex e fonte e fica versionado; so a saida e ignorada.
+build_test/
 *.aux
 *.log
 *.nav

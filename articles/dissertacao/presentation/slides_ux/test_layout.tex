@@ -1,0 +1,42 @@
+% Harness de iteração visual: mesmo nesped.sty e mesmas fontes do main.tex, mas SEM a opção
+% "net" -- é a malha de pontos em TikZ que faz cada passe do xelatex levar ~2 min. Aqui o
+% build sai em segundos, o que permite conferir capa/sumário/conteúdo contra o mockup.
+\documentclass{beamer}
+\usepackage[green]{nesped}
+\usepackage[brazilian]{babel}
+\setsansfont{IBM Plex Sans}[
+    Path=fonts/,
+    UprightFont=IBMPlexSans-Regular.ttf,
+    BoldFont=IBMPlexSans-Bold.ttf,
+    ItalicFont=IBMPlexSans-Italic.ttf,
+]
+\newfontfamily\titlefont{Petrona SemiBold}[
+    Path=fonts/, UprightFont=Petrona-SemiBold.ttf, BoldFont=Petrona-Bold.ttf,
+]
+\setbeamerfont{title}{family=\titlefont}
+\setbeamerfont{frametitle}{family=\titlefont}
+
+\kicker{Defesa de Dissertação de Mestrado}
+\title{Multitask Learning for Point-of-Interest Classification and Prediction Tasks}
+\subtitle{The Role of the Check-in-Level Representation}
+\author{Vitor Hugo}
+\institute{Universidade Federal de Viçosa --- PPGCC}
+\date{28 de agosto de 2026}
+
+\begin{document}
+\titleframe{\titlelogo{img/logo-nesped.png}\titlelogo{img/logo-ufv.png}}
+\autotocframe{sectionstyle=show/shaded, subsectionstyle=hide}
+\section{Introdução}
+\begin{frame}{Vocabulário de MTL}
+\framesubtitle{Compartilhamento rígido, transferência negativa, o critério do balanceador}
+\begin{itemize}
+    \item Compartilhamento rígido (Def. 2.10) --- um tronco, duas cabeças de tarefa.
+    \item Transferência negativa (Def. 2.12) como o \textbf{risco nomeado}, não hipotético.
+\end{itemize}
+\end{frame}
+\section{Fundamentos}\begin{frame}{Sem subtítulo}\end{frame}
+\section{CBIC 2025}\begin{frame}{X}\end{frame}
+\section{CoUrb 2026}\begin{frame}{X}\end{frame}
+\section{MobiWac 2026}\begin{frame}{X}\end{frame}
+\section{Conclusão}\begin{frame}{X}\end{frame}
+\end{document}

@@ -29,14 +29,21 @@
     BoldFont=JetBrainsMono-Bold.ttf,
 ]
 \setmonofont{JetBrains Mono}[Path=fonts/, UprightFont=JetBrainsMono-Regular.ttf, BoldFont=JetBrainsMono-Bold.ttf]
-\setbeamerfont{title}{family=\titlefont, series=\bfseries}
-\setbeamerfont{frametitle}{family=\titlefont, series=\bfseries}
+% Só a FAMÍLIA aqui -- o corpo de cada elemento vem do mockup, via \dcfontsize no nesped.sty
+% (\setbeamerfont mescla atributos, então tamanho e família convivem). Sem \bfseries: o
+% mockup usa Petrona 600, que é justamente o upright de \titlefont (Petrona SemiBold);
+% pedir negrito aqui puxaria o Petrona-Bold (700), mais pesado que o desenho.
+\setbeamerfont{title}{family=\titlefont}
+\setbeamerfont{frametitle}{family=\titlefont}
 % Use \codefont dentro de tabelas de números para colunas de dígito alinhadas, ex.:
 %   {\codefont \begin{tabular}{lrrr} ... \end{tabular}}
 
 % TODO: título exatamente como no folha de rosto entregue (src/) — fala em PT, slides em EN (§0).
-\title[Título curto]{Multitask Learning for Point-of-Interest Classification and Prediction Tasks: The Role of the Check-in-Level Representation}
-\subtitle{Defesa de Dissertação de Mestrado}
+% O título da folha de rosto é uma frase só, com dois pontos; na capa ele se parte nos três
+% slots do mockup: rótulo (kicker), título e subtítulo. O texto entregue não muda.
+\kicker{Defesa de Dissertação de Mestrado}
+\title[Título curto]{Multitask Learning for Point-of-Interest Classification and Prediction Tasks}
+\subtitle{The Role of the Check-in-Level Representation}
 % TODO: confirmar grafia exata do nome como consta na folha de rosto.
 \author{Vitor Hugo}
 \institute[UFV]{Universidade Federal de Viçosa --- PPGCC}

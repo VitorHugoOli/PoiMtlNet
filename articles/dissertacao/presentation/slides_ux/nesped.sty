@@ -57,13 +57,48 @@
 % force 16:9 aspect ratio
 \geometry{paperwidth=16cm,paperheight=9cm}
 
+% --- unidade do mockup ---
+%
+% O layout deste tema foi desenhado num artboard de 960x540 px (Claude Design) e o slide
+% tem 16x9 cm. Logo 1 px do mockup = 16cm/960 = 0.47244pt. \dcpx guarda essa unidade para
+% que cada medida abaixo possa ser escrita com o MESMO número que está no mockup -- é isso
+% que torna o template conferível contra o desenho em vez de "ajustado no olho".
+%   \dcfontsize -> para o "size=" do \setbeamerfont (o beamer chama \selectfont sozinho)
+%   \dcsize     -> para uso direto no meio do texto
+\newlength{\dcpx}
+\setlength{\dcpx}{0.47244pt}
+\newcommand{\dcfontsize}[2]{%
+    \fontsize{\the\dimexpr\dcpx*#1\relax}{\the\dimexpr\dcpx*#2\relax}}
+\newcommand{\dcsize}[2]{\dcfontsize{#1}{#2}\selectfont}
+
 \usefonttheme{structurebold}
 \usefonttheme[onlymath]{serif}
 
-\setbeamersize{text margin left=10mm,text margin right=10mm}
-\setbeamerfont{frametitle}{series=\bfseries}
-\setbeamerfont{framesubtitle}{series=\mdseries, size=\small}
-\setbeamerfont{page number in head/foot}{series=\bfseries, size=\small}
+% 48px do mockup (.body { padding: 30px 48px })
+\setbeamersize{text margin left=48\dcpx,text margin right=48\dcpx}
+\setbeamerfont{frametitle}{series=\bfseries, size=\dcfontsize{24}{28}}
+% family=\sffamily: "framesubtitle" herda de "frametitle", então apontar o título para a
+% serifada levava o subtítulo junto -- no mockup ele é IBM Plex Sans (mesma armadilha do
+% par title/subtitle da capa).
+\setbeamerfont{framesubtitle}{family=\sffamily, series=\mdseries, size=\dcfontsize{13}{17}}
+% NOTA sobre o corpo de texto: o mockup usa 17px (~8pt), enquanto o default do beamer é 11pt
+% -- o corpo sai ~35% maior que o desenho. Isso NÃO se resolve com
+% \setbeamerfont{normal text}{size=...}: o beamer aceita a declaração mas o \normalsize do
+% frame a sobrescreve (testado). O único caminho limpo é a opção de classe --
+% \documentclass[8pt]{beamer} -- que é decisão do deck, não do tema, porque muda também a
+% legibilidade na projeção. O "chrome" (capa, sumário, cabeçalhos) não depende disso: usa
+% tamanhos absolutos em \dcpx.
+%
+% Recuo da lista: no mockup o marcador nasce na própria margem do corpo e o texto 20px
+% adiante; o default do beamer empurra os dois para dentro.
+\setlength{\leftmargini}{20\dcpx}
+% O beamer centraliza o corpo do frame na vertical por default; o mockup ancora no topo,
+% logo abaixo da faixa do título. Equivale à opção de classe "t", mas fica no tema para o
+% deck não precisar lembrar de passá-la.
+\makeatletter
+\beamer@centeredfalse
+\makeatother
+\setbeamerfont{page number in head/foot}{series=\bfseries, size=\dcfontsize{13}{17}}
 \setbeamerfont{caption}{size=\scriptsize}
 \setbeamerfont{bibliography entry author}{size=\scriptsize}
 \setbeamerfont{bibliography entry title}{size=\scriptsize}
@@ -93,13 +128,15 @@
     \setbeamercolor{local structure}{fg=white}
     \setbeamercolor{frametitle}{fg=white,bg=}
     % \setbeamercolor{block title}{bg=white,fg=primaryshade}
+    % Sobre o degradê a barra de navegação NÃO leva faixa escura nem a linha de destaque:
+    % no mockup (artboard "Main") ela flutua direto sobre o verde. Só os slides de conteúdo,
+    % que têm fundo off-white, é que ganham a faixa navbg + o filete de 3px.
+    \setbeamercolor{headline}{fg=white,bg=}
+    \setbeamercolor{section in head/foot}{fg=white,bg=secondary}
     \setbeamertemplate{headline}{
         \begin{beamercolorbox}[wd=\paperwidth]{headline}
-            \vskip1mm
-            \insertnavigation{\paperwidth}
-            \vskip1mm
+            \nespednavbar
         \end{beamercolorbox}
-        \vskip0.6mm
     }
     \setbeamercolor{footline}{fg=white,bg=}
     \setbeamertemplate{background canvas}{
@@ -112,15 +149,32 @@
 
 % --- title ---
 
-% \scshape aqui era um bug -- \setbeamerfont com "series" repetido (mdseries, depois
-% bfseries) faz o SEGUNDO vencer, então "subtitle" saía sempre em negrito por engano,
-% nunca no peso médio pretendido. subtitle agora é o KICKER do mockup (rótulo pequeno,
-% caixa alta, ACIMA do título -- não uma legenda abaixo dele).
-\setbeamerfont{title}{size=\Large, series=\bfseries}
-\setbeamerfont{subtitle}{series=\bfseries, size=\scriptsize}
-\setbeamerfont{author}{size=\small}
-\setbeamerfont{institute}{size=\small}
-\setbeamerfont{date}{size=\small}
+% Tamanhos vindos direto do mockup: .title 35px, .subtitle 16px, .kicker 12px, .byline 13px.
+% O "series" duplicado que existia aqui (mdseries seguido de bfseries na MESMA chamada) era
+% um bug: o beamer aplica os dois na ordem, então o segundo vencia e o subtítulo saía sempre
+% em negrito, nunca no peso pretendido.
+% family=\sffamily explícito em tudo que NÃO é o título: no tema de fontes do beamer
+% "subtitle" tem parent=title, então assim que o deck aponta o título para uma serifada
+% (Petrona, no nosso caso) o subtítulo vai junto -- e o mockup pede o subtítulo em IBM Plex
+% Sans. Declarar a família aqui corta a herança de vez, em vez de depender de um \sffamily
+% posto na frente do \usebeamerfont (que o próprio \usebeamerfont depois sobrescreve).
+\setbeamerfont{title}{size=\dcfontsize{35}{41}}
+\setbeamerfont{subtitle}{family=\sffamily, size=\dcfontsize{16}{20}, series=\mdseries}
+\setbeamerfont{kicker}{family=\sffamily, size=\dcfontsize{12}{16}, series=\bfseries}
+\setbeamerfont{author}{family=\sffamily, size=\dcfontsize{13}{21}, series=\bfseries}
+\setbeamerfont{institute}{family=\sffamily, size=\dcfontsize{13}{21}, series=\mdseries}
+\setbeamerfont{date}{family=\sffamily, size=\dcfontsize{13}{21}, series=\mdseries}
+
+% A capa do mockup tem TRÊS textos acima da assinatura, e o beamer só oferece dois slots
+% (\title e \subtitle). O terceiro é o rótulo pequeno em caixa alta acima do título
+% ("Defesa de dissertação de mestrado"); \kicker cria esse slot. Sem ele o subtítulo real
+% ("The Role of the Check-in-Level Representation") não tem onde morar e acaba grudado
+% dentro do \title, que foi o que aconteceu antes.
+\newcommand{\insertkicker}{}
+\newcommand{\kicker}[1]{\renewcommand{\insertkicker}{#1}}
+
+% O mockup pede 0.14em de entreletra no kicker; no fontspec LetterSpace é em % do corpo.
+\newcommand{\nespedtrack}[1]{{\addfontfeature{LetterSpace=14}#1}}
 
 \newcommand{\titlelogo}[1]{
     \hspace{2mm}
@@ -137,20 +191,46 @@
 }
 
 
+% O bloco da capa é posicionado por tikz sobre a página, não pelo fluxo do frame: o mockup
+% ancora em left 56px / width 660px, e as margens do beamer não chegam lá.
+%
+% Âncora pelo TOPO de propósito. Com âncora pelo rodapé (que é como o mockup descreve, em
+% bottom:96px) o bloco fica acoplado: encurtar um respiro interno empurra TODAS as linhas de
+% cima, então não dá para acertar título e assinatura ao mesmo tempo. Ancorado no topo cada
+% respiro governa só o que vem depois dele.
+%
+% Os respiros NÃO são os "margin" literais do CSS: em HTML a margem soma-se ao line-box
+% (line-height), e aqui ela soma ao \baselineskip. Os valores abaixo são os que fazem as
+% bandas de texto do PDF caírem sobre as do mockup -- conferidos no render, px a px.
 \setbeamertemplate{title page}{
-    \hspace{-12mm}
-    \begin{beamercolorbox}[wd=0.9\textwidth, sep=8mm, leftskip=2mm]{title}
-        % Hierarquia do mockup: kicker pequeno/caixa-alta ACIMA do título, título grande,
-        % depois autor/instituição/data compactos como um único bloco discreto (byline) --
-        % não cinco linhas soltas do mesmo tamanho. \sffamily força a fonte de corpo
-        % (IBM Plex Sans) mesmo que algo em volta tenha trocado a família por engano.
-        {\sffamily\usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}\MakeUppercase{\insertsubtitle}}\\
-        \vskip6pt{\usebeamerfont{title}\inserttitle}\\
-        \vskip12pt{}
-        {\sffamily\usebeamerfont{author}\usebeamercolor[fg]{author}\insertauthor}\\[2pt]
-        {\sffamily\usebeamerfont{institute}\usebeamercolor[fg]{institute}\insertinstitute}\\[1pt]
-        {\sffamily\usebeamerfont{date}\usebeamercolor[fg]{date}\insertdate}
-    \end{beamercolorbox}
+    \begin{tikzpicture}[remember picture, overlay]
+        \node[anchor=north west, inner sep=0pt, text width=660\dcpx, align=left]
+            at ($(current page.north west)+(56\dcpx,-225\dcpx)$) {%
+            % A métrica de linha do bloco tem que ser definida AQUI, fora de todos os grupos:
+            % o TeX resolve a entrelinha na hora de fechar o parágrafo, com o \baselineskip
+            % que estiver valendo NAQUELE momento -- não com o que valia em cada "\\". Fixar
+            % dentro do grupo da assinatura não adiantava (o grupo já fechou) e ela herdava
+            % os ~28px do corpo do frame. 21px = a entrelinha da byline no mockup; o \lineskip
+            % de 7px é o que o título (35px, bem mais alto que 21) usa ao quebrar em duas
+            % linhas, e fecha os 41px de line-height que o mockup pede lá.
+            \baselineskip=21\dcpx \lineskip=7\dcpx \lineskiplimit=0pt
+            {\sffamily\usebeamerfont{kicker}\usebeamercolor[fg]{kicker}%
+                \nespedtrack{\MakeUppercase{\insertkicker}}}\\[14\dcpx]
+            {\usebeamerfont{title}\usebeamercolor[fg]{title}\inserttitle}\\[15\dcpx]
+            {\sffamily\usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}\insertsubtitle}\\[19\dcpx]
+            % byline: autor em branco cheio, resto atenuado, em duas linhas como no mockup
+            % ("Autor · Instituição" / "data") -- não três linhas soltas. O \dcsize aqui fora
+            % dos grupos é o que fixa a entrelinha em 21px: o "\\" usa o \baselineskip vigente
+            % no FIM da linha, e os grupos internos já fecharam -- sem isso a quebra herdava
+            % os 28px do corpo do frame e a data descolava da linha do autor.
+            {\sffamily\dcsize{13}{21}%
+                {\usebeamerfont{author}\usebeamercolor[fg]{author}\insertauthor}%
+                {\usebeamerfont{institute}\usebeamercolor[fg]{institute}%
+                    \ \textperiodcentered\ \insertinstitute}\\[-6\dcpx]
+                {\usebeamerfont{date}\usebeamercolor[fg]{date}\insertdate}%
+            }%
+        };
+    \end{tikzpicture}
 }
 
 
@@ -158,14 +238,16 @@
     \begingroup
         \setbeamercolor{normal text}{fg=white,bg=}
         \setbeamercolor{structure}{fg=white,bg=}
-        % Hierarquia do mockup: título 100% branco, kicker (ex-subtitle) e nome do autor
-        % quase-brancos e em destaque, instituição/data mais atenuadas -- não é tudo
-        % branco liso, e instituição NÃO deve herdar o branco cheio do autor (bug antigo:
-        % \insertinstitute usava a cor "author", ficando mais claro que o mockup pedia).
-        \setbeamercolor{subtitle}{fg=white!85!black,bg=}
+        % Opacidades do mockup traduzidas para mistura com o verde escuro do degradê:
+        % kicker 0.85, subtítulo 0.88, byline 0.78, nome do autor 1.0. Antes o
+        % \insertinstitute usava a cor "author" (branco cheio) -- ficava mais claro do que
+        % o mockup pede e achatava a hierarquia da assinatura.
+        \setbeamercolor{title}{fg=white,bg=}
+        \setbeamercolor{kicker}{fg=white!85!secondary,bg=}
+        \setbeamercolor{subtitle}{fg=white!88!secondary,bg=}
         \setbeamercolor{author}{fg=white,bg=}
-        \setbeamercolor{institute}{fg=white!78!black,bg=}
-        \setbeamercolor{date}{fg=white!78!black,bg=}
+        \setbeamercolor{institute}{fg=white!78!secondary,bg=}
+        \setbeamercolor{date}{fg=white!78!secondary,bg=}
         \setbeamertemplate{background}{}
         \setbeamertemplate{headline}{
             \vskip-2mm
@@ -187,10 +269,7 @@
 
 % --- table of contents ---
 
-\setbeamertemplate{section in toc}[circle]
 \setbeamertemplate{subsection in toc}[circle]
-
-\addtobeamertemplate{section in toc shaded}{\pgfsetfillopacity{0.5}}{\pgfsetfillopacity{1}}
 \addtobeamertemplate{subsection in toc shaded}{\pgfsetfillopacity{0.5}}{\pgfsetfillopacity{1}}
 
 \setbeamercolor{section in toc}{fg=white,bg=}
@@ -198,31 +277,85 @@
 \setbeamercolor{subsection in toc}{fg=white,bg=}
 \setbeamercolor{subsubsection in toc}{fg=white,bg=}
 
-% O círculo "[circle]" do beamer escala com o \ex da fonte de "section number projected"
-% no momento em que é desenhado -- o default do beamer (size=\small, peso normal) sai
-% pequeno demais e o número fica fino/apertado dentro dele; o mockup usa um número
-% grande e em negrito dentro de um círculo bem maior. \itemsep dá o respiro vertical
-% entre as linhas do sumário (default do beamer é bem apertado -- sem gap nenhum).
-\setbeamerfont{section in toc}{size=\large}
-\setbeamerfont{section number projected}{size=\Large, series=\bfseries}
-\setlength{\itemsep}{10pt}
-\addtobeamertemplate{section in toc}{}{\vskip10pt}
+% O sumário do mockup é uma lista de "bolinha numerada + rótulo", com a seção corrente em
+% destaque. O template [circle] do beamer NÃO consegue reproduzir isso: lá o raio do círculo
+% é 1.2ex da fonte do NÚMERO, então círculo e número são a mesma variável -- não dá para ter
+% um círculo de 30px com um número de 13px dentro, que é justamente o que o mockup pede
+% (foi por isso que aumentar o número para caber no círculo deixou os dois errados). Aqui a
+% linha é desenhada à mão, com as duas medidas independentes.
+%
+% #1 opacidade do disco · #2 cor do número · #3 opacidade do número
+% #4 cor do rótulo · #5 peso do rótulo
+% As linhas do sumário começam em 56px e a margem de corpo é 48px, então sobram 8px de
+% recuo. Isso NÃO pode ser feito com \setbeamersize no meio do documento: "text margin left"
+% chama \geometry por dentro, que é comando só-de-preâmbulo e derruba o build.
+% O respiro entre as linhas do sumário é do beamer, não do template: \beamer@sectionintoc
+% emite um \vskip1.5em (~35px) antes de CADA entrada quando as subseções estão ocultas. Ele
+% fica FORA do \hbox{\vbox{...}} onde o template roda, então não há como cancelá-lo de
+% dentro -- tentar isso só encolhe o vbox e o passo continua errado. Aqui ele é trocado, na
+% origem, pelo gap do mockup.
+\newlength{\nespedtocgap}
+\setlength{\nespedtocgap}{24\dcpx}
+\makeatletter
+\patchcmd{\beamer@sectionintoc}{\vskip1.5em}{\vskip\nespedtocgap}{}{%
+    \PackageWarning{nesped}{Nao consegui ajustar o espacamento do sumario
+        (\string\beamer@sectionintoc mudou nesta versao do beamer)}}
+\makeatother
+
+\newcommand{\nespedtocindent}{8\dcpx}
+\newsavebox{\nespedtocbox}
+\newcommand{\nespedtocrow}[5]{%
+    \sbox\nespedtocbox{\hskip\nespedtocindent
+        \begin{tikzpicture}[baseline=(num.center)]
+            \node[circle, fill=white, fill opacity=#1, minimum size=30\dcpx, inner sep=0pt]
+                (num) at (0,0) {};
+            \node[inner sep=0pt, text=#2, text opacity=#3] at (num.center)
+                {\sffamily\dcsize{13}{13}\bfseries\inserttocsectionnumber};
+            \node[anchor=west, inner sep=0pt, text=#4] at ([xshift=16\dcpx]num.east)
+                {\sffamily\dcsize{19}{19}#5\inserttocsection};
+        \end{tikzpicture}%
+    }%
+    % A caixa da linha é forçada para exatamente 30px (15 acima + 15 abaixo da linha de base,
+    % que aqui é o centro do círculo). Sem isso ela acompanha o maior elemento -- o rótulo de
+    % 19px transborda o círculo em ~7px -- e o passo real vira 63px em vez dos 56px do
+    % mockup, que é o que espalhava demais as seis seções.
+    \ht\nespedtocbox=15\dcpx
+    \dp\nespedtocbox=15\dcpx
+    \leavevmode\usebox\nespedtocbox
+}
+
+\defbeamertemplate{section in toc}{nesped}{%
+    \nespedtocrow{1}{primaryshade}{1}{white}{\bfseries}%
+}
+\defbeamertemplate{section in toc shaded}{nesped}{%
+    \nespedtocrow{0.16}{white}{0.65}{white!55!secondary}{\mdseries}%
+}
+\setbeamertemplate{section in toc}[nesped]
+\setbeamertemplate{section in toc shaded}[nesped]
 
 \newcommand{\tableofcontentsheadline}[0]{
-    \setbeamertemplate{headline}{
-        \pgfsetstrokeopacity{0}
-        \pgfsetfillopacity{0}
-        \vskip1mm
-        \insertnavigation{\paperwidth}
-        \vskip2mm
-        \pgfsetstrokeopacity{1}
-        \pgfsetfillopacity{1}
-    }
+    % O divisor do mockup não tem barra de navegação -- só o degradê, o título e a lista.
+    % A versão anterior desenhava \insertnavigation com opacidade 0 só para reservar o
+    % espaço; isso é frágil (qualquer template de bolinha que restaure a opacidade faz a
+    % barra fantasma reaparecer -- foi exatamente o que aconteceu) e desnecessário: o
+    % respiro é o próprio 88px que o mockup dá acima do título.
+    \setbeamertemplate{headline}{}
     \setbeamercolor{frametitle}{fg=white,bg=}
+    \setbeamerfont{frametitle}{size=\dcfontsize{30}{34}}
+    % No mockup o título fica a 88px do topo e a lista começa 40px abaixo dele. Os valores
+    % aqui são MENORES porque o beamer já contribui com parte desses dois respiros (a margem
+    % superior do frame, e o \nespedtocgap que precede a primeira linha); medidos contra o
+    % mockup, sobram 79px e 7px. Conferir com o render, não com a folha de estilo.
+    \setbeamertemplate{frametitle}{
+        \vskip 79\dcpx
+        \hbox{\hskip 56\dcpx
+            {\usebeamercolor[fg]{frametitle}\usebeamerfont{frametitle}\insertframetitle}}%
+        \vskip 7\dcpx
+    }
     \setbeamertemplate{background canvas}{
         \tikz[remember picture,overlay]{
             \backgradient
-            \usetitledecoration
+            \usetocdecoration
         }
     }
 }
@@ -236,7 +369,10 @@
         \miniframesoff
         \tableofcontentsheadline
         \tableofcontentsfootline
-        \begin{frame}[noframenumbering]{Sumário}
+        % [t]: por padrão o beamer centraliza o corpo do frame na vertical, então a lista
+        % "flutuava" para baixo conforme o número de seções -- o mockup ancora no topo,
+        % logo abaixo do título.
+        \begin{frame}[noframenumbering,t]{Sumário}
             \tableofcontents[#1]
         \end{frame}
         \miniframeson
@@ -255,31 +391,46 @@
 \setbeamercolor{section in head/foot}{fg=white,bg=navbg}
 \setbeamercolor{mini frame}{fg=primary,bg=navbg}
 \setbeamercolor{frametitle}{fg=white,bg=primaryshade}
+\setbeamercolor{framesubtitle}{fg=white!80!primaryshade,bg=}
 
-% Bolinhas de progresso da navbar (uma por slide, per subseção): o padrão do beamer
-% desenha um círculo PREENCHIDO só para o slide atual e um círculo VAZADO (só contorno)
-% para todos os outros -- o mockup usa preenchido em ambos os estados, variando só
-% cor/opacidade (branco translúcido = "off", verde sólido = "on"). Redeclarado aqui como
-% 4 estados do beamer (current / current subsection / other subsection / other section)
-% mas só 2 aparências reais, igual ao mockup.
-\setbeamertemplate{mini frame}{
-    \begin{pgfpicture}{0pt}{0pt}{0.1cm}{0.1cm}
-        \color{primary}
-        \pgfpathcircle{\pgfpoint{0.05cm}{0.05cm}}{0.05cm}
-        \pgfusepath{fill}
-    \end{pgfpicture}
+\setbeamerfont{section in head/foot}{size=\dcfontsize{11}{15}}
+
+% Rótulo da seção: ativo em negrito branco, inativos em peso normal e apagados (o mockup usa
+% 700 x 500; com Regular/Bold carregados isso vira bold x regular).
+\defbeamertemplate{section in head/foot}{nesped}{\bfseries\insertsectionhead}
+\defbeamertemplate{section in head/foot shaded}{nesped}{%
+    {\mdseries\color{white!55!navbg}\insertsectionhead}}
+\setbeamertemplate{section in head/foot}[nesped]
+\setbeamertemplate{section in head/foot shaded}[nesped]
+
+% Bolinhas de progresso: o padrão do beamer preenche só a do slide atual e deixa as outras
+% VAZADAS (só contorno); o mockup preenche as duas, variando cor/opacidade. Diâmetro 5px com
+% intervalo de 3px -> passo de 8px, que é o "mini frame size".
+% O \pgfsetfillopacity fica dentro de um grupo de propósito: solto, ele vaza para fora do
+% desenho e derruba a opacidade de tudo que vier depois na mesma caixa.
+\setbeamersize{mini frame size=8\dcpx, mini frame offset=1\dcpx}
+\newcommand{\nespeddot}[2]{%
+    \begin{pgfpicture}{0pt}{0pt}{5\dcpx}{5\dcpx}
+        {\pgfsetfillopacity{#2}\color{#1}%
+         \pgfpathcircle{\pgfpoint{2.5\dcpx}{2.5\dcpx}}{2.5\dcpx}%
+         \pgfusepath{fill}}%
+    \end{pgfpicture}%
 }
-\setbeamertemplate{mini frame in current subsection}{
-    \begin{pgfpicture}{0pt}{0pt}{0.1cm}{0.1cm}
-        \color{white}
-        \pgfsetfillopacity{0.35}
-        \pgfpathcircle{\pgfpoint{0.05cm}{0.05cm}}{0.05cm}
-        \pgfusepath{fill}
-        \pgfsetfillopacity{1}
-    \end{pgfpicture}
+\setbeamertemplate{mini frame}{\nespeddot{primary}{1}}
+\setbeamertemplate{mini frame in current subsection}{\nespeddot{white}{0.35}}
+\setbeamertemplate{mini frame in other subsection}{\nespeddot{white}{0.35}}
+\setbeamertemplate{mini frame in other section}{\nespeddot{white}{0.35}}
+
+% No mockup os rótulos ficam AGRUPADOS à esquerda (terminam por volta de 61% da largura),
+% não esticados de borda a borda como o \insertnavigation faz por padrão. Dar a ele uma
+% largura menor que a página reproduz isso. Um deck com muito mais (ou muito menos) seções
+% pode ajustar com \renewcommand{\nespednavwidth}{...}.
+\newcommand{\nespednavwidth}{0.61\paperwidth}
+\newcommand{\nespednavbar}{%
+    \vskip 12\dcpx
+    \hbox to \paperwidth{\hskip 22\dcpx\insertnavigation{\nespednavwidth}\hfil}%
+    \vskip 10\dcpx
 }
-\setbeamertemplate{mini frame in other subsection}{\usebeamertemplate{mini frame in current subsection}}
-\setbeamertemplate{mini frame in other section}{\usebeamertemplate{mini frame in current subsection}}
 
 \pgfdeclarehorizontalshading[primary,secondary]
     {beamer@frametitleshade}{\paperheight}{
@@ -291,27 +442,44 @@
 \beamer@compresstrue
 \setbeamertemplate{headline}{
     \begin{beamercolorbox}[wd=\paperwidth]{headline}
-        \vskip1mm
-        \insertnavigation{\paperwidth}
-        \vskip1mm
+        \nespednavbar
     \end{beamercolorbox}
+    % Filete de destaque: 3px e degradê HORIZONTAL (o mockup usa 90deg). Estava com 1mm e
+    % ângulo 45, que numa faixa larga e baixa vira quase uma cor chapada.
     \tikz{
-        \path [left color=primary, right color = accentmid, shading=axis, shading angle=45]
+        \path [left color=primary, right color=accentmid, shading=axis, shading angle=0]
             (0pt, 0pt)
             rectangle
-            (\paperwidth, 1mm);
+            (\paperwidth, 3\dcpx);
     }
+}
+
+% Só emite a linha do subtítulo quando ela existe. Antes o "\\" era incondicional, então
+% todo slide SEM subtítulo ganhava uma linha vazia dentro da faixa verde -- é o que deixava
+% o cabeçalho de conteúdo alto demais e desalinhado com o mockup.
+% O subtítulo é separado do título por \par + \vskip explícito, NÃO por "\\": a quebra por
+% "\\" usa o \baselineskip do corpo do frame (~28px) e inflava a faixa verde em ~16px além
+% do mockup. Com \nointerlineskip + \vskip o afastamento é exatamente os 2px do desenho, e o
+% título continua livre para quebrar em duas linhas com a entrelinha dele.
+\def\nesped@empty{}
+\newcommand{\nespedframesubtitle}{%
+    \expandafter\def\expandafter\nesped@fst\expandafter{\insertframesubtitle}%
+    \ifx\nesped@fst\nesped@empty\else
+        \nointerlineskip\vskip 2\dcpx
+        {\usebeamerfont{framesubtitle}\usebeamercolor[fg]{framesubtitle}%
+            \insertframesubtitle\par}%
+    \fi
 }
 
 \setbeamertemplate{frametitle}{
     \ifbeamercolorempty[bg]{frametitle}{}{\nointerlineskip}%
     \begin{beamercolorbox}[wd=\paperwidth]{frametitle}
-        \vskip0mm
-        \leftskip10mm
-        \rightskip10mm
-        \usebeamerfont{frametitle}\insertframetitle\\
-        \usebeamerfont{framesubtitle}\insertframesubtitle
-        \vskip2mm
+        \vskip 16\dcpx
+        \leftskip 40\dcpx
+        \rightskip 40\dcpx
+        {\usebeamerfont{frametitle}\insertframetitle\par}%
+        \nespedframesubtitle
+        \vskip 16\dcpx
     \end{beamercolorbox}
 }
 \makeatother
@@ -320,12 +488,13 @@
 
 \setbeamercolor{footline}{fg=primaryshade,bg=}
 \setbeamercolor{page number in head/foot}{fg=primaryshade}
+% Número da página: 40px da direita e 16px do rodapé, como no mockup.
 \setbeamertemplate{footline}{
     \begin{beamercolorbox}[wd=\paperwidth,right]{footline}
-        \usebeamerfont{page number in head/foot} \insertframenumber
-        \hspace{1mm}
-        \vspace{2mm}
+        {\usebeamerfont{page number in head/foot}\insertframenumber}%
+        \hspace{40\dcpx}
     \end{beamercolorbox}
+    \vskip 16\dcpx
 }
 
 % --- blocks ---
