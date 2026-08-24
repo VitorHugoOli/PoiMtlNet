@@ -150,7 +150,9 @@
         \setbeamercolor{date}{fg=white,bg=}
         \setbeamertemplate{background}{}
         \setbeamertemplate{headline}{
-            \vskip-2mm
+            % ERRATA 2026-08-24 (bug 5/5 desta copia): \vskip-2mm puxava os cartoes de logo
+            % para cima da borda da pagina, cortando a sombra e o topo dos cartoes.
+            \vskip3mm
             \hspace{6mm}
             #1
         }
@@ -274,10 +276,13 @@
 % --- blocks ---
 
 \makeatletter
+% ERRATA 2026-08-24 (bug 4/4 desta cópia): width=\textwidth ignorava a largura da coluna,
+% fazendo todo bloco dentro de \begin{columns} vazar por baixo do bloco vizinho. \linewidth
+% acompanha a coluna corrente. Original de terceiros nao tocado.
 \newcommand\beamerboxesframed[2][]{%
   \global\let\beamer@firstlineitemizeunskip=\relax%
   \vbox\bgroup%
-  \setkeys{beamerboxes}{upper=block title,lower=block body,width=\textwidth,shadow=false}%
+  \setkeys{beamerboxes}{upper=block title,lower=block body,width=\linewidth,shadow=false}%
   \setkeys{beamerboxes}{#1}%
   {%
     \usebeamercolor{\bmb@lower}%
