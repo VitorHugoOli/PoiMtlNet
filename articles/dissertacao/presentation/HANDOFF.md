@@ -31,14 +31,15 @@
 |---|---|
 | `PLANO_FLUXO_DEFESA.md` | **Fechado e aprovado.** 48 min, seis seções, somas conferidas nos dois níveis |
 | `SLIDES.md` | **Completo.** 54 slides de deck + 46 de reserva. Passou por 5 personas revisoras |
-| `slides/main.tex` + `main.pdf` | **Compila: 110 páginas, 0 erros, 0 overfull.** É o deck vivo — **e é o único**; o `slides_ux/` foi descartado pelo autor |
+| `slides/main.tex` + `main.pdf` | **Compila: 111 páginas, 0 erros.** É o deck vivo — **e é o único**; o `slides_ux/` foi descartado pelo autor. ⚠ **Overfull não é mais zero, e isso é intencional** — ver §4 |
 | `../src/banca.pdf` | **Congelado** — o que a banca recebeu. md5 `5be69d1b`, 119 pp. **Nunca reconstruir** |
 | `../src/dissertacao.pdf` | O build corrente, **com a errata do Resumo aplicada**. md5 `d7e85bb7` |
 | Ensaio nº 1 | **Hoje**, com amigos |
 
 ### O que NÃO está feito
 
-- **Varredura visual das 110 páginas.** Ver §4 — é o risco aberto mais concreto.
+- ~~Varredura visual das 110 páginas~~ — **FEITA 2026-08-24.** 80 achados, e a causa era em boa
+  parte **uma só**: um bug do template. Ver §4.
 - ~~A grafia de "Pedro Maia"~~ — **RESOLVIDO 2026-08-24 pelo autor: Pedro Augusto Maia Silva.**
   Está no slide de agradecimentos (S55). Era a única fonte possível: o nome não aparece em nenhum
   artigo, no texto entregue, nem em lugar nenhum do repositório.
@@ -65,21 +66,35 @@ redatores devolveram, não o arquivo montado).
 
 ---
 
-## 4 · O risco aberto mais concreto
+## 4 · A varredura visual — feita, e o que ela ensinou
 
-**Os 110 slides compilam limpo e ninguém olhou 109 deles.** O caso 5 acima prova que o log não vê
-colisão de blocos, texto estourando coluna, figura em escala errada nem tabela ilegível no Meet.
+**Rodada em 2026-08-24 sobre as 110 páginas renderizadas: 80 achados** (4 bloqueantes, 46 maiores,
+30 menores). O tipo dominante era *sem espaço de respiro* (32), seguido de inconsistência (22),
+ilegível (13) e sobreposição (10).
 
-Num deck escrito por cinco agentes diferentes, essa classe de defeito é provável. A varredura é
-barata:
+**A maior parte da sobreposição tinha uma causa única, no template:** `\beamerboxesframed` fixava
+`width=\textwidth`. Dentro de uma `column`, `\textwidth` continua sendo a largura do **frame
+inteiro** — então todo bloco em duas colunas era desenhado mais largo que a sua coluna e passava por
+baixo do bloco vizinho, que o cobria. Uma linha (`\linewidth`) matou a classe inteira.
+
+**São agora cinco os bugs corrigidos só na nossa cópia do template**, todos com errata no próprio
+`.sty`: `\pagewidth`→`\paperwidth`; o `\autotocframe` que vazava o argumento; o `\decorationnet`
+que nunca desenhava; o `width=\textwidth` acima; e o `\vskip-2mm` do `\titleframe`, que cortava o
+topo dos dois cartões de logo na capa.
+
+> ⚠ **`Overfull` deixou de ser zero de propósito — não "conserte" isso empurrando de volta.**
+> O deck tinha 0 overfull porque os redatores usavam **31 `\vspace` negativos**. Eles não criavam
+> espaço: puxavam o conteúdo para cima do elemento anterior. O log ficava limpo e a tela ficava
+> sobreposta. Removidos, o LaTeX passou a declarar a verdade. Os estouros que restam foram
+> **verificados por renderização** e ficam dentro da folga do beamer. **Se você reintroduzir
+> `\vspace` negativo para zerar o log, você recria exatamente o defeito que esta varredura corrigiu.**
+
+**A regra que decorre, e que vale para a próxima:** o log de compilação **não vê** colisão de blocos,
+e um log limpo pode ser sintoma de cramming, não de saúde. Valide por renderização:
 
 ```bash
-cd slides && pdftoppm -r 85 -png main.pdf /tmp/deck   # e olhar página a página
+cd slides && pdftoppm -r 95 -png main.pdf /tmp/deck   # e olhar página a página
 ```
-
-O ensaio pega parte — mas só o que o apresentador percebe falando.
-
----
 
 ## 5 · Decisões já tomadas — não reabra sem o autor
 
@@ -125,9 +140,11 @@ make all     # 3 passes + bibtex. Use este para qualquer número que vá ser cit
 
 - **O motor é `xelatex`.** `nesped.sty` carrega `fontspec`. Sob `pdflatex` o build "passa" e as
   telas com fundo saem **em branco** (caso 4 do §3).
-- **O template tem três bugs corrigidos** só na nossa cópia: `\pagewidth`→`\paperwidth`, o
-  `\autotocframe` que vazava o argumento como slide visível, e o `\decorationnet` cuja malha nunca
-  desenhava. O original de terceiros não foi tocado.
+- **O template tem cinco bugs corrigidos** só na nossa cópia — os três antigos
+  (`\pagewidth`→`\paperwidth`, o `\autotocframe` que vazava o argumento, o `\decorationnet` que
+  nunca desenhava) e os dois de 24/08 (`width=\textwidth`→`\linewidth` em `\beamerboxesframed`, e
+  o `\vskip` do `\titleframe`). Cada um tem errata datada no `.sty`. O original de terceiros não
+  foi tocado.
 - **A série B usa `\miniframesoff`.** O número do frame **congela** ali — por isso cada slide B
   carrega o rótulo no conteúdo, não no rodapé.
 - **Não rode `make` na pasta `../src/`** sem pensar: cinco alvos sobrescrevem o `dissertacao.pdf`,
