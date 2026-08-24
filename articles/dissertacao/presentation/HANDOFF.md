@@ -96,6 +96,89 @@ e um log limpo pode ser sintoma de cramming, não de saúde. Valide por renderiz
 cd slides && pdftoppm -r 95 -png main.pdf /tmp/deck   # e olhar página a página
 ```
 
+## 4b · A referência de densidade: a defesa do Henrique
+
+**É uma GRAVAÇÃO, não um PDF** — e o caminho já estava no `APRESENTACAO_DEFESA_GUIDE.md:131,:317`.
+Eu procurei um PDF, não achei, e escrevi "não está no repositório" **sem reler o meu próprio guia**.
+Falha nº 2 do §3, outra vez. O arquivo:
+
+```
+/Volumes/linux/VIDEO/Screen Recording 2026-07-08 at 10.02.56.mov     # 7 GB, 1h01, 4096×2304
+```
+
+É a **sua tela** durante a defesa, então o Meet só está em foco parte do tempo (≈0–15 min e
+≈35–60 min). Extraia com `ffmpeg -ss <seg> -i <arq> -frames:v 1` (o `-ss` ANTES do `-i` = seek por
+keyframe, barato num arquivo de 7 GB).
+
+**Ele usa o MESMO template NESPeD**, também é coletânea, também seis seções na barra. **64 slides em
+≈48 min** — praticamente o nosso ritmo (54 em 48). O que difere não é a quantidade de slides:
+
+| | Henrique | nosso deck |
+|---|---|---|
+| palavras na tela, mediana | **~25–30** | **119** |
+| máximo | ~70 | **237** |
+| slides com frase completa | poucos | **54 de 54** |
+
+⚠ **As duas medidas não são diretamente comparáveis, e o erro faz cortar demais.** A contagem do
+nosso deck lê o corpo do LaTeX e **não vê texto dentro de figura**; OCR sobre o vídeo **vê**. O slide
+"só uma figura" dele dá 82 no OCR e ~9 de corpo. Compare corpo com corpo.
+
+**E a contagem sozinha engana.** O slide mais denso dele tem ~70 palavras — é *uma pergunta de
+pesquisa num bloco*, que a plateia lê de uma vez. O nosso de 237 são *quatro marcadores de ressalva*,
+que a plateia lê quatro vezes e perde a fala. Mesma contagem, funções opostas. **Corte pela função,
+não pelo número.**
+
+> 🔴 **O deck viola a regra 10 do PLANO em 54 dos 54 slides.** A regra diz *"Marcadores por
+> palavra-chave, **nunca parágrafos**"*. Medido: todo slide do deck tem ao menos uma frase completa
+> longa na tela. Quem for enxugar **não está sobrepondo o plano — está aplicando uma regra que ele já
+> continha**. Não é preciso licença para cortar; o mandato existe. Mas ver §4c antes.
+
+## 4c · O que NÃO pode sair da tela, e o protocolo para o que pode
+
+Do `PLANO_FLUXO_DEFESA.md` §8, classificado. **Mandato de tela** (cortar é regressão): **R1**
+navegação/seis `\section` · **R5** carimbo `Next-POI Prediction = next category (Def. 2.7)` em arte
+dos Caps. 3/4 · **R8** rodapé `pós-submissão` em todo slide da série B · **R10** numeração dos slides
+· **R12** slides de transição, que o plano proíbe explicitamente que um corte de tempo remova ·
+**R13** a contribuição duas vezes, **com redação idêntica** · **R14** "Apêndice B" sempre com o nome
+do volume.
+
+**Governam a palavra, não o volume** (comprimir é seguro): R2, R3, R7, R9, R11, R15. **R16 e R10
+mandam cortar** — são aliados. **R4** (ledger) vive no `SLIDES.md`, **não na tela**.
+
+**A armadilha é a R6**, *"ressalva antes da manchete, sempre"*. Foi ela que produziu os 119: os
+redatores puseram a ressalva **na tela** porque a R6 exige que ela acompanhe o resultado. A leitura
+que o S47 testou: a R6 exige que a ressalva **acompanhe**, não que esteja **projetada** — se a
+manchete está na tela e a ressalva é dita no mesmo fôlego, está satisfeita. **Mas só com este
+protocolo, e ele não é opcional:**
+
+> Para cada cláusula que sai da tela: **(1)** localize-a no destino (a fala do MESMO slide, ou um
+> slide de reserva) com grep; **(2)** se não existir no destino, **ela não sai** — escreva-a na fala
+> primeiro; **(3)** registre no bloco do `SLIDES.md` onde ela ficou.
+>
+> Sem o passo 2 isso vira perda de honestidade com aparência de design. O **S47** é o molde: três
+> itens saíram, cada um conferido no destino (B1-1, S3, S50) antes de sair, e a nota está no bloco.
+
+## 4d · A fala: quem é canônico
+
+**`SLIDES.md` é a fonte; o `% FALA:` do `main.tex` é o espelho.** Estabelecido por medida:
+o `SLIDES.md` nasceu primeiro (`f9b8f82e`), o portão de revisão operou nele (`d1491956`), o deck veio
+depois (`5c2ee121`), e a correção dos revisores **flui SLIDES.md → main.tex** (o texto corrigido está
+no `.tex`, o antigo tem zero ocorrências lá). Só o `SLIDES.md` carrega `LEDGER`, `Proveniência` e
+`Nunca dizer`.
+
+Deriva atual entre as duas cópias: **120 palavras em 11.259 (1%)**. Pequena, mas real.
+
+**Corte sempre no `SLIDES.md` primeiro, depois propague.** Nunca o contrário: o `% FALA:` não
+renderiza, então um erro lá fica invisível até alguém abrir o `.tex`. **E não apague o `% FALA:` do
+`main.tex` para "resolver" a duplicação** — ele existe para que quem edita o slide veja a fala na
+mesma tela, e é o que mantém tela e voz sincronizadas.
+
+⚠ **O deck não cabe em 50 min, e isso é independente da densidade de tela.** A trilha de fala do deck
+principal tem **8.935 palavras** = ~64 min a 140 ppm; caberia em 48 min só a **186 ppm**, dizendo IC
+e correção de Holm. O desencontro é **concentrado**, não espalhado: S43–S46 e S48 somam ~1.400
+palavras de fala contra ~7 min orçados. Os `Tempo:` por slide foram estimados por peso de assunto e
+**nunca reconciliados** com o texto que os preenche. **Decisão de corte de fala é do autor.**
+
 ## 5 · Decisões já tomadas — não reabra sem o autor
 
 | Decisão | Ruling |
