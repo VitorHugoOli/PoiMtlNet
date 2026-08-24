@@ -159,9 +159,16 @@ Trabalho não commitado apareceu depois do meu último commit. **Não sei quem o
 1. ~~**`slides_ux/`**~~ — **RESOLVIDO 2026-08-24: o autor decidiu ficar no `slides/`.** O
    `slides_ux/` é uma variante com fontes customizadas (Petrona + IBM Plex), 35 frames, incompleta.
    **Não é a direção.** Fica em disco como referência; **não construa a partir dele**.
-2. **`SLIDES_serieB.md`** — **ainda aberto.** Duplica exatamente os 46 blocos SB que continuam no
-   `SLIDES.md` (mesmos ids, zero diferença). Duas cópias da mesma coisa é a condição que este
-   projeto já pagou caro: alguém edita uma e a outra fica. **Decida qual é a canônica.**
+2. ~~**`SLIDES_serieB.md`**~~ — **RESOLVIDO 2026-08-24: apagado, com a decisão do autor.** Era o
+   rascunho do agente que escreveu a série B, **pré-revisão**. Estabelecido por medida, não por
+   memória: dos 46 blocos, 43 têm corpo idêntico ao do `SLIDES.md`, **nenhum código existe só nele**,
+   e os 3 que diferem são casos em que o `SLIDES.md` é a versão **posterior e mais cuidadosa** —
+   inclusive `B3-7`, onde o rascunho ainda diz *"which **sits inside** the seed spread"*, a
+   afirmação que `d1491956` ("os dois bloqueantes que os revisores acharam") trocou por *"of the
+   order of"*. Manter era manter em circulação um texto que a revisão derrubou. **Recuperável:**
+   `git show c7f0fd1f:articles/dissertacao/presentation/SLIDES_serieB.md`.
+   **`SLIDES.md` é o canônico da série B — não recrie um segundo arquivo para ela.**
+
 3. **`slides/_font_test.tex`** — teste de fonte, provavelmente descartável.
 
 ---
