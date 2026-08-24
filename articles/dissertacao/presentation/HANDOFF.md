@@ -31,16 +31,17 @@
 |---|---|
 | `PLANO_FLUXO_DEFESA.md` | **Fechado e aprovado.** 48 min, seis seções, somas conferidas nos dois níveis |
 | `SLIDES.md` | **Completo.** 54 slides de deck + 46 de reserva. Passou por 5 personas revisoras |
-| `slides/main.tex` + `main.pdf` | **Compila: 109 páginas, 0 erros, 0 overfull.** É o deck vivo |
+| `slides/main.tex` + `main.pdf` | **Compila: 110 páginas, 0 erros, 0 overfull.** É o deck vivo — **e é o único**; o `slides_ux/` foi descartado pelo autor |
 | `../src/banca.pdf` | **Congelado** — o que a banca recebeu. md5 `5be69d1b`, 119 pp. **Nunca reconstruir** |
 | `../src/dissertacao.pdf` | O build corrente, **com a errata do Resumo aplicada**. md5 `d7e85bb7` |
 | Ensaio nº 1 | **Hoje**, com amigos |
 
 ### O que NÃO está feito
 
-- **Varredura visual das 109 páginas.** Ver §4 — é o risco aberto mais concreto.
-- **A grafia de "Pedro Maia"** para os agradecimentos. Não existe em nenhum artigo, no texto
-  entregue, nem no repositório inteiro. **Não invente sobrenome** — pergunte ao autor.
+- **Varredura visual das 110 páginas.** Ver §4 — é o risco aberto mais concreto.
+- ~~A grafia de "Pedro Maia"~~ — **RESOLVIDO 2026-08-24 pelo autor: Pedro Augusto Maia Silva.**
+  Está no slide de agradecimentos (S55). Era a única fonte possível: o nome não aparece em nenhum
+  artigo, no texto entregue, nem em lugar nenhum do repositório.
 
 ---
 
@@ -66,7 +67,7 @@ redatores devolveram, não o arquivo montado).
 
 ## 4 · O risco aberto mais concreto
 
-**Os 109 slides compilam limpo e ninguém olhou 108 deles.** O caso 5 acima prova que o log não vê
+**Os 110 slides compilam limpo e ninguém olhou 109 deles.** O caso 5 acima prova que o log não vê
 colisão de blocos, texto estourando coluna, figura em escala errada nem tabela ilegível no Meet.
 
 Num deck escrito por cinco agentes diferentes, essa classe de defeito é provável. A varredura é
@@ -138,13 +139,12 @@ make all     # 3 passes + bibtex. Use este para qualquer número que vá ser cit
 
 Trabalho não commitado apareceu depois do meu último commit. **Não sei quem o fez e não presumi.**
 
-1. **`slides_ux/`** — uma variante com fontes customizadas (Petrona + IBM Plex Sans/Mono),
-   **35 frames**, incompleta. O `slides/` tem os 101 e é o que compila inteiro. **É uma direção de
-   redesenho a seguir, ou um experimento abandonado?** Ela entrou num commit meu por varredura de
-   `git add -A` — não foi decisão minha.
-2. **`SLIDES_serieB.md`** — **duplica exatamente** os 46 blocos SB que continuam no `SLIDES.md`
-   (mesmos ids, zero diferença). Duas cópias da mesma coisa é a condição que este projeto já pagou
-   caro: alguém edita uma e a outra fica. **Decida qual é a canônica e apague a outra.**
+1. ~~**`slides_ux/`**~~ — **RESOLVIDO 2026-08-24: o autor decidiu ficar no `slides/`.** O
+   `slides_ux/` é uma variante com fontes customizadas (Petrona + IBM Plex), 35 frames, incompleta.
+   **Não é a direção.** Fica em disco como referência; **não construa a partir dele**.
+2. **`SLIDES_serieB.md`** — **ainda aberto.** Duplica exatamente os 46 blocos SB que continuam no
+   `SLIDES.md` (mesmos ids, zero diferença). Duas cópias da mesma coisa é a condição que este
+   projeto já pagou caro: alguém edita uma e a outra fica. **Decida qual é a canônica.**
 3. **`slides/_font_test.tex`** — teste de fonte, provavelmente descartável.
 
 ---

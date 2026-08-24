@@ -856,6 +856,15 @@ reproduzem palavra por palavra**. Qualquer edição muda os dois.
 
 ---
 
+### S55 · Acknowledgements
+- **Seção/subseção:** 6.5   **Tempo:** 30 s
+- **LEDGER:** INTRODUZ nada (fecho social)
+- **Na tela:** duas colunas. **Orientador:** Prof. Fabrício Aguiar Silva. **Colegas de pesquisa:** Germano Santos · Tarik Paiva · Ingred Almeida · Pedro Augusto Maia Silva. **Instituição:** Universidade Federal de Viçosa, NESPeD-LAB — PPGCC. **Banca examinadora:** Prof. Fabrício Aguiar Silva · Prof. Clayson Celes · Prof. Alex Borges. Fecha em **Obrigado.**
+- **Fala (PT):** os agradecimentos, terminando na banca: *"E, por fim, aos senhores da banca: obrigado por lerem o trabalho e por estarem aqui. Fico à disposição para as perguntas."*
+- **Proveniência:** os nomes dos colegas confirmados pelo autor em 2026-08-24 (Pedro Augusto Maia Silva); a banca, do convite de defesa (`APRESENTACAO_DEFESA_GUIDE.md` §0); o orientador, da folha de rosto de `../src/banca.pdf`.
+- **Nunca dizer:** nada de resultado aqui. É fecho social, e é o slide que fica na tela durante a arguição.
+
+
 ### SB1 · B0 · Se a pergunta for uma destas, o slide já existe
 - **Seção/subseção:** Série B · índice (B0)   **Tempo:** sob demanda · ~15 s
 - **LEDGER:** INTRODUZ o índice clicável da série de reserva | RETOMA nada

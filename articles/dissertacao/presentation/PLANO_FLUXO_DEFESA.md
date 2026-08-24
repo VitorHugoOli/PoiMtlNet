@@ -307,7 +307,8 @@ mesma página). A frase retratada sobre representação hierárquica × injeçã
 | 6.1 | A resposta condicional (§6.2): MTL ajudou **sob este desenho e este protocolo** — e o que isso não autoriza |
 | 6.2 | A contribuição una (§6.5), **redação idêntica à do slide de abertura**: metade prática + metade científica |
 | 6.3 | **O centro de gravidade da seção** (seu ponto 7): as seis limitações do §6.3 amarradas **1:1** aos seis trabalhos futuros do §6.4 — cada uma falada como um próximo passo concreto e condicional |
-| 6.4 | Fecho: retomada das aplicações + **agradecimentos** + a linha do repositório. **O takeaway na tela; o "obrigado" pela voz** (instrução do orientador no deck do CoUrb) |
+| 6.4 | Fecho: retomada das aplicações + **agradecimentos** + a linha do repositório. **O takeaway na tela** (instrução do orientador no deck do CoUrb: não terminar num "Obrigado" vazio) |
+| 6.5 | **Agradecimentos** — tela própria, **depois** do fecho (decisão do autor, 2026-08-24): orientador, colegas de pesquisa, instituição e **a banca**. É o slide que fica na tela durante a arguição, e por isso não carrega resultado nenhum |
 
 > **Agradecimentos — os nomes, com a fonte de cada grafia.**
 >
