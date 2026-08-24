@@ -150,9 +150,15 @@
         \setbeamercolor{date}{fg=white,bg=}
         \setbeamertemplate{background}{}
         \setbeamertemplate{headline}{
-            % ERRATA 2026-08-24 (bug 5/5 desta copia): \vskip-2mm puxava os cartoes de logo
-            % para cima da borda da pagina, cortando a sombra e o topo dos cartoes.
-            \vskip3mm
+            % ERRATA 2026-08-24, REVERTIDA no mesmo dia por decisao do autor.
+            % Um agente trocou \vskip-2mm por \vskip3mm por julgar que o valor original cortava
+            % o topo dos cartoes de logo. O autor conferiu contra o template do NESPeD e decidiu
+            % que os cartoes DEVEM ficar colados ao topo da pagina: e' o desenho do template, nao
+            % um defeito, e o PDF de referencia do proprio autor do template sai assim.
+            % Valor original restaurado. As outras QUATRO correcoes desta copia permanecem:
+            % \pagewidth->\paperwidth, o \autotocframe que vazava o argumento, o \decorationnet
+            % que nunca desenhava, e width=\textwidth->\linewidth em \beamerboxesframed.
+            \vskip-2mm
             \hspace{6mm}
             #1
         }

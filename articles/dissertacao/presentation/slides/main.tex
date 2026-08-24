@@ -62,22 +62,24 @@
 % de recursos por área."
 \begin{frame}{Movement is regular, and services depend on that}
     \begin{itemize}
-        \item \textbf{Human movement is highly regular.}
-        \item Entropy analysis of large-scale mobility traces: potential predictability of an
-              individual's next location at about \textbf{93 percent} (Song et al., 2010).
-        \item People return to a small set of places, and make longer trips less frequently.
+        \item \textbf{Human movement is highly regular};
+        \item potential predictability of an individual's next location at about
+              \textbf{93 percent} (Song et al., 2010);
+        \item people return to a small set of places, and travel far less often.
     \end{itemize}
 
+    \bigskip
     \begin{alertblock}{The caveat, in the same breath}
+        \small
         That estimate is for the next \textbf{location} at a coarse spatial resolution. It shows
-        that mobility contains learnable regularity, and it is \textbf{not a ceiling} for the
+        that mobility contains learnable regularity, and it is \alert{not a ceiling} for the
         metrics reported in this work.
     \end{alertblock}
+
+    \medskip
     \begin{itemize}
-        \item What a service can act on, once the next visit is anticipated: recommendation,
-              navigation, transit planning, allocation of resources by area.
-        \item Mobility research also informs urban planning, disease-spread analysis, and
-              pollution research.
+        \item What a service acts on, once the next visit is anticipated: recommendation,
+              navigation, transit planning, allocation by area.
     \end{itemize}
 \end{frame}
 
@@ -94,20 +96,21 @@
 % transferência negativa. A definição formal dela fica para a próxima seção. Por ora basta o nome,
 % porque é ele que a pergunta seguinte carrega."
 \begin{frame}{The ground: check-ins, mobility, and what joint training promises}
-    \begin{itemize}
-        \item \textbf{LBSN}, a location-based social network. Its record is the
-              \textbf{check-in}: a user, a place (point of interest, POI), and a time.
-        \item That geographic and temporal detail supports data-driven studies of cities.
-              \textbf{Human mobility} research studies how people move through a city.
-        \item \textbf{Multitask learning (MTL)}: train related tasks together so that they can
-              share information.
-        \item The operational appeal here: \textbf{one model to maintain, one forward pass that
-              produces both predictions}, instead of two dedicated single-task models.
+    \begin{itemize}\setlength{\itemsep}{4pt}
+        \item \textbf{LBSN} --- a location-based social network; its record is the
+              \textbf{check-in}: a user, a place (point of interest, POI), and a time;
+        \item \textbf{human mobility} research studies how people move through a city;
+        \item \textbf{multitask learning (MTL)} --- train related tasks together so they can
+              share information;
+        \item the operational appeal here: \textbf{one model to maintain, one forward pass,
+              both predictions}.
     \end{itemize}
 
+    \bigskip
     \begin{alertblock}{No guarantee}
+        \small
         Joint training does not guarantee better predictions. Shared parameters can harm one
-        task, a failure known as \textbf{negative transfer}.
+        task --- a failure known as \alert{negative transfer}.
     \end{alertblock}
 \end{frame}
 
@@ -129,34 +132,36 @@
         \textbf{Does multitask learning help point-of-interest prediction (next category and next
         region), and what does the answer depend on?}
     \end{block}
-    \small
-    The constraint the answer is held to: \textbf{one trained artifact must produce both outputs
-    in one forward pass.}
 
     \smallskip
-    \textit{Under the final design and the strictest protocol of the three studies:}
+    {\small The constraint the answer is held to: \textbf{one trained artifact must produce both
+    outputs in one forward pass.}\par}
 
-    \begin{columns}[t,onlytextwidth]
-        \begin{column}{0.465\textwidth}
-            \begin{exampleblock}{Next region}
-                \scriptsize
-                Outperforms the dedicated single-task model at \textbf{Texas}
-                ($+1.21$ Acc@10, corrected $p=0.00013$) and \textbf{California}
-                ($+1.06$, corrected $p<10^{-4}$). At the other four datasets it \textbf{stays
-                within the two-point margin, registered before any result was read}. Four small
-                deficits, direction stated. \textbf{No ties.}
-            \end{exampleblock}
-        \end{column}
-        \hfill
-        \begin{column}{0.465\textwidth}
-            \begin{exampleblock}{Next category}
-                \scriptsize
-                Outperforms at \textbf{Florida} ($+0.19$ macro-F1, Holm-corrected $p=0.011$).
-                The five remaining differences are \textbf{equivalent to zero within half a
-                point}.
-            \end{exampleblock}
-        \end{column}
-    \end{columns}
+    \smallskip
+    {\small\itshape Under the final design and the strictest protocol of the three studies:\par}
+
+    \medskip
+    {\footnotesize
+    \setlength{\tabcolsep}{6pt}
+    \renewcommand{\arraystretch}{1.3}\begin{tabular}{@{}p{2.1cm} p{5.0cm} p{6.3cm}@{}}
+        \toprule
+         & \textbf{\color{primaryshade}Outperforms} the dedicated model
+         & \textbf{The rest} \\
+        \midrule
+        \textbf{Next region}
+            & \raggedright \textbf{Texas} $+1.21$ Acc@10\newline
+              \textbf{California} $+1.06$\newline
+              {\scriptsize corrected $p = 0.00013$ and $p < 10^{-4}$}
+            & \raggedright four datasets \textbf{stay within the two-point margin, registered
+              before any result was read} --- small \alert{deficits, not ties} \tabularnewline
+        \addlinespace
+        \textbf{Next category}
+            & \raggedright \textbf{Florida} $+0.19$ macro-F1\newline
+              {\scriptsize Holm-corrected $p = 0.011$}
+            & \raggedright five differences are \textbf{equivalent to zero within half a point}
+              \tabularnewline
+        \bottomrule
+    \end{tabular}\par}
 \end{frame}
 
 \subsection{Escopo}
@@ -196,27 +201,26 @@
 % seções seguintes: o título do Capítulo 3 diz *Next-POI Prediction*, e nos Capítulos 3 e 4 essa
 % expressão quer dizer próxima categoria, não próximo lugar."
 \begin{frame}{Three studies, in sequence}
-    \small
-    \begin{itemize}
+    \begin{itemize}\setlength{\itemsep}{5pt}
         \item \textbf{Ch.~3 --- Multitask Learning for POI Category and Next-POI Prediction.}
-              CBIC 2025, DOI 10.21528/CBIC2025-1191324. First author.
+              CBIC 2025, DOI 10.21528/CBIC2025-1191324. First author;
         \item \textbf{Ch.~4 --- ST-MTLNet: Spatio-Temporal POI Representations.}
               CoUrb 2026 (SBRC workshop), DOI 10.5753/courb.2026.22960. Contributed the MTLnet
-              baseline used in the study, and presented the work at the event.
+              baseline; presented at the event;
         \item \textbf{Ch.~5 --- A Check-in-Level Multitask Study of Next Category and Region.}
-              MobiWac 2026, submitted and under review. First author.
+              MobiWac 2026, submitted. First author.
     \end{itemize}
 
-    \smallskip
+    \medskip
     \begin{center}
-        The text's own sentence: \textit{``The first reports a negative result, the second
-        identifies its main bottleneck, and the third tests the resulting solution.''}
+        \small\itshape ``The first reports a negative result, the second identifies its main
+        bottleneck, and the third tests the resulting solution.''
     \end{center}
 
     \begin{alertblock}{Naming trap}
         \small
-        In Chapters 3 and 4, ``Next-POI Prediction'' means the next category, not the exact next
-        place.
+        In Chapters 3 and 4, ``Next-POI Prediction'' means the \alert{next category}, not the
+        exact next place.
     \end{alertblock}
 \end{frame}
 
@@ -233,30 +237,37 @@
 % SLIDES.md, reproduzido palavra por palavra. S51 (fechamento) repete o mesmo texto. Editar a
 % definição, nunca uma das cópias.
 \begin{frame}{The contribution, in one block}
+    \vfill
     \begin{columns}[t,onlytextwidth]
-        \begin{column}{0.465\textwidth}
-            \begin{block}{Practical}
-                \footnotesize
-                One model, one forward pass, two predictions: the next category and the next
-                region of a visit. One artifact to train, version and deploy, in place of two.
-                \textbf{The gain is operational, not computational} --- the joint model is the
-                larger artifact, and a forward pass through it costs more than running the two
-                dedicated models. What falls is the number of models to train and maintain.
+        \begin{column}{0.468\textwidth}
+            \begin{block}{Practical --- what it delivers}
+                \small
+                \begin{itemize}\setlength{\itemsep}{4pt}\setlength{\parskip}{0pt}
+                    \item \textbf{one model, one forward pass, two predictions} --- the next
+                          category and the next region of a visit;
+                    \item \textbf{one artifact} to train, version and deploy, in place of two ---
+                          \alert{operational, not computational}: the joint model is the larger
+                          artifact;
+                    \item \textbf{Check2HGI is the reusable part} --- independent of the
+                          prediction heads on top.
+                \end{itemize}
             \end{block}
         \end{column}
         \hfill
-        \begin{column}{0.465\textwidth}
-            \begin{exampleblock}{Scientific}
-                \footnotesize
-                The conditions, not a universal yes. The input representation and the sharing
-                topology decide whether multitask learning helps these POI prediction tasks. A
-                null result under a place embedding with hard parameter sharing does not
-                contradict a positive one under a check-in-level representation with
-                cross-attention: they are different conditions, and naming which ones matter is
-                the contribution.
+        \begin{column}{0.468\textwidth}
+            \begin{exampleblock}{Scientific --- what it establishes}
+                \small
+                \begin{itemize}\setlength{\itemsep}{4pt}\setlength{\parskip}{0pt}
+                    \item \textbf{the novelty is the combination}: per-visit context inside a
+                          hierarchical graph-infomax representation;
+                    \item helps \alert{under the final design and evaluation protocol}, not always;
+                    \item the \textbf{input representation} is one condition; architecture and
+                          scale \emph{suggested, not isolated}.
+                \end{itemize}
             \end{exampleblock}
         \end{column}
     \end{columns}
+    \vfill
 \end{frame}
 
 \section[Fundamentos]{Fundamentos compartilhados}
@@ -286,24 +297,21 @@
     \begin{block}{The infomax idea, in one sentence}
         \small
         The model learns useful vectors by being asked to tell a true pairing of two parts of the
-        data from a corrupted one, and it needs no labels to do so, because the data itself says
-        which pairing is the true one.
+        data from a corrupted one, and it needs no labels to do so.
     \end{block}
+
+    \medskip
     \begin{columns}[t,onlytextwidth]
         \begin{column}{0.604\textwidth}
-            \scriptsize
-            \renewcommand{\arraystretch}{1.1}\begin{tabular}{@{}lp{6.2cm}@{}}
+            \small
+            \renewcommand{\arraystretch}{1.3}\begin{tabular}{@{}lp{5.6cm}@{}}
                 \toprule
                 Model & What it added \tabularnewline
                 \midrule
-                DGI & \raggedright Unsupervised place embeddings by maximizing mutual information
-                      between local patches and a global graph summary. \tabularnewline
-                HGI & \raggedright Extends graph infomax over the POI, region, and city hierarchy
-                      to yield region-aware place embeddings. \tabularnewline
-                MTLnet & \raggedright First joint model: place embedding and hard parameter
-                         sharing. \tabularnewline
-                Check2HGI & \raggedright Check-in-level representation: graph infomax extended to
-                            the check-in, so each visit carries its own vector. \tabularnewline
+                DGI & \raggedright patches against a global graph summary; \tabularnewline
+                HGI & \raggedright the place--region--city hierarchy; \tabularnewline
+                MTLnet & \raggedright first joint model: hard parameter sharing; \tabularnewline
+                Check2HGI & \raggedright infomax down to the check-in --- one vector per visit. \tabularnewline
                 \bottomrule
             \end{tabular}
         \end{column}
@@ -312,12 +320,12 @@
             \centering
             \begin{tikzpicture}[
                 lvl/.style={draw=primaryshade, rounded corners=1mm, minimum width=2.3cm,
-                            minimum height=0.48cm, font=\scriptsize, inner sep=1pt}]
-                \node[lvl, fill=primarytint] at (0,1.65) {city};
-                \node[lvl, fill=primarytint] at (0,1.10) {region};
-                \node[lvl, fill=primarytint] at (0,0.55) {place};
+                            minimum height=0.52cm, font=\small, inner sep=1pt}]
+                \node[lvl, fill=primarytint] at (0,1.80) {city};
+                \node[lvl, fill=primarytint] at (0,1.20) {region};
+                \node[lvl, fill=primarytint] at (0,0.60) {place};
                 \node[lvl, dashed] (ci) at (0,0.00) {check-in};
-                \node[font=\scriptsize, anchor=west] at (1.25,0.00) {Ch.~5};
+                \node[font=\small, anchor=west] at (1.30,0.00) {Ch.~5};
             \end{tikzpicture}
         \end{column}
     \end{columns}
@@ -358,8 +366,8 @@
 % afirmo contenção entre as duas."
 \begin{frame}{The evidence base: six datasets, said once}
     \centering
-    \footnotesize
-    \renewcommand{\arraystretch}{1.1}\begin{tabular}{@{}llrrrl@{}}
+    \small
+    \renewcommand{\arraystretch}{1.15}\begin{tabular}{@{}llrrrl@{}}
         \toprule
         Dataset & Source & Check-ins & Regions & Majority (\%) & Used by \\
         \midrule
@@ -374,19 +382,18 @@
 
     \medskip
     \raggedright
-    \scriptsize
+    \footnotesize
     \textbf{The seven categories}, identical in all three studies: Community, Entertainment,
-    Food, Nightlife, Outdoors, Shopping, Travel.
-
-    \textbf{Region} = a census tract in the five U.S. datasets, a \textit{mahalle} in Istanbul.
-    Both partition a city at neighborhood scale. One is a unit of measurement, the other a unit
-    of government.
-
-    \textit{Majority} = share of next-visit labels in the most common category, which is Food in
-    every dataset.
-
-    \textbf{Florida appears twice, as two extractions.} 990,518 check-ins in Chapters 3 and 4
-    (Ch.~3 uses Florida alone); 1,407,034 in Chapter 5.
+    Food, Nightlife, Outdoors, Shopping, Travel.\par
+    \smallskip
+    \textbf{Region} --- a census tract in the five U.S. datasets, a \textit{mahalle} in Istanbul;
+    both partition a city at neighborhood scale.\par
+    \smallskip
+    \textit{Majority} --- share of next-visit labels in the most common category, which is
+    \textbf{Food} in every dataset.\par
+    \smallskip
+    \alert{Florida appears twice, as two extractions:} 990,518 check-ins in Chapters 3 and 4;
+    1,407,034 in Chapter 5.\par
 \end{frame}
 
 \subsection{Métricas}
@@ -399,16 +406,16 @@
 % perda não é reponderada, é entropia cruzada sem peso. E toda macro-F1 que eu disser vem com o
 % ponto de referência dela, que é o piso de classe majoritária."
 \begin{frame}{The metric all three studies share}
-    \begin{itemize}
-        \item \textbf{macro-F1} = the mean of the per-category F1 scores. Every category counts
-              equally, so rare ones matter. Out of 100.
-        \item Why: the class distribution is imbalanced. \textbf{Food accounts for roughly one
-              third of the check-ins in a representative state}, so plain accuracy can hide poor
-              performance on less frequent classes.
-        \item What macro-F1 does not do: it does not show which individual classes improve, and
-              it can be low even when overall accuracy is high.
-        \item \textbf{The loss is not reweighted.} The models use unweighted cross-entropy.
-        \item Its reference point: the \textbf{majority-class floor}, a predictor that always
+    \begin{itemize}\setlength{\itemsep}{5pt}
+        \item \textbf{macro-F1} --- the mean of the per-category F1 scores; every category counts
+              equally, so rare ones matter. Out of 100;
+        \item \textbf{why} --- the class distribution is imbalanced (\textbf{Food is roughly one
+              third} of the check-ins in a representative state), so plain accuracy hides poor
+              performance on rare classes;
+        \item \alert{what it does not do} --- it does not show \emph{which} classes improve, and
+              it can be low while overall accuracy is high;
+        \item \alert{the loss is not reweighted} --- unweighted cross-entropy;
+        \item reference point --- the \textbf{majority-class floor}, a predictor that always
               answers the most common category.
     \end{itemize}
 \end{frame}
@@ -427,27 +434,23 @@
 % o Capítulo 5 reporta macro-F1, um número só. Não são a mesma escala, e toda tabela que eu
 % reproduzir vai levar esse carimbo."
 \begin{frame}{The protocol of the first two studies, and two names that change}
-    \small
     \begin{itemize}
-        \item \textbf{Chapters 3 and 4.} Five-fold cross-validation stratified \textbf{over
-              samples}, so one user's check-ins may occur in both training and validation. Full
-              epoch budget, no early stopping. Each task read at \textbf{its own best validation
-              epoch}. Fold means and standard deviations, \textbf{no significance tests}.
-        \item \textbf{The verb law.} \textit{Outperforms} is reserved for a paired superiority
-              test. Chapters 3 and 4 report no test, so they report differences and never a
-              verdict.
+        \item \textbf{Ch.~3 and 4:} five-fold CV stratified \textbf{over samples} ---
+              \alert{one user's check-ins may fall on both sides};
+        \item Full epoch budget, no early stopping; each task at \textbf{its own best epoch};
+        \item Fold means and standard deviations, \textbf{no significance tests};
+        \item \textbf{The verb law:} \emph{outperforms} is reserved for a paired superiority
+              test --- Ch.~3 and 4 report none, so they report differences, never a verdict.
     \end{itemize}
 
+    \bigskip
     \begin{alertblock}{Two traps}
         \small
-        \textbf{The task pair changes.} Ch.~3 and Ch.~4: category classification $+$ next
-        category. Ch.~5: next category $+$ next region.
-
-        \smallskip
-        \textbf{The metric convention changes.} Ch.~3 and Ch.~4 print one F1 per category. Ch.~5
-        reports macro-F1, a single number. The two are not one scale.
+        \textbf{The task pair changes.} Ch.~3/4: category classification $+$ next category.
+        Ch.~5: next category $+$ next region.\par
+        \textbf{The metric convention changes.} Ch.~3/4 print one F1 per category;
+        Ch.~5 reports macro-F1. \alert{Not one scale.}
     \end{alertblock}
-    \centering\textit{Each study names its own convention when its turn comes.}
 \end{frame}
 
 \subsection{Trabalhos relacionados}
@@ -462,17 +465,16 @@
 % seguem a mesma direção. O TME é a exceção que puxa para o outro lado, com anotação semântica
 % estática de ponto de interesse."
 \begin{frame}{Related work: POI prediction and multitask learning}
-    \begin{itemize}
-        \item \textbf{Next place is the dominant task in the field.} Recurrent models: ST-RNN,
-              DeepMove, HST-LSTM, Flashback. Attention models: STAN, GeoSAN, GETNext.
-        \item Every model named there predicts the exact next place, so \textbf{none of them is a
-              direct baseline for the targets studied here}.
-        \item The pair the first two studies attack: \textbf{category classification} and
-              \textbf{next-category prediction}.
-        \item In mobility, MTL has been used almost entirely \textbf{in the service of next
-              place}: MCARNN (activity and place), CSLSL (time, then activity, then location),
-              iMTL, HAMTL. TME instead applies tree-guided multitask embedding to static semantic
-              POI annotation.
+    \begin{itemize}\setlength{\itemsep}{5pt}
+        \item \textbf{Next place is the dominant task in the field} --- recurrent: ST-RNN,
+              DeepMove, HST-LSTM, Flashback; attention: STAN, GeoSAN, GETNext;
+        \item every model named there predicts the \textbf{exact next place}, so
+              \alert{none is a direct baseline for the targets studied here};
+        \item the pair the first two studies attack: \textbf{category classification} and
+              \textbf{next-category prediction};
+        \item in mobility, MTL has served \textbf{next place} almost entirely --- MCARNN, CSLSL,
+              iMTL, HAMTL. TME instead applies tree-guided multitask embedding to static
+              semantic POI annotation.
     \end{itemize}
 \end{frame}
 
@@ -485,37 +487,33 @@
 % de igual estatuto num modelo conjunto que não prediz também o próximo lugar. O rodapé é o mapa
 % de onde saem os métodos externos que vão aparecer nas tabelas."
 \begin{frame}{The axis that separates this work}
-    \small
     \begin{columns}[t,onlytextwidth]
         \begin{column}{0.465\textwidth}
             \begin{block}{Category and region as a MEANS}
-                \scriptsize
-                Toward the next place: HMT-GRN (a predicted region constrains the search for a
-                place), CatDM (a predicted category reduces the candidate set), CSLSL (a cascade
-                ending at the location).
+                \small
+                Toward the next place: HMT-GRN, CatDM, CSLSL.
             \end{block}
         \end{column}
         \hfill
         \begin{column}{0.465\textwidth}
             \begin{exampleblock}{Category or region as an END}
-                \scriptsize
-                Activity-region prediction (DRRGNN), next category (POI-RGNN).
+                \small
+                Activity region (DRRGNN), next category (POI-RGNN).
             \end{exampleblock}
         \end{column}
     \end{columns}
 
-    \smallskip
-    \scriptsize
-    \textit{Among the works reviewed in this dissertation, none treats the next category and the
-    next region as co-equal end targets of one joint model that does not also predict the next
-    place.}
+    \bigskip
+    {\small\itshape
+    Among the works reviewed in this dissertation, none treats the next category and the
+    next region as co-equal end targets of one joint model that does not also predict the
+    next place.\par}
 
-    \smallskip
-    Where the external methods come from --- \textbf{next category}: POI-RGNN and a Markov model
-    over category transitions (order chosen per dataset) \textbar\ \textbf{next region}: HMT-GRN
-    (primary), STAN, ReHDM, over a Markov-1 floor \textbar\ \textbf{Ch.~3 static task}: HMRM
-    \textbar\ \textbf{Ch.~3 sequential task}: MHA+PE \textbar\ \textbf{Ch.~4}: MTLnet as its only
-    baseline.
+    \bigskip
+    {\footnotesize
+    \textbf{next category} POI-RGNN, Markov over category transitions \textbar\
+    \textbf{next region} HMT-GRN, STAN, ReHDM, Markov-1 floor \textbar\
+    \textbf{Ch.~3} HMRM, MHA+PE \textbar\ \textbf{Ch.~4} MTLnet.\par}
 \end{frame}
 
 \subsection{Linhagem de representações}
@@ -632,7 +630,7 @@
 
     \vspace{-1mm}
     {\small
-    \begin{itemize}\setlength{\itemsep}{2pt}
+    \begin{itemize}\setlength{\itemsep}{1pt}\setlength{\parskip}{0pt}
         \item \textbf{FiLM:} a learnable task embedding gives a \textbf{scale} and a \textbf{shift} --- both tasks read the same parameters under different scalings.
         \item \textbf{Shared residual blocks} = \textbf{hard parameter sharing} (Def.~2.10). Two disjoint parameter sets: \textbf{shared} $\cdot$ \textbf{task-specific}.
     \end{itemize}\par}
@@ -656,29 +654,32 @@
 % vetor por lugar. Toda visita àquele lugar entra no modelo com o mesmo vetor, e essa frase é a
 % que o Capítulo 5 vai atacar."
 \begin{frame}{DGI: how it works $\mid$ why it was used}
-
     \begin{columns}[t,onlytextwidth]
         \begin{column}{0.465\textwidth}
             \begin{block}{How it works}
-                {\small
-                \begin{itemize}\setlength{\itemsep}{2pt}
-                    \item \textbf{Delaunay graph} over the area's places
-                    \item Edge weights decrease with \textbf{geodesic distance}, through a logarithmic function of it
-                    \item Graph attention $\rightarrow$ one \textbf{64-dimensional} vector per place
-                    \item Infomax objective (Section~2): real graph against shuffled node features, scored on a global summary
-                \end{itemize}\par}
+                \small
+                \begin{itemize}\setlength{\itemsep}{3pt}\setlength{\parskip}{0pt}
+                    \item \textbf{Delaunay graph} over the area's places;
+                    \item edge weights decrease with \textbf{geodesic distance}, logarithmically;
+                    \item graph attention $\rightarrow$ one \textbf{64-dimensional} vector per place;
+                    \item infomax objective --- real graph against shuffled node features.
+                \end{itemize}
             \end{block}
         \end{column}
         \hfill
         \begin{column}{0.465\textwidth}
             \begin{alertblock}{Node features, as released}
-                {\small The network is fed \textbf{the mean of the one-hot vectors of a place's graph neighbors, with the place's own vector excluded.}\par}
+                \small
+                The mean of the one-hot vectors of a place's graph neighbors,
+                \alert{with the place's own vector excluded}.
             \end{alertblock}
-            {\small
-            \begin{itemize}\setlength{\itemsep}{2pt}
-                \item \textbf{Why that matters.} The input describes a \textbf{neighborhood}: \textbf{spatial homophily}, not recall of the place's own label
-                \item \textbf{What it gives.} One vector per place --- every visit enters with the same vector
-            \end{itemize}\par}
+            \small
+            \begin{itemize}\setlength{\itemsep}{3pt}\setlength{\parskip}{0pt}
+                \item \textbf{Why that matters} --- the input describes a \textbf{neighborhood}:
+                      spatial homophily, not recall of the place's own label;
+                \item \textbf{What it gives} --- one vector per place; every visit enters with
+                      the same vector.
+            \end{itemize}
         \end{column}
     \end{columns}
 \end{frame}
@@ -722,18 +723,20 @@
 % que mudam a direção da atualização. Uma ressalva que é do Capítulo 2 e que eu repito de
 % propósito: esta dissertação não reivindica nenhuma propriedade de Pareto para os modelos dela."
 \begin{frame}{Two losses, one set of parameters}
-
-    {\small
-    \begin{itemize}\setlength{\itemsep}{3pt}
-        \item The problem, before any method is named: \textbf{two losses, one set of shared parameters, and no total order between solutions.}
-        \item The usual objective is a \textbf{weighted sum} of the task losses. The scalar sum does not remove the multi-objective nature of the problem.
-        \item \textbf{Pareto dominance:} no worse on every task loss, better on at least one. \textbf{Pareto optimal:} no other setting dominates it. Their loss vectors form the \textbf{Pareto front}.
-        \item Hence a family of methods, in two classes:
-        \begin{itemize}
-            \item \textbf{set the weights} --- uncertainty weighting, GradNorm, DWA, FAMO
-            \item \textbf{change the update direction} --- MGDA, PCGrad, CAGrad, Nash-MTL, Aligned-MTL
+    \begin{itemize}\setlength{\itemsep}{4pt}
+        \item The problem, before any method is named: \textbf{two losses, one set of shared
+              parameters, no total order between solutions};
+        \item the usual objective is a \textbf{weighted sum} --- the scalar sum does not remove
+              the multi-objective nature of the problem;
+        \item \textbf{Pareto dominance} --- no worse on every task loss, better on at least one;
+              \textbf{Pareto optimal} --- nothing dominates it;
+        \item hence two classes of method:
+        \begin{itemize}\setlength{\itemsep}{2pt}
+            \item \textbf{set the weights} --- uncertainty weighting, GradNorm, DWA, FAMO;
+            \item \textbf{change the update direction} --- MGDA, PCGrad, CAGrad, Nash-MTL,
+                  Aligned-MTL.
         \end{itemize}
-    \end{itemize}\par}
+    \end{itemize}
 
     \vfill
     \begin{alertblock}{}
@@ -755,19 +758,25 @@
 % implementação do otimizador, e o Capítulo 5 não se apoia nisso. O critério da Seção 2 continua
 % de pé: um balanceador só é útil se melhorar sobre uma ponderação fixa bem ajustada."
 \begin{frame}{Nash-MTL, and what the chapter may claim about it}
+    \begin{itemize}
+        \item Changes the \textbf{update direction} --- gradient combination as a
+              \textbf{cooperative bargaining problem};
+        \item Each task's utility is its own loss reduction; the direction
+              \textbf{maximizes the product};
+        \item Guarantee: a \textbf{Pareto-stationary point} --- necessary, not sufficient.
+    \end{itemize}
 
-    {\small
-    \begin{itemize}\setlength{\itemsep}{3pt}
-        \item It \textbf{changes the update direction}: gradient combination as a \textbf{cooperative bargaining problem} among the tasks.
-        \item Each task's utility is its own loss reduction; the chosen direction \textbf{maximizes the product of the utilities}, which keeps one task from dominating the other.
-        \item Guarantee: a \textbf{Pareto-stationary point} --- necessary, not sufficient, for Pareto optimality, which needs a convexity assumption a deep network does not satisfy.
-    \end{itemize}\par}
-
+    \bigskip
     \begin{alertblock}{What Chapter 3 claims}
-        {\small Against PCGrad and against training without such an optimizer, Nash-MTL gave the lower combined multitask loss, and the chapter adopted it. \textbf{A conclusion of the time}, weakened by a later finding about the optimizer implementation --- and Chapter~5 does not rely on it.\par}
+        \small
+        Lower combined multitask loss than PCGrad and than no such optimizer; the chapter adopted it.
+        \textbf{A conclusion of the time}, weakened by a later finding ---
+        \alert{and Chapter~5 does not rely on it}.
     \end{alertblock}
 
-    {\footnotesize The criterion from Section~2, still standing: \textit{useful only if it improves on a tuned fixed weighting.}\par}
+    \medskip
+    {\footnotesize\itshape Criterion from Section~2, still standing: useful only if it improves on a
+    tuned fixed weighting.\par}
 \end{frame}
 
 \subsection{Resultado}
@@ -897,22 +906,25 @@
 % melhor."
 % (Esta fala de 40 s cobre este frame E o frame seguinte, o da Fig. 2.)
 \begin{frame}{Architecture or representation?}
-
     \begin{alertblock}{The inherited question --- suspect 2 against suspect 3}
         \centering Is the bottleneck the \textbf{representation}, or the \textbf{sharing topology}?
     \end{alertblock}
 
-    {\small
-    \begin{itemize}\setlength{\itemsep}{3pt}
-        \item \textbf{The design that separates them:} MTLnet is kept unchanged, and \textbf{only the input moves}. Same trunk, same FiLM, same balancer, same hyperparameters.
-        \item \textbf{Old input:} one monolithic \textbf{64-dimensional} place embedding (DGI).
-        \item \textbf{New input:} three independent \textbf{64-dimensional} encoders --- spatial, temporal and categorical --- concatenated into \textbf{192}.
-        \item Same latent width on both sides: the per-task encoders project any input to \textbf{256}.
-        \item Three states: Florida, California, Texas. Protocol as in Chapter~3.
-    \end{itemize}\par}
+    \medskip
+    \begin{itemize}\setlength{\itemsep}{4pt}
+        \item \textbf{The design that separates them} --- MTLnet unchanged, \alert{only the input
+              moves}: same trunk, same FiLM, same balancer, same hyperparameters;
+        \item \textbf{old input} --- one monolithic \textbf{64-dimensional} place embedding (DGI);
+        \item \textbf{new input} --- three \textbf{64-dimensional} encoders, spatial, temporal and
+              categorical, concatenated into \textbf{192};
+        \item same latent width on both sides: the per-task encoders project any input to
+              \textbf{256};
+        \item three states: Florida, California, Texas. Protocol as in Chapter~3.
+    \end{itemize}
 
     \vfill
-    {\scriptsize\color{secondary}\textbf{Task stamp.} ``Next-POI Prediction'' is the next \textbf{category} (Def.~2.7), not the exact next place.\par}
+    {\scriptsize\color{secondary}\textbf{Task stamp.} ``Next-POI Prediction'' is the next
+    \textbf{category} (Def.~2.7), not the exact next place.\par}
 \end{frame}
 
 % FALA: (este frame não tem fala própria --- é a arte da Fig. 2, falada dentro dos 40 s do slide
@@ -948,23 +960,28 @@
 % dissertação reaproveita a saída de nível de lugar para predição sequencial, um uso que a
 % avaliação original não cobre."
 \begin{frame}{HGI: how it works $\mid$ why it was used}
-
     \begin{columns}[t,onlytextwidth]
         \begin{column}{0.465\textwidth}
             \begin{block}{How it works, in order}
-                {\footnotesize Pretrained category encoder $\rightarrow$ one \textbf{graph convolution} over a Delaunay graph $\rightarrow$ \textbf{multi-head attention} over a region's places $\rightarrow$ \textbf{area-weighted sum} over regions $\rightarrow$ one city embedding.\par}
+                {\small Pretrained category encoder $\rightarrow$ \textbf{graph convolution}
+                (Delaunay) $\rightarrow$ \textbf{multi-head attention} over a region's places
+                $\rightarrow$ \textbf{area-weighted sum} $\rightarrow$ city embedding.\par}
             \end{block}
             \begin{block}{What is maximized}
-                {\footnotesize Mutual information between \textbf{two adjacent levels}, through a \textbf{bilinear discriminator}. \textbf{No label of any downstream task enters that comparison.}\par}
+                {\small Mutual information between \textbf{two adjacent levels}.
+                \textbf{No downstream label enters that comparison.}\par}
             \end{block}
         \end{column}
         \hfill
         \begin{column}{0.465\textwidth}
             \begin{alertblock}{A consequence of the design}
-                {\footnotesize Place encoder, aggregation and region encoder are updated together, and region membership also enters through the edge weights. \textbf{The place-level output already reflects the region the place belongs to.}\par}
+                {\small \textbf{The place-level output already reflects the region the place
+                belongs to.}\par}
             \end{alertblock}
             \begin{block}{Why it is used here --- and the limit}
-                {\footnotesize Built for \textbf{urban region representation}; its \textbf{place-level} output is repurposed here for sequential prediction --- \textbf{a use the original evaluation does not cover}.\par}
+                {\small Built for \textbf{urban region representation}; its \textbf{place-level}
+                output repurposed here for sequential prediction ---
+                \alert{a use the original evaluation does not cover}.\par}
             \end{block}
         \end{column}
     \end{columns}
@@ -988,31 +1005,35 @@
 % amostragem negativa e um termo que amarra cada classe fina à categoria de topo dela. Depois o
 % HGI, que acrescenta a hierarquia regional sobre esse resultado."
 \begin{frame}{Why these encoders}
-
     \begin{columns}[t,onlytextwidth]
         \begin{column}{0.426\textwidth}
             \begin{block}{Spatial, 64 d}
-                {\footnotesize
-                \textbf{Why:} space was encoded only through graph topology, never as a continuous coordinate.
-                \begin{itemize}\setlength{\itemsep}{1pt}
-                    \item \textbf{SIREN} --- sinusoidal activations over normalized coordinates
-                    \item \textbf{Sphere2Vec-M} --- multi-scale, spherical coordinates, geodesic distance preserved
-                    \item One contrastive loss for both: positive under \textbf{10 km}, negative over \textbf{70 km}
-                \end{itemize}\par}
+                \small
+                \textbf{Why:} space entered only through graph topology, never as a continuous
+                coordinate.
+                \begin{itemize}\setlength{\itemsep}{2pt}
+                    \item \textbf{SIREN} --- sinusoidal activations over normalized coordinates;
+                    \item \textbf{Sphere2Vec-M} --- multi-scale, spherical, geodesic distance
+                          preserved;
+                    \item one contrastive loss for both: positive under \textbf{10 km}, negative
+                          over \textbf{70 km}.
+                \end{itemize}
             \end{block}
         \end{column}
         \hfill
         \begin{column}{0.504\textwidth}
             \begin{block}{Temporal, 64 d}
-                {\footnotesize
+                \small
                 \textbf{Why:} no explicit temporal representation.\\
-                \textbf{Time2Vec} --- a linear term for global trend, sinusoidal terms for hour of day and day of week.\par}
+                \textbf{Time2Vec} --- a linear term for trend, sinusoidal terms for hour of day
+                and day of week.
             \end{block}
             \begin{block}{Categorical, 64 d, two phases}
-                {\footnotesize
+                \small
                 \textbf{Why:} graph structure alone --- no hierarchy, no region.\\
-                \textbf{1. POI Encoder} (a category encoder trained on random walks) --- skip-gram with negative sampling; each \textbf{fine class} tied to its top-level category.\\
-                \textbf{2. HGI} --- the regional hierarchy above.\par}
+                \textbf{1. POI Encoder} --- skip-gram with negative sampling; each \textbf{fine
+                class} tied to its top-level category.\\
+                \textbf{2. HGI} --- the regional hierarchy above.
             \end{block}
         \end{column}
     \end{columns}
@@ -1031,20 +1052,26 @@
 % faixa é: é o melhor dos dois codificadores espaciais em cada combinação, não é nenhum dos dois
 % sozinho."
 \begin{frame}{The caveat, then the number}
-
     \begin{alertblock}{From the chapter preface}
-        {\small After publication, we established that the input to this chapter's static task contains the label it predicts: the venue-type feature maps one-to-one onto the seven top-level categories across the Gowalla state subsets used, so the reported static-task accuracy measures that lookup rather than learned semantic inference.\par}
+        \small
+        After publication we established that the input to this chapter's static task
+        \alert{contains the label it predicts}: the venue-type feature maps one-to-one onto the
+        seven top-level categories. The reported static-task accuracy measures \textbf{that
+        lookup}, not learned semantic inference.
     \end{alertblock}
 
-    {\small
+    \medskip
     \begin{itemize}\setlength{\itemsep}{3pt}
-        \item<1-> \textbf{The static gain therefore says nothing about the sequential task.}
-        \item<2-> Then, and only then: the decomposed input leads in \textbf{all 21 category-state combinations}, with average gains per state of \textbf{20.2 to 22.0 percentage points}.
-        \item<2-> \textbf{Declared with the range:} it is the \textbf{better of the two spatial encoders in each combination}, not either encoder on its own.
-    \end{itemize}\par}
+        \item<1-> \alert{The static gain therefore says nothing about the sequential task};
+        \item<2-> then, and only then: the decomposed input leads in \textbf{all 21
+              category-state combinations}, \textbf{+20.2 to +22.0 pp} per state;
+        \item<2-> declared with the range --- the \textbf{better of the two spatial encoders} in
+              each combination, not either one alone.
+    \end{itemize}
 
     \vfill
-    {\scriptsize\color{secondary}\textbf{Metric stamp.} Chapters 3 and 4 print one F1 \textbf{per category}; Chapter 5 reports \textbf{macro-F1}. Not one scale.\par}
+    {\scriptsize\color{secondary}\textbf{Metric stamp.} Chapters 3 and 4 print one F1
+    \textbf{per category}; Chapter 5 reports \textbf{macro-F1}. Not one scale.\par}
 \end{frame}
 
 \subsection{Resultado diagnóstico}
@@ -1061,7 +1088,6 @@
 % ficam acima nos três estados, com melhoria consistente também em Shopping e Community. E o
 % carimbo de novo: isto é F1 por categoria, não é macro-F1."
 \begin{frame}{The diagnostic result is the sequential task}
-
     \framesubtitle{Table 7, Florida --- the sequential target is never in the input}
 
     \begin{columns}[T,onlytextwidth]
@@ -1085,17 +1111,21 @@
         \end{column}
         \hfill
         \begin{column}{0.389\textwidth}
-            {\scriptsize
-            \begin{itemize}\setlength{\itemsep}{3pt}
-                \item Over the three states, the decomposed input holds the higher mean in \textbf{15 of the 21} category-state combinations
-                \item \textbf{MTLnet, with its original input, retains six} --- one of them \textit{``one additional technical tie''}, at \textbf{Outdoors} in Florida, where the MTLnet mean is higher than the best variant by \textbf{0.02 percentage points}, inside one standard deviation
-                \item Gains concentrate at \textbf{Food}, in all three states; also \textbf{Shopping} and \textbf{Community}
-            \end{itemize}\par}
+            \small
+            \begin{itemize}\setlength{\itemsep}{5pt}
+                \item decomposed input holds the higher mean in \textbf{15 of 21} combinations;
+                \item \textbf{MTLnet retains six} --- one a \textit{``technical tie''} at
+                      Outdoors in Florida, MTLnet higher by \textbf{0.02 pp}, inside one
+                      standard deviation;
+                \item gains concentrate at \textbf{Food}, in all three states.
+            \end{itemize}
         \end{column}
     \end{columns}
 
     \vfill
-    {\scriptsize\color{secondary}\textbf{Task stamp.} the next \textbf{category} (Def.~2.7), not the exact next place. \quad\textbf{Metric stamp.} one F1 \textbf{per category} here; \textbf{macro-F1} in Chapter~5. Not one scale.\par}
+    {\scriptsize\color{secondary}\textbf{Task stamp.} the next \textbf{category} (Def.~2.7), not
+    the exact next place. \quad\textbf{Metric stamp.} one F1 \textbf{per category} here;
+    \textbf{macro-F1} in Chapter~5. Not one scale.\par}
 \end{frame}
 
 \subsection{Bordas honestas}
@@ -1114,28 +1144,31 @@
 % pode vir da largura. Junto com isso, os três componentes entram sempre juntos, então este
 % capítulo não isola a contribuição de cada codificador."
 \begin{frame}{What the decomposition moved, and where it did not}
-
     \begin{block}{Travel, labeled by task}
-        {\footnotesize
-        \textit{Travel (category classification)} \textcolor{primary}{\textbf{moved}} $\;\cdot\;$ \textit{Travel (next category)} \textcolor{alert}{\textbf{did not}}.\\
-        On the sequential task MTLnet keeps the lead at \textbf{Florida} and \textbf{California}: long-distance movement is sparse, and graph topology preserves relationships between geographically distant places better than a coordinate-based encoder does.\par}
+        {\small
+        \textit{Travel (category classification)} \textcolor{primary}{\textbf{moved}}
+        $\;\cdot\;$ \textit{Travel (next category)} \textcolor{alert}{\textbf{did not}}.\\
+        On the sequential task MTLnet keeps the lead at \textbf{Florida} and \textbf{California}.\par}
     \end{block}
+
+    \medskip
     \begin{columns}[t,onlytextwidth]
         \begin{column}{0.465\textwidth}
             \begin{block}{No universally better spatial encoder}
-                {\footnotesize \textbf{SIREN} leads more often at Florida and California, \textbf{Sphere2Vec-M} at Texas. Suitability depends on how the places are distributed over each territory.\par}
+                {\small \textbf{SIREN} at Florida and California, \textbf{Sphere2Vec-M} at Texas.\par}
             \end{block}
         \end{column}
         \hfill
         \begin{column}{0.465\textwidth}
-            \begin{alertblock}{The comparison is not width-matched}
-                {\footnotesize \textbf{192 dimensions against 64.} The chapter states this as a limit and asks for an equal-dimension control.\par}
+            \begin{alertblock}{Not width-matched}
+                {\small \textbf{192 dimensions against 64} --- the chapter states this as a limit.\par}
             \end{alertblock}
         \end{column}
     \end{columns}
 
     \vfill
-    {\footnotesize \textit{The three components are used together, so this chapter does not isolate the contribution of each encoder.}\par}
+    {\footnotesize\itshape The three components are used together --- this chapter does not isolate
+    each encoder.\par}
 \end{frame}
 
 \subsection{Entrega}
@@ -1218,19 +1251,16 @@
 \begin{frame}{Next region: the task, and why it is worth predicting}
     \framesubtitle{Related work of this study, part 1 of 2}
 
-    \small
-    \begin{itemize}
-        \item \textbf{The task.} Classification over the dataset's candidate regions ---
-              \alert{520 classes (Istanbul) to 8,501 (California)}. Coarser than a place, and not easier.
-        \item \textbf{Why this target.} The category says \emph{what type} of place comes next;
-              the region says \emph{where}, hence where to prepare.
-        \item \textbf{Where it sits.} The standard mobility formulation targets a \textbf{grid cell};
-              this task substitutes official neighborhood-scale units. In MCMG and HMT-GRN,
-              category and region are \textbf{auxiliary signals} for a primary next-place task.
-        \item \textbf{Scope, stated with the motivation.} Neighborhood-level preparation:
-              demand and load anticipation, caching ahead of time, capacity planning.
-              \emph{A census tract is a neighborhood, not a radio cell.}
-              \alert{No such service is built or evaluated here.}
+    \begin{itemize}\setlength{\itemsep}{4pt}
+        \item \textbf{The task} --- classification over the dataset's candidate regions,
+              \alert{520 (Istanbul) to 8,501 (California)}; coarser than a place, not easier;
+        \item \textbf{Why this target} --- the category says \emph{what type} comes next;
+              the region says \emph{where}, hence where to prepare;
+        \item \textbf{Where it sits} --- the standard formulation targets a \textbf{grid cell};
+              here, official neighborhood-scale units. In MCMG and HMT-GRN, category and region
+              are \textbf{auxiliary} to a primary next-place task;
+        \item \textbf{Scope} --- demand and load anticipation, caching ahead of time, capacity
+              planning. \alert{No such service is built or evaluated here.}
     \end{itemize}
 \end{frame}
 
@@ -1243,21 +1273,21 @@
 \begin{frame}{Why a per-visit representation is new in this line}
     \framesubtitle{Related work of this study, part 2 of 2}
 
-    \small
-    \begin{itemize}
-        \item \textbf{CTLE} --- the closest prior contextual check-in representation:
-              one vector per visit, learned by masking and reconstructing parts of a user's
-              check-in sequence.
-        \item \textbf{The difference is the construction.} CTLE is a \textbf{sequence model},
-              a Transformer over the check-in sequence. Check2HGI stays a \textbf{graph model}:
-              same place, region, city hierarchy, same infomax objective, extended one level deeper.
-        \item \textbf{What CTLE pretrains on:} place identifiers and timestamps alone ---
-              the category vocabulary never enters its training.
+    \begin{itemize}\setlength{\itemsep}{5pt}
+        \item \textbf{CTLE} --- the closest prior contextual check-in representation: one vector
+              per visit, learned by masking and reconstructing a user's check-in sequence;
+        \item \textbf{the difference is the construction} --- CTLE is a \textbf{sequence model},
+              a Transformer; Check2HGI stays a \textbf{graph model}: same hierarchy, same infomax
+              objective, \alert{one level deeper};
+        \item \textbf{what CTLE pretrains on} --- place identifiers and timestamps alone; the
+              category vocabulary never enters its training.
     \end{itemize}
 
+    \bigskip
     \begin{block}{}
-        \small \alert{The novelty is the combination:} per-visit context \textbf{inside} a
-        hierarchical graph-infomax representation.
+        \small
+        \alert{The novelty is the combination:} per-visit context \textbf{inside} a hierarchical
+        graph-infomax representation.
     \end{block}
 \end{frame}
 
@@ -1301,25 +1331,20 @@
 \begin{frame}{What each visit contributes}
     \framesubtitle{The node features, and one design principle}
 
-    \small
     \begin{itemize}
-        \item \textbf{Semantic.} The category of the visited place, as an indicator over the classes.
-        \item \textbf{Cyclical time.} Time of day and day of week, through their sine and cosine ---
-              the endpoints of the daily and weekly cycles fall next to each other.
-        \item \textbf{Elapsed time.} Time since the user's previous visit and since the user's first
-              visit, both log-compressed; the gap within the same calendar day; a first-visit
-              indicator. \emph{These give the representation a sense of tempo.}
+        \item \textbf{Semantic} --- the category of the visited place, as an indicator;
+        \item \textbf{Cyclical time} --- time of day and day of week, through sine and cosine;
+        \item \textbf{Elapsed time} --- since the previous visit, since the first visit,
+              the within-day gap, a first-visit indicator.
     \end{itemize}
 
+    \bigskip
     \begin{alertblock}{A design principle, in the chapter's own wording}
         \small
         \emph{The consecutive-visit edges run in one direction only, from an earlier visit to a
         later one, for the same reason: a target is predicted from a user's past, so the
         representation is built from the past alone.}
     \end{alertblock}
-
-    {\scriptsize Every value is measured up to the visit itself: a node describes the visit and the
-    history preceding it, never anything that follows.\par}
 \end{frame}
 
 % FALA: E este é o resultado da representação sozinha, antes de qualquer modelo. A pergunta é simples: esses vetores por visita separam as sete categorias?
@@ -1373,25 +1398,24 @@
         \end{column}
         \hfill
         \begin{column}{0.550\textwidth}
-            \footnotesize
-            \begin{itemize}
-                \item \textbf{Two inputs, one model.} The category task reads the window of
-                      per-visit vectors (\textbf{semantic stream}); the region task reads the same
-                      window, each visit now represented by the trained vector of its region node
-                      (\textbf{spatial stream}).
-                \item \textbf{Private per-task encoders} --- a small input network per task, with no
-                      shared weights.
-                \item \textbf{The shared trunk:} a cross-attention stack of two blocks. Attention
-                      lets each stream read the other's features, while each keeps its own
+            \small
+            \begin{itemize}\setlength{\itemsep}{4pt}
+                \item \textbf{Two inputs, one model} --- the category task reads the window of
+                      per-visit vectors (\textbf{semantic stream}); the region task reads the
+                      same window, each visit as its region node's vector
+                      (\textbf{spatial stream});
+                \item \textbf{private per-task encoders} --- no shared weights;
+                \item \textbf{the shared trunk} --- a cross-attention stack of two blocks;
+                      attention lets each stream read the other's features, each keeping its own
                       feed-forward weights.
             \end{itemize}
         \end{column}
     \end{columns}
 
     \begin{alertblock}{}
-        \footnotesize
-        The tasks share by \textbf{exchanging information between per-task streams}, not by owning
-        hidden layers in common.
+        \small
+        The tasks share by \alert{exchanging information between per-task streams}, not by
+        owning hidden layers in common.
     \end{alertblock}
 \end{frame}
 
@@ -1405,23 +1429,17 @@
 % esta combinação produz uma saída de região acima de dois modelos dedicados, nos dois conjuntos com os maiores números de regiões.
 % Não é uma afirmação sobre transferência entre tarefas.
 \begin{frame}{The private spatial path, and what the evidence does not separate}
-    \footnotesize
     \begin{itemize}
-        \item \textbf{The private spatial path.} A small branch \emph{inside the one model}, not a
-              second model: it reads the spatial input window, bypasses the shared trunk, and feeds
-              the region output only. \alert{The category task does not touch this branch.}
-        \item \textbf{The training loss:} a fixed-weight sum, \textbf{0.5 category $+$ 0.5 region}.
-              Fixed by design, so that any improvement over the dedicated models comes from the
-              shared representation and not from an adaptive weighting scheme.
-        \item \textbf{The category output is trained with logit adjustment} ($\tau = 0.5$, training
-              only; inference uses the unadjusted logits), which shifts the decision boundary toward
-              the balanced posterior that macro-F1 rewards. \alert{The dedicated category model
-              receives the same adjustment}, so the comparison is not affected by it.
-              Class weighting was tested on both outputs and lowered both scores.
+        \item \textbf{A branch inside the one model}, not a second model --- bypasses the shared
+              trunk, feeds the region output only; \alert{the category task never touches it};
+        \item \textbf{Fixed loss:} \textbf{0.5 category $+$ 0.5 region}, by design;
+        \item \textbf{Logit adjustment} on category ($\tau = 0.5$, training only) ---
+              \alert{the dedicated model receives the same}.
     \end{itemize}
 
+    \bigskip
     \begin{alertblock}{The position on the shared trunk}
-        \scriptsize
+        \small
         \emph{The evidence does not separate the contributions of the shared trunk and the private
         spatial path. It does not establish that sharing helps, and it does not rule it out.
         The claim I make is about the design.}
@@ -1443,17 +1461,13 @@
 \begin{frame}{The protocol, in four steps}
     \framesubtitle{1 $\cdot$ the unit of data}
 
-    \small
-    \begin{itemize}
-        \item \textbf{User-disjoint five-fold cross-validation.} All windows from one user stay in
-              the same fold, so a test user's visits never appear in training.
-              \alert{This is the repair of the limitation declared in Chapter 3.}
-        \item Stratified by the \textbf{next-category label}, because the seven classes are imbalanced.
-        \item \textbf{Sliding windows, stride 1.} For each user with at least ten visits, a window of
-              nine visits starts at each visit and the next visit is the target; duplicated short
-              padded windows ending at the same target are removed.
-        \item \alert{Not the same windows as Chapters 3 and 4}, which used non-overlapping ones.
-        \item \textbf{The held-out fold provides the validation data}, and no third split is
+    \begin{itemize}\setlength{\itemsep}{4pt}
+        \item \textbf{User-disjoint five-fold cross-validation} --- every window from one user
+              stays in one fold; \alert{the repair of the limitation declared in Chapter 3};
+        \item stratified by the \textbf{next-category label}, the seven classes being imbalanced;
+        \item \textbf{sliding windows, stride 1} --- nine visits in, the next visit is the target;
+        \item \alert{not the same windows as Chapters 3 and 4}, which used non-overlapping ones;
+        \item the \textbf{held-out fold provides the validation data} --- no third split is
               reserved. \emph{Limit 2, later in this section, comes from this line.}
     \end{itemize}
 \end{frame}
@@ -1471,19 +1485,16 @@
 \begin{frame}{The protocol, in four steps}
     \framesubtitle{2 $\cdot$ what is measured}
 
-    \small
-    \begin{itemize}
-        \item \textbf{Category: macro-F1}, as defined in Section 2. Reference point: the
-              \textbf{majority-class floor}, between \alert{5.7 and 7.3} macro-F1 depending on the
-              dataset.
-        \item \textbf{Region: Acc@10.} The share of test visits whose true region is among the
-              model's ten highest-scoring predictions. It does not distinguish first place from tenth.
-        \item \textbf{OOD-discounted Acc@10.} A region absent from the training fold counts as an
-              error: Acc@10 on the in-distribution visits, multiplied by one minus the
-              out-of-distribution fraction.
-        \item \textbf{Reference points for region:} the \textbf{dedicated single-task model}, and the
-              \textbf{Markov-1 floor} over region transitions, computed under the same windows and
-              folds, which reaches \alert{51 to 72} Acc@10 across the datasets.
+    \begin{itemize}\setlength{\itemsep}{5pt}
+        \item \textbf{Category: macro-F1} --- reference point the \textbf{majority-class floor},
+              \alert{5.7 to 7.3} depending on the dataset;
+        \item \textbf{Region: Acc@10} --- the share of test visits whose true region is among the
+              ten highest-scoring predictions; \emph{it does not separate first place from tenth};
+        \item \textbf{OOD-discounted Acc@10} --- a region absent from the training fold counts as
+              an error;
+        \item \textbf{Reference points for region} --- the \textbf{dedicated single-task model},
+              and the \textbf{Markov-1 floor} over region transitions, \alert{51 to 72} Acc@10
+              under the same windows and folds.
     \end{itemize}
 \end{frame}
 
@@ -1502,27 +1513,19 @@
 \begin{frame}{The protocol, in four steps}
     \framesubtitle{3 $\cdot$ what is compared}
 
-    \footnotesize
     \begin{itemize}
-        \item \textbf{The comparison.} The joint model against the dedicated single-task models, on
-              the \textbf{same representation, the same windows, and the same folds}.
-        \item \textbf{A seed} is one complete repetition of the five-fold experiment. It sets the
-              random initialization \textbf{and} the user partition, so each seed draws its own
-              division of the users. Within one seed, the compared models read the same partition,
-              which is what licenses pairing.
-        \item Four seeds, \textbf{\{0, 1, 7, 100\}} $\times$ five folds $=$
-              \alert{20 fitted models per configuration}. The
-              \alert{inferential unit is $n = 4$}, the four per-seed means.
+        \item Joint model against the \textbf{dedicated single-task models};
+        \item Same representation, same windows, \textbf{same folds};
+        \item \textbf{A seed} $=$ one full five-fold repetition: initialization \emph{and} user partition;
+        \item Four seeds \textbf{\{0, 1, 7, 100\}} $\times$ five folds $=$ \alert{20 fitted models};
+        \item Inferential unit: \alert{$n = 4$}, the four per-seed means.
     \end{itemize}
 
+    \bigskip
     \begin{block}{The joint-best convention}
-        \scriptsize
-        Both task scores come from \textbf{one saved model per fold}, at the epoch selected by the
-        joint validation score, the geometric mean of the two task metrics. Reading each task at its
-        own best epoch describes no single saved model; it is more favorable to the joint model, by
-        at most \textbf{0.23 macro-F1} and \textbf{0.93 Acc@10} at any one seed, and it would turn
-        four further category results and two further region results into improvements under the
-        same correction. \alert{Every verdict here is the one the stricter convention yields.}
+        \small
+        Both scores from \textbf{one saved model per fold}, at the epoch the joint validation score picks.
+        \alert{Every verdict here is the one the stricter convention yields.}
     \end{block}
 \end{frame}
 
@@ -1542,28 +1545,18 @@
 \begin{frame}{The protocol, in four steps}
     \framesubtitle{4 $\cdot$ how it is decided}
 
-    \footnotesize
+    \begin{block}{}
+        \centering\large
+        A claimed gain and a claimed match require different tests
+    \end{block}
+
+    \bigskip
     \begin{itemize}
-        \item \alert{A claimed gain and a claimed equivalence require different tests.}
-              A non-significant difference is not evidence of equivalence.
-        \item \textbf{A written analysis plan, fixed during development and before any result was
-              read,} assigned a \textbf{superiority test to next category} and a
-              \textbf{non-inferiority test to next region}, at a \textbf{two-point margin} --- a
-              change of that size in Acc@10 is below the level at which neighborhood-scale
-              preparation would behave differently.
-        \item \textbf{Primary test:} paired $t$ on the four per-seed means, 90\% confidence interval
-              for the paired difference, \textbf{Holm correction} across the six datasets,
-              separately within each task family.
-        \item \textbf{The declared departure.} The plan registered a paired Wilcoxon signed-rank test
-              on the 20 matched fold differences. It is \textbf{reported alongside and agrees}.
-              The $t$ carries the verdict because folds within a seed are not independent, and
-              because at this footing the exact one-sided Wilcoxon cannot fall below
-              \alert{0.0625}, whatever the effect size.
-        \item \textbf{Two consequences, stated before the results.} \textbf{No} superiority test
-              for next region $\rightarrow$ the two region gains are \alert{secondary results
-              outside the plan}. \textbf{No} equivalence margin on category $\rightarrow$ a category
-              difference that fails superiority is \alert{unresolved}, reported by the bound its
-              interval supports.
+        \item Analysis plan written \textbf{before any result was read};
+        \item \textbf{Superiority} $\rightarrow$ next category;
+        \item \textbf{Non-inferiority} $\rightarrow$ next region, \textbf{two-point margin};
+        \item Paired $t$ $\cdot$ 90\% CI $\cdot$ \textbf{Holm} across the six datasets;
+        \item \textbf{Declared departure:} registered Wilcoxon \textbf{reported alongside, and agrees}.
     \end{itemize}
 \end{frame}
 
@@ -1586,49 +1579,35 @@
 \begin{frame}{Result 1: the representation, at every dataset}
     \framesubtitle{Next category, single-task model, seed 0 --- only the input changes}
 
-    \begin{columns}[T,onlytextwidth]
-        \begin{column}{0.503\textwidth}
-            {\footnotesize
-            \setlength{\tabcolsep}{4pt}
-            \renewcommand{\arraystretch}{1.1}\begin{tabular}{@{}lrrr@{}}
-                \toprule
-                \textbf{Dataset} & \textbf{Check-in} & \textbf{Place} & \textbf{$\Delta$} \\
-                \midrule
-                AL       & \textbf{30.77} $\pm$1.16 & 29.15 $\pm$0.84 & $+1.62$ \\
-                AZ       & \textbf{34.51} $\pm$1.15 & 31.93 $\pm$1.08 & $+2.58$ \\
-                Istanbul & \textbf{35.35} $\pm$0.89 & 29.07 $\pm$0.63 & $+6.29$ \\
-                FL       & \textbf{37.36} $\pm$0.42 & 37.13 $\pm$0.41 & $+0.23$ \\
-                CA       & \textbf{35.62} $\pm$0.47 & 34.74 $\pm$0.41 & $+0.88$ \\
-                TX       & \textbf{36.32} $\pm$0.51 & 35.33 $\pm$0.48 & $+0.99$ \\
-                \bottomrule
-            \end{tabular}\par
-            \smallskip
-            {\scriptsize seed 0, five matched folds; $\pm$ is the fold sd.\par}}
-        \end{column}
-        \hfill
-        \begin{column}{0.427\textwidth}
-            \begin{exampleblock}{Two controls}
-                \scriptsize
-                \textbf{CTLE}, fine-tuned at Florida, reaches \textbf{33.45} macro-F1 at its best
-                epoch, about two points below the place embedding under the same rule, and repeats
-                the ordering with fixed weights at Alabama, Arizona and Istanbul.
-                \smallskip
+    \begin{center}
+        \small
+        \setlength{\tabcolsep}{9pt}
+        \renewcommand{\arraystretch}{1.0}
+        \begin{tabular}{@{}lrrr@{}}
+            \toprule
+            \textbf{Dataset} & \textbf{Check-in level} & \textbf{Place level} & \textbf{$\Delta$} \\
+            \midrule
+            AL       & \textbf{30.77} $\pm$1.16 & 29.15 $\pm$0.84 & $+1.62$ \\
+            AZ       & \textbf{34.51} $\pm$1.15 & 31.93 $\pm$1.08 & $+2.58$ \\
+            Istanbul & \textbf{35.35} $\pm$0.89 & 29.07 $\pm$0.63 & $+6.29$ \\
+            FL       & \textbf{37.36} $\pm$0.42 & 37.13 $\pm$0.41 & $+0.23$ \\
+            CA       & \textbf{35.62} $\pm$0.47 & 34.74 $\pm$0.41 & $+0.88$ \\
+            TX       & \textbf{36.32} $\pm$0.51 & 35.33 $\pm$0.48 & $+0.99$ \\
+            \bottomrule
+        \end{tabular}\par
+        \smallskip
+        {\footnotesize seed 0, five matched folds; $\pm$ is the fold sd.\par}
+    \end{center}
 
-                \textbf{Feature concatenation} (the place embedding plus the same raw per-visit
-                features) raises the place embedding by \textbf{$+2.0$, $+1.7$ and $+0.8$} macro-F1
-                at Alabama, Arizona and Florida.
-            \end{exampleblock}
-        \end{column}
-    \end{columns}
-
-    {\scriptsize
-    \emph{Same target, same single-task model, same training configuration, same folds, same sliding
-    windows, same epoch budget, same logit adjustment. Only the input representation changes: a
-    vector per visit against a vector per place.}\par
+    \medskip
+    {\footnotesize
+    \textbf{Only the input changes} --- same target, model, training configuration, folds,
+    windows, epoch budget, logit adjustment.\par
     \smallskip
-    All five folds favor the check-in-level representation at every dataset. A paired test separates
-    the two columns at every dataset except Florida ($p = 0.07$), where the direction is unanimous
-    but the difference does not reach significance.\par}
+    All five folds favor the check-in-level representation at every dataset. A paired test
+    separates the two columns at every dataset except Florida ($p = 0.07$).\par
+    \textbf{Controls} --- CTLE (Florida) \textbf{33.45} macro-F1; feature concatenation
+    \textbf{$+2.0$ / $+1.7$ / $+0.8$}.\par}
 \end{frame}
 
 % FALA: Segundo resultado. Em cima, a próxima categoria; embaixo, a próxima região; os mesmos seis conjuntos, na mesma ordem, nos dois blocos.
@@ -1758,84 +1737,43 @@
 % Terceiro: eu não construo nem avalio serviço nenhum. Quarto:
 % cada nó de visita se apoia só nas visitas que o precedem, e o grafo não passa informação de uma visita posterior para uma anterior, nem no treino nem na leitura.
 \begin{frame}{The measured trade, and four declared limits}
+    \small
     \begin{columns}[T,onlytextwidth]
-        \begin{column}{0.427\textwidth}
-            {\scriptsize
-            \textbf{\color{primaryshade}THE TRADE}\par\smallskip
-            The joint model is larger than either dedicated model: about \textbf{4.2 million
-            parameters at Alabama} against \textbf{1.1 million for the two dedicated models
-            combined} (5.2 against 2.0 at California), and a forward pass costs more compute.\par
-            \smallskip
-            \alert{What the single model provides is operational rather than arithmetic:}
-            one artifact to train, version, and deploy, and one forward pass whose inputs produce
-            both answers at once.\par
-            \smallskip
-            The four region results inside the margin are small deficits, the largest
-            \textbf{0.87 Acc@10 at Alabama} --- a measured trade, not a free substitution.\par}
+        \begin{column}{0.44\textwidth}
+            \textbf{\color{primaryshade}THE TRADE}\par\medskip
+            \begin{itemize}
+                \item Larger: \textbf{4.2 M} parameters at Alabama against \textbf{1.1 M} for
+                      the two dedicated combined;
+                \item \alert{Operational, not arithmetic} --- one artifact, one forward pass,
+                      both answers;
+                \item Largest region deficit inside the margin: \textbf{0.87 Acc@10} at Alabama.
+            \end{itemize}
         \end{column}
         \hfill
-        \begin{column}{0.503\textwidth}
-            {\scriptsize
-            \textbf{\color{alertshade}FOUR LIMITS, OFFERED BEFORE THEY ARE ASKED}\par\smallskip
-            \setlength{\leftmargini}{1.4em}
+        \begin{column}{0.49\textwidth}
+            \textbf{\color{alertshade}FOUR LIMITS, OFFERED BEFORE THEY ARE ASKED}\par\medskip
             \begin{enumerate}
-                \setlength{\itemsep}{2pt}
-                \item The representation is trained once over all places. A per-fold rebuild from
-                      training users only changed the results by at most \textbf{0.33 Acc@10} and
-                      \textbf{0.29 macro-F1} (three datasets, one seed); its category half covers
-                      \textbf{67 to 87 percent} of the validation data.
-                \item \textbf{Epoch selection consults the fold the score is then read on} ---
-                      every absolute score here is optimistic. The comparison is affected far less:
-                      same rule, same folds, and the dedicated category model receives the wider
-                      search. It does not follow that the bias cancels exactly.
-                \item \textbf{No mobility-aware service is built or evaluated} --- background
-                      motivation; the claims are the prediction results themselves.
-                \item Each visit node draws only on the visits that precede it --- no information
-                      passes backward from a later visit, in training or at readout.
-            \end{enumerate}}
+                \item Representation trained once over all places;
+                \item Epoch selection reads the fold it scores --- \alert{absolute scores are
+                      optimistic};
+                \item \textbf{No mobility-aware service} is built or evaluated;
+                \item Each visit draws only on the visits that precede it.
+            \end{enumerate}
         \end{column}
     \end{columns}
 \end{frame}
 
-% ⚠ COLISÃO DE LEDGER (SLIDES.md, "Perguntas abertas dos redatores"): o S49 está numerado como
-% subseção 6.0 (fronteira Ato III → Ato IV) e a versão anterior do SLIDES.md o punha como primeiro
-% slide da Seção 6. Ele está AQUI porque a instrução desta parte manda encerrar nele. Se o redator
-% da Seção 6 também o escrever, apagar UMA das duas cópias -- senão 'a leitura conjunta dos três
-% estudos' recebe dois INTRODUZ e 30 s são contados duas vezes.
+% ✅ COLISÃO DE LEDGER RESOLVIDA 2026-08-24, por decisão do autor. Existiam DUAS cópias do S49
+% (escada 3x4): uma no fim da §5 e outra abrindo a §6. A da §5 foi REMOVIDA. Três evidências:
+%  (a) o PLANO orça o slide na Seção 6 ('inclui o slide de escada da fronteira, 30 s') e o bloco
+%      S49 do SLIDES.md diz 'Seção/subseção: 6.0'; a cópia da §5 não tinha mandato;
+%  (b) a cópia da §5 PARAFRASEAVA uma cláusula de lei — dizia 'margin registered in advance'
+%      onde a forma canônica, 6x no deck, é 'the margin registered before any result was read';
+%  (c) as duas renderizavam bem, então não havia desempate por qualidade.
+% Devolve ~30 s ao orçamento, que estavam contados duas vezes. Recuperável: git.
 \subsection{A escada}
 
-% FALA: Uma tela em que a coletânea inteira cabe. Três linhas, os três estudos. Três colunas, as três camadas. Mais uma quarta coluna: o que moveu.
-% O Capítulo 3 não separou nada, e é isso que ele entrega, um nulo com três suspeitos.
-% O Capítulo 4 manteve a arquitetura fixa de propósito, e é esse congelamento que faz a troca de entrada valer como diagnóstico.
-% O Capítulo 5 mexeu nas três camadas. Um veredito condicional, medido sob o protocolo mais estrito dos três.
-% O que os três estudos, juntos, estabelecem, e o que não estabelecem?
-\begin{frame}{The ladder: three studies, three layers}
-    \framesubtitle{What each study moved --- and what it froze}
 
-    {\scriptsize
-    \setlength{\tabcolsep}{3pt}
-    \renewcommand{\arraystretch}{1.05}\begin{tabular}{@{}p{0.115\textwidth} p{0.195\textwidth} p{0.205\textwidth} p{0.215\textwidth} p{0.195\textwidth}@{}}
-        \toprule
-        & \textbf{Representation} & \textbf{Sharing topology} & \textbf{Protocol} & \textbf{What moved} \\
-        \midrule
-        \raggedright \textbf{MTLnet}\newline (Ch.\ 3)
-            & \raggedright one vector per place (DGI over a Delaunay graph)
-            & \raggedright hard parameter sharing, FiLM on the shared layers
-            & \raggedright sample-stratified folds, one seed, each task at its own best epoch
-            & \raggedright nothing was separated: a null result, three named suspects \tabularnewline[2pt]
-        \raggedright \textbf{ST-MTLNet}\newline (Ch.\ 4)
-            & \raggedright decomposed spatial, temporal and categorical encoders
-            & \raggedright \alert{\textbf{unchanged, by design}}
-            & \raggedright \alert{\textbf{unchanged, by design}}
-            & \raggedright the input moved the result: the representation is the bottleneck \tabularnewline[2pt]
-        \raggedright \textbf{Check2HGI}\newline (Ch.\ 5)
-            & \raggedright one vector per visit; four levels: check-in, place, region, city
-            & \raggedright cross-attention between per-task streams; private spatial path for region
-            & \raggedright user-disjoint folds, four seeds, joint-best, margin registered in advance
-            & \raggedright one joint model replaces two dedicated single-task models on both tasks \tabularnewline
-        \bottomrule
-    \end{tabular}\par}
-\end{frame}
 
 \section[Conclusão]{Conclusão Geral --- a resposta condicional}
 
@@ -1897,20 +1835,29 @@
 % estados com mais regiões também tendem a ter mais check-ins. Identificar essas condições é o
 % achado principal desta dissertação."
 \begin{frame}{The conditional answer}
-    \small
     \begin{block}{The answer}
-        Multitask learning helps next-category and next-region prediction \textbf{under the final design and evaluation protocol developed in this dissertation.}
+        \small
+        Multitask learning helps next-category and next-region prediction \textbf{under the
+        final design and evaluation protocol developed in this dissertation.}
     \end{block}
+
     \begin{alertblock}{What it does not authorize}
-        Not that multitask learning always helps. Across the three studies, task relatedness and joint training were not sufficient by themselves.
+        \small
+        Not that multitask learning always helps --- task relatedness and joint training were
+        \alert{not sufficient by themselves}.
     \end{alertblock}
-    \begin{itemize}\footnotesize
-        \item \textbf{Established by controlled comparison:} the input representation is one condition.
-        \item \textbf{Suggested, not isolated:} the architecture, and the scale of the dataset.
-        \item \textbf{Problem scale remains a possible condition, not an established cause.} The ordering does not hold inside the Texas and California pair, and states with more regions also tend to have more check-ins.
+
+    \medskip
+    \begin{itemize}\setlength{\itemsep}{3pt}
+        \item \textbf{Established by controlled ablation} --- the input representation is one
+              condition;
+        \item \textbf{suggested, not isolated} --- the architecture, and the scale of the dataset;
+        \item \alert{problem scale is a possible condition, not an established cause}.
     \end{itemize}
-    \vspace{1mm}
-    {\centering\footnotesize\textit{Identifying these conditions is the main finding of this dissertation.}\par}
+
+    \vfill
+    {\centering\small\textit{Identifying these conditions is the main finding of this
+    dissertation.}\par}
 \end{frame}
 
 \subsection{Contribuição}
@@ -1926,21 +1873,36 @@
 % [BLOCO-CONTRIBUIÇÃO] — redação IDÊNTICA à de S7 (§8 regra 13). Não editar aqui: editar a
 % definição no cabeçalho do SLIDES.md, que muda os dois slides.
 \begin{frame}{The contribution, in one block}
-    \small
     \vfill
-    \textbf{Practical.} One model, one forward pass, two predictions: the next category and the next
-    region of a visit. One artifact to train, version and deploy, in place of two.
-    \textbf{The gain is operational, not computational} --- the joint model is the larger artifact, and a
-    forward pass through it costs more than running the two dedicated models. What falls is the
-    number of models to train and maintain.
-
-    \medskip
-
-    \textbf{Scientific.} The conditions, not a universal yes. The input representation and the sharing
-    topology decide whether multitask learning helps these POI prediction tasks. A null result
-    under a place embedding with hard parameter sharing does not contradict a positive one under a
-    check-in-level representation with cross-attention: they are different conditions, and naming
-    which ones matter is the contribution.
+    \begin{columns}[t,onlytextwidth]
+        \begin{column}{0.468\textwidth}
+            \begin{block}{Practical --- what it delivers}
+                \small
+                \begin{itemize}\setlength{\itemsep}{4pt}\setlength{\parskip}{0pt}
+                    \item \textbf{one model, one forward pass, two predictions} --- the next
+                          category and the next region of a visit;
+                    \item \textbf{one artifact} to train, version and deploy, in place of two ---
+                          \alert{operational, not computational}: the joint model is the larger
+                          artifact;
+                    \item \textbf{Check2HGI is the reusable part} --- independent of the
+                          prediction heads on top.
+                \end{itemize}
+            \end{block}
+        \end{column}
+        \hfill
+        \begin{column}{0.468\textwidth}
+            \begin{exampleblock}{Scientific --- what it establishes}
+                \small
+                \begin{itemize}\setlength{\itemsep}{4pt}\setlength{\parskip}{0pt}
+                    \item \textbf{the novelty is the combination}: per-visit context inside a
+                          hierarchical graph-infomax representation;
+                    \item helps \alert{under the final design and evaluation protocol}, not always;
+                    \item the \textbf{input representation} is one condition; architecture and
+                          scale \emph{suggested, not isolated}.
+                \end{itemize}
+            \end{exampleblock}
+        \end{column}
+    \end{columns}
     \vfill
 \end{frame}
 
@@ -1959,18 +1921,18 @@
 % em hipergrafo, em que uma aresta junta as várias visitas de uma sessão."
 \begin{frame}{Six limitations, six next steps (1 of 2)}
     \vfill
-    {\scriptsize
-    \setlength{\tabcolsep}{4pt}
-    \renewcommand{\arraystretch}{1.15}\begin{tabular}{@{}p{6.6cm} p{7.0cm}@{}}
+    {\small
+    \setlength{\tabcolsep}{6pt}
+    \renewcommand{\arraystretch}{1.35}\begin{tabular}{@{}p{6.2cm} p{7.2cm}@{}}
         \toprule
-        {\raggedright \textbf{1 · Data vintage.} The five state datasets span January 2009 to August 2011. Istanbul's check-ins fall in two separate periods, 2012 to 2013 and 2017 to 2018, with none in between, and roughly seven in ten belong to the earlier period.\par}
-            & {\raggedright $\rightarrow$ \textbf{Newer and denser traces}, which would test the conclusions beyond the Gowalla vintage.\par} \\
+        {\raggedright \textbf{1 · Data vintage} --- the five states span 2009 to 2011; Istanbul falls in two separate periods.\par}
+            & {\raggedright $\rightarrow$ \textbf{Newer and denser traces}, beyond the Gowalla vintage.\par} \\
         \addlinespace
-        {\raggedright \textbf{2 · Taxonomy coarseness.} Next-category prediction uses seven top-level classes. A finer taxonomy may change the effect of joint training.\par}
+        {\raggedright \textbf{2 · Taxonomy coarseness} --- seven top-level classes.\par}
             & {\raggedright $\rightarrow$ \textbf{Finer-grained taxonomies.}\par} \\
         \addlinespace
-        {\raggedright \textbf{3 · Transductive representation.} Check2HGI is trained on each dataset's check-in graph, so it cannot represent unseen places or users without retraining.\par}
-            & {\raggedright $\rightarrow$ \textbf{An inductive variant}, which would support deployment in growing cities. Two further controlled tests of the same representation: vary the coupling to the pretrained place-vector table, and a \textbf{hypergraph formulation} in which one edge joins the several visits of a session rather than only consecutive pairs.\par} \\
+        {\raggedright \textbf{3 · Transductive representation} --- \alert{cannot represent unseen places or users without retraining}.\par}
+            & {\raggedright $\rightarrow$ \textbf{An inductive variant}, for growing cities; and a \textbf{hypergraph formulation}, one edge per session.\par} \\
         \bottomrule
     \end{tabular}
     \par}
@@ -1991,18 +1953,18 @@
 % alvo estático que a representação não carregue já como entrada."
 \begin{frame}{Six limitations, six next steps (2 of 2)}
     \vfill
-    {\scriptsize
-    \setlength{\tabcolsep}{4pt}
-    \renewcommand{\arraystretch}{1.15}\begin{tabular}{@{}p{6.6cm} p{7.0cm}@{}}
+    {\small
+    \setlength{\tabcolsep}{6pt}
+    \renewcommand{\arraystretch}{1.35}\begin{tabular}{@{}p{6.2cm} p{7.2cm}@{}}
         \toprule
-        {\raggedright \textbf{4 · No next-place task.} The experiments do not predict the exact next POI, and their conclusions apply to next category and next region only.\par}
-            & {\raggedright $\rightarrow$ \textbf{Add the exact next place as a third target}, reusing the existing check-in-level representation: a change to how the inputs are built and one additional output, not a new representation. This is also the route by which the representation would serve contexts other than the two studied here.\par} \\
+        {\raggedright \textbf{4 · No next-place task} --- conclusions cover next category and next region only.\par}
+            & {\raggedright $\rightarrow$ \textbf{The exact next place as a third target}, on the same representation.\par} \\
         \addlinespace
-        {\raggedright \textbf{5 · Geographic coverage.} Outside the United States, the evidence rests on a single city, Istanbul.\par}
+        {\raggedright \textbf{5 · Geographic coverage} --- outside the United States, one city only.\par}
             & {\raggedright $\rightarrow$ \textbf{Further cities outside the United States.}\par} \\
         \addlinespace
-        {\raggedright \textbf{6 · The task-pair confound.} The task pair changed together with the representation and the sharing topology, and no single controlled comparison separates the two changes in the final result. Chapter 4 is the fixed-pair control for the diagnosis.\par}
-            & {\raggedright $\rightarrow$ \textbf{A static target that the check-in-level representation does not already carry as an input feature}, since running the earlier pair directly under this representation is not a clean comparison: the category of the visited place is an input feature of a check-in node.\par} \\
+        {\raggedright \textbf{6 · The task-pair confound} --- pair, representation and topology moved together; \alert{Ch.~4 is the fixed-pair control}.\par}
+            & {\raggedright $\rightarrow$ \textbf{A static target the representation does not already carry as an input feature.}\par} \\
         \bottomrule
     \end{tabular}
     \par}
@@ -3082,7 +3044,7 @@
     \end{tabular}
     }\vspace{1mm}
     \begin{itemize}\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}
-        \item The deposited text \textbf{deliberately does not point at the supplement}: it cites only itself and the repository. That is the document's policy.
+        \item The deposited text \textbf{does not point at the supplement by design}: it cites only itself and the repository. That is the document's policy.
     \end{itemize}
     \vfill
     {\scriptsize

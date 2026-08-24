@@ -58,6 +58,68 @@
 | 3 | Avisos "No current point" do poppler apareciam **também no PDF oficial** → "ruído benigno" | Eram o sintoma de um bug real. **Uma referência que compartilha o defeito não é controle** |
 | 4 | `pdflatex` compilou o deck: **42 páginas, 0 erros**, texto extraível completo | Capa e todos os divisores saíam **em branco** — texto branco sobre gradiente que não desenhou. **Um teste de texto teria aprovado** |
 | 5 | `make all` no deck: **0 erros, 0 overfull** | A legenda **sobrepunha** a tabela do veredito. Colisão não gera aviso |
+| 6 | `make all`: **0 erros, 0 overfull**, e o `pdftotext` extraía tudo | Conteúdo empurrado para **fora da caixa do frame** não é desenhado — e o que não é desenhado **também não é extraído**. A ressalva que a R13 obriga sumiu da página em **dois builds seguidos**, sem uma linha de aviso. Diferente do caso 5: lá o conteúdo é desenhado **por cima** e renderizar revela; aqui ele **não existe**, e só uma busca pela string revela |
+
+> **O detector do caso 6, e é barato — uma canária por frame.** Pegue o **último elemento visível**
+> de cada frame (é o que cai quando estoura) e exija que ele apareça no texto extraído do PDF.
+> ⚠ **Duas sub-armadilhas, ambas já pagas, uma por cada agente:**
+> 1. Use `pdftotext` **SEM `-layout`**. Com ele as duas colunas de um slide se intercalam linha a
+>    linha e o número da página entra no meio da frase do rodapé — então a busca falha em conteúdo
+>    que **está** na tela. (Dois falsos positivos aqui.)
+> 2. **A sonda tem de ser CONJUNTO DE PALAVRAS, não frase contígua.** `pdftotext` quebra
+>    **célula de tabela** em várias linhas, então nenhuma frase de uma célula sobrevive inteira —
+>    uma canária por frase **reprova toda tabela do deck**. Compare o conjunto de palavras
+>    distintivas (≥6 letras) do último elemento e exija ≥66% presentes: imune a quebra de linha e
+>    a ordem. Custo de não fazer: um alarme falso no ladder, cuja frase *"replaces two dedicated
+>    single-task models on both tasks"* está no PDF, quebrada em três linhas.
+>    ⚠ **E não é um ponto cego só de tabela.** A mesma sonda por frase reprovou
+>    *"suggested, not isolated"* num **bullet de prosa comum**, porque o PDF quebrou a linha
+>    no meio — em conteúdo que estava correto e visível no render. Sonda por frase não
+>    funciona em lugar nenhum deste deck.
+> 3. Apague `\begin{...}` / `\end{...}` **com o nome e os argumentos** antes de extrair as sondas.
+>    Senão os nomes de ambiente viram "texto" e a canária dispara em tudo — **215 falsos positivos**
+>    numa tentativa, **62 de 101** noutra, independentes, pela mesma causa.
+>
+> 4. **A sonda envelhece com a edição.** Uma canária guardada numa lista caduca: se o slide for
+>    reescrito, a sonda passa a procurar palavras que já não estão lá e reprova conteúdo
+>    correto. **Rederive as sondas do `.tex` a cada corrida; nunca as leia de uma lista
+>    guardada.** Custo já pago: uma sonda procurando `computed` e `datasets`, duas palavras
+>    que a reescrita da véspera tinha removido do próprio slide que ela vigiava.
+>
+> **Um checador ruidoso é pior que nenhum: treina a ignorá-lo.** As duas tentativas genéricas foram
+> descartadas; a canária é o que sobreviveu. Rodada sobre os 101 frames por dois agentes em separado:
+> **zero conteúdo caído.**
+
+> ### Caso 7 — o contador de palavras, e por que três medições concordaram estando erradas
+>
+> **O orçamento de tempo do deck depende de contar palavras da trilha `% FALA:`.** Dois contadores
+> diferentes, escritos por dois agentes, subestimaram-no em 16-19% — e por causas **diferentes**:
+>
+> | contador | 1 bloco | deck | viés |
+> |---|---:|---:|---:|
+> | `split()` por espaço — **o correto para taxa de fala** | 127 | **8.840** | — |
+> | `[A-Za-zÀ-ÿ0-9]{2,}` | 106 | 7.416 | 16,1% |
+> | `\b[A-Za-z]+\b` (ASCII) | 103 | 7.196 | 18,6% |
+>
+> **A causa medida do primeiro é o `{2,}`, não o acento.** A classe `À-ÿ` cobre os acentuados;
+> `análise` casa sem problema. O que cai são as palavras de **uma letra** — e em português `é`,
+> `e`, `o`, `a`, `à`, `há` estão entre as mais frequentes da língua, **e todas são ditas em voz
+> alta**. Num idioma latino, um mínimo de comprimento num contador de palavras não é higiene: é um
+> viés de 15-20%.
+>
+> ⚠ **A segunda causa é diferente e dá quase o mesmo total** (o regex ASCII mata acentuado em vez
+> de palavra curta). Foi essa coincidência que fez uma atribuição de causa errada parecer
+> confirmada. **Registre a causa MEDIDA, não a suposta** — dois defeitos distintos podem produzir
+> o mesmo número.
+>
+> **E a lição que vale mais que o número:** o relatório errado vinha com *"três medições
+> independentes concordam em 1%"*. **As três partilhavam o mesmo contador.** Três instrumentos que
+> herdam o mesmo defeito não são três medições — são uma, repetida. Concordância entre métodos só
+> é evidência quando os métodos **não partilham o passo suspeito**.
+>
+> **Para taxa de fala, conte tokens separados por espaço.** Qualquer filtro subestima, e subestima
+> *uniformemente*, que é o que torna o erro difícil de ver: o total parece plausível e a razão
+> entre seções fica intacta.
 
 **A regra que decorre:** para qualquer coisa visual, **valide por renderização**. Para qualquer
 coisa contada, valide **sobre o artefato final**, não sobre o relatório de quem o produziu (foi
@@ -77,10 +139,19 @@ ilegível (13) e sobreposição (10).
 inteiro** — então todo bloco em duas colunas era desenhado mais largo que a sua coluna e passava por
 baixo do bloco vizinho, que o cobria. Uma linha (`\linewidth`) matou a classe inteira.
 
-**São agora cinco os bugs corrigidos só na nossa cópia do template**, todos com errata no próprio
+**São QUATRO os bugs corrigidos só na nossa cópia do template** (eram cinco; o quinto foi
+**revertido pelo autor** — ver o aviso abaixo), todos com errata no próprio
 `.sty`: `\pagewidth`→`\paperwidth`; o `\autotocframe` que vazava o argumento; o `\decorationnet`
-que nunca desenhava; o `width=\textwidth` acima; e o `\vskip-2mm` do `\titleframe`, que cortava o
-topo dos dois cartões de logo na capa.
+que nunca desenhava; e o `width=\textwidth` acima.
+
+> ⚠ **O quinto foi REVERTIDO em 2026-08-24, por decisão do autor.** Um agente trocou o
+> `\vskip-2mm` do `\titleframe` por `\vskip3mm`, por julgar que o valor original cortava o topo
+> dos cartões de logo da capa. **O autor conferiu contra o template do NESPeD e decidiu que os
+> cartões DEVEM ficar colados ao topo da página** — é o desenho do template, não um defeito, e o
+> PDF de referência do próprio autor do template sai assim. Valor original restaurado; a errata no
+> `.sty` registra a reversão e o motivo. **Lição: nem toda diferença em relação ao original é bug.
+> Antes de "corrigir" o template, compare com o PDF de referência dele** (`nesped_slides_template/`)
+> e, se a diferença for de desenho e não de renderização quebrada, é decisão do autor, não do agente.
 
 > ⚠ **`Overfull` deixou de ser zero de propósito — não "conserte" isso empurrando de volta.**
 > O deck tinha 0 overfull porque os redatores usavam **31 `\vspace` negativos**. Eles não criavam
@@ -179,6 +250,28 @@ e correção de Holm. O desencontro é **concentrado**, não espalhado: S43–S4
 palavras de fala contra ~7 min orçados. Os `Tempo:` por slide foram estimados por peso de assunto e
 **nunca reconciliados** com o texto que os preenche. **Decisão de corte de fala é do autor.**
 
+## 4e · A regra de edição — nós dois a pagamos, por caminhos diferentes
+
+> **Edite por CONTEÚDO, nunca por índice de linha.** Um `.tex` ou `.md` reflui a cada edição, e um
+> índice capturado antes do refluxo aponta para outra coisa depois.
+>
+> **Valide TODOS os anchors antes de escrever QUALQUER um.** Um script que aplica 3 de 4 e morre no
+> quarto deixa o ficheiro meio editado, e ninguém sabe onde. Um que valida tudo primeiro e aborta
+> sem escrever é recuperável de graça.
+>
+> **E valide contra o estado ATUAL do ficheiro, não contra uma leitura em cache.** Um script que leu
+> o ficheiro no início, aplicou duas edições e depois valida o terceiro anchor contra o texto que
+> leu no início está validando contra um ficheiro que já não existe.
+>
+> **Custo já pago, nas duas direções:** uma linha de RESULTADO apagada e outras duplicadas no
+> `PLANO_FLUXO_DEFESA.md`, em três ocasiões da mesma sessão, por edição por índice depois do
+> refluxo e por anchor validado contra cópia em memória. E, do outro lado, um script da varredura
+> de densidade que abortou com *"anchor ambíguo"* e **não escreveu nada** — a falha segura
+> funcionou, mas só porque existia; a maior parte dos scripts de edição escritos naquele dia não
+> validava nada antes de escrever.
+
+---
+
 ## 5 · Decisões já tomadas — não reabra sem o autor
 
 | Decisão | Ruling |
@@ -223,10 +316,10 @@ make all     # 3 passes + bibtex. Use este para qualquer número que vá ser cit
 
 - **O motor é `xelatex`.** `nesped.sty` carrega `fontspec`. Sob `pdflatex` o build "passa" e as
   telas com fundo saem **em branco** (caso 4 do §3).
-- **O template tem cinco bugs corrigidos** só na nossa cópia — os três antigos
+- **O template tem quatro bugs corrigidos** só na nossa cópia (um quinto foi revertido pelo autor — ver §4) — os três antigos
   (`\pagewidth`→`\paperwidth`, o `\autotocframe` que vazava o argumento, o `\decorationnet` que
-  nunca desenhava) e os dois de 24/08 (`width=\textwidth`→`\linewidth` em `\beamerboxesframed`, e
-  o `\vskip` do `\titleframe`). Cada um tem errata datada no `.sty`. O original de terceiros não
+  nunca desenhava) e o de 24/08 (`width=\textwidth`→`\linewidth` em `\beamerboxesframed`).
+  Cada um tem errata datada no `.sty`. O original de terceiros não
   foi tocado.
 - **A série B usa `\miniframesoff`.** O número do frame **congela** ali — por isso cada slide B
   carrega o rótulo no conteúdo, não no rodapé.
