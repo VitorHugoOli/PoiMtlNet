@@ -1,0 +1,1952 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estudos para a Defesa — guia didático</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css">
+<style>
+  :root {
+    --bg:#ffffff; --fg:#1f2328; --muted:#59636e; --line:#d1d9e0;
+    --accent:#0969da; --code-bg:#f6f8fa; --quote:#f0f6ff; --warn:#fff8c5;
+    --table-alt:#f6f8fa; --shadow:0 1px 3px rgba(0,0,0,.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#0d1117; --fg:#e6edf3; --muted:#9198a1; --line:#30363d;
+      --accent:#4493f8; --code-bg:#161b22; --quote:#121d2f; --warn:#272115;
+      --table-alt:#161b22; --shadow:0 1px 3px rgba(0,0,0,.4);
+    }
+  }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body {
+    margin:0; background:var(--bg); color:var(--fg);
+    font:16px/1.68 -apple-system,BlinkMacSystemFont,"Segoe UI",
+         "Noto Sans",Helvetica,Arial,sans-serif;
+    -webkit-text-size-adjust:100%;
+  }
+  #wrap { max-width:900px; margin:0 auto; padding:24px 20px 120px; }
+  h1,h2,h3,h4 { line-height:1.28; margin:1.9em 0 .6em; font-weight:650; }
+  h1 { font-size:1.95em; margin-top:.3em; }
+  h2 { font-size:1.5em; padding-bottom:.3em; border-bottom:1px solid var(--line); }
+  h3 { font-size:1.2em; }
+  h4 { font-size:1.03em; color:var(--muted); }
+  a { color:var(--accent); text-decoration:none; }
+  a:hover { text-decoration:underline; }
+  hr { border:0; border-top:1px solid var(--line); margin:2.6em 0; }
+  blockquote {
+    margin:1.1em 0; padding:.7em 1.1em; border-left:4px solid var(--accent);
+    background:var(--quote); border-radius:0 6px 6px 0;
+  }
+  blockquote p:first-child { margin-top:0; }
+  blockquote p:last-child { margin-bottom:0; }
+  code {
+    background:var(--code-bg); border-radius:5px; padding:.16em .38em;
+    font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    font-size:.875em;
+  }
+  pre {
+    background:var(--code-bg); border:1px solid var(--line); border-radius:8px;
+    padding:14px 16px; overflow-x:auto; -webkit-overflow-scrolling:touch;
+    font-size:.83em; line-height:1.5;
+  }
+  pre code { background:none; padding:0; font-size:1em; }
+  table {
+    border-collapse:collapse; width:100%; margin:1.2em 0;
+    display:block; overflow-x:auto; font-size:.93em;
+  }
+  th,td { border:1px solid var(--line); padding:7px 11px; text-align:left; vertical-align:top; }
+  th { background:var(--table-alt); font-weight:640; }
+  tbody tr:nth-child(even) { background:var(--table-alt); }
+  .mermaid {
+    text-align:center; margin:1.5em 0; padding:14px; background:var(--code-bg);
+    border:1px solid var(--line); border-radius:8px; overflow-x:auto;
+  }
+  sub { color:var(--muted); }
+  #top {
+    position:fixed; right:16px; bottom:16px; z-index:50;
+    background:var(--accent); color:#fff; border:none; border-radius:50%;
+    width:46px; height:46px; font-size:19px; cursor:pointer; box-shadow:var(--shadow);
+    opacity:0; pointer-events:none; transition:opacity .2s;
+  }
+  #top.on { opacity:.92; pointer-events:auto; }
+  .katex { font-size:1.03em; }
+  .katex-display { overflow-x:auto; overflow-y:hidden; padding:.35em 0; }
+</style>
+</head>
+<body>
+<div id="wrap"><div id="doc">carregando…</div></div>
+<button id="top" title="Voltar ao topo">↑</button>
+
+<script id="md" type="text/markdown"># Estudos para a Defesa — guia didático
+
+> **O que é este documento.** Uma explicação em português, do zero, dos conceitos listados na seção
+> **"Estudos específicos"** de [`Questions_author.md`](Questions_author.md). Cada bloco responde três
+> perguntas na mesma ordem: **o que é**, **como funciona**, e **por que isso importa nesta
+> dissertação**. Nada aqui é texto entregue — é material de estudo para a arguição de **2026-08-28**.
+>
+> **Como ler.** Os quatro blocos são independentes. Dá para ler o bloco 3 sem ter lido o 1. O
+> [Mapa](#0--mapa-como-as-quatro-frentes-se-ligam) mostra como eles se conectam.
+>
+> **Como este documento cresce.** Toda seção termina com um espaço fixo chamado
+> **"Dúvidas e esclarecimentos"**. Quando você voltar com uma pergunta sobre Infomax, a resposta
+> entra em [§2.7](#27--dúvidas-e-esclarecimentos), datada, sem reescrever o resto. O
+> [Registro de tópicos](#6--registro-de-tópicos) no fim é o índice vivo: tópicos novos entram lá
+> primeiro e viram seção depois. Instruções de expansão em
+> [§7](#7--como-pedir-uma-seção-nova-ou-uma-resposta).
+
+**Última atualização:** 2026-08-24 · **Blocos cobertos:** 4 de 4 dos "Estudos específicos"
+
+---
+
+## Índice
+
+- [0 · Mapa: como as quatro frentes se ligam](#0--mapa-como-as-quatro-frentes-se-ligam)
+- [1 · Métodos estatísticos](#1--métodos-estatísticos)
+  - [1.1 macro-F1](#11--macro-f1) · [1.2 Acc@10](#12--acc10-o-par-da-outra-tarefa) · [1.3 A unidade de análise](#13--a-unidade-de-análise-o-que-é-um-número-pareado-aqui) · [1.4 Teste t pareado](#14--o-teste-t-pareado-a-pergunta-melhorou) · [1.5 Wilcoxon](#15--wilcoxon-dos-postos-com-sinal) · [1.6 TOST](#16--tost-a-pergunta-é-igual-ou-não-é-pior) · [1.7 Holm](#17--holm-o-preço-de-perguntar-seis-vezes) · [1.8 Cola de bolso](#18--cola-de-bolso-do-bloco-1) · [1.9 Dúvidas](#19--dúvidas-e-esclarecimentos)
+- [2 · Infomax, DGI, HGI e Check2HGI](#2--infomax-dgi-hgi-e-check2hgi)
+  - [2.1 A ideia Infomax](#21--a-ideia-infomax) · [2.2 DGI](#22--dgi-infomax-em-grafo) · [2.3 HGI](#23--hgi-a-hierarquia-lugarregiãocidade) · [2.4 Check2HGI](#24--check2hgi-o-quarto-nível) · [2.5 Quadro comparativo](#25--quadro-comparativo-da-linhagem) · [2.6 Por que importa](#26--por-que-isso-importa-na-dissertação) · [2.7 Dúvidas](#27--dúvidas-e-esclarecimentos)
+- [3 · O modelo conjunto](#3--o-modelo-conjunto-joint-model)
+  - [3.1 O caminho do dado](#31--o-caminho-do-dado-em-cinco-estágios) · [3.2 Camada a camada](#32--camada-a-camada-com-justificativa) · [3.3 A perda](#33--a-função-de-perda-e-o-ajuste-de-logits) · [3.4 Otimização](#34--otimização-três-grupos-um-backward) · [3.5 Seleção de checkpoint](#35--seleção-de-checkpoint-o-que-é-um-modelo-implantável) · [3.6 Tabela de hiperparâmetros](#36--tabela-de-hiperparâmetros-de-referência) · [3.7 Dúvidas](#37--dúvidas-e-esclarecimentos)
+- [4 · Protocolos de comparação de embeddings](#4--protocolos-de-comparação-de-embeddings)
+  - [4.1 O problema](#41--o-problema-como-julgar-um-vetor-sem-treinar-nada) · [4.2 kNN-LOO](#42--knn-loo) · [4.3 Silhouette](#43--silhouette-com-distância-de-cosseno) · [4.4 Centroid separability](#44--centroid-separability-ratio) · [4.5 Linear CKA](#45--linear-cka) · [4.6 A ressalva](#46--a-ressalva-mais-importante-deste-bloco) · [4.7 Dúvidas](#47--dúvidas-e-esclarecimentos)
+- [5 · Cola de bolso geral](#5--cola-de-bolso-geral)
+- [6 · Registro de tópicos](#6--registro-de-tópicos)
+- [7 · Como pedir uma seção nova](#7--como-pedir-uma-seção-nova-ou-uma-resposta)
+- [8 · Fontes](#8--fontes)
+
+---
+
+## 0 · Mapa: como as quatro frentes se ligam
+
+Os quatro blocos não são quatro assuntos soltos. Eles são **quatro estágios de uma mesma frase**:
+
+> *"Uma **representação** melhor (bloco 2), medida por **protocolos de geometria** (bloco 4),
+> alimenta um **modelo conjunto** (bloco 3), cuja vantagem só pode ser afirmada com o
+> **veredito estatístico** correto (bloco 1)."*
+
+```mermaid
+flowchart TB
+    A["<b>Bloco 2 — Representação</b><br/>Infomax → DGI → HGI → Check2HGI<br/><i>um vetor por visita, sem rótulo</i>"]
+    B["<b>Bloco 4 — Protocolos de geometria</b><br/>kNN-LOO · Silhouette · Centroid-sep · CKA<br/><i>o vetor é bom? sem treinar nada</i>"]
+    C["<b>Bloco 3 — Modelo conjunto</b><br/>2 entradas · cross-attention · 2 cabeças<br/><i>uma tarefa ajuda a outra?</i>"]
+    D["<b>Bloco 1 — Veredito</b><br/>macro-F1 · Acc@10 · t · Wilcoxon · TOST · Holm<br/><i>o que eu posso afirmar?</i>"]
+
+    A -->|"exporta 2 tabelas de 64 dim<br/>(check-in e região)"| C
+    A -.->|"é julgada por"| B
+    B -.->|"explica por que a<br/>categoria melhora"| D
+    C -->|"produz 20 modelos ajustados<br/>(4 sementes × 5 folds)"| D
+    D -->|"o verbo permitido:<br/>supera / não-inferior / não resolvido"| E["<b>A tese</b><br/>um modelo, duas tarefas"]
+```
+
+**A leitura em uma frase por bloco:**
+
+| Bloco | A pergunta que ele responde | O erro que ele evita |
+|---|---|---|
+| **2 — Representação** | Como descrever uma visita sem usar o rótulo do futuro? | Usar um vetor fixo por lugar, que não distingue terça de manhã de sábado à noite |
+| **4 — Geometria** | Esse vetor é melhor, e *por quê*? | Atribuir ao modelo um ganho que era da entrada |
+| **3 — Modelo conjunto** | Duas tarefas podem dividir um modelo sem se atrapalhar? | Reportar duas épocas diferentes como se fossem um sistema só |
+| **1 — Estatística** | O que a evidência autoriza a dizer? | Ler "não deu significativo" como "são iguais" |
+
+---
+
+## 1 · Métodos estatísticos
+
+> **Referência na dissertação:** Cap. 2 §"Metrics and reference points" e §"Comparison and
+> statistical decisions"; Cap. 5 §"Metrics and statistical tests" (`05_setup.tex`).
+
+### A ordem certa de aprender isto
+
+Há uma tentação de estudar TOST, Wilcoxon e Holm como três testes numa lista. Eles não são isso.
+Eles respondem a **três perguntas diferentes**, e a dissertação usa cada um exatamente porque
+os outros dois não serviriam:
+
+```
+                        Você quer afirmar o quê?
+
+    "o meu é MELHOR"      "o meu NÃO É PIOR"        "eu perguntei 6 vezes"
+           |                      |                          |
+     teste t pareado            TOST                       Holm
+     (+ Wilcoxon como       (dois testes                (correção da
+      análise de robustez)    unilaterais)             família de testes)
+           |                      |                          |
+     Cap. 5, categoria      Cap. 5, região            aplicado nos dois,
+     (e as 2 células           (4 células)            separadamente
+      de região)
+```
+
+E antes dos três, as **métricas** — porque um teste estatístico não julga um modelo, ele julga
+*a diferença entre dois números*. Quais números são esses é o que macro-F1 e Acc@10 definem.
+
+---
+
+### 1.1 · macro-F1
+
+#### O que é
+
+Comece pelo tijolo: para **uma** classe (digamos, `Nightlife`), o modelo acerta e erra de quatro
+jeitos.
+
+```
+                        REALIDADE
+                   Nightlife   não é Nightlife
+              ┌──────────────┬──────────────────┐
+     modelo   │      VP      │        FP        │   ← "eu disse Nightlife"
+   diz que é  │  (acertou)   │  (falso alarme)  │
+   Nightlife  ├──────────────┼──────────────────┤
+   modelo diz │      FN      │        VN        │
+   que não é  │  (deixou     │   (acertou o     │
+              │   passar)    │      não)        │
+              └──────────────┴──────────────────┘
+```
+
+Duas razões saem daí:
+
+$$P_c = \frac{VP}{VP + FP} \qquad\text{(precisão: das que eu chamei de } c\text{, quantas eram?)}$$
+
+$$R_c = \frac{VP}{VP + FN} \qquad\text{(revocação: das que eram } c\text{, quantas eu peguei?)}$$
+
+Elas se contrapõem. Um modelo covarde que só chama de `Nightlife` o caso obviíssimo tem precisão
+alta e revocação baixa. Um modelo afoito tem o contrário. O **F1** é a média harmônica das duas,
+que é a média que **pune o desequilíbrio**:
+
+$$F1_c = \frac{2 P_c R_c}{P_c + R_c}$$
+
+> **Por que harmônica e não aritmética?** Com $P = 1{,}0$ e $R = 0{,}02$, a média aritmética dá
+> $0{,}51$ — parece meio bom. A harmônica dá $0{,}039$. A harmônica é dominada pelo menor dos dois,
+> que é exatamente o comportamento que se quer: não adianta ser preciso se você não pega quase nada.
+
+E o **macro**-F1 é a média simples dos sete F1, **um por categoria**:
+
+$$\operatorname{MacroF1} = \frac{1}{C}\sum_{c=1}^{C} \frac{2P_cR_c}{P_c+R_c}, \qquad C = 7$$
+
+#### Como funciona, na prática
+
+```python
+import numpy as np
+
+def macro_f1(y_true, y_pred, n_classes=7):
+    f1s = []
+    for c in range(n_classes):
+        vp = np.sum((y_pred == c) & (y_true == c))
+        fp = np.sum((y_pred == c) & (y_true != c))
+        fn = np.sum((y_pred != c) & (y_true == c))
+        p = vp / (vp + fp) if (vp + fp) else 0.0
+        r = vp / (vp + fn) if (vp + fn) else 0.0
+        f1s.append(2 * p * r / (p + r) if (p + r) else 0.0)
+    return float(np.mean(f1s))          # média SIMPLES — a classe rara pesa igual
+    # (sklearn: f1_score(y_true, y_pred, average="macro"))
+```
+
+A linha que decide tudo é a última: `np.mean(f1s)`. A alternativa — **micro**-F1, ou acurácia — soma
+os VP/FP/FN de todas as classes *antes* de dividir, e aí a classe grande manda.
+
+#### Por que isso importa nesta dissertação
+
+Porque **Food é cerca de um terço dos check-ins em todos os seis conjuntos** (24,7% na Flórida,
+34,2% no Alabama). Sob acurácia simples, um modelo que só responde "Food" já começa com ~30%, e
+um ganho de verdade nas classes pequenas fica invisível.
+
+O piso comparável em macro-F1 é brutalmente diferente. Sempre responder a classe majoritária dá
+**entre 5,7 e 7,3 macro-F1**, porque o modelo zera as seis outras classes. Esse é o número que
+ancora a escala: quando o modelo conjunto marca **37,55 na Flórida**, isso é contra um piso de ~7,
+não contra um piso de ~25.
+
+```
+macro-F1 na Flórida — escala real
+
+ piso (classe majoritária)  ▓▓▓▓                                     ~7,0
+ Markov-K                   ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓                        29,74
+ POI-RGNN                   ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓                     34,49
+ dedicado (uma tarefa)      ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓                   37,35
+ conjunto (duas tarefas)    ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓                   37,55  ↑
+                            └────┴────┴────┴────┴────┴────┴────┴────┘
+                            0    5   10   15   20   25   30   35   40
+```
+
+#### O que a métrica **não** faz — e a banca pode perguntar
+
+1. **Não diz qual classe melhorou.** Um ganho de +0,19 pode ser toda a melhora concentrada em
+   `Nightlife` ou espalhada por sete classes. A macro-F1 é surda para isso.
+2. **Pode ser baixa com acurácia alta**, e é justamente o caso aqui: 37 de macro-F1 convive com uma
+   acurácia bem mais alta, porque as classes pequenas puxam a média para baixo.
+3. **Ela premia a fronteira balanceada, e a perda não é reponderada.** O treino usa entropia cruzada
+   **sem peso de classe** — no Cap. 5, ponderar por classe piorou tanto a macro-F1 de categoria
+   quanto a acurácia de região. O ajuste vem por outro caminho (o *logit adjustment*,
+   [§3.3](#33--a-função-de-perda-e-o-ajuste-de-logits)).
+
+---
+
+### 1.2 · Acc@10 (o par da outra tarefa)
+
+Categoria tem 7 classes. **Região tem de 520 a 8.501.** Exigir o acerto exato da região em primeiro
+lugar num vocabulário de 8.501 seria medir quase só ruído. Então a métrica é de **ranking**:
+
+$$\operatorname{Acc@10} = \frac{1}{N}\sum_{i=1}^{N} \mathbb{I}\!\left[y_i \in \operatorname{Top10}(\hat{\mathbf{p}}_i)\right]$$
+
+Em português: *"em que fração das visitas de teste a região correta apareceu entre as dez mais bem
+pontuadas?"*. O chute aleatório num vocabulário de 520 regiões acerta ~1,9%; nos maiores, muito menos.
+
+**Três detalhes que aparecem em arguição:**
+
+- **Não distingue 1º de 10º lugar.** Um modelo que sempre põe a certa em 10º empata com um que
+  sempre põe em 1º.
+- **Região ausente do treino conta como erro.** Não é descartada — é contabilizada contra o modelo.
+- **A versão reportada é descontada por OOD** (*out-of-distribution*): mede-se a Acc@10 nas visitas
+  cuja região existe no treino e multiplica-se por $(1 - \text{fração fora de distribuição})$. É a
+  leitura honesta, não a otimista.
+
+> **Por que duas métricas diferentes e não uma nota só?** Porque as tarefas não são comparáveis.
+> A dissertação **nunca** soma ou média as duas num "desempenho do modelo". O único lugar onde elas
+> se encontram é a **seleção de checkpoint** ([§3.5](#35--seleção-de-checkpoint-o-que-é-um-modelo-implantável)),
+> e lá elas entram por média **geométrica**, não aritmética.
+
+---
+
+### 1.3 · A unidade de análise: o que é um "número pareado" aqui
+
+Este é o ponto que mais confunde, e sem ele os três testes seguintes não fazem sentido.
+
+O experimento do Cap. 5 tem duas camadas de repetição:
+
+```
+ SEMENTE (seed)  ─ define a partição dos usuários E a inicialização do modelo
+   │              4 sementes: {0, 1, 7, 100}
+   │
+   ├── fold 1 ─┐
+   ├── fold 2  │  5 partições disjuntas POR USUÁRIO
+   ├── fold 3  │  (todas as janelas de um usuário ficam do mesmo lado)
+   ├── fold 4  │
+   └── fold 5 ─┘
+                        4 × 5 = 20 modelos ajustados por configuração
+```
+
+E aí vem a regra de agregação, que é onde muita gente erra ao ler a tabela:
+
+> **Primeiro** faz-se a média dos 5 folds **dentro** de cada semente. **Depois** faz-se a média das
+> 4 médias-por-semente. O **±** impresso é o desvio-padrão **entre as 4 médias-por-semente**, não
+> entre os folds.
+
+Consequência direta: a análise primária é um teste pareado com **n = 4**, não n = 20. Isso parece
+pouco — e é —, mas é a unidade honesta, porque os 5 folds de uma mesma semente não são
+independentes entre si (eles particionam o mesmo sorteio de usuários).
+
+**O que "pareado" significa aqui:** dentro de uma mesma semente, o modelo conjunto e o modelo
+dedicado veem **exatamente a mesma partição de usuários**. Então a diferença
+$d_s = \text{conjunto}_s - \text{dedicado}_s$ elimina a variação que vem do sorteio. É a mesma lógica
+de medir dois remédios no mesmo paciente em vez de em pacientes diferentes.
+
+```python
+# a estrutura real do dado que entra nos testes
+import numpy as np
+
+joint    = np.array([37.61, 37.48, 37.55, 37.56])   # média dos 5 folds, por semente
+dedicated= np.array([37.41, 37.29, 37.37, 37.33])   # idem, mesma partição
+d = joint - dedicated                                # n = 4 diferenças pareadas
+#  ^ TODO teste do Cap. 5 opera sobre este vetor (ou sobre as 20 diferenças por fold)
+```
+
+---
+
+### 1.4 · O teste t pareado (a pergunta "melhorou?")
+
+#### O que é
+
+A hipótese nula é *"a diferença média verdadeira é zero"*. O teste pergunta: **se ela fosse zero, com
+que frequência eu veria uma diferença tão grande quanto a que vi, só por sorte?** Essa frequência é
+o valor de $p$.
+
+$$t = \frac{\bar{d}}{s_d/\sqrt{n}}, \qquad n = 4,\ \ \text{gl} = 3$$
+
+onde $\bar{d}$ é a média das diferenças pareadas e $s_d$ o desvio-padrão delas. O numerador é
+"quanto mudou"; o denominador é "quanto isso oscila". O $t$ é a razão entre sinal e ruído.
+
+```python
+from scipy import stats
+t, p_bilateral = stats.ttest_rel(joint, dedicated)      # equivalente a ttest_1samp(d, 0)
+p_unilateral = p_bilateral / 2 if t > 0 else 1 - p_bilateral / 2
+```
+
+#### Por que também se reporta o intervalo de confiança de 90%
+
+Porque o $p$ diz apenas *"é distinguível de zero?"*. O **intervalo** diz *"de que tamanho é?"* — e é
+o tamanho que a dissertação usa para limitar as afirmações. Exemplo entregue, na categoria:
+
+```
+Diferenças conjunto − dedicado, categoria (macro-F1), IC 90%
+
+ FL   ├──┤                    +0,19   [+0,14 , +0,25]   ✔ sobrevive a Holm (p = 0,011)
+ IST  ├────┤                  +0,08   [+0,01 , +0,15]   não resolvido
+ AZ  ├──┤                     −0,00   [−0,04 , +0,03]   não resolvido
+ CA  ├─┤                      −0,00   [−0,03 , +0,02]   não resolvido
+ TX ├───┤                     −0,13   [−0,19 , −0,08]   não resolvido
+ AL ├──────┤                  −0,19   [−0,33 , −0,04]   não resolvido
+     ┴────┴────┴────┴────┴────┴
+   −0,4  −0,2   0   +0,2  +0,4          (o mais distante de zero: 0,34, no AL)
+```
+
+A leitura que a dissertação faz disso: nenhum intervalo chega a meio ponto de zero. Logo, **todas as
+seis diferenças de categoria estão dentro de meio ponto**, simultaneamente. Isso é um limite *lido do
+intervalo*, não um teste adicional — e é por isso que o texto não diz "empata", diz "dentro de meio
+ponto".
+
+#### Por que importa nesta dissertação
+
+O teste t é o que autoriza o verbo **"supera"**. A lei de redação do projeto é explícita: *supera*
+fica reservado a teste pareado de superioridade. Os Caps. 3 e 4 não têm teste nenhum — só médias e
+desvios — e por isso **não podem** usar esse verbo. Só o Cap. 5 pode.
+
+---
+
+### 1.5 · Wilcoxon dos postos com sinal
+
+#### O que é
+
+Uma alternativa ao teste t que **não assume normalidade**. Em vez de usar os valores das diferenças,
+usa a **ordem** delas.
+
+Receita:
+
+```
+1. Descarte as diferenças exatamente iguais a zero.
+2. Ordene as diferenças pelo MÓDULO e atribua postos 1, 2, 3, ...
+3. Devolva o sinal a cada posto.
+4. Some os postos positivos (W+) e os negativos (W−).
+5. Se o tratamento não tem efeito, W+ e W− deviam ser parecidos.
+```
+
+Exemplo com as 4 diferenças de semente:
+
+```
+ d      = [ +0,21 ,  −0,05 ,  +0,18 ,  +0,23 ]
+ |d|    = [  0,21 ,   0,05 ,   0,18 ,   0,23 ]
+ posto  = [    3  ,     1  ,     2  ,     4  ]
+ sinal  = [   +3  ,    −1  ,    +2  ,    +4  ]
+ W+ = 9   W− = 1     →  quase tudo positivo, mas com n = 4...
+```
+
+```python
+from scipy import stats
+stat, p = stats.wilcoxon(joint, dedicated, alternative="greater")
+```
+
+#### O detalhe que a banca pode cobrar — e a dissertação já responde
+
+Com $n = 4$ diferenças, os sinais têm $2^4 = 16$ configurações igualmente prováveis sob a nula. A
+mais extrema (todas positivas) tem probabilidade $1/16$. Ou seja:
+
+> **Com n = 4, o menor valor-p unilateral que o Wilcoxon exato pode produzir é 0,0625** — acima de
+> 0,05. **Nenhum resultado seria significativo, por construção.**
+
+É por isso que a dissertação **inverte a ordem declarada no plano**: o plano registrava o Wilcoxon
+como teste primário; a análise final usa o **t pareado sobre as 4 médias-por-semente** como primário
+e reporta o Wilcoxon sobre as **20 diferenças por fold** como **análise de sensibilidade**. Os dois
+chegam às mesmas decisões, e o desvio em relação ao plano está declarado no texto e no código.
+
+**Como responder isso em pé, em duas frases:** *"O plano registrou Wilcoxon. Com quatro sementes, o
+Wilcoxon exato tem p mínimo de 0,0625, então ele não podia decidir nada nesse pé. Reportei o t
+pareado como primário, o Wilcoxon sobre os vinte folds como sensibilidade, os dois concordam, e o
+desvio está declarado."*
+
+---
+
+### 1.6 · TOST (a pergunta "é igual?", ou "não é pior?")
+
+Este é o conceito mais importante do bloco 1, e o mais mal compreendido na literatura em geral.
+
+#### O erro que o TOST existe para corrigir
+
+> **Ausência de significância NÃO é evidência de igualdade.**
+
+Um $p$ alto pode significar duas coisas completamente diferentes:
+
+```
+   p = 0,42   ┌─ (a) a diferença é realmente ~zero
+              └─ (b) a diferença pode ser enorme, mas o experimento é fraco demais
+                     para detectar (poucos dados, muito ruído)
+
+   O teste de superioridade NÃO distingue (a) de (b).
+```
+
+Se o argumento da dissertação é *"o modelo conjunto **não piora** a região"*, um $p$ não
+significativo não serve como prova. Seria construir uma afirmação positiva sobre um fracasso de
+detecção.
+
+#### Como o TOST resolve
+
+**Inverte as hipóteses.** Em vez de "a nula é igualdade e eu tento rejeitá-la", o TOST faz de
+**"a diferença é grande"** a hipótese nula, e tenta rejeitá-la.
+
+Escolhe-se antes uma **margem $\delta$** — a menor diferença que ainda importaria na prática. Aqui,
+$\delta = 2$ pontos de Acc@10, **registrada antes de qualquer resultado ser lido**. Então rodam-se
+**dois testes unilaterais** (daí o nome, *two one-sided tests*):
+
+$$H_{01}: \mu_d \le -\delta \quad\text{(é pior por mais de 2)} \qquad H_{02}: \mu_d \ge +\delta \quad\text{(é melhor por mais de 2)}$$
+
+Se **os dois** forem rejeitados, o que sobra é $-\delta < \mu_d < +\delta$: a diferença está **dentro
+da margem**. Isso é equivalência.
+
+Para **não-inferioridade** — que é o caso da dissertação — basta o primeiro teste: rejeitar
+*"é pior por mais de 2 pontos"*.
+
+```
+      pior por muito        DENTRO DA MARGEM         melhor por muito
+   ────────────────────┬───────────────────────┬────────────────────
+                      −δ           0          +δ
+                     (−2)                    (+2)
+
+   Alabama, região:        ├────┤                     −0,87  [−1,00 , ...]
+                        o intervalo inteiro cabe dentro da margem  →  ≈ (não-inferior)
+```
+
+#### O atalho prático: o TOST se lê do intervalo de confiança
+
+Este é o truque que vale ouro numa arguição:
+
+> **Se o intervalo de confiança de 90% da diferença estiver inteiramente contido em
+> $[-\delta, +\delta]$, o TOST a 5% é aprovado.** Não precisa rodar teste nenhum — está na tabela.
+
+(A dualidade é exata: dois testes unilaterais a $\alpha$ = 5% correspondem a um intervalo bilateral
+de $100 - 2\times5 = 90$%. É por isso que o Cap. 5 imprime IC de **90%**, e não de 95%.)
+
+```python
+# TOST de não-inferioridade, na mão — n = 4
+from scipy import stats
+import numpy as np
+
+d, delta = joint - dedicated, 2.0
+t_stat = (d.mean() + delta) / (d.std(ddof=1) / np.sqrt(len(d)))
+p_ni    = 1 - stats.t.cdf(t_stat, df=len(d) - 1)     # H0: mu <= -delta
+# equivalente: checar se o limite INFERIOR do IC 90% > -delta
+```
+
+#### Por que $\delta = 2$, e por que isso é defensável
+
+A justificativa é **de domínio, não estatística**: um serviço sensível a mobilidade age sobre *qual
+região vai ficar cheia*, não sobre uma posição específica do ranking. Uma mudança de 2 pontos em
+Acc@10 está abaixo do nível em que esse serviço se comportaria de outro jeito.
+
+E o texto é honesto sobre a folga: o desvio-padrão da diferença pareada entre as quatro partições vai
+de 0,02 a 0,16 ponto. Istambul, Arizona e Flórida têm intervalos estreitos o bastante para suportar
+uma margem de **1 ponto**. O Alabama não — e é justamente o conjunto com a maior diferença de região
+($-0{,}87$).
+
+#### Onde o TOST entra e onde **não** entra
+
+| Eixo | Margem registrada? | Verbo permitido |
+|---|---|---|
+| **Região** (Acc@10) | **Sim**, $\delta = 2$ pontos, pré-registrada | "não-inferior" nas 4 células ≈; "supera" em TX e CA |
+| **Categoria** (macro-F1) | **Não** | Uma diferença que falha na superioridade é **"não resolvida"** — nunca "empata", nunca "igual". O limite de meio ponto é **lido dos intervalos**, não estabelecido por teste |
+
+Essa assimetria é deliberada e é a armadilha número um do Cap. 5. Dizer "empata na categoria" seria
+afirmar equivalência sem margem registrada.
+
+---
+
+### 1.7 · Holm (o preço de perguntar seis vezes)
+
+#### O problema
+
+Cada teste a $\alpha = 5$% tem 5% de chance de dar um falso positivo. Faça **seis** testes
+independentes e a chance de **pelo menos um** falso positivo vira:
+
+$$1 - (1 - 0{,}05)^6 = 26{,}5\%$$
+
+Um em cada quatro estudos com seis comparações "encontraria" um resultado que não existe. Como o Cap.
+5 tem seis conjuntos de dados, e portanto seis comparações por eixo, isso não é hipotético.
+
+```
+ chance de ao menos um falso positivo, sem correção
+
+  1 teste   ▓▓                       5,0 %
+  2 testes  ▓▓▓▓                     9,8 %
+  4 testes  ▓▓▓▓▓▓▓                 18,5 %
+  6 testes  ▓▓▓▓▓▓▓▓▓▓              26,5 %   ← o caso desta dissertação
+ 12 testes  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓   46,0 %   ← se os dois eixos fossem uma família só
+```
+
+#### Como o Holm funciona
+
+O Bonferroni clássico divide $\alpha$ por $m$ e pronto — simples, e conservador demais. O
+**Holm (1979)** é um procedimento **descendente** (*step-down*) que controla o mesmo erro
+família-a-família, mas com mais poder:
+
+```
+1. Ordene os p do MENOR para o MAIOR:   p(1) ≤ p(2) ≤ ... ≤ p(6)
+2. Compare p(1) com α/6.  Rejeitou? siga.  Não rejeitou? PARE — nada mais é rejeitado.
+3. Compare p(2) com α/5.  Rejeitou? siga.  Não? PARE.
+4. Compare p(3) com α/4.  ... e assim por diante, até α/1.
+```
+
+O limiar vai **afrouxando** conforme você desce. O primeiro teste enfrenta a barra de Bonferroni; o
+último enfrenta $\alpha$ inteiro. Por isso Holm **domina uniformemente** Bonferroni: rejeita tudo que
+Bonferroni rejeita, e às vezes mais, sem custo de garantia.
+
+```python
+from statsmodels.stats.multitest import multipletests
+rej, p_corrigido, _, _ = multipletests(p_brutos, alpha=0.05, method="holm")
+```
+
+#### Por que importa nesta dissertação
+
+Duas decisões finas, e as duas podem ser cobradas:
+
+1. **São duas famílias, não uma.** A correção é aplicada **separadamente** nas seis comparações de
+   categoria e nas seis de região. Juntar as doze numa família só seria mais conservador do que a
+   pergunta exige — os dois eixos são afirmações independentes, com métricas diferentes.
+2. **O Holm é o que dá crédito aos vereditos que sobraram.** As células marcadas com ↑ são as que
+   sobrevivem a ele:
+
+| Eixo | Sobrevive ao Holm | $p$ corrigido |
+|---|---|---|
+| Categoria | **Flórida**, $+0{,}19$ | $0{,}011$ — 19 dos 20 folds a favor |
+| Região | **Texas**, $+1{,}21$ | $0{,}00013$ — 20 dos 20 folds |
+| Região | **Califórnia**, $+1{,}06$ | $< 10^{-4}$ — 20 dos 20 folds |
+
+> **Nota fina, e ela é uma vulnerabilidade honesta:** o plano de análise registrou superioridade para
+> **categoria** e não-inferioridade para **região**. Os dois ganhos de região são portanto
+> **resultados secundários, fora do plano** — e o texto diz isso. Se a banca perguntar "esses dois
+> ganhos de região valem?", a resposta é: valem como observação, não como teste pré-registrado.
+
+---
+
+### 1.8 · Cola de bolso do bloco 1
+
+| Ferramenta | Pergunta | Nula | Quando usar | No Cap. 5 |
+|---|---|---|---|---|
+| **macro-F1** | Quão bem em **todas** as 7 classes? | — | Rótulo desbalanceado | Eixo categoria; piso 5,7–7,3 |
+| **Acc@10** | A certa está entre as 10 primeiras? | — | Vocabulário enorme (520–8.501) | Eixo região; descontada por OOD |
+| **t pareado** | É **melhor**? | $\mu_d = 0$ | Afirmar ganho | Primário, $n=4$ médias-por-semente |
+| **IC 90%** | De que **tamanho**? | — | Limitar a afirmação | Impresso em toda célula; dual do TOST |
+| **Wilcoxon** | É melhor, sem supor normal? | mediana $=0$ | Robustez | Sensibilidade, $n=20$ folds |
+| **TOST** | **Não é pior** que $\delta$? | $\lvert\mu_d\rvert \ge \delta$ | Afirmar equivalência | Região, $\delta=2$ pp, pré-registrada |
+| **Holm** | Perguntei 6 vezes; e daí? | — | Família de testes | Separado por eixo |
+
+**As três frases que não podem sair errado:**
+
+1. *"Um resultado não significativo não é evidência de igualdade — por isso existe o TOST."*
+2. *"A margem de dois pontos foi registrada antes de qualquer resultado ser lido, e só para região."*
+3. *"Na categoria não há margem registrada, então uma diferença que falha na superioridade é **não
+   resolvida**, e o limite de meio ponto é lido dos intervalos."*
+
+---
+
+### 1.9 · Dúvidas e esclarecimentos
+
+> *Espaço reservado. Perguntas suas sobre o bloco 1 e as respostas entram aqui, cada uma com data.*
+
+<!-- MODELO — copie e preencha
+#### 1.9.N · [pergunta em uma linha] · <data>
+**Pergunta.**
+
+**Resposta.**
+
+**Onde isso aparece na dissertação.**
+-->
+
+*(nenhuma entrada ainda)*
+
+---
+
+## 2 · Infomax, DGI, HGI e Check2HGI
+
+> **Referência na dissertação:** Cap. 2 §"Representations for mobility" (`2_fundamentals.tex`);
+> Apêndice E, "How Check2HGI and the Joint Model Work" (`apx_h_check2hgi_joint_model.tex`).
+
+Esta é a linhagem que a sua própria fala de defesa (slide S8) resume numa frase. Vale começar por ela,
+porque as quatro seções seguintes são só o detalhamento dela:
+
+> **A ideia Infomax, numa frase:** *o modelo aprende vetores úteis sendo obrigado a distinguir um
+> pareamento verdadeiro de um pareamento corrompido, e não precisa de rótulo nenhum para isso, porque
+> os próprios dados dizem qual é o verdadeiro.*
+
+```mermaid
+flowchart LR
+    I["<b>Infomax</b><br/>princípio<br/><i>1988</i>"] --> D["<b>DGI</b><br/>nó × resumo do grafo<br/><i>ICLR 2019</i>"]
+    D --> H["<b>HGI</b><br/>lugar → região → cidade<br/><i>ISPRS 2023</i>"]
+    H --> C["<b>Check2HGI</b><br/>+ check-in abaixo do lugar<br/><i>Cap. 5</i>"]
+
+    I -.-> I2["maximizar informação mútua<br/>entre entrada e representação"]
+    D -.-> D2["corrupção = embaralhar features;<br/>discriminador bilinear"]
+    H -.-> H2["3 níveis, atenção multi-cabeça,<br/>cidade = soma ponderada por área"]
+    C -.-> C2["4º nível: 1 vetor POR VISITA;<br/>arestas temporais só para frente"]
+```
+
+---
+
+### 2.1 · A ideia Infomax
+
+#### O princípio
+
+**Infomax** vem de Linsker (1988), em neurociência computacional: um sistema de processamento deveria
+escolher a transformação que **maximiza a informação mútua** entre a entrada e a saída. Traduzindo:
+*se eu vou comprimir 15 números em 64, comprima de um jeito que preserve o máximo possível do que
+havia na entrada.*
+
+A **informação mútua** entre duas variáveis mede quanto saber uma reduz a incerteza sobre a outra:
+
+$$I(X;Z) = \mathbb{E}_{p(x,z)}\!\left[\log \frac{p(x,z)}{p(x)\,p(z)}\right]$$
+
+Se $X$ e $Z$ forem independentes, $p(x,z) = p(x)p(z)$, o log é zero e $I = 0$. Quanto mais a
+distribuição conjunta se afasta do produto das marginais, maior a informação mútua.
+
+#### O problema, e o truque que o resolve
+
+$I(X;Z)$ é **intratável** em alta dimensão — exigiria conhecer densidades que não temos. A solução da
+década de 2010 foi trocar o cálculo por uma **estimativa variacional**: em vez de calcular $I$,
+treina-se um **discriminador** para separar amostras da conjunta $p(x,z)$ (pares **reais**) de
+amostras do produto $p(x)p(z)$ (pares **corrompidos**). Quanto melhor ele separa, maior é o limite
+inferior de $I$.
+
+- **MINE** (Belghazi et al., 2018) formalizou isso com a representação de Donsker–Varadhan.
+- **Deep InfoMax / DIM** (Hjelm et al., 2019) mostrou que, na prática, o que funciona não é maximizar
+  $I$ globalmente, e sim entre **partes locais** da entrada e um **resumo global** — e que um
+  substituto simples de classificação binária (Jensen–Shannon) treina melhor que o limite exato.
+
+**Este é o pulo do gato pedagógico:** *"maximizar informação mútua"* vira, na prática,
+*"treinar um classificador que distingue par verdadeiro de par falso"*. É uma tarefa supervisionada
+comum — só que o rótulo ("este par é verdadeiro") vem da **estrutura dos dados**, não de anotação
+humana. Por isso é **auto-supervisão**, e por isso nenhum rótulo de tarefa entra.
+
+```python
+import torch, torch.nn as nn
+
+class BilinearDiscriminator(nn.Module):
+    """D(e1, e2) = sigma(e1^T W e2) — o coração de DGI, HGI e Check2HGI."""
+    def __init__(self, dim=64):
+        super().__init__()
+        self.W = nn.Parameter(torch.empty(dim, dim))
+        nn.init.xavier_uniform_(self.W)
+
+    def forward(self, e1, e2):                       # [N, d], [N, d]
+        return torch.sigmoid((e1 @ self.W * e2).sum(-1))   # [N] em (0, 1)
+
+def infomax_loss(D, e_pos_a, e_pos_b, e_neg_b):
+    """Par verdadeiro perto de 1, par corrompido perto de 0."""
+    return -(torch.log(D(e_pos_a, e_pos_b) + 1e-8).mean()
+             + torch.log(1 - D(e_pos_a, e_neg_b) + 1e-8).mean())
+```
+
+> **Por que bilinear e não um MLP?** Porque $\mathbf{e}_1^\top \mathbf{W} \mathbf{e}_2$ é **linear em
+> cada embedding quando o outro está fixo**. Isso mantém a pressão do gradiente sobre a *geometria*
+> dos vetores em vez de deixar um discriminador poderoso "resolver" o problema sozinho e liberar os
+> embeddings para serem qualquer coisa. É uma escolha de contenção deliberada.
+
+---
+
+### 2.2 · DGI (Infomax em grafo)
+
+#### O que é
+
+**Deep Graph Infomax** (Veličković et al., ICLR 2019) leva o DIM para grafos. A pergunta que ele
+treina é: *"este nó pertence a este grafo, ou eu o peguei de um grafo embaralhado?"*
+
+```
+                    GRAFO REAL                     GRAFO CORROMPIDO
+                 ┌───────────────┐                ┌───────────────┐
+    features     │  X  (N × F)   │                │  X̃  = X com   │
+                 │               │                │  as LINHAS    │
+                 │  A  (N × N)   │                │  embaralhadas │
+                 └───────┬───────┘                └───────┬───────┘
+                         │  encoder GNN                   │  MESMO encoder
+                         ▼                                ▼
+              h_1 ... h_N  ("patches")           h̃_1 ... h̃_N
+                         │
+                         ▼  readout (média + sigmoide)
+                    s  = resumo GLOBAL do grafo
+                         │
+                         ▼
+             D(h_i, s) → 1                    D(h̃_j, s) → 0
+```
+
+O objetivo é a entropia cruzada binária padrão:
+
+$$\mathcal{L} = -\frac{1}{N+M}\left(\sum_{i=1}^{N}\log \mathcal{D}(\mathbf{h}_i, \mathbf{s}) + \sum_{j=1}^{M}\log\left(1 - \mathcal{D}(\tilde{\mathbf{h}}_j, \mathbf{s})\right)\right)$$
+
+#### O detalhe que faz funcionar
+
+A **função de corrupção** embaralha as linhas de $X$ **mantendo a matriz de adjacência $A$**. Isso é
+cirúrgico: o nó corrompido tem features que não combinam com a vizinhança dele. Para um nó
+sobreviver ao discriminador, o encoder é obrigado a produzir uma representação que **concilia** a
+feature do nó com a estrutura em volta dele. É daí que sai a qualidade.
+
+#### Por que importa nesta dissertação
+
+O DGI é o **primeiro degrau** da linhagem: fornece o objetivo e os embeddings de lugar do
+**Capítulo 3** (CBIC). É o piso a partir do qual tudo o mais se mede.
+
+---
+
+### 2.3 · HGI (a hierarquia lugar–região–cidade)
+
+#### O que é
+
+**Hierarchical Graph Infomax** (Huang et al., *ISPRS J. Photogramm. Remote Sens.*, 2023) observa que
+uma cidade não é um grafo plano. Ela tem **níveis aninhados**: um POI está numa região, uma região
+está numa cidade. O DGI compara duas escalas (nó × grafo). O HGI compara **três**, em cascata.
+
+```
+                        ┌─────────────┐
+                        │   CIDADE    │   soma das regiões ponderada por ÁREA
+                        └──────┬──────┘
+                     objetivo região ↔ cidade
+                        ┌──────┴──────┐
+                        │   REGIÃO    │   atenção multi-cabeça sobre os POIs
+                        └──────┬──────┘
+                     objetivo POI ↔ região
+                        ┌──────┴──────┐
+                        │     POI     │   GCN sobre grafo de Delaunay
+                        └─────────────┘
+```
+
+**Como cada nível é construído:**
+
+1. Um **encoder de categoria pré-treinado** fornece as features iniciais de cada POI.
+2. **Uma camada** de convolução em grafo sobre uma **triangulação de Delaunay** dos POIs da área
+   adiciona contexto espacial. Os pesos das arestas **decaem com a distância** e são **reduzidos
+   ainda mais quando os dois POIs estão em regiões diferentes**.
+3. **Atenção multi-cabeça** agrega os POIs de uma região num vetor de região.
+4. Uma **soma ponderada por área** sobre as regiões produz um vetor de cidade.
+
+#### Duas consequências que a dissertação explora — e que a banca pode perguntar
+
+**(a) O POI do HGI já é "consciente da região".** O treino atualiza o encoder de POI, a agregação e
+o encoder de região **juntos**, e o objetivo empurra o POI a pontuar alto contra a **própria** região
+e baixo contra as outras. A pertença à região entra ainda antes disso, pelos pesos das arestas. Ou
+seja: **o vetor de POI do HGI não é uma descrição do lugar isolado** — ele já reflete a região.
+
+**(b) O HGI foi projetado para outra coisa.** Os experimentos originais avaliam **o vetor de região**
+(distribuição funcional urbana, densidade populacional, preço de imóvel, em Xiamen e Shenzhen). O
+vetor de POI é um **estágio interno** para chegar lá. Esta dissertação **reaproveita** essa saída de
+nível-POI para predição sequencial — um uso que a avaliação original não cobre. Isso está declarado
+no texto, e é a resposta honesta a *"você está usando o HGI fora do escopo dele?"*: sim, e está dito.
+
+**(c) Um hiperparâmetro foi re-ajustado, e só ele.** Huang et al. reduzem a aresta entre POIs de
+regiões diferentes para **0,4** do peso. Esse valor não foi transferido sem teste: nos dados desta
+dissertação, sobre os mesmos cinco folds, **0,7** deu a melhor F1 de categoria e foi adotado.
+⚠ **O que isso resolve é um hiperparâmetro da linha de base. Não é evidência sobre HGI vs. Check2HGI.**
+
+#### Por que importa nesta dissertação
+
+O HGI é (i) a representação do **Capítulo 4** (CoUrb), (ii) a **linha de base de nível-lugar** contra
+a qual o Check2HGI é medido no Cap. 5, e (iii) a **base direta** do Check2HGI — que é o HGI mais um
+nível.
+
+---
+
+### 2.4 · Check2HGI (o quarto nível)
+
+#### A limitação que ele ataca
+
+Uma frase resolve:
+
+> Numa representação de nível-lugar, **uma manhã de terça-feira e uma noite de sábado no mesmo lugar
+> têm entradas idênticas**. É o mesmo vetor.
+
+Isso é fatal para a tarefa de próxima categoria. O que distingue uma visita que acontece minutos
+depois da anterior de uma visita que abre uma saída nova é o **tempo decorrido** — e um vetor por
+lugar não consegue carregar isso, porque é o mesmo vetor em toda visita.
+
+#### O que o Check2HGI faz
+
+Adiciona um **quarto nível, abaixo do lugar: o check-in**. Um vetor **por visita**.
+
+```mermaid
+flowchart TB
+    subgraph nivel4 [" "]
+        CI["<b>CHECK-IN</b> — 1 vetor por visita<br/>15 features de entrada"]
+    end
+    subgraph nivel3 [" "]
+        PL["<b>LUGAR</b> — atenção 4 cabeças sobre as visitas<br/>+ GCN sobre Delaunay"]
+    end
+    subgraph nivel2 [" "]
+        RG["<b>REGIÃO</b> — atenção 4 cabeças sobre os lugares<br/>+ GCN sobre adjacência de polígonos"]
+    end
+    subgraph nivel1 [" "]
+        CT["<b>CIDADE</b> — soma ponderada por área + sigmoide"]
+    end
+    CI -->|"L_c2p · peso 0,4"| PL
+    PL -->|"L_p2r · peso 0,3"| RG
+    RG -->|"L_r2c · peso 0,3"| CT
+    CI -.->|"exportado (64 dim)"| OUT1["→ fluxo de CATEGORIA<br/>do modelo conjunto"]
+    RG -.->|"exportado (64 dim)"| OUT2["→ fluxo de REGIÃO<br/>do modelo conjunto"]
+```
+
+**As 15 features de entrada de cada check-in** — e cada grupo tem uma razão:
+
+| Grupo | Quantos | O que é | Por quê |
+|---|---:|---|---|
+| Categoria | 7 | *one-hot* das 7 categorias do lugar visitado | A categoria entra como **entrada**, nunca como alvo |
+| Tempo cíclico | 4 | seno e cosseno da hora do dia; seno e cosseno do dia da semana | Faz 23h e 0h ficarem **vizinhos** no espaço de features, em vez de opostos numa escala linear |
+| Tempo decorrido | 4 | tempo desde a visita anterior; tempo desde a primeira visita do usuário (ambos em log); intervalo dentro do mesmo dia; indicador de primeira visita | O log põe "minutos" e "semanas" em escala comparável; o indicador cobre a primeira visita, que não tem "anterior" |
+
+**Coordenadas não entram nesse vetor.** Elas determinam a pertença ao polígono, as arestas de
+Delaunay e a adjacência entre regiões — atuam pela **estrutura do grafo**, não pela feature.
+
+#### As arestas, e a que evita o vazamento
+
+Três formas de estrutura:
+
+- **Sucessão de check-ins.** Visitas consecutivas do mesmo usuário, **numa direção só, do passado
+  para o futuro**, com peso que decai exponencialmente com o intervalo (constante de decaimento de
+  1 hora).
+- **Vizinhanças espaciais.** Delaunay entre lugares próximos; regiões ligadas quando os polígonos se
+  tocam.
+- **Pertença hierárquica.** check-in → lugar → região → cidade.
+
+> ⚠️ **A direção da aresta é a decisão de integridade mais importante do método.** Um alvo é predito a
+> partir do **passado** do usuário; então a representação construída para esse alvo é construída
+> **só a partir do passado**, no treino **e** na leitura. Foi exatamente o fechamento desse
+> vazamento (`src < tgt`, "forward-only") que separou a geração v17 da v18 — e no Alabama o vazamento
+> valia **28,63 pontos de macro-F1**. É por isso que todo número de categoria entregue vive na faixa
+> 30–38, e não nos 60–79 de antes.
+
+#### Os cinco termos da perda
+
+$$\mathcal{L}_{\mathrm{Check2HGI}} = 0{,}4\,\mathcal{L}_{C\!P} + 0{,}3\,\mathcal{L}_{P\!R} + 0{,}3\,\mathcal{L}_{R\Omega} + 0{,}3\,\mathcal{L}_{\mathrm{mp}} + 0{,}1\,\mathcal{L}_{\mathrm{anc}}$$
+
+| Termo | Peso | O que faz | Como o negativo é gerado |
+|---|---:|---|---|
+| $\mathcal{L}_{C\!P}$ | 0,4 | check-in ↔ lugar onde ocorreu | outro lugar |
+| $\mathcal{L}_{P\!R}$ | 0,3 | lugar ↔ região dele | outra região, **parte da amostragem mirando regiões moderadamente parecidas** (senão a tarefa fica trivial) |
+| $\mathcal{L}_{R\Omega}$ | 0,3 | região ↔ resumo da cidade | permutar as linhas de feature dos check-ins e refazer o *forward*, **preservando a topologia temporal** |
+| $\mathcal{L}_{\mathrm{mp}}$ | 0,3 | esconde 15% dos lugares e reconstrói a distribuição de categorias deles a partir dos vizinhos de Delaunay | — |
+| $\mathcal{L}_{\mathrm{anc}}$ | 0,1 | penaliza o afastamento excessivo da tabela de lugares inicializada | — |
+
+Os pesos são **fixos, de projeto, e não somam 1** — isso é intencional e está dito no texto.
+
+#### O corte de gradiente (`detach`) que quase ninguém nota
+
+Na rota espacial superior, a representação agregada do lugar é **destacada** (`detach`). Consequência:
+os objetivos lugar–região e região–cidade **não conseguem** reescrever o encoder de check-in pelo ramo
+espacial. O nível de check-in continua aprendendo pelo objetivo check-in–lugar, que é o dele.
+
+**Traduzindo a intenção:** impede que perdas geográficas de alto nível sequestrem a representação
+temporal da visita — sem, com isso, impedir a rota espacial de aprender.
+
+#### Treino e exportação
+
+```
+Adam full-batch · lr 1e-3 · 500 épocas · weight decay 0 · clip 0,9 · semente 42
+Estado salvo: a época de MENOR perda total de treino (não há validação aqui — não há rótulo)
+                              │
+                              ▼
+      Exporta DUAS tabelas de 64 dimensões, e elas ficam CONGELADAS:
+        • um vetor por CHECK-IN   → fluxo de categoria
+        • um vetor por REGIÃO     → fluxo de região
+```
+
+⚠️ **As duas tabelas são separadas e continuam separadas.** O modelo conjunto recebe duas matrizes
+$9\times64$ — **não** uma matriz $9\times128$ concatenada. Este é um dos cinco "marcos de reprodução"
+listados no Apêndice E.
+
+#### A questão transdutiva — e a resposta que já está medida
+
+O Check2HGI é treinado **uma vez, no grafo inteiro**, antes de os folds supervisionados serem
+ajustados. Então a avaliação de predição é **disjunta por usuário**, mas o aprendizado da
+representação é **transdutivo** em relação ao grafo. A banca vai perguntar isso.
+
+A resposta já está no texto, com número:
+
+> Construiu-se uma representação nova **por fold**, usando **só os usuários de treino** daquele fold.
+> Em três conjuntos, numa semente: a diferença ficou entre **−0,33 e +0,01** ponto de Acc@10 na região,
+> e entre **0,00 e +0,29** de macro-F1 na categoria.
+>
+> **Com a ressalva que o texto carrega junto:** para a categoria, um grafo só com usuários de treino
+> não tem vetor de visita para os usuários de validação. Foi preciso usar um vetor por lugar e manter
+> só as janelas cujos lugares de entrada ocorreram no treino — o que cobre **67% a 87%** dos dados de
+> validação. A verificação **não** cobre informação específica de cada visita nem lugares inéditos.
+
+---
+
+### 2.5 · Quadro comparativo da linhagem
+
+| | **DGI** | **HGI** | **Check2HGI** |
+|---|---|---|---|
+| Níveis comparados | 2 (nó × resumo do grafo) | 3 (POI, região, cidade) | **4** (check-in, lugar, região, cidade) |
+| Unidade do vetor | nó | POI / região | **visita (check-in)** e região |
+| Como gera o negativo | embaralha linhas de $X$, mantém $A$ | par de nível errado | par de nível errado + permutação de features preservando topologia |
+| Grafo principal | qualquer | Delaunay entre POIs | **sucessão de usuário (só para frente)** + Delaunay + adjacência de polígonos |
+| Objetivo extra | — | — | reconstrução de lugar mascarado (0,3) + âncora de tabela (0,1) |
+| Rótulo de tarefa usado | nenhum | nenhum | **nenhum** |
+| Onde aparece | Cap. 3 | Cap. 4 e linha de base do Cap. 5 | **Cap. 5** |
+| Mesma visita, horas diferentes | mesmo vetor | mesmo vetor | **vetores diferentes** ← a contribuição |
+
+---
+
+### 2.6 · Por que isso importa na dissertação
+
+**O resultado que este bloco sustenta** (Tab. de representação do Cap. 5) — mesma tarefa, mesmo
+modelo de tarefa única, mesma configuração de treino, mesmos folds, mesmas janelas, mesmo orçamento
+de épocas, mesmo ajuste de logits. **Só a entrada muda:**
+
+```
+Ganho em macro-F1 de próxima categoria: nível-check-in − nível-lugar (HGI)
+
+ Istanbul   ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  +6,29     35,35 vs 29,07
+ AZ         ▓▓▓▓▓▓▓▓▓▓                  +2,58     34,51 vs 31,93
+ AL         ▓▓▓▓▓▓                      +1,62     30,77 vs 29,15
+ TX         ▓▓▓▓                        +0,99     36,32 vs 35,33
+ CA         ▓▓▓                         +0,88     35,62 vs 34,74
+ FL         ▓                           +0,23     37,36 vs 37,13   (p = 0,07)
+            └────┴────┴────┴────┴────┴────┴
+            0    1    2    3    4    5    6
+```
+
+**Os cinco folds favorecem o nível-check-in em todos os seis conjuntos.** O teste pareado separa as
+duas colunas em todos, menos Flórida ($p = 0{,}07$), onde a direção é unânime mas não alcança
+significância.
+
+**A leitura que o texto faz — e que é a mais defensável:** o que a comparação estabelece é uma
+**direção consistente**, não um efeito grande. A representação de entrada é uma condição que afeta o
+desempenho, e ela age do mesmo jeito em todo lugar onde foi medida.
+
+**E o mais importante para a tese inteira:** esse intervalo de $+0{,}23$ a $+6{,}29$ é a **escala**
+contra a qual a diferença arquitetural (um modelo vs. dois) deve ser lida. A diferença arquitetural
+máxima é $0{,}19$. **A escolha da representação move a mesma métrica em até 32 vezes o que a escolha
+da arquitetura move.** É exatamente nesse sentido que "um modelo pode substituir dois" nessa tarefa.
+
+**Dois controles fecham a porta a explicações alternativas:**
+
+1. **CTLE** (Lin et al., 2021), a representação contextual anterior mais próxima — também dá um vetor
+   por visita, mas pré-treina **só** com identificadores de lugar e *timestamps*: o vocabulário de
+   categorias nunca entra no treino dela. Na Flórida, ajustada junto com o modelo de tarefa, chega a
+   $33{,}45$ na melhor época e $29{,}69$ na final — **cerca de dois pontos abaixo** do embedding de
+   lugar sob a mesma regra. Repete a ordenação em AL, AZ e Istambul com pesos congelados.
+2. **Concatenação de features** — junta o embedding de lugar às **mesmas** features cruas por visita
+   que o nosso grafo lê (one-hot de categoria + hora + dia da semana). Sobe o nível-lugar em apenas
+   $+2{,}0$ / $+1{,}7$ / $+0{,}8$ em AL/AZ/FL: **menos de um décimo** do salto lugar → check-in em cada
+   estado.
+
+> **Conclusão que os dois controles autorizam:** o ganho vem da **representação hierárquica por
+> visita**, não de contextualização em geral nem de injeção de features.
+
+---
+
+### 2.7 · Dúvidas e esclarecimentos
+
+> *Espaço reservado. Perguntas suas sobre Infomax / DGI / HGI / Check2HGI e as respostas entram aqui,
+> cada uma com data.*
+
+<!-- MODELO — copie e preencha
+#### 2.7.N · [pergunta em uma linha] · <data>
+**Pergunta.**
+
+**Resposta.**
+
+**Onde isso aparece na dissertação.**
+-->
+
+*(nenhuma entrada ainda)*
+
+---
+
+## 3 · O modelo conjunto (*joint model*)
+
+> **Referência na dissertação:** Apêndice E, §"How the joint model processes both histories",
+> §"How the joint model is optimized and evaluated" e Tab. de configurações ativas
+> (`apx_h_check2hgi_joint_model.tex`).
+
+### 3.1 · O caminho do dado, em cinco estágios
+
+```
+ 1  VALIDAR      ordenar visitas por usuário e tempo; juntar cada lugar ao polígono da região
+      │          (lugares fora de todo polígono são removidos; ids viram inteiros contíguos)
+      ▼
+ 2  GRAFO        construir os grafos temporal, de lugar e de região, ligados pela hierarquia
+      │          check-in → lugar → região → cidade
+      ▼
+ 3  CHECK2HGI    treinar; exportar DUAS tabelas de 64 dim: check-in e região
+      │          ┄┄┄ a partir daqui, CONGELADO ┄┄┄
+      ▼
+ 4  JANELAS      passo 1: visitas 1–9 → alvo 10;  2–10 → 11;  ...
+      │          exige ≥ 10 visitas por usuário; sem alvo sintético no fim
+      ▼
+ 5  MODELO       treinar UM modelo conjunto para prever próxima categoria E próxima região
+                 a partir de DUAS sequências de representação separadas
+```
+
+**A fronteira entre 3 e 4 é a coisa mais importante do bloco.** O Check2HGI é ajustado **primeiro**, e
+as tabelas exportadas ficam **fixas** durante o treino supervisionado. O modelo conjunto **não**
+reconstrói o grafo e **não** atualiza o encoder de representação. E, na direção inversa, o Check2HGI
+**nunca** vê os dois rótulos de previsão.
+
+> Isso é o que permite dizer que a comparação de representação ([§2.6](#26--por-que-isso-importa-na-dissertação))
+> isola a entrada: o encoder é o mesmo objeto congelado nos dois lados.
+
+---
+
+### 3.2 · Camada a camada, com justificativa
+
+```mermaid
+flowchart TB
+    IN1["<b>histórico de CHECK-INS</b><br/>9 × 64"]
+    IN2["<b>histórico de REGIÕES</b><br/>9 × 64"]
+
+    E1["encoder privado A<br/>64→256→256→256<br/>ReLU + LayerNorm, dropout 0,1"]
+    E2["encoder privado B<br/>64→256→256→256<br/>ReLU + LayerNorm, dropout 0,1"]
+
+    X["<b>2 blocos de CROSS-ATTENTION bidirecional</b><br/>4 cabeças · largura 256 · dropout 0,15<br/>1º: categoria consulta região<br/>2º: região consulta a categoria JÁ atualizada"]
+
+    H1["<b>cabeça CATEGORIA</b><br/>GRU unidirecional 4 camadas, oculta 256<br/>→ último passo válido → LN + dropout<br/>→ <b>7 logits</b>"]
+
+    T1["torre PRIVADA (região)<br/>lê o histórico CRU 9×64<br/>STAN espaço-temporal<br/>4 cabeças · dropout 0,3 · → 128"]
+    T2["torre de CONTEXTO (região)<br/>lê a saída da cross-attention 9×256<br/>8 cabeças · dropout 0,1 · → 128"]
+    FU["fusão aditiva<br/><b>f_R = f_priv + β · W_shr · f_shr</b><br/>β treinável, inicializado em 0,1"]
+    H2["<b>cabeça REGIÃO</b><br/>LN + dropout + linear<br/>→ <b>1 logit por região</b> (520…8.501)"]
+
+    IN1 --> E1 --> X
+    IN2 --> E2 --> X
+    X -->|"sequência de contexto de categoria"| H1
+    X -->|"sequência de contexto de região"| T2
+    IN2 -.->|"rota privada, direto do cru"| T1
+    T1 --> FU
+    T2 --> FU
+    FU --> H2
+```
+
+#### Estágio 1 — encoders privados
+
+**O que faz.** Duas pilhas independentes, mesma forma ($64 \to 256 \to 256 \to 256$), **parâmetros
+diferentes**. ReLU e LayerNorm após cada transformação; dropout 0,1 após as duas primeiras. Saem duas
+sequências $9\times256$.
+
+**Por que separados — a justificativa literal do texto:**
+
+> *"Largura de tensor igual não implica significado igual."*
+
+Um vetor de check-in descreve **uma visita na trajetória**. Um vetor de região descreve **uma área
+geográfica após agregação espacial**. Forçar os dois pelo mesmo encoder seria assumir que os mesmos
+parâmetros deveriam interpretar objetos diferentes. É a mesma razão pela qual você não usa a mesma
+régua para medir tempo e distância.
+
+#### Estágio 2 — cross-attention bidirecional
+
+**O que faz.** Dois blocos. Em cada bloco: primeiro o fluxo de **categoria consulta o de região**;
+depois o fluxo de **região consulta o de categoria já atualizado**. Cada direção tem projeções de
+atenção próprias, conexões residuais, LayerNorms e uma rede *feed-forward* $256\to256\to256$ com GELU.
+4 cabeças. Posições de *padding* são excluídas dos pesos de atenção.
+
+**Como ler "atenção" em uma frase.** Cada posição emite uma **consulta** (*query*); as posições do
+outro fluxo oferecem **chaves** (*keys*) e **valores** (*values*); a saída é a média dos valores
+ponderada pela compatibilidade consulta–chave:
+
+$$\operatorname{Attn}(Q,K,V) = \operatorname{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right)V$$
+
+Em **auto**-atenção, $Q$, $K$ e $V$ vêm da mesma sequência. Em **cross**-atenção, $Q$ vem de um fluxo
+e $K, V$ do outro. É essa a diferença, e é toda a diferença.
+
+```python
+class CrossBlock(nn.Module):
+    """Uma direção: a sequência 'q' lê a sequência 'kv'."""
+    def __init__(self, d=256, heads=4, p=0.15):
+        super().__init__()
+        self.attn = nn.MultiheadAttention(d, heads, dropout=p, batch_first=True)
+        self.n1, self.n2 = nn.LayerNorm(d), nn.LayerNorm(d)
+        self.ff = nn.Sequential(nn.Linear(d, d), nn.GELU(), nn.Linear(d, d), nn.Dropout(p))
+
+    def forward(self, q, kv, pad_mask=None):
+        a, _ = self.attn(q, kv, kv, key_padding_mask=pad_mask)  # padding fora da atenção
+        q = self.n1(q + a)                                      # residual
+        return self.n2(q + self.ff(q))                          # residual
+
+# o bloco bidirecional, na ordem do texto: categoria PRIMEIRO, região DEPOIS
+cat = cat_to_reg(cat, reg, pad)      # categoria consulta região
+reg = reg_to_cat(reg, cat, pad)      # região consulta a categoria JÁ atualizada
+```
+
+**Por que isto e não *hard parameter sharing*.** O compartilhamento rígido clássico manda tudo por um
+tronco único e só separa na saída — e é ali que a **transferência negativa** costuma nascer, porque
+o tronco tem que servir a dois senhores. Aqui:
+
+- as tarefas **mantêm** encoders e cabeças privados;
+- as ativações se encontram num **módulo de interação fixo e treinável** que recebe gradiente **das
+  duas** perdas;
+- as **projeções direcionais não são amarradas** — "categoria lê região" e "região lê categoria" têm
+  parâmetros distintos.
+
+O que o modelo permite, então, é **compartilhar informação sem forçar uma representação comum**. Essa
+é a resposta de uma frase para *"qual é a sua topologia de compartilhamento?"*.
+
+#### Estágio 3a — cabeça de categoria
+
+Uma **GRU unidirecional de 4 camadas**, entrada e oculta 256. Pega o estado da camada de topo na
+**última posição histórica válida**, aplica LayerNorm e dropout, e produz **7 logits**.
+
+**Por que recorrente e não Transformer aqui?** O alvo de categoria depende da **ordem imediata** —
+o que veio logo antes, e não uma relação de longo alcance dentro de nove passos. Uma GRU respeita a
+causalidade por construção (não precisa de máscara), e nove passos não é comprimento onde a atenção
+compensa o custo. O "último passo válido" é o que faz o *padding* não contaminar a leitura.
+
+#### Estágio 3b — cabeça de região, com **duas** torres
+
+Esta é a parte não óbvia da arquitetura, e provavelmente a que mais rende pergunta.
+
+| | **torre privada** | **torre de contexto** |
+|---|---|---|
+| Lê | o histórico de região **cru**, $9\times64$ | a saída da cross-attention, $9\times256$ |
+| Modelo | STAN, atenção espaço-temporal (Luo et al., 2021) | atenção |
+| Cabeças / dropout | 4 / 0,3 | 8 / 0,1 |
+| Saída | 128 dim | 128 dim |
+
+E a fusão:
+
+$$\mathbf{f}_{R} = \mathbf{f}_{\mathrm{priv}} + \beta\,\mathbf{W}_{\mathrm{shr}}\,\mathbf{f}_{\mathrm{shr}}$$
+
+com $\beta$ **escalar treinável, inicializado em 0,1**.
+
+```python
+class RegionFusion(nn.Module):
+    def __init__(self, d=128):
+        super().__init__()
+        self.W    = nn.Linear(d, d, bias=False)
+        self.beta = nn.Parameter(torch.tensor(0.1))   # começa PEQUENO, de propósito
+    def forward(self, f_priv, f_shr):
+        return f_priv + self.beta * self.W(f_shr)
+```
+
+**Por que duas torres — a justificativa em três movimentos:**
+
+1. **Preserva o piso.** A torre privada dá à região acesso **direto** à sequência espacial, sem
+   depender de a interação ajudar. Se a cross-attention não trouxesse nada, a região ainda teria o
+   modelo sequencial espacial que um modelo dedicado teria.
+2. **$\beta_0 = 0{,}1$ é uma aposta assimétrica.** O modelo **começa** essencialmente como a torre
+   privada e **aprende** quanto contexto de categoria admitir. Se o contexto ajudar, $\beta$ cresce;
+   se atrapalhar, encolhe. É uma defesa estrutural contra transferência negativa, embutida no
+   *design* em vez de deixada para o balanceador de perdas.
+3. **É por isso que a região pôde superar o dedicado em TX e CA** sem sacrificar as outras quatro:
+   o caminho da interação é **aditivo**, não substitutivo.
+
+#### O caminho que existe e está **desligado** — e por que dizer isso importa
+
+A cabeça de região contém um termo de **prior de transição de região** (uma tabela de quantas vezes
+uma região segue outra) que pode ser somado aos logits por um peso escalar. **Esse peso é fixo em
+zero e não é treinado**, então o prior não chega nem aos logits nem aos gradientes, mesmo que uma
+tabela por fold seja fornecida. Dois mecanismos vizinhos também estão desligados: a mesma tabela
+nunca é usada como sinal de treino suave, e a saída de categoria nunca entra como entrada da região.
+
+> **Por que declarar um mecanismo desligado?** Porque ele existe no código, e um revisor que ler o
+> repositório vai encontrá-lo. Declarar "existe e está em zero" é o que separa reprodutibilidade de
+> confusão. **A predição de região depende só das duas torres.**
+
+---
+
+### 3.3 · A função de perda e o ajuste de logits
+
+$$\mathcal{L}_{\mathrm{total}} = 0{,}50\,\mathcal{L}_{C} + 0{,}50\,\mathcal{L}_{R}$$
+
+Ambas as cabeças usam entropia cruzada média. **Os pesos são fixos.**
+
+#### Por que peso fixo, e não um balanceador adaptativo
+
+Porque o critério declarado no Cap. 2 é este, e a dissertação se cobra por ele:
+
+> *"Um método de balanceamento só é útil se superar uma ponderação fixa bem ajustada."*
+
+Na configuração reportada **não há** balanceamento dinâmico de tarefas, ponderação de classe,
+suavização de rótulo nem cirurgia de gradiente. Isso não é omissão: é a linha de base honesta contra
+a qual qualquer balanceador teria que provar valor.
+
+#### O ajuste de logits (*logit adjustment*), e por que só na categoria
+
+No treino, soma-se $\tau \log P_{\mathrm{train}}(y)$ aos logits de categoria, com $\tau = 0{,}5$. **Na
+inferência lê-se o logit não ajustado.**
+
+```python
+# tau * log P(y) somado no TREINO; na inferência, logits crus
+prior = torch.log(class_freq / class_freq.sum() + 1e-12)      # [7]
+loss_c = F.cross_entropy(logits_cat + 0.5 * prior, y_cat)     # τ = 0,5
+loss_r = F.cross_entropy(logits_reg, y_reg)                   # região: SEM ajuste
+loss   = 0.5 * loss_c + 0.5 * loss_r                          # um único backward
+```
+
+**A intuição.** Somar o log da frequência **no treino** força o modelo a "trabalhar mais" para acertar
+as classes raras, porque as frequentes já ganham um empurrão de graça. Ao remover o ajuste na
+inferência, a fronteira de decisão fica deslocada na direção do posterior **balanceado** — que é
+exatamente o que a macro-F1 premia.
+
+**E a razão de a região não levar ajuste é a mesma, com o sinal invertido:** $\tau > 0$ move a
+fronteira para o posterior balanceado **e para longe do ranking ponderado por frequência** — e é o
+ranking ponderado por frequência que a Acc@10 premia. Aplicar o ajuste na região **pioraria** a
+métrica da região.
+
+> **É esta a resposta para "por que não usar peso de classe?".** Duas partes: (i) no Cap. 5, ponderar
+> por classe piorou as **duas** métricas; (ii) o ajuste de logits obtém o efeito desejado **só onde a
+> métrica pede**, e sem tocar no treino da outra tarefa.
+
+---
+
+### 3.4 · Otimização: três grupos, um *backward*
+
+**AdamW** com *weight decay* 0,05, em **três grupos de parâmetros**:
+
+| Grupo | O que possui | Pico de LR |
+|---|---|---|
+| **categoria** | encoder de check-in + cabeça GRU | $10^{-3}$ (AL/AZ/Istambul) · $2\times10^{-3}$ (FL/TX/CA) |
+| **região** | encoder de região + as **duas** torres | $3\times10^{-3}$ |
+| **compartilhado** | blocos de cross-attention + normalizações finais de fluxo | $10^{-3}$ em todos os conjuntos |
+
+```python
+opt = torch.optim.AdamW([
+    {"params": cat_params,    "lr": 1e-3},   # ou 2e-3 em FL/TX/CA
+    {"params": reg_params,    "lr": 3e-3},
+    {"params": shared_params, "lr": 1e-3},
+], weight_decay=0.05)
+sched = torch.optim.lr_scheduler.OneCycleLR(opt, max_lr=[1e-3, 3e-3, 1e-3], ...)
+#                                                   ^ um pico POR GRUPO
+```
+
+**Por que grupos separados.** As duas tarefas têm escalas de dificuldade muito diferentes — 7 classes
+contra até 8.501. Elas não convergem no mesmo ritmo. Grupos separados permitem picos de LR diferentes
+**enquanto ainda se faz um único *backward*** pelo modelo conectado. Não são dois treinos alternados;
+é um treino só, com passos de tamanho diferente por região do grafo de computação.
+
+**O OneCycle é por grupo**, para que os três picos sejam preservados ao longo do agendamento.
+
+#### O detalhe operacional incomum — e que está declarado
+
+> Os *loaders* de categoria e de região usam o **mesmo fold disjunto por usuário**, mas **embaralham
+> independentemente** durante o treino. Logo, suas linhas de lote têm formas compatíveis, mas **não
+> precisam descrever o mesmo usuário ou a mesma janela** num mesmo passo do otimizador. A
+> cross-attention opera sobre esse pareamento aleatório. O *loader* mais curto cicla até o mais longo
+> se esgotar. **As linhas de validação são alinhadas por registro.**
+
+Isso é estranho, é incomum, e **é parte do protocolo reportado**. Se a banca perguntar: no **treino**,
+o pareamento aleatório funciona como um regularizador — a cross-attention aprende a extrair contexto
+de *distribuição*, não de um par específico. Na **validação**, o alinhamento é por registro, então a
+métrica medida é a métrica real.
+
+**Demais:** 50 épocas, lote de **8.192 por tarefa**, *clip* de norma de gradiente em 1,0, **parada
+antecipada desligada**, 5 folds disjuntos por usuário, sementes $\{0, 1, 7, 100\}$.
+
+---
+
+### 3.5 · Seleção de *checkpoint*: o que é um modelo implantável
+
+Aqui está o compromisso metodológico mais rigoroso do Cap. 5, e o que mais vale saber defender.
+
+$$S_{\mathrm{joint}} = \sqrt{\operatorname{MacroF1} \times \operatorname{Acc@10}}$$
+
+O *checkpoint* escolhido é o que **maximiza a média geométrica** das duas métricas de tarefa. As
+**duas** pontuações reportadas vêm **do mesmo** *checkpoint* selecionado por validação. É a convenção
+**joint-best**.
+
+**Por que geométrica e não aritmética?** A geométrica pune o desequilíbrio. Uma época com
+$(50, 10)$ tem média aritmética 30 — a mesma de $(30, 30)$ —, mas média geométrica $\sqrt{500} = 22{,}4$
+contra 30. A geométrica **não deixa uma tarefa ser sacrificada** para inflar a outra.
+
+**A alternativa que foi recusada, e por quê:**
+
+```
+  CONVENÇÃO ESCOLHIDA (joint-best)          A ALTERNATIVA (diag-best)
+  ────────────────────────────────          ─────────────────────────────
+  época 23  ✔ selecionada por S_joint       época 23 → melhor macro-F1  ✔
+    ├── macro-F1  37,55                     época 41 → melhor Acc@10    ✔
+    └── Acc@10    76,54                       ↑
+                                             DOIS checkpoints diferentes
+  UM artefato salvo por fold.                reportados como se um sistema
+  É o que um sistema em produção serve.      só tivesse produzido ambos.
+```
+
+A alternativa **descreve nenhum modelo salvo**. E ela é **mais favorável** ao modelo conjunto: em até
+$0{,}23$ macro-F1 e $0{,}93$ Acc@10 como a maior lacuna em qualquer semente. **Favorável o bastante
+para mudar os vereditos** — transformaria mais quatro células de categoria e mais duas de região em
+melhorias que sobreviveriam à mesma correção de Holm.
+
+> **A convenção mais estrita foi reportada exatamente por isso, e todo veredito do capítulo é o que
+> ela produz.** Essa é a frase para dizer em pé se perguntarem sobre seleção de época. Ela transforma
+> uma vulnerabilidade potencial em demonstração de rigor.
+
+---
+
+### 3.6 · Tabela de hiperparâmetros de referência
+
+| Estágio | Componente | Configuração reportada |
+|---|---|---|
+| Check2HGI | Entrada do check-in | 7 indicadores de categoria + 4 cíclicos + 4 de tempo decorrido = **15** |
+| Check2HGI | Relações do grafo | sucessão de usuário; Delaunay entre lugares; adjacência de polígonos; pertenças |
+| Check2HGI | Encoders / pooling | 2 GCN de check-in, 1 de lugar, 1 de região; largura 64; **4 cabeças** nos dois *pools* |
+| Check2HGI | Auxiliares | máscara $0{,}15$; âncora da tabela pré-treinada; pesos da Eq. de perda |
+| Check2HGI | Otimização | Adam full-batch; lr $10^{-3}$; **500 épocas**; wd 0; clip $0{,}9$; **semente 42** |
+| Conjunto | Exemplos | histórico de 9 visitas → 10ª como alvo; **passo 1**; dois tensores $9\times64$ separados |
+| Conjunto | Encoders privados | $64\to256\to256\to256$ independentes; ReLU + LN; dropout $0{,}1$ nos dois primeiros |
+| Conjunto | Interação | **2** blocos de cross-attention bidirecional; 4 cabeças; largura 256; dropout $0{,}15$ |
+| Conjunto | Cabeça de categoria | GRU de **4 camadas**; oculta 256; 7 saídas |
+| Conjunto | Cabeça de região | privada: 4 cabeças, dropout $0{,}3$ · contexto: 8 cabeças, dropout $0{,}1$ · ambas 128 · fusão aditiva $\beta_0 = 0{,}1$ |
+| Conjunto | Rotas inativas | prior de transição com peso **fixo em 0, não treinado**; sem sinal de treino da tabela; sem saída de região condicionada à categoria |
+| Conjunto | Objetivo | $0{,}50 / 0{,}50$ fixo; ajuste de logits $\tau = 0{,}5$ **só na categoria, só no treino** |
+| Conjunto | Otimização | AdamW; wd $0{,}05$; lote **8.192 por tarefa**; 50 épocas; clip $1{,}0$; **OneCycle** |
+| Conjunto | Picos de LR | geral $3\times10^{-3}$; categoria $10^{-3}$ (AL/AZ/IST) ou $2\times10^{-3}$ (FL/TX/CA); região $3\times10^{-3}$; compartilhado $10^{-3}$ |
+| Conjunto | Avaliação | 5 folds disjuntos por usuário; sementes $\{0,1,7,100\}$; macro-F1 e Acc@10 |
+
+#### Os cinco marcos de reprodução
+
+Estes cinco itens distinguem o método reportado de alternativas próximas. Valem como resposta a
+*"como eu sei que estou reproduzindo o seu modelo e não um primo dele?"*:
+
+1. o grafo de check-in contém **só** arestas de sucessão de usuário;
+2. o Check2HGI exporta tabelas **separadas** de check-in e de região, ambas de largura 64;
+3. o modelo conjunto recebe **dois** históricos $9\times64$, e **não** um tensor concatenado;
+4. a torre privada de região lê o histórico **cru**; a torre de contexto lê a saída da cross-attention;
+5. o objetivo supervisionado é a combinação fixa $0{,}50 / 0{,}50$.
+
+---
+
+### 3.7 · Dúvidas e esclarecimentos
+
+> *Espaço reservado. Perguntas suas sobre o modelo conjunto e as respostas entram aqui, cada uma com
+> data.*
+
+<!-- MODELO — copie e preencha
+#### 3.7.N · [pergunta em uma linha] · <data>
+**Pergunta.**
+
+**Resposta.**
+
+**Onde isso aparece na dissertação.**
+-->
+
+*(nenhuma entrada ainda)*
+
+---
+
+## 4 · Protocolos de comparação de embeddings
+
+> **Referência:** Cap. 5 §"The check-in-level representation improves the category task"
+> (`06_results.tex`) e a Fig. de qualidade de embedding; implementação em
+> `scripts/embedding_eval/geometry.py`; metodologia em `docs/studies/archive/embedding_eval/L0_METHODOLOGY.md`.
+
+### 4.1 · O problema: como julgar um vetor sem treinar nada
+
+Você tem duas representações concorrentes e quer saber qual é melhor. O caminho óbvio é treinar o
+modelo de tarefa nas duas e comparar. Mas isso tem dois problemas:
+
+1. **É caro.** Cada comparação custa 20 modelos ajustados.
+2. **Confunde a entrada com a cabeça.** Se o resultado A > B, foi o embedding, ou a cabeça de tarefa
+   por acaso combinou melhor com A?
+
+Os **protocolos de geometria** (o projeto os chama de **L0**) atacam os dois: operam sobre uma matriz
+congelada $[N, D]$ com rótulos inteiros, **treino zero**, então **confundimento de cabeça zero**.
+
+```
+   embeddings congelados            para cada vetor, a pergunta é sempre a mesma:
+      [N × 64]  +  rótulos          "os meus vizinhos no espaço têm o MEU rótulo?"
+           │
+           ├── kNN-LOO ─────────── localmente:  os 10 mais próximos concordam comigo?
+           ├── Silhouette ───────── globalmente: meu grupo é coeso E separado dos outros?
+           ├── Centroid-sep ─────── por centroide: meu grupo é apertado vs. quão distintos
+           │                        os centroides são entre si?
+           └── Linear CKA ───────── entre DUAS matrizes: é o mesmo espaço, a menos de
+                                    rotação e escala?
+```
+
+**Os três primeiros medem "o rótulo está na geometria?". O quarto é diferente**: não mede qualidade
+nenhuma, mede **semelhança entre duas representações**.
+
+---
+
+### 4.2 · kNN-LOO
+
+**k-nearest neighbors com leave-one-out.**
+
+#### Como funciona
+
+Para **cada** vetor: esconda-o de si mesmo, encontre seus $k = 10$ vizinhos mais próximos por
+**cosseno**, e deixe que eles votem no rótulo. A fração de acertos é a **pureza de vizinhança**.
+
+```
+     ●  ← o vetor sendo avaliado (categoria: Food)
+    seus 10 vizinhos mais próximos por cosseno (ele mesmo EXCLUÍDO):
+    Food Food Food Food Food Food Food Shopping Food Food
+    → voto: Food  →  ACERTOU
+
+    faça isso para os N vetores  →  pureza = fração de acertos
+```
+
+Reporta-se **acurácia micro** e **macro-F1** da votação.
+
+#### A implementação real, e os dois detalhes que ela conserta
+
+```python
+def knn_loo(emb, labels, k=10, chunk=2048):
+    uniq, dense = np.unique(labels, return_inverse=True)   # densifica para [0, C)
+    x = F.normalize(torch.from_numpy(emb).float(), dim=1)  # normalizar ⇒ produto interno = cosseno
+    y = torch.from_numpy(dense.astype(np.int64))
+    preds = torch.empty(len(x), dtype=torch.long)
+
+    for s in range(0, len(x), chunk):                      # em blocos: memória O(chunk·N), não O(N²)
+        e = min(s + chunk, len(x))
+        sims = x[s:e] @ x.T                                # cossenos
+        sims[torch.arange(e - s), torch.arange(s, e)] = -inf   # ← LEAVE-ONE-OUT: exclui a si mesmo
+        top = sims.topk(min(k, len(x) - 1), dim=1)
+        w = (top.values + 1.0) / 2.0                       # ← cosseno [-1,1] remapeado para [0,1]
+        votes = torch.zeros(e - s, len(uniq))
+        votes.scatter_add_(1, y[top.indices], w)           # voto PONDERADO por similaridade
+        preds[s:e] = votes.argmax(1)
+    return {"acc": accuracy_score(dense, preds), "macro_f1": f1_score(dense, preds, average="macro")}
+```
+
+| Detalhe | Por que existe |
+|---|---|
+| `sims[i, i] = -inf` | O **LOO**. Sem isso, o vizinho mais próximo de cada vetor é ele mesmo, com cosseno 1,0, e a métrica dá ~100% para qualquer coisa |
+| peso $(\cos + 1)/2$ | Desempata por **distância**, não pelo menor índice de classe. Voto de maioria puro (`torch.mode`) tem viés para a classe de id baixo. E o remapeamento mantém o peso **estritamente positivo**, então uma linha com todas as similaridades negativas ainda vota de verdade em vez de colapsar em `argmax → classe 0` |
+| densificação dos rótulos | O acumulador de votos por classe fica exato mesmo em espaços de rótulo esparsos (regiões) |
+| blocos (`chunk`) | A forma ingênua é $O(N^2)$ em memória. Com $N$ na casa dos milhões, não cabe |
+
+#### Resultado nesta dissertação
+
+**Pureza de categoria dos vizinhos mais próximos, média dos cinco estados dos EUA:**
+
+```
+ nível-check-in (Check2HGI)  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  ~0,98
+ nível-lugar   (HGI)         ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓        ~0,78
+                             └────┴────┴────┴────┴────┘
+                            0,0  0,2  0,4  0,6  0,8  1,0
+```
+
+**Leitura:** nos vetores por visita, 98 de cada 100 vizinhos mais próximos compartilham a categoria do
+vetor. No embedding de lugar, 78. A informação de categoria está **muito** mais acessível localmente.
+
+---
+
+### 4.3 · Silhouette com distância de cosseno
+
+#### Como funciona
+
+Rousseeuw (1987). Para cada ponto $i$:
+
+- $a(i)$ = distância média de $i$ aos **outros pontos do próprio grupo** ← quão **coeso**
+- $b(i)$ = distância média de $i$ ao **grupo vizinho mais próximo** ← quão **separado**
+
+$$s(i) = \frac{b(i) - a(i)}{\max\{a(i),\, b(i)\}} \in [-1, +1]$$
+
+E a *silhouette* do conjunto é a média dos $s(i)$.
+
+```
+   s(i) ≈ +1  ┃ bem dentro do próprio grupo, longe dos outros
+   s(i) ≈  0  ┃ na fronteira — poderia pertencer a qualquer um dos dois
+   s(i) ≈ −1  ┃ está mais perto do grupo VIZINHO que do próprio: provável erro
+```
+
+#### Por que **cosseno** e não euclidiana
+
+Porque em embeddings o que carrega significado é a **direção**, não a magnitude. Dois vetores podem
+ter normas muito diferentes por razões de frequência (um lugar visitado 10.000 vezes vs. 3 vezes) e
+ainda assim apontar para o mesmo "conceito". A distância de cosseno é
+$1 - \frac{\mathbf{u}\cdot\mathbf{v}}{\|\mathbf{u}\|\|\mathbf{v}\|}$: ela ignora a norma por
+construção.
+
+```python
+def silhouette(emb, labels, sample=10000, seed=0):
+    if len(np.unique(labels)) < 2: return float("nan")
+    if len(emb) > sample:                                   # é O(N²) — subamostrar é obrigatório
+        sel = np.random.default_rng(seed).choice(len(emb), sample, replace=False)
+        emb, labels = emb[sel], labels[sel]
+    uniq, cnt = np.unique(labels, return_counts=True)
+    keep = np.isin(labels, uniq[cnt >= 2])                  # a(i) não existe para grupo de 1 ponto
+    return float(silhouette_score(emb[keep], labels[keep], metric="cosine"))
+```
+
+Note as duas defesas: **subamostragem** (o cálculo completo é quadrático) e **descarte de singletons**
+(um grupo com um ponto só não tem $a(i)$ definido).
+
+#### Resultado nesta dissertação
+
+**Silhouette por categoria, média dos cinco estados dos EUA:**
+
+```
+                     −1,0        0,0        +1,0
+                       │          │           │
+ nível-check-in        │          │  ▓▓▓▓▓▓▓▓ │   ~0,57  ← grupos reais
+ nível-lugar (HGI)     │          ▏           │   ~0,00  ← estrutura nenhuma por categoria
+```
+
+**Este é o número mais eloquente do bloco 4.** Uma *silhouette* de $\approx 0{,}00$ significa que,
+pela categoria, o embedding de lugar **não tem estrutura de agrupamento nenhuma** — a distância média
+ao próprio grupo é igual à distância ao grupo vizinho. Já $0{,}57$ é agrupamento substancial.
+
+---
+
+### 4.4 · *Centroid separability ratio*
+
+#### Como funciona
+
+Uma terceira leitura da mesma pergunta, mais barata que a *silhouette* e mais global que o kNN. Três
+quantidades:
+
+$$\text{coesão} = \frac{1}{N}\sum_i \cos(\mathbf{x}_i,\ \boldsymbol{\mu}_{y_i}) \qquad \text{(alto = grupos apertados)}$$
+
+$$\text{inter\_sim} = \operatorname{média}_{c \ne c'} \cos(\boldsymbol{\mu}_c,\ \boldsymbol{\mu}_{c'}) \qquad \text{(baixo = centroides distintos)}$$
+
+$$\text{sep\_ratio} = \frac{\text{coesão}}{\max(\text{inter\_sim},\ \varepsilon)} \qquad \text{(alto = melhor)}$$
+
+```python
+def centroid_separability(emb, labels):
+    x = emb / (np.linalg.norm(emb, axis=1, keepdims=True) + 1e-8)     # normaliza
+    classes = np.unique(labels)
+    cents = np.stack([x[labels == c].mean(0) for c in classes])       # centroide por classe
+    cents_n = cents / (np.linalg.norm(cents, axis=1, keepdims=True) + 1e-8)
+
+    own = cents_n[[{int(c): i for i, c in enumerate(classes)}[int(l)] for l in labels]]
+    cohesion = float((x * own).sum(1).mean())                         # cos com o PRÓPRIO centroide
+
+    g = cents_n @ cents_n.T                                           # centroide × centroide
+    inter = float(g[np.triu_indices(len(classes), k=1)].mean())       # só o triângulo superior
+    return {"cohesion": cohesion, "centroid_inter_sim": inter,
+            "sep_ratio": cohesion / max(inter, 1e-6)}
+```
+
+```
+   Boa geometria                         Geometria ruim
+   ┌──────────────────────┐              ┌──────────────────────┐
+   │   ●●●        ▲▲▲     │              │  ●▲■ ●▲ ■●▲          │
+   │   ●μ●        ▲μ▲     │              │  ▲ ■●μ▲■ ●■          │
+   │   ●●●        ▲▲▲     │              │   ■●▲ ●■▲ ●          │
+   │        ■■■           │              │  (centroides quase   │
+   │        ■μ■           │              │   no mesmo ponto)    │
+   └──────────────────────┘              └──────────────────────┘
+   coesão ALTA, inter_sim BAIXA          coesão baixa, inter_sim ALTA
+   sep_ratio alto  ✔                     sep_ratio ~1  ✘
+```
+
+**Por que ter as três métricas se elas medem coisas parecidas?** Porque elas falham em situações
+diferentes. O kNN é **local** (pode ir bem com grupos entrelaçados em escala global). A *silhouette* é
+**global mas cara**. O *centroid-sep* é **global e barato**, mas assume que um centroide representa
+bem o grupo — o que falha em grupo multimodal. As três concordando é uma evidência mais forte que
+qualquer uma sozinha.
+
+---
+
+### 4.5 · Linear CKA
+
+#### O que é — e o que **não** é
+
+**Centered Kernel Alignment** (Kornblith et al., ICML 2019). Diferente das três anteriores: **não usa
+rótulo nenhum** e **não mede qualidade**. Ela compara **duas** representações das **mesmas linhas, na
+mesma ordem**, e pergunta:
+
+> *"Estes dois espaços são o mesmo, a menos de rotação e reescala?"*
+
+$$\operatorname{CKA}_{\mathrm{linear}}(X, Y) = \frac{\|Y_c^\top X_c\|_F^2}{\|X_c^\top X_c\|_F\ \|Y_c^\top Y_c\|_F}$$
+
+onde $X_c$ e $Y_c$ são as matrizes **centradas na média das colunas**. Sai um número em $[0, 1]$;
+**1,0 = uma é reparametrização linear da outra**.
+
+```python
+def linear_cka(x, y):
+    xc = x - x.mean(0, keepdims=True)                    # o "centered" do nome
+    yc = y - y.mean(0, keepdims=True)
+    hsic = np.linalg.norm(yc.T @ xc, "fro") ** 2         # alinhamento cruzado
+    return float(hsic / (np.linalg.norm(xc.T @ xc, "fro")
+                       * np.linalg.norm(yc.T @ yc, "fro") + 1e-12))   # normalização
+```
+
+#### A motivação original — vale saber
+
+Kornblith et al. mostraram que **CCA**, e qualquer estatística invariante a transformação linear
+invertível, **não consegue** medir similaridade significativa quando a dimensão da representação
+excede o número de pontos de dados. O CKA contorna isso comparando **matrizes de similaridade
+representacional** em vez das features diretamente. Ele é invariante a transformações **ortogonais**
+(rotação) e a **reescala isotrópica** — mas **não** a qualquer transformação linear invertível, e é
+justamente essa não-invariância que o torna útil. O teste que o valida: entre camadas de redes
+arquiteturalmente idênticas treinadas de sementes diferentes, o CKA linear identifica com
+confiabilidade as camadas correspondentes — coisa que várias medidas concorrentes não fazem.
+
+#### Como usar aqui — e a ressalva
+
+**Uso correto:** *"o meu novo motor produziu um espaço genuinamente diferente do de referência, ou só
+uma rotação dele?"* Se dois motores diferem em tudo no papel mas dão CKA $\approx 1$, eles são o
+mesmo modelo com outra roupa.
+
+⚠️ **Uso incorreto — e o projeto registra isso explicitamente:** CKA é **diagnóstico, nunca sinal de
+qualidade ou de ranqueamento**. E ela **lê baixo entre representações de escala e dimensão
+diferentes por construção**, porque a implementação só centra a média (não padroniza). Um CKA baixo
+entre um motor de 64 dim e outro de 256 dim não diz nada sobre qual é melhor.
+
+---
+
+### 4.6 · A ressalva mais importante deste bloco
+
+Esta é a parte que separa quem usou as métricas de quem entendeu para que servem — e é **material de
+arguição de primeira**.
+
+> **Todas as métricas L0, exceto o CKA, medem separabilidade estática do PRÓPRIO RÓTULO.**
+> Isso é exatamente a quantidade certa para uma tarefa de **atributo estático**, e estruturalmente
+> errada para uma tarefa de **transição**.
+
+| Tarefa | Natureza | L0 vale como ranqueador? |
+|---|---|---|
+| **próxima categoria** | atributo **estático** — a categoria é uma propriedade que vive na geometria do vetor | **SIM.** É quase suficiente: o mapa L0 → desempenho real é curto e monotônico |
+| **próxima região** | **transição** — "para onde as pessoas vão em seguida" é propriedade da **dinâmica**, não de nenhum vetor de região isolado | **NÃO.** Nenhuma geometria estática ranqueia motores nesse eixo |
+
+**A prova empírica que fecha o assunto**, e que está registrada no projeto: a correlação entre o
+cosseno de dois vetores de região e a frequência de transição real entre elas é
+$\operatorname{corr}(\cos(r_i, r_j),\ T_{ij}) \approx 0{,}05$ — **para todo motor testado**. O sinal
+de transição **genuinamente não está** pré-codificado nos cossenos estáticos das regiões. Ele vive no
+operador de transição.
+
+Oito métricas L0 "cientes de transição" foram testadas contra o resultado real. **Nenhuma** é
+concordante ao mesmo tempo entre-motores e dentro-da-família.
+
+**Consequências práticas, e são três:**
+
+1. Comparação L0 **entre motores é válida para próxima categoria, e não é para próxima região**.
+2. Para região, o ranqueamento **começa** no treino de verdade, com validação cruzada multi-semente.
+   Métricas de região viram **diagnósticos de eixo** — servem para **explicar** um resultado, nunca
+   para **coroar** um.
+3. E por isso é **exatamente correto** o que o Cap. 5 escreve: a geometria explica por que a
+   representação ajuda **essa** tarefa em particular — *"a mesma geometria não separa regiões, então o
+   benefício é só de categoria"*. O fluxo espacial do modelo conjunto lê, em vez disso, os vetores de
+   **nível-região** do mesmo grafo.
+
+> **Se a banca perguntar "por que você não usou essas métricas para escolher a representação de
+> região?"** — a resposta está pronta, é medida, e é forte: *porque a correlação entre a geometria
+> estática de região e o operador de transição é 0,05. Nenhuma métrica estática pode ranquear uma
+> tarefa de transição, e eu testei oito delas.*
+
+---
+
+### 4.7 · Dúvidas e esclarecimentos
+
+> *Espaço reservado. Perguntas suas sobre os protocolos de embedding e as respostas entram aqui, cada
+> uma com data.*
+
+<!-- MODELO — copie e preencha
+#### 4.7.N · [pergunta em uma linha] · <data>
+**Pergunta.**
+
+**Resposta.**
+
+**Onde isso aparece na dissertação.**
+-->
+
+*(nenhuma entrada ainda)*
+
+---
+
+## 5 · Cola de bolso geral
+
+### As sete frases que amarram a dissertação inteira
+
+1. **A ideia Infomax:** *o modelo aprende vetores úteis sendo obrigado a distinguir um pareamento
+   verdadeiro de um corrompido, e não precisa de rótulo nenhum, porque os próprios dados dizem qual é
+   o verdadeiro.*
+2. **A limitação que o Check2HGI ataca:** *uma manhã de terça e uma noite de sábado no mesmo lugar têm
+   entradas idênticas numa representação de nível-lugar.*
+3. **O que a geometria explica:** *silhouette 0,57 contra 0,00 e pureza 0,98 contra 0,78 — a categoria
+   está na geometria dos vetores por visita, e não está na dos vetores por lugar.*
+4. **A escala do argumento:** *a representação move a macro-F1 em +0,23 a +6,29; a arquitetura move no
+   máximo 0,19. A escolha de um modelo ou dois é o menor dos três efeitos em jogo.*
+5. **A topologia:** *as tarefas mantêm encoders e cabeças privados; elas se encontram num módulo de
+   interação treinável que recebe gradiente das duas perdas. Não é compartilhamento rígido.*
+6. **A convenção de leitura:** *um artefato salvo por fold, lido na época escolhida pela média
+   geométrica das duas métricas. A alternativa reporta dois checkpoints como se um sistema só
+   produzisse ambos — e ela seria mais favorável a mim.*
+7. **A lei dos verbos:** *"supera" só com teste pareado de superioridade; "não-inferior" só com TOST
+   dentro da margem registrada; tudo o mais é "não resolvido".*
+
+### A escada de verbos
+
+```
+  SUPERA          ─── teste t pareado + sobrevive a Holm
+                      cat: FL (+0,19)  ·  reg: TX (+1,21), CA (+1,06)
+
+  NÃO-INFERIOR    ─── TOST dentro de δ = 2 pp, margem PRÉ-REGISTRADA (só região)
+                      reg: AL, AZ, IST, FL
+
+  NÃO RESOLVIDO   ─── falha a superioridade e não há margem registrada
+                      cat: AL, AZ, IST, CA, TX  (limite de meio ponto lido dos ICs)
+
+  ❌ PROIBIDO      ─── "empata", "iguala", "em todos os conjuntos" na categoria
+```
+
+### Números que não podem sair errado
+
+| Fato | Valor |
+|---|---|
+| Categoria, onde supera | **Flórida apenas**, $+0{,}19$, Holm $p = 0{,}011$ |
+| Região, onde supera | **Texas** $+1{,}21$ ($p = 0{,}00013$) e **Califórnia** $+1{,}06$ ($p < 10^{-4}$) |
+| Região, não-inferior | os **quatro** restantes, TOST a $\delta = 2$ pp |
+| Faixa de macro-F1 entregue | **30 a 38** — qualquer número fora disso é de geração anterior, com vazamento |
+| Ganho da representação | $+0{,}23$ (FL) a $+6{,}29$ (Istambul) |
+| Piso de classe majoritária | $5{,}7$ a $7{,}3$ macro-F1 |
+| Desenho experimental | 4 sementes $\{0,1,7,100\}$ × 5 folds = **20** modelos por configuração |
+| $\pm$ impresso | desvio-padrão **entre as 4 médias-por-semente**, não entre folds |
+
+---
+
+## 6 · Registro de tópicos
+
+O índice vivo. Tópicos vindos de `Questions_author.md` §"Estudos específicos" e do que surgir depois.
+
+| # | Tópico | Origem | Status | Onde |
+|---|---|---|---|---|
+| 1.1 | TOST | Estudos específicos §1 | ✅ escrito | [§1.6](#16--tost-a-pergunta-é-igual-ou-não-é-pior) |
+| 1.2 | Wilcoxon | Estudos específicos §1 | ✅ escrito | [§1.5](#15--wilcoxon-dos-postos-com-sinal) |
+| 1.3 | Holm | Estudos específicos §1 | ✅ escrito | [§1.7](#17--holm-o-preço-de-perguntar-seis-vezes) |
+| 1.4 | macro-F1 | Estudos específicos §1 | ✅ escrito | [§1.1](#11--macro-f1) |
+| 1.5 | Acc@10 | acréscimo (par de 1.4) | ✅ escrito | [§1.2](#12--acc10-o-par-da-outra-tarefa) |
+| 1.6 | Teste t pareado e IC 90% | acréscimo (base dos demais) | ✅ escrito | [§1.4](#14--o-teste-t-pareado-a-pergunta-melhorou) |
+| 2.1 | Infomax | Estudos específicos §2 | ✅ escrito | [§2.1](#21--a-ideia-infomax) |
+| 2.2 | DGI | Estudos específicos §2 | ✅ escrito | [§2.2](#22--dgi-infomax-em-grafo) |
+| 2.3 | HGI | Estudos específicos §2 | ✅ escrito | [§2.3](#23--hgi-a-hierarquia-lugarregiãocidade) |
+| 2.4 | Check2HGI | Estudos específicos §2 | ✅ escrito | [§2.4](#24--check2hgi-o-quarto-nível) |
+| 3.1 | Camadas, otimizadores, hiperparâmetros | Estudos específicos §3.1 | ✅ escrito | [§3.2](#32--camada-a-camada-com-justificativa), [§3.4](#34--otimização-três-grupos-um-backward), [§3.6](#36--tabela-de-hiperparâmetros-de-referência) |
+| 3.2 | Justificativa de cada componente | Estudos específicos §3.2 | ✅ escrito | [§3.2](#32--camada-a-camada-com-justificativa), [§3.3](#33--a-função-de-perda-e-o-ajuste-de-logits), [§3.5](#35--seleção-de-checkpoint-o-que-é-um-modelo-implantável) |
+| 4.1 | kNN-LOO | Estudos específicos §4 | ✅ escrito | [§4.2](#42--knn-loo) |
+| 4.2 | Silhouette (cosseno) | Estudos específicos §4 | ✅ escrito | [§4.3](#43--silhouette-com-distância-de-cosseno) |
+| 4.3 | Centroid separability ratio | Estudos específicos §4 | ✅ escrito | [§4.4](#44--centroid-separability-ratio) |
+| 4.4 | Linear CKA | Estudos específicos §4 | ✅ escrito | [§4.5](#45--linear-cka) |
+| 4.5 | Validade por tarefa dos protocolos L0 | acréscimo (ressalva crítica) | ✅ escrito | [§4.6](#46--a-ressalva-mais-importante-deste-bloco) |
+
+### Candidatos a próximas seções
+
+Tópicos que aparecem em `Questions_author.md` **fora** de "Estudos específicos", ou que se conectam
+diretamente ao que já está aqui. **Nenhum foi escrito** — entram quando você pedir.
+
+| Candidato | De onde vem | Por que faria sentido aqui |
+|---|---|---|
+| **δ-crítico** | Pontos para validar §3 | É leitura direta do IC ($\delta_{NI} = -\text{limite inferior}$) — extensão natural de [§1.6](#16--tost-a-pergunta-é-igual-ou-não-é-pior) |
+| **Uma partição vs. k-fold repetido** | Pontos para validar §4 | Extensão de [§1.3](#13--a-unidade-de-análise-o-que-é-um-número-pareado-aqui); envolve Dietterich 1998, Nadeau & Bengio 2003, Bayle et al. 2020 |
+| **Transferência negativa e conflito de gradientes** | Perguntas básicas §3 | Fecha o "porquê" de [§3.2](#32--camada-a-camada-com-justificativa) (torre privada, $\beta_0 = 0{,}1$) |
+| **Topologias de compartilhamento** | Perguntas básicas §2 | *hard sharing*, *soft sharing*, específico por tarefa, cross-attention — em um lugar só |
+| **Conceitos básicos de grafos** | Perguntas básicas §6 | Nó, aresta, grafo heterogêneo, convolução, agregação de vizinhança, transdutivo — base do bloco 2 |
+| **Dois pares de tarefas em três estudos** | Pontos de estudo §1 | A pergunta de escopo mais provável da banca. Não é conceito, é argumento |
+| **Vazamento e integridade v17 → v18** | contexto do projeto | Por que macro-F1 vive em 30–38; a aresta *forward-only* |
+
+---
+
+## 7 · Como pedir uma seção nova (ou uma resposta)
+
+Este documento foi feito para crescer sem ser reescrito. Três formas de expandir:
+
+**(a) Uma dúvida sobre algo que já está aqui.**
+> *"No §2.4, não entendi por que o `detach` importa."*
+
+A resposta entra em **§2.7**, numerada e datada, e o corpo da seção **não muda**. Assim você pode
+reler o texto original e a resposta lado a lado.
+
+**(b) Um tópico novo.**
+> *"Quero uma seção sobre conflito de gradientes."*
+
+Vira uma seção nova (bloco 5, 6, ...), com a mesma estrutura — *o que é / como funciona / por que
+importa aqui / dúvidas* — e entra no [Registro](#6--registro-de-tópicos).
+
+**(c) Mais profundidade num ponto existente.**
+> *"O §1.6 sobre TOST está raso, quero potência estatística e escolha de margem."*
+
+A seção cresce internamente, com uma subseção nova. O que já estava escrito continua onde estava.
+
+**Convenções deste arquivo, para manter a consistência:**
+
+- Toda afirmação numérica vem da dissertação entregue (v18, convenção *joint-best*) ou de fonte
+  externa citada em [§8](#8--fontes). Números de macro-F1 de categoria vivem em **30–38**.
+- Diagramas em **Mermaid**, gráficos quantitativos em **barras Unicode** (renderizam em qualquer
+  lugar, inclusive no app do GitHub no celular).
+- Código é **ilustrativo e mínimo** — mostra a *ideia*, não é o código de produção. Onde é
+  transcrição fiel, o caminho do arquivo está dito.
+- ⚠️ marca uma armadilha; ❌ marca algo proibido de dizer.
+
+---
+
+## 8 · Fontes
+
+### Da dissertação (fontes primárias deste documento)
+
+| Assunto | Arquivo |
+|---|---|
+| Métricas e decisões estatísticas | `src/chapters/2_fundamentals.tex` §"Metrics and reference points", §"Comparison and statistical decisions" |
+| Protocolo estatístico completo | `src/chapters/5_mobiwac/05_setup.tex` §"Metrics and statistical tests" |
+| Linhagem Infomax → DGI → HGI → Check2HGI | `src/chapters/2_fundamentals.tex` §"Representations for mobility" |
+| Check2HGI e modelo conjunto, em detalhe | `src/chapters/apx_h_check2hgi_joint_model.tex` (Apêndice E do volume principal) |
+| Resultados e vereditos | `src/chapters/5_mobiwac/06_results.tex`; tabelas em `src/tables/mobiwac/` |
+| Geometria de embeddings, implementação | `scripts/embedding_eval/geometry.py` (raiz do repositório) |
+| Validade por tarefa dos protocolos L0 | `docs/studies/archive/embedding_eval/L0_METHODOLOGY.md` |
+| Enquadramento didático (fala da defesa) | `presentation/SLIDES.md` §Seção 2 (slides S8, S11, S15) |
+
+### Externas
+
+- **Infomax:** Linsker, R. (1988). *Self-organization in a perceptual network.* IEEE Computer, 21(3), 105–117.
+- **MINE:** Belghazi, M. I. et al. (2018). *Mutual Information Neural Estimation.* ICML.
+- **Deep InfoMax:** Hjelm, R. D. et al. (2019). *Learning deep representations by mutual information estimation and maximization.* ICLR. — [arXiv:1808.06670](https://arxiv.org/abs/1808.06670)
+- **DGI:** Veličković, P. et al. (2019). *Deep Graph Infomax.* ICLR. — [arXiv:1809.10341](https://arxiv.org/abs/1809.10341) · [PDF ICLR](https://openreview.net/pdf/67df6b5ffbf0ef252ee5f21442c63f5a1bab1023.pdf)
+- **HGI:** Huang, W., Zhang, D., Mai, G., Guo, X. & Cui, L. (2023). *Learning urban region representations with POIs and hierarchical graph infomax.* ISPRS J. Photogramm. Remote Sens., 196, 134–145. — [ScienceDirect](https://www.sciencedirect.com/science/article/abs/pii/S0924271622003148) · [código](https://github.com/RightBank/HGI)
+- **CTLE:** Lin, Y. et al. (2021). *Pre-training context and time aware location embeddings from spatial-temporal trajectories for user next location prediction.* AAAI.
+- **STAN:** Luo, Y., Liu, Q. & Liu, Z. (2021). *STAN: Spatio-Temporal Attention Network for next location recommendation.* WWW.
+- **TOST:** Lakens, D. (2017). *Equivalence tests: A practical primer for t tests, correlations, and meta-analyses.* Social Psychological and Personality Science, 8(4), 355–362. — [DOI / SAGE](https://journals.sagepub.com/doi/10.1177/1948550617697177) · tutorial: [Lakens, Scheel & Isager (2018)](https://journals.sagepub.com/doi/10.1177/2515245918770963) · pacote [TOSTER](https://packages.oit.ncsu.edu/cran/web/packages/TOSTER/readme/README.html)
+- **Holm:** Holm, S. (1979). *A simple sequentially rejective multiple test procedure.* Scandinavian Journal of Statistics, 6(2), 65–70.
+- **Wilcoxon:** Wilcoxon, F. (1945). *Individual comparisons by ranking methods.* Biometrics Bulletin, 1(6), 80–83.
+- **Silhouette:** Rousseeuw, P. J. (1987). *Silhouettes: a graphical aid to the interpretation and validation of cluster analysis.* J. Comput. Appl. Math., 20, 53–65.
+- **CKA:** Kornblith, S., Norouzi, M., Lee, H. & Hinton, G. (2019). *Similarity of Neural Network Representations Revisited.* ICML. — [site do projeto](https://cka-similarity.github.io/) · [Semantic Scholar](https://www.semanticscholar.org/paper/726320cdbd04804ffa8f3a78c095bd1b55a2a695) · ressalvas de confiabilidade: [ICLR 2023](https://openreview.net/pdf?id=8HRvyxc606)
+- **Métricas de avaliação:** Sokolova, M. & Lapalme, G. (2009). *A systematic analysis of performance measures for classification tasks.* Information Processing & Management, 45(4), 427–437.
+
+---
+
+<sub>Documento de estudo · dissertação UFV/PPGCC · defesa 2026-08-28 · não é texto entregue.
+Criado em 2026-08-24. Expandir pelas seções "Dúvidas e esclarecimentos" e pelo
+[Registro de tópicos](#6--registro-de-tópicos).</sub>
+</script>
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/common.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.esm.min.mjs';
+
+  const src = document.getElementById('md').textContent;
+
+  // 1. Proteger a matematica do parser de Markdown (o '_' viraria italico).
+  const math = [];
+  const guarded = src
+    .replace(/\$\$([\s\S]+?)\$\$/g, (_, t) => `@@M${math.push(['block', t]) - 1}@@`)
+    .replace(/(?<![\\$])\$([^$\n]+?)\$(?!\$)/g, (_, t) => `@@M${math.push(['inline', t]) - 1}@@`);
+
+  // 2. Markdown -> HTML, com ancoras no estilo do GitHub para os links internos.
+  const slug = s => s.toLowerCase().trim()
+    .replace(/[\u0300-\u036f]/g, '')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+  const renderer = new marked.Renderer();
+  renderer.heading = (text, lvl) => {
+    const id = slug(text.replace(/<[^>]+>/g, ''));
+    return `<h${lvl} id="${id}">${text}</h${lvl}>`;
+  };
+  marked.setOptions({ renderer, gfm: true, breaks: false });
+  const doc = document.getElementById('doc');
+  doc.innerHTML = marked.parse(guarded);
+
+  // 3. Devolver a matematica, ja renderizada.
+  doc.innerHTML = doc.innerHTML.replace(/@@M(\d+)@@/g, (_, i) => {
+    const [kind, tex] = math[+i];
+    try {
+      return katex.renderToString(tex, { displayMode: kind === 'block', throwOnError: false });
+    } catch (e) { return tex; }
+  });
+
+  // 4. Mermaid.
+  doc.querySelectorAll('pre > code.language-mermaid').forEach(c => {
+    const d = document.createElement('div');
+    d.className = 'mermaid';
+    d.textContent = c.textContent;
+    c.parentElement.replaceWith(d);
+  });
+  const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+  mermaid.initialize({ startOnLoad: false, theme: dark ? 'dark' : 'default', securityLevel: 'loose' });
+  await mermaid.run({ querySelector: '.mermaid' });
+
+  // 5. Destaque de sintaxe.
+  doc.querySelectorAll('pre code').forEach(b => {
+    if (!b.className.includes('language-mermaid')) hljs.highlightElement(b);
+  });
+
+  // 6. Botao de voltar ao topo.
+  const btn = document.getElementById('top');
+  btn.onclick = () => scrollTo({ top: 0, behavior: 'smooth' });
+  addEventListener('scroll', () => btn.classList.toggle('on', scrollY > 700));
+
+  if (location.hash) document.getElementById(location.hash.slice(1))?.scrollIntoView();
+</script>
+</body>
+</html>
