@@ -165,13 +165,23 @@ na tela, nos dois slides.
 
 > `\section[Fundamentos]{Fundamentos compartilhados}`
 > **Propósito:** o motor de de-duplicação. Depois desta seção, cada estudo só diz o que mudou.
-> **Orçamento:** 35 + 30 + 75 + 40 + 55 + 35 + 50 = **320 s** (era 360 s em nove slides).
-> ⚠ **Ordem revista em 2026-08-25 (decisão do autor). Nove slides viraram sete.** A seção passou a
-> ter a forma do Cap. 2 entregue: **trabalho relacionado primeiro** (§2.1.2–2.1.3), **depois a
-> representação** (§2.2.1 escada → §2.2.2 infomax → §2.2.4 Tab. 1), **depois o vocabulário de MTL**
-> (§2.3), **e dados, métrica e protocolo fechando** (§2.4). Antes o deck abria pela linhagem — que no
-> texto é a *conclusão* do bloco de representações — e fechava pelo trabalho relacionado, que é a
-> *premissa*. As duas pontas estavam invertidas.
+> **Orçamento:** 35 + 30 + 40 + 75 + 55 + 35 + 50 = **320 s** (era 360 s em nove slides).
+> ⚠ **Ordem revista em 2026-08-25 (decisão do autor). Nove slides viraram sete.** Antes o deck abria
+> pela linhagem — que no texto é a *conclusão* do bloco de representações — e fechava pelo trabalho
+> relacionado, que é a *premissa*. As duas pontas estavam invertidas, e a plateia encontrava DGI, HGI
+> e Check2HGI antes do panorama que os contextualiza.
+>
+> **A ordem agora agrupa por assunto, e não há ida-e-volta:**
+> **(1) MTL inteiro** — panorama (§2.1.2) → o eixo que separa este trabalho (§2.1.3) → vocabulário,
+> compartilhamento rígido e transferência negativa (§2.3);
+> **(2) representação inteira** — escada (§2.2.1) → infomax (§2.2.2) → Tab. 1 e o diagrama de níveis
+> (§2.2.4, que o capítulo põe por último);
+> **(3) o aparato** — dados, métrica e protocolo fechando (§2.4).
+>
+> ⚠ **A segunda passada (troca do 3º com o 4º) corrigiu um defeito da primeira.** Espelhar o Cap. 2
+> literalmente punha §2.2 antes de §2.3 — mas os dois slides de trabalho relacionado que agora abrem
+> **já são de MTL**, então a seção saía de MTL, entrava em representação e voltava a MTL. O capítulo
+> pode se dar ao luxo dessa ordem porque o leitor volta atrás; a plateia não.
 >
 > **Os números dos blocos (`S8`…`S14`) são identidades históricas, não posições.** Eles NÃO foram
 > renumerados de propósito: doze referências cruzadas neste arquivo apontam para eles pelo número, e
@@ -205,8 +215,19 @@ na tela, nos dois slides.
 - **Proveniência:** eixo meio × fim → `chapters/2_fundamentals.tex:346-353`. Frase de lacuna, escopada, copiada de `chapters/2_fundamentals.tex:1418-1420` e `chapters/1_introduction.tex:429-431`. Mapa dos métodos externos do Cap. 5 → `chapters/5_mobiwac/05_setup.tex:178-182`. HMRM e MHA+PE → `chapters/3_cbic/results.tex:120,122`. Cap. 4 com o MTLnet como única linha de base → prefácio, `chapters/4_courb.tex`.
 - **Nunca dizer:** afirmação de ineditismo mais forte do que a do texto. A redação entregue é escopada a "entre os trabalhos revisados nesta dissertação", e a fala mantém o escopo. Nenhum resultado, nenhum número.
 
+### S9 · How two tasks share a model, and how that fails
+- **Seção/subseção:** 2.2   **Tempo:** 40 s
+- **LEDGER:** INTRODUZ compartilhamento rígido (Def. 2.10) · INTRODUZ transferência negativa (Def. 2.12) · INTRODUZ o critério declarado para um balanceador · RETOMA a promessa operacional de 1.2
+- **Na tela:**
+  - **Hard parameter sharing** (Def. 2.10): every task passes through one shared trunk before branching, and separates only at its own output.
+  - **Negative transfer** (Def. 2.12): joint training leaves a task worse than its dedicated single-task model.
+  - The criterion this dissertation states: *a balancing method is useful only if it improves on a tuned fixed weighting.*
+- **Fala (PT):** "Duas definições e um critério. Compartilhamento rígido é a topologia em que todas as tarefas atravessam um mesmo tronco e só se separam na saída de cada uma. Transferência negativa é o desfecho que se teme: o treino conjunto deixa uma tarefa pior do que o modelo dedicado dela deixaria. O critério está declarado no Capítulo 2, e eu vou cobrá-lo mais adiante: um método de balanceamento só é útil se superar uma ponderação fixa bem ajustada. Guardem essa frase. É ela que decide o que eu posso e o que eu não posso afirmar sobre o balanceador na Seção 3."
+- **Proveniência:** Def. 2.10 → `chapters/2_fundamentals.tex:936-941`; Def. 2.12 → `:960-963`; o critério, citado literalmente → `:1391-1393` ("For this dissertation, a balancing method is useful only if it improves on a tuned fixed weighting").
+- **Nunca dizer:** nenhuma afirmação de otimalidade de Pareto sobre os nossos modelos: o Cap. 2 recusa a afirmação explicitamente. Nenhum resultado, nenhum número.
+
 ### S8 · The line this work stands on, and the one idea on it
-- **Seção/subseção:** 2.3 (era 2.1; absorveu 2.7)   **Tempo:** 75 s
+- **Seção/subseção:** 2.4 (era 2.1; absorveu 2.7)   **Tempo:** 75 s
 - **LEDGER:** INTRODUZ a linhagem de representações · INTRODUZ a ideia infomax · INTRODUZ a linhagem de modelos (**Tab. 1**) e o diagrama de níveis · *(o nome `Check2HGI` aparece na Tab. 1 como linha do mapa; o artefato é INTRODUZ em 5.2, e `MTLnet` em 3.2)*
 - **Na tela:** *(v2 · reescrito 2026-08-24 por decisão do autor sobre o slide 7.)*
   - Tira de uma linha, **a escada até aqui**: `one-hot identifier` → `skip-gram · DeepWalk · node2vec` → `GCN · GAT · GraphSAGE`, com uma glosa só embaixo: *from position, to a geometry that reflects relationships in the data, to those relationships learned by neighborhood aggregation.*
@@ -225,20 +246,10 @@ na tela, nos dois slides.
   **O que ficou da escada:** os três degraus pré-infomax, numa tira de uma linha, com a glosa montada só de fragmentos que já estavam em tela (*"marks a place or a category by position"*, *"geometry reflects relationships in the data"*, *"learn those relationships through neighborhood aggregation"*) — o `GLOSSARY` é fail-closed e nada novo entrou.
   **O que saiu da tela, e onde ficou:** os marcadores `DGI` e `HGI` da escada → **a Tab. 1 já os diz**, na mesma profundidade (*"o que cada um acrescentou"*); o rodapé *"Check2HGI adds a fourth level below the place"* → **a linha `Check2HGI` da Tab. 1 e o nível tracejado do tikz**; os ponteiros *"Mechanism in Chapter 3 / Chapter 4"* → **fala** (ela já dizia *"o mecanismo de cada um fica com o capítulo dono dele"*).
   ⚠ **A ordem interna é a do capítulo entregue**: escada (§2.2.1) → infomax (§2.2.2, que abre com a frase em `2_fundamentals.tex:384-387`) → Tab. 1 (§2.2.4, que o capítulo põe **por último**). É isso que faz a tabela funcionar como *mapa da fala*, e não como abertura.
+- **v4 · 2026-08-25, troca de posição (decisão do autor).** Este slide e o `S9` trocaram de lugar. **Motivo:** os dois slides que abrem a seção (`S13`, `S14`) já são de **MTL** — o panorama e o eixo que separa este trabalho. Com o slide fundido em terceiro, a seção saía de MTL, entrava em representação e **voltava** a MTL no quarto slide. É o defeito de ir-e-voltar que a própria reordenação existia para matar, e ele passou porque eu estava espelhando a ordem do Cap. 2 (§2.2 antes de §2.3) sem notar que os slides de trabalho relacionado, agora à frente, já são de MTL. A ordem passa a agrupar por assunto: **MTL inteiro** (panorama → eixo → vocabulário) e depois **representação inteira** (escada → infomax → Tab. 1).
 - **Fala (PT):** "Esta é a base mais importante da dissertação, e ela é uma escada. Começa no identificador one-hot, que marca um lugar por posição e não codifica relação nenhuma. Sobe para as representações distribuídas, skip-gram, DeepWalk, node2vec, em que a geometria do vetor reflete a relação que está nos dados. Sobe de novo para as redes de grafo, GCN, GAT, GraphSAGE, que aprendem essa relação por agregação de vizinhança. E o degrau seguinte é uma ideia só, que cobre três métodos desta dissertação, então é melhor dizê-la agora do que três vezes. A ideia infomax, nas palavras do próprio capítulo: o modelo aprende vetores úteis sendo obrigado a distinguir um pareamento verdadeiro de um pareamento corrompido, e não precisa de rótulo nenhum para isso, porque os próprios dados dizem qual é o verdadeiro. O DGI faz essa comparação entre um nó e um resumo do grafo. O HGI estende o mesmo objetivo por uma hierarquia de lugar, região e cidade. E o Check2HGI, do Capítulo 5, acrescenta um quarto nível abaixo do lugar, que é o check-in. O mecanismo de cada um fica com o capítulo dono: o DGI no Capítulo 3, o HGI no Capítulo 4. A tabela na tela é a Tabela 1 da dissertação, e ela é o mapa da fala inteira: a cada seção eu volto a ela e digo em que linha eu estou."
 - **Proveniência:** a escada, na ordem do capítulo → `chapters/2_fundamentals.tex:369-379` (one-hot, skip-gram, DeepWalk, node2vec, GCN, GAT, GraphSAGE). Frase infomax copiada de `chapters/2_fundamentals.tex:384-387`. DGI e HGI, o que cada um adiciona → `tables/frame/lineage.tex` (Tab. 1) e `chapters/2_fundamentals.tex:420-426`. Os quatro níveis e as três fronteiras → `chapters/2_fundamentals.tex:712-714`. **Duas reduções declaradas na linha MTLnet da Tab. 1:** sai a cláusula "Null result for that configuration" (a Seção 2 não reporta resultado, PLANO §3) e sai "FiLM conditioning" (FiLM é INTRODUZ em 3.2). Nenhum valor foi alterado.
 - **Nunca dizer:** o mecanismo do DGI ou do HGI aqui — eles pertencem a 3.2A e 4.1A. Nenhum resultado, nenhum número de capítulo. Não explicar FiLM aqui. Nunca Space2Vec nem POI2Vec como componentes deste trabalho.
-
-### S9 · How two tasks share a model, and how that fails
-- **Seção/subseção:** 2.2   **Tempo:** 40 s
-- **LEDGER:** INTRODUZ compartilhamento rígido (Def. 2.10) · INTRODUZ transferência negativa (Def. 2.12) · INTRODUZ o critério declarado para um balanceador · RETOMA a promessa operacional de 1.2
-- **Na tela:**
-  - **Hard parameter sharing** (Def. 2.10): every task passes through one shared trunk before branching, and separates only at its own output.
-  - **Negative transfer** (Def. 2.12): joint training leaves a task worse than its dedicated single-task model.
-  - The criterion this dissertation states: *a balancing method is useful only if it improves on a tuned fixed weighting.*
-- **Fala (PT):** "Duas definições e um critério. Compartilhamento rígido é a topologia em que todas as tarefas atravessam um mesmo tronco e só se separam na saída de cada uma. Transferência negativa é o desfecho que se teme: o treino conjunto deixa uma tarefa pior do que o modelo dedicado dela deixaria. O critério está declarado no Capítulo 2, e eu vou cobrá-lo mais adiante: um método de balanceamento só é útil se superar uma ponderação fixa bem ajustada. Guardem essa frase. É ela que decide o que eu posso e o que eu não posso afirmar sobre o balanceador na Seção 3."
-- **Proveniência:** Def. 2.10 → `chapters/2_fundamentals.tex:936-941`; Def. 2.12 → `:960-963`; o critério, citado literalmente → `:1391-1393` ("For this dissertation, a balancing method is useful only if it improves on a tuned fixed weighting").
-- **Nunca dizer:** nenhuma afirmação de otimalidade de Pareto sobre os nossos modelos: o Cap. 2 recusa a afirmação explicitamente. Nenhum resultado, nenhum número.
 
 ### S10 · The evidence base: six datasets, said once
 - **Seção/subseção:** 2.3   **Tempo:** 55 s

@@ -156,21 +156,8 @@
 
 ---
 
-## S8 · The line this work stands on, and the one idea on it
-`slide **9** · PDF p.12` · **75 s** · fim previsto **7:20**
-
-> ### ▶ Esta é a base mais importante da dissertação, e ela é uma escada.
-
-**● COBRE** — INTRODUZ a linhagem de representações · INTRODUZ a ideia infomax · INTRODUZ a linhagem de modelos (Tab. 1) e o diagrama de níveis · *(o nome Check2HGI aparece na Tab. 1 como linha do mapa; o artefato é INTRODUZ em 5.2, e MTLnet em
-
-**✕ NUNCA** — o mecanismo do DGI ou do HGI aqui — eles pertencem a 3.2A e 4.1A. · Nenhum resultado, nenhum número de capítulo. · Não explicar FiLM aqui. · Nunca Space2Vec nem POI2Vec como componentes deste trabalho.
-
-<sub>Esta é a base mais importante da dissertação, e ela é uma escada. Começa no identificador one-hot, que marca um lugar por posição e não codifica relação nenhuma. Sobe para as representações distribuídas, skip-gram, DeepWalk, node2vec, em que a geometria do vetor reflete a relação que está nos dados. Sobe de novo para as redes de grafo, GCN, GAT, GraphSAGE, que aprendem essa relação por agregação de vizinhança. E o degrau seguinte é uma ideia só, que cobre três métodos desta dissertação, então é melhor dizê-la agora do que três vezes. A ideia infomax, nas palavras do próprio capítulo: o modelo aprende vetores úteis sendo obrigado a distinguir um pareamento verdadeiro de um pareamento corrompido, e não precisa de rótulo nenhum para isso, porque os próprios dados dizem qual é o verdadeiro. O DGI faz essa comparação entre um nó e um resumo do grafo. O HGI estende o mesmo objetivo por uma hierarquia de lugar, região e cidade. E o Check2HGI, do Capítulo 5, acrescenta um quarto nível abaixo do lugar, que é o check-in. O mecanismo de cada um fica com o capítulo dono: o DGI no Capítulo 3, o HGI no Capítulo 4. A tabela na tela é a Tabela 1 da dissertação, e ela é o mapa da fala inteira: a cada seção eu volto a ela e digo em que linha eu estou.</sub>
-
----
-
 ## S9 · How two tasks share a model, and how that fails
-`slide **10** · PDF p.13` · **40 s** · fim previsto **8:00**
+`slide **9** · PDF p.12` · **40 s** · fim previsto **6:45**
 
 > ### ▶ Duas definições e um critério. Compartilhamento rígido é a topologia em que todas as tarefas atravessam um mesmo tronco e só se separam na saída de cada uma.
 
@@ -179,6 +166,19 @@
 **✕ NUNCA** — nenhuma afirmação de otimalidade de Pareto sobre os nossos modelos: o Cap. · 2 recusa a afirmação explicitamente. · Nenhum resultado, nenhum número.
 
 <sub>Duas definições e um critério. Compartilhamento rígido é a topologia em que todas as tarefas atravessam um mesmo tronco e só se separam na saída de cada uma. Transferência negativa é o desfecho que se teme: o treino conjunto deixa uma tarefa pior do que o modelo dedicado dela deixaria. O critério está declarado no Capítulo 2, e eu vou cobrá-lo mais adiante: um método de balanceamento só é útil se superar uma ponderação fixa bem ajustada. Guardem essa frase. É ela que decide o que eu posso e o que eu não posso afirmar sobre o balanceador na Seção 3.</sub>
+
+---
+
+## S8 · The line this work stands on, and the one idea on it
+`slide **10** · PDF p.13` · **75 s** · fim previsto **8:00**
+
+> ### ▶ Esta é a base mais importante da dissertação, e ela é uma escada.
+
+**● COBRE** — INTRODUZ a linhagem de representações · INTRODUZ a ideia infomax · INTRODUZ a linhagem de modelos (Tab. 1) e o diagrama de níveis · *(o nome Check2HGI aparece na Tab. 1 como linha do mapa; o artefato é INTRODUZ em 5.2, e MTLnet em
+
+**✕ NUNCA** — o mecanismo do DGI ou do HGI aqui — eles pertencem a 3.2A e 4.1A. · Nenhum resultado, nenhum número de capítulo. · Não explicar FiLM aqui. · Nunca Space2Vec nem POI2Vec como componentes deste trabalho.
+
+<sub>Esta é a base mais importante da dissertação, e ela é uma escada. Começa no identificador one-hot, que marca um lugar por posição e não codifica relação nenhuma. Sobe para as representações distribuídas, skip-gram, DeepWalk, node2vec, em que a geometria do vetor reflete a relação que está nos dados. Sobe de novo para as redes de grafo, GCN, GAT, GraphSAGE, que aprendem essa relação por agregação de vizinhança. E o degrau seguinte é uma ideia só, que cobre três métodos desta dissertação, então é melhor dizê-la agora do que três vezes. A ideia infomax, nas palavras do próprio capítulo: o modelo aprende vetores úteis sendo obrigado a distinguir um pareamento verdadeiro de um pareamento corrompido, e não precisa de rótulo nenhum para isso, porque os próprios dados dizem qual é o verdadeiro. O DGI faz essa comparação entre um nó e um resumo do grafo. O HGI estende o mesmo objetivo por uma hierarquia de lugar, região e cidade. E o Check2HGI, do Capítulo 5, acrescenta um quarto nível abaixo do lugar, que é o check-in. O mecanismo de cada um fica com o capítulo dono: o DGI no Capítulo 3, o HGI no Capítulo 4. A tabela na tela é a Tabela 1 da dissertação, e ela é o mapa da fala inteira: a cada seção eu volto a ela e digo em que linha eu estou.</sub>
 
 ---
 

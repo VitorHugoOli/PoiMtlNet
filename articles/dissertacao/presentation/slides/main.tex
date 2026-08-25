@@ -271,9 +271,13 @@
 % ============================================================
 % SEÇÃO 2 · Fundamentos compartilhados (7 frames)
 % Motor de de-duplicação: nada daqui é reaberto depois.
-% ORDEM REVISTA 2026-08-25 (decisão do autor): a forma do Cap. 2 entregue —
-%   trabalho relacionado (2.1.2-2.1.3) -> representação (2.2) -> vocabulário de MTL (2.3)
-%   -> dados, métrica e protocolo (2.4).
+% ORDEM REVISTA 2026-08-25 (decisão do autor), em duas passadas. Agrupada por ASSUNTO:
+%   (1) MTL inteiro:          panorama (2.1.2) -> o eixo (2.1.3) -> vocabulário (2.3)
+%   (2) representação inteira: escada (2.2.1) -> infomax (2.2.2) -> Tab. 1 (2.2.4)
+%   (3) o aparato:            dados, métrica, protocolo (2.4)
+% ⚠ A 2a passada trocou o 3o com o 4o. Espelhar o Cap. 2 literalmente punha 2.2 antes de 2.3 — mas os
+% dois slides de trabalho relacionado que abrem JA SAO DE MTL, então a seção saía de MTL, entrava em
+% representação e voltava a MTL. O capítulo se dá esse luxo porque o leitor volta atrás; a plateia não.
 % Antes o deck abria pela linhagem, que no texto é a CONCLUSÃO do bloco de representações, e
 % fechava pelo trabalho relacionado, que é a PREMISSA. As duas pontas estavam invertidas.
 % Dois frames saíram: "Related work in representation" (fundido acima) e o \specialframe
@@ -341,6 +345,27 @@
     \textbf{next category} POI-RGNN, Markov over category transitions \textbar\
     \textbf{next region} HMT-GRN, STAN, ReHDM, Markov-1 floor \textbar\
     \textbf{Ch.~3} HMRM, MHA+PE \textbar\ \textbf{Ch.~4} MTLnet.\par}
+\end{frame}
+
+\subsection{Vocabulário de MTL}
+
+% FALA: "Duas definições e um critério. Compartilhamento rígido é a topologia em que todas as
+% tarefas atravessam um mesmo tronco e só se separam na saída de cada uma. Transferência negativa
+% é o desfecho que se teme: o treino conjunto deixa uma tarefa pior do que o modelo dedicado dela
+% deixaria. O critério está declarado no Capítulo 2, e eu vou cobrá-lo mais adiante: um método de
+% balanceamento só é útil se superar uma ponderação fixa bem ajustada. Guardem essa frase. É ela
+% que decide o que eu posso e o que eu não posso afirmar sobre o balanceador na Seção 3."
+\begin{frame}{How two tasks share a model, and how that fails}
+    \begin{itemize}
+        \item \textbf{Hard parameter sharing} (Def.~2.10): every task passes through one shared
+              trunk before branching, and separates only at its own output.
+        \item \textbf{Negative transfer} (Def.~2.12): joint training leaves a task worse than its
+              dedicated single-task model.
+    \end{itemize}
+
+    \begin{exampleblock}{The criterion this dissertation states}
+        \textit{A balancing method is useful only if it improves on a tuned fixed weighting.}
+    \end{exampleblock}
 \end{frame}
 
 \subsection{Linhagem de representações}
@@ -418,27 +443,6 @@
         \end{column}
     \end{columns}
     \vfill
-\end{frame}
-
-\subsection{Vocabulário de MTL}
-
-% FALA: "Duas definições e um critério. Compartilhamento rígido é a topologia em que todas as
-% tarefas atravessam um mesmo tronco e só se separam na saída de cada uma. Transferência negativa
-% é o desfecho que se teme: o treino conjunto deixa uma tarefa pior do que o modelo dedicado dela
-% deixaria. O critério está declarado no Capítulo 2, e eu vou cobrá-lo mais adiante: um método de
-% balanceamento só é útil se superar uma ponderação fixa bem ajustada. Guardem essa frase. É ela
-% que decide o que eu posso e o que eu não posso afirmar sobre o balanceador na Seção 3."
-\begin{frame}{How two tasks share a model, and how that fails}
-    \begin{itemize}
-        \item \textbf{Hard parameter sharing} (Def.~2.10): every task passes through one shared
-              trunk before branching, and separates only at its own output.
-        \item \textbf{Negative transfer} (Def.~2.12): joint training leaves a task worse than its
-              dedicated single-task model.
-    \end{itemize}
-
-    \begin{exampleblock}{The criterion this dissertation states}
-        \textit{A balancing method is useful only if it improves on a tuned fixed weighting.}
-    \end{exampleblock}
 \end{frame}
 
 \subsection{Base de evidência}

@@ -202,8 +202,8 @@ POI". **E nenhum particular do corpus** — ver o aviso acima.
 
 | # | Subseção |
 |---|---|
-| 2.3 | **A linha em que este trabalho se apoia, e a ideia que está nela** — o slide fundido: a **escada de representações** numa tira (`one-hot` → `skip-gram · DeepWalk · node2vec` → `GCN · GAT · GraphSAGE`), **a ideia infomax numa frase** (*distinguir um pareamento verdadeiro de um corrompido* — cobre DGI, HGI e Check2HGI de uma vez), a **Tabela 1** e o **diagrama de níveis** (lugar → visita). ⚠ Ordem interna = ordem do Cap. 2: escada (§2.2.1) → infomax (§2.2.2) → Tab. 1 (§2.2.4, que o capítulo põe **por último**), e é isso que faz a tabela ser *mapa da fala* e não abertura |
-| 2.4 | Vocabulário de MTL: compartilhamento rígido (Def. 2.10), transferência negativa (Def. 2.12) como o **risco nomeado**, e o critério **declarado no Cap. 2** (*um balanceador só é útil se superar uma ponderação fixa ajustada*) |
+| 2.3 | Vocabulário de MTL: compartilhamento rígido (Def. 2.10), transferência negativa (Def. 2.12) como o **risco nomeado**, e o critério **declarado no Cap. 2** (*um balanceador só é útil se superar uma ponderação fixa ajustada*) |
+| 2.4 | **A linha em que este trabalho se apoia, e a ideia que está nela** — o slide fundido: a **escada de representações** numa tira (`one-hot` → `skip-gram · DeepWalk · node2vec` → `GCN · GAT · GraphSAGE`), **a ideia infomax numa frase** (*distinguir um pareamento verdadeiro de um corrompido* — cobre DGI, HGI e Check2HGI de uma vez), a **Tabela 1** e o **diagrama de níveis** (lugar → visita). ⚠ Ordem interna = ordem do Cap. 2: escada (§2.2.1) → infomax (§2.2.2) → Tab. 1 (§2.2.4, que o capítulo põe **por último**), e é isso que faz a tabela ser *mapa da fala* e não abertura |
 | 2.5 | A base de evidência: **uma** tabela de seis conjuntos, dizendo qual capítulo usou quais. **Florida é dita aqui, uma vez**: 990.518 check-ins nos Caps. 3/4 e 1.407.034 no Cap. 5 — *duas extrações*, nunca "superconjunto" (não há evidência de contenção) |
 | 2.6 | **A métrica que os três compartilham**: macro-F1 e por quê (Food ≈ um terço; a perda **não** é reponderada) + o piso de classe majoritária |
 | 2.7 | **O protocolo dos dois primeiros estudos**, as regras de leitura, **e as duas armadilhas de nomenclatura que sobram** — **o par de tarefas muda** (Caps. 3–4: estática + próxima categoria; Cap. 5: próxima categoria + próxima região) e **a convenção métrica muda** (Caps. 3/4 reportam F1 média por categoria; o Cap. 5, macro-F1), duas frases ditas **antes** de a sala encontrar a primeira tarefa estática: estratificado por amostra (o mesmo usuário dos dois lados), leitura *diagnostic-best*, 5 folds; **a lei dos verbos**; e o anúncio de que *cada estudo nomeia a sua convenção* |
@@ -212,8 +212,13 @@ POI". **E nenhum particular do corpus** — ver o aviso acima.
 **Propósito.** O motor de de-duplicação. **Se cortada:** cada bloco repaga preâmbulo e a fala estoura.
 
 > ⚠ **ORDEM REVISTA 2026-08-25 (decisão do autor): nove slides viraram sete, e a seção passou a ter a
-> forma do Cap. 2 entregue** — trabalho relacionado (§2.1.2–2.1.3) → representação (§2.2) →
-> vocabulário de MTL (§2.3) → dados, métrica e protocolo (§2.4). Antes o deck **abria pela linhagem**,
+> forma do Cap. 2 entregue**, agrupada por assunto: **(1) MTL inteiro** — panorama (§2.1.2) → o eixo
+> (§2.1.3) → vocabulário (§2.3); **(2) representação inteira** — escada (§2.2.1) → infomax (§2.2.2) →
+> Tab. 1 (§2.2.4); **(3) o aparato** — dados, métrica e protocolo (§2.4). ⚠ **A segunda passada trocou
+> o 3º com o 4º**: espelhar o capítulo literalmente punha §2.2 antes de §2.3, mas os dois slides de
+> trabalho relacionado que agora abrem **já são de MTL**, e a seção saía de MTL, entrava em
+> representação e **voltava** a MTL. O capítulo se dá esse luxo porque o leitor volta atrás; a
+> plateia não. Antes o deck **abria pela linhagem**,
 > que no texto é a *conclusão* do bloco de representações, e **fechava pelo trabalho relacionado**,
 > que é a *premissa*: as duas pontas estavam invertidas, e a plateia encontrava DGI, HGI e Check2HGI
 > antes do panorama que os contextualiza. O 2.7 tinha sido **anexado ao fim por cronologia** (ver a
@@ -235,10 +240,10 @@ componentes** — não estão no GLOSSARY e não são deste trabalho (POI2Vec é
 |---|---|
 | 3.1 | O par: classificação estática (Def. 2.6) + próxima categoria — um estático, um sequencial |
 | 3.2 | **MTLnet** (Figura 1, **redesenhada em Beamer** — o raster publicado imprime pequeno demais): encoders por tarefa → FiLM (uma cláusula) → tronco residual → duas cabeças |
-| **3.2A** | **Card DGI — "Como funciona \| Por quê"** (ponto 4): retoma o infomax de 2.3; **grafo de Delaunay sobre os POIs, arestas com decaimento logarítmico da distância**; um vetor por lugar. ⚠ **Não dizer "one-hot da própria categoria":** a nota de rodapé do capítulo entregue registra que a implementação liberada alimenta **a média dos one-hots dos vizinhos, com o vetor do próprio POI excluído**, e essa distinção é a defesa de que a tarefa estática lê **homofilia espacial**, não o próprio rótulo. Ou o card diz isso, ou omite o atributo de nó e deixa para o B4. **Sem "coocorrência"** — o Cap. 3 não tem esse canal |
+| **3.2A** | **Card DGI — "Como funciona \| Por quê"** (ponto 4): retoma o infomax de 2.4; **grafo de Delaunay sobre os POIs, arestas com decaimento logarítmico da distância**; um vetor por lugar. ⚠ **Não dizer "one-hot da própria categoria":** a nota de rodapé do capítulo entregue registra que a implementação liberada alimenta **a média dos one-hots dos vizinhos, com o vetor do próprio POI excluído**, e essa distinção é a defesa de que a tarefa estática lê **homofilia espacial**, não o próprio rótulo. Ou o card diz isso, ou omite o atributo de nó e deixa para o B4. **Sem "coocorrência"** — o Cap. 3 não tem esse canal |
 | 3.3 | Setup em três linhas: Florida, sete categorias, 5 folds — **e a autodeclaração de protocolo dita aqui** (retoma 2.7) |
 | **3.3A** | **Card "como se otimiza uma perda multitarefa"** (seu ponto): antes de nomear o Nash, o **problema** — duas perdas, um conjunto de parâmetros, nenhuma ordem total entre soluções; daí a noção de **frente de Pareto**, e por que a área produziu uma família de métodos (reponderar as perdas × mudar a direção da atualização) |
-| **3.3B** | **Card Nash-MTL**: onde ele cai nessa família — barganha cooperativa, a direção que maximiza o produto das utilidades, evitar que uma tarefa domine. Retoma o critério de 2.4, e diz que a adoção é **conclusão do seu tempo**, não defendida hoje. ⚠ **Nenhuma afirmação de Pareto sobre os nossos modelos** — o Cap. 2 recusa explicitamente |
+| **3.3B** | **Card Nash-MTL**: onde ele cai nessa família — barganha cooperativa, a direção que maximiza o produto das utilidades, evitar que uma tarefa domine. Retoma o critério de 2.3, e diz que a adoção é **conclusão do seu tempo**, não defendida hoje. ⚠ **Nenhuma afirmação de Pareto sobre os nossos modelos** — o Cap. 2 recusa explicitamente |
 | 3.4 | **O resultado — o nulo, mostrado e não afirmado**: as palavras do próprio capítulo, *"largamente comparáveis, sem vantagem clara ou consistente"*, com a tabela por tarefa ao lado. **Onde as baselines externas entram**: na tarefa estática os dois modelos batem a HMRM em todas as categorias; na sequencial as lideranças se **dividem** — é o próprio deck do CBIC que mostra isso, e mostrar a divisão é o que faz o veredito "sem vantagem consistente" cair sem precisar de argumento |
 | 3.5 | A bifurcação de três hipóteses: dissimilaridade / insuficiência de representação / rigidez de topologia |
 
@@ -261,7 +266,7 @@ vale só na tarefa estática; na sequencial MHA+PE lidera **Community, Food e Sh
 | # | Subseção |
 |---|---|
 | 4.1 | A pergunta herdada — *"arquitetura ou representação?"* — e o desenho: **MTLnet congelado**, só a entrada muda (retoma 3.2) |
-| **4.1A** | **Card HGI** (ponto 5, o conceito que você chamou de importância extrema): o mecanismo em palavras simples — encoder de categoria pré-treinado → uma camada de convolução sobre o grafo de POIs → atenção por região → embedding de cidade ponderado por área; discriminador bilinear, **sem rótulos da tarefa final**. Retoma o infomax de 2.3 |
+| **4.1A** | **Card HGI** (ponto 5, o conceito que você chamou de importância extrema): o mecanismo em palavras simples — encoder de categoria pré-treinado → uma camada de convolução sobre o grafo de POIs → atenção por região → embedding de cidade ponderado por área; discriminador bilinear, **sem rótulos da tarefa final**. Retoma o infomax de 2.4 |
 | **4.1B** | **Card "por que estes encoders"** (ponto 5): a decomposição em **três canais de 64 dims** — espacial (**SIREN × Sphere2Vec-M**, comparados), temporal (**Time2Vec**), categórico (**duas fases: um POI Encoder com caminhadas aleatórias + o HGI**). Cada um com a razão da escolha |
 | 4.2 | **Ressalva primeiro, número depois — mas em UMA cláusula**: a tarefa estática lê o próprio rótulo, então o ganho dela **não diz nada sobre a tarefa sequencial**. Dita e seguida adiante; **não gastar dois minutos justificando** (instrução do orientador no deck do CoUrb). ⚠ **E o intervalo de ganho é declarado como melhor-de-dois por linha**, porque é o que ele é — o juiz do CoUrb pegou exatamente isso: SIREN sozinho no Texas dá **+17,89**, fora da faixa anunciada |
 | 4.3 | **O resultado diagnóstico**: a tarefa **sequencial**, cujo alvo nunca está na entrada — é dela que vem a conclusão do capítulo. |
@@ -285,7 +290,7 @@ vale só na tarefa estática; na sequencial MHA+PE lidera **Community, Food e Sh
 |---|---|---:|
 | 5.1 | O que muda, **como consequências do diagnóstico**: representação (lugar → check-in), topologia (rígida → atenção cruzada), protocolo (por amostra → disjunto por usuário) | 1 |
 | **5.2A** | **Trabalhos relacionados deste estudo**, que os Caps. 3/4 não têm: (a) **predição de próxima região** — a tarefa e as suas motivações, que só aparecem aqui; (b) por que **embedding em nível de check-in** é novo na linha, com CTLE como a arte prévia mais próxima | 1 |
-| 5.2 | **Check2HGI — o que é e como se apoia no Cap. 4**: Figura 4; o diagrama de níveis de 2.3 **reusado** (*"um quarto nível abaixo do lugar"*); o **HGI de 4.1A estendido um nível**; a aresta **só para frente**. **Fecha na Figura 6, que é o payoff**: separabilidade por categoria **0,57 contra 0,00** e pureza de vizinho **0,98 contra 0,78**. ⚠ A Figura 6 mede a **família da representação**, não uma configuração — **não precisa de fold, semente nem pareamento**, e é por isso que ela pode vir antes do protocolo. **Nenhum p-valor aqui** | 4 |
+| 5.2 | **Check2HGI — o que é e como se apoia no Cap. 4**: Figura 4; o diagrama de níveis de 2.4 **reusado** (*"um quarto nível abaixo do lugar"*); o **HGI de 4.1A estendido um nível**; a aresta **só para frente**. **Fecha na Figura 6, que é o payoff**: separabilidade por categoria **0,57 contra 0,00** e pureza de vizinho **0,98 contra 0,78**. ⚠ A Figura 6 mede a **família da representação**, não uma configuração — **não precisa de fold, semente nem pareamento**, e é por isso que ela pode vir antes do protocolo. **Nenhum p-valor aqui** | 4 |
 | 5.3 | A arquitetura — **o que mudou no MTL e por quê**: Figura 5; compartilhamento **por troca**, não por camadas possuídas; o caminho espacial privado da região | 3 |
 | **5.4** | **Protocolo e metodologia estatística, introduzidos AQUI** (pontos 6 e 8): CV 5-fold **disjunta por usuário**; **Acc@10 + desconto OOD + piso Markov-1**; janelas **sobrepostas, stride 1**; **joint-best**; sementes {0,1,7,100} = **20 modelos ajustados, unidade inferencial n = 4**; *t* pareado sobre as médias por semente; **TOST na margem registrada**; Holm. **E os dois testes concordam**: o plano registrava o Wilcoxon por dobra sobre os 20 modelos ajustados; ele é **reportado ao lado e concorda** com o *t* pareado sobre as quatro médias por semente, que é o primário porque dobras dentro de uma semente não são independentes. **Não é confissão de desvio — são dois apoios com o mesmo veredito** | 4,25 |
 | 5.5 | **Os resultados, num bloco só, sob as regras que acabaram de ser fixadas**: primeiro a **Tabela 9** (a representação — à frente nos seis, unânime nas cinco dobras em todos; o teste pareado separa em **cinco de seis**, Florida a *p* = 0,07, o menor salto da tabela); depois a **Tabela 10** e a **Figura 7** (o veredito, em linguagem de lei, §5.1). **A Tabela 9 aparece uma vez só** | 5,5 |
@@ -390,10 +395,10 @@ A regra de linhagem acerta as quatro **e** continua acertando os seus três julg
 | Gowalla + Istanbul, estatísticas | **2.5** | 3, 4, 5 | "nos três estados que este estudo usou" |
 | As sete categorias | **2.5** | 3, 4, 5 | "as mesmas sete categorias" |
 | macro-F1 + piso de classe majoritária | **2.6** | 3, 4, 5 | "a mesma macro-F1" — **a definição**; os valores impressos dos Caps. 3/4 seguem "F1 por categoria", com carimbo |
-| MTL, compartilhamento rígido, transferência negativa | **2.4** | 3, 5 | "o risco nomeado na Seção 2" |
-| **A ideia infomax** (o objetivo comum a DGI/HGI/Check2HGI) | **2.3** | 3.2A, 4.1A, 5.2 | "o mesmo objetivo da Seção 2, um nível abaixo" |
-| Linhagem de modelos (Tabela 1) + diagrama de níveis | **2.3** | 3, 4, 5.2 | apontar para a Tabela 1 |
-| **Linhagem de representações** (one-hot → distribuídas → redes de grafo) | **2.3** | 5.2 | "a escada da Seção 2" — ⚠ **linha acrescentada 2026-08-25**: o slide entrou em 22/08 e nunca foi registrado aqui, o que deixava a **regra 4 formalmente violada** |
+| MTL, compartilhamento rígido, transferência negativa | **2.3** | 3, 5 | "o risco nomeado na Seção 2" |
+| **A ideia infomax** (o objetivo comum a DGI/HGI/Check2HGI) | **2.4** | 3.2A, 4.1A, 5.2 | "o mesmo objetivo da Seção 2, um nível abaixo" |
+| Linhagem de modelos (Tabela 1) + diagrama de níveis | **2.4** | 3, 4, 5.2 | apontar para a Tabela 1 |
+| **Linhagem de representações** (one-hot → distribuídas → redes de grafo) | **2.4** | 5.2 | "a escada da Seção 2" — ⚠ **linha acrescentada 2026-08-25**: o slide entrou em 22/08 e nunca foi registrado aqui, o que deixava a **regra 4 formalmente violada** |
 | Protocolo dos dois primeiros estudos + lei dos verbos | **2.7** | 3.3, 4 | "o protocolo que a Seção 2 chamou de estratificado por amostra" |
 | Eixo que diferencia + mapa de baselines | **2.2** | 3.4, 5.2A | "o eixo da Seção 2" |
 | Restrição de modelo único | **1.3** | 5, 6 | "a restrição de um artefato" |
