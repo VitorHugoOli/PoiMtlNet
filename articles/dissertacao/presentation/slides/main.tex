@@ -1001,33 +1001,31 @@
 % amostragem negativa e um termo que amarra cada classe fina à categoria de topo dela. Depois o
 % HGI, que acrescenta a hierarquia regional sobre esse resultado."
 \begin{frame}{Why these encoders}
-    \begin{columns}[t,onlytextwidth]
-        \begin{column}{0.426\textwidth}
+    \begin{columns}[T,onlytextwidth]
+        \begin{column}{0.478\textwidth}
             \begin{block}{Spatial, 64 d}
-                \small
-                \textbf{Why:} space entered only through graph topology, never as a continuous
-                coordinate.
-                \begin{itemize}\setlength{\itemsep}{2pt}
+                \footnotesize
+                \textbf{Why:} space entered only through graph topology, never as a coordinate.
+                \begin{itemize}\setlength{\itemsep}{3pt}
                     \item \textbf{SIREN} --- sinusoidal activations over normalized coordinates;
-                    \item \textbf{Sphere2Vec-M} --- multi-scale, spherical, geodesic distance
-                          preserved;
+                    \item \textbf{Sphere2Vec-M} --- multi-scale, spherical, geodesic distance preserved;
                     \item one contrastive loss for both: positive under \textbf{10 km}, negative
                           over \textbf{70 km}.
                 \end{itemize}
             \end{block}
         \end{column}
         \hfill
-        \begin{column}{0.504\textwidth}
+        \begin{column}{0.452\textwidth}
             \begin{block}{Temporal, 64 d}
-                \small
+                \footnotesize
                 \textbf{Why:} no explicit temporal representation.\\
                 \textbf{Time2Vec} --- a linear term for trend, sinusoidal terms for hour of day
                 and day of week.
             \end{block}
             \begin{block}{Categorical, 64 d, two phases}
-                \small
+                \footnotesize
                 \textbf{Why:} graph structure alone --- no hierarchy, no region.\\
-                \textbf{1. POI Encoder} --- skip-gram with negative sampling; each \textbf{fine
+                \textbf{1. POI Encoder} --- skip-gram with negative sampling, each \textbf{fine
                 class} tied to its top-level category.\\
                 \textbf{2. HGI} --- the regional hierarchy above.
             \end{block}
