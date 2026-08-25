@@ -416,8 +416,7 @@
               it can be low while overall accuracy is high;
         \item \alert{the loss is not reweighted} --- unweighted cross-entropy;
         \item reference point --- the \textbf{majority-class floor}, a predictor that always
-              answers the most common category: at Florida, \alert{24.7\% accuracy} but only
-              \alert{5.7 macro-F1} --- the gap this metric is chosen to expose.
+              answers the most common category.
     \end{itemize}
 \end{frame}
 
@@ -1488,7 +1487,8 @@
 
     \begin{itemize}\setlength{\itemsep}{5pt}
         \item \textbf{Category: macro-F1} --- reference point the \textbf{majority-class floor},
-              \alert{5.7 to 7.3} depending on the dataset;
+              \alert{5.7 to 7.3} depending on the dataset (Florida: \textbf{24.7\% accuracy} vs
+              \textbf{5.7 macro-F1} --- why plain accuracy is not used);
         \item \textbf{Region: Acc@10} --- the share of test visits whose true region is among the
               ten highest-scoring predictions; \emph{it does not separate first place from tenth};
         \item \textbf{OOD-discounted Acc@10} --- a region absent from the training fold counts as

@@ -40,6 +40,11 @@ This is exact (no approximation) for any fold whose majority-class frequency is 
 computation `sklearn.metrics.f1_score(average='macro', zero_division=0)` would return for a
 constant predictor.
 
+Per `AGENT_GUARDRAILS.md` N2 ("agents quote; they do not compute" — derived quantities come from a
+script committed to the repo, then are quoted), this formula is implemented in
+[`majority_class_floor.py`](majority_class_floor.py), not evaluated in prose. §4 quotes that
+script's output verbatim.
+
 ## 3 · Input: the published per-state majority share (Table 8)
 
 `src/tables/mobiwac/datasets.tex:30-35`, column **Majority (%)** — "share of next-visit labels in
@@ -64,16 +69,20 @@ five Gowalla states' is. This does not change the ranking below, only its precis
 
 ## 4 · Result: per-state majority-class-floor macro-F1
 
-Applying `macro-F1 = 2p / (7·(1+p))`:
+Output of `python3 majority_class_floor.py`, quoted verbatim (2026-08-25):
 
-| Dataset | Majority accuracy (`p`, %) | Majority-floor macro-F1 (%) |
-|---|---:|---:|
-| **FL** | 24.7 | **5.66** → 5.7 |
-| TX | 31.0 | 6.76 → 6.8 |
-| CA | 32.7 | 7.04 → 7.0 |
-| Istanbul | 33.4 | 7.15 → 7.2 |
-| AZ | 34.0 | 7.25 → 7.2 |
-| **AL** | 34.2 | **7.28** → **7.3** |
+```
+Dataset     Majority (%)   Majority-floor macro-F1 (%)
+FL                  24.7                          5.66
+TX                  31.0                          6.76
+CA                  32.7                          7.04
+Istanbul            33.4                          7.15
+AZ                  34.0                          7.25
+AL                  34.2                          7.28
+```
+
+Rounded to one decimal (the dissertation's own precision for this range): FL 5.7, TX 6.8, CA 7.0,
+Istanbul 7.2, AZ 7.2, AL 7.3.
 
 **The maximum is Alabama, 7.3 — not Texas.** (Texas, despite being one of the two largest datasets,
 sits mid-range at 6.8; dataset size does not drive this number — only how lopsided the category mix
