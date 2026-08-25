@@ -5,23 +5,24 @@
 > perguntas na mesma ordem: **o que é**, **como funciona**, e **por que isso importa nesta
 > dissertação**. Nada aqui é texto entregue — é material de estudo para a arguição de **2026-08-28**.
 >
-> **Como ler.** Os quatro blocos são independentes. Dá para ler o bloco 3 sem ter lido o 1. O
-> [Mapa](#0--mapa-como-as-quatro-frentes-se-ligam) mostra como eles se conectam.
+> **Como ler.** Os cinco blocos são independentes. Dá para ler o bloco 3 sem ter lido o 1. O
+> [Mapa](#0--mapa-como-as-cinco-frentes-se-ligam) mostra como eles se conectam.
 >
 > **Como este documento cresce.** Toda seção termina com um espaço fixo chamado
 > **"Dúvidas e esclarecimentos"**. Quando você voltar com uma pergunta sobre Infomax, a resposta
 > entra em [§2.7](#27--dúvidas-e-esclarecimentos), datada, sem reescrever o resto. O
-> [Registro de tópicos](#6--registro-de-tópicos) no fim é o índice vivo: tópicos novos entram lá
+> [Registro de tópicos](#7--registro-de-tópicos) no fim é o índice vivo: tópicos novos entram lá
 > primeiro e viram seção depois. Instruções de expansão em
-> [§7](#7--como-pedir-uma-seção-nova-ou-uma-resposta).
+> [§7](#8--como-pedir-uma-seção-nova-ou-uma-resposta).
 
-**Última atualização:** 2026-08-24 · **Blocos cobertos:** 4 de 4 dos "Estudos específicos"
+**Última atualização:** 2026-08-25 · **Blocos cobertos:** 5 de 5 dos "Estudos específicos"
+(Markov-K acrescentado em 2026-08-25)
 
 ---
 
 ## Índice
 
-- [0 · Mapa: como as quatro frentes se ligam](#0--mapa-como-as-quatro-frentes-se-ligam)
+- [0 · Mapa: como as cinco frentes se ligam](#0--mapa-como-as-cinco-frentes-se-ligam)
 - [1 · Métodos estatísticos](#1--métodos-estatísticos)
   - [1.1 macro-F1](#11--macro-f1) · [1.2 Acc@10](#12--acc10-o-par-da-outra-tarefa) · [1.3 A unidade de análise](#13--a-unidade-de-análise-o-que-é-um-número-pareado-aqui) · [1.4 Teste t pareado](#14--o-teste-t-pareado-a-pergunta-melhorou) · [1.5 Wilcoxon](#15--wilcoxon-dos-postos-com-sinal) · [1.6 TOST](#16--tost-a-pergunta-é-igual-ou-não-é-pior) · [1.7 Holm](#17--holm-o-preço-de-perguntar-seis-vezes) · [1.8 Cola de bolso](#18--cola-de-bolso-do-bloco-1) · [1.9 Dúvidas](#19--dúvidas-e-esclarecimentos)
 - [2 · Infomax, DGI, HGI e Check2HGI](#2--infomax-dgi-hgi-e-check2hgi)
@@ -30,20 +31,22 @@
   - [3.1 O caminho do dado](#31--o-caminho-do-dado-em-cinco-estágios) · [3.2 Camada a camada](#32--camada-a-camada-com-justificativa) · [3.3 A perda](#33--a-função-de-perda-e-o-ajuste-de-logits) · [3.4 Otimização](#34--otimização-três-grupos-um-backward) · [3.5 Seleção de checkpoint](#35--seleção-de-checkpoint-o-que-é-um-modelo-implantável) · [3.6 Tabela de hiperparâmetros](#36--tabela-de-hiperparâmetros-de-referência) · [3.7 Dúvidas](#37--dúvidas-e-esclarecimentos)
 - [4 · Protocolos de comparação de embeddings](#4--protocolos-de-comparação-de-embeddings)
   - [4.1 O problema](#41--o-problema-como-julgar-um-vetor-sem-treinar-nada) · [4.2 kNN-LOO](#42--knn-loo) · [4.3 Silhouette](#43--silhouette-com-distância-de-cosseno) · [4.4 Centroid separability](#44--centroid-separability-ratio) · [4.5 Linear CKA](#45--linear-cka) · [4.6 A ressalva](#46--a-ressalva-mais-importante-deste-bloco) · [4.7 Dúvidas](#47--dúvidas-e-esclarecimentos)
-- [5 · Cola de bolso geral](#5--cola-de-bolso-geral)
-- [6 · Registro de tópicos](#6--registro-de-tópicos)
-- [7 · Como pedir uma seção nova](#7--como-pedir-uma-seção-nova-ou-uma-resposta)
-- [8 · Fontes](#8--fontes)
+- [5 · Markov-K, o modelo de referência](#5--markov-k-o-modelo-de-referência)
+  - [5.1 Cadeia de Markov](#51--o-que-é-uma-cadeia-de-markov) · [5.2 A ordem K e o *backoff*](#52--markov-k-a-ordem-k-e-o-stupid-backoff) · [5.3 A curva de K](#53--o-resultado-e-a-curva-que-ele-desenha) · [5.4 O piso de região](#54--o-piso-markov-1-de-região) · [5.5 Por que importa](#55--por-que-isso-importa-na-dissertação) · [5.6 Dúvidas](#56--dúvidas-e-esclarecimentos)
+- [6 · Cola de bolso geral](#6--cola-de-bolso-geral)
+- [7 · Registro de tópicos](#7--registro-de-tópicos)
+- [8 · Como pedir uma seção nova](#8--como-pedir-uma-seção-nova-ou-uma-resposta)
+- [9 · Fontes](#9--fontes)
 
 ---
 
-## 0 · Mapa: como as quatro frentes se ligam
+## 0 · Mapa: como as cinco frentes se ligam
 
-Os quatro blocos não são quatro assuntos soltos. Eles são **quatro estágios de uma mesma frase**:
+Os blocos não são assuntos soltos. Eles são **estágios de uma mesma frase**:
 
 > *"Uma **representação** melhor (bloco 2), medida por **protocolos de geometria** (bloco 4),
 > alimenta um **modelo conjunto** (bloco 3), cuja vantagem só pode ser afirmada com o
-> **veredito estatístico** correto (bloco 1)."*
+> **veredito estatístico** correto (bloco 1) — e só é legível contra um **piso** (bloco 5)."*
 
 ```mermaid
 flowchart TB
@@ -52,10 +55,13 @@ flowchart TB
     C["<b>Bloco 3 — Modelo conjunto</b><br/>2 entradas · cross-attention · 2 cabeças<br/><i>uma tarefa ajuda a outra?</i>"]
     D["<b>Bloco 1 — Veredito</b><br/>macro-F1 · Acc@10 · t · Wilcoxon · TOST · Holm<br/><i>o que eu posso afirmar?</i>"]
 
+    M["<b>Bloco 5 — Markov-K</b><br/>contagem de transições, zero aprendizado<br/><i>quanto da tarefa é trivial?</i>"]
+
     A -->|"exporta 2 tabelas de 64 dim<br/>(check-in e região)"| C
     A -.->|"é julgada por"| B
     B -.->|"explica por que a<br/>categoria melhora"| D
     C -->|"produz 20 modelos ajustados<br/>(4 sementes × 5 folds)"| D
+    M -->|"dá ESCALA: 37,55 é bom<br/>contra um piso de 29,74"| D
     D -->|"o verbo permitido:<br/>supera / não-inferior / não resolvido"| E["<b>A tese</b><br/>um modelo, duas tarefas"]
 ```
 
@@ -67,6 +73,7 @@ flowchart TB
 | **4 — Geometria** | Esse vetor é melhor, e *por quê*? | Atribuir ao modelo um ganho que era da entrada |
 | **3 — Modelo conjunto** | Duas tarefas podem dividir um modelo sem se atrapalhar? | Reportar duas épocas diferentes como se fossem um sistema só |
 | **1 — Estatística** | O que a evidência autoriza a dizer? | Ler "não deu significativo" como "são iguais" |
+| **5 — Markov-K** | Quanto disso se resolve só contando? | Reportar um número sem dizer contra o que ele é bom |
 
 ---
 
@@ -1644,7 +1651,374 @@ concordante ao mesmo tempo entre-motores e dentro-da-família.
 
 ---
 
-## 5 · Cola de bolso geral
+## 5 · Markov-K, o modelo de referência
+
+> **Referência na dissertação:** Cap. 2 §"Joint-model selection and floors" (o piso, citando
+> `gambs2012mmc`); Cap. 5 §"Baselines" (`05_setup.tex`) e §Resultados (`06_results.tex`);
+> implementações em `scripts/compute_markov_kstep_cat.py` e
+> `scripts/closing_data/compute_markov_floor_stride1.py`.
+
+Este bloco fecha uma lacuna dos outros quatro. Os blocos 2, 3 e 4 explicam **o que o modelo faz**.
+O bloco 1 explica **como o veredito é decidido**. Falta a pergunta anterior a todas elas:
+
+> **37,55 de macro-F1 é bom?** Contra o quê?
+
+Um número só é legível contra um ponto de referência, e o Markov é o ponto de referência mais
+honesto que existe para uma tarefa sequencial: **um modelo que só sabe contar o que já viu.**
+
+---
+
+### 5.1 · O que é uma cadeia de Markov
+
+#### A propriedade de Markov
+
+Uma sequência tem a **propriedade de Markov** quando o futuro depende do presente, e **não** de como
+se chegou até o presente:
+
+$$P(X_{t+1} \mid X_t, X_{t-1}, \ldots, X_1) = P(X_{t+1} \mid X_t)$$
+
+É a chamada **ausência de memória**. Em português direto: *"para saber para onde você vai, basta saber
+onde você está — o resto do seu dia não acrescenta nada."*
+
+Isso é obviamente **falso** para mobilidade humana. E é exatamente por isso que serve como piso: se
+uma suposição tão pobre já chega a 29,74 de macro-F1 na Flórida, então qualquer modelo que se diga
+sofisticado precisa ficar **bem** acima disso para justificar sua existência.
+
+#### A matriz de transição
+
+Todo o "modelo" é uma tabela de contagens, normalizada por linha:
+
+$$T_{ij} = P(\text{próximo} = j \mid \text{atual} = i) = \frac{\text{nº de vezes que } j \text{ seguiu } i}{\text{nº de vezes que } i \text{ apareceu}}$$
+
+```
+        exemplo com 3 categorias, contado NO TREINO
+
+                        PRÓXIMA
+                  Food   Shop   Night
+              ┌───────┬───────┬───────┐
+        Food  │ 0,21  │ 0,44  │ 0,35  │  → prediz Shopping
+ ATUAL  Shop  │ 0,52  │ 0,18  │ 0,30  │  → prediz Food
+        Night │ 0,61  │ 0,09  │ 0,30  │  → prediz Food
+              └───────┴───────┴───────┘
+        cada linha soma 1. A predição é o argmax da linha.
+```
+
+**Não há treino, não há gradiente, não há parâmetro aprendido por otimização.** Só contagem sobre o
+fold de treino, e consulta no fold de validação. É por isso que ele é barato e por isso que é um
+piso confiável: não há nada nele que possa "dar sorte".
+
+#### A referência da literatura
+
+O trabalho citado é **Gambs, Killijian & Núñez del Prado (2012), *Next Place Prediction Using Mobility
+Markov Chains***. A ideia da **MMC** (*Mobility Markov Chain*) é justamente essa: o próximo lugar de
+um usuário pode ser predito por uma cadeia de Markov construída a partir do histórico de movimento
+dele. É um clássico da área, e é o que dá legitimidade a usar isso como piso em vez de inventar um.
+
+---
+
+### 5.2 · Markov-K: a ordem K e o *stupid backoff*
+
+#### O que o K significa
+
+**Markov-1** olha só a categoria da última visita. **Markov-K** condiciona nas **K últimas**
+categorias. É o mesmo salto conceitual de *bigrama → n-grama* em modelagem de linguagem.
+
+```
+ janela de entrada (9 visitas, só as categorias):
+
+   Food  Travel  Food  Shopping  Night  Food  Outdoors  Food  Shopping  →  ALVO = ?
+                                                          └──── K=1 ────┘  chave: (Shopping)
+                                            └──────────── K=3 ───────────┘  chave: (Outdoors, Food, Shopping)
+                       └──────────────────── K=5 ────────────────────────┘  chave: 5 categorias
+```
+
+Quanto maior o K, mais contexto — e mais específica a chave.
+
+#### O problema que o K grande cria
+
+O número de chaves possíveis explode como $7^K$:
+
+```
+ K = 1  →           7 chaves    denso: toda chave é vista milhares de vezes
+ K = 3  →         343 chaves    ainda confortável
+ K = 5  →      16.807 chaves    começa a rarear
+ K = 7  →     823.543 chaves    a maioria nunca foi vista no treino
+ K = 9  →  40.353.607 chaves    ← mais chaves possíveis do que janelas em QUALQUER
+                                  conjunto desta dissertação
+```
+
+Uma chave nunca vista no treino não tem contagem nenhuma. O modelo simplesmente **não tem resposta**.
+
+#### A solução: *stupid backoff*
+
+O nome é literalmente esse na literatura (Brants et al., 2007) — é uma estratégia de recuo
+deliberadamente ingênua, e ela funciona bem. A receita:
+
+```
+   tente a chave de ordem K.        viu no treino?  →  responda o mais frequente.
+   não viu?  ↓
+   tente a chave de ordem K−1.      viu?            →  responda.
+   não viu?  ↓
+   ... K−2, K−3, ... até 1 ...
+   nenhuma viu?  ↓
+   responda a categoria majoritária global do treino.
+```
+
+Ou seja: **usa o contexto mais longo que ainda tem evidência**, e encurta quando não tem. É o
+"estúpido" do nome: não redistribui massa de probabilidade como um Kneser-Ney faria, só desce um
+degrau e pega o mais frequente.
+
+#### A implementação real
+
+Transcrição de `scripts/compute_markov_kstep_cat.py`:
+
+```python
+def _markov_k_predict(cat_train, y_train, cat_val, k_max):
+    """Constrói tabelas de n-grama para as ordens 1..k_max; prediz com stupid backoff."""
+    # UMA tabela por ordem: tables[m][chave_de_m_categorias] = Counter de alvos
+    tables = [defaultdict(Counter) for _ in range(k_max + 1)]
+    for row, y in zip(cat_train, y_train):
+        for m in range(1, k_max + 1):
+            tables[m][tuple(int(x) for x in row[-m:])][int(y)] += 1   # row[-m:] = as m ÚLTIMAS
+    global_top = Counter(y_train).most_common(1)[0][0]                # a rede de segurança
+
+    preds = np.empty(len(cat_val), dtype=np.int64)
+    for i, row in enumerate(cat_val):
+        chosen = None
+        for m in range(k_max, 0, -1):                 # ← O BACKOFF: do mais longo ao mais curto
+            ctr = tables[m].get(tuple(int(x) for x in row[-m:]))
+            if ctr:                                   # essa chave existe no treino?
+                chosen = ctr.most_common(1)[0][0]     # sim → o alvo mais frequente após ela
+                break                                 # e para de descer
+        preds[i] = chosen if chosen is not None else global_top
+    return preds
+```
+
+**Três decisões de protocolo que fazem a comparação ser justa**, e vale saber apontá-las:
+
+1. **As tabelas são construídas SÓ com o fold de treino.** Contar sobre o conjunto todo seria
+   vazamento — exatamente o mesmo pecado que a aresta *forward-only* do Check2HGI evita
+   ([§2.4](#24--check2hgi-o-quarto-nível)).
+2. **Ele lê a MESMA janela de 9 passos** que os modelos neurais. O código carrega a saída de ETL do
+   POI-RGNN precisamente para garantir isso — mesma deduplicação, mesmas janelas, mesmo alinhamento
+   de linhas. Sem isso, o piso e o baseline externo não veriam os mesmos exemplos.
+3. **Os folds são `StratifiedGroupKFold` agrupado por usuário**, os mesmos 5 folds dos modelos.
+
+---
+
+### 5.3 · O resultado, e a curva que ele desenha
+
+Todos os K medidos, macro-F1, média dos 5 folds. **A célula em negrito é a que foi impressa na
+tabela do Cap. 5** ("Markov-K: a ordem mais forte por conjunto"):
+
+| Conjunto | K=1 | K=3 | K=5 | K=7 | K=9 | impresso |
+|---|---:|---:|---:|---:|---:|---|
+| AL | 10,01 | 20,19 | **20,50** | 19,73 | 19,27 | K=5 → 20,50 |
+| AZ | 12,61 | 23,79 | **23,92** | 22,45 | 22,01 | K=5 → 23,92 |
+| Istanbul | 11,45 | 24,14 | **24,55** | 23,14 | 22,55 | K=5 → 24,55 |
+| FL | 23,98 | **29,74** | 29,55 | 27,63 | 26,65 | K=3 → 29,74 |
+| CA | 19,97 | 27,06 | **27,58** | 25,47 | 24,18 | K=5 → 27,58 |
+| TX | 18,17 | 27,94 | **28,67** | 26,26 | 24,62 | K=5 → 28,67 |
+
+A curva tem sempre a mesma forma — **sobe, atinge um pico em K=3 ou K=5, e depois cai**:
+
+```
+ macro-F1 por ordem K — Texas
+
+  K=1  ▓▓▓▓▓▓▓▓▓                    18,17   contexto de mais é pouco
+  K=3  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓              27,94
+  K=5  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓             28,67   ← pico
+  K=7  ▓▓▓▓▓▓▓▓▓▓▓▓▓               26,26   esparsidade: o backoff começa a recuar sempre
+  K=9  ▓▓▓▓▓▓▓▓▓▓▓▓                24,62
+       └────┴────┴────┴────┴────┴────┘
+       0    5   10   15   20   25   30
+```
+
+**Por que ela cai depois do pico?** Não é porque contexto longo seja ruim. É que, com $7^7$ chaves
+possíveis, a chave exata de 7 categorias quase nunca foi vista no treino, então o *backoff* recua até
+uma ordem curta **quase sempre** — e recua a partir de uma tabela construída com contagens ainda mais
+diluídas. Você paga o custo da esparsidade sem receber o benefício do contexto. **É o dilema
+viés–variância aparecendo na forma mais nua possível: um único hiperparâmetro inteiro.**
+
+#### Duas leituras finas que dão boas respostas em arguição
+
+**(a) Acurácia e macro-F1 escolhem K diferentes.** Nos mesmos dados:
+
+```
+                     K=1     K=3     K=5     K=7     K=9
+ TX  Acc@1          34,08   37,99   37,15   33,47   30,89    ← pico em K=3
+ TX  macro-F1       18,17   27,94   28,67   26,26   24,62    ← pico em K=5
+```
+
+Elas discordam, e a razão é a do [§1.1](#11--macro-f1). Contexto mais longo ajuda a identificar as
+situações **raras** (que a macro-F1 premia) e custa alguns acertos na classe grande (que a acurácia
+premia). **A ordem foi escolhida pela macro-F1**, porque a macro-F1 é a métrica reportada do eixo.
+Escolher pela acurácia seria otimizar uma métrica e reportar outra.
+
+**(b) K=1 é o retrato do desbalanceamento.** No Alabama, Markov-1 tem **acurácia de 35,45** e
+**macro-F1 de 10,01**. Trinta e cinco por cento de acerto com macro-F1 de dez significa uma coisa só:
+*ele está respondendo "Food" quase sempre.* Com 7 categorias, o piso de classe majoritária em macro-F1
+é ~7 — e Markov-1 mal escapa dele.
+
+> **É o argumento do [§1.1](#11--macro-f1) demonstrado em dados reais, e não em teoria.** Se a
+> dissertação reportasse acurácia, Markov-1 pareceria um modelo respeitável. Sob macro-F1, ele aparece
+> pelo que é.
+
+---
+
+### 5.4 · O piso Markov-1 de região
+
+O eixo de região tem seu próprio piso, e ele é construído do mesmo jeito — só que sobre transições
+**entre regiões**, e em **primeira ordem**: $P(\text{próxima região} \mid \text{última região})$, com
+as dez regiões mais frequentes formando o Top-10 que a Acc@10 lê. Regiões nunca vistas caem para o
+Top-10 global do treino.
+
+**Resultado, sob as janelas e folds da dissertação:**
+
+```
+ Acc@10 — piso Markov-1 de região  vs  modelo conjunto
+
+              piso   conjunto
+ FL           72,5   ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ 76,5    +4,1  ← o mais apertado
+ Istanbul     65,1   ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ 75,1   +10,0  ← o mais folgado
+ AL           62,3   ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓   69,2
+ TX           60,1   ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓   66,2
+ CA           59,1   ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓    64,5
+ AZ           51,2   ▓▓▓▓▓▓▓▓▓▓▓▓▓▓     59,0
+              └────┴────┴────┴────┴────┴────┴────┘
+             50   55   60   65   70   75   80
+```
+
+O piso vai de **51 a 72** Acc@10, e o modelo conjunto o supera em **+4,1 a +10,0 pontos nos seis
+conjuntos**.
+
+#### Por que esse piso é tão alto — e por que dizer isso é obrigatório
+
+Setenta e dois por cento para um modelo que só conta transições parece alto demais. Tem explicação, e
+a dissertação **a dá em vez de deixar o leitor montar sozinho**:
+
+> As janelas avançam **uma visita por vez** (passo 1). Então a região da **última** visita é um
+> preditor forte da próxima, e uma tabela de transição de primeira ordem lê exatamente esse sinal.
+> **No Alabama, a região-alvo é a última região visitada em 32,9% das janelas.**
+
+Ou seja: um terço dos casos é "a pessoa continua onde está". Isso não é defeito do experimento — é
+uma propriedade da mobilidade real na granularidade de setor censitário. Mas significa que **um piso
+de transição é forte por construção nesse protocolo**, e ignorar isso inflaria a impressão de quanto
+o modelo neural realmente acrescenta.
+
+#### O fato desconfortável, e como o texto o trata
+
+Esse piso ingênuo **fica acima de três sistemas externos publicados** na maioria dos conjuntos:
+
+| Sistema externo | Fica abaixo do piso Markov-1 em |
+|---|---|
+| HMT-GRN | **os seis** conjuntos |
+| STAN | quatro |
+| ReHDM | três |
+
+Isso poderia ser vendido como uma vitória retumbante. O texto **não faz isso** — declara que os três
+não enfrentam o piso em termos iguais:
+
+- **HMT-GRN** roda nos **mesmos** dados, folds e inicialização que os nossos modelos;
+- **STAN** roda nos mesmos folds, mas constrói **suas próprias** representações e sequências a partir
+  dos check-ins crus;
+- **ReHDM** roda sob o **protocolo publicado dele** — não é medido nas nossas janelas nem nos nossos
+  folds.
+
+> **Essa é uma resposta pronta para uma pergunta hostil do tipo "então os baselines da literatura são
+> piores que contar?".** A resposta correta é: sob este protocolo de janelas, sim — e o protocolo
+> favorece um piso de transição por construção, o que está dito, com o número (32,9%) que o explica.
+
+---
+
+### 5.5 · Por que isso importa na dissertação
+
+O Markov cumpre **três** papéis, e vale saber separá-los.
+
+**1. Piso — dá escala a todo número reportado.**
+
+```
+ macro-F1 de próxima categoria, Texas — a escada inteira
+
+  piso de classe majoritária   ▓▓▓                       ~7      "sempre Food"
+  Markov-1                     ▓▓▓▓▓▓▓▓▓                18,17    "só a última categoria"
+  Markov-K (K=5)               ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓         28,67    "as 5 últimas, contadas"
+  POI-RGNN                     ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓       33,03    baseline neural publicado
+  dedicado                     ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓      36,33
+  conjunto                     ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓      36,19
+                               └────┴────┴────┴────┴────┴────┴────┘
+                               0    5   10   15   20   25   30   35
+```
+
+A escada mostra **onde está cada salto**. De "sempre Food" para "conte a última categoria" são
+11 pontos. De lá para "conte as cinco últimas" são mais 10. E de contagem para aprendizado de
+representação são mais 7,5. Cada degrau é pago por uma ideia diferente.
+
+**2. Comparação justa — é o único externo que enxerga exatamente os nossos exemplos.**
+
+POI-RGNN, HMT-GRN, STAN e ReHDM rodam sobre **as próprias representações** deles. O texto é explícito:
+essa comparação **também inclui a vantagem de representação** do
+[§2.6](#26--por-que-isso-importa-na-dissertação), e portanto **não** é a comparação controlada. A
+comparação controlada do modelo conjunto continua sendo a coluna **Dedicado**, que usa a mesma
+representação, as mesmas janelas e os mesmos folds.
+
+O Markov-K é o externo que chega mais perto de ver os mesmos exemplos, porque foi construído para
+isso — mesma saída de ETL, mesmas janelas, mesmos folds.
+
+**3. Diagnóstico honesto — mede quanta da tarefa é trivial.**
+
+Se um modelo neural com milhões de parâmetros ficasse a dois pontos de uma tabela de contagens, isso
+diria mais sobre a tarefa do que sobre o modelo. Os 32,9% de "fica na mesma região" no Alabama são
+exatamente esse tipo de fato, e ele está no texto **antes** de alguém precisar perguntar.
+
+#### O círculo que se fecha: o Markov reaparece dentro do modelo conjunto
+
+Este é um detalhe elegante, e conecta o bloco 5 de volta ao bloco 3.
+
+A mesma tabela de transição de região existe **dentro** da cabeça de região do modelo conjunto, como
+um **prior aditivo** que pode ser somado aos logits por um peso escalar. Vale reler
+[§3.2](#32--camada-a-camada-com-justificativa):
+
+> **Esse peso é fixo em zero e não é treinado.** O prior não alcança nem os logits nem os
+> gradientes, mesmo quando uma tabela de transição por fold é fornecida.
+
+Ou seja: **o Markov está presente na arquitetura e desligado de propósito.** A predição de região do
+modelo reportado depende só das duas torres.
+
+> **Por que isso é bom para você.** Se a banca perguntar *"o seu ganho de região não vem só do prior
+> de transição?"*, a resposta é que o prior está em zero, não treinado, e o Markov aparece **só** como
+> piso externo. O modelo bate a tabela de transição **sem usá-la**.
+
+#### O que dizer se perguntarem
+
+| Pergunta provável | Resposta em uma frase |
+|---|---|
+| *Por que Markov e não um baseline mais forte?* | Ele não substitui os baselines fortes — são quatro, e estão na tabela. O Markov é o **piso**: ele diz quanto da tarefa se resolve sem aprender nada. |
+| *Como escolheu o K?* | Testei K ∈ {1,3,5,7,9} nos mesmos folds e reportei o melhor por conjunto, **pela macro-F1**, que é a métrica do eixo. Deu K=5 em cinco conjuntos e K=3 na Flórida. |
+| *Escolher o melhor K não é dar vantagem ao baseline?* | É — deliberadamente. O piso é reportado na configuração **mais favorável a ele**, para que a margem do meu modelo seja a mais conservadora possível. |
+| *Por que o piso de região é tão alto?* | Janelas de passo 1: a última região prediz muito bem a próxima. No Alabama, o alvo **é** a última região em 32,9% das janelas. Está declarado. |
+| *O seu ganho de região vem do prior de transição?* | Não. O prior existe na cabeça de região com peso **fixo em zero, não treinado**. O modelo supera a tabela de transição sem usá-la. |
+
+---
+
+### 5.6 · Dúvidas e esclarecimentos
+
+> *Espaço reservado. Perguntas suas sobre Markov-K e as respostas entram aqui, cada uma com data.*
+
+<!-- MODELO — copie e preencha
+#### 5.6.N · [pergunta em uma linha] · <data>
+**Pergunta.**
+
+**Resposta.**
+
+**Onde isso aparece na dissertação.**
+-->
+
+*(nenhuma entrada ainda)*
+
+---
+
+## 6 · Cola de bolso geral
 
 ### As sete frases que amarram a dissertação inteira
 
@@ -1690,12 +2064,15 @@ concordante ao mesmo tempo entre-motores e dentro-da-família.
 | Faixa de macro-F1 entregue | **30 a 38** — qualquer número fora disso é de geração anterior, com vazamento |
 | Ganho da representação | $+0{,}23$ (FL) a $+6{,}29$ (Istambul) |
 | Piso de classe majoritária | $5{,}7$ a $7{,}3$ macro-F1 |
+| Markov-K (categoria) | $20{,}50$ (AL) a $29{,}74$ (FL); ordem $K=5$, exceto FL com $K=3$ |
+| Piso Markov-1 (região) | **51 a 72** Acc@10; o conjunto o supera por $+4{,}1$ a $+10{,}0$ nos seis |
+| Por que o piso de região é alto | passo 1: no AL o alvo **é** a última região em **32,9%** das janelas |
 | Desenho experimental | 4 sementes $\{0,1,7,100\}$ × 5 folds = **20** modelos por configuração |
 | $\pm$ impresso | desvio-padrão **entre as 4 médias-por-semente**, não entre folds |
 
 ---
 
-## 6 · Registro de tópicos
+## 7 · Registro de tópicos
 
 O índice vivo. Tópicos vindos de `Questions_author.md` §"Estudos específicos" e do que surgir depois.
 
@@ -1718,6 +2095,9 @@ O índice vivo. Tópicos vindos de `Questions_author.md` §"Estudos específicos
 | 4.3 | Centroid separability ratio | Estudos específicos §4 | ✅ escrito | [§4.4](#44--centroid-separability-ratio) |
 | 4.4 | Linear CKA | Estudos específicos §4 | ✅ escrito | [§4.5](#45--linear-cka) |
 | 4.5 | Validade por tarefa dos protocolos L0 | acréscimo (ressalva crítica) | ✅ escrito | [§4.6](#46--a-ressalva-mais-importante-deste-bloco) |
+| 5.1 | Markov-K: o que é, como funciona | Estudos específicos §3 (add. 2026-08-25) | ✅ escrito | [§5.1](#51--o-que-é-uma-cadeia-de-markov), [§5.2](#52--markov-k-a-ordem-k-e-o-stupid-backoff) |
+| 5.2 | A escolha da ordem K por conjunto | acréscimo (a curva de K) | ✅ escrito | [§5.3](#53--o-resultado-e-a-curva-que-ele-desenha) |
+| 5.3 | Piso Markov-1 de região | acréscimo (o par do eixo região) | ✅ escrito | [§5.4](#54--o-piso-markov-1-de-região) |
 
 ### Candidatos a próximas seções
 
@@ -1736,7 +2116,7 @@ diretamente ao que já está aqui. **Nenhum foi escrito** — entram quando voc�
 
 ---
 
-## 7 · Como pedir uma seção nova (ou uma resposta)
+## 8 · Como pedir uma seção nova (ou uma resposta)
 
 Este documento foi feito para crescer sem ser reescrito. Três formas de expandir:
 
@@ -1749,8 +2129,8 @@ reler o texto original e a resposta lado a lado.
 **(b) Um tópico novo.**
 > *"Quero uma seção sobre conflito de gradientes."*
 
-Vira uma seção nova (bloco 5, 6, ...), com a mesma estrutura — *o que é / como funciona / por que
-importa aqui / dúvidas* — e entra no [Registro](#6--registro-de-tópicos).
+Vira uma seção nova (bloco 6, 7, ...), com a mesma estrutura — *o que é / como funciona / por que
+importa aqui / dúvidas* — e entra no [Registro](#7--registro-de-tópicos).
 
 **(c) Mais profundidade num ponto existente.**
 > *"O §1.6 sobre TOST está raso, quero potência estatística e escolha de margem."*
@@ -1760,7 +2140,7 @@ A seção cresce internamente, com uma subseção nova. O que já estava escrito
 **Convenções deste arquivo, para manter a consistência:**
 
 - Toda afirmação numérica vem da dissertação entregue (v18, convenção *joint-best*) ou de fonte
-  externa citada em [§8](#8--fontes). Números de macro-F1 de categoria vivem em **30–38**.
+  externa citada em [§9](#9--fontes). Números de macro-F1 de categoria vivem em **30–38**.
 - Diagramas em **Mermaid**, gráficos quantitativos em **barras Unicode** (renderizam em qualquer
   lugar, inclusive no app do GitHub no celular).
 - Código é **ilustrativo e mínimo** — mostra a *ideia*, não é o código de produção. Onde é
@@ -1769,7 +2149,7 @@ A seção cresce internamente, com uma subseção nova. O que já estava escrito
 
 ---
 
-## 8 · Fontes
+## 9 · Fontes
 
 ### Da dissertação (fontes primárias deste documento)
 
@@ -1781,6 +2161,8 @@ A seção cresce internamente, com uma subseção nova. O que já estava escrito
 | Check2HGI e modelo conjunto, em detalhe | `src/chapters/apx_h_check2hgi_joint_model.tex` (Apêndice E do volume principal) |
 | Resultados e vereditos | `src/chapters/5_mobiwac/06_results.tex`; tabelas em `src/tables/mobiwac/` |
 | Geometria de embeddings, implementação | `scripts/embedding_eval/geometry.py` (raiz do repositório) |
+| Markov-K de categoria, implementação | `scripts/compute_markov_kstep_cat.py`; resultados por ordem K em `docs/results/P0/simple_baselines/<estado>/next_category_markov_kstep.json` |
+| Piso Markov-1 de região, implementação | `scripts/closing_data/compute_markov_floor_stride1.py`; metodologia em `docs/studies/closing_data/MARKOV_FLOOR_STRIDE1.md` |
 | Validade por tarefa dos protocolos L0 | `docs/studies/archive/embedding_eval/L0_METHODOLOGY.md` |
 | Enquadramento didático (fala da defesa) | `presentation/SLIDES.md` §Seção 2 (slides S8, S11, S15) |
 
@@ -1794,6 +2176,8 @@ A seção cresce internamente, com uma subseção nova. O que já estava escrito
 - **CTLE:** Lin, Y. et al. (2021). *Pre-training context and time aware location embeddings from spatial-temporal trajectories for user next location prediction.* AAAI.
 - **STAN:** Luo, Y., Liu, Q. & Liu, Z. (2021). *STAN: Spatio-Temporal Attention Network for next location recommendation.* WWW.
 - **TOST:** Lakens, D. (2017). *Equivalence tests: A practical primer for t tests, correlations, and meta-analyses.* Social Psychological and Personality Science, 8(4), 355–362. — [DOI / SAGE](https://journals.sagepub.com/doi/10.1177/1948550617697177) · tutorial: [Lakens, Scheel & Isager (2018)](https://journals.sagepub.com/doi/10.1177/2515245918770963) · pacote [TOSTER](https://packages.oit.ncsu.edu/cran/web/packages/TOSTER/readme/README.html)
+- **Cadeia de Markov para mobilidade (MMC):** Gambs, S., Killijian, M.-O. & Núñez del Prado Cortez, M. (2012). *Next Place Prediction Using Mobility Markov Chains.* Proc. MPM (EuroSys Workshop), 1–6. — [DOI 10.1145/2181196.2181199](https://doi.org/10.1145/2181196.2181199)
+- ***Stupid backoff*:** Brants, T., Popat, A. C., Xu, P., Och, F. J. & Dean, J. (2007). *Large language models in machine translation.* EMNLP-CoNLL, 858–867. — a estratégia de recuo por n-grama usada no Markov-K.
 - **Holm:** Holm, S. (1979). *A simple sequentially rejective multiple test procedure.* Scandinavian Journal of Statistics, 6(2), 65–70.
 - **Wilcoxon:** Wilcoxon, F. (1945). *Individual comparisons by ranking methods.* Biometrics Bulletin, 1(6), 80–83.
 - **Silhouette:** Rousseeuw, P. J. (1987). *Silhouettes: a graphical aid to the interpretation and validation of cluster analysis.* J. Comput. Appl. Math., 20, 53–65.
@@ -1803,5 +2187,5 @@ A seção cresce internamente, com uma subseção nova. O que já estava escrito
 ---
 
 <sub>Documento de estudo · dissertação UFV/PPGCC · defesa 2026-08-28 · não é texto entregue.
-Criado em 2026-08-24. Expandir pelas seções "Dúvidas e esclarecimentos" e pelo
-[Registro de tópicos](#6--registro-de-tópicos).</sub>
+Criado em 2026-08-24, bloco 5 (Markov-K) em 2026-08-25. Expandir pelas seções "Dúvidas e esclarecimentos" e pelo
+[Registro de tópicos](#7--registro-de-tópicos).</sub>
