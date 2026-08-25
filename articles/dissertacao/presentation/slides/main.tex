@@ -2096,7 +2096,7 @@
         \smallskip
 
         \textbf{B6 \textbullet{} Document and scope}\\
-        \hyperlink{b61}{\beamerbutton{B6-1}}\hyperlink{b62}{\beamerbutton{B6-2}}\hyperlink{b63}{\beamerbutton{B6-3}}\hyperlink{b64}{\beamerbutton{B6-4}}
+        \hyperlink{b61}{\beamerbutton{B6-1}}\hyperlink{b62}{\beamerbutton{B6-2}}\hyperlink{b63}{\beamerbutton{B6-3}}\hyperlink{b64}{\beamerbutton{B6-4}}\hyperlink{b65}{\beamerbutton{B6-5}}
         \smallskip
 
         \textbf{B7 \textbullet{} How Check2HGI and the joint model work}\\
@@ -3106,6 +3106,50 @@
     \vfill
     {\scriptsize
     \begin{minipage}[b]{0.775\linewidth}\raggedright\textcolor{gray}{Cap.~5, pp.~82-83; Tabela 10 e sua nota de rodapé.}\end{minipage}\hfill
+    \begin{minipage}[b]{0.20\linewidth}\raggedleft \hyperlink{b0}{\beamerreturnbutton{B0}}\end{minipage}}
+\end{frame}
+
+% FALA: "Sim, e a resposta é diferente nos dois eixos, então eu separo.
+% Na próxima categoria a comparação é limpa: o POI-RGNN é nativo da tarefa, foi reimplementado da
+% arquitetura e dos hiperparâmetros publicados, e está acima do piso de Markov sintonizado nos seis.
+% O capítulo diz a frase inteira: o modelo conjunto fica pelo menos três vírgula zero seis pontos
+% acima do baseline externo mais forte em todos os conjuntos. E ele usa isso como argumento, não como
+% vitória: a representação move a mesma métrica de zero vírgula vinte e três a seis vírgula vinte e
+% nove, o salto sobre a literatura é de pelo menos três, e a diferença entre um modelo e dois é meio
+% ponto. É o menor dos três efeitos, e é nesse sentido que um modelo pode substituir dois.
+% Na região eu sou mais cauteloso, e digo por quê. Não existe baseline nativo desse alvo: o mais
+% próximo, o DRRGNN, prediz região sobre regiões descobertas por pessoa, não sobre uma partição fixa
+% da cidade, então o espaço de rótulos é outro. A comparação teve de ser construída, e um piso de
+% Markov de primeira ordem supera o HMT-GRN nos seis e o STAN em quatro. Por isso o capítulo trata o
+% piso, e não os sistemas externos, como a referência que a tarefa tem de vencer.
+% E a ressalva que vale para os dois eixos: esses externos rodam nos próprios embeddings, então essa
+% margem inclui a vantagem de representação. A comparação que decide a tese não é essa. É a coluna
+% Dedicated, que partilha representação, janelas e partições comigo."
+\begin{frame}[noframenumbering]{Vocês chegam a superar os modelos da literatura?}
+    \framesubtitle{B6-5 --- sim, e a resposta é diferente nos dois eixos}
+    \hypertarget{b65}{}
+    \footnotesize\begin{itemize}\setlength{\itemsep}{3pt}\setlength{\parskip}{0pt}
+        \item \textbf{\color{primaryshade}Next category --- the comparison is clean.} POI-RGNN is
+              \textbf{native to the task}, re-implemented from its published architecture, and
+              \textbf{above the tuned Markov-K floor at all six}. The chapter's own sentence:
+              \textit{``the joint model stands \textbf{at least 3.06 points} above the strongest
+              external baseline at every dataset.''}
+        \item \textbf{And the chapter uses that as an argument, not a victory:} representation
+              \textbf{+0.23 to +6.29}, the gap over the literature \textbf{at least 3.06}, one model
+              against two \textbf{half a point} --- \alert{``the smallest of the three effects at
+              work here.''}
+        \item \textbf{\color{alertshade}Next region --- more careful, and here is why.} No published
+              model targets this exact task: the nearest, DRRGNN, predicts region over
+              \textbf{regions discovered per person}, not a fixed citywide partition. And the
+              \textbf{Markov-1 floor is above HMT-GRN at all six, STAN at four} --- so the chapter
+              treats \alert{the floor, not the external systems}, as the reference.
+        \item \textbf{The caveat for both.} The externals run on their own embeddings, so this
+              margin \alert{includes the representation advantage}. The comparison that decides the
+              thesis is the \textbf{Dedicated} column.
+    \end{itemize}
+    \vfill
+    {\scriptsize
+    \begin{minipage}[b]{0.775\linewidth}\raggedright\textcolor{gray}{Cap.~5: §5.2, §5.5.4, pp.~78 e 82-83; Tabela 10.}\end{minipage}\hfill
     \begin{minipage}[b]{0.20\linewidth}\raggedleft \hyperlink{b0}{\beamerreturnbutton{B0}}\end{minipage}}
 \end{frame}
 
