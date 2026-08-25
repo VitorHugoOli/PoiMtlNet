@@ -112,6 +112,23 @@ impedir.
 ⚠ **Nunca apague o `% FALA:` do `main.tex`** para "resolver" a duplicação. Ele está lá para que quem
 edita o slide veja a fala na mesma tela.
 
+#### ⚠ Os números `S<n>` do `SLIDES.md` NÃO são a numeração da tela
+
+Medido 2026-08-25. O `SLIDES.md` conta a capa como `S1`; o deck não numera a capa. Resultado: o bloco
+`S8` era o **slide 7 impresso**, o `S12` era o **11**, o `S13` era o **12** — e mais adiante o
+deslocamento muda outra vez (o `S28` é o **28** impresso). **Não existe uma fórmula.** O autor fala
+por número impresso ("olha o slide 28"), o arquivo fala por outro.
+
+E os números pioraram de propósito na reordenação da Seção 2 (2026-08-25): os blocos foram movidos
+**sem renumerar**, porque **doze referências cruzadas dentro do próprio `SLIDES.md` apontam para eles
+pelo número** (`"a Def. 2.12 é de S9"`, `"isso é de S10"`, `"ela é de S14"`, …) e renumerar quebraria
+todas em silêncio. A ordem física do arquivo é a ordem do deck; os números são identidades
+históricas.
+
+> **Regra:** identifique slide por **título**, nunca por número — no `SLIDES.md`, no `main.tex`, nas
+> âncoras de script e ao conversar com o autor. Quando ele disser um número, **confirme pelo título**
+> antes de editar. É a mesma regra do §4e, e é por isso que ela existe.
+
 ---
 
 ## 2 · ⚠ A armadilha que mais custou: conteúdo que sai da página em silêncio
@@ -171,6 +188,27 @@ projetados, ainda acima do piso de 16 pt da regra 10 — a régua é a geometria
 
 ⚠ **Reequilibrar largura obriga a renderizar as DUAS colunas.** Na v2 a canária deu 100% nas duas —
 o texto do `Categorical` **estava** desenhado, só que metade dele fora da página.
+
+### 2.2 · Nunca abra o corpo de um frame com uma chave
+
+`\begin{frame}{título}{subtítulo}` é sintaxe válida do Beamer: **o segundo grupo de chaves vira o
+subtítulo**. Então isto —
+
+```latex
+\begin{frame}{The line this work stands on, and the one idea on it}
+    {\footnotesize \textbf{one-hot identifier} $\rightarrow$ ...}
+```
+
+— não põe a tira no corpo: põe **dentro da faixa colorida do título**, em fonte de subtítulo. Custou
+um build em 25/08, e **a canária deu 100%**, porque o texto estava mesmo no PDF, só que no lugar
+errado. Nenhum erro no log, nenhum overfull.
+
+**O conserto é uma linha:** abra o corpo com algo que não seja `{` — `\vspace{0.5mm}`, `\par`,
+`\noindent`, um `\begin{block}`. O frame fundido da Seção 2 carrega um comentário `⚠` explicando
+isso logo acima do `\begin{frame}`; não o apague.
+
+**A lição geral:** a canária responde *"o texto está no PDF?"*. Ela não responde *"está onde eu
+mandei?"* nem *"o bloco fecha?"*. Só a renderização responde essas duas.
 
 ---
 

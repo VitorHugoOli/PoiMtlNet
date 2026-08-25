@@ -269,27 +269,120 @@
 \section[Fundamentos]{Fundamentos compartilhados}
 
 % ============================================================
-% SEÇÃO 2 · Fundamentos compartilhados (S8--S16)
+% SEÇÃO 2 · Fundamentos compartilhados (7 frames)
 % Motor de de-duplicação: nada daqui é reaberto depois.
+% ORDEM REVISTA 2026-08-25 (decisão do autor): a forma do Cap. 2 entregue —
+%   trabalho relacionado (2.1.2-2.1.3) -> representação (2.2) -> vocabulário de MTL (2.3)
+%   -> dados, métrica e protocolo (2.4).
+% Antes o deck abria pela linhagem, que no texto é a CONCLUSÃO do bloco de representações, e
+% fechava pelo trabalho relacionado, que é a PREMISSA. As duas pontas estavam invertidas.
+% Dois frames saíram: "Related work in representation" (fundido acima) e o \specialframe
+% "With the vocabulary fixed..." (frase agora falada sobre o divisor da Seção 3, PLANO §8 R12).
 % ============================================================
 
-\subsection{Linhagem}
+\subsection{Trabalhos relacionados}
 
-% FALA: "Uma ideia só cobre três métodos desta dissertação, então é melhor dizê-la agora do que
-% três vezes. A ideia infomax, nas palavras do próprio capítulo: o modelo aprende vetores úteis
-% sendo obrigado a distinguir um pareamento verdadeiro de um pareamento corrompido, e não precisa
-% de rótulo nenhum para isso, porque os próprios dados dizem qual é o verdadeiro. O DGI faz essa
-% comparação entre um nó e um resumo do grafo. O HGI estende o mesmo objetivo por uma hierarquia
-% de lugar, região e cidade. E o Check2HGI, do Capítulo 5, acrescenta um quarto nível abaixo do
-% lugar, que é o check-in. O mecanismo de cada um fica com o capítulo dono dele. A tabela na tela
-% é a Tabela 1 da dissertação, e ela é o mapa da fala inteira: a cada seção eu volto a ela e digo
-% em que linha eu estou."
+% FALA: "Duas telas de trabalho relacionado, e elas são o chão comum dos dois primeiros estudos. A
+% tarefa dominante da área é o próximo lugar exato. A linha vai dos recorrentes, ST-RNN, DeepMove,
+% HST-LSTM, Flashback, para os de atenção, STAN, GeoSAN, GETNext. Todos eles predizem o lugar
+% exato, e por isso nenhum é linha de base direta para os alvos que eu estudo. O par que os dois
+% primeiros estudos atacam é outro: classificação de categoria e previsão da próxima categoria. E,
+% em mobilidade, o multitarefa foi usado quase inteiramente a serviço do próximo lugar. O MCARNN
+% prevê atividade e lugar juntos; o CSLSL prevê em cascata quando, o quê e onde; o iMTL e o HAMTL
+% seguem a mesma direção. O TME é a exceção que puxa para o outro lado, com anotação semântica
+% estática de ponto de interesse."
+\begin{frame}{Related work: POI prediction and multitask learning}
+    \begin{itemize}\setlength{\itemsep}{5pt}
+        \item \textbf{Next place is the dominant task in the field} --- recurrent: ST-RNN,
+              DeepMove, HST-LSTM, Flashback; attention: STAN, GeoSAN, GETNext;
+        \item every model named there predicts the \textbf{exact next place}, so
+              \alert{none is a direct baseline for the targets studied here};
+        \item the pair the first two studies attack: \textbf{category classification} and
+              \textbf{next-category prediction};
+        \item in mobility, MTL has served \textbf{next place} almost entirely: MCARNN, CSLSL,
+              iMTL, HAMTL. TME instead applies tree-guided multitask embedding to static
+              semantic POI annotation.
+    \end{itemize}
+\end{frame}
+
+% FALA: "O eixo que separa este trabalho da literatura não é a tarefa, é o papel dela. De um lado,
+% categoria e região como **meio** para chegar ao próximo lugar: o HMT-GRN usa a região prevista
+% para estreitar a busca pelo lugar, o CatDM usa a categoria prevista para reduzir o conjunto de
+% candidatos. Do outro lado, como **fim**: o DRRGNN prevê região de atividade, o POI-RGNN prevê a
+% próxima categoria. E a frase do texto, escopada como ela está escrita: entre os trabalhos
+% revisados nesta dissertação, nenhum trata próxima categoria e próxima região como alvos finais
+% de igual estatuto num modelo conjunto que não prediz também o próximo lugar. O rodapé é o mapa
+% de onde saem os métodos externos que vão aparecer nas tabelas."
+\begin{frame}{The axis that separates this work}
+    \begin{columns}[t,onlytextwidth]
+        \begin{column}{0.465\textwidth}
+            \begin{block}{Category and region as a MEANS}
+                \small
+                Toward the next place: HMT-GRN, CatDM, CSLSL.
+            \end{block}
+        \end{column}
+        \hfill
+        \begin{column}{0.465\textwidth}
+            \begin{exampleblock}{Category or region as an END}
+                \small
+                Activity region (DRRGNN), next category (POI-RGNN).
+            \end{exampleblock}
+        \end{column}
+    \end{columns}
+
+    \bigskip
+    {\small\itshape
+    Among the works reviewed in this dissertation, none treats the next category and the
+    next region as co-equal end targets of one joint model that does not also predict the
+    next place.\par}
+
+    \bigskip
+    {\footnotesize
+    \textbf{next category} POI-RGNN, Markov over category transitions \textbar\
+    \textbf{next region} HMT-GRN, STAN, ReHDM, Markov-1 floor \textbar\
+    \textbf{Ch.~3} HMRM, MHA+PE \textbar\ \textbf{Ch.~4} MTLnet.\par}
+\end{frame}
+
+\subsection{Linhagem de representações}
+
+% FALA: "Esta é a base mais importante da dissertação, e ela é uma escada. Começa no identificador
+% one-hot, que marca um lugar por posição e não codifica relação nenhuma. Sobe para as representações
+% distribuídas, skip-gram, DeepWalk, node2vec, em que a geometria do vetor reflete a relação que está
+% nos dados. Sobe de novo para as redes de grafo, GCN, GAT, GraphSAGE, que aprendem essa relação por
+% agregação de vizinhança. E o degrau seguinte é uma ideia só, que cobre três métodos desta
+% dissertação, então é melhor dizê-la agora do que três vezes. A ideia infomax, nas palavras do
+% próprio capítulo: o modelo aprende vetores úteis sendo obrigado a distinguir um pareamento
+% verdadeiro de um pareamento corrompido, e não precisa de rótulo nenhum para isso, porque os
+% próprios dados dizem qual é o verdadeiro. O DGI faz essa comparação entre um nó e um resumo do
+% grafo. O HGI estende o mesmo objetivo por uma hierarquia de lugar, região e cidade. E o Check2HGI,
+% do Capítulo 5, acrescenta um quarto nível abaixo do lugar, que é o check-in. O mecanismo de cada um
+% fica com o capítulo dono: o DGI no Capítulo 3, o HGI no Capítulo 4. A tabela na tela é a Tabela 1 da
+% dissertação, e ela é o mapa da fala inteira: a cada seção eu volto a ela e digo em que linha eu estou."
 %
-% A tabela é a Tab. 1 reduzida a quatro linhas e duas colunas (as linhas ST-MTLNet e Joint model
-% e a coluna Reference ficam para as seções donas). Duas reduções declaradas na linha MTLnet:
+% 2026-08-25 · FUSÃO. Este frame absorveu o antigo "Related work in representation" (subseção 2.7).
+% A escada perdeu os marcadores DGI e HGI (a Tab. 1 já os diz, na mesma profundidade) e o rodapé do
+% Check2HGI (a linha da Tab. 1 e o nível tracejado do tikz já o dizem); os três degraus pré-infomax
+% viraram a tira acima, com a glosa montada só de fragmentos que já estavam em tela. Ordem interna =
+% ordem do capítulo: escada (2.2.1) -> infomax (2.2.2) -> Tab. 1 (2.2.4, que o capítulo põe por último).
+%
+% A tabela é a Tab. 1 reduzida a três linhas e duas colunas (as linhas MTLnet, ST-MTLNet e Joint
+% model e a coluna Reference ficam para as seções donas). Duas reduções declaradas na linha
 % saem "FiLM conditioning" (INTRODUZ em 3.2) e "Null result for that configuration" (a Seção 2
 % não reporta resultado). Nenhum valor alterado.
-\begin{frame}{One lineage, one idea}
+% ⚠ O \vspace ABAIXO NAO E' COSMETICO. Sem ele, o grupo {\footnotesize ...} que abre o corpo e'
+% lido pelo beamer como o SEGUNDO argumento de \begin{frame}{titulo}{subtitulo} e a tira inteira vai
+% parar DENTRO da faixa do titulo. Aconteceu no primeiro build de 25/08. Nunca abra o corpo deste
+% frame com uma chave.
+\begin{frame}{The line this work stands on, and the one idea on it}
+    \vspace{0.5mm}
+    {\footnotesize
+    \textbf{one-hot identifier} $\rightarrow$ \textbf{skip-gram $\cdot$ DeepWalk $\cdot$ node2vec}
+    $\rightarrow$ \textbf{GCN $\cdot$ GAT $\cdot$ GraphSAGE}\par
+    \smallskip
+    \textit{from position, to a geometry that reflects relationships, to relationships learned
+    by neighborhood aggregation.}\par}
+
+    \smallskip
     \begin{block}{The infomax idea, in one sentence}
         \small
         The model learns useful vectors by being asked to tell a true pairing of two parts of the
@@ -298,9 +391,9 @@
 
     \vfill
     \begin{columns}[c,onlytextwidth]
-        \begin{column}{0.560\textwidth}
-            \small
-            \renewcommand{\arraystretch}{1.45}\begin{tabular}{@{}lp{5.2cm}@{}}
+        \begin{column}{0.625\textwidth}
+            \footnotesize
+            \renewcommand{\arraystretch}{1.10}\begin{tabular}{@{}lp{6.0cm}@{}}
                 \toprule
                 Model & What it added \tabularnewline
                 \midrule
@@ -311,10 +404,10 @@
             \end{tabular}
         \end{column}
         \hfill
-        \begin{column}{0.380\textwidth}
+        \begin{column}{0.325\textwidth}
             \centering
             \begin{tikzpicture}[
-                lvl/.style={draw=primaryshade, rounded corners=1mm, minimum width=2.3cm,
+                lvl/.style={draw=primaryshade, rounded corners=1mm, minimum width=2.1cm,
                             minimum height=0.52cm, font=\small, inner sep=1pt}]
                 \node[lvl, fill=primarytint] at (0,1.80) {city};
                 \node[lvl, fill=primarytint] at (0,1.20) {region};
@@ -448,122 +541,6 @@
         Ch.~5 reports macro-F1. \alert{Not one scale.}
     \end{alertblock}
 \end{frame}
-
-\subsection{Trabalhos relacionados}
-
-% FALA: "Duas telas de trabalho relacionado, e elas são o chão comum dos dois primeiros estudos. A
-% tarefa dominante da área é o próximo lugar exato. A linha vai dos recorrentes, ST-RNN, DeepMove,
-% HST-LSTM, Flashback, para os de atenção, STAN, GeoSAN, GETNext. Todos eles predizem o lugar
-% exato, e por isso nenhum é linha de base direta para os alvos que eu estudo. O par que os dois
-% primeiros estudos atacam é outro: classificação de categoria e previsão da próxima categoria. E,
-% em mobilidade, o multitarefa foi usado quase inteiramente a serviço do próximo lugar. O MCARNN
-% prevê atividade e lugar juntos; o CSLSL prevê em cascata quando, o quê e onde; o iMTL e o HAMTL
-% seguem a mesma direção. O TME é a exceção que puxa para o outro lado, com anotação semântica
-% estática de ponto de interesse."
-\begin{frame}{Related work: POI prediction and multitask learning}
-    \begin{itemize}\setlength{\itemsep}{5pt}
-        \item \textbf{Next place is the dominant task in the field} --- recurrent: ST-RNN,
-              DeepMove, HST-LSTM, Flashback; attention: STAN, GeoSAN, GETNext;
-        \item every model named there predicts the \textbf{exact next place}, so
-              \alert{none is a direct baseline for the targets studied here};
-        \item the pair the first two studies attack: \textbf{category classification} and
-              \textbf{next-category prediction};
-        \item in mobility, MTL has served \textbf{next place} almost entirely: MCARNN, CSLSL,
-              iMTL, HAMTL. TME instead applies tree-guided multitask embedding to static
-              semantic POI annotation.
-    \end{itemize}
-\end{frame}
-
-% FALA: "O eixo que separa este trabalho da literatura não é a tarefa, é o papel dela. De um lado,
-% categoria e região como **meio** para chegar ao próximo lugar: o HMT-GRN usa a região prevista
-% para estreitar a busca pelo lugar, o CatDM usa a categoria prevista para reduzir o conjunto de
-% candidatos. Do outro lado, como **fim**: o DRRGNN prevê região de atividade, o POI-RGNN prevê a
-% próxima categoria. E a frase do texto, escopada como ela está escrita: entre os trabalhos
-% revisados nesta dissertação, nenhum trata próxima categoria e próxima região como alvos finais
-% de igual estatuto num modelo conjunto que não prediz também o próximo lugar. O rodapé é o mapa
-% de onde saem os métodos externos que vão aparecer nas tabelas."
-\begin{frame}{The axis that separates this work}
-    \begin{columns}[t,onlytextwidth]
-        \begin{column}{0.465\textwidth}
-            \begin{block}{Category and region as a MEANS}
-                \small
-                Toward the next place: HMT-GRN, CatDM, CSLSL.
-            \end{block}
-        \end{column}
-        \hfill
-        \begin{column}{0.465\textwidth}
-            \begin{exampleblock}{Category or region as an END}
-                \small
-                Activity region (DRRGNN), next category (POI-RGNN).
-            \end{exampleblock}
-        \end{column}
-    \end{columns}
-
-    \bigskip
-    {\small\itshape
-    Among the works reviewed in this dissertation, none treats the next category and the
-    next region as co-equal end targets of one joint model that does not also predict the
-    next place.\par}
-
-    \bigskip
-    {\footnotesize
-    \textbf{next category} POI-RGNN, Markov over category transitions \textbar\
-    \textbf{next region} HMT-GRN, STAN, ReHDM, Markov-1 floor \textbar\
-    \textbf{Ch.~3} HMRM, MHA+PE \textbar\ \textbf{Ch.~4} MTLnet.\par}
-\end{frame}
-
-\subsection{Linhagem de representações}
-
-% FALA: "Esta é a base mais importante da dissertação, e por isso ela tem tela própria. É uma
-% escada. Começa no identificador one-hot, que marca um lugar por posição e não codifica relação
-% nenhuma. Sobe para as representações distribuídas, skip-gram, DeepWalk, node2vec, em que a
-% geometria do vetor reflete a relação que está nos dados. Sobe de novo para as redes de grafo,
-% GCN, GAT, GraphSAGE, que aprendem essa relação por agregação de vizinhança. Depois vem o DGI,
-% que aplica o objetivo infomax entre um nó e um resumo do grafo, e o HGI, que estende o mesmo
-% objetivo pela hierarquia de lugar, região e cidade. O mecanismo de cada um fica com o capítulo
-% dono: o DGI no Capítulo 3, o HGI no Capítulo 4. Aqui é só o mapa, para a linhagem ficar legível
-% quando eu chegar ao Check2HGI."
-\begin{frame}{Related work in representation: the line this work stands on}
-    \begin{itemize}
-        \item \textbf{one-hot identifier:} marks a place or a category by position, and encodes
-              no relationship between identifiers.
-        \item \textbf{skip-gram, DeepWalk, node2vec:} dense vectors whose geometry reflects
-              relationships in the data; random walks carry the idea to graphs.
-        \item \textbf{GCN, GAT, GraphSAGE:} learn those relationships through neighborhood
-              aggregation.
-        \item \textbf{DGI:} an infomax objective on graph nodes against a graph-level summary.
-              \textit{Mechanism in Chapter 3.}
-        \item \textbf{HGI:} the same objective across the POI, region, and city hierarchy.
-              \textit{Mechanism in Chapter 4.}
-    \end{itemize}
-
-    \begin{center}
-        \small\textit{Check2HGI adds a fourth level below the place. Chapter 5.}
-    \end{center}
-\end{frame}
-
-\subsection{Transição}
-
-% FALA: "Com o vocabulário, os dados e a métrica fixados uma única vez, cada estudo agora só
-% precisa dizer o que mudou, e cada um nomeia a sua própria convenção quando chegar a hora. E o
-% par de tarefas dos dois primeiros estudos não é o do terceiro; quando ele mudar, eu aviso. O
-% primeiro usou o que a literatura oferecia: um vetor por lugar e um tronco compartilhado."
-{
-\specialframe
-\begin{frame}{With the vocabulary fixed, each study says only what it changed}
-    \vfill
-    \begin{itemize}
-        \item \textit{Vocabulary, data, and metric: fixed once.}
-        \item \textit{Each study now says only what it changed, and names its own convention when
-              its turn comes.}
-        \item \textit{The task pair of the first two studies is not the pair of the third. When it
-              changes, I will say so.}
-        \item \textit{The first study used what the literature offered: one vector per place, and
-              one shared trunk.}
-    \end{itemize}
-    \vfill
-\end{frame}
-}
 
 \section[MTLnet]{Multitask Learning for POI Category and Next-POI Prediction}
 

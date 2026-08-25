@@ -165,12 +165,51 @@ na tela, nos dois slides.
 
 > `\section[Fundamentos]{Fundamentos compartilhados}`
 > **Propósito:** o motor de de-duplicação. Depois desta seção, cada estudo só diz o que mudou.
-> **Orçamento:** 55 + 40 + 55 + 35 + 50 + 35 + 30 + 40 + 20 = **360 s**.
+> **Orçamento:** 35 + 30 + 75 + 40 + 55 + 35 + 50 = **320 s** (era 360 s em nove slides).
+> ⚠ **Ordem revista em 2026-08-25 (decisão do autor). Nove slides viraram sete.** A seção passou a
+> ter a forma do Cap. 2 entregue: **trabalho relacionado primeiro** (§2.1.2–2.1.3), **depois a
+> representação** (§2.2.1 escada → §2.2.2 infomax → §2.2.4 Tab. 1), **depois o vocabulário de MTL**
+> (§2.3), **e dados, métrica e protocolo fechando** (§2.4). Antes o deck abria pela linhagem — que no
+> texto é a *conclusão* do bloco de representações — e fechava pelo trabalho relacionado, que é a
+> *premissa*. As duas pontas estavam invertidas.
+>
+> **Os números dos blocos (`S8`…`S14`) são identidades históricas, não posições.** Eles NÃO foram
+> renumerados de propósito: doze referências cruzadas neste arquivo apontam para eles pelo número, e
+> renumerar quebraria todas em silêncio. **Identifique slide por título, nunca por número** — a
+> numeração do `SLIDES.md` já diverge da impressa no deck (ver `HANDOFF_SLIDES.md` §1.5).
+>
+> **Dois blocos saíram:** o antigo **S15** (*Related work in representation*) foi **absorvido pelo
+> S8**; o antigo **S16** (*With the vocabulary fixed…*) teve o **frame cortado** — a frase continua,
+> falada sobre o divisor automático da Seção 3, que é a forma que a regra 12 do PLANO §8 prevê
+> literalmente (*"falada sobre ele, ou vai num `\specialframe` próprio quando merecer a tela inteira"*).
 
-### S8 · One lineage, one idea
-- **Seção/subseção:** 2.1   **Tempo:** 55 s
-- **LEDGER:** INTRODUZ a ideia infomax · INTRODUZ a linhagem de modelos (**Tab. 1**) e o diagrama de níveis · *(o nome `Check2HGI` aparece na Tab. 1 como linha do mapa; o artefato é INTRODUZ em 5.2, e `MTLnet` em 3.2)*
+### S13 · Related work: POI prediction and multitask learning
+- **Seção/subseção:** 2.6 (a)   **Tempo:** 35 s
+- **LEDGER:** INTRODUZ o contexto de POI e MTL, o chão comum dos Caps. 3 e 4
+- **Na tela:** *(v2 · 2ª varredura, 2026-08-24 — este campo foi **derivado mecanicamente do frame vigente em `slides/main.tex`**, não transcrito à mão, porque nesta passada o `.tex` foi editado primeiro. A fonte da fala continua sendo este arquivo.)*
+  - **Next place is the dominant task in the field** — recurrent: ST-RNN, DeepMove, HST-LSTM, Flashback; attention: STAN, GeoSAN, GETNext; every model named there predicts the **exact next place**, so **none is a direct baseline for the targets studied here**; the pair the first two studies attack: **category classification** and **next-category prediction**; in mobility, MTL has served **next place** almost entirely — MCARNN, CSLSL, iMTL, HAMTL. TME instead applies tree-guided multitask embedding to static semantic POI annotation;
+- **Fala (PT):** "Duas telas de trabalho relacionado, e elas são o chão comum dos dois primeiros estudos. A tarefa dominante da área é o próximo lugar exato. A linha vai dos recorrentes, ST-RNN, DeepMove, HST-LSTM, Flashback, para os de atenção, STAN, GeoSAN, GETNext. Todos eles predizem o lugar exato, e por isso nenhum é linha de base direta para os alvos que eu estudo. O par que os dois primeiros estudos atacam é outro: classificação de categoria e previsão da próxima categoria. E, em mobilidade, o multitarefa foi usado quase inteiramente a serviço do próximo lugar. O MCARNN prevê atividade e lugar juntos; o CSLSL prevê em cascata quando, o quê e onde; o iMTL e o HAMTL seguem a mesma direção. O TME é a exceção que puxa para o outro lado, com anotação semântica estática de ponto de interesse."
+- **Proveniência:** `chapters/2_fundamentals.tex:322-336` (a linha do próximo lugar e a frase "none of them is a direct baseline") e `:1396-1418` (MCARNN, CSLSL, iMTL, Halder, TME, HAMTL, IeMTLF; "In mobility, MTL has been used almost entirely in the service of next place").
+- **Nunca dizer:** nenhum resultado, nenhum número. Nenhuma afirmação de ineditismo aqui: ela é de S14, e vem escopada.
+
+### S14 · The axis that separates this work
+- **Seção/subseção:** 2.6 (b)   **Tempo:** 30 s
+- **LEDGER:** INTRODUZ o eixo meio × fim · INTRODUZ o mapa de onde saem os métodos externos
+- **Na tela:** *(v2 · 141 → ~78 palavras. A frase em itálico é a única frase completa e É a contribuição de posicionamento do slide.)*
+  - Bloco **Category and region as a MEANS**: Toward the next place: HMT-GRN, CatDM, CSLSL.
+  - Bloco **Category or region as an END**: Activity region (DRRGNN), next category (POI-RGNN).
+  - *Among the works reviewed in this dissertation, none treats the next category and the next region as co-equal end targets of one joint model that does not also predict the next place.*
+  - Faixa de índice, em fragmento: **next category** POI-RGNN, Markov over category transitions | **next region** HMT-GRN, STAN, ReHDM, Markov-1 floor | **Ch. 3** HMRM, MHA+PE | **Ch. 4** MTLnet.
+- **v2 · o que saiu da tela, e onde ficou:** as glosas de cada método (*"a predicted region constrains the search for a place"*, *"a predicted category reduces the candidate set"*, *"a cascade ending at the location"*) → fala do próprio S14. *"(order chosen per dataset)"* do Markov, *"(primary)"* do HMT-GRN, *"over a Markov-1 floor"* e *"MTLnet as its only baseline"* → fala do S14; a faixa manteve os **nomes**, que são o índice que a banca precisa ver, e largou as qualificações. ⚠ **A frase do eixo FICA na tela, inteira**: é a afirmação de originalidade do trabalho e a única coisa deste slide que a banca precisa poder reler.
+- **Fala (PT):** "O eixo que separa este trabalho da literatura não é a tarefa, é o papel dela. De um lado, categoria e região como **meio** para chegar ao próximo lugar: o HMT-GRN usa a região prevista para estreitar a busca pelo lugar, o CatDM usa a categoria prevista para reduzir o conjunto de candidatos. Do outro lado, como **fim**: o DRRGNN prevê região de atividade, o POI-RGNN prevê a próxima categoria. E a frase do texto, escopada como ela está escrita: entre os trabalhos revisados nesta dissertação, nenhum trata próxima categoria e próxima região como alvos finais de igual estatuto num modelo conjunto que não prediz também o próximo lugar. O rodapé é o mapa de onde saem os métodos externos que vão aparecer nas tabelas."
+- **Proveniência:** eixo meio × fim → `chapters/2_fundamentals.tex:346-353`. Frase de lacuna, escopada, copiada de `chapters/2_fundamentals.tex:1418-1420` e `chapters/1_introduction.tex:429-431`. Mapa dos métodos externos do Cap. 5 → `chapters/5_mobiwac/05_setup.tex:178-182`. HMRM e MHA+PE → `chapters/3_cbic/results.tex:120,122`. Cap. 4 com o MTLnet como única linha de base → prefácio, `chapters/4_courb.tex`.
+- **Nunca dizer:** afirmação de ineditismo mais forte do que a do texto. A redação entregue é escopada a "entre os trabalhos revisados nesta dissertação", e a fala mantém o escopo. Nenhum resultado, nenhum número.
+
+### S8 · The line this work stands on, and the one idea on it
+- **Seção/subseção:** 2.3 (era 2.1; absorveu 2.7)   **Tempo:** 75 s
+- **LEDGER:** INTRODUZ a linhagem de representações · INTRODUZ a ideia infomax · INTRODUZ a linhagem de modelos (**Tab. 1**) e o diagrama de níveis · *(o nome `Check2HGI` aparece na Tab. 1 como linha do mapa; o artefato é INTRODUZ em 5.2, e `MTLnet` em 3.2)*
 - **Na tela:** *(v2 · reescrito 2026-08-24 por decisão do autor sobre o slide 7.)*
+  - Tira de uma linha, **a escada até aqui**: `one-hot identifier` → `skip-gram · DeepWalk · node2vec` → `GCN · GAT · GraphSAGE`, com uma glosa só embaixo: *from position, to a geometry that reflects relationships in the data, to those relationships learned by neighborhood aggregation.*
   - Bloco **The infomax idea, in one sentence**: *The model learns useful vectors by being asked to tell a true pairing of two parts of the data from a corrupted one, and it needs no labels to do so.*
   - Tabela da linhagem **infomax**, três linhas:
 
@@ -182,9 +221,13 @@ na tela, nos dois slides.
 
   - Diagrama tikz dos quatro níveis (city / region / place / **check-in** tracejado, Ch. 5), **centrado verticalmente** contra a tabela.
 - **v2 · as três correções do autor, e a que o plano já mandava:** (1) ⚠ **a linha do MTLnet SAIU da tabela.** O `PLANO_FLUXO_DEFESA.md` §3, subseção 2.1, sempre disse *"a ideia infomax numa frase... **cobre DGI, HGI e Check2HGI de uma vez**"* — três modelos. A quarta linha entrou pelos redatores (registrado na lista deles: *"o asset plan manda reduzir a tabela a DGI, HGI, MTLnet, Check2HGI"*) e **quebrava a lógica do slide, porque o MTLnet não é um modelo infomax** — é uma arquitetura conjunta. O nome continua INTRODUZ em 3.2, que é onde ele pertence. (2) **O diagrama foi centrado verticalmente** (colunas `[t]` → `[c]`) e ganhou largura: a tabela encurtou de quatro linhas para três e a composição estava desequilibrada, com a figura no topo e vazio embaixo. (3) **O travessão da linha do Check2HGI virou dois-pontos** (`infomax down to the check-in: one vector per visit`), conforme a regra de função registrada no `HANDOFF.md` §4f.
-- **Fala (PT):** "Uma ideia só cobre três métodos desta dissertação, então é melhor dizê-la agora do que três vezes. A ideia infomax, nas palavras do próprio capítulo: o modelo aprende vetores úteis sendo obrigado a distinguir um pareamento verdadeiro de um pareamento corrompido, e não precisa de rótulo nenhum para isso, porque os próprios dados dizem qual é o verdadeiro. O DGI faz essa comparação entre um nó e um resumo do grafo. O HGI estende o mesmo objetivo por uma hierarquia de lugar, região e cidade. E o Check2HGI, do Capítulo 5, acrescenta um quarto nível abaixo do lugar, que é o check-in. O mecanismo de cada um fica com o capítulo dono dele. A tabela na tela é a Tabela 1 da dissertação, e ela é o mapa da fala inteira: a cada seção eu volto a ela e digo em que linha eu estou."
-- **Proveniência:** frase infomax copiada de `chapters/2_fundamentals.tex:384-387`. DGI e HGI, o que cada um adiciona → `tables/frame/lineage.tex` (Tab. 1) e `chapters/2_fundamentals.tex:420-426`. Os quatro níveis e as três fronteiras → `chapters/2_fundamentals.tex:712-714`. **Duas reduções declaradas na linha MTLnet da Tab. 1:** sai a cláusula "Null result for that configuration" (a Seção 2 não reporta resultado, PLANO §3) e sai "FiLM conditioning" (FiLM é INTRODUZ em 3.2). Nenhum valor foi alterado.
-- **Nunca dizer:** nenhum resultado, nenhum número de capítulo. Não explicar FiLM aqui. Nunca Space2Vec nem POI2Vec como componentes deste trabalho.
+- **v3 · a fusão de 2026-08-25 (decisão do autor).** Este bloco absorveu o antigo **S15** (*Related work in representation*), e a Seção 2 passou de nove slides para sete. **O motivo é duplicação medida:** quatro itens eram ditos duas vezes dentro da mesma seção — a frase infomax (bloco daqui × marcador `DGI` da escada), o *one-liner* do DGI, a hierarquia lugar/região/cidade (o tikz daqui × marcador `HGI` da escada) e o quarto nível do Check2HGI (linha da Tab. 1 e check-in tracejado × rodapé da escada). A fala duplicava junto: as duas narravam *"o DGI faz… o HGI estende…"*, ~15 s ditos em dobro.
+  **O que ficou da escada:** os três degraus pré-infomax, numa tira de uma linha, com a glosa montada só de fragmentos que já estavam em tela (*"marks a place or a category by position"*, *"geometry reflects relationships in the data"*, *"learn those relationships through neighborhood aggregation"*) — o `GLOSSARY` é fail-closed e nada novo entrou.
+  **O que saiu da tela, e onde ficou:** os marcadores `DGI` e `HGI` da escada → **a Tab. 1 já os diz**, na mesma profundidade (*"o que cada um acrescentou"*); o rodapé *"Check2HGI adds a fourth level below the place"* → **a linha `Check2HGI` da Tab. 1 e o nível tracejado do tikz**; os ponteiros *"Mechanism in Chapter 3 / Chapter 4"* → **fala** (ela já dizia *"o mecanismo de cada um fica com o capítulo dono dele"*).
+  ⚠ **A ordem interna é a do capítulo entregue**: escada (§2.2.1) → infomax (§2.2.2, que abre com a frase em `2_fundamentals.tex:384-387`) → Tab. 1 (§2.2.4, que o capítulo põe **por último**). É isso que faz a tabela funcionar como *mapa da fala*, e não como abertura.
+- **Fala (PT):** "Esta é a base mais importante da dissertação, e ela é uma escada. Começa no identificador one-hot, que marca um lugar por posição e não codifica relação nenhuma. Sobe para as representações distribuídas, skip-gram, DeepWalk, node2vec, em que a geometria do vetor reflete a relação que está nos dados. Sobe de novo para as redes de grafo, GCN, GAT, GraphSAGE, que aprendem essa relação por agregação de vizinhança. E o degrau seguinte é uma ideia só, que cobre três métodos desta dissertação, então é melhor dizê-la agora do que três vezes. A ideia infomax, nas palavras do próprio capítulo: o modelo aprende vetores úteis sendo obrigado a distinguir um pareamento verdadeiro de um pareamento corrompido, e não precisa de rótulo nenhum para isso, porque os próprios dados dizem qual é o verdadeiro. O DGI faz essa comparação entre um nó e um resumo do grafo. O HGI estende o mesmo objetivo por uma hierarquia de lugar, região e cidade. E o Check2HGI, do Capítulo 5, acrescenta um quarto nível abaixo do lugar, que é o check-in. O mecanismo de cada um fica com o capítulo dono: o DGI no Capítulo 3, o HGI no Capítulo 4. A tabela na tela é a Tabela 1 da dissertação, e ela é o mapa da fala inteira: a cada seção eu volto a ela e digo em que linha eu estou."
+- **Proveniência:** a escada, na ordem do capítulo → `chapters/2_fundamentals.tex:369-379` (one-hot, skip-gram, DeepWalk, node2vec, GCN, GAT, GraphSAGE). Frase infomax copiada de `chapters/2_fundamentals.tex:384-387`. DGI e HGI, o que cada um adiciona → `tables/frame/lineage.tex` (Tab. 1) e `chapters/2_fundamentals.tex:420-426`. Os quatro níveis e as três fronteiras → `chapters/2_fundamentals.tex:712-714`. **Duas reduções declaradas na linha MTLnet da Tab. 1:** sai a cláusula "Null result for that configuration" (a Seção 2 não reporta resultado, PLANO §3) e sai "FiLM conditioning" (FiLM é INTRODUZ em 3.2). Nenhum valor foi alterado.
+- **Nunca dizer:** o mecanismo do DGI ou do HGI aqui — eles pertencem a 3.2A e 4.1A. Nenhum resultado, nenhum número de capítulo. Não explicar FiLM aqui. Nunca Space2Vec nem POI2Vec como componentes deste trabalho.
 
 ### S9 · How two tasks share a model, and how that fails
 - **Seção/subseção:** 2.2   **Tempo:** 40 s
@@ -225,59 +268,9 @@ na tela, nos dois slides.
   - **The verb law:** *outperforms* is reserved for a paired superiority test — Ch. 3 and 4 report none, so they report differences, never a verdict.
   - Bloco **Two traps**: **The task pair changes.** Ch. 3/4: category classification + next category. Ch. 5: next category + next region. **The metric convention changes.** Ch. 3/4 print one F1 per category; Ch. 5 reports macro-F1. **Not one scale.**
 - **v2 · o que saiu da tela, e onde ficou:** a linha final centrada *"Each study names its own convention when its turn comes"* → fala do próprio S12 (verificado); era meta-comentário sobre a estrutura do deck, não conteúdo. ⚠ **O bloco `Two traps` NÃO foi encurtado além do estritamente óbvio**: ele é o carimbo de convenção de que a **R7** (proibição entre gerações) depende, e a admissão *"not one scale"* é o que impede a banca de comparar um número do Cap. 3 com um do Cap. 5. Cortá-lo seria regressão, não enxugamento.
-- **Fala (PT):** "O protocolo dos dois primeiros estudos, e ele é diferente do terceiro. Validação cruzada de cinco partições, estratificada por amostra: os check-ins de um mesmo usuário podem cair dos dois lados da divisão. Orçamento cheio de épocas, sem parada antecipada, e cada tarefa lida na época de melhor validação dela. Médias e desvios entre as cinco partições, sem teste de significância. Daí sai a lei dos verbos que eu obedeço a fala inteira: *supera* fica reservado para teste pareado de superioridade, e os Capítulos 3 e 4 não têm teste, então eles reportam diferenças, não veredito. Faltam duas armadilhas de nome. A primeira: o par de tarefas muda. Nos dois primeiros é estática mais próxima categoria; no terceiro é próxima categoria mais próxima região. A segunda: a convenção métrica muda. Os Capítulos 3 e 4 imprimem uma F1 por categoria, e o Capítulo 5 reporta macro-F1, um número só. Não são a mesma escala, e toda tabela que eu reproduzir vai levar esse carimbo."
+- **Fala (PT):** "O protocolo dos dois primeiros estudos, e ele é diferente do terceiro. Validação cruzada de cinco partições, estratificada por amostra: os check-ins de um mesmo usuário podem cair dos dois lados da divisão. Orçamento cheio de épocas, sem parada antecipada, e cada tarefa lida na época de melhor validação dela. Médias e desvios entre as cinco partições, sem teste de significância. Daí sai a lei dos verbos que eu obedeço a fala inteira: *supera* fica reservado para teste pareado de superioridade, e os Capítulos 3 e 4 não têm teste, então eles reportam diferenças, não veredito. Faltam duas armadilhas de nome. A primeira: o par de tarefas muda. Nos dois primeiros é estática mais próxima categoria; no terceiro é próxima categoria mais próxima região. A segunda: a convenção métrica muda. Os Capítulos 3 e 4 imprimem uma F1 por categoria, e o Capítulo 5 reporta macro-F1, um número só. Não são a mesma escala, e toda tabela que eu reproduzir vai levar esse carimbo. E então, **sem trocar de slide** — sobre o divisor da Seção 3, antes da proveniência do capítulo: com o vocabulário, os dados e a métrica fixados uma única vez, cada estudo agora só precisa dizer o que mudou. O primeiro usou o que a literatura oferecia: um vetor por lugar e um tronco compartilhado."
 - **Proveniência:** protocolo dos Caps. 3/4 → `chapters/3_cbic/results.tex:36` ("The folds are formed by a stratified splitter over the samples rather than over the users"; "training runs for the full number of epochs configured, without early stopping, and each task is read at the epoch of its own highest validation macro-F1") e prefácio do Cap. 4, `chapters/4_courb.tex` ("This study and Chapter 3 share one evaluation protocol, which stratifies the cross-validation split by sample rather than by user"); consolidado em `chapters/2_fundamentals.tex:1731-1734`. Lei dos verbos → `chapters/2_fundamentals.tex:1773-1786` ("Chapters 3 and 4 report fold means and standard deviations without significance tests"; "*outperforms* is reserved for paired superiority"). Par de tarefas → `chapters/2_fundamentals.tex:269-273` e `chapters/1_introduction.tex:224-226`. Convenção métrica → as legendas entregues `tables/cbic/next.tex` ("per-category F1-score, precision, and recall") e `tables/courb/next.tex` ("Average F1-Score (%) per model and state"), contra `chapters/2_fundamentals.tex:1626-1636` (macro-F1 do Cap. 5).
 - **Nunca dizer:** "as mesmas janelas". O Cap. 5 usa janelas deslizantes sobrepostas, com passo 1, e os Caps. 3 e 4 usaram janelas não sobrepostas. Nenhum resultado, nenhum número de capítulo. Nada do protocolo estatístico do Cap. 5 aqui: sementes, *t* pareado, TOST e Holm entram em 5.4.
-
-### S13 · Related work: POI prediction and multitask learning
-- **Seção/subseção:** 2.6 (a)   **Tempo:** 35 s
-- **LEDGER:** INTRODUZ o contexto de POI e MTL, o chão comum dos Caps. 3 e 4
-- **Na tela:** *(v2 · 2ª varredura, 2026-08-24 — este campo foi **derivado mecanicamente do frame vigente em `slides/main.tex`**, não transcrito à mão, porque nesta passada o `.tex` foi editado primeiro. A fonte da fala continua sendo este arquivo.)*
-  - **Next place is the dominant task in the field** — recurrent: ST-RNN, DeepMove, HST-LSTM, Flashback; attention: STAN, GeoSAN, GETNext; every model named there predicts the **exact next place**, so **none is a direct baseline for the targets studied here**; the pair the first two studies attack: **category classification** and **next-category prediction**; in mobility, MTL has served **next place** almost entirely — MCARNN, CSLSL, iMTL, HAMTL. TME instead applies tree-guided multitask embedding to static semantic POI annotation;
-- **Fala (PT):** "Duas telas de trabalho relacionado, e elas são o chão comum dos dois primeiros estudos. A tarefa dominante da área é o próximo lugar exato. A linha vai dos recorrentes, ST-RNN, DeepMove, HST-LSTM, Flashback, para os de atenção, STAN, GeoSAN, GETNext. Todos eles predizem o lugar exato, e por isso nenhum é linha de base direta para os alvos que eu estudo. O par que os dois primeiros estudos atacam é outro: classificação de categoria e previsão da próxima categoria. E, em mobilidade, o multitarefa foi usado quase inteiramente a serviço do próximo lugar. O MCARNN prevê atividade e lugar juntos; o CSLSL prevê em cascata quando, o quê e onde; o iMTL e o HAMTL seguem a mesma direção. O TME é a exceção que puxa para o outro lado, com anotação semântica estática de ponto de interesse."
-- **Proveniência:** `chapters/2_fundamentals.tex:322-336` (a linha do próximo lugar e a frase "none of them is a direct baseline") e `:1396-1418` (MCARNN, CSLSL, iMTL, Halder, TME, HAMTL, IeMTLF; "In mobility, MTL has been used almost entirely in the service of next place").
-- **Nunca dizer:** nenhum resultado, nenhum número. Nenhuma afirmação de ineditismo aqui: ela é de S14, e vem escopada.
-
-### S14 · The axis that separates this work
-- **Seção/subseção:** 2.6 (b)   **Tempo:** 30 s
-- **LEDGER:** INTRODUZ o eixo meio × fim · INTRODUZ o mapa de onde saem os métodos externos
-- **Na tela:** *(v2 · 141 → ~78 palavras. A frase em itálico é a única frase completa e É a contribuição de posicionamento do slide.)*
-  - Bloco **Category and region as a MEANS**: Toward the next place: HMT-GRN, CatDM, CSLSL.
-  - Bloco **Category or region as an END**: Activity region (DRRGNN), next category (POI-RGNN).
-  - *Among the works reviewed in this dissertation, none treats the next category and the next region as co-equal end targets of one joint model that does not also predict the next place.*
-  - Faixa de índice, em fragmento: **next category** POI-RGNN, Markov over category transitions | **next region** HMT-GRN, STAN, ReHDM, Markov-1 floor | **Ch. 3** HMRM, MHA+PE | **Ch. 4** MTLnet.
-- **v2 · o que saiu da tela, e onde ficou:** as glosas de cada método (*"a predicted region constrains the search for a place"*, *"a predicted category reduces the candidate set"*, *"a cascade ending at the location"*) → fala do próprio S14. *"(order chosen per dataset)"* do Markov, *"(primary)"* do HMT-GRN, *"over a Markov-1 floor"* e *"MTLnet as its only baseline"* → fala do S14; a faixa manteve os **nomes**, que são o índice que a banca precisa ver, e largou as qualificações. ⚠ **A frase do eixo FICA na tela, inteira**: é a afirmação de originalidade do trabalho e a única coisa deste slide que a banca precisa poder reler.
-- **Fala (PT):** "O eixo que separa este trabalho da literatura não é a tarefa, é o papel dela. De um lado, categoria e região como **meio** para chegar ao próximo lugar: o HMT-GRN usa a região prevista para estreitar a busca pelo lugar, o CatDM usa a categoria prevista para reduzir o conjunto de candidatos. Do outro lado, como **fim**: o DRRGNN prevê região de atividade, o POI-RGNN prevê a próxima categoria. E a frase do texto, escopada como ela está escrita: entre os trabalhos revisados nesta dissertação, nenhum trata próxima categoria e próxima região como alvos finais de igual estatuto num modelo conjunto que não prediz também o próximo lugar. O rodapé é o mapa de onde saem os métodos externos que vão aparecer nas tabelas."
-- **Proveniência:** eixo meio × fim → `chapters/2_fundamentals.tex:346-353`. Frase de lacuna, escopada, copiada de `chapters/2_fundamentals.tex:1418-1420` e `chapters/1_introduction.tex:429-431`. Mapa dos métodos externos do Cap. 5 → `chapters/5_mobiwac/05_setup.tex:178-182`. HMRM e MHA+PE → `chapters/3_cbic/results.tex:120,122`. Cap. 4 com o MTLnet como única linha de base → prefácio, `chapters/4_courb.tex`.
-- **Nunca dizer:** afirmação de ineditismo mais forte do que a do texto. A redação entregue é escopada a "entre os trabalhos revisados nesta dissertação", e a fala mantém o escopo. Nenhum resultado, nenhum número.
-
-### S15 · Related work in representation: the line this work stands on
-- **Seção/subseção:** 2.7   **Tempo:** 40 s
-- **LEDGER:** INTRODUZ a linhagem de representações, no nível de o que cada degrau resolve
-- **Na tela:** uma escada de cinco degraus, uma linha por degrau, dizendo o que cada um resolve.
-  - **one-hot identifier:** marks a place or a category by position, and encodes no relationship between identifiers.
-  - **skip-gram, DeepWalk, node2vec:** dense vectors whose geometry reflects relationships in the data; random walks carry the idea to graphs.
-  - **GCN, GAT, GraphSAGE:** learn those relationships through neighborhood aggregation.
-  - **DGI:** an infomax objective on graph nodes against a graph-level summary. *Mechanism in Chapter 3.*
-  - **HGI:** the same objective across the POI, region, and city hierarchy. *Mechanism in Chapter 4.*
-  - Rodapé: *Check2HGI adds a fourth level below the place. Chapter 5.*
-- **Fala (PT):** "Esta é a base mais importante da dissertação, e por isso ela tem tela própria. É uma escada. Começa no identificador one-hot, que marca um lugar por posição e não codifica relação nenhuma. Sobe para as representações distribuídas, skip-gram, DeepWalk, node2vec, em que a geometria do vetor reflete a relação que está nos dados. Sobe de novo para as redes de grafo, GCN, GAT, GraphSAGE, que aprendem essa relação por agregação de vizinhança. Depois vem o DGI, que aplica o objetivo infomax entre um nó e um resumo do grafo, e o HGI, que estende o mesmo objetivo pela hierarquia de lugar, região e cidade. O mecanismo de cada um fica com o capítulo dono: o DGI no Capítulo 3, o HGI no Capítulo 4. Aqui é só o mapa, para a linhagem ficar legível quando eu chegar ao Check2HGI."
-- **Proveniência:** a escada inteira, na ordem do capítulo → `chapters/2_fundamentals.tex:369-379` (one-hot, skip-gram, DeepWalk, node2vec, GCN, GAT, GraphSAGE) e `:420-426` (MINE, Deep InfoMax, DGI, HGI). O quarto nível → `:661-663`.
-- **Nunca dizer:** o mecanismo do DGI ou do HGI aqui: eles pertencem a 3.2A e 4.1A. Nunca Space2Vec nem POI2Vec como componentes deste trabalho. Nenhum resultado, nenhum número.
-
-### S16 · With the vocabulary fixed, each study says only what it changed
-- **Seção/subseção:** 2.x (transição de saída do Ato I; §8 regra 12, não pode ser cortada)   **Tempo:** 20 s
-- **LEDGER:** RETOMA vocabulário, dados e métrica
-- **Na tela:** `\specialframe`, uma frase por linha, tela cheia.
-  - *Vocabulary, data, and metric: fixed once.*
-  - *Each study now says only what it changed, and names its own convention when its turn comes.*
-  - *The task pair of the first two studies is not the pair of the third. When it changes, I will say so.*
-  - *The first study used what the literature offered: one vector per place, and one shared trunk.*
-- **Fala (PT):** "Com o vocabulário, os dados e a métrica fixados uma única vez, cada estudo agora só precisa dizer o que mudou, e cada um nomeia a sua própria convenção quando chegar a hora. E o par de tarefas dos dois primeiros estudos não é o do terceiro; quando ele mudar, eu aviso. O primeiro usou o que a literatura oferecia: um vetor por lugar e um tronco compartilhado."
-- **Proveniência:** redação literal da transição de saída do Ato I, `PLANO_FLUXO_DEFESA.md` §2 (versão reescrita em 2026-08-21, que substituiu "as regras de decisão fixadas uma única vez").
-- **Nunca dizer:** que as "regras de decisão" ficaram fixadas aqui. O protocolo estatístico entra só em 5.4, e prometer o fechamento que a Seção 2 não entrega é o defeito que a reescrita de 2026-08-21 corrigiu.
-
----
 
 # sec3-4
 
@@ -286,6 +279,25 @@ na tela, nos dois slides.
 > `\section[MTLnet]{Multitask Learning for POI Category and Next-POI Prediction}`
 > Proveniência no divisor: **CBIC 2025, DOI 10.21528/CBIC2025-1191324. This dissertation's author is its first author.**
 > Orçamento: 330 s (30 + 45 + 45 + 30 + 40 + 40 + 55 + 25 + 20).
+
+> ### O divisor desta seção carrega a transição da Seção 2 — **falado, não em tela**
+> *(2026-08-25: o `\specialframe` "With the vocabulary fixed…" foi cortado. A regra 12 do PLANO §8
+> protege a **frase**, não o frame, e prevê literalmente a forma "falada sobre ele". O `\autotocframe`
+> já põe um divisor no início de toda `\section`, então a frase cai aqui, antes da proveniência.)*
+>
+> **Onde ela vive no roteiro impresso:** no **fim da fala do S12** (o slide de protocolo, que agora fecha a Seção 2) — o gerador do `SPEECH` só lê blocos `### S<n>`, e uma frase solta em cabeçalho de seção **não chega ao roteiro**. Verificado 2026-08-25.
+>
+> **Fala (PT), sobre o divisor, nesta ordem:** "Com o vocabulário, os dados e a métrica fixados uma
+> única vez, cada estudo agora só precisa dizer o que mudou. O primeiro usou o que a literatura
+> oferecia: um vetor por lugar e um tronco compartilhado." — e só então a proveniência do capítulo.
+> **Tempo:** ~10 s de transição + a proveniência.
+>
+> ⚠ **Duas cláusulas do frame cortado NÃO voltam, e é de propósito.** (a) *"Each study now says only
+> what it changed, and names its own convention when its turn comes"* — esta é **a mesma frase que a
+> revisão v2 já expulsou da tela do S12**, com o veredito registrado *"era meta-comentário sobre a
+> estrutura do deck, não conteúdo"*; readmiti-la aqui repetiria o defeito. (b) *"The task pair of the
+> first two studies is not the pair of the third"* — **duplica a armadilha 1 do bloco `Two traps`**,
+> que agora fecha a Seção 2 e é dita segundos antes.
 
 ### S17 · One static task, one sequential task
 - **Seção/subseção:** 3.1   **Tempo:** 30 s
