@@ -611,13 +611,14 @@
 
 > ### ▶ Segundo passo: o que se mede. Na categoria, macro-F1, como eu defini na Seção 2, e o ponto de referência dela é o piso de classe majoritária, que fica entre 5,7 e 7,3 conforme o conjunto.
 
-**● COBRE** — INTRODUZ Acc@10, o desconto OOD e o piso de Markov-1 · RETOMA macro-F1 e o piso de classe majoritária de 2.4
+**● DIZER EXATO**
+- 24,7% das visitas
 
-**# NÚMEROS** — majoritária, que fica entre 5,7 e 7,3 conforme
+**# NÚMEROS** — majoritária, que fica entre 5,7 e 7,3 conforme · e ainda assim marca 5,7 de macro-F1, porque
 
 **✕ NUNCA** — Acc@10 sem o desconto OOD. · Nenhum número sem o seu ponto de referência.
 
-<sub>Segundo passo: o que se mede. Na categoria, macro-F1, como eu defini na Seção 2, e o ponto de referência dela é o piso de classe majoritária, que fica entre 5,7 e 7,3 conforme o conjunto. Na região, acurácia em dez: a fração de visitas de teste cuja região verdadeira está entre as dez predições de maior pontuação. Ela não distingue o primeiro lugar do décimo, e eu declaro isso. E ela vem com um desconto, que é o ponto que mais gera pergunta: uma região que não aparece na partição de treino conta como **erro**. Então o que eu reporto é a acurácia em dez medida nas visitas dentro da distribuição, multiplicada por um menos a fração fora da distribuição. Os pontos de referência da região são dois. O modelo dedicado, que é a comparação controlada. E um piso de Markov de primeira ordem sobre transições de região, calculado sob as mesmas janelas e as mesmas partições, que alcança de 51 a 72 de acurácia em dez. Esse piso é alto de propósito: janelas de passo um fazem da última região visitada um preditor forte da próxima, e é exatamente esse sinal que uma tabela de transição lê.</sub>
+<sub>Segundo passo: o que se mede. Na categoria, macro-F1, como eu defini na Seção 2, e o ponto de referência dela é o piso de classe majoritária, que fica entre 5,7 e 7,3 conforme o conjunto. Um exemplo concreto mostra por que essa métrica existe e a acurácia simples não: na Flórida esse piso acerta **24,7% das visitas** e ainda assim marca **5,7** de macro-F1, porque as outras seis categorias ele nunca acerta. Na região, acurácia em dez: a fração de visitas de teste cuja região verdadeira está entre as dez predições de maior pontuação. Ela não distingue o primeiro lugar do décimo, e eu declaro isso. E ela vem com um desconto, que é o ponto que mais gera pergunta: uma região que não aparece na partição de treino conta como **erro**. Então o que eu reporto é a acurácia em dez medida nas visitas dentro da distribuição, multiplicada por um menos a fração fora da distribuição. Os pontos de referência da região são dois. O modelo dedicado, que é a comparação controlada. E um piso de Markov de primeira ordem sobre transições de região, calculado sob as mesmas janelas e as mesmas partições, que alcança de 51 a 72 de acurácia em dez. Esse piso é alto de propósito: janelas de passo um fazem da última região visitada um preditor forte da próxima, e é exatamente esse sinal que uma tabela de transição lê.</sub>
 
 ---
 

@@ -272,6 +272,46 @@ palavras de fala contra ~7 min orçados. Os `Tempo:` por slide foram estimados p
 
 ---
 
+## 4f · O travessão nos slides — decisão do autor, com a base textual
+
+> ⚠ **NÃO "conserte" isto numa varredura de estilo.** A `WRITING_LAW.md:131` diz *"No em-dash
+> anywhere"* e o checklist em `:410` exige contagem zero. Um agente que rode essa regra sobre o deck
+> vai querer eliminar todos. **O autor decidiu que não, em 2026-08-24, e a decisão tem base no
+> próprio plano.**
+
+**A regra, por FUNÇÃO e não por presença:**
+
+| onde | decisão |
+|---|---|
+| **separador de rótulo** num fragmento — `\textbf{Semantic} --- the category of the visited place` | **fica** |
+| **título de bloco** — `\begin{block}{Practical --- what it delivers}` | **fica** |
+| **subtítulo de frame** — `\framesubtitle{Table 7, Florida --- the sequential target...}` | **fica** |
+| **dentro de frase completa** — `...in place of two --- operational, not computational` | **sai**: vírgula, ponto e vírgula, dois-pontos ou duas frases |
+
+**A base, e é o que torna a decisão defensável se um arguidor perguntar:**
+
+1. A proibição vive sob **`§1 · Register: dissertation ≠ paper`**, num trecho sobre legibilidade de
+   **prosa** (o teste do "um leitor não-nativo absorve isto numa leitura?"). A justificativa declarada
+   é *"(Also an AI tell; also the MobiWac rule.)"*
+2. A **regra 15 do `PLANO_FLUXO_DEFESA.md` §8**, que estende as três leis aos slides, contém a
+   ressalva exata: *"**Um deck não é prosa**, mas as três leis governam **palavra e número** igual."*
+   **Pontuação não é palavra nem número.** A regra 15 estende a autoridade sobre vocabulário
+   (glossário fail-closed) e sobre afirmação/número — e antecipa a objeção declarando que um deck
+   não é prosa.
+3. A metade **"AI tell"** continua valendo, e é por isso que o corte foi por função e não zero:
+   travessão dentro de frase é onde a densidade vira tell, e onde o teste de uma-leitura morde.
+
+**Estado medido em 2026-08-24, depois da decisão:** deck principal com **93** travessões, todos
+separador de rótulo, título de bloco ou subtítulo de frame; os **11 de dentro de frase foram
+removidos**. A série B **não foi varrida** — decisão de escopo: ela só aparece sob demanda, e cada
+slide tocado a quatro dias da defesa é risco novo de estouro de caixa.
+
+⚠ **Se for varrer a série B depois, classifique por função primeiro.** Uma varredura por presença
+sobre o deck teria tocado 105 lugares; apenas 11 precisavam mudar. Os outros 94 são estrutura
+tipográfica, e trocá-los por vírgula produz fragmento ilegível.
+
+---
+
 ## 5 · Decisões já tomadas — não reabra sem o autor
 
 | Decisão | Ruling |

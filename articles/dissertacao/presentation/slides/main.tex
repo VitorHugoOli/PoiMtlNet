@@ -110,7 +110,7 @@
     \begin{alertblock}{No guarantee}
         \small
         Joint training does not guarantee better predictions. Shared parameters can harm one
-        task --- a failure known as \alert{negative transfer}.
+        task, a failure known as \alert{negative transfer}.
     \end{alertblock}
 \end{frame}
 
@@ -153,7 +153,7 @@
               \textbf{California} $+1.06$\newline
               {\scriptsize corrected $p = 0.00013$ and $p < 10^{-4}$}
             & \raggedright four datasets \textbf{stay within the two-point margin, registered
-              before any result was read} --- small \alert{deficits, not ties} \tabularnewline
+              before any result was read}; small \alert{deficits, not ties} \tabularnewline
         \addlinespace
         \textbf{Next category}
             & \raggedright \textbf{Florida} $+0.19$ macro-F1\newline
@@ -238,32 +238,28 @@
 % definição, nunca uma das cópias.
 \begin{frame}{The contribution, in one block}
     \vfill
-    \begin{columns}[t,onlytextwidth]
-        \begin{column}{0.468\textwidth}
+    \begin{columns}[T,onlytextwidth]
+        \begin{column}{0.508\textwidth}
             \begin{block}{Practical --- what it delivers}
                 \small
-                \begin{itemize}\setlength{\itemsep}{4pt}\setlength{\parskip}{0pt}
-                    \item \textbf{one model, one forward pass, two predictions} --- the next
-                          category and the next region of a visit;
-                    \item \textbf{one artifact} to train, version and deploy, in place of two ---
-                          \alert{operational, not computational}: the joint model is the larger
+                \begin{itemize}\setlength{\itemsep}{5pt}\setlength{\parskip}{0pt}
+                    \item \textbf{one model, one forward pass, two predictions} --- one artifact to
+                          train, version and deploy, \textbf{in place of two};
+                    \item \alert{operational, not computational}: the joint model is the larger
                           artifact;
-                    \item \textbf{Check2HGI is the reusable part} --- independent of the
-                          prediction heads on top.
+                    \item \textbf{Check2HGI is the reusable part} --- one vector per visit,
+                          independent of the prediction heads on top.
                 \end{itemize}
             \end{block}
         \end{column}
         \hfill
-        \begin{column}{0.468\textwidth}
+        \begin{column}{0.428\textwidth}
             \begin{exampleblock}{Scientific --- what it establishes}
-                \small
-                \begin{itemize}\setlength{\itemsep}{4pt}\setlength{\parskip}{0pt}
-                    \item \textbf{the novelty is the combination}: per-visit context inside a
-                          hierarchical graph-infomax representation;
-                    \item helps \alert{under the final design and evaluation protocol}, not always;
-                    \item the \textbf{input representation} is one condition; architecture and
-                          scale \emph{suggested, not isolated}.
-                \end{itemize}
+                \centering
+                \vspace{2mm}
+                The \textbf{input representation} and its \textbf{sharing topology} determine
+                \alert{whether} multitask learning helps these POI prediction tasks.
+                \vspace{2mm}
             \end{exampleblock}
         \end{column}
     \end{columns}
@@ -300,23 +296,22 @@
         data from a corrupted one, and it needs no labels to do so.
     \end{block}
 
-    \medskip
-    \begin{columns}[t,onlytextwidth]
-        \begin{column}{0.604\textwidth}
+    \vfill
+    \begin{columns}[c,onlytextwidth]
+        \begin{column}{0.560\textwidth}
             \small
-            \renewcommand{\arraystretch}{1.3}\begin{tabular}{@{}lp{5.6cm}@{}}
+            \renewcommand{\arraystretch}{1.45}\begin{tabular}{@{}lp{5.2cm}@{}}
                 \toprule
                 Model & What it added \tabularnewline
                 \midrule
                 DGI & \raggedright patches against a global graph summary; \tabularnewline
                 HGI & \raggedright the place--region--city hierarchy; \tabularnewline
-                MTLnet & \raggedright first joint model: hard parameter sharing; \tabularnewline
-                Check2HGI & \raggedright infomax down to the check-in --- one vector per visit. \tabularnewline
+                Check2HGI & \raggedright infomax down to the check-in: one vector per visit. \tabularnewline
                 \bottomrule
             \end{tabular}
         \end{column}
         \hfill
-        \begin{column}{0.326\textwidth}
+        \begin{column}{0.380\textwidth}
             \centering
             \begin{tikzpicture}[
                 lvl/.style={draw=primaryshade, rounded corners=1mm, minimum width=2.3cm,
@@ -325,10 +320,11 @@
                 \node[lvl, fill=primarytint] at (0,1.20) {region};
                 \node[lvl, fill=primarytint] at (0,0.60) {place};
                 \node[lvl, dashed] (ci) at (0,0.00) {check-in};
-                \node[font=\small, anchor=west] at (1.30,0.00) {Ch.~5};
+                \node[font=\small, anchor=west] at (1.32,0.00) {Ch.~5};
             \end{tikzpicture}
         \end{column}
     \end{columns}
+    \vfill
 \end{frame}
 
 \subsection{Vocabulário de MTL}
@@ -440,7 +436,7 @@
         \item Full epoch budget, no early stopping; each task at \textbf{its own best epoch};
         \item Fold means and standard deviations, \textbf{no significance tests};
         \item \textbf{The verb law:} \emph{outperforms} is reserved for a paired superiority
-              test --- Ch.~3 and 4 report none, so they report differences, never a verdict.
+              test; Ch.~3 and 4 report none, so they report differences, never a verdict.
     \end{itemize}
 
     \bigskip
@@ -472,7 +468,7 @@
               \alert{none is a direct baseline for the targets studied here};
         \item the pair the first two studies attack: \textbf{category classification} and
               \textbf{next-category prediction};
-        \item in mobility, MTL has served \textbf{next place} almost entirely --- MCARNN, CSLSL,
+        \item in mobility, MTL has served \textbf{next place} almost entirely: MCARNN, CSLSL,
               iMTL, HAMTL. TME instead applies tree-guided multitask embedding to static
               semantic POI annotation.
     \end{itemize}
@@ -770,7 +766,7 @@
     \begin{alertblock}{What Chapter 3 claims}
         \small
         Lower combined multitask loss than PCGrad and than no such optimizer; the chapter adopted it.
-        \textbf{A conclusion of the time}, weakened by a later finding ---
+        \textbf{A conclusion of the time}, weakened by a later finding,
         \alert{and Chapter~5 does not rely on it}.
     \end{alertblock}
 
@@ -980,7 +976,7 @@
             \end{alertblock}
             \begin{block}{Why it is used here --- and the limit}
                 {\small Built for \textbf{urban region representation}; its \textbf{place-level}
-                output repurposed here for sequential prediction ---
+                output repurposed here for sequential prediction,
                 \alert{a use the original evaluation does not cover}.\par}
             \end{block}
         \end{column}
@@ -1167,7 +1163,7 @@
     \end{columns}
 
     \vfill
-    {\footnotesize\itshape The three components are used together --- this chapter does not isolate
+    {\footnotesize\itshape The three components are used together; this chapter does not isolate
     each encoder.\par}
 \end{frame}
 
@@ -1469,6 +1465,9 @@
 
 % FALA: Segundo passo: o que se mede.
 % Na categoria, macro-F1, como eu defini na Seção 2, e o ponto de referência dela é o piso de classe majoritária, que fica entre 5,7 e 7,3 conforme o conjunto.
+% Um exemplo concreto mostra por que essa métrica existe e a acurácia simples não:
+% na Flórida esse piso acerta 24,7% das visitas e ainda assim marca 5,7 de macro-F1,
+% porque as outras seis categorias ele nunca acerta.
 % Na região, acurácia em dez: a fração de visitas de teste cuja região verdadeira está entre as dez predições de maior pontuação.
 % Ela não distingue o primeiro lugar do décimo, e eu declaro isso. E ela vem com um desconto, que é o ponto que mais gera pergunta:
 % uma região que não aparece na partição de treino conta como **erro**.
@@ -1482,7 +1481,9 @@
 
     \begin{itemize}\setlength{\itemsep}{5pt}
         \item \textbf{Category: macro-F1} --- reference point the \textbf{majority-class floor},
-              \alert{5.7 to 7.3} depending on the dataset;
+              \alert{5.7 to 7.3} depending on the dataset. \emph{At Florida that floor is right on
+              \textbf{24.7\%} of the visits and still scores \textbf{5.7} macro-F1, which is why
+              plain accuracy is not the metric here};
         \item \textbf{Region: Acc@10} --- the share of test visits whose true region is among the
               ten highest-scoring predictions; \emph{it does not separate first place from tenth};
         \item \textbf{OOD-discounted Acc@10} --- a region absent from the training fold counts as
@@ -1718,9 +1719,9 @@
     \textbf{The two region gains are secondary results, outside the registered plan.}\par
     \smallskip
     \textbf{Region.} The other four stay within the \textbf{two-point margin, registered before any result was read}
-    --- and \alert{all four are deficits, not ties}: every one of the four intervals lies entirely below zero.\par
+    ; and \alert{all four are deficits, not ties}: every one of the four intervals lies entirely below zero.\par
     \textbf{Category.} The other five are \alert{unresolved}. The widest interval reaches \textbf{0.34} from zero, at
-    Alabama --- bounding all six within half a point; read off the intervals, not established by a further test.\par}
+    Alabama, bounding all six within half a point; read off the intervals, not established by a further test.\par}
 \end{frame}
 
 \subsection{O trade}
@@ -1843,7 +1844,7 @@
 
     \begin{alertblock}{What it does not authorize}
         \small
-        Not that multitask learning always helps --- task relatedness and joint training were
+        Not that multitask learning always helps: task relatedness and joint training were
         \alert{not sufficient by themselves}.
     \end{alertblock}
 
@@ -1874,32 +1875,28 @@
 % definição no cabeçalho do SLIDES.md, que muda os dois slides.
 \begin{frame}{The contribution, in one block}
     \vfill
-    \begin{columns}[t,onlytextwidth]
-        \begin{column}{0.468\textwidth}
+    \begin{columns}[T,onlytextwidth]
+        \begin{column}{0.508\textwidth}
             \begin{block}{Practical --- what it delivers}
                 \small
-                \begin{itemize}\setlength{\itemsep}{4pt}\setlength{\parskip}{0pt}
-                    \item \textbf{one model, one forward pass, two predictions} --- the next
-                          category and the next region of a visit;
-                    \item \textbf{one artifact} to train, version and deploy, in place of two ---
-                          \alert{operational, not computational}: the joint model is the larger
+                \begin{itemize}\setlength{\itemsep}{5pt}\setlength{\parskip}{0pt}
+                    \item \textbf{one model, one forward pass, two predictions} --- one artifact to
+                          train, version and deploy, \textbf{in place of two};
+                    \item \alert{operational, not computational}: the joint model is the larger
                           artifact;
-                    \item \textbf{Check2HGI is the reusable part} --- independent of the
-                          prediction heads on top.
+                    \item \textbf{Check2HGI is the reusable part} --- one vector per visit,
+                          independent of the prediction heads on top.
                 \end{itemize}
             \end{block}
         \end{column}
         \hfill
-        \begin{column}{0.468\textwidth}
+        \begin{column}{0.428\textwidth}
             \begin{exampleblock}{Scientific --- what it establishes}
-                \small
-                \begin{itemize}\setlength{\itemsep}{4pt}\setlength{\parskip}{0pt}
-                    \item \textbf{the novelty is the combination}: per-visit context inside a
-                          hierarchical graph-infomax representation;
-                    \item helps \alert{under the final design and evaluation protocol}, not always;
-                    \item the \textbf{input representation} is one condition; architecture and
-                          scale \emph{suggested, not isolated}.
-                \end{itemize}
+                \centering
+                \vspace{2mm}
+                The \textbf{input representation} and its \textbf{sharing topology} determine
+                \alert{whether} multitask learning helps these POI prediction tasks.
+                \vspace{2mm}
             \end{exampleblock}
         \end{column}
     \end{columns}
@@ -2096,7 +2093,7 @@
         \smallskip
 
         \textbf{B6 \textbullet{} Document and scope}\\
-        \hyperlink{b61}{\beamerbutton{B6-1}}\hyperlink{b62}{\beamerbutton{B6-2}}\hyperlink{b63}{\beamerbutton{B6-3}}\hyperlink{b64}{\beamerbutton{B6-4}}\hyperlink{b65}{\beamerbutton{B6-5}}
+        \hyperlink{b61}{\beamerbutton{B6-1}}\hyperlink{b62}{\beamerbutton{B6-2}}\hyperlink{b63}{\beamerbutton{B6-3}}\hyperlink{b64}{\beamerbutton{B6-4}}\hyperlink{b65}{\beamerbutton{B6-5}}\hyperlink{b66}{\beamerbutton{B6-6}}
         \smallskip
 
         \textbf{B7 \textbullet{} How Check2HGI and the joint model work}\\
@@ -3151,6 +3148,67 @@
     {\scriptsize
     \begin{minipage}[b]{0.775\linewidth}\raggedright\textcolor{gray}{Cap.~5: §5.2, §5.5.4, pp.~78 e 82-83; Tabela 10.}\end{minipage}\hfill
     \begin{minipage}[b]{0.20\linewidth}\raggedleft \hyperlink{b0}{\beamerreturnbutton{B0}}\end{minipage}}
+\end{frame}
+
+% FALA: "Este é o mapa de como cada externo rodou, e eu prefiro mostrá-lo do que ser perguntado.
+% Na categoria: o POI-RGNN é nativo da tarefa e foi reimplementado da arquitetura e dos
+% hiperparâmetros publicados, nas minhas partições. Nada a ressalvar ali.
+% Na região é diferente, e a razão é a primeira linha do rodapé: não existe modelo publicado que
+% ataque este alvo. O mais próximo, o DRRGNN, prediz região diretamente, mas sobre regiões
+% descobertas por pessoa, não sobre uma partição fixa da cidade -- o espaço de rótulos é outro.
+% Então a comparação teve de ser construída, e cada um dos três carrega uma ressalva diferente.
+% O HMT-GRN é o mais próximo de justo: mesmos dados, mesmas partições, mesmas inicializações, e eu
+% mantive a estrutura multitarefa dele. O que removi serve à busca do lugar exato, que é a etapa
+% seguinte à predição de região -- ele prediz região nativamente, e é essa etapa que eu avalio.
+% O STAN é o mais adaptado: eu troquei a camada de saída dele para ranquear regiões, ele constrói os
+% próprios embeddings e as próprias sequências, e as partições são parciais em dois conjuntos.
+% O ReHDM roda sob o protocolo publicado dele, então não está nas minhas janelas nem nas minhas
+% partições. E o Markov não é figurante: a ordem é escolhida por conjunto, e é ele que o capítulo
+% declara como a referência que a tarefa tem de vencer."
+\begin{frame}[noframenumbering]{Como cada baseline externo rodou}
+    \framesubtitle{B6-6 --- os caveats, um por um, e por que nenhum é nativo de região}
+    \hypertarget{b66}{}
+    {\scriptsize
+    \setlength{\tabcolsep}{4pt}
+    \renewcommand{\arraystretch}{1.0}\begin{tabular}{@{}p{1.8cm} p{1.5cm} p{5.5cm} p{4.8cm}@{}}
+        \toprule
+        \textbf{Sistema} & \textbf{Tarefa} & \textbf{Como rodou} & \textbf{A ressalva} \\
+        \midrule
+        \textbf{POI-RGNN} & categoria
+            & \raggedright re-implemented from its \textbf{published architecture and
+              hyperparameters}, on our folds
+            & \raggedright \alert{nenhuma} --- é nativo da tarefa e está acima do piso Markov-K
+              nos seis \tabularnewline
+        \textbf{Markov} & ambas
+            & \raggedright \textbf{best order per dataset} (categoria); Markov-1 sobre transições
+              de região, sob as nossas janelas e partições
+            & \raggedright não é figurante: é \textbf{a referência que o capítulo declara}
+              \tabularnewline
+        \midrule
+        \textbf{HMT-GRN} & região
+            & \raggedright mesmos dados, partições e inicializações; \textbf{estrutura multitarefa
+              preservada}; prior de transição por partição
+            & \raggedright \textit{``not a reproduction of the complete published system''} --- o
+              que saiu serve à \textbf{busca do lugar} \tabularnewline
+        \textbf{STAN} & região
+            & \raggedright mesmas partições, mas \textbf{embeddings e sequências próprios};
+              \textbf{saída adaptada} para ranquear regiões
+            & \raggedright \alert{partições parciais: TX 4/5, CA 2/5}, semente 0 \tabularnewline
+        \textbf{ReHDM} & região
+            & \raggedright sob o \textbf{protocolo publicado dele}
+            & \raggedright não medido nas nossas janelas nem partições; TX e CA com uma semente
+              \tabularnewline
+        \bottomrule
+    \end{tabular}\par}
+
+    \smallskip
+    {\scriptsize
+    \begin{minipage}[b]{0.82\linewidth}\raggedright
+    \alert{Por que nenhum é nativo de região:} nenhum modelo publicado ataca este alvo; o mais
+    próximo, \textbf{DRRGNN}, prediz região sobre \textbf{regiões descobertas por pessoa}.
+    \textcolor{gray}{Cap.~5, §5.2 e §5.5.4.}
+    \end{minipage}\hfill
+    \begin{minipage}[b]{0.15\linewidth}\raggedleft \hyperlink{b0}{\beamerreturnbutton{B0}}\end{minipage}}
 \end{frame}
 
 % ---------- família B7 ----------

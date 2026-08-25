@@ -35,6 +35,10 @@ readout, and node features carry 4 elapsed-time columns (`in_channels = 15`).
 7. [`data/v18_results.json`](data/v18_results.json) + [`score_all.py`](score_all.py) — the
    machine-readable record and the reproducer that regenerates it from the rundirs. **Every number
    in every markdown table here is traceable to that JSON.**
+8. [`MAJORITY_CLASS_FLOOR_PER_STATE.md`](MAJORITY_CLASS_FLOOR_PER_STATE.md) — not a v18 run: a
+   closed-form derivation, from the published Table 8 majority share, of which dataset gives each
+   end of the dissertation's "5.7 to 7.3 macro-F1" majority-class-floor range (Florida min / Alabama
+   max — Alabama was never named in the delivered text).
 
 ## What to expect (so a real result is not mistaken for a bug)
 
