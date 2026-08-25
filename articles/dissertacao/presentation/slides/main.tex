@@ -1392,31 +1392,26 @@
     \framesubtitle{Two inputs, one model}
 
     \begin{columns}[T,onlytextwidth]
-        \begin{column}{0.380\textwidth}
+        \begin{column}{0.560\textwidth}
             \centering
-            \includegraphics[width=0.95\linewidth]{fig2_model}
+            \includegraphics[width=\linewidth]{fig2_model}
         \end{column}
         \hfill
-        \begin{column}{0.550\textwidth}
-            \small
-            \begin{itemize}\setlength{\itemsep}{4pt}
-                \item \textbf{Two inputs, one model} --- the category task reads the window of
-                      per-visit vectors (\textbf{semantic stream}); the region task reads the
-                      same window, each visit as its region node's vector
-                      (\textbf{spatial stream});
+        \begin{column}{0.400\textwidth}
+            \footnotesize
+            \begin{itemize}\setlength{\itemsep}{6pt}
+                \item \textbf{Two inputs, one model} --- the \textbf{semantic stream} reads the
+                      per-visit vectors; the \textbf{spatial stream} reads the same window, each
+                      visit as its region node's vector;
                 \item \textbf{private per-task encoders} --- no shared weights;
-                \item \textbf{the shared trunk} --- a cross-attention stack of two blocks;
-                      attention lets each stream read the other's features, each keeping its own
-                      feed-forward weights.
+                \item \textbf{the shared trunk} --- a cross-attention stack of two blocks.
             \end{itemize}
         \end{column}
     \end{columns}
 
-    \begin{alertblock}{}
-        \small
-        The tasks share by \alert{exchanging information between per-task streams}, not by
-        owning hidden layers in common.
-    \end{alertblock}
+    \vfill
+    {\footnotesize The tasks share by \alert{exchanging information between per-task streams}, not
+    by owning hidden layers in common.\par}
 \end{frame}
 
 % FALA: Duas coisas fecham a arquitetura, e depois uma posição que eu preciso enunciar com precisão. A primeira é o caminho espacial privado:
