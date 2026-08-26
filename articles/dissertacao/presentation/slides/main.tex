@@ -394,38 +394,76 @@
 % model e a coluna Reference ficam para as seções donas). Duas reduções declaradas na linha
 % saem "FiLM conditioning" (INTRODUZ em 3.2) e "Null result for that configuration" (a Seção 2
 % não reporta resultado). Nenhum valor alterado.
-% ⚠ O \vspace ABAIXO NAO E' COSMETICO. Sem ele, o grupo {\footnotesize ...} que abre o corpo e'
-% lido pelo beamer como o SEGUNDO argumento de \begin{frame}{titulo}{subtitulo} e a tira inteira vai
-% parar DENTRO da faixa do titulo. Aconteceu no primeiro build de 25/08. Nunca abra o corpo deste
-% frame com uma chave.
-\begin{frame}{The line this work stands on, and the one idea on it}
-    \vspace{0.5mm}
-    {\footnotesize
-    \textbf{one-hot identifier} $\rightarrow$ \textbf{skip-gram $\cdot$ DeepWalk $\cdot$ node2vec}
-    $\rightarrow$ \textbf{GCN $\cdot$ GAT $\cdot$ GraphSAGE} $\rightarrow$
-    \textbf{graph infomax: DGI $\cdot$ HGI $\cdot$ Check2HGI}\par
-    \smallskip
-    \textit{from position, to a geometry that reflects relationships, to relationships learned
-    by neighborhood aggregation.}\par}
+% FALA (escada): "Esta é a base mais importante da dissertação, e ela é uma escada. Começa no
+% identificador one-hot, que marca um lugar por posição e não codifica relação nenhuma. Sobe para as
+% representações distribuídas, skip-gram, DeepWalk, node2vec, em que a geometria do vetor reflete a
+% relação que está nos dados. Sobe de novo para as redes de grafo, GCN, GAT, GraphSAGE, que aprendem
+% essa relação por agregação de vizinhança. E o último degrau é o infomax em grafo, que é onde ficam
+% os três métodos desta dissertação: DGI, HGI e Check2HGI. Eu não explico nenhum dos três agora,
+% porque cada um tem o capítulo dele."
+%
+% 2026-08-25 · DIVIDIDO EM DOIS (decisão do autor). O slide fundido carregava escada + ideia +
+% substrato numa tela só, sem separação visual. Agora: este é a LINHAGEM, o seguinte é a IDEIA. O
+% tempo de fala é o mesmo; só a divisão de conceitos mudou. As glosas de cada degrau VOLTARAM — elas
+% eram o conteúdo do antigo 2.7 e tinham sido reduzidas a uma linha na fusão.
+\begin{frame}{The line this work stands on}
+    \vfill
+    \begin{itemize}\setlength{\itemsep}{4pt}
+        \item \textbf{one-hot identifier} --- marks a place or a category by position, and encodes
+              no relationship between identifiers;
+        \item \textbf{skip-gram, DeepWalk, node2vec} --- dense vectors whose geometry reflects
+              relationships in the data;
+        \item \textbf{GCN, GAT, GraphSAGE} --- those relationships learned through neighborhood
+              aggregation;
+        \item \alert{\textbf{graph infomax}} --- \textbf{DGI}, \textbf{HGI} and \textbf{Check2HGI},
+              the three this dissertation uses. \textit{Each chapter explains its own.}
+    \end{itemize}
 
-    \medskip
-    \begin{block}{The idea these methods share}
+    \vfill
+    \begin{exampleblock}{The substrate the three have in common}
+        \small
+        In all three, a \textbf{Delaunay triangulation} joins the places. The \textbf{edge weights
+        differ}, and each chapter states its own.
+    \end{exampleblock}
+    \vfill
+\end{frame}
+
+% FALA (ideia): "Aqui eu digo só a ideia que os três compartilham, uma vez, para não ter de
+% repeti-la três vezes. Nas palavras do próprio capítulo: o modelo aprende vetores úteis sendo
+% obrigado a distinguir um pareamento verdadeiro de um pareamento corrompido, e não precisa de rótulo
+% nenhum para isso, porque os próprios dados dizem qual é o verdadeiro. E vale separar duas coisas
+% que costumam ser confundidas. Infomax é o nome do que se maximiza, que é a informação mútua entre
+% representações de dois níveis adjacentes. O teste de pareamento é como isso se estima, e na
+% literatura ele é da família do aprendizado contrastivo, que é o nome que o Capítulo 3 usa. A
+% informação mútua nunca é calculada em forma fechada. Uma última coisa, que é substrato comum aos
+% três e por isso eu digo aqui em vez de três vezes: nos três, uma triangulação de Delaunay liga os
+% lugares. Os pesos das arestas cada capítulo diz os seus. E um cuidado de escopo que eu prefiro dar
+% eu mesmo: a frase sem rótulos é da ideia geral. Nesta dissertação a forma correta é a que está na
+% tela, sem alvo de próxima categoria e sem alvo de próxima região, porque a categoria da visita
+% entra como característica de entrada do nó."
+%
+% ⚠ O TÍTULO DO 1º BLOCO É DO CAPÍTULO, NÃO NOSSO. O deck chamava esta frase de "The infomax idea",
+% e ela NÃO é o infomax: é o estimador contrastivo. O Cap. 2 chama-a de "The idea these methods
+% share" (2_fundamentals.tex:383) e diz o objetivo em separado (:433-436). Não reverter.
+% ⚠ NUNCA "bilinear" aqui: o discriminador do DGI no Cap. 3 entregue é LINEAR (3_cbic/method.tex:50).
+\begin{frame}{The idea these three share}
+    \begin{block}{Said once, so that no chapter has to repeat it}
         \small
         The model learns useful vectors by being asked to tell a true pairing of two parts of the
-        data from a corrupted one, and it needs no labels to do so.\par
-        \smallskip
-        \alert{Infomax names what is maximized; the pairing test is how it is estimated}, because
-        the quantity is never evaluated in closed form.
+        data from a corrupted one, and it needs no labels to do so.
     \end{block}
 
-    \vfill
-    {\footnotesize
-    \textit{In all three, a Delaunay triangulation joins the places.} \textbf{Each chapter adds
-    its own mechanism.}\par
-    \smallskip
-    \textit{In this work the representations are trained with \textbf{no next-category and no
-    next-region target}.}\par}
-    \vfill
+    \begin{exampleblock}{What is maximized $\mid$ how it is estimated}
+        \small
+        \textbf{Infomax} names what is maximized: the \textbf{mutual information} between
+        representations at two adjacent levels. The pairing test is the \textbf{estimator}, because
+        the quantity is never evaluated in closed form.
+    \end{exampleblock}
+
+    \begin{alertblock}{The scope of ``no labels'', stated before anyone asks}
+        \small
+        In this work: \textbf{no next-category and no next-region target}.
+    \end{alertblock}
 \end{frame}
 
 \subsection{Base de evidência}
