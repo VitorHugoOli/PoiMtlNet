@@ -402,46 +402,29 @@
     \vspace{0.5mm}
     {\footnotesize
     \textbf{one-hot identifier} $\rightarrow$ \textbf{skip-gram $\cdot$ DeepWalk $\cdot$ node2vec}
-    $\rightarrow$ \textbf{GCN $\cdot$ GAT $\cdot$ GraphSAGE}\par
+    $\rightarrow$ \textbf{GCN $\cdot$ GAT $\cdot$ GraphSAGE} $\rightarrow$
+    \textbf{graph infomax: DGI $\cdot$ HGI $\cdot$ Check2HGI}\par
     \smallskip
     \textit{from position, to a geometry that reflects relationships, to relationships learned
     by neighborhood aggregation.}\par}
 
-    \smallskip
-    \begin{block}{The infomax idea, in one sentence}
+    \medskip
+    \begin{block}{The idea these methods share}
         \small
         The model learns useful vectors by being asked to tell a true pairing of two parts of the
-        data from a corrupted one, and it needs no labels to do so.
+        data from a corrupted one, and it needs no labels to do so.\par
+        \smallskip
+        \alert{Infomax names what is maximized; the pairing test is how it is estimated}, because
+        the quantity is never evaluated in closed form.
     \end{block}
 
     \vfill
-    \begin{columns}[c,onlytextwidth]
-        \begin{column}{0.625\textwidth}
-            \footnotesize
-            \renewcommand{\arraystretch}{1.10}\begin{tabular}{@{}lp{6.0cm}@{}}
-                \toprule
-                Model & What it added \tabularnewline
-                \midrule
-                DGI & \raggedright patches against a global graph summary; \tabularnewline
-                HGI & \raggedright the place--region--city hierarchy; \tabularnewline
-                Check2HGI & \raggedright infomax down to the check-in: one vector per visit. \tabularnewline
-                \bottomrule
-            \end{tabular}
-        \end{column}
-        \hfill
-        \begin{column}{0.325\textwidth}
-            \centering
-            \begin{tikzpicture}[
-                lvl/.style={draw=primaryshade, rounded corners=1mm, minimum width=2.1cm,
-                            minimum height=0.52cm, font=\small, inner sep=1pt}]
-                \node[lvl, fill=primarytint] at (0,1.80) {city};
-                \node[lvl, fill=primarytint] at (0,1.20) {region};
-                \node[lvl, fill=primarytint] at (0,0.60) {place};
-                \node[lvl, dashed] (ci) at (0,0.00) {check-in};
-                \node[font=\small, anchor=west] at (1.32,0.00) {Ch.~5};
-            \end{tikzpicture}
-        \end{column}
-    \end{columns}
+    {\footnotesize
+    \textit{In all three, a Delaunay triangulation joins the places.} \textbf{Each chapter adds
+    its own mechanism.}\par
+    \smallskip
+    \textit{In this work the representations are trained with \textbf{no next-category and no
+    next-region target}.}\par}
     \vfill
 \end{frame}
 

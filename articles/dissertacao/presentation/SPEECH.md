@@ -4,7 +4,7 @@
 
 > **Como usar.** Cada cartão tem quatro camadas, em ordem de urgência: **ABRE** (a primeira oração, para pegar o fio sem ler), **DIZER** (as superfícies de lei e os números que não podem sair errado), **NUNCA** (o que anula o slide se escapar), e a fala completa embaixo, para consulta.
 
-> ⚠ **O relógio.** Os tempos abaixo são os do plano e somam **47:50**. A fala escrita tem 8.840 palavras, que a 140 palavras/minuto dão **~63 min** — contra o teto de **50 min** do Art. 23. Os dois números não fecham, e o ensaio é que decide qual vale. **Cronometre o fim de cada seção.**
+> ⚠ **O relógio.** Os tempos abaixo são os do plano e somam **48:05**. A fala escrita tem 8.840 palavras, que a 140 palavras/minuto dão **~63 min** — contra o teto de **50 min** do Art. 23. Os dois números não fecham, e o ensaio é que decide qual vale. **Cronometre o fim de cada seção.**
 
 
 ---
@@ -15,10 +15,10 @@
 |---|---|---:|---|
 | **ABERTURA — a pergunta e o escopo** | S1–S7 | 5:00 | ____________ |
 | **FUNDAMENTOS — dito uma vez** | S8–S14 | 6:05 | ____________ |
-| **MTLnet — Cap. 3 (CBIC)** | S17–S25 | 15:50 | ____________ |
-| **ST-MTLNet — Cap. 4 (CoUrb)** | S26–S32 | 21:50 | ____________ |
-| **Check2HGI — Cap. 5 (MobiWac)** | S33–S49 | 42:20 | ____________ |
-| **CONCLUSÃO — a resposta condicional** | S50–S55 | 47:50 | ____________ |
+| **MTLnet — Cap. 3 (CBIC)** | S17–S25 | 16:05 | ____________ |
+| **ST-MTLNet — Cap. 4 (CoUrb)** | S26–S32 | 22:05 | ____________ |
+| **Check2HGI — Cap. 5 (MobiWac)** | S33–S49 | 42:35 | ____________ |
+| **CONCLUSÃO — a resposta condicional** | S50–S55 | 48:05 | ____________ |
 
 
 ---
@@ -170,20 +170,18 @@
 ---
 
 ## S8 · The line this work stands on, and the one idea on it
-`slide **10** · PDF p.13` · **75 s** · fim previsto **8:00**
+`slide **10** · PDF p.13` · **90 s** · fim previsto **8:15**
 
 > ### ▶ Esta é a base mais importante da dissertação, e ela é uma escada.
 
-**● COBRE** — INTRODUZ a linhagem de representações · INTRODUZ a ideia infomax · INTRODUZ a linhagem de modelos (Tab. 1) e o diagrama de níveis · *(o nome Check2HGI aparece na Tab. 1 como linha do mapa; o artefato é INTRODUZ em 5.2, e MTLnet em
+**● COBRE** — INTRODUZ a linhagem de representações · INTRODUZ a ideia infomax e a distinção entre o que se maximiza e como se estima · INTRODUZ o grafo de Delaunay como substrato comum aos três · *(os nomes DGI, HGI e Check2HGI aparecem como o
 
-**✕ NUNCA** — o mecanismo do DGI ou do HGI aqui — eles pertencem a 3.2A e 4.1A. · Nenhum resultado, nenhum número de capítulo. · Não explicar FiLM aqui. · Nunca Space2Vec nem POI2Vec como componentes deste trabalho.
-
-<sub>Esta é a base mais importante da dissertação, e ela é uma escada. Começa no identificador one-hot, que marca um lugar por posição e não codifica relação nenhuma. Sobe para as representações distribuídas, skip-gram, DeepWalk, node2vec, em que a geometria do vetor reflete a relação que está nos dados. Sobe de novo para as redes de grafo, GCN, GAT, GraphSAGE, que aprendem essa relação por agregação de vizinhança. E o degrau seguinte é uma ideia só, que cobre três métodos desta dissertação, então é melhor dizê-la agora do que três vezes. A ideia infomax, nas palavras do próprio capítulo: o modelo aprende vetores úteis sendo obrigado a distinguir um pareamento verdadeiro de um pareamento corrompido, e não precisa de rótulo nenhum para isso, porque os próprios dados dizem qual é o verdadeiro. O DGI faz essa comparação entre um nó e um resumo do grafo. O HGI estende o mesmo objetivo por uma hierarquia de lugar, região e cidade. E o Check2HGI, do Capítulo 5, acrescenta um quarto nível abaixo do lugar, que é o check-in. O mecanismo de cada um fica com o capítulo dono: o DGI no Capítulo 3, o HGI no Capítulo 4. A tabela na tela é a Tabela 1 da dissertação, e ela é o mapa da fala inteira: a cada seção eu volto a ela e digo em que linha eu estou.</sub>
+<sub>Esta é a base mais importante da dissertação, e ela é uma escada. Começa no identificador one-hot, que marca um lugar por posição e não codifica relação nenhuma. Sobe para as representações distribuídas, skip-gram, DeepWalk, node2vec, em que a geometria do vetor reflete a relação que está nos dados. Sobe de novo para as redes de grafo, GCN, GAT, GraphSAGE, que aprendem essa relação por agregação de vizinhança. E o último degrau é o infomax em grafo, que é onde ficam os três métodos desta dissertação: DGI, HGI e Check2HGI. Eu não explico nenhum dos três agora, porque cada um tem o capítulo dele. Aqui eu digo só a ideia que os três compartilham, uma vez, para não ter de repeti-la três vezes. Nas palavras do próprio capítulo: o modelo aprende vetores úteis sendo obrigado a distinguir um pareamento verdadeiro de um pareamento corrompido, e não precisa de rótulo nenhum para isso, porque os próprios dados dizem qual é o verdadeiro. E aqui vale separar duas coisas que costumam ser confundidas. Infomax é o nome do que se maximiza, que é a informação mútua entre representações de dois níveis adjacentes. O teste de pareamento é como isso se estima, e na literatura ele é da família do aprendizado contrastivo, que é o nome que o Capítulo 3 usa. A informação mútua nunca é calculada em forma fechada. Uma última coisa, que é substrato comum aos três e por isso eu digo aqui em vez de três vezes: nos três, uma triangulação de Delaunay liga os lugares. Os pesos das arestas cada capítulo diz os seus. E um cuidado de escopo que eu prefiro dar eu mesmo: a frase sem rótulos é da ideia geral. Nesta dissertação a forma correta é a que está na tela, sem alvo de próxima categoria e sem alvo de próxima região, porque a categoria da visita entra como característica de entrada do nó.</sub>
 
 ---
 
 ## S10 · The evidence base: six datasets, said once
-`slide **11** · PDF p.14` · **55 s** · fim previsto **8:55**
+`slide **11** · PDF p.14` · **55 s** · fim previsto **9:10**
 
 > ### ▶ Esta é a base de evidência inteira, dita uma vez só.
 
@@ -196,7 +194,7 @@
 ---
 
 ## S11 · The metric all three studies share
-`slide **12** · PDF p.15` · **35 s** · fim previsto **9:30**
+`slide **12** · PDF p.15` · **35 s** · fim previsto **9:45**
 
 > ### ▶ A métrica de categoria dos três estudos é a macro-F1: a média das F1 por categoria, com cada categoria pesando igual.
 
@@ -209,7 +207,7 @@
 ---
 
 ## S12 · The protocol of the first two studies, and two names that change
-`slide **13** · PDF p.16` · **50 s** · fim previsto **10:20**
+`slide **13** · PDF p.16` · **50 s** · fim previsto **10:35**
 
 > ### ▶ O protocolo dos dois primeiros estudos, e ele é diferente do terceiro.
 
@@ -227,7 +225,7 @@
 
 
 ## S17 · One static task, one sequential task
-`slide **14** · PDF p.18` · **30 s** · fim previsto **10:50**
+`slide **14** · PDF p.18` · **30 s** · fim previsto **11:05**
 
 > ### ▶ O par do primeiro estudo. Uma tarefa estática: ler a representação de um lugar e prever a categoria dele.
 
@@ -240,7 +238,7 @@
 ---
 
 ## S18 · MTLnet
-`slide **15** · PDF p.19` · **45 s** · fim previsto **11:35**
+`slide **15** · PDF p.19` · **45 s** · fim previsto **11:50**
 
 > ### ▶ Esta é a arquitetura, o MTLnet. Vale guardar a figura, porque o Capítulo 4 não vai alterar uma linha dela.
 
@@ -255,7 +253,7 @@
 ---
 
 ## S19 · DGI: how it works | why it was used
-`slide **16** · PDF p.20` · **45 s** · fim previsto **12:20**
+`slide **16** · PDF p.20` · **45 s** · fim previsto **12:35**
 
 > ### ▶ O primeiro mecanismo, e ele responde uma pergunta que costuma vir.
 
@@ -268,7 +266,7 @@
 ---
 
 ## S20 · Setup, and the protocol declared
-`slide **17** · PDF p.21` · **30 s** · fim previsto **12:50**
+`slide **17** · PDF p.21` · **30 s** · fim previsto **13:05**
 
 > ### ▶ O setup em três linhas, e a terceira é a autodeclaração de protocolo que eu prometi na Seção 2.
 
@@ -281,7 +279,7 @@
 ---
 
 ## S21 · Two losses, one set of parameters
-`slide **18** · PDF p.22` · **40 s** · fim previsto **13:30**
+`slide **18** · PDF p.22` · **40 s** · fim previsto **13:45**
 
 > ### ▶ Antes de eu nomear o otimizador, o problema que ele existe para resolver.
 
@@ -294,7 +292,7 @@
 ---
 
 ## S22 · Nash-MTL, and what the chapter may claim about it
-`slide **19** · PDF p.23` · **40 s** · fim previsto **14:10**
+`slide **19** · PDF p.23` · **40 s** · fim previsto **14:25**
 
 > ### ▶ O Nash-MTL cai na segunda classe.
 
@@ -307,7 +305,7 @@
 ---
 
 ## S23 · The null result, shown rather than asserted
-`slide **20** · PDF p.24` · **55 s** · fim previsto **15:05**
+`slide **20** · PDF p.24` · **55 s** · fim previsto **15:20**
 
 > ### ▶ O resultado. Eu prefiro mostrá-lo a afirmá-lo, então são as duas tabelas do capítulo, reduzidas ao bloco de F1.
 
@@ -320,7 +318,7 @@
 ---
 
 ## S24 · A null with three suspects
-`slide **21** · PDF p.25` · **25 s** · fim previsto **15:30**
+`slide **21** · PDF p.25` · **25 s** · fim previsto **15:45**
 
 > ### ▶ É aqui que o capítulo deixa de ser um resultado negativo e vira um programa de trabalho, porque ele nomeia três suspeitos, e não um.
 
@@ -333,7 +331,7 @@
 ---
 
 ## S25 · A null with three suspects does not close the investigation
-`slide **22** · PDF p.26` · **20 s** · fim previsto **15:50**
+`slide **22** · PDF p.26` · **20 s** · fim previsto **16:05**
 
 > ### ▶ Um nulo com três suspeitos não encerra a investigação: ele desenha o próximo experimento.
 
@@ -350,7 +348,7 @@
 
 
 ## S26 · Architecture or representation?
-`slide **23** · PDF p.28` · **40 s** · fim previsto **16:30**
+`slide **23** · PDF p.28` · **40 s** · fim previsto **16:45**
 
 > ### ▶ O segundo estudo pega a pergunta herdada e a transforma em experimento controlado.
 
@@ -363,7 +361,7 @@
 ---
 
 ## S27 · HGI: how it works | why it was used
-`slide **25** · PDF p.30` · **55 s** · fim previsto **17:25**
+`slide **25** · PDF p.30` · **55 s** · fim previsto **17:40**
 
 > ### ▶ O segundo mecanismo. É o conceito que sustenta o resto da dissertação, então eu vou com calma.
 
@@ -376,7 +374,7 @@
 ---
 
 ## S28 · Why these encoders
-`slide **26** · PDF p.31` · **60 s** · fim previsto **18:25**
+`slide **26** · PDF p.31` · **60 s** · fim previsto **18:40**
 
 > ### ▶ Por que estes codificadores, e não outros quaisquer.
 
@@ -389,7 +387,7 @@
 ---
 
 ## S29 · The caveat, then the number
-`slide **27** · PDF p.32` · **45 s** · fim previsto **19:10**
+`slide **27** · PDF p.32` · **45 s** · fim previsto **19:25**
 
 > ### ▶ Aqui a ordem importa mais que o número, então eu digo a ressalva primeiro, em uma cláusula, e sigo em frente.
 
@@ -402,7 +400,7 @@
 ---
 
 ## S30 · The diagnostic result is the sequential task
-`slide **28** · PDF p.34` · **60 s** · fim previsto **20:10**
+`slide **28** · PDF p.34` · **60 s** · fim previsto **20:25**
 
 > ### ▶ Agora a tarefa que produz o diagnóstico, que é a sequencial, e a razão é uma só: o alvo dela nunca está na entrada.
 
@@ -415,7 +413,7 @@
 ---
 
 ## S31 · What the decomposition moved, and where it did not
-`slide **29** · PDF p.35` · **65 s** · fim previsto **21:15**
+`slide **29** · PDF p.35` · **65 s** · fim previsto **21:30**
 
 > ### ▶ Três limites, e eu ofereço os três antes que me peçam.
 
@@ -428,7 +426,7 @@
 ---
 
 ## S32 · With the architecture fixed, the input moved the result
-`slide **30** · PDF p.36` · **35 s** · fim previsto **21:50**
+`slide **30** · PDF p.36` · **35 s** · fim previsto **22:05**
 
 > ### ▶ Com a arquitetura fixa, a entrada moveu o resultado: a representação é o gargalo.
 
@@ -445,7 +443,7 @@
 
 
 ## S33 · Three changes, each a consequence of the diagnosis
-`slide **31** · PDF p.38` · **60 s** · fim previsto **22:50**
+`slide **31** · PDF p.38` · **60 s** · fim previsto **23:05**
 
 > ### ▶ As três mudanças do último estudo, e nenhuma delas é preferência minha: as três são consequência do diagnóstico do capítulo anterior.
 
@@ -460,7 +458,7 @@
 ---
 
 ## S34 · Next region: the task, and why it is worth predicting
-`slide **32** · PDF p.39` · **35 s** · fim previsto **23:25**
+`slide **32** · PDF p.39` · **35 s** · fim previsto **23:40**
 
 > ### ▶ Trabalho relacionado deste estudo, que os dois primeiros não têm, e a primeira metade é a tarefa nova.
 
@@ -475,7 +473,7 @@
 ---
 
 ## S35 · Why a per-visit representation is new in this line
-`slide **33** · PDF p.40` · **25 s** · fim previsto **23:50**
+`slide **33** · PDF p.40` · **25 s** · fim previsto **24:05**
 
 > ### ▶ Segunda metade: por que uma representação por visita é nova nesta linha.
 
@@ -488,7 +486,7 @@
 ---
 
 ## S36 · Check2HGI: a fourth level below the place
-`slide **34** · PDF p.41` · **80 s** · fim previsto **25:10**
+`slide **34** · PDF p.41` · **80 s** · fim previsto **25:25**
 
 > ### ▶ O Check2HGI, e ele se apoia direto no HGI do capítulo anterior.
 
@@ -505,7 +503,7 @@
 ---
 
 ## S37 · What each visit contributes
-`slide **35** · PDF p.42` · **70 s** · fim previsto **26:20**
+`slide **35** · PDF p.42` · **70 s** · fim previsto **26:35**
 
 > ### ▶ O que cada visita contribui na entrada, e é aqui que está a informação que um vetor por lugar não consegue carregar.
 
@@ -518,7 +516,7 @@
 ---
 
 ## S38 · The geometry of the vectors
-`slide **36** · PDF p.43` · **90 s** · fim previsto **27:50**
+`slide **36** · PDF p.43` · **90 s** · fim previsto **28:05**
 
 > ### ▶ E este é o resultado da representação sozinha, antes de qualquer modelo.
 
@@ -537,7 +535,7 @@
 ---
 
 ## S39 · The architecture: sharing by exchange
-`slide **37** · PDF p.44` · **90 s** · fim previsto **29:20**
+`slide **37** · PDF p.44` · **90 s** · fim previsto **29:35**
 
 > ### ▶ A arquitetura, e o que mudou no multitarefa. Cada tarefa tem a sua entrada.
 
@@ -551,7 +549,7 @@
 ---
 
 ## S40 · The private spatial path, and what the evidence does not separate
-`slide **38** · PDF p.45` · **90 s** · fim previsto **30:50**
+`slide **38** · PDF p.45` · **90 s** · fim previsto **31:05**
 
 > ### ▶ Duas coisas fecham a arquitetura, e depois uma posição que eu preciso enunciar com precisão.
 
@@ -566,7 +564,7 @@
 ---
 
 ## S41 · Protocol, step 1 of 4: the unit of data
-`slide **39** · PDF p.46` · **60 s** · fim previsto **31:50**
+`slide **39** · PDF p.46` · **60 s** · fim previsto **32:05**
 
 > ### ▶ O protocolo, e ele é o degrau que sustenta tudo o que vem depois.
 
@@ -582,7 +580,7 @@
 ---
 
 ## S42 · Protocol, step 2 of 4: what is measured
-`slide **40** · PDF p.47` · **65 s** · fim previsto **32:55**
+`slide **40** · PDF p.47` · **65 s** · fim previsto **33:10**
 
 > ### ▶ Segundo passo: o que se mede. Na categoria, macro-F1, como eu defini na Seção 2, e o ponto de referência dela é o piso de classe majoritária, que fica entre 5,7 e 7,3 conforme o conjunto.
 
@@ -598,7 +596,7 @@
 ---
 
 ## S43 · Protocol, step 3 of 4: what is compared
-`slide **41** · PDF p.48` · **65 s** · fim previsto **34:00**
+`slide **41** · PDF p.48` · **65 s** · fim previsto **34:15**
 
 > ### ▶ Terceiro passo: o que se compara. A comparação é entre o modelo conjunto e os modelos dedicados, lendo a mesma representação, as mesmas janelas e as mesmas partições.
 
@@ -616,7 +614,7 @@
 ---
 
 ## S44 · Protocol, step 4 of 4: how it is decided
-`slide **42** · PDF p.49` · **65 s** · fim previsto **35:05**
+`slide **42** · PDF p.49` · **65 s** · fim previsto **35:20**
 
 > ### ▶ Quarto passo: como se decide. A primeira frase é a que organiza tudo: afirmar ganho e afirmar equivalência exigem testes diferentes, e uma diferença não significativa não é evidência de equivalência.
 
@@ -634,7 +632,7 @@
 ---
 
 ## S45 · Result 1: the representation, at every dataset
-`slide **43** · PDF p.50` · **110 s** · fim previsto **36:55**
+`slide **43** · PDF p.50` · **110 s** · fim previsto **37:10**
 
 > ### ▶ Primeiro resultado, e ele é sobre a representação sozinha, não sobre o multitarefa.
 
@@ -655,7 +653,7 @@
 ---
 
 ## S46 · Result 2: one model, two tasks
-`slide **44** · PDF p.51` · **120 s** · fim previsto **38:55**
+`slide **44** · PDF p.51` · **120 s** · fim previsto **39:10**
 
 > ### ▶ Segundo resultado. E uma frase sobre a coluna do meio, antes de eu ler as duas nossas, porque ela muda o que as outras duas significam: a coluna Dedicated é o sistema mais forte desta tabela.
 
@@ -672,7 +670,7 @@
 ---
 
 ## S47 · The verdict, dataset by dataset
-`slide **45** · PDF p.52` · **100 s** · fim previsto **40:35**
+`slide **45** · PDF p.52` · **100 s** · fim previsto **40:50**
 
 > ### ▶ E este é o veredito, com o intervalo de cada diferença.
 
@@ -693,7 +691,7 @@
 ---
 
 ## S48 · The measured trade, and four declared limits
-`slide **46** · PDF p.53` · **75 s** · fim previsto **41:50**
+`slide **46** · PDF p.53` · **75 s** · fim previsto **42:05**
 
 > ### ▶ A troca, medida, e depois quatro limites que eu ofereço antes de alguém pedir.
 
@@ -710,7 +708,7 @@
 ---
 
 ## S49 · The ladder: three studies, three layers
-`slide **47** · PDF p.55` · **30 s** · fim previsto **42:20**
+`slide **47** · PDF p.55` · **30 s** · fim previsto **42:35**
 
 > ### ▶ Uma tela em que a coletânea inteira cabe. Três linhas, os três estudos.
 
@@ -727,7 +725,7 @@
 
 
 ## S50 · The conditional answer
-`slide **48** · PDF p.56` · **55 s** · fim previsto **43:15**
+`slide **48** · PDF p.56` · **55 s** · fim previsto **43:30**
 
 > ### ▶ A resposta consolidada, e ela é condicional de propósito.
 
@@ -740,7 +738,7 @@
 ---
 
 ## S51 · The contribution, in one block
-`slide **49** · PDF p.57` · **45 s** · fim previsto **44:00**
+`slide **49** · PDF p.57` · **45 s** · fim previsto **44:15**
 
 > ### ▶ Esta é a mesma tela que eu mostrei no começo, com as mesmas palavras, e agora ela tem a evidência atrás.
 
@@ -753,7 +751,7 @@
 ---
 
 ## S52 · Six limitations, six next steps (1 of 2)
-`slide **50** · PDF p.58` · **65 s** · fim previsto **45:05**
+`slide **50** · PDF p.58` · **65 s** · fim previsto **45:20**
 
 > ### ▶ As limitações, cada uma amarrada ao passo que ela pede.
 
@@ -766,7 +764,7 @@
 ---
 
 ## S53 · Six limitations, six next steps (2 of 2)
-`slide **51** · PDF p.59` · **65 s** · fim previsto **46:10**
+`slide **51** · PDF p.59` · **65 s** · fim previsto **46:25**
 
 > ### ▶ Quarta: eu não predigo o próximo lugar exato, então as conclusões valem para próxima categoria e próxima região.
 
@@ -779,7 +777,7 @@
 ---
 
 ## S54 · Closing
-`slide **52** · PDF p.60` · **70 s** · fim previsto **47:20**
+`slide **52** · PDF p.60` · **70 s** · fim previsto **47:35**
 
 > ### ▶ Eu abri esta apresentação dizendo que antecipar o quê e o onde da próxima visita sustenta recomendação, navegação, planejamento de transporte e alocação de recursos por área.
 
@@ -792,7 +790,7 @@
 ---
 
 ## S55 · Acknowledgements
-`slide **53** · PDF p.61` · **30 s** · fim previsto **47:50**
+`slide **53** · PDF p.61` · **30 s** · fim previsto **48:05**
 
 > ### ▶ os agradecimentos, terminando na banca: *"E, por fim, aos senhores da banca: obrigado por lerem o trabalho e por estarem aqui.
 
