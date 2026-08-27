@@ -5,24 +5,29 @@
 > perguntas na mesma ordem: **o que é**, **como funciona**, e **por que isso importa nesta
 > dissertação**. Nada aqui é texto entregue — é material de estudo para a arguição de **2026-08-28**.
 >
-> **Como ler.** Os cinco blocos são independentes. Dá para ler o bloco 3 sem ter lido o 1. O
-> [Mapa](#0--mapa-como-as-cinco-frentes-se-ligam) mostra como eles se conectam.
+> **Como ler.** Os seis blocos são independentes. Dá para ler o bloco 3 sem ter lido o 1. O
+> [Mapa](#0--mapa-como-as-seis-frentes-se-ligam) mostra como eles se conectam.
 >
 > **Como este documento cresce.** Toda seção termina com um espaço fixo chamado
 > **"Dúvidas e esclarecimentos"**. Quando você voltar com uma pergunta sobre Infomax, a resposta
 > entra em [§2.7](#27--dúvidas-e-esclarecimentos), datada, sem reescrever o resto. O
-> [Registro de tópicos](#7--registro-de-tópicos) no fim é o índice vivo: tópicos novos entram lá
+> [Registro de tópicos](#b--registro-de-tópicos) no fim é o índice vivo: tópicos novos entram lá
 > primeiro e viram seção depois. Instruções de expansão em
-> [§7](#8--como-pedir-uma-seção-nova-ou-uma-resposta).
+> [§C](#c--como-pedir-uma-seção-nova-ou-uma-resposta).
 
-**Última atualização:** 2026-08-25 · **Blocos cobertos:** 5 de 5 dos "Estudos específicos"
-(Markov-K acrescentado em 2026-08-25)
+**Última atualização:** 2026-08-26 · **Blocos cobertos:** 6 de 6 dos "Estudos específicos"
+(Markov-K em 2026-08-25; MTL — FiLM, cross-attention, Nash-MTL, cosseno dos gradientes — em 2026-08-26)
+
+> **Duas seções de estudo rápido**, para quem já leu uma vez: **[A.1](#a1--cada-termo-em-uma-frase--para-dizer-em-voz-alta)**
+> traz cada termo do documento em **uma frase para dizer em voz alta**, e
+> **[A.2](#a2--o-desenho-do-todo-numa-página)** é o **desenho do todo numa página**, do check-in cru
+> até o veredito.
 
 ---
 
 ## Índice
 
-- [0 · Mapa: como as cinco frentes se ligam](#0--mapa-como-as-cinco-frentes-se-ligam)
+- [0 · Mapa: como as seis frentes se ligam](#0--mapa-como-as-seis-frentes-se-ligam)
 - [1 · Métodos estatísticos](#1--métodos-estatísticos)
   - [1.1 macro-F1](#11--macro-f1) · [1.2 Acc@10](#12--acc10-o-par-da-outra-tarefa) · [1.3 A unidade de análise](#13--a-unidade-de-análise-o-que-é-um-número-pareado-aqui) · [1.4 Teste t pareado](#14--o-teste-t-pareado-a-pergunta-melhorou) · [1.5 Wilcoxon](#15--wilcoxon-dos-postos-com-sinal) · [1.6 TOST](#16--tost-a-pergunta-é-igual-ou-não-é-pior) · [1.7 Holm](#17--holm-o-preço-de-perguntar-seis-vezes) · [1.8 Cola de bolso](#18--cola-de-bolso-do-bloco-1) · [1.9 Dúvidas](#19--dúvidas-e-esclarecimentos)
 - [2 · Infomax, DGI, HGI e Check2HGI](#2--infomax-dgi-hgi-e-check2hgi)
@@ -33,20 +38,24 @@
   - [4.1 O problema](#41--o-problema-como-julgar-um-vetor-sem-treinar-nada) · [4.2 kNN-LOO](#42--knn-loo) · [4.3 Silhouette](#43--silhouette-com-distância-de-cosseno) · [4.4 Centroid separability](#44--centroid-separability-ratio) · [4.5 Linear CKA](#45--linear-cka) · [4.6 A ressalva](#46--a-ressalva-mais-importante-deste-bloco) · [4.7 Dúvidas](#47--dúvidas-e-esclarecimentos)
 - [5 · Markov-K, o modelo de referência](#5--markov-k-o-modelo-de-referência)
   - [5.1 Cadeia de Markov](#51--o-que-é-uma-cadeia-de-markov) · [5.2 A ordem K e o *backoff*](#52--markov-k-a-ordem-k-e-o-stupid-backoff) · [5.3 A curva de K](#53--o-resultado-e-a-curva-que-ele-desenha) · [5.4 O piso de região](#54--o-piso-markov-1-de-região) · [5.5 Por que importa](#55--por-que-isso-importa-na-dissertação) · [5.6 Dúvidas](#56--dúvidas-e-esclarecimentos)
-- [6 · Cola de bolso geral](#6--cola-de-bolso-geral)
-- [7 · Registro de tópicos](#7--registro-de-tópicos)
-- [8 · Como pedir uma seção nova](#8--como-pedir-uma-seção-nova-ou-uma-resposta)
-- [9 · Fontes](#9--fontes)
+- [6 · MTL: FiLM, Cross-Attention, Nash-MTL e o cosseno dos gradientes](#6--mtl-film-cross-attention-nash-mtl-e-o-cosseno-dos-gradientes)
+  - [6.1 O problema do MTL](#61--o-problema-que-o-mtl-cria) · [6.2 FiLM](#62--film--como-o-mtlnet-compartilhava-caps-3-e-4) · [6.3 Cross-Attention](#63--cross-attention--como-o-modelo-entregue-compartilha-cap-5) · [6.4 Nash-MTL](#64--nash-mtl--o-remédio-que-a-literatura-oferece) · [6.5 O cosseno dos gradientes](#65--o-cosseno-dos-gradientes--o-diagnóstico) · [6.6 O desenho do todo](#66--como-os-quatro-se-ligam--o-desenho-do-todo) · [6.7 Dúvidas](#67--dúvidas-e-esclarecimentos)
+- [A · Cola de bolso geral](#a--cola-de-bolso-geral)
+  - [A.1 Cada termo em uma frase](#a1--cada-termo-em-uma-frase--para-dizer-em-voz-alta) · [A.2 O desenho do todo](#a2--o-desenho-do-todo-numa-página) · [A.3 As sete frases](#a3--as-sete-frases-que-amarram-a-dissertação-inteira) · [A.4 A escada de verbos](#a4--a-escada-de-verbos) · [A.5 Números](#a5--números-que-não-podem-sair-errado)
+- [B · Registro de tópicos](#b--registro-de-tópicos)
+- [C · Como pedir uma seção nova](#c--como-pedir-uma-seção-nova-ou-uma-resposta)
+- [D · Fontes](#d--fontes)
 
 ---
 
-## 0 · Mapa: como as cinco frentes se ligam
+## 0 · Mapa: como as seis frentes se ligam
 
 Os blocos não são assuntos soltos. Eles são **estágios de uma mesma frase**:
 
 > *"Uma **representação** melhor (bloco 2), medida por **protocolos de geometria** (bloco 4),
-> alimenta um **modelo conjunto** (bloco 3), cuja vantagem só pode ser afirmada com o
-> **veredito estatístico** correto (bloco 1) — e só é legível contra um **piso** (bloco 5)."*
+> alimenta um **modelo conjunto** (bloco 3) cujo **compartilhamento** não gera conflito (bloco 6),
+> com uma vantagem que só pode ser afirmada pelo **veredito estatístico** correto (bloco 1) — e que
+> só é legível contra um **piso** (bloco 5)."*
 
 ```mermaid
 flowchart TB
@@ -62,6 +71,8 @@ flowchart TB
     B -.->|"explica por que a<br/>categoria melhora"| D
     C -->|"produz 20 modelos ajustados<br/>(4 sementes × 5 folds)"| D
     M -->|"dá ESCALA: 37,55 é bom<br/>contra um piso de 29,74"| D
+    T["<b>Bloco 6 — MTL</b><br/>FiLM · cross-attention · Nash-MTL · cos(g₁,g₂)<br/><i>como as duas tarefas dividem o modelo</i>"]
+    T -->|"a topologia de compartilhamento<br/>E o diagnóstico de conflito"| C
     D -->|"o verbo permitido:<br/>supera / não-inferior / não resolvido"| E["<b>A tese</b><br/>um modelo, duas tarefas"]
 ```
 
@@ -74,6 +85,7 @@ flowchart TB
 | **3 — Modelo conjunto** | Duas tarefas podem dividir um modelo sem se atrapalhar? | Reportar duas épocas diferentes como se fossem um sistema só |
 | **1 — Estatística** | O que a evidência autoriza a dizer? | Ler "não deu significativo" como "são iguais" |
 | **5 — Markov-K** | Quanto disso se resolve só contando? | Reportar um número sem dizer contra o que ele é bom |
+| **6 — MTL** | Como duas tarefas dividem um modelo sem brigar? | Supor conflito de gradiente em vez de medir |
 
 ---
 
@@ -2018,9 +2030,796 @@ modelo reportado depende só das duas torres.
 
 ---
 
-## 6 · Cola de bolso geral
+## 6 · MTL: FiLM, Cross-Attention, Nash-MTL e o cosseno dos gradientes
 
-### As sete frases que amarram a dissertação inteira
+> **Referência na dissertação:** Cap. 2 §"Multitask learning" — §Sharing topologies (Def. 2.10 e 2.12),
+> §Gradient conflict (Def. 2.13), §Loss-balancing methods; Cap. 5 §Related work (a triagem de dezenove
+> balanceadores); **Apêndice D do volume principal**, *"Why the Two Tasks Do Not Compete on the Shared
+> Trunk"* (`apx_f_cosine.tex`) — o apêndice inteiro é sobre o quarto item deste bloco.
+>
+> **Código lido para escrever esta seção** (estado de hoje): `src/models/mtl/_components.py`
+> (FiLM), `src/models/mtl/mtlnet/model.py` (MTLnet), `src/models/mtl/mtlnet_crossattn/model.py`
+> (bloco de cross-attention e a partição de parâmetros), `src/models/mtl/mtlnet_crossattn_dualtower/model.py`
+> (o modelo entregue), `src/losses/nash_mtl/loss.py`, `src/losses/pcgrad/loss.py`.
+
+### O arco: os quatro itens são uma história, não uma lista
+
+Esta é a coisa mais importante do bloco. FiLM, cross-attention, Nash-MTL e o cosseno **não** são
+quatro técnicas paralelas. São **quatro atos** da mesma história, na ordem em que ela aconteceu na
+sua pesquisa:
+
+```mermaid
+flowchart LR
+    P["<b>O PROBLEMA</b><br/>duas tarefas, um modelo<br/><i>transferência negativa</i>"]
+    F["<b>ATO 1 · FiLM</b><br/>Caps. 3 e 4<br/>tronco único, condicionado<br/>pela identidade da tarefa"]
+    X["<b>ATO 2 · Cross-Attention</b><br/>Cap. 5 — <i>o modelo entregue</i><br/>sem tronco único:<br/>cada fluxo lê o outro"]
+    N["<b>ATO 3 · Nash-MTL</b><br/>o remédio da literatura<br/>para conflito de gradiente"]
+    C["<b>ATO 4 · cos(g_cat, g_reg)</b><br/>Apêndice D<br/><i>o diagnóstico</i>"]
+
+    P --> F --> X
+    X --> N
+    N -->|"triagem de 19 balanceadores:<br/>nenhum supera peso fixo"| C
+    C -->|"cosseno ≈ 0 (equivalente a zero,<br/>margem ±0,05, nos 4 medidos)"| R["<b>O DESFECHO</b><br/>não havia conflito<br/>para o balanceador resolver<br/>→ peso fixo 0,50/0,50"]
+```
+
+> **A frase que amarra o bloco inteiro, para dizer em voz alta:**
+> *"Eu troquei o tronco único por cross-attention, testei dezenove balanceadores de gradiente, nenhum
+> superou o peso fixo — e aí medi o cosseno entre os gradientes das duas tarefas e descobri que ele é
+> equivalente a zero. Não havia conflito para balancear."*
+
+---
+
+### 6.1 · O problema que o MTL cria
+
+> **Em uma frase:** *aprendizado multitarefa é treinar tarefas relacionadas juntas na expectativa de
+> que a representação compartilhada generalize melhor — e o preço é que elas podem brigar pelos
+> mesmos parâmetros.*
+
+Três definições do Cap. 2, e você precisa das três antes de qualquer arquitetura.
+
+**Compartilhamento rígido (*hard parameter sharing*)** — Def. 2.10:
+
+> Todas as entradas passam por **um único tronco compartilhado** antes de ramificar para as cabeças
+> de saída, então toda tarefa usa as mesmas representações ocultas.
+
+**Compartilhamento suave (*soft parameter sharing*)** — Def. 2.11:
+
+> Cada tarefa tem sua **rede completa própria**, e as redes são acopladas por uma penalidade sobre a
+> diferença entre os parâmetros delas.
+
+**Transferência negativa** — Def. 2.12:
+
+> O treino conjunto deixa uma tarefa **pior** do que o modelo dedicado dela deixaria.
+
+```
+   COMPARTILHAMENTO RÍGIDO          COMPARTILHAMENTO SUAVE       O MEIO-TERMO (Cap. 5)
+   ───────────────────────          ──────────────────────       ─────────────────────
+      A        B                      A          B                  A ←──────→ B
+      ↓        ↓                      ↓          ↓                  ↓          ↓
+      └───┬────┘                     ┌─┐        ┌─┐                ┌─┐        ┌─┐
+       ┌──┴──┐                       │ │◄─────► │ │                │ │◄══════►│ │
+       │TRONCO│  ← o gargalo         │ │ penal. │ │                │ │ atenção│ │
+       └──┬──┘                       │ │  ‖·‖   │ │                │ │ cruzada│ │
+      ┌───┴────┐                     └┬┘        └┬┘                └┬┘        └┬┘
+      ↓        ↓                      ↓          ↓                  ↓          ↓
+    cab.A   cab.B                  cab.A      cab.B              cab.A      cab.B
+
+   barato, mas as tarefas          caro: 2× parâmetros        pesos privados, mas as
+   dividem os MESMOS pesos                                    ativações se encontram
+```
+
+**E o critério que a dissertação declara e depois se cobra**, no Cap. 2:
+
+> *"Para esta dissertação, um método de balanceamento só é útil se **superar uma ponderação fixa bem
+> ajustada**."*
+
+Guarde essa frase. Ela é o que torna o resultado nulo dos balanceadores um **achado** em vez de uma
+omissão.
+
+---
+
+### 6.2 · FiLM — como o MTLnet compartilhava (Caps. 3 e 4)
+
+> **Em uma frase:** *FiLM condiciona uma camada compartilhada multiplicando e somando escalas
+> aprendidas a partir de "quem está perguntando" — os mesmos pesos, lidos de dois jeitos.*
+
+#### O que é
+
+**Feature-wise Linear Modulation** (Perez et al., 2018). A ideia é simples e vale mais do que a
+fórmula: em vez de dar a cada tarefa parâmetros próprios, você dá **os mesmos parâmetros** e deixa
+cada tarefa **modulá-los**:
+
+$$\operatorname{FiLM}(\mathbf{x} \mid \text{tarefa}) = \boldsymbol{\gamma}(\text{tarefa}) \odot \mathbf{x} + \boldsymbol{\beta}(\text{tarefa})$$
+
+$\gamma$ é um **ganho por canal** (escala) e $\beta$ um **deslocamento por canal** (viés). Os dois são
+produzidos por camadas lineares a partir de um vetor que representa a identidade da tarefa.
+
+```
+                        embedding de tarefa
+                    (nn.Embedding(2, largura))
+                       ┌──────┴──────┐
+                       ▼             ▼
+                   Linear(γ)     Linear(β)
+                       │             │
+    x  ──────────────► ⊗ ──────────► ⊕ ──────►  γ·x + β  ──►  tronco compartilhado
+   (features)         escala        desloca
+
+   tarefa 0 (categoria) → um par (γ, β)
+   tarefa 1 (região)    → OUTRO par (γ, β)          ...mas o TRONCO é o mesmo objeto
+```
+
+#### O código, como ele está hoje
+
+`src/models/mtl/_components.py:39` — vinte linhas, e é literalmente isso:
+
+```python
+class FiLMLayer(nn.Module):
+    """Feature-wise linear modulation: ``gamma * x + beta``."""
+
+    def __init__(self, emb_dim: int, layer_size: int):
+        super().__init__()
+        self.gamma = nn.Linear(emb_dim, layer_size)     # ganho por canal
+        self.beta  = nn.Linear(emb_dim, layer_size)     # deslocamento por canal
+
+    def forward(self, x, task_emb):
+        gamma = self.gamma(task_emb)
+        beta  = self.beta(task_emb)
+        for _ in range(x.dim() - gamma.dim()):           # alinha [B,D] com [B,T,D]
+            gamma = gamma.unsqueeze(1)
+            beta  = beta.unsqueeze(1)
+        return gamma * x + beta
+```
+
+E como o MTLnet o usa (`src/models/mtl/mtlnet/model.py`, no `forward`):
+
+```python
+self.task_embedding = nn.Embedding(2, shared_layer_size)   # 2 tarefas, um vetor cada
+...
+id_cat  = torch.zeros(b_cat,  dtype=torch.long)   # tarefa 0
+id_next = torch.ones(b_next, dtype=torch.long)    # tarefa 1
+
+mod_cat  = self.film(enc_cat,  self.task_embedding(id_cat))
+mod_next = self.film(enc_next, self.task_embedding(id_next))
+
+shared_cat  = self.shared_layers(mod_cat)      # ← MESMO objeto
+shared_next = self.shared_layers(mod_next)     # ← MESMO objeto
+```
+
+**Olhe as duas últimas linhas.** `self.shared_layers` é chamado duas vezes, com o **mesmo** módulo.
+Isso é compartilhamento rígido de verdade: os pesos são literalmente os mesmos tensores. O FiLM é o
+que impede que as duas tarefas sejam obrigadas a ler esses pesos **de forma idêntica**.
+
+> **A metáfora que funciona:** o tronco compartilhado é um instrumento; o FiLM é o equalizador. As
+> duas tarefas tocam o mesmo instrumento, mas cada uma com sua própria curva de graves e agudos.
+
+#### Por que foi substituído
+
+FiLM ameniza o compartilhamento rígido, **não o elimina**. O gargalo continua ali: a categoria e a
+região têm que caber nas mesmas matrizes de peso, e a única liberdade é uma escala e um deslocamento
+por canal. Se as duas tarefas quisessem *estruturas* diferentes — e não só ênfases diferentes — o
+FiLM não teria como dar isso.
+
+O modelo do Cap. 5 muda o eixo: em vez de condicionar um tronco comum, ele **elimina o tronco comum**
+e deixa os fluxos se lerem.
+
+---
+
+### 6.3 · Cross-Attention — como o modelo entregue compartilha (Cap. 5)
+
+> **Em uma frase:** *atenção cruzada deixa cada tarefa consultar a sequência da outra e trazer de lá
+> o que lhe for útil, sem que as duas precisem caber na mesma representação.*
+
+#### Consulta, chave e valor, em português
+
+Já apareceu em [§3.2](#32--camada-a-camada-com-justificativa); aqui é a versão mais devagar, porque é
+o mecanismo central da arquitetura.
+
+$$\operatorname{Attn}(Q,K,V) = \operatorname{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right)V$$
+
+```
+   Pense num arquivo de fichas.
+
+     Q (query, consulta)  = "o que EU estou procurando"
+     K (key, chave)       = "a etiqueta de cada ficha disponível"
+     V (value, valor)     = "o conteúdo dentro de cada ficha"
+
+     1. compare a sua consulta com TODAS as etiquetas    →  Q·Kᵀ
+     2. transforme em pesos que somam 1                  →  softmax(·/√d)
+     3. leve uma MISTURA dos conteúdos, ponderada        →  · V
+
+   AUTOatenção:   Q, K, V vêm da MESMA sequência   ("o que mais no meu histórico importa?")
+   CROSS-atenção: Q vem de UMA, K e V da OUTRA     ("o que no histórico DELA me interessa?")
+```
+
+**É só isso.** A diferença entre auto e cross é de onde vêm as fichas.
+
+#### O bloco bidirecional, no código de hoje
+
+`src/models/mtl/mtlnet_crossattn/model.py` — os dois `MultiheadAttention` e a ordem em que rodam:
+
+```python
+self.cross_ab = nn.MultiheadAttention(dim, num_heads, dropout=dropout, batch_first=True)
+self.cross_ba = nn.MultiheadAttention(dim, num_heads, dropout=dropout, batch_first=True)
+#     ^^^ DOIS módulos distintos: "cat lê reg" e "reg lê cat" NÃO compartilham projeções
+
+def forward(self, a, b, a_pad_mask=None, b_pad_mask=None):
+    # 1) a (categoria) consulta b (região)
+    a_upd, _ = self.cross_ab(query=a, key=b, value=b, key_padding_mask=b_pad_mask)
+    a = self.ln_a1(a + a_upd)                    # residual + LayerNorm
+
+    # 2) b (região) consulta a JÁ ATUALIZADA  — o padrão bidirecional "tardio" do MulT
+    b_upd, _ = self.cross_ba(query=b, key=a, value=a, key_padding_mask=a_pad_mask)
+    b = self.ln_b1(b + b_upd)
+
+    # 3) cada fluxo passa pela SUA PRÓPRIA feed-forward
+    a = self.ln_a2(a + self.ffn_a(a))
+    b = self.ln_b2(b + self.ffn_b(b))
+    return a, b
+```
+
+Quatro detalhes que valem apontar, e todos aparecem literalmente acima:
+
+1. **`cross_ab` e `cross_ba` são módulos separados.** As projeções direcionais **não são amarradas**:
+   "categoria lê região" tem parâmetros diferentes de "região lê categoria".
+2. **`ffn_a` e `ffn_b` são separadas.** Cada fluxo tem sua própria rede *feed-forward* dentro do
+   bloco. Não há uma FFN comum.
+3. **A ordem importa.** O passo 2 usa o `a` **já atualizado** pelo passo 1, e não o `a` original.
+4. **`key_padding_mask`** exclui as posições de preenchimento dos pesos de atenção — senão o modelo
+   distribuiria atenção sobre zeros.
+
+#### A partição de parâmetros — e por que ela é a peça mais importante
+
+Aqui está o que amarra este bloco ao Apêndice D. O código declara explicitamente **o que é
+compartilhado**:
+
+```python
+def shared_parameters(self):
+    """Parâmetros da pilha de cross-attention."""
+    for block in self.crossattn_blocks:
+        yield from block.parameters()
+    yield from self.cat_final_ln.parameters()
+    yield from self.next_final_ln.parameters()
+
+def task_specific_parameters(self):
+    """Encoders das duas tarefas + as duas cabeças."""
+    yield from self.category_encoder.parameters();  yield from self.next_encoder.parameters()
+    yield from self.category_poi.parameters();      yield from self.next_poi.parameters()
+```
+
+```
+        O QUE É PRIVADO                     O QUE É COMPARTILHADO
+   ┌──────────────────────────┐        ┌────────────────────────────┐
+   │  category_encoder        │        │  crossattn_blocks (×2)     │
+   │  next_encoder            │        │  cat_final_ln              │
+   │  category_poi (cab. cat) │        │  next_final_ln             │
+   │  next_poi (cab. reg,     │        │                            │
+   │    com a torre privada)  │        │  ↑ É EXATAMENTE AQUI que o │
+   └──────────────────────────┘        │    cosseno é medido (§6.5) │
+                                        └────────────────────────────┘
+   A partição é BIJETIVA e EXAUSTIVA — todo parâmetro está em um dos dois
+   lados, e em nenhum dos dois ao mesmo tempo. Há teste unitário que garante isso.
+```
+
+**Por que isso é a peça importante:** o Apêndice D mede o cosseno entre os gradientes das duas tarefas
+**no tronco compartilhado**. "Tronco compartilhado" não é uma figura de linguagem — é literalmente o
+conjunto que `shared_parameters()` devolve. A medição tem um endereço exato no código.
+
+#### Por que isto **não** é compartilhamento rígido
+
+| | Hard sharing (FiLM/MTLnet) | Cross-attention (modelo entregue) |
+|---|---|---|
+| Pesos do meio | **os mesmos tensores** para as duas tarefas | cada fluxo tem sua FFN; as projeções direcionais são separadas |
+| O que é comum | a representação | **a via de troca**, não a representação |
+| Gargalo | sim: tudo cabe nas mesmas matrizes | não: cada tarefa mantém a representação dela |
+| O que acopla os gradientes | os pesos partilhados | o módulo de interação, que recebe gradiente das duas perdas |
+
+> **A frase para a banca:** *"As tarefas mantêm encoders e cabeças privados. Elas se encontram num
+> módulo de interação treinável que recebe gradiente das duas perdas. É compartilhamento de
+> **informação**, não de **representação**."*
+
+---
+
+### 6.4 · Nash-MTL — o remédio que a literatura oferece
+
+> **Em uma frase:** *Nash-MTL trata a combinação dos gradientes das tarefas como uma negociação, e
+> resolve um problema de barganha a cada passo para achar pesos que nenhuma tarefa consiga contestar.*
+
+#### ⚠️ Antes de tudo: **Nash-MTL não é usado no modelo entregue**
+
+Isto tem que ficar cristalino, porque é uma pergunta fácil de errar em pé:
+
+```
+   O QUE A DISSERTAÇÃO ENTREGA          ONDE O NASH-MTL APARECE
+   ────────────────────────────         ──────────────────────────────────────
+   L = 0,50·L_cat + 0,50·L_reg          (a) na triagem de 19 balanceadores do
+   pesos FIXOS, nada dinâmico               Cap. 5, como um dos candidatos
+                                         (b) no código, implementado e testado
+   Sem balanceamento dinâmico,           (c) ⚠ como DEFAULT do CLI --mtl-loss
+   sem peso de classe, sem                   no repositório: `nash_mtl`.
+   suavização de rótulo, sem                 O default do código NÃO é o que a
+   cirurgia de gradiente.                    dissertação reporta.
+```
+
+#### A ideia: barganha de Nash
+
+O problema que os balanceadores atacam: você tem $\mathbf{g}_1$ e $\mathbf{g}_2$, os gradientes das
+duas tarefas, e precisa de **uma** direção. A soma simples deixa a tarefa de gradiente maior mandar.
+
+Navon et al. (2022) leem isso como **negociação**. Cada tarefa é um jogador; o "ganho" de cada uma é
+quanto a direção final a beneficia. A **solução de barganha de Nash** é o ponto que maximiza o
+**produto** dos ganhos:
+
+$$\max_{\boldsymbol{\alpha}\ \ge 0} \ \sum_i \log\left(\boldsymbol{\alpha}^\top G^\top \mathbf{g}_i\right)$$
+
+O produto (via soma de logs) é o que torna a solução **justa**: assim como na média geométrica da
+seleção de *checkpoint* ([§3.5](#35--seleção-de-checkpoint-o-que-é-um-modelo-implantável)), se o ganho
+de uma tarefa vai a zero, o objetivo inteiro vai a $-\infty$. **Nenhuma tarefa pode ser sacrificada.**
+
+```
+   soma simples          Nash (produto dos ganhos)
+   ─────────────         ─────────────────────────
+      g₁ ──┐                  g₁ ──┐
+           ├─► g₁+g₂               ├─► α₁g₁ + α₂g₂
+      g₂ ──┘                  g₂ ──┘
+                                 ↑
+   quem tem norma maior      α resolvido por otimização
+   domina a direção          a cada passo, para que
+                             nenhuma tarefa fique para trás
+```
+
+#### O código, e a armadilha que ele hoje impede
+
+`src/losses/nash_mtl/loss.py` resolve isso com **cvxpy** (um solucionador de otimização convexa), a
+cada `update_weights_every` passos:
+
+```python
+class NashMTL(WeightMethod):
+    def __init__(self, n_tasks, device, max_norm=1.0, update_weights_every=1, optim_niter=20):
+        ...
+        # Escolhe o solucionador UMA vez e falha ALTO na construção se não houver nenhum.
+        installed = set(cp.installed_solvers())
+        for candidate in _NASH_SOLVER_FALLBACK:
+            if candidate in installed:
+                self._solver = candidate
+                break
+        else:
+            raise RuntimeError("NashMTL requires one of the cvxpy solvers ... Install ECOS ...")
+```
+
+> ⚠️ **A armadilha, e ela vale ouro como resposta.** O comentário do próprio código explica:
+>
+> *"O código original faz o ECOS entrar dentro de um `except:` pelado, o que significa que um pacote
+> `ecos` ausente **degrada o Nash-MTL para pesos fixos [1,1] sem aviso nenhum**."*
+>
+> Ou seja: na implementação de referência, se o solucionador não estiver instalado, o Nash-MTL vira
+> silenciosamente **soma simples** — e continua reportando que você usou Nash-MTL. **Hoje o seu código
+> detecta isso e levanta `RuntimeError` na construção**, e também registra em log quando o
+> solucionador falha durante o treino, em vez de engolir a exceção.
+
+Essa é a diferença entre "eu rodei Nash-MTL" e "eu sei que rodei Nash-MTL". Vale citar se perguntarem
+sobre confiabilidade da triagem.
+
+#### O primo dele: PCGrad, e a regra que liga tudo ao §6.5
+
+**PCGrad** (Yu et al., 2020) age na direção, não no peso, e a regra dele é a chave deste bloco:
+
+> **PCGrad só faz alguma coisa quando o cosseno entre os gradientes é NEGATIVO.**
+
+```python
+# src/losses/pcgrad/loss.py — _project_conflicting
+g_i_g_j = sum(torch.dot(grad_i.flatten(), grad_j.flatten()) for grad_i, grad_j in zip(g_i, g_j))
+if g_i_g_j < 0:                                    # ← SÓ AGE SE HOUVER CONFLITO
+    g_j_norm_square = torch.norm(torch.cat([g.flatten() for g in g_j])) ** 2
+    for grad_i, grad_j in zip(g_i, g_j):
+        grad_i -= g_i_g_j * grad_j / g_j_norm_square    # projeta fora a componente conflitante
+```
+
+```
+      CONFLITO (cos < 0)                    SEM CONFLITO (cos ≥ 0)
+         g₁                                     g₁
+          ↖                                      ↗
+           ↘  g₂                                ↗  g₂
+                                            ─────────────
+      PCGrad remove de g₁ a                 PCGrad NÃO FAZ NADA.
+      componente na direção                 O `if` nem entra.
+      oposta a g₂
+```
+
+**Guarde isso.** É a ponte direta para o §6.5: se o cosseno nunca é negativo, o PCGrad é uma operação
+nula. Ele roda, gasta tempo, e devolve exatamente a soma dos gradientes.
+
+#### O que a triagem encontrou
+
+O Cap. 5 fez a triagem, e o resultado é declarado sem enfeite:
+
+> **Dezenove** balanceadores de perda e de gradiente, nas configurações padrão deles, uma semente, em
+> dois conjuntos (Alabama e Flórida). **Nenhum melhorou sobre uma ponderação fixa bem ajustada nas
+> duas tarefas e nos dois conjuntos.**
+
+Os dois que chegaram perto, e a honestidade de reportar o que aconteceu com eles:
+
+| Método | Alabama | Flórida |
+|---|---|---|
+| **Nash-MTL** | supera o peso igual em próxima categoria por **+0,68** | **cai abaixo** do peso igual nas **duas** tarefas |
+| **Normalização de escala** | supera em próxima categoria por **+0,19** | supera em categoria, mas **colapsa** em região |
+
+Isso não é um resultado negativo por acaso — é um resultado negativo **que a literatura previa**.
+Xin et al. (2022) já reportavam que otimizadores especializados frequentemente não superam uma linha
+de base de peso fixo bem ajustada; Kurin et al. (2022), que a soma simples com regularização padrão
+iguala ou supera; Lin et al. (2022), que até peso aleatório é competitivo.
+
+**A contribuição sua aqui não é descobrir isso — é confirmá-lo em escala e depois explicar POR QUÊ.**
+O porquê é o próximo item.
+
+---
+
+### 6.5 · O cosseno dos gradientes — o diagnóstico
+
+> **Em uma frase:** *o cosseno entre os gradientes das duas tarefas mede se elas estão pedindo a mesma
+> atualização, a mesma atualização ao contrário, ou pedidos que não se afetam — e nas minhas tarefas
+> ele é equivalente a zero.*
+
+#### A definição
+
+Def. 2.13 do Cap. 2. Sejam $\mathbf{g}_i$ e $\mathbf{g}_j$ os gradientes das duas perdas **em relação
+aos parâmetros compartilhados**:
+
+$$\cos\varphi_{ij} = \frac{\mathbf{g}_i^{\top}\mathbf{g}_j}{\lVert \mathbf{g}_i\rVert\,\lVert \mathbf{g}_j\rVert}$$
+
+**As tarefas conflitam naquele ponto quando $\cos\varphi_{ij} < 0$.**
+
+```
+   cos = +1                cos = 0                   cos = −1
+   ───────                 ───────                   ────────
+      g₁ ↗                    g₁ ↑                      g₁ ↗
+      g₂ ↗                    g₂ →                      g₂ ↙
+
+   as duas pedem a MESMA    ORTOGONAIS: o pedido de    pedidos OPOSTOS:
+   atualização              uma não afeta o objetivo   uma melhora à custa
+   (cooperação total)       da outra em 1ª ordem       da outra (CONFLITO)
+```
+
+**Por que o cosseno e não a diferença dos gradientes?** Porque o cosseno é **livre de escala**. Ele lê
+como os dois pedidos estão **alinhados** e ignora o **tamanho** deles — e o tamanho difere entre as
+tarefas e muda ao longo do treino. Se você usasse a diferença bruta, mediria principalmente qual
+tarefa tem perda maior.
+
+#### O que foi medido, e em que unidade
+
+```
+ A cada época de treino:
+   1. retropropague L_cat  até o tronco compartilhado  →  g_cat
+   2. retropropague L_reg  até o tronco compartilhado  →  g_reg
+   3. registre cos(g_cat, g_reg)
+
+ tronco compartilhado = exatamente o que shared_parameters() devolve (§6.3):
+   os 2 blocos de cross-attention + cat_final_ln + next_final_ln
+
+ 1.000 observações:  4 conjuntos × 5 folds × 50 épocas
+                     (Istambul, Alabama, Arizona, Flórida — 250 cada)
+
+ ⚠ A UNIDADE DE INDEPENDÊNCIA É O FOLD, não a época.
+   Todo teste roda sobre as 5 médias-por-fold (n = 5), não sobre as 250 observações.
+```
+
+E o detalhe que amarra o diagnóstico ao capítulo: **cada execução reproduz a célula da semente 0 do
+seu conjunto com quatro casas decimais, nas duas tarefas.** Não é um modelo parecido — é *o* modelo.
+
+#### O resultado
+
+| Conjunto | $n$ | obs. | IC 95% | média | TOST | $t$ / sinal | folds positivos |
+|---|---:|---:|---|---:|---:|---|---|
+| Istanbul | 5 | 250 | $[+0{,}0002,\ +0{,}0025]$ | $+0{,}0014$ | $10^{-8}$ | $0{,}028$ / $0{,}062^{\dagger}$ | 5/5 |
+| Alabama | 5 | 250 | $[-0{,}0005,\ +0{,}0043]$ | $+0{,}0019$ | $10^{-7}$ | $0{,}095$ / $0{,}375$ | 4/5 |
+| Arizona | 5 | 250 | $[-0{,}0023,\ +0{,}0015]$ | $-0{,}0004$ | $10^{-7}$ | $0{,}561$ / $1{,}000$ | 3/5 |
+| Florida | 5 | 250 | $[-0{,}0004,\ +0{,}0016]$ | $+0{,}0006$ | $10^{-9}$ | $0{,}188$ / $0{,}375$ | 4/5 |
+
+$^{\dagger}$ $0{,}0625$ é o menor valor que o teste de sinal exato pode devolver com $n = 5$ — **exatamente
+o mesmo fenômeno do Wilcoxon com $n=4$ do [§1.5](#15--wilcoxon-dos-postos-com-sinal)**, um degrau acima.
+
+```
+ cosseno médio por conjunto, contra a margem de equivalência de ±0,05
+
+  −0,05                            0                            +0,05
+    │◄────────── margem de equivalência ──────────────────────────►│
+    │                              │                               │
+    │                          AZ  ┤ −0,0004                       │
+    │                           FL ├ +0,0006                       │
+    │                           IST├ +0,0014                       │
+    │                            AL├─ +0,0019                      │
+    │                              │                               │
+
+  Todas as quatro médias estão a menos de DOIS MILÉSIMOS de zero,
+  contra uma margem de CINCO CENTÉSIMOS. Sobra 25× de folga.
+```
+
+#### ⭐ Por que é TOST e não um teste comum — o §1.6 aplicado
+
+Este é o ponto mais elegante do apêndice, e ele reusa exatamente o argumento do
+[§1.6](#16--tost-a-pergunta-é-igual-ou-não-é-pior):
+
+> Um teste que apenas **falhasse em rejeitar** zero sustentaria a frase *"nenhum conflito foi
+> detectado"* — que é igualmente compatível com *"há um conflito, pequeno demais para este tamanho de
+> amostra ver"*.
+>
+> Um teste de **equivalência** sustenta a afirmação positiva: o alinhamento médio está **dentro de uma
+> margem fixada de antemão**, então **qualquer** alinhamento que exista é pequeno demais para
+> importar. **É uma afirmação sobre as tarefas, não sobre o poder do experimento.**
+
+**Você já sabe fazer isso.** É a mesma inversão de hipóteses do bloco 1, aplicada a uma quantidade
+interna do modelo em vez de a uma métrica de desempenho. Se a banca perguntar "por que TOST aqui
+também?", a resposta é uma frase: *porque eu quero afirmar ausência de conflito, e ausência de
+significância não é ausência de efeito.*
+
+#### As três ressalvas honestas — saiba dizê-las antes de serem perguntadas
+
+**1. Equivalência é sobre a MÉDIA, não sobre toda observação.**
+Das 1.000 medições, **99,6% caem dentro da margem**, e a faixa completa vai de $-0{,}059$ a $+0{,}057$.
+Épocas individuais saem da margem nas **duas** direções — ruído comum numa quantidade calculada a
+partir de um minilote. *O que nunca acontece é um puxão sistemático para um lado.*
+
+**2. Dois padrões existem, e nenhum é conflito.**
+Uma leve tendência **positiva** (as cinco médias-por-fold de Istambul são positivas, média $+0{,}0014$),
+e um **declínio ao longo do treino** (unânime em Istambul e Alabama). Cosseno positivo significa que as
+tarefas **cooperam** um pouco; o declínio se move **na direção de zero**, não para longe dele. **Nenhum
+mecanismo é proposto para nenhum dos dois** — e não propor é a atitude correta.
+
+**3. O alcance é de quatro conjuntos, não seis.**
+Texas e Califórnia **não foram medidos** — e são justamente os dois onde o modelo conjunto **supera** em
+região. Então o diagnóstico apoia o resultado dos balanceadores nos conjuntos onde as tarefas nem se
+ajudam nem se atrapalham, e **deixa os dois maiores espaços de rótulo por testar**. Está dito no texto.
+
+#### O que a ortogonalidade **não** diz
+
+Três limites que o próprio apêndice declara, e cada um evita uma leitura exagerada:
+
+| Não diz que… | Porque… |
+|---|---|
+| …um **tronco comum** seria indolor | esta arquitetura **não usa** tronco comum, e nenhum braço do capítulo testou um |
+| …as tarefas **não compartilham conhecimento** | os dois fluxos continuam trocando informação pela cross-attention — um mecanismo que **esta medição não lê** |
+| …**todo** balanceador está explicado | a medição mostra que não há conflito persistente a resolver; ela não explica o desempenho de cada método individualmente |
+
+> **Essa última linha é importante.** Não diga *"eu provei que balanceadores não servem"*. Diga
+> *"eu mostrei que, neste par de tarefas e nesta arquitetura, não havia conflito para eles
+> resolverem"*. É uma afirmação sobre **as minhas tarefas**, não uma regra geral — e o texto usa
+> exatamente essas palavras.
+
+---
+
+### 6.6 · Como os quatro se ligam — o desenho do todo
+
+```mermaid
+flowchart TB
+    subgraph ANTES ["Caps. 3 e 4 — MTLnet"]
+        direction TB
+        A1["entrada A"] --> A2["encoder A"]
+        B1["entrada B"] --> B2["encoder B"]
+        A2 --> FI["<b>FiLM</b><br/>γ(tarefa)·x + β(tarefa)"]
+        B2 --> FI
+        FI --> TR["<b>TRONCO ÚNICO</b><br/>shared_layers<br/><i>os MESMOS tensores</i>"]
+        TR --> H1["cabeça A"]
+        TR --> H2["cabeça B"]
+    end
+
+    subgraph AGORA ["Cap. 5 — o modelo entregue"]
+        direction TB
+        C1["check-ins 9×64"] --> C2["encoder privado"]
+        D1["regiões 9×64"] --> D2["encoder privado"]
+        C2 --> XA["<b>CROSS-ATTENTION ×2</b><br/>cat lê reg · reg lê cat<br/><i>projeções e FFNs separadas</i><br/>= shared_parameters()"]
+        D2 --> XA
+        XA --> E1["cabeça categoria<br/>GRU"]
+        XA --> E2["cabeça região<br/>torre contexto"]
+        D1 -.->|"rota privada"| E3["torre privada<br/>STAN"]
+        E3 --> E2
+        XA -.->|"<b>cos(g_cat, g_reg) medido AQUI</b><br/>= +0,0014 · equivalente a zero"| MED["<b>Apêndice D</b>"]
+    end
+
+    ANTES ==>|"o gargalo sai;<br/>a via de troca entra"| AGORA
+    MED ==>|"não há conflito"| CONC["<b>peso fixo 0,50/0,50</b><br/>nenhum balanceador ativo"]
+```
+
+#### A tabela que resume o bloco
+
+| Termo | Em uma frase | Onde vive hoje | Está ativo no modelo entregue? |
+|---|---|---|---|
+| **FiLM** | Condiciona um tronco compartilhado escalando e deslocando features conforme quem pergunta. | `src/models/mtl/_components.py:39`; usado por `mtlnet` | **Não** — é a linhagem dos Caps. 3 e 4 |
+| **Cross-attention** | Cada tarefa consulta a sequência da outra e traz o que lhe é útil, sem representação comum. | `mtlnet_crossattn/model.py`; o entregue é `mtlnet_crossattn_dualtower` | **Sim** — 2 blocos bidirecionais, 4 cabeças, largura 256 |
+| **Nash-MTL** | Resolve a combinação de gradientes como uma barganha em que nenhuma tarefa pode ser sacrificada. | `src/losses/nash_mtl/loss.py` | **Não** — ⚠ mas é o *default* do CLI `--mtl-loss` |
+| **PCGrad** | Projeta fora a componente conflitante — e **só age se o cosseno for negativo**. | `src/losses/pcgrad/loss.py` | **Não** |
+| **cos(g₁, g₂)** | Mede se as duas tarefas pedem a mesma atualização; negativo = conflito. | Apêndice D; medido em `shared_parameters()` | É **diagnóstico**, não componente |
+
+#### As cinco perguntas de banca deste bloco
+
+| Pergunta provável | Resposta em uma frase |
+|---|---|
+| *Sua arquitetura é hard ou soft sharing?* | Nenhuma das duas. Encoders e cabeças são privados; o que é compartilhado é a **via de troca**, não a representação. |
+| *Por que não usou um balanceador de gradiente?* | Testei dezenove. Nenhum superou o peso fixo nas duas tarefas e nos dois conjuntos — e o cosseno dos gradientes explica por quê: é equivalente a zero. |
+| *Como sabe que não há transferência negativa?* | Não infiro, meço: o cosseno no tronco compartilhado é equivalente a zero por TOST em quatro conjuntos, com margem de $\pm 0{,}05$ fixada antes. |
+| *E se o conflito for pequeno mas real?* | É essa a pergunta que o TOST responde. A margem foi fixada antes; qualquer alinhamento que exista é pequeno demais para os balanceadores agirem sobre ele. |
+| *Isso vale para MTL em geral?* | Não, e o texto não afirma isso. É um achado **para este par de tarefas nesta arquitetura**, em quatro dos seis conjuntos — Texas e Califórnia não foram medidos. |
+
+---
+
+### 6.7 · Dúvidas e esclarecimentos
+
+> *Espaço reservado. Perguntas suas sobre MTL, FiLM, cross-attention, Nash-MTL ou o cosseno dos
+> gradientes e as respostas entram aqui, cada uma com data.*
+
+<!-- MODELO — copie e preencha
+#### 6.7.N · [pergunta em uma linha] · <data>
+**Pergunta.**
+
+**Resposta.**
+
+**Onde isso aparece na dissertação.**
+-->
+
+*(nenhuma entrada ainda)*
+
+---
+
+## A · Cola de bolso geral
+
+### A.1 · Cada termo em uma frase — para dizer em voz alta
+
+A lista para recitar. Uma frase por termo, formulada para ser dita inteira, sem consultar nada. Se
+você não consegue dizer a frase, o termo ainda não está pronto.
+
+**Métricas e estatística** — [bloco 1](#1--métodos-estatísticos)
+
+| Termo | A frase |
+|---|---|
+| **macro-F1** | A média simples do F1 de cada categoria, então a classe rara pesa igual à classe grande. |
+| **Precisão** | Das que eu chamei de $c$, quantas eram mesmo $c$. |
+| **Revocação** | Das que eram $c$, quantas eu peguei. |
+| **F1** | A média harmônica de precisão e revocação, que é dominada pela pior das duas. |
+| **Acc@10** | A fração de visitas em que a região certa apareceu entre as dez mais bem pontuadas. |
+| **Teste t pareado** | Se a diferença verdadeira fosse zero, com que frequência eu veria uma diferença desse tamanho por sorte. |
+| **Intervalo de confiança** | O $p$ diz se é distinguível de zero; o intervalo diz de que tamanho é. |
+| **Wilcoxon** | O mesmo teste pareado, usando a ordem das diferenças em vez do valor delas, para não supor normalidade. |
+| **TOST** | Em vez de tentar rejeitar a igualdade, eu faço da diferença grande a hipótese nula e a rejeito. |
+| **Margem $\delta$** | A menor diferença que ainda importaria na prática, fixada antes de qualquer resultado ser lido. |
+| **Holm** | Perguntei seis vezes, então corrijo o limiar em cascata para não colher um falso positivo. |
+| **Semente** | Uma repetição completa do experimento de cinco partições, que decide a inicialização e o sorteio dos usuários. |
+
+**Representação** — [bloco 2](#2--infomax-dgi-hgi-e-check2hgi)
+
+| Termo | A frase |
+|---|---|
+| **Infomax** | O modelo aprende vetores úteis sendo obrigado a distinguir um pareamento verdadeiro de um corrompido, sem rótulo nenhum. |
+| **Informação mútua** | Quanto saber uma variável reduz a incerteza sobre a outra. |
+| **Discriminador bilinear** | $\sigma(e_1^\top W e_2)$ — linear em cada vetor quando o outro está fixo, para a pressão cair na geometria e não no discriminador. |
+| **Corrupção** | Embaralhar as features dos nós mantendo as arestas, para que o par falso seja plausível mas errado. |
+| **DGI** | Infomax entre cada nó e um resumo global do grafo. |
+| **HGI** | O mesmo objetivo estendido pela hierarquia de lugar, região e cidade. |
+| **Check2HGI** | HGI com um quarto nível abaixo do lugar, o check-in, de modo que cada visita ganha o próprio vetor. |
+| **Nível-lugar × nível-check-in** | Um vetor por lugar responde "que lugar é este"; um vetor por visita responde "que visita é esta". |
+| **Aresta só para frente** | Uma visita enxerga as que a precedem e nunca as que a seguem, no treino e na leitura. |
+| **Transdutivo** | A representação foi treinada no grafo inteiro; a avaliação de predição é que é disjunta por usuário. |
+
+**Modelo conjunto** — [bloco 3](#3--o-modelo-conjunto-joint-model)
+
+| Termo | A frase |
+|---|---|
+| **Encoders privados** | Largura de tensor igual não implica significado igual, então cada modalidade tem parâmetros próprios. |
+| **Atenção** | Cada posição emite uma consulta, compara com as chaves disponíveis e leva uma mistura ponderada dos valores. |
+| **Torre dupla (região)** | Uma torre lê a sequência crua e outra lê o contexto trocado; a fusão é aditiva com um ganho aprendido. |
+| **$\beta_0 = 0{,}1$** | O modelo começa como a torre privada e aprende quanto contexto de categoria admitir. |
+| **Ajuste de logits** | Somo $\tau \log P(y)$ no treino e leio o logit cru na inferência, para mover a fronteira ao posterior balanceado. |
+| **Três grupos no AdamW** | Um único backward, com picos de taxa de aprendizado diferentes por região do modelo. |
+| **Seleção *joint-best*** | Um artefato salvo por fold, lido na época que maximiza a média geométrica das duas métricas. |
+| **Média geométrica** | Ela pune o desequilíbrio, então nenhuma tarefa pode ser sacrificada para inflar a outra. |
+
+**Geometria de embeddings** — [bloco 4](#4--protocolos-de-comparação-de-embeddings)
+
+| Termo | A frase |
+|---|---|
+| **kNN-LOO** | Escondo o vetor de si mesmo e pergunto se os dez vizinhos mais próximos têm o rótulo dele. |
+| **Silhouette** | Quão coeso é o meu grupo comparado com a distância até o grupo vizinho mais próximo. |
+| **Distância de cosseno** | Em embedding o que carrega significado é a direção, não a norma. |
+| **Centroid separability** | A coesão ao próprio centroide dividida pela semelhança média entre centroides distintos. |
+| **Linear CKA** | Estes dois espaços são o mesmo, a menos de rotação e reescala. |
+| **A ressalva L0** | Métrica estática de rótulo próprio ranqueia tarefa de atributo estático e não ranqueia tarefa de transição. |
+
+**Markov** — [bloco 5](#5--markov-k-o-modelo-de-referência)
+
+| Termo | A frase |
+|---|---|
+| **Propriedade de Markov** | Para saber para onde você vai, basta saber onde você está. |
+| **Matriz de transição** | Uma tabela de contagens normalizada por linha, sem treino e sem gradiente. |
+| **Markov-K** | Condiciona nas K últimas categorias em vez de só na última. |
+| ***Stupid backoff*** | Usa o contexto mais longo que ainda tem evidência no treino, e encurta quando não tem. |
+| **Piso** | Quanto da tarefa se resolve sem aprender nada. |
+
+**MTL** — [bloco 6](#6--mtl-film-cross-attention-nash-mtl-e-o-cosseno-dos-gradientes)
+
+| Termo | A frase |
+|---|---|
+| **MTL** | Treinar tarefas relacionadas juntas na expectativa de que a representação compartilhada generalize melhor. |
+| **Compartilhamento rígido** | Toda tarefa atravessa um mesmo tronco e só se separa na saída. |
+| **Compartilhamento suave** | Cada tarefa tem sua rede inteira, e uma penalidade aproxima os parâmetros das duas. |
+| **Transferência negativa** | O treino conjunto deixa uma tarefa pior do que o modelo dedicado dela deixaria. |
+| **FiLM** | Condiciona um tronco compartilhado escalando e deslocando as features conforme quem está perguntando. |
+| **Cross-attention** | Cada tarefa consulta a sequência da outra e traz o que lhe é útil, sem representação comum. |
+| **Nash-MTL** | Trata a combinação dos gradientes como uma barganha em que nenhuma tarefa pode ser sacrificada. |
+| **PCGrad** | Projeta fora a componente conflitante — e só age se o cosseno for negativo. |
+| **Conflito de gradiente** | As duas tarefas pedem atualizações opostas, e o cosseno entre elas fica negativo. |
+| **Ortogonalidade** | Cada pedido deixa o objetivo da outra inalterado em primeira ordem. |
+
+---
+
+### A.2 · O desenho do todo, numa página
+
+Tudo o que este documento cobre, no lugar onde acontece:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│  ETAPA 1 · REPRESENTAÇÃO — sem rótulo de tarefa            [bloco 2]            │
+│                                                                                  │
+│   check-ins crus                    Check2HGI                                    │
+│   (user, lugar, lat/lon,   ──────►  ┌──────────────────────────┐                │
+│    categoria, tempo)                │ cidade                    │ ← soma por área│
+│           │                         │  └ região                 │ ← atenção 4cab.│
+│           │  15 features            │     └ lugar               │ ← atenção 4cab.│
+│           │  7 cat + 4 cíclicas     │        └ CHECK-IN         │ ← GCN temporal │
+│           │  + 4 tempo decorrido    └──────────────────────────┘   só p/ frente │
+│           ▼                          perda = 0,4·L_cp + 0,3·L_pr + 0,3·L_rc     │
+│      grafo heterogêneo                      + 0,3·L_mask + 0,1·L_âncora          │
+│                                                    │                             │
+│                          ┌─────────────────────────┴──────────────┐             │
+│                          ▼                                         ▼             │
+│                 tabela CHECK-IN 64d                       tabela REGIÃO 64d      │
+│                 ═══════ CONGELADAS ═══════════════════════════════════════       │
+└──────────────────────────────┬──────────────────────────┬───────────────────────┘
+                               │      [bloco 4] julga ────┤ silhouette 0,57 vs 0,00
+                               │      a geometria destas  │ pureza kNN 0,98 vs 0,78
+                               ▼                          ▼
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│  ETAPA 2 · MODELO CONJUNTO — com rótulo          [blocos 3 e 6]                  │
+│                                                                                  │
+│    janelas: 9 visitas → 10ª é o alvo, passo 1                                   │
+│                                                                                  │
+│    9×64 check-ins ─► encoder privado ─┐                                         │
+│                       64→256→256→256   │                                         │
+│                                        ├─► CROSS-ATTENTION ×2  ◄── [bloco 6]    │
+│                                        │   cat lê reg, reg lê cat               │
+│    9×64 regiões ───► encoder privado ─┘   4 cabeças · 256 · bidirecional        │
+│           │                                │        │                            │
+│           │                                ▼        ▼                            │
+│           │                            GRU 4cam.  torre contexto                │
+│           │                            ↓          ↓                              │
+│           └──── rota privada ────► torre STAN ──► f_priv + β·W·f_shr            │
+│                                                    ↓            ↓                │
+│                                              7 logits      1 logit/região       │
+│                                                                                  │
+│    L = 0,50·L_cat + 0,50·L_reg      ajuste de logits τ=0,5 SÓ na categoria      │
+│    AdamW 3 grupos · OneCycle · 50 épocas · lote 8192 · sem parada antecipada    │
+│    checkpoint = argmax √(macroF1 × Acc@10)                                       │
+│                                                                                  │
+│    ⚡ cos(g_cat, g_reg) medido nos parâmetros compartilhados = +0,0014 ≈ 0       │
+└──────────────────────────────┬──────────────────────────────────────────────────┘
+                               ▼
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│  ETAPA 3 · VEREDITO                              [blocos 1 e 5]                  │
+│                                                                                  │
+│    4 sementes × 5 folds = 20 modelos ajustados por configuração                 │
+│    média dos folds DENTRO da semente, depois média das 4 → n = 4                │
+│                                                                                  │
+│    piso [bloco 5]        cat: Markov-K 20,5–29,7   reg: Markov-1 51–72          │
+│    externos              POI-RGNN · HMT-GRN · STAN · ReHDM · CTLE               │
+│    referência controlada DEDICADO (mesma representação, janelas e folds)         │
+│                                                                                  │
+│    t pareado + IC 90%  →  supera?     Holm sobre as 6 comparações do eixo       │
+│    TOST δ = 2 pp       →  não-inferior?  (margem registrada SÓ para região)      │
+│                                                                                  │
+│    RESULTADO   cat: supera na FLÓRIDA (+0,19); as outras cinco NÃO RESOLVIDAS   │
+│                reg: não-inferior nos SEIS; supera em TX (+1,21) e CA (+1,06)     │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### A.3 · As sete frases que amarram a dissertação inteira
 
 1. **A ideia Infomax:** *o modelo aprende vetores úteis sendo obrigado a distinguir um pareamento
    verdadeiro de um corrompido, e não precisa de rótulo nenhum, porque os próprios dados dizem qual é
@@ -2039,7 +2838,7 @@ modelo reportado depende só das duas torres.
 7. **A lei dos verbos:** *"supera" só com teste pareado de superioridade; "não-inferior" só com TOST
    dentro da margem registrada; tudo o mais é "não resolvido".*
 
-### A escada de verbos
+### A.4 · A escada de verbos
 
 ```
   SUPERA          ─── teste t pareado + sobrevive a Holm
@@ -2054,7 +2853,7 @@ modelo reportado depende só das duas torres.
   ❌ PROIBIDO      ─── "empata", "iguala", "em todos os conjuntos" na categoria
 ```
 
-### Números que não podem sair errado
+### A.5 · Números que não podem sair errado
 
 | Fato | Valor |
 |---|---|
@@ -2072,7 +2871,7 @@ modelo reportado depende só das duas torres.
 
 ---
 
-## 7 · Registro de tópicos
+## B · Registro de tópicos
 
 O índice vivo. Tópicos vindos de `Questions_author.md` §"Estudos específicos" e do que surgir depois.
 
@@ -2098,6 +2897,13 @@ O índice vivo. Tópicos vindos de `Questions_author.md` §"Estudos específicos
 | 5.1 | Markov-K: o que é, como funciona | Estudos específicos §3 (add. 2026-08-25) | ✅ escrito | [§5.1](#51--o-que-é-uma-cadeia-de-markov), [§5.2](#52--markov-k-a-ordem-k-e-o-stupid-backoff) |
 | 5.2 | A escolha da ordem K por conjunto | acréscimo (a curva de K) | ✅ escrito | [§5.3](#53--o-resultado-e-a-curva-que-ele-desenha) |
 | 5.3 | Piso Markov-1 de região | acréscimo (o par do eixo região) | ✅ escrito | [§5.4](#54--o-piso-markov-1-de-região) |
+| 6.1 | FiLM | Estudos específicos §MTL (add. 2026-08-26) | ✅ escrito | [§6.2](#62--film--como-o-mtlnet-compartilhava-caps-3-e-4) |
+| 6.2 | Cross-Attention | Estudos específicos §MTL (add. 2026-08-26) | ✅ escrito | [§6.3](#63--cross-attention--como-o-modelo-entregue-compartilha-cap-5) |
+| 6.3 | Nash-MTL (+ PCGrad) | Estudos específicos §MTL (add. 2026-08-26) | ✅ escrito | [§6.4](#64--nash-mtl--o-remédio-que-a-literatura-oferece) |
+| 6.4 | Cosseno dos gradientes | Estudos específicos §MTL (add. 2026-08-26) | ✅ escrito | [§6.5](#65--o-cosseno-dos-gradientes--o-diagnóstico) |
+| 6.5 | Topologias de compartilhamento | acréscimo (Def. 2.10–2.12) | ✅ escrito | [§6.1](#61--o-problema-que-o-mtl-cria) |
+| A.1 | Cada termo em uma frase | pedido do autor 2026-08-26 | ✅ escrito | [§A.1](#a1--cada-termo-em-uma-frase--para-dizer-em-voz-alta) |
+| A.2 | O desenho do todo numa página | pedido do autor 2026-08-26 | ✅ escrito | [§A.2](#a2--o-desenho-do-todo-numa-página) |
 
 ### Candidatos a próximas seções
 
@@ -2108,15 +2914,13 @@ diretamente ao que já está aqui. **Nenhum foi escrito** — entram quando voc�
 |---|---|---|
 | **δ-crítico** | Pontos para validar §3 | É leitura direta do IC ($\delta_{NI} = -\text{limite inferior}$) — extensão natural de [§1.6](#16--tost-a-pergunta-é-igual-ou-não-é-pior) |
 | **Uma partição vs. k-fold repetido** | Pontos para validar §4 | Extensão de [§1.3](#13--a-unidade-de-análise-o-que-é-um-número-pareado-aqui); envolve Dietterich 1998, Nadeau & Bengio 2003, Bayle et al. 2020 |
-| **Transferência negativa e conflito de gradientes** | Perguntas básicas §3 | Fecha o "porquê" de [§3.2](#32--camada-a-camada-com-justificativa) (torre privada, $\beta_0 = 0{,}1$) |
-| **Topologias de compartilhamento** | Perguntas básicas §2 | *hard sharing*, *soft sharing*, específico por tarefa, cross-attention — em um lugar só |
 | **Conceitos básicos de grafos** | Perguntas básicas §6 | Nó, aresta, grafo heterogêneo, convolução, agregação de vizinhança, transdutivo — base do bloco 2 |
 | **Dois pares de tarefas em três estudos** | Pontos de estudo §1 | A pergunta de escopo mais provável da banca. Não é conceito, é argumento |
 | **Vazamento e integridade v17 → v18** | contexto do projeto | Por que macro-F1 vive em 30–38; a aresta *forward-only* |
 
 ---
 
-## 8 · Como pedir uma seção nova (ou uma resposta)
+## C · Como pedir uma seção nova (ou uma resposta)
 
 Este documento foi feito para crescer sem ser reescrito. Três formas de expandir:
 
@@ -2129,8 +2933,8 @@ reler o texto original e a resposta lado a lado.
 **(b) Um tópico novo.**
 > *"Quero uma seção sobre conflito de gradientes."*
 
-Vira uma seção nova (bloco 6, 7, ...), com a mesma estrutura — *o que é / como funciona / por que
-importa aqui / dúvidas* — e entra no [Registro](#7--registro-de-tópicos).
+Vira uma seção nova (bloco 7, 8, ...), com a mesma estrutura — *o que é / como funciona / por que
+importa aqui / dúvidas* — e entra no [Registro](#b--registro-de-tópicos).
 
 **(c) Mais profundidade num ponto existente.**
 > *"O §1.6 sobre TOST está raso, quero potência estatística e escolha de margem."*
@@ -2140,7 +2944,7 @@ A seção cresce internamente, com uma subseção nova. O que já estava escrito
 **Convenções deste arquivo, para manter a consistência:**
 
 - Toda afirmação numérica vem da dissertação entregue (v18, convenção *joint-best*) ou de fonte
-  externa citada em [§9](#9--fontes). Números de macro-F1 de categoria vivem em **30–38**.
+  externa citada em [§D](#d--fontes). Números de macro-F1 de categoria vivem em **30–38**.
 - Diagramas em **Mermaid**, gráficos quantitativos em **barras Unicode** (renderizam em qualquer
   lugar, inclusive no app do GitHub no celular).
 - Código é **ilustrativo e mínimo** — mostra a *ideia*, não é o código de produção. Onde é
@@ -2149,7 +2953,7 @@ A seção cresce internamente, com uma subseção nova. O que já estava escrito
 
 ---
 
-## 9 · Fontes
+## D · Fontes
 
 ### Da dissertação (fontes primárias deste documento)
 
@@ -2161,6 +2965,8 @@ A seção cresce internamente, com uma subseção nova. O que já estava escrito
 | Check2HGI e modelo conjunto, em detalhe | `src/chapters/apx_h_check2hgi_joint_model.tex` (Apêndice E do volume principal) |
 | Resultados e vereditos | `src/chapters/5_mobiwac/06_results.tex`; tabelas em `src/tables/mobiwac/` |
 | Geometria de embeddings, implementação | `scripts/embedding_eval/geometry.py` (raiz do repositório) |
+| MTL, implementação (estado de hoje) | `src/models/mtl/_components.py` (FiLM) · `src/models/mtl/mtlnet/model.py` · `src/models/mtl/mtlnet_crossattn/model.py` (bloco bidirecional + partição de parâmetros) · `src/models/mtl/mtlnet_crossattn_dualtower/model.py` (o entregue) · `src/losses/nash_mtl/loss.py` · `src/losses/pcgrad/loss.py` |
+| Cosseno dos gradientes | `src/chapters/apx_f_cosine.tex` (Apêndice D do volume principal) + `src/tables/frame/cosine.tex`; triagem dos 19 balanceadores em `src/chapters/5_mobiwac/02_related.tex` |
 | Markov-K de categoria, implementação | `scripts/compute_markov_kstep_cat.py`; resultados por ordem K em `docs/results/P0/simple_baselines/<estado>/next_category_markov_kstep.json` |
 | Piso Markov-1 de região, implementação | `scripts/closing_data/compute_markov_floor_stride1.py`; metodologia em `docs/studies/closing_data/MARKOV_FLOOR_STRIDE1.md` |
 | Validade por tarefa dos protocolos L0 | `docs/studies/archive/embedding_eval/L0_METHODOLOGY.md` |
@@ -2178,6 +2984,13 @@ A seção cresce internamente, com uma subseção nova. O que já estava escrito
 - **TOST:** Lakens, D. (2017). *Equivalence tests: A practical primer for t tests, correlations, and meta-analyses.* Social Psychological and Personality Science, 8(4), 355–362. — [DOI / SAGE](https://journals.sagepub.com/doi/10.1177/1948550617697177) · tutorial: [Lakens, Scheel & Isager (2018)](https://journals.sagepub.com/doi/10.1177/2515245918770963) · pacote [TOSTER](https://packages.oit.ncsu.edu/cran/web/packages/TOSTER/readme/README.html)
 - **Cadeia de Markov para mobilidade (MMC):** Gambs, S., Killijian, M.-O. & Núñez del Prado Cortez, M. (2012). *Next Place Prediction Using Mobility Markov Chains.* Proc. MPM (EuroSys Workshop), 1–6. — [DOI 10.1145/2181196.2181199](https://doi.org/10.1145/2181196.2181199)
 - ***Stupid backoff*:** Brants, T., Popat, A. C., Xu, P., Och, F. J. & Dean, J. (2007). *Large language models in machine translation.* EMNLP-CoNLL, 858–867. — a estratégia de recuo por n-grama usada no Markov-K.
+- **MTL, o artigo fundador:** Caruana, R. (1997). *Multitask Learning.* Machine Learning, 28(1), 41–75.
+- **Panorama de MTL:** Ruder, S. (2017). *An Overview of Multi-Task Learning in Deep Neural Networks.* — [arXiv:1706.05098](https://arxiv.org/abs/1706.05098)
+- **FiLM:** Perez, E., Strub, F., de Vries, H., Dumoulin, V. & Courville, A. (2018). *FiLM: Visual Reasoning with a General Conditioning Layer.* AAAI. — [arXiv:1709.07871](https://arxiv.org/abs/1709.07871)
+- **PCGrad (e a definição de conflito de gradiente):** Yu, T., Kumar, S., Gupta, A., Levine, S., Hausman, K. & Finn, C. (2020). *Gradient Surgery for Multi-Task Learning.* NeurIPS. — [arXiv:2001.06782](https://arxiv.org/abs/2001.06782)
+- **Nash-MTL:** Navon, A., Shamsian, A., Achituve, I., Maron, H., Kawaguchi, K., Chechik, G. & Fetaya, E. (2022). *Multi-Task Learning as a Bargaining Game.* ICML. — [arXiv:2202.01017](https://arxiv.org/abs/2202.01017)
+- **Balanceadores raramente ganham de peso fixo:** Xin, D., Ghorbani, B., Gilmer, J., Garg, A. & Firat, O. (2022). *Do Current Multi-Task Optimization Methods in Deep Learning Even Help?* NeurIPS. · Kurin, V. et al. (2022). *In Defense of the Unitary Scalarization for Deep Multi-Task Learning.* NeurIPS. · Lin, B. et al. (2022). *Reasonable Effectiveness of Random Weighting.* TMLR.
+- **Quando tarefas devem ser treinadas juntas:** Standley, T., Zamir, A., Chen, D., Guibas, L., Malik, J. & Savarese, S. (2020). *Which Tasks Should Be Learned Together in Multi-Task Learning?* ICML.
 - **Holm:** Holm, S. (1979). *A simple sequentially rejective multiple test procedure.* Scandinavian Journal of Statistics, 6(2), 65–70.
 - **Wilcoxon:** Wilcoxon, F. (1945). *Individual comparisons by ranking methods.* Biometrics Bulletin, 1(6), 80–83.
 - **Silhouette:** Rousseeuw, P. J. (1987). *Silhouettes: a graphical aid to the interpretation and validation of cluster analysis.* J. Comput. Appl. Math., 20, 53–65.
@@ -2188,4 +3001,4 @@ A seção cresce internamente, com uma subseção nova. O que já estava escrito
 
 <sub>Documento de estudo · dissertação UFV/PPGCC · defesa 2026-08-28 · não é texto entregue.
 Criado em 2026-08-24, bloco 5 (Markov-K) em 2026-08-25. Expandir pelas seções "Dúvidas e esclarecimentos" e pelo
-[Registro de tópicos](#7--registro-de-tópicos).</sub>
+[Registro de tópicos](#b--registro-de-tópicos).</sub>
