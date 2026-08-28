@@ -4,7 +4,7 @@
 
 > **Como usar.** Cada cartão tem quatro camadas, em ordem de urgência: **ABRE** (a primeira oração, para pegar o fio sem ler), **DIZER** (as superfícies de lei e os números que não podem sair errado), **NUNCA** (o que anula o slide se escapar), e a fala completa embaixo, para consulta.
 
-> ⚠ **O relógio.** Os tempos abaixo são os do plano e somam **48:10**. A fala escrita tem 8.840 palavras, que a 140 palavras/minuto dão **~63 min** — contra o teto de **50 min** do Art. 23. Os dois números não fecham, e o ensaio é que decide qual vale. **Cronometre o fim de cada seção.**
+> ⚠ **O relógio.** A fala escrita tem **6.963 palavras**, que a 140 palavras/minuto dão **49:44**, contra o teto de **50 min** do Art. 23. Os campos `Tempo:` dos cartões somam **52:54** e são orçamento, não medição — se os dois discordarem, o medido vale. **Cronometre o fim de cada seção.**
 
 
 ---
@@ -13,12 +13,12 @@
 
 | seção | slides | fim previsto | **seu tempo real** |
 |---|---|---:|---|
-| **ABERTURA — a pergunta e o escopo** | S1–S7 | 5:00 | ____________ |
-| **FUNDAMENTOS — dito uma vez** | S8–S15 | 7:30 | ____________ |
-| **MTLnet — Cap. 3 (CBIC)** | S17–S25 | 16:10 | ____________ |
-| **ST-MTLNet — Cap. 4 (CoUrb)** | S26–S32 | 22:10 | ____________ |
-| **Check2HGI — Cap. 5 (MobiWac)** | S33–S49 | 42:40 | ____________ |
-| **CONCLUSÃO — a resposta condicional** | S50–S55 | 48:10 | ____________ |
+| **ABERTURA — a pergunta e o escopo** | S1–S6 | 3:21 | ____________ |
+| **FUNDAMENTOS — dito uma vez** | S5b–S19 | 10:54 | ____________ |
+| **MTLnet — Cap. 3 (CBIC)** | S18–S25 | 16:11 | ____________ |
+| **ST-MTLNet — Cap. 4 (CoUrb)** | S26–S32 | 23:33 | ____________ |
+| **Check2HGI — Cap. 5 (MobiWac)** | S33–S48 | 46:21 | ____________ |
+| **CONCLUSÃO — a resposta condicional** | S49–S55 | 52:54 | ____________ |
 
 
 ---
@@ -41,10 +41,10 @@
 
 ---
 
-## S2 · Movement is regular, and services depend on that
+## S2 · Human Mobility
 `slide **1** · PDF p.3` · **45 s** · fim previsto **1:05**
 
-> ### ▶ O ponto de partida é uma regularidade.
+> ### ▶ O ponto de partida é uma regularidade. Os rastros de mobilidade são ruidosos, mas o movimento humano é bastante regular: as pessoas voltam a um conjunto pequeno de lugares, e fazem viagens longas com menos frequência.
 
 **● COBRE** — INTRODUZ o gancho: a regularidade da mobilidade e as aplicações
 
@@ -52,11 +52,11 @@
 
 **✕ NUNCA** — "pioneiro", "o primeiro". · Nunca apresentar os 93 por cento como teto de nada. · Nenhum particular do corpus. · Nenhum número nosso.
 
-<sub>O ponto de partida é uma regularidade. Os rastros de mobilidade são ruidosos, mas o movimento humano é bastante regular: uma análise de entropia sobre rastros em larga escala estimou a previsibilidade potencial da próxima localização de uma pessoa em cerca de 93 por cento. Faço a ressalva na mesma frase, porque ela importa. Essa estimativa é sobre a próxima localização em resolução grossa, e ela não é teto para nenhuma métrica que eu vou reportar aqui. O que ela mostra é que existe regularidade aprendível. As pessoas voltam a um conjunto pequeno de lugares, e fazem viagens longas com menos frequência. E antecipar o que e o onde da próxima visita é o que sustenta recomendação, navegação, planejamento de transporte e alocação de recursos por área.</sub>
+<sub>O ponto de partida é uma regularidade. Os rastros de mobilidade são ruidosos, mas o movimento humano é bastante regular: as pessoas voltam a um conjunto pequeno de lugares, e fazem viagens longas com menos frequência. E isso é mensurável: uma análise de entropia sobre rastros em larga escala estimou a previsibilidade potencial da próxima localização de uma pessoa em cerca de 93 por cento. Faço a ressalva na mesma frase, porque ela importa. Essa estimativa é sobre a próxima localização em resolução grossa, e ela não é teto para nenhuma métrica que eu vou reportar aqui. O que ela mostra é que existe regularidade aprendível. E antecipar o que e o onde da próxima visita é o que sustenta recomendação, navegação, planejamento de transporte e alocação de recursos por área.</sub>
 
 ---
 
-## S3 · The ground: check-ins, mobility, and what joint training promises
+## S3 · The ground: check-ins and what joint training promises
 `slide **2** · PDF p.4` · **55 s** · fim previsto **2:00**
 
 > ### ▶ Duas palavras e um risco, antes da pergunta. Uma rede social baseada em localização é uma plataforma em que as pessoas registram os lugares por onde passam.
@@ -69,39 +69,21 @@
 
 ---
 
-## S4 · The question, and the answer in one line
-`slide **3** · PDF p.5` · **60 s** · fim previsto **3:00**
+## S4 · The question
+`slide **3** · PDF p.5` · **41 s *(medido)*** · fim previsto **2:41**
 
-> ### ▶ A pergunta da dissertação, literalmente: o aprendizado multitarefa ajuda a predição de pontos de interesse, próxima categoria e próxima região, e de que depende a resposta?
+> ### ▶ A pergunta da dissertacao, literalmente: o aprendizado multitarefa ajuda a predicao da proxima categoria e da proxima regiao, e de que depende a resposta?
 
-**● DIZER EXATO**
-- próxima região
-- permanece dentro da margem de dois pontos
-- próxima categoria
-- supera na Flórida
-- equivalentes a zero dentro de meio ponto
+**● COBRE** — INTRODUZ a pergunta de pesquisa · INTRODUZ a restrição de modelo único · gloss do veredito nas superfícies registradas (o ladder de veredito é INTRODUZ em 5.5; macro-F1 e Acc@10 aparecem aqui como rótulo do número, e as definições
 
 **✕ NUNCA** — "empata", "matches", "ties", "semelhante", "a par", "em todos". · Nunca aplicar a margem de dois pontos ao eixo de categoria, nem o meio ponto ao eixo de região. · Nunca chamar as quatro células dentro da margem de empates. · Nunca ler a frase do Resumo entregue.
 
-<sub>A pergunta da dissertação, literalmente: o aprendizado multitarefa ajuda a predição de pontos de interesse, próxima categoria e próxima região, e de que depende a resposta? Ela vem com uma restrição que vale para tudo o que vem depois: um artefato treinado tem de produzir as duas saídas numa passagem só. E a resposta eu dou agora, no minuto três, e não no fim, porque daqui em diante cada slide é resposta a uma pergunta que eu já fiz. Na previsão da **próxima região**, o modelo conjunto **supera** os dedicados no **Texas** e na **Califórnia**, e nos outros quatro conjuntos **permanece dentro da margem de dois pontos**, registrada antes de qualquer resultado ser lido: quatro déficits pequenos, com a direção declarada, nenhum empate. Na **próxima categoria**, **supera na Flórida**, e as cinco diferenças restantes são **equivalentes a zero dentro de meio ponto**. As quatro células dentro da margem eu enumero uma a uma na Seção 5, com intervalo e com teste.</sub>
-
----
-
-## S5 · What is predicted, and what is not
-`slide **4** · PDF p.6` · **40 s** · fim previsto **3:40**
-
-> ### ▶ O escopo, no positivo. Eu predigo duas propriedades da próxima visita: a categoria, que é o tipo do lugar, e a região, que é a unidade administrativa em escala de bairro onde a visita acontece.
-
-**● COBRE** — INTRODUZ as três tarefas (Defs. 2.6, 2.7, 2.8) e a exclusão do próximo lugar (Def. 2.9) · RETOMA a restrição de modelo único
-
-**✕ NUNCA** — "prediz o próximo POI". · Nenhum particular do corpus: nem o número de classes, nem setor censitário, nem mahalle, nem nome de estado (isso é de S10).
-
-<sub>O escopo, no positivo. Eu predigo duas propriedades da próxima visita: a categoria, que é o tipo do lugar, e a região, que é a unidade administrativa em escala de bairro onde a visita acontece. O próximo lugar exato eu não predigo. Ele está definido no Capítulo 2 justamente para ser excluído, e nenhum capítulo reporta resultado para ele. Existe ainda uma terceira tarefa no trabalho, a classificação de categoria, que é estática: lê a representação de um lugar, e não um histórico. Ela é metade do par nos dois primeiros estudos.</sub>
+<sub>A pergunta da dissertacao, literalmente: o aprendizado multitarefa ajuda a predicao da proxima categoria e da proxima regiao, e de que depende a resposta? Ela vem com uma restricao que vale para tudo o que vem depois: um artefato treinado tem de produzir as duas saidas numa passagem so. E uma delimitacao, para ninguem esperar o que nao vem: o proximo lugar exato eu nao predigo, e nenhum capitulo reporta resultado para ele. A resposta eu dou na Secao cinco, com intervalo e com teste, depois de voces terem visto como ela foi obtida.</sub>
 
 ---
 
 ## S6 · Three studies, in sequence
-`slide **5** · PDF p.7` · **40 s** · fim previsto **4:20**
+`slide **4** · PDF p.6` · **40 s** · fim previsto **3:21**
 
 > ### ▶ A dissertação é uma coletânea de três artigos, e a ordem deles é o argumento.
 
@@ -113,25 +95,25 @@
 
 ---
 
-## S7 · The contribution, in one block
-`slide **6** · PDF p.8` · **40 s** · fim previsto **5:00**
-
-> ### ▶ A contribuição, em duas metades, e eu volto a esta tela no fim com as mesmas palavras.
-
-**● COBRE** — INTRODUZ a contribuição una (a segunda aparição, com redação idêntica, é o slide de fechamento da Seção 6)
-
-**✕ NUNCA** — "MTL funciona" sem condição. · Nenhum número aqui, e em particular nenhuma contagem de parâmetros: a razão entre o modelo conjunto e os dois dedicados não foi re-medida (PLANO §8 regra 9).
-
-<sub>A contribuição, em duas metades, e eu volto a esta tela no fim com as mesmas palavras. A metade prática: um modelo, uma passagem, duas predições. O ganho é operacional, não computacional. O modelo conjunto é o artefato maior, e uma passagem por ele custa mais do que rodar os dois dedicados; o que diminui é o número de modelos para treinar e manter. A metade científica: o que eu entrego são condições, não um sim universal. A representação de entrada e a topologia de compartilhamento decidem se o multitarefa ajuda nestas tarefas. É por isso que um resultado nulo com embedding por lugar e compartilhamento rígido não contradiz um resultado positivo com representação em nível de check-in e outra forma de compartilhar.</sub>
-
----
-
 
 # FUNDAMENTOS — dito uma vez
 
 
-## S13 · Related work: POI prediction and multitask learning
-`slide **7** · PDF p.10` · **35 s** · fim previsto **5:35**
+## S5b · The tasks
+`slide **5** · PDF p.8` · **45 s *(os dois blocos que ele funde somavam 70 s)*** · fim previsto **4:06**
+
+> ### ▶ As tarefas, todas de uma vez, para não voltar a elas depois.
+
+**● COBRE** — INTRODUZ as quatro tarefas (Defs. 2.6, 2.7, 2.8, 2.9) · INTRODUZ a mudança de par de tarefas entre os capítulos *(herdada do bloco Two traps, que deixa de existir)*
+
+**✕ NUNCA** — "prediz o próximo POI".
+
+<sub>As tarefas, todas de uma vez, para não voltar a elas depois. Classificação de categoria é estática: lê a representação de um lugar e diz o tipo dele. Próxima categoria e próxima região são sequenciais: leem um histórico de visitas e dizem, respectivamente, o tipo do próximo lugar e a unidade em escala de bairro onde a próxima visita acontece. E o próximo lugar exato está aqui para ser excluído: ele é definido no Capítulo 2 justamente para delimitar o escopo, e nenhum capítulo reporta resultado para ele. Uma coisa muda ao longo da dissertação, e é melhor dizer agora do que surpreender depois: o par de tarefas. Os dois primeiros estudos juntam a estática com a próxima categoria. O terceiro junta duas sequenciais, próxima categoria e próxima região.</sub>
+
+---
+
+## S13 · Related work: POI prediction
+`slide **6** · PDF p.9` · **60 s *(medido)*** · fim previsto **5:06**
 
 > ### ▶ Duas telas de trabalho relacionado, e elas são o chão comum dos dois primeiros estudos.
 
@@ -139,12 +121,12 @@
 
 **✕ NUNCA** — nenhum resultado, nenhum número. · Nenhuma afirmação de ineditismo aqui: ela é de S14, e vem escopada.
 
-<sub>Duas telas de trabalho relacionado, e elas são o chão comum dos dois primeiros estudos. A tarefa dominante da área é o próximo lugar exato. A linha vai dos recorrentes, ST-RNN, DeepMove, HST-LSTM, Flashback, para os de atenção, STAN, GeoSAN, GETNext. Todos eles predizem o lugar exato, e por isso nenhum é linha de base direta para os alvos que eu estudo. O par que os dois primeiros estudos atacam é outro: classificação de categoria e previsão da próxima categoria. E, em mobilidade, o multitarefa foi usado quase inteiramente a serviço do próximo lugar. O MCARNN prevê atividade e lugar juntos; o CSLSL prevê em cascata quando, o quê e onde; o iMTL e o HAMTL seguem a mesma direção. O TME é a exceção que puxa para o outro lado, com anotação semântica estática de ponto de interesse.</sub>
+<sub>Duas telas de trabalho relacionado, e elas são o chão comum dos dois primeiros estudos. A tarefa dominante da área é o próximo lugar exato. A linha vai dos recorrentes, ST-RNN, DeepMove, Flashback, para os de atenção, STAN, GeoSAN, GETNext. Todos eles predizem o lugar exato, e por isso nenhum é linha de base direta para os alvos que eu estudo. O par que os dois primeiros estudos atacam é outro: classificação de categoria e previsão da próxima categoria. E, em mobilidade, o multitarefa foi usado quase inteiramente a serviço do próximo lugar. O MCARNN prevê atividade e lugar juntos; o CSLSL prevê em cascata quando, o quê e onde; o iMTL e o HAMTL seguem a mesma direção. O TME é a exceção que puxa para o outro lado, com anotação semântica estática de ponto de interesse.</sub>
 
 ---
 
-## S14 · The axis that separates this work
-`slide **8** · PDF p.11` · **30 s** · fim previsto **6:05**
+## S14 · Category and region: means or end
+`slide **7** · PDF p.10` · **54 s *(medido)*** · fim previsto **6:00**
 
 > ### ▶ O eixo que separa este trabalho da literatura não é a tarefa, é o papel dela.
 
@@ -156,21 +138,21 @@
 
 ---
 
-## S9 · How two tasks share a model, and how that fails
-`slide **9** · PDF p.12` · **40 s** · fim previsto **6:45**
+## S9 · MTL Fundamentals
+`slide **8** · PDF p.11` · **40 s** · fim previsto **6:40**
 
-> ### ▶ Duas definições e um critério. Compartilhamento rígido é a topologia em que todas as tarefas atravessam um mesmo tronco e só se separam na saída de cada uma.
+> ### ▶ Três definições e um critério.
 
 **● COBRE** — INTRODUZ compartilhamento rígido (Def. 2.10) · INTRODUZ transferência negativa (Def. 2.12) · INTRODUZ o critério declarado para um balanceador · RETOMA a promessa operacional de 1.2
 
 **✕ NUNCA** — nenhuma afirmação de otimalidade de Pareto sobre os nossos modelos: o Cap. · 2 recusa a afirmação explicitamente. · Nenhum resultado, nenhum número.
 
-<sub>Duas definições e um critério. Compartilhamento rígido é a topologia em que todas as tarefas atravessam um mesmo tronco e só se separam na saída de cada uma. Transferência negativa é o desfecho que se teme: o treino conjunto deixa uma tarefa pior do que o modelo dedicado dela deixaria. O critério está declarado no Capítulo 2, e eu vou cobrá-lo mais adiante: um método de balanceamento só é útil se superar uma ponderação fixa bem ajustada. Guardem essa frase. É ela que decide o que eu posso e o que eu não posso afirmar sobre o balanceador na Seção 3.</sub>
+<sub>Três definições e um critério. Compartilhamento rígido é a topologia em que todas as tarefas atravessam um mesmo tronco e só se separam na saída de cada uma; o flexível é o extremo oposto --- cada tarefa tem a sua própria rede, e elas são acopladas por uma penalidade. Transferência negativa é o desfecho que se teme: o treino conjunto deixa uma tarefa pior do que o modelo dedicado dela deixaria. O critério está declarado no Capítulo 2, e eu vou cobrá-lo mais adiante: um método de balanceamento só é útil se superar uma ponderação fixa bem ajustada. Guardem essa frase. É ela que decide o que eu posso e o que eu não posso afirmar sobre o balanceador na Seção 3.</sub>
 
 ---
 
-## S15 · The line this work stands on
-`slide **10** · PDF p.13` · **45 s** · fim previsto **7:30**
+## S15 · How places are represented
+`slide **9** · PDF p.12` · **45 s** · fim previsto **7:25**
 
 > ### ▶ Esta é a base mais importante da dissertação, e ela é uma escada.
 
@@ -178,23 +160,12 @@
 
 **✕ NUNCA** — o mecanismo do DGI ou do HGI aqui — eles pertencem a 3.2A e 4.1A. · Nunca afirmar que os três grafos de Delaunay são o mesmo objeto: a construção é comum, os pesos não (decaimento geodésico no Cap. · Haversine com penalidade de GEOID no Cap. · Nunca bilinear: o discriminador do DGI no Cap.
 
-<sub>Esta é a base mais importante da dissertação, e ela é uma escada. Começa no identificador one-hot, que marca um lugar por posição e não codifica relação nenhuma. Sobe para as representações distribuídas, skip-gram, DeepWalk, node2vec, em que a geometria do vetor reflete a relação que está nos dados. Sobe de novo para as redes de grafo, GCN, GAT, GraphSAGE, que aprendem essa relação por agregação de vizinhança. E o último degrau é o infomax em grafo, que é onde ficam os três métodos desta dissertação: DGI, HGI e Check2HGI. Eu não explico nenhum dos três agora, porque cada um tem o capítulo dele. E uma última coisa, que é substrato comum aos três e por isso eu digo aqui uma vez em vez de três: nos três, uma triangulação de Delaunay liga os lugares. Os pesos das arestas cada capítulo diz os seus, porque eles não são os mesmos.</sub>
+<sub>Esta é a base mais importante da dissertação, e ela é uma escada. Começa no identificador one-hot, que marca um lugar por posição e não codifica relação nenhuma. Sobe para as representações distribuídas, skip-gram, DeepWalk, node2vec, em que a geometria do vetor reflete a relação que está nos dados. Sobe de novo para as redes de grafo, GCN, GAT, GraphSAGE, que aprendem essa relação por agregação de vizinhança. E o último degrau é o infomax contrastivo: o modelo aprende vetores úteis sendo obrigado a distinguir um pareamento verdadeiro de um pareamento corrompido, e não precisa de rótulo nenhum para isso. É a ideia que sustenta os três métodos desta dissertação, e cada um tem o capítulo dele.</sub>
 
 ---
 
-## S8 · The idea these three share
-`slide **11** · PDF p.14` · **50 s** · fim previsto **8:20**
-
-> ### ▶ Aqui eu digo só a ideia que os três compartilham, uma vez, para não ter de repeti-la três vezes.
-
-**● COBRE** — INTRODUZ a ideia compartilhada pelos três métodos infomax · INTRODUZ a distinção entre o que se maximiza e como se estima · INTRODUZ o escopo estreito de *"sem rótulos"*
-
-<sub>Aqui eu digo só a ideia que os três compartilham, uma vez, para não ter de repeti-la três vezes. Nas palavras do próprio capítulo: o modelo aprende vetores úteis sendo obrigado a distinguir um pareamento verdadeiro de um pareamento corrompido, e não precisa de rótulo nenhum para isso, porque os próprios dados dizem qual é o verdadeiro. E aqui vale separar duas coisas que costumam ser confundidas. Infomax é o nome do que se maximiza, que é a informação mútua entre representações de dois níveis adjacentes. O teste de pareamento é como isso se estima, e na literatura ele é da família do aprendizado contrastivo, que é o nome que o Capítulo 3 usa. A informação mútua nunca é calculada em forma fechada. E um cuidado de escopo que eu prefiro dar eu mesmo, antes que me perguntem: a frase sem rótulos é da ideia geral. Nesta dissertação a forma correta é a que está na tela, sem alvo de próxima categoria e sem alvo de próxima região, porque a categoria da visita entra como característica de entrada do nó.</sub>
-
----
-
-## S10 · The evidence base: six datasets, said once
-`slide **12** · PDF p.15` · **55 s** · fim previsto **9:15**
+## S10 · The evidence base: six datasets
+`slide **10** · PDF p.13` · **55 s** · fim previsto **8:20**
 
 > ### ▶ Esta é a base de evidência inteira, dita uma vez só.
 
@@ -202,12 +173,12 @@
 
 **✕ NUNCA** — "superconjunto" para a Flórida. · Não há evidência de contenção entre as duas extrações. · Nenhum resultado de nenhum capítulo.
 
-<sub>Esta é a base de evidência inteira, dita uma vez só. Cinco estados do Gowalla e Istambul, do Massive-STEPS, e a ordem da tabela é a do documento, por número de regiões. As sete categorias são as mesmas nos três estudos: Community, Entertainment, Food, Nightlife, Outdoors, Shopping e Travel. Região é o setor censitário nos cinco conjuntos americanos e o *mahalle* em Istambul. Os dois particionam a cidade em escala de bairro, e não são o mesmo tipo de objeto: um é unidade de medida, o outro é unidade de governo. A última coluna diz qual capítulo usou qual conjunto. E um aviso que evita uma pergunta depois: a Flórida aparece duas vezes nesta dissertação, e são duas extrações. Novecentos e noventa mil, quinhentos e dezoito check-ins nos Capítulos 3 e 4; um milhão, quatrocentos e sete mil e trinta e quatro no Capítulo 5. Eu não afirmo contenção entre as duas.</sub>
+<sub>Esta é a base de evidência inteira, dita uma vez só. Cinco estados do Gowalla e Istambul, do Massive-STEPS, e a ordem da tabela é a do documento, por número de regiões. As sete categorias são as mesmas nos três estudos: Community, Entertainment, Food, Nightlife, Outdoors, Shopping e Travel. Região é o setor censitário nos cinco conjuntos americanos e o *mahalle* em Istambul. Os dois particionam a cidade em escala de bairro, e não são o mesmo tipo de objeto: um é unidade de medida, o outro é unidade de governo. A última coluna diz qual capítulo usou qual conjunto.</sub>
 
 ---
 
 ## S11 · The metric all three studies share
-`slide **13** · PDF p.16` · **35 s** · fim previsto **9:50**
+`slide **11** · PDF p.14` · **59 s *(medido)*** · fim previsto **9:19**
 
 > ### ▶ A métrica de categoria dos três estudos é a macro-F1: a média das F1 por categoria, com cada categoria pesando igual.
 
@@ -215,21 +186,33 @@
 
 **✕ NUNCA** — chamar de "macro-F1" os valores impressos dos Caps. · 3 e 4 (são uma F1 por categoria). · Nunca ler a coluna Majority da Tab. · 8 como se fosse a macro-F1 do preditor de classe majoritária: uma é a fração de rótulos na classe mais comum, a outra é o resultado de um preditor.
 
-<sub>A métrica de categoria dos três estudos é a macro-F1: a média das F1 por categoria, com cada categoria pesando igual. A razão é a distribuição. Food é cerca de um terço dos check-ins num estado representativo, e uma acurácia simples esconderia o desempenho nas classes menores. Ela também tem um custo, e eu digo qual: a macro-F1 não mostra que classe melhorou, e pode ficar baixa mesmo com acurácia alta. Duas coisas que costumam ser perguntadas, e eu já respondo. A perda não é reponderada, é entropia cruzada sem peso. E toda macro-F1 que eu disser vem com o ponto de referência dela, que é o piso de classe majoritária.</sub>
+<sub>A métrica de categoria dos três estudos é a macro-F1: a média das F1 por categoria, com cada categoria pesando igual. A razão é a distribuição. Food é cerca de um terço dos check-ins num estado representativo, e uma acurácia simples esconderia o desempenho nas classes menores. Ela também tem um custo, e eu digo qual: a macro-F1 não mostra que classe melhorou, e pode ficar baixa mesmo com acurácia alta. E toda métrica que eu disser vem com ponto de referência. São dois, e nenhum é concorrente: o piso de classe majoritária, que sempre responde a categoria mais comum; e o piso de Markov, uma tabela de transição sobre as visitas de treino, que responde com o que mais costuma vir depois do quê --- primeira ordem para região, melhor ordem de cada conjunto para categoria.</sub>
 
 ---
 
-## S12 · The protocol of the first two studies, and two names that change
-`slide **14** · PDF p.17` · **50 s** · fim previsto **10:40**
+## S12 · The protocol of the first two studies
+`slide **12** · PDF p.15` · **50 s** · fim previsto **10:09**
 
 > ### ▶ O protocolo dos dois primeiros estudos, e ele é diferente do terceiro.
 
-**● DIZER EXATO**
-- sem trocar de slide
+**● COBRE** — INTRODUZ o protocolo dos dois primeiros estudos · INTRODUZ a lei dos verbos · INTRODUZ a armadilha do par de tarefas e a armadilha da convenção métrica · RETOMA a armadilha de nomenclatura de 1.5
 
 **✕ NUNCA** — "as mesmas janelas". · O Cap. · 5 usa janelas deslizantes sobrepostas, com passo 1, e os Caps. · 3 e 4 usaram janelas não sobrepostas.
 
-<sub>O protocolo dos dois primeiros estudos, e ele é diferente do terceiro. Validação cruzada de cinco partições, estratificada por amostra: os check-ins de um mesmo usuário podem cair dos dois lados da divisão. Orçamento cheio de épocas, sem parada antecipada, e cada tarefa lida na época de melhor validação dela. Médias e desvios entre as cinco partições, sem teste de significância. Daí sai a lei dos verbos que eu obedeço a fala inteira: *supera* fica reservado para teste pareado de superioridade, e os Capítulos 3 e 4 não têm teste, então eles reportam diferenças, não veredito. Faltam duas armadilhas de nome. A primeira: o par de tarefas muda. Nos dois primeiros é estática mais próxima categoria; no terceiro é próxima categoria mais próxima região. A segunda: a convenção métrica muda. Os Capítulos 3 e 4 imprimem uma F1 por categoria, e o Capítulo 5 reporta macro-F1, um número só. Não são a mesma escala, e toda tabela que eu reproduzir vai levar esse carimbo. E então, **sem trocar de slide** — sobre o divisor da Seção 3, antes da proveniência do capítulo: com o vocabulário, os dados e a métrica fixados uma única vez, cada estudo agora só precisa dizer o que mudou. O primeiro usou o que a literatura oferecia: um vetor por lugar e um tronco compartilhado.</sub>
+<sub>O protocolo dos dois primeiros estudos, e ele é diferente do terceiro. Validação cruzada de cinco partições, estratificada por amostra: os check-ins de um mesmo usuário podem cair dos dois lados da divisão. Orçamento cheio de épocas, sem parada antecipada, e cada tarefa lida na época de melhor validação dela. Médias e desvios entre as cinco partições, sem teste de significância. Daí sai a lei dos verbos que eu obedeço a fala inteira: *supera* fica reservado para teste pareado de superioridade, e os Capítulos 3 e 4 não têm teste, então eles reportam diferenças, não veredito. E uma convenção que eu digo agora e não repito: os Capítulos 3 e 4 imprimem uma F1 por categoria, e o Capítulo 5 reporta macro-F1, um número só. Não são a mesma escala, e eu volto a lembrar disso quando as tabelas aparecerem.</sub>
+
+---
+
+## S19 · DGI
+`slide **13** · PDF p.17` · **45 s** · fim previsto **10:54**
+
+> ### ▶ O primeiro mecanismo, e o desenho conta a história: parte-se do grafo real, faz-se uma cópia corrompida embaralhando as features entre os nós, as duas passam pela MESMA r…
+
+**● COBRE** — INTRODUZ o mecanismo do DGI · RETOMA a ideia infomax de 2.1 e o degrau do DGI em 2.7
+
+**✕ NUNCA** — "one-hot da própria categoria" como atributo de nó. · Nunca "coocorrência": este canal não existe no Cap. · Nunca "o DGI não vaza" (a formulação correta está no slide B4-LEAK).
+
+<sub>O primeiro mecanismo, e o desenho conta a história: parte-se do grafo real, faz-se uma cópia corrompida embaralhando as features entre os nós, as duas passam pela MESMA rede, e um discriminador julga se cada nó combina com o resumo global do grafo verdadeiro. É disso que sai o vetor, sem rótulo nenhum. Duas coisas que o desenho não diz e que importam. A primeira: a feature de entrada de um lugar é a média dos vizinhos dele com o próprio vetor excluído -- ou seja, a entrada descreve uma vizinhança, e não a lembrança do próprio rótulo. A segunda: o que sai é um vetor por lugar, e toda visita àquele lugar entra no modelo com o mesmo vetor. Guardem essa segunda, porque é ela que o Capítulo 5 desfaz.</sub>
 
 ---
 
@@ -237,21 +220,8 @@
 # MTLnet — Cap. 3 (CBIC)
 
 
-## S17 · One static task, one sequential task
-`slide **15** · PDF p.19` · **30 s** · fim previsto **11:10**
-
-> ### ▶ O par do primeiro estudo. Uma tarefa estática: ler a representação de um lugar e prever a categoria dele.
-
-**● COBRE** — INTRODUZ a dicotomia estática × sequencial que o Cap. 3 põe à prova · RETOMA as Defs. 2.6 e 2.7 e a armadilha de nome de S12
-
-**✕ NUNCA** — "prediz o próximo POI" ou "próximo lugar". · Neste capítulo Next-POI Prediction é a próxima categoria, e o carimbo está na tela.
-
-<sub>O par do primeiro estudo. Uma tarefa estática: ler a representação de um lugar e prever a categoria dele. E uma tarefa sequencial: ler um histórico de nove visitas e prever a categoria da próxima. Na superfície elas são relacionadas, porque saem dos mesmos dados e do mesmo espaço de sete categorias. Na natureza, não: uma depende das características intrínsecas de um lugar, a outra depende de ordem temporal e de transição. O capítulo entra no experimento com uma hipótese declarada, e ela é negativa: essa diferença é grande o bastante para limitar o que um tronco compartilhado consegue fazer pelas duas.</sub>
-
----
-
 ## S18 · MTLnet
-`slide **16** · PDF p.20` · **45 s** · fim previsto **11:55**
+`slide **14** · PDF p.18` · **45 s** · fim previsto **11:39**
 
 > ### ▶ Esta é a arquitetura, o MTLnet. Vale guardar a figura, porque o Capítulo 4 não vai alterar uma linha dela.
 
@@ -261,38 +231,12 @@
 
 **✕ NUNCA** — nenhum número do Cap. · 3 ao lado de um do Cap. · Nunca "backbone": o nome é tronco compartilhado.
 
-<sub>Esta é a arquitetura, o MTLnet. Vale guardar a figura, porque o Capítulo 4 não vai alterar uma linha dela. Cada tarefa entra por um encoder próprio, um MLP. Vem então a modulação FiLM, e ela cabe numa cláusula: um vetor de identidade de tarefa gera uma escala e um deslocamento, aplicados às features antes da parte compartilhada, de modo que as duas tarefas leiam os mesmos parâmetros sob escalas diferentes. Depois vem o tronco de blocos residuais, que é o compartilhamento rígido da Definição 2.10. E no fim duas saídas, uma por tarefa. O rodapé é o detalhe que vai importar daqui a dois slides: o capítulo declara os parâmetros em dois conjuntos disjuntos, os compartilhados e os específicos de tarefa. É sobre o primeiro conjunto que um balanceador de gradientes age.</sub>
-
----
-
-## S19 · DGI: how it works | why it was used
-`slide **17** · PDF p.21` · **45 s** · fim previsto **12:40**
-
-> ### ▶ O primeiro mecanismo, e ele responde uma pergunta que costuma vir.
-
-**● COBRE** — INTRODUZ o mecanismo do DGI · RETOMA a ideia infomax de 2.1 e o degrau do DGI em 2.7
-
-**✕ NUNCA** — "one-hot da própria categoria" como atributo de nó. · Nunca "coocorrência": este canal não existe no Cap. · Nunca "o DGI não vaza" (a formulação correta está no slide B4-LEAK).
-
-<sub>O primeiro mecanismo, e ele responde uma pergunta que costuma vir. O DGI roda aqui sobre um grafo de Delaunay dos lugares da área, com pesos de aresta que decaem com a distância geodésica entre dois lugares, por uma função logarítmica dela. Uma camada de atenção de grafo produz um vetor de 64 dimensões por lugar. O objetivo de treino é o infomax da Seção 2: distinguir o grafo real de uma versão com as features dos nós embaralhadas, contra um resumo global do grafo. Agora o atributo de nó, que é onde eu quero ser exato, porque a nota de rodapé do capítulo entregue registra isso. A implementação liberada alimenta a rede com a média dos one-hots dos vizinhos do lugar, com o vetor do próprio lugar excluído. A distinção muda como o embedding deve ser lido: a entrada descreve a vizinhança, então a tarefa estática que ele sustenta é homofilia espacial, e não recuperação do rótulo do próprio lugar. O que sai daí é um vetor por lugar. Toda visita àquele lugar entra no modelo com o mesmo vetor, e essa frase é a que o Capítulo 5 vai atacar.</sub>
-
----
-
-## S20 · Setup, and the protocol declared
-`slide **18** · PDF p.22` · **30 s** · fim previsto **13:10**
-
-> ### ▶ O setup em três linhas, e a terceira é a autodeclaração de protocolo que eu prometi na Seção 2.
-
-**● COBRE** — RETOMA os dados de 2.3, as sete categorias de 2.3 e o protocolo de 2.5
-
-**✕ NUNCA** — "as mesmas janelas" do Cap. · 5 (lá são sobrepostas, passo 1). · Nunca chamar a média por categoria deste capítulo de macro-F1.
-
-<sub>O setup em três linhas, e a terceira é a autodeclaração de protocolo que eu prometi na Seção 2. Os dados são a Flórida do Gowalla, vinte mil trezentos e um usuários, sessenta e cinco mil e nove lugares, novecentos e noventa mil quinhentos e dezoito check-ins, nas mesmas sete categorias. As sequências são janelas não sobrepostas de nove visitas, e quem tem menos de cinco visitas sai. O protocolo é o estratificado por amostra: cinco partições, uma semente, orçamento cheio de épocas, cada tarefa lida na melhor época de validação dela, e média com desvio entre as cinco partições. Sem teste de significância. É por isso que este capítulo reporta diferenças, e não veredito, e é por isso que eu não vou usar o verbo supera em nenhum slide desta seção.</sub>
+<sub>Esta é a arquitetura, o MTLnet. Vale guardar a figura, porque o Capítulo 4 não vai alterar uma linha dela. Cada tarefa entra por um encoder próprio, um MLP. Vem então a modulação FiLM, e ela cabe numa cláusula: um vetor de identidade de tarefa gera uma escala e um deslocamento, aplicados às features antes da parte compartilhada, de modo que as duas tarefas leiam os mesmos parâmetros sob escalas diferentes. Depois vem o tronco de blocos residuais, que é o compartilhamento rígido da Definição 2.10. E no fim duas saídas, uma por tarefa. O segundo item é o detalhe que vai importar no próximo slide: o capítulo declara os parâmetros em dois conjuntos disjuntos, os compartilhados e os específicos de tarefa. É sobre o primeiro conjunto que um balanceador de gradientes age.</sub>
 
 ---
 
 ## S21 · Two losses, one set of parameters
-`slide **19** · PDF p.23` · **40 s** · fim previsto **13:50**
+`sem página` · **70 s *(medido)*** · fim previsto **12:49**
 
 > ### ▶ Antes de eu nomear o otimizador, o problema que ele existe para resolver.
 
@@ -305,7 +249,7 @@
 ---
 
 ## S22 · Nash-MTL, and what the chapter may claim about it
-`slide **20** · PDF p.24` · **40 s** · fim previsto **14:30**
+`sem página` · **72 s *(medido)*** · fim previsto **14:01**
 
 > ### ▶ O Nash-MTL cai na segunda classe.
 
@@ -313,12 +257,12 @@
 
 **✕ NUNCA** — nenhuma afirmação de Pareto sobre os nossos modelos. · Nunca apresentar a adoção do Nash como posição atual da dissertação.
 
-<sub>O Nash-MTL cai na segunda classe. Ele muda a direção da atualização, tratando a combinação dos gradientes como uma barganha cooperativa entre as tarefas: cada tarefa tem uma utilidade, que é a redução da perda dela, e a direção escolhida é a que maximiza o produto dessas utilidades, o que evita que uma domine a outra. A garantia é convergência para um ponto Pareto-estacionário, que é condição necessária e não suficiente para otimalidade de Pareto; a otimalidade exigiria uma hipótese de convexidade que uma rede profunda não satisfaz. Agora a parte que eu preciso dizer com cuidado. O Capítulo 3 adotou o Nash porque, na comparação dele, contra o PCGrad e contra não usar balanceador nenhum, ele deu a menor perda multitarefa combinada. Isso é conclusão do tempo dele, enfraquecida depois por um achado sobre a implementação do otimizador, e o Capítulo 5 não se apoia nisso. O critério da Seção 2 continua de pé: um balanceador só é útil se melhorar sobre uma ponderação fixa bem ajustada.</sub>
+<sub>O Nash-MTL cai na segunda classe. Ele muda a direção da atualização, tratando a combinação dos gradientes como uma barganha cooperativa entre as tarefas: cada tarefa tem uma utilidade, que é a redução da perda dela, e a direção escolhida é a que maximiza o produto dessas utilidades, o que evita que uma domine a outra. A garantia é convergência para um ponto Pareto-estacionário, que é condição necessária e não suficiente para otimalidade de Pareto; a otimalidade exigiria uma hipótese de convexidade que uma rede profunda não satisfaz. Agora a parte que eu preciso dizer com cuidado. O Capítulo 3 adotou o Nash porque, na comparação dele, contra o PCGrad e contra não usar balanceador nenhum, ele deu a menor perda multitarefa combinada. Isso é conclusão do tempo dele, enfraquecida depois por um achado sobre a implementação do otimizador. O critério da Seção 2 continua de pé: um balanceador só é útil se melhorar sobre uma ponderação fixa bem ajustada.</sub>
 
 ---
 
-## S23 · The null result, shown rather than asserted
-`slide **21** · PDF p.25` · **55 s** · fim previsto **15:25**
+## S23 · The null result
+`slide **16** · PDF p.20` · **70 s *(medido)*** · fim previsto **15:11**
 
 > ### ▶ O resultado. Eu prefiro mostrá-lo a afirmá-lo, então são as duas tabelas do capítulo, reduzidas ao bloco de F1.
 
@@ -326,12 +270,12 @@
 
 **✕ NUNCA** — "ambas as baselines externas batidas em absoluto" (vale só na tarefa estática; · na sequencial o MHA+PE lidera Community, Food e Shopping). · Nunca "supera": não há teste pareado neste capítulo. · Nenhum número do Cap.
 
-<sub>O resultado. Eu prefiro mostrá-lo a afirmá-lo, então são as duas tabelas do capítulo, reduzidas ao bloco de F1. À esquerda, a tarefa estática: os nossos dois modelos ficam acima da HMRM em todas as categorias. À direita, a tarefa sequencial, e é aqui que está o ponto: as lideranças se dividem. O MHA+PE fica com a melhor F1 em Community, Food e Shopping; o nosso multitarefa, em Nightlife e Travel; o de tarefa única, em Entertainment e Outdoors. E a comparação que interessa é entre as nossas duas colunas, que é a comparação entre multitarefa e dedicado. A conclusão é a do próprio capítulo, e está na tela: largamente comparáveis, sem vantagem clara ou consistente para o arranjo multitarefa nestes experimentos. Boa parte dessas diferenças cai dentro do desvio padrão entre partições. Repito o carimbo, porque ele evita a comparação errada mais tarde: isto é F1 por categoria, a convenção dos Capítulos 3 e 4, e não é a macro-F1 do Capítulo 5.</sub>
+<sub>O resultado. Eu prefiro mostrá-lo a afirmá-lo, então são as duas tabelas do capítulo, reduzidas ao bloco de F1. À esquerda, a tarefa estática: os nossos dois modelos ficam acima da HMRM em todas as categorias. À direita, a tarefa sequencial, e é aqui que está o ponto: as lideranças se dividem. O MHA+PE fica com a melhor F1 em Community, Food e Shopping; o nosso multitarefa, em Nightlife e Travel; o de tarefa única, em Entertainment e Outdoors. E a comparação que interessa é entre as nossas duas colunas, que é a comparação entre multitarefa e dedicado. A conclusão é a do próprio capítulo, e está na tela: largamente comparáveis, sem vantagem clara ou consistente para o arranjo multitarefa nestes experimentos. Boa parte dessas diferenças cai dentro do desvio padrão entre partições. E uma precisão que evita a comparação errada mais tarde: isto é F1 por categoria, a convenção dos Capítulos 3 e 4, e não é a macro-F1 do Capítulo 5.</sub>
 
 ---
 
-## S24 · A null with three suspects
-`slide **22** · PDF p.26` · **25 s** · fim previsto **15:50**
+## S24 · The null result: three possible causes
+`slide **17** · PDF p.21` · **40 s *(medido)*** · fim previsto **15:51**
 
 > ### ▶ É aqui que o capítulo deixa de ser um resultado negativo e vira um programa de trabalho, porque ele nomeia três suspeitos, e não um.
 
@@ -343,16 +287,16 @@
 
 ---
 
-## S25 · A null with three suspects does not close the investigation
-`slide **23** · PDF p.27` · **20 s** · fim previsto **16:10**
+## S25 · Three possible causes do not close the investigation
+`slide **18** · PDF p.22` · **20 s** · fim previsto **16:11**
 
-> ### ▶ Um nulo com três suspeitos não encerra a investigação: ele desenha o próximo experimento.
+> ### ▶ Três causas possíveis não encerram a investigação: elas desenham o próximo experimento.
 
-**● COBRE** — RETOMA a bifurcação de 3.5
+**● COBRE** — RETOMA a bifurcação de 3.5 - ⚠ \specialframe sem \frametitle — o extrator do SPEECH não alcança este bloco e nunca vai alcançar. O cartão é emitido com sem página, e o texto só se confere lendo o corpo do frame. Foi assim que este
 
 **✕ NUNCA** — que o próximo capítulo responde os três suspeitos. · Ele condena um.
 
-<sub>Um nulo com três suspeitos não encerra a investigação: ele desenha o próximo experimento. Congelar a arquitetura e mover apenas a entrada.</sub>
+<sub>Três causas possíveis não encerram a investigação: elas desenham o próximo experimento. Congelar a arquitetura e mover apenas a entrada.</sub>
 
 ---
 
@@ -361,7 +305,7 @@
 
 
 ## S26 · Architecture or representation?
-`slide **24** · PDF p.29` · **40 s** · fim previsto **16:50**
+`slide **19** · PDF p.24` · **60 s *(medido)*** · fim previsto **17:11**
 
 > ### ▶ O segundo estudo pega a pergunta herdada e a transforma em experimento controlado.
 
@@ -369,25 +313,25 @@
 
 **✕ NUNCA** — ampliar crédito de autoria. · A linha do divisor é a redação da própria Introdução entregue, e não se acrescenta nada a ela.
 
-<sub>O segundo estudo pega a pergunta herdada e a transforma em experimento controlado. O gargalo é a representação, ou é a topologia de compartilhamento? Para separar as duas, ele mantém o MTLnet sem alterar uma linha: o mesmo tronco, a mesma modulação FiLM, o mesmo balanceador de gradientes, os mesmos hiperparâmetros. Só a entrada se move. A entrada antiga é o embedding monolítico de 64 dimensões do DGI. A entrada nova é a concatenação de três codificadores independentes, um espacial, um temporal e um categórico, de 64 dimensões cada, o que dá 192. E os encoders de tarefa projetam qualquer entrada para a mesma largura latente de 256 nos dois braços. É esse congelamento que faz o resultado ser diagnóstico, e não apenas melhor.</sub>
+<sub>O segundo estudo pega a pergunta herdada e a transforma em experimento controlado. O gargalo é a representação, ou é a topologia de compartilhamento? Para separar as duas, ele mantém o MTLnet sem alterar uma linha: o mesmo tronco, a mesma modulação FiLM, o mesmo balanceador de gradientes, os mesmos hiperparâmetros. Só a entrada se move. A entrada antiga é o embedding monolítico de 64 dimensões do DGI; a nova é a concatenação de três codificadores, de 64 dimensões cada, o que dá 192. Vou por partes.</sub>
 
 ---
 
-## S27 · HGI: how it works | why it was used
-`slide **26** · PDF p.31` · **55 s** · fim previsto **17:45**
+## S27 · HGI
+`slide **20** · PDF p.25` · **55 s** · fim previsto **18:06**
 
-> ### ▶ O segundo mecanismo. É o conceito que sustenta o resto da dissertação, então eu vou com calma.
+> ### ▶ O segundo mecanismo, e ele é o mesmo objetivo subindo uma hierarquia.
 
 **● COBRE** — INTRODUZ o mecanismo do HGI · RETOMA a ideia infomax de 2.1 e o degrau do HGI em 2.7
 
 **✕ NUNCA** — introduzir o Check2HGI aqui, que é do Cap. · Nunca Space2Vec nem POI2Vec como componentes deste trabalho.
 
-<sub>O segundo mecanismo. É o conceito que sustenta o resto da dissertação, então eu vou com calma. O HGI monta uma hierarquia de três níveis: lugar, região, cidade. Um codificador de categoria pré-treinado dá as features iniciais dos lugares; uma camada de convolução sobre um grafo de Delaunay da área acrescenta contexto espacial a cada um; uma atenção multi-cabeça agrega os embeddings dos lugares de uma região; e uma soma ponderada por área sobre as regiões produz um embedding de cidade. O que se maximiza é a informação mútua entre dois níveis adjacentes dessa hierarquia. A peça que faz isso é um discriminador bilinear, que combina dois embeddings por uma matriz aprendida e passa o resultado por uma função logística, e a perda premia pontuação alta para um par verdadeiro e baixa para um par falso. Nenhum rótulo de tarefa final entra nessa comparação. Há uma consequência do desenho que vai importar duas vezes mais adiante. O treino atualiza junto o codificador de lugar, a agregação e o codificador de região, e a pertinência a região ainda entra pelos pesos das arestas. Então a saída no nível de lugar não descreve o lugar isolado: ela já reflete a região a que o lugar pertence. E um limite que eu declaro junto: o HGI foi desenvolvido e avaliado para representação de região urbana, e esta dissertação reaproveita a saída de nível de lugar para predição sequencial, um uso que a avaliação original não cobre.</sub>
+<sub>O segundo mecanismo, e ele é o mesmo objetivo subindo uma hierarquia. Um codificador de categoria dá as features iniciais, uma convolução sobre o grafo de Delaunay acrescenta vizinhança, a atenção junta os lugares de uma região, as regiões conversam entre si, e uma soma ponderada pela área fecha na cidade. As comparações contrastivas acontecem em duas fronteiras: lugar contra região, e região contra cidade. E duas consequências, sendo que a segunda está na tela. A primeira é a que explica o resultado do próximo capítulo: o vetor de um lugar já carrega a região a que ele pertence. A segunda é a ressalva: o HGI foi construído para representar regiões urbanas, e eu uso aqui a saída de nível de lugar dele para predição sequencial -- um uso que a avaliação original não cobre.</sub>
 
 ---
 
 ## S28 · Why these encoders
-`slide **27** · PDF p.32` · **60 s** · fim previsto **18:45**
+`slide **21** · PDF p.26` · **90 s *(medido)*** · fim previsto **19:36**
 
 > ### ▶ Por que estes codificadores, e não outros quaisquer.
 
@@ -399,34 +343,34 @@
 
 ---
 
-## S29 · The caveat, then the number
-`slide **28** · PDF p.33` · **45 s** · fim previsto **19:30**
+## S26b · Architecture or representation? (a arte)
+`slide **22** · PDF p.27` · **18 s *(medido)* · ⚠ **deixou de ser 0 s**** · fim previsto **19:54**
 
-> ### ▶ Aqui a ordem importa mais que o número, então eu digo a ressalva primeiro, em uma cláusula, e sigo em frente.
+> ### ▶ E aqui está tudo junto, dentro do modelo que não mudou.
 
-**● COBRE** — INTRODUZ o resultado da tarefa estática do Cap. 4 e a ressalva de rótulo na entrada
+**● COBRE** — RETOMA a Fig. 2 do Cap. 4 (arte reproduzida). INTRODUZ nada.
 
-**✕ NUNCA** — número antes da ressalva. · "macro-F1 subiu 20 a 22" (são médias de F1 por categoria). · A faixa sem dizer que é melhor-de-dois. · Deixar o ganho estático falar pela tarefa sequencial.
+**✕ NUNCA** — nada de novo aqui. · O Task stamp é mandato da regra §8.5 (arte reproduzida dos Caps. · 3/4).
 
-<sub>Aqui a ordem importa mais que o número, então eu digo a ressalva primeiro, em uma cláusula, e sigo em frente. Depois da publicação, nós estabelecemos que a entrada da tarefa estática deste capítulo contém o rótulo que ela prevê: a feature de tipo de local mapeia um-para-um nas sete categorias de topo. A acurácia reportada nessa tarefa mede essa consulta, e não inferência semântica aprendida. A consequência é direta e eu prefiro dizê-la eu mesmo: o ganho estático não diz nada sobre a tarefa sequencial. Dito isso, o número. Na tarefa estática a entrada decomposta lidera nas vinte e uma combinações de categoria e estado, com ganhos médios por estado de vinte vírgula dois a vinte e dois pontos percentuais. E eu declaro o que essa faixa é: é o melhor dos dois codificadores espaciais em cada combinação, não é nenhum dos dois sozinho.</sub>
+<sub>E aqui está tudo junto, dentro do modelo que não mudou. Os encoders de tarefa projetam qualquer entrada para a mesma largura latente de 256 nos dois braços, e é esse congelamento que faz o resultado ser diagnóstico, e não apenas melhor.</sub>
 
 ---
 
 ## S30 · The diagnostic result is the sequential task
-`slide **29** · PDF p.35` · **60 s** · fim previsto **20:30**
+`slide **23** · PDF p.28` · **100 s *(medido)*** · fim previsto **21:34**
 
-> ### ▶ Agora a tarefa que produz o diagnóstico, que é a sequencial, e a razão é uma só: o alvo dela nunca está na entrada.
+> ### ▶ Antes dos números, a ressalva, porque ela decide como ler a tabela da esquerda: depois da publicação nós estabelecemos que a entrada da tarefa estática contém o rótulo qu…
 
 **● COBRE** — INTRODUZ o resultado sequencial do Cap. 4
 
 **✕ NUNCA** — "macro-F1". · Nunca "supera": este capítulo não tem teste pareado. · Nenhum número do Cap. · 5 nesta tela.
 
-<sub>Agora a tarefa que produz o diagnóstico, que é a sequencial, e a razão é uma só: o alvo dela nunca está na entrada. Na tela está a Flórida, com os três modelos lado a lado; Califórnia e Texas eu tenho prontos se a banca quiser. O cenário aqui é mais heterogêneo do que na tarefa estática, e continua favorável à entrada decomposta. Contando o melhor dos dois codificadores espaciais por combinação, os modelos espaço-temporais ficam com a média mais alta em quinze das vinte e uma combinações de categoria e estado, e o MTLnet, com a entrada original, retém seis. Uma dessas seis o capítulo chama, nas palavras dele, de um empate técnico adicional: é Outdoors na Flórida, onde a média do MTLnet fica dois centésimos de ponto percentual acima da melhor variante, dentro de um desvio padrão. Os maiores ganhos estão em Food, em que as duas variantes ficam acima nos três estados, com melhoria consistente também em Shopping e Community. E o carimbo de novo: isto é F1 por categoria, não é macro-F1.</sub>
+<sub>Antes dos números, a ressalva, porque ela decide como ler a tabela da esquerda: depois da publicação nós estabelecemos que a entrada da tarefa estática contém o rótulo que ela prediz. A feature de tipo de local mapeia um-para-um nas sete categorias. Então os números da esquerda medem uma consulta, não inferência semântica aprendida. O resultado diagnóstico é o da direita, a tarefa sequencial, cujo alvo nunca está na entrada. Na tela está a Flórida, com os três modelos lado a lado; Califórnia e Texas eu tenho prontos se a banca quiser. O cenário aqui é mais heterogêneo do que na tarefa estática, e continua favorável à entrada decomposta. Contando o melhor dos dois codificadores espaciais por combinação, os modelos espaço-temporais ficam com a média mais alta em quinze das vinte e uma combinações de categoria e estado, e o MTLnet, com a entrada original, retém seis. Uma dessas seis o capítulo chama, nas palavras dele, de um empate técnico adicional: é Outdoors na Flórida, onde a média do MTLnet fica dois centésimos de ponto percentual acima da melhor variante, dentro de um desvio padrão. Os maiores ganhos estão em Food, em que as duas variantes ficam acima nos três estados. E de novo a precisão: isto é F1 por categoria, não é macro-F1.</sub>
 
 ---
 
-## S31 · What the decomposition moved, and where it did not
-`slide **30** · PDF p.36` · **65 s** · fim previsto **21:35**
+## S31 · Three limits of the decomposition
+`slide **24** · PDF p.29` · **84 s *(medido)*** · fim previsto **22:58**
 
 > ### ▶ Três limites, e eu ofereço os três antes que me peçam.
 
@@ -434,12 +378,12 @@
 
 **✕ NUNCA** — "pareado em largura". · Deixar o ganho estático falar pela sequencial. · Ampliar crédito de autoria.
 
-<sub>Três limites, e eu ofereço os três antes que me peçam. O primeiro é o Travel, e ele precisa de rótulo de tarefa, senão a sala se confunde: Travel na classificação de categoria melhora, Travel na próxima categoria não. Na tarefa sequencial o MTLnet mantém a liderança na Flórida e na Califórnia, e a razão está escrita no capítulo: movimento de longa distância é esparso, e a topologia de grafo preserva relação entre lugares geograficamente distantes melhor do que um codificador baseado em coordenada. O segundo limite é que não existe codificador espacial universalmente melhor. O SIREN se destaca mais na Flórida e na Califórnia, o Sphere2Vec-M no Texas, e a adequação depende de como os lugares se distribuem em cada território. O terceiro é o que eu esperaria que a banca perguntasse, então eu digo primeiro: a comparação não é pareada em largura. São 192 dimensões contra 64. O capítulo declara isso como limite e pede um controle de dimensão equalizada, e eu não vou defender o ponto: parte do ganho pode vir da largura. Junto com isso, os três componentes entram sempre juntos, então este capítulo não isola a contribuição de cada codificador.</sub>
+<sub>Três limites, e eu ofereço os três antes que me peçam. O primeiro é o Travel, e ele precisa de rótulo de tarefa, senão a sala se confunde: Travel na classificação de categoria melhora, Travel na próxima categoria não. Na tarefa sequencial o MTLnet mantém a liderança na Flórida, e a razão está escrita no capítulo: movimento de longa distância é esparso, e a topologia de grafo preserva relação entre lugares geograficamente distantes melhor do que um codificador baseado em coordenada. O segundo limite é que não existe codificador espacial universalmente melhor. O SIREN se destaca mais na Flórida e na Califórnia, o Sphere2Vec-M no Texas, e a adequação depende de como os lugares se distribuem em cada território. O terceiro é o que eu esperaria que a banca perguntasse, então eu digo primeiro: a comparação não é pareada em largura. São 192 dimensões contra 64. O capítulo declara isso como limite e pede um controle de dimensão equalizada, e esse controle nunca foi executado. Eu não vou defender o ponto: parte do ganho pode vir da largura. Junto com isso, os três componentes entram sempre juntos, então este capítulo não isola a contribuição de cada codificador.</sub>
 
 ---
 
-## S32 · With the architecture fixed, the input moved the result
-`slide **31** · PDF p.37` · **35 s** · fim previsto **22:10**
+## S32 · Freeze the architecture, move only the input
+`slide **25** · PDF p.30` · **35 s** · fim previsto **23:33**
 
 > ### ▶ Com a arquitetura fixa, a entrada moveu o resultado: a representação é o gargalo.
 
@@ -456,7 +400,7 @@
 
 
 ## S33 · Three changes, each a consequence of the diagnosis
-`slide **32** · PDF p.39` · **60 s** · fim previsto **23:10**
+`slide **26** · PDF p.32` · **60 s** · fim previsto **24:33**
 
 > ### ▶ As três mudanças do último estudo, e nenhuma delas é preferência minha: as três são consequência do diagnóstico do capítulo anterior.
 
@@ -466,27 +410,27 @@
 
 **✕ NUNCA** — creditar qualquer uma das três mudanças a uma correção de vazamento. · "Prevê o próximo lugar".
 
-<sub>As três mudanças do último estudo, e nenhuma delas é preferência minha: as três são consequência do diagnóstico do capítulo anterior. A representação sai do nível de lugar para o nível de check-in, porque um vetor por lugar não distingue um almoço de quarta-feira de uma noite de sábado no mesmo lugar. A topologia sai do compartilhamento rígido para atenção cruzada entre fluxos por tarefa, com um caminho espacial privado na saída de região. E o protocolo sai do estratificado por amostra para validação cruzada com **usuários disjuntos**, quatro sementes, e testes fixados antes de qualquer resultado ser lido. Aqui eu cumpro o aviso que dei na Seção 2: **o par de tarefas muda**. Com uma entrada por visita, a classificação estática vira um par pouco natural, e o par passa a ser próxima categoria mais próxima região, dois alvos finais sequenciais. A restrição da abertura continua valendo: um artefato, uma passagem, duas respostas.</sub>
+<sub>As três mudanças do último estudo, e nenhuma delas é preferência minha: as três são consequência do diagnóstico do capítulo anterior. A representação sai do nível de lugar para o nível de check-in, porque um vetor por lugar não distingue um almoço de quarta-feira de uma noite de sábado no mesmo lugar. A topologia sai do compartilhamento rígido para atenção cruzada entre as duas tarefas, com um caminho espacial privado na saída de região. E o protocolo sai do estratificado por amostra para validação cruzada com **usuários disjuntos**, quatro sementes, e testes fixados antes de qualquer resultado ser lido. Aqui eu cumpro o aviso que dei na Seção 2: **o par de tarefas muda**. Com uma entrada por visita, a classificação estática vira um par pouco natural, e o par passa a ser próxima categoria mais próxima região, dois alvos finais sequenciais. A restrição da abertura continua valendo: um artefato, uma passagem, duas respostas.</sub>
 
 ---
 
 ## S34 · Next region: the task, and why it is worth predicting
-`slide **33** · PDF p.40` · **35 s** · fim previsto **23:45**
+`slide **27** · PDF p.33` · **52 s *(medido)*** · fim previsto **25:25**
 
 > ### ▶ Trabalho relacionado deste estudo, que os dois primeiros não têm, e a primeira metade é a tarefa nova.
 
 **● COBRE** — INTRODUZ a tarefa de próxima região e as suas motivações · RETOMA o eixo meio × fim de 2.6 e as contagens de região da Tab. 8 (2.3)
 
-**# NÚMEROS** — classes em Istambul a 8.501 na Califórnia: mais
+**# NÚMEROS** — 520 em Istambul a 8.501 na Califórnia. Ela
 
 **✕ NUNCA** — especulação sobre erro geográfico ou desempenho de serviço (§8 regra 16). · Afirmação de ineditismo mais forte que a entregue, que é escopada a "to our knowledge" e "underexplored".
 
-<sub>Trabalho relacionado deste estudo, que os dois primeiros não têm, e a primeira metade é a tarefa nova. Próxima região é classificação sobre as regiões candidatas do conjunto, de 520 classes em Istambul a 8.501 na Califórnia: mais grossa que lugar não quer dizer mais fácil. Prever sobre uma partição do mapa é a formulação padrão em mobilidade, com célula de grade como alvo; aqui entra no lugar dela a unidade administrativa de bairro. E onde a área já modela várias granularidades, categoria e região aparecem como sinais auxiliares de um alvo principal de próximo lugar. Eu estudo o par como objeto. O escopo vai junto com a motivação: preparação em nível de bairro, e nenhum serviço construído ou avaliado aqui.</sub>
+<sub>Trabalho relacionado deste estudo, que os dois primeiros não têm, e a primeira metade é a tarefa nova. O alvo é a região --- de 520 em Istambul a 8.501 na Califórnia. Ela cobre uma área maior que um lugar, então é um alvo mais fácil do que o lugar exato. Mas a tarefa não é fácil. Prever sobre uma partição do mapa é a formulação padrão em mobilidade, com célula de grade como alvo; aqui entra no lugar dela a unidade administrativa de bairro. E onde a área já modela várias granularidades, categoria e região aparecem como sinais auxiliares de um alvo principal de próximo lugar. Eu estudo o par como objeto. O escopo vai junto com a motivação: preparação em nível de bairro, e nenhum serviço construído ou avaliado aqui.</sub>
 
 ---
 
 ## S35 · Why a per-visit representation is new in this line
-`slide **34** · PDF p.41` · **25 s** · fim previsto **24:10**
+`slide **28** · PDF p.34` · **49 s *(medido)*** · fim previsto **26:14**
 
 > ### ▶ Segunda metade: por que uma representação por visita é nova nesta linha.
 
@@ -499,7 +443,7 @@
 ---
 
 ## S36 · Check2HGI: a fourth level below the place
-`slide **35** · PDF p.42` · **80 s** · fim previsto **25:30**
+`slide **29** · PDF p.35` · **80 s** · fim previsto **27:34**
 
 > ### ▶ O Check2HGI, e ele se apoia direto no HGI do capítulo anterior.
 
@@ -511,12 +455,12 @@
 
 **✕ NUNCA** — nenhum p-valor nesta subseção. · "Substrate" (palavra de repositório).
 
-<sub>O Check2HGI, e ele se apoia direto no HGI do capítulo anterior. O HGI tinha três níveis: lugar, região e cidade. O Check2HGI acrescenta **um quarto nível abaixo do lugar**, que é o próprio check-in. As arestas ligam cada nível ao de cima, ligam lugares próximos no nível de lugar, e ligam os check-ins consecutivos de um mesmo usuário, com um peso que decai conforme o intervalo entre as visitas cresce. Duas visitas ao mesmo lugar se encontram pelo nó de lugar, um nível acima. O treino é o objetivo infomax da Seção 2, agora um nível mais fundo: cada vetor aprende a reconhecer a vizinhança verdadeira e a rejeitar uma embaralhada. Junto com ele vão dois termos auxiliares pequenos, de pesos 0,3 e 0,1, e nenhum dos dois usa rótulo. Este é o ponto que eu quero deixar assentado antes de qualquer resultado: **o grafo nunca vê a próxima categoria nem a próxima região**. E do grafo treinado saem duas tabelas: um vetor de 64 dimensões por visita, e um vetor por região. São essas duas tabelas que o modelo da próxima tela vai ler.</sub>
+<sub>O Check2HGI, e ele se apoia direto no HGI do capítulo anterior. O HGI tinha três níveis: lugar, região e cidade. O Check2HGI acrescenta **um quarto nível abaixo do lugar**, que é o próprio check-in. As arestas ligam cada nível ao de cima, ligam lugares próximos no nível de lugar, e ligam os check-ins consecutivos de um mesmo usuário, com um peso que decai conforme o intervalo entre as visitas cresce. Duas visitas ao mesmo lugar se encontram pelo nó de lugar, um nível acima. O treino é o objetivo infomax da Seção 2, agora um nível mais fundo: cada vetor aprende a reconhecer a vizinhança verdadeira e a rejeitar uma embaralhada. Junto com ele vão dois termos auxiliares pequenos, de pesos 0,3 e 0,1, e nenhum dos dois usa rótulo. Este é o ponto que eu quero deixar assentado antes de qualquer resultado: **o grafo nunca vê a próxima categoria nem a próxima região**. E do grafo treinado saem duas tabelas: um vetor de 64 dimensões por visita, do nível de check-in, e um vetor de 64 dimensões por região, do nível de região. São essas duas tabelas que o modelo da próxima tela vai ler.</sub>
 
 ---
 
 ## S37 · What each visit contributes
-`slide **36** · PDF p.43` · **70 s** · fim previsto **26:40**
+`slide **30** · PDF p.36` · **70 s** · fim previsto **28:44**
 
 > ### ▶ O que cada visita contribui na entrada, e é aqui que está a informação que um vetor por lugar não consegue carregar.
 
@@ -528,41 +472,22 @@
 
 ---
 
-## S38 · The geometry of the vectors
-`slide **37** · PDF p.44` · **90 s** · fim previsto **28:10**
-
-> ### ▶ E este é o resultado da representação sozinha, antes de qualquer modelo.
-
-**● DIZER EXATO**
-- 0,57
-- 0,00
-- 0,98
-- 0,78
-
-**# NÚMEROS** — Ela dá cerca de 0,57 para a representação · check-in contra cerca de 0,00 para o embedding · próximos dá cerca de 0,98 contra 0,78. As
-
-**✕ NUNCA** — nenhum p-valor aqui, e nenhuma afirmação de significância sobre esta figura. · Nunca chamar a diferença de representação de "margem": margem é do TOST, e isto é uma diferença.
-
-<sub>E este é o resultado da representação sozinha, antes de qualquer modelo. A pergunta é simples: esses vetores por visita separam as sete categorias? A silhueta por categoria mede quão compactos e quão separados estão os grupos rotulados, numa escala de menos um a um. Ela dá cerca de **0,57** para a representação em nível de check-in contra cerca de **0,00** para o embedding por lugar. A pureza de categoria dos dez vizinhos mais próximos dá cerca de **0,98** contra **0,78**. As duas médias são sobre os cinco estados americanos. Duas ressalvas, e eu faço as duas antes de alguém pedir. A primeira: a figura caracteriza a **família** da representação, e não a configuração exata que eu avalio depois. É por isso que ela não precisa de partição, de semente nem de pareamento, e é por isso que ela pode vir antes do protocolo. A segunda: a mesma geometria **não** separa regiões. O benefício é de categoria, e o fluxo espacial do modelo lê os vetores de região do mesmo grafo, não estes. Nenhum p-valor nesta tela: aqui é geometria, e o teste vem depois, no bloco de resultados.</sub>
-
----
-
 ## S39 · The architecture: sharing by exchange
-`slide **38** · PDF p.45` · **90 s** · fim previsto **29:40**
+`slide **31** · PDF p.37` · **74 s *(medido)*** · fim previsto **29:58**
 
 > ### ▶ A arquitetura, e o que mudou no multitarefa. Cada tarefa tem a sua entrada.
 
 **● DIZER EXATO**
-- por troca de informação entre fluxos por tarefa
+- por troca de informação entre as duas tarefas
 
 **✕ NUNCA** — creditar transferência entre tarefas a partir desta tela. · "Backbone", "dual-tower", o identificador de repositório do modelo.
 
-<sub>A arquitetura, e o que mudou no multitarefa. Cada tarefa tem a sua entrada. A de categoria lê a janela de vetores por visita, que é o fluxo semântico. A de região lê a mesma janela de visitas, só que cada visita agora representada pelo vetor treinado do nó de região dela, que é o fluxo espacial. As duas passam por encoders privados, sem peso nenhum compartilhado. E o tronco compartilhado é uma pilha de dois blocos de atenção cruzada: em cada bloco a atenção deixa um fluxo ler as features do outro, enquanto cada um mantém os próprios pesos feed-forward. É esta a frase que eu quero que fique da tela: as tarefas compartilham **por troca de informação entre fluxos por tarefa**, e não por possuírem camadas ocultas em comum. Comparem com o Capítulo 3, onde tudo atravessava um tronco único e as tarefas só se separavam nas saídas. É a mesma família de modelos, com a topologia de compartilhamento trocada, e a topologia era um dos três suspeitos do nulo.</sub>
+<sub>A arquitetura, e o que mudou no multitarefa. Cada tarefa tem a sua entrada. A de categoria lê a janela de vetores por visita, que é o fluxo semântico. A de região lê a mesma janela de visitas, só que cada visita agora representada pelo vetor treinado do nó de região dela, que é o fluxo espacial. As duas passam por encoders privados, sem peso nenhum compartilhado. E o tronco compartilhado é uma pilha de dois blocos de atenção cruzada: em cada bloco a atenção deixa um fluxo ler as features do outro, enquanto cada um mantém os próprios pesos feed-forward. É esta a frase que eu quero que fique da tela: as tarefas compartilham **por troca de informação entre as duas tarefas**, e não por possuírem camadas ocultas em comum. Comparem com o Capítulo 3, onde tudo atravessava um tronco único e as tarefas só se separavam nas saídas. É a mesma família de modelos, com a topologia de compartilhamento trocada, e a topologia era um dos três suspeitos do nulo.</sub>
 
 ---
 
-## S40 · The private spatial path, and what the evidence does not separate
-`slide **39** · PDF p.46` · **90 s** · fim previsto **31:10**
+## S40 · The private spatial path
+`slide **32** · PDF p.38` · **90 s** · fim previsto **31:28**
 
 > ### ▶ Duas coisas fecham a arquitetura, e depois uma posição que eu preciso enunciar com precisão.
 
@@ -577,113 +502,85 @@
 ---
 
 ## S41 · Protocol, step 1 of 4: the unit of data
-`slide **40** · PDF p.47` · **60 s** · fim previsto **32:10**
+`slide **33** · PDF p.39` · **75 s *(medido)*** · fim previsto **32:43**
 
-> ### ▶ O protocolo, e ele é o degrau que sustenta tudo o que vem depois.
+> ### ▶ O protocolo, em quatro passos, e de cada um eu digo a razão.
 
-**● DIZER EXATO**
-- disjunta por usuário
-- sobrepostas, de passo um
-- estas não são as mesmas janelas
+**● COBRE** — INTRODUZ o split disjunto por usuário e as janelas sobrepostas de passo 1 · RETOMA o protocolo estratificado por amostra de 2.5
 
 **✕ NUNCA** — "as mesmas janelas" para os três estudos. · "Fold" como palavra solta na fala: a superfície em português é partição.
 
-<sub>O protocolo, e ele é o degrau que sustenta tudo o que vem depois. São quatro passos, e cada um responde a uma pergunta que o anterior deixa aberta. Primeiro passo: qual é a unidade de dados. Validação cruzada de cinco partições, **disjunta por usuário**: todas as janelas de um usuário ficam na mesma partição, então as visitas de um usuário de teste nunca aparecem no treino. Isto é exatamente a reparação da limitação que eu declarei no Capítulo 3. A estratificação é pelo rótulo da próxima categoria, porque as sete classes são desbalanceadas. As janelas são **sobrepostas, de passo um**: para cada usuário com pelo menos dez visitas, começa uma janela de nove visitas em cada visita, e a visita seguinte é o alvo; janelas curtas duplicadas, que terminam no mesmo alvo, são removidas. Repito o aviso da Seção 2: **estas não são as mesmas janelas** dos Capítulos 3 e 4, que usaram janelas não sobrepostas. E uma coisa que eu digo agora para não parecer descoberta depois: a partição retida é também a de validação, não há um terceiro corte, e é daí que sai o segundo dos meus limites.</sub>
+<sub>O protocolo, em quatro passos, e de cada um eu digo a razão. Primeiro, a unidade de dado. Validação cruzada de cinco partições, disjunta por usuário: todas as janelas de uma pessoa ficam do mesmo lado da divisão. Isso é o reparo direto da limitação que o Capítulo 3 declarou, em que os check-ins de um mesmo usuário caíam dos dois lados. E uma ressalva que eu dou antes de alguém pedir: a partição retida é a que serve de validação, e eu não reservo uma terceira divisão. É dela que sai o segundo limite que eu apresento no fim desta seção.</sub>
 
 ---
 
 ## S42 · Protocol, step 2 of 4: what is measured
-`slide **41** · PDF p.48` · **65 s** · fim previsto **33:15**
+`slide **34** · PDF p.40` · **101 s *(medido)*** · fim previsto **34:24**
 
-> ### ▶ Segundo passo: o que se mede. Na categoria, macro-F1, como eu defini na Seção 2, e o ponto de referência dela é o piso de classe majoritária, que fica entre 5,7 e 7,3 conforme o conjunto.
+> ### ▶ Segundo, o que se mede.
 
-**● DIZER EXATO**
-- 24,7% das visitas
-
-**# NÚMEROS** — majoritária, que fica entre 5,7 e 7,3 conforme · e ainda assim marca 5,7 de macro-F1, porque
+**● COBRE** — INTRODUZ Acc@10, o desconto OOD e o piso de Markov-1 · RETOMA macro-F1 e o piso de classe majoritária de 2.4
 
 **✕ NUNCA** — Acc@10 sem o desconto OOD. · Nenhum número sem o seu ponto de referência.
 
-<sub>Segundo passo: o que se mede. Na categoria, macro-F1, como eu defini na Seção 2, e o ponto de referência dela é o piso de classe majoritária, que fica entre 5,7 e 7,3 conforme o conjunto. Um exemplo concreto mostra por que essa métrica existe e a acurácia simples não: na Flórida esse piso acerta **24,7% das visitas** e ainda assim marca **5,7** de macro-F1, porque as outras seis categorias ele nunca acerta. Na região, acurácia em dez: a fração de visitas de teste cuja região verdadeira está entre as dez predições de maior pontuação. Ela não distingue o primeiro lugar do décimo, e eu declaro isso. E ela vem com um desconto, que é o ponto que mais gera pergunta: uma região que não aparece na partição de treino conta como **erro**. Então o que eu reporto é a acurácia em dez medida nas visitas dentro da distribuição, multiplicada por um menos a fração fora da distribuição. Os pontos de referência da região são dois. O modelo dedicado, que é a comparação controlada. E um piso de Markov de primeira ordem sobre transições de região, calculado sob as mesmas janelas e as mesmas partições, que alcança de 51 a 72 de acurácia em dez. Esse piso é alto de propósito: janelas de passo um fazem da última região visitada um preditor forte da próxima, e é exatamente esse sinal que uma tabela de transição lê.</sub>
+<sub>Segundo, o que se mede. Em categoria, macro-F1, e a razão é a distribuição: na Flórida, um preditor que sempre responde a categoria mais comum acerta vinte e quatro vírgula sete por cento das visitas e ainda assim marca cinco vírgula sete de macro-F1. É por isso que acurácia simples não é a métrica aqui: ela premiaria exatamente esse preditor. Em região, acurácia em dez, a fração de visitas cuja região verdadeira está entre as dez mais pontuadas. E eu digo o que ela não faz: não separa o primeiro lugar do décimo. Região ausente do treino conta como erro. Os pontos de referência são o modelo dedicado e o piso de Markov.</sub>
 
 ---
 
 ## S43 · Protocol, step 3 of 4: what is compared
-`slide **42** · PDF p.49` · **65 s** · fim previsto **34:20**
+`slide **35** · PDF p.41` · **99 s *(medido)*** · fim previsto **36:03**
 
-> ### ▶ Terceiro passo: o que se compara. A comparação é entre o modelo conjunto e os modelos dedicados, lendo a mesma representação, as mesmas janelas e as mesmas partições.
+> ### ▶ Terceiro, o que se compara. O modelo conjunto contra os dedicados, com a mesma representação, as mesmas janelas e as mesmas partições.
 
-**● DIZER EXATO**
-- vinte modelos ajustados por configuração
-- um único modelo salvo por partição
-- Todo veredito que eu vou dar é o da convenção estrita
-
-**# NÚMEROS** — modelo conjunto, em até 0,23 de macro-F1 e · 0,23 de macro-F1 e 0,93 de acurácia em
+**● COBRE** — INTRODUZ a semente como unidade de repetição, os vinte modelos ajustados, a unidade inferencial n = 4 e a convenção joint-best
 
 **✕ NUNCA** — "n = 20 repetições pareadas". · Misturar joint-best com a leitura por tarefa dos Caps. · 3 e 4 sem declarar. · "As mesmas partições" entre sementes: vale dentro de uma semente.
 
-<sub>Terceiro passo: o que se compara. A comparação é entre o modelo conjunto e os modelos dedicados, lendo a mesma representação, as mesmas janelas e as mesmas partições. Começo definindo semente, porque a palavra é ambígua na literatura. Aqui uma **semente** é uma repetição completa do experimento de cinco partições: ela fixa a inicialização aleatória **e** a divisão dos usuários, então cada semente sorteia a sua própria divisão. Dentro de uma semente, os modelos comparados leem a mesma partição, e é isso que licencia o pareamento. São quatro sementes, zero, um, sete e cem, vezes cinco partições, o que dá **vinte modelos ajustados por configuração**. Mas a unidade inferencial é **quatro**, as quatro médias por semente, porque partições dentro de uma semente não são independentes. E a convenção de leitura é a *joint-best*: as duas notas vêm de **um único modelo salvo por partição**, na época escolhida pela nota conjunta de validação, que é a média geométrica das duas métricas. Eu escolhi a convenção mais estrita de propósito. A alternativa, ler cada tarefa na melhor época dela, não descreve nenhum modelo salvo; ela é mais favorável ao modelo conjunto, em até 0,23 de macro-F1 e 0,93 de acurácia em dez numa semente, e viraria mais quatro resultados de categoria e mais dois de região em melhoras sob a mesma correção. **Todo veredito que eu vou dar é o da convenção estrita.**</sub>
+<sub>Terceiro, o que se compara. O modelo conjunto contra os dedicados, com a mesma representação, as mesmas janelas e as mesmas partições. E a convenção que decide qual número eu reporto: os dois resultados saem de um único modelo salvo por partição, escolhido pela média geométrica das duas métricas. Eu digo isso com todas as letras porque ela me custa caro: a convenção alternativa, ler cada tarefa na melhor época dela, é mais favorável ao modelo conjunto, e transformaria mais quatro células de categoria e mais duas de região em melhorias que sobrevivem à mesma correção. Eu escolhi a que produz menos vitórias, porque é a única que um sistema implantado consegue servir.</sub>
 
 ---
 
 ## S44 · Protocol, step 4 of 4: how it is decided
-`slide **43** · PDF p.50` · **65 s** · fim previsto **35:25**
+`slide **36** · PDF p.42` · **135 s *(medido)*** · fim previsto **38:18**
 
-> ### ▶ Quarto passo: como se decide. A primeira frase é a que organiza tudo: afirmar ganho e afirmar equivalência exigem testes diferentes, e uma diferença não significativa não é evidência de equivalência.
+> ### ▶ Quarto, como se decide, e o ponto é que um ganho afirmado e uma paridade afirmada exigem testes diferentes.
 
-**● DIZER EXATO**
-- afirmar ganho e afirmar equivalência exigem testes diferentes
-- reportado ao lado e concorda
-- resultados secundários, fora do plano
-
-**# NÚMEROS** — consegue ficar abaixo de 0,0625, qualquer que seja
+**● COBRE** — INTRODUZ o teste pareado de superioridade, o TOST na margem registrada, a correção de Holm e o desvio declarado do Wilcoxon
 
 **✕ NUNCA** — apresentar o desvio como confissão. · Aplicar a margem de dois pontos ao eixo de categoria. · "Significativo" sem nomear o teste.
 
-<sub>Quarto passo: como se decide. A primeira frase é a que organiza tudo: **afirmar ganho e afirmar equivalência exigem testes diferentes**, e uma diferença não significativa não é evidência de equivalência. Havia um plano de análise escrito, fixado durante o desenvolvimento e antes de qualquer resultado ser lido. Ele atribuiu um teste de superioridade à próxima categoria e um teste de não-inferioridade à próxima região, numa margem de dois pontos. A margem tem razão declarada: uma variação desse tamanho na acurácia em dez fica abaixo do nível em que a preparação em escala de bairro se comportaria de outro jeito. O teste primário é um t pareado sobre as quatro médias por semente, com intervalo de confiança de noventa por cento, e correção de Holm sobre os seis conjuntos, separadamente dentro de cada família de tarefa. Aqui eu declaro um desvio, porque ele existe e está no código: o plano registrava um Wilcoxon pareado sobre as vinte diferenças por partição. Ele é **reportado ao lado e concorda** com o t. O t carrega o veredito porque partições dentro de uma semente não são independentes, e porque, nesse apoio, o Wilcoxon exato unilateral não consegue ficar abaixo de 0,0625, qualquer que seja o efeito. Não é confissão: são dois apoios com o mesmo veredito. E duas consequências do plano, ditas antes dos números: ele não definiu teste de superioridade para região, então os dois ganhos de região que eu vou mostrar são **resultados secundários, fora do plano**; e ele não registrou margem de equivalência na categoria, então uma diferença de categoria que falha a superioridade é **não resolvida**, e é reportada pelo limite que o intervalo dela sustenta.</sub>
+<sub>Quarto, como se decide, e o ponto é que um ganho afirmado e uma paridade afirmada exigem testes diferentes. Para próxima categoria, superioridade: eu pergunto se o conjunto é melhor. Para próxima região, não-inferioridade, com margem de dois pontos registrada antes de qualquer resultado ser lido: eu pergunto se ele não é pior. Isso importa porque ausência de significância não é evidência de igualdade — dizer 'não deu diferença, logo empatou' é formalmente inválido, e é a prática corrente na literatura de multitarefa. O plano foi escrito antes. Teste t pareado, intervalo de noventa por cento, correção de Holm sobre os seis conjuntos. E um desvio declarado: o plano registrava Wilcoxon, e com quatro sementes o Wilcoxon exato não desce abaixo de zero vírgula zero seiscentos e vinte e cinco. Ele não podia decidir nada. Continua reportado ao lado, como sensibilidade, com os dois testes no código publicado. E o asterisco que está na tela: o protocolo estatístico foi refinado depois, com base na literatura. É posterior ao que a banca recebeu, e não muda nenhum veredito.</sub>
 
 ---
 
-## S45 · Result 1: the representation, at every dataset
-`slide **44** · PDF p.51` · **110 s** · fim previsto **37:15**
+## S45 · Result 2: the representation, at every dataset
+`sem página` · **48 s *(medido)*** · fim previsto **39:06**
 
-> ### ▶ Primeiro resultado, e ele é sobre a representação sozinha, não sobre o multitarefa.
+> ### ▶ Segundo resultado, e é o mais controlado da dissertação: só a entrada muda.
 
-**● DIZER EXATO**
-- Só a entrada muda
-- à frente nos seis
-- unânime nas cinco partições em todos eles
-- cinco dos seis
-- direção consistente
-- o que eles não fazem é isolar a hierarquia
-
-**# NÚMEROS** — a p igual a 0,07, onde a direção · salto da tabela, mais 0,23. A faixa vai · faixa vai desse mais 0,23 na Flórida a · na Flórida a mais 6,29 em Istambul. O
+**● COBRE** — INTRODUZ o resultado de representação (Tab. 9) e os dois controles · RETOMA CTLE de 5.2A
 
 **✕ NUNCA** — "o nível de check-in bate o de lugar nos seis" no sentido de teste: o teste separa em cinco. · Nunca generalizar a cláusula do capítulo "under a tenth of the place-to-check-in gap": ela é dita por estado, e generalizá-la é aritmeticamente falso contra a própria Tabela 9, na mesma página. · Nunca chamar a diferença de representação de "margem".
 
-<sub>Primeiro resultado, e ele é sobre a representação sozinha, não sobre o multitarefa. A comparação é controlada: mesmo alvo, mesmo modelo de tarefa única, mesma configuração de treino, mesmas partições, mesmas janelas, mesmo orçamento de épocas, mesmo ajuste de logit. **Só a entrada muda.** A convenção desta tabela é a semente zero, com cinco partições pareadas, e o desvio é entre partições; guardem isso, porque a próxima tabela tem outra convenção. A leitura é a da própria tabela, não a minha: o nível de check-in está **à frente nos seis** conjuntos, e é **unânime nas cinco partições em todos eles**; um teste pareado sobre as cinco partições separa as duas colunas em **cinco dos seis**, e a Flórida é a exceção, a p igual a 0,07, onde a direção é unânime mas a diferença não alcança significância. E a Flórida ser a exceção não é acaso: ela é o menor salto da tabela, mais 0,23. A faixa vai desse mais 0,23 na Flórida a mais 6,29 em Istambul. O que isso estabelece é uma **direção consistente**, não um efeito grande. À direita, os dois controles que separam esse ganho de duas explicações mais baratas. O CTLE, que é a contextualização mais próxima, fica cerca de dois pontos abaixo do embedding por lugar na Flórida sob a mesma regra, e repete a ordenação com pesos fixos no Alabama, no Arizona e em Istambul. E a concatenação de features cruas ao embedding por lugar levanta esse embedding em 2,0, 1,7 e 0,8 ponto de macro-F1, no Alabama, no Arizona e na Flórida. Os dois controles limitam explicações mais baratas; **o que eles não fazem é isolar a hierarquia**. O controle de concatenação foi refeito depois do envio, na escala da Tabela 9, e lá ele fecha a maior parte da diferença — num conjunto, a ultrapassa. Tenho o slide, se quiserem vê-lo.</sub>
+<sub>Segundo resultado, e é o mais controlado da dissertação: só a entrada muda. Mesmo alvo, mesmo modelo, mesma configuração de treino, mesmas partições, mesmas janelas. A coluna da esquerda é a representação em nível de check-in, a do meio é o embedding por lugar, e a da direita é a diferença. Ela é positiva nos seis conjuntos, de mais zero vírgula vinte e três na Flórida a mais seis vírgula vinte e nove em Istambul. O desvio ao lado é entre as cinco partições, com semente zero. Um teste pareado separa as duas colunas em cinco dos seis conjuntos; a Flórida é a exceção, com p igual a zero vírgula zero sete.</sub>
 
 ---
 
-## S46 · Result 2: one model, two tasks
-`slide **45** · PDF p.52` · **120 s** · fim previsto **39:15**
+## S46 · Result 3: one model, two tasks
+`sem página` · **195 s *(medido)*** · fim previsto **42:21**
 
-> ### ▶ Segundo resultado. E uma frase sobre a coluna do meio, antes de eu ler as duas nossas, porque ela muda o que as outras duas significam: a coluna Dedicated é o sistema mais forte desta tabela.
+> ### ▶ Segundo resultado, e é o que decide a tese. Duas tabelas, uma por tarefa: à esquerda a categoria, à direita a região, com três sistemas externos.
 
-**● DIZER EXATO**
-- pelo menos três vírgula zero seis pontos
-- entre sementes
-
-**# NÚMEROS** — POI-RGNN em pelo menos 3,06 pontos nos seis · na tela, fica entre 5,7 e 7,3. Na · forte em pelo menos 3,55 pontos de acurácia
+**● COBRE** — INTRODUZ a Tab. 10 e os resultados dos métodos externos do Cap. 5 · RETOMA o mapa de métodos de referência de 2.6
 
 **✕ NUNCA** — "empata", "matches", "ties", "em todos os conjuntos supera". · "Beats" ou "wins" para os métodos externos: o verbo é excede. · Nunca um número do Cap. · 3 nesta tela.
 
-<sub>Segundo resultado. E uma frase sobre a coluna do meio, antes de eu ler as duas nossas, porque ela muda o que as outras duas significam: a coluna **Dedicated** é o sistema mais forte desta tabela. Ela está acima de todo baseline externo reportado, nos seis conjuntos e nas duas tarefas, e acima do piso de Markov também. Então o que vocês vão ver não é o modelo conjunto igualando um espantalho: é ele igualando a régua mais dura que eu tenho. E o capítulo põe número nisso: o conjunto fica **pelo menos três vírgula zero seis pontos** acima do baseline externo mais forte em todos os conjuntos, enquanto a diferença entre um modelo e dois é **meio ponto**. É o menor dos três efeitos em jogo aqui, e é nesse sentido que um modelo pode substituir dois. Em cima, a próxima categoria; embaixo, a próxima região; os mesmos seis conjuntos, na mesma ordem, nos dois blocos. Primeiro a convenção, porque ela mudou: aqui são quatro sementes vezes cinco partições, e o desvio é **entre sementes**, não entre partições como na tabela anterior. A ressalva vem antes da leitura: o modelo dedicado de categoria teve busca de configuração em todos os seis conjuntos, e o conjunto **não** teve busca no Texas nem na Califórnia, que carregam configuração transferida. Onde a busca do dedicado é a mais ampla, o resíduo favorece o dedicado, o que torna a diferença de categoria que eu reporto conservadora ali. A comparação que sustenta a minha afirmação é entre as colunas **Dedicated** e **Joint**, porque essas duas leem a mesma representação, as mesmas janelas e as mesmas partições. As colunas externas estão aqui como comparação com desenhos publicados, e elas rodam com as representações delas, então trazem junto a vantagem de representação do slide anterior. Na categoria, o conjunto excede o POI-RGNN em pelo menos 3,06 pontos nos seis, e o piso de classe majoritária, que não está na tela, fica entre 5,7 e 7,3. Na região, o conjunto excede a referência externa mais forte em pelo menos 3,55 pontos de acurácia em dez. O STAN e o ReHDM não estão na tela, e a razão é a ressalva de protocolo: o STAN roda nas nossas partições mas constrói as próprias representações e as próprias sequências, e o ReHDM roda sob o protocolo publicado dele. E eu vou dizer uma coisa contra mim mesmo, porque ela está no capítulo: o piso de Markov, que é um método não aprendido, fica **acima** desses três sistemas externos na maioria dos conjuntos. É por isso que eu trato o piso, e não os externos, como a referência que a tarefa de região tem de exceder. O conjunto e o dedicado estão acima do piso nos seis.</sub>
+<sub>Segundo resultado, e é o que decide a tese. Duas tabelas, uma por tarefa: à esquerda a categoria, à direita a região, com três sistemas externos. Primeiro a comparação limpa. Em categoria, o conjunto fica pelo menos três vírgula zero seis pontos acima do POI-RGNN nos seis conjuntos, e o POI-RGNN é nativo da tarefa. Em região, fica acima do melhor externo de cada conjunto, também nos seis. Agora a ressalva de protocolo, porque os três não chegam em pé de igualdade. Só o HMT-GRN roda nos nossos dados, nas nossas partições e nas nossas inicializações. O STAN roda nas nossas partições mas constrói as próprias representações e as próprias sequências, e em dois conjuntos com partições incompletas. O ReHDM roda sob o protocolo publicado dele. E agora a coisa mais interessante do capítulo, e ela é contra eles, não a meu favor: o piso de Markov de primeira ordem, uma tabela de transição sem aprendizado nenhum, fica acima desses três sistemas na maioria dos conjuntos — acima do HMT-GRN nos seis. É por isso que eu trato o piso, e não os externos, como a referência que a próxima região tem de exceder. O conjunto excede o piso por quatro vírgula um a dez pontos. Os números vêm de quatro sementes por cinco partições; a dispersão e os intervalos estão no próximo slide, que é onde o veredito é decidido.</sub>
 
 ---
 
 ## S47 · The verdict, dataset by dataset
-`slide **46** · PDF p.53` · **100 s** · fim previsto **40:55**
+`slide **39** · PDF p.45` · **121 s *(medido)*** · fim previsto **44:22**
 
 > ### ▶ E este é o veredito, com o intervalo de cada diferença.
 
@@ -703,8 +600,8 @@
 
 ---
 
-## S48 · The measured trade, and four declared limits
-`slide **47** · PDF p.54` · **75 s** · fim previsto **42:10**
+## S48 · Limitations and trade-offs
+`slide **40** · PDF p.46` · **119 s *(medido)*** · fim previsto **46:21**
 
 > ### ▶ A troca, medida, e depois quatro limites que eu ofereço antes de alguém pedir.
 
@@ -712,16 +609,20 @@
 - operacional, não aritmético
 - todo escore absoluto que eu reportei é otimista
 
-**# NÚMEROS** — capítulo reporta cerca de 4,2 milhões de parâmetros · parâmetros no Alabama contra 1,1 milhão dos dois · dois dedicados somados, e 5,2 contra 2,0 na · pequenos, o maior deles 0,87 no Alabama: é
+**# NÚMEROS** — capítulo reporta cerca de 4,2 milhões no Alabama · milhões no Alabama contra 1,85 milhão dos dois · dois dedicados somados, e 5,2 contra 2,8 na · 2,8 na Califórnia. São 2,3 vezes e 1,8
 
 **✕ NUNCA** — repetir a razão de parâmetros como se tivesse sido re-medida, e nunca citar uma recontagem. · Se a pergunta vier, a resposta é que a razão de parâmetros não foi re-medida. · Nunca citar as duas porcentagens de parâmetros impressas no Apêndice G do suplemento: elas estão erradas, e o assunto é do slide B3.
 
-<sub>A troca, medida, e depois quatro limites que eu ofereço antes de alguém pedir. A troca primeiro: o modelo conjunto é **maior**. O capítulo reporta cerca de 4,2 milhões de parâmetros no Alabama contra 1,1 milhão dos dois dedicados somados, e 5,2 contra 2,0 na Califórnia; uma passagem custa mais computação do que rodar os dois modelos pequenos. O que o modelo único entrega é **operacional, não aritmético**: um artefato para treinar, versionar e implantar, e uma passagem cujas entradas produzem as duas respostas de uma vez. E os quatro resultados de região dentro da margem são déficits pequenos, o maior deles 0,87 no Alabama: é uma troca medida, não uma substituição de graça. Os quatro limites. Primeiro: a representação é treinada uma vez sobre todos os lugares; uma reconstrução por partição, só com usuários de treino, mudou os resultados em no máximo 0,33 de acurácia em dez e 0,29 de macro-F1, em três conjuntos e numa semente, e a metade de categoria dessa verificação cobre de 67 a 87 por cento dos dados de validação. Segundo: a seleção de época consulta a mesma partição em que a nota é depois lida, então **todo escore absoluto que eu reportei é otimista**; a comparação entre conjunto e dedicado é bem menos afetada, porque a regra é a mesma para os dois nas mesmas partições e porque o dedicado de categoria recebe a busca mais ampla, mas daí não segue que o viés se cancele exatamente. Terceiro: eu não construo nem avalio serviço nenhum. Quarto: cada nó de visita se apoia só nas visitas que o precedem, e o grafo não passa informação de uma visita posterior para uma anterior, nem no treino nem na leitura.</sub>
+<sub>A troca, medida, e depois quatro limites que eu ofereço antes de alguém pedir. A troca primeiro: o modelo conjunto é **maior**. O capítulo reporta cerca de 4,2 milhões no Alabama contra 1,85 milhão dos dois dedicados somados, e 5,2 contra 2,8 na Califórnia. São 2,3 vezes e 1,8 vezes; uma passagem custa mais computação do que rodar os dois modelos pequenos. O que o modelo único entrega é **operacional, não aritmético**: um artefato para treinar, versionar e implantar, e uma passagem cujas entradas produzem as duas respostas de uma vez. E os quatro resultados de região dentro da margem são déficits pequenos, o maior deles 0,87 no Alabama: é uma troca medida, não uma substituição de graça. Os quatro limites. Primeiro: a representação é treinada uma vez sobre todos os lugares; uma reconstrução por partição, só com usuários de treino, mudou os resultados em no máximo 0,33 de acurácia em dez e 0,29 de macro-F1, em três conjuntos e numa semente, e a metade de categoria dessa verificação cobre de 67 a 87 por cento dos dados de validação. Segundo: a seleção de época consulta a mesma partição em que a nota é depois lida, então **todo escore absoluto que eu reportei é otimista**; a comparação entre conjunto e dedicado é bem menos afetada, porque a regra é a mesma para os dois nas mesmas partições e porque o dedicado de categoria recebe a busca mais ampla, mas daí não segue que o viés se cancele exatamente. Terceiro: eu não construo nem avalio serviço nenhum. Quarto: cada nó de visita se apoia só nas visitas que o precedem, e o grafo não passa informação de uma visita posterior para uma anterior, nem no treino nem na leitura.</sub>
 
 ---
 
-## S49 · The ladder: three studies, three layers
-`slide **48** · PDF p.56` · **30 s** · fim previsto **42:40**
+
+# CONCLUSÃO — a resposta condicional
+
+
+## S49 · Three studies, three layers
+`slide **41** · PDF p.48` · **30 s** · fim previsto **46:51**
 
 > ### ▶ Uma tela em que a coletânea inteira cabe. Três linhas, os três estudos.
 
@@ -733,12 +634,8 @@
 
 ---
 
-
-# CONCLUSÃO — a resposta condicional
-
-
 ## S50 · The conditional answer
-`slide **49** · PDF p.57` · **55 s** · fim previsto **43:35**
+`slide **42** · PDF p.49` · **55 s** · fim previsto **47:46**
 
 > ### ▶ A resposta consolidada, e ela é condicional de propósito.
 
@@ -750,47 +647,47 @@
 
 ---
 
-## S51 · The contribution, in one block
-`slide **50** · PDF p.58` · **45 s** · fim previsto **44:20**
+## S51 · Contributions
+`slide **43** · PDF p.50` · **45 s** · fim previsto **48:31**
 
-> ### ▶ Esta é a mesma tela que eu mostrei no começo, com as mesmas palavras, e agora ela tem a evidência atrás.
+> ### ▶ A contribuição, em duas metades. A prática: um modelo, uma passagem, duas predições --- um artefato para treinar, versionar e implantar, no lugar de dois.
 
 **● COBRE** — RETOMA a contribuição de 1.5 (§8 regra 13: segunda das duas aparições, redação idêntica)
 
 **✕ NUNCA** — redação diferente da de S7, mesmo que melhor. · Nenhum número novo. · Nunca a razão de parâmetros como verificada: o slide diz "maior", que é o que a página imprime, e nada além.
 
-<sub>Esta é a mesma tela que eu mostrei no começo, com as mesmas palavras, e agora ela tem a evidência atrás. A metade prática: um modelo, uma passagem, duas predições. O ganho é operacional, não computacional, um artefato para treinar, versionar e implantar. E o preço vai junto: o modelo conjunto é maior que os dois dedicados que ele substitui. A metade científica: as condições, não um sim universal. A representação de entrada e a topologia de compartilhamento decidem se o multitarefa ajuda nestas tarefas. É por isso que o nulo do Capítulo 3 e o resultado positivo do Capítulo 5 não se contradizem.</sub>
+<sub>A contribuição, em duas metades. A prática: um modelo, uma passagem, duas predições --- um artefato para treinar, versionar e implantar, no lugar de dois. O ganho é operacional, não computacional: o conjunto é o artefato maior. Mais o Check2HGI publicado, que é a parte reutilizável, e o protocolo de avaliação, liberado com o código. A científica: acima de todo sistema externo que eu rodei, nas duas tarefas; resultados de referência para a próxima região, uma tarefa que não tinha protocolo fixado; e três condições sobre quando o multitarefa ajuda --- a representação de entrada, estabelecida por comparação controlada, e a arquitetura e a escala, sugeridas e não isoladas.</sub>
 
 ---
 
-## S52 · Six limitations, six next steps (1 of 2)
-`slide **51** · PDF p.59` · **65 s** · fim previsto **45:25**
+## S52 · Limitations
+`slide **44** · PDF p.51` · **105 s *(estimado — as falas dos dois slides antigos fundiram-se aqui)*** · fim previsto **50:16**
 
 > ### ▶ As limitações, cada uma amarrada ao passo que ela pede.
 
-**● COBRE** — INTRODUZ as limitações 1, 2 e 3 e os três trabalhos futuros correspondentes
+**● COBRE** — INTRODUZ as SEIS limitações
 
-**✕ NUNCA** — apresentar uma limitação sem o passo que ela pede. · ablation na tela ou na fala: o termo não está no GLOSSARY, e a superfície usada é "teste controlado". · As datas não são resultado, e nenhum número de resultado entra aqui.
+**✕ NUNCA** — que o confundimento de par de tarefas foi removido; · ele é limitado pelo controle de par fixo. · ablation — o termo não está no GLOSSARY; · a superfície é "teste controlado".
 
-<sub>As limitações, cada uma amarrada ao passo que ela pede. Eu prefiro dizê-las antes de serem perguntadas. Não são desculpas: são seis experimentos que alguém pode rodar. Primeira, a idade dos dados. Os cinco estados vão de janeiro de 2009 a agosto de 2011, e Istambul tem check-ins em dois blocos, 2012 a 2013 e 2017 a 2018, com cerca de sete em cada dez no bloco mais antigo. O passo é direto: rastros mais novos e mais densos. Segunda, a taxonomia é grossa. Sete classes de topo, e uma divisão mais fina pode mudar o efeito do treino conjunto. Terceira, e esta é a que eu mais gostaria de ver feita: a representação é transdutiva. Treinada sobre o grafo de check-ins de cada conjunto, ela não representa lugar nem usuário novo sem retreinar. O passo é uma variante indutiva, que sustentaria uso numa cidade que cresce. E, na mesma representação, dois testes controlados: variar o acoplamento com a tabela de vetores de lugar pré-treinada, e uma formulação em hipergrafo, em que uma aresta junta as várias visitas de uma sessão.</sub>
+<sub>As limitações, cada uma amarrada ao passo que ela pede. Eu prefiro dizê-las antes de serem perguntadas. Não são desculpas: são experimentos que alguém pode rodar. Primeira, a idade dos dados. Os cinco estados vão de janeiro de 2009 a agosto de 2011, e Istambul tem check-ins em dois blocos, 2012 a 2013 e 2017 a 2018, com cerca de sete em cada dez no bloco mais antigo. E vale dizer de quem é a limitação: a antiguidade dos dados não é só deste trabalho. Nenhum conjunto público de check-ins com trajetória de usuário passa de 2018 --- nem o Massive-STEPS, de 2025, que foi publicado para resolver exatamente isso. Segunda, a taxonomia é grossa. Sete classes de topo, e uma divisão mais fina pode mudar o efeito do treino conjunto. Terceira, e esta é a que eu mais gostaria de ver feita: a representação é transdutiva. Treinada sobre o grafo de check-ins de cada conjunto, ela não representa lugar nem usuário novo sem retreinar. O passo é uma variante indutiva, que sustentaria uso numa cidade que cresce. E, na mesma representação, dois testes controlados: variar o acoplamento com a tabela de vetores de lugar pré-treinada, e uma formulação em hipergrafo, em que uma aresta junta as várias visitas de uma sessão. ele virou "Future work". Palavras inalteradas: so mudaram de frame, porque o slide passou a carregar os seis limites. A do limite 6 e a fala do Future work ficam DEVIDAS ao gate. Quarta: eu não predigo o próximo lugar exato, então as conclusões valem para próxima categoria e próxima região. Quinta: fora dos Estados Unidos, a evidência se apoia numa cidade só. Mais cidades ampliam a base.</sub>
 
 ---
 
-## S53 · Six limitations, six next steps (2 of 2)
-`slide **52** · PDF p.60` · **65 s** · fim previsto **46:30**
+## S53 · Future work
+`slide **45** · PDF p.52` · **78 s *(estimado)*** · fim previsto **51:34**
 
-> ### ▶ Quarta: eu não predigo o próximo lugar exato, então as conclusões valem para próxima categoria e próxima região.
+> ### ▶ Três frentes, e são as mesmas três de que a resposta depende: a representação, a topologia e a escala.
 
-**● COBRE** — INTRODUZ as limitações 4, 5 e 6 e os três trabalhos futuros correspondentes
+**● COBRE** — INTRODUZ os trabalhos futuros, agrupados por eixo
 
-**✕ NUNCA** — que o confundimento de par de tarefas foi removido; · ele é limitado pelo controle de par fixo. · pipeline: a superfície é "como as entradas são construídas". · ablation.
+**✕ NUNCA** — GSM++ — o deck nunca introduziu a sigla e o §8.11 é fail-closed; · a intenção entra como attention-based graph encoders.
 
-<sub>Quarta: eu não predigo o próximo lugar exato, então as conclusões valem para próxima categoria e próxima região. Acrescentar o próximo lugar como terceiro alvo reusa a representação que já existe: muda a construção da entrada e acrescenta uma saída. Quinta: fora dos Estados Unidos, a evidência se apoia numa cidade só. Mais cidades ampliam a base. Sexta, e é a mais honesta das seis. O par de tarefas mudou junto com a representação e com a topologia, e nenhuma comparação controlada isolada separa as duas mudanças no resultado final. O que eu tenho é o Capítulo 4 como controle de par fixo para o diagnóstico. E eu sei por que a comparação óbvia não serve: rodar a tarefa estática sob a representação em nível de check-in não é limpa, porque a categoria do lugar visitado é atributo de entrada do nó de check-in, e o alvo ficaria parcialmente legível da própria entrada. Isso decorre do desenho, e não foi medido. O confundimento fica limitado pelo controle de par fixo, não removido. O passo que resolveria é um alvo estático que a representação não carregue já como entrada.</sub>
+<sub>Três frentes, e são as mesmas três de que a resposta depende: a representação, a topologia e a escala. Duas delas o próprio trabalho classifica como apenas sugeridas --- é aí que está o espaço. Na representação, a que eu mais gostaria de ver feita: torná-la indutiva. Hoje ela não representa lugar nem usuário novo sem retreinar, e uma cidade que cresce precisa disso. Na topologia, o próximo lugar exato: a tarefa mais visível da literatura está a uma cabeça de distância da representação que já existe. E treinar os dois estágios num só --- hoje a representação é aprendida sem rótulo e depois congelada; unificar é descobrir se ela continua agnóstica quando os gradientes das tarefas chegam nela. Na escala, a que eu devo: Texas e Califórnia são os dois que ganham, os dois com mais regiões, e os dois com mais dados. Separar as duas explicações exige um experimento controlado. E há mais três que não estão na tela: uma ablação da âncora da tabela de lugares, um alvo estático que a representação não carregue como entrada, e o Check2HGI dentro de outras arquiteturas de mobilidade.</sub>
 
 ---
 
 ## S54 · Closing
-`slide **53** · PDF p.61` · **70 s** · fim previsto **47:40**
+`slide **46** · PDF p.53` · **50 s *(medido)*** · fim previsto **52:24**
 
 > ### ▶ Eu abri esta apresentação dizendo que antecipar o quê e o onde da próxima visita sustenta recomendação, navegação, planejamento de transporte e alocação de recursos por área.
 
@@ -798,19 +695,19 @@
 
 **✕ NUNCA** — nenhum número novo. · Nenhum "MTL funciona" sem condição. · Nunca ler a lista de agradecimentos da tela: ela não está na tela.
 
-<sub>Eu abri esta apresentação dizendo que antecipar o quê e o onde da próxima visita sustenta recomendação, navegação, planejamento de transporte e alocação de recursos por área. Fecho no mesmo lugar, um nível acima. O produto prático desta dissertação é um modelo único que prediz duas propriedades da próxima visita numa passagem: que tipo de lugar a pessoa vai visitar, e em que parte da cidade. E a contribuição metodológica é a sequência de evidência que levou até ele: um resultado negativo publicado, o diagnóstico que identificou a representação de entrada como o gargalo, e uma solução desenhada a partir desse diagnóstico. O resultado negativo não foi obstáculo à contribuição. Ele foi a primeira metade dela. Antes de encerrar, os agradecimentos. Ao meu orientador, o professor Fabrício Silva, pela liberdade de explorar as minhas ideias e pela confiança para levá-las adiante. Ao Germano Santos, que trabalhou ao meu lado em todos os artigos deste mestrado. Ao Tarik Paiva. À Ingred F. Almeida. Ao Pedro Maia. À Universidade Federal de Viçosa e aos professores que fizeram parte deste caminho. E à minha família. Obrigado. Fico à disposição da banca.</sub>
+<sub>Eu abri esta apresentação dizendo que antecipar o quê e o onde da próxima visita sustenta recomendação, navegação, planejamento de transporte e alocação de recursos por área. Fecho no mesmo lugar, um nível acima. O produto prático desta dissertação é um modelo único que prediz duas propriedades da próxima visita numa passagem: que tipo de lugar a pessoa vai visitar, e em que parte da cidade. E a contribuição metodológica é a sequência de evidência que levou até ele: um resultado negativo publicado, o diagnóstico que identificou a representação de entrada como o gargalo, e uma solução desenhada a partir desse diagnóstico. O resultado negativo não foi obstáculo à contribuição. Ele foi a primeira metade dela.</sub>
 
 ---
 
-## S55 · Acknowledgements
-`slide **54** · PDF p.62` · **30 s** · fim previsto **48:10**
+## S55 · Obrigado
+`slide **47** · PDF p.54` · **30 s** · fim previsto **52:54**
 
-> ### ▶ os agradecimentos, terminando na banca: *"E, por fim, aos senhores da banca: obrigado por lerem o trabalho e por estarem aqui.
+> ### ▶ E antes de encerrar, os agradecimentos. Ao meu orientador, o professor Fabrício Silva, pela liberdade de explorar as minhas ideias e pela confiança para levá-las adiante.
 
 **● COBRE** — INTRODUZ nada (fecho social)
 
 **✕ NUNCA** — nada de resultado aqui. · É fecho social, e é o slide que fica na tela durante a arguição.
 
-<sub>os agradecimentos, terminando na banca: *"E, por fim, aos senhores da banca: obrigado por lerem o trabalho e por estarem aqui. Fico à disposição para as perguntas."*</sub>
+<sub>E antes de encerrar, os agradecimentos. Ao meu orientador, o professor Fabrício Silva, pela liberdade de explorar as minhas ideias e pela confiança para levá-las adiante. Ao Germano Santos, que trabalhou ao meu lado em todos os artigos deste mestrado. Ao Tarik Paiva, à Ingred Almeida e ao Pedro Augusto, pela parceria de pesquisa ao longo do caminho. À Universidade Federal de Viçosa e aos professores que fizeram parte desta formação. À minha família, que sustentou tudo isto. E, por fim, aos senhores da banca: obrigado por lerem o trabalho e por estarem aqui. Fico à disposição para as perguntas.</sub>
 
 ---

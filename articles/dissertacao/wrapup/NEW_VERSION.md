@@ -33,7 +33,7 @@
 Uma reimplementacao limpa do sistema que produziu o Capitulo 5, escrita sem reaproveitar codigo do
 repositorio antigo, e validada contra ele numero a numero.
 
-Em 2026-08-20 ela e **independente do corpus bruto ate modelos treinados**: le os check-ins e o
+Em 2026-08-21 ela e **independente do corpus bruto ate modelos treinados**: le os check-ins e o
 shapefile, constroi o grafo de Delaunay e o code book do POI2Vec em processo, treina o substrato,
 treina as tres familias (categoria dedicada, regiao dedicada, conjunto) e pontua. Nenhum arquivo
 produzido pelo repositorio antigo entra no caminho.
@@ -138,8 +138,13 @@ medido tem uma segunda leitura, registrada na secao 10.2, que nao e sobre o mode
 **A frase defensavel:** *"a margem e uma escolha declarada, e o texto ja diz que Alabama e o dataset
 que ela menos sustenta. Refizemos a analise com uma margem cinco vezes mais estrita e protocolo
 selado, e nessa margem Alabama/regiao fica abaixo. As outras cinco celulas mantem o veredito, e a
-alegacao co-primaria se sustenta inteira em Istambul, que e o dataset que nunca foi usado para
-ajuste."*
+alegacao co-primaria se sustenta inteira em Istambul, cujo teste externo so foi lido uma vez, em
+2026-08-18."*
+
+⚠ **Uma coisa que essa frase nao pode carregar, e que e facil supor.** Istambul **nao** e um dataset
+livre de ajuste — pela cobertura declarada no proprio texto entregue, ele e o **mais** ajustado dos
+tres pequenos, nao o menos (secao 10.7). O que sustenta a leitura de Istambul e o teste externo ter
+sido lido uma vez, e o tamanho do dataset; nao a ausencia de ajuste.
 
 **O padrao, e o limite dele.** O deficit de regiao encolhe com o tamanho do dataset — Alabama
 (1 101 usuarios) −0,95, Arizona (2 136) −0,47, Istambul (14 530) −0,15. Com tres datasets e o
@@ -167,16 +172,19 @@ A leitura direta em Alabama/regiao mostra os tres numeros lado a lado, e so um e
 | aninhado, validacao interna | novo | 73,72 | **nao** — serve para escolher a epoca |
 | aninhado, teste externo lido uma vez | novo | **69,01** | **sim** |
 
-**O numero forte e 3,66 pp**, entre a primeira e a segunda linha, porque ai **so o protocolo muda** —
-mesmo codigo, mesmo substrato, mesma semente de particao. Nove vezes a margem. Ler uma tabela contra
-a outra nao produz erro de arredondamento, produz conclusao invertida.
+**O numero mais limpo e 3,67 pp**, entre a primeira e a segunda linha. Nove vezes a margem: ler uma
+tabela contra a outra nao produz erro de arredondamento, produz conclusao invertida.
+
+⚠ **"Mais limpo" nao e "limpo".** Entre essas duas linhas o protocolo e o que mais muda, mas nao e a
+unica coisa: mudam tambem a populacao avaliada, a fracao de treino e a contagem de replicas. Nenhuma
+das tres cifras desta secao isola um so fator.
 
 ⚠ **O tamanho exato do otimismo de selecao ainda nao foi medido, e a frase oral precisa dizer isso.**
 Ha tres cifras circulando e elas nao tem o mesmo peso:
 
 | cifra | o que e | como citar |
 |---|---|---|
-| **3,66 pp** | so o protocolo muda | medido, limpo |
+| **3,67 pp** | o protocolo e o que mais muda (com populacao, fracao de treino e replicas junto) | medido, o mais limpo dos tres |
 | **~1 pp** | 69,01 selado contra 70,05 plano; protocolo **e** convencao de agregacao mudam juntos | ordem de grandeza |
 | **~0,66 pp** | **um fold de Alabama** | **sugestivo, nunca "medido"** |
 
@@ -298,9 +306,27 @@ em datasets com 50 000 lugares ou mais**. Medido nos grafos congelados: AL, AZ e
 negativo duro; FL, CA e TX **sem**. O corte separa exatamente o mesmo agrupamento pequeno/grande sobre
 o qual os resultados sao comparados. Isso nao invalida numero nenhum — todos os substratos foram
 construidos sob a mesma regra — mas invalida a frase "o mesmo substrato foi construido em todos os
-datasets", e qualquer leitura de "datasets grandes tem regiao pior" precisa considerar que o negativo
-duro e uma variavel confundida com o tamanho. O mtlcheck removeu a causa em vez do sintoma: o sorteio
-foi vetorizado (3,1 s por epoca na California viraram 0,11 ms), e sem laco nao ha motivo para o corte.
+datasets". O mtlcheck removeu a causa em vez do sintoma: o sorteio foi vetorizado (3,1 s por epoca na
+California viraram 0,11 ms), e sem laco nao ha motivo para o corte.
+
+**A leitura assustadora foi medida, e caiu.** A duvida natural aqui e "entao 'datasets grandes tem
+regiao pior' pode ser efeito do negativo duro desligado, e nao do tamanho". Florida foi construida
+**nas duas configuracoes** — 76 544 lugares, acima do corte como California e Texas, mas dataset de
+desenvolvimento, entao medir nao custa reserva:
+
+| celula | com negativo duro | sem | delta | erro-padrao |
+|---|--:|--:|--:|--:|
+| categoria dedicada | 38,6722 | 38,6856 | −0,013 | 0,019 |
+| regiao dedicada | 76,1414 | 76,1089 | +0,033 | 0,045 |
+| conjunto, categoria | 38,7767 | 38,7639 | +0,013 | 0,019 |
+| conjunto, regiao | 76,4152 | 76,3937 | +0,022 | 0,049 |
+
+Os quatro deltas ficam dentro do erro-padrao e abaixo do piso de 0,034 pp. **Ligar ou desligar o
+negativo duro num dataset grande nao move nada mensuravel.** O defeito continua real como variavel
+confundida que nao foi registrada em lugar nenhum; o efeito dele, onde deu para medir, e nulo.
+
+⚠ Uma semente, validacao interna, um dataset. E o suficiente para tirar a leitura assustadora da mesa,
+nao para afirmar que o efeito e zero em California e Texas.
 
 ⚠ **E isso corta nos dois sentidos, o que e a metade que quase ficou de fora.** Alabama, Arizona e
 Istambul tem 11 848, 20 666 e 29 816 lugares, todos **abaixo** do corte, entao ali os dois objetivos
@@ -311,7 +337,7 @@ os substratos grandes do repo novo **nao sao comparaveis celula a celula** com a
 dissertacao sem declarar a mudanca, e quem comparar os tres grandes carrega o objetivo do pretexto
 como uma variavel a mais. A receita do repo novo passou a declarar o valor explicitamente
 (`p2r_hard_neg_size_gate = 50000` restaura a divisao da dissertacao). California e Texas sao
-justamente a reserva confirmatoria que nunca foi tocada, o que torna a declaracao mais do que uma
+os dois datasets que menos receberam ajuste (secao 10.7), o que torna a declaracao mais do que uma
 formalidade.
 
 **A referencia nao reproduz o proprio substrato.** Duas execucoes, mesma semente, mesma maquina,
@@ -411,8 +437,8 @@ Isto vale para a dissertacao tambem. **Nao e regressao; e honestidade nova.**
 
 | pergunta | resposta curta | onde |
 |---|---|---|
-| **N7** · "Voces escolheram a epoca no mesmo conjunto que reportam?" | No sistema antigo, sim. O protocolo novo separa os dois conjuntos e o teste externo e lido uma vez, por ato datado. Quanto isso valia: entre os dois protocolos a distancia medida e 3,66 pp em AL/regiao; o otimismo de selecao isolado ainda **nao** foi medido, so sugerido por um fold, e o instrumento esta pronto | secao 5.1 |
-| **N7** · "Quantas vezes voces olharam o conjunto de teste?" | Ha registro. Pontuar e um comando separado e datado; as predicoes ficam em disco, so o escore e racionado. AL/AZ/Istambul foram lidos em 2026-08-18; CA e TX **nunca** foram tocados | `SEALED_BRIDGE_READ.md` |
+| **N7** · "Voces escolheram a epoca no mesmo conjunto que reportam?" | No sistema antigo, sim. O protocolo novo separa os dois conjuntos e o teste externo e lido uma vez, por ato datado. Quanto isso valia: entre os dois protocolos a distancia medida e 3,67 pp em AL/regiao; o otimismo de selecao isolado ainda **nao** foi medido, so sugerido por um fold, e o instrumento esta pronto | secao 5.1 |
+| **N7** · "Quantas vezes voces olharam o conjunto de teste?" | Ha registro. Pontuar e um comando separado e datado; as predicoes ficam em disco, so o escore e racionado. AL/AZ/Istambul tiveram o teste externo lido em 2026-08-18; CA e TX ainda nao, embora tenham sido usados para busca de hiperparametro antes deste protocolo (secao 10.7) | `SEALED_BRIDGE_READ.md` |
 | **N7** · "Como voces sabem que os folds sao os mesmos?" | Hash. Na paridade de regiao os cinco hashes de fold batem exatamente com os da referencia | `waves/ref_parity_al.toml` |
 | **N8** · "O que e `n` no seu teste?" | Usuario, no Tier A. Janelas superestimariam, porque as janelas de um usuario nao sao independentes; folds tambem, porque compartilham 75 a 80 % do treino | secao 5.3 |
 | **N8** · "Por que uma margem de dois pontos?" | E declarada, derivada do servico, e o proprio texto diz que Alabama e o dataset que ela menos sustenta. A analise nova usa 0,4 pp e muda o veredito daquela celula | secao 4 |
@@ -535,34 +561,49 @@ nenhum. Muda o que se pode afirmar, que e o ponto.
   Continua aberta — **nao afirme nada sobre ela**.
 - **a leitura selada de 2026-08-18 descreve uma configuracao superada**: o substrato foi unificado e o
   POI2Vec corrigido no dia seguinte. O primeiro ciclo de congelamento foi gasto numa receita que
-  durou um dia, e e por isso que CA e TX, nunca tocados, sao a reserva que sustenta a conclusao final.
+  durou um dia. CA e TX sao os dois datasets cujo teste externo ainda nao foi lido, o que os torna o
+  ativo mais proximo de uma reserva que ainda existe — com a ressalva da secao 10.7.
 
 ---
 
 ### 10.5 · O prazo de validade deste registro
 
 A secao 3 e a mais util deste documento e a que envelhece primeiro. Ela mede o estado do repo novo
-em 2026-08-20, e **toda melhoria da fila reconstroi o substrato**. Quatro execucoes a invalidam, e
-nenhuma esta agendada:
+em 2026-08-21, e **toda melhoria da fila reconstroi o substrato**. Quatro execucoes a invalidam, e
+nenhuma foi aplicada:
 
-| o que executar | o que muda aqui |
-|---|---|
-| corrigir a coluna 7 do alvo de reconstrucao (`mae_poi_target_dim` 8→7) | a paridade da secao 3. Medido em +0,116 pp categoria / −0,053 regiao, **uma semente**, erro-padrao 0,087 — se rodar sozinho, a secao 3 sobrevive com uma nota |
-| o fatorial unidades do Delaunay × simetrizacao do POI2Vec | a paridade da secao 3, em magnitude **nunca medida**. A correcao de unidades redefine o peso de **98,56 %** das arestas: e a mudanca de maior alcance da lista, e a que vigiar |
-| congelar a proxima versao de receita | a linha de base inteira. Todo numero dela e "melhoria real" pela regra da secao 2, com a comparabilidade quebrada por declaracao |
-| rodar a decomposicao do §8a | a secao 5.1 e a secao 10.2 — troca "sugerido por um fold" por duas medicoes, que o protocolo proibe somar |
+| o que executar | estado em 21-08 | o que muda aqui |
+|---|---|---|
+| corrigir a coluna 7 do alvo de reconstrucao (`mae_poi_target_dim` 8→7) | veredito **corrigir**, nao aplicado | a paridade da secao 3. Medido em +0,116 pp categoria / −0,053 regiao, uma semente |
+| o fatorial unidades do Delaunay × simetrizacao do POI2Vec | **medido** (ver abaixo) | nada por enquanto: nao foi aplicado, e em regiao nao resolveu |
+| congelar a proxima versao de receita | **decisao futura do autor** | a linha de base inteira. Todo numero dela e "melhoria real" pela regra da secao 2, com a comparabilidade quebrada por declaracao |
+| rodar a decomposicao do §8a | pendente | a secao 5.1 e a secao 10.2 — troca "sugerido por um fold" por duas medicoes, que o protocolo proibe somar |
+
+**O fatorial rodou, e o resultado desarma o item que era o mais perigoso da lista.** Contra o
+erro-padrao pareado — e nao contra o piso de sorteio de substrato, que e o denominador errado para
+um delta pareado:
+
+| lever | regiao | categoria |
+|---|---|---|
+| correcao de unidades do Delaunay | −0,178 (1,09 ep) — **nao resolvido** | +0,141 (2,39 ep) — resolvido |
+| simetrizacao do POI2Vec | +0,162 (1,21 ep) — **nao resolvido** | +0,170 (2,98 ep) — resolvido |
+| os dois juntos | +0,073 (0,40 ep) | +0,116 (1,07 ep) — **nao resolvido** |
+
+**Em regiao nada e resolvido**, apesar de a correcao de unidades redefinir o peso de 98,56 % das
+arestas. Em categoria os tres efeitos sao reais, e a combinacao e **menor que cada um sozinho**: os
+dois levers interferem, e empilha-los nao soma. O candidato limpo e a simetrizacao. Nada disso foi
+aplicado, entao a secao 3 continua valendo.
 
 O aviso reciproco esta registrado no lado que causa a mudanca, e nao so nesta pasta: o
 `studies/improvements/STUDY.md` do repo novo carrega a mesma tabela, com o caminho deste arquivo.
 Uma dependencia entre repositorios que vive so numa conversa morre com a conversa.
 
-**E ha uma decisao com prazo mais curto que as quatro, porque vem antes delas.** O conserto do
-negativo duro (secao 6.2) esta fechado no codigo, mas transfere uma escolha para o **primeiro build
-de California e Texas**: ou o corte da referencia (`p2r_hard_neg_size_gate = 50000`), que preserva a
-comparabilidade celula a celula com a tabela da dissertacao, ou o objetivo unico, declarado como
-incomparavel nos tres datasets grandes. **E a unica da lista cujo custo de errar nao e re-medir.**
-California e Texas sao a reserva confirmatoria inteira e nunca foram tocados; um build sob o
-objetivo errado gasta a reserva sem que haja segunda chance.
+**Havia uma decisao com prazo mais curto que as quatro, e ela foi fechada por medicao.** O conserto
+do negativo duro transferia uma escolha para o primeiro build de California e Texas — o corte da
+referencia, que preservaria a comparabilidade celula a celula, ou o objetivo unico. Era a unica da
+lista cujo custo de errar nao era re-medir. **A medicao em Florida (secao 6.2) mostrou que a escolha
+nao move nada mensuravel**, entao ela deixou de ser um trade-off: fica o objetivo unico, e o custo
+declarado da secao 6.2 e menor do que parecia.
 
 **Se alguma das quatro tiver rodado quando este documento for lido, a secao 3 precisa ser
 re-executada antes de ser citada em voz alta.** As demais secoes nao dependem disso: as correcoes,
@@ -655,12 +696,95 @@ guia de avaliacao do repo novo: **aceitar consistencia interna como verificacao.
 frase que sobra e mais forte que a atual. Nao mexer significa levar a defesa uma tabela cujas duas
 ultimas colunas nao descrevem as execucoes que produziram a linha ao lado.
 
+### 10.7 · Nenhum dos seis datasets e uma reserva intocada [emenda de 2026-08-21]
+
+Este e o item que a banca puxa primeiro se alguem usar, em voz alta, o vocabulario do protocolo novo
+— "reserva", "selado", "gasto". Ele **nao** e uma errata contra a dissertacao. E o contrario: foi a
+dissertacao que derrubou a premissa, por escrito, na propria nota da tabela de resultados.
+
+**A premissa que caiu.** O protocolo do repo novo atribuia peso confirmatorio a alguns datasets "por
+nunca terem sido dataset de ajuste". A nota da tabela principal e o capitulo de configuracao dizem
+outra coisa, e sao especificos:
+
+| busca | cobertura declarada no texto entregue |
+|---|---|
+| batch size, categoria dedicada | **todos os seis** — cinco folds em Istambul, Alabama e Arizona; menos folds em Florida e Texas |
+| taxa de aprendizado, categoria dedicada | cinco folds em Istambul, Alabama e Arizona; **folds unicos no Texas**; em Florida e California **nao foi variada** |
+| modelo conjunto | buscado em Istambul, Alabama e Arizona; triado em Florida; **Texas e California recebem a configuracao transferida** |
+| regiao dedicada | uma configuracao so, herdada, com apenas a forca do ajuste de logit testada |
+
+**Pela definicao do proprio protocolo** — um conjunto deixa de ser reserva no instante em que alguem
+o ve — **nenhum dos seis e uma reserva intocada.** Istambul e o mais ajustado dos tres pequenos, nao
+o menos. Texas recebeu busca de largura de lote e de taxa de aprendizado. California e o menos
+tocado dos seis, e ainda assim recebeu busca de largura de lote.
+
+**O que nao sobrevive.** Qualquer frase da forma "validado em dados que nunca foram usados para
+nenhuma decisao", para os seis. E o peso confirmatorio **pela razao dada** — a razao e falsa, entao
+a conclusao nao decorre dela.
+
+**O que sobrevive, e e a maior parte do desenho.**
+
+- **O fold externo lacrado dentro de cada dataset.** A correcao central do protocolo novo — quem
+  escolhe a epoca nao e quem reporta o numero — nao e tocada por este erro. Ela e sobre **folds**,
+  nao sobre datasets.
+- **O desenho pareado.** O vies de reuso ataca numeros absolutos muito mais que deltas pareados, e a
+  alegacao-manchete e um delta pareado. Os dois bracos de cada comparacao pagam a mesma contaminacao.
+- **O gatekeeping, a multiplicidade, a definicao dos estimandos, o gate de calibracao.** Nenhum
+  depende da premissa da reserva.
+- **Uma alegacao mais fraca e honesta para Texas e California**: receberam busca de hiperparametro,
+  nao busca de receita ou de arquitetura, e a configuracao do modelo conjunto foi **transferida** e
+  nao buscada neles. Menos contaminados que os outros quatro. Nao limpos.
+
+**Por que isto e emenda e nao conserto silencioso, e por que essa distincao e a resposta.** A
+premissa era falsa **quando foi escrita**, e nao foi falsificada depois. Editar o protocolo no lugar
+apagaria o rastro de que o argumento de peso confirmatorio um dia se apoiou nela. O registro esta
+carimbado como **anterior a primeira leitura confirmatoria** sob aquele protocolo, e o gatilho foi
+**ler a nota de rodape da dissertacao**, nao ver um resultado. E isso que separa uma emenda de uma
+racionalizacao pos-hoc, e e a primeira coisa que um arguidor competente vai querer estabelecer.
+
+**A frase defensavel:** *"o protocolo novo atribuia peso confirmatorio a alguns conjuntos por nunca
+terem sido usados para ajuste. Fomos verificar contra a nota da minha propria tabela e a premissa e
+falsa: a largura de lote foi buscada em todos os seis. Registramos a emenda antes de ler qualquer
+numero confirmatorio. O que ela derruba e a palavra 'reserva'; o que ela nao toca e a separacao
+entre quem escolhe a epoca e quem reporta o numero, que e a correcao que importa, e que e sobre
+folds e nao sobre conjuntos."*
+
+⚠ **Cite o capitulo de configuracao para isto, e nao a nota da tabela.** As duas dizem a mesma coisa
+em graus diferentes de precisao, e so uma sobrevive a uma pergunta. A nota da tabela funde os dois
+botoes numa frase; o capitulo os separa, e e a unica forma que os artefatos sustentam. O proprio
+`.tex` registra por que, e a historia importa mais que a conclusao: a cobertura foi apurada **duas
+vezes**, e a segunda apuracao **contradisse a primeira e prevaleceu**. Um censo restrito a geracao
+mais recente concluiu que a largura de lote nunca variou na California; incluir a geracao anterior
+revela **oito bracos da California** variando-a entre 2 048 e 8 192, e um terceiro artefato de
+configuracao corrobora por outro caminho. As duas formulacoes superadas, *"at every dataset"* e
+*"except California"*, ficam registradas ali como **falsas** — preservadas, nao apagadas — porque
+confundiam largura de lote com taxa de aprendizado. A apuracao tambem nomeia a lacuna verdadeira com
+precisao, e ela e a **taxa de aprendizado**: California e Florida num ponto unico nas duas geracoes,
+Texas variando tres pontos mas em folds unicos.
+
+**A frase curta, se a pergunta vier:** *"a cobertura de busca foi apurada duas vezes; a segunda
+apuracao contradisse a primeira e prevaleceu porque incluia os artefatos da geracao anterior, e as
+duas leituras superadas continuam no registro."* Isso e mais defensavel que uma cobertura que sempre
+esteve certa, porque exibe o processo em vez de afirma-lo.
+
+O unico detalhe que a frase do capitulo nao da e **quantos folds** a busca de largura de lote cobriu
+na California — ela enumera a contagem de folds para cinco dos seis. Nao e contradicao; e um numero
+nao dito.
+
 ---
 
 ## 11 · Proveniencia
 
 **Repositorio.** `/Users/vitor/Desktop/mestrado/mtlcheck/mtlcheck`, branch `rewrite/mtlcheck`,
-HEAD `dc714488` em 2026-08-20. Todo caminho citado neste documento e relativo a essa raiz.
+HEAD `824ebb76` em 2026-08-21. Todo caminho citado neste documento e relativo a essa raiz.
+
+**Verificado contra o repo novo em 2026-08-21.** Desde a primeira redacao (20-08) mudaram quatro
+coisas, todas ja refletidas acima: a emenda da reserva (secao 10.7), o fatorial medido e a decisao
+do gate fechada (secoes 10.5 e 6.2), a cifra de 3,66 corrigida para 3,67 e rebaixada de "limpa" para
+"a mais limpa" (secao 5.1), e os caminhos do lado da dissertacao, que a reorganizacao de 20-08
+moveu de `src_fix/` para `src/`. **Nao** mudaram: os oito deltas da secao 3, os seis vereditos
+selados da secao 4, o 28,63 pp do forward-only, o piso de 0,034 pp, as 35 519 arestas, o
+determinismo e as tres divergencias do POI2Vec.
 
 **Documentos-fonte, na ordem em que respondem as perguntas deste registro:**
 
@@ -669,7 +793,8 @@ HEAD `dc714488` em 2026-08-20. Todo caminho citado neste documento e relativo a 
 | `docs/DIVERGENCE_REGISTER.md` | a secao 2, e a leitura correta de todo numero das secoes 6 e 7; o §3.1 e o caso da secao 10.3 |
 | `studies/porting_validation/evidence/estado_vs_dissertacao.json` | a secao 3, celula a celula |
 | `studies/porting_validation/SEALED_BRIDGE_READ.md` + `evidence/sealed_bridge_tier_a.json` | a secao 4 e o adendo da secao 5.6 |
-| `docs/EVALUATION_METHOD_GUIDE.md`, `docs/plans/EVALUATION_PROTOCOL.md` | a secao 5 inteira; o §0.2 e a armadilha registrada na secao 10.6 |
+| `docs/EVALUATION_METHOD_GUIDE.md`, `docs/plans/EVALUATION_PROTOCOL.md` | a secao 5 inteira; o §0.2 e a armadilha registrada na secao 10.6; a emenda §12.3 e a secao 10.7 |
+| `articles/dissertacao/src/chapters/5_mobiwac/05_setup.tex:42-63` (neste repo) | a cobertura de busca da secao 10.7, lida na fonte — **e a citacao certa**; a nota da tabela de resultados funde os dois botoes e nao deve ser usada para isto |
 | `docs/QUAL_CONJUNTO_USAR.md` | a secao 5.1, na forma curta — e o documento mais util se a banca puxar protocolo |
 | `docs/REFERENCE_DEFECTS.md` (R1-R16) | a secao 6.2 e a secao 7 |
 | `studies/porting_validation/SUBSTRATE_FROM_SCRATCH.md` | a secao 6.1, com a atribuicao das tres divergencias |
@@ -677,10 +802,10 @@ HEAD `dc714488` em 2026-08-20. Todo caminho citado neste documento e relativo a 
 | `studies/porting_validation/AUDIT_2026-08-19.md`, `INCIDENT_2026-08-19_commit.md` | a secao 10.3 |
 | `studies/improvements/PLAN.md`, `studies/porting_validation/STATE.md` | a secao 10.4 |
 | `studies/improvements/STUDY.md` (secao final) | a secao 10.5, e o aviso reciproco do lado que causa a mudanca |
-| `articles/dissertacao/src_fix/tables/mobiwac/datasets.tex` (neste repo) | a secao 10.1 |
+| `articles/dissertacao/src/tables/mobiwac/datasets.tex` (neste repo) | a secao 10.1 |
 | `data/checkins/{Alabama,Arizona}.parquet` (contagem direta de check-ins, usuarios e lugares, 2026-08-20) | a verificacao da secao 10.1 |
 | `src/mtlcheck/eval/optimism.py`, `waves/sealed_bridge.toml:9` | a secao 5.1, e o limite do ~0,66 pp |
-| `articles/dissertacao/src_fix/chapters/5_mobiwac/05_setup.tex:119` (neste repo) | a justificativa da margem de dois pontos, secao 4 |
+| `articles/dissertacao/src/chapters/5_mobiwac/05_setup.tex:119` (neste repo) | a justificativa da margem de dois pontos, secao 4 |
 | `wrapup/material_extra/chapters/apx_i_parameter_count_control.tex:89,101,102` (nesta pasta) | a secao 10.6 |
 | `docs/REFERENCE_DEFECTS.md` §R14, `studies/improvements/PLAN.md:46` | a secao 10.6 e o roteamento dela como errata |
 | recontagem de parametros da cabeca de regiao, reimplementacao independente, 2026-08-20 | a verificacao do P1 na secao 10.6 |

@@ -88,6 +88,60 @@ BRAZIL (directly relevant for a Brazilian master's dissertation):
 - USP/Unesp: formal guidelines being structured 2026 (USP with Ministry of Justice partnership for a national guide) — secondary-source claim, verify.
 NET REQUIREMENT for the writing law: the dissertation must carry a disclosure section naming tools, model versions, scope of use per chapter/task, and the human-verification steps applied — this now satisfies CAPES-line, Unifesp-style resolutions, and every major publisher simultaneously.
 
+## paragraph_shape_and_cohesion_2026-08-21
+
+Requested by the author after he personally noticed two patterns in AI-drafted prose: (1) nearly
+every paragraph opens with a short, decontextualized, strong claim that the rest of the paragraph
+unpacks; (2) long documents lose connective words both within and between paragraphs, so each one
+reads as an isolated block. Each source below was individually opened (WebFetch on the arXiv
+abstract/HTML page or the Wikipedia page) and its key sentence quoted directly — not taken from a
+research sub-agent's paraphrase, per this file's own R1/R2 discipline.
+
+1) Claim-first paragraph shape, confirmed. Kim, Chang, Pham & Iyyer, "Argument Collapse: LLMs
+Flatten Long-Form Public Debate" (arXiv 2606.01736, submitted 2026-06-01; 23,384 essays, NYT/Boston
+Review debates vs. LLM output). Verbatim: "LLM-generated essays tend to follow a more fixed arc,
+often opening with a direct claim and moving quickly toward proposals." Measured: within one
+debate, main-argument uniqueness 65.3% (human) vs 3.4% (LLM); sub-argument uniqueness 41.0% vs
+9.1%; "LLMs often reuse generalized and hedged sub-arguments, while humans prefer more concrete and
+topic-specific ones" — i.e. the elaboration behind the opening claim is generic, not
+evidence-driven. [https://arxiv.org/abs/2606.01736]
+
+2) Connective-word loss, measured at corpus scale, with a CS-specific finding. Bao, Zhao, Mao &
+Zhang, "Examining Linguistic Shifts in Academic Writing Before and After the Launch of ChatGPT: A
+Study on Preprint Papers" (arXiv 2505.12218, 2025; 823,798 arXiv abstracts). Verbatim: cohesion and
+readability "indicates that abstracts have fewer connecting words" post-ChatGPT, alongside greater
+lexical complexity but simplified sentence structure; "scholars in Computer Science showed more
+pronounced changes in writing style, while the changes in Mathematics were minimal" — directly
+relevant since this dissertation is CS. Caveat from the wider survey literature (Terčon &
+Dobrovoljc 2510.05136, already cited above): the defect is not always zero connectives — AI text
+can also over-rely on formulaic, swappable transitions ("moreover," "furthermore"), so the sharper
+test is whether a transition is load-bearing or decorative, not merely whether one is present.
+[https://arxiv.org/abs/2505.12218]
+
+3) Sentence length without local repair. Gude, Santos-Ríos, Bond, Flickinger, Gómez-Rodríguez &
+Zamaraeva, "More Aligned, Less Diverse? Analyzing the Grammar and Lexicon of Two Generations of
+LLMs" (arXiv 2605.06030, submitted 2026-05-07; HPSG/ERG-parsed comparison of 2023- vs
+2025-generation LLMs against human-authored NYT text). Verbatim (via the HTML rendering): "In
+2023, human sentences were about 10-20% longer than LLM sentences. In contrast, newer models
+produce sentences that are 15-30% longer than sentences written by human authors" (Table 7: 2023
+LLMs ~18-19 tokens/sentence, 2025 LLMs ~25-30, humans ~22 both years); yet "despite generating
+longer sentences, newer LLMs do not appear to create more complex structures... they are easier for
+the ERG to parse" (parse success: humans 93-95%, 2023 LLMs 96-97%, 2025 LLMs 98-99%) — longer
+sentences that are grammatically too clean, lacking the local repair/re-phrasing real (especially
+non-native) prose carries. [https://arxiv.org/abs/2605.06030]
+
+4) Rigid section/paragraph skeletons, reconfirmed live (community-maintained, checked 2026-08-21,
+not a peer-reviewed source but corroborates the discourse-skeleton-reuse literature already cited
+above with concrete named shapes). *Wikipedia:Signs of AI writing*: a "Challenges" section that
+always opens "Despite its [positive framing], X faces challenges..."; a present-participle ("-ing")
+phrase tacked onto a sentence's end as decorative/superficial elaboration (same family as the
+already-banned participial significance tails); "headings only containing other headings"; "rule
+of three" overuse reconfirmed still live; inline vertical bullet lists standing in for connected
+prose. [https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing]
+
+Feeds WRITING_LAW.md §4 items 7-10 and §5's new paragraph-transition bullet, and
+AGENT_GUARDRAILS.md §4's new rule L7.
+
 ## sources
 
 AI TELLS: https://www.science.org/doi/10.1126/sciadv.adt3813 | https://github.com/berenslab/llm-excess-vocab | https://pmc.ncbi.nlm.nih.gov/articles/PMC12679996/ | https://arxiv.org/abs/2510.05136 | https://arxiv.org/abs/2407.00211 | https://arxiv.org/abs/2509.19163 | https://arxiv.org/pdf/2504.09373 | https://arxiv.org/html/2503.01659v1 | https://arxiv.org/pdf/2606.09854 | https://arxiv.org/html/2604.22142v1 | https://www.refsmmat.com/notebooks/llm-style.html | https://www.rollingstone.com/culture/culture-features/chatgpt-hypen-em-dash-ai-writing-1235314945/ | https://theconversation.com/too-many-em-dashes-weird-words-like-delves-spotting-text-written-by-chatgpt-is-still-more-art-than-science-259629 | https://pmc.ncbi.nlm.nih.gov/articles/PMC12382442/ | https://www.plagiarismtoday.com/2025/06/26/em-dashes-hyphens-and-spotting-ai-writing/
@@ -96,4 +150,5 @@ CITATIONS: https://www.statnews.com/2026/05/07/lancet-study-finds-steep-rise-fra
 NUMBERS: https://arxiv.org/pdf/2509.06902 | https://arxiv.org/pdf/2604.08501 | https://aclanthology.org/2025.findings-naacl.293.pdf | https://arxiv.org/html/2410.13961v1 | https://www.getzep.com/ai-agents/reducing-llm-hallucinations/ | https://github.com/showyourwork/showyourwork | https://show-your.work/en/latest/latex/ | https://github.com/jpreiss/reproducible_papers | https://arxiv.org/abs/2010.01482
 GUARDRAILS: https://arxiv.org/abs/2311.13057 | https://dl.acm.org/doi/10.1145/3613904.3641895 | https://arxiv.org/html/2509.23505v1 | https://ai-cards.org/ai-disclosure-thesis/ | https://group.springernature.com/gp/group/media/press-releases/new-research-integrity-ai-tool/27769148 | https://www.springernature.com/gp/researchers/the-source/blog/blogposts-research-integrity/protecting-research-integrity-new-ai-tools/27385130 | https://www.elsevier.com/about/press-releases/elsevier-expands-article-submission-screening-tool-to-strengthen-research | https://arxiv.org/pdf/2411.15218 (Academ-AI)
 POLICIES: https://www.icmje.org/recommendations/browse/artificial-intelligence/ai-use-by-authors.html | https://scipubplus.com/hub/blog/elsevier-vs-springer-nature-comparing-ai-policies-for-academic-authors/ | https://www.frontiersin.org/journals/research-metrics-and-analytics/articles/10.3389/frma.2026.1740510/full | https://www.monperrus.net/martin/generative-ai-scientific-writing | https://grad.uga.edu/policy-on-use-of-generative-ai-in-theses-and-dissertations/ | https://www.sgs.utoronto.ca/about/guidance-on-the-use-of-generative-artificial-intelligence/ | https://libguides.princeton.edu/generativeAI/disclosure | https://provost.utexas.edu/the-office/faculty-affairs/office-of-academic-technology/ai-authorship-for-graduate-education/ | https://prpg.unicamp.br/noticias/lancamento-diretrizes-para-o-uso-etico-e-responsavel-da-inteligencia-artificial-generativa-um-guia-pratico-para-pesquisadores/ | https://prpg.unicamp.br/wp-content/uploads/sites/10/2025/01/livro-diretrizes-ia-1.pdf | https://portal.unifesp.br/todos-institucional/unifesp-aprova-diretrizes-para-uso-de-inteligencia-artificial-generativa-na-pos-graduacao-e-na-pesquisa | https://tesify.pt/pode-usar-ia-no-tcc/ (secondary; verify CAPES NT 3/2025 on gov.br) | https://ricardolimongi.substack.com/p/voltando-do-gt-da-capes-o-que-aprendi
+PARAGRAPH_SHAPE_AND_COHESION (added 2026-08-21): https://arxiv.org/abs/2606.01736 | https://arxiv.org/abs/2505.12218 | https://arxiv.org/abs/2605.06030 | https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing
 

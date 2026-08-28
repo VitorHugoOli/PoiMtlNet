@@ -285,8 +285,35 @@ Estas foram decididas nesta sequência e têm o motivo registrado. **As de conte
 | **`technical tie` verbatim**, vocabulário do Cap. 4 apenas | `SLIDES.md`, `Nunca dizer` do S30 + `GLOSSARY` §4 |
 | **os cartões de logo colados ao topo da capa** — é o desenho do template, não defeito | [`HANDOFF.md` §4](HANDOFF.md); o `\vskip-2mm` foi restaurado |
 | **a comparação com a literatura NÃO entra nas contribuições nem no Resumo** | [`../wrapup/open_points/BASELINES_EXTERNOS.md`](../wrapup/open_points/BASELINES_EXTERNOS.md) §7 |
-| **a série B fica como está** (47 slides de reserva, densos de propósito: são lidos, não apresentados) | decisão do autor |
+| ~~**a série B fica como está** (47 slides de reserva, densos de propósito: são lidos, não apresentados)~~ | ~~decisão do autor~~ — 🔄 **REVERTIDA PELO AUTOR EM 2026-08-27. Ver a nota abaixo.** |
 | **a contribuição usa o recorte do grupo *Theoretical***, não a taxonomia do §6.2 | `SLIDES.md`, nota v2 do S7/S51 |
+
+### 🔄 Reversão registrada — a série B, 2026-08-27
+
+**A trava riscada acima foi levantada pelo autor em 2026-08-27**, em consulta direta, e substituída
+pelas decisões `D-1`…`D-10` de [`SPEC_EXTRAS.md`](SPEC_EXTRAS.md) §0. Registrado aqui **como
+reversão**, e não apagado, porque a entrada original carregava uma **razão** — e é a razão que mudou.
+
+**O que a trava dizia:** *"densos de propósito: **são lidos, não apresentados**"*.
+
+**O que o autor escreveu depois** (`archive/extra_RAW_2026-08-26.md`, e repetido na consulta de
+27/08): os extras devem funcionar como *"apoio rápido durante perguntas **da banca**, e não como
+páginas de apêndice que exigem leitura detalhada"*, permitindo que algo seja *"localizado e
+compreendido rapidamente, **sem exigir que a banca pare para ler grandes blocos de texto**"*.
+
+> **A leitora deixou de ser o apresentador e passou a ser a banca.** É essa mudança que autoriza a
+> reforma inteira — faixa de título com a conclusão, corpo `\normalsize`, uma exibição apontável por
+> tela, prioridade em quatro níveis. Sob a premissa antiga (telas para ler), metade dessas medidas
+> estaria otimizando para um uso que não existe.
+
+**Decisões que substituem a trava** (`SPEC_EXTRAS.md` §0): alvo ~50 páginas, **nada é cortado** além
+de 6 fusões · o título inverte e a pergunta em português sai da tela · prioridade em 4 níveis com os
+códigos mantidos · 3 cartões de conceito + δ-crítico + partição × k-fold · divisor `Extras`.
+
+⚠ **Registrado por decisão explícita do autor** (*"levantada — registra"*, 27/08), justamente para
+que ninguém implemente achando que está desfazendo uma decisão travada dele.
+
+---
 
 ⚠ **Três copias, não duas:** o `[BLOCO-CONTRIBUIÇÃO]` do cabeçalho do `SLIDES.md`, o **S7** e o
 **S51** carregam o mesmo texto. A **§8 regra 13** exige redação idêntica. Qualquer edição move as

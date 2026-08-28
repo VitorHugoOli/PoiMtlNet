@@ -147,8 +147,15 @@ diferentes.**
 
 A aritmetica confere nos dois casos: $4{,}207{,}399 / 644{,}359 = 6{,}53$ e
 $5{,}249{,}719 / 644{,}359 = 8{,}15$. O problema nao e o calculo, e o **alvo**: o campo se chama
-`joint_v17` e vale $4{,}197{,}621$ em Alabama. O modelo conjunto atual tem $6{,}909{,}789$ ali,
-medido em 2026-08-13. A largura de $672$ pareia o orcamento da arquitetura anterior, nao o do modelo
+`joint_v17` e vale $4{,}197{,}621$ em Alabama. ~~O modelo conjunto atual tem $6{,}909{,}789$ ali,
+medido em 2026-08-13.~~
+
+> 🔴 **CORRIGIDO 2026-08-27.** O $6{,}909{,}789$ **nao foi medido** — e uma reconstrucao com defaults
+> assumidos, e os logs de execucao v18\_2 a contradizem: California da **5.151.189** e Texas
+> **4.899.897**, contra os 8.809.533 e 8.308.897 reconstruidos (razao ~1,7x nos dois).
+> `california_s7_joint.out`: `('cat', …, 1731079) ('reg', …, 1835982) ('shared', …, 1584128)`.
+> **O $4{,}197{,}621$ e o que o modelo entregue de facto executa.** Registro completo, com a
+> consequencia para as larguras pareadas, em `EXECUTION_WAVE.md`. A largura de $672$ pareia o orcamento da arquitetura anterior, nao o do modelo
 que a dissertacao reporta.
 
 **O veredito do apendice nao muda, e o motivo e o mesmo que vale para P1 na direcao oposta.** A

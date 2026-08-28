@@ -4,14 +4,24 @@ import json, re, sys
 
 B = json.load(open('/tmp/_speech_blocos.json'))
 
+# ⚠ A chave e' o nome da \section DO DECK, nao uma faixa de codigo do SLIDES.md.
+# Faixa de codigo nao acompanha fronteira de secao: em 26/08 o `S5b` (Fundamentos) caia
+# em ABERTURA e o `S49` (Conclusao) caia em Check2HGI, porque as faixas foram escritas
+# quando a numeracao era outra. A secao e' propriedade do deck; o extrator a le' de la'.
 SECOES = [
-    ('S1',  'ABERTURA — a pergunta e o escopo', 5),
-    ('S8',  'FUNDAMENTOS — dito uma vez', 6),
-    ('S17', 'MTLnet — Cap. 3 (CBIC)', 5.5),
-    ('S26', 'ST-MTLNet — Cap. 4 (CoUrb)', 6),
-    ('S33', 'Check2HGI — Cap. 5 (MobiWac)', 20),
-    ('S50', 'CONCLUSÃO — a resposta condicional', 5.5),
+    ('Introdução', 'ABERTURA — a pergunta e o escopo', 5),
+    ('Fundamentos', 'FUNDAMENTOS — dito uma vez', 6),
+    ('MTLnet', 'MTLnet — Cap. 3 (CBIC)', 5.5),
+    ('ST-MTLNet', 'ST-MTLNet — Cap. 4 (CoUrb)', 6),
+    ('Check2HGI', 'Check2HGI — Cap. 5 (MobiWac)', 20),
+    ('Conclusão', 'CONCLUSÃO — a resposta condicional', 5.5),
 ]
+
+
+def _n(code):
+    """S5 -> 5.0 ; S5b -> 5.1 (o sufixo ordena logo apos o numero, sem colidir)."""
+    m = re.match(r"S(\d+)([a-z]?)", code)
+    return int(m.group(1)) + (ord(m.group(2)) - 96) / 100 if m.group(2) else float(m.group(1))
 
 
 def mmss(s):
@@ -62,13 +72,27 @@ def fala_limpa(f):
     return f
 
 
-def sec_de(code):
-    n = int(code[1:])
-    atual = SECOES[0]
-    for c, nome, mins in SECOES:
-        if int(c[1:]) <= n:
-            atual = (c, nome, mins)
-    return atual[1]
+
+def _relogio(B):
+    """(palavras, mm:ss medido a 140 ppm) -- COMPUTADO, nunca digitado.
+
+    ⚠ Este numero ja' esteve escrito a mao no cabecalho, e em 26/08 dizia 8.840 palavras
+    e ~63 min quando o real era 7.566 e 54:03. Um roteiro que anuncia 13 min de estouro
+    quando ha' 4 faz o autor cortar o que nao precisa -- e o que sai primeiro sao as
+    ressalvas. E' a mesma doenca do numero de slide na tela e do `Slide impresso:`
+    defasado: um derivado escrito a mao nao sabe que ficou velho.
+    """
+    w = sum(len(b['fala'].split()) for b in B)
+    seg = round(w / 140 * 60)
+    return w, '%d:%02d' % (seg // 60, seg % 60)
+
+def sec_de(b):
+    """Nome de exibicao da secao de um bloco. Recebe o BLOCO, nao o codigo."""
+    real = b.get('secao') if isinstance(b, dict) else None
+    for chave, nome, _ in SECOES:
+        if real == chave:
+            return nome
+    return SECOES[0][1]
 
 
 # ─────────────────────────── MARKDOWN ───────────────────────────
@@ -83,10 +107,12 @@ def emit_md():
              '**ABRE** (a primeira oração, para pegar o fio sem ler), **DIZER** (as superfícies '
              'de lei e os números que não podem sair errado), **NUNCA** (o que anula o slide se '
              'escapar), e a fala completa embaixo, para consulta.\n')
-    L.append('> ⚠ **O relógio.** Os tempos abaixo são os do plano e somam **%s**. A fala escrita '
-             'tem 8.840 palavras, que a 140 palavras/minuto dão **~63 min** — contra o teto de '
-             '**50 min** do Art. 23. Os dois números não fecham, e o ensaio é que decide qual '
-             'vale. **Cronometre o fim de cada seção.**\n' % mmss(tot))
+    _w, _t = _relogio(B)
+    L.append('> ⚠ **O relógio.** A fala escrita tem **%s palavras**, que a 140 palavras/minuto '
+             'dão **%s**, contra o teto de **50 min** do Art. 23. Os campos `Tempo:` dos cartões '
+             'somam **%s** e são orçamento, não medição — se os dois discordarem, o medido vale. '
+             '**Cronometre o fim de cada seção.**\n'
+             % ('{:,}'.format(_w).replace(',', '.'), _t, mmss(tot)))
     L.append('\n---\n')
 
     # sumario por secao
@@ -94,18 +120,20 @@ def emit_md():
     L.append('| seção | slides | fim previsto | **seu tempo real** |')
     L.append('|---|---|---:|---|')
     for c, nome, mins in SECOES:
-        fim = [b for b in B if int(b['code'][1:]) >= int(c[1:])]
-        idx = int(c[1:])
-        ate = [b for b in B if int(b['code'][1:]) < idx + 100]
-        último = max([b for b in B if sec_de(b['code']) == nome], key=lambda x: int(x['code'][1:]))
-        prim = min([b for b in B if sec_de(b['code']) == nome], key=lambda x: int(x['code'][1:]))
+        grp = [b for b in B if sec_de(b) == nome]
+        if not grp:            # secao sem bloco: nao inventa linha
+            continue
+        # ⚠ primeiro/ultimo por POSICAO na apresentacao, nao por numero de codigo.
+        # Depois da AUT-22 o DGI (S19) vem ANTES do MTLnet (S18): ordenar por codigo
+        # rotularia a secao como "S18-S25" quando ela comeca no S19.
+        prim, último = grp[0], grp[-1]
         L.append('| **%s** | %s–%s | %s | ____________ |' % (nome, prim['code'], último['code'], mmss(último['acum'])))
     L.append('')
     L.append('\n---\n')
 
     sec_atual = None
     for b in B:
-        s = sec_de(b['code'])
+        s = sec_de(b)
         if s != sec_atual:
             sec_atual = s
             L.append('\n\n# %s\n' % s)
@@ -114,6 +142,10 @@ def emit_md():
             loc.append('slide **%s**' % b['num'])
         if b['pdf']:
             loc.append('PDF p.%s' % b['pdf'])
+        if not loc:
+            # sem referencia de pagina: \specialframe (texto no corpo, sem \frametitle) ou bloco
+            # cujo titulo nao casa com frame nenhum. O cartao vale; a crase vazia le como defeito.
+            loc.append('sem página')
         L.append('\n## %s · %s' % (b['code'], b['title']))
         L.append('`%s` · **%s** · fim previsto **%s**\n' % (' · '.join(loc), b['tempo'], mmss(b['acum'])))
         if b['abre']:
@@ -183,9 +215,9 @@ def emit_tex():
 \textbf{Nada aqui é novo} --- é o texto do \texttt{SLIDES.md}, reorganizado para ser lido de relance.
 \smallskip
 
-\textbf{\textcolor{crim}{O relógio.}} Os tempos abaixo são os do plano e somam ''' + mmss(tot) + r'''.
-A fala escrita tem \textbf{8.840 palavras}, que a 140 palavras/minuto dão \textbf{$\sim$63 min},
-contra o teto de \textbf{50 min} do Art.~23. Os dois números não fecham.
+\textbf{\textcolor{crim}{O relógio.}} A fala escrita tem \textbf{''' + '{:,}'.format(_relogio(B)[0]).replace(',', '.') + r''' palavras},
+que a 140 palavras/minuto dão \textbf{''' + _relogio(B)[1] + r'''}, contra o teto de \textbf{50 min} do Art.~23.
+Os campos \texttt{Tempo:} somam ''' + mmss(tot) + r''' e são orçamento, não medição: se discordarem, o medido vale.
 \textbf{Cronometre o fim de cada seção} e anote na tabela abaixo.
 \end{tcolorbox}
 \vspace{4mm}
@@ -199,11 +231,10 @@ contra o teto de \textbf{50 min} do Art.~23. Os dois números não fecham.
 \hline
 ''']
     for c, nome, mins in SECOES:
-        grp = [b for b in B if sec_de(b['code']) == nome]
+        grp = [b for b in B if sec_de(b) == nome]
         if not grp:
             continue
-        prim = min(grp, key=lambda x: int(x['code'][1:]))
-        ult = max(grp, key=lambda x: int(x['code'][1:]))
+        prim, ult = grp[0], grp[-1]      # ⚠ por POSICAO, nao por codigo -- ver a nota acima
         P.append(r'\textbf{%s} & %s--%s & %s & \rule{32mm}{0.4pt} \\' %
                  (tex_esc(nome), prim['code'], ult['code'], mmss(ult['acum'])))
     P.append(r'''\hline
@@ -213,7 +244,7 @@ contra o teto de \textbf{50 min} do Art.~23. Os dois números não fecham.
 
     sec_atual = None
     for b in B:
-        s = sec_de(b['code'])
+        s = sec_de(b)
         if s != sec_atual:
             sec_atual = s
             P.append(r'\vspace{2mm}{\LARGE\bfseries\color{teal} %s}\par\vspace{2mm}' % tex_esc(s))
@@ -222,6 +253,10 @@ contra o teto de \textbf{50 min} do Art.~23. Os dois números não fecham.
             loc.append(r'slide \textbf{%s}' % b['num'])
         if b['pdf']:
             loc.append('PDF p.%s' % b['pdf'])
+        if not loc:
+            # sem referencia de pagina: \specialframe (texto no corpo, sem \frametitle) ou bloco
+            # cujo titulo nao casa com frame nenhum. O cartao vale; a crase vazia le como defeito.
+            loc.append('sem página')
         P.append(r'\begin{tcolorbox}[breakable,colback=white,colframe=teal!55,boxrule=0.6pt,arc=2pt,'
                  r'left=3mm,right=3mm,top=2mm,bottom=2mm]')
         P.append(r'{\small\color{soft}\textbf{%s} $\cdot$ %s $\cdot$ %s $\cdot$ fim previsto \textbf{%s}}\par\vspace{1mm}'

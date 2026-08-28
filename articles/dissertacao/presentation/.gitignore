@@ -32,3 +32,6 @@ build_test/
 # Quando o deck final existir, rastreie-o explicitamente, como o src/ faz com o
 # dissertacao.pdf e o wrapup/material_extra com o main_extra.pdf:
 #   git add -f presentation/<nome-do-deck>.pdf
+
+# As chapas tikz sao ARTEFATO versionado, nao subproduto de build (regra *.pdf da linha 19).
+!figures/plates/*.pdf

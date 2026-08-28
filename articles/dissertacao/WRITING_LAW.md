@@ -252,7 +252,7 @@ end a section by restating it).
 
 **2025–2026 updates (from the current detection literature; sources in
 [`AGENT_GUARDRAILS.md`](AGENT_GUARDRAILS.md) §8). The numbered items below are cited elsewhere
-as §4.1–§4.6:**
+as §4.1–§4.10:**
 
 1. **The list is versioned and rotting.** Word lists decay as models and authors adapt (the
    classic tells are already declining in 2024–25 corpora). Re-audit with fresh eyes per pass;
@@ -276,6 +276,48 @@ as §4.1–§4.6:**
    noise; density convicts.
 6. **Do not over-ban:** robust, novel, framework, comprehensive, baseline are normal CS words
    when load-bearing. The offense is decoration and stacking.
+7. **Claim-first paragraph shape ("fixed arc").** Confirmed against 2025–2026 corpus work, not
+   folklore: LLM essays "follow a more fixed arc, often opening with a direct claim and moving
+   quickly toward proposals" (Kim, Chang, Pham & Iyyer, *Argument Collapse: LLMs Flatten Long-Form
+   Public Debate*, arXiv 2606.01736, 2026; 23,384 essays, verified at the source). Measured: within
+   one debate, main-argument uniqueness is 65.3% for humans vs. **3.4% for LLMs**; sub-argument
+   uniqueness 41.0% vs. 9.1% — "LLMs often reuse generalized and hedged sub-arguments, while humans
+   prefer more concrete and topic-specific ones." The defect is not the strong opening sentence
+   itself, it is that the elaboration behind it is generic support rather than a specific fact.
+   **The rule:** a paragraph-opening claim must already carry a scoped, concrete element (a number,
+   a name, a citation, a file reference) — never a free-floating assertion unpacked only by
+   restatement. Not every paragraph in a chapter may open with its strongest sentence; vary which
+   sentence carries the claim (first, mid-paragraph after a setup, or last as a landed conclusion).
+8. **Connective loss tracks lexical inflation — check them together.** 823,798 arXiv abstracts,
+   pre/post-ChatGPT: cohesion and readability "indicates that abstracts have fewer connecting
+   words" after LLM adoption, alongside greater lexical complexity but simplified sentence
+   structure, and **Computer Science showed the most pronounced shift of any discipline measured**
+   (Bao, Zhao, Mao & Zhang, *Examining Linguistic Shifts in Academic Writing Before and After the
+   Launch of ChatGPT*, arXiv 2505.12218, 2025, verified at the source). The failure mode is not
+   zero connectives — it is a connective that is either **absent** or **templated/interchangeable**
+   (a stock "moreover"/"furthermore" that could be deleted or swapped without changing the logic).
+   **The test:** for every transition between two sentences or two paragraphs, delete the
+   connective and read the join; if the logical relation still has to be inferred, or reads
+   identically with a different connective substituted, the transition is decorative, not
+   load-bearing — name the actual relation (contrast, consequence, restriction, added constraint)
+   instead of reaching for the reflex word.
+9. **Sentence length without local repair.** 2025-generation model sentences run **15–30% longer**
+   than human-authored text (vs. 2023-generation models, which ran 10–20% *shorter* than human),
+   while parsing more cleanly (98–99% success under a formal grammar vs. 93–95% for the human
+   baseline) — longer sentences that are grammatically too clean (Gude, Santos-Ríos, Bond,
+   Flickinger, Gómez-Rodríguez & Zamaraeva, *More Aligned, Less Diverse? Analyzing the Grammar and
+   Lexicon of Two Generations of LLMs*, arXiv 2605.06030, 2026, verified at the source). Real
+   non-native academic prose is locally bumpier even when the overall argument is careful — a long
+   sentence with zero internal correction, apposition, or re-phrasing earns a second look. Extends
+   §1's hard-phrasing rule: length alone is not the defect, but a long, perfectly regular sentence
+   is a signal to re-read.
+10. **Rigid section skeletons (reconfirmed live for 2025–2026, not decayed).** A "Challenges"-shaped
+    section that always opens "Despite its [positive framing], X faces challenges…"; headings that
+    contain only sub-headings with no prose between them; an inline vertical bullet list standing
+    in for connected prose where a section expects paragraphs (*Wikipedia:Signs of AI writing*,
+    community-maintained, verified 2026-08-21). None of these are new bans — they are §4.4's
+    discourse-skeleton rule and §5's structure rules, applied at the sub-section level; recorded
+    here because the source shows these specific shapes still fire in 2025–2026 output.
 
 **Idiom rule (inherited GLOSSARY §8):** no phrasal-metaphor idioms ("edges past", "buys",
 "ships", "lands", "folds in", "clears it by"); metaphor budget for "carry/carries" ≤3 per
@@ -292,6 +334,12 @@ chapter; "deliberately X" → "X by design"; "sits above" → "lies above" (one 
   Empirical / Practical) with section cross-refs.
 - **Every chapter Introduction ends with a roadmap paragraph**; every section opens with a
   purpose statement (varying shape, per §4.4).
+- **Paragraph-to-paragraph transitions are explicit, never templated.** Read the last sentence of
+  paragraph N and the first sentence of paragraph N+1 together: the logical link (contrast,
+  consequence, restriction, elaboration) must be inferable without re-reading, and stated in the
+  receiving sentence's own words rather than a reflex connective (§4.8's delete-and-reread test
+  applies at the paragraph boundary too, not only within a sentence). A long section in which every
+  paragraph could be reordered without a reader noticing has this defect.
 - **Tables:** booktabs only (no vertical rules); captions **above** tables (ABNT; fix Viegas's
   inconsistency); mean ± std with per-block bolded best values; every results table introduced by
   a lead takeaway sentence (a normal sentence, never a literal "Read this as:" tag).
@@ -345,6 +393,11 @@ chapter; "deliberately X" → "X by design"; "sits above" → "lies above" (one 
       only with a test.
 - [ ] AI-tell sweep: banned words/templates at zero; intensifiers ≤1 per claim; -ly density in
       band; no semicolon braids; paragraph shapes vary; chapter openers not templated.
+- [ ] §4.7–§4.10 sweep: no paragraph-opening claim without a concrete element; every transition
+      passes the delete-and-reread test (within sentences, between sentences, between paragraphs);
+      no long sentence that is too grammatically clean to have been re-worked; no rigid section
+      skeleton (the "Despite its X, faces challenges" shape, headings-only-subheadings, bullet
+      lists standing in for prose).
 - [ ] Language pass: simple, direct American English that the author would defend aloud; American
       spelling and usage are consistent; no passage requires a second reading for its intended
       meaning or logical connection.

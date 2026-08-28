@@ -151,6 +151,11 @@ model versions over a months-long project.
   hedges, and numbers must map 1:1.
 - **L6. Fresh-eyes audits.** Style and consistency audits are run by an agent that did NOT write
   the text under audit (or by the author), never self-certified by the drafting agent.
+- **L7. Transition audit.** Before G3: apply WRITING_LAW §4.8's delete-and-reread test to every
+  paragraph boundary in agent-drafted prose; an absent or freely-swappable transition is flagged
+  and the receiving paragraph is rewritten to state its actual logical relation to the one before
+  it. Chapters that are re-typeset published text are out of scope (the transitions are the
+  original authors', not drafted here); frame chapters (WRITING_LAW §6) are in scope.
 
 ## 4b · Meta-claim protocol: claims about the WORK, not about the science
 
@@ -610,7 +615,14 @@ constraint loss); QUDsim (discourse-skeleton reuse); syntactic-template detectio
 "Voice Under Revision" (variance compression, Claude 78% of features). Tells: Kobak et al.
 Science Advances 2025 (excess vocabulary, ≥13.5% of 2024 abstracts); Matsui 2025 (tell-avoidance
 already measurable); Terčon & Dobrovoljc 2025 survey (POS-profile tells); refsmmat per-model word
-rates (Claude "genuinely" ~10×). Policy: CNPq Portaria 2.664/2026; UFV/DPE guide 03/2026; CAPES
+rates (Claude "genuinely" ~10×). Paragraph-level and long-form additions (2026-08-21, individually
+source-verified, not taken from a sub-agent's paraphrase — see the addendum in
+`docs/research/ai_writing_evidence_2026-07-18.md`): Kim, Chang, Pham & Iyyer, *Argument Collapse*
+(arXiv 2606.01736, 2026 — claim-first "fixed arc," 65.3% vs 3.4% argument-uniqueness gap); Bao,
+Zhao, Mao & Zhang (arXiv 2505.12218, 2025 — connective-word loss, largest shift in CS abstracts of
+any discipline measured); Gude, Santos-Ríos, Bond, Flickinger, Gómez-Rodríguez & Zamaraeva, *More
+Aligned, Less Diverse?* (arXiv 2605.06030, 2026 — 15–30% longer sentences that parse too cleanly);
+*Wikipedia:Signs of AI writing* (rigid section skeletons, rule-of-three reconfirmed live). Policy: CNPq Portaria 2.664/2026; UFV/DPE guide 03/2026; CAPES
 GT 2025 (+ NT 3/2025 via secondary sources — verify before citing verbatim); ICMJE 04/2025;
 publisher policies (Elsevier/Springer/IEEE/ACM); U. Georgia / U. Toronto thesis policies; Unifesp
 Res. 17/2025; Unicamp PRPG 2025. **Full findings with every URL:**
