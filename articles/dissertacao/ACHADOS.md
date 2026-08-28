@@ -134,11 +134,33 @@ caminho do ficheiro e não em número de linha:
 > (conteúdo pessoal de terceiro, cópia única). O método e os valores ficam; a evidência primária
 > não é reverificável.*
 
-⏳ **Falta `BOAS_PRATICAS_SLIDES.md §3`** — é da `ppt`, e o `gate` pediu explicitamente que a linha
-lhe fosse mandada para confirmar antes de ser aplicada. Enviada; a aplicar quando ela responder.
+✅ **`BOAS_PRATICAS_SLIDES.md §3` — a `ppt` escreveu a dela, e é melhor que a linha que recebeu.**
+Foi o certo ter-lhe perguntado em vez de aplicar: ela é dona do ficheiro e sabia duas coisas que a
+nota genérica escondia.
 
-As medições continuam válidas e o método está escrito em cada documento — o que se perdeu é a
-possibilidade de **reverificar** contra a fonte.
+**1 · Havia uma frase que passou a ser falsa.** O `§3` abria com *"É uma GRAVAÇÃO, e ela agora está
+dentro do repositório"*, com o caminho. Uma nota ao lado deixaria o documento a **afirmar a
+presença do ficheiro e a negá-la três linhas abaixo**. Ela reescreveu a abertura.
+
+**2 · E "o método e os valores ficam" era generoso demais.** É aqui que está o custo real do
+apagamento, e é mais fundo do que eu tinha escrito:
+
+> O `§3.1` valia por **três leituras de ritmo que convergiam em ~40–48 s/slide e não partilhavam
+> instrumento**. Duas delas — os 45/37 s por bloco e os ~11 min do slide final — vinham de quadros
+> amostrados da gravação, e **morreram com ela**. O `§3.2` inteiro (títulos, ausência de bloco
+> colorido) era observação direta, e **morreu também**. Sobrevive uma: os 48 s/slide, que vêm do
+> `APRESENTACAO_DEFESA_GUIDE.md §4.0` — documento, não vídeo.
+>
+> **O alvo de ~48 s/slide continua defensável. Mas deixou de ser triangulação, e o `§3` dizia que
+> era.** Quem citar o `§3.1` precisa de saber isso; está lá em tabela agora.
+
+**3 · E ela preservou o aviso que ela própria tinha escrito semanas antes** — *"se o arquivo sumir
+do disco, some de vez"* — agora entre aspas, com **`Sumiu.`** a seguir.
+
+> 🔴 **Isso é o achado do dia, e é a mesma classe do `slide_final.pdf` da §A1: um aviso registado
+> não é uma salvaguarda.** Nos dois casos o risco estava escrito, no sítio certo, com a instrução
+> para o evitar ao lado — e nos dois casos ninguém a executou. Aconteceu **duas vezes no mesmo dia,
+> no mesmo repositório**. O `slide_final.pdf` sobreviveu por acaso: bastou olhar. O vídeo não.
 >
 > Argumento a favor da decisão, para o registo: era a defesa **de outra pessoa** e continha
 > **conteúdo pessoal do autor** (61 min do ecrã dele, com outras janelas). Sob o critério novo

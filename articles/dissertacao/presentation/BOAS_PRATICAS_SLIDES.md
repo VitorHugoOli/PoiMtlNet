@@ -246,14 +246,37 @@ de §4.3 — a medida deixa de importar.
 
 ## 3 · A referência medida: a defesa do Henrique
 
-**É uma GRAVAÇÃO, e ela agora está dentro do repositório**, em
-`presentation/exemples/Screen Recording 2026-07-08 at 10.02.56.mov` (7,04 GB, 3.679 s, 4096×2304,
-60 fps). ⚠ **Não é PDF.** Um agente anterior procurou PDF, não achou, e concluiu que a referência
-não existia — estando o caminho num documento que ele mesmo escrevera.
+🛑 **A GRAVAÇÃO FOI APAGADA EM 28/08/2026**, por decisão do autor (conteúdo pessoal de
+terceiro, cópia única). Era
+`presentation/exemples/Screen Recording 2026-07-08 at 10.02.56.mov` — 7,04 GB, 3.679 s,
+4096×2304, 60 fps. **O método e os valores desta seção ficam; a evidência primária não é
+reverificável.**
 
-⚠ **E ela não está no git**: `articles/dissertacao/.gitignore` ignora `exemples/`, e o backup em
-`~/Backups/dissertacao_exemples_2026-08-20.tgz` é de 20/08, **anterior ao vídeo**. Se o arquivo
-sumir do disco, some de vez.
+⚠ **E o aviso que estava escrito aqui estava certo, e não foi executado:** *"ela não está no git —
+`articles/dissertacao/.gitignore` ignora `exemples/`, e o backup em
+`~/Backups/dissertacao_exemples_2026-08-20.tgz` é de 20/08, anterior ao vídeo. Se o arquivo sumir
+do disco, some de vez."* **Sumiu.** Confirmado em 28/08: nem o tarball nem
+`/Volumes/linux/VIDEO/` a tinham. **Um aviso registado não é uma salvaguarda** — é a mesma classe
+do `slide_final.pdf`, que ficou a um `git clean` de distância com o acidente já documentado no
+próprio `.gitignore`.
+
+**O que exatamente deixou de ser verificável**, porque a distinção importa para quem citar o §3.1:
+
+| leitura | instrumento | sobrevive? |
+|---|---|---|
+| 45 s/slide (bloco A) · 37 s/slide (bloco B) | quadros amostrados da gravação | 🛑 **não** — só o número, sem a fonte |
+| ~11 min do slide final na tela | idem | 🛑 **não** |
+| §3.2 inteiro (títulos, ausência de bloco colorido) | observação direta da gravação | 🛑 **não** |
+| 48 s/slide (64 slides em ~51 min) | `APRESENTACAO_DEFESA_GUIDE.md` §4.0 | ✅ **sim** — é documento |
+
+> ⚠ **A convergência de §3.1 perde duas das três pernas.** Ela valia por as três leituras **não
+> partilharem instrumento**; hoje duas delas não têm mais como ser refeitas. **O alvo de ~48 s por
+> slide continua defensável** — vem da perna que sobreviveu — **mas não o chame mais de
+> triangulação.**
+
+⚠ **Não é PDF.** Um agente anterior procurou PDF, não achou, e concluiu que a referência não
+existia — estando o caminho num documento que ele mesmo escrevera. **Isso continua a valer como
+lição**, mesmo agora que o ficheiro não existe.
 
 **Método desta seção:** extraí 41 quadros a cada 90 s com `ffmpeg -ss` antes do `-i` (busca por
 keyframe, barata num arquivo de 7 GB), montei folhas de contato e **olhei**. Depois li os números
