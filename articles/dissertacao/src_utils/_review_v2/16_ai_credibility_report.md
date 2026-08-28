@@ -120,7 +120,7 @@ the cross-attention paragraphs; qualified yes for D.** Details in §3, with the 
 
 ## 1 · v1 FINDINGS: WHAT PERSISTS, WHAT IS CLOSED
 
-The only prior run is `_review_v1/16_ai_credibility_report.md` (snapshot 2026-07-23, against an
+The only prior run is `_review_v1/CONSOLIDATED_REVIEW_REPORT.md (sec. 16_ai_credibility_report.md)` (snapshot 2026-07-23, against an
 87-page build that no longer exists). Its six ranked findings, re-checked against the current text:
 
 | v1 finding | Status now | Evidence this session |

@@ -110,7 +110,7 @@ there is nothing mechanical to apply and nothing substantive to queue. If the au
 independent of drift:** Ch.5 L44 and L140 (inherited verbatim from the version of record)
 misattribute a next-region task and an *observed* negative transfer to the CBIC prior work. This
 is a claim-level fix on an under-review paper, routed to the author via the ERRATA path (repair
-text in `_review_v1/14_adversarial_advisor_report.md` §B.1). It is NOT a re-sync drift item; it
+text in `_review_v1/CONSOLIDATED_REVIEW_REPORT.md (sec. 14_adversarial_advisor_report.md)` §B.1). It is NOT a re-sync drift item; it
 is a correction the author must approve, and it should also be reflected back into
 `[mobiwac]/src/` if the author agrees.
 

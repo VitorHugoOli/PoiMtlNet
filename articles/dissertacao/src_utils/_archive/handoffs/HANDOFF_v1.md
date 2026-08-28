@@ -102,7 +102,7 @@ Every planned component, its Phase-0 status, and where it landed in v1.
 2. **[VERIFY] CBIC dataset counts** — `3_cbic.tex:235`, renders in PDF p.35. Sanctioned recompute. **Author runs.**
 3. **[NEEDS SIGN-OFF] B.1 Ch.5 CBIC misattribution** — `5_mobiwac.tex:44,140` say CBIC studied
    next-region and *observed* negative transfer (both false; inherited from the under-review
-   paper). Repair text ready in `_review_v1/14_adversarial_advisor_report.md` §B.1 → ERRATA route. **Author approves.**
+   paper). Repair text ready in `_review_v1/CONSOLIDATED_REVIEW_REPORT.md (sec. 14_adversarial_advisor_report.md)` §B.1 → ERRATA route. **Author approves.**
 
 ### Tier 2 — [NEEDS SIGN-OFF] drafted content (approve or revise; the text compiles as-is)
 4. **Resumo (PT) + Abstract (EN)** — `0_main.tex:174,236`, claim-parity pair from Ch.1/6 (certified parallel by 03/08).

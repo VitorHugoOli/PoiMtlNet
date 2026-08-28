@@ -155,7 +155,7 @@ fix; REV-027's Chapter 4 half is disproved by a grep. Treat its file-level asser
 
 **Notable.** A large share of these findings were **already identified inside this repository** before the external
 review — `_review_v1/09_stats_leakage_skeptic_report.md`
-(B1, B3, B4), the MobiWac review panels, `_review_v1/18_visual_presentation_report.md`
+(B1, B3, B4), the MobiWac review panels, `_review_v1/CONSOLIDATED_REVIEW_REPORT.md (sec. 18_visual_presentation_report.md)`
 (M1, M2, M5, m7, m9), and `NORTH_STAR.md:146`. That independent reproduction raises confidence in the findings and
 lowers the cost of remediation: replacement sentences for several of them are already drafted in this repo.
 

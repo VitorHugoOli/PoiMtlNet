@@ -384,7 +384,7 @@ Note that `X, not Y` itself went **down** (1.23 → 1.19 per 1k), so the draftin
 which no sweep was counting.
 
 **This round crossed a standing guard, and the guard was issued by this same persona.** The v1 run of
-persona 16 (`src_utils/_review_v1/16_ai_credibility_report.md:72-79`) raised this exact construction
+persona 16 (`src_utils/_review_v1/CONSOLIDATED_REVIEW_REPORT.md (sec. 16_ai_credibility_report.md):72-79`) raised this exact construction
 as its item 3, called it "the single tell a 2026 CS examiner is most primed to see", judged the
 density then defensible, and closed with an explicit instruction: **"Freeze the count; do not let
 edit passes raise it."** Its summary line (`:266-267`) repeats it: "guard, do not add; freeze the

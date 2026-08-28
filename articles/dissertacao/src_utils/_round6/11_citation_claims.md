@@ -793,3 +793,1181 @@ Stated plainly, since a smoothed-over gap is the defect this repository keeps ca
 `11_claims_appendices.md`. The machine-readable verdict set is `_final_verdicts.json` in this folder,
 with the intermediate resolution and screening data alongside it.
 
+
+---
+
+# Anexo · Os veredictos por unidade, linha a linha
+
+> **Consolidado em 2026-08-28.** Estas sete tabelas estavam em sete ficheiros irmaos
+> (`11_claims_*.md`) da mesma corrida, mesmo auditor, mesma data. Eram um relatorio em sete
+> ficheiros, nao sete relatorios. O conteudo esta VERBATIM; so os cabecalhos `##` sao novos.
+
+
+---
+
+## `11_claims_1_introduction.md`
+
+# 11_claims_1_introduction.md — citation claim-support audit, Chapter 1, Introduction
+
+**Unit:** `src/chapters/1_introduction.tex`  
+**Run:** 2026-07-28, round 6, as the per-chapter pass the author asked for by name (COD-008 decision).  
+**Errata regime for this unit:** frame chapter: author's own text, no errata mechanism; claim changes are [NEEDS SIGN-OFF]-class.
+
+## 1 · Counts (every citation in the unit, not a sample)
+
+- `\cite` commands in the unit: **8**, on **8** source lines, carrying **9** key instances (a multi-key `\cite` counts once per key). Every one was audited.
+- Distinct bibliography keys used: **9**.
+- Verdicts: **SUPPORTED** 8, **PARTIAL** 1.
+
+Comments were stripped before counting, so a key that appears only inside a `%` comment is not counted; every counted site renders.
+
+## 2 · Every citation, with its verdict
+
+Verdict scale: SUPPORTED, the citing sentence's attribution is present in or a fair paraphrase of the
+source; PARTIAL, part is supported and part is not, or the sentence is stronger than the source;
+NOT-SUPPORTED, the attribution is absent from or contradicted by the source; UNVERIFIABLE, the source
+of record does not carry enough to decide and the attribution is not implausible.
+
+| # | Site (file:line) | Key | Verdict | Evidence quoted from the source (under 20 words) |
+|---|---|---|---|---|
+| 1 | `1_introduction.tex:38` | `song2010limits` | SUPPORTED | "there was 93% predictability across the whole user base" |
+| 2 | `1_introduction.tex:45` | `luca2021mobilitysurvey` | SUPPORTED | "its impact on several aspects of our society, such as disease spreading, urban planning, well-being, pollution" |
+| 3 | `1_introduction.tex:46` | `Xu2023` | SUPPORTED | "categories (e.g., Bar and Museum ) are vital to the task, as they often serve as excellent semantic characterization of the venues" |
+| 4 | `1_introduction.tex:50` | `mai2023sphere2vecgeneralpurposelocationrepresentation` | SUPPORTED | "fine-grained species recognition, Flickr image recognition, and remote sensing image classification" |
+| 5 | `1_introduction.tex:50` | `wu2024torchspatial` | PARTIAL | "a learning framework and benchmark for location (point) encoding" |
+| 6 | `1_introduction.tex:70` | `caruana1997multitask` | SUPPORTED | "improves generalization by using the domain information contained in the training signals of related tasks" |
+| 7 | `1_introduction.tex:72` | `kokkinos2016ubernet` | SUPPORTED | "jointly handles low-, mid-, and high-level vision tasks in a unified architecture" |
+| 8 | `1_introduction.tex:73` | `lipton2015learning` | SUPPORTED | "multilabel classification of diagnoses, training a model to classify 128 diagnoses given 13 frequently but irregularly sampled clinical measurements" |
+| 9 | `1_introduction.tex:75` | `wei2022finetuned` | SUPPORTED | "finetuning language models on a collection of tasks described via instructions" |
+## 3 · Failures and partials in this unit, in detail
+
+### `1_introduction.tex:50` — `wu2024torchspatial` — **PARTIAL**
+
+**Citing sentence.** The field also imports its tools: part of the representation machinery used in this research, the spatial location encoders of the second study, was first validated on geospatial tasks such as species recognition and remote sensing classification~\cite{mai2023sphere2vecgeneralpurposelocationrepresentation,wu2024torchspatial}.
+
+**Reference resolved.** arXiv:2406.15658. Source of record: arXiv API; OpenAlex API. Record reads: TorchSpatial: A Location Encoding Framework and Benchmark for Spatial Representation Learning | arXiv preprint | 2024 | type posted-content.
+
+**Located passage.** "a learning framework and benchmark for location (point) encoding"
+
+**Why.** TorchSpatial is a framework and benchmark that consolidates 15 existing location encoders and supplies LocBench (7 geo-aware image classification and 10 regression datasets). It is where the encoders are benchmarked on geospatial tasks, not where they were "first validated". Sphere2Vec, the co-cited entry, does carry the original validation.
+
+**Recommended disposition.** Narrow "first validated" to "validated": the clause is true of both works under the weaker verb, and Sphere2Vec alone supports the stronger one.
+
+## 4 · Source ledger for this unit
+
+Every distinct key cited in this unit, the identifier it resolved by, and where I opened it this session.
+
+| Key | Identifier | Opened at | Record as returned |
+|---|---|---|---|
+| `Xu2023` | DOI 10.1145/3582553 | Crossref REST; OpenAlex API | TME: Tree-guided Multi-task Embedding Learning towards Semantic Venue Annotation \| ACM Transactions on Information Systems \| 2023 \| type journal-article |
+| `caruana1997multitask` | DOI 10.1023/A:1007379606734 | Crossref REST; OpenAlex API; PDF in repo: 10.1023_A_1007379606734.pdf | Multitask Learning \| Machine Learning \| 1997 \| type journal-article |
+| `kokkinos2016ubernet` | arXiv:1609.02132 | arXiv API; OpenAlex API | UberNet: Training a `Universal' Convolutional Neural Network for Low-, Mid-, and High-Level Vision using Diverse Datasets and Limited Memory \| arXiv preprint \| 2016 \|  |
+| `lipton2015learning` | arXiv:1511.03677 | arXiv API; OpenAlex API | Learning to Diagnose with LSTM Recurrent Neural Networks \| arXiv preprint \| 2015 \| type posted-content |
+| `luca2021mobilitysurvey` | DOI 10.1145/3485125 | Crossref REST; OpenAlex API | A Survey on Deep Learning for Human Mobility \| ACM Computing Surveys \| 2021 \| type journal-article |
+| `mai2023sphere2vecgeneralpurposelocationrepresentation` | arXiv:2306.17624 | arXiv API; OpenAlex API | Sphere2Vec: A General-Purpose Location Representation Learning over a Spherical Surface for Large-Scale Geospatial Predictions \| ISPRS Journal of Photogrammetry and Remo |
+| `song2010limits` | DOI 10.1126/science.1177170 | Crossref REST; OpenAlex API; PDF in repo: 201002-19_Science-Predictability.pdf | Limits of Predictability in Human Mobility \| Science \| 2010 \| type journal-article |
+| `wei2022finetuned` | URL https://openreview.net/forum?id=gEZrGCozdqR | arXiv API; OpenAlex API | Finetuned Language Models Are Zero-Shot Learners \| arXiv preprint \| 2021 \| type posted-content |
+| `wu2024torchspatial` | arXiv:2406.15658 | arXiv API; OpenAlex API | TorchSpatial: A Location Encoding Framework and Benchmark for Spatial Representation Learning \| arXiv preprint \| 2024 \| type posted-content |
+
+## 5 · What I could not confirm in this chapter
+
+Nothing outstanding beyond the single PARTIAL above. The `song2010limits` figure at `:38` was
+checked against the paper itself and not only its abstract: `science/articles/201002-19_Science-
+Predictability.pdf` states "a potential 93% average predictability in user mobility" in its summary
+and gives Pmax approximately 0.93 in the body, which is what the chapter's "about 93 percent"
+reports, with the chapter's own hedge ("potential predictability") matching the source's.
+
+---
+
+## `11_claims_2_fundamentals.md`
+
+# 11_claims_2_fundamentals.md — citation claim-support audit, Chapter 2, Fundamentals
+
+**Unit:** `src/chapters/2_fundamentals.tex`  
+**Run:** 2026-07-28, round 6, as the per-chapter pass the author asked for by name (COD-008 decision).  
+**Errata regime for this unit:** frame chapter: author's own text, no errata mechanism; claim changes are [NEEDS SIGN-OFF]-class.
+
+## 1 · Counts (every citation in the unit, not a sample)
+
+- `\cite` commands in the unit: **69**, on **69** source lines, carrying **70** key instances (a multi-key `\cite` counts once per key). Every one was audited.
+- Distinct bibliography keys used: **67**.
+- Verdicts: **SUPPORTED** 70.
+
+Comments were stripped before counting, so a key that appears only inside a `%` comment is not counted; every counted site renders.
+
+## 2 · Every citation, with its verdict
+
+Verdict scale: SUPPORTED, the citing sentence's attribution is present in or a fair paraphrase of the
+source; PARTIAL, part is supported and part is not, or the sentence is stronger than the source;
+NOT-SUPPORTED, the attribution is absent from or contradicted by the source; UNVERIFIABLE, the source
+of record does not carry enough to decide and the attribution is not implausible.
+
+| # | Site (file:line) | Key | Verdict | Evidence quoted from the source (under 20 words) |
+|---|---|---|---|---|
+| 1 | `2_fundamentals.tex:31` | `silva2019urbancomputing` | SUPPORTED | "offers unprecedented geographic and temporal resolutions" |
+| 2 | `2_fundamentals.tex:33` | `cho2011gowalla` | SUPPORTED | "Short-ranged travel is periodic both spatially and temporally...while long-distance travel is more influenced by social network ties" |
+| 3 | `2_fundamentals.tex:35` | `song2010limits` | SUPPORTED | "there was 93% predictability across the whole user base" |
+| 4 | `2_fundamentals.tex:47` | `luca2021mobilitysurvey` | SUPPORTED | "leading deep learning solutions to next-location prediction, crowd flow prediction, trajectory generation, and flow generation" |
+| 5 | `2_fundamentals.tex:57` | `Xu2023` | SUPPORTED | "we address the problem of semantic venue annotation, i.e., labeling the venue with a semantic category" |
+| 6 | `2_fundamentals.tex:68` | `liu2016strnn` | SUPPORTED | "time-specific transition matrices for different time intervals and distance-specific transition matrices for different geographical distances" |
+| 7 | `2_fundamentals.tex:70` | `feng2018deepmove` | SUPPORTED | "historical attention model with two mechanisms to capture the multi-level periodicity" |
+| 8 | `2_fundamentals.tex:71` | `kong2018hstlstm` | SUPPORTED | "hierarchical extension of the proposed ST-LSTM (HST-LSTM)...naturally combines spatial-temporal influence into LSTM" |
+| 9 | `2_fundamentals.tex:73` | `yang2020flashback` | SUPPORTED | "explicitly uses spatiotemporal contexts to search past hidden states with high predictive power" |
+| 10 | `2_fundamentals.tex:75` | `luo2021stan` | SUPPORTED | "point-to-point interaction between non-adjacent locations and non-consecutive check-ins with explicit spatio-temporal effect" |
+| 11 | `2_fundamentals.tex:77` | `lian2020geosan` | SUPPORTED | "GeoSAN represents the hierarchical gridding of each GPS point with a self-attention based geography encoder" |
+| 12 | `2_fundamentals.tex:79` | `yang2022getnext` | SUPPORTED | "propose a user-agnostic global trajectory flow map and a novel Graph Enhanced Transformer model (GETNext) to better exploit the extensive collaborativ" |
+| 13 | `2_fundamentals.tex:85` | `lin2021ctle` | SUPPORTED | "calculates a location's representation vector with consideration of its specific contextual neighbors in trajectories" |
+| 14 | `2_fundamentals.tex:90` | `Lim2022` | SUPPORTED | "perform a Hierarchical Beam Search (HBS) on the different region and POI distributions to hierarchically reduce the search space" |
+| 15 | `2_fundamentals.tex:91` | `yu2020catdm` | SUPPORTED | "incorporates POI category and geographical influence to reduce search space to overcome data sparsity" |
+| 16 | `2_fundamentals.tex:94` | `zhu2022drrgnn` | SUPPORTED | "predicting the next activity region (AR)... studies... individual-level inter-regional mobility behavior" |
+| 17 | `2_fundamentals.tex:95` | `capanema2023poirgnn` | SUPPORTED | "Combining recurrent and Graph Neural Networks to predict the next place's category" |
+| 18 | `2_fundamentals.tex:139` | `mikolov2013word2vec` | SUPPORTED | "continuous vector representations of words from very large data sets" |
+| 19 | `2_fundamentals.tex:141` | `perozzi2014deepwalk` | SUPPORTED | "generalizes recent advancements in language modeling ... from sequences of words to graphs" |
+| 20 | `2_fundamentals.tex:143` | `grover2016node2vec` | SUPPORTED | "design a biased random walk procedure, which efficiently explores diverse neighborhoods... generalizes prior work which is based on rigid notions" |
+| 21 | `2_fundamentals.tex:145` | `kipf2017gcn` | SUPPORTED | "localized first-order approximation of spectral graph convolutions" |
+| 22 | `2_fundamentals.tex:147` | `velivckovic2017graph` | SUPPORTED | "enable (implicitly) specifying different weights to different nodes in a neighborhood, without requiring any kind of costly matrix operation" |
+| 23 | `2_fundamentals.tex:149` | `hamilton2017graphsage` | SUPPORTED | "we learn a function that generates embeddings by sampling and aggregating features from a node's local neighborhood" |
+| 24 | `2_fundamentals.tex:154` | `belghazi2018mine` | SUPPORTED | "estimation of mutual information between high dimensional continuous random variables can be achieved by gradient descent" |
+| 25 | `2_fundamentals.tex:156` | `hjelm2019dim` | SUPPORTED | "maximizing mutual information between an input and the output of a deep neural network encoder... incorporating knowledge about locality" |
+| 26 | `2_fundamentals.tex:159` | `velickovic2019deep` | SUPPORTED | "DGI relies on maximizing mutual information between patch representations and corresponding high-level summaries of graphs" |
+| 27 | `2_fundamentals.tex:163` | `huang2023hgi` | SUPPORTED | "the mutual information among the POI - region - city hierarchy is leveraged as the objective" |
+| 28 | `2_fundamentals.tex:192` | `lin2021ctle` | SUPPORTED | "calculates a location's representation vector with consideration of its specific contextual neighbors in trajectories" |
+| 29 | `2_fundamentals.tex:201` | `kazemi2019time2vec` | SUPPORTED | "model-agnostic vector representation for time, called Time2Vec, that can be easily imported into many existing" |
+| 30 | `2_fundamentals.tex:204` | `sitzmann2020implicit` | SUPPORTED | "demonstrate that these networks, dubbed sinusoidal representation networks or Sirens, are ideally suited for representing complex natural signals and " |
+| 31 | `2_fundamentals.tex:205` | `mai2020multiscalerepresentationlearningspatial` | SUPPORTED | "propose a representation learning model called Space2Vec to encode the absolute positions and spatial relationships of places" |
+| 32 | `2_fundamentals.tex:208` | `mai2023sphere2vecgeneralpurposelocationrepresentation` | SUPPORTED | "propose a multi-scale location encoder called Sphere2Vec which can preserve spherical distances when encoding point coordinates on a spherical surface" |
+| 33 | `2_fundamentals.tex:211` | `russwurm2024geographiclocationencodingspherical` | SUPPORTED | "combines spherical harmonic basis functions, natively defined on spherical surfaces, with sinusoidal representation networks" |
+| 34 | `2_fundamentals.tex:213` | `perez2018film` | SUPPORTED | "FiLM layers influence neural network computation via a simple, feature-wise affine transformation based on conditioning information" |
+| 35 | `2_fundamentals.tex:284` | `caruana1997multitask` | SUPPORTED | "improves generalization by using the domain information contained in the training signals of related tasks... learning tasks in parallel while using a" |
+| 36 | `2_fundamentals.tex:293` | `ruder2017mtloverview` | SUPPORTED | "introduces the two most common methods for MTL in Deep Learning" |
+| 37 | `2_fundamentals.tex:296` | `misra2016cross` | SUPPORTED | "These units combine the activations from multiple networks and can be trained end-to-end" |
+| 38 | `2_fundamentals.tex:298` | `ma2018mmoe` | SUPPORTED | "Modeling Task Relationships in Multi-task Learning with Multi-gate Mixture-of-Experts" |
+| 39 | `2_fundamentals.tex:300` | `tang2020ple` | SUPPORTED | "PLE separates shared components and task-specific components explicitly and adopts a progressive routing mechanism" |
+| 40 | `2_fundamentals.tex:301` | `hazimeh2021dselectk` | SUPPORTED | "a continuously differentiable and sparse gate for MoE, based on a novel binary encoding formulation" |
+| 41 | `2_fundamentals.tex:310` | `standley2020tasks` | SUPPORTED | "this often leads to inferior overall performance as task objectives can compete, which consequently poses the question: which tasks should and should " |
+| 42 | `2_fundamentals.tex:313` | `sener2018mgda` | SUPPORTED | "this workaround is only valid when the tasks do not compete, which is rarely the case" |
+| 43 | `2_fundamentals.tex:317` | `kendall2018uncertainty` | SUPPORTED | "weighs multiple loss functions by considering the homoscedastic uncertainty of each task" |
+| 44 | `2_fundamentals.tex:319` | `chen2018gradnorm` | SUPPORTED | "gradient normalization (GradNorm) algorithm that automatically balances training in deep multitask models by dynamically tuning gradient magnitudes" |
+| 45 | `2_fundamentals.tex:320` | `liu2019dwa` | SUPPORTED | "less sensitive to various weighting schemes in the multi-task loss function" |
+| 46 | `2_fundamentals.tex:322` | `yu2020pcgrad` | SUPPORTED | "projects a task's gradient onto the normal plane of the gradient of any other task that has a conflicting gradient" |
+| 47 | `2_fundamentals.tex:324` | `liu2021cagrad` | SUPPORTED | "leveraging the worst local improvement of individual tasks to regularize the algorithm trajectory. CAGrad ... provably converges to a minimum" |
+| 48 | `2_fundamentals.tex:327` | `nash` | SUPPORTED | "viewing the gradients combination step as a bargaining game... known as the Nash Bargaining Solution" |
+| 49 | `2_fundamentals.tex:329` | `senushkin2023aligned` | SUPPORTED | "aligning the orthogonal components of the linear system of gradients... condition number as a stability criterion" |
+| 50 | `2_fundamentals.tex:331` | `liu2023famo` | SUPPORTED | "decreases task losses in a balanced way using $\mathcal{O}(1)$ space and time" |
+| 51 | `2_fundamentals.tex:332` | `lin2022rlw` | SUPPORTED | "RW methods can achieve comparable performance with state-of-the-art baselines" |
+| 52 | `2_fundamentals.tex:334` | `xin2022domtl` | SUPPORTED | "MTO methods do not yield any performance improvements beyond what is achievable via traditional optimization approaches" |
+| 53 | `2_fundamentals.tex:336` | `kurin2022scalarization` | SUPPORTED | "unitary scalarization, coupled with standard regularization and stabilization techniques...matches or improves upon the performance of complex multi-t" |
+| 54 | `2_fundamentals.tex:338` | `vandenhende2022mtl` | SUPPORTED | "we consider MTL from a network architecture point-of-view... we examine various optimization methods to tackle the joint learning" |
+| 55 | `2_fundamentals.tex:338` | `yu2024survey` | SUPPORTED | "categorizes MTL techniques into five key areas: regularization, relationship learning, feature propagation, optimization, and pre-training" |
+| 56 | `2_fundamentals.tex:352` | `Liao2018` | SUPPORTED | "novel Context Aware Recurrent Unit is designed to integrate the sequential dependency and temporal regularity" |
+| 57 | `2_fundamentals.tex:354` | `huang2024cslsl` | SUPPORTED | "explicitly model the “ when → what → where ”, a.k.a. “ time → activity → location ” decision logic" |
+| 58 | `2_fundamentals.tex:362` | `silva2025mtlnet` | SUPPORTED | "did not consistently yield substantial improvements over the single-task baselines across both tasks" |
+| 59 | `2_fundamentals.tex:417` | `cho2011gowalla` | SUPPORTED | "humans experience a combination of periodic movement that is geographically limited and seemingly random jumps correlated with their social networks" |
+| 60 | `2_fundamentals.tex:420` | `wongso2025massivesteps` | SUPPORTED | "the over-reliance on older datasets from 2012-2013" |
+| 61 | `2_fundamentals.tex:422` | `yang2015tsmc` | SUPPORTED | "real-world datasets collected from New York and Tokyo" |
+| 62 | `2_fundamentals.tex:431` | `sokolova2009measures` | SUPPORTED | "systematic analysis of twenty four performance measures used in the complete spectrum of Machine Learning classification tasks" |
+| 63 | `2_fundamentals.tex:444` | `maninis2019attentive` | SUPPORTED | "a smooth trade-off between computation and multi-task accuracy" |
+| 64 | `2_fundamentals.tex:451` | `gambs2012mmc` | SUPPORTED | "extend a mobility model called Mobility Markov Chain (MMC)" |
+| 65 | `2_fundamentals.tex:454` | `song2010limits` | SUPPORTED | "there was 93% predictability across the whole user base" |
+| 66 | `2_fundamentals.tex:462` | `kohavi1995crossval` | SUPPORTED | "the best method to use for model selection is ten-fold strati ed cross validation" |
+| 67 | `2_fundamentals.tex:465` | `pedregosa2011sklearn` | SUPPORTED | "Scikit-learn is a Python module integrating a wide range of state-of-the-art machine learning algorithms" |
+| 68 | `2_fundamentals.tex:476` | `wilcoxon1945` | SUPPORTED | "Individual Comparisons by Ranking Methods" |
+| 69 | `2_fundamentals.tex:481` | `holm1979` | SUPPORTED | "widely applicable multiple test procedure of the sequentially rejective type" |
+| 70 | `2_fundamentals.tex:484` | `lakens2017tost` | SUPPORTED | "the two one-sided tests (TOST) procedure discussed in this article, an upper and lower equivalence bound is specified" |
+## 3 · Failures and partials in this unit, in detail
+
+None. Every citation in this unit is SUPPORTED.
+
+## 4 · Source ledger for this unit
+
+Every distinct key cited in this unit, the identifier it resolved by, and where I opened it this session.
+
+| Key | Identifier | Opened at | Record as returned |
+|---|---|---|---|
+| `Liao2018` | DOI 10.24963/ijcai.2018/477 | Crossref REST; OpenAlex API | Predicting Activity and Location with Multi-task Context Aware Recurrent Neural Network \| Proceedings of the Twenty-Seventh International Joint Conference on Artificial  |
+| `Lim2022` | DOI 10.1145/3477495.3531989 | Crossref REST; OpenAlex API | Hierarchical Multi-Task Graph Recurrent Network for Next POI Recommendation \| Proceedings of the 45th International ACM SIGIR Conference on Research and Development in I |
+| `Xu2023` | DOI 10.1145/3582553 | Crossref REST; OpenAlex API | TME: Tree-guided Multi-task Embedding Learning towards Semantic Venue Annotation \| ACM Transactions on Information Systems \| 2023 \| type journal-article |
+| `belghazi2018mine` | arXiv:1801.04062 | arXiv API; OpenAlex API | MINE: Mutual Information Neural Estimation \| ICML 2018 \| 2018 \| type posted-content |
+| `capanema2023poirgnn` | DOI 10.1016/j.adhoc.2022.103016 | Crossref REST; OpenAlex API | Combining recurrent and Graph Neural Networks to predict the next place’s category \| Ad Hoc Networks \| 2023 \| type journal-article |
+| `caruana1997multitask` | DOI 10.1023/A:1007379606734 | Crossref REST; OpenAlex API; PDF in repo: 10.1023_A_1007379606734.pdf | Multitask Learning \| Machine Learning \| 1997 \| type journal-article |
+| `chen2018gradnorm` | no identifier in the bib entry | arXiv API; OpenAlex API | GradNorm: Gradient Normalization for Adaptive Loss Balancing in Deep Multitask Networks \| Proceedings of the 35th International Conference on Machine Learning (2018), 79 |
+| `cho2011gowalla` | DOI 10.1145/2020408.2020579 | Crossref REST; OpenAlex API | Friendship and mobility \| Proceedings of the 17th ACM SIGKDD international conference on Knowledge discovery and data mining \| 2011 \| type proceedings-article |
+| `feng2018deepmove` | DOI 10.1145/3178876.3186058 | Crossref REST; OpenAlex API | DeepMove \| Proceedings of the 2018 World Wide Web Conference on World Wide Web - WWW '18 \| 2018 \| type proceedings-article |
+| `gambs2012mmc` | DOI 10.1145/2181196.2181199 | Crossref REST; OpenAlex API | Next place prediction using mobility Markov chains \| Proceedings of the First Workshop on Measurement, Privacy, and Mobility \| 2012 \| type proceedings-article |
+| `grover2016node2vec` | DOI 10.1145/2939672.2939754 | Crossref REST; OpenAlex API | node2vec \| Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining \| 2016 \| type proceedings-article |
+| `hamilton2017graphsage` | arXiv:1706.02216 | arXiv API; OpenAlex API | Inductive Representation Learning on Large Graphs \| arXiv preprint \| 2017 \| type posted-content |
+| `hazimeh2021dselectk` | arXiv:2106.03760 | arXiv API; OpenAlex API | DSelect-k: Differentiable Selection in the Mixture of Experts with Applications to Multi-Task Learning \| arXiv preprint \| 2021 \| type posted-content |
+| `hjelm2019dim` | arXiv:1808.06670 | arXiv API; OpenAlex API | Learning deep representations by mutual information estimation and maximization \| arXiv preprint \| 2018 \| type posted-content |
+| `holm1979` | no identifier in the bib entry | OpenAlex API | A Simple Sequentially Rejective Multiple Test Procedure \| Scandinavian Journal of Statistics \| 1979 \| type article |
+| `huang2023hgi` | DOI 10.1016/j.isprsjprs.2022.11.021 | Crossref REST; OpenAlex API; Semantic Scholar API; PDF in repo: Learning urban region representations with POIs and hierarchical graph infomax.pdf | Learning urban region representations with POIs and hierarchical graph infomax \| ISPRS Journal of Photogrammetry and Remote Sensing \| 2023 \| type journal-article |
+| `huang2024cslsl` | DOI 10.1140/epjds/s13688-024-00460-7 | Crossref REST; OpenAlex API | Human mobility prediction with causal and spatial-constrained multi-task network \| EPJ Data Science \| 2024 \| type journal-article |
+| `kazemi2019time2vec` | arXiv:1907.05321 | arXiv API; OpenAlex API | Time2Vec: Learning a Vector Representation of Time \| arXiv preprint \| 2019 \| type posted-content |
+| `kendall2018uncertainty` | DOI 10.1109/CVPR.2018.00781 | Crossref REST; OpenAlex API | Multi-task Learning Using Uncertainty to Weigh Losses for Scene Geometry and Semantics \| 2018 IEEE/CVF Conference on Computer Vision and Pattern Recognition \| 2018 \| t |
+| `kipf2017gcn` | arXiv:1609.02907 | arXiv API; OpenAlex API | Semi-Supervised Classification with Graph Convolutional Networks \| arXiv preprint \| 2016 \| type posted-content |
+| `kohavi1995crossval` | no identifier in the bib entry | OpenAlex API | A Study of Cross-Validation and Bootstrap for Accuracy Estimation and Model Selection \| (no venue in record) \| 1995 \| type article |
+| `kong2018hstlstm` | DOI 10.24963/ijcai.2018/324 | Crossref REST; OpenAlex API | HST-LSTM: A Hierarchical Spatial-Temporal Long-Short Term Memory Network for Location Prediction \| Proceedings of the Twenty-Seventh International Joint Conference on Ar |
+| `kurin2022scalarization` | no identifier in the bib entry | arXiv API; OpenAlex API | In Defense of the Unitary Scalarization for Deep Multi-Task Learning \| arXiv preprint \| 2022 \| type posted-content |
+| `lakens2017tost` | DOI 10.1177/1948550617697177 | Crossref REST; OpenAlex API | Equivalence Tests \| Social Psychological and Personality Science \| 2017 \| type journal-article |
+| `lian2020geosan` | DOI 10.1145/3394486.3403252 | Crossref REST; OpenAlex API | Geography-Aware Sequential Location Recommendation \| Proceedings of the 26th ACM SIGKDD International Conference on Knowledge Discovery &amp; Data Mining \| 2020 \| type |
+| `lin2021ctle` | DOI 10.1609/aaai.v35i5.16548 | Crossref REST; OpenAlex API | Pre-training Context and Time Aware Location Embeddings from Spatial-Temporal Trajectories for User Next Location Prediction \| Proceedings of the AAAI Conference on Arti |
+| `lin2022rlw` | arXiv:2111.10603 | arXiv API; OpenAlex API | Reasonable Effectiveness of Random Weighting: A Litmus Test for Multi-Task Learning \| arXiv preprint \| 2021 \| type posted-content |
+| `liu2016strnn` | DOI 10.1609/aaai.v30i1.9971 | Crossref REST; OpenAlex API | Predicting the Next Location: A Recurrent Model with Spatial and Temporal Contexts \| Proceedings of the AAAI Conference on Artificial Intelligence \| 2016 \| type journa |
+| `liu2019dwa` | DOI 10.1109/CVPR.2019.00197 | Crossref REST; OpenAlex API | End-To-End Multi-Task Learning With Attention \| 2019 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) \| 2019 \| type proceedings-article |
+| `liu2021cagrad` | arXiv:2110.14048 | arXiv API; OpenAlex API | Conflict-Averse Gradient Descent for Multi-task Learning \| arXiv preprint \| 2021 \| type posted-content |
+| `liu2023famo` | no identifier in the bib entry | arXiv API; OpenAlex API | FAMO: Fast Adaptive Multitask Optimization \| arXiv preprint \| 2023 \| type posted-content |
+| `luca2021mobilitysurvey` | DOI 10.1145/3485125 | Crossref REST; OpenAlex API | A Survey on Deep Learning for Human Mobility \| ACM Computing Surveys \| 2021 \| type journal-article |
+| `luo2021stan` | DOI 10.1145/3442381.3449998 | Crossref REST; OpenAlex API | STAN: Spatio-Temporal Attention Network for Next Location Recommendation \| Proceedings of the Web Conference 2021 \| 2021 \| type proceedings-article |
+| `ma2018mmoe` | DOI 10.1145/3219819.3220007 | Crossref REST; OpenAlex API | Modeling Task Relationships in Multi-task Learning with Multi-gate Mixture-of-Experts \| Proceedings of the 24th ACM SIGKDD International Conference on Knowledge Discover |
+| `mai2020multiscalerepresentationlearningspatial` | arXiv:2003.00824 | arXiv API; OpenAlex API | Multi-Scale Representation Learning for Spatial Feature Distributions using Grid Cells \| ICLR 2020, Apr. 26 - 30, 2020, Addis Ababa, ETHIOPIA \| 2020 \| type posted-cont |
+| `mai2023sphere2vecgeneralpurposelocationrepresentation` | arXiv:2306.17624 | arXiv API; OpenAlex API | Sphere2Vec: A General-Purpose Location Representation Learning over a Spherical Surface for Large-Scale Geospatial Predictions \| ISPRS Journal of Photogrammetry and Remo |
+| `maninis2019attentive` | DOI 10.1109/CVPR.2019.00195 | Crossref REST; OpenAlex API | Attentive Single-Tasking of Multiple Tasks \| 2019 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) \| 2019 \| type proceedings-article |
+| `mikolov2013word2vec` | arXiv:1301.3781 | arXiv API; OpenAlex API | Efficient Estimation of Word Representations in Vector Space \| arXiv preprint \| 2013 \| type posted-content |
+| `misra2016cross` | DOI 10.1109/CVPR.2016.433 | Crossref REST; OpenAlex API | Cross-Stitch Networks for Multi-task Learning \| 2016 IEEE Conference on Computer Vision and Pattern Recognition (CVPR) \| 2016 \| type proceedings-article |
+| `nash` | no identifier in the bib entry | arXiv API; OpenAlex API | Multi-Task Learning as a Bargaining Game \| arXiv preprint \| 2022 \| type posted-content |
+| `pedregosa2011sklearn` | no identifier in the bib entry | arXiv API; OpenAlex API; PDF in repo: Pedregosa2011_ScikitLearn.pdf | Scikit-learn: Machine Learning in Python \| Journal of Machine Learning Research (2011) \| 2012 \| type posted-content |
+| `perez2018film` | DOI 10.1609/aaai.v32i1.11671 | Crossref REST; OpenAlex API | FiLM: Visual Reasoning with a General Conditioning Layer \| Proceedings of the AAAI Conference on Artificial Intelligence \| 2018 \| type journal-article |
+| `perozzi2014deepwalk` | DOI 10.1145/2623330.2623732 | Crossref REST; OpenAlex API | DeepWalk \| Proceedings of the 20th ACM SIGKDD international conference on Knowledge discovery and data mining \| 2014 \| type proceedings-article |
+| `ruder2017mtloverview` | arXiv:1706.05098 | arXiv API; OpenAlex API | An Overview of Multi-Task Learning in Deep Neural Networks \| arXiv preprint \| 2017 \| type posted-content |
+| `russwurm2024geographiclocationencodingspherical` | arXiv:2310.06743 | arXiv API; OpenAlex API | Geographic Location Encoding with Spherical Harmonics and Sinusoidal Representation Networks \| Published as a conference paper at ICLR 2024 \| 2023 \| type posted-conten |
+| `sener2018mgda` | arXiv:1810.04650 | arXiv API; OpenAlex API | Multi-Task Learning as Multi-Objective Optimization \| arXiv preprint \| 2018 \| type posted-content |
+| `senushkin2023aligned` | no identifier in the bib entry | Crossref REST; OpenAlex API | Independent Component Alignment for Multi-Task Learning \| 2023 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) \| 2023 \| type proceedings-article |
+| `silva2019urbancomputing` | DOI 10.1145/3301284 | Crossref REST; OpenAlex API | Urban Computing Leveraging Location-Based Social Network Data \| ACM Computing Surveys \| 2019 \| type journal-article |
+| `silva2025mtlnet` | DOI 10.21528/CBIC2025-1191324 | Crossref REST; OpenAlex API | An Investigation into Multi-Task Learning for Point-of-Interest Category Classification and Next-POI Prediction \| Anais do XVII Congresso Brasileiro de Inteligência Comp |
+| `sitzmann2020implicit` | arXiv:2006.09661 | arXiv API; OpenAlex API | Implicit Neural Representations with Periodic Activation Functions \| arXiv preprint \| 2020 \| type posted-content |
+| `sokolova2009measures` | DOI 10.1016/j.ipm.2009.03.002 | Crossref REST; OpenAlex API; PDF in repo: sokolova2009.pdf | A systematic analysis of performance measures for classification tasks \| Information Processing &amp; Management \| 2009 \| type journal-article |
+| `song2010limits` | DOI 10.1126/science.1177170 | Crossref REST; OpenAlex API; PDF in repo: 201002-19_Science-Predictability.pdf | Limits of Predictability in Human Mobility \| Science \| 2010 \| type journal-article |
+| `standley2020tasks` | arXiv:1905.07553 | arXiv API; OpenAlex API | Which Tasks Should Be Learned Together in Multi-task Learning? \| arXiv preprint \| 2019 \| type posted-content |
+| `tang2020ple` | DOI 10.1145/3383313.3412236 | Crossref REST; OpenAlex API | Progressive Layered Extraction (PLE): A Novel Multi-Task Learning (MTL) Model for Personalized Recommendations \| Fourteenth ACM Conference on Recommender Systems \| 2020 |
+| `vandenhende2022mtl` | DOI 10.1109/TPAMI.2021.3054719 | Crossref REST; OpenAlex API | Multi-Task Learning for Dense Prediction Tasks: A Survey \| IEEE Transactions on Pattern Analysis and Machine Intelligence \| 2021 \| type journal-article |
+| `velickovic2019deep` | no identifier in the bib entry | OpenAlex API | Deep Graph Infomax \| Apollo (University of Cambridge) \| 2018 \| type conference-paper |
+| `velivckovic2017graph` | arXiv:1710.10903 | arXiv API | Graph Attention Networks \| arXiv preprint \| 2017 \| type posted-content |
+| `wilcoxon1945` | DOI 10.2307/3001968 | Crossref REST; OpenAlex API; PDF in repo: wilcoxon1945.pdf | Individual Comparisons by Ranking Methods \| Biometrics Bulletin \| 1945 \| type journal-article |
+| `wongso2025massivesteps` | no identifier in the bib entry | arXiv API; OpenAlex API | Massive-STEPS: Massive Semantic Trajectories for Understanding POI Check-ins -- Dataset and Benchmarks \| arXiv preprint \| 2025 \| type posted-content |
+| `xin2022domtl` | no identifier in the bib entry | arXiv API; OpenAlex API | Do Current Multi-Task Optimization Methods in Deep Learning Even Help? \| arXiv preprint \| 2022 \| type posted-content |
+| `yang2015tsmc` | DOI 10.1109/TSMC.2014.2327053 | Crossref REST; OpenAlex API | Modeling User Activity Preference by Leveraging User Spatial Temporal Characteristics in LBSNs \| IEEE Transactions on Systems, Man, and Cybernetics: Systems \| 2015 \| t |
+| `yang2020flashback` | DOI 10.24963/ijcai.2020/302 | Crossref REST; OpenAlex API | Location Prediction over Sparse User Mobility Traces Using RNNs: Flashback in Hidden States! \| Proceedings of the Twenty-Ninth International Joint Conference on Artifici |
+| `yang2022getnext` | DOI 10.1145/3477495.3531983 | Crossref REST; OpenAlex API | GETNext \| Proceedings of the 45th International ACM SIGIR Conference on Research and Development in Information Retrieval \| 2022 \| type proceedings-article |
+| `yu2020catdm` | DOI 10.1145/3366423.3380202 | Crossref REST; OpenAlex API | A Category-Aware Deep Model for Successive POI Recommendation on Sparse Check-in Data \| Proceedings of The Web Conference 2020 \| 2020 \| type proceedings-article |
+| `yu2020pcgrad` | no identifier in the bib entry | arXiv API; OpenAlex API | Gradient Surgery for Multi-Task Learning \| arXiv preprint \| 2020 \| type posted-content |
+| `yu2024survey` | arXiv:2404.18961 | arXiv API; OpenAlex API | Unleashing the Power of Multi-Task Learning: A Comprehensive Survey Spanning Traditional, Deep, and Pretrained Foundation Model Eras \| arXiv preprint \| 2024 \| type pos |
+| `zhu2022drrgnn` | DOI 10.1145/3529091 | Crossref REST; OpenAlex API | Predicting a Person’s Next Activity Region with a Dynamic Region-Relation-Aware Graph Neural Network \| ACM Transactions on Knowledge Discovery from Data \| 2022 \| type  |
+
+## 5 · Two sites in this chapter that a naive check flags and that are NOT defects
+
+Recorded so a later pass does not re-open them.
+
+**`2_fundamentals.tex:465`, `pedregosa2011sklearn`.** The chapter states the grouped, stratified
+splitting protocol in prose and cites the library. `StratifiedGroupKFold` is a scikit-learn v1.0
+(2021) feature and the cited paper is from 2011, which is why an existence-only check flags it. The
+author has ruled on this twice: it is a citation-style preference, not a support failure, and the
+ruling is recorded in the chapter's own ledger comment. Confirmed again here against the paper
+(read in `science/articles/Pedregosa2011_ScikitLearn.pdf`): the paper is the software citation and
+the sentence attributes no splitter behaviour to it. **Leave.**
+
+**`2_fundamentals.tex:476`, `wilcoxon1945`.** The PDF in the repository carries only a JSTOR cover
+page in its text layer; pages 2 to 5 extract zero characters, so the paper body could not be read
+from it and no full text is reachable at any allowlisted source. The citation is a method-origin
+pointer and the record (Crossref, Biometrics Bulletin 1(6):80-83, 1945) supports it at that level.
+Recorded as a limit of the check, not a finding.
+
+**A defect in my own handling of that entry, recorded.** An earlier pass of this audit stored that
+JSTOR boilerplate in the entry's `abstract` field, labelled as though it were paper content, and fed
+it to the screen. The screen returned UNVERIFIABLE for the site and named the boilerplate explicitly,
+so no verdict rested on the bad string, and the verdict above was set at record level. The stored
+field is now empty with a note that no abstract or body text is obtainable. I swept the whole snapshot
+for the same class afterwards and found no other contaminated abstract. See section 11 item 0 of
+`11_citation_claims.md`.
+
+## 6 · What I could not confirm in this chapter
+
+Nothing outstanding. All 70 key instances are SUPPORTED. The two entries above are closed at the
+level their sources support, and the limit is stated rather than smoothed over.
+
+---
+
+## `11_claims_3_cbic.md`
+
+# 11_claims_3_cbic.md — citation claim-support audit, Chapter 3, CBIC 2025
+
+**Unit:** `src/chapters/3_cbic.tex`  
+**Run:** 2026-07-28, round 6, as the per-chapter pass the author asked for by name (COD-008 decision).  
+**Errata regime for this unit:** PUBLISHED: a correction to reproduced prose is applied in the dissertation and listed in Appendix B; the published article record is not edited.
+
+## 1 · Counts (every citation in the unit, not a sample)
+
+- `\cite` commands in the unit: **57**, on **37** source lines, carrying **64** key instances (a multi-key `\cite` counts once per key). Every one was audited.
+- Distinct bibliography keys used: **31**.
+- Verdicts: **SUPPORTED** 49, **PARTIAL** 8, **NOT-SUPPORTED** 6, **UNVERIFIABLE** 1.
+
+Comments were stripped before counting, so a key that appears only inside a `%` comment is not counted; every counted site renders.
+
+## 2 · Every citation, with its verdict
+
+Verdict scale: SUPPORTED, the citing sentence's attribution is present in or a fair paraphrase of the
+source; PARTIAL, part is supported and part is not, or the sentence is stronger than the source;
+NOT-SUPPORTED, the attribution is absent from or contradicted by the source; UNVERIFIABLE, the source
+of record does not carry enough to decide and the attribution is not implausible.
+
+| # | Site (file:line) | Key | Verdict | Evidence quoted from the source (under 20 words) |
+|---|---|---|---|---|
+| 1 | `3_cbic.tex:48` | `Zhang2020` | SUPPORTED | "novel interactive multi-task learning (iMTL) framework to better exploit the interplay between activity and location preference" |
+| 2 | `3_cbic.tex:48` | `caruana1997multitask` | SUPPORTED | "improves generalization by using the domain information contained in the training signals of related tasks as an inductive bias" |
+| 3 | `3_cbic.tex:48` | `kokkinos2016ubernet` | SUPPORTED | "jointly handles low-, mid-, and high-level vision tasks in a unified architecture that is trained end-to-end" |
+| 4 | `3_cbic.tex:48` | `wei2022finetuned` | SUPPORTED | "instruction tuning -- finetuning language models on a collection of tasks described via instructions -- substantially improves zero-shot performance" |
+| 5 | `3_cbic.tex:62` | `chen2020modeling` | SUPPORTED | "propose a holistic approach named Human Mobility Representation Model (HMRM) to simultaneously produce the vector representations" |
+| 6 | `3_cbic.tex:62` | `cho2011gowalla` | SUPPORTED | "data from two online location-based social networks" |
+| 7 | `3_cbic.tex:62` | `jure2014snap` | SUPPORTED | "A collection of more than 50 large network datasets" |
+| 8 | `3_cbic.tex:62` | `zeng2019next` | SUPPORTED | "A Next Location Predicting Approach Based on a Recurrent Neural Network and Self-Attention" |
+| 9 | `3_cbic.tex:86` | `Xu2023` | SUPPORTED | "devise a Tree-guided Multi-task Embedding model (TME for short) to learn effective representations of venues and categories" |
+| 10 | `3_cbic.tex:88` | `Lim2022` | SUPPORTED | "learning different User-Region matrices of lower sparsities in a multi-task setting" |
+| 11 | `3_cbic.tex:95` | `caruana1997multitask` | SUPPORTED | "improves generalization by using the domain information contained in the training signals of related tasks" |
+| 12 | `3_cbic.tex:97` | `yu2024survey` | SUPPORTED | "categorizes MTL techniques into five key areas: regularization, relationship learning, feature propagation, optimization, and pre-training" |
+| 13 | `3_cbic.tex:97` | `zhang2021survey` | NOT-SUPPORTED | "five categories, including feature learning approach, low-rank approach, task clustering approach, task relation learning approach and decomposition a" |
+| 14 | `3_cbic.tex:102` | `caruana1997multitask` | PARTIAL | "improves generalization by using the domain information contained in the training signals of related tasks as an inductive bias" |
+| 15 | `3_cbic.tex:104` | `misra2016cross` | SUPPORTED | "we propose a new sharing unit: "cross-stitch" unit. These units combine the activations from multiple networks" |
+| 16 | `3_cbic.tex:104` | `ruder2017sluice` | SUPPORTED | "learns a latent multi-task architecture that jointly addresses (a)--(c)" |
+| 17 | `3_cbic.tex:106` | `ma2018mmoe` | SUPPORTED | "successfully used in many real-world large-scale applications such as recommendation systems" |
+| 18 | `3_cbic.tex:108` | `chen2018gradnorm` | SUPPORTED | "gradient normalization (GradNorm) algorithm that automatically balances training in deep multitask models by dynamically tuning gradient magnitudes" |
+| 19 | `3_cbic.tex:108` | `liu2019dwa` | SUPPORTED | "less sensitive to various weighting schemes in the multi-task loss function" |
+| 20 | `3_cbic.tex:108` | `sener2018mgda` | SUPPORTED | "we explicitly cast multi-task learning as multi-objective optimization, with the overall objective of finding a Pareto optimal solution" |
+| 21 | `3_cbic.tex:108` | `yu2020pcgrad` | SUPPORTED | "projects a task's gradient onto the normal plane of the gradient of any other task that has a conflicting gradient" |
+| 22 | `3_cbic.tex:112` | `ruder2017sluice` | SUPPORTED | "MTL involves searching an enormous space of possible parameter sharing architectures to find (a) the layers or subspaces that benefit from sharing" |
+| 23 | `3_cbic.tex:112` | `zhang2021survey` | SUPPORTED | "leverage useful information contained in multiple related tasks to help improve the generalization performance of all the tasks" |
+| 24 | `3_cbic.tex:113` | `sener2018mgda` | SUPPORTED | "different tasks may conflict, necessitating a trade-off" |
+| 25 | `3_cbic.tex:113` | `yu2020pcgrad` | SUPPORTED | "detrimental gradient interference, and develop a simple yet general approach for avoiding such interference between task gradients" |
+| 26 | `3_cbic.tex:114` | `nash` | NOT-SUPPORTED | "since the gradients of these different tasks may conflict, training a joint model for MTL often yields lower performance" |
+| 27 | `3_cbic.tex:114` | `standley2020tasks` | NOT-SUPPORTED | "which tasks should and should not be learned together in one network when employing multi-task learning" |
+| 28 | `3_cbic.tex:115` | `yu2024survey` | PARTIAL | "MTL's key advantages encompass streamlined model architecture, performance enhancement, and cross-domain generalizability" |
+| 29 | `3_cbic.tex:115` | `zhang2021survey` | PARTIAL | "When the number of tasks is large or the data dimensionality is high, we review online, parallel and distributed MTL models as well as dimensionality " |
+| 30 | `3_cbic.tex:118` | `standley2020tasks` | SUPPORTED | "propose a framework for assigning tasks to a few neural networks such that cooperating tasks are computed by the same neural network" |
+| 31 | `3_cbic.tex:118` | `yu2024survey` | SUPPORTED | "categorizes MTL techniques into five key areas: regularization, relationship learning, feature propagation, optimization, and pre-training" |
+| 32 | `3_cbic.tex:123` | `Liao2018` | PARTIAL | "a novel Context Aware Recurrent Unit is designed to integrate the sequential dependency and temporal regularity" |
+| 33 | `3_cbic.tex:123` | `Zhang2020` | NOT-SUPPORTED | "temporal-aware activity encoder equipped with fuzzy characterization over uncertain check-ins" |
+| 34 | `3_cbic.tex:125` | `Halder2021` | SUPPORTED | "Transformer-Based Multi-task Learning for Queuing Time Aware Next POI Recommendation" |
+| 35 | `3_cbic.tex:125` | `Xia2020` | PARTIAL | "exploits a structure of generative adversarial networks (GAN) simultaneously considering temporal check-ins and geographical locations" |
+| 36 | `3_cbic.tex:127` | `Xu2023` | PARTIAL | "we devise a Tree-guided Multi-task Embedding model (TME for short) to learn effective representations of venues and categories" |
+| 37 | `3_cbic.tex:143` | `du2019beyond` | SUPPORTED | "spatial complementarity refers to the effect that the role of a spatial entity can be complemented and augmented by other different yet compatible spa" |
+| 38 | `3_cbic.tex:145` | `huang2022estimating` | UNVERIFIABLE | "(no single decisive passage; see the ledger)" |
+| 39 | `3_cbic.tex:151` | `velickovic2019deep` | SUPPORTED | "maximizing mutual information between patch representations and corresponding high-level summaries of graphs" |
+| 40 | `3_cbic.tex:151` | `velivckovic2017graph` | SUPPORTED | "novel neural network architectures that operate on graph-structured data, leveraging masked self-attentional layers" |
+| 41 | `3_cbic.tex:191` | `perez2018film` | SUPPORTED | "FiLM layers influence neural network computation via a simple, feature-wise affine transformation based on conditioning information" |
+| 42 | `3_cbic.tex:191` | `standley2020tasks` | SUPPORTED | "which tasks should and should not be learned together in one network when employing multi-task learning" |
+| 43 | `3_cbic.tex:197` | `perez2018film` | SUPPORTED | "FiLM layers influence neural network computation via a simple, feature-wise affine transformation based on conditioning information" |
+| 44 | `3_cbic.tex:204` | `baxter2000model` | SUPPORTED | "the learner can search for a hypothesis space that contains good solutions to many of the problems" |
+| 45 | `3_cbic.tex:213` | `caruana1997multitask` | SUPPORTED | "improves generalization by using the domain information contained in the training signals of related tasks as an inductive bias" |
+| 46 | `3_cbic.tex:213` | `ruder2017sluice` | NOT-SUPPORTED | "we present an approach that learns a latent multi-task architecture" |
+| 47 | `3_cbic.tex:214` | `standley2020tasks` | NOT-SUPPORTED | "this often leads to inferior overall performance as task objectives can compete" |
+| 48 | `3_cbic.tex:228` | `nash` | SUPPORTED | "viewing the gradients combination step as a bargaining game, where tasks negotiate to reach an agreement" |
+| 49 | `3_cbic.tex:228` | `nash` | SUPPORTED | "proposed viewing the gradients combination step as a bargaining game... Nash Bargaining Solution" |
+| 50 | `3_cbic.tex:231` | `nash` | SUPPORTED | "viewing the gradients combination step as a bargaining game, where tasks negotiate to reach an agreement on a joint direction" |
+| 51 | `3_cbic.tex:231` | `nash` | SUPPORTED | "tasks negotiate to reach an agreement on a joint direction of parameter update" |
+| 52 | `3_cbic.tex:238` | `nash` | SUPPORTED | "we propose viewing the gradients combination step as a bargaining game" |
+| 53 | `3_cbic.tex:238` | `nash` | SUPPORTED | "Nash Bargaining Solution, which we propose to use as a principled approach to multi-task learning" |
+| 54 | `3_cbic.tex:238` | `nash` | SUPPORTED | "derive theoretical guarantees for its convergence" |
+| 55 | `3_cbic.tex:244` | `nash` | PARTIAL | "Empirically, we show that Nash-MTL achieves state-of-the-art results on multiple MTL benchmarks" |
+| 56 | `3_cbic.tex:280` | `yu2020pcgrad` | SUPPORTED | "gradient surgery that projects a task's gradient onto the normal plane of the gradient of any other task" |
+| 57 | `3_cbic.tex:288` | `cho2011gowalla` | SUPPORTED | "data from two online location-based social networks, we aim to understand what basic laws govern human motion" |
+| 58 | `3_cbic.tex:306` | `chen2020modeling` | PARTIAL | "We apply HMRM to both unsupervised and supervised tasks including two activity evaluation tasks and two embedding evaluation tasks" |
+| 59 | `3_cbic.tex:308` | `vaswani2017attention` | SUPPORTED | "new simple network architecture, the Transformer, based solely on attention mechanisms" |
+| 60 | `3_cbic.tex:308` | `zeng2019next` | SUPPORTED | "A Next Location Predicting Approach Based on a Recurrent Neural Network and Self-Attention" |
+| 61 | `3_cbic.tex:311` | `chen2020modeling` | SUPPORTED | "We apply HMRM to both unsupervised and supervised tasks including two activity evaluation tasks and two embedding evaluation tasks" |
+| 62 | `3_cbic.tex:317` | `zeng2019next` | SUPPORTED | "A Next Location Predicting Approach Based on a Recurrent Neural Network and Self-Attention" |
+| 63 | `3_cbic.tex:322` | `chen2020modeling` | SUPPORTED | "we propose a holistic approach named Human Mobility Representation Model (HMRM)" |
+| 64 | `3_cbic.tex:322` | `zeng2019next` | SUPPORTED | "A Next Location Predicting Approach Based on a Recurrent Neural Network and Self-Attention" |
+## 3 · Failures and partials in this unit, in detail
+
+### `3_cbic.tex:97` — `zhang2021survey` — **NOT-SUPPORTED**
+
+**Citing sentence.** Recent surveys \cite{yu2024survey,zhang2021survey} organize contemporary MTL research along five methodological dimensions: (i) \textit{parameter sharing} (hard vs.\ soft); (ii) \textit{relationship learning} (discovering task affinity or hierarchy); (iii) \textit{feature routing} (e.g., cross-stitch, sluice networks, attention gating); (iv) \textit{optimization} (conflict-aware gradient techniques); and (v) \textit{pre-training and instruction tuning}.
+
+**Reference resolved.** DOI 10.1109/TKDE.2021.3070203. Source of record: Crossref REST; OpenAlex API. Record reads: A Survey on Multi-Task Learning | IEEE Transactions on Knowledge and Data Engineering | 2022 | type journal-article.
+
+**Located passage.** "five categories, including feature learning approach, low-rank approach, task clustering approach, task relation learning approach and decomposition approach"
+
+**Why.** The sentence says "Recent surveys [yu2024survey,zhang2021survey] organize contemporary MTL research along five methodological dimensions" and then lists parameter sharing / relationship learning / feature routing / optimization / pre-training and instruction tuning. That list is yu2024survey's five areas (regularization, relationship learning, feature propagation, optimization, pre-training), loosely renamed. zhang2021survey also gives five, but a DIFFERENT five, none of which is parameter sharing or pre-training. The plural "surveys" makes a taxonomy claim of both.
+
+**Recommended disposition.** Published CBIC prose. Narrow the attribution: keep the list on yu2024survey and cite zhang2021survey for the survey framing only, or drop it from this sentence (it is cited three more times in the chapter). Appendix B row if the prose changes.
+
+### `3_cbic.tex:114` — `nash` — **NOT-SUPPORTED**
+
+**Citing sentence.** \textbf{Data Heterogeneity}: Variations in modality, label granularity, and dataset size complicate sampling strategies and minibatch construction \cite{nash,standley2020tasks}.
+
+**Reference resolved.** no identifier in the bib entry. Source of record: arXiv API; OpenAlex API. Record reads: Multi-Task Learning as a Bargaining Game | arXiv preprint | 2022 | type posted-content.
+
+**Located passage.** "since the gradients of these different tasks may conflict, training a joint model for MTL often yields lower performance"
+
+**Why.** The bullet is "Data Heterogeneity: variations in modality, label granularity, and dataset size complicate sampling strategies and minibatch construction". Nash-MTL is a gradient-aggregation method; it addresses gradient conflict, which is the PRECEDING bullet in the same list, and says nothing about modality, label granularity, dataset size, sampling or minibatch construction.
+
+**Recommended disposition.** Published CBIC prose. The two keys are mis-slotted across adjacent bullets. Either cite a survey that does treat data heterogeneity, or narrow the bullet to what these two works support.
+
+### `3_cbic.tex:114` — `standley2020tasks` — **NOT-SUPPORTED**
+
+**Citing sentence.** \textbf{Data Heterogeneity}: Variations in modality, label granularity, and dataset size complicate sampling strategies and minibatch construction \cite{nash,standley2020tasks}.
+
+**Reference resolved.** arXiv:1905.07553. Source of record: arXiv API; OpenAlex API. Record reads: Which Tasks Should Be Learned Together in Multi-task Learning? | arXiv preprint | 2019 | type posted-content.
+
+**Located passage.** "which tasks should and should not be learned together in one network when employing multi-task learning"
+
+**Why.** Same bullet. The paper studies task cooperation and competition and proposes a task-grouping framework. It does not treat modality, label granularity or dataset-size heterogeneity, nor sampling or minibatch construction.
+
+**Recommended disposition.** As above.
+
+### `3_cbic.tex:123` — `Zhang2020` — **NOT-SUPPORTED**
+
+**Citing sentence.** Similarly, the iMTL framework~\cite{Zhang2020} uses an LSTM architecture to model next-activity prediction, incorporating temporal dynamics in user behavior modeling.
+
+**Reference resolved.** DOI 10.24963/ijcai.2020/491. Source of record: Crossref REST; OpenAlex API. Record reads: An Interactive Multi-Task Learning Framework for Next POI Recommendation with Uncertain Check-ins | Proceedings of the Twenty-Ninth International Joint Conference on Artificial Intelligence | 2020 | type proceedings-article.
+
+**Located passage.** "temporal-aware activity encoder equipped with fuzzy characterization over uncertain check-ins"
+
+**Why.** iMTL is an interactive multi-task framework for next-POI recommendation with uncertain check-ins; its encoders are a temporal-aware activity encoder and a spatial-aware location preference encoder, with a task-specific decoder. The abstract does not name LSTM, and "next-activity prediction" is one of two interacting tasks, not the model's object.
+
+**Recommended disposition.** Published CBIC prose. Restate as its authors do: an interactive multi-task framework whose temporal-aware activity encoder handles uncertain check-ins. Appendix B row.
+
+### `3_cbic.tex:213` — `ruder2017sluice` — **NOT-SUPPORTED**
+
+**Citing sentence.** \textbf{Implicit Regularization:} By constraining the hypothesis space, hard sharing acts as a regularizer, often leading to more generalizable models, especially when tasks are related \cite{ruder2017sluice}.
+
+**Reference resolved.** arXiv:1705.08142. Source of record: arXiv API. Record reads: Latent Multi-task Architecture Learning | arXiv preprint | 2017 | type posted-content.
+
+**Located passage.** "we present an approach that learns a latent multi-task architecture"
+
+**Why.** The bullet claims hard sharing acts as a regularizer. The cited work (arXiv:1705.08142, whose arXiv title of record is "Latent Multi-task Architecture Learning") proposes LEARNING what and how much to share, that is a soft-sharing alternative to hard sharing, and reports it outperforming standard MTL. It is evidence against the bullet it is attached to, not for it.
+
+**Recommended disposition.** Published CBIC prose. baxter2000model, already in the bibliography and cited for exactly this at 4_courb.tex:116, does support a shared-hypothesis-space regularization claim. Swap the key. Appendix B row.
+
+### `3_cbic.tex:214` — `standley2020tasks` — **NOT-SUPPORTED**
+
+**Citing sentence.** \textbf{Empirical Performance:} In practice, hard parameter sharing frequently matches or exceeds the performance of more complex architectures on many benchmarks, while offering faster training and inference \cite{standley2020tasks}.
+
+**Reference resolved.** arXiv:1905.07553. Source of record: arXiv API; OpenAlex API. Record reads: Which Tasks Should Be Learned Together in Multi-task Learning? | arXiv preprint | 2019 | type posted-content.
+
+**Located passage.** "this often leads to inferior overall performance as task objectives can compete"
+
+**Why.** ITEM 3. See the dedicated section of this report.
+
+**Recommended disposition.** ITEM 3 draft: narrowed sentence + Appendix B row, handed over, not applied.
+
+### `3_cbic.tex:102` — `caruana1997multitask` — **PARTIAL**
+
+**Citing sentence.** This remains the simplest and most popular baseline, providing effective regularization \cite{caruana1997multitask}.
+
+**Reference resolved.** DOI 10.1023/A:1007379606734. Source of record: Crossref REST; OpenAlex API; PDF in repo: 10.1023_A_1007379606734.pdf. Record reads: Multitask Learning | Machine Learning | 1997 | type journal-article.
+
+**Located passage.** "improves generalization by using the domain information contained in the training signals of related tasks as an inductive bias"
+
+**Why.** The regularization half is squarely supported. "the simplest and most popular baseline" is a bibliometric claim about the field in 2025 that a 1997 paper cannot carry.
+
+**Recommended disposition.** Published CBIC prose, low exposure. Leave and record, or attribute the popularity clause to a survey (vandenhende2022mtl / zhang2021survey are both in the bibliography).
+
+### `3_cbic.tex:115` — `zhang2021survey` — **PARTIAL**
+
+**Citing sentence.** \textbf{Scalability}: Routing complexity, memory footprint, and evaluation costs often grow super-linearly as the number of tasks increases \cite{zhang2021survey,yu2024survey}.
+
+**Reference resolved.** DOI 10.1109/TKDE.2021.3070203. Source of record: Crossref REST; OpenAlex API. Record reads: A Survey on Multi-Task Learning | IEEE Transactions on Knowledge and Data Engineering | 2022 | type journal-article.
+
+**Located passage.** "When the number of tasks is large or the data dimensionality is high, we review online, parallel and distributed MTL models as well as dimensionality reduction and featur"
+
+**Why.** The survey does treat cost growth with the number of tasks, and names computational and storage concerns. The specific word "super-linearly" is a quantitative shape claim that the abstract does not state, and neither does yu2024survey's.
+
+### `3_cbic.tex:115` — `yu2024survey` — **PARTIAL**
+
+**Citing sentence.** \textbf{Scalability}: Routing complexity, memory footprint, and evaluation costs often grow super-linearly as the number of tasks increases \cite{zhang2021survey,yu2024survey}.
+
+**Reference resolved.** arXiv:2404.18961. Source of record: arXiv API; OpenAlex API. Record reads: Unleashing the Power of Multi-Task Learning: A Comprehensive Survey Spanning Traditional, Deep, and Pretrained Foundation Model Eras | arXiv preprint | 2024 | type posted-content.
+
+**Located passage.** "MTL's key advantages encompass streamlined model architecture, performance enhancement, and cross-domain generalizability"
+
+**Why.** Same bullet. The survey addresses architectures and efficiency but the abstract makes no super-linear growth claim. Published CBIC prose, low exposure: the bullet is a challenge list, not a result.
+
+### `3_cbic.tex:123` — `Liao2018` — **PARTIAL**
+
+**Citing sentence.** Early MTL-based approaches such as MCARNN~\cite{Liao2018} employ recurrent neural networks with temporal attention mechanisms to jointly predict user activities and future visited locations.
+
+**Reference resolved.** DOI 10.24963/ijcai.2018/477. Source of record: Crossref REST; OpenAlex API. Record reads: Predicting Activity and Location with Multi-task Context Aware Recurrent Neural Network | Proceedings of the Twenty-Seventh International Joint Conference on Artificial Intelligence | 2018 | type proceedings-article.
+
+**Located passage.** "a novel Context Aware Recurrent Unit is designed to integrate the sequential dependency and temporal regularity"
+
+**Why.** MCARNN does jointly predict activity and location with a recurrent model, which is the load-bearing part. "temporal attention mechanisms" is not what the paper describes: its mechanism is a Context Aware Recurrent Unit over spatial-activity topics.
+
+**Recommended disposition.** Published CBIC prose. Substitute "context-aware recurrent units" for "temporal attention mechanisms" (describe the system as its authors do, AGENT_GUARDRAILS R2), with an Appendix B row.
+
+### `3_cbic.tex:125` — `Xia2020` — **PARTIAL**
+
+**Citing sentence.** MTPR~\cite{Xia2020} combines LSTMs and adversarial learning to address uncertainty in check-ins and improve multi-task POI recommendation both location and temporal context with a generative component.
+
+**Reference resolved.** DOI 10.3390/app10196664. Source of record: Crossref REST; OpenAlex API. Record reads: MTPR: A Multi-Task Learning Based POI Recommendation Considering Temporal Check-Ins and Geographical Locations | Applied Sciences | 2020 | type journal-article.
+
+**Located passage.** "exploits a structure of generative adversarial networks (GAN) simultaneously considering temporal check-ins and geographical locations"
+
+**Why.** The multi-task, adversarial and temporal-geographic halves are supported verbatim. "combines LSTMs" is not in the abstract. The citing sentence is also ungrammatical in the published text ("improve multi-task POI recommendation both location and temporal context").
+
+**Recommended disposition.** Published CBIC prose. Drop "LSTMs and" or verify against the paper body; the sentence needs a grammatical repair regardless, which is a wording row.
+
+### `3_cbic.tex:127` — `Xu2023` — **PARTIAL**
+
+**Citing sentence.** Some Models such as TME~\cite{Xu2023} address category annotation using graph-based encoders, but treat prediction and classification separately.
+
+**Reference resolved.** DOI 10.1145/3582553. Source of record: Crossref REST; OpenAlex API. Record reads: TME: Tree-guided Multi-task Embedding Learning towards Semantic Venue Annotation | ACM Transactions on Information Systems | 2023 | type journal-article.
+
+**Located passage.** "we devise a Tree-guided Multi-task Embedding model (TME for short) to learn effective representations of venues and categories"
+
+**Why.** The load-bearing half is supported: TME addresses category annotation and does not pair it with next-POI prediction. "using graph-based encoders" is not TME's described mechanism, which is multi-context embedding regularized by a predefined category hierarchy.
+
+**Recommended disposition.** Published CBIC prose. Replace "graph-based encoders" with "a tree-guided multi-task embedding". Appendix B row.
+
+### `3_cbic.tex:145` — `huang2022estimating` — **UNVERIFIABLE**
+
+**Citing sentence.** Besides that, following \cite{huang2022estimating} the weight of an edge $e_{ij}$ is defined as $w_{ij} = \log((1+D^{1.5}/1+d_{ij}^{1.5}))$, where D is the diagonal length of bounding box that encloses the coordinates of POIs, and $d_{ij}$ is the geodesic distance between $p_{i}$ and $p_{j}$.
+
+**Reference resolved.** DOI 10.1080/13658816.2022.2040510. Source of record: Crossref REST; OpenAlex API. Record reads: Estimating urban functional distributions with semantics preserved POI embedding | International Journal of Geographical Information Science | 2022 | type journal-article.
+
+**Why.** The citing sentence reproduces a specific edge-weight formula, w_ij = log((1+D^1.5)/(1+d_ij^1.5)), and says it follows the cited work. That is a formula-level attribution; the abstract of record cannot confirm or refute it, and I did not obtain the paper body. Open as [VERIFY] with a named check: locate the formula in the cited paper, or restate it as this work's own construction.
+
+### `3_cbic.tex:244` — `nash` — **PARTIAL**
+
+**Citing sentence.** For efficiency, task weights can be updated less frequently, significantly reducing runtime while maintaining performance~\cite{nash}.
+
+**Reference resolved.** no identifier in the bib entry. Source of record: arXiv API; OpenAlex API. Record reads: Multi-Task Learning as a Bargaining Game | arXiv preprint | 2022 | type posted-content.
+
+**Located passage.** "Empirically, we show that Nash-MTL achieves state-of-the-art results on multiple MTL benchmarks"
+
+**Why.** The abstract does not carry the less-frequent-update claim. I could not locate it from the abstract alone, and I did not read the paper body for this clause, so I cannot certify it either way. The chapter has already corrected two other cost claims in this same subsection against this same paper.
+
+**Recommended disposition.** Open as [VERIFY]. The clause needs a page or section from arXiv:2202.01017 before it stands; the neighbouring corrections show the paper has been read for cost claims before.
+
+### `3_cbic.tex:306` — `chen2020modeling` — **PARTIAL**
+
+**Citing sentence.** The Human Mobility Representation Model (HMRM), introduced by Chen et al. (2020) \cite{chen2020modeling}, is designed for POI category classification.
+
+**Reference resolved.** DOI 10.1109/TKDE.2020.3001025. Source of record: Crossref REST; OpenAlex API. Record reads: Modeling Spatial Trajectories With Attribute Representation Learning | IEEE Transactions on Knowledge and Data Engineering | 2022 | type journal-article.
+
+**Located passage.** "We apply HMRM to both unsupervised and supervised tasks including two activity evaluation tasks and two embedding evaluation tasks"
+
+**Why.** HMRM is a general trajectory-attribute representation model, not a model "designed for POI category classification". The rest of the passage (PMI, matrix factorization, SVM on the embeddings) describes how THIS chapter used it as a baseline, which is a legitimate use.
+
+**Recommended disposition.** Published CBIC prose. Narrow to "used here for POI category classification" or "a representation model that this chapter applies to POI category classification".
+
+## 4 · Source ledger for this unit
+
+Every distinct key cited in this unit, the identifier it resolved by, and where I opened it this session.
+
+| Key | Identifier | Opened at | Record as returned |
+|---|---|---|---|
+| `Halder2021` | DOI 10.1007/978-3-030-75765-6_41 | Crossref REST; OpenAlex API; Semantic Scholar API | Transformer-Based Multi-task Learning for Queuing Time Aware Next POI Recommendation \| Lecture Notes in Computer Science \| 2021 \| type book-chapter |
+| `Liao2018` | DOI 10.24963/ijcai.2018/477 | Crossref REST; OpenAlex API | Predicting Activity and Location with Multi-task Context Aware Recurrent Neural Network \| Proceedings of the Twenty-Seventh International Joint Conference on Artificial  |
+| `Lim2022` | DOI 10.1145/3477495.3531989 | Crossref REST; OpenAlex API | Hierarchical Multi-Task Graph Recurrent Network for Next POI Recommendation \| Proceedings of the 45th International ACM SIGIR Conference on Research and Development in I |
+| `Xia2020` | DOI 10.3390/app10196664 | Crossref REST; OpenAlex API | MTPR: A Multi-Task Learning Based POI Recommendation Considering Temporal Check-Ins and Geographical Locations \| Applied Sciences \| 2020 \| type journal-article |
+| `Xu2023` | DOI 10.1145/3582553 | Crossref REST; OpenAlex API | TME: Tree-guided Multi-task Embedding Learning towards Semantic Venue Annotation \| ACM Transactions on Information Systems \| 2023 \| type journal-article |
+| `Zhang2020` | DOI 10.24963/ijcai.2020/491 | Crossref REST; OpenAlex API | An Interactive Multi-Task Learning Framework for Next POI Recommendation with Uncertain Check-ins \| Proceedings of the Twenty-Ninth International Joint Conference on Art |
+| `baxter2000model` | DOI 10.1613/jair.731 | Crossref REST; OpenAlex API | A Model of Inductive Bias Learning \| Journal of Artificial Intelligence Research \| 2000 \| type journal-article |
+| `caruana1997multitask` | DOI 10.1023/A:1007379606734 | Crossref REST; OpenAlex API; PDF in repo: 10.1023_A_1007379606734.pdf | Multitask Learning \| Machine Learning \| 1997 \| type journal-article |
+| `chen2018gradnorm` | no identifier in the bib entry | arXiv API; OpenAlex API | GradNorm: Gradient Normalization for Adaptive Loss Balancing in Deep Multitask Networks \| Proceedings of the 35th International Conference on Machine Learning (2018), 79 |
+| `chen2020modeling` | DOI 10.1109/TKDE.2020.3001025 | Crossref REST; OpenAlex API | Modeling Spatial Trajectories With Attribute Representation Learning \| IEEE Transactions on Knowledge and Data Engineering \| 2022 \| type journal-article |
+| `cho2011gowalla` | DOI 10.1145/2020408.2020579 | Crossref REST; OpenAlex API | Friendship and mobility \| Proceedings of the 17th ACM SIGKDD international conference on Knowledge discovery and data mining \| 2011 \| type proceedings-article |
+| `du2019beyond` | DOI 10.1109/ICDM.2019.00026 | Crossref REST; OpenAlex API | Beyond Geo-First Law: Learning Spatial Representations via Integrated Autocorrelations and Complementarity \| 2019 IEEE International Conference on Data Mining (ICDM) \|  |
+| `huang2022estimating` | DOI 10.1080/13658816.2022.2040510 | Crossref REST; OpenAlex API | Estimating urban functional distributions with semantics preserved POI embedding \| International Journal of Geographical Information Science \| 2022 \| type journal-arti |
+| `jure2014snap` | no identifier in the bib entry | OpenAlex API | {SNAP Datasets}: {Stanford} Large Network Dataset Collection \| (no venue in record) \| 2014 \| type article |
+| `kokkinos2016ubernet` | arXiv:1609.02132 | arXiv API; OpenAlex API | UberNet: Training a `Universal' Convolutional Neural Network for Low-, Mid-, and High-Level Vision using Diverse Datasets and Limited Memory \| arXiv preprint \| 2016 \|  |
+| `liu2019dwa` | DOI 10.1109/CVPR.2019.00197 | Crossref REST; OpenAlex API | End-To-End Multi-Task Learning With Attention \| 2019 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) \| 2019 \| type proceedings-article |
+| `ma2018mmoe` | DOI 10.1145/3219819.3220007 | Crossref REST; OpenAlex API | Modeling Task Relationships in Multi-task Learning with Multi-gate Mixture-of-Experts \| Proceedings of the 24th ACM SIGKDD International Conference on Knowledge Discover |
+| `misra2016cross` | DOI 10.1109/CVPR.2016.433 | Crossref REST; OpenAlex API | Cross-Stitch Networks for Multi-task Learning \| 2016 IEEE Conference on Computer Vision and Pattern Recognition (CVPR) \| 2016 \| type proceedings-article |
+| `nash` | no identifier in the bib entry | arXiv API; OpenAlex API | Multi-Task Learning as a Bargaining Game \| arXiv preprint \| 2022 \| type posted-content |
+| `perez2018film` | DOI 10.1609/aaai.v32i1.11671 | Crossref REST; OpenAlex API | FiLM: Visual Reasoning with a General Conditioning Layer \| Proceedings of the AAAI Conference on Artificial Intelligence \| 2018 \| type journal-article |
+| `ruder2017sluice` | arXiv:1705.08142 | arXiv API | Latent Multi-task Architecture Learning \| arXiv preprint \| 2017 \| type posted-content |
+| `sener2018mgda` | arXiv:1810.04650 | arXiv API; OpenAlex API | Multi-Task Learning as Multi-Objective Optimization \| arXiv preprint \| 2018 \| type posted-content |
+| `standley2020tasks` | arXiv:1905.07553 | arXiv API; OpenAlex API | Which Tasks Should Be Learned Together in Multi-task Learning? \| arXiv preprint \| 2019 \| type posted-content |
+| `vaswani2017attention` | arXiv:1706.03762 | arXiv API | Attention Is All You Need \| arXiv preprint \| 2017 \| type posted-content |
+| `velickovic2019deep` | no identifier in the bib entry | OpenAlex API | Deep Graph Infomax \| Apollo (University of Cambridge) \| 2018 \| type conference-paper |
+| `velivckovic2017graph` | arXiv:1710.10903 | arXiv API | Graph Attention Networks \| arXiv preprint \| 2017 \| type posted-content |
+| `wei2022finetuned` | URL https://openreview.net/forum?id=gEZrGCozdqR | arXiv API; OpenAlex API | Finetuned Language Models Are Zero-Shot Learners \| arXiv preprint \| 2021 \| type posted-content |
+| `yu2020pcgrad` | no identifier in the bib entry | arXiv API; OpenAlex API | Gradient Surgery for Multi-Task Learning \| arXiv preprint \| 2020 \| type posted-content |
+| `yu2024survey` | arXiv:2404.18961 | arXiv API; OpenAlex API | Unleashing the Power of Multi-Task Learning: A Comprehensive Survey Spanning Traditional, Deep, and Pretrained Foundation Model Eras \| arXiv preprint \| 2024 \| type pos |
+| `zeng2019next` | DOI 10.1007/978-3-030-30146-0_21 | Crossref REST; OpenAlex API; Semantic Scholar API | A Next Location Predicting Approach Based on a Recurrent Neural Network and Self-attention \| Lecture Notes of the Institute for Computer Sciences, Social Informatics and |
+| `zhang2021survey` | DOI 10.1109/TKDE.2021.3070203 | Crossref REST; OpenAlex API | A Survey on Multi-Task Learning \| IEEE Transactions on Knowledge and Data Engineering \| 2022 \| type journal-article |
+
+## 5 · Provenance of every failure in this chapter
+
+**All fifteen non-SUPPORTED sites in this chapter are verbatim published CBIC 2025 prose.** I did
+not take this on trust. Each citing sentence was matched, as an exact string prefix, against the
+article source of record in this repository:
+
+| Site | Found verbatim in |
+|---|---|
+| `:97` five survey dimensions | `articles/CBIC___MTL/sections/basis.tex` |
+| `:102` hard-sharing baseline | `articles/CBIC___MTL/sections/basis.tex` |
+| `:108` DWA | `articles/CBIC___MTL/sections/basis.tex` |
+| `:114` data heterogeneity | `articles/CBIC___MTL/sections/basis.tex` |
+| `:123` MCARNN and iMTL | `articles/CBIC___MTL/sections/basis.tex` |
+| `:125` MTPR | `articles/CBIC___MTL/sections/basis.tex` |
+| `:127` TME | `articles/CBIC___MTL/sections/basis.tex` |
+| `:213` regularization and Caruana | `articles/CBIC___MTL/sections/method.tex` |
+| `:214` empirical performance | `articles/CBIC___MTL/sections/method.tex` |
+| `:244` Nash update frequency | `articles/CBIC___MTL/sections/method.tex` |
+| `:306` HMRM | `articles/CBIC___MTL/sections/results.tex` |
+
+So every disposition in this chapter is an errata-policy decision, not a typo fix: the correction is
+applied in the dissertation and listed in Appendix B, and the published record is not edited. That
+is also why the load-bearing ranking matters more here than elsewhere: each row costs an Appendix B
+line.
+
+## 6 · The Standley site
+
+`3_cbic.tex:214` is treated separately and at length in `11_citation_claims.md` section 5, per the
+author's instruction: a deeper evaluation of the effect on the text, a commit-history check for an
+earlier reference at that site, a replacement candidate, and a drafted narrowed sentence with its
+Appendix B row. **No edit to `3_cbic.tex` was made in this task.**
+
+## 7 · What I could not confirm in this chapter
+
+- `:145`, `huang2022estimating`: the edge-weight formula is attributed to the cited work and I could
+  not locate the formula. Open as `[VERIFY]`.
+- `:244`, `nash`: the less-frequent-update efficiency clause is not in the abstract of record and I
+  did not read the paper body for it. Open as `[VERIFY]`.
+- `zeng2019next` (four sites) returns no abstract at Crossref, OpenAlex or Semantic Scholar, and the
+  Springer chapter is outside the network allowlist. All four sites are identity-of-baseline
+  attributions that the record's title supports; no mechanism claim is made at any of them.
+
+---
+
+## `11_claims_4_courb.md`
+
+# 11_claims_4_courb.md — citation claim-support audit, Chapter 4, CoUrb 2026
+
+**Unit:** `src/chapters/4_courb.tex`  
+**Run:** 2026-07-28, round 6, as the per-chapter pass the author asked for by name (COD-008 decision).  
+**Errata regime for this unit:** PUBLISHED: a correction to reproduced prose is applied in the dissertation and listed in Appendix B; the published article record is not edited.
+
+## 1 · Counts (every citation in the unit, not a sample)
+
+- `\cite` commands in the unit: **50**, on **32** source lines, carrying **53** key instances (a multi-key `\cite` counts once per key). Every one was audited.
+- Distinct bibliography keys used: **28**.
+- Verdicts: **SUPPORTED** 47, **PARTIAL** 4, **NOT-SUPPORTED** 2.
+
+Comments were stripped before counting, so a key that appears only inside a `%` comment is not counted; every counted site renders.
+
+## 2 · Every citation, with its verdict
+
+Verdict scale: SUPPORTED, the citing sentence's attribution is present in or a fair paraphrase of the
+source; PARTIAL, part is supported and part is not, or the sentence is stronger than the source;
+NOT-SUPPORTED, the attribution is absent from or contradicted by the source; UNVERIFIABLE, the source
+of record does not carry enough to decide and the attribution is not implausible.
+
+| # | Site (file:line) | Key | Verdict | Evidence quoted from the source (under 20 words) |
+|---|---|---|---|---|
+| 1 | `4_courb.tex:18` | `paiva2026stmtlnet` | SUPPORTED | "title=ST-MTLNet: Representações Espaço-Temporais de Pontos de Interesse para Aprendizado Multitarefa; venue=Anais do X Workshop de Computação Urbana (" |
+| 2 | `4_courb.tex:25` | `cho2011gowalla` | SUPPORTED | "data from two online location-based social networks" |
+| 3 | `4_courb.tex:25` | `jure2014snap` | SUPPORTED | "A collection of more than 50 large network datasets" |
+| 4 | `4_courb.tex:32` | `caruana1997multitask` | SUPPORTED | "improves generalization by using the domain information contained in the training signals of related tasks" |
+| 5 | `4_courb.tex:34` | `silva2025mtlnet` | SUPPORTED | "shares lower-level embeddings and sequence encoders while maintaining task-specific heads" |
+| 6 | `4_courb.tex:38` | `wu2024torchspatial` | SUPPORTED | "a unified location encoding framework that consolidates 15 commonly recognized location encoders" |
+| 7 | `4_courb.tex:40` | `jure2014snap` | SUPPORTED | "A collection of more than 50 large network datasets" |
+| 8 | `4_courb.tex:60` | `feng2017poi2vec` | SUPPORTED | "we propose a new latent representation model POI2Vec that is able to incorporate the geographical influence" |
+| 9 | `4_courb.tex:60` | `rahmani2019category` | PARTIAL | "previous studies fail to capture crucial information about POIs such as categorical information" |
+| 10 | `4_courb.tex:62` | `huang2023hgi` | SUPPORTED | "aggregate POI embeddings and generate region raw embeddings" |
+| 11 | `4_courb.tex:62` | `velickovic2019deep` | SUPPORTED | "DGI relies on maximizing mutual information between patch representations and corresponding high-level summaries of graphs" |
+| 12 | `4_courb.tex:68` | `wu2024torchspatial` | SUPPORTED | "a unified location encoding framework that consolidates 15 commonly recognized location encoders, ensuring scalability and reproducibility" |
+| 13 | `4_courb.tex:70` | `mai2023sphere2vecgeneralpurposelocationrepresentation` | SUPPORTED | "propose a multi-scale location encoder called Sphere2Vec which can preserve spherical distances when encoding point coordinates on a spherical surface" |
+| 14 | `4_courb.tex:70` | `russwurm2024geographiclocationencodingspherical` | SUPPORTED | "combines spherical harmonic basis functions... with sinusoidal representation networks (SirenNets)... for globally distributed geographic data" |
+| 15 | `4_courb.tex:70` | `sitzmann2020implicit` | SUPPORTED | "leverage periodic activation functions for implicit neural representations...ideally suited for representing complex natural signals" |
+| 16 | `4_courb.tex:76` | `sun2020go` | SUPPORTED | "a nonlocal network for long-term preference modeling and a geo-dilated RNN for short-term preference learning" |
+| 17 | `4_courb.tex:76` | `sun2024transtarec` | SUPPORTED | "fuse user preference and temporal influence... unification with user preference and sequential dynamics" |
+| 18 | `4_courb.tex:78` | `kazemi2019time2vec` | SUPPORTED | "model-agnostic vector representation for time, called Time2Vec" |
+| 19 | `4_courb.tex:82` | `Halder2022` | SUPPORTED | "propose a multi-task, multi-head attention transformer model...recommends the next POIs...and predicts queuing time...simultaneously" |
+| 20 | `4_courb.tex:82` | `Liao2018` | SUPPORTED | "integrate the sequential dependency and temporal regularity of spatial activity topics" |
+| 21 | `4_courb.tex:82` | `Xia2020` | PARTIAL | "exploits a structure of generative adversarial networks (GAN) simultaneously considering temporal check-ins and geographical locations" |
+| 22 | `4_courb.tex:82` | `caruana1997multitask` | SUPPORTED | "Multitask Learning is an approach to inductive transfer that improves generalization by using the domain information" |
+| 23 | `4_courb.tex:84` | `Lim2022` | SUPPORTED | "learning different User-Region matrices of lower sparsities in a multi-task setting" |
+| 24 | `4_courb.tex:84` | `Xu2023` | SUPPORTED | "utilizes the predefined category hierarchy to regularize the relatedness among categories" |
+| 25 | `4_courb.tex:89` | `silva2025mtlnet` | SUPPORTED | "We propose a joint MTL architecture that shares lower-level embeddings and sequence encoders while maintaining task-specific heads" |
+| 26 | `4_courb.tex:96` | `kazemi2019time2vec` | SUPPORTED | "model-agnostic vector representation for time, called Time2Vec, that can be easily imported into many existing and future architectures" |
+| 27 | `4_courb.tex:96` | `silva2025mtlnet` | SUPPORTED | "a joint MTL architecture that shares lower-level embeddings and sequence encoders" |
+| 28 | `4_courb.tex:96` | `wu2024torchspatial` | SUPPORTED | "a learning framework and benchmark for location (point) encoding, which is one of the most fundamental data types" |
+| 29 | `4_courb.tex:105` | `silva2025mtlnet` | SUPPORTED | "We propose a joint MTL architecture that shares lower-level embeddings and sequence encoders while maintaining task-specific heads" |
+| 30 | `4_courb.tex:109` | `caruana1997multitask` | SUPPORTED | "learning tasks in parallel while using a shared representation" |
+| 31 | `4_courb.tex:109` | `perez2018film` | SUPPORTED | "FiLM layers influence neural network computation via a simple, feature-wise affine transformation based on conditioning information" |
+| 32 | `4_courb.tex:109` | `silva2025mtlnet` | SUPPORTED | "We propose a joint MTL architecture that shares lower-level embeddings and sequence encoders while maintaining task-specific heads" |
+| 33 | `4_courb.tex:116` | `baxter2000model` | SUPPORTED | "the learner can search for a hypothesis space that contains good solutions to many of the problems" |
+| 34 | `4_courb.tex:120` | `nash` | SUPPORTED | "viewing the gradients combination step as a bargaining game, where tasks negotiate to reach an agreement on a joint direction" |
+| 35 | `4_courb.tex:124` | `silva2025mtlnet` | SUPPORTED | "We propose a joint MTL architecture that shares lower-level embeddings and sequence encoders while maintaining task-specific heads" |
+| 36 | `4_courb.tex:124` | `silva2025mtlnet` | SUPPORTED | "a joint MTL architecture that shares lower-level embeddings and sequence encoders" |
+| 37 | `4_courb.tex:124` | `velickovic2019deep` | SUPPORTED | "learning node representations within graph-structured data in an unsupervised manner" |
+| 38 | `4_courb.tex:134` | `mai2023sphere2vecgeneralpurposelocationrepresentation` | SUPPORTED | "propose a multi-scale location encoder called Sphere2Vec which can preserve spherical distances when encoding point coordinates on a spherical surface" |
+| 39 | `4_courb.tex:134` | `russwurm2024geographiclocationencodingspherical` | PARTIAL | "both spherical harmonics and sinusoidal representation networks are competitive on their own but set state-of-the-art performances when combined" |
+| 40 | `4_courb.tex:134` | `wu2024torchspatial` | SUPPORTED | "TorchSpatial contains three key components: 1) a unified location encoding framework that consolidates 15 commonly recognized location encoders" |
+| 41 | `4_courb.tex:153` | `russwurm2024geographiclocationencodingspherical` | PARTIAL | "sinusoidal representation networks (SirenNets) that can be interpreted as learned Double Fourier Sphere embedding" |
+| 42 | `4_courb.tex:157` | `mai2023sphere2vecgeneralpurposelocationrepresentation` | SUPPORTED | "we propose a multi-scale location encoder called Sphere2Vec which can preserve spherical distances when encoding point coordinates on a spherical surf" |
+| 43 | `4_courb.tex:161` | `sun2020go` | NOT-SUPPORTED | "a nonlocal network for long-term preference modeling and a geo-dilated RNN for short-term preference learning" |
+| 44 | `4_courb.tex:163` | `kazemi2019time2vec` | SUPPORTED | "model-agnostic vector representation for time, called Time2Vec, that can be easily imported into many existing" |
+| 45 | `4_courb.tex:176` | `huang2023hgi` | SUPPORTED | "the mutual information among the POI - region - city hierarchy is leveraged as the objective" |
+| 46 | `4_courb.tex:208` | `grover2016node2vec` | SUPPORTED | "design a biased random walk procedure, which efficiently explores diverse neighborhoods" |
+| 47 | `4_courb.tex:208` | `mikolov2013negsampling` | SUPPORTED | "a simple alternative to the hierarchical softmax called negative sampling" |
+| 48 | `4_courb.tex:208` | `mikolov2013word2vec` | SUPPORTED | "two novel model architectures for computing continuous vector representations of words" |
+| 49 | `4_courb.tex:219` | `belkin2003laplacian` | NOT-SUPPORTED | "a geometrically motivated algorithm for representing the high-dimensional data ... nonlinear dimensionality reduction" |
+| 50 | `4_courb.tex:223` | `huang2023hgi` | SUPPORTED | "Learning urban region representations with POIs and hierarchical graph infomax" |
+| 51 | `4_courb.tex:248` | `silva2025mtlnet` | SUPPORTED | "a joint MTL architecture that shares lower-level embeddings and sequence encoders" |
+| 52 | `4_courb.tex:277` | `cho2011gowalla` | SUPPORTED | "data from two online location-based social networks" |
+| 53 | `4_courb.tex:277` | `jure2014snap` | SUPPORTED | "A collection of more than 50 large network datasets" |
+## 3 · Failures and partials in this unit, in detail
+
+### `4_courb.tex:161` — `sun2020go` — **NOT-SUPPORTED**
+
+**Citing sentence.** Human mobility patterns exhibit cyclical regularities, such as meal times and weekly movements, which carry discriminative information about the functional nature of the visited POIs \cite{sun2020go}.
+
+**Reference resolved.** DOI 10.1609/aaai.v34i01.5353. Source of record: Crossref REST; OpenAlex API. Record reads: Where to Go Next: Modeling Long- and Short-Term User Preferences for Point-of-Interest Recommendation | Proceedings of the AAAI Conference on Artificial Intelligence | 2020 | type journal-article.
+
+**Located passage.** "a nonlocal network for long-term preference modeling and a geo-dilated RNN for short-term preference learning"
+
+**Why.** LSTPM (AAAI 2020) models long- and short-term user preference for next-POI recommendation. The citing sentence claims that cyclical regularities such as meal times and weekly movements carry discriminative information about the FUNCTIONAL NATURE of visited POIs. That is a claim about temporal signal predicting place semantics, which this paper does not make.
+
+**Recommended disposition.** Published CoUrb prose. The chapter cites kazemi2019time2vec and Xu2023 elsewhere; neither states this either. Either narrow the sentence to the temporal regularity of visits (which sun2020go and cho2011gowalla both support) or find a source for the semantics half.
+
+### `4_courb.tex:219` — `belkin2003laplacian` — **NOT-SUPPORTED**
+
+**Citing sentence.** The implementation incorporates a hierarchical regularization term \cite{belkin2003laplacian} between category and \textit{fclass}: $\mathcal{L}_{\text{hier}} = \sum_{(c,s) \in \mathcal{H}} \left\| \mathbf{e}_s - \mathbf{e}_c \right\|_2^2$, in which $\mathcal{H}$ contains the (category, \textit{fclass}) pairs.
+
+**Reference resolved.** DOI 10.1162/089976603321780317. Source of record: Crossref REST; OpenAlex API. Record reads: Laplacian Eigenmaps for Dimensionality Reduction and Data Representation | Neural Computation | 2003 | type journal-article.
+
+**Located passage.** "a geometrically motivated algorithm for representing the high-dimensional data ... nonlinear dimensionality reduction"
+
+**Why.** Laplacian eigenmaps is a manifold dimensionality-reduction method. The cited object is an L2 penalty pulling a subcategory embedding toward its parent category embedding, that is, a hierarchical regularizer over a known label tree. The connection is at best thematic (graph Laplacian smoothness) and the sentence attributes the term itself.
+
+**Recommended disposition.** Published CoUrb prose. Xu2023, already in the bibliography, regularizes category relatedness with a predefined category hierarchy, which is what this term does. Swap the key, or drop the citation and present the term as the implementation's own.
+
+### `4_courb.tex:60` — `rahmani2019category` — **PARTIAL**
+
+**Citing sentence.** CATAPE (\textit{Category-Aware Location Embedding}) \cite{rahmani2019category} extends this idea by incorporating categorical and sequential information, capturing the geographic influence between POIs based on the temporal sequence of user visits.
+
+**Reference resolved.** DOI 10.1145/3341981.3344240. Source of record: Crossref REST; OpenAlex API. Record reads: Category-Aware Location Embedding for Point-of-Interest Recommendation | Proceedings of the 2019 ACM SIGIR International Conference on Theory of Information Retrieval | 2019 | type proceedings-article.
+
+**Located passage.** "previous studies fail to capture crucial information about POIs such as categorical information"
+
+**Why.** Crossref returns a truncated abstract for this SIGIR ICTIR paper (four sentences). The categorical half is supported. The sequential/temporal-visit-order half is not visible in what the source of record returns.
+
+**Recommended disposition.** Open as [VERIFY] on the sequential clause only. Published CoUrb prose, low exposure.
+
+### `4_courb.tex:82` — `Xia2020` — **PARTIAL**
+
+**Citing sentence.** MTPR \cite{Xia2020} jointly models location and temporal context through geographic LSTMs and adversarial learning.
+
+**Reference resolved.** DOI 10.3390/app10196664. Source of record: Crossref REST; OpenAlex API. Record reads: MTPR: A Multi-Task Learning Based POI Recommendation Considering Temporal Check-Ins and Geographical Locations | Applied Sciences | 2020 | type journal-article.
+
+**Located passage.** "exploits a structure of generative adversarial networks (GAN) simultaneously considering temporal check-ins and geographical locations"
+
+**Why.** Same work, same defect class as 3_cbic.tex:125: adversarial learning and joint temporal-geographic modeling are supported; "geographic LSTMs" is not in the abstract.
+
+**Recommended disposition.** Published CoUrb prose. Same disposition as the Ch.3 site; fix both or neither, so the chapters do not describe one system two ways.
+
+### `4_courb.tex:134` — `russwurm2024geographiclocationencodingspherical` — **PARTIAL**
+
+**Citing sentence.** This chapter selects two \textit{encoders} that represent distinct spatial encoding paradigms: SIREN \cite{russwurm2024geographiclocationencodingspherical}, which models continuous functions through sinusoidal activations with controllable frequencies, and Sphere2Vec-M \cite{mai2023sphere2vecgeneralpurposelocationrepresentation}, which operates directly on spherical coordinates preserving geodesic distance properties.
+
+**Reference resolved.** arXiv:2310.06743. Source of record: arXiv API; OpenAlex API. Record reads: Geographic Location Encoding with Spherical Harmonics and Sinusoidal Representation Networks | Published as a conference paper at ICLR 2024 | 2023 | type posted-content.
+
+**Located passage.** "both spherical harmonics and sinusoidal representation networks are competitive on their own but set state-of-the-art performances when combined"
+
+**Why.** The paper proposes spherical harmonics COMBINED with SirenNets. The chapter uses the name SIREN for the sinusoidal-network half and describes only that half. By the paper's own words the halves are separable and each is competitive alone, so naming one is defensible, but the chapter never says which component of the cited work it instantiated.
+
+**Recommended disposition.** Published CoUrb prose. One clause would close it: state that the encoder used is the sinusoidal-representation-network component of that work. This also affects 4_courb.tex:153.
+
+### `4_courb.tex:153` — `russwurm2024geographiclocationencodingspherical` — **PARTIAL**
+
+**Citing sentence.** The SIREN model (\textit{Sinusoidal Representation Networks}) \cite{russwurm2024geographiclocationencodingspherical} models a continuous function $f_\theta : \mathbb{R}^2 \rightarrow \mathbb{R}^{64}$ that directly maps normalized geographic coordinates into a vector \textit{embedding}.
+
+**Reference resolved.** arXiv:2310.06743. Source of record: arXiv API; OpenAlex API. Record reads: Geographic Location Encoding with Spherical Harmonics and Sinusoidal Representation Networks | Published as a conference paper at ICLR 2024 | 2023 | type posted-content.
+
+**Located passage.** "sinusoidal representation networks (SirenNets) that can be interpreted as learned Double Fourier Sphere embedding"
+
+**Why.** Same issue as :134. The R^2 -> R^64 map and the 64-dimensional output are this chapter's own configuration, not the paper's claim.
+
+**Recommended disposition.** As :134.
+
+## 4 · Source ledger for this unit
+
+Every distinct key cited in this unit, the identifier it resolved by, and where I opened it this session.
+
+| Key | Identifier | Opened at | Record as returned |
+|---|---|---|---|
+| `Halder2022` | DOI 10.1007/s10618-022-00865-w | Crossref REST; OpenAlex API | POI recommendation with queuing time and user interest awareness \| Data Mining and Knowledge Discovery \| 2022 \| type journal-article |
+| `Liao2018` | DOI 10.24963/ijcai.2018/477 | Crossref REST; OpenAlex API | Predicting Activity and Location with Multi-task Context Aware Recurrent Neural Network \| Proceedings of the Twenty-Seventh International Joint Conference on Artificial  |
+| `Lim2022` | DOI 10.1145/3477495.3531989 | Crossref REST; OpenAlex API | Hierarchical Multi-Task Graph Recurrent Network for Next POI Recommendation \| Proceedings of the 45th International ACM SIGIR Conference on Research and Development in I |
+| `Xia2020` | DOI 10.3390/app10196664 | Crossref REST; OpenAlex API | MTPR: A Multi-Task Learning Based POI Recommendation Considering Temporal Check-Ins and Geographical Locations \| Applied Sciences \| 2020 \| type journal-article |
+| `Xu2023` | DOI 10.1145/3582553 | Crossref REST; OpenAlex API | TME: Tree-guided Multi-task Embedding Learning towards Semantic Venue Annotation \| ACM Transactions on Information Systems \| 2023 \| type journal-article |
+| `baxter2000model` | DOI 10.1613/jair.731 | Crossref REST; OpenAlex API | A Model of Inductive Bias Learning \| Journal of Artificial Intelligence Research \| 2000 \| type journal-article |
+| `belkin2003laplacian` | DOI 10.1162/089976603321780317 | Crossref REST; OpenAlex API | Laplacian Eigenmaps for Dimensionality Reduction and Data Representation \| Neural Computation \| 2003 \| type journal-article |
+| `caruana1997multitask` | DOI 10.1023/A:1007379606734 | Crossref REST; OpenAlex API; PDF in repo: 10.1023_A_1007379606734.pdf | Multitask Learning \| Machine Learning \| 1997 \| type journal-article |
+| `cho2011gowalla` | DOI 10.1145/2020408.2020579 | Crossref REST; OpenAlex API | Friendship and mobility \| Proceedings of the 17th ACM SIGKDD international conference on Knowledge discovery and data mining \| 2011 \| type proceedings-article |
+| `feng2017poi2vec` | DOI 10.1609/aaai.v31i1.10500 | Crossref REST; OpenAlex API | POI2Vec: Geographical Latent Representation for Predicting Future Visitors \| Proceedings of the AAAI Conference on Artificial Intelligence \| 2017 \| type journal-articl |
+| `grover2016node2vec` | DOI 10.1145/2939672.2939754 | Crossref REST; OpenAlex API | node2vec \| Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining \| 2016 \| type proceedings-article |
+| `huang2023hgi` | DOI 10.1016/j.isprsjprs.2022.11.021 | Crossref REST; OpenAlex API; Semantic Scholar API; PDF in repo: Learning urban region representations with POIs and hierarchical graph infomax.pdf | Learning urban region representations with POIs and hierarchical graph infomax \| ISPRS Journal of Photogrammetry and Remote Sensing \| 2023 \| type journal-article |
+| `jure2014snap` | no identifier in the bib entry | OpenAlex API | {SNAP Datasets}: {Stanford} Large Network Dataset Collection \| (no venue in record) \| 2014 \| type article |
+| `kazemi2019time2vec` | arXiv:1907.05321 | arXiv API; OpenAlex API | Time2Vec: Learning a Vector Representation of Time \| arXiv preprint \| 2019 \| type posted-content |
+| `mai2023sphere2vecgeneralpurposelocationrepresentation` | arXiv:2306.17624 | arXiv API; OpenAlex API | Sphere2Vec: A General-Purpose Location Representation Learning over a Spherical Surface for Large-Scale Geospatial Predictions \| ISPRS Journal of Photogrammetry and Remo |
+| `mikolov2013negsampling` | arXiv:1310.4546 | arXiv API; OpenAlex API | Distributed Representations of Words and Phrases and their Compositionality \| arXiv preprint \| 2013 \| type posted-content |
+| `mikolov2013word2vec` | arXiv:1301.3781 | arXiv API; OpenAlex API | Efficient Estimation of Word Representations in Vector Space \| arXiv preprint \| 2013 \| type posted-content |
+| `nash` | no identifier in the bib entry | arXiv API; OpenAlex API | Multi-Task Learning as a Bargaining Game \| arXiv preprint \| 2022 \| type posted-content |
+| `paiva2026stmtlnet` | DOI 10.5753/courb.2026.22960 | Crossref REST; OpenAlex API | ST-MTLNet: Representações Espaço-Temporais de Pontos de Interesse para Aprendizado Multitarefa \| Anais do X Workshop de Computação Urbana (CoUrb 2026) \| 2026 \| type pr |
+| `perez2018film` | DOI 10.1609/aaai.v32i1.11671 | Crossref REST; OpenAlex API | FiLM: Visual Reasoning with a General Conditioning Layer \| Proceedings of the AAAI Conference on Artificial Intelligence \| 2018 \| type journal-article |
+| `rahmani2019category` | DOI 10.1145/3341981.3344240 | Crossref REST; OpenAlex API | Category-Aware Location Embedding for Point-of-Interest Recommendation \| Proceedings of the 2019 ACM SIGIR International Conference on Theory of Information Retrieval \| |
+| `russwurm2024geographiclocationencodingspherical` | arXiv:2310.06743 | arXiv API; OpenAlex API | Geographic Location Encoding with Spherical Harmonics and Sinusoidal Representation Networks \| Published as a conference paper at ICLR 2024 \| 2023 \| type posted-conten |
+| `silva2025mtlnet` | DOI 10.21528/CBIC2025-1191324 | Crossref REST; OpenAlex API | An Investigation into Multi-Task Learning for Point-of-Interest Category Classification and Next-POI Prediction \| Anais do XVII Congresso Brasileiro de Inteligência Comp |
+| `sitzmann2020implicit` | arXiv:2006.09661 | arXiv API; OpenAlex API | Implicit Neural Representations with Periodic Activation Functions \| arXiv preprint \| 2020 \| type posted-content |
+| `sun2020go` | DOI 10.1609/aaai.v34i01.5353 | Crossref REST; OpenAlex API | Where to Go Next: Modeling Long- and Short-Term User Preferences for Point-of-Interest Recommendation \| Proceedings of the AAAI Conference on Artificial Intelligence \|  |
+| `sun2024transtarec` | DOI 10.1109/ICCEA62105.2024.10603711 | Crossref REST; OpenAlex API | TransTARec: Time-Adaptive Translating Embedding Model for Next POI Recommendation \| 2024 5th International Conference on Computer Engineering and Application (ICCEA) \|  |
+| `velickovic2019deep` | no identifier in the bib entry | OpenAlex API | Deep Graph Infomax \| Apollo (University of Cambridge) \| 2018 \| type conference-paper |
+| `wu2024torchspatial` | arXiv:2406.15658 | arXiv API; OpenAlex API | TorchSpatial: A Location Encoding Framework and Benchmark for Spatial Representation Learning \| arXiv preprint \| 2024 \| type posted-content |
+
+## 5 · Provenance of every failure in this chapter
+
+All six non-SUPPORTED sites are the English donor text of the published CoUrb 2026 article, matched
+as exact string prefixes against `articles/CoUrb_2026/src_en/sections/related.tex` and
+`.../metodology.tex`. The version of record is the Portuguese text; I spot-checked the PT source at
+`articles/CoUrb_2026/src/sections/related.tex` for the POI2Vec and CATAPE sentences and the claims
+map one to one ("adapta a arquitetura Word2Vec ... por meio de uma estrutura de arvore binaria
+geografica"; "estende essa ideia incorporando informacoes categoricas e sequenciais"), so the
+findings are properties of the published article and not of the translation.
+
+One point worth the author's attention: the PT introduction at `articles/CoUrb_2026/src/sections/
+intro.tex` says the two spatial encoders were "originalmente validadas em tarefas geoespaciais de
+sensoriamento remoto e ecologia \cite{wu2024torchspatial}" — the same "originally validated"
+attribution to TorchSpatial that Chapter 1 carries at `1_introduction.tex:50` and that is flagged
+PARTIAL there. The two sites are the same claim and should take the same disposition.
+
+## 6 · What I could not confirm in this chapter
+
+- `:60`, `rahmani2019category`: Crossref returns a truncated abstract (four sentences) for this
+  ICTIR paper. The categorical half of the citing sentence is supported; the sequential half is not
+  visible in what the source of record returns. Open as `[VERIFY]` on that clause only.
+- `:60`, `feng2017poi2vec`: the Word2Vec lineage and the geographic binary tree are POI2Vec's
+  construction but are not in the abstract. The load-bearing half (geographic influence in the
+  embedding) is verbatim.
+
+---
+
+## `11_claims_5_mobiwac.md`
+
+# 11_claims_5_mobiwac.md — citation claim-support audit, Chapter 5, MobiWac 2026
+
+**Unit:** `src/chapters/5_mobiwac.tex`  
+**Run:** 2026-07-28, round 6, as the per-chapter pass the author asked for by name (COD-008 decision).  
+**Errata regime for this unit:** UNDER REVIEW: a correction is applied to the dissertation AND to articles/[mobiwac]/src/ so the two texts stay identical, then named in that article's own errata record rather than in Appendix B (author instruction, 2026-07-27).
+
+## 1 · Counts (every citation in the unit, not a sample)
+
+- `\cite` commands in the unit: **56**, on **43** source lines, carrying **60** key instances (a multi-key `\cite` counts once per key). Every one was audited.
+- Distinct bibliography keys used: **33**.
+- Verdicts: **SUPPORTED** 57, **PARTIAL** 3.
+
+Comments were stripped before counting, so a key that appears only inside a `%` comment is not counted; every counted site renders.
+
+## 2 · Every citation, with its verdict
+
+Verdict scale: SUPPORTED, the citing sentence's attribution is present in or a fair paraphrase of the
+source; PARTIAL, part is supported and part is not, or the sentence is stronger than the source;
+NOT-SUPPORTED, the attribution is absent from or contradicted by the source; UNVERIFIABLE, the source
+of record does not carry enough to decide and the attribution is not implausible.
+
+| # | Site (file:line) | Key | Verdict | Evidence quoted from the source (under 20 words) |
+|---|---|---|---|---|
+| 1 | `5_mobiwac.tex:40` | `bastug2014edge` | SUPPORTED | "peak traffic demands can be substantially reduced by proactively serving predictable user demands via caching at base stations" |
+| 2 | `5_mobiwac.tex:40` | `cho2011gowalla` | SUPPORTED | "data from two online location-based social networks, we aim to understand what basic laws govern human motion" |
+| 3 | `5_mobiwac.tex:40` | `moura2025mobilityaware` | SUPPORTED | "leverage a large dataset of Foursquare check-ins... Mobility-aware systems play a crucial role in leveraging such insights to design adaptive, data-dr" |
+| 4 | `5_mobiwac.tex:40` | `song2010limits` | SUPPORTED | "there was 93% predictability across the whole user base" |
+| 5 | `5_mobiwac.tex:40` | `vielhaus2022handover` | SUPPORTED | "Predicting handovers in high mobility scenarios enables networks and applications to adapt ahead of time to improve the Quality of Service" |
+| 6 | `5_mobiwac.tex:44` | `caruana1997multitask` | PARTIAL | "what is learned for each task can help other tasks be learned better" |
+| 7 | `5_mobiwac.tex:45` | `silva2025mtlnet` | SUPPORTED | "the multi-task learning approach did not consistently yield substantial improvements over the single-task baselines" |
+| 8 | `5_mobiwac.tex:53` | `huang2023hgi` | SUPPORTED | "the mutual information among the POI - region - city hierarchy is leveraged as the objective" |
+| 9 | `5_mobiwac.tex:53` | `velickovic2019deep` | SUPPORTED | "DGI relies on maximizing mutual information between patch representations and corresponding high-level summaries of graphs" |
+| 10 | `5_mobiwac.tex:55` | `wongso2025massivesteps` | SUPPORTED | "a large-scale, publicly available benchmark dataset built upon the Semantic Trails dataset" |
+| 11 | `5_mobiwac.tex:96` | `silva2025mtlnet` | SUPPORTED | "a joint MTL architecture that shares lower-level embeddings and sequence encoders while maintaining task-specific heads" |
+| 12 | `5_mobiwac.tex:103` | `paiva2026stmtlnet` | SUPPORTED | "supera o baseline em todas as 21 combinações de categoria e estado para classificação" |
+| 13 | `5_mobiwac.tex:112` | `velickovic2019deep` | SUPPORTED | "maximizing mutual information between patch representations and corresponding high-level summaries of graphs" |
+| 14 | `5_mobiwac.tex:116` | `huang2023hgi` | SUPPORTED | "the mutual information among the POI - region - city hierarchy is leveraged as the objective" |
+| 15 | `5_mobiwac.tex:120` | `lin2021ctle` | SUPPORTED | "calculates a location's representation vector with consideration of its specific contextual neighbors in trajectories" |
+| 16 | `5_mobiwac.tex:138` | `feng2018deepmove` | SUPPORTED | "DeepMove, an attentional recurrent network for mobility prediction from lengthy and sparse trajectories" |
+| 17 | `5_mobiwac.tex:139` | `luo2021stan` | SUPPORTED | "Spatio-Temporal Attention Network for Next Location Recommendation" |
+| 18 | `5_mobiwac.tex:139` | `yang2022getnext` | SUPPORTED | "GETNext incorporates the global transition patterns, user's general preference, spatio-temporal context ... into a transformer model" |
+| 19 | `5_mobiwac.tex:144` | `luca2021mobilitysurvey` | SUPPORTED | "guide to the leading deep learning solutions to next-location prediction, crowd flow prediction, trajectory generation, and flow generation" |
+| 20 | `5_mobiwac.tex:146` | `silva2025mtlnet` | SUPPORTED | "the multi-task learning approach did not consistently yield substantial improvements over the single-task baselines across both tasks" |
+| 21 | `5_mobiwac.tex:153` | `Lim2022` | PARTIAL | "learning different User-Region matrices of lower sparsities in a multi-task setting" |
+| 22 | `5_mobiwac.tex:153` | `sun2024mcmg` | SUPPORTED | "local multi-channel (i.e., region, category, and POI channels) encoder" |
+| 23 | `5_mobiwac.tex:158` | `zhu2022drrgnn` | SUPPORTED | "developing models that can answer... (2) Which region will be the next AR, and (3) Why do people make this regional mobility" |
+| 24 | `5_mobiwac.tex:160` | `sun2025kgtb` | SUPPORTED | "introduces multiple behavior-specific prediction tasks for LLM fine-tuning, e.g., POI, category, and region visit behaviors" |
+| 25 | `5_mobiwac.tex:166` | `Liao2018` | SUPPORTED | "Multi-task Context Aware Recurrent Neural Network to leverage the spatial activity topic for activity and location prediction" |
+| 26 | `5_mobiwac.tex:168` | `wang2025hamtl` | SUPPORTED | "Hierarchy Aware-based Multi-task Learning for User Location Prediction" |
+| 27 | `5_mobiwac.tex:171` | `ye2013nextmove` | SUPPORTED | "predict the category of user activity at the next step and then predict the most likely location given the estimated category distribution" |
+| 28 | `5_mobiwac.tex:172` | `huang2024cslsl` | SUPPORTED | "explicitly model the "when → what → where", a.k.a. "time → activity → location" decision logic" |
+| 29 | `5_mobiwac.tex:174` | `yu2020catdm` | SUPPORTED | "incorporates POI category and geographical influence to reduce search space" |
+| 30 | `5_mobiwac.tex:181` | `caruana1997multitask` | PARTIAL | "learning tasks in parallel while using a shared representation" |
+| 31 | `5_mobiwac.tex:183` | `nash` | SUPPORTED | "combine per-task gradients into a joint update direction using a particular heuristic" |
+| 32 | `5_mobiwac.tex:183` | `yu2020pcgrad` | SUPPORTED | "propose a form of gradient surgery that projects a task's gradient onto the normal plane" |
+| 33 | `5_mobiwac.tex:184` | `xin2022domtl` | SUPPORTED | "MTO methods do not yield any performance improvements beyond what is achievable via traditional optimization approaches" |
+| 34 | `5_mobiwac.tex:258` | `silva2019urbancomputing` | SUPPORTED | "a survey of recent urban computing studies that make use of LBSN data" |
+| 35 | `5_mobiwac.tex:260` | `moura2025mobilityaware` | SUPPORTED | "Key points of interest (especially transportation hubs and cultural landmarks) serve as essential connectors shaping network flow" |
+| 36 | `5_mobiwac.tex:280` | `huang2023hgi` | SUPPORTED | "row-wise shuffling of the POI graph's feature matrix Xp ... to form a corrupted graph" |
+| 37 | `5_mobiwac.tex:280` | `velickovic2019deep` | SUPPORTED | "maximizing mutual information between patch representations and corresponding high-level summaries" |
+| 38 | `5_mobiwac.tex:300` | `caruana1997multitask` | SUPPORTED | "learning tasks in parallel while using a shared representation; what is learned for each task can help other tasks" |
+| 39 | `5_mobiwac.tex:327` | `cho2011gowalla` | SUPPORTED | "data from two online location-based social networks" |
+| 40 | `5_mobiwac.tex:328` | `wongso2025massivesteps` | SUPPORTED | "Massive-STEPS spans 15 geographically and culturally diverse cities" |
+| 41 | `5_mobiwac.tex:388` | `holm1979` | SUPPORTED | "a simple and widely applicable multiple test procedure of the sequentially rejective type" |
+| 42 | `5_mobiwac.tex:388` | `lakens2017tost` | SUPPORTED | "an upper and lower equivalence bound is specified based on the smallest effect size of interest" |
+| 43 | `5_mobiwac.tex:392` | `Lim2022` | SUPPORTED | "Hierarchical Multi-Task Graph Recurrent Network (HMT-GRN) approach" |
+| 44 | `5_mobiwac.tex:392` | `capanema2023poirgnn` | SUPPORTED | "Combining recurrent and Graph Neural Networks to predict the next place's category" |
+| 45 | `5_mobiwac.tex:392` | `li2025rehdm` | SUPPORTED | "ReHDM utilizes regional encoding to mine the potential spatial relationships among POIs with coarse-grained geographical information" |
+| 46 | `5_mobiwac.tex:392` | `luo2021stan` | SUPPORTED | "STAN explicitly exploits relative spatiotemporal information of all the check-ins with self-attention layers along the trajectory" |
+| 47 | `5_mobiwac.tex:394` | `lin2021ctle` | SUPPORTED | "calculates a location's representation vector with consideration of its specific contextual neighbors in trajectories" |
+| 48 | `5_mobiwac.tex:396` | `huang2023hgi` | SUPPORTED | "aggregate POI embeddings and generate region raw embeddings" |
+| 49 | `5_mobiwac.tex:396` | `huang2024cslsl` | SUPPORTED | "explicitly model the “ when → what → where ”, a.k.a. “ time → activity → location ” decision logic" |
+| 50 | `5_mobiwac.tex:396` | `ye2013nextmove` | SUPPORTED | "predict the category of user activity at the next step and then predict the most likely location given the estimated category distribution" |
+| 51 | `5_mobiwac.tex:396` | `yu2020catdm` | SUPPORTED | "incorporates POI category and geographical influence to reduce search space" |
+| 52 | `5_mobiwac.tex:404` | `huang2023hgi` | SUPPORTED | "aggregate POI embeddings and generate region raw embeddings" |
+| 53 | `5_mobiwac.tex:409` | `lin2021ctle` | SUPPORTED | "calculates a location's representation vector with consideration of its specific contextual neighbors in trajectories" |
+| 54 | `5_mobiwac.tex:578` | `caruana1997multitask` | SUPPORTED | "improves generalization by using the domain information contained in the training signals of related tasks" |
+| 55 | `5_mobiwac.tex:664` | `Lim2022` | SUPPORTED | "learning different User-Region matrices of lower sparsities in a multi-task setting" |
+| 56 | `5_mobiwac.tex:664` | `luo2021stan` | SUPPORTED | "STAN explicitly exploits relative spatiotemporal information of all the check-ins with self-attention layers" |
+| 57 | `5_mobiwac.tex:665` | `li2025rehdm` | SUPPORTED | "ReHDM utilizes regional encoding to mine the potential spatial relationships among POIs" |
+| 58 | `5_mobiwac.tex:666` | `capanema2023poirgnn` | SUPPORTED | "Combining recurrent and Graph Neural Networks to predict the next place's category" |
+| 59 | `5_mobiwac.tex:750` | `huang2024cslsl` | SUPPORTED | "utilizes a causal structure based on multi-task learning to explicitly model the "when -> what -> where" ... decision logic" |
+| 60 | `5_mobiwac.tex:810` | `moura2025mobilityaware` | SUPPORTED | "One potential research direction is the integration of the analyzed metrics with machine learning algorithms" |
+## 3 · Failures and partials in this unit, in detail
+
+### `5_mobiwac.tex:44` — `caruana1997multitask` — **PARTIAL**
+
+**Citing sentence.** Sharing one representation across tasks has a cost: in multi-task learning (MTL), one model does several jobs at once by sharing most of its parts, so the shared parameters can converge to a compromise optimal for neither task, helping one while hurting the other~\cite{caruana1997multitask}.
+
+**Reference resolved.** DOI 10.1023/A:1007379606734. Source of record: Crossref REST; OpenAlex API; PDF in repo: 10.1023_A_1007379606734.pdf. Record reads: Multitask Learning | Machine Learning | 1997 | type journal-article.
+
+**Located passage.** "what is learned for each task can help other tasks be learned better"
+
+**Why.** The compromise-optimal-for-neither mechanism is the negative-transfer reading of shared representations. Caruana 1997 is the origin of the shared-representation idea and the paper does discuss when MTL helps, but the abstract states the positive direction. The chapter itself corrected an adjacent claim in the same passage in round 4 (comment at :46-50).
+
+**Recommended disposition.** Under review, so a change propagates to articles/[mobiwac]/src/ and to that article's errata rather than Appendix B. Lowest-cost repair: cite a work whose stated finding is negative transfer. standley2020tasks says "often leads to inferior overall performance as task objectives can compete" and is already in the bibliography, cited for exactly this at 2_fundamentals.tex:310.
+
+### `5_mobiwac.tex:153` — `Lim2022` — **PARTIAL**
+
+**Citing sentence.** The field increasingly models several granularities at once; in those systems, category and region are auxiliary signals that help a primary next-place task (MCMG \cite{sun2024mcmg}, HMT-GRN \cite{Lim2022}).
+
+**Reference resolved.** DOI 10.1145/3477495.3531989. Source of record: Crossref REST; OpenAlex API. Record reads: Hierarchical Multi-Task Graph Recurrent Network for Next POI Recommendation | Proceedings of the 45th International ACM SIGIR Conference on Research and Development in Information Retrieval | 2022 | type proceedings-article.
+
+**Located passage.** "learning different User-Region matrices of lower sparsities in a multi-task setting"
+
+**Why.** In HMT-GRN region IS a multi-task target, used to alleviate User-POI sparsity and then searched hierarchically toward the next POI. So "auxiliary signals that help a primary next-place task" is right about the ROLE (next POI is the end target) and understates that region is a trained target. The chapter's own next sentences make exactly this distinction, so the paragraph as a whole is accurate.
+
+**Recommended disposition.** Leave; the following sentences carry the distinction. If tightened, say the coarse target is trained but subordinate.
+
+### `5_mobiwac.tex:181` — `caruana1997multitask` — **PARTIAL**
+
+**Citing sentence.** On optimization, we are conservative by design: joint training with a fixed loss weighting is standard practice \cite{caruana1997multitask}, not itself our contribution.
+
+**Reference resolved.** DOI 10.1023/A:1007379606734. Source of record: Crossref REST; OpenAlex API; PDF in repo: 10.1023_A_1007379606734.pdf. Record reads: Multitask Learning | Machine Learning | 1997 | type journal-article.
+
+**Located passage.** "learning tasks in parallel while using a shared representation"
+
+**Why.** Joint training with a shared representation is supported. "with a fixed loss weighting is standard practice" is a claim about current practice; the sentence's own next clause cites xin2022domtl and kurin2022scalarization, which do establish that a fixed or uniform weighting is the baseline to beat.
+
+**Recommended disposition.** Leave, or move the fixed-weighting clause onto kurin2022scalarization / xin2022domtl, which are cited two lines later.
+
+## 4 · Source ledger for this unit
+
+Every distinct key cited in this unit, the identifier it resolved by, and where I opened it this session.
+
+| Key | Identifier | Opened at | Record as returned |
+|---|---|---|---|
+| `Liao2018` | DOI 10.24963/ijcai.2018/477 | Crossref REST; OpenAlex API | Predicting Activity and Location with Multi-task Context Aware Recurrent Neural Network \| Proceedings of the Twenty-Seventh International Joint Conference on Artificial  |
+| `Lim2022` | DOI 10.1145/3477495.3531989 | Crossref REST; OpenAlex API | Hierarchical Multi-Task Graph Recurrent Network for Next POI Recommendation \| Proceedings of the 45th International ACM SIGIR Conference on Research and Development in I |
+| `bastug2014edge` | DOI 10.1109/MCOM.2014.6871674 | Crossref REST; OpenAlex API | Living on the edge: The role of proactive caching in 5G wireless networks \| IEEE Communications Magazine \| 2014 \| type journal-article |
+| `capanema2023poirgnn` | DOI 10.1016/j.adhoc.2022.103016 | Crossref REST; OpenAlex API | Combining recurrent and Graph Neural Networks to predict the next place’s category \| Ad Hoc Networks \| 2023 \| type journal-article |
+| `caruana1997multitask` | DOI 10.1023/A:1007379606734 | Crossref REST; OpenAlex API; PDF in repo: 10.1023_A_1007379606734.pdf | Multitask Learning \| Machine Learning \| 1997 \| type journal-article |
+| `cho2011gowalla` | DOI 10.1145/2020408.2020579 | Crossref REST; OpenAlex API | Friendship and mobility \| Proceedings of the 17th ACM SIGKDD international conference on Knowledge discovery and data mining \| 2011 \| type proceedings-article |
+| `feng2018deepmove` | DOI 10.1145/3178876.3186058 | Crossref REST; OpenAlex API | DeepMove \| Proceedings of the 2018 World Wide Web Conference on World Wide Web - WWW '18 \| 2018 \| type proceedings-article |
+| `holm1979` | no identifier in the bib entry | OpenAlex API | A Simple Sequentially Rejective Multiple Test Procedure \| Scandinavian Journal of Statistics \| 1979 \| type article |
+| `huang2023hgi` | DOI 10.1016/j.isprsjprs.2022.11.021 | Crossref REST; OpenAlex API; Semantic Scholar API; PDF in repo: Learning urban region representations with POIs and hierarchical graph infomax.pdf | Learning urban region representations with POIs and hierarchical graph infomax \| ISPRS Journal of Photogrammetry and Remote Sensing \| 2023 \| type journal-article |
+| `huang2024cslsl` | DOI 10.1140/epjds/s13688-024-00460-7 | Crossref REST; OpenAlex API | Human mobility prediction with causal and spatial-constrained multi-task network \| EPJ Data Science \| 2024 \| type journal-article |
+| `lakens2017tost` | DOI 10.1177/1948550617697177 | Crossref REST; OpenAlex API | Equivalence Tests \| Social Psychological and Personality Science \| 2017 \| type journal-article |
+| `li2025rehdm` | DOI 10.24963/ijcai.2025/343 | Crossref REST; OpenAlex API | Beyond Individual and Point: Next POI Recommendation via Region-aware Dynamic Hypergraph with Dual-level Modeling \| Proceedings of the Thirty-Fourth International Joint  |
+| `lin2021ctle` | DOI 10.1609/aaai.v35i5.16548 | Crossref REST; OpenAlex API | Pre-training Context and Time Aware Location Embeddings from Spatial-Temporal Trajectories for User Next Location Prediction \| Proceedings of the AAAI Conference on Arti |
+| `luca2021mobilitysurvey` | DOI 10.1145/3485125 | Crossref REST; OpenAlex API | A Survey on Deep Learning for Human Mobility \| ACM Computing Surveys \| 2021 \| type journal-article |
+| `luo2021stan` | DOI 10.1145/3442381.3449998 | Crossref REST; OpenAlex API | STAN: Spatio-Temporal Attention Network for Next Location Recommendation \| Proceedings of the Web Conference 2021 \| 2021 \| type proceedings-article |
+| `moura2025mobilityaware` | DOI 10.1109/MSWiM67937.2025.11308734 | Crossref REST; OpenAlex API | On the Design of Mobility-Aware Systems: A Tourist’s Perspective \| 2025 International Conference on Modeling, Analysis and Simulation of Wireless and Mobile Systems (MSW |
+| `nash` | no identifier in the bib entry | arXiv API; OpenAlex API | Multi-Task Learning as a Bargaining Game \| arXiv preprint \| 2022 \| type posted-content |
+| `paiva2026stmtlnet` | DOI 10.5753/courb.2026.22960 | Crossref REST; OpenAlex API | ST-MTLNet: Representações Espaço-Temporais de Pontos de Interesse para Aprendizado Multitarefa \| Anais do X Workshop de Computação Urbana (CoUrb 2026) \| 2026 \| type pr |
+| `silva2019urbancomputing` | DOI 10.1145/3301284 | Crossref REST; OpenAlex API | Urban Computing Leveraging Location-Based Social Network Data \| ACM Computing Surveys \| 2019 \| type journal-article |
+| `silva2025mtlnet` | DOI 10.21528/CBIC2025-1191324 | Crossref REST; OpenAlex API | An Investigation into Multi-Task Learning for Point-of-Interest Category Classification and Next-POI Prediction \| Anais do XVII Congresso Brasileiro de Inteligência Comp |
+| `song2010limits` | DOI 10.1126/science.1177170 | Crossref REST; OpenAlex API; PDF in repo: 201002-19_Science-Predictability.pdf | Limits of Predictability in Human Mobility \| Science \| 2010 \| type journal-article |
+| `sun2024mcmg` | DOI 10.1145/3592789 | Crossref REST; OpenAlex API | A Multi-channel Next POI Recommendation Framework with Multi-granularity Check-in Signals \| ACM Transactions on Information Systems \| 2023 \| type journal-article |
+| `sun2025kgtb` | DOI 10.48550/arXiv.2509.12350 | arXiv API; OpenAlex API | Knowledge Graph Tokenization for Behavior-Aware Generative Next POI Recommendation \| arXiv preprint \| 2025 \| type posted-content |
+| `velickovic2019deep` | no identifier in the bib entry | OpenAlex API | Deep Graph Infomax \| Apollo (University of Cambridge) \| 2018 \| type conference-paper |
+| `vielhaus2022handover` | DOI 10.1145/3551660.3560913 | Crossref REST; OpenAlex API | Handover Predictions as an Enabler for Anticipatory Service Adaptations in Next-Generation Cellular Networks \| Proceedings of the 20th ACM International Symposium on Mob |
+| `wang2025hamtl` | DOI 10.1007/s11227-025-07643-7 | Crossref REST; OpenAlex API | Hierarchy aware-based multi-task learning for user location prediction \| The Journal of Supercomputing \| 2025 \| type journal-article |
+| `wongso2025massivesteps` | no identifier in the bib entry | arXiv API; OpenAlex API | Massive-STEPS: Massive Semantic Trajectories for Understanding POI Check-ins -- Dataset and Benchmarks \| arXiv preprint \| 2025 \| type posted-content |
+| `xin2022domtl` | no identifier in the bib entry | arXiv API; OpenAlex API | Do Current Multi-Task Optimization Methods in Deep Learning Even Help? \| arXiv preprint \| 2022 \| type posted-content |
+| `yang2022getnext` | DOI 10.1145/3477495.3531983 | Crossref REST; OpenAlex API | GETNext \| Proceedings of the 45th International ACM SIGIR Conference on Research and Development in Information Retrieval \| 2022 \| type proceedings-article |
+| `ye2013nextmove` | DOI 10.1137/1.9781611972832.19 | Crossref REST; OpenAlex API | What's Your Next Move: User Activity Prediction in Location-based Social Networks \| Proceedings of the 2013 SIAM International Conference on Data Mining \| 2013 \| type  |
+| `yu2020catdm` | DOI 10.1145/3366423.3380202 | Crossref REST; OpenAlex API | A Category-Aware Deep Model for Successive POI Recommendation on Sparse Check-in Data \| Proceedings of The Web Conference 2020 \| 2020 \| type proceedings-article |
+| `yu2020pcgrad` | no identifier in the bib entry | arXiv API; OpenAlex API | Gradient Surgery for Multi-Task Learning \| arXiv preprint \| 2020 \| type posted-content |
+| `zhu2022drrgnn` | DOI 10.1145/3529091 | Crossref REST; OpenAlex API | Predicting a Person’s Next Activity Region with a Dynamic Region-Relation-Aware Graph Neural Network \| ACM Transactions on Knowledge Discovery from Data \| 2022 \| type  |
+
+## 5 · Errata regime for anything changed here
+
+Chapter 5 is **under review**. Per the author's instruction of 2026-07-27, a correction here is
+applied to the dissertation AND to the submitted source at `articles/[mobiwac]/src/` so the two
+texts stay identical, then named in that article's own errata record rather than in Appendix B. All
+three PARTIAL sites below were matched against the submitted source
+(`articles/[mobiwac]/src/sections/01_introduction.tex` and `02_related.tex`) and are present there
+verbatim, so any change is a two-file change.
+
+## 6 · Two sites a naive check inverts
+
+**`5_mobiwac.tex:96`, `silva2025mtlnet`.** An abstract-only check reports this as reversed: the CBIC
+abstract says the model "shares lower-level embeddings and sequence encoders while maintaining
+task-specific heads", while the chapter says "task-specific encoders feed shared layers". Both are
+true of the same architecture, and the chapter's version is the one the CBIC **method section** of
+record states: inputs "are first processed by separate, task-specific encoders", then FiLM
+conditioning on a learnable task embedding, then shared residual layers, then task-specific heads,
+with Nash-MTL aggregating gradients (`articles/CBIC___MTL/sections/method.tex`). **SUPPORTED.**
+
+**`apx_b_errata.tex:220`** (in the appendices unit) is the same class of false positive in the other
+direction: an errata row cites the source that contradicts the text being corrected. Recorded there.
+
+## 7 · One correction to my own evidence handling
+
+The eight `huang2023hgi` sites in this chapter and Chapters 2 and 4 were screened against an **empty**
+evidence string: my text slice of the local PDF looked for a spaced `A B S T R A C T` header that this
+paper does not use, so the field held one space. The screen correctly returned UNVERIFIABLE for all of
+them and said the abstract text was missing. The manual pass then read the paper itself (12 pages,
+ISPRS 196:134-145, in `science/articles/`) and closed all eight against its abstract and its section 3,
+which is where the quoted passages in this report come from. The stored field now carries 1,674
+characters read from the paper. Recorded because the trail matters even when the verdict does not change.
+
+## 8 · What I could not confirm in this chapter
+
+- `capanema2023poirgnn` and `wang2025hamtl` return no abstract at Crossref, OpenAlex or Semantic
+  Scholar, and their Elsevier and Springer landing pages are outside the network allowlist. Both are
+  used as identity-of-baseline or pattern-continuation pointers that the resolved record and title
+  support; no mechanism claim rests on either.
+- `:409`, `lin2021ctle`: the negative clause ("the category vocabulary never enters its training") is
+  consistent with the abstract, which names only locations and temporal information as inputs, but an
+  abstract cannot prove an absence. Narrow `[VERIFY]`.
+- `:750`, `huang2024cslsl`: the cited internal comparison (the chain against a shared-trunk parallel
+  variant on CSLSL's own benchmarks) is an ablation that the abstract does not carry. Narrow
+  `[VERIFY]`; the sentence attributes it to the paper explicitly, so it needs a page.
+- The comparative results claims at `:664-666` were **not** audited here. What a citation must
+  support at those sites is the baseline's identity, which each record does. The comparison itself
+  is a number claim under AGENT_GUARDRAILS section 2, whose single source of truth for this chapter
+  is `RESULTS_BOARD.md`. That is a numbers audit, not this one, and I did not perform it.
+
+---
+
+## `11_claims_6_conclusion.md`
+
+# 11_claims_6_conclusion.md — citation claim-support audit, Chapter 6, Conclusion
+
+**Unit:** `src/chapters/6_conclusion.tex`  
+**Run:** 2026-07-28, round 6, as the per-chapter pass the author asked for by name (COD-008 decision).  
+**Errata regime for this unit:** frame chapter: author's own text.
+
+## 1 · Counts (every citation in the unit, not a sample)
+
+- `\cite` commands in the unit: **0**, on **0** source lines, carrying **0** key instances (a multi-key `\cite` counts once per key). Every one was audited.
+- Distinct bibliography keys used: **0**.
+- Verdicts: .
+
+Comments were stripped before counting, so a key that appears only inside a `%` comment is not counted; every counted site renders.
+
+This unit carries **no citations at all**. Verified by scanning the comment-stripped source for
+`\cite`, `\citep`, `\citet`, `\textcite`, `\parencite` and `\onlinecite`: zero matches. The one
+`cite` string in the file is inside a `%` comment. Nothing to audit.
+## 3 · What I could not confirm
+
+Nothing: the unit has no citations. The absence itself was measured, not assumed.
+
+---
+
+## `11_claims_appendices.md`
+
+# 11_claims_appendices.md — citation claim-support audit, Appendices A to E
+
+**Unit:** `src/chapters/apx_a..apx_e`  
+**Run:** 2026-07-28, round 6, as the per-chapter pass the author asked for by name (COD-008 decision).  
+**Errata regime for this unit:** author's own text; Appendix B is the errata register itself.
+
+## 1 · Counts (every citation in the unit, not a sample)
+
+- `\cite` commands in the unit: **7**, on **7** source lines, carrying **9** key instances (a multi-key `\cite` counts once per key). Every one was audited.
+- Distinct bibliography keys used: **9**.
+- Verdicts: **SUPPORTED** 9.
+
+Comments were stripped before counting, so a key that appears only inside a `%` comment is not counted; every counted site renders.
+
+## 2 · Every citation, with its verdict
+
+Verdict scale: SUPPORTED, the citing sentence's attribution is present in or a fair paraphrase of the
+source; PARTIAL, part is supported and part is not, or the sentence is stronger than the source;
+NOT-SUPPORTED, the attribution is absent from or contradicted by the source; UNVERIFIABLE, the source
+of record does not carry enough to decide and the attribution is not implausible.
+
+| # | Site (file:line) | Key | Verdict | Evidence quoted from the source (under 20 words) |
+|---|---|---|---|---|
+| 1 | `apx_b_errata.tex:220` | `silva2025mtlnet` | SUPPORTED | "focusing on two complementary tasks: POI Category Classification and Next-POI Prediction" |
+| 2 | `apx_d_ceiling.tex:55` | `kohavi1995crossval` | SUPPORTED | "the best method to use for model selection is ten-fold stratified cross validation" |
+| 3 | `apx_d_ceiling.tex:55` | `pedregosa2011sklearn` | SUPPORTED | "Scikit-learn is a Python module integrating a wide range of state-of-the-art machine learning algorithms" |
+| 4 | `apx_d_ceiling.tex:56` | `sokolova2009measures` | SUPPORTED | "the measure invariance taxonomy with respect to all relevant label distribution changes" |
+| 5 | `apx_e_ethics.tex:36` | `cho2011gowalla` | SUPPORTED | "data from two online location-based social networks" |
+| 6 | `apx_e_ethics.tex:36` | `jure2014snap` | SUPPORTED | "A collection of more than 50 large network datasets" |
+| 7 | `apx_e_ethics.tex:40` | `wongso2025massivesteps` | SUPPORTED | "large-scale, publicly available benchmark dataset ... spans 15 geographically and culturally diverse cities" |
+| 8 | `apx_e_ethics.tex:61` | `luca2021mobilitysurvey` | SUPPORTED | "deep learning ... human mobility" |
+| 9 | `apx_e_ethics.tex:91` | `santos2024urban` | SUPPORTED | "it is fundamental to anonymize the locations with an appropriate method" |
+## 3 · Failures and partials in this unit, in detail
+
+None. Every citation in this unit is SUPPORTED.
+
+## 4 · Source ledger for this unit
+
+Every distinct key cited in this unit, the identifier it resolved by, and where I opened it this session.
+
+| Key | Identifier | Opened at | Record as returned |
+|---|---|---|---|
+| `cho2011gowalla` | DOI 10.1145/2020408.2020579 | Crossref REST; OpenAlex API | Friendship and mobility \| Proceedings of the 17th ACM SIGKDD international conference on Knowledge discovery and data mining \| 2011 \| type proceedings-article |
+| `jure2014snap` | no identifier in the bib entry | OpenAlex API | {SNAP Datasets}: {Stanford} Large Network Dataset Collection \| (no venue in record) \| 2014 \| type article |
+| `kohavi1995crossval` | no identifier in the bib entry | OpenAlex API | A Study of Cross-Validation and Bootstrap for Accuracy Estimation and Model Selection \| (no venue in record) \| 1995 \| type article |
+| `luca2021mobilitysurvey` | DOI 10.1145/3485125 | Crossref REST; OpenAlex API | A Survey on Deep Learning for Human Mobility \| ACM Computing Surveys \| 2021 \| type journal-article |
+| `pedregosa2011sklearn` | no identifier in the bib entry | arXiv API; OpenAlex API; PDF in repo: Pedregosa2011_ScikitLearn.pdf | Scikit-learn: Machine Learning in Python \| Journal of Machine Learning Research (2011) \| 2012 \| type posted-content |
+| `santos2024urban` | no identifier in the bib entry | NOT RESOLVED at any source of record | None \| (no venue in record) \| None \| type None |
+| `silva2025mtlnet` | DOI 10.21528/CBIC2025-1191324 | Crossref REST; OpenAlex API | An Investigation into Multi-Task Learning for Point-of-Interest Category Classification and Next-POI Prediction \| Anais do XVII Congresso Brasileiro de Inteligência Comp |
+| `sokolova2009measures` | DOI 10.1016/j.ipm.2009.03.002 | Crossref REST; OpenAlex API; PDF in repo: sokolova2009.pdf | A systematic analysis of performance measures for classification tasks \| Information Processing &amp; Management \| 2009 \| type journal-article |
+| `wongso2025massivesteps` | no identifier in the bib entry | arXiv API; OpenAlex API | Massive-STEPS: Massive Semantic Trajectories for Understanding POI Check-ins -- Dataset and Benchmarks \| arXiv preprint \| 2025 \| type posted-content |
+
+## 5 · The one site a naive check inverts
+
+**`apx_b_errata.tex:220`, `silva2025mtlnet`.** A checker reading this sentence as the dissertation's
+own claim about the CBIC work reports NOT-SUPPORTED, because the CBIC abstract says the work studied
+"POI Category Classification and Next-POI Prediction" while the sentence says next-category and
+next-region with negative transfer between them. That is the point of the row: it records that the
+**submitted MobiWac manuscript** described the CBIC work that way, that the description was
+inaccurate, and that it was corrected. The cited abstract is the evidence FOR the erratum. This is a
+systematic false-positive class for errata registers and is recorded here so it is not re-raised.
+
+## 6 · The one entry with no external source of record
+
+**`santos2024urban`** resolves at no external source: no DOI, absent from Crossref, arXiv and
+OpenAlex (title search returns unrelated works). It is a UFV master's dissertation. I verified it
+against the document itself, which is in the repository at
+`articles/dissertacao/exemples/germano/Dissertação_Mestrado___Germano.pdf`:
+
+- Title page: "GERMANO BARCELOS DOS SANTOS", "URBAN REGION REPRESENTATION LEARNING: A POSITIONAL AND
+  STRUCTURAL GRAPH APPROACH", Federal University of Viçosa, "Orientador: Fabrício Aguiar Silva",
+  2024. Every bib field checks.
+- Section 2.6, "Ethical Statement", states the location-privacy position and says which fields were
+  left unmasked: the study "used Gowalla anonymized user identifier information, but we maintained
+  the location without masking the latitude and longitude of a collected GPS point".
+- Searched the full extracted text (244,987 characters) for "research ethics", "Comitê", "CEP",
+  "CAAE", "institutional review" and "IRB": **zero occurrences of each**, which is the negative half
+  of the citing sentence at `apx_e_ethics.tex:91`.
+
+Every clause of that sentence checks, including the negative one. The entry should keep a bib comment
+recording that it has no external identifier by nature, so a future existence-checker does not read
+the absence as a defect.
+
+## 7 · What I could not confirm in this unit
+
+Nothing outstanding. All nine key instances are SUPPORTED.
