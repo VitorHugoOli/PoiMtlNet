@@ -1,0 +1,117 @@
+% ============================================================================
+% Check2HGI -- fluxo de dados, versao de SLIDE (impresso 30).
+%
+% NAO e' um redesenho: e' a `fig1_dataflow.tex` da dissertacao
+% (`src/figures/mobiwac/fig1_dataflow.tex`) reconstruida em escala de slide, a
+% pedido do autor ("melhore essa imagem por hora").  A ESTRUTURA e' a mesma que
+% ele conhece -- trilha de check-ins -> grafo de quatro niveis -> duas tabelas
+% de vetores -> janelas -> duas tarefas.  O que muda e' tudo que impedia aquela
+% figura de funcionar projetada:
+%
+%   - corpo: \scriptsize (7pt) -> \small (9pt).  A original foi feita para ser
+%     lida a 30cm numa pagina; esta e' lida a 3m numa tela;
+%   - paleta: cinza/azul/verde/laranja pastel -> a paleta do deck (nesped), com
+%     DOIS fios de cor e nao seis;
+%   - as tres legendas de tres linhas sob o grafo (arestas, features, infomax)
+%     sairam: o autor decidiu que esse conteudo vai para a FALA.  Em corpo de
+%     7pt elas eram ilegiveis de longe de qualquer jeito;
+%   - o slide 30 fica SEM MARCADORES, entao a figura passa a ter de dizer
+%     sozinha as duas coisas que os marcadores diziam: os quatro niveis com o
+%     CHECK-IN marcado como o novo, e as duas saidas de 64 dimensoes.
+%
+% AS DUAS CORES, e por que sao so' duas:
+%   TEAL  = o caminho do CHECK-IN -- o nivel novo, a tabela por visita, e a
+%           tarefa que ela alimenta (next category);
+%   NAVY  = o caminho da REGIAO -- o nivel, a tabela por regiao, e o next region.
+% E' esse par que torna as duas saidas legiveis sem uma palavra de texto: cada
+% fio comeca num andar e termina numa tarefa.
+% ⚠ alert/vermelho NAO aparece aqui de proposito: nas chapas do DGI e do HGI ele
+% significa "amostra negativa", e esta figura nao tem ramo negativo.
+%
+% FIDELIDADE: as janelas mostram DUAS faixas, nao uma.  As duas tabelas viajam
+% como duas matrizes 9x64 separadas e nunca sao concatenadas numa 9x128
+% (apendice E do volume principal).  A figura original nao mostrava isso.
+%
+% Gabarito medido pela `ppt`: slide 30, titulo em uma linha, altura util
+% 67,6mm.  Sem marcadores o beamer centra a figura na vertical, entao ela deve
+% ficar em 62-64mm para nao encostar em cima e embaixo.  Largura util 140mm.
+% ============================================================================
+\begin{tikzpicture}[
+    font=\small,
+    >={Latex[length=2.2mm]},
+    lbl/.style={align=center, font=\small, text=secondary},
+    box/.style={draw=secondaryshade, rounded corners=2.5pt, fill=white,
+                align=center, inner sep=5pt, line width=1pt, text=secondary},
+    tealbox/.style={box, draw=primaryshade, fill=primarytint},
+    navybox/.style={box, draw=secondaryshade, fill=secondarytint},
+    chip/.style={draw=secondary!45, rounded corners=2pt, fill=white,
+                 align=center, font=\small, text=secondary, minimum height=5.2mm,
+                 text width=1.55cm, inner sep=2pt, line width=0.8pt},
+    newchip/.style={chip, draw=primaryshade, fill=primarytint, line width=1.3pt},
+    dot/.style={circle, draw=secondary!70, fill=white, line width=0.9pt,
+                inner sep=0pt, minimum size=2.6mm},
+    tcell/.style={draw=primaryshade, fill=primarytint, line width=0.7pt,
+                  minimum width=2.4mm, minimum height=3.0mm, inner sep=0pt},
+    ncell/.style={draw=secondaryshade, fill=secondarytint, line width=0.7pt,
+                  minimum width=2.4mm, minimum height=3.0mm, inner sep=0pt},
+    flow/.style={->, line width=1.1pt, draw=secondary},
+    tflow/.style={->, line width=1.1pt, draw=primaryshade},
+    link/.style={line width=0.9pt, draw=secondary!50}
+]
+
+% ---------------------------------------- 1. a trilha de check-ins do usuario
+\node[box, text width=1.75cm] (trail) at (1.35,1.60)
+      {\textbf{Check-in}\\\textbf{trail}};
+\foreach \i in {0,1,2,3}
+   \node[dot] (d\i) at (0.60+\i*0.50, 0.55) {};
+\draw[flow] (d0)--(d1); \draw[flow] (d1)--(d2); \draw[flow] (d2)--(d3);
+\node[lbl, anchor=north, text width=2.6cm] at (1.35,0.25) {one user, in time order};
+
+% ------------------------------------------- 2. o grafo de quatro niveis
+\node[chip] (Lcity)   at (5.05,2.35) {city};
+\node[chip] (Lregion) at (5.05,1.65) {region};
+\node[chip] (Lplace)  at (5.05,0.95) {place};
+\node[newchip] (Lcheck) at (5.05,0.25) {check-in};
+\draw[link] (Lcheck)--(Lplace); \draw[link] (Lplace)--(Lregion);
+\draw[link] (Lregion)--(Lcity);
+\node[lbl, text=primaryshade, anchor=north, text width=3.2cm] at (5.05,-0.15)
+      {\textbf{the level this work adds}};
+% A trilha crua entra pelo CHECK-IN, nao pela regiao: e' o andar de baixo que
+% recebe as visitas.  (A versao anterior apontava para `region`, o que era
+% simplesmente falso.)
+\draw[flow] (trail.east) -- ++(0.42,0) |- (Lcheck.west);
+
+% ---------- 3. as duas tabelas exportadas, ambas de 64 dimensoes.
+% Ordem deliberada: a de REGIAO em cima e a de VISITA embaixo, espelhando a
+% ordem dos andares (region esta' acima de check-in).  Assim os dois fios correm
+% PARALELOS do andar ate' a tarefa, sem se cruzarem uma unica vez -- que era o
+% defeito da primeira tentativa.  Estao escalonadas em x para que as descidas
+% ate' as janelas tambem nao se cruzem.
+\node[navybox, text width=2.5cm] (vreg) at (8.40,2.10)
+      {\textbf{64-d per region}\\{from the region level}};
+\node[tealbox, text width=2.5cm] (vvis) at (10.20,0.55)
+      {\textbf{64-d per visit}\\{from the check-in level}};
+\draw[flow]  (Lregion.east) -- ++(0.4,0) |- (vreg.west);
+\draw[tflow] (Lcheck.east)  -- ++(1.9,0) |- (vvis.west);
+
+% ------------------------------------------------ 4. as janelas de nove visitas
+% DUAS faixas, nao uma: as duas tabelas viajam como matrizes 9x64 separadas e
+% nunca sao concatenadas numa 9x128.
+\node[box, minimum width=3.3cm, minimum height=1.7cm, text width=3cm]
+     (win) at (9.30,-1.95) {};
+\node[lbl] at (9.30,-1.42) {\textbf{Windows of 9 visits}};
+\foreach \i in {0,...,8}{
+   \node[ncell] at (8.18+\i*0.28,-1.98) {};
+   \node[tcell] at (8.18+\i*0.28,-2.38) {};}
+\draw[flow]  (vreg.south) -- (8.40,-1.10);
+\draw[tflow] (vvis.south) -- (10.20,-1.10);
+
+% ---------------------------------------------------- 5. as duas tarefas
+% Mesma ordem das tabelas: regiao em cima, categoria embaixo.  E' o que mantem
+% os dois fios paralelos de ponta a ponta.
+\node[navybox, text width=2.0cm] (outr) at (12.62,-1.35) {\textbf{Next region}};
+\node[tealbox, text width=2.0cm] (outc) at (12.62,-2.62) {\textbf{Next category}};
+\draw[flow]  (win.east) -- ++(0.2,0) |- (outr.west);
+\draw[tflow] (win.east) -- ++(0.2,0) |- (outc.west);
+
+\end{tikzpicture}

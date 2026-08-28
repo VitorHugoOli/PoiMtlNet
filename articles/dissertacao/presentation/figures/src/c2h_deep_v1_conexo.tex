@@ -1,0 +1,112 @@
+% ============================================================================
+% Check2HGI -- o andar de check-in (impresso ~30/31).
+% Fonte: o ASCII do AUTOR, `considerations.md:3101-3130`.  Transcricao, nao
+% reinterpretacao: Check-in -> Encoder -> Check-in Feature Embedding -> grafo
+% de sequencia DIRIGIDA -> original/corrompido -> a MESMA GCN -> Check-in
+% Embeddings -> Attention Pooling per POI -> POI Embeddings -> HGI.
+%
+% ESTA CHAPA E' IRMA DA DO HGI, DE PROPOSITO E NA LETRA.  Mesmos estilos, mesma
+% paleta, mesmas raias, mesmos glifos de vetor, mesmo tratamento de "a mesma
+% rede recebe os dois ramos".  E' o que torna literal o argumento do slide --
+% "e' o mesmo metodo, um nivel mais fundo" -- em vez de pedir que a plateia
+% acredite na palavra.  Por isso ela TERMINA numa caixa `HGI`: o que sai daqui
+% e' o que entra na chapa anterior.
+%
+% ⚠ AS ARESTAS DO GRAFO SAO DIRIGIDAS, e isso nao e' decoracao.  A sequencia de
+% visitas liga cada visita a's seguintes em UMA direcao so' (anterior -> posterior).
+% E' o mecanismo antivazamento do v18: com a aresta bidirecional, o rotulo
+% vazava e valia 28,63 macro-F1 em Alabama.  Desenhar sem ponta, ou com ponta
+% nos dois lados, contradiz a defesa central do capitulo.  O proprio autor
+% escreve "Build directed user visit sequence".
+% ============================================================================
+% O MESMO pictograma de grafo das chapas do DGI e do HGI -- mesmas posicoes de
+% no', mesma silhueta -- so' que com as arestas DIRIGIDAS.  Duas razoes para nao
+% escolher entre uma coisa e outra:
+%  - consistencia: o leitor reconhece "isto e' um grafo" pelo mesmo simbolo nas
+%    tres chapas, e a corrente de bolinhas em fila nao tinha esse parentesco;
+%  - fidelidade: a sequencia de visitas e' dirigida, e a direcao E' o mecanismo
+%    antivazamento do v18.  As arestas correm todas no sentido do tempo e
+%    NENHUMA fecha ciclo -- um ciclo dirigido diria que a ultima visita aponta
+%    de volta para a primeira, que e' exatamente o que o v18 proibiu.
+\tikzset{
+  dgpic/.pic={
+    \begin{scope}[->, line width=0.8pt, opacity=0.55,
+                  >={Latex[length=1.4mm]}, shorten >=1.3pt, shorten <=1.3pt]
+      \draw (-0.364,-0.221) -- (-0.442, 0.195);
+      \draw (-0.442, 0.195) -- (-0.078, 0.364);
+      \draw (-0.078, 0.364) -- ( 0.364, 0.078);
+      \draw ( 0.364, 0.078) -- ( 0.078,-0.312);
+      \draw (-0.364,-0.221) -- ( 0.078,-0.312);
+      \draw (-0.442, 0.195) -- ( 0.364, 0.078);
+    \end{scope}
+    \fill (-0.364,-0.221) circle (1.6pt) (-0.442,0.195) circle (1.6pt)
+          (-0.078,0.364) circle (1.6pt) (0.364,0.078) circle (1.6pt)
+          (0.078,-0.312) circle (1.6pt);
+  }
+}
+\begin{tikzpicture}[
+    font=\small,
+    >={Latex[length=2mm]},
+    lbl/.style={align=center, font=\small, text=secondary},
+    box/.style={draw=secondaryshade, rounded corners=2.5pt, fill=white,
+                align=center, inner sep=4pt, line width=1pt, text=secondary},
+    % caixas que atravessam as duas raias -- so' estas precisam ser altas
+    tall/.style={box, minimum height=2.25cm},
+    vcell/.style={draw=secondary!70, line width=0.8pt, minimum width=4mm,
+                  minimum height=2.1mm, inner sep=0pt, fill=white},
+    ncell/.style={vcell, draw=alert!85, fill=alert!10},
+    flow/.style={->, line width=1.1pt, draw=secondary},
+    nflow/.style={->, line width=1.1pt, draw=alert!85}
+]
+\def\yA{0.95}\def\yB{-0.95}
+
+% O encoder e' de UMA raia so' -- nao precisa atravessar nada, e achatado ele
+% para de competir com as caixas que de fato atravessam.
+\node[box, minimum height=1.3cm, text width=1.55cm] (enc) at (1.75,0)
+      {\textbf{Encoder}\\[0.3mm]{\small pretrained}};
+\node[lbl, anchor=south] at (-0.10,0.10) {Check-in};
+\draw[flow] (-0.30,0) -- (enc.west);
+
+\begin{scope}[local bounding box=fe]
+  \foreach \k in {0,1,2,3} \node[vcell] at (3.30,0.33-\k*0.22) {};\end{scope}
+\draw[flow] (enc.east) -- (fe.west);
+
+{\color{secondary}\pic at (4.75,\yA) {dgpic};}
+{\color{alert}\pic at (4.75,\yB) {dgpic};}
+\node[lbl, text width=1.9cm] at (4.90,0)
+      {\textbf{directed visit}\\\textbf{sequence}};
+\node[lbl, anchor=south] at (4.75,\yA+0.42) {original graph};
+\node[lbl, text=alert, anchor=north] at (4.75,\yB-0.42) {corrupted graph};
+\draw[flow]  (fe.east) -- ++(0.22,0) |- (4.25,\yA);
+\draw[nflow] (fe.east) -- ++(0.22,0) |- (4.25,\yB);
+
+\node[tall, text width=0.85cm] (gcn) at (6.70,0) {\textbf{GCN}};
+\draw[flow]  (5.30,\yA) -- ([yshift=9.5mm]gcn.west);
+\draw[nflow] (5.30,\yB) -- ([yshift=-9.5mm]gcn.west);
+
+\begin{scope}[local bounding box=cea]
+  \foreach \k in {0,1,2,3} \node[vcell] at (8.05,\yA+0.33-\k*0.22) {};\end{scope}
+\begin{scope}[local bounding box=ceb]
+  \foreach \k in {0,1,2,3} \node[ncell] at (8.05,\yB+0.33-\k*0.22) {};\end{scope}
+\draw[flow]  ([yshift=9.5mm]gcn.east)  -- (cea.west);
+\draw[nflow] ([yshift=-9.5mm]gcn.east) -- (ceb.west);
+
+\node[tall, text width=1.6cm] (pool) at (9.50,0)
+      {\textbf{Attention}\\\textbf{pooling}};
+\draw[flow]  (cea.east) -- ([yshift=9.5mm]pool.west);
+\draw[nflow] (ceb.east) -- ([yshift=-9.5mm]pool.west);
+
+\begin{scope}[local bounding box=pea]
+  \foreach \k in {0,1,2,3} \node[vcell] at (11.20,\yA+0.33-\k*0.22) {};\end{scope}
+\begin{scope}[local bounding box=peb]
+  \foreach \k in {0,1,2,3} \node[ncell] at (11.20,\yB+0.33-\k*0.22) {};\end{scope}
+\draw[flow]  ([yshift=9.5mm]pool.east)  -- (pea.west);
+\draw[nflow] ([yshift=-9.5mm]pool.east) -- (peb.west);
+\node[lbl, text width=1.85cm, anchor=north] at (11.20,\yB-0.42) {place embeddings};
+
+\node[box, fill=secondarytint, text width=0.75cm, minimum height=1.6cm]
+     (hgi) at (12.45,0) {\textbf{HGI}};
+\draw[flow]  (pea.east) -- ([yshift=5mm]hgi.west);
+\draw[nflow] (peb.east) -- ([yshift=-5mm]hgi.west);
+
+\end{tikzpicture}
