@@ -88,6 +88,7 @@ The author confirmed the chronological = intellectual order after the evidence c
 final form" maps 1:1 onto CBIC → CoUrb → MobiWac.
 
 ## 3 · Chapter map (Viegas-pattern, adapted — see `exemples/viegas/VIEGAS_ANALYSIS.md`)
+*(A pasta `exemples/` foi apagada em 28/08/2026 na limpeza; o conteudo esta em `~/Backups/dissertacao_exemples_2026-08-20.tgz`, backup verificado.)*
 
 ```
 PRE-TEXTUAL (defense build only; the final AcademicoPG upload starts at the lists — TEMPLATE.md)

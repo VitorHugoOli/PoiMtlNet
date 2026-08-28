@@ -46,7 +46,8 @@ a resposta?** A resposta entregue, medida com CV por usuário disjunto, n=20, co
 
 > 🛑 **Circula pelo repositório uma escada de veredito SUPERADA** — *"category everywhere,
 > region at four of six"* e *"+28…+40 macro-F1"*. **Não é o resultado entregue.** O `NORTH_STAR.md`
-> abre com um banner que marca os sítios; a linha 67 dele ainda não está marcada (ver `ACHADOS.md §A4`).
+> abre com um banner que aponta essas frases **por conteúdo** e marca cada ocorrência com
+> `[SUPERADO 2026-08-20]`. Não copiar nenhuma delas para prosa nova (ver `ACHADOS.md §A4`).
 > Fonte do número entregue: `src/tables/mobiwac/results.tex` e `wrapup/evidence/ladder_recompute.json`.
 
 ---

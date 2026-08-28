@@ -324,6 +324,7 @@ as §4.1–§4.10:**
 chapter; "deliberately X" → "X by design"; "sits above" → "lies above" (one verb everywhere).
 
 ## 5 · Structure and presentation rules (Viegas-derived; details in `exemples/viegas/VIEGAS_ANALYSIS.md`)
+*(A pasta `exemples/` foi apagada em 28/08/2026 na limpeza; o conteudo esta em `~/Backups/dissertacao_exemples_2026-08-20.tgz`, backup verificado.)*
 
 - **Abstract formula:** problem → barrier → named contribution → concrete capabilities →
   validation design → ONE headline number → closing thesis-verb restatement. UFV catalog header;

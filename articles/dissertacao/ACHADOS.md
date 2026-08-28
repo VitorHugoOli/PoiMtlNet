@@ -544,6 +544,72 @@ por mim; fica como leitura obrigatória da fase seguinte.
 
 ---
 
+## A10 · Auditoria pós-limpeza — o que a esteira diz agora `[V]`
+
+Um crítico de completude correu os verificadores depois das duas vagas. **Três classes de achado**,
+e a primeira é minha.
+
+### 🔴 O que a limpeza partiu, e é reversível por reconstrução
+
+| apaguei | quem o lia por caminho | como voltar |
+|---|---|---|
+| `presentation/slides/main.pdf` | `build_speech_1_extract.py:19`, `canaria_coluna.py:30`, `ink_sweep.py` | `make -C presentation/slides` |
+| `src/build/` | `sync_page_counts.py`, `check_extra_xrefs.py`, e o portão de render do `check.sh:344` | `cd src && make academico` |
+
+**A cadeia que regenera o `SPEECH.pdf` e a canária de coluna estão não-executáveis até o deck ser
+reconstruído.** Nenhum dado se perdeu — mas um portão que não pode correr é indistinguível de um
+portão que passa, que é exatamente o comentário escrito por cima do `check.sh:344`.
+
+### 🔴 A pasta `exemples/` era citada 61 vezes, e duas eram de carga
+
+`NORTH_STAR.md §3` e `WRITING_LAW.md §5` **derivam as suas regras de estrutura** de
+`exemples/viegas/VIEGAS_ANALYSIS.md`. Duas das quatro leis apoiavam-se num ficheiro que passou a
+existir só no tarball. ✅ **Corrigido**: as duas linhas dizem agora onde está o backup.
+
+### ⚠ Ponteiros mortos que **não** são meus — vêm de uma reorganização anterior
+
+Estes já estavam partidos antes de hoje, e **desligam verificações em silêncio**:
+
+- **9 sondas do `check_audit_claims.py`** procuram `../fundamentals/DEFINITIONS.md`; o ficheiro
+  mudou para `science/fundamentals/` e nunca foi repontado. Dão `SKIP`, e os `SKIP` não entram em
+  nenhum balde da manchete do próprio portão (`211+16+6+1 = 234` de 235);
+- **`check_trapped_prose.py:96`** procura `src/main_extra.tex`, que mudou para
+  `wrapup/material_extra/`. A função devolve conjunto vazio e o roteamento de dois volumes está
+  morto, com o portão a verde;
+- **`check_tracker_refs.py` FALHA agora**: `LACUNAS.md:314` e `:592` citam `PENDENCIAS §4.1` e
+  `§4.2`, secções que já não existem;
+- **`PLAN.md`** mudou para `archive/` e ficou citado da raiz em `NORTH_STAR.md:4`,
+  `UFV_COMPLIANCE.md:99` e `:133`;
+- **27 ponteiros de proveniência dentro do `src/` entregue** apontam para `fundamentals/` e
+  `storyline/` sem o prefixo `science/`. Quatro dos cinco alvos curam-se com o prefixo; um
+  (`AVAL_NECESSARIA_3_ptBR.md`, citado em `preamble.tex:216`) derivou dois níveis e não resolve
+  assim. É a versão medida do que eu tinha registado na **§A4** como "20 comentários".
+
+> **A ordem certa do que vem a seguir:** repontar estes **antes** de mover ou destilar mais
+> alguma coisa. Enquanto estiverem partidos, a esteira não consegue dizer se a próxima vaga partiu
+> algo novo — é medir com a régua já quebrada.
+
+### ⚠ Ainda invisível ao git, e é a mesma classe da §A1
+
+`presentation/nesped_slides_template/main.pdf` (536 KB) é a **linha de base de calibração** do
+`ink_sweep.py` — e está **untracked e ignorado** pelo `*.pdf`. A exceção do `.gitignore` protege um
+ficheiro com outro nome. Sobreviveu a esta limpeza por sorte; o próximo glob de `main.pdf` apanha-o.
+
+### Correções que a auditoria me fez, já aplicadas
+
+- **`README.md:49` repetia o defeito que eu tinha acabado de diagnosticar** — dizia "a linha 67 do
+  NORTH_STAR ainda não está marcada" quando eu próprio a marcara 13 minutos antes, e o texto já
+  tinha mudado de linha. **Ponteiro por número de linha, escrito por mim, no documento onde eu
+  explico que ponteiros por número de linha apodrecem.** Trocado por ponteiro de conteúdo;
+- **`CLAUDE.md:227` ainda ensinava `git check-ignore -v`** sem `--no-index` — a forma refutada na
+  **§A6**. O ficheiro que todo o agente carrega primeiro carregava a instrução errada. Corrigido;
+- **`CLAUDE.md:36-40` afirma que o `AGENT_GUARDRAILS §N1` encaminha para o `RESULTS_BOARD`** — o
+  crítico leu a linha 73 e a única menção lá é um aviso *"Do not go there"*, numa regra já
+  repontada a 20/08. **A minha §A4 e §B1 repetem essa alegação como `[R, não verificado]`; ela é
+  falsa.** Não a apaguei do registo — fica aqui a correção, que é como este documento funciona.
+
+---
+
 ## Procedência deste documento
 
 Verificado por mim `[V]`: A1, A2, A3, A4, A5, A6 (exceto o exit code do `make check`), A7, A9, B2, B3.

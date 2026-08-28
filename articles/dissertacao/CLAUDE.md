@@ -224,7 +224,11 @@ Two more registries: [`wrapup/NEW_VERSION.md`](wrapup/NEW_VERSION.md) (the `mtlc
    measures 1,433,863 / 9,634,471 (230%) / 12,044,791 (234%). The macro-F1 results are fine and the
    conclusion strengthens. **Do not say "100.2%" aloud.**
 7. **`git status` does not see `docs/results/`.** `.git/info/exclude` carries a bare `results`
-   pattern. Before deleting anything, run `git check-ignore -v <path>`.
+   pattern. Before deleting anything, run **`git check-ignore --no-index -v <path>`** — the bare
+   `-v` form consults the index and reports "not ignored" for any path that is *already tracked*,
+   which is the opposite of the answer you asked for. To see what exists on disk that git hides,
+   use `git status --ignored`. (Corrected 2026-08-28; the old form was in this file and produced
+   contradictory readings during the cleanup.)
 
 ---
 
