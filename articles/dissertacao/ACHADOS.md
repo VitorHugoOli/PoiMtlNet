@@ -79,9 +79,30 @@ regeneráveis por `build.sh`).
 
 - ✅ **correta** na largura: `slides/main.tex:841` diz `width=0.80\textwidth` (alvo ~302 pt),
   não os 0,85/~321 pt que o `gate` tinha dito;
-- ❌ **CORREÇÃO** — ela marcou `figures/superseded/_hgi_flow_v1_376pt.pdf` como *"duplicata do
-  `plates/hgi_flow.pdf` vivo"* e candidato a apagar. **Os dois ficheiros diferem**
-  (`b57b48b2…` vs `97964125…`). É uma versão anterior genuína. **Não apagar** com esse argumento.
+- 🔴 **e aqui errei eu, e a correção é dela.** Eu disse que ela estava errada ao chamar
+  `figures/superseded/_hgi_flow_v1_376pt.pdf` de duplicata do `plates/hgi_flow.pdf`, porque os md5
+  divergem (`b57b48b2…` vs `97964125…`). **O md5 não responde a essa pergunta.** Refiz o teste
+  pelo método que a própria pasta manda usar:
+
+  | teste | resultado |
+  |---|---|
+  | `pdfinfo` — tamanho de página | `377,87 × 164,53 pt` **nos dois** |
+  | `pdftotext` — texto extraído | **idêntico** |
+  | render a 600 dpi (`gs -sDEVICE=ppmraw`), raster cru | md5 `6bb9868e…` **nos dois — idêntico pixel a pixel** |
+  | `pdfinfo` — `CreationDate` | 26/08 20:06 vs 27/08 17:40 ← **a única diferença** |
+
+  **São o mesmo desenho, compilado duas vezes.** E isto está escrito como lei em `CLAUDE.md:109`:
+  *"To verify a rebuild, compare `pdftotext` output, **not** md5: there is no `SOURCE_DATE_EPOCH`,
+  so every rebuild differs in `/CreationDate` and md5 can never match."* **Eu não a li antes de
+  contradizer quem tinha razão.**
+
+  > **A regra geral, e vale para o resto desta limpeza:** o md5 prova **cópia**, não prova
+  > **conteúdo**. Para "estes dois PDFs são versões diferentes?", comparar **render ou texto
+  > extraído**. Um md5 divergente aqui é o carimbo de data, não desenho novo.
+
+  A ação não muda — **não apagar**, e isso ficou acordado com a `tikz`: está debaixo do `*.pdf` do
+  `.gitignore`, logo se sumir do disco some sem aparecer em diff. Mas o ficheiro **é** redundante
+  por conteúdo, e apagá-lo passa a ser decisão do autor, não um defeito a corrigir.
 
 ---
 
@@ -105,11 +126,19 @@ Citada em quatro documentos:
 a continha, e `/Volumes/linux/VIDEO/` já não a tinha. O próprio `BOAS_PRATICAS_SLIDES.md:254`
 avisava: *"se o arquivo sumir do disco, some de vez."*
 
-> ⚠ **Consequência viva, para quem chegar depois:** aqueles quatro documentos citam agora um
-> ficheiro que **não existe**. As medições continuam válidas e o método está escrito em cada um
-> deles — mas **a evidência primária não é mais reverificável**. Quem quiser refazer a medição
-> precisa de outra gravação. **Isto devia ser anotado nos quatro documentos** (não o fiz: são do
-> `gate`, e a decisão de redação é dele).
+✅ **Anotado nos documentos, 2026-08-28.** O `gate` escreveu a linha e autorizou os três dele;
+aplicada em `HANDOFF.md`, `HANDOFF_SLIDES.md` e `APRESENTACAO_DEFESA_GUIDE.md §4.0`, ancorada no
+caminho do ficheiro e não em número de linha:
+
+> ⚠ *A gravação que sustenta esta medição foi apagada em 28/08/2026, por decisão do autor
+> (conteúdo pessoal de terceiro, cópia única). O método e os valores ficam; a evidência primária
+> não é reverificável.*
+
+⏳ **Falta `BOAS_PRATICAS_SLIDES.md §3`** — é da `ppt`, e o `gate` pediu explicitamente que a linha
+lhe fosse mandada para confirmar antes de ser aplicada. Enviada; a aplicar quando ela responder.
+
+As medições continuam válidas e o método está escrito em cada documento — o que se perdeu é a
+possibilidade de **reverificar** contra a fonte.
 >
 > Argumento a favor da decisão, para o registo: era a defesa **de outra pessoa** e continha
 > **conteúdo pessoal do autor** (61 min do ecrã dele, com outras janelas). Sob o critério novo
@@ -193,9 +222,30 @@ papers — o sítio mais copiável do ficheiro — e carrega `+28…+40 macro-F1
 outperforms the dedicated model at all six datasets (+5.3…+9.4)"* **sem marcador `[SUPERADO]`
 nenhum**. As outras estão todas marcadas; esta escapou.
 
-> **Não a alterei** — é decisão de conteúdo do `gate`/autor se marca, reescreve, ou deixa
-> (a linha descreve o que o *paper submetido* alega, o que pode ser legítimo). Mas **hoje ela é
-> a única fonte não marcada da alegação superada dentro da pasta.**
+✅ **RESOLVIDO 2026-08-28, com a decisão do `gate` (dono do ficheiro): marcar, não reescrever** —
+que é a política declarada pelo próprio banner (*"ficam como estão, marcadas… porque reescrever o
+corpo apagaria o registro de qual era a tese quando o arco foi desenhado"*).
+
+E o `gate` derrubou o meu "pode ser legítimo como descrição do paper submetido": o `+28…+40` é
+número de substrato **pré-v18, com vazamento** — não é uma tese anterior que foi revista, é uma
+geração que foi **invalidada**. Não há leitura em que seja citável.
+
+**Feito, com o corpo intocado:**
+1. a linha 67 recebeu dois marcadores `[SUPERADO 2026-08-20]`, um por alegação (a faixa e o "all
+   six datasets"), cada um com o valor entregue ao lado;
+2. 🔴 **o banner deixou de apontar por número de linha.** Este era o defeito maior, e é do `gate`:
+   ele nomeava as linhas 26/175/330/394 — e o texto **já não estava em nenhuma delas**. Um guarda
+   que aponta para portas limpas manda o leitor conferir quatro sítios certos e falha o único
+   errado; foi assim que o briefing me chegou com as linhas trocadas. Agora aponta por **conteúdo**
+   (*"onde aparecer `+28…+40`, `category everywhere` ou `region at four of six`…"*), que não
+   apodrece quando o ficheiro se mexe.
+
+Conferido depois: as três ocorrências restantes estão ou dentro do banner, ou marcadas. Nenhuma
+sem marcador.
+
+> ⚠ Fica uma coisa **não** corrigida, de propósito: a coluna de Status da linha 67 diz *"Submitted,
+> under review"*, e o `gate` informa que o MobiWac **aceitou** o paper depois do depósito. É registo
+> desatualizado, não alegação superada — e mexer nisso é decisão de conteúdo do autor.
 
 ### `references.bib` — 20 comentários de proveniência apontam para um caminho que não existe `[V]`
 
@@ -276,6 +326,21 @@ git status --ignored --porcelain <dir>    # o que existe no disco e o git não v
 ✅ **E a boa notícia:** **não há nenhuma pasta chamada `results` dentro de `articles/dissertacao/`**
 `[V]`. **A armadilha do `docs/results/` não dispara no nosso escopo.** O que dispara é a lista da
 **A2** — e é essa que interessa antes de qualquer limpeza aqui.
+
+### 🔴 O md5 prova cópia, não prova conteúdo — e nestes PDFs mente `[V]`
+
+Os PDFs desta pasta **não fixam `SOURCE_DATE_EPOCH`**, então cada recompilação muda o
+`/CreationDate` e o md5 — **mesmo sem alterar um byte de desenho**. Dois ficheiros com hashes
+diferentes podem ser a mesma figura compilada duas vezes, como se provou em **A1**.
+
+**Está escrito como lei em `CLAUDE.md:109`**, e eu contradisse quem tinha razão por não a ter lido.
+
+| a pergunta | o teste certo |
+|---|---|
+| "são o mesmo ficheiro?" (cópia) | **md5 serve** — foi o que usei para conferir os blobs commitados contra o disco, e essa verificação é válida |
+| "são a mesma figura?" (conteúdo) | **`pdftotext`, ou render** (`gs -sDEVICE=ppmraw -r600`) e comparar o raster |
+
+---
 
 ### Cinco alvos do make sobrescrevem `dissertacao.pdf` `[V]` — `gate` correto
 
@@ -406,13 +471,22 @@ por mim; fica como leitura obrigatória da fase seguinte.
 
 ## Procedência deste documento
 
-Verificado por mim `[V]`: A1, A2, A3 (erratas, Apêndice G, md5s), A4 (NORTH_STAR, references.bib),
-A5 (`_round9`, `science/`, `graphicspath`), A6 (exceto o exit code do `make check`), A7, A9, B2, B3.
+Verificado por mim `[V]`: A1, A2, A3, A4, A5, A6 (exceto o exit code do `make check`), A7, A9, B2, B3.
+Relatado e **não** reverificado `[R]`: o backup do `exemples/` da raiz, o exit code do `make check`,
+a cobertura das canárias, o conteúdo do `RESULTS_BOARD`, o `ARMADILHAS_DE_MEDICAO.md`.
 
-Relatado e **não** reverificado `[R]`: o backup do `exemples/` da raiz, o exit code do
-`make check`, a cobertura das canárias, a ausência de órfãos em `figures/plates/`, o conteúdo do
-`RESULTS_BOARD`, o `ARMADILHAS_DE_MEDICAO.md`.
+**Correções que eu fiz a briefings que recebi:** as linhas do NORTH_STAR (a real era a 67, e o
+próprio banner apontava para portas limpas — **A4**); `science/` é proveniência, não dependência de
+build (**A5**); `git check-ignore` precisa de `--no-index` (**A6**); o `6.909.789` já estava fechado
+e os números emparelhados eram de estados diferentes (**A7**).
 
-Correções aos briefings: **A4** (linhas do NORTH_STAR — a real é a 67, não marcada),
-**A5** (`science/` é proveniência, não dependência de build), **A6** (`git check-ignore` precisa
-de `--no-index`), **A7** (o `6.909.789` já está fechado; os números eram de estados diferentes).
+**Correções que me fizeram a mim, e o que aprendi de cada uma:**
+
+| quem | o quê | a lição |
+|---|---|---|
+| o autor | eu disse que nada citava a gravação de 6,6 GB — citavam-na quatro documentos | verificar a premissa **antes** de a levar a uma decisão irreversível, não depois |
+| `tikz` | usei md5 para decidir se dois PDFs eram versões diferentes | o md5 prova cópia, não conteúdo — e a regra estava escrita em `CLAUDE.md:109`, eu não a li antes de contradizer quem tinha razão |
+
+As duas têm a mesma forma: **eu tinha o instrumento errado e a conclusão soava firme na mesma.**
+É a razão de este documento separar `[V]` de `[R]` — para que a próxima pessoa possa desfazer o
+meu trabalho pelo mesmo caminho por onde eu desfiz o dos outros.

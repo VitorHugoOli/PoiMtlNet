@@ -22,6 +22,10 @@ O deck foi reescrito em 2026-08-24 contra um alvo **empírico**, não uma opini�
 ⚠ **Não é um PDF.** Um agente anterior procurou por PDF, não achou, e concluiu que a referência não
 existia — estando o caminho num doc que ele mesmo escrevera.
 
+> ⚠ A gravação que sustenta esta medição foi apagada em 28/08/2026, por decisão do autor
+> (conteúdo pessoal de terceiro, cópia única). O método e os valores ficam; a evidência
+> primária não é reverificável.
+
 **Medido em 10 slides amostrados da gravação: mediana 21 palavras de tela, média 28, máximo ~71.**
 
 ⚠ **Duas ressalvas de método, e as duas puxam para cortar MENOS:**

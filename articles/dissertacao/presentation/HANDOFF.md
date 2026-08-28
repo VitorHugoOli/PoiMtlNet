@@ -181,6 +181,10 @@ Falha nº 2 do §3, outra vez. O arquivo:
 ≈35–60 min). Extraia com `ffmpeg -ss <seg> -i <arq> -frames:v 1` (o `-ss` ANTES do `-i` = seek por
 keyframe, barato num arquivo de 7 GB).
 
+> ⚠ A gravação que sustenta esta medição foi apagada em 28/08/2026, por decisão do autor
+> (conteúdo pessoal de terceiro, cópia única). O método e os valores ficam; a evidência
+> primária não é reverificável.
+
 **Ele usa o MESMO template NESPeD**, também é coletânea, também seis seções na barra. **64 slides em
 ≈48 min** — praticamente o nosso ritmo (54 em 48). O que difere não é a quantidade de slides:
 

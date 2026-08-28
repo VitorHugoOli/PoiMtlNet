@@ -134,6 +134,10 @@ Analisado o vídeo fornecido (`/Volumes/linux/VIDEO/Screen Recording 2026-07-08 
 trechos com outras janelas na tela não são a defesa e não foram usados). Lendo o relógio do Meet
 diretamente nos frames:
 
+> ⚠ A gravação que sustenta esta medição foi apagada em 28/08/2026, por decisão do autor
+> (conteúdo pessoal de terceiro, cópia única). O método e os valores ficam; a evidência
+> primária não é reverificável.
+
 | Horário (Meet) | Slide | Seção da barra de navegação |
 |---|---:|---|
 | 10:03 | 2 | Introdução Geral |

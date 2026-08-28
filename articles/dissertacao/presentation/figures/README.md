@@ -27,7 +27,14 @@ Nada aqui é usado pelo deck. Guardado para poder voltar atrás, não referencia
 - `src/c2h_deep_v1_conexo.tex` + `superseded/_c2h_deep_v1_conexo.pdf`
 - `src/c2h_flow.tex` + `superseded/c2h_flow.pdf` — variante de fluxo de dados do Check2HGI, preterida
 - `src/_hgi_flow_264pt_INCOMPLETO.tex` — tentativa falhada, ver *Dívida* abaixo
-- ⚠ `superseded/_hgi_flow_v1_376pt.pdf` — **duplicata do `plates/hgi_flow.pdf` vivo**, não uma versão anterior. Ficou de um rollback. É o tipo de cópia velha que engana quem procura; candidato a apagar (decisão do autor).
+- ⚠ `superseded/_hgi_flow_v1_376pt.pdf` — **o conteúdo é o mesmo do `plates/hgi_flow.pdf` vivo.**
+  Ficou de um rollback: guardei-o antes de tentar regenerar a chapa, e depois reverti.
+  Evidência: mesma página (377,87 × 164,53 pt) e render **idêntico pixel a pixel a 600 dpi**
+  (`bbox` das diferenças = `None`). **O md5 difere, e não quer dizer nada** — estes PDFs não
+  fixam `SOURCE_DATE_EPOCH`, então cada recompilação muda `/CreationDate` e o md5 nunca bate.
+  Para comparar PDFs aqui, compara o **render** ou o texto extraído, nunca o md5.
+  Só o autor decide apagar; e ⚠ como está debaixo do `*.pdf` do `.gitignore`, se sumir do
+  disco some sem aparecer em diff nenhum.
 - `png/`, `build/` — saída gerada, reconstrói com os scripts.
 
 ## Como reconstruir e reutilizar
@@ -106,7 +113,10 @@ clonar recebe as imagens e nenhuma forma de as alterar, que é o oposto do objet
 Devem entrar: `src/*.tex`, `preview.tex`, `standalone.tex`, `build.sh`, `export.sh`,
 `nesped.sty`, este README.
 Não devem: `build/` (já ignorado) e `png/` (saída gerada, ~20 ficheiros).
-`superseded/*.pdf` já é ignorado pelo `.gitignore` da pasta.
+`superseded/*.pdf` já é ignorado pelo `.gitignore` da pasta (exceção só para `!figures/plates/*.pdf`, linha 37).
+
+⚠ **`git check-ignore` consulta o índice**: para um caminho já rastreado responde "não ignorado",
+mesmo que a regra o apanhasse. Usa `--no-index` quando quiseres saber o que a **regra** faz.
 
 ---
 
