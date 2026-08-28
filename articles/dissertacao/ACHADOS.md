@@ -192,6 +192,24 @@ O defeito **já está registado** em `CLAUDE.md §5 item 6`, que mede outra cois
 Os resultados de macro-F1 estão bem e a conclusão **fortalece**. O que falta é o `.tex` refletir
 isso. **Pendência viva do suplemento, não do volume principal.**
 
+### Dívida aberta na chapa `hgi_flow` — decisão do autor, não defeito `[R, tikz]`
+
+A chapa entra no deck reduzida (`slides/main.tex:841`, `width=0.80\textwidth`), o que afina os
+traços ~20 %. Regenerá-la no tamanho final (**~302 pt** — o número certo; o `gate` tinha dito
+0,85/~321 pt e está errado) **exige uma rodada de composição, não uma transformação mecânica**:
+a `tikz` já tentou a via mecânica e falhou — os pictogramas não encolhem na proporção das caixas
+e dois rótulos posicionados à mão encostam nos grafos. O porquê está no
+`presentation/figures/README.md`.
+
+Há também um limite estrutural que vale saber antes de alguém tentar: **traço em peso cheio *é*
+altura extra**, logo uma chapa regenerada nunca reproduz a proporção da reduzida. Não existe
+"traço cheio e a mesma altura" — só se escolhe de que lado fica o erro.
+
+> **Nada a fazer sem o autor pedir.** Se ele quiser, a `tikz` regenera e manda o render **antes**
+> de tocar em `plates/`. Se não quiser, o README já regista a dívida com o alvo medido e o
+> resultado negativo, que é o bastante para alguém retomar daqui a um ano. **Pendência de decisão,
+> não defeito por corrigir.**
+
 ### `banca.pdf` não reproduz do `src/` — e isso é de propósito `[V]`
 
 ```
@@ -338,7 +356,13 @@ diferentes podem ser a mesma figura compilada duas vezes, como se provou em **A1
 | a pergunta | o teste certo |
 |---|---|
 | "são o mesmo ficheiro?" (cópia) | **md5 serve** — foi o que usei para conferir os blobs commitados contra o disco, e essa verificação é válida |
-| "são a mesma figura?" (conteúdo) | **`pdftotext`, ou render** (`gs -sDEVICE=ppmraw -r600`) e comparar o raster |
+| "são a mesma figura?" (conteúdo) | **`pdftotext`, ou render** e comparar o raster |
+
+```bash
+# a forma preferida: o hash do raster cru e' um numero comparavel e arquivavel
+# (ppmraw nao carrega metadados, ao contrario do PNG)
+gs -q -dNOPAUSE -dBATCH -sDEVICE=ppmraw -r600 -sOutputFile=out.ppm ficheiro.pdf && md5 -q out.ppm
+```
 
 ---
 
@@ -426,6 +450,35 @@ A pasta do `gate` terminou o trabalho. **Nada aqui foi tocado**; é proposta par
 
 > O `gate` avisou que **alguns têm consumidores que não se veem**. Confirmado no caso do
 > `SLIDES.md`. **Nenhum destes sai sem passar por ele primeiro.**
+
+---
+
+## A8b · ⚠ Risco de coordenação: três documentos a nascer sobre a mesma coisa
+
+Levantado pelo `gate`, que é o único a ver os três ao mesmo tempo. Estão a nascer **três registos
+sobre como os agentes se enganam a medir**:
+
+| | onde | o quê |
+|---|---|---|
+| 1 | `presentation/HANDOFF_GATE.md` | 12 classes de erro + 6 regras de medição |
+| 2 | (em curso, pedido à `ppt`) | as regras de medição dela — custo em linhas e não em caracteres, altura de `columns` ser o máximo, instrumento que reporta sucesso parcial |
+| 3 | `ACHADOS.md §A6` + a tabela do rodapé | as armadilhas que apanharam esta passagem |
+
+**Os três dizem a mesma coisa por três caminhos — e isso é exatamente *"documento sobre
+documento"*, o hábito que o autor nomeou.** Se ficarem os três, o próximo agente lê um e ignora
+dois.
+
+**Proposta (do `gate`, e concordo):** **um** ficheiro na raiz da pasta com as classes de erro e as
+regras de medição — elas **não são sobre a defesa**, são sobre medir e concluir, e sobrevivem a
+tudo o que se apague. Os outros dois apontam para ele ou desaparecem dentro dele.
+
+> ⚠ **Separação que importa e que não se deve perder na fusão:** o `ACHADOS.md` é sobre o **estado
+> desta pasta**, que é outra coisa e tem outra validade no tempo. As classes de erro duram; um
+> inventário não.
+>
+> **Não feito nesta passagem** — o autor pediu README + commit, e fundir três documentos é
+> trabalho de item a item que ele não autorizou. **Fica como pendência com a razão escrita**, que
+> é o ponto: daqui a uma semana ninguém percebe que os três eram um.
 
 ---
 
