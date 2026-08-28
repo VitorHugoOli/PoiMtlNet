@@ -74,7 +74,12 @@ MIN_TAIL_WORDS = 2          # ", Nash-MTL treats" is three; do not raise this
 # three files, because a genuine tear is also absent and looks identical. It fired on a correct
 # comment in apx_b_errata on the day this was found, which is how the blind spot surfaced at all.
 # The map is derived from the build, not hardcoded: see volume_of().
-EXTRA_PDF = SRC / "build" / "main_extra.pdf"
+# O volume suplementar mudou de src/ para wrapup/material_extra/ em 264c7996; estas tres
+# linhas apontavam para a arvore antiga desde entao, e extra_volume_files() devolvia
+# conjunto vazio em silencio -- o roteamento de dois volumes estava morto com o gate a
+# verde. Repontado 2026-08-28. O PDF usado e o artefacto commitado, nao o de build/.
+EXTRA_DIR = Path(__file__).resolve().parent.parent / "wrapup" / "material_extra"
+EXTRA_PDF = EXTRA_DIR / "main_extra.pdf"
 
 
 def rendered_text(pdf: Path = PDF) -> str:
@@ -93,7 +98,7 @@ def extra_volume_files() -> set[str]:
     the volume through an \\input inside apx_b_errata rather than through main_extra.tex directly --
     a hardcoded top-level list would have missed it.
     """
-    entry = SRC / "main_extra.tex"
+    entry = EXTRA_DIR / "main_extra.tex"
     if not entry.exists():
         return set()
     pat = re.compile(r"\\(?:include|input)\{chapters/([A-Za-z0-9_]+)\}")
@@ -104,7 +109,7 @@ def extra_volume_files() -> set[str]:
         for stem in pat.findall(text):
             if stem not in stems:
                 stems.add(stem)
-                nested = SRC / "chapters" / f"{stem}.tex"
+                nested = EXTRA_DIR / "chapters" / f"{stem}.tex"
                 if nested.exists():
                     queue.append(nested)
     return stems
