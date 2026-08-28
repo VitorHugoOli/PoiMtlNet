@@ -1,7 +1,7 @@
 # NORTH_STAR.md — the thesis, the arc, and the chapter map
 
 > The single place that says **what this dissertation argues and how the chapters deliver it**.
-> Companion to [`CLAUDE.md`](CLAUDE.md) (state + ledger) and [`PLAN.md`](PLAN.md) (schedule).
+> Companion to [`CLAUDE.md`](CLAUDE.md) (state + ledger) and [`archive/PLAN.md`](archive/PLAN.md) (schedule).
 > Sources for every factual statement here: the three paper folders (`articles/CBIC___MTL/`,
 > `articles/CoUrb_2026/`, `articles/[mobiwac]/`), audited 2026-07-18.
 

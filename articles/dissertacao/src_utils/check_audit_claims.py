@@ -93,7 +93,7 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     ("R8-bibfont", "no footnotesize wrapper around the bibliography (REV-024, archived on one measurement)",
      "preamble.tex", r"footnotesize", False),
     ("NUM-4",    "HGI sweep reports its spreads and its averaging convention",
-     "chapters/apx_g_hgi_tuning.tex", r"0\.8186", True),
+     "../wrapup/material_extra/chapters/apx_g_hgi_tuning.tex", r"0\.8186", True),
     # ---- ROUND-9c PROBES: the AUTHOR'S OWN RULINGS of 2026-07-30, one per mechanically checkable row.
     # Ledger and per-row evidence: _round9/47_applied_check.md. These exist because a future edit that
     # undoes one of his requested changes must trip a gate rather than reach the banca silently.
@@ -611,13 +611,13 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # live one. Pin the ruling.
     ("R12-thirteen","the definition design records THIRTEEN as the author's settled choice, not an open "
                     "twelve-or-thirteen question",
-     "../fundamentals/DEFINITIONS.md", r"RESOLVED 2026-08-03: THIRTEEN", True),
+     "../science/fundamentals/DEFINITIONS.md", r"RESOLVED 2026-08-03: THIRTEEN", True),
     # R12-streams: he confirmed F-1 and gave the mechanism -- two final embeddings of one trained graph,
     # feeding next-region and next-category respectively. The single-equation wording would misstate the
     # input of the study the whole arc resolves on, so both halves are pinned: the ruling, and the
     # two-stream statement itself.
     ("R12-streams", "Chapter 5's input is recorded as TWO elementwise streams, per his own mechanism",
-     "../fundamentals/DEFINITIONS.md", r"RESOLVED 2026-08-03: NAME BOTH STREAMS", True),
+     "../science/fundamentals/DEFINITIONS.md", r"RESOLVED 2026-08-03: NAME BOTH STREAMS", True),
     # R12-notagg: THE CODE FINDING, and the one most likely to be quietly reversed. His premise was that
     # Chapter 4's temporal channel is aggregated to POI level. The pipeline does the opposite: the
     # category-task builder REJECTS check-in-level engines (src/data/inputs/builders.py:191-192) and no
@@ -674,7 +674,7 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
      # unchanged -- AD-4 is conditional and its subsection must not be created -- so the probe is
      # repointed rather than retired, and it now pins the two halves that matter: that the item is
      # conditional, and that nothing is created either way.
-     "../fundamentals/DEFINITIONS.md",
+     "../science/fundamentals/DEFINITIONS.md",
      r"AD-4 was always conditional.*?Nothing is created either way", True),
     # R12-planvoid: the eight-step edit plan assumes the representation definitions move UP into 2.1.
     # Under the inversion that assumption is void and the plan must be REDONE BEFORE any edit. Getting
@@ -683,7 +683,7 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # table.
     ("R12-planvoid","the record states that the eight-step plan does NOT survive the section inversion "
                     "and must be redone before any edit",
-     "../fundamentals/DEFINITIONS.md",
+     "../science/fundamentals/DEFINITIONS.md",
      r"must be redone BEFORE any edit, not after", True),
     # ---- AD-2 ANSWERED from the original CoUrb code (temp/tarik-new), 2026-08-03. Three probes, because
     # this finding has three distinct ways of being flattened by a later pass and each would mislead
@@ -753,9 +753,9 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # OLD string is ABSENT would. Full account in _round9/34_tracker_disagreement.md. Ban the retracted
     # framing by its two most quotable phrases, positioned anywhere.
     ("R12-ad2row",  "the design's AD-2 row does not carry the retracted 'fourth possibility' framing",
-     "../fundamentals/DEFINITIONS.md", r"FOURTH possibility none of us had listed", False),
+     "../science/fundamentals/DEFINITIONS.md", r"FOURTH possibility none of us had listed", False),
     ("R12-ad2row2", "nor the retracted claim that the first visit survives and the rest are discarded",
-     "../fundamentals/DEFINITIONS.md",
+     "../science/fundamentals/DEFINITIONS.md",
      r"keeping the first visit to each POI and discarding the rest", False),
     # R12-placeterm: the author revoked `place representation` from the registry, which left ONE live line of
     # the chapter using a term absent from a fail-closed registry (2_fundamentals.tex:650, against eight live
@@ -1062,7 +1062,7 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # a wrong qualification, which is exactly the failure this pins shut.
     ("R12-neutral", "the design records that his 'do not register' ruling is silence and does NOT license "
                     "the two wordings the code refutes",
-     "../fundamentals/DEFINITIONS.md",
+     "../science/fundamentals/DEFINITIONS.md",
      r"not a licence to write the wrong thing", True),
     # R12-ad7: AD-7 renames D13's indices from i,j to a,b so that i means a check-in everywhere in the
     # chapter. Pinned on the DESIGN, not the chapter, because the chapter edit lands with the redesign --
@@ -1070,7 +1070,7 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
     # the source's own notation (yu2020pcgrad uses i,j for tasks), so the design must keep saying WHY.
     ("R12-ad7",     "the design carries D13's renamed task indices and the reason for departing from the "
                     "source's notation",
-     "../fundamentals/DEFINITIONS.md",
+     "../science/fundamentals/DEFINITIONS.md",
      r"departs from the source's notation deliberately", True),
     # R12-placerep WAS REMOVED, 2026-08-03, in the same commit that revoked the row it pinned. It required
     # the scope note on the `place representation` registry row. The author then revoked the row itself

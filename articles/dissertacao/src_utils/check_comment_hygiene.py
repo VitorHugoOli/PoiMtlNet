@@ -97,7 +97,7 @@ DISS = Path(__file__).resolve().parent.parent
 SCOPE = [
     "src/main.tex", "src/main_ppgc.tex", "src/main_academico.tex",
     "src/preamble.tex", "src/content.tex",
-    "src/Makefile", "src_utils/README_SRC.md", "CLAUDE.md", "PLAN.md",
+    "src/Makefile", "src_utils/README_SRC.md", "CLAUDE.md", "archive/PLAN.md",
     # Added 2026-07-29 after the round-7 correction: this file was the one place a wrong count
     # could still be introduced unguarded, and it is where a coordinate had ALREADY drifted
     # (:154 and :215 cite main_ppgc.tex:9; the assertion was at :8). It is safe to include only

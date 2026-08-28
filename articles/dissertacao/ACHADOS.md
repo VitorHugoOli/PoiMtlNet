@@ -585,9 +585,34 @@ Estes já estavam partidos antes de hoje, e **desligam verificações em silênc
   (`AVAL_NECESSARIA_3_ptBR.md`, citado em `preamble.tex:216`) derivou dois níveis e não resolve
   assim. É a versão medida do que eu tinha registado na **§A4** como "20 comentários".
 
-> **A ordem certa do que vem a seguir:** repontar estes **antes** de mover ou destilar mais
-> alguma coisa. Enquanto estiverem partidos, a esteira não consegue dizer se a próxima vaga partiu
-> algo novo — é medir com a régua já quebrada.
+✅ **TODOS REPONTADOS 2026-08-28**, e o efeito está medido:
+
+| ponteiro | antes | depois |
+|---|---|---|
+| 8 sondas → `../fundamentals/DEFINITIONS.md` | 9 `SKIP`; portão `exit=2` | **0 `SKIP`**; `exit=1` |
+| 1 sonda → `chapters/apx_g_hgi_tuning.tex` | idem (mudou de volume) | resolve em `wrapup/material_extra/` |
+| `check_audit_claims` manchete | **211** de 236 | **220** de 236 |
+| `check_trapped_prose` volume extra | **0** ficheiros (silenciosamente) | **5** ficheiros, `0 skipped` |
+| `check_tracker_refs` | **FAIL**, 3 citações | **OK**, `exit=0` |
+| `check_comment_hygiene` âmbito | 13 examinados, 1 saltado calado | **14 examinados, 0 saltados** |
+| 27 comentários de proveniência no `src/` | apontavam para `fundamentals/`, `storyline/` | prefixo `science/`, os 5 alvos resolvem |
+
+> 🔴 **O achado que isto revelou, e é o melhor do lote:** o `exit=2` do `check_audit_claims` era a
+> falha dura *"uma sonda cujo ficheiro sumiu NÃO é um passe"* — e ela **mascarava o bloco que nomeia
+> as 16 falhas de conteúdo reais**. As 16 estavam contadas no cabeçalho antes e depois (não criei
+> nenhuma), mas só agora o portão as **nomeia** e diz o que fazer. Um ponteiro morto não estava só a
+> desligar uma sonda: estava a impedir o portão de reportar as outras.
+>
+> **E o `check_tracker_refs` não tinha citações erradas — tinha um parser cego.** O regex exigia o
+> dígito logo após os `#`, e as secções escritas `## §4.1 · …` eram invisíveis. O portão acusava
+> quem as citava **corretamente**. Corrigido o regex, não as citações.
+
+**Só mudaram comentários no `src/`** — verificado linha a linha contra uma cópia anterior: nenhuma
+das 27 alterações está fora de um `%`. O texto entregue não foi tocado.
+
+**Fica em aberto, e não é meu:** as 16 alegações marcadas como APPLIED que não estão no documento
+(`R8-head`, `A22-11`, `R13-aut37`, …). São conteúdo, e o portão diz o que fazer: *"Fix the source,
+then re-run this."*
 
 ### ⚠ Ainda invisível ao git, e é a mesma classe da §A1
 

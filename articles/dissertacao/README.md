@@ -78,10 +78,19 @@ a resposta?** A resposta entregue, medida com CV por usuário disjunto, n=20, co
 ## Reconstruir
 
 ```bash
-cd src && make check      # confere sem buildar (ler o exit code, não a saída)
-cd src && make academico  # builda sem tocar no dissertacao.pdf
-cd presentation/figures && ./build.sh   # regenera as chapas TikZ
+cd src && ../src_utils/latexbuild.sh main main.tex   # builda build/ SEM tocar no dissertacao.pdf
+cd src && make check                                 # a esteira dos 25 portões
+cd presentation/figures && ./build.sh                # regenera as chapas TikZ
+cd presentation/slides && make                       # regenera o main.pdf que as canárias leem
 ```
+
+⚠ **Buildar primeiro, conferir depois.** As saídas de build foram apagadas na limpeza de 28/08 (são
+derivadas). Sem `build/`, seis portões saltam — e dizem-no alto (`SKIP: src/build/main.pdf not
+built`), mas um portão que não corre não é um portão que passa.
+
+⚠ **`make check` sai com código ≠ 0 e imprime verde na mesma. Ler o exit code, não a saída.**
+E **nunca um `make` pelado**: cinco alvos sobrescrevem o `dissertacao.pdf` do depósito. O
+`latexbuild.sh` acima builda sem copiar.
 
 O `presentation/Makefile.speech` **só compila o `SPEECH.tex` que já existe** — não chama os dois
 extractores (`build_speech_1_extract.py`, `build_speech_2_emit.py`). Ele imprime `OK` na mesma.

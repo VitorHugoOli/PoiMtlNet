@@ -96,7 +96,7 @@ for the final build; SI units and legibility rules (§3.x) still apply.
   (Art. 22's 20 days + banca formed in AcademicoPG + members informed).
 - Before the defense is approved: anti-plagiarism certificate + Art. 21 proof on file.
 - After an August defense: final AcademicoPG deposit due by **~late November 2026**.
-- Full schedule and fallback: [`PLAN.md`](PLAN.md).
+- Full schedule and fallback: [`archive/PLAN.md`](archive/PLAN.md).
 
 ## 6 · AI-use policy state (2026-07-18; details in AGENT_GUARDRAILS §6)
 
@@ -130,7 +130,7 @@ for the final build; SI units and legibility rules (§3.x) still apply.
   CNPq Portaria 2.664/2026 announcement
   https://www.gov.br/cnpq/pt-br/assuntos/noticias/cnpq-em-acao/cnpq-publica-portaria-que-institui-politica-de-integridade-na-atividade-cientifica
 
-**Open items (carried into PLAN.md):** (a) operative Art. 21 quality bar + which regimento
+**Open items (carried into `archive/PLAN.md`):** (a) operative Art. 21 quality bar + which regimento
 governs pre-2026 enrollees — ask the secretariat (substance already covered, §3); **Qualis
 strata now known** (deep-research, 2026-07-20, 3-vote adversarial verify, primary source =
 CAPES "Relatório Qualis Eventos 2017-2020, Computação"): **CBIC = B4, CoUrb = B4, MobiWac = B2**

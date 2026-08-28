@@ -52,7 +52,11 @@ SKIP = ("_round", "_review_v", "_archive", "_gates", "_specialists", "/build/", 
 # The suffix is now part of the key on BOTH sides, so 5.6 and 5.6b are different coordinates and a
 # citation of the archived 5.6 still fails, which is the behavior that caught the renumber of 2.2.
 CITE = re.compile(r"PENDENCIAS\s*(?:§|\\S|[Ss]ection|[Ss]ec\.?|item)?\s*(\d+)\.(\d+)([a-z]?)(?![\w.])")
-HEADING = re.compile(r"^#{2,4}\s+(?:~~)?(\d+)\.(\d+)([a-z]?)(?![\w.])", re.M)
+# O `(?:\u00a7\s*)?` foi acrescentado em 2026-08-28. Sem ele o regex exigia o digito logo a seguir
+# aos `#`, e as seccoes escritas `## \u00a74.1 \u00b7 ...` ficavam INVISIVEIS ao gate -- que entao
+# declarava FAIL sobre citacoes corretas a \u00a74.1 e \u00a74.2. O gate estava cego a uma familia
+# inteira de seccoes e a acusar quem as citava certo.
+HEADING = re.compile(r"^#{2,4}\s+(?:~~)?(?:\u00a7\s*)?(\d+)\.(\d+)([a-z]?)(?![\w.])", re.M)
 # An exemption must be adjacent to the citation, not anywhere in the file: a "was 2.2" on line 400
 # does not license a bare "PENDENCIAS 2.2" on line 3. 90 chars is about one wrapped line.
 EXEMPT = re.compile(r"was\s+\d+\.\d+|tracker (?:of|was)|no longer resolves|de que data|daquela data")
