@@ -466,7 +466,7 @@ A pasta do `gate` terminou o trabalho. **Nada aqui foi tocado**; é proposta par
   o deck: parte o roteiro, **em silêncio**, porque o `SPEECH.tex` continua no disco a compilar.
 
 **Provável andaime — confirmar item a item com o `gate`:**
-`CORTES_FALA.md`, `SPEC_RODADA_27AGO.md`, `FAIXA_VS_CORPO.md`, `hgi_draw.txt`, `andrej_mtl.md`,
+`SPEC_EXTRAS.md (anexo, sec. `CORTES_FALA.md`)`, `SPEC_EXTRAS.md (anexo, sec. `SPEC_RODADA_27AGO.md`)`, `SPEC_EXTRAS.md (anexo, sec. `FAIXA_VS_CORPO.md`)`, `hgi_draw.txt`, `SPEC_EXTRAS.md (anexo, sec. `andrej_mtl.md`)`,
 `ink_sweep.py`, `diff_fala.py`, `archive/`, `slides_ux/`, `HANDOFF.md`, `HANDOFF.md (anexo, sec. `HANDOFF_SLIDES.md`)`,
 `PLANO_FLUXO_DEFESA.md`, `APRESENTACAO_DEFESA_GUIDE.md`.
 
