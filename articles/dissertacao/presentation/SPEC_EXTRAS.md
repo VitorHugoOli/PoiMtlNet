@@ -13,7 +13,7 @@ Escrita pela sessão `extra` em 2026-08-27, a pedido do autor.
   `SLIDES.md` → `ppt` implementa no `slides/main.tex`. `HANDOFF.md` §4d: *"Corte sempre no
   `SLIDES.md` primeiro, depois propague."*
 - **Esta sessão não escreve ciência.** Onde a spec pede uma frase nova em tela, ela marca
-  `[REDAÇÃO: gate]`. `HANDOFF_PPT.md` §0: *"Quando o `gate` apontar um defeito sem dar redação,
+  `[REDAÇÃO: gate]`. `HANDOFF.md (anexo, sec. `HANDOFF_PPT.md`)` §0: *"Quando o `gate` apontar um defeito sem dar redação,
   aplique o que ele redigiu e devolva o resto. Inventar a frase certa ali é assumir o papel dele."*
   Vale igual para mim.
 
@@ -38,7 +38,7 @@ Tomadas em 2026-08-27, em consulta direta. Não reabrir sem ele.
 
 ### ⚠ Uma trava anterior do autor que precisa ser levantada por escrito
 
-`HANDOFF_SLIDES.md` §6, sob **"Decisões travadas — não reabra sem o autor"**, registra em 24/08:
+`HANDOFF.md (anexo, sec. `HANDOFF_SLIDES.md`)` §6, sob **"Decisões travadas — não reabra sem o autor"**, registra em 24/08:
 
 > *"**a série B fica como está** (47 slides de reserva, densos de propósito: são lidos, não
 > apresentados) | decisão do autor"*
@@ -380,7 +380,7 @@ pergunta. E o `B0` de hoje so tem **botoes de codigo** agrupados por familia ---
    % FALA: "O plano registrou superioridade em categoria..."
    ```
    **43 linhas, mecanico, sem redacao, reversivel.** ⚠ O bloco `% FALA:` existente **nunca e
-   apagado** (`HANDOFF_SLIDES.md` §1.5) --- a linha e acrescentada acima dele.
+   apagado** (`HANDOFF.md (anexo, sec. `HANDOFF_SLIDES.md`)` §1.5) --- a linha e acrescentada acima dele.
 2. **No indice B0** (§4) --- onde ela vira a chave de busca, que e a funcao que ela de facto
    prestava. A literatura de backup defende o titulo-pergunta exatamente por isso (*"quando tu
    rolas o deck sob pressao, e a pergunta que teu olho pega"*). **Ele le as perguntas de onde elas
@@ -2152,7 +2152,7 @@ da noite, e não consome uma página de deck.
 | ~~**A-0**~~ | ✅ **FECHADO 27/08 — o defeito era o `1,1 M`, não o `1,43 M`.** `644.359 + 417.117 = 1.061.476`, e o primeiro termo **é o mesmo `644.359` do Apêndice G**, do mesmo build de 2 camadas. Aritmética e log de execução conferidos por mim. Corrigido: `AL 4.197.621 vs 1.850.980 → 2,27×` · `CA 5.151.189 vs 2.804.548 → 1,84×`. Ver §7. |
 | **A-9** | 🔴 **`M7` está acoplado ao índice, e o acoplamento não foi perguntado.** O autor resolveu o `B0` dizendo *"podemos deixar essas perguntas no documento da fala"* — **mas o `SPEECH.pdf` NÃO contém a Série B hoje** (`if code.startswith('SB'): continue`). **O plano B que ele escolheu ainda não existe**, e executá-lo dobra o roteiro de 18 para ~36 páginas, que era a objeção da `ppt`. **Volta a ele como uma pergunta só.** |
 | ~~**A-10**~~ | ✅ **FECHADO 27/08 — o teste EXISTE e o autor estava certo.** `docs/studies/closing_data/archive/findings/CSLSL_CASCADE.md`. Virou o slide `B6-8` (§7). **A minha busca falhou por truncagem minha, não por o teste não existir.** |
-| **A-1** | **Levantar por escrito a trava de 24/08** (`HANDOFF_SLIDES.md` §6). Sem isso, a implementação desfaz uma decisão travada dele. |
+| **A-1** | **Levantar por escrito a trava de 24/08** (`HANDOFF.md (anexo, sec. `HANDOFF_SLIDES.md`)` §6). Sem isso, a implementação desfaz uma decisão travada dele. |
 | **A-2** | **Quais 3 cartões de conceito.** Minha escolha e o porquê estão no §7; ele confirma ou troca. |
 | **A-3** | **O índice em duas colunas ou em duas telas** (§4). |
 | **A-4** | **A barra de navegação e o número congelado** — opção (a), (b) ou (c) do M8. |

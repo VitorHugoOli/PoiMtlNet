@@ -19,7 +19,7 @@
 > um dos quatro, eles vencem.**
 >
 > **O método operacional está nos handoffs, e continua valendo:**
-> [`HANDOFF_SLIDES.md`](HANDOFF_SLIDES.md) (como trabalhar no deck) e [`HANDOFF.md`](HANDOFF.md)
+> [`HANDOFF.md (anexo, sec. `HANDOFF_SLIDES.md`)`](HANDOFF.md (anexo, sec. `HANDOFF_SLIDES.md`)) (como trabalhar no deck) e [`HANDOFF.md`](HANDOFF.md)
 > (estado, build, os sete casos de "o instrumento passou porque mediu outra coisa"). **Leia os dois.**
 
 ---
@@ -122,7 +122,7 @@ Cruzando com a tabela de §2.1:
 
 ⚠ **E isso é mais duro do que parece**, porque hoje o deck tem **98 `\scriptsize` + 95 `\small` + 22 `\footnotesize`
 + 2 `\tiny` = 217 reduções contra 1 `\normalsize`**. Subir o corpo **não é um ajuste
-cosmético: é o mecanismo que força a brevidade**, exatamente como o `HANDOFF_SLIDES.md §1.1` regra 6
+cosmético: é o mecanismo que força a brevidade**, exatamente como o `HANDOFF.md (anexo, sec. `HANDOFF_SLIDES.md`) §1.1` regra 6
 já dizia. A diferença é que agora há uma aritmética por trás.
 
 ### 2.3 · Os defaults do beamer que caem abaixo do piso sozinhos
@@ -704,7 +704,7 @@ fase B.)*
 ### 5.6e · O primeiro lote de respiro, aplicado e verificado (2026-08-26)
 
 Dos 21 que cabem, **11 são da série B** — que fica densa de propósito, por decisão do autor
-(`HANDOFF_SLIDES.md` §6). Sobram 10 na trilha principal; exigindo margem de segurança de 8 pt entre
+(`HANDOFF.md (anexo, sec. `HANDOFF_SLIDES.md`)` §6). Sobram 10 na trilha principal; exigindo margem de segurança de 8 pt entre
 folga e custo, ficam **6**. Aplicados:
 
 | pág. PDF | slide impresso | frame | desceu |

@@ -562,7 +562,7 @@ Ele registrou: substituir um bloco de frames **apagou as falas que estavam entre
 (limites 4 e 5, 57 palavras), e *"isso não dispara em varredura nenhuma"* — só apareceu na
 conferência manual.
 
-**Regra nova, para o `HANDOFF_GATE.md`:** a fala vive em `% FALA:`, **fora** do `\begin{frame}`.
+**Regra nova, para o `HANDOFF.md (anexo, sec. `HANDOFF_GATE.md`)`:** a fala vive em `% FALA:`, **fora** do `\begin{frame}`.
 Toda operação que substitui um intervalo de linhas do `.tex` leva junto as falas do intervalo,
 e **nenhuma verificação de PDF a detecta** — comentário não renderiza. Antes de substituir um
 bloco de frames, contar os `% FALA:` do intervalo; depois, contar de novo.
@@ -817,7 +817,7 @@ pode sair junto, por uma razão que só aparece quando se lê o rodapé do slide
 > path**…"*
 
 Esse `alertblock` é **uma das quatro cláusulas contra si mesma que a trilha principal mantém na tela**
-(§3, Classe 8 do `HANDOFF_GATE.md`). Com o **título** a deixar de dizer `private spatial path` e o
+(§3, Classe 8 do `HANDOFF.md (anexo, sec. `HANDOFF_GATE.md`)`). Com o **título** a deixar de dizer `private spatial path` e o
 **item** removido inteiro, o termo apareceria na ressalva **sem referente em tela nenhum**.
 
 ```latex

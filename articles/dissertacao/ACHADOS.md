@@ -119,7 +119,7 @@ Citada em quatro documentos:
 
 - `BOAS_PRATICAS_SLIDES.md §3` — a referência de forma medida;
 - `APRESENTACAO_DEFESA_GUIDE.md §4.0` — a tabela de timing slide-a-slide, lida do relógio do Meet;
-- `HANDOFF_SLIDES.md` — o alvo empírico do deck;
+- `HANDOFF.md (anexo, sec. `HANDOFF_SLIDES.md`)` — o alvo empírico do deck;
 - `HANDOFF.md` — o método de extração de frames.
 
 **Não havia cópia** `[V]`: o tarball `~/Backups/dissertacao_exemples_2026-08-20.tgz` (43 MB) **não**
@@ -127,7 +127,7 @@ a continha, e `/Volumes/linux/VIDEO/` já não a tinha. O próprio `BOAS_PRATICA
 avisava: *"se o arquivo sumir do disco, some de vez."*
 
 ✅ **Anotado nos documentos, 2026-08-28.** O `gate` escreveu a linha e autorizou os três dele;
-aplicada em `HANDOFF.md`, `HANDOFF_SLIDES.md` e `APRESENTACAO_DEFESA_GUIDE.md §4.0`, ancorada no
+aplicada em `HANDOFF.md`, `HANDOFF.md (anexo, sec. `HANDOFF_SLIDES.md`)` e `APRESENTACAO_DEFESA_GUIDE.md §4.0`, ancorada no
 caminho do ficheiro e não em número de linha:
 
 > ⚠ *A gravação que sustenta esta medição foi apagada em 28/08/2026, por decisão do autor
@@ -452,9 +452,9 @@ A pasta do `gate` terminou o trabalho. **Nada aqui foi tocado**; é proposta par
 **Registo — fica** (`[R]` do `gate`/`ppt`, com o meu voto):
 - `considerations.md` (394 KB) — decisões **AUT-1…AUT-36** com a razão de cada uma. **Destilar,
   não apagar.** O `gate` sabe quais foram revogadas;
-- `HANDOFF_GATE.md` — 12 classes de erro + 6 regras de medição que **não são sobre slides**;
+- `HANDOFF.md (anexo, sec. `HANDOFF_GATE.md`)` — 12 classes de erro + 6 regras de medição que **não são sobre slides**;
   generalizam. **Candidato a subir para a raiz da pasta;**
-- `HANDOFF_PPT.md`, `BOAS_PRATICAS_SLIDES.md` — a forma medida do template;
+- `HANDOFF.md (anexo, sec. `HANDOFF_PPT.md`)`, `BOAS_PRATICAS_SLIDES.md` — a forma medida do template;
 - `slides/slide_final.pdf` + `slides/SLIDE_FINAL.md` — ver **A1**;
 - `figures/plates/` — **zero ficheiros sem uso** `[R, ppt]`. Nada a podar.
 
@@ -467,7 +467,7 @@ A pasta do `gate` terminou o trabalho. **Nada aqui foi tocado**; é proposta par
 
 **Provável andaime — confirmar item a item com o `gate`:**
 `CORTES_FALA.md`, `SPEC_RODADA_27AGO.md`, `FAIXA_VS_CORPO.md`, `hgi_draw.txt`, `andrej_mtl.md`,
-`ink_sweep.py`, `diff_fala.py`, `archive/`, `slides_ux/`, `HANDOFF.md`, `HANDOFF_SLIDES.md`,
+`ink_sweep.py`, `diff_fala.py`, `archive/`, `slides_ux/`, `HANDOFF.md`, `HANDOFF.md (anexo, sec. `HANDOFF_SLIDES.md`)`,
 `PLANO_FLUXO_DEFESA.md`, `APRESENTACAO_DEFESA_GUIDE.md`.
 
 > O `gate` avisou que **alguns têm consumidores que não se veem**. Confirmado no caso do
@@ -482,7 +482,7 @@ sobre como os agentes se enganam a medir**:
 
 | | onde | o quê |
 |---|---|---|
-| 1 | `presentation/HANDOFF_GATE.md` | 12 classes de erro + 6 regras de medição |
+| 1 | `presentation/HANDOFF.md (anexo, sec. `HANDOFF_GATE.md`)` | 12 classes de erro + 6 regras de medição |
 | 2 | (em curso, pedido à `ppt`) | as regras de medição dela — custo em linhas e não em caracteres, altura de `columns` ser o máximo, instrumento que reporta sucesso parcial |
 | 3 | `ACHADOS.md §A6` + a tabela do rodapé | as armadilhas que apanharam esta passagem |
 

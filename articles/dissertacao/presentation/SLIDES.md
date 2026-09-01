@@ -1856,7 +1856,7 @@ na tela, nos dois slides.
 > **Os números dos blocos (`S8`…`S14`) são identidades históricas, não posições.** Eles NÃO foram
 > renumerados de propósito: doze referências cruzadas neste arquivo apontam para eles pelo número, e
 > renumerar quebraria todas em silêncio. **Identifique slide por título, nunca por número** — a
-> numeração do `SLIDES.md` já diverge da impressa no deck (ver `HANDOFF_SLIDES.md` §1.5).
+> numeração do `SLIDES.md` já diverge da impressa no deck (ver `HANDOFF.md (anexo, sec. `HANDOFF_SLIDES.md`)` §1.5).
 >
 > **Dois blocos saíram:** o antigo **S15** (*Related work in representation*) foi **absorvido pelo
 > S8**; o antigo **S16** (*With the vocabulary fixed…*) teve o **frame cortado** — a frase continua,
