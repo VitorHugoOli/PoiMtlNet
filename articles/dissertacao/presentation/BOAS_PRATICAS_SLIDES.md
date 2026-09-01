@@ -7,7 +7,7 @@
 > **O que este documento é.** A referência de **forma**: hierarquia da informação, composição,
 > densidade, legibilidade, uso do template, consistência. Ele consolida três coisas que antes
 > estavam separadas ou não existiam: (1) o que a literatura de fato estabelece sobre slide de
-> apresentação técnica, com a força da evidência declarada caso a caso; (2) a defesa do Henrique
+> apresentação técnica, com a força da evidência declarada caso a caso; (2) a defesa do a defesa de referência
 > **medida quadro a quadro** a partir da gravação, não lembrada; (3) o `nesped.sty` **medido** —
 > escala de tipo, contraste, componentes e armadilhas, verificados compilando.
 >
@@ -27,7 +27,7 @@
 ## 0 · O sumário executivo, em sete linhas
 
 1. **O relógio é o problema, não a densidade de tela.** Fala medida: **8.837 palavras = 63 min a 140 ppm**, contra o teto de **50 min** do Art. 23. Cortar tela já foi tentado duas vezes e comprou **zero** minutos.
-2. **A única alavanca que corta tela e relógio ao mesmo tempo é trocar prosa por figura.** O deck tem **6 `\includegraphics` e zero `tikzpicture` em 103 frames** — contra 83 `itemize`, 84 `minipage` e 23 `tabular`. O do Henrique tem figura ou tabela na maioria dos slides de conteúdo. **O deck dele mostra; o nosso conta.** Um diagrama substitui fala; um marcador reescrito, não — e é por isso que as duas varreduras de densidade não compraram minuto nenhum.
+2. **A única alavanca que corta tela e relógio ao mesmo tempo é trocar prosa por figura.** O deck tem **6 `\includegraphics` e zero `tikzpicture` em 103 frames** — contra 83 `itemize`, 84 `minipage` e 23 `tabular`. O do a defesa de referência tem figura ou tabela na maioria dos slides de conteúdo. **O deck dele mostra; o nosso conta.** Um diagrama substitui fala; um marcador reescrito, não — e é por isso que as duas varreduras de densidade não compraram minuto nenhum.
 3. **O corpo pequeno é causa, não sintoma.** **217** comandos de redução de corpo contra **um** `\normalsize`. Corpo pequeno é o que permitiu a densidade; subir o corpo força a brevidade sozinho.
 4. **`\scriptsize` e `\small` não passam.** A régua correta não é pt, é altura-de-x sobre altura-da-imagem (§2). No Meet, num notebook, os dois falham.
 5. **O negrito parou de sinalizar.** 706 `\textbf` em 103 frames ≈ 7 por tela. A curva dose-resposta da sinalização é medida: 10 marcações d=0,45 · 18 d=0,58 · **27 d≈0**.
@@ -48,7 +48,7 @@
 
 ⚠ **Um teto não é uma instrução para preenchê-lo.** A recomendação convergente das fontes
 institucionais é aterrissar em **75–85% do permitido** — aqui, **38–42 min**. Estourar come o tempo
-da banca e lê-se como preparação ruim. A defesa do Henrique aterrissou em ~51 min, praticamente no
+da banca e lê-se como preparação ruim. A defesa do a defesa de referência aterrissou em ~51 min, praticamente no
 teto; funcionou, mas não é margem que se planeje.
 
 **A régua que a banca aplica, e que não está em regimento nenhum:** o texto, já lido, decide o
@@ -244,7 +244,7 @@ de §4.3 — a medida deixa de importar.
 
 ---
 
-## 3 · A referência medida: a defesa do Henrique
+## 3 · A referência medida: a defesa do a defesa de referência
 
 🛑 **A GRAVAÇÃO FOI APAGADA EM 28/08/2026**, por decisão do autor (conteúdo pessoal de
 terceiro, cópia única). Era
@@ -389,7 +389,7 @@ escrito **bate** falado sozinho quando não há gráfico (d=0,24).
 
 - Num slide **com** figura ou diagrama, prosa duplicada é dano. Ali vale a régua estrita.
 - Num slide **sem** gráfico — uma definição, uma equação, a pergunta de pesquisa, uma tabela — texto
-  na tela **não** é redundância nociva para esta plateia. É por isso que o slide 3 do Henrique tem
+  na tela **não** é redundância nociva para esta plateia. É por isso que o slide 3 do a defesa de referência tem
   ~70 palavras numa pergunta emoldurada e funciona.
 - **Número que a banca precisa reter fica na tela.** Alley et al. mediram isto: estatística
   **impressa** foi recordada por 87% contra ~50% quando apenas falada. Apagar um número
@@ -417,7 +417,7 @@ escrito **bate** falado sozinho quando não há gráfico (d=0,24).
   olhando por vinte minutos ou mais.
 
 ⚠ **Este último colide com duas coisas daqui**: o `considerations.md` pede um slide final de
-agradecimentos, e a referência do Henrique deixa o "Obrigado" na tela a arguição inteira. **A
+agradecimentos, e a referência do a defesa de referência deixa o "Obrigado" na tela a arguição inteira. **A
 reconciliação que eu recomendo, e que não custa nada: diga o agradecimento sobre o slide de
 agradecimentos, e então volte um slide para a conclusão e deixe ELA projetada.** Decisão do autor.
 
@@ -436,7 +436,7 @@ agradecimentos, e então volte um slide para a conclusão e deixe ELA projetada.
 
 **Tensão 1 — título-afirmação contra título curto.** A literatura empurra para "título é uma frase
 que declara o achado". O **autor pediu o contrário** no `considerations.md`: títulos diretos,
-descritivos, sérios, sem analogia. E a referência do Henrique dá razão ao autor: os títulos dele são
+descritivos, sérios, sem analogia. E a referência do a defesa de referência dá razão ao autor: os títulos dele são
 substantivos literais.
 
 > **Resolução recomendada, e ela satisfaz os dois:** `\frametitle` curto e literal
@@ -590,7 +590,7 @@ esquerda de todo o resto do slide, **sem aviso nenhum**. E os 49 frames da séri
 
 | opção | veredito |
 |---|---|
-| `\documentclass[t]{beamer}` (ancorar no topo) | **RECUSADA.** Testei num frame e mostrei o render. O autor prefere o corpo **centrado na vertical**, que é o default do beamer e é o que o Henrique faz. `main.tex` voltou byte-idêntico |
+| `\documentclass[t]{beamer}` (ancorar no topo) | **RECUSADA.** Testei num frame e mostrei o render. O autor prefere o corpo **centrado na vertical**, que é o default do beamer e é o que o a defesa de referência faz. `main.tex` voltou byte-idêntico |
 | `\documentclass[12pt]{beamer}` (subir o corpo) | **RECUSADA**, e o experimento diz por quê |
 
 **O experimento do corpo, rodado numa cópia isolada:** um **único degrau** em todo o deck
@@ -1223,7 +1223,7 @@ novidade) · Cumming (leitura de sobreposição de IC) · Reimers & Gurevych 201
 teto de 80; no máximo um frame por minuto; semântica de `\only` / `\uncover` / `\visible` /
 `overlayarea` / `overprint`; *"não descubra listas em pedaços"*.
 
-**Medições feitas para este documento.** Gravação da defesa de Henrique de Souza Santana
+**Medições feitas para este documento.** Gravação duma defesa anterior do mesmo programa
 (`presentation/exemples/…mov`, 41 quadros amostrados, folhas de contato, leitura dos números
 impressos) · specimen do `nesped.sty` compilado e renderizado, exercitando cada componente ·
 contraste WCAG calculado sobre as onze cores do `.sty` · varredura de tinta sobre as 111 páginas do

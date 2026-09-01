@@ -9,7 +9,7 @@
 > plano for validado com o orientador (§8).
 >
 > **Base.** [`APRESENTACAO_DEFESA_GUIDE.md`](APRESENTACAO_DEFESA_GUIDE.md) (logística, Art. 23,
-> o exemplo real da defesa do Henrique, o orçamento-rascunho §4.1) + o texto entregue em
+> o exemplo real da defesa do a defesa de referência, o orçamento-rascunho §4.1) + o texto entregue em
 > [`../src/`](../src/) + o dossiê de arguição em [`../wrapup/`](../wrapup/).
 > Onde este plano diverge do guia, a divergência está declarada em §7.
 >
@@ -29,7 +29,7 @@
 | **Pós-submissão**                 | P1 (capacidade) e mtlcheck ficam **só na trilha de reserva**. A trilha principal é redigida para *sobreviver* a eles.                                                                                           | Autor, 2026-08-21 |
 | **A posição sobre o tronco**      | O autor sustenta que **não há dados suficientes para provar que o tronco compartilhado não contribuiu**. Ver §5.3 — é defensável e já está no texto entregue.                                                   | Autor, 2026-08-21 |
 | **Defeito do Resumo**             | Corrigido no fonte para a versão final + errata registrada + **nunca dito em voz alta**, exceto se perguntado. Ver §6, família 6.                                                                               | Autor, 2026-08-21 |
-| **Template e barra de navegação** | **`slides/`** (Beamer, do NESPeD — autoria de Henrique S. Santana, a mesma defesa que o guia §4.0 analisa). A barra de navegação **é nativa do template**, não precisa ser construída. Ver §11. | Autor, 2026-08-21 |
+| **Template e barra de navegação** | **`slides/`** (Beamer, do NESPeD — autoria da defesa de referência S. Santana, a mesma defesa que o guia §4.0 analisa). A barra de navegação **é nativa do template**, não precisa ser construída. Ver §11. | Autor, 2026-08-21 |
 | **Regra de ordenação** | **Posse pela LINHAGEM**: um elemento é introduzido no seu ponto de primeiro uso na linhagem; §2 fica só com o que é transversal **e não faz parte da herança que o arco narra**. Resolve o ponto 8. Ver §4. | Autor, 2026-08-21 |
 | **Nomes das seções 3–5** | O **título do artigo**, não o veículo. Barra: a **linhagem de modelos** — MTLnet · ST-MTLNet · Check2HGI. | Autor, 2026-08-21 |
 | **Protocolo estatístico** | Introduzido em **5.4**, não na Seção 2 — só o Cap. 5 o usa. Idem Acc@10 e joint-best. | Autor, 2026-08-21 |
@@ -341,7 +341,7 @@ mesma página). A frase retratada sobre representação hierárquica × injeçã
 > | colega | **Pedro Maia** | ⚠ **não localizado** em nenhum artigo, no texto entregue, nem no repositório. **O autor precisa fornecer a grafia completa** |
 >
 > **Duas observações, não decisões:** (a) **Ingred e Pedro não constam dos agradecimentos
-> entregues**, que nomeiam Fabrício, Germano, Tarik, além de Henrique Santana e Gustavo Viegas — um
+> entregues**, que nomeiam Fabrício, Germano, Tarik, além da defesa de referência Santana e Gustavo Viegas — um
 > slide pode nomear quem quiser, mas vale saber que diverge do depositado; (b) o CBIC tem um
 > coautor que a lista não menciona, **Felipe T. Sousa**.
 **Nunca dizer.** "MTL funciona" sem condição. Re-caminhar a cadeia dos três estudos. Nenhum número novo.
@@ -798,7 +798,7 @@ elas em vez de competir com elas, com o registro do defeito num comentário ao l
 
 ## 11 · O template — `slides/`
 
-Template Beamer do NESPeD, de **Henrique S. Santana** — o autor da defesa que o guia §4.0 analisa quadro a quadro. A
+Template Beamer do NESPeD, de **a defesa de referência S. Santana** — o autor da defesa que o guia §4.0 analisa quadro a quadro. A
 barra de navegação que o guia recomenda **não precisa ser construída: ela é o comportamento padrão deste template**.
 Lido e testado em 2026-08-21.
 
@@ -853,7 +853,7 @@ Opções do pacote: decoração `net` \| `accel` \| `data`; cor `green` \| `blue
 > (\node.center) }` insere um `--` **antes do primeiro ponto também** (deveria ser `\ifnum \i>1`,
 > não `\i>0`), o que deixa o caminho do TikZ sem coordenada inicial e aborta a linha inteira —
 > exatamente o "No current point in lineto" que o poppler reportava aos montes, e que eu MEDI
-> existir também no PDF oficial do Henrique sem concluir que era a causa da malha faltando.
+> existir também no PDF oficial do a defesa de referência sem concluir que era a causa da malha faltando.
 > Corrigido (`sed` nos 12 pontos, `nesped.sty`) e **validado contra a captura de tela do Vitor**:
 > antes, 0 páginas sem o aviso do poppler; depois, 0 páginas COM o aviso, e a malha triangulada
 > aparece igual à referência. `main.tex` e `template_showcase.tex` recompilados com a correção.
@@ -883,7 +883,7 @@ Opções do pacote: decoração `net` \| `accel` \| `data`; cor `green` \| `blue
 > `template_showcase.tex` — `make showcase` recompila-o — e o novo `main.tex` é o esqueleto real
 > das seis seções, com um stub por subseção de §3, os pontos de transição de §2 comentados, e a
 > série B (§6) demonstrada com um índice clicável (B0) + um exemplo completo (B1) para replicar.
-> Decisão sobre o original: a correção fica **só nesta cópia** — reportar ao Henrique fica a
+> Decisão sobre o original: a correção fica **só nesta cópia** — reportar ao a defesa de referência fica a
 > critério do autor. Relato completo enviado à sessão `ingred-14`.
 
 ### 11.3 · Como as seis seções de §3 mapeiam
@@ -929,12 +929,12 @@ Consertado e verificado pelo agente `presentation-guide`, e **re-verificado nest
 
 | item | estado |
 |---|---|
-| **Estrutura de pastas** | `nesped_slides_template/` = o template **puro** (só as fontes do NESPeD + os 3 bugs corrigidos, `main.tex` é a demonstração original do Henrique, intocada estruturalmente) · `slides/` = os slides reais da defesa, que usam uma cópia do template já corrigida |
+| **Estrutura de pastas** | `nesped_slides_template/` = o template **puro** (só as fontes do NESPeD + os 3 bugs corrigidos, `main.tex` é a demonstração original do a defesa de referência, intocada estruturalmente) · `slides/` = os slides reais da defesa, que usam uma cópia do template já corrigida |
 | `nesped.sty` (nas duas pastas, cópias idênticas) | **três** bugs corrigidos: `\pagewidth`→`\paperwidth`; `\autotocframe` repassando `{#1}` em vez de `[#1]` (`\ifstrempty`); os 12 `\ifnum \i>0 -- \fi` de `\decorationnet` (deveria ser `\i>1`) que quebravam a malha triangulada de fundo — achado depois de comparar com uma captura de tela do Vitor, não só com o PDF de referência (que tinha o mesmo defeito). Só nas nossas cópias — o original de terceiros não foi tocado |
 | `slides/main.tex` | **esqueleto real**: as seis seções, um frame-stub por subseção do §3 (`TODO n.n`), os quatro pontos de transição do §2 como comentário, e a série B demonstrada (B0 índice clicável + B1 completo replicável) |
-| `slides/template_showcase.tex` | o `main.tex` demonstrativo original do Henrique, preservado por `git mv` como referência de sintaxe |
+| `slides/template_showcase.tex` | o `main.tex` demonstrativo original do a defesa de referência, preservado por `git mv` como referência de sintaxe |
 | **Build** | **um `Makefile` dentro de cada pasta** (`nesped_slides_template/Makefile`, `slides/Makefile` — não mais um na raiz, revertido a pedido do autor 2026-08-21). Cada um compila para `<pasta>/build/` (gitignored) e copia o `main.pdf` final para a raiz da própria pasta. Alvos, iguais nos dois: `make all` · `make check` (valida 0 erros sem gerar PDF pela metade) · `make clean` |
-| **Pastas limpas (2026-08-21)** | removidos `.DS_Store`, `slides/template_showcase.tex`/`.pdf` (duplicata do `nesped_slides_template/main.tex`, que já é a demo original), e `build/` de ambas. O PDF de referência do Henrique mudou de `slides/` para `nesped_slides_template/nesped_slides_template.pdf` (mais coerente — ele valida o template, não o deck) |
+| **Pastas limpas (2026-08-21)** | removidos `.DS_Store`, `slides/template_showcase.tex`/`.pdf` (duplicata do `nesped_slides_template/main.tex`, que já é a demo original), e `build/` de ambas. O PDF de referência do a defesa de referência mudou de `slides/` para `nesped_slides_template/nesped_slides_template.pdf` (mais coerente — ele valida o template, não o deck) |
 | **motor** | **`xelatex`** — ver ⚠ abaixo sobre por que não é `pdflatex` |
 | build | `make all` em cada pasta → **OK, `nesped_slides_template/main.pdf` 23 páginas + `slides/main.pdf` 42 páginas, 0 erros nos dois** (rodado nesta sessão) |
 

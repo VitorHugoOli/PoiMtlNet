@@ -112,7 +112,7 @@ regeneráveis por `build.sh`).
 decidiu apagá-la com base nisso. Verifiquei tarde, antes de executar, e voltei a perguntar com os
 factos corretos — **ele reafirmou o apagar com o quadro completo**, e só então apaguei.
 
-**O que a gravação era** `[V]`: a defesa de **Henrique de Souza Santana** (mesmo programa, mesmo
+**O que a gravação era** `[V]`: a defesa de **uma defesa anterior do mesmo programa** (mesmo programa, mesmo
 template NESPeD), 61 min, 4K. Era a **base empírica** contra a qual o deck foi reescrito a
 2026-08-24 — as medições de forma (mediana 21 palavras de ecrã, média 28, máx ~71) saem dela.
 Citada em quatro documentos:

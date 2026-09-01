@@ -167,7 +167,7 @@ e um log limpo pode ser sintoma de cramming, não de saúde. Valide por renderiz
 cd slides && pdftoppm -r 95 -png main.pdf /tmp/deck   # e olhar página a página
 ```
 
-## 4b · A referência de densidade: a defesa do Henrique
+## 4b · A referência de densidade: a defesa do a defesa de referência
 
 **É uma GRAVAÇÃO, não um PDF** — e o caminho já estava no `APRESENTACAO_DEFESA_GUIDE.md:131,:317`.
 Eu procurei um PDF, não achei, e escrevi "não está no repositório" **sem reler o meu próprio guia**.
@@ -188,7 +188,7 @@ keyframe, barato num arquivo de 7 GB).
 **Ele usa o MESMO template NESPeD**, também é coletânea, também seis seções na barra. **64 slides em
 ≈48 min** — praticamente o nosso ritmo (54 em 48). O que difere não é a quantidade de slides:
 
-| | Henrique | nosso deck |
+| | a defesa de referência | nosso deck |
 |---|---|---|
 | palavras na tela, mediana | **~25–30** | **119** |
 | máximo | ~70 | **237** |
@@ -456,7 +456,7 @@ Trabalho não commitado apareceu depois do meu último commit. **Não sei quem o
 ### 1.1 · A brevidade é o alvo, e ele tem uma referência medida
 
 O deck foi reescrito em 2026-08-24 contra um alvo **empírico**, não uma opinião: a defesa de
-**Henrique de Souza Santana**, mesmo programa, mesmo template NESPeD, gravada em
+**uma defesa anterior do mesmo programa**, mesmo programa, mesmo template NESPeD, gravada em
 `/Volumes/linux/VIDEO/Screen Recording 2026-07-08 at 10.02.56.mov` (61 min, 4K).
 ⚠ **Não é um PDF.** Um agente anterior procurou por PDF, não achou, e concluiu que a referência não
 existia — estando o caminho num doc que ele mesmo escrevera.
@@ -468,7 +468,7 @@ existia — estando o caminho num doc que ele mesmo escrevera.
 **Medido em 10 slides amostrados da gravação: mediana 21 palavras de tela, média 28, máximo ~71.**
 
 ⚠ **Duas ressalvas de método, e as duas puxam para cortar MENOS:**
-1. A contagem do Henrique é **OCR sobre a gravação** e enxerga texto dentro de figura; a nossa é
+1. A contagem do a defesa de referência é **OCR sobre a gravação** e enxerga texto dentro de figura; a nossa é
    **corpo LaTeX** e não enxerga. Não são a mesma régua.
 2. **A regra dele não é "sem frases".** Ele escreve frase completa exatamente onde a frase **É** o
    conteúdo (a pergunta de pesquisa, o que o estudo faz), e nunca para explicar ou ressalvar. O
@@ -796,7 +796,7 @@ pdftoppm -f <p> -l <p> -png -scale-to-x 1230 -scale-to-y -1 main.pdf /tmp/s
 
 - **Ele aprova antes de qualquer mudança de conteúdo.** Apresente opções com recomendação e espere.
 - **Ele corrige o rumo com boas razões, e as correções dele são quase sempre certas.** Nesta
-  sequência ele apontou: que a métrica de densidade quebrava nos slides de introdução do Henrique;
+  sequência ele apontou: que a métrica de densidade quebrava nos slides de introdução do a defesa de referência;
   que o slide de contribuições tinha redundância; que o MTLnet não pertencia à tabela da linhagem
   infomax; que o HMT-GRN prediz região nativamente. **As quatro procediam, e três delas o texto
   entregue confirmava contra a minha leitura inicial.**

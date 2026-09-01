@@ -21,7 +21,7 @@
 | **Data e horário** | sexta-feira, **28/08/2026, 10:00 às 12:30** (BRT) |
 | **Formato** | **Remota, por Google Meet** — não presencial. Link: `meet.google.com/ima-fsyc-xim` |
 | **Organizador do convite** | Fabrício A. Silva (orientador) |
-| **Banca** | Fabrício A. Silva (presidente/orientador) · Clayson Sandro Francisco de Sousa Celes (`clayson.celes@gp.ita.br`, ITA — externo) · Alex Borges (`alex.borges@gmail.com`) |
+| **Banca** | Fabrício A. Silva (presidente/orientador) · Clayson Sandro Francisco de Sousa Celes (ITA — externo) · Alex Borges |
 | **Janela reservada** | 2h30 no total — compatível com o Art. 23 (50 min de apresentação) + arguição (a checklist e a pesquisa de banca em §3 estimam 15–30 min por membro) + deliberação fechada |
 | **Texto entregue à banca** | versão de 12/08 do `dissertacao.pdf` (substituiu a de 07/08; ajustes pontuais no capítulo de resultados) |
 
@@ -121,13 +121,13 @@ dia 28** — não é conteúdo deste documento, que trata só da forma da aprese
 ## 4 · Estrutura recomendada dos slides
 
 **Origem desta seção, em ordem de peso:** (1) um exemplo real, do mesmo programa (PPGCC/DPI-UFV),
-mesmo formato de reunião (Google Meet) — a defesa de Henrique de Souza Santana, gravada e analisada
+mesmo formato de reunião (Google Meet) — uma defesa anterior do mesmo programa, gravada e analisada
 nesta sessão (§4.0); (2) um guia genérico de defesa de mestrado em Ciência da Computação — Shan
 Barkataki, CSUN, *"Rough Guidelines for Masters Defense Preparation and Presentation"* — usado só
 onde o exemplo real não cobre (regras de forma, como lidar com perguntas). Partes específicas de
 outra universidade no guia genérico (reserva de sala, V-forms, ETD) foram descartadas.
 
-### 4.0 · Exemplo real: a defesa de Henrique de Souza Santana (mesmo programa, coletânea de artigos)
+### 4.0 · Exemplo real: uma defesa anterior do mesmo programa (também coletânea de artigos)
 
 Analisado o vídeo fornecido (`/Volumes/linux/VIDEO/Screen Recording 2026-07-08 at 10.02.56.mov`,
 61 min de gravação de tela, dos quais só a parte com o Google Meet em primeiro plano foi usada —
@@ -156,7 +156,7 @@ A reunião começou por volta de **10:02**. **Fala do início ao fim: ~51 minuto
 (≈48 s/slide em média) — praticamente no teto dos 50 min do Art. 23, e perto dos 53 min que você
 lembrava. A partir da slide 64 ("Agradecimentos"), o slide fica estático — é ali que a apresentação
 termina e a arguição começa. **Verificado que não há pausa real na fala entre os minutos 8 e 51**: nos
-frames em que o Meet está visível, Henrique aparece apresentando sem interrupção em todos eles; os
+frames em que o Meet está visível, o apresentador aparece apresentando sem interrupção em todos eles; os
 "sumiços" do Meet em parte da gravação (minutos ~16–38) são a tela de quem gravou alternando para
 outras janelas, não uma pausa da apresentação em si.
 
@@ -176,20 +176,20 @@ permanente à pergunta "como os artigos se interconectam" — cada artigo/sistem
 igual às outras, dentro de um todo com Introdução e Conclusão únicas —, e (b) uma orientação constante
 para a banca de onde a fala está, e quanto falta, sem precisar perguntar.
 
-Note que a coletânea de Henrique tem **quatro** blocos de conteúdo entre a introdução e a conclusão
+Note que a coletânea dessa defesa tem **quatro** blocos de conteúdo entre a introdução e a conclusão
 (um mapeamento sistemático + três sistemas/estudos: OD4CoT, Micélio, Aplicação FL) — um a mais que os
 seus três artigos (CBIC, CoUrb, MobiWac). Isso é coerente com o padrão que a pesquisa de banca já
 registrada em `../docs/research/banca_evaluation_research_2026-07-20.md` também aponta: cada bloco
 vira uma seção própria de tamanho proporcional ao seu conteúdo, não um resumo igualado.
 
-**Uma diferença de formato a notar:** Henrique apresentou **em pé, numa sala física com projetor**
+**Uma diferença de formato a notar:** o apresentador dessa defesa apresentou **em pé, numa sala física com projetor**
 (visível pela própria câmera dele no Meet), com parte da banca remota; a sua defesa (§0) é **100%
 remota para todos**. Isso não muda a estrutura dos slides, mas reforça os cuidados de §5 (teste de
 tela/internet), já que não há a opção de "voltar ao presencial" se algo falhar.
 
 ### 4.1 · Orçamento de tempo para 50 minutos — a essência do §4.0 adaptada aos SEUS 3 artigos
 
-**O que fica do exemplo de Henrique (o mecanismo, não a forma):** uma seção nomeada por artigo,
+**O que fica do exemplo dessa defesa (o mecanismo, não a forma):** uma seção nomeada por artigo,
 proporcional ao seu peso na história — não um resumo igual para cada um —, e um elo explícito
 narrado na transição entre seções, não deixado implícito. **O que muda:** o elo dele era
 *reaproveitar um resultado* (o classificador de lixo reaparece dentro do estudo de caso final). O seu
@@ -223,7 +223,7 @@ Duas referências, e elas discordam no número absoluto — o que importa é o r
   ~1,3–1,8 min/slide.
 - **Exemplo real (§4.0):** 64 slides em ~51 min — ritmo de ~48 s/slide, quase o dobro da densidade do
   guia genérico, e funcionou dentro do teto do Art. 23. Isso só é sustentável porque a maioria dos
-  slides de Henrique carrega pouco texto (um bullet + uma figura), não parágrafos.
+  slides dessa defesa carrega pouco texto (um bullet + uma figura), não parágrafos.
 
 **Recomendação prática:** mire em **35–50 slides**, não pelo teto do guia genérico, mas calibrando
 pelo ensaio cronometrado (§7) — se um slide carrega uma ideia simples (uma figura, uma equação, uma
@@ -318,7 +318,7 @@ Nada aqui bloqueia a preparação dos slides, mas ficaram sem resposta encontrá
 | Checklist oficial de defesa | `../docs/CHECK-LIST-PARA-DEFESA-DE-DISSERTACAO.pdf` | Já no repo, lido nesta sessão |
 | Ausência de template de slides / site fora do ar | `ppgcc.ufv.br/?page_id=1032`, `sites.google.com/site/mestradodpi/` (404), busca web | Verificado nesta sessão |
 | Formato de convite de defesa (referência) | `[mestrado-cc-dpi:6101]`, defesa de Paula T. M. Gibrim, 10/08/2026 | Lido nesta sessão |
-| Estrutura real, timing real, seção-por-artigo (Henrique Santana) | `/Volumes/linux/VIDEO/Screen Recording 2026-07-08 at 10.02.56.mov` | Analisado nesta sessão (ffmpeg, frames extraídos e lidos no horário do Meet); trechos da gravação sem o Meet em foco (conteúdo pessoal do usuário) foram identificados e **não** usados |
+| Estrutura real, timing real, seção-por-artigo (a defesa de referência Santana) | `/Volumes/linux/VIDEO/Screen Recording 2026-07-08 at 10.02.56.mov` | Analisado nesta sessão (ffmpeg, frames extraídos e lidos no horário do Meet); trechos da gravação sem o Meet em foco (conteúdo pessoal do usuário) foram identificados e **não** usados |
 | Dinâmica e critérios da banca | `../docs/research/banca_evaluation_research_2026-07-20.md` | Já no repo (pesquisa anterior, não refeita) |
 | Perguntas prováveis + respostas | `../wrapup/open_points/ARGUICAO.md`, `../wrapup/erratas/RESPOSTAS_ORAIS.md` | Já no repo |
 | Estrutura/timing de slides, regras de forma | Shan Barkataki (CSUN), *Rough Guidelines for Masters Defense Preparation and Presentation* | Web, lido nesta sessão — única fonte encontrada com esse nível de detalhe; não é da UFV, tratado como orientação genérica adaptada |
