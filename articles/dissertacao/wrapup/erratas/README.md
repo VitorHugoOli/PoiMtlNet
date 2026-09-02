@@ -15,6 +15,44 @@ proprio cabecalho.
 | `RESPOSTAS_ORAIS.md` | a frase a ser dita em pe para cada uma, mais Q15 | — |
 | `VERIFICACAO.md` | cada numero das erratas contra o artefato de origem | — |
 
+## Correcoes aplicadas sem linha impressa
+
+Correcoes ao texto que o autor decidiu registar **so aqui**, sem linha no Apendice B de nenhum
+volume. Ficam neste ficheiro porque um leitor que compare o capitulo com o artigo publicado vai
+encontrar a diferenca e tem de poder saber porque ela existe.
+
+### TME descrito de duas maneiras incompativeis no mesmo capitulo (2026-09-02)
+
+`3_cbic/basis.tex` descrevia o mesmo modelo de duas formas, com cerca de quarenta linhas de
+intervalo:
+
+- `:22`, e a descricao que fica: *"the Tree-guided Multitask Embedding (TME) model, which aims to
+  improve the semantic annotation of POIs using a hierarchical structure of categories and
+  mobility-based representation learning"*
+- a frase corrigida, que dizia: *"Some models, such as TME, address category annotation using
+  **graph-based encoders** but treat prediction and classification separately"*
+
+A segunda agrupava o TME com trabalhos de grafos. Nem a primeira nem o Cap. 2 o fazem
+(`2_fundamentals.tex`: *"TME instead applies tree-guided multitask embedding to static semantic POI
+annotation"*). Duas descricoes em tres concordam, e a que destoa e a que atribui o encoder.
+
+**A correccao e de consistencia interna e nao afirma nada sobre o artigo do Xu et al.** A frase
+passou a usar as palavras que o proprio capitulo ja usa para o mesmo modelo, mantendo as duas
+afirmacoes que continuavam sustentadas: que o TME trata anotacao de categoria, e que separa
+predicao de classificacao. A frase enumerava so o TME, portanto nao havia outro modelo a que o
+"graph-based encoders" pudesse ligar-se correctamente; reordenar nao era saida.
+
+⚠ **O QUE NAO FOI VERIFICADO, e porque isto importa.** Numa versao anterior desta analise eu
+afirmei, aqui e ao autor, que o TME e fatorizacao de matriz PMI e nao tem encoder de grafo nenhum.
+**Nao ha fonte para isso nesta arvore**: nao existe PDF do artigo, a entrada bib e a do artigo CBIC
+doador carregada verbatim, e a auditoria de literatura do round 13 cita `Xu2023` sem descrever o
+encoder dele. Era inferencia minha apresentada como facto. Por isso a correccao **nao caracteriza a
+arquitectura do TME** — corrigir uma afirmacao nao sustentada com outra afirmacao nao sustentada
+seria trocar um erro por outro. Se alguem vier a ler o artigo e quiser dizer o que o TME e, ai sim,
+com a fonte a frente.
+
+Decisao do autor, 2026-09-02: registo interno, sem linha impressa.
+
 ## Q24 nao gerou errata
 
 Eu havia registrado como defeito o fato de o volume principal nao apontar para o material

@@ -85,6 +85,18 @@ Early MTL-based approaches such as MCARNN~\cite{Liao2018} employ recurrent neura
 % comment made the old phrase look live to a line-based comment stripper.
 More recent works have begun incorporating contextual and semantic signals. TLR-M~\cite{Halder2021}, for example, applies Transformer-based architectures to simultaneously predict the next POI and queue waiting time, demonstrating the value of attention-based models in capturing spatio-temporal dependencies. MTPR~\cite{Xia2020} combines LSTMs and adversarial learning to address the sparsity of check-in data and improve multitask POI recommendation both location and temporal context with a generative component.
 
-Despite these advances, existing MTL approaches often focus on joint modeling of next-POI prediction and temporal or behavioral signals, while the relationship between POI category classification and next-POI prediction remains underexplored. Some models, such as TME~\cite{Xu2023}, address category annotation using graph-based encoders but treat prediction and classification separately.
+% [2026-09-02, author-approved, INTERNAL RECORD ONLY (no Appendix B row by his decision)] Internal
+% consistency fix on the TME sentence below. The chapter describes TME twice: at :22 as "a
+% hierarchical structure of categories and mobility-based representation learning", and here, until
+% this edit, as "graph-based encoders". The first wording is the one the chapter's own description and
+% 2_fundamentals.tex ("tree-guided multitask embedding") support; the second grouped TME with graph
+% work on no basis in this tree. The sentence now reuses the chapter's own :22 wording for the same
+% model. NOT verified against the source: the TME paper's encoder was not characterized from its PDF
+% (none in the tree; the bib entry is the CBIC donor carried verbatim, and the round-13 literature
+% audit cites Xu2023 without describing its encoder). So this edit asserts nothing about what TME
+% is; it removes an attribution the chapter itself did not support and keeps the two supported
+% claims (category annotation; prediction and classification treated separately). The published
+% CBIC sentence carried "graph-based encoders"; the departure is recorded in wrapup/ by the registry.
+Despite these advances, existing MTL approaches often focus on joint modeling of next-POI prediction and temporal or behavioral signals, while the relationship between POI category classification and next-POI prediction remains underexplored. Some models, such as TME~\cite{Xu2023}, address category annotation using a hierarchical structure of categories and mobility-based representation learning but treat prediction and classification separately.
 
 This creates a gap in the literature regarding the joint modeling of semantic and sequential POI tasks. In contrast, our proposed model introduces a unified MTL framework that jointly performs POI category classification and next-category prediction using a hard parameter-sharing architecture. By modeling both tasks simultaneously, our approach promotes knowledge transfer across shared spatio-temporal representations.
