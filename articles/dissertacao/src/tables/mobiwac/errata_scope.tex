@@ -43,6 +43,47 @@ One sentence is added in the chapter, pointing to the appendix that measures the
 quantity on the final model at four of the six datasets and reaches the same conclusion. The
 sentence cites a dissertation appendix, so it is not carried into the submitted paper: the
 referent does not exist there. No number, scope, or conclusion in the paragraph changes. \\
+\addlinespace
+% [2026-09-02, Wilcoxon] Author ruling: remove the promise, do not compute the test. The registered
+% test was executed once, on the v17 ladder; the ladder was recomputed under the joint-best
+% convention on 2026-08-11 and the sentence that REPORTED the Wilcoxon was deleted from the results
+% section in that same wave (ce5a7006), while the sentence that PROMISED it survived here. Removing
+% it is the honest half: what stays is the registration, the reason for the departure (the exact
+% one-sided p cannot fall below 0.0625 at n=4), and the disclosure that the code release carries
+% both tests -- which is true, scripts/closing_data/superiority_wilcoxon.py exists. The test WAS
+% computed for this ladder in the course of deciding this
+% (research/reproducibility/mobiwac_v18/wilcoxon_v18.py) and agrees with the reported t at every
+% cell, so nothing is being hidden; the author chose not to add a second test to the reader's load.
+The setup section states that the registered Wilcoxon signed-rank test on the twenty
+matched fold differences is also reported, as a sensitivity analysis alongside the paired
+$t$ test. No Wilcoxon result appears anywhere in the delivered text. &
+The promise is withdrawn and the disclosure kept: the paragraph still states that the plan
+registered the test, still gives the reason it is not used at the seed-level footing, and still
+records that the released code carries both tests. One further word changes, from ``primary
+analysis'' to ``reported analysis'', because with no second analysis named the first adjective
+implied one. A clause naming the Wilcoxon as the comparison over twenty differences is removed
+from the seed definition. No number, verdict, or interval changes. \\
+\addlinespace
+% [2026-09-02, parameter counts] The published sums close exactly against the WITHDRAWN dedicated
+% category count of 644,359, which the 2026-07-23 audit produced by building the head at the module
+% default depth of two layers while its own output file claims it used the ceiling config. The cells
+% ran four layers: train.py:339 routes task "next" to default_next, experiment.py:530 pins
+% num_layers=4, and train.py:1454-1460 merges --model-param over it rather than replacing it. The
+% region half was measured, not inferred: the head instantiated exactly as cell_reg builds it gives
+% 417,117 at Alabama and 1,370,685 at California, and the joint's region partition minus that head
+% is exactly 465,297 at all five datasets with a delivered log, which validates both sides at once.
+% Reproduce: research/reproducibility/mobiwac_v18/param_counts.py (exits non-zero if the identity
+% breaks). Appendix G of the supplementary volume carried the same defect and is corrected with it.
+The method section compares parameter counts, giving the joint model about 4.2 million
+parameters at Alabama against 1.1 million for the two dedicated models combined, and 5.2
+against 2.0 at California. The two sums are low: they were computed from a dedicated
+category model of 644,359 parameters, a count the model that ran does not have. &
+The sums are corrected to 1.9 and 2.8 million, from the measured 1,433,863 for the dedicated
+category model and 417,117 and 1,370,685 for the dedicated region model at the two datasets.
+The joint-model figures are unchanged and confirmed against the delivered execution logs. The
+ratio the sentence rests on falls from about four to 2.27 at Alabama and from 2.6 to 1.84 at
+California; the claim it supports does not depend on the magnitude, since the paragraph argues
+that the single model's advantage is operational rather than arithmetic. \\
 \bottomrule
 \end{tabular}
 \end{table}

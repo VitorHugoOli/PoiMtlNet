@@ -378,14 +378,21 @@ mais extrema (todas positivas) tem probabilidade $1/16$. Ou seja:
 > 0,05. **Nenhum resultado seria significativo, por construção.**
 
 É por isso que a dissertação **inverte a ordem declarada no plano**: o plano registrava o Wilcoxon
-como teste primário; a análise final usa o **t pareado sobre as 4 médias-por-semente** como primário
-e reporta o Wilcoxon sobre as **20 diferenças por fold** como **análise de sensibilidade**. Os dois
-chegam às mesmas decisões, e o desvio em relação ao plano está declarado no texto e no código.
+como teste primário; a análise final usa o **t pareado sobre as 4 médias-por-semente** (com IC de
+90% e correção de Holm), e é esse o teste que o texto reporta. O desvio em relação ao plano está
+declarado no texto e no código.
 
 **Como responder isso em pé, em duas frases:** *"O plano registrou Wilcoxon. Com quatro sementes, o
 Wilcoxon exato tem p mínimo de 0,0625, então ele não podia decidir nada nesse pé. Reportei o t
-pareado como primário, o Wilcoxon sobre os vinte folds como sensibilidade, os dois concordam, e o
-desvio está declarado."*
+pareado sobre as quatro médias por semente, e o desvio está declarado."*
+
+*(Registo, 2026-09-02. Esta secção dizia que o texto reportava o Wilcoxon sobre as 20 diferenças por
+fold como análise de sensibilidade e que "os dois concordam". O texto entregue não reporta nenhum
+Wilcoxon: a frase que o reportava saiu de `06_results.tex` na vaga `ce5a7006`. Por decisão do autor a
+promessa foi retirada, não cumprida. Para o teu registo apenas: o teste foi corrido depois em
+`research/reproducibility/mobiwac_v18/wilcoxon_v18.py` e concorda célula a célula com o t pareado,
+categoria só em Florida, região em Texas e California; isso não está no texto e não deve ser citado
+como se estivesse.)*
 
 ---
 

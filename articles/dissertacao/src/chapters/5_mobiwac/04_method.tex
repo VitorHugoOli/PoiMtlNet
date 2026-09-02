@@ -48,11 +48,25 @@ improvement over the dedicated single-task models comes from the shared represen
 adaptive weighting scheme. The dedicated category model receives the same adjustment, so the
 comparison between them is not affected by it.
 
+% [2026-09-02, AUTHOR RULING "medir", errata Table B.5 of the supplement] The two dedicated-model
+% sums were wrong: 1.1 million (AL) and 2.0 million (CA) closed against a dedicated category count of
+% 644,359, which is the layers=2 closed form; the cells ran layers=4, and that model alone is
+% 1,433,863, more than either printed sum. Recomputed by research/reproducibility/mobiwac_v18/
+% param_counts.py (no GPU, no data; instantiates the heads as cell_reg()/cell_cat() build them; exits
+% 0 only while the identity below holds). Dedicated region head: AL 417,117 / CA 1,370,685. Identity
+% check: joint region pathway minus dedicated region head = 465,297 at every dataset with a log
+% (IST/AL/AZ/TX/CA), which validates the log counts and the instantiated head together. Sums:
+% AL 1,433,863 + 417,117 = 1,850,980 -> "1.9"; CA 1,433,863 + 1,370,685 = 2,804,548 -> "2.8".
+% Joint counts unchanged: CA 1,731,079 + 1,835,982 + 1,584,128 = 5,151,189 -> "5.2"; AL 4,197,621
+% -> "4.2". Ratios fall from ~4x/2.6x to 2.27x/1.84x; the sentence that follows ("operational rather
+% than arithmetic") holds, and the surrounding claims (joint larger than either dedicated model;
+% costs more than the two combined) stay true at the corrected numbers. Run by the writer 2026-09-02,
+% exit 0, table matched to the digit.
 The joint model includes the shared trunk and both task outputs, so it is
 larger than either dedicated model, and a forward pass costs more compute than running the
 two small dedicated models: the joint model has about 4.2 million parameters at
-Alabama against 1.1 million for the two dedicated models combined (5.2 against
-2.0 at California). What the single model provides is operational rather
+Alabama against 1.9 million for the two dedicated models combined (5.2 against
+2.8 at California). What the single model provides is operational rather
 than arithmetic: one artifact to train, version, and deploy, and one forward
 pass whose one set of inputs produces both answers at once.
 

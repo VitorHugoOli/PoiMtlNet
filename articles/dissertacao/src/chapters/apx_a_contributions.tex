@@ -63,8 +63,10 @@ that constructs the folds, and the statistical scripts and output files listed b
         sources of variation. Four draws sample the variation across user splits without
         characterizing it. Within one seed both models are built from the same partition, which is what
         the paired comparison requires. The paired $t$ and TOST analyses compare the four
-        per-seed means, while the registered Wilcoxon sensitivity analysis compares the 20
-        matched seed-fold differences.
+        per-seed means.
+% [2026-09-02, AUTHOR RULING, same as 5_mobiwac/05_setup.tex] Clause "while the registered Wilcoxon
+% sensitivity analysis compares the 20 matched seed-fold differences" removed: it described an
+% analysis the text does not report.
 %  \item[The region-transition prior.] Rebuilt for each fold from that fold's training
 %        partition alone by
 %        \path{pipelines/reproducibility/build_region_transitions.pipe.py}, which writes one file per
@@ -88,7 +90,12 @@ that constructs the folds, and the statistical scripts and output files listed b
 % the chapter's single category superiority at Florida. A reader following the pointer to check a
 % number would find one that is not on the page. The entry now names the artifacts the reported
 % ladder is computed from, both of which reproduce it cell for cell.
-  \item[The significance tests.] The superiority and non-inferiority tests are
+% [2026-09-02] "The superiority and non-inferiority tests are implemented in" named a Wilcoxon script
+% as the implementation of the reported superiority test, which is a paired t. Now names what the
+% script is: the registered Wilcoxon test, published in the code release but not reported in the
+% text (author ruling of this date). The pointer stays because the code exists; the sentence no
+% longer implies its result is on the page.
+  \item[The significance tests.] The registered Wilcoxon test and the TOST non-inferiority test are
         implemented in \path{research/reproducibility/mobiwac_v17/superiority_wilcoxon.py}
         and \path{research/reproducibility/mobiwac_v17/region_match_tost.py}. The values
         they consume, and from which every cell of Chapter~\ref{ch:mobiwac}'s results table

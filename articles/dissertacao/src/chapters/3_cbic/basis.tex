@@ -77,7 +77,13 @@ MTL has been explored in problems related to Points of Interest (POIs), primaril
 
 Early MTL-based approaches such as MCARNN~\cite{Liao2018} employ recurrent neural networks with temporal attention mechanisms to jointly predict user activities and future visited locations. Similarly, the iMTL framework~\cite{Zhang2020} uses an LSTM architecture to model next-activity prediction, incorporating temporal dynamics in user behavior modeling.
 
-More recent works have begun incorporating contextual and semantic signals. TLR-M~\cite{Halder2021}, for example, applies Transformer-based architectures to simultaneously predict the next POI and queue waiting time, demonstrating the value of attention-based models in capturing spatio-temporal dependencies. MTPR~\cite{Xia2020} combines LSTMs and adversarial learning to address uncertainty in check-ins and improve multitask POI recommendation both location and temporal context with a generative component.
+% [2026-09-02, author-approved, banca review] In the MTPR sentence of the paragraph below,
+% "uncertainty in check-ins" -> "the sparsity of check-in data". The MTPR paper addresses SPARSITY
+% (its PDF: zero occurrences of "uncertain", twelve of "sparse"); "uncertainty" was the attribute of
+% another model in this paragraph. One-word factual correction to reproduced text; the errata row is
+% the registry's. Comment kept on its own lines: the paragraph is one source line, and a mid-line
+% comment made the old phrase look live to a line-based comment stripper.
+More recent works have begun incorporating contextual and semantic signals. TLR-M~\cite{Halder2021}, for example, applies Transformer-based architectures to simultaneously predict the next POI and queue waiting time, demonstrating the value of attention-based models in capturing spatio-temporal dependencies. MTPR~\cite{Xia2020} combines LSTMs and adversarial learning to address the sparsity of check-in data and improve multitask POI recommendation both location and temporal context with a generative component.
 
 Despite these advances, existing MTL approaches often focus on joint modeling of next-POI prediction and temporal or behavioral signals, while the relationship between POI category classification and next-POI prediction remains underexplored. Some models, such as TME~\cite{Xu2023}, address category annotation using graph-based encoders but treat prediction and classification separately.
 

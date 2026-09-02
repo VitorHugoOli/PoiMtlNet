@@ -43,6 +43,16 @@ the term ``Next-POI Prediction'' as used in the reproduced article denotes the f
 \emph{next category} task, that is, predicting the category of the next visited place,
 not the exact place itself; the dissertation reserves \emph{next place} for the
 exact-POI task, which is not studied here.
+% [2026-09-02, B-12, banca annotation "nao e ruim isso?" at results.tex:36, author-approved] The
+% article body confesses that folds are split over samples (COD-007, our own addition) and, since
+% round 14 removed the two Chapter 5 pointers from that paragraph, no longer says where the
+% limitation is resolved. The way out goes HERE, in the preface, which is dissertation prose (no
+% Appendix B row, same footing as the notes above) and leaves the round-14 decision and the
+% STL-05-pinned sentence at results.tex:36 untouched.
+One protocol detail also differs from the final study: the folds here are formed over
+samples rather than over users, so one user's check-ins can fall in both training and
+validation. Section~\ref{sec:fund:split} states what that limits, and
+Chapter~\ref{ch:mobiwac} keeps each user on one side of a fold.
 % [COD-015a, round8, 2026-07-30] The preface said Chapters 4 and 5 "revise that verdict by changing the
 % input representation rather than the architecture", which is right about Chapter 4 and wrong about
 % Chapter 5. Author decision, PENDENCIAS_RESOLVIDOS 5.4 (arquivado 2026-07-30), quoted: "vamos mudar o prefacio, pq o cap 4 defato nao
