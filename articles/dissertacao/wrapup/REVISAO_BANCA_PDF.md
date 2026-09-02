@@ -35,6 +35,22 @@ mesmo estado. Legenda:
 | `✖` | dispensado — decisão de não mexer |
 | `?` | precisa de medição ou consulta antes de decidir |
 
+### O que falta decidir — estado a 2026-09-02
+
+**Oito fechados** (`✔`): B-02, B-05, B-06, B-11, B-12, B-13, B-18, B-27.
+**Dez dispensados** (`✖`) com razão medida e registada em cada parecer.
+**Nove à espera do autor** (`?`), agrupados por custo:
+
+| | itens | o que é preciso |
+|---|---|---|
+| **uma palavra ou três** | B-20, B-23 | B-20: *"consistently outperforms"* contra os 15/21 que o próprio parágrafo dá seis linhas abaixo. B-23: *"duas melhorias"* sem dizer em relação a quê. Ambos são prosa de artigo publicado, logo errata. |
+| **uma frase no prefácio** | B-10, B-22 | Território da moldura, **custo de errata zero**. B-10: reconhecer a sobreposição com o Cap. 2. B-22: dizer o que envelhece com o Gowalla — a resposta é empírica e está no Cap. 5 (Istambul). |
+| **uma frase na legenda** | B-14 + B-15 | São um item. A ambiguidade está na tabela de convergência, que tem **uma só linha MTL** sem dizer contra qual alvo. A resposta já está escrita duas linhas abaixo. Fica em aberto se o MTL tinha de atingir os dois alvos na mesma época — isso eu não consegui confirmar no código. |
+| **precisa de literatura** | B-16 | O eixo espacial tem quatro alternativas citadas; o temporal tem só Time2Vec, em todo o documento. ⚠ Escrever no Cap. 4 colide com **LO-12, aberto**; escrever no Cap. 2 evita a colisão. |
+| **estrutural** | B-08 | A §2.4 parece metodologia, e é. A rota barata existe e eu tinha-a descartado por engano: a secção é referenciada **cinco vezes, todas dentro do Cap. 2**. A rota cara (capítulo novo) parte os nove rótulos congelados do suplemento. |
+| **reabre uma decisão tua** | B-01 | O Resumo não diz que o par de tarefas muda entre os estudos — e isso foi **escolha tua** (FAB-08, `content.tex:115-122`). A reformulação do Resumo de 02/09 nomeia as tarefas de cada estudo e define a região, portanto responde em parte sem tocar na omissão. Decidir se basta. |
+
+
 | ID | status | pág. | seção | assunto do comentário | tipo |
 |---|---|---|---|---|---|
 | [B-01](#b-01) | ? | 4 | Resumo | "essas tarefas" — quais? frase ampla demais para o resumo | pergunta |
@@ -47,14 +63,14 @@ mesmo estado. Legenda:
 | [B-08](#b-08) | ? | 31 | 2.4 Datasets and evaluation | "Datasets and evaluation" parece metodologia, não fundamentação | organização |
 | [B-09](#b-09) | ✖ | 37 | 3.1 Introduction (CBIC) | MTL não entrega os ganhos esperados | destaque sem comentário |
 | [B-10](#b-10) | ? | 38 | 3.2 Theoretical Foundations and Related Work | redundância entre capítulos por ser coletânea de artigos | organização |
-| [B-11](#b-11) | ? | 46 | 3.4.1 Dataset and Evaluation Metrics | por que 5-fold? | pergunta |
-| [B-12](#b-12) | ? | 46 | 3.4.1 Dataset and Evaluation Metrics | check-ins do mesmo usuário em treino e validação | metodologia |
+| [B-11](#b-11) | ✔ | 46 | 3.4.1 Dataset and Evaluation Metrics | por que 5-fold? | pergunta |
+| [B-12](#b-12) | ✔ | 46 | 3.4.1 Dataset and Evaluation Metrics | check-ins do mesmo usuário em treino e validação | metodologia |
 | [B-13](#b-13) | ✔ | 47 | 3.4.2.1 POI Category Classification | superação do HMRM em todas as categorias | destaque sem comentário |
 | [B-14](#b-14) | ? | 49 | 3.4.3 Convergence Comparison | F1 alvo de 47 e 32,2 | destaque sem comentário |
 | [B-15](#b-15) | ? | 50 | 3.4.3 Convergence Comparison | o alvo vale só para um dos modelos? | pergunta |
 | [B-16](#b-16) | ? | 53 | 4.1 Introduction (CoUrb) | Time2Vec — havia alternativas? | discussão |
 | [B-17](#b-17) | ✖ | 57 | 4.3 Methodology (Figura 2) | arquitetura parece igual à anterior; apontar as diferenças | apresentação |
-| [B-18](#b-18) | ? | 62 | 4.4.1 Experimental Setup | por que 80/20? | pergunta |
+| [B-18](#b-18) | ✔ | 62 | 4.4.1 Experimental Setup | por que 80/20? | pergunta |
 | [B-19](#b-19) | ✖ | 63 | 4.4.2 POI Category Classification (Figura 3) | empilhar as figuras para aumentá-las | editorial |
 | [B-20](#b-20) | ? | 65 | 4.5 Conclusion and Future Work | "conclusão" — ST-MTLNet supera o baseline DGI | marcação |
 | [B-21](#b-21) | ✖ | 66 | 4.5 Conclusion and Future Work | DGI ainda captura melhor os deslocamentos longos | destaque sem comentário |
@@ -1072,7 +1088,7 @@ Se quiseres mesmo agir, a única rota sem custo de fidelidade é uma **frase de 
 > não entendi porque voce marcou 2 melhores embaixo e só o melhor na tabela de cima
 
 
-**Parecer** — *✅ FEITO (2026-09-02)*
+**Parecer** — *✅ FEITO (2026-09-02) · e depois SUPERADO no mesmo dia, para melhor*
 
 Alvo: `src/tables/mobiwac/results.tex`. Acrescentado à legenda da Tabela 10:
 *"…; it does not mark the largest value in a column."*
@@ -1098,6 +1114,21 @@ Verificações feitas antes de editar:
   mexe no número.
 
 Proveniência registada em comentário datado acima da legenda.
+
+> **ACTUALIZAÇÃO, ainda a 2026-09-02.** A cláusula que eu acrescentei foi **retirada horas depois**,
+> porque o autor lembrou-se de uma correcção que fez para a apresentação da defesa e que nunca desceu
+> ao texto. Ela resolve o B-27 melhor do que a minha legenda: **separa os dois canais.**
+>
+> Negrito e sublinhado passam a dizer só **magnitude** — o maior da linha e o segundo, ambos a negrito
+> quando empatam à precisão impressa. O **veredicto estatístico** muda-se para marcas próprias, `↑` e
+> `≈`, ao lado do valor do modelo conjunto.
+>
+> Era a sobreposição dos dois num só canal que perdia o revisor: no Alabama o modelo dedicado tem o
+> número maior e nada estava a negrito, logo lia-se *"aqui não há melhor"*. A minha cláusula
+> (*"não marca o maior valor da coluna"*) ficou **falsa** com a mudança e saiu.
+>
+> Aplicado a seis tabelas, com prova de que nenhum dígito se moveu, e registado como afastamento da
+> ênfase publicada nas erratas B.1, B.3 e B.5. Commit `067341ff`.
 
 ---
 
