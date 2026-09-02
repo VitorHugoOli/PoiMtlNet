@@ -35,7 +35,16 @@ mesmo estado. Legenda:
 | `✖` | dispensado — decisão de não mexer |
 | `?` | precisa de medição ou consulta antes de decidir |
 
-### O que falta decidir — estado a 2026-09-02
+### O que falta decidir — estado a 2026-09-02, fim do dia
+
+> **Fora destes 27, fecharam hoje**, e mudam o que alguns pareceres diziam: a errata do B-13
+> (aplicada e registada em quatro sítios); as contagens de parâmetros, que estavam erradas **nos dois
+> volumes**; a convenção de ênfase em seis tabelas, que é o que resolve o B-27 a sério; a promessa do
+> Wilcoxon, retirada de quatro sítios; o Resumo e o Abstract, reescritos e aprovados; a frase do
+> controlo de concatenação no Cap. 5, desmentida pela tabela da mesma página; e o TME.
+>
+> Nenhum resultado medido mudou em nenhum deles.
+
 
 **Oito fechados** (`✔`): B-02, B-05, B-06, B-11, B-12, B-13, B-18, B-27.
 **Dez dispensados** (`✖`) com razão medida e registada em cada parecer.
