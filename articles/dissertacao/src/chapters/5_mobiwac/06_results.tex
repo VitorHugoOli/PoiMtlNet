@@ -38,14 +38,32 @@ here, and it acts the same way everywhere it was measured.
 The geometry of the vectors indicates why the representation helps this task in
 particular: the per-visit vectors' silhouette score by category (how tight and well separated the seven labeled groups are, on a $-1$ to $1$ scale) is about $0.57$ against about $0.00$ for the place embedding, and their nearest-neighbor category purity (the share of nearest neighbors with the vector's own category) is about $0.98$ against about $0.78$ (both averaged over the five U.S. states). Both measures characterize the representation family rather than the exact configuration
 evaluated in Table~\ref{tab:mobiwac:results}. The same geometry does not separate regions, so the benefit is category-only (the joint model's spatial stream instead reads the region-level vectors of the same graph, Section~\ref{sec:mobiwac:method-model}). CTLE~\cite{lin2021ctle}, the closest prior contextual embedding, also gives each visit its own vector, but it pretrains on place identifiers and timestamps alone, so the category vocabulary never enters its training, whereas our graph reads each visit's category and time of day as input features. At Florida, we fine-tune CTLE together with the task model, using its authors' defaults and the same 64 dimensions and windowing as ours. It reaches $33.45$ macro-F1 at its best epoch and $29.69$ at its final one (an epoch is one pass over the training data), about two points below the place embedding under the same best-epoch rule. With frozen weights, fed to the same single-task model, CTLE repeats the ordering at Alabama, Arizona, and Istanbul. These CTLE results establish the ordering between the two representation families rather than a
+% [2026-09-02, AUTHOR-APPROVED, errata Table B.5 of the supplement; Q13] Two defects in the
+% concatenation-control sentences. (1) NUMBER: "under a tenth of the place-to-check-in gap" is
+% contradicted by Table 9, printed right below: the gaps are +1.62 (AL), +2.58 (AZ), +0.23 (FL),
+% so the cited gains of +2.0 / +1.7 / +0.8 are 123% / 66% / 348% of them, not under a tenth. The
+% delivered gains and the delivered Table 9 gaps are kept as the pair (internally consistent);
+% the re-run in wrapup/erratas/errata_Q13_concatenation_scope.tex (+1.73/+1.70/+1.02 vs
+% 1.56/2.50/0.21) is NOT quoted: it does not reproduce Table 9 fold by fold and the cause is open.
+% (2) INFERENCE: "the gain therefore comes from the hierarchical per-visit representation, not
+% from ... feature injection" was the reverse of what the numbers show, and the drafted errata's
+% inversion ("comes mostly from the per-visit features ... not from the hierarchical structure")
+% overshoots the other way. The text now states what the control measures and no more: most of
+% the category difference is already available in the raw features; the remainder is small and
+% this control does not separate it. Scope is the CATEGORY axis, inherited from "the benefit is
+% category-only" above; nothing is asserted about what the hierarchy contributes (on the delivered
+% substrate the region pathway is detached from the check-in encoder by construction,
+% Check2HGIModule.py:653, so any such statement would be a tautology read as a finding).
 difference against the values in Table~\ref{tab:mobiwac:representation}. A feature-concatenation control joins the place embedding with the same raw
 per-visit features that our graph reads (the category one-hot plus hour and
-day-of-week encodings) and feeds the result to the same single-task model. It
-does not close the gap either: at Alabama, Arizona, and Florida it raises the
-place embedding by only $+2.0$, $+1.7$, and $+0.8$ macro-F1, under a tenth of
-the place-to-check-in gap at each state. The gain therefore comes from
-the hierarchical per-visit representation, not from contextualization alone or
-feature injection.
+day-of-week encodings) and feeds the result to the same single-task model. On
+the category axis, at Alabama, Arizona, and Florida this control raises the
+place embedding by $+2.0$, $+1.7$, and $+0.8$ macro-F1, against
+place-to-check-in gaps of $+1.62$, $+2.58$, and $+0.23$ at the same states
+(Table~\ref{tab:mobiwac:representation}). Most of the category difference is
+therefore already available in the raw per-visit features; what the
+check-in-level representation adds beyond them on this axis is small, and this
+control does not separate it.
 
 % Table 2: The representation makes the category task learnable (Part 1).
 % Check-in-level (Check2HGI) vs place-level (HGI) next-category macro-F1, matched single-task

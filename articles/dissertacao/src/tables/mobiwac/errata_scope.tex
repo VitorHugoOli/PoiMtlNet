@@ -102,6 +102,44 @@ largest value in each row, with both in bold and no second marked when they tie 
 printed precision; the statistical verdict keeps its own marks, $\uparrow$ and $\approx$,
 beside the joint-model value. The caption states the split and reads out the case that
 prompted it. No value, verdict or interval changes. \\
+\addlinespace
+% [2026-09-02, concatenation control] SEVENTH ROW. Two defects in one paragraph, and the first is
+% arithmetic against a table printed on the same page. The delivered sentence called the control's
+% gains "under a tenth of the place-to-check-in gap"; Table 9 (\input immediately below it) gives
+% those gaps as 1.62 / 2.58 / 0.23, so the cited +2.0 / +1.7 / +0.8 are 123% / 66% / 348% of them.
+% "Under a tenth" would need gaps above 20, 17 and 8 points. Same class as the CBIC B-13 row.
+% THE DRAFTED ERRATA WAS NOT USED AS WRITTEN. wrapup/erratas/errata_Q13_concatenation_scope.tex
+% proposes "the gain comes mostly from the features, and not from the hierarchical structure that
+% reads them" -- which inverts the sentence with the same force the original erred with, and the
+% data do not carry the inversion. Advisor review 2026-09-02 flagged it; the correction states only
+% what the control measures.
+% RE-RUN NUMBERS DELIBERATELY EXCLUDED. That errata quotes a re-execution (+1.73 / +1.70 / +1.02
+% against gaps of 1.56 / 2.50 / 0.21) that does not reproduce Table 9 fold by fold, cause
+% unidentified. The delivered pair is internally consistent and is what the printed text uses.
+% NO DATASET IS NAMED. The direction is derivable from the delivered pair (Arizona is the one state
+% where the check-in representation still leads, by 0.88), but no paired test exists on the
+% delivered generation, no artifact carries that arm, and the cited gains are printed at one
+% decimal, so the derived differences carry +-0.05 of slack. WRITING_LAW §3 binds comparison verbs
+% to a test; subtraction of rounded numbers is not one.
+% ⚠ NOTHING IS SAID ABOUT THE HIERARCHY, IN EITHER DIRECTION, AND THAT IS DELIBERATE. On this
+% substrate the levels above the place are severed from the category axis by construction:
+% Check2HGIModule.py:653 detaches before the region path in the delaunay_gcn mode that v14/v18 use,
+% so p2r and r2c gradients never reach the check-in encoder. A null there would be a property of
+% the implementation, not a result about hierarchy. Scope is the category axis, which the chapter
+% already declares a few lines above ("the benefit is category-only").
+The results section reports the feature-concatenation control as raising the place
+embedding by $+2.0$, $+1.7$ and $+0.8$ macro-F1 at three datasets, describes that as
+under a tenth of the place-to-check-in gap, and concludes that the gain comes from the
+hierarchical per-visit representation rather than from feature injection. The
+representation table on the same page gives those gaps as $+1.62$, $+2.58$ and $+0.23$,
+which the quoted gains meet or exceed at two of the three. &
+The comparison is stated against the table: the three gains are printed beside the three
+gaps and no ratio is asserted, since the control exceeds the gap at two datasets and falls
+short at the third. The conclusion is narrowed to what the control measures, that most of
+the category difference is already available in the raw per-visit features and that what
+the representation adds beyond them on this axis is small and unseparated by this control,
+and it is scoped to the category axis. No claim is made about the hierarchy in either
+direction. No value changes. \\
 \bottomrule
 \end{tabular}
 \end{table}

@@ -42,7 +42,34 @@ def main() -> None:
     ap.add_argument("--alpha-p2r", type=float, required=True)
     ap.add_argument("--alpha-r2c", type=float, required=True)
     ap.add_argument("--epoch", type=int, default=500)
+    ap.add_argument(
+        "--i-know-this-overwrites-the-frozen-v11-substrate",
+        action="store_true",
+        help=(
+            "REQUIRED. This script writes to output/check2hgi/<state>/, which IS the frozen v11 "
+            "BRACIS paper substrate; the repo-root CLAUDE.md says do not overwrite it. It also "
+            "builds the CANONICAL GCN model, not the generation the dissertation delivers "
+            "(that is output/check2hgi_v18/, built by scripts/integrity_v2/build_study_repr.py). "
+            "Back the directory up and verify the copy before passing this."
+        ),
+    )
     args = ap.parse_args()
+
+    # [2026-09-02] SAFETY GATE. Until today this script could not run at all: it computed the repo
+    # root with four .parent hops, correct while it lived in docs/infra/a40/ and one level too high
+    # since the 2026-05-16 move, so it died on ModuleNotFoundError before doing anything. Fixing
+    # that path made a DESTRUCTIVE script runnable again, which is worse than leaving it broken:
+    # it overwrites the frozen v11 substrate and it builds the wrong generation. Hence the flag.
+    if not getattr(args, "i_know_this_overwrites_the_frozen_v11_substrate", False):
+        sys.exit(
+            "REFUSING to run.\n"
+            "  This writes to output/check2hgi/%s/, the FROZEN v11 BRACIS substrate.\n"
+            "  It also builds the canonical GCN model, NOT the generation the dissertation\n"
+            "  delivers (output/check2hgi_v18/, via scripts/integrity_v2/build_study_repr.py).\n"
+            "  If you meant to vary the alpha weights on the delivered generation, this is the\n"
+            "  wrong tool. If you really mean this: back the directory up, verify the copy, and\n"
+            "  pass --i-know-this-overwrites-the-frozen-v11-substrate." % args.state
+        )
 
     name_camel, shapefile = STATE_TO_SHP[args.state]
     cfg = Namespace(
