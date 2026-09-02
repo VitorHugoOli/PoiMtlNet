@@ -123,5 +123,32 @@ space large enough to contain a solution yet small enough to generalize, searche
 environment of related tasks. The substituted reference was already in the bibliography and
 is cited for the same claim elsewhere in the chapter. The soft-sharing work remains cited
 where the chapter discusses cross-connection architectures and negative transfer. \\
+\addlinespace
+% [2026-09-02, B-13] ELEVENTH ROW. Content defect, not wording: the published claim's SCOPE is
+% falsified by the published table. Twenty-one cells; HMRM is the highest in exactly one, Recall /
+% Nightlife (42.13 against 36.77 and 25.80), and the gap exceeds every standard deviation involved.
+% Verified four ways before this row was written: this chapter's tables/cbic/category.tex:30, the
+% published article's own tables/category_result.tex:25 (same column order, same values), the
+% delivered banca.pdf as rendered on p.48, and a mechanical parse of all twenty-one cells.
+% THE NUMBER WAS ALREADY KNOWN AND THE CONSEQUENCE WAS NOT. src_utils/adaptation_ledgers/
+% 3_cbic_ADAPTATION_LEDGER.md B7 (round 4) records this exact cell -- "HMRM 42.13 > Single 36.77
+% bold" -- while fixing how the table's bolding is explained in the caption. Nobody connected it to
+% the prose claim fifteen lines earlier. Found again 2026-09-02 because a banca reader highlighted
+% the sentence on the delivered PDF (wrapup/REVISAO_BANCA_PDF.md, B-13); author-confirmed same day.
+% SECOND EDIT TO ONE PUBLISHED SENTENCE. Table B.2 already carries this sentence, for removing
+% "significantly" and replacing "across all" with "in every". That row's right column was re-quoted
+% in the same commit so the appendix does not describe chapter text that no longer exists. The two
+% rows are deliberate: B.2 is why the significance verb went, this one is why the scope narrowed.
+The comparison against HMRM is stated over every POI category and all three per-category
+measures. The table the sentence cites reports twenty-one cells, and HMRM holds the
+highest value in one of them: recall in the Nightlife category, where HMRM reaches 42.13
+against 36.77 for the single-task model and 25.80 for the joint one, a margin wider than
+the three standard deviations involved. &
+Scope reconciled to the table: the claim now holds for every category in F1-score and
+precision, and for every category except Nightlife in recall. The remaining twenty cells
+confirm the published claim, and HMRM is the lowest of the three values in all fourteen
+F1-score and precision cells, so the chapter's conclusion for this task is unchanged. The
+correction narrows a claim stated in the chapter's favor, so it runs against the chapter's
+own interest. \\
 \end{longtable}
 }

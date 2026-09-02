@@ -49,7 +49,7 @@ mesmo estado. Legenda:
 | [B-10](#b-10) | ? | 38 | 3.2 Theoretical Foundations and Related Work | redundância entre capítulos por ser coletânea de artigos | organização |
 | [B-11](#b-11) | ? | 46 | 3.4.1 Dataset and Evaluation Metrics | por que 5-fold? | pergunta |
 | [B-12](#b-12) | ? | 46 | 3.4.1 Dataset and Evaluation Metrics | check-ins do mesmo usuário em treino e validação | metodologia |
-| [B-13](#b-13) | ✎ | 47 | 3.4.2.1 POI Category Classification | superação do HMRM em todas as categorias | destaque sem comentário |
+| [B-13](#b-13) | ✔ | 47 | 3.4.2.1 POI Category Classification | superação do HMRM em todas as categorias | destaque sem comentário |
 | [B-14](#b-14) | ? | 49 | 3.4.3 Convergence Comparison | F1 alvo de 47 e 32,2 | destaque sem comentário |
 | [B-15](#b-15) | ? | 50 | 3.4.3 Convergence Comparison | o alvo vale só para um dos modelos? | pergunta |
 | [B-16](#b-16) | ? | 53 | 4.1 Introduction (CoUrb) | Time2Vec — havia alternativas? | discussão |
@@ -535,7 +535,20 @@ samples rather than over the users" põe a suite a vermelho.
 
 **Comentário do revisor** — *nenhum: o revisor grifou o trecho sem escrever nada.*
 
-**Parecer** — 🔴 *ERRATA · o único dos 27 que corrige uma falsidade*
+**Parecer** — ✅ *APLICADO 2026-09-02 · o único dos 27 que corrigia uma falsidade*
+
+A frase passou a ler: *"…outperform HMRM in every POI category in terms of F1-score and precision,
+and in every category except Nightlife in terms of recall."* O alcance foi reconciliado com a tabela;
+nenhum resultado mudou, e a correcção enfraquece a favor do baseline — a mesma disciplina das linhas
+B2/B3 do ledger. Registado em quatro sítios: linha 11 da Tabela B.1 do suplemento
+(`src/tables/cbic/errata.tex`), entrada **B9** do `3_cbic_ADAPTATION_LEDGER.md`, o `ERRATA.md` do
+artigo CBIC, e a contagem do apêndice (B.1 de 10 para 11, Total de 55 para 56, medidas pelo
+`count_errata_rows.py` antes de serem escritas).
+
+⚠ Foi a **segunda** edição a esta mesma frase publicada: a Tabela B.2 já a carregava, por lhe ter
+tirado o *"significantly"* e trocado *"across all"* por *"in every"*. Essa linha **citava o texto do
+capítulo**, por isso foi re-citada no mesmo commit — sem isso, o apêndice ficaria a descrever prosa
+que já não existe, e nenhum portão apanharia (contam linhas, não conteúdo).
 
 Alvo: `chapters/3_cbic/results.tex:125` contra `src/tables/cbic/category.tex:30`.
 
@@ -551,8 +564,25 @@ precision, **and recall**"*. Varri as 21 células da tabela que a própria frase
 O HMRM ganha aos dois, com folga, e a diferença excede os desvios-padrão. **A afirmação universal é
 falsa em exactamente uma célula das 21, e a tabela que a desmente está impressa na mesma página.**
 
-Confirmado três vezes de forma independente nesta sessão. **Não está registado em lado nenhum** — nem
-`src/tables/cbic/errata.tex`, nem `CBIC___MTL/ERRATA.md`, nem `LACUNAS.md`, nem nenhum ledger.
+Confirmado por quatro caminhos independentes: o `.tex` da dissertação, o `.tex` do artigo publicado
+(`CBIC___MTL/tables/category_result.tex:25`, mesma ordem de colunas), o `banca.pdf` renderizado
+(p. 48), e um parser mecânico sobre as 21 células (20 confirmam a frase, 1 não). A dissertação
+reproduz a tabela publicada com fidelidade — o defeito vem do artigo.
+
+> **CORRECÇÃO A ESTE PARECER (2026-09-02).** A primeira versão dizia que o número "não está registado
+> em lado nenhum". **Era falso, e o erro foi meu**: procurei numa lista de ficheiros que não incluía
+> os ledgers de adaptação, e reportei a ausência como facto.
+>
+> A célula **está** registada. `src_utils/adaptation_ledgers/3_cbic_ADAPTATION_LEDGER.md`, entrada
+> **B7**, da ronda 4: *"The published category table bolds the better of MTL/Single per row and never
+> bolds HMRM, even where HMRM is numerically highest (Recall/Nightlife: HMRM 42.13 > Single 36.77
+> bold). Emphasis preserved exactly as published; the new caption states the convention explicitly so
+> the bolding is not misread as 'best per row'."*
+>
+> O achado real é mais preciso do que eu tinha escrito, e melhor: **a ronda 4 viu esta célula,
+> tratou-a como um problema de negrito, resolveu-o com a legenda — e não ligou a mesma célula à frase
+> da p. 47 que promete superioridade universal.** O número era conhecido; a consequência para a prosa
+> não.
 
 E o detalhe que torna isto acionável: **a ronda de erratas já mexeu nesta frase.** O artigo publicado
 dizia *"significantly outperform … across all POI categories"*

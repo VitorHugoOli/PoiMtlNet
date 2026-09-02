@@ -31,6 +31,13 @@
   cross-check only, not a source.
 - Prose "almost four times more wall time" vs table 80.88 s / 34.97 s = 2.3x — reconcile to the table.
 - Prose MFLOPs "roughly double" contradicts the table — reconcile to the table.
+- Prose "significantly outperform HMRM across all POI categories in terms of F1-score, precision, and recall"
+  vs the table: HMRM wins one of the 21 cells — Recall/Nightlife, HMRM 42.13 against Single 36.77 and MTL
+  25.80, the gap wider than the standard deviations. The other 20 confirm the claim, and HMRM is the lowest
+  in all 14 F1 and precision cells. Reconcile to the table: narrow the recall scope. Found 2026-09-02 when a
+  banca reader highlighted the sentence on the delivered PDF; author-confirmed the same day. Note that the
+  number itself was already known — `3_cbic_ADAPTATION_LEDGER.md` B7 (round 4) records this cell while
+  handling the table's bolding convention, and nobody connected it to the prose claim.
 - Broken cross-ref label `sec:method:single_task_heads` on the Dataset subsection.
 - Typo "spatio-tegm mporal" in `basis.tex`.
 - Claim discipline: Nash-MTL "consistently better" predates the solver-bug discovery; do not amplify. "MTL does

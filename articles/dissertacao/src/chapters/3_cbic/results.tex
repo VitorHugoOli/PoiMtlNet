@@ -122,7 +122,17 @@ In this section, we discuss the performance of our proposed MTL model and its si
 For the task of next POI category prediction, we compare our models against MHA+PE, a solution proposed by Zeng et al. (2019) \cite{zeng2019next}. This model enhances a recurrent neural network with a Multi-Head Attention (MHA) mechanism, originally developed for machine translation by Vaswani et al. (2017) \cite{vaswani2017attention}, and incorporates Positional Encoding (PE). The MHA mechanism allows the model to extract correlations from different parts of a sequence, effectively capturing the relevance of various elements within a user's trajectory, while positional encoding helps to propagate the order of records in a sequence.
 
 \subsubsection{POI Category Classification}
-As shown in Table~\ref{tab:cbic:category}, both our MTL and Single models outperform HMRM \cite{chen2020modeling} in every POI category in terms of F1-score, precision, and recall. For instance, in the `Shopping' category, our MTL model achieves an F1-score of $62.51 \pm 0.94$ compared to HMRM's $46.69 \pm 0.81$. Similarly, for `Food', the MTL model scores $57.43 \pm 1.46$ against HMRM's $28.44 \pm 0.42$. While both MTL and Single models are competitive, the Single model shows marginally better F1-scores in several categories like `Community' ($53.11 \pm 0.58$) and `Outdoors' ($47.75 \pm 0.89$), whereas the MTL model excels in `Food' and `Shopping'. Overall, our approaches demonstrate a substantial improvement over the HMRM baseline for this task.
+% [2026-09-02, B-13, author-approved; ledger entry B9, errata B.1 row added by the registry] The
+% universal "in every POI category in terms of F1-score, precision, and recall" was false by one cell
+% of 21 in tables/cbic/category.tex: Recall / Nightlife reads MTL 25.80, Single 36.77, HMRM 42.13, so
+% HMRM has the higher recall there (same cell in the published table, CBIC___MTL/tables/
+% category_result.tex:25; ledger entry B7 of round 4 saw the cell as a bolding question and did not
+% connect it to this sentence). Reconciled to the table, weakening in favor of the baseline (the
+% B2/B3 rule). The published sentence said "significantly outperform HMRM across all POI categories";
+% "significantly" had already been removed by the earlier errata round, so this is the second edit
+% to one published sentence and Table B.2 of the supplement quotes the current form. The Shopping
+% and Food examples that follow are F1 values and remain correct.
+As shown in Table~\ref{tab:cbic:category}, both our MTL and Single models outperform HMRM \cite{chen2020modeling} in every POI category in terms of F1-score and precision, and in every category except Nightlife in terms of recall. For instance, in the `Shopping' category, our MTL model achieves an F1-score of $62.51 \pm 0.94$ compared to HMRM's $46.69 \pm 0.81$. Similarly, for `Food', the MTL model scores $57.43 \pm 1.46$ against HMRM's $28.44 \pm 0.42$. While both MTL and Single models are competitive, the Single model shows marginally better F1-scores in several categories like `Community' ($53.11 \pm 0.58$) and `Outdoors' ($47.75 \pm 0.89$), whereas the MTL model excels in `Food' and `Shopping'. Overall, our approaches demonstrate a substantial improvement over the HMRM baseline for this task.
 
 \input{tables/cbic/category}
 
