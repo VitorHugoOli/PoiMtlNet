@@ -62,29 +62,29 @@ mesmo estado. Legenda:
 
 | ID | status | pág. | seção | assunto do comentário | tipo |
 |---|---|---|---|---|---|
-| [B-01](#b-01) | ? | 4 | Resumo | "essas tarefas" — quais? frase ampla demais para o resumo | pergunta |
+| [B-01](#b-01) | ✔ | 4 | Resumo | "essas tarefas" — quais? frase ampla demais para o resumo | pergunta |
 | [B-02](#b-02) | ✔ | 4 | Resumo | tese central do resumo | destaque sem comentário |
 | [B-03](#b-03) | ✖ | 16 | 1 Introduction · Organization | resultado nulo tratado como achado | destaque sem comentário |
 | [B-04](#b-04) | ✖ | 16 | 1 Introduction · Organization | representação de entrada como gargalo | destaque sem comentário |
 | [B-05](#b-05) | ✔ | 16 | 1 Introduction · Organization | exemplo do almoço de terça vs. sábado à noite | clareza |
 | [B-06](#b-06) | ✔ | 20 | 2.1.1.1 Check-ins and histories | dar exemplos concretos dos elementos de U, P, C, R | sugestão |
 | [B-07](#b-07) | ✖ | 20 | 2.1 Point-of-interest prediction tasks | seção confusa, subníveis demais; fundamentar MTL antes | organização |
-| [B-08](#b-08) | ? | 31 | 2.4 Datasets and evaluation | "Datasets and evaluation" parece metodologia, não fundamentação | organização |
+| [B-08](#b-08) | ✎ | 31 | 2.4 Datasets and evaluation | "Datasets and evaluation" parece metodologia, não fundamentação | organização |
 | [B-09](#b-09) | ✖ | 37 | 3.1 Introduction (CBIC) | MTL não entrega os ganhos esperados | destaque sem comentário |
-| [B-10](#b-10) | ? | 38 | 3.2 Theoretical Foundations and Related Work | redundância entre capítulos por ser coletânea de artigos | organização |
+| [B-10](#b-10) | ✎ | 38 | 3.2 Theoretical Foundations and Related Work | redundância entre capítulos por ser coletânea de artigos | organização |
 | [B-11](#b-11) | ✔ | 46 | 3.4.1 Dataset and Evaluation Metrics | por que 5-fold? | pergunta |
 | [B-12](#b-12) | ✔ | 46 | 3.4.1 Dataset and Evaluation Metrics | check-ins do mesmo usuário em treino e validação | metodologia |
 | [B-13](#b-13) | ✔ | 47 | 3.4.2.1 POI Category Classification | superação do HMRM em todas as categorias | destaque sem comentário |
-| [B-14](#b-14) | ? | 49 | 3.4.3 Convergence Comparison | F1 alvo de 47 e 32,2 | destaque sem comentário |
-| [B-15](#b-15) | ? | 50 | 3.4.3 Convergence Comparison | o alvo vale só para um dos modelos? | pergunta |
-| [B-16](#b-16) | ? | 53 | 4.1 Introduction (CoUrb) | Time2Vec — havia alternativas? | discussão |
+| [B-14](#b-14) | ✎ | 49 | 3.4.3 Convergence Comparison | F1 alvo de 47 e 32,2 | destaque sem comentário |
+| [B-15](#b-15) | ✎ | 50 | 3.4.3 Convergence Comparison | o alvo vale só para um dos modelos? | pergunta |
+| [B-16](#b-16) | ✖ | 53 | 4.1 Introduction (CoUrb) | Time2Vec — havia alternativas? | discussão |
 | [B-17](#b-17) | ✖ | 57 | 4.3 Methodology (Figura 2) | arquitetura parece igual à anterior; apontar as diferenças | apresentação |
 | [B-18](#b-18) | ✔ | 62 | 4.4.1 Experimental Setup | por que 80/20? | pergunta |
 | [B-19](#b-19) | ✖ | 63 | 4.4.2 POI Category Classification (Figura 3) | empilhar as figuras para aumentá-las | editorial |
-| [B-20](#b-20) | ? | 65 | 4.5 Conclusion and Future Work | "conclusão" — ST-MTLNet supera o baseline DGI | marcação |
+| [B-20](#b-20) | ✎ | 65 | 4.5 Conclusion and Future Work | "conclusão" — ST-MTLNet supera o baseline DGI | marcação |
 | [B-21](#b-21) | ✖ | 66 | 4.5 Conclusion and Future Work | DGI ainda captura melhor os deslocamentos longos | destaque sem comentário |
-| [B-22](#b-22) | ? | 66 | 4.5 Conclusion and Future Work | o que é dependente entre modelo e dataset? | pergunta |
-| [B-23](#b-23) | ? | 68 | 5.1 Introduction (MobiWac) | "duas melhorias" — em relação ao primeiro trabalho? | clareza |
+| [B-22](#b-22) | ✎ | 66 | 4.5 Conclusion and Future Work | o que é dependente entre modelo e dataset? | pergunta |
+| [B-23](#b-23) | ✎ | 68 | 5.1 Introduction (MobiWac) | "duas melhorias" — em relação ao primeiro trabalho? | clareza |
 | [B-24](#b-24) | ✖ | 72 | 5.4.1 The check-in-level representation | região e lugar da região não são dependentes? | pergunta |
 | [B-25](#b-25) | ✖ | 72 | 5.4.1 The check-in-level representation | a palavra "tempo" | destaque sem comentário |
 | [B-26](#b-26) | ✖ | 74 | 5.5.2 Windows, splitting, and the integrity of the representation | "Windows." solto — só fez sentido na página seguinte | editorial |
@@ -128,6 +128,8 @@ Nota de âmbito, medida: o bloco do Resumo está dentro de `\ifdefensebuild`, po
 texto que colas no formulário AcademicoPG, não o corpo depositado.
 
 Nenhuma probe na janela.
+
+> AUTHOR - Já foi resolvido no novo resumo.
 
 
 ### B-02
@@ -403,6 +405,10 @@ Contra-argumento a pesar: a norma de coletânea (UFV §2.3(iii)) não pede capí
 §2.4 **é** o dispositivo da coletânea — existe para dizer o protocolo partilhado uma vez só, o que é,
 ironicamente, a resposta ao B-10.
 
+> AUTHOR - uma frase: não mover nada — dizer ao leitor porque é que aquilo está ali. Um parágrafo de abertura no Cap. 2
+> explicando que a ordem segue a dependência (tarefas → representações → partilha, que se define sobre tarefas →
+> protocolo), e que o protocolo vive na moldura porque é partilhado pelos três artigos e tem de ser dito uma vez só.
+
 
 ---
 
@@ -472,6 +478,10 @@ partilhado uma vez só. Ou seja, a estrutura que ele critica num item **é** a r
 Ninguém lho disse na página.
 
 Zero probes neste ficheiro.
+
+> AUTHOR - Primeiro, nõa podemos citar as erratas, pois não fazemo parte do corpo da dissertação; Segundo eu acho que o
+> melhor e definir no preambulo a repetição, se possivel já até orientando o leitor o que ele precisa ler, lembrado que
+> temos qeu ser breve é um preambulo.
 
 
 ### B-11
@@ -644,6 +654,10 @@ uma frase falsa no texto que vai ser depositado.
 
 **Parecer** — *tratar em conjunto com o B-15; ver o parecer de lá*
 
+> **Nota, 2026-09-02.** O autor perguntou o que havia aqui para decidir. **Nada** — e a culpa é minha
+> por o ter listado como decisão. O B-14 é só onde o revisor pousou os olhos primeiro; o item é o
+> B-15. Fica como remissão.
+
 Alvo: `chapters/3_cbic/results.tex:163`.
 
 Não é um item independente. Ele marcou os números às **10:19** e escreveu o comentário às **10:20**,
@@ -654,6 +668,7 @@ Proveniência, para o caso de alguém querer mexer nos números: o
 `3_cbic_ADAPTATION_LEDGER.md:134` regista que "targets 47 and 32.2" são **verbatim** do artigo
 publicado.
 
+> AUTHOR - Não entendi o que temos que decidir aqui ?
 
 ### B-15
 **Página 50 · 3.4.3 Convergence Comparison · 26/08 10:20**
@@ -691,6 +706,8 @@ O que fica genuinamente em aberto e não consegui confirmar no código: se o MTL
 alvos **na mesma época** ou cada um por si. O texto não o diz. Se souberes de cabeça, fecha-se; se
 não, fica `?`.
 
+> AUTHOR - Na mesma epoca, eu usei o resultado de um checkpoint final para fazer a inferencia dos resutlados das duas
+> tarefas
 
 ---
 
@@ -729,6 +746,9 @@ temporal do Cap. 4 tem uma contradição não resolvida — `:93` da metodologia
 **por POI**, `:153` diz **por check-in**, e o artefacto que decidiria (`time_embedding.parquet` da
 época) já não existe. **Escrever no Cap. 2 evita a colisão; escrever no Cap. 4 entra nela.**
 
+> AUTHOR - Aqui vamos ter que deixar em aberto, vai ser um gargalo, mas de fato como não documentamos isso antes eu não
+> lembro, e mesmo se fizermos uma busca agora na literatura, vai ser tentar arrumar uma justificativa para uma pergunta
+> que não é critica, apesar de ser uma critica honesta, isso não impcat os resultados finais.
 
 ### B-17
 **Página 57 · 4.3 Methodology (Figura 2) · 26/08 10:23**
@@ -869,6 +889,7 @@ verbo de comparação, por isso é tua.
 
 Zero probes neste ficheiro.
 
+> AUTHOR - Concordo podemos trocar
 
 ### B-21
 **Página 66 · 4.5 Conclusion and Future Work · 26/08 10:32**
@@ -928,6 +949,7 @@ non-United-States dataset"*; a primeira versão citava `:188-191`, que é outra 
 Rota barata: **prefácio do Cap. 4** (prosa de dissertação, custo de errata zero, mesmo mecanismo do
 prefácio do Cap. 3) ou o Cap. 6 — não a conclusão publicada.
 
+> AUTHOR - Eu acredito que podemos mudar o texto do capitulo para ficar melhor e criar uma errata. Mas não precisa referenciar a errata. 
 
 ---
 
@@ -965,6 +987,8 @@ leitor da dissertação — *"It closes the investigation that Chapters 3 and 4 
 dissertação tem a resposta a duas páginas; quem lê o artigo isolado não tem.
 
 Zero probes neste ficheiro.
+
+> AUTHOR - Concordo podemos fazer
 
 
 ### B-24

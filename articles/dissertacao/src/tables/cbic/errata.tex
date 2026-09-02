@@ -180,5 +180,27 @@ Brought under the convention the rest of the dissertation uses: in each row the 
 the three values is in bold and the second largest is underlined. The recall entry for the
 Nightlife category therefore shows the baseline in bold, which agrees with the corrected
 sentence in the same section. No value changes; only which cells carry emphasis. \\
+\addlinespace
+% [2026-09-02, B-14/B-15] THIRTEENTH ROW. The banca reader marked the two target F1 values and then
+% asked, on the next highlight, "so it only tests for one of them?". The table reports ONE epoch
+% count for the MTL model, 3.2, which equals the Next row and differs from the Category row's 3.8,
+% and the caption promises "epochs to reach the target F1-score" while the MTL model has two targets.
+% THE AUTHOR DOES NOT REMEMBER which target stopped the clock and ruled on 2026-09-02 to close it
+% with what exists: "nao lembro, se puder acho melhor corrigir com o que temos e deixar isso para
+% tras; e ruim, mas nao critico para o resultado final". So the caption declares the gap.
+% ⚠ IT DECLARES THE WAY OUT IN THE SAME BREATH, deliberately. A limitation stated without saying what
+% it does not touch is what made the same reader stumble at B-12 two sections earlier, where the
+% chapter confessed the sample-level split and the resolution sat fifteen pages back. Here the 2.3x
+% wall-time comparison holds under either stopping criterion, because it sets one joint run against
+% the sum of two dedicated runs, and the caption says so.
+The convergence table reports a single epoch count for the joint model, which is trained
+against two targets, one per task, and the caption describes the column as the epochs
+needed to reach the target F1-score. Which of the two targets the reported count
+corresponds to is not recoverable from the record. &
+The caption states both facts: that the joint model has two targets and a single recorded
+epoch count, and that which target stopped its clock is not recorded. It also states what
+the gap does not reach: the wall-time comparison the section draws sets one joint run
+against the sum of two dedicated runs, so it holds under either stopping criterion. No
+value changes. \\
 \end{longtable}
 }

@@ -21,7 +21,10 @@ work reported no consistent multitask advantage for the paired category tasks an
 % parity null, it did not OBSERVE it. Repaired per persona-14 B.1. Mirrored in [mobiwac]/src/ and
 % logged in [mobiwac]/ERRATA.md + Appendix B.
 
-We propose two enhancements. First, we build a check-in-level representation: instead of one fixed vector per place, each check-in gets its own vector that holds its context (the time, nearby places, and recent visits).
+% [2026-09-02, B-23, author ruling "concordo podemos fazer"] "We propose two enhancements." named no
+% antecedent; the previous paragraph's \cite{silva2025mtlnet} is it. Reproduced accepted-article text
+% -> errata row B.5 (registry).
+We propose two enhancements to that earlier model. First, we build a check-in-level representation: instead of one fixed vector per place, each check-in gets its own vector that holds its context (the time, nearby places, and recent visits).
 This adds a fourth level, the check-in, beneath the place, region, and city levels of hierarchical graph infomax~\cite{huang2023hgi,velickovic2019deep} (Figure~\ref{fig:mobiwac:dataflow}). Second, we train one model that
 predicts the next category and the next region in a single forward pass, with a shared trunk (a cross-attention stack where the two tasks exchange
 semantic context) and a private spatial path for the region task (Figure~\ref{fig:mobiwac:model}). We evaluate on two settings chosen to differ: five U.S. states of different sizes (Gowalla) and one non-U.S. city (Istanbul).\footnote{\label{fn:mobiwac:code}Code (model, representation, baselines, statistical tests): \url{https://github.com/VitorHugoOli/PoiMtlNet/tree/mobiwac}. Both data sources are public: the category-annotated Gowalla dump (\url{https://figshare.com/articles/dataset/gowalla_data/22126586}) and Massive-STEPS~\cite{wongso2025massivesteps}.}
