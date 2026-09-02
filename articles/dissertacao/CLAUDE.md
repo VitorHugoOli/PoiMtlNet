@@ -121,6 +121,18 @@ be deposited.
 | applied | what changed | errata |
 |---|---|---|
 | 2026-08-21 | The Portuguese Resumo said the joint model outperformed the dedicated models on next-category **"em todos os conjuntos"**. The delivered result is superiority at **one** dataset (Florida, Holm *p* 0.011). The defect was isolated — the English Abstract, §2.5, Ch.5 and Ch.6 all said "at one dataset". The Portuguese now mirrors the English. | [`wrapup/erratas/errata_resumo_escopo_categoria.tex`](wrapup/erratas/errata_resumo_escopo_categoria.tex) |
+| 2026-09-01 · **AUT-35** | MobiWac status: "submitted / under review" → "accepted for publication" (accepted 2026-08-26). Five prose sites plus the header comments of the eight Ch. 5 files. The sixth site was §3 of this file, fixed 2026-09-02. | commit `e1f9b8c0` |
+| 2026-09-01 · **ERR-3** | The `note` field of `liu2019dwa` was printing inside the bibliography entry (reference [52], p. 95) — a working annotation, not part of the citation. Moved to a comment **above** the entry, content preserved. ⚠ The first attempt put the comment **inside** the braces and broke BibTeX: `%` is not a comment character to BibTeX, which scans for `@`. Any comment near a `.bib` entry must contain no at-sign. | commit `e1f9b8c0` |
+| 2026-09-02 · **ERR-5** | Missing identifiers. `senushkin2023aligned` and `liu2023famo` gained a `doi` (`liu2023famo` also `pages`). `holm1979` was closed **fail-closed**: the DOI the audit proposed does not resolve (doi.org 404, Crossref "Resource not found"; Holm 1979 is not in Crossref at all). OpenAlex asserts a JSTOR-id DOI inherited from MAG and never registered — **do not restore it from there.** The entry carries the JSTOR `url` instead. | commit `e1f9b8c0` |
+| 2026-09-01 · **ERR-6/7** | `5_mobiwac/05_setup.tex`: "and on fewer folds at Florida and Texas" → "and on a single fold at Texas"; the following clause now names the large-dataset value and says only the single-fold Texas screen tested it. | commit `e1f9b8c0` |
+| 2026-09-01 · **Table 8** | Caption now states that check-ins, users and POIs are counts over the **full corpus, before** the ten-visit filter, and that the Windows column is computed **after** it. | commit `e1f9b8c0` |
+| 2026-09-01 · **Ch. 1** | The Theoretical bullet no longer asserts that the studies determine that MTL helps; it says they analyse how MTL behaves. The controlled comparisons identify the input representation as one condition of the outcome; the sharing-topology effect was not isolated from it. Aligns Ch. 1 with Ch. 6. | commit `e1f9b8c0` |
+| 2026-09-02 · **B-05 / B-06 / B-27** | Three responses to the banca's annotated PDF ([`wrapup/REVISAO_BANCA_PDF.md`](wrapup/REVISAO_BANCA_PDF.md)). B-05: Ch. 1 defines the check-in level before the example and drops a personification the WRITING_LAW bans. B-06: §2.1.1.1 gains concrete instances for the four sets ("for example" did not occur once in all of Ch. 2). B-27: the Table 10 caption now says in writing that bold does **not** mark the largest value in a column — the document uses bold with the other sense in Table 2, which is what misled the reader. | commit `e1f9b8c0`, record in `wrapup/REVISAO_BANCA_PDF.md` |
+
+> ⚠ **`src/dissertacao.pdf` is STALE as of 2026-09-02.** It was built 2026-08-21 and carries only the
+> Resumo errata. Every row below it in this table is in `src/` but **not** in that PDF. `make defense`
+> rebuilds it — and remember that five targets overwrite it, so never run a bare `make` to check
+> something (§1.1).
 
 **Consequence for anyone verifying:** a rebuild of `src/` no longer reproduces
 `src/banca.pdf`. That is expected and is the point of the two names. **To see what the banca
@@ -169,7 +181,7 @@ the delivered `references.bib` cites all three as provenance of record.
 |---|---|---|---|
 | 3 | *An Investigation into Multi-Task Learning for POI Category Classification and Next-POI Prediction* | **CBIC 2025, published.** DOI `10.21528/CBIC2025-1191324`. **Satisfies Art. 21** | [`../CBIC___MTL/`](../CBIC___MTL/) |
 | 4 | *ST-MTLNet: Representações Espaço-Temporais de POIs para Aprendizado Multitarefa* | **CoUrb 2026 (SBRC), published.** DOI `10.5753/courb.2026.22960`. Tarik S. Paiva 1st author, Vitor 2nd + presenter. Translated to EN for the chapter | [`../CoUrb_2026/`](../CoUrb_2026/) (see `src_en/`) |
-| 5 | *Predicting the Next Category and Region of a Visit* | **MobiWac 2026, submitted** (EDAS #1571313639) | [`../[mobiwac]/`](../%5Bmobiwac%5D/) — ⚠ the paper of record is **`src_fix/`**, not `src/` |
+| 5 | *Predicting the Next Category and Region of a Visit* | **MobiWac 2026, accepted for publication** (accepted 2026-08-26; EDAS #1571313639) | [`../[mobiwac]/`](../%5Bmobiwac%5D/) — ⚠ the paper of record is **`src_fix/`**, not `src/` |
 
 Each article folder carries its own `ERRATA.md`, which is the subject matter of **Appendix B of the
 supplement**. BRACIS 2026 is **not** a chapter: rejected, superseded by MobiWac.
