@@ -169,6 +169,25 @@ def main() -> int:
         ok = False
         print(f"  BROKEN: the difference is not constant ({sorted(diffs)}).\n")
 
+    print("CAPACITY ARMS on the region axis -- the P1 control, against the MEASURED joint total")
+    print("  The widths below were chosen against a RECONSTRUCTED joint count, not a measured one")
+    print("  (wrapup/post_submission_studies/EXECUTION_WAVE.md, correction of 2026-08-27). Against")
+    print("  the totals this script derives, only one of them lands at parity.")
+    print(f"  {'dataset':<12}{'d_model':>8}{'params':>12}{'joint':>12}{'% of joint':>12}")
+    ARMS = {  # (state, d_model, trainable params) -- P1 §1, docs/results/P1/*capmatched*
+        ("alabama", 624): 6978702,
+        ("california", 528): 9004686,
+        ("california", 352): 5014942,
+        ("texas", 544): 8354882,
+    }
+    for (state, width), n in sorted(ARMS.items()):
+        joint_total = (
+            JOINT_TOTAL_AUDITED[state] if state in JOINT_TOTAL_AUDITED else sum(JOINT_LOG[state])
+        )
+        print(f"  {state:<12}{width:>8}{n:>12,}{joint_total:>12,}{100 * n / joint_total:>11.1f}%")
+    print("  Only california/352 is a capacity-matched control (97.4%). The three arms labelled")
+    print("  'matched' carry 1.66x to 1.75x the joint budget, and Texas has no arm near parity.\n")
+
     print("TWO DEDICATED MODELS COMBINED, against the joint model")
     print(f"  {'dataset':<12}{'joint':>12}{'cat':>12}{'reg':>12}{'sum':>12}{'ratio':>8}")
     for state, joint_total in (
