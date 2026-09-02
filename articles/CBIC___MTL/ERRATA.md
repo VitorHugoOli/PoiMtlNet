@@ -33,7 +33,10 @@
 - Prose MFLOPs "roughly double" contradicts the table — reconcile to the table.
 - Prose "significantly outperform HMRM across all POI categories in terms of F1-score, precision, and recall"
   vs the table: HMRM wins one of the 21 cells — Recall/Nightlife, HMRM 42.13 against Single 36.77 and MTL
-  25.80, the gap wider than the standard deviations. The other 20 confirm the claim, and HMRM is the lowest
+  25.80. (An earlier draft of this entry added "the gap wider than the standard deviations"; that was
+  wrong -- 42.13 - 36.77 = 5.36 against the single-task model's own sd of 5.86 -- and it was also an
+  inferential claim in a chapter that runs no inferential test. The defect is about the value the table
+  prints, not about significance.) The other 20 confirm the claim, and HMRM is the lowest
   in all 14 F1 and precision cells. Reconcile to the table: narrow the recall scope. Found 2026-09-02 when a
   banca reader highlighted the sentence on the delivered PDF; author-confirmed the same day. Note that the
   number itself was already known — `3_cbic_ADAPTATION_LEDGER.md` B7 (round 4) records this cell while

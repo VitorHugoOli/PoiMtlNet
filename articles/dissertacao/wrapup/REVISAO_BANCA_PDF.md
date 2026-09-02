@@ -316,8 +316,9 @@ promover esse nível põe a suite a vermelho.
 que encomendaste comparou **§2.1 ↔ §2.2** e concluiu "manter". A pergunta dele é uma **terceira**
 opção que esse estudo não considerou.
 
-E o custo real não são os `\ref` (15 no total, só 2 saem do Cap. 2; nenhum rótulo congelado é
-afectado). **É a prosa.** A abertura da §2.3 (`:896-908`) já usa, sem os definir, "place embedding",
+E o custo real não são os `\ref` (**11 vivos no total, e só 1 sai do Cap. 2** — `6_conclusion.tex`,
+para `sec:fund:mtl`; nenhum rótulo congelado é afectado. Corrigido 2026-09-02: a primeira versão dizia
+15 e 2, contados sem filtrar comentários). **É a prosa.** A abertura da §2.3 (`:896-908`) já usa, sem os definir, "place embedding",
 "check-in history", "static category classification" e "next-category prediction" — todos definidos
 em §2.1. Mover MTL para a frente **cria exactamente a classe de dependência para a frente que o round
 12 gastou uma ronda inteira a eliminar** (o defeito que `:73-76` regista: um símbolo "em USO e
@@ -360,8 +361,10 @@ Alvo: `chapters/2_fundamentals.tex:1426-1427` (§2.4), com §2.4.3 em `:1724` e 
 §2.4.4 fixa t pareado / Wilcoxon / Holm / TOST. Isso é metodologia dentro de um capítulo de
 fundamentação.
 
-A medição que me fez mudar de opinião: a §2.4 é referenciada por **oito `\ref{sec:fund:eval}`, todos
+A medição que me fez mudar de opinião: a §2.4 é referenciada por **cinco `\ref{sec:fund:eval}` vivos, todos
 dentro do próprio Cap. 2 — zero dos Caps. 3, 4, 5 ou 6** — e ela própria não referencia §2.1/2.2/2.3.
+(Corrigido 2026-09-02: a primeira versão dizia *oito*. Oito é o grep **sem filtrar comentários**; três
+das ocorrências estão dentro de `%`. A conclusão — todas internas ao Cap. 2 — mantém-se.)
 Em termos de grafo é um bloco quase solto. **Movê-la para o fim do capítulo, renomeá-la, ou dividi-la
 (dados → §2.1, protocolo → secção própria) custa quase nada.**
 
@@ -561,8 +564,8 @@ precision, **and recall**"*. Varri as 21 células da tabela que a própria frase
 | Precisão, nas 7 | — | — | sempre o menor ✓ |
 | **Recall / Nightlife** | 25,80 | 36,77 | **42,13** ❌ |
 
-O HMRM ganha aos dois, com folga, e a diferença excede os desvios-padrão. **A afirmação universal é
-falsa em exactamente uma célula das 21, e a tabela que a desmente está impressa na mesma página.**
+O HMRM ganha aos dois. **A afirmação universal é falsa em exactamente uma célula das 21, e a tabela
+que a desmente está impressa na página seguinte** — a prosa na p. 47, a Tabela 2 na p. 48.
 
 Confirmado por quatro caminhos independentes: o `.tex` da dissertação, o `.tex` do artigo publicado
 (`CBIC___MTL/tables/category_result.tex:25`, mesma ordem de colunas), o `banca.pdf` renderizado
@@ -894,8 +897,8 @@ A frase diz "interprete com cautela" **sem dizer o quê** é que envelhece com o
 dele é legítima.
 
 A resposta existe no documento, noutro capítulo, e é **empírica**: o Cap. 5 acrescenta **Istambul**
-precisamente como teste de generalização fora dos EUA (`1_introduction.tex:188-191` regista a decisão
-de âmbito; `5_mobiwac/01_introduction.tex:27` diz *"two settings chosen to differ"*).
+precisamente como teste de generalização fora dos EUA (`1_introduction.tex:238` regista a decisão de âmbito — *"Istanbul as a
+non-United-States dataset"*; a primeira versão citava `:188-191`, que é outra passagem; `5_mobiwac/01_introduction.tex:27` diz *"two settings chosen to differ"*).
 
 Rota barata: **prefácio do Cap. 4** (prosa de dissertação, custo de errata zero, mesmo mecanismo do
 prefácio do Cap. 3) ou o Cap. 6 — não a conclusão publicada.
@@ -1026,8 +1029,8 @@ aceite.
 
 Alvo: `chapters/5_mobiwac/05_setup.tex:28` e mais seis rótulos vivos no mesmo ficheiro.
 
-Estava a caminho de converter os sete `\emph{X.}` em `\paragraph*{}`, alinhando com as dez ocorrências
-do Cap. 3, e classifiquei-o como o item mais barato dos 27. **Duas medições travaram-me:**
+Estava a caminho de converter os sete `\emph{X.}` em `\paragraph*{}`, alinhando com as **doze** ocorrências vivas
+do Cap. 3 (3 em `basis.tex`, 8 em `method.tex`, 1 em `results.tex`; a primeira versão dizia dez), e classifiquei-o como o item mais barato dos 27. **Duas medições travaram-me:**
 
 1. **`\paragraph*` nesta classe renderiza como título isolado numa linha própria** — verificado no
    `dissertacao.pdf`, onde "Architecture Overview" (Cap. 3) aparece sozinho na sua linha. E a secção
@@ -1067,6 +1070,34 @@ Se quiseres mesmo agir, a única rota sem custo de fidelidade é uma **frase de 
 **Comentário do revisor**
 
 > não entendi porque voce marcou 2 melhores embaixo e só o melhor na tabela de cima
+
+
+**Parecer** — *✅ FEITO (2026-09-02)*
+
+Alvo: `src/tables/mobiwac/results.tex`. Acrescentado à legenda da Tabela 10:
+*"…; it does not mark the largest value in a column."*
+
+**A leitura errada dele não é distração — é uma colisão de convenções dentro do teu próprio
+documento.** A Tabela 2 (`tables/cbic/category.tex:4`) diz *"the better of the MTL and Single values
+per row in bold, as in the published table"*: ali, negrito **é** o melhor valor. A Tabela 10 usa
+negrito para "melhoria sobre o modelo dedicado que sobrevive a Holm". Ele aplicou a convenção da
+primeira à segunda. Duas tabelas, dois sentidos, o mesmo documento.
+
+Isto importa mais do que parece: **a Tabela 10 é a que vai ser citada.** Quem a lê com a convenção
+errada vê uma célula a negrito no bloco de cima e duas no de baixo, conclui que o Alabama "não tem
+melhor", e desvaloriza o resultado. A legenda já excluía essa leitura **por implicação**; agora
+exclui-a por escrito.
+
+Verificações feitas antes de editar:
+- A legenda é **prosa da dissertação, não do artigo** — a do artigo
+  (`[mobiwac]/src_fix/tables/tbl3_results.tex:22-29`) ordena por contagem de região e não tem nem a
+  frase dos dois blocos nem o limite de meio ponto. Não é texto publicado a ser alterado.
+- É uma **negativa**, não uma alegação nova: nenhum número, marca ou veredicto muda.
+- Zero probes neste ficheiro; portão sem movimento depois da edição.
+- `tab:mobiwac:results` está congelada no número **10** (`main_extra.tex:176`) — editar a legenda não
+  mexe no número.
+
+Proveniência registada em comentário datado acima da legenda.
 
 ---
 
@@ -1135,31 +1166,3 @@ FALHAS: 0
 
 O script assume o PDF em `~/Downloads/dissertacao - vitor hugo (1).pdf`; se ele mudar de lugar,
 ajuste a constante `PDF` no topo.
-
-**Parecer** — *✅ FEITO (2026-09-02)*
-
-Alvo: `src/tables/mobiwac/results.tex`. Acrescentado à legenda da Tabela 10:
-*"…; it does not mark the largest value in a column."*
-
-**A leitura errada dele não é distração — é uma colisão de convenções dentro do teu próprio
-documento.** A Tabela 2 (`tables/cbic/category.tex:4`) diz *"the better of the MTL and Single values
-per row in bold, as in the published table"*: ali, negrito **é** o melhor valor. A Tabela 10 usa
-negrito para "melhoria sobre o modelo dedicado que sobrevive a Holm". Ele aplicou a convenção da
-primeira à segunda. Duas tabelas, dois sentidos, o mesmo documento.
-
-Isto importa mais do que parece: **a Tabela 10 é a que vai ser citada.** Quem a lê com a convenção
-errada vê uma célula a negrito no bloco de cima e duas no de baixo, conclui que o Alabama "não tem
-melhor", e desvaloriza o resultado. A legenda já excluía essa leitura **por implicação**; agora
-exclui-a por escrito.
-
-Verificações feitas antes de editar:
-- A legenda é **prosa da dissertação, não do artigo** — a do artigo
-  (`[mobiwac]/src_fix/tables/tbl3_results.tex:22-29`) ordena por contagem de região e não tem nem a
-  frase dos dois blocos nem o limite de meio ponto. Não é texto publicado a ser alterado.
-- É uma **negativa**, não uma alegação nova: nenhum número, marca ou veredicto muda.
-- Zero probes neste ficheiro; portão sem movimento depois da edição.
-- `tab:mobiwac:results` está congelada no número **10** (`main_extra.tex:176`) — editar a legenda não
-  mexe no número.
-
-Proveniência registada em comentário datado acima da legenda.
-
