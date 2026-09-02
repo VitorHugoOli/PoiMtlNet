@@ -165,12 +165,30 @@ encoders. Category performance then increases substantially in every scenario ev
 Because the architecture remains fixed, the study identifies the input representation
 as the bottleneck for that stage of the research.
 
-Chapter~\ref{ch:mobiwac}, submitted to MobiWac 2026 and under review, develops the
-resolution. Any place-level embedding assigns a place the same vector on every visit; a
-representation that cannot tell a weekday lunch from a Saturday night out at the same
-place is working against both tasks at once. That observation is the hypothesis the
-final study tests. It moves the representation to the check-in level: one vector per
-visit. Acting on another of the first study's candidate explanations, it also replaces
+% [2026-09-01, AUT-35] "submitted to MobiWac 2026 and under review" -> "accepted for publication at
+% MobiWac 2026". Fact: the article was accepted on 2026-08-26 (presentation/HANDOFF.md §7 item 1).
+% Same wording at the other four status sites (:342, :374, 5_mobiwac.tex:29, tables/frame/lineage.tex:8).
+Chapter~\ref{ch:mobiwac}, accepted for publication at MobiWac 2026, develops the
+resolution.
+% [2026-09-02, B-05, banca annotation "nao entendi bem" (wrapup/REVISAO_BANCA_PDF.md, reviewer alexb,
+% 26/08), author-approved] Two defects fixed. (1) ORDER: the lunch/Saturday example arrived before
+% "check-in level" was defined ("one vector per visit" came two sentences later); the definition now
+% precedes the example. (2) PERSONIFICATION: "is working against both tasks at once" animated a
+% representation (WRITING_LAW §1, same class as 2_fundamentals.tex:1727-1729); replaced by the causal
+% statement: the two visits get one vector, so both tasks receive the same input for different
+% contexts. The hypothesis framing (NORTH_STAR §6 beat 4e) is kept. Old text: "Any place-level
+% embedding assigns a place the same vector on every visit; a representation that cannot tell a
+% weekday lunch from a Saturday night out at the same place is working against both tasks at once.
+% That observation is the hypothesis the final study tests. It moves the representation to the
+% check-in level: one vector per visit."
+Any place-level embedding assigns a place the same vector on every visit. A
+check-in-level representation assigns one vector per visit instead, so two visits to
+the same place can receive different vectors. The distinction matters for both tasks.
+A weekday lunch and a Saturday night visit at the same place are different contexts
+for the next category and for the next region, but a place-level representation gives
+both tasks one vector for the two visits. The final study tests the hypothesis that
+this loss of context limits both tasks, and it therefore moves the representation to
+the check-in level. Acting on another of the first study's candidate explanations, it also replaces
 the shared hidden layers with cross-attention between task-specific streams, addressing
 the earlier concern about hard parameter sharing. Under a check-in level representation, static
 category classification is a less natural companion task than a second sequential target,
@@ -339,7 +357,11 @@ generalize.
 This dissertation is organized as a collection of works, where each central chapter is an
 independent article. The articles were re-typeset in a common format, and the second
 article was translated into English. Their content follows the published versions or,
-for the article under review, the submitted manuscript.
+% [2026-09-01, AUT-35] STATUS ONLY: "the article under review" -> "the accepted article". The second
+% half of this sentence ("the submitted manuscript") is left as delivered on purpose: it disagrees
+% with the Ch.5 preface, which says the chapter reproduces the REVISED form (ORA-1 in
+% wrapup/open_points/LACUNAS.md). Changing it is a substance decision and is with the author.
+for the accepted article, the submitted manuscript.
 \begin{itemize}
     % [FAB-23, round 9] ", Fundamentals" dropped at his request: the \ref renders the number and the
     % chapter title is already in the sumario, so repeating it here is redundant.
@@ -371,13 +393,16 @@ for the article under review, the submitted manuscript.
     % contribution (MTLnet baseline, presenter) is kept, since that is a
     % statement about this dissertation's author, not about the other paper's
     % authorship ranking.
-    \item \textbf{Chapter~\ref{ch:mobiwac}} presents the third article, submitted to the
-    23rd ACM International Symposium on Mobility Management and Wireless Access
-    (MobiWac 2026) and under review. This dissertation's author is its first
+    \item \textbf{Chapter~\ref{ch:mobiwac}} presents the third article, accepted for
+    publication at the 23rd ACM International Symposium on Mobility Management and
+    Wireless Access (MobiWac 2026). This dissertation's author is its first
     author.
     % Venue verified 2026-07-23 against the official symposium site
-    % (mobiwac-symposium.org/2026): 23rd edition. Update the status wording
-    % here and in sections 1.1-1.2 the moment a decision arrives.
+    % (mobiwac-symposium.org/2026): 23rd edition.
+    % [2026-09-01, AUT-35] Status updated: accepted 2026-08-26 (presentation/HANDOFF.md §7 item 1).
+    % The instruction that used to sit here ("update the status wording here and in sections
+    % 1.1-1.2 the moment a decision arrives") is done; sections 1.1-1.2 carry no status wording,
+    % the other sites are :168 and :342 above.
     % [FAB-24, round 9] Same as FAB-23.
     \item \textbf{Chapter~\ref{ch:conclusion}} answers the research question across the
     three studies, states their joint limitations, and connects each limitation
@@ -422,8 +447,22 @@ article from the final position of the dissertation.
 The contributions are organized into four groups.
 
 \begin{description}
-    \item[Theoretical.] The studies show that the input representation and its sharing
-    topology determine whether MTL helps these POI prediction tasks. A null result
+    % [2026-09-02, AUTHOR RULING] Verb lowered at his direction: the studies ANALYZE how MTL behaves
+    % under different representations and sharing topologies; they do not "determine whether MTL
+    % helps". His words: "realinhar o texto para dizer que criamos um estudo com o objetivo de
+    % analisar ou demonstrar como o MTL se comporta nesse contexto, em vez de apresentar previamente
+    % a ideia de que o estudo determina ou comprova que o MTL ajuda." Both objects (representation
+    % AND sharing topology) are kept: the boundary in presentation/considerations.md §4E is that the
+    % evidential STATUS moves, never the presence of the contribution (AUT-15 confirmed this list).
+    % Sentence 2 carries 6_conclusion.tex:192-194's own hedges ("one condition", "not fully
+    % isolated") bound to the factor Ch.1 names; "dataset scale" is NOT imported from Ch.6 because
+    % Ch.1 never raised it. The "therefore" sentence and the novelty sentence (R13-aut14b) are
+    % unchanged. Old text: "The studies show that the input representation and its sharing topology
+    % determine whether MTL helps these POI prediction tasks."
+    \item[Theoretical.] The studies analyze how MTL behaves on these POI prediction tasks
+    under different input representations and sharing topologies. The controlled
+    comparisons identify the input representation as one condition of the outcome; the
+    effect of the sharing topology was not fully isolated from it. A null result
     with a place-level representation and hard sharing therefore does not conflict
     with a positive result obtained from a check-in-level representation and a
     different form of sharing. Among the works reviewed in this dissertation, none treats

@@ -1,5 +1,5 @@
 % !TeX root = ../../main.tex
-% chapters/5_mobiwac/05_setup.tex -- one section of Chapter 5 (MobiWac 2026, submitted, under review).
+% chapters/5_mobiwac/05_setup.tex -- one section of Chapter 5 (MobiWac 2026, accepted 2026-08-26; status comment updated 2026-09-01, AUT-35).
 % Split out of chapters/5_mobiwac.tex on 2026-07-28 (author request: the paper
 % chapters were single long files, while the originals under articles/[mobiwac]/src/sections/
 % are one file per section). The split is PURELY MECHANICAL: content was cut at
@@ -49,10 +49,22 @@ be inferred.
 % flat 0.005-0.01" and crediting neither Florida nor California. Both the earlier "at every dataset"
 % and my own "except California" were false; this states the two knobs separately, which is the only
 % form the artifacts support.
+% [2026-09-01, ERR-6/ERR-7] THIRD CORRECTION, on the batch-size clause the two above never touched.
+% "on fewer folds at Florida and Texas" was wrong: FINAL_SETTINGS.md's dedicated-category family (a)
+% grades batch size "[5f] AL; [1f] TX" and never mentions Florida -- the single-fold Florida screen at
+% :97 ("[1f] FL null") belongs to the JOINT model family (c), already described one sentence later in
+% this paragraph. Corrected to "on a single fold at Texas". Same source also fixes the closing clause:
+% :77 shows the small searches selected 0.0025 (AL) / 0.0005 (AZ, IST), while FL/CA carry 0.005, the
+% large-dataset value -- and the only search that ever touched that value is the single-fold Texas
+% screen ("[1f] TX flat 0.005-0.01"), not "the smaller searches" the old wording implied. Verified: no
+% probe fixes this sentence (positive-control check against two known-pinned fragments returned hits;
+% seven fragments of this sentence returned zero). Do not restore "the value the smaller searches
+% selected" -- Florida and California never had a search of their own to select it.
 For the dedicated category model, batch size was searched at all six datasets, over five folds at
-Istanbul, Alabama and Arizona and on fewer folds at Florida and Texas. The learning rate was
+Istanbul, Alabama and Arizona and on a single fold at Texas. The learning rate was
 searched over five folds at Istanbul, Alabama and Arizona and on single folds at Texas; at Florida
-and California it was not varied, so those two carry the value the smaller searches selected.
+and California it was not varied, so those two carry the large-dataset value, which only the
+single-fold Texas screen tested.
 The selected learning rate differs by dataset, which is
 why the dedicated category arm is a per-dataset-tuned comparison rather than one fixed recipe. For
 the joint model, batch size and the category-head learning rate were searched at Istanbul, Alabama,

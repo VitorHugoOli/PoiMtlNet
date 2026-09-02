@@ -18,12 +18,24 @@
 % covariate and no longer sorts, which is why the caption now names both quantities: the ordering key
 % and the column that is no longer monotone in it. No claim in the chapter reads off row order; every
 % one names its datasets, so the reorder changes nothing that is asserted.
+% [2026-09-02, B-27] ADDED to the caption: "it does not mark the largest value in a column." A banca
+% reader annotated this table on the delivered PDF (wrapup/REVISAO_BANCA_PDF.md, B-27) asking why two
+% cells are bold in the lower block and one in the upper -- he read bold as "the best value". The
+% caption already excluded that reading by implication (bold marks a Holm-surviving improvement over
+% the DEDICATED model, not a column maximum), but only by implication. The misreading is predictable
+% because this document uses bold with the other sense two chapters earlier: tables/cbic/category.tex
+% prints "the better of the MTL and Single values per row in bold, as in the published table". Same
+% document, two conventions. The added clause is a negative, not a new claim: no number, mark or
+% verdict changes. Caption prose only -- this caption is already dissertation-authored and diverges
+% substantially from the article's own ([mobiwac]/src_fix/tables/tbl3_results.tex:22-29, which orders
+% by region count and carries neither the two-block sentence nor the half-point bound).
 \caption{One model, two tasks: the single joint model against the dedicated single-task models and the
 external baselines, ordered by check-in count (Table~\ref{tab:mobiwac:datasets}); the region counts in
 the second column do not follow that order. The upper block reports next-category (macro-F1) and the
 lower block next-region (Acc@10); the two share the dataset and region-count columns, and the same
 six datasets appear in the same order in both. Bold with $\uparrow$ marks an improvement over the
-dedicated model that survives Holm correction within its task family. In the region block, $\approx$
+dedicated model that survives Holm correction within its task family; it does not mark the largest
+value in a column. In the region block, $\approx$
 marks a difference that stays within the two-point margin registered before any result was read
 (statistical non-inferiority, TOST; Section~\ref{sec:mobiwac:results-part2}). Category cells carry no
 equivalence mark because the margin was registered for the region axis only, so a category difference

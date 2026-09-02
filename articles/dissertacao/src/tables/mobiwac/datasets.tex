@@ -3,9 +3,16 @@
 \begin{table}[htbp]
 \caption{Dataset statistics, ordered by region count: five Gowalla states and Istanbul
 (Massive-STEPS). All share the same seven root categories; the region unit is a census
-tract (a mahalle for Istanbul). Windows: sliding nine-visit inputs plus the next-visit
+tract (a mahalle for Istanbul). Check-ins, users, and POIs are counts over the full corpus,
+before the filter that keeps users with at least ten visits; the Windows column is computed
+after it. Windows: sliding nine-visit inputs plus the next-visit
 target; lengths: per-user check-in counts; density: $100\times\text{check-ins}/(\text{users}\times\text{POIs})$; Majority: share of next-visit
 labels in the most common category (Food in every dataset).}
+% [2026-09-02, Table 8 caption, author-approved] Added the corpus-vs-filter clause. NO number changed.
+% Verified by the ERR audit on the raw corpus: AL 3,858 users / 113,846 check-ins / 11,848 POIs and
+% AZ 7,869 / 236,450 / 20,666 match the printed cells to the digit; users with >= 10 check-ins are
+% 1,101 (AL) and 2,136 (AZ), as wrapup/NEW_VERSION.md §10.1 reports. The printed counts describe the
+% corpus; what was missing was saying so. Zero probes on this file.
 % Majority provenance (hidden): computed on the next-visit target labels of the task inputs
 % (CATEGORY_DISTRIBUTION.md); Gowalla values match the overlap windows to <=0.5 pp (AL 34.18 at
 % overlap); the Istanbul 33.4 is from the earlier windowing of the same visits (raw visit share
