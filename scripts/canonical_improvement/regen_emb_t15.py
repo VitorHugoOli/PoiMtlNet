@@ -15,7 +15,11 @@ from argparse import Namespace
 from copy import copy
 from pathlib import Path
 
-_root = Path(__file__).resolve().parent.parent.parent.parent
+# [2026-09-02] FIXED: four .parent hops resolved to the repo root while these scripts lived
+# in docs/infra/a40/; the 2026-05-16 move to scripts/canonical_improvement/ left them one
+# level too high, so every one of them died on `ModuleNotFoundError: No module named
+# 'configs'` before running a single line. Caught 2026-09-02 trying to run the Q13 ablation.
+_root = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(_root / "src"))
 sys.path.insert(0, str(_root / "research"))
 

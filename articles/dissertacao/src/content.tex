@@ -121,47 +121,63 @@
         % each formally. The Abstract carries the same omission by design -- the two blocks are one
         % claim in two languages, so if this is ever restored it goes into BOTH in the same edit.
 
+        % [2026-09-02, AUTHOR-DIRECTED REWRITE, claim-parity pair with the Abstract, same commit]
+        % Three instructions: (1) readability -- "tem o conteudo mas ta mal escrito e dificil de
+        % entender"; sentences shortened, referents named, the results period split by task, no
+        % claim, number or hedge changed; (2) the next-region contribution enters, in the NARROW
+        % scope the document supports and never as "pouca literatura publicada" (02_related.tex:82-84
+        % says map-partition prediction is the standard formulation): end target of equal standing
+        % with next category rather than an auxiliary signal (02_related.tex:94-96), the nearest
+        % published models do not study this pairing (02_related.tex:97), and the external baselines
+        % were adapted so that a region comparison exists at all (1_introduction.tex:493-494);
+        % "unidade oficial em escala de bairro" is 02_related.tex:85's "official neighborhood-scale
+        % units"; (3) the external-baseline sentence stays VERBATIM and unquantified by his ruling.
+        % The 2026-08-21 errata ("em um conjunto") is preserved. FAB-08 unchanged: the tasks of each
+        % study are named, the CHANGE of pair is still not narrated.
         \noindent Redes sociais baseadas em localização produzem registros de
         \emph{check-in}, que associam um usuário, um ponto de interesse (POI) e um
-        instante. Esses registros permitem tanto classificar a categoria de um POI
-        quanto antecipar propriedades da próxima visita, como sua categoria e sua
-        região. Esta dissertação investiga se o aprendizado multitarefa (MTL) pode
-        combinar essas tarefas em um único modelo e de quais escolhas de projeto
-        depende o sucesso desse treinamento conjunto. Embora as tarefas compartilhem
-        dados e contexto, em um modelo multitarefa o compartilhamento de parâmetros também pode provocar
-        transferência negativa. A investigação foi desenvolvida em três estudos
-        sucessivos, organizados como um resultado negativo, seu diagnóstico e sua
-        resolução. O primeiro estudo propôs o MTLnet, que utilizava uma representação
-        em nível de POI e compartilhamento rígido de parâmetros para realizar
-        classificação de categoria e previsão da próxima categoria. Apesar dessa
-        estratégia de compartilhamento, o modelo conjunto não apresentou vantagem
-        consistente sobre modelos dedicados a cada tarefa. O
-        segundo estudo manteve a arquitetura do MTLnet e substituiu apenas sua entrada
-        por codificadores espaciais, temporais e categóricos decompostos. A melhora
-        acentuada do desempenho de categoria nos conjuntos avaliados indicou que,
-        naquela configuração, a representação de entrada era o principal fator
-        limitante. Com base nesse diagnóstico, o terceiro estudo passou da
-        representação em nível de POI para uma representação em nível de
-        \emph{check-in} (um vetor por visita, e não por POI), trocou o
-        compartilhamento rígido por uma topologia baseada em atenção cruzada e
-        reuniu duas tarefas sequenciais: a previsão da próxima categoria e a
-        previsão da próxima região. O modelo final foi avaliado
-        em seis conjuntos de dados de diferentes contextos geográficos, incluindo um
-        conjunto não estadunidense. O protocolo empregou validação cruzada com usuários
-        disjuntos entre treinamento e teste, além de testes estatísticos pareados.
+        instante. A partir desses registros, um modelo pode classificar a categoria de
+        um POI e pode prever propriedades da próxima visita de um usuário, como sua
+        categoria e sua região. Esta dissertação investiga se o aprendizado
+        multitarefa (MTL) pode combinar essas tarefas em um único modelo e de quais
+        escolhas de projeto depende o sucesso do treinamento conjunto. As tarefas
+        compartilham dados e contexto, mas compartilhar parâmetros entre elas também
+        pode provocar transferência negativa. A investigação compreende três estudos
+        sucessivos: um resultado negativo, seu diagnóstico e sua resolução. O primeiro
+        estudo propôs o MTLnet, um modelo conjunto com representação em nível de POI e
+        compartilhamento rígido de parâmetros, treinado para classificação de categoria
+        e previsão da próxima categoria. Apesar do compartilhamento, o modelo conjunto
+        não superou de forma consistente os modelos dedicados a cada tarefa. O segundo
+        estudo manteve a arquitetura do MTLnet e mudou apenas sua entrada, substituindo
+        o vetor único de POI por codificadores espaciais, temporais e categóricos
+        decompostos. O desempenho de categoria melhorou de forma acentuada nos
+        conjuntos avaliados, o que indicou que, naquela configuração, a representação
+        de entrada era o principal fator limitante. Com base nesse diagnóstico, o
+        terceiro estudo passou da representação em nível de POI para uma representação
+        em nível de \emph{check-in}, com um vetor por visita e não por POI, trocou o
+        compartilhamento rígido por uma topologia de atenção cruzada e reuniu duas
+        tarefas sequenciais: a previsão da próxima categoria e a previsão da próxima
+        região. A próxima região, a unidade oficial em escala de bairro onde ocorre a
+        próxima visita, é tratada como alvo final de mesmo peso que a próxima
+        categoria, e não como sinal auxiliar; os modelos publicados mais próximos não
+        estudam esse par, e os métodos externos de referência foram adaptados para que
+        existisse uma comparação de região. O modelo final foi avaliado em seis
+        conjuntos de dados de diferentes contextos geográficos, incluindo um conjunto
+        não estadunidense, com validação cruzada com usuários disjuntos entre
+        treinamento e teste e com testes estatísticos pareados.
         % [ERRATA 2026-08-21, aplicada ao fonte por decisao do autor | wrapup/erratas/errata_resumo_escopo_categoria.tex]
         % A frase anterior dizia que o modelo conjunto superou os dedicados na proxima categoria
         % "em todos os conjuntos". O resultado entregue e superioridade em UM conjunto (Florida,
         % Holm p = 0,011); as outras cinco diferencas nao sao resolvidas. O Abstract em ingles ja
         % estava correto -- este periodo passa a espelha-lo. O dissertacao.pdf entregue NAO foi
         % reconstruido: ele e o registro do que a banca recebeu, e diverge do fonte aqui.
-        Essas análises compararam o modelo conjunto com os modelos dedicados a cada tarefa:
-        na previsão da próxima região ele os superou nos dois conjuntos com os maiores
-        vocabulários de região e permaneceu dentro da margem de dois pontos de Acc@10,
-        registrada antes de qualquer resultado ser lido, nos outros quatro
-        (não-inferioridade estatística, por dois testes unilaterais); e na previsão da
-        próxima categoria ele os superou em um conjunto, enquanto as cinco diferenças
-        restantes são equivalentes a zero dentro de meio ponto. Em ambas as tarefas, os resultados do modelo conjunto também
+        Em relação aos modelos dedicados a cada tarefa, o modelo conjunto os superou na
+        previsão da próxima região nos dois conjuntos com os maiores vocabulários de
+        região e permaneceu dentro da margem de dois pontos de Acc@10, registrada antes
+        de qualquer resultado ser lido, nos outros quatro (não-inferioridade
+        estatística, por dois testes unilaterais). Na previsão da próxima categoria,
+        ele os superou em um conjunto, enquanto as cinco diferenças restantes são
+        equivalentes a zero dentro de meio ponto. Em ambas as tarefas, os resultados do modelo conjunto também
         ficaram acima dos reportados pelos métodos externos usados como referência.
         Os resultados mostram que o MTL não constitui um benefício automático: sua efetividade depende da representação de entrada e da topologia de compartilhamento construída para as tarefas consideradas.
         % DO NOT write "proximo lugar visitado" here: it collides with the RESERVED term "next
@@ -214,33 +230,39 @@
             % languages (WRITING_LAW §6). Any edit to a claim, number, or hedge in one must land in
             % the other in the same commit, or the pair silently drifts.
 
+            % [2026-09-02, AUTHOR-DIRECTED REWRITE, mirror of the Resumo, same commit] See the
+            % Resumo's comment for the three instructions and the sources of the next-region
+            % clause. Every claim, number and hedge is the Resumo's; the external-baseline
+            % sentence stays verbatim and unquantified by his ruling.
             \noindent Location-based social networks produce \emph{check-in} records
-            associating a user, a point of interest (POI), and a time. These records
-            support both the classification of a POI's category and the prediction of
-            properties of the next visit, such as its category and region. This
-            dissertation investigates whether multitask learning (MTL) can combine
-            these tasks in a single model and which design choices determine the
-            success of joint training. Although the tasks share data and context,
-            in a multitask model parameter sharing may also cause negative
-            transfer. The investigation
-            comprises three successive studies organized as a negative result, its
-            diagnosis, and its resolution. The first study proposed MTLnet, which used
-            a POI-level representation and hard parameter sharing for category
-            classification and next-category prediction. Despite this sharing
-            strategy, the joint model did not consistently outperform models dedicated
-            to each task. The second study
-            retained the MTLnet architecture and replaced only its input with
-            decomposed spatial, temporal, and categorical encoders. The marked
-            improvement in category performance across the evaluated datasets
-            indicated that, in that configuration, the input representation was the
-            main limiting factor. Based on this diagnosis, the third study moved
-            from a place embedding to a check-in-level representation (one vector
-            per visit rather than per POI), replaced hard sharing with a
-            cross-attention-based topology, and paired two sequential tasks:
-            next-category and next-region prediction. The final model was evaluated on
-            six datasets from different geographic contexts, including one non-U.S.
-            dataset.
-            The protocol used user-disjoint cross-validation and paired statistical
+            that associate a user, a point of interest (POI), and a time. From these
+            records, a model can classify the category of a POI and can predict
+            properties of a user's next visit, such as its category and its region.
+            This dissertation investigates whether multitask learning (MTL) can
+            combine these tasks in a single model, and on which design choices the
+            success of joint training depends. The tasks share data and context, but
+            sharing parameters between them can also cause negative transfer. The
+            investigation comprises three successive studies: a negative result, its
+            diagnosis, and its resolution. The first study proposed MTLnet, a joint
+            model with a POI-level representation and hard parameter sharing, trained
+            for category classification and next-category prediction. Despite the
+            sharing, the joint model did not consistently outperform the models
+            dedicated to each task. The second study kept the MTLnet architecture and
+            changed only its input, replacing the single POI embedding with decomposed
+            spatial, temporal, and categorical encoders. Category performance improved
+            markedly across the evaluated datasets, which indicated that, in that
+            configuration, the input representation was the main limiting factor.
+            Based on this diagnosis, the third study moved from a POI-level to a
+            check-in-level representation, with one vector per visit rather than per
+            POI, replaced hard sharing with a cross-attention topology, and paired two
+            sequential tasks: next-category and next-region prediction. Next region,
+            the official neighborhood-scale unit where the next visit occurs, is
+            treated as an end target of equal standing with next category rather than
+            as an auxiliary signal; the nearest published models do not study this
+            pairing, and the external baselines were adapted so that a region
+            comparison exists at all. The final model was evaluated on six datasets
+            from different geographic contexts, including one non-U.S. dataset, with
+            user-disjoint cross-validation and paired statistical tests.
             % [2026-08-12] THE UMBRELLA CLAUSE IS GONE. It read "performed at least as well as the dedicated
 % single-task models on both tasks", which is a claim of equality-or-better across all twelve cells,
 % and EIGHT of the twelve sit BELOW the dedicated model: Istanbul reg -0.08, Alabama cat -0.19 and
@@ -251,19 +273,17 @@
 % beside it always listed eight. Recounted from the same two artifacts with float comparisons.]
 % The clause was my own replacement for a banned equality verb and traded one defect for a worse
 % one. The two partitions below carry the claim, each bound to its own test.
-            tests. These analyses compared the joint model against the
-            dedicated single-task models on each task in turn: in next-region
-            prediction it outperformed them at the two datasets with the largest region
-            vocabularies and stayed within the two-point Acc@10 margin registered before
-            any result was read at the other four (statistical non-inferiority, by two one-sided tests), and in next-category prediction it
-            outperformed them at one dataset while the five remaining differences were
+            Against the dedicated single-task models, the joint model outperformed
+            them in next-region prediction at the two datasets with the largest region
+            vocabularies and stayed within the two-point Acc@10 margin registered
+            before any result was read at the other four (statistical
+            non-inferiority, by two one-sided tests). In next-category prediction it
+            outperformed them at one dataset, while the five remaining differences were
             equivalent to zero within half a point. On both tasks, the joint
             model's results were also above those reported by the external baselines.
-            The results
-            show that MTL does not
-            provide an automatic benefit: its effectiveness depends on the input
-            representation and the sharing topology designed for the tasks under
-            consideration.
+            The results show that MTL does not provide an automatic benefit: its
+            effectiveness depends on the input representation and the sharing topology
+            designed for the tasks under consideration.
             % [NEEDS SIGN-OFF 04 | CLOSED] Author approved the omissions and the verb: the
             % joint-best convention and macro-F1 range stay out of this high-level summary, and
             % "depends on" stays instead of "determines whether" (the Sec. 6.2 confound makes a
