@@ -71,7 +71,7 @@ mesmo estado. Legenda:
 | [B-07](#b-07) | ✖ | 20 | 2.1 Point-of-interest prediction tasks | seção confusa, subníveis demais; fundamentar MTL antes | organização |
 | [B-08](#b-08) | ✎ | 31 | 2.4 Datasets and evaluation | "Datasets and evaluation" parece metodologia, não fundamentação | organização |
 | [B-09](#b-09) | ✖ | 37 | 3.1 Introduction (CBIC) | MTL não entrega os ganhos esperados | destaque sem comentário |
-| [B-10](#b-10) | ✎ | 38 | 3.2 Theoretical Foundations and Related Work | redundância entre capítulos por ser coletânea de artigos | organização |
+| [B-10](#b-10) | ✔ | 38 | 3.2 Theoretical Foundations and Related Work | redundância entre capítulos por ser coletânea de artigos | organização |
 | [B-11](#b-11) | ✔ | 46 | 3.4.1 Dataset and Evaluation Metrics | por que 5-fold? | pergunta |
 | [B-12](#b-12) | ✔ | 46 | 3.4.1 Dataset and Evaluation Metrics | check-ins do mesmo usuário em treino e validação | metodologia |
 | [B-13](#b-13) | ✔ | 47 | 3.4.2.1 POI Category Classification | superação do HMRM em todas as categorias | destaque sem comentário |
@@ -461,6 +461,23 @@ Zero probes neste ficheiro.
 > uma pequena crítica. o ruim de juntar artigos em um texto único é que aparecem redundancias, como esta seção.
 
 **Parecer** — *decisão tua · uma frase no prefácio, custo de errata zero*
+
+> **FECHADO 2026-09-03, e não onde eu tinha proposto.** O orientador foi consultado sobre este item
+> e sobre o B-08 juntos, e decidiu os dois de uma vez: *"o capítulo está bom… como a secção se chama
+> 'Fundamentals' e não 'Related Work', acho que não ficou ruim. **Tenta só deixar mais claro na
+> primeira parte do capítulo, antes do 2.1 mesmo**, sobre isso, e por mim está ok."* Sobre a ideia de
+> uma frase no prefácio de cada artigo: *"acho que não precisa."*
+>
+> Uma frase de orientação chegou a estar no prefácio do Cap. 3 durante um dia e **foi retirada**. A
+> razão não é só a decisão dele: **a mesma sobreposição existe nos Caps. 4 e 5**, que têm as suas
+> próprias secções de trabalhos relacionados. Mantê-la só no 3 é assimétrico; repeti-la nos três
+> passaria a dizer localmente o que o Cap. 2 agora diz globalmente — triplicando uma frase dentro de
+> um documento cuja crítica era a repetição. E o prefácio do Cap. 4 carrega a divulgação da fuga de
+> rótulo; conselho de navegação ao lado disso dilui a coisa mais séria que aquele prefácio diz.
+>
+> **O item continua respondido**, no sítio que o orientador escolheu: a abertura do Cap. 2 diz que os
+> datasets, as métricas e o protocolo estão ali *"porque os três estudos os partilham"*, e que *"cada
+> capítulo de artigo mantém a descrição que o seu texto original deu"*.
 
 Alvo: `chapters/3_cbic/basis.tex:9`.
 
