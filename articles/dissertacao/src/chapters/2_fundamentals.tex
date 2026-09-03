@@ -257,9 +257,15 @@ Every model of the sequential tasks in this dissertation reads $\rho(H_i)$ rathe
 $H_i$ itself. Chapter~\ref{ch:cbic} defines the input at the place level,
 $\rho(x_j)=\mathbf{e}_{p_j}$. Chapter~\ref{ch:courb} retains a vector tied to the visited
 POI but enriches it with separate spatial, temporal, and categorical components.
+% [2026-09-03, AUTHOR-APPROVED, cold-read finding] Was "$\rho(x_i)=\mathbf{e}_{x_i}$". The
+% definition three lines above reads $\rho(H_i)=(\rho(x_{i-\ell}),\ldots,\rho(x_{i-1}))$: the
+% history is what comes BEFORE $i$, so $\rho(x_i)$ put the semantic stream on the target itself and
+% a cold reader logged it as "a leak contradiction". The Chapter 3 sentence just above already uses
+% the correct index, $\rho(x_j)=\mathbf{e}_{p_j}$; this sentence now uses the same $j$ and says
+% where $x_j$ ranges. No claim changes.
 Chapter~\ref{ch:mobiwac} moves the input to the check-in level. Its semantic stream reads
-the per-visit vector $\rho(x_i)=\mathbf{e}_{x_i}$, while its spatial stream reads the
-trained vector of the visit's region node. The task definitions remain fixed, while
+the per-visit vector $\rho(x_j)=\mathbf{e}_{x_j}$ for each check-in $x_j$ in $H_i$, while
+its spatial stream reads the trained vector of the visit's region node. The task definitions remain fixed, while
 each study uses its own form of $\rho$.
 
 \subsubsection{The three experimental tasks}
@@ -725,18 +731,29 @@ visit.
 %   sidecars under docs/results/closing_data/v18/ and all 24 rows of that study's results file.
 % CAUTION for a future reader: the build logs under docs/results/embedding_eval/delaunay_revalidate/
 %   print "feat=11". Those are the earlier graph build; the per-run records above are the authority.
-Three groups of values describe each visit at the input. The category of the visited place enters as
-an indicator over the number of classes. The time of day and the day of week enter through their sine and
-cosine, so that the endpoints of the daily and weekly cycles fall next to each other rather than at
-opposite ends of a scale. The elapsed times enter as the interval since the user's previous visit and
-the interval since that user's first visit, both compressed by a logarithm that keeps a gap of
-minutes and a gap of weeks on a comparable scale, together with the gap within the same calendar day
-and an indicator for a user's first visit, for which the two intervals do not exist. Appendix
-\ref{apx:check2hgi-joint-model} gives the exact composition and its width. Every one of these values
-is measured up to the visit itself, and the edges between consecutive visits point forward in time
-only, so a vector describes its visit and the history before it. The hierarchy has
-three adjacent-level boundaries: check-in to place, place to region, and region to
-city. Its three hierarchical boundaries contribute the fixed-weight sum
+% [2026-09-03, PROPOSED BY THE WRITER at the author's release ("liberar para o Writer fazer a
+% proposta"), cold-read wall A] The longest sentence of the chapter (three feature groups and the
+% elapsed times in one breath) is now a three-item list, one group per item, at the author's own
+% suggestion; the two consecutive sentences that both listed the three hierarchy boundaries are one
+% sentence. Every value, transform and scale is the same as before; nothing added or dropped. The
+% "trainable table of place vectors" is glossed at its only mention, further down in this paragraph.
+Three groups of values describe each visit at the input:
+\begin{itemize}
+    \item the category of the visited place, as an indicator over the number of classes;
+    \item the time of day and the day of week, each through its sine and cosine, so that
+    the endpoints of the daily and weekly cycles fall next to each other rather than at
+    opposite ends of a scale;
+    \item the elapsed times: the interval since the user's previous visit and the interval
+    since that user's first visit, both compressed by a logarithm that keeps a gap of
+    minutes and a gap of weeks on a comparable scale, plus the gap within the same
+    calendar day and an indicator for a user's first visit, for which the two intervals
+    do not exist.
+\end{itemize}
+Appendix~\ref{apx:check2hgi-joint-model} gives the exact composition and its width. Every
+one of these values is measured up to the visit itself, and the edges between consecutive
+visits point forward in time only, so a vector describes its visit and the history before
+it. The hierarchy has three adjacent-level boundaries, check-in to place, place to region,
+and region to city, and they contribute the fixed-weight sum
 \begin{equation}\label{eq:fund:check2hgi}
     \mathcal{L} = 0.4\,\mathcal{L}_{c2p} + 0.3\,\mathcal{L}_{p2r} + 0.3\,\mathcal{L}_{r2c},
 \end{equation}
@@ -751,16 +768,35 @@ either embedding when the other is held fixed, and its output lies between 0 and
 For each boundary, the loss favors a high score for a true pair and a low score for a
 false pair:
 \begin{equation}\label{eq:fund:check2hgi-term}
-    \mathcal{L}_{*} = -\log \mathcal{D}(\mathbf{e}^{+}, \mathbf{e}^{+})
-    - \log\left(1 - \mathcal{D}(\mathbf{e}^{+}, \mathbf{e}^{-})\right),
+    \mathcal{L}_{*} = -\log \mathcal{D}(\mathbf{e}, \mathbf{e}^{+})
+    - \log\left(1 - \mathcal{D}(\mathbf{e}, \mathbf{e}^{-})\right),
 \end{equation}
-Here, $\mathbf{e}^{+}$ belongs to a true pair, such as a check-in and the place where
-it occurred, whereas $\mathbf{e}^{-}$ is substituted from another example in the
-batch. No next-step target appears in these equations. Two auxiliary terms complete the
+% [2026-09-03, AUTHOR-APPROVED after code check, cold-read finding] Was
+% $\mathcal{D}(\mathbf{e}^{+},\mathbf{e}^{+})$ and $\mathcal{D}(\mathbf{e}^{+},\mathbf{e}^{-})$, which
+% collapsed the anchor and its true partner into one symbol while the prose spoke of two objects.
+% Source of the correction is the implementation, not a guess: Check2HGIModule.py:1157-1159
+%   pos_c2p = discriminate(pos_checkin, pos_poi_exp); neg_c2p = discriminate(pos_checkin, neg_poi_exp)
+% the first argument (the check-in) is the SAME in both terms and only the partner changes; :1182-1183
+% do the same for p2r (anchor = place, partner = region); :1187-1188 (discriminate_global) hold the
+% CITY summary fixed and vary the region (pos_region vs neg_region), so at r2c the corrupted side is
+% the lower level. The prose below states all three; the equation names the anchor $\mathbf{e}$ and
+% the partner $\mathbf{e}^{\pm}$, which is the reading the code has.
+Here, $\mathbf{e}$ is the anchor, the element that is the same in both terms;
+$\mathbf{e}^{+}$ is its true partner and $\mathbf{e}^{-}$ is a corrupted partner,
+substituted from another example in the batch. At the check-in-to-place and
+place-to-region boundaries, the anchor is the lower-level element (the check-in, the
+place) and the partner is the element one level above it (the place where the check-in
+occurred, the region that contains the place). At the region-to-city boundary the roles
+are reversed: the city summary is held fixed and the region is the element that is true
+or corrupted. No next-step target appears in these equations. Two auxiliary terms complete the
 objective that the final study trains: a reconstruction term at weight 0.3, which
 recovers a masked place's own distribution over the seven categories from its
 neighbors, and a term at weight 0.1, which keeps the trainable table of place vectors
-near the values it started from.
+near the values it started from. That table holds one trainable vector per place, and it
+is the place side that the check-in-to-place boundary reads.
+% [2026-09-03] The gloss of the table is a separate sentence on purpose: probe R13-aut23b pins the
+% phrase "keeps the trainable table of place vectors near the values it started from" verbatim, and a
+% first version of this edit reworded it and turned the probe red.
 % AUT-23, third assertion. The old closing clause read "which is why the representation is described as
 % trained without task labels", drawing a conclusion the equations do not support once the two
 % auxiliary terms are counted. The terms are now named with their weights, so the equation reads as the
@@ -1688,11 +1724,31 @@ first place from tenth and does not measure the probability assigned to the true
 % A related record correction belongs with this edit: content.tex's own comment at :262-264 lists
 % OOD among acronyms that "never appear in prose", which stopped being true. Handled there.
 % Probe: R13-aut30.
-region. Regions absent from the training partition count as errors. The reported
+region.
+% [2026-09-03, PROPOSED BY THE WRITER at the author's release, cold-read wall B] The reader saw
+% "count as errors" and then a formula that EXCLUDES those check-ins and discounts, and could not
+% derive the "therefore". The two are one identity, now shown: an out-of-distribution check-in adds a
+% miss to the numerator of Equation acc10 and one check-in to its denominator, so the whole-set
+% accuracy equals the in-distribution accuracy times (1 - f). This was the only one of the three
+% metrics given in prose arithmetic; it now has a displayed equation like the other two, plus one
+% sentence on WHY the discount form is the reported one. The R13-aut30-pinned sentence ("The reported
+% out-of-distribution discounted, or OOD-discounted, Acc@10 is therefore ...") is byte-identical.
+A region that does not occur in the training partition cannot be predicted, because the
+model has no output for it, so a test check-in whose region is absent from training
+counts as an error. Counting those errors directly and applying a discount give the same
+number. With $f$ the fraction of test check-ins whose region is out of distribution and
+$\operatorname{Acc@10}_{\mathrm{ID}}$ the accuracy at 10 over the remaining check-ins,
+\begin{equation}\label{eq:fund:acc10-ood}
+    \operatorname{Acc@10}_{\mathrm{OOD}} = (1-f)\,\operatorname{Acc@10}_{\mathrm{ID}},
+\end{equation}
+because every out-of-distribution check-in adds a miss to the numerator of
+Equation~\ref{eq:fund:acc10} and one check-in to its denominator. The reported
 out-of-distribution discounted, or OOD-discounted, Acc@10 is therefore the Acc@10
 measured on the in-distribution check-ins, multiplied by one minus the fraction of
-check-ins whose region is out of distribution. Chapter~\ref{ch:mobiwac} gives the
-complete evaluation procedure.
+check-ins whose region is out of distribution. The discount form is the one reported
+because it keeps apart the two quantities a reader needs: how well the model ranks the
+regions it can predict, and how much of the test set it cannot predict at all.
+Chapter~\ref{ch:mobiwac} gives the complete evaluation procedure.
 
 \subsubsection{Joint-model selection and floors}
 
@@ -1835,6 +1891,22 @@ small enough to accept. At the four datasets where the joint model does not outp
 establish that it is statistically non-inferior within a two-point margin~\cite{lakens2017tost}. Accordingly, \emph{outperforms} is reserved for paired
 superiority, and a difference that fails superiority is reported by the bound its interval
 supports rather than as an equality.
+% [2026-09-03, PROPOSED BY THE WRITER at the author's release, cold-read wall C] The rule "the bound
+% its interval/axis supports" governs how every result is worded (here, twice in this chapter, and
+% in Chapter 1), and a cold reader met it three times without learning which sentence it produces.
+% One worked example, two real cells, both from 5_mobiwac/06_results.tex:209-213 (Florida +0.19,
+% +0.14 to +0.25, corrected p 0.011; Alabama -0.19, -0.33 to -0.04) and the chapter's own half-point
+% bound. Licensed by the ladder (CLAUDE.md §0.3, WRITING_LAW §3): category outperforms at Florida
+% only; Alabama is unresolved, never "matches"; direction travels with the equivalence claim.
+As a worked example, take the next-category difference between the joint model and
+the dedicated model at two datasets of Chapter~\ref{ch:mobiwac}. At Alabama the
+difference is $-0.19$ macro-F1, with a 90\% interval from $-0.33$ to $-0.04$: the
+superiority test fails, so the rule does not let the text say that the two models match;
+it says that the difference is equivalent to zero within half a point, the bound the
+interval supports, and, because the interval lies entirely below zero, that the
+dedicated model has the larger number. At Florida the difference is $+0.19$, with an
+interval from $+0.14$ to $+0.25$ that survives Holm correction (corrected $p=0.011$),
+so the rule licenses the verb: there, the joint model outperforms the dedicated model.
 % Section 2.5 -- Relevance (synthesis; NO fresh citations; argument-only ledger at its end)
 
 
