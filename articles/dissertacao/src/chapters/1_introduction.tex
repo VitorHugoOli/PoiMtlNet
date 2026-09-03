@@ -283,9 +283,20 @@ consolidation:
     % protocol belongs to the final study, which is Chapter 5. Chapter 6 is the Conclusion and is
     % not a study. The old reference resolved, so the build reported zero undefined references and
     % every gate passed while the rendered page printed "(Chapter 6)". Probe: R13-obj4.
-    \item Consolidate the evidence under the user-disjoint cross-validation,
-    significance-testing, and non-inferiority protocol used in the final study
-    (Chapter~\ref{ch:mobiwac}).
+    % [2026-09-03, AUTHOR-APPROVED, domain-review finding] "Consolidate the evidence under the ...
+    % protocol used in the final study" promised either a re-evaluation of Chapters 3 and 4 that never
+    % happened (Chapter 2 says twice, in live text, that they "report fold means and standard deviations
+    % without significance tests") or, read narrowly, objective 3 again. Rewritten to what the
+    % document does: it states the protocol differences among the three studies (Section 2.4.3), binds
+    % each comparison verb to the test that licenses it (Section 2.4.4), and reads each result
+    % accordingly (Chapter 6), with the final study's protocol as the reference. The seven-word span
+    % "non-inferiority protocol used in the final study (Chapter~\ref{ch:mobiwac})" that probe
+    % R13-obj4 pins is kept VERBATIM, so the pattern still pairs the prose with the ch:mobiwac label
+    % and needs no repoint; the reference still points at the study, not at the Conclusion.
+    \item State the differences in evaluation protocol among the three studies and read
+    each result by the verdict its own protocol supports, taking as the reference the
+    user-disjoint cross-validation, significance-testing, and non-inferiority protocol
+    used in the final study (Chapter~\ref{ch:mobiwac}).
 \end{enumerate}
 
 % [COD-003, round8, 2026-07-30] Objective 4 said "a leakage-guarded statistical protocol". Changed to
@@ -489,8 +500,17 @@ The contributions are organized into four groups.
     initialization, on Alabama and Florida, and none improved on a tuned fixed task
     weighting across both tasks and both datasets. The gradients of the two tasks were
     measured directly and are statistically indistinguishable from orthogonal at the four
-    datasets where the measurement was taken, which explains the balancer result rather
-    than merely accompanying it (Appendix~\ref{apx:cosine}). Two external sequence baselines were adapted so that
+    % [2026-09-03, AUTHOR-APPROVED, domain-review finding] "which explains the balancer result rather
+    % than merely accompanying it" claimed more than Appendix F, which says "the measurement does not
+    % by itself explain every balancer's performance", and than Chapter 2, which says the cosine "reads
+    % how the two requested updates are aligned and ignores how large they are" while "other methods
+    % may still react to differences in gradient magnitude or task loss". The sentence now names what
+    % the measurement explains (the direction-based part) and what it does not read (magnitude), in
+    % Chapter 2's own hedge. R13-aut14c's screen-scope span above is untouched; the absent-type probe
+    % on "indistinguishable from orthogonal on <N>" stays absent ("at the four datasets").
+    datasets where the measurement was taken, which explains the direction-based part of
+    the balancer result (Appendix~\ref{apx:cosine}); the cosine reads alignment and not
+    magnitude, to which some of the screened methods may still react. Two external sequence baselines were adapted so that
     a region comparison exists at all: HMT-GRN keeps its shared multitask skeleton
     and gains a per-fold region-transition prior, without its graph components and
     hierarchical beam search; and STAN has its output layer adapted to rank
