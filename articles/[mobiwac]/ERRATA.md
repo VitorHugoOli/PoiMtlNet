@@ -389,3 +389,30 @@ disso por hora".
 `R13-leak4th2`), each sabotage-validated individually — including `R13-limitcount` on the count itself, so a
 later edit that adds or drops a limit without touching the number turns it red. Ten render checks against
 the built PDF, all passing. All four dissertation targets build clean.
+
+## 2026-09-04 — logit adjustment is used and cited nowhere (applies to BOTH texts)
+
+**The defect.** The method section applies logit adjustment to the category loss, names the method,
+gives its formula and its `\tau = 0.5`, and **cites no source for it** (`src_fix/sections/04_method.tex:42`).
+The results section names the same adjustment again as one of the constants held fixed across the
+substrate comparison (`src_fix/sections/06_results.tex:21`), so the paper leans on it twice. It is a named
+method with a version of record; an uncited one is a citation defect, not a stylistic choice.
+
+**The correction.** Cite the work that introduced it — Menon et al., *Long-tail learning via logit
+adjustment*, ICLR 2021 (arXiv:2007.07314). Nothing else in either sentence changes: the formula, the value
+of tau, the train-only scope and the unadjusted-inference statement are the submitted text. No number,
+verdict or interval changes. Applied in the dissertation chapter on 2026-09-04; **fold into the
+camera-ready** if the window is still open.
+
+⚠ **The entry carries no DOI, and that is not an omission.** Crossref has none registered for this work —
+a bibliographic title query returns three unrelated logit-adjustment papers and not this one. ICLR
+proceedings live on OpenReview and are commonly unregistered. The entry was verified at the arXiv record
+itself, whose journal-reference field reads verbatim "Published as a conference paper in ICLR 2021", and it
+was **not written from memory**. Do not "restore" a DOI from an aggregator: that is exactly how the
+never-registered JSTOR identifier reached `holm1979`.
+
+**Where it is declared.** Unlike the three corrections handled as both-texts edits during review, this one
+is **also** declared in the dissertation's Appendix B (supplement), Table B.5. The section's mechanism for
+skipping the declaration rests on the article being under review, and the article has been **accepted since
+2026-08-26**. Declaring a correction that turns out to be carried in both texts costs nothing; failing to
+declare one that ends up carried in only one text is a defect.

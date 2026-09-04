@@ -66,6 +66,31 @@ TABLE_FILES = (
 CLAIM_ROW = re.compile(r"\bB\.(?P<n>[1-4])\b[^,.]{0,40}?(?P<count>\d{1,3})\b")
 CLAIM_TOTAL = re.compile(r"\bTotal\s+(?P<total>\d{1,3})\b", re.I)
 
+# ---------------------------------------------------------------------------------------------
+# B.5, ADDED 2026-09-04, and it was added because it was ALREADY WRONG.
+#
+# The four tables above state their counts inside a provenance COMMENT, which is what the block
+# above reconciles. The MobiWac scope table states its count in the DELIVERED PROSE instead --
+# "Table ... lists two further departures in the reproduced prose" -- and then enumerates them,
+# "The first ... the second ...". Nothing was checking that sentence. On the day this guard was
+# written the sentence said two and the table held seven, and the two it names are not even the
+# first two rows any more.
+#
+# That is not a new failure mode in this file: apx_b_errata.tex carries TWO dated "COUNT
+# CORRECTED" comments for the same table, from 2026-08-12 and from round9c, each recording that
+# a banner count had gone stale against its rows. It went stale a third time, in the interval
+# where no instrument watched it. So the count moves under the same rule as the other four.
+#
+# The number is SPELLED OUT here, not a digit, because that is how the prose writes it. A guard
+# that only understood digits would have reported "claim not found" -- rc 2 -- on a sentence that
+# was present and wrong, which is the failure this script's own docstring calls class V3.
+WORDS = {"no": 0, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7,
+         "eight": 8, "nine": 9, "ten": 10, "eleven": 11, "twelve": 12}
+SCOPE_TABLE = "mobiwac/errata_scope.tex"
+CLAIM_SCOPE = re.compile(
+    r"Table~\\ref\{tab:apx:mobiwac-scope\}\s+lists\s+(?P<count>[a-z]+)\s+further\s+departures",
+    re.I)
+
 
 def count_rows(tex: str) -> tuple[int, str]:
     r"""Data rows in one errata table, comments already stripped.
@@ -132,6 +157,16 @@ def self_test() -> None:
     assert strip_text(r"x \addlinespace y").count(r"\addlinespace") == 1, \
         "self-test: \\addlinespace did not survive as a literal (non-raw string somewhere?)"
 
+    # The B.5 claim is SPELLED, and the regex must read the word and reject a digit rather than
+    # silently not matching -- a non-match is rc 2 ("claim gone"), which would misreport a claim
+    # that is present and wrong as a missing one.
+    m = CLAIM_SCOPE.search(r"Table~\ref{tab:apx:mobiwac-scope} lists eight further departures")
+    assert m and WORDS[m.group("count")] == 8, "self-test: B.5 spelled-count claim not parsed"
+    assert not CLAIM_SCOPE.search(
+        r"Table~\ref{tab:apx:mobiwac-scope} lists 8 further departures"), \
+        "self-test: B.5 matcher accepted a digit; the prose spells the number and a digit there " \
+        "is itself a register defect that should be seen, not absorbed"
+
 
 def main() -> int:
     self_test()
@@ -182,9 +217,34 @@ def main() -> int:
     print(f"  {tot_state:9s} TOTAL {'':30s} measured {tot_measured:3d}  claimed "
           f"{tot_claimed if tot_claimed is not None else '--'}")
 
-    if bad or tot_claimed != tot_measured:
+    # B.5 -- the claim is in the delivered prose, not in a comment, so it is read from live_text.
+    scope_path = TABLES / SCOPE_TABLE
+    if not scope_path.exists():
+        print(f"  MISSING {SCOPE_TABLE} -- probe cannot run")
+        return 2
+    scope_n, scope_kind = count_rows(live_text(scope_path))
+    prose = re.sub(r"\s+", " ", live_text(APPENDIX))
+    scope_m = CLAIM_SCOPE.search(prose)
+    if not scope_m:
+        print("  The B.5 'lists N further departures' sentence was not found in the appendix "
+              "prose. Cannot reconcile; a probe whose target is gone is not a pass.")
+        return 2
+    word = scope_m.group("count").lower()
+    if word not in WORDS:
+        print(f"  B.5 claim says {word!r}, which is not a number word this guard knows. "
+              "Add it to WORDS rather than loosening the match.")
+        return 2
+    scope_claimed = WORDS[word]
+    scope_state = "ok" if scope_claimed == scope_n else "MISMATCH"
+    print(f"  {scope_state:9s} B.5  {SCOPE_TABLE:26s} measured {scope_n:3d}  claimed "
+          f"{scope_claimed:3d}  ({scope_kind}, claim spelled {word!r} in the prose)")
+    scope_bad = scope_claimed != scope_n
+
+    if bad or tot_claimed != tot_measured or scope_bad:
         print("\nFAIL: the appendix states row counts that its own tables do not hold.")
-        print("  Fix the claim in src/chapters/apx_b_errata.tex, or the table, then re-run.")
+        print("  Fix the claim in wrapup/material_extra/chapters/apx_b_errata.tex, or the")
+        print("  table, then re-run. For B.5 the sentence ALSO enumerates the rows it counts")
+        print("  ('The first ... the second ...'), so a bare digit swap leaves it wrong.")
         return 1
     print("\nOK: every itemized row count in Appendix B matches the table it describes.")
     return 0
