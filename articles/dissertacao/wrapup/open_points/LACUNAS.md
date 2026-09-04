@@ -330,10 +330,31 @@ pergunta que a banca faz espontaneamente)*
 
 ## §3 · ERRATA: muda no deposito final
 
+> ## ESTADO A 2026-09-04 — seis dos sete fecharam; este bloco manda sobre os cabecalhos abaixo
+>
+> Auditado contra a arvore viva, nao contra este registo. Os cabecalhos de cada item foram
+> actualizados, mas o corpo deles descreve o defeito **como era** e fica intacto, que e o seu valor.
+>
+> | | estado | o que aconteceu |
+> |---|---|---|
+> | **ERR-1** | **NAO E DEFEITO** | Verificado a 04/09 e o diagnostico estava errado. A tabela de erratas **nao esta no PDF de deposito** — e `\input` so pelo suplemento, e `pdftotext build/main_academico.pdf \| grep "Published wording"` devolve **0**. A frase sem hifen que se via no PDF e a **prosa do proprio Cap. 3, ja corrigida**: comeca por "In addition", que e exactamente o que a coluna direita da errata manda. E `multi-task` aparece **24 vezes intacto** nesse mesmo PDF, logo nao ha normalizacao a atropelar hifens. |
+> | **ERR-2** | **ABERTO** | O unico que continua a precisar de decisao do autor: se o cabecalho de capitulo pode divergir do titulo do artigo citado tres linhas abaixo. Nao e defeito — e escolha. |
+> | **ERR-3** | **APLICADO** 01/09 | O campo `note` de `liu2019dwa` saiu da entrada para comentario acima dela. ⚠ A primeira tentativa pos o comentario DENTRO das chavetas e partiu o BibTeX: percentagem nao e caractere de comentario para o BibTeX, que varre a procura do arroba. |
+> | **ERR-4** | **DECIDIDO** 04/09 | Ruling do autor: **manter as orfas**, com nota a dizer que sao entradas de arquivo. Aplicado a `gambs2012mmc`, que ficou orfa hoje ao sair o paragrafo dos floors do Cap. 2. `belkin2003laplacian` e `santos2024urban` mantem-se. |
+> | **ERR-5** | **FECHADO** 02/09 | `senushkin2023aligned` e `liu2023famo` receberam DOI (o segundo tambem `pages`). **`holm1979` fechou a falha, e nao esta em falta**: o DOI proposto **nao resolve** — doi.org 404, Crossref "Resource not found", e o Holm 1979 nao esta na Crossref de todo. A OpenAlex afirma-o na mesma, um id JSTOR herdado do MAG e nunca registado. A entrada leva `url` do JSTOR, que responde 200. **Nao restaurar da OpenAlex.** |
+> | **ERR-6 / ERR-7** | **APLICADOS** 01/09 | O texto vivo le "on a single fold at Texas" e nomeia o valor de dataset grande. |
+>
+> **Fora dos sete, e da mesma familia:** a 04/09 acrescentou-se ao `.bib` a entrada
+> `menon2021logitadjustment` — o ajuste de logit era usado nos resultados entregues e **nao era
+> citado em lado nenhum**. Verificada na fonte (arXiv 2007.07314, campo do proprio registo:
+> "Published as a conference paper in ICLR 2021"). **Sem DOI, e isso nao e omissao**: a Crossref nao
+> tem nenhum registado para este trabalho. A citacao no Cap. 5 e texto reproduzido, logo entra como
+> linha na Tabela B.5.
+
 Nenhuma destas cinco muda um resultado, um veredito ou um numero. Sao defeitos de registro e de
 apresentacao, e cada uma diz qual arquivo e qual frase.
 
-### [ABERTO] · ERR-1 · A normalizacao ortografica de "multi-task" entra na coluna de prosa PUBLICADA da tabela de errata
+### [NAO E DEFEITO] · ERR-1 · A normalizacao ortografica de "multi-task" entra na coluna de prosa PUBLICADA da tabela de errata
 
 **ACAO NECESSARIA:** em `tables/cbic/errata_wording.tex`, a linha cuja coluna esquerda cita a prosa
 publicada como *"Furthermore, investigating advanced multi-task optimizers..."* imprime, no volume
@@ -370,7 +391,7 @@ artigo aparece citado com a grafia do registro, no prefacio e na lista de refere
 convivem por essa razao, e nao por descuido."
 *Fonte: chapters/5_mobiwac.tex:16 e :29; chapters/3_cbic.tex:25; GLOSSARY.md:130*
 
-### [ABERTO] · ERR-3 · Uma nota de anotacao interna imprime dentro de uma referencia
+### [APLICADO] · ERR-3 · Uma nota de anotacao interna imprime dentro de uma referencia
 
 **ACAO NECESSARIA:** remover o campo `note` da entrada `liu2019dwa` no `references.bib`, ou move-lo
 para comentario. A referencia **[52]** imprime, na lista de referencias da defesa e do deposito,
@@ -383,7 +404,7 @@ desse tipo. Doze entradas do `.bib` tem campo `note`; onze delas sao legitimas (
 imprime. Nada da referencia esta errado; a nota nao pertence a lista publicada e sai no deposito."
 *Fonte: src_fix/references.bib, entrada liu2019dwa; impresso na p. 95 do build de defesa*
 
-### [ABERTO] · ERR-4 · Duas entradas do `.bib` nao sao citadas por nenhum ponto do texto
+### [DECIDIDO] · ERR-4 · Duas entradas do `.bib` nao sao citadas por nenhum ponto do texto
 
 **ACAO NECESSARIA:** decidir por entrada. `belkin2003laplacian` (Laplacian Eigenmaps) e
 `santos2024urban` (a dissertacao de 2024 do PPGCC) estao no `references.bib` e **nao** aparecem em
@@ -399,7 +420,7 @@ reescritas. Elas nao imprimem na lista de referencias, entao nenhum leitor ve um
 chamada; e limpeza de arquivo para o deposito."
 *Fonte: src_fix/references.bib; chapters/apx_e_ethics.tex (citacoes vivas)*
 
-### [ABERTO] · ERR-5 · Seis entradas do `.bib` sem identificador em campo, tres delas resolviveis agora
+### [FECHADO] · ERR-5 · Seis entradas do `.bib` sem identificador em campo, tres delas resolviveis agora
 
 **ACAO NECESSARIA:** adicionar tres DOIs que foram resolvidos nesta sessao contra a fonte de registro,
 e deixar as outras tres declaradas como sao:
@@ -424,7 +445,7 @@ identificador em campo. Das treze restantes, sete registram o identificador no c
 proveniencia da propria entrada, e seis nao tinham: tres foram resolvidas contra a fonte de registro,
 duas nao possuem identificador registrado em nenhuma fonte, e uma segue marcada para verificacao."
 *Fonte: src_fix/references.bib; REVISION_PLAN.md §17.2 (a bibliografia como superficie nao coberta pelo painel)*
-### [ABERTO] · ERR-6 · A frase de cobertura de busca atribui errado a origem da taxa de aprendizado de Florida e California
+### [APLICADO] · ERR-6 · A frase de cobertura de busca atribui errado a origem da taxa de aprendizado de Florida e California
 
 **ACAO NECESSARIA:** em `chapters/5_mobiwac/05_setup.tex:53-55`, a clausula *"at Florida and California
 it was not varied, so those two carry the value the smaller searches selected"* atribui aos conjuntos
@@ -447,7 +468,7 @@ grandes, nao da selecao dos menores, que escolheram valores dez vezes menores. E
 proveniencia a corrigir no deposito, e a correcao enfraquece a frase em vez de fortalece-la."
 *Fonte: chapters/5_mobiwac/05_setup.tex:53-55; docs/studies/closing_data/v18/FINAL_SETTINGS.md:12,:77*
 
-### [ABERTO] · ERR-7 · A mesma frase grada Florida como "fewer folds" na busca de tamanho de lote
+### [APLICADO] · ERR-7 · A mesma frase grada Florida como "fewer folds" na busca de tamanho de lote
 
 **ACAO NECESSARIA:** na mesma frase (`:52-53`), a clausula *"over five folds at Istanbul, Alabama and
 Arizona and on fewer folds at Florida and Texas"* grada Florida junto com Texas. Pelo registro, so

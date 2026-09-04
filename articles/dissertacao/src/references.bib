@@ -736,6 +736,27 @@ doi       = {10.1145/3219819.3220007}
 % [mikolov2013word2vec] arXiv:1301.3781
 %   Theme B (Representations for mobility)
 %   Claim: Two efficient neural architectures (CBOW and skip-gram) can learn high-quality continuous vector representations of words from very large corpora at low computational cost.
+% [2026-09-04, logit adjustment] Added because the method was USED in the delivered results and
+% cited nowhere. Chapter 5 applies it to the category head (tau log P_train(y), tau=0.5, training
+% only) and Appendix E repeats it, and until today neither named its source.
+% VERIFIED AT THE SOURCE OF RECORD, not from memory. The arXiv API record for 2007.07314 gives the
+% title, the six authors in this order, and a journal-reference field reading verbatim "Published as
+% a conference paper in ICLR 2021".
+% NO DOI, AND THAT IS NOT AN OMISSION. api.crossref.org has no registered DOI for this work: a
+% bibliographic title query returns three unrelated logit-adjustment papers and not this one. ICLR
+% proceedings live on OpenReview and are usually unregistered. Do NOT "restore" a DOI for this entry
+% from an aggregator -- that is exactly how the phantom JSTOR-id DOI reached holm1979.
+% House style for ICLR follows the velickovic2019dgi / kipf2017gcn pattern: Proc. ICLR + archivePrefix
+% + eprint, no DOI field.
+@inproceedings{menon2021logitadjustment,
+  author      = {Aditya Krishna Menon and Sadeep Jayasumana and Ankit Singh Rawat and Himanshu Jain and Andreas Veit and Sanjiv Kumar},
+  title       = {Long-tail learning via logit adjustment},
+  booktitle   = {Proc. ICLR},
+  year        = {2021},
+  archivePrefix= {arXiv},
+  eprint      = {2007.07314},
+}
+
 @inproceedings{mikolov2013word2vec,
   author      = {Tomas Mikolov and Kai Chen and Greg Corrado and Jeffrey Dean},
   title       = {Efficient Estimation of Word Representations in Vector Space},
