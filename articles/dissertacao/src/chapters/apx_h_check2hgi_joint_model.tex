@@ -386,9 +386,12 @@ Both heads use mean cross-entropy. Their exact supervised objective is
 Here, $\mathcal{L}_{\mathrm{total}}$ is the scalar used for one backward pass,
 $\mathcal{L}_{C}$ is the next-category cross-entropy loss, and
 $\mathcal{L}_{R}$ is the next-region cross-entropy loss. The weights are fixed.
-The category term applies logit adjustment: $\tau\log P_{\mathrm{train}}(y)$ with
-$\tau=0.5$ is added to the category logits during training, and inference reads the
-unadjusted logits. The region term carries no such adjustment, because $\tau>0$ moves the
+% [2026-09-04, AUTHOR-APPROVED] Citation only (menon2021logitadjustment), same as
+% 5_mobiwac/04_method.tex (see that file's note); dissertation appendix, no errata row, method
+% description unchanged.
+The category term applies logit adjustment~\cite{menon2021logitadjustment}:
+$\tau\log P_{\mathrm{train}}(y)$ with $\tau=0.5$ is added to the category logits during
+training, and inference reads the unadjusted logits. The region term carries no such adjustment, because $\tau>0$ moves the
 decision boundary toward the balanced posterior that macro-F1 rewards and away from the
 frequency-weighted ranking that Acc@10 rewards. No dynamic task balancing, class
 weighting, label smoothing, or gradient surgery is active in the reported configuration.

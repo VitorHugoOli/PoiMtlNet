@@ -35,7 +35,12 @@ The training loss is a fixed-weight sum of the two outputs,
 L = 0.5\,L_{\mathrm{cat}} + 0.5\,L_{\mathrm{reg}},
 \end{equation}
 where $L_{\mathrm{reg}}$ is a plain unweighted cross-entropy loss and $L_{\mathrm{cat}}$ is a
-cross-entropy loss with logit adjustment: $\tau\log P_{\mathrm{train}}(y)$, with $\tau=0.5$, is added
+% [2026-09-04, AUTHOR-APPROVED ("vamos adicionar a citacao do Menon no bib e no texto"), errata
+% Table B.5 of the supplement] Citation only: the published article uses logit adjustment in its
+% delivered results and never cites its source. Key menon2021logitadjustment verified at the arXiv
+% record of 2007.07314 (ICLR 2021) by the registry; no DOI exists at Crossref, do not add one from an
+% aggregator. Method description unchanged by instruction.
+cross-entropy loss with logit adjustment~\cite{menon2021logitadjustment}: $\tau\log P_{\mathrm{train}}(y)$, with $\tau=0.5$, is added
 to the category logits during training only, which shifts the decision boundary toward the balanced
 posterior that macro-F1 rewards. Inference uses the unadjusted logits. The weights and $\tau$ were
 selected once on validation during development and held fixed across all six datasets. Class
