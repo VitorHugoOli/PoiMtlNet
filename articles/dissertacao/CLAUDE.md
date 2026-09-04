@@ -12,6 +12,12 @@
 
 ---
 
+> **Before this section: [`VEREDITOS.md`](VEREDITOS.md).** It answers the recurring questions by
+> question ("does chapter 3 leak?", "is RESULTS_BOARD usable?", "can `_round*` be deleted?"), each
+> closed with proof. Anything under a leading-underscore directory (`_round*`, `_review*`,
+> `_specialists*`, `_archive`) is a **closed round with no authority** — provenance for what was
+> discussed, never a source for a current fact.
+
 ## 0 · Read this section before you write any number
 
 The recurring failure in this project has never been the science. It is **pulling a number from the
@@ -128,6 +134,9 @@ be deposited.
 | 2026-09-01 · **Table 8** | Caption now states that check-ins, users and POIs are counts over the **full corpus, before** the ten-visit filter, and that the Windows column is computed **after** it. | commit `e1f9b8c0` |
 | 2026-09-01 · **Ch. 1** | The Theoretical bullet no longer asserts that the studies determine that MTL helps; it says they analyse how MTL behaves. The controlled comparisons identify the input representation as one condition of the outcome; the sharing-topology effect was not isolated from it. Aligns Ch. 1 with Ch. 6. | commit `e1f9b8c0` |
 | 2026-09-02 · **B-05 / B-06 / B-27** | Three responses to the banca's annotated PDF ([`wrapup/REVISAO_BANCA_PDF.md`](wrapup/REVISAO_BANCA_PDF.md)). B-05: Ch. 1 defines the check-in level before the example and drops a personification the WRITING_LAW bans. B-06: §2.1.1.1 gains concrete instances for the four sets ("for example" did not occur once in all of Ch. 2). B-27: the Table 10 caption now says in writing that bold does **not** mark the largest value in a column — the document uses bold with the other sense in Table 2, which is what misled the reader. | commit `e1f9b8c0`, record in `wrapup/REVISAO_BANCA_PDF.md` |
+| 2026-09-02 · **parameter counts** | The dedicated-category counts were low by ~2.2× in **both** volumes — see Trap 6. Appendix G's two rows, its percentages and its framing ("matched" → over-capacity); the main volume's two sums. No macro-F1 changes. | commit history + `research/reproducibility/mobiwac_v18/param_counts.py` |
+| 2026-09-04 · **logit adjustment** | Ch. 5 applies logit adjustment by name and formula and **cited nothing** for it; the results section leans on it again as a controlled constant. Now cites Menon et al. (ICLR 2021). Reproduced text → declared as a row of **Table B.5 of the supplement**, and in the article's own `ERRATA.md` as a both-texts correction. ⚠ The `.bib` entry has **no DOI and that is not an omission** — Crossref has none registered. Verified at the arXiv record. Do not restore one from an aggregator. | commit `30621bce` |
+| 2026-09-04 · **B.5 count** | The supplement's Article-3 section says the scope table "lists **two** further departures" and enumerates them; the table holds **eight**. It also still calls the article "under review" (accepted 2026-08-26 — a sixth AUT-35 site). `src_utils/count_errata_rows.py` now covers B.5 and is **red** until the prose is fixed. | guard in `30621bce`; prose with the `writer` |
 
 > ⚠ **`src/dissertacao.pdf` is STALE as of 2026-09-02.** It was built 2026-08-21 and carries only the
 > Resumo errata. Every row below it in this table is in `src/` but **not** in that PDF. `make defense`
@@ -231,10 +240,18 @@ Two more registries: [`wrapup/NEW_VERSION.md`](wrapup/NEW_VERSION.md) (the `mtlc
    margin instead of the registered 2 pp). Under it, **Alabama/region flips to inferior.** Those
    numbers answer defense questions; they do not correct Chapter 5. Read `wrapup/NEW_VERSION.md`
    §2 first.
-6. **One live number defect sits in the supplement**, not the main volume: Appendix G's parameter
-   columns (644,359 / 4,207,399 "100.2%" / 5,249,719 "101.9%") are wrong; `NEW_VERSION.md` §10.6
-   measures 1,433,863 / 9,634,471 (230%) / 12,044,791 (234%). The macro-F1 results are fine and the
-   conclusion strengthens. **Do not say "100.2%" aloud.**
+6. **The parameter counts were wrong in BOTH volumes, and are now corrected in both** (2026-09-02).
+   Appendix G of the supplement printed 644,359 / 4,207,399 "100.2%" / 5,249,719 "101.9%"; the real
+   counts are 1,433,863 / 9,634,471 (**229.5%**) / 12,044,791 (**233.8%**), and the main volume's two
+   sums moved from 1.1 / 2.0 million to 1.9 / 2.8. The audit built the head at the MODULE default
+   depth instead of the config's, so every dedicated-category count was low by about 2.2×, and the arm
+   labelled "capacity-matched" in fact carried **over twice** the joint model's budget. The macro-F1
+   results are untouched and the conclusion **strengthens** — the joint model wins against an
+   over-capacity opponent, not a matched one. **Do not say "100.2%" aloud**: it survives in the
+   provenance comments of `apx_i_parameter_count_control.tex`, which quote the withdrawn values
+   verbatim, so an unfiltered grep still finds it. The correction is reproducible without a GPU:
+   `PYTHONPATH=src python research/reproducibility/mobiwac_v18/param_counts.py`, which recomputes every
+   count and exits non-zero if the cross-dataset 465,297 identity breaks.
 7. **`git status` does not see `docs/results/`.** `.git/info/exclude` carries a bare `results`
    pattern. Before deleting anything, run **`git check-ignore --no-index -v <path>`** — the bare
    `-v` form consults the index and reports "not ignored" for any path that is *already tracked*,
