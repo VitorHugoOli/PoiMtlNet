@@ -1715,10 +1715,17 @@ macro-F1 is
 \end{equation}
 where $P_c$ and $R_c$ are precision and recall for class $c$. The unweighted mean
 gives every class equal importance~\cite{sokolova2009measures}. It does not show which
-individual classes improve, and it can be low even when overall accuracy is high. The
-models use unweighted cross-entropy rather than a reweighted loss. In
-Chapter~\ref{ch:mobiwac}, class weighting lowered both category macro-F1 and region
-accuracy.
+individual classes improve, and it can be low even when overall accuracy is high.
+% [2026-09-04, AUTHOR-APPROVED §2.4 scoping, removal 1] Removed: "The models use unweighted
+% cross-entropy rather than a reweighted loss. In Chapter~\ref{ch:mobiwac}, class weighting lowered
+% both category macro-F1 and region accuracy." False as a generalization and false even for Chapter 5:
+% 5_mobiwac/04_method.tex trains the category output with cross-entropy WITH logit adjustment and only
+% the region output with plain unweighted cross-entropy, and Chapters 3 and 4 do not declare the loss
+% of their prediction outputs at all. The sentence had itself been the correction of an earlier false
+% one ("class-weighted cross-entropy") and over-corrected into another generalization. The macro-F1
+% justification ("gives every class equal importance") stays above; the loss belongs to Chapter 5,
+% which states it (04_method.tex:37-49). No probe pins "unweighted", "cross-entropy" or "class
+% weighting" in this chapter.
 
 \subsubsection{Next region}
 
@@ -1771,24 +1778,38 @@ Chapter~\ref{ch:mobiwac} gives the complete evaluation procedure.
 
 \subsubsection{Joint-model selection and floors}
 
+% [2026-09-04, AUTHOR-APPROVED §2.4 scoping, scoping 1] The joint-best convention was presented as
+% "the validation protocol" in general. It is Chapter 5's: in Chapters 3 and 4 the scalar is not even
+% computable (their pair is static category classification + next category, no Acc@10 to multiply),
+% and Chapter 3 says it reads each task at the epoch of its own highest validation macro-F1
+% (3_cbic/results.tex:36). NOT removed, because apx_a_contributions.tex:76 uses "joint-best
+% convention" and this is the document's only definition. Scoped to Chapter 5, with one sentence on
+% Chapter 3; nothing is asserted about Chapter 4, whose live text does not declare its convention.
 Dedicated single-task models evaluate each target independently using its respective
-metric. Evaluating a joint model, however, requires a single validation signal that
-considers the performance of both outputs simultaneously. The validation protocol
-achieves this by combining category macro-F1 and region Acc@10 into a scalar
+metric. In Chapter~\ref{ch:mobiwac}, evaluating the joint model requires a single
+validation signal that considers the performance of both outputs simultaneously, and
+that chapter's protocol combines category macro-F1 and region Acc@10 into a scalar
 selection score:
 \begin{equation}\label{eq:fund:joint-selection}
     S_{\mathrm{joint}} = \sqrt{\operatorname{MacroF1} \times \operatorname{Acc@10}}.
 \end{equation}
 Under this \emph{joint-best} convention, both reported task scores come from the same
 validation-selected checkpoint, reflecting the balanced performance of a single
-deployable system.
+deployable system. Chapter~\ref{ch:cbic} pairs static category classification with
+next-category prediction, for which no such scalar exists, and reads each task at the
+epoch of its own highest validation macro-F1.
 
-To interpret these scores, model performance is evaluated against lower-bound
-baselines and dedicated single-task reference models. Basic baselines establish
-performance floors: a majority-class predictor for category classification and a
-first-order Markov model over training visits for sequential
-transitions~\cite{gambs2012mmc}. The primary reference for evaluating multitask gains
-is the dedicated single-task model for each output.
+% [2026-09-04, AUTHOR-APPROVED §2.4 scoping, removal 2] Removed: "Basic baselines establish
+% performance floors: a majority-class predictor for category classification and a first-order Markov
+% model over training visits for sequential transitions~\cite{gambs2012mmc}." Measured: "majority-class"
+% and "Markov" occur only in this chapter and in Chapter 5, which declares its own floors in
+% 05_setup.tex; no other chapter or appendix depends on them. The lead sentence dropped "lower-bound
+% baselines" with them. The next sentence, the dedicated-model reference, is shared by Chapters 3 and
+% 5 and anchors the verdict ladder; it stays. gambs2012mmc becomes an orphan; kept (ERR-4 ruling),
+% marked as an archive entry in references.bib.
+To interpret these scores, model performance is evaluated against reference models.
+The primary reference for evaluating multitask gains is the dedicated single-task model
+for each output.
 % [2026-09-04, AUTHOR-APPROVED cuts, item 3] Removed the second statement of the 93-percent limit
 % and its caveat ("Theoretical limits from prior work, such as the 93~percent potential
 % predictability reported for coarse location prediction~\cite{song2010limits}, do not serve as
@@ -1847,9 +1868,13 @@ split changes across chapters.
 All three studies use five folds, so each fold holds one fifth of the data for
 validation and the remaining four fifths for training. Stratification follows
 Kohavi~\cite{kohavi1995crossval}, who recommends the stratified estimator and, for model
-selection, ten folds. Five folds are used here because the final study repeats the whole
-experiment under four seeds: five fits per seed keep that design at twenty fitted models
-per configuration on datasets of up to 3.2 million check-ins.
+selection, ten folds. In the final study, which repeats the whole experiment under four
+seeds, five folds keep that design at twenty fitted models per configuration on datasets
+of up to 3.2 million check-ins.
+% [2026-09-04, AUTHOR-APPROVED §2.4 scoping, scoping 2] "Five folds are used here because the final
+% study..." presented Chapter 5's reason as everyone's; Chapters 3 and 4 used five folds in papers
+% published before that design existed. Scoped with "In the final study"; the B-11/B-18 answer
+% (this sentence + the Kohavi sentence before it) stays, and the Kohavi sentence is untouched.
 Chapters~\ref{ch:cbic} and~\ref{ch:courb} stratify
 samples, so one user's check-ins may occur in both training and validation.
 Chapter~\ref{ch:mobiwac} instead uses a grouped, stratified splitter that keeps each
