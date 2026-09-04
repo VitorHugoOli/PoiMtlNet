@@ -302,8 +302,11 @@ and~\ref{ch:courb} combine category classification
 (Definition~\ref{def:fund:catclf}) with next-category prediction
 (Definition~\ref{def:fund:nextcat}). Chapter~\ref{ch:mobiwac} combines next-category
 prediction with next-region prediction (Definition~\ref{def:fund:nextreg}). All three
-studies use seven categories: Community, Entertainment, Food, Nightlife, Outdoors,
-Shopping, and Travel. For the region task, the target is an administrative unit at
+% [2026-09-04, AUTHOR-APPROVED cuts, item 1] The seven category names were listed twice in the
+% chapter (here and in the §2.1.1.1 example added for B-06 on 2026-09-02); the B-06 list stays, this
+% one is reduced. Consistent with AUT-18: naming the categories inside a task definition is an error
+% ("o nosso modelo poderia usar N categorias"). The next sentence is pinned by R13-aut18, untouched.
+studies use the same seven categories. For the region task, the target is an administrative unit at
 neighborhood scale. These output spaces require different metrics and reference points,
 and Section~\ref{sec:fund:eval} both names the unit each dataset supplies and explains
 the measurement.
@@ -351,18 +354,19 @@ reviews were built to solve.
 \end{definition}
 
 Next place is the dominant task in the field, and methods developed for it provide the
-methodological basis for next-category and next-region prediction. Early approaches
-relied on recurrent architectures. ST-RNN uses time-specific and distance-specific
-transition matrices~\cite{liu2016strnn}, while DeepMove adds attention over long and
-sparse visit histories~\cite{feng2018deepmove}. HST-LSTM incorporates
-spatial-temporal context into a hierarchical recurrent cell~\cite{kong2018hstlstm}.
-Flashback retrieves past hidden states according to the temporal and spatial gaps
-between visits~\cite{yang2020flashback}.
-
-Later approaches make attention central to the architecture. STAN connects
-non-adjacent visits through spatio-temporal correlations~\cite{luo2021stan}. GeoSAN
-combines a hierarchical geographic grid with self-attention~\cite{lian2020geosan}, and
-GETNext introduces a global trajectory-flow map into a
+methodological basis for next-category and next-region prediction.
+% [2026-09-04, AUTHOR-APPROVED cuts, item 4] The seven-model inventory (ST-RNN, DeepMove, HST-LSTM,
+% Flashback; STAN, GeoSAN, GETNext), each with its one-line mechanism, is compressed to two named
+% models plus grouped citations. STAN stays by name because Chapter 5 runs it as an adapted region
+% baseline (05_setup.tex), which is what "direct" in the closing sentence carries; GETNext stays
+% because Chapter 5's related work cites it. Every citation is kept; each stays attached to a claim
+% that is true of it (the four recurrent ones under "recurrent architectures"; GeoSAN under
+% attention-centred). The closing sentence, which closes a door, is untouched.
+Early approaches relied on recurrent
+architectures~\cite{liu2016strnn,feng2018deepmove,kong2018hstlstm,yang2020flashback}.
+Later approaches make attention central to the architecture~\cite{lian2020geosan}: STAN
+connects non-adjacent visits through spatio-temporal correlations~\cite{luo2021stan},
+and GETNext introduces a global trajectory-flow map into a
 transformer~\cite{yang2022getnext}. Every model named here predicts the exact next
 place, so none of them is a direct baseline for the targets studied in this dissertation.
 
@@ -490,12 +494,17 @@ dissertation repurposes that POI-level output for sequential prediction, a use t
 original evaluation does not cover. In this role, HGI supplies the place-level
 baseline in the later studies and the direct basis of Check2HGI.
 
-The move to other study areas left one setting of that baseline open. Huang et al.\
-reduce an edge between POIs of different regions to 0.4 of its weight in the
-experiments named above, and this work did not transfer that value untested. In
-experiments on one of the state datasets of this dissertation, over the same five
-folds used elsewhere, a value of 0.7 gave the best category F1 among the values tried,
-and the later studies adopt it. What that comparison settles is one hyperparameter of
+% [2026-09-04, AUTHOR-APPROVED cuts, item 7] Two scaffolding clauses out ("The move to other study
+% areas left one setting of that baseline open" and "and this work did not transfer that value
+% untested"); a five-word lead replaces the first so the paragraph does not open on "Huang et al.".
+% The fact (published 0.4 -> 0.7 here, one state, five folds) and the last two scope sentences stay:
+% this is the only place in the volume that says the HGI baseline was retuned (GER-03 residue), and
+% the scope warning is recorded below as kept deliberately.
+One setting of that baseline was retuned. Huang et al.\ reduce an edge between POIs of
+different regions to 0.4 of its weight in the experiments named above. In experiments
+on one of the state datasets of this dissertation, over the same five folds used
+elsewhere, a value of 0.7 gave the best category F1 among the values tried, and the
+later studies adopt it. What that comparison settles is one hyperparameter of
 the place-level baseline. It is not evidence about how HGI and Check2HGI compare.
 % [round12, 2026-08-03] THE 0.7 SENTENCE (item 42, second half), on the author's authorization:
 % "Sobre citar que na dissertacao usamos 0,7, podemos citar por alto, algo como: 'Em experimentos
@@ -765,8 +774,9 @@ to these three boundaries. Each term uses a bilinear discriminator,
 where $\mathbf{W}$ is learned and
 $\sigma(z)=1/(1+e^{-z})$ is the logistic function. The discriminator is linear in
 either embedding when the other is held fixed, and its output lies between 0 and 1.
-For each boundary, the loss favors a high score for a true pair and a low score for a
-false pair:
+% [2026-09-04, AUTHOR-APPROVED cuts, item 5] "the loss favors a high score for a true pair and a low
+% score for a false pair" was already said in the HGI section; reduced to the lead-in.
+For each boundary, the term is
 \begin{equation}\label{eq:fund:check2hgi-term}
     \mathcal{L}_{*} = -\log \mathcal{D}(\mathbf{e}, \mathbf{e}^{+})
     - \log\left(1 - \mathcal{D}(\mathbf{e}, \mathbf{e}^{-})\right),
@@ -1257,17 +1267,24 @@ it, and the corresponding loss vectors form the Pareto front.
 % TOST exists anywhere in this project. The wrong number reached the rendered PDF at p.23 and commit
 % 91e7956a before it was caught.
 
+% [2026-09-04, AUTHOR-APPROVED cuts, item 6] The method-by-method inventory is compressed around
+% "claims no Pareto property" (R9-pareto, kept verbatim). Each method keeps its OWN verb, so no
+% guarantee is strengthened or weakened: Nash-MTL "convergence of a subsequence" and the convexity
+% caveat; CAGrad "fixed points"; Aligned-MTL "converges ... when task weights are fixed in advance";
+% PCGrad "no Pareto claim" and the one-update bound with its three conditions. Nine sentences become
+% seven. The parent paragraph before the heading (the three Pareto pins) is untouched, and the
+% Aligned-MTL "condition number" sentence pinned by R11-aligned lives in §2.3.4, not here.
 The guarantees of balancing methods are usually weaker than Pareto optimality. A
 Pareto-stationary point is one at which a convex combination of the task gradients is
-zero. This condition is necessary but not sufficient for Pareto
-optimality~\cite{nash}. Nash-MTL proves convergence of a subsequence to such a point
-and reaches Pareto optimality only under an additional convexity assumption that does
-not hold for a deep network~\cite{nash}. CAGrad has Pareto-stationary fixed
-points~\cite{liu2021cagrad}, and Aligned-MTL converges to one when task weights are
-fixed in advance~\cite{senushkin2023aligned}. PCGrad makes no Pareto claim of its own. Under
-conditions on two task gradients, loss curvature, and step size, it guarantees that
-one projected update does not produce a higher multitask loss than the original
-gradient~\cite{yu2020pcgrad}. Reaching the Pareto front would still leave the balance
+zero, a condition that is necessary but not sufficient for Pareto
+optimality~\cite{nash}. Nash-MTL proves convergence of a subsequence to such a point,
+and reaches Pareto optimality only under a convexity assumption that does not hold for
+a deep network~\cite{nash}; CAGrad has such points as fixed points~\cite{liu2021cagrad},
+and Aligned-MTL converges to one when task weights are fixed in
+advance~\cite{senushkin2023aligned}. PCGrad makes no Pareto claim of its own and
+guarantees only that one projected update does not produce a higher multitask loss than
+the original gradient, under conditions on the two task gradients, the loss curvature,
+and the step size~\cite{yu2020pcgrad}. Reaching the Pareto front would still leave the balance
 between tasks unspecified~\cite{liu2021cagrad,senushkin2023aligned}. This
 dissertation therefore claims no Pareto property for its models. It judges each task
 against its dedicated single-task model under the tests defined in
@@ -1578,10 +1595,12 @@ population and revises at each decennial census; it has no government of its own
 the district, and it has an elected local administrator. Both partition a city at
 neighborhood scale, which is what makes the region target comparable across the two
 collections, but one is a unit of measurement and the other a unit of government.
-Chapter~\ref{ch:mobiwac} reports how many regions each dataset contributes. The Foursquare dataset for New
-York and Tokyo
-is another common benchmark~\cite{yang2015tsmc}, but it provides context only and is
-not used in the experiments reported here.
+Chapter~\ref{ch:mobiwac} reports how many regions each dataset contributes.
+% [2026-09-04, AUTHOR-APPROVED cuts, item 2] Removed: "The Foursquare dataset for New York and Tokyo
+% is another common benchmark~\cite{yang2015tsmc}, but it provides context only and is not used in
+% the experiments reported here." A dataset the text itself said is not used; the "provides context
+% only" clause was the patch for a fact-gate finding, and deleting the sentence is the clean patch.
+% yang2015tsmc may now be uncited in this chapter; orphans are kept by the author's ERR-4 ruling.
 % AUT-18, second half (PENDENCIAS §4). The unit names arrive HERE, in the dataset description, and
 % this half is written FIRST so that the pointer added to the task definition in §2.1.1.3 is true at
 % the moment it is written.
@@ -1770,9 +1789,12 @@ performance floors: a majority-class predictor for category classification and a
 first-order Markov model over training visits for sequential
 transitions~\cite{gambs2012mmc}. The primary reference for evaluating multitask gains
 is the dedicated single-task model for each output.
-Theoretical limits from prior work, such as the 93~percent potential predictability
-reported for coarse location prediction~\cite{song2010limits}, do not serve as
-ceilings for seven-class macro-F1 or region ranking.
+% [2026-09-04, AUTHOR-APPROVED cuts, item 3] Removed the second statement of the 93-percent limit
+% and its caveat ("Theoretical limits from prior work, such as the 93~percent potential
+% predictability reported for coarse location prediction~\cite{song2010limits}, do not serve as
+% ceilings for seven-class macro-F1 or region ranking."). The §2.1 opening already states the number
+% and the same caveat (coarse next-location, not a reference point for these metrics), and
+% song2010limits stays cited there.
 
 % AUT-31 (PENDENCIAS §4, author ruling "OK"). §2.4's third subsection did two jobs: it described how
 % the data is divided AND which comparison each design supports. A reader after one had to read past
