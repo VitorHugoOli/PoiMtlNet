@@ -136,7 +136,15 @@ The plan registered a paired Wilcoxon signed-rank test on the matched fold diffe
 
 A \emph{seed} is one complete repetition of the five-fold experiment. It determines the random initialization and the user partition, so each seed produces a different division of the users. Within one seed, the compared models use the same partition. The paired $t$ and TOST analyses compare the four per-seed means. We apply a Holm correction~\cite{holm1979} across the six next-category comparisons and, separately, across the six next-region comparisons.
 
-The non-inferiority claim states that the joint model is no worse than the dedicated model by more than a two-point margin. We test this claim with the two one-sided tests (TOST) procedure~\cite{lakens2017tost}. The analysis plan also fixed the two-point margin in advance. A mobility-aware service acts on which region will be busy, rather than on a single position in the ranking (Section~\ref{sec:mobiwac:problem}). A two-point change in Acc@10 is below the level at which this service would behave differently. Across the four user partitions, the standard deviation of the paired difference ranges from 0.02 to 0.16 points. The intervals at Istanbul, Arizona, and Florida are narrow enough to support a margin as small as one point; Alabama's is not, and it is the dataset with the largest region difference (Section~\ref{sec:mobiwac:results-part2}).
+The non-inferiority claim states that the joint model is no worse than the dedicated model by more than a two-point margin. We test this claim with the two one-sided tests (TOST) procedure~\cite{lakens2017tost}. The analysis plan also fixed the two-point margin in advance. A mobility-aware service acts on which region will be busy, rather than on a single position in the ranking (Section~\ref{sec:mobiwac:problem}). A two-point change in Acc@10 is below the level at which this service would behave differently. Across the four user partitions, the standard deviation of the paired difference ranges from 0.02 to 0.16 points. The intervals at Istanbul, Arizona, and Florida are narrow enough to support a margin as small as one point; Alabama's is not, and among these four datasets it has the largest region difference (Section~\ref{sec:mobiwac:results-part2}).
+% [2026-09-06, AUTHOR-APPROVED errata, Table B.5 of the supplement] "it is the dataset with the
+% largest region difference" -> "among these four datasets it has the largest region difference".
+% Not false: within the four datasets the sentence discusses, Alabama's -0.88 is the largest. But
+% the superlative carried no scope, and the cross-reference beside it lands the reader on Texas
+% (+1.21) and California, whose differences are larger, and on "all six". The superlative is scoped;
+% the cross-reference stays, because it is where the reader goes for the region result. No number,
+% verdict or interval changes. Found by the mobiwac session (first reported as "false", retracted
+% by them: the defect is ambiguity, not fact).
 % WITHIN-SEED SHARING: WHAT IS ESTABLISHED AND WHAT IS NOT. Corrected 2026-08-05 after a reviewer found
 % this stated as a measured fact. It is a CODE-LEVEL property, not something measured on the artifacts:
 % src/data/folds.py builds the joint-model folds at :1247 and the dedicated next-task folds at :1159 with
