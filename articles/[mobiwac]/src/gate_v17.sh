@@ -19,6 +19,7 @@ fail() { echo "  FALHA: $*"; rc=1; }
 
 # (0) o PDF tem de ser deste texto: reconstruir, nunca confiar no que esta em disco.
 echo "[0] rebuild"
+rm -f main.pdf   # nunca avaliar um PDF que este portao nao produziu
 pdflatex -interaction=nonstopmode main.tex >/dev/null 2>&1
 bibtex main >/dev/null 2>&1
 pdflatex -interaction=nonstopmode main.tex >/dev/null 2>&1
@@ -48,8 +49,9 @@ for n in 63.32 63.33 64.51 65.79 65.83 65.84 79.84 79.85 77.24 77.23 77.05 77.04
          54.65 55.87 57.13 69.95 70.26 28.09 29.31 27.63 39.62 37.47 37.95 \
          26.56 29.50 35.53 32.48 32.31 34.46 38.96 66.06 65.68 62.37 \
          37.8 37.0 28.7 4.9 10.3 5.34 8.59 9.40 7.69 7.45 6.45 8.58 9.35 5.33; do
-  grep -qF " $n" /tmp/gate_pdf.txt && fail "numero v17 no PDF -> $n"
-  grep -qF " $n" /tmp/gate_src.txt && fail "numero v17 na fonte/comentarios -> $n"
+  # fronteira, e nao o prefixo " $n": um delta com sinal ("+9.35") escapava-lhe.
+  grep -qE "(^|[^0-9.])${n}([^0-9]|$)" /tmp/gate_pdf.txt && fail "numero v17 no PDF -> $n"
+  grep -qE "(^|[^0-9.])${n}([^0-9]|$)" /tmp/gate_src.txt && fail "numero v17 na fonte -> $n"
 done
 
 # (b) frases retiradas.
@@ -67,7 +69,9 @@ for s in "has not been run" "several times the size" "seven datasets" "fifth of 
          "sharing helps instead of hurting" "Honesty rules" "at least 4 Acc@10" \
          "at least 33 macro" "two answers at the price of one" "+5 percent" \
          "and learning rate were searched for the dedicated category model at every dataset" \
-         "does better where the region task is hardest" "price worth paying"; do
+         "does better where the region task is hardest" "price worth paying" \
+         "matches it" "non-inferior match" \
+         "weekday\\\\ trained with no task labels"; do
   grep -qF "$s" /tmp/gate_pdf.txt && fail "frase retirada no PDF -> \"$s\""
   grep -qF "$s" /tmp/gate_live.txt && fail "frase retirada em prosa viva -> \"$s\""
 done
@@ -92,6 +96,7 @@ grep -q "Reference .* undefined" main.log && fail "referencia indefinida"
 grep -q "Citation .* undefined" main.log && fail "citacao indefinida"
 grep -q "Overfull" main.log && fail "overfull box"
 grep -q "Rerun to get" main.log && fail "o build pede rerun"
+grep -q '^!' main.log && fail "erro TeX que nao mata o build: derruba texto em silencio"
 
 # (e) orcamento de paginas (decisao do autor: 8 finais).
 echo "[e] paginas"
@@ -103,6 +108,38 @@ if [ "${GATE_PHASE:-1}" = "2" ]; then
 else
   echo "  (fase 1: paginas ainda nao sao criterio; correr com GATE_PHASE=2 para o corte)"
 fi
+
+
+# (f) FRASES PARTIDAS POR UM COMENTARIO. Classe nova, encontrada 2026-09-06 na verificacao da
+#     Fase 1: dois blocos de comentario foram colados a MEIO de uma frase e engoliram-lhe a cauda.
+#     O PDF passou a dizer "We remove We also run STAN" e "With frozen weights difference against
+#     the values in Table III", perdendo pelo caminho a divulgacao de que o baseline externo
+#     primario foi modificado e o resultado do CTLE com pesos congelados.
+#     Nenhuma verificacao de numeros apanha isto; o build nao da erro; o portao estava VERDE atraves
+#     das duas. O sinal e mecanico: uma linha de prosa viva que acaba sem pontuacao terminal e
+#     imediatamente seguida por uma linha de comentario.
+echo "[f] comentario colado a meio de uma frase"
+#     REGRA: um comentario vive ENTRE frases, nunca a meio de uma. Quem escreve um comentario a
+#     seguir a uma linha que acaba a meio de uma frase arrisca engolir-lhe a cauda -- foi assim que
+#     o PDF passou a dizer "We remove We also run STAN", "The second control A final control uses" e
+#     "With frozen weights difference against the values in Table III", perdendo pelo caminho a
+#     divulgacao de que o baseline externo primario foi modificado e o resultado do CTLE congelado.
+#     O portao estava VERDE atraves das tres. A deteccao e DELIBERADAMENTE larga: um falso positivo
+#     custa ler uma linha, um falso negativo entrega texto partido. Para o limpar, mova-se o
+#     comentario para depois do ponto final -- que e onde ele devia estar.
+: > /tmp/gate_broken.txt
+for f in sections/*.tex tables/*.tex main.tex; do
+  awk -v F="$f" '
+    { line=$0; sub(/[ \t]+$/,"",line); is_c = (line ~ /^[ \t]*%/)
+      if (is_c && prev_live && prev !~ /[.:;,}%]$/ && prev !~ /\\$/) {
+        tail=prev; if (length(tail)>56) tail=substr(tail,length(tail)-55)
+        printf "  FALHA: %s:%d comentario a meio de frase -> ...%s\n", F, NR-1, tail
+      }
+      prev=line; prev_live=(!is_c && line!="")
+    }' "$f" >> /tmp/gate_broken.txt
+done
+cat /tmp/gate_broken.txt
+[ -s /tmp/gate_broken.txt ] && rc=1
 
 [ $rc -eq 0 ] && echo "PORTAO VERDE"
 exit $rc
