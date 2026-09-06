@@ -1856,6 +1856,46 @@ How the check-ins are divided determines which population a result covers.
 % flagged as a Class B shape: an abstract noun as the agent of a speech verb. A result does not speak.
 % WRITING_LAW §1 bans the shape, so the sentence names the relation instead of animating the result.
 
+% [2026-09-06, AUTHOR-APPROVED: "sao coisas universais sobre os 3 caps ... um conceito critico que
+% ja tem que ser discutido nesse primeiro momento"] The subsection is named "Preparation and data
+% split" and had no preparation: live count of "window" in this chapter was 0 (Chapter 5 uses it 34
+% times). One shared constant and two varying axes, every value quoted from delivered text:
+%   window length  Ch.3 "non-overlapping windows of length $L_h\!=\!9$" (3_cbic/method.tex:41);
+%                  Ch.4 "Non-overlapping windows of size $L_h = 9$" (4_courb/methodology.tex:38);
+%                  Ch.5 "overlapping sliding windows of nine visits" (5_mobiwac/05_setup.tex:28)
+%   stride         Ch.3/Ch.4 non-overlapping (same lines); Ch.5 "A new window starts at each visit"
+%   user filter    Ch.3 "users with fewer than five visits are discarded" (method.tex:40); Ch.4 same
+%                  wording (methodology.tex:38); Ch.5 "For each user with at least ten visits"
+%   short windows  Ch.3 "Histories shorter than nine are padded by a special POI whose embedding is
+%                  $\mathbf{0}$" (method.tex:45); Ch.4 "Shorter sequences are filled with padding of
+%                  zero vectors" (methodology.tex:96, fourth sentence of a long source line); Ch.5
+%                  keeps "only the full-length window that ends at this target" (05_setup.tex:28).
+%                  A first version of this comment said Ch.4 "states no rule". The sweep for
+%                  "pad|shorter than|zero vector" DID match methodology.tex:38, but the hit was
+%                  displayed truncated at 200 characters and the visible fragment ("fewer than five
+%                  visits ... windows of size $L_h = 9$") was read as the whole match; the padding
+%                  sentence sits later on the same source line. Caught by the registry. All three
+%                  axes split the same way, 2 vs 1.
+% The paragraph states the constant once, names the two axes that differ with their values, and reads
+% the difference as a protocol difference (objective 4's territory), not as a contradiction. No stride
+% or filter is asserted for the chapter itself. The author's own check corrected the registry's earlier
+% claim that the three values "do not coincide": the length coincides; the stride and filter do not.
+Before any split, each study turns a user's ordered check-ins into fixed-length
+examples. All three use the same window: a history of $\ell=9$ visits
+(Definition~\ref{def:fund:history}) and the visit that follows it as the target. Three
+details of the preparation differ across the studies, and all three are protocol
+differences rather than contradictions. The first is the stride: Chapters~\ref{ch:cbic}
+and~\ref{ch:courb} draw non-overlapping windows, so consecutive examples share no
+visits, whereas Chapter~\ref{ch:mobiwac} starts a new window at every visit, so
+consecutive examples overlap in eight of their nine visits and each user contributes
+many more examples. The second is the minimum history a user must have to enter the
+data: fewer than five visits excludes a user in the first two studies, fewer than ten
+in the third. The third is how a history shorter than the window is handled, and the
+split is the same: the first two studies pad it with zeros, and the third keeps, for
+each target, only the full-length window that ends at it. Each article
+chapter states its own values, and
+the next subsection reads each result under the protocol that produced it.
+
 The studies use stratified cross-validation~\cite{kohavi1995crossval}, but the
 split changes across chapters.
 % [2026-09-02, B-11 + B-18, author-approved] The banca asked "por que?" twice, sixteen pages apart,
