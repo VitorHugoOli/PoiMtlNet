@@ -77,21 +77,28 @@ arquitectura** — o modelo, as cabeças e o selector são os do v17.
 | Células absolutas de categoria | 54,7 – 79,8 | 30,6 – 37,6 (queda de −27,9 a −42,3 no braço **conjunto**; −19,4 a −37,2 no **dedicado**) |
 | Lei de escala com o n.º de regiões | monótona nos cinco estados | **morta** (CA tem mais regiões do que TX e ganho menor) |
 
-**O detalhe agravante — e ao contrário do que se supõe.** O manuscrito **aceite NÃO declarava este
-canal**, e isso vale para qualquer um dos dois builds candidatos.
+**O detalhe agravante — e ao contrário do que se supôs.** O manuscrito **aceite NÃO declarava este
+canal**, e isso está agora verificado contra o PDF real.
 
-> ⚠ **Correcção 2026-09-06 (Fable): eu identifiquei o build submetido erradamente, e a identificação
-> continua por resolver.** Existem **dois** builds de 8 páginas, não um:
-> `97f01a50` (2026-07-11 00:28, o dia do prazo) imprime a Tabela 3 com **63,33 / 64,54 / 65,84 /
-> 79,85** e abre a §7 com *"**Three** limits qualify these results"*;
-> `f66f8a73` (2026-07-20, **nove dias depois**) imprime **63,32 / 64,51 / 65,79 / 79,84** — o
-> re-footing joint-best — e abre com *"**Two** limits"*. O §10.2 já dava por não resolvido *qual* PDF
-> foi carregado; eu citei o `f66f8a73` como se estivesse.
-> **A alegação sobrevive à ambiguidade:** ✔ `grep -c "absorb the category"` devolve **0 nos dois**.
-> Nenhum dos candidatos declara o canal.
-> **Mas a identificação tem de ser resolvida antes da nota aos chairs (D1) e antes de qualquer tag**,
-> porque a nota diz aos chairs o que mudou *face ao que eles leram*. Custa dois minutos: descarregar
-> o manuscrito do EDAS #1571313639 e comparar por `pdftotext` contra os dois commits. A quarta limitação (*"the vector of an
+> ✅ **RESOLVIDO 2026-09-06 — o autor forneceu o PDF submetido, e ele está identificado.**
+> O artigo enviado ao EDAS é **byte-a-byte** o commit **`0834419b`** (2026-07-10 22:56), 8 páginas,
+> `md5 dce01efe60db68a50f531cdd0a88dbde`. Provado por duas vias independentes: o md5 do blob do git
+> é igual ao do PDF, e o `CreationDate` do PDF (`Fri Jul 10 22:56:09 2026 -03`) coincide com a data
+> do commit. Etiquetado como **`mobiwac/submetido-EDAS`**.
+>
+> ⚠ **Duas identificações anteriores estavam erradas, as duas minhas.** Citei primeiro o `f66f8a73`
+> (2026-07-20 — nove dias *depois* do prazo) e depois o `97f01a50` (2026-07-11 00:28). E não eram
+> "dois candidatos": ✔ são **dezasseis** blobs distintos de 8 páginas entre 07-09 e 07-20, dos quais
+> **treze** elegíveis pelo prazo. O teste que eu usava — *"o abstract casa com o bloco do
+> `EDAS_SUBMISSION.md`"* — **não distingue nenhum deles**.
+>
+> ✔ **A alegação que isto sustentava aguenta-se, e agora está testada à exaustão:** procurei
+> `absorb the category`, `linear probe`, `consecutive-visit edge` e `node input feature` nos **treze**
+> builds elegíveis — **zero ocorrências em todos os treze**. O texto submetido abre a §7 com
+> *"**Three** limits qualify these results"*, confirmado no próprio PDF do autor. **Nenhuma versão que
+> os revisores pudessem ter lido declarava o canal de vazamento.**
+>
+> A quarta limitação (*"the vector of an
 earlier visit could absorb the category of the next one"*) entrou em **2026-08-05**, no commit
 `0b472205` — quase um mês depois do prazo de 2026-07-11. É uma das 17 correcções pós-submissão que
 os revisores nunca viram (§2, §6 D8).
@@ -336,7 +343,27 @@ discussão.
 
 ## 6 · As decisões que só o autor toma
 
-### D1 — O que reporta o camera-ready, e o que se diz aos *chairs*? **[bloqueia tudo]**
+### D1 — O que reporta o camera-ready, e o que se diz aos *chairs*?
+
+> ### ✅ DECIDIDO PELO AUTOR — 2026-09-06
+>
+> > *"eu não acho que seja necessario avisar nada a banca e ao chair, para mim vamos fazer a correção
+> > dos texto e deixar na melhor forma possivel e re-enviamos"*
+>
+> **Rota (a): corrigir o texto, deixá-lo o melhor possível, reenviar. Sem nota aos chairs.**
+> A preocupação foi levantada antes da decisão e o autor manteve-a depois de a ouvir; **está
+> encerrada e não se reabre.** As opções abaixo ficam por proveniência.
+>
+> **O que isto transfere para o texto.** Sem nota de processo, **é o próprio artigo que tem de ser
+> honesto sobre a mudança** — e isso é matéria de redacção, não de processo, portanto continua no
+> nosso âmbito. Três coisas que o texto passa a ter de fazer sozinho:
+> 1. dizer que a representação é construída com o grafo **forward-only** (hoje só aparece na §7 do
+>    `src_fix`, e falta ao Método — item S13);
+> 2. não deixar sobreviver nenhum número v17 (é o portão do item 3.62b);
+> 3. declarar o limite de capacidade na região (D4), que é o que impede a leitura de que a vitória
+>    de região é partilha.
+>
+> *(Opções consideradas, mantidas por registo:)*
 
 | | O que significa | Consequência |
 |---|---|---|

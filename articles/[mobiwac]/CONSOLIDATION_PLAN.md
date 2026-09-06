@@ -5,7 +5,42 @@
 > o `CAMERA_READY §3` ganha.
 >
 > **Papéis (autor, 2026-09-06):** a sessão `mobiwac-writer` redige e tem veto de qualidade; esta
-> sessão (`mobiwac`) filtra, audita e propõe. Nada neste plano foi executado.
+> sessão (`mobiwac`) filtra, audita e propõe.
+>
+> ---
+>
+> ## ✅ DECISÕES DO AUTOR — 2026-09-06 (em primeira pessoa)
+>
+> | | Decisão | Consequência |
+> |---|---|---|
+> | **D4** | **Declarar que o ganho de região parece relacionado com capacidade.** | O artigo fica **sem vitória de exactidão** no eixo da região como propriedade de partilha. O título passa a ser paridade operacional + a margem externa (`CAMERA_READY §5`, enquadramento #1). Trava os bullets 2 e 3 da introdução e a contagem de limites da §7. |
+> | **D3** | **8 páginas**, como a primeira versão enviada. | **É o maior item de trabalho do plano.** Ver o aviso a seguir. |
+> | **DP-1** | **A `WRITING_LAW` governa o camera-ready.** ✅ **FECHADO em primeira pessoa** — a cláusula de excepção do `WRITING_LAW.md:8` foi removida pelo autor, commit `964cc50c`. | Resolve também a **D5** por consequência: a superfície da categoria é *"equivalent to zero within half a point"*. `matches` sai dos dois eixos. O texto do Cap. 5 já está assim escrito. |
+>
+> ### ⚠ O que a D3 custa, medido
+>
+> | | palavras (abstract + corpo) | páginas |
+> |---|---:|---:|
+> | Build submetido (`97f01a50` / `f66f8a73`) | **5 732 / 5 680** | 8 |
+> | `src_fix` hoje | **7 341** | 10 |
+> | Depois do porte recomendado | **≈ 7 680** | 10 |
+>
+> **Há que largar ≈ 1 980 palavras — 26 % do artigo.** Isto **não** é a aparagem que a §4 descrevia
+> (os candidatos que ela lista somam ~550). É uma decisão estrutural, e é o segundo item que ainda
+> precisa do autor: **o quê sacrificar.** As ~1 630 palavras que o v18 acrescentou são precisamente
+> as ressalvas, os intervalos e as declarações que tornam o texto defensável — e a D4 **acrescenta**
+> mais (79 a 284 palavras, consoante a forma).
+>
+> ### Estado da execução
+>
+> - **Bloco 0 (Preservação): FEITO** — ramo `mobiwac-camera-ready`, commit `422c2d37`, três tags.
+>   O `src_fix/main.pdf` foi **reconstruído** antes de commitar (o da working tree estava dois
+>   commits atrasado e imprimia silhueta 0,53): 10 páginas, 0 refs indefinidas, 0 overfull, 0,53
+>   ausente do texto extraído.
+> - **Item 3.0:** resolvido pela via honesta — em vez de afirmar qual build foi submetido, **os dois
+>   candidatos ficaram etiquetados com nomes neutros** (`mobiwac/build-8pp-prazo`,
+>   `mobiwac/build-8pp-jul20`). A identificação continua por fazer e só se resolve no EDAS.
+> - Tudo a partir do Bloco A continua **por executar**.
 
 **Estado:** proposta para aprovação do autor. Nada aqui foi executado.
 **Base factual:** doze auditorias (oito secções, proveniência das árvores + assets, triagem da pasta, herança das leis), verificadas contra os ficheiros. Verificações próprias desta sessão assinaladas com ✔.
@@ -235,7 +270,7 @@ Todos os caminhos são relativos à raiz do repositório. Citar sempre as aspas 
 > **circular**: esse bloco foi refrescado a 2026-07-10 e o ficheiro nunca regista o Step 3 como feito.
 > O `CAMERA_READY §10.2` já dava isto por não resolvido.
 >
-> **Consequência:** a tag `mobiwac/submetido-2026-07-11`, o README de 3.5 e sobretudo a **nota aos
+> **Consequência:** a tag `mobiwac/submetido-EDAS`, o README de 3.5 e sobretudo a **nota aos
 > chairs (D1)** descreveriam o texto errado como "o que os revisores aceitaram".
 > **Ação, dois minutos:** descarregar o manuscrito do EDAS #1571313639 e comparar por `pdftotext`
 > contra os dois commits. **3.3 não corre antes disto.**
@@ -253,9 +288,34 @@ Todos os caminhos são relativos à raiz do repositório. Citar sempre as aspas 
 *Teste:* `git show HEAD:"articles/[mobiwac]/src_fix/main.pdf" | pdfinfo -` diz **10 páginas** e o md5 deixa de ser `6a32e1e30b7b285e19e4b857cf49c0ae`.
 
 **3.3 [MEC] Duas tags, antes de qualquer fusão.**
-`git tag mobiwac/submetido-2026-07-11 97f01a50` e `git tag mobiwac/tres-arvores <commit de 3.2>`.
-*Teste:* `git show mobiwac/submetido-2026-07-11:"articles/[mobiwac]/src/main.pdf" | pdfinfo -` diz **8 páginas**.
+`git tag -a mobiwac/submetido-EDAS 0834419b` ✅ **FEITO** (identificado contra o PDF do autor) e `git tag mobiwac/tres-arvores <commit de 3.2>`.
+*Teste:* `git show mobiwac/submetido-EDAS:"articles/[mobiwac]/src/main.pdf" | pdfinfo -` diz **8 páginas**.
 *Porquê:* é isto que torna reversível tudo o que vem a seguir, e é a única coisa que preserva o texto submetido depois de `src/` passar a conter o camera-ready.
+
+> ### 🔒 PASSAGENS PROTEGIDAS DO CORTE — não separar, não aparar (2026-09-06)
+>
+> A D3 vai obrigar a largar ~2 000 palavras numa segunda fase. Estas três passagens são frágeis ao
+> corte de maneiras que não se veem a olho: **cortar metade de cada uma inverte o que ela diz.**
+>
+> **P1 · A unidade de duas frases da região** (`5_mobiwac/06_results.tex:216-224`). A primeira frase
+> nomeia um mecanismo — *"which is where the region task is hardest and where the dedicated model has
+> the most to gain from an auxiliary signal"*. A segunda é o que a torna honesta: nomeia os dois
+> confundidores (não-monotonia dentro do par; o número de regiões co-varia com o tamanho do corpus) e
+> declara o conjunto *"an observation about where the benefit appears rather than as a law"*.
+> ⚠ **Migram juntas e cortam-se juntas.** Se o corte levar a segunda e deixar a primeira, o capítulo
+> passa de **observar** a **afirmar**, e a teoria do autor — que o texto hoje sustenta de forma
+> honesta — vira uma alegação que a evidência não carrega. (Levantado pelo `knowladge`.)
+>
+> **P2 · A recusa explícita da explicação por partilha** (`5_mobiwac/08_conclusion.tex:12-13`):
+> *"the evidence shows that **sharing alone does not explain the outcome** because the result also
+> depends on what the model represents"*. ✔ **Existe só no capítulo — zero ocorrências em todo o
+> `src_fix`.** É a defesa mais forte da posição do autor e não é uma ausência que se argumenta: é uma
+> frase positiva no texto entregue. Sem ela, a §8 fica a dever a recusa que a D4 vai exigir.
+>
+> **P3 · A frase forward-only no Método.** Ainda **não existe** em nenhuma árvore do artigo — no
+> `src_fix` a propriedade só é afirmada dentro da quinta limitação da §7. Com a D1 decidida (sem nota
+> aos chairs), **é o texto que tem de ser honesto sozinho**, e o Método é onde um leitor a procura.
+> Entra como acrescento, e é a única passagem desta lista que ainda tem de ser escrita.
 
 ### Bloco A — Estrutura
 
@@ -267,7 +327,7 @@ diz *"Status: PROPOSAL … `src/` is the submitted version of record and stays u
 passa a ser falso dentro da própria árvore do camera-ready. **Mover para `archive/` no mesmo passo**
 (Fable, 2026-09-06; a §5 e a §6 não o mencionavam).
 
-**3.5 [MEC] Criar `articles/[mobiwac]/src/README.md`** com três linhas: esta árvore é o camera-ready v18; o texto submetido está na tag `mobiwac/submetido-2026-07-11`; a dissertação cita caminhos desta pasta como doador verificado — ver ERRATA.
+**3.5 [MEC] Criar `articles/[mobiwac]/src/README.md`** com três linhas: esta árvore é o camera-ready v18; o texto submetido está na tag `mobiwac/submetido-EDAS`; a dissertação cita caminhos desta pasta como doador verificado — ver ERRATA.
 *Porquê:* **25 sítios** do `.tex` da dissertação apontam para esta pasta (23 para `src/`, 2 para `src_fix/`). ✔ **Verificado nesta sessão: os 25 estão dentro de comentários `%`** — nenhum é texto renderizado, portanto **nada quebra no build da dissertação**. O que se quebra é a semântica: depois de 3.4 esses ponteiros descrevem o camera-ready e não o doador que citam. É defeito de registo, não de compilação — o que baixa a urgência mas não dispensa o README.
 
 ### Bloco B — §1 Introdução

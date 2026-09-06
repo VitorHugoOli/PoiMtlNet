@@ -1,11 +1,11 @@
-% Section 1: Introduction (about 1 page). Plan: PAPER_PLAN 4 / §1.
-%   p1 hook (LBSN, anticipate the next move, mobility-aware motivation).
-%   p2 the two tasks (next-category, next-region; we do NOT predict the exact next place).
-%   p3 the tension (sharing is not free; where it helps, where it costs).
-%   p4 what we do (check-in-level representation + one model, two tasks).
-%   p5 contributions (three bullets, stated positively).
-%   p6 roadmap.
-% Reminder: next-category / next-region; American English; no em-dash.
+% !TeX root = ../main.tex
+% chapters/5_mobiwac/01_introduction.tex -- one section of Chapter 5 (MobiWac 2026, accepted 2026-08-26; status comment updated 2026-09-01, AUT-35).
+% Split out of chapters/5_mobiwac.tex on 2026-07-28 (author request: the paper
+% chapters were single long files, while the originals under articles/[mobiwac]/src/sections/
+% are one file per section). The split is PURELY MECHANICAL: content was cut at
+% \section boundaries and not edited. The chapter file now \inputs these in order.
+% Editing rules are unchanged and still governed by the chapter's status above:
+% see NORTH_STAR section 4 before changing any sentence here.
 \section{Introduction}
 \label{sec:intro}
 
@@ -15,33 +15,42 @@ Predicting the next place exactly, a single point of interest (POI), is hard and
 
 Sharing one representation across tasks has a cost: in multi-task learning (MTL), one model does several jobs at once by sharing most of its parts, so the shared parameters can converge to a compromise optimal for neither task, helping one while hurting the other~\cite{caruana1997multitask}. Our earlier
 work reported no consistent multi-task advantage for the paired category tasks and attributed it, in part, to this effect~\cite{silva2025mtlnet}; the useful question is where sharing helps, what it costs, and how to share so the gains hold and the cost stays small.
+% [B.1 FIX 2026-07-24, author-approved] Was "Prior work observed exactly this for next-category
+% and next-region": two errors vs the CBIC record (Ch.3) -- CBIC paired STATIC category
+% classification with next-category (no region task), and it HYPOTHESIZED negative transfer on a
+% parity null, it did not OBSERVE it. Repaired per persona-14 B.1. Mirrored in [mobiwac]/src/ and
+% logged in [mobiwac]/ERRATA.md + Appendix B.
 
-We propose two enhancements. First, we build a check-in-level representation: instead of one fixed vector per place, each check-in gets its own vector that holds its context (the time, nearby places, and recent visits).
+% [2026-09-02, B-23, author ruling "concordo podemos fazer"] "We propose two enhancements." named no
+% antecedent; the previous paragraph's \cite{silva2025mtlnet} is it. Reproduced accepted-article text
+% -> errata row B.5 (registry).
+We propose two enhancements to that earlier model. First, we build a check-in-level representation: instead of one fixed vector per place, each check-in gets its own vector that holds its context (the time, nearby places, and recent visits).
 This adds a fourth level, the check-in, beneath the place, region, and city levels of hierarchical graph infomax~\cite{huang2023hgi,velickovic2019dgi} (Fig.~\ref{fig:dataflow}). Second, we train one model that
 predicts the next category and the next region in a single forward pass, with a shared trunk (a cross-attention stack where the two tasks exchange
-semantic context) and a private spatial path for the region task (Fig.~\ref{fig:model}). We evaluate on two settings chosen to differ: five U.S. states of different sizes (Gowalla) and one non-U.S. city (Istanbul).\footnote{\label{fn:code}Code (model, representation, baselines, statistical tests): \url{https://github.com/VitorHugoOli/PoiMtlNet/tree/mobiwac}. Both data sources are public: the category-annotated Gowalla dump (\url{https://figshare.com/articles/dataset/gowalla_data/22126586}) and Massive-STEPS~\cite{wongso2025massivesteps}.}
+semantic context) and a private spatial path for the region task (Fig.~\ref{fig:model}). We evaluate on two settings chosen to differ: five U.S. states of different sizes (Gowalla) and one non-U.S. city (Istanbul).\footnote{\label{fn:mobiwac:code}Code (model, representation, baselines, statistical tests): \url{https://github.com/VitorHugoOli/PoiMtlNet/tree/mobiwac}. Both data sources are public: the category-annotated Gowalla dump (\url{https://figshare.com/articles/dataset/gowalla_data/22126586}) and Massive-STEPS~\cite{wongso2025massivesteps}.}
 
 Our contributions are as follows.
 \begin{itemize}
-  \item A check-in-level representation that extends hierarchical graph infomax from the place to the individual visit, improving next-category prediction over a standard place embedding by about $+28$ to $+40$ points of macro-F1 (a balanced score that counts every
-    category equally) across all six datasets (Table~\ref{tab:substrate}). A controlled test attributes most of the gain to the per-visit
-    context, not to extra training signal. The gap is large because a single fixed vector
+  \item A check-in-level representation that extends hierarchical graph infomax from the place to the individual visit, improving next-category prediction over a standard place embedding across all six datasets, by $+0.23$ to $+6.29$ points of macro-F1 (a balanced score that counts every
+    category equally) (Table~\ref{tab:substrate}). The direction is
+    consistent even where the size is small, because a single fixed vector
     per place cannot separate places that serve several purposes, which
     per-visit context recovers.
   \item A single model for joint next-category and next-region prediction, sharing semantic context across tasks while keeping a private spatial path for the region task; to our knowledge, the first work to treat fine-grained region as an end target of equal standing (Section~\ref{sec:related-tasks}). In one forward pass, it outperforms a dedicated
-    single-task category model on every dataset (by about $+5$ to $+9$ points of
-    macro-F1), even though each dedicated model is tuned per dataset. On region,
-    it outperforms at four of the six datasets and stays
-    statistically non-inferior within a two-point margin (TOST, a test of
-    equivalence) at the remaining two (Table~\ref{tab:results}).
-  \item An empirical account, across five U.S. states and one non-U.S. city, of how the joint gain scales with the number of regions.
-    The category gain holds on all six datasets. Across the U.S. states, the
-    region result moves monotonically with the region count: the joint model
-    matches the dedicated model (TOST, $\pm2$ percentage points, or pp) at the
-    small region counts and outperforms it at the large region counts, with
-    the state with the most regions (California) showing the largest region
-    gain (Fig.~\ref{fig:deltas}). At Istanbul, the dataset with the fewest
-    regions, the joint model is also ahead on region ($+0.19$ Acc@10). All joint and dedicated results average
+    single-task region model at Texas and California, the two datasets with the
+    largest region vocabularies, and at the other four it stays within a
+    two-point margin registered before any result was read (statistical
+    non-inferiority, assessed with two one-sided tests). On category it
+    outperforms the dedicated model at Florida, and the five remaining
+    differences are equivalent to zero within half a point, even though each
+    dedicated model is tuned per dataset (Table~\ref{tab:results}).
+  \item An empirical account, across five U.S. states and one non-U.S. city, of where the joint
+    region gain appears. The two datasets where the joint model outperforms are the two with the
+    largest region vocabularies, Texas and California, while the four with smaller vocabularies sit
+    inside the two-point margin (Fig.~\ref{fig:deltas}). The grouping is reported as an
+    observation rather than a law: the ordering does not hold inside the pair, since California has
+    more regions than Texas and a slightly smaller gain, and region count co-varies with corpus
+    size across these states. All joint and dedicated results average
     four random initializations (Section~\ref{sec:results-part2}).
 \end{itemize}
 
