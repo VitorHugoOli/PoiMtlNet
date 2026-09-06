@@ -52,13 +52,22 @@ for n in 63.32 63.33 64.51 65.79 65.83 65.84 79.84 79.85 77.24 77.23 77.05 77.04
   grep -qF " $n" /tmp/gate_src.txt && fail "numero v17 na fonte/comentarios -> $n"
 done
 
-# (b) frases retiradas. PDF colapsado (atravessam linhas) + fonte incluindo figs/.
+# (b) frases retiradas.
+#     ERRO DESTE PORTAO, CORRIGIDO 2026-09-06. A regra proibia a substring
+#     "where the region task is hardest", e isso forcou a mutilacao da passagem P1 -- que o plano
+#     manda PROTEGER. A forma morta e a asercao ISOLADA que estava no resumo ("the model DOES BETTER
+#     where the region task is hardest", a leitura C4); a forma do capitulo -- "which is where the
+#     region task is hardest and where the dedicated model has the most to gain" -- e LICENCIADA
+#     pela frase seguinte, que nomeia os dois confundidores e declara o conjunto uma observacao e
+#     nao uma lei. A cadeia nunca esteve na lista de nunca-citar do CAMERA_READY (zero ocorrencias);
+#     foi inventada aqui. Um portao que destroi o que foi construido para proteger e pior do que
+#     nenhum: a regra e agora a frase inteira, nao a substring. PDF colapsado (atravessam linhas) + fonte incluindo figs/.
 echo "[b] frases retiradas"
 for s in "has not been run" "several times the size" "seven datasets" "fifth of a point" \
          "sharing helps instead of hurting" "Honesty rules" "at least 4 Acc@10" \
          "at least 33 macro" "two answers at the price of one" "+5 percent" \
          "and learning rate were searched for the dedicated category model at every dataset" \
-         "where the region task is hardest" "price worth paying"; do
+         "does better where the region task is hardest" "price worth paying"; do
   grep -qF "$s" /tmp/gate_pdf.txt && fail "frase retirada no PDF -> \"$s\""
   grep -qF "$s" /tmp/gate_live.txt && fail "frase retirada em prosa viva -> \"$s\""
 done
