@@ -266,13 +266,14 @@ supplement**. BRACIS 2026 is **not** a chapter: rejected, superseded by MobiWac.
 ## 4 · What is still open
 
 The live registry is [`wrapup/open_points/LACUNAS.md`](wrapup/open_points/LACUNAS.md) — 42 items,
-each remedied against the live source and the built PDF. **17 blocks are open**, in four classes:
+each remedied against the live source and the built PDF. **10 blocks are open** (was 17 — the
+seven ERRATA all closed on 2026-09-06), in four classes:
 
 | class | open | what closes it |
 |---|---:|---|
-| **ERRATA** — changes at the final deposit | 7 | ERR-1…ERR-7. Drafted erratas live in [`wrapup/erratas/`](wrapup/erratas/) |
-| **DECISÃO DO AUTOR** — no agent closes these | 7 | incl. NSO-46 (the last open sign-off marker), LO-11 (authorship credit on the CoUrb article), LO-12 (Ch. 4's temporal-input description) |
-| **EXECUÇÃO** — only an experiment closes it | 3 | P4, P6, GAPS-D. P1 is **closed** (2026-08-13) |
+| **ERRATA** — changes at the final deposit | **0** | ERR-1…ERR-7 all closed 2026-09-06. ERR-1 was **not a defect** (the diagnosis was wrong: the errata table is not in the deposit PDF); ERR-2 **ratified without change** (chapter headings may differ from a cited title — the rule is citation fidelity, not house style); ERR-3/6/7 applied; ERR-4 decided (keep the orphans, with an archive note); ERR-5 closed **fail-closed** on `holm1979`, whose proposed DOI does not resolve |
+| **DECISÃO DO AUTOR** — no agent closes these | 7 | NSO-46 (the last open sign-off marker), LO-6, LO-11 (authorship credit on the CoUrb article), LO-12 (Ch. 4's temporal-input description), LO-13, GAPS §7.1, PENDENCIAS 4.1 |
+| **EXECUÇÃO** — only an experiment closes it | 3 | P4, P6, GAPS-D. P1 is **closed** (2026-08-13). ⚠ None of the three blocks the deposit; all three are answerable standing up from the record already written into each entry |
 | **ORAL** — answered standing up, text untouched | 0 open | six answers drafted in `wrapup/erratas/RESPOSTAS_ORAIS.md` |
 
 Two more registries: [`wrapup/NEW_VERSION.md`](wrapup/NEW_VERSION.md) (the `mtlcheck` rewrite — see
