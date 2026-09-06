@@ -1,5 +1,19 @@
 # CLAUDE.md — MobiWac 2026 paper (working folder)
 
+> # ⛔ STOP — this file is STALE on every number and every verdict.
+>
+> It was last touched **2026-07-20**, three weeks before the **v18** leak-free rebuild. Since then:
+> the paper was **ACCEPTED (2026-08-26)**; the consecutive-visit **data leak** was fixed; and the
+> whole category axis moved by **28 to 42 points**. Every result quoted below — the
+> "+5.3 to +9.4 macro-F1" headline, the "+27.6 to +39.6" substrate margin, the region wins at
+> Istanbul/FL/TX/CA, the region-count scaling law — **is a leaked v17 value or a dead verdict.**
+>
+> **Read [`CAMERA_READY.md`](CAMERA_READY.md) first.** It is the entry point for the camera-ready
+> and it wins over this file on every number and every verdict. §2 below is a memory aid for a
+> generation that no longer exists; the paper of record is **`src_fix/`**, not `src/`.
+>
+> What is still live here: the decisions ledger (§3), the conventions, and the doc map.
+
 > **What this folder is.** The working folder for our **MobiWac 2026** submission,
 > *"Predicting the Next Category and Region of a Visit: A Check-in-Level Multi-Task Study on Mobility Data."*
 > The paper itself is in [`src/`](src/) (`main.tex`, a compiling 9-page IEEE two-column draft). This file is the

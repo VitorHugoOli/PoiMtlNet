@@ -1,5 +1,19 @@
 # MobiWac 2026: Glossary and Plain-Word Guide (working draft v3)
 
+> ## ⚠ The RULES here are live law. The NUMBERS and VERDICTS in §1 are dead.
+>
+> This file predates the **v18** leak-free rebuild (2026-08). Its naming rules, banned words,
+> register rules and verb-to-test bindings all still bind — lint against them row by row.
+> But §1's honesty rule still names {Istanbul, Florida, Texas, California} as region wins, still
+> says category outperforms everywhere, and still mandates the **region-count scaling law**, which
+> is **dead** under the reported convention (California has more regions than Texas and a smaller
+> gain). A literal writer following §1 will restore leaked v17 claims.
+>
+> **The verdict ladder of record is [`CAMERA_READY.md`](CAMERA_READY.md) §3.** Exactly three cells
+> license "outperforms": region at Texas and California, category at Florida. A third verdict state
+> now exists that this file does not contain — **unresolved** — because no equivalence margin was
+> ever registered on the category axis. See `CAMERA_READY.md` §5.
+
 > **Why this file exists.** Two of the three BRACIS reviewers rejected the previous paper mainly because it was
 > hard to follow: too many acronyms and too much machine-learning jargon, used without explanation. MobiWac
 > readers know networking, not embeddings, so the paper must use simple words by default and spend its few
