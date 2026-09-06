@@ -4,8 +4,24 @@
 > this file. It inherits the MobiWac [`GLOSSARY.md`](../%5Bmobiwac%5D/GLOSSARY.md) (the paper's
 > writing law, battle-tested through two review cycles) and adapts it to a **dissertation**:
 > different audience (a computing banca, not networking reviewers), different length (didactic
-> register allowed), same honesty discipline. Where the two files conflict for dissertation
-> prose, THIS file wins; for the MobiWac chapter's re-typeset prose, the paper GLOSSARY wins.
+> register allowed), same honesty discipline. **Where the two files conflict, THIS file wins —
+> everywhere, including the MobiWac chapter's re-typeset prose and the article's own camera-ready.**
+>
+> ⚠ **The exception that used to sit here is gone (author's decision, 2026-09-06).** Until then this
+> line read "for the MobiWac chapter's re-typeset prose, the paper GLOSSARY wins", and it made sense
+> while the article fed the chapter: the chapter reproduced a text written under the paper's law, so
+> that law travelled with it. **The direction has reversed.** The submitted article carries the v17
+> leaked numbers and is being rewritten from the dissertation's Chapter 5, so the chapter is now the
+> source and the paper the destination — and a chapter written under this file, governed by the
+> paper's glossary, would be governed by the weaker of the two in the one place it matters most.
+>
+> **The concrete consequence the author named when deciding:** the TOST result would license writing
+> that the two models *match*, and this file's ban on that verb as a verdict surface **still holds**,
+> in the camera-ready as well as here. His words: *"Vale a lei da dissertação, WRITING_LAW governa o
+> camera-ready, apesar de já termos feito os testes estatísticos e podermos usar o matches."* Do not
+> re-derive permission for `matches` / `empata` / `ties` from the statistics — the tests were run,
+> the verb is still refused. The verdict ladder in `CLAUDE.md` §0.3 is the permitted wording.
+>
 > Process rules (how agents verify citations/numbers) are in
 > [`AGENT_GUARDRAILS.md`](AGENT_GUARDRAILS.md) — this file is about the words on the page.
 
