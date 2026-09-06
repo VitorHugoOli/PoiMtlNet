@@ -88,15 +88,48 @@
 %   defense   (main.pdf)           physical p.12, prints 12  OK
 %   ppgc      (main_ppgc.pdf)      physical p.13, prints 13  OK
 %   academico (main_academico.pdf) physical p. 9, printed  8  WRONG before this fix
-% HOW TO RE-DERIVE IT, rather than trusting this number: count the pre-textual pages of
-% build/main_academico.pdf (they carry no printed number) and add one. src_utils/_round6/
-% VERIFY_LIST.md item A4 carries the command, and check.sh runs it, which is how this was caught.
-% IF YOU ADD OR REMOVE FRONT MATTER, OR ANY FLOAT THAT LENGTHENS THE LISTS, RE-MEASURE THIS.
-% [2026-08-12] 9 -> 10. UFV_COMPLIANCE requires the first body page to print (pre-textual count) + 1.
-% MEASURED on build/main_academico.pdf, reading the top-right corner box of each page rather than
-% trusting the header text: physical pages 1 to 9 print no number, and physical page 10 printed 9.
-% Nine pre-textual pages therefore require 10 on the first body page.
-\newcommand{\finalbuildfirstpage}{10}
+% ============================================================================================
+% [2026-09-06] 10 -> 20, AND THE RECIPE ABOVE IS WITHDRAWN. Everything from "HOW TO RE-DERIVE IT"
+% down was deleted here because it TAUGHT THE METHOD THAT PRODUCED EVERY WRONG VALUE. It said:
+% count the pre-textual pages of build/main_academico.pdf and add one. Our PDF has NINE unnumbered
+% pages, so that recipe yields 10 -- reproducibly, and wrong by exactly the pages it cannot see.
+%
+% WHAT IT CANNOT SEE. AcademicoPG PREPENDS its own front matter to whatever we upload, and the UFV
+% manual counts those pages. They are not in our file. No amount of measuring our file reveals them,
+% so the recipe could never have converged: 11 -> 8 -> 9 -> 10 were four applications of a method
+% that is blind to more than half of the counted pre-textual block.
+%
+% AND THE RECIPE CLAIMED A GATE THAT DID NOT EXIST: "check.sh runs it, which is how this was
+% caught." It did not. Verified 2026-09-06 by listing every script check.sh invokes; sync_page_counts
+% checks page TOTALS, never this number. That false claim is why each successive wrong value felt
+% verified. A gate now genuinely exists -- src_utils/check_first_body_page.py, wired into check.sh --
+% and it fails loudly on 10.
+%
+% THE RULE (Manual de entrega §7; UFV_COMPLIANCE.md:37): pre-textual pages are COUNTED but NOT
+% NUMBERED; the cover and the ficha catalografica are NEITHER counted NOR numbered; so the first
+% body page prints (counted pre-textual) + 1. The number is a property of the ASSEMBLED document,
+% not of ours.
+%
+% THE ARITHMETIC, from the system-emitted RASCUNHO of 2026-09-06 (127 sheets, DRAFT watermark):
+%     127 sheets = 11 prepended by AcademicoPG + 116 ours
+%      11 prepended = 1 cover (not counted) + 10 counted
+%     counted pre-textual = 10 (system) + 9 (ours) = 19   ->   first body page prints 20
+% Cross-checked from the other end: last sheet 127, only the cover uncounted, so counted page 126;
+% and 20 + 107 - 1 = 126, where 107 = 116 - 9 body pages. Two independent paths agree.
+%
+% THE FICHA DOES NOT MOVE THIS. When the Library attaches it: 128 sheets, but it is inserted before
+% the body and is not counted, so 128 - cover - ficha = 126 still and this stays 20. Do NOT
+% "correct" it when the ficha arrives.
+%
+% TO RE-DERIVE IT PROPERLY: you cannot, from this repository alone. The count of system-prepended
+% sheets is a property of the portal and its only authority is a fresh RASCUNHO -- which the manual
+% states twice: "a referencia correta para a numeracao das paginas deve ser sempre o arquivo emitido
+% pelo sistema." Run src_utils/check_first_body_page.py for the arithmetic; re-measure the pinned
+% constant there against a new RASCUNHO if the portal's front matter might have changed.
+% IF YOU ADD OR REMOVE FRONT MATTER, OR ANY FLOAT THAT LENGTHENS THE LISTS, the gate re-measures our
+% half automatically and will tell you the new value.
+% ============================================================================================
+\newcommand{\finalbuildfirstpage}{20}
 
 % The preamble and the body, in that order. They were one file until 2026-07-29; see
 % preamble.tex's header for why they are two. mkformat.py precompiles preamble.tex into a

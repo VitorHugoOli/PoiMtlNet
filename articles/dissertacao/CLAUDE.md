@@ -108,18 +108,21 @@ One source, three builds, from `src/`:
 | `make ppgc` | `build/main_ppgc.pdf` | **120** ❓ | defense document + approval sheet. **Not on disk**, so this number is unverified and predates the erratas; expect it to have moved with `make defense`. |
 | `cd ../wrapup/material_extra && make extra` | `build/main_extra.pdf` | **27** | the supplement |
 
-> ⚠ **WHY THESE NUMBERS GO STALE, and it is not carelessness.** `src_utils/sync_page_counts.py`
-> gates the recorded page counts against the builds and is wired into `check.sh` — but it **exits
-> early if any of the three builds is missing from `src/build/`**, and `main_ppgc.pdf` is routinely
-> absent. When it exits early it gates nothing, silently, and the recorded counts drift unchecked.
-> That is how `114` survived two generations. **Measure before quoting any cell in the table below.**
+> ⚠ **WHY THESE NUMBERS GO STALE — and I got the mechanism wrong first, so here it is measured.**
+> `src_utils/sync_page_counts.py` gates the recorded counts and is wired into `check.sh`. It does
+> **not** pass silently when a build is missing: it exits **1** and `check.sh` records FAIL
+> (verified — `sys.exit("no …log")` returns 1). The real problem is subtler and worse. It exits on
+> the **first** missing build, `main_ppgc.pdf` is routinely absent, and so the run ends **before any
+> count is compared**. Its "you did not build ppgc" is indistinguishable from its "a recorded number
+> is wrong", and noise that always fires is noise people learn to skip. That is how `114` survived
+> two generations. **Measure before quoting any cell in the table below.**
 >
-> ⚠ **And it does NOT gate `\finalbuildfirstpage`** — the first printed body-page number
-> (`src/main.tex:99`). The comment above that macro claims "check.sh runs it, which is how this was
-> caught"; **it does not** — verified 2026-09-06 by listing every script `check.sh` invokes.
-> `sync_page_counts.py` checks page *totals*, never the first-page *number*. That false claim is
-> load-bearing: it is why three successive corrections of that macro (11→8→9→10) each felt verified,
-> and all three were wrong.
+> ✅ **`\finalbuildfirstpage` now has a real gate** — `src_utils/check_first_body_page.py`, in
+> `check.sh` since 2026-09-06. Until then it had **none**, while its own comment claimed
+> "check.sh runs it, which is how this was caught" (verified false by listing every script
+> `check.sh` invokes). That false claim was load-bearing: it is why four successive values
+> (11→8→9→10) each felt verified and all four were wrong. The gate separates **exit 1 = wrong**
+> from **exit 2 = could not check**, precisely so it never becomes the noise above.
 
 > 🔴 **FIVE make targets overwrite `dissertacao.pdf`** (the current build — `banca.pdf` is safe from them): `defense`, the default `all`
 > (so a bare `make`), `all3`, `fast` / `fast-defense`, and `fast3` — each ends in

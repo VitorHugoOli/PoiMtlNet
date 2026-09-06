@@ -218,6 +218,26 @@ if ! python3 "$UTILS/sync_page_counts.py"; then
   FAIL=1
 fi
 
+gate "== the deposit build's first body page prints the number UFV requires =="
+# ADDED 2026-09-06. This number (\finalbuildfirstpage, src/main.tex) had been "corrected" four
+# times -- 11, 8, 9, 10 -- and all four were wrong, because the recipe in the source counted only
+# OUR pre-textual pages and AcademicoPG prepends ten more that the UFV manual counts. Worse, that
+# recipe claimed "check.sh runs it", and it did not: sync_page_counts above checks page TOTALS,
+# never this number. So each wrong value felt verified. The measured value is 20.
+# THE EXIT CODES ARE NOT INTERCHANGEABLE and that is deliberate: 1 = the macro disagrees with the
+# rule (a real defect, FAIL); 2 = the gate could not run, e.g. main_academico.pdf is not built
+# (NOT a pass, and NOT the same thing). Missing builds are announced separately rather than folded
+# into FAIL, because a gate whose "you did not build" looks identical to its "you are wrong" is a
+# gate people learn to skip -- which is exactly what happened to sync_page_counts, whose sys.exit
+# on the routinely-absent main_ppgc build ends the run before any count is compared.
+python3 "$UTILS/check_first_body_page.py"; FBP_RC=$?
+if [ $FBP_RC -eq 1 ]; then
+  FAIL=1
+elif [ $FBP_RC -ne 0 ]; then
+  echo "  -> NOT CHECKED (rc=$FBP_RC). Run 'make academico' (it does not overwrite dissertacao.pdf)"
+  echo "     and re-run. This is not a pass."
+fi
+
 gate "== word-count claims reconcile with their own recorded stages =="
 # THIRD arithmetic error in a WRITE-UP of correct work (2026-07-27): a register entry stated the
 # Resumo compression split backwards ("~13 words of gloss, the other ~30 deleted clauses") when its
