@@ -195,10 +195,19 @@ be deposited.
 >
 > **Both were closed the same day**: the Resumo field was re-saved from a fresh read of `content.tex` (byte-compared against what the portal returns, 3144 / 2797 chars) and the body was re-attached as the 116-page build. The block above records the verification that followed.
 
-> ⚠ **`src/dissertacao.pdf` is STALE as of 2026-09-02.** It was built 2026-08-21 and carries only the
-> Resumo errata. Every row below it in this table is in `src/` but **not** in that PDF. `make defense`
-> rebuilds it — and remember that five targets overwrite it, so never run a bare `make` to check
-> something (§1.1).
+> ⚠ **`src/dissertacao.pdf` is STALE — measured 2026-09-06, and this warning was itself stale.**
+> It said "built 2026-08-21, carries only the Resumo errata". It was in fact rebuilt **2026-09-04
+> 17:34** (by the author) and is **120 pp**. It is still behind: **ten** files under `src/` have
+> changed since that build — `2_fundamentals.tex`, `5_mobiwac/{04_method,05_setup,07_discussion}.tex`,
+> `6_conclusion.tex`, `apx_h_check2hgi_joint_model.tex`, `content.tex`, `main.tex`, `references.bib`,
+> `tables/mobiwac/errata_scope.tex`.
+>
+> ✅ **It is NOT a deposit artifact, so nothing is blocked on it.** The AcademicoPG body is
+> `build/main_academico.pdf`; `UFV_COMPLIANCE.md` never mentions `dissertacao.pdf`. It is the
+> convenience copy of the current build — its only risk is that a reader who opens the tracked file
+> gets pre-errata text. `make defense` rebuilds it, and remember five targets overwrite it, so never
+> run a bare `make` to check something (§1.1). **Rebuild it once the text settles, not before**:
+> while erratas are still landing, every rebuild is obsolete on arrival.
 
 **Consequence for anyone verifying:** a rebuild of `src/` no longer reproduces
 `src/banca.pdf`. That is expected and is the point of the two names. **To see what the banca
