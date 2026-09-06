@@ -103,10 +103,23 @@ One source, three builds, from `src/`:
 
 | command | output | pages | what it is |
 |---|---|---|---|
-| `make defense` | `build/main.pdf` → copied to `dissertacao.pdf` | **119** | the banca document |
+| `make defense` | `build/main.pdf` → copied to `dissertacao.pdf` | **120** ⚠ | **119 was stale, and the cell conflated two things.** 119 is what the frozen `banca.pdf` holds; the build produces **120** as of 2026-09-04 17:34 (measured here). They were equal when this row was written and the erratas have since separated them. |
 | `make academico` | `build/main_academico.pdf` | **116** ⚠ | the AcademicoPG deposit body. **114 was two generations stale** — measured 115 on 2026-09-04 and 116 on 2026-09-06 (`academico`, 0 TeX errors), after the 04–06/09 erratas. Re-measure rather than quote this cell. |
-| `make ppgc` | `build/main_ppgc.pdf` | **120** | defense document + approval sheet |
+| `make ppgc` | `build/main_ppgc.pdf` | **120** ❓ | defense document + approval sheet. **Not on disk**, so this number is unverified and predates the erratas; expect it to have moved with `make defense`. |
 | `cd ../wrapup/material_extra && make extra` | `build/main_extra.pdf` | **27** | the supplement |
+
+> ⚠ **WHY THESE NUMBERS GO STALE, and it is not carelessness.** `src_utils/sync_page_counts.py`
+> gates the recorded page counts against the builds and is wired into `check.sh` — but it **exits
+> early if any of the three builds is missing from `src/build/`**, and `main_ppgc.pdf` is routinely
+> absent. When it exits early it gates nothing, silently, and the recorded counts drift unchecked.
+> That is how `114` survived two generations. **Measure before quoting any cell in the table below.**
+>
+> ⚠ **And it does NOT gate `\finalbuildfirstpage`** — the first printed body-page number
+> (`src/main.tex:99`). The comment above that macro claims "check.sh runs it, which is how this was
+> caught"; **it does not** — verified 2026-09-06 by listing every script `check.sh` invokes.
+> `sync_page_counts.py` checks page *totals*, never the first-page *number*. That false claim is
+> load-bearing: it is why three successive corrections of that macro (11→8→9→10) each felt verified,
+> and all three were wrong.
 
 > 🔴 **FIVE make targets overwrite `dissertacao.pdf`** (the current build — `banca.pdf` is safe from them): `defense`, the default `all`
 > (so a bare `make`), `all3`, `fast` / `fast-defense`, and `fast3` — each ends in
