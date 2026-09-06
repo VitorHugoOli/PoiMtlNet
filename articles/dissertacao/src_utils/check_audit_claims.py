@@ -1363,6 +1363,46 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
      "chapters/1_introduction.tex",
      r"screened at their default configurations, at a single random\s+initialization, on Alabama and "
      r"Florida", True),
+    # ---------------------------------------------------------------------------------------------
+    # LADDER-* -- THE VERDICT LADDER, ADDED 2026-09-06 (author: "vamos verificar a escada").
+    #
+    # WHY THESE EXIST. The ladder (CLAUDE.md 0.3) is the document's central verdict and it is
+    # copied BY HAND. Measured the day these were written: "half a point" appears at TWELVE live
+    # sites across EIGHT files, and not one probe watched any of them. The failure is not
+    # hypothetical -- it is the errata of 2026-08-21, where the Portuguese Resumo said the joint
+    # model won "em todos os conjuntos" while the English Abstract, 2.5, Ch.5 and Ch.6 all said
+    # one dataset. A whole-document claim drifted in ONE language and nothing caught it.
+    #
+    # WHAT THEY PIN, and why all three parts together. Each probe requires the scope, the count
+    # and the bound in ONE match: "one dataset" AND "five remaining" AND "half a point". Widening
+    # any single part breaks the match, which is the drift these are for -- the 2026-08-21 defect
+    # changed only the scope and left the rest standing, so a probe on the bound alone would have
+    # passed it.
+    #
+    # THE PORTUGUESE IS PROBED SEPARATELY AND FIRST. It is the half that actually broke, and it
+    # is the half no English-reading reviewer re-reads. A single probe over both languages would
+    # let one satisfy the gate for the other.
+    #
+    # SCOPE, stated so nobody widens these later: they guard the two ABSTRACTS plus the two frame
+    # chapters that state the full ladder. They do NOT guard Ch.5, whose own sentences are
+    # reproduced article text under the errata regime and must not be pinned to frame wording.
+    ("LADDER-pt",   "the PT Resumo keeps the category verdict at ONE dataset with the half-point "
+                    "bound -- this is the exact sentence that drifted on 2026-08-21",
+     "content.tex",
+     r"superou em um conjunto, enquanto as cinco diferen\S*as restantes s\S*o equivalentes a zero "
+     r"dentro de meio ponto", True),
+    ("LADDER-en",   "the EN Abstract keeps the category verdict at ONE dataset with the half-point bound",
+     "content.tex",
+     r"outperformed them at one dataset, while the five remaining differences were equivalent to "
+     r"zero within half a point", True),
+    ("LADDER-c1",   "Ch.1 names Florida as the single category dataset and bounds the other five",
+     "chapters/1_introduction.tex",
+     r"outperforms the dedicated model at Florida, and the five remaining differences are\s+"
+     r"equivalent to zero within half a point", True),
+    ("LADDER-c6",   "Ch.6 names Florida as the single category dataset and bounds the other five",
+     "chapters/6_conclusion.tex",
+     r"outperforms them at Florida, and the five remaining differences are equivalent to\s+"
+     r"zero within half a point", True),
     ("R13-aut32",    "the Ch.6 opening records the static classification task as history of the first "
                      "two studies without widening the research question",
      "chapters/6_conclusion.tex",
