@@ -104,7 +104,7 @@ One source, three builds, from `src/`:
 | command | output | pages | what it is |
 |---|---|---|---|
 | `make defense` | `build/main.pdf` → copied to `dissertacao.pdf` | **119** | the banca document |
-| `make academico` | `build/main_academico.pdf` | **114** | the AcademicoPG deposit body |
+| `make academico` | `build/main_academico.pdf` | **116** ⚠ | the AcademicoPG deposit body. **114 was two generations stale** — measured 115 on 2026-09-04 and 116 on 2026-09-06 (`academico`, 0 TeX errors), after the 04–06/09 erratas. Re-measure rather than quote this cell. |
 | `make ppgc` | `build/main_ppgc.pdf` | **120** | defense document + approval sheet |
 | `cd ../wrapup/material_extra && make extra` | `build/main_extra.pdf` | **27** | the supplement |
 
@@ -141,6 +141,27 @@ be deposited.
 | 2026-09-06 · **ladder probes** | The verdict ladder is the document's central claim, copied **by hand at twelve live sites across eight files**, and no probe watched any of them — the 2026-08-21 Resumo errata was exactly this drift, in one language only. Four `LADDER-*` probes now pin scope + count + bound in one match, at both abstracts and Chs. 1 and 6; **not** Ch. 5, whose sentences are reproduced text. Each sabotage-validated against the specific drift it must catch. Gate 220/236 → **224/240**. | commit `03774545` |
 | 2026-09-06 · **ERR-2 ratified** | Chapter headings read "Multitask" while the prefaces cite the article titles hyphenated. **No change**, ratified by the author after a check: 73 "multitask" vs 3 "multi-task" live, and all three hyphenated ones quote a title of record. The governing rule is citation fidelity, not house style — a title is reproduced as published, in APA and IEEE alike. All seven ERR are now closed. | `wrapup/open_points/LACUNAS.md` §ERR-2 |
 | 2026-09-06 · **Ch. 2 window** | The chapter never stated the windowing: live count of "window" in Ch. 2 was **0** while Ch. 5 uses it 34 times, in a subsection titled "Preparation and data split" that had no preparation. New opening paragraph. **ℓ=9 is universal** (`L_h=9` at Chs. 3 and 4, "nine visits" at Ch. 5) — an earlier claim of mine that the three disagreed on ℓ was **wrong**; what varies is stride (non-overlapping vs. overlapping), the minimum history (5 vs. 10 visits) and short-history handling (zero-pad vs. full-length-only), each splitting the first two studies against the third. Frame, no errata; every value quoted from delivered text. | commit `b6b569e4` |
+
+> 🔴 **THE DEPOSIT PORTAL IS BEHIND THE SOURCE, IN TWO SEPARATE WAYS (2026-09-06).** They have
+> different causes and different fixes, and conflating them is how the first one survived a check:
+>
+> 1. **The Resumo field carries the PRE-APPROVAL text.** The Resumo was rewritten and approved by
+>    the author in commit `8fe5a10d` (2026-09-02 **13:29**); the extraction that was typed into the
+>    form was taken from a `content.tex` whose mtime was 2026-09-02 **12:24**, an hour earlier. The
+>    missing sentence is not cosmetic — it is the scope claim that distinguishes the work:
+>    *"A próxima região… é tratada como alvo final de mesmo peso que a próxima categoria, e não como
+>    sinal auxiliar; os modelos publicados mais próximos não estudam esse par…"* (verified present
+>    once in the live `content.tex`).
+>    ⚠ **The md5 check that passed did not test this.** It compared the portal against the same
+>    scratchpad extraction that had produced the pasted text — circular. A verification must re-read
+>    the SOURCE, not the artifact that came from it. (Cf. `feedback_validar_artefato_nao_preview`:
+>    validating the preview is not validating the delivery.)
+> 2. **The uploaded body PDF is the 2026-09-04 build.** Seven `.tex` files plus `references.bib`
+>    have changed since: `2_fundamentals.tex`, `5_mobiwac/04_method.tex`, `5_mobiwac/07_discussion.tex`,
+>    `6_conclusion.tex`, `apx_h_check2hgi_joint_model.tex`, `content.tex`, `tables/mobiwac/errata_scope.tex`.
+>
+> **The pagination question is downstream of both.** A RASCUNHO emitted now would measure the wrong
+> document, so re-attach and re-save first, then re-emit, then read the offset off it.
 
 > ⚠ **`src/dissertacao.pdf` is STALE as of 2026-09-02.** It was built 2026-08-21 and carries only the
 > Resumo errata. Every row below it in this table is in `src/` but **not** in that PDF. `make defense`
