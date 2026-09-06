@@ -1,8 +1,14 @@
 # ERRATA — MobiWac 2026 (this folder's article)
 
 > **Article:** "Predicting the Next Category and Region of a Visit: A Check-in-Level Multi-Task
-> Study on Mobility Data." MobiWac 2026, EDAS #1571313639. **Submitted / under review** — status
-> wording is always "submitted, under review", never "published/accepted".
+> Study on Mobility Data." MobiWac 2026, EDAS #1571313639. **ACEITE em 2026-08-26.**
+>
+> ⚠ **A regra de formulação deste cabeçalho está morta e a sua morte tem consequência.** Dizia que o
+> estado é sempre *"submitted, under review"* e nunca *"accepted"*. Foi escrita três semanas antes da
+> aceitação. O mecanismo que esta errata usava para **dispensar** declarações — *"o artigo está em
+> revisão, portanto a correcção aplica-se aos dois textos e não é errata"* — **caducou com ela**: já
+> não há janela de revisão em que uma correcção se dilua. A partir de 2026-08-26, **toda a divergência
+> entre o artigo e o Capítulo 5 é declarável**, nos dois sentidos.
 >
 > **Purpose.** Living errata record for this folder. The MobiWac source is the version of record
 > for the dissertation's Ch.5 and its claim discipline is inherited verbatim. As of this session no
@@ -13,11 +19,19 @@
 ## Constraints to preserve during adaptation (not defects — guardrails)
 
 - **Status wording:** "submitted to MobiWac 2026, under review". Never "published" or "accepted".
-- **Claim discipline (inherited):** region verbs bound to tests — "outperforms" only where a paired
-  superiority test licenses it (Istanbul / FL / TX / CA), "matches" only under TOST non-inferiority
-  (AL / AZ); never upgrade AZ. Scaling claim scoped to the five U.S. states. Cascade is "a tie at equal cost".
-- **Never-cite lists:** the STAN v4-collapse numbers, the ReHDM v2 row, and VOID cells must not be cited.
-- **Re-sync point:** `[mobiwac]/src/` is refined by the author in parallel; re-sync Ch.5 before the final gate.
+- ~~**Claim discipline (inherited):** "outperforms" at Istanbul / FL / TX / CA, "matches" under TOST
+  at AL / AZ; scaling claim scoped to the five U.S. states; cascade is "a tie at equal cost".~~
+  ⚠ **MORTO — esta era a escada da geração com vazamento.** Hoje: `outperforms` **só** em região
+  Texas/California e categoria Florida; `matches` **banido nos dois eixos** (lei da dissertação,
+  decisão do autor 2026-09-06); a lei de escala com o número de regiões **caiu**; a cascata **saiu**
+  do texto. A escada de registo é [`CAMERA_READY.md §3`](CAMERA_READY.md).
+- **Never-cite lists:** the STAN v4-collapse numbers, the ReHDM v2 row, and VOID cells must not be
+  cited. ⚠ E a lista cresceu muito: [`CAMERA_READY.md §4`](CAMERA_READY.md) é a de registo, e o
+  portão `src/gate_v17.sh` verifica-a mecanicamente contra o PDF e contra a fonte.
+- ~~**Re-sync point:** `[mobiwac]/src/` is refined by the author in parallel; re-sync Ch.5 before the
+  final gate.~~ ⚠ **INVERTIDO.** A dissertação está à frente desde Agosto e foi ela que serviu de base
+  ao camera-ready. O sentido do registo é agora artigo→capítulo, na secção de 2026-09-06 no fim deste
+  ficheiro.
 
 ## Known errata
 - **Statistical-protocol labels (2026-07-25, author-approved; fixed in source).** §5.3 claimed the
@@ -416,3 +430,82 @@ is **also** declared in the dissertation's Appendix B (supplement), Table B.5. T
 skipping the declaration rests on the article being under review, and the article has been **accepted since
 2026-08-26**. Declaring a correction that turns out to be carried in both texts costs nothing; failing to
 declare one that ends up carried in only one text is a defect.
+
+---
+
+# 2026-09-06 · A passagem do camera-ready: onde o artigo passa a divergir do Capítulo 5
+
+> **O que mudou de regime.** Até hoje estes dois textos eram mantidos **idênticos**, e a
+> `errata_scope.tex` da dissertação (Tabela B.5 do suplemento) registava a divergência **num só
+> sentido**: onde o *capítulo* se afastava do artigo submetido. Hoje o sentido inverte-se. Por decisão
+> do autor (2026-09-06) o texto do Capítulo 5 passou a ser a base do camera-ready, e o camera-ready
+> recebeu depois correcções que o capítulo **não** tem. Esta secção é o lado do artigo desse registo.
+>
+> **Decisão de processo, do autor, na mesma data:** *"não acho que seja necessario avisar nada a banca
+> e ao chair, para mim vamos fazer a correção dos texto e deixar na melhor forma possivel e
+> re-enviamos"*. **Não haverá nota aos chairs.** A consequência recai inteira sobre o texto: o artigo
+> tem de declarar sozinho o que mudou, e é por isso que a frase *forward-only* na Secção IV e o quinto
+> limite da Secção VII deixam de ser opcionais.
+
+## 0 · O que estas divergências NÃO são
+
+Nenhuma delas altera um resultado experimental. Todas as células das duas tabelas de resultados são
+as mesmas nos dois textos, e as verifiquei uma a uma no PDF construído: 24/24 presentes, e as 15
+afirmações de superioridade nomeiam **só** Texas e California na região e a Florida na categoria.
+
+## 1 · A base mudou, e é a maior das divergências
+
+O artigo enviado ao EDAS é o commit `0834419b` (2026-07-10 22:56, 8 páginas,
+`md5 dce01efe60db68a50f531cdd0a88dbde`), etiquetado **`mobiwac-submetido-EDAS`** e identificado
+contra o PDF que o autor forneceu. As suas células de categoria estão inflacionadas por um vazamento
+de rótulo no grafo de visitas consecutivas, que era emitido nos dois sentidos: a categoria é uma
+*feature* de entrada do nó, portanto a cabeça de categoria via uma feature do seu próprio alvo. Em
+Alabama isso vale **28,63 macro-F1**.
+
+O camera-ready reporta a geração sem vazamento, com o grafo **forward-only** no treino e na leitura.
+A consequência para as alegações: a categoria passa de *supera em 6/6, +5,33 a +9,35* para **supera
+só na Florida, +0,19**; a região passa de *supera em 4/6* para **supera em 2/6 (Texas e California)**,
+com as outras quatro a ficarem dentro da margem registada de dois pontos. A escada completa está em
+[`CAMERA_READY.md §3`](CAMERA_READY.md).
+
+⚠ **Verificado, e vale para a decisão de processo:** procurei o canal de vazamento (`absorb the
+category`, `linear probe`, `consecutive-visit edge`, `node input feature`) nos **treze** builds de 8
+páginas elegíveis pelo prazo. **Zero ocorrências em todos os treze.** Nenhuma versão que os revisores
+pudessem ter lido declarava o canal. A quarta limitação que o descreve entrou em `0b472205`, a
+2026-08-05, quase um mês depois do prazo.
+
+## 2 · Divergências que o artigo tem e o capítulo não
+
+| # | Onde | O que o artigo passa a dizer | Porquê |
+|---|---|---|---|
+| 1 | §7, quinto limite | O ganho de região em Texas e California pode vir do tamanho e não da partilha. Na California um modelo dedicado com **97,4 %** do orçamento do conjunto (5.014.942 contra 5.151.189) faz **+0,41 Acc@10 acima**, cinco folds no mesmo sentido, p = 0,010. O Texas **não tem** controlo de tamanho igual. | Decisão **D4** do autor. O limite tinha sido retirado a 2026-08-12 porque não havia experiência a delimitá-lo; a experiência correu a **2026-08-13**, no dia seguinte. As duas decisões são consistentes: a de hoje é a consequência da experiência que a de Agosto esperava. |
+| 2 | §1, §6, §8 | Cláusulas a delimitar o resultado de região à California, com o Texas explicitamente por cobrir. | O limite tem de viajar com a alegação, não ficar só nas limitações. |
+| 3 | §5, *Baselines* | *"A version built from the whole dataset inflated region accuracy by 13 to 27 points. Only the HMT-GRN comparison model uses this prior; our joint and dedicated models do not."* | O capítulo **perdeu** estas frases. Protegem a comparação com o baseline de região primário: sem elas, um árbitro que conheça o HMT-GRN pergunta porque não usámos o prior e a resposta não está no artigo. |
+| 4 | §5, *Representation controls* | *"HGI is pre-trained once on the whole dataset, as our representation is, while CTLE is trained for each fold using training users only."* | Divulgação que **corre contra nós**: declara que o CTLE foi tratado com um regime mais estrito do que a nossa própria representação. Sem ela, a comparação parece mais favorável do que é. |
+| 5 | §5, *Configuration search* | Comprimido de 206 para ~135 palavras; todos os factos mantidos. | Orçamento de 8 páginas. **Não foi apagado**, e a razão é lei: `GLOSSARY.md:403` proíbe apagar um sinal de justiça sem substituição — um artigo cheio de baselines cujas descrições não têm proveniência lê-se como *"provavelmente estropiou os baselines"*. |
+| 6 | §5, integridade | Acrescentado *"on an earlier build of the representation"*. | A auditoria foi corrida sobre uma construção anterior. Sem a cláusula, o parágrafo defende a construção actual com evidência que não é dela — e é o parágrafo que responde à objecção que afundou a submissão anterior. |
+| 7 | §6, geometria | Sujeito corrigido e delimitação acrescentada: as medidas foram tiradas numa construção anterior, com os vectores agregados **por lugar**. | O sujeito antigo (*"the per-visit vectors' silhouette"*) contradizia a agregação por lugar. Corrigir só a delimitação teria deixado a frase a dizer uma coisa falsa em voz baixa. |
+| 8 | §2 | A frase de auto-posicionamento deixa de afirmar que a partilha ajuda e passa a dizer onde o modelo conjunto supera e onde a diferença fica dentro de um limite declarado. | A forma antiga é falsificada pela geração sem vazamento. Estava nos **dois** textos: o porte transportou-a, não a corrigiu. |
+| 9 | §2, balanceadores | Passa a pretérito e indexado no tempo; as magnitudes saem da prosa. | São deltas anteriores à correcção; a indexação temporal não as salva de serem lidas como correntes. |
+| 10 | §2, cosseno de gradiente | *"at four of the six datasets"*, nomeados. | A forma anterior dizia sete datasets e afirmava positividade; são quatro e a conclusão é equivalência a zero. |
+| 11 | Tabelas II e III, Figura 4 | Rodapé da cobertura de busca corrigido; legendas nas superfícies de veredicto da lei; `arm` → `column`/`model`. | A nota de rodapé ainda afirmava que a taxa de aprendizagem fora pesquisada em **todos** os datasets — foram quatro dos seis, e o corpo já o dizia em três sítios. Era texto **renderizado**. |
+| 12 | Todo o texto | `matches` sai dos dois eixos: região diz *"stays within the two-point margin"*, categoria diz *"equivalent to zero within half a point"*. | Decisão do autor (2026-09-06): a `WRITING_LAW.md` da dissertação governa o camera-ready. A cláusula de excepção que entregava a prosa do capítulo ao glossário do artigo foi removida por ele, commit `964cc50c`. |
+
+## 3 · O que se apagou, e o que se recusou apagar
+
+**Apagado:** o parágrafo da cascata e o controlo de congelamento da região. Os dois foram medidos na
+geração com vazamento e nunca recorridos; a cascata era a única medição com peso de alegação a
+atravessar a fronteira sem re-derivação. O receio de que apagar a cascata custasse a referência
+antecipada da §2 **não se confirmou**: a §2 do capítulo já é auto-suficiente.
+
+**Recusado:** a inversão mais forte do controlo de concatenação, rascunhada como errata Q13. O autor
+recusou-a a 2026-09-02 porque a re-execução não reproduz a tabela fold a fold em dois datasets, e a
+inversão erraria com a mesma força do original.
+
+## 4 · O que continua por resolver
+
+- **O resumo.** Se a frase do limite de capacidade fica lá ou vai só para a §6 e a §7. Decisão do autor.
+- **O corte para 8 páginas.** O texto está em 11. Decisão do autor: primeiro corrigir, depois cortar.
+- **`\IEEEpubid` e agradecimentos**, que consomem espaço na página 1 e têm de entrar **antes** de medir.
+- **Os pareceres dos revisores do MobiWac não existem neste repositório.** Tudo o que está registado
+  acima é auto-iniciado. Se os revisores pediram alguma coisa, está por fazer.

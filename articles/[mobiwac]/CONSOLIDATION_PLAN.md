@@ -312,10 +312,21 @@ Todos os caminhos são relativos à raiz do repositório. Citar sempre as aspas 
 > `src_fix`.** É a defesa mais forte da posição do autor e não é uma ausência que se argumenta: é uma
 > frase positiva no texto entregue. Sem ela, a §8 fica a dever a recusa que a D4 vai exigir.
 >
-> **P3 · A frase forward-only no Método.** Ainda **não existe** em nenhuma árvore do artigo — no
-> `src_fix` a propriedade só é afirmada dentro da quinta limitação da §7. Com a D1 decidida (sem nota
-> aos chairs), **é o texto que tem de ser honesto sozinho**, e o Método é onde um leitor a procura.
-> Entra como acrescento, e é a única passagem desta lista que ainda tem de ser escrita.
+> **P3 · A frase forward-only no Método.** ✅ **JÁ EXISTE — veio com o porte** (`04_method.tex`,
+> verificada renderizada no PDF, Secção IV-A): *"Each is measured up to the visit itself, so a node
+> describes the visit and the history preceding it, never anything that follows"* e *"The
+> consecutive-visit edges run in one direction only, from an earlier visit to a later one, for the
+> same reason: a target is predicted from a user's past, so the representation is built from the past
+> alone."*
+> ⚠ **Esta entrada dizia "ainda não existe em nenhuma árvore do artigo" e o erro foi meu.** Era
+> verdade do `src_fix` e ficou **falsa no instante em que o capítulo foi portado**; não voltei a
+> verificar depois de a minha própria acção mudar o facto. Apanhado pelo `mobiwac-writer`.
+> É a mesma família das seis afirmações de ausência que falharam esta semana, com uma variante nova
+> que vale registar: **não é uma busca mal feita, é uma verdade que caducou.** Uma afirmação de
+> ausência tem de ser re-testada depois de qualquer passo que possa tê-la resolvido — e o porte era
+> exactamente esse passo.
+> Continua a ser passagem protegida: **não pode ser cortada na segunda fase.** Com a D1 decidida
+> (sem nota aos chairs), é a única frase que diz ao leitor qual foi a mudança que moveu os números.
 
 ### Bloco A — Estrutura
 
