@@ -335,10 +335,12 @@ pergunta que a banca faz espontaneamente)*
 > Auditado contra a arvore viva, nao contra este registo. Os cabecalhos de cada item foram
 > actualizados, mas o corpo deles descreve o defeito **como era** e fica intacto, que e o seu valor.
 >
+> **A 2026-09-06 os sete estao fechados.** Nenhum ERR continua a precisar do autor.
+>
 > | | estado | o que aconteceu |
 > |---|---|---|
 > | **ERR-1** | **NAO E DEFEITO** | Verificado a 04/09 e o diagnostico estava errado. A tabela de erratas **nao esta no PDF de deposito** — e `\input` so pelo suplemento, e `pdftotext build/main_academico.pdf \| grep "Published wording"` devolve **0**. A frase sem hifen que se via no PDF e a **prosa do proprio Cap. 3, ja corrigida**: comeca por "In addition", que e exactamente o que a coluna direita da errata manda. E `multi-task` aparece **24 vezes intacto** nesse mesmo PDF, logo nao ha normalizacao a atropelar hifens. |
-> | **ERR-2** | **ABERTO** | O unico que continua a precisar de decisao do autor: se o cabecalho de capitulo pode divergir do titulo do artigo citado tres linhas abaixo. Nao e defeito — e escolha. |
+> | **ERR-2** | **RATIFICADO** 06/09 | Era o ultimo que precisava do autor, e fechou sem alteracao. O check que ele pediu antes de seguir o glossario confirma-o: **73 "multitask" contra 3 "multi-task"**, e as tres estao todas a citar um titulo (CBIC, MobiWac, e a coluna de redaccao superseded da errata). A razao decisiva nao e o estilo da casa mas a **fidelidade da citacao** — um titulo reproduz-se como foi publicado, em APA e em IEEE por igual. |
 > | **ERR-3** | **APLICADO** 01/09 | O campo `note` de `liu2019dwa` saiu da entrada para comentario acima dela. ⚠ A primeira tentativa pos o comentario DENTRO das chavetas e partiu o BibTeX: percentagem nao e caractere de comentario para o BibTeX, que varre a procura do arroba. |
 > | **ERR-4** | **DECIDIDO** 04/09 | Ruling do autor: **manter as orfas**, com nota a dizer que sao entradas de arquivo. Aplicado a `gambs2012mmc`, que ficou orfa hoje ao sair o paragrafo dos floors do Cap. 2. `belkin2003laplacian` e `santos2024urban` mantem-se. |
 > | **ERR-5** | **FECHADO** 02/09 | `senushkin2023aligned` e `liu2023famo` receberam DOI (o segundo tambem `pages`). **`holm1979` fechou a falha, e nao esta em falta**: o DOI proposto **nao resolve** — doi.org 404, Crossref "Resource not found", e o Holm 1979 nao esta na Crossref de todo. A OpenAlex afirma-o na mesma, um id JSTOR herdado do MAG e nunca registado. A entrada leva `url` do JSTOR, que responde 200. **Nao restaurar da OpenAlex.** |
@@ -374,7 +376,7 @@ imprime a forma correta. E um defeito de blindagem de citacao, corrigido no depo
 altera nenhuma correcao listada."
 *Fonte: tables/cbic/errata_wording.tex:34,:44; fonte de registro articles/CBIC___MTL/sections/conclusion.tex:17*
 
-### [ABERTO] · ERR-2 · Os titulos dos capitulos 3 e 5 desidratam o hifen de titulos citados
+### [RATIFICADO] · ERR-2 · Os titulos dos capitulos 3 e 5 desidratam o hifen de titulos citados
 
 **ACAO NECESSARIA:** decidir se o titulo de capitulo pode divergir do titulo do artigo. Hoje o
 cabecalho do Cap. 5 le **"A Check-in-Level Multitask Study of Next Category and Region"** enquanto o
@@ -390,6 +392,29 @@ viva: 76 ocorrencias de "multitask" contra 3 de "multi-task", e as 3 estao onde 
 artigo aparece citado com a grafia do registro, no prefacio e na lista de referencias. As duas formas
 convivem por essa razao, e nao por descuido."
 *Fonte: chapters/5_mobiwac.tex:16 e :29; chapters/3_cbic.tex:25; GLOSSARY.md:130*
+
+> **RATIFICADO PELO AUTOR, 2026-09-06.** Instrucao: *"como estamos escrevendo o texto em ingles e a
+> conferencia do mobiwac tbm e ieee, estamos usando o apa style... tem que ver qual e o formato
+> correto, mas acho que ja esta no glossary e podemos seguir com o que esta la, mas so da um check
+> antes."* O check foi feito e confirma o glossario. **Nenhuma alteracao.**
+>
+> **O que o check mediu**, na arvore viva com os comentarios filtrados do ficheiro: **73 ocorrencias
+> de "multitask" contra 3 de "multi-task"**, e as tres hifenizadas estao todas em `3_cbic.tex`
+> (prefacio, a citar o titulo publicado do CBIC), `5_mobiwac.tex` (prefacio, a citar o titulo aceite
+> do MobiWac) e `tables/cbic/errata_wording.tex` (a coluna que cita a redaccao superseded, a letra).
+> **Nenhuma das tres e prosa do documento**: as tres sao citacao de um registo.
+>
+> **A razao mais forte nao e o estilo da casa, e a fidelidade da citacao.** Um titulo citado
+> reproduz-se como foi publicado, e isso vale igual em APA e em IEEE — nao se re-estiliza o titulo de
+> outra pessoa para o conformar ao proprio manual. Portanto a pergunta "qual e o formato correto"
+> tem duas respostas que nao competem: para prosa nossa, **multitask** (APA fecha prefixos como
+> *multi-* sem hifen salvo colisao de vogais ou ambiguidade, e o glossario ja o manda); para um
+> titulo citado, **a grafia do registo**, hifen incluido. As duas formas coexistem por essa razao.
+>
+> O `GLOSSARY.md:86` ja tinha antecipado exactamente isto para o POI, e na mesma ronda 14: aberto
+> como substantivo (*"a point of interest"*), hifenizado so atributivamente (*"point-of-interest
+> prediction"*), com a nota de que **ambas as formas estao correctas e nenhuma e um desvio a
+> "uniformizar"**. O caso do *multitask* e o mesmo padrao.
 
 ### [APLICADO] · ERR-3 · Uma nota de anotacao interna imprime dentro de uma referencia
 
