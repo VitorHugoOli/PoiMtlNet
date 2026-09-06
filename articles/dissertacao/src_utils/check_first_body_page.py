@@ -105,9 +105,19 @@ def unnumbered_prefix(pdf_path: Path) -> tuple[int, int]:
         corner = page.get_textpage().get_text_bounded(
             left=w * 0.72, bottom=h * 0.90, right=w, top=h
         ).strip()
-        m = re.fullmatch(r"(\d+)", corner)
-        if m:
-            return i, int(m.group(1))
+        # ⚠ NOT `re.fullmatch(r"\d+", corner)`, which is what this was until 2026-09-06 and which
+        # gives FALSE NEGATIVES ON ARBITRARY PAGES of any watermarked PDF. The `academico` session
+        # hit exactly this while verifying the RASCUNHO: the DRAFT watermark lays glyphs on the same
+        # line as the page number, so sheets 22, 23 and 126 read as "no number at all" under a
+        # line-anchored match while their neighbours read fine. A gate that skips a page it cannot
+        # parse would here silently report the FIRST NUMBERED PAGE AS LATER THAN IT IS, and that is
+        # the very quantity this file exists to certify.
+        # So: pull every integer out of the corner box and take the first. On our own unwatermarked
+        # build this is identical to the strict match (verified: same 9 / 20 result); on a
+        # system-emitted RASCUNHO it keeps working.
+        nums = re.findall(r"\d+", corner)
+        if nums:
+            return i, int(nums[0])
     raise ValueError("no page in the deposit build prints a number in the top-right corner")
 
 

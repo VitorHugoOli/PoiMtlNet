@@ -158,6 +158,23 @@ be deposited.
 | 2026-09-06 · **ERR-2 ratified** | Chapter headings read "Multitask" while the prefaces cite the article titles hyphenated. **No change**, ratified by the author after a check: 73 "multitask" vs 3 "multi-task" live, and all three hyphenated ones quote a title of record. The governing rule is citation fidelity, not house style — a title is reproduced as published, in APA and IEEE alike. All seven ERR are now closed. | `wrapup/open_points/LACUNAS.md` §ERR-2 |
 | 2026-09-06 · **Ch. 2 window** | The chapter never stated the windowing: live count of "window" in Ch. 2 was **0** while Ch. 5 uses it 34 times, in a subsection titled "Preparation and data split" that had no preparation. New opening paragraph. **ℓ=9 is universal** (`L_h=9` at Chs. 3 and 4, "nine visits" at Ch. 5) — an earlier claim of mine that the three disagreed on ℓ was **wrong**; what varies is stride (non-overlapping vs. overlapping), the minimum history (5 vs. 10 visits) and short-history handling (zero-pad vs. full-length-only), each splitting the first two studies against the third. Frame, no errata; every value quoted from delivered text. | commit `b6b569e4` |
 
+> ✅ **DEPOSIT NUMBERING AND FORMATTING: VERIFIED CONFORMANT ON THE SYSTEM-EMITTED FILE (2026-09-06).**
+> Not on our build — on the RASCUNHO the portal emitted after the corrected body was re-attached
+> (127 sheets, md5 `92638ff1…`, the same file the author holds). Read off that file: sheet 21
+> (Introduction) prints **20**; sheet 127 (last) prints **126**; sheets 1–20 print **nothing**;
+> the sequence is continuous by sampling. Formatting measured by bounding box on the unwatermarked
+> build (the DRAFT layer covers the whole sheet and contaminates any measurement taken on the
+> RASCUNHO): margins 3.00 / 2.01 / ≥1.96 cm, leading 17.9–18.0 pt = 1.5 × 12 pt, number top-right at
+> 2.01 cm, A4, TeX Gyre Termes 12 pt, and the §6 order Figures → Tables → siglas → Contents → body.
+> **Only the BBT submission remains, and it is the author's to make.**
+>
+> ⚠ **THE WATERMARK TRAP, because it produces false negatives on arbitrary pages.** A line-anchored
+> regex (`^\d+$`) over a watermarked PDF reports "no page number" on sheets where the DRAFT glyphs
+> land on the number's line — it did so on sheets 22, 23 and 126 while their neighbours read fine.
+> Extract every integer from the region instead. `check_first_body_page.py` was hardened for this on
+> 2026-09-06: under the strict match it would have reported the first numbered page as LATER than it
+> is, which is the one quantity it exists to certify.
+>
 > 🔴 **THE DEPOSIT PORTAL IS BEHIND THE SOURCE, IN TWO SEPARATE WAYS (2026-09-06).** They have
 > different causes and different fixes, and conflating them is how the first one survived a check:
 >
@@ -176,8 +193,7 @@ be deposited.
 >    have changed since: `2_fundamentals.tex`, `5_mobiwac/04_method.tex`, `5_mobiwac/07_discussion.tex`,
 >    `6_conclusion.tex`, `apx_h_check2hgi_joint_model.tex`, `content.tex`, `tables/mobiwac/errata_scope.tex`.
 >
-> **The pagination question is downstream of both.** A RASCUNHO emitted now would measure the wrong
-> document, so re-attach and re-save first, then re-emit, then read the offset off it.
+> **Both were closed the same day**: the Resumo field was re-saved from a fresh read of `content.tex` (byte-compared against what the portal returns, 3144 / 2797 chars) and the body was re-attached as the 116-page build. The block above records the verification that followed.
 
 > ⚠ **`src/dissertacao.pdf` is STALE as of 2026-09-02.** It was built 2026-08-21 and carries only the
 > Resumo errata. Every row below it in this table is in `src/` but **not** in that PDF. `make defense`
