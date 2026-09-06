@@ -854,3 +854,65 @@ capacidade dito no mesmo fôlego; (2) manter o limite de B corrigido (tirar "has
 - As três afirmações verificadas nesta sessão (✔) são: as três árvores existem e não há nenhuma tag MobiWac; os cinco ficheiros críticos estão untracked/sujos; `97f01a50` é de 2026-07-11 00:28:46 -0300 e não houve deriva no material MobiWac desde a linha de base das auditorias.
 - **Não foi rederivado nenhum número experimental.** Todos os valores de resultados citados vêm de `articles/[mobiwac]/CAMERA_READY.md §3`/`§4`/`§5` ou de `articles/dissertacao/wrapup/evidence/ladder_recompute.json`, pelas auditorias que os recomputaram célula a célula.
 - **Os relatórios dos revisores do MobiWac não existem em lado nenhum do repositório** (`CAMERA_READY §10.1`). Todo o juízo deste plano é feito contra o registo interno, sem saber o que os revisores pediram.
+---
+
+# FASE 2 — O CORTE PARA 8 PÁGINAS (pronta a executar; aguarda autorização do autor)
+
+**Estado medido (2026-09-06, portão verde, `GATE_PHASE=2` a acusar só as páginas):**
+11 páginas · 8 274 palavras vivas nas secções · 33 referências · build 0/0/0.
+Enchimento por página: p8 1 095 · p9 1 034 · p10 1 082 · p11 956.
+
+**O alvo, medido e não estimado:** ~1 042 palavras-página em média. Para 8 páginas há que largar o
+equivalente a **três páginas ≈ 2 700 a 2 900 palavras-página**, contando texto **e** espaço de
+flutuantes. O `\IEEEpubid` e os agradecimentos ainda **não** estão postos e consomem espaço na
+página 1 — **entram antes de medir**, senão medimos contra o alvo errado.
+
+## O que NÃO se corta, e porquê
+
+Cada linha desta lista tem um custo de credibilidade maior do que o espaço que liberta.
+
+| Passagem | Porquê |
+|---|---|
+| Tabela II com as 24 células, os ± e as marcas | É o resultado |
+| Os seis intervalos de categoria e a frase do limite de 0,34 | **São** a alegação de meio ponto; sem eles a frase fica sem base |
+| Os quatro défices de região com a direcção | Uma célula dentro da margem nunca se escreve como "sem diferença" |
+| Do quinto limite: 97,4 % · +0,41 · p = 0,010 · cinco folds · *"Texas has no control of matched size"* | É a decisão **D4** do autor. Os braços de 528 e do Texas podem reduzir-se a uma oração cada |
+| As frases *forward-only* da §IV-A e o limite que nomeia o canal | **P3.** Com a D1 decidida, é a única coisa que diz ao leitor o que mudou |
+| A cobertura da busca, uma vez, na §V | `GLOSSARY.md:403`: não se apaga um sinal de justiça sem substituição |
+| Os números do treino com todos os utilizadores, com *"on an earlier build"*; o prior por fold; *"not a reproduction of the complete published system"* | Piso de evidência da `GLOSSARY §9.4`. A última já se perdeu uma vez, por acidente |
+| O plano estatístico, o desvio Wilcoxon→*t*, Holm m = 6 | O artigo já teve uma errata por descrever mal isto |
+| O par **P1** e a frase da D4 colada | Separá-las faz o artigo passar de observar a afirmar |
+| **P2**, na forma repontada | A recusa explícita da explicação por partilha |
+| As contagens de parâmetros da §IV-B | É a inversão honesta do *"+5 percent"* que morreu |
+| As 12 células da Tabela III, o Istanbul e uma frase sobre ele | Validade externa |
+
+## A ordem do corte (Fable, com as estimativas dele)
+
+1. Reconciliação do piso de Markov, §VI-B, 2 parágrafos → 3 frases · **≈190**
+2. A cobertura da busca está dita em **cinco** sítios; manter §V + rodapé, ponteiros nos outros · **≈120**
+3. §VII ¶3, a hipótese de categoria em TX/CA — explica um −0,13 que o artigo chama equivalente a zero · **≈130**
+4. §II-C, rastreio de balanceadores + cosseno → uma frase de literatura + uma de achado · **≈210**
+5. §VI-B, parágrafo da convenção de época → convenção + 0,23/0,93 + as inversões de veredito · **≈150**
+6. §VII ¶4, *shortlist* de serviço → 2 frases, mantendo 64,54 e 8 501 (âncora de venue) · **≈80**
+7. §VI-C Istanbul → uma frase dentro da §VI-B · **≈100**
+8. §VI-A, geometria + CTLE → dois números + delimitação · **≈120**
+9. §III ¶2, mantendo o escopo *census tract*, não célula de rádio · **≈85**
+10. §I bullet 3 → duas linhas; cai a frase de roteiro · **≈115**
+11. §VII ¶2, o *trunk* · **≈75**
+12. §VII, segundo limite · **≈110**
+13. §VIII → ~220 palavras, na forma repontada · **≈220**
+14. §V, parágrafo TOST: cai a frase da margem de um ponto · **≈50**
+15. §V, plano + Wilcoxon · **≈70**
+16. §VI-B, a frase *"For scale"* · **≈45**
+
+**Subtotal ≈ 1 870 palavras.** O resto vem dos flutuantes: a **Figura 4 duplica** os 12 deltas da
+Tabela II (≈ ¼ de página), a Figura 1 pode passar de `figure*` a largura de coluna, e a Tabela III
+admite forma compacta.
+
+⚠ **Não tocar** nas frases da §II-B/§II-C que nomeiam sistemas: a `GLOSSARY §9.3` manda-as.
+
+## Como se sabe que acabou
+
+`GATE_PHASE=2 ./gate_v17.sh` de dentro de `src/`. Exige, além de tudo o resto: **8 páginas** e o
+`\IEEEpubid` presente. E a guarda `[f]` continua a correr — o corte é precisamente a operação em que
+um comentário fica colado a meio de uma frase.
