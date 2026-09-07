@@ -104,7 +104,11 @@ PG=$(pdfinfo main.pdf 2>/dev/null | awk '/^Pages/{print $2}')
 echo "  paginas = ${PG}"
 if [ "${GATE_PHASE:-1}" = "2" ]; then
   [ "$PG" = "8" ] || fail "fase 2: o alvo e 8 paginas, esta em ${PG}"
-  grep -q "IEEEpubid" main.tex || fail "fase 2: \\IEEEpubid em falta (consome espaco na pagina 1)"
+  # \IEEEpubid REMOVIDO da fase 2 em 2026-09-06. O autor leu as normas do venue
+  # (scomminc.com/pp/ieee/mobiwac26.htm) e confirmou: NAO ha bloco de copyright a acrescentar pelo
+  # autor -- o formulario electronico e enviado ao autor de contacto DEPOIS do upload. Tambem nao ha
+  # agradecimentos nem financiamento a declarar. Logo a pagina 1 nao perde espaco nenhum, e as 8
+  # paginas passam a ser o unico criterio desta fase.
 else
   echo "  (fase 1: paginas ainda nao sao criterio; correr com GATE_PHASE=2 para o corte)"
 fi

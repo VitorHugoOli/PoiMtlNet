@@ -25,8 +25,13 @@ A divisão ingénua (8 296 palavras ÷ 11 páginas) dá 754 palavras/página e *
 | **v1** (o commit `0834419b`, o que os revisores leram) | **5 499** | **8** |
 | hoje | **8 296** | 11 |
 
-**Alvo: ~5 500 palavras. Há que largar ~2 800**, mais os ~117 das adições e o `\IEEEpubid`
-(~25 equivalentes) — **~2 950 no total.**
+**Alvo: ~5 500 palavras. Há que largar ~2 800**, mais as adições — **~2 890 no total.**
+
+> ✅ **Duas coisas que o autor fechou a 2026-09-06 e que aliviam a conta.** Leu as normas do venue e
+> confirmou: **não há `\IEEEpubid`** (o formulário de copyright é enviado depois do upload) e **não
+> há agradecimentos nem financiamento a declarar**. A página 1 não perde espaço nenhum, e o portão em
+> fase 2 deixou de o exigir — as 8 páginas passam a ser o único critério. Poupa ~25 equivalentes e,
+> mais importante, tira dois bloqueadores do caminho crítico.
 
 > ⚠ **CORRECÇÃO (Fable, 2026-09-06): a minha base estava errada e o erro era a favor do plano.**
 > Escrevi 5 623 para a v1; são **5 499** (verificado nos três candidatos de 8 páginas: `0834419b`
