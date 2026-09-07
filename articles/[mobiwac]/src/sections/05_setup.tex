@@ -5,34 +5,26 @@
 \section{Experimental Setup}
 \label{sec:setup}
 
-This section describes the datasets, data splits, evaluation metrics, statistical tests, and comparison models used in the experiments.
-
 \subsection{Data}
 \label{sec:setup-data}
-Table~\ref{tab:datasets} summarizes the six datasets. Five datasets come from Gowalla, a location-based social network, and cover the U.S. states of Alabama, Arizona, Florida, Texas, and California~\cite{cho2011gowalla}. The sixth dataset contains check-ins from Istanbul in the Massive-STEPS collection~\cite{wongso2025massivesteps}. We use Istanbul to examine the findings outside the United States.
+Table~\ref{tab:datasets} summarizes the six datasets. Five come from Gowalla, collected from 2009 to 2011, and cover the U.S. states of Alabama, Arizona, Florida, Texas, and California~\cite{cho2011gowalla}. The sixth contains check-ins from Istanbul in the Massive-STEPS collection~\cite{wongso2025massivesteps}, which lets us examine the findings outside the United States.
 % Data provenance (hidden): the Gowalla source is the public CC0 category-annotated dump,
 % figshare.com/articles/dataset/gowalla_data/22126586 (gowalla_checkins + gowalla_spots_subset1/2,
 % the exact files the ETL consumes; 36,001,959 check-ins). Date range MEASURED on the parquet
 % 2026-07-09: 2009-01-21 .. 2011-08-16 -> "collected 2009 to 2011". The SNAP/cho2011 dump
 % (Feb 2009-Oct 2010) is NOT the data source; cho2011gowalla is cited as the LBSN reference only.
-The U.S. datasets range from about 114,000 check-ins and 1,109 regions in Alabama to about 3.2 million check-ins and 8,501 regions in California. All six datasets use the seven place categories defined in Section~\ref{sec:problem}. The source labels for Istanbul are mapped to these categories. A region is a census tract in the U.S. datasets and a mahalle in Istanbul.
+% [2026-09-07, cut S1] The range sentence dropped (it named California as the upper end of a
+% check-in range that Texas exceeds, Table I) together with the categories, the Istanbul mapping
+% and the region unit, all stated in Section III-A, which stays the definitional home.
 
 
 \subsection{Windows, splitting, and the integrity of the representation}
 \label{sec:setup-windows}
-\emph{Windows.} For each user with at least ten visits, we order the visits by time. We then form overlapping sliding windows of nine visits and use the next visit as the target. A new window starts at each visit, which provides more examples for both tasks. Near the end of a user's history, several start positions can produce shorter, padded windows with the same final visit as the target. We remove these duplicates and keep only the full-length window that ends at this target. The prediction horizon is usually short, but some time gaps are much longer. The median time from the last visit in a window to its target ranges from 0.4 hours in Florida to 5.5 hours in Istanbul. Across the datasets, 5 to 27 percent of the targets occur more than 3 days later.
+\emph{Windows.} For each user with at least ten visits, we order the visits by time. We then form overlapping sliding windows of nine visits, one starting at each visit, and use the next visit as the target. Where several start positions share a target, we keep only the full-length window. The median time from the last visit in a window to its target ranges from 0.4 hours in Florida to 5.5 hours in Istanbul. Across the datasets, 5 to 27 percent of the targets occur more than 3 days later.
 
-\emph{Splitting.} We use stratified five-fold cross-validation and split the data by user. All windows from one user remain in the same fold. Therefore, the overlapping windows cannot cross the training and test sets, and the visits of a test user never appear in training. The held-out fold provides the validation data, and we do not reserve a third split. We stratify the split by the next-category label because the seven classes are imbalanced. Food is the majority class in every dataset, ranging from about 25 percent of visits in Florida to 34 percent in Alabama (Table~\ref{tab:datasets}).
+\emph{Splitting.} We use stratified five-fold cross-validation and split the data by user. All windows from one user remain in the same fold. Therefore, the overlapping windows cannot cross the training and test sets, and the visits of a test user never appear in training. The split is by user and not by time, so the evaluation does not measure drift or the effect of sporadic events. The held-out fold provides the validation data, and we do not reserve a third split. We stratify the split by the next-category label because the seven classes are imbalanced (Table~\ref{tab:datasets}).
 
-\emph{Integrity of the representation.} Before using Check2HGI in the prediction
-models, we need to check whether it carries information from the validation data. The
-prediction models are trained without the validation users, but Check2HGI is trained
-once on the whole dataset and has seen their visits. Its training objective does not
-use the next-category or next-region labels. We therefore check whether whole-dataset
-training changes the results.
-
-\emph{Configuration search.} The search was not uniform across the three model families, so its
-scope is stated here.
+\emph{Configuration search.} The search was not uniform across the three model families.
 % [2026-09-06, camera-ready, DP-7] COMPRESSED, not deleted: GLOSSARY section 9.4 forbids deleting a
 % fairness signal without an act-replacement, and this paragraph is the fairness signal behind the
 % conservatism argument of Sections VI and VII. 206 -> ~135 words. Every fact kept: batch size at six
@@ -65,20 +57,11 @@ scope is stated here.
 % probe fixes this sentence (positive-control check against two known-pinned fragments returned hits;
 % seven fragments of this sentence returned zero). Do not restore "the value the smaller searches
 % selected" -- Florida and California never had a search of their own to select it.
-For the dedicated category model, batch size was searched at all six datasets, over five folds at
-Istanbul, Alabama and Arizona and on a single fold at Texas, and the learning rate at four of them,
-over five folds at Istanbul, Alabama and Arizona and on single folds at Texas. Florida and California
-carry the large-dataset value, which only the single-fold Texas screen tested. The selected learning
-rate differs by dataset. For the joint model, batch size and the category-head learning rate were
-searched at Istanbul, Alabama, and Arizona over five folds and screened at Florida, and Texas and
-California carry the configuration transferred from those searches. The dedicated region model uses
-one configuration throughout, with only the logit-adjustment strength tested and set to zero for
-that task. Section~\ref{sec:discussion} returns to what the uneven joint search may mean for Texas
-and California.
+For the dedicated category model, batch size was searched at all six datasets and the learning rate at four of them, in both cases over five folds at Istanbul, Alabama and Arizona and on single folds at Texas. Florida and California carry the large-dataset value, which only the single-fold Texas screen tested, and the selected learning rate differs by dataset. For the joint model, batch size and the category-head learning rate were searched at Istanbul, Alabama, and Arizona over five folds and screened at Florida, with Texas and California carrying the configuration transferred from those searches. The dedicated region model uses one configuration throughout, with only the logit-adjustment strength tested and set to zero.
+% [2026-09-06, cut C3] The pointer "Section VII returns to what the uneven joint search may mean"
+% removed with the paragraph it pointed at.
 
-\emph{Whole-dataset training.} The question is whether using all users to train
-Check2HGI gives the prediction models an advantage. To check this, we built a new
-representation for each fold using only its training users. This check covers three datasets at
+\emph{Whole-dataset training.} The prediction models are trained without the validation users, but Check2HGI is trained once on the whole dataset and has seen their visits. Its training objective uses neither the next-category nor the next-region label. To check whether this gives the prediction models an advantage, we built a new representation for each fold using only its training users. This check covers three datasets at
 one seed, on an earlier build of the representation.
 % [2026-09-06, camera-ready, DP-9] "on an earlier build of the representation" ADDED. The
 % whole-dataset-training check ran on the pre-v18 build (docs/studies/pre_freeze_gates/
@@ -91,8 +74,7 @@ $+0.29$ macro-F1 points for category.
 However, the region comparison uses region vectors directly. For category, a graph built only
 with training users has no visit vectors for validation users. We therefore used one
 vector per place and kept only windows whose input places occurred in training. These
-windows cover 67 to 87 percent of the validation data. The comparison does not cover
-information specific to each visit or places unseen in training. Within this
+windows cover 67 to 87 percent of the validation data. Within this
 coverage, whole-dataset training did not meaningfully change the results.
 
 % [2026-09-06, camera-ready] The commented-out "Links between consecutive visits" block (the
@@ -102,9 +84,9 @@ coverage, whole-dataset training did not meaningfully change the results.
 
 \subsection{Metrics and statistical tests}
 \label{sec:setup-metrics}
-For the category task, we report macro-averaged F1 (macro-F1). It is the mean of the F1 scores for the seven categories, so each category has equal weight. Its reference point is the majority-class floor, obtained by always predicting the most common category. For the region task, we report accuracy at ten (Acc@10). This measure is the fraction of test visits for which the true region is among the model's ten highest-scoring predictions. If the true region does not occur in the training data for that fold, the visit counts as an error. The reference point for this task is the dedicated model.
+For the category task, we report macro-averaged F1 (macro-F1), the mean of the seven per-category F1 scores, so each category has equal weight. For the region task, we report accuracy at ten (Acc@10), the fraction of test visits whose true region is among the model's ten highest-scoring predictions. If the true region does not occur in the training data for that fold, the visit counts as an error. The reference point for this task is the dedicated model.
 
-A claimed gain and a claimed match require different tests. A non-significant difference does not provide evidence of a match. A written analysis plan, fixed during development and before any result was read, assigned a superiority test to next-category prediction and a non-inferiority test to next-region prediction. These assignments apply to each task across the datasets. The plan did not define a superiority test for next-region prediction. Therefore, the two next-region gains in Section~\ref{sec:results-part2} are secondary results outside the plan. On next category the plan registered no equivalence margin, so a difference that fails the superiority test is reported as unresolved rather than as a match.
+A non-significant difference does not provide evidence of a match. A written analysis plan, fixed during development and before any result was read, assigned a superiority test to next-category prediction and a non-inferiority test to next-region prediction. The plan did not define a superiority test for next-region prediction. Therefore, the two next-region gains in Section~\ref{sec:results-part2} are secondary results outside the plan. On next category the plan registered no equivalence margin, so a difference that fails the superiority test is reported as unresolved rather than as a match.
 
 % [2026-09-02, AUTHOR RULING, errata Table B.5 of the supplement] The promise "We also report the
 % registered Wilcoxon test on the 20 matched fold differences as a sensitivity analysis." is REMOVED:
@@ -114,11 +96,22 @@ A claimed gain and a claimed match require different tests. A non-significant di
 % trail: the plan registered the test, the seed-level footing is why it is not used (p floors at
 % 0.0625 at n=4), and the code release carries both tests. "The primary analysis" -> "The reported
 % analysis": with no sensitivity analysis named, "primary" implied a secondary that is not there.
-The plan registered a paired Wilcoxon signed-rank test on the matched fold differences. The final evaluation uses four seeds, each of which determines a different user partition and repeats the five-fold experiment. This design produces $4\times5=20$ fitted models per configuration. The reported analysis aggregates the five folds within each seed and reports a paired $t$-test on the four per-seed means ($n{=}4$), together with the 90\% confidence interval for the paired difference. At this seed-level footing, the exact one-sided Wilcoxon $p$-value cannot be less than $0.0625$. The code release includes both tests and documents this departure from the plan.
+The plan registered a paired Wilcoxon signed-rank test on the matched fold differences. The final
+evaluation uses four seeds, each with its own user partition, so each configuration yields
+$4\times5=20$ fitted models, and the reported analysis is a paired $t$-test on the four per-seed
+means ($n{=}4$) with the 90\% confidence interval of the paired difference. At this footing the
+exact one-sided Wilcoxon $p$-value cannot fall below $0.0625$, which is why the $t$ carries the
+verdict. The code release includes both tests and documents this departure from the plan.
+% [2026-09-06, cut C17] ~90 -> ~75 words; the four facts the ledger requires all kept: the
+% registered test, the paired t on four per-seed means, the 0.0625 floor as the reason, and "the
+% code release includes both tests".
+
 
 A \emph{seed} is one complete repetition of the five-fold experiment. It determines the random initialization and the user partition, so each seed produces a different division of the users. Within one seed, the compared models use the same partition. The paired $t$ and TOST analyses compare the four per-seed means. We apply a Holm correction~\cite{holm1979} across the six next-category comparisons and, separately, across the six next-region comparisons.
 
-The non-inferiority claim states that the joint model is no worse than the dedicated model by more than a two-point margin. We test this claim with the two one-sided tests (TOST) procedure~\cite{lakens2017tost}. The analysis plan also fixed the two-point margin in advance. A mobility-aware service acts on which region will be busy, rather than on a single position in the ranking (Section~\ref{sec:problem}). A two-point change in Acc@10 is below the level at which this service would behave differently. Across the four user partitions, the standard deviation of the paired difference ranges from 0.02 to 0.16 points. The intervals at Istanbul, Arizona, and Florida are narrow enough to support a margin as small as one point; Alabama's is not, and among these four datasets it has the largest region difference (Section~\ref{sec:results-part2}).
+The non-inferiority claim states that the joint model is no worse than the dedicated model by more than a two-point margin. We test this claim with the two one-sided tests (TOST) procedure~\cite{lakens2017tost}. The analysis plan also fixed the two-point margin in advance. A mobility-aware service acts on which region will be busy, rather than on a single position in the ranking (Section~\ref{sec:problem}). A two-point change in Acc@10 is below the level at which this service would behave differently. Across the four user partitions, the standard deviation of the paired difference ranges from 0.02 to 0.16 points.
+% [2026-09-06, cut C15] The one-point-margin sentence (Istanbul/Arizona/Florida narrow enough; Alabama
+% not) dropped; the registered margin is two points and the intervals are printed in Section V-B.
 % [2026-09-06, AUTHOR-APPROVED errata, Table B.5 of the supplement] "it is the dataset with the
 % largest region difference" -> "among these four datasets it has the largest region difference".
 % Not false: within the four datasets the sentence discusses, Alabama's -0.88 is the largest. But
@@ -182,31 +175,29 @@ The non-inferiority claim states that the joint model is no worse than the dedic
 
 \subsection{Baselines}
 \label{sec:setup-baselines}
-We use the comparison models for two purposes: to compare each task with established methods and to evaluate the representation.
+Every external system is run on our data, each with the adaptations its change of task requires:
+HMT-GRN, STAN, and POI-RGNN on our user-disjoint folds, and ReHDM~\cite{li2025rehdm} under its
+published chronological split.
 
-\emph{Task comparisons.} For next-category prediction, we use POI-RGNN~\cite{capanema2023poirgnn}, which we re-implement from its published architecture and hyperparameters. We also use a Markov model that predicts the category that most often follows the recent categories. We select the best Markov order for each dataset. For region prediction, we compute a Markov-1 floor over region transitions. It uses the same sliding windows and fold splits as our models.
+\emph{Task comparisons.} For next-category prediction we re-implement POI-RGNN~\cite{capanema2023poirgnn}. It reads non-overlapping nine-visit windows,
+whereas our category models read overlapping ones. We also use a Markov model over the recent
+categories, with the best order selected per dataset, and, for region, a Markov-1 floor over region
+transitions. The primary next-region comparison is
+HMT-GRN~\cite{lim2022hmtgrn}, an end-to-end recurrent model. We keep its shared multi-task structure and add a region-transition prior built from the training data in
+each fold. A version built from the whole dataset inflated region accuracy by 13 to 27 points. Only
+the HMT-GRN comparison model uses this prior, and our joint and dedicated models do not. We remove
+its graph components and hierarchical beam search, which support exact next-place prediction, so
+the resulting model predicts region as one of its original targets but is
+not a reproduction of the complete published system. STAN~\cite{luo2021stan} is re-implemented with its own
+representations and sequences, its output adapted to rank candidate regions.
 
-The primary next-region comparison is HMT-GRN~\cite{lim2022hmtgrn}, an end-to-end recurrent model trained as one unit from the raw check-ins. We evaluate it on the same data, folds, and random initializations. We keep its shared multi-task structure and add a region-transition prior that is built from the training data in each fold. A version built from the whole dataset inflated region accuracy by 13 to 27 points. Only the HMT-GRN comparison model uses this prior; our joint and dedicated models do not.
-% [2026-09-06, camera-ready, DP-6] TWO SENTENCES RESTORED from the accepted text
-% (src_fix/sections/05_setup.tex, "Integrity of the representation", third ground), which the
-% chapter had dropped: the whole-dataset prior inflated region accuracy by 13 to 27 points, and only
-% HMT-GRN uses the per-fold prior. Placed beside the sentence that introduces the prior, since the
-% chapter's integrity paragraph no longer enumerates three grounds. Protects the primary region
-% comparison: a reader who knows HMT-GRN asks why the prior is per fold, and this is the answer.
-% [2026-09-06, later] This comment block had been inserted mid-sentence and swallowed the tail of
-% the paragraph into its last line (three sentences lost from the PDF); repaired, comment now sits
-% between sentences. Rule: a comment lives between sentences, never inside one.
-We remove the graph components and hierarchical beam search because they support exact next-place prediction, which we do not study. The resulting model predicts region as one of its original targets, but it is not a reproduction of the complete published system.
-
-We also run STAN~\cite{luo2021stan}. We re-implement its published architecture and train it from the raw check-ins with its own representations and sequence construction under one fixed configuration. We adapt its output to rank candidate regions, which are spatial objects compatible with its candidate-distance matching. We do not adapt STAN to category prediction because distance matching does not apply to categories. We report ReHDM~\cite{li2025rehdm} as a reference under its published protocol.
-
-\emph{Representation controls.} Two controls test whether the category gain comes from our representation design rather than from contextualization in general or from additional features. CTLE~\cite{lin2021ctle} is the closest prior contextual check-in representation. We train it end to end at Florida. At Alabama, Arizona, and Istanbul, we keep its weights fixed and do not fine-tune them. The learned representations follow their own training scopes: HGI is pre-trained once on the whole dataset, as our representation is, while CTLE is trained for each fold using training users only.
-% [2026-09-06, camera-ready, DP-6, third sentence] Restored from the accepted text
-% (src_fix/sections/05_setup.tex, integrity paragraph, last two sentences). It discloses that CTLE
-% ran under a stricter regime (per-fold, training users only) than our representation and HGI
-% (whole dataset once); without it a reader assumes parity of regimes and the CTLE comparison reads
-% more favorable to us than it is. Fairness signal, GLOSSARY section 9.4.
-% [2026-09-06, later] Same repair as above: the block had swallowed the sentence that follows.
-The second control adds raw features from each visit to a standard place embedding and uses the same prediction model.
-
-A final control uses the standard place-level HGI representation~\cite{huang2023hgi} to measure what the per-visit representation adds. All other choices, including the nine-visit window, were fixed during development. The released code provides the full training configuration for every model (footnote~\ref{fn:code}).
+\emph{Representation controls.} Two controls test whether the category gain comes from our representation design rather than from contextualization in general or from additional features: CTLE~\cite{lin2021ctle}, the closest prior contextual check-in representation, and the standard place embedding (HGI~\cite{huang2023hgi}) concatenated with raw per-visit features (Section~\ref{sec:results-part1}). HGI is pre-trained once on the whole dataset, as our
+representation is, while CTLE is trained for each fold using training users only. All other choices, including the nine-visit window, were fixed during
+development, and the released code provides the full training configuration for every model
+(footnote~\ref{fn:code}).
+% [2026-09-06, author-approved compression to ~280 words] The four fairness sentences are verbatim
+% (run on our data; the 13-27 point prior disclosure with "only HMT-GRN"; the HMT-GRN adaptation
+% "not a reproduction"; the POI-RGNN window asymmetry), and the CTLE/HGI training-scope sentence
+% stays. Compressed: the Markov description (44 -> ~20 words), STAN (44 -> ~25), and the
+% representation controls (113 -> ~60, now pointing at Section V-A, which reports them). The
+% code pointer closes the block, per the author.

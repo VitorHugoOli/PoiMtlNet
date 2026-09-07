@@ -7,10 +7,10 @@
 
 Location-based social networks, such as Gowalla~\cite{cho2011gowalla}, let people share the places that they visit as check-ins, which together record how people move through a city. Individual mobility is highly predictable in principle~\cite{song2010limits}, so a service that anticipates the next move can prepare ahead of time, caching content where a user is heading~\cite{bastug2014edge} or provisioning capacity at the destination before demand arrives. Handover predictions already let cellular services adapt in advance at the network level~\cite{vielhaus2022handover}; at the city scale, check-in mobility analysis is likewise a design input for mobility-aware services~\cite{moura2025mobilityaware}.
 
-Predicting the next place exactly, a single point of interest (POI), is hard and often more than a service needs. Two coarser questions are usually enough: the next category, the type of place such as food or shopping, and the next region, the part of the city that a user is heading to (a neighborhood-scale unit such as the U.S. census tract). The first captures intent, the second captures geography; we study whether one model should learn both at once.
+Predicting the next place exactly, a single point of interest (POI), is hard and often more than a service needs. Two coarser questions are usually enough: the next category, the type of place such as food or shopping, and the next region, the part of the city that a user is heading to. We study whether one model should learn both at once.
 
-Sharing one representation across tasks has a cost: in multi-task learning (MTL), one model does several jobs at once by sharing most of its parts, so the shared parameters can converge to a compromise optimal for neither task, helping one while hurting the other~\cite{caruana1997multitask}. Our earlier
-work reported no consistent multi-task advantage for the paired category tasks and attributed it, in part, to this effect~\cite{silva2025mtlnet}; the useful question is where sharing helps, what it costs, and how to share so the gains hold and the cost stays small.
+Sharing one representation across tasks has a cost: in multi-task learning (MTL), the shared parameters can converge to a compromise optimal for neither task, helping one while hurting the other~\cite{caruana1997multitask}. Our earlier
+work reported no consistent multi-task advantage for the paired category tasks and attributed it, in part, to this effect~\cite{silva2025mtlnet}; the useful question is where sharing helps and what it costs.
 % [B.1 FIX 2026-07-24, author-approved] Was "Prior work observed exactly this for next-category
 % and next-region": two errors vs the CBIC record (Ch.3) -- CBIC paired STATIC category
 % classification with next-category (no region task), and it HYPOTHESIZED negative transfer on a
@@ -27,45 +27,40 @@ semantic context) and a private spatial path for the region task (Fig.~\ref{fig:
 
 Our contributions are as follows.
 \begin{itemize}
-  \item \textbf{A check-in-level representation.} We extend hierarchical graph infomax from the
-    place to the individual visit, so that each check-in carries its own vector rather than sharing
-    one fixed vector per place. Under a controlled comparison in which only the input changes, this
-    improves next-category prediction at every one of the six datasets and in every one of their
-    folds, by $+0.23$ to $+6.29$ points of macro-F1, and a paired test separates the two
-    representations at five of the six (Table~\ref{tab:substrate}). A single vector per place cannot
-    separate places that serve several purposes, and per-visit context recovers that distinction.
-    The complete system is also above every external baseline reported, on both tasks and at every
-    dataset, three of them re-run under our protocol (Section~\ref{sec:results-external}).
+  \item \textbf{A check-in-level representation.} Under a controlled comparison in which only the input
+    changes, at one random initialization, it improves next-category prediction at every one of
+    the six datasets and in every one of their folds, by $+0.23$ to $+6.29$ points of macro-F1,
+    under one point at the three largest datasets, and a paired test separates the two
+    representations at five of the six (Table~\ref{tab:substrate}). The complete system is also above every external baseline of Table~\ref{tab:results},
+    on both tasks and at every dataset.
   \item \textbf{A single model for both tasks.} One model predicts the next category and the next
-    region in one forward pass, sharing semantic context while keeping a private spatial path for
-    the region task. To our knowledge, this is the first work to treat fine-grained region as an end
-    target of equal standing (Section~\ref{sec:related-tasks}). It outperforms a dedicated
-    single-task region model at the two datasets with the largest region vocabularies and stays
-    within a registered two-point margin at the other four. At one of the two, a dedicated model of
-    the same size scores above it, so we do not attribute that gain to sharing
-    (Section~\ref{sec:discussion}). On category it outperforms the dedicated model at one dataset,
-    and the five remaining differences are equivalent to zero within half a point, even though the
-    dedicated category model receives a per-dataset search (Table~\ref{tab:results}).
-  \item \textbf{Next-region results under one protocol.} We report next-region prediction across
-    six datasets, four random initializations, and five folds, against three external systems and
-    a Markov-1 floor, under a pre-registered statistical protocol, so that others can report on the
-    same footing. The two datasets where the joint model outperforms are the two with the largest
-    region vocabularies, while the four smaller ones sit inside the margin (Table~\ref{tab:results}).
-    We report this as an observation and not a law, since the ordering does not hold inside the
-    pair and region count co-varies with corpus size.
+    region in one forward pass, reading both answers from a single saved model, so there is one
+    artifact to train, version, and deploy. To our knowledge, this is the
+    first work to treat fine-grained region as an end target of equal standing
+    (Section~\ref{sec:related-tasks}). It outperforms a dedicated single-task region model at the
+    two datasets with the largest region vocabularies and stays within a registered two-point
+    margin at the other four (statistical non-inferiority, assessed with two one-sided tests). At
+    one of the two, a dedicated model of the same size scores above it, so we do not attribute the gain
+    there to sharing (Section~\ref{sec:discussion}). On category it outperforms the dedicated model
+    at one dataset, and the five remaining differences are equivalent to zero within half a point,
+    even though the dedicated category model receives a per-dataset search
+    (Table~\ref{tab:results}). The pairing of the two region gains with the two largest region vocabularies is an
+    observation and not a law (Section~\ref{sec:results-part2}).
 \end{itemize}
-% [2026-09-06, camera-ready, REBALANCE, author-approved: PROPOSTA_REEQUILIBRIO.md section B]
-% Three bullets in the order of the strength of the evidence. Departures from the proposal text:
-% bullet 1's external clause said "the four external baselines re-run under our protocol"; ReHDM is
-% reported under its own published protocol (Section V-D), so the clause now says "every external
-% baseline reported ... three of them re-run under our protocol" (POI-RGNN, HMT-GRN, STAN); bullet
-% 3's "against four external baselines" -> "three external systems and a Markov-1 floor" (the
-% region column holds HMT-GRN, STAN, ReHDM and the floor); "significant" -> "a paired test
-% separates" (test named); "reaches that gain" -> "scores above it"; "where joint training pays"
-% -> "where the joint model outperforms" (money metaphor, GLOSSARY section 8); semicolons split.
-% WITHHELD by condition 1 of the proposal: the clause "with the folds and region assignments
-% released" does not enter until origin/mobiwac carries the reported generation; add it to bullet 3
-% after "protocol" once the branch is republished. The sentence on seeds per table (former bullet 3)
-% moved out: Section V and the Table II footnote state it. 471 -> ~300 words.
+% [2026-09-06, camera-ready, REBALANCE, author-approved: PROPOSTA_REEQUILIBRIO.md section B, then
+% the Fable review of Etapa 1] Two bullets, in the order of the strength of the evidence. Bullet 1
+% describes what was built and measured and does not attribute the gain to the graph extension:
+% Section VI-A's concatenation control "does not separate" the hierarchical extension from the raw
+% per-visit features. "at one random initialization" carries the seed scope (n = 5, seed 0; the
+% former bullet-3 sentence on seeds per table is gone); "under one point at the three largest
+% datasets" is the smallness caveat (FL +0.23, CA +0.88, TX +0.99). Bullet 2 keeps the technical
+% name of the region test once, as CLAUDE.md section 3 requires, and the single-model property.
+% Bullet 3 (next-region results as a resource) is DROPPED: without the release clause (withheld
+% until origin/mobiwac carries the reported generation) it restated Section V, and a resource
+% framing invites inspection of the Markov-1 floor above HMT-GRN; its vocabulary-grouping
+% observation is folded into bullet 2 with "outperforms". External clause: no count of "re-run under our protocol"
+% (only HMT-GRN runs entirely under it; POI-RGNN uses stride-9 windows, STAN its own embeddings and
+% sequences, ReHDM its own protocol), so the clause names Table II and nothing else.
 
-The rest of the paper presents related work (Section~\ref{sec:related}), the problem (Section~\ref{sec:problem}), the method and setup (Sections~\ref{sec:method} and~\ref{sec:setup}), results (Section~\ref{sec:results}), and discussion and conclusions (Sections~\ref{sec:discussion} and~\ref{sec:conclusion}).
+% [2026-09-06, cut C12] The roadmap sentence ("The rest of the paper presents ...") is dropped:
+% the section titles carry it, and the merge of the problem section (C1) made it stale.

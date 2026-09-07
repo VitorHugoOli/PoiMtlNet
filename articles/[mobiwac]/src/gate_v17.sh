@@ -62,6 +62,10 @@ done
 #     region task is hardest and where the dedicated model has the most to gain" -- e LICENCIADA
 #     pela frase seguinte, que nomeia os dois confundidores e declara o conjunto uma observacao e
 #     nao uma lei. A cadeia nunca esteve na lista de nunca-citar do CAMERA_READY (zero ocorrencias);
+#     [2026-09-07, autor] a P1 passou a dizer "where the region task has the most classes to rank and
+#     where the dedicated model has the most to gain" (Arizona tem a menor Acc@10 dedicada e nenhum
+#     ganho, logo "hardest" era a leitura errada da contagem de regioes). A forma morta proibida
+#     em (b) continua a ser so a assercao isolada do resumo.
 #     foi inventada aqui. Um portao que destroi o que foi construido para proteger e pior do que
 #     nenhum: a regra e agora a frase inteira, nao a substring. PDF colapsado (atravessam linhas) + fonte incluindo figs/.
 echo "[b] frases retiradas"

@@ -11,13 +11,9 @@
 % "sparsity = 1 - density" column, which was trivially ~0.999 for every state. The fixed
 % 7-category space is stated in the caption rather than as a constant column.
 \begin{table*}[!t]
-\caption{Dataset statistics, ordered by check-in count: five Gowalla states and Istanbul
-(Massive-STEPS). All share the same seven root categories; the region unit is a census
-tract (a mahalle for Istanbul). Windows: sliding nine-visit inputs plus the next-visit
-target; lengths: per-user check-in counts; density: $100\times\text{check-ins}/(\text{users}\times\text{POIs})$; Majority: share of next-visit
-labels in the most common category (Food in every dataset). Check-ins, users, and POIs are counts
-over the full corpus, before the filter that keeps users with at least ten visits, and the Windows
-column is computed after it.}
+\caption{Dataset statistics, ordered by check-in count. Lengths: per-user check-in counts; density: $100\times\text{check-ins}/(\text{users}\times\text{POIs})$; Majority: share of next-visit
+labels in the most common category. Check-ins, users, and POIs count the
+full corpus; Windows is computed after the ten-visit user filter.}
 % [2026-09-06, camera-ready, plan 3.52] Corpus-versus-filter clause ported from the dissertation's
 % Table 8 caption (author errata 2026-09-01). No number changes.
 % Majority provenance (hidden): computed on the next-visit target labels of the task inputs

@@ -20,15 +20,9 @@
 \section{Discussion and Limitations}
 \label{sec:discussion}
 
-A single model serves both tasks in one forward pass, on next region it outperforms the dedicated
-model at Texas and California, the two datasets with the largest region vocabularies, and at the
-other four it stays within the two-point margin registered before any result was read. On next
-category it outperforms the dedicated model at Florida, and the five remaining differences are
-equivalent to zero within half a point. Throughout, the region output keeps its
-own private spatial path (Table~\ref{tab:results}). The
-practical reading is that one model replaces two while staying inside the margin that the analysis
-plan registered as acceptable, and does better than two at the two datasets with the largest region
-vocabularies. The four region results inside that margin are all small deficits rather than ties,
+One model serves both tasks in one forward pass, above two dedicated models on next region at Texas
+and California and inside the registered two-point margin at the other four
+(Table~\ref{tab:results}). The four region results inside that margin are all small deficits rather than ties,
 the largest of them $0.87$ Acc@10 points at Alabama, so the trade is a measured one and not a free
 substitution.
 % [2026-09-06, camera-ready] Three wording changes, no number changed. (1) "not resolved, each of
@@ -53,35 +47,27 @@ substitution.
 % representation appears able to help, and settling it needs work this study did not do. No
 % per-dataset ablation numbers are quoted, because none of them were measured where the claim is.
 The design gives the two tasks a shared representation while keeping a private spatial path for the
-region output. The evidence here does not separate their contributions. Where the trunk was isolated
-directly, the ablation moved both tasks by small amounts that a screen of that size cannot distinguish
-from noise, and it was not run at the two datasets that carry the region advantage. The
-reading this supports is a cautious one: the shared representation appears able to help, and how much
-it helps is a question for further work rather than one this study settles. What can be stated
-without that work is narrower, and it is a claim about the model rather than about transfer between
-its tasks: this design, shared representation and private path together, produces a joint region
-output above two dedicated models at the two datasets with the largest region vocabularies.
+region output, and the evidence here does not separate their contributions: where the trunk was
+isolated directly, the ablation moved both tasks by amounts that a screen of that size cannot
+distinguish from noise, and it was not run at the two datasets that carry the region advantage.
+What can be stated is a claim about the model rather than about transfer between its tasks.
+% [2026-09-06, cut C13] Trunk paragraph ~150 -> ~90 words; the cautious reading ("appears able to
+% help ... further work") folded into "does not separate their contributions". No claim changed.
 
-The category picture at Texas and California invites a specific hypothesis. Batch size was searched
-for the dedicated category model at every dataset and the learning rate at four of them, with both
-searched for the joint model at the smaller datasets; at Texas and California the joint model runs a configuration transferred from
-those searches rather than one validated on them. Texas carries the second-largest category deficit
-of the six ($-0.13$; Alabama's $-0.19$ is the largest, and it is a dataset where the joint model was
-searched), and California's is under a hundredth of a point. A search conducted for the joint model
-at those two datasets would test whether the transferred configuration is what holds their category
-output slightly below the dedicated model. Until it is run this remains a hypothesis rather than an
-explanation, and Alabama is a reminder that a searched dataset can show a deficit of the same size.
+% [2026-09-06, cut C3] The Texas/California category-hypothesis paragraph (~130 words) is OUT: it
+% explained a -0.13 that the paper itself calls equivalent to zero within half a point. The search
+% coverage it restated lives in Section IV-B; its pointer sentence in Section IV-B was removed too.
 
-A service could treat the model's top-ranked next regions as an anticipatory
-set: at California, ten regions out of $8{,}501$ contain the true next region $64.54$
-percent of the time, and at Texas, ten out of $6{,}553$ contain it $66.15$ percent of the time.
-Both figures are the joint model's next-region Acc@10 from
-Table~\ref{tab:results}, read here as a shortlist hit rate: a system that surfaced ten
-census tracts would be right about two times in three, over a candidate set three orders of
-magnitude larger. Where the shortlist misses, the geographic size of the error is the quantity that
-would matter to such a service, and measuring it requires the per-visit predictions that the
-evaluation path does not retain, so it is left to future work. This remains motivation, not a
+A service could treat the model's top-ranked next regions as an anticipatory set: at California,
+ten regions out of $8{,}501$ contain the true next region $64.54$ percent of the time, and at
+Texas, ten out of $6{,}553$ contain it $66.15$ percent of the time (the joint model's Acc@10 of
+Table~\ref{tab:results}, read as a shortlist hit rate). The geographic size of a miss is the
+quantity that would matter to such a service, and measuring it requires per-visit predictions that
+the evaluation path does not retain, so it is left to future work. This remains motivation, not a
 measured service result.
+% [2026-09-06, cut C14] Service sketch compressed to ~90 words, NOT cut (R2(a)); 64.54, 66.15,
+% 8,501, 6,553, the shortlist reading, the geographic-error gap and the "motivation, not a measured
+% service result" sentence all kept.
 % RATIO CLAUSE DELETED 2026-08-05, on the author's instruction to remove what is wrong in this section
 % ("exclusa e refaça os que estiver errado nessa sessão"). The deleted words were "over 500 times better
 % than picking ten at random". Four independent defects, any one of which is disqualifying:
@@ -131,25 +117,22 @@ measured service result.
 % macro-F1. The scope travels with the numbers, per the stats reviewer's finding on exactly this;
 % see docs/studies/pre_freeze_gates/A4_RESULTS.md for the per-dataset values. Delivered prose below
 % is left as it stands.
-Five limits qualify these results. First, the representation is trained once over all places; a
+Four limits qualify these results. First, the representation is trained once over all places; a
 per-fold rebuild from training users only changed the results by at most $0.33$ Acc@10 and $0.29$
 macro-F1 across three datasets at one seed, with the qualification on the region half recorded in
 Section~\ref{sec:setup-windows}. Second, epoch selection consults the fold that the score is
-then read on (Section~\ref{sec:setup-windows}), so every absolute score reported here is optimistic. The
-comparison between the joint model and the dedicated models is affected far less, for two reasons that we can state
-rather than assume: the selection rule is the same for both models on the same folds, an epoch chosen on validation and read
-on that fold, with each model selected on its own validation objective (Section~\ref{sec:results-part2}),
-and, for the category comparison, the dedicated model receives the wider search: batch size at all
-six datasets and the learning rate at four, against a joint-model search that covers four of the six
-and leaves Texas and California with a transferred configuration, while both sides of the region
-comparison run a fixed configuration (Section~\ref{sec:setup-windows} states the coverage
-per knob and dataset). Where the dedicated search is the wider of the two, the residual favors the
-dedicated model, which makes the reported category difference conservative there. At Florida and
-California, where the dedicated learning rate was not varied, the two searches are closer in extent
-and the reading does not apply; Florida is also the one dataset where the joint model outperforms on
-this task. It does not follow that the bias cancels exactly. Third, we do not
-build or evaluate a mobility-aware service; it is background motivation, and this paper's claims are the
-prediction results themselves.
+then read on (Section~\ref{sec:setup-windows}), so every absolute score reported here is
+optimistic. The comparison between the joint model and the dedicated models is affected far less:
+the selection rule is the same for both models on the same folds, each model selected on its own
+validation objective (Section~\ref{sec:results-part2}), and for the category comparison the
+dedicated model receives the wider search (Section~\ref{sec:setup-windows}), which makes the
+reported category difference conservative where that search is the wider of the two. It does not
+follow that the bias cancels exactly.
+% [2026-09-06, cut C9 + C8] Second limit ~200 -> ~85 words. Kept: the optimistic absolute scores,
+% the two reasons (same rule on same folds with per-model objective; wider dedicated search on
+% category), the conservative-direction reading scoped to where the dedicated search is wider, and
+% "It does not follow that the bias cancels exactly" (ledger). Dropped: the per-knob coverage
+% restatement (Section IV-B states it) and the Florida/California exception sentence.
 % PARITY, 2026-08-05 (block moved 2026-09-06 from inside the second limit's sentence to here), after a
 % reviewer found me calling the residual divergence between the two copies "all expected and correct"
 % when three of ten differences were prose, not label namespaces:
@@ -197,26 +180,24 @@ prediction results themselves.
 % THE COUNT MOVES WITH IT: five members become four, so "Five limits qualify these results" is now
 % "Four", and the former Fifth is renumbered Fourth. Probe R13-limitcount pins the count word and is
 % repointed in this same commit, with its reason recorded there.
-Fourth, each
+Third, each
 visit node in the representation graph draws on the visits that precede it, so a vector encodes the visit
 together with its own history; the graph does not pass information from a later visit back to an earlier
 one, in training or at readout, which is what keeps a node from carrying a feature of the target it is
-used to predict. Fifth, the joint model has more parameters than the two dedicated models together
+used to predict. Fourth, the joint model has more parameters than the two dedicated models together
 (Section~\ref{sec:method-model}), so its region result at Texas and California may come from size
-rather than from sharing. A control separates the two at California: it widens the dedicated region
-model until its parameter count reaches the joint model's, taken from the training logs, and changes
-nothing else. At width $352$ the dedicated model has $5{,}014{,}942$ parameters, $97.4$ percent of the
-joint model's $5{,}151{,}189$, and scores $0.41$ Acc@10 above the joint model at the same random
-initialization, with all five folds in the same direction and a paired test over the five folds that
-separates the difference from zero ($p = 0.010$). A wider model, at $174.8$ percent of the joint
-model's budget, scores $0.43$ above it ($p = 0.008$, five of five folds). The two are $0.02$ apart
-($p = 0.40$), so widening past parity adds nothing. Texas has no control of matched size: the only
-wider model run there has $170.5$ percent of the joint model's budget and scores $0.21$ above the
-joint model, which the same test does not separate from zero ($p = 0.12$). At California, the one
-dataset where the control exists, a dedicated model of the same size scores above the joint model's
-region result, so the advantage there cannot be attributed to sharing between the tasks. At Texas the
-question is open. What remains on the region axis is the operational result: one model produces both predictions
-in one forward pass, at no cost beyond the bounds reported above.
+rather than from sharing. A control separates the two at California: a dedicated region model
+widened to $5{,}014{,}942$ parameters, $97.4$ percent of the joint model's $5{,}151{,}189$, scores
+$0.41$ Acc@10 above the joint model at the same random initialization, on all five folds, and a
+paired test over the folds separates the difference from zero ($p = 0.010$). A wider model, at
+$174.8$ percent of the budget, adds nothing further ($0.02$ apart, $p = 0.40$). Texas has no
+control of matched size: the only wider model run there, at $170.5$ percent of the budget, scores
+$0.21$ above the joint model, which the same test does not separate from zero ($p = 0.12$). At
+California the advantage therefore cannot be attributed to sharing between the tasks, and at Texas
+the question is open.
+% [2026-09-06, cut C2] Fifth limit ~230 -> ~160 words. Kept: 97.4 percent, +0.41, p = 0.010, five
+% folds, same random initialization, "Texas has no control of matched size", the California
+% conclusion and the open Texas question; the 528-width and Texas arms are one clause each.
 % [2026-09-06, camera-ready, D4] FIFTH LIMIT RESTORED with the experiment that bounds it. The
 % 2026-08-12 ruling below dropped the capacity limit because no experiment bounded it; the control
 % ran on 2026-08-13 (P1), and the author's decision of 2026-09-06 (D4) is to declare it. Wording

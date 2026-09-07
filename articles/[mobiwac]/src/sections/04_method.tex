@@ -12,51 +12,70 @@
 \section{Method}
 \label{sec:method}
 
+\subsection{Problem and tasks}
+\label{sec:problem}
+% [2026-09-06, cut C1] Former Section III merged here as the first subsection, on the R3 request
+% ("may be too short, so it may be merged with Section IV"); text unchanged except the two 2b
+% edits (category provenance; "states"). The label sec:problem stays on the subsection so the
+% three references in Sections I and V resolve.
+Given a user's time-ordered check-in history, we predict two properties of the next visit. The first is its \emph{category}, one of the seven top-level categories that the Gowalla data distributes with its places: Community, Entertainment, Food,
+Nightlife, Outdoors, Shopping, and Travel. We map Istanbul's source labels onto the same seven.
+% [2026-09-06, cut 2b, A1] Provenance of the seven categories added (they are Gowalla's own
+% top-level categories, shipped with the category-annotated dump cited in Section I's footnote), and
+% the Istanbul clause corrected: the mapping onto the seven roots is ours (Section V-A says so), not
+% the source collection's. Item A1 of the EDAS map (mobiwac session).
+% [2026-09-06, later] This block had swallowed the sentence that followed it into its last line
+% (third variant of the mid-sentence-comment defect: prose INSIDE a comment line, starting with a
+% capital, invisible to both gate checks); repaired.
+The second is its \emph{region}, the place's census tract (for Istanbul, the \emph{mahalle}, a municipal neighborhood). We frame next-region as classification over the dataset's regions, 520 to 8,501 of them (Table~\ref{tab:datasets}).
+
+The motivation is practical: the category says what type of place comes next, hence what a user will want; the region says where, hence where to prepare. The mobility literature supports such preparation: city services have long been built on location-based social network traces~\cite{silva2019urbancomputing}. A recent analysis of tourist check-in
+mobility finds that visits concentrate on a few hub places, argues that crowds and demand therefore concentrate, and ties this structure to
+infrastructure planning and adaptive strategies~\cite{moura2025mobilityaware}.
+That analysis reads past visits; we predict two properties of
+the next one, and aggregated over users, those predictions point to where
+demand is heading before it arrives. A census
+tract is a neighborhood, not a radio cell. We therefore scope our claims to
+neighborhood-level preparation: demand and load anticipation, caching content
+ahead of time, and capacity planning. Cell association and handover are
+radio-level decisions and remain out of scope. We build and evaluate no such
+service here, and Section~\ref{sec:discussion} states what these predictions
+would give such a service.
+% [2026-09-06, cut 2b] "quantifies" -> "states": Section VII calls the service sketch "motivation,
+% not a measured service result", so "quantifies" was a promise the section does not keep (R2).
+
+
 \subsection{The check-in-level representation}
 \label{sec:method-rep}
 
-We want each visit, not each place, to have its own vector; we call the resulting representation Check2HGI (Section~\ref{sec:related-embeddings}).
-Fig.~\ref{fig:dataflow} shows the full data flow, from check-ins to the two outputs.
+We call this representation Check2HGI (Section~\ref{sec:related-embeddings}), and Fig.~\ref{fig:dataflow} shows the data flow.
 
-We build a graph with four levels: the check-in, its place, the place's region (a census tract), and the city. Edges connect each level to the one above it and link a user's consecutive check-ins with a weight that decays as the time gap between the visits grows; same-place visits connect through their shared place node one level up, and nearby places are linked at the place level. Each visit's category, time of day, and day of week enter as input features of its node, not as edges. Four elapsed-time features join them: the time since the user's previous visit and since the user's first visit, both on a logarithmic scale, the gap to the previous visit within the same day, and an indicator for a user's first visit. Each is measured up to the visit itself, so a node describes the visit and the history preceding it, never anything that follows. These give the representation a sense of tempo, distinguishing a visit that follows minutes after the last one from a visit that opens a new outing, which a categorical hour-and-weekday encoding alone cannot express. The consecutive-visit edges run in one direction only, from an earlier visit to a later one, for the same reason: a target is predicted from a user's past, so the representation is built from the past alone. This keeps a hierarchical graph's place-to-region-to-city geography and adds the check-in as a bottom level. We train the graph mainly with an infomax objective, under which each vector learns to match its real neighborhood and reject a shuffled one~\cite{velickovic2019dgi,huang2023hgi}. Two small label-free auxiliary terms are added (weights 0.3 and 0.1): a masked reconstruction of each place's aggregated category
-features, and an anchor to a place embedding pre-trained, label-free,
-on the same data. The training
-uses no task label: it
-never sees the next category or the next region. From the trained graph, we extract one 64-dimensional vector per check-in (its region nodes have trained vectors as well), so a model sees a sequence of per-visit vectors rather than repeated per-place ones.
+We build a graph with four levels: the check-in, its place, the place's region, and the city. Edges connect each level to the one above it and link a user's consecutive check-ins with a weight that decays with the time gap. Nearby places are linked at the place level. Each visit's category, time of day, and day of week enter as input features of its node, together with four elapsed-time features: the log-scaled time since the user's previous visit and since their first visit, the same-day gap, and a first-visit indicator. Each is measured up to the visit itself, so a node describes the visit and the history preceding it, never anything that follows. The consecutive-visit edges run in one direction only, from an earlier visit to a later one, for the same reason: a target is predicted from a user's past, so the representation is built from the past alone. We train the graph mainly with an infomax objective~\cite{velickovic2019dgi,huang2023hgi}, plus two small label-free auxiliary terms (weights 0.3 and 0.1): a masked reconstruction of each place's aggregated category features, and an anchor to a place embedding pre-trained on the same data. The training never sees the next category or the next region. From the trained graph we extract one 64-dimensional vector per check-in.
+% [2026-09-06, cut 2c-extra] Subsection trimmed ~25 percent. Dropped: the "sense of tempo" sentence
+% and "This keeps a hierarchical graph's ... geography and adds the check-in as a bottom level"
+% (restates the four levels). Both forward-only sentences kept verbatim. Two semicolons -> periods.
 
 \subsection{The single multi-task model}
 \label{sec:method-model}
 
-We then train one model that reads a window of recent per-visit vectors and predicts the next visit's category and region at once. Fig.~\ref{fig:model} shows the design. Each task has its own input. The category task reads the window of per-visit vectors (the semantic stream); the region task reads the same window of visits, each visit now represented by the trained vector of its region node from the same graph (the spatial stream). Both pass through private
-per-task encoders (a small input network per task, with no shared weights) into the shared trunk, a cross-attention stack of two blocks, so each prediction still uses both inputs. In each block, attention lets each
-stream read the other's features, while each keeps its own feed-forward
-weights. The tasks therefore share by exchanging information between per-task
-streams, not by owning hidden layers in common. The trunk then feeds a category output and a region output; the region output also keeps a private spatial path: a small branch inside the one model (not a second model) that reads the spatial input window, bypassing the shared trunk. The category task does not touch this branch. Together, the region task's encoder, its output, and this private path form the region pathway.
+One model reads a window of recent per-visit vectors and predicts the next visit's category and region at once (Fig.~\ref{fig:model}). Each task has its own input: the category task reads the window of per-visit vectors (the semantic stream), the region task the same window with each visit represented by the trained vector of its region node from the same graph (the spatial stream). Both pass through private per-task encoders into the shared trunk, a cross-attention stack of two blocks in which each stream reads the other's features while keeping its own feed-forward weights. The trunk feeds a category output and a region output, and the region output also keeps a private spatial path, a small branch inside the one model that bypasses the trunk.
+% [2026-09-06, cut 2c-extra] Model paragraph trimmed ~25 percent: "(a small input network per task,
+% with no shared weights)", "(not a second model)" and the "region pathway" naming sentence dropped
+% (the name is used nowhere else in the paper); the architecture description is otherwise intact.
 
-The training loss is a fixed-weight sum of the two outputs,
-\begin{equation}\label{eq:loss}
-L = 0.5\,L_{\mathrm{cat}} + 0.5\,L_{\mathrm{reg}},
-\end{equation}
-where $L_{\mathrm{reg}}$ is a plain unweighted cross-entropy loss and $L_{\mathrm{cat}}$ is a
+The training loss is a fixed-weight sum of the two outputs, $L = 0.5\,L_{\mathrm{cat}} + 0.5\,L_{\mathrm{reg}}$, where $L_{\mathrm{reg}}$ is a plain unweighted cross-entropy loss and $L_{\mathrm{cat}}$ is a
 cross-entropy loss with logit adjustment~\cite{menon2021logitadjustment}: $\tau\log P_{\mathrm{train}}(y)$, with $\tau=0.5$, is added
 to the category logits during training only, which shifts the decision boundary toward the balanced
-posterior that macro-F1 rewards. Inference uses the unadjusted logits.
+posterior that macro-F1 rewards.
 % [2026-09-04, AUTHOR-APPROVED ("vamos adicionar a citacao do Menon no bib e no texto"), errata
 % Table B.5 of the supplement] Citation only: the published article uses logit adjustment in its
 % delivered results and never cites its source. Key menon2021logitadjustment verified at the arXiv
 % record of 2007.07314 (ICLR 2021) by the registry; no DOI exists at Crossref, do not add one from an
 % aggregator. Method description unchanged by instruction. [2026-09-06: block moved from inside the
 % sentence to after it; comments live between sentences.]
-The weights and $\tau$ were
-selected once on validation during development and held fixed across all six datasets. Class
-weighting, tested on both outputs, lowered both region accuracy and category macro-F1, and logit
-adjustment replaces it on the category output. The two choices differ by task because the two
-metrics do: macro-F1 weights every category equally, which the adjustment targets directly, whereas
-Acc@10 rewards ranking the frequent regions well, so the region output is left unadjusted. This is
-standard fixed-weight joint training~\cite{caruana1997multitask}, kept simple by design so that any
-improvement over the dedicated single-task models comes from the shared representation, not from an
-adaptive weighting scheme. The dedicated category model receives the same adjustment, so the
-comparison between them is not affected by it.
+The weights and $\tau$ were selected once on validation during development and held fixed across all
+six datasets. The dedicated category model receives the same adjustment, so the comparison is not affected
+by it.
 
 % [2026-09-02, AUTHOR RULING "medir", errata Table B.5 of the supplement] The two dedicated-model
 % sums were wrong: 1.1 million (AL) and 2.0 million (CA) closed against a dedicated category count of
@@ -72,11 +91,11 @@ comparison between them is not affected by it.
 % than arithmetic") holds, and the surrounding claims (joint larger than either dedicated model;
 % costs more than the two combined) stay true at the corrected numbers. Run by the writer 2026-09-02,
 % exit 0, table matched to the digit.
-The joint model includes the shared trunk and both task outputs, so it is
-larger than either dedicated model, and a forward pass costs more compute than running the
-two small dedicated models: the joint model has about 4.2 million parameters at
-Alabama against 1.9 million for the two dedicated models combined (5.2 against
-2.8 at California). What the single model provides is operational rather
-than arithmetic: one artifact to train, version, and deploy, and one forward
-pass whose one set of inputs produces both answers at once.
+The joint model is larger than either dedicated model and than the two combined, and a forward pass
+costs more compute: about 4.2 million parameters at Alabama against 1.9 million for the two combined
+(5.2 against 2.8 at California). What the single model provides is operational rather than arithmetic
+(Section~\ref{sec:intro}).
+% [2026-09-06, cut 2b, A3] The operational clause ("one artifact to train, version, and deploy,
+% and one forward pass ...") moved to the second contribution in Section I; this sentence keeps the
+% cost facts and the operational-not-arithmetic framing the COST guard above requires.
 

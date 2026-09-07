@@ -1,0 +1,229 @@
+% fig1_dataflow_new.tex
+% Figure 1, REDESIGN of fig1_dataflow.tex. Iterating here so the original stays
+% untouched until the author adopts this one.
+%
+% WHY A REDESIGN (defects measured on the built PDF of the original):
+%   1. OVERLAPS. "extract" printed on top of the per-visit-vectors box; the three
+%      italic legend lines under the graph printed into the sliding-windows box and
+%      into its incoming arrow; the per-visit arrow ran down THROUGH the region-
+%      vectors box. All three are collisions, not tight spacing.
+%   2. IT DID NOT SHOW CHECK2HGI. The four levels were four labelled boxes in a
+%      stack -- a legend, not a graph. Nothing in the picture said that the levels
+%      are climbed BOTTOM-UP, that a GCN runs inside a level and attention pooling
+%      moves between levels, that the visit edges are DIRECTED, that places are
+%      linked by a Delaunay graph and regions by adjacency, or that the objective
+%      lives at the three level BOUNDARIES. Those are the method.
+%   3. SIZE. At \resizebox{0.66\textwidth} the 7pt body rendered at ~6.0pt.
+%
+% GEOMETRY, and why it is what it is. The paper is at exactly 8 pages, so the one
+% hard constraint is RENDERED HEIGHT, not width -- height is what costs a page.
+%   original: 397.5 x 178.1 pt natural, drawn at 0.66\textwidth = 340.6pt -> 152.6pt tall.
+%   this one: ~502 x 135 pt natural, drawn at \textwidth = 516pt -> ~139pt tall.
+% So it is SHORTER than the figure it replaces while carrying more, and the scale
+% factor goes from 0.86 to ~1.03, i.e. the body font renders at ~7.2pt instead of
+% ~6.0pt. ⚠ THIS REQUIRES main.tex TO CHANGE 0.66\textwidth -> \textwidth on the
+% \resizebox line. At 0.66 this file renders at ~4.7pt and is unreadable.
+%
+% READING ORDER: strictly left to right, and no arrow ever runs backwards.
+%   input -> the four-level graph panel -> two exported tables -> two windows ->
+%   one model -> two predictions.
+% The four levels are stacked with the CHECK-IN at the bottom because that is the
+% direction of the pass (bottom-up), and because it puts `region` ABOVE `check-in`.
+% That ordering is load-bearing: the two exports leave the panel at those two
+% heights and stay parallel all the way to the two outputs, so the region thread and
+% the check-in thread never cross. (Same reason the slide version of this figure,
+% presentation/figures/src/c2h_flow.tex, ordered them that way.)
+%
+% TWO COLOURS AND ONLY TWO. orange = the check-in / semantic thread; blue = the
+% region / spatial thread; teal = the two predictions, which is also the colour of
+% the heads in fig2_model.tex, so the two figures agree on what teal means.
+%
+% FIDELITY -- every claim the drawing makes, and its source:
+%   - directed visit edges, time-decayed .... 04_method.tex; apx_h "Build directed
+%     user visit sequence". Drawing them undirected would contradict the paper's
+%     own leak argument, so the pictogram has arrowheads and no cycle.
+%   - visit graph is DISCONNECTED ......... an edge joins consecutive visits OF THE
+%     SAME USER, so users are separate components. Two components are drawn.
+%   - Delaunay at the place level ......... apx_h "A Delaunay triangulation connects
+%     nearby places"; 04_method "Nearby places are linked at the place level".
+%   - adjacency at the region level ....... apx_h "Region nodes are connected when
+%     their polygons intersect".
+%   - 15 input features .................... apx_h: 7 category indicators + sin/cos
+%     hour + sin/cos weekday + 4 elapsed-time values.
+%   - two GCNs, x_i in R^64 ............... apx_h Step 1.
+%   - attention pooling between levels .... apx_h Step 2 (check-in->place) and
+%     Step 4 (place->region); Checkin2POI.py, four heads, one shared seed query.
+%   - area-weighted city, TRAINING ONLY ... apx_h Step 5: the city vector "is not an
+%     input to the joint forecast model". Hence the dashed border on that lane.
+%   - three boundary objectives ........... apx_h eq. E.2: L_CP, L_PR, L_R-Omega,
+%     each a real-vs-corrupted discrimination. Named in the note under the panel.
+%   - 9x64 and 9x64, never concatenated ... apx_h: "The two modalities remain
+%     separate; they are not concatenated into one 9x128 matrix." Two strips.
+%
+% Standalone-compilable (pdflatex fig1_dataflow_new.tex) AND \input-able: the
+% wrapper runs only when \FIGINPUT is not already defined, exactly as fig2 does.
+
+\ifdefined\FIGINPUT\else
+  \documentclass[border=4pt]{standalone}
+  \usepackage{tikz}
+  \usepackage{amsmath,amssymb}
+  \usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc}
+  \begin{document}
+\fi
+% In the paper the model box points at Fig. 2 by label; standalone has no labels.
+\ifdefined\FIGINPUT \def\figmodelref{\ref{fig:model}} \else \def\figmodelref{2} \fi
+
+% ---------------------------------------------------------------- pictograms
+% One pic per level. They are what turns "four levels" from a caption into a
+% picture: each says what the EDGES at that level are, which is the only thing
+% that distinguishes the four levels from each other.
+\tikzset{
+  % check-in level: two DIRECTED paths, disconnected (= two users).
+  checkins/.pic={
+    \begin{scope}[->, line width=0.45pt, >={Latex[length=1.1mm]},
+                  shorten >=1.1pt, shorten <=1.1pt, draw=orange!60!black]
+      \draw (-0.70,-0.13) -- (-0.44, 0.17);
+      \draw (-0.44, 0.17) -- (-0.13, 0.01);
+      \draw ( 0.19, 0.15) -- ( 0.45,-0.15);
+      \draw ( 0.45,-0.15) -- ( 0.71, 0.09);
+    \end{scope}
+    \fill[orange!65!black] (-0.70,-0.13) circle (1.15pt) (-0.44,0.17) circle (1.15pt)
+          (-0.13,0.01) circle (1.15pt) (0.19,0.15) circle (1.15pt)
+          (0.45,-0.15) circle (1.15pt) (0.71,0.09) circle (1.15pt);
+  },
+  % place level: an undirected triangulation.
+  places/.pic={
+    \begin{scope}[line width=0.45pt, draw=black!45]
+      \draw (-0.62,-0.15) -- (-0.20, 0.18) -- ( 0.22,-0.16) -- ( 0.66, 0.14);
+      \draw (-0.62,-0.15) -- ( 0.22,-0.16);
+      \draw (-0.20, 0.18) -- ( 0.66, 0.14);
+    \end{scope}
+    \fill[black!60] (-0.62,-0.15) circle (1.15pt) (-0.20,0.18) circle (1.15pt)
+          (0.22,-0.16) circle (1.15pt) (0.66,0.14) circle (1.15pt);
+  },
+  % region level: polygons that touch, so the edge is a shared border.
+  regions/.pic={
+    \begin{scope}[line width=0.5pt, draw=blue!55!black, fill=blue!8]
+      \draw (-0.62,-0.16) rectangle (-0.22,0.16);
+      \draw (-0.14,-0.16) rectangle ( 0.26,0.16);
+      \draw ( 0.34,-0.16) rectangle ( 0.74,0.16);
+    \end{scope}
+    \begin{scope}[line width=0.45pt, draw=blue!55!black]
+      \draw (-0.22,0) -- (-0.14,0);
+      \draw ( 0.26,0) -- ( 0.34,0);
+    \end{scope}
+  },
+  % city level: one node holding all of them.
+  city/.pic={
+    \draw[line width=0.5pt, draw=black!45, fill=black!4, rounded corners=1.5pt]
+         (-0.52,-0.16) rectangle (0.52,0.16);
+    \fill[black!45] (-0.26,0) circle (1.0pt) (0,0) circle (1.0pt) (0.26,0) circle (1.0pt);
+  },
+}
+
+\begin{tikzpicture}[
+    >={Stealth[length=1.9mm]},
+    font=\scriptsize,
+    lvl/.style={align=left, text width=2.40cm, inner sep=0pt, font=\scriptsize},
+    tag/.style={font=\scriptsize\itshape, text=black!68, align=center, inner sep=1pt},
+    spine/.style={->, line width=0.6pt, draw=black!55},
+    sname/.style={font=\scriptsize\itshape, text=black!68, anchor=west, inner sep=1pt},
+    flow/.style={->, line width=0.7pt, draw=black!75},
+    oflow/.style={->, line width=0.8pt, draw=orange!65!black},
+    bflow/.style={->, line width=0.8pt, draw=blue!55!black},
+    ocell/.style={draw=orange!65!black, fill=orange!14, line width=0.45pt,
+                  minimum width=1.9mm, minimum height=3.2mm, inner sep=0pt},
+    bcell/.style={draw=blue!55!black, fill=blue!12, line width=0.45pt,
+                  minimum width=1.9mm, minimum height=3.2mm, inner sep=0pt},
+    pred/.style={draw=teal!55!black, fill=teal!10, rounded corners=2.5pt,
+                 line width=0.6pt, align=center, inner sep=3pt,
+                 minimum width=18.5mm, minimum height=5.5mm},
+    model/.style={draw=black!65, dashed, rounded corners=3pt, line width=0.7pt,
+                  fill=black!3, align=center, inner sep=3pt,
+                  minimum width=24.5mm, minimum height=15mm},
+  ]
+
+  % Lane heights, 0.92cm apart: a two-line level descriptor fits between lanes, and
+  % four lanes still leave the whole picture shorter than the figure it replaces.
+  \def\yC{1.84}\def\yR{0.92}\def\yP{0.00}\def\yK{-0.92}
+  \def\xsp{6.05}\def\xpic{8.55}
+
+  % The two lanes that are EXPORTED carry a tint, and it is the tint their thread
+  % keeps to the end of the picture. Nothing else in the panel is coloured, so the
+  % eye finds the two exported levels without reading a word.
+  \begin{scope}[on background layer]
+    \fill[blue!5,   rounded corners=2pt] (3.16,\yR-0.40) rectangle (9.60,\yR+0.40);
+    \fill[orange!7, rounded corners=2pt] (3.16,\yK-0.40) rectangle (9.60,\yK+0.40);
+  \end{scope}
+
+  % ===================================================== 1. the raw input
+  \foreach \i in {0,1,2,3}{\fill[orange!65!black] (0.20+\i*0.52,\yK) circle (1.2pt);}
+  \foreach \i in {0,1,2}{%
+    \draw[->, line width=0.5pt, >={Latex[length=1.2mm]}, draw=orange!60!black,
+          shorten >=1.8pt, shorten <=1.8pt] (0.20+\i*0.52,\yK) -- (0.72+\i*0.52,\yK);}
+  \node[tag, text width=2.35cm, anchor=south] at (0.98,\yK+0.16)
+       {category, cyclic time,\\elapsed time: 15 values};
+  \node[tag, text width=2.35cm, anchor=north] at (0.98,\yK-0.16)
+       {one user's visits,\\in time order};
+  \draw[oflow] (2.10,\yK) -- (3.02,\yK);
+
+  % ========================================== 2. the four-level graph panel
+  % Left column names the level and its EDGES -- the edges are the only thing that
+  % tells the four levels apart, so they are the descriptor.
+  \node[lvl] (nC) at (4.50,\yC) {\textbf{city}\\\textit{one node, area-weighted}};
+  \node[lvl] (nR) at (4.50,\yR) {\textbf{region}\\\textit{adjacency graph, GCN}};
+  \node[lvl] (nP) at (4.50,\yP) {\textbf{place}\\\textit{Delaunay graph, GCN}};
+  \node[lvl] (nK) at (4.50,\yK) {\textbf{check-in}\\\textit{directed succession, 2 GCNs}};
+
+  \pic at (\xpic,\yC) {city};
+  \pic at (\xpic,\yR) {regions};
+  \pic at (\xpic,\yP) {places};
+  \pic at (\xpic,\yK) {checkins};
+
+  % The bottom-up spine. Each arrow is labelled with WHAT MOVES the data across that
+  % boundary; the label sits BESIDE the arrow, never on it, so neither is broken.
+  \draw[spine] (\xsp,\yK+0.22) -- (\xsp,\yP-0.22);
+  \draw[spine] (\xsp,\yP+0.22) -- (\xsp,\yR-0.22);
+  \draw[spine] (\xsp,\yR+0.22) -- (\xsp,\yC-0.22);
+  \node[sname] at (\xsp+0.14,\yK+0.46) {attention pooling};
+  \node[sname] at (\xsp+0.14,\yP+0.46) {attention pooling};
+  \node[sname] at (\xsp+0.14,\yR+0.46) {area-weighted};
+
+  \begin{scope}[on background layer]
+    \node[draw=black!45, rounded corners=3pt, line width=0.5pt, fill=black!2,
+          inner sep=0pt, fit={(3.10,-1.38) (9.66,2.28)}] (panel) {};
+  \end{scope}
+  \node[anchor=south, font=\scriptsize\bfseries, text=black!75]
+       at ([yshift=0.4mm]panel.north)
+       {Check2HGI: a four-level graph, trained without task labels};
+  \node[anchor=north, tag, text width=6.5cm] at ([yshift=-0.4mm]panel.south)
+       {one objective per level boundary
+        ($\mathcal{L}_{C\!P}$, $\mathcal{L}_{P\!R}$, $\mathcal{L}_{R\Omega}$),
+        each separating real pairs from corrupted ones};
+
+  % ============================ 3. the two exported tables, as two windows of nine
+  \draw[bflow] (9.72,\yR) -- (10.58,\yR);
+  \draw[oflow] (9.72,\yK) -- (10.58,\yK);
+  \foreach \i in {0,...,8}{\node[bcell] at (10.80+\i*0.22,\yR) {};}
+  \foreach \i in {0,...,8}{\node[ocell] at (10.80+\i*0.22,\yK) {};}
+  \node[tag, anchor=south, text width=3.1cm] at (11.68,\yR+0.24)
+       {one $\mathbf{z}_r\!\in\!\mathbb{R}^{64}$ per region,\\a window of $9\times64$};
+  \node[tag, anchor=north, text width=3.1cm] at (11.68,\yK-0.24)
+       {one $\mathbf{x}_i\!\in\!\mathbb{R}^{64}$ per visit,\\a window of $9\times64$};
+
+  % ============================================ 4. one model, two predictions
+  \node[model] (mdl) at (14.45,\yP)
+       {\textbf{single}\\\textbf{multi-task model}\\one forward pass\\(Fig.~\figmodelref)};
+  \draw[bflow] (12.68,\yR) -- ++(0.30,0) |- ([yshift=4mm]mdl.west);
+  \draw[oflow] (12.68,\yK) -- ++(0.30,0) |- ([yshift=-4mm]mdl.west);
+
+  \node[pred] (outr) at (17.05, 0.55) {next region};
+  \node[pred] (outc) at (17.05,-0.55) {next category};
+  \draw[flow] (mdl.east) -- ++(0.20,0) |- (outr.west);
+  \draw[flow] (mdl.east) -- ++(0.20,0) |- (outc.west);
+
+\end{tikzpicture}
+
+\ifdefined\FIGINPUT\else
+  \end{document}
+\fi

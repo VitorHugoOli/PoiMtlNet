@@ -40,7 +40,7 @@
 \setlength{\dbltextfloatsep}{6pt plus 2pt minus 2pt}
 \setlength{\floatsep}{4pt plus 2pt minus 1pt}
 \setlength{\dblfloatsep}{4pt plus 2pt minus 1pt}
-\renewcommand{\arraystretch}{0.95}
+\renewcommand{\arraystretch}{0.90}
 
 \begin{document}
 
@@ -86,6 +86,7 @@ fabricio.asilva@ufv.br}
 }
 
 \maketitle
+\bstctlcite{IEEEexample:BSTcontrol}
 
 % ---------------------------------------------------------------------
 % Abstract (~180 words) and keywords. Draft in PAPER_PLAN section 4.
@@ -97,15 +98,13 @@ If we can anticipate the next visit, mobile and urban services can cache content
 capacity ahead of demand. Two coarse questions are usually enough: the category of the next visit
 and its region.
 
-We give each check-in its own vector, describing that visit in its own context, instead of giving
-every place one fixed vector. Under a controlled comparison, with the same model, folds, windows,
-and training configuration and only the input changed, this improves next-category prediction at
-every one of six datasets and in every fold, by 0.23 to 6.29 points of macro-averaged F1, and a
-paired test separates the two representations at five of the six. Five of the datasets are U.S.
-states and one is a non-U.S. city.
+We give each check-in its own vector instead of giving every place one fixed vector. With the same
+model, folds, windows, and training configuration, and only the input changed, this improves next-category prediction at
+every one of six datasets and in every fold, by 0.23 to 6.29 points of macro-averaged F1, under
+one point at the three largest, and a paired test separates the two representations at five of the
+six. Five datasets are U.S. states and one is a non-U.S. city.
 
-On that representation we then train one model that answers both questions in a single forward
-pass. On next region it outperforms a dedicated single-task model at the two datasets with the
+We then ask whether one model can answer both questions in a single forward pass. On next region it outperforms a dedicated single-task model at the two datasets with the
 largest region vocabularies, by about one point, and at the other four it stays within a two-point
 margin registered before any result was read. A dedicated model of the same size scores above the
 joint model at one of the two, so we do not attribute that gain to sharing. On next category it
@@ -122,6 +121,10 @@ zero within half a point. One model therefore serves both tasks at a cost bounde
 % understates, as the mobiwac audit ruled for Section VII); the capacity clause is its own
 % sentence (no semicolon, author feedback 2026-09-06). Dataset names left out on purpose (Table I).
 % Verdict verbs unchanged: "outperforms" only where Holm survives. 276 -> ~215 words.
+% [2026-09-06, Fable review of Etapa 1] "under one point at the three largest" ADDED (FL +0.23,
+% CA +0.88, TX +0.99: the smallness caveat the five-of-six clause alone does not carry); the joint
+% model re-enters as the question the paper asks ("We then ask whether one model ..."), so the
+% abstract frames what Sections I and VIII frame.
 
 
 % [2026-09-06] Separador virgula -> ponto-e-virgula: exigencia literal das normas do MobiWac 2026
@@ -140,14 +143,13 @@ learning; check-in-level representation; location-based social networks
 \input{sections/02_related}
 \begin{figure*}[!t]\centering
 \resizebox{0.66\textwidth}{!}{\input{figs/fig1_dataflow}}
-\caption{From a check-in sequence to two predictions: each visit is embedded in a four-level graph
-(check-in, place, region, city) trained without task labels. The graph yields two sets of
-vectors, one per visit and one per region; sliding nine-visit windows of each feed a single
-model that outputs the next category and the next region.}
+\caption{From a check-in sequence to two predictions. Each visit is embedded in a four-level graph
+trained without task labels, and sliding nine-visit windows of the resulting per-visit and per-region
+vectors feed a single model.}
 \label{fig:dataflow}
 \end{figure*}     % Fig 1: input-graph data flow (cited in section 2.1 / 4.1)
 
-\input{sections/03_problem}
+% \input{sections/03_problem}  % merged into 04_method (cut C1, 2026-09-06)
 
 \input{sections/04_method}
 \begin{figure}[!t]\centering
@@ -155,7 +157,7 @@ model that outputs the next category and the next region.}
 \caption{The single multi-task model. A check-in (semantic) window and a region (spatial) window
 pass through private encoders into the shared trunk, the only place where the two tasks
 interact. The category output uses the trunk's output alone; the region output
-combines it with a private spatial path. One model, one forward pass, two predictions.}
+combines it with a private spatial path.}
 \label{fig:model}
 \end{figure}        % Fig 2: the single model, dual-tower + cross-attention (section 4.2)
 
