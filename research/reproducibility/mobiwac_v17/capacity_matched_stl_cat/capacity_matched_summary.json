@@ -48,7 +48,7 @@
   "california": [
    "4cff4b00-0694-4b47-84ea-171b751a0212"
   ],
-  "host": "ssh:nespedgpu (A40)"
+  "host": "A40"
  },
  "results": {
   "alabama_h672": {

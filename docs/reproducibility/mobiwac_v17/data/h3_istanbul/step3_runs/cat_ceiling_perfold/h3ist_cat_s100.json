@@ -18,5 +18,5 @@
     30,
     29
   ],
-  "_provenance": "recovered from the A40 (ssh:nespedgpu) 2026-07-25 by scripts/closing_data/score_stl_cat_ceiling.py sidecar copy; closes stats_n20/RESULTS.md LIMITS #2 for Istanbul. Per-seed means match h3_istanbul/step3_runs/cat_ceil_s*.txt exactly."
+  "_provenance": "recovered from the A40 2026-07-25 by scripts/closing_data/score_stl_cat_ceiling.py sidecar copy; closes stats_n20/RESULTS.md LIMITS #2 for Istanbul. Per-seed means match h3_istanbul/step3_runs/cat_ceil_s*.txt exactly."
 }
