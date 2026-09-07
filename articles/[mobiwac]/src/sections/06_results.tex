@@ -13,13 +13,9 @@
 % In particular, any "honesty rule" phrased as an invariant of the old ladder (category
 % beating at every dataset, region at four) is a record of what was once true, not a rule.
 % ============================================================================
-% chapters/5_mobiwac/06_results.tex -- one section of Chapter 5 (MobiWac 2026, accepted 2026-08-26; status comment updated 2026-09-01, AUT-35).
-% Split out of chapters/5_mobiwac.tex on 2026-07-28 (author request: the paper
-% chapters were single long files, while the originals under articles/[mobiwac]/src/sections/
-% are one file per section). The split is PURELY MECHANICAL: content was cut at
-% \section boundaries and not edited. The chapter file now \inputs these in order.
-% Editing rules are unchanged and still governed by the chapter's status above:
-% see NORTH_STAR section 4 before changing any sentence here.
+% sections/06_results.tex -- Section VI of the MobiWac 2026 camera-ready (accepted 2026-08-26).
+% Base text: the dissertation's Chapter 5 (articles/dissertacao/src/chapters/5_mobiwac/06_results.tex),
+% ported 2026-09-06 (CONSOLIDATION_PLAN 3.34). Camera-ready edits carry a dated comment beside them.
 \section{Results}
 \label{sec:results}
 
@@ -27,17 +23,37 @@
 \label{sec:results-part1}
 The check-in-level representation reaches a higher next-category macro-F1 than a standard place
 embedding (HGI~\cite{huang2023hgi}) at every dataset
-(Table~\ref{tab:substrate}). The comparison is controlled: target, single-task model, training configuration, windowing, epoch budget, logit adjustment, and folds are identical; only the input representation changes (a vector per visit versus a vector per place), so the difference isolates the representation. The check-in-level column is the same dedicated single-task category model reported in Table~\ref{tab:results}, read at seed 0 so that both arms of this comparison share one fold partition; the place-level arm is that model with its input swapped. The difference ranges from $+0.23$ macro-F1 at Florida to
+(Table~\ref{tab:substrate}). The comparison is controlled: target, single-task model, training configuration, windowing, epoch budget, logit adjustment, and folds are identical; only the input representation changes (a vector per visit versus a vector per place), so the difference isolates the representation. The check-in-level column is the same dedicated single-task category model reported in Table~\ref{tab:results}, read at seed 0 so that the two columns share one fold partition; the place-level column is the same model with its input swapped. The difference ranges from $+0.23$ macro-F1 at Florida to
 $+6.29$ at Istanbul, and all five folds favor the check-in-level representation at every one of the
-six datasets. A paired test over the five matched folds separates the two representations at every
+six datasets.
+% [2026-09-06, camera-ready] "both arms ... the place-level arm" -> "the two columns ... the
+% place-level column": "arm" is banned for this audience (GLOSSARY section 3). No claim changed.
+A paired test over the five matched folds separates the two representations at every
 dataset except Florida, where the direction is unanimous across folds but the difference does not
 reach significance ($p=0.07$). What the comparison establishes is therefore a consistent direction
 rather than a large effect: the input representation is one condition that affects performance
 here, and it acts the same way everywhere it was measured.
 
 The geometry of the vectors indicates why the representation helps this task in
-particular: the per-visit vectors' silhouette score by category (how tight and well separated the seven labeled groups are, on a $-1$ to $1$ scale) is about $0.57$ against about $0.00$ for the place embedding, and their nearest-neighbor category purity (the share of nearest neighbors with the vector's own category) is about $0.98$ against about $0.78$ (both averaged over the five U.S. states). Both measures characterize the representation family rather than the exact configuration
-evaluated in Table~\ref{tab:results}. The same geometry does not separate regions, so the benefit is category-only (the joint model's spatial stream instead reads the region-level vectors of the same graph, Section~\ref{sec:method-model}). CTLE~\cite{lin2021ctle}, the closest prior contextual embedding, also gives each visit its own vector, but it pretrains on place identifiers and timestamps alone, so the category vocabulary never enters its training, whereas our graph reads each visit's category and time of day as input features. At Florida, we fine-tune CTLE together with the task model, using its authors' defaults and the same 64 dimensions and windowing as ours. It reaches $33.45$ macro-F1 at its best epoch and $29.69$ at its final one (an epoch is one pass over the training data), about two points below the place embedding under the same best-epoch rule. With frozen weights, fed to the same single-task model, CTLE repeats the ordering at Alabama, Arizona, and Istanbul. These CTLE results establish the ordering between the two representation families rather than a
+particular: the silhouette score by category of the representation's vectors (how tight and well separated the seven labeled groups are, on a $-1$ to $1$ scale) is about $0.57$ against about $0.00$ for the place embedding, and their nearest-neighbor category purity (the share of nearest neighbors with the vector's own category) is about $0.98$ against about $0.78$ (both averaged over the five U.S. states). Both measures were taken on an earlier build of the representation, with the vectors aggregated per place, so they characterize the representation family rather than the exact configuration
+evaluated in Table~\ref{tab:results}.
+% [2026-09-06, camera-ready, DP-9] SCOPE ADDED, one clause: "were taken on an earlier build of the
+% representation, with the vectors aggregated per place". The two constants come from a 2026-06-24
+% CSV measured on the archived design_k engine and aggregated per POI (CAMERA_READY section 5, C1c);
+% no geometry measurement exists on the reported build. "the per-visit vectors' silhouette" ->
+% "the silhouette score by category of the representation's vectors", because the vectors that were
+% measured are per-place aggregates and the old subject contradicted the new scope clause. The
+% family-not-configuration sentence was already here; the clause now says why it is needed.
+The same geometry does not separate regions, so the benefit is category-only (the joint model's spatial stream instead reads the region-level vectors of the same graph, Section~\ref{sec:method-model}). CTLE~\cite{lin2021ctle}, the closest prior contextual embedding, also gives each visit its own vector, but it pretrains on place identifiers and timestamps alone, so the category vocabulary never enters its training, whereas our graph reads each visit's category and time of day as input features. At Florida, we fine-tune CTLE together with the task model, using its authors' defaults and the same 64 dimensions and windowing as ours. It reaches $33.45$ macro-F1 at its best epoch and $29.69$ at its final one (an epoch is one pass over the training data), below the place embedding under the same best-epoch rule.
+% [2026-09-06, camera-ready, plan 3.35(a)] "about two points below the place embedding" DROPPED:
+% the two-point magnitude was measured against the pre-v18 place column; against the reported
+% place-level Florida value (37.13, Table III) the CTLE best-epoch score of 33.45 is 3.68 below, a
+% number this paper does not print (AGENT_GUARDRAILS N2: no derived quantity in prose). The
+% ordering, which is what the sentence claims, is unchanged. Same form as the src_fix text.
+% [2026-09-06, later] This block had been inserted mid-sentence and swallowed the frozen-weights
+% CTLE result (AL/AZ/Istanbul) into its last line; repaired. Comments live between sentences.
+With frozen weights, fed to the same single-task model, CTLE repeats the ordering at Alabama, Arizona, and Istanbul. These CTLE results establish the ordering between the two representation families rather than a
+difference against the values in Table~\ref{tab:substrate}.
 % [2026-09-02, AUTHOR-APPROVED, errata Table B.5 of the supplement; Q13] Two defects in the
 % concatenation-control sentences. (1) NUMBER: "under a tenth of the place-to-check-in gap" is
 % contradicted by Table 9, printed right below: the gaps are +1.62 (AL), +2.58 (AZ), +0.23 (FL),
@@ -54,7 +70,7 @@ evaluated in Table~\ref{tab:results}. The same geometry does not separate region
 % category-only" above; nothing is asserted about what the hierarchy contributes (on the delivered
 % substrate the region pathway is detached from the check-in encoder by construction,
 % Check2HGIModule.py:653, so any such statement would be a tautology read as a finding).
-difference against the values in Table~\ref{tab:substrate}. A feature-concatenation control joins the place embedding with the same raw
+A feature-concatenation control joins the place embedding with the same raw
 per-visit features that our graph reads (the category one-hot plus hour and
 day-of-week encodings) and feeds the result to the same single-task model. On
 the category axis, at Alabama, Arizona, and Florida this control raises the
@@ -65,18 +81,11 @@ therefore already available in the raw per-visit features; what the
 check-in-level representation adds beyond them on this axis is small, and this
 control does not separate it.
 
-% Table 2: The representation makes the category task learnable (Part 1).
-% Check-in-level (Check2HGI) vs place-level (HGI) next-category macro-F1, matched single-task
-% head + recipe + folds (seed 0 x 5 folds), overlapping-window protocol throughout.
-% NOTE (2026-07-08): this is the MATCHED-recipe pair -- it is deliberately NOT Table 3's dedicated
-% ceiling anymore (Table 3's ceilings are the n=20 per-state-tuned best-vs-best set; re-tuning the
-% HGI arm per state was not done, so the controlled A/B here keeps the original single recipe on
-% both models). Istanbul re-footed on the rebuilt dk_ovl substrate (H3): Check2HGI-SC 54.65+-0.56
-% (docs/results/closing_data/baseline_compare/istanbul_check2hgi_sc.json), HGI arm unchanged
-% 26.56+-0.5 (istanbul_hgi_ovl_cat.json) -> margin +28.09 (was +26.64 on the old GCN base).
-% Gowalla arms unchanged: PR #50 AL/AZ/FL + PR #52 CA/TX.
-% Check2HGI std: Ist 0.6 / AL 2.4 / AZ 1.3 / FL 0.5 / TX 0.2 / CA 0.3 ; HGI std: Ist 0.5 / AL 1.0 /
-% AZ 1.0 / FL 0.3 / TX 0.6 / CA 0.4.
+% Table (representation): check-in-level (Check2HGI) vs place-level (HGI) next-category macro-F1,
+% same single-task model, configuration and folds (seed 0 x 5 folds), sliding windows throughout.
+% [2026-09-06, camera-ready] The pre-v18 provenance block that stood here (Istanbul re-footing,
+% per-column values and margins of the leaked generation) was removed under CONSOLIDATION_PLAN 3.41;
+% the live cells and their sources are in CAMERA_READY.md section 3.3 and in tables/tbl2_substrate.tex.
 \providecommand{\sd}[1]{\,{\scriptsize$\pm$#1}}
 
 % [NEEDS SIGN-OFF 25 | CLOSED] Author: keep the figure, but the pointer sentence was loose -- it
@@ -132,7 +141,7 @@ most even), and a random region top-ten guess is right at most about two percent
 
 Table~\ref{tab:results} reports the single joint model against the dedicated
 single-task ceilings (the level a joint model is usually expected, at
-best, to match). Batch size was searched for the dedicated category model at every dataset and the learning rate at
+best, to reach). Batch size was searched for the dedicated category model at every dataset and the learning rate at
 four of the six, with the joint model searched at the smaller datasets;
 Section~\ref{sec:setup-windows} states the coverage per knob and dataset. Texas and California carry
 the joint configuration transferred from those searches, and the dedicated region models use one
@@ -142,21 +151,19 @@ validation-selected epoch: each dedicated model at its task's best epoch, and
 the joint model at the epoch selected by its joint validation score (the
 geometric mean of the two task metrics), with both tasks read from that one
 model. This convention is the one a deployed system can actually serve, since it commits to a
-single checkpoint per fold. The alternative, reading each task at its own best epoch, describes no
-single saved model: it reports two different checkpoints as though one system produced both. That
+single saved model per fold. The alternative, reading each task at its own best epoch, describes no
+single saved model: it reports two different saved models as though one system produced both. That
 alternative is more favorable to the joint model, by at most $0.23$ macro-F1 and $0.93$ Acc@10
 points as the largest gap at any one seed, and it is favorable enough to change the verdicts,
-turning four further category cells and two further region cells into improvements that survive the
-same Holm correction applied here. The stricter convention is reported here for
+turning four further category comparisons and two further region comparisons into improvements that
+survive the same Holm correction applied here. The stricter convention is reported here for
 that reason, and every verdict in this paper is the one it yields.
-% AUTHOR DECISION 2026-07-18 (supersedes 2026-07-09): the REPORTED convention is now JOINT-BEST
-% (author ruling, considerations_v3 #10) -- Table 3's joint cells are the one saved model per fold
-% (geom_simple = sqrt(cat F1 x reg Acc@10-indist) on validation, model-SELECTION only; never enters
-% the loss; training uses the fixed 0.75/0.25 sum of S4.2), both tasks read there. All pre-registered
-% tests re-verified on the joint-best arrays (n=20 all six; Istanbul reg CI +0.15..+0.23 > 0, 20/20
-% folds; AL/AZ TOST pass) -- see joint_best/JOINT_BEST_RESULTS.md. The sentence above discloses the
-% convention and keeps diag-best as the <=0.06/<=0.11 robustness check (the inverted form of the old
-% disclosure).
+% [2026-09-06, camera-ready] "checkpoint(s)" -> "saved model(s)" (GLOSSARY section 3, CONV-6) and
+% "cells" -> "comparisons" (radio-cell collision). The reported convention is joint-best (author
+% ruling 2026-07-18): one saved model per fold, selected on validation by the geometric mean of the
+% two task metrics, both tasks read there. The 0.23 / 0.93 worst-seed gaps and the verdict
+% inversions (four category, two region) are CAMERA_READY section 5, S12. The comment that stood
+% here quoted the pre-v18 loss weights and convention gaps and was replaced.
 
 % [REV-029, 2026-07-26] Moved here from the head of this subsection, where it was declared
 % before any prose of Section 5.6.2 (the rendered build put it a full page ahead of that
@@ -175,7 +182,6 @@ that reason, and every verdict in this paper is the one it yields.
 % A proveniencia viva das celulas esta em CAMERA_READY.md seccao 3; a lista de nunca-citar na
 % seccao 4; a sensibilidade do tecto do Arizona era material de carta-resposta de uma submissao
 % anterior e nao tem funcao aqui.
-\providecommand{\sd}[1]{\,{\scriptsize$\pm$#1}}
 
 Fig.~\ref{fig:deltas} plots the signed differences ordered by region count. On
 category, every difference is small in both directions, from $-0.19$ macro-F1 at Alabama to
@@ -184,10 +190,23 @@ On region (Acc@10), the joint model outperforms the dedicated model at Texas ($+
 California ($+1.06$), and at the other four datasets it stays within the two-point margin. The two
 datasets where it outperforms are the two with the largest region vocabularies, which is where the
 region task is hardest and where the dedicated model has the most to gain from an auxiliary signal.
+% [2026-09-06, camera-ready] Protected pair P1, kept LITERAL from the chapter: this sentence and
+% the next ("observation ... rather than as a law") license each other and are never separated.
+% An interim gate rule banned the substring "where the region task is hardest" and this clause was
+% briefly cut; the rule was corrected (gate commit 98cae8dd) to target the abstract's isolated
+% form only, and the clause is restored.
 The ordering is not monotone inside that pair, since California has more regions than Texas and a
 slightly smaller gain, and region count co-varies with corpus size across these states, so the
 grouping is read as an observation about where the benefit appears rather than as a law relating
-gain to region count.
+gain to region count. Why the benefit appears there is a separate question: at California, a
+dedicated region model widened to the joint model's size scores above the joint model
+(Section~\ref{sec:discussion}), so the gain at that dataset is not attributed to sharing between
+the tasks, and Texas has no control of matched size.
+% [2026-09-06, camera-ready, D4] ONE SENTENCE ADDED after the protected pair (plan P1: the
+% mechanism sentence and the "observation rather than a law" sentence stay together, unchanged).
+% The addition separates WHERE the benefit appears (the author's observation, which holds) from WHY
+% (open, and at California answered against sharing by the capacity control). Numbers stay in the
+% fifth limit of Section VII; this sentence carries none. Source: CAMERA_READY section 6, D4.
 
 The tests behind those verdicts are reported next, each entry giving the point estimate and its
 90\% confidence interval. On category, Florida is the one dataset where the difference survives the
@@ -196,7 +215,8 @@ Holm correction across the six ($+0.19$; $+0.14$ to $+0.25$; corrected $p=0.011$
 equivalence margin was registered for the region axis only, they are reported by the bound their intervals support
 rather than as matches: Istanbul ($+0.08$; $+0.01$ to $+0.15$), Arizona ($-0.00$; $-0.04$ to
 $+0.03$), California ($-0.00$; $-0.03$ to $+0.02$), Texas ($-0.13$; $-0.19$ to $-0.08$) and Alabama
-($-0.19$; $-0.33$ to $-0.04$). % [2026-08-12] The connective was "so", which reads as an inference from a test. It is not one: at a
+($-0.19$; $-0.33$ to $-0.04$).
+% [2026-08-12] The connective was "so", which reads as an inference from a test. It is not one: at a
 % margin at or above the largest interval endpoint, two one-sided tests pass by construction, because
 % both endpoints already lie inside the margin. The sentence now states the bound as what it is, a
 % property read off the intervals, and names the endpoint that sets it (Alabama, 0.3338).
@@ -214,8 +234,11 @@ Istanbul ($-0.08$; $-0.16$ to $-0.002$), and every one of the four intervals lie
 zero. A test in the reverse direction, applied post hoc to the same six region comparisons and
 corrected across them, resolves three of the four; Istanbul's is not resolved, its interval
 reaching to within two thousandths of zero. Each of the four
-clears the margin comfortably, which is what the pre-registered analysis asked of them, but none
+stays inside the margin, which is what the pre-registered analysis asked of them, but none
 of them is a tie.
+% [2026-09-06, camera-ready] "clears the margin comfortably" -> "stays inside the margin":
+% "clears" is on the GLOSSARY section 8 idiom list and "comfortably" is a decorative intensifier;
+% the registered surface is "stays within the two-point margin" (WRITING_LAW section 3).
 
 % [REV-029 round 2, 2026-07-26] Moved once more, one paragraph further down. At the previous
 % position this figure and the (now two-block) results table competed for the same page and
@@ -299,7 +322,7 @@ models are above the floor at every dataset.
 %     the margins move. The narrowest margin is still at Florida and the widest still at Istanbul.
 %     Deliberately re-derived from the chapter's own printed cells
 %     rather than copied from MARKOV_FLOOR_STRIDE1.md, whose +4.95/+10.38 use pre-final joint values
-%     (Ist 75.44 / FL 77.42). Fact gate N-2.
+%     (the Istanbul and Florida joint cells of the leaked generation, never-cite list). Fact gate N-2.
 % Counts re-derived from those two sources this session: HMT-GRN 6 of 6 below, ReHDM 3 of 6, STAN
 % 4 of 6. No result of this study changes; what changes is that the chapter now names the floor
 % rather than the externals as the reference the region task must clear, which is the more
@@ -320,9 +343,18 @@ models are above the floor at every dataset.
 \subsection{External validity (Istanbul)}
 \label{sec:results-external}
 The joint-model results hold for a non-U.S. city under the same representation, sliding-window protocol, and training setup as the U.S. states. At Istanbul, both
-tasks land within a tenth of a point of the dedicated models: category $+0.08$ macro-F1
+differences are within a tenth of a point of the dedicated models: category $+0.08$ macro-F1
 (dedicated $35.34$, joint $35.42$) and region $-0.08$ Acc@10 (dedicated $75.16$, joint $75.08$),
-the region difference staying well within the two-point margin. The comparable quantity is the gain over the ceiling, not the absolute
+the region difference staying within the two-point margin. The comparable quantity is the difference against the dedicated model, not the absolute
 Acc@10, since region counts differ across datasets (520 mahalle here). The external baselines show the same ordering on both tasks
 (Table~\ref{tab:results}).
-The U.S. result repeats on a different continent and region unit.
+What repeats on a different continent and region unit is the bounded picture: the region difference
+stays within the registered two-point margin and the category difference is equivalent to zero
+within half a point, with no gain on either task.
+% [2026-09-06, camera-ready] Four changes, no number changed. "both tasks land within" -> "both
+% differences are within" (motion metaphor, GLOSSARY section 8); "staying well within" -> "staying
+% within" (intensifier); "the gain over the ceiling" -> "the difference against the dedicated model"
+% (plan 3.35(b): the Istanbul region difference is -0.08, a deficit, so "gain" was wrong); the
+% closing "The U.S. result repeats ..." -> a sentence that names what repeats, per axis (plan
+% 3.35(d)): at Istanbul neither superiority holds, so what Istanbul shares with the U.S. states is
+% the bounded picture, not the Texas/California gains; each bound is quoted on its own axis.

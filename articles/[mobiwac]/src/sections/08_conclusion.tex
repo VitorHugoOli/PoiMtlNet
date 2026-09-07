@@ -1,23 +1,37 @@
 % !TeX root = ../main.tex
-% chapters/5_mobiwac/08_conclusion.tex -- one section of Chapter 5 (MobiWac 2026, accepted 2026-08-26; status comment updated 2026-09-01, AUT-35).
-% Split out of chapters/5_mobiwac.tex on 2026-07-28 (author request: the paper
-% chapters were single long files, while the originals under articles/[mobiwac]/src/sections/
-% are one file per section). The split is PURELY MECHANICAL: content was cut at
-% \section boundaries and not edited. The chapter file now \inputs these in order.
-% Editing rules are unchanged and still governed by the chapter's status above:
-% see NORTH_STAR section 4 before changing any sentence here.
+% sections/08_conclusion.tex -- Section VIII of the MobiWac 2026 camera-ready (accepted 2026-08-26).
+% Base text: the dissertation's Chapter 5 (articles/dissertacao/src/chapters/5_mobiwac/08_conclusion.tex),
+% ported 2026-09-06; it already carries the 3.55 / 3.06 margins, the per-axis surfaces and the
+% protected sentence P2 ("sharing alone does not explain the outcome"). Camera-ready edits below
+% carry a dated comment beside them.
 \section{Conclusion}
 \label{sec:conclusion}
 
 We tested whether one model can predict both the category and region of a user's next visit. The central concern was
-that sharing could help one task while hurting the other. However, the evidence shows that sharing alone does not
-explain the outcome because the result also depends on what the model represents. A standard place-level representation
+that sharing could help one task while hurting the other. However, the evidence does not attribute the outcome to
+sharing alone: on the category task the input representation moves the score more than the choice between one
+model and two at every one of the six datasets, and on the region task a dedicated model of the joint model's size scores above it at California.
+% [2026-09-06, camera-ready, P2 REPOINTED to the evidence this paper carries] The chapter's "sharing
+% alone does not explain the outcome because the result also depends on what the model represents"
+% asserted a representation x sharing mechanism that no current experiment crosses (Table III is the
+% dedicated model only) and that Section VII declines ("The evidence here does not separate their
+% contributions"). The sentence now names the two measured facts: the representation effect on
+% category (Section VI-B: up to thirty-two times the joint-versus-dedicated difference) and the
+% California capacity control on region (Section VII, fifth limit). Same strength, no unmeasured
+% mechanism. Proposed by the mobiwac session's audit; wording mine.
+A standard place-level representation
 assigns the same vector to every visit to a place, so it cannot distinguish visits made under different contexts. By
 assigning one vector to each visit, the check-in-level representation can include the visit time, nearby places, and
 recent visits. The controlled comparison then shows a consistent advantage for that representation on the category
-task: every fold favors it at every dataset, though the size of the advantage varies from a quarter of a point to
-six points. Once this information is available, the joint model can share
-semantic context between the tasks while keeping a private spatial path for region prediction.
+task: every fold favors it at every dataset, though the size of the advantage varies from $+0.23$ to
+$+6.29$ macro-F1 points. Once this information is available, the joint model can share
+semantic context between the tasks while keeping a private spatial path for region prediction, and
+read both answers from one saved model.
+% [2026-09-06, camera-ready] "from a quarter of a point to six points" -> the printed values
+% "$+0.23$ to $+6.29$ macro-F1 points" (plan 3.50: "a quarter of a point" rounds 0.23 up; the
+% values are those of Section I and Table III). "and read both answers from one saved model"
+% restored from the src_fix conclusion (the single-model property; "checkpoint" -> "saved model",
+% GLOSSARY section 3).
 
 With both changes in place, the region cost of joint training stays inside the registered two-point
 margin at every dataset. For region
@@ -27,12 +41,24 @@ prediction it outperforms the dedicated model at Florida; the five remaining dif
 resolved, and every one of them is equivalent to zero within half a point. The two datasets where
 the region output improves are the two with the largest region vocabularies, which is where an
 auxiliary signal has the most to add, although region count and corpus size co-vary across these
-states and the ordering is not monotone within the pair. The joint model also remains above every
+states and the ordering is not monotone within the pair; at California, a dedicated region model of
+the same size scores above the joint model, so the gain there is not attributed to sharing
+(Section~\ref{sec:discussion}). The joint model also remains above every
 external baseline in Table~\ref{tab:results} at all six datasets, by at least $3.55$ Acc@10
 points over the strongest region reference (HMT-GRN, STAN, or ReHDM; the first two on our folds,
 ReHDM under its own protocol) and by at least $3.06$ macro-F1 points over POI-RGNN on category.
 
 Together, these results do not mean that multi-task learning helps automatically. They show that the initial concern
-about harmful sharing was incomplete: the result also depends on the representation and on how the tasks exchange
-information. When the representation preserves the context of each visit and the architecture keeps a private spatial
-path where the tasks differ, one model can predict both what a user will do next and where in a single forward pass.
+about harmful sharing was incomplete: the differences between one model and two are bounded on both axes, and the
+representation is the larger effect on category. Whether the exchange of information between the tasks contributes
+anything beyond that is not separated by the evidence here (Section~\ref{sec:discussion}). When the representation
+preserves the context of each visit and the architecture keeps a private spatial path where the tasks differ, one
+model can predict both what a user will do next and where in a single forward pass instead of two.
+% [2026-09-06, camera-ready] "the result also depends on the representation and on how the tasks
+% exchange information" asserted the exchange mechanism Section VII leaves open; replaced by the
+% bounded-differences statement and an explicit pointer to the limit. The closing sentence is
+% unchanged except for "instead of two" (restored earlier today).
+% [2026-09-06, camera-ready, D4] The California capacity clause is added to the sentence that
+% locates the region gain, so the conclusion reads the same as Sections I, VI and VII: the
+% observation of WHERE the gain appears stands; WHY is open, and at California the control answers
+% against sharing. "instead of two" restored from the src_fix conclusion (operational property).

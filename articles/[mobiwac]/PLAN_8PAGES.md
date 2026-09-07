@@ -1,3 +1,10 @@
+> ⚠ **DOCUMENTO DE 2026-07-09, MANTIDO POR PROVENIÊNCIA. NÃO O SIGA.**
+> Foi escrito para o conjunto de alegações da geração com vazamento, e a sua rede de segurança
+> — *"se o corte degradar o artigo, `src_v1` fica como a submissão"* — **já não existe**: a árvore
+> `src_v1/` foi apagada a 2026-09-06 (recuperável com `git archive 422c2d37 …`), e o seu
+> `VERSION.md` afirmava ser o PDF submetido, o que se provou **falso** — o submetido é o commit
+> `0834419b`. O plano de corte vivo é a Fase 2 do [`CONSOLIDATION_PLAN.md`](CONSOLIDATION_PLAN.md).
+
 # PLAN — 8-page (fee-free) variant
 
 > **Goal.** Cut `src/` from 10 to **8 pages** (the MobiWac fee-free size) without losing a single

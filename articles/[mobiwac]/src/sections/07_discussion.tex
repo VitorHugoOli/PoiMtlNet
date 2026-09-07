@@ -27,13 +27,21 @@
 A single model serves both tasks in one forward pass, on next region it outperforms the dedicated
 model at Texas and California, the two datasets with the largest region vocabularies, and at the
 other four it stays within the two-point margin registered before any result was read. On next
-category it outperforms the dedicated model at Florida, and the five remaining differences are not
-resolved, each of them bounded within half a point of zero. Throughout, the region output keeps its
+category it outperforms the dedicated model at Florida, and the five remaining differences are
+equivalent to zero within half a point. Throughout, the region output keeps its
 own private spatial path (Table~\ref{tab:results}; Fig.~\ref{fig:deltas}). The
-practical reading is that one model replaces two while staying inside the margin the analysis plan
-set as the price worth paying, and does better than two where the region label space is largest.
-The four region cells inside that margin are all small deficits rather than ties, the largest of
-them $0.87$ Acc@10 points at Alabama, so the trade is a measured one and not a free substitution.
+practical reading is that one model replaces two while staying inside the margin that the analysis
+plan registered as acceptable, and does better than two at the two datasets with the largest region
+vocabularies. The four region results inside that margin are all small deficits rather than ties,
+the largest of them $0.87$ Acc@10 points at Alabama, so the trade is a measured one and not a free
+substitution.
+% [2026-09-06, camera-ready] Three wording changes, no number changed. (1) "not resolved, each of
+% them bounded within half a point of zero" -> the registered category surface "equivalent to zero
+% within half a point" (WRITING_LAW section 3), the same words the abstract and Section I use.
+% (2) "the price worth paying" -> "registered as acceptable": money metaphor (GLOSSARY section 8).
+% (3) "where the region label space is largest" -> "at the two datasets with the largest region
+% vocabularies": the causal reading by region count is the dead scaling law (CAMERA_READY C4); the
+% two datasets are named instead. "cells" -> "results" (GLOSSARY section 3, radio-cell collision).
 
 % [2026-08-12, AUTHOR RULING] REWRITTEN, softer on the shared trunk and shorter. The author's
 % objection: the paragraph argued about the regional result from a trunk ablation that was not run
@@ -50,8 +58,8 @@ them $0.87$ Acc@10 points at Alabama, so the trade is a measured one and not a f
 % per-dataset ablation numbers are quoted, because none of them were measured where the claim is.
 The design gives the two tasks a shared representation while keeping a private spatial path for the
 region output. The evidence here does not separate their contributions. Where the trunk was isolated
-directly, the arms moved both tasks by small amounts that a screen of that size cannot distinguish
-from noise, and those arms were not run at the two datasets that carry the region advantage. The
+directly, the ablation moved both tasks by small amounts that a screen of that size cannot distinguish
+from noise, and it was not run at the two datasets that carry the region advantage. The
 reading this supports is a cautious one: the shared representation appears able to help, and how much
 it helps is a question for further work rather than one this study settles. What can be stated
 without that work is narrower, and it is a claim about the model rather than about transfer between
@@ -87,9 +95,10 @@ measured service result.
 %      articles/[mobiwac]/MOBILITY_SCIENCE_BRIDGE_PLAN.md:77-84 tabulates "California | 8,501 | 65.66% |
 %      0.12% | ~547x", and :88-93 is a "Ready-to-paste replacement" sentence carrying this very phrase. The
 %      chapter's declared source of truth (docs/studies/closing_data/RESULTS_BOARD.md) states no such ratio.
-%   3. It was computed from a SUPERSEDED value: the 547x uses 65.66 (seed 0), while the chapter reports
-%      65.69 (n=20). The prose paired a new numerator with a ratio derived from the old one, and the two
-%      round the same way, which is exactly why it survived review.
+%   3. It was computed from a SUPERSEDED value: the 547x used the seed-0 California cell of the
+%      leaked generation while the prose then printed that generation's n=20 cell (both on the
+%      never-cite list now; the reported cell is 64.54). The prose paired a new numerator with a
+%      ratio derived from the old one, and the two round the same way, which is why it survived review.
 %   4. Its denominator is the floor this project's own record tells the reader NOT to use.
 %      articles/[mobiwac]/BRIDGING_METRICS.md:21-22: "The headline reg Acc@10 (~60-77) should be read
 %      against the Markov-1 floor, not the ~1 % random floor." Counted in the JSON rather than trusted from
@@ -98,10 +107,10 @@ measured service result.
 %      floor the chapter itself adopts, this cell is not a multiple of 500.
 % AN HONESTY FLAG HAD ALREADY ANTICIPATED THIS EXACT SENTENCE and was never discharged:
 % science/storyline/archive/PROCESS_REVIEW.md sec. 06_honesty_under_pressure (flag F7) names the
-% "65.69%, 500x better than random" line as a temptation, usable only with its convention, and marks it
-% [VERIFY at adaptation].
-% WHAT IS NOT DELETED, and why: the 65.69 percent and the 8,501 are traced and correct, and the
-% enrichment OBSERVATION is real. Only the unsourced multiplier goes. Replacing it with a floor value
+% "[California Acc@10], 500x better than random" line as a temptation, usable only with its
+% convention, and marks it [VERIFY at adaptation].
+% WHAT IS NOT DELETED, and why: the California Acc@10 (now the v18 cell, 64.54) and the 8,501 are
+% traced and correct, and the enrichment OBSERVATION is real. Only the unsourced multiplier goes. Replacing it with a floor value
 % would be a new claim needing the author's sign-off, so it was not done here.
 % Swept for propagation before deleting: the ratio appears nowhere else in either text. The "547" hits in
 % tables/mobiwac/{results,datasets}.tex are Arizona's region count, 1,547 (checked, not assumed).
@@ -127,27 +136,13 @@ measured service result.
 % macro-F1. The scope travels with the numbers, per the stats reviewer's finding on exactly this;
 % see docs/studies/pre_freeze_gates/A4_RESULTS.md for the per-dataset values. Delivered prose below
 % is left as it stands.
-Four limits qualify these results. First, the representation is trained once over all places; a
+Five limits qualify these results. First, the representation is trained once over all places; a
 per-fold rebuild from training users only changed the results by at most $0.33$ Acc@10 and $0.29$
 macro-F1 across three datasets at one seed, with the qualification on the region half recorded in
 Section~\ref{sec:setup-windows}. Second, epoch selection consults the fold that the score is
 then read on (Section~\ref{sec:setup-windows}), so every absolute score reported here is optimistic. The
 comparison between the joint model and the dedicated models is affected far less, for two reasons that we can state
 rather than assume: the selection rule is the same for both models on the same folds, an epoch chosen on validation and read
-% PARITY, 2026-08-05, after a reviewer found me calling the residual divergence between the two copies
-% "all expected and correct" when three of ten differences were prose, not label namespaces:
-%   1. this sentence joined two independent clauses with a comma, where the paper has two sentences. The
-%      splice arrived when the paper's two sentences were merged into one here on 2026-08-04 (commit
-%      9be36e8e); 80_discussion_audit.md item 1 flags it. Now split, matching the paper.
-%   2. "for two reasons we can state outright" against the paper's "that we can state rather than assume".
-%      Adopted the paper's wording, which is also the weaker and more honest of the two: "outright" asserts
-%      confidence the paragraph then qualifies two sentences later with "It does not follow that the bias
-%      cancels exactly".
-%   3. "Fig.~\ref" against the paper's "Fig.~\ref" is a house-style difference between a dissertation and
-%      an ACM paper, and is LEFT divergent on purpose.
-% The remaining differences are the label namespace (sec:* against sec:*), the figure abbreviation
-% just noted, and "this paper's claims" against "the paper's claims" (ERRATA.md:79-80). Verified by an
-% exhaustive sentence-then-word diff of the two live texts rather than asserted.
 on that fold, with each model selected on its own validation objective (Section~\ref{sec:results-part2}),
 and, for the category comparison, the dedicated model receives the wider search: batch size at all
 six datasets and the learning rate at four, against a joint-model search that covers four of the six
@@ -158,7 +153,24 @@ dedicated model, which makes the reported category difference conservative there
 California, where the dedicated learning rate was not varied, the two searches are closer in extent
 and the reading does not apply; Florida is also the one dataset where the joint model outperforms on
 this task. It does not follow that the bias cancels exactly. Third, we do not
-% SCOPE NARROWED 2026-08-05. The sentence said "the dedicated model receives the wider search, a
+build or evaluate a mobility-aware service; it is background motivation, and this paper's claims are the
+prediction results themselves.
+% PARITY, 2026-08-05 (block moved 2026-09-06 from inside the second limit's sentence to here), after a
+% reviewer found me calling the residual divergence between the two copies "all expected and correct"
+% when three of ten differences were prose, not label namespaces:
+%   1. this sentence joined two independent clauses with a comma, where the paper has two sentences. The
+%      splice arrived when the paper's two sentences were merged into one here on 2026-08-04 (commit
+%      9be36e8e); 80_discussion_audit.md item 1 flags it. Now split, matching the paper.
+%   2. "for two reasons we can state outright" against the paper's "that we can state rather than assume".
+%      Adopted the paper's wording, which is also the weaker and more honest of the two: "outright" asserts
+%      confidence the paragraph then qualifies two sentences later with "It does not follow that the bias
+%      cancels exactly".
+%   3. the chapter's "Figure~\ref" against this paper's "Fig.~\ref" is a house-style difference between a dissertation and
+%      an ACM paper, and is LEFT divergent on purpose.
+% The remaining differences are the label namespace (sec:* against sec:*), the figure abbreviation
+% just noted, and "this paper's claims" against "the paper's claims" (ERRATA.md:79-80). Verified by an
+% exhaustive sentence-then-word diff of the two live texts rather than asserted.
+% SCOPE NARROWED 2026-08-05 (block moved 2026-09-06 from inside the third limit's sentence to here). The sentence said "the dedicated model receives the wider search, a
 % per-dataset sweep over batch size and learning rate", unqualified, inside the paragraph that bounds the
 % optimistic-score bias for BOTH tasks. The sweep covers the dedicated CATEGORY model only, and this
 % chapter's own results section says so in the same words in both copies: 06_results.tex:95 (paper
@@ -179,8 +191,6 @@ this task. It does not follow that the bias cancels exactly. Third, we do not
 % "the comparator" was also replaced: it is unregistered, and GLOSSARY §2 registers "dedicated single-task
 % model" and forbids synonym cycling, which naming it a third way in one paragraph would be.
 % Probes: R13-sweepscope, R13-sweepscope2.
-build or evaluate a mobility-aware service; it is background motivation, and this paper's claims are the
-prediction results themselves.
 % [2026-08-12, AUTHOR RULING] THE CAPACITY LIMIT IS WITHDRAWN, together with the appendix it pointed
 % at (the parameter-count control, now in the supplementary volume; the reasoning is at its former
 % include site in content.tex). The clause read, verbatim and preserved here rather than deleted:
@@ -197,12 +207,47 @@ Fourth, each
 visit node in the representation graph draws on the visits that precede it, so a vector encodes the visit
 together with its own history; the graph does not pass information from a later visit back to an earlier
 one, in training or at readout, which is what keeps a node from carrying a feature of the target it is
-used to predict.
+used to predict. Fifth, the joint model has more parameters than the two dedicated models together
+(Section~\ref{sec:method-model}), so its region result at Texas and California may come from size
+rather than from sharing. A control separates the two at California: it widens the dedicated region
+model until its parameter count reaches the joint model's, taken from the training logs, and changes
+nothing else. At width $352$ the dedicated model has $5{,}014{,}942$ parameters, $97.4$ percent of the
+joint model's $5{,}151{,}189$, and scores $0.41$ Acc@10 above the joint model at the same random
+initialization, with all five folds in the same direction and a paired test over the five folds that
+separates the difference from zero ($p = 0.010$). A wider model, at $174.8$ percent of the joint
+model's budget, scores $0.43$ above it ($p = 0.008$, five of five folds); the two are $0.02$ apart
+($p = 0.40$), so widening past parity adds nothing. Texas has no control of matched size: the only
+wider model run there has $170.5$ percent of the joint model's budget and scores $0.21$ above the
+joint model, which the same test does not separate from zero ($p = 0.12$). At California, the one
+dataset where the control exists, a dedicated model of the same size scores above the joint model's
+region result, so the advantage there cannot be attributed to sharing between the tasks; at Texas the
+question is open. What remains on the region axis is the operational result: one model produces both predictions
+in one forward pass, at no cost beyond the bounds reported above.
+% [2026-09-06, camera-ready, D4] FIFTH LIMIT RESTORED with the experiment that bounds it. The
+% 2026-08-12 ruling below dropped the capacity limit because no experiment bounded it; the control
+% ran on 2026-08-13 (P1), and the author's decision of 2026-09-06 (D4) is to declare it. Wording
+% adapted from the author-approved errata text of 2026-09-02,
+% articles/dissertacao/wrapup/erratas/errata_Q14_capacity_region.tex, with three changes: "arm" ->
+% "model" (GLOSSARY section 3); "at the same random initialization" added, because the comparator is
+% the seed-0 joint cell (california_s0_joint = 64.5034 in joint_best_perfold.json), not the
+% four-seed 64.54 of Table II, and a reader subtracting from the table would get a different delta;
+% the errata's closing sentence on the category axis (a 6.7x dedicated model scoring lower) is NOT
+% carried, because that control is printed nowhere in this paper. "at no measured cost" -> "at no
+% cost beyond the bounds reported above": four region deficits are resolved (AL/AZ/FL), so "no cost"
+% would overstate.
+% NUMBERS (value -> source): 5,014,942 and 5,151,189 and 97.4 percent -> research/reproducibility/
+% mobiwac_v18/param_counts.py (2026-09-02); 0.41 -> 64.9097 - 64.5034 = +0.4063 from
+% docs/results/P1/region_head_california_*capmatched_s0.json vs joint_best_perfold.json, paired
+% two-sided t p = 0.0102; 0.43 / p 0.008 / 174.8 percent -> the 528-width arm; 0.02 / p 0.40 ->
+% 352 vs 528; 170.5 percent / 0.21 / p 0.12 -> texas 544-width arm (p = 0.1162, 4/5 folds). All
+% quoted from the errata's own verification block, not recomputed here. Seed 0, five folds, no Holm.
+% THE COUNT MOVES WITH THE MEMBER: "Four limits" -> "Five limits" (gate_v17.sh has no count probe on
+% the article side; the dissertation's R13-limitcount does not read this tree).
 % PUNCTUATION AND PARITY 2026-08-05. The dissertation copy joined two independent clauses with a comma
 % ("service, this is a background motivation"), a splice the paper copy does not have; both copies were
 % reflowed in 71d119ce and this one acquired the splice plus the words "this is a". Now a semicolon,
 % matching the paper.
-% "this paper's claims" against the paper's "the paper's claims" is a DELIBERATE, RECORDED adaptation
+% the chapter's "this chapter's claims" against this paper's "this paper's claims" is a DELIBERATE, RECORDED adaptation
 % (ERRATA.md:79-80), left divergent on purpose. It is one of exactly two documented differences between the
 % copies, the other being the label namespace (sec:* against sec:*).
 % [round6, COD-006 "identically"] RE-ANCHORED, READ, AND NARROWED. An earlier audit round recorded this

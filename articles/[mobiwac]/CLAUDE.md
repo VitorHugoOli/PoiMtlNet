@@ -10,13 +10,32 @@
 >
 > **Read [`CAMERA_READY.md`](CAMERA_READY.md) first.** It is the entry point for the camera-ready
 > and it wins over this file on every number and every verdict. §2 below is a memory aid for a
-> generation that no longer exists; the paper of record is **`src_fix/`**, not `src/`.
+> generation that no longer exists.
+>
+> ## ✅ UMA SÓ ÁRVORE — `src/` (2026-09-06)
+>
+> **`articles/[mobiwac]/src/` É o camera-ready.** Contém o texto do Capítulo 5 da dissertação,
+> portado a 2026-09-06 e corrigido em cima. As outras duas árvores **foram apagadas**:
+>
+> | árvore | o que era | recuperar com |
+> |---|---|---|
+> | `src_fix/` | a reescrita sem vazamento de Agosto, ponto de partida de `src/` | `git archive 422c2d37 "articles/[mobiwac]/src_fix" \| tar -x` |
+> | `src_v1/` | cópia congelada de 2026-07-09, com um `VERSION.md` que se provou **errado** | `git archive 422c2d37 "articles/[mobiwac]/src_v1" \| tar -x` |
+>
+> **O artigo submetido ao EDAS** é o commit **`0834419b`** (`md5 dce01efe60db68a50f531cdd0a88dbde`,
+> 8 páginas), identificado contra o PDF que o autor forneceu:
+> `git show 0834419b:"articles/[mobiwac]/src/main.pdf" > submetido.pdf`
+>
+> ⚠ **Ancore-se nos SHA, não em etiquetas.** Criei etiquetas para isto **duas vezes** e as duas
+> desapareceram sozinhas do repositório em poucas horas. O `422c2d37` é ancestral do ramo
+> `mobiwac-camera-ready`, portanto nunca é podado; a recuperação foi testada por extracção real e
+> compara byte-a-byte.
 >
 > What is still live here: the decisions ledger (§3), the conventions, and the doc map.
 
 > **What this folder is.** The working folder for our **MobiWac 2026** submission,
 > *"Predicting the Next Category and Region of a Visit: A Check-in-Level Multi-Task Study on Mobility Data."*
-> The paper itself is in [`src/`](src/) (`main.tex`, a compiling 9-page IEEE two-column draft). This file is the
+> The paper itself is in [`src/`](src/) (`main.tex`), and desde 2026-09-06 essa e a UNICA arvore. This file is the
 > landing: the settled state, the decisions ledger, the conventions, and the doc map. **Read this first**, then
 > [`GLOSSARY.md`](GLOSSARY.md) (the writing law) and [`PAPER_PLAN.md`](PAPER_PLAN.md) (the section-by-section spine).
 

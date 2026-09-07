@@ -27,7 +27,7 @@ work reported no consistent multi-task advantage for the paired category tasks a
 We propose two enhancements to that earlier model. First, we build a check-in-level representation: instead of one fixed vector per place, each check-in gets its own vector that holds its context (the time, nearby places, and recent visits).
 This adds a fourth level, the check-in, beneath the place, region, and city levels of hierarchical graph infomax~\cite{huang2023hgi,velickovic2019dgi} (Fig.~\ref{fig:dataflow}). Second, we train one model that
 predicts the next category and the next region in a single forward pass, with a shared trunk (a cross-attention stack where the two tasks exchange
-semantic context) and a private spatial path for the region task (Fig.~\ref{fig:model}). We evaluate on two settings chosen to differ: five U.S. states of different sizes (Gowalla) and one non-U.S. city (Istanbul).\footnote{\label{fn:mobiwac:code}Code (model, representation, baselines, statistical tests): \url{https://github.com/VitorHugoOli/PoiMtlNet/tree/mobiwac}. Both data sources are public: the category-annotated Gowalla dump (\url{https://figshare.com/articles/dataset/gowalla_data/22126586}) and Massive-STEPS~\cite{wongso2025massivesteps}.}
+semantic context) and a private spatial path for the region task (Fig.~\ref{fig:model}). We evaluate on two settings chosen to differ: five U.S. states of different sizes (Gowalla) and one non-U.S. city (Istanbul).\footnote{\label{fn:code}Code (model, representation, baselines, statistical tests): \url{https://github.com/VitorHugoOli/PoiMtlNet/tree/mobiwac}. Both data sources are public: the category-annotated Gowalla dump (\url{https://figshare.com/articles/dataset/gowalla_data/22126586}) and Massive-STEPS~\cite{wongso2025massivesteps}.}
 
 Our contributions are as follows.
 \begin{itemize}
@@ -36,22 +36,41 @@ Our contributions are as follows.
     consistent even where the size is small, because a single fixed vector
     per place cannot separate places that serve several purposes, which
     per-visit context recovers.
-  \item A single model for joint next-category and next-region prediction, sharing semantic context across tasks while keeping a private spatial path for the region task; to our knowledge, the first work to treat fine-grained region as an end target of equal standing (Section~\ref{sec:related-tasks}). In one forward pass, it outperforms a dedicated
+  \item A single model for joint next-category and next-region prediction, sharing semantic context across tasks while keeping a private spatial path for the region task; to our knowledge, the first work to treat fine-grained region as an end target of equal standing (Section~\ref{sec:related-tasks}). In one forward pass, reading both
+    answers from a single saved model, it outperforms a dedicated
     single-task region model at Texas and California, the two datasets with the
     largest region vocabularies, and at the other four it stays within a
     two-point margin registered before any result was read (statistical
-    non-inferiority, assessed with two one-sided tests). On category it
+    non-inferiority, assessed with two one-sided tests). At California a
+    dedicated region model of the same size scores above it, so that gain is
+    not attributed to sharing (Section~\ref{sec:discussion}). On category it
     outperforms the dedicated model at Florida, and the five remaining
-    differences are equivalent to zero within half a point, even though each
-    dedicated model is tuned per dataset (Table~\ref{tab:results}).
+    differences are equivalent to zero within half a point, even though the
+    dedicated category model receives a per-dataset search (Table~\ref{tab:results}).
+% [2026-09-06, camera-ready, bullet 2] Three changes. (1) "reading both answers from a single saved
+% model" restored from the src_fix text (CONSOLIDATION_PLAN 3.7; the single-model property is the
+% spine of the recommended framing, CAMERA_READY section 5 S1). (2) Under author decision D4 the
+% California capacity control is named next to the region verdict it qualifies, in one clause, and
+% points at the fifth limit in Section VII, which carries the numbers; Texas has no matched-size
+% control, so the clause is scoped to California. (3) "each dedicated model is tuned per dataset" ->
+% "the dedicated category model receives a per-dataset search": only the category model is searched
+% (batch size at six datasets, learning rate at four; the dedicated region models run one fixed
+% configuration), per Section V and CAMERA_READY S11.
   \item An empirical account, across five U.S. states and one non-U.S. city, of where the joint
     region gain appears. The two datasets where the joint model outperforms are the two with the
     largest region vocabularies, Texas and California, while the four with smaller vocabularies sit
     inside the two-point margin (Fig.~\ref{fig:deltas}). The grouping is reported as an
     observation rather than a law: the ordering does not hold inside the pair, since California has
     more regions than Texas and a slightly smaller gain, and region count co-varies with corpus
-    size across these states. All joint and dedicated results average
-    four random initializations (Section~\ref{sec:results-part2}).
+    size across these states. The joint and dedicated results of
+    Table~\ref{tab:results} average four random initializations; the
+    representation comparison of Table~\ref{tab:substrate} uses one
+    (Section~\ref{sec:results-part2}).
+% [2026-09-06, camera-ready, bullet 3, plan item 3.10] Seed scope corrected. "All joint and
+% dedicated results average four random initializations" was true of Table II but not of the
+% representation comparison in bullet 1, whose check-in-level column is the seed-0 slice of the
+% dedicated category model (n = 5, one seed; CAMERA_READY section 3.3, fact 1 and fact 3). The
+% sentence now names which table has which scope. No number changed.
 \end{itemize}
 
 The rest of the paper presents related work (Section~\ref{sec:related}), the problem (Section~\ref{sec:problem}), the method and setup (Sections~\ref{sec:method} and~\ref{sec:setup}), results (Section~\ref{sec:results}), and discussion and conclusions (Sections~\ref{sec:discussion} and~\ref{sec:conclusion}).

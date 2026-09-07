@@ -48,30 +48,37 @@
 % Title and authors (single-blind: real names stay). De-anonymize before
 % submission. Working title leads with the finding, not the model name.
 % ---------------------------------------------------------------------
-\title{Predicting the Next Category and Region of a Visit:\\
+\title{Predicting the Next Category and Region of a Visit:
 A Check-in-Level Multi-Task Study on Mobility Data}
+% [2026-09-06, camera-ready] Forced line break removed: with it the title rendered on three lines
+% with "Data" alone on the third. The wording is the accepted EDAS title and does not change
+% (venue rule: the final title must match the accepted one). The two math-mode numbers in the
+% abstract were set as plain text: the venue asks for no math in the abstract.
 
 % [2026-09-06] AUTORES SEPARADOS. As normas do MobiWac 2026 dizem, literalmente, "Do not group the
 % authors together", e exigem na versao final o nome legal completo, a afiliacao em italico com pais,
 % e o email de cada autor. Os tres partilham a mesma afiliacao, que por isso se repete -- e a pratica
 % normal do IEEEtran. Fonte: scomminc.com/pp/ieee/mobiwac26.htm.
-% ⚠ NOMES LEGAIS: o registo EDAS tem "Vitor Hugo De Oliveira Silva", "Germano dos Santos" e
-% "Fabricio Aguiar Silva". Confirmar com o autor antes de submeter; as normas pedem o nome legal
-% completo, nao as iniciais.
+% [2026-09-06, autorizado pelo autor: "Pode adicionar o nome todo"] NOMES LEGAIS COMPLETOS, como a
+% norma exige ("All Authors' Full Legal Names ... FULL first/given, middle, and last/family names").
+% Vitor e Fabricio saem do registo EDAS verbatim. ⚠ O nome do meio de Germano ("Barcelos") NAO vem
+% do EDAS, que regista so "Germano dos Santos": foi tomado do "Germano B. dos Santos" que o artigo
+% usa desde a submissao. CONFIRMAR COM ELE antes do upload -- um nome legal errado no Xplore e
+% permanente, e esta e a unica das tres formas que nao tem fonte documental.
 \author{
-\IEEEauthorblockN{Vitor H. O. Silva}
+\IEEEauthorblockN{Vitor Hugo de Oliveira Silva}
 \IEEEauthorblockA{\textit{NESPeD-LAB}\\
 \textit{Universidade Federal de Vi\c{c}osa}\\
 Florestal, MG, Brazil\\
 vitor.h.oliveira@ufv.br}
 \and
-\IEEEauthorblockN{Germano B. dos Santos}
+\IEEEauthorblockN{Germano Barcelos dos Santos}
 \IEEEauthorblockA{\textit{NESPeD-LAB}\\
 \textit{Universidade Federal de Vi\c{c}osa}\\
 Florestal, MG, Brazil\\
 germano.santos@ufv.br}
 \and
-\IEEEauthorblockN{Fabr\'icio A. Silva}
+\IEEEauthorblockN{Fabr\'icio Aguiar Silva}
 \IEEEauthorblockA{\textit{NESPeD-LAB}\\
 \textit{Universidade Federal de Vi\c{c}osa}\\
 Florestal, MG, Brazil\\
@@ -95,7 +102,7 @@ in per-task accuracy. We first
 build a check-in-level representation that describes each visit in its own
 context, instead of giving every place one fixed vector. Across six datasets
 (five U.S. states and one non-U.S. city, Istanbul), this improves next-category
-prediction over a standard place embedding at every dataset, by $0.2$ to $6.3$ points of
+prediction over a standard place embedding at every dataset, by 0.2 to 6.3 points of
 macro-averaged F1, with every fold favoring it. We then train one
 multi-task model for both tasks and read both answers from a single saved
 model. On next region it outperforms the dedicated model at Texas and California, the two

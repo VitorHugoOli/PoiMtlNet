@@ -1,4 +1,12 @@
 % !TeX root = ../main.tex
+% Section IV: Method. Camera-ready base: the dissertation's Chapter 5 (ported 2026-09-06).
+%   ⚠ COST (2026-07-08 audit; restored 2026-09-06 per CONSOLIDATION_PLAN 3.18): the joint model is
+%   LARGER than the two dedicated models COMBINED (2026-09-02 counts: 4,197,621 vs 1,850,980 at
+%   Alabama; 5,151,189 vs 2,804,548 at California; research/reproducibility/mobiwac_v18/
+%   param_counts.py). The old "+5 percent" and the INV2 "17-20% fewer params / 28% fewer ops"
+%   numbers used a different basis (single-task copies of the joint architecture itself) and must
+%   NEVER return to the prose. The honest claim is operational (one artifact, one forward pass),
+%   not arithmetic.
 % chapters/5_mobiwac/04_method.tex -- one section of Chapter 5 (MobiWac 2026, accepted 2026-08-26; status comment updated 2026-09-01, AUT-35).
 % Split out of chapters/5_mobiwac.tex on 2026-07-28 (author request: the paper
 % chapters were single long files, while the originals under articles/[mobiwac]/src/sections/
@@ -35,14 +43,16 @@ The training loss is a fixed-weight sum of the two outputs,
 L = 0.5\,L_{\mathrm{cat}} + 0.5\,L_{\mathrm{reg}},
 \end{equation}
 where $L_{\mathrm{reg}}$ is a plain unweighted cross-entropy loss and $L_{\mathrm{cat}}$ is a
+cross-entropy loss with logit adjustment~\cite{menon2021logitadjustment}: $\tau\log P_{\mathrm{train}}(y)$, with $\tau=0.5$, is added
+to the category logits during training only, which shifts the decision boundary toward the balanced
+posterior that macro-F1 rewards. Inference uses the unadjusted logits.
 % [2026-09-04, AUTHOR-APPROVED ("vamos adicionar a citacao do Menon no bib e no texto"), errata
 % Table B.5 of the supplement] Citation only: the published article uses logit adjustment in its
 % delivered results and never cites its source. Key menon2021logitadjustment verified at the arXiv
 % record of 2007.07314 (ICLR 2021) by the registry; no DOI exists at Crossref, do not add one from an
-% aggregator. Method description unchanged by instruction.
-cross-entropy loss with logit adjustment~\cite{menon2021logitadjustment}: $\tau\log P_{\mathrm{train}}(y)$, with $\tau=0.5$, is added
-to the category logits during training only, which shifts the decision boundary toward the balanced
-posterior that macro-F1 rewards. Inference uses the unadjusted logits. The weights and $\tau$ were
+% aggregator. Method description unchanged by instruction. [2026-09-06: block moved from inside the
+% sentence to after it; comments live between sentences.]
+The weights and $\tau$ were
 selected once on validation during development and held fixed across all six datasets. Class
 weighting, tested on both outputs, lowered both region accuracy and category macro-F1, and logit
 adjustment replaces it on the category output. The two choices differ by task because the two

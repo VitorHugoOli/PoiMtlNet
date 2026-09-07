@@ -1,11 +1,7 @@
 % !TeX root = ../main.tex
-% chapters/5_mobiwac/05_setup.tex -- one section of Chapter 5 (MobiWac 2026, accepted 2026-08-26; status comment updated 2026-09-01, AUT-35).
-% Split out of chapters/5_mobiwac.tex on 2026-07-28 (author request: the paper
-% chapters were single long files, while the originals under articles/[mobiwac]/src/sections/
-% are one file per section). The split is PURELY MECHANICAL: content was cut at
-% \section boundaries and not edited. The chapter file now \inputs these in order.
-% Editing rules are unchanged and still governed by the chapter's status above:
-% see NORTH_STAR section 4 before changing any sentence here.
+% sections/05_setup.tex -- Section V of the MobiWac 2026 camera-ready (accepted 2026-08-26).
+% Base text: the dissertation's Chapter 5 (articles/dissertacao/src/chapters/5_mobiwac/05_setup.tex),
+% ported 2026-09-06 (CONSOLIDATION_PLAN 3.22). Camera-ready edits carry a dated comment beside them.
 \section{Experimental Setup}
 \label{sec:setup}
 
@@ -35,9 +31,19 @@ once on the whole dataset and has seen their visits. Its training objective does
 use the next-category or next-region labels. We therefore check whether whole-dataset
 training changes the results.
 
-\emph{Configuration search.} Reported results come from searched configurations, and the search
-was not uniform across the three model families, so its scope is stated here rather than left to
-be inferred.
+\emph{Configuration search.} The search was not uniform across the three model families, so its
+scope is stated here.
+% [2026-09-06, camera-ready, DP-7] COMPRESSED, not deleted: GLOSSARY section 9.4 forbids deleting a
+% fairness signal without an act-replacement, and this paragraph is the fairness signal behind the
+% conservatism argument of Sections VI and VII. 206 -> ~135 words. Every fact kept: batch size at six
+% datasets (five folds IST/AL/AZ, one fold TX); learning rate at four, with FL/CA on the
+% large-dataset value that only the single-fold Texas screen tested; joint model searched at
+% IST/AL/AZ over five folds and screened at FL, TX/CA transferred; dedicated region model one fixed
+% configuration, logit-adjustment strength the only knob tested (set to zero). Dropped: the framing
+% sentence "Reported results come from searched configurations ... rather than left to be inferred"
+% and the sentence "why the dedicated category arm is a per-dataset-tuned comparison rather than one
+% fixed recipe", which carried two banned words (arm, recipe; GLOSSARY section 3) and restated the
+% previous clause. No number or dataset name changed.
 % [2026-08-12] SCOPE CORRECTED TWICE, and the second correction overturned the first. A census of
 % docs/results/closing_data/v18_sweep/ ALONE says batch size never varied at California; adding the
 % earlier generation (docs/studies/closing_data/v17_completion/cat_ceiling_sweep/ and
@@ -60,23 +66,25 @@ be inferred.
 % seven fragments of this sentence returned zero). Do not restore "the value the smaller searches
 % selected" -- Florida and California never had a search of their own to select it.
 For the dedicated category model, batch size was searched at all six datasets, over five folds at
-Istanbul, Alabama and Arizona and on a single fold at Texas. The learning rate was
-searched over five folds at Istanbul, Alabama and Arizona and on single folds at Texas; at Florida
-and California it was not varied, so those two carry the large-dataset value, which only the
-single-fold Texas screen tested.
-The selected learning rate differs by dataset, which is
-why the dedicated category arm is a per-dataset-tuned comparison rather than one fixed recipe. For
-the joint model, batch size and the category-head learning rate were searched at Istanbul, Alabama,
-and Arizona over five folds and screened at Florida; Texas and California carry the configuration
-transferred from those searches rather than one of their own. The dedicated region model uses one
-configuration throughout, inherited unchanged, with only the logit-adjustment strength tested and
-set to zero for that task. Section~\ref{sec:discussion} returns to what the uneven joint
-search may mean for the two datasets that did not receive one.
+Istanbul, Alabama and Arizona and on a single fold at Texas, and the learning rate at four of them,
+over five folds at Istanbul, Alabama and Arizona and on single folds at Texas; Florida and California
+carry the large-dataset value, which only the single-fold Texas screen tested. The selected learning
+rate differs by dataset. For the joint model, batch size and the category-head learning rate were
+searched at Istanbul, Alabama, and Arizona over five folds and screened at Florida; Texas and
+California carry the configuration transferred from those searches. The dedicated region model uses
+one configuration throughout, with only the logit-adjustment strength tested and set to zero for
+that task. Section~\ref{sec:discussion} returns to what the uneven joint search may mean for Texas
+and California.
 
 \emph{Whole-dataset training.} The question is whether using all users to train
 Check2HGI gives the prediction models an advantage. To check this, we built a new
 representation for each fold using only its training users. This check covers three datasets at
-one seed.
+one seed, on an earlier build of the representation.
+% [2026-09-06, camera-ready, DP-9] "on an earlier build of the representation" ADDED. The
+% whole-dataset-training check ran on the pre-v18 build (docs/studies/pre_freeze_gates/
+% A4_RESULTS.md, seed 0, AL/AZ/FL) and was not re-run on the reported forward-only build; the
+% numbers below are that measurement's (CAMERA_READY section 5, S14). Without the clause the
+% paragraph defends the reported build with evidence taken on another one.
 The differences were $-0.33$ to $+0.01$ Acc@10 points for region and $0.00$ to
 $+0.29$ macro-F1 points for category.
 
@@ -87,35 +95,10 @@ windows cover 67 to 87 percent of the validation data. The comparison does not c
 information specific to each visit or places unseen in training. Within this
 coverage, whole-dataset training did not meaningfully change the results.
 
-%\emph{Links between consecutive visits.} The second question comes from the way the
-%graph is built. Check2HGI builds each visit vector from connected nodes. Since
-%consecutive visits are connected in both directions and each visit node contains its
-%observed category, the vector of the last observed visit may receive the category of
-%the next visit.
-%
-%To test this path, we compared the standard Check2HGI encoder, which uses graph
-%convolution, with an alternative that uses graph attention. Both produced the same
-%kind of 64-dimensional visit vector used in our experiments. From each input window,
-%we selected only the vector of the last observed visit. Thus, each test
-%example contained one 64-dimensional embedding, not the complete window.
-%
-%We standardized the embeddings using only the training data and trained a new linear
-%classifier for each fold. The classifier received the single embedding and predicted
-%the category of the next visit. The joint model and its task heads were not used. We
-%chose a linear classifier because it is simple and fast. If it can recover the next
-%category unusually well, the result is a useful warning that the embedding may contain
-%information from the next visit.
-%
-%The reported value is the mean macro-F1 over the five folds. With the standard
-%Check2HGI embeddings, the classifiers scored $0.4090$. This result is expected because
-%the embedding contains the category and time of the last observed visit, together
-%with information from its graph neighborhood. These signals can be related to the
-%next category, so a nonzero score does not by itself show a leak. With the
-%graph-attention embeddings, the score increased to $0.4976$. The same classifier
-%design and data splits were used in both cases. Therefore, the warning comes from the
-%increase over the reference, not from the value $0.4976$ alone: graph attention made
-%the next category much easier to recover from a single embedding and may have given
-%more weight to information from the next connected visit.
+% [2026-09-06, camera-ready] The commented-out "Links between consecutive visits" block (the
+% linear-probe screen, 0.4090 vs 0.4976, that the chapter kept as dead prose) was removed from this
+% copy: it described the pre-v18 two-way graph ("connected in both directions"), which the reported
+% build no longer has (Section IV states the forward-only construction). The chapter keeps the block.
 
 \subsection{Metrics and statistical tests}
 \label{sec:setup-metrics}
@@ -204,10 +187,27 @@ We use the comparison models for two purposes: to compare each task with establi
 
 \emph{Task comparisons.} For next-category prediction, we use POI-RGNN~\cite{capanema2023poirgnn}, which we re-implement from its published architecture and hyperparameters. We also use a Markov model that predicts the category that most often follows the recent categories. We select the best Markov order for each dataset. For region prediction, we compute a Markov-1 floor over region transitions. It uses the same sliding windows and fold splits as our models.
 
-The primary next-region comparison is HMT-GRN~\cite{lim2022hmtgrn}, an end-to-end recurrent model trained as one unit from the raw check-ins. We evaluate it on the same data, folds, and random initializations. We keep its shared multi-task structure and add a region-transition prior that is built from the training data in each fold. We remove the graph components and hierarchical beam search because they support exact next-place prediction, which we do not study. The resulting model predicts region as one of its original targets, but it is not a reproduction of the complete published system.
+The primary next-region comparison is HMT-GRN~\cite{lim2022hmtgrn}, an end-to-end recurrent model trained as one unit from the raw check-ins. We evaluate it on the same data, folds, and random initializations. We keep its shared multi-task structure and add a region-transition prior that is built from the training data in each fold. A version built from the whole dataset inflated region accuracy by 13 to 27 points. Only the HMT-GRN comparison model uses this prior; our joint and dedicated models do not.
+% [2026-09-06, camera-ready, DP-6] TWO SENTENCES RESTORED from the accepted text
+% (src_fix/sections/05_setup.tex, "Integrity of the representation", third ground), which the
+% chapter had dropped: the whole-dataset prior inflated region accuracy by 13 to 27 points, and only
+% HMT-GRN uses the per-fold prior. Placed beside the sentence that introduces the prior, since the
+% chapter's integrity paragraph no longer enumerates three grounds. Protects the primary region
+% comparison: a reader who knows HMT-GRN asks why the prior is per fold, and this is the answer.
+% [2026-09-06, later] This comment block had been inserted mid-sentence and swallowed the tail of
+% the paragraph into its last line (three sentences lost from the PDF); repaired, comment now sits
+% between sentences. Rule: a comment lives between sentences, never inside one.
+We remove the graph components and hierarchical beam search because they support exact next-place prediction, which we do not study. The resulting model predicts region as one of its original targets, but it is not a reproduction of the complete published system.
 
 We also run STAN~\cite{luo2021stan}. We re-implement its published architecture and train it from the raw check-ins with its own representations and sequence construction under one fixed configuration. We adapt its output to rank candidate regions, which are spatial objects compatible with its candidate-distance matching. We do not adapt STAN to category prediction because distance matching does not apply to categories. We report ReHDM~\cite{li2025rehdm} as a reference under its published protocol.
 
-\emph{Representation controls.} Two controls test whether the category gain comes from our representation design rather than from contextualization in general or from additional features. CTLE~\cite{lin2021ctle} is the closest prior contextual check-in representation. We train it end to end at Florida. At Alabama, Arizona, and Istanbul, we keep its weights fixed and do not fine-tune them. The second control adds raw features from each visit to a standard place embedding and uses the same prediction model.
+\emph{Representation controls.} Two controls test whether the category gain comes from our representation design rather than from contextualization in general or from additional features. CTLE~\cite{lin2021ctle} is the closest prior contextual check-in representation. We train it end to end at Florida. At Alabama, Arizona, and Istanbul, we keep its weights fixed and do not fine-tune them. The learned representations follow their own training scopes: HGI is pre-trained once on the whole dataset, as our representation is, while CTLE is trained for each fold using training users only.
+% [2026-09-06, camera-ready, DP-6, third sentence] Restored from the accepted text
+% (src_fix/sections/05_setup.tex, integrity paragraph, last two sentences). It discloses that CTLE
+% ran under a stricter regime (per-fold, training users only) than our representation and HGI
+% (whole dataset once); without it a reader assumes parity of regimes and the CTLE comparison reads
+% more favorable to us than it is. Fairness signal, GLOSSARY section 9.4.
+% [2026-09-06, later] Same repair as above: the block had swallowed the sentence that follows.
+The second control adds raw features from each visit to a standard place embedding and uses the same prediction model.
 
-A final control uses the standard place-level HGI representation~\cite{huang2023hgi} to measure what the per-visit representation adds. All other choices, including the nine-visit window, were fixed during development. The released code provides the full training configuration for every model (footnote~\ref{fn:mobiwac:code}).
+A final control uses the standard place-level HGI representation~\cite{huang2023hgi} to measure what the per-visit representation adds. All other choices, including the nine-visit window, were fixed during development. The released code provides the full training configuration for every model (footnote~\ref{fn:code}).
