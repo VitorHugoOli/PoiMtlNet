@@ -355,12 +355,16 @@ from it, and which reported claim falls outside it.
 
 **What was pre-registered, in one line:** next-category superiority (paired Wilcoxon,
 per-fold, n=20, Holm across the six datasets) and next-region non-inferiority (TOST at a
-two-point margin). Next-region *superiority* was **not** registered; those four
-improvements are secondary results and are reported in their own correction family.
+two-point margin). Next-region *superiority* was **not** registered; those two
+improvements (Texas, California) are secondary results and are reported in
+their own correction family.
 
 ```bash
 # the registered test at its registered footing: per-fold, n=20, Holm within the
-# six-dataset next-category family (+ the four next-region cells as their own family)
+# six-dataset next-category family (+ this command's own post-hoc next-region family,
+# m=4, Istanbul/FL/TX/CA -- the v17 footing; the paper's reported region result is two
+# significant cells, Texas and California, Holm-corrected across all six region
+# comparisons -- see the update note above)
 python scripts/closing_data/m2_prereg_perfold.py
 
 # the reported footing: per-seed means (n=4), paired t with the Wilcoxon alongside.
