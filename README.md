@@ -21,13 +21,14 @@ NESPeD-LAB, Universidade Federal de Viçosa, Florestal, MG, Brazil;
 > earlier substrate revision (the "v17" scripts/results below). The accepted
 > paper reports a corrected representation (a check-in graph leak was found and
 > fixed — see the note at the top of Section 5). This update corrects the
-> reported training recipe and desanonymizes the release. It does **not** yet
-> include a ported/sanitized copy of the full statistical-analysis scripts or
-> the raw regeneration artifact set for the corrected substrate — those are a
-> follow-up; the scripts already shipped below (Section 6) keep the same test
-> logic, but still need re-pointing at the corrected result files, and one of
-> them also hardcodes the pre-correction expected cell values it self-checks
-> against.
+> reported training recipe, desanonymizes the release, and adds the two
+> aggregated result files the accepted paper's own statistical test reads (see
+> Section 6) — [`wilcoxon_v18.py`](research/reproducibility/mobiwac_v18/wilcoxon_v18.py)
+> is runnable as shipped. It does **not** yet include a ported/sanitized copy of
+> the five *pre-registered* statistical-analysis scripts (Section 6 still points
+> them at the pre-correction result files) or the raw per-run regeneration
+> artifacts (rundirs/logs) the two aggregates above were built from — those are
+> a follow-up.
 
 ## What is in this repo
 
@@ -40,7 +41,8 @@ NESPeD-LAB, Universidade Federal de Viçosa, Florestal, MG, Brazil;
 | `scripts/baselines/` | Remaining baselines: HMT-GRN (`b3_hmt_grn.py`), cascade (`b4_cascade.py`), CTLE (`build_ctle_substrate.py`, `ctle_e2e.py`, `ctle_lib/`) |
 | `scripts/` | CLI entrypoints: `train.py`, `evaluate.py`, substrate/input builders, fold fan-out, transition priors, simple baselines |
 | `scripts/closing_data/` | Matched scorers and the statistical tests (current); `run_catx_v17_seed0_5f.sh` / `run_catx_v17_n20.sh` are historical run scripts for the superseded substrate, kept for provenance — see Section 5 for the reported recipe |
-| `research/reproducibility/mobiwac_v18/` | Reproduction scripts for the accepted paper's numbers: parameter-count audit (`param_counts.py`) and the paired Wilcoxon + t-test (`wilcoxon_v18.py`) |
+| `research/reproducibility/mobiwac_v18/` | Reproduction scripts for the accepted paper's numbers: parameter-count audit (`param_counts.py`) and the paired Wilcoxon + t-test (`wilcoxon_v18.py`) — both runnable as shipped, see Section 6 |
+| `docs/results/closing_data/v18/`, `docs/studies/closing_data/v18/data/` | The two aggregated per-fold/per-run result files `wilcoxon_v18.py` reads |
 | `analysis_protocol/` | The analysis plan, its deviation log, the executed analysis, and the epoch-selection record (Section 6) |
 | `scripts/second_dataset/` | Istanbul (Massive-STEPS) ETL: acquisition, category mapping, parsing, graph build, splits, inputs, substrate training |
 | `analysis/` | Paper analysis scripts: region non-inferiority TOST, near-miss distance analyses, shortlist compactness, co-visitation network |
@@ -372,22 +374,32 @@ Section 5 substrate correction (same tests, same registered footing), but the
 scripts themselves have not yet been re-pointed at the corrected result files;
 that re-pointing is a follow-up (see the update note at the top of this file).
 
-For the accepted paper's reported test on the corrected substrate, use
-[`research/reproducibility/mobiwac_v18/wilcoxon_v18.py`](research/reproducibility/mobiwac_v18/wilcoxon_v18.py)
-now: it runs the same paired one-sided Wilcoxon (n=20, Holm-corrected) *and*
+For the accepted paper's reported test on the corrected substrate, run
+[`research/reproducibility/mobiwac_v18/wilcoxon_v18.py`](research/reproducibility/mobiwac_v18/wilcoxon_v18.py):
+it runs the same paired one-sided Wilcoxon (n=20, Holm-corrected) *and*
 the paired one-sided t-test (n=4 per-seed means) side by side against the
 corrected result files, and refuses to report anything until it reproduces the
 paper's own per-cell means to within 0.005 tolerance.
 [`param_counts.py`](research/reproducibility/mobiwac_v18/param_counts.py) in
 the same directory reproduces the parameter-count table cited in the paper.
+Both are runnable as shipped — no GPU, no raw data, no other setup:
 
-`wilcoxon_v18.py` expects two aggregated result files
-(`docs/results/closing_data/v18/joint_best_perfold.json` and
-`docs/studies/closing_data/v18/data/v18_results.json`, both repo-relative) that
-this release does not yet ship — the sidecar convention that produces them
-from a Section-5 regeneration run is part of the follow-up. Until then, treat
-this script as a documented, verified-correct reference for the test, not as
-turnkey-runnable from a from-scratch regeneration.
+```bash
+PYTHONPATH=src python research/reproducibility/mobiwac_v18/wilcoxon_v18.py
+PYTHONPATH=src python research/reproducibility/mobiwac_v18/param_counts.py
+```
+
+`wilcoxon_v18.py` reads two aggregated result files, shipped in this release:
+[`docs/results/closing_data/v18/joint_best_perfold.json`](docs/results/closing_data/v18/joint_best_perfold.json)
+(per-fold joint-model scores) and
+[`docs/studies/closing_data/v18/data/v18_results.json`](docs/studies/closing_data/v18/data/v18_results.json)
+(per-run dedicated-ceiling scores). Both had a machine-local absolute path
+prefix and an internal hostname stripped before publishing — a plain string
+removal, verified byte-for-byte to touch nothing else (no metric or
+experimental value was altered); the sidecar-writing convention that
+originally produced these two files from a Section-5 regeneration run is
+still a follow-up (only the two finished aggregates are shipped, not the
+per-run raw logs/rundirs they were built from).
 
 Note: the `superiority_wilcoxon.py` and `m1_stats_n20.py` docstrings describe next-region
 superiority as pre-registered. That is incorrect — `analysis_protocol/STATISTICAL_PROTOCOL.md`
