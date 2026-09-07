@@ -24,8 +24,10 @@ NESPeD-LAB, Universidade Federal de Viçosa, Florestal, MG, Brazil;
 > reported training recipe and desanonymizes the release. It does **not** yet
 > include a ported/sanitized copy of the full statistical-analysis scripts or
 > the raw regeneration artifact set for the corrected substrate — those are a
-> follow-up; the scripts already shipped below (Section 6) are unaffected in
-> their logic, only in which result files they should point at.
+> follow-up; the scripts already shipped below (Section 6) keep the same test
+> logic, but still need re-pointing at the corrected result files, and one of
+> them also hardcodes the pre-correction expected cell values it self-checks
+> against.
 
 ## What is in this repo
 
@@ -61,7 +63,9 @@ NESPeD-LAB, Universidade Federal de Viçosa, Florestal, MG, Brazil;
   exceptions are shipped because a claim depends on them: the four per-fold
   arrays for Istanbul's dedicated category ceiling
   (`analysis_protocol/istanbul_cat_ceiling_perfold/`) and the output of the
-  registered test (`analysis_protocol/m2_prereg_output.txt`).
+  registered test (`analysis_protocol/m2_prereg_output.txt`) — **both are on
+  the pre-correction ("v17") substrate**, per the update note above; they
+  document the superseded claim, not the paper's reported numbers.
 
 ---
 
@@ -249,7 +253,8 @@ PYTHONPATH=src python scripts/train.py --task mtl --canon none \
 
 (Environment knobs — fp32 via `MTL_DISABLE_AMP=1`, per-head one-cycle via
 `MTL_ONECYCLE_PER_HEAD_LR=1`, chunked validation metrics via
-`MTL_CHUNK_VAL_METRIC=1` — must be exported before the command above.) Per-fold
+`MTL_CHUNK_VAL_METRIC=1`, plus `MTL_STRICT=1 MTL_COMPILE_DYNAMIC=1` — must be
+exported before the command above.) Per-fold
 parallel fan-out of one run is available via `scripts/run_folds_fanout.sh` +
 `scripts/aggregate_folds.py`.
 
@@ -267,10 +272,13 @@ The recipe reported in the accepted paper, on the same `check2hgi_v18`
 substrate as Section 5.1:
 
 ```bash
-# next-category ceiling: single-task GRU on the same inputs/folds
-PYTHONPATH=src python scripts/train.py --task next --engine check2hgi_v18 \
+# next-category ceiling: single-task GRU on the same inputs/folds (fp32 + compile
+# are not optional here — the whole board runs fp32, and bf16/fp16 backward passes
+# NaN at this class count on an A40)
+MTL_DISABLE_AMP=1 PYTHONPATH=src python scripts/train.py --task next --engine check2hgi_v18 \
     --state <state> --seed <seed> --epochs 50 --folds 5 --batch-size 8192 \
-    --model next_gru --embedding-dim 64 --max-lr <cat-max-lr> --logit-adjust-tau 0.5
+    --model next_gru --embedding-dim 64 --max-lr <cat-max-lr> --logit-adjust-tau 0.5 \
+    --compile --tf32
 # score it:
 python scripts/closing_data/score_stl_cat_ceiling.py <rundir>
 
@@ -289,7 +297,8 @@ PYTHONPATH=src python scripts/p1_region_head_ablation.py --state <state> \
 **0.005** for Florida/California/Texas. Note the region-ceiling command omits
 `--per-fold-transition-dir`: the prior is frozen off (`freeze_alpha=True
 alpha_init=0.0`), so it is inert and the directory is not needed (verified
-byte-equivalent at Alabama).
+byte-equivalent at Arizona in eager mode; under `--compile` the two arms differ
+by ~4.5e-5, within known compile noise).
 
 `scripts/closing_data/stl_ceilings.sh` implements the pre-correction recipe
 (`check2hgi_dk_ovl`, batch size 2048, no logit adjustment) — kept for
@@ -312,10 +321,17 @@ Simple non-learned reference points (majority class, Markov transition):
 
 ### 5.4 Scoring
 
-Matched-protocol scorers (per-fold category macro-F1 at the F1-best epoch +
-region Acc@10 with out-of-distribution correction, identical readout for MTL
-and ceilings): `scripts/closing_data/a40_score_matched.py` and
-`scripts/closing_data/h100_score_matched.py <rundir> --seed <seed>`.
+Matched-protocol scorers (per-fold category macro-F1 + region Acc@10 with
+out-of-distribution correction, identical readout for MTL and ceilings):
+`scripts/closing_data/a40_score_matched.py` and
+`scripts/closing_data/h100_score_matched.py <rundir> --seed <seed>`. Two epoch
+selectors are computed side by side and are **not interchangeable**:
+**diag-best** (per-task best epoch — the ceilings, and Table 3's non-joint
+comparisons) and **joint-best** (the single served checkpoint, selected by
+`geom_simple` — Table 3's reported joint-model cells). Never compare one
+against the other without saying so; see
+[`analysis_protocol/JOINT_BEST_SCORING.md`](analysis_protocol/JOINT_BEST_SCORING.md)
+for the convention record.
 
 ## 6. Statistics and analysis
 

@@ -57,6 +57,14 @@ class EmbeddingEngine(Enum):
     CHECK2HGI_DESIGN_K_RESLN_MAE_L0_1 = "check2hgi_design_k_resln_mae_l0_1"  # design_k + resln + T5.2b mae (full dual-axis stack)
     CHECK2HGI_RESLN_DESIGN_J = "check2hgi_resln_design_j"  # tier_resln: ResLN encoder + Design J anchored learnable POI table
     CHECK2HGI_DK_OVL = "check2hgi_dk_ovl"  # v14 (design_k) embeddings re-windowed at stride=1 (OVERLAPPING) — overlap-window real-pipeline probe; embeddings/region symlinked from v14, only the windowing differs
+    # v18: the design_k/dk_ovl recipe on a leak-free substrate — the consecutive-visit
+    # check-in graph is forward-only (src < tgt) in training and at readout, plus 4
+    # elapsed-time node columns (in_channels 15 = canonical 11 + continuous_time 4).
+    # Same row space and region labels as the substrate above, so the recipe runs on
+    # it unchanged and the columns are comparable. This is the substrate reported in
+    # the accepted paper. Built by scripts/integrity_v2/build_study_repr.py
+    # --forward-only --add-continuous-time (not yet in this release — see README §5).
+    CHECK2HGI_V18 = "check2hgi_v18"
     # embedding_eval re-screen variants (2026-06-01) — rebuilt via OUTPUT_DIR-scratch,
     # harvested to output/<value>/; do NOT overwrite the frozen output/check2hgi/.
     CHECK2HGI_GCN_CTRL = "check2hgi_gcn_ctrl"        # fresh GCN wd=0 control (same-protocol baseline for the re-screen)
@@ -111,6 +119,7 @@ MTL_CHECK2HGI_ALLOWED_ENGINES = (
     EmbeddingEngine.CHECK2HGI_DESIGN_K_RESLN_L0_1,
     EmbeddingEngine.CHECK2HGI_DESIGN_K_RESLN_MAE_L0_1,  # option-b dual-axis base
     EmbeddingEngine.CHECK2HGI_DK_OVL,  # overlap-window probe (v14 re-windowed stride=1)
+    EmbeddingEngine.CHECK2HGI_V18,  # v18: forward-only graph + elapsed-time node features (reported substrate)
     EmbeddingEngine.BASELINE_B2C_ONEHOT64,  # [ENUM-MERGE] B2c zero-training floor probe
     EmbeddingEngine.CHECK2HGI_CTLE,  # [ENUM-MERGE] B1 CTLE contextual per-visit substrate
     EmbeddingEngine.BASELINE_B2A_POI2VEC,  # [ENUM-MERGE] B2a faithful POI2Vec
@@ -528,6 +537,7 @@ class IoPaths:
             EmbeddingEngine.CHECK2HGI_DESIGN_K_RESLN_L0_1,    # design_k + resln
             EmbeddingEngine.CHECK2HGI_DESIGN_K_RESLN_MAE_L0_1,  # dual-axis champion (option-b base)
             EmbeddingEngine.CHECK2HGI_DK_OVL,  # overlap-window real-pipeline probe (v14 re-windowed stride=1)
+            EmbeddingEngine.CHECK2HGI_V18,  # v18: forward-only graph + elapsed-time node features (reported substrate)
             EmbeddingEngine.BASELINE_B2C_ONEHOT64,  # [ENUM-MERGE] B2c zero-training floor probe
             EmbeddingEngine.CHECK2HGI_CTLE,  # [ENUM-MERGE] B1 CTLE contextual per-visit substrate
             EmbeddingEngine.BASELINE_B2A_POI2VEC,  # [ENUM-MERGE] B2a faithful POI2Vec

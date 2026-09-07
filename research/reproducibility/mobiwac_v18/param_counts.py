@@ -1,22 +1,19 @@
-"""Trainable-parameter counts for the v18 arms, recomputed from the code that ran them.
+"""Trainable-parameter counts for the paper's v18 arms, recomputed from the code that ran
+them. Backs the parameter-count sentence in the paper's method section (the joint model has
+about 4.2M parameters at Alabama against 1.9M for the two dedicated models combined -- 5.2M
+against 2.8M at California) and the identity check that validates it.
 
 WHY THIS SCRIPT EXISTS
-----------------------
-The parameter audit of 2026-07-23 produced the six counts printed in Appendix G of the
-supplementary volume and the two figures printed on p.73 of the main volume. Its own output
-file says it used the "ceiling config"
-(docs/results/closing_data/capacity_matched_stl_cat/alabama_h672/param_audit_pilot.txt):
-
-    STL cat next_gru hidden=256 (ceiling config): 644359
-
-It did not. It built the head with the MODULE default depth, not the config's. Every printed
-count on the dedicated-category axis was therefore low by a factor of about 2.2, and the arm
-labelled "capacity-matched, 100.2%" in fact carried 229.5% of the joint model's budget.
-
-wrapup/NEW_VERSION.md §10.6 caught this in prose on 2026-08-20 and was right, but it left no
-script and no artifact behind, so the correction could not be checked -- which is the same
-failure the audit had. This script is that artifact. It recomputes every disputed number from
-the code that ran the cells, needs no GPU, loads no data, and trains nothing.
+-----------------------
+An earlier parameter audit (2026-07-23) undercounted the dedicated-category head: it
+instantiated the head at the module's default depth (2 GRU layers) rather than the depth the
+training cells actually ran (4 layers, inherited from `ExperimentConfig.default_next` and
+never overridden by `--model-param hidden_dim=<w>` alone -- see the four-step chain below).
+Every dedicated-category count was low by a factor of about 2.2 as a result, which also threw
+off the "capacity-matched" control (an arm meant to land near 100% of the joint model's budget
+in fact carried about 230% of it). This script recomputes every disputed number directly from
+the code that ran the cells -- needs no GPU, loads no data, trains nothing -- and the paper's
+method section (`04_method.tex`) was corrected to the values below on 2026-09-02.
 
 WHAT DECIDES THE CATEGORY AXIS
 ------------------------------
@@ -29,8 +26,8 @@ six disputed numbers are the same architecture at two depths and nothing else:
 
 Which depth the cells ran is not a matter of opinion:
 
-  1. The cells ran `--task next --model next_gru`, width via `--model-param hidden_dim=<w>`,
-     "nothing else changed" -- docs/results/closing_data/capacity_matched_stl_cat/README.md:17.
+  1. The cells ran `--task next --model next_gru`, width overridden via
+     `--model-param hidden_dim=<w>` and nothing else changed.
   2. scripts/train.py:339 maps task "next" -> ExperimentConfig.default_next.
   3. src/configs/experiment.py:530 -- default_next pins "num_layers": 4.
   4. scripts/train.py:1454-1460 -- without --replace-model-params, --model-param UPDATES the
@@ -64,8 +61,8 @@ from __future__ import annotations
 
 import sys
 
-# Region vocabulary per dataset, from the delivered Table 8
-# (articles/dissertacao/src/tables/mobiwac/datasets.tex, Regions column).
+# Region vocabulary per dataset, matching the paper's Table 1 (Regions column).
+# The paper's LaTeX source is not part of this code release.
 REGIONS = {
     "istanbul": 520,
     "alabama": 1109,
@@ -75,10 +72,10 @@ REGIONS = {
     "california": 8501,
 }
 
-# Joint-model partitions read from the delivered execution logs,
-# docs/results/closing_data/v18_2/modal_runs/<state>_s7_lane_*/logs/<state>_s7_joint.out.
-# Alabama has no delivered log in this checkout; its total comes from the 2026-07-23 audit,
-# whose JOINT figures are sound (California's audit total equals its log total exactly).
+# Joint-model optimizer-partition triples (cat, reg, shared), read from the training run
+# logs (not yet part of this release -- see the README). Alabama has no delivered log in
+# this checkout; its total comes from the earlier audit, whose JOINT figure is sound
+# (California's audit total equals its log total exactly, which is the cross-check below).
 JOINT_LOG = {
     "istanbul": (1731079, 806433, 1584128),
     "arizona": (1731079, 938916, 1584128),
@@ -170,11 +167,11 @@ def main() -> int:
         print(f"  BROKEN: the difference is not constant ({sorted(diffs)}).\n")
 
     print("CAPACITY ARMS on the region axis -- the P1 control, against the MEASURED joint total")
-    print("  The widths below were chosen against a RECONSTRUCTED joint count, not a measured one")
-    print("  (wrapup/post_submission_studies/EXECUTION_WAVE.md, correction of 2026-08-27). Against")
-    print("  the totals this script derives, only one of them lands at parity.")
+    print("  The widths below were originally chosen against a reconstructed joint count, not a")
+    print("  measured one. Against the totals this script derives, only one of them lands at parity.")
     print(f"  {'dataset':<12}{'d_model':>8}{'params':>12}{'joint':>12}{'% of joint':>12}")
-    ARMS = {  # (state, d_model, trainable params) -- P1 §1, docs/results/P1/*capmatched*
+    ARMS = {  # (state, d_model, trainable params) -- the capacity-matched control's raw
+              # result JSONs are not yet part of this release (see the README)
         ("alabama", 624): 6978702,
         ("california", 528): 9004686,
         ("california", 352): 5014942,
@@ -199,8 +196,9 @@ def main() -> int:
             f"  {state:<12}{joint_total:>12,}{dedicated_cat:>12,}"
             f"{ded_reg[state]:>12,}{s:>12,}{joint_total / s:>7.2f}x"
         )
-    print("  The main volume printed 1.1 million and 2.0 million for these sums. Those close")
-    print("  against the withdrawn 644,359; the dedicated category model alone exceeds them.")
+    print("  The paper reports these sums as 4.2M vs 1.9M (Alabama) and 5.2M vs 2.8M")
+    print("  (California) -- an early draft undercounted both at 1.1M/2.0M using the wrong")
+    print("  category-head depth (644,359 instead of the 1,433,863 the cells actually ran).")
 
     return 0 if ok else 1
 

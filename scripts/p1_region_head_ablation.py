@@ -1119,6 +1119,7 @@ def main():
                                  "check2hgi_design_k_resln_mae_l0_1",
                                  "check2hgi_design_k_resln_l0_1",
                                  "check2hgi_design_k_l0_1", "check2hgi_dk_ovl",
+                                 "check2hgi_v18",  # reported substrate: forward-only graph + elapsed-time features
                                  # closing_data board: substrate-column baseline engines (STL reg comparison)
                                  "baseline_b2c_onehot64", "baseline_geotree_skipgram",
                                  "check2hgi_ctle", "baseline_b2a_poi2vec"],
