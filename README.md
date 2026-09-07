@@ -1,7 +1,8 @@
-# MobiWac 2026 — Anonymous Code Release
+# MobiWac 2026 — Code Release
 
-Companion code for the MobiWac 2026 submission on multi-task next-POI prediction.
-One model is trained jointly on two tasks over LBSN check-in sequences:
+Code for *"Predicting the Next Category and Region of a Visit: A Check-in-Level
+Multi-Task Study on Mobility Data"* (MobiWac 2026, accepted). One model is
+trained jointly on two tasks over LBSN check-in sequences:
 
 - **next-category** — predict the category of the user's next check-in (7 classes);
 - **next-region** — predict the census-tract-level region of the next check-in
@@ -12,9 +13,19 @@ Florida, California, Texas) plus Istanbul (Massive-STEPS), and compares the join
 model against dedicated single-task models ("ceilings") and six external baselines
 (STAN, ReHDM, POI-RGNN, HMT-GRN, CTLE, and a two-stage cascade).
 
-This repository is the anonymized reviewer snapshot: code only. All author and
-institutional identifiers have been scrubbed; the development repository will be
-made public after acceptance.
+**Authors:** Vitor H. O. Silva, Germano B. dos Santos, Fabrício A. Silva —
+NESPeD-LAB, Universidade Federal de Viçosa, Florestal, MG, Brazil;
+`{vitor.h.oliveira, germano.santos, fabricio.asilva}@ufv.br`.
+
+> **Update note.** This branch previously shipped the numbers and recipe from an
+> earlier substrate revision (the "v17" scripts/results below). The accepted
+> paper reports a corrected representation (a check-in graph leak was found and
+> fixed — see the note at the top of Section 5). This update corrects the
+> reported training recipe and desanonymizes the release. It does **not** yet
+> include a ported/sanitized copy of the full statistical-analysis scripts or
+> the raw regeneration artifact set for the corrected substrate — those are a
+> follow-up; the scripts already shipped below (Section 6) are unaffected in
+> their logic, only in which result files they should point at.
 
 ## What is in this repo
 
@@ -26,7 +37,8 @@ made public after acceptance.
 | `research/baselines/{stan,rehdm,poi_rgnn}/` | External baselines with their own ETL + trainers |
 | `scripts/baselines/` | Remaining baselines: HMT-GRN (`b3_hmt_grn.py`), cascade (`b4_cascade.py`), CTLE (`build_ctle_substrate.py`, `ctle_e2e.py`, `ctle_lib/`) |
 | `scripts/` | CLI entrypoints: `train.py`, `evaluate.py`, substrate/input builders, fold fan-out, transition priors, simple baselines |
-| `scripts/closing_data/` | The paper's run recipes (`p3_board.sh`, `run_catx_v17_seed0_5f.sh`, `run_catx_v17_n20.sh`), matched scorers, and the statistical tests |
+| `scripts/closing_data/` | Matched scorers and the statistical tests (current); `run_catx_v17_seed0_5f.sh` / `run_catx_v17_n20.sh` are historical run scripts for the superseded substrate, kept for provenance — see Section 5 for the reported recipe |
+| `research/reproducibility/mobiwac_v18/` | Reproduction scripts for the accepted paper's numbers: parameter-count audit (`param_counts.py`) and the paired Wilcoxon + t-test (`wilcoxon_v18.py`) |
 | `analysis_protocol/` | The analysis plan, its deviation log, the executed analysis, and the epoch-selection record (Section 6) |
 | `scripts/second_dataset/` | Istanbul (Massive-STEPS) ETL: acquisition, category mapping, parsing, graph build, splits, inputs, substrate training |
 | `analysis/` | Paper analysis scripts: region non-inferiority TOST, near-miss distance analyses, shortlist compactness, co-visitation network |
@@ -131,9 +143,15 @@ PYTHONPATH=src python scripts/mtl_improvement/build_overlap_probe_engine.py <sta
 PYTHONPATH=src python scripts/compute_region_transition.py --state <state> --per-fold --seed 0
 ```
 
-Steps (b)–(d) are exactly what the board driver
-`scripts/closing_data/p3_board.sh` automates (it also stages the priors and
-runs the training cells of Section 5; `--dry-run` prints the full plan).
+This chain builds the substrate used by the superseded ("v17") numbers below.
+The accepted paper's substrate additionally fixes a check-in graph leak (see
+the note at the top of Section 5); its build tooling is not yet included in
+this branch (follow-up).
+
+> Earlier versions of this README pointed to `scripts/closing_data/p3_board.sh`
+> as the driver for steps (b)–(d) and for training. That was a documentation
+> error: `p3_board.sh` is unrelated internal tooling for a different research
+> board and was never part of this paper's recipe.
 
 ### 3.3 Istanbul ETL and inputs
 
@@ -152,6 +170,9 @@ python scripts/build_istanbul_stride1.py                              # stride-1
 ```
 
 ## 4. Train the representation
+
+> This section builds the pre-correction substrate (the "v17" numbers) — see
+> the substrate note at the top of Section 5.
 
 The check-in-level representation lives in `research/embeddings/check2hgi/`
 (GCN encoder over a check-in graph with POI/region hierarchy pooling, trained
@@ -181,61 +202,98 @@ then re-window with `build_overlap_probe_engine.py <state> 1 10` (Section 3.2).
 
 ## 5. Train the models
 
+> **Substrate note.** The accepted paper trains on `check2hgi_v18`, a corrected
+> representation: the canonical check-in graph connects every consecutive visit
+> in *both* directions, which lets the category head see a feature of the very
+> visit it is predicting. v18 keeps only the forward (`src < tgt`) edge and adds
+> four elapsed-time node features. This is not an architecture change — it is
+> the same model and recipe as the substrate below, trained on a leak-fixed
+> graph. It **substantially lowers the reported category numbers** (e.g.
+> Alabama's dedicated category macro-F1 drops from the mid-50s to the
+> high-20s/low-30s) — that drop is the corrected result, not a regression.
+> Region numbers are materially unaffected (region embeddings are indexed by
+> historical place, which the leak cannot reach). The tooling that builds
+> `check2hgi_v18` from raw data is not yet included in this branch (follow-up);
+> everything below assumes it already exists at `output/check2hgi_v18/<state>/`.
+
 ### 5.1 Joint (multi-task) model
 
-The exact paper recipe is in the two run scripts (batch size 8192, static loss
-weighting 0.75/0.25, per-head one-cycle LRs, fp32, GRU category head + dual-tower
-spatio-temporal region head, cross-attention MTL trunk):
+The recipe reported in the accepted paper: batch size 8192, static loss
+weighting with **category_weight = 0.50**, **logit adjustment (τ = 0.5) on the
+category head only** — this *replaces* class-weighted CE entirely and is not
+combined with it — per-head one-cycle LRs, fp32, GRU category head + dual-tower
+spatio-temporal region head, cross-attention MTL trunk. The recipe is uniform
+across all six datasets, including Istanbul (see the historical-scripts note
+below).
 
-- `scripts/closing_data/run_catx_v17_seed0_5f.sh` — California/Texas, seed 0, 5 folds;
-- `scripts/closing_data/run_catx_v17_n20.sh` — California/Texas, seeds {0, 1, 7, 100} (n = 20 folds);
-- `scripts/closing_data/p3_board.sh` — the same recipe driven across all states × seeds.
-
-The core command they wrap (one state, one seed):
+The core command (one state, one seed):
 
 ```bash
 PYTHONPATH=src python scripts/train.py --task mtl --canon none \
-    --task-set check2hgi_next_region --engine check2hgi_dk_ovl \
+    --task-set check2hgi_next_region --engine check2hgi_v18 \
     --state <state> --seed <seed> --epochs 50 --folds 5 --batch-size 8192 \
-    --mtl-loss static_weight --category-weight 0.75 \
+    --mtl-loss static_weight --category-weight 0.50 \
+    --logit-adjust-tau 0.5 \
     --no-reg-class-weights --no-cat-class-weights \
     --cat-head next_gru --reg-head next_stan_flow_dualtower \
     --reg-head-param raw_embed_dim=64 --reg-head-param fusion_mode=aux \
     --reg-head-param freeze_alpha=True --reg-head-param alpha_init=0.0 \
     --task-a-input-type checkin --task-b-input-type region --log-t-kd-weight 0.0 \
-    --scheduler onecycle --max-lr 3e-3 --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3 \
+    --scheduler onecycle --max-lr 3e-3 --cat-lr <cat-lr> --reg-lr 3e-3 --shared-lr 1e-3 \
     --model mtlnet_crossattn_dualtower --checkpoint-selector geom_simple \
     --compile --tf32 --per-fold-transition-dir output/check2hgi_design_k_resln_mae_l0_1/<state>
 ```
 
+`<cat-lr>` is **0.001** for the small states (Alabama, Arizona, Istanbul) and
+**0.002** for the large states (Florida, California, Texas).
+
 (Environment knobs — fp32 via `MTL_DISABLE_AMP=1`, per-head one-cycle via
-`MTL_ONECYCLE_PER_HEAD_LR=1`, chunked validation metrics — are set inside the
-run scripts.) Istanbul uses the smaller-state variant in
-`scripts/run_istanbul_champion_stride1.sh`. Per-fold parallel fan-out of one run
-is available via `scripts/run_folds_fanout.sh` + `scripts/aggregate_folds.py`.
+`MTL_ONECYCLE_PER_HEAD_LR=1`, chunked validation metrics via
+`MTL_CHUNK_VAL_METRIC=1` — must be exported before the command above.) Per-fold
+parallel fan-out of one run is available via `scripts/run_folds_fanout.sh` +
+`scripts/aggregate_folds.py`.
+
+**Historical scripts.** `scripts/closing_data/run_catx_v17_seed0_5f.sh` /
+`run_catx_v17_n20.sh` (California/Texas) and `scripts/run_istanbul_champion_stride1.sh`
+(Istanbul) implement the recipe used before this correction — an older engine
+(`check2hgi_dk_ovl`, or for Istanbul a separate `check2hgi` engine with a
+different model and region head entirely) and class-weighted loss instead of
+logit adjustment. They are kept for provenance of the superseded numbers only;
+reproduce the accepted paper's numbers with the command above.
 
 ### 5.2 Dedicated single-task ceilings
 
-The exact two-cell recipe is `scripts/closing_data/stl_ceilings.sh` (written for
-Florida; set `ST=<state>` at the top). The commands it wraps:
+The recipe reported in the accepted paper, on the same `check2hgi_v18`
+substrate as Section 5.1:
 
 ```bash
 # next-category ceiling: single-task GRU on the same inputs/folds
-PYTHONPATH=src python scripts/train.py --task next --engine check2hgi_dk_ovl \
-    --state <state> --seed <seed> --epochs 50 --folds 5 --batch-size 2048 \
-    --model next_gru --max-lr 3e-3
+PYTHONPATH=src python scripts/train.py --task next --engine check2hgi_v18 \
+    --state <state> --seed <seed> --epochs 50 --folds 5 --batch-size 8192 \
+    --model next_gru --embedding-dim 64 --max-lr <cat-max-lr> --logit-adjust-tau 0.5
 # score it:
 python scripts/closing_data/score_stl_cat_ceiling.py <rundir>
 
 # next-region ceiling: single-task region head on the same inputs/folds
+# (logit adjustment stays OFF for region — it significantly *hurts* Acc@10;
+# measured at two datasets, see the paper's methodology discussion)
 PYTHONPATH=src python scripts/p1_region_head_ablation.py --state <state> \
     --heads next_stan_flow --input-type region --target region \
-    --engine-override check2hgi_dk_ovl \
+    --engine-override check2hgi_v18 \
     --region-emb-source check2hgi_design_k_resln_mae_l0_1 \
     --override-hparams freeze_alpha=True alpha_init=0.0 \
-    --per-fold-transition-dir output/check2hgi_design_k_resln_mae_l0_1/<state> \
-    --folds 5 --epochs 50 --seed <seed>
+    --folds 5 --epochs 50 --seed <seed> --max-lr 0.003 --compile --tf32
 ```
+
+`<cat-max-lr>` is **0.0025** for Alabama, **0.0005** for Arizona/Istanbul, and
+**0.005** for Florida/California/Texas. Note the region-ceiling command omits
+`--per-fold-transition-dir`: the prior is frozen off (`freeze_alpha=True
+alpha_init=0.0`), so it is inert and the directory is not needed (verified
+byte-equivalent at Alabama).
+
+`scripts/closing_data/stl_ceilings.sh` implements the pre-correction recipe
+(`check2hgi_dk_ovl`, batch size 2048, no logit adjustment) — kept for
+provenance of the superseded numbers, not the reported recipe.
 
 ### 5.3 Baselines (one line each)
 
@@ -292,7 +350,28 @@ python scripts/closing_data/score_joint_best.py <rundir> --seed <seed> --tag <ta
 
 These read the per-fold score files produced by Section 5 (not shipped — see
 "What is NOT included"). `m2_prereg_perfold.py` aborts if any recomputed aggregate stops
-matching the reported cell.
+matching the reported cell. **These five scripts point at the pre-correction
+("v17") result files** — the statistical *methodology* is unaffected by the
+Section 5 substrate correction (same tests, same registered footing), but the
+scripts themselves have not yet been re-pointed at the corrected result files;
+that re-pointing is a follow-up (see the update note at the top of this file).
+
+For the accepted paper's reported test on the corrected substrate, use
+[`research/reproducibility/mobiwac_v18/wilcoxon_v18.py`](research/reproducibility/mobiwac_v18/wilcoxon_v18.py)
+now: it runs the same paired one-sided Wilcoxon (n=20, Holm-corrected) *and*
+the paired one-sided t-test (n=4 per-seed means) side by side against the
+corrected result files, and refuses to report anything until it reproduces the
+paper's own per-cell means to within 0.005 tolerance.
+[`param_counts.py`](research/reproducibility/mobiwac_v18/param_counts.py) in
+the same directory reproduces the parameter-count table cited in the paper.
+
+`wilcoxon_v18.py` expects two aggregated result files
+(`docs/results/closing_data/v18/joint_best_perfold.json` and
+`docs/studies/closing_data/v18/data/v18_results.json`, both repo-relative) that
+this release does not yet ship — the sidecar convention that produces them
+from a Section-5 regeneration run is part of the follow-up. Until then, treat
+this script as a documented, verified-correct reference for the test, not as
+turnkey-runnable from a from-scratch regeneration.
 
 Note: the `superiority_wilcoxon.py` and `m1_stats_n20.py` docstrings describe next-region
 superiority as pre-registered. That is incorrect — `analysis_protocol/STATISTICAL_PROTOCOL.md`
@@ -311,14 +390,14 @@ python analysis/covisitation_network.py    # co-visitation network structure of 
 
 ## License
 
-MIT (see `LICENSE`). Released anonymously for review; the public repository will
-carry full attribution after acceptance.
+MIT (see `LICENSE`).
 
-## Notes for reviewers
+## Notes
 
 - Reproduction cost: one Gowalla state cell (joint model, 5 folds, seed 0) is
   ~1 h/fold on an A40 for the largest states, minutes/fold for small states;
   representation builds are ~10–30 min/state on one GPU.
 - Multi-seed paper cells use seeds {0, 1, 7, 100} (seed 42 was the development
   seed and is deliberately excluded from reported numbers).
-- For questions during review, please use the conference review system.
+- Questions or issues: open a GitHub issue on this repository, or contact the
+  authors directly (see above).
