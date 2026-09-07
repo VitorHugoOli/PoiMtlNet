@@ -138,6 +138,26 @@ for f in sections/*.tex tables/*.tex main.tex; do
       prev=line; prev_live=(!is_c && line!="")
     }' "$f" >> /tmp/gate_broken.txt
 done
+
+# (f2) A IMAGEM AO ESPELHO, encontrada 2026-09-06 depois de (f) ja existir. A verificacao (f) apanha
+#      uma linha VIVA seguida de comentario. Falta o inverso: um comentario cuja ULTIMA linha absorveu
+#      a cabeca da frase seguinte, deixando viva so a cauda. Foi assim que o PDF passou a imprimir
+#      "...not a general rule. (Istanbul, Alabama, Arizona, and Florida), is equivalent to zero...".
+#      O sinal: uma linha viva que comeca por algo que nao pode comecar uma frase -- minuscula,
+#      parentese, virgula, fecho -- logo a seguir a um comentario.
+for f in sections/*.tex tables/*.tex main.tex; do
+  awk -v F="$f" '
+    { line=$0; sub(/^[ \t]+/,"",line); sub(/[ \t]+$/,"",line)
+      is_c = (line ~ /^%/)
+      if (!is_c && line != "" && prev_comment) {
+        if (line ~ /^[a-z(,)]/ && line !~ /^\\/) {
+          head=line; if (length(head)>56) head=substr(head,1,56)
+          printf "  FALHA: %s:%d frase comeca a meio, depois de um comentario -> \"%s...\"\n", F, NR, head
+        }
+      }
+      prev_comment = is_c
+    }' "$f" >> /tmp/gate_broken.txt
+done
 cat /tmp/gate_broken.txt
 [ -s /tmp/gate_broken.txt ] && rc=1
 
