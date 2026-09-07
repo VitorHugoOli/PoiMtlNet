@@ -1,0 +1,57 @@
+Logo for MobiWac 2026
+Home
+Register
+Travel grants
+My...
+Help
+#3 (1571313639): Predicting the Next Category and Region of a Visit: A Check-in-Level Multi-Task Study on Mobility Data
+#3 (1571313639): Predicting the Next Category and Region of a Visit: A Check-in-Level Multi-Task Study on Mobility Data
+
+
+Generate BibTeX entry for paper
+
+Authors	Vitor Hugo De Oliveira Silva, Germano dos Santos and Fabrício Aguiar Silva (Federal University of Viçosa, Brazil)
+
+
+Paper title	Predicting the Next Category and Region of a Visit: A Check-in-Level Multi-Task Study on Mobility Data Only the chairs can edit
+Conference
+and track	The 23rd International Symposium on Mobility Management and Wireless Access - Regular Paper
+Abstract
+ Only the chairs can edit Location-based social networks (LBSNs) record where people go and what they do, one check-in at a…
+
+Keywords	next-category prediction; next-region prediction; multi-task learning; check-in-level representation; location-based social networks; mobility data Only the chairs can edit
+Topics	AI-based mobility management; Big data analytics for mobile and wireless networks; Localization and tracking; Mobility models, control and management; Social mobile networks and applications (Only the chairs can edit)
+Personal notes
+Roles	You are the creator and an author for this paper.
+You have authored an accepted paper in this conference.
+Status	Accepted
+Registration
+Presented	not specified  in session Session 1: Mobility Management from Mon, October 26, 2026 08:30 CET until 10:00 (1st paper) (30 min.)
+Review manuscript
+
+MobiWac 2026
+Originality and Impact	Presentation	Technical Correctness	Relevance and timeliness	Technical content and scientific rigour	Reviewer Familiarity	Recommendation
+Good Contribution4	Good4	Good5	Good4	Solid work of notable importance.4	Familiar with this area of research3	Likely accept (Top 20% but not top 10%)4
+Summary
+This paper tackles the problem of predicting people's next visit, in a city level mobility, from information shared in location-based social networks. While this problem has been investigated by many works in the field, the authors aims at evaluating a novel and single model for predicting the type of place and the part of the city, determined by the same model, where the next visit will happen.
+
+The paper is sound and well written. Related works are discussed in an in-depth manner, which helps to position the paper's contribution with the state-of-the-art works.
+
+Other comments:
+- It is not clear from where the 7 category classification is coming from.
+- The motivation and advantages of using a single multi-task model instead of 2 different models could be better elaborated since it is one of the main contributions of the paper.
+- The needs and advantages of predicting the next visit (type and area) could be better elaborated.
+- Finally, it would be interesting to see a short discussion in how the model can adapt to capture sporadic special events that could lead to changes in behaviour and mobility of people in an area.
+Has merit but mostly incremental3	Readable3	Flaws but Easy to Correct3	Acceptable3	Valid work but limited contribution.3	Familiar with this area of research3	Accept if room (Top 30% but not top 20%)3
+Summary
+This paper studies next-visit prediction on location-based social network (LBSN) check-in data, targeting two coarse properties of the next visit — its category (7 fixed classes) and its region (census tract / mahalle, 520–8,501 classes) — rather than the exact next POI. Two contributions: (1) Check2HGI, a check-in-level representation extending Hierarchical Graph Infomax (HGI) with a fourth "check-in" level beneath place/region/city, giving each visit its own contextual vector rather than one fixed vector per place; (2) a single multi-task model with a shared cross-attention trunk (semantic stream) and a private spatial path (region-specific), trained with fixed-weight joint loss to predict both category and region in one forward pass. Evaluated on five Gowalla U.S. states plus Istanbul (Massive-STEPS), with user-disjoint 5-fold CV and statistical testing (paired t-tests with Holm correction, TOST equivalence tests, Wilcoxon).
+
+The core empirical claims (check-in-level context substantially improves category prediction; joint training does not hurt and often helps region prediction) are well-supported by the evidence given. My main reservations are: (a) the paper's relevance to a wireless/mobile-systems venue rests on caching/capacity-planning framing that is asserted but never connected to an actual system-level measurement, which the paper itself concedes; (b) the region-count-vs-gain trend, one of the three headline contributions, is acknowledged to be confounded with corpus size and rests most heavily on the two single-seed datasets; and (c) a few methodological details (region-freezing ablation's loss-weight handling, per-class category breakdown, unseen-place handling) need clarification.
+Has merit but mostly incremental3	Some work needed2	Flaws but Easy to Correct3	Acceptable3	Valid work but limited contribution.3	Familiar with this area of research3	Likely reject (Top 50%, but not top 30%)2
+Summary
+The authors of this paper study location-based social networks with respect to the next visit, i.e., its category and region. Thus, they analyze whether, rather than two separate models, one model can learn both tasks. Therefore, the authors provide a check-in-level representation that extends hierarchical graph infomax from the place to the individual visit, as well as a single model for joint next-category and next-region prediction.
+
+Section III, Problems and tasks, describes the properties of the next visit; i.e., its category and its region. This section may be too short, so it may be merged with Section IV. The results show that the single model proposed by the authors actually works. The macro-averaged F1 for next category prediction shows good results for the proposed model.
+
+The paper is well structured and mostly well written. The text is full of negative sentences, which make the reading tedious. There is also an abuse of parentheses. Although the work is interesting, the paper is written in a very narrative way. I believe that a researcher working in this area would be unable to reproduce the results shown in the paper with the information given in it.
+EDAS at bravo (Sun, 06 Sep 2026 15:08:40 -0300 -03) [User 2563350 at 45.6.128.194 ap2sJ0B2vzqbDF6qVV9y5gAAAB8] Request help
