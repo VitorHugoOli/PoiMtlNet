@@ -51,10 +51,31 @@
 \title{Predicting the Next Category and Region of a Visit:\\
 A Check-in-Level Multi-Task Study on Mobility Data}
 
-\author{\IEEEauthorblockN{Vitor H. O. Silva, Germano B. dos Santos, Fabr\'icio A. Silva}
-\IEEEauthorblockA{Laborat\'orio de Intelig\^encia em Sistemas Pervasivos e Distribu\'idos (NESPeD-LAB)\\
-Universidade Federal de Vi\c{c}osa, Florestal, MG, Brazil\\
-E-mail: \{vitor.h.oliveira, germano.santos, fabricio.asilva\}@ufv.br}
+% [2026-09-06] AUTORES SEPARADOS. As normas do MobiWac 2026 dizem, literalmente, "Do not group the
+% authors together", e exigem na versao final o nome legal completo, a afiliacao em italico com pais,
+% e o email de cada autor. Os tres partilham a mesma afiliacao, que por isso se repete -- e a pratica
+% normal do IEEEtran. Fonte: scomminc.com/pp/ieee/mobiwac26.htm.
+% ⚠ NOMES LEGAIS: o registo EDAS tem "Vitor Hugo De Oliveira Silva", "Germano dos Santos" e
+% "Fabricio Aguiar Silva". Confirmar com o autor antes de submeter; as normas pedem o nome legal
+% completo, nao as iniciais.
+\author{
+\IEEEauthorblockN{Vitor H. O. Silva}
+\IEEEauthorblockA{\textit{NESPeD-LAB}\\
+\textit{Universidade Federal de Vi\c{c}osa}\\
+Florestal, MG, Brazil\\
+vitor.h.oliveira@ufv.br}
+\and
+\IEEEauthorblockN{Germano B. dos Santos}
+\IEEEauthorblockA{\textit{NESPeD-LAB}\\
+\textit{Universidade Federal de Vi\c{c}osa}\\
+Florestal, MG, Brazil\\
+germano.santos@ufv.br}
+\and
+\IEEEauthorblockN{Fabr\'icio A. Silva}
+\IEEEauthorblockA{\textit{NESPeD-LAB}\\
+\textit{Universidade Federal de Vi\c{c}osa}\\
+Florestal, MG, Brazil\\
+fabricio.asilva@ufv.br}
 }
 
 \maketitle
@@ -75,21 +96,39 @@ build a check-in-level representation that describes each visit in its own
 context, instead of giving every place one fixed vector. Across six datasets
 (five U.S. states and one non-U.S. city, Istanbul), this improves next-category
 prediction over a standard place embedding at every dataset, by $0.2$ to $6.3$ points of
-macro-averaged F1, with every fold favoring it,
-and the advantage tracks the geometry of the per-visit vectors rather than the number of training vectors per place. We then train one
+macro-averaged F1, with every fold favoring it. We then train one
 multi-task model for both tasks and read both answers from a single saved
-model. On next region it outperforms the dedicated model at the two datasets
-with the most regions, by about one point, and matches it (statistically,
-within two points) at the other four. On next category it outperforms the
-dedicated model at Florida and stays within a fifth of a point of it at the
-other five. Across both tasks and all six datasets, no difference from a dedicated
-model exceeds two points, and the model does better where the region task is
-hardest.
+model. On next region it outperforms the dedicated model at Texas and California, the two
+datasets with the most regions, by about one point, and at the other four it stays within
+a two-point margin registered before any result was read. On next category it outperforms
+the dedicated model at Florida, and the other five differences are equivalent to zero within
+half a point. One model therefore gives both answers in one forward pass at no cost beyond
+these bounds; a capacity control at California shows that a dedicated region model of the
+same size recovers the region gain there, so whether that gain comes from sharing or from
+model size remains open.
 \end{abstract}
+% [2026-09-06, camera-ready, abstract] Four changes against the ported chapter abstract, each
+% tied to a CAMERA_READY ledger line. (1) "the advantage tracks the geometry of the per-visit
+% vectors..." REMOVED: C1c, the geometry constants are a 2026-06-24 measurement on a pre-v18
+% engine, aggregated per POI. (2) "matches it (statistically, within two points)" -> "stays within
+% a two-point margin registered before any result was read": WRITING_LAW section 3 surface for the
+% region axis; "matches" is banned on both axes (author ruling 2026-09-06). (3) the one-fifth-of-a-
+% point magnitude phrase + "no difference ... exceeds two points [on both tasks]" -> "equivalent to zero
+% within half a point": the category surface (derived bound 0.334 pp per dataset, 0.489 pp
+% simultaneous); the two-point margin is registered for region only and may not be quoted on
+% category. (4) "does better where the region task is hardest" REMOVED: C4, the region-count
+% reading is dead under joint-best (California has more regions than Texas and a smaller gain).
+% ADDED, under author decision D4 (declare the capacity relation): the California control,
+% docs/results/P1/region_head_california_*_capmatched_s0.json vs joint_best_perfold.json
+% california_s0_joint, width 352 = 97.4% of the joint budget, 64.910 vs 64.503 Acc@10, +0.406,
+% seed 0, five folds. Texas has no capacity-matched arm, so the sentence is scoped to California.
+% Verdict verbs: "outperforms" only at region TX/CA and category FL (Holm within family).
 
 \begin{IEEEkeywords}
-mobility data, next-category prediction, next-region prediction, multi-task
-learning, check-in-level representation, location-based social networks
+% [2026-09-06] Separador virgula -> ponto-e-virgula: exigencia literal das normas do MobiWac 2026
+% ("These terms must be separated using semi-colons"), scomminc.com/pp/ieee/mobiwac26.htm.
+mobility data; next-category prediction; next-region prediction; multi-task
+learning; check-in-level representation; location-based social networks
 \end{IEEEkeywords}
 
 % ---------------------------------------------------------------------
@@ -127,7 +166,7 @@ combines it with a private spatial path. One model, one forward pass, two predic
                                % input BEFORE 06_results so the table* float lands with the prose
                                % that reads it, not after the references (V1 panel edit 3, 2026-07-18)
 \input{sections/06_results}
-\input{tables/tbl2_substrate}  % Table 2: representation, Check2HGI vs HGI category (section 6.1)
+\input{tables/tbl2_substrate}  % Table 2: representation, Check2HGI vs HGI category (section 6.1).
 % Fig 3 (category embedding-quality bars) CUT (author decision 2026-07-09): its four numbers
 % (silhouette 0.53/0.00, kNN purity 0.98/0.79, over AL/AZ/FL) are stated in section 6.1 prose.
 % The asset stays at figs/fig3_embquality.{py,tex,pdf} and carries the SUPERSEDED values; regenerate
