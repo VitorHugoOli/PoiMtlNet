@@ -2376,3 +2376,12 @@ REV-023, REV-024, and REV-025 to be resolved.
 The dissertation is therefore best described as **scientifically promising and structurally strong, but not yet
 evidentially or administratively ready for submission**. The fastest route to a defensible final document is to validate
 the representation and evaluation pipeline first, then rewrite the claims around the results that survive.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-08-28 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

@@ -137,3 +137,12 @@ project's governing documents, which disqualifies the reader by that persona's o
 pass was delegated to seven uncontaminated readers given only the rendered page text, and every
 quoted stumble was verified against the document before admission — three claimed stumbles were
 rejected as reader error. Disclosed in full at the head of report 01.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-26 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

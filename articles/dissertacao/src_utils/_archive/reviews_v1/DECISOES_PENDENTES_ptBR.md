@@ -281,3 +281,12 @@ resultado). > DECISAO: ______________________________
   nao rodar em massa.
 - Guarda: se algum relatorio recomenda ADICIONAR uma citacao nova (ex.: arXiv:2311.04698), NAO foi adicionada; verificar
   na fonte antes de incluir (protocolo fail-closed).
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-27 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

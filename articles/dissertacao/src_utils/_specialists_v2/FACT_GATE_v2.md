@@ -783,3 +783,12 @@ failure:
 4. **D-1, D-2, N-1, N-3, N-4, 5(a) wording, and the two recorded-for-author items (Gowalla vintage
    registry scope; the MRR promise).** Author's call, each recorded above with its specific
    correction.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-26 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

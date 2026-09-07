@@ -268,3 +268,12 @@ serial rebuild clears it; `-j3` on a tree another process is building is the cau
   no reader benefit; the appendix is reachable from the table of contents.
 - Did not measure California, Texas, or Istanbul.
 - Did not re-fix the `apx_d_ceiling.tex:110` trapped-prose instance (fixed separately by the author).
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-29 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

@@ -552,3 +552,11 @@ caught the 2.2 renumber is intact.
 **Two `VERIFY_LIST` expectations were made false by the rulings and are updated**, each with the reason:
 the `four of six` block moves 3 → 4 prose hits (Chapter 6's sentence now carries the partition), and the
 `fclass` block moves from three occurrences to an empty dict.
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-30 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

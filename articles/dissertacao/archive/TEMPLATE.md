@@ -98,3 +98,12 @@ Why not the alternatives:
 - Any number that appears in LaTeX comes from the sources named in AGENT_GUARDRAILS §2 N1 —
   prefer generating table rows by script into `tables/*.tex` (the MobiWac pattern) over
   hand-typing.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-08-20 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

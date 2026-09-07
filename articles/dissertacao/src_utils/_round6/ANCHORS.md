@@ -105,3 +105,12 @@ for a short pointer from Chapter 1, near the data description.
 
 Cite the **phrase**, and give the line number as of a stated date. A bare `file:line` in a durable
 record is a claim with a shelf life of about one commit.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-28 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

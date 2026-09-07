@@ -1167,3 +1167,12 @@ instrument blind to inclusion scaling; an anchor line I read wrong; a `[VERIFY]`
 correct claim by reading a section headed "(superseded)"; and a gate test that was invalid because I
 copied the fixed PDF into the broken tree. The pattern is consistent enough to name: **every one was
 a claim about the work rather than a result of it**, and every one was caught by fresh eyes.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-29 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

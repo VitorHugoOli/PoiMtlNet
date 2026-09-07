@@ -37,3 +37,12 @@ verdade quando foram escritos e deixaram de ser: e por isso que estao aqui e nao
   que esta reorganizacao existiu para remover: entre 11/08 e 20/08 os portoes de qualidade
   rodaram sobre ela sem que ninguem percebesse. Ela esta no historico, recuperavel com
   `git checkout dissertacao-pre-reorg -- articles/dissertacao/src`.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-08-20 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

@@ -279,3 +279,12 @@ I could have done:
    own source and the rendered output at the PDF, but no critic agent re-checked the lineage
    sentences against the records. That is the one gate in the citation protocol I could not close
    inside the wall clock.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-08-03 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

@@ -731,3 +731,12 @@ file, named at the point of use; none was computed or re-derived. Three items ar
 [UNVERIFIED] with the reason and the place I looked. Method descriptions were checked against
 primary sources opened this session (Nash-MTL, Aligned-MTL, and CAGrad as extracted PDFs; the
 remaining fifteen via arXiv metadata), not against the repo's internal notes.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-26 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

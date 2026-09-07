@@ -105,3 +105,12 @@ losing a fact:
 each correction was recorded where it happened. That is the property that has caught six of this
 round's defects. The honest answer to the author's discomfort is that the comments are the reason the
 prose can be trusted, and the price is that the source reads like a lab notebook.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-28 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

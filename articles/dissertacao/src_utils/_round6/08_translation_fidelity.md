@@ -508,3 +508,12 @@ the deliberate refusal to claim the published runs came from that exact worktree
   marks after the letter cluster). All string comparisons were therefore accent-insensitive and
   case-insensitive. This cannot hide a claim-strength or number difference, which is what this gate
   is for, but it would not catch a pure diacritic error inside a Portuguese quotation.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-28 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

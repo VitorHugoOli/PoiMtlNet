@@ -235,3 +235,12 @@ I hit the 30-minute checkpoint at finding SF-12 and stopped. Not reached:
 4. **Only `main.pdf` was read.** `main_academico.pdf` (99 pp.), `main_ppgc.pdf` (103 pp.) and `main_extra.pdf` (20 pp.) were not opened, so I cannot say whether the frame chapters read the same in the deposit and supplementary builds. SF-1's missing stem in particular should be confirmed in `main_academico.pdf` before the fix is measured.
 5. **Chapters 3, 4, 5 not read** — excluded by scope, which is why the seam verdict is partial.
 6. **The 106 new lines in §2.3 flagged in my briefing were read as prose but not diffed against the prior commit.** SF-4 and SF-7 fall inside that block; I did not establish whether they were introduced by that edit or predate it, and I did not run `git diff` to find out.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-30 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

@@ -333,3 +333,12 @@ Reached the 25-minute checkpoint. Not done:
 5. **The `[VERIFY]` in SF-3 was not resolved.** Resolving it needs arXiv:2202.01017 opened and the
    convexity clause located; that is a citation-auditor action (persona 05) or one fetch I did not
    have time for.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-30 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

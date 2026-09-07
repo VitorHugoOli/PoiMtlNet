@@ -272,3 +272,12 @@ owns §2.4.
 - **Scope comment:** the narrowing was right for the clock. The one thing I would add next time is
   Chapter 6's opening and Chapter 1's opening side by side, since that is the cheapest place for a
   cross-chapter template tell to hide and neither sweep can see it.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-30 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

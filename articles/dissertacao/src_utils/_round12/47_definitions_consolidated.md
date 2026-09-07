@@ -480,3 +480,12 @@ ordering and $\rho$ layer still stand, but findings 2 and 4 reopen at the wordin
    only over `chapters/` without comment stripping; the tree-wide comment-stripped rerun (this
    session, after the first draft of this document) is what closes the item. The renumbering from the
    reorder is therefore contained entirely within the chapter and resolved by `\ref` automatically.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-08-03 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

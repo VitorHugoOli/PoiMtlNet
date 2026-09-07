@@ -232,3 +232,12 @@
   - proposed fix: Reshape one of the three (e.g. cut the MTL success examples to two, or fold 'train, version, and deploy' into 'one artifact to train and deploy').
 
 **What works.** The coletanea block would satisfy this examiner. Q19 (fio condutor): the collection is declared under the UFV regulations (lines 172-174), the arc is stated as the structural spine ('a negative result, its diagnosis, and its resolution', lines 91-93), and the correction-trail sentence (lines 130-132) plus the preface device (lines 200-203) pre-answer the 'artigos grampeados' attack. Q20: the supersession mechanism is explicit ('the later chapters state precisely which earlier conclusions they supersede'). Q21: the CoUrb authorship note (lines 190-192) is exactly what a banca wants volunteered: first author named, this author's concrete contribution (the MTLnet baseline) and the presentation stated. Q22: re-typesetting, translation, and the errata appendix are declared rather than hidden. Q23 is properly deferred to Chapter 6, with the Theoretical contribution (lines 211-215) already naming the dissertation-level claim no single paper makes. Q4 and Q5 are answered at the right altitude for an Introduction: the engineering wish names operational simplicity only (the F3 guard held; 'lower cost' appears nowhere), negative transfer is named as the risk, and the three-legged task-choice sentence is rendered in its approved fallback form. All five signed-off arc additions are present in their caution forms: the task-pair evolution is named plainly (lines 127-132), the corollary says 'less natural' (line 121), CBIC's three doors carry no foresight (lines 100-105), and the mechanism sentence is framed as the hypothesis the final study tests (lines 112-115). Region verbs are bound correctly (outperforms four of six, non-inferiority at the other two; AL/AZ never upgraded), MobiWac reads 'submitted... under review' in both places it appears, and I found zero em-dashes, zero contractions, and zero repo codenames. The chapter narrates with confidence and leaves the litigation where the beat budget put it.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-08-21 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

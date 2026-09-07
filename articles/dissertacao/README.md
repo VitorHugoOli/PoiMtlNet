@@ -7,6 +7,18 @@ PPGCC/UFV · formato coletânea de artigos (CBIC → CoUrb → MobiWac)
 
 ---
 
+> ## ⚠ Antes de qualquer coisa: [`VEREDITOS.md`](VEREDITOS.md)
+>
+> Questões **já encerradas com prova** (o vazamento do Cap. 3, que fonte de números vale, o que
+> não se apaga, que números estão invalidados). Responde por **pergunta**, não por documento.
+> Se a sua dúvida está lá, não se reabre.
+>
+> **Ordem de leitura:** `VEREDITOS.md` → `CLAUDE.md` §0 → os documentos vivos →
+> `src_utils/_round*`, `_review*`, `_specialists*` **só se pedirem**. Toda pasta com `_` à frente
+> é **rodada encerrada**: vale como proveniência do que se discutiu, nunca como fonte de um facto.
+
+---
+
 ## Onde está cada coisa
 
 | quero… | está em |

@@ -738,3 +738,12 @@ any page with `pypdfium2` at `scale=2.2` from `build/main.pdf`.
 - **Persona 06:** the sumário's page numbers in the **final** build (Introduction 11,
   References 80, Appendix E 106) do not match that PDF's own pages; this is a consequence of C-1,
   and the numbers themselves need re-reading once the offset is fixed.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-28 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

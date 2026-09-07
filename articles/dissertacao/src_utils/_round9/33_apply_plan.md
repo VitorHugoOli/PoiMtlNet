@@ -130,3 +130,12 @@ inspection cells. Per `AGENT_GUARDRAILS` S1-S3:
 are applied would be false in the exact way this repository has already been burned by. The honest end
 state, and the one this round reached: **7 edits applied and verified in the render, 1 item
 confirmed as already satisfied, and Waves B and C pending with the reason named.**
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-30 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

@@ -123,3 +123,12 @@ Fabricio asks three times for `states` to become `scenarios` (FAB-06, FAB-21, FA
 The registry is fail-closed: a term not in it may not be used. So the term is in use and unregistered,
 and his edit cannot land until the entry does. That is a GLOSSARY change, which is the author's to
 approve, and it is why the three items are grouped under one probe.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-30 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

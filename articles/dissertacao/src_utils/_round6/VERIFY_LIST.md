@@ -1314,3 +1314,12 @@ where the round changed what the document claims rather than how it says it.
 > breakdown and the `--exclude-dir=build` rule go to `PENDENCIAS.md` §2.13 rather than being edited into
 > §2.1 by an agent.
 > **The reading order this item recommends is unchanged and still right**: A1, then A3, then A2.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-08-04 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

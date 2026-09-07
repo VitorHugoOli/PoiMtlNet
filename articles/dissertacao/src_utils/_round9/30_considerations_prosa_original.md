@@ -1237,3 +1237,12 @@ computed this session from `2_fundamentals.tex` as committed; the Chapter 6 pass
 
 1. On the MTL fundamentals that we need to improve do we talk about the optimality of pareto, and do we need to talk
    about it ? I have a feeling that since we talk a bit of the balancers we need at least breif take about this. 
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-30 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

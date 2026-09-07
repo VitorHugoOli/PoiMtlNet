@@ -66,3 +66,12 @@ practice here matches it.
 **Recommendation: no change.** The author's suspicion was reasonable and the measurement does not
 support it. What the inventory does argue for is a one-line comment on the two `\small` conventions
 so the next agent does not "normalize" the `longtable` group away.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-28 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

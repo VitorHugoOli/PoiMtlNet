@@ -295,3 +295,12 @@ edit (now allowed per his 2.9 ruling) plus a GLOSSARY row first — flagged as h
 - `4eea637a` — all six files (the two owned, content.tex, main_extra.tex, and the three
   page-count records).
 
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-30 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

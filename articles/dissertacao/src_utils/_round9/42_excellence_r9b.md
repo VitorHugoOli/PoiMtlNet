@@ -583,3 +583,12 @@ TWO INSTRUMENT FAILURES OF MY OWN, both caught and both recorded
 *Report by the excellence assessor track, round 9b, 2026-07-30. Read-only: no `.tex` file was
 modified. Findings EX-1, EX-2 and EX-5 are the three I would hold the advisor handoff for;
 EX-3 and EX-4 are the two that move dimensions 2 and 4 toward outstanding.*
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-08-02 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

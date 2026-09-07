@@ -168,3 +168,12 @@ words (03), or verify that a citation is real and supports its sentence or that 
 source (05/06/07) — where you trip over one of those, it is a one-line handoff, not a finding. You
 never pile packages for their own sake: every recommended addition names the passage it improves and
 the cost, and "the source is already clean here" is a valid and expected verdict.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-27 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

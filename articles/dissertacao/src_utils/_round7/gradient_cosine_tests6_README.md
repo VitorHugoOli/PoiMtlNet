@@ -76,3 +76,12 @@ python3 src_utils/_round7/cosine_stats.py     # RC=0; the four-dataset record, s
 ```
 Both assert their own structure before computing anything, so a parquet that has drifted kills the
 script rather than producing a plausible number.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-30 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

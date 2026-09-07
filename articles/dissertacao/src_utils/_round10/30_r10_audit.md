@@ -104,3 +104,12 @@ consumes it. That is his proposal, implemented. The introduction half needs noth
 GER-08, GER-09, GER-10 and AUT-01 are one job in one file (numbered definition environments, the cosine
 definition for gradient conflict, and the balancer lineage), dispatched separately. Its report will be
 `29_ch2_definitions.md`. Nothing in this file depends on its outcome.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-08-03 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

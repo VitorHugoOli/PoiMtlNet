@@ -502,3 +502,12 @@ The following were in my scope or adjacent to it and I did **not** reach them. I
    persona 10's and the concordance reviewer's remit. My finding 1 touches
    `chapters/4_courb/methodology.tex:95` for the non-overlapping-window contrast only; I read that one
    line and nothing else in Chapter 4.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-30 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

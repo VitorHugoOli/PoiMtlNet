@@ -1459,7 +1459,7 @@ relativas valem; o ABSOLUTO e enviesado"*). **Mas isso e uma decisao do autor, n
 > no fim desta secao --- vale mais que o slide.**
 
 **Fonte:** `docs/studies/closing_data/archive/findings/CSLSL_CASCADE.md` (conferido por mim),
-`RESULTS_BOARD.md §1b`, script `scripts/baselines/b4_cascade.py`.
+script `scripts/baselines/b4_cascade.py`.
 
 🛑 **A linha do CSLSL no `B6-7` NAO muda, e a razao importa:** ela descreve o **CSLSL como
 sistema externo** --- *"location is the primary output"* --- e continua verdadeira. **O que existe e

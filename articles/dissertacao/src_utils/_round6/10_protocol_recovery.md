@@ -736,3 +736,12 @@ and will drift; the phrase in each row is the stable key.
 6. `3_cbic.tex:214` — the narrowed Standley bullet with its footnote (§4.3) plus the errata row.
 7. Then build: `source ../src_utils/texenv.sh && make defense && make final && bash ../src_utils/build.sh . both`,
    and expect pagination to move, since items 1, 2, 5 and 6 all add text.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-28 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

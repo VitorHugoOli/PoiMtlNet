@@ -104,8 +104,10 @@ Two independent read-only panels reviewed the draft-1 sections:
 ### NOTES — recorded for the author (not blocking; several are adaptation-time actions)
 - Food "roughly a third" is a single representative state (Alabama check-in dist., Food 34.2%); addendum
   provenance pointer to be corrected to the check-in table, not the 32.5% POI-count table.
-- "four of six datasets" + two-point margin to be confirmed against Ch.5 RESULTS_BOARD.md / PAPER_PLAN §3 at
-  adaptation (source-of-truth routing).
+- "four of six datasets" + two-point margin: the routing that stood here sent the reader to a board
+  that is dead for this dissertation. Ch.5 numbers come from the table file itself,
+  `src/tables/mobiwac/*.tex`, whose per-value provenance comment is what the fact gate follows
+  (`CLAUDE.md` §0.1). The claim itself is time-indexed: see `VEREDITOS.md` V6.
 - OOD region metric foreshadowed in 2.4 (unseen region = miss); full OOD-Acc@10 definition deferred to Ch.5.
 - DGI triple-key and Nash-MTL slash-key consolidation before compiling the single global bib (in BIB_NOTES §B).
 - kohavi1995crossval claim PLAUSIBLE (Zenodo re-deposit id); confirm original IJCAI-95 text at adaptation.

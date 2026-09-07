@@ -595,3 +595,12 @@ of `10.1145/3485125`, per-span font measurement and page-by-page text extraction
 current builds, and reproduce-first recomputation from `checkin_graph.pt` /
 `sequences_next.parquet` for B-1. Nothing in this report is asserted from model memory.
 Self-reported success is not trusted; the author audits independently.*
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-27 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

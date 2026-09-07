@@ -62,3 +62,12 @@ check-in to its representation as a NAMED FUNCTION before the tasks consume it, 
 input and a check-in-level input are two instantiations of one encoder rather than two different task
 definitions. That is what CTLE does with $z(l)$ and what CSLSL does with its embedding part, and it
 resolves the forward dependency of finding 1 at the same time.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-08-03 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

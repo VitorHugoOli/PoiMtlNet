@@ -237,3 +237,12 @@ back out of the built PDF (page 26) to confirm both citations resolve to numbere
   paper he pointed at, does not open onto a large uncited MTL-for-POI literature: its own MTL section
   cites almost nothing from mobility. A systematic count, which is what the item title actually asks
   for, was not attempted inside the time budget and would need its own item.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-08-03 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

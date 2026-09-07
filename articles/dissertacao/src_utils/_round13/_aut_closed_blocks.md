@@ -560,3 +560,12 @@
 - **Onde renderiza:** §6.1 p.83; §6.2 p.84
 - **Build medido contra:** `c13fe4d2` (build/main.pdf, 105 pp, mtime 2026-08-03 21:21:31)
 
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-08-04 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

@@ -601,3 +601,12 @@ Each of these would answer a question a referee is likely to ask, and costs a se
   Chapter 2, Chapter 6, Appendix D, and the introduction is frame prose and needs none. B-2, M-1 and
   M-2 also live in the paper still under review, where they can be fixed in the camera-ready rather
   than declared as errata.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-26 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

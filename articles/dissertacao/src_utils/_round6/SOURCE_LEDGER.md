@@ -329,3 +329,12 @@ measurement myself before editing the document. The four numbers in table D were
 source file or re-derived from the render. The 26 commit hashes cited in `CODEX_AUDIT.md`'s outcome
 section were verified to resolve as commits in this repository. Where I could not verify something, it
 is in table F as still open, with its owner.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-08-28 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

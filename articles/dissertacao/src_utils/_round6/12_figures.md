@@ -520,3 +520,12 @@ external citations were needed for this task, and none were added.
    regenerating. That is a change to an under-review paper's source and, per AGENT_BRIEF §4, would
    have to be applied to both the dissertation and `articles/[mobiwac]/src/` and recorded in that
    article's errata.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-28 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

@@ -699,3 +699,12 @@ mismatch is grammatically right.
    further prose.
 7. **FAB-20's recorded counts (11/8) are stale**, measured against `d4078c75`. Current: 13/9.
    Anyone reopening that row must re-measure (§4b V6).
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-08-04 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

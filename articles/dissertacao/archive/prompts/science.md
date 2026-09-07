@@ -372,3 +372,12 @@ Transformer (ICML 2019).
 - [How scientists are using Claude to accelerate research and discovery — Anthropic](https://www.anthropic.com/news/accelerating-scientific-research)
 - [Plan your literature review — Claude by Anthropic](https://claude.com/resources/use-cases/plan-your-literature-review)
 - [Use the GitHub integration — Claude Help Center](https://support.claude.com/en/articles/10167454-use-the-github-integration)
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-08-20 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

@@ -520,3 +520,12 @@ Read-only. No `.tex` file was edited. No ban-list enforcement (persona 03's), no
 log (persona 01's), no grammar list (persona 02's), no judgment on any number, citation or scientific claim.
 Suggested rewrites stay at phrase and sentence scale; where a passage needs restructuring (R15-07) the
 restructure is described and the split is shown, not drafted at length.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-08-02 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

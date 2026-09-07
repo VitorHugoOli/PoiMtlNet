@@ -395,3 +395,12 @@ Reached the 30-minute checkpoint and stopped, per instruction. Not reached:
    scoring ten rubric dimensions on a 102-page build is the part that would benefit from being
    split across two passes (frame chapters, then the paper chapters' claims), because dimensions
    4 and 5 are the two I scored on the least evidence.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-30 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

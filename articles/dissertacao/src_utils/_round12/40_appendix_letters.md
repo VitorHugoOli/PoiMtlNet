@@ -62,3 +62,12 @@ review would be answered by a document the committee may not have open.
 
 **His ruling: move all three as instructed.** Recorded here rather than argued again. The position remains
 on record and citable in the supplementary volume, and C.1 and C.2 stay in the defense volume.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-08-03 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

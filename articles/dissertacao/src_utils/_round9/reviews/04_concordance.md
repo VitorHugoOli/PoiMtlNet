@@ -440,3 +440,12 @@ checkpoint. Each is a real gap in coverage, not a pass:
    persona (that is L5 / persona 08's translation-fidelity gate), but it bounds SF-1 and N-2: I am
    asserting that `Average F1-Score per category` and `sigmoid` are published wording on the basis
    of the errata appendix's silence about them, not on a byte comparison with the CoUrb source.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-30 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

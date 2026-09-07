@@ -332,3 +332,12 @@ named them individually and named its own fix (`sync_page_counts.py --write`); t
 and those three files are deliberately **not** in this track's commits. The build and the gate were
 both re-run as the LAST actions before each commit, and each exit code was read directly rather than
 through a pipe.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-08-02 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

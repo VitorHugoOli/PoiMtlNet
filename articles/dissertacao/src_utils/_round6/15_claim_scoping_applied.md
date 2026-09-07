@@ -540,3 +540,12 @@ Other agents' uncommitted work was **not** committed by me. `06_results.tex` in 
 agent's statistical-wording edits alongside my paragraph; I staged that file through a blob built from
 `HEAD` plus my paragraph alone, leaving their eight lines in the working tree. Their edits in
 `05_setup.tex`, `review/questions.md`, the two PDFs and the four `src_utils` documents are untouched.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-28 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

@@ -843,3 +843,12 @@ conclusion chapter to compare); `passe` beyond confirming it has no general conc
 storyline/02 §3.4 source of the task-pair concession (referenced by NORTH_STAR but not opened —
 the NORTH_STAR record was sufficient to establish sign-off status); the D1 capacity-baseline record
 `storyline/audit/capacity_baseline_experiment.md` cited in the chapter header comment.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-08-04 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

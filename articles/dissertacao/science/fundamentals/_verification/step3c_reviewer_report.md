@@ -67,3 +67,11 @@ _One row per new reference: BibTeX key -> identifier -> where the record was ope
 | `kohavi1995crossval` | D | DOI 10.5281/zenodo.19712698 | OpenAlex record + readable abstract | Cross-validation and bootstrap are compared for accuracy estimation and model selection; stratified k-fold is recommende |
 | `pedregosa2011sklearn` | D | DOI 10.5555/1953048.2078195 | OpenAlex record (JMLR) + arXiv 1201.0490 abstract (read | scikit-learn integrates a wide range of machine-learning algorithms behind a consistent Python API aimed at non-speciali |
 | `wilcoxon1945` | D | DOI 10.2307/3001968 | OpenAlex record (title/authors/venue/year/DOI confirmed | Paired samples can be compared by ranking their differences rather than assuming normality |
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-08-21 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

@@ -582,3 +582,12 @@ Appendix F is precisely the missing evidence: per-fold spread, confidence interv
 test against a pre-set margin, seven datasets. The item's disposition should move from "strengthen it
 or downgrade the sentence" to "strengthened; the surviving question is only how much of it Chapter 1
 and Chapter 6 should carry", which is §3.4 above.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-08-04 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

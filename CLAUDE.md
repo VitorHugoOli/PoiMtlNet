@@ -10,6 +10,23 @@
 
 The project's primary study is **check2hgi** — a check-in-level Check2HGI substrate for joint POI prediction (paper at BRACIS 2026).
 
+> ### ⚠ Working on the dissertation? This file is the WRONG entrypoint.
+>
+> If your task touches [`articles/dissertacao/`](articles/dissertacao/) — the delivered UFV master's
+> dissertation, defended and approved 2026-08-28, now heading to deposit — **stop here and read
+> [`articles/dissertacao/VEREDITOS.md`](articles/dissertacao/VEREDITOS.md) first**, then that
+> folder's own [`CLAUDE.md`](articles/dissertacao/CLAUDE.md) §0.
+>
+> `VEREDITOS.md` answers by **question** ("does chapter 3 have a data leak?", "can I use
+> RESULTS_BOARD?", "can I delete `_round*`?") and every entry is closed with proof. Three separate
+> agents have re-litigated settled questions from stale review reports; that ledger exists to stop
+> the fourth.
+>
+> **The B9 recipe block further down THIS file is three generations old and does not reproduce the
+> dissertation.** Its numbers are the pre-v18 substrate. `docs/studies/closing_data/RESULTS_BOARD.md`
+> is likewise **dead** for the dissertation. Delivered next-category macro-F1 lives in **30–38**;
+> anything in the 60s or 70s is a leaked pre-v18 value.
+
 **Two source-of-truth folders:**
 - **Science**: [`docs/`](docs/) root — `README.md` (navigation landing), `AGENT_CONTEXT.md`, `NORTH_STAR.md`, `CHANGELOG.md`, `CLAIMS_AND_HYPOTHESES.md`, `CONCERNS.md`, `FINAL_SURVEY.md`, `MTL_ARCHITECTURE_JOURNEY.md`, `PAPER_BASELINES_STRATEGY.md`. Canonical numbers: [`docs/results/RESULTS_TABLE.md §0`](docs/results/RESULTS_TABLE.md). Per-experiment findings (F-trail): [`docs/findings/`](docs/findings/).
 - **Paper**: [`articles/[BRACIS]_Beyond_Cross_Task/`](articles/[BRACIS]_Beyond_Cross_Task/) — BRACIS 2026 submission working folder (`AGENT.md` first if writing prose, then `PAPER_DRAFT.md`, `PAPER_STRUCTURE.md`, `STATISTICAL_AUDIT.md`, `TABLES_FIGURES.md`, `samplepaper.tex`, `references.bib`, `AUDIT_LOG.md`).

@@ -262,3 +262,12 @@ Portuguese literal restored. It guarded nothing. Sabotage validation is the only
 surfaced, and it is a reusable lesson for probes in this file -- **never anchor a probe pattern
 with `^` here.** Fixed to an unanchored literal; both `ORI-01` and `ORI-02` now flip on
 sabotage and hold when restored.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-08-04 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

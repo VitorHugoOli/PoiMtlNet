@@ -391,3 +391,12 @@ still on p.5, it dies with a `ZeroDivisionError` on an empty p.4 rather than qui
 pass. That loud failure is deliberate and is documented in the file's own docstring: it means the PDF
 does not match the source, which is exactly the condition that let a broken build be certified clean
 six times earlier in this project's history.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-28 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

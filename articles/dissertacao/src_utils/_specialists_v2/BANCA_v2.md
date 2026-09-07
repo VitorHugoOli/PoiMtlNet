@@ -649,3 +649,12 @@ AZ ceiling's pending top-up (MODERATE-2) and the p. 20 averaging convention (MOD
 number-gate items.
 
 *Read-only review. No file in the dissertation was modified. Findings are proposals; the author rules.*
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-26 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

@@ -139,3 +139,11 @@ Your target is the items located in PENDENCIAS.md under the section "## §4 · P
 
 OUTPUT REQUIRED WHEN DONE:
 A summary report of the Audit Pass (counts, bucket distribution, key overlaps, and items placed in "§4.1 Decisões Pendentes do Autor" awaiting my input). No edits to dissertation .tex files should be made during this phase.
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-08-20 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

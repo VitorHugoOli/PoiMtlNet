@@ -20,3 +20,11 @@
 | `chapters/apx_e_ethics.tex` | 98 -> 98 | 11 -> 11 | 11.2 -> 11.2 | 6 -> 6 | 1 |
 | `chapters/apx_f_cosine.tex` | 352 -> 352 | 154 -> 154 | 43.8 -> 43.8 | 60 -> 60 | 1 |
 | **TOTAL (19 files)** | **4046 -> 3932** | **1893 -> 1779** | **46.8 -> 45.2** | | **37** |
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-30 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

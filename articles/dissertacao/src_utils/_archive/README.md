@@ -57,3 +57,12 @@ in the document; these are the raw payloads behind them.
 its own §8 asks to be read: it is a competent audit of a build that no longer exists, about a third of
 its `file:line` coordinates are stale, and the three paper chapters have since been split into
 per-section files. Re-anchor by phrase before acting on anything in it.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-29 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

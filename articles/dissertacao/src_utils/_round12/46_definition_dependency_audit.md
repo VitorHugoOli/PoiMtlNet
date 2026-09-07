@@ -84,3 +84,12 @@ keep three things that are already correct and gated:
 2. **The static task stays static.** Probe `R12-eqxi`, `R12-fplace`, `R12-fplace2` and the registry rows
    in `GLOSSARY` §1.1 pin the current symbols; any renaming updates the probes IN THE SAME COMMIT.
 3. **The scope exclusion on next place survives** beside its function, per `R12-fplace2`.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-08-03 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

@@ -214,3 +214,12 @@ ledgers (`1_citations.md`, `6_citations.md`), the Ch.2 review-panel reports and
 DRAFT_LEDGER. No number was computed; every number named in §5 was matched by string
 against its named source file. Self-reported success is not trusted: the author should
 spot-check §5.4's number matches and adjudicate §6 items 1–4.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-27 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

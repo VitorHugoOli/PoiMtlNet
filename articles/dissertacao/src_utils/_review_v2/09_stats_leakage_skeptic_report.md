@@ -340,3 +340,12 @@ Do not edit these away. Each is a defense that took work to earn:
 - Persona 07: "well powered" (S-01) is also a claim-honesty finding; we agree on it independently.
 - Persona 04: the fixed-partition caveat's Ch.1-only placement (S-02) is also a concordance finding.
 - Persona 06: the "at least 4 Acc@10 points" floor rests on a table minimum, not a source file.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-26 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

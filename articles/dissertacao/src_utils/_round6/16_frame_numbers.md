@@ -447,3 +447,12 @@ region-representation goal.
   queue and nothing is waiting on them. That report's recommendation (no compression pass) is
   unaffected; the description of two of its lines is wrong, and it wrongly protects them. Not my
   file, so not fixed. Flagged for the comment-volume track.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-28 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

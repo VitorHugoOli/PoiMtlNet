@@ -356,3 +356,12 @@ to re-claim it), `baxter2000model`, `caruana1997multitask`, `song2010limits`, `c
 5. **Self-citation posture** (persona §5, last clause) was not audited — I did not read the
    introduction's framing of the three own papers for whether the delta over prior own work is stated
    once and never as the intro's sentence subject.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-30 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

@@ -80,8 +80,8 @@ Lead takeaway sentences before each table are the paper's own sentences (§5.1 f
 - Numbers: 100% of numerals are byte-copies from the source sections/tables/scripts; **no
   number was computed, rounded, or aggregated by the agent** (N2). No new numbers exist outside
   the source text, so no separate numbers ledger is needed beyond this file: every value traces
-  to `articles/[mobiwac]/src/` (whose own source of truth is
-  `docs/studies/closing_data/RESULTS_BOARD.md` per AGENT_GUARDRAILS N1).
+  to `articles/[mobiwac]/src/`. (This line used to name a board that AGENT_GUARDRAILS N1 no longer
+  routes to: N1 was repointed 2026-08-20 to `src/tables/mobiwac/*.tex`. See `VEREDITOS.md` V2.)
 
 ## G. Open items / [VERIFY] register
 

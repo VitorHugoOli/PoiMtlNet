@@ -42,3 +42,12 @@ when someone reads these lines: `\campus{Campus Florestal}` is consumed by `\imp
 `\imprimircapa` today**. So the campus renders nowhere. The existing comment at `0_main.tex:139-141`
 already records this. It is correct as a data field and it will start rendering if a cover page is
 added; it is simply not visible now. No action unless the author wants the cover page.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-28 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

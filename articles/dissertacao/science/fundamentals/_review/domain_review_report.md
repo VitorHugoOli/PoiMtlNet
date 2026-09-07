@@ -256,3 +256,12 @@ but the claim currently stands unanchored.
 - The `Zhang2020` key collision (F2) and the encoder-vs-chapter attribution (F1) also touch the
   citation fact gate (persona 05, R3 claim-support) — flagged here for the domain impact.
 - No prose/style/grammar judgments made (Common protocol §7).
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-08-21 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

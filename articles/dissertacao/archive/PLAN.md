@@ -179,3 +179,12 @@ per-chapter pipeline and gate-day panel are defined there (fact trio 05–07 →
 domain 09–11 → change gate 14). The full-document panel before each handoff adds 15
 (readability), 16 (AI-credibility, after 03), and 18 (visual) on the built PDF; 12 (banca) and
 17 (excellence) run on the complete v1 and again on the banca build.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-08-20 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

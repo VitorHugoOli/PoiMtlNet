@@ -593,3 +593,12 @@ singular definition; (6) pp. 72 → 77, the freeze control under two names.
 Temporal MTLNet" inside the registered name `ST-MTLNet` at `:38` and `:248`, so they are correct per
 `GLOSSARY §2` and not misses). I did not evaluate figures, tables, or float placement beyond the
 reading breaks they cause. I did not verify any number, citation, or scientific claim.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-27 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

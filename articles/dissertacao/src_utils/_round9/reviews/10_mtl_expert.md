@@ -449,3 +449,12 @@ contradicting them.
   should open it before citing it.
 - **No claim in this report is about `make check`, `make selftest`, or the build.** I ran none of them,
   as instructed, and I assert nothing about their status beyond quoting the task's own statement.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-30 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

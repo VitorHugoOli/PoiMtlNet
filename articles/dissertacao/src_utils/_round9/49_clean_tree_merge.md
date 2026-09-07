@@ -139,3 +139,12 @@ Each annotates a sentence that is no longer in the text. None was deleted.
 | `preamble.tex` | !TeX root = main.tex |  |
 | `preamble.tex` | -- Machinery (from the source tree, kept) -- | \usepackage{abntex2-UFV}        % UFV front matter + 3/2 cm margins (c |
 | `preamble.tex` | --------------------------------------------------------------- | \titulo{\normalsize{\textbf{Multi-Task Learning for Point-of-Interest  |
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-08-03 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

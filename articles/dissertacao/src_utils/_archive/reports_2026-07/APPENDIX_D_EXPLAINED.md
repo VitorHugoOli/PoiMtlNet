@@ -152,3 +152,12 @@ diving into the four predictors and the table.
 This reorder doesn't add new claims or numbers — it just front-loads the motivation and the
 terminology contrast that today only exist implicitly (or in Chapter 5, several pages away), which
 is exactly what made the appendix feel like it was dropped into the document mid-argument.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-07-27 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

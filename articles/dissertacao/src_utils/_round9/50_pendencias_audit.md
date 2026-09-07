@@ -107,3 +107,12 @@ probe watched a string unrelated to its claim, here a probe watched strings that
 work began. Both certified a claim they could not test. The three replacement probes were each validated by
 sabotaging only their own target, because a suite where every sabotage trips the same probe first proves
 only that one probe works.
+
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-08-02 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.

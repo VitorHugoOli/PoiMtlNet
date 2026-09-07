@@ -198,3 +198,11 @@ citation, number, or unlicensed claim, and none found a round-2 regression to th
 7. **Re-sync note:** Ch.5 currently has NO drift vs `[mobiwac]/src/`; if you edit the paper after today, re-run the diff before the advisor build.
 
 _All writes are under `articles/dissertacao/`. Source paper folders and law-file rules were not edited._
+
+---
+
+<!-- estado-rodada -->
+> **Rodada encerrada · último toque 2026-08-28 · sem autoridade.**
+> Este ficheiro é registo de proveniência do que foi discutido nesta passagem, não fonte
+> de um facto corrente. O que ficou decidido está em [`VEREDITOS.md`](../../../VEREDITOS.md);
+> os valores entregues estão em `CLAUDE.md` §0.1. Não copie nada daqui sem confirmar lá.
