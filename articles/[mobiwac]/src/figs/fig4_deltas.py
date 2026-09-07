@@ -2,14 +2,14 @@
 """
 Figure 4 (MobiWac 2026): headline signed-deltas plot.
 
-Per dataset, ordered by region count, plot:
+Per dataset, ordered by check-in count (Table I), plot:
   - the next-category delta (joint - dedicated), small in both directions;
   - the next-region   delta (joint - dedicated), clearly positive at the two
-    largest region vocabularies and inside the band elsewhere.
+    largest region vocabularies (TX, CA) and a small deficit elsewhere.
 
 A shaded +/- 2-point non-inferiority band and a zero line sit on the region axis
-so the reader sees which deltas clear the band (TX, CA on region) and which sit
-inside it.
+so the reader sees that every region delta lies inside the band, with TX and CA
+positive and the other four negative.
 
 Numbers are the served-checkpoint deltas: one saved model per fold, both tasks
 read at the epoch its joint validation selector chose, minus the dedicated
@@ -31,20 +31,21 @@ from matplotlib.lines import Line2D
 
 # ---------------------------------------------------------------------------
 # Board numbers (Delta = MTL - dedicated STL ceiling, percentage points).
-# Ordered by region count (ascending): Istanbul 520, AL 1109, AZ 1547,
-# FL 4703, TX 6553, CA 8501.
+# Ordered by check-in count (ascending, Table I): AL, AZ, Istanbul, FL, CA, TX
+# (author decision 2026-09-06). The region count is kept under each label; it no
+# longer follows the row order.
 # ---------------------------------------------------------------------------
 STATES = [
     # label,      region count, category delta, region delta
     # Served-checkpoint deltas (joint minus dedicated), four seeds x five folds
     # on both arms. Source: docs/results/closing_data/v18/joint_best_perfold.json
     # (joint) and docs/studies/closing_data/v18/data/v18_results.json (dedicated).
-    ("Istanbul", 520, 0.0798, -0.0789),
     ("AL", 1109, -0.1882, -0.8744),
     ("AZ", 1547, -0.0038, -0.4370),
+    ("Istanbul", 520, 0.0798, -0.0789),
     ("FL", 4703, 0.1947, -0.1564),
-    ("TX", 6553, -0.1310, 1.2059),
     ("CA", 8501, -0.0043, 1.0571),
+    ("TX", 6553, -0.1310, 1.2059),
 ]
 
 labels = [s[0] for s in STATES]
@@ -78,8 +79,8 @@ plt.rcParams.update(
     }
 )
 
-CAT_COLOR = "#1f4e79"  # deep blue: category (always up)
-REG_COLOR = "#c0392b"  # brick red: region (crosses the band)
+CAT_COLOR = "#1f4e79"  # deep blue: category (small, both signs)
+REG_COLOR = "#c0392b"  # brick red: region (all inside the +/-2 band)
 BAND_COLOR = "#b8b8b8"
 GRID_COLOR = "#dddddd"
 
@@ -159,7 +160,7 @@ for xi, v in zip(xs_reg, reg_delta):
 # --- axes cosmetics -------------------------------------------------------
 ax.set_xticks(x)
 ax.set_xticklabels(xticklabels)
-ax.set_xlabel("dataset  (region count, low to high)", labelpad=2)
+ax.set_xlabel("dataset, by check-in count (region count below)", labelpad=2)
 ax.set_ylabel("$\\Delta$ vs dedicated (pp)", labelpad=2)
 
 # The band is the reference the reader must see, so it sets the frame; the bars

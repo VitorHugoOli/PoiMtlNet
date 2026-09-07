@@ -6,25 +6,36 @@
 % (stl_cat, seed 0). Place-level source: docs/results/closing_data/v18_place_level/<state>_s0_cat_placelevel.json.
 % Paired t on the five matched folds: significant at every dataset except FL (p=0.067); all five
 % folds favour the check-in-level arm at all six datasets.
+\providecommand{\sd}[1]{\,{\scriptsize$\pm$#1}}
 \begin{table}[!t]
 \caption{Next-category macro-F1: the check-in-level representation against a standard place
-embedding (HGI). Same single-task model, training configuration, folds, sliding windows, epoch
-budget, and logit adjustment in both models; only the input representation differs (seed 0, five
-folds).}
+embedding (HGI), ordered by check-in count (Table~\ref{tab:datasets}). Same single-task model,
+training configuration, folds, sliding windows, epoch budget, and logit adjustment in both models,
+so only the input representation differs (mean and fold sd over five matched folds, seed 0). Bold marks
+the higher value in each row and underline the second.}
+% [2026-09-06, author decision relayed by the mobiwac session] Rows reordered by check-in count
+% (AL, AZ, Istanbul, FL, CA, TX; Table I volumes), the same order as Tables I and II and Fig. 4;
+% emphasis convention B-27: bold = row champion, underline = second. Rows moved whole by script;
+% no value retyped.
 \label{tab:substrate}
 \centering
 \begin{tabular}{l r r r}
 \hline
 \textbf{Dataset} & \textbf{Check-in level} & \textbf{Place level} & \textbf{$\Delta$} \\
 \hline
-Istanbul & \textbf{35.35} & 29.07 & $+6.29$ \\
-AL & \textbf{30.77} & 29.15 & $+1.62$ \\
-AZ & \textbf{34.51} & 31.93 & $+2.58$ \\
-FL & \textbf{37.36} & 37.13 & $+0.23$ \\
-TX & \textbf{36.32} & 35.33 & $+0.99$ \\
-CA & \textbf{35.62} & 34.74 & $+0.88$ \\
+AL & \textbf{30.77}\sd{1.16} & \underline{29.15}\sd{0.84} & $+1.62$ \\
+AZ & \textbf{34.51}\sd{1.15} & \underline{31.93}\sd{1.08} & $+2.58$ \\
+Istanbul & \textbf{35.35}\sd{0.89} & \underline{29.07}\sd{0.63} & $+6.29$ \\
+FL & \textbf{37.36}\sd{0.42} & \underline{37.13}\sd{0.41} & $+0.23$ \\
+CA & \textbf{35.62}\sd{0.47} & \underline{34.74}\sd{0.41} & $+0.88$ \\
+TX & \textbf{36.32}\sd{0.51} & \underline{35.33}\sd{0.48} & $+0.99$ \\
 \hline
 \end{tabular}
+% [2026-09-06, camera-ready, plan 3.53] Per-fold sd column restored; values copied from the
+% dissertation's tables/mobiwac/representation.tex (AL 1.16/0.84, AZ 1.15/1.08, Istanbul 0.89/0.63,
+% FL 0.42/0.41, CA 0.47/0.41, TX 0.51/0.48), which the src_fix table had dropped. It shows that the
+% Florida gap (+0.23) lies inside its own fold sd (0.42). Row order kept by region count, the order
+% of Tables I and II and Fig. 4 in this paper (the dissertation orders by check-in count).
 
 \vspace{2pt}
 {\footnotesize All five folds favor the check-in-level representation at every dataset. The

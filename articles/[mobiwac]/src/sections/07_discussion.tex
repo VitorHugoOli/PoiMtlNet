@@ -14,13 +14,9 @@
 % In particular, any "honesty rule" phrased as an invariant of the old ladder (category
 % beating at every dataset, region at four) is a record of what was once true, not a rule.
 % ============================================================================
-% chapters/5_mobiwac/07_discussion.tex -- one section of Chapter 5 (MobiWac 2026, accepted 2026-08-26; status comment updated 2026-09-01, AUT-35).
-% Split out of chapters/5_mobiwac.tex on 2026-07-28 (author request: the paper
-% chapters were single long files, while the originals under articles/[mobiwac]/src/sections/
-% are one file per section). The split is PURELY MECHANICAL: content was cut at
-% \section boundaries and not edited. The chapter file now \inputs these in order.
-% Editing rules are unchanged and still governed by the chapter's status above:
-% see NORTH_STAR section 4 before changing any sentence here.
+% sections/07_discussion.tex -- Section VII of the MobiWac 2026 camera-ready (accepted 2026-08-26).
+% Base text: the dissertation's Chapter 5 (articles/dissertacao/src/chapters/5_mobiwac/07_discussion.tex),
+% ported 2026-09-06 (CONSOLIDATION_PLAN 3.43). Camera-ready edits carry a dated comment beside them.
 \section{Discussion and Limitations}
 \label{sec:discussion}
 
@@ -29,7 +25,7 @@ model at Texas and California, the two datasets with the largest region vocabula
 other four it stays within the two-point margin registered before any result was read. On next
 category it outperforms the dedicated model at Florida, and the five remaining differences are
 equivalent to zero within half a point. Throughout, the region output keeps its
-own private spatial path (Table~\ref{tab:results}; Fig.~\ref{fig:deltas}). The
+own private spatial path (Table~\ref{tab:results}). The
 practical reading is that one model replaces two while staying inside the margin that the analysis
 plan registered as acceptable, and does better than two at the two datasets with the largest region
 vocabularies. The four region results inside that margin are all small deficits rather than ties,
@@ -114,7 +110,6 @@ measured service result.
 % would be a new claim needing the author's sign-off, so it was not done here.
 % Swept for propagation before deleting: the ratio appears nowhere else in either text. The "547" hits in
 % tables/mobiwac/{results,datasets}.tex are Arizona's region count, 1,547 (checked, not assumed).
-% Probes: R13-noratio, R13-ratio-abs.
 
 % AUDIT NOTE 2026-08-04, no edit needed here, recorded so a later sweep does not "fix" a correct
 % sentence. The fold-partition correction of that date changed "over the same folds" in
@@ -190,7 +185,6 @@ prediction results themselves.
 % must survive any later edit.
 % "the comparator" was also replaced: it is unregistered, and GLOSSARY §2 registers "dedicated single-task
 % model" and forbids synonym cycling, which naming it a third way in one paragraph would be.
-% Probes: R13-sweepscope, R13-sweepscope2.
 % [2026-08-12, AUTHOR RULING] THE CAPACITY LIMIT IS WITHDRAWN, together with the appendix it pointed
 % at (the parameter-count control, now in the supplementary volume; the reasoning is at its former
 % include site in content.tex). The clause read, verbatim and preserved here rather than deleted:
@@ -215,12 +209,12 @@ nothing else. At width $352$ the dedicated model has $5{,}014{,}942$ parameters,
 joint model's $5{,}151{,}189$, and scores $0.41$ Acc@10 above the joint model at the same random
 initialization, with all five folds in the same direction and a paired test over the five folds that
 separates the difference from zero ($p = 0.010$). A wider model, at $174.8$ percent of the joint
-model's budget, scores $0.43$ above it ($p = 0.008$, five of five folds); the two are $0.02$ apart
+model's budget, scores $0.43$ above it ($p = 0.008$, five of five folds). The two are $0.02$ apart
 ($p = 0.40$), so widening past parity adds nothing. Texas has no control of matched size: the only
 wider model run there has $170.5$ percent of the joint model's budget and scores $0.21$ above the
 joint model, which the same test does not separate from zero ($p = 0.12$). At California, the one
 dataset where the control exists, a dedicated model of the same size scores above the joint model's
-region result, so the advantage there cannot be attributed to sharing between the tasks; at Texas the
+region result, so the advantage there cannot be attributed to sharing between the tasks. At Texas the
 question is open. What remains on the region axis is the operational result: one model produces both predictions
 in one forward pass, at no cost beyond the bounds reported above.
 % [2026-09-06, camera-ready, D4] FIFTH LIMIT RESTORED with the experiment that bounds it. The

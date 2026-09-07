@@ -67,10 +67,10 @@ scope is stated here.
 % selected" -- Florida and California never had a search of their own to select it.
 For the dedicated category model, batch size was searched at all six datasets, over five folds at
 Istanbul, Alabama and Arizona and on a single fold at Texas, and the learning rate at four of them,
-over five folds at Istanbul, Alabama and Arizona and on single folds at Texas; Florida and California
+over five folds at Istanbul, Alabama and Arizona and on single folds at Texas. Florida and California
 carry the large-dataset value, which only the single-fold Texas screen tested. The selected learning
 rate differs by dataset. For the joint model, batch size and the category-head learning rate were
-searched at Istanbul, Alabama, and Arizona over five folds and screened at Florida; Texas and
+searched at Istanbul, Alabama, and Arizona over five folds and screened at Florida, and Texas and
 California carry the configuration transferred from those searches. The dedicated region model uses
 one configuration throughout, with only the logit-adjustment strength tested and set to zero for
 that task. Section~\ref{sec:discussion} returns to what the uneven joint search may mean for Texas
@@ -161,7 +161,6 @@ The non-inferiority claim states that the joint model is no worse than the dedic
 % section changes. What changes is that the reported intervals now correctly cover partition variability
 % as well, which makes the equivalence claim stronger rather than weaker; the sentence therefore says
 % "across these four partitions" instead of implying a single one.
-% Probes: R13-foldseed7, R13-foldseed8.
 % [COD-006a, round8, 2026-07-30] "The equivalence is well powered:" -> "The precision of the equivalence
 % test is measured on this fixed partition:". Author decision, PENDENCIAS_RESOLVIDOS 5.2 (arquivado 2026-07-30), quoted: "Let's change only
 % the second point about the: 'The equivalence is well powered'." The defect is a category error, not a

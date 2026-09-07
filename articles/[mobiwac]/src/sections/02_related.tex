@@ -46,7 +46,7 @@ over a partition of the map is also the standard formulation in the human-mobili
 literature, with a grid cell as the target~\cite{luca2021mobilitysurvey}; our
 next-region task substitutes official neighborhood-scale units for grid cells. Our earlier
 work~\cite{silva2025mtlnet} paired static category classification with next-category prediction
-and found no consistent multi-task gain; this paper introduces the next-region task, adds the check-in-level
+and found no consistent multi-task gain. This paper introduces the next-region task, adds the check-in-level
 representation, and reports, for each task, where the joint model outperforms a dedicated single-task model
 and where their difference stays within a stated bound (Section~\ref{sec:results-part2}).
 % [2026-09-06, camera-ready, S9] REWRITTEN, not deleted: GLOSSARY section 9.3 allows exactly one
@@ -173,12 +173,15 @@ trunk averages $+0.001$ across training (four seeds each on four Gowalla
 states: Alabama, Arizona and Florida, which are three of the five U.S. datasets reported
 here, and Georgia, which is not among the datasets this study reports; the largest per-dataset mean in
 absolute value is $+0.0032$). A balancer therefore has no
-conflict to resolve; this is a finding for this pair of tasks, not a
+conflict to resolve. This is a finding for this pair of tasks, not a
 general rule.
 % [2026-09-06, camera-ready] "consistent with the mechanism test in Section VI-B" REMOVED: the
 % pointer resolved, in the accepted text, to the freeze-region control, which is withdrawn (DP-4);
 % Section VI-B carries no mechanism test now, so the pointer was dangling. The chapter keeps the
-% same orphan. No claim changed. The same quantity, measured on the reported joint model at four of the six datasets
+% same orphan. No claim changed.
+% [2026-09-06, later] The comment above had swallowed the head of the next sentence into its last
+% line (fourth instance of the mid-sentence-comment defect, mirror direction); repaired.
+The same quantity, measured on the reported joint model at four of the six datasets
 (Istanbul, Alabama, Arizona, and Florida), is equivalent to zero at every one of them, with
 per-dataset means within two thousandths of zero, so the absence of conflict is not an artifact
 of this smaller set of runs.
