@@ -1,0 +1,48 @@
+\section{Method}
+\label{sec:method}
+
+\subsection{Problem and tasks}
+\label{sec:problem}
+Given a user's time-ordered check-in history, we predict two properties of the next visit. The first is its \emph{category}, one of the seven top-level categories that the Gowalla data distributes with its places: Community, Entertainment, Food,
+Nightlife, Outdoors, Shopping, and Travel. We map Istanbul's source labels onto the same seven.
+The second is its \emph{region}, the place's census tract (for Istanbul, the \emph{mahalle}, a municipal neighborhood). We frame next-region as classification over the dataset's regions, 520 to 8,501 of them (Table~\ref{tab:datasets}).
+
+The motivation is practical: the category says what type of place comes next, hence what a user will want; the region says where, hence where to prepare. The mobility literature supports such preparation: city services have long been built on location-based social network traces~\cite{silva2019urbancomputing}. A recent analysis of tourist check-in
+mobility finds that visits concentrate on a few hub places, argues that crowds and demand therefore concentrate, and ties this structure to
+infrastructure planning and adaptive strategies~\cite{moura2025mobilityaware}.
+That analysis reads past visits; we predict two properties of
+the next one, and aggregated over users, those predictions point to where
+demand is heading before it arrives. A census
+tract is a neighborhood, not a radio cell. We therefore scope our claims to
+neighborhood-level preparation: demand and load anticipation, caching content
+ahead of time, and capacity planning. Cell association and handover are
+radio-level decisions and remain out of scope. We build and evaluate no such
+service here, and Section~\ref{sec:discussion} states what these predictions
+would give such a service.
+
+
+\subsection{The check-in-level representation}
+\label{sec:method-rep}
+
+We call this representation Check2HGI (Section~\ref{sec:related-embeddings}), and Fig.~\ref{fig:dataflow} shows the data flow.
+
+We build a graph with four levels: the check-in, its place, the place's region, and the city. Edges connect each level to the one above it and link a user's consecutive check-ins with a weight that decays with the time gap. Nearby places are linked at the place level. Each visit's category, time of day, and day of week enter as input features of its node, together with four elapsed-time features: the log-scaled time since the user's previous visit and since their first visit, the same-day gap, and a first-visit indicator. Each is measured up to the visit itself, so a node describes the visit and the history preceding it, never anything that follows. The consecutive-visit edges run in one direction only, from an earlier visit to a later one, for the same reason: a target is predicted from a user's past, so the representation is built from the past alone. We train the graph mainly with an infomax objective~\cite{velickovic2019dgi,huang2023hgi}, plus two small label-free auxiliary terms (weights 0.3 and 0.1): a masked reconstruction of each place's aggregated category features, and an anchor to a place embedding pre-trained on the same data. The training never sees the next category or the next region. From the trained graph we extract one 64-dimensional vector per check-in.
+
+\subsection{The single multi-task model}
+\label{sec:method-model}
+
+One model reads a window of recent per-visit vectors and predicts the next visit's category and region at once (Fig.~\ref{fig:model}). Each task has its own input: the category task reads the window of per-visit vectors (the semantic stream), the region task the same window with each visit represented by the trained vector of its region node from the same graph (the spatial stream). Both pass through private per-task encoders into the shared trunk, a cross-attention stack of two blocks in which each stream reads the other's features while keeping its own feed-forward weights. The trunk feeds a category output and a region output, and the region output also keeps a private spatial path, a small branch inside the one model that bypasses the trunk.
+
+The training loss is a fixed-weight sum of the two outputs, $L = 0.5\,L_{\mathrm{cat}} + 0.5\,L_{\mathrm{reg}}$, where $L_{\mathrm{reg}}$ is a plain unweighted cross-entropy loss and $L_{\mathrm{cat}}$ is a
+cross-entropy loss with logit adjustment~\cite{menon2021logitadjustment}: $\tau\log P_{\mathrm{train}}(y)$, with $\tau=0.5$, is added
+to the category logits during training only, which shifts the decision boundary toward the balanced
+posterior that macro-F1 rewards.
+The weights and $\tau$ were selected once on validation during development and held fixed across all
+six datasets. The dedicated category model receives the same adjustment, so the comparison is not affected
+by it.
+
+The joint model is larger than either dedicated model and than the two combined, and a forward pass
+costs more compute: about 4.2 million parameters at Alabama against 1.9 million for the two combined
+(5.2 against 2.8 at California). What the single model provides is operational rather than arithmetic
+(Section~\ref{sec:intro}).
+

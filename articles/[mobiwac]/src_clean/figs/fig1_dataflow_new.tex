@@ -1,0 +1,146 @@
+
+\ifdefined\FIGINPUT\else
+  \documentclass[border=4pt]{standalone}
+  \usepackage{tikz}
+  \usepackage{amsmath,amssymb}
+  \usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc}
+  \begin{document}
+\fi
+\ifdefined\FIGINPUT \def\figmodelref{\ref{fig:model}} \else \def\figmodelref{2} \fi
+
+\tikzset{
+  checkins/.pic={
+    \begin{scope}[->, line width=0.45pt, >={Latex[length=1.1mm]},
+                  shorten >=1.1pt, shorten <=1.1pt, draw=orange!60!black]
+      \draw (-0.70,-0.13) -- (-0.44, 0.17);
+      \draw (-0.44, 0.17) -- (-0.13, 0.01);
+      \draw ( 0.19, 0.15) -- ( 0.45,-0.15);
+      \draw ( 0.45,-0.15) -- ( 0.71, 0.09);
+    \end{scope}
+    \fill[orange!65!black] (-0.70,-0.13) circle (1.15pt) (-0.44,0.17) circle (1.15pt)
+          (-0.13,0.01) circle (1.15pt) (0.19,0.15) circle (1.15pt)
+          (0.45,-0.15) circle (1.15pt) (0.71,0.09) circle (1.15pt);
+  },
+  places/.pic={
+    \begin{scope}[line width=0.45pt, draw=black!45]
+      \draw (-0.62,-0.15) -- (-0.20, 0.18) -- ( 0.22,-0.16) -- ( 0.66, 0.14);
+      \draw (-0.62,-0.15) -- ( 0.22,-0.16);
+      \draw (-0.20, 0.18) -- ( 0.66, 0.14);
+    \end{scope}
+    \fill[black!60] (-0.62,-0.15) circle (1.15pt) (-0.20,0.18) circle (1.15pt)
+          (0.22,-0.16) circle (1.15pt) (0.66,0.14) circle (1.15pt);
+  },
+  regions/.pic={
+    \begin{scope}[line width=0.5pt, draw=blue!55!black, fill=blue!8]
+      \draw (-0.62,-0.16) rectangle (-0.22,0.16);
+      \draw (-0.14,-0.16) rectangle ( 0.26,0.16);
+      \draw ( 0.34,-0.16) rectangle ( 0.74,0.16);
+    \end{scope}
+    \begin{scope}[line width=0.45pt, draw=blue!55!black]
+      \draw (-0.22,0) -- (-0.14,0);
+      \draw ( 0.26,0) -- ( 0.34,0);
+    \end{scope}
+  },
+  city/.pic={
+    \draw[line width=0.5pt, draw=black!45, fill=black!4, rounded corners=1.5pt]
+         (-0.52,-0.16) rectangle (0.52,0.16);
+    \fill[black!45] (-0.26,0) circle (1.0pt) (0,0) circle (1.0pt) (0.26,0) circle (1.0pt);
+  },
+}
+
+\begin{tikzpicture}[
+    >={Stealth[length=1.9mm]},
+    font=\scriptsize,
+    lvl/.style={align=left, text width=3.35cm, inner sep=0pt, font=\scriptsize},
+    tag/.style={font=\scriptsize\itshape, text=black!68, align=center, inner sep=1pt},
+    spine/.style={->, line width=0.7pt, draw=black!62,
+                  >={Stealth[length=2.1mm]}},
+    sname/.style={font=\scriptsize\itshape, text=black!68, anchor=west, inner sep=1pt},
+    flow/.style={->, line width=0.7pt, draw=black!75},
+    oflow/.style={->, line width=0.8pt, draw=orange!65!black},
+    bflow/.style={->, line width=0.8pt, draw=blue!55!black},
+    ocell/.style={draw=orange!65!black, fill=orange!14, line width=0.45pt,
+                  minimum width=1.9mm, minimum height=3.2mm, inner sep=0pt},
+    bcell/.style={draw=blue!55!black, fill=blue!12, line width=0.45pt,
+                  minimum width=1.9mm, minimum height=3.2mm, inner sep=0pt},
+    pred/.style={draw=teal!55!black, fill=teal!10, rounded corners=2.5pt,
+                 line width=0.6pt, align=center, inner sep=3pt,
+                 minimum width=18.5mm, minimum height=5.5mm},
+    model/.style={draw=black!65, dashed, rounded corners=3pt, line width=0.7pt,
+                  fill=black!3, align=center, inner sep=3pt,
+                  minimum width=24.5mm, minimum height=15mm},
+  ]
+
+  \def\yC{1.84}\def\yR{0.92}\def\yP{0.00}\def\yK{-0.92}
+  \def\xsp{6.95}\def\xpic{9.45}
+
+  \begin{scope}[on background layer]
+    \node[draw=black!45, rounded corners=3pt, line width=0.5pt, fill=black!2,
+          inner sep=0pt, fit={(3.21,-1.44) (10.51,2.34)}] (panel) {};
+    \fill[blue!6,   rounded corners=2pt] (3.31,\yR-0.40) rectangle (10.41,\yR+0.40);
+    \fill[orange!8, rounded corners=2pt] (3.31,\yK-0.40) rectangle (10.41,\yK+0.40);
+  \end{scope}
+
+  \foreach \i in {0,1,2,3}{\fill[orange!65!black] (0.30+\i*0.55,\yK) circle (1.2pt);}
+  \foreach \i in {0,1,2}{%
+    \draw[->, line width=0.5pt, >={Latex[length=1.2mm]}, draw=orange!60!black,
+          shorten >=1.8pt, shorten <=1.8pt] (0.30+\i*0.55,\yK) -- (0.85+\i*0.55,\yK);}
+  \node[tag, text width=2.80cm, anchor=south] at (1.10,\yK+0.16)
+       {category, cyclic time,\\elapsed time: 15 values};
+  \node[tag, text width=2.80cm, anchor=north] at (1.10,\yK-0.16)
+       {one user's visits,\\in time order};
+  \draw[oflow] (2.20,\yK) -- (3.26,\yK);
+
+  \node[lvl] (nC) at (4.99,\yC)
+       {\textcolor{black!55}{\textbf{city}}\\\textcolor{black!55}{\textit{one node, training only}}};
+  \node[lvl] (nR) at (4.99,\yR)
+       {\textcolor{blue!55!black}{\textbf{region}}\\\textit{adjacency graph, GCN}};
+  \node[lvl] (nP) at (4.99,\yP) {\textbf{place}\\\textit{Delaunay graph, GCN}};
+  \node[lvl] (nK) at (4.99,\yK)
+       {\textcolor{orange!65!black}{\textbf{check-in}}\\\textit{directed succession, GCN}};
+
+  \pic at (\xpic,\yC) {city};
+  \pic at (\xpic,\yR) {regions};
+  \pic at (\xpic,\yP) {places};
+  \pic at (\xpic,\yK) {checkins};
+
+  \draw[spine] (\xsp,\yK+0.22) -- (\xsp,\yP-0.22);
+  \draw[spine] (\xsp,\yP+0.22) -- (\xsp,\yR-0.22);
+  \draw[spine] (\xsp,\yR+0.22) -- (\xsp,\yC-0.22);
+  \node[sname] at (\xsp+0.14,\yK+0.46) {attention pooling};
+  \node[sname] at (\xsp+0.14,\yP+0.46) {attention pooling};
+  \node[sname] at (\xsp+0.14,\yR+0.46) {area-weighted};
+
+  \node[anchor=south, font=\scriptsize\bfseries, text=black!75]
+       at ([yshift=0.4mm]panel.north)
+       {Check2HGI: a four-level graph, trained without task labels};
+  \node[anchor=north, tag, text width=6.9cm] at ([yshift=-0.4mm]panel.south)
+       {one objective per level boundary
+        ($\mathcal{L}_{C\!P}$, $\mathcal{L}_{P\!R}$, $\mathcal{L}_{R\Omega}$)\\
+        separates real pairs from corrupted ones};
+
+  \draw[bflow] (10.57,\yR) -- (11.27,\yR);
+  \draw[oflow] (10.57,\yK) -- (11.27,\yK);
+  \foreach \i in {0,...,8}{\node[bcell] at (11.49+\i*0.22,\yR) {};}
+  \foreach \i in {0,...,8}{\node[ocell] at (11.49+\i*0.22,\yK) {};}
+  \node[tag, anchor=south, text width=3.8cm] at (12.37,\yR+0.24)
+       {$\mathbf{z}_r\!\in\!\mathbb{R}^{64}$ of each visit's region\\a window of $9\times64$};
+  \node[tag, anchor=north, text width=3.8cm] at (12.37,\yK-0.24)
+       {$\mathbf{x}_i\!\in\!\mathbb{R}^{64}$ of each visit\\a window of $9\times64$};
+  \node[tag, text width=2.6cm] at (12.20,\yP) {the two windows\\stay separate};
+
+  \node[model] (mdl) at (15.40,\yP)
+       {\textbf{single}\\\textbf{multi-task model}\\one forward pass\\(Fig.~\figmodelref)};
+  \draw[bflow] (13.25,\yR) -- ++(0.30,0) |- ([yshift=4mm]mdl.west);
+  \draw[oflow] (13.25,\yK) -- ++(0.30,0) |- ([yshift=-4mm]mdl.west);
+
+  \node[pred] (outr) at (18.28, 0.55) {next region};
+  \node[pred] (outc) at (18.28,-0.55) {next category};
+  \draw[flow] (mdl.east) -- ++(0.42,0) |- (outr.west);
+  \draw[flow] (mdl.east) -- ++(0.42,0) |- (outc.west);
+
+\end{tikzpicture}
+
+\ifdefined\FIGINPUT\else
+  \end{document}
+\fi

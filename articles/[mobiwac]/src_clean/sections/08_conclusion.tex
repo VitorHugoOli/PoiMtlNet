@@ -1,0 +1,21 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+We tested whether one model can predict both the category and region of a user's next visit. The
+central concern was that sharing could help one task while hurting the other. The evidence does not
+attribute the outcome to sharing alone. On the category task the input representation moves the
+score more than the choice between one model and two: at every one of the six datasets and in every
+fold it improves next-category prediction, by $+0.23$ to $+6.29$ macro-F1 points. On the region task, a
+dedicated model of the joint model's size scores above it at California.
+
+On that representation, one model reads both answers from a single saved model. On region it
+outperforms the dedicated model at Texas and California and stays within the two-point margin registered before any result was read at the
+other four. On category it outperforms the dedicated model at Florida, and the five remaining
+differences are equivalent to zero within half a point. The joint model also remains above every
+external baseline in Table~\ref{tab:results} at all six datasets, by at least $3.55$ Acc@10 points
+over the strongest region reference and $3.06$ macro-F1 points over POI-RGNN on category.
+
+These results do not mean that multi-task learning helps automatically. Whether the exchange of information between the tasks adds anything beyond the representation is
+not separated by the evidence here (Section~\ref{sec:discussion}). When the representation preserves the context of
+each visit and the architecture keeps a private spatial path where the tasks differ, one model can
+predict both what a user will do next and where, in a single forward pass instead of two.

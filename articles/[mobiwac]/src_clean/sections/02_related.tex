@@ -1,0 +1,78 @@
+\section{Background and Related Work}
+\label{sec:related}
+
+\subsection{From place embeddings to per-visit embeddings}
+\label{sec:related-embeddings}
+A place embedding transforms a POI into a vector so that similar or nearby
+places sit close together in the vector space.
+Deep Graph Infomax (DGI)~\cite{velickovic2019dgi}, a general self-supervised
+method for graphs, learns such vectors on a place network linked by
+similarity, time, and distance.
+Hierarchical Graph Infomax (HGI) \cite{huang2023hgi} adds geographic structure,
+organizing the network as place, then region, then city. Both produce one vector per place, so two visits to the same coffee shop look
+identical to the model.
+Contextual check-in representations instead give each visit its own vector: CTLE
+\cite{lin2021ctle}, the closest example, learns a vector per visit by masking and
+reconstructing parts of a user's check-in sequence. CTLE is a sequence model, a Transformer that reads the
+check-in sequence itself; our representation, Check2HGI, remains a network model, keeping the
+hierarchical place-to-region-to-city network and the same infomax objective,
+now extended one level deeper, from individual places down to individual
+check-ins (Fig.~\ref{fig:dataflow}). The order of a user's visits still enters
+the network, as links between consecutive check-ins
+(Section~\ref{sec:method-rep}).
+
+We compare against CTLE and a feature-concatenation control to separate the
+combination from contextualization alone and from feature injection.
+
+\subsection{Predicting the next category and the next region}
+\label{sec:related-tasks}
+A large body of work predicts the next place that a user will visit, the exact POI,
+with recurrent and attention models such as DeepMove \cite{feng2018deepmove}, STAN
+\cite{luo2021stan}, and GETNext \cite{yang2022getnext}. In contrast, we target two properties of the next visit, its category and its
+region, rather than the exact place. We choose them because they are
+what a mobility-aware service can act on, not to make the task easier; the region
+alone spans hundreds to several thousand classes. Predicting
+over a partition of the map is standard in the human-mobility literature, with a grid cell as the
+target~\cite{luca2021mobilitysurvey}; we substitute official neighborhood-scale units. Our earlier
+work~\cite{silva2025mtlnet} paired static category classification with next-category prediction. This paper introduces the next-region task, adds the check-in-level
+representation, and reports, for each task, where the joint model outperforms a dedicated single-task model
+and where their difference stays within a stated bound (Section~\ref{sec:results-part2}).
+
+The field
+increasingly models several granularities at once; in those systems, category and
+region are auxiliary signals that help a primary next-place task
+(MCMG \cite{sun2024mcmg}, HMT-GRN \cite{lim2022hmtgrn}).
+We study the pair as the object itself. To our knowledge, fine-grained region as an
+end target of equal standing, rather than an auxiliary coarse grid cell, is
+underexplored.
+The nearest exceptions do not study our exact pairing:
+DRRGNN~\cite{zhu2022drrgnn} forecasts a person's next activity region jointly
+with a mobility-intention label, but over regions discovered per person rather
+than a fixed citywide partition; a generative recommender~\cite{sun2025kgtb}
+predicts category and region together, but only as auxiliary steps toward its
+next-place ranking.
+
+\subsection{Multi-task learning for mobility}
+\label{sec:related-mtl}
+MCARNN \cite{Liao2018} jointly predicts activity and
+location, and a recent hierarchy-aware model continues the
+pattern \cite{wang2025hamtl}; in both, the location target is
+the exact place. The closest alternative to our setting is
+the cascade: predict the category first, then the place given the
+category \cite{ye2013nextmove}. CSLSL
+\cite{huang2024cslsl} is its current form, predicting in a chain (when, then what,
+then where), with location as the primary output and category as an
+intermediate step; CatDM \cite{yu2020catdm} likewise uses the predicted
+category only to filter candidate places. We instead predict
+category and region in parallel, as end targets of equal standing in one model
+with a single forward pass, and we drop the next-place target entirely. On optimization, we are conservative by design: joint training with a fixed loss weighting is
+standard practice~\cite{caruana1997multitask}, and gradient-balancing methods (PCGrad~\cite{yu2020pcgrad}, Nash-MTL~\cite{navon2022nashmtl})
+rarely improve on a well-tuned fixed weighting with two tasks~\cite{xin2022domtl}. We confirmed
+this during development, on an earlier preparation of the data: a screen of nineteen loss and
+gradient balancers at their default configurations, at a single seed on Alabama and Florida, found
+none that improved on fixed equal weighting on both tasks at both datasets.  The cosine similarity between the next-category and next-region updates on the
+shared trunk, measured on the reported joint model at four of the six datasets (Istanbul, Alabama,
+Arizona, and Florida), is equivalent to zero at every one of them, with per-dataset means within
+two thousandths of zero, so a balancer has no conflict to resolve. This is a finding for this pair
+of tasks, not a general rule.
+

@@ -18,11 +18,13 @@
 % GEOMETRY, and why it is what it is. The paper is at exactly 8 pages, so the one
 % hard constraint is RENDERED HEIGHT, not width -- height is what costs a page.
 %   original: 397.5 x 178.1 pt natural, drawn at 0.66\textwidth = 340.6pt -> 152.6pt tall.
-%   this one: ~502 x 135 pt natural, drawn at \textwidth = 516pt -> ~139pt tall.
-% So it is SHORTER than the figure it replaces while carrying more, and the scale
-% factor goes from 0.86 to ~1.03, i.e. the body font renders at ~7.2pt instead of
-% ~6.0pt. ⚠ THIS REQUIRES main.tex TO CHANGE 0.66\textwidth -> \textwidth on the
-% \resizebox line. At 0.66 this file renders at ~4.7pt and is unreadable.
+%   this one:  562.7 x 144.3 pt natural, drawn at \textwidth = 516pt   -> 132.3pt tall.
+% So it is 20pt SHORTER than the figure it replaces while carrying far more, and the
+% scale factor goes from 0.857 to 0.917, i.e. the 7pt body renders at ~6.4pt instead
+% of ~6.0pt. Measured, not estimated: both page sizes come from pdfinfo, and the
+% eight-page build was re-run with this file in place and still came out at 8 pages.
+% ⚠ THIS REQUIRES main.tex TO CHANGE 0.66\textwidth -> \textwidth on the \resizebox
+% line. Left at 0.66 this file renders at ~4.2pt and is unreadable.
 %
 % READING ORDER: strictly left to right, and no arrow ever runs backwards.
 %   input -> the four-level graph panel -> two exported tables -> two windows ->
@@ -39,9 +41,11 @@
 % the heads in fig2_model.tex, so the two figures agree on what teal means.
 %
 % FIDELITY -- every claim the drawing makes, and its source:
-%   - directed visit edges, time-decayed .... 04_method.tex; apx_h "Build directed
+%   - directed visit edges ................. 04_method.tex; apx_h "Build directed
 %     user visit sequence". Drawing them undirected would contradict the paper's
-%     own leak argument, so the pictogram has arrowheads and no cycle.
+%     own leak argument, so the pictogram has arrowheads and no cycle. The edge
+%     WEIGHT decaying with the time gap is real and is NOT drawn: a weight has no
+%     honest glyph at this size, and Section IV-B states it in prose.
 %   - visit graph is DISCONNECTED ......... an edge joins consecutive visits OF THE
 %     SAME USER, so users are separate components. Two components are drawn.
 %   - Delaunay at the place level ......... apx_h "A Delaunay triangulation connects
@@ -50,15 +54,30 @@
 %     their polygons intersect".
 %   - 15 input features .................... apx_h: 7 category indicators + sin/cos
 %     hour + sin/cos weekday + 4 elapsed-time values.
-%   - two GCNs, x_i in R^64 ............... apx_h Step 1.
+%   - a GCN inside every level ............ apx_h Step 1 (check-in), Step 3 (place),
+%     Step 4 (region). The check-in level runs TWO convolution layers, and the
+%     drawing says only "GCN": "directed succession, 2 GCNs" boxes at 101.60pt
+%     against a 95.4pt column, so printing the count costs either a wrapped
+%     descriptor or figure width, and the count is not a claim the paper makes.
 %   - attention pooling between levels .... apx_h Step 2 (check-in->place) and
 %     Step 4 (place->region); Checkin2POI.py, four heads, one shared seed query.
 %   - area-weighted city, TRAINING ONLY ... apx_h Step 5: the city vector "is not an
-%     input to the joint forecast model". Hence the dashed border on that lane.
+%     input to the joint forecast model". The lane says "training only" and is set
+%     in a lighter grey than the other three, so the level that leads nowhere
+%     recedes and the two exported threads carry the eye instead.
 %   - three boundary objectives ........... apx_h eq. E.2: L_CP, L_PR, L_R-Omega,
 %     each a real-vs-corrupted discrimination. Named in the note under the panel.
 %   - 9x64 and 9x64, never concatenated ... apx_h: "The two modalities remain
-%     separate; they are not concatenated into one 9x128 matrix." Two strips.
+%     separate; they are not concatenated into one 9x128 matrix." Two strips, and
+%     the sentence between them, because two strips alone do not say it.
+%
+% ONE DELIBERATE OMISSION, flagged so nobody has to rediscover it. The note under
+% the panel names the three boundary objectives and not the two auxiliary terms
+% (masked-place reconstruction, weight 0.3, and the place-table anchor, 0.1) that
+% Section IV-B does mention and apx_h eq. E.2 defines. The note says "one objective
+% per level boundary", which is true of the three and does not claim to be the whole
+% loss, so this is incomplete rather than wrong. Putting them back costs one line of
+% figure height. It is the author's call.
 %
 % Standalone-compilable (pdflatex fig1_dataflow_new.tex) AND \input-able: the
 % wrapper runs only when \FIGINPUT is not already defined, exactly as fig2 does.
@@ -124,9 +143,14 @@
 \begin{tikzpicture}[
     >={Stealth[length=1.9mm]},
     font=\scriptsize,
-    lvl/.style={align=left, text width=2.40cm, inner sep=0pt, font=\scriptsize},
+    % 3.35cm = 95.4pt, and it is a MEASURED width, not a guess: the longest
+    % descriptor, "directed succession, GCN", boxes at 90.99pt in \scriptsize\itshape.
+    % Anything narrower wraps it, and a wrapped descriptor makes the check-in lane
+    % three lines tall, which is what made two lanes touch in the earlier drafts.
+    lvl/.style={align=left, text width=3.35cm, inner sep=0pt, font=\scriptsize},
     tag/.style={font=\scriptsize\itshape, text=black!68, align=center, inner sep=1pt},
-    spine/.style={->, line width=0.6pt, draw=black!55},
+    spine/.style={->, line width=0.7pt, draw=black!62,
+                  >={Stealth[length=2.1mm]}},
     sname/.style={font=\scriptsize\itshape, text=black!68, anchor=west, inner sep=1pt},
     flow/.style={->, line width=0.7pt, draw=black!75},
     oflow/.style={->, line width=0.8pt, draw=orange!65!black},
@@ -145,35 +169,51 @@
 
   % Lane heights, 0.92cm apart: a two-line level descriptor fits between lanes, and
   % four lanes still leave the whole picture shorter than the figure it replaces.
+  % Every descriptor must therefore stay at TWO lines -- a third line makes the
+  % lanes touch, which is the class of defect this redesign exists to remove.
   \def\yC{1.84}\def\yR{0.92}\def\yP{0.00}\def\yK{-0.92}
-  \def\xsp{6.05}\def\xpic{8.55}
+  \def\xsp{6.95}\def\xpic{9.45}
 
-  % The two lanes that are EXPORTED carry a tint, and it is the tint their thread
-  % keeps to the end of the picture. Nothing else in the panel is coloured, so the
-  % eye finds the two exported levels without reading a word.
+  % ------------------------------------------------------------------ the panel
+  % Drawn before the two lane tints: both live on the background layer, and within
+  % a layer TikZ paints in code order, so a panel written later would cover them.
   \begin{scope}[on background layer]
-    \fill[blue!5,   rounded corners=2pt] (3.16,\yR-0.40) rectangle (9.60,\yR+0.40);
-    \fill[orange!7, rounded corners=2pt] (3.16,\yK-0.40) rectangle (9.60,\yK+0.40);
+    \node[draw=black!45, rounded corners=3pt, line width=0.5pt, fill=black!2,
+          inner sep=0pt, fit={(3.21,-1.44) (10.51,2.34)}] (panel) {};
+    % The two EXPORTED lanes carry a tint, and it is the tint their thread keeps to
+    % the end of the picture. Nothing else in the panel is coloured, so the eye
+    % finds the two exported levels without reading a word.
+    \fill[blue!6,   rounded corners=2pt] (3.31,\yR-0.40) rectangle (10.41,\yR+0.40);
+    \fill[orange!8, rounded corners=2pt] (3.31,\yK-0.40) rectangle (10.41,\yK+0.40);
   \end{scope}
 
   % ===================================================== 1. the raw input
-  \foreach \i in {0,1,2,3}{\fill[orange!65!black] (0.20+\i*0.52,\yK) circle (1.2pt);}
+  \foreach \i in {0,1,2,3}{\fill[orange!65!black] (0.30+\i*0.55,\yK) circle (1.2pt);}
   \foreach \i in {0,1,2}{%
     \draw[->, line width=0.5pt, >={Latex[length=1.2mm]}, draw=orange!60!black,
-          shorten >=1.8pt, shorten <=1.8pt] (0.20+\i*0.52,\yK) -- (0.72+\i*0.52,\yK);}
-  \node[tag, text width=2.35cm, anchor=south] at (0.98,\yK+0.16)
+          shorten >=1.8pt, shorten <=1.8pt] (0.30+\i*0.55,\yK) -- (0.85+\i*0.55,\yK);}
+  % 2.80cm, and it was measured down to 2.60 and put back: at 2.60 the first label
+  % breaks into FOUR lines, which reads as a paragraph rather than a caption.
+  \node[tag, text width=2.80cm, anchor=south] at (1.10,\yK+0.16)
        {category, cyclic time,\\elapsed time: 15 values};
-  \node[tag, text width=2.35cm, anchor=north] at (0.98,\yK-0.16)
+  \node[tag, text width=2.80cm, anchor=north] at (1.10,\yK-0.16)
        {one user's visits,\\in time order};
-  \draw[oflow] (2.10,\yK) -- (3.02,\yK);
+  \draw[oflow] (2.20,\yK) -- (3.26,\yK);
 
   % ========================================== 2. the four-level graph panel
-  % Left column names the level and its EDGES -- the edges are the only thing that
-  % tells the four levels apart, so they are the descriptor.
-  \node[lvl] (nC) at (4.50,\yC) {\textbf{city}\\\textit{one node, area-weighted}};
-  \node[lvl] (nR) at (4.50,\yR) {\textbf{region}\\\textit{adjacency graph, GCN}};
-  \node[lvl] (nP) at (4.50,\yP) {\textbf{place}\\\textit{Delaunay graph, GCN}};
-  \node[lvl] (nK) at (4.50,\yK) {\textbf{check-in}\\\textit{directed succession, 2 GCNs}};
+  % The left column names the level and its EDGES: the edges are the only thing
+  % that tells the four levels apart, so they are what the descriptor carries.
+  % The two exported levels are named in their thread's colour.
+  % The city level is the one that leads NOWHERE: apx_h Step 5 says its vector "is
+  % not an input to the joint forecast model". Lighter grey plus the words, so the
+  % eye spends its attention on the two lanes that do feed the model.
+  \node[lvl] (nC) at (4.99,\yC)
+       {\textcolor{black!55}{\textbf{city}}\\\textcolor{black!55}{\textit{one node, training only}}};
+  \node[lvl] (nR) at (4.99,\yR)
+       {\textcolor{blue!55!black}{\textbf{region}}\\\textit{adjacency graph, GCN}};
+  \node[lvl] (nP) at (4.99,\yP) {\textbf{place}\\\textit{Delaunay graph, GCN}};
+  \node[lvl] (nK) at (4.99,\yK)
+       {\textcolor{orange!65!black}{\textbf{check-in}}\\\textit{directed succession, GCN}};
 
   \pic at (\xpic,\yC) {city};
   \pic at (\xpic,\yR) {regions};
@@ -189,38 +229,51 @@
   \node[sname] at (\xsp+0.14,\yP+0.46) {attention pooling};
   \node[sname] at (\xsp+0.14,\yR+0.46) {area-weighted};
 
-  \begin{scope}[on background layer]
-    \node[draw=black!45, rounded corners=3pt, line width=0.5pt, fill=black!2,
-          inner sep=0pt, fit={(3.10,-1.38) (9.66,2.28)}] (panel) {};
-  \end{scope}
   \node[anchor=south, font=\scriptsize\bfseries, text=black!75]
        at ([yshift=0.4mm]panel.north)
        {Check2HGI: a four-level graph, trained without task labels};
-  \node[anchor=north, tag, text width=6.5cm] at ([yshift=-0.4mm]panel.south)
+  % TWO lines, and the break is forced rather than left to the line breaker. This
+  % note is the LOWEST thing in the picture, so every line it takes is height the
+  % figure spends, and a third line is what pushed the earlier draft over budget.
+  % The per-level graph convolution used to live here and now lives in each level's
+  % own descriptor, which is what freed the line.
+  \node[anchor=north, tag, text width=6.9cm] at ([yshift=-0.4mm]panel.south)
        {one objective per level boundary
-        ($\mathcal{L}_{C\!P}$, $\mathcal{L}_{P\!R}$, $\mathcal{L}_{R\Omega}$),
-        each separating real pairs from corrupted ones};
+        ($\mathcal{L}_{C\!P}$, $\mathcal{L}_{P\!R}$, $\mathcal{L}_{R\Omega}$)\\
+        separates real pairs from corrupted ones};
 
   % ============================ 3. the two exported tables, as two windows of nine
-  \draw[bflow] (9.72,\yR) -- (10.58,\yR);
-  \draw[oflow] (9.72,\yK) -- (10.58,\yK);
-  \foreach \i in {0,...,8}{\node[bcell] at (10.80+\i*0.22,\yR) {};}
-  \foreach \i in {0,...,8}{\node[ocell] at (10.80+\i*0.22,\yK) {};}
-  \node[tag, anchor=south, text width=3.1cm] at (11.68,\yR+0.24)
-       {one $\mathbf{z}_r\!\in\!\mathbb{R}^{64}$ per region,\\a window of $9\times64$};
-  \node[tag, anchor=north, text width=3.1cm] at (11.68,\yK-0.24)
-       {one $\mathbf{x}_i\!\in\!\mathbb{R}^{64}$ per visit,\\a window of $9\times64$};
+  \draw[bflow] (10.57,\yR) -- (11.27,\yR);
+  \draw[oflow] (10.57,\yK) -- (11.27,\yK);
+  \foreach \i in {0,...,8}{\node[bcell] at (11.49+\i*0.22,\yR) {};}
+  \foreach \i in {0,...,8}{\node[ocell] at (11.49+\i*0.22,\yK) {};}
+  % ⚠ THE WORDING HERE IS A FIDELITY FIX, not a style choice. "one vector per region"
+  % reads as a window of nine REGIONS, which is false: both windows hold the SAME nine
+  % visits, and what differs is how each visit is represented -- by its own check-in
+  % vector, or by the vector of the region it falls in ("the same window with each
+  % visit represented by the trained vector of its region node", 04_method.tex). Saying
+  % it this way is also what makes the semantic/spatial pair in Fig. 2 legible.
+  % Both breaks are forced. Left to the line breaker the top label hyphenated
+  % "re-gion's" onto a third line, and the third line is height the figure spends.
+  % 3.8cm keeps the left edge clear of the panel (10.51) at 10.67.
+  \node[tag, anchor=south, text width=3.8cm] at (12.37,\yR+0.24)
+       {$\mathbf{z}_r\!\in\!\mathbb{R}^{64}$ of each visit's region\\a window of $9\times64$};
+  \node[tag, anchor=north, text width=3.8cm] at (12.37,\yK-0.24)
+       {$\mathbf{x}_i\!\in\!\mathbb{R}^{64}$ of each visit\\a window of $9\times64$};
+  % The one fact both the original figure and the appendix's prose call out and that a
+  % picture of two strips does NOT carry on its own: they never become one 9x128 matrix.
+  \node[tag, text width=2.6cm] at (12.20,\yP) {the two windows\\stay separate};
 
   % ============================================ 4. one model, two predictions
-  \node[model] (mdl) at (14.45,\yP)
+  \node[model] (mdl) at (15.40,\yP)
        {\textbf{single}\\\textbf{multi-task model}\\one forward pass\\(Fig.~\figmodelref)};
-  \draw[bflow] (12.68,\yR) -- ++(0.30,0) |- ([yshift=4mm]mdl.west);
-  \draw[oflow] (12.68,\yK) -- ++(0.30,0) |- ([yshift=-4mm]mdl.west);
+  \draw[bflow] (13.25,\yR) -- ++(0.30,0) |- ([yshift=4mm]mdl.west);
+  \draw[oflow] (13.25,\yK) -- ++(0.30,0) |- ([yshift=-4mm]mdl.west);
 
-  \node[pred] (outr) at (17.05, 0.55) {next region};
-  \node[pred] (outc) at (17.05,-0.55) {next category};
-  \draw[flow] (mdl.east) -- ++(0.20,0) |- (outr.west);
-  \draw[flow] (mdl.east) -- ++(0.20,0) |- (outc.west);
+  \node[pred] (outr) at (18.28, 0.55) {next region};
+  \node[pred] (outc) at (18.28,-0.55) {next category};
+  \draw[flow] (mdl.east) -- ++(0.42,0) |- (outr.west);
+  \draw[flow] (mdl.east) -- ++(0.42,0) |- (outc.west);
 
 \end{tikzpicture}
 

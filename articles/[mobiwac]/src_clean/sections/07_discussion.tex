@@ -1,0 +1,56 @@
+\section{Discussion and Limitations}
+\label{sec:discussion}
+
+One model serves both tasks in one forward pass, above two dedicated models on next region at Texas
+and California and inside the registered two-point margin at the other four
+(Table~\ref{tab:results}). The four region results inside that margin are all small deficits rather than ties,
+the largest of them $0.87$ Acc@10 points at Alabama, so the trade is a measured one and not a free
+substitution.
+
+The design gives the two tasks a shared representation while keeping a private spatial path for the
+region output, and the evidence here does not separate their contributions: where the trunk was
+isolated directly, the ablation moved both tasks by amounts that a screen of that size cannot
+distinguish from noise, and it was not run at the two datasets that carry the region advantage.
+What can be stated is a claim about the model rather than about transfer between its tasks.
+
+
+A service could treat the model's top-ranked next regions as an anticipatory set: at California,
+ten regions out of $8{,}501$ contain the true next region $64.54$ percent of the time, and at
+Texas, ten out of $6{,}553$ contain it $66.15$ percent of the time (the joint model's Acc@10 of
+Table~\ref{tab:results}, read as a shortlist hit rate). The geographic size of a miss is the
+quantity that would matter to such a service, and measuring it requires per-visit predictions that
+the evaluation path does not retain, so it is left to future work. This remains motivation, not a
+measured service result.
+
+
+Four limits qualify these results. First, the representation is trained once over all places; a
+per-fold rebuild from training users only changed the results by at most $0.33$ Acc@10 and $0.29$
+macro-F1 across three datasets at one seed, with the qualification on the region half recorded in
+Section~\ref{sec:setup-windows}. Second, epoch selection consults the fold that the score is
+then read on (Section~\ref{sec:setup-windows}), so every absolute score reported here is
+optimistic. The comparison between the joint model and the dedicated models is affected far less:
+the selection rule is the same for both models on the same folds, each model selected on its own
+validation objective (Section~\ref{sec:results-part2}), and for the category comparison the
+dedicated model receives the wider search (Section~\ref{sec:setup-windows}), which makes the
+reported category difference conservative where that search is the wider of the two. It does not
+follow that the bias cancels exactly.
+Third, each
+visit node in the representation graph draws on the visits that precede it, so a vector encodes the visit
+together with its own history; the graph does not pass information from a later visit back to an earlier
+one, in training or at readout, which is what keeps a node from carrying a feature of the target it is
+used to predict. Fourth, the joint model has more parameters than the two dedicated models together
+(Section~\ref{sec:method-model}), so its region result at Texas and California may come from size
+rather than from sharing. A control separates the two at California: a dedicated region model
+widened to $5{,}014{,}942$ parameters, $97.4$ percent of the joint model's $5{,}151{,}189$, scores
+$0.41$ Acc@10 above the joint model at the same random initialization, on all five folds, and a
+paired test over the folds separates the difference from zero ($p = 0.010$). A wider model, at
+$174.8$ percent of the budget, adds nothing further ($0.02$ apart, $p = 0.40$). Texas has no
+control of matched size: the only wider model run there, at $170.5$ percent of the budget, scores
+$0.21$ above the joint model, which the same test does not separate from zero ($p = 0.12$). At
+California the advantage therefore cannot be attributed to sharing between the tasks, and at Texas
+the question is open.
+
+Our representation is a fixed per-visit vector that any downstream model
+can consume. Moura et al.~\cite{moura2025mobilityaware}, whose structural
+analysis of tourist check-ins reads past visits only, name machine learning
+as a next step; this study moves in that direction.

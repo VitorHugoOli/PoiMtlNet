@@ -1,0 +1,119 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+\usepackage{cite}
+\usepackage{url}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc}
+\def\FIGINPUT{1}
+\graphicspath{{figs/}}
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\renewcommand{\dbltopfraction}{0.9}
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\textfraction}{0.07}
+\setcounter{dbltopnumber}{3}
+\setlength{\textfloatsep}{6pt plus 2pt minus 2pt}
+\setlength{\dbltextfloatsep}{6pt plus 2pt minus 2pt}
+\setlength{\floatsep}{4pt plus 2pt minus 1pt}
+\setlength{\dblfloatsep}{4pt plus 2pt minus 1pt}
+\renewcommand{\arraystretch}{0.90}
+
+\begin{document}
+
+\title{Predicting the Next Category and Region of a Visit:
+A Check-in-Level Multi-Task Study on Mobility Data}
+
+\author{
+\IEEEauthorblockN{Vitor Hugo de Oliveira Silva}
+\IEEEauthorblockA{\textit{NESPeD-LAB}\\
+\textit{Universidade Federal de Vi\c{c}osa}\\
+Florestal, MG, Brazil\\
+vitor.h.oliveira@ufv.br}
+\and
+\IEEEauthorblockN{Germano Barcelos dos Santos}
+\IEEEauthorblockA{\textit{NESPeD-LAB}\\
+\textit{Universidade Federal de Vi\c{c}osa}\\
+Florestal, MG, Brazil\\
+germano.santos@ufv.br}
+\and
+\IEEEauthorblockN{Fabr\'icio Aguiar Silva}
+\IEEEauthorblockA{\textit{NESPeD-LAB}\\
+\textit{Universidade Federal de Vi\c{c}osa}\\
+Florestal, MG, Brazil\\
+fabricio.asilva@ufv.br}
+}
+
+\maketitle
+\bstctlcite{IEEEexample:BSTcontrol}
+
+\begin{abstract}
+Location-based social networks record where people go and what they do, one check-in at a time.
+If we can anticipate the next visit, mobile and urban services can cache content or reserve
+capacity ahead of demand. Two coarse questions are usually enough: the category of the next visit
+and its region.
+
+We give each check-in its own vector instead of giving every place one fixed vector. With the same
+model, folds, windows, and training configuration, and only the input changed, this improves next-category prediction at
+every one of six datasets and in every fold, by 0.23 to 6.29 points of macro-averaged F1, under
+one point at the three largest, and a paired test separates the two representations at five of the
+six. Five datasets are U.S. states and one is a non-U.S. city.
+
+We then ask whether one model can answer both questions in a single forward pass. On next region it outperforms a dedicated single-task model at the two datasets with the
+largest region vocabularies, by about one point, and at the other four it stays within a two-point
+margin registered before any result was read. A dedicated model of the same size scores above the
+joint model at one of the two, so we do not attribute that gain to sharing. On next category it
+outperforms the dedicated model at one dataset, and the other five differences are equivalent to
+zero within half a point. One model therefore serves both tasks at a cost bounded on both axes.
+\end{abstract}
+
+
+\begin{IEEEkeywords}
+mobility data; next-category prediction; next-region prediction; multi-task
+learning; check-in-level representation; location-based social networks
+\end{IEEEkeywords}
+
+\input{sections/01_introduction}
+
+\input{sections/02_related}
+\begin{figure*}[!t]\centering
+\resizebox{\textwidth}{!}{\input{figs/fig1_dataflow_new}}
+\caption{From a check-in sequence to two predictions. Each visit is embedded in a four-level graph
+trained without task labels, and sliding nine-visit windows of the resulting per-visit and per-region
+vectors feed a single model.}
+\label{fig:dataflow}
+\end{figure*}     % Fig 1: input-graph data flow (cited in section 2.1 / 4.1)
+
+
+\input{sections/04_method}
+\begin{figure}[!t]\centering
+\resizebox{\columnwidth}{!}{\input{figs/fig2_model}}
+\caption{The single multi-task model. A check-in (semantic) window and a region (spatial) window
+pass through private encoders into the shared trunk, the only place where the two tasks
+interact. The category output uses the trunk's output alone; the region output
+combines it with a private spatial path.}
+\label{fig:model}
+\end{figure}        % Fig 2: the single model, dual-tower + cross-attention (section 4.2)
+
+\input{sections/05_setup}
+\input{tables/tbl1_datasets}   % Table 1: dataset statistics (section 5.1)
+
+\input{tables/tbl3_results}    % Table 3: one model, two tasks, the main result (section 6.2);
+\input{sections/06_results}
+\input{tables/tbl2_substrate}  % Table 2: representation, Check2HGI vs HGI category (section 6.1).
+
+\input{sections/07_discussion}
+
+\input{sections/08_conclusion}
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}
