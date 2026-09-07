@@ -61,13 +61,17 @@ NESPeD-LAB, Universidade Federal de Viçosa, Florestal, MG, Brazil;
   `scripts/closing_data/` and `analysis/` read per-fold score files that were
   produced by the training runs; they are not shipped to keep the release lean
   (and because they carry machine-specific paths). Running the recipes below
-  regenerates them; the paper's tables carry the aggregated numbers. Two
+  regenerates them; the paper's tables carry the aggregated numbers. Four
   exceptions are shipped because a claim depends on them: the four per-fold
   arrays for Istanbul's dedicated category ceiling
   (`analysis_protocol/istanbul_cat_ceiling_perfold/`) and the output of the
-  registered test (`analysis_protocol/m2_prereg_output.txt`) — **both are on
-  the pre-correction ("v17") substrate**, per the update note above; they
-  document the superseded claim, not the paper's reported numbers.
+  registered test (`analysis_protocol/m2_prereg_output.txt`) — **both on the
+  pre-correction ("v17") substrate**, per the update note above, so they
+  document the superseded claim, not the paper's reported numbers — plus the
+  two corrected-substrate aggregates
+  (`docs/results/closing_data/v18/joint_best_perfold.json`,
+  `docs/studies/closing_data/v18/data/v18_results.json`) Section 6's
+  `wilcoxon_v18.py` reads.
 
 ---
 
@@ -84,7 +88,8 @@ pip install -r requirements.txt
 Notes:
 
 - The paper's GPU cells were run with `torch==2.11.0+cu128` (CUDA 12.8 wheels) on
-  NVIDIA A40/H100; `scripts/train.py` warns when the torch build differs.
+  NVIDIA A40/H100; `scripts/train.py` warns when the torch build differs (hard
+  guard under `MTL_STRICT=1`, which Section 5.1's joint recipe sets).
 - CPU/Apple-Silicon runs work for the ETL and small smoke tests; training the
   paper cells requires a CUDA GPU (large states peak ~26–29 GB VRAM).
 - Everything below assumes the repo root as working directory and
@@ -221,6 +226,10 @@ then re-window with `build_overlap_probe_engine.py <state> 1 10` (Section 3.2).
 > historical place, which the leak cannot reach). The tooling that builds
 > `check2hgi_v18` from raw data is not yet included in this branch (follow-up);
 > everything below assumes it already exists at `output/check2hgi_v18/<state>/`.
+> The recipe and every flag below are verified against the code that actually
+> produced the delivered numbers; this branch's surrounding codebase has not
+> been synced commit-for-commit against that internal snapshot, so treat "same
+> command" as verified at the recipe level, not as a byte-for-byte code match.
 
 ### 5.1 Joint (multi-task) model
 
@@ -274,9 +283,10 @@ The recipe reported in the accepted paper, on the same `check2hgi_v18`
 substrate as Section 5.1:
 
 ```bash
-# next-category ceiling: single-task GRU on the same inputs/folds (fp32 + compile
-# are not optional here — the whole board runs fp32, and bf16/fp16 backward passes
-# NaN at this class count on an A40)
+# next-category ceiling: single-task GRU on the same inputs/folds (fp32 is not
+# optional — every cell in this recipe runs fp32; the large-state region head
+# grad-NaNs under bf16/fp16 at this class count on an A40, and the paper
+# compares all states/tasks at matched precision)
 MTL_DISABLE_AMP=1 PYTHONPATH=src python scripts/train.py --task next --engine check2hgi_v18 \
     --state <state> --seed <seed> --epochs 50 --folds 5 --batch-size 8192 \
     --model next_gru --embedding-dim 64 --max-lr <cat-max-lr> --logit-adjust-tau 0.5 \

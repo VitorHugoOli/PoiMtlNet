@@ -43,9 +43,8 @@ INPUTS (both committed to this release)
   dedicated:  docs/studies/closing_data/v18/data/v18_results.json
               per_run[] matched on (state, seed) -> stl_cat_folds, stl_reg_folds (percent)
 
-Note: these two input files are not yet part of this GitHub release (see the top-level
-README) -- this script is shipped now as a verified-correct, citable reference for the
-test; the input files are a tracked follow-up.
+The raw per-run artifacts (rundirs/logs) the two files above were aggregated from are not
+part of this release -- only the two finished aggregates. See the top-level README.
 
 The script refuses to report any test until it has reproduced the paper's own per-cell
 means from these arrays to within a small tolerance -- a parse that silently returns the
