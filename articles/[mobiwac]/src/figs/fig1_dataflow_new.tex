@@ -2,11 +2,31 @@
 % Figure 1, REDESIGN of fig1_dataflow.tex. Iterating here so the original stays
 % untouched until the author adopts this one.
 %
-% WHY A REDESIGN (defects measured on the built PDF of the original):
-%   1. OVERLAPS. "extract" printed on top of the per-visit-vectors box; the three
-%      italic legend lines under the graph printed into the sliding-windows box and
-%      into its incoming arrow; the per-visit arrow ran down THROUGH the region-
-%      vectors box. All three are collisions, not tight spacing.
+% WHY A REDESIGN.
+%   1. ONE OVERLAP, and it is bad enough on its own. The arrow leaving the
+%      per-visit-vectors box runs down THROUGH the region-vectors box: a 0.7pt
+%      stroke crossing the full 20.4pt height of the box, straight through the
+%      words, splitting "region vectors" and "per region". Measured at 600 dpi on
+%      the built PDF: at x = 248.8pt, six pixel columns are dark for 170 of the
+%      box's 170 interior rows. It was going to print.
+%
+%      ⚠ CORRECTION, and it is mine to own. This block used to claim THREE
+%      collisions and call all three "collisions, not tight spacing". Two of the
+%      three do not survive measurement, and the mobiwac session caught it. The
+%      numbers, so nobody re-derives them by eye:
+%        - "extract" over the per-visit-vectors box: a real intersection, but a
+%          HAIRLINE. Rendering with and without the label and diffing puts 46 of
+%          its pixels inside the box at 600 dpi, x 1808..1813 -- about 0.6pt of
+%          the final "t" grazing the rounded left border. Calling that "printed
+%          on top of" overstated it by an order of magnitude.
+%        - the three italic legend lines into the sliding-windows box: 9 pixels,
+%          a 0.2 x 0.8pt graze of the box's top-left corner. Not a collision.
+%        - the same legend lines into that box's incoming arrow: FALSE. The
+%          legend ink ends at 245.3pt and the arrow stands at 251.0pt, so there
+%          are 5.4pt of clear space between them.
+%      The redesign was justified by the first defect alone, and by point 2 below.
+%      Three claims where one was true bought nothing and cost the true one its
+%      credibility: the reviewer had to disprove two before trusting the third.
 %   2. IT DID NOT SHOW CHECK2HGI. The four levels were four labelled boxes in a
 %      stack -- a legend, not a graph. Nothing in the picture said that the levels
 %      are climbed BOTTOM-UP, that a GCN runs inside a level and attention pooling
