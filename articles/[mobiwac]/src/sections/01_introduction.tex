@@ -35,9 +35,8 @@ Our contributions are as follows.
     on both tasks and at every dataset.
   \item \textbf{A single model for both tasks.} One model predicts the next category and the next
     region in one forward pass, reading both answers from a single saved model, so there is one
-    artifact to train, version, and deploy. To our knowledge, this is the
-    first work to treat fine-grained region as an end target of equal standing
-    (Section~\ref{sec:related-tasks}). It outperforms a dedicated single-task region model at the
+    artifact to train, version, and deploy. To our knowledge, fine-grained region as an end target
+    of equal standing is underexplored (Section~\ref{sec:related-tasks}). The joint model outperforms a dedicated single-task region model at the
     two datasets with the largest region vocabularies and stays within a registered two-point
     margin at the other four (statistical non-inferiority, assessed with two one-sided tests). At
     one of the two, a dedicated model of the same size scores above it, so we do not attribute the gain
