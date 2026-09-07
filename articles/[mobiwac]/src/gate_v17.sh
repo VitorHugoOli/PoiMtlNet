@@ -162,6 +162,30 @@ for f in sections/*.tex tables/*.tex main.tex; do
       prev_comment = is_c
     }' "$f" >> /tmp/gate_broken.txt
 done
+# (f3) A TERCEIRA VARIANTE, 2026-09-06. As duas anteriores olham para a FRONTEIRA entre uma linha
+#      viva e um comentario. Esta nao tem fronteira nenhuma: a cauda da frase fica DENTRO da ultima
+#      linha do comentario, que comeca por % e acaba com prosa. Nem (f) nem (f2) a veem, o build e
+#      limpo e o portao fica verde. Foi apanhada por leitura de diff, nao por ferramenta.
+#      A causa e sempre a mesma nas tres: substituir uma substring no INICIO de uma linha longa por
+#      texto que termina dentro de um comentario. A regra de trabalho que a evita: ao editar, casar
+#      old_string ATE AO FIM DA LINHA, sempre.
+#      Sinal: linha de comentario longa que carrega marcas de PROSA depois do inicio -- um comando
+#      LaTeX de texto ou uma referencia. NAO um fim-de-frase seguido de maiuscula: um comentario que
+#      documenta uma remocao CITA a frase removida -- pratica que este projecto trata como lei -- e
+#      isso dispara sempre. Testado: com essa clausula, 07_discussion.tex:168 dava falso positivo.
+echo "[f3] prosa engolida por dentro de um comentario"
+for f in sections/*.tex tables/*.tex main.tex; do
+  awk -v F="$f" '
+    /^[ \t]*%/ {
+      if (length($0) > 150) {
+        tail = substr($0, 100)
+        if (tail ~ /\\emph\{/ || tail ~ /~\\ref\{/ || tail ~ /~\\cite\{/ || tail ~ /\\textbf\{/) {
+          snip = substr($0, length($0)-58)
+          printf "  FALHA: %s:%d prosa dentro de um comentario -> ...%s\n", F, NR, snip
+        }
+      }
+    }' "$f" >> /tmp/gate_broken.txt
+done
 cat /tmp/gate_broken.txt
 [ -s /tmp/gate_broken.txt ] && rc=1
 
