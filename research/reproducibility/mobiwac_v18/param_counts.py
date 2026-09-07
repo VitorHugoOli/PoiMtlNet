@@ -13,7 +13,8 @@ Every dedicated-category count was low by a factor of about 2.2 as a result, whi
 off the "capacity-matched" control (an arm meant to land near 100% of the joint model's budget
 in fact carried about 230% of it). This script recomputes every disputed number directly from
 the code that ran the cells -- needs no GPU, loads no data, trains nothing -- and the paper's
-method section (`04_method.tex`) was corrected to the values below on 2026-09-02.
+method section was corrected to the values below on 2026-09-02 (LaTeX source not shipped
+in this repository -- see the README).
 
 WHAT DECIDES THE CATEGORY AXIS
 ------------------------------
@@ -39,7 +40,8 @@ WHAT DECIDES THE REGION AXIS
 ----------------------------
 The region arm is built by scripts/p1_region_head_ablation.py with `--heads next_stan_flow
 --override-hparams freeze_alpha=True alpha_init=0.0` and no d_model, so d_model is the head's
-default 128 (docs/studies/closing_data/v18/run_wave.sh, cell_reg). Its count scales with the
+default 128 (the internal regeneration driver that ran these cells passes no override).
+Its count scales with the
 region vocabulary, which is why the joint model's total moves across datasets at all.
 
 THE CROSS-CHECK THAT VALIDATES BOTH SIDES AT ONCE
