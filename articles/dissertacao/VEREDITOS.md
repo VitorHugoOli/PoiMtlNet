@@ -414,8 +414,48 @@ reclama**, não uma vez.
 
 ---
 
+## V15 · O passe de validade de 2026-09-08 apagou alguma coisa?
+
+*Também chega como:* a limpeza de Setembro; podaram documentos; o que é que se perdeu na purga;
+sumiu um relatório de ronda.
+
+**Veredito: NÃO. Zero ficheiros apagados.** Dos **27** candidatos medidos, **11** receberam tarja de
+estado e **10 eram falsos positivos** — pareciam gastos e não eram. Nenhum saiu da árvore.
+
+⚠ **Não confundir com a limpeza de 2026-09-08 do commit `2075e70e`**, que é outra coisa e essa
+**apagou** dezoito ficheiros. Essa está no [V9b](#v9b--ponteiros-pendurados-pela-limpeza-de-2026-09).
+Duas operações no mesmo mês, com resultados opostos: uma removeu dezoito, a outra não removeu nada.
+
+**Esta entrada existe para a pergunta, não para o critério.** O critério — as quatro perguntas que
+decidem se um documento sai ou fica — é o [V12](#v12--como-se-decide-se-um-documento-com-números-mortos-sai-ou-fica),
+e é lá que os mesmos números aparecem como resultado de o aplicar. Quem se lembrar da purga daqui a
+três meses vai procurar *"apagou alguma coisa"*, não *"como se decide"*: num ledger indexado por
+pergunta, **perder a pergunta é perder o caminho de acesso, mesmo com os números guardados.** Foi
+esse o argumento com que este ficheiro nasceu.
+
+**Prova:** [V12](#v12--como-se-decide-se-um-documento-com-números-mortos-sai-ou-fica) (critério e
+contagens) · commits do passe de 2026-09-08.
+
+---
+
 ## Como acrescentar um verdete
 
 Um verdete entra aqui quando a questão está **fechada com prova**, não quando alguém tem uma
 opinião forte. Copie a forma: pergunta, paráfrases, veredito, data, prova com caminho, e o
 documento que induz ao contrário. Se não conseguir escrever a linha da prova, ainda não é verdete.
+
+> ⚠ **Este ficheiro é escrito por várias sessões, e o `git` não avisa da colisão.** A 2026-09-08
+> duas sessões escreveram aqui em paralelo, cada uma reclamando um V12 e um V13, e nenhuma soube da
+> outra — a colisão só aparece **depois** de commitado, que é tarde. Duas regras, e a segunda é a que
+> importa:
+>
+> 1. **Leia o ficheiro antes de reclamar um número.** Se dois chegarem juntos, o que já está escrito
+>    mais acima fica com o número mais baixo.
+> 2. **Redundância de conteúdo NÃO é razão para apagar uma entrada.** O índice deste ficheiro é a
+>    **pergunta**, não o assunto. Duas entradas podem partilhar números e conclusões e continuar a
+>    ser ambas necessárias, porque se chega a elas por caminhos diferentes — o [V12](#v12--como-se-decide-se-um-documento-com-números-mortos-sai-ou-fica)
+>    e o [V15](#v15--o-passe-de-validade-de-2026-09-08-apagou-alguma-coisa) carregam as mesmas
+>    contagens e respondem a perguntas distintas ("como se decide" contra "apagou alguma coisa").
+>    **Perder a pergunta é perder o acesso, mesmo guardando os números.** Retirei o V15 por
+>    redundância e a sessão `db-vector` teve de o pedir de volta; a lição fica aqui para não se
+>    repetir.
