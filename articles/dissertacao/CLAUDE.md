@@ -73,17 +73,33 @@ approved 2026-08-09): `docs/studies/closing_data/v18/FINAL_SETTINGS.md`.
 The equivalence margin is registered for the **region** axis only; category equivalence is expressed
 as the derived bound "within half a point". Word-level law: [`WRITING_LAW.md`](WRITING_LAW.md) §3.
 
-> ⚠ **Este aviso estava errado e foi corrigido a 2026-09-08.** Dizia que o `NORTH_STAR.md` carregava
-> a escada superada ("category everywhere, region at four of six", "+28…+40 macro-F1 over
-> place-level") **nas linhas 26, 43, 175, 330 e 394**. Medido: nenhuma dessas quatro frases existe no
-> ficheiro (0 ocorrências de cada), e os cinco números de linha apontam para outro conteúdo — o
-> ficheiro cresceu e mudou desde que o aviso foi escrito.
+> ⚠ **Este aviso apodreceu e foi corrigido duas vezes no mesmo dia, 2026-09-08. Leia a segunda.**
 >
-> Continua a valer a regra de fundo, sem os ponteiros: o `NORTH_STAR.md` é documentação de **receita**
-> e é citado por dezenas de scripts vivos, mas os seus números de resultado são de gerações
-> anteriores. **Não copie um número dali para texto entregue** — os valores entregues estão em
-> `docs/studies/closing_data/v18/`. E, em geral, não cite ficheiros por número de linha: o alvo
-> move-se e o aviso apodrece em silêncio, que foi exactamente o que aconteceu aqui.
+> **O que dizia (v1):** que o `NORTH_STAR.md` carregava a escada superada nas **linhas 26, 43, 175,
+> 330 e 394**. Os cinco números apontam hoje para outro conteúdo — o ficheiro cresceu. Verdadeiro, e
+> é a lição sobre citar por número de linha.
+>
+> **O que a v2 acrescentou, e estava errado:** *"nenhuma dessas quatro frases existe no ficheiro
+> (0 ocorrências de cada)"*. **Existem.** Medido: `category everywhere` **2×**, `region at four of
+> six` **2×**, `+28` **2×**.
+>
+> **O que se passa de facto, e é o oposto de um problema.** O `NORTH_STAR.md` **já foi tratado, a
+> 2026-08-20**, e pelo padrão exacto que este projecto adoptou: as frases ficam, marcadas. Tem um
+> banner no topo com a tabela do veredicto ENTREGUE, seguido de *"Onde aparecer `+28…+40 macro-F1`,
+> `category everywhere` ou `region at four of six`, é a tese de quando o arco foi desenhado — não o
+> resultado entregue"*; e a ocorrência no corpo leva `[SUPERADO 2026-08-20]` ao lado, com a razão de
+> não se reescrever o corpo: **apagaria o registo de qual era a tese na altura**.
+>
+> ⚠ **Consequência para quem lê: ao encontrar uma dessas frases no `NORTH_STAR`, NÃO é contaminação
+> nova e NÃO se corrige apagando.** As marcas são o mecanismo. Quem acreditasse na v2 leria uma
+> ocorrência marcada como defeito e "consertá-la-ia" destruindo o registo histórico — que é o dano
+> que a v1 nunca teria causado. **Um guarda superado engana quem o lê e quem o obedece.**
+>
+> **A regra de fundo, sem ponteiros:** o `NORTH_STAR.md` é documentação de **receita** e é citado por
+> dezenas de scripts vivos; os seus números de resultado são de gerações anteriores. **Não copie um
+> número dali para texto entregue** (os entregues estão em `docs/studies/closing_data/v18/`) e **não
+> copie aquelas frases para prosa nova**. E não cite ficheiros por número de linha nem por contagem
+> que alguém tenha de manter: âncore em conteúdo — o nome de um estudo, uma geração, uma data.
 
 ---
 
