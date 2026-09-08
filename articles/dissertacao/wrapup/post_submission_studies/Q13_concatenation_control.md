@@ -7,10 +7,32 @@ O resultado contradiz a frase depositada, e por isso gerou errata.
 
 A Tabela 9 do Capitulo 5 compara a representacao por check-in contra o place embedding. A frase
 depositada afirma que o ganho vem da representacao hierarquica, e nao de injecao de features, e
-apoia isso num controle que teria fechado menos de um decimo do intervalo. Esse decimo vem de outro
-estudo, medido em outra variante do grafo e com outro codigo de treino, entao seus valores nao estao
-na escala da Tabela 9. Em Alabama aquele estudo reporta um ganho de $+2{,}0$ pontos, maior que o
+apoia isso num controle que teria fechado menos de um decimo do intervalo.
+
+**Esse decimo vem do A2**, o *feature-concat control* dos pre-freeze gates, resolvido em
+**2026-06-17** -- dois meses antes deste estudo. Fonte de registo:
+[`docs/studies/pre_freeze_gates/A2_RESULTS.md`](../../../../docs/studies/pre_freeze_gates/A2_RESULTS.md),
+que imprime `AL … +2.02pp` e `FL … +0.83pp` na sua propria tabela; o veredito
+(`docs/studies/pre_freeze_gates/STATE.md:12`) le *"concat closes only 7-8% of v14 cat gap"*, e e
+desse 7-8% que nasce o "under a tenth" do texto. O construtor esta em
+`scripts/pre_freeze_gates/a2_features.py`, reaproveitado por este estudo.
+
+> ⚠ **A frase acima dizia so "outro estudo", sem o nomear, e isso custou uma investigacao.** A
+> 2026-09-08 a sessao `mobiwac` parou a preparacao da versao final por nao conseguir declarar a
+> proveniencia dos tres valores ja submetidos, e a sessao `mobiwac-writer` recusou-se -- **bem** --
+> a declarar um footing que nao encontrava. A cadeia so se seguiu porque o `A2_RESULTS.md` estava
+> **vivo na arvore** e podia ser encontrado por `grep`; procura-la na historia do git exigiria ja
+> suspeitar que o ficheiro existe. Nomear a fonte de um numero publicado nao e cortesia: e o que
+> torna a cadeia seguivel por quem nao a viveu.
+
+O A2 foi medido em outra variante do grafo e com outro codigo de treino, entao seus valores **nao
+estao na escala da Tabela 9**. Em Alabama ele reporta um ganho de $+2{,}0$ pontos, maior que o
 intervalo inteiro da Tabela 9 ali, que e $+1{,}62$. Este estudo refaz o controle na mesma escala.
+
+> **Os numeros deste estudo ficaram FORA do texto entregue, e foi decisao.** Registada no commit
+> `13cee8c9`: *"nao reproduzem a Tabela 9 fold a fold e a causa esta por identificar. O par entregue
+> e internamente consistente."* O texto continua a imprimir os valores do A2. Quem estranhar a
+> diferenca entre os dois conjuntos tem aqui a resposta, e nao precisa de a reconstruir.
 
 ## O desenho
 
