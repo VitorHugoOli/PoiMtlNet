@@ -1,0 +1,63 @@
+{
+  "study": "Q15 -- untrained-encoder floor (check2hgi_integrity_v2)",
+  "measured": "2026-09-06/07 on nespedgpu",
+  "question": "how much of the delivered next-category macro-F1 is the encoder's LEARNED component vs. features already separable at initialization",
+  "per_state": {
+    "alabama": {
+      "floor_by_repr_seed": {
+        "42": 30.6846,
+        "0": 30.5418,
+        "1": 30.5449,
+        "7": 30.6235
+      },
+      "floor_mean": 30.5987,
+      "floor_sd": 0.0594,
+      "delivered_seed0_matched": 30.7654,
+      "delivered_4seed_aggregate_mean": 30.77,
+      "delivered_4seed_aggregate_sd": 0.07,
+      "place_level": 29.15
+    },
+    "arizona": {
+      "floor_by_repr_seed": {
+        "42": 34.3779,
+        "0": 34.2916,
+        "1": 34.3389,
+        "7": 34.2318
+      },
+      "floor_mean": 34.3101,
+      "floor_sd": 0.0545,
+      "delivered_seed0_matched": 34.508,
+      "delivered_4seed_aggregate_mean": 34.57,
+      "delivered_4seed_aggregate_sd": 0.04,
+      "place_level": 31.93
+    }
+  },
+  "decomposition_vs_place_level": {
+    "alabama": {
+      "trained_minus_place": 1.62,
+      "floor_minus_place": 1.45,
+      "fraction_recovered_by_floor": 0.8951
+    },
+    "arizona": {
+      "trained_minus_place": 2.58,
+      "floor_minus_place": 2.38,
+      "fraction_recovered_by_floor": 0.9225
+    },
+    "reading": "roughly nine parts input granularity to one part learned graph training, on the category axis only"
+  },
+  "noise_floor": {
+    "command": "python scripts/integrity_v2/build_study_repr.py --state alabama --cell V18UT_INERT --repr-seed 42 --epochs 5 --device cuda --encoder resln --forward-only --add-continuous-time",
+    "protocol": "run twice back-to-back, identical invocation, embeddings compared row-by-row",
+    "hardware": "nespedgpu: NVIDIA RTX 6000 Ada Generation, driver 580.173.02, CUDA 13.0, PyTorch 2.11.0+cu128",
+    "max_abs_diff_between_two_identical_runs": 2.772e-05,
+    "portability": "MEASURED PROPERTY OF THIS MACHINE + THIS DRIVER/TORCH COMBINATION -- NOT PORTABLE to other hardware or software versions",
+    "implication": "reproducing the delivered substrate can only ever mean rebuilding within this noise, never matching bytes; a hash-based tamper check would falsely flag a legitimate rebuild",
+    "does_it_move_a_reported_digit": "no -- seeds 0/1/7/42 are near-uncorrelated random draws (cosine ~0 to each other) yet only span 0.14pp (AL) / 0.15pp (AZ) of macro-F1; a perturbation many orders of magnitude smaller than a fully independent draw cannot move a two-decimal digit"
+  },
+  "caveats": [
+    "category axis only -- region is untouched and carries the dissertation's strongest claims (TX +1.21, CA +1.06, non-inferiority at all six); never generalize this result to the substrate as a whole",
+    "does not show the representation is worthless -- shows the LEARNED component adds little on this axis; the check-in-level input structure vs. place-level still does the +1.45/+2.38 pp of real work",
+    "repr-seed 42 coincides with the delivered substrate's own init seed and is not fully independent of it (see per-seed cosine checks); seeds 0/1/7 are the clean floor"
+  ],
+  "see_also": "articles/dissertacao/wrapup/post_submission_studies/Q15_untrained_encoder_floor.md"
+}

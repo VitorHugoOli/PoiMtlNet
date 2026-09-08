@@ -15,7 +15,7 @@ Dedicated box (46 GB VRAM, SSH access, hostname `nespedgpu`). Used for sustained
 |---|---|
 | GPU | **NVIDIA RTX 6000 Ada Generation** (the folder name says A40; the card is not) |
 | VRAM | 46 GB (46 068 MiB) |
-| Driver | 580.126.09 |
+| Driver | 580.173.02 (measured live 2026-09-06 and again 2026-09-08; the machine updated its driver after this doc was first written) |
 | CUDA (driver max) | 13.0 |
 | PyTorch CUDA | 12.8 (cu128) |
 | RAM | 125 GB |

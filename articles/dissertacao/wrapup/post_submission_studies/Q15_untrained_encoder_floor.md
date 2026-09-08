@@ -161,14 +161,14 @@ copias. Nada escrito em `output/check2hgi/`, `output/check2hgi_v18/` nem no dire
 O classificador de seguranca desta instalacao recusou deixar o agente executor editar qualquer dos
 dois ficheiros; os diffs foram entregues ao autor, que os aplicou.
 
-> 🔴 **OS PATCHES NAO ESTAO NESTE CHECKOUT. Vivem so em `nespedgpu`, por commitar.** Verificado
-> 2026-09-07 pelos dois lados: aqui o `grep` devolve **zero** nos dois ficheiros e o `git diff` e
-> vazio; na maquina devolve 1 e 5, com os dois ficheiros em `M` no `git status` de la. Faz sentido
-> -- foram aplicados onde as corridas acontecem -- mas a consequencia e que **o codigo que produziu
-> os numeros deste ficheiro existe num so sitio, sem historico.** Um `git checkout` na maquina
-> apaga-o e os oito engines ficam sem receita reproduzivel. Trazer os dois diffs para ca e
-> commita-los e decisao do autor; ate la, esta e a unica coisa que separa este estudo de nao ser
-> reproduzivel.
+> ✅ **CORRIGIDO 2026-09-08: os dois patches estao commitados.** `f11c8cc7`, "Os dois patches que
+> produziram o Q15 saem do nespedgpu e passam a ter historia" -- verificado ao vivo em `nespedgpu`
+> apos `git pull` (HEAD `e2ebec55`): `grep "FLOOR ARM"` e `grep "CHECK2HGI_V18_UNTRAINED"` devolvem
+> as linhas do patch em ambos os ficheiros, no checkout normal, sem diferenca de `git status`. A
+> nota anterior (2026-09-07) estava certa quando escrita; deixou de estar. Os oito valores, a
+> decomposicao e o piso de ruido tambem ganharam sidecar estruturado em
+> `docs/results/closing_data/v18_untrained_floor/` (nove ficheiros JSON, um por celula mais um
+> `summary.json`), para nao dependerem so da prosa deste ficheiro.
 
 1. `scripts/integrity_v2/build_study_repr.py` -- duas ramificacoes explicitas antes do
    `load_state_dict`: com `epochs == 0` usa o estado de inicializacao; com epocas > 0 e `best_state`

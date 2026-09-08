@@ -1,0 +1,37 @@
+{
+  "state": "alabama",
+  "repr_seed": 42,
+  "downstream_train_seed": 0,
+  "family": "cat",
+  "engine": "check2hgi_v18_untrained_s42",
+  "rundir": "results/check2hgi_v18_untrained_s42/alabama/next_lr1.0e-04_bs8192_ep50_20260907_023333_3931365",
+  "cat_macro_f1": 30.6846,
+  "reg": null,
+  "commit_sha_at_measurement": "88322358dbc880fb010f0f91f569caa7e556612d",
+  "commit_sha_patches_landed": "f11c8cc7",
+  "note_on_commit": "run predates the two patches being committed; they existed as uncommitted working-tree edits on nespedgpu at measurement time (2026-09-06/07), landed in history afterwards at f11c8cc7",
+  "build_config": {
+    "epochs": 0,
+    "encoder": "resln",
+    "forward_only": true,
+    "add_continuous_time": true,
+    "in_channels": 15,
+    "note": "architecture at initialization, before any optimizer step -- not the same quantity as a lowest-training-loss checkpoint at epochs>0"
+  },
+  "integrity_checks": {
+    "build_json_epochs_field": 0,
+    "fresh_checkpoint_no_reuse": true,
+    "mean_row_cosine_vs_trained_v18_embeddings": 0.796069
+  },
+  "protocol": {
+    "precision": "fp32 (MTL_DISABLE_AMP=1)",
+    "compile": true,
+    "tf32": true,
+    "folds": 5,
+    "epochs": 50,
+    "cat_metric": "macro-F1 at f1-best epoch (diag-best), scripts/closing_data/score_stl_cat_ceiling.py"
+  },
+  "recipe": "model=next_gru embedding_dim=64 batch_size=8192 max_lr=0.0025 logit_adjust_tau=0.5",
+  "seed_42_caveat": "repr-seed 42 is also the delivered v18 substrate's own initialization seed; its untrained embeddings retain much higher cosine similarity to the trained result than seeds 0/1/7 do (see mean_row_cosine above) -- treat seed 42 as a footnote, seeds 0/1/7 as the clean headline",
+  "see_also": "articles/dissertacao/wrapup/post_submission_studies/Q15_untrained_encoder_floor.md"
+}
