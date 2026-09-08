@@ -252,7 +252,7 @@ rebuild it with `make defense`).
 | [`science/`](science/) | internal scientific records (integrity studies, trunk-gain attribution, the technical appendix) + cited article PDFs | yes. The delivered source cites `science/` paths 19× |
 | [`docs/`](docs/) | official UFV PDFs (submission manual) + the 2026-07-18 research records | yes — the deposit is still ahead |
 | [`reviewers/`](reviewers/) | 19 invocable reviewer personas | yes — several fire again before the defense and the deposit |
-| [`science/fundamentals/`](science/fundamentals/), [`science/storyline/`](science/storyline/) | frozen chapter drafts | **frozen, but do not move them.** The delivered text cites paths inside both (21 `science/fundamentals/_bib` provenance hits in `references.bib`; `science/storyline/audit/` from `preamble.tex:216` and three chapters) |
+| [`science/fundamentals/`](science/fundamentals/), [`science/storyline/`](science/storyline/) | frozen chapter drafts | **frozen, but do not move them.** The delivered text cites paths inside both (21 `science/fundamentals/_bib` provenance hits in `references.bib`; `science/storyline/audit/` from `preamble.tex` (o comentario de proveniencia que cita `AVAL_NECESSARIA_3_ptBR.md`) and three chapters) |
 | [`archive/`](archive/) | spent planning + single-use scaffolding | **no — nothing here is a source.** See its README |
 | [`exemples/`](exemples/) | exemplar dissertations (Viegas, Germano, …) used as the quality bar | yes as reference. ⚠ **gitignored — 49 MB that exist only on disk.** Backed up 2026-08-20 to `~/Backups/dissertacao_exemples_2026-08-20.tgz` |
 
@@ -371,6 +371,6 @@ of its own; the seven files the old `src/` had and the delivered tree lacked are
 newer — `content.tex`, made inside the delivery commit itself — **reinstated a retracted claim** and
 was discarded deliberately.
 
-It also fixed a live defect: `check.sh:7` and `fastbuild.sh:40` resolve `../src` by construction, so
+It also fixed a live defect: `check.sh` (a linha `SRCROOT=` que resolve `../src`) and `fastbuild.sh` (o fallback `SRC="$(cd "$UTILS/../src" ...)"`) resolve `../src` by construction, so
 from 2026-08-11 to 2026-08-20 **every `make check` and `make fast` run from `src_fix/` gated and
 built the v1 tree, not the delivered one.** Nine days of green gates on the wrong document.
