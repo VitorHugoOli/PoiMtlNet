@@ -1267,7 +1267,7 @@ def main():
                                  # v14's ResLN+mae cat lever makes them distinct).
                                  "check2hgi_design_k_resln_mae_l0_1",
                                  "check2hgi_design_k_resln_l0_1",
-                                 "check2hgi_design_k_l0_1", "check2hgi_dk_ovl",
+                                 "check2hgi_design_k_l0_1", "check2hgi_dk_ovl", "hgi_dk_ovl",
                                  # closing_data board: substrate-column baseline engines (STL reg comparison)
                                  "baseline_b2c_onehot64", "baseline_geotree_skipgram",
                                  "check2hgi_ctle", "baseline_b2a_poi2vec",

@@ -1,0 +1,540 @@
+{
+  "state": "alabama",
+  "max_rows": 40000,
+  "arms": {
+    "forward_only": {
+      "dim": 64,
+      "n_rows": 40000,
+      "L0_repo_geometry_category": {
+        "knn10_acc": 0.943975,
+        "knn10_macro_f1": 0.9163698046099125,
+        "silhouette": 0.2516908645629883,
+        "error": "ValueError: invalid literal for int() with base 10: 'Community'"
+      },
+      "L0_validity_note": "own-label geometry RANKS next-category (a static-attribute task) per L0_METHODOLOGY; it must NOT be used to rank next-region",
+      "B1_capacity_allocation": {
+        "category": {
+          "macro_f1_mean": 0.98784470657878,
+          "macro_f1_sd": 0.0018482235485772437,
+          "majority_share": 0.338875,
+          "n_rows": 40000,
+          "n_classes": 7,
+          "n_seeds": 3
+        },
+        "hour_bucket": {
+          "macro_f1_mean": 0.9930944353400101,
+          "macro_f1_sd": 0.001687481098206429,
+          "majority_share": 0.3025,
+          "n_rows": 40000,
+          "n_classes": 6,
+          "n_seeds": 3
+        },
+        "weekday": {
+          "macro_f1_mean": 0.9991085624281638,
+          "macro_f1_sd": 5.311283748823998e-05,
+          "majority_share": 0.18265,
+          "n_rows": 40000,
+          "n_classes": 7,
+          "n_seeds": 3
+        },
+        "place_top50": {
+          "macro_f1_mean": 0.1755202842009671,
+          "macro_f1_sd": 0.005890932038688779,
+          "majority_share": 0.09276865456640737,
+          "n_rows": 3471,
+          "n_classes": 50,
+          "n_seeds": 3
+        },
+        "region_top50": {
+          "macro_f1_mean": 0.06689190984085816,
+          "macro_f1_sd": 0.00876455965672193,
+          "majority_share": 0.04877152456950861,
+          "n_rows": 19048,
+          "n_classes": 50,
+          "n_seeds": 3
+        },
+        "gap_bin": {
+          "macro_f1_mean": 0.26529508085324655,
+          "macro_f1_sd": 0.006476759577301244,
+          "majority_share": 0.1033,
+          "n_rows": 40000,
+          "n_classes": 11,
+          "n_seeds": 3
+        }
+      },
+      "B3_spectral": {
+        "dim": 64,
+        "effective_rank_participation": 8.433883666992188,
+        "effective_rank_fraction": 0.13177943229675293,
+        "entropy_bits": 3.5635313987731934,
+        "var_top1": 0.20031259953975677,
+        "var_top5": 0.698083221912384,
+        "var_top10": 0.9080743193626404,
+        "n_dims_for_90pct_var": 10
+      },
+      "B2_subspace_overlap": {
+        "category|gap_bin": 0.1587313413619995,
+        "category|hour_bucket": 0.06528650969266891,
+        "category|place_top50": 0.2999930679798126,
+        "category|region_top50": 0.1613214910030365,
+        "category|weekday": 0.08727093040943146,
+        "gap_bin|hour_bucket": 0.19635571539402008,
+        "gap_bin|place_top50": 0.24022457003593445,
+        "gap_bin|region_top50": 0.32963770627975464,
+        "gap_bin|weekday": 0.14334997534751892,
+        "hour_bucket|place_top50": 0.155756413936615,
+        "hour_bucket|region_top50": 0.2586950659751892,
+        "hour_bucket|weekday": 0.18822847306728363,
+        "place_top50|region_top50": 0.32552069425582886,
+        "place_top50|weekday": 0.14918150007724762,
+        "region_top50|weekday": 0.24283063411712646
+      }
+    },
+    "elapsed": {
+      "dim": 64,
+      "n_rows": 40000,
+      "L0_repo_geometry_category": {
+        "knn10_acc": 0.922875,
+        "knn10_macro_f1": 0.8898064280711477,
+        "silhouette": 0.20782636106014252,
+        "error": "ValueError: invalid literal for int() with base 10: 'Community'"
+      },
+      "L0_validity_note": "own-label geometry RANKS next-category (a static-attribute task) per L0_METHODOLOGY; it must NOT be used to rank next-region",
+      "B1_capacity_allocation": {
+        "category": {
+          "macro_f1_mean": 0.9881418519756971,
+          "macro_f1_sd": 0.0017146826671476116,
+          "majority_share": 0.338875,
+          "n_rows": 40000,
+          "n_classes": 7,
+          "n_seeds": 3
+        },
+        "hour_bucket": {
+          "macro_f1_mean": 0.9890582551190885,
+          "macro_f1_sd": 0.002560264143216576,
+          "majority_share": 0.3025,
+          "n_rows": 40000,
+          "n_classes": 6,
+          "n_seeds": 3
+        },
+        "weekday": {
+          "macro_f1_mean": 0.9986679669732315,
+          "macro_f1_sd": 0.00019131395132381443,
+          "majority_share": 0.18265,
+          "n_rows": 40000,
+          "n_classes": 7,
+          "n_seeds": 3
+        },
+        "place_top50": {
+          "macro_f1_mean": 0.16958063836278825,
+          "macro_f1_sd": 0.017767944543314665,
+          "majority_share": 0.09276865456640737,
+          "n_rows": 3471,
+          "n_classes": 50,
+          "n_seeds": 3
+        },
+        "region_top50": {
+          "macro_f1_mean": 0.0817396166643411,
+          "macro_f1_sd": 0.011188934113251576,
+          "majority_share": 0.04877152456950861,
+          "n_rows": 19048,
+          "n_classes": 50,
+          "n_seeds": 3
+        },
+        "gap_bin": {
+          "macro_f1_mean": 0.6692009842740876,
+          "macro_f1_sd": 0.010250183912169104,
+          "majority_share": 0.1033,
+          "n_rows": 40000,
+          "n_classes": 11,
+          "n_seeds": 3
+        }
+      },
+      "B3_spectral": {
+        "dim": 64,
+        "effective_rank_participation": 10.253337860107422,
+        "effective_rank_fraction": 0.16020840406417847,
+        "entropy_bits": 3.793917655944824,
+        "var_top1": 0.1607518345117569,
+        "var_top5": 0.6289015412330627,
+        "var_top10": 0.8825489282608032,
+        "n_dims_for_90pct_var": 11
+      },
+      "B2_subspace_overlap": {
+        "category|gap_bin": 0.08153052628040314,
+        "category|hour_bucket": 0.10351096093654633,
+        "category|place_top50": 0.3608286380767822,
+        "category|region_top50": 0.20768332481384277,
+        "category|weekday": 0.07738906890153885,
+        "gap_bin|hour_bucket": 0.16405481100082397,
+        "gap_bin|place_top50": 0.1991954743862152,
+        "gap_bin|region_top50": 0.14826567471027374,
+        "gap_bin|weekday": 0.1824793964624405,
+        "hour_bucket|place_top50": 0.21636000275611877,
+        "hour_bucket|region_top50": 0.2772979736328125,
+        "hour_bucket|weekday": 0.12717968225479126,
+        "place_top50|region_top50": 0.40500569343566895,
+        "place_top50|weekday": 0.2260493040084839,
+        "region_top50|weekday": 0.22058570384979248
+      }
+    },
+    "place": {
+      "dim": 64,
+      "n_rows": 40000,
+      "L0_repo_geometry_category": {
+        "knn10_acc": 0.80395,
+        "knn10_macro_f1": 0.7809657126681087,
+        "silhouette": -0.01835784874856472,
+        "error": "ValueError: invalid literal for int() with base 10: 'Community'"
+      },
+      "L0_validity_note": "own-label geometry RANKS next-category (a static-attribute task) per L0_METHODOLOGY; it must NOT be used to rank next-region",
+      "B1_capacity_allocation": {
+        "category": {
+          "macro_f1_mean": 0.7329657309935866,
+          "macro_f1_sd": 0.010897241561242816,
+          "majority_share": 0.338875,
+          "n_rows": 40000,
+          "n_classes": 7,
+          "n_seeds": 3
+        },
+        "hour_bucket": {
+          "macro_f1_mean": 0.42960948652655256,
+          "macro_f1_sd": 0.003639680443083489,
+          "majority_share": 0.3025,
+          "n_rows": 40000,
+          "n_classes": 6,
+          "n_seeds": 3
+        },
+        "weekday": {
+          "macro_f1_mean": 0.324184520508658,
+          "macro_f1_sd": 0.002389664012629277,
+          "majority_share": 0.18265,
+          "n_rows": 40000,
+          "n_classes": 7,
+          "n_seeds": 3
+        },
+        "place_top50": {
+          "macro_f1_mean": 0.8652999249769461,
+          "macro_f1_sd": 0.025219499053022777,
+          "majority_share": 0.09276865456640737,
+          "n_rows": 3471,
+          "n_classes": 50,
+          "n_seeds": 3
+        },
+        "region_top50": {
+          "macro_f1_mean": 0.5314127032362955,
+          "macro_f1_sd": 0.02038840584773232,
+          "majority_share": 0.04877152456950861,
+          "n_rows": 19048,
+          "n_classes": 50,
+          "n_seeds": 3
+        },
+        "gap_bin": {
+          "macro_f1_mean": 0.19117897644730672,
+          "macro_f1_sd": 0.005572888706334455,
+          "majority_share": 0.1033,
+          "n_rows": 40000,
+          "n_classes": 11,
+          "n_seeds": 3
+        }
+      },
+      "B3_spectral": {
+        "dim": 64,
+        "effective_rank_participation": 19.45362663269043,
+        "effective_rank_fraction": 0.30396291613578796,
+        "entropy_bits": 4.713167667388916,
+        "var_top1": 0.12145053595304489,
+        "var_top5": 0.3933710753917694,
+        "var_top10": 0.6131173372268677,
+        "n_dims_for_90pct_var": 23
+      },
+      "B2_subspace_overlap": {
+        "category|gap_bin": 0.3315601944923401,
+        "category|hour_bucket": 0.16780856251716614,
+        "category|place_top50": 0.26110532879829407,
+        "category|region_top50": 0.209243506193161,
+        "category|weekday": 0.1896021068096161,
+        "gap_bin|hour_bucket": 0.3690672516822815,
+        "gap_bin|place_top50": 0.24480435252189636,
+        "gap_bin|region_top50": 0.2447940856218338,
+        "gap_bin|weekday": 0.21868494153022766,
+        "hour_bucket|place_top50": 0.1919250786304474,
+        "hour_bucket|region_top50": 0.23173603415489197,
+        "hour_bucket|weekday": 0.19350561499595642,
+        "place_top50|region_top50": 0.4446740746498108,
+        "place_top50|weekday": 0.2708141803741455,
+        "region_top50|weekday": 0.2033328264951706
+      }
+    },
+    "place_elapsed": {
+      "dim": 64,
+      "n_rows": 40000,
+      "L0_repo_geometry_category": {
+        "knn10_acc": 0.8047,
+        "knn10_macro_f1": 0.7833502557467106,
+        "silhouette": -0.013405116274952888,
+        "error": "ValueError: invalid literal for int() with base 10: 'Community'"
+      },
+      "L0_validity_note": "own-label geometry RANKS next-category (a static-attribute task) per L0_METHODOLOGY; it must NOT be used to rank next-region",
+      "B1_capacity_allocation": {
+        "category": {
+          "macro_f1_mean": 0.7454309640338889,
+          "macro_f1_sd": 0.010567707406253188,
+          "majority_share": 0.338875,
+          "n_rows": 40000,
+          "n_classes": 7,
+          "n_seeds": 3
+        },
+        "hour_bucket": {
+          "macro_f1_mean": 0.4843669552178021,
+          "macro_f1_sd": 0.012236743466587676,
+          "majority_share": 0.3025,
+          "n_rows": 40000,
+          "n_classes": 6,
+          "n_seeds": 3
+        },
+        "weekday": {
+          "macro_f1_mean": 0.3280574343512537,
+          "macro_f1_sd": 0.0037086194630088103,
+          "majority_share": 0.18265,
+          "n_rows": 40000,
+          "n_classes": 7,
+          "n_seeds": 3
+        },
+        "place_top50": {
+          "macro_f1_mean": 0.8739735397862339,
+          "macro_f1_sd": 0.0204194905206996,
+          "majority_share": 0.09276865456640737,
+          "n_rows": 3471,
+          "n_classes": 50,
+          "n_seeds": 3
+        },
+        "region_top50": {
+          "macro_f1_mean": 0.5401255549397462,
+          "macro_f1_sd": 0.020810633171263273,
+          "majority_share": 0.04877152456950861,
+          "n_rows": 19048,
+          "n_classes": 50,
+          "n_seeds": 3
+        },
+        "gap_bin": {
+          "macro_f1_mean": 0.3421438541449718,
+          "macro_f1_sd": 0.004981712567219556,
+          "majority_share": 0.1033,
+          "n_rows": 40000,
+          "n_classes": 11,
+          "n_seeds": 3
+        }
+      },
+      "B3_spectral": {
+        "dim": 64,
+        "effective_rank_participation": 22.078975677490234,
+        "effective_rank_fraction": 0.3449839949607849,
+        "entropy_bits": 4.803267478942871,
+        "var_top1": 0.0861067995429039,
+        "var_top5": 0.35178306698799133,
+        "var_top10": 0.5745466351509094,
+        "n_dims_for_90pct_var": 23
+      },
+      "B2_subspace_overlap": {
+        "category|gap_bin": 0.22171954810619354,
+        "category|hour_bucket": 0.2603539526462555,
+        "category|place_top50": 0.23655912280082703,
+        "category|region_top50": 0.3347473740577698,
+        "category|weekday": 0.1839057058095932,
+        "gap_bin|hour_bucket": 0.36875995993614197,
+        "gap_bin|place_top50": 0.2754421532154083,
+        "gap_bin|region_top50": 0.3024643063545227,
+        "gap_bin|weekday": 0.2535834312438965,
+        "hour_bucket|place_top50": 0.20983059704303741,
+        "hour_bucket|region_top50": 0.2356254756450653,
+        "hour_bucket|weekday": 0.21590551733970642,
+        "place_top50|region_top50": 0.45903825759887695,
+        "place_top50|weekday": 0.277884304523468,
+        "region_top50|weekday": 0.2651212811470032
+      }
+    },
+    "region": {
+      "dim": 64,
+      "n_rows": 40000,
+      "L0_repo_geometry_category": {
+        "knn10_acc": 0.822075,
+        "knn10_macro_f1": 0.7763462406015406,
+        "silhouette": -0.022513825446367264,
+        "error": "ValueError: invalid literal for int() with base 10: 'Community'"
+      },
+      "L0_validity_note": "own-label geometry RANKS next-category (a static-attribute task) per L0_METHODOLOGY; it must NOT be used to rank next-region",
+      "B1_capacity_allocation": {
+        "category": {
+          "macro_f1_mean": 0.9103907427859784,
+          "macro_f1_sd": 0.008179471266917116,
+          "majority_share": 0.338875,
+          "n_rows": 40000,
+          "n_classes": 7,
+          "n_seeds": 3
+        },
+        "hour_bucket": {
+          "macro_f1_mean": 0.7924888428990978,
+          "macro_f1_sd": 0.007627830218045216,
+          "majority_share": 0.3025,
+          "n_rows": 40000,
+          "n_classes": 6,
+          "n_seeds": 3
+        },
+        "weekday": {
+          "macro_f1_mean": 0.7191707608167096,
+          "macro_f1_sd": 0.004594074989687946,
+          "majority_share": 0.18265,
+          "n_rows": 40000,
+          "n_classes": 7,
+          "n_seeds": 3
+        },
+        "place_top50": {
+          "macro_f1_mean": 0.7863411421006091,
+          "macro_f1_sd": 0.027411703826376508,
+          "majority_share": 0.09276865456640737,
+          "n_rows": 3471,
+          "n_classes": 50,
+          "n_seeds": 3
+        },
+        "region_top50": {
+          "macro_f1_mean": 0.9637401267217832,
+          "macro_f1_sd": 0.012688746447820622,
+          "majority_share": 0.04877152456950861,
+          "n_rows": 19048,
+          "n_classes": 50,
+          "n_seeds": 3
+        },
+        "gap_bin": {
+          "macro_f1_mean": 0.1745031322178181,
+          "macro_f1_sd": 0.007435867255336151,
+          "majority_share": 0.1033,
+          "n_rows": 40000,
+          "n_classes": 11,
+          "n_seeds": 3
+        }
+      },
+      "B3_spectral": {
+        "dim": 64,
+        "effective_rank_participation": 8.433694839477539,
+        "effective_rank_fraction": 0.13177648186683655,
+        "entropy_bits": 3.6130709648132324,
+        "var_top1": 0.2000197023153305,
+        "var_top5": 0.6998424530029297,
+        "var_top10": 0.8994719386100769,
+        "n_dims_for_90pct_var": 11
+      },
+      "B2_subspace_overlap": {
+        "category|gap_bin": 0.21757347881793976,
+        "category|hour_bucket": 0.20584599673748016,
+        "category|place_top50": 0.3362444043159485,
+        "category|region_top50": 0.21524742245674133,
+        "category|weekday": 0.10666737705469131,
+        "gap_bin|hour_bucket": 0.3577832877635956,
+        "gap_bin|place_top50": 0.2949933707714081,
+        "gap_bin|region_top50": 0.2524646818637848,
+        "gap_bin|weekday": 0.2622642517089844,
+        "hour_bucket|place_top50": 0.2501493990421295,
+        "hour_bucket|region_top50": 0.2424459457397461,
+        "hour_bucket|weekday": 0.22297291457653046,
+        "place_top50|region_top50": 0.4789765775203705,
+        "place_top50|weekday": 0.23875375092029572,
+        "region_top50|weekday": 0.27130067348480225
+      }
+    },
+    "reported_leaky": {
+      "dim": 64,
+      "n_rows": 40000,
+      "L0_repo_geometry_category": {
+        "knn10_acc": 0.88855,
+        "knn10_macro_f1": 0.8709882036555465,
+        "silhouette": 0.24559536576271057,
+        "error": "ValueError: invalid literal for int() with base 10: 'Community'"
+      },
+      "L0_validity_note": "own-label geometry RANKS next-category (a static-attribute task) per L0_METHODOLOGY; it must NOT be used to rank next-region",
+      "B1_capacity_allocation": {
+        "category": {
+          "macro_f1_mean": 0.9099957194113668,
+          "macro_f1_sd": 0.008398051106776227,
+          "majority_share": 0.338875,
+          "n_rows": 40000,
+          "n_classes": 7,
+          "n_seeds": 3
+        },
+        "hour_bucket": {
+          "macro_f1_mean": 0.9915654926112918,
+          "macro_f1_sd": 0.0010432801699259077,
+          "majority_share": 0.3025,
+          "n_rows": 40000,
+          "n_classes": 6,
+          "n_seeds": 3
+        },
+        "weekday": {
+          "macro_f1_mean": 0.999241116391822,
+          "macro_f1_sd": 0.00035903202237947904,
+          "majority_share": 0.18265,
+          "n_rows": 40000,
+          "n_classes": 7,
+          "n_seeds": 3
+        },
+        "place_top50": {
+          "macro_f1_mean": 0.1780745054803771,
+          "macro_f1_sd": 0.012014466038550036,
+          "majority_share": 0.09276865456640737,
+          "n_rows": 3471,
+          "n_classes": 50,
+          "n_seeds": 3
+        },
+        "region_top50": {
+          "macro_f1_mean": 0.07837565789748967,
+          "macro_f1_sd": 0.009370192362495911,
+          "majority_share": 0.04877152456950861,
+          "n_rows": 19048,
+          "n_classes": 50,
+          "n_seeds": 3
+        },
+        "gap_bin": {
+          "macro_f1_mean": 0.2184051681839377,
+          "macro_f1_sd": 0.0033847052142158733,
+          "majority_share": 0.1033,
+          "n_rows": 40000,
+          "n_classes": 11,
+          "n_seeds": 3
+        }
+      },
+      "B3_spectral": {
+        "dim": 64,
+        "effective_rank_participation": 9.395562171936035,
+        "effective_rank_fraction": 0.14680565893650055,
+        "entropy_bits": 3.748918056488037,
+        "var_top1": 0.19491514563560486,
+        "var_top5": 0.6587554812431335,
+        "var_top10": 0.8709556460380554,
+        "n_dims_for_90pct_var": 12
+      },
+      "B2_subspace_overlap": {
+        "category|gap_bin": 0.26619499921798706,
+        "category|hour_bucket": 0.16027383506298065,
+        "category|place_top50": 0.3211415112018585,
+        "category|region_top50": 0.21977373957633972,
+        "category|weekday": 0.18212302029132843,
+        "gap_bin|hour_bucket": 0.177080899477005,
+        "gap_bin|place_top50": 0.21817100048065186,
+        "gap_bin|region_top50": 0.3148173689842224,
+        "gap_bin|weekday": 0.20790639519691467,
+        "hour_bucket|place_top50": 0.2492658793926239,
+        "hour_bucket|region_top50": 0.21073369681835175,
+        "hour_bucket|weekday": 0.1100013256072998,
+        "place_top50|region_top50": 0.33286038041114807,
+        "place_top50|weekday": 0.17911909520626068,
+        "region_top50|weekday": 0.22729572653770447
+      }
+    }
+  },
+  "what_each_block_means": {
+    "B1_capacity_allocation": "linear recoverability of each factor, against its majority floor",
+    "B2_subspace_overlap": "mean squared cosine between the directions two factors use; 1 = same subspace",
+    "B3_spectral": "participation ratio = effective number of dimensions carrying variance",
+    "B4_geometry": "cosine silhouette and kNN leave-one-out per factor"
+  }
+}

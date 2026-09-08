@@ -149,3 +149,45 @@ model cannot reach at any width tried. A width increase without a second task's 
 new information to spend its parameters on — the two experiments are the two halves of that
 sentence. Licensing: (1) is citable from Ch.5; (2) and (3)'s second half are POST-SUBMISSION
 frame analysis (Ch.6 discussion / appendix), never Ch.5.
+
+---
+
+## 6 · [2026-08-13] AS LARGURAS DO §5.1 MEDEM A ARQUITETURA v17, NAO A ATUAL
+
+Esta nota existe porque as larguras publicadas acima (`d_model=480` em AL, `352` em CA;
+`hidden_dim=672` em AL, `752` em CA) foram lidas numa sessao posterior como se pareassem capacidade
+no modelo conjunto **atual**. Elas nao pareiam. O cabecalho da tabela do §5.1 ja diz qual arquitetura
+mediu, "joint (v17 dualtower)", e essa coluna e a que mudou.
+
+**Medicao.** Reconstruindo `mtlnet_crossattn_dualtower` com os defaults de treino que
+`src/configs/experiment.py:423-431` fornece (`feature_size=64`, `shared_layer_size=256`,
+`num_heads=8`, `num_layers=4`, `seq_length=9`, `num_shared_layers=4`), cabecas `next_gru` e
+`next_stan_flow_dualtower` com `raw_embed_dim=64, fusion_mode=aux, freeze_alpha=True,
+alpha_init=0.0`, blocos de cross-attention 2x4, e o vocabulario de regiao por dataset lido de
+`output/check2hgi_design_k_resln_mae_l0_1/<state>/region_embeddings.parquet` (AL 1109, CA 8501,
+TX 6553):
+
+| dataset | conjunto v17 (§5.1) | conjunto ATUAL (medido) |
+|---|--:|--:|
+| Alabama | 4.197.621 | **6.909.789** |
+| California | 5.151.189 | **8.809.533** |
+| Texas | (nao medido no §5.1) | **8.308.897** |
+
+Decomposicao do modelo atual em Alabama, por submodulo: `category_encoder` 149.760, `next_encoder`
+149.760, `crossattn_blocks` 1.583.104, `category_poi` 3.161.608, `next_poi` 1.864.533, mais duas
+LayerNorm. **Nenhum agrupamento reproduz o alvo de via de regiao de 2.466.542** que o
+`POSTPONED.md` P1 cita para Alabama — a via `next_poi` da 1.864.533.
+
+**Larguras pareadas contra o modelo atual**, alvo = modelo conjunto inteiro (decisao do autor,
+2026-08-13), por busca sobre `next_stan_flow` com `embed_dim=64`:
+
+| dataset | alvo | `d_model` | contagem | % do alvo |
+|---|--:|--:|--:|--:|
+| Alabama | 6.909.789 | **624** | 6.978.702 | 101,0% |
+| California | 8.809.533 | **528** | 9.004.686 | 102,2% |
+| Texas | 8.308.897 | **544** | 8.354.882 | 100,6% |
+
+**Regra para quem ler este arquivo depois:** o §5.1 continua valido para o que ele mediu, e os
+resultados que ele reporta permanecem os resultados daquela arquitetura. Ele **nao** e a fonte de
+largura para um controle de capacidade sobre o modelo atual. Antes de usar qualquer largura daqui,
+recompute contra a arquitetura que voce vai rodar.
