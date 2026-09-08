@@ -146,3 +146,14 @@ docs/studies/closing_data/v18/__pycache__/
 # v18_2 rented lane: per-cell run logs are transient (same policy as v18).
 docs/results/closing_data/v18_2/**/*.log
 docs/results/closing_data/v18_2/**/*.out
+
+# balance study (2026-08/09): per-slot embedding parquets, 37 MB + 78 MB.
+# docs/results/ is otherwise TRACKED (4 172 files), so a `git add -A` on the run
+# machine would put 111 MB of binary into history permanently. The JSON summaries
+# beside them are small and stay trackable.
+docs/results/balance/*.parquet
+
+# Q13 wave drivers and their logs (61 files). `logs/` is ignored elsewhere in this
+# project by convention; wave_logs/ was not, and nothing suggests it was meant to be
+# committed.
+wave_logs/
