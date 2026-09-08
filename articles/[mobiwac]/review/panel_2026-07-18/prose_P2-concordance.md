@@ -1,3 +1,14 @@
+> ## ⛔ SUPERADO — auditoria de uma versão de 9 páginas que já não é o artigo
+>
+> Isto auditou um `main.pdf` de **9 páginas** a 2026-07-18. O artigo submetido tem **8**, e passou
+> entretanto pela reconstrução v18: a categoria moveu-se 28 a 42 pontos e o controlo de capacidade
+> saiu do texto.
+>
+> **O `28.09` que aparece aqui é da geração retirada.** Os valores entregues estão em
+> `../../CAMERA_READY.md §3`; o par submetido é `../../2026319004.{pdf,zip}`.
+>
+> Fica como proveniência da revisão. Nenhuma afirmação aqui descreve o texto corrente.
+
 P2 CONCORDANCE / CROSS-SECTION CONSISTENCY AUDIT — main.pdf (9 pp), sources in sections/*.tex
 
 **[TOP 1] Conclusion contradicts Section V-D and the Table II footnote on baseline protocols.**

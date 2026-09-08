@@ -1,3 +1,14 @@
+> ## ⛔ SUPERADO — revisão de um plano para uma árvore que já não existe
+>
+> Isto avaliou o `src_fix/REVISION_PLAN.md`. O `src_fix/` foi apagado a 2026-09-06, quando as
+> três árvores do artigo se fundiram numa só (`src/`), e o plano que isto revê está hoje em
+> `archive/REVISION_PLAN_src_fix.md`. Recuperar a árvore: `git show 422c2d37`.
+>
+> **O `77.05` que aparece aqui é da geração retirada** (v17), invalidada pelo vazamento de visitas
+> consecutivas. O artigo submetido reporta v18 — região CA 64,54 e não 77,05. Ver `../CAMERA_READY.md §3`.
+>
+> Fica pela decisão que registou, não pelos números. Não é estado corrente.
+
 # Adversarial advisor — pre-execution gate on `src_fix/REVISION_PLAN.md`
 
 > Persona 14 (`reviewers/14_adversarial_advisor.md`), Common protocol `reviewers/README.md`.
