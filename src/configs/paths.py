@@ -56,6 +56,10 @@ class EmbeddingEngine(Enum):
     CHECK2HGI_DESIGN_K_RESLN_L0_1 = "check2hgi_design_k_resln_l0_1"  # design_k + resln encoder (cat disentangle)
     CHECK2HGI_DESIGN_K_RESLN_MAE_L0_1 = "check2hgi_design_k_resln_mae_l0_1"  # design_k + resln + T5.2b mae (full dual-axis stack)
     CHECK2HGI_RESLN_DESIGN_J = "check2hgi_resln_design_j"  # tier_resln: ResLN encoder + Design J anchored learnable POI table
+    # [2026-08-16] Q13, o braco de concatenacao. O place embedding com as features por visita
+    # ja concatenadas no proprio next.parquet, 9 blocos de 75 em vez de 64. Existe como engine
+    # separada para que o braco rode pelo caminho de treino normal, sem alterar train.py.
+    HGI_OVL_FEAT = "hgi_ovl_feat"
     CHECK2HGI_DK_OVL = "check2hgi_dk_ovl"  # v14 (design_k) embeddings re-windowed at stride=1 (OVERLAPPING) — overlap-window real-pipeline probe; embeddings/region symlinked from v14, only the windowing differs
     # integrity_v2 consecutive-link study (2026-08-06). Same dk_ovl row space and region labels;
     # the ONLY difference is which edges existed when the check-in vectors were computed, so the
@@ -118,6 +122,13 @@ class EmbeddingEngine(Enum):
     # through the HGI POI lookup. Windows byte-identical to the Check2HGI arm; only the
     # embedding lookup differs (cat-STL substrate contrast on ONE windowing).
     HGI_DK_OVL = "hgi_dk_ovl"
+    # v18-untrained floor arm (2026-09-06): architecture at initialization, no training step,
+    # per-repr-seed probe for the check2hgi_integrity_v2 "how much is raw features vs graph
+    # training" ablation. Never for any headline number. [ENUM-MERGE] appended at the END.
+    CHECK2HGI_V18_UNTRAINED_S42 = "check2hgi_v18_untrained_s42"
+    CHECK2HGI_V18_UNTRAINED_S0 = "check2hgi_v18_untrained_s0"
+    CHECK2HGI_V18_UNTRAINED_S1 = "check2hgi_v18_untrained_s1"
+    CHECK2HGI_V18_UNTRAINED_S7 = "check2hgi_v18_untrained_s7"
 
 
 # Engines valid for the MTL_CHECK2HGI (check-in-level joint) preset: check-in-level
@@ -594,6 +605,15 @@ class IoPaths:
             # well as in the enum + MTL allowlist — a category-only registration trains fine
             # and then fails at the region tower.
             EmbeddingEngine.CHECK2HGI_V18,
+            # [2026-08-16] Q13, o controle de concatenacao. As duas engines de place embedding
+            # entram aqui porque o braco de CATEGORIA tambem passa por load_next_region, e o
+            # carregador le dessa tabela apenas region_idx e last_region_idx: rotulos derivados do
+            # mapa POI->regiao e do janelamento, nao do substrato de embedding. As tabelas foram
+            # copiadas de check2hgi_dk_ovl, mesmas linhas na mesma ordem, sob o janelamento atual,
+            # e a guarda de igualdade de userid abaixo verifica esse alinhamento a cada carga.
+            # Mesmo argumento e mesma mecanica ja usados pelas engines do estudo integrity_v2.
+            EmbeddingEngine.HGI_DK_OVL,
+            EmbeddingEngine.HGI_OVL_FEAT,
         )
         if embedd_engine not in supported:
             raise ValueError(

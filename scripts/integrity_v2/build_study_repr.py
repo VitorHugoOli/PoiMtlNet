@@ -731,6 +731,21 @@ def build(state: str, args) -> dict:
             t.set_postfix(loss=f"{l:.4f}", best_ep=best_epoch, refresh=False); t.refresh()
 
     print(f"[{state_lc}/{args.cell}] best_epoch={best_epoch} loss={lowest:.4f}", flush=True)
+    # NOTE: the line above prints even when epochs=0 (best_epoch=0, loss=inf) -- a log-grep
+    # for a clean-looking line would misread an epochs=0 floor-arm build as an ordinary run.
+    # Check build.json's "epochs" field / the exit code, not this line, to tell them apart.
+    if args.epochs == 0:
+        # FLOOR ARM: the architecture at initialization, before any optimizer step. There is no
+        # "lowest-loss checkpoint" to select when no step is taken, so this is a DIFFERENT quantity
+        # from what epochs>0 produces, not the same procedure with a zero. Stated so nobody later
+        # reads the two as one series.
+        best_state = {k: v.detach().clone() for k, v in model.state_dict().items()}
+    elif best_state is None:
+        raise RuntimeError(
+            f"{args.epochs} epochs ran and no checkpoint was selected: every training loss was "
+            f"non-finite (lowest={lowest}). This previously surfaced as 'load_state_dict got "
+            f"NoneType'. Refusing to write an artifact."
+        )
     model.load_state_dict(best_state); model.eval()
     with torch.no_grad():
         _ = model(data)
