@@ -27,8 +27,8 @@
 | loss-scale-norm | OFF | `False` | CODE-DEFAULT | ✅ enforced (excluded) |
 | **auto-fp32 (large-C MTL)** | fp32 for reg C>2000 | fp16 → **fp32** on Ampere+ when no precision env set (`mtl_cv.py` `_auto_fp32_for_large_c`) | **CODE-DEFAULT (PR #56, 2026-06-30)** | ✅ byte-identical on board cells (all drivers set precision explicitly); small states C<2000 keep fp16; explicit `MTL_DISABLE_AMP`/`MTL_AUTOCAST_BF16` always wins |
 | **MTL_SKIP_INERT_LOGT** | ON | **default-on** (`mtl_cv.py`); skips per-fold log_T load when the prior is provably inert (the champion) | **CODE-DEFAULT (PR #56, 2026-06-26)** | ✅ byte-identical (alpha=0 folds log_T out of the loss); `=0` restores legacy always-load+guard; frees the champion from needing log_T files |
-| **MIN_SEQUENCE_LENGTH** | **10** (P3 rebuild) | **5** (`core.py:17`) | **P3-BOARD-RECIPE** | ⚠ NOT global — flip only at the P3 rebuild |
-| **stride / overlap** | **1** (P3 board) | **9 / non-overlap** (`core.py:26,56`) | **P3-BOARD-RECIPE** (or `check2hgi_dk_ovl` engine) | ⚠ NOT global — Lane-2-gated |
+| **MIN_SEQUENCE_LENGTH** | **10** (P3 rebuild) | **5** (a constante `MIN_SEQUENCE_LENGTH` em `src/data/inputs/core.py`) | **P3-BOARD-RECIPE** | ⚠ NOT global — flip only at the P3 rebuild |
+| **stride / overlap** | **1** (P3 board) | **9 / non-overlap** (o parâmetro `stride` de `generate_sequences`, em `src/data/inputs/core.py` — o default é `window_size`, ou seja sem sobreposição) | **P3-BOARD-RECIPE** (or `check2hgi_dk_ovl` engine) | ⚠ NOT global — Lane-2-gated |
 | **compile + tf32** | **ON** (P3 board) | **OFF** (`train.py`), not in canon | **P3-BOARD-RECIPE** | ⚠ board driver passes uniformly; NEVER in canon |
 | **seed (reporting)** | {0,1,7,100} | None → **42** (dev seed) | **FAIL-LOUD-GUARD** | ✅ guard added (WARN) |
 | **engine ↔ substrate** | v16 ⇒ v14 substrate | user `--engine` wins | **FAIL-LOUD-GUARD** | ✅ guard added (WARN) |
@@ -87,8 +87,8 @@ Identical at reporting precision (`compute_classification_metrics` is device-agn
 uses strict `>`). **Pinned by `tests/test_scripts/test_p1_val_chunk_guard.py`** (gate logic + CPU≡CUDA ≤1e-6).
 
 ## Reproduction / desync TRAPS — NEVER do
-1. Never flip `core.py:17` MIN_SEQ 5→10 globally (desyncs frozen v11/v14 rebuild + confounds Lane-2).
-2. Never flip `core.py:26` stride None→1 globally (8.5× rows everywhere, OOMs large states, double-counts the base change). Keep overlap engine-/board-scoped.
+1. Never flip the `MIN_SEQUENCE_LENGTH` constant in `src/data/inputs/core.py` from 5→10 globally (desyncs frozen v11/v14 rebuild + confounds Lane-2).
+2. Never flip the `stride` default of `generate_sequences` (`src/data/inputs/core.py`) from None→1 globally (8.5× rows everywhere, OOMs large states, double-counts the base change). Keep overlap engine-/board-scoped.
 3. Never put `--compile`/`--tf32` in canon or as a code default (breaks byte-identical reproduction of frozen §0.1; they're perf knobs, not recipe identity). Board-execution-only, applied uniformly.
 4. Never bake MIN_SEQ/stride/compile/tf32 into any canon bundle (canon = reproduction identity, reused by `--canon v11/v12/v15`).
 5. Never "restore" the alt-opt flags (`--alternating-optimizer-step`/`--alpha-no-weight-decay`/`--min-best-epoch`) into v16 — champion G is onecycle no-alt-opt (B9 carries them; that's the small-state recipe).

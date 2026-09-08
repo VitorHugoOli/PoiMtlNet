@@ -168,7 +168,7 @@ These findings **do not** change the committed config — they explain *why* it 
 
 **Status (2026-04-24):** Cat head refined via F27 from `NextHeadMTL` (Transformer) → `next_gru` (GRU). Paper-reshaping F21c finding noted in §§Caveats. See §Committed config below.
 
-> **⚠ B9 joint-selector bug (added 2026-05-19, applies to the canonical shipping recipe AS-IS).** The `selector` row below describes the per-task best tracker. The **primary checkpoint** is selected by `joint_score = 0.5 * (cat_macro_f1 + reg_macro_f1)` at `src/training/runners/mtl_cv.py:679`. This formula is **structurally broken on the canonical Check2HGI MTL setup itself** — `reg_macro_f1` over ~4 700 sparse FL regions is dominated by rare-class noise (stays ~16-18 % across full ep=1-50 trajectory) and is blind to `reg_top10_acc_indist`'s peak-and-collapse trajectory.
+> **⚠ B9 joint-selector bug (added 2026-05-19, applies to the canonical shipping recipe AS-IS).** The `selector` row below describes the per-task best tracker. The **primary checkpoint** is selected by `joint_score = 0.5 * (cat_macro_f1 + reg_macro_f1)` at `the joint-selector dispatch in `src/training/runners/mtl_cv.py` (the `joint_f1_mean` / `geom_simple` branch)`. This formula is **structurally broken on the canonical Check2HGI MTL setup itself** — `reg_macro_f1` over ~4 700 sparse FL regions is dominated by rare-class noise (stays ~16-18 % across full ep=1-50 trajectory) and is blind to `reg_top10_acc_indist`'s peak-and-collapse trajectory.
 >
 > Matched-protocol measurement on canonical shipping FL ep=50 single-seed=42 n=5 (NO substrate changes):
 >
