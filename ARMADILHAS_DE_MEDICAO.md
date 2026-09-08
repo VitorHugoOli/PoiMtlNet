@@ -203,7 +203,7 @@ Aqui eram três superfícies; a instrução cobria uma.
 Um documento superado engana quem o lê. **Um guarda superado engana quem o lê _e_ quem o obedece** —
 ou gera desconfiança inútil de um ficheiro que está bem, ou manda "corrigir" o que está certo.
 
-Em cinco horas de 2026-09-08 este ficheiro ganhou três casos, por três sessões diferentes.
+Em cinco horas de 2026-09-08 este ficheiro ganhou quatro casos, por quatro sessões diferentes.
 
 **(a) A edição que não lê o que emenda.** Acrescentar uma linha a um cabeçalho sem ler a de cima
 produziu duas afirmações contraditórias no mesmo bloco, **criadas pela mesma edição**. Não é
@@ -244,6 +244,17 @@ sítio não resolve nos outros que o citam.
 **O corolário que custou o dia:** ao substituir um guarda podre, **a medição que se escreve no
 substituto é ela própria um guarda** — e pode ser pior que o original. Aqui foi: o guarda antigo só
 podia causar desconfiança; o novo podia causar uma **deleção** de registo histórico marcado.
+
+**(d) A mensagem de commit que descreve o que a edição deveria ter feito, não o que fez.** Um
+`git add` esquecido depois de escrever um paragrafo directamente no ficheiro deixou o conteudo fora
+do indice; a mensagem do commit, escrita a seguir, descrevia-o como incluido. `git show --stat` no
+proprio commit e que mostrou a ausencia -- o ficheiro nem aparecia na lista de alterados. Corrigido
+com `--amend` antes do `push` (nada tinha sido empurrado ainda, por isso seguro). Mesma classe da
+(a): a descricao nasceu da **intencao**, nao da leitura do resultado. A verificacao que apanhou foi
+medir o proprio commit depois de o fazer, nao confiar na memoria de o ter escrito bem.
+
+*Caso: sessao `worker`, 2026-09-08, ao trazer os patches e sidecars do Q15/Q13 do `nespedgpu` para o
+`main`.*
 
 ---
 
