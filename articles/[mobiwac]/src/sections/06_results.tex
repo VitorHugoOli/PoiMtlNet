@@ -168,8 +168,7 @@ paper is the stricter convention's.
 
 On region (Acc@10), the joint model outperforms the dedicated model at Texas and California. The two
 datasets where it outperforms are the two with the largest region vocabularies, which is where the
-region task has the most classes to rank and where the dedicated model has the most to gain from an
-auxiliary signal.
+region task has the most classes to rank.
 % [2026-09-07, author-approved] "is hardest" -> "has the most classes to rank" (review finding:
 % Arizona has the lowest dedicated Acc@10 and no gain there, so "hardest" was the wrong reading of
 % the region count). The two-confounder sentence stays attached; P1 remains a pair.
@@ -181,9 +180,7 @@ auxiliary signal.
 The ordering is not monotone inside that pair, since California has more regions than Texas and a
 slightly smaller gain, and region count co-varies with corpus size across these states, so the
 grouping is read as an observation about where the benefit appears rather than as a law relating
-gain to region count. Why the benefit appears there is a separate question: the joint model is also the larger
-model (Section~\ref{sec:discussion}), so these gains are not attributed to sharing between the
-tasks.
+gain to region count. Why the benefit appears there is a separate question (Section~\ref{sec:discussion}).
 % [2026-09-06, camera-ready, D4] ONE SENTENCE ADDED after the protected pair (plan P1: the
 % mechanism sentence and the "observation rather than a law" sentence stay together, unchanged).
 % The addition separates WHERE the benefit appears (the author's observation, which holds) from WHY
