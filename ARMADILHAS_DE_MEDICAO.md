@@ -305,3 +305,26 @@ Não é uma variante nova: é §14 outra vez, **o comando certo para a pergunta 
 mesmo dia a duas sessões — a outra teve dois commits de guardas por empurrar, e foi o autor a vê-los
 no IDE antes de qualquer agente. **Antes de dizer "fechado", corra o segundo comando, não o
 primeiro.**
+
+### A décima-segunda: a mensagem de commit é superfície de ponteiro, e não tem portão
+
+No commit imediatamente a seguir a escrever a décima-primeira, apontei para **`ARMADILHAS §15`**.
+Não existe §15 — a lição de que eu falava está no §14, acima. Isto horas depois de converter uns
+quarenta ponteiros `:NN` em âncoras de conteúdo, na campanha desenhada exactamente contra este
+defeito.
+
+O que o caso acrescenta é a **superfície**. A campanha de conversão varreu ficheiros que os agentes
+lêem como instrução — `CLAUDE.md`, `VEREDITOS`, `AGENT_*`. A mensagem de commit não estava na lista,
+e é a pior das superfícies em dois aspectos:
+
+- **Nenhum portão a lê.** O `check.sh`, os guardas do `gate_v17.sh`, os testes — todos olham para
+  ficheiros. Um ponteiro podre numa mensagem de commit passa por qualquer verificação que exista.
+- **Uma vez empurrada, não se emenda.** Um ficheiro corrige-se com uma edição. Uma mensagem já no
+  remoto só se corrige reescrevendo história partilhada, o que não se faz por um ponteiro — fica
+  errada para sempre e a correcção vive noutro sítio, que é precisamente aqui.
+
+**Antes de citar uma secção numa mensagem de commit, corra o `grep`.** Custa um segundo, e é o único
+momento em que ainda é barato.
+
+*Caso: esta sessão, ao fechar a passada final. A correcção do `f63034b9`: onde a mensagem diz
+"ARMADILHAS §15", leia-se **§14**, na sub-secção "A décima-primeira".*
