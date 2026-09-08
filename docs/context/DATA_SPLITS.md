@@ -61,11 +61,43 @@ The legacy single-file `region_transition_log.pt` (full-dataset prior) is **leak
 
 For paper-grade Wilcoxon (n=20), the protocol is:
 
-1. **Same fold partition across seeds** — fold-id seed=42 always; only the model-init seed varies.
+1. ~~**Same fold partition across seeds** — fold-id seed=42 always; only the model-init seed varies.~~
+   🔴 **FALSO. Corrigido 2026-08-27 — ver o bloco abaixo.** O correto: **cada semente sorteia uma
+   partição diferente**; a mesma semente governa a partição **e** a inicialização.
 2. **Seeds {0, 1, 7, 100}** for the standard 4-seed pool. Combined with 5 folds → n=20 paired (seed, fold) tuples.
 3. FL multi-seed extends to {42, 0, 1, 7, 100} → n=25 (the FL Δm-MRR Pareto-positive cell).
 
-Multi-seed runs reuse the same fold tensors (no per-seed fold regeneration). Pairing is on `(fold_idx, seed_idx)`.
+~~Multi-seed runs reuse the same fold tensors (no per-seed fold regeneration).~~ 🔴 **FALSO, mesma
+correção.** Pairing is on `(fold_idx, seed_idx)`.
+
+> ## 🔴 CORREÇÃO 2026-08-27 — a partição NÃO é congelada entre sementes
+>
+> **`--seed` alimenta o `random_state` do divisor. Cada semente produz uma partição de usuários
+> diferente**, e a mesma semente também semeia a inicialização — as duas estão **confundidas**, o que
+> é um limite declarado, não uma escolha.
+>
+> **Sete linhas de evidência, duas empíricas:**
+>
+> | | |
+> |---|---|
+> | código | `src/data/folds.py:1159, 1247, 1453` — `StratifiedGroupKFold(..., random_state=self.seed)`. O `1453` é o caminho conjunto entregue |
+> | código | `scripts/compute_region_transition.py:304` — mesmo contrato, arquivo diferente |
+> | cadeia | `scripts/train.py:573` (`--seed`) → `:1375` (`replace(config, seed=...)`) → `:1874` (`FoldCreator(seed=config.seed)`) → `folds.py:1071` |
+> | drivers | `docs/studies/closing_data/v18/run_wave.sh:132,175,193` passam `--seed`; `--folds-path`, `--no-folds-cache` e `--per-fold-seed` aparecem **0 vezes** |
+> | logs | todo log v18 registra **miss** do cache de folds; as contagens de usuários por fold **diferem entre sementes** |
+> | 🟢 empírico | rodar o divisor no `next.parquet` entregue de Alabama: **nenhum par de sementes partilha o fold-0**; Jaccard 0,096–0,134 |
+> | 🟢 empírico | os `region_transition_log_seed{S}_fold{N}.pt` em disco têm **md5 distinto por semente** para o mesmo índice de fold |
+>
+> ⚠ **E a reconstrução fecha:** re-dividir o `next.parquet` entregue **só a partir da semente**
+> reproduz os tamanhos de fold dos quatro logs entregues, **fold a fold, nos vinte números** — e a
+> variante com `userid` cru **não** casa. É falsificável e passou.
+>
+> **O volume entregue já estava certo** (`5_mobiwac/05_setup.tex:117`: *"each seed produces a
+> different division of the users"*). **Era este documento que estava errado.**
+>
+> ⚠ **Por que sobreviveu:** a varredura de correção de 2026-08-04 escopou-se a
+> `articles/dissertacao/**` e **nunca olhou para `docs/context/`** — enquanto 19 arquivos citam este
+> como fonte. **Busca com escopo errado, resultado vazio, vazio lido como ausência.**
 
 ## What a new agent must verify before claiming "MTL beats STL"
 

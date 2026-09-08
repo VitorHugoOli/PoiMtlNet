@@ -10,7 +10,7 @@
 >
 > **This folder is the source of truth for these numbers** (closes fact-gate finding NEW-1 /
 > REV-013: the earlier summary was uncommitted). Design and licensing contract:
-> `articles/dissertacao/storyline/audit/capacity_baseline_experiment.md`.
+> `../../../../articles/dissertacao/science/storyline/audit/capacity_baseline_experiment.md`.
 
 ## Protocol
 

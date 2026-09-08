@@ -46,6 +46,44 @@ bancadas sao por fold, semente 0, mesma engine, mesma receita.
 > | California | 8.809.533 | **528** | 9.004.686 | 102,2% |
 > | Texas | 8.308.897 | **544** | 8.354.882 | 100,6% |
 >
+> ---
+>
+> ## 🔴 CORRECAO 2026-08-27 — a coluna "conjunto atual (medido)" NAO foi medida
+>
+> **Os numeros `6.909.789` (AL), `8.809.533` (CA) e `8.308.897` (TX) sao uma RECONSTRUCAO** feita a
+> partir de defaults assumidos (`num_layers=4`, `num_shared_layers=4`, cross-attention 2x4), **nao
+> uma leitura de execucao**. Os logs das corridas entregues dizem outra coisa:
+>
+> | dataset | tabela acima ("medido") | log de execucao v18_2 | razao |
+> |---|--:|--:|--:|
+> | California | 8.809.533 | **5.151.189** | 1,71x |
+> | Texas | 8.308.897 | **4.899.897** | 1,70x |
+>
+> Fonte, verbatim, `v18_2/modal_runs/california_s7_lane_*/logs/california_s7_joint.out`:
+> `('cat', …, 1731079) ('reg', …, 1835982) ('shared', …, 1584128)` — soma **5.151.189**, que e
+> exatamente o valor que esta tabela rotula como *"v17 (publicado)"*.
+> Texas, mesmo formato: `1731079 + 1584690 + 1584128 = 4.899.897`.
+>
+> 🛑 **As duas colunas estao trocadas de rotulo.** O que a tabela chama *"conjunto v17
+> (publicado)"* e o que o modelo entregue **de facto executa**; o que ela chama *"conjunto atual
+> (medido)"* e uma reconstrucao com hiperparametros que nao correram.
+>
+> ⚠ **CONSEQUENCIA QUE PRECISA DE DECISAO — nao e correcao de numero.** As larguras pareadas
+> `d_model` **624 (AL) · 528 (CA) · 544 (TX)** foram derivadas por busca **contra estes alvos
+> inflados**. Se o alvo real e ~1,7x menor, entao o braco dedicado chamado *"pareado"* recebeu
+> **cerca de 1,7x o orcamento do modelo conjunto, nao o mesmo**.
+>
+> **Isso muda a leitura do controle de capacidade** (`P1_capacity_region.md`, e o slide `B-P1` da
+> Serie B): *"capacidade pareada remove a vantagem em California"* passaria a ser *"um dedicado com
+> ~1,7x o orcamento supera o conjunto em California"* — **afirmacao diferente, e mais fraca contra o
+> modelo conjunto**. ⚠ **Vai na mesma direcao do Apendice G**, que ja registra que o braco largo
+> recebeu *"mais que o dobro"* e ainda assim pontuou **abaixo**.
+>
+> 🛑 **NAO alterado aqui:** as larguras, o veredito do controle, nem os slides. **Isto e
+> registro do defeito e da sua consequencia; a decisao e do autor.**
+>
+> ---
+>
 > E o alvo mais conservador dos dois: da ao dedicado **todo** o orcamento do modelo conjunto, de modo
 > que qualquer folga remanescente nao possa ser atribuida a parametros.
 >
