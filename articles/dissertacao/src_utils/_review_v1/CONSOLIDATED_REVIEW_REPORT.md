@@ -1,5 +1,22 @@
 # Consolidated Review Report — Dissertation v1 (18-persona suite)
 
+> 🛑 **GERACAO SUPERADA — nenhum numero deste ficheiro pode ser citado.**
+>
+> Isto e a suite de 18 personas sobre o build v1, corrido em 23 de julho de 2026, **antes** de a geracao v18 fechar o vazamento de rotulo
+> no grafo de visitas consecutivas (fechado em 2026-08-13). As celulas de macro-F1 de categoria
+> medidas aqui vem da geracao com vazamento e **nao sao as do documento entregue**.
+>
+> **Como reconhecer uma celula morta sem a copiar daqui:** a categoria entregue vive na casa dos
+> **30 a 38**. Qualquer valor de categoria muito acima disso neste ficheiro e da geracao anterior.
+>
+> **O que este ficheiro ainda vale:** o registo de que estas questoes foram levantadas, por quem,
+> e o que se decidiu. O raciocinio e o processo continuam legiveis. So os **valores medidos**
+> e que caducaram.
+>
+> Antes de agir sobre qualquer coisa aqui, ler `VEREDITOS.md` na raiz da pasta: as questoes ja
+> encerradas estao la com a prova, e este ficheiro nao e fonte de nenhuma delas.
+
+
 > Phase-7 deliverable. The full 18-persona review suite was run as fresh sub-agents on the
 > `claude-opus-4-8` model (deviation from the plan's Fable mandate, made on the author's call
 > after Fable-token exhaustion stalled the wave; logged in the handoff note). Each persona
