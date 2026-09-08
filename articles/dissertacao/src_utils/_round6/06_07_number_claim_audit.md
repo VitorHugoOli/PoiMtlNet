@@ -1,5 +1,21 @@
 # 06 + 07 · Number auditor and claim/honesty auditor — round 6 delta pass (G2, N1–N5 + C1–C4)
 
+> 🛑 **GERACAO SUPERADA — nenhum numero medido deste ficheiro pode ser citado.**
+>
+> Isto e a auditoria de numeros e de honestidade de alegacoes da ronda 6, corrido **antes** de a geracao v18 fechar o vazamento de rotulo no grafo de
+> visitas consecutivas (fechado em 2026-08-13). As celulas de macro-F1 medidas aqui vem da
+> geracao com vazamento e **nao sao as do documento entregue**.
+>
+> **Como reconhecer uma celula morta sem a copiar daqui:** a categoria entregue vive na casa dos
+> **30 a 38**. Qualquer valor de categoria muito acima disso neste ficheiro e da geracao anterior.
+>
+> **O que este ficheiro ainda vale:** o registo de que estas questoes foram levantadas, por quem,
+> e o que se decidiu. O raciocinio e o processo continuam legiveis. So os **valores medidos**
+> e que caducaram.
+>
+> Antes de agir sobre qualquer coisa aqui, ler `VEREDITOS.md` na raiz da pasta.
+
+
 **Written 2026-07-28**, read-only, fresh eyes. Personas 06 and 07 run as one pass because they share
 the extraction work and jointly constitute gate G2.
 

@@ -1,5 +1,21 @@
 # 63 · Audit of author items 31-36 — the conclusion chapter and its craft
 
+> 🛑 **GERACAO SUPERADA — nenhum numero medido deste ficheiro pode ser citado.**
+>
+> Isto e a auditoria do capitulo de conclusao (itens 31-36 do autor), corrido **antes** de a geracao v18 fechar o vazamento de rotulo no grafo de
+> visitas consecutivas (fechado em 2026-08-13). As celulas de macro-F1 medidas aqui vem da
+> geracao com vazamento e **nao sao as do documento entregue**.
+>
+> **Como reconhecer uma celula morta sem a copiar daqui:** a categoria entregue vive na casa dos
+> **30 a 38**. Qualquer valor de categoria muito acima disso neste ficheiro e da geracao anterior.
+>
+> **O que este ficheiro ainda vale:** o registo de que estas questoes foram levantadas, por quem,
+> e o que se decidiu. O raciocinio e o processo continuam legiveis. So os **valores medidos**
+> e que caducaram.
+>
+> Antes de agir sobre qualquer coisa aqui, ler `VEREDITOS.md` na raiz da pasta.
+
+
 > **Measured against the WORKING TREE**, not the built PDF. Baseline `HEAD=82080ce4`, with
 > `src/chapters/6_conclusion.tex` uncommitted (`git status --porcelain` shows ` M
 > articles/dissertacao/src/chapters/6_conclusion.tex`). File mtimes read this session:
