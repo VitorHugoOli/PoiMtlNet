@@ -68,8 +68,7 @@ six. Five datasets are U.S. states and one is a non-U.S. city.
 
 We then ask whether one model can answer both questions in a single forward pass. On next region it outperforms a dedicated single-task model at the two datasets with the
 largest region vocabularies, by about one point, and at the other four it stays within a two-point
-margin registered before any result was read. A dedicated model of the same size scores above the
-joint model at one of the two, so we do not attribute that gain to sharing. On next category it
+margin registered before any result was read. The joint model is also the larger model, so we do not attribute that gain to sharing. On next category it
 outperforms the dedicated model at one dataset, and the other five differences are equivalent to
 zero within half a point. One model therefore serves both tasks at a cost bounded on both axes.
 \end{abstract}
@@ -112,6 +111,10 @@ combines it with a private spatial path.}
 \input{sections/07_discussion}
 
 \input{sections/08_conclusion}
+
+\section*{Acknowledgment}
+The authors would like to acknowledge the support of the Research Support Foundation of the
+State of Minas Gerais (FAPEMIG), CNPq and CAPES.
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}

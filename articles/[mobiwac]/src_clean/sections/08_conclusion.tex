@@ -5,8 +5,8 @@ We tested whether one model can predict both the category and region of a user's
 central concern was that sharing could help one task while hurting the other. The evidence does not
 attribute the outcome to sharing alone. On the category task the input representation moves the
 score more than the choice between one model and two: at every one of the six datasets and in every
-fold it improves next-category prediction, by $+0.23$ to $+6.29$ macro-F1 points. On the region task, a
-dedicated model of the joint model's size scores above it at California.
+fold it improves next-category prediction, by $+0.23$ to $+6.29$ macro-F1 points. On the region task, the joint model is also the larger model, and the design does not separate
+size from sharing.
 
 On that representation, one model reads both answers from a single saved model. On region it
 outperforms the dedicated model at Texas and California and stays within the two-point margin registered before any result was read at the

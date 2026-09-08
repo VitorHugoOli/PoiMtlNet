@@ -64,10 +64,9 @@ auxiliary signal.
 The ordering is not monotone inside that pair, since California has more regions than Texas and a
 slightly smaller gain, and region count co-varies with corpus size across these states, so the
 grouping is read as an observation about where the benefit appears rather than as a law relating
-gain to region count. Why the benefit appears there is a separate question: at California, a
-dedicated region model widened to the joint model's size scores above the joint model
-(Section~\ref{sec:discussion}), so the gain at that dataset is not attributed to sharing between
-the tasks, and Texas has no control of matched size.
+gain to region count. Why the benefit appears there is a separate question: the joint model is also the larger
+model (Section~\ref{sec:discussion}), so these gains are not attributed to sharing between the
+tasks.
 
 On category, Florida is the one dataset where the difference survives the
 Holm correction across the six ($+0.19$; 90\% CI $+0.14$ to $+0.25$; corrected $p=0.011$), with 19 of the
@@ -117,4 +116,4 @@ joint models are above it at every dataset.
 
 At Istanbul, the non-U.S. city, both differences are within a tenth of a point of the dedicated
 models (category $+0.08$ macro-F1, region $-0.08$ Acc@10), so what repeats on a different continent
-and region unit is the bounded picture, with no gain on either task.
+and region unit is the bounded picture, with neither difference resolved as a gain.
