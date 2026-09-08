@@ -195,3 +195,52 @@ exatamente o que a tela deixara de afirmar.
 
 **Regra:** ao remover uma **alegação** (não uma palavra), enumere primeiro **onde ela vive**.
 Aqui eram três superfícies; a instrução cobria uma.
+
+---
+
+## 13 · O ponteiro que apodrece, e as duas edições que o produzem
+
+Um documento superado engana quem o lê. **Um guarda superado engana quem o lê _e_ quem o obedece** —
+ou gera desconfiança inútil de um ficheiro que está bem, ou manda "corrigir" o que está certo.
+
+Em cinco horas de 2026-09-08 este ficheiro ganhou três casos, por três sessões diferentes.
+
+**(a) A edição que não lê o que emenda.** Acrescentar uma linha a um cabeçalho sem ler a de cima
+produziu duas afirmações contraditórias no mesmo bloco, **criadas pela mesma edição**. Não é
+decadência: nasce partido.
+
+**(b) A medição no ficheiro homónimo errado.** Existem dois `NORTH_STAR.md` neste repositório —
+`docs/` (a receita campeã de MTL) e `articles/dissertacao/` (a tese e o mapa dos capítulos), 527 e
+447 linhas, documentos diferentes. Uma sessão grepou o do `docs/` para responder a uma pergunta
+sobre o da dissertação, concluiu **"zero ocorrências"**, e escreveu essa medição num guarda. As
+frases existiam, **duas vezes cada**, no irmão — e correctamente tarjadas `[SUPERADO]`.
+
+> ⚠ **Esta é a variante que nenhuma disciplina sobre grafias apanha.** As outras oito falhas desta
+> família em 2026-09 foram buscas que **não podiam** encontrar (grafia errada, `[colchetes]` como
+> classe de caracteres, `--include` sem aspas, um match cortado por `cut`). Esta é **a busca certa no
+> sítio errado**. Contado no dia: **241** referências a `NORTH_STAR.md` sem caminho contra 67
+> qualificadas. Os dois ficheiros levam agora tarja a dizer que o irmão existe.
+
+**(c) O ponteiro que apodrece em sessenta minutos.** Um `canon.py:26` escrito à tarde apontava para a
+linha 27 uma hora depois, porque **a própria edição que o escreveu** empurrou a constante. Escrito
+por quem acabara de descobrir esta falha exacta.
+
+**A regra, e é sobre onde se ancora:**
+
+| âncora | dura? |
+|---|---|
+| número de linha | **não** — move-se com a edição seguinte, inclusive a sua |
+| contagem que alguém tem de manter | **não** — a mesma classe (ver §3) |
+| nome de ficheiro sem caminho | **não**, se houver homónimo — e há |
+| **nome de símbolo** (`DEFAULT_CANON`, `\finalbuildfirstpage`) | **sim** — foi a que sobreviveu a todas as conversões |
+| nome de estudo, geração, data, texto de um marcador | **sim** |
+
+**Prefira o símbolo à frase.** Uma âncora em prosa move-se com cada errata; um nome de símbolo só
+muda quando o código muda, e aí quebra ruidosamente.
+
+**E verifique a âncora em cada ficheiro que ela reclama, não uma vez.** Um ponteiro que resolve num
+sítio não resolve nos outros que o citam.
+
+**O corolário que custou o dia:** ao substituir um guarda podre, **a medição que se escreve no
+substituto é ela própria um guarda** — e pode ser pior que o original. Aqui foi: o guarda antigo só
+podia causar desconfiança; o novo podia causar uma **deleção** de registo histórico marcado.

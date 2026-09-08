@@ -284,6 +284,136 @@ das outras tres, logo **as sementes 0/1/7 sao o piso limpo** e a conclusao aguen
 
 ---
 
+## V12 · Como se decide se um documento com números mortos sai ou fica
+
+*Também chega como:* isto ainda vale? dá para apagar? o git guarda, restaura-se depois.
+
+**Veredito: quatro perguntas, por esta ordem.** Adoptado 2026-09-08 como critério do passe de
+validade, depois de fechar com 27 candidatos, 11 tarjados, **10 falsos positivos e zero apagados**.
+
+1. **Afirma factos mortos como correntes?** → candidato a sair
+2. **Menciona-os para avisar?** → **fica: é a defesa**
+3. **A carga é uma decisão, uma medição, ou um dicionário de dados?** → fica, independentemente
+   dos números
+4. **Algo de carga cita-o?** (a toolchain, o `.tex` entregue, uma lista de conferência do autor)
+   → **veto: fica**, mesmo que falhe as três primeiras
+
+### O teste que separa a 1 da 2, e é onde quase toda a gente erra
+
+**Teste a função do número na frase, não a presença dele.** Um número que serve de **comparando,
+piso, ou alvo a bater** está a ser *mencionado* — mesmo sem tarja, mesmo sem aspas, mesmo numa
+tabela.
+
+O `_round9/reviews/06_number.md` saiu porque dizia *"every cell matching"*: asserção de que as
+células estavam **certas**. O `handoff/ch5_mechanism_evidence.md` ficou apesar de imprimir `63.56`
+e `77.05` sem tarja, porque a linha lê *"77.05 (−7.17 from the matched arm)"* — o número está lá
+para ser batido.
+
+⚠ **O antídoto contém o veneno textualmente.** O `AGENT_GUARDRAILS.md §N1`, o `CLAUDE.md §0` e o
+V9b deste ficheiro citam `77.05` **para o nomear como errado**. Uma varredura cega por esse número
+apaga exactamente a defesa. Classifique cada ocorrência antes de agir.
+
+**Filtro rápido que decide a maioria:** o documento **declara a que geração pertence**? Se declara,
+quase de certeza é menção. Foi essa regra que salvou os 37 ficheiros do `docs/` — ver abaixo.
+
+### Onde "está no git, restaura-se" falha
+
+O git preserva bytes, **não descobribilidade**. **O caso que o provou, no mesmo dia:** a
+proveniência dos `+2,0 / +1,7 / +0,8` **já submetidos** no MobiWac só se traçou até ao A2 porque o
+`docs/studies/pre_freeze_gates/A2_RESULTS.md` estava vivo e apareceu num `grep` pelos valores. Era um
+relatório de portão resolvido, de um estudo fechado — perfil exacto de candidato a poda pela regra 1.
+Sem ele a resposta honesta teria sido *"ninguém sabe"* sobre um número publicado. Apagar é seguro quando a ausência se **auto-anuncia**
+(um portão fica vermelho, um link dá 404 na revisão) e inseguro quando é silenciosa. O teste antes
+de agir: *"o que parte alto se isto sair?"* — se a resposta for "nada", isso **não** é prova de
+segurança, é o sinal de perigo. Cinco casos medidos nesta árvore:
+
+- o ponteiro sobrevive ao ficheiro (`check.sh` **executa** `_round9/35_wave_a_render_check.py`);
+- o `.tex` entregue cita caminhos de ronda **40 vezes** como proveniência, e num documento
+  depositado a proveniência É o artefacto;
+- o caso circular: para saber que deve restaurar o `_aut_closed_blocks.md` precisaria do que está
+  escrito **dentro** dele (que 32 números não existem noutro sítio);
+- o dicionário de dados: apagar o `_round7/gradient_cosine_tests6_README.md` deixa o CSV a
+  significar outra coisa em silêncio (**sete** datasets, e Georgia não é dos seis);
+- restaurar exige o caminho e o sha, e ninguém procura um ficheiro que não sabe que existiu.
+
+---
+
+## V13 · Uma medição acusou muita coisa. Confio nela?
+
+**Veredito: NÃO. Suspeite da medição primeiro.** Em 2026-09-05/08, **quatro** sondas acusaram em
+massa e **nas quatro o ficheiro estava bem** — o erro era sempre da sonda.
+
+| sonda | acusou | verdade |
+|---|---|---|
+| regex de `v1x` para achar geração | 6 sem rótulo | descreviam-se por motor e data |
+| janela de 25 linhas no cabeçalho | `docs/baselines/README.md` mudo | declara **por linha**, mais abaixo |
+| resolução de caminhos relativos | 130 alvos inexistentes | **129 existiam** |
+| resolver `log.md` pela pasta irmã | ponteiro fora do ficheiro | há **18** `log.md`; era o do assunto, não o irmão |
+
+### E o inverso: detecção estrutural subestima o dano
+
+Verificação **estrutural** dos guardas (o alvo existe? a linha existe?) encontrou **1 ponteiro
+partido em 308**. Verificação **do conteúdo**, feita à mão, encontrou **12 em 17 a apontar para o
+sítio errado — cerca de 70%**. O ficheiro existia e a linha existia; o conteúdo é que se tinha
+mexido por baixo.
+
+**Portanto: não automatize a auditoria de guardas.** Uma varredura estrutural dá dois achados
+triviais e uma sensação de cobertura, que é pior do que não ter nenhuma — falha exactamente a
+espécie que motiva a auditoria. O remédio é de **construção, não de detecção**: ancorar por
+**conteúdo**, nunca por número de linha (`ACHADOS.md` §A4 — *"aponta por conteúdo, que não apodrece
+quando o ficheiro se mexe"*). A conversão dos oito ficheiros-guarda fechou 2026-09-08 com zero
+ponteiros de linha.
+
+### Números desta série, para quem a repetir
+
+- `docs/` + `articles/[mobiwac]`: **40** ficheiros com células v17, **37 declaram a geração** no
+  cabeçalho. O `docs/` já pratica a convenção; **a dissertação era o valor atípico** (1 dos 262
+  tinha cabeçalho de estado). Não generalize a poda a partir da excepção.
+- Peneira `afirma|denuncia` sobre `63.56|79.85|77.05|64.51|RESULTS_BOARD`: **2,6× de
+  sobre-reporte**. É triagem, nunca veredicto — cada acerto tem de ser lido antes de contar.
+
+---
+
+## V14 · Um guarda podre é só um documento podre a mais?
+
+*Também chega como:* o aviso está desactualizado, corrijo depois; é só um ponteiro.
+
+**Veredito: NÃO — é pior, e de forma assimétrica.** Um documento superado engana **quem o lê**. Um
+guarda superado engana quem o lê **e quem o obedece**.
+
+**O caso, de 2026-09-08.** Um aviso do `CLAUDE.md` sobre o `NORTH_STAR.md` apodreceu (citava cinco
+números de linha que já apontavam para outro conteúdo). Ao ser substituído, o substituto afirmou
+*"nenhuma dessas frases existe no ficheiro, zero ocorrências"*. **Existiam, duas vezes cada**, e
+**correctamente tarjadas** `[SUPERADO 2026-08-20]`.
+
+⚠ **Repare na direcção do dano.** O guarda podre só podia causar desconfiança inútil de um ficheiro
+que estava bem. O substituto podia causar uma **deleção**: quem lesse "zero ocorrências" e
+encontrasse uma leria registo histórico marcado como contaminação fresca e "corrigi-la-ia"
+apagando — destruindo exactamente o que a tarja existe para proteger. **A medição que se escreve no
+substituto de um guarda é ela própria um guarda.**
+
+**A causa não foi grafia: foi o ficheiro errado.** Há **dois** `NORTH_STAR.md` — `docs/` (a receita
+campeã) e `articles/dissertacao/` (a tese e o mapa dos capítulos), documentos diferentes. Mediu-se um
+para responder sobre o outro. Não é uma busca que não podia encontrar; é **a busca certa no sítio
+errado**, e nenhuma disciplina sobre grafias a apanha. Os dois ficheiros levam agora tarja a dizer
+que o irmão existe (241 referências sem caminho contra 67 qualificadas).
+
+**Onde ancorar, e a ordem importa:**
+
+| âncora | dura? |
+|---|---|
+| número de linha · contagem que alguém mantém · nome sem caminho havendo homónimo | **não** |
+| **nome de símbolo** (`DEFAULT_CANON`, `\finalbuildfirstpage`) | **sim** — sobreviveu a todas as conversões |
+| nome de estudo · geração · data · texto de um marcador | **sim** |
+
+**Prefira o símbolo à frase:** uma âncora em prosa move-se com cada errata; um símbolo só muda
+quando o código muda, e aí quebra ruidosamente. **E verifique a âncora em cada ficheiro que ela
+reclama**, não uma vez.
+
+**Prova:** `ARMADILHAS_DE_MEDICAO.md` §13 · correcção em `d0523c2d` · tarjas em `8adc2215`.
+
+---
+
 ## Como acrescentar um verdete
 
 Um verdete entra aqui quando a questão está **fechada com prova**, não quando alguém tem uma
