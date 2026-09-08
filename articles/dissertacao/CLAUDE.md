@@ -73,9 +73,17 @@ approved 2026-08-09): `docs/studies/closing_data/v18/FINAL_SETTINGS.md`.
 The equivalence margin is registered for the **region** axis only; category equivalence is expressed
 as the derived bound "within half a point". Word-level law: [`WRITING_LAW.md`](WRITING_LAW.md) §3.
 
-> `NORTH_STAR.md` still carries the **superseded** ladder ("category everywhere, region at four of
-> six", "+28…+40 macro-F1 over place-level" — the true range is +0.23…+6.29) at lines 26, 43, 175,
-> 330 and 394. Do not copy a claim from it until those are fixed.
+> ⚠ **Este aviso estava errado e foi corrigido a 2026-09-08.** Dizia que o `NORTH_STAR.md` carregava
+> a escada superada ("category everywhere, region at four of six", "+28…+40 macro-F1 over
+> place-level") **nas linhas 26, 43, 175, 330 e 394**. Medido: nenhuma dessas quatro frases existe no
+> ficheiro (0 ocorrências de cada), e os cinco números de linha apontam para outro conteúdo — o
+> ficheiro cresceu e mudou desde que o aviso foi escrito.
+>
+> Continua a valer a regra de fundo, sem os ponteiros: o `NORTH_STAR.md` é documentação de **receita**
+> e é citado por dezenas de scripts vivos, mas os seus números de resultado são de gerações
+> anteriores. **Não copie um número dali para texto entregue** — os valores entregues estão em
+> `docs/studies/closing_data/v18/`. E, em geral, não cite ficheiros por número de linha: o alvo
+> move-se e o aviso apodrece em silêncio, que foi exactamente o que aconteceu aqui.
 
 ---
 

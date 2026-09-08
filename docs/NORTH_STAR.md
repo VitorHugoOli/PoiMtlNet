@@ -1,6 +1,7 @@
 # North-Star MTL Configuration
 
-> 🏆 **2026-07-01 — NEW CHAMPION = `v17` (now `DEFAULT_CANON`): bs=8192 + per-head cat-lr 1e-3**
+> 🏆 **2026-07-01 — CHAMPION RECIPE = `v17`: bs=8192 + per-head cat-lr 1e-3** (was `DEFAULT_CANON`
+> from 2026-07-01 to 2026-09-08; the default is now `v18`, see below — v17 stays reachable via `--canon v17`)
 > (`--onecycle-per-head-lr` → `MTL_ONECYCLE_PER_HEAD_LR=1`) beats v16/G at every tested state — **AL 64.54 (+1.0) /
 > AZ 65.84 (+2.3) cat; FL +0.17 cat / +0.20 reg, ~7% faster** (n=20 {0,1,7,100},
 > [`studies/closing_data/perhead_lr_n20.md`](studies/closing_data/perhead_lr_n20.md)). Unlocked by fixing a latent bug:
