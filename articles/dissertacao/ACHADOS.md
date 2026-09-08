@@ -655,6 +655,67 @@ ficheiro com outro nome. Sobreviveu a esta limpeza por sorte; o próximo glob de
 
 ---
 
+## A11 · O que ficou por varrer, e as regras que saíram deste trabalho
+
+### O buraco, dito antes que alguém assuma cobertura
+
+O passe de validade (as tarjas de geração superada) varreu **só `src_utils/_*/`**. A peneira,
+aplicada às outras árvores, devolve candidatos que **nunca foram olhados**:
+
+| árvore | ficheiros que a peneira sinalizaria | estado |
+|---|---|---|
+| `science/` | 6 | **não varrido** |
+| `wrapup/` | 6 | **não varrido** |
+| `presentation/` | 7 | **não varrido** |
+
+Com a taxa de falsos positivos medida (2,6×), isso são talvez sete verdadeiros. Não é urgente —
+mas **ninguém deve ler "passe de validade concluído" como "a pasta está varrida"**.
+
+### As quatro regras, que valem mais do que os lotes
+
+**1 · O critério não é a idade, é o que o ficheiro FAZ com um número.** Um documento que *regista
+uma decisão* envelhece bem. Um que *afirma uma célula medida* de uma geração superada envelhece
+para veneno — não é neutro, é pior do que ausente, porque se lê como corrente.
+
+**2 · A peneira é triagem, nunca veredito — e há um número.** Sobre-reportou **2,6×**: dos 16 do
+segundo lote, seis verdadeiros e dez falsos. Os dez mediam *big points* tipográficos, passivas por
+cem frases, a percentagem de um estudo externo, percentagem de comentários, cobertura de validação.
+O caso que ensina é o `18_visual_ufv_latex.md`: **nove** correspondências, a maior densidade do
+lote, e todas em `bp`. **Densidade alta não é sinal de verdade.**
+
+**3 · Prefere o símbolo à frase, ao ancorar.** As âncoras da `mobiwac` resolveram todas — mas por
+serem nomes de símbolo (`MIN_SEQUENCE_LENGTH`, `generate_sequences`), não por disciplina. Metade
+das minhas são frases de prosa, e essas **movem-se com cada errata**. `\subsubsection{POI Encoder}`
+e `\cite{menon2021logitadjustment}` são as âncoras mais seguras que escrevi, e não por acaso.
+
+**4 · Verificar uma âncora é verificá-la em CADA ficheiro que ela reclama.** Usei uma frase para
+dois alvos e confirmei-a num só; o segundo não a continha. É a mesma forma do defeito dos dois
+`NORTH_STAR.md` — o certo no sítio errado.
+
+### 🔴 E o padrão que atravessa tudo o resto
+
+**Cinco vezes em quatro dias, uma medição corrigiu uma explicação plausível. Em nenhuma o problema
+era o ficheiro — era o instrumento a responder à pergunta ao lado:**
+
+| perguntei | o instrumento respondeu | onde |
+|---|---|---|
+| "estes dois PDFs são versões diferentes?" | "são ficheiros diferentes" (`/CreationDate`) | **A1** |
+| "esta regra apanha este caminho?" | "este caminho está rastreado" (`check-ignore` sem `--no-index`) | **A6** |
+| "de que geração é este conteúdo?" | "quando o ficheiro foi tocado" (data de commit ≠ data declarada) | **A10** |
+| "este ficheiro afirma células mortas?" | "tem um número entre 60 e 79" | **A11 §2** |
+| "quantos ponteiros estão partidos?" | "quantos apontam para ficheiros ausentes" (0,3%) | abaixo |
+
+O último é o mais caro. A varredura **estrutural** dava 0,3% de ponteiros partidos. Medidos contra
+o **conteúdo**, ~30% em 17 ponteiros apontavam para a frase errada. **A rotura não é rara, é
+maioritária — só não é detetável**, porque um ponteiro que aponta para a linha errada de um
+ficheiro que existe não falha em lado nenhum. A formulação é da `mobiwac` e é a melhor que saiu
+deste trabalho.
+
+> **A regra prática:** antes de citar uma medição, perguntar que pergunta o instrumento responde de
+> facto. Nas cinco vezes, a resposta estava certa — para outra pergunta.
+
+---
+
 ## Procedência deste documento
 
 Verificado por mim `[V]`: A1, A2, A3, A4, A5, A6 (exceto o exit code do `make check`), A7, A9, B2, B3.
