@@ -42,6 +42,9 @@ for k in range(1,len(parts),2):
                     ctx=grab("**Contexto**", r"\*\*Comentário"), comment=comment)
 idx=re.findall(r"^\| \[(B-\d\d)\]\(#b-\d\d\) \| (\S) \| (\d+) \| ([^|]+?) \|", md, re.M)
 
+# A legenda, lida do próprio documento: cada linha `| `X` | descrição |` da tabela de estados.
+LEGENDA = set(re.findall(r"^\| `(\S)` \|", md, re.M))
+
 fails=[]
 chk=lambda c,m: None if c else fails.append(m)
 
@@ -66,7 +69,14 @@ for n,bid in enumerate(ids):
     # Qualquer marca da legenda do ficheiro serve. Exigir '☐' contradizia a instrução do próprio
     # documento ("Marque o status na tabela abaixo"): o verificador falharia no instante em que o
     # autor decidisse o primeiro item. Corrigido 2026-09-02, ao marcar os 27 pela primeira vez.
-    chk(st in "☐✔✎✖?", "%s: status %r fora da legenda (☐ ✔ ✎ ✖ ?)"%(bid,st))
+    #
+    # ⚠ E A LEGENDA É LIDA DO FICHEIRO, não fixada aqui. Corrigido 2026-09-08: estava fixada como
+    # "☐✔✎✖?", e no instante em que o documento ganhou um símbolo novo (`✅`, para as erratas já
+    # aplicadas) o verificador rejeitou seis itens legítimos. Uma cópia de uma lista que vive noutro
+    # ficheiro envelhece sozinha, e este script existe precisamente para apanhar esse género de
+    # divergência -- não para o produzir. A legenda sai agora das linhas `| \`X\` | ... |` do MD.
+    chk(st in LEGENDA, "%s: status %r não está na legenda do próprio documento (%s)"
+        %(bid, st, " ".join(sorted(LEGENDA))))
     chk(isec.strip()==it["sec"], "%s: seção no índice != no item"%bid)
     # 4 · trecho destacado existe literalmente na página
     q=re.sub(r"\*\*","",it["quote"]).replace("[legenda completa no contexto abaixo]","").strip()

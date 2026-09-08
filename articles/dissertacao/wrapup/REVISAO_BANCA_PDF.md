@@ -27,11 +27,31 @@ transcrito literal.
 Marque o `status` na tabela abaixo — é o único lugar de marcação, para não haver duas versões do
 mesmo estado. Legenda:
 
+> ## ✅ Os 27 estão decididos E aplicados. Nada aqui está pendente.
+>
+> Verificado a **2026-09-08 contra o texto vivo**, não contra este ficheiro. Os seis que ainda
+> liam `✎` (*"vira errata no depósito"*) foram aplicados no commit **`3c0e4871`** de 02/09, cujo
+> título é *"as seis últimas decisões do autor — nenhum dos 27 itens fica por decidir"*. O símbolo
+> estava no futuro e o trabalho já era passado: **um registo que descreve um estado que já passou
+> engana quem o lê**, e é a mesma família das armadilhas §13-14.
+>
+> | | pedia | está |
+> |---|---|---|
+> | B-08 | a §2.4 parece metodologia | o Cap. 2 diz porquê: *"…reads as a methods section, which is what it is"* |
+> | B-14 | — | remissão para o B-15; nunca foi item |
+> | B-15 | contra que alvo mediram o MTL? | a legenda declara a lacuna: *"which of the two targets stopped its clock is not recorded"* |
+> | B-20 | *"consistently outperforms"* | *"in **most** of the evaluated combinations"* |
+> | B-22 | cautela **do quê**? | *"**Two things age** with such a dataset…"* |
+> | B-23 | melhorias **em relação a quê**? | *"two enhancements **to that earlier model**"* |
+>
+> O `verify_revisao_banca.py` passa: 27 itens, 27 destaques, 27 linhas de índice, zero falhas.
+
 | marca | significado |
 |---|---|
 | `☐` | aberto — ainda não decidido |
 | `✔` | resolvido no texto |
 | `✎` | vira errata no depósito |
+| `✅` | **errata já aplicada** — commit `3c0e4871`; nada por fazer |
 | `✖` | dispensado — decisão de não mexer |
 | `?` | precisa de medição ou consulta antes de decidir |
 
@@ -69,22 +89,22 @@ mesmo estado. Legenda:
 | [B-05](#b-05) | ✔ | 16 | 1 Introduction · Organization | exemplo do almoço de terça vs. sábado à noite | clareza |
 | [B-06](#b-06) | ✔ | 20 | 2.1.1.1 Check-ins and histories | dar exemplos concretos dos elementos de U, P, C, R | sugestão |
 | [B-07](#b-07) | ✖ | 20 | 2.1 Point-of-interest prediction tasks | seção confusa, subníveis demais; fundamentar MTL antes | organização |
-| [B-08](#b-08) | ✎ | 31 | 2.4 Datasets and evaluation | "Datasets and evaluation" parece metodologia, não fundamentação | organização |
+| [B-08](#b-08) | ✅ | 31 | 2.4 Datasets and evaluation | "Datasets and evaluation" parece metodologia, não fundamentação | organização |
 | [B-09](#b-09) | ✖ | 37 | 3.1 Introduction (CBIC) | MTL não entrega os ganhos esperados | destaque sem comentário |
 | [B-10](#b-10) | ✔ | 38 | 3.2 Theoretical Foundations and Related Work | redundância entre capítulos por ser coletânea de artigos | organização |
 | [B-11](#b-11) | ✔ | 46 | 3.4.1 Dataset and Evaluation Metrics | por que 5-fold? | pergunta |
 | [B-12](#b-12) | ✔ | 46 | 3.4.1 Dataset and Evaluation Metrics | check-ins do mesmo usuário em treino e validação | metodologia |
 | [B-13](#b-13) | ✔ | 47 | 3.4.2.1 POI Category Classification | superação do HMRM em todas as categorias | destaque sem comentário |
-| [B-14](#b-14) | ✎ | 49 | 3.4.3 Convergence Comparison | F1 alvo de 47 e 32,2 | destaque sem comentário |
-| [B-15](#b-15) | ✎ | 50 | 3.4.3 Convergence Comparison | o alvo vale só para um dos modelos? | pergunta |
+| [B-14](#b-14) | ✅ | 49 | 3.4.3 Convergence Comparison | F1 alvo de 47 e 32,2 | destaque sem comentário |
+| [B-15](#b-15) | ✅ | 50 | 3.4.3 Convergence Comparison | o alvo vale só para um dos modelos? | pergunta |
 | [B-16](#b-16) | ✖ | 53 | 4.1 Introduction (CoUrb) | Time2Vec — havia alternativas? | discussão |
 | [B-17](#b-17) | ✖ | 57 | 4.3 Methodology (Figura 2) | arquitetura parece igual à anterior; apontar as diferenças | apresentação |
 | [B-18](#b-18) | ✔ | 62 | 4.4.1 Experimental Setup | por que 80/20? | pergunta |
 | [B-19](#b-19) | ✖ | 63 | 4.4.2 POI Category Classification (Figura 3) | empilhar as figuras para aumentá-las | editorial |
-| [B-20](#b-20) | ✎ | 65 | 4.5 Conclusion and Future Work | "conclusão" — ST-MTLNet supera o baseline DGI | marcação |
+| [B-20](#b-20) | ✅ | 65 | 4.5 Conclusion and Future Work | "conclusão" — ST-MTLNet supera o baseline DGI | marcação |
 | [B-21](#b-21) | ✖ | 66 | 4.5 Conclusion and Future Work | DGI ainda captura melhor os deslocamentos longos | destaque sem comentário |
-| [B-22](#b-22) | ✎ | 66 | 4.5 Conclusion and Future Work | o que é dependente entre modelo e dataset? | pergunta |
-| [B-23](#b-23) | ✎ | 68 | 5.1 Introduction (MobiWac) | "duas melhorias" — em relação ao primeiro trabalho? | clareza |
+| [B-22](#b-22) | ✅ | 66 | 4.5 Conclusion and Future Work | o que é dependente entre modelo e dataset? | pergunta |
+| [B-23](#b-23) | ✅ | 68 | 5.1 Introduction (MobiWac) | "duas melhorias" — em relação ao primeiro trabalho? | clareza |
 | [B-24](#b-24) | ✖ | 72 | 5.4.1 The check-in-level representation | região e lugar da região não são dependentes? | pergunta |
 | [B-25](#b-25) | ✖ | 72 | 5.4.1 The check-in-level representation | a palavra "tempo" | destaque sem comentário |
 | [B-26](#b-26) | ✖ | 74 | 5.5.2 Windows, splitting, and the integrity of the representation | "Windows." solto — só fez sentido na página seguinte | editorial |
