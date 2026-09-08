@@ -74,6 +74,9 @@ def build_per_visit_features(
     checkins_df: pd.DataFrame,
     category_classes=None,
     validate: bool = True,
+    stride: int = None,
+    min_sequence_length: int = None,
+    emit_tail: bool = True,
 ) -> np.ndarray:
     """Build [N, 9, F] per-visit features row-aligned to ``seq_df``.
 
@@ -96,7 +99,17 @@ def build_per_visit_features(
         n_visits = len(local_rows)
         # Replay the canonical windowing on LOCAL POSITIONS (0..n_visits-1).
         # Same shift/pad logic as on placeids (value-independent for >=0 inputs).
-        seqs = generate_sequences(list(range(n_visits)))  # non-overlapping, window=9
+        # [2026-08-16] O JANELAMENTO E PARAMETRIZADO. Antes era sempre o nao-sobreposto, que e o
+        # do estudo original; sob o janelamento atual, stride 1 com sequencia minima 10 e sem
+        # cauda, a contagem de janelas e outra e a validacao abortava com razao. Os defaults
+        # mantidos abaixo reproduzem o comportamento anterior byte a byte quando nada e passado.
+        _kw = {}
+        if stride is not None:
+            _kw["stride"] = stride
+        if min_sequence_length is not None:
+            _kw["min_sequence_length"] = min_sequence_length
+        _kw["emit_tail"] = emit_tail
+        seqs = generate_sequences(list(range(n_visits)), **_kw)
         for seq in seqs:
             hist = seq[:WINDOW]  # local positions, -1 = pad
             fblock = np.zeros((WINDOW, F), dtype=np.float32)
