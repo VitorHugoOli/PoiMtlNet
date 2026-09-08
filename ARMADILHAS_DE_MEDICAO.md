@@ -289,3 +289,19 @@ teria apanhado; só a re-execução.
 
 *Caso e formulação: sessão `mobiwac`, que trouxe o commit, aceitou a refutação e retirou a
 afirmação. A décima desta família em quatro dias, entre quatro sessões — nenhuma isenta.*
+
+### A décima-primeira, no parágrafo a seguir a escrever as dez
+
+Ao fechar a passada final escrevi *"nada meu por commitar"*, medido com `git status --porcelain`.
+Verdadeiro — e a pergunta era outra. **Commitado e empurrado são estados diferentes**, e três
+commits meus estavam a meio caminho. O `git status` responde sobre a **árvore de trabalho**; a
+pergunta "está fechado?" é sobre o **remoto**.
+
+    git status --porcelain          →  a árvore está limpa?
+    git log origin/main..HEAD       →  há commits por empurrar?
+    git status -sb                  →  "ahead N" na primeira linha
+
+Não é uma variante nova: é §14 outra vez, **o comando certo para a pergunta ao lado**. Aconteceu no
+mesmo dia a duas sessões — a outra teve dois commits de guardas por empurrar, e foi o autor a vê-los
+no IDE antes de qualquer agente. **Antes de dizer "fechado", corra o segundo comando, não o
+primeiro.**
