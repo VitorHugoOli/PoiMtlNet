@@ -1,70 +1,54 @@
 """Paired one-sided Wilcoxon signed-rank on the 20 matched fold differences, computed on
-the v18 / joint-best (served-checkpoint) arrays that Chapter 5 actually reports.
+the v18 / joint-best (served-checkpoint) arrays the paper reports, alongside the paired
+one-sided t-test on the 4 per-seed means that is the statistic actually printed in the
+paper's text.
 
 WHY THIS SCRIPT EXISTS
-----------------------
-The analysis plan pre-registered on 2026-06-21
-(docs/reproducibility/mobiwac_v17/STATISTICAL_PROTOCOL.md §2) names a paired one-sided
-Wilcoxon signed-rank on the matched per-fold deltas, n = 20 = 4 seeds x 5 folds, as the
-PRIMARY superiority test for next category. It was executed once, on 2026-07-25, by
-research/reproducibility/mobiwac_v17/m2_prereg_perfold.py -- against the v17 ladder.
-
-On 2026-08-11 the ladder was recomputed under the served-checkpoint (joint-best)
-convention. Category dropped from six wins to one; region from four to two. The sentence
-that REPORTED the Wilcoxon was deleted from 5_mobiwac/06_results.tex in the same commit
-wave (ce5a7006), but the sentence that PROMISES it lives in 05_setup.tex and was never
-touched. The registered test was therefore never re-run at the footing the delivered
-numbers use.
-
-Three places in the delivered text assert that the two tests agree:
-  src/chapters/2_fundamentals.tex:1777  "is reported alongside it and reaches the same decisions"
-  GLOSSARY.md:112                        "is reported alongside it and agrees"
-  wrapup/ESTUDOS_DEFESA.md:385           "os dois concordam"
-None of those had been computed for this ladder. This script computes them.
+-----------------------
+The registered analysis plan (`analysis_protocol/STATISTICAL_PROTOCOL.md` §2, §5.2 of this
+release) names a paired one-sided Wilcoxon signed-rank on the matched per-fold deltas,
+n = 20 = 4 seeds x 5 folds, as the primary superiority test for next-category. At four
+seed-pairs the exact one-sided Wilcoxon p cannot fall below 0.0625, which is why the paper
+reports the t-statistic on per-seed means instead (see
+`analysis_protocol/DEVIATION_LOG.md`, D-1/D-2) while still computing the Wilcoxon
+alongside it, at its registered footing, for agreement.
 
 WHAT CARRIES WHAT STANDING
---------------------------
-- CATEGORY, all six datasets: superiority, joint > dedicated. PRE-REGISTERED (protocol
-  §2 for the test, §5.2 for the Holm family "within the cat-superiority set (6 states)").
-  This is the test the text promises.
-
-- REGION: the protocol pins next region to NON-INFERIORITY only (§1 "reg -> TOST (§3)"),
-  and no region-superiority family appears in it. The two region superiority claims
-  (TX, CA) are post-hoc and carry their own Holm family m = 4, per deviation D-4
-  (2026-07-25). The Wilcoxon is reported here for the region axis as a sensitivity
-  reading, NOT as a registered test. The registered region cells are the TOST
-  non-inferiority ones at delta_reg = 2 pp -- protocol §3.2, not this script.
-
-- The delivered p-values in wrapup/evidence/ladder_recompute.json are a one-sided paired
-  t on the FOUR per-seed means (df = 3), Holm-corrected. That is a different footing from
-  this one (n = 4 seed means vs n = 20 folds). Both are reported side by side below so
-  the "reaches the same decisions" claim can be evaluated rather than assumed.
+---------------------------
+- CATEGORY, all six datasets: superiority, joint > dedicated. Pre-registered (protocol §2
+  for the test, §5.2 for the Holm family within the six-dataset category-superiority set).
+- REGION: the protocol pins next-region to non-inferiority only (TOST at a 2-pp margin,
+  protocol §3.2 -- not this script). No region-superiority family is pre-registered; the
+  region Wilcoxon/t computed here are a sensitivity reading, and any region "outperforms"
+  claim in the paper carries its own post-hoc Holm family, not the one applied below.
 
 FOOTING
 -------
 Paired per (seed, fold) on the same partition: for a given seed both arms read the same
 StratifiedGroupKFold split, so fold k of seed s is matched across arms. Pairing across
-SEEDS is not valid (each seed draws its own partition,
-science/fold_partition_and_seeds.md) -- but the Wilcoxon here operates on the pooled set
-of 20 matched differences, which is the footing the protocol registered and the footing
-the promised sentence names.
+seeds is not valid (each seed draws its own partition) -- the Wilcoxon here operates on
+the pooled set of 20 matched differences (the registered footing), while the t-test
+operates on the 4 per-seed means (the reported footing); both are printed side by side.
 
-Known limitation, stated because the protocol's own D-1 states it: the five folds inside
-one seed share ~75-80% of their training data, so the 20 differences are not 20
-independent replicates. The registered test uses this footing anyway; the seed-level t
-(n = 4) is the more conservative reading and is the one the chapter reports.
+Known limitation: the five folds inside one seed share the majority of their training
+data, so the 20 differences are not 20 independent replicates. The registered Wilcoxon
+uses this footing anyway (as pre-registered); the seed-level t (n = 4, more conservative)
+is the statistic the paper's text reports.
 
-INPUTS (both committed)
------------------------
+INPUTS (both committed to this release)
+-----------------------------------------
   joint:      docs/results/closing_data/v18/joint_best_perfold.json
               cells['<state>_s<seed>_joint'].folds['1'..'5'].joint_best
               cat = cat_f1 (fraction), reg = top10_full (fraction)
   dedicated:  docs/studies/closing_data/v18/data/v18_results.json
               per_run[] matched on (state, seed) -> stl_cat_folds, stl_reg_folds (percent)
 
-The script refuses to report any test until it has reproduced the delivered per-cell
-means from these arrays. A parse that returns the wrong mean is a broken instrument, and
-in the output it is indistinguishable from a result (GUARDRAILS §4b V13).
+The raw per-run artifacts (rundirs/logs) the two files above were aggregated from are not
+part of this release -- only the two finished aggregates. See the top-level README.
+
+The script refuses to report any test until it has reproduced the paper's own per-cell
+means from these arrays to within a small tolerance -- a parse that silently returns the
+wrong mean would otherwise be indistinguishable from a real result.
 """
 
 from __future__ import annotations
@@ -147,8 +131,8 @@ def check_instrument(joint, ded):
         ec, er = EXPECTED[st]
         good = abs(cm - ec) < TOL and abs(rm - er) < TOL
         ok &= good
-        print(f"  {st:<11} cat {cm:8.4f} (esperado {ec:8.4f})   "
-              f"reg {rm:8.4f} (esperado {er:8.4f})   {'ok' if good else 'FALHA'}")
+        print(f"  {st:<11} cat {cm:8.4f} (expected {ec:8.4f})   "
+              f"reg {rm:8.4f} (expected {er:8.4f})   {'ok' if good else 'FAIL'}")
     if not ok:
         sys.exit("instrument check failed -- not reporting any test")
     print()
@@ -185,13 +169,13 @@ def main():
              0, "PRE-REGISTERED test, protocol §2. Holm within the six-state family (m=6).")
     run_axis(joint, ded, "NEXT REGION -- superiority (joint > dedicated), Acc@10",
              1, "NOT pre-registered as superiority. Protocol pins region to TOST "
-                "non-inferiority.\nReported here as a sensitivity reading; the two "
-                "delivered region claims carry\ntheir own post-hoc Holm family (m=4), "
-                "deviation D-4.")
+                "non-inferiority.\nReported here as a sensitivity reading; any region "
+                "'outperforms' claim in the paper carries\nits own post-hoc Holm family, "
+                "not the one applied here.")
     print("delta20 = mean of the 20 matched fold differences; delta4 = mean of the 4 "
           "per-seed differences.\n't p' is the one-sided paired t on the four per-seed "
-          "means (df=3) -- the footing the\nchapter reports. Holm here is applied to the "
-          "Wilcoxon p only, within its own family.")
+          "means (df=3) -- the statistic the\npaper's text reports. Holm here is applied "
+          "to the Wilcoxon p only, within its own family.")
 
 
 if __name__ == "__main__":
