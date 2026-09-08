@@ -1,5 +1,21 @@
 # NORTH_STAR.md — the thesis, the arc, and the chapter map
 
+> 🔴 **HÁ DOIS `NORTH_STAR.md` NESTE REPOSITÓRIO, E SÃO DOCUMENTOS DIFERENTES.**
+>
+> | | é | fala de |
+> |---|---|---|
+> | **este** — `articles/dissertacao/NORTH_STAR.md` | a **tese**, o arco e o mapa dos capítulos | o que a dissertação argumenta |
+> | o irmão — `docs/NORTH_STAR.md` | a **receita campeã** de MTL (`DEFAULT_CANON`) | como se treina o modelo |
+>
+> Nenhum dos dois substitui o outro e um `grep` por `NORTH_STAR.md` encontra os dois. **Confirme o
+> caminho antes de medir**: a 2026-09-08 uma sessão mediu o do `docs/` para responder a uma pergunta
+> sobre este, concluiu "zero ocorrências", e escreveu essa medição num guarda — que passou a mandar
+> apagar frases correctamente tarjadas. Não é uma busca que não podia encontrar: é **a busca certa no
+> sítio errado**.
+>
+> Contado no dia: **241** referências a `NORTH_STAR.md` sem caminho, contra 67 qualificadas.
+
+
 > The single place that says **what this dissertation argues and how the chapters deliver it**.
 > Companion to [`CLAUDE.md`](CLAUDE.md) (state + ledger) and [`archive/PLAN.md`](archive/PLAN.md) (schedule).
 > Sources for every factual statement here: the three paper folders (`articles/CBIC___MTL/`,
@@ -225,7 +241,7 @@ representation diagnosed as the bottleneck, MobiWac's resolution) is the arc §2
 Chapters 1 and 6 carry it.
 
 **Point 1b, dropping the MTL optimizers as a maturity signal — ABSORBED.** Chapter 5 states the
-conservative-by-design position (`5_mobiwac.tex:179`) and Chapter 6 names the orthogonal-gradient
+conservative-by-design position (`5_mobiwac.tex`, the limitations section — the pointer said `:179` until 2026-09-08 and the file has 65 lines) and Chapter 6 names the orthogonal-gradient
 finding (`6_conclusion.tex:180`). Round 5 strengthened it: the chapter now reports the full
 nineteen-balancer screen rather than implying a two-optimizer test.
 

@@ -1,5 +1,22 @@
 # North-Star MTL Configuration
 
+> 🔴 **HÁ DOIS `NORTH_STAR.md` NESTE REPOSITÓRIO, E SÃO DOCUMENTOS DIFERENTES.**
+>
+> | | é | fala de |
+> |---|---|---|
+> | **este** — `docs/NORTH_STAR.md` | a **receita campeã** de MTL (`DEFAULT_CANON`) | como se treina o modelo |
+> | o irmão — `articles/dissertacao/NORTH_STAR.md` | a **tese**, o arco e o mapa dos capítulos | o que a dissertação argumenta |
+>
+> Nenhum dos dois substitui o outro e um `grep` por `NORTH_STAR.md` encontra os dois. **Confirme o
+> caminho antes de medir**: a 2026-09-08 uma sessão mediu ESTE ficheiro para responder a uma pergunta
+> sobre o da dissertação, concluiu "zero ocorrências" — e as frases que procurava existem, duas vezes
+> cada, no outro. Não é uma busca que não podia encontrar: é **a busca certa no sítio errado**.
+>
+> ⚠ As frases da escada superada (`category everywhere`, `region at four of six`, `+28…+40`) **não
+> estão neste ficheiro** e estão no irmão, onde são registo histórico marcado `[SUPERADO 2026-08-20]`.
+> Encontrá-las lá **não é contaminação e não se corrige apagando**.
+
+
 > 🏆 **2026-07-01 — CHAMPION RECIPE = `v17`: bs=8192 + per-head cat-lr 1e-3** (was `DEFAULT_CANON`
 > from 2026-07-01 to 2026-09-08; the default is now `v18`, see below — v17 stays reachable via `--canon v17`)
 > (`--onecycle-per-head-lr` → `MTL_ONECYCLE_PER_HEAD_LR=1`) beats v16/G at every tested state — **AL 64.54 (+1.0) /
