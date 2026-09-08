@@ -56,8 +56,10 @@ whereas our category models read overlapping ones. We also use a Markov model ov
 categories, with the best order selected per dataset, and, for region, a Markov-1 floor over region
 transitions. The primary next-region comparison is
 HMT-GRN~\cite{lim2022hmtgrn}, an end-to-end recurrent model. We keep its shared multi-task structure and add a region-transition prior built from the training data in
-each fold. A version built from the whole dataset inflated region accuracy by 13 to 27 points. Only
-the HMT-GRN comparison model uses this prior, and our joint and dedicated models do not. We remove
+each fold. During development, our own region output used such a prior, and a version built from the whole
+dataset inflated its region accuracy by 13 to 27 points, which is why the prior is built per fold.
+Only the HMT-GRN comparison model uses this prior, and the reported joint and dedicated models do
+not. We remove
 its graph components and hierarchical beam search, which support exact next-place prediction, so
 the resulting model predicts region as one of its original targets but is
 not a reproduction of the complete published system. STAN~\cite{luo2021stan} is re-implemented with its own
