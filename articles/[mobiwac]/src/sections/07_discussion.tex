@@ -186,15 +186,13 @@ together with its own history; the graph does not pass information from a later 
 one, in training or at readout, which is what keeps a node from carrying a feature of the target it is
 used to predict. Fourth, the joint model has more parameters than the two dedicated models together
 (Section~\ref{sec:method-model}), so its region result at Texas and California may come from size
-rather than from sharing. A control separates the two at California: a dedicated region model
-widened to $5{,}014{,}942$ parameters, $97.4$ percent of the joint model's $5{,}151{,}189$, scores
-$0.41$ Acc@10 above the joint model at the same random initialization, on all five folds, and a
-paired test over the folds separates the difference from zero ($p = 0.010$). A wider model, at
-$174.8$ percent of the budget, adds nothing further ($0.02$ apart, $p = 0.40$). Texas has no
-control of matched size: the only wider model run there, at $170.5$ percent of the budget, scores
-$0.21$ above the joint model, which the same test does not separate from zero ($p = 0.12$). At
-California the advantage therefore cannot be attributed to sharing between the tasks, and at Texas
-the question is open.
+rather than from sharing. The design does not separate the two, so we do not attribute those results to sharing.
+% [2026-09-07, author decision B, reaffirmed with the corrected facts] The California capacity
+% control (P1, v18, seed 0, five folds: docs/results/P1/*v18*capmatched*_s0.json vs
+% joint_best_perfold.json california_s0_joint) is REMOVED from the paper by the author's editorial
+% choice: a single-seed control qualifying the headline result in a four-seed paper invites more
+% questions than it settles. The size confounder stays declared as a design fact (parameter counts
+% in Section III-C, generation-invariant). The control itself is valid and lives in the record.
 % [2026-09-06, cut C2] Fifth limit ~230 -> ~160 words. Kept: 97.4 percent, +0.41, p = 0.010, five
 % folds, same random initialization, "Texas has no control of matched size", the California
 % conclusion and the open Texas question; the 528-width and Texas arms are one clause each.
