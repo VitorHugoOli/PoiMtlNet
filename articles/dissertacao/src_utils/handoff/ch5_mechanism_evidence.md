@@ -1,5 +1,13 @@
 # Ch.5 mechanism attribution — evidence audit
 
+> **Escrito em 2026-08-04**, antes de a geracao v18 fechar o vazamento de rotulo (2026-08-13).
+> **Nao leva tarja de geracao superada, e a razao importa:** este ficheiro *menciona* celulas
+> antigas em vez de as afirmar como correntes — marca as suas proprias celulas v17 como tais
+> (por exemplo na tabela de Istanbul e na nota V-3) e usa-as como comparandos, nao como
+> resultado. Arbitrado assim em 2026-09-08. Verificar sempre a etiqueta da celula antes de a
+> citar; e para o resultado entregue, `VEREDITOS.md` na raiz da pasta.
+
+
 > **Scope.** Does the repository's evidence support restoring the sentence *"One model serves both
 > tasks: the shared trunk carries the semantic context that lifts the next-category task, and the
 > private spatial path keeps the next-region task competitive"*? Read-only audit; no file edited.

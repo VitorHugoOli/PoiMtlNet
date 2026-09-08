@@ -273,12 +273,32 @@ geração que foi **invalidada**. Não há leitura em que seja citável.
 **Feito, com o corpo intocado:**
 1. a linha 67 recebeu dois marcadores `[SUPERADO 2026-08-20]`, um por alegação (a faixa e o "all
    six datasets"), cada um com o valor entregue ao lado;
-2. 🔴 **o banner deixou de apontar por número de linha.** Este era o defeito maior, e é do `gate`:
-   ele nomeava as linhas 26/175/330/394 — e o texto **já não estava em nenhuma delas**. Um guarda
-   que aponta para portas limpas manda o leitor conferir quatro sítios certos e falha o único
-   errado; foi assim que o briefing me chegou com as linhas trocadas. Agora aponta por **conteúdo**
-   (*"onde aparecer `+28…+40`, `category everywhere` ou `region at four of six`…"*), que não
-   apodrece quando o ficheiro se mexe.
+2. 🔴 **o banner deixou de apontar por número de linha.** Este era o defeito maior: ele nomeava as
+   linhas 26/175/330/394 — e o texto **já não estava em nenhuma delas**. Um guarda que aponta para
+   portas limpas manda o leitor conferir quatro sítios certos e falha o único errado; foi assim que
+   o briefing me chegou com as linhas trocadas. Agora aponta por **conteúdo** (*"onde aparecer
+   `+28…+40`, `category everywhere` ou `region at four of six`…"*).
+
+   > ⚠️ **CORRIGIDO 2026-09-08 — a minha explicação da causa estava errada, e a verdadeira é pior.**
+   > Eu escrevi que o ponteiro *apodreceu* quando o ficheiro se mexeu, o que pressupõe que já esteve
+   > certo. A `mobiwac` foi ao commit em que o aviso nasceu (`dce51d9b`, 2026-08-20) e mediu; eu
+   > confirmei por caminho independente:
+   >
+   > | ficheiro nesse commit | linhas | das 5 apontadas, quantas continham a escada |
+   > |---|---|---|
+   > | `docs/NORTH_STAR.md` | 525 | **0** |
+   > | `articles/dissertacao/NORTH_STAR.md` | 415 | **2** |
+   >
+   > Duas leituras. Primeira: **o aviso sempre apontou para este ficheiro** — é o único onde alguma
+   > linha bate; a hipótese de estar a apontar para o outro `NORTH_STAR.md` (são dois, e são
+   > documentos diferentes) **não se confirma**. Segunda, e é a que importa: **o ponteiro nasceu a
+   > 40% e decaiu daí.** Não passou de correto a podre — já estava 60% errado no dia em que foi
+   > escrito.
+   >
+   > **A lição fica mais forte, não mais fraca.** Não é só que ponteiros de linha apodrecem: é que
+   > **ninguém os verifica no instante em que os escreve**, porque não há nada que os teste. Um
+   > ponteiro por conteúdo não precisa dessa verificação — é essa a razão de o ser, e não a
+   > resistência a mudanças futuras que eu tinha dado.
 
 Conferido depois: as três ocorrências restantes estão ou dentro do banner, ou marcadas. Nenhuma
 sem marcador.
