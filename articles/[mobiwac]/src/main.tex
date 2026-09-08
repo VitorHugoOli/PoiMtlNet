@@ -100,13 +100,13 @@ and its region.
 
 We give each check-in its own vector instead of giving every place one fixed vector. With the same
 model, folds, windows, and training configuration, and only the input changed, this improves next-category prediction at
-every one of six datasets and in every fold, by 0.23 to 6.29 points of macro-averaged F1, under
+every one of six datasets (five U.S. states and one non-U.S. city) and in every fold, by 0.23 to 6.29 points of macro-averaged F1, under
 one point at the three largest, and a paired test separates the two representations at five of the
-six. Five datasets are U.S. states and one is a non-U.S. city.
+six.
 
 We then ask whether one model can answer both questions in a single forward pass. On next region it outperforms a dedicated single-task model at the two datasets with the
 largest region vocabularies, by about one point, and at the other four it stays within a two-point
-margin registered before any result was read. The joint model is also the larger model. On next category it
+margin registered before any result was read. On next category it
 outperforms the dedicated model at one dataset, and the other five differences are equivalent to
 zero within half a point. One model therefore serves both tasks at a cost bounded on both axes.
 \end{abstract}
