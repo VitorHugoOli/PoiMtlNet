@@ -59,14 +59,11 @@ paper is the stricter convention's.
 
 On region (Acc@10), the joint model outperforms the dedicated model at Texas and California. The two
 datasets where it outperforms are the two with the largest region vocabularies, which is where the
-region task has the most classes to rank and where the dedicated model has the most to gain from an
-auxiliary signal.
+region task has the most classes to rank.
 The ordering is not monotone inside that pair, since California has more regions than Texas and a
 slightly smaller gain, and region count co-varies with corpus size across these states, so the
 grouping is read as an observation about where the benefit appears rather than as a law relating
-gain to region count. Why the benefit appears there is a separate question: the joint model is also the larger
-model (Section~\ref{sec:discussion}), so these gains are not attributed to sharing between the
-tasks.
+gain to region count. Why the benefit appears there is a separate question (Section~\ref{sec:discussion}).
 
 On category, Florida is the one dataset where the difference survives the
 Holm correction across the six ($+0.19$; 90\% CI $+0.14$ to $+0.25$; corrected $p=0.011$), with 19 of the

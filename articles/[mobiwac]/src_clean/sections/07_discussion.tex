@@ -40,7 +40,7 @@ together with its own history; the graph does not pass information from a later 
 one, in training or at readout, which is what keeps a node from carrying a feature of the target it is
 used to predict. Fourth, the joint model has more parameters than the two dedicated models together
 (Section~\ref{sec:method-model}), so its region result at Texas and California may come from size
-rather than from sharing. The design does not separate the two, so we do not attribute those results to sharing.
+rather than from sharing. The design does not separate the two.
 
 Our representation is a fixed per-visit vector that any downstream model
 can consume. Moura et al.~\cite{moura2025mobilityaware}, whose structural
