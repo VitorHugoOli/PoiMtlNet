@@ -7,7 +7,7 @@
 > and three silent traps are now caught by WARN guards.
 
 ## The key distinction
-- **Recipe identity (champion-G / v16)** → **enforced as the default.** `DEFAULT_CANON="v16"` (`canon.py:26`)
+- **Recipe identity (champion-G / v16)** → **enforced as the default.** `DEFAULT_CANON="v17"` (`canon.py:26`) — v16 + bs8192 + per-head cat-lr, desde 2026-07-01 (`f54a04de`); este texto dizia `v16` até 2026-09-08
   auto-injects the full bundle on a bare `train.py --task mtl` (model/heads/loss/selector/LRs/KD/input-modality/
   engine). Verified complete + test-locked (`tests/test_configs/test_canon.py`). A bare run reproduces the
   champion **recipe** exactly. The old CLAUDE.md "6 silently-wrong flags" trap is handled by canon.
@@ -20,7 +20,7 @@
 
 | param | adopted | current default | mechanism | status |
 |---|---|---|---|---|
-| recipe (v16 heads/loss/selector/LRs/KD/modality/engine) | v16 | `DEFAULT_CANON=v16` | CODE-DEFAULT | ✅ enforced + test-locked |
+| recipe (heads/loss/selector/LRs/KD/modality/engine) | **v17** | `DEFAULT_CANON=v17` | CODE-DEFAULT | ✅ enforced + test-locked |
 | dataset-on-GPU auto-fit | auto | `folds._dataset_device` | CODE-DEFAULT | ✅ enforced (byte-identical) |
 | num_workers | 0 | hard-0 (`folds.py`) | CODE-DEFAULT | ✅ enforced (workers rejected) |
 | batch-size / n_splits / window | 2048 / 5 / 9 | bundle + `InputsConfig` | CODE-DEFAULT | ✅ enforced |
