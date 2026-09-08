@@ -192,16 +192,31 @@ regista **quatro** ocorrências de mensagens de commit a afirmar `rc=0` sobre ex
 
 ## V9b · Ponteiros pendurados pela limpeza de 2026-09
 
-Dezanove ficheiros de rodada foram removidos: uns por afirmarem números da geração com vazamento,
-outros por serem relatórios de portão superados. Alguns eram citados **por outros ficheiros de
-rodada**, e essas citações já não resolvem. **É esperado, e não se conserta indo procurar o
-ficheiro.**
+**Dezoito** ficheiros foram removidos, no commit `2075e70e` — **16 de rodada** (`_review_v2` ×7,
+`_review_v3` ×2, `_round6` ×2, `_round9/reviews`, `_gates`, `_specialists_v1`, `_archive/reviews_v1`,
+`science/fundamentals/_review`) mais **2 do `archive/`**. Uns saíram por afirmarem números da geração
+com vazamento, outros por serem relatórios de portão superados. Alguns eram citados **por outros
+ficheiros de rodada**, e essas citações já não resolvem. **É esperado, e não se conserta indo
+procurar o ficheiro.**
+
+> *[Contagem corrigida 2026-09-08: dizia "dezanove ficheiros de rodada". Eram dezoito ficheiros, e
+> só 16 deles de rodada. Medido com `git show --diff-filter=D --name-only 2075e70e`. O erro é
+> pequeno mas é do género que este ledger existe para não ter — uma contagem em prosa que não bate
+> com o que descreve.]*
 
 O caso a conhecer: `_round9/37_reviewer_gate_round9.md:44` cita `reviews/06_number.md`, removido.
 Esse relatório **validava as células v17 como correctas** (*"AL 64.51 … CA 77.05 — every cell
 matching"*), portanto o seu veredito não vale; a linha da tabela fica como registo de que o portão
 correu. O `check_audit_claims.py` valida expressões **dentro** do agregador, não a existência dos
 caminhos que ele cita — por isso a esteira não mudou (verificado por A/B).
+
+**Verificado 2026-09-08, antes da fusão para a main:** nenhum dos dezoito é citado por **caminho**
+em ficheiro vivo nenhum, e **zero** são citados pelo texto entregue — varri os 18 caminhos e os 18
+nomes de ficheiro contra todo o `src/**/*.tex`. As únicas referências que sobram são por nome, e
+todas dentro de outros ficheiros de rodada ou dos seus `README`, que é precisamente o caso que este
+verdete declara esperado. **A regra do `CLAUDE.md` linha 225 — "do not prune the underscore dirs" —
+não foi violada**: ela protege o que o `check.sh` executa e o que o texto entregue cita por caminho,
+e nenhum dos dezoito é uma coisa nem outra.
 
 Tudo continua recuperável: `git show <sha>^:<caminho>`.
 
