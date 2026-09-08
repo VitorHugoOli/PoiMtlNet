@@ -102,8 +102,18 @@ cópias-fixture que o próprio `check.sh` compara.
 
 *Também chega como:* qual é a receita canónica, como reproduzo uma célula, o comando de treino.
 
-**Veredito: NÃO.** `src/configs/canon.py` ainda fixa `DEFAULT_CANON = "v17"`, sobre o substrato
-com vazamento.
+**Veredito: NÃO** — e continua NÃO depois da correcção de 2026-09-08, mas por outra razão.
+
+Até 8 de Setembro a razão era esta: `src/configs/canon.py` fixava `DEFAULT_CANON = "v17"`, e o
+*bundle* v17 pina `check2hgi_design_k_resln_mae_l0_1` — o substrato v14, com vazamento. Uma corrida
+nua escolhia-o **sem o utilizador escrever `--engine`**.
+
+Isso foi corrigido: o default é agora `v18`, sobre o substrato sem vazamento, e a receita v18 sobre
+qualquer outro substrato passou a ser **recusa dura** (não honra `MTL_STRICT=0`). **Mas o veredicto
+não muda**, porque um *bundle* é uma lista estática de tokens e três coisas da receita entregue não
+cabem lá: o `--cat-lr` varia por estado (1e-3 nos pequenos, 2e-3 em FL/CA/TX), a precisão fp32 só
+existe por variável de ambiente (`MTL_DISABLE_AMP=1`, não há flag de CLI), e as células reportadas
+são as sementes {0,1,7,100} enquanto uma corrida nua leva a 42.
 
 Para reproduzir uma célula entregue, copie o comando **literalmente** de `cell_joint()` em
 `docs/studies/closing_data/v18/run_wave.sh`.

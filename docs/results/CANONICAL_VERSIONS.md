@@ -440,3 +440,45 @@ Reg ranking requires seeded `--per-fold-transition-dir`. See the v14 section abo
 - [`../studies/archive/substrate-protocol-cleanup/CLOSURE.md`](../studies/archive/substrate-protocol-cleanup/CLOSURE.md) — the study that validated v12.
 - [`../findings/F_TIER_A1_PROMOTION.md`](../findings/F_TIER_A1_PROMOTION.md) + [`../findings/F_TIER_A1_LEAK_AUDIT.md`](../findings/F_TIER_A1_LEAK_AUDIT.md) — log_T-KD promotion + leak audit.
 - [`../findings/F_SUBSTRATE_PROTOCOL_CLEANUP_SYNTHESIS.md`](../findings/F_SUBSTRATE_PROTOCOL_CLEANUP_SYNTHESIS.md) — one-stop investigation synthesis.
+
+
+---
+
+## v18 — DELIVERED GENERATION (DEFAULT since 2026-09-08)
+
+**O que é.** A receita v17 movida para o substrato **sem vazamento**, mais as duas alterações de
+perda que o retune v18 fixou. É o primeiro *bundle* cujo `--engine` **não** é uma construção
+pré-v18: o `check2hgi_v18` tem arestas de visita consecutiva **só para a frente**, portanto um nó
+nunca carrega uma *feature* do alvo que prediz.
+
+| eixo | v17 | **v18** |
+|---|---|---|
+| `--engine` | `check2hgi_design_k_resln_mae_l0_1` (substrato v14, com vazamento) | **`check2hgi_v18`** |
+| `--category-weight` | 0.75 | **0.50** |
+| `--logit-adjust-tau` | ausente (→ 0.0) | **0.5** — em MTL aplica-se **só à cabeça de categoria** |
+| `--batch-size` | 8192 | 8192 |
+| `--onecycle-per-head-lr` | sim | sim |
+
+**Porque é o default.** Até 2026-09-08 o default era o v17, e o v17 pina o substrato v14. Um
+`python scripts/train.py --task mtl` — ou até um `train.py --state X`, porque o pré-parser lê um
+`--task` em falta como `mtl` — escolhia em silêncio um substrato com vazamento, **sem o utilizador
+escrever `--engine`**. Nenhum número entregue dependia disso (todas as células v18 correm com
+`--canon none`), mas quem escrevesse o comando óbvio caía lá.
+
+**⚠ NÃO REPRODUZ UMA CÉLULA ENTREGUE, e não pode.** Três coisas que uma lista estática de tokens não
+exprime, todas exigidas pelo `cell_joint()` em `docs/studies/closing_data/v18/run_wave.sh`:
+
+1. **`--cat-lr` é por estado** — 1e-3 em AL/AZ/Istambul, **2e-3 em FL/CA/TX**. O *bundle* leva o
+   valor dos pequenos; os grandes têm de o passar explicitamente.
+2. **fp32 é por ambiente** (`MTL_DISABLE_AMP=1`). Não existe *flag* de CLI para precisão, e sem ela
+   o treinador CUDA corre autocast fp16 sem GradScaler.
+3. **As sementes reportadas** são {0,1,7,100} × 5 folds; uma corrida nua leva a semente de
+   desenvolvimento, 42.
+
+Ausentes por política: `--compile` e `--tf32` (o `DEFAULTS_AND_GUARDS.md` proíbe-os como defaults
+globais). **Para reproduzir, copie o comando literal do `run_wave.sh`, que passa `--canon none`.**
+
+**Recusa dura associada.** A partir de 2026-09-08, a receita v18 apontada a qualquer outro substrato
+é `SystemExit`, e essa recusa **não honra `MTL_STRICT=0`** — o par não reproduz nada publicado e todas
+as outras construções `check2hgi` têm o vazamento. As gerações anteriores continuam a uma *flag* de
+distância: `--canon v11` … `--canon v17` pinam os seus próprios substratos e não foram tocadas.

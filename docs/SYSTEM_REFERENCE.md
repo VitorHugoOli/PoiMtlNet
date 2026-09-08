@@ -86,7 +86,7 @@ Set before `python scripts/train.py …`. **Default = unset** unless noted.
 
 ```
 scripts/train.py            CLI entrypoint (--task/--state/--engine/--canon); _run_single_task (STL), MTL via cv runner
-src/configs/canon.py        DEFAULT_CANON (v17) — the champion recipe bundle auto-injected by --canon (v16 base via --canon v16)
+src/configs/canon.py        DEFAULT_CANON (v18) — the champion recipe bundle auto-injected by --canon (v16 base via --canon v16)
 src/data/folds.py           FoldCreator; _create_check2hgi_mtl_folds (the champion fold builder, user-disjoint SGKF);
                             _resolve_task_input, _load_and_validate_check2hgi_data, _classify_pois, _resolve_per_fold_priors
 src/training/runners/

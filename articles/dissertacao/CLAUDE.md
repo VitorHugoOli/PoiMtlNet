@@ -56,7 +56,9 @@ Methodology of record: `docs/studies/closing_data/v18/METHODOLOGY.md`; the froze
 approved 2026-08-09): `docs/studies/closing_data/v18/FINAL_SETTINGS.md`.
 
 > ⚠ **A bare `python scripts/train.py --task mtl` does NOT reproduce this dissertation.**
-> `src/configs/canon.py` still pins `DEFAULT_CANON = "v17"`, on the leaked substrate. To reproduce a
+> Since 2026-09-08 `DEFAULT_CANON` is `v18` (it was `v17`, on the leaked substrate), so a bare run no
+> longer lands on a leaked build — but it still does not reproduce a delivered cell: `--cat-lr` is
+> per state, fp32 is env-only, and the reported seeds are {0,1,7,100}. To reproduce a
 > delivered cell, copy the command verbatim from `cell_joint()` in
 > `docs/studies/closing_data/v18/run_wave.sh`. Ignore the B9 recipe block in the repo-root
 > `/CLAUDE.md`; it is three generations old.

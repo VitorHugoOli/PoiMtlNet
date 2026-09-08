@@ -7,7 +7,8 @@
 > **v16's documented per-head LRs are INERT under `onecycle`** — a scalar `max_lr` broadcasts 3e-3 to every head, so
 > v16 effectively ran uniform 3e-3 (they DO apply on the older H3-alt constant/cosine path below). Mechanism = cat-LR
 > overshoot, not reg-capture ([`future_works/per_head_lr_onecycle_fix.md`](future_works/per_head_lr_onecycle_fix.md)).
-> **`DEFAULT_CANON` is now `v17`** — bare `train.py --task mtl` runs it; **v16 stays reproducible via `--canon v16`**;
+> **`DEFAULT_CANON` is now `v18`** (was `v17` until 2026-09-08; v17 pinned the v14 substrate, so a bare run silently selected a leaked build)
+> **`--canon v17` still reproduces v17** — bare `train.py --task mtl` runs it; **v16 stays reproducible via `--canon v16`**;
 > **§0.1 (v11) is UNAFFECTED** (separate frozen cosine bundle; the fix is onecycle-only). **CA/TX are running now at
 > n=20** to complete the board (only large-C states left; will enter RESULTS_BOARD §1 once matched-n). Recipe:
 > [`results/CANONICAL_VERSIONS.md §v17`](results/CANONICAL_VERSIONS.md); board engine `check2hgi_dk_ovl`.

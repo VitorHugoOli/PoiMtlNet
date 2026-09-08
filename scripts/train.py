@@ -374,7 +374,8 @@ def _parse_args(argv=None) -> argparse.Namespace:
         default=DEFAULT_CANON,
         choices=CANON_CHOICES,
         help=(
-            "Canonical version recipe bundle to inject for --task mtl (default v17 = champion; "
+            "Canonical version recipe bundle to inject for --task mtl (default v18 = delivered "
+            "generation, leak-free substrate; v11..v17 pin their own, older substrates; "
             "v16 = champion-G base). Explicit flags override the bundle. Use --canon "
             "v11/v12/v15/v16 to reproduce a prior version, or --canon none for bare smoke "
             "defaults. See docs/results/CANONICAL_VERSIONS.md."
@@ -1928,7 +1929,9 @@ def _preflight_canon_guards(args) -> None:
     ``MTL_STRICT=1`` to hard-fail (freeze-grade runs). Covers the three silent stumbles the
     pre-freeze defaults-audit surfaced (2026-06-19): development-seed 42, champion-recipe-on-
     the-wrong-substrate, and torch ≠ 2.11.0+cu128. The recipe itself is already enforced by
-    ``--canon`` (default v17); these only catch the values canon deliberately does NOT pin.
+    ``--canon`` (default v18); these only catch the values canon deliberately does NOT pin.
+    Guard (2) also carries a HARD refusal that ignores MTL_STRICT: the v18 recipe on any
+    non-v18 substrate reproduces nothing published and every other check2hgi build is leaked.
     """
     import os as _os
     from configs.canon import CANON_BUNDLES
@@ -1961,11 +1964,34 @@ def _preflight_canon_guards(args) -> None:
             _emit("[canon-guard] --seed not set → development seed 42 (overshoots §0.1 by "
                   "~+3pp CA / +8pp TX). Paper-grade numbers require --seed in {0,1,7,100}.")
         # (2) champion recipe running on a DIFFERENT substrate than the canon bundle pins.
+        # LAST --engine wins, mirroring argparse: a bundle built as `_V16 + [... --engine X]`
+        # (v18 does exactly this) carries two --engine tokens, and the effective one is the
+        # last. Reading the first would have made this guard fire on every bare v18 run,
+        # comparing against the overridden value. Found 2026-09-08 while adding v18.
         bundle = CANON_BUNDLES.get(canon, [])
-        bundle_engine = next((bundle[i + 1] for i, t in enumerate(bundle)
-                              if t == "--engine" and i + 1 < len(bundle)), None)
+        _engines = [bundle[i + 1] for i, t in enumerate(bundle)
+                    if t == "--engine" and i + 1 < len(bundle)]
+        bundle_engine = _engines[-1] if _engines else None
         resolved_engine = getattr(args, "engine", None)
         if bundle_engine and resolved_engine and resolved_engine != bundle_engine:
+            # (2a) HARD REFUSAL, regardless of MTL_STRICT: the leak-free recipe pointed at any
+            # other substrate. Every check2hgi build except check2hgi_v18 predates the forward-
+            # only fix — bidirectional consecutive-visit edges plus the category in the node
+            # features, so a node can carry a feature of the target it predicts. The v18 recipe
+            # on a pre-v18 substrate reproduces NOTHING that was ever published, and the pairing
+            # is far more likely a mistake than an intent. Reproducing an older generation is
+            # still one flag away: --canon v11..v17 pin their own substrates and are untouched.
+            if bundle_engine == "check2hgi_v18":
+                raise SystemExit(
+                    f"[canon-guard] REFUSING: --canon {canon} is the leak-free recipe (substrate "
+                    f"'{bundle_engine}') but --engine resolved to '{resolved_engine}'. That pair "
+                    f"reproduces no published result, and every check2hgi build other than "
+                    f"check2hgi_v18 carries the consecutive-visit leak. Either drop --engine and "
+                    f"let the bundle pin it, or say which generation you mean: --canon v17 (v14 "
+                    f"substrate), --canon v11 (frozen BRACIS), or --canon none for a bare run. "
+                    f"This guard does not honour MTL_STRICT=0 -- a silent leaked substrate is "
+                    f"what the v18 rebuild existed to remove."
+                )
             _emit(f"[canon-guard] --canon {canon} is pinned to substrate '{bundle_engine}' "
                   f"but --engine resolved to '{resolved_engine}' → the champion recipe is on "
                   f"a DIFFERENT substrate (wrong-substrate stumble; use the matching --canon).")

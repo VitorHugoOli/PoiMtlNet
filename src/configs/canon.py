@@ -2,7 +2,8 @@
 
 The ``mtl_improvement`` study repeatedly flipped train.py's effective recipe (v11 paper
 canon → v12 log_T-KD → v15 C25-unweighted → v16 champion **G**). Each version is a *bundle*
-of CLI flags. ``--canon vXX`` (default **v17**, the champion; v16 via ``--canon v16``) injects that bundle BEFORE the
+of CLI flags. ``--canon vXX`` (default **v18**, the delivered generation on the leak-free
+substrate; every earlier version stays reachable, e.g. v17 via ``--canon v17``) injects that bundle BEFORE the
 user's own flags so that **explicit flags always override the bundle** (argparse "last value
 wins" for store actions). This makes the champion the default while keeping every prior
 version reproducible forever with a single ``--canon vNN``.
@@ -23,8 +24,13 @@ from __future__ import annotations
 
 from typing import List
 
-DEFAULT_CANON = "v17"   # champion (2026-07-01): v16 + bs8192 + per-head cat-lr 1e-3. v16 still via `--canon v16`.
-                        # §0.1 (v11) is a separate frozen bundle → unaffected. bare `train.py` now runs bs8192.
+DEFAULT_CANON = "v18"   # delivered generation (2026-09-08): v17's recipe on the leak-free substrate.
+                        # Was "v17" from 2026-07-01 to 2026-09-08. v17 pinned check2hgi_design_k_resln_mae_l0_1
+                        # (the v14 substrate), so a bare `train.py --task mtl` — or even `train.py --state X`,
+                        # since the pre-parser defaults a missing --task to mtl — silently selected a substrate
+                        # carrying the consecutive-visit leak, without the user ever typing --engine.
+                        # Every prior version stays reproducible: `--canon v11`..`--canon v17`, unchanged.
+                        # ⚠ The default reproduces NO published cell: see the v18 note in CANON_BUNDLES below.
 
 # The shared cross-attn "B9" recipe underlying v11/v12/v15 (NORTH_STAR §Champion / CANONICAL_VERSIONS §v12).
 _CROSSATTN_B9: List[str] = [
@@ -91,6 +97,30 @@ CANON_BUNDLES: dict[str, List[str]] = {
     # Beats v16 board-wide (AL +1.0/AZ +2.3 cat; FL +0.17cat/+0.20reg, ~7% faster). Opt-in:
     # v17 is now DEFAULT_CANON (2026-07-01); the env stays default-OFF (v17 sets --onecycle-per-head-lr). CANONICAL_VERSIONS §v17.
     "v17": _V16 + ["--batch-size", "8192", "--onecycle-per-head-lr"],
+    # v18 — DELIVERED GENERATION (2026-09-08). v17's recipe moved onto the leak-free substrate,
+    # plus the two loss changes the v18 retune settled. This is the first bundle whose --engine
+    # is NOT a pre-v18 build: check2hgi_v18 has forward-only consecutive-visit edges, so a node
+    # never carries a feature of the target it predicts. v11..v17 all pin leaked substrates and
+    # stay that way ON PURPOSE — they reproduce their own versions.
+    # Deltas vs v17 (append-only: overrides ride AFTER _V16, argparse last-wins):
+    #   --engine            check2hgi_design_k_resln_mae_l0_1 → check2hgi_v18
+    #   --category-weight   0.75 → 0.50
+    #   --logit-adjust-tau  (absent → 0.0) → 0.5      ← MTL applies it to the CATEGORY head only
+    # ⚠ THIS BUNDLE DOES NOT REPRODUCE A DELIVERED CELL, and cannot. Three things a static token
+    # list cannot express, all required by docs/studies/closing_data/v18/run_wave.sh:
+    #   1. --cat-lr is PER STATE: 1e-3 at AL/AZ/Istanbul, 2e-3 at FL/CA/TX. The 1e-3 below is the
+    #      small-state value; large states must pass --cat-lr 2e-3 explicitly.
+    #   2. fp32 is set by ENV (MTL_DISABLE_AMP=1); there is no CLI flag for precision, and without
+    #      it the CUDA trainer runs fp16 autocast with no GradScaler.
+    #   3. Reported cells are seeds {0,1,7,100} × 5 folds; a bare run takes the dev seed 42.
+    # Also absent by policy: --compile and --tf32 (DEFAULTS_AND_GUARDS.md forbids them as global
+    # defaults). The delivered driver passes --canon none with every flag written out; keep it so.
+    "v18": _V16 + [
+        "--batch-size", "8192", "--onecycle-per-head-lr",
+        "--engine", "check2hgi_v18",
+        "--category-weight", "0.50",
+        "--logit-adjust-tau", "0.5",
+    ],
 }
 
 CANON_CHOICES = sorted(CANON_BUNDLES) + ["none"]
