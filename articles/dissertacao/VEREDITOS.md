@@ -240,8 +240,12 @@ Tudo continua recuperável: `git show <sha>^:<caminho>`.
 | Dois PDFs com o mesmo `md5` têm o mesmo conteúdo? | **Não prova.** Sem `SOURCE_DATE_EPOCH` cada reconstrução muda o hash. Compare `pdftotext` ou o render |
 | O `grep` achou N ocorrências no `.tex`. São todas texto? | **Não.** Comentários LaTeX inflam qualquer `grep`. Filtre as linhas `%` |
 | Um `.md` sob `_round*`/`_review*` afirma X. Vale? | **Não.** Ver o cabeçalho deste ficheiro: rodada encerrada é proveniência, não fonte |
+| Duas sessões editam o mesmo ficheiro. O git avisa? | **Não, se o ficheiro estiver por commitar.** Escrita concorrente em ficheiro não rastreado é **silenciosa**: sem aviso, sem conflito. Commite cedo, ou combine dono único |
 
-**Prova:** `ACHADOS.md` §A6.
+| Um par mediu e reportou-te um número. Aceito? | **Não sem reproduzir.** A 2026-09-08 uma medição correcta em cada passo levava a uma conclusão errada; só a re-execução abriu o buraco. Custa minutos, e a correcção errada teria entrado **assinada por dois** |
+| Procurei a alegação exacta e não está lá. Não está? | **Não conclua.** Uma alegação não tem forma canónica: o mesmo facto aparecia como `category everywhere`, `category outperforms everywhere`, `at 4 of 6` e `outperforms both dedicated`. Enumere as formas antes de dizer "ausente" |
+
+**Prova:** `ACHADOS.md` §A6 · `ARMADILHAS_DE_MEDICAO.md` §13-14.
 
 ---
 
@@ -340,8 +344,8 @@ segurança, é o sinal de perigo. Cinco casos medidos nesta árvore:
 
 ## V13 · Uma medição acusou muita coisa. Confio nela?
 
-**Veredito: NÃO. Suspeite da medição primeiro.** Em 2026-09-05/08, **quatro** sondas acusaram em
-massa e **nas quatro o ficheiro estava bem** — o erro era sempre da sonda.
+**Veredito: NÃO. Suspeite da medição primeiro.** Em 2026-09-05/08, **cinco** sondas acusaram em
+massa e **nas cinco o ficheiro estava bem** — o erro era sempre da sonda.
 
 | sonda | acusou | verdade |
 |---|---|---|
@@ -349,6 +353,7 @@ massa e **nas quatro o ficheiro estava bem** — o erro era sempre da sonda.
 | janela de 25 linhas no cabeçalho | `docs/baselines/README.md` mudo | declara **por linha**, mais abaixo |
 | resolução de caminhos relativos | 130 alvos inexistentes | **129 existiam** |
 | resolver `log.md` pela pasta irmã | ponteiro fora do ficheiro | há **18** `log.md`; era o do assunto, não o irmão |
+| `grep '^## V[0-9]+'` para achar cabeçalhos | um `V9` duplicado | truncava `## V9b` para `## V9`; com `[a-z]?` no fim dá zero |
 
 ### E o inverso: detecção estrutural subestima o dano
 

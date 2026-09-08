@@ -244,3 +244,48 @@ sítio não resolve nos outros que o citam.
 **O corolário que custou o dia:** ao substituir um guarda podre, **a medição que se escreve no
 substituto é ela própria um guarda** — e pode ser pior que o original. Aqui foi: o guarda antigo só
 podia causar desconfiança; o novo podia causar uma **deleção** de registo histórico marcado.
+
+---
+
+## 14 · A alegação citada de cor, e a reprodução que custa minutos
+
+As nove falhas anteriores desta família tinham todas **um erro visível**: o ficheiro errado, a pasta
+errada, a grafia errada, um `--include` sem aspas, um match cortado por `cut`. Esta não. **O padrão
+estava bem construído — para a frase que quem o escreveu tinha na cabeça.**
+
+**O caso (2026-09-08).** Um aviso apontava cinco linhas de um ficheiro como carregando a escada
+superada. Ao verificá-lo, uma sessão procurou `category everywhere|region at four|\+28|place-level`
+e encontrou **2 de 5**, concluindo que o ponteiro *nascera errado* em vez de ter apodrecido — e
+propôs corrigir o diagnóstico registado.
+
+O ficheiro escreve a mesma alegação de quatro maneiras:
+
+| a linha diz | o padrão procurava |
+|---|---|
+| `category **outperforms** everywhere` | `category everywhere` |
+| `region outperforms at **4 of 6**` (dígito) | `region at four` |
+| `outperforms both dedicated models` | — |
+| `category everywhere, region at four of six` | ✔ apanhada |
+
+Recontando com as variantes: **4 de 5**. O ponteiro nasceu a ~80% e apodreceu com o ficheiro a
+mexer-se, que era o diagnóstico original. **A correcção proposta teria substituído um diagnóstico
+certo por um errado.**
+
+> **A regra:** uma alegação não tem forma canónica. Citá-la de memória e procurar essa citação mede
+> a memória de quem procura, não o ficheiro. Antes de concluir "não está lá", enumere **as formas em
+> que a coisa se diz** — verbo intercalado, número por extenso e em dígito, sinónimo, ordem trocada.
+
+### E o corolário, que é o mais valioso deste ficheiro
+
+Esta refutação só existiu porque, ao receber a alegação de outra sessão, **pediu-se o commit e o
+comando em vez de se aceitar o resultado** — e depois **correu-se**. A reprodução confirmou cada
+passo e derrubou a conclusão: foi ao repetir a medição que o buraco no padrão apareceu.
+
+> **Uma alegação de um par vale o que valer a sua reprodução, e reproduzir custa minutos.**
+
+Não é desconfiança. É que ambas as sessões estavam de boa-fé e competentes, e mesmo assim a
+correcção errada teria entrado **assinada por duas** e ficado meses. Nenhuma leitura atenta a
+teria apanhado; só a re-execução.
+
+*Caso e formulação: sessão `mobiwac`, que trouxe o commit, aceitou a refutação e retirou a
+afirmação. A décima desta família em quatro dias, entre quatro sessões — nenhuma isenta.*
