@@ -66,7 +66,7 @@ arquitectura** — o modelo, as cabeças e o selector são os do v17.
 > pesos de classe **substituídos por *logit adjustment* τ = 0,5** (região τ = 0).
 > A formulação honesta é *"vazamento removido **e** ambos os braços re-afinados"*, não *"o mesmo
 > modelo, medido sem o vazamento"*.
-> ⚠ `METHODOLOGY.md:7` e `V18_RESULTS.md:7` ainda dizem *"the frozen v17 recipe"* — são anteriores ao
+> ⚠ `METHODOLOGY.md` e `V18_RESULTS.md` (o cabeçalho de cada um) ainda dizem *"the frozen v17 recipe"* — são anteriores ao
 > `CHARTER_COMPLIANCE.md` (2026-08-11) e estão desactualizados nesse ponto.
 
 | Alegação | Como foi aceite (v17) | Sob v18 (sem vazamento) |
@@ -231,17 +231,17 @@ pode liderar as contribuições nem o resumo.
 | Coluna de lugar 26,56 / 26,56 / 29,50 / 35,53 / 32,48 / 32,31 | 29,07 / 29,15 / 31,93 / 37,13 / 35,33 / 34,74 |
 | Âncora de Florida **75,15**, e toda a coluna de check-in da Tab. 2: **54,65 / 55,87 / 57,13 / 75,15 / 69,95 / 70,26** | 35,35 / 30,77 / 34,51 / 37,36 / 36,32 / 35,62 (FL: 37,36 na Tab. 2, 37,35 na Tab. 3) |
 | Deltas CTLE **+37,8 / +37,0 / +28,7** | **não existe comparando v18**. Só a ordenação sobrevive |
-| "roughly **64 to 90** percent of the gain" (`src/sections/06_results.tex:18`; atribuição em `src/main.tex:79` e `src/sections/01_introduction.tex:27-28`). ⚠ A variante "64–72 % / 89–90 %" só existe no `PAPER_PLAN.md:151`, **nunca no artigo** — procurar pela cadeia errada deixa a frase viva | **retirado** (já feito no `src_fix`, substituído pelo controlo de concatenação) |
+| "roughly **64 to 90** percent of the gain" (`src/sections/06_results.tex`; atribuição no comentário do `src/main.tex` e no bullet 2 da `01_introduction.tex`). ⚠ A variante "64–72 % / 89–90 %" só existe no `PAPER_PLAN.md`, **nunca no artigo** — procurar pela cadeia errada deixa a frase viva | **retirado** (já feito no `src_fix`, substituído pelo controlo de concatenação) |
 | "pelo menos 4 Acc@10" e "pelo menos 33 macro-F1" sobre as externas | **3,55** e **3,06** |
-| Markov excedido por "4,9 a 10,3" (`src/sections/06_results.tex:137`) | **4,1 a 10,0**. ⚠ **O piso 51–72 NÃO muda** — a árvore aceite já o imprime. A gama "43–65" é do `src_v1`, retirada em 2026-07-18; não está no texto aceite |
+| Markov excedido por "4,9 a 10,3" (`src/sections/06_results.tex`, o parágrafo do piso de Markov) | **4,1 a 10,0**. ⚠ **O piso 51–72 NÃO muda** — a árvore aceite já o imprime. A gama "43–65" é do `src_v1`, retirada em 2026-07-18; não está no texto aceite |
 | Taxa de acerto CA **65,69 %** | **64,54 %** |
 | Convenção de época: "no máximo 0,06 (cat) e 0,11 (reg)" | **0,17 / 0,90** (média por fold) ou **0,23 / 0,93** (pior semente) |
 | Perda `L = 0,75 L_cat + 0,25 L_reg`, CE simples nas duas | **0,50 / 0,50**, com *logit adjustment* τ = 0,5 só na cabeça de categoria |
 | "1,1 M / 2,0 M" para os dois dedicados somados — **prosa viva** (`src/sections/04_method.tex:46-47`, ainda viva em `src_fix/…:55-57`). "+5 % de parâmetros" só sobrevive num comentário que já a retira; "duas respostas ao preço de uma" não está em árvore nenhuma | **falso, e ao contrário** — ver §5, S1 |
-| "a via de região é várias vezes o tamanho do modelo dedicado" — ⚠ **é uma frase v18**, de `src_fix/sections/07_discussion.tex:107`; **não existe em `src/`** | **1,34× (CA) a 2,36× (Istanbul)** |
+| "a via de região é várias vezes o tamanho do modelo dedicado" — ⚠ **é uma frase v18**, de `src_fix/sections/07_discussion.tex` — ⛔ **árvore apagada a 2026-09-06** na fusão das três; recuperar com `git show 422c2d37`. **Não existe em `src/`** | **1,34× (CA) a 2,36× (Istanbul)** |
 | "a lei de escala com o n.º de regiões" | **morta** — ver §5, C4 |
 | Cosseno de gradiente "em sete datasets, positivo em todos" | **quatro datasets, equivalente a zero** |
-| Silhueta 0,53 — ⚠ **não é v17**: é um comentário obsoleto de `src_fix/main.tex:132`. O `src/` imprime **0,57** na prosa (`src/sections/06_results.tex:21`) e no comentário (`src/main.tex:131`) | 0,53 não tem fonte nenhuma. 0,55 (AL/AZ/FL) ou 0,57 (cinco estados) — e **ambas são pré-v18** |
+| Silhueta 0,53 — ⚠ **não é v17**: é um comentário obsoleto do `src_fix/main.tex` (⛔ árvore apagada a 2026-09-06; `git show 422c2d37`). O `src/` imprime **0,57** na prosa da §VI-A e no comentário do `src/main.tex` | 0,53 não tem fonte nenhuma. 0,55 (AL/AZ/FL) ou 0,57 (cinco estados) — e **ambas são pré-v18** |
 
 **Listas de nunca-citar anteriores, ainda válidas:** colapso v4 do STAN (AL 34,46 / AZ 38,96); linha
 v2 do ReHDM (66,06 / 54,65 / 65,68); *outlier* HMT-GRN AL 62,37; o rótulo "STAN infeasible"
@@ -552,11 +552,11 @@ Legenda: **[C]** correcção que tem de entrar em qualquer decisão · **[B]** t
 | `sections/04_method.tex:22` | Acrescentar a frase do forward-only. A única mudança que produziu todo o colapso v18 **não está no Método** | **[C]** |
 | `sections/07_discussion.tex:105-109` | *"has not been run"* é **falso**. E *"several times the size"* é 1,34×–2,36× | **[C] [D4]** |
 | `sections/04_method.tex:55-57` | Somas de parâmetros erradas: 1,1 M → **1,9 M**; 2,0 M → **2,8 M** | **[B]** |
-| `sections/02_related.tex:109-111` | "seven datasets … positive at every one" → **quatro datasets, equivalente a zero** (`apx_f_cosine.tex:336-345`: as quatro médias caem dentro de dois milésimos de zero, contra uma margem de 0,05). ⚠ **Não colar a frase nova ao lado da antiga:** as linhas 99-106 já dizem "four Gowalla states … $+0.001$ … $+0.0032$". Fundir as duas ou apagar a última — senão o parágrafo diz "quatro datasets" duas vezes | **[B]** |
+| `sections/02_related.tex` | "seven datasets … positive at every one" → **quatro datasets, equivalente a zero** (`apx_f_cosine.tex` (o bloco do cosseno de gradientes)``: as quatro médias caem dentro de dois milésimos de zero, contra uma margem de 0,05). ⚠ **Não colar a frase nova ao lado da antiga:** as linhas 99-106 já dizem "four Gowalla states … $+0.001$ … $+0.0032$". Fundir as duas ou apagar a última — senão o parágrafo diz "quatro datasets" duas vezes | **[B]** |
 | `sections/02_related.tex:50` | *"on which sharing helps instead of hurting"* — falsificado. `GLOSSARY §9.3` permite exactamente uma frase de auto-posicionamento na §2, logo **reescrever, não apagar** | **[C]** |
 | `sections/02_related.tex:92-98` | A frase dos *balancers* diz que dois batem o peso igual — e o peso igual é agora **a nossa própria perda** | **[C]** |
 | `sections/06_results.tex:61`, `tables/tbl3_results.tex:49`, `sections/07_discussion.tex:32-33,99-101` | Cobertura da busca: *batch size* nos seis, *learning rate* em **quatro** | **[B]** |
-| `sections/05_setup.tex:43` | *"We also report the registered test"* — nenhum Wilcoxon aparece. Regra do autor 2026-09-02: retirar a promessa, manter o registo + a razão do desvio + a declaração da release. ⚠ A cadeia "primary analysis" **não existe** no `src_fix` — nada a renomear; se se importar o parágrafo da dissertação (`5_mobiwac/05_setup.tex:135`), ele já traz "The reported analysis" | **[B]** |
+| `sections/05_setup.tex` | *"We also report the registered test"* — nenhum Wilcoxon aparece. Regra do autor 2026-09-02: retirar a promessa, manter o registo + a razão do desvio + a declaração da release. ⚠ A cadeia "primary analysis" **não existe** no `src_fix` — nada a renomear; se se importar o parágrafo da dissertação (`5_mobiwac/05_setup.tex`), ele já traz "The reported analysis" | **[B]** |
 | `sections/08_conclusion.tex:11` | 3,5 / 3,0 → **3,55 / 3,06**. E "on either task" transfere a margem da região para a categoria | **[B] [D5]** |
 | `main.tex:85-87` (resumo) | O mesmo problema de margem entre eixos | **[D5]** |
 | `sections/07_discussion.tex:90-92`, `sections/05_setup.tex:30` | *"A planned follow-up"* — foi corrido | **[B]** |
@@ -572,7 +572,7 @@ Legenda: **[C]** correcção que tem de entrar em qualquer decisão · **[B]** t
 | `sections/06_results.tex:21` | Declarar que a coluna de check-in da Tab. 2 é a fatia da semente 0 do braço dedicado da Tab. 3 |
 | `sections/06_results.tex:25-37` | Controlo de concatenação: imprimir os três ganhos ao lado dos três gaps. **Não adoptar** a inversão mais forte (o autor recusou-a: o Q13 não reproduz a Tab. 2 fold a fold em AZ/FL) |
 | `sections/06_results.tex` | Importar a reconciliação piso-Markov vs. externas (D19) |
-| `sections/05_setup.tex:41` — fim do parágrafo *"A claimed gain and a claimed match require different tests…"*. ⚠ **A linha 125 é a da dissertação**; no `src_fix` a 125 é `\subsection{Baselines}` | "On next category the plan registered no equivalence margin, so a difference that fails the superiority test is reported as unresolved rather than as a match" |
+| `sections/05_setup.tex` — fim do parágrafo *"A claimed gain and a claimed match require different tests…"*. ⚠ **A linha 125 é a da dissertação**; no `src_fix` a 125 é `\subsection{Baselines}` | "On next category the plan registered no equivalence margin, so a difference that fails the superiority test is reported as unresolved rather than as a match" |
 | `sections/04_method.tex:43-45` | A razão da assimetria da métrica para o *logit adjustment* só na categoria |
 | `sections/01_introduction.tex:19` | **B-23:** "…two enhancements **to that earlier model**" |
 | `tables/tbl1_datasets.tex` | Cláusula na legenda: check-ins/utilizadores/POIs são do corpus cru, Windows é pós-filtro. **Nenhum número muda** |
