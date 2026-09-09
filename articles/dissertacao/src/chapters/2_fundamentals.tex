@@ -1911,7 +1911,13 @@ validation and the remaining four fifths for training. Stratification follows
 Kohavi~\cite{kohavi1995crossval}, who recommends the stratified estimator and, for model
 selection, ten folds. In the final study, which repeats the whole experiment under four
 seeds, five folds keep that design at twenty fitted models per configuration on datasets
-of up to 3.2 million check-ins.
+of up to about 4.1 million check-ins.
+% [2026-09-08, AUTHOR-AUTHORIZED frame fix, no errata] "up to 3.2 million" -> "up to about 4.1
+% million". This is a COST argument for five folds over Kohavi's ten, and its number is the largest
+% dataset in the final study, which covers all six: Texas, 4,089,892 check-ins
+% (tables/mobiwac/datasets.tex), not California's 3,171,380. The correction strengthens the argument
+% (a larger dataset is more reason for five folds). Distinct from the Ch.5 range fix of the same day:
+% that sentence was a range wrongly ordered by region count; this one is a maximum. No probe pins it.
 % [2026-09-04, AUTHOR-APPROVED §2.4 scoping, scoping 2] "Five folds are used here because the final
 % study..." presented Chapter 5's reason as everyone's; Chapters 3 and 4 used five folds in papers
 % published before that design existed. Scoped with "In the final study"; the B-11/B-18 answer
