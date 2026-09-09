@@ -282,7 +282,7 @@ the delivered `references.bib` cites all three as provenance of record.
 |---|---|---|---|
 | 3 | *An Investigation into Multi-Task Learning for POI Category Classification and Next-POI Prediction* | **CBIC 2025, published.** DOI `10.21528/CBIC2025-1191324`. **Satisfies Art. 21** | [`../CBIC___MTL/`](../CBIC___MTL/) |
 | 4 | *ST-MTLNet: Representações Espaço-Temporais de POIs para Aprendizado Multitarefa* | **CoUrb 2026 (SBRC), published.** DOI `10.5753/courb.2026.22960`. Tarik S. Paiva 1st author, Vitor 2nd + presenter. Translated to EN for the chapter | [`../CoUrb_2026/`](../CoUrb_2026/) (see `src_en/`) |
-| 5 | *Predicting the Next Category and Region of a Visit* | **MobiWac 2026, accepted for publication** (accepted 2026-08-26; EDAS #1571313639) | [`../[mobiwac]/`](../%5Bmobiwac%5D/) — ⚠ the paper of record is **`src_fix/`**, not `src/` |
+| 5 | *Predicting the Next Category and Region of a Visit* | **MobiWac 2026, accepted for publication** (accepted 2026-08-26; EDAS #1571313639) | [`../[mobiwac]/`](../%5Bmobiwac%5D/) — the paper of record is **`src/`**. ⚠ This cell said `src_fix/` until 2026-09-08; that tree was consolidated into `src/` and **no longer exists**. Corrected the day it went, after a Fable audit found the pointer still standing. |
 
 Each article folder carries its own `ERRATA.md`, which is the subject matter of **Appendix B of the
 supplement**. BRACIS 2026 is **not** a chapter: rejected, superseded by MobiWac.
