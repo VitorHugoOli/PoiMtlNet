@@ -39,10 +39,17 @@ representation. Every number already in the paragraph is unchanged. \\
 \addlinespace
 The gradient-cosine paragraph reports the development measurement, four seeds on four
 Gowalla states, and points only to the mechanism test in the results section. &
-One sentence is added in the chapter, pointing to the appendix that measures the same
-quantity on the final model at four of the six datasets and reaches the same conclusion. The
-sentence cites a dissertation appendix, so it is not carried into the submitted paper: the
-referent does not exist there. No number, scope, or conclusion in the paragraph changes. \\
+% ⚠ [2026-09-08] ESTA LINHA DESCREVIA UMA FRASE QUE JA NAO ESTA NO CAPITULO. Dizia "One sentence
+% is added in the chapter, pointing to the appendix that measures the same quantity on the final
+% model". Esse ponteiro FOI ACRESCENTADO E DEPOIS RETIRADO, no 2bb82234 (2026-08-04, round14
+% "STANDALONE"), quando se decidiu que os capitulos de artigo nao apontam para apendices da
+% dissertacao. Medido hoje: os oito ficheiros do Cap. 5 tem ZERO ocorrencias de \ref{apx:...}.
+% A linha ficou a registar uma adicao que foi REVERTIDA -- e a prosa que anuncia a tabela
+% repetia-o. Apanhado por uma auditoria Fable ao lote das nove, que notou que reescrever a prosa
+% em volta de uma linha obsoleta A RE-AUTORIZA. Corrigida para o que a errata deixou de pe.
+The claim is scoped to what the development measurement
+covers, and the paragraph's own numbers and conclusion are
+unchanged. \\
 \addlinespace
 % [2026-09-02, Wilcoxon] Author ruling: remove the promise, do not compute the test. The registered
 % test was executed once, on the v17 ladder; the ladder was recomputed under the joint-best
@@ -211,7 +218,7 @@ such qualification. No number changes. \\
 % doutra maneira, acrescentando um limite simultaneo de Bonferroni (0,49); ESSE NUMERO NAO ENTRA
 % -- e novo na dissertacao e o autor nao o decidiu.
 The results section prints the Alabama interval as
-$-0.33$ to $-0.04$ and, five words later, says the widest
+$-0.33$ to $-0.04$ and, in the same sentence run, says the widest
 interval reaches $0.34$ points from zero. &
 The second figure is brought to the printed precision of the
 first, $0.33$. Both came from the same value, $0.3338$, one
@@ -239,7 +246,11 @@ the target is described as underexplored. That section names
 nearest exceptions rather than supporting a priority claim, and
 the project's own record bans the stronger form. \\
 \addlinespace
-% [2026-09-08] Toda a linha de silhueta/kNN na fonte tem granularity=poi e motor v14. O sujeito
+% [2026-09-08] As constantes impressas vem de linhas com granularity=poi e motor v14 (silhouette
+% 0,5668 e knn10 0,9827 para o check-in; 0,0003 e 0,7750 para o HGI -- arredondam aos 0,57 / 0,98
+% / 0,00 / 0,78 impressos). ⚠ CORRIGIDO no mesmo dia: este comentario dizia "toda a linha da fonte
+% tem v14", o que e FALSO DO FICHEIRO -- ele carrega tambem linhas do check2hgi canonico
+% (0,4769 / 0,9794). Sao as constantes que vem do v14, nao o ficheiro inteiro. O sujeito
 % "per-visit vectors" contradizia a agregacao por lugar. Os numeros ficam; o escopo entra.
 The results section attributes the silhouette and purity
 constants to the per-visit vectors of the reported
