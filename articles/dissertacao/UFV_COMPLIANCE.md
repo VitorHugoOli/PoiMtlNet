@@ -37,7 +37,37 @@ The LaTeX setup must produce both from one source ([`TEMPLATE.md`](TEMPLATE.md) 
 | Pre-textual pages | **counted but not numbered**; cover + ficha catalográfica neither counted nor numbered |
 | Numbering example | 10 pre-textual pages → the first body page is numbered 11 |
 | Resumo/Abstract (system fields) | text block only, no paragraphs, no header (system generates the header); keywords one per line, lowercase except proper nouns, no punctuation |
-| Agradecimentos (system field) | the CAPES (Financiamento 001) + FAPEMIG + CNPq funding sentence is auto-inserted and cannot be altered (can be reordered among other thanks) |
+| Agradecimentos (system field) | 🛑 **The funding sentence is PRE-FILLED and FREELY EDITABLE — it is NOT protected by the system.** The field's own label reads *"Até 4000 caracteres. **Deve conter** o texto «This work has been sponsored by…»"*: **"deve conter" is an obligation on the student**, not an auto-insert. Up to 4000 chars; reorderable among other thanks. **If you rewrite this field, carry the sentence across yourself — nothing restores it.** |
+
+> 🛑 **CORRECTED 2026-09-08, and the old wording was the dangerous kind.** This row used to read
+> *"auto-inserted and cannot be altered"*. The reordering half was right; **the immutability half was
+> false**, and it asserted a guarantee the portal does not give.
+>
+> **How it was established, and it is not inference:** the `academico` session **edited the field**.
+> On 2026-09-04 it held only the funding sentence (296 chars, read from the widget's own value); the
+> session replaced the contents with the seven acknowledgement paragraphs from `content.tex` and
+> **deliberately put the sentence back at the end**, because a warning told it not to duplicate. The
+> system accepted and stored 3,114 characters. Had it not known, the sentence would have been gone.
+>
+> ✅ **The funders ARE acknowledged**, verified in the emitted RASCUNHO (**sheet 6**), full text:
+> *"This work has been sponsored by the following Brazilian research agencies: Coordination for the
+> Improvement of Higher Education Personnel (CAPES; Financing code 001), Minas Gerais State
+> Foundation for Research Aid (FAPEMIG) and National Council of Scientific and Technological
+> Development (CNPq)."* Their absence from `src/` is therefore **correct, not an omission** — the
+> field is filled in the portal, like the Resumo.
+>
+> ⚠ **The standing risk, which replaces the false guarantee:** the sentence survives by the
+> discipline of whoever edits the field. **Re-check it in the RASCUNHO every time the Agradecimentos
+> are touched.**
+>
+> *Caveat recorded rather than hidden: the AcademicoPG session has since expired, so this could not
+> be re-confirmed live. What is reported is direct observation logged at the time — the initial value
+> read, the label read, and an edit that saved successfully — not a reading of this file.*
+>
+> **Same shape as the page-numbering defect**, and worth naming: there, the recipe in our source was
+> blind to what the portal prepends; here, our note credited the portal with a protection that is in
+> fact the student's responsibility. **Our documentation asserting a guarantee is not the system
+> giving one.**
 
 Older Normas-gerais print-era rules (≥40 mm binding margin etc.) are superseded by the manual
 for the final build; SI units and legibility rules (§3.x) still apply.
