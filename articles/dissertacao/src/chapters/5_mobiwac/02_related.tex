@@ -85,7 +85,16 @@ literature, with a grid cell as the target~\cite{luca2021mobilitysurvey}; our
 next-region task substitutes official neighborhood-scale units for grid cells. Our earlier
 work~\cite{silva2025mtlnet} paired static category classification with next-category prediction
 and found no consistent multitask gain; this chapter introduces the next-region task and adds the check-in-level
-representation, on which sharing helps instead of hurting (Section~\ref{sec:mobiwac:results-part2}).
+representation, on which the joint model outperforms the dedicated model on next region at two
+datasets and stays within the registered two-point margin at the other four, while on next
+category it outperforms the dedicated model at one dataset and the other five differences are
+equivalent to zero within half a point (Section~\ref{sec:mobiwac:results-part2}).
+% [2026-09-08, AUTHOR-AUTHORIZED errata batch, Table B.5 item] "on which sharing helps instead of
+% hurting" was the superseded ladder: the chapter's own §6 reports four region deficits ("none of
+% them is a tie") and two negative category cells. Replaced by the delivered verdict surfaces
+% (WRITING_LAW §3): outperforms only where Holm licenses it (region TX/CA, category FL), the
+% two-point margin on region, the half-point bound on category. No cross-reference outside the
+% chapter (STL-04).
 
 The field
 increasingly models several granularities at once; in those systems, category and
@@ -191,9 +200,14 @@ trunk averages $+0.001$ across training (four seeds each on four Gowalla
 states: Alabama, Arizona and Florida, which are three of the five U.S. datasets reported
 here, and Georgia, which is not among the datasets this study reports; the largest per-dataset mean in
 absolute value is $+0.0032$). A balancer therefore has no
-conflict to resolve, consistent with the mechanism test in
-Section~\ref{sec:mobiwac:results-part2}; this is a finding for this pair of tasks, not a
-general rule. The same quantity, measured on the reported joint model at four datasets, is equivalent to zero at
+conflict to resolve; this is a finding for this pair of tasks, not a
+general rule.
+% [2026-09-08, AUTHOR-AUTHORIZED errata batch, Table B.5 item] Removed ", consistent with the
+% mechanism test in Section~\ref{sec:mobiwac:results-part2}": the reference resolved, but that
+% section contains no mechanism test (the freeze-region control was deleted 2026-08-06), so the
+% clause pointed at prose that is not there. The article carries no such clause either. The cosine
+% finding and its scope are unchanged.
+The same quantity, measured on the reported joint model at four datasets, is equivalent to zero at
 every one of them, with per-dataset means within two thousandths of zero, so the absence of
 conflict is not an artifact of this smaller set of runs.
 % [round9f, 2026-08-02, PENDENCIAS_RESOLVIDOS 2.9 (arquivado 2026-08-02), AUTHOR DECISION]

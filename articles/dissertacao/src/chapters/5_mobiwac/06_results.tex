@@ -35,9 +35,21 @@ reach significance ($p=0.07$). What the comparison establishes is therefore a co
 rather than a large effect: the input representation is one condition that affects performance
 here, and it acts the same way everywhere it was measured.
 
+% [2026-09-08, AUTHOR-AUTHORIZED errata batch, Table B.5 item] "the per-visit vectors' silhouette
+% score" attributed the geometry constants to the delivered per-visit vectors. Every row of the source
+% metrics carries granularity=poi and the v14 engine (check2hgi_design_k_resln_mae_l0_1), an earlier
+% build, with vectors aggregated per place. Scoped, not dropped (the article dropped the paragraph;
+% the author was not asked to). Numbers unchanged; the "representation family" sentence that follows
+% already says the constants are not those of the exact delivered configuration.
 The geometry of the vectors indicates why the representation helps this task in
-particular: the per-visit vectors' silhouette score by category (how tight and well separated the seven labeled groups are, on a $-1$ to $1$ scale) is about $0.57$ against about $0.00$ for the place embedding, and their nearest-neighbor category purity (the share of nearest neighbors with the vector's own category) is about $0.98$ against about $0.78$ (both averaged over the five U.S. states). Both measures characterize the representation family rather than the exact configuration
-evaluated in Table~\ref{tab:mobiwac:results}. The same geometry does not separate regions, so the benefit is category-only (the joint model's spatial stream instead reads the region-level vectors of the same graph, Section~\ref{sec:mobiwac:method-model}). CTLE~\cite{lin2021ctle}, the closest prior contextual embedding, also gives each visit its own vector, but it pretrains on place identifiers and timestamps alone, so the category vocabulary never enters its training, whereas our graph reads each visit's category and time of day as input features. At Florida, we fine-tune CTLE together with the task model, using its authors' defaults and the same 64 dimensions and windowing as ours. It reaches $33.45$ macro-F1 at its best epoch and $29.69$ at its final one (an epoch is one pass over the training data), about two points below the place embedding under the same best-epoch rule. With frozen weights, fed to the same single-task model, CTLE repeats the ordering at Alabama, Arizona, and Istanbul. These CTLE results establish the ordering between the two representation families rather than a
+particular: the silhouette score by category of the representation's vectors, measured on an earlier build with the vectors aggregated per place (how tight and well separated the seven labeled groups are, on a $-1$ to $1$ scale), is about $0.57$ against about $0.00$ for the place embedding, and their nearest-neighbor category purity (the share of nearest neighbors with the vector's own category) is about $0.98$ against about $0.78$ (both averaged over the five U.S. states). Both measures characterize the representation family rather than the exact configuration
+evaluated in Table~\ref{tab:mobiwac:results}. The same geometry does not separate regions, so the benefit is category-only (the joint model's spatial stream instead reads the region-level vectors of an earlier build of the same graph design, Section~\ref{sec:mobiwac:method-model}).
+% [2026-09-08, AUTHOR-AUTHORIZED errata batch, Table B.5 item, same in 04_method.tex] "of the same
+% graph" -> "of an earlier build of the same graph design". run_phase0_build.sh symlinks
+% region_embeddings.parquet from the v14 engine (six PASS rows in AUDIT.md): check-in vectors are the
+% v18 build, region vectors an earlier build of the same design. Wording is the article's; the CTLE
+% sentences that follow are unchanged.
+CTLE~\cite{lin2021ctle}, the closest prior contextual embedding, also gives each visit its own vector, but it pretrains on place identifiers and timestamps alone, so the category vocabulary never enters its training, whereas our graph reads each visit's category and time of day as input features. At Florida, we fine-tune CTLE together with the task model, using its authors' defaults and the same 64 dimensions and windowing as ours. It reaches $33.45$ macro-F1 at its best epoch and $29.69$ at its final one (an epoch is one pass over the training data), about two points below the place embedding under the same best-epoch rule. With frozen weights, fed to the same single-task model, CTLE repeats the ordering at Alabama, Arizona, and Istanbul. These CTLE results establish the ordering between the two representation families rather than a
 % [2026-09-02, AUTHOR-APPROVED, errata Table B.5 of the supplement; Q13] Two defects in the
 % concatenation-control sentences. (1) NUMBER: "under a tenth of the place-to-check-in gap" is
 % contradicted by Table 9, printed right below: the gaps are +1.62 (AL), +2.58 (AZ), +0.23 (FL),
@@ -234,7 +246,11 @@ $+0.03$), California ($-0.00$; $-0.03$ to $+0.02$), Texas ($-0.13$; $-0.19$ to $
 % both endpoints already lie inside the margin. The sentence now states the bound as what it is, a
 % property read off the intervals, and names the endpoint that sets it (Alabama, 0.3338).
 The intervals themselves carry what can be said about magnitude:
-the widest of them reaches $0.34$ points from zero, at Alabama, which bounds all six differences
+% [2026-09-08, AUTHOR-AUTHORIZED errata batch, Table B.5 item] $0.34$ -> $0.33$. The true endpoint is
+% 0.3338; the same paragraph prints Alabama's interval endpoint as $-0.33$ five words earlier, so the
+% page was inconsistent (one rounding, one ceiling), not false. Minimal fix; the article's Bonferroni
+% 0.49 is NOT imported (author has not ruled on it).
+the widest of them reaches $0.33$ points from zero, at Alabama, which bounds all six differences
 within half a point of zero at once. The bound is read off the intervals rather than established by a
 further test.
 

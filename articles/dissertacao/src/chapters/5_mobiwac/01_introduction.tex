@@ -36,7 +36,12 @@ Our contributions are as follows.
     consistent even where the size is small, because a single fixed vector
     per place cannot separate places that serve several purposes, which
     per-visit context recovers.
-  \item A single model for joint next-category and next-region prediction, sharing semantic context across tasks while keeping a private spatial path for the region task; to our knowledge, the first work to treat fine-grained region as an end target of equal standing (Section~\ref{sec:mobiwac:related-tasks}). In one forward pass, it outperforms a dedicated
+  % [2026-09-08, AUTHOR-AUTHORIZED errata batch, Table B.5 item] "the first work to treat ... as an end
+  % target of equal standing" -> the hedged form the chapter's own related-work section already uses
+  % ("is underexplored"). The frame's provenance record (1_introduction.tex) documents eight OpenAlex
+  % probes that refuted "pioneering" and bans "the first"; this claim had survived the ban. Wording
+  % copied from the article's revised introduction.
+  \item A single model for joint next-category and next-region prediction, sharing semantic context across tasks while keeping a private spatial path for the region task; to our knowledge, fine-grained region as an end target of equal standing is underexplored (Section~\ref{sec:mobiwac:related-tasks}). In one forward pass, it outperforms a dedicated
     single-task region model at Texas and California, the two datasets with the
     largest region vocabularies, and at the other four it stays within a
     two-point margin registered before any result was read (statistical

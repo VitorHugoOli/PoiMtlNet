@@ -192,6 +192,99 @@ where the Texas difference is larger. &
 The superlative is scoped to the set the sentence is about. The
 cross-reference stays, since it is where the reader goes for the
 region result. No number, verdict or interval changes. \\
+\addlinespace
+% [2026-09-08] NOVE LINHAS, do camera-ready. Vieram da revisao por que o artigo passou e a
+% dissertacao nao: tres revisores EDAS mais um painel interno. Como o Cap. 5 E o artigo, o que
+% eles encontraram esta no mesmo texto. Cada uma verificada DUAS VEZES contra a fonte -- por esta
+% sessao e por uma auditoria Fable independente que as refez do zero.
+The discussion section reports the per-fold rebuild and
+says the qualification on it is recorded for the
+\emph{region} half. &
+The half is corrected to \emph{category}. The setup section
+qualifies the category side, where a graph built only from
+training users has no visit vectors for validation users; the
+region comparison reads region vectors directly and carries no
+such qualification. No number changes. \\
+\addlinespace
+% [2026-09-08] ⚠ NENHUM DOS DOIS DIGITOS ESTAVA ERRADO, e a linha diz isso: o valor e 0,3338,
+% logo -0,33 e o arredondamento e 0,34 o tecto. A pagina e que era incoerente. O artigo resolveu
+% doutra maneira, acrescentando um limite simultaneo de Bonferroni (0,49); ESSE NUMERO NAO ENTRA
+% -- e novo na dissertacao e o autor nao o decidiu.
+The results section prints the Alabama interval as
+$-0.33$ to $-0.04$ and, five words later, says the widest
+interval reaches $0.34$ points from zero. &
+The second figure is brought to the printed precision of the
+first, $0.33$. Both came from the same value, $0.3338$, one
+rounded and one taken as a ceiling; neither was false, but the
+page disagreed with itself. No verdict or interval changes. \\
+\addlinespace
+% [2026-09-08] O intervalo estava ordenado por numero de regioes e reutilizava essa ordem para os
+% check-ins, sem o dizer. Texas: 4.089.892 contra 3.171.380 da California (tables/mobiwac/datasets).
+The setup section gives the corpus range as ending at about
+3.2 million check-ins and 8,501 regions in California. &
+The check-in end of the range is corrected to Texas, which has
+about 4.1 million; the region end keeps California. The
+sentence had ordered by region count and reused that order for
+check-ins. No other value changes. \\
+\addlinespace
+% [2026-09-08] ⚠ O DECISIVO NAO E A §2 CONTRADIZER: e o registo do proprio projecto. O comentario
+% de proveniencia do Cap. 1 documenta OITO sondas OpenAlex que REFUTARAM "pioneering" e diz, a
+% letra, que "'the first' are banned here". A alegacao sobreviveu a proibicao. A forma adoptada e
+% a que ja estava escrita na §2, nao uma nova.
+The introduction claims the work is, to the authors'
+knowledge, the first to treat fine-grained region as an end
+target of equal standing, and cites the related-work section. &
+The claim adopts the hedged form that section already uses:
+the target is described as underexplored. That section names
+nearest exceptions rather than supporting a priority claim, and
+the project's own record bans the stronger form. \\
+\addlinespace
+% [2026-09-08] Toda a linha de silhueta/kNN na fonte tem granularity=poi e motor v14. O sujeito
+% "per-visit vectors" contradizia a agregacao por lugar. Os numeros ficam; o escopo entra.
+The results section attributes the silhouette and purity
+constants to the per-visit vectors of the reported
+representation. &
+The subject is scoped to what was measured: the vectors of an
+earlier build, aggregated per place. The constants and the
+sentence limiting them to the representation family are
+unchanged. \\
+\addlinespace
+% [2026-09-08] run_phase0_build.sh faz SYMLINK do region_embeddings.parquet a partir do engine
+% v14, com seis PASS registados no AUDIT.md. Os vectores de check-in sao v18; os de regiao nao.
+The method and results sections describe the region vectors as
+coming from the same graph as the check-in vectors. &
+Both are scoped to an earlier build of the same graph design.
+The region table is carried over from that build rather than
+rebuilt, which the phrase \emph{the same graph} did not convey.
+No number changes. \\
+\addlinespace
+% [2026-09-08] Era a ESCADA SUPERADA sobrevivendo na §2. A §6 do proprio capitulo reporta quatro
+% defices de regiao "and none of them is a tie" e duas celulas de categoria negativas. As probes
+% LADDER-* guardam esta classe em todo o lado EXCEPTO no Cap. 5, por desenho.
+The related-work section describes the representation as one
+on which sharing helps instead of hurting. &
+The characterization is replaced by the delivered verdicts, in
+the wording the rest of the document uses: outperformance at
+two datasets on region with the registered margin holding at
+the other four, and at one dataset on category with the other
+five equivalent to zero within half a point. \\
+\addlinespace
+% [2026-09-08] O \ref resolve, o referente nao existe: o controlo de congelamento de regiao foi
+% apagado a 2026-08-06. Nenhum portao apanha um referente que e prosa.
+The related-work section supports a claim by pointing at a
+mechanism test in the results section. &
+The pointer is removed. The control it named was deleted from
+the chapter, so the cross-reference resolved to a section that
+contains no such test. The claim itself is unchanged and stands
+on the measurement stated beside it. \\
+\addlinespace
+% [2026-09-08] Os valores vem do A4 dos pre-freeze gates, substrato PRE-v18. A frase de escopo do
+% capitulo ("three datasets at one seed") ja era melhor que a do artigo; faltava-lhe a geracao.
+The integrity check states its scope as three datasets at one
+seed. &
+The build is added to the scope: the check ran on an earlier
+build of the representation. The datasets, the seed and the
+reported differences are unchanged. \\
 \bottomrule
 \end{tabular}
 \end{table}

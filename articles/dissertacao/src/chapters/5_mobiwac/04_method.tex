@@ -24,7 +24,7 @@ never sees the next category or the next region. From the trained graph, we extr
 \subsection{The single multitask model}
 \label{sec:mobiwac:method-model}
 
-We then train one model that reads a window of recent per-visit vectors and predicts the next visit's category and region at once. Figure~\ref{fig:mobiwac:model} shows the design. Each task has its own input. The category task reads the window of per-visit vectors (the semantic stream); the region task reads the same window of visits, each visit now represented by the trained vector of its region node from the same graph (the spatial stream). Both pass through private
+We then train one model that reads a window of recent per-visit vectors and predicts the next visit's category and region at once. Figure~\ref{fig:mobiwac:model} shows the design. Each task has its own input. The category task reads the window of per-visit vectors (the semantic stream); the region task reads the same window of visits, each visit now represented by the trained vector of its region node, read from an earlier build of the same graph design (the spatial stream). Both pass through private
 per-task encoders (a small input network per task, with no shared weights) into the shared trunk, a cross-attention stack of two blocks, so each prediction still uses both inputs. In each block, attention lets each
 stream read the other's features, while each keeps its own feed-forward
 weights. The tasks therefore share by exchanging information between per-task

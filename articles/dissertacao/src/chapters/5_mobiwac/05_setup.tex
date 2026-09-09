@@ -19,7 +19,11 @@ Table~\ref{tab:mobiwac:datasets} summarizes the six datasets. Five datasets come
 % the exact files the ETL consumes; 36,001,959 check-ins). Date range MEASURED on the parquet
 % 2026-07-09: 2009-01-21 .. 2011-08-16 -> "collected 2009 to 2011". The SNAP/cho2011 dump
 % (Feb 2009-Oct 2010) is NOT the data source; cho2011gowalla is cited as the LBSN reference only.
-The U.S. datasets range from about 114,000 check-ins and 1,109 regions in Alabama to about 3.2 million check-ins and 8,501 regions in California. All six datasets use the seven place categories defined in Section~\ref{sec:mobiwac:problem}. The source labels for Istanbul are mapped to these categories. A region is a census tract in the U.S. datasets and a mahalle in Istanbul.
+% [2026-09-08, AUTHOR-AUTHORIZED errata batch, Table B.5 item] The sentence ordered the range by
+% region count and silently reused that order for check-ins: California (3,171,380) is not the
+% upper end, Texas is (4,089,892, tables/mobiwac/datasets.tex). Scoped rather than deleted: each
+% range now names its own endpoint. "4.1 million" is 4,089,892 rounded to one decimal.
+The U.S. datasets range from about 114,000 check-ins and 1,109 regions in Alabama to about 4.1 million check-ins in Texas and 8,501 regions in California. All six datasets use the seven place categories defined in Section~\ref{sec:mobiwac:problem}. The source labels for Istanbul are mapped to these categories. A region is a census tract in the U.S. datasets and a mahalle in Istanbul.
 
 \input{tables/mobiwac/datasets}
 
@@ -77,7 +81,11 @@ search may mean for the two datasets that did not receive one.
 \emph{Whole-dataset training.} The question is whether using all users to train
 Check2HGI gives the prediction models an advantage. To check this, we built a new
 representation for each fold using only its training users. This check covers three datasets at
-one seed.
+one seed, on an earlier build of the representation.
+% [2026-09-08, AUTHOR-AUTHORIZED errata batch, Table B.5 item] ", on an earlier build of the
+% representation" added: the quoted ranges come from a pre-v18 substrate and the sentence did not
+% say so. The scope clause ("three datasets at one seed") stays and the quoted ranges are unchanged;
+% wording is the article's.
 The differences were $-0.33$ to $+0.01$ Acc@10 points for region and $0.00$ to
 $+0.29$ macro-F1 points for category.
 

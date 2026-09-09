@@ -84,8 +84,18 @@ CLAIM_TOTAL = re.compile(r"\bTotal\s+(?P<total>\d{1,3})\b", re.I)
 # The number is SPELLED OUT here, not a digit, because that is how the prose writes it. A guard
 # that only understood digits would have reported "claim not found" -- rc 2 -- on a sentence that
 # was present and wrong, which is the failure this script's own docstring calls class V3.
+# Extended to thirty on 2026-09-08, when B.5 reached eighteen and the guard REFUSED rather than
+# passing -- printing "not a number word this guard knows. Add it to WORDS rather than loosening
+# the match." That refusal is the design working: a guard that cannot read a claim must say so, not
+# go green. Thirty is arbitrary but deliberate -- far enough that the table will not outrun it, and
+# short enough to stay a literal list, because the alternative (accepting digits) would silently
+# repeal the spelled-number discipline this guard exists to enforce.
 WORDS = {"no": 0, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7,
-         "eight": 8, "nine": 9, "ten": 10, "eleven": 11, "twelve": 12}
+         "eight": 8, "nine": 9, "ten": 10, "eleven": 11, "twelve": 12, "thirteen": 13,
+         "fourteen": 14, "fifteen": 15, "sixteen": 16, "seventeen": 17, "eighteen": 18,
+         "nineteen": 19, "twenty": 20, "twenty-one": 21, "twenty-two": 22, "twenty-three": 23,
+         "twenty-four": 24, "twenty-five": 25, "twenty-six": 26, "twenty-seven": 27,
+         "twenty-eight": 28, "twenty-nine": 29, "thirty": 30}
 SCOPE_TABLE = "mobiwac/errata_scope.tex"
 CLAIM_SCOPE = re.compile(
     r"Table~\\ref\{tab:apx:mobiwac-scope\}\s+lists\s+(?P<count>[a-z]+)\s+further\s+departures",

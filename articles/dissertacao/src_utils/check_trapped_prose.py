@@ -146,7 +146,30 @@ def suspects_in(path: Path, pdf: str) -> list[tuple[int, str, str]]:
         # CONTINUATION TEST: real trapped prose is a torn fragment, so the NEXT source line is body
         # text that continues the same sentence. Two things follow, and both are required:
         nxt = lines[i + 1].strip() if i + 1 < len(lines) else ""
-        if not nxt or nxt.startswith("%") or nxt.startswith("\\") or nxt.startswith("}"):
+        # ⚠ THE COMMENT-NEXT BLIND SPOT, closed 2026-09-08. This used to `continue` whenever the
+        # next line was itself a comment, on the reasoning that a torn fragment must be followed by
+        # the body text it was torn from. That reasoning fails for a ONE-LINE PARAGRAPH: an Edit
+        # whose anchor ends mid-line appends its comment there and swallows the REST OF THAT LINE,
+        # and if a comment happens to follow, the whole paragraph is now inside comments with no
+        # body line after it to test against. Measured cost: the CTLE passage of
+        # 5_mobiwac/06_results.tex, 116 words, vanished from the delivered text and this gate said
+        # 0 suspects. Two sibling tears the same day WERE caught, because ordinary body text
+        # followed them -- so the gate looked like it was working.
+        #
+        # The tell that survives when the continuation test cannot run: a comment line far longer
+        # than its neighbours in the same block is not a remark, it is swallowed prose. Flagged
+        # separately below rather than folded in, because it has no render test and is a heuristic:
+        # it reports SUSPECT, and the reader confirms against the built PDF.
+        if nxt.startswith("%"):
+            block = [l.strip() for l in lines[max(0, i - 4):i + 5] if l.strip().startswith("%")]
+            others = [len(x) for x in block if x is not lines[i].strip()]
+            if others and len(tail) > 2.5 * (sum(others) / len(others)) and len(words(tail, 30)) >= 20:
+                out.append((i + 1, tail[:100],
+                            "[SWALLOWED-LINE SUSPECT] comment %d chars against a block mean of %d; "
+                            "no body line follows, so the render test cannot run. Check the built "
+                            "PDF for this text." % (len(tail), sum(others) // len(others))))
+            continue
+        if not nxt or nxt.startswith("\\") or nxt.startswith("}"):
             continue
         #  (a) if the tail closes its own sentence it MIGHT be a self-contained ledger remark --
         #      but the real 4_courb:187 case also ended in a period ("...distinct counties
