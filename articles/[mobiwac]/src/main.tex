@@ -23,6 +23,10 @@
 \usepackage{xcolor}
 \usepackage{booktabs}
 \usepackage{tikz}
+% [2026-09-09] \balance pedido pela Sheridan (actas) para nivelar as duas colunas da pagina de
+% referencias: antes a coluna esquerda ia cheia ate ao fim e a direita parava a ~45%. E so
+% disposicao -- o texto renderizado fica palavra a palavra identico e o artigo mantem 8 paginas.
+\usepackage{balance}
 \usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc}
 % tells the standalone figure files to render in \input mode, not standalone.
 \def\FIGINPUT{1}
@@ -191,6 +195,7 @@ State of Minas Gerais (FAPEMIG), CNPq and CAPES.
 % IEEEtran.bst is bundled in this folder (src/IEEEtran.bst, from CTAN) next to
 % IEEEtran.cls, so the official IEEE bibliography style builds locally and on Overleaf.
 \bibliographystyle{IEEEtran}
+\balance
 \bibliography{references}
 
 \end{document}
