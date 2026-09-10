@@ -232,7 +232,19 @@ $+0.19$ at Florida, and Florida is the only one the tests resolve.
 On region (Acc@10), the joint model outperforms the dedicated model at Texas ($+1.21$) and
 California ($+1.06$), and at the other four datasets it stays within the two-point margin. The two
 datasets where it outperforms are the two with the largest region vocabularies, which is where the
-region task is hardest and where the dedicated model has the most to gain from an auxiliary signal.
+region task has the most classes to rank.
+% [2026-09-09, AUTHOR-DECIDED wording; source of record: articles/[mobiwac]/src/sections/
+% 06_results.tex:172, "[2026-09-07, author-approved] 'is hardest' -> 'has the most classes to
+% rank'", a tracked file; errata Table B.5] "which is where the region
+% task is hardest and where the dedicated model has the most to gain from an auxiliary signal" ->
+% "which is where the region task has the most classes to rank". Two grounds. (1) The clause proposed
+% sharing as the mechanism, while this chapter's own discussion says "The evidence here does not
+% separate their contributions" (07_discussion.tex): an internal contradiction. (2) "hardest" misreads
+% region count: by score, Arizona's dedicated Acc@10 (59.48) is the lowest of Alabama, Arizona and
+% Istanbul, and the joint model is lower there (59.04), so the hardest dataset by score shows no gain.
+% The new clause states a property of the label space and proposes no mechanism. The confounder
+% sentence that follows is unchanged. The version of record carries this correction; the chapter
+% reproduced the text from before it.
 The ordering is not monotone inside that pair, since California has more regions than Texas and a
 slightly smaller gain, and region count co-varies with corpus size across these states, so the
 grouping is read as an observation about where the benefit appears rather than as a law relating

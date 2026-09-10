@@ -25,9 +25,17 @@ prediction the model outperforms the dedicated model at Texas and California, an
 datasets it stays within the two-point margin registered before any result was read. For category
 prediction it outperforms the dedicated model at Florida; the five remaining differences are not
 resolved, and every one of them is equivalent to zero within half a point. The two datasets where
-the region output improves are the two with the largest region vocabularies, which is where an
-auxiliary signal has the most to add, although region count and corpus size co-vary across these
-states and the ordering is not monotone within the pair. The joint model also remains above every
+the region output improves are the two with the largest region vocabularies, although region
+count and corpus size co-vary across these
+states and the ordering is not monotone within the pair.
+% [2026-09-09, AUTHOR-DECIDED (dropped from the version of record; the article's own note at
+% articles/[mobiwac]/src/sections/08_conclusion.tex:36 adds that the clause is contradicted by
+% the California control), errata Table B.5] ", which is where an auxiliary signal has the most
+% to add" removed: same mechanism claim as
+% the results-section sentence, same contradiction with the discussion's "The evidence here does not
+% separate their contributions". The observation (largest vocabularies) and its confounder clause
+% stay. The version of record carries this correction; the chapter reproduced the text from before it.
+The joint model also remains above every
 external baseline in Table~\ref{tab:mobiwac:results} at all six datasets, by at least $3.55$ Acc@10
 points over the strongest region reference (HMT-GRN, STAN, or ReHDM; the first two on our folds,
 ReHDM under its own protocol) and by at least $3.06$ macro-F1 points over POI-RGNN on category.
