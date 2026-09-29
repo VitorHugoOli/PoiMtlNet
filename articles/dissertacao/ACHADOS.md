@@ -786,7 +786,13 @@ ponteiros de linha.
 ### O que o autor decide
 
 - se a pergunta 4 passa a ser a de duas faces;
-- se se cria a tag antes de qualquer apagamento, e como a migração trata a história;
+- se se cria a tag antes de qualquer apagamento, e **como a migração trata a história** — que já
+  se estreita a uma pergunta só. O autor disse (2026-09-03) que o código passa para o `mtlcheck` e
+  que **de lá copiam** para o GitHub do departamento. Medido a 2026-09-29: o `mtlcheck` **não é**
+  um repositório à parte — é outro clone do próprio `PoiMtlNet` (mesmo remote, mesmo commit-raiz,
+  2 460 commits), logo esse passo **preserva** a história. O que falta saber é o segundo salto: o
+  repositório do departamento nasce de um **push/fork** (a história vem) ou de uma **cópia de
+  ficheiros** (a história fica para trás, e com ela o "restaura-se do git")? Só o autor sabe;
 - a ordem: os 93 primeiro, os 36 depois.
 
 ---
