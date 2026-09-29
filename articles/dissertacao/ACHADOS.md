@@ -716,6 +716,81 @@ deste trabalho.
 
 ---
 
+## A12 · Revisão do V12 — pesquisa e posição, À ESPERA DO AUTOR
+
+> **Estado:** nada executado. O autor pediu (2026-09-08) que a revisão do critério de limpeza
+> fosse investigada e passasse pelo Fable **antes** de decidir. Isto é a investigação. A decisão é
+> dele. Feita a 2026-09-08, **remedida a 2026-09-29** antes de ser escrita — e a remedição apanhou
+> dois erros meus, marcados abaixo.
+
+### A pergunta
+
+O V12 decide se um ficheiro de registo sai por quatro perguntas. A quarta — *"algo de carga cita-o?
+→ veto, fica"* — trata **qualquer** ponteiro de entrada como dependência. O autor objetou a guardar
+ficheiros inteiros só por serem ponto de referência de uma decisão escrita noutro ficheiro vivo
+(*"não podemos ficar criando uma chain de dependência"*), e propôs: comentário directo no ficheiro
+vivo; apagar quando a decisão se justifica sozinha no contexto; e que apagar seja o desfecho natural.
+
+### O que medi (2026-09-29)
+
+| ficheiros de registo em `src_utils/` + `science/` | n |
+|---|---|
+| citados por **código** (`.py`/`.sh`) — intocáveis | 35 |
+| citados numa linha **viva** de um `.tex` | **0** |
+| citados **só dentro de comentários** — a categoria do autor | **36** |
+| não citados por nada | 93 |
+
+- **O raciocínio já está inline.** Os blocos de comentário que citam esses 36 têm até **143 linhas**
+  e já declaram o defeito, os números e a decisão. O ficheiro externo é rótulo de origem, não
+  dependência. A sugestão "comentário directo no ficheiro vivo" está, na maior parte, já feita.
+- **A camada de comentários é 52% do texto entregue** (5 348 de 10 210 linhas, 54 ficheiros). Há um
+  tecto: escrever mais inline agrava-o.
+
+> ❌ **Erro meu, corrigido.** A 08/09 eu disse **55%** ao autor e ao Fable. O comando contava os
+> capítulos duas vezes (47 entradas, 36 únicas) e falhava 18 ficheiros mais fundos. A conclusão
+> aguenta; o número não.
+
+### A posição do Fable, e onde concordo
+
+1. **Trocar a pergunta 4 — mas por um teste de DUAS faces:** *o texto que cita fica de pé sozinho?*
+   **e** *o ficheiro carrega alguma coisa própria que nenhum citador absorveu* (pendências, método,
+   tabelas)? O teste de uma face só interroga quem cita, nunca o ficheiro.
+2. **O corte decisão/medição faz-se por secção, não por ficheiro** — os relatórios de auditoria são
+   todos mistos. E os 35 citados por código são mais intocáveis do que parecem: o
+   `check_audit_claims.py` fixa o **conteúdo** deles por regex, não só o caminho.
+3. **Não escrever mais inline.** O trabalho real por ficheiro é: triar o que é próprio → repontar as
+   citações → apagar num commit que diga, ficheiro a ficheiro, para onde foi a carga.
+4. **Antes do primeiro apagamento:** saber se a migração para o GitHub do departamento **preserva a
+   história** (se não preservar, "restaura-se do git" morre nesse dia) e **criar uma tag**, para que
+   todo o ponteiro pendurado tenha um endereço permanente.
+5. **Começar pelos 93 que ninguém cita**, não pelos 36. É lá que o "apagar como desfecho natural"
+   paga com risco quase nulo.
+
+### ❌ O exemplo que sustentava a primeira face estava parcialmente caducado
+
+O Fable ilustrou a segunda face com `src_utils/_round14/80_apx_check2hgi_audit.md`, que declara duas
+pendências "não aplicadas". Eu verifiquei a 08/09 que a frase **existia no ficheiro** e levei ao autor
+que o **T2** — "nenhum capítulo aponta para o Apêndice E" — era um defeito aberto no volume.
+
+**Não era.** O T2 foi verdadeiro no dia em que o ficheiro nasceu (2026-08-04: zero referências), e
+foi corrigido até 2026-08-20: `2_fundamentals.tex` tem desde então
+`Appendix~\ref{apx:check2hgi-joint-model} gives the exact composition and its width`. O ficheiro
+continuou a dizer *"NOT APPLIED"*. Verifiquei que o ficheiro **dizia** que a pendência estava aberta,
+não que **estava**. O **T1** (o `science/mtl_v17_complete_picture.md` ainda diz *"2-layer GRU"*)
+continua aberto, mas numa nota da geração v17 — baixo risco.
+
+**O que isto muda na posição:** reforça-a. A segunda face do teste não pode ser lida no ficheiro —
+**uma pendência auto-declarada também caduca**, e tem de ser verificada contra a árvore, tal como os
+ponteiros de linha.
+
+### O que o autor decide
+
+- se a pergunta 4 passa a ser a de duas faces;
+- se se cria a tag antes de qualquer apagamento, e como a migração trata a história;
+- a ordem: os 93 primeiro, os 36 depois.
+
+---
+
 ## Procedência deste documento
 
 Verificado por mim `[V]`: A1, A2, A3, A4, A5, A6 (exceto o exit code do `make check`), A7, A9, B2, B3.
