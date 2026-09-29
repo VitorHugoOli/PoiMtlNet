@@ -443,6 +443,22 @@ contagens) · commits do passe de 2026-09-08.
 
 ---
 
+## V16 · O "batch size was searched at all six datasets" precisa de declarar o sweep v17?
+
+*Também chega como:* a Florida e a Califórnia não têm ficheiros de sweep no v18; o sweep foi
+noutra receita; os cinco sítios passam a dizer quatro.
+
+**Veredito: NÃO. A frase fica como está, nos cinco sítios.** Decisão do autor, 2026-09-29. A frase
+é verdadeira: o batch size foi pesquisado nos seis conjuntos. Na Florida e na Califórnia, a
+pesquisa correu sobre o código do v17. O código mudou no v18, mas não o suficiente para exigir um
+sweep novo. Qual geração correu cada pesquisa é detalhe de desenvolvimento, e o texto não o narra
+(`WRITING_LAW.md` §3, "Describe the method as it stands").
+
+**Prova:** o registo v18 cobre Istanbul, Alabama, Arizona e Texas. A Florida e a Califórnia estão
+só no sweep v17. A decisão está no dossiê de depósito, item 2, de 2026-09-29.
+
+---
+
 ## Como acrescentar um verdete
 
 Um verdete entra aqui quando a questão está **fechada com prova**, não quando alguém tem uma

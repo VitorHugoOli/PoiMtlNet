@@ -247,6 +247,14 @@
   are presented as conclusions *of the time, for that configuration*. Superseded numbers never
   read as current. Corrections are stated as corrections ("later shown to be
   configuration-specific"), with the correcting chapter named.
+- **Describe the method as it stands, not the journey to it** (author, 2026-09-29). The reader
+  wants the current method and the state of the solution, not how the code got there: no "an
+  earlier build of the same graph", no generation names, no "we first tried". The arc between the
+  three articles (the rule just above) is the exception that serves the narrative, and others must
+  earn their place the same way. **The rule removes words, never evidence.** Where a qualifier
+  exists because a measurement was NOT taken on the delivered build, deleting the qualifier alone
+  makes the text claim something unmeasured. Re-measure on the delivered build, drop the claim, or
+  keep it as a declared exception. Never silently drop the qualifier.
 - **Uncertainty is stated, not implied**: fold-std or CI wherever a mean appears in a claim;
   "significant" only with the test named.
 - Scope every universal: "at all six datasets" only right after the six are enumerated; the

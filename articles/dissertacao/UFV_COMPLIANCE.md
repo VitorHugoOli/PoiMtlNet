@@ -136,9 +136,11 @@ for the final build; SI units and legibility rules (§3.x) still apply.
    3. **Homologation comes after approval and has no stated deadline**; if the PPG returns it, *"o
       prazo para nova submissão será reavaliado, podendo haver incidência de multa"*.
 
-   **So the risk is not a slow advisor, it is a formal rejection.** The way to neutralise it: the
-   advisor sees the RASCUNHO **informally before "Enviar"**, so the formal submission is a near-certain
-   approval. That is the author's call; it is recorded here as the mitigation the rule implies.
+   **So the risk is not a slow advisor, it is a formal rejection.** One way to neutralise it would be
+   an informal advisor read of the RASCUNHO before "Enviar". **The author decided against it
+   (2026-09-29):** the advisor already read the dissertation and sent his remarks together with the
+   banca's, and those remarks have been applied. What remains is touch-ups, so the path is: finish the
+   corrections here, then go to the Library. The rejection rule above still stands as a fact.
 
    *Verified 2026-09-29 against the manual itself, not relayed: the `academico` session read §§12-17
    and quoted them; both clauses were then re-read at the source (`~/Downloads/Manual-de-entrega-de-

@@ -12,11 +12,12 @@
 > **The clock SUSPENDS at "Enviar"** while the advisor reviews, so his turnaround does not consume the
 > window. **But if he rejects, the suspension collapses and the count runs from the defense date** —
 > retroactively, straight into a fine if it happens late. **The binding risk is a formal rejection,
-> not a slow advisor**, and it is neutralised by the advisor seeing the RASCUNHO informally before
-> "Enviar". Verbatim clauses and reasoning: `UFV_COMPLIANCE.md` §4 item 7.
+> not a slow advisor**. An informal advisor read before "Enviar" was proposed and **declined by the
+> author (2026-09-29)**: the advisor already read the text and his remarks came in with the banca's
+> and are applied, so what remains is touch-ups. Verbatim clauses: `UFV_COMPLIANCE.md` §4 item 7.
 >
 > Remaining sequence: decisions → apply → rebuild → re-attach → re-emit the RASCUNHO → full manual
-> pass → BBT (~7 days) → attach the ficha → [informal advisor read] → "Enviar" → advisor → PPG.
+> pass → BBT (~7 days) → attach the ficha → "Enviar" → advisor → PPG.
 >
 > *This deadline was absent from every governance document in this folder until 2026-09-29, when
 > the project resumed after twenty days with no commits. The first version of this block, written
