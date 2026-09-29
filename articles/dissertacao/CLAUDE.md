@@ -3,8 +3,26 @@
 > **What this folder is.** The working folder for Vitor H. O. Silva's **master's dissertation** at
 > UFV / PPGCC (Ciência da Computação, Campus Florestal / NESPeD-LAB), advisor Fabrício A. Silva.
 > Format: **coletânea de artigos** (UFV Normas §2.3(iii)/§2.6), **English frame**.
-> **Status: DELIVERED to the banca. Defense 2026-08-28.** The text is frozen; changes reach it only
-> as erratas, at the final deposit.
+> **Status: DEFENDED AND APPROVED 2026-08-28. Now DEPOSITING.** The text is frozen; changes reach it
+> only as erratas, at the final deposit.
+>
+> 🔴 **DEPOSIT DEADLINE: 2026-11-28** — "Enviar" must happen by then; three months after the
+> defense, monthly fine afterwards, and the portal states the date itself.
+>
+> **The clock SUSPENDS at "Enviar"** while the advisor reviews, so his turnaround does not consume the
+> window. **But if he rejects, the suspension collapses and the count runs from the defense date** —
+> retroactively, straight into a fine if it happens late. **The binding risk is a formal rejection,
+> not a slow advisor**, and it is neutralised by the advisor seeing the RASCUNHO informally before
+> "Enviar". Verbatim clauses and reasoning: `UFV_COMPLIANCE.md` §4 item 7.
+>
+> Remaining sequence: decisions → apply → rebuild → re-attach → re-emit the RASCUNHO → full manual
+> pass → BBT (~7 days) → attach the ficha → [informal advisor read] → "Enviar" → advisor → PPG.
+>
+> *This deadline was absent from every governance document in this folder until 2026-09-29, when
+> the project resumed after twenty days with no commits. The first version of this block, written
+> that same day, framed the advisor's unmeasured turnaround as the constraint — built on the
+> compliance doc's half-quoted rule. The `academico` session read the manual and found the
+> suspension clause; corrected within the hour, and the manual re-read here before trusting it.*
 >
 > Title, exactly as the folha de rosto prints it:
 > *Multitask Learning for Point-of-Interest Classification and Prediction Tasks: The Role of the

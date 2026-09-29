@@ -116,9 +116,36 @@ for the final build; SI units and legibility rules (§3.x) still apply.
    in ~7 days (email notification) → attach it in the system.
 6. "Visualizar documento completo" → final check → "Enviar" (password = digital signature) →
    advisor approves → PPG homologation → diploma request automatic.
-7. **Deadline: 3 months after the defense**, fine afterwards (monthly, PagTesouro); the 7-day
-   ficha SLA is inside the window. If the advisor rejects, the clock restarts from the defense
-   date (fine risk) — get the text right before "Enviar".
+7. **Deadline: 3 months after the defense** — for this dissertation **2026-11-28**, which the portal
+   itself states on the banca page ("você tem até 28/11/2026 para submeter a versão final"). Monthly
+   fine afterwards (PagTesouro); the 7-day ficha SLA is inside the window.
+
+   ⚠ **THE CLOCK SUSPENDS AT "ENVIAR" — and this half was missing here until 2026-09-29.** Manual de
+   entrega 04/2026, verbatim: *"Quando o trabalho é encaminhado para apreciação do orientador, **o
+   prazo é suspenso**. Se o orientador reprovar, o prazo é reiniciado e pode ocorrer incidência de
+   multa."* And under *Reprovação pelo orientador*: *"O prazo será reiniciado **a partir da data da
+   defesa**, e poderá haver incidência de nova multa"* — with a new payment, a new PPG validation of
+   it, and ten calendar days to resubmit.
+
+   Read together, three rules for the calendar:
+   1. **Time with the advisor does not consume the window if he approves.** The clock stops at
+      "Enviar". His turnaround is therefore NOT the critical number.
+   2. **If he rejects, the suspension collapses and the count runs from the defense** — the time the
+      text spent with him becomes elapsed time retroactively. A rejection close to the deadline goes
+      straight to a fine.
+   3. **Homologation comes after approval and has no stated deadline**; if the PPG returns it, *"o
+      prazo para nova submissão será reavaliado, podendo haver incidência de multa"*.
+
+   **So the risk is not a slow advisor, it is a formal rejection.** The way to neutralise it: the
+   advisor sees the RASCUNHO **informally before "Enviar"**, so the formal submission is a near-certain
+   approval. That is the author's call; it is recorded here as the mitigation the rule implies.
+
+   *Verified 2026-09-29 against the manual itself, not relayed: the `academico` session read §§12-17
+   and quoted them; both clauses were then re-read at the source (`~/Downloads/Manual-de-entrega-de-
+   dissertacoes-e-teses-04_2026.pdf`, the copy downloaded 2026-09-06). This row previously said only
+   "if the advisor rejects, the clock restarts from the defense date" — true, and the unfavourable
+   half. The omission made the advisor's turnaround look like the binding constraint, and a calendar
+   was briefly built on that wrong model.*
 
 ## 5 · Timeline flags for an August 2026 defense (today: 2026-07-18)
 
