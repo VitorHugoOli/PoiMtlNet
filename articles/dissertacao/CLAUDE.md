@@ -346,7 +346,10 @@ Two more registries: [`wrapup/NEW_VERSION.md`](wrapup/NEW_VERSION.md) (the `mtlc
    (capacity) were verified absent by text extraction. They are oral-defense material with drafted
    erratas. And **P1's own record cites `+2.12 / +2.05` from a superseded substrate** — the
    delivered margins are **TX +1.21 / CA +1.06**. Quote the delivered ones.
-5. **Never mix an `mtlcheck` number with a dissertation number.** The rewrite uses a different
+5. **Never mix an `mtlcheck` number with a dissertation number.** (⚠ `mtlcheck` is a rewrite of the
+   **code**, not a separate **repository**: `/Users/vitor/Desktop/mestrado/mtlcheck` is another clone of
+   `PoiMtlNet` — same remote, same root commit `cdba17dd`, shared history — verified 2026-09-29. It
+   matters for the planned move to the department's GitHub: see `ACHADOS.md §A12`.) The rewrite uses a different
    evaluation protocol (nested 70/10/20 user splits, out-of-fold pooled metrics, a derived 0.4 pp
    margin instead of the registered 2 pp). Under it, **Alabama/region flips to inferior.** Those
    numbers answer defense questions; they do not correct Chapter 5. Read `wrapup/NEW_VERSION.md`
