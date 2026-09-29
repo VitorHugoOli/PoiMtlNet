@@ -501,11 +501,20 @@ baseline in the later studies and the direct basis of Check2HGI.
 % The fact (published 0.4 -> 0.7 here, one state, five folds) and the last two scope sentences stay:
 % this is the only place in the volume that says the HGI baseline was retuned (GER-03 residue), and
 % the scope warning is recorded below as kept deliberately.
-One setting of that baseline was retuned. Huang et al.\ reduce an edge between POIs of
-different regions to 0.4 of its weight in the experiments named above. In experiments
-on one of the state datasets of this dissertation, over the same five folds used
-elsewhere, a value of 0.7 gave the best category F1 among the values tried, and the
-later studies adopt it. What that comparison settles is one hyperparameter of
+% [2026-09-29, frame fix, author's principle "describe the method, not the journey", sweep #10]
+% "One setting of that baseline was retuned ... and the later studies adopt it" -> the current
+% setting, stated as a setting. Every fact re-sourced this session against research/embeddings/hgi/
+% README.md:544-551 (header "Alabama w_r sweep (5 folds x 50 epochs)"; rows 0.4, 0.5, 0.6, 0.7; Cat F1
+% largest at 0.7) and preprocess.py:23 (DEFAULT_CROSS_REGION_WEIGHT = 0.7). Dropped as unsourced:
+% "the same five folds used elsewhere" (the README says five folds, not that they are the study's
+% folds). Kept "best ... among the values tried", never "optimal": the README notes no flattening at
+% 0.7. State still unnamed, as before (one-state sweep; the sentence claims no more). Last two scope
+% sentences byte-identical.
+One setting of that baseline differs from the published one. Huang et al.\ reduce an
+edge between POIs of different regions to 0.4 of its weight in the experiments named
+above. This dissertation uses 0.7, the value that gave the best category F1 among those
+tried, from 0.4 to 0.7, on one of its state datasets over five folds. What that
+comparison settles is one hyperparameter of
 the place-level baseline. It is not evidence about how HGI and Check2HGI compare.
 % [round12, 2026-08-03] THE 0.7 SENTENCE (item 42, second half), on the author's authorization:
 % "Sobre citar que na dissertacao usamos 0,7, podemos citar por alto, algo como: 'Em experimentos

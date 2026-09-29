@@ -266,8 +266,18 @@ The intervals themselves carry what can be said about magnitude:
 % 0.3338; the same paragraph prints Alabama's interval endpoint as $-0.33$ five words earlier, so the
 % page was inconsistent (one rounding, one ceiling), not false. Minimal fix; the article's Bonferroni
 % 0.49 is NOT imported (author has not ruled on it).
-the widest of them reaches $0.33$ points from zero, at Alabama, which bounds all six differences
-within half a point of zero at once. The bound is read off the intervals rather than established by a
+the widest of them reaches $0.33$ points from zero, at Alabama, and with a Bonferroni adjustment
+across the six comparisons the widest reaches $0.49$, so all six differences stay within half a point
+of zero at once.
+% [2026-09-29, AUTHOR-AUTHORIZED errata, Table B.5] Was "..., at Alabama, which bounds all six
+% differences within half a point of zero at once." Six separate 90% intervals do not bound six
+% differences simultaneously; the simultaneous bound is the Bonferroni one across the six
+% comparisons, 0.489 (WRITING_LAW §3, "simultaneous over the six datasets under Bonferroni, 0.489
+% pp"; same value and wording in the version of record, [mobiwac]/src/sections/06_results.tex).
+% Authorized on the condition that no conclusion changes: 0.49 < 0.5, so "within half a point" still
+% holds and is now supported. The next sentence stays as delivered: the Bonferroni bound is also read
+% off (adjusted) intervals, not established by a further test, and the version of record keeps it too.
+The bound is read off the intervals rather than established by a
 further test.
 
 On region, Texas ($+1.21$; $+1.13$ to $+1.29$; corrected $p=0.00013$) and California ($+1.06$;
