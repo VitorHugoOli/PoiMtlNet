@@ -271,10 +271,16 @@ The results section attributes the silhouette and purity
 constants to the per-visit vectors of the reported
 representation, in the prose and again in the caption of the
 figure that plots them. &
-Both are scoped to what was measured: the vectors of an
-earlier build, aggregated per place. The constants and the
-sentence limiting them to the representation family are
-unchanged. \\
+% [2026-09-30] REESCRITA: as constantes foram re-medidas no build entregue (v18), com o mesmo
+% harness e a reproducao do v14/hgi verificada primeiro (docs/results/closing_data/v18/geometry/,
+% commit 198eb2e8). Silhueta 0,5668 -> 0,5140; pureza 0,9827 -> 0,9804; HGI inalterado. O
+% "earlier build" sai porque a medicao passa a ser do modelo entregue, nao por decisao de estilo.
+Both now report the constants re-measured on the delivered
+representation, with the vectors aggregated per place: the
+silhouette is $0.51$ where it was $0.57$, the purity stays at
+$0.98$, and the place embedding is unchanged at $0.00$ and
+$0.78$. The sentence limiting them to the representation
+family is unchanged. \\
 % [2026-09-08] SEGUNDO SITIO acrescentado a esta linha em vez de abrir uma decima-nona. A legenda da
 % figura descrevia A MESMA MEDICAO sem o mesmo escopo, o que deixava uma so medicao descrita a dois
 % escopos na mesma pagina -- apanhado pela auditoria Fable. E o mesmo padrao da linha dos vectores de

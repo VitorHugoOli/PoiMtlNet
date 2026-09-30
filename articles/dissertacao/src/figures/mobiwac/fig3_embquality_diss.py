@@ -7,9 +7,9 @@ check-in-level Check2HGI representation scores far higher than the place-level
 HGI embedding:
 
   * cosine silhouette on the next-category labels
-        (check2hgi/design_k ~0.56  vs  hgi ~0.00)
+        (check2hgi_v18 ~0.51  vs  hgi ~0.00)
   * leave-one-out kNN (k=10) classification purity on those same labels
-        (check2hgi/design_k ~0.98  vs  hgi ~0.78)
+        (check2hgi_v18 ~0.98  vs  hgi ~0.78)
 
 Both bars are metrics evaluated against the ground-truth category labels; no
 clustering / k-means is run, and neither bar is a model "accuracy" result.
@@ -19,15 +19,17 @@ floor and HGI scores spuriously higher, which would mislead. The story here is
 strictly that the check-in-level substrate separates by category; its
 region-neutral behavior is carried in the caption, not in this panel.
 
-Source: docs/studies/closing_data/archive/run_logs/PART1_QUALITY/metrics_long.csv
-(task=cat, level=L0, metrics silhouette + knn10_acc), aggregated over the
-PAPER'S FIVE Gowalla states x 5 folds (n=25 values; Georgia EXCLUDED -- it is
-out of paper scope; the pre-2026-07-08 constants averaged 6 states including
-Georgia). Plots the BOARD substrate row check2hgi_design_k_resln_mae_l0_1 (the
-design_k overlap engine the paper runs on), NOT the plain check2hgi row.
+Source: docs/results/closing_data/v18/geometry/metrics_long.csv (committed
+198eb2e8; engine check2hgi_v18 vs hgi, metrics silhouette + knn10_acc), mean and
+SD (ddof=1) over the 25 state-folds of the five Gowalla states of the study.
+[2026-09-30] Re-measured on the DELIVERED representation (check2hgi_v18). Until
+this date the constants came from the earlier design_k build
+(check2hgi_design_k_resln_mae_l0_1, 0.5668 / 0.9827), which the chapter's prose
+had to scope as "an earlier build"; the author ruled that the text describes the
+delivered method, so the figure now plots the delivered build.
 
 Run:
-  /Users/vitor/Desktop/mestrado/ingred/.venv/bin/python fig3_embquality.py
+  /Users/vitor/Desktop/mestrado/ingred/.venv/bin/python fig3_embquality_diss.py
 Writes: fig3_embquality.pdf  (this directory)
 """
 
@@ -40,13 +42,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # ---------------------------------------------------------------------------
-# Authoritative numbers (metrics_long.csv, L0 geometry -- next-cat; five paper
-# states x 5 folds, Georgia excluded). Board substrate row = design_k. mean +/-
-# SD over the 25 state-fold values. CATEGORY metrics only; region omitted.
+# Authoritative numbers: docs/results/closing_data/v18/geometry/metrics_long.csv,
+# engine check2hgi_v18 vs hgi, mean +/- SD (ddof=1) over the 25 state-fold values
+# of the five Gowalla states. CATEGORY metrics only; region omitted.
 # ---------------------------------------------------------------------------
 METRICS = ["Silhouette\n(by category)", "kNN purity\n(by category, k=10)"]
 
-CHECK2HGI = {"mean": [0.5668, 0.9827], "sd": [0.0302, 0.0039]}
+CHECK2HGI = {"mean": [0.5140, 0.9804], "sd": [0.0533, 0.0065]}
 HGI = {"mean": [0.0003, 0.7750], "sd": [0.0046, 0.0311]}
 
 # Colors: a saturated accent for the contributed substrate, a muted gray for

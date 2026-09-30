@@ -387,8 +387,12 @@ sentences for its tables, since the submitted text already introduces each of th
 % build" drops to two. The integrity-check clause is stale BY DESIGN with its row: the chapter's
 % numbers are pre-v18 until the /dados re-run lands, and both are rewritten with the new numbers.
 % 1 + 8 + 2 + 2 + 5 + 2 = 20.
+% [2026-09-30] Geometry row rewritten by the registry (re-measured on the delivered build): it leaves
+% "scope to the build" (now ONE, the integrity check, still stale by design) and joins the
+% delivered-method kind (now THREE). "None alters an experimental result" qualified: no results-table
+% value changes, but one printed diagnostic (0.57 -> 0.51) does. 1 + 8 + 3 + 1 + 5 + 2 = 20.
 Table~\ref{tab:apx:mobiwac-scope} lists twenty further departures in the reproduced prose.
-None alters an experimental result. One predates the article's acceptance: it narrows a
+None alters a result in the two results tables; one re-measures a diagnostic constant. One predates the article's acceptance: it narrows a
 universal negative to the channels its evidence covers. The
 % [2026-09-08, second pass] "one adds a cross-reference to the appendix that measures the same
 % quantity on the final model" described a pointer that was added and then REVERTED in 2bb82234
@@ -405,12 +409,14 @@ no longer attributed to the region half; the widest confidence interval on the c
 printed at the same precision as the interval it summarizes; the claim that all six category
 differences lie within half a point at once rests on a Bonferroni adjustment across the six
 comparisons rather than on six separate intervals; and the check-in range across the
-U.S. datasets ends at Texas, the state with the most check-ins, rather than at California. Two
+U.S. datasets ends at Texas, the state with the most check-ins, rather than at California. Three
 state the delivered method in place of development history: the gradient-cosine paragraph rests
-on the measurement taken on the reported joint model, and the region vectors read by the
-spatial stream are described as a fixed region table shared by the joint and dedicated models.
-Two scope a measurement to the build on which it was taken: the geometry constants and the
-whole-dataset integrity check each now say that they come from an earlier build of the
+on the measurement taken on the reported joint model; the region vectors read by the
+spatial stream are described as a fixed region table shared by the joint and dedicated models;
+and the class-separability constants are re-measured on the delivered representation, which
+moves the silhouette score from about 0.57 to about 0.51 and leaves the purity at about 0.98.
+One scopes a measurement to the build on which it was taken: the
+whole-dataset integrity check says that it comes from an earlier build of the
 representation. Five narrow a claim to what its evidence
 carries: the introduction names the model its two enhancements improve upon; the priority claim
 on fine-grained region as an end target is stated as the hedged form the related-work section
