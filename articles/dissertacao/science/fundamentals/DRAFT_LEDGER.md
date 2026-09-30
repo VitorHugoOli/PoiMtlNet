@@ -1,5 +1,7 @@
 # DRAFT_LEDGER — citation & number ledger for the 2.1-2.5 LaTeX drafts
 
+> **2026-09-30:** os rascunhos `.tex` desta pasta sairam da arvore -- eram uma copia superada do texto entregue, com numeros de outra geracao. Os ledgers de citacao (`*_citations.md`) ficam. Tudo recuperavel na tag `dissertacao-pre-organizacao` do PoiMtlNet.
+
 <!-- WRITING_LAW requires each draft to ship with a numbers/citation ledger. Each .tex file carries its
      own per-section ledger as a trailing LaTeX comment; this file is the consolidated view for the review
      pass. Draft 1, 2026-07-21. -->

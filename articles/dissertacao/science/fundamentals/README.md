@@ -1,5 +1,7 @@
 # Fundamentals (Chapter 2) — consolidated reference base and section maps
 
+> **2026-09-30:** os rascunhos `.tex` desta pasta sairam da arvore -- eram uma copia superada do texto entregue, com numeros de outra geracao. Os ledgers de citacao (`*_citations.md`) ficam. Tudo recuperavel na tag `dissertacao-pre-organizacao` do PoiMtlNet.
+
 > **⏸ FROZEN 2026-07-24 — IMPORTED into `../../../../src`.** The five section files + the model-lineage
 > table drafted here were inlined into the assembled v1 at `../../src/chapters/2_fundamentals.tex`
 > (Phase 3). **`../../../../src` is now the single working copy** (single-source rule, CLAUDE.md §1). Do NOT
@@ -34,7 +36,7 @@ fundamentals/
 ├── 2.4_datasets_and_evaluation/      <- 2.4_citations.md + 2.4_metrics_addendum.md (Δm, floors, OOD, imbalance)
 ├── 2.5_relevance/                    <- 2.5_relevance_plan.md (synthesis; NO fresh citations)
 ├── _bib/                             <- new_references_ch2.bib, new_references_frontier_decollided.bib, BIB_NOTES.md
-└── _verification/                    <- VERIFICATION_NOTES.md, SEARCH_PROVENANCE.md, step0/step2/step3c reports
+└── _verification/                    <- VERIFICATION_NOTES.md, SEARCH_PROVENANCE.md
 ```
 
 ## Reading order

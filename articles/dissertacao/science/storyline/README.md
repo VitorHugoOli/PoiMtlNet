@@ -1,5 +1,7 @@
 # Storyline — the settled narrative content of the frame chapters
 
+> **2026-09-30:** os rascunhos `.tex` desta pasta sairam da arvore -- eram uma copia superada do texto entregue, com numeros de outra geracao. Os ledgers de citacao (`*_citations.md`) ficam. Tudo recuperavel na tag `dissertacao-pre-organizacao` do PoiMtlNet.
+
 > **⏸ FROZEN 2026-07-24 — IMPORTED into `../../../../src`.** The frame chapters drafted here
 > (`drafts/1_introduction.tex`, `drafts/6_conclusion.tex`) were imported into the assembled v1 at
 > `../src/chapters/{1_introduction,6_conclusion}.tex` (Phase 3). **`../../../../src` is now the single
