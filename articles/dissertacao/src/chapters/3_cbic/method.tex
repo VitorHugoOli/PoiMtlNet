@@ -118,15 +118,7 @@ The choice of hard parameter sharing is motivated by its efficiency and regulari
 % cross-connection architecture) and :48 (negative transfer). Only this site changes.
     \item \textbf{Empirical Performance:} In practice, sharing one network across tasks reduces
     inference cost, since one network is evaluated instead of one per
-    task \cite{standley2020tasks}.\footnote{The published sentence read ``hard parameter sharing
-    frequently matches or exceeds the performance of more complex architectures on many benchmarks,
-    while offering faster training and inference''. The accuracy and training-speed halves are
-    corrected here rather than reproduced. The cited work names improved accuracy and reduced
-    training time among the benefits joint training may have ``in theory'', and then argues the other
-    way empirically, reporting that joint training ``often leads to inferior overall performance as
-    task objectives can compete''; its contribution is a framework for assigning tasks to several
-    networks so that competing tasks are separated, and it describes that framework as costly at
-    training time.}
+    task \cite{standley2020tasks}.
 \end{itemize}
 % [round7, 2026-07-29] The three pointers in this file were repointed when Appendices B and D
 % moved to the supplementary volume. MEASURED first, because the two kinds of target behave
@@ -186,10 +178,16 @@ Given task-specific objectives $\{\mathcal{L}_k(\boldsymbol{\theta})\}_{k=1}^{K}
 \end{equation}
 By setting $\Delta\boldsymbol{\theta}=\sum_{k}\alpha_k\mathbf{g}_k$ with positive weights $\boldsymbol{\alpha}$, the solution simplifies to solving the nonlinear system $\bigl(\mathbf{G}^{\!\top}\mathbf{G}\bigr)\boldsymbol{\alpha} \;=\; \boldsymbol{\alpha}^{-1}$ \cite{nash}, where $\mathbf{G}=\bigl[\mathbf{g}_1\,\ldots\,\mathbf{g}_K\bigr]$ \cite{nash}. The parameter update is then $\boldsymbol{\theta}^{(t+1)} =\boldsymbol{\theta}^{(t)}-\eta\,\mathbf{G}\boldsymbol{\alpha}$, with $\eta$ chosen to ensure monotonic loss decrease and convergence to a Pareto-stationary point \cite{nash}.
 
+% [2026-09-30, AUTHOR RULING] Two footnotes REMOVED from this file, the ones that quoted the
+% published wording and said the sentence "is corrected here rather than reproduced" (at the
+% Empirical-Performance bullet, after \cite{standley2020tasks}, and at the Practical-Aspects
+% paragraph after "Nash-MTL is architecture-agnostic."). His reason: the chapter preface already
+% states that the text was reformatted and errata corrected, so the chapter carries no
+% explanation of the old text. The corrected sentences themselves are unchanged. The record of both
+% corrections stays in the supplement's Table B.2 (not deposited). Neither footnote carried a
+% \label; nothing references them.
 \paragraph*{Practical Aspects.}
-Nash-MTL is architecture-agnostic.\footnote{The published sentence continued ``and requires only two
-matrix-vector products per iteration''. That cost claim is corrected here rather than reproduced: it
-is not supported by the method's own paper, and it understates the cost.} Its invariance to the scale of the individual task gradients, the second of the axioms listed above, balances heterogeneous tasks without manual re-weighting. For efficiency, task weights can be updated less frequently, significantly reducing runtime while maintaining performance~\cite{nash}.
+Nash-MTL is architecture-agnostic. Its invariance to the scale of the individual task gradients, the second of the axioms listed above, balances heterogeneous tasks without manual re-weighting. For efficiency, task weights can be updated less frequently, significantly reducing runtime while maintaining performance~\cite{nash}.
 % [round4, REV-020a] Factual correction to reproduced prose. The published sentence read
 % "Its reliance on gradient signs rather than scales inherently balances heterogeneous tasks".
 % Nash-MTL does not read gradient signs: it is scale-invariant, which is what this same
