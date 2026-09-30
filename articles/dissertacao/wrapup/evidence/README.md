@@ -14,7 +14,7 @@ Nada aqui entra em nenhum build. Nada aqui altera o documento entregue.
 | `mobiwac_applied.diff` | o diff de 99 KB efetivamente aplicado em `articles/[mobiwac]/src_fix`, lido na integra durante a auditoria do REVISION_PLAN | sim como registro do que foi aplicado. Nao e a fonte do texto: essa e a propria arvore do MobiWac |
 | `site_inventory_v1anchored_2026-08-11.json` | inventario de sitios de afirmacao por arquivo e linha, com o trecho citado | **so em parte.** Os numeros de linha estao ancorados na arvore v1 de 11/08, que nao existe mais. Os arquivos e os trechos continuam validos; **as linhas nao.** Localize pelo trecho, nunca pela linha |
 | `signoffs_snapshot_2026-08-03.json` | os 56 marcadores `[NEEDS SIGN-OFF]` como estavam em 03/08, com o texto integral de cada um | **so como historico.** A contagem 56 esta invalidada (LACUNAS declara a de 56 como item invalido) e os caminhos dizem `src/chapters/...`, que era a arvore v1. A contagem viva e outra, e esta em tres lugares (veja abaixo) |
-| `review_screenshots/` | 37 imagens de tres sessoes de revisao sobre paginas renderizadas (`conclusion-review`, `dissertation-review`, `resumo-review`) | sim como evidencia do que foi revisto. As paginas sao de builds anteriores |
+| `review_screenshots/` | **removido em 2026-09-30** (37 imagens de paginas de builds anteriores, sem citador; os achados vivem em `open_points/LACUNAS.md` e `REVISAO_BANCA_PDF.md`) | recuperavel na tag `dissertacao-pre-organizacao` |
 
 ## A contagem de marcadores de aval nao mora mais em um lugar so
 
