@@ -172,177 +172,253 @@ um dos quatro limites formais.
 
 ---
 
-## 4 · A trilha principal — 15 slides, 18:00
+## 4 · A trilha principal — 12 slides, ~15 min
 
-Convenção de cada entrada: **mensagem única** (a única coisa que o ouvinte leva), **mostra**,
-**fonte**, **segundos**, **do deck**.
+> **v2, depois da revisão Fable.** A v1 tinha 15 slides e 18:00. Três mudanças estruturais, todas
+> aceites e todas verificadas contra o artigo antes de aceitar — ver §8.
+
+Convenção de cada entrada: **mensagem única**, **mostra**, **fonte**, **segundos**, **do deck**.
 
 ---
 
 ### S1 · Título — 20 s
-- **Mensagem:** quem somos e o que vamos responder.
-- **Mostra:** título completo do artigo, os três autores, NESPeD-LAB / Universidade Federal de Viçosa, MobiWac 2026.
-- **Fonte:** `src/main.tex`.
-- **Do deck:** **novo** (o deck da defesa tem capa de dissertação).
+- **Mostra:** título completo, os três autores, NESPeD-LAB / Universidade Federal de Viçosa, MobiWac 2026.
+- **Do deck:** **novo.**
 
 ---
 
-### S2 · Porque é que isto interessa a quem gere mobilidade — 125 s
-- **Mensagem:** se um serviço souber para onde uma pessoa vai a seguir, pode preparar-se antes — e prever o POI exacto é difícil e mais do que um serviço precisa.
-- **Mostra:** três frases, sem tabela. (a) check-ins registam como as pessoas se movem pela cidade; a mobilidade individual é altamente previsível em princípio; (b) um serviço que antecipa pode **pôr conteúdo em cache onde o utilizador vai** e **provisionar capacidade no destino antes da procura chegar** — a predição de handover já deixa serviços celulares adaptarem-se em antecipação, ao nível da rede; (c) duas perguntas grosseiras chegam: **que tipo de sítio** e **que região**.
-- **Fonte:** `src/sections/01_introduction.tex`, parágrafos 1–2 (Gowalla, Song, Bastug, Vielhaus, Moura).
-- **Segundos:** é o slide mais longo da trilha de propósito. É aqui que uma plateia de redes decide se vai ouvir os 16 minutos seguintes.
-- **Do deck:** **novo.** O deck abre pelo diagnóstico do capítulo anterior da dissertação, que aqui não existe e não interessa.
-- **Nota de entrega:** acaba com a pergunta que dá o resto da palestra — *"can one model answer both?"*, e a razão pela qual isso não é óbvio: em MTL os parâmetros partilhados podem convergir para um compromisso óptimo para nenhuma das tarefas, ajudando uma e prejudicando a outra. É o custo que vamos medir.
+### S2 · O dia de uma pessoa, e a pergunta — 130 s
+- **Mensagem:** ninguém precisa do próximo *lugar*; duas perguntas mais grosseiras chegam — que tipo de sítio, e que bairro.
+- **Mostra:** um mapa de um estado com nove pontos ligados por setas e um ponto de interrogação; por baixo, duas caixas: *what kind of place?* · *which neighbourhood?*
+- **Fonte:** `src/sections/01_introduction.tex` ¶1–2 · `src/tables/tbl1_datasets.tex` (contagens) · `04_method.tex` §IV-A (o âmbito) · `05_setup.tex` (o horizonte) · `07_discussion.tex` (a shortlist).
+- **Do deck:** **novo.**
+
+**Três coisas que este slide tem de fazer, e a v1 falhava nas três:**
+
+1. **Definir "região" aqui, não no backup.** A palavra usa-se do S2 ao S11 e na v1 só estava definida
+   num slide de Série B. Ninguém naquela sala sabe que significa um *census tract* (ou uma *mahalle*
+   em Istanbul), 520 a 8 501 por conjunto. Sem isso não conseguem julgar se "dez em 8 501" é bom.
+2. **Não abrir a reivindicar handover.** O artigo é explícito (`04_method.tex:38-41`): *"A census
+   tract is a neighborhood, not a radio cell… Cell association and handover are radio-level decisions
+   and remain out of scope."* A sessão chama-se "Mobility Management" e a sala é de handover. Abrir a
+   reivindicá-lo convida à pergunta *"que ganho ao nível da célula mediram?"*, cuja resposta é
+   "nenhum, está fora de âmbito". **Usar handover como analogia de escala, não como alegação** — é
+   exactamente o que o artigo faz.
+3. **Dar a resposta ao minuto 2, não ao minuto 11.** Às 8:30 de segunda, quem não souber ao fim de
+   dois minutos se vale a pena ouvir, desliga.
+
+**Guião proposto (~120 s falados, inglês, cada facto do artigo):**
+
+> *[mapa, nove pontos, interrogação]*
+> "Here is one person's day in Texas: nine check-ins. Coffee, gym, office, lunch. The tenth is the
+> question. But nobody needs the tenth *place* — Texas has a hundred and sixty thousand of them. A
+> service needs two coarser things. What **kind** of place comes next — food, shopping, nightlife.
+> And which **neighbourhood** — a census tract, a few thousand per state.
+> If you know the neighbourhood before the person gets there, you can push content to the cache that
+> serves it, and plan capacity where demand is about to land. You already do this one level down, at
+> the radio cell, with handover prediction. We are at the neighbourhood. **A tract is not a cell, and
+> we claim nothing about cells.**
+> How far ahead? In our data the median gap from the last visit to the next is between **half an hour
+> and five and a half hours**.
+> The obvious engineering answer is two models, one per question — two things to train, version and
+> serve. The obvious shortcut, one model for both, is known to fail: parameters shared between two
+> jobs can settle on a compromise that is worse at both. So: **can one model answer both, and what
+> does it cost?**
+> The answer, so you can decide whether to keep listening: **yes.** One model, one forward pass. In
+> California, ten neighbourhoods out of 8 501 contain the right one 64 percent of the time. On the
+> neighbourhood question it beats a dedicated model at the two biggest datasets and is at worst
+> **0.9 points** worse at the others. And on the type-of-place question, **how we represent a visit**
+> moved the score more than anything about the model. Here is how."
 
 ---
 
-### S3 · Onde é que isto se encaixa — 40 s
-- **Mensagem:** a literatura modela várias granularidades ao mesmo tempo, mas categoria e região aparecem como sinais auxiliares de uma tarefa principal de próximo-lugar; aqui são o alvo.
-- **Mostra:** duas linhas. "Auxiliar de next-place: MCMG, HMT-GRN." / "Alvo de igual estatuto: pouco explorado."
-- **Fonte:** `src/sections/02_related.tex` — usar a redacção publicada, *"fine-grained region as an end target of equal standing, rather than an auxiliary coarse grid cell, is underexplored"*. **Não dizer "first".**
-- **Do deck:** **editar** — condensar os dois frames "Related work of this study, part 1/2 e 2/2" num só. A plateia não conhece esta literatura e não precisa do mapa completo; precisa de saber que a pergunta não está respondida.
+### S3 · Check2HGI: um quarto nível abaixo do lugar — 100 s
+- **Mensagem:** em vez de um vector fixo por lugar, cada check-in ganha o seu próprio vector, com o seu contexto.
+- **Mostra:** a chapa `c2h_deep.pdf` (cidade → região → lugar → **check-in**), e uma linha para o que o vector carrega.
+- **Fonte:** `src/sections/04_method.tex`; chapa em `articles/dissertacao/presentation/figures/plates/c2h_deep.pdf`.
+- **Do deck:** **fundir dois frames** — "Check2HGI: a fourth level below the place" + "What each visit contributes" passam a um.
+- **Frase que faz o trabalho:** *"o mesmo café às terças de manhã e aos sábados à noite não é o mesmo sinal."*
+- **⚠ Manter, é o terceiro limite do artigo:** cada visita lê **só o seu próprio passado**.
 
 ---
 
-### S4 · Check2HGI: um quarto nível abaixo do lugar — 85 s
-- **Mensagem:** em vez de um vector fixo por lugar, cada check-in ganha o seu próprio vector.
-- **Mostra:** a chapa `c2h_deep.pdf` (cidade → região → lugar → **check-in**).
-- **Fonte:** `src/sections/04_method.tex` + `src/figs/fig1_dataflow_new.tex`; chapa em `articles/dissertacao/presentation/figures/plates/c2h_deep.pdf`.
-- **Do deck:** **reaproveitar como está.** É o melhor slide do deck e a chapa é excelente.
-- **Nota de entrega:** a frase que faz o trabalho é *"o mesmo café às terças de manhã e aos sábados à noite não é o mesmo sinal"*. Meia frase, concreta, e a plateia percebe sem GNN.
+### S4 · Resultado 1: a representação — 115 s
+- **Mensagem:** mudando **só a entrada**, a categoria melhora nos seis conjuntos e em todos os folds.
+- **Mostra:** a tabela de 6 linhas, Δ de **+0,23 a +6,29**.
+- **Fonte:** `CAMERA_READY §3.3`; `src/tables/tbl2_substrate.tex`; o controlo em `06_results.tex:63-72`.
+- **Do deck:** **reaproveitar** a tabela.
+
+**⚠ Duas coisas ditas em voz alta, porque a tabela não as diz e ambas saem na primeira pergunta:**
+
+- **O ganho é grande onde os dados são pequenos** (Istanbul +6,29) e **abaixo de um ponto nos três
+  maiores**. Em Florida (+0,23) o desvio entre folds (0,42) é **maior do que o gap**, e o teste
+  pareado **não separa** as duas representações (p = 0,067).
+- **E o atalho barato faz quase o mesmo — dito por nós, não por quem pergunta.** O artigo mede um
+  controlo de concatenação: pegar no vector de lugar e juntar-lhe as mesmas *features* cruas por
+  visita (categoria em one-hot, hora, dia da semana). Ganha **+2,0 / +1,7 / +0,8** em AL/AZ/FL,
+  contra os nossos **+1,62 / +2,58 / +0,23** nos mesmos estados. **Em Alabama e Florida o atalho
+  ganha mais do que o grafo.** O artigo escreve-o assim: *"Most of the category difference is
+  therefore already available in the raw per-visit features, and this control does not separate what
+  the check-in-level representation adds beyond them on this axis."*
+  **Meia frase no palco:** *"and to be clear — most of that gain is already there if you just hand
+  the place vector the hour and the category; what the graph adds beyond that, this control does not
+  separate."* Dito por nós é honestidade; dito por um ouvinte é uma ferida. Ver **B9**.
 
 ---
 
-### S5 · O que cada visita contribui — 60 s
-- **Mensagem:** o vector de cada visita carrega o seu contexto — a hora, os lugares à volta, as visitas recentes.
-- **Mostra:** o frame do deck, encurtado.
-- **Fonte:** `src/sections/04_method.tex`.
-- **Do deck:** **editar** — cortar ~40 % do texto. Este frame na defesa respondia a uma banca; aqui é uma ponte de 60 segundos.
-- **⚠ Manter:** a cláusula de que cada visita lê **só o seu próprio passado**. Não é detalhe — é o terceiro limite do artigo e é a âncora da resposta B4.
+### S5 · A arquitectura — 50 s
+- **Mensagem:** duas entradas, um tronco partilhado onde cada tarefa lê o contexto da outra, e uma via espacial privada para a região.
+- **Mostra:** `fig2_model_slides.pdf`, uma frase.
+- **Do deck:** **fundir e cortar** — os dois frames "sharing by exchange (1/2)" e "(2/2)" passam a um, de 170 s para 50. É o minuto 8; é aqui que a sala se vai embora se houver detalhe a mais. Ninguém nesta sala precisa de saber quantos blocos tem o tronco.
 
 ---
 
-### S6 · Resultado 1: a representação — 105 s
-- **Mensagem:** mudando **só a entrada**, a categoria melhora em todos os seis conjuntos e em todos os folds.
-- **Mostra:** a tabela de 6 linhas: check-in vs lugar, Δ de **+0,23 a +6,29**.
-- **Fonte:** `CAMERA_READY §3.3`; tabela do artigo `src/tables/tbl2_substrate.tex`.
-- **Do deck:** **reaproveitar** (os números já batem célula a célula).
-- **⚠ Dizer em voz alta, porque a tabela não o diz:** o ganho é **grande onde os dados são pequenos** (Istanbul +6,29) e **abaixo de um ponto nos três maiores**. Em Florida (+0,23) o desvio-padrão entre folds (0,42) é **maior do que o próprio gap**, e o teste pareado **não separa** as duas representações (p = 0,067). Dito isto em 15 segundos, ganha-se a plateia; escondido, perde-se na primeira pergunta.
+### S6 · Como foi medido — 90 s
+- **Mensagem:** mesmos utilizadores, mesmas janelas, e a margem foi escrita antes de se ver qualquer resultado.
+- **Mostra:** quatro linhas —
+  - **as regiões:** 520 (Istanbul) a 8 501 (California), *census tracts*;
+  - **a partição é por utilizador:** *"as visitas de um utilizador de teste nunca aparecem no treino"* (textual do artigo). Todos os números reportados são sobre utilizadores que o modelo nunca viu;
+  - **vinte modelos treinados por configuração** (4 sementes × 5 folds);
+  - **escrevemos antes de ver qualquer resultado o que contaria como "não pior": dois pontos.**
+- **Fonte:** `src/sections/05_setup.tex` (Windows/Splitting) · `CAMERA_READY §3` (a convenção).
+- **Do deck:** **editar agressivamente** — os **quatro** frames "The protocol, in four steps" colapsam num.
+- **⚠ A frase que não se corta:** a da margem pré-registada. É a única coisa aqui que distingue este trabalho de um afinado até dar bem.
 
 ---
 
-### S7 · A arquitectura: partilha por troca — 85 s
-- **Mensagem:** um tronco partilhado onde as duas tarefas trocam contexto semântico, e uma via espacial privada para a região.
-- **Mostra:** `fig2_model_slides.pdf`.
-- **Fonte:** `src/figs/fig2_model.tex`; `src/sections/04_method.tex`.
-- **Do deck:** **editar** — fundir os dois frames "sharing by exchange (1/2)" e "(2/2)" num só. Na defesa eram dois porque a banca ia perguntar; aqui a plateia quer a ideia, não a implementação.
-
----
-
-### S8 · O protocolo, num slide — 70 s
-- **Mensagem:** o que foi comparado, com o quê, e como se decidiu.
-- **Mostra:** quatro linhas — unidade de dados (janelas de 9 visitas + alvo) · o que se mede (macro-F1 na categoria, Acc@10 na região) · o que se compara (conjunto vs dois dedicados, mesmos folds, mesmas janelas) · como se decide (4 sementes × 5 folds, teste pareado, correcção de Holm, margem de 2 pp **registada antes de ler qualquer resultado**).
-- **Fonte:** `src/sections/05_setup.tex`; `CAMERA_READY §3` (cabeçalho da convenção).
-- **Do deck:** **editar agressivamente** — os **quatro** frames "The protocol, in four steps" colapsam num. Na defesa o protocolo era o produto; aqui é infra-estrutura da credibilidade e vale 70 segundos.
-- **⚠ A frase que não se corta:** *"a margem foi registada antes de qualquer resultado ser lido"*. É a única coisa neste slide que distingue este trabalho de um que afinou até dar bem.
-
----
-
-### S9 · Resultado 2: um modelo, duas tarefas — 105 s
-- **Mensagem:** o modelo conjunto fica acima de todas as referências externas nas duas tarefas e em todos os conjuntos.
-- **Mostra:** a tabela dupla do deck — categoria (POI-RGNN · dedicado · conjunto) e região (HMT-GRN · ReHDM · STAN · dedicado · conjunto).
-- **Fonte:** `CAMERA_READY §3.1, §3.2, §3.4`; tabela do artigo `src/tables/tbl3_results.tex`.
-- **Do deck:** **reaproveitar.**
-- **⚠ A ressalva obrigatória, e está no `CAMERA_READY §3.4`:** *"o modelo **dedicado** também está acima de todas as externas em todos os conjuntos"*. "Acima de todas as externas" **não é** uma propriedade do modelo conjunto — e a margem externa **inclui** a vantagem da representação, portanto **não é prova sobre MTL**. Se este slide for apresentado como vitória do conjunto, é um erro factual que o artigo não comete.
-
----
-
-### S10 · O veredito, conjunto a conjunto — 95 s
-- **Mensagem:** três células em doze são vitórias; as outras estão dentro de margens declaradas.
-- **Mostra:** a tabela de deltas com IC a 90 % — região e categoria lado a lado, os três ▲ marcados (TX +1,21 · CA +1,06 · FL +0,19).
+### S7 · Um modelo, duas respostas: o que custa — 100 s
+- **Mensagem:** o preço de um modelo em vez de dois, dito de uma vez.
+- **Mostra:** **só** as colunas Dedicado vs Conjunto da Tabela 3 — 6 linhas × 2 tarefas, deltas a cor (verde em TX/CA/FL, cinzento no resto). **Sem IC no ecrã** (ilegível do fundo da sala; os intervalos ficam na Série B).
 - **Fonte:** `CAMERA_READY §3.1 e §3.2`.
-- **Do deck:** **reaproveitar** (bate célula a célula).
+- **Do deck:** **editar** — a tabela do frame "The verdict" simplificada.
+
+**Veredito falado, textual:**
+
+> *"On region, the one model is better at the two largest datasets, by about one point, and worse
+> everywhere else, by at most 0.87 points — which is inside the two-point margin we fixed before we
+> saw any result. On category the two are the same within a fifth of a point. Every one of the four
+> region deficits is a real deficit, not a tie. **That is the price of one model instead of two.**"*
+
+E a frase do artigo que é a tese, e que a v1 não tinha em lado nenhum (`07_discussion.tex:26`):
+**"the trade is a measured one and not a free substitution."**
+
+**⚠ Também aqui, faladas e não em slide próprio:** o conjunto **é também o modelo maior**, e o
+desenho **não separa** tamanho de partilha; e o emparelhamento das duas vitórias com os dois maiores
+vocabulários de região é **observação, não lei** — CA tem mais regiões do que TX e ganho menor.
 
 ---
 
-### S11 · A leitura honesta — 70 s
-- **Mensagem:** o que estes números **não** dizem.
-- **Mostra:** três balas.
-  1. As quatro células "match" da região são **défices dentro da margem**, nunca empates — todos os intervalos ficam inteiramente abaixo de zero. **Nunca dizer "no difference".**
-  2. O modelo conjunto **é também o modelo maior**. O desenho **não separa** tamanho de partilha, portanto as vitórias de região em TX e CA podem vir do tamanho.
-  3. O emparelhamento das duas vitórias de região com os dois maiores vocabulários de região é uma **observação, não uma lei** — CA tem mais regiões do que TX e ganho menor.
-- **Fonte:** `src/sections/07_discussion.tex`; `CAMERA_READY §3` (nota das três de doze) e §5 C4.
-- **Do deck:** **novo.** O deck dispersa isto por rodapés; aqui merece um slide, e é o slide que protege o autor nas perguntas.
-- **Nota:** é também aqui que entra, em meia frase, o *"nenhum serviço de mobilidade foi construído ou avaliado — isto é motivação, não um resultado de serviço medido"*, que é onde o artigo o põe (ver D-2).
+### S8 · E contra os sistemas publicados — 45 s
+- **Mensagem:** estamos acima de tudo o que voltámos a correr — e essa margem não é prova sobre partilha.
+- **Mostra:** a tabela das externas (POI-RGNN · HMT-GRN · ReHDM · STAN), uma frase.
+- **Fonte:** `CAMERA_READY §3.4`.
+- **Do deck:** **reaproveitar**, mas **reduzido e despromovido**.
+
+> **A mudança estrutural mais importante da v2.** Na v1 este era o primeiro e mais longo slide do
+> Resultado 2 (105 s) e a mensagem era *"o conjunto está acima de todas as externas"*. O meu próprio
+> aviso no mesmo slide dizia que isso **não é propriedade do conjunto** — o dedicado também lá está,
+> e a margem **inclui** a vantagem da representação. O `CAMERA_READY §3.4` diz que **não pode liderar
+> as contribuições nem o resumo**. Liderar com ela e retratá-la 70 s depois é vender, tabelar e
+> desdizer. Agora vem **depois** do veredito e em 45 s.
+
+**Frase única:** *"Both our models — the dedicated and the joint — are above every system we re-ran,
+by at least three points. That margin belongs mostly to the representation from Result 1, so it is
+not evidence for sharing."* E segue.
 
 ---
 
-### S12 · O que custa — 65 s
-- **Mensagem:** o modelo conjunto é maior do que os dois dedicados somados; o que se ganha é operacional, não aritmético.
-- **Mostra:** `AL 4.2 M vs 1.9 M` · `CA 5.2 M vs 2.8 M`; e a frase — um artefacto para treinar, versionar e implantar; uma passagem para a frente em vez de duas.
-- **Fonte:** `src/sections/04_method.tex` — **usar o arredondamento do artigo** (ver D-1).
-- **Do deck:** **editar** (corrigir `1.85 M` → `1.9 M`, e explicitar "vs os dois somados").
+### S9 · O que um serviço receberia — 60 s
+- **Mensagem:** o que isto entrega a quem consome as predições — e o que não foi construído.
+- **Mostra:** três linhas e uma ressalva.
+  - **Horizonte:** mediana de **0,4 h (Florida) a 5,5 h (Istanbul)** da última visita ao alvo; **5 a 27 %** dos alvos ocorrem mais de **3 dias** depois.
+  - **Utilizadores nunca vistos:** a partição é por utilizador; as visitas de um utilizador de teste nunca aparecem no treino. É uma propriedade de implantação, não um detalhe metodológico.
+  - **Lista curta:** dez regiões em **8 501** contêm a verdadeira **64,54 %** das vezes (California); dez em 6 553, **66,15 %** (Texas).
+  - **Ressalva, textual:** *"We built and evaluated no such service; this is motivation, not a measured service result."*
+- **Fonte:** `05_setup.tex` (Windows/Splitting) · `07_discussion.tex` (a shortlist e a ressalva).
+- **Do deck:** **novo.**
+
+> **Porque é que isto passou a existir.** A v1 recusava um slide de serviço com o argumento de que
+> *"um slide sobre um serviço não construído convida à pergunta 'então construíram?'"*. Essa pergunta
+> é **boa** e a resposta é uma frase que está no artigo. O que não é bom é uma plateia de gestão de
+> mobilidade sair sem nenhuma ideia do que um consumidor destas predições recebe. Os três factos
+> acima estão todos no artigo e nenhum estava em slide nenhum. É também aqui que a frase do serviço
+> não construído ganha casa — ela não é um dos quatro limites (ver D-2).
 
 ---
 
-### S13 · Quatro limites — 65 s
-- **Mensagem:** o que qualifica estes resultados.
-- **Mostra:** os **quatro do artigo** (ver D-2): representação treinada uma vez sobre todos os lugares · a selecção de época consulta o fold onde o score é lido, portanto os absolutos são optimistas · cada nó de visita lê só as visitas que o precedem · o conjunto tem mais parâmetros do que os dois somados, portanto a região pode vir do tamanho.
-- **Fonte:** `src/sections/07_discussion.tex`, o parágrafo "Four limits qualify these results".
-- **Do deck:** **editar** — trocar o terceiro item do deck pelo limite de tamanho vs partilha.
+### S10 · O que custa, e quatro limites — 90 s
+- **Mensagem:** o modelo conjunto é maior do que os dois somados, e há quatro coisas que qualificam tudo o que foi dito.
+- **Mostra:** `AL 4,2 M vs 1,9 M` · `CA 5,2 M vs 2,8 M` (**contra os dois dedicados somados**); depois os quatro limites do artigo.
+- **Fonte:** `04_method.tex` (com o arredondamento do artigo — ver D-1) · `07_discussion.tex`, "Four limits qualify these results".
+- **Do deck:** **fundir e corrigir** — "Limitations and trade-offs" com o terceiro item trocado (ver D-2).
+- **Porque é que os dois se fundem:** o custo **é** o quarto limite do artigo. Separá-los repetia a mesma ideia em dois slides.
+- **⚠ Preparar a pergunta que este título provoca:** para esta sala, "custo" são milissegundos e watts, não parâmetros. Ver a tabela de perguntas sem slide, na §5.
 
 ---
 
-### S14 · Conclusão — 60 s
-- **Mensagem:** quando a representação preserva o contexto de cada visita e a arquitectura mantém uma via espacial privada onde as tarefas diferem, um modelo prevê o que e o onde numa só passagem, a um custo limitado nos dois eixos.
-- **Mostra:** três linhas. A representação move mais o resultado do que a escolha entre um modelo e dois · um modelo lê as duas respostas de um só ficheiro guardado · isto **não** significa que MTL ajude automaticamente.
-- **Fonte:** `src/sections/08_conclusion.tex` — quase textual.
-- **Do deck:** **novo** (a conclusão do deck é da dissertação inteira, três estudos).
+### S11 · Conclusão — 60 s
+- **Mensagem:** quando a representação preserva o contexto de cada visita e a arquitectura mantém uma via espacial privada onde as tarefas diferem, um modelo prevê o quê e o onde numa só passagem.
+- **Mostra:** três linhas, **com as palavras da conclusão do artigo**: a evidência *"does not attribute the outcome to sharing alone"* · um modelo lê as duas respostas de um só ficheiro guardado · *"These results do not mean that multi-task learning helps automatically."*
+- **Fonte:** `src/sections/08_conclusion.tex`, quase textual.
+- **Do deck:** **novo.**
+- **Nota sobre "a cost bounded on both axes":** a v1 punha esta frase aqui como se fosse da conclusão.
+  É do **resumo** (`src/main.tex:115`), não da conclusão. É legítima — é do artigo — mas quem conferir
+  contra o PDF vai procurá-la na §VIII e não a encontra. Usar as palavras da conclusão.
 
 ---
 
-### S15 · Reprodutibilidade e agradecimentos — 30 s
-- **Mensagem:** está tudo lá; e quem pagou.
-- **Mostra:** `github.com/VitorHugoOli/PoiMtlNet/tree/mobiwac` (modelo, representação, baselines, testes estatísticos) · as duas fontes de dados públicas (dump do Gowalla anotado por categoria; Massive-STEPS) · **FAPEMIG, CNPq, CAPES**.
-- **Fonte:** `src/main.tex` (nota de rodapé do código) e a secção `\section*{Acknowledgment}`.
-- **Do deck:** **novo.** O deck da defesa não tinha nem o URL nem os financiadores — e o artigo tem os dois. Ver §6.
+### S12 · Reprodutibilidade e agradecimentos — 30 s
+- **Mostra:** `github.com/VitorHugoOli/PoiMtlNet/tree/mobiwac` · as duas fontes de dados públicas · **FAPEMIG, CNPq, CAPES**.
+- **Fonte:** `src/main.tex` (nota de rodapé do código) e `\section*{Acknowledgment}`.
+- **Do deck:** **novo.** O deck não tinha nem o URL nem os financiadores. É o slide que fica no ecrã durante as perguntas e o que é fotografado.
 
 ---
 
-**Soma:** 20 + 125 + 40 + 85 + 60 + 105 + 85 + 70 + 105 + 95 + 70 + 65 + 65 + 60 + 30 = **1 080 s = 18:00**.
+**Soma:** 20 + 130 + 100 + 115 + 50 + 90 + 100 + 45 + 60 + 90 + 60 + 30 = **890 s ≈ 14:50.**
+
+**Isto é de propósito.** Sobram ~15 minutos de margem e perguntas num slot de 30. Às 8:30 de segunda,
+como primeiro orador, **ar vale mais do que slides** — e um orador que acaba antes do tempo e responde
+bem deixa melhor impressão do que um que estoura. Se o autor quiser aproximar-se dos 18 minutos, os
+três sítios onde o tempo rende, por esta ordem: **+60 s no S4** (o controlo de concatenação merece ser
+explicado devagar), **+40 s no S7** (o veredito é o núcleo), **+30 s no S2**. Não repor o S5 nem o
+antigo slide de trabalhos relacionados.
+
+**O que saiu da v1 e porquê:** o slide de trabalhos relacionados (40 s) — esta plateia não tem mapa
+onde pôr MCMG e HMT-GRN, e a única frase de que precisa cabe no fim do S2; e o slide autónomo da
+"leitura honesta" (70 s) — as suas três balas passaram a ser ditas **junto dos números**, no S7, que
+é onde o artigo as põe. Isolar as ressalvas num slide só delas fá-las soar a confissão.
 
 ---
 
 ## 5 · Série B — backup para as perguntas
 
-Slides que **não** entram na trilha. Ficam depois do último e chamam-se pelo número se a pergunta
-vier. Regra: um slide, uma resposta, sem construção.
+Um slide, uma resposta, sem construção. Chamam-se pelo número.
 
 | # | Pergunta previsível | O que o slide mostra | Fonte |
 |---|---|---|---|
-| **B1** | *"Porquê região a este nível? Como é definida?"* | A definição de região usada e a contagem por conjunto: Istanbul 520 · AL 1 109 · AZ 1 547 · FL 4 703 · TX 6 553 · CA 8 501 | `CAMERA_READY §3.4`; `src/tables/tbl1_datasets.tex` |
-| **B2** | *"De onde vêm os 2 pontos de margem? Escolheram depois de ver?"* | A margem foi **pré-registada, só para o eixo da região**, antes de qualquer leitura; a categoria **não tem** margem de equivalência registada — por isso as cinco células de categoria dizem "não resolvido" e nunca "equivalente" | `CAMERA_READY §3` (cabeçalho) |
-| **B3** | *"Um Markov não faz isto?"* | O piso de Markov de primeira ordem (51,23–72,47) e a margem sobre ele (**+4,1 a +10,0**); e o facto incómodo de que **HMT-GRN fica abaixo desse piso nos seis**, STAN em quatro, ReHDM em três | `CAMERA_READY §3.4` |
-| **B4** | *"Como é que sabem que o vector de uma visita não vê o alvo?"* | O grafo é **forward-only**: um nó de visita lê só as visitas que o precedem, no treino e na leitura, e o grafo não passa informação de uma visita posterior para uma anterior — é isso que impede um nó de carregar uma *feature* do alvo que ele prevê. **Está publicado, terceiro limite da §7.** | `src/sections/07_discussion.tex` |
-| **B5** | *"Quanto custa um modelo em vez de dois?"* | 4,2 M vs 1,9 M (AL) e 5,2 M vs 2,8 M (CA) contra **os dois somados**; o ganho é operacional — um artefacto, uma passagem | `src/sections/04_method.tex` |
-| **B6** | *"Se a representação faz quase tudo, para que serve o MTL?"* | A resposta honesta do artigo: na categoria a representação move mais o resultado do que a escolha entre um modelo e dois; se a troca entre as tarefas acrescenta algo **não é separado pela evidência aqui** | `src/sections/08_conclusion.tex` |
-| **B7** | *"Porquê estas cinco referências externas?"* | A tabela completa das externas, com as duas notas de rodapé honestas: STAN com folds parciais (TX 4/5, CA 2/5) e ReHDM com uma só semente em TX e CA | `CAMERA_READY §3.4` |
-| **B8** | *"O ganho de região cresce com o número de regiões?"* | **Não.** É uma observação, não uma lei: CA tem mais regiões do que TX e ganho **menor** (+1,06 vs +1,21) | `CAMERA_READY §5 C4` |
+| **B1** | *"Porquê *tracts* e não uma grelha?"* | A definição e a contagem por conjunto (520 → 8 501). **Reduzido**: a definição de região passou para o S2. | `CAMERA_READY §3.4`; `tbl1_datasets.tex` |
+| **B2** | *"De onde vêm os 2 pontos? Escolheram depois de ver?"* | Pré-registada, **só para a região**; a categoria **não tem** margem registada — por isso as cinco células dizem "não resolvido" e nunca "equivalente" | `CAMERA_READY §3` |
+| **B3** | *"Um Markov não faz isto?"* | Piso de Markov-1 (51,23–72,47), margem **+4,1 a +10,0**; e HMT-GRN abaixo desse piso nos seis, STAN em quatro, ReHDM em três. **⚠ Dizer a margem mais estreita antes que a calculem: Florida, +4,07.** | `CAMERA_READY §3.4` |
+| **B4** | *"Como sabem que o vector não vê o alvo?"* | O grafo é **forward-only**: um nó lê só as visitas que o precedem, no treino e na leitura. **Publicado, terceiro limite da §7.** | `07_discussion.tex` |
+| **B5** | *"Quanto custa um modelo em vez de dois?"* | 4,2 M vs 1,9 M (AL), 5,2 M vs 2,8 M (CA), contra **os dois somados** | `04_method.tex` |
+| **B6** | *"Se a representação faz quase tudo, para que serve o MTL?"* | A resposta honesta do artigo: na categoria a representação move mais do que a escolha entre um modelo e dois; se a troca acrescenta algo **não é separado pela evidência aqui** | `08_conclusion.tex` |
+| **B7** | *"Porquê estas referências externas?"* | A tabela completa com as duas notas honestas: STAN com folds parciais (TX 4/5, CA 2/5), ReHDM com uma só semente em TX e CA | `CAMERA_READY §3.4` |
+| **B8** | *"O ganho cresce com o número de regiões?"* | **Não.** Observação, não lei: CA tem mais regiões do que TX e ganho **menor** (+1,06 vs +1,21) | `CAMERA_READY §5 C4` |
+| **B9** | *"Isto não é só juntar o timestamp ao vector de lugar?"* | **NOVO, e é a pergunta mais perigosa da sala.** O controlo de concatenação: +2,0 / +1,7 / +0,8 (AL/AZ/FL) contra os nossos +1,62 / +2,58 / +0,23. **Em AL e FL o atalho ganha mais.** A frase do artigo, textual. | `06_results.tex:63-72` |
+| **B10** | *"E os intervalos de confiança?"* | A tabela de 12 células com IC a 90 % — os que saíram do S7 para ser legível do fundo da sala | `CAMERA_READY §3.1, §3.2` |
 
-**Perguntas sem slide, só com resposta preparada** (não valem um slide, mas o autor deve ter a frase):
+**Perguntas sem slide, com a frase preparada.** Esta tabela é tão importante como os slides: são as
+perguntas desta sala em concreto, e nenhuma tinha resposta na v1.
 
-- *"Os números absolutos parecem baixos"* — são macro-F1 sobre um problema de muitas classes com
-  desequilíbrio forte; e a selecção de época consulta o fold onde o score é lido, portanto **os
-  absolutos são optimistas e está declarado**. A comparação conjunto vs dedicado é afectada muito
-  menos: a regra de selecção é a mesma para os dois, nos mesmos folds.
-- *"Isto funciona noutra cidade?"* — Istanbul foi escolhido precisamente por diferir dos cinco
-  estados dos EUA, e é onde o ganho de representação é **maior** (+6,29). Generalização para além
-  destes seis não foi testada.
-- *"Porque é que o dedicado de categoria recebeu uma procura mais larga?"* — recebeu, está declarado
-  no segundo limite, e isso torna a diferença de categoria **conservadora**, não o contrário.
-
----
+| Pergunta | A frase |
+|---|---|
+| **"Latência? Energia? Corre na borda, no telemóvel?"** | *"About five million parameters and a window of nine visits per query. **We did not measure latency or energy.**"* ⚠ O título do S10 ("o que custa") torna esta pergunta inevitável: para esta sala, custo são **milissegundos e watts**, não parâmetros. |
+| **"Partiram por utilizador e não por tempo. E deriva? E re-treino?"** | Textual do artigo: *"The split is by user and not by time, so the evaluation does not measure drift or the effect of sporadic events."* E depois o lado bom: por ser por utilizador, **todos os números são sobre utilizadores nunca vistos**. |
+| **"Gowalla é de 2009–2011. Ainda representa alguma coisa?"** | Istanbul vem do Massive-STEPS, recolha recente; o Gowalla é o *benchmark* padrão desta linha. O que interessa é o padrão que **se repete** entre continentes e épocas. |
+| **"Privacidade: o operador precisa do histórico completo de cada utilizador, e a representação foi treinada sobre toda a gente."** | Do lado do servidor, sobre os registos do próprio operador; **nenhum mecanismo de privacidade é reivindicado**. E o primeiro limite mede o efeito: reconstruir a representação só com utilizadores de treino move os resultados ≤ 0,33 Acc@10 e ≤ 0,29 macro-F1. |
+| **"E em quilómetros, os erros ficam a que distância?"** | ⚠ **Ensaiar esta recusa em voz alta**, porque vem como pergunta simpática de alguém que ia gostar da resposta. *"Not measured — it needs per-visit predictions the evaluation path does not keep. It is the first thing we would measure for a service."* **Nunca dar os números de km** (§2.2). |
+| **"Só quatro corridas?"** | Cada semente é uma validação cruzada completa de 5 folds — **vinte modelos treinados** por configuração. O desvio entre sementes da diferença pareada é 0,02–0,16. |
+| **"Quem consome isto — o operador, a aplicação, a cidade?"** | Antecipação de carga e procura ao nível do bairro: *caching*, planeamento de capacidade. **Nomear o consumidor**, não deixar em abstracto. |
 
 ## 6 · O que o deck da defesa não tinha e esta plateia precisa
 
@@ -393,24 +469,105 @@ responde de pé, se alguém que tenha visto o manuscrito aceite perguntar.
   de uma sala, e o autor já decidiu que o lugar disso era o texto.
 - **É decisão sua porque é a sua voz no palco, não a minha.** O plano não põe nada disto num slide.
 
-### DA-4 · O esboço de serviço entra ou sai
+### DA-4 · O esboço de serviço entra ou sai — ⚠ **mudei de recomendação na v2**
 O artigo tem um esboço de serviço de ~90 palavras na §7 (a leitura de shortlist).
-- **(a) Entra, como meia frase no S9 e uma bala no S11** — ⭐ **recomendo.** É o que traduz o
-  resultado para esta plateia, e a ressalva *"motivação, não um resultado de serviço medido"* vai
-  colada.
-- (b) Slide próprio de 60 s — rouba tempo à S2, que é mais importante, e um slide inteiro sobre um
-  serviço não construído convida à pergunta "então construíram?".
+- **(a) Slide próprio de 60 s — o S9** — ⭐ **recomendo agora.**
+- (b) Meia frase noutro slide, sem slide próprio — era a minha recomendação na v1.
+
+**Porque mudei.** Na v1 recusei o slide próprio com o argumento de que *"um slide inteiro sobre um
+serviço não construído convida à pergunta 'então construíram?'"*. A revisão apontou, e concordo, que
+**essa pergunta é boa e a resposta é uma frase que está no artigo**. O que é mau é uma plateia de
+gestão de mobilidade sair sem nenhuma ideia do que um consumidor destas predições recebe. Ao montar
+o S9 apareceram **três factos operacionais que estão no artigo e não estavam em slide nenhum** — o
+horizonte (mediana 0,4 h a 5,5 h; 5–27 % dos alvos além de 3 dias), a partição por utilizador (*"as
+visitas de um utilizador de teste nunca aparecem no treino"*), e a leitura de shortlist. O primeiro
+é literalmente *a* pergunta desta sala: **com quanta antecedência me posso preparar.**
 
 ### DA-5 · Quem apresenta, e se há ensaio cronometrado
-Não é decisão técnica, mas condiciona o plano: 18 minutos só funcionam com **um** ensaio cronometrado.
-Se não houver ensaio, recomendo cortar a S3 e a S5 (100 s) e apresentar 13 slides.
+Não é decisão técnica, mas condiciona o plano. A v2 deixa a trilha em **~14:50**, com margem
+confortável — já não é preciso um ensaio para caber. **Mas continua a ser preciso um ensaio para o
+S2**, que é o único slide onde o guião é quase palavra a palavra e onde 130 s mal ditos custam a
+sala inteira. Se só houver tempo para ensaiar uma coisa, ensaiar o S2 e a recusa dos quilómetros.
 
 ---
 
-## 8 · Revisão Fable
+## 8 · Revisão Fable — o que apontou, o que aceitei, o que recusei
 
-> _A preencher quando a revisão correr. Registo: o que o Fable apontou, o que aceitei, o que recusei
-> e porquê._
+Corrida sobre a v1. **Reproduzi cada afirmação verificável contra o artigo antes de aceitar**, porque
+um relatório de um par é uma afirmação de segunda mão e já me entrou uma correcção errada assinada
+por dois. Resultado da reprodução: **todas as afirmações que verifiquei estavam certas**, e numa
+delas **o errado era eu**.
+
+### Aceite integralmente
+
+**F1 · O Resultado 2 liderava com a alegação que o artigo desautoriza.** Na v1, o primeiro e mais
+longo slide do Resultado 2 (105 s) tinha como mensagem *"o conjunto está acima de todas as
+externas"* — e o meu próprio aviso, no mesmo slide, dizia que isso não é propriedade do conjunto e
+não é prova sobre partilha. Vender, tabelar e desdizer, em 270 s e três slides, sem nunca dizer a
+frase verdadeira de uma só vez. **Aceite:** S7 passa a ser o veredito, o S8 as externas em 45 s e
+despromovidas, e o slide autónomo da "leitura honesta" desapareceu — as suas balas passaram a ser
+ditas junto dos números, que é onde o artigo as põe. E entrou a frase que é a tese e que a v1 não
+tinha em lado nenhum: **`07_discussion.tex:26` — "the trade is a measured one and not a free
+substitution."** *(Reproduzido: a frase existe, textual.)*
+
+**F2 · O S2 abria a reivindicar handover, que o artigo põe fora de âmbito.** *(Reproduzido:
+`04_method.tex:38-41` — "A census tract is a neighborhood, not a radio cell… Cell association and
+handover are radio-level decisions and remain out of scope."* Numa sessão chamada "Mobility
+Management", abrir a reivindicá-lo convida à pergunta cuja resposta é "nada, está fora de âmbito".
+**Aceite:** handover passa a analogia de escala, como o artigo faz.
+
+**F3 · "Região" usava-se do princípio ao fim e só estava definida num slide de backup.** Erro meu e
+óbvio depois de apontado. **Aceite:** definida no S2, com as contagens (520 → 8 501) repetidas no S6.
+
+**F4 · O S2 não era bom o suficiente para as 8:30 de segunda** — 125 s de prosa sem imagem, sem
+número, a fechar em vocabulário de MTL, e com a resposta guardada para o minuto 11. **Aceite,
+incluindo o guião proposto**, que reescrevi ligeiramente e verifiquei facto a facto.
+
+**F5 · A pergunta mais perigosa da sala não tinha resposta.** Esta é a melhor apanha da revisão. O
+artigo mede um **controlo de concatenação** — vector de lugar + as mesmas features cruas por visita —
+que ganha **+2,0 / +1,7 / +0,8** em AL/AZ/FL contra os nossos **+1,62 / +2,58 / +0,23**. **Em Alabama
+e Florida o atalho barato ganha mais do que o grafo**, e o artigo escreve-o: *"Most of the category
+difference is therefore already available in the raw per-visit features."* Isto não estava na trilha
+nem em backup nenhum. **Aceite:** entra como caveat falado no S4 e como **B9**. *(Reproduzido em
+`06_results.tex:63-72`.)*
+
+**F6 · Faltava o que um serviço receberia.** Ver DA-4 — mudei de recomendação. **Aceite:** novo S9.
+
+**F7 · Oito perguntas desta sala sem resposta preparada** — latência/energia, deriva e re-treino,
+época dos dados, privacidade, os quilómetros, a margem mais estreita sobre o Markov, "só quatro
+corridas?", e quem consome isto. **Aceite:** entraram todas na tabela de perguntas sem slide, na §5.
+
+**F8 · Cortes de arco** — trabalhos relacionados fora, arquitectura de 170 s para 50, protocolo de
+quatro frames para um, custo e limites fundidos, IC fora do ecrã. **Aceite.**
+
+### Aceite com emenda
+
+**F9 · "A cost bounded on both axes" não é da conclusão.** Correcto — mas também não é inexistente:
+está no **resumo**, `src/main.tex:115`. A revisão diz que a conclusão não a tem, e tem razão; eu
+tinha-a posto no slide de conclusão como se fosse de lá. **Emenda:** o S11 usa as palavras da
+conclusão, e o plano regista de onde a frase é, para quem a for procurar na §VIII não concluir que
+inventámos.
+
+### Onde a revisão estava certa e eu estava errado
+
+**F10.** Ao verificar, afirmei que os números do horizonte (0,4 h a 5,5 h; 5–27 % além de 3 dias)
+**não estavam no artigo** — o meu `grep` devolvia três linhas e nenhuma os trazia. **Estavam.** A
+frase atravessa mudanças de linha num parágrafo LaTeX e os meus padrões não a apanharam; só apareceu
+quando **li** o parágrafo em vez de o procurar. É a mesma família do truncamento lido como ausência,
+e é a segunda vez nesta linhagem de sessões. Se eu tivesse escrito a recusa em vez de ler, teria
+mandado a revisão embora com um facto verdadeiro marcado como falso.
+
+### Não aceite
+
+Nada. Não houve ponto da revisão que eu tenha recusado.
+
+### O que a revisão confirmou sem alterações
+
+A §2 (a lei, incluindo a proibição da métrica de quilómetros), a §3 inteira (as três divergências
+deck ↔ artigo), a escolha da chapa no slide da representação, o caveat falado sobre Florida
+(p = 0,067; desvio entre folds 0,42 > gap 0,23), os quatro limites, o slide de reprodutibilidade, e
+os backups B2/B4/B6/B8. E verificou, célula a célula, que **todos os números que o plano cita estão
+certos**.
 
 ---
 
@@ -428,6 +585,15 @@ Tudo o que está neste plano foi verificado nesta sessão contra as fontes, não
 - a contagem de parâmetros contra `src/sections/04_method.tex`;
 - o estado da métrica geográfica contra `src/sections/07_discussion.tex` (*"left to future work"*) e
   contra a proveniência v17 do cálculo.
+
+Acrescentado na v2, tudo reproduzido contra o artigo antes de entrar:
+
+- o âmbito de handover contra `04_method.tex:38-41`;
+- o controlo de concatenação e os seis números contra `06_results.tex:63-72`;
+- o horizonte (0,4–5,5 h; 5–27 % além de 3 dias) e *"the visits of a test user never appear in
+  training"* contra `05_setup.tex`, **lidos e não procurados** — ver F10 na §8;
+- *"the trade is a measured one and not a free substitution"* contra `07_discussion.tex:26`;
+- *"a cost bounded on both axes"* localizado em `src/main.tex:115` (o resumo), não na conclusão.
 
 **O que não verifiquei:** os factos do programa (dia, hora, ordem da sessão, regra dos 30 minutos)
 vêm da leitura que a sessão `mobiwac-ppt` fez do site a 2026-09-30. Não os reproduzi. Se algum deles
