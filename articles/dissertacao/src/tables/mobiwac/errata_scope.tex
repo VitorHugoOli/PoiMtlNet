@@ -370,6 +370,17 @@ so does the two-confounder sentence attached to each. The
 version of record carries both corrections; the chapter
 reproduced the text from before them. No number or verdict
 changes. \\
+\addlinespace
+% [2026-09-30] Verificado antes de editar, a pedido do autor: markov_floor_stride1/<state>.json regista
+% fold_protocol seed 42 (compute_markov_floor_stride1.py, SEED = 42); as celulas entregues usam as
+% seeds {0,1,7,100}. As janelas coincidem (stride 1, MIN_SEQ 10, emit_tail False). Sem nova execucao:
+% decisao do autor, pela baixa variancia do piso.
+The setup and results sections say that the first-order Markov
+region floor uses the same fold splits as our models. &
+The floor uses the same sliding windows and the same
+user-grouped fold construction, but a different partition of
+users, so both sentences now claim only the windows and the
+grouping. The floor values are unchanged. \\
 \bottomrule
 \end{tabular}
 \end{table}

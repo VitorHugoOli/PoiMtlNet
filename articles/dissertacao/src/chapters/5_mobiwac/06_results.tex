@@ -337,9 +337,13 @@ datasets.
 
 That floor is also above the three external region systems at most datasets, and the
 comparison deserves a direct word rather than being left for the reader to assemble.
+% [2026-09-30, AUTHOR-APPROVED errata, Table B.5 row (with 05_setup.tex)] "under our own
+% sliding-window protocol and fold splits" -> "under our own sliding-window protocol, with
+% user-grouped folds": the floor's folds are user-grouped (StratifiedGroupKFold) but drawn at seed
+% 42, not the delivered seeds, so "fold splits" implied a shared partition that does not exist.
 HMT-GRN falls below it at all six, the ReHDM reference at three, and STAN at four. Two
 facts about how these numbers were produced bear on that comparison. The first concerns
-the floor: it is computed under our own sliding-window protocol and fold splits. Those
+the floor: it is computed under our own sliding-window protocol, with user-grouped folds. Those
 windows advance one visit at a time, so the region of the last visit is a strong predictor
 of the next one, and a first-order transition table reads exactly that signal. At Alabama the target region is the last visited region in $32.9$ percent of
 windows.

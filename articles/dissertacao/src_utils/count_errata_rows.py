@@ -98,7 +98,7 @@ WORDS = {"no": 0, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6
          "twenty-eight": 28, "twenty-nine": 29, "thirty": 30}
 SCOPE_TABLE = "mobiwac/errata_scope.tex"
 CLAIM_SCOPE = re.compile(
-    r"Table~\\ref\{tab:apx:mobiwac-scope\}\s+lists\s+(?P<count>[a-z]+)\s+further\s+departures",
+    r"Table~\\ref\{tab:apx:mobiwac-scope\}\s+lists\s+(?P<count>[a-z]+(?:-[a-z]+)?)\s+further\s+departures",
     re.I)
 
 
@@ -172,6 +172,12 @@ def self_test() -> None:
     # that is present and wrong as a missing one.
     m = CLAIM_SCOPE.search(r"Table~\ref{tab:apx:mobiwac-scope} lists eight further departures")
     assert m and WORDS[m.group("count")] == 8, "self-test: B.5 spelled-count claim not parsed"
+    # [2026-09-30] The capture was [a-z]+, which cannot cross a hyphen: every WORDS entry from
+    # "twenty-one" to "twenty-nine" was unreachable, and a correct "twenty-one" read as a MISSING
+    # claim (rc 2). Found by the writer the first time the table passed twenty. The vocabulary and
+    # the matcher were never tested together past twenty; this case pins it.
+    m = CLAIM_SCOPE.search(r"Table~\ref{tab:apx:mobiwac-scope} lists twenty-one further departures")
+    assert m and WORDS[m.group("count")] == 21, "self-test: hyphenated spelled count not parsed"
     assert not CLAIM_SCOPE.search(
         r"Table~\ref{tab:apx:mobiwac-scope} lists 8 further departures"), \
         "self-test: B.5 matcher accepted a digit; the prose spells the number and a digit there " \
