@@ -170,9 +170,15 @@ PROBES: tuple[tuple[str, str, str, str, bool], ...] = (
      "the gradient-cosine appendix, and the frame chapters carry that pointer instead",
      "chapters/5_mobiwac/02_related.tex",
      r"Appendix~\\ref\{apx:cosine\}", False),
-    ("A9-oldnum","2.9: the earlier four-seed figures are LEFT AS THEY WERE, not silently restated as the "
-     "seven-dataset result (this is the pair whose presence the withdrawn probe mistook for proof)",
-     "chapters/5_mobiwac/02_related.tex", r"\+0\.0032", True),
+    # [2026-09-30] FLIPPED, not retired. Ruling 2.9 kept the development figures; the author re-ruled
+    # on 2026-09-30 that the text describes the delivered method, not the journey. The results come
+    # from the delivered model, so its measurement is the one cited, because it carries more
+    # confidence. The development sentence (+0.001 / +0.0032, "earlier preparation of the data") left
+    # Ch.5, and the claim now rests on the reported-model measurement that A9-diss pins. This probe
+    # now guards the other direction: the development number must not creep back.
+    ("A9-oldnum","2.9 SUPERSEDED 2026-09-30: the development four-seed figures are REMOVED; the "
+     "gradient-cosine claim rests on the measurement on the reported joint model (A9-diss)",
+     "chapters/5_mobiwac/02_related.tex", r"\+0\.0032", False),
     # ---- REPOINTED 2026-08-02, when the author's revised tree (src_clean) was merged into src.
     # Seven probes went NOT APPLIED after the merge. Each was checked against the SUBSTANCE rather
     # than trusted or deleted, and in every case the claim still holds and the PATTERN was stale:

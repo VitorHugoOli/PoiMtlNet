@@ -47,9 +47,14 @@ Gowalla states, and points only to the mechanism test in the results section. &
 % A linha ficou a registar uma adicao que foi REVERTIDA -- e a prosa que anuncia a tabela
 % repetia-o. Apanhado por uma auditoria Fable ao lote das nove, que notou que reescrever a prosa
 % em volta de uma linha obsoleta A RE-AUTORIZA. Corrigida para o que a errata deixou de pe.
-The claim is scoped to what the development measurement
-covers, and the paragraph's own numbers and conclusion are
-unchanged. \\
+% [2026-09-30] REESCRITA: o autor decidiu que o texto descreve o metodo entregue e nao a jornada
+% (WRITING_LAW §3). A frase de desenvolvimento (+0,001 / +0,0032) saiu; a alegacao assenta agora na
+% medicao do modelo reportado, que o paragrafo ja trazia. Deixou de ser anterior a aceitacao: a
+% prosa do apendice passa-a para a classe nova.
+The development measurement is removed. The claim rests on the
+measurement taken on the reported joint model at four
+datasets, which the paragraph already gave, and its conclusion
+is unchanged. \\
 \addlinespace
 % [2026-09-02, Wilcoxon] Author ruling: remove the promise, do not compute the test. The registered
 % test was executed once, on the v17 ladder; the ladder was recomputed under the joint-best
@@ -280,10 +285,13 @@ unchanged. \\
 % v14, com seis PASS registados no AUDIT.md. Os vectores de check-in sao v18; os de regiao nao.
 The method and results sections describe the region vectors as
 coming from the same graph as the check-in vectors. &
-Both are scoped to an earlier build of the same graph design.
-The region table is carried over from that build rather than
-rebuilt, which the phrase \emph{the same graph} did not convey.
-No number changes. \\
+% [2026-09-30] REESCRITA pela mesma decisao do autor. A tabela de regiao continua a vir do v14 (o
+% symlink acima). A frase ja nao diz de que build vem, mas tambem nao afirma que vem do grafo que a
+% seccao descreve: diz o que e, uma tabela fixa partilhada pelos modelos conjunto e dedicado.
+Both now describe them as pretrained region vectors taken
+from a region table held fixed and shared by the joint and
+dedicated models, which no longer implies that they come from
+the graph the section describes. No number changes. \\
 \addlinespace
 % [2026-09-08] Era a ESCADA SUPERADA sobrevivendo na §2. A §6 do proprio capitulo reporta quatro
 % defices de regiao "and none of them is a tie" e duas celulas de categoria negativas. As probes
@@ -309,6 +317,11 @@ on the measurement stated beside it. \\
 % capitulo ("three datasets at one seed") ja era melhor que a do artigo; faltava-lhe a geracao.
 The integrity check states its scope as three datasets at one
 seed. &
+% ⚠ [2026-09-30] ESTA LINHA ESTA DESACTUALIZADA DE PROPOSITO, E E UM BLOQUEIO DO DEPOSITO. O capitulo
+% ja nao diz "on an earlier build" (decisao do autor), mas os numeros impressos continuam os do A4
+% pre-v18 ate a re-execucao no build entregue (em /dados) aterrar. Nesse dia: trocar os numeros no
+% 05_setup e no 07_discussion, reescrever esta linha para o estado final, e mover a sua classe na
+% prosa do apendice. Reescreve-la antes disso afirmaria uma medicao que ainda nao existe.
 The build is added to the scope: the check ran on an earlier
 build of the representation. The datasets, the seed and the
 reported differences are unchanged. \\

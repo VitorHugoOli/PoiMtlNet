@@ -43,7 +43,7 @@ here, and it acts the same way everywhere it was measured.
 % already says the constants are not those of the exact delivered configuration.
 The geometry of the vectors indicates why the representation helps this task in
 particular: the silhouette score by category of the representation's vectors, measured on an earlier build with the vectors aggregated per place (how tight and well separated the seven labeled groups are, on a $-1$ to $1$ scale), is about $0.57$ against about $0.00$ for the place embedding, and their nearest-neighbor category purity (the share of nearest neighbors with the vector's own category) is about $0.98$ against about $0.78$ (both averaged over the five U.S. states). Both measures characterize the representation family rather than the exact configuration
-evaluated in Table~\ref{tab:mobiwac:results}. The same geometry does not separate regions, so the benefit is category-only (the joint model's spatial stream instead reads the region-level vectors of an earlier build of the same graph design, Section~\ref{sec:mobiwac:method-model}).
+evaluated in Table~\ref{tab:mobiwac:results}. The same geometry does not separate regions, so the benefit is category-only (the joint model's spatial stream instead reads pretrained region vectors, taken from a region table held fixed and shared by the joint and dedicated models, Section~\ref{sec:mobiwac:method-model}).
 % [2026-09-08, AUTHOR-AUTHORIZED errata batch, Table B.5 item, same in 04_method.tex] "of the same
 % graph" -> "of an earlier build of the same graph design". run_phase0_build.sh symlinks
 % region_embeddings.parquet from the v14 engine (six PASS rows in AUDIT.md): check-in vectors are the

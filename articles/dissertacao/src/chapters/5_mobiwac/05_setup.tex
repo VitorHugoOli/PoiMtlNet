@@ -81,11 +81,16 @@ search may mean for the two datasets that did not receive one.
 \emph{Whole-dataset training.} The question is whether using all users to train
 Check2HGI gives the prediction models an advantage. To check this, we built a new
 representation for each fold using only its training users. This check covers three datasets at
-one seed, on an earlier build of the representation.
+one seed.
 % [2026-09-08, AUTHOR-AUTHORIZED errata batch, Table B.5 item] ", on an earlier build of the
 % representation" added: the quoted ranges come from a pre-v18 substrate and the sentence did not
 % say so. The scope clause ("three datasets at one seed") stays and the quoted ranges are unchanged;
 % wording is the article's.
+% [2026-09-30, AUTHOR RULING, Table B.5 row] The build clause above is REMOVED again: "e so se
+% preocupar com o estado final e os resultados disso". The check is being re-run on the delivered
+% build (on /dados); the two ranges in the next sentence are STILL the pre-v18 values and are
+% PENDING that re-run (deposit blocker tracked by the registry). When the re-run lands, replace the
+% numbers from its output; do not restore the build clause.
 The differences were $-0.33$ to $+0.01$ Acc@10 points for region and $0.00$ to
 $+0.29$ macro-F1 points for category.
 
