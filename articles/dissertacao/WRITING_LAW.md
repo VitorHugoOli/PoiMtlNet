@@ -255,6 +255,12 @@
   exists because a measurement was NOT taken on the delivered build, deleting the qualifier alone
   makes the text claim something unmeasured. Re-measure on the delivered build, drop the claim, or
   keep it as a declared exception. Never silently drop the qualifier.
+- **Do not justify what the reader has no reason to doubt** (author, 2026-09-30). A defensive
+  sentence about a property the text already makes plain makes the reader wonder why it needed
+  defending. The case was "only the HMT-GRN comparison model uses this prior; our models do not": the
+  method section already shows our models don't use it, so the sentence stays out. This differs
+  from the fairness disclosures the reader cannot infer (who was trained on which users): those
+  stay, and they are written so the intention is plain.
 - **Uncertainty is stated, not implied**: fold-std or CI wherever a mean appears in a claim;
   "significant" only with the test named.
 - Scope every universal: "at all six datasets" only right after the six are enumerated; the
