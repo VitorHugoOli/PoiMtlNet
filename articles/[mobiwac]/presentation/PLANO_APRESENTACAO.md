@@ -189,7 +189,11 @@ Convenção de cada entrada: **mensagem única**, **mostra**, **fonte**, **segun
 
 ### S2 · O dia de uma pessoa, e a pergunta — 130 s
 - **Mensagem:** ninguém precisa do próximo *lugar*; duas perguntas mais grosseiras chegam — que tipo de sítio, e que bairro.
-- **Mostra:** um mapa de um estado com nove pontos ligados por setas e um ponto de interrogação; por baixo, duas caixas: *what kind of place?* · *which neighbourhood?*
+- **Mostra:** uma figura **esquemática** (TikZ, desenhada no `.tex`): uma malha de *tracts*, nove pontos
+  ligados por setas rotulados *coffee · gym · office · lunch*, e um `?` num *tract* realçado; por baixo,
+  duas caixas — *what kind of place?* · *which neighbourhood?*
+- **⚠ Não é um mapa real nem um utilizador real**, e não deve ser apresentada como tal. É um esquema.
+  Se alguém perguntar, é uma ilustração do formato da entrada, não um caso do conjunto de dados.
 - **Fonte:** `src/sections/01_introduction.tex` ¶1–2 · `src/tables/tbl1_datasets.tex` (contagens) · `04_method.tex` §IV-A (o âmbito) · `05_setup.tex` (o horizonte) · `07_discussion.tex` (a shortlist).
 - **Do deck:** **novo.**
 
@@ -213,13 +217,14 @@ Convenção de cada entrada: **mensagem única**, **mostra**, **fonte**, **segun
 > "Here is one person's day in Texas: nine check-ins. Coffee, gym, office, lunch. The tenth is the
 > question. But nobody needs the tenth *place* — Texas has a hundred and sixty thousand of them. A
 > service needs two coarser things. What **kind** of place comes next — food, shopping, nightlife.
-> And which **neighbourhood** — a census tract, a few thousand per state.
+> And which **neighbourhood** — a census tract. A thousand of them in Alabama, eight and a half
+> thousand in California.
 > If you know the neighbourhood before the person gets there, you can push content to the cache that
 > serves it, and plan capacity where demand is about to land. You already do this one level down, at
 > the radio cell, with handover prediction. We are at the neighbourhood. **A tract is not a cell, and
 > we claim nothing about cells.**
-> How far ahead? In our data the median gap from the last visit to the next is between **half an hour
-> and five and a half hours**.
+> How far ahead? In our data the median gap from the last visit to the next runs from **under half an
+> hour** in Florida to **five and a half hours** in Istanbul.
 > The obvious engineering answer is two models, one per question — two things to train, version and
 > serve. The obvious shortcut, one model for both, is known to fail: parameters shared between two
 > jobs can settle on a compromise that is worse at both. So: **can one model answer both, and what
@@ -279,7 +284,10 @@ Convenção de cada entrada: **mensagem única**, **mostra**, **fonte**, **segun
   - **as regiões:** 520 (Istanbul) a 8 501 (California), *census tracts*;
   - **a partição é por utilizador:** *"as visitas de um utilizador de teste nunca aparecem no treino"* (textual do artigo). Todos os números reportados são sobre utilizadores que o modelo nunca viu;
   - **vinte modelos treinados por configuração** (4 sementes × 5 folds);
-  - **escrevemos antes de ver qualquer resultado o que contaria como "não pior": dois pontos.**
+  - **escrevemos antes de ver qualquer resultado o que contaria como "não pior": dois pontos**;
+  - **o que se mede:** macro-F1 na categoria · **Acc@10 na região — *a região verdadeira está nas dez
+    primeiras?*** ⬅ acrescentado a pedido do `mobiwac-ppt`, e bem: o S7 lê Acc@10 e nenhum slide a
+    definia. Numa sala que não usa a métrica, uma tabela de Acc@10 sem esta linha é ruído.
 - **Fonte:** `src/sections/05_setup.tex` (Windows/Splitting) · `CAMERA_READY §3` (a convenção).
 - **Do deck:** **editar agressivamente** — os **quatro** frames "The protocol, in four steps" colapsam num.
 - **⚠ A frase que não se corta:** a da margem pré-registada. É a única coisa aqui que distingue este trabalho de um afinado até dar bem.
@@ -291,6 +299,16 @@ Convenção de cada entrada: **mensagem única**, **mostra**, **fonte**, **segun
 - **Mostra:** **só** as colunas Dedicado vs Conjunto da Tabela 3 — 6 linhas × 2 tarefas, deltas a cor (verde em TX/CA/FL, cinzento no resto). **Sem IC no ecrã** (ilegível do fundo da sala; os intervalos ficam na Série B).
 - **Fonte:** `CAMERA_READY §3.1 e §3.2`.
 - **Do deck:** **editar** — a tabela do frame "The verdict" simplificada.
+
+> ⚠ **O Δ não é a subtracção das colunas, e alguém vai subtrair.** O Δ é a média pareada sobre as
+> quatro sementes; as colunas são arredondadas independentemente, e isso faz **cinco** células
+> discordarem na segunda decimal: AL cat (−0,18 vs −0,19), FL cat (+0,20 vs +0,19), TX cat (−0,14 vs
+> −0,13), AL reg (−0,88 vs −0,87), FL reg (−0,15 vs −0,16). O `CAMERA_READY §7`, item 6, diz que a
+> deltas de um quinto de ponto **subtrair as colunas é a primeira coisa que um revisor faz**.
+> **Nota no ecrã** (a que o `mobiwac-ppt` já pôs, e aprovo): *"Δ is the paired mean over the four
+> seeds, so it can differ from the rounded columns in the second decimal."* Manter as três colunas —
+> tirar Dedicado e Conjunto e deixar só o Δ pouparia a nota, mas custa à plateia a noção de escala
+> (um Δ de +1,21 sobre 64,94 lê-se de outra maneira do que +1,21 sozinho).
 
 **Veredito falado, textual:**
 
@@ -321,9 +339,15 @@ vocabulários de região é **observação, não lei** — CA tem mais regiões 
 > as contribuições nem o resumo**. Liderar com ela e retratá-la 70 s depois é vender, tabelar e
 > desdizer. Agora vem **depois** do veredito e em 45 s.
 
-**Frase única:** *"Both our models — the dedicated and the joint — are above every system we re-ran,
-by at least three points. That margin belongs mostly to the representation from Result 1, so it is
-not evidence for sharing."* E segue.
+**Frase única, corrigida (ver §8, F11):** *"Both our models — the dedicated and the joint — are above
+every system we re-ran. The joint model by at least **3.06** points on category and **3.55** on region.
+That margin belongs mostly to the representation from Result 1, so it is not evidence for sharing."*
+E segue.
+
+> ⚠ **Não dizer "both our models ... by at least three points".** Os 3,06 e 3,55 são margens **do
+> conjunto**. As do **dedicado** são **+2,86** (categoria, mínimo em Florida sobre POI-RGNN) e **+3,27**
+> (região) — `CAMERA_READY §3.4`. Dizer "ambos, pelo menos três pontos" é falso por 0,14 numa célula,
+> e é o tipo de número que alguém confere.
 
 ---
 
@@ -447,11 +471,16 @@ responder à pergunta do artigo.
 Não decidi nenhuma destas. Cada uma com opções e a minha recomendação.
 
 ### DA-1 · Duração alvo
-- **(a) 18 min de fala, 12 de margem e perguntas** — ⭐ **recomendo.** Somos os primeiros do
-  simpósio: o chair calibra o relógio da sessão em cima de nós, e um estouro arrasta os dois
-  seguintes. A §4 soma exactamente 18:00.
-- (b) 20 + 10, como o `mobiwac-ppt` sugeriu — cabe, mas sem folga para uma pergunta longa no fim.
-- (c) 22 + 8 — só se o chair confirmar no local que a sessão está adiantada.
+> ⚠ **Actualizado para a v2.** A v1 dizia "18 min" e "a §4 soma 18:00". Depois dos cortes da revisão
+> **a §4 soma ~14:50**, e eu deixei a recomendação para trás — um ponteiro podre dentro do meu próprio
+> documento, do mesmo tipo que ando a converter no resto do repositório.
+
+- **(a) ~15 min de fala, ~15 de margem e perguntas** — ⭐ **recomendo**, e é o que a §4 entrega hoje.
+  Somos os primeiros do simpósio: o chair calibra o relógio da sessão em cima de nós, e um estouro
+  arrasta os dois seguintes. Acabar cedo e responder bem deixa melhor impressão do que estourar.
+- (b) ~18 min — gastar os 3 minutos onde a §4 diz: +60 s no S4 (o controlo de concatenação merece ser
+  explicado devagar), +40 s no S7, +30 s no S2. **Não** repor a arquitectura nem os trabalhos relacionados.
+- (c) 20+ min — não recomendo em nenhuma circunstância neste slot.
 
 ### DA-2 · Quanta estatística vai ao ecrã
 - **(a) Vereditos e intervalos, sem nomear os testes** — ⭐ **recomendo.** "Supera", "fica dentro da
@@ -560,6 +589,56 @@ mandado a revisão embora com um facto verdadeiro marcado como falso.
 ### Não aceite
 
 Nada. Não houve ponto da revisão que eu tenha recusado.
+
+---
+
+## 8b · Segunda passagem — as cinco apanhas do `mobiwac-ppt` (v2.1)
+
+Ao montar o deck a partir do mapa v2, a sessão `mobiwac-ppt` devolveu cinco defeitos. **Reproduzi
+os cinco. Os cinco estavam certos**, e o primeiro é um erro factual que eu próprio introduzi.
+
+**F11 · O guião do S8 era falso para o modelo dedicado. — CORRIGIDO**
+Escrevi *"Both our models are above every system we re-ran, **by at least three points**."* Para o
+conjunto é verdade (≥ 3,06 categoria, ≥ 3,55 região). Para o **dedicado** não: em Florida, na
+categoria, 37,35 − 34,49 = **2,86**. O `CAMERA_READY §3.4` diz exactamente isto, e **o aviso estava
+no meu próprio plano, no mesmo slide** — eu tinha-o escrito na v1 e mantive-o na v2.
+
+**A causa é a que interessa, e é minha.** Esta frase veio da revisão Fable (F1). Verifiquei as
+*outras* afirmações do relatório contra o artigo, uma a uma, e esta aceitei-a pela aritmética,
+porque "pelo menos três pontos" soa a arredondamento seguro de 3,06. Não é: aplica-se a margem de um
+modelo ao outro. **Reproduzir um relatório de um par não é reproduzir as frases que dele se copiam
+para o produto final** — e foi precisamente o que eu escrevi na §8 que tinha feito.
+
+**F12 · O Δ da tabela do S7 não sobrevive à subtracção das colunas. — ACEITE, nota no ecrã**
+Cinco células discordam na segunda decimal, porque o Δ é a média pareada e as colunas arredondam
+independentemente. Está no `CAMERA_READY §7` item 6, que diz que subtrair as colunas é a primeira
+coisa que um revisor faz. Aprovei a nota que o par pôs no slide e registei as cinco células no S7.
+*(Nota de rigor ao par: a referência é o §7 item 6; não existe um "§7.6" numerado. O conteúdo que
+citaste está certo e as cinco células que nomeaste batem com a lista do documento.)*
+
+**F13 · Nenhum slide definia Acc@10, e o S7 lê Acc@10. — ACEITE**
+Buraco meu. Numa sala que não usa a métrica, uma tabela de Acc@10 sem a definição é ruído. Entra
+como quinta linha do S6: *"a região verdadeira está nas dez primeiras?"*
+
+**F14 · O guião do S2 dizia "half an hour" e "a few thousand per state". — CORRIGIDO**
+0,4 h são **24 minutos**, menos de meia hora; e "alguns milhares por estado" não cobre o Alabama, que
+tem **1 109** regiões. Dois números meus, ditos por aproximação em vez de por leitura. Corrigidos
+para *"under half an hour"* e *"a thousand in Alabama, eight and a half thousand in California"*.
+
+**F15 · A DA-1 continuava a recomendar 18 min e a dizer que "a §4 soma 18:00". — CORRIGIDO**
+A §4 da v2 soma **14:50**. Reescrevi a trilha e deixei a decisão para trás a apontar para um número
+que já não existia — **um ponteiro podre dentro do meu próprio documento**, da mesma família que ando
+a converter no resto do repositório, e escrito no mesmo dia. A DA-1 passa a recomendar ~15 min e diz
+onde gastar se o autor quiser 18.
+
+---
+
+**O padrão das duas passagens, que vale mais do que qualquer um dos itens.** A revisão Fable apanhou
+o que estava **errado na estrutura**; a montagem apanhou o que estava **errado nos detalhes**, e só
+apareceu porque alguém teve de pôr cada frase num slide e cada número numa tabela. Nenhuma das duas
+teria encontrado o que a outra encontrou. **Um plano só se prova quando alguém o tenta executar** —
+e das cinco apanhas desta segunda passagem, três (F11, F14, F15) são coisas que eu escrevi e que
+nenhuma releitura minha teria apanhado, porque eu leria o que quis dizer.
 
 ### O que a revisão confirmou sem alterações
 
