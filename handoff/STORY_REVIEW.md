@@ -653,8 +653,8 @@ any number promoted into chapter prose must re-verify at adaptation (N1). Key tr
   `articles/[mobiwac]/src/sections/01_introduction.tex`, `02_related.tex`, `03_problem.tex`,
   `04_method.tex`, `07_discussion.tex`, `08_conclusion.tex`.
 - §2.5 hinge, mechanism sentence, model-lineage table, draft state →
-  `../articles/dissertacao/science/fundamentals/2.5_relevance/2.5_relevance.tex`, `model_lineage_table.md`,
-  `fundamentals.tex`; intended spine → `NORTH_STAR.md` §1–§3, §6.
+  `../articles/dissertacao/src/chapters/2_fundamentals.tex` (the delivered §2.5; the `science/` drafts left 2026-09-30),
+  `science/fundamentals/model_lineage_table.md`; intended spine → `NORTH_STAR.md` §1–§3, §6.
 - Honesty bounds → `WRITING_LAW.md` §3, §5; `AGENT_GUARDRAILS.md` §1–§3, §7; `GLOSSARY.md`.
 - Excellence/coletânea calibration → `docs/research/dissertation_excellence_2026-07-20.md` (opened
   this session, firsthand) + `exemples/viegas/VIEGAS_ANALYSIS.md`; external searches below.

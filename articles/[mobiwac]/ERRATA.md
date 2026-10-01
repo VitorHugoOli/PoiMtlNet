@@ -328,7 +328,7 @@ byte-identical in the corrected sentences.
 **Author's instruction, verbatim:** "Nos também precismaos refazer a sessão de: `Discussion andLimitations`
 com esse achados e os acahdos do restante da dissertação, exclusa e refaça os que estiver errado nessa
 sessão, se preciso for invertigue antes." Investigated first: the audit is
-`articles/dissertacao/src_utils/_round13/80_discussion_audit.md` (678 lines, every number traced to a
+`articles/dissertacao/src_utils/_history/_round13/80_discussion_audit.md` (678 lines, every number traced to a
 file:line, per-sentence verdicts). Four corrections, each applied identically to
 `src/sections/07_discussion.tex` and the dissertation copy, under the standing policy for a paper under
 review.
