@@ -10,7 +10,7 @@
 >
 > **Base.** [`APRESENTACAO_DEFESA_GUIDE.md`](APRESENTACAO_DEFESA_GUIDE.md) (logística, Art. 23,
 > o exemplo real da defesa do a defesa de referência, o orçamento-rascunho §4.1) + o texto entregue em
-> [`../src/`](../src/) + o dossiê de arguição em [`../wrapup/`](../wrapup/).
+> [`../src/`](../../src) + o dossiê de arguição em [`../wrapup/`](../../wrapup).
 > Onde este plano diverge do guia, a divergência está declarada em §7.
 >
 > **Como foi produzido.** Cinco leituras independentes do texto entregue, duas do dossiê de
@@ -552,7 +552,7 @@ nunca re-derivados · onde a resposta honesta é "não foi medido", **o limite �
 dois cliques. Os dois volumes ficam abertos em janelas separadas para o *"vá à página X"*.
 
 **Cobertura obrigatória (o guia §4.3 exige 1:1):** cada `[ABERTO]` e cada `U1`–`U8` do
-[`../wrapup/open_points/ARGUICAO.md`](../wrapup/open_points/ARGUICAO.md) recebe **um** slide,
+[`../wrapup/open_points/ARGUICAO.md`](../../wrapup/open_points/ARGUICAO.md) recebe **um** slide,
 identificado pelo seu código, para que a conformidade seja verificável mecanicamente.
 **Os dois `[ABERTO]` são Q5** (o tamanho da dependência entre as duas entradas do modelo conjunto)
 **e Q8** (a vantagem de região é transferência ou é arquitetura e parâmetros?) — ambos com resposta
@@ -701,7 +701,7 @@ porque a versão corrigida diz *menos*, e é isso que a torna defensável.
 10. **Densidade.** Uma ideia por slide. Tabelas 9 e 10 ganham slide próprio e 1,5–2 min cada. Slides de
     figura/definição/transição: 20–40 s. Mínimo 16 pt. Marcadores por palavra-chave, nunca parágrafos. Slides numerados
     (útil no remoto: *"volte ao slide 14"*).
-11. **Terminologia fail-closed.** Só termos do [`../GLOSSARY.md`](../GLOSSARY.md); notação idêntica, caractere a
+11. **Terminologia fail-closed.** Só termos do [`../GLOSSARY.md`](../../GLOSSARY.md); notação idêntica, caractere a
     caractere, à do documento.
 12. **Slides de transição são estruturais.** Cada seção termina na sua frase de transição fixa de §2. Passagens de corte
     de tempo **não podem removê-las**. O divisor visual de cada seção é automático via `\autotocframe` (§11); a frase de
@@ -712,9 +712,9 @@ porque a versão corrigida diz *menos*, e é isso que a torna defensável.
 14. **Profundidade de apêndice fica fora do deck principal.** E "Apêndice B" é **sempre** nomeado com o volume: no
     principal é a Declaração de Uso de IA; no suplemento é a Errata.
 15. **O texto dos slides obedece às mesmas três leis do documento** (seu ponto 1):
-    [`../WRITING_LAW.md`](../WRITING_LAW.md) (registro, lei dos verbos, construções banidas),
-    [`../GLOSSARY.md`](../GLOSSARY.md) (**fail-closed**: termo fora do registro não pode ser usado) e
-    [`../AGENT_GUARDRAILS.md`](../AGENT_GUARDRAILS.md) (protocolo de número e de afirmação). Um deck não é prosa, mas
+    [`../WRITING_LAW.md`](../../WRITING_LAW.md) (registro, lei dos verbos, construções banidas),
+    [`../GLOSSARY.md`](../../GLOSSARY.md) (**fail-closed**: termo fora do registro não pode ser usado) e
+    [`../AGENT_GUARDRAILS.md`](../../AGENT_GUARDRAILS.md) (protocolo de número e de afirmação). Um deck não é prosa, mas
     as três leis governam palavra e número igual. As duas passagens de portão — **G2 (fato)** e **G3 (estilo)**, por
     agente que não escreveu o slide — rodam sobre o `SLIDES.md` antes do deck construído.
 16. **O que nunca vai num slide.** A tabela de 21 linhas do Cap. 3; os formalismos do zoo de balanceadores; o
@@ -777,7 +777,7 @@ porque a versão corrigida diz *menos*, e é isso que a torna defensável.
 os conjuntos"* generalizava um resultado que o documento delimita a Florida. O defeito era **isolado**: o Abstract em
 inglês, §2.5, o Cap. 5 e o Cap. 6 já diziam
 "em um conjunto". Corrigido no fonte por decisão do autor, para valer na versão final; errata em
-[`../wrapup/erratas/errata_resumo_escopo_categoria.tex`](../wrapup/erratas/errata_resumo_escopo_categoria.tex), com a
+[`../wrapup/erratas/errata_resumo_escopo_categoria.tex`](../../wrapup/erratas/errata_resumo_escopo_categoria.tex), com a
 resposta oral pronta caso um arguidor cite o Resumo entregue.
 
 **2026-08-21 — o `GLOSSARY.md` oferecia tradução para um verbo que ele próprio bane.** A tabela de

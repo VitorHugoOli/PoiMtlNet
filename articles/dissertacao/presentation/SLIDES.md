@@ -2,7 +2,7 @@
 
 > **O que este documento é.** O conteúdo de cada slide do deck de defesa: o que vai na tela, o que
 > se fala, de onde vem cada número. Escrito 2026-08-23 a partir de
-> [`PLANO_FLUXO_DEFESA.md`](PLANO_FLUXO_DEFESA.md), que é a lei da estrutura — este documento não
+> [`PLANO_FLUXO_DEFESA.md`](_preparacao/PLANO_FLUXO_DEFESA.md), que é a lei da estrutura — este documento não
 > redesenha nada, escreve o que aquele especifica.
 >
 > **As três leis governam cada palavra**: [`../WRITING_LAW.md`](../WRITING_LAW.md) (registro, lei
@@ -102,7 +102,7 @@ quatro.)*
 | Estouro de caixa | **25 páginas com `Overfull \vbox`**. ⚠ **30 slides com folga vertical zero** |
 | Ledger | **73 elementos `INTRODUZ`, zero duplicatas** — conferido sobre o arquivo montado |
 | Barra de navegação | Introdução · Fundamentos · **MTLnet** · **ST-MTLNet** · **Check2HGI** · Conclusão |
-| Fila de mudanças | [`considerations.md`](considerations.md) — §9 traz o conteúdo da Fase B, Seções 1 e 2 |
+| Fila de mudanças | [`considerations.md`](_preparacao/considerations.md) — §9 traz o conteúdo da Fase B, Seções 1 e 2 |
 
 ## `[BLOCO-CONTRIBUIÇÃO]` — a definição única
 

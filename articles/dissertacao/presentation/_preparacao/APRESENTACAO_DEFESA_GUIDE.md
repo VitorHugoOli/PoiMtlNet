@@ -2,7 +2,7 @@
 
 > **O que este documento é.** Consolida tudo o que existe, dentro e fora do repositório, sobre como
 > conduzir a apresentação oral da defesa (não o documento escrito — isso já é regido por
-> [`../UFV_COMPLIANCE.md`](../UFV_COMPLIANCE.md)). Escrito em 2026-08-20, oito dias antes da defesa.
+> [`../UFV_COMPLIANCE.md`](../../UFV_COMPLIANCE.md)). Escrito em 2026-08-20, oito dias antes da defesa.
 >
 > **Método.** Quatro fontes, nessa ordem de autoridade: (1) o regimento PPGCC e a checklist oficial,
 > já no repositório; (2) e-mail institucional (`vitor.h.oliveira@ufv.br`); (3) WhatsApp — o grupo
@@ -89,7 +89,7 @@ para o artigo — mensagem de 28/07 no WhatsApp).
 ## 3 · Como a banca de fato avalia (já pesquisado no repositório)
 
 Um levantamento completo já existe em
-[`../reviewers/research/banca_evaluation_research_2026-07-20.md`](../reviewers/research/banca_evaluation_research_2026-07-20.md)
+[`../reviewers/research/banca_evaluation_research_2026-07-20.md`](../../reviewers/research/banca_evaluation_research_2026-07-20.md)
 (pesquisa anterior, 8 fontes citadas, brasileiras + rubricas internacionais). Não duplico aqui —
 pontos que se aplicam **especificamente à apresentação** (não à arguição em si):
 
@@ -110,9 +110,9 @@ pontos que se aplicam **especificamente à apresentação** (não à arguição 
   deixar esse fio explícito, não como três resumos colados.
 
 O banco de perguntas prováveis, já com resposta pronta e verificada contra o PDF entregue, está em
-[`../wrapup/open_points/ARGUICAO.md`](../wrapup/open_points/ARGUICAO.md) (23 perguntas fechadas + 3
+[`../wrapup/open_points/ARGUICAO.md`](../../wrapup/open_points/ARGUICAO.md) (23 perguntas fechadas + 3
 abertas + 8 "não foi medido") e
-[`../wrapup/erratas/RESPOSTAS_ORAIS.md`](../wrapup/erratas/RESPOSTAS_ORAIS.md) (as três divergências
+[`../wrapup/erratas/RESPOSTAS_ORAIS.md`](../../wrapup/erratas/RESPOSTAS_ORAIS.md) (as três divergências
 entre a dissertação e o artigo MobiWac que um arguidor atento encontraria). **Releia os dois antes do
 dia 28** — não é conteúdo deste documento, que trata só da forma da apresentação.
 

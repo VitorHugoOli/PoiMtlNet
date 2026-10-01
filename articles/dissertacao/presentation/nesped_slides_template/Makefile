@@ -1,6 +1,6 @@
 # Build do template puro (a demonstração original do Henrique). O motor TEM que ser xelatex
 # ou lualatex -- nesped.sty carrega fontspec sob esses dois; ver a nota sobre pdflatex em
-# ../PLANO_FLUXO_DEFESA.md §11 (compila sem erro, mas título/sumário/specialframe saem sem
+# ../_preparacao/PLANO_FLUXO_DEFESA.md §11 (compila sem erro, mas título/sumário/specialframe saem sem
 # fundo -- não é um drop-in seguro hoje).
 #
 # Builda em build/ (gitignored) e copia o main.pdf final para a raiz desta pasta.

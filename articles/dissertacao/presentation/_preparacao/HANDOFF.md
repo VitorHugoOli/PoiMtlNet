@@ -495,16 +495,16 @@ sobre o que a banca vê, não reescrita.
 
 | o que você precisa | onde está | ⚠ |
 |---|---|---|
-| **de onde vem cada número** | [`../CLAUDE.md` §0](../CLAUDE.md) | **leia ANTES de escrever qualquer número.** É o erro mais repetido do projeto |
+| **de onde vem cada número** | [`../CLAUDE.md` §0](../../CLAUDE.md) | **leia ANTES de escrever qualquer número.** É o erro mais repetido do projeto |
 | a lei da estrutura do deck | [`PLANO_FLUXO_DEFESA.md`](PLANO_FLUXO_DEFESA.md), **§8 tem as 16 regras** | |
-| o slide-a-slide | [`SLIDES.md`](SLIDES.md) | **é a FONTE da fala**; o `main.tex` é o espelho |
+| o slide-a-slide | [`SLIDES.md`](../SLIDES.md) | **é a FONTE da fala**; o `main.tex` é o espelho |
 | estado, build, armadilhas | [`HANDOFF.md`](HANDOFF.md) | **o §3 tem 7 casos de "o instrumento passou porque mediu outra coisa"** |
-| a lei da palavra | [`../WRITING_LAW.md`](../WRITING_LAW.md) | registro, lei dos verbos, construções banidas |
-| o registro de termos | [`../GLOSSARY.md`](../GLOSSARY.md) | **fail-closed**: termo fora do registro não pode ser usado |
-| protocolo de número e afirmação | [`../AGENT_GUARDRAILS.md`](../AGENT_GUARDRAILS.md) | |
-| perguntas de banca com resposta pronta | [`../wrapup/open_points/ARGUICAO.md`](../wrapup/open_points/ARGUICAO.md) | |
-| a comparação com a literatura | [`../wrapup/open_points/BASELINES_EXTERNOS.md`](../wrapup/open_points/BASELINES_EXTERNOS.md) | o que se pode afirmar, em qual eixo, e o que não |
-| o roteiro de fala | [`SPEECH.md`](SPEECH.md) / `SPEECH.pdf` | **gerado**, não editado à mão — ver §4 |
+| a lei da palavra | [`../WRITING_LAW.md`](../../WRITING_LAW.md) | registro, lei dos verbos, construções banidas |
+| o registro de termos | [`../GLOSSARY.md`](../../GLOSSARY.md) | **fail-closed**: termo fora do registro não pode ser usado |
+| protocolo de número e afirmação | [`../AGENT_GUARDRAILS.md`](../../AGENT_GUARDRAILS.md) | |
+| perguntas de banca com resposta pronta | [`../wrapup/open_points/ARGUICAO.md`](../../wrapup/open_points/ARGUICAO.md) | |
+| a comparação com a literatura | [`../wrapup/open_points/BASELINES_EXTERNOS.md`](../../wrapup/open_points/BASELINES_EXTERNOS.md) | o que se pode afirmar, em qual eixo, e o que não |
+| o roteiro de fala | [`SPEECH.md`](../SPEECH.md) / `SPEECH.pdf` | **gerado**, não editado à mão — ver §4 |
 
 ### 1.3 · As regras de escrita, e a exceção registrada
 
@@ -727,7 +727,7 @@ Estas foram decididas nesta sequência e têm o motivo registrado. **As de conte
 | **`match` verbatim** no slide do protocolo, com guarda | `SLIDES.md`, `Nunca dizer` do S44 |
 | **`technical tie` verbatim**, vocabulário do Cap. 4 apenas | `SLIDES.md`, `Nunca dizer` do S30 + `GLOSSARY` §4 |
 | **os cartões de logo colados ao topo da capa** — é o desenho do template, não defeito | [`HANDOFF.md` §4](HANDOFF.md); o `\vskip-2mm` foi restaurado |
-| **a comparação com a literatura NÃO entra nas contribuições nem no Resumo** | [`../wrapup/open_points/BASELINES_EXTERNOS.md`](../wrapup/open_points/BASELINES_EXTERNOS.md) §7 |
+| **a comparação com a literatura NÃO entra nas contribuições nem no Resumo** | [`../wrapup/open_points/BASELINES_EXTERNOS.md`](../../wrapup/open_points/BASELINES_EXTERNOS.md) §7 |
 | ~~**a série B fica como está** (47 slides de reserva, densos de propósito: são lidos, não apresentados)~~ | ~~decisão do autor~~ — 🔄 **REVERTIDA PELO AUTOR EM 2026-08-27. Ver a nota abaixo.** |
 | **a contribuição usa o recorte do grupo *Theoretical***, não a taxonomia do §6.2 | `SLIDES.md`, nota v2 do S7/S51 |
 
@@ -819,9 +819,9 @@ pdftoppm -f <p> -l <p> -png -scale-to-x 1230 -scale-to-y -1 main.pdf /tmp/s
 > **Quem aprova é o autor.** Não existe portão com o orientador para a apresentação.
 >
 > **Este documento é sobre o que a minha sessão errou e como não repetir.** O estado e as armadilhas
-> de build estão no [`HANDOFF.md`](HANDOFF.md); o método, no [`HANDOFF_SLIDES.md`](HANDOFF_SLIDES.md);
-> o conteúdo, no [`HANDOFF_GATE.md`](HANDOFF_GATE.md). **A lei da forma é
-> [`BOAS_PRATICAS_SLIDES.md`](BOAS_PRATICAS_SLIDES.md)** — onde este arquivo divergir dela, ela vence.
+> de build estão no [`HANDOFF.md`](HANDOFF.md); o método, no `HANDOFF_SLIDES.md` (secção `HANDOFF_SLIDES.md` no anexo deste ficheiro);
+> o conteúdo, no `HANDOFF_GATE.md` (secção `HANDOFF_GATE.md` no anexo deste ficheiro). **A lei da forma é
+> [`BOAS_PRATICAS_SLIDES.md`](../BOAS_PRATICAS_SLIDES.md)** — onde este arquivo divergir dela, ela vence.
 
 ---
 
@@ -1400,7 +1400,7 @@ medidas — decisão do autor), o `tower` na Série B (`extra`), e a chapa `c2h_
 | 1 | **este documento, §3** | os erros já cometidos. **É a seção que economiza o seu dia** |
 | 2 | [`considerations.md`](considerations.md) **§✔ Decisões do autor** | 18+ decisões dele, com o efeito de cada uma. **Nada ali se reabre** |
 | 3 | [`considerations.md`](considerations.md) **§🗺 As três numerações** | o deck tem três numerações em circulação. **Ancore por TÍTULO, sempre** |
-| 4 | [`BOAS_PRATICAS_SLIDES.md`](BOAS_PRATICAS_SLIDES.md) | a referência de forma, escrita pela `ppt`. Medida, não lembrada |
+| 4 | [`BOAS_PRATICAS_SLIDES.md`](../BOAS_PRATICAS_SLIDES.md) | a referência de forma, escrita pela `ppt`. Medida, não lembrada |
 | 5 | [`HANDOFF.md`](HANDOFF.md) **§3** | os sete casos de *"o instrumento passou porque mediu outra coisa"*. Hoje viraram onze |
 
 **A lei da palavra** continua sendo `../WRITING_LAW.md`, `../GLOSSARY.md` (**fail-closed**) e

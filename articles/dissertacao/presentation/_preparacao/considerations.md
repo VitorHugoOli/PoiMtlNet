@@ -5,11 +5,11 @@
 > *bloqueado por investigação* ou *decisão do autor*.
 >
 > **O que ele não é.** Não é a especificação dos slides. A especificação é o
-> [`SLIDES.md`](SLIDES.md), e este documento é a fila de entrada dele.
+> [`SLIDES.md`](../SLIDES.md), e este documento é a fila de entrada dele.
 >
-> **Original preservado** em [`archive/considerations_RAW_2026-08-26.md`](archive/considerations_RAW_2026-08-26.md)
+> **Original preservado** em [`archive/considerations_RAW_2026-08-26.md`](considerations_RAW_2026-08-26.md)
 > (548 linhas, redação do autor, intacta). Os extras estão em
-> [`archive/extra_RAW_2026-08-26.md`](archive/extra_RAW_2026-08-26.md) e foram absorvidos na §7.
+> [`archive/extra_RAW_2026-08-26.md`](extra.md) e foram absorvidos na §7.
 >
 > **Reorganizado em 2026-08-26** pela sessão `gate`. Nada foi removido: todo item do original tem um
 > ID aqui. Onde eu discordo ou onde há conflito com a lei do projeto, está dito no item, não escondido.
@@ -46,7 +46,7 @@ Fecham quatro itens que estavam bloqueando o resto. **Não reabrir.**
 | **AUT-8** | ✅ **CUMPRIDA.** O diagrama do HGI esperava a descrição do autor — ela chegou, está em [`hgi_draw.txt`](hgi_draw.txt), e **a chapa já está integrada** (`slides/main.tex:759`, impresso **22**). ~~O diagrama do HGI espera a descrição do autor~~                                                                                                                                                                                                                                      | **`§6.2`, `A9` e `Q11` estão DESBLOQUEADOS.** Sobra um item, e é cosmético: `figures/src/hgi_flow.tex:2` ainda diz "impresso 23" |
 | **AUT-19** | **A pergunta de pesquisa perde o parêntese, na forma do objetivo geral.** *"Eu queria tirar o parênteses, como eu havia pedido"* → *"prefiro a segunda forma"*. A redação fechada: **_Does multitask learning help next-category and next-region prediction, and what does the answer depend on?_** | Fecha o parêntese pedido. **Não é paráfrase**: é `1_introduction.tex:249-250` (objetivo geral) virado para interrogativa, com o `depend on` de `:133-134`. ⚠ **Tira `point-of-interest prediction` da âncora da defesa** — o termo ambíguo que a armadilha de nome do impresso 6 existe para desambiguar. Enviada à `ppt` em 26/08 |
 | **AUT-20** | **A chapa do HGI mantém a seta do negativo saindo do ramo corrompido**, mesmo não sendo o que o método faz. Decidido com **os dois renders lado a lado**: a `tikz` construiu a variante fiel ao código, ele comparou e ficou com a dele. | ⚠ **Não reabrir — a evidência já foi apresentada duas vezes.** No HGI o negativo daquela fronteira é outro lugar da tabela **original** pareado com a mesma região (`HGIModule.py:281-283`, `neg_pois = pos_poi_emb[neg_poi_idx]`); o ramo corrompido serve à fronteira região–cidade. **Consequência:** a resposta oral do bloco `S27` deixa de ser rede de segurança e vira **ativa** — se alguém da banca conhecer o HGI, ela é necessária. **Não gastar fala da trilha principal com ela** |
-| **AUT-30** | **Os cinco cortes de fala ENTRAM.** 684 palavras, 4:53 | Fala de **52:28 → 47:35**, margem de **2:25**. ⚠ **Aplicar por TÍTULO:** os cinco alvos mudaram de número (protocolo 36–39 → **34–37**; `Result 3` → **`Result 2`**). Textos em [`SPEC_EXTRAS.md (anexo, sec. `CORTES_FALA.md`)`](SPEC_EXTRAS.md (anexo, sec. `CORTES_FALA.md`)) |
+| **AUT-30** | **Os cinco cortes de fala ENTRAM.** 684 palavras, 4:53 | Fala de **52:28 → 47:35**, margem de **2:25**. ⚠ **Aplicar por TÍTULO:** os cinco alvos mudaram de número (protocolo 36–39 → **34–37**; `Result 3` → **`Result 2`**). Textos em [`SPEC_EXTRAS.md (anexo, sec. `CORTES_FALA.md`)`](SPEC_EXTRAS.md) |
 | **AUT-31** | **A coda do slide 48 SAI.** O fecho passa a ser a pergunta dividida e respondida | Sai *"The negative result was not an obstacle… It was its first half"*. **A frase continua sendo o fim da FALA** — sai só da tela |
 | **AUT-32** | **O slide 15 (`Two losses…`) migra para o `MTL Fundamentals`** (impresso 8). *"Aquilo é agnóstico aos três estudos."* | ⚠ **Dois custos levantados e decididos assim mesmo:** (a) o slide 8 **já carrega as duas classes** comprimidas — é **fusão com corte**, o marcador de balanceamento é **substituído**, não somado; (b) o slide 16 passa a usar `Pareto-stationary` com a definição **oito slides atrás** em vez de um. 🛑 **O disclaimer de Pareto é ocorrência única no deck e tem de viajar** |
 | **AUT-33** | **`linear CKA` e `Markov-K floor` entram no `GLOSSARY`** | ✅ **Escritos em 27/08** (`GLOSSARY.md §4`). 🛑 **O `linear CKA` entrou com LIMITE DE ESCOPO no próprio registro:** a dissertação **nunca o rodou** — ele vive só em `wrapup/ESTUDOS_DEFESA.md §4.5`. **Um slide pode explicar o que CKA é; nenhum pode reportar valor, comparação ou conclusão de CKA.** ⚠ O `Markov-K floor` estava autorizado desde a `AUT-14` e **nunca tinha sido executado** |
@@ -200,7 +200,7 @@ quatro, e cobre trinta slides depois. **A fala dos Caps. 3 e 4 tem de dizer "pr�
 > tudo acima do impresso 9.** Fica só como registro de como a migração foi planejada.
 >
 > ✅ **A fonte corrente do número impresso é o campo `Slide impresso:` de cada bloco do
-> [`SLIDES.md`](SLIDES.md)**, re-derivado do PDF construído em 26/08 e **verificado título a título,
+> [`SLIDES.md`](../SLIDES.md)**, re-derivado do PDF construído em 26/08 e **verificado título a título,
 > 49 de 49.**
 >
 > 🛑 **E o mesmo defeito estava vivo lá até agora, por 37 blocos.** O bloco `S8` (*The idea these
@@ -360,7 +360,7 @@ Existem **três numerações diferentes** em circulação neste projeto, e confu
 | Numeração                | Onde vive                            | S1 é…                                                  |
 |--------------------------|--------------------------------------|--------------------------------------------------------|
 | **Nº impresso no slide** | canto inferior direito do `main.pdf` | *Movement is regular…* (a capa **não** é numerada)     |
-| **`Sn` do `SLIDES.md`**  | [`SLIDES.md`](SLIDES.md)             | a **capa**                                             |
+| **`Sn` do `SLIDES.md`**  | [`SLIDES.md`](../SLIDES.md)             | a **capa**                                             |
 | **Página do PDF**        | `main.pdf`, 112 páginas              | capa. Slide impresso `n` = página `n+2` até o slide 47 |
 
 > ⚠ **Não existe fórmula de conversão entre o `Sn` do `SLIDES.md` e o nº impresso.** Eu supus
@@ -2193,7 +2193,7 @@ isto — talvez seja caso de **estender o B4-4**, não de criar slide novo.
 
 ## 7 · Série B — os extras
 
-> Fonte: [`archive/extra_RAW_2026-08-26.md`](archive/extra_RAW_2026-08-26.md).
+> Fonte: [`archive/extra_RAW_2026-08-26.md`](extra.md).
 
 ### 7.1 · O estado real: dois pedidos do `extra.md` já estão atendidos
 
@@ -2944,7 +2944,7 @@ enquadramento quando foi proposto (§4E). Nenhum item acima o reintroduz — mas
 > **Pedido do autor:** *"se você tiver o histórico original das minhas mudanças, valide o fechamento
 > do original e o que ainda está em aberto."*
 >
-> **Fonte:** [`archive/considerations_RAW_2026-08-26.md`](archive/considerations_RAW_2026-08-26.md),
+> **Fonte:** [`archive/considerations_RAW_2026-08-26.md`](considerations_RAW_2026-08-26.md),
 > 548 linhas · **240 itens** · **49 slides citados** (216 menções) · **19 regras gerais sem número**.
 > **Estado do deck:** 105 páginas · **49 slides** · `Overfull` 24 · hyperlinks 49/49 sem órfãos.
 > **Auditoria de execução da `ppt` lida do artefato**, não de relatório.

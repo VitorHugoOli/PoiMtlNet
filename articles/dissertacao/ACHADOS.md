@@ -502,7 +502,7 @@ sobre como os agentes se enganam a medir**:
 
 | | onde | o quê |
 |---|---|---|
-| 1 | `presentation/HANDOFF.md (anexo, sec. `HANDOFF_GATE.md`)` | 12 classes de erro + 6 regras de medição |
+| 1 | `presentation/_preparacao/HANDOFF.md (anexo, sec. `HANDOFF_GATE.md`)` | 12 classes de erro + 6 regras de medição |
 | 2 | (em curso, pedido à `ppt`) | as regras de medição dela — custo em linhas e não em caracteres, altura de `columns` ser o máximo, instrumento que reporta sucesso parcial |
 | 3 | `ACHADOS.md §A6` + a tabela do rodapé | as armadilhas que apanharam esta passagem |
 

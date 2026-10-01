@@ -15,11 +15,11 @@
 > informada pelo agent `gate`. Não é lei de palavra: [`../WRITING_LAW.md`](../WRITING_LAW.md),
 > [`../GLOSSARY.md`](../GLOSSARY.md) e [`../AGENT_GUARDRAILS.md`](../AGENT_GUARDRAILS.md) continuam
 > valendo inteiros. Não é lei de estrutura: essa é o
-> [`PLANO_FLUXO_DEFESA.md`](PLANO_FLUXO_DEFESA.md) §8. **Onde este documento divergir de qualquer
+> [`PLANO_FLUXO_DEFESA.md`](_preparacao/PLANO_FLUXO_DEFESA.md) §8. **Onde este documento divergir de qualquer
 > um dos quatro, eles vencem.**
 >
 > **O método operacional está nos handoffs, e continua valendo:**
-> [`HANDOFF.md (anexo, sec. `HANDOFF_SLIDES.md`)`](HANDOFF.md (anexo, sec. `HANDOFF_SLIDES.md`)) (como trabalhar no deck) e [`HANDOFF.md`](HANDOFF.md)
+> [`HANDOFF.md (anexo, sec. `HANDOFF_SLIDES.md`)`](_preparacao/HANDOFF.md) (como trabalhar no deck) e [`HANDOFF.md`](_preparacao/HANDOFF.md)
 > (estado, build, os sete casos de "o instrumento passou porque mediu outra coisa"). **Leia os dois.**
 
 ---

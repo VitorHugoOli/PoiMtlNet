@@ -1,5 +1,5 @@
 # Build dos slides de defesa. O motor TEM que ser xelatex ou lualatex -- nesped.sty carrega
-# fontspec sob esses dois; ver a nota sobre pdflatex em ../PLANO_FLUXO_DEFESA.md §11 (compila
+# fontspec sob esses dois; ver a nota sobre pdflatex em ../_preparacao/PLANO_FLUXO_DEFESA.md §11 (compila
 # sem erro, mas título/sumário/specialframe saem sem fundo -- não é um drop-in seguro hoje,
 # e este deck usa \autotocframe em toda seção).
 #
