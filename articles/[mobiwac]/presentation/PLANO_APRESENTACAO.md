@@ -271,9 +271,37 @@ Convenção de cada entrada: **mensagem única**, **mostra**, **fonte**, **segun
 
 ---
 
-### S5 · A arquitectura — 50 s
-- **Mensagem:** duas entradas, um tronco partilhado onde cada tarefa lê o contexto da outra, e uma via espacial privada para a região.
-- **Mostra:** `fig2_model_slides.pdf`, uma frase.
+### S5 · Porque é que partilhar não é de graça — e a arquitectura — 75 s
+- **Mensagem:** partilhar parâmetros entre dois trabalhos pode piorar os dois; a arquitectura é a resposta a esse risco, não uma escolha de gosto.
+- **Mostra:** `fig2_model_slides.pdf`, com a ordem de leitura invertida — primeiro o risco, depois a figura como resposta.
+
+> **Porquê esta mudança (autor, 2026-10-01): a plateia não tem contexto de MTL, e a pergunta era se
+> fazia falta um slide de conceito.** Faz falta o **risco**, não o campo — e um slide de conceito sem
+> resultado perde a sala. A tensão já está no S2 em duas frases, mas são duas frases ao minuto 2, sem
+> imagem, num slide que já faz outras quatro coisas. Ao minuto 9 ninguém se lembra delas, e o veredito
+> do S7 passa a ler-se como resultado fraco em vez de resposta medida a um risco real.
+>
+> **A figura que ensina isto já existe aqui.** A via espacial privada da região existe *porque* as
+> tarefas divergem — é a arquitectura a admitir o risco. Ensinar o conceito ao mesmo tempo que a
+> imagem está no ecrã custa **+25 s**; um slide próprio custava 50 e partia o fio entre o Resultado 1
+> e o protocolo.
+
+**Ordem falada (≈75 s):**
+
+> "Two questions, one model. Why is that not obviously a good idea? Because the parameters in the
+> middle have to serve both jobs at once, and they can settle on a compromise that is worse for each
+> than a dedicated model would have been. You get one artifact to deploy and you pay for it twice.
+> *[figura]* So the model is built to limit that. The two inputs go into a shared trunk where each
+> task can read the other's context — that is the part we want. But the region task also keeps a
+> **private** spatial path that the category task never touches, because where someone goes and what
+> kind of place it is are not the same question. **The private path is the architecture admitting the
+> risk.** Whether the shared part earns its keep is the thing we measured, and I will show you in two
+> slides."
+
+- **Do deck:** **fundir e cortar** — os dois frames "sharing by exchange (1/2)" e "(2/2)" passam a um, de 170 s para 75.
+- **⚠ Não dizer "multi-task learning" como conceito a definir.** A frase "parâmetros no meio têm de
+  servir os dois trabalhos" ensina tudo o que esta sala precisa, em linguagem que já é a deles. O
+  nome do campo pode aparecer uma vez, de passagem, e nunca como coisa a explicar.
 - **Do deck:** **fundir e cortar** — os dois frames "sharing by exchange (1/2)" e "(2/2)" passam a um, de 170 s para 50. É o minuto 8; é aqui que a sala se vai embora se houver detalhe a mais. Ninguém nesta sala precisa de saber quantos blocos tem o tronco.
 
 ---
@@ -398,7 +426,7 @@ E segue.
 
 ---
 
-**Soma:** 20 + 130 + 100 + 115 + 50 + 90 + 100 + 45 + 60 + 90 + 60 + 30 = **890 s ≈ 14:50.**
+**Soma:** 20 + 130 + 100 + 115 + **75** + 90 + 100 + 45 + 60 + 90 + 60 + 30 = **915 s ≈ 15:15.**
 
 **Isto é de propósito.** Sobram ~15 minutos de margem e perguntas num slot de 30. Às 8:30 de segunda,
 como primeiro orador, **ar vale mais do que slides** — e um orador que acaba antes do tempo e responde
@@ -472,7 +500,7 @@ Não decidi nenhuma destas. Cada uma com opções e a minha recomendação.
 
 ### DA-1 · Duração alvo
 > ⚠ **Actualizado para a v2.** A v1 dizia "18 min" e "a §4 soma 18:00". Depois dos cortes da revisão
-> **a §4 soma ~14:50**, e eu deixei a recomendação para trás — um ponteiro podre dentro do meu próprio
+> **a §4 soma ~15:15** (14:50 antes do reforço do S5), e eu deixei a recomendação para trás — um ponteiro podre dentro do meu próprio
 > documento, do mesmo tipo que ando a converter no resto do repositório.
 
 - **(a) ~15 min de fala, ~15 de margem e perguntas** — ⭐ **recomendo**, e é o que a §4 entrega hoje.
@@ -513,7 +541,7 @@ visitas de um utilizador de teste nunca aparecem no treino"*), e a leitura de sh
 é literalmente *a* pergunta desta sala: **com quanta antecedência me posso preparar.**
 
 ### DA-5 · Quem apresenta, e se há ensaio cronometrado
-Não é decisão técnica, mas condiciona o plano. A v2 deixa a trilha em **~14:50**, com margem
+Não é decisão técnica, mas condiciona o plano. A v2.2 deixa a trilha em **~15:15**, com margem
 confortável — já não é preciso um ensaio para caber. **Mas continua a ser preciso um ensaio para o
 S2**, que é o único slide onde o guião é quase palavra a palavra e onde 130 s mal ditos custam a
 sala inteira. Se só houver tempo para ensaiar uma coisa, ensaiar o S2 e a recusa dos quilómetros.
@@ -626,7 +654,7 @@ tem **1 109** regiões. Dois números meus, ditos por aproximação em vez de po
 para *"under half an hour"* e *"a thousand in Alabama, eight and a half thousand in California"*.
 
 **F15 · A DA-1 continuava a recomendar 18 min e a dizer que "a §4 soma 18:00". — CORRIGIDO**
-A §4 da v2 soma **14:50**. Reescrevi a trilha e deixei a decisão para trás a apontar para um número
+A §4 da v2 somava **14:50** (a v2.2 soma 15:15). Reescrevi a trilha e deixei a decisão para trás a apontar para um número
 que já não existia — **um ponteiro podre dentro do meu próprio documento**, da mesma família que ando
 a converter no resto do repositório, e escrito no mesmo dia. A DA-1 passa a recomendar ~15 min e diz
 onde gastar se o autor quiser 18.
