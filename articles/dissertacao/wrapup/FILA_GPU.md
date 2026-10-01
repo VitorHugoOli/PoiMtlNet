@@ -13,7 +13,8 @@ Cada item diz porquê, o que correr, o que muda no texto e o que fica se nunca c
 - **Porquê.** A verificação "treinar a representação com todos os utilizadores dá vantagem?" do
   Cap. 5 vem do A4 dos pre-freeze gates. Esse A4 usou outra versão da representação e outro
   protocolo: janelas stride-9, prior de transição ligado, 30 épocas em CPU e outra divisão de
-  utilizadores, em que 169 dos 219 utilizadores de validação de AL fold 0 estavam no treino do A4.
+  utilizadores, em que 74–82% dos utilizadores de validação de cada fold entregue estavam do lado
+  de treino do A4 (AL fold 0: 183 de 222; medido contra os folds reais do `train.py`).
   A 2026-09-30, por decisão do autor, saiu do texto o "on an earlier build". Os números impressos
   (região −0,33…+0,01, categoria 0,00…+0,29) continuam os antigos até esta execução terminar.
 - **O que correr.** Reconstruir a representação por fold só com os utilizadores de treino, em
@@ -23,9 +24,11 @@ Cada item diz porquê, o que correr, o que muda no texto e o que fica se nunca c
   mais a linha da B.5 (desatualizada de propósito) e a sua classe na prosa do Apêndice B.
 - **Se nunca correr.** Repor a menção à versão anterior como exceção declarada. O estado atual não
   pode ir para o depósito.
-- **Material.** `docs/studies/closing_data/v18/integrity_rerun/` (commit `37ab4083`): plano, 8
-  verificações e dois patches por aplicar. As 15 divisões congeladas estão em
-  `/dados/poimtlnet/integrity_v18/splits/`.
+- **Material.** `docs/studies/closing_data/v18/integrity_rerun/`: plano, 8 verificações e três
+  patches por aplicar. ⚠ **As 15 divisões em `/dados/poimtlnet/integrity_v18/splits/` NÃO são os
+  folds entregues.** O `freeze_split.py` passava os userids como texto, e o `train.py` passa-os como
+  int64, o que dá outra partição (0/5 folds iguais, reproduzido). Regenerar com
+  `--group-dtype int` (patch no pacote) e confirmar com a verificação #5.
 
 ## G2 · CTLE em AL/AZ/IST com a divisão certa — decidido (opção 1 se houver GPU)
 

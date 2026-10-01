@@ -1,10 +1,24 @@
 # Integrity re-run on the delivered protocol — prep package (NOT launched)
 
-**Status 2026-09-30: prepared, not run. All GPU work on nespedgpu is ON HOLD** pending the author,
-after the box hard-reset twice (boots at 05:19 and 05:22), each ~70 s into the Alabama fold-0
-train-only build below. The previous boot's journal ends abruptly with no shutdown sequence and no
-NVRM/Xid, thermal, MCE, OOM or panic lines. Causation is not proven. Do not retry there, not even at
-reduced load, until the author decides. This package is written so the run can go elsewhere.
+**Status 2026-10-01: prepared, not run. Not on nespedgpu.** The box hard-reset four times
+(2026-09-30, boots 05:19, 05:22, 16:46, 21:28), each time 7–70 s into the Alabama fold-0 train-only
+build below, while a steady 300 W matmul stress test survived. The last run carried a 1 s fsync'd
+monitor: nothing was near a limit (GPU ≤100.5 W / 59 °C, CPU ≤68 °C, ~3 % busy, 124 GB RAM free, no
+swap), and the journal ends with no shutdown sequence and no kernel lines. The run moves to another
+machine; logs in `/dados/poimtlnet/integrity_v18/logs/` on nespedgpu.
+
+> ⚠ **2026-10-01 correction: the splits in §0 were NOT the delivered folds.**
+> `scripts/integrity_v2/freeze_split.py` passes `groups=userid.astype(str)` to StratifiedGroupKFold.
+> `train.py` (`FoldCreator`), `p1_region_head_ablation.py` and `b3_hmt_grn.py` pass the int64 userids
+> from `load_next_data`. SGKF sorts the groups, string order is not integer order, and the two
+> partitions differ: at AL and AZ, seed 0, **0 of 5 folds equal, not even as a permutation**
+> (sklearn 1.8.0). Integer labels with string userids reproduce `freeze_split` 5/5, so the cast is the
+> whole cause; label encoding does not matter. This README's earlier §0 said the rules were identical.
+> That was wrong. Assertion #5 (§3) would have aborted the run on it, but the plan was wrong.
+> **Fix:** `freeze_split_group_dtype.patch` adds `--group-dtype {str,int}` (default `str`, unchanged,
+> because integrity_v2's own results depend on it). With `--group-dtype int` the patched script
+> reproduces `train.py`'s folds **5/5 at AL and AZ** (verified 2026-10-01 on nespedgpu from a temporary
+> copy; repo untouched).
 
 **What it is.** Ch. 5 reports a "whole-dataset training" check (region −0.33…+0.01 Acc@10, category
 0.00…+0.29 macro-F1). That number came from A4 (`scripts/pre_freeze_gates/a4_*.py`), which ran on a
@@ -15,7 +29,7 @@ different protocol from the delivered cells:
 | rows | canonical stride-9, **12,709** at AL | `dk_ovl` stride-1, **96,326** |
 | region log_T prior | **on** | **off** |
 | epochs / device | 30 / CPU | 50 / CUDA fp32 |
-| AL fold-0 held-out users | 327 | 219, only 50 shared (169 delivered val users were in A4's training side) |
+| held-out users vs the delivered folds | canonical-row split | 74–82 % (AL) / 78–82 % (AZ) of each delivered fold's val users were on A4's training side (AL fold 0: 183 of 222), measured against `train.py`'s real folds |
 
 The author ruled (2026-09-30) that both halves are re-run on the delivered protocol: AL/AZ/FL, seed 0,
 5 folds. Rules: new names only, no existing `output/` engine overwritten, never `regen_emb_alpha.py`,
@@ -28,8 +42,9 @@ nothing deleted.
 | `README.md` | this plan |
 | `paths_to_f_enum.patch` | adds `CHECK2HGI_V18_TO_F{0..4}` to `EmbeddingEngine` (additive, end of enum). Needed because `train.py --engine` is a closed enum |
 | `a4_build_dk_ovl.patch` | `scripts/pre_freeze_gates/a4_build.py`: split from a frozen `dk_ovl` JSON; output as a NEW engine `check2hgi_design_k_resln_mae_l0_1_to_f<F>`; fresh pseudo tag `a4dk`; refuses to overwrite; keeps pseudo artifacts by default; `--device` passthrough; writes `build.json` provenance |
+| `freeze_split_group_dtype.patch` | `scripts/integrity_v2/freeze_split.py`: adds `--group-dtype {str,int}`, default `str` (unchanged). `int` reproduces `train.py`'s folds; records `group_dtype` in the JSON. Added 2026-10-01, see the correction above |
 
-Both patches apply cleanly to the tree at the time of writing (`git apply --check`). **Neither is
+All three patches apply cleanly to the tree at the time of writing (`git apply --check`). **Neither is
 applied.** Applying them is the author's call.
 
 Two traps the `a4_build` patch closes: the original skips when
@@ -44,17 +59,20 @@ version needs the builder's paths patched too.
 
 ## 0 · Already done (no GPU)
 
-- **Splits.** `freeze_split.py --state <st> --seed 0 --fold <F> --n-folds 5 --engine check2hgi_dk_ovl`
-  for AL/AZ/FL × F0–4, written to `/dados/poimtlnet/integrity_v18/splits/` on nespedgpu (61 MB).
-  AL F0 is byte-identical to the committed `docs/results/check2hgi_integrity_v2/alabama/split_seed0_fold0.json`
-  (train_idx and val_idx sha256, and val_users). Folds partition users (zero pairwise overlap).
-  Rows = the delivered engines: 96,326 / 200,895 / 1,274,418. Val users per fold: AL ~216–228,
-  AZ ~423–432, FL ~2,109–2,135.
-- **Same fold rule everywhere.** `train.py`'s `FoldCreator` for NEXT = `StratifiedGroupKFold(shuffle=True,
-  random_state=seed)` on userid, y = next_category (`src/data/folds.py`, `create_folds`), which is the rule
-  `freeze_split.py` and `p1_region_head_ablation.py` use. The delivered `check2hgi_v18` engines carry no
-  frozen fold cache, so the delivered cells generated folds on the fly; the new arms do the same.
-  `train.py` never writes a fold cache (it loads a frozen one or generates in memory).
+- ⚠ **`/dados/poimtlnet/integrity_v18/splits/` (15 files, 2026-09-30) are NOT the delivered folds.**
+  They were made with the unpatched `freeze_split.py` (string userids). They are left in place,
+  untouched, and must not be used. AL F0 is byte-identical to the committed
+  `docs/results/check2hgi_integrity_v2/alabama/split_seed0_fold0.json`, which only shows that
+  `freeze_split` reproduces itself; that committed split is also not the delivered fold.
+- **The splits to use** (not generated yet), after `freeze_split_group_dtype.patch` is applied:
+  `freeze_split.py --state <st> --seed 0 --fold <F> --n-folds 5 --engine check2hgi_dk_ovl --group-dtype int`
+  for AL/AZ/FL × F0–4. Rows = the delivered engines: 96,326 / 200,895 / 1,274,418. With int groups,
+  AL n_val per fold = 19,265 / 19,264 / 19,265 / 19,267 / 19,265.
+- **The delivered fold rule.** `train.py`'s `FoldCreator` for NEXT = `StratifiedGroupKFold(shuffle=True,
+  random_state=seed)` on the **int64** userids from `load_next_data`, y = next_category. `p1_region_head_ablation.py`
+  and `b3_hmt_grn.py` use the same int64 userids, so category and region scoring folds agree. The delivered
+  `check2hgi_v18` engines carry no frozen fold cache, so the delivered cells generated folds on the fly;
+  the new arms do the same. `train.py` never writes a fold cache (it loads a frozen one or generates in memory).
 
 ## 1 · Category half, per state `st`, fold `F`
 
@@ -121,8 +139,9 @@ env MTL_CHUNK_VAL_METRIC=1 MTL_DISABLE_AMP=1 MTL_STRICT=1 RESULTS_ROOT=$R/result
    metadata (category). `a4_build` asserts it on the training check-ins and records it (region).
 3. **Fresh builds only.** Each `TO_F` cell dir and each new engine dir must not exist before its build.
 4. **No rows dropped.** materialize `n_windows == n_windows_source`; a dropped row shifts the split.
-5. **Same fold for representation and scoring.** Before training, SGKF(seed 0) on the engine's
-   `input/next.parquet` rows reproduces the split JSON's `val_idx_sha256`.
+5. **Same fold for representation and scoring.** Before training, SGKF(seed 0) over the engine's
+   `load_next_data` rows, with the **int64** userids `train.py` uses, reproduces the split JSON's
+   `val_idx_sha256`. This is the check that catches a string-userid split (the 2026-10-01 correction).
 6. **Region table complete.** The remapped table has the full region count; `absent_from_train` is recorded.
 7. **Frozen engines untouched.** Nothing under `output/check2hgi`, `output/check2hgi_v18` or
    `output/check2hgi_design_k_resln_mae_l0_1` changes except the new `*_a4dk_*` pseudo subdirs
@@ -148,8 +167,10 @@ Only paths change. The commands and flags above stay the same.
 
 - **Work root** `R=/dados/poimtlnet/integrity_v18` → any disk with ~20 GB free (e.g. `/workspace/integrity_v18`).
   `RESULTS_ROOT=$R/results` follows it.
-- **Splits.** Copy `$R/splits/` from nespedgpu (61 MB), or regenerate with `freeze_split.py`. Then
-  re-check AL F0 against the committed JSON (both index sha256 values).
+- **Splits.** Do NOT copy `$R/splits/` from nespedgpu (string-userid splits, not the delivered folds).
+  Generate them on the target with the patched `freeze_split.py --group-dtype int` (§0), then check
+  assertion #5 before any build: SGKF(seed 0) over the engine's `load_next_data` rows (int64 userids) must
+  reproduce each split's `val_idx_sha256`. AL n_val per fold should read 19,265 / 19,264 / 19,265 / 19,267 / 19,265.
 - **Inputs the repo's `output/` and `data/` must hold** (on nespedgpu both are symlinks into `/dados`):
   - `output/check2hgi/<st>/temp/checkin_graph.pt`: read by `build_study_repr.py`, `infer_checkins.py`,
     the v14 builder, and the `a4_build` region remap.
