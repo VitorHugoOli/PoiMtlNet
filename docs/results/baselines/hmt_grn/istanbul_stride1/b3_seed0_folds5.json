@@ -1,0 +1,87 @@
+{
+  "baseline": "baseline_b3_hmt_grn_style",
+  "label": "HMT-GRN-STYLE",
+  "paper": "Lim et al., HMT-GRN, SIGIR 2022",
+  "deviations": [
+    "drop Hierarchical Beam Search + graph selectivity (no next-POI head)",
+    "G@P geohash grid -> TIGER tract region partition",
+    "tasks {next-region, next-POI} -> {next-CATEGORY, next-REGION}",
+    "GRN -> shared LSTM over end-to-end-learned POI-id embeddings",
+    "native per-user 80/20 -> StratifiedGroupKFold(userid) board folds",
+    "per-fold train-only region transition prior"
+  ],
+  "state": "istanbul",
+  "base_engine": "check2hgi",
+  "seed": 0,
+  "folds": 5,
+  "epochs": 50,
+  "alpha_prior": 1.0,
+  "fold_results": [
+    {
+      "cat_f1": 0.18921411037445068,
+      "reg_top10_acc_indist": 0.6086692323273243,
+      "reg_top1_acc_indist": 0.2475187360745392,
+      "reg_top5_acc_indist": 0.4990701014602169,
+      "geom_simple": 0.3393653006821919,
+      "n_train": 217333,
+      "n_val": 54333,
+      "n_train_vocab": 23685,
+      "fold_idx": 0,
+      "elapsed_s": 56.0
+    },
+    {
+      "cat_f1": 0.19106513261795044,
+      "reg_top10_acc_indist": 0.5967447604652448,
+      "reg_top1_acc_indist": 0.24394020386720983,
+      "reg_top5_acc_indist": 0.49176973696337395,
+      "geom_simple": 0.33766420716054446,
+      "n_train": 217333,
+      "n_val": 54333,
+      "n_train_vocab": 23814,
+      "fold_idx": 1,
+      "elapsed_s": 55.7
+    },
+    {
+      "cat_f1": 0.1874622255563736,
+      "reg_top10_acc_indist": 0.6096483152273983,
+      "reg_top1_acc_indist": 0.25299208248941263,
+      "reg_top5_acc_indist": 0.5050819370281716,
+      "geom_simple": 0.3380621688080784,
+      "n_train": 217332,
+      "n_val": 54334,
+      "n_train_vocab": 23618,
+      "fold_idx": 2,
+      "elapsed_s": 57.4
+    },
+    {
+      "cat_f1": 0.1937250792980194,
+      "reg_top10_acc_indist": 0.6032298456892424,
+      "reg_top1_acc_indist": 0.24842558833278092,
+      "reg_top5_acc_indist": 0.49502817368246604,
+      "geom_simple": 0.34184901592820255,
+      "n_train": 217333,
+      "n_val": 54333,
+      "n_train_vocab": 23669,
+      "fold_idx": 3,
+      "elapsed_s": 56.8
+    },
+    {
+      "cat_f1": 0.19333592057228088,
+      "reg_top10_acc_indist": 0.6028133745765208,
+      "reg_top1_acc_indist": 0.25106790396229195,
+      "reg_top5_acc_indist": 0.4954706142288997,
+      "geom_simple": 0.34138757843107714,
+      "n_train": 217333,
+      "n_val": 54333,
+      "n_train_vocab": 23648,
+      "fold_idx": 4,
+      "elapsed_s": 55.7
+    }
+  ],
+  "aggregate": {
+    "cat_f1_mean": 0.190960493683815,
+    "reg_top10_acc_indist_mean": 0.6042211056571462,
+    "geom_simple_mean": 0.33966565420201894
+  },
+  "windowing": "stride-9 (current); paper-grade n=20 is POST-FREEZE stride-1 (P3)"
+}

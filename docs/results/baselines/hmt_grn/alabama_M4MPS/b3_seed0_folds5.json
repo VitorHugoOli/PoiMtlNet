@@ -1,0 +1,87 @@
+{
+  "baseline": "baseline_b3_hmt_grn_style",
+  "label": "HMT-GRN-STYLE",
+  "paper": "Lim et al., HMT-GRN, SIGIR 2022",
+  "deviations": [
+    "drop Hierarchical Beam Search + graph selectivity (no next-POI head)",
+    "G@P geohash grid -> TIGER tract region partition",
+    "tasks {next-region, next-POI} -> {next-CATEGORY, next-REGION}",
+    "GRN -> shared LSTM over end-to-end-learned POI-id embeddings",
+    "native per-user 80/20 -> StratifiedGroupKFold(userid) board folds",
+    "per-fold train-only region transition prior"
+  ],
+  "state": "alabama",
+  "base_engine": "check2hgi_dk_ovl",
+  "seed": 0,
+  "folds": 5,
+  "epochs": 50,
+  "alpha_prior": 1.0,
+  "fold_results": [
+    {
+      "cat_f1": 0.19609883427619934,
+      "reg_top10_acc_indist": 0.5999269082176046,
+      "reg_top1_acc_indist": 0.24214263339250286,
+      "reg_top5_acc_indist": 0.4913334029445547,
+      "geom_simple": 0.34299412145457636,
+      "n_train": 77057,
+      "n_val": 19269,
+      "n_train_vocab": 10546,
+      "fold_idx": 0,
+      "elapsed_s": 65.8
+    },
+    {
+      "cat_f1": 0.19694313406944275,
+      "reg_top10_acc_indist": 0.5649320206282231,
+      "reg_top1_acc_indist": 0.23060894931499715,
+      "reg_top5_acc_indist": 0.46486430171380944,
+      "geom_simple": 0.3335558164366278,
+      "n_train": 77061,
+      "n_val": 19265,
+      "n_train_vocab": 10603,
+      "fold_idx": 1,
+      "elapsed_s": 67.6
+    },
+    {
+      "cat_f1": 0.19600413739681244,
+      "reg_top10_acc_indist": 0.5883212440640818,
+      "reg_top1_acc_indist": 0.23926316338777853,
+      "reg_top5_acc_indist": 0.48056149872149456,
+      "geom_simple": 0.3395782648447923,
+      "n_train": 77062,
+      "n_val": 19264,
+      "n_train_vocab": 10744,
+      "fold_idx": 2,
+      "elapsed_s": 71.6
+    },
+    {
+      "cat_f1": 0.18778255581855774,
+      "reg_top10_acc_indist": 0.5822685788787484,
+      "reg_top1_acc_indist": 0.2519426336375489,
+      "reg_top5_acc_indist": 0.4802607561929596,
+      "geom_simple": 0.33066581606614687,
+      "n_train": 77062,
+      "n_val": 19264,
+      "n_train_vocab": 10609,
+      "fold_idx": 3,
+      "elapsed_s": 73.6
+    },
+    {
+      "cat_f1": 0.1900242567062378,
+      "reg_top10_acc_indist": 0.5138729529571294,
+      "reg_top1_acc_indist": 0.20230520496505686,
+      "reg_top5_acc_indist": 0.41170334828413474,
+      "geom_simple": 0.3124873212261867,
+      "n_train": 77062,
+      "n_val": 19264,
+      "n_train_vocab": 10643,
+      "fold_idx": 4,
+      "elapsed_s": 72.8
+    }
+  ],
+  "aggregate": {
+    "cat_f1_mean": 0.19337058365345,
+    "reg_top10_acc_indist_mean": 0.5698643409491575,
+    "geom_simple_mean": 0.331856268005666
+  },
+  "windowing": "stride-9 (current); paper-grade n=20 is POST-FREEZE stride-1 (P3)"
+}
